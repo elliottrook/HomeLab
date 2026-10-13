@@ -1,10 +1,10 @@
 # Aster Home — EH-001: LibreELEC/Kodi feasibility experiment
 
-> **Status:** Active — Stream A requested; M0 read-only validation complete, acceptance pending
+> **Status:** Active — Stream A; M0 accepted 2026-10-13; M1 software test authorized
 > **Owner:** Jason
 > **Date:** 2026-10-13
 > **Authorization:** Stream A requested for bounded, reversible proof of concept; operational execution remains subject to the actual environment, project-standard and platform safety gates.
-> **Upstream:** `docs/Project-Creation-Standard.md`, `AGENTS.md`
+> **Upstream:** `docs/Project-Creation-Standard.md`, `docs/Environment-and-Release-Lifecycle.md`, `AGENTS.md`
 > **Primary artefact:** a YES / CONDITIONAL / NO software feasibility decision. Not a commitment to purchase hardware.
 
 ## 1. Purpose and desired outcome
@@ -13,7 +13,18 @@ Assess whether an **Aster Home** experience built on the integrated **LibreELEC 
 
 The first and mandatory end-state is an evidence-backed **USE / CONDITIONAL USE / REJECT LibreELEC/Kodi** decision against household capabilities and costs. **If REJECT, recommend an alternative software trial and do not recommend buying a Kodi appliance.** If USE or CONDITIONAL USE, establish tested minimum, efficient target and premium hardware specifications and a ranked Canadian purchasing recommendation including dated prices, stock, source links, taxes/shipping, accessories, electricity and five-year total cost. **No purchase is authorized.**
 
-Long-term Aster Home vision: one private, extensible household interaction plane across televisions, speaker satellites and mobile devices; replace fragmented Apple TV/Alexa/smart-home interactions. The PoC proves a viable foundational path rather than shipping that vision.
+The immediate household target is to replace the living-room/family-room Apple TV
+with open-source hardware running this software path. The replacement need not
+provide Apple streaming apps, Apple services, FaceTime or DRM streaming. It must
+prove the household's Jellyfin, music, Home Assistant and Aster experience on
+the existing 4K HDR television and 9.2-channel Dolby Atmos/DTS receiver. The
+PoC proves a viable foundational path before any hardware recommendation or
+purchase.
+
+Long-term Aster Home vision: one private, extensible household interaction plane
+across televisions, speaker satellites and mobile devices; replace fragmented
+Apple TV/Alexa/smart-home interactions. The PoC proves a viable foundational
+path rather than shipping that vision.
 
 ## 2. Current state and evidence
 
@@ -30,7 +41,12 @@ Repository evidence to reconcile:
 
 **In:** disposable and snapshotted **LibreELEC + Kodi together** in an isolated Proxmox guest; boot/upgrade/system services; Jellyfin media; read-only Home Assistant status/control mocks; Aster AI and canonical voice API integration; Kodi skin and add-on extensibility; network latency, playback, power and endpoint architecture study; decision documentation.
 
-**Not in:** replacing Apple TV in production, purchasing hardware, uncontrolled home-automation writes, camera/public feeds, storing microphones/audio/transcripts, exposing public APIs, editing or corrupting production media, new broad VLAN access, bypassing AI-PAM, introducing a new speech platform, long-lived privileged credentials or deploying a production appliance.
+**Not in:** production replacement during the PoC, purchasing hardware before
+the software decision, Apple streaming apps/services, DRM streaming, camera or
+public feeds, storing microphones/audio/transcripts, exposing public APIs,
+uncontrolled home-automation writes, editing or corrupting production media,
+new broad VLAN access, bypassing AI-PAM, introducing a new speech platform,
+long-lived privileged credentials or deploying a production appliance.
 
 Allowed Stream A operational classes are **only** validated lab VM creation and removal, local snapshot/restore, isolated test code/skins/add-ons, synthetic fixtures, bounded read-only API tests and documented measurements, following read-only M0 and resource/backup check. Material new systems/network permissions or credential changes need a separate risk decision.
 
@@ -79,9 +95,35 @@ Local-first; separate low-privilege test identity, minimal read access and synth
 | Cloud Git staging diverges from Forgejo | Process / integrity | dedicated branch, no main push, operator reconciliation into Forgejo, hash and diff verification |
 | AI-generated patch exceeds approved limits | Privilege escalation | strict scope, signed artifacts, human approval, no arbitrary remote execution |
 
-M0 found no current production contention on the Proxmox host. The documented household media baseline includes five Apple TVs, a living-room/family-room Apple TV on the wired Trusted path, a downstairs Apple TV whose current wired path is not confirmed, and validated Sonos/AirPlay/Home Assistant media paths. This identifies the living-room/family-room endpoint as the likely primary comparison target, but household hardware requirements and the physical TV/receiver/speaker/HDMI-CEC/DRM target are not documented. The Home Assistant direct port assumption is stale: the live VM reports port 80 and version 2026.9.1, while `192.168.20.11:8123` refused a connection. The requested `docs/Environment-and-Release-Lifecycle.md` is absent locally, absent on Forgejo main, and absent on the staging branch; do not invent lifecycle requirements until its owner supplies the canonical location.
+M0 found no current production contention on the Proxmox host. The documented
+household media baseline includes five Apple TVs, a living-room/family-room
+Apple TV on the wired Trusted path, a downstairs Apple TV whose current wired
+path is not confirmed, and validated Sonos/AirPlay/Home Assistant media paths.
+The living-room/family-room endpoint is the primary comparison target. Jason
+confirmed that the target TV is 4K with HDR and HDMI-CEC, and the receiver is
+9.2-channel with Dolby Atmos and DTS. Dolby Vision is an Apple TV capability,
+not a hard Kodi requirement; HDR10 is required. AirPlay is desirable but not
+required because the TV and receiver provide it natively. The Home Assistant
+direct port assumption is stale: the live VM reports port 80 and version
+2026.9.1, while `192.168.20.11:8123` refused a connection.
 
-Current M0 blockers are therefore: Jason’s hard household capability priorities and severity, the target TV/receiver/speaker/CEC/DRM constraints, the approved isolated VLAN/guest network path, and the exact rollback checkpoint accepted for the first state-changing milestone. No M1 change should start until these are resolved and the risk envelope is accepted.
+The lifecycle standard was located in the active local
+`Production-Service-Placement-and-Release-Registry` project workspace and
+its local release-registry commits (`6a46bc78`, `c6d148d4`), with the expected
+path `docs/Environment-and-Release-Lifecycle.md`. The Forgejo
+`codex/release-registry-stream-a` ref was checked read-only at
+`fc60e5a2c9eac8f311ce8e6c0a83b901fe55600b`; that ref contains the registry
+project but not the lifecycle file, and Forgejo `main` also does not contain
+it. No remote write was made. The located lifecycle standard and the Project
+Creation Standard both govern this project; this branch records the provenance
+gap until the lifecycle change is published by its owning project.
+
+M0 is now accepted for the bounded software test. The accepted envelope is a
+disposable, snapshotted/backup-covered guest, synthetic or read-only test data,
+existing network segmentation, local rollback and no production credential,
+firewall/VLAN broadening, or production deployment. Hardware purchasing is
+deferred until after the software decision and is not authorized by this
+milestone.
 
 **Rollback:** stop/delete only a newly created disposable VM after confirming its exact ID and backup; remove temporary tokens, config and credentials. Never delete the last good copy.
 
@@ -91,7 +133,7 @@ Record pinned versions, tested guest ID, source commits, upstream image checksum
 
 ## 9. Milestones and gates
 
-- [x] **M0 — Read-only inventory and risk gate:** 2026-10-13 baseline gathered. Live Proxmox, guest, VLAN, media, HA, Aster, speech and backup evidence is recorded in the evidence log. Gate remains pending Jason’s hard requirements, physical endpoint constraints, network path and acceptance of the risk envelope.
+- [x] **M0 — Read-only inventory and risk gate:** 2026-10-13 baseline gathered and accepted. Live Proxmox, guest, VLAN, media, HA, Aster, speech and backup evidence is recorded in the evidence log; household capabilities and the bounded software-test envelope are now explicit.
 - [ ] **M1 — Integrated boot:** run LibreELEC booting **its bundled Kodi** in a disposable Proxmox guest, record image hash, boot time, UI speed, crash logs, config persistence and upgrades; record KVM graphics limits. Gate: repeatable boot or explicitly inconclusive VM result; do not substitute Debian+Kodi as the primary test.
 - [ ] **M2 — Audiovisual:** Jellyfin library/direct play, music, collections, remote navigation, codecs, subtitles and playback stability. Gate: no media mutation; measurable results and hard blockers.
 - [ ] **M3 — Customization:** throwaway Aster-styled Kodi skin/add-on, Home Assistant **read** dashboard, mocked commands and Aster AI query. Gate: prove extensibility and upgrade compatibility without core fork if possible.
@@ -104,7 +146,24 @@ Checkboxes cannot be marked complete without documented validation.
 
 ## 10. Evaluation and acceptance criteria
 
-Predeclare household requirements and their severity (hard requirement vs desirable). Evaluate boot reliability, Kodi UI and customizability, Jellyfin parity, voice turn delay, Home Assistant scope, network-loss handling, maintenance, remote usability, privacy and streaming/DRM compatibility. Separate quantitative thresholds agreed during M0 from unmeasured hypotheses. A hard capability failure overrides good averaged scores.
+Predeclare household requirements and their severity (hard requirement vs
+desirable). The current M0 requirement set is:
+
+- **Hard:** reliable 4K playback; HDR10; HDMI-CEC; receiver-compatible Dolby
+  Atmos/DTS passthrough; Jellyfin video and music; Home Assistant status and
+  bounded control; Aster AI and canonical voice; stable everyday navigation;
+  privacy and recoverability.
+- **Desirable:** AirPlay through the endpoint, although the TV and receiver
+  already provide native AirPlay; reuse of the existing Apple TV remotes over
+  Bluetooth, subject to stability and pairing evidence; Dolby Vision; a
+  FaceTime-like experience.
+- **Not required:** DRM streaming, Apple streaming/apps/services or FaceTime.
+
+Evaluate boot reliability, Kodi UI and customizability, Jellyfin parity, voice
+turn delay, Home Assistant scope, network-loss handling, maintenance, remote
+usability, privacy and the explicitly non-required DRM/streaming surface.
+Separate quantitative thresholds agreed during M0 from unmeasured hypotheses.
+A hard capability failure overrides good averaged scores.
 
 Final decision is **USE**, **CONDITIONAL USE with listed blockers**, or **REJECT with alternative software plan**. If accepted, final report MUST contain best efficient hardware, Canadian purchase recommendation and price-source snapshots. No evidence means **inconclusive**, not automatic approval.
 
@@ -125,7 +184,7 @@ Deliver: (1) software go/no-go decision, (2) hardware and live Canadian purchasi
 | Date | Action | Result |
 | --- | --- | --- |
 | 2026-10-13 | Imported/reviewed the Jason-authorized staging project because no local or Forgejo-main copy existed. | Scope preserved; Forgejo remains canonical; no remote write performed. |
-| 2026-10-13 | Reviewed `AGENTS.md` and `docs/Project-Creation-Standard.md`; searched for `docs/Environment-and-Release-Lifecycle.md` locally and on both remote sources. | Required lifecycle document is absent; recorded as a blocker instead of fabricating it. |
+| 2026-10-13 | Reviewed `AGENTS.md` and `docs/Project-Creation-Standard.md`; traced `docs/Environment-and-Release-Lifecycle.md` through the active local Production Service Placement and Release Registry project and checked Forgejo refs read-only. | Lifecycle standard found in the owning local project workspace; not yet present in Forgejo `main` or the current Forgejo registry branch ref (`fc60e5a2`). Both standards govern this project; no remote write performed. |
 | 2026-10-13 | Read-only Git baseline: detached worktree at `2b5b941e` (`origin/main`), clean status, `origin` is Forgejo HTTPS and `github` is the mirror remote. | No unrelated local changes; no push or remote mutation. |
 | 2026-10-13 | Proxmox read-only baseline: `pve-manager/9.2.20`, kernel `7.0.14-23-pve`, 40 logical CPUs (Xeon E5-2698 v4), 78 GiB RAM with about 42 GiB available, local-lvm 24.51% used and backup storage 23.08% used. | Host capacity is presently adequate for a bounded disposable guest, subject to a pre-change resource gate. |
 | 2026-10-13 | Enumerated guests: production LXC 100–117/124–126; production VM 102/103; stopped rollback VM 105; stopped disposable fixtures VM 118–123. | Candidate fixtures exist; do not reuse production guests. VM 118/120 configs have no vNIC and serial-only VGA, so they are not yet suitable for a Kodi UI test without a bounded candidate design. |
@@ -136,7 +195,7 @@ Deliver: (1) software go/no-go decision, (2) hardware and live Canadian purchasi
 | 2026-10-13 | Official upstream review: LibreELEC currently lists 12.2.1; its Generic x86_64 documentation confirms a supported x86_64 image, with GPU-dependent hardware decoding/HDR; Kodi upstream lists 21.3 Omega stable and 22.0 Piers prereleases. | M1 must pin a stable Generic x86_64 image and checksum, record bundled Kodi version, and avoid using a prerelease without a separate decision. KVM can test boot/software behavior but cannot establish physical HDMI, CEC, HDR or receiver compatibility. |
 | 2026-10-13 | Read-only endpoint reconciliation: Arista Et17 reports `Family-Room-AppleTV`, connected, VLAN 10, full-duplex 1G, and dynamically learns MAC `c095.6d81.115d`; the two documented Apple TV IP probes did not answer ICMP. | The live switch path confirms the living-room endpoint is on Trusted VLAN 10; ICMP silence is not treated as service failure. No endpoint, VLAN or firewall change performed. |
 | 2026-10-13 | Read-only recovery check: representative fresh fixture archives for VMs 118 and 123 passed `zstd -t`; both fixture configs remain stopped, 1 GiB, no-vNIC, serial-only systems. | Backup compression is readable, but these tiny fixtures are not yet an accepted Kodi UI target. |
-| 2026-10-13 | M0 risk assessment outcome. | **M0 evidence gathered; implementation gate not passed.** Await Jason’s hard requirements, physical endpoint constraints, isolated guest/network plan and explicit acceptance of the recorded risk envelope. |
+| 2026-10-13 | Jason confirmed the household target and accepted the bounded software-test envelope. | **M0 accepted.** Primary target is living-room/family-room Apple TV replacement; hard requirements are 4K/HDR10/CEC/Atmos-DTS/Jellyfin/music/HA/Aster/stable navigation; hardware purchase is deferred until after the software decision. M1 may proceed with local rollback and no production/network-policy broadening. |
 
 ## 15. References
 
