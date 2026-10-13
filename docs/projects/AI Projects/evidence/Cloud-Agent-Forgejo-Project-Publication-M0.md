@@ -18,10 +18,14 @@ remote operation. A direct Forgejo ref check returned no such branch. The local
 copy of that branch was retired after the worktree was moved to the canonical
 Forgejo-based branch.
 
-At the time of this record, GitHub's mirror still reported the deleted branch
-while its automatic mirror converged. This is a mirror-lag observation, not a
-reason to write GitHub directly. Recheck the mirror before M0 closes and record
-the absence or the remaining lag as evidence.
+The first read-only check observed the deleted branch on GitHub while the
+automatic mirror converged. A subsequent read-only check found the old branch
+absent from both remotes. This was treated as mirror lag, not a reason to write
+GitHub directly.
+
+The replacement branch `codex/cloud-agent-forgejo-access` was pushed only to
+Forgejo after Jason's explicit confirmation. Forgejo and its GitHub mirror now
+resolve that branch to the same commit, `d43ca9eea46e39c349090143219eccb167e0ff5e`.
 
 The old project documents and public-staging design are absent from the new
 canonical-based worktree. They are not dependencies of the replacement project.
@@ -53,8 +57,9 @@ The initial package boundary is:
 |---|---|
 | Old Forgejo branch removed | Passed; direct Forgejo check returned absent |
 | Old local process branch retired | Passed; local worktree is on the replacement branch |
-| GitHub mirror convergence | Pending recheck; stale branch was observed immediately after Forgejo deletion |
-| Canonical base and live policy reconciliation | Pending |
+| GitHub mirror convergence | Passed; old branch absent and replacement branch matches Forgejo at `d43ca9ee` |
+| Canonical base and local policy reconciliation | Passed; Forgejo `main` is `da8b0fca`; local policy sources match the canonical checkout; 30 targeted tests pass |
+| Live runner source-pin reconciliation | Pending; known stale runner pin remains a deployment blocker |
 | Exact public-mirror privacy boundary accepted | Pending Jason's M0 decision |
 | Live worker or AI-PAM policy change | Not started and not authorized |
 

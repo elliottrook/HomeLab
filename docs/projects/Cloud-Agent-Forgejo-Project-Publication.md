@@ -188,10 +188,11 @@ write outside the allowlist, or need to alter GitHub directly.
 
 ### M0 — reconcile and accept the narrow design
 
-- [ ] Reconfirm the canonical Forgejo base, current AI-PAM policy, safe-write
-  gateway and runner source pins.
-- [ ] Read-only verify that the retired GitHub-first Forgejo branch and local
-  branch remain absent; record mirror convergence.
+- [x] Reconfirm the canonical Forgejo base and current local AI-PAM policy and
+  safe-write sources. The live runner source pin still requires reconciliation.
+- [x] Read-only verify that the retired GitHub-first Forgejo branch and local
+  branch are absent; the replacement Forgejo branch and its GitHub mirror match
+  at `d43ca9ee`.
 - [ ] Confirm the public-mirror privacy boundary and the exact document path,
   count, per-file and total-size caps.
 - [ ] Record owner, recovery checkpoint location, retention and operator path.
