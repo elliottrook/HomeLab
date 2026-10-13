@@ -146,6 +146,13 @@ restarts. This is a **pre-lease baseline only**. A post-recovery check must
 compare against freshly verified model artifact, unit, binary, GPU placement,
 authenticated generation and schedule receipts; service-active alone is not
 exact restoration.
+An additional read-only LXC 110 check on 2026-10-13 resolved the GGUF symlink
+to a 5,627,044,256-byte Ollama blob and computed SHA-256
+`cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`,
+matching the repository's accepted model pin. The remote hash command took
+about 18 seconds including SSH; a universal five-second observer timeout
+cannot be used for this full-file check. This is a pre-lease integrity
+observation, not a post-recovery receipt.
 LXC 114's enabled `news-aggregator-digest.timer` was also read directly;
 its `OnCalendar=*-*-* 06,17:15:00 Etc/GMT+7` means 06:15 and 17:15 at
 the project's fixed UTC-7 local offset. Its older description/comment still
