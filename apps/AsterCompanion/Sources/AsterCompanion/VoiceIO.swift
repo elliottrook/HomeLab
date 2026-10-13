@@ -30,7 +30,9 @@ struct AVS1Decoder {
                 VoiceFrameMetadata.self, from: buffer.subdata(in: 12..<(12 + headerSize))
             )
             let payload = buffer.subdata(in: (12 + headerSize)..<frameSize)
-            buffer.removeFirst(frameSize)
+            // Data.removeFirst can leave a non-zero startIndex; the next frame
+            // header is parsed with offsets from zero.
+            buffer = Data(buffer.dropFirst(frameSize))
             switch metadata.type {
             case "audio":
                 guard metadata.sample_format == "pcm_s16le", metadata.channels == 1,

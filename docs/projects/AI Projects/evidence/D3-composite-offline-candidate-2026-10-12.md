@@ -230,3 +230,14 @@ live consent check and rollback proof. It must not replace the fingerprint
 with a broad version range or treat a successful recovery of an old answer as
 consent for a new question. The automatic path likewise needs its own policy
 and privacy gate; this HOLD does not authorize it.
+
+## Post-merge native source check — 2026-10-13
+
+The Stream A branch incorporated the newer Forgejo Companion/AVS1 source without
+installing it. A full local Swift test run initially crashed in the streamed-
+voice test after the first frame. `Data.removeFirst` could leave a non-zero
+start index while the decoder parsed the next AVS1 header at offsets `4..<8`.
+The source-only correction reconstructs the remaining `Data` with a zero-based
+index after consuming a frame. The focused voice tests pass 4/4 and the full
+Companion suite passes 59/59. This does not validate live speech or change the
+installed signed app; a release of this newer source still needs its own gate.
