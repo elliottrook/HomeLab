@@ -59,6 +59,9 @@ revocation: a later isolated instance must use a dedicated test credential,
 restricted OS identity, no privileged mounts, reviewed LAN egress and the
 same guard/configuration for control and challenger. Its unit tests use a fake
 wrapped app, not a real Aster service or B60 endpoint.
+An additional in-process fixture joins the guarded request, Aster ASGI
+observation ID and client clock; it records a censored request when gateway
+completion is not followed by headless display. This verifies the wiring only.
 
 The headless client begins its clock at request acceptance and marks display
 only after its final response renderer completes. The Aster ASGI clock emits
