@@ -125,3 +125,18 @@ ordinary use; do not wait indefinitely for them before unrelated Stream A
 work. Do not seal
 OpenBao merely as a test. Any unexpected
 Keychain prompt, sign-in regression or OpenBao behavior is a hold/rollback.
+
+## Later read-only binary check — 2026-10-13
+
+The installed app still passes strict deep code-signature verification and
+retains executable SHA-256 `c287a4f1743618872eb98bcf05a07da76f46d0fde9dbdd0f3f912208f4123c24`.
+A read-only strings check finds the compiled `--aster-local-codex-manual` flag,
+manual-review heading, exact-text ChatGPT consent toggle, send button and
+recorded-turn recovery labels.
+Both preserved predecessor bundles pass strict deep signature verification and
+retain executable SHA-256 `7ba99c035fcd4ac69bb0da72220eec2eeda76c16dc5dcbb35050eb0cefe4076d`.
+This confirms the expected binary and rollback artifacts remain present; it
+does **not** prove the flagged UI, consent interaction or a functional rollback
+launch. The Mac was locked when the UI check was attempted, so those release
+gates remain open. No app launch, model question, credential read or OpenBao
+action was performed in this check.
