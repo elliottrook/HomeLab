@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -50,6 +51,30 @@ class TransportTests(unittest.TestCase):
             self.assertEqual(actual, target)
             self.assertEqual(digest, hashlib.sha256((target / "raw-attempts.json").read_bytes()).hexdigest())
             self.assertEqual((target / "raw-attempts.json").stat().st_mode & 0o777, 0o600)
+
+    def test_unexpected_primary_write_failure_seals_private_fallback(self):
+        with tempfile.TemporaryDirectory() as dirname:
+            target = Path(dirname) / "run"
+            capture.reserve_private(target)
+            real_open = os.open
+            real_mkdtemp = tempfile.mkdtemp
+            calls = 0
+
+            def fail_primary_once(path, flags, mode=0o777):
+                nonlocal calls
+                calls += 1
+                if calls == 1:
+                    raise PermissionError("synthetic primary write failure")
+                return real_open(path, flags, mode)
+
+            with patch.object(transport.os, "open", side_effect=fail_primary_once), \
+                    patch.object(transport.tempfile, "mkdtemp",
+                                 side_effect=lambda *, prefix, dir: real_mkdtemp(prefix=prefix, dir=dirname)):
+                actual, digest = transport.seal_stdout(target, '{"fictional":"answer"}\n')
+            self.assertNotEqual(actual, target)
+            self.assertEqual(digest, hashlib.sha256((actual / "raw-attempts.json").read_bytes()).hexdigest())
+            self.assertEqual(actual.stat().st_mode & 0o777, 0o700)
+            self.assertEqual((actual / "raw-attempts.json").stat().st_mode & 0o777, 0o600)
 
 
 if __name__ == "__main__":

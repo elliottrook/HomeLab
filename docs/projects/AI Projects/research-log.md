@@ -2885,8 +2885,10 @@ fresh evidence. The service passed immediate health/queue postchecks. See the
 A new 20-case v2 bundle was separately AI-reviewed and sealed with frozen
 digests in owner-only custody. The runner now verifies directory/file
 writability before any model call, pins its source files, and seals raw output
-before parsing. A disposable local storage preflight and 13 focused tests
-passed. Review scoring binds its packet to the sealed capture and reports
+before parsing. A disposable local storage preflight and 14 focused tests
+passed, including an injected primary-write failure that sealed the response
+in an owner-only fallback directory. Review scoring binds its packet to the
+sealed capture and reports
 content-free direct-backend timing separately from the blind answer review.
 These controls make the next development run reproducible; they do not
 establish human ground truth, native Aster latency or model qualification.
