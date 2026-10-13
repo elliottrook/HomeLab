@@ -45,7 +45,7 @@ Read these owned current records before any continuation:
 - [Research and ranked candidate screen](B60-Inference-Engineering/research-watch-20261012.md).
 - [Standing branch-only liaison authority](B60-Inference-Engineering/standing-coordination-authority-20261012.md).
 
-Latest reviewed owner tips: Adaptive `6b3207e69bfef6cd4e4f1c2298635d53649592b5`,
+Latest reviewed owner tips: Adaptive `de7dfcc29b4a65d085991cf1e4816e05b9a8f18e`,
 platform `fc60e5a2c9eac8f311ce8e6c0a83b901fe55600b`. Adaptive has now published
 the v2 protected-evidence restore/off-site receipt; this closes that artifact's
 custody recovery dependency, not lease/service recovery. Its stricter routing
@@ -57,6 +57,12 @@ Do not request its port or ask him to reconnect it; direct Mini execution or
 agent messaging from this chat remains unverified. No new credential is enrolled.
 Fetch both project branches and the platform branch before declaring a wait.
 Git publication does not trigger or prove receiving-agent execution.
+
+The [current readiness checkpoint](B60-Inference-Engineering/readiness-checkpoint-20261013.md)
+records the successor transport-consistency scorer, synchronized source pins,
+174 full-checkout and 131 focused-checkout relevant passing tests, the actual
+Mini owner activation message, and the paused Adaptive wake-up conflict.
+Unattended lease/recovery and live full-path benchmark readiness remain open.
 
 ## Historical purpose — retained for provenance, not current execution
 

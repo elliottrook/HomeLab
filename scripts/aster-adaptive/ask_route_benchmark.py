@@ -111,10 +111,25 @@ def score(fixture_raw: bytes, run_raw: bytes, manifest: dict) -> dict:
         if "failure" in record and record["failure"] not in {
             "http_error", "transport_error", "invalid_response"}:
             raise ValueError("unexpected failure text")
+        if "http_status" in record and (
+            type(record["http_status"]) is not int or
+            not 100 <= record["http_status"] <= 599
+        ):
+            raise ValueError("invalid HTTP status")
+        if "error_type" in record and (
+            not isinstance(record["error_type"], str) or
+            not record["error_type"].isascii() or
+            not record["error_type"].replace("_", "").isalnum() or
+            len(record["error_type"]) > 48
+        ):
+            raise ValueError("invalid error type")
         latency = record.get("latency_seconds")
         if type(latency) not in {float, int} or not math.isfinite(latency) or latency < 0:
             raise ValueError("invalid latency")
         if record["valid"]:
+            if ("failure" in record or "error_type" in record or
+                ("http_status" in record and not 200 <= record["http_status"] <= 299)):
+                raise ValueError("valid route contradicts failure")
             if type(record.get("status")) is not str or record["status"] not in {"plan", "clarify", "abstain"}:
                 raise ValueError("invalid route status")
             caps = record.get("capabilities")

@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 SCORER = Path(__file__).resolve().parents[1] / 'aster-adaptive/ask_route_benchmark.py'
-PIN = 'c46bc19c0f7b01ee0032b17f28beae449ce3573ba57ae754bc14d8724c6e1bf8'
+PIN = 'fec2ff451529be1e9855ccffc5e6083382b7b09608a266597ed5e85f8652bfd4'
 FIXTURE = 'c797533494119e44c9c927d5b9b274ccd6426cacd50ca7cd93391861c0663cec'
 
 

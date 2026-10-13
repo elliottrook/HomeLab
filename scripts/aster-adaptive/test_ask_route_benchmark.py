@@ -70,6 +70,29 @@ class AskRouteBenchmarkTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unexpected result field"):
             bench.score(self.fixture, changed, manifest)
 
+    def test_failed_transport_cannot_be_scored_as_valid_route(self):
+        for extra in ({"failure": "transport_error"},
+                      {"http_status": 503},
+                      {"error_type": "TimeoutError"}):
+            with self.subTest(extra=extra):
+                value = json.loads(self.run_bytes)
+                value["records"][0].update(extra)
+                changed = json.dumps(value).encode()
+                manifest = {**self.manifest, "run_sha256": bench.sha256(changed)}
+                with self.assertRaisesRegex(ValueError, "valid route contradicts failure"):
+                    bench.score(self.fixture, changed, manifest)
+
+    def test_http_and_error_fields_are_bounded_codes(self):
+        for extra, error in (({"http_status": True}, "invalid HTTP status"),
+                             ({"error_type": "private path /tmp/secret"}, "invalid error type")):
+            with self.subTest(extra=extra):
+                value = json.loads(self.run_bytes)
+                value["records"][0].update(extra)
+                changed = json.dumps(value).encode()
+                manifest = {**self.manifest, "run_sha256": bench.sha256(changed)}
+                with self.assertRaisesRegex(ValueError, error):
+                    bench.score(self.fixture, changed, manifest)
+
     def test_duplicate_and_missing_cases_are_not_silent(self):
         value = json.loads(self.run_bytes)
         value["records"][1]["id"] = value["records"][0]["id"]
