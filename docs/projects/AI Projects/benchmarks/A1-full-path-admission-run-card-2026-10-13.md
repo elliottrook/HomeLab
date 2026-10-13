@@ -33,6 +33,10 @@ manifest, and candidate ID by SHA-256 before case one. Record reasoning mode,
 temperature 0, output cap 256, a maximum 60 seconds per request, and a
 20-minute batch cap. A materially different reasoning/output policy is a new
 profile and comparison, never a quiet edit to this card.
+The owner-only attempt journal keeps its earlier 900-second default; this
+full-path card must pass `max_wall_s=1200` explicitly, and a shorter live
+lease deadline still wins. The offline journal now accepts that explicit
+cap without changing the historical direct-backend profile.
 
 The headless client begins its clock at request acceptance and marks display
 only after its final response renderer completes. The Aster ASGI clock emits
@@ -96,6 +100,18 @@ receipt-bound admission,
 expiry, independent recovery, consumer isolation and exact restoration from
 the B60 recovery candidate. No live failure/reentry proof, staged test-only
 Aster gateway or candidate profile has yet been received in this lane.
+
+A separate read-only production snapshot on 2026-10-13 found LXC 110
+`aster-llama.service` active with zero restarts, unit SHA-256
+`a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3`,
+and serving binary SHA-256
+`0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5`.
+The unit selects the Q4_K_M model, Level Zero/SYCL build, 8K single slot and
+reasoning off; LXC 104 `aster-agent.service` was also active with zero
+restarts. This is a **pre-lease baseline only**. A post-recovery check must
+compare against freshly verified model artifact, unit, binary, GPU placement,
+authenticated generation and schedule receipts; service-active alone is not
+exact restoration.
 
 The Stream A exclusive wake-up has been moved from its obsolete 01:30 timing
 to a **paused 03:15 readiness-check slot**. It remains paused, and even if

@@ -15,6 +15,8 @@ from typing import Callable
 
 import holdout_answer_capture as holdout
 
+MAX_WALL_S = 1200  # Full-path card; the platform lease may impose a shorter deadline.
+
 
 class EvidenceWriteFailure(BaseException):
     """Stop inference if evidence cannot be sealed, bypassing capture's OSError handler."""
@@ -52,7 +54,7 @@ def capture_journaled(cases_raw: bytes, profile_sha256: str,
     if not isinstance(profile_sha256, str) or not holdout.HEX64.fullmatch(profile_sha256):
         raise ValueError("unfrozen candidate profile")
     if (isinstance(max_wall_s, bool) or not isinstance(max_wall_s, (int, float))
-            or not math.isfinite(max_wall_s) or not 0 < max_wall_s <= 900):
+            or not math.isfinite(max_wall_s) or not 0 < max_wall_s <= MAX_WALL_S):
         raise ValueError("invalid bounded batch deadline")
     holdout.reserve_private(directory)
     journal = directory / "attempt-journal.jsonl"

@@ -106,7 +106,7 @@ class JournaledCaptureTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             directory = Path(root) / "run"
             calls = []
-            for deadline in (0, float("nan"), 901, True):
+            for deadline in (0, float("nan"), 1201, True):
                 with self.subTest(deadline=deadline):
                     with self.assertRaisesRegex(ValueError, "deadline"):
                         journaled.capture_journaled(
@@ -115,6 +115,14 @@ class JournaledCaptureTests(unittest.TestCase):
                             directory, max_wall_s=deadline)
                     self.assertFalse(directory.exists())
             self.assertEqual(calls, [])
+
+    def test_full_path_20_minute_cap_is_supported_without_changing_default(self):
+        self.assertEqual(journaled.capture_journaled.__kwdefaults__["max_wall_s"], 900)
+        with tempfile.TemporaryDirectory() as root:
+            summary = journaled.capture_journaled(
+                self.cases, self.profile, lambda case: "fictional answer",
+                Path(root) / "run", max_wall_s=1200)
+        self.assertEqual(summary["completed"], 20)
 
     def test_final_envelope_write_failure_preserves_all_returned_answers(self):
         with tempfile.TemporaryDirectory() as root:
