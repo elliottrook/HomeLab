@@ -16,6 +16,9 @@ The native app now also needs the
 [D3 integration gate](evidence/D3-native-app-integration-gate-2026-10-12.md):
 the current AI-PAM app line and Stream A's manual Codex pilot have divergent
 sources and shared-file edits. Do not install one line over the other.
+An [isolated composite candidate](evidence/D3-composite-offline-candidate-2026-10-12.md)
+now preserves the current OpenBao/auth source and passes offline tests; it is
+not installed, and a verified signed rollback remains a release gate.
 
 ## Where we are
 
@@ -265,10 +268,11 @@ authority gates remain open.
 
 ## Immediate next action and stop rule
 
-No new live Codex question is needed now. The signed v16 refresh behavior is
-now observed and its retained copy remains available, but a different signed
-Companion build is currently installed. Reconcile that build's owner, release
-manifest, rollback and ordinary authenticated behavior before deciding
-**release limited manual handoff** or **hold** for current use. Do not grant
-tools, start a gateway worker or enable automatic routing under this
-checkpoint.
+No new live Codex question is needed now. The current Companion source owner
+and published baseline are identified, and an isolated manual-only composite
+candidate passes offline tests without replacing OpenBao controls. Before
+deciding **release limited manual handoff** or **hold**, retain and verify a
+signed copy of the currently working app as rollback, review/build the exact
+candidate with the stable owner-held signing identity, and check ordinary
+sign-in, OpenBao and hidden Codex behavior on that build. Do not grant tools,
+start a gateway worker or enable automatic routing under this checkpoint.

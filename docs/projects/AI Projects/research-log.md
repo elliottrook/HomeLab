@@ -3115,3 +3115,18 @@ The [operator runbook](../../runbooks/Aster-Companion.md) records that the
 pre-fix app stalled sign-in when no optional completion handler was supplied.
 Signature validity alone therefore does not close D3's rollback gate. No app
 was launched or replaced.
+
+### 2026-10-12 — Companion owner pin and isolated manual-only combination
+
+The native Companion owner identified published `f26e3c48` as the installed
+app source baseline and reported no further unpublished Companion edits. The
+owner confirmed no separately accepted certificate-signed predecessor
+rollback. Starting from that branch, Stream A prepared local candidate
+`eb69280` on `codex/aster-companion-composite`, adding only a supervised
+manual Codex view and bridge under a launch flag. The current OpenBao client,
+auth manager, callback delegate and auth tests are unchanged. Thirty-eight
+Swift tests passed. An ad-hoc offline bundle verified under strict code
+signing and contained exactly twelve allowlisted bridge modules; it was not
+installed, launched, registered, pushed or used to send a question. The
+[candidate record](evidence/D3-composite-offline-candidate-2026-10-12.md)
+keeps the signed working-app rollback and ordinary-use checks open.

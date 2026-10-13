@@ -1,6 +1,6 @@
 # D3 manual Codex and current native Companion integration gate
 
-**Status: integration candidate required; no app change in this checkpoint.**
+**Status: an isolated offline candidate now exists; no app change or release.**
 The [v16 refresh result](D3-v16-natural-refresh-and-current-bundle-drift-2026-10-12.md)
 is valid historical evidence, but the installed `/Applications/AsterCompanion.app`
 is now a different signed 0.2.2/build-4 binary. Its executable hash is
@@ -22,6 +22,15 @@ authorization-code exchange when no optional completion handler was supplied.
 No bundle was launched, replaced or restored during this inventory. The app
 owner must identify a rollback that passes the ordinary sign-in and AI-PAM
 checks before a composite release.
+
+The app owner subsequently confirmed published source `f26e3c48` as the
+current app baseline, with no further unpublished Companion edits in that
+line. The owner reports no separately accepted certificate-signed predecessor
+rollback. Stream A prepared [local composite candidate
+`eb69280`](D3-composite-offline-candidate-2026-10-12.md) from that baseline;
+offline build and tests pass while current OpenBao/auth source stays unchanged.
+The candidate is not installed or released. A verified signed copy of the
+currently working app must be retained before any later installation.
 
 ## Source divergence found read-only
 
