@@ -21,7 +21,7 @@ class CandidateControllerTests(unittest.TestCase):
     def test_acquire_persists_before_allowlisted_stops(self):
         with tempfile.TemporaryDirectory() as temp:
             commands = []
-            controller = CandidateController(CandidatePaths(Path(temp)), commands.append)
+            controller = CandidateController(CandidatePaths(Path(temp)), commands.append, allow_effects=True)
             result = controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
             self.assertEqual(result["state"], "leased")
             self.assertTrue((Path(temp) / "lease.json").exists())
@@ -30,7 +30,7 @@ class CandidateControllerTests(unittest.TestCase):
 
     def test_duplicate_acquire_fails_closed(self):
         with tempfile.TemporaryDirectory() as temp:
-            controller = CandidateController(CandidatePaths(Path(temp)), lambda _: None)
+            controller = CandidateController(CandidatePaths(Path(temp)), lambda _: None, allow_effects=True)
             controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
             with self.assertRaisesRegex(ValueError, "lock"):
                 controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
@@ -38,7 +38,7 @@ class CandidateControllerTests(unittest.TestCase):
     def test_incomplete_restore_does_not_start_services(self):
         with tempfile.TemporaryDirectory() as temp:
             commands = []
-            controller = CandidateController(CandidatePaths(Path(temp)), commands.append)
+            controller = CandidateController(CandidatePaths(Path(temp)), commands.append, allow_effects=True)
             controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
             commands.clear()
             with self.assertRaisesRegex(ValueError, "incomplete"):
@@ -55,7 +55,7 @@ class CandidateControllerTests(unittest.TestCase):
                 if len(commands) == 2:
                     raise RuntimeError("injected stop failure")
 
-            controller = CandidateController(CandidatePaths(Path(temp)), fail_on_second)
+            controller = CandidateController(CandidatePaths(Path(temp)), fail_on_second, allow_effects=True)
             with self.assertRaisesRegex(RuntimeError, "injected"):
                 controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
             self.assertTrue((Path(temp) / "lease.lock").exists())
@@ -66,7 +66,7 @@ class CandidateControllerTests(unittest.TestCase):
 
     def test_restore_rejects_persisted_identity_drift(self):
         with tempfile.TemporaryDirectory() as temp:
-            controller = CandidateController(CandidatePaths(Path(temp)), lambda _: None)
+            controller = CandidateController(CandidatePaths(Path(temp)), lambda _: None, allow_effects=True)
             controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
             with self.assertRaisesRegex(ValueError, "identity"):
                 controller.restore(
@@ -81,7 +81,7 @@ class CandidateControllerTests(unittest.TestCase):
     def test_restore_only_restarts_services_that_were_active(self):
         with tempfile.TemporaryDirectory() as temp:
             commands = []
-            controller = CandidateController(CandidatePaths(Path(temp)), commands.append)
+            controller = CandidateController(CandidatePaths(Path(temp)), commands.append, allow_effects=True)
             active = (ALLOWLIST[0],)
             controller.acquire(self.receipt(), self.observation(), backup_receipt="backup", active_services=active)
             commands.clear()
@@ -90,6 +90,20 @@ class CandidateControllerTests(unittest.TestCase):
                 "ready",
             )
             self.assertEqual(commands, [command_for(*active[0], "start")])
+
+    def test_advisory_mode_blocks_effects_when_owner_path_is_lost(self):
+        with tempfile.TemporaryDirectory() as temp:
+            commands = []
+            controller = CandidateController(CandidatePaths(Path(temp)), commands.append)
+            with self.assertRaisesRegex(ValueError, "advisory-only"):
+                controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
+            self.assertEqual(commands, [])
+
+    def test_watchdog_unit_requires_observation_and_refuses_manual_start(self):
+        unit = Path(__file__).parents[2] / "services/local-ai-lease/local-ai-lease-watchdog.service"
+        text = unit.read_text()
+        self.assertIn("RefuseManualStart=yes", text)
+        self.assertIn("--observation /run/local-ai-lab/host-observation.json", text)
 
 
 if __name__ == "__main__":

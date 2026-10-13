@@ -81,11 +81,17 @@ def command_for(vmid: str, unit: str, action: str) -> tuple[str, ...]:
 
 
 class CandidateController:
-    def __init__(self, paths: CandidatePaths, runner: Callable[[Sequence[str]], None]):
+    def __init__(self, paths: CandidatePaths, runner: Callable[[Sequence[str]], None], *, allow_effects: bool = False):
         self.paths = paths
         self.runner = runner
+        self.allow_effects = allow_effects
+
+    def _require_effect_authority(self) -> None:
+        if not self.allow_effects:
+            raise ValueError("candidate is advisory-only; live effects are disabled")
 
     def acquire(self, receipt: LeaseReceipt, observation: Observation, *, backup_receipt: str, active_services: tuple[tuple[str, str], ...] = ALLOWLIST) -> dict[str, object]:
+        self._require_effect_authority()
         if any(service not in ALLOWLIST for service in active_services):
             raise ValueError("active service set is outside the lease allowlist")
         validate_receipt(receipt, now_minute=observation.now_minute, expected_backup_receipt=backup_receipt, watchdog_alive=observation.heartbeat_alive)
@@ -132,6 +138,7 @@ class CandidateController:
             raise
 
     def restore(self, receipt: LeaseReceipt, observation: Observation, *, backup_receipt: str) -> dict[str, object]:
+        self._require_effect_authority()
         if not self.paths.lock.exists() or not self.paths.state.exists():
             raise ValueError("active lease state and lock are both required")
         persisted = decode(self.paths.state.read_text())

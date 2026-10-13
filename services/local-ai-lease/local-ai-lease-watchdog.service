@@ -1,11 +1,12 @@
 [Unit]
 Description=Local AI lease watchdog (disabled candidate)
 After=network-online.target
-ConditionPathExists=/var/lib/local-ai-lab/lease.json
+ConditionPathExists=/run/local-ai-lab/host-observation.json
+RefuseManualStart=yes
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/sbin/local-ai-lease-watchdog --once
+ExecStart=/usr/local/sbin/local-ai-lease-watchdog --once --state /var/lib/local-ai-lab/lease.json --observation /run/local-ai-lab/host-observation.json
 User=root
 NoNewPrivileges=yes
 ProtectSystem=strict

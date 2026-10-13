@@ -1,6 +1,6 @@
 # Local AI lease adapter candidate
 
-Status: offline candidate; not deployed or enabled.
+Status: offline advisory candidate; not deployable for live recovery.
 
 Candidate payload:
 
@@ -11,11 +11,17 @@ Candidate payload:
 - `services/local-ai-lease/local-ai-lease-watchdog.service`
 - `services/local-ai-lease/local-ai-lease-watchdog.timer`
 
-The adapter writes a mode-0600 admission record before stopping any guest,
+The adapter writes a mode-0600 admission record before stopping any guest only
+when test-only effect authority is explicitly injected. Normal construction is
+advisory-only and cannot execute commands. It then
 creates one host lock, and uses an explicit allowlist limited to LXC 104, 110
 and 116 service units. A failed stop sequence restores only the services it
 was allowed to touch. The watchdog remains fail-closed on expiry, heartbeat
-loss, partial restoration, GPU loss or schedule drift.
+loss, partial restoration, GPU loss or schedule drift. It does not collect
+trusted host observations or execute recovery; those remain open work.
+
+The systemd unit is intentionally refused and requires an externally produced
+host-observation file. A Mini/chat/network loss cannot yet recover production.
 
 ## Dry-run procedure
 
