@@ -111,3 +111,14 @@ def score(packet_raw: bytes, review_raw: bytes) -> dict:
             "counts": dict(Counter("passed" if row["passed"] else "failed" for row in rows)),
             "classes": dict(sorted(classes.items())), "cases": rows,
             "qualification": "none; AI-authored synthetic holdout, independence and native Aster path unproven"}
+
+
+def finalize(packet_raw: bytes, review_raw: bytes, attempts_raw: bytes) -> dict:
+    """Bind blind judgments and timing to the same sealed raw capture."""
+    packet = json.loads(packet_raw)
+    if (not isinstance(packet, dict)
+            or packet.get("attempts_sha256") != hashlib.sha256(attempts_raw).hexdigest()):
+        raise ValueError("packet/raw capture binding mismatch")
+    result = score(packet_raw, review_raw)
+    result["direct_backend_timing"] = capture_metrics(attempts_raw)
+    return result

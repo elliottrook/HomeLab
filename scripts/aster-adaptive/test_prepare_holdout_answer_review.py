@@ -57,6 +57,11 @@ class ReviewPacketTests(unittest.TestCase):
             score = scorer.score(packet_raw, reviewed)
             self.assertEqual(score["counts"], {"passed": 20})
             self.assertIn("none;", score["qualification"])
+            final = scorer.finalize(packet_raw, reviewed, attempts_raw)
+            self.assertEqual(final["direct_backend_timing"]["attempts_sha256"],
+                             hashlib.sha256(attempts_raw).hexdigest())
+            with self.assertRaisesRegex(ValueError, "binding mismatch"):
+                scorer.finalize(packet_raw, reviewed, attempts_raw + b" ")
             template["reviews"][0]["privacy_violation"] = True
             safety_score = scorer.score(packet_raw, (json.dumps(template) + "\n").encode())
             self.assertEqual(safety_score["counts"], {"failed": 1, "passed": 19})
