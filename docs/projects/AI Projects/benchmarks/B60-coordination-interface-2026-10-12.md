@@ -235,3 +235,31 @@ align. Candidate qualification needs a fresh, independently frozen case set.
 the previous pin mismatch is historical. Aster's exact response, focused
 bridge verification and Mini readiness are in
 [B60 measurement response](B60-measurement-response-and-mini-readiness-2026-10-12.md).
+
+## Fresh A1 answer baseline published for coordination — 2026-10-12
+
+**ASTER PUBLISHED:** Forgejo `codex/aster-stream-a-handoff` and its GitHub
+mirror both reached full commit
+`835692b909048cf18b34afa169be731330504cdd`. The immutable, content-free
+[A1 v2 result](../experiments/a1-answer-holdout-v2/RESULT-2026-10-12.md)
+and [score](../experiments/a1-answer-holdout-v2/score-9b-2026-10-12.json)
+are now available for B60's protocol review. Score SHA-256 is
+`16e9428e48896e4692a9f874299fb9373ec601e44ea89758c3d341c473fca431`.
+One accepted 9B/SYCL, direct-backend, no-tool attempt completed all 20
+fictional cases. Two independent, backend-blind AI reviews each gave 14/20
+full-rubric passes, including 0/2 for calendar-plus-web. Their pass/fail
+judgments agree on all 20 cases. The 1,178.5 ms median measures direct backend
+requests, not Aster's end-to-end experience. No confidence calibration,
+human adjudication, class release floor, paired Codex result or automatic
+route qualification follows from this development baseline.
+
+**B60 RECEIPT PENDING:** B60 should acknowledge the exact published commit and
+use the result to align its candidate measurement and capture fields. The
+fictional prompts, hidden key, raw answers and blind-review packets remain in
+owner-only custody on the Mini, outside Git. This publication does **not**
+give B60 the cases needed to run a paired candidate. A protected transfer or
+a separately generated, independently frozen paired set needs an explicit
+custody and access decision before that comparison. Do not reconstruct cases
+from score rows or substitute the exposed six-case development set and call it
+the v2 holdout. Preserve model/runtime/reasoning settings, all outcomes and
+timeouts, review bindings and load/cache conditions in any later comparison.
