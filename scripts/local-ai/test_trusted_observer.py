@@ -15,8 +15,8 @@ class TrustedObserverTests(unittest.TestCase):
             if argv == FIXED_PROBES["unit"]: return 0, "unit-hash  /unit"
             if argv == FIXED_PROBES["auth"]: return 0, "auth-generation-ok"
             if argv == FIXED_PROBES["proxmox_schedule"]: return 0, json.dumps([{"enabled": True, "schedule": "00:30"}])
-            if argv == FIXED_PROBES["truenas_schedule"]: return 0, json.dumps([{"enabled": True, "schedule": x} for x in ("01:00", "02:00", "03:00")])
-            if argv == FIXED_PROBES["news_schedule"]: return 0, "UnitFileState=enabled\nTimersCalendar=*-*-* 06:15,17:15"
+            if argv == FIXED_PROBES["truenas_schedule"]: return 0, json.dumps([{"id": 1, "enabled": True, "schedule": {"minute": "0", "hour": "1", "dom": "*", "month": "*", "dow": "*"}}, {"id": 3, "enabled": True, "schedule": {"minute": "0", "hour": "2", "dom": "*", "month": "*", "dow": "*"}}, {"id": 2, "enabled": True, "schedule": {"minute": "0", "hour": "3", "dom": "*", "month": "*", "dow": "*"}}])
+            if argv == FIXED_PROBES["news_schedule"]: return 0, "UnitFileState=enabled\nTimersCalendar={ OnCalendar=*-*-* 06,17:15:00 Etc/GMT+7 ; next_elapse=... }"
             if argv[:2] == ("systemctl", "is-active") or argv[:2] == ("pct", "exec") and "is-active" in argv:
                 return 0, "active"
             raise AssertionError(argv)

@@ -62,13 +62,21 @@ def _schedule_points(runner: Probe) -> tuple[bool, tuple[str, ...]]:
     except json.JSONDecodeError:
         return False, ()
     points = []
-    if any(item.get("enabled") and item.get("schedule") == "00:30" for item in pve):
+    def cron_time(value):
+        if isinstance(value, str):
+            return value
+        if isinstance(value, dict) and value.get("minute") is not None and value.get("hour") is not None:
+            return f"{int(value['hour']):02d}:{int(value['minute']):02d}"
+        return None
+
+    if any(item.get("enabled") and cron_time(item.get("schedule")) == "00:30" for item in pve):
         points.append("proxmox:00:30")
-    names = {"01:00": "truenas-guest", "02:00": "truenas-lxc110", "03:00": "truenas-mac"}
-    for item in rsync:
-        if item.get("enabled") and item.get("schedule") in names:
-            points.append(names[item["schedule"]] + ":" + item["schedule"])
-    if "UnitFileState=enabled" in news and "06:15" in news and "17:15" in news:
+    names = {1: ("truenas-guest", "01:00"), 3: ("truenas-lxc110", "02:00"), 2: ("truenas-mac", "03:00")}
+    for item_id, (name, expected) in names.items():
+        item = next((candidate for candidate in rsync if candidate.get("id") == item_id), None)
+        if item and item.get("enabled") and cron_time(item.get("schedule")) == expected:
+            points.append(name + ":" + expected)
+    if "UnitFileState=enabled" in news and "OnCalendar=*-*-* 06,17:15:00 Etc/GMT+7" in news:
         points.extend(("news:06:15", "news:17:15"))
     return True, tuple(points)
 
