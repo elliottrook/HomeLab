@@ -13,6 +13,9 @@ import statistics
 from collections import defaultdict
 from pathlib import Path
 
+SUITE_ID = "ask-routing-development-v1"
+FIXTURE_SHA256 = "c797533494119e44c9c927d5b9b274ccd6426cacd50ca7cd93391861c0663cec"
+
 
 def sha256(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
@@ -34,6 +37,8 @@ def score(fixture_raw: bytes, run_raw: bytes, manifest: dict) -> dict:
         raise ValueError("invalid backend manifest")
     if manifest["evidence_class"] != "synthetic-development-regression":
         raise ValueError("unsupported evidence class")
+    if manifest["suite_id"] != SUITE_ID or manifest["fixture_sha256"] != FIXTURE_SHA256:
+        raise ValueError("unsupported or changed benchmark suite")
     if manifest["tool_mode"] != "disabled" or manifest["execution"] != "not_attempted":
         raise ValueError("benchmark cannot grant or exercise tools")
     if manifest["egress"] not in {"local", "cloud"}:
@@ -60,7 +65,7 @@ def score(fixture_raw: bytes, run_raw: bytes, manifest: dict) -> dict:
     run = json.loads(run_raw)
     if not isinstance(fixture, dict) or not isinstance(run, dict):
         raise ValueError("invalid top-level object")
-    if fixture.get("schema_version") != "routing-families.v1":
+    if fixture.get("schema_version") != "routing-families.v1" or fixture.get("data_class") != "synthetic":
         raise ValueError("unexpected suite schema")
     if run.get("schema") != manifest["run_schema"]:
         raise ValueError("unexpected run schema")

@@ -45,10 +45,16 @@ Read these owned current records before any continuation:
 - [Research and ranked candidate screen](B60-Inference-Engineering/research-watch-20261012.md).
 - [Standing branch-only liaison authority](B60-Inference-Engineering/standing-coordination-authority-20261012.md).
 
-Latest reviewed owner tips: Adaptive `05412e34376972c3fd4461735589de74eb30cf0c`,
-platform `fc60e5a2c9eac8f311ce8e6c0a83b901fe55600b`. No integration/live-recovery
-receipt has been published. The reported Mini tunnel still needs a concrete
-endpoint or alias; no path is guessed and no new credential is enrolled.
+Latest reviewed owner tips: Adaptive `6b3207e69bfef6cd4e4f1c2298635d53649592b5`,
+platform `fc60e5a2c9eac8f311ce8e6c0a83b901fe55600b`. Adaptive has now published
+the v2 protected-evidence restore/off-site receipt; this closes that artifact's
+custody recovery dependency, not lease/service recovery. Its stricter routing
+scorer source/pin is integrated and tested in this focused checkout. See the
+[recovery/scorer receipt](B60-Inference-Engineering/evidence-recovery-and-scorer-receipt-20261013.md).
+No new live lease-recovery/integration receipt has been published. Jason clarified
+the existing connection is macOS Screen Sharing, not an identified SSH tunnel.
+Do not request its port or ask him to reconnect it; direct Mini execution or
+agent messaging from this chat remains unverified. No new credential is enrolled.
 Fetch both project branches and the platform branch before declaring a wait.
 Git publication does not trigger or prove receiving-agent execution.
 
