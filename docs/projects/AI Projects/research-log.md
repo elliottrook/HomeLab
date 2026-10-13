@@ -3055,3 +3055,19 @@ script SHA-256 `2a4f139e2f7e1c9df6b1adf92b395f0bd411e6dbd1ddf323148162961e442166
 differs from tracked `a16029898bb6eb769962945e3c9d228bf30cc6a969a72f6523a3f77891e21bbc`.
 This proves the relevant live path, not full source parity, a successful
 off-site copy of A1 evidence or a recoverable restore. No remote state changed.
+
+### 2026-10-12 — Executable-bound natural refresh and current Companion drift
+
+A macOS session-category query emitted only fixed refresh codes and process
+metadata. Nine `AsterCompanion` `refresh_started` events between 09:21 and
+17:31 Vancouver time each had a `refresh_succeeded_persisted` event. The
+success records' process-image UUIDs all match the retained signed v16
+executable; separate `xctest` events were excluded. This closes the v16
+natural-refresh subgate without reading a token or sending a Codex question.
+It does not establish a later post-restart Keychain read or absence of an
+off-screen prompt. Read-only file/signature checks then found a different
+signed app at `/Applications/AsterCompanion.app`, modified at 18:51, with
+version 0.2.2/build 4 and a different executable hash. Its release provenance
+and ordinary behavior are unknown. The current-build routine D3 release
+remains HOLD; the platform agent was asked for ownership and rollback record.
+See [the evidence](evidence/D3-v16-natural-refresh-and-current-bundle-drift-2026-10-12.md).
