@@ -546,3 +546,19 @@ controller remains advisory-only by default; no live timer or systemd unit was
 enabled, and no guest, host or production service was changed. The next gate
 is a separately reviewed test-only effect harness and recovery-controller
 design before any live deployment or restart-shaped exercise.
+
+## Staging effect boundary and fault injection — 2026-10-13
+
+The candidate now includes a separate shell-free effect runner. It accepts only
+the exact allowlisted `pct exec` service start/stop commands, applies a bounded
+timeout, and converts timeout, operating-system and nonzero exit failures into
+fail-closed effect errors. The watchdog systemd unit and timer remain disabled
+candidates with manual start refusal and the required root-owned manifest.
+
+Fault-injection tests cover shell/unknown-command rejection, timeout and
+nonzero effect failure, disabled timer/unit properties, per-unit active-state
+skipping, and unmatched journal intents. The full focused suite passes 35/35.
+A staging manifest records the exact reviewed hashes, fixed probes, `04:15`
+recovery deadline, rollback path and the limits of one future attended light
+service-drain drill. No candidate file was installed, no timer was enabled and
+no live effect was run.
