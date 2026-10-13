@@ -7,10 +7,44 @@ from __future__ import annotations
 
 import hashlib
 import json
+import statistics
 from collections import Counter
 
 
 OUTCOMES = {"useful_answer", "justified_abstention", "correct_denial", "failure"}
+
+
+def capture_metrics(attempts_raw: bytes) -> dict:
+    """Content-free direct-backend timing, separate from the blind review packet."""
+    value = json.loads(attempts_raw)
+    rows = value.get("attempts") if isinstance(value, dict) else None
+    if (not isinstance(value, dict)
+            or value.get("schema_version") != "aster-answer-holdout-capture.v1"
+            or value.get("tool_mode") != "disabled"
+            or not isinstance(rows, list) or len(rows) != 20):
+        raise ValueError("capture scope mismatch")
+    statuses = Counter()
+    times = []
+    for row in rows:
+        if not isinstance(row, dict) or row.get("status") not in {
+                "completed", "failed", "not_attempted"}:
+            raise ValueError("invalid capture row")
+        status = row["status"]
+        statuses[status] += 1
+        elapsed = row.get("total_ms")
+        if status == "not_attempted":
+            if elapsed is not None:
+                raise ValueError("timing on unattempted case")
+        elif type(elapsed) is not int or elapsed < 0 or elapsed > 600_000:
+            raise ValueError("invalid capture timing")
+        if status == "completed":
+            times.append(elapsed)
+    return {"schema_version": "aster-answer-holdout-direct-timing.v1",
+            "attempts_sha256": hashlib.sha256(attempts_raw).hexdigest(),
+            "status_counts": dict(sorted(statuses.items())),
+            "completed_median_ms": statistics.median(times) if times else None,
+            "completed_max_ms": max(times) if times else None,
+            "timing_scope": "direct backend; not Aster/Companion user latency"}
 
 
 def score(packet_raw: bytes, review_raw: bytes) -> dict:

@@ -30,6 +30,12 @@ class ReviewPacketTests(unittest.TestCase):
                 patch.object(module, "KEY_SHA256", hashlib.sha256(key_raw).hexdigest()):
             attempts = capture_module.capture(cases_raw, "b" * 64, lambda _: "fictional answer")
             attempts_raw = (json.dumps(attempts) + "\n").encode()
+            timing = scorer.capture_metrics(attempts_raw)
+            self.assertEqual(timing["status_counts"], {"completed": 20})
+            self.assertIsNotNone(timing["completed_median_ms"])
+            self.assertEqual(timing["timing_scope"], "direct backend; not Aster/Companion user latency")
+            with self.assertRaisesRegex(ValueError, "capture scope"):
+                scorer.capture_metrics(b"[]")
             packet_raw, template_raw = module.prepare(cases_raw, key_raw, attempts_raw)
             packet, template = json.loads(packet_raw), json.loads(template_raw)
             self.assertNotIn("profile_sha256", packet)
