@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the Local AI lease watchdog periodically (disabled candidate)
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+RandomizedDelaySec=10s
+Unit=local-ai-lease-watchdog.service
+
+[Install]
+WantedBy=timers.target

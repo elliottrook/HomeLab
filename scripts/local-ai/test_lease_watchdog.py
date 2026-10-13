@@ -1,0 +1,77 @@
+import unittest
+
+from lease_contract import ACCEPTED_BACKEND, ACCEPTED_MODEL, LeaseReceipt
+from lease_watchdog import Observation, WatchdogState, decide
+
+
+class LeaseWatchdogTests(unittest.TestCase):
+    def receipt(self, **changes):
+        values = {
+            "lease_id": "lab-20261013-01",
+            "generation": 1,
+            "issued_minute": 220,
+            "expires_minute": 255,
+            "backup_receipt": "backup-chain-sha256",
+            "model_identity": ACCEPTED_MODEL,
+            "backend_identity": ACCEPTED_BACKEND,
+            "consumers_isolated": True,
+            "scheduled_work_quiesced": True,
+        }
+        values.update(changes)
+        return LeaseReceipt(**values)
+
+    def observation(self, **changes):
+        values = {
+            "now_minute": 221,
+            "heartbeat_alive": True,
+            "control_plane_healthy": True,
+            "production_services_healthy": True,
+            "accepted_gpu_visible": True,
+            "schedule_restored": True,
+        }
+        values.update(changes)
+        return Observation(**values)
+
+    def test_lease_expires_to_restoration_without_retry(self):
+        decision = decide(
+            self.receipt(expires_minute=221),
+            self.observation(),
+            backup_receipt="backup-chain-sha256",
+            current_state=WatchdogState.LEASED,
+        )
+        self.assertEqual(decision.state, WatchdogState.RESTORING)
+        self.assertIn("persist-restore-intent", decision.actions)
+
+    def test_watchdog_loss_is_fail_closed(self):
+        decision = decide(
+            self.receipt(),
+            self.observation(heartbeat_alive=False),
+            backup_receipt="backup-chain-sha256",
+            current_state=WatchdogState.LEASED,
+        )
+        self.assertEqual(decision.state, WatchdogState.RESTORING)
+        self.assertNotIn("permit-bounded-lab-work", decision.actions)
+
+    def test_partial_restore_keeps_lock_and_needs_operator(self):
+        decision = decide(
+            self.receipt(),
+            self.observation(production_services_healthy=False),
+            backup_receipt="backup-chain-sha256",
+            current_state=WatchdogState.RESTORING,
+        )
+        self.assertEqual(decision.state, WatchdogState.FAILED)
+        self.assertIn("retain-lease-lock", decision.actions)
+
+    def test_complete_restore_releases_only_after_schedule_and_gpu_checks(self):
+        decision = decide(
+            self.receipt(),
+            self.observation(),
+            backup_receipt="backup-chain-sha256",
+            current_state=WatchdogState.RESTORING,
+        )
+        self.assertEqual(decision.state, WatchdogState.READY)
+        self.assertEqual(decision.actions[-1], "release-lease-lock")
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,17 @@
+[Unit]
+Description=Local AI lease watchdog (disabled candidate)
+After=network-online.target
+ConditionPathExists=/var/lib/local-ai-lab/lease.json
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/local-ai-lease watchdog --once
+User=root
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/local-ai-lab
+
+[Install]
+WantedBy=multi-user.target
