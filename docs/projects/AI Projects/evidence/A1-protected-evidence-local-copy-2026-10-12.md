@@ -1,6 +1,6 @@
 # A1 v2 protected evidence: Mac backup-tree copy
 
-**State: local copy verified, remote backup and restore pending.** Jason
+**State: local copy verified; subsequent TrueNAS restore passed; off-site pending.** Jason
 approved this exact nine-file, fictional A1 v2 backup and isolated restore on
 2026-10-12. No backup job was triggered, no credential or retention setting
 changed, and the original owner-only evidence remains untouched.
@@ -30,9 +30,7 @@ without an A1-specific exclusion; this is a likely off-site route, not a
 verified completed upload or restore. The tracked and deployed relay-script
 hashes differ, as recorded in the [plan](../benchmarks/A1-protected-evidence-backup-plan-2026-10-12.md).
 
-**Next gate:** after the next normal Mac pull, verify the exact destination
-subtree and its nine-file inventory on TrueNAS, then restore into a private
-temporary Mac directory and reproduce the content-free score. Check the
-normal encrypted off-site relay separately. Until those checks pass, do not
-claim a recoverable copy or delete either Mac source. Never rerun the model
-to recreate lost answers.
+**Subsequent result:** the normal TrueNAS pull and isolated re-score passed on
+2026-10-13; see the [restore drill](A1-protected-evidence-TrueNAS-restore-2026-10-13.md).
+The normal encrypted off-site relay remains a separate unverified gate. Do not
+delete either Mac source or rerun the model to recreate lost answers.
