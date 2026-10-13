@@ -21,6 +21,12 @@ host controller is still the old light-only manual version, ready with no
 active lease; independent watchdog, source-bound backup receipt, test-only
 Aster gateway and exact restoration proof remain open. Neither the old
 evening runner nor Stream A's paused wake-up has been enabled.
+An offline guarded Aster gateway candidate now pins the sealed 20-case wire
+requests, separates ingress and isolated inner authentication, and supports a
+durable one-attempt journal. The admission check requires those boundaries and
+a common gateway topology for control and challenger. None of these source
+tests proves a deployed test instance or a live independent restore; the A1
+full-path run remains **BLOCKED**.
 
 The native app now also needs the
 [D3 integration gate](evidence/D3-native-app-integration-gate-2026-10-12.md):
