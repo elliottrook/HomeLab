@@ -19,14 +19,15 @@ advisory-only and cannot execute commands. It then
 creates one host lock, and uses an explicit allowlist limited to LXC 104, 110
 and 116 service units. A failed stop sequence restores only the services it
 was allowed to touch. The watchdog remains fail-closed on expiry, heartbeat
-loss, partial restoration, GPU loss or schedule drift. It does not collect
-trusted host observations or execute recovery; those remain open work.
+loss, partial restoration, GPU loss or schedule drift. It does not execute
+recovery; the effect runner remains advisory-only.
 
-The fixed-probe observer is now available offline. It bounds every probe to
+The fixed-probe observer is now available offline and is wired into the
+advisory CLI. It bounds every probe to
 five seconds and checks control-plane/services, GPU visibility, exact model,
 binary, unit and auth markers, plus the enabled backup/News schedule set. The
-systemd unit is still intentionally refused and requires that observer to be
-wired to a root-owned host-observation path. A Mini/chat/network loss cannot
+systemd unit is still intentionally refused and requires a root-owned runtime
+manifest. A Mini/chat/network loss cannot
 yet recover production because the effect runner remains advisory-only.
 
 ## Dry-run procedure

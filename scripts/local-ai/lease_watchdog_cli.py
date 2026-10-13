@@ -5,21 +5,27 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 from pathlib import Path
 
 from admission_state import decode
 from lease_contract import LeaseReceipt
-from lease_watchdog import Observation, WatchdogState, decide, status_receipt
+from lease_watchdog import WatchdogState, decide, status_receipt
+from trusted_observer import RuntimeManifest, collect
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--once", action="store_true", required=True)
     parser.add_argument("--state", type=Path, default=Path("/var/lib/local-ai-lab/lease.json"))
-    parser.add_argument("--observation", type=Path, required=True)
+    parser.add_argument("--manifest", type=Path, required=True)
     args = parser.parse_args()
     record = decode(args.state.read_text())
-    observation = Observation(**json.loads(args.observation.read_text()))
+    manifest = RuntimeManifest(**json.loads(args.manifest.read_text()))
+    def runner(argv, timeout):
+        result = subprocess.run(argv, capture_output=True, text=True, timeout=timeout, check=False)
+        return result.returncode, result.stdout
+    observation = collect(runner, lease_expires_minute=record.expires_minute, manifest=manifest)
     receipt = LeaseReceipt(
         record.lease_id, record.generation, record.issued_minute,
         record.expires_minute, record.backup_receipt, record.model_identity,

@@ -103,7 +103,7 @@ class CandidateControllerTests(unittest.TestCase):
         unit = Path(__file__).parents[2] / "services/local-ai-lease/local-ai-lease-watchdog.service"
         text = unit.read_text()
         self.assertIn("RefuseManualStart=yes", text)
-        self.assertIn("--observation /run/local-ai-lab/host-observation.json", text)
+        self.assertIn("--manifest /var/lib/local-ai-lab/runtime-manifest.json", text)
 
 
 if __name__ == "__main__":
