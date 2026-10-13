@@ -6,6 +6,8 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
+import os
+import stat
 from pathlib import Path
 
 from admission_state import decode
@@ -14,12 +16,20 @@ from lease_watchdog import WatchdogState, decide, status_receipt
 from trusted_observer import RuntimeManifest, collect
 
 
+def secure_root_file(path: Path) -> None:
+    info = path.lstat()
+    if stat.S_ISLNK(info.st_mode) or info.st_uid != 0 or info.st_mode & 0o022:
+        raise SystemExit("insecure watchdog state or manifest custody")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--once", action="store_true", required=True)
     parser.add_argument("--state", type=Path, default=Path("/var/lib/local-ai-lab/lease.json"))
     parser.add_argument("--manifest", type=Path, required=True)
     args = parser.parse_args()
+    secure_root_file(args.state)
+    secure_root_file(args.manifest)
     record = decode(args.state.read_text())
     manifest = RuntimeManifest(**json.loads(args.manifest.read_text()))
     def runner(argv, timeout):

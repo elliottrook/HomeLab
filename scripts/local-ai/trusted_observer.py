@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import time
 from datetime import datetime
 from dataclasses import dataclass
 from typing import Callable, Sequence
@@ -10,6 +11,7 @@ from typing import Callable, Sequence
 from lease_watchdog import EXPECTED_SCHEDULES, Observation
 
 Probe = Callable[[Sequence[str], float], tuple[int, str]]
+EXPECTED_AUTH_MARKER = "auth-generation-ok"
 
 
 @dataclass(frozen=True)
@@ -28,6 +30,7 @@ FIXED_PROBES = {
     "binary": ("pct", "exec", "110", "--", "sha256sum", "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"),
     "unit": ("pct", "exec", "110", "--", "sha256sum", "/etc/systemd/system/aster-llama.service"),
     "auth": ("pct", "exec", "110", "--", "sh", "-c", "key=$(cat /etc/aster-llama-api-keys); curl --fail --max-time 5 -sS -H \"Authorization: Bearer $key\" -H 'Content-Type: application/json' --data '{\"model\":\"aster-qwen3.5-9b\",\"messages\":[{\"role\":\"user\",\"content\":\"health\"}],\"max_tokens\":1}' http://192.168.70.12:11435/v1/chat/completions >/dev/null && printf auth-generation-ok"),
+    "heartbeat": ("stat", "-c", "%Y", "/var/lib/local-ai-lab/owner-heartbeat"),
     "proxmox_schedule": ("pvesh", "get", "/cluster/backup", "--output-format", "json"),
     "truenas_schedule": ("ssh", "-o", "BatchMode=yes", "root@192.168.20.40", "midclt", "call", "rsynctask.query"),
     "news_schedule": ("pct", "exec", "114", "--", "systemctl", "show", "news-aggregator-digest.timer", "--property=UnitFileState", "--property=TimersCalendar"),
@@ -81,8 +84,9 @@ def _schedule_points(runner: Probe) -> tuple[bool, tuple[str, ...]]:
     return True, tuple(points)
 
 
-def collect(runner: Probe, *, lease_expires_minute: int, manifest: RuntimeManifest, clock: Callable[[], int] | None = None) -> Observation:
+def collect(runner: Probe, *, lease_expires_minute: int, manifest: RuntimeManifest, clock: Callable[[], int] | None = None, epoch_clock: Callable[[], float] | None = None) -> Observation:
     now_minute = clock() if clock is not None else datetime.now().hour * 60 + datetime.now().minute
+    now_epoch = epoch_clock() if epoch_clock is not None else time.time()
     control = all(_active(runner, ("systemctl", "is-active", unit)) for unit in CONTROL_UNITS)
     production = all(_active(runner, ("pct", "exec", vmid, "--", "systemctl", "is-active", unit)) for vmid, unit in PRODUCTION)
     schedule_enabled, schedule_points = _schedule_points(runner)
@@ -93,9 +97,14 @@ def collect(runner: Probe, *, lease_expires_minute: int, manifest: RuntimeManife
 
     code, gpu = _run(runner, FIXED_PROBES["gpu"])
     auth_code, auth = _run(runner, FIXED_PROBES["auth"])
+    heartbeat_code, heartbeat_output = _run(runner, FIXED_PROBES["heartbeat"])
+    try:
+        heartbeat_alive = heartbeat_code == 0 and 0 <= now_epoch - float(heartbeat_output.strip()) <= 90
+    except ValueError:
+        heartbeat_alive = False
     return Observation(
         now_minute=now_minute,
-        heartbeat_alive=now_minute < lease_expires_minute,
+        heartbeat_alive=heartbeat_alive and now_minute < lease_expires_minute,
         control_plane_healthy=control,
         production_services_healthy=production,
         accepted_gpu_visible=code == 0 and "renderD128" in gpu,
@@ -105,5 +114,5 @@ def collect(runner: Probe, *, lease_expires_minute: int, manifest: RuntimeManife
         exact_binary_verified=exact("binary", manifest.binary_sha256),
         model_verified=exact("model", manifest.model_sha256),
         unit_verified=exact("unit", manifest.unit_sha256),
-        auth_verified=auth_code == 0 and auth.strip().startswith(manifest.auth_marker),
+        auth_verified=auth_code == 0 and auth.strip() == EXPECTED_AUTH_MARKER,
     )

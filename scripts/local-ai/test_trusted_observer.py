@@ -14,6 +14,7 @@ class TrustedObserverTests(unittest.TestCase):
             if argv == FIXED_PROBES["binary"]: return 0, "binary-hash  /binary"
             if argv == FIXED_PROBES["unit"]: return 0, "unit-hash  /unit"
             if argv == FIXED_PROBES["auth"]: return 0, "auth-generation-ok"
+            if argv == FIXED_PROBES["heartbeat"]: return 0, "1000"
             if argv == FIXED_PROBES["proxmox_schedule"]: return 0, json.dumps([{"enabled": True, "schedule": "00:30"}])
             if argv == FIXED_PROBES["truenas_schedule"]: return 0, json.dumps([{"id": 1, "enabled": True, "schedule": {"minute": "0", "hour": "1", "dom": "*", "month": "*", "dow": "*"}}, {"id": 3, "enabled": True, "schedule": {"minute": "0", "hour": "2", "dom": "*", "month": "*", "dow": "*"}}, {"id": 2, "enabled": True, "schedule": {"minute": "0", "hour": "3", "dom": "*", "month": "*", "dow": "*"}}])
             if argv == FIXED_PROBES["news_schedule"]: return 0, "UnitFileState=enabled\nTimersCalendar={ OnCalendar=*-*-* 06,17:15:00 Etc/GMT+7 ; next_elapse=... }"
@@ -24,7 +25,7 @@ class TrustedObserverTests(unittest.TestCase):
         observation = collect(
             runner, lease_expires_minute=255,
             manifest=RuntimeManifest("model-hash", "binary-hash", "unit-hash", "auth-generation-ok"),
-            clock=lambda: 221,
+            clock=lambda: 221, epoch_clock=lambda: 1050,
         )
         self.assertTrue(observation.control_plane_healthy)
         self.assertTrue(observation.production_services_healthy)
@@ -37,6 +38,7 @@ class TrustedObserverTests(unittest.TestCase):
             failed, lease_expires_minute=255,
             manifest=RuntimeManifest("m", "b", "u", "a"),
             clock=lambda: 255,
+            epoch_clock=lambda: 1050,
         )
         self.assertFalse(observation.control_plane_healthy)
         self.assertFalse(observation.heartbeat_alive)
