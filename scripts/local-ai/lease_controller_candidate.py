@@ -17,6 +17,7 @@ from typing import Callable, Sequence
 from admission_state import AdmissionRecord, decode, encode
 from lease_contract import LeaseReceipt, validate_receipt
 from lease_watchdog import Observation, WatchdogState, decide
+from trusted_observer import TrustedHostObserver
 
 
 ALLOWLIST = (
@@ -81,10 +82,11 @@ def command_for(vmid: str, unit: str, action: str) -> tuple[str, ...]:
 
 
 class CandidateController:
-    def __init__(self, paths: CandidatePaths, runner: Callable[[Sequence[str]], None], *, allow_effects: bool = False):
+    def __init__(self, paths: CandidatePaths, runner: Callable[[Sequence[str]], None], *, allow_effects: bool = False, observer: TrustedHostObserver | None = None):
         self.paths = paths
         self.runner = runner
         self.allow_effects = allow_effects
+        self.observer = observer
 
     def _require_effect_authority(self) -> None:
         if not self.allow_effects:
@@ -137,7 +139,7 @@ class CandidateController:
             # Keep the lock and state: an uncertain effect requires review.
             raise
 
-    def restore(self, receipt: LeaseReceipt, observation: Observation, *, backup_receipt: str, reobserve: Callable[[], Observation] | None = None) -> dict[str, object]:
+    def restore(self, receipt: LeaseReceipt, observation: Observation, *, backup_receipt: str) -> dict[str, object]:
         self._require_effect_authority()
         if not self.paths.lock.exists() or not self.paths.state.exists():
             raise ValueError("active lease state and lock are both required")
@@ -146,8 +148,8 @@ class CandidateController:
             raise ValueError("persisted lease identity does not match restore receipt")
         if not observation.control_plane_healthy:
             raise ValueError("control-plane postcheck is incomplete")
-        if reobserve is None:
-            raise ValueError("trusted post-effect observer is required")
+        if self.observer is None:
+            raise ValueError("fixed trusted observer is required")
         events = []
         if self.paths.journal.exists():
             events = [json.loads(line) for line in self.paths.journal.read_text().splitlines() if line.strip()]
@@ -166,7 +168,7 @@ class CandidateController:
             journal_event(self.paths.journal, {"event": "start-intent", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
             self.runner(command_for(vmid, unit, "start"))
             journal_event(self.paths.journal, {"event": "start-observed", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
-        fresh_observation = reobserve()
+        fresh_observation = self.observer.collect(receipt.expires_minute)
         decision = decide(receipt, fresh_observation, backup_receipt=backup_receipt, current_state=WatchdogState.RESTORING)
         if decision.state != WatchdogState.READY:
             raise ValueError("post-restore checks are incomplete; lease retained")

@@ -524,3 +524,21 @@ Release restored all three services and passed the health gate: Aster
 `/health`, llama `/health` and the full LXC 116 speech health check all
 returned healthy. The lease state and lock were removed after validation.
 The test explicitly permitted neither reboot nor scheduler activation.
+
+## Fixed-source lease observer and restore re-entry — 2026-10-13
+
+The offline lease candidate now binds post-restore verification to a fixed
+trusted-host observer rather than accepting a caller-supplied observation
+callback. The observer owns the bounded Proxmox/LXC, TrueNAS and News probes,
+the fresh owner-heartbeat check, exact runtime identity checks and authenticated
+generation probe. Restore re-entry is therefore fail-closed if the observer is
+missing, a prior start intent is unpaired, the lease identity drifts, or the
+fresh observation does not meet the production gate.
+
+The focused local suite passes 29/29 tests, including schedule parsing,
+authenticated generation validation, secure manifest custody, fixed-source
+probe selection, incomplete restoration and uncertain-start recovery. The
+controller remains advisory-only by default; no live timer or systemd unit was
+enabled, and no guest, host or production service was changed. The next gate
+is a separately reviewed test-only effect harness and recovery-controller
+design before any live deployment or restart-shaped exercise.

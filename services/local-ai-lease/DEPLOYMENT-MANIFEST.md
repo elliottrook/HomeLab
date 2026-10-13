@@ -23,7 +23,7 @@ loss, partial restoration, GPU loss or schedule drift. It does not execute
 recovery; the effect runner remains advisory-only.
 
 The fixed-probe observer is now available offline and is wired into the
-advisory CLI. It bounds every probe to
+advisory CLI and controller restore path. It bounds every probe to
 five seconds and checks control-plane/services, GPU visibility, exact model,
 binary, unit and auth markers, plus the enabled backup/News schedule set. The
 systemd unit is still intentionally refused and requires a root-owned runtime

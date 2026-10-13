@@ -116,3 +116,22 @@ def collect(runner: Probe, *, lease_expires_minute: int, manifest: RuntimeManife
         unit_verified=exact("unit", manifest.unit_sha256),
         auth_verified=auth_code == 0 and auth.strip() == EXPECTED_AUTH_MARKER,
     )
+
+
+class TrustedHostObserver:
+    """Fixed-source observer used by the controller, not caller callbacks."""
+
+    def __init__(self, runner: Probe, manifest: RuntimeManifest, *, clock: Callable[[], int] | None = None, epoch_clock: Callable[[], float] | None = None):
+        self.runner = runner
+        self.manifest = manifest
+        self.clock = clock
+        self.epoch_clock = epoch_clock
+
+    def collect(self, lease_expires_minute: int) -> Observation:
+        return collect(
+            self.runner,
+            lease_expires_minute=lease_expires_minute,
+            manifest=self.manifest,
+            clock=self.clock,
+            epoch_clock=self.epoch_clock,
+        )
