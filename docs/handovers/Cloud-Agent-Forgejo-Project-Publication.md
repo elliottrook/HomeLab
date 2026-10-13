@@ -38,9 +38,11 @@ that published base are:
 - `0183a48` — credential boundary, size policy and protected checkpoint
 - `3ba66800` — fail-closed mid-batch recovery behavior and test
 - `3e9ef519` — handover and continuation status
+- `d9f1e457` — human root-ceremony runbook and transport helpers
+- `7eff212` — bounded writer provisioning, deployment and live evidence
 
 The human root-ceremony, provisioning, deployment and validation helpers are
-included in the next local commit. They remain separate from the cloud-agent
+recorded in the commits above. They remain separate from the cloud-agent
 surface: the ceremony creates only a temporary human handoff, while the
 project gateway supplies the narrowly scoped credential internally.
 
