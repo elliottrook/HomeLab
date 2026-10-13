@@ -1,6 +1,7 @@
 import AuthenticationServices
 import AppKit
 import Foundation
+import OSLog
 
 struct StoredSession: Codable {
     let accessToken: String
@@ -30,6 +31,7 @@ struct SessionStorage {
 
 @MainActor
 final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresentationContextProviding {
+    private let logger = Logger(subsystem: "com.elliottrook.aster-companion", category: "authentication")
     @Published var isAuthenticated = false
     @Published private(set) var isSigningIn = false
     @Published var lastError: String?
@@ -40,9 +42,19 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
     private var session: ASWebAuthenticationSession?
     private var refreshTask: Task<String?, Never>?
     private var generation = 0
+    private var pendingVerifier: String?
+    private var pendingState: String?
+    private var pendingAttempt: Int?
+    private var signInTimeoutWorkItem: DispatchWorkItem?
 
     init(storage: SessionStorage? = nil,
-         request: @escaping (URLRequest) async throws -> (Data, URLResponse) = { try await URLSession.shared.data(for: $0) }) {
+         request: @escaping (URLRequest) async throws -> (Data, URLResponse) = {
+             let configuration = URLSessionConfiguration.ephemeral
+             configuration.waitsForConnectivity = false
+             configuration.timeoutIntervalForRequest = 15
+             configuration.timeoutIntervalForResource = 20
+             return try await URLSession(configuration: configuration).data(for: $0)
+         }) {
         self.storage = storage ?? .keychain
         self.request = request
         super.init()
@@ -64,27 +76,33 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
         lastError = nil
         let verifier = PKCE.randomURLSafeString(length: 64)
         let state = PKCE.randomURLSafeString(length: 24)
+        pendingVerifier = verifier
+        pendingState = state
+        pendingAttempt = attempt
+        signInTimeoutWorkItem?.cancel()
+        let timeout = DispatchWorkItem { [weak self] in
+            guard let self,
+                  self.generation == attempt, self.pendingAttempt == attempt,
+                  self.isSigningIn else { return }
+            self.session?.cancel()
+            self.session = nil
+            self.pendingVerifier = nil
+            self.pendingState = nil
+            self.pendingAttempt = nil
+            self.isSigningIn = false
+            self.lastError = "No sign-in callback was received. Try again, keeping Aster in the foreground."
+        }
+        signInTimeoutWorkItem = timeout
+        DispatchQueue.main.asyncAfter(deadline: .now() + 45, execute: timeout)
         let authorizationURL = Self.authorizationURL(verifier: verifier, state: state, fresh: fresh)
+        logger.info("sign-in started fresh=\(fresh, privacy: .public)")
         let session = ASWebAuthenticationSession(url: authorizationURL, callbackURLScheme: "aster-companion") { [weak self] url, error in
-            Task { @MainActor in
+            DispatchQueue.main.async { [weak self] in
                 guard let self, self.generation == attempt else { return }
-                self.session = nil
-                guard error == nil else {
-                    self.isSigningIn = false
-                    self.lastError = "Sign-in was cancelled or could not finish. Try again."
-                    completion?(false)
-                    return
-                }
-                guard let url, url.scheme == "aster-companion", url.host == "callback",
-                      let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems,
-                      items.first(where: { $0.name == "state" })?.value == state,
-                      let code = items.first(where: { $0.name == "code" })?.value else {
-                    self.isSigningIn = false
-                    self.lastError = "Sign-in returned an invalid callback. Please try again."
-                    completion?(false)
-                    return
-                }
-                completion?(await self.exchangeCode(code, verifier: verifier, attempt: attempt))
+                guard self.pendingAttempt == attempt else { return }
+                let errorStatus = error == nil ? "none" : "present"
+                self.logger.info("ASWeb callback received url=\(self.callbackDescription(url), privacy: .public) error=\(errorStatus, privacy: .public)")
+                self.completeCallback(url: url, error: error, verifier: verifier, state: state, attempt: attempt, completion: completion)
             }
         }
         session.presentationContextProvider = self
@@ -100,6 +118,67 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
             lastError = "The system sign-in window could not start. Try again with Aster in the foreground."
             completion?(false)
         }
+    }
+
+    /// macOS can route a custom URL through SwiftUI's scene layer instead of
+    /// delivering it to ASWebAuthenticationSession's closure, especially when
+    /// an ad-hoc signed bundle has just been moved into /Applications. Keep a
+    /// single guarded completion path so either delivery mechanism is safe.
+    func handleOpenURL(_ url: URL) {
+        logger.info("application URL received \(self.callbackDescription(url), privacy: .public)")
+        guard let verifier = pendingVerifier,
+              let state = pendingState,
+              let attempt = pendingAttempt,
+              generation == attempt else { return }
+        completeCallback(url: url, error: nil, verifier: verifier, state: state, attempt: attempt, completion: nil)
+    }
+
+    private func completeCallback(
+        url: URL?, error: Error?, verifier: String, state: String, attempt: Int,
+        completion: (@MainActor (Bool) -> Void)?
+    ) {
+        guard pendingAttempt == attempt else { return }
+        signInTimeoutWorkItem?.cancel()
+        signInTimeoutWorkItem = nil
+        pendingVerifier = nil
+        pendingState = nil
+        pendingAttempt = nil
+        session = nil
+        guard error == nil else {
+            logger.error("sign-in callback returned an authentication error")
+            isSigningIn = false
+            lastError = "Sign-in was cancelled or could not finish. Try again."
+            completion?(false)
+            return
+        }
+        guard let url, url.scheme == "aster-companion", url.host == "callback",
+              let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems,
+              items.first(where: { $0.name == "state" })?.value == state,
+              let code = items.first(where: { $0.name == "code" })?.value else {
+            logger.error("sign-in callback failed validation url=\(self.callbackDescription(url), privacy: .public)")
+            isSigningIn = false
+            lastError = "Sign-in returned an invalid callback. Please try again."
+            completion?(false)
+            return
+        }
+        Task { @MainActor in
+            self.logger.info("sign-in callback validated; exchanging authorization code")
+            await self.finishSignIn(code: code, verifier: verifier, attempt: attempt, completion: completion)
+        }
+    }
+
+    func finishSignIn(code: String, verifier: String, attempt: Int,
+                      completion: (@MainActor (Bool) -> Void)? = nil) async {
+        let success = await exchangeCode(code, verifier: verifier, attempt: attempt)
+        completion?(success)
+    }
+
+    private func callbackDescription(_ url: URL?) -> String {
+        guard let url else { return "nil" }
+        let names = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.map(\.name).sorted().joined(separator: ",") ?? ""
+        let scheme = url.scheme ?? ""
+        let host = url.host ?? ""
+        return "scheme=\(scheme) host=\(host) path=\(url.path) queryNames=[\(names)]"
     }
 
     static func authorizationURL(verifier: String, state: String, fresh: Bool) -> URL {
@@ -131,16 +210,21 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
     private func exchangeCode(_ code: String, verifier: String, attempt: Int) async -> Bool {
         defer { if generation == attempt { isSigningIn = false } }
         do {
+            logger.info("token exchange request started")
             let (data, response) = try await request(tokenRequest([
                 "grant_type": "authorization_code", "code": code, "redirect_uri": AsterConfig.redirectURI,
                 "client_id": AsterConfig.clientID, "code_verifier": verifier,
             ]))
             guard generation == attempt else { return false }
-            guard (response as? HTTPURLResponse)?.statusCode == 200 else {
+            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+            logger.info("token exchange response status=\(statusCode, privacy: .public) bytes=\(data.count, privacy: .public)")
+            guard statusCode == 200 else {
                 lastError = "Sign-in could not be completed by the identity service. Please try again."
                 return false
             }
+            logger.info("token response decoded; saving session")
             try accept(JSONDecoder().decode(TokenResponse.self, from: data), previousRefresh: nil)
+            logger.info("session save completed")
             return true
         } catch {
             if generation == attempt { lastError = "Sign-in could not finish. Check the connection and try again." }
@@ -156,7 +240,9 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
         // Persist all fields atomically and explicitly report a storage failure.
         tokens = value
         isAuthenticated = true
-        lastError = storage.save(value) ? nil : "Signed in for this session only: Keychain could not save your login. Allow Aster access if macOS asks."
+        let saved = storage.save(value)
+        logger.info("keychain save result=\(saved, privacy: .public)")
+        lastError = saved ? nil : "Signed in for this session only: Keychain could not save your login. Allow Aster access if macOS asks."
     }
 
     func validAccessToken() async -> String? {
@@ -205,13 +291,32 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
         generation += 1
         session?.cancel()
         session = nil
+        pendingVerifier = nil
+        pendingState = nil
+        pendingAttempt = nil
         refreshTask?.cancel()
         refreshTask = nil
+        signInTimeoutWorkItem?.cancel()
+        signInTimeoutWorkItem = nil
         storage.clear()
         tokens = nil
         isAuthenticated = false
         isSigningIn = false
         lastError = nil
+    }
+
+    func cancelLogin() {
+        guard isSigningIn else { return }
+        generation += 1
+        session?.cancel()
+        session = nil
+        pendingVerifier = nil
+        pendingState = nil
+        pendingAttempt = nil
+        signInTimeoutWorkItem?.cancel()
+        signInTimeoutWorkItem = nil
+        isSigningIn = false
+        lastError = "Sign-in cancelled."
     }
 
     private static func formEncode(_ params: [String: String]) -> String {

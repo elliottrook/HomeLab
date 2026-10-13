@@ -2525,6 +2525,29 @@ HTTP 200 with the new style markers on both routes. Rollback is the retained
 pre-refresh copy plus a service restart.
 
 
+## Native sign-in correction and second Mac installation — 2026-10-12
+
+Jason reported that existing Authentik sign-in flashed and returned to a
+permanently busy native client. Redacted live logs confirmed a valid callback.
+The cause was `completion?(await exchangeCode(...))`: normal login supplies no
+completion, so optional chaining skipped the exchange itself. The client now
+always awaits the exchange before invoking an optional completion. The recovery
+UI also supplies Cancel and a bounded callback wait, with diagnostics excluding
+authorization codes, state values and tokens.
+
+Validation: all 25 Swift tests passed, including a new regression for login
+without a completion. Live Authentik returned HTTP 200 at the token endpoint,
+Keychain persistence succeeded, and Jason confirmed sign-in worked. The fixed
+bundle is installed on the Mac mini at `/Applications/AsterCompanion.app`;
+rollback is `/Applications/AsterCompanion.pre-optional-callback-fix-20261012.app`.
+This is a V1 build correction; laptop installation remains pending.
+
+An installation is local to each Mac. The MacBook agent correctly cannot see
+the mini's `/Applications` directory. Transfer the app bundle in a ZIP produced
+by `ditto --keepParent`, then install and sign in independently on the MacBook.
+Do not transfer Keychain entries, authentication sessions or private keys.
+See the [Companion runbook](../../runbooks/Aster-Companion.md) for the procedure.
+
 ## References
 
 - `docs/Project-Creation-Standard.md` — lab ethos, authorization streams,

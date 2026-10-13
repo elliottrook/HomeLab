@@ -260,3 +260,41 @@ provider/OS troubleshooting; Aster owns no new administrative capability.
 
 References: [WebKit Home Screen Web Push](https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/)
 and [Apple notification permission](https://developer.apple.com/documentation/usernotifications/asking-permission-to-use-notifications).
+## Native sign-in repair — 2026-10-12
+
+The installed native app is `/Applications/AsterCompanion.app`. Normal sign-in
+stalled after a valid Authentik callback because the authorization-code exchange
+was evaluated inside an optional completion invocation. With no completion
+handler supplied, Swift skipped the exchange. The exchange now runs explicitly
+before notifying an optional caller. A regression test covers sign-in without
+a completion handler; all 25 Swift tests passed.
+
+Live validation on 2026-10-12 confirmed a valid callback, HTTP 200 token response,
+successful Keychain persistence and Jason's confirmation that sign-in worked.
+The previous bundle is retained at
+`/Applications/AsterCompanion.pre-optional-callback-fix-20261012.app`.
+Service release remains V1; this is a build correction.
+
+## Install on another Apple silicon Mac
+
+Each Mac needs its own installation and Authentik sign-in. The Mac mini's
+`/Applications/AsterCompanion.app` does not appear on the MacBook automatically.
+The current bundle targets Apple silicon and macOS 14 or newer.
+
+On the mini, package the verified installed bundle:
+
+```sh
+ditto -c -k --sequesterRsrc --keepParent /Applications/AsterCompanion.app /private/tmp/AsterCompanion-signin-fix-20261012.zip
+shasum -a 256 /private/tmp/AsterCompanion-signin-fix-20261012.zip
+```
+
+Transfer that ZIP through AirDrop or an existing private file-transfer path.
+On the MacBook, verify the ZIP checksum against the mini's value, extract it,
+quit any existing Aster client, preserve its old bundle if present, and move
+the extracted app into `/Applications`. Launch it and use the MacBook's own
+Authentik sign-in. Keychain may request local permission because this build
+is ad-hoc signed. If Gatekeeper blocks the transferred build, stop and arrange
+a locally built or appropriately signed distribution; do not disable Gatekeeper.
+
+Record acceptance separately for each Mac. The MacBook handover is complete
+only after native sign-in and a normal Aster request succeed there.

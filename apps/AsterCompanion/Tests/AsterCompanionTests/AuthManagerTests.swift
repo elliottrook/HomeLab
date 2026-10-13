@@ -37,6 +37,20 @@ final class AuthManagerTests: XCTestCase {
         XCTAssertTrue(auth.lastError?.contains("session only") == true)
     }
 
+    func testNormalSignInExchangesCodeWithoutCompletionCallback() async {
+        var calls = 0
+        var saved = false
+        let auth = AuthManager(storage: SessionStorage(load: { nil }, save: { _ in saved = true; return true }, clear: {}), request: { _ in
+            calls += 1
+            return self.response()
+        })
+        await auth.finishSignIn(code: "synthetic-code", verifier: "synthetic-verifier", attempt: 0)
+        XCTAssertEqual(calls, 1)
+        XCTAssertTrue(saved)
+        XCTAssertTrue(auth.isAuthenticated)
+        XCTAssertFalse(auth.isSigningIn)
+    }
+
     func testTemporaryFailureDoesNotEraseSavedLogin() async {
         var cleared = false
         let auth = AuthManager(storage: SessionStorage(load: { self.expired() }, save: { _ in true }, clear: { cleared = true }), request: { _ in self.response(503, "{}") })
