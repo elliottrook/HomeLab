@@ -155,6 +155,12 @@ without receiving private cases or reproducing model judgments. The
 [owner-held candidate contract](benchmarks/A1-v2-candidate-adapter-and-admission-2026-10-12.md)
 keeps any later paired run on the Mini and records why candidate staging,
 the whole-host lease and full Aster-path timing remain blocked.
+An [in-process synthetic clock pair](../../../scripts/aster-adaptive/synthetic_client_clock.py)
+now joins the B60-supplied client timing producer with Aster's ASGI clock on
+fictional fixtures. Its tests show that gateway completion without client
+display is censored and that no raw answer enters timing records. It does not
+measure the native Companion or establish answer usefulness. Candidate,
+lease and independent-label gates remain open.
 The [proposed class-specific sample policy](benchmarks/A1-class-qualification-sample-policy-v0.md)
 separates regression evidence from qualification and requires independent
 labels and a frozen per-class bar before a challenger can earn a route.
