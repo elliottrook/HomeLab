@@ -64,7 +64,7 @@
     "companion_web": "accepted canonical AVS1 streaming",
     "home_assistant": "accepted Wyoming pilot",
     "news_digest": "accepted isolated CPU batch path",
-    "native_mac": "operator reports repaired; canonical-streaming deployment identity not yet independently verified"
+    "native_mac": "launch repair verified, but installed bundle v4 binary 8781e1defd4bb953544b93a65cefbf115d20ca41e707dabb34de1750795e3eb4 contains legacy voice/v1/tts and is not the canonical-streaming candidate"
   },
   "production_target": {
     "state": "not_allocated",
@@ -72,7 +72,7 @@
     "credentials": "must be newly generated and protected; never copied to this manifest"
   },
   "blockers": [
-    "independently verify the repaired native Mac app uses the canonical streaming endpoint",
+    "build, test and install the repository native AVS1 client with a matched Swift compiler/SDK, then independently verify its binary and live canonical streaming request",
     "complete M8 two-pass cross-surface production evidence and efficiency review",
     "select and verify a free production VMID and Servers-VLAN address in NetBox",
     "create a final manifest from a clean immutable Forgejo commit",
