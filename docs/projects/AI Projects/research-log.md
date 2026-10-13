@@ -3130,3 +3130,30 @@ signing and contained exactly twelve allowlisted bridge modules; it was not
 installed, launched, registered, pushed or used to send a question. The
 [candidate record](evidence/D3-composite-offline-candidate-2026-10-12.md)
 keeps the signed working-app rollback and ordinary-use checks open.
+
+### 2026-10-13 — Stream A continuation and evidence integrity
+
+Jason observed that Stream A repeatedly ended a turn after one small task.
+The same-chat four-hour heartbeat was already active, but its prompt did not
+explicitly require moving to the next independent queue item. Its prompt and
+the [work cadence](Stream-A-Work-Cadence.md#continuation-rule--2026-10-13)
+now state that a passing check or local commit is a checkpoint, not the end of
+Stream A. The exclusive B60 automation remains paused. This changes work
+continuation only; no release or remote-write gate is relaxed.
+
+Read-only Mac checks found that an app-owner replacement superseded the earlier
+signed composite: intermediate crashes were recorded at 12:41–12:44, while a
+later signed executable had SHA-256
+`7b968e5fdf11f88f2105c2d65cf3468dd27b8f245e787e73acdc8dfc2032124c`.
+Jason and a supervised UI check observed ordinary Aster use working afterward.
+The [dated app evidence](evidence/D3-composite-offline-candidate-2026-10-12.md#later-installed-bundle-drift-and-crash-check--2026-10-13)
+distinguishes this short-term observation from source attribution and longer
+reliability. No rollback, launch loop or new Codex question was performed.
+
+The offline [development route scorer](../../../scripts/aster-adaptive/ask_route_benchmark.py)
+now rejects a result marked valid when it also carries a transport/error code
+or non-success HTTP status. Twelve focused tests pass; retained 9B and lexical
+baselines still recompute as 18/30 and 30/30. This protects evidence integrity
+without promoting either backend. The independent routing holdout remains
+unavailable: published cases are exposed, S1 closed incomplete, and a new
+human-reviewed corpus and frozen class thresholds would be required.
