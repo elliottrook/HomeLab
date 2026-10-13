@@ -120,24 +120,24 @@ class CandidateController:
         try:
             journal_event(self.paths.journal, {"event": "lease-acquired", "lease_id": receipt.lease_id, "generation": receipt.generation})
             for vmid, unit in active_services:
-                journal_event(self.paths.journal, {"event": "stop-intent", "vmid": vmid, "unit": unit})
+                journal_event(self.paths.journal, {"event": "stop-intent", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
                 self.runner(command_for(vmid, unit, "stop"))
                 stopped.append((vmid, unit))
-                journal_event(self.paths.journal, {"event": "stop-observed", "vmid": vmid, "unit": unit})
+                journal_event(self.paths.journal, {"event": "stop-observed", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
             return {"state": "leased", "lease_id": receipt.lease_id, "generation": receipt.generation}
         except Exception:
-            journal_event(self.paths.journal, {"event": "stop-failed"})
+            journal_event(self.paths.journal, {"event": "stop-failed", "lease_id": receipt.lease_id, "generation": receipt.generation})
             for vmid, unit in reversed(stopped):
-                journal_event(self.paths.journal, {"event": "restore-intent", "vmid": vmid, "unit": unit})
+                journal_event(self.paths.journal, {"event": "restore-intent", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
                 try:
                     self.runner(command_for(vmid, unit, "start"))
-                    journal_event(self.paths.journal, {"event": "restore-observed", "vmid": vmid, "unit": unit})
+                    journal_event(self.paths.journal, {"event": "restore-observed", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
                 except Exception:
-                    journal_event(self.paths.journal, {"event": "restore-uncertain", "vmid": vmid, "unit": unit})
+                    journal_event(self.paths.journal, {"event": "restore-uncertain", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
             # Keep the lock and state: an uncertain effect requires review.
             raise
 
-    def restore(self, receipt: LeaseReceipt, observation: Observation, *, backup_receipt: str) -> dict[str, object]:
+    def restore(self, receipt: LeaseReceipt, observation: Observation, *, backup_receipt: str, reobserve: Callable[[], Observation] | None = None) -> dict[str, object]:
         self._require_effect_authority()
         if not self.paths.lock.exists() or not self.paths.state.exists():
             raise ValueError("active lease state and lock are both required")
@@ -146,20 +146,28 @@ class CandidateController:
             raise ValueError("persisted lease identity does not match restore receipt")
         if not observation.control_plane_healthy:
             raise ValueError("control-plane postcheck is incomplete")
+        if reobserve is None:
+            raise ValueError("trusted post-effect observer is required")
         events = []
         if self.paths.journal.exists():
             events = [json.loads(line) for line in self.paths.journal.read_text().splitlines() if line.strip()]
-        intents = {(event.get("vmid"), event.get("unit")) for event in events if event.get("event") == "start-intent"}
-        observed = {(event.get("vmid"), event.get("unit")) for event in events if event.get("event") == "start-observed"}
+        current_events = []
+        for event in events:
+            if event.get("lease_id") != receipt.lease_id or event.get("generation") != receipt.generation:
+                continue
+            current_events.append(event)
+        intents = {(event.get("vmid"), event.get("unit")) for event in current_events if event.get("event") == "start-intent"}
+        observed = {(event.get("vmid"), event.get("unit")) for event in current_events if event.get("event") == "start-observed"}
         if intents - observed:
             raise ValueError("uncertain prior start requires operator reconciliation")
         for vmid, unit in persisted.services:
             if (vmid, unit) in observed:
                 continue
-            journal_event(self.paths.journal, {"event": "start-intent", "vmid": vmid, "unit": unit})
+            journal_event(self.paths.journal, {"event": "start-intent", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
             self.runner(command_for(vmid, unit, "start"))
-            journal_event(self.paths.journal, {"event": "start-observed", "vmid": vmid, "unit": unit})
-        decision = decide(receipt, observation, backup_receipt=backup_receipt, current_state=WatchdogState.RESTORING)
+            journal_event(self.paths.journal, {"event": "start-observed", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
+        fresh_observation = reobserve()
+        decision = decide(receipt, fresh_observation, backup_receipt=backup_receipt, current_state=WatchdogState.RESTORING)
         if decision.state != WatchdogState.READY:
             raise ValueError("post-restore checks are incomplete; lease retained")
         journal_event(self.paths.journal, {"event": "restore-validated", "lease_id": receipt.lease_id, "generation": receipt.generation})

@@ -42,7 +42,7 @@ class CandidateControllerTests(unittest.TestCase):
             controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
             commands.clear()
             with self.assertRaisesRegex(ValueError, "incomplete"):
-                controller.restore(self.receipt(), self.observation(schedule_restored=False), backup_receipt="backup")
+                controller.restore(self.receipt(), self.observation(), backup_receipt="backup", reobserve=lambda: self.observation(schedule_restored=False))
             self.assertEqual(len(commands), len(ALLOWLIST))
             self.assertTrue((Path(temp) / "lease.lock").exists())
 
@@ -86,7 +86,7 @@ class CandidateControllerTests(unittest.TestCase):
             controller.acquire(self.receipt(), self.observation(), backup_receipt="backup", active_services=active)
             commands.clear()
             self.assertEqual(
-                controller.restore(self.receipt(), self.observation(), backup_receipt="backup")["state"],
+                controller.restore(self.receipt(), self.observation(), backup_receipt="backup", reobserve=lambda: self.observation())["state"],
                 "ready",
             )
             self.assertEqual(commands, [command_for(*active[0], "start")])
@@ -112,10 +112,10 @@ class CandidateControllerTests(unittest.TestCase):
             controller.acquire(self.receipt(), self.observation(), backup_receipt="backup", active_services=(ALLOWLIST[0],))
             journal = Path(temp) / "lease.jsonl"
             with journal.open("a") as stream:
-                stream.write('{"event":"start-intent","vmid":"104","unit":"aster-agent.service"}\n')
+                stream.write('{"event":"start-intent","lease_id":"lab-1","generation":1,"vmid":"104","unit":"aster-agent.service"}\n')
             commands.clear()
             with self.assertRaisesRegex(ValueError, "uncertain"):
-                controller.restore(self.receipt(), self.observation(), backup_receipt="backup")
+                controller.restore(self.receipt(), self.observation(), backup_receipt="backup", reobserve=lambda: self.observation())
             self.assertEqual(commands, [])
 
 
