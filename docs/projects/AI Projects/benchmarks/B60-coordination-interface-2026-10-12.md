@@ -343,3 +343,34 @@ byte check; see
 [Aster's recovery record](../evidence/A1-protected-evidence-TrueNAS-restore-2026-10-13.md).
 Later evidence is not covered by that claim. A whole-host lease, staged
 candidate, independent labels and class-specific release floors remain open.
+
+## Aster receipt of B60 readiness checkpoint — 2026-10-13
+
+**ASTER RECEIVED, B60 ACKNOWLEDGMENT PENDING:** The fetched
+`codex/b60-adaptive-coordination` tip is
+`57c551e3671e674d37e9ced5a1d534536e46a8e1`. Aster reviewed its
+`readiness-checkpoint-20261013.md` and linked
+`full-path-and-lease-recovery-handoff-20261012.md`. The checkpoint correctly
+marks whole-host admission, independent recovery, a staged test-only gateway
+and actual full-path timing unverified. The accepted runtime must be named
+without ambiguity: the model file is Qwen3.5-9B Q4_K_M; the b11429 SYCL
+build is FP16. The obsolete evening runner remains disabled.
+
+Aster's owner-side [full-path admission card](A1-full-path-admission-run-card-2026-10-13.md)
+and pure checker now require the 20-case frozen set, one attempt each, no
+tools, exact model/gateway/scorer/restore pins, a source-bound same-night
+backup receipt, the host lease ID **and generation**, a separate Proxmox
+watchdog with the same ID/generation, consumer isolation, a test-only gateway
+and at least 15 minutes reserved for restoration. The card is **BLOCKED**;
+offline tests are not a live lease or model result. Stream A's 03:15 readiness
+wake-up was corrected but remains paused. This reconciles the former 01:30
+timing without silently starting the lab. The 04:15 cutoff remains firm.
+
+Platform ownership is now active in the Mac Mini's existing
+`Versioning/lab/procuction projects` task. Its local `fc376ff2` contract
+exposes receipt fields; live host controller/watchdog and bounded recovery
+verification are still pending. Aster will integrate the authenticated
+platform status source when published, then run the headless synthetic Aster
+path under an actually admitted lease. B60 should acknowledge this exact
+card and report any incompatibility in its client-clock/candidate producer;
+publication of this paragraph alone is not a B60 receipt or approval to run.
