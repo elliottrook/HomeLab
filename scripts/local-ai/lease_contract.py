@@ -45,6 +45,61 @@ class LeasePlan:
     actions: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class LeaseReceipt:
+    """Durable, non-secret admission facts bound to one lab lease."""
+
+    lease_id: str
+    generation: int
+    issued_minute: int
+    expires_minute: int
+    backup_receipt: str
+    model_identity: str
+    backend_identity: str
+    consumers_isolated: bool
+    scheduled_work_quiesced: bool
+
+
+ACCEPTED_MODEL = "Qwen3.5 9B Q4_K_M"
+ACCEPTED_BACKEND = "llama.cpp b11429 SYCL/Level Zero"
+
+
+def validate_receipt(
+    receipt: LeaseReceipt,
+    *,
+    now_minute: int,
+    expected_backup_receipt: str,
+    watchdog_alive: bool,
+) -> None:
+    """Fail closed unless the durable admission facts still hold.
+
+    This is deliberately pure. A controller must persist the receipt before
+    draining guests, and an independent watchdog must call this check before
+    allowing lease work or release to proceed.
+    """
+
+    if not receipt.lease_id or receipt.generation < 1:
+        raise LeaseError("lease receipt identity is invalid")
+    if receipt.issued_minute > now_minute:
+        raise LeaseError("lease receipt is from the future")
+    if receipt.expires_minute <= now_minute:
+        raise LeaseError("lease receipt has expired")
+    if receipt.expires_minute <= receipt.issued_minute:
+        raise LeaseError("lease receipt expiry is invalid")
+    if receipt.backup_receipt != expected_backup_receipt:
+        raise LeaseError("lease receipt is not bound to the verified backup")
+    if receipt.model_identity != ACCEPTED_MODEL:
+        raise LeaseError("lease model identity is not the accepted 9B baseline")
+    if receipt.backend_identity != ACCEPTED_BACKEND:
+        raise LeaseError("lease backend identity is not the accepted SYCL baseline")
+    if not receipt.consumers_isolated:
+        raise LeaseError("production consumers are not isolated")
+    if not receipt.scheduled_work_quiesced:
+        raise LeaseError("scheduled work is not quiesced")
+    if not watchdog_alive:
+        raise LeaseError("independent lease watchdog is not alive")
+
+
 def plan_acquire(request: LeaseRequest) -> LeasePlan:
     """Return an ordered, side-effect-free acquisition plan."""
 

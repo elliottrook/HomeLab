@@ -1,6 +1,17 @@
 import unittest
 
-from lease_contract import BackupChain, LeaseError, LeaseRequest, LeaseState, plan_acquire, plan_release
+from lease_contract import (
+    ACCEPTED_BACKEND,
+    ACCEPTED_MODEL,
+    BackupChain,
+    LeaseError,
+    LeaseReceipt,
+    LeaseRequest,
+    LeaseState,
+    plan_acquire,
+    plan_release,
+    validate_receipt,
+)
 
 
 class LeaseContractTests(unittest.TestCase):
@@ -44,6 +55,49 @@ class LeaseContractTests(unittest.TestCase):
         ready = plan_release(health_verified=True, restore_complete=True)
         self.assertEqual(ready.state, LeaseState.READY)
         self.assertEqual(ready.actions[-1], "record-post-lab-checkpoint")
+
+    def receipt(self, **changes):
+        values = {
+            "lease_id": "lab-20261013-01",
+            "generation": 1,
+            "issued_minute": 220,
+            "expires_minute": 255,
+            "backup_receipt": "backup-chain-sha256",
+            "model_identity": ACCEPTED_MODEL,
+            "backend_identity": ACCEPTED_BACKEND,
+            "consumers_isolated": True,
+            "scheduled_work_quiesced": True,
+        }
+        values.update(changes)
+        return LeaseReceipt(**values)
+
+    def test_receipt_binds_admission_to_exact_runtime_and_watchdog(self):
+        validate_receipt(
+            self.receipt(),
+            now_minute=221,
+            expected_backup_receipt="backup-chain-sha256",
+            watchdog_alive=True,
+        )
+
+    def test_receipt_fails_closed_on_expiry_or_runtime_drift(self):
+        cases = (
+            ("expired", {"expires_minute": 221}, "expired"),
+            ("backup", {"backup_receipt": "other"}, "backup"),
+            ("model", {"model_identity": "Qwen3.5 9B"}, "9B baseline"),
+            ("backend", {"backend_identity": "llama.cpp Vulkan"}, "SYCL baseline"),
+            ("consumer", {"consumers_isolated": False}, "isolated"),
+            ("schedule", {"scheduled_work_quiesced": False}, "quiesced"),
+            ("watchdog", {}, "watchdog"),
+        )
+        for name, changes, expected in cases:
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(LeaseError, expected):
+                    validate_receipt(
+                        self.receipt(**changes),
+                        now_minute=221,
+                        expected_backup_receipt="backup-chain-sha256",
+                        watchdog_alive=name != "watchdog",
+                    )
 
 
 if __name__ == "__main__":
