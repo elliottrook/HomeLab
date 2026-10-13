@@ -108,6 +108,17 @@ and [strict content-free join](../../../../scripts/aster-adaptive/join_aster_clo
 exercise this boundary with synthetic responses. They do not provide a native
 Companion producer, a live service measurement or a useful-answer label.
 
+The [synthetic client-clock pair](../../../../scripts/aster-adaptive/synthetic_client_clock.py)
+adds an in-process, marked-fixture display callback using the B60 client's
+clock producer from coordination commit `779af42f`. Six offline cases cover
+completed display, renderer failure after gateway completion, interrupted
+stream, oversized body, an unawaited renderer and rejection of an unmarked
+app. A terminal gateway response without a completed display is censored;
+neither terminal response nor display establishes answer usefulness. The
+fixture marker is a test guard, not a production security boundary. This
+copy is attributed to the B60 owner and does not imply a deployed client hook
+or native Mac display measurement.
+
 ## Live gate and current disposition
 
 A candidate run card can become `READY` only after the platform owner publishes
@@ -122,19 +133,17 @@ regression. Afterward, verify accepted production restoration independently.
 
 **Current status: BLOCKED.** The B60 receipt validates public score integrity
 but does not provide a staged candidate or lab authority. Protected-evidence
-backup is still `UNKNOWN`; no human adjudication, full Aster-path clock,
+backup for the original nine-file fictional set is now verified by a
+[same-site restore and encrypted off-site byte check](../evidence/A1-protected-evidence-TrueNAS-restore-2026-10-13.md).
+No human adjudication, live full Aster-path clock,
 per-class current-control distributions or numeric quality floors exist.
 Document and resolve these independently. Do not call the 14/20 aggregate a
 promotion threshold or convert 20 direct-backend calls into a population p95.
 
-Read-only Mac metadata shows the protected directory is owner-only (0700),
-but `tmutil destinationinfo` reports **no Time Machine destinations
-configured**. Its `isexcluded` result of **included** therefore proves no
-copy. The documented restricted TrueNAS Mac pull covers only
-`~/lab/private-backups`, while this evidence resides under
-`~/Library/Application Support/Aster-Stream-A-Evidence/`. No recoverable
-copy or restore of this evidence has been verified. Keep backup status
-`UNKNOWN` for any undocumented mechanism and **not covered by the documented
-Mac pull**; do not delete local originals. The
+The original evidence directory remains outside the documented Mac pull;
+the specifically approved nine-file copy under `~/lab/private-backups` is
+what the verified TrueNAS and off-site jobs covered. This proves present
+recovery for that set, not future retention or any later model run. Keep the
+source and protected copies. The
 [protected-evidence backup plan](A1-protected-evidence-backup-plan-2026-10-12.md)
-defines a separate custody decision before any copy.
+remains the custody boundary for additional evidence.
