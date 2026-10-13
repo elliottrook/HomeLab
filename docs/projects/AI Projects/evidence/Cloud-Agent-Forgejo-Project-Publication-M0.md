@@ -92,6 +92,41 @@ to `docs/projects/` and `docs/handovers/`; the package cap is 32 files, 1 MiB
 per file and 8 MiB total. The live worker, dedicated writer credential and
 AI-PAM capability registration have not been installed.
 
+## Human root-ceremony evidence
+
+The local human-only OpenBao root ceremony was completed successfully on
+2026-10-13 using
+`ops/credential-broker/setup/run-human-root-ceremony.sh`. The wrapper prompts
+for the AppRole role ID, AppRole secret ID and two recovery shares locally with
+terminal echo disabled. It sends the opaque four-line payload to LXC 117 over
+noninteractive stdin; none of those values entered chat, model context,
+command arguments, Git, receipts or ordinary logs.
+
+The procedure uses OpenBao's own
+`bao operator generate-root -generate-otp -format=json` output. Recovery
+shares and the encoded token are passed through stdin without
+`-non-interactive`, because that flag causes the OpenBao CLI to replace stdin
+with an empty reader when the key is `-`. Other ceremony commands retain
+`-non-interactive` so they cannot prompt unexpectedly.
+
+Observed sanitized result:
+
+```text
+CEREMONY_PROGRESS 1/2
+CEREMONY_PROGRESS 2/2
+CEREMONY_COMPLETE
+```
+
+The generated root token was left only in the protected LXC 117 handoff file
+`/run/openbao-human-root-token`, verified present with root ownership and mode
+0600. Its value was not read or recorded. No Forgejo PAT, project writer
+AppRole, gateway service or cloud-agent write capability was created by this
+ceremony. The handoff remains pending the separately approved provisioning and
+revocation step.
+
+The repeatable procedure and failure-mode table are recorded in the
+[local handover](../../../handovers/Cloud-Agent-Forgejo-Project-Publication.md).
+
 No service, credential, firewall, DNS, workflow, protected branch or GitHub
 configuration was changed by this project record. The live runner base pin was
 not changed; that requires the dedicated credential, exact base reconciliation

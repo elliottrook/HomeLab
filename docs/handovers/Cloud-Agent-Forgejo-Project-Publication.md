@@ -3,7 +3,8 @@
 **Owner:** Jason  
 **Date:** 2026-10-13  
 **Status:** Stream A continuation; local implementation and recovery gates are
-passing; live enablement is waiting on a dedicated writer credential and base
+passing; the human OpenBao root ceremony completed successfully on 2026-10-13.
+Live enablement is still waiting on a dedicated writer credential and base
 reconciliation.
 
 ## Authority and scope
@@ -37,6 +38,13 @@ that published base are:
 - `bc4d9055` — bounded project-document capability
 - `0183a48` — credential boundary, size policy and protected checkpoint
 - `3ba66800` — fail-closed mid-batch recovery behavior and test
+- `3e9ef519` — handover and continuation status
+
+The human root-ceremony helper and its operating procedure are included in the
+next local commit. They are separate from the project gateway: the ceremony
+only creates a short-lived human handoff of the OpenBao root token; it does not
+create a Forgejo writer, enable a service or grant the cloud agent any
+credential.
 
 The local broker suite passes `132/132`. The package verifier is offline and
 rejects traversal, symlink, binary, delete/rename, hidden, collision,
@@ -55,6 +63,74 @@ digest-named local handoff.
 - The project gateway is not enabled.
 - No dedicated project-write AppRole file exists. The existing safe-write
   credential must not be reused.
+
+## Human root-ceremony provisioning runbook
+
+This is the repeatable procedure for the one human-only step needed before a
+local operator can provision the dedicated project writer. It is deliberately
+not a cloud-agent procedure. The role ID, secret ID, recovery shares, root
+token and Forgejo token must never be entered into chat, a model prompt, a Git
+file, a receipt, a command argument or an ordinary log.
+
+### Preconditions
+
+1. Work from the checked-out repository on the trusted local Mac. Confirm the
+   helper is the reviewed copy and that the local checkout is not carrying
+   unexpected edits.
+2. Have the human ceremony AppRole role ID, AppRole secret ID and two recovery
+   shares available in the operator's password manager or other approved
+   offline custody. Do not copy them into a terminal command line.
+3. Confirm that the existing root-token handoff is absent. The helper refuses
+   to overwrite `/run/openbao-human-root-token`.
+4. Run the helper from the local terminal:
+
+   ```sh
+   ./ops/credential-broker/setup/run-human-root-ceremony.sh
+   ```
+
+The wrapper prompts locally with terminal echo disabled. It stores the four
+input lines in a mode-0600 temporary file, stages only a non-secret remote
+helper, and sends the payload over noninteractive SSH stdin. The remote helper
+logs only sanitized progress. It authenticates the AppRole, generates the OTP
+with the installed OpenBao CLI, starts a two-share root ceremony, submits the
+shares from stdin, decodes the result from stdin, and writes the root token
+only to `/run/openbao-human-root-token` as root-owned mode 0600.
+
+### Expected successful output
+
+The terminal should show only status lines of this form:
+
+```text
+CEREMONY_TRANSPORT starting
+CEREMONY_STARTED threshold=2
+CEREMONY_PROGRESS 1/2
+CEREMONY_PROGRESS 2/2
+CEREMONY_COMPLETE
+```
+
+Do not inspect the handoff with `cat`, `less`, `env`, `ps` or an unrestricted
+debug command. A non-secret check may confirm only that the file exists and is
+root-owned with mode 0600. The handoff is temporary and must be consumed by
+the separately approved provisioning step, then removed and revoked as part
+of that step.
+
+### Known failure modes and fixes
+
+| Symptom | Cause | Correct response |
+|---|---|---|
+| Remote output echoes the whole script or prompts behave strangely | A nested remote PTY was used for a script that itself reads a terminal | Use the wrapper's noninteractive SSH transport; do not use `ssh -tt` or remote `/dev/tty` prompts |
+| `read: Illegal option -s` | LXC 117 uses POSIX `/bin/sh`, whose `read` has no `-s` option | Keep hidden input in the local wrapper using `stty -echo`; do not add Bash-only syntax to the remote helper |
+| `HTTP 400; OTP string has incorrect length` | A hand-built `openssl rand -base64` value is not necessarily the OTP format OpenBao expects | Generate the OTP with `bao operator generate-root -generate-otp -format=json` using the authenticated ceremony operator token |
+| `CEREMONY_STARTED threshold=2` followed by rejected shares | OpenBao's CLI treats `-` as stdin, but `-non-interactive` replaces stdin with an empty reader | For share submission and encoded-token decoding, omit `-non-interactive` and pipe the value through stdin. Keep `-non-interactive` for login, status, OTP generation, init and cancellation |
+| `CEREMONY_FAILED: could not start root ceremony` | The request was malformed or the OTP had the wrong format/length | Do not retry blindly. Read only the sanitized status, correct the transport/OTP issue, and let the helper cancel the partial ceremony and revoke its operator token |
+| `root-token handoff already exists` | A previous ceremony left a protected handoff for an unfinished provisioning step | Stop. Do not overwrite it; complete or explicitly recover the approved provisioning workflow first |
+
+On any other failure, preserve only the sanitized status. The helper attempts
+to cancel an incomplete ceremony, revoke its temporary operator token and
+remove its temporary files. It never prints the secret payload. If cleanup
+cannot be confirmed, stop before starting another ceremony and have the local
+operator inspect the service using the established privileged procedure,
+without exposing token values.
 
 ## Required local-agent continuation
 

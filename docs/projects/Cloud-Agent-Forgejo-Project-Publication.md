@@ -273,6 +273,25 @@ this gate.
 Gate: two independent synthetic passes and all denial cases pass; no remote
 state changes have occurred.
 
+#### Provisioning prerequisite: human OpenBao root ceremony
+
+Before the dedicated project writer can be provisioned, the local operator
+must use the reviewed
+`ops/credential-broker/setup/run-human-root-ceremony.sh` helper. It collects
+the AppRole role ID, AppRole secret ID and two recovery shares only through
+local hidden prompts, transports them over stdin, and leaves the generated root
+token only in the root-owned mode-0600 handoff file
+`/run/openbao-human-root-token` on LXC 117. It does not create a Forgejo token
+or enable the gateway.
+
+The helper must report `CEREMONY_COMPLETE` after both sanitized progress lines.
+The [local handover](../handovers/Cloud-Agent-Forgejo-Project-Publication.md)
+records the failure modes that previously caused trial-and-error, including
+POSIX-shell prompt limitations, OpenBao OTP format requirements and the
+stdin/`-non-interactive` interaction. Never print or copy the handoff value;
+consume it only during the separately approved provisioning step and revoke it
+afterward.
+
 ### M3 — Forgejo-only remote canary
 
 - [ ] Obtain Jason's immediate confirmation for the exact first Forgejo write.
@@ -303,7 +322,7 @@ agent, and the capability remains narrower than arbitrary Forgejo access.
 |---|---|---|
 | M0 | This design; branch-rescission verification; canonical base, privacy boundary and checkpoint record | Complete locally 2026-10-13 |
 | M1 | `project_document_bundle_verifier.py`, manifest rules, denial tests and full broker regression | Local gate passed 2026-10-13: 132/132 |
-| M2 | Checkpoint, isolation, approval/revocation and synthetic canary evidence | Implementation and recovery tests complete locally; live credential/base gates pending |
+| M2 | Checkpoint, isolation, approval/revocation and synthetic canary evidence | Implementation and recovery tests complete locally; human root ceremony complete; live credential/base gates pending |
 | M3 | Forgejo branch/tree and mirror read-only verification | Not started |
 | M4 | Restore, monitoring, operator handover and graduation review | Not started |
 
