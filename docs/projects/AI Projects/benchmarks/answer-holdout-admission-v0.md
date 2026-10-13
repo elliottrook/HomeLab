@@ -91,11 +91,11 @@ The v1 bundle was sent once to accepted 9B, but the local write failed after
 the remote response. No score is available and v1 must not be replayed as a
 fresh holdout. The [failure record](../experiments/a1-answer-holdout-v1/RESULT-FAILED-2026-10-12.md)
 keeps that evidence-custody error explicit. A new v2 bundle is required.
-The [fresh v2 bundle](answer-holdout-release-v2-2026-10-12.md) is now sealed
+The [fresh v2 bundle](answer-holdout-release-v2-2026-10-12.md) was sealed
 and separately AI-reviewed, with case-specific privacy constraints. Its
 exact 9B profile, source pins and [bounded run card](../experiments/a1-answer-holdout-v2/RUN-CARD-2026-10-12.md)
-are prepared. It is **BLOCKED for a model call** until a fresh host
-occupancy/lease, backup and reservation check admits a safe slot. Independent
-output adjudication is still pending because no v2 output exists. A direct
-backend development run cannot qualify native Aster-path latency. This gate
-remains separate from SA3 sysadmin evaluation.
+were frozen before one live attempt. After News completed and a fresh
+occupancy/lease/backup check passed, the local 9B returned 20/20 responses;
+two backend-blind AI reviewers each scored [14/20 full-rubric passes](../experiments/a1-answer-holdout-v2/RESULT-2026-10-12.md).
+Human adjudication and native Aster-path latency remain open. This development
+result is separate from SA3 sysadmin evaluation and does not promote a route.

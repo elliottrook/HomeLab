@@ -1,7 +1,9 @@
 # Aster assistant-answer fictional holdout v2 — sealed release
 
-**State:** Sealed and independently AI-reviewed offline on 2026-10-12. No
-inference model has received v2; no route or tool promotion follows. V2 is a
+**State:** Sealed and independently AI-reviewed offline on 2026-10-12, then
+used once by the accepted local 9B after a fresh live admission. The
+[20-case result](../experiments/a1-answer-holdout-v2/RESULT-2026-10-12.md)
+is retained without route or tool promotion. V2 is a
 new corpus because the v1 remote response was lost at a local evidence write.
 The v1 questions must not be replayed as fresh evidence.
 
@@ -31,8 +33,8 @@ six exposed development cases. A URL-shaped example uses the reserved
 The intended first candidate is the accepted local 9B reasoning-off service
 under [profile v2](a1-answer-holdout-9b-profile-v2.json), SHA-256
 `97ba9f9b68b0f294f52d76fb6f34cb05540d040dbc7698688b3e2879c2cf0402`.
-Its run card remains BLOCKED until a new live lab/backup/service admission
-check and safe reservation interval. The direct backend path does not measure
+Its run card admitted one attempt after live lab/backup/service and News
+completion checks. The direct backend path does not measure
 native Aster/Companion user-facing latency. Even a clean score is only
 development evidence at two cases per class and does not authorize routing,
 permissions or operational autonomy.

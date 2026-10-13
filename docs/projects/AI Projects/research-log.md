@@ -2888,8 +2888,8 @@ writability before any model call, pins its source files, and seals raw output
 before parsing. A disposable local storage preflight and 14 focused tests
 passed, including an injected primary-write failure that sealed the response
 in an owner-only fallback directory. Review scoring binds its packet to the
-sealed capture and reports
-content-free direct-backend timing separately from the blind answer review.
+sealed capture and reports content-free direct-backend timing separately from
+the blind answer review.
 These controls make the next development run reproducible; they do not
 establish human ground truth, native Aster latency or model qualification.
 See the [v2 release](benchmarks/answer-holdout-release-v2-2026-10-12.md) and
@@ -2900,3 +2900,23 @@ lease state/lock were absent, but a read-only LXC 114 check showed the News
 digest service `activating` after its 17:15 reservation began. That production
 workload blocks the shared inference slot. Recheck its completion, service
 occupancy, backup tasks and exact runtime pins before any one-shot v2 run.
+
+### 2026-10-12 — A1 v2 one-shot local answer baseline completed
+
+The News digest subsequently finished with systemd success. Fresh admission
+found no host lease or backup conflict, zero active Proxmox tasks in a sample
+of 20, exact accepted 9B unit/binary/model hashes, healthy service PID 10445
+with zero restarts, and empty inference queues. One serial, no-tool v2 run
+returned 20/20 completed responses in about 25 seconds. Its raw output was
+sealed mode 0600, hash-verified and copied to longer-lived owner-only local
+custody; immediate postchecks found the same healthy service and empty queues.
+
+Two separate backend-blind AI reviewers each scored 14/20 full-rubric passes,
+agreeing on all 20 outcomes and case-level pass/fail judgments and on 40/41
+rubric bits. Calendar-plus-web was 0/2; no reviewer flagged a prohibited claim
+or privacy violation in the fictional text. Direct-backend completed-call
+median was 1,178.5 ms, maximum 2,152 ms. These results remain development
+evidence: two AI-authored cases per family, AI-only review, unknown recoverable
+backup, no confidence calibration, no native Aster/Companion latency and no
+Codex-paired result. Automatic routing, connected tools and the sysadmin role
+remain unchanged. See the [frozen result](experiments/a1-answer-holdout-v2/RESULT-2026-10-12.md).
