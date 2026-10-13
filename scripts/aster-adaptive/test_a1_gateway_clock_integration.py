@@ -9,7 +9,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from a1_test_gateway import A1TestGateway
 from aster_asgi_clock import ASGIResponseClock
-from aster_full_path_request import payload_for
+from aster_full_path_request import wire_bytes_for
 from client_display_clock import ClientDisplayClock
 from join_aster_clock import join
 from test_aster_full_path_request import fixture
@@ -32,10 +32,10 @@ async def run_case(*, display: bool):
     app = A1TestGateway(
         ASGIResponseClock(fake_aster, gateway_rows, id_factory=lambda: ID),
         token_sha256=hashlib.sha256(TOKEN).hexdigest(),
-        request_sha256s=frozenset({hashlib.sha256(json.dumps(payload_for(fixture())).encode()).hexdigest()}
+        request_sha256s=frozenset({hashlib.sha256(wire_bytes_for(fixture())).hexdigest()}
                                   | {f"{i:064x}" for i in range(1, 20)}),
     )
-    body = json.dumps(payload_for(fixture())).encode()
+    body = wire_bytes_for(fixture())
     events = []
     delivered = False
     client = ClientDisplayClock()

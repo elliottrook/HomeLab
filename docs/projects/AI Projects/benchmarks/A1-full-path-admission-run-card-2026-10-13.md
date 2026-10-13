@@ -162,3 +162,12 @@ checker, and a reviewed protected-output path. Then run the synthetic gateway
 and display join under the admitted lease, retain failures and restoration
 evidence, and decide separately whether a paired candidate or fresh
 qualification corpus is justified. Do not revive the obsolete coordinator.
+
+The offline gateway candidate now derives its 20 allowlisted body digests from
+the validated sealed corpus using the same serializer as the client. Only
+digests, never request text or labels, belong in its configuration. It rejects
+an attempted repeat in one process before forwarding. This is **not** durable
+one-attempt proof: a process restart clears that memory, so an admitted live
+run also needs a protected, durable attempt journal and a fixed one-worker
+process boundary. The gateway is not deployed; no current Aster request has
+passed through it.

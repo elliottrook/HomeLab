@@ -62,6 +62,38 @@ class A1TestGatewayTests(unittest.TestCase):
         self.assertEqual(called[0], "/v1/chat/completions")
         self.assertEqual(called[1]["enabled_tools"], [])
 
+    def test_same_process_retry_is_rejected_after_first_forward(self):
+        calls = []
+
+        async def fake_app(scope, receive, send):
+            calls.append(await receive())
+            await send({"type": "http.response.start", "status": 200, "headers": []})
+            await send({"type": "http.response.body", "body": b"{}", "more_body": False})
+
+        gateway = A1TestGateway(fake_app,
+                                token_sha256=hashlib.sha256(TOKEN).hexdigest(),
+                                request_sha256s=request_hashes(self.body))
+
+        async def attempt():
+            events = []
+
+            async def receive():
+                return {"type": "http.request", "body": self.body, "more_body": False}
+
+            async def send(event):
+                events.append(event)
+
+            await gateway({"type": "http", "path": "/v1/chat/completions", "method": "POST",
+                           "headers": [(b"content-type", b"application/json"),
+                                       (b"authorization", b"Bearer " + TOKEN)]}, receive, send)
+            return events[0]["status"]
+
+        async def run_twice():
+            return await attempt(), await attempt()
+
+        self.assertEqual(asyncio.run(run_twice()), (200, 409))
+        self.assertEqual(len(calls), 1)
+
     def test_other_route_method_and_credential_are_rejected_before_app(self):
         for options, expected in (({"path": "/v1/sysadmin/incidents/doctor"}, 404),
                                   ({"method": "GET"}, 404),

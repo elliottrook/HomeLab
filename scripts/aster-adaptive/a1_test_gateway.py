@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import threading
 from typing import Callable
 
 MAX_BODY = 32_768
@@ -80,6 +81,8 @@ class A1TestGateway:
         self.app = app
         self.token_sha256 = token_sha256
         self.request_sha256s = request_sha256s
+        self._attempted: set[str] = set()
+        self._attempt_lock = threading.Lock()
 
     async def __call__(self, scope, receive, send):
         if scope.get("type") == "lifespan":
@@ -131,8 +134,18 @@ class A1TestGateway:
         if not valid_body(raw):
             await _reject(send, 400)
             return
-        if hashlib.sha256(raw).hexdigest() not in self.request_sha256s:
+        request_digest = hashlib.sha256(raw).hexdigest()
+        if request_digest not in self.request_sha256s:
             await _reject(send, 403)
+            return
+        # Claim before forwarding. An uncertain downstream result cannot be
+        # retried in this process and silently counted as a second attempt.
+        with self._attempt_lock:
+            repeated = request_digest in self._attempted
+            if not repeated:
+                self._attempted.add(request_digest)
+        if repeated:
+            await _reject(send, 409)
             return
         delivered = False
 
