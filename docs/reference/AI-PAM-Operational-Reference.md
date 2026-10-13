@@ -47,6 +47,14 @@ normally from the Dock or Applications. The installed Keychain item should be
 set to **Always Allow** for that signed application; secret values are never
 shown in the management UI.
 
+The pull-based Forgejo runner is an accepted canary-only write integration with
+an accepted bounded-read amendment. It uses a human-carried signed
+bundle, network-denied validation and the existing Yellow one-file safe-write
+capability. Its Green read path is fixed to `jason/homelab` and a small set of
+metadata/content tools. Both paths retain target credentials behind independent
+gateways; the runner has neither a target credential nor approval authority.
+See the [operator guide](../runbooks/Pull-Based-Forgejo-Runner.md).
+
 ## Authority and inventory
 
 NetBox is authoritative for the existing `hermesagent` LXC 104 and `openbao`
@@ -98,3 +106,7 @@ The completed implementation and detailed evidence are in
 `docs/projects/completed projects/homelab-credential-broker.md`. Current
 commands and architecture are in `docs/reference/Aster-Operations.md` and
 `ops/credential-broker/README.md`.
+
+The read amendment is accepted with 112/112 Linux tests passing. Live repository
+metadata and ordinary-file reads passed; another repository, `.env` and direct
+gateway access were denied while the separate write gateway remained active.

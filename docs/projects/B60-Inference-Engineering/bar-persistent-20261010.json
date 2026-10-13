@@ -1,0 +1,23 @@
+{
+  "date_local": "2026-10-10",
+  "boot_id": "0b822e46-9f9e-469b-8927-38782b20dcc5",
+  "kernel": "7.0.14-23-pve",
+  "default_entry": "b60-bar-aligned-7.0.14-23",
+  "pf_bar0_bytes": 16777216,
+  "pf_bar2_bytes": 34359738368,
+  "vf_aggregate_bytes": 6442450944,
+  "usable_and_cpu_accessible_vram_hex": "0x5fa000000",
+  "driver": "xe",
+  "vulkan_device": "Intel BMG G21",
+  "accepted_hashes_match": true,
+  "client_path_inference_health": "ok",
+  "client_path_aster_health": "ok",
+  "authenticated_synthetic_correctness_passed": true,
+  "synthetic_elapsed_seconds": 0.45835766699997293,
+  "generation_evidence_sha256": "970e93c387a817c0f445da06768f140ebef2587979a921b8251c12dd57a764f6",
+  "news_timers_active": true,
+  "normal_recovery_images_unchanged": true,
+  "failed_host_units_after_refresh": 0,
+  "speed_improvement_claimed": false,
+  "git_pushed": false
+}

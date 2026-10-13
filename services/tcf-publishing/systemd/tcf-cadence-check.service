@@ -1,0 +1,22 @@
+[Unit]
+Description=Quiet TCF fortnightly editorial due check
+After=tcf-content-desk.service
+
+[Service]
+Type=oneshot
+User=tcf-desk
+Group=tcf-desk
+Environment=TCF_DATABASE=/var/lib/tcf-workflow/content.db
+Environment=TCF_CADENCE_STATE=/var/lib/tcf-workflow/cadence.json
+ExecStart=/usr/bin/python3 /opt/tcf-publishing/cadence.py
+NoNewPrivileges=true
+PrivateTmp=true
+StateDirectory=tcf-workflow
+StateDirectoryMode=0700
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/tcf-publishing
+RestrictAddressFamilies=AF_UNIX
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryDenyWriteExecute=true

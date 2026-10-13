@@ -1,0 +1,25 @@
+flush ruleset
+table inet filter {
+  chain input {
+    type filter hook input priority 0; policy drop;
+    iifname "lo" accept
+    ct state established,related accept
+    ip saddr 192.168.20.35 tcp dport 22 accept comment "publisher exact-target deploy"
+    ip saddr 192.168.50.23 tcp dport 80 accept comment "NPM private validation only"
+    ip protocol icmp icmp type echo-request limit rate 5/second accept
+  }
+  chain output {
+    type filter hook output priority 0; policy drop;
+    oifname "lo" accept
+    ct state established,related accept
+    ip daddr {192.168.20.20,192.168.20.40} udp dport 53 accept
+    ip daddr {192.168.20.20,192.168.20.40} tcp dport 53 accept
+    ip daddr 192.168.20.1 udp dport 123 accept
+    ip daddr 192.168.20.20 tcp dport 8090 accept comment "Beszel hub telemetry"
+    ip daddr 10.0.0.0/8 drop
+    ip daddr 172.16.0.0/12 drop
+    ip daddr 192.168.0.0/16 drop
+    tcp dport {80,443,7844} accept
+    udp dport 7844 accept
+  }
+}

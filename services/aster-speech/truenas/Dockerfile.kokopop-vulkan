@@ -1,0 +1,36 @@
+FROM debian:13-slim AS builder
+
+ARG KOKOPOP_COMMIT=2c6989ac800f624ea984210215e1b76be42eea81
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        build-essential ca-certificates cmake git glslc libespeak-ng-dev \
+        libogg-dev libopus-dev libopusenc-dev libopusfile-dev libvulkan-dev \
+        ninja-build pkg-config spirv-headers \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+RUN git clone https://github.com/tterrasson/kokopop.git . \
+    && git checkout --detach "${KOKOPOP_COMMIT}" \
+    && test "$(git rev-parse HEAD)" = "${KOKOPOP_COMMIT}"
+
+RUN cmake -S . -B /build -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DKOKOPOP_BUILD_TESTS=OFF \
+        -DKOKOPOP_BUILD_BENCH=OFF \
+        -DKOKOPOP_ENABLE_VULKAN=ON \
+    && cmake --build /build --parallel "$(nproc)" --target kokopop_stream
+
+FROM debian:13-slim
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        espeak-ng libgomp1 libogg0 libopus0 libopusenc0 libopusfile0 \
+        libvulkan1 mesa-vulkan-drivers wget \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /build/ /opt/kokopop/build/
+ENV LD_LIBRARY_PATH=/opt/kokopop/build:/opt/kokopop/build/_deps/yyjson-build:/opt/kokopop/build/_deps/ggml-build/src:/opt/kokopop/build/_deps/ggml-build/src/ggml-vulkan
+
+USER 10001:10001
+ENTRYPOINT ["/opt/kokopop/build/kokopop_stream"]

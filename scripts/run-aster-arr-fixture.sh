@@ -248,7 +248,7 @@ def check_aster(candidate_ref: str, repetition: str) -> None:
     if not key:
         fail("Aster API authorization is unavailable")
     payload = {
-        "model": "aster-qwen3.8-27b",
+        "model": "aster-qwen3.5-9b",
         "messages": [{
             "role": "user",
             "content": (

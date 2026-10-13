@@ -1,5 +1,241 @@
 # Changelog
 
+## 2026-10-12 — Adopt lab-to-production release lifecycle for Aster Voice
+
+- Defined repository-wide one-way Lab candidate to immutable release to
+  independently deployed production promotion, reserving “mirror” for the
+  Forgejo-to-GitHub protection mirror and “lab baseline” for retained releases.
+- Added Aster Voice M9: finish V1 acceptance, deploy a separate Servers-VLAN
+  production guest, migrate consumers with rollback and soak gates, retain LXC
+  116 as the sanitized V1 lab baseline, and isolate any future V2 candidate.
+- Corrected the voice project status: M3 is complete, while M4 Companion
+  migration and M8 final cross-surface acceptance remain prerequisites to V1.
+
+## 2026-10-12 — Aster voice operations and systems-of-record close-out
+
+- Added model-aware Doctor synthesis checks, privacy-bounded service metrics,
+  Prometheus/Grafana alert delivery and retained Beszel host ownership.
+- Proved a complete network-isolated LXC 116 restore and final byte-identical
+  Proxmox/TrueNAS archive after correcting one deployed health-method drift.
+- Reconciled NetBox TCP services 9130/9131/10300, published the private human
+  Aster Voice Service guide, and accepted a deterministic 1,810-entry derived
+  mirror with source-located provenance.
+- Updated speech implementation, architecture, Companion recovery and project
+  portfolio records to distinguish canonical Kokoro from the retained Piper path.
+
+## 2026-10-11 — First native OpenVINO trial
+
+- Verified all 31 isolated artifacts and explicit B60 OpenCL execution; native
+  regression scored 14/16 versus SYCL's 12/16, with no new suite failures.
+- Stopped at the sustained-output gate when the warmup ended at 101 tokens;
+  no measured native speed claim. Exact accepted SYCL restored and validated,
+  with no device/kernel fault and no permanent OpenVINO deployment.
+- Prepared explicit bounded fixed-length decoding on both runtimes, identical
+  policy checks and candidate-PID telemetry; 86 focused tests pass. The corrected
+  comparison remains unexecuted and requires fresh gates outside backup I/O.
+
+## 2026-10-11 — Private SYCL production deployment
+
+- Promoted the tested b11429 FP16/fusion-1 SYCL configuration after a new,
+  byte/hash-verified LXC 110 backup and non-deleting TrueNAS mirror; approved
+  root disk growth from 64 to 72 GiB, persistent private loader/oneAPI runtime,
+  and exact retained Vulkan rollback. No system/global driver/package/boot change.
+- Passed two clean starts, unchanged-model regression (same four known baseline
+  scoring failures), exercised Vulkan rollback, fixed-128-token, grounded/8K
+  workloads and ten-minute healthy soak with zero restarts/kernel faults.
+- Reproduced ~57.8 tok/s sustained decode (~19% matched gain); short grounded/8K
+  decode gains are ~21%. Preserve output-length/request-latency caveats.
+- Retargeted accepted recovery to SYCL and prepared a separately approved isolated
+  native OpenVINO IR trial. No permanent OpenVINO deployment or Git push; other
+  B60 consumers remain paused until Jason resumes them. Aster's hardcoded Vulkan
+  UI/identity label remains a documented metadata caveat, not the actual backend.
+
+## 2026-10-10 — Fotosforfun project started
+
+- Created the Stream A project for Alisa's growing `fotosforfun.ca` gallery.
+  It uses a separate home-LAN-only editor, identity, database and release
+  namespace while reusing the existing isolated publishing hosts and proven
+  static-release mechanisms.
+- Recorded the first non-owner HomeLab access boundary: Alisa receives her own
+  Authentik user/passkey and a Fotosforfun-only group; Jason retains separate
+  recovery administration. Access to the existing Content Desk and other lab
+  services is explicitly excluded and must be denied in testing.
+- Verified read-only that the publisher and static origin are healthy with ample
+  capacity. No live service, account, firewall, DNS, mail, tunnel or public
+  route changed. Public launch remains a later explicit exposure gate after
+  Alisa supplies and approves real content.
+- Completed A1 locally: added the isolated catalogue editor and responsive
+  Aster-style GUI for add, edit, order, reversible retirement, approval and
+  exact-site preview. Twelve service tests, syntax/static safety checks and
+  desktop/mobile browser QA passed; no live publish control or public route was
+  introduced.
+- Completed A2 private deployment on existing LXC 124/125 after named recovery
+  snapshots: dedicated locked users, loopback editor, mode-0700 state, separate
+  host-matched origin/release root and Fotosforfun-only forced SSH receiver.
+  Reboot, wrong-host, interrupted staging, atomic rollback and cross-site denial
+  tests passed without changing DNS, firewall, Authentik or public ingress.
+
+## 2026-10-10 — B60 inference Q4 K/V promotion
+
+- Fixed the production llama.cpp API-path bottleneck by changing only K/V cache
+  precision from Q8_0 to Q4_0; matched authenticated decode improved from
+  5.94–6.69 to 10.72–11.05 tokens/s.
+- Passed repeated conversation, persona, real tool-schema, grounded retrieval
+  and 8K recall checks, plus B60/Aster health and exercised-soak validation.
+- Retained the exact Q8 unit for immediate rollback and documented the accepted
+  configuration and recovery procedure; no binary, model, package, firmware,
+  network or platform change was made.
+
+## 2026-10-10 — Aster Unified Voice Service project started
+
+- Started a Stream A project to make LXC 116 the single private Aster Voice
+  Service for Companion, Home Assistant, News and future reasoning backends.
+- Adopted the existing canonical Kokoro `bm_daniel`, `en-gb`, speed `0.95`
+  identity and recorded deployed Piper as a retained migration rollback rather
+  than a conformant final voice.
+- Recorded the live six-core/4 GiB speech guest, CPU `base.en` STT, complete-WAV
+  Piper path, client chunking/capture gaps, existing recovery coverage and
+  current healthy authentication/routing checks.
+- Bounded autonomous work to local speech, exact private caller paths, staged
+  reversible migrations and content-free telemetry. No cloud speech, new public
+  ingress, reasoning-model change, Home Assistant authority expansion or voice
+  substitution is authorized.
+- Completed M0 without changing production. M1 begins with licence/runtime,
+  Assist/Wyoming protocol and exact network discovery plus offline Piper/Kokoro
+  latency, quality, concurrency and resource benchmarks.
+
+## 2026-10-10 — Emotional-first brand discovery
+
+- Added indirect client questions covering stories, desired impressions, associations, ranked words and boundaries before the detailed practical questionnaire.
+- Added the reusable client-vision discovery procedure and per-brand discovery/interpretation brief; engagement state tracks confirmation, unresolved vision questions and practical intake separately.
+- Separated client evidence from designer hypotheses, personal taste from intended audience impression and present identity from aspiration. Client confirmation precedes formal concepts; audience reception is not inferred from owner approval.
+- Preserved existing rights, master approval, production and deployment gates and the precise-edit shortcut. No client transcripts, brand artwork, live-service changes or new network/credential requirements are included.
+- Reconciled against a clean current Forgejo checkout; installed skill resources were already updated locally. Documentation diff and local reference checks passed. The earlier skill validator attempt remains limited by unavailable PyYAML; structural checks are not behavioral validation.
+
+## 2026-10-10 — Pull-based Forgejo runner project started
+
+- Added a Stream A project for an outbound-only signed change-bundle runner
+  that reuses AI-PAM and the existing one-file Forgejo safe-write gateway.
+- Recorded the live LXC 104/broker baseline, strict canary-only scope, recovery
+  gates and the decision not to add public ingress, a network broker, a new
+  Tailscale daemon or broader Forgejo capability for the PoC.
+- Completed the offline verifier/runner gate with exact OpenSSH signer binding,
+  one-file schema, durable replay state and immediate pre-consume revalidation;
+  all 95 credential-broker tests pass on Linux, including 17 socket tests that
+  cannot bind in the macOS sandbox.
+- Installed the public-only signer trust and separate non-login worker on LXC
+  104 in AI-PAM Probation. Live denials confirm it has no discoverable
+  capability and no direct gateway access. Bounded incomplete broker frames at
+  five seconds after the installation probe exposed the prior unbounded wait;
+  98/98 Linux tests and a live timeout/next-request check pass after the repair.
+- Completed M2 with a network-denied, capability-free one-shot validator and
+  root-owned base/policy pins. The Linux suite now passes 101/101; live invalid
+  input failed closed and a human-signed canonical bundle validated with
+  metadata-only output. The worker remains in AI-PAM Probation and no Forgejo
+  request or repository write occurred.
+- Began M3 after Jason promoted only the bundle identity through Companion's
+  fresh-passkey lifecycle control. Recovered an unlinked approval socket by
+  restarting only its bridge, and added a durable metadata-only `submit`/
+  `promote` CLI around the existing replay-safe runner. All 101 tests pass on
+  Linux; Yellow approval and immediate Forgejo-write confirmation remain open.
+- Completed Stream A with two independently signed and explicitly approved
+  one-file Forgejo canaries, exact parent/path/blob verification and matching
+  GitHub mirror observation; neither branch was merged. Live expiry and replay
+  attempts failed closed. Added public-trust-only backup, isolated restore with
+  terminal-state proof, an hourly network-denied metadata health check, and the
+  operator runbook. The Linux suite passes 106/106.
+- Added a least-privilege read amendment for the same runner identity using the
+  existing Green Forgejo read capability and independent read-only gateway.
+  Reads are fixed to `jason/homelab` and six metadata/content tools; the runner
+  receives no token or direct gateway permission. Installation, capability
+  registration, broker restart and 112/112 Linux tests passed. Live repository
+  metadata and `README.md` reads succeeded; another repository, `.env` and
+  direct gateway access were denied while the write gateway remained active.
+
+## 2026-10-10 — Brand Design skill and reusable standard
+
+- Consolidated Brand SVG Studio into one installed Brand Design skill while retaining registry, SVG audit, recolour, tracing, rendering, export, release and rollback behavior.
+- Added a durable Brand Creation Standard under `docs/standards/brand-design/` and reusable engagement files under `docs/templates/brand-design/`. Individual brand work instantiates these milestones in the Brand Asset Library rather than entering the HomeLab enhancement-project portfolio.
+- Added gated intake, concept/master approval, precise edit contracts, 18-reference/equivalence coverage, manual/reconstruction literature, offline package validation, deployment-state reporting and an explicit-only legacy alias.
+- Passed seven synthetic validator tests; the supplied fotosforfun material passes only the limited fixture profile and remains blocked from a production release pending strict rights/approval/vector gates.
+- Added design-only Forgejo/Tailscale guidance recommending a pull-based local runner; no network, credential or production-service change was made.
+
+## 2026-10-10 — Photography release transport isolated
+
+- Added checksum-verifying publisher/origin release transport with separate
+  immutable roots for The Contrasting Frame and The Closet Fatman.
+- Bound a dedicated deployment key to a four-operation forced command; archive
+  links/traversal, arbitrary commands, mixed-site IDs, changed manifests and
+  private/sample candidates fail closed. Forty-two publishing tests pass.
+- Proved a disposable non-served transfer and removed it. The existing marked
+  sample remains active, Nginx is unchanged, and no public DNS or route exists.
+- Added the owner-only, site-specific final publication confirmation. It
+  revalidates the reviewed edition and immutable checksums under one lock,
+  activates only the digest-bound release, records success durably and leaves a
+  failed edition open. The live empty workflow fails closed; 46 tests pass.
+- Added exact-host per-site origin vhosts with site-specific unavailable
+  responses while no accepted release exists. The legacy sample remains the
+  unmatched-host default; the NPM cross-VLAN path and all public routing remain
+  absent.
+- Added live origin release status and typed one-step rollback to the private
+  desk. The server selects only the checksum-verified previous origin release,
+  records successful swaps, and disables rollback when no prior release exists.
+- Added a quiet, persistent hourly checker for the independent 14-day editorial
+  clocks. It displays due state but cannot start, approve or publish an edition;
+  UTC storage and Vancouver evaluation follow B.C.'s permanent UTC-7 Pacific
+  Time. Fifty-four publishing tests pass, including interruption/retry gates.
+- Restored permanent Mac-to-Forgejo Git access by registering the existing
+  MacBook Admin public key and selecting it for `git` at the Forgejo address,
+  while preserving the separate root-administration alias. No standing token
+  was added.
+- Published the first internal-only workflow rehearsal: ten approved Contrast
+  slots and seven approved Closet slots use owner-authorized, person-free
+  photographs, metadata-stripped derivatives and clearly fictional AI stories.
+  No public proxy or tunnel route was added, and the existing parked Closet
+  Fatman DNS was not connected to the origin. Corrected permanent origin
+  read access by adding Nginx `www-data` to the restricted `tcf-deploy` group.
+- Added certificate-valid LAN review routes at `contrast.elliottrook.com` and
+  `closet.elliottrook.com`. All three private resolvers return NPM, the firewall
+  permits only NPM to origin TCP 80, and both public aliases remain nonexistent.
+- Added a Homepage **Photography Content Desk** tile in AI & Automation and a
+  dedicated Aster-family camera-aperture/selection-star icon. The same tracked
+  asset now supplies the Desk favicon while its root remains Authentik-protected.
+
+## 2026-10-09 — The Contrasting Frame project preparation
+
+- Scoped the HomeLab UI guide to Aster-associated internal network apps and
+  added a separate Contrasting Frame guide based on Jason's accepted gallery.
+- Added mandatory brand-aware style routing to the project creation standard.
+- Prepared internal hosting, public-domain and AI-assisted scheduled publishing
+  milestones: M0 is monitored design discussion; autonomous delivery follows
+  explicit acceptance of the concrete architecture, risks and scope.
+- Verified live Forgejo standards, Proxmox and TrueNAS capacity read-only.
+  No guest, dataset, credentials, timer, DNS, firewall or public route changed.
+- Local documentation preparation only; remote synchronization remains subject
+  to the repository's immediate per-push approval and history reconciliation.
+
+## 2026-10-08 — ARR stack reliability and update hardening
+
+- Corrected inconsistent `apps` group ownership and group-write/traverse
+  permissions under the existing TV/movie archive roots; no media was moved or
+  deleted, and disposable Radarr/Sonarr write tests passed.
+- Added private Host allowlists to Sonarr, Radarr and Prowlarr while preserving
+  Authentik/private HTTPS and direct TrueNAS recovery paths.
+- Restricted Watchtower to explicitly labelled unattended updates, leaving the
+  critical ARR, downloader and custom media services under controlled updates.
+- Extended the existing sanitized ARR report with aggregate import counters;
+  no titles, paths, queue IDs, credentials or raw responses are emitted.
+
+## 2026-10-05 — EHS policy review project proposed
+
+- Added the proposed EHS policy review and renewal project and its initial
+  metadata-only catalogue from the public BCEHS SHOP document index.
+- Recorded 498 index rows / 497 unique document numbers, source provenance,
+  duplicate detection, restricted-access boundaries and the requirement for
+  human clinical/operational governance before any policy change or publication.
+- No BCEHS/PHSA document was changed, approved, retired, published or accessed
+  through IDIR; authorization stream selection remains open.
+
 ## 2026-09-28 — Operational Sysadmin Capability adopted within Aster
 
 - Recorded Jason's approval to add SA0–SA5 to the existing unified programme, with production/source reconciliation and useful diagnosis as the next delivery priority.
@@ -718,3 +954,13 @@ and ZDH9JCR8, with separate quota-controlled guest/configuration/family/photo
 backup datasets. Short tests and bounded write/direct-read checks passed;
 extended SMART tests running, production migration pending. Existing pools and
 backup destinations unchanged. See docs/projects/Recovery-SATA-Mirror.md.
+
+## 2026-10-05 — Recovery backup migration
+
+Moved live guest, family and configuration backups to the qualified SATA mirror;
+verified full copied data and configuration restoration, switched producer/share/
+relay paths, and verified the latest encrypted cloud configuration archive.
+Preserved cloud prefixes and local-only exclusions. Added bounded family/config
+snapshot retention and updated monitoring; original Media copies remain for
+rollback. Configuration coverage includes the two current shadow library apps,
+using instance-specific Audiobookshelf SQLite backups.

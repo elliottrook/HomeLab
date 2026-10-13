@@ -21,7 +21,7 @@ Arista core
   |     +-- LXC 107: Reverse Proxy
   |     +-- LXC 108: Forgejo (Servers VLAN 20)
   |     +-- LXC 109: Prometheus / Grafana observability (Servers VLAN 20)
-  |     +-- LXC 116: Aster Speech STT/TTS (Lab VLAN 70; CPU-only)
+  |     +-- LXC 116: canonical Aster Voice Service (Lab VLAN 70)
   +-- TrueNAS
   |     +-- NFS: Surveillance/Frigate recording storage
   +-- Synology storage
@@ -133,6 +133,12 @@ fresh action-specific permission and a temporary least-privilege path.
 Hermes and Ollama remain installed but disabled as rollback paths; stopped VM
 105 remains the older CPU/passthrough rollback guest. Aster is useful but is not
 a dependency for core HomeLab operation.
+
+All Aster speech surfaces converge on LXC 116. Its canonical API uses Kokoro
+`bm_daniel` on TCP 9131, Home Assistant uses private Wyoming TCP 10300, and
+legacy TCP 9130 remains a migration/rollback endpoint. Interactive synthesis is
+isolated on the TrueNAS Arc A380; News batch synthesis uses a separate CPU
+renderer on LXC 114 so briefing work cannot occupy interactive workers.
 
 ### AI privileged-access boundary — verified 2026-09-26
 

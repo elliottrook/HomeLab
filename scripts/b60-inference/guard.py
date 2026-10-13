@@ -7,6 +7,7 @@ import argparse
 import json
 import subprocess
 import sys
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Callable
@@ -14,8 +15,15 @@ from zoneinfo import ZoneInfo
 
 
 TZ = ZoneInfo("America/Vancouver")
-ACCEPTED_BINARY_SHA256 = "47692a3806ad5615c218e347f3bd55870436f07117c041cea7bf880b3b978693"
-ACCEPTED_UNIT_SHA256 = "7e3e2d9a4c7d861b18ad2c9c83dc294893ea81f295a25918f76fcf3e0f9c9013"
+PREFLIGHT_HOUR = 22
+PREFLIGHT_FIRST_MINUTE = 0
+PREFLIGHT_LAST_MINUTE = 14
+EXPERIMENT_START_MINUTE = 15
+EXPERIMENT_DEADLINE_MINUTE = 20
+RESTORATION_DEADLINE_MINUTE = 40
+ACCEPTED_BINARY_SHA256 = "0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5"
+ACCEPTED_BINARY_PATH = "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"
+ACCEPTED_UNIT_SHA256 = "a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3"
 CANDIDATE_UNIT = "aster-b60-candidate.service"
 
 
@@ -30,7 +38,11 @@ def parse_time(value: str) -> datetime:
     return result.astimezone(TZ)
 
 
-def validate_preflight(data: dict[str, Any], now: datetime, estimated_minutes: int) -> dict[str, Any]:
+def validate_preflight(data: dict[str, Any], now: datetime, estimated_minutes: int,
+                       approved_fusion_retry: bool = False,
+                       approved_loader_retry: bool = False,
+                       approved_instrumented_run: bool = False,
+                       approved_exclusive_session: bool = False) -> dict[str, Any]:
     required = {
         "collected_at", "backup_completed_at", "mirror_completed_at", "mirror_state",
         "service_health", "driver", "vulkan_device", "binary_sha256", "unit_sha256",
@@ -39,8 +51,16 @@ def validate_preflight(data: dict[str, Any], now: datetime, estimated_minutes: i
     if set(data) != required:
         raise GuardError(f"preflight keys differ: missing={sorted(required-set(data))} extra={sorted(set(data)-required)}")
     local_now = now.astimezone(TZ)
-    if not (local_now.hour == 0 and 20 <= local_now.minute <= 29):
-        raise GuardError("preflight must run from 00:20 through 00:29 America/Vancouver")
+    ordinary_window = (local_now.hour == PREFLIGHT_HOUR and
+                       PREFLIGHT_FIRST_MINUTE <= local_now.minute <= PREFLIGHT_LAST_MINUTE)
+    # Jason's explicit one-time exception, not a new recurring collection window.
+    retry_window = ((approved_fusion_retry or approved_loader_retry) and local_now.date().isoformat() == '2026-10-10'
+                    and local_now.hour == 22 and 15 <= local_now.minute < 55)
+    instrumented_window = (approved_instrumented_run and local_now.date().isoformat() == '2026-10-10'
+                           and ((local_now.hour == 22 and local_now.minute >= 15)
+                                or (local_now.hour == 23 and local_now.minute < 20)))
+    if not (ordinary_window or retry_window or instrumented_window or approved_exclusive_session):
+        raise GuardError("preflight must run from 22:00 through 22:14 America/Vancouver")
     collected = parse_time(data["collected_at"])
     if collected > local_now or local_now - collected > timedelta(minutes=5):
         raise GuardError("preflight evidence is future-dated or older than five minutes")
@@ -62,45 +82,79 @@ def validate_preflight(data: dict[str, Any], now: datetime, estimated_minutes: i
     failed = sorted(key for key, passed in checks.items() if not passed)
     if failed:
         raise GuardError(f"preflight failed: {failed}")
-    hard_stop = local_now.replace(hour=2, minute=0, second=0, microsecond=0)
-    experiment_deadline = hard_stop - timedelta(minutes=20)
+    hard_stop = local_now.replace(hour=23, minute=RESTORATION_DEADLINE_MINUTE,
+                                  second=0, microsecond=0)
+    experiment_deadline = local_now.replace(hour=23, minute=EXPERIMENT_DEADLINE_MINUTE,
+                                             second=0, microsecond=0)
+    if approved_exclusive_session:
+        experiment_deadline = local_now + timedelta(minutes=30)
+        hard_stop = local_now + timedelta(minutes=35)
     if local_now + timedelta(minutes=estimated_minutes) > experiment_deadline:
-        raise GuardError("estimated run would cross the 01:40 experiment deadline")
-    return {"checks": checks, "start_not_before": local_now.replace(minute=30, second=0, microsecond=0).isoformat(),
+        raise GuardError("estimated run would cross the 23:20 experiment deadline")
+    return {"checks": checks, "start_not_before": (local_now if approved_exclusive_session else local_now.replace(minute=EXPERIMENT_START_MINUTE, second=0, microsecond=0)).isoformat(),
             "experiment_deadline": experiment_deadline.isoformat(), "restoration_deadline": hard_stop.isoformat()}
 
 
-def commands() -> list[list[str]]:
+def commands(accepted_binary_path: str | None = None) -> list[list[str]]:
     return [
         ["pct", "exec", "110", "--", "systemctl", "stop", CANDIDATE_UNIT],
-        ["pct", "exec", "110", "--", "systemctl", "restart", "aster-llama.service"],
+        ["pct", "exec", "110", "--", "systemctl", "stop", "aster-llama.service"],
+        ["pct", "exec", "110", "--", "systemctl", "start", "--no-block", "aster-llama.service"],
         ["pct", "exec", "110", "--", "systemctl", "is-active", "--quiet", "aster-llama.service"],
-        ["pct", "exec", "110", "--", "sha256sum", "/opt/llama.cpp-b11081/llama-server"],
+        ["pct", "exec", "110", "--", "curl", "-fsS", "http://192.168.70.12:11435/health"],
+        ["pct", "exec", "110", "--", "sha256sum", accepted_binary_path or ACCEPTED_BINARY_PATH],
         ["pct", "exec", "110", "--", "sha256sum", "/etc/systemd/system/aster-llama.service"],
         ["readlink", "/sys/bus/pci/devices/0000:04:00.0/driver"],
         ["pct", "exec", "110", "--", "vulkaninfo", "--summary"],
-        ["pct", "exec", "110", "--", "curl", "-fsS", "http://192.168.70.12:11435/health"],
     ]
 
 
-def execute_finalizer(run: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> None:
-    results = []
-    for index, command in enumerate(commands()):
-        result = run(command, capture_output=True, text=True, timeout=180)
-        # A missing/stopped candidate is acceptable; every restoration/validation step is mandatory.
-        if index and result.returncode != 0:
-            raise GuardError(f"finalizer step {index + 1} failed")
-        results.append(result)
-    if ACCEPTED_BINARY_SHA256 not in results[3].stdout:
+def execute_finalizer(run: Callable[..., subprocess.CompletedProcess] = subprocess.run,
+                      sleep: Callable[[float], None] = time.sleep,
+                      quiesce_seconds: int = 30, readiness_attempts: int = 60,
+                      readiness_interval: int = 5,
+                      accepted_binary_path: str | None = None,
+                      accepted_binary_sha256: str | None = None,
+                      accepted_unit_sha256: str | None = None) -> None:
+    steps = commands(accepted_binary_path)
+    binary_hash = accepted_binary_sha256 or ACCEPTED_BINARY_SHA256
+    unit_hash = accepted_unit_sha256 or ACCEPTED_UNIT_SHA256
+    # Candidate absence is acceptable. Stopping accepted production is mandatory so
+    # GPU/process state can quiesce before a clean, non-blocking start.
+    run(steps[0], capture_output=True, text=True, timeout=180)
+    stopped = run(steps[1], capture_output=True, text=True, timeout=180)
+    if stopped.returncode != 0:
+        raise GuardError("finalizer failed to stop accepted service")
+    sleep(quiesce_seconds)
+    started = run(steps[2], capture_output=True, text=True, timeout=180)
+    if started.returncode != 0:
+        raise GuardError("finalizer failed to request accepted service start")
+
+    ready = False
+    for attempt in range(readiness_attempts):
+        active = run(steps[3], capture_output=True, text=True, timeout=30)
+        if active.returncode == 0:
+            health = run(steps[4], capture_output=True, text=True, timeout=30)
+            if health.returncode == 0 and "ok" in health.stdout.lower():
+                ready = True
+                break
+        if attempt + 1 < readiness_attempts:
+            sleep(readiness_interval)
+    if not ready:
+        raise GuardError("accepted service did not become active and healthy")
+
+    results = [run(command, capture_output=True, text=True, timeout=180)
+               for command in steps[5:]]
+    if any(result.returncode != 0 for result in results):
+        raise GuardError("accepted-service validation command failed")
+    if binary_hash not in results[0].stdout:
         raise GuardError("accepted binary hash mismatch")
-    if ACCEPTED_UNIT_SHA256 not in results[4].stdout:
+    if unit_hash not in results[1].stdout:
         raise GuardError("accepted unit hash mismatch")
-    if not results[5].stdout.strip().endswith("/xe"):
+    if not results[2].stdout.strip().endswith("/xe"):
         raise GuardError("B60 is not bound to xe")
-    if "BMG G21" not in results[6].stdout:
+    if "BMG G21" not in results[3].stdout:
         raise GuardError("B60 Vulkan enumeration missing")
-    if "ok" not in results[7].stdout.lower():
-        raise GuardError("accepted endpoint health failed")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -109,6 +163,7 @@ def main(argv: list[str] | None = None) -> int:
     preflight = sub.add_parser("preflight")
     preflight.add_argument("snapshot", type=Path)
     preflight.add_argument("--estimated-minutes", type=int, required=True)
+    preflight.add_argument("--approved-fusion-retry-20261010", action="store_true")
     finalizer = sub.add_parser("finalize")
     finalizer.add_argument("--execute", action="store_true")
     finalizer.add_argument("--allow-production", action="store_true")
@@ -116,7 +171,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "preflight":
             payload = json.loads(args.snapshot.read_text(encoding="utf-8"))
-            print(json.dumps(validate_preflight(payload, datetime.now(TZ), args.estimated_minutes), indent=2, sort_keys=True))
+            print(json.dumps(validate_preflight(payload, datetime.now(TZ), args.estimated_minutes,
+                                                args.approved_fusion_retry_20261010), indent=2, sort_keys=True))
         elif not (args.execute and args.allow_production):
             print(json.dumps({"execution_authorized": False, "commands": commands()}, indent=2))
         else:

@@ -3,7 +3,7 @@
 Owner Jason; started 2026-10-03; Stream M. User authorized beginning sequential
 addition of the four SAS candidates, healthiest first. First bounded operation:
 attach Z1Z4BJ7Z0000C4453Q38 (WWN 5000c50058c120ef) to the existing RAIDZ2 vdev.
-Status: first expansion and post-expansion scrub complete without errors. No other candidate queued.
+Status: second expansion and verification scrub passed; eight ONLINE members. BTVM and BK81 remain unused for health concerns.
 
 ## Scope and live evidence
 
@@ -97,3 +97,60 @@ before another expansion or bulk backup migration.
 after 8h46m15s, zero bytes repaired and zero errors. All seven leaves remain
 ONLINE with zero counters. Media available 5.98 TiB; Recovery 3.51 TiB.
 No further expansion or backup migration has been initiated.
+
+## Second candidate preflight — 2026-10-05 18:43 PDT
+
+Jason requested continuing with the next SAS drive after the Recovery cutover.
+Recovery's migration and first cloud relay validation passed; the next overnight
+producer cycle is still pending, and the original backup sources remain intact.
+Media's first expansion and scrub passed, all seven members are ONLINE with zero
+errors, and no middleware jobs are running.
+
+Selected candidate Z1Z471FR00009443T8ED, WWN 5000c50058afa24b, remains unused,
+4,000,787,030,016 bytes. Its September 25 full write/read test passed; current
+110 grown defects, read/write/verify uncorrected 3/0/0 and non-medium 393 remain
+unchanged. It is a used disk with historical defects, not a clean-health disk.
+A fresh short self-test is running. Attach only if that test completes without
+error and a repeated exact-identity, topology and counter check passes. The
+bounded next operation widens the existing RAIDZ2 from seven to eight members;
+permanent topology change has no detach rollback. Leave BTVM and BK81 unused.
+Resume by checking live topology first; never replay an attach blindly.
+
+## Second expansion initiated — 2026-10-05 18:45 PDT
+
+Fresh short test completed without error at 63,424 power-on hours. Repeated
+preflight confirmed exact unused serial/WWN/size, unchanged health counters,
+seven healthy leaves, no active scan/expansion or middleware jobs. Submitted
+pool.attach for pool 1 and existing RAIDZ2 GUID 13190488833263279493, disk sdg
+(Z1Z471FR00009443T8ED). Job **7963** returned successfully and expansion began
+at 18:45:44 PDT. New partition UUID: 5806fe1c-c62b-4f87-86da-2222c18aac1d.
+
+Verified eight ONLINE leaves in the same RAIDZ2, zero read/write/checksum errors,
+and 16.3 TiB to redistribute. Initial ZFS estimate is not yet meaningful.
+Previous expansion took 18h33 plus an 8h46 scrub; allow roughly a day or more
+for expansion and verification, subject to live workload. Recovery stays separate.
+No further candidate queued. Next check: job 7963, zpool status Media, then
+candidate SMART counters. After completion require clean scrub and capacity/
+application checks before considering any additional expansion.
+
+2026-10-06 08:17 PDT check: second expansion 65.39%, 10.8/16.5 TiB at
+232 MiB/s, estimated 7h09 remaining (about 15:25 PDT), before verification
+scrub. All eight leaves ONLINE, zero ZFS errors. 471FR SMART passed, 41 C,
+grown defects 110 and uncorrected read/write/verify 3/0/0 unchanged. Non-medium
+counter increased from 393 to 396; cause unconfirmed. SAS PHY invalid DWORD,
+disparity, synchronization-loss and reset-problem counters are all zero. Track
+this small increase at next check; do not describe all SMART counters as stable.
+Recovery ONLINE, zero errors, 1.13 TiB used and 2.38 TiB available. Overnight
+rsync tasks 1/2/3 succeeded (9219/9259/9277), configuration checks pass, retention
+guard succeeded at 06:00, cloud relay succeeded at 07:50:32 PDT. Old Media/backup
+and histories remain intact; source retirement requires separately reviewed scope.
+
+2026-10-07 final gate: job 7963 expansion finished October 6 14:47:42 after
+20:01:58, 16.5 TiB redistributed. Scrub finished 23:29:22 after 8:41:40 with 0B
+repaired and zero errors. All eight leaves ONLINE. After approved old-backup
+retirement, Media has 10.9 TiB available. No further disk added: BTVM has zero
+grown defects but non-medium errors reached 18,344,482 and continue increasing;
+BK81 has 1,205 grown defects, historical read/write uncorrected 3/5, and an older
+failed long test. Adding either is not appropriate with current evidence and
+ample capacity. Further expansion requires a suitable qualified replacement or
+separate resolution of the remaining drives' health concerns.

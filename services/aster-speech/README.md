@@ -1,7 +1,11 @@
 # Aster Speech
 
-CPU Whisper STT and Piper TTS for Aster Companion. Production runs in LXC 116,
-`192.168.70.14:9130`, exposed under `https://aster.elliottrook.com/voice/`.
+The network-level Aster speech implementation. Production runs in LXC 116 and
+uses one canonical Kokoro `bm_daniel` voice (`en-gb`, speed `0.95`) for
+interactive and batch consumers. The canonical API binds
+`192.168.70.14:9131`; Home Assistant uses private Wyoming TCP 10300. The
+authenticated Piper/STT API on 9130 remains a migration/rollback path and the
+current Companion transcription endpoint.
 See [operator guide](../../docs/runbooks/Aster-Companion.md) for recovery and
 [project evidence](../../docs/projects/completed%20projects/Aster-Companion-App.md) for acceptance.
 
@@ -11,9 +15,10 @@ See [operator guide](../../docs/runbooks/Aster-Companion.md) for recovery and
 - Both speech routes require the existing dedicated key or a valid Companion
   JWT with matching signature, issuer, audience and expiry.
 
-`health_check.py` is a read-only, credential-free probe for liveness, HTTPS
-routing, OIDC application discovery and JWKS reachability. Doctor invokes it
-inside the speech guest. It does not replace a real user-login test.
+`health_check.py` validates both HTTP services, exact canonical
+voice/model/policy/STT identity, Wyoming, HTTPS/OIDC/JWKS and a fixed
+authenticated synthesis canary. It discards the bounded WAV and emits no speech
+content. Doctor invokes it inside the guest; it does not replace a user-login test.
 
 The service runs as `aster-speech` with the checked-in systemd unit. The real
 `/etc/aster-speech/speech.env` is `root:aster-speech`, mode 0640. The example

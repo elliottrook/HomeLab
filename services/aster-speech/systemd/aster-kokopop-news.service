@@ -1,0 +1,25 @@
+[Unit]
+Description=Aster Kokoro CPU News Renderer Candidate
+After=network.target
+
+[Service]
+Type=simple
+User=aster-renderer
+Group=aster-renderer
+UMask=0077
+WorkingDirectory=/opt/aster-news-renderer
+ExecStart=/opt/aster-news-renderer/build/kokopop_stream --model /opt/aster-news-renderer/model/kokoro-v1_0.gguf --voice bm_daniel --speed 0.95 --mode adaptative --threads 8 --backend cpu --http --bind 127.0.0.1 --port 18131
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

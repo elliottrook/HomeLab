@@ -46,14 +46,27 @@ where its desktop harness is worth the additional latency.
 
 ## Runtime configuration
 
-- llama.cpp b11429 (`d81235049` runtime fingerprint, per the 2026-10-10 change report)
-- Qwen3.5-9B Q4_K_M (`cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13` model SHA-256, per the change report)
-- SYCL FP16 through Intel Level Zero, all model layers offloaded by the active unit (`-ngl 999`); current end-to-end throughput is not yet measured by Stream A
+The 2026-10-10 full-BAR profile is persistently deployed and repeat-boot
+validated: 32 GiB physical BAR2 with stock `xe`. Retained small-BAR boot
+entries are emergency console recovery, not the preferred production profile.
+Full trial and recovery evidence are in
+[B60 inference engineering](../projects/B60-Inference-Engineering.md).
+
+- llama.cpp b11429 (`d81235049`)
+- `lmstudio-community/Qwen3.5-9B-GGUF:Q4_K_M`, pinned SHA-256
+  `cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`
+- Private SYCL FP16/fusion-1 build, all 33 transformer layers offloaded;
+  CPU-mapped and host buffers still exist
 - One 8,192-token slot
 - Four CPU threads, batch 256, microbatch 128
 - Flash attention; Q4 key/value cache
 - Model reasoning disabled by default
-- Automatic real-generation warm-up during service start
+- Health readiness bounded to 300 seconds (systemd limit 330 seconds);
+  protected synthetic generation during deployment/recovery validation
+- `Restart=no`: no automatic repeated GPU initialization after failure
+- Persistent pinned private runtime under `/opt/aster-sycl-b11429`;
+  private Level Zero loader 1.33.1 and oneAPI libraries, no system/global change
+- LXC 110 root disk 72 GiB (approved growth from 64 GiB, not shrinkable in place)
 
 Read-only reconciliation on 2026-10-11 found the B60 physical BAR2 at 32 GB
 and `aster-llama.service` active on the self-contained b11429 SYCL FP16 build;
@@ -67,6 +80,51 @@ readiness helper completes. The former Vulkan setup took roughly 1–2 minutes
 to load and warm; current SYCL startup time has not been measured here. The
 unit allows 330 seconds for startup. Validate a real request before claiming
 that readiness also proves generation and template compatibility.
+
+Persistent SYCL activation and regression passed on 2026-10-11; final exercised
+soak acceptance is recorded in the B60 project ledger. Accepted unit SHA-256
+`a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3`;
+binary `0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5`.
+Measured matched decode gain is about 21% for short grounded/8K outputs and
+about 19% for sustained 128-token outputs (~57.8 versus ~48.6 tok/s).
+Do not confuse token-rate improvement with request-latency reduction.
+The repository retains exact SYCL and Vulkan unit templates.
+
+Explicit runtime-identity questions are answered deterministically by the
+Aster agent rather than delegated to model recall. The versioned response names
+the interface in LXC 104, Qwen3.5-9B/llama.cpp SYCL inference in LXC 110
+and VM 105 as the stopped Ollama rollback guest. Actual mapped-runtime evidence
+is authoritative. No LXC 104
+source/restart change is implied by the bounded LXC 110 deployment approval.
+Ordinary analysis questions
+continue through the normal model and tool routes.
+
+Systemd reports the inference unit started only after health readiness passes.
+The SYCL unit uses its private bounded readiness helper, not the former Vulkan
+real-generation warm-up script. Deployment and recovery additionally exercise
+authenticated generation before reporting success. A normal later restart can
+leave first-generation kernel work for its first caller; readiness alone is not
+proof of correct generation.
+
+The exact immediately previous 9B Vulkan unit is retained at
+`/etc/systemd/system/aster-llama.service.pre-sycl-20261011`, SHA-256
+`6b09f4580ef49b1c61532d22f48cc5091ec95a0e823f73893db7a83f5c1a461e`.
+The approved controller `scripts/b60-bar/production-sycl.py --rollback`
+validates that checkpoint and the retained Vulkan binary, atomically restores
+only this known unit, stops/quiesces/clean-starts inference, and validates hashes,
+health, `xe`, BMG G21 and protected generation. Native OpenVINO trials instead
+use `--restore-accepted-sycl`; they must not leave Vulkan as accepted production.
+Both recovery paths are bounded, fail closed on unknown unit hashes, and do
+not change BAR, boot, system packages or credentials.
+
+The exact former 27B production unit is retained at
+`/etc/systemd/system/aster-llama.service.pre-9b-20261010`; its b11081 runtime,
+IQ4_XS model shards and earlier Q8 unit remain intact. Normal rollback installs
+that unit over `aster-llama.service`, runs `systemctl daemon-reload`, stops the
+current service, waits 30 seconds, starts it once non-blocking, and validates
+the former unit/runtime/model hashes, endpoint health, `xe`, BMG G21 Vulkan and
+an authenticated synthetic Aster response. Do not retry a GPU/device failure
+automatically.
 
 ## Lab Doctor and backup execution
 
@@ -229,9 +287,9 @@ first scores the validated per-source directory index, then ranks claims within
 the selected sources; a missing, stale, malformed or inconclusive directory
 index fails back to flat claim ranking. Directory abstracts remain derived
 navigation hints, never an authority source. The accepted mirror content hash
-is `e87cd84f6fbbe0c04a86c7634dcac104161748e93348549a89bf3a2b8ae022f8` and
+is `7bd9e61fd4d522f38d80f7e82157cfd8dae8189a31c066c1fe70f793767e3a24` and
 the accepted deterministic Aster archive SHA-256 is
-`de622e83ed8ec100a0a11066cfe810ec909b4495c1473d293058070374549747`.
+`94f87e3879a4bf749e299e8676de758191e2e04743cefdb2bfae4b6f34e5ea37`.
 
 LXC 113 runs `aster-wiki-collector.timer` daily and
 `aster-wiki-corpus-health.timer` monthly. HomeLab Doctor checks the intake,
@@ -458,7 +516,27 @@ probe is an independent device check, not a claim that SYCL generation was
 tested. HomeLab Doctor enforces the host/service invariants; verify its current
 backend-specific coverage separately before relying on it for SYCL health.
 
+The accepted production server uses Q4_0 K/V cache (`-ctk q4_0 -ctv q4_0`).
+Matched authenticated Aster workflows on 2026-10-10 measured 10.72–10.99
+decode tokens/s after promotion, compared with 5.94–6.69 for Q8_0. The exact
+pre-promotion Q8 unit is retained at
+`/etc/systemd/system/aster-llama.service.pre-q4-20261010` with SHA-256
+`7e3e2d9a4c7d861b18ad2c9c83dc294893ea81f295a25918f76fcf3e0f9c9013`.
+If a correctness, stability or device-health regression is attributed to Q4
+K/V, restore that unit atomically, run `systemctl daemon-reload`, use the
+documented stop/30-second-quiesce/clean-start sequence, then run
+`scripts/check-aster-b60.sh` and authenticated generation validation.
+
 ## Restart and rollback
+
+The approved B60 full-BAR boot is now the default via
+`/etc/default/grub.d/zz-b60-bar.cfg` and `/etc/grub.d/41_b60_bar`, pinned to
+7.0.14-23 and its separately verified aligned initramfs. A repeated attended
+boot on 2026-10-10 reproduced 32 GiB BAR2 and full CPU-accessible usable VRAM.
+Normal 23 and retained 20 entries remain under GRUB Advanced options for
+console recovery. Do not remove the pinned kernel or assume a kernel update
+will carry the custom helper forward; rebuild and validate before migration.
+See `scripts/b60-bar/README.md` for exact hashes and default rollback.
 
 Restart the lightweight harness without reloading the model:
 
@@ -466,7 +544,8 @@ Restart the lightweight harness without reloading the model:
 pct exec 104 -- systemctl restart aster-agent.service
 ```
 
-Restarting inference reloads and warms the active 9B model:
+Restarting inference reloads the accepted 9B model; validate authenticated
+generation afterwards rather than assuming health readiness warmed it:
 
 ```sh
 pct exec 110 -- systemctl restart aster-llama.service
@@ -509,7 +588,7 @@ These figures are single-user measurements. Inference intentionally has one
 slot, so simultaneous requests queue instead of competing for the B60's memory.
 
 
-## Companion speech operations (verified 2026-09-23)
+## Canonical Aster speech operations (verified 2026-10-12)
 
 Aster's web client is `https://aster.elliottrook.com/`. `/companion` remains a
 compatibility alias for existing Authentik callbacks, installed shortcuts, and
@@ -532,10 +611,28 @@ on Lab VLAN 70, rule UUID `bc811346-6714-44b4-bc65-46e7430f46a8`. An inbound
 NPM-to-speech permit alone is insufficient. If voice hangs before transcription,
 check this dependency and authentication error classes before tuning Whisper.
 
-`python3 /opt/aster-speech/health_check.py` on LXC 116 checks speech health and
-JWKS reachability, emits sanitized statuses, and exits nonzero on failure.
-HomeLab Doctor invokes the same probe through Proxmox. Speech data is temporary;
-normal logs contain timing/size and error categories, not recordings or transcripts.
+`python3 /opt/aster-speech/health_check.py` on LXC 116 checks the legacy API,
+canonical API, exact approved voice/model/policy/STT identity, Home Assistant
+Wyoming listener, HTTPS ingress, Companion OIDC discovery and JWKS reachability.
+It also submits the fixed phrase `Aster health check.` through the authenticated
+canonical API with a five-second timeout, accepts only a bounded RIFF/WAVE result
+and immediately discards its bytes. It emits sanitized statuses and exits nonzero
+on failure. HomeLab Doctor invokes the same probe through Proxmox. After a
+candidate restart, allow approximately 15 seconds for model warm-up before
+treating an initial refusal as a fault. Speech data is temporary; normal logs
+contain timing/size and error categories, not recordings or transcripts.
+
+Prometheus on LXC 109 scrapes `http://192.168.70.14:9131/metrics` every 15
+seconds. The application and OPNsense both restrict that path to Prometheus
+(`192.168.20.31`); an unauthorized peer receives HTTP 403. Metrics use only
+bounded `interactive`/`batch` and outcome labels and expose request/queue
+histograms, queue depth, busy workers, cancellations and renderer-error counts.
+Beszel remains the owner of LXC 116 CPU, memory, disk and guest availability;
+do not duplicate those resource alerts in the application rules.
+Prometheus evaluates the five debounced service conditions. Grafana rule
+`homelab-aster-voice-service` bridges firing `AsterVoice*` conditions into the
+existing HomeLab email policy while preserving alert name/severity labels.
+Cancellation is observable but intentionally does not alert by itself.
 
 Reload the phone page after a web deployment. Tap the orb to start/stop recording.
 The web UI reports Transcribing, Thinking and Preparing speech; if automatic
@@ -558,11 +655,16 @@ inactive; the retained UI is not an enabled repair capability. The follow-up
 preserves human approval outside the chat/AI path.
 
 Speech LXC 116 now has verified local and TrueNAS task-1 backup coverage, with
-matching SHA-256 and an isolated restored Piper/Whisper round trip. Doctor checks
-speech, HTTPS ingress, OIDC discovery, JWKS and both backup ages. Homepage has
+matching SHA-256 and an isolated restored canonical Kokoro/Whisper round trip.
+The restored guest must have its NIC removed and on-boot disabled before start;
+use a protected restore-only environment to bind to loopback and select local
+ONNX rendering. Doctor checks legacy/canonical speech, approved identity,
+synthesis, HA Wyoming, HTTPS ingress, OIDC, JWKS and both backup ages. Homepage has
 an additive Aster Companion tile; the legacy Aster Agent tile is retained.
-NetBox VM/interface/IP IDs are 16/16/30. The wiki guide is published at
-`/wiki/services/aster-companion/` and retains repository provenance.
+NetBox VM/interface/IP IDs are 16/16/30 and service records cover TCP 9130,
+9131 and 10300. The voice guide is published at
+`/wiki/services/aster-voice-service/`; the Companion guide remains at
+`/wiki/services/aster-companion/`.
 
 Capacity measurement: simultaneous synthetic Companion/news requests took
 13.816s/8.905s; speech TTS 1.68s and STT WAV/MP4 0.78s/0.75s. One cold Media

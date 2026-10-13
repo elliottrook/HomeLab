@@ -83,6 +83,17 @@ class BrokerServiceTests(unittest.TestCase):
         self.assertEqual("ok", self.call({"method": "health"})["result"]["status"])
         self.assertFalse(self.call({"method": "admin.dump"})["ok"])
 
+    def test_incomplete_frame_times_out_without_blocking_next_client(self):
+        self.server.request_timeout = 0.05
+        with socket.socket(socket.AF_UNIX) as stalled:
+            stalled.connect(str(self.socket_path))
+            stalled.sendall(b'{"method":"health"')
+            stalled.settimeout(1)
+            response = json.loads(stalled.makefile("rb").readline())
+        self.assertFalse(response["ok"])
+        self.assertEqual("request transport failed", response["error"])
+        self.assertEqual("ok", self.call({"method": "health"})["result"]["status"])
+
     def test_payload_bound_round_trip(self):
         payload = {"target": "synthetic"}
         created = self.call({"method": "request.create", "capability": "health.read", "payload": payload})
@@ -91,6 +102,43 @@ class BrokerServiceTests(unittest.TestCase):
         self.assertFalse(changed["ok"])
         consumed = self.call({"method": "request.consume", "request_id": request_id, "payload": payload})
         self.assertEqual("consumed", consumed["result"]["status"])
+
+    def test_green_repository_file_read_uses_bounded_read_gateway(self):
+        self.store.set_agent_state("agent-test", "operator")
+        self.store.register_service("forgejo-mcp")
+        self.store.register_capability("forgejo.read.repository", "forgejo-mcp", "green")
+        self.store.grant_capability("agent-test", "forgejo.read.repository")
+        payload = {
+            "tool": "get_file_content",
+            "arguments": {"owner": "jason", "repo": "homelab", "filePath": "README.md", "ref": "main"},
+        }
+        created = self.call({
+            "method": "request.create", "capability": "forgejo.read.repository", "payload": payload,
+        })
+        self.assertEqual("approved", created["result"]["status"])
+        consumed = self.call({
+            "method": "request.consume", "request_id": created["result"]["request_id"], "payload": payload,
+        })
+        self.assertTrue(consumed["ok"])
+        self.assertEqual("get_file_content", self.read_gateway.requests[-1]["params"]["name"])
+        self.assertEqual(payload["arguments"], self.read_gateway.requests[-1]["params"]["arguments"])
+        self.assertEqual([], self.write_gateway.requests)
+
+    def test_read_tool_outside_bounded_set_never_reaches_gateway(self):
+        self.store.set_agent_state("agent-test", "operator")
+        self.store.register_service("forgejo-mcp")
+        self.store.register_capability("forgejo.read.repository", "forgejo-mcp", "green")
+        self.store.grant_capability("agent-test", "forgejo.read.repository")
+        payload = {"tool": "list_repo_issues", "arguments": {"owner": "jason", "repo": "homelab"}}
+        created = self.call({
+            "method": "request.create", "capability": "forgejo.read.repository", "payload": payload,
+        })
+        count = len(self.read_gateway.requests)
+        denied = self.call({
+            "method": "request.consume", "request_id": created["result"]["request_id"], "payload": payload,
+        })
+        self.assertFalse(denied["ok"])
+        self.assertEqual(count, len(self.read_gateway.requests))
 
     def test_yellow_safe_branch_write_uses_separate_gateway_after_approval(self):
         self.store.set_agent_state("agent-test", "operator")

@@ -2920,3 +2920,34 @@ evidence: two AI-authored cases per family, AI-only review, unknown recoverable
 backup, no confidence calibration, no native Aster/Companion latency and no
 Codex-paired result. Automatic routing, connected tools and the sysadmin role
 remain unchanged. See the [frozen result](experiments/a1-answer-holdout-v2/RESULT-2026-10-12.md).
+### 2026-10-10 — Qwen3.5-9B B60 screening
+
+Jason approved an immediate transient Qwen3.5-9B trial. Same-day backup and
+TrueNAS mirror, accepted hashes, service health, `xe`, BMG G21 Vulkan, headroom
+and clean kernel evidence passed before load. The LM Studio community Q4_K_M
+conversion of the official Qwen3.5-9B checkpoint ran with official llama.cpp
+b11429, Q4 K/V and reasoning disabled. Raw tg128 was 46.795 tok/s; four
+authenticated Aster synthetic workflows measured 45.387--47.845 decode tok/s
+and all conversation, persona, read-only tool and grounded-retrieval assertions
+passed. Accepted 27B production was restored with unchanged hashes and health,
+both news timers were restored, the kernel scan remained clean, and transient
+model/runtime files were removed. The approximately 4.2--4.5x decode lead makes
+9B the preferred local challenger, not a selected production model. Broader
+frozen personal-assistant, scheduled-analysis, privacy-routing and escalation
+quality comparisons remain required. See
+[screening evidence](evidence/2026-10-10-qwen35-9b-b60-screening.md).
+
+### 2026-10-10 — Qwen3.5-9B fixed local-role comparison
+
+A first 27B control exposed an underspecified scoring contract and is retained
+as invalid rather than counted. Before 9B saw any case, an explicit v2 decision,
+capability, privacy and argument contract was frozen. On the identical 20-case
+synthetic suite, accepted Qwen3.8-27B scored 16/20 at 7.710 seconds median and
+Qwen3.5-9B scored 11/20 at 3.059 seconds median. Human review found the 27B
+misses were normalization/taxonomy wording. The 9B model was about 60% faster
+end to end but guessed 4 PM for an ambiguous alarm and made two false execution
+claims. It is rejected as an immediate drop-in Aster replacement. It remains a
+candidate for summary-only work after deterministic household handlers own
+ambiguity and effects. Production, news timers, hashes, Vulkan binding, kernel
+health and authenticated generation were restored and verified; transient 9B
+artifacts were removed. See [comparison evidence](evidence/2026-10-10-qwen35-9b-role-comparison.md).

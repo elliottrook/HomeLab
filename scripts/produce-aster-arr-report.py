@@ -47,7 +47,7 @@ def docker_running(container: str) -> bool:
         return False
 
 
-def arr_queue(container: str, port: int, api_version: str) -> tuple[int, int]:
+def arr_queue(container: str, port: int, api_version: str) -> tuple[int, int, int, int]:
     command = (
         'key=$(sed -n "s:.*<ApiKey>\\(.*\\)</ApiKey>.*:\\1:p" /config/config.xml | head -n 1); '
         'test -n "$key"; '
@@ -59,7 +59,22 @@ def arr_queue(container: str, port: int, api_version: str) -> tuple[int, int]:
     if not isinstance(records, list) or not isinstance(total, int) or total < 0:
         raise ValueError("invalid queue response")
     warnings = sum(1 for record in records if isinstance(record, dict) and record.get("trackedDownloadStatus") == "warning")
-    return total, warnings
+    import_pending = sum(
+        1
+        for record in records
+        if isinstance(record, dict)
+        and record.get("trackedDownloadState") in {"importPending", "importing"}
+    )
+    import_errors = sum(
+        1
+        for record in records
+        if isinstance(record, dict)
+        and (
+            record.get("trackedDownloadState") in {"importBlocked", "importFailed"}
+            or record.get("trackedDownloadStatus") == "warning"
+        )
+    )
+    return total, warnings, import_pending, import_errors
 
 
 def sabnzbd_queue() -> tuple[int, int]:
@@ -97,9 +112,10 @@ def service_report(name: str) -> dict[str, Any]:
     try:
         if name in ARR_APPS:
             port, api_version = ARR_APPS[name]
-            pending, errors = arr_queue(name, port, api_version)
+            pending, errors, import_pending, import_errors = arr_queue(name, port, api_version)
         elif name == "sabnzbd":
             pending, errors = sabnzbd_queue()
+            import_pending, import_errors = None, None
         else:
             return {
                 "status": "healthy",
@@ -111,14 +127,17 @@ def service_report(name: str) -> dict[str, Any]:
             }
     except (subprocess.CalledProcessError, json.JSONDecodeError, OSError, ValueError, RuntimeError, TypeError, KeyError):
         return unavailable()
-    return {
+    report = {
         "status": "warning" if errors else "healthy",
-        "coverage": ["health", "queue"],
+        "coverage": ["health", "queue"] + (["import"] if name in ARR_APPS else []),
         "queue_pending": pending,
         "queue_errors": errors,
-        "import_pending": None,
-        "import_errors": None,
+        "import_pending": import_pending,
+        "import_errors": import_errors,
     }
+    if import_errors:
+        report["status"] = "warning"
+    return report
 
 
 def write_report(report: dict[str, Any], path: Path) -> None:

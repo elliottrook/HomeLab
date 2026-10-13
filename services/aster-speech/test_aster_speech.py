@@ -1,4 +1,5 @@
 import asyncio
+import hashlib
 import io
 import subprocess
 import time
@@ -12,7 +13,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import HTTPException, UploadFile
 
 import aster_speech
-from aster_speech import health, require_api_key, speech_to_text, text_to_speech, TTSRequest
+from aster_speech import health, require_api_key, speech_to_text, text_to_speech, transcribe_pcm, TTSRequest
 
 
 class RequireApiKeyTests(unittest.TestCase):
@@ -121,6 +122,25 @@ class SpeechToTextTests(unittest.IsolatedAsyncioTestCase):
             result = await speech_to_text(upload)
         self.assertEqual(result, {"text": "hello world"})
         fake_model.transcribe.assert_called_once()
+        _args, kwargs = fake_model.transcribe.call_args
+        self.assertEqual(kwargs["beam_size"], 1)
+        self.assertEqual(kwargs["language"], aster_speech.WHISPER_LANGUAGE)
+        self.assertFalse(kwargs["condition_on_previous_text"])
+        self.assertEqual(kwargs["hotwords"], aster_speech.WHISPER_HOTWORDS)
+
+    async def test_configured_hotwords_are_forwarded_without_logging_content(self):
+        fake_model = MagicMock()
+        fake_model.transcribe.return_value = ([FakeSegment("Home Assistant")], None)
+        upload = UploadFile(io.BytesIO(b"fake-audio-bytes"), filename="clip.wav")
+        with (
+            patch("aster_speech._whisper_model", fake_model),
+            patch("aster_speech.WHISPER_HOTWORDS", "Home Assistant, Lutron Caseta"),
+        ):
+            await speech_to_text(upload)
+        self.assertEqual(
+            fake_model.transcribe.call_args.kwargs["hotwords"],
+            "Home Assistant, Lutron Caseta",
+        )
 
     async def test_empty_audio_is_rejected(self):
         upload = UploadFile(io.BytesIO(b""), filename="clip.wav")
@@ -134,6 +154,25 @@ class SpeechToTextTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(HTTPException) as raised:
             await speech_to_text(upload)
         self.assertEqual(raised.exception.status_code, 413)
+
+    async def test_pcm_validation_logs_only_match_and_timing(self):
+        phrase = "The total is one thousand two hundred and thirty-four Canadian dollars."
+        normalized = "the total is one thousand two hundred and thirty four canadian dollars"
+        expected = hashlib.sha256(normalized.encode()).hexdigest()
+        fake_model = MagicMock()
+        fake_model.transcribe.return_value = ([FakeSegment(phrase)], None)
+        captured = io.StringIO()
+        with (
+            patch("aster_speech._whisper_model", fake_model),
+            patch("aster_speech.STT_VALIDATION_SHA256", expected),
+            patch("sys.stderr", captured),
+        ):
+            result = await transcribe_pcm(b"\x00\x00" * 32, 16000, 2, 1)
+        self.assertEqual(result, phrase)
+        log = captured.getvalue()
+        self.assertIn("validation_match=true", log)
+        self.assertNotIn(phrase, log)
+        self.assertNotIn(expected, log)
 
 
 class TextToSpeechTests(unittest.IsolatedAsyncioTestCase):

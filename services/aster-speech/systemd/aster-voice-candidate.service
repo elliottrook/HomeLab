@@ -1,0 +1,29 @@
+[Unit]
+Description=Aster Voice Service Candidate (Kokoro + STT)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aster-speech
+Group=aster-speech
+UMask=0077
+WorkingDirectory=/opt/aster-voice-candidate
+EnvironmentFile=/etc/aster-speech/voice-candidate.env
+EnvironmentFile=-/etc/aster-speech/vulkan-renderer.env
+EnvironmentFile=-/etc/aster-speech/batch-renderer.env
+Environment=ASTER_SPEECH_STT_LANGUAGE=en
+Environment="ASTER_SPEECH_STT_HOTWORDS=Home Assistant, Lutron Caseta, British Columbia, Canadian dollars, David Eby, Jason"
+ExecStart=/opt/aster-voice-candidate/venv/bin/uvicorn aster_voice_candidate:app --host 192.168.70.14 --port 9131 --workers 1 --no-access-log
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/aster-speech
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

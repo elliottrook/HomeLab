@@ -9,9 +9,9 @@
 
 | Configuration group | Recurring protection | Restore material |
 |---|---|---|
-| TrueNAS applications | Daily 05:00 TrueNAS cron task 7 | `/mnt/Media/backup/configuration/truenas/configs.tar.gz` |
+| TrueNAS applications | Daily 05:00 TrueNAS cron task 7 | `/mnt/Recovery/configuration/exports/truenas/configs.tar.gz` |
 | TrueNAS OS / managed apps / browser guards | Same daily export | Native config export including its secret seed; managed-app definitions, Docker inventory/networks, guard definitions and host SSH configuration |
-| Synology DSM and Immich | Daily 03:30 DSM `homelab-config-backup.timer`; existing 04:30 TrueNAS family-file pull | `/volume1/homes/.homelab-config-backups/configs.tar.gz`, copied to `/mnt/Media/backup/gowest/homes/.homelab-config-backups/` |
+| Synology DSM and Immich | Daily 03:30 DSM `homelab-config-backup.timer`; existing 04:30 TrueNAS family-file pull | `/volume1/homes/.homelab-config-backups/configs.tar.gz`, copied to `/mnt/Recovery/family/gowest/homes/.homelab-config-backups/` |
 | Proxmox-hosted apps | Existing all-guest nightly 02:30 archives; TrueNAS pull at 04:00 | Guests 100–109, 111–117 in the normal pull; 110 retains its separate 04:20 same-site task |
 | OPNsense, Arista, Proxmox host, NUT, monitoring | Existing Sunday 06:00 Mac job; TrueNAS daily 04:15 pull | `~/lab/private-backups/<service>/` |
 | Media automation configuration | Same weekly job plus TrueNAS daily tool export | Video archiver, Jellyfin integrity reference manifests and `/mnt/Media/data/tools` |
@@ -160,3 +160,60 @@ source, after validating retained recovery copies and source/pull health. The
 07:00 encrypted relay propagates that retained set. Legacy LXC 110 and Paperless
 cloud exclusions remain unchanged. See the [cleanup record](Backup-Cleanup-Proposal-2026-10-03.md)
 for scope, guard limits, validation, monitoring and suspension instructions.
+
+## Recovery mirror cutover — 2026-10-05
+
+Live backup destinations moved to Recovery/guests, Recovery/family and
+Recovery/configuration after full baseline checksum verification. The cloud
+relay reads three restricted read-only NFS exports; cloud prefixes and exclusions
+remain unchanged. Home Assistant's existing SMB share name is preserved and its
+mount was reconnected and write-tested. Guest archive retention remains guarded;
+family/configuration snapshots use 14 daily, 4 weekly and 3 monthly points.
+Old Media copies and history remain for rollback; their snapshot schedules are
+disabled. See [migration record](Recovery-Migration-2026-10-05.md).
+
+## Media-stack inventory repair — 2026-10-07
+
+Jason approved the repair after reviewing current project work. Audiobookshelf's
+M5 promotion intentionally removed the TrueNAS App container. The exporter now
+requires unified-audiobookshelf-shadow with both /config and /metadata and uses
+that container's SQLite runtime. The old App is no longer required. Expected
+container/mount and unknown-application guards remain enabled.
+
+The leftover auto-remove CWA helper jolly_northcutt, exact container ID
+3c70828b425a9bffebee27461124eb290687f026c7f3c1b7075bb3789eff4a60, was rechecked:
+startup-only processes, no running batch/converter, same approved batch command.
+It was stopped and auto-removed; production calibre-web-automated stayed running
+and healthy. No library or production container was deleted or restarted.
+
+Added explicit protected coverage for unified-media-shadow/portal/state,
+unified-media-shadow/secrets, and the Audiobookshelf legacy-path symlink tree.
+The regenerateable portal recommendation cache is not copied. Media extensions
+remain excluded. No secret values were printed or stored in Git. The existing
+encrypted cloud configuration destination and root-only archive permissions
+remain unchanged. Compose definitions continue through existing Dockge coverage.
+
+Rollback exporter is root-only at
+/mnt/Media/backup-ops/config-repair-20261007/exporter.before.py. Restoring it would
+restore the old inventory failure, so only use as a diagnostic checkpoint.
+Fresh export: 19 applications, 20 SQLite checks, 3,758 file hashes; 576,027,290
+bytes, SHA256 ef7a47682d3a771f123a1723363ae86073d02c7da06220ed0dcd5e0d3ccd2dc5.
+An isolated private restore of all 3,758 regular files passed hash verification
+and was removed afterward. Confirmed 53 Audiobookshelf metadata files, one portal
+action-history file and eight protected credential files in that verified archive.
+Symlinks were not followed during the isolated regular-file restore. Exporter
+already verifies databases and archives before publication. Both configuration
+monitor checks and all 11 local backup tests pass. Archive mode remains 0600.
+Old Media backups and snapshots remain untouched. No Git push authorized.
+
+Cloud configuration-only sync completed successfully under the relay lock, with
+a maximum of five deletions permitted in that exact existing prefix. Latest
+configs.tar.gz then passed rclone cryptcheck at 08:45:49 PDT: one match, zero
+differences. Repair complete; next scheduled export remains at its existing time.
+
+2026-10-07 retirement: old Media/backup ZFS dataset and 24 snapshots removed after
+approval and validation. Recovery is now the retained local authority. The small
+Media/backup directory contains only an EHS compatibility link to its separately
+preserved private Recovery dataset. See the migration record for details.
+Cloud obsolete guest versions were purged and scoped history expiry enabled;
+current cloud backups remain intact. Daily usage reporting is checked by Doctor.

@@ -21,18 +21,18 @@ class ArrOperationalReferenceTests(unittest.TestCase):
 
     def test_declares_review_metadata_and_evidence_precedence(self):
         self.assertIn("> Authority: current-with-exclusions", self.text)
-        self.assertIn("> Reviewed: 2026-09-09", self.text)
+        self.assertIn("> Reviewed: 2026-10-08", self.text)
         self.assertIn("The live sanitized report outranks this page", self.text)
         self.assertIn("Historical lessons, not current-state substitutes", self.text)
 
     def test_inventory_names_every_service_version_boundary_and_dependency(self):
         for value in (
-            "Sonarr", "4.0.19.2979", "8989", "/mnt/Media/data/media/tv",
-            "Radarr", "6.3.0.10514", "7878", "/mnt/Media/data/media/movies",
+            "Sonarr", "4.0.20.3014", "8989", "/mnt/Media/data/media/tv",
+            "Radarr", "6.4.4.10685", "7878", "/mnt/Media/data/media/movies",
             "Lidarr", "3.1.0.4875", "8686", "/mnt/Media/data/media/music",
-            "Prowlarr", "2.5.2.5491", "9696",
-            "SABnzbd", "5.1.2", "8080",
-            "Jellyfin", "10.11.11", "8096",
+            "Prowlarr", "2.6.5.5623", "9696",
+            "SABnzbd", "5.1.3", "8080",
+            "Jellyfin", "12.1.0", "8096",
             "Prowlarr indexer sync/search", "SABnzbd download", "Jellyfin scan/match",
         ):
             self.assertIn(value, self.text)

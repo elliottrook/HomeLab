@@ -1,0 +1,47 @@
+[
+  {
+    "id": "ha-acknowledgement",
+    "category": "home-assistant",
+    "text": "There, that's done."
+  },
+  {
+    "id": "ha-short",
+    "category": "home-assistant",
+    "text": "The kitchen lights are off."
+  },
+  {
+    "id": "time-date",
+    "category": "assistant",
+    "text": "Your next appointment is at three thirty this afternoon, Friday, October tenth."
+  },
+  {
+    "id": "currency-markdown",
+    "category": "normalization",
+    "text": "The **estimated total** is CA $1,234.50 (before tax)."
+  },
+  {
+    "id": "dotted-abbreviation",
+    "category": "normalization",
+    "text": "The U.S. forecast changed, but the B.C. weather alert remains active."
+  },
+  {
+    "id": "question",
+    "category": "assistant",
+    "text": "Would you like me to turn off the downstairs lights as well?"
+  },
+  {
+    "id": "long-clause",
+    "category": "streaming",
+    "text": "The garage door is closed, the alarm is armed, and all downstairs lights are off; the front entrance light will remain on until sunrise."
+  },
+  {
+    "id": "news-two-sentence",
+    "category": "news",
+    "text": "Local transit service will increase during the morning commute. Officials say the revised schedule begins next Monday."
+  },
+  {
+    "id": "names-acronyms",
+    "category": "pronunciation",
+    "text": "Aster checked Home uh-sist-unt, Loo-tron kuh-set-uh, Proxmox, and the UPS."
+  }
+]

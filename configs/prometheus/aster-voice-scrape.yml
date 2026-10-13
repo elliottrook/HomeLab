@@ -1,0 +1,8 @@
+# Merge this job into /etc/prometheus/prometheus.yml on Observability LXC 109.
+  - job_name: aster-voice
+    scrape_interval: 15s
+    scrape_timeout: 5s
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - 192.168.70.14:9131

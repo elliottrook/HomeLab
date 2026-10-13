@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "brand": "",
+  "engagement_id": "",
+  "status": "blocked_missing_target",
+  "blockers": ["missing_target"],
+  "target": "",
+  "staged_location": "",
+  "release_id": "",
+  "release_sha256": "",
+  "authorization_reference": "",
+  "deployed_revision": "",
+  "verification": "",
+  "executor": "",
+  "timestamp": "",
+  "rollback": ""
+}

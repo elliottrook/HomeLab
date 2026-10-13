@@ -13,15 +13,16 @@ project's protected checkpoint and single-writer gates are recorded.
   it is not configured with indexers, download clients or credentials here.
 - `audiobookshelf` — proposed Docker replacement for the current TrueNAS App;
   it reads the audiobook library and writes only its own metadata/config.
-- `kavita` — proposed shadow ebook presentation and reading service. Calibre
-  remains the metadata/conversion authority; Kavita is not permitted to edit
-  Calibre's database.
+- `calibre-web` — proposed shadow ebook presentation and reading service.
+  Calibre remains the metadata/conversion authority; Calibre-Web is not
+  permitted to use the production database in this validation.
 
 ## Storage contract
 
-The production media dataset remains authoritative. The shadow stack uses the
-same host dataset through a common `/data` path, but its ebook ingest path is
-separate from the live Calibre library:
+The production media dataset remains authoritative. The shadow stack uses a
+common `/data` path for the book/download staging tree, while the existing
+audiobook library is mounted explicitly from its confirmed TrueNAS dataset
+path and read-only:
 
 ```text
 /data/media/books             # existing Calibre library; never mounted into shadow services
@@ -32,9 +33,28 @@ separate from the live Calibre library:
 /data/downloads/audiobooks    # audiobook download staging
 ```
 
+The Audiobookshelf shadow source is `/mnt/Media/media/audiobooks` on TrueNAS
+(`UNIFIED_AUDIOBOOKS_PATH`), not the empty `/mnt/Media/data/media/audiobooks`
+directory. This explicit variable prevents an accidental empty-library scan
+and keeps the production audiobook files read-only to the shadow container.
+
 No service in the shadow stack may directly write Calibre's `metadata.db`.
-Calibre-Web Automated remains the sole planned writer after cutover, with
-LazyLibrarian delivering files to the ingest boundary.
+Calibre-Web is presentation-only. Because Calibre-Web Automated currently
+stalls in its recursive ownership pass on this TrueNAS dataset, the eventual
+single writer must be a separately evaluated Calibre import/conversion worker,
+with LazyLibrarian delivering files to the ingest boundary.
+
+The existing LinuxServer Calibre image is the current worker candidate:
+`calibredb add` and `ebook-convert` have both passed against disposable paths.
+The worker still needs a bounded ingest wrapper, duplicate handling, metadata
+policy and backup/restore test before it can write the production library.
+
+`scripts/configure_shadow_lazy.py` configures only the shadow LazyLibrarian
+instance. It validates SABnzbd connectivity and enables one Prowlarr Newznab
+provider with explicit `book` mappings after a read-only search check.
+Shadow downloads use the separately created SABnzbd `books-shadow` category;
+the production `movies`, `tv` and `audio` categories are not used by the
+shadow workflow.
 
 ## Lifecycle
 
@@ -44,12 +64,13 @@ LazyLibrarian delivering files to the ingest boundary.
    mount the production Calibre library into the shadow service.
 3. Start the shadow stack on temporary ports with no acquisition credentials.
 4. Validate Audiobookshelf library scan, users, playback and API access.
-5. Validate Kavita health, library scan and ebook reading using a disposable
-   test book or a
-   copy, never the live library database.
-6. Configure LazyLibrarian only after its provider and download-client scope
+5. Validate Calibre-Web health, database loading and ebook reading using the
+   disposable Calibre database copy, never the live library database.
+6. Evaluate a dedicated Calibre import/conversion worker against a disposable
+   library before changing the live single-writer contract.
+7. Configure LazyLibrarian only after its provider and download-client scope
    is reviewed; first run is dry-run or a bounded selected title.
-7. Cut over one service at a time and retain the source App/config until the
+8. Cut over one service at a time and retain the source App/config until the
    restore gate passes.
 
 ## Port plan
@@ -57,7 +78,7 @@ LazyLibrarian delivering files to the ingest boundary.
 The shadow defaults are intentionally distinct from the current services:
 
 - Audiobookshelf: `30077`
-- Kavita: `8284`
+- Calibre-Web: `8284`
 - LazyLibrarian: `5299`
 
 Change ports only in an environment file outside Git. Private proxy, DNS,

@@ -1,0 +1,54 @@
+{
+  "schema_version": "2.0-proposed",
+  "skill_name": "Brand Design",
+  "merge_into_existing": "Brand SVG Studio",
+  "minimum_raster_reference_assets": 18,
+  "mandatory_source": [
+    "approved_master_with_SHA256",
+    "brief_and_rights",
+    "concept_comparison",
+    "change_scope_or_new_design_approval"
+  ],
+  "mandatory_design": [
+    "manual_pdf_and_page_pngs",
+    "contact_sheet",
+    "asset_order_csv_and_md",
+    "18_reference_pngs_or_signed_equivalent_matrix",
+    "palette_and_type_tokens",
+    "layer_reconstruction_notes",
+    "usage_mockups",
+    "provenance_and_rights"
+  ],
+  "mandatory_vector": [
+    "editable_svg_master_variants",
+    "legacy_brand_svg_studio_outputs_and_tests",
+    "safe_svg_validation",
+    "rasterized_visual_fidelity_comparison",
+    "usable_micro_size_variants",
+    "target_exports"
+  ],
+  "mandatory_delivery": [
+    "final_zip",
+    "checksums",
+    "qa_report",
+    "release_location",
+    "deploy_target",
+    "deployment_status",
+    "rollback_plan",
+    "skill_installed_and_invoked_evidence"
+  ],
+  "deployment_status_values": [
+    "deployed_and_verified",
+    "blocked_missing_approval",
+    "blocked_missing_target",
+    "blocked_unreachable",
+    "blocked_rights_or_validation"
+  ],
+  "authoritative_paths": {
+    "standard": "docs/standards/brand-design/BRAND-CREATION-STANDARD.md",
+    "templates": "docs/templates/brand-design/",
+    "assets": "MUST RESOLVE FROM BRAND DESIGN STORAGE RULES AND THE ACTIVE BRAND REGISTRY"
+  },
+  "forgejo_policy": "Canonical and behind Tailscale; never claim remote access/push without proof",
+  "validation": "Reconcile with existing skill contracts before freezing schema"
+}

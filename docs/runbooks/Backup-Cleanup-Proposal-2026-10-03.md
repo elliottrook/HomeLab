@@ -225,3 +225,87 @@ uploading 36.602 GiB and deleting 17 objects / 34.158 GiB (including one
 Home Assistant history object). The local/cloud counts differ by the intended
 Paperless exclusion and the unrelated normal Home Assistant rotation. This
 confirms the recurring production prune path, beyond the prior no-op cycle.
+
+## Cloud version discrepancy review — 2026-10-07
+
+Read-only review requested before any push. No cloud deletions, lifecycle changes
+or Git push performed. Current decrypted payload is 805,835,728,127 bytes across
+111,782 files. S3 ListObjectVersions across 113 pages gives 806,037,092,255 bytes
+current encrypted objects plus 1,038,299,453,764 bytes noncurrent versions:
+1,844,336,546,019 bytes total, matching independent rclone --s3-versions size.
+The reported 1.68 TB dashboard value is below this live inventory; dashboard age
+or accounting cannot be established from the API evidence.
+
+| Prefix | Current encrypted bytes | Noncurrent bytes | Noncurrent versions |
+|---|---:|---:|---:|
+| homelab-proxmox-guests | 458590469180 | 1021053826174 | 405 |
+| gowest | 332803410449 | 1124972561 | 43 |
+| jellyfin | 13346546936 | 0 | 0 |
+| configuration | 1152401834 | 15412352573 | 67 |
+| home-assistant | 111858528 | 708198240 | 26 |
+| mac | 32383465 | 103901 | 26 |
+| service-reconstruction | 10654 | 0 | 0 |
+| paperless-service | 11209 | 0 | 0 |
+| old synthetic validation prefixes combined | 0 | 315 | 3 |
+
+405 delete markers coexist with the 405 noncurrent guest archive versions.
+Guest history accounts for 98.34% of noncurrent bytes. Versioning is Enabled;
+GetBucketLifecycleConfiguration returns NoSuchLifecycleConfiguration. Previously
+approved current-object cleanup and nightly retention remove visibility but do
+not expire the previous S3 versions. This explains ongoing growth despite the
+current payload remaining near 800 GB. Migration preserved cloud prefixes.
+Only homelab-backup-relay was visible using this credential; this is not an
+account-wide billing or other-region inventory.
+
+Recommended bounded follow-up: enumerate exact noncurrent guest keys/version IDs,
+match deleted/expired archives against the retention evidence and current live
+recovery points, then request approval to permanently purge only that reviewed
+set. Potential reduction 1,021,053,826,174 bytes to 823,282,719,845 bytes total
+before subsequent uploads. Preserve current objects and family/config versions.
+Install prefix-specific noncurrent-version expiry: propose one day for guest
+archives (their current dated archives already implement Proxmox retention),
+30 days for family files, and 14 days for configuration exports; automatically
+remove expired delete markers. These are proposals, not applied policies.
+One day still adds roughly a daily batch of retired archives; 800 GB is a target,
+not a hard cap. Never apply age expiry to current guest objects: monthly restore
+points are intentionally older. Keep versioning enabled. Add current/noncurrent
+size reporting and alerts so future retention drift is visible.
+
+IDrive documents NoncurrentVersionExpiration/NoncurrentDays at
+https://learn.idrive.com/s3-storage-e2/s3-compatible-api . Permanent expiry reduces
+historical recovery protection; exact prefix/rule preview and approval required.
+
+## Approved cloud execution — 2026-10-07
+
+Jason explicitly approved the recommended remote cleanup, old Media retirement,
+documentation and push, with another SAS addition only if appropriate. The exact
+405 noncurrent guest versions were verified to have current delete markers,
+valid guest-archive names and no matching retained Recovery filename. Inventory
+was rechecked unchanged under the relay lock before deletion. All 405 version
+IDs were acknowledged deleted: 1,021,053,826,174 encrypted bytes removed. All 178
+current guest object version IDs and sizes remained unchanged.
+
+Afterward: current 806,037,092,255 bytes; history 17,245,627,590 bytes; total
+823,282,719,845 bytes. This is 823.3 GB decimal. Nine lifecycle rules were applied
+and read back exactly: noncurrent guest versions 1 day; Gowest family 30 days;
+configuration, Home Assistant, Mac, Jellyfin and service-reconstruction/Paperless
+configuration prefixes 14 days; expired delete markers removed bucket-wide.
+No current-object age expiration or versioning suspension. Family/config history
+will expire only according to these approved windows. Existing guest retention
+continues to define the dated current archives. Provider lifecycle processing
+is asynchronous, so empty guest delete markers may remain temporarily.
+
+Root-only LXC 112 evidence: /var/lib/idrive-version-maintenance/ contains exact
+cleanup manifest, acknowledged deleted versions, lifecycle before/request/readback
+and usage.json. Permanent version deletion has no rollback. Do not rerun the
+fixed 20261007 execution mode; its count/size gates deliberately reject replay.
+The first attempt stopped before mutation because this rclone uses cryptdecode
+--reverse; the corrected invocation was then validated and executed.
+
+Installed idrive-usage-audit.timer at 10:00 America/Vancouver plus up to five
+minutes jitter. Its service calls the script without mutation flags, obtains the
+same relay lock, and records aggregate current/history usage. Manual service run
+passed. HomeLab Doctor reads that report and warns if older than 30 hours, total
+usage exceeds 1 TB decimal, or noncurrent history exceeds 150 GB. This reports
+only authorized bucket scope, not account-wide billing. Sixteen backup tests,
+Doctor shell syntax and both configuration-backup checks pass.

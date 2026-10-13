@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 
 HERE = Path(__file__).resolve().parent
@@ -26,6 +27,8 @@ class FakeTransport:
         self.calls.append((method, url, payload, headers))
         if method == "GET":
             return {"status": "ok"}
+        if url.endswith("/tokenize"):
+            return {"tokens": payload["content"].split()}
         return {
             "choices": [{"message": {"role": "assistant", "content": "synthetic"}}],
             "usage": {"prompt_tokens": 512, "completion_tokens": 128},
@@ -35,6 +38,26 @@ class FakeTransport:
 
 
 class RunnerTests(unittest.TestCase):
+    def test_fail_fast_cli_persists_incorrect_evidence_and_returns_failure(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output=Path(directory)/'failed.json'
+            samples=[dict(phase='decode',correct=False)]
+            with patch.object(runner,'run_fixture',return_value=(samples,'synthetic')),redirect_stdout(io.StringIO()):
+                result=runner.main(['--fixture','aster-grounded-retrieval','--endpoint','http://127.0.0.1:11435',
+                                    '--execute','--stop-on-incorrect','--output',str(output)])
+            self.assertEqual(result,1)
+            self.assertTrue(output.exists())
+            self.assertEqual(output.stat().st_mode&0o777,0o600)
+
+    def test_incorrect_sample_stops_requests_but_remains_available(self):
+        case=runner.selected_fixture(runner.harness.DEFAULT_FIXTURES,'aster-grounded-retrieval')
+        fake=FakeTransport()
+        samples,_=runner.run_fixture('http://127.0.0.1:11435','fixture',case,{},fake,stop_on_incorrect=True)
+        self.assertEqual(len(samples),2)
+        self.assertFalse(samples[0]['correct'])
+        self.assertEqual(sum(call[1].endswith('/v1/chat/completions') for call in fake.calls),1)
+        self.assertEqual(samples[1]['rate_source'],'server_predicted_per_second')
+
     def test_loopback_classification(self):
         self.assertTrue(runner.is_loopback("http://127.0.0.1:11435"))
         self.assertTrue(runner.is_loopback("http://localhost:8080"))
@@ -53,14 +76,25 @@ class RunnerTests(unittest.TestCase):
     def test_fake_transport_runs_warmup_and_five_samples_with_health_guards(self):
         case = runner.selected_fixture(runner.harness.DEFAULT_FIXTURES, "tg128-warm-pos0")
         fake = FakeTransport()
-        samples = runner.run_fixture("http://127.0.0.1:11435", "fixture", case, {}, fake)
+        samples, prompt = runner.run_fixture("http://127.0.0.1:11435", "fixture", case, {}, fake)
         self.assertEqual(len(samples), 12)
+        self.assertGreaterEqual(len(prompt.split()), 60)
         self.assertEqual(samples[0]["control_role"], "warmup")
         self.assertEqual([item["phase"] for item in samples[:2]], ["prefill", "decode"])
         self.assertTrue(all(item["correct"] for item in samples))
         self.assertEqual([item["tokens_per_second"] for item in samples[:2]], [204.8, 12.5])
         self.assertTrue(all(item["prompt_cache_hit"] for item in samples))
-        self.assertEqual([call[0] for call in fake.calls], ["GET"] + ["POST"] * 6 + ["GET"])
+        self.assertEqual(fake.calls[0][0], "GET")
+        self.assertEqual(fake.calls[-1][0], "GET")
+        self.assertEqual(sum(call[1].endswith("/v1/chat/completions") for call in fake.calls), 6)
+        self.assertGreater(sum(call[1].endswith("/tokenize") for call in fake.calls), 0)
+
+    def test_calibrated_prompt_uses_tokenizer_and_hits_requested_size(self):
+        case = runner.selected_fixture(runner.harness.DEFAULT_FIXTURES, "pp512-cold-pos0")
+        fake = FakeTransport()
+        prompt = runner.calibrated_prompt("http://127.0.0.1:11435", case, {}, fake)
+        self.assertEqual(len(prompt.split()), case["target_prompt_tokens"])
+        self.assertNotIn("_00001", prompt)
 
     def test_read_only_tool_assertions_accept_exact_tool_and_reject_mutation(self):
         case = runner.selected_fixture(runner.harness.DEFAULT_FIXTURES, "aster-read-only-tool")
@@ -71,6 +105,22 @@ class RunnerTests(unittest.TestCase):
         bad = {"choices": [{"message": {"tool_calls": [{"function": {
             "name": "restart_service", "arguments": '{"service":"alpha"}'}}]}}]}
         self.assertFalse(all(runner.evaluate_correctness(case, bad).values()))
+
+    def test_read_only_tool_fixture_sends_openai_tool_schema(self):
+        case = runner.selected_fixture(runner.harness.DEFAULT_FIXTURES, "aster-read-only-tool")
+        payload = runner.completion_payload("fixture", case, "synthetic")
+        function = payload["tools"][0]["function"]
+        self.assertEqual(function["name"], "get_service_health")
+        self.assertEqual(function["parameters"]["required"], ["service"])
+        self.assertFalse(function["parameters"]["additionalProperties"])
+        self.assertEqual(payload["tool_choice"], "auto")
+
+    def test_fixed_length_decode_is_explicit_and_bounded(self):
+        case = runner.selected_fixture(runner.harness.DEFAULT_FIXTURES, 'b60-tg128-cold')
+        self.assertNotIn('ignore_eos', runner.completion_payload('fixture', case, 'synthetic'))
+        self.assertTrue(runner.completion_payload('fixture', {**case, 'ignore_eos': True}, 'synthetic')['ignore_eos'])
+        with self.assertRaises(runner.harness.ValidationError):
+            runner.completion_payload('fixture', {**case, 'ignore_eos': True, 'max_output_tokens':256}, 'synthetic')
 
     def test_immutable_output_is_private_and_cannot_be_overwritten(self):
         with tempfile.TemporaryDirectory() as directory:

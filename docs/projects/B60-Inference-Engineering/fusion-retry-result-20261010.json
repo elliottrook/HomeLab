@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "complete": false,
+  "approved_candidate_change": "GGML_SYCL_ENABLE_FUSION=0",
+  "approved_preflight_exception": "One full fresh collection on 2026-10-10 after ordinary collection window; original deadlines retained",
+  "vulkan_suite_medians_seconds": [2.417553, 2.407410, 2.4058685, 2.4137595, 2.4069545],
+  "vulkan_aggregate_median_seconds": 2.407410,
+  "vulkan_pass_counts": [12, 12, 12, 12, 12],
+  "sycl_measured_repetitions": 0,
+  "automatic_retry_performed": false,
+  "failure": {
+    "at": "2026-10-10T22:33:59-07:00",
+    "invocation_id": "10ef71a32e4e4edfaf0a776a55e532bb",
+    "stage": "startup compute warmup",
+    "operation": "RMS_NORM (unfused)",
+    "error": "44 UR_RESULT_ERROR_UNSUPPORTED_FEATURE",
+    "exit_code": 1,
+    "trace_sha256": "9ab18e76cba9069c199ab1cd5850933d135f7e676e3a9048a21fcd5c27054223",
+    "record_sha256": "0025dcc8070fc8406886056173e47286dddfede16f897c134724c99ad8df8011"
+  },
+  "restoration": {
+    "validated_by": "2026-10-10T22:34:54-07:00",
+    "accepted_hashes_match": true,
+    "health": "ok",
+    "authenticated_generation_passed": true,
+    "news_timers_active": true,
+    "aster_health": "ok",
+    "service_restarts": 0,
+    "relevant_kernel_faults": false,
+    "watchdog_disarmed_after_validation": true
+  },
+  "diagnosis": "Fusion-only explanation rejected; underlying unsupported API not yet identified",
+  "offline_packaging_mismatch": {
+    "release_loader_version": "1.33.1",
+    "trial_loader_version": "1.20.6",
+    "compiler_versions_match": true,
+    "publisher_package_sha256": "298d6d3656a13f112497f557be2cb557efb67374bc7d069aa77a9115db909e1d",
+    "downloaded_and_verified_locally": true,
+    "installed_or_staged_on_lab": false,
+    "new_compute_attempt_requires_approval": true
+  }
+}

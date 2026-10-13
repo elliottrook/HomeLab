@@ -12,13 +12,13 @@
 
 ## Purpose and desired outcome
 
-Jason (2026-09-24): "review the same archive folders and identify files larger
-than 2.5 GB ... using the auto archiving process with the GPU ... create a
+Jason (2026-09-24, updated 2026-09-26): "review the same archive folders and identify files larger
+than 2 GB ... using the auto archiving process with the GPU ... create a
 process to transcode all large files down ... maintain the highest resolution
 as possible - 1080p is preferred."
 
 The desired outcome:
-- every file in `archive-movies`/`archive-tv` ends up at or below ~2.3 GB;
+- every compatible file in `archive-movies`/`archive-tv` ends up below 2 GB;
 - resolution is kept wherever the size budget allows, and 4K becomes 1080p;
 - HDR stays HDR;
 - Jellyfin keeps the same items (collections, watch state);
@@ -41,7 +41,7 @@ The desired outcome:
 
 ## Scope and exclusions
 
-- **In scope:** re-encode archive files over 2.5 GB whose container can hold HEVC
+- **In scope:** re-encode archive files over 2 GB whose container can hold HEVC
   under the same name (`.mkv`, `.mp4`, `.m4v`: 477 files), in place at the
   identical path, one at a time, nightly.
 - **Excluded, reported for manual handling:**
@@ -76,7 +76,7 @@ The desired outcome:
   | SD | 1024×576 | 400 | 700 | 1200 |
 
   - The target is `max(budget at 1.5 GiB, aim)`, limited by the budget at the
-    **2.3 GB cap** and by the tier ceiling.
+    **1.9 GB cap** and by the tier ceiling.
   - The tier steps down only if the cap cannot fund its floor. Only one file
     (a very long 1080p title) steps down to 720p.
 - **HDR:** PQ/HLG sources encode as 10-bit `main10` via `scale_vaapi` `p010`,
@@ -99,9 +99,11 @@ The desired outcome:
   now passes `--no-snapshot`, superseding the original seven-day rollback policy.
   Verification and atomic replacement remain required. Successful replacements
   no longer have a snapshot recovery window.
-- **Scheduling:** TrueNAS cron, root, 02:00 daily, running `run-compact.sh`.
+- **Scheduling:** permanent TrueNAS cron, root, 08:00 daily, running
+  `run-compact.sh`,
+  after the archiver's 01:30–07:30 processing window.
   - It waits up to 90 minutes for the archiver's lock.
-  - Largest files are processed first, and nothing new starts past 07:30 or
+  - Largest files are processed first, and nothing new starts past 13:30 or
     when a file's estimated encode would overrun the deadline.
   - A Jellyfin library scan is requested after any replacements.
 
@@ -124,19 +126,26 @@ The desired outcome:
 - [x] **M1 — Supervised pilot (2026-09-24):** results in the evidence log.
       Jason's own playback check is recommended but not a gate.
 - [x] **M2 — Unattended schedule:**
-      - TrueNAS cron job #6, root, 02:00 daily, running `run-compact.sh`;
+      - TrueNAS cron job #6, root, 08:00 daily, running `run-compact.sh`;
       - `compact` section in `config.json` (backup
         `config.json.bak-20260924-compact`);
       - `scripts/backup/video-archiver.sh` now also collects `run-compact.sh`
         and `work/compact-state.json`.
 - [ ] **M3 — Monitoring:** Doctor warns on compaction failures or a stale run
       while candidates remain.
-- [ ] **M4 — Completion:** all eligible files processed, skipped list handed to
-      Jason, final space measured, cron removed or left as a guard for new
+- [ ] **M4 — Backlog completion:** all eligible files processed, skipped list handed to
+      Jason, and final space measured. The cron remains as a permanent guard for new
       oversized archive files.
 
 ## Evidence log
 
+- **2026-09-26 — Permanent archive-only guard.** Jason lowered the trigger to
+  2.0 GB and asked that the scan remain permanent after the backlog. The output
+  cap is 1.9 GB so completed files fall below the next run's trigger, and state
+  also recognizes an unchanged completed output. Live inventory before the
+  change: 619 files / 1,841.5 GB over 2.0 GB (611 same-path-compatible; six
+  `.m2ts` and two `.mpg` retained as manual exceptions). TrueNAS cron job #6
+  remains enabled daily at 02:00; the 01:30 current-to-archive job is unchanged.
 - **2026-09-24 — Inventory and dry run.** See M0. The dry run log is
   `logs/run-20260924T062941Z.jsonl` on TrueNAS.
 - **2026-09-24 — Pilot.** Snapshot `Media/data@archive-compact-20260923-233906`
@@ -174,6 +183,16 @@ The desired outcome:
   approved deployment and both retries passed (Scream 7: 1.86 GB; X-Files: 1.78 GB).
   Repository and Aster pinned Doctor both report a clean two-file run; Jellyfin
   completed the requested library scan at 13:50 PDT. [Repair evidence and resume](../runbooks/Video-Archiver-Repair-2026-09-28.md).
+
+## 2026-10-07 schedule separation
+
+The archiver's former five-file cap was removed from scheduled operation. It now runs
+unlimited oldest-first candidates from 01:30 until 07:30, while compaction starts at
+08:00 and stops starting new files at 13:30. This prevents the shared lock from
+starving either workload. The previously stale empty lock (created 2026-10-03 10:27)
+was removed only after confirming no archiver process was active. The deployed module
+hashes match the validated repository files; read-only candidate discovery reports
+177 eligible TV episodes and no eligible Radarr movie files.
 
 ## 2026-10-03 owner-directed archive cleanup
 

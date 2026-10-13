@@ -68,6 +68,24 @@ check_tcp() {
     fi
 }
 
+check_tcf_publishing() {
+    local result
+
+    if result="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox '
+            pct exec 124 -- systemctl is-active --quiet tcf-content-desk beszel-agent nftables &&
+            pct exec 124 -- python3 -c '\''import urllib.request; assert urllib.request.urlopen("http://127.0.0.1:8080/api/content", timeout=3).status == 200'\'' &&
+            pct exec 125 -- systemctl is-active --quiet nginx beszel-agent nftables &&
+            pct exec 125 -- python3 -c '\''import urllib.request; body=urllib.request.urlopen("http://127.0.0.1/healthz", timeout=3).read(); assert body'\'' &&
+            pct exec 125 -- sh -lc '\''cd /srv/tcf/current && test -f SAMPLE-NOT-FOR-PUBLICATION.txt && sha256sum -c MANIFEST.sha256 >/dev/null'\''
+        ' 2>&1
+    )"; then
+        pass "The Contrasting Frame private desk and sample origin are healthy; release checksum verified"
+    else
+        fail "The Contrasting Frame publishing health check failed${result:+ — $result}"
+    fi
+}
+
 check_backup_age() {
     local display="$1"
     local directory="$2"
@@ -161,8 +179,11 @@ check_idrive_relay() {
             printf "service=%s\\n" "$(pct exec 112 -- systemctl is-active idrive-relay-sync.service 2>/dev/null || true)"
             printf "result=%s\\n" "$(pct exec 112 -- systemctl show idrive-relay-sync.service -p Result --value 2>/dev/null || true)"
             printf "log_epoch=%s\\n" "$(pct exec 112 -- stat -c %Y /var/log/idrive-relay/sync.log 2>/dev/null || true)"
-            if pct exec 112 -- grep -Fq -- "/aster-lxc110/**" /usr/local/sbin/idrive-relay-sync 2>/dev/null &&
-               pct exec 112 -- grep -Fq -- "/homelab-proxmox-guests/vzdump-lxc-110-*.tar.zst" /usr/local/sbin/idrive-relay-sync 2>/dev/null; then
+            # The current Recovery layout excludes LXC 110 at the sync-tree
+            # level.  Keep this check aligned with the deployed relay rather
+            # than the retired pre-cutover path-based pattern.
+            if pct exec 112 -- grep -Fq -- "vzdump-lxc-110-*.tar.zst" /usr/local/sbin/idrive-relay-sync 2>/dev/null &&
+               pct exec 112 -- grep -Fq -- "vzdump-lxc-115-*.tar.zst" /usr/local/sbin/idrive-relay-sync 2>/dev/null; then
                 printf "lxc110_excludes=present\\n"
             else
                 printf "lxc110_excludes=missing\\n"
@@ -238,7 +259,7 @@ check_backup_redesign_truenas() {
     )" ||
        ! snapshot_epoch="$(
         ssh -o BatchMode=yes -o ConnectTimeout=8 truenas \
-            'zfs list -t snapshot -r Media/backup -o name,creation -s creation -H -p 2>/dev/null | grep "@backup-daily-" | tail -1 | awk "{print \$2}"'
+            'zfs list -t snapshot -r Recovery/family Recovery/configuration -o name,creation -s creation -H -p 2>/dev/null | grep "@backup-daily-" | tail -1 | awk "{print \$2}"'
     )"; then
         warn "Unable to check backup-redesign TrueNAS legs (rsync freshness, snapshots)"
         return
@@ -261,7 +282,7 @@ required_extra = {
 }
 matches = [
     task for task in tasks
-    if task.get('path') == '/mnt/Media/backup/aster-lxc110'
+    if task.get('path') == '/mnt/Recovery/guests/aster-lxc110'
     and task.get('enabled') is True
     and task.get('delete') is True
     and task.get('direction') == 'PULL'
@@ -337,7 +358,7 @@ print(finished // 1000 if finished else '')
     fi
 
     if [[ ! "$snapshot_epoch" =~ ^[0-9]+$ ]]; then
-        failures+=("no daily snapshot found on Media/backup")
+        failures+=("no daily snapshot found on Recovery")
     else
         local snapshot_age_hours
         snapshot_age_hours=$(( (now_epoch - snapshot_epoch) / 3600 ))
@@ -362,7 +383,7 @@ check_home_assistant_backup_truenas() {
 
     if ! latest_epoch="$(
         ssh -o BatchMode=yes -o ConnectTimeout=8 truenas \
-            "find /mnt/Media/backup/home-assistant -maxdepth 1 -type f -name '*.tar' -printf '%T@\\n' 2>/dev/null | sort -nr | head -n 1"
+            "find /mnt/Recovery/configuration/home-assistant -maxdepth 1 -type f -name '*.tar' -printf '%T@\\n' 2>/dev/null | sort -nr | head -n 1"
     )"; then
         warn "Unable to check Home Assistant backup leg on TrueNAS"
         return
@@ -444,7 +465,7 @@ check_truenas_guest_mirror_age() {
     local vmid="$2"
     local maximum_hours="${3:-30}"
     local guest_type="${4:-qemu}"
-    local mirror_directory="${5:-/mnt/Media/backup/homelab-proxmox-guests}"
+    local mirror_directory="${5:-/mnt/Recovery/guests/homelab-proxmox-guests}"
     local archive_pattern
     local latest_epoch
 
@@ -589,7 +610,7 @@ check_aster_speech() {
     local state
     if state="$(ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox \
         'pct exec 116 -- python3 /opt/aster-speech/health_check.py' 2>/dev/null)"; then
-        pass "Aster speech API, HTTPS ingress and Companion identity discovery healthy"
+        pass "Aster legacy/canonical speech, approved voice identity, synthesis canary, HA Wyoming, HTTPS ingress and Companion identity discovery healthy"
     else
         fail "Aster speech/authentication dependency unhealthy: ${state:-probe unavailable}"
     fi
@@ -709,6 +730,48 @@ PY
         pass "Bazarr container, direct UI and new-media-only policy are healthy"
     else
         fail "Bazarr container, direct UI or new-media-only policy is unhealthy"
+    fi
+}
+
+check_unified_media() {
+    local state
+    if ! state="$(ssh -o BatchMode=yes -o ConnectTimeout=5 truenas '
+        abs="$(docker inspect -f "{{.State.Status}}" unified-audiobookshelf-shadow 2>/dev/null || true)"
+        cwa="$(docker inspect -f "{{.State.Status}}" calibre-web-automated 2>/dev/null || true)"
+        cwa_health="$(docker inspect -f "{{.State.Health.Status}}" calibre-web-automated 2>/dev/null || true)"
+        abs_http="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 http://192.168.20.40:30067/healthcheck 2>/dev/null || true)"
+        cwa_http="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 http://127.0.0.1:8283/ 2>/dev/null || true)"
+        snapshot="/mnt/Media/appdata/unified-media-shadow/portal-refresh/recommendations.json"
+        actions="/mnt/Media/appdata/unified-media-shadow/portal/state/actions.json"
+        now="$(date +%s)"
+        snapshot_mtime="$(stat -c %Y "$snapshot" 2>/dev/null || echo 0)"
+        actions_mtime="$(stat -c %Y "$actions" 2>/dev/null || echo 0)"
+        snapshot_age=$(( now - snapshot_mtime ))
+        actions_age=$(( now - actions_mtime ))
+        json="$(python3 -m json.tool "$actions" >/dev/null 2>&1 && echo ok || true)"
+        printf "abs=%s\\ncwa=%s\\ncwa_health=%s\\nabs_http=%s\\ncwa_http=%s\\nsnapshot_age=%s\\nactions_age=%s\\nactions_json=%s\\n" \
+            "$abs" "$cwa" "$cwa_health" "$abs_http" "$cwa_http" "$snapshot_age" "$actions_age" "$json"
+    ')"; then
+        warn "Unable to check unified-media services on TrueNAS"
+        return
+    fi
+    if ! grep -qx 'abs=running' <<< "$state" ||
+       ! grep -qx 'abs_http=200' <<< "$state"; then
+        fail "Audiobookshelf Docker service or health endpoint is unhealthy"
+    elif ! grep -qx 'cwa=running' <<< "$state" ||
+         ! grep -qx 'cwa_health=healthy' <<< "$state" ||
+         ! grep -qx 'cwa_http=302' <<< "$state"; then
+        fail "Calibre-Web Automated Docker service, healthcheck or local endpoint is unhealthy"
+    elif ! grep -qx 'actions_json=ok' <<< "$state"; then
+        fail "Unified-media portal action state is not valid JSON"
+    elif (( $(sed -n 's/^snapshot_age=//p' <<< "$state") > 172800 )); then
+        fail "Unified-media recommendation snapshot is more than 48 hours old"
+    elif (( $(sed -n 's/^snapshot_age=//p' <<< "$state") > 86400 )); then
+        warn "Unified-media recommendation snapshot is more than 24 hours old"
+    elif (( $(sed -n 's/^actions_age=//p' <<< "$state") > 604800 )); then
+        warn "Unified-media portal action state has not changed in seven days"
+    else
+        pass "Unified-media Audiobookshelf/CWA health, portal state and snapshot freshness are healthy"
     fi
 }
 
@@ -964,10 +1027,17 @@ check_arista() {
         "Et46:a-100M"
     )
 
-    if ! status_output="$(ssh -o BatchMode=yes -o ConnectTimeout=5 arista 'show interfaces status')" ||
-       ! error_output="$(ssh -o BatchMode=yes -o ConnectTimeout=5 arista 'show interfaces counters errors')" ||
-       ! temperature_output="$(ssh -o BatchMode=yes -o ConnectTimeout=5 arista 'show environment temperature')" ||
-       ! power_output="$(ssh -o BatchMode=yes -o ConnectTimeout=5 arista 'show environment power')"; then
+    # Arista's EOS SSH server doesn't offer post-quantum key exchange, so
+    # every connection prints OpenSSH's own "** WARNING: ... post-quantum
+    # ..." advisory to stderr. That's informational noise about the switch's
+    # own crypto stack, not a real error, and not something upgrading this
+    # script can fix (it would need an EOS upgrade, out of scope here) --
+    # filtered out by prefix so it doesn't clutter every run, while any
+    # *other* stderr (a real connection/auth failure) still comes through.
+    if ! status_output="$(ssh -o BatchMode=yes -o ConnectTimeout=5 arista 'show interfaces status' 2> >(grep -v '^\*\*' >&2))" ||
+       ! error_output="$(ssh -o BatchMode=yes -o ConnectTimeout=5 arista 'show interfaces counters errors' 2> >(grep -v '^\*\*' >&2))" ||
+       ! temperature_output="$(ssh -o BatchMode=yes -o ConnectTimeout=5 arista 'show environment temperature' 2> >(grep -v '^\*\*' >&2))" ||
+       ! power_output="$(ssh -o BatchMode=yes -o ConnectTimeout=5 arista 'show environment power' 2> >(grep -v '^\*\*' >&2))"; then
         warn "Unable to collect Arista health data"
         return
     fi
@@ -2112,7 +2182,9 @@ check_video_archiver
 check_news_aggregator
 check_paperless
 check_bazarr
+check_unified_media
 check_apt_proxy
+check_tcf_publishing
 
 category "Service Reachability"
 
@@ -2139,12 +2211,16 @@ check_proxmox_guest_backup_age "Home Assistant VM 103" 103 30
 check_proxmox_guest_backup_age "Aster Agent LXC 104" 104 30 lxc
 check_proxmox_guest_backup_age "Legacy Ollama VM 105" 105 30
 check_proxmox_guest_backup_age "Aster llama.cpp LXC 110" 110 30 lxc
-check_truenas_guest_mirror_age "Aster llama.cpp LXC 110" 110 30 lxc /mnt/Media/backup/aster-lxc110
+check_truenas_guest_mirror_age "Aster llama.cpp LXC 110" 110 30 lxc /mnt/Recovery/guests/aster-lxc110
 check_proxmox_guest_backup_age "Observability LXC 109" 109 30 lxc
 check_proxmox_guest_backup_age "NetBox LXC 111" 111 30 lxc
 check_proxmox_guest_backup_age "Aster Wiki LXC 113" 113 30 lxc
 check_proxmox_guest_backup_age "Aster Speech LXC 116" 116 30 lxc
-check_truenas_guest_mirror_age "Aster Speech LXC 116" 116 30 lxc /mnt/Media/backup/homelab-proxmox-guests
+check_truenas_guest_mirror_age "Aster Speech LXC 116" 116 30 lxc /mnt/Recovery/guests/homelab-proxmox-guests
+check_proxmox_guest_backup_age "TCF Publisher LXC 124" 124 30 lxc
+check_truenas_guest_mirror_age "TCF Publisher LXC 124" 124 30 lxc /mnt/Recovery/guests/homelab-proxmox-guests
+check_proxmox_guest_backup_age "TCF Origin LXC 125" 125 30 lxc
+check_truenas_guest_mirror_age "TCF Origin LXC 125" 125 30 lxc /mnt/Recovery/guests/homelab-proxmox-guests
 check_idrive_relay
 if config_backup_result="$(python3 "$REPO/scripts/check-configuration-backups.py")"; then
     pass "$config_backup_result"
@@ -2153,6 +2229,11 @@ else
 fi
 check_backup_redesign_truenas
 check_guest_retention
+if idrive_usage_result="$(python3 "$REPO/scripts/check-idrive-usage.py")"; then
+    pass "$idrive_usage_result"
+else
+    warn "$idrive_usage_result"
+fi
 check_home_assistant_backup_truenas
 
 category "Local Environment"

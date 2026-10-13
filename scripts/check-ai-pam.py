@@ -102,20 +102,35 @@ def classify(data: dict) -> tuple[int, str]:
     if data.get("global_enabled") != "1":
         failures.append("global access disabled")
 
+    # Retired/disabled service records are retained for audit and recovery
+    # evidence.  The policy catalogue is the enabled production surface, so
+    # compare only enabled services here rather than treating retained fixture
+    # metadata as live policy drift.
     services = {row[0]: (row[1] == 1) for row in data.get("services", [])}
     agents = dict(data.get("agents", []))
     capabilities = {row[0]: (row[1], row[2], row[3] == 1) for row in data.get("capabilities", [])}
     retained_fixture = (RETIRED_FIXTURE in services or RETIRED_FIXTURE in agents
                         or bool(set(capabilities) & set(RETIRED_CAPABILITIES)))
-    expected_services = {name: True for name in EXPECTED_SERVICES}
+    enabled_services = {service_id for service_id, enabled in services.items() if enabled}
     expected = {name: (*shape, True) for name, shape in EXPECTED_CAPABILITIES.items()}
+    live_capabilities = {
+        name: shape for name, shape in capabilities.items() if shape[0] in enabled_services
+    }
+    if enabled_services != EXPECTED_SERVICES:
+        failures.append("service catalogue drift")
+    if live_capabilities != expected:
+        failures.append("capability catalogue drift")
     if retained_fixture:
+        expected_services = {name: True for name in EXPECTED_SERVICES}
         expected_services[RETIRED_FIXTURE] = False
-        expected.update(RETIRED_CAPABILITIES)
+        fixture_capabilities = {
+            name: shape for name, shape in capabilities.items()
+            if name in RETIRED_CAPABILITIES or shape[0] == RETIRED_FIXTURE
+        }
+        if services != expected_services or fixture_capabilities != RETIRED_CAPABILITIES:
+            failures.append("retired fixture catalogue drift")
         if agents.get(RETIRED_FIXTURE) != "retired" or data.get("retired_fixture_active") != 0:
             failures.append("retired fixture lifecycle drift")
-    if services != expected_services:
-        failures.append("service catalogue drift")
     now = int(data.get("now", time.time()))
     for row in data.get("services", []):
         rotation = row[2] if len(row) > 2 else ""
@@ -127,9 +142,6 @@ def classify(data: dict) -> tuple[int, str]:
             else:
                 if due < now:
                     failures.append("overdue credential rotation")
-
-    if capabilities != expected:
-        failures.append("capability catalogue drift")
 
     if agents.get("agent-hermes") != "operator":
         failures.append("agent-hermes lifecycle drift")

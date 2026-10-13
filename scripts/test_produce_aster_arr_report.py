@@ -15,19 +15,21 @@ SPEC.loader.exec_module(producer)
 
 
 class ProducerTests(unittest.TestCase):
-    def test_writes_aggregate_report_without_import_coverage(self):
+    def test_writes_aggregate_report_with_aggregate_import_coverage(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "reports/latest.json"
             with (
                 patch.object(producer, "REPORT_PATH", path),
                 patch.object(producer, "docker_running", return_value=True),
-                patch.object(producer, "arr_queue", return_value=(3, 1)),
+                patch.object(producer, "arr_queue", return_value=(3, 1, 2, 1)),
                 patch.object(producer, "sabnzbd_queue", return_value=(2, 0)),
             ):
                 self.assertEqual(producer.main(), 0)
             report = json.loads(path.read_text(encoding="utf-8"))
             self.assertEqual(report["services"]["radarr"]["queue_pending"], 3)
-            self.assertEqual(report["services"]["radarr"]["import_pending"], None)
+            self.assertEqual(report["services"]["radarr"]["import_pending"], 2)
+            self.assertEqual(report["services"]["radarr"]["import_errors"], 1)
+            self.assertEqual(report["services"]["radarr"]["coverage"], ["health", "queue", "import"])
             self.assertEqual(report["services"]["prowlarr"]["coverage"], ["health"])
             self.assertEqual(report["repair_candidates"], [])
             self.assertEqual(path.stat().st_mode & 0o777, 0o640)

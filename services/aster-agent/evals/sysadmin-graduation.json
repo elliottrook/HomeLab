@@ -5,7 +5,7 @@
     {
       "id": "runtime_roles",
       "prompt": "What currently runs in LXC 104 and LXC 110, and what is VM 105 for? Name the active model and backend.",
-      "required_all": ["LXC 104", "LXC 110", "VM 105", "Qwen3.8-27B", "Vulkan"],
+      "required_all": ["LXC 104", "LXC 110", "VM 105", "Qwen3.5-9B", "Vulkan"],
       "forbidden": ["LXC 105", "VM 105 is production", "Ollama is the active backend"]
     },
     {

@@ -102,7 +102,10 @@ Pick a time window that does not overlap other heavy scheduled TrueNAS work (bac
   file-delete API does that, and only after the archive copy is verified on disk.
 - A lock file (`lock_file` in config) prevents overlapping runs; if a run exits uncleanly, confirm
   no process is actually still running before removing it by hand.
-- `max_files_per_run` bounds the blast radius of a single scheduled invocation.
+- The scheduled wrapper uses `--max-files 0` (unlimited) together with `--until 07:30`:
+  it processes oldest-first for the whole 01:30–07:30 window instead of stopping after
+  an arbitrary five files. The deadline is the operational safety boundary; manual runs
+  may still use a positive `--max-files` cap.
 - GPU encoding (`hevc_vaapi`) requires explicit `-rc_mode VBR` plus `-maxrate`/`-bufsize` — its
   default rate control ignores the target bitrate outright (confirmed: ~20-30 Mbps output against
   a 3.3 Mbps target without it).
@@ -110,7 +113,7 @@ Pick a time window that does not overlap other heavy scheduled TrueNAS work (bac
 ## Archive compaction (added 2026-09-24)
 
 `python3 -m video_archiver.compact` re-encodes **files already in the archive roots** that are
-larger than `compact.size_threshold_bytes` (2.5 GB). Unlike the archiver it does not talk to
+larger than `compact.size_threshold_bytes` (2.0 GB). Unlike the archiver it does not talk to
 Radarr/Sonarr and never changes a path. See
 `docs/projects/Archive-Large-File-Compaction.md` for the design.
 
@@ -139,7 +142,9 @@ Radarr/Sonarr and never changes a path. See
   manual runs; its default retention setting does not apply to the nightly runner.
 - **Scheduling:** it shares `lock_file` with the archiver and waits up to 90 min for it,
   then processes the largest files first until `compact.deadline`. State is kept in
-  `work/compact-state.json` (skipped or failed files aren't retried unless `--retry`).
+  `work/compact-state.json` (unchanged skipped/failed files and completed outputs
+  aren't retried unless `--retry`). The permanent daily schedule remains installed
+  after the initial backlog so newly added oversized archive files are picked up.
 - **Library scan:** the existing Jellyfin key is sent using `Authorization: MediaBrowser`,
   compatible with Jellyfin 12. A rejected scan records `jellyfin_scan_failed`, sets
   the compaction summary's `scan_failed`, and causes a nonzero exit. Doctor reports

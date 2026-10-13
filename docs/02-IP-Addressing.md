@@ -84,7 +84,7 @@ Both Pi-hole resolvers publish `truenas.internal` as an A record for
 
 | Service | Address | Port | Status |
 |---|---|---:|---|
-| Home Assistant | `http://home-assistant.home.internal` (`192.168.20.11`) | 80/TCP | Pilot operational |
+| Home Assistant | `https://homeassistant.elliottrook.com` via private NPM / recovery `http://home-assistant.home.internal` (`192.168.20.11`) | 443/TCP proxy / 80/TCP origin | Secure browser microphone capture; direct HTTP recovery retained |
 | Lutron Caséta bridge | `192.168.30.102` | 8081/8083 TCP | Reserved; integrated with Home Assistant |
 | Philips Hue bridge | `192.168.30.164` | 80/443 TCP | Reserved; integrated with Home Assistant |
 | Aqara Hub M3 | `192.168.30.158` | Matter | Integrated with Home Assistant; six water sensors, shutoff valve, lock |

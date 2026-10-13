@@ -1,0 +1,154 @@
+import importlib.util
+import json
+import sys
+import unittest
+from datetime import datetime
+from pathlib import Path
+from unittest.mock import mock_open, patch
+from zoneinfo import ZoneInfo
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'b60-inference'))
+spec = importlib.util.spec_from_file_location('matched', Path(__file__).with_name('matched-sycl.py'))
+matched = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(matched)
+
+class MatchedTrialTests(unittest.TestCase):
+    def setUp(self):
+        for name in ['OUT','EXCLUSIVE','INSTRUMENTED','EXCLUSIVE_DEADLINE','WORKFLOWS','WORKFLOW_FIXTURES']:
+            original=getattr(matched,name)
+            self.addCleanup(setattr,matched,name,original)
+
+    def test_workflow_dispatch_cannot_run_short_suite_concurrently(self):
+        with patch.object(matched,'WORKFLOWS',True),patch.object(matched,'workflow_suite') as workflow,patch.object(matched,'guest') as guest:
+            matched.suite('sycl','aster-b60-candidate.service')
+            workflow.assert_called_once_with('sycl','aster-b60-candidate.service')
+            guest.assert_not_called()
+
+    def test_short_suite_still_runs_warmup_and_five_scored_repetitions(self):
+        with patch.object(matched,'WORKFLOWS',False),patch.object(matched,'gates') as gates,patch.object(matched,'guest',return_value='') as guest:
+            matched.suite('sycl','aster-b60-candidate.service')
+            self.assertEqual(gates.call_count,12)
+            self.assertEqual(sum(c.args[1]=='timeout' for c in guest.call_args_list),6)
+
+    def test_workflow_cannot_escape_exclusive_authorization(self):
+        with self.assertRaises(AssertionError): matched.main(workflows=True)
+
+    def test_fixed_decode_profile_cannot_escape_workflow_interlock(self):
+        with self.assertRaises(AssertionError): matched.main(fixture_profile='decode')
+
+    def test_exclusive_session_crosses_calendar_cutoff_but_not_rolling_deadline(self):
+        deadline=datetime(2026,10,11,0,10,tzinfo=ZoneInfo('America/Vancouver'))
+        def guest(n,*args,**kwargs):
+            return '{"status":"ok"}' if args[0]=='curl' else ''
+        with patch.object(matched,'EXCLUSIVE',True), patch.object(matched,'EXCLUSIVE_DEADLINE',deadline), \
+             patch.object(matched,'datetime') as date, patch.object(matched,'guest',side_effect=guest), \
+             patch.object(matched,'run',return_value='clean kernel log'):
+            date.now.return_value=datetime(2026,10,11,0,5,tzinfo=ZoneInfo('America/Vancouver'))
+            matched.gates('aster-b60-candidate.service')
+            date.now.return_value=deadline
+            with self.assertRaisesRegex(RuntimeError,'bounded exclusive'):
+                matched.gates('aster-b60-candidate.service')
+
+    def test_fp16_is_only_allowed_with_exclusive_reservation(self):
+        with self.assertRaises(AssertionError): matched.main(precision='fp16')
+
+    def test_fp16_uses_private_precision_path_and_restores_once(self):
+        now=datetime(2026,10,10,23,45,tzinfo=ZoneInfo('America/Vancouver'))
+        def guest(n,*args,**kwargs):
+            if args[:2]==('systemctl','is-active'):
+                return 'failed' if n==110 else 'inactive'
+            if args[:2]==('sh','-c'): return '/private/runtime/lib'
+            return ''
+        with patch.object(matched,'datetime') as date, \
+             patch('builtins.open',mock_open(read_data=json.dumps({'collected_at':now.isoformat()}))), \
+             patch.object(matched.guard,'validate_preflight',return_value={'experiment_deadline':'2026-10-11T00:15:00-07:00'}), \
+             patch.object(matched,'guest',side_effect=guest) as commands, \
+             patch.object(matched,'suite'),patch.object(matched,'restore') as restore,patch.object(matched.time,'sleep'):
+            date.now.return_value=now
+            with self.assertRaisesRegex(RuntimeError,'no retry'):
+                matched.main(exclusive=True,run_id='fp16-test',fusion='1',precision='fp16')
+            restore.assert_called_once_with()
+            starts=[c.args for c in commands.call_args_list if c.args[1]=='systemd-run']
+            self.assertEqual(len(starts),1)
+            self.assertIn('/opt/b60-level-zero-trial-20261010/llama-sycl-fp16/llama-b11429/llama-server',starts[0])
+            self.assertIn('--setenv=GGML_SYCL_ENABLE_FUSION=1',starts[0])
+
+    def test_instrumented_cutoff_is_2320_not_unbounded(self):
+        def guest(n, *args, **kwargs):
+            return '{"status":"ok"}' if args[0] == 'curl' else ''
+        with patch.object(matched, 'INSTRUMENTED', True), \
+             patch.object(matched, 'datetime') as date, \
+             patch.object(matched, 'guest', side_effect=guest), \
+             patch.object(matched, 'run', return_value='clean kernel log'):
+            date.now.return_value = datetime(2026,10,10,23,19,tzinfo=ZoneInfo('America/Vancouver'))
+            matched.gates('aster-b60-candidate.service')
+            date.now.return_value = datetime(2026,10,10,23,20,tzinfo=ZoneInfo('America/Vancouver'))
+            with self.assertRaisesRegex(RuntimeError, '23:20'):
+                matched.gates('aster-b60-candidate.service')
+
+    def test_owner_disabled_news_is_not_restarted(self):
+        with patch.object(matched, 'guest', return_value='disabled') as commands:
+            matched.restore_news()
+            self.assertEqual(len(commands.call_args_list), 2)
+            self.assertTrue(all(c.args[2] == 'is-enabled' for c in commands.call_args_list))
+
+    def test_loader_retry_starts_once_and_restores_on_failure(self):
+        sys.modules['matched_sycl'] = matched
+        spec = importlib.util.spec_from_file_location('loader_retry', Path(__file__).with_name('loader-retry.py'))
+        loader = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(loader)
+        now = datetime(2026, 10, 10, 22, 48, tzinfo=ZoneInfo('America/Vancouver'))
+        def guest(n, *args, **kwargs):
+            if args[:2] == ('systemctl', 'is-active'):
+                return 'failed' if n == 110 else 'inactive'
+            if args[:2] == ('sh', '-c'):
+                return '/private/runtime/lib'
+            return ''
+        with patch.object(loader, 'datetime') as date, \
+             patch('builtins.open', mock_open(read_data='{}')), \
+             patch.object(matched.guard, 'validate_preflight'), \
+             patch.object(matched, 'guest', side_effect=guest) as commands, \
+             patch.object(matched, 'suite') as suite, \
+             patch.object(matched, 'gates'), \
+             patch.object(matched, 'restore') as restore, \
+             patch.object(loader.time, 'sleep'):
+            date.now.return_value = now
+            with self.assertRaisesRegex(RuntimeError, 'no retry'):
+                loader.main()
+            restore.assert_called_once_with()
+            suite.assert_called_once_with('vulkan-confirmation', 'aster-llama.service', repetitions=['warmup'])
+            starts = [c.args for c in commands.call_args_list if c.args[1] == 'systemd-run']
+            self.assertEqual(len(starts), 1)
+            self.assertIn('--setenv=GGML_SYCL_ENABLE_FUSION=0', starts[0])
+            self.assertIn('--log-verbosity', starts[0])
+            self.assertTrue(any('b60-loader-1331' in str(arg) for arg in starts[0]))
+
+    def test_candidate_startup_failure_restores_without_retry(self):
+        now = datetime(2026, 10, 10, 22, 20, tzinfo=ZoneInfo('America/Vancouver'))
+        def guest(n, *args, **kwargs):
+            if args[:2] == ('systemctl', 'is-active'):
+                return 'failed' if n == 110 else 'inactive'
+            if args[:2] == ('sh', '-c'):
+                return '/private/runtime/lib'
+            return ''
+        with patch.object(matched, 'datetime') as date, \
+             patch('builtins.open', mock_open(read_data=json.dumps({'collected_at': '2026-10-10T22:12:00-07:00'}))), \
+             patch.object(matched, 'guest', side_effect=guest) as commands, \
+             patch.object(matched, 'suite') as suite, \
+             patch.object(matched, 'restore') as restore, \
+             patch.object(matched.time, 'sleep'):
+            date.now.return_value = now
+            with self.assertRaisesRegex(RuntimeError, 'no retry'):
+                matched.main()
+            restore.assert_called_once_with()
+            suite.assert_called_once_with('vulkan-pre', 'aster-llama.service')
+            self.assertEqual(sum(c.args[1] == 'systemd-run' for c in commands.call_args_list), 1)
+
+
+    def test_iommu_fault_pattern_uses_python_whitespace(self):
+        import re
+        self.assertIsNotNone(re.search(matched.FAULT, 'IOMMU: device translation fault', re.I))
+        self.assertIsNone(re.search(matched.FAULT, 'default IOMMU domain type', re.I))
+
+if __name__ == '__main__':
+    unittest.main()
