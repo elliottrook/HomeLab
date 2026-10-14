@@ -5,7 +5,7 @@ live effect.
 
 ## Candidate identity
 
-- Source commit: `b75e835c`; this manifest is not a deployment authorization.
+- Source commit: `d54dd4cf`; this manifest is not a deployment authorization.
 - Accepted live runtime: LXC 110, llama.cpp `b11429`, SYCL/Level Zero,
   Qwen3.5 9B Q4_K_M; live unit hash
   `a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3`; live
@@ -63,15 +63,15 @@ These SHA-256 values cover the source and disabled unit reviewed for staging:
 | `scripts/local-ai/source_receipts.py` | `51052b26ee52ca0e2b4b561f6d5e9f303aadd20badfa9856bd15f551427629a4` |
 | `scripts/local-ai/test_source_receipts.py` | `7c8abd7dc5c1a7ce0261da6b85940e1a0e4893b4fd07741a7e4f3ea60c7dd5f7` |
 | `scripts/local-ai/test_trusted_observer.py` | `c0e585a8c32b361a670a585b1934cb0c02e65514ba3137652961675dd31f2405` |
-| `scripts/local-ai/backup_receipt_adapter.py` | `8e88af72b36936057ad07bcdfd284fab65b673c6e9de339542408f3c348fe289` |
-| `scripts/local-ai/test_backup_receipt_adapter.py` | `bc5812adb228e9336af2c82202fad8e4ea460736b68e9278d22b1ab90f5d5f73` |
+| `scripts/local-ai/backup_receipt_adapter.py` | `dcec5aff92590ff089bef7b74a0c4a6ff959090b31c51314066f6c6378d8c30b` |
+| `scripts/local-ai/test_backup_receipt_adapter.py` | `3eeb438c69db031671800c37dc2ad9a18d2d2af46f50d89aa536240b79a8796d` |
 | `scripts/local-ai/quiescence_receipt_adapter.py` | `7bc97c6b7c470322a42b635cc3a0b6788d027d83f33191214682c3fad4f5caf0` |
 | `scripts/local-ai/test_quiescence_receipt_adapter.py` | `4eb53b5b7105475e0f75e28210fd23f9e40624a46cc55f291dcea783d333e66e` |
 | `scripts/local-ai/fixed_source_adapters.py` | `976c79384ebcfdef195a4185307b7736fe9083edbd4d490425e1971326d4f285` |
 | `scripts/local-ai/test_fixed_source_adapters.py` | `f3d365763086f40652e2f57ee82ad14a0022a5104fe6cc2d5a54642fd89d3f46` |
 | `scripts/local-ai/source_receipt_boundary.py` | `bd055c61492f9d4072b25c4b699c4672b940e04436a511a07b7e73660b12a8b0` |
 | `scripts/local-ai/test_source_receipt_boundary.py` | `f918dc7cd12fd33486ebd3d26053a5624cd2ce7b8387854a3ebcbccad9f726dc` |
-| `services/local-ai-lease/STAGE-1-RUN-CARD.md` | `82ed350d21f774767a515e1c7c613eccc1f60dddc7af76eb4f00f2336f3888b5` |
+| `services/local-ai-lease/STAGE-1-RUN-CARD.md` | `e93605619dd710fba9c79f664ac2c6ae1ef778bc96b67d3be7c0528081320947` |
 | `services/local-ai-lease/local-ai-lease-watchdog.service` | `3041ed62efadcb1bcffe0c66e9c311933fc90c0cb101ea08f24b546fc9bc656d` |
 | `services/local-ai-lease/local-ai-lease-watchdog.timer` | `9f09de46e3ee55d8f765e1f279d34632ea914c8c6506416f0455853ef538b744` |
 
