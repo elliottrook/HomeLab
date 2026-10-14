@@ -35,8 +35,9 @@ live effect.
   evidence to the lease.
 - Candidate source-receipt adapters now require the fixed backup chain,
   integrity receipt, same-night timing, exact consumer set, News quiescence and
-  explicit no-new-start observation. They are tested contracts only; no live
-  source adapter or TrueNAS credential is installed.
+  explicit no-new-start observation. They are tested contracts only; the live
+  TrueNAS observer credential is transport-only and does not constitute a
+  source adapter.
 
 ## Exact local candidate hashes
 
