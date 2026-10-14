@@ -23,6 +23,7 @@ class MacPullObserverTests(unittest.TestCase):
                 receipt = MODULE.build_receipt()
         self.assertEqual(receipt["path"], str(root) + "/")
         self.assertEqual(receipt["entry_count"], 1)
+        self.assertEqual(receipt["claim"], "tree-present-only")
         self.assertNotIn("private.txt", json.dumps(receipt))
         self.assertNotIn("secret", json.dumps(receipt))
 

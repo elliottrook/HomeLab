@@ -92,10 +92,6 @@ class FixedSourceAdapters:
         rsync = _json(self.runner, _truenas(("midclt", "call", "rsynctask.query")), 10.0)
         if not _schedule_ok(rsync, date_prefix=date_prefix, artifact_ctimes=tuple(a.ctime for a in artifacts), lease_issued_epoch=lease_issued_epoch):
             raise SourceAdapterError("TrueNAS backup tasks are not all successful")
-        task_two = next(item for item in rsync if item.get("id") == 2)
-        task_two_finished = task_two["job"]["time_finished"]["$date"] // 1000
-        mac_receipt = _json(self.runner, _truenas((MAC_OBSERVER_COMMAND,)), 120.0)
-        mac_digest = verify_mac_pull_receipt(mac_receipt, date_prefix=date_prefix, task_finished_epoch=task_two_finished, lease_issued_epoch=lease_issued_epoch)
         mirror = _json(self.runner, _truenas(("midclt", "call", "filesystem.listdir", "/mnt/Recovery/guests/aster-lxc110")), 10.0)
         verify_lxc110_mirror(mirror, artifacts[1])
         if verify_archives:
@@ -107,9 +103,22 @@ class FixedSourceAdapters:
                 if code != 0:
                     raise SourceAdapterError("backup archive integrity check failed")
         receipt_material = json.dumps([(a.vmid, a.volid, a.size, a.ctime) for a in artifacts], separators=(",", ":"), sort_keys=True).encode()
-        digest = hashlib.sha256(receipt_material + mac_digest.encode()).hexdigest()
+        digest = hashlib.sha256(receipt_material).hexdigest()
         now = self.clock()
         return BackupSourceReceipt(EXPECTED_BACKUP_SOURCE, EXPECTED_BACKUP_SOURCE, now.hour * 60 + now.minute, f"metadata-sha256:{digest}", verify_archives, True)
+
+    def mac_pull_summary(self, *, date_prefix: str, lease_issued_epoch: int, freshness_seconds: int = 900) -> str:
+        """Collect tree-presence evidence only; never treat it as transfer proof."""
+        rsync = _json(self.runner, _truenas(("midclt", "call", "rsynctask.query")), 10.0)
+        task_two = next((item for item in rsync if item.get("id") == 2), None)
+        finished = task_two.get("job", {}).get("time_finished", {}).get("$date") if task_two else None
+        if not isinstance(finished, int):
+            raise SourceAdapterError("Mac task completion is unavailable")
+        receipt = _json(self.runner, _truenas((MAC_OBSERVER_COMMAND,)), 35.0)
+        try:
+            return verify_mac_pull_receipt(receipt, date_prefix=date_prefix, task_finished_epoch=finished // 1000, lease_issued_epoch=lease_issued_epoch, freshness_seconds=freshness_seconds)
+        except ValueError as exc:
+            raise SourceAdapterError(str(exc)) from exc
 
     def _snapshot(self) -> ConsumerSnapshot:
         states, enters, masks = [], [], []

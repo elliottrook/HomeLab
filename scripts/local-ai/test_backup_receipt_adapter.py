@@ -24,10 +24,10 @@ class BackupReceiptAdapterTests(unittest.TestCase):
             verify_lxc110_mirror([{"name": name, "path": f"/mnt/Recovery/guests/aster-lxc110/{name}", "type": "FILE", "size": 1}], artifact)
 
     def mac_receipt(self):
-        return {"path": "/mnt/Recovery/configuration/mac/", "date": "2026_10_13", "entry_count": 12, "total_size": 4096, "captured_epoch": 1791972010, "task_finished_epoch": 1791972002, "tree_sha256": "a" * 64}
+        return {"path": "/mnt/Recovery/configuration/mac/", "claim": "tree-present-only", "date": "2026_10_13", "entry_count": 12, "total_size": 4096, "captured_epoch": 1791972010, "task_finished_epoch": 1791972002, "scan_elapsed_ms": 10, "scan_consistent": True, "tree_sha256": "a" * 64}
 
     def test_requires_content_free_mac_pull_summary(self):
-        self.assertEqual(verify_mac_pull_receipt(self.mac_receipt(), date_prefix="2026_10_13", task_finished_epoch=1791972002, lease_issued_epoch=1791972020), "mac-tree-sha256:" + "a" * 64)
+        self.assertEqual(verify_mac_pull_receipt(self.mac_receipt(), date_prefix="2026_10_13", task_finished_epoch=1791972002, lease_issued_epoch=1791972020), "mac-tree-present-sha256:" + "a" * 64)
 
     def test_rejects_mac_summary_scope_date_empty_or_stale(self):
         receipt = self.mac_receipt()

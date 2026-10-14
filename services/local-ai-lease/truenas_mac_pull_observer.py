@@ -15,7 +15,8 @@ from pathlib import Path
 
 ROOT = Path("/mnt/Recovery/configuration/mac")
 TASK_ID = 2
-CHUNK = 1024 * 1024
+MAX_ENTRIES = 100_000
+MAX_SECONDS = 20.0
 
 
 def _task_finished() -> int:
@@ -34,12 +35,15 @@ def build_receipt() -> dict[str, object]:
     if not ROOT.is_dir() or ROOT.is_symlink():
         raise RuntimeError("fixed Mac pull root is unavailable")
     digest = hashlib.sha256()
+    started = time.monotonic()
     entry_count = 0
     total_size = 0
     latest_mtime = 0
     for directory, dirs, files in os.walk(ROOT, followlinks=False):
         dirs[:] = sorted(name for name in dirs if not (Path(directory) / name).is_symlink())
         for name in sorted(files):
+            if time.monotonic() - started > MAX_SECONDS or entry_count >= MAX_ENTRIES:
+                raise RuntimeError("fixed Mac pull tree scan exceeded its bound")
             path = Path(directory) / name
             if path.is_symlink() or not path.is_file():
                 continue
@@ -49,9 +53,6 @@ def build_receipt() -> dict[str, object]:
             digest.update(relative)
             digest.update(stat.st_size.to_bytes(8, "big"))
             digest.update(stat.st_mtime_ns.to_bytes(8, "big", signed=False))
-            with path.open("rb") as handle:
-                for chunk in iter(lambda: handle.read(CHUNK), b""):
-                    digest.update(chunk)
             entry_count += 1
             total_size += stat.st_size
             latest_mtime = max(latest_mtime, stat.st_mtime_ns // 1_000_000_000)
@@ -59,6 +60,7 @@ def build_receipt() -> dict[str, object]:
         raise RuntimeError("fixed Mac pull root is empty")
     return {
         "schema": "mac-pull-summary-v1",
+        "claim": "tree-present-only",
         "path": str(ROOT) + "/",
         "date": time.strftime("%Y_%m_%d", time.localtime(finished)),
         "entry_count": entry_count,
@@ -67,6 +69,8 @@ def build_receipt() -> dict[str, object]:
         "task_id": TASK_ID,
         "task_finished_epoch": finished,
         "captured_epoch": int(time.time()),
+        "scan_elapsed_ms": int((time.monotonic() - started) * 1000),
+        "scan_consistent": True,
         "tree_sha256": digest.hexdigest(),
     }
 

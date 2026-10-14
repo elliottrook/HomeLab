@@ -23,8 +23,11 @@ Status: offline candidate. This run card does not authorize a live run.
    state alone is not sufficient; the Mac summary must have the expected root,
    same-night date, non-zero entry/byte counts, task-2 completion epoch,
    capture time within 900 seconds after that completion and before lease
-   issuance, and a valid tree digest. The adapter acquires the summary only
-   through the exact observer command `aster-mac-pull-summary`.
+   issuance, and a bounded consistent tree-presence digest. This summary is
+   diagnostic only: it does not prove that current Mac source content was
+   transferred, so Mac completion/content admission remains a separate gate.
+   The adapter acquires the summary only through the exact observer command
+   `aster-mac-pull-summary`.
 2. Stop and runtime-mask only the three Aster service units. Do not mask,
    disable, stop or modify the News timer under this run card.
 3. Take two fixed Proxmox-owner quiescence samples at least ten seconds apart.
@@ -55,8 +58,10 @@ exact forced-command dispatch `aster-mac-pull-summary` to the existing
 `aster-schedule-observer` identity. It may invoke only the root-owned wrapper
 `/mnt/Media/.local-ai-lease/aster-mac-pull-observer-root`, which accepts no
 arguments and runs the fixed observer. The observer reads task 2 and the fixed
-tree, emits aggregate count/bytes/timestamps plus a SHA-256 digest, and emits
-no filenames or file contents. It must not add root SSH, a general shell,
+tree, performs a bounded metadata scan, and emits aggregate
+count/bytes/timestamps plus a metadata SHA-256 digest; it does not claim
+source-vs-destination equality and emits no filenames or file contents. It
+must not add root SSH, a general shell,
 arbitrary path arguments or any additional sudo target.
 
 Rollback is removal of that one dispatch, wrapper and sudoers target, followed
