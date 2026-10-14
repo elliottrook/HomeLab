@@ -670,3 +670,8 @@ integrity, same-night timestamps, exact consumer coverage, News quiescence and
 an explicit no-new-start observation. These collectors do not own a trusted
 execution boundary, so admission remains fail-closed even if a caller sets a
 provenance-looking field by hand.
+
+The Stage 1 run card now defines the missing boundary and rollback: a
+root-owned mode-0600 receipt envelope bound to lease ID and generation, with
+the watchdog absent/disabled and no automatic benchmark or recovery effect.
+The boundary is a local candidate only; no live unit or timer was installed.
