@@ -5,8 +5,7 @@ live effect.
 
 ## Candidate identity
 
-- Source commit: pending local pin after the dedicated observer transport
-  update; this manifest is not a deployment authorization.
+- Source commit: `2671191e`; this manifest is not a deployment authorization.
 - Accepted live runtime: LXC 110, llama.cpp `b11429`, SYCL/Level Zero,
   Qwen3.5 9B Q4_K_M; live unit hash
   `a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3`; live
@@ -49,7 +48,7 @@ These SHA-256 values cover the source and disabled unit reviewed for staging:
 | `scripts/local-ai/lease_contract.py` | `8a8997bdf453a499ae60dc2f11a65da9e28e318044a194122a7635b545adf113` |
 | `scripts/local-ai/lease_watchdog.py` | `3146d292dd42a6a3f305b67cccf5518e7c0585c9c6de2e195d1a00686003d1fc` |
 | `scripts/local-ai/lease_controller_candidate.py` | `73419722580776b78b8ef405f9b65213b5cec9a23749d9bbf1fee958982af8e4` |
-| `scripts/local-ai/trusted_observer.py` | `f7066c2e8be6122c32f48ba0bce4681edd4ebdd26a7720e5437df4c108a185b8` |
+| `scripts/local-ai/trusted_observer.py` | `fdc64fc200b87d0faba64a02762df3197fc49366dd0bec12b491ed83fb1aa93f` |
 | `scripts/local-ai/lease_watchdog_cli.py` | `e79521ae4cfacb61e1232df3b62cdfbb2d5181c0697770b8c1ff6c88c575990d` |
 | `scripts/local-ai/lease_effect_runner.py` | `81eac0e15e86ea48ce267d1a03da74cfcbe408ad9c57c9eca832a9c8f8c2c662` |
 | `scripts/local-ai/test_lease_effect_runner.py` | `f59eaa9048ff0cd1c93dc49462151350eee54c627d52466fdbbdf874562060b8` |
@@ -59,6 +58,7 @@ These SHA-256 values cover the source and disabled unit reviewed for staging:
 | `scripts/local-ai/test_admission_gate.py` | `c97beaa8e0cbe0e447fc9292dc5e88c325ae818c4eab1efeb63c68e392539160` |
 | `scripts/local-ai/source_receipts.py` | `35bbecdacec30226e5483e7214f7e318008c1e40d418b37861f000b0e8d701d4` |
 | `scripts/local-ai/test_source_receipts.py` | `7c8abd7dc5c1a7ce0261da6b85940e1a0e4893b4fd07741a7e4f3ea60c7dd5f7` |
+| `scripts/local-ai/test_trusted_observer.py` | `c0e585a8c32b361a670a585b1934cb0c02e65514ba3137652961675dd31f2405` |
 | `services/local-ai-lease/local-ai-lease-watchdog.service` | `3041ed62efadcb1bcffe0c66e9c311933fc90c0cb101ea08f24b546fc9bc656d` |
 | `services/local-ai-lease/local-ai-lease-watchdog.timer` | `9f09de46e3ee55d8f765e1f279d34632ea914c8c6506416f0455853ef538b744` |
 
