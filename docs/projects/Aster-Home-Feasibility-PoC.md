@@ -82,6 +82,62 @@ Living room client: LibreELEC -> Kodi -> Aster Home skin/add-on
 
 Compare **A: capable local mini-PC** versus **B: cheap, low-power hardware-decoding thin endpoint and Proxmox network brain**. Do **not** confuse thin client with 4K remote-desktop streaming; the local endpoint must decode protected/unprotected video when possible. Map network segments, TLS/authentication, ports and identity to real deployed endpoints only at M0.
 
+### Aster Home presentation feasibility
+
+The target presentation is feasible without changing Kodi core. Build
+`skin.asterhome` as a normal skin add-on, with Aster textures, fonts, colours,
+focus states, animations, navigation and custom windows. Kodi's skin engine
+supports changing the layout and appearance of its standard windows, adding
+custom windows, and filling containers from add-ons; that is sufficient for the
+mockup's top navigation, hero area, Continue Watching, Recommended, audio
+sections and Home Hub cards.
+
+Keep the implementation split into four replaceable layers:
+
+1. **Aster Home skin:** the TV-first visual system shown in the Kodi mockup;
+   use fixed 16:9 layouts with resolution scaling rather than attempting to
+   make Kodi behave like a responsive phone web app.
+2. **Aster Home Kodi service/add-ons:** provide the home screen's aggregated
+   items, news digest, podcasts, audiobooks, recommendation explanations and
+   controlled actions. Jellyfin remains the media authority; this layer should
+   request or display content rather than copy or mutate the media catalogue.
+3. **Aster private aggregation/API:** gather read-only Home Assistant state,
+   Aster/news/recommendation data and acquisition-request state, with narrow
+   identities and explicit action allowlists. Acquisition should be a queued
+   request/approval workflow, not an unrestricted download button in a skin.
+4. **Home Assistant dashboard:** use a branded dashboard for the browser/tablet
+   surface, while the Kodi skin renders a focused TV version of the same state.
+
+The first Kodi Home Hub can therefore show room tiles, routines, climate,
+security and air-quality cards like the reference image, but the skin alone
+does not create those data sources or safely execute arbitrary house actions.
+News, audiobook and podcast tiles are similarly achievable as presentation and
+playback surfaces; feed ingestion, metadata normalization, progress sync and
+recommendation logic belong in add-ons or the Aster service.
+
+Do not fork Kodi core for the first implementation. A core fork would increase
+upgrade and hardware-support risk and is unnecessary for this design. Revisit
+that only if testing proves a missing renderer/input/media capability that a
+skin, add-on or service cannot supply.
+
+### Branding and licensing boundary
+
+Home Assistant can be branded substantially through supported dashboards:
+custom dashboards and views, themes, per-view/per-card themes, entity names and
+icons, backgrounds, and custom cards. Aster logos, colours, typography and
+tile layouts can reproduce the Home Hub direction. A full replacement of the
+Home Assistant application shell would be a frontend fork and should not be
+the default plan; custom cards and loaded resources also carry maintenance risk
+when internal frontend APIs change.
+
+The Aster skin should have its own repository-owned assets and a clear license.
+Kodi's add-on guidance recommends a share-alike Creative Commons license for
+skins and requires a license file for distributable add-ons; Kodi core changes
+remain under Kodi's GPL-compatible licensing. We may take interaction and
+layout inspiration from tvOS and Home Hub, but must not copy Apple's artwork,
+logos, fonts or proprietary assets. Any third-party artwork or typeface needs
+its own permission and attribution record.
+
 ## 6. Privacy/security design
 
 Local-first; separate low-privilege test identity, minimal read access and synthetic demonstrations; do not store service secrets in Git or agent prompts. No inbound internet exposure. No unrestricted Kodi HTTP/JSON-RPC access on a guest network. Home Assistant state read first; action calls require explicit action allowlist and an intentional human confirmation for safety-sensitive entities. Voice activation opt-in; no retained raw audio or transcripts by default. Existing canonical Aster speech policy applies to all spoken output.
@@ -269,6 +325,7 @@ Deliver: (1) software go/no-go decision, (2) hardware and live Canadian purchasi
 | 2026-10-13 | Jason nominated the Lenovo ThinkPad X390 Yoga (8th-generation i7, 16 GB RAM) as the physical M2 test device. | The prior endpoint gap is resolved for a reversible USB-boot trial. Exact machine type/CPU/BIOS and adapter availability remain to be captured. No internal-drive install, firmware change, network-policy change or purchase is authorized by this record. |
 | 2026-10-13 | Jason clarified that M2 must provide SSH control/observation so the endpoint can be measured under real playback load, not judged only from the TV picture. | The X390 runbook now separates user-required physical actions (USB boot, local SSH enablement, TV/AVR observation) from assistant-run read-only telemetry and bounded playback soak tests. No remote access is enabled by this record; the user must enable SSH locally after boot and provide only the endpoint address. |
 | 2026-10-13 | Jason identified HDMI-CEC as unreliable on non-appliance USB-C/DisplayPort hardware and asked to use another control method. | CEC is downgraded from hard requirement to desirable integration. M2 must prove a stable local Bluetooth, IR or USB-HID path; Apple TV remote reuse remains an optional compatibility experiment and no hardware purchase is authorized yet. |
+| 2026-10-13 | Jason supplied Aster Home TV and Home Hub reference mockups and asked whether the integrated experience can be built without a Kodi core rewrite or an unmaintainable Home Assistant fork. | Feasibility assessment: the TV presentation is achievable as a Kodi skin plus service/add-ons; Home Assistant branding is achievable through dashboards, themes, backgrounds and custom cards; aggregation, recommendation, acquisition workflow and safe house actions belong in the Aster service layer. Core/frontend forks are deferred unless a measured capability gap remains. |
 
 ## 15. References
 
@@ -280,3 +337,8 @@ Deliver: (1) software go/no-go decision, (2) hardware and live Canadian purchasi
 - `../design/HomeLab-UI-Style-Guide.md`
 - Official Kodi: https://github.com/xbmc/xbmc
 - Official LibreELEC: https://github.com/LibreELEC/LibreELEC.tv
+- Kodi skin development: https://kodi.wiki/view/Skin_development_introduction
+- Kodi add-on rules and licensing guidance: https://kodi.wiki/view/Add-on_rules
+- Home Assistant dashboards: https://www.home-assistant.io/dashboards
+- Home Assistant frontend themes: https://www.home-assistant.io/integrations/frontend/
+- Home Assistant custom cards: https://developers.home-assistant.io/docs/frontend/custom-ui/custom-card/
