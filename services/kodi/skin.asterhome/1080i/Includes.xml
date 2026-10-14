@@ -16,6 +16,14 @@
         <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Duration(hh:mm)]</value>
         <value>$INFO[Container(100).ListItem.Duration(hh:mm)]</value>
     </variable>
+    <variable name="AsterHeroGenre">
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Genre]</value>
+        <value>$INFO[Container(100).ListItem.Genre]</value>
+    </variable>
+    <variable name="AsterHeroResolution">
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.VideoResolution]</value>
+        <value>$INFO[Container(100).ListItem.VideoResolution]</value>
+    </variable>
     <variable name="AsterHeroFanart">
         <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Art(fanart)]</value>
         <value>$INFO[Container(100).ListItem.Art(fanart)]</value>

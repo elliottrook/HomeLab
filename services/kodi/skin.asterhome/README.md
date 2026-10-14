@@ -1,6 +1,9 @@
 # Aster Home Kodi skin prototype
 
-Version 0.3.0 reshapes the Kodi canvas around the Aster Home reference: narrow
+Version 0.4.0 adopts the owner-approved Aster v2 runtime exports, uses the
+approved horizontal logo and tile-free compass in the shell, makes the hero
+eyebrow/metadata/time dynamic, and gives focused media cards a stable mint
+focus surface without zooming their geometry. Version 0.3.0 reshapes the Kodi canvas around the Aster Home reference: narrow
 rail, greeting/eyebrow hero copy, wide dynamic artwork, landscape media cards,
 and dark caption overlays with live progress percentages. Version 0.2.1 adds a
 two-line dynamic synopsis treatment with a local font face.
@@ -40,11 +43,15 @@ recommendation data are connected.
 - Kodi video-library containers as temporary content sources
 - no production service writes and no Kodi core changes
 
-The Aster compass mark is supplied as user-owned artwork and is rasterized for
-Kodi as `media/aster-icon-128.png` and `media/aster-icon-512.png`. The source
-SVG is approximately 20 MB and is retained outside this add-on. It has no
-embedded copyright or licence metadata, so these textures remain internal
-Aster artwork until provenance and distribution rights are recorded.
+The artwork is sourced from the owner-approved private Forgejo release
+`aster-brand-v2-2026-10-14`, package SHA-256
+`2c770b52cfc04cb90d49f01bec1067566e9b1e3c89fd9235a82c0e86be6bcffc`.
+The add-on carries only right-sized PNG exports: the 128/512 px Aster mark,
+horizontal and compass marks, and the approved Home Hub, Media, News Digest,
+Audiobooks and monochrome utility marks. The 20 MB SVG masters and the full
+family release remain outside this add-on. The handoff explicitly limits the
+family to private Aster/HomeLab use; this prototype does not assert public
+trademark, font or redistribution clearance.
 
 ## Local test
 

@@ -58,21 +58,12 @@
                 <texture>special://skin/media/rail-background.png</texture>
             </control>
             <control type="image">
-                <left>30</left>
-                <top>30</top>
-                <width>56</width>
-                <height>56</height>
-                <texture>special://skin/media/aster-icon-128.png</texture>
+                <left>28</left>
+                <top>28</top>
+                <width>194</width>
+                <height>78</height>
+                <texture>special://skin/media/aster-home-logo-512.png</texture>
                 <aspectratio>keep</aspectratio>
-            </control>
-            <control type="label">
-                <left>86</left>
-                <top>48</top>
-                <width>190</width>
-                <height>50</height>
-                <label>Aster Home</label>
-                <font>font24</font>
-                <textcolor>asterRailText</textcolor>
             </control>
             <control type="button" id="9001">
                 <left>26</left>
@@ -145,7 +136,7 @@
             <top>38</top>
             <width>44</width>
             <height>44</height>
-            <texture>special://skin/media/aster-icon-128.png</texture>
+            <texture>special://skin/media/aster-compass-128.png</texture>
             <aspectratio>keep</aspectratio>
         </control>
         <control type="label">
@@ -190,30 +181,23 @@
             <aligny>center</aligny>
         </control>
 
-        <!-- Brand header -->
+        <!-- Brand header: use the approved v2 horizontal export rather than
+             rebuilding the mark and wordmark from separate UI elements. -->
         <control type="image">
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
             <left>125</left>
-            <top>34</top>
-            <width>64</width>
-            <height>64</height>
-            <texture>special://skin/media/aster-icon-128.png</texture>
+            <top>32</top>
+            <width>192</width>
+            <height>80</height>
+            <texture>special://skin/media/aster-home-horizontal-512.png</texture>
             <aspectratio>keep</aspectratio>
-        </control>
-        <control type="label">
-            <left>198</left>
-            <top>46</top>
-            <width>350</width>
-            <height>52</height>
-            <label>Aster Home</label>
-            <font>font30</font>
-            <textcolor>asterInk</textcolor>
         </control>
         <control type="label">
             <left>1570</left>
             <top>52</top>
             <width>220</width>
             <height>40</height>
-            <label>7:24 PM   ●</label>
+            <label>$INFO[System.Time]   ●</label>
             <font>font20</font>
             <textcolor>asterMuted</textcolor>
             <align>right</align>
@@ -234,7 +218,7 @@
             <top>162</top>
             <width>500</width>
             <height>42</height>
-            <label>N A T U R E   D O C U M E N T A R Y</label>
+            <label fallback="F E A T U R E D   F O R   Y O U">$VAR[AsterHeroGenre]</label>
             <font>font20</font>
             <textcolor>asterGold</textcolor>
         </control>
@@ -249,7 +233,7 @@
         <control type="label">
             <left>125</left>
             <top>286</top>
-            <width>680</width>
+            <width>540</width>
             <height>48</height>
             <label fallback="Select a title to see its synopsis.">$VAR[AsterHeroPlot]</label>
             <font>font16</font>
@@ -262,7 +246,7 @@
             <top>350</top>
             <width>650</width>
             <height>36</height>
-            <label fallback="Metadata unavailable">$VAR[AsterHeroYear]   |   $VAR[AsterHeroDuration]</label>
+            <label fallback="Metadata unavailable">$VAR[AsterHeroYear]</label>
             <font>font20</font>
             <textcolor>asterGreen</textcolor>
         </control>
@@ -340,13 +324,20 @@
             </itemlayout>
             <focusedlayout width="340" height="210">
                 <control type="image">
+                    <left>0</left>
+                    <top>196</top>
+                    <width>340</width>
+                    <height>6</height>
+                    <texture>special://skin/media/rail-focus.png</texture>
+                    <colordiffuse>ff9bc9a8</colordiffuse>
+                </control>
+                <control type="image">
                     <left>6</left>
                     <top>4</top>
                     <width>328</width>
                     <height>188</height>
                     <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
                     <aspectratio>scale</aspectratio>
-                    <animation effect="zoom" start="100" end="106" time="140" reversible="true">Focus</animation>
                 </control>
                 <control type="image"><left>6</left><top>112</top><width>328</width><height>80</height><texture>special://skin/media/card-charcoal.png</texture><colordiffuse>b8292721</colordiffuse></control>
                 <control type="label">
@@ -395,13 +386,20 @@
             </itemlayout>
             <focusedlayout width="340" height="210">
                 <control type="image">
+                    <left>0</left>
+                    <top>196</top>
+                    <width>340</width>
+                    <height>6</height>
+                    <texture>special://skin/media/rail-focus.png</texture>
+                    <colordiffuse>ff9bc9a8</colordiffuse>
+                </control>
+                <control type="image">
                     <left>6</left>
                     <top>4</top>
                     <width>328</width>
                     <height>188</height>
                     <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
                     <aspectratio>scale</aspectratio>
-                    <animation effect="zoom" start="100" end="104" time="140" reversible="true">Focus</animation>
                 </control>
                 <control type="image"><left>6</left><top>112</top><width>328</width><height>80</height><texture>special://skin/media/card-charcoal.png</texture><colordiffuse>b8292721</colordiffuse></control>
                 <control type="label"><left>26</left><top>144</top><width>266</width><height>28</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterRailText</textcolor><truncate>true</truncate></control>
