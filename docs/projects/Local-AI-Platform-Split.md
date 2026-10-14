@@ -596,7 +596,9 @@ root-owned no-argument wrapper
 `/mnt/Media/.local-ai-lease/aster-schedule-observer-root`, which executes that
 same read-only query. An alternate `midclt` command was rejected with exit 1.
 The allowed query returned the three expected enabled TrueNAS tasks at 01:00,
-02:00 and 03:00, each reporting a successful most recent run. No schedule,
+02:00 and 03:00, each reporting a successful same-day run whose job arguments
+match its task ID. The fixed preflight now rejects stale successful jobs,
+wrong task arguments, or a different local calendar date. No schedule,
 credential, root SSH setting or secret was modified or exposed. The live
 receipt is now transport-healthy; the admission gate remains closed until the
 source-receipt adapter binds this evidence to the authenticated same-night

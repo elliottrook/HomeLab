@@ -93,8 +93,9 @@ editing the table would necessarily change its own digest.
   `/mnt/Media/.local-ai-lease/aster-schedule-observer-root`. The allowed query
   succeeded, the fixed LXC110 mirror listing matched the Proxmox artifact
   name and byte size, and alternate commands/paths were rejected. Schedule and
-  mirror metadata transport are therefore healthy, while archive-content and
-  quiescence receipts remain separate gates.
+  mirror metadata transport are therefore healthy preflight evidence; task-
+  specific same-day completion, archive provenance and quiescence remain
+  separate gates.
 
 ## Recovery deadline and rollback
 

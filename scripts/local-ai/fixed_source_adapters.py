@@ -7,6 +7,7 @@ import json
 import time
 from collections.abc import Callable
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from admission_gate import EXPECTED_BACKUP_SOURCE, AdmissionEvidenceError
 from backup_receipt_adapter import verify_lxc110_mirror, verify_proxmox_artifacts
@@ -39,14 +40,22 @@ def _truenas(command: tuple[str, ...]) -> tuple[str, ...]:
     return ("ssh", "-o", "BatchMode=yes", "-o", "IdentitiesOnly=yes", "-o", "StrictHostKeyChecking=yes", "-o", f"UserKnownHostsFile={KNOWN_HOSTS}", "-i", IDENTITY, TRUENAS, *command)
 
 
-def _schedule_ok(items: list[dict]) -> bool:
+LOCAL_ZONE = ZoneInfo("America/Vancouver")
+
+
+def _schedule_ok(items: list[dict], *, date_prefix: str) -> bool:
     expected = {1: (1, "01:00"), 3: (3, "02:00"), 2: (2, "03:00")}
     for item_id, (_, clock) in expected.items():
         item = next((item for item in items if item.get("id") == item_id), None)
         schedule = item.get("schedule", {}) if item else {}
         if not item or not item.get("enabled") or f"{int(schedule.get('hour', -1)):02d}:{int(schedule.get('minute', -1)):02d}" != clock:
             return False
-        if item.get("job", {}).get("state") != "SUCCESS":
+        job = item.get("job", {})
+        finished = job.get("time_finished", {}).get("$date")
+        arguments = job.get("arguments")
+        if job.get("state") != "SUCCESS" or arguments != [item_id] or not isinstance(finished, int):
+            return False
+        if datetime.fromtimestamp(finished / 1000, LOCAL_ZONE).strftime("%Y_%m_%d") != date_prefix:
             return False
     return True
 
@@ -59,7 +68,7 @@ class FixedSourceAdapters:
         pve = _json(self.runner, ("pvesh", "get", "/nodes/proxmox/storage/backups/content", "--content", "backup", "--output-format", "json"), 30.0)
         artifacts = verify_proxmox_artifacts(pve, date_prefix=date_prefix)
         rsync = _json(self.runner, _truenas(("midclt", "call", "rsynctask.query")), 10.0)
-        if not _schedule_ok(rsync):
+        if not _schedule_ok(rsync, date_prefix=date_prefix):
             raise SourceAdapterError("TrueNAS backup tasks are not all successful")
         mirror = _json(self.runner, _truenas(("midclt", "call", "filesystem.listdir", "/mnt/Recovery/guests/aster-lxc110")), 10.0)
         verify_lxc110_mirror(mirror, artifacts[1])
