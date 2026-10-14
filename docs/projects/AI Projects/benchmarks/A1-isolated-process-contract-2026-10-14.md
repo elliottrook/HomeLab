@@ -140,3 +140,13 @@ independent recovery path. The platform owner has been asked to cover every
 effect from its first mutation with a persisted, timer-recoverable state and
 failure-injection tests. Keep A1 live admission **BLOCKED** until that order,
 the fixed host helpers and live restore are independently verified.
+
+**Read-only host preflight, 2026-10-14:** LXC 104 reports systemd 257,
+`aster-agent.service` active, no `aster-a1-test.service`, no
+`aster-a1-test` account and no listener on TCP 19104. LXC 110 reports
+`aster-llama.service` active; its current `inet filter` input chain has policy
+`accept` and no rules. LXC 116 reports `aster-speech.service` active. This
+confirms that the sidecar and temporary ingress restriction are not yet
+deployed; it does not establish lease admission, network isolation or
+backend exclusivity. The proposed ingress helper must add and later remove a
+precisely scoped rule while preserving this observed baseline.
