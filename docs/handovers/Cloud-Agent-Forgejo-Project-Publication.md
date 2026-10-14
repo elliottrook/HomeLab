@@ -2,10 +2,11 @@
 
 **Owner:** Jason  
 **Date:** 2026-10-13  
-**Status:** Stream A continuation; local implementation and recovery gates are
-passing; the dedicated writer and project gateway are enabled; two synthetic
-Forgejo publications are complete; the held local implementation branch
-remains pending its final immediate-confirmation push.
+**Status:** Stream A complete for the approved scope; local implementation and
+recovery gates are passing; the dedicated writer and project gateway are
+enabled; two synthetic publications and the final Forgejo branch push are
+complete. Automated mirror-lag monitoring remains an explicitly deferred
+follow-up; GitHub remains read-only and derived from Forgejo.
 
 ## Authority and scope
 
@@ -29,9 +30,9 @@ credential, `main`, tag, release, merge, delete or force operation is in scope.
 ## Completed local work
 
 The replacement branch is `codex/cloud-agent-forgejo-access`. Its published
-Forgejo base is `503deb1155fc933887cc5f111180f52ba74ebf84`; local work is held
-for the project-completion push as requested. The current local commits after
-that published base are:
+Forgejo base was `503deb1155fc933887cc5f111180f52ba74ebf84`; the completed
+branch now ends at `8030c347ac7f6fa04e11e30ecd2aea7520bb6f8a` on Forgejo. The
+current local commits after that published base are:
 
 - `2fd21c56` — isolated runner preflight record
 - `c6de5052` — Stream A authorization record
@@ -114,6 +115,17 @@ digest-named local handoff.
   `/var/lib/homelab-bundle-runner/rollback/project-writer-key-20261013-pre-rotation/allowed_signers`.
   The runner read group was preserved as `hlabundle`; the private key and
   passphrase never entered chat, Git, LXC 104 or logs.
+
+## Final Forgejo push evidence
+
+The final local branch was pushed only to Forgejo on 2026-10-13:
+
+- Forgejo `refs/heads/codex/cloud-agent-forgejo-access` →
+  `8030c347ac7f6fa04e11e30ecd2aea7520bb6f8a`.
+- The GitHub protection mirror was checked read-only and pointed to the same
+  commit after Forgejo accepted the push.
+- No direct GitHub push, merge, tag, release, workflow trigger or `main`
+  update occurred.
 
 ## Human root-ceremony provisioning runbook
 

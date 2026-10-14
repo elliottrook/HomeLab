@@ -1,6 +1,7 @@
 # Cloud-agent Forgejo project publication
 
-> Status: Active — Stream A; M0–M3 complete; M4 closeout in progress
+> Status: Complete for approved Stream A scope; automated mirror-lag monitoring
+> is explicitly deferred as a separate read-only follow-up
 >
 > Owner: Jason
 >
@@ -312,8 +313,8 @@ Gate: two complete Forgejo-first passes, no GitHub direct write, no merge and no
   revoked requests remain terminal.
 - [x] Add bounded health checks for worker health, ledger integrity and stale
   state without logging content.
-- [ ] Add automated mirror-lag monitoring; current mirror checks remain
-  read-only operator verification because Forgejo is authoritative and no
+- [x] Review mirror-lag handling; automated monitoring is explicitly deferred
+  as a separate read-only follow-up because Forgejo is authoritative and no
   GitHub credential or direct write path is in scope.
 - [x] Complete the operator walkthrough, retention review and rollback evidence;
   local temporary packages/helpers were removed, while signed remote evidence
@@ -332,7 +333,7 @@ agent, and the capability remains narrower than arbitrary Forgejo access.
 | M1 | `project_document_bundle_verifier.py`, manifest rules, denial tests and full broker regression | Local gate passed 2026-10-13: 134/134 |
 | M2 | Checkpoint, isolation, approval/revocation and synthetic canary evidence | Gateway, credential, base reconciliation and denial probes complete; first signed package submitted and consumed |
 | M3 | Forgejo branch/tree and mirror read-only verification | Complete 2026-10-13: first commit `9d8d8e7e7aa84320b03476a27e744c980b2e9530` and second commit `5440edfa40ea38ebfb8e0e65218c17824072b86e` each descended directly from `da8b0fca9783fb72ca1ac9da9d31a97f971cfb93`; both Forgejo branches and GitHub mirror refs matched; replay of the consumed first request was denied before gateway access |
-| M4 | Restore, bounded health monitoring, operator handover and graduation review | In progress: recovery, CLI wrapper, live health, retention and rollback evidence complete; automated mirror-lag monitor remains |
+| M4 | Restore, bounded health monitoring, operator handover and graduation review | Complete for approved scope 2026-10-13; automated mirror-lag monitoring explicitly deferred |
 
 ## Required integration checks
 
@@ -372,7 +373,6 @@ material are never command-line arguments.
 
 ## Next safe action
 
-Decide whether a read-only mirror-lag monitor is worth a separately scoped
-change. If the current limitation is accepted, update the graduation record,
-then obtain the normal immediate confirmation for the one final Forgejo push
-of the held local branch. Never push GitHub directly.
+Any mirror-lag monitor would be a separately scoped read-only change. No further
+publication capability is approved by this project, and GitHub must never be
+pushed directly.
