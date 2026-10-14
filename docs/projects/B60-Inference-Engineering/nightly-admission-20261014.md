@@ -24,8 +24,9 @@ versus restoration-complete deadline gap and exact remaining interface gates.
 Re-read the current project status, ranked research and expanded capability
 programme. The latter is present only in the full local implementation
 checkout, not the focused handoff checkout. The lifecycle path referenced by
-the platform record is likewise absent from its fetched branch; the full local
-copy was inspected separately. Do not claim the owning branch includes these
+the platform record is likewise absent from its fetched branch and the full
+local checkout. Its referenced file could not be re-read; the fetched registry
+record supplies the reviewed lifecycle summary instead. Do not claim the branch includes these
 dependencies or deploy from this focused checkout as a full release.
 
 ## Read-only live prerequisite check
