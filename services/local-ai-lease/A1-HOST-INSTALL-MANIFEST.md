@@ -55,10 +55,12 @@ one root-owned mode-0600 `/etc/aster-a1-test/runtime.env` containing only the
 test environment values, then use systemd `LoadCredential` to deliver it to
 the UID. Compare SHA-256 digests locally; never print or export key values.
 The backend key is also added as one new line to LXC110's existing
-`/etc/aster-llama-api-keys` with an atomic root-only checkpoint. The existing
-production line is not read into the operator session, changed or removed.
-Removal is hash-bound to the root-owned test-key digest file and refuses an
-unknown or ambiguous match.
+`/etc/aster-llama-api-keys` with an atomic create-once checkpoint. Preserve the
+file's observed owner/group/mode exactly (`ollama:ollama`, 0600 on the current
+host); do not assume root ownership. The existing production line is not read
+into the operator session, changed or removed. Removal is hash-bound to the
+immutable pre-add checkpoint and root-owned test-key digest file, refuses an
+unknown or ambiguous match, and is idempotent after successful removal.
 
 ## Ingress and egress candidate
 

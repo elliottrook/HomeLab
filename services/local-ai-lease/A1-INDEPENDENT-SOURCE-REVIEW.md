@@ -23,8 +23,10 @@ change was performed.
 - The launcher imports the guarded factory before serving; invalid config,
   missing owner-only custody or privileged settings fail before Aster import.
 - The key helper checkpoints atomically, preserves the production line, and
-  removes only the one line whose SHA-256 matches the root-owned test digest.
-  Unknown or ambiguous removal fails closed.
+  preserves the observed key-file owner/group/mode, and removes only the one
+  line whose SHA-256 matches the root-owned test digest. The pre-add checkpoint
+  is create-once and immutable; unknown, ambiguous or drifted removal fails
+  closed.
 - The application watchdog owns all five application effects: sidecar stop,
   ingress-policy restore, test-key removal/reload, production-auth postcheck,
   and consumer restore. It never starts consumers after an auth or policy
