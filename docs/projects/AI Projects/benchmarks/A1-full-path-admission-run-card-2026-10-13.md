@@ -308,3 +308,16 @@ owner is preparing the exact restricted observer command and integration before
 requesting a new read-only access grant. Until then, task status and the
 standalone parser are insufficient for A1 admission. The watchdog and live
 recovery gates remain separate blockers.
+
+**Fixed Mac observer candidate review, 2026-10-14:** The platform owner then
+wired an exact `aster-mac-pull-summary` command and a local producer in
+`5495df6c`, pinned by `5d3d50fe` (69 owner-reported tests, two custody skips).
+The producer traverses the full Mac backup tree and hashes file contents. A
+nonempty tree and current task-2 `SUCCESS` do not by themselves prove that this
+cycle copied the expected Mac content: an unchanged prior tree would also
+pass. The full-tree read also needs a measured size/runtime bound and
+symlink-race review before a new root-owned observer permission is requested.
+Stream A asked the platform owner to either establish a source/destination
+manifest for the intended subset or narrow the receipt's claim to tree
+presence/integrity. This remains offline candidate code; no observer grant,
+lease or A1 model run followed.
