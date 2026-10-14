@@ -51,7 +51,7 @@
     </include>
 
     <include name="AsterRailButton">
-        <width>250</width>
+        <width>178</width>
         <height>62</height>
         <font>font24</font>
         <textcolor>asterRailText</textcolor>

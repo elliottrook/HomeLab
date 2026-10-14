@@ -3,7 +3,10 @@
 Version 0.4.0 adopts the owner-approved Aster v2 runtime exports, uses the
 approved horizontal logo and tile-free compass in the shell, makes the hero
 eyebrow/metadata/time dynamic, and gives focused media cards a stable mint
-focus surface without zooming their geometry. Version 0.3.0 reshapes the Kodi canvas around the Aster Home reference: narrow
+focus surface without zooming their geometry. The expanded rail now uses the
+approved Home Hub and Media marks for its branded destinations; utility entries
+retain simple Kodi-safe glyphs until matching approved exports exist. Version
+0.3.0 reshapes the Kodi canvas around the Aster Home reference: narrow
 rail, greeting/eyebrow hero copy, wide dynamic artwork, landscape media cards,
 and dark caption overlays with live progress percentages. Version 0.2.1 adds a
 two-line dynamic synopsis treatment with a local font face.

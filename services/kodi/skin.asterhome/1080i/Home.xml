@@ -65,10 +65,29 @@
                 <texture>special://skin/media/aster-home-logo-512.png</texture>
                 <aspectratio>keep</aspectratio>
             </control>
+            <!-- Use the approved v2 app marks for branded destinations. The
+                 utility destinations below retain simple text glyphs because
+                 the release does not contain search/settings symbols. -->
+            <control type="image">
+                <left>42</left>
+                <top>193</top>
+                <width>42</width>
+                <height>42</height>
+                <texture>special://skin/media/home-hub-128.png</texture>
+                <aspectratio>keep</aspectratio>
+            </control>
+            <control type="image">
+                <left>42</left>
+                <top>263</top>
+                <width>42</width>
+                <height>42</height>
+                <texture>special://skin/media/media-128.png</texture>
+                <aspectratio>keep</aspectratio>
+            </control>
             <control type="button" id="9001">
-                <left>26</left>
+                <left>72</left>
                 <top>180</top>
-                <label>⌂   Home Hub</label>
+                <label>Home Hub</label>
                 <onclick>ActivateWindow(Home)</onclick>
                 <onleft>8999</onleft>
                 <ondown>9002</ondown>
@@ -76,9 +95,9 @@
                 <include>AsterRailButton</include>
             </control>
             <control type="button" id="9002">
-                <left>36</left>
+                <left>72</left>
                 <top>250</top>
-                <label>▦   Watch</label>
+                <label>Watch</label>
                 <onclick>ActivateWindow(Videos)</onclick>
                 <onleft>8999</onleft>
                 <onup>9001</onup>
@@ -87,7 +106,7 @@
                 <include>AsterRailButton</include>
             </control>
             <control type="button" id="9003">
-                <left>36</left>
+                <left>72</left>
                 <top>320</top>
                 <label>◷   Library</label>
                 <onclick>ActivateWindow(Videos)</onclick>
@@ -98,7 +117,7 @@
                 <include>AsterRailButton</include>
             </control>
             <control type="button" id="9004">
-                <left>36</left>
+                <left>72</left>
                 <top>390</top>
                 <label>⌕   Search</label>
                 <onclick>ActivateWindow(Search)</onclick>
@@ -109,7 +128,7 @@
                 <include>AsterRailButton</include>
             </control>
             <control type="button" id="9005">
-                <left>36</left>
+                <left>72</left>
                 <top>460</top>
                 <label>⚙   Settings</label>
                 <onclick>ActivateWindow(Settings)</onclick>
@@ -140,27 +159,27 @@
             <aspectratio>keep</aspectratio>
         </control>
         <control type="label">
-            <visible>!Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
             <left>0</left><top>150</top><width>84</width><height>42</height>
             <label>⌂</label><font>font28</font><textcolor>asterRailText</textcolor><align>center</align>
         </control>
         <control type="label">
-            <visible>!Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
             <left>0</left><top>214</top><width>84</width><height>42</height>
             <label>▦</label><font>font28</font><textcolor>asterRailText</textcolor><align>center</align>
         </control>
         <control type="label">
-            <visible>!Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
             <left>0</left><top>278</top><width>84</width><height>42</height>
             <label>◷</label><font>font28</font><textcolor>asterRailText</textcolor><align>center</align>
         </control>
         <control type="label">
-            <visible>!Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
             <left>0</left><top>342</top><width>84</width><height>42</height>
             <label>⌕</label><font>font28</font><textcolor>asterRailText</textcolor><align>center</align>
         </control>
         <control type="label">
-            <visible>!Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
             <left>0</left><top>406</top><width>84</width><height>42</height>
             <label>⚙</label><font>font28</font><textcolor>asterRailText</textcolor><align>center</align>
         </control>
