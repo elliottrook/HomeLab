@@ -195,6 +195,11 @@ evidence, and decide separately whether a paired candidate or fresh
 qualification corpus is justified. Do not revive the obsolete coordinator.
 The [isolated Aster topology candidate](A1-isolated-Aster-topology-2026-10-13.md)
 defines the proposed path and its separate installation review gate.
+The [fixed sidecar contract](A1-isolated-process-contract-2026-10-14.md)
+specifies the process, credential, network, observer and denial evidence needed
+before that path can be admitted. The platform owner confirmed the current
+lease observer cannot treat an arbitrary second LXC 104 process as quiescent;
+the October 15 recovery drill therefore does not itself admit A1 calls.
 
 The offline gateway candidate now derives its 20 allowlisted body digests from
 the validated sealed corpus using the same serializer as the client. Only

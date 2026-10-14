@@ -16,9 +16,9 @@ D = "d" * 64
 
 
 def card():
-    return {"schema_version": "aster-full-path-admission.v0",
+    return {"schema_version": "aster-full-path-admission.v1",
             "case_sha256": CASE_SHA256, "profile_sha256": A,
-            "gateway_sha256": B, "scorer_sha256": C,
+            "gateway_sha256": B, "sidecar_sha256": B, "scorer_sha256": C,
             "accepted_restore_sha256": D,
             "max_calls": 20, "max_wall_s": 1200,
             "per_request_timeout_s": 60, "output_token_cap": 256,
@@ -47,6 +47,14 @@ def observed():
                      "independent_of_mini": True},
         "consumers": {"source": "platform-host-controller", "news_quiesced": True,
                       "other_ai_quiesced": True, "no_new_starts": True},
+        "sidecar": {"source": "platform-host-controller",
+                    "lease_id": "test-lease-20261014", "generation": 1,
+                    "source_sha256": B, "unit": "aster-a1-test.service",
+                    "distinct_uid": True, "single_worker": True,
+                    "test_port_attested": True,
+                    "credential_denial_checked": True,
+                    "network_denial_checked": True,
+                    "started_inside_lease": True},
         "gateway": {"source": "aster-test-adapter", "profile_sha256": B,
                     "model_profile_sha256": A, "scorer_sha256": C,
                     "accepted_restore_sha256": D,
@@ -104,6 +112,20 @@ class FullPathAdmissionTests(unittest.TestCase):
                       "pinned_request_set", "common_gateway_topology"):
             with self.subTest(field=field):
                 self.deny("gateway_unverified", lambda x, key=field: x["gateway"].update({key: False}))
+
+    def test_sidecar_requires_independent_host_attestation(self):
+        self.deny("sidecar_unverified", lambda x: x["sidecar"].update(
+            source="aster-test-adapter"))
+        self.deny("sidecar_unverified", lambda x: x["sidecar"].update(
+            generation=2))
+        self.deny("sidecar_unverified", lambda x: x["sidecar"].update(
+            source_sha256=A))
+        for field in ("distinct_uid", "single_worker", "test_port_attested",
+                      "credential_denial_checked", "network_denial_checked",
+                      "started_inside_lease"):
+            with self.subTest(field=field):
+                self.deny("sidecar_unverified", lambda x, key=field:
+                          x["sidecar"].update({key: False}))
 
     def test_exact_candidate_and_restore_pins_are_required(self):
         self.deny("gateway_unverified", lambda x: x["gateway"].update(

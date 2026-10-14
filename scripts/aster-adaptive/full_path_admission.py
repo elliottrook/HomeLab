@@ -50,16 +50,18 @@ def admit(card: dict, observed: dict, *, now: datetime) -> dict:
         raise AdmissionDenied("invalid_time")
     if not isinstance(card, dict) or set(card) != {
         "schema_version", "case_sha256", "profile_sha256", "gateway_sha256",
+        "sidecar_sha256",
         "scorer_sha256", "accepted_restore_sha256", "max_calls", "max_wall_s",
         "per_request_timeout_s", "output_token_cap", "temperature", "reasoning_mode",
         "tool_mode", "client_boundary",
         "candidate_id", "lease_id",
     }:
         raise AdmissionDenied("invalid_card")
-    if (card["schema_version"] != "aster-full-path-admission.v0"
+    if (card["schema_version"] != "aster-full-path-admission.v1"
             or card["case_sha256"] != CASE_SHA256
             or not all(_digest(card[key]) for key in (
-                "profile_sha256", "gateway_sha256", "scorer_sha256", "accepted_restore_sha256"))
+                "profile_sha256", "gateway_sha256", "sidecar_sha256",
+                "scorer_sha256", "accepted_restore_sha256"))
             or type(card["max_calls"]) is not int or card["max_calls"] != 20
             or type(card["max_wall_s"]) is not int or not 1 <= card["max_wall_s"] <= 1200
             or type(card["per_request_timeout_s"]) is not int
@@ -75,12 +77,13 @@ def admit(card: dict, observed: dict, *, now: datetime) -> dict:
             or not re.fullmatch(r"[a-zA-Z0-9-]{8,80}", card["lease_id"])):
         raise AdmissionDenied("invalid_card")
     if not isinstance(observed, dict) or set(observed) != {
-        "backup", "lease", "watchdog", "consumers", "gateway", "evidence",
+        "backup", "lease", "watchdog", "consumers", "sidecar", "gateway", "evidence",
     }:
         raise AdmissionDenied("missing_observation")
     backup, lease = observed["backup"], observed["lease"]
     watchdog, consumers = observed["watchdog"], observed["consumers"]
-    gateway, evidence = observed["gateway"], observed["evidence"]
+    sidecar, gateway, evidence = (observed["sidecar"], observed["gateway"],
+                                 observed["evidence"])
     if (not isinstance(backup, dict) or set(backup) != {
             "source", "completed_at", "archive_complete", "mirror_verified", "receipt_sha256"}
             or backup["source"] != "platform-backup-chain"
@@ -119,6 +122,21 @@ def admit(card: dict, observed: dict, *, now: datetime) -> dict:
             or any(consumers[key] is not True for key in (
                 "news_quiesced", "other_ai_quiesced", "no_new_starts"))):
         raise AdmissionDenied("consumer_conflict")
+    if (not isinstance(sidecar, dict) or set(sidecar) != {
+            "source", "lease_id", "generation", "source_sha256", "unit",
+            "distinct_uid", "single_worker", "test_port_attested",
+            "credential_denial_checked", "network_denial_checked",
+            "started_inside_lease"}
+            or sidecar["source"] != "platform-host-controller"
+            or sidecar["lease_id"] != card["lease_id"]
+            or sidecar["generation"] != lease["generation"]
+            or sidecar["source_sha256"] != card["sidecar_sha256"]
+            or sidecar["unit"] != "aster-a1-test.service"
+            or any(sidecar[key] is not True for key in (
+                "distinct_uid", "single_worker", "test_port_attested",
+                "credential_denial_checked", "network_denial_checked",
+                "started_inside_lease"))):
+        raise AdmissionDenied("sidecar_unverified")
     if (not isinstance(gateway, dict) or set(gateway) != {
             "source", "profile_sha256", "test_only", "tools_disabled",
             "production_route_unchanged", "candidate_id", "model_profile_sha256",
@@ -159,7 +177,7 @@ def admit(card: dict, observed: dict, *, now: datetime) -> dict:
                > min(expiry, watchdog_deadline, cutoff)):
         raise AdmissionDenied("insufficient_recovery_time")
     return {
-        "schema_version": "aster-full-path-admission-result.v0",
+        "schema_version": "aster-full-path-admission-result.v1",
         "state": "preflight_passed_not_authority",
         "lease_id": card["lease_id"],
         "candidate_id": card["candidate_id"],
