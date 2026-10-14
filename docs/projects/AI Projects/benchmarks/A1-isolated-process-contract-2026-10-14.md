@@ -101,3 +101,19 @@ fictional requests, one attempt per request, maximum 10-minute batch and
 15-minute minimum restoration reserve before 04:15 Vancouver. Preserve
 uncertain outcomes and stop on the first surprising response or host change.
 The control is regression evidence, not automatic route promotion.
+
+## Platform candidate source review — 2026-10-14
+
+The platform owner's local `df7b6bb2` candidate added ordered application
+watchdog actions. A source review of its controller and watchdog found three
+unclosed live gates: `acquire()` validates a post-start sidecar observation
+before the lease can exist; `controller.restore()` can restart Aster/Speech
+without clearing the sidecar, temporary LXC 110 ingress rule or test key; and
+the watchdog has no persisted per-effect attempt reconciliation or verified
+deadline. A process interruption could therefore replay a key/backend effect
+or leave production consumers running under a changed backend boundary.
+These are **source-candidate findings**, not observed production faults. The
+platform owner has been asked to split pre-lease and post-acquire receipts,
+remove the bypass restore path, and add no-blind-replay recovery tests. The
+A1 installation/run card remains **BLOCKED** until the corrected code, fixed
+host helpers and a live recovery drill are independently checked.
