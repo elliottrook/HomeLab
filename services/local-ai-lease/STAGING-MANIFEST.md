@@ -28,16 +28,16 @@ live effect.
   effect gate is retained in the candidate command line, while installation
   remains refused/disabled pending review.
 - The shared Aster benchmark gate is separate from the effect controller and
-  accepts only evidence marked by the fixed source adapters. A light-drain
-  drill cannot be reported as a full shared-lease admission test unless
-  same-night source adapters bind verified backup, News-quiescence and
-  consumer-isolation evidence to the lease.
+  remains fail-closed. The fixed-command adapters are metadata/preflight
+  collectors only; they do not own a trusted execution boundary and cannot
+  authorize admission. A light-drain drill cannot be reported as a full
+  shared-lease admission test until that boundary exists.
 - Candidate source-receipt adapters now require the fixed backup chain,
   integrity receipt, same-night timing, exact consumer set, News quiescence and
   explicit no-new-start observation. The live TrueNAS observer credential is
-  transport-only; the fixed source adapter is the component that attests the
-  composed receipt. The observer now has a second exact target for fixed-path
-  LXC110 mirror metadata; arbitrary paths remain rejected.
+  transport-only; the fixed collectors are preflight only and cannot attest
+  admission. The observer now has a second exact target for fixed-path LXC110
+  mirror metadata; arbitrary paths remain rejected.
 
 ## Exact local candidate hashes
 

@@ -27,7 +27,7 @@ class AdmissionEvidence:
     consumers_quiesced: tuple[str, ...]
     news_quiesced: bool
     source_observed: bool
-    adapter_attested: bool = False
+    adapter_attested: bool = False  # untrusted compatibility field; never authorizes admission
 
 
 def validate_evidence_shape(evidence: AdmissionEvidence | None, *, now_minute: int, window_end_minute: int) -> str:
@@ -50,8 +50,6 @@ def validate_evidence_shape(evidence: AdmissionEvidence | None, *, now_minute: i
 
 
 def require_aster_benchmark(evidence: AdmissionEvidence | None, *, now_minute: int, window_end_minute: int) -> str:
-    """Accept only evidence emitted by the fixed authenticated adapters."""
+    """Keep benchmark admission fail-closed until a trusted boundary exists."""
     validate_evidence_shape(evidence, now_minute=now_minute, window_end_minute=window_end_minute)
-    if not evidence.adapter_attested:
-        raise AdmissionEvidenceError("source adapters must attest the evidence")
-    return evidence.backup_receipt
+    raise AdmissionEvidenceError("trusted source-adapter execution boundary is not implemented")

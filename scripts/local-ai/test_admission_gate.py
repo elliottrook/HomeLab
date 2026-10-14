@@ -30,9 +30,10 @@ class AdmissionGateTests(unittest.TestCase):
 
     def test_shape_guard_accepts_complete_candidate_shape_but_benchmark_stays_blocked(self):
         self.assertEqual(validate_evidence_shape(self.evidence(), now_minute=221, window_end_minute=255), "backup-chain-sha256")
-        with self.assertRaisesRegex(AdmissionEvidenceError, "attest"):
+        with self.assertRaisesRegex(AdmissionEvidenceError, "trusted source-adapter"):
             require_aster_benchmark(self.evidence(), now_minute=221, window_end_minute=255)
-        self.assertEqual(require_aster_benchmark(self.evidence(adapter_attested=True), now_minute=221, window_end_minute=255), "backup-chain-sha256")
+        with self.assertRaisesRegex(AdmissionEvidenceError, "trusted source-adapter"):
+            require_aster_benchmark(self.evidence(adapter_attested=True), now_minute=221, window_end_minute=255)
         for changes, message in (
             ({"source_observed": False}, "independently"),
             ({"backup_verified": False}, "backup"),
