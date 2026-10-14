@@ -12,6 +12,15 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+Latest [nightly verification, 2026-10-14](B60-Inference-Engineering/nightly-admission-20261014.md)
+found no current shared lease, the unchanged manual helper and the candidate
+watchdog timer not installed. Accepted inference was active with zero restarts;
+that observation is not a full preflight. At the 06:30 preparation continuation,
+Adaptive `92d2237c` and platform `310a0f26` remain unchanged, including the
+published timing correction request. The overnight sanitized record is now
+being published under the branch-only liaison authorization; no repeated
+model, production or credential action follows from that publication.
+
 Latest 18:30 continuation: [cross-owner integration review](B60-Inference-Engineering/peer-integration-review-20261013-1830.md).
 Adaptive `92d2237c` acknowledged B60's clock/readiness packet and published a
 BLOCKED full-path card; platform `310a0f26` adds admission/recovery/watchdog
