@@ -1,12 +1,17 @@
 # Application-only B60 benchmark run card
 
-Status: offline policy candidate. This is a separate lease mode from the
-whole-host recovery drill and is not live authorization.
+Status: offline controller candidate. This is a separate lease mode from the
+whole-host recovery drill and is not live authorization. The controller is
+implemented at `scripts/local-ai/application_b60_controller.py`; its effects
+remain disabled until a source-bound application receipt and the host-side
+sidecar probes are installed.
 
 ## Preconditions
 
 - The platform has produced a source-bound application-mode backup receipt;
   the full-stop receipt is not reusable.
+- The application controller has passed its focused local tests and is using
+  the exact allowlist below; this does not substitute for live host evidence.
 - LXC110 `aster-llama.service` is active with the exact accepted b11429
   SYCL/Level-Zero binary, model and device identity.
 - LXC104 `aster-agent.service` and LXC116 `aster-speech.service` are stopped
