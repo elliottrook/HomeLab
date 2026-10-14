@@ -73,6 +73,13 @@ Create a multi-page PDF manual and PNG preview of every page. Cover story/values
 
 Validate the approved-master hash, literal spelling, 18/equivalence matrix, paths, decoded image integrity, dimensions, effective resolution, rights, approvals, manual/pages, contact sheet, reference-to-consumer mapping, manifest and offline ZIP. Preserve the original input. Use the strict `raster` validator profile; a `fixture` pass is not this gate.
 
+Reference paths must identify the source directory explicitly when export sizes
+reuse the same basename. If a legacy validator enforces a fixed canvas minimum
+that conflicts with an owner-approved native-detail adequacy review, retain its
+failure report and document the exact source-size exception; never claim a
+strict pass or enlarge the source to conceal the discrepancy. This exception
+does not waive source integrity, rights, safety or visual approval requirements.
+
 This is a visual-evidence gate, not a file-dimension check. Record both the stored pixel dimensions and the effective native detail of every critical identity source. A contact sheet, mockup, enlarged crop or interpolated export is not a production master merely because its canvas is large. Inspect isolated sources at native size and enlarged detail before proceeding. A source below 1024 native pixels on its longest isolated dimension requires a documented adequacy review, not automatic rejection: the required detail depends on the mark and intended use. Compressed or ambiguous contours and missing material evidence require an owner-reviewed reconstruction master before vector work.
 
 For dimensional or materially rendered identities, preserve the approved colour master as the visual authority. An optional paired source set can aid reconstruction:
