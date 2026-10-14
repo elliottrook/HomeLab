@@ -602,6 +602,13 @@ receipt is now transport-healthy; the admission gate remains closed until the
 source-receipt adapter binds this evidence to the authenticated same-night
 backup and quiescence receipts.
 
+The read-only Proxmox storage inventory also shows the 2026-10-13 backup-chain
+artifacts for LXC 104, 110 and 116, completed at approximately 00:34, 00:39
+and 00:47 respectively after the 00:30 schedule. This confirms artifact
+presence and timing, while not by itself proving content integrity or consumer
+quiescence; those remain separate adapter inputs and the benchmark gate stays
+closed.
+
 The accepted dereferenced GGUF was measured read-only at
 `cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`; its
 5.6 GB hash took approximately 18 seconds including transport. The trusted
