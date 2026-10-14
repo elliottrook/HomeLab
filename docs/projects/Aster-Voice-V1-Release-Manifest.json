@@ -1,14 +1,15 @@
 {
   "schema": "aster-voice-release.v1",
-  "release_id": "aster-voice-v1.0.0-rc-20261013",
-  "status": "production-accepted-awaiting-tag-approval",
+  "release_id": "aster-voice-v1.0.0",
+  "status": "released-production-soak",
   "prepared_at": "2026-10-13T13:20:00-07:00",
   "source": {
     "authority": "forgejo",
     "repository": "jason/homelab",
     "branch": "codex/aster-stream-a-handoff",
-    "observed_commit": "6b3207e27b9ace027b5ae93fb2f17f5830082963",
-    "tag_authorized": false
+    "accepted_evidence_commit": "1268a6b74c7b548c24f653a1a74e4cb1f92a311e",
+    "tag": "aster-voice-v1.0.0",
+    "tag_authorized": true
   },
   "identity": {
     "service": "Aster Voice Service",
@@ -112,12 +113,13 @@
     "monitoring": "Beszel and Prometheus production target up; five production alert rules loaded"
   },
   "blockers": [
-    "obtain explicit approval before creating the release tag"
+    "complete the documented seven-day production soak",
+    "after soak acceptance, sanitize and retain LXC 116 as the immutable V1 lab baseline before starting V2 work"
   ],
   "authorization": {
     "production_provisioning": true,
     "consumer_cutover": true,
-    "release_tag": false,
+    "release_tag": true,
     "destructive_cleanup": false
   }
 }
