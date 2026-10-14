@@ -5,7 +5,8 @@ live effect.
 
 ## Candidate identity
 
-- Source commit: `55c6d524`; this manifest is not a deployment authorization.
+- Source commit: pending local pin after the dedicated observer transport
+  update; this manifest is not a deployment authorization.
 - Accepted live runtime: LXC 110, llama.cpp `b11429`, SYCL/Level Zero,
   Qwen3.5 9B Q4_K_M; live unit hash
   `a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3`; live
@@ -14,7 +15,8 @@ live effect.
   dereferenced GGUF SHA-256
   `cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`.
 - Fixed trusted sources: Proxmox `pvesh`, LXC 104/110/116 and 114 probes,
-  TrueNAS `192.168.20.40` through batch-mode SSH, and the owner heartbeat.
+  TrueNAS `192.168.20.40` through a dedicated batch-mode observer identity,
+  and the owner heartbeat.
 - TrueNAS host-key enrollment must be a bounded operator step: create a
   root-owned mode-0600 `/etc/local-ai-lab/truenas_known_hosts` containing only
   the verified `192.168.20.40` key. The cross-host fingerprint comparison is
@@ -72,15 +74,16 @@ editing the table would necessarily change its own digest.
   pinned Ollama blob. The observer gives this large file a dedicated finite
   30-second hash budget; other probes remain 5 seconds.
 - The fixed TrueNAS probe must be verified from the Proxmox owner context using
-  batch-mode SSH to `root@192.168.20.40` and `midclt call rsynctask.query`.
-  The historical `truenas` alias failure is not an acceptable restoration
-  probe. The current direct owner-context check reached host-key verification
-  failure, so transport remains an unresolved staging blocker until the
-  verified pinned-host-key file and narrow TrueNAS identity are enrolled;
-  schedule observation remains unhealthy/fail-closed meanwhile. Host-key
-  enrollment is now complete and verified, but the existing Proxmox SSH
-  identity is rejected by TrueNAS. No new credential is authorized by the
-  current staging record; the schedule receipt remains unavailable.
+  batch-mode SSH to `aster-schedule-observer@192.168.20.40` with
+  `/etc/local-ai-lab/truenas_schedule_observer`, the pinned
+  `/etc/local-ai-lab/truenas_known_hosts`, and `midclt call rsynctask.query`.
+  The historical `truenas` alias and root SSH identity are not restoration
+  probes. The dedicated account is forced-command bound; its only passwordless
+  sudo target is the root-owned wrapper
+  `/mnt/Media/.local-ai-lease/aster-schedule-observer-root`. The allowed query
+  succeeded and an alternate `midclt` command was rejected. Schedule
+  transport is therefore healthy, while source-adapter admission remains
+  blocked until the other authenticated receipts are bound.
 
 ## Recovery deadline and rollback
 

@@ -63,6 +63,9 @@ class TrustedObserverTests(unittest.TestCase):
         self.assertIn("news_schedule", FIXED_PROBES)
         self.assertIn("StrictHostKeyChecking=yes", FIXED_PROBES["truenas_schedule"])
         self.assertIn("UserKnownHostsFile=/etc/local-ai-lab/truenas_known_hosts", FIXED_PROBES["truenas_schedule"])
+        self.assertIn("/etc/local-ai-lab/truenas_schedule_observer", FIXED_PROBES["truenas_schedule"])
+        self.assertIn("aster-schedule-observer@192.168.20.40", FIXED_PROBES["truenas_schedule"])
+        self.assertNotIn("root@192.168.20.40", FIXED_PROBES["truenas_schedule"])
         self.assertNotIn("StrictHostKeyChecking=no", FIXED_PROBES["truenas_schedule"])
 
     def test_large_model_hash_gets_measured_finite_timeout(self):

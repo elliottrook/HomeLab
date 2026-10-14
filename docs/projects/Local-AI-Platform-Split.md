@@ -582,17 +582,25 @@ that check green: local production restoration may proceed, but an unavailable
 TrueNAS receipt leaves the lease locked in degraded/unknown state until a
 separate least-privilege receipt or operator verification clears it.
 
-## Proxmox TrueNAS host-key enrollment — 2026-10-13
+## Proxmox TrueNAS schedule observer — 2026-10-13
 
 With Jason's bounded authorization, Proxmox received only the verified TrueNAS
 ED25519 host key at `/etc/local-ai-lab/truenas_known_hosts`. The directory and
 file were read-only verified as root-owned mode `0700` and `0600`, and the
 fingerprint matched `SHA256:QBtPEVZCzn5suuM98WY2bGSSvdgOLZ5xpLd17Xu0Xbo`.
-The fixed strict-host-key probe reached TrueNAS but returned
-`Permission denied (publickey)`. The existing Proxmox `/root/.ssh/id_rsa` was
-tested explicitly and was also rejected. No credential was created, copied,
-read, rotated or modified. The TrueNAS schedule receipt therefore remains
-unknown and the admission gate remains closed.
+The fixed strict-host-key probe now uses a dedicated `aster-schedule-observer`
+identity and `/etc/local-ai-lab/truenas_schedule_observer`; it does not use
+root SSH. The account's forced SSH command accepts only
+`midclt call rsynctask.query`, and its only passwordless sudo target is the
+root-owned no-argument wrapper
+`/mnt/Media/.local-ai-lease/aster-schedule-observer-root`, which executes that
+same read-only query. An alternate `midclt` command was rejected with exit 1.
+The allowed query returned the three expected enabled TrueNAS tasks at 01:00,
+02:00 and 03:00, each reporting a successful most recent run. No schedule,
+credential, root SSH setting or secret was modified or exposed. The live
+receipt is now transport-healthy; the admission gate remains closed until the
+source-receipt adapter binds this evidence to the authenticated same-night
+backup and quiescence receipts.
 
 The accepted dereferenced GGUF was measured read-only at
 `cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`; its

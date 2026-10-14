@@ -33,7 +33,7 @@ FIXED_PROBES = {
     "auth": ("pct", "exec", "110", "--", "sh", "-c", "key=$(cat /etc/aster-llama-api-keys); curl --fail --max-time 5 -sS -H \"Authorization: Bearer $key\" -H 'Content-Type: application/json' --data '{\"model\":\"aster-qwen3.5-9b\",\"messages\":[{\"role\":\"user\",\"content\":\"health\"}],\"max_tokens\":1}' http://192.168.70.12:11435/v1/chat/completions | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d.get(\"model\")==\"aster-qwen3.5-9b\" and isinstance(d.get(\"choices\"),list) and d[\"choices\"]; print(\"auth-generation-ok\")'"),
     "heartbeat": ("stat", "-c", "%Y", "/var/lib/local-ai-lab/owner-heartbeat"),
     "proxmox_schedule": ("pvesh", "get", "/cluster/backup", "--output-format", "json"),
-    "truenas_schedule": ("ssh", "-o", "BatchMode=yes", "-o", "StrictHostKeyChecking=yes", "-o", "UserKnownHostsFile=/etc/local-ai-lab/truenas_known_hosts", "root@192.168.20.40", "midclt", "call", "rsynctask.query"),
+    "truenas_schedule": ("ssh", "-o", "BatchMode=yes", "-o", "IdentitiesOnly=yes", "-o", "StrictHostKeyChecking=yes", "-o", "UserKnownHostsFile=/etc/local-ai-lab/truenas_known_hosts", "-i", "/etc/local-ai-lab/truenas_schedule_observer", "aster-schedule-observer@192.168.20.40", "midclt", "call", "rsynctask.query"),
     "news_schedule": ("pct", "exec", "114", "--", "systemctl", "show", "news-aggregator-digest.timer", "--property=UnitFileState", "--property=TimersCalendar"),
 }
 
