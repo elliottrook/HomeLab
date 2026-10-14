@@ -23,8 +23,9 @@
             <aspectratio>scale</aspectratio>
         </control>
 
-        <!-- Hidden hero source. Jellyfin/Kodi library content replaces this
-             temporary source in M3b without changing the presentation. -->
+        <!-- Hidden metadata source. The installed Jellyfin add-on populates
+             Kodi's local video library; the presentation stays independent
+             of Jellyfin's server URL and credentials. -->
         <control type="panel" id="101">
             <left>0</left>
             <top>0</top>

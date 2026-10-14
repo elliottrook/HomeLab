@@ -5,6 +5,10 @@ requires before it will keep a custom skin active. The windows are deliberately
 small Aster-owned shells; richer interactions and media-specific dialogs are
 the next pass.
 
+The Home rows use Kodi library paths already populated by the installed
+Jellyfin add-on. This keeps the skin read-only with respect to Jellyfin and
+avoids embedding server URLs or credentials in the skin.
+
 This is the M3a visual-shell prototype for Aster Home. It is deliberately
 small and private: it provides the TV-first visual language and navigation
 experiment before real Jellyfin, Home Assistant, news, podcast, audiobook and
