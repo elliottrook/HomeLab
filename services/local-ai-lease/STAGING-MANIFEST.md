@@ -5,7 +5,7 @@ live effect.
 
 ## Candidate identity
 
-- Source commit: `d1725904`; this manifest is not a deployment authorization.
+- Source commit: `3d0f1b57`; this manifest is not a deployment authorization.
 - Accepted live runtime: LXC 110, llama.cpp `b11429`, SYCL/Level Zero,
   Qwen3.5 9B Q4_K_M; live unit hash
   `a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3`; live
@@ -64,7 +64,7 @@ These SHA-256 values cover the source and disabled unit reviewed for staging:
 | `scripts/local-ai/test_backup_receipt_adapter.py` | `bc5812adb228e9336af2c82202fad8e4ea460736b68e9278d22b1ab90f5d5f73` |
 | `scripts/local-ai/quiescence_receipt_adapter.py` | `7bc97c6b7c470322a42b635cc3a0b6788d027d83f33191214682c3fad4f5caf0` |
 | `scripts/local-ai/test_quiescence_receipt_adapter.py` | `4eb53b5b7105475e0f75e28210fd23f9e40624a46cc55f291dcea783d333e66e` |
-| `scripts/local-ai/fixed_source_adapters.py` | `11e278d45d5f23b89e65454efaff246948d04deb9beb685fbcce414fd468ca83` |
+| `scripts/local-ai/fixed_source_adapters.py` | `d53da5fbe20d69cc3f66d4467ec93bba7c02fc9622401e25e0e80adee762e408` |
 | `scripts/local-ai/test_fixed_source_adapters.py` | `dd21d8f8956c14985841bbae1023d4b4088b249ab055e06591850dbfe7cab502` |
 | `scripts/local-ai/source_receipt_boundary.py` | `0f62aaa6e771959eda1077f3aaea681948e654faefe3413284293531c56961e0` |
 | `scripts/local-ai/test_source_receipt_boundary.py` | `692f50492511cb16c9fc15ae6fee0ddfc8a2503afbd8b089931fabd15124cf01` |
