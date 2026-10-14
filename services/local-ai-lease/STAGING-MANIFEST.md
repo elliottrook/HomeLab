@@ -5,7 +5,7 @@ live effect.
 
 ## Candidate identity
 
-- Source commit: `985e5767`; this manifest is not a deployment authorization.
+- Source commit: `86e12eb6`; this manifest is not a deployment authorization.
 - Accepted live runtime: LXC 110, llama.cpp `b11429`, SYCL/Level Zero,
   Qwen3.5 9B Q4_K_M; live unit hash
   `a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3`; live
@@ -63,6 +63,8 @@ These SHA-256 values cover the source and disabled unit reviewed for staging:
 | `scripts/local-ai/test_trusted_observer.py` | `c0e585a8c32b361a670a585b1934cb0c02e65514ba3137652961675dd31f2405` |
 | `scripts/local-ai/backup_receipt_adapter.py` | `8e88af72b36936057ad07bcdfd284fab65b673c6e9de339542408f3c348fe289` |
 | `scripts/local-ai/test_backup_receipt_adapter.py` | `bc5812adb228e9336af2c82202fad8e4ea460736b68e9278d22b1ab90f5d5f73` |
+| `scripts/local-ai/quiescence_receipt_adapter.py` | `7bc97c6b7c470322a42b635cc3a0b6788d027d83f33191214682c3fad4f5caf0` |
+| `scripts/local-ai/test_quiescence_receipt_adapter.py` | `4eb53b5b7105475e0f75e28210fd23f9e40624a46cc55f291dcea783d333e66e` |
 | `services/local-ai-lease/local-ai-lease-watchdog.service` | `3041ed62efadcb1bcffe0c66e9c311933fc90c0cb101ea08f24b546fc9bc656d` |
 | `services/local-ai-lease/local-ai-lease-watchdog.timer` | `9f09de46e3ee55d8f765e1f279d34632ea914c8c6506416f0455853ef538b744` |
 
