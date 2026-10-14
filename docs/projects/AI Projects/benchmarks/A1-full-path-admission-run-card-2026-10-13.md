@@ -285,3 +285,15 @@ slot start checks in local `b75e835c` and pinned the candidate in
 tests skipped in the Mac environment. These commits are source evidence, not
 a live installed source boundary or an overnight-chain receipt. The current
 daytime reruns remain ineligible and A1 remains **BLOCKED**.
+
+**Next overnight metadata observation, 2026-10-14 03:00 Vancouver:** A
+read-only Proxmox query found selected-date 104, 110 and 116 archives created
+before the TrueNAS pulls. TrueNAS task metadata reported `SUCCESS` for task 1
+at 01:00:01–01:06:15, task 3 at 02:00:01–02:06:27, and task 2 at
+03:00:01–03:00:02. This is an ordered schedule observation, not an archive
+integrity or restored-content receipt. In particular, a one-second Mac task
+does not prove that expected Mac files were copied, and the candidate adapter
+checks LXC 110 mirror metadata but not the Mac or full guest-pull contents.
+The platform owner was asked to keep that distinction in admission. The live
+Proxmox watchdog units were still `not-found`/inactive and the installed
+controller reported `ready`; no lease or full-path run was admitted.
