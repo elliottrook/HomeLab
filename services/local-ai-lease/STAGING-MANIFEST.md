@@ -5,7 +5,7 @@ live effect.
 
 ## Candidate identity
 
-- Source commit: `86e12eb6`; this manifest is not a deployment authorization.
+- Source commit: `b0d9f3d1`; this manifest is not a deployment authorization.
 - Accepted live runtime: LXC 110, llama.cpp `b11429`, SYCL/Level Zero,
   Qwen3.5 9B Q4_K_M; live unit hash
   `a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3`; live
@@ -28,16 +28,15 @@ live effect.
   effect gate is retained in the candidate command line, while installation
   remains refused/disabled pending review.
 - The shared Aster benchmark gate is separate from the effect controller and
-  currently refuses all admission: `admission_gate.py` is only a candidate
-  shape guard, not an authenticated source adapter. A light-drain drill cannot
-  be reported as a full shared-lease admission test until same-night source
-  adapters bind verified backup, News-quiescence and consumer-isolation
-  evidence to the lease.
+  accepts only evidence marked by the fixed source adapters. A light-drain
+  drill cannot be reported as a full shared-lease admission test unless
+  same-night source adapters bind verified backup, News-quiescence and
+  consumer-isolation evidence to the lease.
 - Candidate source-receipt adapters now require the fixed backup chain,
   integrity receipt, same-night timing, exact consumer set, News quiescence and
-  explicit no-new-start observation. They are tested contracts only; the live
-  TrueNAS observer credential is transport-only and does not constitute a
-  source adapter. The observer now has a second exact target for fixed-path
+  explicit no-new-start observation. The live TrueNAS observer credential is
+  transport-only; the fixed source adapter is the component that attests the
+  composed receipt. The observer now has a second exact target for fixed-path
   LXC110 mirror metadata; arbitrary paths remain rejected.
 
 ## Exact local candidate hashes
@@ -56,15 +55,17 @@ These SHA-256 values cover the source and disabled unit reviewed for staging:
 | `scripts/local-ai/test_lease_effect_runner.py` | `f59eaa9048ff0cd1c93dc49462151350eee54c627d52466fdbbdf874562060b8` |
 | `scripts/local-ai/lease_recovery_executor.py` | `d75ddfae4ccb3de4bd059aca75d41f4cdac6c60f4951d0ea6ab11a13b9f98e4d` |
 | `scripts/local-ai/test_lease_recovery_executor.py` | `a5d5865831a77d465fbf336209ad4ae4d309b3b1e198c96a2e3f9b242e82ba4b` |
-| `scripts/local-ai/admission_gate.py` | `1f7969b4d734deb9b9295c5c536ff0d3d2bca44d5d284860baf76336c30caaba` |
-| `scripts/local-ai/test_admission_gate.py` | `c97beaa8e0cbe0e447fc9292dc5e88c325ae818c4eab1efeb63c68e392539160` |
-| `scripts/local-ai/source_receipts.py` | `35bbecdacec30226e5483e7214f7e318008c1e40d418b37861f000b0e8d701d4` |
+| `scripts/local-ai/admission_gate.py` | `13e804ca8d989c7ed3f9d2ec6e91ade99523e57ac8b38c63cbeaf7439f296339` |
+| `scripts/local-ai/test_admission_gate.py` | `3b6f47a9283bc48114f53da654a26aee8cbcf2808eddf452d11440f58ffa580f` |
+| `scripts/local-ai/source_receipts.py` | `51052b26ee52ca0e2b4b561f6d5e9f303aadd20badfa9856bd15f551427629a4` |
 | `scripts/local-ai/test_source_receipts.py` | `7c8abd7dc5c1a7ce0261da6b85940e1a0e4893b4fd07741a7e4f3ea60c7dd5f7` |
 | `scripts/local-ai/test_trusted_observer.py` | `c0e585a8c32b361a670a585b1934cb0c02e65514ba3137652961675dd31f2405` |
 | `scripts/local-ai/backup_receipt_adapter.py` | `8e88af72b36936057ad07bcdfd284fab65b673c6e9de339542408f3c348fe289` |
 | `scripts/local-ai/test_backup_receipt_adapter.py` | `bc5812adb228e9336af2c82202fad8e4ea460736b68e9278d22b1ab90f5d5f73` |
 | `scripts/local-ai/quiescence_receipt_adapter.py` | `7bc97c6b7c470322a42b635cc3a0b6788d027d83f33191214682c3fad4f5caf0` |
 | `scripts/local-ai/test_quiescence_receipt_adapter.py` | `4eb53b5b7105475e0f75e28210fd23f9e40624a46cc55f291dcea783d333e66e` |
+| `scripts/local-ai/fixed_source_adapters.py` | `49a9b169b17f507b30aa03822560288c22a7754147943e3d0bb96391d3ac6720` |
+| `scripts/local-ai/test_fixed_source_adapters.py` | `dd21d8f8956c14985841bbae1023d4b4088b249ab055e06591850dbfe7cab502` |
 | `services/local-ai-lease/local-ai-lease-watchdog.service` | `3041ed62efadcb1bcffe0c66e9c311933fc90c0cb101ea08f24b546fc9bc656d` |
 | `services/local-ai-lease/local-ai-lease-watchdog.timer` | `9f09de46e3ee55d8f765e1f279d34632ea914c8c6506416f0455853ef538b744` |
 

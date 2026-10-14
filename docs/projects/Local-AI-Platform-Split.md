@@ -664,9 +664,9 @@ The benchmark gate therefore still refuses every Aster benchmark until actual
 source adapters produce and verify same-night evidence bound to the lease.
 Any light-drain test is preliminary controller/effect validation only.
 
-The offline candidate now defines separate receipt shapes for the fixed backup
-chain and Proxmox-owner quiescence observer. Composition requires verified
-integrity, same-night timestamps, exact consumer coverage, News quiescence and
-an explicit no-new-start observation. These are adapter contracts and tests,
-not live provenance; the benchmark gate remains blocked until authenticated
-read-only implementations produce them.
+The candidate now has fixed-command adapters for the backup chain and
+Proxmox-owner quiescence observer. Composition requires verified integrity,
+same-night timestamps, exact consumer coverage, News quiescence and an
+explicit no-new-start observation. Admission accepts only receipts marked by
+those adapters; the gate remains closed unless a live same-night run produces
+the complete bundle.
