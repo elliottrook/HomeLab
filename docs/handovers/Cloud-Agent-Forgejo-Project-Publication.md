@@ -105,8 +105,9 @@ digest-named local handoff.
   replaces the temporary submit/promote helpers and emits metadata only. Its
   `submit` action stages a signed package and creates the pending Aster request;
   its `promote` action rechecks the package and consumes only the approved
-  one-use request. Remaining M4 work is final retention review and the
-  accepted limitation that mirror-lag monitoring is manual/read-only.
+  one-use request. Local temporary packages and helper scripts were removed
+  after the retention review; signed remote evidence remains retained. The
+  remaining M4 limitation is that mirror-lag monitoring is manual/read-only.
 - The original producer private key was unavailable on the Mac, so Jason
   generated a replacement locally. Only its public key was installed in the
   root-owned `allowed_signers` file; the prior file is checkpointed at
