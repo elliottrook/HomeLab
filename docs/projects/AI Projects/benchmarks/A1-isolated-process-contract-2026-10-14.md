@@ -117,3 +117,26 @@ platform owner has been asked to split pre-lease and post-acquire receipts,
 remove the bypass restore path, and add no-blind-replay recovery tests. The
 A1 installation/run card remains **BLOCKED** until the corrected code, fixed
 host helpers and a live recovery drill are independently checked.
+
+**Further host/key review:** A read-only LXC 110 `stat` on 2026-10-14 found
+the live `/etc/aster-llama-api-keys` file owned by `ollama:ollama`, mode `0600`.
+The platform run card's root-owned description is wrong. Its offline key
+helper also replaced the pre-add checkpoint during removal, and allowed
+overwriting a pre-existing checkpoint on append. These are candidate-source
+faults, not evidence of a live key change. The owner has been asked to retain
+the original checkpoint create-once, preserve exact live file metadata and
+test interrupted add/remove recovery before any LXC 110 mutation.
+
+**Source correction and remaining effect gap:** Platform commits `e5281c58`
+and `2ebfd6ce` corrected the stale acquire rollback references, added an arm
+transition and late recovery, and changed the key helper to preserve the
+`ollama:ollama` 0600 metadata and a create-once pre-add checkpoint. These are
+offline corrections with fixture coverage, not host recovery evidence. The
+controller still stops production consumers before `arm()`, while the watchdog
+refuses to recover an unarmed persisted lease. The run card also changes the
+LXC 110 key file and restarts llama.cpp before acquiring any application
+lease. A crash in either interval could leave an effect without the promised
+independent recovery path. The platform owner has been asked to cover every
+effect from its first mutation with a persisted, timer-recoverable state and
+failure-injection tests. Keep A1 live admission **BLOCKED** until that order,
+the fixed host helpers and live restore are independently verified.
