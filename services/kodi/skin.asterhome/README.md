@@ -1,5 +1,8 @@
 # Aster Home Kodi skin prototype
 
+Version 0.5.0 makes the selected hero artwork fill the upper canvas, places
+the approved logo and dynamic copy on a translucent charcoal panel, and adds
+layered queue surfaces plus full-card focus plates to both media rows.
 Version 0.4.0 adopts the owner-approved Aster v2 runtime exports, uses the
 approved horizontal logo and tile-free compass in the shell, makes the hero
 eyebrow/metadata/time dynamic, and gives focused media cards a stable mint
