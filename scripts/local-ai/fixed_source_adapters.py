@@ -43,32 +43,44 @@ def _truenas(command: tuple[str, ...]) -> tuple[str, ...]:
 LOCAL_ZONE = ZoneInfo("America/Vancouver")
 
 
-def _schedule_ok(items: list[dict], *, date_prefix: str) -> bool:
+def _schedule_ok(items: list[dict], *, date_prefix: str, artifact_ctimes: tuple[int, ...], lease_issued_epoch: int) -> bool:
     expected = {1: (1, "01:00"), 3: (3, "02:00"), 2: (2, "03:00")}
+    finished_epochs: list[int] = []
+    started_epochs: list[int] = []
     for item_id, (_, clock) in expected.items():
         item = next((item for item in items if item.get("id") == item_id), None)
         schedule = item.get("schedule", {}) if item else {}
         if not item or not item.get("enabled") or f"{int(schedule.get('hour', -1)):02d}:{int(schedule.get('minute', -1)):02d}" != clock:
             return False
         job = item.get("job", {})
+        started = job.get("time_started", {}).get("$date")
         finished = job.get("time_finished", {}).get("$date")
         arguments = job.get("arguments")
-        if job.get("state") != "SUCCESS" or arguments != [item_id] or not isinstance(finished, int):
+        if job.get("state") != "SUCCESS" or arguments != [item_id] or not isinstance(started, int) or not isinstance(finished, int) or started > finished:
             return False
-        if datetime.fromtimestamp(finished / 1000, LOCAL_ZONE).strftime("%Y_%m_%d") != date_prefix:
+        local_finished = datetime.fromtimestamp(finished / 1000, LOCAL_ZONE)
+        if local_finished.strftime("%Y_%m_%d") != date_prefix:
             return False
-    return True
+        hour_minute = local_finished.hour * 60 + local_finished.minute
+        required_minute = int(clock[:2]) * 60
+        if hour_minute < required_minute or hour_minute > 4 * 60 + 15:
+            return False
+        if finished / 1000 > lease_issued_epoch or started / 1000 < min(artifact_ctimes):
+            return False
+        started_epochs.append(started)
+        finished_epochs.append(finished)
+    return started_epochs == sorted(started_epochs) and finished_epochs == sorted(finished_epochs) and finished_epochs[-1] / 1000 <= lease_issued_epoch
 
 
 class FixedSourceAdapters:
     def __init__(self, runner: Runner, *, sleep: Callable[[float], None] = time.sleep, clock: Callable[[], datetime] = datetime.now, monotonic: Callable[[], int] = time.monotonic_ns):
         self.runner, self.sleep, self.clock, self.monotonic = runner, sleep, clock, monotonic
 
-    def backup(self, *, date_prefix: str, verify_archives: bool = True) -> BackupSourceReceipt:
+    def backup(self, *, date_prefix: str, lease_issued_epoch: int, verify_archives: bool = True) -> BackupSourceReceipt:
         pve = _json(self.runner, ("pvesh", "get", "/nodes/proxmox/storage/backups/content", "--content", "backup", "--output-format", "json"), 30.0)
         artifacts = verify_proxmox_artifacts(pve, date_prefix=date_prefix)
         rsync = _json(self.runner, _truenas(("midclt", "call", "rsynctask.query")), 10.0)
-        if not _schedule_ok(rsync, date_prefix=date_prefix):
+        if not _schedule_ok(rsync, date_prefix=date_prefix, artifact_ctimes=tuple(a.ctime for a in artifacts), lease_issued_epoch=lease_issued_epoch):
             raise SourceAdapterError("TrueNAS backup tasks are not all successful")
         mirror = _json(self.runner, _truenas(("midclt", "call", "filesystem.listdir", "/mnt/Recovery/guests/aster-lxc110")), 10.0)
         verify_lxc110_mirror(mirror, artifacts[1])
@@ -113,6 +125,6 @@ class FixedSourceAdapters:
             raise SourceAdapterError(str(exc)) from exc
 
     def evidence(self, *, date_prefix: str, now_minute: int, window_end_minute: int):
-        backup = self.backup(date_prefix=date_prefix)
+        backup = self.backup(date_prefix=date_prefix, lease_issued_epoch=int(self.clock().timestamp()))
         quiescence = self.quiescence()
         return compose_candidate_evidence(backup, quiescence, now_minute=now_minute, window_end_minute=window_end_minute)

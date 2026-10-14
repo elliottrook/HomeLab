@@ -1,5 +1,7 @@
 import json
 import unittest
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from fixed_source_adapters import FixedSourceAdapters, SourceAdapterError, _schedule_ok
 
@@ -7,11 +9,17 @@ from fixed_source_adapters import FixedSourceAdapters, SourceAdapterError, _sche
 class FixedSourceAdapterTests(unittest.TestCase):
     def test_schedule_requires_same_day_task_completion_and_arguments(self):
         items = []
-        for item_id, hour in ((1, 1), (3, 2), (2, 3)):
-            items.append({"id": item_id, "enabled": True, "schedule": {"hour": hour, "minute": 0}, "job": {"state": "SUCCESS", "arguments": [item_id], "time_finished": {"$date": 1791915000000}}})
-        self.assertTrue(_schedule_ok(items, date_prefix="2026_10_13"))
+        zone = ZoneInfo("America/Vancouver")
+        for item_id, hour, started, finished in ((1, 1, 1791861000000, 1791861300000), (3, 2, 1791864600000, 1791864900000), (2, 3, 1791868200000, 1791868500000)):
+            started = int(datetime(2026, 10, 13, hour, 5, tzinfo=zone).timestamp() * 1000)
+            finished = int(datetime(2026, 10, 13, hour, 10, tzinfo=zone).timestamp() * 1000)
+            items.append({"id": item_id, "enabled": True, "schedule": {"hour": hour, "minute": 0}, "job": {"state": "SUCCESS", "arguments": [item_id], "time_started": {"$date": started}, "time_finished": {"$date": finished}}})
+        self.assertTrue(_schedule_ok(items, date_prefix="2026_10_13", artifact_ctimes=(int(datetime(2026, 10, 13, 0, 50, tzinfo=zone).timestamp()),), lease_issued_epoch=int(datetime(2026, 10, 13, 4, 0, tzinfo=zone).timestamp())))
         items[1]["job"]["arguments"] = [1]
-        self.assertFalse(_schedule_ok(items, date_prefix="2026_10_13"))
+        self.assertFalse(_schedule_ok(items, date_prefix="2026_10_13", artifact_ctimes=(int(datetime(2026, 10, 13, 0, 50, tzinfo=zone).timestamp()),), lease_issued_epoch=int(datetime(2026, 10, 13, 4, 0, tzinfo=zone).timestamp())))
+        items[1]["job"]["arguments"] = [3]
+        items[1]["job"]["time_finished"]["$date"] = int(datetime(2026, 10, 13, 11, 19, tzinfo=zone).timestamp() * 1000)
+        self.assertFalse(_schedule_ok(items, date_prefix="2026_10_13", artifact_ctimes=(int(datetime(2026, 10, 13, 0, 50, tzinfo=zone).timestamp()),), lease_issued_epoch=int(datetime(2026, 10, 13, 12, 0, tzinfo=zone).timestamp())))
 
     def test_quiescence_uses_fixed_commands_and_two_samples(self):
         calls = []
