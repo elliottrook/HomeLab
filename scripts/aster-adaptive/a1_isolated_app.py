@@ -47,6 +47,15 @@ class DurableClockSink:
         if hasattr(os, "O_NOFOLLOW"):
             flags |= os.O_NOFOLLOW
         self.fd = os.open(self.path, flags, 0o600)
+        try:
+            directory_fd = os.open(directory, os.O_RDONLY)
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+        except OSError:
+            os.close(self.fd)
+            raise
 
     def append(self, row: dict) -> None:
         if (not isinstance(row, dict) or set(row) != CLOCK_FIELDS
@@ -54,7 +63,8 @@ class DurableClockSink:
             raise ValueError("invalid content-free ASGI row")
         raw = (json.dumps(row, sort_keys=True, separators=(",", ":"),
                           allow_nan=False) + "\n").encode("utf-8")
-        os.write(self.fd, raw)
+        if os.write(self.fd, raw) != len(raw):
+            raise OSError("A1 clock write incomplete; stop the run")
         os.fsync(self.fd)
 
     def close(self) -> None:
