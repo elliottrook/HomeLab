@@ -1,5 +1,6 @@
 # Aster Home Kodi skin prototype
 
+Version 0.1.9 adds the optional timer manifest Kodi expects when loading a skin.
 Version 0.1.8 adds deterministic focus routing between the live Jellyfin-backed
 media rows. Version 0.1.7 added the supplied Aster compass artwork as
 Kodi-ready header and rail textures, plus a working tvOS-style disappearing
