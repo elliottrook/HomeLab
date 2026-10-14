@@ -51,11 +51,11 @@ def _write_envelope(path: Path, evidence: AdmissionEvidence, *, lease_id: str, g
     _custody(path)
 
 
-def produce_candidate_receipt(path: Path, adapters: FixedSourceAdapters, *, lease_id: str, generation: int, date_prefix: str, now_minute: int, window_end_minute: int, captured_epoch: int) -> None:
+def produce_candidate_receipt(path: Path, adapters: FixedSourceAdapters, *, lease_id: str, generation: int, date_prefix: str, lease_issued_epoch: int, now_minute: int, window_end_minute: int, captured_epoch: int) -> None:
     """Acquire fixed-source evidence before writing the candidate envelope."""
     if os.geteuid() != 0:
         raise PermissionError("receipt producer must run as root")
-    evidence = adapters.evidence(date_prefix=date_prefix, now_minute=now_minute, window_end_minute=window_end_minute)
+    evidence = adapters.evidence(date_prefix=date_prefix, lease_issued_epoch=lease_issued_epoch, now_minute=now_minute, window_end_minute=window_end_minute)
     _write_envelope(path, evidence, lease_id=lease_id, generation=generation, captured_epoch=captured_epoch)
 
 

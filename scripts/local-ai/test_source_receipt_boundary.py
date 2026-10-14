@@ -33,6 +33,10 @@ class SourceReceiptBoundaryTests(unittest.TestCase):
                 with self.assertRaisesRegex(Exception, "boundary|lease"):
                     read_receipt(path, lease_id="lab-1", generation=1, now_minute=221, window_end_minute=255, now_epoch=101)
 
+    def test_producer_requires_lease_issue_time(self):
+        import inspect
+        self.assertIn("lease_issued_epoch", str(inspect.signature(__import__("source_receipt_boundary").produce_candidate_receipt)))
+
     @unittest.skipUnless(os.geteuid() == 0, "requires root-owned custody test")
     def test_rejects_stale_receipt(self):
         with tempfile.TemporaryDirectory() as directory:
