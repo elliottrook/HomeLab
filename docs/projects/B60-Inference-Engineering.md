@@ -12,6 +12,15 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+Latest 18:30 continuation: [cross-owner integration review](B60-Inference-Engineering/peer-integration-review-20261013-1830.md).
+Adaptive `92d2237c` acknowledged B60's clock/readiness packet and published a
+BLOCKED full-path card; platform `310a0f26` adds admission/recovery/watchdog
+candidates and verified dedicated TrueNAS observer transport. Prior claims of
+no owner integration are superseded. Neither live recovery nor independent
+runner activation is proved. A reproduced 04:15 watchdog-trigger versus
+restoration-complete deadline gap must be corrected before READY. Five exact
+owner source/test files are integrated offline in this focused checkout only.
+
 Updated 2026-10-13. This focused communication checkout contains an older
 base-project snapshot, not the full implementation checkout's accumulated
 production history. Do not execute its historical commands or treat old
