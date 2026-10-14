@@ -16,7 +16,7 @@ D = "d" * 64
 
 
 def card():
-    return {"schema_version": "aster-full-path-admission.v1",
+    return {"schema_version": "aster-full-path-admission.v2",
             "case_sha256": CASE_SHA256, "profile_sha256": A,
             "gateway_sha256": B, "sidecar_sha256": B, "scorer_sha256": C,
             "accepted_restore_sha256": D,
@@ -40,9 +40,12 @@ def observed():
                   "consumers_isolated": True, "scheduled_work_quiesced": True,
                   "state": "leased", "issued_at": "2026-10-14T03:10:00-07:00",
                   "expires_at": "2026-10-14T04:10:00-07:00",
-                  "host_lock_held": True, "owner": "aster-stream-a"},
+                  "host_lock_held": True, "owner": "aster-stream-a",
+                  "scope": "aster-app-benchmark", "accepted_backend_active": True,
+                  "exclusive_backend_claim": True,
+                  "production_aster_quiesced": True, "speech_quiesced": True},
         "watchdog": {"source": "proxmox-systemd", "lease_id": "test-lease-20261014",
-                     "generation": 1,
+                     "generation": 1, "scope": "aster-app-benchmark",
                      "armed": True, "deadline_at": "2026-10-14T04:05:00-07:00",
                      "independent_of_mini": True},
         "consumers": {"source": "platform-host-controller", "news_quiesced": True,
@@ -93,6 +96,17 @@ class FullPathAdmissionTests(unittest.TestCase):
         self.deny("lease_unverified", lambda x: x["lease"].update(
             scheduled_work_quiesced=False))
         self.deny("watchdog_unverified", lambda x: x["watchdog"].update(generation=2))
+        self.deny("watchdog_unverified", lambda x: x["watchdog"].update(
+            scope="whole-host-recovery"))
+
+    def test_backend_must_remain_active_and_exclusive_in_app_lease(self):
+        self.deny("lease_unverified", lambda x: x["lease"].update(
+            scope="whole-host-recovery"))
+        for field in ("accepted_backend_active", "exclusive_backend_claim",
+                      "production_aster_quiesced", "speech_quiesced"):
+            with self.subTest(field=field):
+                self.deny("lease_unverified", lambda x, key=field:
+                          x["lease"].update({key: False}))
 
     def test_backup_must_be_source_bound_and_same_night(self):
         self.deny("backup_unverified", lambda x: x["backup"].update(mirror_verified=False))

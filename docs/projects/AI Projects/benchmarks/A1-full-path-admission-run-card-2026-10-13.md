@@ -14,11 +14,14 @@ First prove that a **test-only** Aster gateway can accept the 20 fictional A1
 v2 requests with no tools, emit one opaque observation ID per request, and
 bind an actual final headless display/failure event to the gateway record.
 The first platform controller candidate stopped `aster-agent.service` in LXC
-104 when acquiring a lease. That cannot measure the Aster gateway path.
+104 when acquiring a lease. The installed whole-host recovery lease also stops
+`aster-llama.service` in LXC 110, so it cannot run the accepted B60/SYCL
+backend either. **That lease is for recovery drilling, not this benchmark.**
 Before a live card is READY, choose and test one explicit topology: either an
 isolated, restricted Aster test instance stays available while the production
-service is drained, or a separately reviewed light lease preserves the
-gateway while preventing competing inference work. The control and candidate
+service is drained **under a separate application-only benchmark lease that
+keeps the accepted backend active and exclusively claimed**, or a separately
+reviewed equivalent topology with its own recovery contract. The control and candidate
 must use the **same declared gateway boundary**; otherwise a timing delta
 confounds model and topology changes. A direct llama.cpp call is useful as a
 backend control, never as the full-path result.
@@ -83,7 +86,13 @@ passed.
 
 The platform owner must supply an authenticated, current host-controller
 receipt with lease ID, owner `aster-stream-a`, issued/expiry time, durable
-host lock and no-new-start guard. It must bind the same-night backup receipt
+host lock and no-new-start guard. Its scope must be
+`aster-app-benchmark`, not the full-stop recovery drill; it must attest that
+the accepted backend remains active and is exclusively reserved for the
+admitted sidecar while production Aster, Speech, News and other consumers are
+quiesced. The independent watchdog must use this same scope and restore the
+normal consumers without treating the preserved backend as a stopped unit.
+The lease must bind the same-night backup receipt
 and the accepted Q4_K_M model/SYCL backend identities. A separately owned
 Proxmox watchdog must be armed to the **same lease ID and generation** and
 have a deadline before 04:15 Vancouver,
@@ -99,6 +108,10 @@ claims. Its model file, runtime binary, unit, device placement,
 authentication and scheduled work must have an
 exact restoration manifest and independent postcheck. The owner-only evidence
 directory must be new, empty, writable and protected before any request.
+The offline consistency checker is now `aster-full-path-admission.v2` and
+rejects a full-stop lease or an inactive/unclaimed backend even if its
+model/version strings match. Its synthetic tests do not create the separate
+host lease or prove live exclusivity.
 
 Immediately before case one, re-query volatile host, consumer, endpoint,
 lease and watchdog state. The offline checker enforces a **minimum 15-minute

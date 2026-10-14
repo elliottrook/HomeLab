@@ -16,6 +16,14 @@ with only the declared backend/profile changing. If this cannot be arranged
 without production credentials or consumer interference, do not run the
 full-path comparison; retain the direct-backend result as a separate control.
 
+**2026-10-14 correction:** The installed full-stop recovery lease also stops
+LXC 110's `aster-llama.service`. It cannot support even the accepted backend
+control during the lease. The [separate sidecar and application-lease
+contract](A1-isolated-process-contract-2026-10-14.md) supersedes any reading
+of this proposal that would place A1 full-path calls inside that recovery
+drill. The October 15 03:15 window is recovery-only until an independently
+reviewed application-benchmark lease exists.
+
 ## Smallest candidate boundary
 
 1. Run one temporary, single-worker Aster process outside LXC 104's production

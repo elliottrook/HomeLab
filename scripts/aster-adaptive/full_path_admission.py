@@ -57,7 +57,7 @@ def admit(card: dict, observed: dict, *, now: datetime) -> dict:
         "candidate_id", "lease_id",
     }:
         raise AdmissionDenied("invalid_card")
-    if (card["schema_version"] != "aster-full-path-admission.v1"
+    if (card["schema_version"] != "aster-full-path-admission.v2"
             or card["case_sha256"] != CASE_SHA256
             or not all(_digest(card[key]) for key in (
                 "profile_sha256", "gateway_sha256", "sidecar_sha256",
@@ -94,26 +94,34 @@ def admit(card: dict, observed: dict, *, now: datetime) -> dict:
     if (not isinstance(lease, dict) or set(lease) != {
             "source", "id", "generation", "state", "issued_at", "expires_at",
             "backup_receipt_sha256", "model_identity", "backend_identity",
-            "consumers_isolated", "scheduled_work_quiesced", "host_lock_held", "owner"}
+            "consumers_isolated", "scheduled_work_quiesced", "host_lock_held", "owner",
+            "scope", "accepted_backend_active", "exclusive_backend_claim",
+            "production_aster_quiesced", "speech_quiesced"}
             or lease["source"] != "platform-host-controller"
             or lease["id"] != card["lease_id"]
             or type(lease["generation"]) is not int or lease["generation"] < 1
             or lease["state"] != "leased"
+            or lease["scope"] != "aster-app-benchmark"
             or lease["backup_receipt_sha256"] != backup["receipt_sha256"]
             or lease["model_identity"] != ACCEPTED_MODEL
             or lease["backend_identity"] != ACCEPTED_BACKEND
             or lease["consumers_isolated"] is not True
+            or lease["accepted_backend_active"] is not True
+            or lease["exclusive_backend_claim"] is not True
+            or lease["production_aster_quiesced"] is not True
+            or lease["speech_quiesced"] is not True
             or lease["scheduled_work_quiesced"] is not True
             or lease["host_lock_held"] is not True
             or lease["owner"] != "aster-stream-a"):
         raise AdmissionDenied("lease_unverified")
     if (not isinstance(watchdog, dict) or set(watchdog) != {
             "source", "lease_id", "generation", "armed", "deadline_at",
-            "independent_of_mini"}
+            "independent_of_mini", "scope"}
             or watchdog["source"] != "proxmox-systemd"
             or watchdog["lease_id"] != card["lease_id"]
             or watchdog["generation"] != lease["generation"]
             or watchdog["armed"] is not True
+            or watchdog["scope"] != "aster-app-benchmark"
             or watchdog["independent_of_mini"] is not True):
         raise AdmissionDenied("watchdog_unverified")
     if (not isinstance(consumers, dict) or set(consumers) != {
@@ -177,7 +185,7 @@ def admit(card: dict, observed: dict, *, now: datetime) -> dict:
                > min(expiry, watchdog_deadline, cutoff)):
         raise AdmissionDenied("insufficient_recovery_time")
     return {
-        "schema_version": "aster-full-path-admission-result.v1",
+        "schema_version": "aster-full-path-admission-result.v2",
         "state": "preflight_passed_not_authority",
         "lease_id": card["lease_id"],
         "candidate_id": card["candidate_id"],

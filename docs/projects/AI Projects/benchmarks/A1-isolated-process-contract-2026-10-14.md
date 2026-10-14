@@ -1,7 +1,7 @@
 # A1 isolated Aster process contract
 
 **Proposal, not deployment authority.** Owner: Stream A for the assistant
-workload; platform owner for the whole-host lease and observer. The October 15
+workload; platform owner for the application-benchmark lease and observer. The October 15
 03:15 platform drill is recovery-only. A1 full-path model calls remain blocked
 until this sidecar has its own installation, denial and recovery evidence.
 
@@ -10,6 +10,11 @@ until this sidecar has its own installation, denial and recovery evidence.
 The current whole-host lease stops production `aster-agent.service` in LXC 104,
 `aster-llama.service` in LXC 110, and `aster-speech.service` in LXC 116. A direct
 llama.cpp request during that lease measures the backend, not the Aster path.
+More directly, the accepted backend is stopped, so an isolated sidecar cannot
+call it. A full-path run needs a separate **application-only benchmark lease**
+that keeps accepted LXC 110 inference active but exclusively reserved, drains
+production Aster/Speech and other consumers, and has its own watchdog and
+restoration contract. The full-stop recovery receipt cannot be relabelled.
 Leaving an arbitrary second Aster process running would also defeat the
 platform observer's current consumer-quiescence claim. The test sidecar must be
 an explicit, measured exception; it is never counted as ordinary quiescence.
@@ -59,13 +64,16 @@ Aster ASGI app. Its fixture tests use a fake inner app: they prove assembly and
 fail-closed configuration only, not a live LXC process, network isolation or
 production Aster behavior. A distinct UID, unit and network denial test remain
 deployment prerequisites.
-The offline Stream A admission schema is now `aster-full-path-admission.v1`:
+The offline Stream A admission schema is now `aster-full-path-admission.v2`:
 it requires a separate `sidecar` observation from `platform-host-controller`,
 matching lease ID/generation and pinned source digest, and explicit true
 observations for distinct UID, one worker, test port, credential denial,
 network denial and start within the lease. A gateway's own assertion cannot
 substitute for this host observation. This is still a shape/consistency check,
 not authentication of the host source.
+It also rejects the full-stop recovery lease: the application-benchmark scope,
+active and exclusively claimed backend, and production Aster/Speech quiescence
+must all be independently attested.
 
 For the first full-path run, use the accepted 9B/SYCL control only, 20 frozen
 fictional requests, one attempt per request, maximum 10-minute batch and
