@@ -1,6 +1,9 @@
 # Aster Home Kodi skin prototype
 
-Version 0.1.9 adds the optional timer manifest Kodi expects when loading a skin.
+Version 0.2.0 adds a focus-aware dynamic hero: title, synopsis, artwork, year,
+duration and playback path follow the selected Jellyfin/Kodi media item across
+both home rows. Version 0.1.9 adds the optional timer manifest Kodi expects when
+loading a skin.
 Version 0.1.8 adds deterministic focus routing between the live Jellyfin-backed
 media rows. Version 0.1.7 added the supplied Aster compass artwork as
 Kodi-ready header and rail textures, plus a working tvOS-style disappearing
@@ -25,7 +28,8 @@ recommendation data are connected.
 - 1920x1080 / 16:9 Home window
 - warm Home Hub palette and typography
 - disappearing left navigation rail with a focus reveal affordance and focus map
-- hero area and two media rows
+- hero area with focus-aware live title, synopsis and artwork
+- two media rows backed by Kodi's Jellyfin-populated video library
 - explicit Up/Down routing between media rows
 - Kodi video-library containers as temporary content sources
 - no production service writes and no Kodi core changes

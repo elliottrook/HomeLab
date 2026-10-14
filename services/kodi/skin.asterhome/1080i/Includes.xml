@@ -1,5 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <includes>
+    <variable name="AsterHeroLabel">
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Label]</value>
+        <value>$INFO[Container(100).ListItem.Label]</value>
+    </variable>
+    <variable name="AsterHeroPlot">
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Plot]</value>
+        <value>$INFO[Container(100).ListItem.Plot]</value>
+    </variable>
+    <variable name="AsterHeroYear">
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Year]</value>
+        <value>$INFO[Container(100).ListItem.Year]</value>
+    </variable>
+    <variable name="AsterHeroDuration">
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Duration(hh:mm)]</value>
+        <value>$INFO[Container(100).ListItem.Duration(hh:mm)]</value>
+    </variable>
+    <variable name="AsterHeroFanart">
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Art(fanart)]</value>
+        <value>$INFO[Container(100).ListItem.Art(fanart)]</value>
+    </variable>
+    <variable name="AsterHeroPath">
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.FileNameAndPath]</value>
+        <value>$INFO[Container(100).ListItem.FileNameAndPath]</value>
+    </variable>
+
     <include name="AsterPageBackground">
         <texture>none</texture>
         <animation effect="fade" start="0" end="100" time="180">WindowOpen</animation>
