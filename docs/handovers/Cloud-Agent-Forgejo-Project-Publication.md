@@ -46,7 +46,7 @@ recorded in the commits above. They remain separate from the cloud-agent
 surface: the ceremony creates only a temporary human handoff, while the
 project gateway supplies the narrowly scoped credential internally.
 
-The local broker suite passes `133/133`. The package verifier is offline and
+The local broker suite passes `134/134`. The package verifier is offline and
 rejects traversal, symlink, binary, delete/rename, hidden, collision,
 secret/private-detail, stale-base, replay and policy-drift cases. Approval
 payloads contain metadata and digests only; document bytes remain in the
@@ -87,7 +87,7 @@ digest-named local handoff.
 - The live catalog advertises only the synthetic `create_file_batch` tool;
   `create_file` is denied. A valid-shaped request without an approved staged
   handoff is denied before any Forgejo call.
-- The full broker regression passes `133/133`. The first approved synthetic
+- The full broker regression passes `134/134`. The first approved synthetic
   project-document canary completed on 2026-10-13: Forgejo branch
   `ai-pam/project-writer-canary-20261013` contains commit
   `9d8d8e7e7aa84320b03476a27e744c980b2e9530` with parent
@@ -96,8 +96,13 @@ digest-named local handoff.
   fresh-nonce second pass completed on the same base with Forgejo commit
   `5440edfa40ea38ebfb8e0e65218c17824072b86e`; its GitHub mirror ref matched
   after normal queue lag. Replaying the consumed first request was denied by
-  the local ledger before any gateway call. The remaining M4 work is isolated
-  recovery evidence and final operator graduation review.
+  the local ledger before any gateway call. The durable reviewed runner CLI is
+  installed as `/opt/homelab-broker/project_document_bundle_runner.py`; it
+  replaces the temporary submit/promote helpers and emits metadata only. Its
+  `submit` action stages a signed package and creates the pending Aster request;
+  its `promote` action rechecks the package and consumes only the approved
+  one-use request. Remaining M4 work is final retention review and the
+  accepted limitation that mirror-lag monitoring is manual/read-only.
 - The original producer private key was unavailable on the Mac, so Jason
   generated a replacement locally. Only its public key was installed in the
   root-owned `allowed_signers` file; the prior file is checkpointed at
@@ -181,10 +186,13 @@ without exposing token values.
 
 1. Re-read the current Forgejo `main`, runner source, policy digest and
    protected checkpoint before each candidate package.
-2. Stage a signed package into the digest-named handoff. Keep the manifest,
+2. Run the installed `project_document_bundle_runner.py submit` command for a
+   complete signed package. It stages the package into the digest-named
+   handoff. Keep the manifest,
    content and signature local; the broker approval frame carries metadata and
    digests only.
-3. Run intake, approval, revoke, expiry, kill-switch, restart and cleanup
+3. After Jason approves the exact Aster request, run the same command with
+   `promote`. Run intake, approval, revoke, expiry, kill-switch, restart and cleanup
    tests. The capability is registered only for the already-promoted
    `agent-cloud-bundle`; do not widen the old canary.
 4. Obtain Jason's immediate confirmation for the exact first Forgejo write,

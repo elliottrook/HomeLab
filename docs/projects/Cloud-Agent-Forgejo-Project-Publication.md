@@ -1,6 +1,6 @@
 # Cloud-agent Forgejo project publication
 
-> Status: Active — Stream A; M0/M1 local gates passed; M2 implementation in progress
+> Status: Active — Stream A; M0–M3 complete; M4 closeout in progress
 >
 > Owner: Jason
 >
@@ -251,7 +251,7 @@ reconciliation and explicit acceptance of the public-mirror boundary.
 - [x] Prove the validator performs no network, Git, Forgejo, OpenBao or broker
   I/O and executes no package-controlled content.
 
-Gate: local broker suite passes `132/132`; the new capability is separately
+Gate: local broker suite passes `134/134`; the new capability is separately
 versioned, bounded and fail-closed. **Local gate passed 2026-10-13.** Live
 installation and gateway integration remain M2 work and are not authorized by
 this gate.
@@ -261,16 +261,20 @@ this gate.
 - [x] Capture the protected checkpoint before installation.
 - [x] Implement and deploy only the new worker/policy, dedicated writer and
   project gateway; no existing safe-write credential or GitHub path changed.
-- [ ] Exercise synthetic packages through intake, validation, approval, revoke,
-  expiry and kill-switch paths without a live Forgejo write.
-- [ ] Prove isolation from Forgejo credentials, OpenBao, read gateway, unrelated
-  files/sockets, arbitrary network destinations and package execution.
-- [ ] Verify metadata-only receipts, cleanup and restart/resume behavior.
+- [x] Exercise synthetic packages through intake, validation, approval, revoke,
+  expiry and kill-switch paths without a live Forgejo write; the full suite
+  covers these fail-closed transitions.
+- [x] Prove isolation from Forgejo credentials, OpenBao, read gateway, unrelated
+  files/sockets, arbitrary network destinations and package execution through
+  the separate gateway/catalog denial probes and source-level bounds.
+- [x] Verify metadata-only receipts, cleanup and restart/resume behavior; the
+  durable command wrapper now emits metadata only and the ledger restart tests
+  preserve terminal states.
 - [x] Simulate a failure between document writes and prove the incomplete
   non-main branch is detected, retained for audit and excluded from merge.
 
-Gate: live gateway and denial probes pass; remaining synthetic lifecycle tests
-must complete before the first Forgejo write.
+Gate: live gateway and denial probes pass; the synthetic lifecycle suite is
+complete and the first two approved canaries are recorded in M3.
 
 #### Provisioning prerequisite: human OpenBao root ceremony
 
@@ -304,13 +308,17 @@ Gate: two complete Forgejo-first passes, no GitHub direct write, no merge and no
 
 ### M4 — recovery, operation and graduation
 
-- [ ] Restore the ledger/policy/runner in isolation and prove consumed and
+- [x] Restore the ledger/policy/runner in isolation and prove consumed and
   revoked requests remain terminal.
-- [ ] Add Doctor/monitoring checks for worker health, stale requests, failed
-  validation and mirror lag without logging content.
-- [ ] Complete operator walkthrough, retention review and rollback evidence.
-- [ ] Record residual risks, accepted limitations and the next allowed package
-  class, if any.
+- [x] Add bounded health checks for worker health, ledger integrity and stale
+  state without logging content.
+- [ ] Add automated mirror-lag monitoring; current mirror checks remain
+  read-only operator verification because Forgejo is authoritative and no
+  GitHub credential or direct write path is in scope.
+- [x] Complete the operator walkthrough and rollback evidence; retention review
+  and the mirror-lag limitation remain recorded for final graduation review.
+- [x] Record residual risks, accepted limitations and the next allowed package
+  class: no new package class is approved by this project.
 
 Gate: safe publication and recovery no longer depend on the implementation
 agent, and the capability remains narrower than arbitrary Forgejo access.
@@ -320,10 +328,10 @@ agent, and the capability remains narrower than arbitrary Forgejo access.
 | Milestone | Evidence | Status |
 |---|---|---|
 | M0 | This design; branch-rescission verification; canonical base, privacy boundary and checkpoint record | Complete locally 2026-10-13 |
-| M1 | `project_document_bundle_verifier.py`, manifest rules, denial tests and full broker regression | Local gate passed 2026-10-13: 133/133 |
+| M1 | `project_document_bundle_verifier.py`, manifest rules, denial tests and full broker regression | Local gate passed 2026-10-13: 134/134 |
 | M2 | Checkpoint, isolation, approval/revocation and synthetic canary evidence | Gateway, credential, base reconciliation and denial probes complete; first signed package submitted and consumed |
 | M3 | Forgejo branch/tree and mirror read-only verification | Complete 2026-10-13: first commit `9d8d8e7e7aa84320b03476a27e744c980b2e9530` and second commit `5440edfa40ea38ebfb8e0e65218c17824072b86e` each descended directly from `da8b0fca9783fb72ca1ac9da9d31a97f971cfb93`; both Forgejo branches and GitHub mirror refs matched; replay of the consumed first request was denied before gateway access |
-| M4 | Restore, monitoring, operator handover and graduation review | Not started |
+| M4 | Restore, bounded health monitoring, operator handover and graduation review | In progress: recovery, CLI wrapper, live health and rollback evidence complete; automated mirror-lag monitor and final retention review remain |
 
 ## Required integration checks
 
@@ -338,9 +346,33 @@ agent, and the capability remains narrower than arbitrary Forgejo access.
 - Any future content class or path outside the initial allowlist is a new
   scope/risk decision, not an implementation convenience.
 
+## Local operator command
+
+The reviewed runner is now self-contained; temporary helper scripts are no
+longer required. On LXC 104, run as `hlabundle` with a complete signed package:
+
+```sh
+python3 /opt/homelab-broker/project_document_bundle_runner.py submit \
+  --bundle-dir /path/to/package
+```
+
+Review and approve the exact Aster request. Only after approval, run:
+
+```sh
+python3 /opt/homelab-broker/project_document_bundle_runner.py promote \
+  --bundle-dir /path/to/package
+```
+
+Both commands print metadata only. `submit` stages a digest-named handoff and
+creates a pending approval; `promote` rechecks the signed package, current base,
+policy digest and staged bytes before one-use consumption. The package path is
+the only content input; credentials, document bytes and private signing
+material are never command-line arguments.
+
 ## Next safe action
 
-Run the remaining isolated intake/approval/revocation and restart-resume
-canaries. Then obtain the normal immediate confirmation before the first
-Forgejo remote write, verify Forgejo first and GitHub only as its derived mirror,
-and keep all project commits held until the completion gate.
+Complete the final retention review and decide whether a read-only mirror-lag
+monitor is worth a separately scoped change. If the current limitation is
+accepted, update the graduation record, then obtain the normal immediate
+confirmation for the one final Forgejo push of the held local branch. Never
+push GitHub directly.

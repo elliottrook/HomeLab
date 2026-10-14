@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import shutil
@@ -13,7 +14,7 @@ from pathlib import Path, PurePosixPath
 from typing import Callable, Mapping
 
 from bundle_runner import BrokerDenied, broker_call
-from bundle_verifier import ReplayLedger
+from bundle_verifier import ReplayLedger, verify_openssh_signature
 from project_document_bundle_verifier import (
     Denied,
     VerifiedDocumentBundle,
@@ -169,8 +170,117 @@ class ProjectDocumentBundleRunner:
         return result
 
 
+def _policy_value(path: Path, label: str) -> str:
+    try:
+        value = path.read_text(encoding="ascii").strip()
+    except (OSError, UnicodeError) as exc:
+        raise BrokerDenied(f"{label} policy is unavailable") from exc
+    if not value or "\n" in value or "\r" in value:
+        raise BrokerDenied(f"{label} policy is invalid")
+    return value
+
+
+def _cli_signature_verifier(allowed_signers: Path, principal: str):
+    def verify(body: bytes, signature: bytes, signer: str) -> bool:
+        return signer == principal and verify_openssh_signature(
+            body, signature, allowed_signers=allowed_signers, principal=principal,
+        )
+
+    return verify
+
+
+def cli_main(argv: list[str] | None = None) -> int:
+    """Run the reviewed local intake/approval wrapper.
+
+    The command accepts only a package directory and policy-file paths. It
+    never accepts credentials or document content as arguments, and emits
+    metadata only. ``submit`` creates a pending approval; ``promote`` requires
+    that same request to be approved and rechecks the staged handoff before
+    consuming it.
+    """
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("submit", "promote"))
+    parser.add_argument("--bundle-dir", type=Path, required=True)
+    parser.add_argument(
+        "--ledger", type=Path,
+        default=Path("/var/lib/homelab-bundle-runner/ledger.sqlite"),
+    )
+    parser.add_argument(
+        "--broker-socket", type=Path,
+        default=Path("/run/homelab-broker/mcp.sock"),
+    )
+    parser.add_argument(
+        "--handoff-root", type=Path,
+        default=Path("/var/lib/homelab-bundle-runner/handoff"),
+    )
+    parser.add_argument(
+        "--base-file", type=Path,
+        default=Path("/etc/homelab-bundle-runner/base_revision"),
+    )
+    parser.add_argument(
+        "--policy-file", type=Path,
+        default=Path("/etc/homelab-bundle-runner/policy_digest"),
+    )
+    parser.add_argument(
+        "--allowed-signers", type=Path,
+        default=Path("/etc/homelab-bundle-runner/allowed_signers"),
+    )
+    parser.add_argument("--principal", default="cloud-producer")
+    args = parser.parse_args(argv)
+
+    base = _policy_value(args.base_file, "base revision")
+    policy = _policy_value(args.policy_file, "policy digest")
+    verify_signature = _cli_signature_verifier(args.allowed_signers, args.principal)
+    ledger = ReplayLedger(args.ledger)
+    try:
+        runner = ProjectDocumentBundleRunner(
+            ledger,
+            lambda request: broker_call(args.broker_socket, request),
+            args.handoff_root,
+            clock=time.time,
+        )
+        if args.action == "submit":
+            pending = runner.submit(
+                args.bundle_dir, current_base_revision=base,
+                policy_digest=policy, verify_signature=verify_signature,
+            )
+            output = {
+                "status": "pending", "request_id": pending.broker_request_id,
+                "request_digest": pending.verified.request_digest,
+                "target_branch": pending.verified.target_branch,
+                "expires_at": pending.verified.expires_at,
+            }
+        else:
+            verified = verify_document_bundle(
+                args.bundle_dir, current_base_revision=base,
+                policy_digest=policy, verify_signature=verify_signature,
+            )
+            request_id = ledger.pending_request_id(
+                verified.nonce, verified.request_digest,
+            )
+            result = runner.promote(
+                PendingDocumentBundle(
+                    verified, request_id, args.handoff_root / verified.request_digest,
+                ),
+                current_base_revision=base, policy_digest=policy,
+            )
+            output = {
+                "status": result.get("status"), "request_id": request_id,
+                "request_digest": verified.request_digest,
+                "target_branch": verified.target_branch,
+                "files": [document.path for document in verified.documents],
+            }
+        print(json.dumps(output, sort_keys=True, separators=(",", ":")))
+        return 0
+    except (BrokerDenied, Denied, OSError, ValueError) as exc:
+        print(f"DENIED {exc}", file=os.sys.stderr)
+        return 1
+    finally:
+        ledger.close()
+
+
 def main() -> None:
-    raise SystemExit("Use the project runner through its approved service wrapper")
+    raise SystemExit(cli_main())
 
 
 if __name__ == "__main__":

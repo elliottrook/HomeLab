@@ -1,10 +1,15 @@
 import hashlib
+import io
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 from bundle_verifier import ReplayLedger
-from project_document_bundle_runner import ProjectDocumentBundleRunner, promotion_payload
+from project_document_bundle_runner import (
+    ProjectDocumentBundleRunner, cli_main, promotion_payload,
+)
 from project_document_bundle_verifier import canonical_json
 
 
@@ -100,6 +105,63 @@ class ProjectDocumentBundleRunnerTests(unittest.TestCase):
         payload = promotion_payload(pending.verified)
         self.assertEqual("main", payload["branch_name"])
         self.assertTrue(str(payload["new_branch_name"]).startswith("ai-pam/"))
+
+    def test_cli_submit_and_promote_emit_metadata_only(self):
+        root = Path(self.tempdir.name)
+        base_file = root / "base_revision"
+        policy_file = root / "policy_digest"
+        base_file.write_text(BASE + "\n", encoding="ascii")
+        policy_file.write_text(POLICY + "\n", encoding="ascii")
+        (root / "cli-handoff").mkdir()
+        broker_calls = []
+
+        def broker(_socket, request):
+            broker_calls.append(request)
+            if request["method"] == "request.create":
+                return {
+                    "status": "pending",
+                    "request_id": "22222222-2222-2222-2222-222222222222",
+                }
+            return {"status": "consumed", "request_id": request["request_id"]}
+
+        output = io.StringIO()
+        with patch(
+            "project_document_bundle_runner._cli_signature_verifier",
+            return_value=self.verify_signature,
+        ), patch(
+            "project_document_bundle_runner.broker_call",
+            side_effect=broker,
+        ), patch(
+            "project_document_bundle_runner.time.time",
+            return_value=NOW,
+        ), redirect_stdout(output):
+            submit_rc = cli_main([
+                "submit", "--bundle-dir", str(self.source),
+                "--ledger", str(root / "cli-ledger.sqlite"),
+                "--broker-socket", str(root / "unused.sock"),
+                "--handoff-root", str(root / "cli-handoff"),
+                "--base-file", str(base_file),
+                "--policy-file", str(policy_file),
+                "--allowed-signers", str(root / "unused-signers"),
+            ])
+            promote_rc = cli_main([
+                "promote", "--bundle-dir", str(self.source),
+                "--ledger", str(root / "cli-ledger.sqlite"),
+                "--broker-socket", str(root / "unused.sock"),
+                "--handoff-root", str(root / "cli-handoff"),
+                "--base-file", str(base_file),
+                "--policy-file", str(policy_file),
+                "--allowed-signers", str(root / "unused-signers"),
+            ])
+
+        self.assertEqual(0, submit_rc)
+        self.assertEqual(0, promote_rc)
+        self.assertEqual(["request.create", "request.consume"], [
+            request["method"] for request in broker_calls
+        ])
+        self.assertNotIn("# Example", output.getvalue())
+        self.assertIn('"status":"pending"', output.getvalue())
+        self.assertIn('"status":"consumed"', output.getvalue())
 
 
 if __name__ == "__main__":
