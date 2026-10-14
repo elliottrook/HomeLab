@@ -275,3 +275,13 @@ The platform owner was asked to bind each task's start and finish to the
 selected Proxmox archive creation, previous task, lease issue and allowed
 window. This observation admits no lab run and does not diagnose why those
 tasks ran later.
+
+**Follow-up source review, 2026-10-13:** The platform candidate now checks the
+latest required artifact creation time, nonoverlapping 1→3→2 completion, and
+completion before lease issue. Stream A found that finish-time checks alone
+still admitted a pre-slot start; the owner added same-date, no-earlier-than-
+slot start checks in local `b75e835c` and pinned the candidate in
+`7dc639b5`. Its owner-reported suite now passes 62 tests with two root-custody
+tests skipped in the Mac environment. These commits are source evidence, not
+a live installed source boundary or an overnight-chain receipt. The current
+daytime reruns remain ineligible and A1 remains **BLOCKED**.
