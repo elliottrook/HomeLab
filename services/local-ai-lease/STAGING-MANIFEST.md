@@ -37,7 +37,10 @@ live effect.
   explicit no-new-start observation. The live TrueNAS observer credential is
   transport-only; the fixed collectors are preflight only and cannot attest
   admission. The observer now has a second exact target for fixed-path LXC110
-  mirror metadata; arbitrary paths remain rejected.
+  mirror metadata; arbitrary paths remain rejected. An offline verifier also
+  defines the required content-free summary for the Mac pull at
+  `/mnt/Recovery/configuration/mac/`; it is not live-wired until a separately
+  authorized fixed-path observer extension exists.
 
 ## Exact local candidate hashes
 

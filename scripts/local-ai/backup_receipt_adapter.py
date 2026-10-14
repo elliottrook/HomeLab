@@ -14,6 +14,7 @@ from typing import Any, Iterable
 EXPECTED_GUESTS = ("104", "110", "116")
 EXPECTED_PROXMOX_BACKUP_ID = "backup-49999802-1365"
 EXPECTED_MIRROR_ROOT = "/mnt/Recovery/guests/aster-lxc110/"
+EXPECTED_MAC_ROOT = "/mnt/Recovery/configuration/mac/"
 
 
 class BackupReceiptError(ValueError):
@@ -67,3 +68,30 @@ def verify_lxc110_mirror(items: list[dict[str, Any]], artifact: ArtifactReceipt)
         raise BackupReceiptError("LXC110 mirror path or type is not fixed")
     if item.get("size") != artifact.size:
         raise BackupReceiptError("LXC110 mirror size differs from Proxmox artifact")
+
+
+def verify_mac_pull_receipt(receipt: dict[str, Any], *, date_prefix: str, lease_issued_epoch: int) -> str:
+    """Verify a content-free fixed-path summary of the Mac pull.
+
+    The TrueNAS wrapper must aggregate the tree locally and return only this
+    summary; filenames and file contents must never cross the observer
+    boundary.  The digest is supplied by the wrapper over the fixed tree and
+    is treated as candidate evidence until a trusted producer exists.
+    """
+    if receipt.get("path") != EXPECTED_MAC_ROOT:
+        raise BackupReceiptError("Mac pull root is not fixed")
+    if receipt.get("date") != date_prefix:
+        raise BackupReceiptError("Mac pull receipt is from a different date")
+    entry_count = receipt.get("entry_count")
+    total_size = receipt.get("total_size")
+    captured_epoch = receipt.get("captured_epoch")
+    digest = receipt.get("tree_sha256")
+    if not isinstance(entry_count, int) or entry_count <= 0:
+        raise BackupReceiptError("Mac pull receipt is empty")
+    if not isinstance(total_size, int) or total_size <= 0:
+        raise BackupReceiptError("Mac pull receipt has no content size")
+    if not isinstance(captured_epoch, int) or captured_epoch <= 0 or captured_epoch > lease_issued_epoch:
+        raise BackupReceiptError("Mac pull receipt is not bound to the observed cycle")
+    if not isinstance(digest, str) or len(digest) != 64 or any(char not in "0123456789abcdef" for char in digest):
+        raise BackupReceiptError("Mac pull receipt digest is invalid")
+    return f"mac-tree-sha256:{digest}"

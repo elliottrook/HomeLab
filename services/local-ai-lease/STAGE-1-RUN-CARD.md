@@ -17,8 +17,12 @@ Status: offline candidate. This run card does not authorize a live run.
 
 ## Run sequence
 
-1. Capture the backup artifact inventory and run the bounded archive integrity
-   checks through the fixed source adapter.
+1. Capture the backup artifact inventory, the content-free fixed-path Mac pull
+   summary for `/mnt/Recovery/configuration/mac/`, and run the bounded archive
+   integrity checks through the fixed source adapter. A TrueNAS task `SUCCESS`
+   state alone is not sufficient; the Mac summary must have the expected root,
+   same-night date, non-zero entry/byte counts, bounded capture time and a
+   valid tree digest.
 2. Stop and runtime-mask only the three Aster service units. Do not mask,
    disable, stop or modify the News timer under this run card.
 3. Take two fixed Proxmox-owner quiescence samples at least ten seconds apart.
