@@ -65,11 +65,17 @@ def _schedule_ok(items: list[dict], *, date_prefix: str, artifact_ctimes: tuple[
         required_minute = int(clock[:2]) * 60
         if hour_minute < required_minute or hour_minute > 4 * 60 + 15:
             return False
-        if finished / 1000 > lease_issued_epoch or started / 1000 < min(artifact_ctimes):
+        if finished / 1000 > lease_issued_epoch or started / 1000 < max(artifact_ctimes):
             return False
         started_epochs.append(started)
         finished_epochs.append(finished)
-    return started_epochs == sorted(started_epochs) and finished_epochs == sorted(finished_epochs) and finished_epochs[-1] / 1000 <= lease_issued_epoch
+    return (
+        started_epochs == sorted(started_epochs)
+        and finished_epochs == sorted(finished_epochs)
+        and started_epochs[1] >= finished_epochs[0]
+        and started_epochs[2] >= finished_epochs[1]
+        and finished_epochs[-1] / 1000 <= lease_issued_epoch
+    )
 
 
 class FixedSourceAdapters:
@@ -124,7 +130,7 @@ class FixedSourceAdapters:
         except AdmissionEvidenceError as exc:
             raise SourceAdapterError(str(exc)) from exc
 
-    def evidence(self, *, date_prefix: str, now_minute: int, window_end_minute: int):
-        backup = self.backup(date_prefix=date_prefix, lease_issued_epoch=int(self.clock().timestamp()))
+    def evidence(self, *, date_prefix: str, lease_issued_epoch: int, now_minute: int, window_end_minute: int):
+        backup = self.backup(date_prefix=date_prefix, lease_issued_epoch=lease_issued_epoch)
         quiescence = self.quiescence()
         return compose_candidate_evidence(backup, quiescence, now_minute=now_minute, window_end_minute=window_end_minute)

@@ -21,6 +21,19 @@ class FixedSourceAdapterTests(unittest.TestCase):
         items[1]["job"]["time_finished"]["$date"] = int(datetime(2026, 10, 13, 11, 19, tzinfo=zone).timestamp() * 1000)
         self.assertFalse(_schedule_ok(items, date_prefix="2026_10_13", artifact_ctimes=(int(datetime(2026, 10, 13, 0, 50, tzinfo=zone).timestamp()),), lease_issued_epoch=int(datetime(2026, 10, 13, 12, 0, tzinfo=zone).timestamp())))
 
+    def test_rejects_overlapping_chain_and_early_start_before_latest_artifact(self):
+        zone = ZoneInfo("America/Vancouver")
+        def epoch(hour, minute):
+            return int(datetime(2026, 10, 13, hour, minute, tzinfo=zone).timestamp() * 1000)
+        items = []
+        for item_id, hour in ((1, 1), (3, 2), (2, 3)):
+            items.append({"id": item_id, "enabled": True, "schedule": {"hour": hour, "minute": 0}, "job": {"state": "SUCCESS", "arguments": [item_id], "time_started": {"$date": epoch(hour, 5)}, "time_finished": {"$date": epoch(hour, 10)}}})
+        items[1]["job"]["time_started"]["$date"] = epoch(2, 5)
+        self.assertFalse(_schedule_ok(items, date_prefix="2026_10_13", artifact_ctimes=(int(datetime(2026, 10, 13, 0, 50, tzinfo=zone).timestamp()), int(datetime(2026, 10, 13, 1, 30, tzinfo=zone).timestamp())), lease_issued_epoch=int(datetime(2026, 10, 13, 4, 0, tzinfo=zone).timestamp())))
+        items[1]["job"]["time_started"]["$date"] = epoch(1, 5)
+        items[1]["job"]["time_finished"]["$date"] = epoch(2, 10)
+        self.assertFalse(_schedule_ok(items, date_prefix="2026_10_13", artifact_ctimes=(int(datetime(2026, 10, 13, 0, 50, tzinfo=zone).timestamp()),), lease_issued_epoch=int(datetime(2026, 10, 13, 4, 0, tzinfo=zone).timestamp())))
+
     def test_quiescence_uses_fixed_commands_and_two_samples(self):
         calls = []
         def runner(argv, timeout):

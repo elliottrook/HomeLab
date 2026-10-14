@@ -598,7 +598,8 @@ same read-only query. An alternate `midclt` command was rejected with exit 1.
 The allowed query returned the three expected enabled TrueNAS tasks at 01:00,
 02:00 and 03:00, each reporting a successful same-day run whose job arguments
 match its task ID. The fixed preflight now rejects stale successful jobs,
-wrong task arguments, or a different local calendar date. No schedule,
+wrong task arguments, a different local calendar date, overlapping pulls, or
+completion outside the 01:00–04:15 overnight chain before lease issuance. No schedule,
 credential, root SSH setting or secret was modified or exposed. The live
 receipt is now transport-healthy; the admission gate remains closed until the
 source-receipt adapter binds this evidence to the authenticated same-night
