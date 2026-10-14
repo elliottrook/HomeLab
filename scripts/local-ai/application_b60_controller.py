@@ -31,6 +31,20 @@ class ApplicationLeaseState:
     generation: int
     backup_receipt: str
     services: tuple[tuple[str, str], ...]
+    phase: str = "leased"
+
+
+@dataclass(frozen=True)
+class ApplicationPreLease:
+    mode: str
+    lease_id: str
+    generation: int
+    backup_receipt: str
+    backend_identity: str
+    llama_service_active: bool
+    exclusive_backend_claim: bool
+    consumers_healthy: bool
+    news_quiesced: bool
 
 
 @dataclass(frozen=True)
@@ -97,33 +111,37 @@ class ApplicationB60Controller:
         if not self.allow_effects:
             raise ValueError("application controller is advisory-only; live effects are disabled")
 
-    def acquire(self, receipt: ApplicationLeaseReceipt, *, expected_lease_id: str, expected_generation: int) -> dict[str, object]:
+    def acquire(self, prelease: ApplicationPreLease) -> dict[str, object]:
         self._require_effect_authority()
-        validate(receipt, expected_lease_id=expected_lease_id, expected_generation=expected_generation)
+        if (prelease.mode != APPLICATION_MODE or not prelease.backup_receipt
+                or prelease.backup_receipt.startswith("full-stop:")
+                or not prelease.llama_service_active or not prelease.exclusive_backend_claim
+                or not prelease.consumers_healthy or not prelease.news_quiesced):
+            raise ValueError("application pre-lease checkpoint is incomplete")
         self.paths.root.mkdir(mode=0o700, parents=True, exist_ok=True)
         try:
             self.paths.lock.mkdir(mode=0o700)
         except FileExistsError as exc:
             raise ValueError("application lease lock already exists") from exc
         state = ApplicationLeaseState(
-            mode=receipt.mode,
-            lease_id=receipt.lease_id,
-            generation=receipt.generation,
-            backup_receipt=receipt.backup_receipt,
+            mode=prelease.mode,
+            lease_id=prelease.lease_id,
+            generation=prelease.generation,
+            backup_receipt=prelease.backup_receipt,
             services=ALLOWED_CONSUMER_SERVICES,
         )
         atomic_write(self.paths.state, json.dumps(asdict(state), sort_keys=True, separators=(",", ":")) + "\n")
         stopped: list[tuple[str, str]] = []
         try:
-            _journal(self.paths.journal, {"event": "application-lease-acquired", "lease_id": receipt.lease_id, "generation": receipt.generation})
+            _journal(self.paths.journal, {"event": "application-lease-acquired", "lease_id": prelease.lease_id, "generation": prelease.generation})
             for vmid, unit in ALLOWED_CONSUMER_SERVICES:
-                _journal(self.paths.journal, {"event": "stop-intent", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
+                _journal(self.paths.journal, {"event": "stop-intent", "lease_id": prelease.lease_id, "generation": prelease.generation, "vmid": vmid, "unit": unit})
                 self.runner(command_for(vmid, unit, "stop"))
                 stopped.append((vmid, unit))
-                _journal(self.paths.journal, {"event": "stop-observed", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
-            return {"state": "application-leased", "mode": APPLICATION_MODE, "lease_id": receipt.lease_id, "generation": receipt.generation}
+                _journal(self.paths.journal, {"event": "stop-observed", "lease_id": prelease.lease_id, "generation": prelease.generation, "vmid": vmid, "unit": unit})
+            return {"state": "application-leased", "mode": APPLICATION_MODE, "lease_id": prelease.lease_id, "generation": prelease.generation}
         except Exception:
-            _journal(self.paths.journal, {"event": "stop-failed", "lease_id": receipt.lease_id, "generation": receipt.generation})
+            _journal(self.paths.journal, {"event": "stop-failed", "lease_id": prelease.lease_id, "generation": prelease.generation})
             for vmid, unit in reversed(stopped):
                 _journal(self.paths.journal, {"event": "restore-intent", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
                 try:
@@ -133,19 +151,18 @@ class ApplicationB60Controller:
                     _journal(self.paths.journal, {"event": "restore-uncertain", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
             raise
 
-    def restore(self, receipt: ApplicationLeaseReceipt, *, expected_lease_id: str, expected_generation: int) -> dict[str, object]:
+    def admit_sidecar(self, receipt: ApplicationLeaseReceipt, *, expected_lease_id: str, expected_generation: int) -> dict[str, object]:
         self._require_effect_authority()
         if not self.paths.lock.exists() or not self.paths.state.exists():
             raise ValueError("application lease state and lock are both required")
         value = json.loads(self.paths.state.read_text(encoding="utf-8"))
-        if value.get("mode") != APPLICATION_MODE or value.get("lease_id") != expected_lease_id or value.get("generation") != expected_generation:
-            raise ValueError("persisted application lease identity does not match")
+        if (value.get("mode"), value.get("lease_id"), value.get("generation"), value.get("phase")) != (APPLICATION_MODE, expected_lease_id, expected_generation, "leased"):
+            raise ValueError("persisted application lease is not awaiting sidecar admission")
         validate(receipt, expected_lease_id=expected_lease_id, expected_generation=expected_generation)
-        for vmid, unit in ALLOWED_CONSUMER_SERVICES:
-            _journal(self.paths.journal, {"event": "start-intent", "lease_id": expected_lease_id, "generation": expected_generation, "vmid": vmid, "unit": unit})
-            self.runner(command_for(vmid, unit, "start"))
-            _journal(self.paths.journal, {"event": "start-observed", "lease_id": expected_lease_id, "generation": expected_generation, "vmid": vmid, "unit": unit})
-        _journal(self.paths.journal, {"event": "application-restore-validated", "lease_id": expected_lease_id, "generation": expected_generation})
-        self.paths.state.unlink()
-        self.paths.lock.rmdir()
-        return {"state": "ready", "mode": APPLICATION_MODE, "lease_id": expected_lease_id, "generation": expected_generation}
+        value["phase"] = "sidecar-admitted"
+        atomic_write(self.paths.state, json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n")
+        _journal(self.paths.journal, {"event": "sidecar-admitted", "lease_id": expected_lease_id, "generation": expected_generation})
+        return {"state": "sidecar-admitted", "mode": APPLICATION_MODE, "lease_id": expected_lease_id, "generation": expected_generation}
+
+    def restore(self, *args, **kwargs):
+        raise ValueError("direct application restore is disabled; application watchdog recovery is required")

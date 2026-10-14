@@ -23,13 +23,14 @@ class ApplicationB60WatchdogTests(unittest.TestCase):
         (root / "application-b60.lock").mkdir()
         (root / "application-b60.json").write_text(json.dumps({
             "mode": "application-b60-exclusive-v1", "lease_id": "lease-1", "generation": 3,
+            "armed": True, "deadline_minute": 200,
         }))
 
     def test_recovery_order_restores_auth_before_consumers(self):
         with tempfile.TemporaryDirectory() as temp:
             self.setup_state(temp)
             commands = []
-            result = ApplicationB60Watchdog(Path(temp), commands.append, Observer(), allow_effects=True).recover(lease_id="lease-1", generation=3)
+            result = ApplicationB60Watchdog(Path(temp), commands.append, Observer(), allow_effects=True).recover(lease_id="lease-1", generation=3, now_minute=100)
             self.assertEqual(result["state"], "ready")
             self.assertEqual(commands, [
                 fixed_command("stop-sidecar"), fixed_command("restore-ingress"),
@@ -43,7 +44,7 @@ class ApplicationB60WatchdogTests(unittest.TestCase):
             self.setup_state(temp)
             commands = []
             with self.assertRaisesRegex(ValueError, "authentication"):
-                ApplicationB60Watchdog(Path(temp), commands.append, Observer(production_auth_ok=False), allow_effects=True).recover(lease_id="lease-1", generation=3)
+                ApplicationB60Watchdog(Path(temp), commands.append, Observer(production_auth_ok=False), allow_effects=True).recover(lease_id="lease-1", generation=3, now_minute=100)
             self.assertEqual(commands[-1], fixed_command("reload-backend"))
             self.assertEqual(len(commands), 4)
             self.assertTrue((Path(temp) / "application-b60.lock").exists())
@@ -53,7 +54,29 @@ class ApplicationB60WatchdogTests(unittest.TestCase):
             self.setup_state(temp)
             commands = []
             with self.assertRaisesRegex(ValueError, "advisory-only"):
-                ApplicationB60Watchdog(Path(temp), commands.append, Observer()).recover(lease_id="lease-1", generation=3)
+                ApplicationB60Watchdog(Path(temp), commands.append, Observer()).recover(lease_id="lease-1", generation=3, now_minute=100)
+            self.assertEqual(commands, [])
+
+    def test_unarmed_or_expired_watchdog_has_no_effects(self):
+        with tempfile.TemporaryDirectory() as temp:
+            self.setup_state(temp)
+            state = Path(temp) / "application-b60.json"
+            value = json.loads(state.read_text())
+            value["armed"] = False
+            state.write_text(json.dumps(value))
+            commands = []
+            with self.assertRaisesRegex(ValueError, "armed"):
+                ApplicationB60Watchdog(Path(temp), commands.append, Observer(), allow_effects=True).recover(lease_id="lease-1", generation=3, now_minute=100)
+            self.assertEqual(commands, [])
+
+    def test_uncertain_intent_is_not_replayed(self):
+        with tempfile.TemporaryDirectory() as temp:
+            self.setup_state(temp)
+            root = Path(temp)
+            (root / "application-b60-watchdog.jsonl").write_text(json.dumps({"event": "step-intent", "lease_id": "lease-1", "generation": 3, "step": "stop-sidecar"}) + "\n")
+            commands = []
+            with self.assertRaisesRegex(ValueError, "uncertain"):
+                ApplicationB60Watchdog(root, commands.append, Observer(), allow_effects=True).recover(lease_id="lease-1", generation=3, now_minute=100)
             self.assertEqual(commands, [])
 
     def test_does_not_allow_arbitrary_commands(self):

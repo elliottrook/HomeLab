@@ -16,6 +16,7 @@ the hashes before enabling the disabled unit:
 | `aster_asgi_clock.py` | `scripts/aster-adaptive/aster_asgi_clock.py` | `e7f8240fc38a62772ac2d7e4e9461ee8f3be21580885d9dfc0cab40fe1919305` |
 | `a1_headless_client.py` | `scripts/aster-adaptive/a1_headless_client.py` | `92878a4642c5cf3895c3a4e76ddefe55d3a84526b163f431eb38192de470534a` |
 | `a1_service_runner.py` | `services/local-ai-lease/a1_service_runner.py` | `feae2ec1f423ec4cbcde33112a64ed6db0963a6c3868726bcdff732b07b520c1` |
+| `a1_key_file.py` | `scripts/local-ai/a1_key_file.py` | `018340fe0bf8a7ec7526d2d0709d21cc8f11fcef6c252cdbfeb6798cc6a055cd` |
 | `aster-agent/` | exact reviewed Aster source/dependency bundle | host preflight required |
 
 The Aster bundle must use the accepted source/dependency manifest and must not
@@ -56,6 +57,8 @@ the UID. Compare SHA-256 digests locally; never print or export key values.
 The backend key is also added as one new line to LXC110's existing
 `/etc/aster-llama-api-keys` with an atomic root-only checkpoint. The existing
 production line is not read into the operator session, changed or removed.
+Removal is hash-bound to the root-owned test-key digest file and refuses an
+unknown or ambiguous match.
 
 ## Ingress and egress candidate
 

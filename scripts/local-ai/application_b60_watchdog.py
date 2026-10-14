@@ -10,6 +10,7 @@ installed and independently validated.
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Sequence
@@ -54,7 +55,7 @@ class ApplicationB60Watchdog:
         self.observer = observer
         self.allow_effects = allow_effects
 
-    def recover(self, *, lease_id: str, generation: int) -> dict[str, object]:
+    def recover(self, *, lease_id: str, generation: int, now_minute: int) -> dict[str, object]:
         if not self.allow_effects:
             raise ValueError("application watchdog is advisory-only; live effects are disabled")
         state = self.state_dir / STATE_NAME
@@ -64,22 +65,46 @@ class ApplicationB60Watchdog:
         record = json.loads(state.read_text(encoding="utf-8"))
         if (record.get("mode"), record.get("lease_id"), record.get("generation")) != (APPLICATION_MODE, lease_id, generation):
             raise ValueError("application lease identity does not match")
+        if record.get("armed") is not True or not isinstance(record.get("deadline_minute"), int):
+            raise ValueError("application watchdog is not armed")
+        if now_minute > record["deadline_minute"]:
+            raise ValueError("application watchdog deadline exceeded; lease retained")
 
-        self._step("stop-sidecar", lambda: self.observer.sidecar_stopped())
-        self._step("restore-ingress", lambda: self.observer.ingress_restored())
-        self._step("remove-test-key", lambda: self.observer.test_key_removed())
-        self._step("reload-backend", lambda: self.observer.backend_reloaded())
+        self._step(lease_id, generation, "stop-sidecar", lambda: self.observer.sidecar_stopped())
+        self._step(lease_id, generation, "restore-ingress", lambda: self.observer.ingress_restored())
+        self._step(lease_id, generation, "remove-test-key", lambda: self.observer.test_key_removed())
+        self._step(lease_id, generation, "reload-backend", lambda: self.observer.backend_reloaded())
         if not self.observer.production_auth_ok() or not self.observer.wrong_key_denied():
             raise ValueError("production backend authentication postcheck failed; consumers remain stopped")
-        self._step("start-aster", lambda: self.observer.aster_healthy())
-        self._step("start-speech", lambda: self.observer.speech_healthy())
+        self._step(lease_id, generation, "start-aster", lambda: self.observer.aster_healthy())
+        self._step(lease_id, generation, "start-speech", lambda: self.observer.speech_healthy())
         if not self.observer.consumers_healthy():
             raise ValueError("consumer restoration postcheck failed; lease retained")
         state.unlink()
         lock.rmdir()
         return {"state": "ready", "mode": APPLICATION_MODE, "lease_id": lease_id, "generation": generation}
 
-    def _step(self, kind: str, check: Callable[[], bool]) -> None:
+    def _step(self, lease_id: str, generation: int, kind: str, check: Callable[[], bool]) -> None:
+        events = []
+        journal = self.state_dir / "application-b60-watchdog.jsonl"
+        if journal.exists():
+            events = [json.loads(line) for line in journal.read_text(encoding="utf-8").splitlines() if line.strip()]
+        matching = [event for event in events if event.get("lease_id") == lease_id and event.get("generation") == generation and event.get("step") == kind]
+        if any(event.get("event") == "step-intent" for event in matching) and not any(event.get("event") == "step-observed" for event in matching):
+            raise ValueError(f"uncertain prior application recovery step: {kind}")
+        if any(event.get("event") == "step-observed" for event in matching):
+            if not check():
+                raise ValueError(f"application recovery postcheck failed: {kind}")
+            return
+        journal.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        with journal.open("a", encoding="utf-8") as stream:
+            stream.write(json.dumps({"event": "step-intent", "lease_id": lease_id, "generation": generation, "step": kind}, sort_keys=True) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
         self.runner(fixed_command(kind))
         if not check():
             raise ValueError(f"application recovery postcheck failed: {kind}")
+        with journal.open("a", encoding="utf-8") as stream:
+            stream.write(json.dumps({"event": "step-observed", "lease_id": lease_id, "generation": generation, "step": kind}, sort_keys=True) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
