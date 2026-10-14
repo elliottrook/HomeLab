@@ -33,7 +33,9 @@ change was performed.
   failure and retains the lease state on uncertainty.
 - The controller now separates pre-lease checkpoint validation from post-lease
   sidecar admission. Its direct restore path is disabled; only the application
-  watchdog may restore consumers.
+  watchdog may restore consumers. It persists the armed state and both
+  deadlines before the first consumer stop; subsequent key/firewall effects
+  are therefore under watchdog authority.
 - The watchdog requires an armed deadline, records intent/observed events and
   refuses to replay an uncertain effect after a crash. It distinguishes the
   start-by deadline from the final restore deadline; a late tick still runs

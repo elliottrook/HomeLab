@@ -33,7 +33,8 @@ class ApplicationLeaseState:
     services: tuple[tuple[str, str], ...]
     phase: str = "leased"
     armed: bool = False
-    deadline_minute: int | None = None
+    start_deadline_minute: int | None = None
+    restore_deadline_minute: int | None = None
 
 
 @dataclass(frozen=True)
@@ -47,6 +48,9 @@ class ApplicationPreLease:
     exclusive_backend_claim: bool
     consumers_healthy: bool
     news_quiesced: bool
+    now_minute: int
+    start_deadline_minute: int
+    restore_deadline_minute: int
 
 
 @dataclass(frozen=True)
@@ -118,7 +122,8 @@ class ApplicationB60Controller:
         if (prelease.mode != APPLICATION_MODE or not prelease.backup_receipt
                 or prelease.backup_receipt.startswith("full-stop:")
                 or not prelease.llama_service_active or not prelease.exclusive_backend_claim
-                or not prelease.consumers_healthy or not prelease.news_quiesced):
+                or not prelease.consumers_healthy or not prelease.news_quiesced
+                or not prelease.now_minute < prelease.start_deadline_minute <= prelease.restore_deadline_minute):
             raise ValueError("application pre-lease checkpoint is incomplete")
         self.paths.root.mkdir(mode=0o700, parents=True, exist_ok=True)
         try:
@@ -131,6 +136,10 @@ class ApplicationB60Controller:
             generation=prelease.generation,
             backup_receipt=prelease.backup_receipt,
             services=ALLOWED_CONSUMER_SERVICES,
+            phase="armed",
+            armed=True,
+            start_deadline_minute=prelease.start_deadline_minute,
+            restore_deadline_minute=prelease.restore_deadline_minute,
         )
         atomic_write(self.paths.state, json.dumps(asdict(state), sort_keys=True, separators=(",", ":")) + "\n")
         stopped: list[tuple[str, str]] = []
@@ -158,32 +167,13 @@ class ApplicationB60Controller:
         if not self.paths.lock.exists() or not self.paths.state.exists():
             raise ValueError("application lease state and lock are both required")
         value = json.loads(self.paths.state.read_text(encoding="utf-8"))
-        if (value.get("mode"), value.get("lease_id"), value.get("generation"), value.get("phase")) != (APPLICATION_MODE, expected_lease_id, expected_generation, "leased"):
+        if (value.get("mode"), value.get("lease_id"), value.get("generation"), value.get("phase")) != (APPLICATION_MODE, expected_lease_id, expected_generation, "armed"):
             raise ValueError("persisted application lease is not awaiting sidecar admission")
         validate(receipt, expected_lease_id=expected_lease_id, expected_generation=expected_generation)
         value["phase"] = "sidecar-admitted"
         atomic_write(self.paths.state, json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n")
         _journal(self.paths.journal, {"event": "sidecar-admitted", "lease_id": expected_lease_id, "generation": expected_generation})
         return {"state": "sidecar-admitted", "mode": APPLICATION_MODE, "lease_id": expected_lease_id, "generation": expected_generation}
-
-    def arm(self, *, expected_lease_id: str, expected_generation: int, now_minute: int, start_deadline_minute: int, restore_deadline_minute: int) -> dict[str, object]:
-        self._require_effect_authority()
-        if not now_minute < start_deadline_minute <= restore_deadline_minute:
-            raise ValueError("application watchdog deadlines are invalid")
-        if not self.paths.lock.exists() or not self.paths.state.exists():
-            raise ValueError("application lease state and lock are both required")
-        value = json.loads(self.paths.state.read_text(encoding="utf-8"))
-        if (value.get("mode"), value.get("lease_id"), value.get("generation"), value.get("phase")) != (APPLICATION_MODE, expected_lease_id, expected_generation, "sidecar-admitted"):
-            raise ValueError("application lease is not ready to arm")
-        if value.get("armed") is True:
-            raise ValueError("application watchdog is already armed")
-        value["armed"] = True
-        value["start_deadline_minute"] = start_deadline_minute
-        value["restore_deadline_minute"] = restore_deadline_minute
-        value["phase"] = "armed"
-        atomic_write(self.paths.state, json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n")
-        _journal(self.paths.journal, {"event": "watchdog-armed", "lease_id": expected_lease_id, "generation": expected_generation, "start_deadline_minute": start_deadline_minute, "restore_deadline_minute": restore_deadline_minute})
-        return {"state": "armed", "mode": APPLICATION_MODE, "lease_id": expected_lease_id, "generation": expected_generation, "start_deadline_minute": start_deadline_minute, "restore_deadline_minute": restore_deadline_minute}
 
     def restore(self, *args, **kwargs):
         raise ValueError("direct application restore is disabled; application watchdog recovery is required")

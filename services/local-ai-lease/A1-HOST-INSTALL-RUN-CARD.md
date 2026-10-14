@@ -83,23 +83,24 @@ single bounded change:
    fictional probe-body hashes, disposable journal and probe credentials. The
    probe gateway and its hashes must be distinct from the final A1 gateway;
    no final A1 body may be consumed by a startup or denial probe.
-3. Append the generated test backend key to the root-owned LXC110 key file
-   using an atomic checkpointed update, restart `aster-llama.service` once, and
-   verify the old production key still works, the new test key works, and a
-   wrong key receives 401 on the actual chat endpoint. A restart failure aborts
-   before the lease is acquired.
-4. Acquire the application lease from the protected pre-lease plan. The host
-   controller persists the leased state before stopping consumers, and only
-   then may the platform receipt producer emit the source-bound application
-   lease receipt. The controller may stop/runtime-mask only
+3. Acquire the application lease from the protected pre-lease plan. The host
+   controller persists an **armed** state with start-by and restore deadlines
+   before stopping any consumer. The controller may stop/runtime-mask only
    LXC104 Aster and LXC116 Speech. It must not change LXC110 beyond the
-   checkpointed test-key line and the one controlled reload/restart above.
+   later checkpointed application effects. A crash after any subsequent effect
+   is therefore recoverable by the application watchdog.
+4. Append the generated test backend key to the existing LXC110 key file
+   using an atomic immutable-checkpoint update, restart `aster-llama.service`
+   once, and verify the old production key still works, the new test key works,
+   and a wrong key receives 401 on the actual chat endpoint. This effect is
+   under the already-armed application watchdog.
 5. Apply a temporary, checkpointed LXC110 ingress policy allowing only source
    `192.168.70.10` to TCP 11435. This is the sidecar's source address; it
    excludes Mac/LAN clients and other guests. Verify policy read-back and test
    from an excluded listening client before admitting the sidecar. The previous
    policy must be restorable byte-for-byte.
-6. Validate the newly produced receipt, including lease ID/generation,
+6. After the application receipt producer records the persisted armed lease,
+   validate the newly produced receipt, including lease ID/generation,
    application backup binding, watchdog deadline, active backend,
    `exclusive_backend_claim=true`, and consumer quiescence. The claim is true
    only when the temporary ingress policy is active and observed; zero load at

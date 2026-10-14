@@ -87,6 +87,24 @@ class ApplicationB60WatchdogTests(unittest.TestCase):
                 ApplicationB60Watchdog(root, commands.append, Observer(), allow_effects=True).recover(lease_id="lease-1", generation=3, now_minute=100)
             self.assertEqual(commands, [])
 
+    def test_each_effect_failure_leaves_recovery_intent_for_reconciliation(self):
+        cases = (
+            ("sidecar_stopped", "stop-sidecar"),
+            ("ingress_restored", "restore-ingress"),
+            ("test_key_removed", "remove-test-key"),
+            ("backend_reloaded", "reload-backend"),
+            ("aster_healthy", "start-aster"),
+            ("speech_healthy", "start-speech"),
+        )
+        for field, step in cases:
+            with self.subTest(field=field), tempfile.TemporaryDirectory() as temp:
+                self.setup_state(temp)
+                commands = []
+                with self.assertRaises(ValueError):
+                    ApplicationB60Watchdog(Path(temp), commands.append, Observer(**{field: False}), allow_effects=True).recover(lease_id="lease-1", generation=3, now_minute=100)
+                with self.assertRaisesRegex(ValueError, "uncertain"):
+                    ApplicationB60Watchdog(Path(temp), commands.append, Observer(), allow_effects=True).recover(lease_id="lease-1", generation=3, now_minute=100)
+
     def test_does_not_allow_arbitrary_commands(self):
         with self.assertRaises(ValueError):
             fixed_command("shell")

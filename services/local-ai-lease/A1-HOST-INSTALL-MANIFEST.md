@@ -106,8 +106,9 @@ retain the lease if that read-back is uncertain.
 
 The pre-lease phase produces only a source-bound application backup checkpoint,
 health/quiescence observations and a protected planned lease ID/generation.
-It is not a lease receipt. The host controller persists leased state and stops
-only the two allowlisted consumers; only after that state exists may the
+It is not a lease receipt. The host controller persists an armed state with
+start-by and restore deadlines before it stops only the two allowlisted
+consumers; only after that state exists may the
 platform receipt producer emit the real source-bound application lease receipt.
 The sidecar and final A1 batch are blocked until that receipt validates.
 The admitted final process has no second inner listener. Wrong-inner-key

@@ -16,7 +16,7 @@ class ApplicationB60ControllerTests(unittest.TestCase):
         )
 
     def prelease(self):
-        return ApplicationPreLease(APPLICATION_MODE, "app-1", 2, "app-backup-1", "llama.cpp b11429 SYCL/Level Zero", True, True, True, True)
+        return ApplicationPreLease(APPLICATION_MODE, "app-1", 2, "app-backup-1", "llama.cpp b11429 SYCL/Level Zero", True, True, True, True, 100, 150, 200)
 
     def test_acquire_and_sidecar_admission_only_touch_allowed_consumers(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -65,15 +65,11 @@ class ApplicationB60ControllerTests(unittest.TestCase):
                 controller.acquire(self.prelease())
             self.assertEqual(commands[2], command_for("104", "aster-agent.service", "start"))
 
-    def test_arm_requires_sidecar_admission_and_persists_deadline(self):
+    def test_acquire_arms_watchdog_before_first_consumer_stop(self):
         with tempfile.TemporaryDirectory() as temp:
             commands = []
             controller = ApplicationB60Controller(ApplicationPaths(Path(temp)), commands.append, allow_effects=True)
             controller.acquire(self.prelease())
-            with self.assertRaisesRegex(ValueError, "ready to arm"):
-                controller.arm(expected_lease_id="app-1", expected_generation=2, now_minute=100, start_deadline_minute=150, restore_deadline_minute=200)
-            controller.admit_sidecar(self.receipt(), expected_lease_id="app-1", expected_generation=2)
-            self.assertEqual(controller.arm(expected_lease_id="app-1", expected_generation=2, now_minute=100, start_deadline_minute=150, restore_deadline_minute=200)["state"], "armed")
             value = json.loads((Path(temp) / "application-b60.json").read_text())
             self.assertTrue(value["armed"])
             self.assertEqual(value["start_deadline_minute"], 150)
