@@ -1,0 +1,15 @@
+# Offline review candidate — do not copy into Home Assistant yet.
+#
+# This is the narrowest alias map currently supported by the operational
+# reference. It records the one explicitly reviewed alias as of 2026-10-10;
+# it is not proof that the live registry has not drifted since that review.
+# VM 103 must be snapshotted and the entity ID rechecked before deployment.
+aster_registry:
+  output_path: /share/aster-registry/latest.json
+  snapshot_id: ha-reviewed-v1-laundry-only
+  aliases:
+    entities:
+      light.laundry_laundry_main_lights: "laundry lights"
+    rooms: {}
+    timers: {}
+    media: {}

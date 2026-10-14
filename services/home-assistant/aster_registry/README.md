@@ -18,3 +18,9 @@ configuration block until VM 103 is snapshotted, the exact alias map is reviewed
 Home Assistant configuration validation passes, and a rollback/removal plan is
 recorded. An empty alias map proves packaging only and is not real-registry
 acceptance evidence.
+
+The current offline review candidate is documented in
+[`REGISTRY-REVIEW.md`](REGISTRY-REVIEW.md) and
+[`configuration.reviewed.example.yaml`](configuration.reviewed.example.yaml).
+It contains only the laundry-light alias already recorded in the operational
+reference; it is not a live registry read or deployment authorization.
