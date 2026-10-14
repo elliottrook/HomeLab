@@ -1,8 +1,11 @@
 # Aster Home version 2 asset guide
 
-Status: core material-preserving SVG approved 2026-10-14; family reconstruction
-candidate pending visual review and a separate application-adoption decision.
+Status: core and complete 18-asset family approved by Jason on 2026-10-14;
+private Forgejo release authorized. Application adoption remains a separate decision.
 This document does not claim that live apps have changed.
+
+Start with the [Aster v2 agent handoff](Aster-v2-Agent-Handoff.md) for the
+versioned download, checksums, approval scope and implementation boundaries.
 
 ## Identity and source of truth
 
