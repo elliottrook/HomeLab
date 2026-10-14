@@ -13,12 +13,16 @@
 - Raster/full profile command and result:
 - Manifest/checksum result:
 - Image decode and dimensions:
+- Effective native detail measured independently of canvas size:
+- Paired colour and flat tracing masters verified:
 - SVG audit/security result:
 - ZIP reopen/signature/hash result:
 
 ## Human visual and intent review
 
 - Concept/master matches owner decision:
+- Raster-versus-vector comparison at 100% and 200%:
+- Silhouette/proportion/material-depth fidelity:
 - Invariant regions preserved for scoped edit:
 - Light/dark and monochrome:
 - 16/32/64/128px behavior:

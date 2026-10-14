@@ -73,11 +73,24 @@ Create a multi-page PDF manual and PNG preview of every page. Cover story/values
 
 Validate the approved-master hash, literal spelling, 18/equivalence matrix, paths, decoded image integrity, dimensions, effective resolution, rights, approvals, manual/pages, contact sheet, reference-to-consumer mapping, manifest and offline ZIP. Preserve the original input. Use the strict `raster` validator profile; a `fixture` pass is not this gate.
 
+This is a visual-evidence gate, not a file-dimension check. Record both the stored pixel dimensions and the effective native detail of every critical identity source. A contact sheet, mockup, enlarged crop or interpolated export is not a production master merely because its canvas is large. If a critical mark is represented only by a composite sheet, occupies less than 1024 native pixels on its longest isolated dimension, has compressed or ambiguous edges, or lacks enough evidence to separate its layers, stop vector work and create an owner-reviewed high-detail reconstruction master first.
+
+For dimensional or materially rendered identities, prepare a paired source set before vectorization:
+
+1. a high-detail colour master that preserves the approved finish, depth, lighting and material character; and
+2. a geometrically matched flat tracing master that isolates silhouettes, counters, overlaps and colour regions without texture, bevel, shadow or glow.
+
+Generate each critical mark as an isolated asset rather than extracting it from a multi-design board. Record the actual native dimensions returned by the generator; requested size is not evidence of delivered size. Preserve both paired masters unchanged and require owner approval of their exact hashes before SVG reconstruction.
+
 ### M7 — SVG reconstruction and vector QA
 
 Reconstruct editable paths and meaningful layers rather than embedding raster artwork. Preserve exact wording, bespoke signature outlines, optical spacing, shape topology, counters, gradients and overlap order. Produce appropriate dark/light, monochrome and simplified micro variants.
 
+Automatic tracing is a starting point, not a finished identity. Trace the flat master for contour evidence, then rebuild the colour treatment as editable named layers—such as base faces, bevel edges, inset rings, highlights, shadows, texture and centre motifs—against the approved colour master. Do not replace distinctive artwork with convenient generic geometry or improvised lettering. If the vector materially simplifies the approved character, it fails even when the SVG is structurally valid.
+
 Parse and sanitize every SVG. Reject scripts, event handlers and unapproved external references. Classify any authorized embedded raster. Verify viewBox, fonts/outlines and licenses, local references, geometry, contrast and practical small sizes. Render on light/dark backgrounds and compare in more than one available renderer where practical.
+
+Release QA must include labelled raster-versus-vector comparisons at 100% and 200%, plus 16/32/64/128px tests where relevant. Structural audits and XML validity cannot substitute for a human fidelity review. The reviewer must explicitly pass silhouette, proportions, typography, materials, depth, spacing and small-size behavior before packaging.
 
 ### M8 — Release and package
 
