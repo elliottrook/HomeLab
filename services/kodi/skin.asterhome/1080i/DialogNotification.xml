@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="107">
+    <controls>
+        <control type="group">
+            <right>70</right>
+            <top>70</top>
+            <width>620</width>
+            <height>110</height>
+            <control type="label" id="1">
+                <left>24</left>
+                <top>12</top>
+                <width>570</width>
+                <height>86</height>
+                <label></label>
+                <font>font24</font>
+                <textcolor>asterInk</textcolor>
+                <align>left</align>
+                <aligny>center</aligny>
+            </control>
+        </control>
+    </controls>
+</window>

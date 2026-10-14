@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+    <controls>
+        <control type="progress" id="1">
+            <right>70</right>
+            <top>70</top>
+            <width>520</width>
+            <height>22</height>
+            <info>System.Progressbar</info>
+        </control>
+    </controls>
+</window>

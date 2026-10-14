@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="115">
+    <controls>
+        <control type="label">
+            <left>70</left>
+            <right>70</right>
+            <bottom>90</bottom>
+            <height>52</height>
+            <label>Seeking</label>
+            <font>font24</font>
+            <textcolor>asterInk</textcolor>
+            <align>center</align>
+        </control>
+    </controls>
+</window>

@@ -1,5 +1,10 @@
 # Aster Home Kodi skin prototype
 
+Version 0.1.4 adds the standard startup windows and settings scaffolding Kodi
+requires before it will keep a custom skin active. The windows are deliberately
+small Aster-owned shells; richer interactions and media-specific dialogs are
+the next pass.
+
 This is the M3a visual-shell prototype for Aster Home. It is deliberately
 small and private: it provides the TV-first visual language and navigation
 experiment before real Jellyfin, Home Assistant, news, podcast, audiobook and

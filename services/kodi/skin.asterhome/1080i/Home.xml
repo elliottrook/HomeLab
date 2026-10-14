@@ -10,7 +10,7 @@
             <top>24</top>
             <width>1560</width>
             <height>420</height>
-            <texture background="true">$INFO[Container(101).ListItem.Art(fanart)]</texture>
+            <texture background="true">$INFO[Container(110).ListItem.Art(fanart)]</texture>
             <aspectratio>scale</aspectratio>
             <fadetime>250</fadetime>
         </control>
@@ -19,7 +19,7 @@
             <top>24</top>
             <width>1560</width>
             <height>420</height>
-            <texture colordiffuse="99f2ede4">$INFO[Container(101).ListItem.Art(fanart)]</texture>
+            <texture colordiffuse="99f2ede4">$INFO[Container(110).ListItem.Art(fanart)]</texture>
             <aspectratio>scale</aspectratio>
         </control>
 
@@ -52,11 +52,11 @@
         <!-- Collapsed/revealing navigation rail. The rail is intentionally
              text-first until the final Aster icon set is available. -->
         <control type="group" id="9000">
-            <left>-188</left>
+            <left>-300</left>
             <top>0</top>
             <width>300</width>
             <height>1080</height>
-            <animation effect="slide" start="0,0" end="188,0" time="180" reversible="true">Control.HasFocus(8999) | Control.HasFocus(9001) | Control.HasFocus(9002) | Control.HasFocus(9003) | Control.HasFocus(9004) | Control.HasFocus(9005)</animation>
+            <animation effect="slide" start="0,0" end="300,0" time="180" reversible="true" condition="Control.HasFocus(8999) | Control.HasFocus(9001) | Control.HasFocus(9002) | Control.HasFocus(9003) | Control.HasFocus(9004) | Control.HasFocus(9005)">Conditional</animation>
             <control type="image">
                 <left>0</left>
                 <top>0</top>

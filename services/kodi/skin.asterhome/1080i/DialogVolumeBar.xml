@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="104">
+    <controls>
+        <control type="label">
+            <right>70</right>
+            <top>70</top>
+            <width>360</width>
+            <height>70</height>
+            <label>Volume  $INFO[Player.Volume]</label>
+            <font>font24</font>
+            <textcolor>asterInk</textcolor>
+            <align>right</align>
+            <aligny>center</aligny>
+        </control>
+    </controls>
+</window>

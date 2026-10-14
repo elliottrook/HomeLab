@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Aster keeps its first prototype deliberately small.  These names are
+    defined locally instead of relying on whichever font set another skin
+    happens to have loaded.
+-->
+<fonts>
+    <fontset id="Default" unicode="true">
+        <font>
+            <name>font20</name>
+            <filename>arial.ttf</filename>
+            <size>20</size>
+        </font>
+        <font>
+            <name>font24</name>
+            <filename>arial.ttf</filename>
+            <size>24</size>
+        </font>
+        <font>
+            <name>font28</name>
+            <filename>arial.ttf</filename>
+            <size>28</size>
+        </font>
+        <font>
+            <name>font30</name>
+            <filename>arial.ttf</filename>
+            <size>30</size>
+        </font>
+        <font>
+            <name>font40</name>
+            <filename>arial.ttf</filename>
+            <size>40</size>
+        </font>
+    </fontset>
+</fonts>

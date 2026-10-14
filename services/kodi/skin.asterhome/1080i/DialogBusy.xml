@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="136">
+    <controls>
+        <control type="group">
+            <centerleft>50%</centerleft>
+            <centertop>50%</centertop>
+            <width>420</width>
+            <height>120</height>
+            <control type="label">
+                <width>420</width>
+                <height>120</height>
+                <label>Working…</label>
+                <font>font28</font>
+                <textcolor>asterInk</textcolor>
+                <align>center</align>
+                <aligny>center</aligny>
+            </control>
+        </control>
+    </controls>
+</window>

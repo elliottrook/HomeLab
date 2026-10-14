@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+    <controls>
+        <control type="group">
+            <centerleft>50%</centerleft>
+            <centertop>50%</centertop>
+            <width>900</width>
+            <height>360</height>
+            <control type="textbox" id="9">
+                <left>30</left>
+                <top>30</top>
+                <width>840</width>
+                <height>210</height>
+                <font>font24</font>
+                <textcolor>asterInk</textcolor>
+            </control>
+            <control type="grouplist" id="9000">
+                <left>30</left>
+                <top>260</top>
+                <width>840</width>
+                <height>70</height>
+                <orientation>horizontal</orientation>
+                <align>center</align>
+                <itemgap>24</itemgap>
+                <control type="button" id="10">
+                    <width>220</width>
+                    <height>64</height>
+                    <font>font24</font>
+                    <textcolor>asterInk</textcolor>
+                    <align>center</align>
+                    <aligny>center</aligny>
+                </control>
+                <control type="button" id="11">
+                    <width>220</width>
+                    <height>64</height>
+                    <font>font24</font>
+                    <textcolor>asterInk</textcolor>
+                    <align>center</align>
+                    <aligny>center</aligny>
+                </control>
+            </control>
+        </control>
+    </controls>
+</window>
