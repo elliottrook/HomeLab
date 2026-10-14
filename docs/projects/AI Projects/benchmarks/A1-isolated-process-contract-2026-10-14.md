@@ -141,6 +141,22 @@ effect from its first mutation with a persisted, timer-recoverable state and
 failure-injection tests. Keep A1 live admission **BLOCKED** until that order,
 the fixed host helpers and live restore are independently verified.
 
+Platform commit `8f70d330` moved the armed state write before consumer stop.
+The next independent review found two still-open ordering conditions: its
+pre-lease input requires `exclusive_backend_claim=true` before the run card
+applies and verifies the temporary exclusive ingress policy, and its watchdog
+unconditionally restores the ingress/key checkpoints even if recovery starts
+before those checkpoints were created. The receipt must distinguish a planned
+claim from a host-observed exclusive claim, and recovery must distinguish an
+effect never started from an uncertain effect. Failure injection at each
+transition is required before live admission.
+
+An exact-file check also found the current Stream A `a1_headless_client.py`
+SHA-256 `beabc81ad44d205bc908c248f2fea50fb12faaac01f654a160712a550aa3fbc2`
+differs from the platform installation manifest's older pinned hash. The
+three other Stream A files in that manifest matched. The manifest must be
+repinned to an explicitly reviewed source commit before a copy or start.
+
 **Read-only host preflight, 2026-10-14:** LXC 104 reports systemd 257,
 `aster-agent.service` active, no `aster-a1-test.service`, no
 `aster-a1-test` account and no listener on TCP 19104. LXC 110 reports
