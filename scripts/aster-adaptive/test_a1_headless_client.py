@@ -82,6 +82,8 @@ class A1HeadlessClientTests(unittest.TestCase):
             invoke(fixture(), endpoint=ENDPOINT, ingress_token=TOKEN, opener=opener)
         self.assertNotIn("secret-looking", str(caught.exception))
         self.assertEqual(len(opener.calls), 1)
+        self.assertTrue(caught.exception.timing["terminal_displayed"] is False)
+        self.assertIsNone(caught.exception.timing["observation_id"])
 
     def test_missing_observation_or_incomplete_answer_fails_closed(self):
         for response in (Response(completion(), identity="wrong"),
@@ -90,10 +92,12 @@ class A1HeadlessClientTests(unittest.TestCase):
                          Response(completion(answer=chr(0xD800)))):
             with self.subTest(body=response.body):
                 opener = Opener(response)
-                with self.assertRaisesRegex(A1TransportError, "invalid_or_uncertain_response"):
+                with self.assertRaisesRegex(A1TransportError, "invalid_or_uncertain_response") as caught:
                     invoke(fixture(), endpoint=ENDPOINT, ingress_token=TOKEN,
                            opener=opener)
                 self.assertEqual(len(opener.calls), 1)
+                self.assertFalse(caught.exception.timing["terminal_displayed"])
+                self.assertIsNone(caught.exception.timing["accepted_to_displayed_ms"])
 
 
 if __name__ == "__main__":

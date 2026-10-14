@@ -234,7 +234,10 @@ The offline headless client adapter uses the same frozen serializer, permits
 only a literal loopback/RFC1918 test endpoint, makes one POST without redirect
 or retry, bounds the response, and requires a terminal answer plus opaque
 observation ID. It returns raw fictional answer text only to the owner-held
-capture caller and a separate content-free client clock. It does not obtain a
+capture caller and a separate content-free client clock. Transport and parse
+failures carry a censored content-free clock on the raised error, so a later
+owner-held runner can retain failed attempts without treating them as slow
+successes. The adapter does not obtain a
 lease, open a socket when imported, persist evidence, or make the card READY.
 Four synthetic transport tests cover this boundary; the combined focused
 gateway/admission/request/client suite passes 36 tests. The source-bound live
