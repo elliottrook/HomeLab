@@ -5,9 +5,27 @@ by this checkout.
 
 ## Exact source/dependency copy set
 
-The Stream A source is pinned to worktree commit `e4becf9c` until it is merged
-into this branch. The platform owner must copy exactly these files and verify
-the hashes before enabling the disabled unit:
+The A1 result is explicitly a **deployed-production-baseline** measurement,
+not a measurement of the reviewed Stream A Aster candidate. The platform
+owner must use the currently deployed LXC104 Aster source snapshot and its
+source-produced dependency inventory, then copy exactly the guarded Stream A1
+files below. The known live identity is:
+
+| Deployed baseline item | SHA-256 |
+|---|---|
+| `/opt/aster-agent/aster_agent.py` | `b0b81467d3e06c5277a3a60a70530af28fe67ac1775c6f40694a52da080d405a` |
+| deployed requirements manifest | `28433903f3dd33a33a4264f892f1d24f777a472d5cc5c315d05d8e23e3e7d1` |
+
+Those two hashes are not a complete import closure. Before installation, the
+platform owner must produce a content-free manifest of every local Python
+module imported by the sidecar, each file's hash, and the exact installed
+dependency versions/hashes. A missing closure member, dependency mismatch or
+candidate/repository source substitution aborts the run.
+
+The reviewed Stream A source is pinned to worktree commit `e4becf9c` only for
+the guarded gateway/factory files below; it must not replace the deployed Aster
+baseline. The platform owner must copy exactly these files and verify the
+hashes before enabling the disabled unit:
 
 | Destination under `/opt/aster-a1-test` | Source at pinned commit | SHA-256 |
 |---|---|---|

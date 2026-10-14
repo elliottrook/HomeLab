@@ -6,6 +6,13 @@ recovery drill.
 
 ## Fixed deployment identity
 
+Source identity: **deployed-production-baseline**. The A1 result must use the
+currently deployed LXC104 Aster import closure and dependency inventory, not
+the newer reviewed Stream A Aster checkout. The guarded gateway/factory is the
+reviewed Stream A1 layer. The final receipt and result label must preserve
+this distinction; if the deployed closure cannot be fully hashed and
+reproduced, do not start the sidecar.
+
 | Item | Required value |
 |---|---|
 | Guest and unit | LXC 104, `aster-a1-test.service` |

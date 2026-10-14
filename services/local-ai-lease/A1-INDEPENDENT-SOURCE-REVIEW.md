@@ -17,6 +17,10 @@ change was performed.
 
 ## Findings
 
+- The live Aster source/dependency identity differs from the reviewed Stream A
+  checkout. The run card now selects the deployed-production-baseline and
+  requires a complete source import closure/dependency inventory; a candidate
+  Aster source must not be silently substituted.
 - The unit starts exactly one unprivileged worker on port 19104 and allows
   only loopback plus the llama backend at the systemd address-filter layer.
   It does not refuse the platform controller's intentional start/stop.
