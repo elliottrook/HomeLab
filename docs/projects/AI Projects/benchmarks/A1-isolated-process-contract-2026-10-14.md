@@ -44,6 +44,12 @@ and the headless display event. The platform observer must distinguish this
 exact admitted sidecar from every other inference consumer and detect an
 unexpected start, restart, port, UID or source hash. A source-only unit test
 is insufficient.
+Repeat-body, wrong-inner-key and missing-journal probes must use disposable
+probe instances/custody. They must not consume one of the final 20 run's
+create-once request claims or alter its credential/configuration after
+admission. A failed connection to production Aster while that service is
+stopped is not proof of network denial; test the egress policy against an
+actually reachable denied destination or a policy-level observation.
 
 The trusted host receipt must name the sidecar exception and bind it to lease
 ID/generation, backup receipt, watchdog deadline and source hashes. Stream A
@@ -56,6 +62,14 @@ values, to prove none of the sidecar's ingress, inner and backend keys equals
 the corresponding production key or either other test key. A dedicated UID
 and absence of the production environment file must be observed on the live
 process; a source-level environment check alone cannot prove that separation.
+The accepted llama.cpp service currently reads an API-key file in LXC 110.
+A newly generated sidecar backend key will not work merely because it is
+placed in the sidecar environment. The application-lease run card must choose
+and prove a reversible authentication path: a specifically reviewed addition
+and reload of a test-only key in LXC 110, or an independently isolated
+credential-translating proxy. Reusing the production key in the sidecar is
+not an implicit fallback. No live A1 installation is ready until this is
+resolved and included in the restoration manifest.
 The offline [`a1_isolated_app.py`](../../../../scripts/aster-adaptive/a1_isolated_app.py)
 factory refuses root, unpinned backend/output/tool/deadline settings,
 privileged env values and absent owner-only journal/clock custody before it
