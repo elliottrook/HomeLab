@@ -105,14 +105,14 @@
     "credentials": "new production-only credential generated and stored in protected live configuration; value is not copied to this manifest"
   },
   "production_migration": {
-    "state": "companion-accepted-home-assistant-next",
+    "state": "all-consumers-on-production-news-listening-pending",
     "companion_stream": "accepted on authenticated web and Mac clients through production 192.168.20.37:9131; accepted lab endpoint remains healthy for immediate rollback",
-    "home_assistant": "not cut over",
-    "news_digest": "not cut over",
+    "home_assistant": "Aster Production Wyoming integration uses aster-voice.home.internal:10300; isolated Aster Pilot selected its production STT/TTS and passed Jason's end-to-end test; original lab integration and preferred pipeline remain",
+    "news_digest": "production endpoint and News-only credential selected; production and application-local lab rollback canaries pass; next scheduled briefing awaits listening acceptance",
     "monitoring": "Beszel and Prometheus production target up; five production alert rules loaded"
   },
   "blockers": [
-    "migrate and accept Home Assistant and News one at a time with rollback preserved",
+    "accept the next naturally scheduled News briefing while preserving application-local rollback",
     "obtain explicit approval before creating the release tag"
   ],
   "authorization": {
