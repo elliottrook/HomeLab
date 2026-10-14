@@ -240,3 +240,23 @@ the sorted, newline-joined digest list is
 No case text, answer key, individual request digest or credential was printed
 or put in Git. This establishes deterministic fixture preparation, not a
 configured live gateway or an admitted model run.
+
+**Later read-only transport and admission review, 2026-10-13:** The platform
+owner installed a dedicated, constrained TrueNAS observer. Stream A independently
+queried its exact pinned Proxmox-to-TrueNAS schedule path: tasks 1, 3 and 2
+were enabled at 01:00, 02:00 and 03:00 respectively. This resolves the
+earlier host-key/transport blocker for schedule metadata only. It does not
+prove that those jobs completed on a given night or that an archive can be
+restored. The platform's fixed mirror query and metadata parser are candidate
+preflight evidence; filename, size and date-string agreement alone are not
+archive integrity or source-bound admission.
+
+Independent source review then demonstrated that a caller-controlled
+`authenticated=True` flag could make a fabricated receipt pass the proposed
+benchmark gate despite 55 passing unit tests. The platform owner removed that
+path in local revision `b6f260c0`; the gate again refuses all Aster benchmark
+admission until a trusted execution boundary produces the receipts. Stream A
+re-ran the 55 tests against the corrected source. Proxmox still has no installed
+watchdog unit/timer or active lease. The next evidence is a bounded integrity
+check, a live two-sample consumer-quiescence receipt and an attended recovery
+drill; none has been accepted as full-path admission here.
