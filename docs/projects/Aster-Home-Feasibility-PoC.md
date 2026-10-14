@@ -140,11 +140,11 @@ Record pinned versions, tested guest ID, source commits, upstream image checksum
 
 - [x] **M0 — Read-only inventory and risk gate:** 2026-10-13 baseline gathered and accepted. Live Proxmox, guest, VLAN, media, HA, Aster, speech and backup evidence is recorded in the evidence log; household capabilities and the bounded software-test envelope are now explicit.
 - [x] **M1 — Integrated boot:** 2026-10-13. VM 127 installed LibreELEC 12.2.1 with its bundled Kodi image, booted repeatedly from the installed target, and reached the LibreELEC splash on each clean boot. `std`, `qxl` and `virtio` KVM display profiles produced the same result: Kodi UI did not become visible and the installed guest's `.kodi/temp/kodi.log` remained empty. Gate result: **boot/install passed; KVM UI result inconclusive**. This is a virtualization limitation to carry into physical HDMI testing, not a software rejection; do not substitute Debian+Kodi as the primary test.
-- [ ] **M2 — Audiovisual:** Jellyfin library/direct play, music, collections, remote navigation, codecs, subtitles and playback stability. M2 now has a physical endpoint candidate: boot the verified LibreELEC Generic x86_64 image from a disposable USB on the Lenovo X390 Yoga, without installing to or altering its internal drive. Use the X390's Thunderbolt 3/USB-C DisplayPort output with a known 4K60-capable HDMI adapter for the 4K path; its built-in HDMI 1.4b is limited to 4K24 and is not the production-path test. CEC must be recorded separately because USB-C/DisplayPort-to-HDMI adapters do not uniformly carry it. Gate: no media mutation; measurable direct-play, HDR10, audio passthrough, network and navigation results, with hardware limitations explicitly separated from software results.
+- [ ] **M2 — Audiovisual:** Jellyfin library/direct play, music, collections, remote navigation, codecs, subtitles and playback stability. M2 now has a physical endpoint candidate: boot the verified LibreELEC Generic x86_64 image from a disposable USB on the Lenovo X390 Yoga, without installing to or altering its internal drive. Use the X390's Thunderbolt 3/USB-C DisplayPort output with a known 4K60-capable HDMI adapter for the 4K path; its built-in HDMI 1.4b is limited to 4K24 and is not the production-path test. HDMI-CEC is now an optional appliance-integration test, not a software gate; prove a reliable local Bluetooth, IR or USB-HID control path instead. Gate: no media mutation; measurable direct-play, HDR10, audio passthrough, network and navigation results, with hardware limitations explicitly separated from software results.
 - [ ] **M3 — Customization:** throwaway Aster-styled Kodi skin/add-on, Home Assistant **read** dashboard, mocked commands and Aster AI query. Gate: prove extensibility and upgrade compatibility without core fork if possible.
 - [ ] **M4 — Voice/intelligence:** consume existing Aster voice service with opt-in mic/control, demonstrate speech/turn and timeout/fallback handling without new TTS implementation. Gate: privacy and canonical-voice compliance.
 - [ ] **M5 — SOFTWARE GO/NO-GO:** issue `Aster-Home-EH-001-Feasibility-Decision.md` explicitly stating **USE / CONDITIONAL USE / REJECT**, weighted tests plus hard constraints and source-supported alternatives if rejected. **No hardware purchasing study is necessary after REJECT** beyond documenting what alternatives need testing.
-- [ ] **M6 — Conditional hardware/pricing:** **only if USE/CONDITIONAL USE**. Compare powerful mini-PC and cheaper local-decoding thin endpoint; measure network/server/client CPU, RAM, codec support, 4K/HDR, HDMI-CEC, audio passthrough, boot/recovery and wattage on available hardware; distinguish measured versus vendor claims. Price at least two viable products **per class** from Canadian retailers, with SKU, dated CAD offers/stock, sources, shipping/tax/accessories, support, 5-year TCO and ranked no-buy/reuse/buy choices. Gate: defensible minimum/efficient/premium specification and a specific recommended purchase or explicit defer.
+- [ ] **M6 — Conditional hardware/pricing:** **only if USE/CONDITIONAL USE**. Compare powerful mini-PC and cheaper local-decoding thin endpoint; measure network/server/client CPU, RAM, codec support, 4K/HDR, control path (Bluetooth/IR/USB-HID and optional HDMI-CEC), audio passthrough, boot/recovery and wattage on available hardware; distinguish measured versus vendor claims. Price at least two viable products **per class** from Canadian retailers, with SKU, dated CAD offers/stock, sources, shipping/tax/accessories, support, 5-year TCO and ranked no-buy/reuse/buy choices. Gate: defensible minimum/efficient/premium specification and a specific recommended purchase or explicit defer.
 - [ ] **M7 — Decision, recovery and handover:** reproduce key tests, verify independent rollback, update Doctor/Beszel/NetBox/wiki/operational references as applicable, apply the Aster internal style guide, produce non-technical user guide and final recommendation. No production deployment or order under this experiment.
 
 ### M2 physical X390 runbook
@@ -189,10 +189,16 @@ Record pinned versions, tested guest ID, source commits, upstream image checksum
    mixed playback soak. Escalate to a synthetic stress tool only if these
    results leave a specific capacity question; do not install unrelated tools
    into the test image merely to generate load.
-10. Test CEC independently. If the adapter does not expose CEC, record that as
-   an adapter-path limitation and use keyboard/USB/Bluetooth input for the rest
-   of M2; do not broaden network control or enable Kodi's unrestricted HTTP
-   interface merely to obtain a remote.
+10. Treat HDMI-CEC as optional rather than gating. If the display adapter does
+   not expose it, record that as an adapter-path limitation and continue with a
+   local control path. Prove the paths in this order: USB keyboard/trackpad for
+   baseline; a standard Bluetooth HID remote or controller for pairing,
+   reconnect and range; then a USB IR receiver with a standard MCE/RC6 remote
+   or FLIRC-style keyboard-emulating receiver. Reuse of an Apple TV remote is
+   a separate experiment: older Apple IR remotes may be mappable, while newer
+   Siri remotes are Bluetooth devices whose pairing and button mapping must be
+   demonstrated rather than assumed. Do not broaden network control or enable
+   Kodi's unrestricted HTTP interface merely to obtain a remote.
 11. Shut down, remove the USB and verify that the X390 boots its original OS.
    Preserve the LibreELEC USB as the repeatable rollback/test artifact. A
    persistent LibreELEC install or internal-disk replacement is outside this
@@ -205,14 +211,15 @@ Checkboxes cannot be marked complete without documented validation.
 Predeclare household requirements and their severity (hard requirement vs
 desirable). The current M0 requirement set is:
 
-- **Hard:** reliable 4K playback; HDR10; HDMI-CEC; receiver-compatible Dolby
-  Atmos/DTS passthrough; Jellyfin video and music; Home Assistant status and
-  bounded control; Aster AI and canonical voice; stable everyday navigation;
-  privacy and recoverability.
-- **Desirable:** AirPlay through the endpoint, although the TV and receiver
-  already provide native AirPlay; reuse of the existing Apple TV remotes over
-  Bluetooth, subject to stability and pairing evidence; Dolby Vision; a
-  FaceTime-like experience.
+- **Hard:** reliable 4K playback; HDR10; a stable local control path using
+  Bluetooth, IR or USB-HID; receiver-compatible Dolby Atmos/DTS passthrough;
+  Jellyfin video and music; Home Assistant status and bounded control; Aster AI
+  and canonical voice; stable everyday navigation; privacy and recoverability.
+- **Desirable:** HDMI-CEC for TV/receiver power, input and remote integration;
+  AirPlay through the endpoint, although the TV and receiver already provide it
+  natively; reuse of the existing Apple TV remotes over Bluetooth or IR,
+  subject to stability and pairing evidence; Dolby Vision; a FaceTime-like
+  experience.
 - **Not required:** DRM streaming, Apple streaming/apps/services or FaceTime.
 
 Evaluate boot reliability, Kodi UI and customizability, Jellyfin parity, voice
@@ -261,6 +268,7 @@ Deliver: (1) software go/no-go decision, (2) hardware and live Canadian purchasi
 | 2026-10-13 | Reconciled the hardware inventory for an audiovisual endpoint. | No spare HDMI-capable Kodi test endpoint is documented. The Proxmox B60 remains Aster-owned, the TrueNAS Arc A380 remains Jellyfin-owned, and the Lenovo ThinkCentre remains the production NUT host; none may be repurposed under this project. Physical M2 playback remains untested pending an available endpoint or a later, separately accepted hardware decision. |
 | 2026-10-13 | Jason nominated the Lenovo ThinkPad X390 Yoga (8th-generation i7, 16 GB RAM) as the physical M2 test device. | The prior endpoint gap is resolved for a reversible USB-boot trial. Exact machine type/CPU/BIOS and adapter availability remain to be captured. No internal-drive install, firmware change, network-policy change or purchase is authorized by this record. |
 | 2026-10-13 | Jason clarified that M2 must provide SSH control/observation so the endpoint can be measured under real playback load, not judged only from the TV picture. | The X390 runbook now separates user-required physical actions (USB boot, local SSH enablement, TV/AVR observation) from assistant-run read-only telemetry and bounded playback soak tests. No remote access is enabled by this record; the user must enable SSH locally after boot and provide only the endpoint address. |
+| 2026-10-13 | Jason identified HDMI-CEC as unreliable on non-appliance USB-C/DisplayPort hardware and asked to use another control method. | CEC is downgraded from hard requirement to desirable integration. M2 must prove a stable local Bluetooth, IR or USB-HID path; Apple TV remote reuse remains an optional compatibility experiment and no hardware purchase is authorized yet. |
 
 ## 15. References
 
