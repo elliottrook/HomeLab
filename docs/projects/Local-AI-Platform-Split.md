@@ -615,6 +615,14 @@ without changing the guest or storage. This clears archive decompression
 integrity for the observed backup; the independent quiescence receipt remains
 unavailable while production services and the News timer are active.
 
+An attended quiescence drill was then completed at 17:37 PDT. The three Aster
+consumer services and the News digest timer were stopped and runtime-masked;
+two samples ten seconds apart confirmed all four remained inactive while the
+Proxmox control plane stayed healthy. The services and timer were unmasked and
+restored immediately afterward, with all three services active/running and the
+timer active/waiting. This is valid drill evidence, but it is not yet wired to
+the lease admission path as a durable authenticated receipt.
+
 The approved TrueNAS observer extension now permits exactly one additional
 command: a fixed-path `filesystem.listdir` for
 `/mnt/Recovery/guests/aster-lxc110`. Its root-owned wrapper returns metadata
