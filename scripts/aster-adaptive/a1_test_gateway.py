@@ -144,7 +144,8 @@ class A1TestGateway:
         if scope.get("type") == "websocket":
             await send({"type": "websocket.close", "code": 1008})
             return
-        if scope.get("type") != "http" or scope.get("path") != PATH or scope.get("method") != "POST":
+        if (scope.get("type") != "http" or scope.get("path") != PATH
+                or scope.get("method") != "POST" or scope.get("query_string", b"") != b""):
             await _reject(send, 404)
             return
         headers = scope.get("headers", [])
@@ -221,8 +222,10 @@ class A1TestGateway:
         # The ingress test credential belongs to this guard, not to Aster or
         # any downstream model/tool adapter.
         inner_scope = dict(scope)
-        inner_scope["headers"] = [(k, v) for k, v in headers
-                                  if k.lower() != b"authorization"]
+        # Forward only the content type established above. Caller-controlled
+        # cookies, identity/proxy headers and other extensions must not become
+        # authority or routing hints inside the isolated Aster instance.
+        inner_scope["headers"] = [(b"content-type", b"application/json")]
         if self.downstream_bearer is not None:
             inner_scope["headers"].append((b"authorization", b"Bearer " + self.downstream_bearer))
         await self.app(inner_scope, replay, send)

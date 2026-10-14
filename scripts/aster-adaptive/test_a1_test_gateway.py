@@ -109,6 +109,56 @@ class A1TestGatewayTests(unittest.TestCase):
             A1TestGateway(fake_app, token_sha256=hashlib.sha256(TOKEN).hexdigest(),
                           request_sha256s=request_hashes(self.body), downstream_bearer=TOKEN)
 
+    def test_caller_headers_are_not_forwarded_as_inner_identity(self):
+        seen = []
+
+        async def fake_app(scope, receive, send):
+            seen.extend(scope["headers"])
+            await receive()
+            await send({"type": "http.response.start", "status": 200, "headers": []})
+            await send({"type": "http.response.body", "body": b"{}", "more_body": False})
+
+        gateway = A1TestGateway(fake_app,
+                                token_sha256=hashlib.sha256(TOKEN).hexdigest(),
+                                request_sha256s=request_hashes(self.body),
+                                downstream_bearer=INNER)
+        events = []
+
+        async def receive():
+            return {"type": "http.request", "body": self.body, "more_body": False}
+
+        async def send(event):
+            events.append(event)
+
+        asyncio.run(gateway({"type": "http", "path": "/v1/chat/completions", "method": "POST",
+                             "headers": [(b"content-type", b"application/json"),
+                                         (b"authorization", b"Bearer " + TOKEN),
+                                         (b"cookie", b"session=fictional"),
+                                         (b"x-forwarded-user", b"admin"),
+                                         (b"x-aster-tools", b"all")]}, receive, send))
+        self.assertEqual(events[0]["status"], 200)
+        self.assertEqual(seen, [(b"content-type", b"application/json"),
+                                (b"authorization", b"Bearer " + INNER)])
+
+    def test_query_string_cannot_change_the_wrapped_route(self):
+        async def forbidden_app(scope, receive, send):
+            self.fail("wrapped app reached")
+
+        gateway = A1TestGateway(forbidden_app,
+                                token_sha256=hashlib.sha256(TOKEN).hexdigest(),
+                                request_sha256s=request_hashes(self.body))
+        events = []
+
+        async def send(event):
+            events.append(event)
+
+        asyncio.run(gateway({"type": "http", "path": "/v1/chat/completions", "method": "POST",
+                             "query_string": b"tool_choice=auto",
+                             "headers": [(b"content-type", b"application/json"),
+                                         (b"authorization", b"Bearer " + TOKEN)]},
+                            None, send))
+        self.assertEqual(events[0]["status"], 404)
+
     def test_durable_attempt_claim_survives_gateway_reconstruction(self):
         calls = []
 

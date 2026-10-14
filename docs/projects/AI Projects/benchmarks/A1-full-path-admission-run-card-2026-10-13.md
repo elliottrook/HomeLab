@@ -210,6 +210,11 @@ configure that journal on durable protected storage and verify its ownership,
 restart behavior, single-worker boundary and rollback before READY. In-memory
 mode alone is insufficient. The gateway is not deployed; no current Aster
 request has passed through it.
+The offline guard also rejects nonempty query strings and forwards only its
+validated content type and distinct inner bearer to the wrapped app. This
+prevents caller-supplied cookie, identity/proxy or tool headers from crossing
+the test boundary. Synthetic tests cover those cases; the check does not
+replace the isolated instance's OS, credential and egress controls.
 The offline preflight now explicitly rejects an observed gateway without a
 durable attempt journal, distinct inner authentication, the pinned 20-request
 set and a common Aster gateway topology for control and challenger. These
