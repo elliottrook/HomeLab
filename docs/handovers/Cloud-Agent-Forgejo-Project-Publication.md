@@ -3,8 +3,9 @@
 **Owner:** Jason  
 **Date:** 2026-10-13  
 **Status:** Stream A continuation; local implementation and recovery gates are
-passing; the dedicated writer and project gateway are enabled; the first
-Forgejo publication remains pending immediate confirmation.
+passing; the dedicated writer and project gateway are enabled; two synthetic
+Forgejo publications are complete; the held local implementation branch
+remains pending its final immediate-confirmation push.
 
 ## Authority and scope
 
@@ -40,6 +41,9 @@ that published base are:
 - `3e9ef519` — handover and continuation status
 - `d9f1e457` — human root-ceremony runbook and transport helpers
 - `7eff212` — bounded writer provisioning, deployment and live evidence
+- `61d9bb5a` — first project writer canary evidence
+- `5c551760` — second project writer canary evidence
+- `72185faa` — reviewed project-document runner CLI and closeout evidence
 
 The human root-ceremony, provisioning, deployment and validation helpers are
 recorded in the commits above. They remain separate from the cloud-agent
