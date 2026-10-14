@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+export PYTHONPATH=/usr/local/libexec/local-ai-lease
+exec /usr/bin/python3 /usr/local/libexec/local-ai-lease/receipt_exporter.py "$@"
