@@ -25,7 +25,7 @@
         <focusedcolor>asterSage</focusedcolor>
         <align>left</align>
         <aligny>center</aligny>
-        <texturefocus>none</texturefocus>
+        <texturefocus>special://skin/media/rail-focus.png</texturefocus>
         <texturenofocus>none</texturenofocus>
     </include>
 
