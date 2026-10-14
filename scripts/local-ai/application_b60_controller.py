@@ -45,7 +45,6 @@ class ApplicationPreLease:
     backup_receipt: str
     backend_identity: str
     llama_service_active: bool
-    exclusive_backend_claim: bool
     consumers_healthy: bool
     news_quiesced: bool
     now_minute: int
@@ -121,7 +120,8 @@ class ApplicationB60Controller:
         self._require_effect_authority()
         if (prelease.mode != APPLICATION_MODE or not prelease.backup_receipt
                 or prelease.backup_receipt.startswith("full-stop:")
-                or not prelease.llama_service_active or not prelease.exclusive_backend_claim
+                or prelease.backend_identity != "llama.cpp b11429 SYCL/Level Zero"
+                or not prelease.llama_service_active
                 or not prelease.consumers_healthy or not prelease.news_quiesced
                 or not prelease.now_minute < prelease.start_deadline_minute <= prelease.restore_deadline_minute):
             raise ValueError("application pre-lease checkpoint is incomplete")
@@ -161,6 +161,24 @@ class ApplicationB60Controller:
                 except Exception:
                     _journal(self.paths.journal, {"event": "restore-uncertain", "lease_id": prelease.lease_id, "generation": prelease.generation, "vmid": vmid, "unit": unit})
             raise
+
+    def mark_effect(self, effect: str, state: str, *, expected_lease_id: str, expected_generation: int) -> None:
+        self._require_effect_authority()
+        if effect not in {"key", "ingress"} or state not in {"intent", "observed"}:
+            raise ValueError("unknown application effect transition")
+        value = json.loads(self.paths.state.read_text(encoding="utf-8"))
+        if (value.get("mode"), value.get("lease_id"), value.get("generation"), value.get("armed")) != (APPLICATION_MODE, expected_lease_id, expected_generation, True):
+            raise ValueError("application lease is not armed")
+        effects = dict(value.get("effects", {}))
+        current = effects.get(effect, "not-started")
+        if state == "intent" and current != "not-started":
+            raise ValueError("application effect already started or reconciled")
+        if state == "observed" and current != "intent":
+            raise ValueError("application effect observation has no matching intent")
+        effects[effect] = state
+        value["effects"] = effects
+        atomic_write(self.paths.state, json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n")
+        _journal(self.paths.journal, {"event": f"{effect}-{state}", "lease_id": expected_lease_id, "generation": expected_generation})
 
     def admit_sidecar(self, receipt: ApplicationLeaseReceipt, *, expected_lease_id: str, expected_generation: int) -> dict[str, object]:
         self._require_effect_authority()

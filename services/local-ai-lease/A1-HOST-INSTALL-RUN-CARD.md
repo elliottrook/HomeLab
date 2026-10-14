@@ -50,8 +50,9 @@ the following read-only facts. This is not a lease receipt: no leased state is
 claimed yet, and Stream A must not manufacture a preview receipt from it.
 
 1. LXC110 `aster-llama.service` is active, its exact binary/model/device
-   hashes match the accepted b11429 manifest, and no other inference consumer
-   owns the backend lease.
+   hashes match the accepted b11429 manifest. This is planned backend identity
+   only; it does not claim exclusivity before the temporary ingress policy is
+   applied and observed later.
 2. LXC104 and LXC116 production consumers are healthy before the checkpoint;
    the application controller's allowlist is exactly `(104, aster-agent.service)`
    and `(116, aster-speech.service)`.

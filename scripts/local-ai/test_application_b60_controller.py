@@ -16,7 +16,7 @@ class ApplicationB60ControllerTests(unittest.TestCase):
         )
 
     def prelease(self):
-        return ApplicationPreLease(APPLICATION_MODE, "app-1", 2, "app-backup-1", "llama.cpp b11429 SYCL/Level Zero", True, True, True, True, 100, 150, 200)
+        return ApplicationPreLease(APPLICATION_MODE, "app-1", 2, "app-backup-1", "llama.cpp b11429 SYCL/Level Zero", True, True, True, 100, 150, 200)
 
     def test_acquire_and_sidecar_admission_only_touch_allowed_consumers(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -74,6 +74,15 @@ class ApplicationB60ControllerTests(unittest.TestCase):
             self.assertTrue(value["armed"])
             self.assertEqual(value["start_deadline_minute"], 150)
             self.assertEqual(value["restore_deadline_minute"], 200)
+
+    def test_effect_intent_and_observed_transitions_are_armed_and_ordered(self):
+        with tempfile.TemporaryDirectory() as temp:
+            controller = ApplicationB60Controller(ApplicationPaths(Path(temp)), lambda _: None, allow_effects=True)
+            controller.acquire(self.prelease())
+            controller.mark_effect("key", "intent", expected_lease_id="app-1", expected_generation=2)
+            controller.mark_effect("key", "observed", expected_lease_id="app-1", expected_generation=2)
+            with self.assertRaises(ValueError):
+                controller.mark_effect("key", "intent", expected_lease_id="app-1", expected_generation=2)
 
 
 if __name__ == "__main__":

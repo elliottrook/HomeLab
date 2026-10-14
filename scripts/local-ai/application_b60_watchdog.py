@@ -74,9 +74,18 @@ class ApplicationB60Watchdog:
             self._journal_status(lease_id, generation, "recovery-overdue")
 
         self._step(lease_id, generation, "stop-sidecar", lambda: self.observer.sidecar_stopped())
-        self._step(lease_id, generation, "restore-ingress", lambda: self.observer.ingress_restored())
-        self._step(lease_id, generation, "remove-test-key", lambda: self.observer.test_key_removed())
-        self._step(lease_id, generation, "reload-backend", lambda: self.observer.backend_reloaded())
+        effects = record.get("effects", {})
+        for effect in ("ingress", "key"):
+            status = effects.get(effect, "not-started")
+            if status == "intent":
+                raise ValueError(f"uncertain application effect: {effect}")
+            if status not in {"not-started", "observed"}:
+                raise ValueError(f"invalid application effect state: {effect}")
+        if effects.get("ingress", "not-started") == "observed":
+            self._step(lease_id, generation, "restore-ingress", lambda: self.observer.ingress_restored())
+        if effects.get("key", "not-started") == "observed":
+            self._step(lease_id, generation, "remove-test-key", lambda: self.observer.test_key_removed())
+            self._step(lease_id, generation, "reload-backend", lambda: self.observer.backend_reloaded())
         if not self.observer.production_auth_ok() or not self.observer.wrong_key_denied():
             raise ValueError("production backend authentication postcheck failed; consumers remain stopped")
         self._step(lease_id, generation, "start-aster", lambda: self.observer.aster_healthy())

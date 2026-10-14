@@ -24,6 +24,7 @@ class ApplicationB60WatchdogTests(unittest.TestCase):
         (root / "application-b60.json").write_text(json.dumps({
             "mode": "application-b60-exclusive-v1", "lease_id": "lease-1", "generation": 3,
             "armed": True, "start_deadline_minute": 150, "restore_deadline_minute": 200,
+            "effects": {"ingress": "observed", "key": "observed"},
         }))
 
     def test_recovery_order_restores_auth_before_consumers(self):
@@ -86,6 +87,27 @@ class ApplicationB60WatchdogTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "uncertain"):
                 ApplicationB60Watchdog(root, commands.append, Observer(), allow_effects=True).recover(lease_id="lease-1", generation=3, now_minute=100)
             self.assertEqual(commands, [])
+
+    def test_pre_effect_crash_skips_unstarted_key_and_ingress_restore(self):
+        with tempfile.TemporaryDirectory() as temp:
+            self.setup_state(temp)
+            value = json.loads((Path(temp) / "application-b60.json").read_text())
+            value["effects"] = {"ingress": "not-started", "key": "not-started"}
+            (Path(temp) / "application-b60.json").write_text(json.dumps(value))
+            commands = []
+            result = ApplicationB60Watchdog(Path(temp), commands.append, Observer(), allow_effects=True).recover(lease_id="lease-1", generation=3, now_minute=100)
+            self.assertFalse(result["overdue"])
+            self.assertEqual(commands, [fixed_command("stop-sidecar"), fixed_command("start-aster"), fixed_command("start-speech")])
+
+    def test_started_but_unobserved_effect_is_retained(self):
+        with tempfile.TemporaryDirectory() as temp:
+            self.setup_state(temp)
+            value = json.loads((Path(temp) / "application-b60.json").read_text())
+            value["effects"] = {"ingress": "intent", "key": "not-started"}
+            (Path(temp) / "application-b60.json").write_text(json.dumps(value))
+            commands = []
+            with self.assertRaisesRegex(ValueError, "uncertain application effect"):
+                ApplicationB60Watchdog(Path(temp), commands.append, Observer(), allow_effects=True).recover(lease_id="lease-1", generation=3, now_minute=100)
 
     def test_each_effect_failure_leaves_recovery_intent_for_reconciliation(self):
         cases = (

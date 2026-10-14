@@ -47,7 +47,7 @@ change was performed.
 ## Remaining gates before live approval
 
 1. Merge or otherwise make the pinned Stream A A1 source bundle available in
-   this branch; the manifest currently references commit `72566b5f` in the
+   this branch; the manifest currently references commit `e4becf9c` in the
    handoff worktree.
 2. Implement and review the fixed LXC110 ingress-policy apply/restore helper;
    the current artifact set deliberately contains only the restore contract,

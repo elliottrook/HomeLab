@@ -5,7 +5,7 @@ by this checkout.
 
 ## Exact source/dependency copy set
 
-The Stream A source is pinned to worktree commit `72566b5f` until it is merged
+The Stream A source is pinned to worktree commit `e4becf9c` until it is merged
 into this branch. The platform owner must copy exactly these files and verify
 the hashes before enabling the disabled unit:
 
@@ -14,7 +14,7 @@ the hashes before enabling the disabled unit:
 | `a1_isolated_app.py` | `scripts/aster-adaptive/a1_isolated_app.py` | `cf8d88506d19acdcfd53caa88804dd6f780e94412b7c0a2e3f779a59241b2a5d` |
 | `a1_test_gateway.py` | `scripts/aster-adaptive/a1_test_gateway.py` | `5350e9f293caa19cf2f993016a56dfdee5e2ccfc2f049eecaa55044bd1786e07` |
 | `aster_asgi_clock.py` | `scripts/aster-adaptive/aster_asgi_clock.py` | `e7f8240fc38a62772ac2d7e4e9461ee8f3be21580885d9dfc0cab40fe1919305` |
-| `a1_headless_client.py` | `scripts/aster-adaptive/a1_headless_client.py` | `92878a4642c5cf3895c3a4e76ddefe55d3a84526b163f431eb38192de470534a` |
+| `a1_headless_client.py` | `scripts/aster-adaptive/a1_headless_client.py` | `beabc81ad44d205bc908c248f2fea50fb12faaac01f654a160712a550aa3fbc2` |
 | `a1_service_runner.py` | `services/local-ai-lease/a1_service_runner.py` | `feae2ec1f423ec4cbcde33112a64ed6db0963a6c3868726bcdff732b07b520c1` |
 | `a1_key_file.py` | `scripts/local-ai/a1_key_file.py` | `018340fe0bf8a7ec7526d2d0709d21cc8f11fcef6c252cdbfeb6798cc6a055cd` |
 | `aster-agent/` | exact reviewed Aster source/dependency bundle | host preflight required |
@@ -116,6 +116,12 @@ behavior is exercised only by a disposable misconfigured factory/app fixture
 or inner FastAPI auth check; it is never produced by mutating the admitted
 final process. The live admitted-path proof is header stripping and replacement
 with the configured inner test key.
+
+Before each key or ingress effect, persist an effect-intent transition in the
+armed lease state; after the host observer confirms the effect, persist the
+matching observed transition. A crash with no intent skips that effect during
+recovery. A crash after intent but before observation is uncertain and must
+retain the lease rather than replay blindly.
 
 ## Application watchdog requirement
 
