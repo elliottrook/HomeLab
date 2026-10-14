@@ -19,13 +19,15 @@ Status: offline candidate. This run card does not authorize a live run.
 
 1. Capture the backup artifact inventory and run the bounded archive integrity
    checks through the fixed source adapter.
-2. Stop and runtime-mask only the four lab-conflicting units.
+2. Stop and runtime-mask only the three Aster service units. Do not mask,
+   disable, stop or modify the News timer under this run card.
 3. Take two fixed Proxmox-owner quiescence samples at least ten seconds apart.
-   Require inactive consumers, inactive News timer, unchanged start markers and
-   healthy control plane.
-4. Write the receipt only through the root-owned boundary envelope, bound to
-   the current lease ID and generation. A hand-built evidence object is not
-   accepted by the admission gate.
+   Require inactive consumers, an already-inactive News timer, unchanged start
+   markers and a healthy control plane. If News is active, stop and retain the
+   lease as blocked; do not change its schedule.
+4. Write only a candidate receipt through the root-owned envelope, bound to
+   the current lease ID and generation. The envelope is not a trusted
+   admission boundary and hand-built evidence is not sufficient for admission.
 5. Review the receipt and lease state manually. Do not enable the watchdog or
    start a benchmark as part of Stage 1.
 
@@ -33,9 +35,9 @@ Status: offline candidate. This run card does not authorize a live run.
 
 - If any check fails, retain the lease as degraded/unknown and do not admit lab
   work.
-- Remove the temporary receipt, remove runtime masks, and restore the four
-  recorded units to their prior states.
-- Verify Aster Agent, llama.cpp, Aster Speech, News timer and the control plane
-  are healthy before ending the window.
+- Remove the temporary receipt, remove runtime masks, and restore the three
+  recorded Aster units to their prior states. Do not alter the News timer.
+- Verify Aster Agent, llama.cpp, Aster Speech, the unchanged News timer and the
+  control plane are healthy before ending the window.
 - Record the failure category and preserve the raw receipt inputs; do not relax
   host-key, source, timeout or custody checks.

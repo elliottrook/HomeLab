@@ -74,7 +74,7 @@ class FixedSourceAdapters:
         receipt_material = json.dumps([(a.vmid, a.volid, a.size, a.ctime) for a in artifacts], separators=(",", ":"), sort_keys=True).encode()
         digest = hashlib.sha256(receipt_material).hexdigest()
         now = self.clock()
-        return BackupSourceReceipt(EXPECTED_BACKUP_SOURCE, EXPECTED_BACKUP_SOURCE, now.hour * 60 + now.minute, f"metadata-sha256:{digest}", False, True)
+        return BackupSourceReceipt(EXPECTED_BACKUP_SOURCE, EXPECTED_BACKUP_SOURCE, now.hour * 60 + now.minute, f"metadata-sha256:{digest}", verify_archives, True)
 
     def _snapshot(self) -> ConsumerSnapshot:
         states, enters, masks = [], [], []
