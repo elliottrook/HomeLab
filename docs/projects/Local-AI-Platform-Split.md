@@ -609,6 +609,12 @@ presence and timing, while not by itself proving content integrity or consumer
 quiescence; those remain separate adapter inputs and the benchmark gate stays
 closed.
 
+The current Proxmox LXC110 archive also passed a complete read-only
+`zstd -t` integrity check. The scan covered the approximately 43 GB artifact
+without changing the guest or storage. This clears archive decompression
+integrity for the observed backup; the independent quiescence receipt remains
+unavailable while production services and the News timer are active.
+
 The approved TrueNAS observer extension now permits exactly one additional
 command: a fixed-path `filesystem.listdir` for
 `/mnt/Recovery/guests/aster-lxc110`. Its root-owned wrapper returns metadata
