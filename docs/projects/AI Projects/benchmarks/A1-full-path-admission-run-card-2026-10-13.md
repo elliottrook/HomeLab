@@ -260,3 +260,13 @@ re-ran the 55 tests against the corrected source. Proxmox still has no installed
 watchdog unit/timer or active lease. The next evidence is a bounded integrity
 check, a live two-sample consumer-quiescence receipt and an attended recovery
 drill; none has been accepted as full-path admission here.
+
+**Backup-chain ordering check, 2026-10-13:** The pinned observer also exposes
+per-task job start/finish times. A sanitized read found task 2's most recent
+success at about 03:00 Vancouver, while tasks 1 and 3 last succeeded around
+11:06 and 11:19 on the same date. Thus matching the local date and a `SUCCESS`
+state is insufficient to prove the ordered 01:00/02:00/03:00 overnight chain.
+The platform owner was asked to bind each task's start and finish to the
+selected Proxmox archive creation, previous task, lease issue and allowed
+window. This observation admits no lab run and does not diagnose why those
+tasks ran later.
