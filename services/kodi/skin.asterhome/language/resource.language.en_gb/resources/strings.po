@@ -1,0 +1,47 @@
+msgctxt "#30000"
+msgid "Aster Home"
+msgstr "Aster Home"
+
+msgctxt "#30001"
+msgid "Good evening, Jason"
+msgstr "Good evening, Jason"
+
+msgctxt "#30002"
+msgid "Continue Watching"
+msgstr "Continue Watching"
+
+msgctxt "#30003"
+msgid "Recommended for You"
+msgstr "Recommended for You"
+
+msgctxt "#30004"
+msgid "Play"
+msgstr "Play"
+
+msgctxt "#30005"
+msgid "More Info"
+msgstr "More Info"
+
+msgctxt "#30006"
+msgid "Watch"
+msgstr "Watch"
+
+msgctxt "#30007"
+msgid "Library"
+msgstr "Library"
+
+msgctxt "#30008"
+msgid "Home Hub"
+msgstr "Home Hub"
+
+msgctxt "#30009"
+msgid "Search"
+msgstr "Search"
+
+msgctxt "#30010"
+msgid "Settings"
+msgstr "Settings"
+
+msgctxt "#30011"
+msgid "See All"
+msgstr "See All"

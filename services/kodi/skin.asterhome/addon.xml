@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="skin.asterhome" name="Aster Home" version="0.1.0" provider-name="HomeLab">
+    <requires>
+        <import addon="xbmc.gui" version="5.17.0" />
+    </requires>
+    <extension point="xbmc.gui.skin" debugging="true">
+        <res width="1920" height="1080" aspect="16:9" default="true" folder="1080i" />
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">Aster Home media hub prototype</summary>
+        <description lang="en_GB">Private Aster Home visual shell for the LibreELEC/Kodi feasibility project.</description>
+        <platform>all</platform>
+        <license>Creative Commons Attribution-ShareAlike 4.0 International</license>
+    </extension>
+</addon>

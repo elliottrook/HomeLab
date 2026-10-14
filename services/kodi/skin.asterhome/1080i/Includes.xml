@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<includes>
+    <include name="AsterPageBackground">
+        <texture>none</texture>
+        <animation effect="fade" start="0" end="100" time="180">WindowOpen</animation>
+    </include>
+
+    <include name="AsterTitle">
+        <font>font40</font>
+        <textcolor>asterInk</textcolor>
+        <shadowcolor>33000000</shadowcolor>
+        <shadowoffset>2</shadowoffset>
+    </include>
+
+    <include name="AsterBody">
+        <font>font24</font>
+        <textcolor>asterInk</textcolor>
+    </include>
+
+    <include name="AsterRailButton">
+        <width>250</width>
+        <height>62</height>
+        <font>font24</font>
+        <textcolor>asterRailText</textcolor>
+        <focusedcolor>asterSage</focusedcolor>
+        <align>left</align>
+        <aligny>center</aligny>
+        <texturefocus>none</texturefocus>
+        <texturenofocus>none</texturenofocus>
+    </include>
+
+    <include name="AsterActionButton">
+        <height>70</height>
+        <font>font28</font>
+        <align>center</align>
+        <aligny>center</aligny>
+        <textcolor>asterInk</textcolor>
+        <focusedcolor>asterGreen</focusedcolor>
+        <texturefocus>none</texturefocus>
+        <texturenofocus>none</texturenofocus>
+    </include>
+</includes>
