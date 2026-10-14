@@ -297,3 +297,14 @@ checks LXC 110 mirror metadata but not the Mac or full guest-pull contents.
 The platform owner was asked to keep that distinction in admission. The live
 Proxmox watchdog units were still `not-found`/inactive and the installed
 controller reported `ready`; no lease or full-path run was admitted.
+
+**Mac receipt implementation review, 2026-10-14:** The platform branch's
+`d54dd4cf` adds an offline validator for a content-free Mac tree summary,
+with tests, and `c72d10fc` pins its staging manifest. This is useful contract
+work, but no fixed-path TrueNAS producer or adapter call currently obtains
+that summary. The validator also does not itself bind capture time to task 2's
+completion or independently authenticate the producing identity. The platform
+owner is preparing the exact restricted observer command and integration before
+requesting a new read-only access grant. Until then, task status and the
+standalone parser are insufficient for A1 admission. The watchdog and live
+recovery gates remain separate blockers.
