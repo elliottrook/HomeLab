@@ -2,6 +2,13 @@
 
 **Status:** Shared baseline for Aster-associated internal network apps only
 
+**Version 2 design transition:** The owner approved the material-preserving
+compass proof on 2026-10-14 and requested completion of the family. See the
+[Aster Home v2 asset guide](Aster-Home-v2-Asset-Guide.md) for the new direction,
+asset-library authority and adoption gate. The navy/cyan values below continue
+to describe existing deployments; they are not the v2 palette. No live cutover
+is implied by this documentation update.
+
 ## Scope and brand boundary
 
 This guide governs Aster-associated internal HomeLab/network applications,

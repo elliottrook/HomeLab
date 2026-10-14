@@ -31,6 +31,9 @@ Evidence belongs with the individual brand engagement in the Brand Asset Library
 - Geometry and render comparisons against the approved source.
 - Light/dark, monochrome and micro-size review.
 - Deterministic export recipe and packaged-output checks.
+- Exact hash and owner approval of one representative actual SVG render before family expansion.
+- Material-fidelity detail comparisons, component/colour-contour parameters and explicit complexity trade-offs for dimensional identities.
+- Repeated-symbol equivalence checks and derivative-specific review; pilot approval is not blanket deployment approval.
 
 ## Deployment evidence
 

@@ -18,4 +18,5 @@ Each invocation creates or resumes an isolated project inside the resolved brand
 - `CLIENT-VISION-DISCOVERY.md` — indirect emotional discovery, evidence-to-design interpretation, client confirmation and later practical intake; instantiate `docs/templates/brand-design/DISCOVERY_BRIEF.template.md` per brand engagement.
 - `MIGRATION-AND-COMPATIBILITY.md` — crosswalk from Brand SVG Studio and the compatibility policy.
 - `EVIDENCE-REQUIREMENTS.md` — minimum evidence needed to make approval, validation and deployment claims.
+- `MATERIAL-PRESERVING-VECTORS.md` — approved colour-source, component-by-component reconstruction; single-asset approval before family expansion; honest resolution and complexity reporting.
 - `FORGEJO-DEPLOYMENT-GUIDANCE.md` — design guidance for securely synchronizing changes through private Forgejo.
