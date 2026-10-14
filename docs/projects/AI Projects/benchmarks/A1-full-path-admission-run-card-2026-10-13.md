@@ -321,3 +321,12 @@ Stream A asked the platform owner to either establish a source/destination
 manifest for the intended subset or narrow the receipt's claim to tree
 presence/integrity. This remains offline candidate code; no observer grant,
 lease or A1 model run followed.
+
+**Correction in the platform candidate:** `41ec8030`/`72b96456` removed the
+full-file read, bounded the metadata scan to 20 seconds and 100,000 entries,
+labels its result `tree-present-only`, and removed it from the backup-admission
+digest. The owner reports 69 passing tests and two custody skips. This closes
+the earlier overclaim in source, but no current-cycle Mac source/destination
+comparison exists. The Mac observer remains uninstalled; its future output
+would be diagnostic only, while A1 backup admission and live recovery remain
+blocked on their separate gates.
