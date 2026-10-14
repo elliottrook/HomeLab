@@ -212,6 +212,15 @@ configure the journal on durable protected storage and verify its ownership,
 restart behavior, single-worker boundary and rollback before READY. In-memory
 mode alone is insufficient. The gateway is not deployed; no current Aster
 request has passed through it.
+The offline headless client adapter uses the same frozen serializer, permits
+only a literal loopback/RFC1918 test endpoint, makes one POST without redirect
+or retry, bounds the response, and requires a terminal answer plus opaque
+observation ID. It returns raw fictional answer text only to the owner-held
+capture caller and a separate content-free client clock. It does not obtain a
+lease, open a socket when imported, persist evidence, or make the card READY.
+Four synthetic transport tests cover this boundary; the combined focused
+gateway/admission/request/client suite passes 36 tests. The source-bound live
+preflight and protected journal must still surround its use.
 The offline guard also rejects nonempty query strings and forwards only its
 validated content type and distinct inner bearer to the wrapped app. This
 prevents caller-supplied cookie, identity/proxy or tool headers from crossing
@@ -222,6 +231,15 @@ durable attempt journal, distinct inner authentication, the pinned 20-request
 set and a common Aster gateway topology for control and challenger. These
 reported observations still require independent live-source proof; a passing
 dictionary check is not authority to start the run.
+
+**2026-10-14 Vancouver live recheck:** The installed Proxmox controller still
+reports `ready` and has SHA-256
+`f9744b4efd1340eca513e677af6b9eceda25e992db33e977b2f7f75adc101e23`;
+the checked watchdog units were absent/inactive. The platform owner is doing a
+separate read-only snapshot and has been asked to complete the platform-owned
+installation and recovery drill. No lease or model call was started. The A1
+card remains **BLOCKED** until those live receipts and an isolated Aster test
+endpoint exist; yesterday's scheduled window did not satisfy admission.
 
 **Independent recovery review, 2026-10-13:** The platform owner corrected
 healthy watchdog ticks so unmeasured service, GPU, schedule, model, unit and
