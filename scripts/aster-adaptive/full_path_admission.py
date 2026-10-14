@@ -116,12 +116,18 @@ def admit(card: dict, observed: dict, *, now: datetime) -> dict:
         raise AdmissionDenied("lease_unverified")
     if (not isinstance(watchdog, dict) or set(watchdog) != {
             "source", "lease_id", "generation", "armed", "deadline_at",
-            "independent_of_mini", "scope"}
+            "independent_of_mini", "scope", "stops_sidecar",
+            "restores_backend_ingress", "removes_test_backend_key",
+            "revalidates_production_auth", "restores_consumers"}
             or watchdog["source"] != "proxmox-systemd"
             or watchdog["lease_id"] != card["lease_id"]
             or watchdog["generation"] != lease["generation"]
             or watchdog["armed"] is not True
             or watchdog["scope"] != "aster-app-benchmark"
+            or any(watchdog[key] is not True for key in (
+                "stops_sidecar", "restores_backend_ingress",
+                "removes_test_backend_key", "revalidates_production_auth",
+                "restores_consumers"))
             or watchdog["independent_of_mini"] is not True):
         raise AdmissionDenied("watchdog_unverified")
     if (not isinstance(consumers, dict) or set(consumers) != {

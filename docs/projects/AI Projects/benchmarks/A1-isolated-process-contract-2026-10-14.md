@@ -88,6 +88,13 @@ not authentication of the host source.
 It also rejects the full-stop recovery lease: the application-benchmark scope,
 active and exclusively claimed backend, and production Aster/Speech quiescence
 must all be independently attested.
+Because the application lease temporarily changes the LXC 110 ingress policy
+and adds a test API key, its independent watchdog must attest the ability to
+stop the sidecar, restore the prior ingress policy, remove the test key and
+reload/revalidate production authentication, then restore production
+consumers. Merely restarting Aster/Speech leaves the backend security boundary
+changed. The offline v2 checker requires these distinct watchdog observations;
+live effects and restoration still need an expiry-driven drill.
 
 For the first full-path run, use the accepted 9B/SYCL control only, 20 frozen
 fictional requests, one attempt per request, maximum 10-minute batch and

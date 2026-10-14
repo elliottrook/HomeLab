@@ -47,7 +47,11 @@ def observed():
         "watchdog": {"source": "proxmox-systemd", "lease_id": "test-lease-20261014",
                      "generation": 1, "scope": "aster-app-benchmark",
                      "armed": True, "deadline_at": "2026-10-14T04:05:00-07:00",
-                     "independent_of_mini": True},
+                     "independent_of_mini": True,
+                     "stops_sidecar": True, "restores_backend_ingress": True,
+                     "removes_test_backend_key": True,
+                     "revalidates_production_auth": True,
+                     "restores_consumers": True},
         "consumers": {"source": "platform-host-controller", "news_quiesced": True,
                       "other_ai_quiesced": True, "no_new_starts": True},
         "sidecar": {"source": "platform-host-controller",
@@ -98,6 +102,12 @@ class FullPathAdmissionTests(unittest.TestCase):
         self.deny("watchdog_unverified", lambda x: x["watchdog"].update(generation=2))
         self.deny("watchdog_unverified", lambda x: x["watchdog"].update(
             scope="whole-host-recovery"))
+        for field in ("stops_sidecar", "restores_backend_ingress",
+                      "removes_test_backend_key", "revalidates_production_auth",
+                      "restores_consumers"):
+            with self.subTest(field=field):
+                self.deny("watchdog_unverified", lambda x, key=field:
+                          x["watchdog"].update({key: False}))
 
     def test_backend_must_remain_active_and_exclusive_in_app_lease(self):
         self.deny("lease_unverified", lambda x: x["lease"].update(
