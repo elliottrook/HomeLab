@@ -609,6 +609,15 @@ presence and timing, while not by itself proving content integrity or consumer
 quiescence; those remain separate adapter inputs and the benchmark gate stays
 closed.
 
+The approved TrueNAS observer extension now permits exactly one additional
+command: a fixed-path `filesystem.listdir` for
+`/mnt/Recovery/guests/aster-lxc110`. Its root-owned wrapper returns metadata
+only; arbitrary paths are rejected. The live listing matched the Proxmox
+LXC110 artifact name and byte size. Local candidate parsing for the three
+Proxmox artifacts and this mirror metadata is covered by
+`backup_receipt_adapter.py`; archive decompression testing remains a bounded
+nightly validation because the current artifact is approximately 43 GB.
+
 The accepted dereferenced GGUF was measured read-only at
 `cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`; its
 5.6 GB hash took approximately 18 seconds including transport. The trusted

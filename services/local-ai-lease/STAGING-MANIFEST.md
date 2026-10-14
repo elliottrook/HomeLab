@@ -37,7 +37,8 @@ live effect.
   integrity receipt, same-night timing, exact consumer set, News quiescence and
   explicit no-new-start observation. They are tested contracts only; the live
   TrueNAS observer credential is transport-only and does not constitute a
-  source adapter.
+  source adapter. The observer now has a second exact target for fixed-path
+  LXC110 mirror metadata; arbitrary paths remain rejected.
 
 ## Exact local candidate hashes
 
@@ -82,9 +83,10 @@ editing the table would necessarily change its own digest.
   probes. The dedicated account is forced-command bound; its only passwordless
   sudo target is the root-owned wrapper
   `/mnt/Media/.local-ai-lease/aster-schedule-observer-root`. The allowed query
-  succeeded and an alternate `midclt` command was rejected. Schedule
-  transport is therefore healthy, while source-adapter admission remains
-  blocked until the other authenticated receipts are bound.
+  succeeded, the fixed LXC110 mirror listing matched the Proxmox artifact
+  name and byte size, and alternate commands/paths were rejected. Schedule and
+  mirror metadata transport are therefore healthy, while archive-content and
+  quiescence receipts remain separate gates.
 
 ## Recovery deadline and rollback
 
