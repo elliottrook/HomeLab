@@ -30,6 +30,11 @@ full-path comparison; retain the direct-backend result as a separate control.
    temporary knowledge/state area. A missing required setting must fail
    closed; never fall back to a production default. The credential values stay
    in protected custody, outside Git, logs, model input and run metadata.
+   Pin `ASTER_MAX_RESPONSE_TOKENS=256` in this test environment. The current
+   Aster `build_payload` clamps the request's 256-token cap to its default
+   `ASTER_MAX_RESPONSE_TOKENS=160`; without this explicit pin, a full-path
+   comparison would use a different output budget from the direct-backend
+   A1 baseline. Verify the actual backend payload before admitting case one.
 3. Put the `A1TestGateway` guard in front of that process. Only the 20 exact
    frozen serialized POST bodies may reach `/v1/chat/completions`; all other
    routes, methods, tools, repeated bodies and unrecognized credentials are
