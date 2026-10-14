@@ -45,8 +45,9 @@ production material or any production environment file.
 ## No-effect preflight
 
 Before installing, enabling, stopping or starting anything, the platform owner
-must capture a source-bound application receipt and verify all of the following
-read-only facts:
+must capture a source-bound **application backup checkpoint** and verify all of
+the following read-only facts. This is not a lease receipt: no leased state is
+claimed yet, and Stream A must not manufacture a preview receipt from it.
 
 1. LXC110 `aster-llama.service` is active, its exact binary/model/device
    hashes match the accepted b11429 manifest, and no other inference consumer
@@ -61,9 +62,9 @@ read-only facts:
    reading key values into the operator session. The proposed test-key line is
    absent, and the current production key authenticates an actual
    `/v1/chat/completions` request. `/v1/models` alone is not an auth test.
-5. The lease receipt is application mode, has a new lease ID/generation, binds
-   the backup receipt and watchdog deadline, and is not derived from the
-   full-stop recovery receipt.
+5. The host controller has generated a planned lease ID/generation in its
+   protected pre-lease plan, distinct from the full-stop recovery lease. The
+   plan is an input to acquisition, not evidence that a lease is active.
 6. At least 15 minutes remain before the 04:15 restoration deadline.
 
 Any failed check means zero service effects and zero model calls.
@@ -74,30 +75,40 @@ Only after the no-effect preflight passes, the platform owner may perform this
 single bounded change:
 
 1. Install the pinned `a1_isolated_app.py` factory and its exact dependency
-   bundle, the strict config file containing the 20 request digests, unit,
-   owner-only empty data directories, test-only credentials and host observer.
-   The factory must reject bad config before importing Aster. Keep the unit
-   disabled until all files and digests are checked.
-2. Append the generated test backend key to the root-owned LXC110 key file
+   bundle, the strict final config file containing the 20 frozen A1 request
+   digests, unit, owner-only empty data directories, test-only credentials and
+   host observer. The factory must reject bad config before importing Aster.
+   Keep the unit disabled until all files and digests are checked.
+2. Install a separate disposable probe gateway/config with its own 20
+   fictional probe-body hashes, disposable journal and probe credentials. The
+   probe gateway and its hashes must be distinct from the final A1 gateway;
+   no final A1 body may be consumed by a startup or denial probe.
+3. Append the generated test backend key to the root-owned LXC110 key file
    using an atomic checkpointed update, restart `aster-llama.service` once, and
    verify the old production key still works, the new test key works, and a
    wrong key receives 401 on the actual chat endpoint. A restart failure aborts
    before the lease is acquired.
-3. Acquire the application lease. The controller may stop/runtime-mask only
+4. Acquire the application lease from the protected pre-lease plan. The host
+   controller persists the leased state before stopping consumers, and only
+   then may the platform receipt producer emit the source-bound application
+   lease receipt. The controller may stop/runtime-mask only
    LXC104 Aster and LXC116 Speech. It must not change LXC110 beyond the
    checkpointed test-key line and the one controlled reload/restart above.
-4. Start `aster-a1-test.service` as UID 1904 with a disposable probe journal
+5. Validate the newly produced receipt, including lease ID/generation,
+   application backup binding, watchdog deadline, active backend and consumer
+   quiescence. If it is absent or invalid, make zero model calls.
+6. Start `aster-a1-test.service` as UID 1904 with the disposable probe journal
    and probe credential fixture. The host observer must attest the
    exact PID, UID, one worker, port 19104, source/dependency digests and lease
    identity before any request is sent. These probes are not the benchmark
    run and their frozen request bodies must not be reused.
-5. Run the denial probes below. A single unexpected allow, second worker,
+7. Run the denial probes below. A single unexpected allow, second worker,
    source mismatch or missing durable observation aborts the run before the
    20-request batch. Prove that the disposable probe journal contains no
    backend calls, stop the probe instance, securely remove its disposable
    journal/fixture, and create a fresh owner-only journal and fresh run
    credential handoff.
-6. Start the final run instance from the clean owner-only journal and run the
+8. Start the final run instance from the clean owner-only journal and run the
    frozen 20-request control batch through the sidecar. Record only
    content-free observation IDs, timing/status fields, request digests and
    host-attested lease fields.
@@ -117,7 +128,11 @@ final-run request and never write the final owner-only journal:
 - changed request body and repeated request body;
 - second worker/process or a second listener;
 - missing/unwritable durable journal or ASGI-clock directory;
-- wrong inner key;
+- wrong-inner-key behavior is tested only with a disposable misconfigured
+  factory/app fixture or an inner FastAPI auth check; the admitted final
+  process has no separate inner listener. Its live proof is that the gateway
+  strips caller identity and replaces it with the configured inner test key,
+  while the disposable wrong-inner fixture makes no backend call;
 - wrong backend key and missing backend key (actual chat endpoint must return
   401; `/v1/models` is not sufficient);
 - read/open attempt for production environment, OpenBao, broker/approval

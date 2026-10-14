@@ -1,0 +1,37 @@
+[Unit]
+Description=Aster A1 isolated synthetic test gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aster-a1-test
+Group=aster-a1-test
+UMask=0077
+WorkingDirectory=/opt/aster-a1-test
+LoadCredential=runtime.env:/etc/aster-a1-test/runtime.env
+EnvironmentFile=/run/credentials/%N/runtime.env
+Environment=PYTHONPATH=/opt/aster-a1-test:/opt/aster-a1-test/aster-agent
+ExecStart=/opt/aster-a1-test/venv/bin/uvicorn a1_service_runner:app --host 192.168.70.10 --port 19104 --workers 1 --no-access-log
+Restart=no
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictNamespaces=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+IPAddressAllow=127.0.0.0/8 192.168.70.12/32
+IPAddressDeny=any
+ReadWritePaths=/var/lib/aster-a1-test
+InaccessiblePaths=/etc/aster /etc/openbao /run/aster-lab-operations-broker /run/aster-broker /var/lib/aster/knowledge /var/lib/aster/health /var/lib/aster/ha-report
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+CapabilityBoundingSet=
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target
