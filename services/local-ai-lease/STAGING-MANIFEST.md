@@ -5,7 +5,7 @@ live effect.
 
 ## Candidate identity
 
-- Source commit: `2166cd6d`; this manifest is not a deployment authorization.
+- Source commit: `d1725904`; this manifest is not a deployment authorization.
 - Accepted live runtime: LXC 110, llama.cpp `b11429`, SYCL/Level Zero,
   Qwen3.5 9B Q4_K_M; live unit hash
   `a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3`; live
@@ -64,11 +64,11 @@ These SHA-256 values cover the source and disabled unit reviewed for staging:
 | `scripts/local-ai/test_backup_receipt_adapter.py` | `bc5812adb228e9336af2c82202fad8e4ea460736b68e9278d22b1ab90f5d5f73` |
 | `scripts/local-ai/quiescence_receipt_adapter.py` | `7bc97c6b7c470322a42b635cc3a0b6788d027d83f33191214682c3fad4f5caf0` |
 | `scripts/local-ai/test_quiescence_receipt_adapter.py` | `4eb53b5b7105475e0f75e28210fd23f9e40624a46cc55f291dcea783d333e66e` |
-| `scripts/local-ai/fixed_source_adapters.py` | `eb9e93bfb29aa320bb60012b41189d0335f8df3a36850f64c6169925ab3c7074` |
+| `scripts/local-ai/fixed_source_adapters.py` | `11e278d45d5f23b89e65454efaff246948d04deb9beb685fbcce414fd468ca83` |
 | `scripts/local-ai/test_fixed_source_adapters.py` | `dd21d8f8956c14985841bbae1023d4b4088b249ab055e06591850dbfe7cab502` |
-| `scripts/local-ai/source_receipt_boundary.py` | `08e5c41cfad88e2337158a59c235cf322366fad437c4fabc4ae5a835fd6a3350` |
+| `scripts/local-ai/source_receipt_boundary.py` | `0f62aaa6e771959eda1077f3aaea681948e654faefe3413284293531c56961e0` |
 | `scripts/local-ai/test_source_receipt_boundary.py` | `692f50492511cb16c9fc15ae6fee0ddfc8a2503afbd8b089931fabd15124cf01` |
-| `services/local-ai-lease/STAGE-1-RUN-CARD.md` | `9b99d8cfb07a40d917fa8033921706f422f6991f833e9eb4574715e0f1643763` |
+| `services/local-ai-lease/STAGE-1-RUN-CARD.md` | `82ed350d21f774767a515e1c7c613eccc1f60dddc7af76eb4f00f2336f3888b5` |
 | `services/local-ai-lease/local-ai-lease-watchdog.service` | `3041ed62efadcb1bcffe0c66e9c311933fc90c0cb101ea08f24b546fc9bc656d` |
 | `services/local-ai-lease/local-ai-lease-watchdog.timer` | `9f09de46e3ee55d8f765e1f279d34632ea914c8c6506416f0455853ef538b744` |
 
