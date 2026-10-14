@@ -6,6 +6,10 @@ implemented at `scripts/local-ai/application_b60_controller.py`; its effects
 remain disabled until a source-bound application receipt and the host-side
 sidecar probes are installed.
 
+The application-mode watchdog is a separate required component at
+`scripts/local-ai/application_b60_watchdog.py`. The full-stop watchdog cannot
+recover this lease's sidecar, ingress policy or temporary key.
+
 ## Preconditions
 
 - The platform has produced a source-bound application-mode backup receipt;

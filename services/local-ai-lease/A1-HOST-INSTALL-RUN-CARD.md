@@ -161,9 +161,15 @@ declaration without these before/after observations is not evidence.
 
 ## Recovery and rollback checkpoint
 
-The sidecar must stop before the 15-minute restoration reserve. The host owner
-then stops it, retains any uncertain receipt/journal, restores/unmasks only
-LXC104 `aster-agent.service` and LXC116 `aster-speech.service`, and verifies:
+The sidecar must stop before the 15-minute restoration reserve. The
+application-mode watchdog owns recovery in this exact order: stop the sidecar,
+restore the checkpointed LXC110 ingress policy, remove the temporary backend
+key, reload llama.cpp, verify production authentication and wrong-key denial,
+then restore/unmask only LXC104 `aster-agent.service` and LXC116
+`aster-speech.service`. If any step or postcheck is uncertain, retain the
+lease and do not execute a later step.
+
+The watchdog then verifies:
 
 - LXC110 llama.cpp stayed active throughout and still exposes the accepted
   model/device/backend;

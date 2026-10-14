@@ -111,3 +111,15 @@ or inner FastAPI auth check; it is never produced by mutating the admitted
 final process. The live admitted-path proof is header stripping and replacement
 with the configured inner test key.
 
+## Application watchdog requirement
+
+The whole-host recovery watchdog is not sufficient for this lease. The
+application watchdog must own these fixed commands and checks: stop
+`aster-a1-test.service`; restore the LXC110 ingress-policy checkpoint; remove
+the test-key line from the key-file checkpoint; restart llama.cpp; verify the
+production key succeeds and the wrong key is denied; then start Aster and
+Speech. If any command or postcheck fails, retain the application lock/state
+and do not start consumers. The offline command contract and recovery-order
+tests are in `scripts/local-ai/application_b60_watchdog.py` and
+`test_application_b60_watchdog.py`.
+
