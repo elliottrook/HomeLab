@@ -75,6 +75,16 @@ attempts must be denied while an authenticated request to
 network-denial evidence. If per-service counters cannot be observed without a
 container-wide rule, abort rather than installing a broad nftables rule.
 
+For the backend claim, checkpoint LXC110's existing ingress policy and apply a
+temporary rule that admits only source `192.168.70.10` to TCP 11435. This
+excludes Mac/LAN clients and other guests while the two production consumers
+are quiesced. The receipt may set `exclusive_backend_claim=true` only after
+policy read-back, an allowed sidecar backend request, and an excluded
+listening-client denial are all observed. No-load or one-time connection
+listings do not establish exclusivity. Before restoration, restore the policy
+checkpoint and verify the normal production source set is admitted again;
+retain the lease if that read-back is uncertain.
+
 ## Key-file update and rollback
 
 1. Save a root-only checkpoint of `/etc/aster-llama-api-keys` without printing

@@ -34,6 +34,7 @@ class ApplicationLeaseReceipt:
     backup_receipt: str
     backend_identity: str
     llama_service_active: bool
+    exclusive_backend_claim: bool
     consumers_quiesced: tuple[tuple[str, str], ...]
     news_quiesced: bool
     sidecar: SidecarObservation
@@ -50,8 +51,9 @@ def validate(receipt: ApplicationLeaseReceipt, *, expected_lease_id: str, expect
         raise ApplicationLeaseError("full-stop or unknown lease mode is not valid for application B60 work")
     if (receipt.lease_id, receipt.generation) != (expected_lease_id, expected_generation):
         raise ApplicationLeaseError("application lease identity does not match")
-    if receipt.backend_identity != ACCEPTED_BACKEND or not receipt.llama_service_active:
-        raise ApplicationLeaseError("accepted B60 backend must remain active")
+    if (receipt.backend_identity != ACCEPTED_BACKEND or not receipt.llama_service_active
+            or not receipt.exclusive_backend_claim):
+        raise ApplicationLeaseError("accepted B60 backend must remain active and exclusively claimed")
     if receipt.consumers_quiesced != ALLOWED_CONSUMER_SERVICES or not receipt.news_quiesced:
         raise ApplicationLeaseError("application consumer isolation is incomplete")
     sidecar = receipt.sidecar

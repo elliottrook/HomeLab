@@ -16,7 +16,8 @@ class ApplicationB60LeaseTests(unittest.TestCase):
         value = ApplicationLeaseReceipt(
             mode="application-b60-exclusive-v1", lease_id="lease-1", generation=2,
             backup_receipt="application-chain:abc", backend_identity=ACCEPTED_BACKEND,
-            llama_service_active=True, consumers_quiesced=ALLOWED_CONSUMER_SERVICES,
+            llama_service_active=True, exclusive_backend_claim=True,
+            consumers_quiesced=ALLOWED_CONSUMER_SERVICES,
             news_quiesced=True,
             sidecar=SidecarObservation("a" * 64, 3003, 1, 19120, True, True, True, True),
         )
@@ -37,6 +38,10 @@ class ApplicationB60LeaseTests(unittest.TestCase):
             validate(self.receipt(backup_receipt="full-stop:abc"), expected_lease_id="lease-1", expected_generation=2)
         with self.assertRaisesRegex(ApplicationLeaseError, "sidecar"):
             validate(self.receipt(sidecar=SidecarObservation("a" * 64, 3003, 2, 19120, True, True, True, True)), expected_lease_id="lease-1", expected_generation=2)
+
+    def test_rejects_idle_only_backend_claim(self):
+        with self.assertRaisesRegex(ApplicationLeaseError, "exclusively"):
+            validate(self.receipt(exclusive_backend_claim=False), expected_lease_id="lease-1", expected_generation=2)
 
 
 if __name__ == "__main__":

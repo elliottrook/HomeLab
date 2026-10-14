@@ -94,10 +94,18 @@ single bounded change:
    lease receipt. The controller may stop/runtime-mask only
    LXC104 Aster and LXC116 Speech. It must not change LXC110 beyond the
    checkpointed test-key line and the one controlled reload/restart above.
-5. Validate the newly produced receipt, including lease ID/generation,
-   application backup binding, watchdog deadline, active backend and consumer
-   quiescence. If it is absent or invalid, make zero model calls.
-6. Start `aster-a1-test.service` as UID 1904 with the disposable probe journal
+5. Apply a temporary, checkpointed LXC110 ingress policy allowing only source
+   `192.168.70.10` to TCP 11435. This is the sidecar's source address; it
+   excludes Mac/LAN clients and other guests. Verify policy read-back and test
+   from an excluded listening client before admitting the sidecar. The previous
+   policy must be restorable byte-for-byte.
+6. Validate the newly produced receipt, including lease ID/generation,
+   application backup binding, watchdog deadline, active backend,
+   `exclusive_backend_claim=true`, and consumer quiescence. The claim is true
+   only when the temporary ingress policy is active and observed; zero load at
+   one instant is not evidence. If the receipt is absent or invalid, make zero
+   model calls.
+7. Start `aster-a1-test.service` as UID 1904 with the disposable probe journal
    and probe credential fixture. The host observer must attest the
    exact PID, UID, one worker, port 19104, source/dependency digests and lease
    identity before any request is sent. These probes are not the benchmark
@@ -159,6 +167,9 @@ LXC104 `aster-agent.service` and LXC116 `aster-speech.service`, and verifies:
 
 - LXC110 llama.cpp stayed active throughout and still exposes the accepted
   model/device/backend;
+- the temporary LXC110 ingress policy was restored from its checkpoint and its
+  normal production sources are admitted again; this is proven with policy
+  read-back and counters, not assumed from a restart;
 - the dedicated test key remains present only until the benchmark is complete,
   and the production key continues to authenticate;
 - Aster and Speech are active and healthy;
@@ -174,6 +185,10 @@ from the checkpointed LXC110 key file, atomically replace the file, restart
 401. If that restart or validation is uncertain, retain the root-only
 checkpoint and leave the lease open for platform reconciliation; do not guess
 that authentication was restored.
+
+The backend-claim rollback is equally explicit: restore the checkpointed
+LXC110 ingress policy, verify the normal production source set and deny the
+sidecar-only test path after the lease, then close the application receipt.
 
 No application benchmark result is accepted if the sidecar, network, receipt,
 watchdog or restoration proof is incomplete. The full-stop recovery drill is

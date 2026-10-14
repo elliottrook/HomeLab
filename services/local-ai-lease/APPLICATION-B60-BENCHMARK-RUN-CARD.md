@@ -14,6 +14,10 @@ sidecar probes are installed.
   the exact allowlist below; this does not substitute for live host evidence.
 - LXC110 `aster-llama.service` is active with the exact accepted b11429
   SYCL/Level-Zero binary, model and device identity.
+- The host-attested receipt includes `exclusive_backend_claim=true`: LXC110's
+  temporary ingress policy allows only the sidecar source address
+  `192.168.70.10` to reach TCP 11435, with the prior policy checkpointed for
+  restoration. Zero load at one instant is not sufficient evidence.
 - LXC104 `aster-agent.service` and LXC116 `aster-speech.service` are stopped
   and quiesced; News and other inference consumers are quiesced.
 - The named LXC104 sidecar has a pinned source digest, distinct unprivileged
@@ -35,8 +39,10 @@ The exact host installation, denial probes and recovery sequence are in
 4. Run one bounded 20-request batch through the sidecar. The platform receipt
    records the sidecar observation, lease identity/generation, backend identity,
    source digest and watchdog deadline.
-5. Stop the sidecar before restoration reserve, unmask/start the two production
-   consumers, and verify llama.cpp, device, model, auth and schedules.
+5. Stop the sidecar before restoration reserve, restore the checkpointed LXC110
+   ingress policy and verify the normal production sources are admitted again.
+   Then unmask/start the two production consumers, and verify llama.cpp,
+   device, model, auth and schedules.
 
 ## Rollback
 
