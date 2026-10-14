@@ -24,24 +24,24 @@ class BackupReceiptAdapterTests(unittest.TestCase):
             verify_lxc110_mirror([{"name": name, "path": f"/mnt/Recovery/guests/aster-lxc110/{name}", "type": "FILE", "size": 1}], artifact)
 
     def mac_receipt(self):
-        return {"path": "/mnt/Recovery/configuration/mac/", "date": "2026_10_13", "entry_count": 12, "total_size": 4096, "captured_epoch": 1791972010, "tree_sha256": "a" * 64}
+        return {"path": "/mnt/Recovery/configuration/mac/", "date": "2026_10_13", "entry_count": 12, "total_size": 4096, "captured_epoch": 1791972010, "task_finished_epoch": 1791972002, "tree_sha256": "a" * 64}
 
     def test_requires_content_free_mac_pull_summary(self):
-        self.assertEqual(verify_mac_pull_receipt(self.mac_receipt(), date_prefix="2026_10_13", lease_issued_epoch=1791972020), "mac-tree-sha256:" + "a" * 64)
+        self.assertEqual(verify_mac_pull_receipt(self.mac_receipt(), date_prefix="2026_10_13", task_finished_epoch=1791972002, lease_issued_epoch=1791972020), "mac-tree-sha256:" + "a" * 64)
 
     def test_rejects_mac_summary_scope_date_empty_or_stale(self):
         receipt = self.mac_receipt()
-        for key, value, message in (("path", "/mnt/Recovery/configuration/other/", "root"), ("date", "2026_10_12", "different"), ("entry_count", 0, "empty"), ("captured_epoch", 1791972030, "bound")):
+        for key, value, message in (("path", "/mnt/Recovery/configuration/other/", "root"), ("date", "2026_10_12", "different"), ("entry_count", 0, "empty"), ("captured_epoch", 1791972030, "stale")):
             candidate = dict(receipt)
             candidate[key] = value
             with self.assertRaisesRegex(BackupReceiptError, message):
-                verify_mac_pull_receipt(candidate, date_prefix="2026_10_13", lease_issued_epoch=1791972020)
+                verify_mac_pull_receipt(candidate, date_prefix="2026_10_13", task_finished_epoch=1791972002, lease_issued_epoch=1791972020)
 
     def test_rejects_mac_summary_with_invalid_digest(self):
         receipt = self.mac_receipt()
         receipt["tree_sha256"] = "not-a-digest"
         with self.assertRaisesRegex(BackupReceiptError, "digest"):
-            verify_mac_pull_receipt(receipt, date_prefix="2026_10_13", lease_issued_epoch=1791972020)
+            verify_mac_pull_receipt(receipt, date_prefix="2026_10_13", task_finished_epoch=1791972002, lease_issued_epoch=1791972020)
 
 
 if __name__ == "__main__":

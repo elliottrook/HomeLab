@@ -10,7 +10,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from admission_gate import EXPECTED_BACKUP_SOURCE, AdmissionEvidenceError
-from backup_receipt_adapter import verify_lxc110_mirror, verify_proxmox_artifacts
+from backup_receipt_adapter import verify_lxc110_mirror, verify_mac_pull_receipt, verify_proxmox_artifacts
 from quiescence_receipt_adapter import ConsumerSnapshot, compose_quiescence_receipt
 from source_receipts import BackupSourceReceipt, QuiescenceSourceReceipt, compose_candidate_evidence
 
@@ -20,6 +20,7 @@ PRODUCTION = (("104", "aster-agent.service"), ("110", "aster-llama.service"), ("
 TRUENAS = "aster-schedule-observer@192.168.20.40"
 KNOWN_HOSTS = "/etc/local-ai-lab/truenas_known_hosts"
 IDENTITY = "/etc/local-ai-lab/truenas_schedule_observer"
+MAC_OBSERVER_COMMAND = "aster-mac-pull-summary"
 
 
 class SourceAdapterError(ValueError):
@@ -91,6 +92,10 @@ class FixedSourceAdapters:
         rsync = _json(self.runner, _truenas(("midclt", "call", "rsynctask.query")), 10.0)
         if not _schedule_ok(rsync, date_prefix=date_prefix, artifact_ctimes=tuple(a.ctime for a in artifacts), lease_issued_epoch=lease_issued_epoch):
             raise SourceAdapterError("TrueNAS backup tasks are not all successful")
+        task_two = next(item for item in rsync if item.get("id") == 2)
+        task_two_finished = task_two["job"]["time_finished"]["$date"] // 1000
+        mac_receipt = _json(self.runner, _truenas((MAC_OBSERVER_COMMAND,)), 120.0)
+        mac_digest = verify_mac_pull_receipt(mac_receipt, date_prefix=date_prefix, task_finished_epoch=task_two_finished, lease_issued_epoch=lease_issued_epoch)
         mirror = _json(self.runner, _truenas(("midclt", "call", "filesystem.listdir", "/mnt/Recovery/guests/aster-lxc110")), 10.0)
         verify_lxc110_mirror(mirror, artifacts[1])
         if verify_archives:
@@ -102,7 +107,7 @@ class FixedSourceAdapters:
                 if code != 0:
                     raise SourceAdapterError("backup archive integrity check failed")
         receipt_material = json.dumps([(a.vmid, a.volid, a.size, a.ctime) for a in artifacts], separators=(",", ":"), sort_keys=True).encode()
-        digest = hashlib.sha256(receipt_material).hexdigest()
+        digest = hashlib.sha256(receipt_material + mac_digest.encode()).hexdigest()
         now = self.clock()
         return BackupSourceReceipt(EXPECTED_BACKUP_SOURCE, EXPECTED_BACKUP_SOURCE, now.hour * 60 + now.minute, f"metadata-sha256:{digest}", verify_archives, True)
 

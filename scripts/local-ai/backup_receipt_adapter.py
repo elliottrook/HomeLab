@@ -70,7 +70,7 @@ def verify_lxc110_mirror(items: list[dict[str, Any]], artifact: ArtifactReceipt)
         raise BackupReceiptError("LXC110 mirror size differs from Proxmox artifact")
 
 
-def verify_mac_pull_receipt(receipt: dict[str, Any], *, date_prefix: str, lease_issued_epoch: int) -> str:
+def verify_mac_pull_receipt(receipt: dict[str, Any], *, date_prefix: str, task_finished_epoch: int, lease_issued_epoch: int, freshness_seconds: int = 900) -> str:
     """Verify a content-free fixed-path summary of the Mac pull.
 
     The TrueNAS wrapper must aggregate the tree locally and return only this
@@ -85,13 +85,16 @@ def verify_mac_pull_receipt(receipt: dict[str, Any], *, date_prefix: str, lease_
     entry_count = receipt.get("entry_count")
     total_size = receipt.get("total_size")
     captured_epoch = receipt.get("captured_epoch")
+    reported_task_finished = receipt.get("task_finished_epoch")
     digest = receipt.get("tree_sha256")
     if not isinstance(entry_count, int) or entry_count <= 0:
         raise BackupReceiptError("Mac pull receipt is empty")
     if not isinstance(total_size, int) or total_size <= 0:
         raise BackupReceiptError("Mac pull receipt has no content size")
-    if not isinstance(captured_epoch, int) or captured_epoch <= 0 or captured_epoch > lease_issued_epoch:
-        raise BackupReceiptError("Mac pull receipt is not bound to the observed cycle")
+    if reported_task_finished != task_finished_epoch:
+        raise BackupReceiptError("Mac pull receipt is not bound to task 2 completion")
+    if not isinstance(captured_epoch, int) or captured_epoch < task_finished_epoch or captured_epoch > task_finished_epoch + freshness_seconds or captured_epoch > lease_issued_epoch:
+        raise BackupReceiptError("Mac pull receipt is stale or outside the observed cycle")
     if not isinstance(digest, str) or len(digest) != 64 or any(char not in "0123456789abcdef" for char in digest):
         raise BackupReceiptError("Mac pull receipt digest is invalid")
     return f"mac-tree-sha256:{digest}"
