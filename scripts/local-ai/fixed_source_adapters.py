@@ -73,7 +73,8 @@ class FixedSourceAdapters:
                     raise SourceAdapterError("backup archive integrity check failed")
         receipt_material = json.dumps([(a.vmid, a.volid, a.size, a.ctime) for a in artifacts], separators=(",", ":"), sort_keys=True).encode()
         digest = hashlib.sha256(receipt_material).hexdigest()
-        return BackupSourceReceipt(EXPECTED_BACKUP_SOURCE, EXPECTED_BACKUP_SOURCE, max(a.ctime for a in artifacts), f"metadata-sha256:{digest}", True, True)
+        now = self.clock()
+        return BackupSourceReceipt(EXPECTED_BACKUP_SOURCE, EXPECTED_BACKUP_SOURCE, now.hour * 60 + now.minute, f"metadata-sha256:{digest}", True, True)
 
     def _snapshot(self) -> ConsumerSnapshot:
         states, enters, masks = [], [], []
