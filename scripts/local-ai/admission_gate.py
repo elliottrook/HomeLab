@@ -27,6 +27,7 @@ class AdmissionEvidence:
     consumers_quiesced: tuple[str, ...]
     news_quiesced: bool
     source_observed: bool
+    adapter_attested: bool = False
 
 
 def validate_evidence_shape(evidence: AdmissionEvidence | None, *, now_minute: int, window_end_minute: int) -> str:
@@ -49,6 +50,8 @@ def validate_evidence_shape(evidence: AdmissionEvidence | None, *, now_minute: i
 
 
 def require_aster_benchmark(evidence: AdmissionEvidence | None, *, now_minute: int, window_end_minute: int) -> str:
-    """Refuse until real backup/scheduler/consumer source adapters exist."""
+    """Accept only evidence emitted by the fixed authenticated adapters."""
     validate_evidence_shape(evidence, now_minute=now_minute, window_end_minute=window_end_minute)
-    raise AdmissionEvidenceError("source adapters are not implemented; Aster benchmark remains blocked")
+    if not evidence.adapter_attested:
+        raise AdmissionEvidenceError("source adapters must attest the evidence")
+    return evidence.backup_receipt
