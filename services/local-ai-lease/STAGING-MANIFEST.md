@@ -5,7 +5,7 @@ live effect.
 
 ## Candidate identity
 
-- Source commit: `752a1145`; this manifest is not a deployment authorization.
+- Source commit: `8972a7f7`; this manifest is not a deployment authorization.
 - Accepted live runtime: LXC 110, llama.cpp `b11429`, SYCL/Level Zero,
   Qwen3.5 9B Q4_K_M; live unit hash
   `a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3`; live
@@ -72,12 +72,14 @@ These SHA-256 values cover the source and disabled unit reviewed for staging:
 | `scripts/local-ai/truenas_observer_contract.py` | `4151412e9b5638af625fd4f356c2e856c5a51f6c1de36c50103fa7d71f38f733` |
 | `scripts/local-ai/test_truenas_observer_contract.py` | `e3c2f17a908b48e31416cc626a8a444f04f66b7a494d5f11bc50db47a1b73e24` |
 | `scripts/local-ai/test_truenas_mac_pull_observer.py` | `f776c4b2e0ee90c6393bad3f359ec6d74695525b5ff5df4370cd384da95233a2` |
+| `scripts/local-ai/platform_receipt_producer.py` | `385bc6ae34be36a52ec38c68527a97024c1a87fecba6053efe6a0ed709ed37b2` |
 | `services/local-ai-lease/truenas_mac_pull_observer.py` | `3fc55573a6b0167ff7f06e43ea79cdc80f6274f63f6fc9a391887a32823e3991` |
 | `services/local-ai-lease/aster-mac-pull-observer-root` | `d3c1577de35a7eb1cead7bb7c3bc8481fa88239a759f98f1bb204a843f8d3dbf` |
 | `scripts/local-ai/source_receipt_boundary.py` | `bd055c61492f9d4072b25c4b699c4672b940e04436a511a07b7e73660b12a8b0` |
 | `scripts/local-ai/test_source_receipt_boundary.py` | `f918dc7cd12fd33486ebd3d26053a5624cd2ce7b8387854a3ebcbccad9f726dc` |
 | `services/local-ai-lease/STAGE-1-RUN-CARD.md` | `86daed04c47ad050a96ecd9d90dfcfc8ec78f4c053e1876dc52f41bcad21c1e8` |
 | `services/local-ai-lease/local-ai-lease-recovery` | `46ddd8a031ecdeb2f227fadb18f5bc76ee9ad6042bf59d7056522c13ffe5b81c` |
+| `services/local-ai-lease/local-ai-lease-produce-receipt` | `ebd3902f12e7045d480577eb7f88daaf8ac505c041b30d9b93b2d2d4cbc2bcc0` |
 | `services/local-ai-lease/local-ai-lease-watchdog.service` | `3041ed62efadcb1bcffe0c66e9c311933fc90c0cb101ea08f24b546fc9bc656d` |
 | `services/local-ai-lease/local-ai-lease-watchdog.timer` | `9f09de46e3ee55d8f765e1f279d34632ea914c8c6506416f0455853ef538b744` |
 
