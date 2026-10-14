@@ -29,7 +29,9 @@ def _owned(path: Path, uid: int, *, directory: bool) -> None:
     if resolved == REPO or REPO in resolved.parents:
         raise ValueError("A1 evidence must stay outside Git")
     info = path.stat()
+    parent = path.parent.stat()
     if (info.st_uid != uid or info.st_mode & 0o077
+            or parent.st_uid != uid or parent.st_mode & 0o077
             or (directory and not stat.S_ISDIR(info.st_mode))
             or (not directory and not stat.S_ISREG(info.st_mode))):
         raise ValueError("invalid owner-only A1 custody")

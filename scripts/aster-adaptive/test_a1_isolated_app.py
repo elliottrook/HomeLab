@@ -111,6 +111,11 @@ class IsolatedAppTests(unittest.TestCase):
         with self.assertRaises(FileExistsError):
             self.build()
 
+    def test_config_parent_must_be_owner_only(self):
+        self.root.chmod(0o755)
+        with self.assertRaises(ValueError):
+            self.build()
+
 
 if __name__ == "__main__":
     unittest.main()

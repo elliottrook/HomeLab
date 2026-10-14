@@ -46,6 +46,11 @@ will consume a validated, content-free export; it will not manufacture a
 host-owned lease receipt from a dictionary. If the observer cannot attest the
 sidecar and its network isolation, keep the A1 card BLOCKED and retain the
 direct-backend result as a separate baseline.
+The deployment review must compare secret digests locally, without printing
+values, to prove none of the sidecar's ingress, inner and backend keys equals
+the corresponding production key or either other test key. A dedicated UID
+and absence of the production environment file must be observed on the live
+process; a source-level environment check alone cannot prove that separation.
 The offline [`a1_isolated_app.py`](../../../../scripts/aster-adaptive/a1_isolated_app.py)
 factory refuses root, unpinned backend/output/tool/deadline settings,
 privileged env values and absent owner-only journal/clock custody before it
