@@ -1,12 +1,12 @@
 # Aster Home Kodi skin prototype
 
-Version 0.1.6 adds the supplied Aster compass artwork as Kodi-ready header and
-rail textures. Version 0.1.4 added the standard startup windows and settings
-scaffolding Kodi requires before it will keep a custom skin active. The windows
-are deliberately small Aster-owned shells; richer interactions and
-media-specific dialogs are the next pass. The current visual pass keeps the
-rail visible while the focus map is being tested; the disappearing animation is
-deferred until that input path is reliable.
+Version 0.1.7 adds the supplied Aster compass artwork as Kodi-ready header and
+rail textures, plus a working tvOS-style disappearing rail. Version 0.1.4
+added the standard startup windows and settings scaffolding Kodi requires
+before it will keep a custom skin active. The windows are deliberately small
+Aster-owned shells; richer interactions and media-specific dialogs are the next
+pass. The rail opens from the edge affordance, accepts vertical menu focus,
+and collapses when focus returns to the media content.
 
 The Home rows use Kodi library paths already populated by the installed
 Jellyfin add-on. This keeps the skin read-only with respect to Jellyfin and
@@ -21,7 +21,7 @@ recommendation data are connected.
 
 - 1920x1080 / 16:9 Home window
 - warm Home Hub palette and typography
-- collapsed left navigation rail with a focus reveal affordance
+- disappearing left navigation rail with a focus reveal affordance and focus map
 - hero area and two media rows
 - Kodi video-library containers as temporary content sources
 - no production service writes and no Kodi core changes

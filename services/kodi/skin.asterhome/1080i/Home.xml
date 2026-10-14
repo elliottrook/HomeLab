@@ -56,6 +56,8 @@
             <top>0</top>
             <width>300</width>
             <height>1080</height>
+            <visible>Control.HasFocus(8999) | Control.HasFocus(9001) | Control.HasFocus(9002) | Control.HasFocus(9003) | Control.HasFocus(9004) | Control.HasFocus(9005)</visible>
+            <animation effect="slide" start="-300,0" end="0,0" time="180" reversible="true">VisibleChange</animation>
             <control type="image">
                 <left>0</left>
                 <top>0</top>
@@ -85,6 +87,8 @@
                 <top>180</top>
                 <label>⌂   Home Hub</label>
                 <onclick>ActivateWindow(Home)</onclick>
+                <onleft>8999</onleft>
+                <ondown>9002</ondown>
                 <onright>100</onright>
                 <include>AsterRailButton</include>
             </control>
@@ -93,6 +97,9 @@
                 <top>250</top>
                 <label>▦   Watch</label>
                 <onclick>ActivateWindow(Videos)</onclick>
+                <onleft>8999</onleft>
+                <onup>9001</onup>
+                <ondown>9003</ondown>
                 <onright>100</onright>
                 <include>AsterRailButton</include>
             </control>
@@ -101,6 +108,9 @@
                 <top>320</top>
                 <label>◷   Library</label>
                 <onclick>ActivateWindow(Videos)</onclick>
+                <onleft>8999</onleft>
+                <onup>9002</onup>
+                <ondown>9004</ondown>
                 <onright>100</onright>
                 <include>AsterRailButton</include>
             </control>
@@ -109,6 +119,9 @@
                 <top>390</top>
                 <label>⌕   Search</label>
                 <onclick>ActivateWindow(Search)</onclick>
+                <onleft>8999</onleft>
+                <onup>9003</onup>
+                <ondown>9005</ondown>
                 <onright>100</onright>
                 <include>AsterRailButton</include>
             </control>
@@ -117,6 +130,8 @@
                 <top>460</top>
                 <label>⚙   Settings</label>
                 <onclick>ActivateWindow(Settings)</onclick>
+                <onleft>8999</onleft>
+                <onup>9004</onup>
                 <onright>100</onright>
                 <include>AsterRailButton</include>
             </control>
@@ -125,7 +140,7 @@
         <!-- A visible 64 px collapsed rail makes the menu discoverable and
              gives remote/keyboard focus a stable target. -->
         <control type="image" id="8998">
-            <visible>false</visible>
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
             <left>0</left>
             <top>0</top>
             <width>64</width>
@@ -133,7 +148,7 @@
             <texture>special://skin/media/rail-background.png</texture>
         </control>
         <control type="image" id="8997">
-            <visible>false</visible>
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
             <left>12</left>
             <top>38</top>
             <width>40</width>
@@ -142,7 +157,7 @@
             <aspectratio>keep</aspectratio>
         </control>
         <control type="button" id="8999">
-            <visible>false</visible>
+            <visible>!Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
             <left>0</left>
             <top>470</top>
             <width>64</width>
