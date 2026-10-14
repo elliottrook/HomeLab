@@ -1,14 +1,15 @@
 {
   "schema": "aster-voice-release.v1",
-  "release_id": "aster-voice-v1.0.0-rc-20261013",
-  "status": "production-provisioned-staging",
+  "release_id": "aster-voice-v1.0.0",
+  "status": "released-production-soak",
   "prepared_at": "2026-10-13T13:20:00-07:00",
   "source": {
     "authority": "forgejo",
     "repository": "jason/homelab",
     "branch": "codex/aster-stream-a-handoff",
-    "observed_commit": "6b3207e27b9ace027b5ae93fb2f17f5830082963",
-    "tag_authorized": false
+    "accepted_evidence_commit": "1268a6b74c7b548c24f653a1a74e4cb1f92a311e",
+    "tag": "aster-voice-v1.0.0",
+    "tag_authorized": true
   },
   "identity": {
     "service": "Aster Voice Service",
@@ -63,7 +64,7 @@
   "accepted_consumers": {
     "companion_web": "accepted canonical AVS1 streaming",
     "home_assistant": "accepted Wyoming pilot",
-    "news_digest": "accepted corrected full briefing through the isolated canonical CPU batch path",
+    "news_digest": "accepted corrected full briefing and accepted naturally scheduled production briefing through the canonical batch path",
     "native_mac": "the same stable-signed AVS1 composite is installed and accepted on the M2 MacBook Air and M4 Mac mini; archive sha256 f2fcf26cb29ab3175daf656cfe97014b500f1e8146d56af6be633ade0ed936e0 and executable sha256 7b968e5fdf11f88f2105c2d65cf3468dd27b8f245e787e73acdc8dfc2032124c"
   },
   "graduation_evidence": {
@@ -89,7 +90,7 @@
     }
   },
   "production_target": {
-    "state": "provisioned-staging-no-consumer-cutover",
+    "state": "production-accepted",
     "vmid": 128,
     "name": "aster-voice-prod",
     "address": "192.168.20.37/24",
@@ -101,17 +102,24 @@
     },
     "stable_name": "aster-voice.home.internal",
     "preflight": "Tentative VMID 127 became occupied before provisioning. Revalidation selected current Proxmox nextid 128, reconfirmed 192.168.20.37 absent from network and inventory authorities, and registered the exact resulting guest, interface, observed MAC, IP and TCP 9130/9131/10300 services in NetBox.",
-    "verification": "Approved health identity, authentication refusal, two authenticated AVS1 canaries, service reboot recovery, distinct Beszel monitoring, three-authority private DNS and an isolated link-down restore from the initial snapshot all pass. Consumers remain on their accepted lab paths pending controlled cutover.",
+    "verification": "Approved health identity, authentication refusal, two authenticated AVS1 canaries, service reboot recovery, distinct Beszel monitoring, three-authority private DNS and an isolated link-down restore from the initial snapshot all pass. Companion web/Mac, the isolated Home Assistant pilot and the naturally scheduled News briefing pass on production with tested lab rollback paths retained.",
     "credentials": "new production-only credential generated and stored in protected live configuration; value is not copied to this manifest"
   },
+  "production_migration": {
+    "state": "all-consumers-accepted-on-production",
+    "companion_stream": "accepted on authenticated web and Mac clients through production 192.168.20.37:9131; accepted lab endpoint remains healthy for immediate rollback",
+    "home_assistant": "Aster Production Wyoming integration uses aster-voice.home.internal:10300; isolated Aster Pilot selected its production STT/TTS and passed Jason's end-to-end test; original lab integration and preferred pipeline remain",
+    "news_digest": "production endpoint and News-only credential selected; production and application-local lab rollback canaries pass; first naturally scheduled 19-story production briefing completed successfully and passed Jason's listening acceptance",
+    "monitoring": "Beszel and Prometheus production target up; five production alert rules loaded"
+  },
   "blockers": [
-    "obtain explicit approval before production consumer cutover",
-    "obtain explicit approval before creating the release tag"
+    "complete the documented seven-day production soak",
+    "after soak acceptance, sanitize and retain LXC 116 as the immutable V1 lab baseline before starting V2 work"
   ],
   "authorization": {
     "production_provisioning": true,
-    "consumer_cutover": false,
-    "release_tag": false,
+    "consumer_cutover": true,
+    "release_tag": true,
     "destructive_cleanup": false
   }
 }
