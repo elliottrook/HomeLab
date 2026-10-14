@@ -59,10 +59,13 @@ def _schedule_ok(items: list[dict], *, date_prefix: str, artifact_ctimes: tuple[
         if job.get("state") != "SUCCESS" or arguments != [item_id] or not isinstance(started, int) or not isinstance(finished, int) or started > finished:
             return False
         local_finished = datetime.fromtimestamp(finished / 1000, LOCAL_ZONE)
-        if local_finished.strftime("%Y_%m_%d") != date_prefix:
+        local_started = datetime.fromtimestamp(started / 1000, LOCAL_ZONE)
+        if local_started.strftime("%Y_%m_%d") != date_prefix or local_finished.strftime("%Y_%m_%d") != date_prefix:
+            return False
+        required_minute = int(clock[:2]) * 60
+        if local_started.hour * 60 + local_started.minute < required_minute:
             return False
         hour_minute = local_finished.hour * 60 + local_finished.minute
-        required_minute = int(clock[:2]) * 60
         if hour_minute < required_minute or hour_minute > 4 * 60 + 15:
             return False
         if finished / 1000 > lease_issued_epoch or started / 1000 < max(artifact_ctimes):
