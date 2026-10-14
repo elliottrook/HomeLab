@@ -246,6 +246,7 @@
             <label>▶  Play</label>
             <onclick>PlayMedia($INFO[Container(101).ListItem.FileNameAndPath])</onclick>
             <onleft>8999</onleft>
+            <ondown>100</ondown>
             <onright>121</onright>
             <include>AsterActionButton</include>
         </control>
@@ -256,6 +257,7 @@
             <label>ⓘ  More Info</label>
             <onclick>Info</onclick>
             <onleft>120</onleft>
+            <ondown>100</ondown>
             <onright>100</onright>
             <include>AsterActionButton</include>
         </control>
@@ -286,6 +288,7 @@
             <orientation>horizontal</orientation>
             <scrolltime>180</scrolltime>
             <onleft>8999</onleft>
+            <ondown>110</ondown>
             <itemlayout width="220" height="242">
                 <control type="image">
                     <left>14</left>
@@ -346,6 +349,7 @@
             <orientation>horizontal</orientation>
             <scrolltime>180</scrolltime>
             <onleft>8999</onleft>
+            <onup>100</onup>
             <itemlayout width="220" height="230">
                 <control type="image">
                     <left>14</left>
