@@ -25,6 +25,10 @@ LOCAL_NETWORKS = tuple(ipaddress.ip_network(value) for value in
 class A1TransportError(Exception):
     """Content-free terminal failure; never include URL, token or answer."""
 
+    def __init__(self, code: str, timing: dict):
+        super().__init__(code)
+        self.timing = timing
+
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, request, fp, code, msg, headers, newurl):
@@ -76,10 +80,15 @@ def invoke(case: dict, *, endpoint: str, ingress_token: bytes,
             identity = response.headers.get("X-Aster-Observation-Id")
             raw = response.read(MAX_RESPONSE + 1)
     except (urllib.error.URLError, TimeoutError, OSError):
-        raise A1TransportError("unavailable_or_uncertain") from None
+        raise A1TransportError("unavailable_or_uncertain",
+                               client.finish(terminal_displayed=False)) from None
+    if (isinstance(identity, str) and OBSERVATION_ID.fullmatch(identity)
+            and type(status) is int and 100 <= status <= 599):
+        client.response_identity(identity, status)
     if (status != 200 or not isinstance(identity, str)
             or not OBSERVATION_ID.fullmatch(identity) or len(raw) > MAX_RESPONSE):
-        raise A1TransportError("invalid_or_uncertain_response")
+        raise A1TransportError("invalid_or_uncertain_response",
+                               client.finish(terminal_displayed=False))
     try:
         payload = json.loads(raw)
         choices = payload["choices"]
@@ -90,7 +99,7 @@ def invoke(case: dict, *, endpoint: str, ingress_token: bytes,
         if (choice["finish_reason"] != "stop" or not isinstance(answer, str)
                 or not answer.strip() or len(answer.encode("utf-8")) > 16_000):
             raise ValueError
-        client.response_identity(identity, status)
         return answer, client.finish(terminal_displayed=True)
     except (KeyError, IndexError, TypeError, ValueError, UnicodeError):
-        raise A1TransportError("invalid_or_uncertain_response") from None
+        raise A1TransportError("invalid_or_uncertain_response",
+                               client.finish(terminal_displayed=False)) from None
