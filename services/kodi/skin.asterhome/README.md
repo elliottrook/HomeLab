@@ -1,6 +1,9 @@
 # Aster Home Kodi skin prototype
 
-Version 0.2.1 adds a two-line dynamic synopsis treatment with a local font face.
+Version 0.3.0 reshapes the Kodi canvas around the Aster Home reference: narrow
+rail, greeting/eyebrow hero copy, wide dynamic artwork, landscape media cards,
+and dark caption overlays with live progress percentages. Version 0.2.1 adds a
+two-line dynamic synopsis treatment with a local font face.
 Version 0.2.0 adds a focus-aware dynamic hero: title, synopsis, artwork, year,
 duration and playback path follow the selected Jellyfin/Kodi media item across
 both home rows. Version 0.1.9 adds the optional timer manifest Kodi expects when
@@ -31,7 +34,8 @@ recommendation data are connected.
 - disappearing left navigation rail with a focus reveal affordance and focus map
 - hero area with focus-aware live title, synopsis and artwork
 - two-line live synopsis block with metadata-safe clipping
-- two media rows backed by Kodi's Jellyfin-populated video library
+- two landscape media rows backed by Kodi's Jellyfin-populated video library
+- caption overlays with live `ListItem.PercentPlayed` values
 - explicit Up/Down routing between media rows
 - Kodi video-library containers as temporary content sources
 - no production service writes and no Kodi core changes

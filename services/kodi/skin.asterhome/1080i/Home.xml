@@ -6,21 +6,13 @@
         <!-- Temporary solid surfaces use the window background and text focus
              until repository-owned Aster textures are added. -->
         <control type="image" id="10">
-            <left>1060</left>
+            <left>680</left>
             <top>24</top>
-            <width>780</width>
-            <height>438</height>
+            <width>1200</width>
+            <height>470</height>
             <texture background="true">$VAR[AsterHeroFanart]</texture>
-            <aspectratio>keep</aspectratio>
+            <aspectratio>scale</aspectratio>
             <fadetime>250</fadetime>
-        </control>
-        <control type="image" id="11">
-            <left>1060</left>
-            <top>24</top>
-            <width>780</width>
-            <height>438</height>
-            <texture colordiffuse="99f2ede4">$VAR[AsterHeroFanart]</texture>
-            <aspectratio>keep</aspectratio>
         </control>
 
         <!-- Hidden metadata source. The installed Jellyfin add-on populates
@@ -54,19 +46,19 @@
         <control type="group" id="9000">
             <left>0</left>
             <top>0</top>
-            <width>300</width>
+            <width>250</width>
             <height>1080</height>
             <visible>Control.HasFocus(8999) | Control.HasFocus(9001) | Control.HasFocus(9002) | Control.HasFocus(9003) | Control.HasFocus(9004) | Control.HasFocus(9005)</visible>
-            <animation effect="slide" start="-300,0" end="0,0" time="180" reversible="true">VisibleChange</animation>
+            <animation effect="slide" start="-250,0" end="0,0" time="180" reversible="true">VisibleChange</animation>
             <control type="image">
                 <left>0</left>
                 <top>0</top>
-                <width>300</width>
+                <width>250</width>
                 <height>1080</height>
                 <texture>special://skin/media/rail-background.png</texture>
             </control>
             <control type="image">
-                <left>40</left>
+                <left>30</left>
                 <top>30</top>
                 <width>56</width>
                 <height>56</height>
@@ -74,7 +66,7 @@
                 <aspectratio>keep</aspectratio>
             </control>
             <control type="label">
-                <left>96</left>
+                <left>86</left>
                 <top>48</top>
                 <width>190</width>
                 <height>50</height>
@@ -83,7 +75,7 @@
                 <textcolor>asterRailText</textcolor>
             </control>
             <control type="button" id="9001">
-                <left>36</left>
+                <left>26</left>
                 <top>180</top>
                 <label>⌂   Home Hub</label>
                 <onclick>ActivateWindow(Home)</onclick>
@@ -143,24 +135,49 @@
             <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
             <left>0</left>
             <top>0</top>
-            <width>64</width>
+            <width>84</width>
             <height>1080</height>
             <texture>special://skin/media/rail-background.png</texture>
         </control>
         <control type="image" id="8997">
             <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
-            <left>12</left>
+            <left>20</left>
             <top>38</top>
-            <width>40</width>
-            <height>40</height>
+            <width>44</width>
+            <height>44</height>
             <texture>special://skin/media/aster-icon-128.png</texture>
             <aspectratio>keep</aspectratio>
+        </control>
+        <control type="label">
+            <visible>!Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
+            <left>0</left><top>150</top><width>84</width><height>42</height>
+            <label>⌂</label><font>font28</font><textcolor>asterRailText</textcolor><align>center</align>
+        </control>
+        <control type="label">
+            <visible>!Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
+            <left>0</left><top>214</top><width>84</width><height>42</height>
+            <label>▦</label><font>font28</font><textcolor>asterRailText</textcolor><align>center</align>
+        </control>
+        <control type="label">
+            <visible>!Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
+            <left>0</left><top>278</top><width>84</width><height>42</height>
+            <label>◷</label><font>font28</font><textcolor>asterRailText</textcolor><align>center</align>
+        </control>
+        <control type="label">
+            <visible>!Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
+            <left>0</left><top>342</top><width>84</width><height>42</height>
+            <label>⌕</label><font>font28</font><textcolor>asterRailText</textcolor><align>center</align>
+        </control>
+        <control type="label">
+            <visible>!Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
+            <left>0</left><top>406</top><width>84</width><height>42</height>
+            <label>⚙</label><font>font28</font><textcolor>asterRailText</textcolor><align>center</align>
         </control>
         <control type="button" id="8999">
             <visible>!Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
             <left>0</left>
             <top>470</top>
-            <width>64</width>
+            <width>84</width>
             <height>130</height>
             <label>›</label>
             <font>font40</font>
@@ -175,16 +192,16 @@
 
         <!-- Brand header -->
         <control type="image">
-            <left>360</left>
-            <top>30</top>
+            <left>125</left>
+            <top>34</top>
             <width>64</width>
             <height>64</height>
             <texture>special://skin/media/aster-icon-128.png</texture>
             <aspectratio>keep</aspectratio>
         </control>
         <control type="label">
-            <left>438</left>
-            <top>42</top>
+            <left>198</left>
+            <top>46</top>
             <width>350</width>
             <height>52</height>
             <label>Aster Home</label>
@@ -192,7 +209,7 @@
             <textcolor>asterInk</textcolor>
         </control>
         <control type="label">
-            <left>1600</left>
+            <left>1570</left>
             <top>52</top>
             <width>220</width>
             <height>40</height>
@@ -204,25 +221,34 @@
 
         <!-- Hero copy -->
         <control type="label">
-            <left>370</left>
-            <top>102</top>
-            <width>500</width>
+            <left>125</left>
+            <top>116</top>
+            <width>460</width>
             <height>42</height>
-            <label>FEATURED FOR YOU</label>
+            <label>Good evening, Jason</label>
             <font>font24</font>
-            <textcolor>asterMuted</textcolor>
+            <textcolor>asterCharcoal</textcolor>
         </control>
         <control type="label">
-            <left>370</left>
-            <top>140</top>
-            <width>650</width>
-            <height>90</height>
+            <left>125</left>
+            <top>162</top>
+            <width>500</width>
+            <height>42</height>
+            <label>N A T U R E   D O C U M E N T A R Y</label>
+            <font>font20</font>
+            <textcolor>asterGold</textcolor>
+        </control>
+        <control type="label">
+            <left>125</left>
+            <top>184</top>
+            <width>590</width>
+            <height>96</height>
             <label fallback="Select a title">$VAR[AsterHeroLabel]</label>
             <include>AsterTitle</include>
         </control>
         <control type="label">
-            <left>370</left>
-            <top>224</top>
+            <left>125</left>
+            <top>286</top>
             <width>680</width>
             <height>48</height>
             <label fallback="Select a title to see its synopsis.">$VAR[AsterHeroPlot]</label>
@@ -232,8 +258,8 @@
             <aligny>top</aligny>
         </control>
         <control type="label">
-            <left>370</left>
-            <top>302</top>
+            <left>125</left>
+            <top>350</top>
             <width>650</width>
             <height>36</height>
             <label fallback="Metadata unavailable">$VAR[AsterHeroYear]   |   $VAR[AsterHeroDuration]</label>
@@ -241,9 +267,9 @@
             <textcolor>asterGreen</textcolor>
         </control>
         <control type="button" id="120">
-            <left>370</left>
-            <top>342</top>
-            <width>230</width>
+            <left>125</left>
+            <top>390</top>
+            <width>280</width>
             <label>▶  Play</label>
             <onclick>PlayMedia($VAR[AsterHeroPath])</onclick>
             <onleft>8999</onleft>
@@ -252,9 +278,9 @@
             <include>AsterActionButton</include>
         </control>
         <control type="button" id="121">
-            <left>620</left>
-            <top>342</top>
-            <width>230</width>
+            <left>425</left>
+            <top>390</top>
+            <width>280</width>
             <label>ⓘ  More Info</label>
             <onclick>Info</onclick>
             <onleft>120</onleft>
@@ -264,16 +290,16 @@
         </control>
 
         <control type="label">
-            <left>370</left>
-            <top>408</top>
-            <width>550</width>
+            <left>125</left>
+            <top>520</top>
+            <width>650</width>
             <height>48</height>
             <label>Continue Watching</label>
             <include>AsterTitle</include>
         </control>
         <control type="label">
-            <left>1660</left>
-            <top>418</top>
+            <left>1590</left>
+            <top>530</top>
             <width>160</width>
             <height>36</height>
             <label>View all  ›</label>
@@ -282,95 +308,103 @@
             <align>right</align>
         </control>
         <control type="panel" id="100">
-            <left>370</left>
-            <top>462</top>
-            <width>1450</width>
-            <height>260</height>
+            <left>125</left>
+            <top>574</top>
+            <width>1690</width>
+            <height>210</height>
             <orientation>horizontal</orientation>
             <scrolltime>180</scrolltime>
             <onleft>8999</onleft>
             <ondown>110</ondown>
-            <itemlayout width="220" height="242">
+            <itemlayout width="340" height="202">
                 <control type="image">
-                    <left>14</left>
-                    <top>4</top>
-                    <width>190</width>
-                    <height>216</height>
+                    <left>10</left>
+                    <top>8</top>
+                    <width>320</width>
+                    <height>180</height>
                     <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
-                    <aspectratio>keep</aspectratio>
+                    <aspectratio>scale</aspectratio>
                 </control>
+                <control type="image"><left>10</left><top>108</top><width>320</width><height>80</height><texture>special://skin/media/card-charcoal.png</texture><colordiffuse>b8292721</colordiffuse></control>
                 <control type="label">
-                    <left>14</left>
-                    <top>222</top>
-                    <width>190</width>
+                    <left>28</left>
+                    <top>140</top>
+                    <width>260</width>
                     <height>28</height>
                     <label>$INFO[ListItem.Label]</label>
                     <font>font20</font>
-                    <textcolor>asterInk</textcolor>
+                    <textcolor>asterRailText</textcolor>
                     <truncate>true</truncate>
                 </control>
+                <control type="label"><left>28</left><top>169</top><width>260</width><height>20</height><label>$INFO[ListItem.PercentPlayed, ,%]</label><font>font16</font><textcolor>asterSage</textcolor></control>
             </itemlayout>
-            <focusedlayout width="236" height="252">
+            <focusedlayout width="340" height="210">
                 <control type="image">
-                    <left>10</left>
-                    <top>0</top>
-                    <width>216</width>
-                    <height>236</height>
+                    <left>6</left>
+                    <top>4</top>
+                    <width>328</width>
+                    <height>188</height>
                     <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
-                    <aspectratio>keep</aspectratio>
+                    <aspectratio>scale</aspectratio>
                     <animation effect="zoom" start="100" end="106" time="140" reversible="true">Focus</animation>
                 </control>
+                <control type="image"><left>6</left><top>112</top><width>328</width><height>80</height><texture>special://skin/media/card-charcoal.png</texture><colordiffuse>b8292721</colordiffuse></control>
                 <control type="label">
-                    <left>10</left>
-                    <top>238</top>
-                    <width>216</width>
+                    <left>26</left>
+                    <top>144</top>
+                    <width>266</width>
                     <height>28</height>
                     <label>$INFO[ListItem.Label]</label>
                     <font>font20</font>
-                    <textcolor>asterGreen</textcolor>
+                    <textcolor>asterRailText</textcolor>
                     <truncate>true</truncate>
                 </control>
+                <control type="label"><left>26</left><top>173</top><width>266</width><height>20</height><label>$INFO[ListItem.PercentPlayed, ,%]</label><font>font16</font><textcolor>asterSage</textcolor></control>
             </focusedlayout>
             <content target="videos">videodb://inprogresstvshows/</content>
         </control>
 
         <control type="label">
-            <left>370</left>
-            <top>732</top>
+            <left>125</left>
+            <top>800</top>
             <width>650</width>
             <height>48</height>
             <label>Recommended for You</label>
             <include>AsterTitle</include>
         </control>
         <control type="panel" id="110">
-            <left>370</left>
-            <top>776</top>
-            <width>1450</width>
-            <height>244</height>
+            <left>125</left>
+            <top>850</top>
+            <width>1690</width>
+            <height>210</height>
             <orientation>horizontal</orientation>
             <scrolltime>180</scrolltime>
             <onleft>8999</onleft>
             <onup>100</onup>
-            <itemlayout width="220" height="230">
-                <control type="image">
-                    <left>14</left>
-                    <top>4</top>
-                    <width>190</width>
-                    <height>216</height>
-                    <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
-                    <aspectratio>keep</aspectratio>
-                </control>
-            </itemlayout>
-            <focusedlayout width="236" height="240">
+            <itemlayout width="340" height="202">
                 <control type="image">
                     <left>10</left>
-                    <top>0</top>
-                    <width>216</width>
-                    <height>236</height>
+                    <top>8</top>
+                    <width>320</width>
+                    <height>180</height>
                     <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
-                    <aspectratio>keep</aspectratio>
-                    <animation effect="zoom" start="100" end="106" time="140" reversible="true">Focus</animation>
+                    <aspectratio>scale</aspectratio>
                 </control>
+                <control type="image"><left>10</left><top>108</top><width>320</width><height>80</height><texture>special://skin/media/card-charcoal.png</texture><colordiffuse>b8292721</colordiffuse></control>
+                <control type="label"><left>28</left><top>140</top><width>260</width><height>28</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterRailText</textcolor><truncate>true</truncate></control>
+            </itemlayout>
+            <focusedlayout width="340" height="210">
+                <control type="image">
+                    <left>6</left>
+                    <top>4</top>
+                    <width>328</width>
+                    <height>188</height>
+                    <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    <aspectratio>scale</aspectratio>
+                    <animation effect="zoom" start="100" end="104" time="140" reversible="true">Focus</animation>
+                </control>
+                <control type="image"><left>6</left><top>112</top><width>328</width><height>80</height><texture>special://skin/media/card-charcoal.png</texture><colordiffuse>b8292721</colordiffuse></control>
+                <control type="label"><left>26</left><top>144</top><width>266</width><height>28</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterRailText</textcolor><truncate>true</truncate></control>
             </focusedlayout>
             <content target="videos">videodb://recentlyaddedmovies/</content>
         </control>
