@@ -11,6 +11,7 @@ services:
       - PORTAL_SNAPSHOT_PATH=/data/recommendations.json
       - PORTAL_SOURCE_STATUS_PATH=/data/source-status.json
       - PORTAL_REJECTED_PATH=/data/rejected.json
+      - PORTAL_EXPOSURE_PATH=/data/exposure.json
       - PORTAL_LIBRARY_SNAPSHOT_PATH=/data/library.json
       - PORTAL_HISTORY_SNAPSHOT_PATH=/data/history.json
       - PORTAL_REFRESH_TRIGGER_PATH=/data/refresh-now
@@ -33,6 +34,9 @@ services:
       - LAZYLIBRARIAN_URL=${LAZYLIBRARIAN_URL:-http://lazylibrarian:5299}
       - LAZYLIBRARIAN_API_KEY_PATH=/run/unified-secrets/lazylibrarian-api-key
       - PORTAL_RECOMMENDATION_LIMIT=${PORTAL_RECOMMENDATION_LIMIT:-40}
+      - PORTAL_MEDIA_TYPE_LIMIT=${PORTAL_MEDIA_TYPE_LIMIT:-8}
+      - PORTAL_EXPOSURE_COOLDOWN_SECONDS=${PORTAL_EXPOSURE_COOLDOWN_SECONDS:-604800}
+      - PORTAL_EXPOSURE_RETENTION_SECONDS=${PORTAL_EXPOSURE_RETENTION_SECONDS:-2592000}
       # Optional explicit TMDB IDs supplement the bounded Radarr/Sonarr seeds.
       - PORTAL_TMDB_SEEDS=${PORTAL_TMDB_SEEDS:-}
       - PORTAL_TMDB_TIMEOUT=${PORTAL_TMDB_TIMEOUT:-10}
@@ -66,6 +70,12 @@ services:
       - ${UNIFIED_CONFIG_PATH}/secrets/trakt-client-id:/run/unified-secrets/trakt-client-id:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/trakt-refresh-token:/run/unified-secrets/trakt-refresh-token
     command: ["python", "/app/refresh.py"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os,time; p='/data/recommendations.json'; assert os.path.exists(p) and time.time()-os.path.getmtime(p) < int(os.environ.get('PORTAL_REFRESH_INTERVAL_SECONDS','21600'))+1800"]
+      interval: 5m
+      timeout: 10s
+      retries: 2
+      start_period: 2m
     restart: unless-stopped
 
   recommendation-portal:

@@ -26,11 +26,16 @@ class CollectorTests(unittest.TestCase):
                      "statistics": {"trackFileCount": 1}}], {}
         if "/Users/" in url:
             return {"Items": [{"Id": "j1", "Name": "Dune", "Type": "Movie",
+                                "ProviderIds": {"Tmdb": "438631"},
+                                "Genres": ["Science Fiction"], "Artists": ["Hans Zimmer"],
                                 "UserData": {"LastPlayedDate": "2026-10-01", "PlayCount": 2}}]}, {}
         if url.endswith("/Items"):
             return {"Items": [{"Id": "j1", "Name": "Dune", "Type": "Movie"}]}, {}
         if "/listening-sessions" in url:
-            return {"sessions": [{"libraryItemId": "a1", "title": "Dune",
+            return {"sessions": [{"libraryItemId": "a1",
+                                   "libraryItem": {"id": "a1", "media": {"metadata": {
+                                       "title": "Dune", "authorName": "Frank Herbert",
+                                       "genres": ["Science fiction"]}}},
                                    "startedAt": 1, "updatedAt": 2,
                                    "timeListening": 30}]}, {}
         if url.endswith("/api"):
@@ -54,6 +59,8 @@ class CollectorTests(unittest.TestCase):
         result = collect_jellyfin_history("http://jellyfin", str(self.key), "user1", request=self.request)
         self.assertEqual(result[0]["play_count"], 2)
         self.assertEqual(result[0]["media_type"], "movie")
+        self.assertEqual(result[0]["tmdb_id"], "438631")
+        self.assertEqual(result[0]["genres"], ["Science Fiction"])
         self.assertEqual(self.calls[0][1]["params"]["IsPlayed"], "true")
 
     def test_audiobookshelf_collector_scopes_library_requests(self):
@@ -67,6 +74,8 @@ class CollectorTests(unittest.TestCase):
             "http://abs", str(self.key), "user1", request=self.request)
         self.assertEqual(result[0]["authority_id"], "a1")
         self.assertEqual(result[0]["time_listening"], 30)
+        self.assertEqual(result[0]["author"], "Frank Herbert")
+        self.assertEqual(result[0]["genres"], ["Science fiction"])
         self.assertIn("/api/users/user1/listening-sessions", self.calls[0][0])
 
     def test_lazylibrarian_collector_uses_read_only_list_route(self):

@@ -22,6 +22,13 @@ def jellyfin_items(payload: Mapping[str, Any], *, archive_ids: Iterable[str] = (
         kind = _jellyfin_type(raw.get("Type"))
         if not item_id or not title or not kind:
             continue
+        raw_ids = raw.get("ProviderIds") if isinstance(raw.get("ProviderIds"), Mapping) else {}
+        provider_ids = {
+            str(key).casefold(): str(value)
+            for key, value in raw_ids.items()
+            if str(key).casefold() in {"tmdb", "musicbrainzalbum", "musicbrainzartist"}
+            and value
+        }
         items.append(SnapshotItem(
             media_type=kind,
             authority="jellyfin",
@@ -30,6 +37,7 @@ def jellyfin_items(payload: Mapping[str, Any], *, archive_ids: Iterable[str] = (
             owned=True,
             archived=str(item_id) in archived,
             signals=("in Jellyfin",),
+            provider_ids=provider_ids,
         ))
     return tuple(items)
 

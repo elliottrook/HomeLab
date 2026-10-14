@@ -20,8 +20,10 @@ from service_collectors import (
     collect_lazylibrarian,
     collect_lidarr as collect_lidarr_library,
 )
-from recommendation_engine import rank_candidates
-from candidate_sources import collect_musicbrainz, collect_openlibrary
+from recommendation_engine import rank_candidates, select_with_exposure_cooldown
+from candidate_sources import (collect_listenbrainz_albums, collect_musicbrainz,
+                               collect_openlibrary, collect_openlibrary_author,
+                               collect_openlibrary_subject)
 from trakt_oauth import refresh_access_token, write_secret
 from trakt_sources import collect_trakt_recommendations
 
@@ -31,6 +33,7 @@ HISTORY_SNAPSHOT_PATH = os.environ.get("PORTAL_HISTORY_SNAPSHOT_PATH")
 REFRESH_TRIGGER_PATH = Path(os.environ.get("PORTAL_REFRESH_TRIGGER_PATH", "/data/refresh-now"))
 SOURCE_STATUS_PATH = Path(os.environ.get("PORTAL_SOURCE_STATUS_PATH", "/data/source-status.json"))
 REJECTED_PATH = Path(os.environ.get("PORTAL_REJECTED_PATH", "/data/rejected.json"))
+EXPOSURE_PATH = Path(os.environ.get("PORTAL_EXPOSURE_PATH", "/data/exposure.json"))
 
 
 def _narrate(candidates):
@@ -101,7 +104,7 @@ def seerr_session():
     return cookie
 
 
-def collect_tmdb_recommendations(library):
+def collect_tmdb_recommendations(library, history=(), rotation=0):
     """Collect TMDB per-title recommendations through Seerr's TMDB proxy.
 
     Seerr remains the request authority, but its generic discovery feed is not
@@ -114,13 +117,36 @@ def collect_tmdb_recommendations(library):
         media_type, separator, media_id = value.partition(":")
         if separator and media_type in {"movie", "tv"} and media_id.isdigit():
             seeds.append((media_type, media_id))
+    tv_by_title = {}
+    fallback_seeds = []
     for item in library:
         if not isinstance(item, dict):
             continue
         if item.get("authority") == "radarr" and item.get("media_type") == "movie":
-            seeds.append(("movie", str(item.get("authority_id"))))
-        elif item.get("authority") == "sonarr" and item.get("media_type") == "tv":
-            seeds.append(("tv", str(item.get("authority_id"))))
+            fallback_seeds.append(("movie", str(item.get("authority_id"))))
+        elif item.get("authority") == "jellyfin" and item.get("media_type") == "tv":
+            provider_ids = item.get("provider_ids") if isinstance(item.get("provider_ids"), dict) else {}
+            tmdb_id = str(provider_ids.get("tmdb") or "")
+            if tmdb_id.isdigit():
+                fallback_seeds.append(("tv", tmdb_id))
+                tv_by_title[str(item.get("title", "")).casefold().strip()] = tmdb_id
+    recent_seeds = []
+    for item in history:
+        if not isinstance(item, dict):
+            continue
+        media_type = str(item.get("media_type", ""))
+        tmdb_id = str(item.get("tmdb_id") or "")
+        if media_type == "movie" and tmdb_id.isdigit():
+            recent_seeds.append(("movie", tmdb_id))
+        elif media_type in {"episode", "tv"}:
+            series_tmdb = tv_by_title.get(str(item.get("series_title") or item.get("title") or "").casefold().strip())
+            if series_tmdb:
+                recent_seeds.append(("tv", series_tmdb))
+    seeds.extend(recent_seeds)
+    fallback_seeds = list(dict.fromkeys(fallback_seeds))
+    if fallback_seeds:
+        start = (max(0, int(rotation)) * 8) % len(fallback_seeds)
+        seeds.extend(fallback_seeds[start:] + fallback_seeds[:start])
     unique_seeds = list(dict.fromkeys(
         (media_type, media_id) for media_type, media_id in seeds if media_id.isdigit()
     ))[:8]
@@ -225,25 +251,69 @@ def collect_lidarr():
     return results
 
 
-def collect_book_and_music_candidates():
-    """Collect bounded non-video candidates from explicit seed configuration."""
+def collect_book_and_music_candidates(history=(), rotation=0):
+    """Collect bounded, taste-driven non-video candidates with safe fallbacks."""
     results = []
-    for query in _csv("PORTAL_BOOK_QUERIES", "")[:6]:
+    authors, subjects, artists = [], [], []
+    for item in history:
+        if not isinstance(item, dict):
+            continue
+        if item.get("authority") == "audiobookshelf":
+            if item.get("author"):
+                authors.append(str(item["author"]))
+            subjects.extend(str(value) for value in item.get("genres", []) if value)
+        if item.get("authority") == "jellyfin":
+            if item.get("album_artist"):
+                artists.append(str(item["album_artist"]))
+            artists.extend(str(value) for value in item.get("artists", []) if value)
+    authors = _rotated_unique(authors, rotation)
+    subjects = _rotated_unique(subjects, rotation)
+    artists = _rotated_unique(artists, rotation)
+    for media_type in ("ebook", "audiobook"):
+        before = len(results)
+        for index, author in enumerate(authors[:2]):
+            try:
+                results.extend(collect_openlibrary_author(
+                    author, media_type=media_type, request=request_json,
+                    offset=((max(0, int(rotation)) + index) % 4) * 6))
+            except (OSError, TimeoutError, ValueError, urllib.error.URLError):
+                continue
+        for index, subject in enumerate(subjects[:2]):
+            try:
+                results.extend(collect_openlibrary_subject(
+                    subject, media_type=media_type, request=request_json,
+                    offset=((max(0, int(rotation)) + index) % 4) * 6))
+            except (OSError, TimeoutError, ValueError, urllib.error.URLError):
+                continue
+        if len(results) == before:
+            variable = "PORTAL_BOOK_QUERIES" if media_type == "ebook" else "PORTAL_AUDIOBOOK_QUERIES"
+            for query in _csv(variable, "")[:6]:
+                try:
+                    results.extend(collect_openlibrary(query, media_type=media_type, request=request_json))
+                except (OSError, TimeoutError, ValueError, urllib.error.URLError):
+                    continue
+    music_before = len(results)
+    for index, artist in enumerate(artists[:2]):
         try:
-            results.extend(collect_openlibrary(query, media_type="ebook", request=request_json))
+            results.extend(collect_listenbrainz_albums(
+                artist, request=request_json, rotation=max(0, int(rotation)) + index))
         except (OSError, TimeoutError, ValueError, urllib.error.URLError):
             continue
-    for query in _csv("PORTAL_AUDIOBOOK_QUERIES", "")[:6]:
-        try:
-            results.extend(collect_openlibrary(query, media_type="audiobook", request=request_json))
-        except (OSError, TimeoutError, ValueError, urllib.error.URLError):
-            continue
-    for query in _csv("PORTAL_MUSIC_MB_QUERIES", "")[:6]:
-        try:
-            results.extend(collect_musicbrainz(query, request=request_json))
-        except (OSError, TimeoutError, ValueError, urllib.error.URLError):
-            continue
+    if len(results) == music_before:
+        for query in _csv("PORTAL_MUSIC_MB_QUERIES", "")[:6]:
+            try:
+                results.extend(collect_musicbrainz(query, request=request_json))
+            except (OSError, TimeoutError, ValueError, urllib.error.URLError):
+                continue
     return results
+
+
+def _rotated_unique(values, rotation):
+    unique = list(dict.fromkeys(value.strip() for value in values if value and value.strip()))
+    if not unique:
+        return []
+    start = max(0, int(rotation)) % len(unique)
+    return unique[start:] + unique[:start]
 
 
 def _unique_exact_album(items, artist_query, album_query):
@@ -264,8 +334,18 @@ def refresh_once():
     _refresh_history_snapshot()
     library = _read_snapshot_items(LIBRARY_SNAPSHOT_PATH)
     history = _read_snapshot_items(HISTORY_SNAPSHOT_PATH)
-    candidates = (collect_tmdb_recommendations(library) + collect_lidarr() +
-                  collect_book_and_music_candidates())
+    now = time.time()
+    rotation = int(now // 86400)
+    candidates = []
+    for label, operation in (
+        ("tmdb", lambda: collect_tmdb_recommendations(library, history, rotation)),
+        ("lidarr", collect_lidarr),
+        ("nonvideo", lambda: collect_book_and_music_candidates(history, rotation)),
+    ):
+        try:
+            candidates.extend(operation())
+        except (OSError, TimeoutError, KeyError, TypeError, ValueError, urllib.error.URLError) as exc:
+            print(f"candidate_source_failed={label}:{type(exc).__name__}", flush=True)
     token_path = os.environ.get("TRAKT_ACCESS_TOKEN_PATH")
     client_id_path = os.environ.get("TRAKT_CLIENT_ID_PATH")
     refresh_path = os.environ.get("TRAKT_REFRESH_TOKEN_PATH")
@@ -294,12 +374,20 @@ def refresh_once():
             pass
     rejected = _read_rejected()
     candidates = [item for item in candidates if _candidate_key(item) not in rejected]
-    output = _narrate(_prepare_candidates(
+    ranked = _prepare_candidates(
         candidates,
-        limit=max(1, min(40, int(os.environ.get("PORTAL_RECOMMENDATION_LIMIT", "40")))),
+        limit=200,
         library=library,
         history=history,
-    ))
+    )
+    output, exposures = select_with_exposure_cooldown(
+        ranked, exposures=_read_exposures(), now=now,
+        cooldown_seconds=max(0, int(os.environ.get("PORTAL_EXPOSURE_COOLDOWN_SECONDS", "604800"))),
+        retention_seconds=max(86400, int(os.environ.get("PORTAL_EXPOSURE_RETENTION_SECONDS", "2592000"))),
+        per_media_limit=max(1, min(12, int(os.environ.get("PORTAL_MEDIA_TYPE_LIMIT", "8")))),
+        limit=max(1, min(40, int(os.environ.get("PORTAL_RECOMMENDATION_LIMIT", "40")))),
+    )
+    output = _narrate(output)
     SNAPSHOT_PATH.parent.mkdir(parents=True, exist_ok=True)
     fd, temporary = tempfile.mkstemp(dir=str(SNAPSHOT_PATH.parent))
     os.close(fd)
@@ -311,6 +399,7 @@ def refresh_once():
     finally:
         if os.path.exists(temporary):
             os.unlink(temporary)
+    _write_exposures(exposures)
     labels = [str(item.get("source_label", "")) for item in candidates if isinstance(item, dict)]
     status = {
         "last_refresh": datetime_now(),
@@ -323,6 +412,8 @@ def refresh_once():
                               "candidates": sum("Open Library" in label for label in labels)},
             "MusicBrainz": {"configured": True,
                              "candidates": sum("MusicBrainz" in label for label in labels)},
+            "ListenBrainz": {"configured": True,
+                              "candidates": sum("ListenBrainz" in label for label in labels)},
             "Lidarr": {"configured": bool(os.environ.get("LIDARR_API_KEY_PATH")),
                        "candidates": sum("Lidarr" in label for label in labels)},
         },
@@ -361,6 +452,28 @@ def _read_rejected():
     return set(value) if isinstance(value, list) else set(value.keys()) if isinstance(value, dict) else set()
 
 
+def _read_exposures():
+    try:
+        value = json.loads(EXPOSURE_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
+def _write_exposures(exposures):
+    EXPOSURE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(dir=str(EXPOSURE_PATH.parent))
+    os.close(fd)
+    try:
+        with open(temporary, "w", encoding="utf-8") as handle:
+            json.dump(exposures, handle, indent=2, sort_keys=True)
+        os.chmod(temporary, 0o644)
+        os.replace(temporary, EXPOSURE_PATH)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
 def _refresh_library_snapshot():
     """Optionally write a separate sanitized ARR library snapshot.
 
@@ -369,39 +482,51 @@ def _refresh_library_snapshot():
     """
     if not LIBRARY_SNAPSHOT_PATH:
         return
+    existing = _read_snapshot_items(LIBRARY_SNAPSHOT_PATH)
     libraries = []
+
+    def add_source(authority, operation):
+        try:
+            values = operation()
+            libraries.extend(item.__dict__ if hasattr(item, "__dict__") else dict(item)
+                             for item in values)
+        except (OSError, TimeoutError, KeyError, TypeError, ValueError, urllib.error.URLError) as exc:
+            libraries.extend(item for item in existing
+                             if isinstance(item, dict) and item.get("authority") == authority)
+            print(f"library_source_failed={authority}:{type(exc).__name__}", flush=True)
+
     if os.environ.get("SONARR_API_KEY_PATH"):
-        libraries.extend(collect_arr(
+        add_source("sonarr", lambda: collect_arr(
             os.environ.get("SONARR_URL", "http://192.168.20.40:8989"),
             os.environ["SONARR_API_KEY_PATH"], "sonarr", request=request_json))
     if os.environ.get("RADARR_API_KEY_PATH"):
-        libraries.extend(collect_arr(
+        add_source("radarr", lambda: collect_arr(
             os.environ.get("RADARR_URL", "http://192.168.20.40:7878"),
             os.environ["RADARR_API_KEY_PATH"], "radarr", request=request_json))
     if os.environ.get("LIDARR_API_KEY_PATH"):
-        libraries.extend(collect_lidarr_library(
+        add_source("lidarr", lambda: collect_lidarr_library(
             os.environ.get("LIDARR_URL", "http://192.168.20.40:8686"),
             os.environ["LIDARR_API_KEY_PATH"], request=request_json))
     if os.environ.get("JELLYFIN_API_KEY_PATH"):
-        libraries.extend(collect_jellyfin(
+        add_source("jellyfin", lambda: collect_jellyfin(
             os.environ.get("JELLYFIN_URL", "http://192.168.20.40:8096"),
             os.environ["JELLYFIN_API_KEY_PATH"], request=request_json))
     if os.environ.get("AUDIOBOOKSHELF_TOKEN_PATH"):
         library_ids = _csv("AUDIOBOOKSHELF_LIBRARY_IDS", "")
         if library_ids:
-            libraries.extend(collect_audiobookshelf(
+            add_source("audiobookshelf", lambda: collect_audiobookshelf(
                 os.environ.get("AUDIOBOOKSHELF_URL", "http://192.168.20.40:30067"),
                 os.environ["AUDIOBOOKSHELF_TOKEN_PATH"], request=request_json,
                 library_ids=library_ids))
     if os.environ.get("LAZYLIBRARIAN_API_KEY_PATH"):
-        libraries.extend(collect_lazylibrarian(
+        add_source("lazylibrarian", lambda: collect_lazylibrarian(
             os.environ.get("LAZYLIBRARIAN_URL", "http://192.168.20.40:5299"),
             os.environ["LAZYLIBRARIAN_API_KEY_PATH"], request=request_json))
     target = Path(LIBRARY_SNAPSHOT_PATH)
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary = target.with_suffix(".tmp")
     with temporary.open("w", encoding="utf-8") as handle:
-        json.dump([item.__dict__ for item in libraries], handle, indent=2)
+        json.dump(libraries, handle, indent=2)
     os.chmod(temporary, 0o644)
     os.replace(temporary, target)
 
@@ -417,15 +542,27 @@ def _refresh_history_snapshot():
     user_id = os.environ.get("AUDIOBOOKSHELF_USER_ID")
     if not user_id:
         return
-    history = list(collect_audiobookshelf_history(
-        os.environ.get("AUDIOBOOKSHELF_URL", "http://192.168.20.40:30067"),
-        os.environ["AUDIOBOOKSHELF_TOKEN_PATH"], user_id, request=request_json))
+    existing = _read_snapshot_items(HISTORY_SNAPSHOT_PATH)
+    history = []
+    try:
+        history.extend(collect_audiobookshelf_history(
+            os.environ.get("AUDIOBOOKSHELF_URL", "http://192.168.20.40:30067"),
+            os.environ["AUDIOBOOKSHELF_TOKEN_PATH"], user_id, request=request_json))
+    except (OSError, TimeoutError, KeyError, TypeError, ValueError, urllib.error.URLError) as exc:
+        history.extend(item for item in existing
+                       if isinstance(item, dict) and item.get("authority") == "audiobookshelf")
+        print(f"history_source_failed=audiobookshelf:{type(exc).__name__}", flush=True)
     jellyfin_user_id = os.environ.get("JELLYFIN_USER_ID")
     if jellyfin_user_id and os.environ.get("JELLYFIN_API_KEY_PATH"):
-        history.extend(collect_jellyfin_history(
-            os.environ.get("JELLYFIN_URL", "http://192.168.20.40:8096"),
-            os.environ["JELLYFIN_API_KEY_PATH"], jellyfin_user_id,
-            request=request_json))
+        try:
+            history.extend(collect_jellyfin_history(
+                os.environ.get("JELLYFIN_URL", "http://192.168.20.40:8096"),
+                os.environ["JELLYFIN_API_KEY_PATH"], jellyfin_user_id,
+                request=request_json))
+        except (OSError, TimeoutError, KeyError, TypeError, ValueError, urllib.error.URLError) as exc:
+            history.extend(item for item in existing
+                           if isinstance(item, dict) and item.get("authority") == "jellyfin")
+            print(f"history_source_failed=jellyfin:{type(exc).__name__}", flush=True)
     target = Path(HISTORY_SNAPSHOT_PATH)
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary = target.with_suffix(".tmp")
@@ -435,20 +572,32 @@ def _refresh_history_snapshot():
     os.replace(temporary, target)
 
 
-if __name__ == "__main__":
-    if os.environ.get("PORTAL_REFRESH_LOOP", "NO") == "YES":
-        interval = int(os.environ.get("PORTAL_REFRESH_INTERVAL_SECONDS", "21600"))
-        next_refresh = 0.0
-        while True:
-            if not REFRESH_TRIGGER_PATH.exists() and time.monotonic() < next_refresh:
-                time.sleep(min(5, next_refresh - time.monotonic()))
-                continue
+def refresh_due(interval, *, now=None):
+    """Determine due-state from durable snapshot age, not process memory."""
+    if REFRESH_TRIGGER_PATH.exists() or not SNAPSHOT_PATH.exists():
+        return True
+    timestamp = time.time() if now is None else float(now)
+    try:
+        age = max(0.0, timestamp - SNAPSHOT_PATH.stat().st_mtime)
+    except OSError:
+        return True
+    return age >= max(1, int(interval))
+
+
+def run_loop(interval, *, sleep=time.sleep):
+    while True:
+        if refresh_due(interval):
             try:
                 if REFRESH_TRIGGER_PATH.exists():
                     REFRESH_TRIGGER_PATH.unlink(missing_ok=True)
                 refresh_once()
             except Exception as exc:
-                print(f"refresh_failed={type(exc).__name__}")
-            next_refresh = time.monotonic() + interval
+                print(f"refresh_failed={type(exc).__name__}", flush=True)
+        sleep(5)
+
+
+if __name__ == "__main__":
+    if os.environ.get("PORTAL_REFRESH_LOOP", "NO") == "YES":
+        run_loop(int(os.environ.get("PORTAL_REFRESH_INTERVAL_SECONDS", "21600")))
     else:
         refresh_once()

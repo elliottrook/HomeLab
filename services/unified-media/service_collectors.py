@@ -86,7 +86,8 @@ def collect_jellyfin_history(url: str, secret_path: str, user_id: str, *,
         url.rstrip("/") + "/Users/" + str(user_id) + "/Items",
         params={"Recursive": "true", "IsPlayed": "true",
                 "IncludeItemTypes": "Movie,Episode,Audio,MusicAlbum",
-                "Fields": "UserData", "Limit": "100",
+                "Fields": "UserData,ProviderIds,Genres,Artists,AlbumArtist,SeriesInfo",
+                "Limit": "100",
                 "SortBy": "DatePlayed", "SortOrder": "Descending"},
         headers={"Authorization": (
             'MediaBrowser Client="unified-media-reader", Device="TrueNAS", '
@@ -100,6 +101,9 @@ def collect_jellyfin_history(url: str, secret_path: str, user_id: str, *,
         if not isinstance(item, Mapping) or not item.get("Id") or not item.get("Name"):
             continue
         user_data = item.get("UserData") or {}
+        provider_ids = item.get("ProviderIds") if isinstance(item.get("ProviderIds"), Mapping) else {}
+        artists = item.get("Artists") if isinstance(item.get("Artists"), list) else []
+        genres = item.get("Genres") if isinstance(item.get("Genres"), list) else []
         output.append({
             "authority": "jellyfin",
             "authority_id": str(item["Id"]),
@@ -107,6 +111,11 @@ def collect_jellyfin_history(url: str, secret_path: str, user_id: str, *,
             "media_type": str(item.get("Type", "unknown")).lower(),
             "last_played": user_data.get("LastPlayedDate"),
             "play_count": user_data.get("PlayCount", 0),
+            "tmdb_id": str(provider_ids.get("Tmdb") or ""),
+            "series_title": str(item.get("SeriesName") or ""),
+            "artists": [str(value) for value in artists[:4] if value],
+            "album_artist": str(item.get("AlbumArtist") or ""),
+            "genres": [str(value) for value in genres[:6] if value],
         })
     return tuple(output)
 
@@ -145,6 +154,11 @@ def collect_audiobookshelf_history(url: str, token_path: str, user_id: str, *,
         title = metadata.get("title") or media.get("title") or session.get("title")
         if not item_id or not title:
             continue
+        authors = metadata.get("authors") if isinstance(metadata.get("authors"), list) else []
+        author = metadata.get("authorName") or metadata.get("author")
+        if not author and authors and isinstance(authors[0], Mapping):
+            author = authors[0].get("name")
+        genres = metadata.get("genres") if isinstance(metadata.get("genres"), list) else []
         output.append({
             "authority": "audiobookshelf",
             "authority_id": str(item_id),
@@ -152,6 +166,8 @@ def collect_audiobookshelf_history(url: str, token_path: str, user_id: str, *,
             "started_at": session.get("startedAt"),
             "updated_at": session.get("updatedAt"),
             "time_listening": session.get("timeListening"),
+            "author": str(author or ""),
+            "genres": [str(value) for value in genres[:6] if value],
         })
     return tuple(output)
 

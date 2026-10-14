@@ -26,6 +26,7 @@ gaps, not inferred values.
 | `backup-relay` | V1 | Production recovery service | LXC 112 `.33`, VLAN 20 | Remain recovery service | Exact build pending | Relay configuration outside Git | Jason | TrueNAS/off-site backup workflow | Protected recovery configuration and guest archive | High |
 | `forgejo` | V1 | Production source control | LXC 108 `.30`, VLAN 20 | Remain authoritative Forgejo remote | Exact Forgejo version pending | Repository and service configuration | Jason | All repository projects and mirror | Guest archive; Forgejo mirror and isolated restore evidence | High |
 | `home-assistant` | V1 | Production application | VM 103 `.11`, VLAN 20 | Remain production application | HA OS 18.2 | Native HA configuration/backup | Jason | IoT devices, HomeKit presentation | Native backup and VM archive | High |
+| `media-acquisition-hub` | V1 | Production application | TrueNAS `.40`, VLAN 20; private VLAN 50 ingress | Remain production application; M6 refresh-quality maintenance deployed | Refresher image `sha256:ce2bf43978a…`; focused M6 milestone commit | Compose revision `484ee6d43212…` plus protected TrueNAS state/secrets | Jason | Jellyfin, Audiobookshelf, ARR services, Seerr, LazyLibrarian, Trakt and bounded public metadata providers | Protected configuration/state backup; checkpoint `20261014-m6-refresh-quality` and pre-M6 image/build tree | High except Audiobookshelf reader credential maintenance |
 
 ## Promotion procedure
 

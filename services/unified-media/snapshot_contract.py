@@ -18,6 +18,7 @@ class SnapshotItem:
     archived: bool = False
     match_count: int = 1
     signals: Tuple[str, ...] = field(default_factory=tuple)
+    provider_ids: Mapping[str, str] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -47,6 +48,7 @@ def merge_snapshots(snapshots: Iterable[LibrarySnapshot]) -> Tuple[SnapshotItem,
                     archived=old.archived or item.archived,
                     match_count=max(old.match_count, item.match_count),
                     signals=tuple(dict.fromkeys(old.signals + item.signals)),
+                    provider_ids={**old.provider_ids, **item.provider_ids},
                 )
     return tuple(sorted(merged.values(), key=lambda item: (item.media_type, item.title.casefold(), item.authority_id)))
 

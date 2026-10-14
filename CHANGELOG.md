@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-10-14 — Media Acquisition Hub refresh-quality maintenance
+
+- Started approved Stream A M6 maintenance after read-only evidence showed a
+  running refresher serving an October 10 snapshot and code review confirmed
+  fixed non-Trakt seeds. The bounded repair covers freshness-aware scheduling,
+  taste-driven video/book/music discovery and a recent-exposure cooldown
+  without changing acquisition authority, credentials, ingress, firewall
+  policy or media.
+- Deployed only the refresher after a protected build/config/snapshot
+  checkpoint. Two production refreshes produced different hashes and balanced
+  safe cards across all five media types; Docker health and the unified-media
+  Doctor check pass. An expired Audiobookshelf reader token now fails soft to
+  its last-good library data instead of freezing every provider.
+
 ## 2026-10-08 — ARR stack reliability and update hardening
 
 - Corrected inconsistent `apps` group ownership and group-write/traverse

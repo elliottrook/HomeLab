@@ -1,6 +1,6 @@
 # Unified Recommendation Engine — mini-project
 
-> Status: Completed — Stream A
+> Status: Active — Stream A; M6 refresh-quality maintenance
 >
 > Owner: Jason
 >
@@ -11,6 +11,14 @@
 > Authorization stream: Stream A
 >
 > Governing project: [Unified Media Automation and Recommendations](Unified-Media-Automation-and-Recommendations.md)
+>
+> Service ID / release: `media-acquisition-hub` / V1
+>
+> Environment: production application on TrueNAS VLAN 20 with private VLAN 50 ingress
+>
+> Build reference: repository revision pending M6 validation
+>
+> Rollback reference: deployed pre-M6 image plus the 2026-10-10 last-known-good snapshot
 
 ## Purpose
 
@@ -122,6 +130,56 @@ unattended continuation after a session stop. Platform approval prompts and
 the repository's immediate confirmation requirement for Forgejo pushes remain
 mandatory.
 
+## M6 refresh-quality maintenance — 2026-10-14
+
+Jason reported that recommendations had remained substantially unchanged for
+days and that Trakt TV was the only consistently useful source. Read-only live
+discovery confirmed two independent causes: the refresher container remained
+`running` while its recommendation, source-status, library and history files
+stopped advancing on 2026-10-10; and the non-Trakt adapters repeatedly queried
+fixed title/album seeds or the same leading library records.
+
+Jason approved this focused Stream A maintenance on 2026-10-14. Its scope is:
+
+- make refresh due-state persistent and freshness-aware so a running process
+  cannot silently sleep past a stale snapshot;
+- prefer recent Jellyfin viewing signals and rotate fallback library seeds for
+  bounded TMDB per-title recommendations;
+- retain sanitized author/subject signals from recent Audiobookshelf activity
+  and use bounded Open Library author/subject discovery instead of only fixed
+  title searches;
+- use public, read-only ListenBrainz similar-artist discovery plus MusicBrainz
+  release-group identity/artwork for music, with fixed exact-album seeds only
+  as a fail-soft fallback;
+- retain a bounded exposure ledger and cool down recently displayed candidates
+  so a larger safe pool rotates instead of presenting the same page each day;
+- add container freshness health plus Doctor evidence without duplicating
+  existing service monitoring.
+
+No acquisition automation, public ingress, new firewall rule, media mutation,
+provider write, user-history export, new credential or broader service identity
+is authorized. Trakt, Seerr, Lidarr and LazyLibrarian authority boundaries are
+unchanged.
+
+### M6 pre-start risk assessment
+
+| Risk | Likelihood / impact | Control and accepted residual risk |
+|---|---|---|
+| A dynamic source returns irrelevant or malformed metadata | Medium / Low | Treat responses as untrusted, require stable provider identity and artwork, retain deterministic scoring and explicit request approval. Some weak candidates may still require rejection. |
+| Extra provider reads cause latency or throttling | Medium / Low | Bound seeds/results, use timeouts, perform no bulk crawl and fail soft to the last-good snapshot. |
+| Cooldown removes too many candidates | Low / Low | Bound ledger retention, fall back to least-recently shown safe candidates when the unseen pool is exhausted, and preserve per-media balancing. |
+| Refresher repair interrupts the portal | Low / Low | Build and test locally, preserve the deployed image/configuration and snapshot, recreate only the refresher first, and keep the portal serving the last snapshot during refresh failure. |
+| Sanitized taste signals disclose private history | Low / Medium | Store only title, media type, creator/genre/provider IDs and timestamps inside the existing protected state boundary; never log raw service responses or tokens. |
+| New remote dependency is unavailable | Medium / Low | ListenBrainz and Open Library discovery are read-only, bounded and optional; source failures do not abort other adapters. |
+
+The live snapshot is the recovery checkpoint. Rollback is the prior refresher
+image/configuration plus the preserved snapshot; no database or media rollback
+is needed. Abort on credential output, unexpected write traffic, public-route or
+firewall change, loss of the last-good snapshot, ambiguous request identity, or
+materially increased provider/network load. Tests use injected provider
+fixtures; no synthetic acquisition request is required because M6 changes only
+read-side recommendation generation.
+
 ## Architecture and data flow
 
 ```text
@@ -181,6 +239,15 @@ Request adapters remain the only write boundary.
 - [x] **M5 — Quality review and handover.** Compare a fixed sample against
   current Seerr-only output, verify all five domains, and publish a short user
   manual covering refresh, explanations and approval behavior.
+- [x] **M6a — Scheduler and observability repair.** Make due-state recover from
+  stale files/restarts, add freshness health, and prove failure preserves the
+  last-good snapshot.
+- [x] **M6b — Taste-driven source adapters.** Rotate recent-history video seeds,
+  add Open Library author/subject discovery and add ListenBrainz similar-artist
+  album discovery with bounded fallbacks.
+- [x] **M6c — Exposure cooldown and deployment.** Persist a bounded exposure
+  ledger, validate multi-day rotation with fixtures, deploy only the refresher,
+  verify two production refreshes and update the operator handover.
 
 ## Risk controls and approvals
 
@@ -235,19 +302,19 @@ in the evidence log rather than being silently treated as complete.
 
 ## Integration impact checklist
 
-- [ ] **HomeLab Doctor:** add or confirm snapshot freshness and failed-refresh
+- [x] **HomeLab Doctor:** snapshot freshness and failed-refresh
   checks before graduation.
-- [ ] **Monitoring/alerting:** reuse existing service/container health; add
+- [x] **Monitoring/alerting:** reuse existing service/container health; add
   recommendation freshness/action failure visibility if the current checks do
   not cover it.
-- [ ] **Backup/recovery:** protect recommendation snapshots, state, provider
+- [x] **Backup/recovery:** protect recommendation snapshots, state, provider
   configuration and icon source; prove the portal can return to its last-good
   snapshot.
-- [ ] **NetBox:** no new host, VM, LXC or address; no change expected.
-- [ ] **Homepage:** update only the existing private tile/icon if it consumes
-  the recommendation portal asset; no credentials in the tile.
-- [ ] **Auth/networking:** reuse Authentik/NPM/private DNS; no new ingress or
-  authentication change.
+- [x] **NetBox:** not applicable; no host, VM, LXC, address or service placement changed.
+- [x] **Homepage:** existing tile and icon remain correct; no change required and
+  no credentials are embedded.
+- [x] **Auth/networking:** existing Authentik/NPM/private DNS reused; no ingress,
+  authentication or firewall change.
 - [ ] **Wiki/Aster mirror:** publish sanitized operator guidance and project
   status at graduation.
 
@@ -291,6 +358,10 @@ only the portal if needed.
 | 2026-10-07 | M4 request actions authorized and enabled | Jason explicitly approved enabling the existing safety-checked request boundary. The shadow portal now exposes 16 safe recommendation actions and routes only snapshot candidates to Seerr, Lidarr or LazyLibrarian with idempotent state. A fabricated validation request was rejected with HTTP 409 and no downstream call. | One-button recommendation approval is live; individual requests still require Jason's click |
 | 2026-10-07 | M5 quality review and handover update | The live snapshot contains 16 candidates across all five media types, with zero missing artwork and zero missing explanations. Provider search was validated for film, ebook and album queries; both shadow services are running and health is `ok`. Updated `docs/runbooks/Unified-Media-Recommendation-User-Guide.md` with search, Trakt, request and authentication training. | Technical quality gate passes; remaining close-out is Jason's visual review of the new search/actions UI and final project acceptance |
 | 2026-10-07 | M5 user acceptance completed | Jason confirmed the page looks good and successfully tested requests for films, TV, books, audiobooks and music. Non-video routing now maps discovery identities to LazyLibrarian and Lidarr; confirmation text is `Request sent.`. | All five media domains and the user-facing handover are accepted; project is ready for close-out after the final Forgejo push |
+| 2026-10-14 | M6 refresh-quality maintenance authorized | Jason reported static recommendations and approved the recommended focused Stream A repair. Live read-only evidence found both services running but the snapshot/status/library/history files last advanced on 2026-10-10; the last source status contained 9 Trakt, 1 TMDB, 33 Open Library and 4 MusicBrainz raw candidates, while the displayed 33 cards had no film or album cards. Code review confirmed fixed non-Trakt seeds and no exposure cooldown. | M6 active. Existing snapshot is the rollback point; no live state has yet changed. |
+| 2026-10-14 | M6 implementation and first production pass | Added durable file-age scheduling, container freshness health, per-source last-good isolation, recent-history TMDB identities, Open Library author/subject readers, public ListenBrainz similar-artist discovery, valid MusicBrainz album identity and a bounded exposure ledger. Preserved build/config/snapshot checkpoint `20261014-m6-refresh-quality`, rebuilt and recreated only the refresher. The first pass completed despite an Audiobookshelf 401: 32 safe cards across all five media types, 16 new versus the stale snapshot, 2 ListenBrainz albums, 13 TMDB cards, zero missing art and zero unsafe records. | Passed. Audiobookshelf's 46 last-good library records were preserved; its absent/unauthorized history means books currently use the reviewed fallback pool plus display rotation until the reader credential is repaired separately. |
+| 2026-10-14 | M6 independent second refresh | Triggered a second ordinary refresh through the deployed watcher. It completed in 20 seconds with a different snapshot hash and 31 cards: 1 album, 8 audiobooks, 8 ebooks, 6 films and 8 TV shows. Exposure generations prove 15 first-pass-only identities and 26 second-pass selections; portal health/root remained `ok`/HTTP 200, the refresher became Docker `healthy`, and no portal, LazyLibrarian, Audiobookshelf or Calibre-Web container was recreated. | M6 functional, failure-isolation, rotation and collateral-service gates passed. 73 local tests pass; local Docker Compose execution was unavailable, so the authoritative TrueNAS Compose validation and image build supplied that gate. |
+| 2026-10-14 | M6 Doctor and efficiency review | Full HomeLab Doctor reported the unified-media Audiobookshelf/CWA health, portal state and recommendation freshness check healthy. The whole-lab run had 76 passes, 10 warnings and 3 failures, all outside this project (Aster approval identity, AI-PAM drift and an observability expected-job-count mismatch). The refresher has zero restarts, refresh completion was 47 seconds then 20 seconds, and provider calls remain bounded to six-hour/manual runs. The focused local M6 commit contains only M6 files/hunks; unrelated working-tree changes remain unstaged. | Intent and efficiency gate passed for M6. Existing unrelated Doctor findings were not changed. Audiobookshelf reader reauthorization remains a credential-maintenance follow-up; its 46 last-good library records are retained and book cards rotate through the safe fallback pool meanwhile. Forgejo synchronization remains pending the repository's separate immediate push confirmation. |
 
 ## Acceptance evidence
 

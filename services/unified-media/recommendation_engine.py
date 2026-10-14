@@ -152,6 +152,64 @@ def rank_candidates(
     return balanced
 
 
+def exposure_key(item: Mapping[str, Any]) -> str:
+    """Return the stable, non-secret key used by the display cooldown ledger."""
+    return f"{item.get('authority', '')}|{item.get('authority_id', '')}"
+
+
+def select_with_exposure_cooldown(
+    candidates: Iterable[Mapping[str, Any]],
+    *,
+    exposures: Mapping[str, Any] | None = None,
+    now: float,
+    cooldown_seconds: int = 7 * 86400,
+    retention_seconds: int = 30 * 86400,
+    per_media_limit: int = 8,
+    limit: int = 40,
+) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Rotate safe candidates while retaining deterministic media balance.
+
+    Candidates outside the cooldown are preferred. When a medium exhausts its
+    unseen pool, the least-recently shown safe candidate is used rather than
+    leaving the category empty.
+    """
+    timestamp = int(now)
+    seen = {}
+    for key, value in (exposures or {}).items():
+        try:
+            previous = int(value)
+        except (TypeError, ValueError):
+            continue
+        if 0 <= timestamp - previous <= max(0, int(retention_seconds)):
+            seen[str(key)] = previous
+    buckets: dict[str, list[tuple[int, dict[str, Any]]]] = defaultdict(list)
+    for index, raw in enumerate(candidates):
+        if isinstance(raw, Mapping):
+            buckets[str(raw.get("media_type"))].append((index, dict(raw)))
+    ordered: dict[str, list[dict[str, Any]]] = {}
+    cooldown = max(0, int(cooldown_seconds))
+    for media_type, values in buckets.items():
+        fresh = [(index, item) for index, item in values
+                 if timestamp - seen.get(exposure_key(item), 0) >= cooldown]
+        recent = [(index, item) for index, item in values
+                  if timestamp - seen.get(exposure_key(item), 0) < cooldown]
+        recent.sort(key=lambda pair: (seen.get(exposure_key(pair[1]), 0), pair[0]))
+        ordered[media_type] = [item for _, item in (fresh + recent)][:max(1, int(per_media_limit))]
+    selected: list[dict[str, Any]] = []
+    cap = max(0, int(limit))
+    while len(selected) < cap:
+        added = False
+        for media_type in sorted(ordered):
+            if ordered[media_type] and len(selected) < cap:
+                selected.append(ordered[media_type].pop(0))
+                added = True
+        if not added:
+            break
+    for item in selected:
+        seen[exposure_key(item)] = timestamp
+    return selected, seen
+
+
 def _explanation(item: Mapping[str, Any], signals: list[str], ambiguous: bool) -> str:
     if ambiguous:
         return "Held back because provider identity is ambiguous; no request action is offered."

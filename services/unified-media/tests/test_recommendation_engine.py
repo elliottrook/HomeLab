@@ -1,6 +1,7 @@
 import unittest
 
-from recommendation_engine import identity_key, rank_candidates
+from recommendation_engine import (identity_key, rank_candidates,
+                                   select_with_exposure_cooldown)
 
 
 class RecommendationEngineTests(unittest.TestCase):
@@ -44,6 +45,27 @@ class RecommendationEngineTests(unittest.TestCase):
         result = rank_candidates(candidates, limit=8)
         self.assertEqual([item["media_type"] for item in result],
                          ["album", "audiobook", "ebook", "movie"] * 2)
+
+    def test_exposure_cooldown_rotates_candidates_before_repeating(self):
+        candidates = [{"media_type": "ebook", "authority": "openlibrary",
+                       "authority_id": str(index), "title": f"Book {index}"}
+                      for index in range(10)]
+        first, ledger = select_with_exposure_cooldown(
+            candidates, exposures={}, now=1000000, per_media_limit=4, limit=4)
+        second, _ = select_with_exposure_cooldown(
+            candidates, exposures=ledger, now=1000000 + 86400,
+            per_media_limit=4, limit=4)
+        self.assertEqual([item["authority_id"] for item in first], ["0", "1", "2", "3"])
+        self.assertEqual([item["authority_id"] for item in second], ["4", "5", "6", "7"])
+
+    def test_exposure_cooldown_falls_back_to_oldest_recent_item(self):
+        candidates = [{"media_type": "album", "authority": "musicbrainz",
+                       "authority_id": str(index), "title": f"Album {index}"}
+                      for index in range(2)]
+        result, _ = select_with_exposure_cooldown(
+            candidates, exposures={"musicbrainz|0": 90, "musicbrainz|1": 80},
+            now=100, cooldown_seconds=1000, per_media_limit=1, limit=1)
+        self.assertEqual(result[0]["authority_id"], "1")
 
 
 if __name__ == "__main__":

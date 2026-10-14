@@ -89,13 +89,22 @@ rating, genres, source, why it was selected and whether it is ready for
 approval. This is a deliberate improvement over the original diagnostic page.
 
 The **Sources checked** line reports the number of raw candidates returned by
-each provider before ownership and archive suppression. Trakt supplies
-personal film and TV recommendations; TMDB supplies bounded per-title
-recommendations from multiple library seeds; Open Library supplies ebook and
-audiobook discovery from the configured seed set; and MusicBrainz supplies
-exact artist/album discovery. A source showing zero candidates is not by
-itself an error—the candidates may be filtered later or the provider may have
-returned nothing new.
+each provider before ownership, archive, rejection and recent-exposure
+suppression. Trakt supplies personal film and TV recommendations. TMDB uses
+recent Jellyfin viewing signals first, then a daily-rotated slice of valid
+library identities. ListenBrainz supplies similar-artist discovery from recent
+Jellyfin listening while MusicBrainz supplies the stable album identity and
+artwork lookup. Open Library uses recent Audiobookshelf authors/subjects when
+that reader is available and retains the reviewed title seeds as a fail-soft
+fallback.
+
+The page shows at most eight cards per media type and normally cools a displayed
+identity down for seven days. If a category has too few safe alternatives, the
+least-recently shown card may repeat rather than leaving that category empty.
+Pressing **Refresh recommendations** can therefore change the visible page even
+when a provider's underlying candidate pool has not changed. A source showing
+zero candidates is not by itself an error—the candidates may have been filtered
+later or the provider may have returned nothing new.
 
 ## Searching for something specific
 
@@ -169,6 +178,16 @@ title repeatedly.
   report it rather than bypassing the gate.
 - **Failed** — record the message and check the target authority. Retry only
   after confirming the first attempt was not accepted.
+
+The refresher checks durable snapshot age rather than relying only on an
+in-memory timer. A single provider failure preserves that provider's last-good
+sanitized library/history records and allows the other providers to refresh.
+The refresher becomes unhealthy when the snapshot exceeds the six-hour
+schedule plus its grace period; HomeLab Doctor warns after seven hours and
+fails after eight. A provider authentication warning still needs maintenance,
+but it no longer freezes the whole recommendation page. Replace an expired
+reader credential through that service's normal administrator workflow; never
+paste a token into chat or the portal.
 
 ## Small operator training note
 
