@@ -5,7 +5,7 @@ live effect.
 
 ## Candidate identity
 
-- Source commit: `5495df6c`; this manifest is not a deployment authorization.
+- Source commit: `41ec8030`; this manifest is not a deployment authorization.
 - Accepted live runtime: LXC 110, llama.cpp `b11429`, SYCL/Level Zero,
   Qwen3.5 9B Q4_K_M; live unit hash
   `a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3`; live
@@ -63,20 +63,20 @@ These SHA-256 values cover the source and disabled unit reviewed for staging:
 | `scripts/local-ai/source_receipts.py` | `51052b26ee52ca0e2b4b561f6d5e9f303aadd20badfa9856bd15f551427629a4` |
 | `scripts/local-ai/test_source_receipts.py` | `7c8abd7dc5c1a7ce0261da6b85940e1a0e4893b4fd07741a7e4f3ea60c7dd5f7` |
 | `scripts/local-ai/test_trusted_observer.py` | `c0e585a8c32b361a670a585b1934cb0c02e65514ba3137652961675dd31f2405` |
-| `scripts/local-ai/backup_receipt_adapter.py` | `17f73e87d02dc0a8cbad31e6fa9ef5b4551631ba694f4565c8dc56b7468de30c` |
-| `scripts/local-ai/test_backup_receipt_adapter.py` | `3471381e4795b7193380f803365ced5ff5e6823aa22c112e1440e5b43f34c872` |
+| `scripts/local-ai/backup_receipt_adapter.py` | `9bc07d567657deee07a757cb2518c078c37ef187d1922ff849d150313ec60a64` |
+| `scripts/local-ai/test_backup_receipt_adapter.py` | `40486f9f3eb8d41ef0e5471cc8ce943ef0deaf1b994c742d280f6586312a0f4b` |
 | `scripts/local-ai/quiescence_receipt_adapter.py` | `7bc97c6b7c470322a42b635cc3a0b6788d027d83f33191214682c3fad4f5caf0` |
 | `scripts/local-ai/test_quiescence_receipt_adapter.py` | `4eb53b5b7105475e0f75e28210fd23f9e40624a46cc55f291dcea783d333e66e` |
-| `scripts/local-ai/fixed_source_adapters.py` | `d600339237e1f82841d3ffeeaef1d4ae3d820f8175e7d5d6eba11561366dc03c` |
+| `scripts/local-ai/fixed_source_adapters.py` | `64daf43291eec808e122c1e0fe844e614327049a907d36817fdbaacc46ac73e0` |
 | `scripts/local-ai/test_fixed_source_adapters.py` | `f3d365763086f40652e2f57ee82ad14a0022a5104fe6cc2d5a54642fd89d3f46` |
 | `scripts/local-ai/truenas_observer_contract.py` | `4151412e9b5638af625fd4f356c2e856c5a51f6c1de36c50103fa7d71f38f733` |
 | `scripts/local-ai/test_truenas_observer_contract.py` | `e3c2f17a908b48e31416cc626a8a444f04f66b7a494d5f11bc50db47a1b73e24` |
-| `scripts/local-ai/test_truenas_mac_pull_observer.py` | `819e8389dc2a03e2a037a6b9f977dfacf2ca2e6ae4d16058e128e4e283aaf75f` |
-| `services/local-ai-lease/truenas_mac_pull_observer.py` | `a83da8998cea99f5dd559cabe6a498d15a152e35fcaa5a44d2b44a764b038f37` |
+| `scripts/local-ai/test_truenas_mac_pull_observer.py` | `f776c4b2e0ee90c6393bad3f359ec6d74695525b5ff5df4370cd384da95233a2` |
+| `services/local-ai-lease/truenas_mac_pull_observer.py` | `3fc55573a6b0167ff7f06e43ea79cdc80f6274f63f6fc9a391887a32823e3991` |
 | `services/local-ai-lease/aster-mac-pull-observer-root` | `d3c1577de35a7eb1cead7bb7c3bc8481fa88239a759f98f1bb204a843f8d3dbf` |
 | `scripts/local-ai/source_receipt_boundary.py` | `bd055c61492f9d4072b25c4b699c4672b940e04436a511a07b7e73660b12a8b0` |
 | `scripts/local-ai/test_source_receipt_boundary.py` | `f918dc7cd12fd33486ebd3d26053a5624cd2ce7b8387854a3ebcbccad9f726dc` |
-| `services/local-ai-lease/STAGE-1-RUN-CARD.md` | `3761a4f2e1b53555b9c6ce6e8a2ee3c14fd9f92838610286f07e79fa5e4fff9f` |
+| `services/local-ai-lease/STAGE-1-RUN-CARD.md` | `86daed04c47ad050a96ecd9d90dfcfc8ec78f4c053e1876dc52f41bcad21c1e8` |
 | `services/local-ai-lease/local-ai-lease-watchdog.service` | `3041ed62efadcb1bcffe0c66e9c311933fc90c0cb101ea08f24b546fc9bc656d` |
 | `services/local-ai-lease/local-ai-lease-watchdog.timer` | `9f09de46e3ee55d8f765e1f279d34632ea914c8c6506416f0455853ef538b744` |
 
