@@ -65,10 +65,13 @@ class ApplicationB60Watchdog:
         record = json.loads(state.read_text(encoding="utf-8"))
         if (record.get("mode"), record.get("lease_id"), record.get("generation")) != (APPLICATION_MODE, lease_id, generation):
             raise ValueError("application lease identity does not match")
-        if record.get("armed") is not True or not isinstance(record.get("deadline_minute"), int):
+        if (record.get("armed") is not True
+                or not isinstance(record.get("start_deadline_minute"), int)
+                or not isinstance(record.get("restore_deadline_minute"), int)):
             raise ValueError("application watchdog is not armed")
-        if now_minute > record["deadline_minute"]:
-            raise ValueError("application watchdog deadline exceeded; lease retained")
+        overdue = now_minute > record["restore_deadline_minute"]
+        if overdue:
+            self._journal_status(lease_id, generation, "recovery-overdue")
 
         self._step(lease_id, generation, "stop-sidecar", lambda: self.observer.sidecar_stopped())
         self._step(lease_id, generation, "restore-ingress", lambda: self.observer.ingress_restored())
@@ -82,7 +85,15 @@ class ApplicationB60Watchdog:
             raise ValueError("consumer restoration postcheck failed; lease retained")
         state.unlink()
         lock.rmdir()
-        return {"state": "ready", "mode": APPLICATION_MODE, "lease_id": lease_id, "generation": generation}
+        return {"state": "ready", "mode": APPLICATION_MODE, "lease_id": lease_id, "generation": generation, "overdue": overdue}
+
+    def _journal_status(self, lease_id: str, generation: int, event: str) -> None:
+        journal = self.state_dir / "application-b60-watchdog.jsonl"
+        journal.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        with journal.open("a", encoding="utf-8") as stream:
+            stream.write(json.dumps({"event": event, "lease_id": lease_id, "generation": generation}, sort_keys=True) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
 
     def _step(self, lease_id: str, generation: int, kind: str, check: Callable[[], bool]) -> None:
         events = []

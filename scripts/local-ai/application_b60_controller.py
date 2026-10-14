@@ -32,6 +32,8 @@ class ApplicationLeaseState:
     backup_receipt: str
     services: tuple[tuple[str, str], ...]
     phase: str = "leased"
+    armed: bool = False
+    deadline_minute: int | None = None
 
 
 @dataclass(frozen=True)
@@ -143,12 +145,12 @@ class ApplicationB60Controller:
         except Exception:
             _journal(self.paths.journal, {"event": "stop-failed", "lease_id": prelease.lease_id, "generation": prelease.generation})
             for vmid, unit in reversed(stopped):
-                _journal(self.paths.journal, {"event": "restore-intent", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
+                _journal(self.paths.journal, {"event": "restore-intent", "lease_id": prelease.lease_id, "generation": prelease.generation, "vmid": vmid, "unit": unit})
                 try:
                     self.runner(command_for(vmid, unit, "start"))
-                    _journal(self.paths.journal, {"event": "restore-observed", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
+                    _journal(self.paths.journal, {"event": "restore-observed", "lease_id": prelease.lease_id, "generation": prelease.generation, "vmid": vmid, "unit": unit})
                 except Exception:
-                    _journal(self.paths.journal, {"event": "restore-uncertain", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
+                    _journal(self.paths.journal, {"event": "restore-uncertain", "lease_id": prelease.lease_id, "generation": prelease.generation, "vmid": vmid, "unit": unit})
             raise
 
     def admit_sidecar(self, receipt: ApplicationLeaseReceipt, *, expected_lease_id: str, expected_generation: int) -> dict[str, object]:
@@ -163,6 +165,25 @@ class ApplicationB60Controller:
         atomic_write(self.paths.state, json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n")
         _journal(self.paths.journal, {"event": "sidecar-admitted", "lease_id": expected_lease_id, "generation": expected_generation})
         return {"state": "sidecar-admitted", "mode": APPLICATION_MODE, "lease_id": expected_lease_id, "generation": expected_generation}
+
+    def arm(self, *, expected_lease_id: str, expected_generation: int, now_minute: int, start_deadline_minute: int, restore_deadline_minute: int) -> dict[str, object]:
+        self._require_effect_authority()
+        if not now_minute < start_deadline_minute <= restore_deadline_minute:
+            raise ValueError("application watchdog deadlines are invalid")
+        if not self.paths.lock.exists() or not self.paths.state.exists():
+            raise ValueError("application lease state and lock are both required")
+        value = json.loads(self.paths.state.read_text(encoding="utf-8"))
+        if (value.get("mode"), value.get("lease_id"), value.get("generation"), value.get("phase")) != (APPLICATION_MODE, expected_lease_id, expected_generation, "sidecar-admitted"):
+            raise ValueError("application lease is not ready to arm")
+        if value.get("armed") is True:
+            raise ValueError("application watchdog is already armed")
+        value["armed"] = True
+        value["start_deadline_minute"] = start_deadline_minute
+        value["restore_deadline_minute"] = restore_deadline_minute
+        value["phase"] = "armed"
+        atomic_write(self.paths.state, json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n")
+        _journal(self.paths.journal, {"event": "watchdog-armed", "lease_id": expected_lease_id, "generation": expected_generation, "start_deadline_minute": start_deadline_minute, "restore_deadline_minute": restore_deadline_minute})
+        return {"state": "armed", "mode": APPLICATION_MODE, "lease_id": expected_lease_id, "generation": expected_generation, "start_deadline_minute": start_deadline_minute, "restore_deadline_minute": restore_deadline_minute}
 
     def restore(self, *args, **kwargs):
         raise ValueError("direct application restore is disabled; application watchdog recovery is required")

@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -51,6 +52,32 @@ class ApplicationB60ControllerTests(unittest.TestCase):
                 controller.acquire(bad)
             self.assertFalse((Path(temp) / "application-b60.lock").exists())
             self.assertEqual(commands, [])
+
+    def test_stop_failure_restores_completed_consumer_without_name_error(self):
+        with tempfile.TemporaryDirectory() as temp:
+            commands = []
+            def runner(command):
+                commands.append(command)
+                if len(commands) == 2:
+                    raise RuntimeError("second stop failed")
+            controller = ApplicationB60Controller(ApplicationPaths(Path(temp)), runner, allow_effects=True)
+            with self.assertRaisesRegex(RuntimeError, "second stop failed"):
+                controller.acquire(self.prelease())
+            self.assertEqual(commands[2], command_for("104", "aster-agent.service", "start"))
+
+    def test_arm_requires_sidecar_admission_and_persists_deadline(self):
+        with tempfile.TemporaryDirectory() as temp:
+            commands = []
+            controller = ApplicationB60Controller(ApplicationPaths(Path(temp)), commands.append, allow_effects=True)
+            controller.acquire(self.prelease())
+            with self.assertRaisesRegex(ValueError, "ready to arm"):
+                controller.arm(expected_lease_id="app-1", expected_generation=2, now_minute=100, start_deadline_minute=150, restore_deadline_minute=200)
+            controller.admit_sidecar(self.receipt(), expected_lease_id="app-1", expected_generation=2)
+            self.assertEqual(controller.arm(expected_lease_id="app-1", expected_generation=2, now_minute=100, start_deadline_minute=150, restore_deadline_minute=200)["state"], "armed")
+            value = json.loads((Path(temp) / "application-b60.json").read_text())
+            self.assertTrue(value["armed"])
+            self.assertEqual(value["start_deadline_minute"], 150)
+            self.assertEqual(value["restore_deadline_minute"], 200)
 
 
 if __name__ == "__main__":

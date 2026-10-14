@@ -33,7 +33,9 @@ change was performed.
   sidecar admission. Its direct restore path is disabled; only the application
   watchdog may restore consumers.
 - The watchdog requires an armed deadline, records intent/observed events and
-  refuses to replay an uncertain effect after a crash.
+  refuses to replay an uncertain effect after a crash. It distinguishes the
+  start-by deadline from the final restore deadline; a late tick still runs
+  safe recovery and reports `overdue` rather than abandoning effects.
 - The manifest rejects a container-wide nftables rule because LXC104 also hosts
   production Aster; temporary backend exclusivity requires a checkpointed
   LXC110 ingress policy and positive allowed/denied observations.

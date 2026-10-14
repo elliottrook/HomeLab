@@ -23,7 +23,7 @@ class ApplicationB60WatchdogTests(unittest.TestCase):
         (root / "application-b60.lock").mkdir()
         (root / "application-b60.json").write_text(json.dumps({
             "mode": "application-b60-exclusive-v1", "lease_id": "lease-1", "generation": 3,
-            "armed": True, "deadline_minute": 200,
+            "armed": True, "start_deadline_minute": 150, "restore_deadline_minute": 200,
         }))
 
     def test_recovery_order_restores_auth_before_consumers(self):
@@ -57,7 +57,7 @@ class ApplicationB60WatchdogTests(unittest.TestCase):
                 ApplicationB60Watchdog(Path(temp), commands.append, Observer()).recover(lease_id="lease-1", generation=3, now_minute=100)
             self.assertEqual(commands, [])
 
-    def test_unarmed_or_expired_watchdog_has_no_effects(self):
+    def test_unarmed_watchdog_has_no_effects(self):
         with tempfile.TemporaryDirectory() as temp:
             self.setup_state(temp)
             state = Path(temp) / "application-b60.json"
@@ -68,6 +68,14 @@ class ApplicationB60WatchdogTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "armed"):
                 ApplicationB60Watchdog(Path(temp), commands.append, Observer(), allow_effects=True).recover(lease_id="lease-1", generation=3, now_minute=100)
             self.assertEqual(commands, [])
+
+    def test_late_tick_still_recovers_and_marks_overdue(self):
+        with tempfile.TemporaryDirectory() as temp:
+            self.setup_state(temp)
+            commands = []
+            result = ApplicationB60Watchdog(Path(temp), commands.append, Observer(), allow_effects=True).recover(lease_id="lease-1", generation=3, now_minute=250)
+            self.assertTrue(result["overdue"])
+            self.assertEqual(len(commands), 6)
 
     def test_uncertain_intent_is_not_replayed(self):
         with tempfile.TemporaryDirectory() as temp:
