@@ -138,6 +138,32 @@ layout inspiration from tvOS and Home Hub, but must not copy Apple's artwork,
 logos, fonts or proprietary assets. Any third-party artwork or typeface needs
 its own permission and attribution record.
 
+### M3 implementation sequence
+
+Start with a private `skin.asterhome` add-on under `services/kodi/` and validate
+it on the existing Mac Kodi test before depending on the physical LibreELEC
+endpoint:
+
+1. **M3a — Visual shell:** 1920×1080 Home window, collapsed/revealing left
+   rail, Home Hub palette, typography, focus treatment, hero, Continue Watching
+   and Recommended rows, using disposable fixture data and repository-owned
+   placeholder assets only.
+2. **M3b — Jellyfin slice:** replace only the fixture media rows with the
+   existing Jellyfin Kodi integration; prove focus, playback, resume and back
+   navigation without changing Jellyfin or TrueNAS metadata.
+3. **M3c — Home Hub read view:** add a narrow Aster service add-on that exposes
+   sanitized Home Assistant state and renders rooms, routines, climate,
+   security and air-quality cards; actions remain disabled or mocked initially.
+4. **M3d — Personal media and digest:** add podcast, audiobook and news
+   containers with a consistent card contract and playback handoff.
+5. **M3e — Recommendations and acquisition:** display explanations and request
+   actions from Aster's existing recommendation/acquisition services; use an
+   explicit queue/approval boundary instead of direct unrestricted downloads.
+
+Each slice must remain usable if the later service is unavailable. The first
+implementation milestone is therefore a visual acceptance review, not a broad
+integration build.
+
 ## 6. Privacy/security design
 
 Local-first; separate low-privilege test identity, minimal read access and synthetic demonstrations; do not store service secrets in Git or agent prompts. No inbound internet exposure. No unrestricted Kodi HTTP/JSON-RPC access on a guest network. Home Assistant state read first; action calls require explicit action allowlist and an intentional human confirmation for safety-sensitive entities. Voice activation opt-in; no retained raw audio or transcripts by default. Existing canonical Aster speech policy applies to all spoken output.
@@ -326,6 +352,7 @@ Deliver: (1) software go/no-go decision, (2) hardware and live Canadian purchasi
 | 2026-10-13 | Jason clarified that M2 must provide SSH control/observation so the endpoint can be measured under real playback load, not judged only from the TV picture. | The X390 runbook now separates user-required physical actions (USB boot, local SSH enablement, TV/AVR observation) from assistant-run read-only telemetry and bounded playback soak tests. No remote access is enabled by this record; the user must enable SSH locally after boot and provide only the endpoint address. |
 | 2026-10-13 | Jason identified HDMI-CEC as unreliable on non-appliance USB-C/DisplayPort hardware and asked to use another control method. | CEC is downgraded from hard requirement to desirable integration. M2 must prove a stable local Bluetooth, IR or USB-HID path; Apple TV remote reuse remains an optional compatibility experiment and no hardware purchase is authorized yet. |
 | 2026-10-13 | Jason supplied Aster Home TV and Home Hub reference mockups and asked whether the integrated experience can be built without a Kodi core rewrite or an unmaintainable Home Assistant fork. | Feasibility assessment: the TV presentation is achievable as a Kodi skin plus service/add-ons; Home Assistant branding is achievable through dashboards, themes, backgrounds and custom cards; aggregation, recommendation, acquisition workflow and safe house actions belong in the Aster service layer. Core/frontend forks are deferred unless a measured capability gap remains. |
+| 2026-10-14 | Jason approved the Aster Home media-hub visual direction and asked how implementation should begin. | M3 is staged as a private `skin.asterhome` visual shell on Mac Kodi, then Jellyfin, Home Assistant read state, personal media/digest and finally controlled recommendation/acquisition actions. The first gate is visual acceptance with fixture data; no production service mutation or Kodi core fork is planned. |
 
 ## 15. References
 
