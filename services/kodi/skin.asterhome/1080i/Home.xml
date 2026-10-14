@@ -223,12 +223,13 @@
         <control type="label">
             <left>370</left>
             <top>224</top>
-            <width>650</width>
-            <height>72</height>
+            <width>680</width>
+            <height>48</height>
             <label fallback="Select a title to see its synopsis.">$VAR[AsterHeroPlot]</label>
-            <font>font24</font>
+            <font>font16</font>
             <textcolor>asterInk</textcolor>
-            <autoscroll time="6000" delay="3000" repeat="5000" />
+            <wrapmultiline>true</wrapmultiline>
+            <aligny>top</aligny>
         </control>
         <control type="label">
             <left>370</left>
