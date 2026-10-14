@@ -77,7 +77,10 @@ editing the table would necessarily change its own digest.
   probe. The current direct owner-context check reached host-key verification
   failure, so transport remains an unresolved staging blocker until the
   verified pinned-host-key file and narrow TrueNAS identity are enrolled;
-  schedule observation remains unhealthy/fail-closed meanwhile.
+  schedule observation remains unhealthy/fail-closed meanwhile. Host-key
+  enrollment is now complete and verified, but the existing Proxmox SSH
+  identity is rejected by TrueNAS. No new credential is authorized by the
+  current staging record; the schedule receipt remains unavailable.
 
 ## Recovery deadline and rollback
 

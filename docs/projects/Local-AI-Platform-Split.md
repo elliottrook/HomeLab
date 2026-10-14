@@ -582,6 +582,18 @@ that check green: local production restoration may proceed, but an unavailable
 TrueNAS receipt leaves the lease locked in degraded/unknown state until a
 separate least-privilege receipt or operator verification clears it.
 
+## Proxmox TrueNAS host-key enrollment — 2026-10-13
+
+With Jason's bounded authorization, Proxmox received only the verified TrueNAS
+ED25519 host key at `/etc/local-ai-lab/truenas_known_hosts`. The directory and
+file were read-only verified as root-owned mode `0700` and `0600`, and the
+fingerprint matched `SHA256:QBtPEVZCzn5suuM98WY2bGSSvdgOLZ5xpLd17Xu0Xbo`.
+The fixed strict-host-key probe reached TrueNAS but returned
+`Permission denied (publickey)`. The existing Proxmox `/root/.ssh/id_rsa` was
+tested explicitly and was also rejected. No credential was created, copied,
+read, rotated or modified. The TrueNAS schedule receipt therefore remains
+unknown and the admission gate remains closed.
+
 The accepted dereferenced GGUF was measured read-only at
 `cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`; its
 5.6 GB hash took approximately 18 seconds including transport. The trusted
