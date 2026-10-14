@@ -204,9 +204,11 @@ the downstream ASGI scope. The current Aster endpoint requires authentication,
 so an isolated test instance must use a distinct, test-only inner credential;
 the guard can substitute that credential after admitting the request. Neither
 the production Aster key nor the ingress test key should be reused for this
-inner role. An optional owner-only, create-once digest journal
-survives gateway reconstruction in an isolated test. A live deployment must
-configure that journal on durable protected storage and verify its ownership,
+inner role. An owner-only, create-once digest journal
+survives gateway reconstruction in an isolated test. The offline gateway now
+refuses construction without that journal and a distinct inner bearer; 32
+focused gateway, clock, request and admission tests pass. A live deployment must
+configure the journal on durable protected storage and verify its ownership,
 restart behavior, single-worker boundary and rollback before READY. In-memory
 mode alone is insufficient. The gateway is not deployed; no current Aster
 request has passed through it.

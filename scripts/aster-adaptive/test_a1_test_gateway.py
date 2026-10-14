@@ -30,9 +30,14 @@ async def run_request(body, *, token=TOKEN, path="/v1/chat/completions", method=
         await send({"type": "http.response.start", "status": 200, "headers": []})
         await send({"type": "http.response.body", "body": b"{}", "more_body": False})
 
+    temporary = tempfile.TemporaryDirectory()
+    directory = Path(temporary.name)
+    directory.chmod(0o700)
     gateway = A1TestGateway(app or fixture_app,
                             token_sha256=hashlib.sha256(TOKEN).hexdigest(),
-                            request_sha256s=request_hashes(body))
+                            request_sha256s=request_hashes(body),
+                            attempt_journal=DurableAttemptJournal(directory),
+                            downstream_bearer=INNER)
     events = []
     delivered = False
 
@@ -49,14 +54,27 @@ async def run_request(body, *, token=TOKEN, path="/v1/chat/completions", method=
     auth = [(b"content-type", b"application/json")]
     if token is not None:
         auth.append((b"authorization", b"Bearer " + token))
-    await gateway({"type": "http", "path": path, "method": method,
-                   "headers": auth}, receive, send)
-    return events[0]["status"], called
+    try:
+        await gateway({"type": "http", "path": path, "method": method,
+                       "headers": auth}, receive, send)
+        return events[0]["status"], called
+    finally:
+        temporary.cleanup()
 
 
 class A1TestGatewayTests(unittest.TestCase):
     def setUp(self):
         self.body = json.dumps(payload_for(fixture())).encode()
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        directory = Path(temporary.name)
+        directory.chmod(0o700)
+        self.journal = DurableAttemptJournal(directory)
+
+    def gateway(self, app, **kwargs):
+        kwargs.setdefault("attempt_journal", self.journal)
+        kwargs.setdefault("downstream_bearer", INNER)
+        return A1TestGateway(app, **kwargs)
 
     def test_valid_frozen_no_tool_request_reaches_only_wrapped_app(self):
         status, called = asyncio.run(run_request(self.body))
@@ -75,7 +93,8 @@ class A1TestGatewayTests(unittest.TestCase):
 
         status, _ = asyncio.run(run_request(self.body, app=fake_app))
         self.assertEqual(status, 200)
-        self.assertNotIn(b"authorization", [key.lower() for key, _ in seen])
+        self.assertEqual([value for key, value in seen if key.lower() == b"authorization"],
+                         [b"Bearer " + INNER])
         self.assertNotIn(TOKEN, [value for _, value in seen])
 
     def test_distinct_isolated_inner_bearer_replaces_ingress_bearer(self):
@@ -87,7 +106,7 @@ class A1TestGatewayTests(unittest.TestCase):
             await send({"type": "http.response.start", "status": 200, "headers": []})
             await send({"type": "http.response.body", "body": b"{}", "more_body": False})
 
-        gateway = A1TestGateway(fake_app,
+        gateway = self.gateway(fake_app,
                                 token_sha256=hashlib.sha256(TOKEN).hexdigest(),
                                 request_sha256s=request_hashes(self.body),
                                 downstream_bearer=INNER)
@@ -106,8 +125,22 @@ class A1TestGatewayTests(unittest.TestCase):
         self.assertEqual([value for key, value in seen if key == b"authorization"],
                          [b"Bearer " + INNER])
         with self.assertRaises(ValueError):
-            A1TestGateway(fake_app, token_sha256=hashlib.sha256(TOKEN).hexdigest(),
+            self.gateway(fake_app, token_sha256=hashlib.sha256(TOKEN).hexdigest(),
                           request_sha256s=request_hashes(self.body), downstream_bearer=TOKEN)
+
+    def test_no_in_memory_or_no_inner_auth_configuration(self):
+        async def fake_app(scope, receive, send):
+            self.fail("wrapped app reached")
+
+        common = {"token_sha256": hashlib.sha256(TOKEN).hexdigest(),
+                  "request_sha256s": request_hashes(self.body)}
+        with self.assertRaises(TypeError):
+            A1TestGateway(fake_app, **common, downstream_bearer=INNER)
+        with self.assertRaises(TypeError):
+            A1TestGateway(fake_app, **common, attempt_journal=self.journal)
+        with self.assertRaises(ValueError):
+            A1TestGateway(fake_app, **common, attempt_journal=self.journal,
+                          downstream_bearer=TOKEN)
 
     def test_caller_headers_are_not_forwarded_as_inner_identity(self):
         seen = []
@@ -118,7 +151,7 @@ class A1TestGatewayTests(unittest.TestCase):
             await send({"type": "http.response.start", "status": 200, "headers": []})
             await send({"type": "http.response.body", "body": b"{}", "more_body": False})
 
-        gateway = A1TestGateway(fake_app,
+        gateway = self.gateway(fake_app,
                                 token_sha256=hashlib.sha256(TOKEN).hexdigest(),
                                 request_sha256s=request_hashes(self.body),
                                 downstream_bearer=INNER)
@@ -144,7 +177,7 @@ class A1TestGatewayTests(unittest.TestCase):
         async def forbidden_app(scope, receive, send):
             self.fail("wrapped app reached")
 
-        gateway = A1TestGateway(forbidden_app,
+        gateway = self.gateway(forbidden_app,
                                 token_sha256=hashlib.sha256(TOKEN).hexdigest(),
                                 request_sha256s=request_hashes(self.body))
         events = []
@@ -185,7 +218,7 @@ class A1TestGatewayTests(unittest.TestCase):
             directory = Path(temporary)
             directory.chmod(0o700)
             for expected in (200, 409):
-                gateway = A1TestGateway(fake_app,
+                gateway = self.gateway(fake_app,
                                         token_sha256=hashlib.sha256(TOKEN).hexdigest(),
                                         request_sha256s=request_hashes(self.body),
                                         attempt_journal=DurableAttemptJournal(directory))
@@ -208,7 +241,7 @@ class A1TestGatewayTests(unittest.TestCase):
             await send({"type": "http.response.start", "status": 200, "headers": []})
             await send({"type": "http.response.body", "body": b"{}", "more_body": False})
 
-        gateway = A1TestGateway(fake_app,
+        gateway = self.gateway(fake_app,
                                 token_sha256=hashlib.sha256(TOKEN).hexdigest(),
                                 request_sha256s=request_hashes(self.body))
 
@@ -263,7 +296,7 @@ class A1TestGatewayTests(unittest.TestCase):
         async def fake_app(scope, receive, send):
             calls.append(1)
 
-        gateway = A1TestGateway(fake_app, token_sha256=hashlib.sha256(TOKEN).hexdigest(),
+        gateway = self.gateway(fake_app, token_sha256=hashlib.sha256(TOKEN).hexdigest(),
                                 request_sha256s=request_hashes(self.body))
         events = []
 
@@ -288,7 +321,7 @@ class A1TestGatewayTests(unittest.TestCase):
         async def fake_app(scope, receive, send):
             self.fail("wrapped app reached")
 
-        gateway = A1TestGateway(fake_app, token_sha256=hashlib.sha256(TOKEN).hexdigest(),
+        gateway = self.gateway(fake_app, token_sha256=hashlib.sha256(TOKEN).hexdigest(),
                                 request_sha256s=request_hashes(self.body))
         events = []
 
@@ -307,7 +340,7 @@ class A1TestGatewayTests(unittest.TestCase):
         async def fake_app(scope, receive, send):
             self.fail("wrapped app reached")
 
-        gateway = A1TestGateway(fake_app, token_sha256=hashlib.sha256(TOKEN).hexdigest(),
+        gateway = self.gateway(fake_app, token_sha256=hashlib.sha256(TOKEN).hexdigest(),
                                 request_sha256s=request_hashes(self.body))
         events = []
         reads = []
@@ -329,7 +362,7 @@ class A1TestGatewayTests(unittest.TestCase):
         async def forbidden_app(scope, receive, send):
             self.fail("wrapped app reached")
 
-        gateway = A1TestGateway(forbidden_app, token_sha256=hashlib.sha256(TOKEN).hexdigest(),
+        gateway = self.gateway(forbidden_app, token_sha256=hashlib.sha256(TOKEN).hexdigest(),
                                 request_sha256s=request_hashes(self.body))
         events = []
 

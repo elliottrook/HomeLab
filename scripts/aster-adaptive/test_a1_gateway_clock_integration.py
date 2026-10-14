@@ -3,11 +3,12 @@ import asyncio
 import hashlib
 import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from a1_test_gateway import A1TestGateway
+from a1_test_gateway import A1TestGateway, DurableAttemptJournal
 from aster_asgi_clock import ASGIResponseClock
 from aster_full_path_request import wire_bytes_for
 from client_display_clock import ClientDisplayClock
@@ -29,11 +30,16 @@ async def run_case(*, display: bool):
         await send({"type": "http.response.body", "body": b'{"fictional":"answer"}',
                     "more_body": False})
 
+    temporary = tempfile.TemporaryDirectory()
+    journal_directory = Path(temporary.name)
+    journal_directory.chmod(0o700)
     app = A1TestGateway(
         ASGIResponseClock(fake_aster, gateway_rows, id_factory=lambda: ID),
         token_sha256=hashlib.sha256(TOKEN).hexdigest(),
         request_sha256s=frozenset({hashlib.sha256(wire_bytes_for(fixture())).hexdigest()}
                                   | {f"{i:064x}" for i in range(1, 20)}),
+        attempt_journal=DurableAttemptJournal(journal_directory),
+        downstream_bearer=b"fictional-isolated-inner-key",
     )
     body = wire_bytes_for(fixture())
     events = []
@@ -56,11 +62,14 @@ async def run_case(*, display: bool):
                 raise AssertionError("missing observation identity")
             client.response_identity(identifiers[0], event["status"])
 
-    await app({"type": "http", "path": "/v1/chat/completions", "method": "POST",
-               "headers": [(b"content-type", b"application/json"),
-                           (b"authorization", b"Bearer " + TOKEN)]}, receive, send)
-    row = client.finish(terminal_displayed=display)
-    return seen, events, join(row, gateway_rows[0])
+    try:
+        await app({"type": "http", "path": "/v1/chat/completions", "method": "POST",
+                   "headers": [(b"content-type", b"application/json"),
+                               (b"authorization", b"Bearer " + TOKEN)]}, receive, send)
+        row = client.finish(terminal_displayed=display)
+        return seen, events, join(row, gateway_rows[0])
+    finally:
+        temporary.cleanup()
 
 
 class A1GatewayClockIntegrationTests(unittest.TestCase):
