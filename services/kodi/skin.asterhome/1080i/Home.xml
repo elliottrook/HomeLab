@@ -6,6 +6,7 @@
         <!-- Temporary solid surfaces use the window background and text focus
              until repository-owned Aster textures are added. -->
         <control type="image" id="10">
+            <zorder>0</zorder>
             <left>84</left>
             <top>0</top>
             <width>1836</width>
@@ -15,17 +16,22 @@
             <fadetime>250</fadetime>
         </control>
 
-        <!-- A readable foreground layer keeps the approved logo and dynamic
-             copy legible while the selected item's artwork fills the hero. -->
-        <control type="image" id="11">
-            <left>112</left>
-            <top>28</top>
-            <width>760</width>
-            <height>426</height>
-            <texture>special://skin/media/card-charcoal.png</texture>
-            <colordiffuse>c92b2923</colordiffuse>
-            <aspectratio>stretch</aspectratio>
-        </control>
+        <!-- Group the hero surface and its content so Kodi keeps the
+             translucent panel behind the logo, copy and actions. -->
+        <control type="group" id="20">
+            <!-- A readable foreground layer keeps the approved logo and
+                 dynamic copy legible while the selected item's artwork fills
+                 the hero. -->
+            <control type="image" id="11">
+                <zorder>1</zorder>
+                <left>112</left>
+                <top>28</top>
+                <width>760</width>
+                <height>426</height>
+                <texture>special://skin/media/card-charcoal.png</texture>
+                <colordiffuse>c92b2923</colordiffuse>
+                <aspectratio>stretch</aspectratio>
+            </control>
 
         <!-- Hidden metadata source. The installed Jellyfin add-on populates
              Kodi's local video library; the presentation stays independent
@@ -203,7 +209,7 @@
             <height>130</height>
             <label>›</label>
             <font>font40</font>
-            <textcolor>asterRailText</textcolor>
+            <textcolor>ffece8df</textcolor>
             <focusedcolor>asterSage</focusedcolor>
             <onright>9001</onright>
             <texturefocus>none</texturefocus>
@@ -211,6 +217,9 @@
             <align>center</align>
             <aligny>center</aligny>
         </control>
+
+        <control type="group" id="21">
+            <zorder>2</zorder>
 
         <!-- Brand header: use the approved v2 horizontal export rather than
              rebuilding the mark and wordmark from separate UI elements. -->
@@ -242,7 +251,7 @@
             <height>42</height>
             <label>Good evening, Jason</label>
             <font>font24</font>
-            <textcolor>asterCharcoal</textcolor>
+            <textcolor>ffece8df</textcolor>
         </control>
         <control type="label">
             <left>145</left>
@@ -259,7 +268,10 @@
             <width>670</width>
             <height>96</height>
             <label fallback="Select a title">$VAR[AsterHeroLabel]</label>
-            <include>AsterTitle</include>
+            <font>font40</font>
+            <textcolor>ffece8df</textcolor>
+            <shadowcolor>66000000</shadowcolor>
+            <shadowoffset>2</shadowoffset>
         </control>
         <control type="label">
             <left>145</left>
@@ -268,7 +280,7 @@
             <height>48</height>
             <label fallback="Select a title to see its synopsis.">$VAR[AsterHeroPlot]</label>
             <font>font16</font>
-            <textcolor>asterInk</textcolor>
+            <textcolor>ffece8df</textcolor>
             <wrapmultiline>true</wrapmultiline>
             <aligny>top</aligny>
         </control>
@@ -279,7 +291,7 @@
             <height>36</height>
             <label fallback="Metadata unavailable">$VAR[AsterHeroYear]  |  $VAR[AsterHeroDuration]  |  $VAR[AsterHeroResolution]  |  $VAR[AsterHeroGenre]</label>
             <font>font20</font>
-            <textcolor>asterGreen</textcolor>
+            <textcolor>ffb9f2d0</textcolor>
         </control>
         <control type="button" id="120">
             <left>145</left>
@@ -290,7 +302,14 @@
             <onleft>8999</onleft>
             <ondown>100</ondown>
             <onright>121</onright>
-            <include>AsterActionButton</include>
+            <height>70</height>
+            <font>font28</font>
+            <align>center</align>
+            <aligny>center</aligny>
+            <textcolor>ffece8df</textcolor>
+            <focusedcolor>ffb9f2d0</focusedcolor>
+            <texturefocus>none</texturefocus>
+            <texturenofocus>none</texturenofocus>
         </control>
         <control type="button" id="121">
             <left>445</left>
@@ -301,7 +320,16 @@
             <onleft>120</onleft>
             <ondown>100</ondown>
             <onright>100</onright>
-            <include>AsterActionButton</include>
+            <height>70</height>
+            <font>font28</font>
+            <align>center</align>
+            <aligny>center</aligny>
+            <textcolor>ffece8df</textcolor>
+            <focusedcolor>ffb9f2d0</focusedcolor>
+            <texturefocus>none</texturefocus>
+            <texturenofocus>none</texturenofocus>
+        </control>
+        </control>
         </control>
 
         <control type="label">

@@ -45,6 +45,13 @@
         <shadowoffset>2</shadowoffset>
     </include>
 
+    <include name="AsterHeroTitle">
+        <font>font40</font>
+        <textcolor>ffece8df</textcolor>
+        <shadowcolor>66000000</shadowcolor>
+        <shadowoffset>2</shadowoffset>
+    </include>
+
     <include name="AsterBody">
         <font>font24</font>
         <textcolor>asterInk</textcolor>
@@ -69,6 +76,17 @@
         <aligny>center</aligny>
         <textcolor>asterInk</textcolor>
         <focusedcolor>asterGreen</focusedcolor>
+        <texturefocus>none</texturefocus>
+        <texturenofocus>none</texturenofocus>
+    </include>
+
+    <include name="AsterHeroActionButton">
+        <height>70</height>
+        <font>font28</font>
+        <align>center</align>
+        <aligny>center</aligny>
+        <textcolor>ffece8df</textcolor>
+        <focusedcolor>ffb9f2d0</focusedcolor>
         <texturefocus>none</texturefocus>
         <texturenofocus>none</texturenofocus>
     </include>
