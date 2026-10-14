@@ -17,10 +17,13 @@ sidecar probes are installed.
 - LXC104 `aster-agent.service` and LXC116 `aster-speech.service` are stopped
   and quiesced; News and other inference consumers are quiesced.
 - The named LXC104 sidecar has a pinned source digest, distinct unprivileged
-  UID, one worker, fixed non-public port, test-only credentials, no privileged
+  UID 1904, one worker, fixed non-public port 19104, test-only credentials, no privileged
   mounts/sockets, denied unauthorized network paths, and start time within the
   application lease.
 - At least 15 minutes remain before the 04:15 restoration deadline.
+
+The exact host installation, denial probes and recovery sequence are in
+[`A1-HOST-INSTALL-RUN-CARD.md`](A1-HOST-INSTALL-RUN-CARD.md).
 
 ## Effects and evidence
 
