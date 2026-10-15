@@ -7,7 +7,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from admission_gate import EXPECTED_BACKUP_SOURCE, EXPECTED_CONSUMERS, AdmissionEvidence
-from source_receipt_boundary import _write_envelope, read_receipt
+from source_receipt_boundary import _write_envelope, produce_candidate_receipt, read_receipt
 
 
 class SourceReceiptBoundaryTests(unittest.TestCase):
@@ -36,6 +36,35 @@ class SourceReceiptBoundaryTests(unittest.TestCase):
     def test_producer_requires_lease_issue_time(self):
         import inspect
         self.assertIn("lease_issued_epoch", str(inspect.signature(__import__("source_receipt_boundary").produce_candidate_receipt)))
+
+    def test_post_stop_producer_uses_retained_source_and_exact_lease_digest(self):
+        class Adapter:
+            def __init__(self, evidence):
+                self.evidence = evidence
+                self.calls = []
+
+            def evidence_from_retained(self, **kwargs):
+                self.calls.append(kwargs)
+                return self.evidence
+
+        adapter = Adapter(self.evidence())
+        with patch("source_receipt_boundary.os.geteuid", return_value=0), patch("source_receipt_boundary._write_envelope") as write:
+            produce_candidate_receipt(
+                Path("/unused"), adapter, lease_id="lab-1", generation=1,
+                date_prefix="2026_10_15", lease_issued_epoch=100,
+                now_minute=221, window_end_minute=255, captured_epoch=101,
+                expected_backup_receipt="receipt",
+            )
+            self.assertEqual(len(adapter.calls), 1)
+            write.assert_called_once()
+            with self.assertRaisesRegex(ValueError, "differs"):
+                produce_candidate_receipt(
+                    Path("/unused"), adapter, lease_id="lab-1", generation=1,
+                    date_prefix="2026_10_15", lease_issued_epoch=100,
+                    now_minute=221, window_end_minute=255, captured_epoch=101,
+                    expected_backup_receipt="wrong",
+                )
+            write.assert_called_once()
 
     @unittest.skipUnless(os.geteuid() == 0, "requires root-owned custody test")
     def test_rejects_stale_receipt(self):

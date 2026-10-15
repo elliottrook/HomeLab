@@ -1,0 +1,11 @@
+[Unit]
+Description=Renew Local AI full-stop liveness during one approved drill
+
+[Timer]
+OnActiveSec=1s
+OnUnitActiveSec=30s
+AccuracySec=1s
+Unit=local-ai-lease-owner-heartbeat.service
+
+[Install]
+WantedBy=timers.target

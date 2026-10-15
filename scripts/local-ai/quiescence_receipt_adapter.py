@@ -26,8 +26,8 @@ def compose_quiescence_receipt(first: ConsumerSnapshot, second: ConsumerSnapshot
         raise AdmissionEvidenceError("quiescence interval is not positive")
     if first.active_states != ("inactive",) * len(EXPECTED_CONSUMERS) or second.active_states != ("inactive",) * len(EXPECTED_CONSUMERS):
         raise AdmissionEvidenceError("a production consumer remained active")
-    if first.news_timer_active or second.news_timer_active:
-        raise AdmissionEvidenceError("News timer remained active")
+    if not first.news_timer_active or not second.news_timer_active:
+        raise AdmissionEvidenceError("News timer must remain active")
     if first.active_enter_monotonic != second.active_enter_monotonic:
         raise AdmissionEvidenceError("consumer start markers changed during quiescence")
     if first.no_new_starts_marker != second.no_new_starts_marker:

@@ -11,7 +11,7 @@ class QuiescenceReceiptAdapterTests(unittest.TestCase):
             "observed_monotonic": 100,
             "active_states": ("inactive",) * len(EXPECTED_CONSUMERS),
             "active_enter_monotonic": (10, 20, 30, 40),
-            "news_timer_active": False,
+            "news_timer_active": True,
             "no_new_starts_marker": "generation-1",
         }
         values.update(changes)
@@ -26,7 +26,7 @@ class QuiescenceReceiptAdapterTests(unittest.TestCase):
         with self.assertRaisesRegex(AdmissionEvidenceError, "consumer"):
             compose_quiescence_receipt(self.sample(active_states=("active", "inactive", "inactive", "inactive")), self.sample(observed_minute=1058, observed_monotonic=110))
         with self.assertRaisesRegex(AdmissionEvidenceError, "News"):
-            compose_quiescence_receipt(self.sample(), self.sample(observed_minute=1058, observed_monotonic=110, news_timer_active=True))
+            compose_quiescence_receipt(self.sample(), self.sample(observed_minute=1058, observed_monotonic=110, news_timer_active=False))
 
 
 if __name__ == "__main__":

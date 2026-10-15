@@ -158,11 +158,22 @@ class FixedSourceAdapters:
             if code != 0:
                 raise SourceAdapterError("consumer mask probe failed")
             masks.append(mask.strip())
-        code, news = self.runner(("pct", "exec", "114", "--", "systemctl", "is-active", "news-aggregator-digest.timer"), 5.0)
-        if code not in (0, 3):
-            raise SourceAdapterError("News timer probe failed")
-        news_active = news.strip() == "active"
-        return ConsumerSnapshot(self.clock().hour * 60 + self.clock().minute, self.monotonic(), tuple(states) + ("active" if news_active else "inactive",), tuple(enters) + (0,), news_active, "|".join(masks))
+        prefix = ("pct", "exec", "114", "--", "systemctl")
+        code, timer = self.runner((*prefix, "is-active", "news-aggregator-digest.timer"), 5.0)
+        if code != 0 or timer.strip() != "active":
+            raise SourceAdapterError("News timer must remain active")
+        code, enabled = self.runner((*prefix, "is-enabled", "news-aggregator-digest.timer"), 5.0)
+        if code != 0 or enabled.strip() != "enabled":
+            raise SourceAdapterError("News timer must remain enabled")
+        code, job = self.runner((*prefix, "show", "news-aggregator-digest.service", "--property=ActiveState", "--property=ActiveEnterTimestampMonotonic", "--value"), 5.0)
+        job_lines = job.splitlines()
+        if code != 0 or len(job_lines) != 2 or job_lines[0] not in {"active", "inactive"} or not job_lines[1].isdigit():
+            raise SourceAdapterError("News job probe failed")
+        return ConsumerSnapshot(
+            self.clock().hour * 60 + self.clock().minute, self.monotonic(),
+            tuple(states) + (job_lines[0],), tuple(enters) + (int(job_lines[1]),),
+            True, "|".join(masks),
+        )
 
     def quiescence(self, *, interval_seconds: float = 10.0) -> QuiescenceSourceReceipt:
         first = self._snapshot()
@@ -174,5 +185,11 @@ class FixedSourceAdapters:
 
     def evidence(self, *, date_prefix: str, lease_issued_epoch: int, now_minute: int, window_end_minute: int):
         backup = self.backup(date_prefix=date_prefix, lease_issued_epoch=lease_issued_epoch)
+        quiescence = self.quiescence()
+        return compose_candidate_evidence(backup, quiescence, now_minute=now_minute, window_end_minute=window_end_minute)
+
+    def evidence_from_retained(self, *, date_prefix: str, lease_issued_epoch: int, now_minute: int, window_end_minute: int):
+        """Bind a verified earlier archive scan to fresh post-stop observations."""
+        backup = self.backup_from_retained(date_prefix=date_prefix, lease_issued_epoch=lease_issued_epoch)
         quiescence = self.quiescence()
         return compose_candidate_evidence(backup, quiescence, now_minute=now_minute, window_end_minute=window_end_minute)

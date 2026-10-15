@@ -89,6 +89,12 @@ class FixedSourceAdapterTests(unittest.TestCase):
         calls = []
         def runner(argv, timeout):
             calls.append(argv)
+            if "news-aggregator-digest.timer" in argv and "is-active" in argv:
+                return 0, "active\n"
+            if "news-aggregator-digest.timer" in argv and "is-enabled" in argv:
+                return 0, "enabled\n"
+            if "news-aggregator-digest.service" in argv and "show" in argv:
+                return 0, "inactive\n10\n"
             if argv[:2] == ("pct", "exec") and "systemctl" in argv:
                 return 0, "inactive\n10\n"
             if argv[:2] == ("pct", "exec") and "readlink" in argv:
@@ -100,11 +106,16 @@ class FixedSourceAdapterTests(unittest.TestCase):
         receipt = adapter.quiescence()
         self.assertTrue(receipt.source_observed)
         self.assertTrue(any("news-aggregator-digest.timer" in call for call in calls))
+        self.assertTrue(any("news-aggregator-digest.service" in call for call in calls))
 
     def test_active_news_rejects_quiescence(self):
         def runner(argv, timeout):
-            if "news-aggregator-digest.timer" in argv:
+            if "news-aggregator-digest.timer" in argv and "is-active" in argv:
                 return 0, "active\n"
+            if "news-aggregator-digest.timer" in argv and "is-enabled" in argv:
+                return 0, "enabled\n"
+            if "news-aggregator-digest.service" in argv and "show" in argv:
+                return 0, "active\n10\n"
             if argv[:2] == ("pct", "exec") and "systemctl" in argv:
                 return 0, "inactive\n10\n"
             if argv[:2] == ("pct", "exec") and "readlink" in argv:
@@ -112,6 +123,18 @@ class FixedSourceAdapterTests(unittest.TestCase):
             return 0, "active\n"
         with self.assertRaises(SourceAdapterError):
             FixedSourceAdapters(runner, sleep=lambda _: None, monotonic=iter((1, 2)).__next__).quiescence()
+
+    def test_disabled_news_timer_rejects_quiescence(self):
+        def runner(argv, timeout):
+            if "news-aggregator-digest.timer" in argv and "is-active" in argv:
+                return 3, "inactive\n"
+            if argv[:2] == ("pct", "exec") and "systemctl" in argv:
+                return 0, "inactive\n10\n"
+            if argv[:2] == ("pct", "exec") and "readlink" in argv:
+                return 0, "/dev/null\n"
+            raise AssertionError(argv)
+        with self.assertRaisesRegex(SourceAdapterError, "News timer"):
+            FixedSourceAdapters(runner).quiescence()
 
 
 if __name__ == "__main__":

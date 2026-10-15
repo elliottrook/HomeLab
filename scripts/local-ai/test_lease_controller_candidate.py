@@ -26,7 +26,7 @@ class CandidateControllerTests(unittest.TestCase):
             return self._quiesced
 
     def receipt(self):
-        return LeaseReceipt("lab-1", 1, 220, 255, "backup", ACCEPTED_MODEL, ACCEPTED_BACKEND, True, True)
+        return LeaseReceipt("lab-1", 1, 220, 255, "backup", ACCEPTED_MODEL, ACCEPTED_BACKEND, False, False)
 
     def observation(self, **changes):
         values = dict(now_minute=221, heartbeat_alive=True, control_plane_healthy=True,
@@ -68,8 +68,21 @@ class CandidateControllerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             controller = CandidateController(CandidatePaths(Path(temp)), lambda _: None, allow_effects=True, observer=self.StubObserver(self.observation()), sleep=lambda _: None)
             controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
-            with self.assertRaisesRegex(ValueError, "lock"):
+            with self.assertRaisesRegex(ValueError, "state"):
                 controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
+
+    def test_old_controller_state_without_lock_is_never_overwritten(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state = Path(temp) / "lease.json"
+            state.write_text('{"legacy":"preserve"}')
+            commands = []
+            controller = CandidateController(CandidatePaths(Path(temp)), commands.append,
+                                             allow_effects=True,
+                                             observer=self.StubObserver(self.observation()))
+            with self.assertRaisesRegex(ValueError, "overwritten"):
+                controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
+            self.assertEqual(state.read_text(), '{"legacy":"preserve"}')
+            self.assertEqual(commands, [])
 
     def test_incomplete_restore_does_not_start_services(self):
         with tempfile.TemporaryDirectory() as temp:

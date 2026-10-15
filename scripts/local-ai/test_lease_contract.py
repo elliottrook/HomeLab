@@ -11,6 +11,7 @@ from lease_contract import (
     plan_acquire,
     plan_release,
     validate_receipt,
+    validate_pre_acquire_receipt,
 )
 
 
@@ -78,6 +79,23 @@ class LeaseContractTests(unittest.TestCase):
             expected_backup_receipt="backup-chain-sha256",
             watchdog_alive=True,
         )
+
+    def test_pre_acquire_receipt_requires_unisolated_state_and_verified_backup(self):
+        prelease = self.receipt(consumers_isolated=False, scheduled_work_quiesced=False)
+        validate_pre_acquire_receipt(
+            prelease, now_minute=221,
+            expected_backup_receipt="backup-chain-sha256", watchdog_alive=True,
+        )
+        with self.assertRaisesRegex(LeaseError, "completed isolation"):
+            validate_pre_acquire_receipt(
+                self.receipt(), now_minute=221,
+                expected_backup_receipt="backup-chain-sha256", watchdog_alive=True,
+            )
+        with self.assertRaisesRegex(LeaseError, "verified backup"):
+            validate_pre_acquire_receipt(
+                prelease, now_minute=221,
+                expected_backup_receipt="different", watchdog_alive=True,
+            )
 
     def test_receipt_fails_closed_on_expiry_or_runtime_drift(self):
         cases = (

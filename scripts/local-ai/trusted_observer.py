@@ -189,12 +189,19 @@ class TrustedHostObserver:
         raise ValueError("service state probe is ambiguous")
 
     def news_quiesced(self) -> bool:
-        code, output = _run(self.runner, ("pct", "exec", "114", "--", "systemctl", "is-active", "news-aggregator-digest.timer"))
+        timer = ("pct", "exec", "114", "--", "systemctl")
+        code, output = _run(self.runner, (*timer, "is-active", "news-aggregator-digest.timer"))
+        if code != 0 or output.strip() != "active":
+            raise ValueError("News timer is not active")
+        code, output = _run(self.runner, (*timer, "is-enabled", "news-aggregator-digest.timer"))
+        if code != 0 or output.strip() != "enabled":
+            raise ValueError("News timer is not enabled")
+        code, output = _run(self.runner, (*timer, "is-active", "news-aggregator-digest.service"))
         if code == 3 and output.strip() == "inactive":
             return True
         if code == 0 and output.strip() == "active":
             return False
-        raise ValueError("News timer state probe is ambiguous")
+        raise ValueError("News job state probe is ambiguous")
 
     def consumers_quiesced(self) -> bool:
         return (all(not self.service_active(vmid, unit) for vmid, unit in PRODUCTION)

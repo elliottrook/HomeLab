@@ -2,7 +2,7 @@ import json
 import unittest
 
 from lease_watchdog import EXPECTED_SCHEDULES
-from trusted_observer import FIXED_PROBES, CONTROL_UNITS, MODEL_HASH_TIMEOUT, PRODUCTION, RuntimeManifest, collect, collect_light
+from trusted_observer import FIXED_PROBES, CONTROL_UNITS, MODEL_HASH_TIMEOUT, PRODUCTION, RuntimeManifest, TrustedHostObserver, collect, collect_light
 
 
 class TrustedObserverTests(unittest.TestCase):
@@ -107,6 +107,31 @@ class TrustedObserverTests(unittest.TestCase):
         self.assertEqual(observation.schedule_points, ())
         self.assertNotIn(FIXED_PROBES["model"], seen)
         self.assertNotIn(FIXED_PROBES["truenas_schedule"], seen)
+
+    def test_news_job_idle_with_timer_enabled_is_quiescent(self):
+        def runner(argv, timeout):
+            if "news-aggregator-digest.timer" in argv and "is-active" in argv:
+                return 0, "active\n"
+            if "news-aggregator-digest.timer" in argv and "is-enabled" in argv:
+                return 0, "enabled\n"
+            if "news-aggregator-digest.service" in argv:
+                return 3, "inactive\n"
+            return 3, "inactive\n"
+        observer = TrustedHostObserver(runner, RuntimeManifest("m", "b", "u", "auth-generation-ok"))
+        self.assertTrue(observer.news_quiesced())
+        self.assertTrue(observer.consumers_quiesced())
+
+    def test_running_news_job_rejects_quiescence(self):
+        def runner(argv, timeout):
+            if "news-aggregator-digest.timer" in argv and "is-active" in argv:
+                return 0, "active\n"
+            if "news-aggregator-digest.timer" in argv and "is-enabled" in argv:
+                return 0, "enabled\n"
+            if "news-aggregator-digest.service" in argv:
+                return 0, "active\n"
+            return 3, "inactive\n"
+        observer = TrustedHostObserver(runner, RuntimeManifest("m", "b", "u", "auth-generation-ok"))
+        self.assertFalse(observer.news_quiesced())
 
 
 if __name__ == "__main__":

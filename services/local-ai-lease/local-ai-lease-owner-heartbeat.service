@@ -1,0 +1,13 @@
+[Unit]
+Description=Local AI full-stop lease liveness heartbeat (disabled candidate)
+RefuseManualStart=yes
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/libexec/local-ai-lease/lease_owner_heartbeat.py --once
+User=root
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/local-ai-lab
