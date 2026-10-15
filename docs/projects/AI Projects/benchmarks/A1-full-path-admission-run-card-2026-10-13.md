@@ -446,3 +446,9 @@ the batch and again before every possible model call. Runner SHA-256 is
 43 focused offline A1 tests pass. This closes a wrong-local-service request
 path in the Mini caller; the platform still has to supply and verify the
 source-bound live callback. No host or model call was made by this change.
+The offline `summarize_a1_client_clock.py` candidate consumes only the
+content-free client clock rows, reports displayed/censored/missing counts and
+median/nearest-rank p95, and keeps useful-answer time null. Its four synthetic
+tests pass. The eventual result must separately join authenticated gateway
+observations and blind answer review; these headless timings must not be
+labelled native Companion latency or qualified answer performance.
