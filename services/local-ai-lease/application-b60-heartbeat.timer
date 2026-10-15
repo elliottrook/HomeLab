@@ -1,0 +1,11 @@
+[Unit]
+Description=Renew application-only B60 admission watchdog (disabled candidate)
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+RandomizedDelaySec=10s
+Unit=application-b60-heartbeat.service
+
+[Install]
+WantedBy=timers.target

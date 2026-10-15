@@ -1,0 +1,18 @@
+[Unit]
+Description=Renew application-only B60 admission watchdog (disabled candidate)
+After=network-online.target
+ConditionPathExists=/var/lib/local-ai-lab/application-b60/application-b60.json
+RefuseManualStart=yes
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/application-b60-heartbeat
+User=root
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/local-ai-lab/application-b60
+
+[Install]
+WantedBy=multi-user.target

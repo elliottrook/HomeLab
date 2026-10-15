@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+export PYTHONPATH=/usr/local/libexec/aster-a1
+exec /usr/bin/python3 /usr/local/libexec/aster-a1/application_b60_lease_heartbeat.py \
+  --profile 7caddc30074f5925722861c59f70733894037b9fc5b0865feb98bf9e08bbbfec
