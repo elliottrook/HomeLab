@@ -130,7 +130,7 @@
         <font>font24</font><align>center</align><aligny>center</aligny>
         <textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
         <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="20" colordiffuse="asterIvory">special://skin/media/ui-panel.png</texturenofocus>
+        <texturenofocus>special://skin/media/ui-limestone-panel.png</texturenofocus>
     </include>
     <include name="AsterTopCategoryButton">
         <width>248</width><height>56</height>
@@ -138,7 +138,7 @@
         <textoffsetx>52</textoffsetx>
         <textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
         <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="20" colordiffuse="asterIvory">special://skin/media/ui-panel.png</texturenofocus>
+        <texturenofocus>special://skin/media/ui-limestone-panel.png</texturenofocus>
         <ondown>120</ondown>
     </include>
     <include name="AsterFilterButton">
@@ -146,14 +146,14 @@
         <align>center</align><aligny>center</aligny>
         <textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
         <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="20" colordiffuse="asterPaper">special://skin/media/ui-panel.png</texturenofocus>
+        <texturenofocus>special://skin/media/ui-limestone-panel.png</texturenofocus>
     </include>
     <include name="AsterKeyboardActionButton">
         <width>190</width><height>56</height><font>font24</font>
         <align>center</align><aligny>center</aligny>
         <textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
         <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="20" colordiffuse="asterPaper">special://skin/media/ui-panel.png</texturenofocus>
+        <texturenofocus>special://skin/media/ui-limestone-panel.png</texturenofocus>
     </include>
 
     <include name="AsterActionButton">

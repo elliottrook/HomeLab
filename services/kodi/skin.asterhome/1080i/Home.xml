@@ -72,8 +72,7 @@
         </control>
         <control type="image">
             <left>1750</left><top>32</top><width>146</width><height>44</height>
-            <texture border="20">special://skin/media/ui-panel.png</texture>
-            <colordiffuse>ddf2ede4</colordiffuse>
+            <texture>special://skin/media/ui-limestone-panel.png</texture>
         </control>
         <control type="label">
             <left>1750</left>
@@ -169,7 +168,7 @@
             <textcolor>asterInk</textcolor>
             <focusedcolor>asterInk</focusedcolor>
             <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-            <texturenofocus border="20" colordiffuse="asterIvory">special://skin/media/ui-panel.png</texturenofocus>
+            <texturenofocus>special://skin/media/ui-limestone-panel.png</texturenofocus>
         </control>
         <control type="image">
             <visible>Control.HasFocus(120)</visible>

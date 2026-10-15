@@ -9,7 +9,7 @@
     <control type="group">
       <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
       <control type="image"><left>110</left><top>18</top><width>236</width><height>86</height><texture>special://skin/media/aster-home-horizontal-512.png</texture><aspectratio>keep</aspectratio></control>
-      <control type="image"><left>1750</left><top>32</top><width>146</width><height>44</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>ddf2ede4</colordiffuse></control>
+      <control type="image"><left>1750</left><top>32</top><width>146</width><height>44</height><texture>special://skin/media/ui-limestone-panel.png</texture></control>
       <control type="label"><left>1750</left><top>32</top><width>146</width><height>44</height><label>$INFO[System.Time]</label><font>font20</font><textcolor>asterMuted</textcolor><align>center</align><aligny>center</aligny></control>
       <control type="image"><left>1180</left><top>110</top><width>430</width><height>360</height><texture>special://skin/media/04-news-digest.png</texture><aspectratio>keep</aspectratio></control>
       <control type="label"><left>145</left><top>151</top><width>950</width><height>42</height><label>$INFO[Window.Property(AsterHub.Subtitle)]</label><font>font24</font><textcolor>asterGold</textcolor></control>

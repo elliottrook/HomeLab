@@ -724,6 +724,19 @@ ten-minute Mac test. A persistent publisher or live camera integration would
 need separate identity, monitoring, recovery and privacy review. No Forgejo
 push or release promotion occurred.
 
+### M3d limestone surface trial — 2026-10-14
+
+Kodi skin v0.6.5 derives a subdued 280×56 rounded surface from the approved
+Aster v2 core SVG's limestone layer, preserving its mineral detail without
+redrawing the identity asset. The exact private release archive and SVG hashes
+are checked before generation; the source archive stays outside Git. Unfocused
+category/filter/secondary pills and small clock pills use the new texture;
+solid sage focus and green primary controls remain unchanged. Mac Kodi was
+restarted and the media-home render verified: rounded edges, text legibility
+and material appearance held at the test window size. This is a local visual
+trial, not LibreELEC or television acceptance. No remote push or service
+change was made.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

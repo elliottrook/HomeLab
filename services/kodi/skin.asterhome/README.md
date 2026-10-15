@@ -1,5 +1,16 @@
 # Aster Home Kodi skin prototype
 
+Version 0.6.5 adds a restrained limestone material to unfocused category,
+filter and secondary-action pills, and to the clock pill across the media and
+hub pages. Green primary actions and sage focus states remain solid for
+contrast. `media/ui-limestone-panel.png` is cropped from the **limestone-tile**
+layer of the approved Aster v2 `SVG/01-aster.svg`; it is not a redrawn or
+AI-generated texture. Regenerate only from the SHA-verified release archive
+with `python3 tools/build_limestone_surface.py ARCHIVE OUTPUT`. The source
+archive is not bundled with the skin. Kodi on the Mac was restarted and the
+media home visually checked after the texture change. No service or remote
+Git state changed.
+
 Version 0.6.4 displays a manual, ten-minute Home pilot. Run
 `python3 tools/pilot_home_feed.py` from the skin directory to pull only the
 approved VM 103 light/temperature snapshot and a bounded Frigate camera

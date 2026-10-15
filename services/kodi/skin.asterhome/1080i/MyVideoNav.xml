@@ -169,7 +169,7 @@
       <textcolor>asterInk</textcolor>
       <focusedcolor>asterInk</focusedcolor>
       <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-      <texturenofocus border="20" colordiffuse="asterPaper">special://skin/media/ui-panel.png</texturenofocus>
+      <texturenofocus>special://skin/media/ui-limestone-panel.png</texturenofocus>
       <onright>50</onright>
       <onup>9100</onup>
       <ondown>9200</ondown>

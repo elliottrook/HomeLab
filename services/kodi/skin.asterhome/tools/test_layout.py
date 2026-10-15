@@ -46,6 +46,16 @@ class LayoutTests(unittest.TestCase):
             self.assertEqual(header[:8], b'\x89PNG\r\n\x1a\n')
             self.assertEqual(struct.unpack('!II', header[16:24]), (220, 330))
 
+    def test_limestone_surface_is_button_sized_and_reused(self):
+        panel = ROOT / 'media/ui-limestone-panel.png'
+        header = panel.read_bytes()[:24]
+        self.assertEqual(header[:8], b'\x89PNG\r\n\x1a\n')
+        self.assertEqual(struct.unpack('!II', header[16:24]), (280, 56))
+        for name in ('Home.xml', 'MyVideoNav.xml', 'Includes.xml',
+                     'custom_1110_books.xml', 'custom_1111_digest.xml',
+                     'custom_1112_home.xml', 'custom_1113_music.xml'):
+            self.assertIn('ui-limestone-panel.png', (ROOT / '1080i' / name).read_text())
+
     def test_hero_block_is_centred_and_actions_match_rings(self):
         # Available hero-copy lane: header bottom 100 to queue heading 492.
         self.assertEqual((151 + 385 + 56) / 2, (100 + 492) / 2)
