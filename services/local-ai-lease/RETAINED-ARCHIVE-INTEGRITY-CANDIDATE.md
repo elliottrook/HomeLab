@@ -17,6 +17,12 @@ the verifier re-queries the current fixed inventory and re-stats each exact
 file; a stale date, replaced same-path archive, changed metadata, missing
 archive, failed/partial check or old receipt fails closed. The resulting
 digest is evidence for the existing backup adapter, not a lease grant.
+`FixedSourceAdapters.backup_from_retained()` is an **explicit, unused**
+integration candidate: it first checks the current Proxmox inventory,
+TrueNAS task order/success and exact LXC110 mirror, then loads the fixed
+root-owned receipt and revalidates exact archive identities. The existing
+default `backup()` still performs its live scan; no production caller has
+been switched to the retained method.
 
 The candidate deliberately does not create a schedule, invoke itself, install
 on Proxmox, stop services, activate a watchdog or make a model call. Before a
@@ -40,6 +46,6 @@ live card can be considered, the platform owner must:
    window. Obtain the separate approval required by the full-stop card before
    enabling a timer or acquiring a lease.
 
-The isolated source suite passed 148 tests with 2 skips on macOS, including
-four new retained-integrity tests. This is **offline code evidence** and does
+The isolated source suite passed 150 tests with 2 skips on macOS, including
+retained-integrity and fixed-adapter integration tests. This is **offline code evidence** and does
 not change the current full-stop NO-GO.

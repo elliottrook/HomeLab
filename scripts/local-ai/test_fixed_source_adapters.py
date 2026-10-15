@@ -1,12 +1,53 @@
 import json
 import unittest
 from datetime import datetime
+from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 from fixed_source_adapters import FixedSourceAdapters, SourceAdapterError, _schedule_ok
 
 
 class FixedSourceAdapterTests(unittest.TestCase):
+    def test_retained_backup_requires_current_chain_and_root_receipt(self):
+        zone = ZoneInfo("America/Vancouver")
+        def sec(hour, minute):
+            return int(datetime(2026, 10, 15, hour, minute, tzinfo=zone).timestamp())
+        artifacts = []
+        for vmid in (104, 110, 116):
+            artifacts.append({"vmid": vmid, "volid": f"backups:backup/vzdump-lxc-{vmid}-2026_10_15-00_45_00.tar.zst",
+                              "content": "backup", "format": "tar.zst", "size": vmid, "ctime": sec(0, 50)})
+        tasks = []
+        for task_id, hour in ((1, 1), (3, 2), (2, 3)):
+            tasks.append({"id": task_id, "enabled": True,
+                          "schedule": {"hour": hour, "minute": 0},
+                          "job": {"state": "SUCCESS", "arguments": [task_id],
+                                  "time_started": {"$date": sec(hour, 5) * 1000},
+                                  "time_finished": {"$date": sec(hour, 6) * 1000}}})
+        mirror_name = artifacts[1]["volid"].rsplit("/", 1)[-1]
+        mirror = [{"name": mirror_name, "type": "FILE", "path": "/mnt/Recovery/guests/aster-lxc110/" + mirror_name, "size": 110}]
+        calls = []
+        def runner(argv, timeout):
+            calls.append(argv)
+            if argv[0] == "pvesh":
+                return 0, json.dumps(artifacts)
+            if "rsynctask.query" in argv:
+                return 0, json.dumps(tasks)
+            if "filesystem.listdir" in argv:
+                return 0, json.dumps(mirror)
+            raise AssertionError(argv)
+        adapter = FixedSourceAdapters(runner, clock=lambda: datetime(2026, 10, 15, 3, 10, tzinfo=zone))
+        with patch("fixed_source_adapters.load_root_owned", return_value={"synthetic": True}) as load, patch("fixed_source_adapters.verify_retained_integrity", return_value="retained-archive-integrity-sha256:" + "a" * 64) as verify:
+            receipt = adapter.backup_from_retained(date_prefix="2026_10_15", lease_issued_epoch=sec(3, 10))
+            self.assertTrue(receipt.integrity_verified)
+            self.assertTrue(receipt.integrity_receipt.startswith("retained-archive-integrity-sha256:"))
+            load.assert_called_once()
+            verify.assert_called_once()
+        self.assertFalse(any(call[0] == "zstd" for call in calls))
+        tasks[2]["job"]["state"] = "FAILED"
+        with patch("fixed_source_adapters.load_root_owned", return_value={"synthetic": True}), patch("fixed_source_adapters.verify_retained_integrity", return_value="retained-archive-integrity-sha256:" + "a" * 64):
+            with self.assertRaises(SourceAdapterError):
+                adapter.backup_from_retained(date_prefix="2026_10_15", lease_issued_epoch=sec(3, 10))
+
     def test_schedule_requires_same_day_task_completion_and_arguments(self):
         items = []
         zone = ZoneInfo("America/Vancouver")
