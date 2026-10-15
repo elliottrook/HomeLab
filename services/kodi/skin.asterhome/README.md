@@ -1,11 +1,15 @@
 # Aster Home Kodi skin prototype
 
-Version 0.5.0 makes the selected hero artwork fill the upper canvas, places
+Version 0.5.1 makes the selected hero artwork fill the upper canvas, places
 the approved logo and dynamic copy on a translucent charcoal panel, and adds
-layered queue surfaces plus full-card focus plates to both media rows.
+native-size charcoal caption boxes plus a correctly proportioned mint focus
+surface to both media rows. The expanded rail is rendered above the page and
+switches into a clean navigation state so labels and cards are not cut by it.
 Hero copy uses the approved light rail text token over that panel so the
 dynamic title, synopsis, metadata and actions remain readable against bright
 fanart.
+Version 0.5.0 made the selected hero artwork fill the upper canvas and added
+the first layered queue treatment.
 Version 0.4.0 adopts the owner-approved Aster v2 runtime exports, uses the
 approved horizontal logo and tile-free compass in the shell, makes the hero
 eyebrow/metadata/time dynamic, and gives focused media cards a stable mint

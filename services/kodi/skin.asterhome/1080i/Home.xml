@@ -62,6 +62,7 @@
 
         <!-- Collapsed/revealing navigation rail. -->
         <control type="group" id="9000">
+            <zorder>100</zorder>
             <left>0</left>
             <top>0</top>
             <width>250</width>
@@ -87,18 +88,18 @@
                  utility destinations below retain simple text glyphs because
                  the release does not contain search/settings symbols. -->
             <control type="image">
-                <left>42</left>
-                <top>193</top>
-                <width>42</width>
-                <height>42</height>
+                <left>24</left>
+                <top>196</top>
+                <width>36</width>
+                <height>36</height>
                 <texture>special://skin/media/home-hub-128.png</texture>
                 <aspectratio>keep</aspectratio>
             </control>
             <control type="image">
-                <left>42</left>
-                <top>263</top>
-                <width>42</width>
-                <height>42</height>
+                <left>24</left>
+                <top>266</top>
+                <width>36</width>
+                <height>36</height>
                 <texture>special://skin/media/media-128.png</texture>
                 <aspectratio>keep</aspectratio>
             </control>
@@ -159,6 +160,9 @@
 
         <!-- A visible 64 px collapsed rail makes the menu discoverable and
              gives remote/keyboard focus a stable target. -->
+        <control type="group" id="9006">
+            <zorder>90</zorder>
+
         <control type="image" id="8998">
             <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
             <left>0</left>
@@ -217,9 +221,11 @@
             <align>center</align>
             <aligny>center</aligny>
         </control>
+        </control>
 
         <control type="group" id="21">
             <zorder>2</zorder>
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
 
         <!-- Brand header: use the approved v2 horizontal export rather than
              rebuilding the mark and wordmark from separate UI elements. -->
@@ -332,6 +338,12 @@
         </control>
         </control>
 
+        <!-- Keep the navigation state uncluttered: media rows are hidden
+             while the expanded rail is active rather than being cut by it. -->
+        <control type="group" id="22">
+            <zorder>2</zorder>
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
+
         <control type="label">
             <left>125</left>
             <top>526</top>
@@ -350,95 +362,83 @@
             <textcolor>asterGreen</textcolor>
             <align>right</align>
         </control>
-        <!-- Layered media surface: a dark translucent band sits behind the
-             cards so each queue reads as a deliberate content module. -->
-        <control type="image" id="80">
-            <left>105</left>
-            <top>558</top>
-            <width>1710</width>
-            <height>236</height>
-            <texture>special://skin/media/rail-background.png</texture>
-            <colordiffuse>5a171a18</colordiffuse>
-            <aspectratio>stretch</aspectratio>
-        </control>
         <control type="panel" id="100">
             <left>125</left>
             <top>570</top>
-            <width>1690</width>
+            <width>1680</width>
             <height>210</height>
             <orientation>horizontal</orientation>
             <scrolltime>180</scrolltime>
             <onleft>8999</onleft>
             <ondown>110</ondown>
-            <itemlayout width="340" height="202">
+            <itemlayout width="336" height="202">
                 <control type="image">
-                    <left>4</left>
-                    <top>10</top>
-                    <width>328</width>
-                    <height>188</height>
-                    <texture>special://skin/media/card-charcoal.png</texture>
-                    <colordiffuse>5c11100d</colordiffuse>
-                    <aspectratio>stretch</aspectratio>
-                </control>
-                <control type="image">
-                    <left>10</left>
+                    <left>8</left>
                     <top>8</top>
                     <width>320</width>
                     <height>180</height>
                     <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
                     <aspectratio>scale</aspectratio>
                 </control>
-                <control type="image"><left>10</left><top>108</top><width>320</width><height>80</height><texture>special://skin/media/card-charcoal.png</texture><colordiffuse>b8292721</colordiffuse></control>
+                <control type="image">
+                    <left>8</left>
+                    <top>108</top>
+                    <width>320</width>
+                    <height>80</height>
+                    <texture>special://skin/media/card-charcoal.png</texture>
+                    <colordiffuse>f0292721</colordiffuse>
+                    <aspectratio>stretch</aspectratio>
+                </control>
                 <control type="label">
-                    <left>28</left>
-                    <top>140</top>
-                    <width>260</width>
+                    <left>26</left>
+                    <top>132</top>
+                    <width>284</width>
                     <height>28</height>
                     <label>$INFO[ListItem.Label]</label>
                     <font>font20</font>
                     <textcolor>asterRailText</textcolor>
                     <truncate>true</truncate>
                 </control>
-                <control type="label"><left>28</left><top>169</top><width>260</width><height>20</height><label>$INFO[ListItem.PercentPlayed, ,%]</label><font>font16</font><textcolor>asterSage</textcolor></control>
+                <control type="label"><left>26</left><top>166</top><width>284</width><height>18</height><label>$INFO[ListItem.PercentPlayed, ,%]</label><font>font16</font><textcolor>asterSage</textcolor></control>
             </itemlayout>
-            <focusedlayout width="340" height="210">
+            <focusedlayout width="336" height="202">
                 <control type="image">
-                    <left>0</left>
-                    <top>0</top>
-                    <width>340</width>
-                    <height>202</height>
+                    <left>8</left>
+                    <top>8</top>
+                    <width>320</width>
+                    <height>180</height>
+                    <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    <aspectratio>scale</aspectratio>
+                </control>
+                <control type="image">
+                    <left>8</left>
+                    <top>108</top>
+                    <width>320</width>
+                    <height>80</height>
+                    <texture>special://skin/media/card-charcoal.png</texture>
+                    <colordiffuse>f0292721</colordiffuse>
+                    <aspectratio>stretch</aspectratio>
+                </control>
+                <control type="image">
+                    <left>8</left>
+                    <top>108</top>
+                    <width>320</width>
+                    <height>80</height>
                     <texture>special://skin/media/rail-focus.png</texture>
                     <colordiffuse>ff9bc9a8</colordiffuse>
                     <aspectratio>stretch</aspectratio>
                 </control>
-                <control type="image">
-                    <left>0</left>
-                    <top>196</top>
-                    <width>340</width>
-                    <height>6</height>
-                    <texture>special://skin/media/rail-focus.png</texture>
-                    <colordiffuse>ff9bc9a8</colordiffuse>
-                </control>
-                <control type="image">
-                    <left>6</left>
-                    <top>4</top>
-                    <width>328</width>
-                    <height>188</height>
-                    <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
-                    <aspectratio>scale</aspectratio>
-                </control>
-                <control type="image"><left>6</left><top>112</top><width>328</width><height>80</height><texture>special://skin/media/card-charcoal.png</texture><colordiffuse>b8292721</colordiffuse></control>
                 <control type="label">
                     <left>26</left>
-                    <top>144</top>
-                    <width>266</width>
+                    <top>132</top>
+                    <width>284</width>
                     <height>28</height>
                     <label>$INFO[ListItem.Label]</label>
                     <font>font20</font>
                     <textcolor>asterRailText</textcolor>
                     <truncate>true</truncate>
                 </control>
-                <control type="label"><left>26</left><top>173</top><width>266</width><height>20</height><label>$INFO[ListItem.PercentPlayed, ,%]</label><font>font16</font><textcolor>asterSage</textcolor></control>
+                <control type="label"><left>26</left><top>166</top><width>284</width><height>18</height><label>$INFO[ListItem.PercentPlayed, ,%]</label><font>font16</font><textcolor>asterSage</textcolor></control>
             </focusedlayout>
             <content target="videos">videodb://inprogresstvshows/</content>
         </control>
@@ -451,75 +451,66 @@
             <label>Recommended for You</label>
             <include>AsterTitle</include>
         </control>
-        <control type="image" id="81">
-            <left>105</left>
-            <top>836</top>
-            <width>1710</width>
-            <height>236</height>
-            <texture>special://skin/media/rail-background.png</texture>
-            <colordiffuse>5a171a18</colordiffuse>
-            <aspectratio>stretch</aspectratio>
-        </control>
         <control type="panel" id="110">
             <left>125</left>
             <top>848</top>
-            <width>1690</width>
+            <width>1680</width>
             <height>210</height>
             <orientation>horizontal</orientation>
             <scrolltime>180</scrolltime>
             <onleft>8999</onleft>
             <onup>100</onup>
-            <itemlayout width="340" height="202">
+            <itemlayout width="336" height="202">
                 <control type="image">
-                    <left>4</left>
-                    <top>10</top>
-                    <width>328</width>
-                    <height>188</height>
-                    <texture>special://skin/media/card-charcoal.png</texture>
-                    <colordiffuse>5c11100d</colordiffuse>
-                    <aspectratio>stretch</aspectratio>
-                </control>
-                <control type="image">
-                    <left>10</left>
+                    <left>8</left>
                     <top>8</top>
                     <width>320</width>
                     <height>180</height>
                     <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
                     <aspectratio>scale</aspectratio>
                 </control>
-                <control type="image"><left>10</left><top>108</top><width>320</width><height>80</height><texture>special://skin/media/card-charcoal.png</texture><colordiffuse>b8292721</colordiffuse></control>
-                <control type="label"><left>28</left><top>140</top><width>260</width><height>28</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterRailText</textcolor><truncate>true</truncate></control>
-            </itemlayout>
-            <focusedlayout width="340" height="210">
                 <control type="image">
-                    <left>0</left>
-                    <top>0</top>
-                    <width>340</width>
-                    <height>202</height>
+                    <left>8</left>
+                    <top>108</top>
+                    <width>320</width>
+                    <height>80</height>
+                    <texture>special://skin/media/card-charcoal.png</texture>
+                    <colordiffuse>f0292721</colordiffuse>
+                    <aspectratio>stretch</aspectratio>
+                </control>
+                <control type="label"><left>26</left><top>132</top><width>284</width><height>28</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterRailText</textcolor><truncate>true</truncate></control>
+            </itemlayout>
+            <focusedlayout width="336" height="202">
+                <control type="image">
+                    <left>8</left>
+                    <top>8</top>
+                    <width>320</width>
+                    <height>180</height>
+                    <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+                    <aspectratio>scale</aspectratio>
+                </control>
+                <control type="image">
+                    <left>8</left>
+                    <top>108</top>
+                    <width>320</width>
+                    <height>80</height>
+                    <texture>special://skin/media/card-charcoal.png</texture>
+                    <colordiffuse>f0292721</colordiffuse>
+                    <aspectratio>stretch</aspectratio>
+                </control>
+                <control type="image">
+                    <left>8</left>
+                    <top>108</top>
+                    <width>320</width>
+                    <height>80</height>
                     <texture>special://skin/media/rail-focus.png</texture>
                     <colordiffuse>ff9bc9a8</colordiffuse>
                     <aspectratio>stretch</aspectratio>
                 </control>
-                <control type="image">
-                    <left>0</left>
-                    <top>196</top>
-                    <width>340</width>
-                    <height>6</height>
-                    <texture>special://skin/media/rail-focus.png</texture>
-                    <colordiffuse>ff9bc9a8</colordiffuse>
-                </control>
-                <control type="image">
-                    <left>6</left>
-                    <top>4</top>
-                    <width>328</width>
-                    <height>188</height>
-                    <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
-                    <aspectratio>scale</aspectratio>
-                </control>
-                <control type="image"><left>6</left><top>112</top><width>328</width><height>80</height><texture>special://skin/media/card-charcoal.png</texture><colordiffuse>b8292721</colordiffuse></control>
-                <control type="label"><left>26</left><top>144</top><width>266</width><height>28</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterRailText</textcolor><truncate>true</truncate></control>
+                <control type="label"><left>26</left><top>132</top><width>284</width><height>28</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterRailText</textcolor><truncate>true</truncate></control>
             </focusedlayout>
             <content target="videos">videodb://recentlyaddedmovies/</content>
+        </control>
         </control>
     </controls>
 </window>
