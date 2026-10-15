@@ -6,6 +6,7 @@ inference service account. The API key is read inside LXC 110 and never emitted.
 import base64
 import hashlib
 import json
+import math
 import statistics
 import sys
 import time
@@ -137,7 +138,7 @@ def run(rows, key, request_fn=urlopen, now=time.monotonic):
                          "no confidence calibration, authority or production routing"]}
     if len(records) == 30 and all(r["valid"] for r in records):
         result["p50_seconds"] = round(statistics.median(times), 3)
-        result["p95_seconds"] = round(sorted(times)[int(.95 * (len(times)-1))], 3)
+        result["p95_seconds"] = round(sorted(times)[math.ceil(.95 * len(times)) - 1], 3)
     return result
 
 

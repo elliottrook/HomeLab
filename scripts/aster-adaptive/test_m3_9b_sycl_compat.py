@@ -56,6 +56,25 @@ class CompatTests(unittest.TestCase):
         self.assertNotIn(self.rows[0]["text"], serialized)
         self.assertIn("p95_seconds", result)
 
+    def test_complete_run_uses_nearest_rank_p95(self):
+        ticks = [0]
+        elapsed = 0
+        for latency in range(1, 31):
+            ticks.extend((elapsed, elapsed, elapsed + latency))
+            elapsed += latency
+        ticks.append(elapsed)
+        clock = iter(ticks)
+        iterator = iter(self.rows)
+
+        def fake(_request, timeout):
+            row = next(iterator)
+            return Reply(json.dumps({"choices": [{"message": {"content": json.dumps({
+                "status": row["status"], "capabilities": row["required"]})}}]}).encode())
+
+        result = probe.run(self.rows, "synthetic-secret", request_fn=fake,
+                           now=lambda: next(clock))
+        self.assertEqual(result["p95_seconds"], 29)
+
     def test_first_invalid_response_stops_without_retry(self):
         calls = 0
 

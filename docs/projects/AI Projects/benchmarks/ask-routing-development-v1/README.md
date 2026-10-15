@@ -42,7 +42,9 @@ nearest-rank request p95 is **0.708 s**, versus the originally published
 [9B score](local-9b-sycl-2026-10-15-nearest-rank.score.json) and
 [rule score](rules-macos-2026-10-15-nearest-rank.score.json) retain the original
 scores alongside them. Exact route agreement stays 18/30 and 30/30
-respectively; the qualification decision remains unchanged.
+respectively; the qualification decision remains unchanged. The source runner
+uses nearest rank for future frozen runs; its historical source hash and raw
+output are preserved in the original manifest rather than repinned.
 The 2026-10-13 offline scorer check also rejects a record marked valid while
 it carries a transport failure, error code or non-success HTTP status; HTTP
 and error fields must have bounded code shapes. The retained local 9B and
