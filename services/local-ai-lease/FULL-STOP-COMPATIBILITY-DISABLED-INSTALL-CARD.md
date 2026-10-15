@@ -73,6 +73,13 @@ the recovery executor was
 `d75ddfae4ccb3de4bd059aca75d41f4cdac6c60f4951d0ea6ab11a13b9f98e4d`;
 the watchdog timer was
 `9f09de46e3ee55d8f765e1f279d34632ea914c8c6506416f0455853ef538b744`.
+The installed `source_receipts.py` and `backup_receipt_adapter.py` hashes were
+`35bbecdacec30226e5483e7214f7e318008c1e40d418b37861f000b0e8d701d4`
+and `9bc07d567657deee07a757cb2518c078c37ef187d1922ff849d150313ec60a64`.
+A local mixed-version test using exact read-only copies of those two installed
+files ahead of the candidate modules ran 28 focused tests: **26 passed, 2
+root-custody tests skipped on macOS**. The temporary copies were removed.
+This supports API compatibility but does not replace the target-Linux test.
 Recheck these facts immediately before installation; this snapshot is not a
 lease or deployment approval.
 `full_stop_acquire_candidate.main(["--effect-authorized"])` and
