@@ -65,6 +65,17 @@ GPU visibility and authentication boundary matched baseline. Proxmox, TrueNAS
 and News schedule state remained healthy. This is baseline/no-drill evidence,
 not recovery proof, and does not change the NO-GO decision.
 
+## Retained-receipt integration gate
+
+The source-only `backup_from_retained()` adapter exists, but the active
+evidence path still calls `FixedSourceAdapters.evidence()` and therefore the
+serial `backup()` archive scan. The retained method is not selected by the
+receipt producer. Before any revised card can be considered, the explicit
+order must be implemented and tested: pre-acquire source-bound backup receipt
+(using the retained path), then post-stop quiescence receipt, then schema-
+compatible lease admission. A caller-supplied integrity boolean or scheduler
+success must not substitute for the retained receipt.
+
 ## Timing and preflight
 
 - 00:30 Proxmox backup, 01:00 guest pull, 02:00 LXC110 mirror, 03:00 Mac
