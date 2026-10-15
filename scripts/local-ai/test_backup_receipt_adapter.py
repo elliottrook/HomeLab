@@ -1,6 +1,8 @@
 import unittest
 
-from backup_receipt_adapter import BackupReceiptError, verify_lxc110_mirror, verify_mac_pull_receipt, verify_proxmox_artifacts
+from backup_receipt_adapter import (BackupReceiptError, verify_lxc110_mirror,
+                                    verify_mac_pull_receipt, verify_mac_subset_receipt,
+                                    verify_proxmox_artifacts)
 
 
 class BackupReceiptAdapterTests(unittest.TestCase):
@@ -42,6 +44,34 @@ class BackupReceiptAdapterTests(unittest.TestCase):
         receipt["tree_sha256"] = "not-a-digest"
         with self.assertRaisesRegex(BackupReceiptError, "digest"):
             verify_mac_pull_receipt(receipt, date_prefix="2026_10_13", task_finished_epoch=1791972002, lease_issued_epoch=1791972020)
+
+    def subset_receipt(self):
+        return {
+            "path": "/mnt/Recovery/configuration/mac/",
+            "claim": "source-destination-exact-subset", "date": "2026_10_13", "task_id": 2,
+            "task_started_epoch": 1791971990, "task_finished_epoch": 1791972002,
+            "source_snapshot_epoch": 1791971980, "destination_snapshot_epoch": 1791972005,
+            "captured_epoch": 1791972010, "subset_manifest_sha256": "b" * 64,
+            "source_manifest_sha256": "c" * 64, "destination_manifest_sha256": "c" * 64,
+            "source_entry_count": 9, "destination_entry_count": 9,
+            "source_total_size": 57692, "destination_total_size": 57692,
+            "scan_consistent": True,
+        }
+
+    def test_mac_subset_receipt_proves_current_cycle_equality(self):
+        self.assertEqual(
+            verify_mac_subset_receipt(self.subset_receipt(), expected_manifest_sha256="b" * 64,
+                                      date_prefix="2026_10_13", task_started_epoch=1791971990,
+                                      task_finished_epoch=1791972002, lease_issued_epoch=1791972020),
+            "mac-source-destination-subset-sha256:" + "b" * 64)
+
+    def test_mac_subset_rejects_tree_presence_claim(self):
+        receipt = self.subset_receipt()
+        receipt["claim"] = "tree-present-only"
+        with self.assertRaisesRegex(BackupReceiptError, "source/destination equality"):
+            verify_mac_subset_receipt(receipt, expected_manifest_sha256="b" * 64,
+                                      date_prefix="2026_10_13", task_started_epoch=1791971990,
+                                      task_finished_epoch=1791972002, lease_issued_epoch=1791972020)
 
 
 if __name__ == "__main__":

@@ -25,7 +25,10 @@ Status: offline candidate. This run card does not authorize a live run.
    capture time within 900 seconds after that completion and before lease
    issuance, and a bounded consistent tree-presence digest. This summary is
    diagnostic only: it does not prove that current Mac source content was
-   transferred, so Mac completion/content admission remains a separate gate.
+   transferred. A later A1 admission may use only the separately validated
+   `source-destination-exact-subset` receipt with equal source/destination
+   manifest and byte facts bound across task-2 start/finish; otherwise Mac
+   completion/content admission remains a separate gate.
    The adapter acquires the summary only through the exact observer command
    `aster-mac-pull-summary`.
 2. Stop and runtime-mask only the three Aster service units. Do not mask,

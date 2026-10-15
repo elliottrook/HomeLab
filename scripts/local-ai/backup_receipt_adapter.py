@@ -15,6 +15,13 @@ EXPECTED_GUESTS = ("104", "110", "116")
 EXPECTED_PROXMOX_BACKUP_ID = "backup-49999802-1365"
 EXPECTED_MIRROR_ROOT = "/mnt/Recovery/guests/aster-lxc110/"
 EXPECTED_MAC_ROOT = "/mnt/Recovery/configuration/mac/"
+MAC_SUBSET_FIELDS = {
+    "path", "claim", "date", "task_id", "task_started_epoch",
+    "task_finished_epoch", "source_snapshot_epoch", "destination_snapshot_epoch",
+    "captured_epoch", "subset_manifest_sha256", "source_manifest_sha256",
+    "destination_manifest_sha256", "source_entry_count", "destination_entry_count",
+    "source_total_size", "destination_total_size", "scan_consistent",
+}
 
 
 class BackupReceiptError(ValueError):
@@ -101,3 +108,42 @@ def verify_mac_pull_receipt(receipt: dict[str, Any], *, date_prefix: str, task_f
     if not isinstance(digest, str) or len(digest) != 64 or any(char not in "0123456789abcdef" for char in digest):
         raise BackupReceiptError("Mac pull receipt digest is invalid")
     return f"mac-tree-present-sha256:{digest}"
+
+
+def verify_mac_subset_receipt(receipt: dict[str, Any], *, expected_manifest_sha256: str,
+                              date_prefix: str, task_started_epoch: int,
+                              task_finished_epoch: int, lease_issued_epoch: int,
+                              freshness_seconds: int = 900) -> str:
+    """Verify current-cycle equality for one pinned Mac source/destination subset."""
+    if (type(receipt) is not dict or set(receipt) != MAC_SUBSET_FIELDS
+            or receipt.get("path") != EXPECTED_MAC_ROOT
+            or receipt.get("claim") != "source-destination-exact-subset"
+            or receipt.get("date") != date_prefix
+            or receipt.get("task_id") != 2
+            or receipt.get("task_started_epoch") != task_started_epoch
+            or receipt.get("task_finished_epoch") != task_finished_epoch
+            or not isinstance(expected_manifest_sha256, str)
+            or len(expected_manifest_sha256) != 64
+            or any(char not in "0123456789abcdef" for char in expected_manifest_sha256)
+            or receipt.get("subset_manifest_sha256") != expected_manifest_sha256
+            or receipt.get("source_manifest_sha256") != receipt.get("destination_manifest_sha256")
+            or not isinstance(receipt.get("source_manifest_sha256"), str)
+            or len(receipt["source_manifest_sha256"]) != 64
+            or any(char not in "0123456789abcdef" for char in receipt["source_manifest_sha256"])
+            or receipt.get("source_entry_count") != receipt.get("destination_entry_count")
+            or receipt.get("source_total_size") != receipt.get("destination_total_size")
+            or not isinstance(receipt.get("source_entry_count"), int)
+            or receipt["source_entry_count"] <= 0
+            or not isinstance(receipt.get("source_total_size"), int)
+            or receipt["source_total_size"] <= 0
+            or not isinstance(receipt.get("source_snapshot_epoch"), int)
+            or receipt["source_snapshot_epoch"] > task_started_epoch
+            or not isinstance(receipt.get("destination_snapshot_epoch"), int)
+            or receipt["destination_snapshot_epoch"] < task_finished_epoch
+            or receipt.get("scan_consistent") is not True
+            or not isinstance(receipt.get("captured_epoch"), int)
+            or receipt["captured_epoch"] < task_finished_epoch
+            or receipt["captured_epoch"] > task_finished_epoch + freshness_seconds
+            or receipt["captured_epoch"] > lease_issued_epoch):
+        raise BackupReceiptError("Mac subset receipt does not prove current-cycle source/destination equality")
+    return "mac-source-destination-subset-sha256:" + receipt["subset_manifest_sha256"]

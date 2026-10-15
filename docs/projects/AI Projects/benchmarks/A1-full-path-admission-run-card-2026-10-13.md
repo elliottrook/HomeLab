@@ -402,3 +402,17 @@ the earlier overclaim in source, but no current-cycle Mac source/destination
 comparison exists. The Mac observer remains uninstalled; its future output
 would be diagnostic only, while A1 backup admission and live recovery remain
 blocked on their separate gates.
+
+**Narrow Mac subset receipt contract, 2026-10-14:** A prior restored A1 v2
+inventory contains nine pinned files totaling 57,692 bytes, but that historical
+inventory is not current-cycle transfer proof. The accepted replacement must
+use the separate `source-destination-exact-subset` claim: a pinned subset
+manifest digest, equal source/destination manifest digests, equal entry and
+byte counts, source snapshot no later than task-2 start, destination snapshot
+no earlier than task-2 finish, task-2 identity/start/finish binding, and
+capture before lease issue. The receipt may contain only those aggregates and
+digests; filenames and file contents remain owner-side. The existing
+`tree-present-only` claim remains diagnostic and is rejected for A1 admission.
+The offline validator is `verify_mac_subset_receipt` in
+`scripts/local-ai/backup_receipt_adapter.py`; no current-cycle subset receipt
+or observer deployment exists yet.
