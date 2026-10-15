@@ -10,6 +10,9 @@ from application_b60_lease import ALLOWED_CONSUMER_SERVICES, APPLICATION_MODE, A
 
 
 class ApplicationB60ControllerTests(unittest.TestCase):
+    def writer(self, calls):
+        return lambda receipt, **kwargs: calls.append((receipt, kwargs))
+
     def receipt(self):
         return ApplicationLeaseReceipt(
             APPLICATION_MODE, "app-1", 2, "app-backup-1", "llama.cpp b11429 SYCL/Level Zero", True, True, True,
@@ -24,12 +27,15 @@ class ApplicationB60ControllerTests(unittest.TestCase):
     def test_acquire_and_sidecar_admission_only_touch_allowed_consumers(self):
         with tempfile.TemporaryDirectory() as temp:
             commands = []
-            controller = ApplicationB60Controller(ApplicationPaths(Path(temp)), commands.append, allow_effects=True)
+            receipts = []
+            controller = ApplicationB60Controller(ApplicationPaths(Path(temp)), commands.append, allow_effects=True,
+                                                   receipt_writer=self.writer(receipts), now_epoch=lambda: 100)
             self.assertEqual(controller.acquire(self.prelease())["mode"], APPLICATION_MODE)
             self.assertEqual(len(commands), 2)
             self.assertTrue(all(command_for(*service, "stop") == command for service, command in zip(ALLOWED_CONSUMER_SERVICES, commands)))
             commands.clear()
             self.assertEqual(controller.admit_sidecar(self.receipt(), expected_lease_id="app-1", expected_generation=2)["state"], "sidecar-admitted")
+            self.assertEqual(receipts[0][0].lease_id, "app-1")
             with self.assertRaisesRegex(ValueError, "watchdog"):
                 controller.restore(self.receipt(), expected_lease_id="app-1", expected_generation=2)
             self.assertEqual(commands, [])

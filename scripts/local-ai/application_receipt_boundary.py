@@ -7,6 +7,7 @@ import json
 import os
 import stat
 import tempfile
+import time
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
@@ -148,6 +149,12 @@ def load_active_admission_payload(*, now_epoch: int,
                                     profile_sha256=profile_sha256)
 
 
+def host_admission_callback(profile_sha256: str) -> dict[str, object]:
+    """Return current admission from the trusted host clock and owner files."""
+    return load_active_admission_payload(
+        now_epoch=int(time.time()), profile_sha256=profile_sha256)
+
+
 def record_owner_receipt(receipt: ApplicationReceipt, *, now_epoch: int,
                          expected_lease_id: str, expected_generation: int) -> None:
     """Atomically publish a validated host receipt at the fixed owner path."""
@@ -186,3 +193,29 @@ def load_owner_receipt(path: Path = OWNER_RECEIPT_PATH) -> ApplicationReceipt:
         raise ValueError("application receipt fields are not exact")
     value["consumers_quiesced"] = tuple(tuple(item) for item in value["consumers_quiesced"])
     return ApplicationReceipt(**value)
+
+
+def from_lease_receipt(lease_receipt, *, watchdog_deadline_epoch: int) -> ApplicationReceipt:
+    """Convert the validated lease observation into the host-owned receipt."""
+    sidecar = lease_receipt.sidecar
+    return ApplicationReceipt(
+        schema=SCHEMA,
+        mode=lease_receipt.mode,
+        lease_id=lease_receipt.lease_id,
+        generation=lease_receipt.generation,
+        backup_receipt=lease_receipt.backup_receipt,
+        watchdog_deadline_epoch=watchdog_deadline_epoch,
+        backend_identity=lease_receipt.backend_identity,
+        llama_service_active=lease_receipt.llama_service_active,
+        exclusive_backend_claim=lease_receipt.exclusive_backend_claim,
+        backend_listener_ipv4_only=lease_receipt.backend_listener_ipv4_only,
+        consumers_quiesced=lease_receipt.consumers_quiesced,
+        news_quiesced=lease_receipt.news_quiesced,
+        sidecar_source_digest=sidecar.source_digest,
+        sidecar_uid=sidecar.uid,
+        sidecar_worker_count=sidecar.worker_count,
+        sidecar_port=sidecar.port,
+        sidecar_credential_denied=sidecar.credential_denied,
+        sidecar_network_denied=sidecar.network_denied,
+        sidecar_started_within_lease=sidecar.started_within_lease,
+    )

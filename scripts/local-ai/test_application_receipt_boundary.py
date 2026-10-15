@@ -1,10 +1,11 @@
 import unittest
+from unittest.mock import patch
 
 from application_receipt_boundary import (A1_PROFILE_SHA256, A1_SIDECAR_SOURCE_DIGEST,
                                           ADMISSION_ENDPOINT, ApplicationReceipt,
                                           CONSUMERS, MODE, SCHEMA, admission_payload,
                                           active_admission_payload, record_owner_receipt,
-                                          validate)
+                                          validate, host_admission_callback)
 
 
 class ApplicationReceiptBoundaryTests(unittest.TestCase):
@@ -80,3 +81,10 @@ class ApplicationReceiptBoundaryTests(unittest.TestCase):
         with self.assertRaisesRegex(PermissionError, "requires root"):
             record_owner_receipt(self.receipt(), now_epoch=200,
                                  expected_lease_id="lease-1", expected_generation=4)
+
+    def test_host_callback_owns_time_and_loads_current_boundary(self):
+        expected = {"schema": "aster-a1-admission.v1"}
+        with patch("application_receipt_boundary.load_active_admission_payload", return_value=expected) as loader, \
+             patch("application_receipt_boundary.time.time", return_value=250.9):
+            self.assertEqual(host_admission_callback(A1_PROFILE_SHA256), expected)
+        loader.assert_called_once_with(now_epoch=250, profile_sha256=A1_PROFILE_SHA256)

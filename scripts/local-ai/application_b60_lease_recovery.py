@@ -159,7 +159,7 @@ def main(argv: Sequence[str]) -> int:
         print(json.dumps({"state": "waiting", "lease_id": state["lease_id"], "generation": state["generation"], "now_epoch": now_epoch, "restore_start_epoch": state["restore_start_epoch"], "restore_deadline_epoch": state["restore_deadline_epoch"]}, sort_keys=True, separators=(",", ":")))
         return 0
     source_ok = observer.source_checks()
-    watchdog = ApplicationB60Watchdog(args.state.parent, lambda command: _run(command, timeout=30.0)[0] == 0 or (_ for _ in ()).throw(RuntimeError("fixed recovery command failed")), observer, allow_effects=True)
+    watchdog = ApplicationB60Watchdog.production(args.state.parent, lambda command: _run(command, timeout=30.0)[0] == 0 or (_ for _ in ()).throw(RuntimeError("fixed recovery command failed")), observer)
     result = watchdog.recover(lease_id=state["lease_id"], generation=state["generation"], now_epoch=now_epoch, retain_state=True)
     _write_receipt({"schema": "aster-application-recovery.v1", "state": result["state"], "mode": result["mode"], "lease_id": result["lease_id"], "generation": result["generation"], "overdue": result["overdue"], "source_checks": "candidate-closure-verified" if source_ok else "candidate-closure-drift-observed"})
     watchdog.finalize(lease_id=result["lease_id"], generation=result["generation"])

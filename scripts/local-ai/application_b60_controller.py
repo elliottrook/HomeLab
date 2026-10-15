@@ -122,10 +122,23 @@ def _safe_window(prelease: ApplicationPreLease) -> bool:
 
 
 class ApplicationB60Controller:
-    def __init__(self, paths: ApplicationPaths, runner: Callable[[Sequence[str]], None], *, allow_effects: bool = False):
+    def __init__(self, paths: ApplicationPaths, runner: Callable[[Sequence[str]], None], *, allow_effects: bool = False,
+                 receipt_writer: Callable[..., None] | None = None,
+                 now_epoch: Callable[[], int] | None = None):
         self.paths = paths
         self.runner = runner
         self.allow_effects = allow_effects
+        self.receipt_writer = receipt_writer
+        self.now_epoch = now_epoch
+
+    @classmethod
+    def production(cls, paths: ApplicationPaths, runner: Callable[[Sequence[str]], None],
+                   now_epoch: Callable[[], int]) -> "ApplicationB60Controller":
+        """Construct the effectful host controller with its fixed producer."""
+        if os.geteuid() != 0:
+            raise PermissionError("production application controller requires root")
+        return cls(paths, runner, allow_effects=True,
+                   receipt_writer=production_receipt_writer(), now_epoch=now_epoch)
 
     def _require_effect_authority(self) -> None:
         if not self.allow_effects:
@@ -200,12 +213,20 @@ class ApplicationB60Controller:
 
     def admit_sidecar(self, receipt: ApplicationLeaseReceipt, *, expected_lease_id: str, expected_generation: int) -> dict[str, object]:
         self._require_effect_authority()
+        if self.receipt_writer is None or self.now_epoch is None:
+            raise ValueError("application receipt producer is not configured")
         if not self.paths.lock.exists() or not self.paths.state.exists():
             raise ValueError("application lease state and lock are both required")
         value = json.loads(self.paths.state.read_text(encoding="utf-8"))
         if (value.get("mode"), value.get("lease_id"), value.get("generation"), value.get("phase")) != (APPLICATION_MODE, expected_lease_id, expected_generation, "armed"):
             raise ValueError("persisted application lease is not awaiting sidecar admission")
         validate(receipt, expected_lease_id=expected_lease_id, expected_generation=expected_generation)
+        from application_receipt_boundary import from_lease_receipt
+        owner_receipt = from_lease_receipt(
+            receipt, watchdog_deadline_epoch=value["restore_deadline_epoch"])
+        self.receipt_writer(owner_receipt, now_epoch=self.now_epoch(),
+                            expected_lease_id=expected_lease_id,
+                            expected_generation=expected_generation)
         value["phase"] = "sidecar-admitted"
         atomic_write(self.paths.state, json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n")
         _journal(self.paths.journal, {"event": "sidecar-admitted", "lease_id": expected_lease_id, "generation": expected_generation})
@@ -213,3 +234,9 @@ class ApplicationB60Controller:
 
     def restore(self, *args, **kwargs):
         raise ValueError("direct application restore is disabled; application watchdog recovery is required")
+
+
+def production_receipt_writer():
+    """Return the fixed root-owned producer used by the live host controller."""
+    from application_receipt_boundary import record_owner_receipt
+    return record_owner_receipt

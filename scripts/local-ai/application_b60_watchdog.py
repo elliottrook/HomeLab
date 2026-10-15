@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Sequence
@@ -78,15 +79,27 @@ def fixed_command(kind: str) -> tuple[str, ...]:
 
 
 class ApplicationB60Watchdog:
-    def __init__(self, state_dir: Path, runner: Callable[[Sequence[str]], None], observer, *, allow_effects: bool = False):
+    def __init__(self, state_dir: Path, runner: Callable[[Sequence[str]], None], observer, *, allow_effects: bool = False,
+                 status_writer: Callable[..., None] | None = None):
         self.state_dir = state_dir
         self.runner = runner
         self.observer = observer
         self.allow_effects = allow_effects
+        self.status_writer = status_writer
+
+    @classmethod
+    def production(cls, state_dir: Path, runner: Callable[[Sequence[str]], None], observer) -> "ApplicationB60Watchdog":
+        """Construct the effectful host watchdog with its fixed producer."""
+        if os.geteuid() != 0:
+            raise PermissionError("production application watchdog requires root")
+        return cls(state_dir, runner, observer, allow_effects=True,
+                   status_writer=production_status_writer())
 
     def recover(self, *, lease_id: str, generation: int, now_epoch: int, retain_state: bool = False) -> dict[str, object]:
         if not self.allow_effects:
             raise ValueError("application watchdog is advisory-only; live effects are disabled")
+        if self.status_writer is None:
+            raise ValueError("application watchdog status producer is not configured")
         state = self.state_dir / STATE_NAME
         lock = self.state_dir / LOCK_NAME
         if not state.exists() or not lock.exists():
@@ -108,8 +121,10 @@ class ApplicationB60Watchdog:
         for effect in ("ingress", "key"):
             status = effects.get(effect, "not-started")
             if status == "intent":
+                self._publish_status(lease_id, generation, now_epoch, "failed")
                 raise ValueError(f"uncertain application effect: {effect}")
             if status not in {"not-started", "observed"}:
+                self._publish_status(lease_id, generation, now_epoch, "failed")
                 raise ValueError(f"invalid application effect state: {effect}")
         if effects.get("ingress", "not-started") == "observed":
             self._step(lease_id, generation, "restore-ingress", lambda: self.observer.ingress_restored())
@@ -117,15 +132,22 @@ class ApplicationB60Watchdog:
             self._step(lease_id, generation, "remove-test-key", lambda: self.observer.test_key_removed())
             self._step(lease_id, generation, "reload-backend", lambda: self.observer.backend_reloaded())
         if not self.observer.production_auth_ok() or not self.observer.wrong_key_denied():
+            self._publish_status(lease_id, generation, now_epoch, "failed")
             raise ValueError("production backend authentication postcheck failed; consumers remain stopped")
         self._step(lease_id, generation, "start-aster", lambda: self.observer.aster_healthy())
         self._step(lease_id, generation, "start-speech", lambda: self.observer.speech_healthy())
         if not self.observer.consumers_healthy():
+            self._publish_status(lease_id, generation, now_epoch, "failed")
             raise ValueError("consumer restoration postcheck failed; lease retained")
+        self._publish_status(lease_id, generation, now_epoch, "released")
         if not retain_state:
             state.unlink()
             lock.rmdir()
         return {"state": "ready", "mode": APPLICATION_MODE, "lease_id": lease_id, "generation": generation, "overdue": overdue}
+
+    def _publish_status(self, lease_id: str, generation: int, valid_until_epoch: int, state: str) -> None:
+        self.status_writer(lease_id=lease_id, generation=generation,
+                           valid_until_epoch=valid_until_epoch, state=state)
 
     def finalize(self, *, lease_id: str, generation: int) -> None:
         state = self.state_dir / STATE_NAME
@@ -167,10 +189,20 @@ class ApplicationB60Watchdog:
             stream.write(json.dumps({"event": "step-intent", "lease_id": lease_id, "generation": generation, "step": kind}, sort_keys=True) + "\n")
             stream.flush()
             os.fsync(stream.fileno())
-        self.runner(fixed_command(kind))
+        try:
+            self.runner(fixed_command(kind))
+        except Exception:
+            self._publish_status(lease_id, generation, int(time.time()), "failed")
+            raise
         if not check():
+            self._publish_status(lease_id, generation, int(time.time()), "failed")
             raise ValueError(f"application recovery postcheck failed: {kind}")
         with journal.open("a", encoding="utf-8") as stream:
             stream.write(json.dumps({"event": "step-observed", "lease_id": lease_id, "generation": generation, "step": kind}, sort_keys=True) + "\n")
             stream.flush()
             os.fsync(stream.fileno())
+
+
+def production_status_writer():
+    """Return the fixed root-owned producer used by the live watchdog."""
+    return write_watchdog_status

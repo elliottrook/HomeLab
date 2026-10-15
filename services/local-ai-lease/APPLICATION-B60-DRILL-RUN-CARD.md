@@ -54,9 +54,10 @@ production-auth probe, and the post-consumer exact check each perform one
 bounded authenticated health generation. That is a maximum of three tiny
 health generations, with no arbitrary prompts; the wrong-key denial is an HTTP
 401 check and is not a generation. The backend is unavailable only during the
-planned restart and must return with the exact postchecks. Any pre-run restart
-needed to activate a temporary key is not implemented by this candidate and
-must be separately pinned, counted and approved. A later 20-call A1 benchmark
+planned restart and must return with the exact postchecks. The pre-run key
+activation and its bounded backend restart are a separate live packet item:
+they must be installed, observed and counted before the sidecar starts, with
+the same exact backend postchecks. A later 20-call A1 benchmark
 needs a separate approval after the recovery drill passes.
 
 ## Authenticated callback contract
@@ -99,10 +100,10 @@ ingress apply `41b96f560261a198c09fd85d8ba7150478241fbe6a38f28befad9dc4fa40020b`
 and ingress restore `9bf3c3cb1e04081f41584f9dc742d86e9e7ead3a1806a243a6ce3478572ff347`.
 These are a separate drill candidate and are not part of the frozen disabled-
 install packet.
-The active receipt boundary source hash is
-`6ae844c523ff84e7b65cdacd74c58ec3cd54f1b5d5fc1de9edd83f440f2f9ca7`, and the
+The current drill-only receipt boundary source hash is
+`dcde70b9d00fdb2d9b37edef7edbe441b2a3ba24e21ac2a341eb7a8cf4933bf7`, and the
 watchdog status producer hash is
-`ae6378d96037ad6f026c737edd28314c299ca3ec08789bcdb4691589dccd3ddf`.
+`3447d490ec396dee45191a5294537f2132deac6578e3e30376f6f6980a98e8d2`.
 The LXC110 helper package must include `a1_key_file.py` hash
 `25f2c82cb09b051f3307341571b3a27c6b2c4f6002c70b5a1a256ed4e8292b36` before
 the key wrappers can be installed. These producer/helper files are drill-only
@@ -139,9 +140,9 @@ mode 0755 beside the recovery helper and must remain disabled/not auto-run.
 This card does not authorize the 03:15 full-stop drill, host reboot, any
 unplanned LXC110 stop/restart, production key access, permanent ACL or
 schedule changes, News changes, the 20-call A1 batch, arbitrary model prompts,
-or Git push. The temporary key/ACL activation helper and its possible pre-run
-backend restart remain unresolved source gates and cannot be inferred from
-this card.
+or Git push. Installation of the drill-only helper package, its pre-run key
+activation/restart, and the live effect window still require one bounded
+approval and must not be inferred from this card.
 
 ## Rollback
 
