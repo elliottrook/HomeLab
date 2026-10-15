@@ -864,6 +864,13 @@ The Audiobookshelf official search supports finding shows; subscription and
 download actions remain in the authenticated service, not the Kodi skin.
 No spoken output is added.
 
+Books card refinement, 2026-10-15: the shared square backplate was split by
+media type. Calibre eBooks now use portrait 190×260 browse cards and 66×90
+landing cards; Audiobookshelf covers retain square 260×260 and 90×90 cards.
+The inner artwork keeps its aspect ratio, and the green focus surface follows
+each card shape. Kodi was restarted and both browse pages, the landing rows,
+and focused cards were visually checked. The 39 offline skin tests pass.
+
 Podcast deployment preflight found material live/Compose drift: the running
 Audiobookshelf container is bound to `192.168.20.40:30067`, mounts the
 legacy Audiobooks path read-only, and mounts `/audiobooks` read-write; the

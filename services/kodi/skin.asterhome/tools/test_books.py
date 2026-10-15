@@ -119,6 +119,24 @@ class BooksTests(unittest.TestCase):
             self.assertEqual(window.getroot().get('id'), str(identifier - 10000))
             self.assertEqual(window.find('.//param[@name="page"]').get('value'), page)
 
+    def test_book_art_cards_follow_cover_shape(self):
+        shared = ET.parse(ROOT / '1080i/IncludesBooks.xml')
+        for name, portrait, square in (('AsterBooksTile', (190, 260), (260, 260)),
+                                       ('AsterBooksSmallTile', (66, 90), (90, 90))):
+            tile = shared.find(f'.//include[@name="{name}"]')
+            panels = [control for control in tile.findall('control')
+                      if control.findtext('colordiffuse') == 'asterIvory']
+            self.assertEqual(len(panels), 2)
+            self.assertEqual((int(panels[0].findtext('width')),
+                              int(panels[0].findtext('height'))), portrait)
+            self.assertIn('AsterBooks.Kind),ebook', panels[0].findtext('visible'))
+            self.assertEqual((int(panels[1].findtext('width')),
+                              int(panels[1].findtext('height'))), square)
+            self.assertIn('!String.IsEqual(ListItem.Property(AsterBooks.Kind),ebook)',
+                          panels[1].findtext('visible'))
+        for layout in shared.findall('.//focusedlayout'):
+            self.assertEqual(layout[-1].tag, 'include')
+
 
 if __name__ == '__main__':
     unittest.main()
