@@ -18,6 +18,12 @@ actual backup, lease and recovery receipts only; it cannot infer completion,
 acquire the host, invoke a model, or re-enable the obsolete runner from the
 clock. The [A1 full-path card](benchmarks/A1-full-path-admission-run-card-2026-10-13.md)
 records the blocking gates and minimum restoration reserve.
+An [evening readiness audit](evidence/A1-evening-readiness-audit-2026-10-14.md)
+found that 03:40 is too late for a first A1 admission with 35 minutes of
+reserve before 04:15. A separate one-time **03:05 read-only backup/source
+preflight** is active in this chat; it must mark A1 NO-GO by 03:10 if task 2
+or any source-bound gate remains unproved. It neither runs the platform drill
+nor grants A1 model calls.
 
 **Current-state guard, reconciled 2026-10-12:** the platform owner's current,
 uncommitted `docs/projects/Local-AI-Platform-Split.md` record in the main
