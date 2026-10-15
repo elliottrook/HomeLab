@@ -51,6 +51,17 @@ also identifies the distinct pre-acquire backup and post-stop quiescence
 decision points that the revised card must bind explicitly.
 The 01:10 cold current-cycle scan was partial and target-Linux integration
 remains open.
+On October 15, Stream A implemented the missing source compatibility path on
+the separate local branch `codex/aster-lease-compat` through `5dc16f84`.
+Its `services/local-ai-lease/FULL-STOP-COMPATIBILITY-SOURCE-PACKET.md`
+and `services/local-ai-lease/FULL-STOP-COMPATIBILITY-DISABLED-INSTALL-CARD.md`
+specify the retained scan, fixed backup/runtime sources, pre/post-isolation
+state transitions and target-Linux rollback checks. The new command-line
+paths are hard-disabled, nothing has been installed, and the full-stop drill
+is still NO-GO pending a disabled target-Linux validation, observed complete
+current-cycle archive scan and separately approved live run. The offline
+suite passed 174 tests with two root-custody tests skipped on macOS. The
+code branch has not yet been reconciled into this Stream A branch or pushed.
 The configured 00:30/01:00/02:00/03:00 backup schedules were checked read-only
 on Proxmox and TrueNAS; this does not prove a given night's completion. The
 platform owner's record reports one successful manual light lease, but the
