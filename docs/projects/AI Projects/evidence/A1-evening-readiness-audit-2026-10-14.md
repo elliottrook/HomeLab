@@ -68,6 +68,13 @@ three synthetic tests passed. It prints only count, byte total and aggregate
 digest and rejects links, non-regular entries, oversize or changing scans.
 It is an observation helper, not an authenticated producer or an A1 admission
 receipt. The 03:05 current-cycle destination comparison is still pending.
+The same source file was streamed directly to TrueNAS Python 3.11 over the
+existing read-only SSH path without installation. At epoch `1792045105`, its
+destination scan again returned nine files, 57,692 bytes and the identical
+`f05a49aa…` aggregate digest. This verifies cross-host scanner compatibility
+and the historical subset equality before the next 03:00 task; it is **not**
+proof that the upcoming task transferred those files or an authenticated
+application-lease receipt.
 
 At epoch `1792035502`, before the next 03:00 task, Stream A captured a
 mode-0600 content-free **source-only** snapshot at
