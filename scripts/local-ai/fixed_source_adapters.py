@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import time
 from collections.abc import Callable
 from datetime import datetime
@@ -13,6 +14,7 @@ from admission_gate import EXPECTED_BACKUP_SOURCE, AdmissionEvidenceError
 from backup_receipt_adapter import verify_lxc110_mirror, verify_mac_pull_receipt, verify_proxmox_artifacts
 from quiescence_receipt_adapter import ConsumerSnapshot, compose_quiescence_receipt
 from source_receipts import BackupSourceReceipt, QuiescenceSourceReceipt, compose_candidate_evidence
+from retained_archive_integrity import IntegrityError, load_root_owned, verify as verify_retained_integrity
 
 Runner = Callable[[tuple[str, ...], float], tuple[int, str]]
 
@@ -86,7 +88,9 @@ class FixedSourceAdapters:
     def __init__(self, runner: Runner, *, sleep: Callable[[float], None] = time.sleep, clock: Callable[[], datetime] = datetime.now, monotonic: Callable[[], int] = time.monotonic_ns):
         self.runner, self.sleep, self.clock, self.monotonic = runner, sleep, clock, monotonic
 
-    def backup(self, *, date_prefix: str, lease_issued_epoch: int, verify_archives: bool = True) -> BackupSourceReceipt:
+    def backup(self, *, date_prefix: str, lease_issued_epoch: int, verify_archives: bool = True, retained_integrity: bool = False) -> BackupSourceReceipt:
+        if verify_archives and retained_integrity:
+            raise SourceAdapterError("choose exactly one archive integrity method")
         pve = _json(self.runner, ("pvesh", "get", "/nodes/proxmox/storage/backups/content", "--content", "backup", "--output-format", "json"), 30.0)
         artifacts = verify_proxmox_artifacts(pve, date_prefix=date_prefix)
         rsync = _json(self.runner, _truenas(("midclt", "call", "rsynctask.query")), 10.0)
@@ -94,6 +98,21 @@ class FixedSourceAdapters:
             raise SourceAdapterError("TrueNAS backup tasks are not all successful")
         mirror = _json(self.runner, _truenas(("midclt", "call", "filesystem.listdir", "/mnt/Recovery/guests/aster-lxc110")), 10.0)
         verify_lxc110_mirror(mirror, artifacts[1])
+        retained_digest = None
+        if retained_integrity:
+            def fixed_path(volid: str) -> str:
+                code, path = self.runner(("pvesm", "path", volid), 10.0)
+                if code != 0:
+                    raise SourceAdapterError("backup path lookup failed")
+                return path.strip()
+            try:
+                retained_digest = verify_retained_integrity(
+                    load_root_owned(), pve, date=date_prefix,
+                    now_epoch=lease_issued_epoch, resolve=fixed_path,
+                    lstat=os.lstat,
+                )
+            except (IntegrityError, OSError) as exc:
+                raise SourceAdapterError("retained archive integrity source failed") from exc
         if verify_archives:
             for artifact in artifacts:
                 code, path = self.runner(("pvesm", "path", artifact.volid), 10.0)
@@ -105,7 +124,13 @@ class FixedSourceAdapters:
         receipt_material = json.dumps([(a.vmid, a.volid, a.size, a.ctime) for a in artifacts], separators=(",", ":"), sort_keys=True).encode()
         digest = hashlib.sha256(receipt_material).hexdigest()
         now = self.clock()
-        return BackupSourceReceipt(EXPECTED_BACKUP_SOURCE, EXPECTED_BACKUP_SOURCE, now.hour * 60 + now.minute, f"metadata-sha256:{digest}", verify_archives, True)
+        integrity_receipt = retained_digest or f"metadata-sha256:{digest}"
+        return BackupSourceReceipt(EXPECTED_BACKUP_SOURCE, EXPECTED_BACKUP_SOURCE, now.hour * 60 + now.minute, integrity_receipt, verify_archives or retained_integrity, True)
+
+    def backup_from_retained(self, *, date_prefix: str, lease_issued_epoch: int) -> BackupSourceReceipt:
+        """Use only the fixed root-owned earlier scan after current chain checks."""
+        return self.backup(date_prefix=date_prefix, lease_issued_epoch=lease_issued_epoch,
+                           verify_archives=False, retained_integrity=True)
 
     def mac_pull_summary(self, *, date_prefix: str, lease_issued_epoch: int, freshness_seconds: int = 900) -> str:
         """Collect tree-presence evidence only; never treat it as transfer proof."""
