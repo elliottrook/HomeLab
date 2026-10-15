@@ -7,7 +7,10 @@ Home feed reader displays those values and omits unavailable readings. The
 exporter is not installed on VM 103, no `home.json` has been delivered to
 Kodi, and household controls remain disabled. A recovery checkpoint, exact
 configuration review, Home Assistant validation and protected delivery path
-are separate deployment gates.
+are separate deployment gates. Read-only preflight found that an older v1
+exporter is already live for Aster's no-effect recording pilot. The v2
+candidate must not replace its file or schema; an isolated output path or a
+tested consumer migration is required first.
 
 Version 0.6.2 provides a manual, one-shot Books pilot. Run
 `python3 tools/pilot_books_feed.py` from the Mac to query the existing TrueNAS

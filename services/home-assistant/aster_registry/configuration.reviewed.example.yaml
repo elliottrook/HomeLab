@@ -1,4 +1,6 @@
-# Offline review candidate — do not copy into Home Assistant yet.
+# Offline review candidate — DO NOT copy over the deployed schema-v1
+# aster_registry block. It supplies Aster's no-effect recording pilot.
+# Choose an isolated sidecar or explicitly migrate/test that consumer first.
 #
 # Offline pilot candidate selected by Jason on 2026-10-14. These three entity
 # IDs were present and enabled in a read-only live registry check. Their live

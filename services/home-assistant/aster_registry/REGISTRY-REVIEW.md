@@ -1,6 +1,17 @@
 # Aster registry review candidate
 
-Status: **prepared offline; not deployed**
+Status: **v2 changes prepared offline; existing v1 exporter is deployed**
+
+Read-only discovery on 2026-10-14 found a working v1 exporter on VM 103:
+`/config/custom_components/aster_registry` plus an active YAML block with
+only `light.laundry_laundry_main_lights`. Its mode-0600 report at
+`/share/aster-registry/latest.json` contains schema v1, snapshot ID
+`ha-laundry-pilot-20261010` and alias `laundry lights`. This is the existing
+Aster no-effect recording-pilot source. The source in this directory has
+diverged to schema v2 and **must not be copied over the deployed component**.
+The proposed v2 change would replace a working shared contract, not install a
+new offline-only component. Pause remote deployment until a separate output
+path/component or an explicitly tested consumer migration is approved.
 
 Jason selected a three-entity, read-only Home Hub pilot on 2026-10-14. A
 read-only query of VM 103's live entity registry confirmed that all three IDs
@@ -42,8 +53,10 @@ recorded in the project evidence:
 6. Record the rollback checkpoint and the file-level rollback procedure before
    accepting the result.
 
-The candidate does not authorize a Home Assistant change, a VM snapshot or a
-restart. It is suitable for local contract tests and design review only.
+This v2 candidate is suitable for local contract tests and design review only.
+The earlier pilot approval did not include breaking the live schema-v1
+recording source. No new VM snapshot, configuration change or restart was made
+after this dependency was discovered.
 
 ## Aster Home limitation
 

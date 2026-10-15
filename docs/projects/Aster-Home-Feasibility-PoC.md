@@ -632,6 +632,22 @@ including recovery checkpoint, exact source-local state/unit check,
 `ha core check`, protected feed delivery, validation and rollback. No remote
 Git operation occurred.
 
+Subsequent pre-deployment read-only discovery corrected the offline-state
+assumption above: VM 103 already runs the schema-v1 `aster_registry` custom
+integration and has an active configuration block for the laundry light. Its
+mode-0600 report is being refreshed and contains only the reviewed alias.
+The deployed component hashes match the earlier v1 source/manifest, not the
+new local v2 source; the existing Proxmox snapshot is
+`aster-registry-pre-20261010`. The report is the Aster adaptive-computing
+no-effect recording pilot's established source. That consumer's
+`ProviderRegistrySnapshot` explicitly requires schema v1. Overwriting the
+same component/output with v2 would be a material shared-contract change, so
+the authorized deployment sequence was stopped before a fresh snapshot,
+file copy, configuration edit or restart. The safe proposed route is a
+separate Aster Home output/component that leaves v1 untouched, or a separately
+reviewed consumer migration. The choice and its recovery plan need Jason's
+approval before any VM 103 mutation. No remote Git operation occurred.
+
 Books is a separate integration gap, not an empty design page. The one-shot
 Mac test displayed 46 actual Audiobookshelf titles from the existing sanitized
 unified-media snapshot. That snapshot contained no `calibre/ebook` records,
