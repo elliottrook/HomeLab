@@ -127,6 +127,20 @@ class StructuredDoctorAdapterTests(unittest.TestCase):
                 self.structured_path.write_text(json.dumps(structured))
                 self.assertEqual(self.read()["state"], "unavailable")
 
+    def test_structured_severity_cannot_exceed_same_run_aggregate(self):
+        for structured_state, aggregate_status in (
+            ("fail", "healthy"), ("fail", "warning"), ("warn", "healthy"),
+        ):
+            with self.subTest(structured_state=structured_state, aggregate_status=aggregate_status):
+                structured = self.write_pair(state=structured_state)
+                aggregate = json.loads(self.aggregate_path.read_text())
+                aggregate["status"] = aggregate_status
+                raw = (json.dumps(aggregate, sort_keys=True, separators=(",", ":")) + "\n").encode()
+                self.aggregate_path.write_bytes(raw)
+                structured["source_report_digest"] = hashlib.sha256(raw).hexdigest()
+                self.structured_path.write_text(json.dumps(structured))
+                self.assertEqual(self.read()["state"], "unavailable")
+
 
 if __name__ == "__main__":
     unittest.main()

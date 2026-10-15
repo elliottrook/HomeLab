@@ -116,6 +116,14 @@ def read_doctor_structured_observation(
             raise ValueError("unknown check")
         if check["state"] not in {"pass", "warn", "fail", "unavailable"}:
             raise ValueError("unknown state")
+        # The structured state is attributed to the same Doctor run as the
+        # aggregate report. A failing check cannot accompany a healthy or
+        # warning aggregate, and a warning check cannot accompany healthy.
+        # Other checks may make the aggregate more severe, so do not require
+        # exact equality here.
+        if ((check["state"] == "fail" and aggregate["status"] != "failed") or
+                (check["state"] == "warn" and aggregate["status"] == "healthy")):
+            raise ValueError("structured check contradicts aggregate status")
         observed = datetime.fromisoformat(aggregate["generated_at"].replace("Z", "+00:00"))
         if observed.tzinfo is None or observed.utcoffset() != timedelta(0):
             raise ValueError("non-UTC report")

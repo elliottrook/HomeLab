@@ -1,5 +1,14 @@
 # D4 Doctor typed-check fixture result — 2026-10-10
 
+**October 15 offline follow-up:** The paired-report digest and timestamp
+checks did not reject a synthetic schema-2 `fail` alongside an aggregate
+`healthy`/`warning`, or a schema-2 `warn` alongside aggregate `healthy`.
+The candidate adapter now fails closed on those contradictory severities.
+It still permits an aggregate to be *more* severe because another check may
+have failed. Three contradictory fixture pairs were rejected; the 11 Doctor
+adapter tests and 17 sysadmin incident tests passed. This changes only
+offline source and does not make the typed path live or prove its usefulness.
+
 **Decision:** retain the offline candidate for further evaluation. Connected Codex tools, model egress, deployment and real incident use remain **HOLD**. This is a contract/privacy preflight, not proof of diagnostic competence.
 
 ## What was built locally
