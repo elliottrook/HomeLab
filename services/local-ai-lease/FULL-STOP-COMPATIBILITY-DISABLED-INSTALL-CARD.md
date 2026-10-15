@@ -1,6 +1,7 @@
 # Disabled installation card: full-stop compatibility
 
-Status: prepared, **not authorized or executed**. Source branch:
+Status: **approved and installed inactive on 2026-10-15 at 15:19 Vancouver**;
+target-Linux installed-path checks passed. This does not authorize a live drill. Source branch:
 `codex/aster-lease-compat`; exact source-byte pins are in
 `FULL-STOP-COMPATIBILITY-SOURCE-PACKET.md`.
 
@@ -119,5 +120,8 @@ and failure evidence. If a state or lock unexpectedly appears, **do not**
 swap controller/recovery code beneath it; retain the state and stop for
 operator reconciliation.
 
-This card is a concrete review target, not a standing approval or an instruction
-to run the full-stop drill automatically at 03:10.
+The bounded installation was explicitly approved by Jason on 2026-10-15. Its
+execution and remaining gates are recorded in
+`FULL-STOP-COMPATIBILITY-DISABLED-INSTALL-RESULT-20261015.md`. This card is
+not a standing approval or an instruction to run the full-stop drill
+automatically at 03:10.
