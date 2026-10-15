@@ -101,6 +101,13 @@ under `/opt/aster-a1-test`, rejecting every durable evidence directory.
 They now detect actual `.git` ancestry instead; the focused fixture suite
 passes in a temporary non-Git layout. This source correction changes the
 profile hash above and invalidates the earlier `f97644b3…` pin.
+The supervised Mini-side runner is
+[`a1_admitted_batch.py`](../../../../scripts/aster-adaptive/a1_admitted_batch.py),
+SHA-256 `c87766ba4d514f87c0152f8dd64d8c6166ad9bf4987f4baaf31d91f64cb0687f`.
+Its 31 focused fixtures bind one owner-only token input, require an external
+authenticated live-admission callback before the batch and before every call,
+forward the bounded timeout, and stop on admission drift. The runner is not a
+lease issuer or receipt verifier; the platform must supply that callback.
 
 ## Exact live admission gates
 

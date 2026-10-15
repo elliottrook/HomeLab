@@ -68,7 +68,11 @@ test-token input, revalidate the live host receipt before each call, forward
 the bounded timeout, invoke the private capture path, and write a content-free
 final manifest. Source-only functions are not a substitute for that runner;
 its offline synthetic end-to-end fixture and hash must be added to the later
-admission card before any protected window.
+admission card before any protected window. The current reviewed runner is
+`scripts/aster-adaptive/a1_admitted_batch.py`, SHA-256
+`c87766ba4d514f87c0152f8dd64d8c6166ad9bf4987f4baaf31d91f64cb0687f`; its
+offline fixture suite reports 31 focused tests. It is a Mini-side client only,
+not a lease issuer or receipt verifier.
 
 ## Explicitly prohibited in this phase
 
