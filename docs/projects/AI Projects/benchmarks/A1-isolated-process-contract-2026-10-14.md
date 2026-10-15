@@ -166,3 +166,15 @@ confirms that the sidecar and temporary ingress restriction are not yet
 deployed; it does not establish lease admission, network isolation or
 backend exclusivity. The proposed ingress helper must add and later remove a
 precisely scoped rule while preserving this observed baseline.
+
+**Ingress helper candidate review:** Platform commit `279bdef3` adds an
+offline, handle-bound LXC 110 nftables helper. A read-only `nft -j -s` query
+confirmed that its exact empty-chain fixture matches the current live input
+chain; `ss` showed llama.cpp listening on IPv4 `192.168.70.12:11435` only.
+No rule was applied. Before deployment, the helper must durably fsync its
+checkpoint directory after atomic replacement and verify the tagged rule's
+full family/table/chain/match/action before deleting by handle. A matching
+comment alone is not sufficient. The live observer must recheck the IPv4-only
+listener, because the proposed IPv4 source rule would not exclude IPv6 if the
+backend later listens there. These findings were sent to the platform owner;
+the test remains blocked pending correction and effect-level recovery proof.
