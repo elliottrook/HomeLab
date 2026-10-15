@@ -1,6 +1,6 @@
 # Full-stop Local AI recovery drill
 
-Status: NOT APPROVAL-READY. This scope is
+Status: NO-GO for the proposed 03:10 window. This scope is
 mutually exclusive with the application-only A1 benchmark. A full-stop drill
 always makes A1 NO-GO for that same backup cycle, even if recovery succeeds.
 
@@ -31,6 +31,18 @@ watchdog must not be enabled around that controller. A schema-compatible
 source-bound acquisition entrypoint and effect-free integration test are
 required first; the older controller must remain available only as the
 recorded rollback implementation.
+
+## Measured timing blocker
+
+The fixed source adapter's 300-second `zstd -t` check does not fit the
+proposed preflight. On 2026-10-14, the current LXC110 archive was 43.585 GB;
+its integrity check was still running at 300 seconds and was terminated. The
+104 archive passed in 17.4 seconds and the 116 archive was not reached. Do
+not merely increase the timeout into the 04:15 recovery reserve. A future
+approval packet must use either an independently retained, source-bound
+integrity receipt from the 00:30 backup job or a measured pre-03:00 integrity
+scan with freshness and source identity, then recompute the full-stop/A1
+window. Until that evidence exists, the drill is NO-GO.
 
 ## Timing and preflight
 
