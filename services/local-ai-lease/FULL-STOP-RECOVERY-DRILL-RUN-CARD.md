@@ -4,6 +4,12 @@ Status: NO-GO for the proposed 03:10 window. This scope is
 mutually exclusive with the application-only A1 benchmark. A full-stop drill
 always makes A1 NO-GO for that same backup cycle, even if recovery succeeds.
 
+The compatibility candidate is now installed on Proxmox as an inactive,
+hash-verified candidate. Its watchdog and owner-heartbeat timers remain
+disabled/inactive; no lease, lock, scan, or effect path was run. Installation
+validation is synthetic target-Linux evidence only and does not authorize a
+live drill.
+
 ## Fixed installed candidate
 
 The installed disabled full-stop candidate must remain unchanged until this
@@ -24,13 +30,13 @@ approval immediately before the drill.
 
 ## Blocking integration issue
 
-The installed `/usr/local/sbin/local-ai-lease` is still the older manual
+The installed `/usr/local/sbin/local-ai-lease` remains the older manual
 `acquire --light` controller, whose `lease.json` schema does not match the
 installed watchdog/recovery executor's strict `AdmissionRecord` schema. The
-watchdog must not be enabled around that controller. A schema-compatible
-source-bound acquisition entrypoint and effect-free integration test are
-required first; the older controller must remain available only as the
-recorded rollback implementation.
+watchdog must not be enabled around that old controller. The new
+schema-compatible source-bound acquisition entrypoint is installed but remains
+hard-disabled; it must be the only path considered for any later reviewed
+drill, while the older controller remains the recorded rollback implementation.
 
 ## Measured timing blocker
 
