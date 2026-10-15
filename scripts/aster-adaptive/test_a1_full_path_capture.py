@@ -42,8 +42,14 @@ class FullPathCaptureTests(unittest.TestCase):
     def test_success_preserves_answers_privately_and_exports_only_clock_digest(self):
         with tempfile.TemporaryDirectory() as root:
             directory = Path(root) / "run"
+            timeouts = []
+
+            def successful(case, **kwargs):
+                timeouts.append(kwargs["timeout_s"])
+                return "fictional answer", timing()
+
             summary = capture_full_path(self.cases, "a" * 64, directory,
-                                        lambda case: ("fictional answer", timing()))
+                                        successful)
             rows = [json.loads(line) for line in
                     (directory / "client-clock.jsonl").read_text().splitlines()]
             self.assertEqual(summary["completed"], 20)
@@ -54,13 +60,14 @@ class FullPathCaptureTests(unittest.TestCase):
             self.assertNotIn("fictional answer", str(rows))
             self.assertIn("fictional answer", (directory / "raw-attempts.json").read_text())
             self.assertEqual((directory / "client-clock.jsonl").stat().st_mode & 0o777, 0o600)
+            self.assertEqual(timeouts, [60.0] * 20)
 
     def test_uncertain_transport_keeps_censored_clock_and_stops_batch(self):
         with tempfile.TemporaryDirectory() as root:
             directory = Path(root) / "run"
             calls = []
 
-            def uncertain(case):
+            def uncertain(case, **_):
                 calls.append(case["id"])
                 raise A1TransportError("unavailable_or_uncertain", timing(displayed=False))
 
@@ -77,7 +84,7 @@ class FullPathCaptureTests(unittest.TestCase):
             directory = Path(root) / "run"
             calls = []
 
-            def invalid(case):
+            def invalid(case, **_):
                 calls.append(case["id"])
                 return "fictional answer", {**timing(), "secret": "must-not-write"}
 

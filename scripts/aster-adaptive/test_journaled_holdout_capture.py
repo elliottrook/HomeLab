@@ -128,6 +128,35 @@ class JournaledCaptureTests(unittest.TestCase):
             self.assertFalse((directory / "raw-attempts.json").exists())
             self.assertFalse((directory / "raw-attempts.json.tmp").exists())
 
+    def test_full_path_deadline_never_starts_case_without_full_call_budget(self):
+        with tempfile.TemporaryDirectory() as root:
+            directory = Path(root) / "run"
+            reads = [0]
+
+            def clock():
+                reads[0] += 1
+                return 0.0 if reads[0] <= 2 else 1150.0
+            calls = []
+
+            def answer(case, *, timeout_s):
+                calls.append((case["id"], timeout_s))
+                return "fictional answer"
+
+            summary = journaled.capture_journaled(
+                self.cases, self.profile, answer, directory,
+                clock=clock, max_wall_s=1200,
+                allow_full_path_20m=True)
+            self.assertEqual(calls, [])
+            self.assertEqual(summary["completed"], 0)
+            self.assertEqual(summary["not_attempted"], 20)
+
+    def test_extended_deadline_requires_explicit_full_path_flag(self):
+        with tempfile.TemporaryDirectory() as root:
+            with self.assertRaisesRegex(ValueError, "deadline"):
+                journaled.capture_journaled(self.cases, self.profile,
+                                            lambda case: "fictional answer",
+                                            Path(root) / "run", max_wall_s=1200)
+
 
 if __name__ == "__main__":
     unittest.main()

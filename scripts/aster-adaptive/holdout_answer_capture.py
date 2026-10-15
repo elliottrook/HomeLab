@@ -15,7 +15,7 @@ from typing import Callable
 
 
 REPO = Path(__file__).resolve().parents[2]
-CASE_SHA256 = "4b9ca94714414248d3f429237f7385f27ddd132d4f6825676349b85cb5ccc7ae"
+CASE_SHA256 = "8c5293382a457cbcf4f9999a8904820d6b1d126477fbfc6b672b41a87b62cab9"
 HEX64 = re.compile(r"[0-9a-f]{64}\Z")
 FIELDS = {"id", "class", "fictional_user_request", "frozen_clock",
           "synthetic_source_records", "private_context_locality_constraint",
@@ -37,7 +37,7 @@ def load_cases(raw: bytes) -> list[dict]:
 
 def capture(cases_raw: bytes, profile_sha256: str,
             invoke: Callable[[dict], str], clock: Callable[[], float] = time.monotonic,
-            max_wall_s: float = 900) -> dict:
+            max_wall_s: float = 900, before_case: Callable[[], bool] | None = None) -> dict:
     cases = load_cases(cases_raw)
     if (not isinstance(profile_sha256, str) or not HEX64.fullmatch(profile_sha256)
             or max_wall_s <= 0):
@@ -46,7 +46,7 @@ def capture(cases_raw: bytes, profile_sha256: str,
     rows = []
     stopped = False
     for case in cases:
-        if stopped or clock() - start >= max_wall_s:
+        if stopped or clock() - start >= max_wall_s or (before_case is not None and not before_case()):
             rows.append({"case_id": case["id"], "status": "not_attempted",
                          "answer": None, "error_code": "prior_stop_or_deadline",
                          "total_ms": None})
@@ -83,15 +83,35 @@ def capture(cases_raw: bytes, profile_sha256: str,
             "tool_mode": "disabled", "attempts": rows}
 
 
-def save_private(directory: Path, result: dict) -> dict:
+def reserve_private(directory: Path) -> None:
     resolved = directory.resolve()
     if (not directory.is_absolute() or resolved == REPO or REPO in resolved.parents
             or any((parent / ".git").exists() for parent in (resolved, *resolved.parents))):
         raise ValueError("raw answers must stay outside Git")
     if not directory.parent.is_dir() or directory.parent.stat().st_mode & 0o077:
         raise ValueError("parent must be owner-only")
-    raw = (json.dumps(result, sort_keys=True, ensure_ascii=False, allow_nan=False) + "\n").encode()
     directory.mkdir(mode=0o700, exist_ok=False)
+    probe = directory / ".write-preflight"
+    try:
+        fd = os.open(probe, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(b"ok\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+    except Exception:
+        probe.unlink(missing_ok=True)
+        directory.rmdir()
+        raise
+    probe.unlink()
+
+
+def save_private(directory: Path, result: dict, *, reserved: bool = False) -> dict:
+    if not reserved:
+        reserve_private(directory)
+    elif (not directory.is_dir() or directory.stat().st_mode & 0o077
+          or any(directory.iterdir())):
+        raise ValueError("reserved output directory is not empty/owner-only")
+    raw = (json.dumps(result, sort_keys=True, ensure_ascii=False, allow_nan=False) + "\n").encode()
     try:
         path = directory / "raw-attempts.json"
         flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL

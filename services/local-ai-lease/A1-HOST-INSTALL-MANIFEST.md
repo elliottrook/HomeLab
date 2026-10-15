@@ -25,9 +25,13 @@ versions and wheel hashes. A missing closure member, dependency mismatch or
 deployed-source substitution aborts the run.
 
 The candidate requirements pin FastAPI 0.133.1, httpx 0.28.1, Pydantic 2.13.4,
-Uvicorn 0.41.0, PyJWT 2.14.0 and pywebpush 2.5.0. The requirements-file hash
-is pinned above; wheel hashes are not yet known and must be captured by the
-source-local installer without exposing credentials.
+Uvicorn 0.41.0, PyJWT 2.14.0 and pywebpush 2.5.0. A 34-wheel Linux CPython
+3.13 x86_64 wheelhouse matches the installed LXC104 package versions. Its
+SHA-256 manifest is `0fb7f44e2c856736ab741b23a70f28fa69dbd95a2eadad6c6d8d1b4416acadee`
+and its temporary archive is
+`1a557fad83a896a52d675d21f8b00bb22cea74b641e73573d7af78d03da84765`.
+These are integrity pins, not signatures; target-Linux installation must verify
+the archive, every wheel digest, versions and imports before service start.
 
 The reviewed Stream A source is pinned to worktree commit `e6b638e4` for the
 guarded gateway/factory files below; those files must be paired only with the
@@ -36,10 +40,10 @@ files and verify the hashes before enabling the disabled unit:
 
 | Destination under `/opt/aster-a1-test` | Source at pinned commit | SHA-256 |
 |---|---|---|
-| `a1_isolated_app.py` | `scripts/aster-adaptive/a1_isolated_app.py` | `3e8554d3fa401d5b28e153cfbfa95ea6fcafa7b9de9ad36f65b940a191145991` |
+| `a1_isolated_app.py` | `scripts/aster-adaptive/a1_isolated_app.py` | `984269e0ae2e30a3e71f07471d0d203236cdcff9facd313adeb1b82892dc85b5` |
 | `a1_test_gateway.py` | `scripts/aster-adaptive/a1_test_gateway.py` | `e2e1150a76fd6e61c47da1a6c6f3ce229905a454476c756c49d6a83c9d10aaae` |
 | `aster_asgi_clock.py` | `scripts/aster-adaptive/aster_asgi_clock.py` | `e7f8240fc38a62772ac2d7e4e9461ee8f3be21580885d9dfc0cab40fe1919305` |
-| `a1_headless_client.py` | `scripts/aster-adaptive/a1_headless_client.py` | `beabc81ad44d205bc908c248f2fea50fb12faaac01f654a160712a550aa3fbc2` |
+| `a1_headless_client.py` | `scripts/aster-adaptive/a1_headless_client.py` | `3d9c84735a7338860648215467996ff0f820aff8778acd7f7f42d6325dad6494` |
 | `a1_service_runner.py` | `services/local-ai-lease/a1_service_runner.py` | `feae2ec1f423ec4cbcde33112a64ed6db0963a6c3868726bcdff732b07b520c1` |
 | `a1_key_file.py` | `scripts/local-ai/a1_key_file.py` | `018340fe0bf8a7ec7526d2d0709d21cc8f11fcef6c252cdbfeb6798cc6a055cd` |
 | `a1_ingress_policy.py` | `scripts/local-ai/a1_ingress_policy.py` | `07be9c42650f74edbcb080d4b338bb01cc43a6ac18a847d86839c07a0ad65d1d` |
@@ -52,7 +56,7 @@ files and verify the hashes before enabling the disabled unit:
 | `application-b60-lease-recovery` | `services/local-ai-lease/application-b60-lease-recovery` | `309774dca1f0b5b37a9159b00fe6eed7b46f123f866c98e5d996e2c9fdc46499` |
 | `llama_auth_probe.py` | `scripts/local-ai/llama_auth_probe.py` | `60fbb3bea92cbb0259a836b92c8794003510bf47d0b2991f2f1915aaed6a47c2` |
 | `aster-llama-production-auth-probe` | `services/local-ai-lease/aster-llama-production-auth-probe` | `aac604de1f35c048791c5f1cfc21e25d9eb3e679fb7d799f74671307463313ac` |
-| Mini capture bridge `a1_full_path_capture.py` | Stream A `scripts/aster-adaptive/a1_full_path_capture.py` at `decfa81a` | `7141dd938b9a9994523e1eea2ac8078bbd93639ee2459c89dae0589651556157` |
+| Mini capture bridge `a1_full_path_capture.py` | Stream A `scripts/aster-adaptive/a1_full_path_capture.py` | `a7bbb2b8fc98dd18c5d748a808e0e838b9c17dd80e84121e2d1e23ad006f9c86` |
 | `aster-agent/` | exact reviewed Aster source/dependency bundle | host preflight required |
 
 The Aster bundle must use the accepted source/dependency manifest and must not

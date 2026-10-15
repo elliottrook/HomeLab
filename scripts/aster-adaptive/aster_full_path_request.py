@@ -5,9 +5,10 @@ It neither establishes a test-only server boundary nor invokes Aster.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 
-from holdout_answer_capture import FIELDS
+from holdout_answer_capture import FIELDS, load_cases
 
 
 def payload_for(case: dict) -> dict:
@@ -32,3 +33,17 @@ def payload_for(case: dict) -> dict:
         "persona": "sysadmin",
         "enabled_tools": [],
     }
+
+
+def wire_bytes_for(case: dict) -> bytes:
+    """Pin the JSON bytes used by both the private client and test gateway."""
+    return json.dumps(payload_for(case), ensure_ascii=False).encode("utf-8")
+
+
+def frozen_request_hashes(cases_raw: bytes) -> frozenset[str]:
+    """Return only request digests after validating the sealed 20-case input."""
+    bodies = [wire_bytes_for(case) for case in load_cases(cases_raw)]
+    digests = frozenset(hashlib.sha256(body).hexdigest() for body in bodies)
+    if len(digests) != 20:
+        raise ValueError("duplicate serialized request")
+    return digests

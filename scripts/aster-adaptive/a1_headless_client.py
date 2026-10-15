@@ -55,17 +55,21 @@ def _endpoint(url: str) -> str:
 
 
 def invoke(case: dict, *, endpoint: str, ingress_token: bytes,
-           opener=None, clock=None) -> tuple[str, dict]:
-    """Return a bounded answer and a content-free client clock from one POST.
+           opener=None, clock=None, timeout_s: float = 60) -> tuple[str, ClientDisplayClock]:
+    """Return a bounded answer and a pending content-free client clock.
 
-    The caller owns the durable claim and final answer capture. A failure after
-    send is uncertain and must not be retried under the same run directory.
+    The caller must finish the returned clock only after its final private
+    answer-capture/display boundary is durable. A failure after send is
+    uncertain and must not be retried under the same run directory.
     """
     url = _endpoint(endpoint)
     if (not isinstance(ingress_token, bytes)
             or not 16 <= len(ingress_token) <= 256
             or any(not 33 <= byte <= 126 for byte in ingress_token)):
         raise ValueError("invalid test credential")
+    if (isinstance(timeout_s, bool) or not isinstance(timeout_s, (int, float))
+            or not 0 < timeout_s <= 60):
+        raise ValueError("invalid bounded request timeout")
     body = wire_bytes_for(case)
     client = ClientDisplayClock(clock=clock) if clock is not None else ClientDisplayClock()
     request = urllib.request.Request(
@@ -73,9 +77,10 @@ def invoke(case: dict, *, endpoint: str, ingress_token: bytes,
         headers={"Content-Type": "application/json",
                  "Authorization": "Bearer " + ingress_token.decode("ascii")},
     )
-    transport = opener if opener is not None else urllib.request.build_opener(_NoRedirect)
+    transport = opener if opener is not None else urllib.request.build_opener(
+        urllib.request.ProxyHandler({}), _NoRedirect())
     try:
-        with transport.open(request, timeout=60) as response:
+        with transport.open(request, timeout=timeout_s) as response:
             status = response.status
             identity = response.headers.get("X-Aster-Observation-Id")
             raw = response.read(MAX_RESPONSE + 1)
@@ -99,7 +104,7 @@ def invoke(case: dict, *, endpoint: str, ingress_token: bytes,
         if (choice["finish_reason"] != "stop" or not isinstance(answer, str)
                 or not answer.strip() or len(answer.encode("utf-8")) > 16_000):
             raise ValueError
-        return answer, client.finish(terminal_displayed=True)
+        return answer, client
     except (KeyError, IndexError, TypeError, ValueError, UnicodeError):
         raise A1TransportError("invalid_or_uncertain_response",
                                client.finish(terminal_displayed=False)) from None

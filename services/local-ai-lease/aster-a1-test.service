@@ -10,7 +10,6 @@ Group=aster-a1-test
 UMask=0077
 WorkingDirectory=/opt/aster-a1-test
 LoadCredential=runtime.env:/etc/aster-a1-test/runtime.env
-EnvironmentFile=/run/credentials/%N/runtime.env
 Environment=PYTHONPATH=/opt/aster-a1-test:/opt/aster-a1-test/aster-agent
 ExecStart=/opt/aster-a1-test/venv/bin/uvicorn a1_service_runner:app --host 192.168.70.10 --port 19104 --workers 1 --no-access-log
 Restart=no
