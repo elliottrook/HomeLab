@@ -13,7 +13,7 @@
         </control>
         <control type="image">
             <left>0</left><top>0</top><width>1920</width><height>1080</height>
-            <texture>special://skin/media/ui-hero-bottom-fade.png</texture><colordiffuse>asterIvory</colordiffuse><aspectratio>stretch</aspectratio>
+            <texture>special://skin/media/ui-hero-bottom-fade.png</texture><colordiffuse>asterStone</colordiffuse><aspectratio>stretch</aspectratio>
         </control>
         <control type="image">
             <left>65</left><top>30</top><width>192</width><height>60</height>

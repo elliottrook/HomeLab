@@ -755,6 +755,13 @@ screen then showed `00:04` after midnight. Set the same per-profile Kodi
 regional preference during LibreELEC setup; this is not a skin-bundled global
 setting and has not been tested on the physical endpoint.
 
+Hero-fade refinement, 2026-10-15 (v0.6.8): the Home, browse and video-info
+hero gradients now resolve into a warm solid stone colour rather than ivory.
+The Home canvas uses the same colour to avoid an edge at the lower media rows;
+no limestone texture was added to the fade. Mac Kodi's media home was restarted
+and visually checked with real Jellyfin artwork. This remains a local visual
+trial only; no Forgejo push or physical-endpoint validation occurred.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

@@ -1,5 +1,11 @@
 # Aster Home Kodi skin prototype
 
+Version 0.6.8 shifts the media hero's lower fade from ivory to a solid warm
+stone colour on Home, browse and video-info views. The fade remains a plain
+colour gradient, not a texture. The Home background matches its endpoint so
+the queues meet the fade without a white strip. Mac Kodi was visually checked;
+this is not LibreELEC/TV acceptance.
+
 Version 0.6.7 replaces the stone clock with a dark translucent inset and a
 subtle warm outline on the media and hub pages. Kodi's clock label requests
 `HH:mm`, but the active regional preference still controls 12/24-hour display.

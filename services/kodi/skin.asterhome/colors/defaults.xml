@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <colors>
     <color name="asterIvory">fff2ede4</color>
+    <color name="asterStone">ffe6dac8</color>
     <color name="asterPaper">fff8f5ef</color>
     <color name="asterCharcoal">ff292721</color>
     <color name="asterInk">ff1e241f</color>

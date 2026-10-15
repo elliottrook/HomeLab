@@ -72,6 +72,18 @@ class LayoutTests(unittest.TestCase):
                             control.findtext('height') == '56' and
                             control.findtext('top') == '502' for control in panels))
 
+    def test_media_hero_fades_to_plain_stone_colour(self):
+        colours = ET.parse(ROOT / 'colors/defaults.xml')
+        self.assertEqual(colours.findtext('.//color[@name="asterStone"]'), 'ffe6dac8')
+        self.assertEqual(self.home.findtext('.//backgroundcolor'), 'asterStone')
+        for name in ('Home.xml', 'MyVideoNav.xml', 'DialogVideoInfo.xml'):
+            root = ET.parse(ROOT / '1080i' / name)
+            fades = [control for control in root.findall('.//control')
+                     if control.findtext('texture') ==
+                     'special://skin/media/ui-hero-bottom-fade.png']
+            self.assertEqual(len(fades), 1, name)
+            self.assertEqual(fades[0].findtext('colordiffuse'), 'asterStone', name)
+
     def test_clocks_use_24_hour_label_without_stone(self):
         for name in ('Home.xml', 'custom_1110_books.xml',
                      'custom_1111_digest.xml', 'custom_1112_home.xml',
