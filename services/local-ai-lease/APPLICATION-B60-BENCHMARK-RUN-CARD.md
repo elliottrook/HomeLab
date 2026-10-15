@@ -23,7 +23,8 @@ recover this lease's sidecar, ingress policy or temporary key.
   `192.168.70.10` to reach TCP 11435, with the prior policy checkpointed for
   restoration. Zero load at one instant is not sufficient evidence.
 - LXC104 `aster-agent.service` and LXC116 `aster-speech.service` are stopped
-  and quiesced; News and other inference consumers are quiesced.
+  and quiesced; the current controller does not runtime-mask them. News and
+  other inference consumers are quiesced.
 - The named LXC104 sidecar has a pinned source digest, distinct unprivileged
   UID 1904, one worker, fixed non-public port 19104, test-only credentials, no privileged
   mounts/sockets, denied unauthorized network paths, and start time within the
@@ -47,7 +48,7 @@ It remains a separate approval from both the 03:15 full-stop drill and the
 ## Effects and evidence
 
 1. Capture the platform checkpoint and application-mode receipt.
-2. Stop/runtime-mask only LXC104 `aster-agent.service` and LXC116
+2. Stop only LXC104 `aster-agent.service` and LXC116
    `aster-speech.service`; never stop or mask LXC110 llama.cpp for this mode.
 3. Start the already-installed sidecar only after the host observer validates
    its exact identity and isolation.
@@ -55,13 +56,20 @@ It remains a separate approval from both the 03:15 full-stop drill and the
    records the sidecar observation, lease identity/generation, backend identity,
    source digest and watchdog deadline.
 5. Stop the sidecar before restoration reserve, restore the checkpointed LXC110
-   ingress policy and verify the normal production sources are admitted again.
-   Then unmask/start the two production consumers, and verify llama.cpp,
-   device, model, auth and schedules.
+   ingress policy and remove the temporary key. If the key effect was
+   observed, the recovery path performs one planned `aster-llama.service`
+   restart; the backend is unavailable only during that bounded restart.
+   Verify production authentication and wrong-key denial, then start the two
+   consumers and verify llama.cpp, device, model, auth and schedules.
+   Recovery performs at most three tiny authenticated health generations (the
+   exact backend check, production-auth check and post-consumer check); it
+   makes no arbitrary model calls.
 
 ## Rollback
 
-If any sidecar, network, receipt, watchdog or timing gate fails, make zero model
-calls, stop the sidecar, restore the two consumers, leave llama.cpp untouched,
-retain the lease for reconciliation if any effect is uncertain, and report the
-failure. This mode must never be represented as a full-stop lease.
+If any sidecar, network, receipt, watchdog or timing gate fails, make no
+arbitrary model calls, stop the sidecar, restore the checkpointed LXC110
+ingress policy, remove the temporary key, and perform only the planned backend
+restart if the key effect was observed. Restore the two consumers, retain the
+lease for reconciliation if any effect is uncertain, and report the failure.
+This mode must never be represented as a full-stop lease.
