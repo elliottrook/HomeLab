@@ -24,6 +24,7 @@ from backup_receipt_adapter import BackupReceiptError, EXPECTED_GUESTS, verify_p
 
 SCHEMA = "aster-retained-archive-integrity.v1"
 BACKUP_ROOT = Path("/mnt/backups/dump")
+RECEIPT_PATH = Path("/var/lib/local-ai-lab/archive-integrity.json")
 LOCAL_ZONE = ZoneInfo("America/Vancouver")
 MAX_RECEIPT_BYTES = 8192
 FIELDS = {"schema", "date", "started_epoch", "finished_epoch", "archives"}
@@ -140,14 +141,33 @@ def verify(
     return "retained-archive-integrity-sha256:" + hashlib.sha256(material).hexdigest()
 
 
-def save_root_owned(path: Path, receipt: dict) -> None:
+def _check_receipt_parent(path: Path = RECEIPT_PATH, *, expected_uid: int = 0) -> None:
+    info = os.lstat(path.parent)
+    if (not stat.S_ISDIR(info.st_mode) or info.st_uid != expected_uid
+            or stat.S_IMODE(info.st_mode) != 0o700):
+        raise IntegrityError("receipt directory custody is invalid")
+
+
+def _check_existing_receipt(path: Path = RECEIPT_PATH, *, expected_uid: int = 0) -> None:
+    try:
+        info = os.lstat(path)
+    except FileNotFoundError:
+        return
+    if (not stat.S_ISREG(info.st_mode) or info.st_uid != expected_uid
+            or stat.S_IMODE(info.st_mode) != 0o600 or info.st_nlink != 1):
+        raise IntegrityError("existing receipt custody is invalid")
+
+
+def save_root_owned(receipt: dict) -> None:
     """Persist only a fully captured result; caller must run as root on Proxmox."""
     if os.geteuid() != 0:
         raise IntegrityError("root identity is required for receipt custody")
+    path = RECEIPT_PATH
     data = json.dumps(receipt, sort_keys=True, separators=(",", ":")).encode()
     if len(data) > MAX_RECEIPT_BYTES:
         raise IntegrityError("receipt is too large")
-    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    _check_receipt_parent()
+    _check_existing_receipt()
     fd, tmp = tempfile.mkstemp(prefix=".archive-integrity.", dir=path.parent)
     try:
         os.fchmod(fd, 0o600)
@@ -166,7 +186,10 @@ def save_root_owned(path: Path, receipt: dict) -> None:
             os.unlink(tmp)
 
 
-def load_root_owned(path: Path) -> dict:
+def load_root_owned() -> dict:
+    _check_receipt_parent()
+    _check_existing_receipt()
+    path = RECEIPT_PATH
     flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
     fd = os.open(path, flags)
     try:
