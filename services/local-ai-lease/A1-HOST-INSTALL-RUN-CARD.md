@@ -114,7 +114,8 @@ single bounded change:
 6. After the application receipt producer records the persisted armed lease,
    validate the newly produced receipt, including lease ID/generation,
    application backup binding, watchdog deadline, active backend,
-   `exclusive_backend_claim=true`, and consumer quiescence. The claim is true
+   `exclusive_backend_claim=true`, `backend_listener_ipv4_only=true`, and
+   consumer quiescence. The claim is true
    only when the temporary ingress policy is active and observed; zero load at
    one instant is not evidence. If the receipt is absent or invalid, make zero
    model calls.

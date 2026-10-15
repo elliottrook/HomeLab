@@ -10,7 +10,7 @@ from application_b60_lease import ALLOWED_CONSUMER_SERVICES, APPLICATION_MODE, A
 class ApplicationB60ControllerTests(unittest.TestCase):
     def receipt(self):
         return ApplicationLeaseReceipt(
-            APPLICATION_MODE, "app-1", 2, "app-backup-1", "llama.cpp b11429 SYCL/Level Zero", True, True,
+            APPLICATION_MODE, "app-1", 2, "app-backup-1", "llama.cpp b11429 SYCL/Level Zero", True, True, True,
             ALLOWED_CONSUMER_SERVICES, True,
             SidecarObservation("a" * 64, 1904, 1, 19104, True, True, True, True),
         )

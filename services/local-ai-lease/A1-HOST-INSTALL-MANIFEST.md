@@ -42,7 +42,7 @@ files and verify the hashes before enabling the disabled unit:
 | `a1_headless_client.py` | `scripts/aster-adaptive/a1_headless_client.py` | `beabc81ad44d205bc908c248f2fea50fb12faaac01f654a160712a550aa3fbc2` |
 | `a1_service_runner.py` | `services/local-ai-lease/a1_service_runner.py` | `feae2ec1f423ec4cbcde33112a64ed6db0963a6c3868726bcdff732b07b520c1` |
 | `a1_key_file.py` | `scripts/local-ai/a1_key_file.py` | `018340fe0bf8a7ec7526d2d0709d21cc8f11fcef6c252cdbfeb6798cc6a055cd` |
-| `a1_ingress_policy.py` | `scripts/local-ai/a1_ingress_policy.py` | `faef14be94817c846cf1f6bb8bc618adf49ac31485237087b53566a77be618ed` |
+| `a1_ingress_policy.py` | `scripts/local-ai/a1_ingress_policy.py` | `2dfa30e5e56a61bc5506cc765ac172d7bcf408b76dc3e9daeb8220f6a491f045` |
 | `aster-llama-ingress-apply` | `services/local-ai-lease/aster-llama-ingress-apply` | `41b96f560261a198c09fd85d8ba7150478241fbe6a38f28befad9dc4fa40020b` |
 | `aster-llama-ingress-restore` | `services/local-ai-lease/aster-llama-ingress-restore` | `9bf3c3cb1e04081f41584f9dc742d86e9e7ead3a1806a243a6ce3478572ff347` |
 | `aster-agent/` | exact reviewed Aster source/dependency bundle | host preflight required |
@@ -107,6 +107,8 @@ attempts must be denied while an authenticated request to
 `192.168.70.12:11435` succeeds. A refusal from a non-listening service is not
 network-denial evidence. If per-service counters cannot be observed without a
 container-wide rule, abort rather than installing a broad nftables rule.
+The observer must also attest that llama.cpp listens only on IPv4
+`192.168.70.12:11435`; the current read-only check found no IPv6 listener.
 
 For the backend claim, checkpoint LXC110's existing ingress policy and apply a
 temporary rule that admits only source `192.168.70.10` to TCP 11435. This

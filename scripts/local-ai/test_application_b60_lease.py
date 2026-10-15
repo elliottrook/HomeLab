@@ -16,7 +16,7 @@ class ApplicationB60LeaseTests(unittest.TestCase):
         value = ApplicationLeaseReceipt(
             mode="application-b60-exclusive-v1", lease_id="lease-1", generation=2,
             backup_receipt="application-chain:abc", backend_identity=ACCEPTED_BACKEND,
-            llama_service_active=True, exclusive_backend_claim=True,
+            llama_service_active=True, exclusive_backend_claim=True, backend_listener_ipv4_only=True,
             consumers_quiesced=ALLOWED_CONSUMER_SERVICES,
             news_quiesced=True,
             sidecar=SidecarObservation("a" * 64, 3003, 1, 19120, True, True, True, True),
