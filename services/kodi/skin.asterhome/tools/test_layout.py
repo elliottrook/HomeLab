@@ -46,6 +46,14 @@ class LayoutTests(unittest.TestCase):
             self.assertEqual(header[:8], b'\x89PNG\r\n\x1a\n')
             self.assertEqual(struct.unpack('!II', header[16:24]), (220, 330))
 
+    def test_hero_block_is_centred_and_actions_match_rings(self):
+        # Available hero-copy lane: header bottom 100 to queue heading 492.
+        self.assertEqual((151 + 385 + 56) / 2, (100 + 492) / 2)
+        for identifier in (120, 121):
+            button = self.home.find(f'.//control[@id="{identifier}"]')
+            self.assertEqual(button.findtext('top'), '385')
+        self.assertEqual(self.browse.find('.//control[@id="19"]').findtext('ondown'), '9200')
+
 
 if __name__ == '__main__':
     unittest.main()

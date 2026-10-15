@@ -224,10 +224,10 @@
              rebuilding the mark and wordmark from separate UI elements. -->
         <control type="image">
             <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
-            <left>145</left>
-            <top>40</top>
-            <width>192</width>
-            <height>60</height>
+            <left>110</left>
+            <top>18</top>
+            <width>236</width>
+            <height>86</height>
             <texture>special://skin/media/aster-home-horizontal-512.png</texture>
             <aspectratio>keep</aspectratio>
         </control>
@@ -251,7 +251,7 @@
         <!-- Hero copy -->
         <control type="label">
             <left>145</left>
-            <top>116</top>
+            <top>151</top>
             <width>460</width>
             <height>42</height>
             <label>Good evening, Jason</label>
@@ -260,7 +260,7 @@
         </control>
         <control type="label">
             <left>145</left>
-            <top>152</top>
+            <top>187</top>
             <width>740</width>
             <height>42</height>
             <label fallback="F E A T U R E D   F O R   Y O U">$VAR[AsterHeroGenre]  [COLOR asterSage]$VAR[AsterHeroYear][/COLOR]</label>
@@ -269,7 +269,7 @@
         </control>
         <control type="label">
             <left>145</left>
-            <top>180</top>
+            <top>215</top>
             <width>670</width>
             <height>70</height>
             <label fallback="Select a title">$VAR[AsterHeroLabel]</label>
@@ -278,20 +278,25 @@
             <shadowcolor>66000000</shadowcolor>
             <shadowoffset>2</shadowoffset>
         </control>
-        <control type="label">
+        <control type="textbox">
             <left>145</left>
-            <top>252</top>
+            <top>287</top>
             <width>660</width>
-            <height>48</height>
+            <height>40</height>
             <label fallback="Select a title to see its synopsis.">$VAR[AsterHeroPlot]</label>
             <font>font16</font>
             <textcolor>ffece8df</textcolor>
             <wrapmultiline>true</wrapmultiline>
             <aligny>top</aligny>
         </control>
+        <control type="label">
+            <left>145</left><top>343</top><width>660</width><height>30</height>
+            <label>$VAR[AsterHeroRating]</label><font>font20</font>
+            <textcolor>asterSage</textcolor>
+        </control>
         <control type="button" id="120">
             <left>145</left>
-            <top>350</top>
+            <top>385</top>
             <width>280</width>
             <label>▶  Play</label>
             <onclick>PlayMedia($VAR[AsterHeroPath])</onclick>
@@ -310,7 +315,7 @@
         </control>
         <control type="button" id="121">
             <left>445</left>
-            <top>350</top>
+            <top>385</top>
             <width>280</width>
             <label>ⓘ  More Info</label>
             <onclick>Info</onclick>
@@ -329,12 +334,12 @@
         </control>
         <control type="image">
             <visible>Control.HasFocus(120)</visible>
-            <left>145</left><top>350</top><width>280</width><height>56</height>
+            <left>145</left><top>385</top><width>280</width><height>56</height>
             <texture>special://skin/media/ui-button-ring.png</texture>
         </control>
         <control type="image">
             <visible>Control.HasFocus(121)</visible>
-            <left>445</left><top>350</top><width>280</width><height>56</height>
+            <left>445</left><top>385</top><width>280</width><height>56</height>
             <texture>special://skin/media/ui-button-ring.png</texture>
         </control>
         </control>

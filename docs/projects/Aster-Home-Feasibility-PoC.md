@@ -480,6 +480,37 @@ checks pass. No core changes, service deployment, media playback, server library
 or artwork writes occurred. Collections remains Kodi movie sets as documented
 above. Local milestone only; remote synchronization requires fresh approval.
 
+Hero balance and genre/score milestone, 2026-10-14 (v0.5.8): centred the home
+hero block at skin y296 within the y100–492 lane; moved copy/actions together
+35px, kept the synopsis to two visible lines, and enlarged the existing approved
+logo within the header slot without recreating it. Category headers now use the
+approved TV, Film, Archive TV, Archive Film or Collections icon as appropriate.
+Read-only immutable SQLite inspection found default numeric scores for 1,047
+movies, 201 series and 5,955 episodes. Added labelled `/10` scores and available
+age classifications to home/category heroes, without claiming a specific rating
+provider or substituting personal scores. Live home checks showed Reacher 8.1/10
+and CA-18+, and The Newsroom 7.7/10 and TV-MA, with no overlap.
+
+Added local genre-fragment and minimum-score controls for the four tagged
+category roots. The Python helper composes Kodi smart-playlist rules, always
+retaining the original category tag and AND semantics. Its only writes are
+atomic, bounded generated XSP view files in the skin's profile addon_data;
+no library metadata, media files, playback history, server, network or credentials
+are touched. Existing prototype authorization covers this reversible local view
+change. Added the standard Kodi Python dependency; no new service, speech,
+network exposure, inventory, monitoring or identity integration is introduced.
+Collections and nested season/episode lists deliberately do not offer these
+category-root filters. Back/Escape remains available; rollback is `a58b2d77`.
+
+Live validation: Movies 71 → Drama 22 → Drama with score ≥8: 6 → Clear: 71.
+TV Shows 66 → score ≥8: 25 → Clear: 66. Active Genre/Score labels, native
+keyboard prompts, TV/Film header icons, hero balance and final two-line synopsis
+were visually checked after restart. Nine offline layout/filter tests cover
+geometry, assets, category scope, XML escaping, inclusive rating boundary and
+unknown-category rejection; XML/diff checks pass. Operator instructions are in
+the skin README. Remote synchronization remains pending fresh approval.
+Rule reference: https://kodi.wiki/view/Smart_playlists/Rules_and_groupings
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

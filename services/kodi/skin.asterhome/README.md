@@ -1,5 +1,25 @@
 # Aster Home Kodi skin prototype
 
+Version 0.5.8 vertically centres the home hero-copy/action block between the
+header and queues, enlarges the existing horizontal logo to fill its header
+slot, and gives category pages their corresponding approved icon. Hero scores
+are labelled out of 10, with age classifications alongside when available;
+the score is not a parental-control policy or a personal rating.
+
+In a TV Shows, Movies, Archive TV or Archive Film category, choose **Genre** and
+enter a genre fragment such as `Drama`, then choose Done. **Minimum score** accepts
+a number from 0 to 10, including decimals. The two filters combine, retain the
+category tag, and show active values on their buttons. Title search narrows the
+current results further. **Clear all filters** restores the original category.
+Cancel leaves existing filters unchanged; clear all before starting fresh.
+Genre/score filters apply to these four category roots, not collection groups or
+nested season/episode lists. Collections have no meaningful single numeric score.
+Missing scores are not invented and will not pass a positive minimum threshold.
+The small Python helper writes only its bounded generated view playlists under
+`special://profile/addon_data/skin.asterhome/filters/`; it performs no library,
+playback, artwork, network or server writes. Restore the prior local commit
+`a58b2d77` to roll back this skin milestone; generated views are disposable.
+
 Version 0.5.7 moves the category pills into the header, separated from the hero
 actions, and uses the approved TV, Film and Archive artwork plus the supplied
 Collections SVG rendered unchanged to a runtime PNG. Asset provenance and hashes

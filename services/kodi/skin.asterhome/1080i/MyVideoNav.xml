@@ -33,14 +33,14 @@
     </control>
     <control type="image">
       <left>65</left>
-      <top>30</top>
-      <width>192</width>
-      <height>60</height>
-      <texture>special://skin/media/aster-home-horizontal-512.png</texture>
+      <top>18</top>
+      <width>88</width>
+      <height>88</height>
+      <texture>$VAR[AsterBrowseIcon]</texture>
       <aspectratio>keep</aspectratio>
     </control>
     <control type="label">
-      <left>300</left>
+      <left>175</left>
       <top>32</top>
       <width>1150</width>
       <height>60</height>
@@ -86,6 +86,12 @@
       <textcolor>asterRailText</textcolor>
       <wrapmultiline>true</wrapmultiline>
       <aligny>top</aligny>
+    </control>
+    <control type="label">
+      <left>145</left><top>308</top><width>940</width><height>30</height>
+      <label>$INFO[Container(50).ListItem.Rating,Score: , / 10]  $INFO[Container(50).ListItem.Mpaa]</label>
+      <font>font20</font><textcolor>asterSage</textcolor>
+      <visible>!Container(50).ListItem.IsParentFolder</visible>
     </control>
     <control type="button" id="9100">
       <left>145</left>
@@ -140,7 +146,7 @@
       <left>65</left>
       <top>492</top>
       <width>300</width>
-      <height>480</height>
+      <height>548</height>
       <texture border="20">special://skin/media/ui-panel.png</texture>
       <colordiffuse>e6f2ede4</colordiffuse>
     </control>
@@ -149,7 +155,7 @@
       <top>512</top>
       <width>260</width>
       <height>40</height>
-      <label>Find a title</label>
+      <label>Search &amp; filter</label>
       <font>font24</font>
       <textcolor>asterInk</textcolor>
     </control>
@@ -166,21 +172,22 @@
       <texturenofocus border="20" colordiffuse="asterPaper">special://skin/media/ui-panel.png</texturenofocus>
       <onright>50</onright>
       <onup>9100</onup>
-      <ondown>9001</ondown>
+      <ondown>9200</ondown>
     </control>
     <control type="button" id="9001">
       <left>85</left>
-      <top>644</top>
-      <label>Clear search</label>
+      <top>780</top>
+      <label>Clear all filters</label>
       <include>AsterFilterButton</include>
       <onclick>Action(FilterClear)</onclick>
-      <onup>19</onup>
+      <onclick>RunScript(special://skin/tools/filter_library.py,clear)</onclick>
+      <onup>9201</onup>
       <ondown>4</ondown>
       <onright>50</onright>
     </control>
     <control type="button" id="4">
       <left>85</left>
-      <top>716</top>
+      <top>852</top>
       <label>Reverse order</label>
       <include>AsterFilterButton</include>
       <onup>9001</onup>
@@ -189,13 +196,27 @@
     </control>
     <control type="label">
       <left>85</left>
-      <top>800</top>
+      <top>924</top>
       <width>260</width>
-      <height>110</height>
-      <label>$INFO[Container(50).NumItems] titles[CR]Search this category[CR]Select a poster to open</label>
+      <height>100</height>
+      <label>$INFO[Container(50).NumItems] titles[CR]Filters stay in this category[CR]Score is out of 10</label>
       <font>font20</font>
       <textcolor>asterMuted</textcolor>
       <wrapmultiline>true</wrapmultiline>
+    </control>
+    <control type="button" id="9200">
+      <left>85</left><top>636</top><label>$VAR[AsterGenreFilterLabel]</label>
+      <include>AsterFilterButton</include>
+      <onclick>RunScript(special://skin/tools/filter_library.py,genre)</onclick>
+      <enable>String.Contains(Container.FolderPath,.xsp)</enable>
+      <onup>19</onup><ondown>9201</ondown><onright>50</onright>
+    </control>
+    <control type="button" id="9201">
+      <left>85</left><top>708</top><label>$VAR[AsterScoreFilterLabel]</label>
+      <include>AsterFilterButton</include>
+      <onclick>RunScript(special://skin/tools/filter_library.py,rating)</onclick>
+      <enable>String.Contains(Container.FolderPath,.xsp)</enable>
+      <onup>9200</onup><ondown>9001</ondown><onright>50</onright>
     </control>
     <control type="panel" id="50">
       <left>400</left>

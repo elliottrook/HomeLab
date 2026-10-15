@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <includes>
+    <variable name="AsterGenreFilterLabel">
+        <value condition="String.Contains(Container.FolderPath,skin.asterhome/filters/) + !String.IsEmpty(Window(10025).Property(AsterFilterGenre))">$INFO[Window(10025).Property(AsterFilterGenre),Genre: ]</value>
+        <value>Genre…</value>
+    </variable>
+    <variable name="AsterScoreFilterLabel">
+        <value condition="String.Contains(Container.FolderPath,skin.asterhome/filters/) + !String.IsEmpty(Window(10025).Property(AsterFilterScore))">$INFO[Window(10025).Property(AsterFilterScore),Score: ]</value>
+        <value>Minimum score…</value>
+    </variable>
+    <variable name="AsterBrowseIcon">
+        <value condition="String.Contains(Container.FolderPath,archive-tv.xsp)">special://skin/media/09-archive-tv.png</value>
+        <value condition="String.Contains(Container.FolderPath,archive-film.xsp)">special://skin/media/10-archive-film.png</value>
+        <value condition="Container.Content(sets)">special://skin/media/19-movie-collections-128.png</value>
+        <value condition="Container.Content(tvshows) | Container.Content(seasons) | Container.Content(episodes)">special://skin/media/07-tv.png</value>
+        <value>special://skin/media/08-film.png</value>
+    </variable>
+    <variable name="AsterHeroRating">
+        <value condition="Control.HasFocus(110) + !String.IsEmpty(Container(110).ListItem.Rating)">$INFO[Container(110).ListItem.Rating,Score: , / 10]  $INFO[Container(110).ListItem.Mpaa]</value>
+        <value condition="!Control.HasFocus(110) + !String.IsEmpty(Container(100).ListItem.Rating)">$INFO[Container(100).ListItem.Rating,Score: , / 10]  $INFO[Container(100).ListItem.Mpaa]</value>
+        <value>Score unavailable</value>
+    </variable>
     <variable name="AsterBrowseHeading">
         <value condition="Container.Content(sets)">Collections</value>
         <value>$INFO[Container.FolderName]</value>
