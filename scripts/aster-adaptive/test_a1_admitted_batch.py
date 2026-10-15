@@ -25,6 +25,15 @@ PROFILE = {
 }
 
 
+def admission_receipt(profile, generation=2, digest="a" * 64):
+    return {
+        "schema": "aster-a1-admission.v1", "lease_id": "lease-1",
+        "generation": generation, "receipt_sha256": digest,
+        "profile_sha256": profile,
+        "endpoint": A1_TEST_ENDPOINT,
+    }
+
+
 class A1AdmittedBatchTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -59,7 +68,7 @@ class A1AdmittedBatchTests(unittest.TestCase):
             self.assertEqual(profile_sha256, self.pin)
             self.assertEqual(endpoint, A1_TEST_ENDPOINT)
             calls.append("admit")
-            return True
+            return admission_receipt(self.pin, digest=("a" if len(calls) < 4 else "b") * 64)
 
         def transport(case, **kwargs):
             self.assertEqual(kwargs["timeout_s"], 19)
@@ -68,6 +77,7 @@ class A1AdmittedBatchTests(unittest.TestCase):
             return "fictional answer", object()
 
         def capture(raw, pin, out, callback, *, max_wall_s):
+            out.mkdir(mode=0o700)
             self.assertEqual(max_wall_s, 1200)
             self.assertEqual(raw, b"fictional sealed cases")
             self.assertEqual(pin, self.pin)
@@ -89,7 +99,7 @@ class A1AdmittedBatchTests(unittest.TestCase):
             calls.append("admit")
             if len(calls) == 2:
                 raise RuntimeError("lease lost")
-            return True
+            return admission_receipt(self.pin)
 
         def transport(*args, **kwargs):
             calls.append("transport")
@@ -117,7 +127,7 @@ class A1AdmittedBatchTests(unittest.TestCase):
         def capture(*args, **kwargs):
             self.fail("a false preview must not start evidence or transport")
 
-        with self.assertRaisesRegex(RuntimeError, "admission unavailable"):
+        with self.assertRaisesRegex(RuntimeError, "authenticated admission"):
             self.run_batch(lambda *_: False, lambda *a, **k: None, capture)
 
     def test_client_source_drift_blocks_before_admission(self):
@@ -149,7 +159,7 @@ class A1AdmittedBatchTests(unittest.TestCase):
         def admission(_, endpoint):
             self.assertEqual(endpoint, A1_TEST_ENDPOINT)
             calls.append("admit")
-            return True
+            return admission_receipt(self.pin)
 
         def transport(case, **kwargs):
             calls.append("transport")
@@ -193,9 +203,31 @@ class A1AdmittedBatchTests(unittest.TestCase):
                 expected_profile_sha256=self.pin,
                 ingress_token_path=self.token,
                 endpoint="http://192.168.70.11:19104/v1/chat/completions",
-                output_dir=self.output, assert_admitted=lambda *_: True,
+                output_dir=self.output, assert_admitted=lambda *_: admission_receipt(self.pin),
                 transport=lambda *a, **k: None,
                 capture=lambda *a, **k: None)
+
+    def test_invalid_admission_receipt_blocks_before_capture(self):
+        with self.assertRaisesRegex(RuntimeError, "authenticated admission"):
+            self.run_batch(lambda *_: True, lambda *a, **k: None,
+                           lambda *a, **k: self.fail("must not capture"))
+
+    def test_final_manifest_binds_lease_generation_and_receipt_digest(self):
+        def admission(profile, endpoint):
+            self.assertEqual(endpoint, A1_TEST_ENDPOINT)
+            return admission_receipt(profile, digest="c" * 64)
+
+        def capture(raw, pin, out, callback, *, max_wall_s):
+            out.mkdir(mode=0o700)
+            return {"completed": 20, "failed": 0, "not_attempted": 0}
+
+        self.run_batch(admission, lambda *a, **k: None, capture)
+        manifest = json.loads((self.output / "final-manifest.json").read_text())
+        self.assertEqual(manifest["lease_id"], "lease-1")
+        self.assertEqual(manifest["generation"], 2)
+        self.assertEqual(manifest["receipt_digests"], ["c" * 64])
+        self.assertEqual(manifest["profile_sha256"], self.pin)
+        self.assertEqual(manifest["endpoint"], A1_TEST_ENDPOINT)
 
 
 if __name__ == "__main__":

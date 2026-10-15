@@ -99,9 +99,13 @@ schedule changes, or Git push.
 
 The Mini-side runner already requires an authenticated external
 `assert_admitted(profile_sha256, endpoint)` callback before the batch and
-before every call; it binds the exact endpoint
+before every call; it returns a content-free authenticated receipt containing
+lease ID, generation, host receipt digest, profile hash and exact endpoint. It
+binds the exact endpoint
 `http://192.168.70.10:19104/v1/chat/completions`, rejects any result other than
-literal `True`, and records no request content. The platform still must supply that trusted callback and a
-source-bound same-night backup receipt binding Proxmox, TrueNAS guest, LXC110,
-and Mac evidence to the selected lease. Schedule metadata alone is not that
-receipt. These remain separate gates for the later 20-call approval.
+an authenticated receipt, records the receipt provenance in the owner-only
+`final-manifest.json`, and records no request content. The platform still must
+supply that trusted callback and a source-bound same-night backup receipt
+binding Proxmox, TrueNAS guest, LXC110, and Mac evidence to the selected lease.
+Schedule metadata alone is not that receipt. These remain separate gates for
+the later 20-call approval.
