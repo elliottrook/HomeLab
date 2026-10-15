@@ -38,6 +38,9 @@ The root-owned mode-0600 host receipt is
 `6e5b9ebbea5df0dbac409c3ed766cd98bba6f94baf53d071ef156634c2687b82`.
 The temporary transfer directory was removed after verification. The
 pre-install state is retained in the protected rollback directory and receipt.
+The effect-free `plan` wrapper created three Python bytecode cache files; their
+timestamps matched this check, and those exact cache files and their empty
+directory were removed. The installed source hashes were unaffected.
 
 This is install evidence only. A live recovery drill still requires a
 separate approved effect card, a current source-bound backup receipt, a
