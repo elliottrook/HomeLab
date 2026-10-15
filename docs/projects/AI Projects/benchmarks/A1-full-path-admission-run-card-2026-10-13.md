@@ -440,12 +440,17 @@ application lease because it stops the accepted B60 backend.
 **Mini runner endpoint closure:** The frozen A1 Mini runner now refuses any
 endpoint other than `http://192.168.70.10:19104/v1/chat/completions` before
 reading cases or asking for admission. Its external authenticated callback
-must attest both the pinned profile SHA-256 and that exact endpoint before
-the batch and again before every possible model call. Runner SHA-256 is
-`be7496e44c501ced5970e136b179e71866fe632a0cd72975733a7c843d2debb6`;
-43 focused offline A1 tests pass. This closes a wrong-local-service request
-path in the Mini caller; the platform still has to supply and verify the
-source-bound live callback. No host or model call was made by this change.
+must attest the pinned profile SHA-256 and that exact endpoint before the
+batch and again before every possible model call. The reviewed follow-up
+contract at platform commit `e3c39bad` also requires a host lease ID,
+generation and receipt digest on each check; lease identity must remain
+stable and the owner-only final manifest records the digest set. Runner
+SHA-256 is now
+`c8913e854f358e1a4753cd4637d036edfa1e19730d1abab0321df724ce748574`.
+The endpoint/provenance and other focused A1 tests pass locally. These source
+checks close a wrong-local-service path and retain comparison provenance;
+the platform still has to supply and verify the source-bound live callback.
+No host or model call was made by this change.
 The offline `summarize_a1_client_clock.py` candidate consumes only the
 content-free client clock rows, reports displayed/censored/missing counts and
 median/nearest-rank p95, and keeps useful-answer time null. Its four synthetic

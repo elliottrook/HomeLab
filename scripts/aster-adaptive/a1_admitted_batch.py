@@ -27,6 +27,9 @@ HEX64 = re.compile(r"[0-9a-f]{64}\Z")
 MAX_CASE_BYTES = 100_000
 MAX_PROFILE_BYTES = 16_000
 A1_TEST_ENDPOINT = "http://192.168.70.10:19104/v1/chat/completions"
+ADMISSION_FIELDS = {"schema", "lease_id", "generation", "receipt_sha256",
+                    "profile_sha256", "endpoint"}
+ADMISSION_SCHEMA = "aster-a1-admission.v1"
 
 
 def _owner_file(path: Path, *, maximum: int) -> bytes:
@@ -53,18 +56,69 @@ def _owner_file(path: Path, *, maximum: int) -> bytes:
     return raw
 
 
+def _validate_admission(value: object, profile_sha256: str) -> dict[str, object]:
+    if (type(value) is not dict or set(value) != ADMISSION_FIELDS
+            or value.get("schema") != ADMISSION_SCHEMA
+            or not isinstance(value.get("lease_id"), str)
+            or not 1 <= len(value["lease_id"]) <= 128
+            or type(value.get("generation")) is not int
+            or value["generation"] < 1
+            or not isinstance(value.get("receipt_sha256"), str)
+            or not HEX64.fullmatch(value["receipt_sha256"])
+            or value.get("profile_sha256") != profile_sha256
+            or value.get("endpoint") != A1_TEST_ENDPOINT):
+        raise RuntimeError("A1 authenticated admission receipt unavailable")
+    return value
+
+
+def _write_final_manifest(directory: Path, *, profile_sha256: str,
+                          admission: dict[str, object], receipt_digests: set[str],
+                          checks: int, summary: dict) -> None:
+    if (not directory.is_dir() or directory.stat().st_uid != os.getuid()
+            or directory.stat().st_mode & 0o077):
+        raise RuntimeError("A1 final manifest custody failed")
+    manifest = {
+        "schema": "aster-a1-final-manifest.v1",
+        "profile_sha256": profile_sha256,
+        "endpoint": A1_TEST_ENDPOINT,
+        "lease_id": admission["lease_id"],
+        "generation": admission["generation"],
+        "receipt_digests": sorted(receipt_digests),
+        "admission_checks": checks,
+        "completed": summary.get("completed"),
+        "failed": summary.get("failed"),
+        "not_attempted": summary.get("not_attempted"),
+    }
+    raw = (json.dumps(manifest, sort_keys=True, separators=(",", ":"),
+                    allow_nan=False) + "\n").encode()
+    path = directory / "final-manifest.json"
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        fd = os.open(path, flags, 0o600)
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(raw)
+            stream.flush()
+            os.fsync(stream.fileno())
+    except OSError as exc:
+        raise RuntimeError("A1 final manifest write failed") from exc
+
+
 def run_admitted_batch(*, cases_path: Path, profile_path: Path,
                        expected_profile_sha256: str, ingress_token_path: Path,
                        endpoint: str, output_dir: Path,
-                       assert_admitted: Callable[[str, str], bool],
+                       assert_admitted: Callable[[str, str], dict],
                        transport=invoke, capture=capture_full_path) -> dict:
     """Run at most one sealed 20-case batch and return content-free counts.
 
     ``assert_admitted`` is an external *authenticated* live check, never a
     boolean from a model or a caller-supplied preview receipt. It must return
-    exactly ``True`` after verification; false/none or an exception denies. A failed check
-    before the batch creates no output; a later failure is journaled as an
-    uncertain stopped attempt. The caller must preserve that partial output.
+    The callback must return a content-free authenticated receipt containing
+    the lease ID, generation, host receipt digest, profile hash and exact
+    endpoint. A failed check before the batch creates no output; a later
+    failure is journaled as an uncertain stopped attempt. The caller must
+    preserve that partial output.
     """
     if not callable(assert_admitted) or not callable(transport) or not callable(capture):
         raise ValueError("missing A1 authority or client")
@@ -98,9 +152,20 @@ def run_admitted_batch(*, cases_path: Path, profile_path: Path,
     if (not 16 <= len(token) <= 256 or any(not 33 <= byte <= 126 for byte in token)):
         raise ValueError("invalid A1 ingress credential")
 
+    admission: dict[str, object] | None = None
+    receipt_digests: set[str] = set()
+    admission_checks = 0
+
     def require_live_admission() -> None:
-        if assert_admitted(expected_profile_sha256, A1_TEST_ENDPOINT) is not True:
-            raise RuntimeError("A1 live admission unavailable")
+        nonlocal admission, admission_checks
+        current = _validate_admission(
+            assert_admitted(expected_profile_sha256, A1_TEST_ENDPOINT),
+            expected_profile_sha256)
+        if admission is not None and (current["lease_id"], current["generation"]) != (admission["lease_id"], admission["generation"]):
+            raise RuntimeError("A1 lease identity changed during batch")
+        admission = current
+        receipt_digests.add(current["receipt_sha256"])
+        admission_checks += 1
 
     require_live_admission()
 
@@ -109,5 +174,9 @@ def run_admitted_batch(*, cases_path: Path, profile_path: Path,
         return transport(case, endpoint=endpoint, ingress_token=token,
                          timeout_s=timeout_s)
 
-    return capture(cases_raw, expected_profile_sha256, output_dir,
-                   admitted_invoke, max_wall_s=1200)
+    summary = capture(cases_raw, expected_profile_sha256, output_dir,
+                      admitted_invoke, max_wall_s=1200)
+    _write_final_manifest(output_dir, profile_sha256=expected_profile_sha256,
+                          admission=admission, receipt_digests=receipt_digests,
+                          checks=admission_checks, summary=summary)
+    return summary
