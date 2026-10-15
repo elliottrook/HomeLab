@@ -1,8 +1,8 @@
 # Full-stop Local AI recovery drill
 
 Status: PAUSED / approval-ready for a separate window. This scope is
-mutually exclusive with the application-only A1 benchmark; approving this
-drill means A1 is NO-GO for the same cycle.
+mutually exclusive with the application-only A1 benchmark. A full-stop drill
+always makes A1 NO-GO for that same backup cycle, even if recovery succeeds.
 
 ## Fixed installed candidate
 
@@ -37,8 +37,8 @@ approval immediately before the drill.
 - 03:25–03:30: restore services and verify exact runtime/device/auth state,
   four backup points, News at 06:15/17:15, and control-plane health.
 - 03:30: hard release cutoff for this drill. If exact restoration is not
-  complete by this point, retain the lock, mark the drill FAILED/UNKNOWN, and
-  make A1 NO-GO for the cycle. 03:30–04:15 remains reconciliation only. Any ambiguity retains the lock and
+  complete by this point, retain the lock and mark the drill FAILED/UNKNOWN.
+  03:30–04:15 remains reconciliation only. Any ambiguity retains the lock and
   makes the result FAILED/UNKNOWN rather than READY.
 
 ## Bounded effects
@@ -67,4 +67,5 @@ and evidence for operator reconciliation and do not run A1 in the same window.
 
 This card does not authorize execution, timer enablement, a host reboot, an A1
 benchmark, or a Git push. It requires separate explicit approval immediately
-before the 03:15 window.
+before the 03:10 window. A1 requires a later cycle with its own fresh
+source-bound application lease and admission proof.
