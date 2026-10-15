@@ -1,5 +1,11 @@
 # Aster Home Kodi skin prototype
 
+Version 0.5.2 enlarges the media artwork from 320×180 to 400×225 with four
+cards per row. Landscape art is preferred, followed by fanart and then the
+library thumbnail. Captions and focus surfaces sit below the image so they
+do not obscure it. The shorter hero and compact headings leave room for both
+larger rows on the 1080p canvas. Existing brand assets are reused.
+
 Version 0.5.1 makes the selected hero artwork fill the upper canvas, places
 the approved logo and dynamic copy on a translucent charcoal panel, and adds
 native-size charcoal caption boxes plus a correctly proportioned mint focus

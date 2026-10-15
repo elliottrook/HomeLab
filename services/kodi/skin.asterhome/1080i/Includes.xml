@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <includes>
+    <variable name="AsterCardArt">
+        <value condition="!String.IsEmpty(ListItem.Art(landscape))">$INFO[ListItem.Art(landscape)]</value>
+        <value condition="!String.IsEmpty(ListItem.Art(fanart))">$INFO[ListItem.Art(fanart)]</value>
+        <value>$INFO[ListItem.Art(thumb)]</value>
+    </variable>
     <variable name="AsterHeroLabel">
         <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Label]</value>
         <value>$INFO[Container(100).ListItem.Label]</value>

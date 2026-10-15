@@ -369,6 +369,17 @@ Deliver: (1) software go/no-go decision, (2) hardware and live Canadian purchasi
 | 2026-10-14 | Reworked the M3a composition around the approved media-hub render: the selected hero artwork now fills the upper canvas, the logo/copy/actions sit on a translucent approved-texture panel, and both media queues have layered module surfaces, card backplates and full-card mint focus plates. | Static XML validation passed and all changes remain confined to the private skin source. The visual gate still requires a refreshed Mac Kodi preview to inspect stretched texture treatment and hover states; no production service, Kodi core or LibreELEC endpoint change was made. |
 | 2026-10-14 | Corrected the M3a queue and navigation composition after live Mac Kodi inspection: removed stretched rail textures from the queues, restored native-size charcoal caption boxes and mint focus surfaces, fixed the expanded rail z-order/icon spacing, and hid the media rows while the navigation mode is open. | Disposable Mac Kodi validation passed in both collapsed and expanded rail states, including focus movement between both media rows. XML and whitespace checks pass; the private skin is now v0.5.1. No production service, Kodi core or LibreELEC endpoint change was made. |
 
+Artwork-size follow-up, 2026-10-14: compared Jason's Jellyfin HEIC reference
+with Aster's running skin. The small visible artwork resulted from five
+320×180 cards, portrait thumbnails cropped into landscape frames, and caption
+boxes covering the lower image. Version 0.5.2 uses four 400×225 cards, prefers
+landscape artwork with fanart/thumbnail fallbacks, and moves caption boxes
+below the artwork. The hero height is reduced to 420px to fit both rows.
+Live Mac Kodi checks verified matching landscape art, both rows, horizontal
+scrolling, dynamic hero changes, and expanded navigation. XML and diff checks
+passed. This is a local visual milestone; physical playback evidence remains
+pending.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
