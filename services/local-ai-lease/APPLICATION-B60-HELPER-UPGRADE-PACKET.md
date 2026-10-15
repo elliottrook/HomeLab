@@ -19,7 +19,8 @@ shell wrappers are mode 0755; service/timer files are mode 0644.
 | Proxmox | `/usr/local/libexec/aster-a1/application_receipt_boundary.py` | `1b61d3cc5fdbf3bae538a4a49864a57cca2c360fec37d2408e70a8f1e95ca0da` |
 | Proxmox | `/usr/local/libexec/aster-a1/application_b60_lease_heartbeat.py` | `8b77bb099ed78293d3c779b225ea347a686587388b2ffcbaba7a435e61da63ca` |
 | Proxmox | `/usr/local/libexec/aster-a1/application_admission_cli.py` | `3702f50d8425227d435fbfe6044622d1fcca5c78c93bfdbe1047e29f32e0e655` |
-| Proxmox | `/usr/local/libexec/aster-a1/application_b60_drill_entrypoint.py` | `f7b4881618ae95ceddb675423d6a2710c5e4667cacf96811d424d1cf9e330582` |
+| Proxmox | `/usr/local/libexec/aster-a1/application_b60_drill_entrypoint.py` | `5eb774f4f5eb7f09e8cefcb30d9eff95bc0f4c1da89d6d113d54b89a2f0a5eb2` |
+| Proxmox | `/usr/local/libexec/aster-a1/lease_effect_runner.py` | `e4fb2f9657534d83b3581e82ee52c6ee3aeecf613df54c3f6f4916b8d34d84f5` |
 | Proxmox | `/usr/local/sbin/application-b60-lease-recovery` | `309774dca1f0b5b37a9159b00fe6eed7b46f123f866c98e5d996e2c9fdc46499` |
 | Proxmox | `/usr/local/sbin/application-b60-heartbeat` | `867f17d5472e7fa62e1ade7159ad08918438aa669272cb90871f5779ce53849b` |
 | Proxmox | `/usr/local/sbin/application-b60-drill` | `4386211d9c951c7591dcf1619a19f161334be6826bc4d1b51e20ff0ec1c5a967` |
@@ -28,6 +29,7 @@ shell wrappers are mode 0755; service/timer files are mode 0644.
 | Proxmox | `/etc/systemd/system/application-b60-heartbeat.service` | `8a3c1698bedad471e0cc4434570bbe0e6c6a9f0700e58b7cf1d8a8a2a3621741` |
 | Proxmox | `/etc/systemd/system/application-b60-heartbeat.timer` | `ee3f390bd520b51d8b426de635bf781693ad872766e58d0cd0f8a98e4cc56a6b` |
 | LXC110 | `/usr/local/libexec/aster-a1/a1_key_file.py` | `25f2c82cb09b051f3307341571b3a27c6b2c4f6002c70b5a1a256ed4e8292b36` |
+| LXC110 | `/usr/local/libexec/aster-a1/a1_ingress_policy.py` | `07be9c42650f74edbcb080d4b338bb01cc43a6ac18a847d86839c07a0ad65d1d` |
 | LXC110 | `/usr/local/sbin/aster-llama-test-key-add` | `10292b91e79ebe30892ef3ce0f9af70a4ecf52b523878d7fd4c1cc8099cca156` |
 | LXC110 | `/usr/local/sbin/aster-llama-test-key-status` | `9fa646d7db2974389cbea18a68edd82a868b849fcfdd435578e28d729403c9cf` |
 | LXC110 | `/usr/local/sbin/aster-llama-test-key-remove` | `0c294198d2e60b5ed07654c92025713ca6a812bdd065720f3d8183ae6ef357d6` |
@@ -51,7 +53,12 @@ packet: `a1_admitted_batch.py` is
    Preserve the current LXC110 key-file owner/group/mode; do not read or print
    its contents. Do not install credentials.
 3. Run `systemd-analyze verify` on all four candidate units, reload systemd,
-   and run the entrypoint's `--phase plan` as root.
+   run the entrypoint's `--phase plan` as root, and run target-Linux import
+   checks for `application_b60_drill_entrypoint`, `application_b60_controller`,
+   `application_b60_lease`, `application_b60_watchdog`,
+   `application_receipt_boundary`, and `lease_effect_runner` with bytecode
+   writes disabled. In LXC110, import-check `a1_ingress_policy` from its
+   installed path before accepting the wrapper hashes.
 4. Disable both candidate timers and services. Do not enable, start, unmask or
    trigger them. No lease state, lock, receipt, checkpoint or key may exist.
 5. Verify all destination hashes, root ownership/modes, inactive/no-PID state,
@@ -76,10 +83,15 @@ already pinned Proxmox host key from the platform transport policy.
 
 The only effectful controller path is `/usr/local/sbin/application-b60-drill`.
 Its phases are `plan`, `acquire`, `mark-effect`, and `admit`; it accepts only
-root-owned mode-0600 JSON observations, uses the allowlisted effect runner,
-and has no arbitrary command path. The heartbeat timer is enabled only after
-`admit`, then runs once per minute. The separate recovery watchdog remains the
-rollback authority.
+the fixed root-owned mode-0600 producer paths
+`/var/lib/local-ai-lab/application-b60/prelease.json` and
+`/var/lib/local-ai-lab/application-b60/sidecar-receipt.json`, and validates
+their producer schemas, source-bound backup marker, lease identity and exact
+sidecar observation fields. It uses the self-contained allowlisted effect
+runner and has no arbitrary command path. The heartbeat timer is enabled only
+after `admit`, then runs once per minute. The separate recovery watchdog
+remains the rollback authority. A manually created root JSON lacking those
+producer schemas is rejected and does not authorize admission.
 
 ## Rollback and independent checks
 

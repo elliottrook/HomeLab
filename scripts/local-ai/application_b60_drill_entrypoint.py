@@ -19,9 +19,13 @@ from application_b60_controller import ApplicationB60Controller, ApplicationPath
 from application_b60_lease import ApplicationLeaseReceipt, SidecarObservation
 from lease_effect_runner import EffectRunner
 
+STATE_DIR = Path("/var/lib/local-ai-lab/application-b60")
+PRELEASE_PATH = STATE_DIR / "prelease.json"
+RECEIPT_PATH = STATE_DIR / "sidecar-receipt.json"
+BACKUP_SOURCE = "proxmox:backup-49999802-1365+truenas:1,3,2"
 
-def _owner_json(path: Path) -> dict[str, object]:
-    if not path.is_absolute() or path.is_symlink():
+def _owner_json(path: Path, expected: Path) -> dict[str, object]:
+    if path != expected or path.is_symlink():
         raise ValueError("input path must be absolute and non-symlinked")
     info = path.stat()
     if info.st_uid != 0 or info.st_mode & 0o077 or info.st_size > 32_000:
@@ -38,13 +42,32 @@ def _controller(state_dir: Path) -> ApplicationB60Controller:
 
 
 def _prelease(value: dict[str, object]) -> ApplicationPreLease:
+    if value.get("schema") != "aster-application-prelease.v1":
+        raise ValueError("pre-lease producer schema is invalid")
+    attestation = value.pop("source_attestation", None)
+    if (not isinstance(attestation, dict)
+            or attestation.get("backup_source") != BACKUP_SOURCE
+            or not isinstance(attestation.get("backup_receipt"), str)
+            or not attestation["backup_receipt"].startswith("application-chain:")
+            or attestation.get("source_observed") is not True
+            or attestation.get("integrity_verified") is not True
+            or attestation.get("consumers_observed") != ["104", "116"]
+            or attestation.get("news_quiesced") is not True):
+        raise ValueError("source-bound application backup attestation is incomplete")
+    value.pop("schema", None)
     fields = set(ApplicationPreLease.__dataclass_fields__)
-    if set(value) != fields:
+    if set(value) != fields or value.get("backup_receipt") != attestation["backup_receipt"]:
         raise ValueError("pre-lease fields are not exact")
     return ApplicationPreLease(**value)
 
 
 def _receipt(value: dict[str, object]) -> ApplicationLeaseReceipt:
+    if (value.get("schema") != "aster-application-sidecar-receipt.v1"
+            or value.get("observer_source") != "trusted-sidecar-observer-v1"
+            or not isinstance(value.get("observed_epoch"), int)
+            or not isinstance(value.get("receipt"), dict)):
+        raise ValueError("sidecar receipt producer schema is invalid")
+    value = value["receipt"]
     fields = set(ApplicationLeaseReceipt.__dataclass_fields__) - {"sidecar"}
     if set(value) != fields | {"sidecar"} or not isinstance(value["sidecar"], dict):
         raise ValueError("lease receipt fields are not exact")
@@ -58,9 +81,9 @@ def _receipt(value: dict[str, object]) -> ApplicationLeaseReceipt:
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--phase", choices=("plan", "acquire", "mark-effect", "admit"), required=True)
-    parser.add_argument("--state-dir", type=Path, default=Path("/var/lib/local-ai-lab/application-b60"))
-    parser.add_argument("--prelease", type=Path)
-    parser.add_argument("--receipt", type=Path)
+    parser.add_argument("--state-dir", type=Path, default=STATE_DIR)
+    parser.add_argument("--prelease", type=Path, default=PRELEASE_PATH)
+    parser.add_argument("--receipt", type=Path, default=RECEIPT_PATH)
     parser.add_argument("--effect", choices=("key", "ingress"))
     parser.add_argument("--effect-state", choices=("intent", "observed"))
     parser.add_argument("--lease-id")
@@ -78,7 +101,7 @@ def main(argv: list[str]) -> int:
     if args.phase == "acquire":
         if args.prelease is None:
             raise SystemExit("--prelease is required")
-        result = controller.acquire(_prelease(_owner_json(args.prelease)))
+        result = controller.acquire(_prelease(_owner_json(args.prelease, PRELEASE_PATH)))
     elif args.phase == "mark-effect":
         if args.effect is None or args.effect_state is None or args.lease_id is None or args.generation is None:
             raise SystemExit("effect, effect state, lease ID and generation are required")
@@ -88,7 +111,7 @@ def main(argv: list[str]) -> int:
     else:
         if args.receipt is None or args.lease_id is None or args.generation is None:
             raise SystemExit("receipt, lease ID and generation are required")
-        result = controller.admit_sidecar(_receipt(_owner_json(args.receipt)),
+        result = controller.admit_sidecar(_receipt(_owner_json(args.receipt, RECEIPT_PATH)),
                                           expected_lease_id=args.lease_id,
                                           expected_generation=args.generation)
     print(json.dumps(result, sort_keys=True, separators=(",", ":")))

@@ -10,7 +10,17 @@ from __future__ import annotations
 import subprocess
 from typing import Sequence
 
-from lease_controller_candidate import ALLOWLIST, command_for
+ALLOWLIST = (
+    ("104", "aster-agent.service"),
+    ("110", "aster-llama.service"),
+    ("116", "aster-speech.service"),
+)
+
+
+def command_for(vmid: str, unit: str, action: str) -> tuple[str, ...]:
+    if (vmid, unit) not in ALLOWLIST or action not in {"start", "stop"}:
+        raise ValueError("effect is outside the fixed lease allowlist")
+    return ("pct", "exec", vmid, "--", "systemctl", action, unit)
 
 
 class EffectError(RuntimeError):
