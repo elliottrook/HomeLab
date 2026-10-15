@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+export PYTHONPATH=/usr/local/libexec/aster-a1
+exec /usr/bin/python3 -c 'from pathlib import Path; import hashlib, sys; original=Path("/var/lib/local-ai-lab/application-b60/aster-llama-api-keys.checkpoint").read_bytes(); current=Path("/etc/aster-llama-api-keys").read_bytes(); digest=Path("/var/lib/local-ai-lab/application-b60/test-backend-key.sha256").read_text().strip(); matches=[line for line in current.splitlines() if hashlib.sha256(line).hexdigest()==digest]; expected=original + (b"" if original.endswith(b"\\n") else b"\\n") + (matches[0]+b"\\n" if len(matches)==1 else b""); clean=current == original; present=len(matches)==1 and current == expected; print("removed" if clean else "present" if present else "uncertain"); sys.exit(0 if clean or present else 1)'

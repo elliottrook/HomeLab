@@ -3,7 +3,7 @@ import unittest
 from application_receipt_boundary import (A1_PROFILE_SHA256, A1_SIDECAR_SOURCE_DIGEST,
                                           ADMISSION_ENDPOINT, ApplicationReceipt,
                                           CONSUMERS, MODE, SCHEMA, admission_payload,
-                                          validate)
+                                          active_admission_payload, validate)
 
 
 class ApplicationReceiptBoundaryTests(unittest.TestCase):
@@ -52,3 +52,25 @@ class ApplicationReceiptBoundaryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "sidecar"):
             validate(self.receipt(sidecar_source_digest="a" * 64),
                      expected_lease_id="lease-1", expected_generation=4, now_epoch=200)
+
+    def test_rejects_cached_receipt_after_lease_release(self):
+        state = {"mode": MODE, "phase": "released", "armed": False,
+                 "lease_id": "lease-1", "generation": 4,
+                 "restore_deadline_epoch": 300}
+        watchdog = {"schema": "aster-application-watchdog-status.v1",
+                    "state": "healthy", "lease_id": "lease-1", "generation": 4,
+                    "valid_until_epoch": 300}
+        with self.assertRaisesRegex(ValueError, "not currently admitted"):
+            active_admission_payload(self.receipt(), state, watchdog,
+                                     now_epoch=200, profile_sha256=A1_PROFILE_SHA256)
+
+    def test_rejects_stale_watchdog_generation(self):
+        state = {"mode": MODE, "phase": "sidecar-admitted", "armed": True,
+                 "lease_id": "lease-1", "generation": 4,
+                 "restore_deadline_epoch": 300}
+        watchdog = {"schema": "aster-application-watchdog-status.v1",
+                    "state": "healthy", "lease_id": "lease-1", "generation": 3,
+                    "valid_until_epoch": 300}
+        with self.assertRaisesRegex(ValueError, "watchdog"):
+            active_admission_payload(self.receipt(), state, watchdog,
+                                     now_epoch=200, profile_sha256=A1_PROFILE_SHA256)

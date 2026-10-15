@@ -17,6 +17,9 @@ ADMISSION_ENDPOINT = "http://192.168.70.10:19104/v1/chat/completions"
 A1_PROFILE_SHA256 = "7caddc30074f5925722861c59f70733894037b9fc5b0865feb98bf9e08bbbfec"
 A1_SIDECAR_SOURCE_DIGEST = "969b6db34e8fe0c00e9a5be6163a498bae5ccfd101e42f699bfafb39f4a8c403"
 OWNER_RECEIPT_PATH = Path("/var/lib/local-ai-lab/application-b60/application-receipt.json")
+LEASE_STATE_PATH = Path("/var/lib/local-ai-lab/application-b60/application-b60.json")
+LEASE_LOCK_PATH = Path("/var/lib/local-ai-lab/application-b60/application-b60.lock")
+WATCHDOG_STATUS_PATH = Path("/var/lib/local-ai-lab/application-b60/watchdog-status.json")
 
 
 @dataclass(frozen=True)
@@ -95,6 +98,53 @@ def admission_payload(receipt: ApplicationReceipt, *, expected_lease_id: str,
         "profile_sha256": profile_sha256,
         "endpoint": ADMISSION_ENDPOINT,
     }
+
+
+def validate_active_lease(receipt: ApplicationReceipt, state: dict,
+                          watchdog: dict, *, now_epoch: int) -> None:
+    """Reject cached receipts unless the current host lease is still armed."""
+    if (state.get("mode") != MODE or state.get("phase") != "sidecar-admitted"
+            or state.get("armed") is not True
+            or not isinstance(state.get("lease_id"), str)
+            or state.get("lease_id") != receipt.lease_id
+            or type(state.get("generation")) is not int
+            or state.get("generation") != receipt.generation
+            or not isinstance(state.get("restore_deadline_epoch"), int)
+            or state["restore_deadline_epoch"] <= now_epoch
+            or receipt.watchdog_deadline_epoch != state["restore_deadline_epoch"]):
+        raise ValueError("application lease is not currently admitted")
+    if (watchdog.get("schema") != "aster-application-watchdog-status.v1"
+            or watchdog.get("state") != "healthy"
+            or watchdog.get("lease_id") != receipt.lease_id
+            or watchdog.get("generation") != receipt.generation
+            or not isinstance(watchdog.get("valid_until_epoch"), int)
+            or watchdog["valid_until_epoch"] <= now_epoch):
+        raise ValueError("application watchdog is not current")
+
+
+def active_admission_payload(receipt: ApplicationReceipt, state: dict,
+                             watchdog: dict, *, now_epoch: int,
+                             profile_sha256: str) -> dict[str, object]:
+    validate_active_lease(receipt, state, watchdog, now_epoch=now_epoch)
+    return admission_payload(receipt, expected_lease_id=receipt.lease_id,
+                              expected_generation=receipt.generation,
+                              now_epoch=now_epoch,
+                              profile_sha256=profile_sha256)
+
+
+def load_active_admission_payload(*, now_epoch: int,
+                                  profile_sha256: str) -> dict[str, object]:
+    """Load and validate the current host lease, lock, watchdog and receipt."""
+    lock = LEASE_LOCK_PATH.lstat()
+    if not (stat.S_ISDIR(lock.st_mode) and lock.st_uid == 0
+            and lock.st_mode & 0o077 == 0):
+        raise ValueError("application lease lock custody failed")
+    state = json.loads(LEASE_STATE_PATH.read_text())
+    watchdog = json.loads(WATCHDOG_STATUS_PATH.read_text())
+    receipt = load_owner_receipt()
+    return active_admission_payload(receipt, state, watchdog,
+                                    now_epoch=now_epoch,
+                                    profile_sha256=profile_sha256)
 
 
 def load_owner_receipt(path: Path = OWNER_RECEIPT_PATH) -> ApplicationReceipt:

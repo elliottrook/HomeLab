@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+export PYTHONPATH=/usr/local/libexec/aster-a1
+exec /usr/bin/python3 -c 'from pathlib import Path; import hashlib, os; from a1_key_file import append_key; key_path=Path("/var/lib/local-ai-lab/application-b60/test-backend-key"); key=key_path.read_bytes(); digest=append_key(Path("/etc/aster-llama-api-keys"), Path("/var/lib/local-ai-lab/application-b60/aster-llama-api-keys.checkpoint"), key, uid=os.stat("/etc/aster-llama-api-keys").st_uid, gid=os.stat("/etc/aster-llama-api-keys").st_gid); Path("/var/lib/local-ai-lab/application-b60/test-backend-key.sha256").write_text(digest+"\\n"); os.chmod("/var/lib/local-ai-lab/application-b60/test-backend-key.sha256", 0o600); print("added")'

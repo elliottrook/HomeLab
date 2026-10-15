@@ -40,12 +40,14 @@ deadline no later than 04:15 Vancouver. A1 work may not begin unless at least
 |---|---|---|
 | Arm application lease and host lock | Creates effect authority and persistent lease state | Lease ID/generation, reserve epochs, source-bound backup receipt; retain lock on ambiguity |
 | Stop LXC104 Agent and LXC116 Speech | Changes production consumers; the current controller does not runtime-mask them | Two quiescence samples; restore exact prior states on failure |
-| Add disposable LXC110 test key | Changes backend authentication state | Separate checkpoint, intent/observed journal, remove before release |
-| Apply temporary LXC110 ingress ACL | Changes network admission | Exact source `192.168.70.10` → TCP 11435 only; restore checkpointed policy |
+| Add disposable LXC110 test key | Changes backend authentication state | Fixed `aster-llama-test-key-add` wrapper, immutable checkpoint, intent/observed journal, remove before release |
+| Apply temporary LXC110 ingress ACL | Changes network admission | Fixed `aster-llama-ingress-apply` wrapper; exact source `192.168.70.10` → TCP 11435 only; restore checkpointed policy |
 | Start the disabled A1 sidecar | Creates the test endpoint | UID1904, one worker, credential/network denial probes, exact endpoint; stop on failure |
 | Trigger watchdog recovery | Tests independent restoration | Owner-loss/expiry or bounded recovery trigger; verify every fixed observer probe |
 
-The current recovery candidate is not a zero-model-call path. Once the
+The current recovery candidate is not a zero-model-call path. The key effect
+must be applied by the fixed wrapper before sidecar start; the wrapper reads
+only the owner-only test-key file and emits no key material. Once the
 temporary key is removed, it performs one planned `systemctl restart
 aster-llama.service`; the trusted observer's exact backend check, the
 production-auth probe, and the post-consumer exact check each perform one
@@ -61,12 +63,15 @@ needs a separate approval after the recovery drill passes.
 
 The platform callback must load the current host-produced `ApplicationReceipt`
 from the fixed root-owned mode-0600 path
-`/var/lib/local-ai-lab/application-b60/application-receipt.json`, then project
-it with `application_receipt_boundary.admission_payload`. The boundary pins
+`/var/lib/local-ai-lab/application-b60/application-receipt.json`, read the
+current lease state and lock, and read the current watchdog status. It must
+then project it with `application_receipt_boundary.active_admission_payload`.
+The boundary pins
 profile `7caddc30074f5925722861c59f70733894037b9fc5b0865feb98bf9e08bbbfec`,
 sidecar bundle `969b6db34e8fe0c00e9a5be6163a498bae5ccfd101e42f699bfafb39f4a8c403`,
 UID 1904, port 19104 and the exact endpoint. It rejects a caller-created
-receipt, arbitrary profile, or alternate sidecar. It must return exactly:
+receipt, arbitrary profile, alternate sidecar, released lease, mismatched
+generation, missing lock, or stale watchdog. It must return exactly:
 
 ```json
 {
@@ -83,6 +88,16 @@ The Mini runner rechecks this payload before the batch and before every
 possible model call, requires stable lease ID/generation, and writes the
 receipt digests into the owner-only final manifest. A caller-supplied boolean,
 arbitrary endpoint, fabricated receipt, or stale lease is rejected.
+
+Drill helper pins: key add `10292b91e79ebe30892ef3ce0f9af70a4ecf52b523878d7fd4c1cc8099cca156`,
+key status `9fa646d7db2974389cbea18a68edd82a868b849fcfdd435578e28d729403c9cf`,
+key remove `0c294198d2e60b5ed07654c92025713ca6a812bdd065720f3d8183ae6ef357d6`,
+ingress apply `41b96f560261a198c09fd85d8ba7150478241fbe6a38f28befad9dc4fa40020b`,
+and ingress restore `9bf3c3cb1e04081f41584f9dc742d86e9e7ead3a1806a243a6ce3478572ff347`.
+These are a separate drill candidate and are not part of the frozen disabled-
+install packet.
+The active receipt boundary source hash is
+`1601d972038eca295699b21411dc0b838140cb44087791c2a079418213f37c12`.
 
 ## Recovery success criteria
 
@@ -103,6 +118,12 @@ The watchdog may only produce a releasable receipt after:
 
 Any failed or uncertain check retains the lease lock and recovery journal for
 operator reconciliation. It must not be reported as `READY`.
+
+The key/ingress helper set is now concrete and pinned for the drill candidate:
+`aster-llama-test-key-add`, `aster-llama-test-key-status`,
+`aster-llama-test-key-remove`, `aster-llama-ingress-apply`, and
+`aster-llama-ingress-restore`. The wrappers must be installed root-owned with
+mode 0755 beside the recovery helper and must remain disabled/not auto-run.
 
 ## Explicit exclusions
 
