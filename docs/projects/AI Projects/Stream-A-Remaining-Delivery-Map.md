@@ -7,6 +7,17 @@ separates the actual backup/check schedule from the proposed live windows,
 records both measured full-stop blockers, and sets the October 15 deadline
 expectation. It supersedes any statement that lab time alone remains.
 
+**October 15 preflight outcome:** The current 00:30 Proxmox backup and all
+three 01:00/02:00/03:00 TrueNAS pulls succeeded. The protected nine-file A1
+subset matched its prior Mac source snapshot after the 03:00 pull. The one-time
+cold archive check passed LXC104, but the interrupted LXC110 scan has no
+recoverable final exit status and LXC116 was not scanned. No installed
+current-cycle retained integrity receipt or verified compatible full-stop
+acquisition path was found. The [content-free preflight record](evidence/A1-2026-10-15-read-only-preflight.md)
+therefore marks both full-stop and A1 **NO-GO for this cycle**. The 01:10 and
+03:05 one-time heartbeats are paused; the 03:40 read-only postcheck remains
+active. This is a hard evidence gate, not a request for more lab time.
+
 The [Stream A work cadence](Stream-A-Work-Cadence.md) separates continuous
 offline/shared work from exclusive lab tests. The proposed 03:15 Vancouver
 platform drill on 2026-10-15 is **not verified as scheduled** and would be a
@@ -28,7 +39,8 @@ card NO-GO pending a revised, measured integrity receipt and compatible
 acquisition path. Neither read-only Stream A automation launches a drill.
 The platform owner's later source-only retained-receipt adapter at `b5ec9eb2`
 is reviewed and tested but not installed, enabled or wired into acquisition.
-The 01:10 cold current-cycle scan and target-Linux integration remain open.
+The 01:10 cold current-cycle scan was partial and target-Linux integration
+remains open.
 The configured 00:30/01:00/02:00/03:00 backup schedules were checked read-only
 on Proxmox and TrueNAS; this does not prove a given night's completion. The
 platform owner's record reports one successful manual light lease, but the
