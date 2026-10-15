@@ -819,8 +819,16 @@ source snapshot has no per-item added timestamp, cover, synopsis or playback
 path, so the populated lane is truthfully labelled a catalogue snapshot rather
 than Latest Added, missing art uses approved square icons, and the hero action
 is informational only. No new source access, publisher, service or remote Git
-write is part of this milestone. Synthetic feed/layout tests pass; Mac visual
-acceptance remains pending because the Mac locked during the Kodi UI check.
+write is part of this milestone. Synthetic feed/layout tests pass. The Mac
+Kodi visual check now confirms the three separate landing lanes, wrapped
+long audiobook hero titles, the 46-title audiobook browse grid, and working
+title search (including a positive `Sandman` match and a distinct no-match
+state). The eBook and podcast pages show honest not-connected states and no
+action button; their search controls render without false catalogue results.
+The layout was adjusted after live inspection to prevent the audiobook lane
+from colliding with the Podcasts heading. The Mac test profile was left on
+the Books landing with search cleared. Physical LibreELEC playback and TV
+acceptance remain outside this visual milestone.
 Rollback is the prior committed skin revision and a Kodi restart.
 
 ## 15. References

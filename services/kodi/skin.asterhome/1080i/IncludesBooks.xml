@@ -5,6 +5,7 @@
     <value condition="Control.HasFocus(503) + !String.IsEmpty(Container(503).ListItem.Label)">$INFO[Container(503).ListItem.Label]</value>
     <value condition="!String.IsEmpty(Container(502).ListItem.Label)">$INFO[Container(502).ListItem.Label]</value>
     <value condition="!String.IsEmpty(Container(500).ListItem.Label)">$INFO[Container(500).ListItem.Label]</value>
+    <value condition="!String.IsEmpty(Window.Property(AsterBooks.Search)) + String.IsEmpty(Container(500).ListItem.Label)">No matching titles</value>
     <value>Choose your next chapter</value>
   </variable>
   <variable name="AsterBooksHeroDetail">
@@ -12,6 +13,9 @@
     <value condition="Control.HasFocus(503) + !String.IsEmpty(Container(503).ListItem.Label)">$INFO[Container(503).ListItem.Label2]</value>
     <value condition="!String.IsEmpty(Container(502).ListItem.Label)">$INFO[Container(502).ListItem.Label2]</value>
     <value condition="!String.IsEmpty(Container(500).ListItem.Label)">$INFO[Container(500).ListItem.Label2]</value>
+    <value condition="!String.IsEmpty(Window.Property(AsterBooks.Search)) + String.IsEmpty(Container(500).ListItem.Label)">Try a different title search.</value>
+    <value condition="Window.IsActive(1118)">The eBook catalogue is not connected yet.</value>
+    <value condition="Window.IsActive(1120)">The podcast catalogue is not connected yet.</value>
     <value>Discover eBooks, audiobooks and podcasts here.</value>
   </variable>
   <include name="AsterBooksTile">
@@ -21,9 +25,9 @@
     <control type="label"><left>10</left><top>307</top><width>260</width><height>26</height><label>$INFO[ListItem.Label2]</label><font>font16</font><textcolor>asterMuted</textcolor></control>
   </include>
   <include name="AsterBooksSmallTile">
-    <control type="image"><left>4</left><top>2</top><width>106</width><height>106</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>asterIvory</colordiffuse></control>
-    <control type="image"><left>24</left><top>22</top><width>66</width><height>66</height><texture>$INFO[ListItem.Art(thumb)]</texture><aspectratio>keep</aspectratio></control>
-    <control type="label"><left>4</left><top>110</top><width>205</width><height>30</height><label>$INFO[ListItem.Label]</label><font>font16</font><textcolor>asterInk</textcolor></control>
+    <control type="image"><left>4</left><top>2</top><width>90</width><height>90</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>asterIvory</colordiffuse></control>
+    <control type="image"><left>20</left><top>18</top><width>58</width><height>58</height><texture>$INFO[ListItem.Art(thumb)]</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>4</left><top>96</top><width>205</width><height>26</height><label>$INFO[ListItem.Label]</label><font>font16</font><textcolor>asterInk</textcolor></control>
   </include>
   <include name="AsterBooksPage">
     <param name="page" />
@@ -51,21 +55,21 @@
         <control type="label"><left>1750</left><top>32</top><width>146</width><height>44</height><label>$INFO[System.Time(HH:mm)]</label><font>font20</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny></control>
         <control type="image"><left>220</left><top>200</top><width>320</width><height>320</height><texture>$PARAM[icon]</texture><aspectratio>keep</aspectratio><colordiffuse>aaFFFFFF</colordiffuse></control>
         <control type="label"><left>1050</left><top>160</top><width>700</width><height>38</height><label>$PARAM[heading]</label><font>font24</font><textcolor>asterGold</textcolor></control>
-        <control type="label"><left>1050</left><top>214</top><width>760</width><height>72</height><label>$VAR[AsterBooksHeroTitle]</label><font>font40</font><textcolor>asterRailText</textcolor></control>
-        <control type="textbox"><left>1050</left><top>297</top><width>710</width><height>85</height><label>$VAR[AsterBooksHeroDetail]</label><font>font24</font><textcolor>asterRailText</textcolor></control>
+        <control type="textbox"><left>1050</left><top>214</top><width>760</width><height>110</height><label>$VAR[AsterBooksHeroTitle]</label><font>font30</font><textcolor>asterRailText</textcolor></control>
+        <control type="textbox"><left>1050</left><top>330</top><width>710</width><height>70</height><label>$VAR[AsterBooksHeroDetail]</label><font>font24</font><textcolor>asterRailText</textcolor></control>
         <control type="label"><left>1050</left><top>406</top><width>760</width><height>34</height><label>$INFO[Window.Property(AsterBooks.Status)]</label><font>font20</font><textcolor>asterSage</textcolor></control>
-        <control type="button" id="300"><left>1050</left><top>454</top><width>300</width><height>56</height><label>ⓘ  About this title</label><font>font24</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor><texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturenofocus><onclick>RunScript(special://skin/tools/books_data.py,$PARAM[page],open)</onclick><onleft>8999</onleft><onright>500</onright><ondown>500</ondown><onup>111</onup></control>
+        <control type="button" id="300"><left>1050</left><top>454</top><width>300</width><height>56</height><label>ⓘ  About this title</label><font>font24</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor><texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturenofocus><onclick>RunScript(special://skin/tools/books_data.py,$PARAM[page],open)</onclick><onleft>8999</onleft><onright>500</onright><ondown>500</ondown><onup>111</onup><visible>!String.IsEmpty(Container(500).ListItem.Label) | !String.IsEmpty(Container(501).ListItem.Label) | !String.IsEmpty(Container(502).ListItem.Label) | !String.IsEmpty(Container(503).ListItem.Label)</visible></control>
         <control type="group">
           <visible>$PARAM[homevisible]</visible>
-          <control type="label"><left>145</left><top>528</top><width>900</width><height>42</height><label>eBooks</label><font>font28</font><textcolor>asterInk</textcolor></control>
-          <control type="label"><left>145</left><top>573</top><width>1100</width><height>35</height><label>eBook catalogue not connected</label><font>font20</font><textcolor>asterMuted</textcolor><visible>String.IsEqual(Window.Property(AsterBooks.Count.ebook),0)</visible></control>
-          <control type="label"><left>145</left><top>693</top><width>900</width><height>42</height><label>Audiobooks · catalogue snapshot</label><font>font28</font><textcolor>asterInk</textcolor></control>
-          <control type="label"><left>145</left><top>738</top><width>1100</width><height>35</height><label>No audiobook titles in the current feed</label><font>font20</font><textcolor>asterMuted</textcolor><visible>String.IsEqual(Window.Property(AsterBooks.Count.audiobook),0)</visible></control>
-          <control type="label"><left>145</left><top>858</top><width>900</width><height>42</height><label>Podcasts</label><font>font28</font><textcolor>asterInk</textcolor></control>
-          <control type="label"><left>145</left><top>903</top><width>1100</width><height>35</height><label>Podcast catalogue not connected</label><font>font20</font><textcolor>asterMuted</textcolor><visible>String.IsEqual(Window.Property(AsterBooks.Count.podcast),0)</visible></control>
-          <include content="AsterBooksHomeRow"><param name="id" value="501" /><param name="top" value="570" /><param name="up" value="300" /><param name="down" value="502" /></include>
-          <include content="AsterBooksHomeRow"><param name="id" value="502" /><param name="top" value="735" /><param name="up" value="501" /><param name="down" value="503" /></include>
-          <include content="AsterBooksHomeRow"><param name="id" value="503" /><param name="top" value="900" /><param name="up" value="502" /><param name="down" value="112" /></include>
+          <control type="label"><left>145</left><top>520</top><width>900</width><height>42</height><label>eBooks</label><font>font28</font><textcolor>asterInk</textcolor></control>
+          <control type="label"><left>145</left><top>565</top><width>1100</width><height>35</height><label>eBook catalogue not connected</label><font>font20</font><textcolor>asterMuted</textcolor><visible>String.IsEqual(Window.Property(AsterBooks.Count.ebook),0)</visible></control>
+          <control type="label"><left>145</left><top>700</top><width>900</width><height>42</height><label>Audiobooks · catalogue snapshot</label><font>font28</font><textcolor>asterInk</textcolor></control>
+          <control type="label"><left>145</left><top>745</top><width>1100</width><height>35</height><label>No audiobook titles in the current feed</label><font>font20</font><textcolor>asterMuted</textcolor><visible>String.IsEqual(Window.Property(AsterBooks.Count.audiobook),0)</visible></control>
+          <control type="label"><left>145</left><top>880</top><width>900</width><height>42</height><label>Podcasts</label><font>font28</font><textcolor>asterInk</textcolor></control>
+          <control type="label"><left>145</left><top>925</top><width>1100</width><height>35</height><label>Podcast catalogue not connected</label><font>font20</font><textcolor>asterMuted</textcolor><visible>String.IsEqual(Window.Property(AsterBooks.Count.podcast),0)</visible></control>
+          <include content="AsterBooksHomeRow"><param name="id" value="501" /><param name="top" value="560" /><param name="up" value="300" /><param name="down" value="502" /></include>
+          <include content="AsterBooksHomeRow"><param name="id" value="502" /><param name="top" value="740" /><param name="up" value="501" /><param name="down" value="503" /></include>
+          <include content="AsterBooksHomeRow"><param name="id" value="503" /><param name="top" value="920" /><param name="up" value="502" /><param name="down" value="112" /></include>
         </control>
         <control type="group">
           <visible>$PARAM[browsevisible]</visible>
@@ -80,15 +84,16 @@
             <itemlayout width="300" height="345"><include>AsterBooksTile</include></itemlayout>
             <focusedlayout width="300" height="345"><include>AsterBooksTile</include><control type="image"><left>10</left><top>4</top><width>260</width><height>260</height><texture>special://skin/media/ui-album-ring.png</texture><colordiffuse>asterGreen</colordiffuse></control></focusedlayout>
           </control>
-          <control type="label"><left>145</left><top>680</top><width>1200</width><height>80</height><label>No titles connected in this section</label><font>font24</font><textcolor>asterMuted</textcolor><visible>String.IsEmpty(Container(500).ListItem.Label)</visible></control>
+          <control type="label"><left>145</left><top>680</top><width>1200</width><height>80</height><label>No titles connected in this section</label><font>font24</font><textcolor>asterMuted</textcolor><visible>String.IsEmpty(Container(500).ListItem.Label) + String.IsEmpty(Window.Property(AsterBooks.Search))</visible></control>
+          <control type="label"><left>145</left><top>680</top><width>1200</width><height>80</height><label>No titles match this search</label><font>font24</font><textcolor>asterMuted</textcolor><visible>String.IsEmpty(Container(500).ListItem.Label) + !String.IsEmpty(Window.Property(AsterBooks.Search))</visible></control>
         </control>
       </control>
     </definition>
   </include>
   <include name="AsterBooksHomeRow">
-    <control type="panel" id="$PARAM[id]"><left>145</left><top>$PARAM[top]</top><width>1650</width><height>150</height><viewtype label="Books row">icon</viewtype><orientation>horizontal</orientation><scrolltime>180</scrolltime><preloaditems>2</preloaditems><onleft>8999</onleft><onright>300</onright><onup>$PARAM[up]</onup><ondown>$PARAM[down]</ondown><onclick>RunScript(special://skin/tools/books_data.py,home,open)</onclick>
-      <itemlayout width="220" height="150"><include>AsterBooksSmallTile</include></itemlayout>
-      <focusedlayout width="220" height="150"><include>AsterBooksSmallTile</include><control type="image"><left>4</left><top>2</top><width>106</width><height>106</height><texture>special://skin/media/ui-album-ring.png</texture><colordiffuse>asterGreen</colordiffuse></control></focusedlayout>
+    <control type="panel" id="$PARAM[id]"><left>145</left><top>$PARAM[top]</top><width>1650</width><height>125</height><viewtype label="Books row">icon</viewtype><orientation>horizontal</orientation><scrolltime>180</scrolltime><preloaditems>2</preloaditems><onleft>8999</onleft><onright>300</onright><onup>$PARAM[up]</onup><ondown>$PARAM[down]</ondown><onclick>RunScript(special://skin/tools/books_data.py,home,open)</onclick>
+      <itemlayout width="220" height="125"><include>AsterBooksSmallTile</include></itemlayout>
+      <focusedlayout width="220" height="125"><include>AsterBooksSmallTile</include><control type="image"><left>4</left><top>2</top><width>90</width><height>90</height><texture>special://skin/media/ui-album-ring.png</texture><colordiffuse>asterGreen</colordiffuse></control></focusedlayout>
     </control>
   </include>
 </includes>
