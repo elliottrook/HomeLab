@@ -17,7 +17,9 @@ application state directory is root-owned mode 0700 and empty. Systemd
 verification and daemon reload succeeded. Both new watchdog units are
 **disabled and inactive**; the service has MainPID 0. The original full-stop
 controller and unit hashes/states are unchanged, and the whole-host lease is
-still `ready`.
+still `ready`. A separate systemd property read confirmed the loaded unit
+paths, no drop-ins, `RefuseManualStart=yes` on the service and no next timer
+elapse.
 
 Independent read-only postchecks found LXC104 Aster active, A1 sidecar inactive
 with no port 19104 listener, LXC110 llama.cpp active, and LXC116 Speech active.

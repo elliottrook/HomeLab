@@ -470,3 +470,11 @@ pins the host receipt and its provenance. This resolves the **disabled
 installation** gate only. A source-bound backup chain, trusted admission
 callback, temporary key/ingress controls, attended recovery drill and separate
 live benchmark approval remain open. No A1 model call was made.
+
+**Callback source review:** The platform receipt projector validates a
+root-owned host receipt's fields and deadline, but a cached receipt by itself
+does not prove that the lease, lock and watchdog are still active at the moment
+of each Mini call. Its expected lease ID/generation are parameters supplied by
+its caller. The platform owner has been asked to bind the authenticated
+Mini-to-host callback to fresh host lease state and add stale/revoked receipt
+denial tests. No current source-only receipt projection is live admission.
