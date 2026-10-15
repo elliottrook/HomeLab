@@ -111,8 +111,14 @@ class HubTests(unittest.TestCase):
             self.assertIn(f'ActivateWindow({short})', routes)
             window = ET.parse(ROOT / f'1080i/custom_{short}_{page}.xml')
             self.assertEqual(window.getroot().get('id'), str(short))
-            self.assertIsNotNone(window.find('.//control[@id="500"]'))
-            self.assertIsNotNone(window.find('.//include[@content="AsterNavigationRail"]'))
+            if page == 'music':
+                self.assertIsNotNone(window.find('.//include[@content="AsterMusicPage"]'))
+                music = ET.parse(ROOT / '1080i/IncludesMusic.xml')
+                self.assertIsNotNone(music.find('.//control[@id="500"]'))
+                self.assertIsNotNone(music.find('.//include[@content="AsterNavigationRail"]'))
+            else:
+                self.assertIsNotNone(window.find('.//control[@id="500"]'))
+                self.assertIsNotNone(window.find('.//include[@content="AsterNavigationRail"]'))
 
     def test_all_runtime_assets_exist(self):
         for path in (ROOT / '1080i').glob('*.xml'):

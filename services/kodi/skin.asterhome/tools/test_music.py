@@ -1,0 +1,85 @@
+"""Synthetic checks for Aster Music's local-library screens."""
+from pathlib import Path
+import unittest
+import xml.etree.ElementTree as ET
+
+from music_data import music_row, music_query, playlist_query, PAGES
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+class MusicTests(unittest.TestCase):
+    def test_five_music_windows_share_layout_and_indexed_sources(self):
+        layout = ET.parse(ROOT / '1080i/IncludesMusic.xml')
+        self.assertIsNotNone(layout.find('.//control[@id="500"]'))
+        self.assertIsNotNone(layout.find('.//control[@id="301"]'))
+        for page, identifier in PAGES.items():
+            source = ROOT / f'1080i/custom_{identifier - 10000}_{"music" if page == "home" else page}.xml'
+            root = ET.parse(source)
+            self.assertEqual(int(root.getroot().get('id')) + 10000, identifier)
+            self.assertEqual(root.find('.//param[@name="page"]').get('value'), page)
+
+    def test_queries_are_bounded_and_artist_filter_is_local(self):
+        calls = []
+
+        class FakeKodi:
+            def executeJSONRPC(self, payload):
+                import json
+                request = json.loads(payload)
+                calls.append(request)
+                return json.dumps({'result': {'albums': [], 'limits': {'total': 0}}})
+
+        rows, total = music_query(FakeKodi(), 'albums', '42')
+        self.assertEqual((rows, total), ([], 0))
+        self.assertEqual(calls[0]['params']['filter'], {'artistid': 42})
+        self.assertEqual(calls[0]['params']['limits']['end'], 500)
+        music_query(FakeKodi(), 'home')
+        self.assertEqual(calls[1]['method'], 'AudioLibrary.GetRecentlyAddedAlbums')
+        music_query(FakeKodi(), 'songs', query='Queen')
+        self.assertEqual(calls[2]['params']['filter'],
+                         {'or': [{'field': field, 'operator': 'contains', 'value': 'Queen'}
+                                 for field in ('title', 'artist', 'album')]})
+
+    def test_metadata_is_truthful(self):
+        album = music_row('albums', {'albumid': 7, 'label': 'Synthetic Album',
+                                     'artist': ['Example Artist'], 'year': 2024})
+        self.assertEqual(album['detail'], 'Example Artist · 2024')
+        self.assertEqual(album['id'], 7)
+        song = music_row('songs', {'songid': 9, 'label': 'Synthetic Song',
+                                   'artist': ['Example Artist'], 'album': 'Synthetic Album',
+                                   'duration': 185})
+        self.assertIn('3:05', song['summary'])
+        song['thumb'] = ''
+        self.assertEqual(song['fanart'], '')
+        with_art = music_row('songs', {'songid': 10, 'label': 'Synthetic Song',
+                                       'art': {'album.thumb': 'image://cover'}})
+        self.assertEqual(with_art['thumb'], 'image://cover')
+
+    def test_playlist_discovery_is_local_and_bounded(self):
+        class FakeVfs:
+            def listdir(self, path):
+                self.path = path
+                return [], ['Listen.m3u', 'Mix.xsp', 'cover.png', 'Jams.M3U8']
+
+        vfs = FakeVfs()
+        rows, total = playlist_query(vfs)
+        self.assertEqual(vfs.path, 'special://musicplaylists/')
+        self.assertEqual(total, 3)
+        self.assertEqual([row['label'] for row in rows], ['Jams', 'Listen', 'Mix'])
+        self.assertEqual(music_row('playlists', rows[0])['file'],
+                         'special://musicplaylists/Jams.M3U8')
+
+    def test_recent_is_landing_not_a_pill_and_music_tiles_are_square(self):
+        xml = (ROOT / '1080i/IncludesMusic.xml').read_text()
+        self.assertIn('value="home"', (ROOT / '1080i/custom_1113_music.xml').read_text())
+        self.assertNotIn('<label>Recently Added</label>', xml)
+        for name in ('Albums', 'Artists', 'Songs', 'Playlists'):
+            self.assertIn(f'<label>{name}</label>', xml)
+        self.assertNotIn('$INFO[Container(500).ListItem.Art(thumb)]', xml)
+        self.assertIn('AsterMusic.HasArt', xml)
+        self.assertIn('ui-hero-bottom-fade.png', xml)
+
+
+if __name__ == '__main__':
+    unittest.main()

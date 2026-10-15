@@ -788,6 +788,28 @@ acceptance remains open. This does not change LibreELEC's earlier OS boot
 screen or establish physical-device acceptance. Remove only the profile
 override to revert; the bundled Kodi image was not overwritten.
 
+Music visual milestone, 2026-10-15 (skin v0.7.1): replaced the old vertical
+Music list with a recent-albums tile landing and Album, Artist, Song and saved
+Playlist browse pages. The five pages share a full-width fanart hero fading to
+stone, approved music branding and square album tiles. Recently Added is the
+Music landing, not a pill; Albums, Artists, Songs and Playlists form the pill
+row. Selected art remains in the tile lane, with details over the hero. Browse
+pages put search at the right. Album/artist/song search uses Kodi's full local
+music index and shows at most 500 matches; saved playlists come from
+`special://musicplaylists/`, with no fabricated examples. Missing covers use
+approved square icons. Mac runtime checks saw 25 recently added albums, 1,295
+albums, 1,122 artists and 16,454 songs; searching songs for Queen returned 161
+matches from the full index, including beyond the initial 500-song page.
+Playback is only on explicit selection. The final Mac redeployment and Kodi
+restart confirmed the Music landing, Artists and Playlists layouts, the
+approved square missing-art icon, the right-side search cluster, and the
+honest empty-playlist state with no Play action. A selected artist opened its
+filtered Albums page. Offline XML/metadata/query tests pass. Album, song and
+saved-playlist playback have not been exercised in this revision, and no saved
+playlists exist in the Mac profile. This is not LibreELEC/TV acceptance or a
+new music service.
+Rollback is the prior committed add-on revision and a Mac Kodi restart.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="1115" type="window">
+  <defaultcontrol always="true">500</defaultcontrol>
+  <onload>RunScript(special://skin/tools/music_data.py,artists)</onload>
+  <backgroundcolor>asterStone</backgroundcolor>
+  <controls>
+    <include content="AsterMusicPage">
+      <param name="page" value="artists" />
+      <param name="gridleft" value="145" />
+      <param name="gridwidth" value="1370" />
+      <param name="searchvisible" value="true" />
+      <param name="heading" value="Artists" />
+      <param name="actionlabel" value="▶  View albums" />
+      <param name="righttarget" value="301" />
+      <param name="activeleft" value="714" />
+      <param name="activevisible" value="true" />
+      <param name="searchhint" value="Searches Kodi's full index[CR]Shows first 500 matches" />
+    </include>
+  </controls>
+</window>

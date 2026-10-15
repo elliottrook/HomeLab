@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="1117" type="window">
+  <defaultcontrol always="true">500</defaultcontrol>
+  <onload>RunScript(special://skin/tools/music_data.py,playlists)</onload>
+  <backgroundcolor>asterStone</backgroundcolor>
+  <controls>
+    <include content="AsterMusicPage">
+      <param name="page" value="playlists" />
+      <param name="gridleft" value="145" />
+      <param name="gridwidth" value="1370" />
+      <param name="searchvisible" value="true" />
+      <param name="heading" value="Playlists" />
+      <param name="actionlabel" value="▶  Play playlist" />
+      <param name="righttarget" value="301" />
+      <param name="activeleft" value="1322" />
+      <param name="activevisible" value="true" />
+      <param name="searchhint" value="Saved Kodi music playlists[CR]Create playlists in Kodi" />
+    </include>
+  </controls>
+</window>

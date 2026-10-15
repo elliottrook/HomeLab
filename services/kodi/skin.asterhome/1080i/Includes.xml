@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <includes>
     <include file="IncludesHub.xml" />
+    <include file="IncludesMusic.xml" />
     <variable name="AsterGenreFilterLabel">
         <value condition="String.Contains(Container.FolderPath,skin.asterhome/filters/) + !String.IsEmpty(Window(10025).Property(AsterFilterGenre))">$INFO[Window(10025).Property(AsterFilterGenre),Genre: ]</value>
         <value>Genre…</value>

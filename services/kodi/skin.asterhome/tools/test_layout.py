@@ -62,9 +62,9 @@ class LayoutTests(unittest.TestCase):
                            ('DialogVideoInfo.xml', '27-aster-media-logo'),
                            ('custom_1110_books.xml', '28-aster-books-logo'),
                            ('custom_1111_digest.xml', '30-aster-news-logo'),
-                           ('custom_1113_music.xml', '29-aster-music-logo')):
+                           ('IncludesMusic.xml', '29-aster-music-logo')):
             self.assertIn(f'{mark}.png', (ROOT / '1080i' / page).read_text(), page)
-        music = (ROOT / '1080i/custom_1113_music.xml').read_text()
+        music = (ROOT / '1080i/IncludesMusic.xml').read_text()
         self.assertIn('23-music-album.png', music)
 
     def test_poster_masks_are_native_size(self):
@@ -114,7 +114,7 @@ class LayoutTests(unittest.TestCase):
     def test_clocks_use_24_hour_label_without_stone(self):
         for name in ('Home.xml', 'custom_1110_books.xml',
                      'custom_1111_digest.xml', 'custom_1112_home.xml',
-                     'custom_1113_music.xml'):
+                     'IncludesMusic.xml'):
             root = ET.parse(ROOT / '1080i' / name)
             labels = [control for control in root.findall('.//control')
                       if control.findtext('label') == '$INFO[System.Time(HH:mm)]']

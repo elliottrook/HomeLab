@@ -1,5 +1,21 @@
 # Aster Home Kodi skin prototype
 
+Version 0.7.1 builds Aster Music into five linked screens: the Recently Added
+landing, then Albums, Artists, Songs and Playlists. The four icon-led pills
+open the browse screens; Recently Added is reached from the Music launcher.
+The pages share the media shell's full-width selected fanart blending into the
+stone lower surface, rounded square cover tiles with labels beneath, and a
+right-side search panel on browse screens. Selected artwork stays in the tile
+lane, not a duplicate hero cover. Missing covers use the approved square music
+icons centered on an ivory tile. Artwork and metadata come from Kodi's indexed
+music library. Saved playlists are read from `special://musicplaylists/` (not
+the transient now-playing queue); the page states clearly when there are none.
+Selecting an artist opens its albums; selecting an album, song or saved playlist
+explicitly starts playback. Search uses Kodi's indexed album/artist/song filters
+across the full local library and shows the first 500 matches; the recently-added
+landing shows up to 50 albums. Playlist search filters saved playlist names.
+No background playback, media-file write or new credential is introduced.
+
 ## Kodi startup splash (Mac test profile)
 
 Kodi's startup image is separate from the skin. The 1920 × 1080

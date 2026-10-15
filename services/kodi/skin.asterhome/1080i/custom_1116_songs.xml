@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="1116" type="window">
+  <defaultcontrol always="true">500</defaultcontrol>
+  <onload>RunScript(special://skin/tools/music_data.py,songs)</onload>
+  <backgroundcolor>asterStone</backgroundcolor>
+  <controls>
+    <include content="AsterMusicPage">
+      <param name="page" value="songs" />
+      <param name="gridleft" value="145" />
+      <param name="gridwidth" value="1370" />
+      <param name="searchvisible" value="true" />
+      <param name="heading" value="Songs" />
+      <param name="actionlabel" value="▶  Play song" />
+      <param name="righttarget" value="301" />
+      <param name="activeleft" value="1018" />
+      <param name="activevisible" value="true" />
+      <param name="searchhint" value="Searches Kodi's full index[CR]Shows first 500 matches" />
+    </include>
+  </controls>
+</window>
