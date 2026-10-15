@@ -436,3 +436,13 @@ pending a separately reviewed application lease, independent recovery,
 source-bound backup/consumer receipts, test-only auth/ingress and positive and
 negative isolation probes. The 03:15 full-stop drill cannot supply the A1
 application lease because it stops the accepted B60 backend.
+
+**Mini runner endpoint closure:** The frozen A1 Mini runner now refuses any
+endpoint other than `http://192.168.70.10:19104/v1/chat/completions` before
+reading cases or asking for admission. Its external authenticated callback
+must attest both the pinned profile SHA-256 and that exact endpoint before
+the batch and again before every possible model call. Runner SHA-256 is
+`be7496e44c501ced5970e136b179e71866fe632a0cd72975733a7c843d2debb6`;
+43 focused offline A1 tests pass. This closes a wrong-local-service request
+path in the Mini caller; the platform still has to supply and verify the
+source-bound live callback. No host or model call was made by this change.
