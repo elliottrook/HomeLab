@@ -48,6 +48,8 @@ files and verify the hashes before enabling the disabled unit:
 | `application_receipt_boundary.py` | `scripts/local-ai/application_receipt_boundary.py` | `12f3add5603a7f3a97cc98ee0d480936b940e2134734ec7bc1892b8fdda62b16` |
 | `application-b60-watchdog.service` | `services/local-ai-lease/application-b60-watchdog.service` | `f7434db1f18afa4418f1217801152e35a2ae24388c20e04e47e3db8c3288cec7` |
 | `application-b60-watchdog.timer` | `services/local-ai-lease/application-b60-watchdog.timer` | `3e0be0830d60e586e53a1c3035abef7df802ecd156214ddc558f60677111d45a` |
+| `application_b60_lease_recovery.py` | `scripts/local-ai/application_b60_lease_recovery.py` | `648831222602d872ed75dd0633224478f0dfde920a2c6a7869c41a30da1eb70b` |
+| `application-b60-lease-recovery` | `services/local-ai-lease/application-b60-lease-recovery` | `309774dca1f0b5b37a9159b00fe6eed7b46f123f866c98e5d996e2c9fdc46499` |
 | Mini capture bridge `a1_full_path_capture.py` | Stream A `scripts/aster-adaptive/a1_full_path_capture.py` at `decfa81a` | `7141dd938b9a9994523e1eea2ac8078bbd93639ee2459c89dae0589651556157` |
 | `aster-agent/` | exact reviewed Aster source/dependency bundle | host preflight required |
 
@@ -181,4 +183,10 @@ observed empty `inet filter input` baseline, add one tagged drop rule for
 non-`192.168.70.10` sources to TCP 11435, and restore by deleting only that
 tagged handle. They never replace a complete nftables ruleset. Their focused
 parser tests are in `scripts/local-ai/test_a1_ingress_policy.py`.
+
+The disabled timer's runner is `application_b60_lease_recovery.py`. It derives
+lease identity and deadlines from persisted state, uses only fixed `pct`
+commands and read-only probes, supports an effect-free `--dry-run`, and writes
+the content-free recovery receipt only after candidate source checks and all
+watchdog postchecks pass. Its CLI fixture tests must pass before installation.
 

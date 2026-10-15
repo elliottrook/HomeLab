@@ -36,8 +36,8 @@ class RecoveryObservation:
 def fixed_command(kind: str) -> tuple[str, ...]:
     commands = {
         "stop-sidecar": ("pct", "exec", "104", "--", "systemctl", "stop", "aster-a1-test.service"),
-        "restore-ingress": ("pct", "exec", "110", "--", "/usr/local/sbin/aster-llama-ingress-restore", "--checkpoint", INGRESS_CHECKPOINT),
-        "remove-test-key": ("pct", "exec", "110", "--", "/usr/local/sbin/aster-llama-test-key-remove", "--checkpoint", KEY_CHECKPOINT),
+        "restore-ingress": ("pct", "exec", "110", "--", "/usr/local/sbin/aster-llama-ingress-restore"),
+        "remove-test-key": ("pct", "exec", "110", "--", "/usr/local/sbin/aster-llama-test-key-remove"),
         "reload-backend": ("pct", "exec", "110", "--", "systemctl", "restart", "aster-llama.service"),
         "start-aster": ("pct", "exec", "104", "--", "systemctl", "start", "aster-agent.service"),
         "start-speech": ("pct", "exec", "116", "--", "systemctl", "start", "aster-speech.service"),

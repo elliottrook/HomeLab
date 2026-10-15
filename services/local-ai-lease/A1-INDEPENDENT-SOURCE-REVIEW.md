@@ -56,6 +56,10 @@ change was performed.
   requires exclusive backend, IPv4-only listener, watchdog deadline and the
   complete sidecar observation. A disabled application watchdog timer is
   present, but its effectful host runner is not installed.
+- The fixed recovery CLI now exists offline with a no-effect dry-run fixture;
+  it derives identity/deadlines from persisted state, performs candidate source
+  checks before effects, and emits only a content-free recovery receipt after
+  postchecks. It has not been installed or enabled.
 
 ## Remaining gates before live approval
 
