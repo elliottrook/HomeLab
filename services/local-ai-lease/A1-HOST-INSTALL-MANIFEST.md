@@ -40,7 +40,7 @@ files and verify the hashes before enabling the disabled unit:
 
 | Destination under `/opt/aster-a1-test` | Source at pinned commit | SHA-256 |
 |---|---|---|
-| `a1_isolated_app.py` | `scripts/aster-adaptive/a1_isolated_app.py` | `984269e0ae2e30a3e71f07471d0d203236cdcff9facd313adeb1b82892dc85b5` |
+| `a1_isolated_app.py` | `scripts/aster-adaptive/a1_isolated_app.py` | `b634b0518f018befc88f57697b55ad1ef1011fc107c1088bd90158656c53fed4` |
 | `a1_test_gateway.py` | `scripts/aster-adaptive/a1_test_gateway.py` | `e2e1150a76fd6e61c47da1a6c6f3ce229905a454476c756c49d6a83c9d10aaae` |
 | `aster_asgi_clock.py` | `scripts/aster-adaptive/aster_asgi_clock.py` | `e7f8240fc38a62772ac2d7e4e9461ee8f3be21580885d9dfc0cab40fe1919305` |
 | `a1_headless_client.py` | `scripts/aster-adaptive/a1_headless_client.py` | `3d9c84735a7338860648215467996ff0f820aff8778acd7f7f42d6325dad6494` |

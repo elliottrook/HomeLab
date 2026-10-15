@@ -12,6 +12,8 @@ import json
 import os
 import re
 import stat
+import sys
+from contextlib import contextmanager
 from pathlib import Path
 
 from a1_test_gateway import A1TestGateway, DurableAttemptJournal, inside_git
@@ -61,6 +63,31 @@ def _credential_environment(env: dict[str, str]) -> dict[str, str]:
     result = dict(env)
     result.update(loaded)
     return result
+
+
+@contextmanager
+def _scoped_aster_environment(env: dict[str, str]):
+    """Expose only validated A1 settings while importing env-bound Aster code."""
+    names = {name for name in os.environ if name.startswith("ASTER_")}
+    original = {name: os.environ[name] for name in names}
+    try:
+        for name in names:
+            del os.environ[name]
+        for name, value in env.items():
+            if name.startswith("ASTER_"):
+                os.environ[name] = value
+        yield
+    finally:
+        for name in tuple(name for name in os.environ if name.startswith("ASTER_")):
+            del os.environ[name]
+        os.environ.update(original)
+
+
+def _load_aster(env: dict[str, str]):
+    if "aster_agent" in sys.modules:
+        raise ValueError("Aster module was imported before isolated credentials were bound")
+    with _scoped_aster_environment(env):
+        return importlib.import_module("aster_agent").app
 
 
 class DurableClockSink:
@@ -168,7 +195,7 @@ def create_app(*, config_path: Path | None = None, env: dict[str, str] | None = 
     clock_directory = Path(payload["clock_dir"])
     sink = DurableClockSink(clock_directory, uid=uid)
     try:
-        loader = app_loader or (lambda: importlib.import_module("aster_agent").app)
+        loader = app_loader or (lambda: _load_aster(env))
         aster = loader()
         return A1TestGateway(
             ASGIResponseClock(aster, sink),

@@ -7,6 +7,8 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).parent))
 from a1_isolated_app import create_app
@@ -121,6 +123,24 @@ class IsolatedAppTests(unittest.TestCase):
         self.assertTrue(inside_git(Path(__file__)))
         self.assertFalse(inside_git(self.root))
         self.build()
+
+    def test_default_loader_binds_only_validated_a1_environment(self):
+        observed = {}
+
+        def import_bound(name):
+            observed.update({key: os.environ.get(key) for key in (
+                "ASTER_API_KEY", "ASTER_LLAMA_API_KEY", "ASTER_LLAMA_BASE_URL",
+                "ASTER_MAX_TOOL_ROUNDS", "ASTER_OPENBAO_URL")})
+            return SimpleNamespace(app=self.fake_app)
+
+        with patch.dict(os.environ, {"ASTER_API_KEY": "production-inherited-secret"}, clear=False), \
+             patch("a1_isolated_app.importlib.import_module", side_effect=import_bound):
+            create_app(config_path=self.config, env=self.env, uid=os.getuid())
+        self.assertEqual(observed["ASTER_API_KEY"], INNER)
+        self.assertEqual(observed["ASTER_LLAMA_API_KEY"], "fictional-isolated-backend-key")
+        self.assertEqual(observed["ASTER_LLAMA_BASE_URL"], "http://192.168.70.12:11435/v1")
+        self.assertEqual(observed["ASTER_MAX_TOOL_ROUNDS"], "0")
+        self.assertEqual(observed["ASTER_OPENBAO_URL"], "http://127.0.0.1:1")
 
 
 if __name__ == "__main__":
