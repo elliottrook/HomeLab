@@ -1,5 +1,21 @@
 # Aster Home Kodi skin prototype
 
+## Kodi startup splash (Mac test profile)
+
+Kodi's startup image is separate from the skin. The 1920 × 1080
+`branding/splash.png` places the unmodified, approved Aster Home logo export
+on a solid dark-green background. It was generated from the checksum-verified
+`aster-version-2-family-candidate.zip` with
+`python3 tools/build_startup_splash.py ARCHIVE branding/splash.png`
+(Pillow required). The original logo is not redrawn or bundled separately.
+
+For the disposable Mac Kodi profile, install the file as
+`~/Library/Application Support/Kodi/media/splash.png` and restart Kodi. Check
+for an existing `splash.jpg` first: Kodi prefers that filename over
+`splash.png`. The Kodi app bundle and its bundled splash remain unchanged;
+removing only this profile override restores the bundled startup image.
+LibreELEC's earlier OS bootsplash is separate and is not changed by this file.
+
 Version 0.6.9 imports twelve right-sized PNG exports from the owner-approved
 private `aster-brand-v2-expansion-2026-10-14` release. The release ZIP SHA-256
 is `e030b6104fbdffb44faf035471f8c55320c3869065046a1ff5f9f0433069c48e`;

@@ -777,6 +777,17 @@ page; no LibreELEC endpoint test, new integration, Forgejo push or release
 promotion occurred. Previous 0.6.8 markup and exports remain recoverable in
 Git; the disposable Mac add-on can be restored from that revision.
 
+Kodi startup branding, 2026-10-15: Jason requested that the Kodi startup logo
+be replaced with Aster Home. A separate 1920 × 1080 profile-level splash was
+generated from the SHA-verified original-family 1254px Aster Home PNG, without
+redrawing the logo or altering the Kodi application bundle. The Mac profile
+had no existing splash override; `media/splash.png` was installed there and
+Kodi was restarted. The profile file matches the versioned asset. Startup was
+too fast to capture the transient splash in the UI check, so live visual
+acceptance remains open. This does not change LibreELEC's earlier OS boot
+screen or establish physical-device acceptance. Remove only the profile
+override to revert; the bundled Kodi image was not overwritten.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
