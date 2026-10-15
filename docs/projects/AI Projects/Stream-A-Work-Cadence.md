@@ -1,6 +1,6 @@
 # Stream A work cadence
 
-> Owner: Jason. Status: continuous lane active; no exclusive benchmark launcher admitted. A separate 03:40 read-only recovery check is active. This schedules work; it does not promote a model, deploy a service, grant a tool, or waive an approval gate.
+> Owner: Jason. Status: continuous lane active; no exclusive benchmark launcher admitted. The one-time October 15 read-only checks are complete and paused. This cadence does not promote a model, deploy a service, grant a tool, or waive an approval gate.
 
 Stream A has two work lanes. **Continuous lane:** documentation, code and fixture review, local tests, evidence reconciliation, read-only LAN/health checks and low-impact shared-service observation run whenever useful, including between lab windows. Continue this lane when an exclusive run is blocked. During an active whole-host lab lease, keep this lane offline and do not compete with maintenance. Companion session and Keychain behavior remain quiet reliability monitoring under the [D3 gate reassessment](evidence/D3-refresh-gate-reassessment-2026-10-12.md), not a reason to hold other Stream A work. A signed-in request after time has passed may support renewal, but sign-out/re-sign-in is not refresh evidence. Check only content-free observations; do not manufacture expiry or send repeated Codex questions.
 
@@ -37,8 +37,10 @@ record](evidence/A1-2026-10-15-read-only-preflight.md) found successful
 scheduled backups and matching A1 subset data, but no complete current-cycle
 archive integrity result, no trusted retained receipt and no live A1 admission.
 Full-stop and A1 remain NO-GO this cycle. The separate 03:40 read-only
-postcheck stays active for one run. Do not reactivate either completed
-one-time preflight merely because the next daily clock boundary arrives.
+postcheck [ran once](evidence/A1-2026-10-15-post-window-recovery-check.md),
+found no full-stop drill or restoration evidence, and is now paused too.
+Do not reactivate these completed one-time checks merely because the next
+daily clock boundary arrives.
 
 **Current-state guard, reconciled 2026-10-12:** the platform owner's current,
 uncommitted `docs/projects/Local-AI-Platform-Split.md` record in the main
@@ -49,8 +51,8 @@ This does not prove a later backup chain completed. The platform record also
 reports one successful manually acquired and released **light** lease; the
 controller remains disabled by default and unscheduled. Stream A has not
 obtained a current lease receipt. The News 06:15 move and 04:15–06:15 analysis workload
-remain proposed. The 03:40 recovery-check automation is active for a read-only
-inspection; it performs no model test.
+remain proposed. The 03:40 recovery-check automation performed a read-only
+inspection on October 15, made no model call, and is now paused.
 Before any exclusive test, recheck the actual schedules, completed backup
 chain, active lease/owner, scope of drain and restoration deadline. A clock
 time, a prior light-lease success or earlier broad lab access alone does not
@@ -90,10 +92,10 @@ answer capture and bounded diagnostic evidence while those gates remain open.
 
 No exclusive benchmark automation is admitted until the platform owner proves
 the shared lease, independent recovery and benchmark admission and Jason
-approves a bounded live card. The separate 03:40 recovery check only inspects
-actual state and should pause after its first run. The continuous-lane automation remains
+approves a bounded live card. The separate 03:40 recovery check inspected
+actual state once and was paused. The continuous-lane automation remains
 active every four hours, works without exclusive B60/host access and stays
-quiet on unchanged session state. Both belong to this chat and worktree; a
+quiet on unchanged session state. Both lanes belong to this chat and worktree; a
 remote push follows the repository's per-push rule except Jason's narrow
 standing authorization for branch commits whose purpose is coordination with
 the MacBook B60 agent.

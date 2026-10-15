@@ -14,16 +14,19 @@ cold archive check passed LXC104, but the interrupted LXC110 scan has no
 recoverable final exit status and LXC116 was not scanned. No installed
 current-cycle retained integrity receipt or verified compatible full-stop
 acquisition path was found. The [content-free preflight record](evidence/A1-2026-10-15-read-only-preflight.md)
-therefore marks both full-stop and A1 **NO-GO for this cycle**. The 01:10 and
-03:05 one-time heartbeats are paused; the 03:40 read-only postcheck remains
-active. This is a hard evidence gate, not a request for more lab time.
+therefore marks both full-stop and A1 **NO-GO for this cycle**. The
+[03:40 post-window check](evidence/A1-2026-10-15-post-window-recovery-check.md)
+then found no drill, unchanged active production services and pinned SYCL
+artifacts, but still no compatible installed acquisition or trusted integrity
+receipt. All three one-time checks are now paused. This is a hard evidence
+gate, not a request for more lab time.
 
 The [Stream A work cadence](Stream-A-Work-Cadence.md) separates continuous
 offline/shared work from exclusive lab tests. The proposed 03:15 Vancouver
-platform drill on 2026-10-15 is **not verified as scheduled** and would be a
+platform drill on 2026-10-15 was **not verified as scheduled** and would be a
 full-stop recovery drill only; its lease stops B60 inference and cannot run
-the full Aster-path benchmark. The current Stream A automation is instead an
-active 03:40 read-only post-drill recovery check, not a test launcher.
+the full Aster-path benchmark. The Stream A 03:40 automation was a read-only
+post-window recovery check, not a test launcher; it ran once and is paused.
 Continuous Stream A work remains active, and the A1 benchmark needs its
 separate application-only lease and sidecar admission.
 An [October 14 installed-path audit](evidence/Full-stop-lease-schema-mismatch-2026-10-14.md)
