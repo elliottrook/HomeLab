@@ -19,7 +19,7 @@ shell wrappers are mode 0755; service/timer files are mode 0644.
 | Proxmox | `/usr/local/libexec/aster-a1/application_receipt_boundary.py` | `1b61d3cc5fdbf3bae538a4a49864a57cca2c360fec37d2408e70a8f1e95ca0da` |
 | Proxmox | `/usr/local/libexec/aster-a1/application_b60_lease_heartbeat.py` | `8b77bb099ed78293d3c779b225ea347a686587388b2ffcbaba7a435e61da63ca` |
 | Proxmox | `/usr/local/libexec/aster-a1/application_admission_cli.py` | `3702f50d8425227d435fbfe6044622d1fcca5c78c93bfdbe1047e29f32e0e655` |
-| Proxmox | `/usr/local/libexec/aster-a1/application_b60_drill_entrypoint.py` | `5eb774f4f5eb7f09e8cefcb30d9eff95bc0f4c1da89d6d113d54b89a2f0a5eb2` |
+| Proxmox | `/usr/local/libexec/aster-a1/application_b60_drill_entrypoint.py` | `f1b54b1f6a30f47481c17622c34d96055590f62a7aba06f3d823144aa4733c72` |
 | Proxmox | `/usr/local/libexec/aster-a1/lease_effect_runner.py` | `e4fb2f9657534d83b3581e82ee52c6ee3aeecf613df54c3f6f4916b8d34d84f5` |
 | Proxmox | `/usr/local/sbin/application-b60-lease-recovery` | `309774dca1f0b5b37a9159b00fe6eed7b46f123f866c98e5d996e2c9fdc46499` |
 | Proxmox | `/usr/local/sbin/application-b60-heartbeat` | `867f17d5472e7fa62e1ade7159ad08918438aa669272cb90871f5779ce53849b` |

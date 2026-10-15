@@ -89,6 +89,8 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--lease-id")
     parser.add_argument("--generation", type=int)
     args = parser.parse_args(argv)
+    if args.state_dir != STATE_DIR:
+        raise SystemExit("state directory is fixed")
     if args.phase == "plan":
         print(json.dumps({"state": "plan-only", "commands": [
             "preflight", "acquire", "mark-effect key/ingress intent+observed",

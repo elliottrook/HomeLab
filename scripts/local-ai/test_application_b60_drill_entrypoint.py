@@ -18,6 +18,10 @@ class ApplicationDrillEntrypointTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             main(["--help", "--command", "sh"])
 
+    def test_lease_state_directory_is_fixed(self):
+        with self.assertRaisesRegex(SystemExit, "state directory is fixed"):
+            main(["--phase", "plan", "--state-dir", "/tmp/other"])
+
 
 if __name__ == "__main__":
     unittest.main()
