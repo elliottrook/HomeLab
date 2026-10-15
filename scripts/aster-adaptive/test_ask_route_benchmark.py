@@ -29,6 +29,14 @@ class AskRouteBenchmarkTests(unittest.TestCase):
         self.assertEqual(result["by_family"]["calendar"]["exact"], 0)
         self.assertEqual(result["by_family"]["mixed"]["exact"], 0)
         self.assertEqual(result["by_family"]["private"]["exact"], 0)
+        self.assertEqual(result["request_latency_p95_seconds"], 0.708)
+
+    def test_p95_uses_nearest_rank_on_small_samples(self):
+        self.assertEqual(bench.percentile(list(range(1, 31)), .95), 29)
+        self.assertEqual(bench.percentile(list(range(1, 21)), .95), 19)
+        self.assertEqual(bench.percentile([7], .95), 7)
+        with self.assertRaises(ValueError):
+            bench.percentile([7], 0)
 
     def test_changed_result_digest_is_rejected(self):
         changed = self.run_bytes.replace(b'"exact_match": 18', b'"exact_match": 19')

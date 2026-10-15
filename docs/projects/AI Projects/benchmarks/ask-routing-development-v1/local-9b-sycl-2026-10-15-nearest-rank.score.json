@@ -1,0 +1,206 @@
+{
+  "attempted": 30,
+  "backend_class": "local_model",
+  "backend_id": "local-qwen3.5-9b-llama-sycl-2026-10-12",
+  "by_family": {
+    "ambiguous": {
+      "cases": 3,
+      "exact": 3,
+      "valid": 3
+    },
+    "calendar": {
+      "cases": 3,
+      "exact": 0,
+      "valid": 3
+    },
+    "fact": {
+      "cases": 3,
+      "exact": 3,
+      "valid": 3
+    },
+    "ha": {
+      "cases": 3,
+      "exact": 2,
+      "valid": 3
+    },
+    "media": {
+      "cases": 3,
+      "exact": 2,
+      "valid": 3
+    },
+    "mixed": {
+      "cases": 3,
+      "exact": 0,
+      "valid": 3
+    },
+    "private": {
+      "cases": 3,
+      "exact": 0,
+      "valid": 3
+    },
+    "sysadmin": {
+      "cases": 3,
+      "exact": 2,
+      "valid": 3
+    },
+    "timer": {
+      "cases": 3,
+      "exact": 3,
+      "valid": 3
+    },
+    "web": {
+      "cases": 3,
+      "exact": 3,
+      "valid": 3
+    }
+  },
+  "cases_with_extra_capabilities": 0,
+  "cases_with_missing_capabilities": 12,
+  "disagreements": [
+    {
+      "expected_status": "plan",
+      "extra": [],
+      "id": "ha-test",
+      "kind": "route_disagreement",
+      "missing": [
+        "home"
+      ],
+      "observed_status": "abstain"
+    },
+    {
+      "expected_status": "plan",
+      "extra": [],
+      "id": "media-test",
+      "kind": "route_disagreement",
+      "missing": [
+        "media"
+      ],
+      "observed_status": "clarify"
+    },
+    {
+      "expected_status": "plan",
+      "extra": [],
+      "id": "calendar-train",
+      "kind": "route_disagreement",
+      "missing": [
+        "calendar"
+      ],
+      "observed_status": "clarify"
+    },
+    {
+      "expected_status": "plan",
+      "extra": [],
+      "id": "calendar-cal",
+      "kind": "route_disagreement",
+      "missing": [
+        "calendar"
+      ],
+      "observed_status": "clarify"
+    },
+    {
+      "expected_status": "plan",
+      "extra": [],
+      "id": "calendar-test",
+      "kind": "route_disagreement",
+      "missing": [
+        "calendar"
+      ],
+      "observed_status": "clarify"
+    },
+    {
+      "expected_status": "plan",
+      "extra": [],
+      "id": "mixed-train",
+      "kind": "route_disagreement",
+      "missing": [
+        "calendar",
+        "local_join",
+        "web"
+      ],
+      "observed_status": "clarify"
+    },
+    {
+      "expected_status": "plan",
+      "extra": [],
+      "id": "mixed-cal",
+      "kind": "route_disagreement",
+      "missing": [
+        "calendar",
+        "local_join",
+        "web"
+      ],
+      "observed_status": "clarify"
+    },
+    {
+      "expected_status": "plan",
+      "extra": [],
+      "id": "mixed-test",
+      "kind": "route_disagreement",
+      "missing": [
+        "calendar",
+        "local_join",
+        "web"
+      ],
+      "observed_status": "clarify"
+    },
+    {
+      "expected_status": "plan",
+      "extra": [],
+      "id": "sysadmin-test",
+      "kind": "route_disagreement",
+      "missing": [
+        "lab_read"
+      ],
+      "observed_status": "clarify"
+    },
+    {
+      "expected_status": "plan",
+      "extra": [],
+      "id": "private-train",
+      "kind": "route_disagreement",
+      "missing": [
+        "private_context"
+      ],
+      "observed_status": "clarify"
+    },
+    {
+      "expected_status": "plan",
+      "extra": [],
+      "id": "private-cal",
+      "kind": "route_disagreement",
+      "missing": [
+        "private_context"
+      ],
+      "observed_status": "clarify"
+    },
+    {
+      "expected_status": "plan",
+      "extra": [],
+      "id": "private-test",
+      "kind": "route_disagreement",
+      "missing": [
+        "private_context"
+      ],
+      "observed_status": "clarify"
+    }
+  ],
+  "evaluator_sha256": "2d33083ab53dee59410a492ac101e964fc0d6925518ea60653a1bf7100fde5e3",
+  "evidence_class": "synthetic-development-regression",
+  "exact_agreement": 18,
+  "fixture_sha256": "c797533494119e44c9c927d5b9b274ccd6426cacd50ca7cd93391861c0663cec",
+  "limits": [
+    "exposed synthetic development cases, not an independent quality estimate",
+    "no tool execution, authority or calibrated confidence",
+    "request latency excludes full household assistant path"
+  ],
+  "request_latency_p50_seconds": 0.634,
+  "request_latency_p95_seconds": 0.708,
+  "run_sha256": "20d75242c9057008eeaa99ca2749eb17845334424debbe6cc65673c8ddf47303",
+  "schema": "aster-ask-route-score.v1",
+  "status_agreement": 18,
+  "suite_id": "ask-routing-development-v1",
+  "total_cases": 30,
+  "unnecessary_abstain": 1,
+  "unnecessary_clarify": 11,
+  "valid": 30
+}

@@ -24,7 +24,9 @@ def sha256(raw: bytes) -> str:
 def percentile(values: list[float], fraction: float) -> float | None:
     if not values:
         return None
-    return round(sorted(values)[int(fraction * (len(values) - 1))], 3)
+    if not 0 < fraction <= 1:
+        raise ValueError("percentile fraction must be in (0, 1]")
+    return round(sorted(values)[math.ceil(fraction * len(values)) - 1], 3)
 
 
 def score(fixture_raw: bytes, run_raw: bytes, manifest: dict) -> dict:

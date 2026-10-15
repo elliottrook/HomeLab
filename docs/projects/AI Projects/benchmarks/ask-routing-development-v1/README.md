@@ -32,6 +32,17 @@ The scorer ignores a runner's claimed matches when deriving the result and
 rejects disagreement, changed input digests, duplicate/missing identities,
 unregistered capabilities and unexpected raw-text fields. No new dependency
 or service is required.
+
+**2026-10-15 percentile correction:** The original scorer selected index
+`floor(0.95 × (n − 1))`, which is not the nearest-rank p95 used by the A1
+client-clock summary. With 30 requests, it selected the 28th ordered sample
+rather than the 29th. The frozen 9B/SYCL raw run is unchanged; its corrected
+nearest-rank request p95 is **0.708 s**, versus the originally published
+**0.705 s**. The rule baseline remains rounded to **0.0 s**. The new
+[9B score](local-9b-sycl-2026-10-15-nearest-rank.score.json) and
+[rule score](rules-macos-2026-10-15-nearest-rank.score.json) retain the original
+scores alongside them. Exact route agreement stays 18/30 and 30/30
+respectively; the qualification decision remains unchanged.
 The 2026-10-13 offline scorer check also rejects a record marked valid while
 it carries a transport failure, error code or non-success HTTP status; HTTP
 and error fields must have bounded code shapes. The retained local 9B and
