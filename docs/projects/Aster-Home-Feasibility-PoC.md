@@ -594,6 +594,27 @@ does not provide live room/device values. A protected, recoverable publisher
 and reviewed HA state contract are still required before either feed becomes
 an unattended or production feature. No remote Git operation occurred.
 
+### M3c Home Assistant read-only inventory gate — 2026-10-14
+
+With VM 103 running, a direct read-only Proxmox guest-agent query inspected
+only the entity IDs in Home Assistant's local registry. It counted 33 light,
+22 switch, 115 sensor and 20 binary-sensor entries. Of the sensor IDs, three
+contained `temperature`: hall, Jason's closet, and outside. None of the
+sensor/binary-sensor IDs contained `humidity`, `air_quality`, `co2` or `aqi`.
+This is an ID/name inventory, not a live state or hardware capability audit;
+no entity values, secrets or full registry document were read into this task.
+The existing exporter accepts light/switch, timer and media-player aliases
+only; extending it to comfort readings needs a separate reviewed contract.
+
+Proposed next pilot: an exact owner-reviewed allowlist of a few household
+lights and, if desired, the hall and outside temperature sensors. Export only
+sanitized aliases and bounded read-only values with a short validity window;
+keep control and security/air-quality cards disabled. Before any VM 103 write,
+take a recovery checkpoint, confirm current guest version/backup health,
+review the exact allowlist and exporter code, then validate HA configuration
+and rollback. Deployment and any data-delivery path need explicit
+authorization; this inventory check granted neither.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
