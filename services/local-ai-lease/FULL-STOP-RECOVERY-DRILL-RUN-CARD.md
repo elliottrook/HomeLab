@@ -25,18 +25,20 @@ approval immediately before the drill.
 
 - 00:30 Proxmox backup, 01:00 guest pull, 02:00 LXC110 mirror, 03:00 Mac
   pull; all four must have current-cycle success/integrity receipts.
-- 03:05–03:15: capture exact Qwen3.5-9B Q4_K_M model, b11429 SYCL/Level Zero
+- 03:05–03:10: capture exact Qwen3.5-9B Q4_K_M model, b11429 SYCL/Level Zero
   binary, unit, GPU, authentication, service, schedule and control-plane
   state. Confirm no other lease or active conflicting job.
-- 03:15: acquire the full-stop lease and host lock, persist the receipt, then
+- 03:10: conditionally acquire the full-stop lease and host lock, persist the receipt, then
   stop only the allowlisted Aster Agent, llama.cpp and Speech services. Do not
   stop or modify the News timer.
-- 03:15–03:45: watchdog-enabled recovery fault window. The test may induce
+- 03:10–03:25: watchdog-enabled recovery fault window. The test may induce
   only the approved bounded recovery condition; no arbitrary host reboot,
   credentials or model prompt is permitted.
-- 03:45–04:00: restore services and verify exact runtime/device/auth state,
+- 03:25–03:30: restore services and verify exact runtime/device/auth state,
   four backup points, News at 06:15/17:15, and control-plane health.
-- 04:00–04:15: reserve for reconciliation. Any ambiguity retains the lock and
+- 03:30: hard release cutoff for this drill. If exact restoration is not
+  complete by this point, retain the lock, mark the drill FAILED/UNKNOWN, and
+  make A1 NO-GO for the cycle. 03:30–04:15 remains reconciliation only. Any ambiguity retains the lock and
   makes the result FAILED/UNKNOWN rather than READY.
 
 ## Bounded effects
