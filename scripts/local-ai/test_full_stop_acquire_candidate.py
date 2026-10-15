@@ -6,7 +6,7 @@ from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 from admission_gate import EXPECTED_BACKUP_SOURCE
-from full_stop_acquire_candidate import acquire_from_fixed_sources, main
+from full_stop_acquire_candidate import acquire_from_fixed_sources, main, _watchdog_active
 from full_stop_source_preflight import PreflightError
 from lease_watchdog import EXPECTED_SCHEDULES, Observation
 from admission_state import decode
@@ -101,6 +101,12 @@ class FullStopAcquireCandidateTests(unittest.TestCase):
     def test_cli_is_hard_disabled_even_when_effect_flag_is_supplied(self):
         with patch("full_stop_acquire_candidate._runner", side_effect=AssertionError("live command")):
             self.assertEqual(main(["--effect-authorized"]), 0)
+
+    def test_watchdog_requires_active_and_enabled_timer(self):
+        with patch("full_stop_acquire_candidate._runner", side_effect=[(0, "active\n"), (0, "enabled\n")]):
+            self.assertTrue(_watchdog_active())
+        with patch("full_stop_acquire_candidate._runner", side_effect=[(0, "active\n"), (1, "disabled\n")]):
+            self.assertFalse(_watchdog_active())
 
     def test_acquire_state_round_trips_through_watchdog_schema(self):
         outer = self

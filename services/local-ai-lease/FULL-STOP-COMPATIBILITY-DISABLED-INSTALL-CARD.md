@@ -1,7 +1,7 @@
 # Disabled installation card: full-stop compatibility
 
-Status: prepared, **not authorized or executed**. Source commit:
-`f067dd05` on `codex/aster-lease-compat`; source pins are in
+Status: prepared, **not authorized or executed**. Source branch:
+`codex/aster-lease-compat`; exact source-byte pins are in
 `FULL-STOP-COMPATIBILITY-SOURCE-PACKET.md`.
 
 ## Why and scope
