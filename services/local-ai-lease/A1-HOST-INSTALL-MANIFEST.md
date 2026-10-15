@@ -36,8 +36,8 @@ files and verify the hashes before enabling the disabled unit:
 
 | Destination under `/opt/aster-a1-test` | Source at pinned commit | SHA-256 |
 |---|---|---|
-| `a1_isolated_app.py` | `scripts/aster-adaptive/a1_isolated_app.py` | `cf8d88506d19acdcfd53caa88804dd6f780e94412b7c0a2e3f779a59241b2a5d` |
-| `a1_test_gateway.py` | `scripts/aster-adaptive/a1_test_gateway.py` | `5350e9f293caa19cf2f993016a56dfdee5e2ccfc2f049eecaa55044bd1786e07` |
+| `a1_isolated_app.py` | `scripts/aster-adaptive/a1_isolated_app.py` | `3e8554d3fa401d5b28e153cfbfa95ea6fcafa7b9de9ad36f65b940a191145991` |
+| `a1_test_gateway.py` | `scripts/aster-adaptive/a1_test_gateway.py` | `e2e1150a76fd6e61c47da1a6c6f3ce229905a454476c756c49d6a83c9d10aaae` |
 | `aster_asgi_clock.py` | `scripts/aster-adaptive/aster_asgi_clock.py` | `e7f8240fc38a62772ac2d7e4e9461ee8f3be21580885d9dfc0cab40fe1919305` |
 | `a1_headless_client.py` | `scripts/aster-adaptive/a1_headless_client.py` | `beabc81ad44d205bc908c248f2fea50fb12faaac01f654a160712a550aa3fbc2` |
 | `a1_service_runner.py` | `services/local-ai-lease/a1_service_runner.py` | `feae2ec1f423ec4cbcde33112a64ed6db0963a6c3868726bcdff732b07b520c1` |
