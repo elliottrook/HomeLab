@@ -9,7 +9,10 @@ The A1 result is explicitly a **stream-a-candidate-path-baseline** measurement,
 not a measurement of the deployed LXC104 Aster. The candidate is pinned to
 commit `e6b638e4`; its complete local import closure is recorded in
 `A1-Aster-source-bundle-inventory-2026-10-14.md`. The platform owner must copy
-that closure and exactly the guarded Stream A1 files below:
+that closure and exactly the guarded Stream A1 files below. The inventory is
+resolvable in the Stream A handoff worktree at
+`docs/projects/AI Projects/benchmarks/A1-Aster-source-bundle-inventory-2026-10-14.md`
+(latest inventory commit `a9606829`, superseding `2610e908`):
 
 | Candidate baseline item | SHA-256 |
 |---|---|
@@ -26,10 +29,10 @@ Uvicorn 0.41.0, PyJWT 2.14.0 and pywebpush 2.5.0. The requirements-file hash
 is pinned above; wheel hashes are not yet known and must be captured by the
 source-local installer without exposing credentials.
 
-The reviewed Stream A source is pinned to worktree commit `e6b638e4` only for
-the guarded gateway/factory files below; it must not replace the deployed Aster
-baseline. The platform owner must copy exactly these files and verify the
-hashes before enabling the disabled unit:
+The reviewed Stream A source is pinned to worktree commit `e6b638e4` for the
+guarded gateway/factory files below; those files must be paired only with the
+pinned candidate Aster closure. The platform owner must copy exactly these
+files and verify the hashes before enabling the disabled unit:
 
 | Destination under `/opt/aster-a1-test` | Source at pinned commit | SHA-256 |
 |---|---|---|
