@@ -281,11 +281,15 @@ obsolete evening runner remains disabled. No full-path model call is admitted.
 **Private corpus derivation check, 2026-10-13:** Read only the owner-protected
 `cases.jsonl` from the approved A1 v2 backup, validated its pinned source hash
 and generated 20 distinct serialized request digests in memory. The SHA-256 of
-the sorted, newline-joined digest list is
+the sorted digest list joined with `\n` **without a trailing newline** is
 `19f1370e3e4a352fa20615504350c34ee38b56e97b010d543b76394934887589`.
 No case text, answer key, individual request digest or credential was printed
 or put in Git. This establishes deterministic fixture preparation, not a
 configured live gateway or an admitted model run.
+The same source hash, 20 distinct serialized digests and aggregate were
+rechecked read-only on 2026-10-14. No case text or individual digest was
+printed. A trailing newline produces a different aggregate and must not be
+silently substituted in the final gateway configuration receipt.
 
 **Later read-only transport and admission review, 2026-10-13:** The platform
 owner installed a dedicated, constrained TrueNAS observer. Stream A independently
