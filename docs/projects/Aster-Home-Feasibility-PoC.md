@@ -851,6 +851,34 @@ immutable read-only mode; a production publisher needs a consistent database
 snapshot and an explicit refresh/retention design. Podcasts remain
 unconnected. Forgejo synchronization is pending specific push approval.
 
+eBook artwork and podcast preparation, 2026-10-15: Calibre's 505 indexed
+books map to 501 source `cover.jpg` files. A bounded one-shot read-only
+transfer placed those JPEGs in the disposable Mac Kodi cache by exact Calibre
+ID; the other four retain the approved Aster icon. Kodi restart and direct
+visual checks confirmed real artwork in both the Books landing and eBook
+browse tiles. No eBook files or Calibre paths were exported to the skin feed;
+reading remains unconnected. A prepared Audiobookshelf read-only query will
+project only subscribed podcast IDs/titles after a Podcast library exists;
+it currently returns zero and excludes feed URLs, episodes and credentials.
+The Audiobookshelf official search supports finding shows; subscription and
+download actions remain in the authenticated service, not the Kodi skin.
+No spoken output is added.
+
+Podcast deployment preflight found material live/Compose drift: the running
+Audiobookshelf container is bound to `192.168.20.40:30067`, mounts the
+legacy Audiobooks path read-only, and mounts `/audiobooks` read-write; the
+saved Compose file instead specified loopback `30077`, omitted the legacy
+mount and declared `/audiobooks` read-only. Recreating from that file would
+break the current endpoint and path compatibility. A `Media/appdata`
+pre-change snapshot and a copy of the Compose file were verified. The empty
+`/mnt/Media/media/podcasts` directory was created with `apps:apps` 0770.
+An initial targeted Compose edit was restored byte-for-byte after drift was
+detected; **the container was not recreated, no Podcast library was created,
+and no episode was downloaded**. A revised candidate preserves all observed
+live settings while adding the separate writable podcast mount. Further
+remote work awaits Jason's explicit decision on this changed risk. No
+snapshot rollback or destructive cleanup was attempted.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

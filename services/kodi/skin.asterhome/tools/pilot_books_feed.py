@@ -1,8 +1,8 @@
-"""One-shot, read-only TrueNAS snapshot -> disposable Mac Kodi book feed.
+"""One-shot, read-only TrueNAS snapshot -> disposable Mac Kodi Books feed.
 
 No service is changed and no remote endpoint is added. Run manually, never as
 a background job. Only approved audiobook/ebook fields leave TrueNAS; no book
-files, covers, descriptions or filesystem paths are exported.
+files, covers, descriptions, RSS URLs or filesystem paths are exported.
 """
 
 import json
@@ -59,6 +59,36 @@ def calibre_items():
     return items
 
 
+def podcast_items():
+    """Project subscribed podcast IDs/titles from Audiobookshelf, if any.
+
+    Search results and unacquired shows are deliberately not presented as
+    subscriptions. This query never reads feed URLs, episode files or tokens.
+    """
+    script = ('const sqlite=require("sqlite3");'
+              'const db=new sqlite.Database("/config/absdatabase.sqlite",sqlite.OPEN_READONLY);'
+              'db.all("SELECT li.id,p.title FROM libraryItems li JOIN podcasts p '
+              'ON li.mediaId=p.id WHERE li.mediaType=?",["podcast"],(error,rows)=>{'
+              'if(error){console.error("Podcast catalogue query failed");process.exitCode=1;'
+              'db.close();return}console.log(JSON.stringify(rows));db.close()})')
+    output = remote('docker', 'exec', 'unified-audiobookshelf-shadow',
+                    'node', '-e', script)
+    rows = json.loads(output)
+    if not isinstance(rows, list) or len(rows) > 1000:
+        raise ValueError('Audiobookshelf podcast catalogue exceeds pilot limit')
+    items = []
+    for row in rows:
+        if (not isinstance(row, dict) or not isinstance(row.get('id'), str)
+                or len(row['id']) > 128 or not isinstance(row.get('title'), str)):
+            raise ValueError('Invalid Audiobookshelf podcast row')
+        title = row['title'].strip()
+        if not title or len(title) > 160 or any(ord(char) < 32 for char in title):
+            raise ValueError('Invalid Audiobookshelf podcast title')
+        items.append({'authority': 'audiobookshelf', 'media_type': 'podcast',
+                      'authority_id': row['id'], 'title': title})
+    return items
+
+
 def main():
     modified = int(remote('stat', '-c', '%Y', SOURCE).decode().strip())
     jq_filter = ('[.[] | select((.authority == "audiobookshelf" and .media_type == "audiobook") '
@@ -68,6 +98,7 @@ def main():
     if not isinstance(items, list):
         raise ValueError('Invalid unified-media library snapshot')
     items.extend(calibre_items())
+    items.extend(podcast_items())
     feed = {'schema_version': 1,
             'generated_at': datetime.fromtimestamp(modified, timezone.utc).isoformat(),
             'items': items}

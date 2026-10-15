@@ -10,8 +10,9 @@ import xml.etree.ElementTree as ET
 
 from books_data import PAGES, cached_cover, cover_filename, page_records
 from hub_feeds import book_catalogue
-from pilot_books_feed import calibre_items
+from pilot_books_feed import calibre_items, podcast_items
 from pilot_books_covers import QUERY, validated_covers
+from pilot_ebook_covers import SOURCE as CALIBRE_COVER_SOURCE, validated_covers as validated_ebook_covers
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -59,6 +60,16 @@ class BooksTests(unittest.TestCase):
         self.assertTrue(items[0]['title'].endswith('…'))
         self.assertNotIn('path', items[0])
 
+    def test_podcast_projection_excludes_feed_urls_and_unsubscribed_results(self):
+        source = json.dumps([{'id': 'pod_1', 'title': 'Example Show',
+                              'feedURL': 'https://private.example/rss'}]).encode()
+        with patch('pilot_books_feed.remote', return_value=source):
+            items = podcast_items()
+        self.assertEqual(items, [{'authority': 'audiobookshelf',
+                                  'media_type': 'podcast', 'authority_id': 'pod_1',
+                                  'title': 'Example Show'}])
+        self.assertNotIn('feedURL', items[0])
+
     def test_cover_cache_uses_opaque_key_and_rejects_symlink(self):
         row = {'kind': 'audiobook', 'id': 'li_example', 'title': 'Private title'}
         self.assertNotIn('Private title', cover_filename(row))
@@ -81,6 +92,15 @@ class BooksTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validated_covers(json.dumps([{'id': 'li_example', 'jpeg': 'ZGF0YQ=='}]).encode(), rows)
         self.assertIn('sqlite.OPEN_READONLY', QUERY)
+
+    def test_calibre_cover_transfer_uses_only_known_ids(self):
+        rows = [{'kind': 'ebook', 'id': '42', 'title': 'Example'}]
+        jpeg = base64.b64encode(b'\xff\xd8\xff' + b'cover').decode()
+        payload = json.dumps({'id': '42', 'jpeg': jpeg}).encode() + b'\n'
+        self.assertEqual(validated_ebook_covers(payload, rows), {'42': b'\xff\xd8\xffcover'})
+        with self.assertRaises(ValueError):
+            validated_ebook_covers(payload.replace(b'"42"', b'"43"'), rows)
+        self.assertIn('mode=ro&immutable=1', CALIBRE_COVER_SOURCE)
 
     def test_windows_use_shared_hero_search_and_approved_icons(self):
         shared = ET.parse(ROOT / '1080i/IncludesBooks.xml')

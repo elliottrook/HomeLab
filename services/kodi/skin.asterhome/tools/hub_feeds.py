@@ -53,7 +53,8 @@ def book_catalogue(payload):
     """Bounded, sanitized records for the three read-only Books sections.
 
     The current one-shot producer supplies audiobooks and Calibre ebook titles.
-    Podcast records can appear only after that source is separately connected.
+    Subscribed podcast records can appear after Audiobookshelf has a Podcast
+    library and the one-shot feed is refreshed.
     """
     _fresh(payload, 24 * 3600)
     records = payload.get('items')

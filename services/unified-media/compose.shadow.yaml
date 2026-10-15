@@ -152,11 +152,17 @@ services:
     volumes:
       - ${UNIFIED_CONFIG_PATH}/audiobookshelf:/config
       - ${UNIFIED_CONFIG_PATH}/audiobookshelf-metadata:/metadata
-      # Audiobooks live in the TrueNAS media dataset, outside the data/downloads tree.
-      # Keep this explicit and read-only so the shadow instance cannot alter production media.
-      - ${UNIFIED_AUDIOBOOKS_PATH:-/mnt/Media/media/audiobooks}:/audiobooks:ro
+      # Preserve the live 2026-10-15 Audiobookshelf mounts during the podcast
+      # addition. A separate, tested change can make /audiobooks read-only.
+      - ${UNIFIED_AUDIOBOOKS_PATH:-/mnt/Media/media/audiobooks}:/audiobooks:rw
+      - ${UNIFIED_CONFIG_PATH}/audiobookshelf-legacy-paths:/mnt/Media/media/Audiobooks:ro
+      # Podcast episodes are acquired by Audiobookshelf into this separate,
+      # explicitly writable directory; never put podcast files in /audiobooks.
+      - ${UNIFIED_PODCASTS_PATH:-/mnt/Media/media/podcasts}:/podcasts:rw
     ports:
-      - "127.0.0.1:30077:80"
+      # Current household-facing binding; do not silently revert to the old
+      # shadow-only 127.0.0.1:30077 endpoint during container recreation.
+      - "192.168.20.40:30067:80"
     restart: "no"
 
   calibre-web:
