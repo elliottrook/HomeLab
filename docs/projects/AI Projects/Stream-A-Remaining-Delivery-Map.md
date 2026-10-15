@@ -46,6 +46,9 @@ card NO-GO pending a revised, measured integrity receipt and compatible
 acquisition path. Neither read-only Stream A automation launches a drill.
 The platform owner's later source-only retained-receipt adapter at `b5ec9eb2`
 is reviewed and tested but not installed, enabled or wired into acquisition.
+An [October 15 source-only sequencing review](evidence/Full-stop-retained-receipt-sequencing-review-2026-10-15.md)
+also identifies the distinct pre-acquire backup and post-stop quiescence
+decision points that the revised card must bind explicitly.
 The 01:10 cold current-cycle scan was partial and target-Linux integration
 remains open.
 The configured 00:30/01:00/02:00/03:00 backup schedules were checked read-only
