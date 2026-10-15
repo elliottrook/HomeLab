@@ -16,7 +16,7 @@ class ApplicationB60ControllerTests(unittest.TestCase):
         )
 
     def prelease(self):
-        return ApplicationPreLease(APPLICATION_MODE, "app-1", 2, "app-backup-1", "llama.cpp b11429 SYCL/Level Zero", True, True, True, 100, 150, 200)
+        return ApplicationPreLease(APPLICATION_MODE, "app-1", 2, "app-backup-1", "llama.cpp b11429 SYCL/Level Zero", True, True, True, 100, 150, 185, 200)
 
     def test_acquire_and_sidecar_admission_only_touch_allowed_consumers(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -73,6 +73,7 @@ class ApplicationB60ControllerTests(unittest.TestCase):
             value = json.loads((Path(temp) / "application-b60.json").read_text())
             self.assertTrue(value["armed"])
             self.assertEqual(value["start_deadline_epoch"], 150)
+            self.assertEqual(value["restore_start_epoch"], 185)
             self.assertEqual(value["restore_deadline_epoch"], 200)
 
     def test_effect_intent_and_observed_transitions_are_armed_and_ordered(self):

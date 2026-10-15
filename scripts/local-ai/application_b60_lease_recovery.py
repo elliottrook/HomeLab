@@ -14,6 +14,7 @@ from typing import Sequence
 
 from a1_ingress_policy import baseline, parse_chain
 from application_b60_watchdog import ApplicationB60Watchdog, fixed_command
+from trusted_observer import EXPECTED_SCHEDULES, RuntimeManifest, collect
 
 RECEIPT = Path("/var/lib/local-ai-lab/application-b60/recovery-receipt.json")
 SOURCE_HASHES = {
@@ -21,6 +22,12 @@ SOURCE_HASHES = {
     "/opt/aster-a1-test/a1_test_gateway.py": "e2e1150a76fd6e61c47da1a6c6f3ce229905a454476c756c49d6a83c9d10aaae",
     "/opt/aster-a1-test/aster-agent/aster_agent.py": "d6a05bcc7edddb1eaa69a67450cfc48c1c0e96ba8688de7a1246a1e9eb847e11",
 }
+RUNTIME_MANIFEST = RuntimeManifest(
+    model_sha256="cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13",
+    binary_sha256="0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5",
+    unit_sha256="a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3",
+    auth_marker="auth-generation-ok",
+)
 
 
 def _run(argv: Sequence[str], timeout: float = 10.0) -> tuple[int, str]:
@@ -33,6 +40,10 @@ def _pct(vmid: str, *command: str) -> tuple[str, ...]:
 
 
 class HostObserver:
+    def _exact_observation(self):
+        return collect(lambda argv, timeout: _run(argv, timeout=timeout),
+                       lease_expires_minute=24 * 60, manifest=RUNTIME_MANIFEST)
+
     def sidecar_stopped(self) -> bool:
         code, output = _run(_pct("104", "systemctl", "is-active", "aster-a1-test.service"))
         return code != 0 and output == "inactive"
@@ -52,8 +63,12 @@ class HostObserver:
         return code == 0 and output == "removed"
 
     def backend_reloaded(self) -> bool:
-        code, output = _run(_pct("110", "systemctl", "is-active", "aster-llama.service"))
-        return code == 0 and output == "active"
+        observation = self._exact_observation()
+        return (observation.accepted_gpu_visible is True
+                and observation.exact_binary_verified is True
+                and observation.model_verified is True
+                and observation.unit_verified is True
+                and observation.auth_verified is True)
 
     def production_auth_ok(self) -> bool:
         code, _ = _run(_pct("110", "/usr/local/sbin/aster-llama-production-auth-probe"), timeout=15.0)
@@ -73,7 +88,18 @@ class HostObserver:
         return code == 0 and output == "active"
 
     def consumers_healthy(self) -> bool:
-        return self.aster_healthy() and self.speech_healthy()
+        if not (self.aster_healthy() and self.speech_healthy()):
+            return False
+        observation = self._exact_observation()
+        return (observation.production_services_healthy is True
+                and observation.schedule_restored is True
+                and observation.schedule_points == EXPECTED_SCHEDULES
+                and observation.schedules_enabled is True
+                and observation.accepted_gpu_visible is True
+                and observation.exact_binary_verified is True
+                and observation.model_verified is True
+                and observation.unit_verified is True
+                and observation.auth_verified is True)
 
     def source_checks(self) -> bool:
         for path, expected in SOURCE_HASHES.items():
@@ -117,7 +143,7 @@ def main(argv: Sequence[str]) -> int:
     if not args.once:
         raise SystemExit("--once is required")
     state = json.loads(args.state.read_text(encoding="utf-8"))
-    for key in ("mode", "lease_id", "generation", "armed", "start_deadline_epoch", "restore_deadline_epoch"):
+    for key in ("mode", "lease_id", "generation", "armed", "start_deadline_epoch", "restore_start_epoch", "restore_deadline_epoch"):
         if key not in state:
             raise SystemExit("application state schema is incomplete")
     if args.dry_run:
@@ -129,8 +155,8 @@ def main(argv: Sequence[str]) -> int:
         raise SystemExit("effect authority is required")
     observer = HostObserver()
     now_epoch = int(datetime.now(timezone.utc).timestamp())
-    if now_epoch < state["restore_deadline_epoch"]:
-        print(json.dumps({"state": "waiting", "lease_id": state["lease_id"], "generation": state["generation"], "now_epoch": now_epoch, "restore_deadline_epoch": state["restore_deadline_epoch"]}, sort_keys=True, separators=(",", ":")))
+    if now_epoch < state["restore_start_epoch"]:
+        print(json.dumps({"state": "waiting", "lease_id": state["lease_id"], "generation": state["generation"], "now_epoch": now_epoch, "restore_start_epoch": state["restore_start_epoch"], "restore_deadline_epoch": state["restore_deadline_epoch"]}, sort_keys=True, separators=(",", ":")))
         return 0
     source_ok = observer.source_checks()
     watchdog = ApplicationB60Watchdog(args.state.parent, lambda command: _run(command, timeout=30.0)[0] == 0 or (_ for _ in ()).throw(RuntimeError("fixed recovery command failed")), observer, allow_effects=True)

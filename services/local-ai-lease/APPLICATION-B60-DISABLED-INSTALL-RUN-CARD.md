@@ -21,8 +21,11 @@ The candidate must use the corrected A1 sidecar pins:
 | `application_b60_controller.py` | `b81287cd59e890bc420fa41d9a9b0e5ad772f1bbb5cfbeeef943b73d54784278` |
 | `application_b60_watchdog.py` | `7ffb5b21bad3a727ff1fd30f36892a3d6d504af42057c3afd50877e342fd50cf` |
 | `application_b60_lease.py` | `deaf278c8bc3234f3150f1c3ee696b3cc0cdb55e97c575fec6efb65d6ef9c95d` |
-| `application_b60_lease_recovery.py` | `f0e7383e48617c6b7ce50369cac751c5b8919a516d2ed72b6b3fbd786f445d0b` |
+| `application_b60_lease_recovery.py` | `3b855b60dfc9127c99c667bb8ccb7b198023b02f64e712877b5a7285416c0021` |
 | `a1_ingress_policy.py` | `07be9c42650f74edbcb080d4b338bb01cc43a6ac18a847d86839c07a0ad65d1d` |
+| `trusted_observer.py` | `fdc64fc200b87d0faba64a02762df3197fc49366dd0bec12b491ed83fb1aa93f` |
+| `lease_watchdog.py` | `3146d292dd42a6a3f305b67cccf5518e7c0585c9c6de2e195d1a00686003d1fc` |
+| `lease_contract.py` | `8a8997bdf453a499ae60dc2f11a65da9e28e318044a194122a7635b545adf113` |
 | `application_receipt_boundary.py` | `f014a914cb10712f840250d8672517dacb0fdd2b202c9c7e62cf89be1e29f376` |
 | `application-b60-watchdog.service` | `f7434db1f18afa4418f1217801152e35a2ae24388c20e04e47e3db8c3288cec7` |
 | `application-b60-watchdog.timer` | `3e0be0830d60e586e53a1c3035abef7df802ecd156214ddc558f60677111d45a` |
@@ -30,7 +33,12 @@ The candidate must use the corrected A1 sidecar pins:
 
 The recovery source now matches the installed corrected A1 gateway and
 isolated-app hashes (`b634b051…` and `e2e1150a…`); the former stale pins are
-not acceptable.
+not acceptable. Its state has separate `restore_start_epoch` and
+`restore_deadline_epoch` fields: the former begins the 15-minute reserve and
+triggers restoration; the latter is the hard expiry and overdue condition.
+The post-recovery observer must verify the exact accepted model, SYCL binary,
+unit, GPU visibility, authenticated generation, all six schedule points, and
+both restored consumer services before a lease can be released.
 
 ## Bounded install procedure
 
@@ -65,6 +73,11 @@ LXC104/LXC110/LXC116 services: unchanged
 The install must abort before copying if a destination contains an unexpected
 candidate, if any hash differs, if a full-stop unit changes, or if any service
 is active as a consequence of the operation.
+
+The disabled installation does not claim those runtime checks are live. The
+platform must not request the later recovery-drill approval until the exact
+observer closure above is installed and its source-bound probes have been
+reviewed.
 
 ## Rollback
 

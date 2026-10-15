@@ -67,6 +67,7 @@ class ApplicationB60Watchdog:
             raise ValueError("application lease identity does not match")
         if (record.get("armed") is not True
                 or not isinstance(record.get("start_deadline_epoch"), int)
+                or not isinstance(record.get("restore_start_epoch"), int)
                 or not isinstance(record.get("restore_deadline_epoch"), int)):
             raise ValueError("application watchdog is not armed")
         overdue = now_epoch > record["restore_deadline_epoch"]

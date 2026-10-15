@@ -23,7 +23,7 @@ class ApplicationB60WatchdogTests(unittest.TestCase):
         (root / "application-b60.lock").mkdir()
         (root / "application-b60.json").write_text(json.dumps({
             "mode": "application-b60-exclusive-v1", "lease_id": "lease-1", "generation": 3,
-            "armed": True, "start_deadline_epoch": 150, "restore_deadline_epoch": 200,
+            "armed": True, "start_deadline_epoch": 150, "restore_start_epoch": 185, "restore_deadline_epoch": 200,
             "effects": {"ingress": "observed", "key": "observed"},
         }))
 
@@ -84,6 +84,7 @@ class ApplicationB60WatchdogTests(unittest.TestCase):
             state = Path(temp) / "application-b60.json"
             value = json.loads(state.read_text())
             value["start_deadline_epoch"] = 86_390
+            value["restore_start_epoch"] = 86_410
             value["restore_deadline_epoch"] = 86_430
             state.write_text(json.dumps(value))
             result = ApplicationB60Watchdog(Path(temp), lambda _command: None, Observer(), allow_effects=True).recover(

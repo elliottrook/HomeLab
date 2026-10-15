@@ -103,7 +103,7 @@ passes in a temporary non-Git layout. This source correction changes the
 profile hash above and invalidates the earlier `f97644b3…` pin.
 The supervised Mini-side runner is
 [`a1_admitted_batch.py`](../../../../scripts/aster-adaptive/a1_admitted_batch.py),
-SHA-256 `3bb98da841a398b15a356376e1e90d625448690b3ab0b94b1c003e46fd832c75`.
+SHA-256 `be7496e44c501ced5970e136b179e71866fe632a0cd72975733a7c843d2debb6`.
 Its 31 focused fixtures bind one owner-only token input, require an external
 authenticated live-admission callback before the batch and before every call,
 forward the bounded timeout, and stop on admission drift. The runner is not a
