@@ -58,6 +58,13 @@ and 116 was not scanned. No root-owned retained-integrity receipt was created,
 so archive integrity is unproven for this cycle. The watchdog remained
 disabled/inactive, the lease remained `ready`, and no drill or model call ran.
 
+The 03:40 post-window read-only check likewise found no lease state or lock,
+the watchdog disabled/inactive, and all three production services active with
+no observed restarts. The accepted Qwen3.5-9B/SYCL runtime, model identity,
+GPU visibility and authentication boundary matched baseline. Proxmox, TrueNAS
+and News schedule state remained healthy. This is baseline/no-drill evidence,
+not recovery proof, and does not change the NO-GO decision.
+
 ## Timing and preflight
 
 - 00:30 Proxmox backup, 01:00 guest pull, 02:00 LXC110 mirror, 03:00 Mac
