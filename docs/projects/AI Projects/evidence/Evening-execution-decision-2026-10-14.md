@@ -29,6 +29,17 @@ seconds; LXC116 passed in 31.25 seconds. Those readings make the five-minute
 slot conclusively too short, while the 110 re-read may have benefited from
 cache. The exact October 15 archives remain unverified until scanned.
 
+Later source-only progress: the platform owner independently reviewed and
+committed the retained-integrity candidate through `b5ec9eb2`. Its explicit
+adapter path checks current Proxmox artifacts, TrueNAS task order, the exact
+LXC110 mirror and a root-owned retained archive receipt; the default path is
+unchanged. The local suite reports 150 tests, 2 skipped. Read-only Proxmox
+checks found Python 3.13.5, the expected `ionice`/`nice`/`zstd`/`pvesh`/
+`pvesm` tools, a root-owned 0700 `/var/lib/local-ai-lab` directory and an
+unchanged single-link Oct14 LXC110 archive. The candidate is **not installed
+or called by the host**. Source tests and host prerequisites do not close the
+target-Linux integration, fresh-cycle timing or live recovery gates.
+
 The full-stop drill and application-only A1 benchmark are mutually exclusive
 within one backup cycle under the platform owner's current card, even if
 full-stop restoration succeeds. A1 has independent missing gates: a trusted

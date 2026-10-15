@@ -26,6 +26,9 @@ fixed 300-second check, so the planned 03:05–03:10 preflight cannot establish
 current-cycle integrity. The platform owner has marked its proposed full-stop
 card NO-GO pending a revised, measured integrity receipt and compatible
 acquisition path. Neither read-only Stream A automation launches a drill.
+The platform owner's later source-only retained-receipt adapter at `b5ec9eb2`
+is reviewed and tested but not installed, enabled or wired into acquisition.
+The 01:10 cold current-cycle scan and target-Linux integration remain open.
 The configured 00:30/01:00/02:00/03:00 backup schedules were checked read-only
 on Proxmox and TrueNAS; this does not prove a given night's completion. The
 platform owner's record reports one successful manual light lease, but the
