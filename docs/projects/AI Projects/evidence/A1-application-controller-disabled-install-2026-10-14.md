@@ -20,6 +20,8 @@ controller and unit hashes/states are unchanged, and the whole-host lease is
 still `ready`. A separate systemd property read confirmed the loaded unit
 paths, no drop-ins, `RefuseManualStart=yes` on the service and no next timer
 elapse.
+All nine installed Python modules imported on Proxmox with bytecode writes
+disabled; this proves dependency closure for import only, not execution.
 
 Independent read-only postchecks found LXC104 Aster active, A1 sidecar inactive
 with no port 19104 listener, LXC110 llama.cpp active, and LXC116 Speech active.
