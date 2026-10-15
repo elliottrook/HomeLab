@@ -1,5 +1,13 @@
 # Aster Home Kodi skin prototype
 
+Version 0.5.4 presents a single rounded hero tile split evenly between solid
+charcoal copy and artwork. The year follows the genre in green; the separate
+year line and duplicate backdrop are removed. Navigation rails are square.
+Continue Watching now uses paused episodes ordered by last played, with
+captions such as `Dark — S1 E4` and actual episode resume bars. Hero headings
+show the series name and the synopsis follows the selected episode. The
+playlist is read-only and does not change playback history.
+
 Version 0.5.3 preserves the full hero artwork in a fitted rounded image on the
 right, with a subdued full-width backdrop and rounded translucent copy panel.
 Hero metadata is reduced to the year. Media captions are plain ink text with

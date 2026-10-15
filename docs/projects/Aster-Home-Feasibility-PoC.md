@@ -393,6 +393,20 @@ The normal show-level TV row reports zero PercentPlayed, so its empty tracks
 are accurate for that source; episode-level Continue Watching remains a data
 integration follow-up. XML and diff validation pass.
 
+Visual and resume-row follow-up, 2026-10-14 (v0.5.4): replaced the duplicate
+hero backdrop/inset with one 1680×400 tile split into a solid charcoal half
+and an artwork half. Kept rounded outside corners with a square centre join,
+moved the year immediately after the genre in sage green, and restored square
+side rails. Continue Watching now reads a packaged in-progress episode smart
+playlist sorted by last played; captions append actual season and episode
+numbers, the hero names the series, and its plot is episode-specific. Mac Kodi
+displayed `Dark — S1 E4`, `The Newsroom — S1 E1`, `The Durrells — S1 E1`, and
+`The Voice — S30 E3` with real resume bars. Expanded navigation hides the hero
+surfaces to prevent overlap. Row opacity transitions preserve focusability;
+the expanded-menu → Right → media-row round trip passed in live Kodi.
+XML validation and `git diff --check` pass. No playback or library state was
+modified. Remote synchronization remains pending explicit push approval.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

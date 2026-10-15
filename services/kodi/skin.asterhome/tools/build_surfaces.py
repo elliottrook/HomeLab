@@ -8,6 +8,8 @@ import zlib
 def png(path, width, height, radius, stroke=0, inverse=False):
     def coverage(x, y, inset=0):
         r = max(0, radius - inset)
+        if r == 0:
+            return float(inset <= x <= width - inset and inset <= y <= height - inset)
         cx = min(max(x, inset + r), width - inset - r)
         cy = min(max(y, inset + r), height - inset - r)
         distance = math.hypot(x - cx, y - cy) - r
@@ -37,6 +39,7 @@ def png(path, width, height, radius, stroke=0, inverse=False):
 if __name__ == '__main__':
     media = Path(__file__).resolve().parents[1] / 'media'
     for name, width, height, radius, stroke in (
+        ('ui-solid', 2, 2, 0, 0),
         ('ui-card-mask', 400, 225, 18, 0),
         ('ui-card-ring', 400, 225, 18, 3),
         ('ui-hero-mask', 1836, 420, 24, 0),
@@ -47,3 +50,4 @@ if __name__ == '__main__':
     ):
         png(media / (name + '.png'), width, height, radius, stroke)
     png(media / 'ui-card-corners.png', 400, 225, 18, inverse=True)
+    png(media / 'ui-hero-corners.png', 1680, 400, 24, inverse=True)

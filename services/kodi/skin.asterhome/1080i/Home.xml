@@ -3,43 +3,19 @@
     <defaultcontrol always="true">100</defaultcontrol>
     <backgroundcolor>asterIvory</backgroundcolor>
     <controls>
-        <!-- Temporary solid surfaces use the window background and text focus
-             until repository-owned Aster textures are added. -->
-        <control type="image" id="10">
-            <zorder>0</zorder>
-            <left>84</left>
-            <top>0</top>
-            <width>1836</width>
-            <height>420</height>
-            <texture background="true" diffuse="special://skin/media/ui-hero-mask.png">$VAR[AsterHeroFanart]</texture>
-            <colordiffuse>38ffffff</colordiffuse>
-            <aspectratio>scale</aspectratio>
-            <fadetime>250</fadetime>
-        </control>
-
-        <!-- Preserve the complete hero composition on the right. The soft
-             full-width backdrop fills the canvas without relying on its crop. -->
+        <!-- One rounded hero tile: solid copy half and full-bleed art half. -->
         <control type="image" id="12">
-            <left>900</left><top>12</top><width>990</width><height>396</height>
-            <texture background="true" diffuse="special://skin/media/ui-card-mask.png">$VAR[AsterHeroFanart]</texture>
-            <aspectratio>keep</aspectratio><fadetime>250</fadetime>
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
+            <left>952</left><top>20</top><width>840</width><height>400</height>
+            <texture background="true">$VAR[AsterHeroFanart]</texture>
+            <aspectratio>scale</aspectratio><fadetime>250</fadetime>
         </control>
-
-        <!-- Group the hero surface and its content so Kodi keeps the
-             translucent panel behind the logo, copy and actions. -->
         <control type="group" id="20">
-            <!-- A readable foreground layer keeps the approved logo and
-                 dynamic copy legible while the selected item's artwork fills
-                 the hero. -->
             <control type="image" id="11">
-                <zorder>1</zorder>
                 <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
-                <left>112</left>
-                <top>28</top>
-                <width>760</width>
-                <height>372</height>
-                <texture border="20">special://skin/media/ui-panel.png</texture>
-                <colordiffuse>df292721</colordiffuse>
+                <left>112</left><top>20</top><width>840</width><height>400</height>
+                <texture>special://skin/media/ui-solid.png</texture>
+                <colordiffuse>asterCharcoal</colordiffuse>
                 <aspectratio>stretch</aspectratio>
             </control>
 
@@ -84,7 +60,7 @@
                 <top>0</top>
                 <width>250</width>
                 <height>1080</height>
-                <texture diffuse="special://skin/media/ui-rail-mask.png">special://skin/media/rail-background.png</texture>
+                <texture>special://skin/media/rail-background.png</texture>
             </control>
             <control type="image">
                 <left>28</left>
@@ -179,7 +155,7 @@
             <top>0</top>
             <width>84</width>
             <height>1080</height>
-            <texture diffuse="special://skin/media/ui-rail-collapsed-mask.png">special://skin/media/rail-background.png</texture>
+            <texture>special://skin/media/rail-background.png</texture>
         </control>
         <control type="image" id="8997">
             <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
@@ -235,7 +211,7 @@
 
         <control type="group" id="21">
             <zorder>2</zorder>
-            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
+            <animation effect="fade" start="100" end="0" time="0" condition="Control.HasFocus(8999) | Control.HasFocus(9001) | Control.HasFocus(9002) | Control.HasFocus(9003) | Control.HasFocus(9004) | Control.HasFocus(9005)">Conditional</animation>
 
         <!-- Brand header: use the approved v2 horizontal export rather than
              rebuilding the mark and wordmark from separate UI elements. -->
@@ -277,9 +253,9 @@
         <control type="label">
             <left>145</left>
             <top>152</top>
-            <width>500</width>
+            <width>740</width>
             <height>42</height>
-            <label fallback="F E A T U R E D   F O R   Y O U">$VAR[AsterHeroGenre]</label>
+            <label fallback="F E A T U R E D   F O R   Y O U">$VAR[AsterHeroGenre]  [COLOR asterSage]$VAR[AsterHeroYear][/COLOR]</label>
             <font>font20</font>
             <textcolor>asterGold</textcolor>
         </control>
@@ -304,15 +280,6 @@
             <textcolor>ffece8df</textcolor>
             <wrapmultiline>true</wrapmultiline>
             <aligny>top</aligny>
-        </control>
-        <control type="label">
-            <left>145</left>
-            <top>310</top>
-            <width>680</width>
-            <height>36</height>
-            <label>$VAR[AsterHeroYear]</label>
-            <font>font20</font>
-            <textcolor>ffece8df</textcolor>
         </control>
         <control type="button" id="120">
             <left>145</left>
@@ -353,11 +320,18 @@
         </control>
         </control>
 
+        <control type="image" id="13">
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
+            <left>112</left><top>20</top><width>1680</width><height>400</height>
+            <texture>special://skin/media/ui-hero-corners.png</texture>
+            <colordiffuse>asterIvory</colordiffuse>
+        </control>
+
         <!-- Keep the navigation state uncluttered: media rows are hidden
              while the expanded rail is active rather than being cut by it. -->
         <control type="group" id="22">
             <zorder>2</zorder>
-            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
+            <animation effect="fade" start="100" end="0" time="0" condition="Control.HasFocus(8999) | Control.HasFocus(9001) | Control.HasFocus(9002) | Control.HasFocus(9003) | Control.HasFocus(9004) | Control.HasFocus(9005)">Conditional</animation>
 
         <control type="label">
             <left>125</left>
@@ -413,7 +387,7 @@
                 </control>
                 <control type="label">
                     <left>8</left><top>241</top><width>400</width><height>28</height>
-                    <label>$INFO[ListItem.Label]</label><font>font20</font>
+                    <label>$VAR[AsterContinueLabel]</label><font>font20</font>
                     <textcolor>asterInk</textcolor><truncate>true</truncate>
                 </control>
             </itemlayout>
@@ -449,11 +423,11 @@
                 </control>
                 <control type="label">
                     <left>8</left><top>241</top><width>400</width><height>28</height>
-                    <label>$INFO[ListItem.Label]</label><font>font20</font>
+                    <label>$VAR[AsterContinueLabel]</label><font>font20</font>
                     <textcolor>asterInk</textcolor><truncate>true</truncate>
                 </control>
             </focusedlayout>
-            <content target="videos">videodb://inprogresstvshows/</content>
+            <content target="videos">special://skin/playlists/continue-watching-episodes.xsp</content>
         </control>
 
         <control type="label">
