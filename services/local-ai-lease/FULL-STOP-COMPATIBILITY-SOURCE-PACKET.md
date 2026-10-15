@@ -45,7 +45,7 @@ liveness signal, not human authorization.
 
 ## Evidence and limits
 
-The full local `scripts/local-ai` unittest discovery passed **173 tests, 2
+The full local `scripts/local-ai` unittest discovery passed **174 tests, 2
 root-custody tests skipped on macOS** on October 15. Coverage includes stale
 archives, changed files, partial/over-deadline scans, failed TrueNAS task 1,
 missing guest or whole-job completion and wrong Proxmox job configuration,

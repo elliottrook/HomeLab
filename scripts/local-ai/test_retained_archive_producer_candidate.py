@@ -1,9 +1,13 @@
 import json
+import os
+import tempfile
 import unittest
 from datetime import datetime
+from pathlib import Path
 from unittest.mock import patch
 
 import retained_archive_producer_candidate as producer
+import retained_archive_integrity as archive
 
 
 ZONE = producer.LOCAL_ZONE
@@ -102,6 +106,22 @@ class RetainedProducerTests(unittest.TestCase):
             with self.assertRaisesRegex(producer.IntegrityError, "whole backup job"):
                 self.produce_candidate()
         self.assertEqual(self.saved, [])
+
+    def test_actual_capture_path_binds_all_three_files_and_deadline(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for item in self.inventory:
+                (root / item["volid"].rsplit("/", 1)[-1]).write_bytes(b"x" * item["size"])
+            with patch.object(archive, "BACKUP_ROOT", root):
+                result = producer.produce(
+                    self.runner, clock=lambda: epoch(1, 10),
+                    resolve=lambda volid: str(root / volid.rsplit("/", 1)[-1]),
+                    lstat=os.lstat, probe=lambda path, timeout: (0, 100),
+                    save=self.saved.append,
+                    read_completion=lambda vmid: f"2026-10-15 00:55:00 INFO: Finished Backup of VM {vmid} (00:00:57)",
+                )
+            self.assertEqual([row["vmid"] for row in result["archives"]], ["104", "110", "116"])
+            self.assertEqual(self.saved, [result])
 
 
 if __name__ == "__main__":
