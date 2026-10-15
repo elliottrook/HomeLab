@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import stat
 import tempfile
 import time
 from dataclasses import asdict, dataclass
@@ -16,7 +17,7 @@ from pathlib import Path
 from typing import Callable, Sequence
 
 from admission_state import AdmissionRecord, decode, encode
-from lease_contract import LeaseReceipt, validate_receipt
+from lease_contract import LeaseReceipt, validate_pre_acquire_receipt
 from lease_watchdog import Observation, WatchdogState, decide
 from trusted_observer import TrustedHostObserver
 
@@ -100,10 +101,16 @@ class CandidateController:
             raise ValueError("trusted observer is required for effectful acquisition")
         if any(service not in ALLOWLIST for service in active_services):
             raise ValueError("active service set is outside the lease allowlist")
-        validate_receipt(receipt, now_minute=observation.now_minute, expected_backup_receipt=backup_receipt, watchdog_alive=observation.heartbeat_alive)
+        validate_pre_acquire_receipt(receipt, now_minute=observation.now_minute, expected_backup_receipt=backup_receipt, watchdog_alive=observation.heartbeat_alive)
         if not observation.control_plane_healthy or not observation.production_services_healthy:
             raise ValueError("pre-acquire health gate failed")
         self.paths.root.mkdir(mode=0o700, parents=True, exist_ok=True)
+        root_info = self.paths.root.lstat()
+        if (not stat.S_ISDIR(root_info.st_mode) or root_info.st_uid != os.geteuid()
+                or stat.S_IMODE(root_info.st_mode) != 0o700):
+            raise ValueError("lease state directory custody is invalid")
+        if self.paths.state.exists() or self.paths.state.is_symlink():
+            raise ValueError("existing lease state cannot be overwritten")
         try:
             self.paths.lock.mkdir(mode=0o700)
         except FileExistsError as exc:

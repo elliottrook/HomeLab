@@ -64,20 +64,13 @@ ACCEPTED_MODEL = "Qwen3.5 9B Q4_K_M"
 ACCEPTED_BACKEND = "llama.cpp b11429 SYCL/Level Zero"
 
 
-def validate_receipt(
+def _validate_identity_and_backup(
     receipt: LeaseReceipt,
     *,
     now_minute: int,
     expected_backup_receipt: str,
     watchdog_alive: bool,
 ) -> None:
-    """Fail closed unless the durable admission facts still hold.
-
-    This is deliberately pure. A controller must persist the receipt before
-    draining guests, and an independent watchdog must call this check before
-    allowing lease work or release to proceed.
-    """
-
     if not receipt.lease_id or receipt.generation < 1:
         raise LeaseError("lease receipt identity is invalid")
     if receipt.issued_minute > now_minute:
@@ -92,12 +85,49 @@ def validate_receipt(
         raise LeaseError("lease model identity is not the accepted 9B baseline")
     if receipt.backend_identity != ACCEPTED_BACKEND:
         raise LeaseError("lease backend identity is not the accepted SYCL baseline")
+    if not watchdog_alive:
+        raise LeaseError("independent lease watchdog is not alive")
+
+
+def validate_receipt(
+    receipt: LeaseReceipt,
+    *,
+    now_minute: int,
+    expected_backup_receipt: str,
+    watchdog_alive: bool,
+) -> None:
+    """Validate a durable admitted lease after stable isolation is observed."""
+    _validate_identity_and_backup(
+        receipt, now_minute=now_minute,
+        expected_backup_receipt=expected_backup_receipt,
+        watchdog_alive=watchdog_alive,
+    )
     if not receipt.consumers_isolated:
         raise LeaseError("production consumers are not isolated")
     if not receipt.scheduled_work_quiesced:
         raise LeaseError("scheduled work is not quiesced")
-    if not watchdog_alive:
-        raise LeaseError("independent lease watchdog is not alive")
+
+
+def validate_pre_acquire_receipt(
+    receipt: LeaseReceipt,
+    *,
+    now_minute: int,
+    expected_backup_receipt: str,
+    watchdog_alive: bool,
+) -> None:
+    """Validate a proposed lease before any consumer has been stopped.
+
+    The admission receipt is deliberately stricter after the controller has
+    observed stable isolation. A caller cannot assert that future isolation
+    has already happened in order to pass the pre-acquire gate.
+    """
+    if receipt.consumers_isolated or receipt.scheduled_work_quiesced:
+        raise LeaseError("pre-acquire receipt cannot claim completed isolation")
+    _validate_identity_and_backup(
+        receipt, now_minute=now_minute,
+        expected_backup_receipt=expected_backup_receipt,
+        watchdog_alive=watchdog_alive,
+    )
 
 
 def plan_acquire(request: LeaseRequest) -> LeasePlan:

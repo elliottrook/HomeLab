@@ -61,6 +61,7 @@ def capture(
     items: list[dict], *, date: str, resolve: Callable[[str], str],
     lstat: Callable[[str], os.stat_result], probe: Callable[[str, int], tuple[int, int]],
     clock: Callable[[], int] = lambda: int(time.time()),
+    deadline_epoch: int | None = None,
 ) -> dict:
     """Scan exactly the newest current-day 104/110/116 archives, in order.
 
@@ -75,15 +76,22 @@ def capture(
     if _day(started) != date or any(a.ctime > started or _day(a.ctime) != date for a in artifacts):
         raise IntegrityError("archive cycle differs from scan date")
     archives = []
-    for artifact in artifacts:
+    limits = tuple(900 if artifact.vmid == "110" else 120 for artifact in artifacts)
+    for index, artifact in enumerate(artifacts):
+        # Never begin a new archive when the remaining wall-clock budget cannot
+        # accommodate its full bound and the bounds of every archive after it.
+        if deadline_epoch is not None and deadline_epoch - clock() < sum(limits[index:]):
+            raise IntegrityError("archive scan has insufficient remaining deadline")
         path = _path(artifact.volid, resolve)
         before = _identity(path, lstat)
         if before["size"] != artifact.size:
             raise IntegrityError("archive size differs from Proxmox inventory")
         test_started = clock()
-        timeout_seconds = 900 if artifact.vmid == "110" else 120
+        timeout_seconds = limits[index]
         exit_code, elapsed_ms = probe(path, timeout_seconds)
         test_finished = clock()
+        if deadline_epoch is not None and test_finished > deadline_epoch:
+            raise IntegrityError("archive scan exceeded outer deadline")
         after = _identity(path, lstat)
         if before != after or exit_code != 0 or not isinstance(elapsed_ms, int) or elapsed_ms < 0 or elapsed_ms > timeout_seconds * 1000:
             raise IntegrityError("archive integrity test failed or source changed")
@@ -95,6 +103,8 @@ def capture(
             "test_elapsed_ms": elapsed_ms, "test_exit": 0,
         })
     finished = clock()
+    if deadline_epoch is not None and finished > deadline_epoch:
+        raise IntegrityError("archive scan exceeded outer deadline")
     if _day(finished) != date:
         raise IntegrityError("archive scan crossed local day boundary")
     return {"schema": SCHEMA, "date": date, "started_epoch": started,

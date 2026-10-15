@@ -44,6 +44,7 @@ def main() -> int:
         now_minute=now_minute,
         window_end_minute=record.expires_minute,
         captured_epoch=int(time.time()),
+        expected_backup_receipt=record.backup_receipt,
     )
     print(json.dumps({"state": "candidate-receipt-written", "lease_id": record.lease_id, "generation": record.generation, "receipt": str(RECEIPT)}, sort_keys=True))
     return 0

@@ -75,6 +75,17 @@ class RetainedArchiveIntegrityTests(unittest.TestCase):
                             lstat=os.lstat, probe=lambda path, timeout: (124, timeout * 1000),
                             clock=lambda: self.now)
 
+    def test_outer_deadline_rejects_insufficient_budget_and_overrun(self):
+        with self.assertRaisesRegex(archive.IntegrityError, "insufficient"):
+            archive.capture(self.items, date=self.day, resolve=self.resolve,
+                            lstat=os.lstat, probe=lambda path, timeout: (0, 10),
+                            clock=lambda: self.now, deadline_epoch=self.now + 1139)
+        ticks = iter((self.now,) * 6 + (self.now + 1201,))
+        with self.assertRaises(archive.IntegrityError):
+            archive.capture(self.items, date=self.day, resolve=self.resolve,
+                            lstat=os.lstat, probe=lambda path, timeout: (0, 10),
+                            clock=lambda: next(ticks), deadline_epoch=self.now + 1200)
+
     def test_symlink_and_file_change_during_test_fail(self):
         path = self.root / self.items[0]["volid"].rsplit("/", 1)[-1]
         path.unlink()
