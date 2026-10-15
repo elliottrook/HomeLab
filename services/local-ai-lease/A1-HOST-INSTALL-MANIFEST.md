@@ -45,6 +45,9 @@ files and verify the hashes before enabling the disabled unit:
 | `a1_ingress_policy.py` | `scripts/local-ai/a1_ingress_policy.py` | `07be9c42650f74edbcb080d4b338bb01cc43a6ac18a847d86839c07a0ad65d1d` |
 | `aster-llama-ingress-apply` | `services/local-ai-lease/aster-llama-ingress-apply` | `41b96f560261a198c09fd85d8ba7150478241fbe6a38f28befad9dc4fa40020b` |
 | `aster-llama-ingress-restore` | `services/local-ai-lease/aster-llama-ingress-restore` | `9bf3c3cb1e04081f41584f9dc742d86e9e7ead3a1806a243a6ce3478572ff347` |
+| `application_receipt_boundary.py` | `scripts/local-ai/application_receipt_boundary.py` | `12f3add5603a7f3a97cc98ee0d480936b940e2134734ec7bc1892b8fdda62b16` |
+| `application-b60-watchdog.service` | `services/local-ai-lease/application-b60-watchdog.service` | `f7434db1f18afa4418f1217801152e35a2ae24388c20e04e47e3db8c3288cec7` |
+| `application-b60-watchdog.timer` | `services/local-ai-lease/application-b60-watchdog.timer` | `3e0be0830d60e586e53a1c3035abef7df802ecd156214ddc558f60677111d45a` |
 | `aster-agent/` | exact reviewed Aster source/dependency bundle | host preflight required |
 
 The Aster bundle must use the accepted source/dependency manifest and must not
@@ -141,6 +144,9 @@ start-by and restore deadlines before it stops only the two allowlisted
 consumers; only after that state exists may the
 platform receipt producer emit the real source-bound application lease receipt.
 The sidecar and final A1 batch are blocked until that receipt validates.
+The application receipt boundary and disabled watchdog timer are separate from
+the full-stop receipt/observer and timer; the application timer must remain
+disabled until its effectful runner and host observer are installed.
 The admitted final process has no second inner listener. Wrong-inner-key
 behavior is exercised only by a disposable misconfigured factory/app fixture
 or inner FastAPI auth check; it is never produced by mutating the admitted

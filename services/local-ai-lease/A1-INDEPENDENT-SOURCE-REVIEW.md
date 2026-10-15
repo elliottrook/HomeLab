@@ -52,6 +52,10 @@ change was performed.
 - The manifest rejects a container-wide nftables rule because LXC104 also hosts
   production Aster; temporary backend exclusivity requires a checkpointed
   LXC110 ingress policy and positive allowed/denied observations.
+- The application receipt boundary is separate from the full-stop receipt and
+  requires exclusive backend, IPv4-only listener, watchdog deadline and the
+  complete sidecar observation. A disabled application watchdog timer is
+  present, but its effectful host runner is not installed.
 
 ## Remaining gates before live approval
 

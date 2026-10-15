@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the application-only B60 lease watchdog (disabled candidate)
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+RandomizedDelaySec=10s
+Unit=application-b60-watchdog.service
+
+[Install]
+WantedBy=timers.target
