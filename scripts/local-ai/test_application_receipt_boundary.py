@@ -3,7 +3,8 @@ import unittest
 from application_receipt_boundary import (A1_PROFILE_SHA256, A1_SIDECAR_SOURCE_DIGEST,
                                           ADMISSION_ENDPOINT, ApplicationReceipt,
                                           CONSUMERS, MODE, SCHEMA, admission_payload,
-                                          active_admission_payload, validate)
+                                          active_admission_payload, record_owner_receipt,
+                                          validate)
 
 
 class ApplicationReceiptBoundaryTests(unittest.TestCase):
@@ -74,3 +75,8 @@ class ApplicationReceiptBoundaryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "watchdog"):
             active_admission_payload(self.receipt(), state, watchdog,
                                      now_epoch=200, profile_sha256=A1_PROFILE_SHA256)
+
+    def test_owner_receipt_writer_requires_root(self):
+        with self.assertRaisesRegex(PermissionError, "requires root"):
+            record_owner_receipt(self.receipt(), now_epoch=200,
+                                 expected_lease_id="lease-1", expected_generation=4)

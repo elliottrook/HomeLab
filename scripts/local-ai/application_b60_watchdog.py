@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Sequence
@@ -21,6 +22,34 @@ STATE_NAME = "application-b60.json"
 LOCK_NAME = "application-b60.lock"
 INGRESS_CHECKPOINT = "/var/lib/local-ai-lab/application-b60/llama-ingress-policy.checkpoint"
 KEY_CHECKPOINT = "/var/lib/local-ai-lab/application-b60/aster-llama-api-keys.checkpoint"
+WATCHDOG_STATUS = "/var/lib/local-ai-lab/application-b60/watchdog-status.json"
+
+
+def write_watchdog_status(*, lease_id: str, generation: int,
+                          valid_until_epoch: int, state: str = "healthy") -> None:
+    """Publish the current watchdog assertion for the authenticated callback."""
+    if os.geteuid() != 0 or state not in {"healthy", "released", "failed"}:
+        raise PermissionError("watchdog status producer requires root")
+    path = Path(WATCHDOG_STATUS)
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    payload = {"schema": "aster-application-watchdog-status.v1", "state": state,
+               "lease_id": lease_id, "generation": generation,
+               "valid_until_epoch": valid_until_epoch}
+    fd, name = tempfile.mkstemp(prefix=".watchdog-status.", dir=path.parent)
+    try:
+        os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as stream:
+            json.dump(payload, stream, sort_keys=True, separators=(",", ":"))
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(name, path)
+    except Exception:
+        try:
+            os.unlink(name)
+        except FileNotFoundError:
+            pass
+        raise
 
 
 @dataclass(frozen=True)

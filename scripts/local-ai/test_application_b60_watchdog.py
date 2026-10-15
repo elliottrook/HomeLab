@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from application_b60_watchdog import ApplicationB60Watchdog, fixed_command
+from application_b60_watchdog import ApplicationB60Watchdog, fixed_command, write_watchdog_status
 
 
 class Observer:

@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import stat
+import tempfile
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
@@ -145,6 +146,30 @@ def load_active_admission_payload(*, now_epoch: int,
     return active_admission_payload(receipt, state, watchdog,
                                     now_epoch=now_epoch,
                                     profile_sha256=profile_sha256)
+
+
+def record_owner_receipt(receipt: ApplicationReceipt, *, now_epoch: int,
+                         expected_lease_id: str, expected_generation: int) -> None:
+    """Atomically publish a validated host receipt at the fixed owner path."""
+    if os.geteuid() != 0:
+        raise PermissionError("host receipt producer requires root")
+    validate(receipt, expected_lease_id=expected_lease_id,
+             expected_generation=expected_generation, now_epoch=now_epoch)
+    OWNER_RECEIPT_PATH.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    fd, name = tempfile.mkstemp(prefix=".application-receipt.", dir=OWNER_RECEIPT_PATH.parent)
+    try:
+        os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as stream:
+            stream.write(encode(receipt))
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(name, OWNER_RECEIPT_PATH)
+    except Exception:
+        try:
+            os.unlink(name)
+        except FileNotFoundError:
+            pass
+        raise
 
 
 def load_owner_receipt(path: Path = OWNER_RECEIPT_PATH) -> ApplicationReceipt:

@@ -61,7 +61,10 @@ needs a separate approval after the recovery drill passes.
 
 ## Authenticated callback contract
 
-The platform callback must load the current host-produced `ApplicationReceipt`
+The trusted host controller must call `record_owner_receipt` after its fixed
+observer checks, and the watchdog must call `write_watchdog_status` after each
+current recovery assertion. The platform callback must then load the current
+host-produced `ApplicationReceipt`
 from the fixed root-owned mode-0600 path
 `/var/lib/local-ai-lab/application-b60/application-receipt.json`, read the
 current lease state and lock, and read the current watchdog status. It must
@@ -97,7 +100,13 @@ and ingress restore `9bf3c3cb1e04081f41584f9dc742d86e9e7ead3a1806a243a6ce3478572
 These are a separate drill candidate and are not part of the frozen disabled-
 install packet.
 The active receipt boundary source hash is
-`1601d972038eca295699b21411dc0b838140cb44087791c2a079418213f37c12`.
+`6ae844c523ff84e7b65cdacd74c58ec3cd54f1b5d5fc1de9edd83f440f2f9ca7`, and the
+watchdog status producer hash is
+`ae6378d96037ad6f026c737edd28314c299ca3ec08789bcdb4691589dccd3ddf`.
+The LXC110 helper package must include `a1_key_file.py` hash
+`25f2c82cb09b051f3307341571b3a27c6b2c4f6002c70b5a1a256ed4e8292b36` before
+the key wrappers can be installed. These producer/helper files are drill-only
+candidate artifacts and are not part of the frozen disabled-install packet.
 
 ## Recovery success criteria
 
