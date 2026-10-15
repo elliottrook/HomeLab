@@ -66,7 +66,8 @@ The trusted host controller must call `record_owner_receipt` after its fixed
 observer checks and publish a bounded `healthy` watchdog status for the exact
 lease/generation before sidecar admission. The watchdog must call
 `write_watchdog_status` after each current recovery assertion. The platform
-callback must then load the current
+callback must be the pinned single-request `application_admission_cli.py`
+entrypoint behind a restricted transport identity; it then loads the current
 host-produced `ApplicationReceipt`
 from the fixed root-owned mode-0600 path
 `/var/lib/local-ai-lab/application-b60/application-receipt.json`, read the
@@ -108,6 +109,8 @@ watchdog status producer hash is
 `3447d490ec396dee45191a5294537f2132deac6578e3e30376f6f6980a98e8d2`.
 The trusted controller source hash is
 `3daa4204b1e9515e397680dc51bb2ed96994d2a273e0c2c3ef87f728ce6a41af`.
+The host admission CLI hash is
+`3702f50d8425227d435fbfe6044622d1fcca5c78c93bfdbe1047e29f32e0e655`.
 The LXC110 helper package must include `a1_key_file.py` hash
 `25f2c82cb09b051f3307341571b3a27c6b2c4f6002c70b5a1a256ed4e8292b36` before
 the key wrappers can be installed. These producer/helper files are drill-only
