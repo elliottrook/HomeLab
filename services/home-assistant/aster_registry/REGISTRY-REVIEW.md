@@ -11,7 +11,9 @@ Aster no-effect recording-pilot source. The source in this directory has
 diverged to schema v2 and **must not be copied over the deployed component**.
 The proposed v2 change would replace a working shared contract, not install a
 new offline-only component. Pause remote deployment until a separate output
-path/component or an explicitly tested consumer migration is approved.
+path/component or an explicitly tested consumer migration is approved. The
+isolated candidate now lives in `services/home-assistant/aster_home_registry`;
+this directory's v2 source remains non-deployable against the live v1 path.
 
 Jason selected a three-entity, read-only Home Hub pilot on 2026-10-14. A
 read-only query of VM 103's live entity registry confirmed that all three IDs

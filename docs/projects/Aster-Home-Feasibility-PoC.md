@@ -661,6 +661,21 @@ audio. Continue-listening and resume are additional personal-state writes,
 outside the current read-only snapshot. None of these gaps should be
 represented by invented titles or a falsely working Play button.
 
+### M3c isolated Home exporter preflight — 2026-10-14
+
+After Jason approved an isolated sidecar, prepared
+`services/home-assistant/aster_home_registry` locally under a distinct HA
+domain and `/share/aster-home-registry/latest.json`. Its exact in-code allowlist
+contains only the Laundry light and hall/outside temperatures. Local contract
+tests pass, and the existing schema-v1 component/report are unchanged.
+Read-only Recorder inspection on VM 103 found the latest Laundry light state
+`on`, and both temperature entities `unavailable`, with recent history also
+unavailable. Both sensors have valid Celsius units; this is a source-data
+problem, not a unit mismatch. The sidecar would fail closed and show only the
+light. Deployment is paused before checkpoint/copy/configuration/restart until
+Jason chooses a light-only pilot or waits for the temperature source to
+recover. No VM 103 or remote Git write occurred in this preflight.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

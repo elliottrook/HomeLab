@@ -1,0 +1,2 @@
+# Add only this new top-level block; leave existing aster_registry untouched.
+aster_home_registry: {}
