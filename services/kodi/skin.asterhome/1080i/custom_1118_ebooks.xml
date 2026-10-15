@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="1118" type="window">
+  <defaultcontrol always="true">110</defaultcontrol>
+  <onload>RunScript(special://skin/tools/books_data.py,ebooks)</onload>
+  <backgroundcolor>asterStone</backgroundcolor>
+  <controls>
+    <include content="AsterBooksPage">
+      <param name="page" value="ebooks" />
+      <param name="heading" value="eBooks" />
+      <param name="activeleft" value="490" />
+      <param name="icon" value="special://skin/media/21-books-app.png" />
+    </include>
+  </controls>
+</window>

@@ -810,6 +810,19 @@ playlists exist in the Mac profile. This is not LibreELEC/TV acceptance or a
 new music service.
 Rollback is the prior committed add-on revision and a Mac Kodi restart.
 
+Books visual milestone, 2026-10-15 (skin v0.7.2): the Books landing now has
+separate eBook, audiobook and podcast tile lanes. Three browse pages share the
+Music-style hero hierarchy, approved category icons, 24-hour clock, rounded
+tiles and right-side search. The existing one-shot sanitized feed supplies
+46 audiobooks but no eBooks or podcasts; only real titles are rendered. The
+source snapshot has no per-item added timestamp, cover, synopsis or playback
+path, so the populated lane is truthfully labelled a catalogue snapshot rather
+than Latest Added, missing art uses approved square icons, and the hero action
+is informational only. No new source access, publisher, service or remote Git
+write is part of this milestone. Synthetic feed/layout tests pass; Mac visual
+acceptance remains pending because the Mac locked during the Kodi UI check.
+Rollback is the prior committed skin revision and a Kodi restart.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

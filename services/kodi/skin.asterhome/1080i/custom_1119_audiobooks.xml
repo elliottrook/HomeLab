@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="1119" type="window">
+  <defaultcontrol always="true">111</defaultcontrol>
+  <onload>RunScript(special://skin/tools/books_data.py,audiobooks)</onload>
+  <backgroundcolor>asterStone</backgroundcolor>
+  <controls>
+    <include content="AsterBooksPage">
+      <param name="page" value="audiobooks" />
+      <param name="heading" value="Audiobooks" />
+      <param name="activeleft" value="794" />
+      <param name="icon" value="special://skin/media/12-audiobooks.png" />
+    </include>
+  </controls>
+</window>

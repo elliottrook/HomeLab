@@ -60,7 +60,7 @@ class LayoutTests(unittest.TestCase):
             self.assertEqual(rail.count(f'{name}.png'), 2, name)
         for page, mark in (('Home.xml', '27-aster-media-logo'),
                            ('DialogVideoInfo.xml', '27-aster-media-logo'),
-                           ('custom_1110_books.xml', '28-aster-books-logo'),
+                           ('IncludesBooks.xml', '28-aster-books-logo'),
                            ('custom_1111_digest.xml', '30-aster-news-logo'),
                            ('IncludesMusic.xml', '29-aster-music-logo')):
             self.assertIn(f'{mark}.png', (ROOT / '1080i' / page).read_text(), page)
@@ -112,7 +112,7 @@ class LayoutTests(unittest.TestCase):
             self.assertEqual(fades[0].findtext('colordiffuse'), 'asterStone', name)
 
     def test_clocks_use_24_hour_label_without_stone(self):
-        for name in ('Home.xml', 'custom_1110_books.xml',
+        for name in ('Home.xml', 'IncludesBooks.xml',
                      'custom_1111_digest.xml', 'custom_1112_home.xml',
                      'IncludesMusic.xml'):
             root = ET.parse(ROOT / '1080i' / name)

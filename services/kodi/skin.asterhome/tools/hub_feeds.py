@@ -45,6 +45,16 @@ def read_feed(path):
 
 def books_view(payload):
     """Display only approved fields from the unified-media library snapshot."""
+    return [(record['title'], record['detail'], None)
+            for record in book_catalogue(payload)[:80]]
+
+
+def book_catalogue(payload):
+    """Bounded, sanitized records for the three read-only Books sections.
+
+    The current one-shot producer supplies audiobooks only. Ebook and podcast
+    records can appear only after their sources are separately connected.
+    """
     _fresh(payload, 24 * 3600)
     records = payload.get('items')
     if not isinstance(records, list):
@@ -55,7 +65,8 @@ def books_view(payload):
         if not isinstance(record, dict):
             continue
         kind = (record.get('authority'), record.get('media_type'))
-        if kind not in {('audiobookshelf', 'audiobook'), ('calibre', 'ebook')}:
+        if kind not in {('audiobookshelf', 'audiobook'), ('calibre', 'ebook'),
+                        ('audiobookshelf', 'podcast')}:
             continue
         identity = record.get('authority_id')
         if not isinstance(identity, str) or not identity or len(identity) > 128:
@@ -65,9 +76,12 @@ def books_view(payload):
             continue
         title = _label(record.get('title'))
         seen.add(key)
-        rows.append((title, 'Audiobook · Audiobookshelf' if kind[0] == 'audiobookshelf'
-                     else 'Ebook · Calibre', None))
-        if len(rows) == 80:
+        detail = {('audiobookshelf', 'audiobook'): 'Audiobook · Audiobookshelf',
+                  ('calibre', 'ebook'): 'Ebook · Calibre',
+                  ('audiobookshelf', 'podcast'): 'Podcast · Audiobookshelf'}[kind]
+        rows.append({'title': title, 'detail': detail,
+                     'kind': kind[1], 'id': identity})
+        if len(rows) == 200:
             break
     return rows
 

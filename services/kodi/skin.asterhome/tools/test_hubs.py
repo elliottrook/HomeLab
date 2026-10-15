@@ -111,11 +111,12 @@ class HubTests(unittest.TestCase):
             self.assertIn(f'ActivateWindow({short})', routes)
             window = ET.parse(ROOT / f'1080i/custom_{short}_{page}.xml')
             self.assertEqual(window.getroot().get('id'), str(short))
-            if page == 'music':
-                self.assertIsNotNone(window.find('.//include[@content="AsterMusicPage"]'))
-                music = ET.parse(ROOT / '1080i/IncludesMusic.xml')
-                self.assertIsNotNone(music.find('.//control[@id="500"]'))
-                self.assertIsNotNone(music.find('.//include[@content="AsterNavigationRail"]'))
+            if page in ('music', 'books'):
+                name = 'AsterMusicPage' if page == 'music' else 'AsterBooksPage'
+                self.assertIsNotNone(window.find(f'.//include[@content="{name}"]'))
+                shared = ET.parse(ROOT / f'1080i/Includes{page.title()}.xml')
+                self.assertIsNotNone(shared.find('.//control[@id="500"]'))
+                self.assertIsNotNone(shared.find('.//include[@content="AsterNavigationRail"]'))
             else:
                 self.assertIsNotNone(window.find('.//control[@id="500"]'))
                 self.assertIsNotNone(window.find('.//include[@content="AsterNavigationRail"]'))

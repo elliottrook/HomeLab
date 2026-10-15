@@ -16,6 +16,25 @@ across the full local library and shows the first 500 matches; the recently-adde
 landing shows up to 50 albums. Playlist search filters saved playlist names.
 No background playback, media-file write or new credential is introduced.
 
+## Books catalogue layout (v0.7.2)
+
+The Books landing now has eBook, audiobook and podcast lanes, with three
+matching icon-led browse pages, a shared hero, 24-hour clock and right-side
+search on browse pages. Titles come only from the existing bounded, sanitized
+local `books.json` feed. The current one-shot feed supplies audiobook titles;
+eBook and podcast lanes therefore show honest unconnected states. Approved
+square category icons stand in for missing covers. Search filters the current
+local catalogue and never contacts the source service.
+
+The feed does not include per-title added dates, covers, synopses or playback
+URLs. Accordingly the audiobook row is called a **catalogue snapshot**, not
+"Latest Added"; the hero displays real title/type only, and its action explains
+that reading/listening is not connected. Once a separately reviewed source
+provides those fields, recency, art and playback can be wired without
+inventing metadata in the skin. Refreshing the Mac pilot remains the explicit
+one-shot `pilot_books_feed.py` step described below. No source or service was
+modified by this layout milestone.
+
 ## Kodi startup splash (Mac test profile)
 
 Kodi's startup image is separate from the skin. The 1920 × 1080
