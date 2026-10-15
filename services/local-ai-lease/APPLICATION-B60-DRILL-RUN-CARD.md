@@ -39,15 +39,23 @@ deadline no later than 04:15 Vancouver. A1 work may not begin unless at least
 | Action | Why it is live | Required proof/rollback |
 |---|---|---|
 | Arm application lease and host lock | Creates effect authority and persistent lease state | Lease ID/generation, reserve epochs, source-bound backup receipt; retain lock on ambiguity |
-| Stop/runtime-mask LXC104 Agent and LXC116 Speech | Changes production consumers | Two quiescence samples; restore exact prior states on failure |
+| Stop LXC104 Agent and LXC116 Speech | Changes production consumers; the current controller does not runtime-mask them | Two quiescence samples; restore exact prior states on failure |
 | Add disposable LXC110 test key | Changes backend authentication state | Separate checkpoint, intent/observed journal, remove before release |
 | Apply temporary LXC110 ingress ACL | Changes network admission | Exact source `192.168.70.10` → TCP 11435 only; restore checkpointed policy |
 | Start the disabled A1 sidecar | Creates the test endpoint | UID1904, one worker, credential/network denial probes, exact endpoint; stop on failure |
 | Trigger watchdog recovery | Tests independent restoration | Owner-loss/expiry or bounded recovery trigger; verify every fixed observer probe |
 
-The drill may use a zero-model-call recovery path. Starting the sidecar alone
-does not authorize a backend request. A later 20-call A1 benchmark needs a
-separate approval after the recovery drill passes.
+The current recovery candidate is not a zero-model-call path. Once the
+temporary key is removed, it performs one planned `systemctl restart
+aster-llama.service`; the trusted observer's exact backend check, the
+production-auth probe, and the post-consumer exact check each perform one
+bounded authenticated health generation. That is a maximum of three tiny
+health generations, with no arbitrary prompts; the wrong-key denial is an HTTP
+401 check and is not a generation. The backend is unavailable only during the
+planned restart and must return with the exact postchecks. Any pre-run restart
+needed to activate a temporary key is not implemented by this candidate and
+must be separately pinned, counted and approved. A later 20-call A1 benchmark
+needs a separate approval after the recovery drill passes.
 
 ## Authenticated callback contract
 
@@ -78,6 +86,8 @@ The watchdog may only produce a releasable receipt after:
 - sidecar stopped and no listener remains;
 - temporary key removed and production auth succeeds while the wrong key is
   denied;
+- the one planned backend restart (if the key effect was observed) has a fresh
+  active-state and exact-runtime postcheck;
 - checkpointed ingress policy is restored;
 - Aster Agent and Speech are restored to their prior states;
 - LXC110 service is active with exact b11429 binary, Q4_K_M model, unit hash,
@@ -91,9 +101,12 @@ operator reconciliation. It must not be reported as `READY`.
 
 ## Explicit exclusions
 
-This card does not authorize the 03:15 full-stop drill, host reboot, LXC110
-llama stop/restart, production key access, permanent ACL or schedule changes,
-News changes, the 20-call A1 batch, arbitrary model prompts, or Git push.
+This card does not authorize the 03:15 full-stop drill, host reboot, any
+unplanned LXC110 stop/restart, production key access, permanent ACL or
+schedule changes, News changes, the 20-call A1 batch, arbitrary model prompts,
+or Git push. The temporary key/ACL activation helper and its possible pre-run
+backend restart remain unresolved source gates and cannot be inferred from
+this card.
 
 ## Rollback
 
