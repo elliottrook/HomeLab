@@ -1,5 +1,36 @@
 # Aster Home Kodi skin prototype
 
+Version 0.6.1 adds opt-in, credential-free local feed readers for Books and
+Home. The skin reads only bounded JSON files under Kodi's own
+`special://profile/addon_data/skin.asterhome/feeds/` directory. It neither
+creates those files nor contacts the underlying services. A missing, malformed,
+oversized or stale feed leaves an explicit unconnected screen; no sample data
+is shipped as household data. The contracts are:
+
+- `books.json`: `schema_version: 1`, a timezone-aware `generated_at`, and
+  `items` from a sanitized unified-media library snapshot. Only
+  `audiobookshelf/audiobook` and `calibre/ebook` records with an
+  `authority_id` and `title` render, at most 80. The currently deployed
+  library snapshot has Audiobookshelf records; a Calibre source is not yet
+  confirmed there. The raw snapshot is **not** exposed by the portal API.
+- `home.json`: the same version/timestamp envelope and a `snapshot` containing
+  the existing Aster registry export contract (`schema_version`, `rooms`,
+  `entities`, `timers`, `media_providers`). This is alias **availability**, not
+  current on/off, climate, security or air-quality state. The exporter is
+  offline and has not been deployed; a reviewed publisher would also need to
+  add the timestamp envelope before Kodi can read it.
+
+Books expires after 24 hours and Home after 10 minutes. Neither file may be
+symlinked. The reader discards unexpected library authorities and fields and
+does not offer acquisition or household-control actions. Offline tests use
+synthetic records; no real book or home feed was installed in the Mac test.
+Next, define a protected read-only delivery route from the existing snapshots
+to this Kodi profile, and separately design reviewed live-state aliases for
+the richer Home Hub display. Do not expose `library.json` on the current
+unauthenticated LAN portal or install HA's offline integration merely to
+populate a test screen. These steps need their own risk review and deployment
+authorization. The previous local milestone is `7bf22a7e`.
+
 Version 0.6.0 adds a shared side menu and four matching destinations: Books &
 Audiobooks, Daily Digest, Aster Home, and Music. The Aster Media entry returns
 to the existing video home. Move Left from a hub action to reveal the menu,

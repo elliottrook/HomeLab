@@ -544,6 +544,33 @@ present in the current checkout or sibling knowledge repositories; no release
 promotion is claimed. This remains a local test add-on pending owner review and
 fresh permission for any Forgejo push. Roll back to `d4b6944b` if needed.
 
+### M3a Books/Home read-only feed preparation — 2026-10-14
+
+The existing unified-media refresher writes a sanitized `library.json` that
+includes Audiobookshelf titles, but the portal currently serves recommendations
+and search, not that library snapshot. Its port 8787 is bound on the TrueNAS
+LAN interface, so publishing the whole library through the portal without a
+separate access decision would broaden personal-metadata exposure. Calibre
+records are supported by its offline collector contract but are not confirmed
+in the deployed library snapshot. The offline Home Assistant registry exporter
+is disabled by default, records only reviewed aliases/presence, has no
+timestamp envelope or HTTP route, and cannot supply the mockup's live
+temperature, security or air-quality values. This is an evidence gap, not a
+reason to display invented values.
+
+Skin v0.6.1 now has bounded, opt-in local JSON readers for those existing
+sanitized contracts. Files live only in the disposable Kodi profile's
+`addon_data/skin.asterhome/feeds/` directory, are never created by the skin,
+and fail closed if stale, malformed, oversized or absent. Synthetic tests cover
+authority filtering, deduplication, stale data, alias-only Home display and
+symlink/size rejection. No real feed was copied to Kodi, no service was
+modified, and neither household actions nor acquisition requests are enabled.
+The next gate is an explicitly reviewed protected publisher/delivery path,
+followed by a separate live-state contract and exact Home Assistant entity
+review. Do not repurpose the portal's unauthenticated LAN route or deploy the
+offline HA integration without the project risk/rollback checks. This local
+milestone follows `7bf22a7e`; no Forgejo push or release promotion occurred.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

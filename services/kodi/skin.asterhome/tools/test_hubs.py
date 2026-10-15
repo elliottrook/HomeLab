@@ -4,6 +4,9 @@ from pathlib import Path
 import unittest
 import xml.etree.ElementTree as ET
 from hub_data import digest_view, WINDOWS
+from hub_feeds import books_view, home_view, read_feed
+import json
+import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -33,6 +36,48 @@ class HubTests(unittest.TestCase):
     def test_bounded_rows(self):
         rows, _ = digest_view(self.feed(chapters=[{'title': 'Synthetic', 'start': n} for n in range(100)]))
         self.assertEqual(len(rows), 40)
+
+    def test_books_feed_selects_only_approved_library_fields(self):
+        payload = {'schema_version': 1, 'generated_at': datetime.now(timezone.utc).isoformat(),
+                   'items': [
+                       {'authority': 'audiobookshelf', 'media_type': 'audiobook',
+                        'authority_id': 'a1', 'title': 'A [Book]', 'secret': 'discard'},
+                       {'authority': 'radarr', 'media_type': 'movie',
+                        'authority_id': 'm1', 'title': 'Not a book'},
+                       {'authority': 'audiobookshelf', 'media_type': 'audiobook',
+                        'authority_id': 'a1', 'title': 'Duplicate'},
+                       {'authority': 'calibre', 'media_type': 'ebook',
+                        'authority_id': 'e1', 'title': 'An Ebook'}]}
+        rows = books_view(payload)
+        self.assertEqual(rows, [('A (Book)', 'Audiobook · Audiobookshelf', None),
+                                ('An Ebook', 'Ebook · Calibre', None)])
+        payload['generated_at'] = (datetime.now(timezone.utc) - timedelta(days=2)).isoformat()
+        with self.assertRaises(ValueError):
+            books_view(payload)
+
+    def test_home_feed_is_presence_only_and_bounded(self):
+        payload = {'schema_version': 1, 'generated_at': datetime.now(timezone.utc).isoformat(),
+                   'snapshot': {'schema_version': 1, 'rooms': ['Living Room'],
+                                'entities': ['Laundry lights'], 'timers': [],
+                                'media_providers': []}}
+        self.assertEqual(home_view(payload), [('Living Room', 'Room', None),
+                                              ('Laundry lights', 'Available light or switch', None)])
+        payload['snapshot']['entities'] = ['Secret\nvalue']
+        with self.assertRaises(ValueError):
+            home_view(payload)
+
+    def test_local_feed_rejects_symlinks_and_oversized_content(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / 'books.json'
+            file.write_text(json.dumps({'schema_version': 1}), encoding='utf-8')
+            self.assertEqual(read_feed(file), {'schema_version': 1})
+            alias = Path(directory) / 'alias.json'
+            alias.symlink_to(file)
+            with self.assertRaises(ValueError):
+                read_feed(alias)
+            file.write_bytes(b'x' * 262145)
+            with self.assertRaises(ValueError):
+                read_feed(file)
 
     def test_hub_windows_and_shared_rail(self):
         rail = ET.parse(ROOT / '1080i/IncludesHub.xml')

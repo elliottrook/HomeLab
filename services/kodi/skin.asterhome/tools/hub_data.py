@@ -4,9 +4,16 @@ import math
 import sys
 from datetime import datetime, timezone
 from urllib.request import urlopen
+from hub_feeds import books_view, home_view, read_feed
 
 DIGEST_BASE = 'http://192.168.70.13:8080'
 WINDOWS = {'books': 11110, 'digest': 11111, 'home': 11112, 'music': 11113}
+FEEDS = {'books': 'books.json', 'home': 'home.json'}
+
+
+def optional_feed(xbmcvfs, page):
+    path = xbmcvfs.translatePath('special://profile/addon_data/skin.asterhome/feeds/' + FEEDS[page])
+    return read_feed(path)
 
 
 def kodi_rpc(xbmc, method, params):
@@ -40,6 +47,7 @@ def digest_view(data):
 def main(page, action='refresh'):
     import xbmc
     import xbmcgui
+    import xbmcvfs
 
     if page not in WINDOWS:
         return
@@ -135,16 +143,27 @@ def main(page, action='refresh'):
             rows = [('No fresh briefing', 'Check the news service, then Refresh', None)]
     elif page == 'books':
         window.setProperty('AsterHub.Description', 'A shared home for ebooks, audiobooks and listening progress. Your library stays with Calibre-Web and Audiobookshelf.')
-        rows = [('Books', 'Calibre-Web catalogue · read-only adapter pending', None),
-                ('Audiobooks', 'Audiobookshelf library · read-only adapter pending', None),
-                ('Continue listening', 'Personal progress requires an approved user connection', None),
-                ('Discover & request', 'Recommendations and acquisition stay behind the existing approval workflow', None)]
+        try:
+            rows = books_view(optional_feed(xbmcvfs, 'books'))
+            window.setProperty('AsterHub.Status', f'{len(rows)} library titles · read-only snapshot')
+            if not rows:
+                rows = [('No books in approved snapshot', 'Refresh when the source has published titles', None)]
+        except (OSError, ValueError, KeyError, TypeError):
+            rows = [('Audiobooks', 'Sanitized Audiobookshelf feed not connected yet', None),
+                    ('Ebooks', 'Calibre source not confirmed in the existing snapshot', None),
+                    ('Continue listening', 'Personal progress needs a separate approved connection', None)]
     else:
-        window.setProperty('AsterHub.Description', 'Household overview, rooms and routines alongside Aster. No device states are invented and no household actions are enabled.')
-        rows = [('Home Assistant Hub', 'Rooms, lighting and comfort · approved state adapter required', None),
-                ('Aster', 'Private assistant · approved session connection required', None),
-                ('Routines', 'Read-only overview first · controls remain disabled', None),
-                ('Security & air quality', 'No household data connected to this test screen', None)]
+        window.setProperty('AsterHub.Description', 'Approved household aliases only. Presence is not live device state; controls remain disabled.')
+        try:
+            rows = home_view(optional_feed(xbmcvfs, 'home'))
+            window.setProperty('AsterHub.Status', f'{len(rows)} approved aliases · no controls or live values')
+            if not rows:
+                rows = [('No reviewed household aliases', 'The read-only registry snapshot is empty', None)]
+        except (OSError, ValueError, KeyError, TypeError):
+            rows = [('Home Assistant Hub', 'Approved registry feed not connected yet', None),
+                    ('Aster', 'Private assistant · approved session connection required', None),
+                    ('Routines', 'Read-only overview first · controls remain disabled', None),
+                    ('Security & air quality', 'No household data connected to this test screen', None)]
     listing = window.getControl(500)
     listing.reset()
     items = []
