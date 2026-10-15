@@ -457,3 +457,16 @@ median/nearest-rank p95, and keeps useful-answer time null. Its four synthetic
 tests pass. The eventual result must separately join authenticated gateway
 observations and blind answer review; these headless timings must not be
 labelled native Companion latency or qualified answer performance.
+
+**Application-controller disabled install, 2026-10-14 Vancouver:** Jason
+approved only the frozen platform card at `2c925c3a` (card SHA-256
+`8e9827e3…`). Stream A independently staged and hash-checked its 12 pinned
+artifacts, installed them on Proxmox, and verified both new watchdog units
+disabled/inactive with no PID or lease state. The full-stop controller and
+watchdog hashes/states were unchanged; LXC104 Aster, LXC110 llama.cpp and
+LXC116 Speech remained active, while the A1 sidecar stayed inactive with no
+19104 listener. The [content-free installation record](../evidence/A1-application-controller-disabled-install-2026-10-14.md)
+pins the host receipt and its provenance. This resolves the **disabled
+installation** gate only. A source-bound backup chain, trusted admission
+callback, temporary key/ingress controls, attended recovery drill and separate
+live benchmark approval remain open. No A1 model call was made.
