@@ -52,8 +52,8 @@ def books_view(payload):
 def book_catalogue(payload):
     """Bounded, sanitized records for the three read-only Books sections.
 
-    The current one-shot producer supplies audiobooks only. Ebook and podcast
-    records can appear only after their sources are separately connected.
+    The current one-shot producer supplies audiobooks and Calibre ebook titles.
+    Podcast records can appear only after that source is separately connected.
     """
     _fresh(payload, 24 * 3600)
     records = payload.get('items')
@@ -81,7 +81,7 @@ def book_catalogue(payload):
                   ('audiobookshelf', 'podcast'): 'Podcast · Audiobookshelf'}[kind]
         rows.append({'title': title, 'detail': detail,
                      'kind': kind[1], 'id': identity})
-        if len(rows) == 200:
+        if len(rows) == 1000:
             break
     return rows
 

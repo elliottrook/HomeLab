@@ -5,6 +5,9 @@ Never infer recency or create a working Play action from its catalogue IDs.
 """
 
 import sys
+import hashlib
+import stat
+from pathlib import Path
 
 from hub_feeds import book_catalogue, read_feed
 
@@ -25,12 +28,38 @@ def page_records(records, page, query=''):
     if query:
         term = query.casefold()
         selected = [row for row in selected if term in row['title'].casefold()]
-    return selected[:200]
+    return selected[:1000]
 
 
-def make_item(xbmcgui, row):
+def cover_filename(row):
+    """Stable opaque cache key; no source path or title reaches the skin."""
+    identity = (row['kind'] + ':' + row['id']).encode('utf-8')
+    return hashlib.sha256(identity).hexdigest() + '.jpg'
+
+
+def cached_cover(root, row):
+    """Accept only a small regular JPEG in the skin's private cache."""
+    path = Path(root) / cover_filename(row)
+    try:
+        metadata = path.lstat()
+    except OSError:
+        return None
+    if not stat.S_ISREG(metadata.st_mode) or not 0 < metadata.st_size <= 1024 * 1024:
+        return None
+    try:
+        with path.open('rb') as handle:
+            if handle.read(3) != b'\xff\xd8\xff':
+                return None
+    except OSError:
+        return None
+    return str(path)
+
+
+def make_item(xbmcgui, row, cover_root=None):
     item = xbmcgui.ListItem(row['title'], row['detail'])
-    item.setArt({'thumb': 'special://skin/media/' + ICONS[row['kind']]})
+    cover = cached_cover(cover_root, row) if cover_root else None
+    item.setArt({'thumb': cover or 'special://skin/media/' + ICONS[row['kind']]})
+    item.setProperty('AsterBooks.HasCover', 'true' if cover else 'false')
     item.setProperty('AsterBooks.Kind', row['kind'])
     item.setProperty('AsterBooks.Id', row['id'])
     item.setProperty('AsterBooks.Summary',
@@ -58,6 +87,8 @@ def main(page, action='load'):
 
     path = xbmcvfs.translatePath(
         'special://profile/addon_data/skin.asterhome/feeds/books.json')
+    cover_root = xbmcvfs.translatePath(
+        'special://profile/addon_data/skin.asterhome/feeds/covers')
     try:
         records = book_catalogue(read_feed(path))
         available = True
@@ -71,7 +102,7 @@ def main(page, action='load'):
         for kind, control_id in HOME_CONTROLS.items():
             listing = window.getControl(control_id)
             listing.reset()
-            listing.addItems([make_item(xbmcgui, row) for row in
+            listing.addItems([make_item(xbmcgui, row, cover_root) for row in
                               page_records(records, {'ebook': 'ebooks',
                                                      'audiobook': 'audiobooks',
                                                      'podcast': 'podcasts'}[kind])[:12]])
@@ -82,7 +113,7 @@ def main(page, action='load'):
         rows = page_records(records, page, query)
         listing = window.getControl(500)
         listing.reset()
-        listing.addItems([make_item(xbmcgui, row) for row in rows])
+        listing.addItems([make_item(xbmcgui, row, cover_root) for row in rows])
         total = counts[KINDS[page]]
         status = (f'{len(rows)} / {total} catalogue titles' if available else
                   'Books feed unavailable or stale')

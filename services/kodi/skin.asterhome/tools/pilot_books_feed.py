@@ -1,7 +1,8 @@
 """One-shot, read-only TrueNAS snapshot -> disposable Mac Kodi book feed.
 
 No service is changed and no remote endpoint is added. Run manually, never as
-a background job. Only approved audiobook/ebook fields leave TrueNAS.
+a background job. Only approved audiobook/ebook fields leave TrueNAS; no book
+files, covers, descriptions or filesystem paths are exported.
 """
 
 import json
@@ -16,6 +17,7 @@ from hub_feeds import MAX_BYTES, books_view
 
 
 SOURCE = '/mnt/Media/appdata/unified-media-shadow/portal-refresh/library.json'
+CALIBRE_DB = '/mnt/Media/media/books/metadata.db'
 TARGET = 'truenas'
 DESTINATION = (Path.home() / 'Library/Application Support/Kodi/userdata/addon_data/'
                'skin.asterhome/feeds/books.json')
@@ -30,12 +32,42 @@ def remote(*command):
     return result.stdout
 
 
+def calibre_items():
+    """Project title and ID without opening the live library for writes.
+
+    Immutable mode avoids lock/sidecar writes. A production publisher should
+    instead read a consistent backup or snapshot of the Calibre library.
+    """
+    output = remote('sqlite3', '-json',
+                    f'file:{CALIBRE_DB}?mode=ro&immutable=1',
+                    'SELECT id, title FROM books ORDER BY id')
+    rows = json.loads(output)
+    if not isinstance(rows, list) or len(rows) > 1000:
+        raise ValueError('Calibre catalogue exceeds pilot limit')
+    items = []
+    for row in rows:
+        if (not isinstance(row, dict) or type(row.get('id')) is not int
+                or row['id'] <= 0 or not isinstance(row.get('title'), str)):
+            raise ValueError('Invalid Calibre catalogue row')
+        title = row['title'].strip()
+        if not title or len(title) > 512 or any(ord(char) < 32 for char in title):
+            raise ValueError('Invalid Calibre title')
+        if len(title) > 160:
+            title = title[:159] + '…'
+        items.append({'authority': 'calibre', 'media_type': 'ebook',
+                      'authority_id': str(row['id']), 'title': title})
+    return items
+
+
 def main():
     modified = int(remote('stat', '-c', '%Y', SOURCE).decode().strip())
     jq_filter = ('[.[] | select((.authority == "audiobookshelf" and .media_type == "audiobook") '
                  'or (.authority == "calibre" and .media_type == "ebook")) '
                  '| {authority, media_type, authority_id, title}]')
     items = json.loads(remote('jq', '-c', jq_filter, SOURCE))
+    if not isinstance(items, list):
+        raise ValueError('Invalid unified-media library snapshot')
+    items.extend(calibre_items())
     feed = {'schema_version': 1,
             'generated_at': datetime.fromtimestamp(modified, timezone.utc).isoformat(),
             'items': items}

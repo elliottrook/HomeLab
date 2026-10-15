@@ -831,6 +831,26 @@ the Books landing with search cleared. Physical LibreELEC playback and TV
 acceptance remain outside this visual milestone.
 Rollback is the prior committed skin revision and a Kodi restart.
 
+Books catalogue/cover pilot, 2026-10-15: read-only TrueNAS checks confirmed
+505 Calibre `books` rows in the live `metadata.db`, while the existing
+unified-media snapshot still carried 46 Audiobookshelf titles and no eBooks.
+The bounded one-shot pilot now projects Calibre IDs/titles into the disposable
+Mac Kodi feed. Live Mac visual QA showed `505 / 505 catalogue titles` on the
+eBooks browse page; this is a catalogue display, not yet a connected reader,
+date-ranked Latest Added lane or playback integration. Audiobookshelf's
+read-only database yielded exact IDs and `coverPath` for all 46 titles. Those
+paths use an old case/nesting convention, but all 46 resolve to JPEGs in the
+current media mount after a fixed prefix translation. A separate one-shot
+read-only copy placed the 46 verified, size-bounded JPEGs in the Mac profile's
+private cache, keyed by opaque IDs. After the skin restart, visual QA showed
+the real covers on the Books landing and larger portrait covers on the
+Audiobooks browse grid. No audiobook files, credentials, cover paths or
+Calibre filesystem paths enter the JSON feed; neither server nor services
+were changed. The source is one-shot and the Calibre query uses SQLite
+immutable read-only mode; a production publisher needs a consistent database
+snapshot and an explicit refresh/retention design. Podcasts remain
+unconnected. Forgejo synchronization is pending specific push approval.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

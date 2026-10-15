@@ -20,13 +20,15 @@
   </variable>
   <include name="AsterBooksTile">
     <control type="image"><left>10</left><top>4</top><width>260</width><height>260</height><texture border="28">special://skin/media/ui-panel.png</texture><colordiffuse>asterIvory</colordiffuse></control>
-    <control type="image"><left>76</left><top>70</top><width>128</width><height>128</height><texture>$INFO[ListItem.Art(thumb)]</texture><aspectratio>keep</aspectratio></control>
+    <control type="image"><left>25</left><top>12</top><width>230</width><height>244</height><texture>$INFO[ListItem.Art(thumb)]</texture><aspectratio>keep</aspectratio><visible>String.IsEqual(ListItem.Property(AsterBooks.HasCover),true)</visible></control>
+    <control type="image"><left>76</left><top>70</top><width>128</width><height>128</height><texture>$INFO[ListItem.Art(thumb)]</texture><aspectratio>keep</aspectratio><visible>!String.IsEqual(ListItem.Property(AsterBooks.HasCover),true)</visible></control>
     <control type="label"><left>10</left><top>274</top><width>260</width><height>32</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterInk</textcolor></control>
     <control type="label"><left>10</left><top>307</top><width>260</width><height>26</height><label>$INFO[ListItem.Label2]</label><font>font16</font><textcolor>asterMuted</textcolor></control>
   </include>
   <include name="AsterBooksSmallTile">
     <control type="image"><left>4</left><top>2</top><width>90</width><height>90</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>asterIvory</colordiffuse></control>
-    <control type="image"><left>20</left><top>18</top><width>58</width><height>58</height><texture>$INFO[ListItem.Art(thumb)]</texture><aspectratio>keep</aspectratio></control>
+    <control type="image"><left>9</left><top>6</top><width>80</width><height>82</height><texture>$INFO[ListItem.Art(thumb)]</texture><aspectratio>keep</aspectratio><visible>String.IsEqual(ListItem.Property(AsterBooks.HasCover),true)</visible></control>
+    <control type="image"><left>20</left><top>18</top><width>58</width><height>58</height><texture>$INFO[ListItem.Art(thumb)]</texture><aspectratio>keep</aspectratio><visible>!String.IsEqual(ListItem.Property(AsterBooks.HasCover),true)</visible></control>
     <control type="label"><left>4</left><top>96</top><width>205</width><height>26</height><label>$INFO[ListItem.Label]</label><font>font16</font><textcolor>asterInk</textcolor></control>
   </include>
   <include name="AsterBooksPage">
