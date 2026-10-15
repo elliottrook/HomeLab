@@ -27,9 +27,14 @@ A1 modules and its separately pinned Python dependency environment.
 `requirements.txt` in Stream A hashes to
 `a1beddbeac7ac0afc27f3659b41defe0af9f5dcbf9fb91516cd86d9f4ace2929`.
 It pins FastAPI, httpx, Pydantic, Uvicorn, PyJWT and pywebpush. The installed
-wheel versions and hashes for a sidecar virtual environment remain
+wheel hashes for a sidecar virtual environment remain
 **UNKNOWN / REQUIRES VERIFICATION**; this list alone is not a reproducible
-dependency lock.
+dependency lock. A read-only `pip list --format=json` from LXC 104's current
+production virtual environment showed the same direct versions (FastAPI
+0.133.1, httpx 0.28.1, Pydantic 2.13.4, Uvicorn 0.41.0, PyJWT 2.14.0,
+pywebpush 2.5.0) and 35 packages total. That is installed-version evidence,
+not a wheel hash set or permission to copy production credentials/state into
+the test environment.
 
 **Verified current state:** a read-only LXC 104 SHA-256 check returned
 `b0b81467d3e06c5277a3a60a70530af28fe67ac1775c6f40694a52da080d405a`
