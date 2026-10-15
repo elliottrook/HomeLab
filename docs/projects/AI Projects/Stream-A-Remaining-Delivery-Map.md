@@ -7,6 +7,21 @@ separates the actual backup/check schedule from the proposed live windows,
 records both measured full-stop blockers, and sets the October 15 deadline
 expectation. It supersedes any statement that lab time alone remains.
 
+**October 15 afternoon compatibility checkpoint:** Jason approved the
+hash-pinned **inactive** full-stop candidate installation on Proxmox. The
+installation result on the separate local branch `codex/aster-lease-compat`
+(`services/local-ai-lease/FULL-STOP-COMPATIBILITY-DISABLED-INSTALL-RESULT-20261015.md`)
+records 12 candidate Python modules and two heartbeat units at their pinned
+bytes, preserved originals, target-Linux installed-path tests, unchanged old
+controller/recovery/watchdog bytes, disabled/inactive timers and no lease or
+lock. This closes the disabled-install/schema test gate, **not** the live
+full-stop gate. The CLI effect paths remain hard-disabled. The current-cycle
+retained archive receipt, independently active watchdog/recovery and exact
+post-drill restoration remain unproved. A conditional, read-only archive
+timing check is scheduled for October 16 at 01:10 Vancouver; it cannot write
+the trusted receipt or launch a drill. Full-stop and A1 remain NO-GO pending
+their distinct live admissions.
+
 **October 15 preflight outcome:** The current 00:30 Proxmox backup and all
 three 01:00/02:00/03:00 TrueNAS pulls succeeded. The protected nine-file A1
 subset matched its prior Mac source snapshot after the 03:00 pull. The one-time
@@ -56,10 +71,11 @@ the separate local branch `codex/aster-lease-compat` through `496b1136`.
 Its `services/local-ai-lease/FULL-STOP-COMPATIBILITY-SOURCE-PACKET.md`
 and `services/local-ai-lease/FULL-STOP-COMPATIBILITY-DISABLED-INSTALL-CARD.md`
 specify the retained scan, fixed backup/runtime sources, pre/post-isolation
-state transitions and target-Linux rollback checks. The new command-line
-paths are hard-disabled, nothing has been installed, and the full-stop drill
-is still NO-GO pending a disabled target-Linux validation, observed complete
-current-cycle archive scan and separately approved live run. The offline
+state transitions and target-Linux rollback checks. At that source checkpoint
+the command-line paths were hard-disabled and nothing was installed; the later
+inactive installation and target-Linux validation are recorded above. The
+full-stop drill is still NO-GO pending a complete current-cycle trusted archive
+receipt, independent recovery and a separately approved live run. The offline
 suite ran 175 tests: 173 passed and two root-custody tests were skipped on macOS. The
 code branch has not yet been reconciled into this Stream A branch or pushed.
 The configured 00:30/01:00/02:00/03:00 backup schedules were checked read-only

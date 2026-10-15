@@ -2,6 +2,18 @@
 
 > Owner: Jason. Status: continuous lane active; no exclusive benchmark launcher admitted. The one-time October 15 read-only checks are complete and paused. This cadence does not promote a model, deploy a service, grant a tool, or waive an approval gate.
 
+**October 15 afternoon update:** The approved full-stop compatibility
+candidate is installed inactive on Proxmox and passed synthetic installed-path
+Linux checks. The old controller remains unchanged and no live lease or drill
+is admitted. A new one-time **read-only** archive timing check is scheduled
+for October 16 at 01:10 Vancouver, conditional on that cycle's completed
+backup/task-1 chain, suitable load and no conflicting lease or job. This is a
+new dated observation, not a reopening of the completed October 15 check.
+It cannot persist the trusted retained admission receipt; the receipt-writing
+CLI and acquisition effects remain disabled. The platform owner controls the
+live run card and any future watchdog activation. Full-stop and A1 cannot
+share one backup cycle.
+
 Stream A has two work lanes. **Continuous lane:** documentation, code and fixture review, local tests, evidence reconciliation, read-only LAN/health checks and low-impact shared-service observation run whenever useful, including between lab windows. Continue this lane when an exclusive run is blocked. During an active whole-host lab lease, keep this lane offline and do not compete with maintenance. Companion session and Keychain behavior remain quiet reliability monitoring under the [D3 gate reassessment](evidence/D3-refresh-gate-reassessment-2026-10-12.md), not a reason to hold other Stream A work. A signed-in request after time has passed may support renewal, but sign-out/re-sign-in is not refresh evidence. Check only content-free observations; do not manufacture expiry or send repeated Codex questions.
 
 **Exclusive lane:** deliberate model-call batches, latency/quality comparisons and any activity that occupies the single inference slot or requires lab isolation. Jason's newer [cross-project schedule decision](evidence/Stream-A-lab-window-coordination-2026-10-12.md) proposes a **whole-host `ai-lab` maintenance lease after the complete backup chain and ending by 04:15 America/Vancouver**, followed by a 04:15–06:15 local-AI analysis reservation and the 06:15 News digest. The lab lease can include guest/component restarts and host reboots under that project's checkpoint and recovery controls. Stream A may use the longer lease for its scoped tests, but it does not own the host scheduler or B60 backend promotion. The old 01:00–02:00 Aster slot is retired.
