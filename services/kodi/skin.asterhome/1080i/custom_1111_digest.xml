@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="1111" type="window">
+  <defaultcontrol always="true">300</defaultcontrol>
+  <onload>RunScript(special://skin/tools/hub_data.py,digest)</onload>
+  <backgroundcolor>asterCharcoal</backgroundcolor>
+  <controls>
+    <control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture>special://skin/media/ui-hero-bottom-fade.png</texture><colordiffuse>asterIvory</colordiffuse><aspectratio>stretch</aspectratio></control>
+    <include content="AsterNavigationRail"><param name="content" value="300" /></include>
+    <control type="group">
+      <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
+      <control type="image"><left>110</left><top>18</top><width>236</width><height>86</height><texture>special://skin/media/aster-home-horizontal-512.png</texture><aspectratio>keep</aspectratio></control>
+      <control type="image"><left>1750</left><top>32</top><width>146</width><height>44</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>ddf2ede4</colordiffuse></control>
+      <control type="label"><left>1750</left><top>32</top><width>146</width><height>44</height><label>$INFO[System.Time]</label><font>font20</font><textcolor>asterMuted</textcolor><align>center</align><aligny>center</aligny></control>
+      <control type="image"><left>1180</left><top>110</top><width>430</width><height>360</height><texture>special://skin/media/04-news-digest.png</texture><aspectratio>keep</aspectratio></control>
+      <control type="label"><left>145</left><top>151</top><width>950</width><height>42</height><label>$INFO[Window.Property(AsterHub.Subtitle)]</label><font>font24</font><textcolor>asterGold</textcolor></control>
+      <control type="label"><left>145</left><top>206</top><width>950</width><height>78</height><label>$INFO[Window.Property(AsterHub.Title)]</label><font>font40</font><textcolor>asterRailText</textcolor></control>
+      <control type="textbox"><left>145</left><top>287</top><width>880</width><height>52</height><label>$INFO[Window.Property(AsterHub.Description)]</label><font>font20</font><textcolor>asterRailText</textcolor></control>
+      <control type="label"><left>145</left><top>346</top><width>1000</width><height>30</height><label>$INFO[Window.Property(AsterHub.Status)]</label><font>font20</font><textcolor>asterSage</textcolor></control>
+      <control type="button" id="300">
+        <left>145</left><top>390</top><width>280</width><height>56</height><label>▶  Listen</label><font>font24</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
+        <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturenofocus>
+        <onclick>RunScript(special://skin/tools/hub_data.py,digest,play)</onclick>
+        <onleft>8999</onleft><onright>301</onright><ondown>500</ondown><onup>9001</onup>
+      </control>
+      <control type="button" id="301"><left>445</left><top>390</top><label>Refresh</label><include>AsterCategoryButton</include><onclick>RunScript(special://skin/tools/hub_data.py,digest)</onclick><onleft>300</onleft><onright>500</onright><ondown>500</ondown><onup>9001</onup></control>
+      <control type="image"><left>145</left><top>390</top><width>280</width><height>56</height><texture>special://skin/media/ui-button-ring.png</texture><visible>Control.HasFocus(300)</visible></control>
+      <control type="image"><left>445</left><top>390</top><width>280</width><height>56</height><texture>special://skin/media/ui-button-ring.png</texture><visible>Control.HasFocus(301)</visible></control>
+      <control type="label"><left>145</left><top>500</top><width>1400</width><height>48</height><label>In this briefing</label><font>font28</font><textcolor>asterInk</textcolor></control>
+      <control type="list" id="500">
+        <left>145</left><top>562</top><width>1650</width><height>442</height><orientation>vertical</orientation><scrolltime>160</scrolltime><onup>300</onup><onleft>8999</onleft><onright>301</onright>
+        <onclick>RunScript(special://skin/tools/hub_data.py,digest,chapter)</onclick>
+        <itemlayout height="108" width="1650">
+          <control type="image"><left>0</left><top>0</top><width>1640</width><height>96</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>asterPaper</colordiffuse></control>
+          <control type="label"><left>28</left><top>12</top><width>1570</width><height>36</height><label>$INFO[ListItem.Label]</label><font>font24</font><textcolor>asterInk</textcolor></control>
+          <control type="label"><left>28</left><top>52</top><width>1570</width><height>30</height><label>$INFO[ListItem.Label2]</label><font>font20</font><textcolor>asterMuted</textcolor></control>
+        </itemlayout>
+        <focusedlayout height="108" width="1650">
+          <control type="image"><left>0</left><top>0</top><width>1640</width><height>96</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>$VAR[AsterHubRowColor]</colordiffuse></control>
+          <control type="label"><left>28</left><top>12</top><width>1570</width><height>36</height><label>$INFO[ListItem.Label]</label><font>font24</font><textcolor>asterInk</textcolor></control>
+          <control type="label"><left>28</left><top>52</top><width>1570</width><height>30</height><label>$INFO[ListItem.Label2]</label><font>font20</font><textcolor>asterInk</textcolor></control>
+        </focusedlayout>
+      </control>
+    </control>
+  </controls>
+</window>

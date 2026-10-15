@@ -511,6 +511,39 @@ unknown-category rejection; XML/diff checks pass. Operator instructions are in
 the skin README. Remote synchronization remains pending fresh approval.
 Rule reference: https://kodi.wiki/view/Smart_playlists/Rules_and_groupings
 
+### M3a hub navigation and destination pages — 2026-10-14
+
+The private Kodi skin v0.6.0 now has a shared rail with Aster Media, Books,
+Daily Digest, Aster Home, Music and Settings. Four custom 1080p pages reuse the
+approved v2 logo, palette and application marks. The visual shell, focus routes
+and return to the existing Media home were checked in the disposable Mac Kodi
+installation. The hero assets are direct 512 px exports from the approved
+`aster-brand-v2-2026-10-14` package; hashes are in the skin provenance manifest.
+No artwork was redrawn and no Kodi core change was made.
+
+The Music page read 25 real albums and covers through Kodi's local music
+library. The **Play newest** action queried the first album's 15 songs, built
+Kodi's audio playlist, and started its first track; the Jellyfin/Kodi playback
+log confirmed an audio stream. The short manual test was stopped. That playback
+changed the selected track's normal Jellyfin play history, as expected for a
+real play test. Album rows are currently browsing only, with per-row playback
+still open. Digest showed 21 fresh published chapters from the existing private
+news service, and its **Listen** action opened the published MP3 decoder.
+Per-chapter list activation has not passed an end-to-end check. The skin
+performs no speech synthesis; it consumes the existing canonical-voice
+recording. Invalid/stale metadata fails closed, and an already-open page checks
+its generation time again before playback.
+
+Books and Home pages display explicit read-only connection states for
+Calibre-Web, Audiobookshelf, Home Assistant and Aster. They do not present fake
+device values, access personal libraries, or enable household actions. The next
+data milestone needs an agreed least-privilege, read-only identity and data
+contract for those sources. It is not implied by this UI work. The release
+lifecycle document referenced elsewhere in this project's history was not
+present in the current checkout or sibling knowledge repositories; no release
+promotion is claimed. This remains a local test add-on pending owner review and
+fresh permission for any Forgejo push. Roll back to `d4b6944b` if needed.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

@@ -9,6 +9,14 @@
     "10-archive-film.png": "dec22c2d8c14800a35c418157154d1067722f8a5a085e23fb9162d5a650f851b"
   },
   "export_source_directory": "PNG/128/",
+  "hub_exports": {
+    "source_directory": "PNG/512/ (hero marks) and PNG/128/ (music rail)",
+    "02-home-hub.png": "d98f33b1aa1c279f51c7aad7108ea9dfdf685033a31cc4719cfc1ed6cf7281a1",
+    "04-news-digest.png": "7188785a0225c0a3e0c2fbe19d5c397b28547320bf5b8b62f03e804b2f05fba4",
+    "12-audiobooks.png": "6506150b16216a9e961b03767ed4137508cfdb59417ffde3ee73c2efbe929256",
+    "13-music.png": "7687628c861d4cd6fcfea8918df42b8af9b067ada3b41c4a8b222a1751d4ba11",
+    "music-128.png": "a55a09154e19e8085d034f4083f9814840b1ffeca10249830bc826afff033b37"
+  },
   "collections": {
     "source": "19-movie-collections.svg supplied by Jason on 2026-10-14",
     "source_sha256": "3f89124d6314320a56368b3f208efce9baf293f899c466e8f113cb5164598fcd",

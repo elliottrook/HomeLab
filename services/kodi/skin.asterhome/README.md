@@ -1,5 +1,34 @@
 # Aster Home Kodi skin prototype
 
+Version 0.6.0 adds a shared side menu and four matching destinations: Books &
+Audiobooks, Daily Digest, Aster Home, and Music. The Aster Media entry returns
+to the existing video home. Move Left from a hub action to reveal the menu,
+Right to enter it, Up/Down to choose a destination, and Select to open it.
+All hero marks are direct exports from the approved Aster v2 artwork family.
+
+Music reads recently added albums and covers from Kodi's existing local music
+library. **Play newest** queues up to 200 indexed tracks from the first album
+and starts playback; Refresh only reloads the list. Album rows can be browsed,
+but row-specific playback is not yet wired. Kodi's normal playback keys control
+the audio. The live Mac test displayed 25 albums and opened the first album's
+15-track playlist through the existing Jellyfin integration.
+
+Daily Digest reads the existing published chapter metadata on the private LAN,
+shows a bounded list of stories, and **Listen** starts the published audio only
+on request. An edition older than 36 hours, future-dated, malformed, or absent
+is treated as unavailable. The chapter list is browsable; selecting an
+individual chapter is not yet guaranteed on this Kodi list control. This skin
+does not synthesize a new voice or store headlines in Git.
+
+Books and Home show the intended information architecture and honest connection
+states. Calibre-Web, Audiobookshelf, Home Assistant and Aster private-assistant
+adapters are not connected; their rows do not expose personal data or operate
+household controls. Those connections need a bounded read-only data contract and
+approved identity path before the screens can show real data. No Kodi core,
+production service, firewall or credential changes are included. Restore the
+prior local commit `d4b6944b` to roll back this milestone; the Mac Kodi copy is
+a disposable test installation. No remote push accompanies the local commit.
+
 Version 0.5.8 vertically centres the home hero-copy/action block between the
 header and queues, enlarges the existing horizontal logo to fill its header
 slot, and gives category pages their corresponding approved icon. Hero scores
