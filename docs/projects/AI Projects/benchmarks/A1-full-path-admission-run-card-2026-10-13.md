@@ -25,6 +25,12 @@ reviewed equivalent topology with its own recovery contract. The control and can
 must use the **same declared gateway boundary**; otherwise a timing delta
 confounds model and topology changes. A direct llama.cpp call is useful as a
 backend control, never as the full-path result.
+The first full-path control has its own pinned
+[`a1-full-path-9b-candidate-profile-v1.json`](a1-full-path-9b-candidate-profile-v1.json),
+SHA-256 `f97644b3c39e015dfe6b7b44b71615e340712de5e113d669dc8741f558f83b8d`.
+It is a Stream A candidate-path baseline. The prior direct-backend A1 v2
+profile has a 600-second batch cap and a different prompt path; it must not
+be reused or described as the same full-path profile.
 The first run uses the accepted 9B/SYCL control profile. A named candidate is
 a separate, pinned run only after its model/runtime/endpoint exists and the
 same boundary has passed. One profile per card and lease by default: two
