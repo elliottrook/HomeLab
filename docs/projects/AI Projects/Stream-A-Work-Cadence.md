@@ -13,6 +13,8 @@ It cannot persist the trusted retained admission receipt; the receipt-writing
 CLI and acquisition effects remain disabled. The platform owner controls the
 live run card and any future watchdog activation. Full-stop and A1 cannot
 share one backup cycle.
+Track every dependency and any failed gate in the
+[full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md).
 
 Stream A has two work lanes. **Continuous lane:** documentation, code and fixture review, local tests, evidence reconciliation, read-only LAN/health checks and low-impact shared-service observation run whenever useful, including between lab windows. Continue this lane when an exclusive run is blocked. During an active whole-host lab lease, keep this lane offline and do not compete with maintenance. Companion session and Keychain behavior remain quiet reliability monitoring under the [D3 gate reassessment](evidence/D3-refresh-gate-reassessment-2026-10-12.md), not a reason to hold other Stream A work. A signed-in request after time has passed may support renewal, but sign-out/re-sign-in is not refresh evidence. Check only content-free observations; do not manufacture expiry or send repeated Codex questions.
 

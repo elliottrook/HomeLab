@@ -7,6 +7,11 @@ separates the actual backup/check schedule from the proposed live windows,
 records both measured full-stop blockers, and sets the October 15 deadline
 expectation. It supersedes any statement that lab time alone remains.
 
+The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
+is the current checklist for the exact receipt, watchdog, approval, drill and
+restoration gates. It marks only observed steps complete and separates the
+October 16 read-only scan from an unscheduled live drill.
+
 **October 15 afternoon compatibility checkpoint:** Jason approved the
 hash-pinned **inactive** full-stop candidate installation on Proxmox. The
 installation result on the separate local branch `codex/aster-lease-compat`
