@@ -50,26 +50,18 @@ def expected_rule(rule: dict) -> bool:
     expressions = rule.get("expr")
     if not isinstance(expressions, list) or len(expressions) != 4:
         return False
-    matches = []
-    has_counter = has_drop = False
-    for expression in expressions:
-        if "match" in expression:
-            matches.append(expression["match"])
-        elif "counter" in expression and (expression["counter"] == {} or
-                                             set(expression["counter"]) <= {"packets", "bytes"}):
-            has_counter = True
-        elif "drop" in expression and expression["drop"] in (None, {}):
-            has_drop = True
-        else:
-            return False
-    if not (has_counter and has_drop and len(matches) == 2):
+    if "match" not in expressions[0] or "match" not in expressions[1]:
         return False
-    required = {("saddr", "192.168.70.10", "!=", "ip"), ("dport", 11435, "==", "tcp")}
-    actual = set()
-    for match in matches:
-        left = match.get("left", {}).get("payload", {})
-        actual.add((left.get("field"), match.get("right"), match.get("op"), left.get("protocol")))
-    return actual == required
+    source_match, port_match = expressions[0]["match"], expressions[1]["match"]
+    source_left = source_match.get("left", {}).get("payload", {})
+    port_left = port_match.get("left", {}).get("payload", {})
+    if (source_left.get("field"), source_match.get("right"), source_match.get("op"), source_left.get("protocol")) != ("saddr", "192.168.70.10", "!=", "ip"):
+        return False
+    if (port_left.get("field"), port_match.get("right"), port_match.get("op"), port_left.get("protocol")) != ("dport", 11435, "==", "tcp"):
+        return False
+    return ("counter" in expressions[2] and
+            (expressions[2]["counter"] == {} or set(expressions[2]["counter"]) <= {"packets", "bytes"}) and
+            expressions[3].get("drop") in (None, {}))
 
 
 def _nft_json() -> str:

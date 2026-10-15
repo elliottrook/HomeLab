@@ -44,3 +44,12 @@ class A1IngressPolicyTests(unittest.TestCase):
             {"counter": {"packets": 0, "bytes": 0}}, {"drop": None},
         ]}
         self.assertTrue(expected_rule(rule))
+
+    def test_reordered_drop_is_rejected(self):
+        rule = {"family": "inet", "table": "filter", "chain": "input", "comment": "aster-a1-exclusive-v1", "expr": [
+            {"drop": None},
+            {"match": {"op": "!=", "left": {"payload": {"protocol": "ip", "field": "saddr"}}, "right": "192.168.70.10"}},
+            {"match": {"op": "==", "left": {"payload": {"protocol": "tcp", "field": "dport"}}, "right": 11435}},
+            {"counter": {}},
+        ]}
+        self.assertFalse(expected_rule(rule))
