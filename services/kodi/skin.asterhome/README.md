@@ -1,5 +1,16 @@
 # Aster Home Kodi skin prototype
 
+Version 0.6.4 displays a manual, ten-minute Home pilot. Run
+`python3 tools/pilot_home_feed.py` from the skin directory to pull only the
+approved VM 103 light/temperature snapshot and a bounded Frigate camera
+online/offline status. Mac Kodi shows Laundry and the available closet
+temperature; unavailable hall/outside values are omitted. The camera row is
+status only: live view remains in the separately authenticated Frigate app,
+not in Kodi. No frames, recordings, camera credentials, new firewall rule or
+Home Assistant control actions are involved. Kodi's **Refresh** reloads the
+local feed, not the servers; rerun the script after ten minutes. The v1 Aster
+recording exporter remains separate and unchanged.
+
 Version 0.6.3 prepares, but does not deploy, a three-entity Home Assistant
 pilot: laundry light on/off and hall/outside temperature in °C or °F. The
 offline exporter emits only reviewed aliases and valid bounded values; a v2

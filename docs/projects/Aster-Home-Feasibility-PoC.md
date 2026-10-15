@@ -672,9 +672,57 @@ Read-only Recorder inspection on VM 103 found the latest Laundry light state
 `on`, and both temperature entities `unavailable`, with recent history also
 unavailable. Both sensors have valid Celsius units; this is a source-data
 problem, not a unit mismatch. The sidecar would fail closed and show only the
-light. Deployment is paused before checkpoint/copy/configuration/restart until
-Jason chooses a light-only pilot or waits for the temperature source to
-recover. No VM 103 or remote Git write occurred in this preflight.
+light. Jason then approved using the available closet temperature as an
+interim private-room reading. The exact allowlist was expanded to that sensor;
+unavailable hall/outside readings remain fail-closed. No VM 103 or remote Git
+write occurred in the initial preflight.
+
+Camera expansion was separately requested. The original PoC excluded camera
+content due to privacy risk. Read-only inventory found no Home Assistant
+camera entities; Frigate VM 102 has one active `front_of_house` camera (5.1
+camera FPS at observation). Its authenticated UI listens on 8971 and its
+local API on 127.0.0.1:5000; another port-5000 listener exists on the VM's
+Servers address. The initial Aster Home expansion is limited to a source/status
+entry pointing the user to the authenticated Frigate app, without frames,
+recordings, credentials, public ingress or a new Kodi camera stream. A live
+preview requires separate access-path, privacy and failure-mode review before
+implementation. No Frigate, firewall or HA camera integration was changed.
+
+### M3c Home pilot deployment and Mac acceptance — 2026-10-14
+
+Before writing VM 103, confirmed all four exact allowlisted entities present
+and enabled, the sidecar domain/path absent, existing v1 output healthy, VM
+running and local-lvm 25.43% used. Created Proxmox snapshot
+`aster-home-pre-20261014` and a private mode-0600 copy of the HA YAML at
+`/config/configuration.yaml.before-aster-home-20261014`. The Proxmox snapshot
+emitted its known thin-pool overcommit warning; actual pool use was unchanged.
+Copied only `aster_home_registry` files, verified all three SHA-256 hashes
+against Git working source, appended only `aster_home_registry: {}`, passed
+`ha core check`, and restarted Core only. The restart completed successfully,
+HA HTTP returned 200, and the only integration-specific log line was HA's
+generic custom-integration warning. Post-restart `ha core check` passed.
+
+The new mode-0600 v2 report showed Laundry `on`, closet 16.6 °C and no
+unavailable Hue values. The old mode-0600 v1 report retained its schema,
+snapshot ID and Laundry alias. Both report mtimes advanced again at their
+five-minute refresh. No household action or deliberate state transition was
+made; event-trigger behavior is not claimed from this evidence. A manual
+source-local projection of Frigate stats added only `front_of_house`
+online/offline status, never imagery or credentials, to a ten-minute Mac Kodi
+feed. The feed is mode 0600 and expires closed. Kodi skin v0.6.4 visibly
+rendered the Laundry light, closet temperature and Front of house camera
+status. The camera row is informational; Kodi does not open Frigate or a live
+stream. The UI Refresh button reloads the local file only; rerun the manual
+pilot script for a new source read.
+
+Recovery remains checkpoint plus file-level removal of only the sidecar/YAML
+key/output, followed by config check and Core-only restart. That rollback is
+documented but not destructively rehearsed against production. No new VM,
+network rule, credential, DNS, NetBox object, Beszel agent or HomeLab Doctor
+check was created; those integrations are not authoritative for the manual
+ten-minute Mac test. A persistent publisher or live camera integration would
+need separate identity, monitoring, recovery and privacy review. No Forgejo
+push or release promotion occurred.
 
 ## 15. References
 

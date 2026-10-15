@@ -10,7 +10,7 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.event import async_track_state_change_event, async_track_time_interval
 from homeassistant.helpers.typing import ConfigType
 
-from .contract import ENTITY_IDS, HALL, OUTSIDE, build_snapshot, write_atomic
+from .contract import ENTITY_IDS, HALL, OUTSIDE, CLOSET, build_snapshot, write_atomic
 
 
 DOMAIN = "aster_home_registry"
@@ -29,7 +29,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         states = {entity_id: state.state for entity_id, state in current.items()
                   if state is not None}
         units = {entity_id: current[entity_id].attributes.get("unit_of_measurement")
-                 for entity_id in (HALL, OUTSIDE) if current.get(entity_id) is not None}
+                 for entity_id in (HALL, OUTSIDE, CLOSET) if current.get(entity_id) is not None}
         report = build_snapshot(states, units)
         await hass.async_add_executor_job(write_atomic, report)
 

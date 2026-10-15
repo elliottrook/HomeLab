@@ -32,6 +32,14 @@ class ContractTests(unittest.TestCase):
             self.assertEqual(result["temperatures"], [])
         self.assertEqual(CONTRACT.build_snapshot({}, {})["temperatures"], [])
 
+    def test_approved_closet_temperature_with_unavailable_hue_sensors(self):
+        result = CONTRACT.build_snapshot(
+            {CONTRACT.HALL: "unavailable", CONTRACT.OUTSIDE: "unavailable",
+             CONTRACT.CLOSET: "17.0"},
+            {CONTRACT.HALL: "°C", CONTRACT.OUTSIDE: "°C", CONTRACT.CLOSET: "°C"})
+        self.assertEqual(result["temperatures"], [
+            {"alias": "closet temperature", "value": 17.0, "unit": "°C"}])
+
     def test_rejects_unreviewed_ids(self):
         with self.assertRaises(ValueError):
             CONTRACT.build_snapshot({"lock.front": "locked"}, {})

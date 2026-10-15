@@ -172,7 +172,7 @@ def main(page, action='refresh'):
                     ('Ebooks', 'Calibre source not confirmed in the existing snapshot', None),
                     ('Continue listening', 'Personal progress needs a separate approved connection', None)]
     else:
-        window.setProperty('AsterHub.Description', 'A small, read-only household view. Unavailable values disappear; controls remain disabled.')
+        window.setProperty('AsterHub.Description', 'Read-only household status. Missing values disappear; camera status has no preview here, and controls remain disabled.')
         try:
             feed = optional_feed(xbmcvfs, 'home')
             rows = home_view(feed)
@@ -181,7 +181,13 @@ def main(page, action='refresh'):
                           bool(feed['snapshot'].get('lights') or feed['snapshot'].get('temperatures')))
             if has_values:
                 window.setProperty('AsterHub.HomeValuesReady', 'true')
-            detail = 'read-only light and temperature values' if has_values else 'approved aliases, no live values'
+            if has_values:
+                detail = ('read-only light, temperature and camera status'
+                          if feed['snapshot'].get('cameras') else 'read-only light and temperature values')
+            elif feed['snapshot'].get('cameras'):
+                detail = 'read-only camera status, no household values'
+            else:
+                detail = 'approved aliases, no live values'
             window.setProperty('AsterHub.Status', f'{len(rows)} items · {detail}')
             if not rows:
                 rows = [('No reviewed household aliases', 'The read-only registry snapshot is empty', None)]

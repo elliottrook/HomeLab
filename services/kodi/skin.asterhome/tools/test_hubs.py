@@ -72,13 +72,19 @@ class HubTests(unittest.TestCase):
                                 'timers': [], 'media_providers': [],
                                 'lights': [{'alias': 'laundry lights', 'state': 'on'}],
                                 'temperatures': [{'alias': 'hall temperature', 'value': 20.6,
-                                                  'unit': '°C'}]}}
+                                                  'unit': '°C'}],
+                                'cameras': [{'alias': 'Front of house', 'status': 'online'}]}}
         self.assertEqual(home_view(payload), [('laundry lights', 'Light · On', None),
-                                              ('hall temperature', 'Temperature · 20.6°C', None)])
+                                              ('hall temperature', 'Temperature · 20.6°C', None),
+                                              ('Front of house', 'Camera · Online · Live view in Frigate app', None)])
         payload['snapshot']['temperatures'][0]['value'] = float('nan')
         with self.assertRaises(ValueError):
             home_view(payload)
         payload['snapshot']['temperatures'] = []
+        payload['snapshot']['cameras'][0]['status'] = 'stream-url'
+        with self.assertRaises(ValueError):
+            home_view(payload)
+        payload['snapshot']['cameras'][0]['status'] = 'online'
         payload['generated_at'] = (datetime.now(timezone.utc) - timedelta(minutes=11)).isoformat()
         with self.assertRaises(ValueError):
             home_view(payload)

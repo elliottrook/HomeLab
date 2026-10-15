@@ -82,3 +82,29 @@ restore that configuration copy, remove only
 `/share/aster-registry/latest.json`, run `ha core check`, then restart only
 Home Assistant Core. Use the VM snapshot only if file-level rollback cannot
 restore a healthy Core. Do not roll back unrelated Home Assistant state.
+
+## Aster Home read-only display pilot
+
+VM 103 also runs a separate `aster_home_registry` custom integration with
+`aster_home_registry: {}` in `/config/configuration.yaml`. It writes only
+`/share/aster-home-registry/latest.json` (schema v2, mode 0600), on the
+reviewed light/temperature state changes and every five minutes. It is
+independent of the schema-v1 `aster_registry` report above, which must not be
+replaced. The fixed display allowlist is Laundry main light, hall, outside and
+owner-approved closet temperature. Hall/outside Hue readings were unavailable
+at the October 14 pilot; their values are omitted, not guessed. The report
+registers no service, action, entity or HTTP route.
+
+Recovery points: Proxmox snapshot `aster-home-pre-20261014` and mode-0600
+`/config/configuration.yaml.before-aster-home-20261014`. For file-level
+rollback, restore that YAML copy, remove only
+`/config/custom_components/aster_home_registry` and
+`/share/aster-home-registry/latest.json`, run `ha core check`, then restart
+Core only. Preserve the schema-v1 Aster registry files and report. Use the
+snapshot only if file-level recovery fails; it can roll back unrelated HA
+state. No production rollback drill has been performed.
+
+The Mac Kodi Home test uses a manual source-local projection, not a persistent
+HA endpoint. Frigate contributes one `front_of_house` online/offline status
+only; camera frames and recordings never enter the Kodi feed. A live preview
+or persistent delivery path needs a separate security and privacy gate.

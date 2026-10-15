@@ -82,7 +82,10 @@ def home_view(payload):
     if snapshot['schema_version'] == 2:
         lights = snapshot.get('lights', [])
         temperatures = snapshot.get('temperatures', [])
-        if not isinstance(lights, list) or not isinstance(temperatures, list) or len(lights) > 40 or len(temperatures) > 40:
+        cameras = snapshot.get('cameras', [])
+        if (not isinstance(lights, list) or not isinstance(temperatures, list)
+                or not isinstance(cameras, list) or len(lights) > 40
+                or len(temperatures) > 40 or len(cameras) > 4):
             raise ValueError('Invalid Home Assistant values')
         for light in lights:
             if not isinstance(light, dict) or light.get('state') not in ('on', 'off'):
@@ -98,6 +101,11 @@ def home_view(payload):
             if not minimum <= value <= maximum:
                 raise ValueError('Temperature out of range')
             rows.append((_label(sensor.get('alias')), f'Temperature · {value:g}{sensor["unit"]}', None))
+        for camera in cameras:
+            if (not isinstance(camera, dict) or camera.get('status') not in ('online', 'offline')):
+                raise ValueError('Invalid camera status')
+            rows.append((_label(camera.get('alias')),
+                         f'Camera · {camera["status"].title()} · Live view in Frigate app', None))
     groups = (('rooms', 'Room'), ('timers', 'Active or paused timer'),
               ('media_providers', 'Available media device'))
     if snapshot['schema_version'] == 1:

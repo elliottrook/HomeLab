@@ -13,19 +13,20 @@ OUTPUT = Path("/share/aster-home-registry/latest.json")
 LIGHT = "light.laundry_laundry_main_lights"
 HALL = "sensor.hall_hall_sensor_temperature"
 OUTSIDE = "sensor.outside_outdoor_sensor_temperature"
-ENTITY_IDS = frozenset({LIGHT, HALL, OUTSIDE})
+CLOSET = "sensor.jasons_room_jasons_closet_temperature"
+ENTITY_IDS = frozenset({LIGHT, HALL, OUTSIDE, CLOSET})
 ALIASES = {LIGHT: "laundry lights", HALL: "hall temperature",
-           OUTSIDE: "outside temperature"}
+           OUTSIDE: "outside temperature", CLOSET: "closet temperature"}
 
 
 def build_snapshot(states: dict[str, str], units: dict[str, str]) -> dict:
-    if set(states) - ENTITY_IDS or set(units) - {HALL, OUTSIDE}:
+    if set(states) - ENTITY_IDS or set(units) - {HALL, OUTSIDE, CLOSET}:
         raise ValueError("unreviewed entity supplied")
     lights = []
     if states.get(LIGHT) in {"on", "off"}:
         lights.append({"alias": ALIASES[LIGHT], "state": states[LIGHT]})
     temperatures = []
-    for entity_id in (HALL, OUTSIDE):
+    for entity_id in (HALL, OUTSIDE, CLOSET):
         unit = units.get(entity_id)
         if unit not in {"°C", "°F"}:
             continue
