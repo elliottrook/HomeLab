@@ -34,6 +34,11 @@ and [source inventory](benchmarks/A1-Aster-source-bundle-inventory-2026-10-14.md
 record the current admission gaps and establish that the first run, if
 admitted, measures a pinned **Stream A candidate path**, not today's deployed
 Aster binary.
+An [independent source review](evidence/A1-live-drill-admission-gap-2026-10-14.md)
+found that the installed drill entrypoint checks a prelease backup marker but
+no fixed producer yet derives that marker from current-cycle backup sources.
+The restricted Mini-to-host admission identity is also outside the disabled
+install. Those are live-drill and benchmark gates, not installation defects.
 An offline guarded Aster gateway candidate now pins the sealed 20-case wire
 requests, separates ingress and isolated inner authentication, and supports a
 durable one-attempt journal. The admission check requires those boundaries and
