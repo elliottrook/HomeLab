@@ -124,11 +124,13 @@ def _safe_window(prelease: ApplicationPreLease) -> bool:
 class ApplicationB60Controller:
     def __init__(self, paths: ApplicationPaths, runner: Callable[[Sequence[str]], None], *, allow_effects: bool = False,
                  receipt_writer: Callable[..., None] | None = None,
+                 status_writer: Callable[..., None] | None = None,
                  now_epoch: Callable[[], int] | None = None):
         self.paths = paths
         self.runner = runner
         self.allow_effects = allow_effects
         self.receipt_writer = receipt_writer
+        self.status_writer = status_writer
         self.now_epoch = now_epoch
 
     @classmethod
@@ -138,7 +140,8 @@ class ApplicationB60Controller:
         if os.geteuid() != 0:
             raise PermissionError("production application controller requires root")
         return cls(paths, runner, allow_effects=True,
-                   receipt_writer=production_receipt_writer(), now_epoch=now_epoch)
+                   receipt_writer=production_receipt_writer(),
+                   status_writer=production_status_writer(), now_epoch=now_epoch)
 
     def _require_effect_authority(self) -> None:
         if not self.allow_effects:
@@ -213,7 +216,7 @@ class ApplicationB60Controller:
 
     def admit_sidecar(self, receipt: ApplicationLeaseReceipt, *, expected_lease_id: str, expected_generation: int) -> dict[str, object]:
         self._require_effect_authority()
-        if self.receipt_writer is None or self.now_epoch is None:
+        if self.receipt_writer is None or self.status_writer is None or self.now_epoch is None:
             raise ValueError("application receipt producer is not configured")
         if not self.paths.lock.exists() or not self.paths.state.exists():
             raise ValueError("application lease state and lock are both required")
@@ -224,9 +227,14 @@ class ApplicationB60Controller:
         from application_receipt_boundary import from_lease_receipt
         owner_receipt = from_lease_receipt(
             receipt, watchdog_deadline_epoch=value["restore_deadline_epoch"])
-        self.receipt_writer(owner_receipt, now_epoch=self.now_epoch(),
+        current_epoch = self.now_epoch()
+        self.receipt_writer(owner_receipt, now_epoch=current_epoch,
                             expected_lease_id=expected_lease_id,
                             expected_generation=expected_generation)
+        self.status_writer(lease_id=expected_lease_id,
+                           generation=expected_generation,
+                           valid_until_epoch=min(value["restore_deadline_epoch"], current_epoch + 90),
+                           state="healthy")
         value["phase"] = "sidecar-admitted"
         atomic_write(self.paths.state, json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n")
         _journal(self.paths.journal, {"event": "sidecar-admitted", "lease_id": expected_lease_id, "generation": expected_generation})
@@ -240,3 +248,9 @@ def production_receipt_writer():
     """Return the fixed root-owned producer used by the live host controller."""
     from application_receipt_boundary import record_owner_receipt
     return record_owner_receipt
+
+
+def production_status_writer():
+    """Return the fixed root-owned watchdog producer for initial admission."""
+    from application_b60_watchdog import write_watchdog_status
+    return write_watchdog_status
