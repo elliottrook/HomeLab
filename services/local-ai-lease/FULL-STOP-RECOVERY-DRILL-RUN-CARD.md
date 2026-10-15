@@ -12,7 +12,7 @@ card is approved. Source pins are:
 | Artifact | SHA-256 |
 |---|---|
 | `lease_recovery_executor.py` | `d75ddfae4ccb3de4bd059aca75d41f4cdac6c60f4951d0ea6ab11a13b9f98e4d` |
-| `lease_watchdog_cli.py` | `e79521ae4cfacb61e1232df3b62cdfbb2d5181c0697770b8c1ff6c88c575990d` |
+| `lease_watchdog_cli.py` (source-only; not installed/executed) | `e79521ae4cfacb61e1232df3b62cdfbb2d5181c0697770b8c1ff6c88c575990d` |
 | `trusted_observer.py` | `fdc64fc200b87d0faba64a02762df3197fc49366dd0bec12b491ed83fb1aa93f` |
 | `local-ai-lease-watchdog.service` | `3041ed62efadcb1bcffe0c66e9c311933fc90c0cb101ea08f24b546fc9bc656d` |
 | `local-ai-lease-watchdog.timer` | `9f09de46e3ee55d8f765e1f279d34632ea914c8c6506416f0455853ef538b744` |
