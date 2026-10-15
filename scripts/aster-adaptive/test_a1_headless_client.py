@@ -1,9 +1,11 @@
 """Fictional transport fixtures; no socket or model is opened."""
 import json
+import os
 import sys
 import unittest
 from pathlib import Path
 from urllib.error import URLError
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).parent))
 from a1_headless_client import A1TransportError, invoke
@@ -51,8 +53,9 @@ class A1HeadlessClientTests(unittest.TestCase):
     def test_one_frozen_post_returns_bounded_answer_and_content_free_clock(self):
         opener = Opener(Response(completion()))
         ticks = iter((1_000_000_000, 1_050_000_000))
-        answer, timing = invoke(fixture(), endpoint=ENDPOINT, ingress_token=TOKEN,
-                                opener=opener, clock=lambda: next(ticks))
+        answer, pending = invoke(fixture(), endpoint=ENDPOINT, ingress_token=TOKEN,
+                                 opener=opener, clock=lambda: next(ticks))
+        timing = pending.finish(terminal_displayed=True)
         self.assertEqual(answer, "A fictional answer.")
         self.assertEqual(timing["accepted_to_displayed_ms"], 50)
         self.assertEqual(timing["observation_id"], "a" * 32)
@@ -62,6 +65,23 @@ class A1HeadlessClientTests(unittest.TestCase):
         self.assertEqual(timeout, 60)
         self.assertEqual(request.get_method(), "POST")
         self.assertEqual(json.loads(request.data)["enabled_tools"], [])
+
+    def test_default_transport_ignores_ambient_proxy(self):
+        opener = Opener(Response(completion()))
+        with patch.dict(os.environ, {"HTTP_PROXY": "http://127.0.0.1:9",
+                                     "HTTPS_PROXY": "http://127.0.0.1:9"}, clear=False), \
+             patch("urllib.request.build_opener", return_value=opener) as build:
+            answer, pending = invoke(fixture(), endpoint=ENDPOINT, ingress_token=TOKEN)
+            pending.finish(terminal_displayed=True)
+        handlers = build.call_args.args
+        self.assertTrue(any(type(handler).__name__ == "ProxyHandler" for handler in handlers))
+        self.assertEqual(answer, "A fictional answer.")
+
+    def test_timeout_cannot_exceed_single_call_bound(self):
+        opener = Opener(Response(completion()))
+        with self.assertRaises(ValueError):
+            invoke(fixture(), endpoint=ENDPOINT, ingress_token=TOKEN,
+                   opener=opener, timeout_s=60.1)
 
     def test_nonlocal_or_ambiguous_endpoint_rejected_before_transport(self):
         for endpoint in ("https://127.0.0.1:19120/v1/chat/completions",

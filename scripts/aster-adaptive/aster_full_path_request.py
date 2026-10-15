@@ -5,8 +5,8 @@ It neither establishes a test-only server boundary nor invokes Aster.
 """
 from __future__ import annotations
 
-import json
 import hashlib
+import json
 
 from holdout_answer_capture import FIELDS, load_cases
 

@@ -106,7 +106,7 @@ class JournaledCaptureTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             directory = Path(root) / "run"
             calls = []
-            for deadline in (0, float("nan"), 1201, True):
+            for deadline in (0, float("nan"), 901, True):
                 with self.subTest(deadline=deadline):
                     with self.assertRaisesRegex(ValueError, "deadline"):
                         journaled.capture_journaled(
@@ -116,27 +116,46 @@ class JournaledCaptureTests(unittest.TestCase):
                     self.assertFalse(directory.exists())
             self.assertEqual(calls, [])
 
-    def test_full_path_20_minute_cap_is_supported_without_changing_default(self):
-        self.assertEqual(journaled.capture_journaled.__kwdefaults__["max_wall_s"], 900)
-        with tempfile.TemporaryDirectory() as root:
-            summary = journaled.capture_journaled(
-                self.cases, self.profile, lambda case: "fictional answer",
-                Path(root) / "run", max_wall_s=1200)
-        self.assertEqual(summary["completed"], 20)
-
     def test_final_envelope_write_failure_preserves_all_returned_answers(self):
         with tempfile.TemporaryDirectory() as root:
             directory = Path(root) / "run"
-            with patch.object(journaled.os, "replace", side_effect=OSError("synthetic secret-like rename detail")):
-                with self.assertRaises(journaled.EvidenceWriteFailure) as failure:
+            with patch.object(journaled.os, "replace", side_effect=OSError("synthetic rename failure")):
+                with self.assertRaises(journaled.EvidenceWriteFailure):
                     journaled.capture_journaled(
                         self.cases, self.profile, lambda case: "fictional answer", directory)
-            self.assertNotIn("secret-like", str(failure.exception))
-            self.assertTrue(failure.exception.__suppress_context__)
             events = [json.loads(line) for line in (directory / "attempt-journal.jsonl").read_text().splitlines()]
             self.assertEqual(sum(event["event"] == "attempt_returned" for event in events), 20)
             self.assertFalse((directory / "raw-attempts.json").exists())
             self.assertFalse((directory / "raw-attempts.json.tmp").exists())
+
+    def test_full_path_deadline_never_starts_case_without_full_call_budget(self):
+        with tempfile.TemporaryDirectory() as root:
+            directory = Path(root) / "run"
+            reads = [0]
+
+            def clock():
+                reads[0] += 1
+                return 0.0 if reads[0] <= 2 else 1150.0
+            calls = []
+
+            def answer(case, *, timeout_s):
+                calls.append((case["id"], timeout_s))
+                return "fictional answer"
+
+            summary = journaled.capture_journaled(
+                self.cases, self.profile, answer, directory,
+                clock=clock, max_wall_s=1200,
+                allow_full_path_20m=True)
+            self.assertEqual(calls, [])
+            self.assertEqual(summary["completed"], 0)
+            self.assertEqual(summary["not_attempted"], 20)
+
+    def test_extended_deadline_requires_explicit_full_path_flag(self):
+        with tempfile.TemporaryDirectory() as root:
+            with self.assertRaisesRegex(ValueError, "deadline"):
+                journaled.capture_journaled(self.cases, self.profile,
+                                            lambda case: "fictional answer",
+                                            Path(root) / "run", max_wall_s=1200)
 
 
 if __name__ == "__main__":

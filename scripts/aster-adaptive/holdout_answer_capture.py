@@ -37,7 +37,7 @@ def load_cases(raw: bytes) -> list[dict]:
 
 def capture(cases_raw: bytes, profile_sha256: str,
             invoke: Callable[[dict], str], clock: Callable[[], float] = time.monotonic,
-            max_wall_s: float = 900) -> dict:
+            max_wall_s: float = 900, before_case: Callable[[], bool] | None = None) -> dict:
     cases = load_cases(cases_raw)
     if (not isinstance(profile_sha256, str) or not HEX64.fullmatch(profile_sha256)
             or max_wall_s <= 0):
@@ -46,7 +46,7 @@ def capture(cases_raw: bytes, profile_sha256: str,
     rows = []
     stopped = False
     for case in cases:
-        if stopped or clock() - start >= max_wall_s:
+        if stopped or clock() - start >= max_wall_s or (before_case is not None and not before_case()):
             rows.append({"case_id": case["id"], "status": "not_attempted",
                          "answer": None, "error_code": "prior_stop_or_deadline",
                          "total_ms": None})
@@ -90,8 +90,6 @@ def reserve_private(directory: Path) -> None:
         raise ValueError("raw answers must stay outside Git")
     if not directory.parent.is_dir() or directory.parent.stat().st_mode & 0o077:
         raise ValueError("parent must be owner-only")
-    # Prove directory creation and file write *before* any model call. A
-    # completed remote batch must never be lost to a predictable local denial.
     directory.mkdir(mode=0o700, exist_ok=False)
     probe = directory / ".write-preflight"
     try:

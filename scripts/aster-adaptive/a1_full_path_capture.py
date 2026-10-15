@@ -14,7 +14,7 @@ import re
 from pathlib import Path
 from typing import Callable
 
-from a1_headless_client import A1TransportError
+from a1_headless_client import A1TransportError, ClientDisplayClock
 from journaled_holdout_capture import EvidenceWriteFailure, capture_journaled
 
 CLOCK_FIELDS = {"schema_version", "observation_id", "http_status",
@@ -50,7 +50,7 @@ def _clock_row(case_id: str, timing: dict, error_code: str | None) -> dict:
 
 
 def capture_full_path(cases_raw: bytes, profile_sha256: str, directory: Path,
-                      invoke_case: Callable[[dict], tuple[str, dict]],
+                      invoke_case: Callable[..., tuple[str, object]],
                       *, clock=None, max_wall_s: float = 1200) -> dict:
     """Capture one frozen batch; retain failures and never retry an attempt.
 
@@ -64,6 +64,7 @@ def capture_full_path(cases_raw: bytes, profile_sha256: str, directory: Path,
     clock_file = directory / "client-clock.jsonl"
     stream = None
     row_count = 0
+    pending: dict[str, object] = {}
 
     def append(case_id: str, timing: dict, error_code: str | None) -> None:
         nonlocal stream, row_count
@@ -92,9 +93,9 @@ def capture_full_path(cases_raw: bytes, profile_sha256: str, directory: Path,
         except (OSError, TypeError, ValueError):
             raise EvidenceWriteFailure("A1 client clock failed; stop without retry") from None
 
-    def witnessed(case: dict) -> str:
+    def invoke_for_journal(case: dict, *, timeout_s: float) -> str:
         try:
-            answer, timing = invoke_case(case)
+            answer, timing = invoke_case(case, timeout_s=timeout_s)
         except A1TransportError as exc:
             append(case["id"], exc.timing, exc.args[0])
             if exc.args[0] == "unavailable_or_uncertain":
@@ -106,15 +107,22 @@ def capture_full_path(cases_raw: bytes, profile_sha256: str, directory: Path,
                                 "accepted_to_displayed_ms": None,
                                 "terminal_displayed": False}, "client_exception")
             raise
-        append(case["id"], timing, None)
+        pending[case["id"]] = timing
         return answer
+
+    def after_attempt_returned(case_id: str) -> None:
+        timing = pending.pop(case_id)
+        if isinstance(timing, ClientDisplayClock):
+            timing = timing.finish(terminal_displayed=True)
+        append(case_id, timing, None)
 
     options = {"max_wall_s": max_wall_s}
     if clock is not None:
         options["clock"] = clock
     try:
-        summary = capture_journaled(cases_raw, profile_sha256, witnessed,
-                                    directory, **options)
+        summary = capture_journaled(cases_raw, profile_sha256, invoke_for_journal,
+                                    directory, after_attempt_returned=after_attempt_returned,
+                                    allow_full_path_20m=True, min_call_s=60, **options)
     finally:
         if stream is not None:
             stream.close()

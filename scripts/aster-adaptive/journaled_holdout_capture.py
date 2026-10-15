@@ -7,6 +7,7 @@ supplying invoke(case). An interrupted invocation is never retried here.
 from __future__ import annotations
 
 import hashlib
+import inspect
 import json
 import math
 import os
@@ -14,8 +15,6 @@ from pathlib import Path
 from typing import Callable
 
 import holdout_answer_capture as holdout
-
-MAX_WALL_S = 1200  # Full-path card; the platform lease may impose a shorter deadline.
 
 
 class EvidenceWriteFailure(BaseException):
@@ -29,8 +28,8 @@ def _write_event(stream, event: dict) -> None:
         stream.write(raw)
         stream.flush()
         os.fsync(stream.fileno())
-    except (OSError, TypeError, ValueError):
-        raise EvidenceWriteFailure("private attempt journal failed; stop without retry") from None
+    except (OSError, TypeError, ValueError) as exc:
+        raise EvidenceWriteFailure("private attempt journal failed; stop without retry") from exc
 
 
 def _create_private(path: Path):
@@ -41,8 +40,11 @@ def _create_private(path: Path):
 
 
 def capture_journaled(cases_raw: bytes, profile_sha256: str,
-                      invoke: Callable[[dict], str], directory: Path,
-                      *, clock=None, max_wall_s: float = 900) -> dict:
+                      invoke: Callable[..., str], directory: Path,
+                      *, clock=None, max_wall_s: float = 900,
+                      after_attempt_returned: Callable[[str], None] | None = None,
+                      allow_full_path_20m: bool = False,
+                      min_call_s: float = 60) -> dict:
     """Capture once, durably journaling starts and returned text before proceeding.
 
     A started event without a later returned/error event is an uncertain call.
@@ -53,9 +55,19 @@ def capture_journaled(cases_raw: bytes, profile_sha256: str,
     holdout.load_cases(cases_raw)
     if not isinstance(profile_sha256, str) or not holdout.HEX64.fullmatch(profile_sha256):
         raise ValueError("unfrozen candidate profile")
+    max_limit = 1200 if allow_full_path_20m else 900
     if (isinstance(max_wall_s, bool) or not isinstance(max_wall_s, (int, float))
-            or not math.isfinite(max_wall_s) or not 0 < max_wall_s <= MAX_WALL_S):
+            or not math.isfinite(max_wall_s) or not 0 < max_wall_s <= max_limit
+            or isinstance(min_call_s, bool) or not isinstance(min_call_s, (int, float))
+            or not math.isfinite(min_call_s) or not 0 < min_call_s <= 60
+            or (max_wall_s > 900 and not allow_full_path_20m)):
         raise ValueError("invalid bounded batch deadline")
+    monotonic = clock or __import__("time").monotonic
+    started = monotonic()
+    parameters = inspect.signature(invoke).parameters
+    accepts_timeout = ("timeout_s" in parameters
+                       or any(parameter.kind is inspect.Parameter.VAR_KEYWORD
+                              for parameter in parameters.values()))
     holdout.reserve_private(directory)
     journal = directory / "attempt-journal.jsonl"
     with _create_private(journal) as stream:
@@ -67,7 +79,11 @@ def capture_journaled(cases_raw: bytes, profile_sha256: str,
             case_id = case["id"]
             _write_event(stream, {"event": "attempt_started", "case_id": case_id})
             try:
-                answer = invoke(case)
+                remaining = max_wall_s - (monotonic() - started)
+                if remaining < min_call_s:
+                    raise TimeoutError("insufficient batch time for another bounded call")
+                answer = (invoke(case, timeout_s=min(60.0, remaining))
+                          if accepts_timeout else invoke(case))
             except Exception as exc:
                 # Record an allowlisted class only; exception text may contain
                 # a URL, prompt or credential and must never enter the journal.
@@ -85,14 +101,20 @@ def capture_journaled(cases_raw: bytes, profile_sha256: str,
             if isinstance(answer, str) and len(answer.encode("utf-8")) <= 16_000:
                 _write_event(stream, {"event": "attempt_returned", "case_id": case_id,
                                       "answer": answer})
+                if after_attempt_returned is not None:
+                    after_attempt_returned(case_id)
             else:
                 _write_event(stream, {"event": "attempt_invalid_output", "case_id": case_id})
             return answer
 
+        def can_start_case() -> bool:
+            return max_wall_s - (monotonic() - started) >= min_call_s
+
         options = {"max_wall_s": max_wall_s}
         if clock is not None:
             options["clock"] = clock
-        result = holdout.capture(cases_raw, profile_sha256, witnessed, **options)
+        result = holdout.capture(cases_raw, profile_sha256, witnessed,
+                                 before_case=can_start_case, **options)
         _write_event(stream, {"event": "capture_completed", "planned": len(result["attempts"])})
 
     raw = (json.dumps(result, sort_keys=True, ensure_ascii=False, allow_nan=False) + "\n").encode()
@@ -108,9 +130,9 @@ def capture_journaled(cases_raw: bytes, profile_sha256: str,
             os.fsync(dirfd)
         finally:
             os.close(dirfd)
-    except OSError:
+    except OSError as exc:
         pending.unlink(missing_ok=True)
-        raise EvidenceWriteFailure("final capture write failed; journal retained; no retry") from None
+        raise EvidenceWriteFailure("final capture write failed; journal retained; no retry") from exc
     return {"planned": len(result["attempts"]),
             "completed": sum(row["status"] == "completed" for row in result["attempts"]),
             "failed": sum(row["status"] == "failed" for row in result["attempts"]),

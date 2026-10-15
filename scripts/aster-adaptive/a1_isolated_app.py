@@ -12,12 +12,16 @@ import json
 import os
 import re
 import stat
+import sys
+from contextlib import contextmanager
 from pathlib import Path
 
 from a1_test_gateway import A1TestGateway, DurableAttemptJournal, inside_git
 from aster_asgi_clock import ASGIResponseClock
 
 HEX64 = re.compile(r"[0-9a-f]{64}\Z")
+ENV_NAME = re.compile(r"[A-Z][A-Z0-9_]*\Z")
+EXPECTED_CREDENTIALS_DIRECTORY = "/run/credentials/aster-a1-test.service"
 CLOCK_FIELDS = {"schema_version", "observation_id", "path", "http_status",
                 "first_body_ms", "terminal_ms", "terminal_observed"}
 
@@ -34,6 +38,56 @@ def _owned(path: Path, uid: int, *, directory: bool) -> None:
             or (directory and not stat.S_ISDIR(info.st_mode))
             or (not directory and not stat.S_ISREG(info.st_mode))):
         raise ValueError("invalid owner-only A1 custody")
+
+
+def _credential_environment(env: dict[str, str]) -> dict[str, str]:
+    """Read the systemd credential file without exposing it as process env."""
+    directory = env.get("CREDENTIALS_DIRECTORY")
+    if not directory:
+        return env
+    if directory != EXPECTED_CREDENTIALS_DIRECTORY:
+        raise ValueError("A1 credential directory is not unit-bound")
+    path = Path(directory) / "runtime.env"
+    if path.is_symlink() or not path.is_file() or path.stat().st_mode & 0o077:
+        raise ValueError("A1 runtime credential custody is invalid")
+    loaded: dict[str, str] = {}
+    for raw in path.read_text(encoding="ascii").splitlines():
+        if not raw or raw.startswith("#") or "=" not in raw:
+            raise ValueError("A1 runtime credential syntax is invalid")
+        name, value = raw.split("=", 1)
+        if not ENV_NAME.fullmatch(name) or "\x00" in value:
+            raise ValueError("A1 runtime credential name/value is invalid")
+        if name in loaded:
+            raise ValueError("duplicate A1 runtime credential")
+        loaded[name] = value
+    result = dict(env)
+    result.update(loaded)
+    return result
+
+
+@contextmanager
+def _scoped_aster_environment(env: dict[str, str]):
+    """Expose only validated A1 settings while importing env-bound Aster code."""
+    names = {name for name in os.environ if name.startswith("ASTER_")}
+    original = {name: os.environ[name] for name in names}
+    try:
+        for name in names:
+            del os.environ[name]
+        for name, value in env.items():
+            if name.startswith("ASTER_"):
+                os.environ[name] = value
+        yield
+    finally:
+        for name in tuple(name for name in os.environ if name.startswith("ASTER_")):
+            del os.environ[name]
+        os.environ.update(original)
+
+
+def _load_aster(env: dict[str, str]):
+    if "aster_agent" in sys.modules:
+        raise ValueError("Aster module was imported before isolated credentials were bound")
+    with _scoped_aster_environment(env):
+        return importlib.import_module("aster_agent").app
 
 
 class DurableClockSink:
@@ -89,7 +143,8 @@ def _validated_config(config_path: Path, env: dict[str, str], uid: int) -> tuple
             or env.get("ASTER_NOTIFICATION_KEY") !=
             "/run/aster-a1-test/absent-vapid.pem"
             or Path(env["ASTER_NOTIFICATION_KEY"]).exists()
-            or env.get("CREDENTIALS_DIRECTORY")):
+            or (env.get("CREDENTIALS_DIRECTORY")
+                and env["CREDENTIALS_DIRECTORY"] != EXPECTED_CREDENTIALS_DIRECTORY)):
         raise ValueError("A1 privileged path isolation is not pinned")
     knowledge = Path(env.get("ASTER_KNOWLEDGE_DIR", ""))
     _owned(knowledge, uid, directory=True)
@@ -130,7 +185,7 @@ def _validated_config(config_path: Path, env: dict[str, str], uid: int) -> tuple
 def create_app(*, config_path: Path | None = None, env: dict[str, str] | None = None,
                uid: int | None = None, app_loader=None):
     """Assemble the guard after configuration checks, before importing Aster."""
-    env = dict(os.environ if env is None else env)
+    env = _credential_environment(dict(os.environ if env is None else env))
     uid = os.geteuid() if uid is None else uid
     if uid == 0:
         raise ValueError("A1 sidecar must not run as root")
@@ -140,7 +195,7 @@ def create_app(*, config_path: Path | None = None, env: dict[str, str] | None = 
     clock_directory = Path(payload["clock_dir"])
     sink = DurableClockSink(clock_directory, uid=uid)
     try:
-        loader = app_loader or (lambda: importlib.import_module("aster_agent").app)
+        loader = app_loader or (lambda: _load_aster(env))
         aster = loader()
         return A1TestGateway(
             ASGIResponseClock(aster, sink),

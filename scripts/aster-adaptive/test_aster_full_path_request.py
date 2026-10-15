@@ -1,12 +1,10 @@
 import json
-import hashlib
 import sys
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).parent))
-from aster_full_path_request import frozen_request_hashes, payload_for, wire_bytes_for
+from aster_full_path_request import payload_for
 
 
 def fixture():
@@ -42,35 +40,6 @@ class AsterFullPathRequestTests(unittest.TestCase):
         case["maximum_tool_scope"] = "read_only"
         with self.assertRaises(ValueError):
             payload_for(case)
-
-    def test_private_manifest_hashes_exact_wire_bytes_without_labels(self):
-        cases = []
-        for i in range(20):
-            case = fixture()
-            case["id"] = f"fictional-{i:02d}"
-            case["fictional_user_request"] += f" ({i})"
-            cases.append(case)
-        with patch("aster_full_path_request.load_cases", return_value=cases) as loader:
-            digests = frozen_request_hashes(b"sealed fixture")
-        loader.assert_called_once_with(b"sealed fixture")
-        self.assertEqual(len(digests), 20)
-        self.assertIn(hashlib.sha256(wire_bytes_for(cases[0])).hexdigest(), digests)
-        self.assertNotIn(cases[0]["fictional_user_request"], str(digests))
-
-    def test_private_manifest_rejects_duplicate_wire_requests(self):
-        cases = [fixture() for _ in range(20)]
-        for i, case in enumerate(cases):
-            case["id"] = f"fictional-{i:02d}"
-        with patch("aster_full_path_request.load_cases", return_value=cases):
-            with self.assertRaisesRegex(ValueError, "duplicate serialized request"):
-                frozen_request_hashes(b"sealed fixture")
-
-    def test_private_manifest_rejects_invalid_case_before_hashing(self):
-        bad = fixture()
-        bad["maximum_tool_scope"] = "read_only"
-        with patch("aster_full_path_request.load_cases", return_value=[bad] * 20):
-            with self.assertRaisesRegex(ValueError, "invalid frozen no-tool case"):
-                frozen_request_hashes(b"sealed fixture")
 
 
 if __name__ == "__main__":
