@@ -27,9 +27,18 @@ producer or live-drill launcher. The 03:05 and 03:40 checks remain read-only.
 An [evening readiness audit](evidence/A1-evening-readiness-audit-2026-10-14.md)
 found that 03:40 is too late for a first A1 admission with 35 minutes of
 reserve before 04:15. A separate one-time **03:05 read-only backup/source
-preflight** is active in this chat; it must mark A1 NO-GO by 03:10 if task 2
+preflight** was active in this chat; it must mark A1 NO-GO by 03:10 if task 2
 or any source-bound gate remains unproved. It neither runs the platform drill
 nor grants A1 model calls.
+
+**2026-10-15 completion:** The 01:10 timing check and 03:05 backup/source
+preflight have each run once and are now **paused**. The [current-cycle
+record](evidence/A1-2026-10-15-read-only-preflight.md) found successful
+scheduled backups and matching A1 subset data, but no complete current-cycle
+archive integrity result, no trusted retained receipt and no live A1 admission.
+Full-stop and A1 remain NO-GO this cycle. The separate 03:40 read-only
+postcheck stays active for one run. Do not reactivate either completed
+one-time preflight merely because the next daily clock boundary arrives.
 
 **Current-state guard, reconciled 2026-10-12:** the platform owner's current,
 uncommitted `docs/projects/Local-AI-Platform-Split.md` record in the main
