@@ -10,6 +10,11 @@ the full Aster-path benchmark. The current Stream A automation is instead an
 active 03:40 read-only post-drill recovery check, not a test launcher.
 Continuous Stream A work remains active, and the A1 benchmark needs its
 separate application-only lease and sidecar admission.
+An [October 14 installed-path audit](evidence/Full-stop-lease-schema-mismatch-2026-10-14.md)
+found that the existing manual full-stop controller writes a different lease
+schema from the independent watchdog's strict decoder. Until a compatible
+acquire path is installed and tested, the proposed live full-stop drill is
+NO-GO regardless of the clock or backup completion.
 The configured 00:30/01:00/02:00/03:00 backup schedules were checked read-only
 on Proxmox and TrueNAS; this does not prove a given night's completion. The
 platform owner's record reports one successful manual light lease, but the
