@@ -49,8 +49,16 @@ files unchanged for this disabled stage.
 Copy only the twelve named Python files and two disabled unit files. Require
 root ownership and mode 0644 for code/units; retain the 0700 state directory.
 Recompute every destination SHA-256 against the source packet. Run target-Linux
-imports and the synthetic schema/receipt tests without invoking either CLI's
-effect path. `full_stop_acquire_candidate.main(["--effect-authorized"])` and
+imports and the synthetic schema/receipt tests with `python3 -B` and
+`PYTHONPATH=/usr/local/libexec/local-ai-lease`; do not import from a different
+checkout. The import set must include `retained_archive_integrity`,
+`retained_archive_producer_candidate`, `fixed_source_adapters`,
+`full_stop_source_preflight`, `full_stop_acquire_candidate`,
+`lease_controller_candidate`, `lease_recovery_executor`, and
+`platform_receipt_producer`. Round-trip a synthetic `AdmissionRecord` through
+`encode`/`decode`, and inspect `capture`'s `deadline_epoch` parameter on the
+installed copy. Do not pass a production path, credential or model prompt.
+`full_stop_acquire_candidate.main(["--effect-authorized"])` and
 the archive producer `main()` must still report disabled with no host effect.
 Verify the old controller and installed recovery executor/watcher hashes did
 not move; `systemctl daemon-reload` may load unit metadata but may not enable
