@@ -133,7 +133,10 @@ single bounded change:
 8. Start the final run instance from the clean owner-only journal and run the
    frozen 20-request control batch through the sidecar. Record only
    content-free observation IDs, timing/status fields, request digests and
-   host-attested lease fields.
+   host-attested lease fields. The Mini capture bridge must be exactly
+   `a1_full_path_capture.py` SHA-256
+   `7141dd938b9a9994523e1eea2ac8078bbd93639ee2459c89dae0589651556157`;
+   include that client artifact hash in the final receipt.
 
 ## Required denial probes
 

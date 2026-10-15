@@ -48,6 +48,7 @@ files and verify the hashes before enabling the disabled unit:
 | `application_receipt_boundary.py` | `scripts/local-ai/application_receipt_boundary.py` | `12f3add5603a7f3a97cc98ee0d480936b940e2134734ec7bc1892b8fdda62b16` |
 | `application-b60-watchdog.service` | `services/local-ai-lease/application-b60-watchdog.service` | `f7434db1f18afa4418f1217801152e35a2ae24388c20e04e47e3db8c3288cec7` |
 | `application-b60-watchdog.timer` | `services/local-ai-lease/application-b60-watchdog.timer` | `3e0be0830d60e586e53a1c3035abef7df802ecd156214ddc558f60677111d45a` |
+| Mini capture bridge `a1_full_path_capture.py` | Stream A `scripts/aster-adaptive/a1_full_path_capture.py` at `decfa81a` | `7141dd938b9a9994523e1eea2ac8078bbd93639ee2459c89dae0589651556157` |
 | `aster-agent/` | exact reviewed Aster source/dependency bundle | host preflight required |
 
 The Aster bundle must use the accepted source/dependency manifest and must not
@@ -147,6 +148,10 @@ The sidecar and final A1 batch are blocked until that receipt validates.
 The application receipt boundary and disabled watchdog timer are separate from
 the full-stop receipt/observer and timer; the application timer must remain
 disabled until its effectful runner and host observer are installed.
+The Mini capture bridge is client-side only: it owns the content-free clock
+file and one-attempt answer journal, has no network/lease authority, and is
+not copied into the LXC sidecar. Its exact hash must be included in the final
+20-case run receipt.
 The admitted final process has no second inner listener. Wrong-inner-key
 behavior is exercised only by a disposable misconfigured factory/app fixture
 or inner FastAPI auth check; it is never produced by mutating the admitted
