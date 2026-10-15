@@ -1,5 +1,14 @@
 # Aster Home Kodi skin prototype
 
+Version 0.6.7 replaces the stone clock with a dark translucent inset and a
+subtle warm outline on the media and hub pages. Kodi's clock label requests
+`HH:mm`, but the active regional preference still controls 12/24-hour display.
+Set **Settings → Interface → Regional → Use 12 / 24-hour format** to
+**24-hour clock** on each Kodi/LibreELEC profile; the disposable Mac test
+profile was changed through Kodi's local settings API and visibly showed
+`00:04` after midnight. This profile preference is not part of the skin add-on
+and must be checked during endpoint setup.
+
 Version 0.6.6 carries the approved limestone treatment into the search/filter
 heading and keeps selected hero artwork visible, dimmed, behind the expanded
 navigation rail. The lower ivory fade and interactive media copy/queues hide
@@ -7,9 +16,9 @@ while the rail is open. The Mac Kodi test confirmed the menu no longer opens
 onto a blank canvas; this is visual acceptance only, not LibreELEC playback or
 remote-control acceptance. No remote service changed.
 
-Version 0.6.5 adds a restrained limestone material to unfocused category,
-filter and secondary-action pills, and to the clock pill across the media and
-hub pages. Green primary actions and sage focus states remain solid for
+Version 0.6.5 added a restrained limestone material to unfocused category,
+filter and secondary-action pills, and initially to the clock pill. The clock
+was revised in 0.6.7. Green primary actions and sage focus states remain solid for
 contrast. `media/ui-limestone-panel.png` is cropped from the **limestone-tile**
 layer of the approved Aster v2 `SVG/01-aster.svg`; it is not a redrawn or
 AI-generated texture. Regenerate only from the SHA-verified release archive

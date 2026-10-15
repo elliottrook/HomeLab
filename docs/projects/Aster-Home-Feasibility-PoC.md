@@ -745,6 +745,16 @@ artwork treatment with an expanded rail; offline layout tests cover the
 conditional layers and filter surface. This remains a disposable Mac visual
 test; no LibreELEC/TV playback or control capability is inferred.
 
+Clock refinement, 2026-10-15 (v0.6.7): Jason rejected the stone clock. The
+media and hub pages now use a dark translucent clock inset with a thin warm
+outline, while category and filter controls retain limestone. Kodi's
+`System.Time(HH:mm)` did not override the Mac profile's regional 12-hour
+setting by itself; the test profile's `locale.use24hourclock` was changed from
+`regional` to `24hours` through Kodi's local JSON-RPC settings API. The Mac
+screen then showed `00:04` after midnight. Set the same per-profile Kodi
+regional preference during LibreELEC setup; this is not a skin-bundled global
+setting and has not been tested on the physical endpoint.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

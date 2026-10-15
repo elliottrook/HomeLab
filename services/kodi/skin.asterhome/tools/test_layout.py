@@ -51,9 +51,7 @@ class LayoutTests(unittest.TestCase):
         header = panel.read_bytes()[:24]
         self.assertEqual(header[:8], b'\x89PNG\r\n\x1a\n')
         self.assertEqual(struct.unpack('!II', header[16:24]), (280, 56))
-        for name in ('Home.xml', 'MyVideoNav.xml', 'Includes.xml',
-                     'custom_1110_books.xml', 'custom_1111_digest.xml',
-                     'custom_1112_home.xml', 'custom_1113_music.xml'):
+        for name in ('Home.xml', 'MyVideoNav.xml', 'Includes.xml'):
             self.assertIn('ui-limestone-panel.png', (ROOT / '1080i' / name).read_text())
 
     def test_expanded_menu_preserves_dimmed_artwork(self):
@@ -73,6 +71,22 @@ class LayoutTests(unittest.TestCase):
         self.assertTrue(any(control.findtext('width') == '280' and
                             control.findtext('height') == '56' and
                             control.findtext('top') == '502' for control in panels))
+
+    def test_clocks_use_24_hour_label_without_stone(self):
+        for name in ('Home.xml', 'custom_1110_books.xml',
+                     'custom_1111_digest.xml', 'custom_1112_home.xml',
+                     'custom_1113_music.xml'):
+            root = ET.parse(ROOT / '1080i' / name)
+            labels = [control for control in root.findall('.//control')
+                      if control.findtext('label') == '$INFO[System.Time(HH:mm)]']
+            self.assertEqual(len(labels), 1, name)
+            self.assertEqual(labels[0].findtext('align'), 'center', name)
+            self.assertTrue(any(control.findtext('colordiffuse') == 'e029302b'
+                                for control in root.findall('.//control')), name)
+            self.assertFalse(any(control.findtext('texture') ==
+                                 'special://skin/media/ui-limestone-panel.png'
+                                 and control.findtext('left') == '1750'
+                                 for control in root.findall('.//control')), name)
 
     def test_hero_block_is_centred_and_actions_match_rings(self):
         # Available hero-copy lane: header bottom 100 to queue heading 492.
