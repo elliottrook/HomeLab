@@ -1,5 +1,16 @@
 # Aster Home Kodi skin prototype
 
+Version 0.5.3 preserves the full hero artwork in a fitted rounded image on the
+right, with a subdued full-width backdrop and rounded translucent copy panel.
+Hero metadata is reduced to the year. Media captions are plain ink text with
+no boxes; playback percentages become rounded resume bars. All media cards,
+focus outlines and navigation surfaces have rounded corners. Neutral raster
+masks are reproducible with `python3 tools/build_surfaces.py`; existing Aster
+brand artwork is unchanged. Filled bars were verified using a temporary
+playlist of real movies with resume positions, then the normal TV row restored.
+The current show-level TV row supplies zero PercentPlayed values, so its bars
+remain empty until episode-level resume data is used.
+
 Version 0.5.2 enlarges the media artwork from 320×180 to 400×225 with four
 cards per row. Landscape art is preferred, followed by fanart and then the
 library thumbnail. Captions and focus surfaces sit below the image so they

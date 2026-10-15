@@ -11,9 +11,18 @@
             <top>0</top>
             <width>1836</width>
             <height>420</height>
-            <texture background="true">$VAR[AsterHeroFanart]</texture>
+            <texture background="true" diffuse="special://skin/media/ui-hero-mask.png">$VAR[AsterHeroFanart]</texture>
+            <colordiffuse>38ffffff</colordiffuse>
             <aspectratio>scale</aspectratio>
             <fadetime>250</fadetime>
+        </control>
+
+        <!-- Preserve the complete hero composition on the right. The soft
+             full-width backdrop fills the canvas without relying on its crop. -->
+        <control type="image" id="12">
+            <left>900</left><top>12</top><width>990</width><height>396</height>
+            <texture background="true" diffuse="special://skin/media/ui-card-mask.png">$VAR[AsterHeroFanart]</texture>
+            <aspectratio>keep</aspectratio><fadetime>250</fadetime>
         </control>
 
         <!-- Group the hero surface and its content so Kodi keeps the
@@ -24,12 +33,13 @@
                  the hero. -->
             <control type="image" id="11">
                 <zorder>1</zorder>
+                <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
                 <left>112</left>
                 <top>28</top>
                 <width>760</width>
                 <height>372</height>
-                <texture>special://skin/media/card-charcoal.png</texture>
-                <colordiffuse>c92b2923</colordiffuse>
+                <texture border="20">special://skin/media/ui-panel.png</texture>
+                <colordiffuse>df292721</colordiffuse>
                 <aspectratio>stretch</aspectratio>
             </control>
 
@@ -74,7 +84,7 @@
                 <top>0</top>
                 <width>250</width>
                 <height>1080</height>
-                <texture>special://skin/media/rail-background.png</texture>
+                <texture diffuse="special://skin/media/ui-rail-mask.png">special://skin/media/rail-background.png</texture>
             </control>
             <control type="image">
                 <left>28</left>
@@ -169,7 +179,7 @@
             <top>0</top>
             <width>84</width>
             <height>1080</height>
-            <texture>special://skin/media/rail-background.png</texture>
+            <texture diffuse="special://skin/media/ui-rail-collapsed-mask.png">special://skin/media/rail-background.png</texture>
         </control>
         <control type="image" id="8997">
             <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
@@ -238,6 +248,11 @@
             <texture>special://skin/media/aster-home-horizontal-512.png</texture>
             <aspectratio>keep</aspectratio>
         </control>
+        <control type="image">
+            <left>1558</left><top>44</top><width>250</width><height>56</height>
+            <texture border="20">special://skin/media/ui-panel.png</texture>
+            <colordiffuse>ddf2ede4</colordiffuse>
+        </control>
         <control type="label">
             <left>1570</left>
             <top>52</top>
@@ -295,9 +310,9 @@
             <top>310</top>
             <width>680</width>
             <height>36</height>
-            <label fallback="Metadata unavailable">$VAR[AsterHeroYear]  |  $VAR[AsterHeroDuration]  |  $VAR[AsterHeroResolution]  |  $VAR[AsterHeroGenre]</label>
+            <label>$VAR[AsterHeroYear]</label>
             <font>font20</font>
-            <textcolor>ffb9f2d0</textcolor>
+            <textcolor>ffece8df</textcolor>
         </control>
         <control type="button" id="120">
             <left>145</left>
@@ -373,72 +388,70 @@
             <ondown>110</ondown>
             <itemlayout width="420" height="280">
                 <control type="image">
-                    <left>8</left>
-                    <top>8</top>
-                    <width>400</width>
-                    <height>225</height>
-                    <texture background="true">$VAR[AsterCardArt]</texture>
+                    <left>8</left><top>8</top><width>400</width><height>225</height>
+                    <texture background="true" diffuse="special://skin/media/ui-card-mask.png">$VAR[AsterCardArt]</texture>
                     <aspectratio>scale</aspectratio>
                 </control>
                 <control type="image">
-                    <left>8</left>
-                    <top>237</top>
-                    <width>400</width>
-                    <height>36</height>
-                    <texture>special://skin/media/card-charcoal.png</texture>
-                    <colordiffuse>f0292721</colordiffuse>
-                    <aspectratio>stretch</aspectratio>
+                    <left>8</left><top>8</top><width>400</width><height>225</height>
+                    <texture>special://skin/media/ui-card-corners.png</texture>
+                    <colordiffuse>asterIvory</colordiffuse>
+                </control>
+                <control type="image">
+                    <left>22</left><top>218</top><width>372</width><height>6</height>
+                    <texture border="4">special://skin/media/ui-progress.png</texture>
+                    <colordiffuse>aa292721</colordiffuse>
+                </control>
+                <control type="progress">
+                    <visible>Integer.IsGreater(ListItem.PercentPlayed,0)</visible>
+                    <left>22</left><top>218</top><width>372</width><height>6</height>
+                    <texturebg border="4" colordiffuse="00ffffff">special://skin/media/ui-progress.png</texturebg>
+                    <midtexture border="4" colordiffuse="asterSage">special://skin/media/ui-progress.png</midtexture>
+                    <lefttexture></lefttexture><righttexture></righttexture>
+                    <overlaytexture></overlaytexture>
+                    <info>ListItem.PercentPlayed</info>
                 </control>
                 <control type="label">
-                    <left>26</left>
-                    <top>241</top>
-                    <width>310</width>
-                    <height>28</height>
-                    <label>$INFO[ListItem.Label]</label>
-                    <font>font20</font>
-                    <textcolor>asterRailText</textcolor>
-                    <truncate>true</truncate>
+                    <left>8</left><top>241</top><width>400</width><height>28</height>
+                    <label>$INFO[ListItem.Label]</label><font>font20</font>
+                    <textcolor>asterInk</textcolor><truncate>true</truncate>
                 </control>
-                <control type="label"><left>342</left><top>246</top><width>52</width><height>20</height><label>$INFO[ListItem.PercentPlayed, ,%]</label><font>font16</font><textcolor>asterSage</textcolor><align>right</align></control>
             </itemlayout>
             <focusedlayout width="420" height="280">
                 <control type="image">
-                    <left>8</left>
-                    <top>8</top>
-                    <width>400</width>
-                    <height>225</height>
-                    <texture background="true">$VAR[AsterCardArt]</texture>
+                    <left>8</left><top>8</top><width>400</width><height>225</height>
+                    <texture background="true" diffuse="special://skin/media/ui-card-mask.png">$VAR[AsterCardArt]</texture>
                     <aspectratio>scale</aspectratio>
                 </control>
                 <control type="image">
-                    <left>8</left>
-                    <top>237</top>
-                    <width>400</width>
-                    <height>36</height>
-                    <texture>special://skin/media/card-charcoal.png</texture>
-                    <colordiffuse>f0292721</colordiffuse>
-                    <aspectratio>stretch</aspectratio>
+                    <left>8</left><top>8</top><width>400</width><height>225</height>
+                    <texture>special://skin/media/ui-card-corners.png</texture>
+                    <colordiffuse>asterIvory</colordiffuse>
                 </control>
                 <control type="image">
-                    <left>8</left>
-                    <top>237</top>
-                    <width>400</width>
-                    <height>36</height>
-                    <texture>special://skin/media/rail-focus.png</texture>
-                    <colordiffuse>ff9bc9a8</colordiffuse>
-                    <aspectratio>stretch</aspectratio>
+                    <left>8</left><top>8</top><width>400</width><height>225</height>
+                    <texture>special://skin/media/ui-card-ring.png</texture>
+                    <colordiffuse>asterGreen</colordiffuse>
+                </control>
+                <control type="image">
+                    <left>22</left><top>218</top><width>372</width><height>6</height>
+                    <texture border="4">special://skin/media/ui-progress.png</texture>
+                    <colordiffuse>aa292721</colordiffuse>
+                </control>
+                <control type="progress">
+                    <visible>Integer.IsGreater(ListItem.PercentPlayed,0)</visible>
+                    <left>22</left><top>218</top><width>372</width><height>6</height>
+                    <texturebg border="4" colordiffuse="00ffffff">special://skin/media/ui-progress.png</texturebg>
+                    <midtexture border="4" colordiffuse="asterSage">special://skin/media/ui-progress.png</midtexture>
+                    <lefttexture></lefttexture><righttexture></righttexture>
+                    <overlaytexture></overlaytexture>
+                    <info>ListItem.PercentPlayed</info>
                 </control>
                 <control type="label">
-                    <left>26</left>
-                    <top>241</top>
-                    <width>310</width>
-                    <height>28</height>
-                    <label>$INFO[ListItem.Label]</label>
-                    <font>font20</font>
-                    <textcolor>asterRailText</textcolor>
-                    <truncate>true</truncate>
+                    <left>8</left><top>241</top><width>400</width><height>28</height>
+                    <label>$INFO[ListItem.Label]</label><font>font20</font>
+                    <textcolor>asterInk</textcolor><truncate>true</truncate>
                 </control>
-                <control type="label"><left>342</left><top>246</top><width>52</width><height>20</height><label>$INFO[ListItem.PercentPlayed, ,%]</label><font>font16</font><textcolor>asterSage</textcolor><align>right</align></control>
             </focusedlayout>
             <content target="videos">videodb://inprogresstvshows/</content>
         </control>
@@ -462,52 +475,42 @@
             <onup>100</onup>
             <itemlayout width="420" height="280">
                 <control type="image">
-                    <left>8</left>
-                    <top>8</top>
-                    <width>400</width>
-                    <height>225</height>
-                    <texture background="true">$VAR[AsterCardArt]</texture>
+                    <left>8</left><top>8</top><width>400</width><height>225</height>
+                    <texture background="true" diffuse="special://skin/media/ui-card-mask.png">$VAR[AsterCardArt]</texture>
                     <aspectratio>scale</aspectratio>
                 </control>
                 <control type="image">
-                    <left>8</left>
-                    <top>237</top>
-                    <width>400</width>
-                    <height>36</height>
-                    <texture>special://skin/media/card-charcoal.png</texture>
-                    <colordiffuse>f0292721</colordiffuse>
-                    <aspectratio>stretch</aspectratio>
+                    <left>8</left><top>8</top><width>400</width><height>225</height>
+                    <texture>special://skin/media/ui-card-corners.png</texture>
+                    <colordiffuse>asterIvory</colordiffuse>
                 </control>
-                <control type="label"><left>26</left><top>241</top><width>310</width><height>28</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterRailText</textcolor><truncate>true</truncate></control>
+                <control type="label">
+                    <left>8</left><top>241</top><width>400</width><height>28</height>
+                    <label>$INFO[ListItem.Label]</label><font>font20</font>
+                    <textcolor>asterInk</textcolor><truncate>true</truncate>
+                </control>
             </itemlayout>
             <focusedlayout width="420" height="280">
                 <control type="image">
-                    <left>8</left>
-                    <top>8</top>
-                    <width>400</width>
-                    <height>225</height>
-                    <texture background="true">$VAR[AsterCardArt]</texture>
+                    <left>8</left><top>8</top><width>400</width><height>225</height>
+                    <texture background="true" diffuse="special://skin/media/ui-card-mask.png">$VAR[AsterCardArt]</texture>
                     <aspectratio>scale</aspectratio>
                 </control>
                 <control type="image">
-                    <left>8</left>
-                    <top>237</top>
-                    <width>400</width>
-                    <height>36</height>
-                    <texture>special://skin/media/card-charcoal.png</texture>
-                    <colordiffuse>f0292721</colordiffuse>
-                    <aspectratio>stretch</aspectratio>
+                    <left>8</left><top>8</top><width>400</width><height>225</height>
+                    <texture>special://skin/media/ui-card-corners.png</texture>
+                    <colordiffuse>asterIvory</colordiffuse>
                 </control>
                 <control type="image">
-                    <left>8</left>
-                    <top>237</top>
-                    <width>400</width>
-                    <height>36</height>
-                    <texture>special://skin/media/rail-focus.png</texture>
-                    <colordiffuse>ff9bc9a8</colordiffuse>
-                    <aspectratio>stretch</aspectratio>
+                    <left>8</left><top>8</top><width>400</width><height>225</height>
+                    <texture>special://skin/media/ui-card-ring.png</texture>
+                    <colordiffuse>asterGreen</colordiffuse>
                 </control>
-                <control type="label"><left>26</left><top>241</top><width>310</width><height>28</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterRailText</textcolor><truncate>true</truncate></control>
+                <control type="label">
+                    <left>8</left><top>241</top><width>400</width><height>28</height>
+                    <label>$INFO[ListItem.Label]</label><font>font20</font>
+                    <textcolor>asterInk</textcolor><truncate>true</truncate>
+                </control>
             </focusedlayout>
             <content target="videos">videodb://recentlyaddedmovies/</content>
         </control>
