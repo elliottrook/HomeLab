@@ -80,6 +80,14 @@ A local mixed-version test using exact read-only copies of those two installed
 files ahead of the candidate modules ran 28 focused tests: **26 passed, 2
 root-custody tests skipped on macOS**. The temporary copies were removed.
 This supports API compatibility but does not replace the target-Linux test.
+An additional **read-only, in-memory** target check sent the 12 candidate
+Python sources over stdin to Proxmox Python 3.13.5. It loaded all 12 against
+the installed dependency set, round-tripped a synthetic `AdmissionRecord`,
+confirmed `capture(deadline_epoch=...)` is present, and confirmed both new
+effect paths remain disabled. It printed only content-free status; it wrote
+no candidate files on the host, ran no scan and invoked no model. Its result
+was PASS. This is stronger than a macOS-only import, but it still does not
+prove the installed-path custody, units or recovery behavior.
 Recheck these facts immediately before installation; this snapshot is not a
 lease or deployment approval.
 `full_stop_acquire_candidate.main(["--effect-authorized"])` and
