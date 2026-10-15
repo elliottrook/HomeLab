@@ -12,6 +12,13 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+Latest [October 15 prerequisite check](B60-Inference-Engineering/nightly-admission-20261015.md)
+found the candidate watchdog unit files staged with manifest-matching hashes,
+but the timer disabled and both units inactive. This supersedes October 14's
+not-installed observation, not the still-open activation/live-recovery gate.
+The manual helper and owner branch tips remain unchanged. No model call was
+admitted; the early wake-up was preparation only, not fresh preflight.
+
 Latest [nightly verification, 2026-10-14](B60-Inference-Engineering/nightly-admission-20261014.md)
 found no current shared lease, the unchanged manual helper and the candidate
 watchdog timer not installed. Accepted inference was active with zero restarts;
