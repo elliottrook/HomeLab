@@ -38,12 +38,23 @@ class ProducerAndStoreTests(unittest.TestCase):
         for mutate in (
             lambda value: value.update(extra=True),
             lambda value: value.update(schema_version=2),
+            lambda value: value.update(schema_version=True),
             lambda value: value.update(producer="Bad producer"),
             lambda value: value.update(produced_at="2026-09-28T18:01:00Z"),
         ):
             value = json.loads(json.dumps(self.fixture))
             mutate(value)
             with self.assertRaises(InvestigationError):
+                parse_producer_envelope(value, NOW)
+
+    def test_malformed_producer_types_fail_with_contract_error(self):
+        for field, invalid in (
+            ("evidence_id", 7), ("incident_id", 7), ("target", []),
+            ("kind", []), ("state", {}), ("facts", {"latency": float("nan")}),
+        ):
+            value = json.loads(json.dumps(self.fixture))
+            value["observation"][field] = invalid
+            with self.subTest(field=field), self.assertRaises(InvestigationError):
                 parse_producer_envelope(value, NOW)
 
     def test_tampered_persisted_record_fails_closed(self):

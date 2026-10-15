@@ -109,6 +109,19 @@ class InvestigationTests(unittest.TestCase):
         self.assertEqual(EvidenceRequest("backup-catalog", "backup", "Coverage.").kind, "backup")
         self.assertEqual(EvidenceRequest("inference-server", "config", "Pinned runtime.").kind, "config")
 
+    def test_malformed_plan_and_persisted_version_fail_with_contract_error(self):
+        for value in (7, {}, ["not a request"]):
+            with self.subTest(value=value), self.assertRaises(InvestigationError):
+                create_incident("inc-001", "Fixture", value)
+        with self.assertRaises(InvestigationError):
+            create_incident(7, "Fixture", [EvidenceRequest("aster-gateway", "status", "Check.")])
+        with self.assertRaises(InvestigationError):
+            EvidenceRequest("aster-gateway", "status", 7).validate()
+        record = self.incident().to_record()
+        record["schema_version"] = True
+        with self.assertRaises(InvestigationError):
+            type(self.incident()).from_record(record, NOW)
+
 
 if __name__ == "__main__":
     unittest.main()

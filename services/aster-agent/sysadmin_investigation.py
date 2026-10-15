@@ -50,7 +50,10 @@ def _parse_utc(value: str) -> datetime:
 def _safe_facts(value: Any) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise InvestigationError("facts must be an object")
-    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    try:
+        encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False)
+    except (TypeError, ValueError) as exc:
+        raise InvestigationError("facts must be finite JSON data") from exc
     if len(encoded.encode()) > MAX_FACT_BYTES:
         raise InvestigationError("facts exceed the evidence size limit")
     blocked = {"secret", "password", "token", "credential", "authorization", "cookie"}
@@ -83,13 +86,14 @@ class Observation:
     truncated: bool = False
 
     def validate(self, now: datetime) -> dict[str, Any]:
-        if not self.evidence_id or len(self.evidence_id) > 80:
+        if not isinstance(self.evidence_id, str) or not self.evidence_id or len(self.evidence_id) > 80:
             raise InvestigationError("invalid evidence_id")
-        if not self.incident_id or len(self.incident_id) > 80:
+        if not isinstance(self.incident_id, str) or not self.incident_id or len(self.incident_id) > 80:
             raise InvestigationError("invalid incident_id")
-        if self.target not in REGISTERED_OBSERVATIONS or self.kind not in REGISTERED_OBSERVATIONS[self.target]:
+        if (not isinstance(self.target, str) or not isinstance(self.kind, str) or
+                self.target not in REGISTERED_OBSERVATIONS or self.kind not in REGISTERED_OBSERVATIONS[self.target]):
             raise InvestigationError("observation target or kind is not registered")
-        if self.state not in EVIDENCE_STATES:
+        if not isinstance(self.state, str) or self.state not in EVIDENCE_STATES:
             raise InvestigationError("invalid evidence state")
         if not isinstance(self.source, str) or not self.source or len(self.source) > 160:
             raise InvestigationError("invalid evidence source")
@@ -123,9 +127,10 @@ class EvidenceRequest:
     reason: str
 
     def validate(self) -> None:
-        if self.target not in REGISTERED_OBSERVATIONS or self.kind not in REGISTERED_OBSERVATIONS[self.target]:
+        if (not isinstance(self.target, str) or not isinstance(self.kind, str) or
+                self.target not in REGISTERED_OBSERVATIONS or self.kind not in REGISTERED_OBSERVATIONS[self.target]):
             raise InvestigationError("requested observation is not registered")
-        if not self.reason or len(self.reason) > 400:
+        if not isinstance(self.reason, str) or not self.reason or len(self.reason) > 400:
             raise InvestigationError("invalid observation reason")
 
 
@@ -211,7 +216,8 @@ class Incident:
     @classmethod
     def from_record(cls, record: dict[str, Any], now: datetime) -> "Incident":
         expected = {"schema_version", "incident_id", "title", "observation_plan", "observations", "hypotheses", "cursor"}
-        if not isinstance(record, dict) or set(record) != expected or record.get("schema_version") != 1:
+        if (not isinstance(record, dict) or set(record) != expected or
+                type(record.get("schema_version")) is not int or record["schema_version"] != 1):
             raise InvestigationError("invalid persisted incident record")
         plan = [EvidenceRequest(**item) for item in record["observation_plan"]]
         incident = create_incident(record["incident_id"], record["title"], plan)
@@ -231,10 +237,13 @@ class Incident:
 
 
 def create_incident(incident_id: str, title: str, observation_plan: list[EvidenceRequest]) -> Incident:
-    if not incident_id or len(incident_id) > 80 or not title or len(title) > 300:
+    if (not isinstance(incident_id, str) or not incident_id or len(incident_id) > 80 or
+            not isinstance(title, str) or not title or len(title) > 300):
         raise InvestigationError("invalid incident identity")
-    if not observation_plan or len(observation_plan) > MAX_OBSERVATIONS:
+    if not isinstance(observation_plan, list) or not observation_plan or len(observation_plan) > MAX_OBSERVATIONS:
         raise InvestigationError("incident must have one to four planned observations")
     for request in observation_plan:
+        if not isinstance(request, EvidenceRequest):
+            raise InvestigationError("invalid observation plan entry")
         request.validate()
     return Incident(incident_id=incident_id, title=title, observation_plan=list(observation_plan))

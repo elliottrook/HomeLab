@@ -28,7 +28,7 @@ def parse_producer_envelope(value: Any, now: datetime) -> Observation:
     """Validate a source-local producer result without contacting its source."""
     if not isinstance(value, dict) or frozenset(value) != ENVELOPE_FIELDS:
         raise InvestigationError("invalid producer envelope fields")
-    if value.get("schema_version") != ENVELOPE_VERSION:
+    if type(value.get("schema_version")) is not int or value["schema_version"] != ENVELOPE_VERSION:
         raise InvestigationError("unsupported producer envelope version")
     producer = value.get("producer")
     if not isinstance(producer, str) or not PRODUCER_NAME.fullmatch(producer):
