@@ -19,7 +19,7 @@ class ApplicationReceipt:
     lease_id: str
     generation: int
     backup_receipt: str
-    watchdog_deadline_minute: int
+    watchdog_deadline_epoch: int
     backend_identity: str
     llama_service_active: bool
     exclusive_backend_claim: bool
@@ -35,14 +35,14 @@ class ApplicationReceipt:
     sidecar_started_within_lease: bool
 
 
-def validate(receipt: ApplicationReceipt, *, expected_lease_id: str, expected_generation: int, now_minute: int) -> None:
+def validate(receipt: ApplicationReceipt, *, expected_lease_id: str, expected_generation: int, now_epoch: int) -> None:
     if receipt.schema != SCHEMA or receipt.mode != MODE:
         raise ValueError("application receipt schema or mode is invalid")
     if (receipt.lease_id, receipt.generation) != (expected_lease_id, expected_generation):
         raise ValueError("application receipt identity does not match")
     if not receipt.backup_receipt or receipt.backup_receipt.startswith("full-stop:"):
         raise ValueError("application receipt requires a distinct backup receipt")
-    if now_minute > receipt.watchdog_deadline_minute:
+    if now_epoch > receipt.watchdog_deadline_epoch:
         raise ValueError("application receipt is past its watchdog deadline")
     if (receipt.backend_identity != BACKEND or not receipt.llama_service_active
             or not receipt.exclusive_backend_claim or not receipt.backend_listener_ipv4_only):

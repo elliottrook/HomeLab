@@ -8,10 +8,9 @@ import json
 import os
 import subprocess
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Sequence
-from zoneinfo import ZoneInfo
 
 from a1_ingress_policy import baseline, parse_chain
 from application_b60_watchdog import ApplicationB60Watchdog, fixed_command
@@ -118,7 +117,7 @@ def main(argv: Sequence[str]) -> int:
     if not args.once:
         raise SystemExit("--once is required")
     state = json.loads(args.state.read_text(encoding="utf-8"))
-    for key in ("mode", "lease_id", "generation", "armed", "start_deadline_minute", "restore_deadline_minute"):
+    for key in ("mode", "lease_id", "generation", "armed", "start_deadline_epoch", "restore_deadline_epoch"):
         if key not in state:
             raise SystemExit("application state schema is incomplete")
     if args.dry_run:
@@ -129,14 +128,13 @@ def main(argv: Sequence[str]) -> int:
     if not args.effect_authorized:
         raise SystemExit("effect authority is required")
     observer = HostObserver()
-    now = datetime.now(ZoneInfo("America/Vancouver"))
-    now_minute = now.hour * 60 + now.minute
-    if now_minute < state["restore_deadline_minute"]:
-        print(json.dumps({"state": "waiting", "lease_id": state["lease_id"], "generation": state["generation"], "now_minute": now_minute, "restore_deadline_minute": state["restore_deadline_minute"]}, sort_keys=True, separators=(",", ":")))
+    now_epoch = int(datetime.now(timezone.utc).timestamp())
+    if now_epoch < state["restore_deadline_epoch"]:
+        print(json.dumps({"state": "waiting", "lease_id": state["lease_id"], "generation": state["generation"], "now_epoch": now_epoch, "restore_deadline_epoch": state["restore_deadline_epoch"]}, sort_keys=True, separators=(",", ":")))
         return 0
     source_ok = observer.source_checks()
     watchdog = ApplicationB60Watchdog(args.state.parent, lambda command: _run(command, timeout=30.0)[0] == 0 or (_ for _ in ()).throw(RuntimeError("fixed recovery command failed")), observer, allow_effects=True)
-    result = watchdog.recover(lease_id=state["lease_id"], generation=state["generation"], now_minute=now_minute, retain_state=True)
+    result = watchdog.recover(lease_id=state["lease_id"], generation=state["generation"], now_epoch=now_epoch, retain_state=True)
     _write_receipt({"schema": "aster-application-recovery.v1", "state": result["state"], "mode": result["mode"], "lease_id": result["lease_id"], "generation": result["generation"], "overdue": result["overdue"], "source_checks": "candidate-closure-verified" if source_ok else "candidate-closure-drift-observed"})
     watchdog.finalize(lease_id=result["lease_id"], generation=result["generation"])
     print(json.dumps({"state": "recovery-receipt-written", "lease_id": result["lease_id"], "generation": result["generation"], "overdue": result["overdue"]}, sort_keys=True, separators=(",", ":")))

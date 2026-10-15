@@ -11,7 +11,7 @@ class ApplicationRecoveryCliTests(unittest.TestCase):
         root = Path(__file__).parents[2]
         with tempfile.TemporaryDirectory() as temp:
             state = Path(temp) / "application-b60.json"
-            state.write_text(json.dumps({"mode": "application-b60-exclusive-v1", "lease_id": "lease-1", "generation": 2, "armed": True, "start_deadline_minute": 150, "restore_deadline_minute": 200}))
+            state.write_text(json.dumps({"mode": "application-b60-exclusive-v1", "lease_id": "lease-1", "generation": 2, "armed": True, "start_deadline_epoch": 150, "restore_deadline_epoch": 200}))
             result = subprocess.run(["/usr/bin/python3", str(root / "scripts/local-ai/application_b60_lease_recovery.py"), "--once", "--state", str(state), "--dry-run"], capture_output=True, text=True, check=False)
             self.assertEqual(result.returncode, 0)
             output = json.loads(result.stdout)
@@ -23,7 +23,7 @@ class ApplicationRecoveryCliTests(unittest.TestCase):
         root = Path(__file__).parents[2]
         with tempfile.TemporaryDirectory() as temp:
             state = Path(temp) / "application-b60.json"
-            state.write_text(json.dumps({"mode": "application-b60-exclusive-v1", "lease_id": "lease-1", "generation": 2, "armed": True, "start_deadline_minute": 150, "restore_deadline_minute": 200}))
+            state.write_text(json.dumps({"mode": "application-b60-exclusive-v1", "lease_id": "lease-1", "generation": 2, "armed": True, "start_deadline_epoch": 150, "restore_deadline_epoch": 200}))
             result = subprocess.run(["/usr/bin/python3", str(root / "scripts/local-ai/application_b60_lease_recovery.py"), "--once", "--state", str(state)], capture_output=True, text=True, check=False)
             self.assertNotEqual(result.returncode, 0)
             self.assertRegex(result.stderr, "effect authority|must run as root")
@@ -38,8 +38,8 @@ class ApplicationRecoveryCliTests(unittest.TestCase):
     def test_waiting_tick_uses_current_time_not_deadline_substitution(self):
         source = Path(__file__).parents[2] / "scripts/local-ai/application_b60_lease_recovery.py"
         text = source.read_text()
-        self.assertIn("now_minute < state[\"restore_deadline_minute\"]", text)
-        self.assertIn("now_minute=now_minute", text)
+        self.assertIn("now_epoch < state[\"restore_deadline_epoch\"]", text)
+        self.assertIn("now_epoch=now_epoch", text)
 
     def test_recovery_cli_does_not_construct_production_key_argv(self):
         text = (Path(__file__).parents[2] / "scripts/local-ai/application_b60_lease_recovery.py").read_text()

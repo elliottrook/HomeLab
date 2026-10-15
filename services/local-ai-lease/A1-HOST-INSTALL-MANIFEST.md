@@ -45,12 +45,12 @@ files and verify the hashes before enabling the disabled unit:
 | `a1_ingress_policy.py` | `scripts/local-ai/a1_ingress_policy.py` | `07be9c42650f74edbcb080d4b338bb01cc43a6ac18a847d86839c07a0ad65d1d` |
 | `aster-llama-ingress-apply` | `services/local-ai-lease/aster-llama-ingress-apply` | `41b96f560261a198c09fd85d8ba7150478241fbe6a38f28befad9dc4fa40020b` |
 | `aster-llama-ingress-restore` | `services/local-ai-lease/aster-llama-ingress-restore` | `9bf3c3cb1e04081f41584f9dc742d86e9e7ead3a1806a243a6ce3478572ff347` |
-| `application_receipt_boundary.py` | `scripts/local-ai/application_receipt_boundary.py` | `12f3add5603a7f3a97cc98ee0d480936b940e2134734ec7bc1892b8fdda62b16` |
+| `application_receipt_boundary.py` | `scripts/local-ai/application_receipt_boundary.py` | `f014a914cb10712f840250d8672517dacb0fdd2b202c9c7e62cf89be1e29f376` |
 | `application-b60-watchdog.service` | `services/local-ai-lease/application-b60-watchdog.service` | `f7434db1f18afa4418f1217801152e35a2ae24388c20e04e47e3db8c3288cec7` |
 | `application-b60-watchdog.timer` | `services/local-ai-lease/application-b60-watchdog.timer` | `3e0be0830d60e586e53a1c3035abef7df802ecd156214ddc558f60677111d45a` |
-| `application_b60_lease_recovery.py` | `scripts/local-ai/application_b60_lease_recovery.py` | `648831222602d872ed75dd0633224478f0dfde920a2c6a7869c41a30da1eb70b` |
+| `application_b60_lease_recovery.py` | `scripts/local-ai/application_b60_lease_recovery.py` | `91fa5a3ddc1189e75751eca5934b42968f35335b5612ef386e3649c8839969ee` |
 | `application-b60-lease-recovery` | `services/local-ai-lease/application-b60-lease-recovery` | `309774dca1f0b5b37a9159b00fe6eed7b46f123f866c98e5d996e2c9fdc46499` |
-| `llama_auth_probe.py` | `scripts/local-ai/llama_auth_probe.py` | `b80ae1edad34a60c6c64d9ea2a67c7707b21c741bfd201bc4e789c74d2d09d02` |
+| `llama_auth_probe.py` | `scripts/local-ai/llama_auth_probe.py` | `60fbb3bea92cbb0259a836b92c8794003510bf47d0b2991f2f1915aaed6a47c2` |
 | `aster-llama-production-auth-probe` | `services/local-ai-lease/aster-llama-production-auth-probe` | `aac604de1f35c048791c5f1cfc21e25d9eb3e679fb7d799f74671307463313ac` |
 | Mini capture bridge `a1_full_path_capture.py` | Stream A `scripts/aster-adaptive/a1_full_path_capture.py` at `decfa81a` | `7141dd938b9a9994523e1eea2ac8078bbd93639ee2459c89dae0589651556157` |
 | `aster-agent/` | exact reviewed Aster source/dependency bundle | host preflight required |
@@ -145,7 +145,7 @@ retain the lease if that read-back is uncertain.
 The pre-lease phase produces only a source-bound application backup checkpoint,
 health/quiescence observations and a protected planned lease ID/generation.
 It is not a lease receipt. The host controller persists an armed state with
-start-by and restore deadlines before it stops only the two allowlisted
+start-by and restore deadlines, stored as absolute UTC epochs, before it stops only the two allowlisted
 consumers; only after that state exists may the
 platform receipt producer emit the real source-bound application lease receipt.
 The sidecar and final A1 batch are blocked until that receipt validates.

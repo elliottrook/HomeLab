@@ -33,8 +33,8 @@ class ApplicationLeaseState:
     services: tuple[tuple[str, str], ...]
     phase: str = "leased"
     armed: bool = False
-    start_deadline_minute: int | None = None
-    restore_deadline_minute: int | None = None
+    start_deadline_epoch: int | None = None
+    restore_deadline_epoch: int | None = None
 
 
 @dataclass(frozen=True)
@@ -47,9 +47,9 @@ class ApplicationPreLease:
     llama_service_active: bool
     consumers_healthy: bool
     news_quiesced: bool
-    now_minute: int
-    start_deadline_minute: int
-    restore_deadline_minute: int
+    now_epoch: int
+    start_deadline_epoch: int
+    restore_deadline_epoch: int
 
 
 @dataclass(frozen=True)
@@ -123,7 +123,7 @@ class ApplicationB60Controller:
                 or prelease.backend_identity != "llama.cpp b11429 SYCL/Level Zero"
                 or not prelease.llama_service_active
                 or not prelease.consumers_healthy or not prelease.news_quiesced
-                or not prelease.now_minute < prelease.start_deadline_minute <= prelease.restore_deadline_minute):
+                or not prelease.now_epoch < prelease.start_deadline_epoch <= prelease.restore_deadline_epoch):
             raise ValueError("application pre-lease checkpoint is incomplete")
         self.paths.root.mkdir(mode=0o700, parents=True, exist_ok=True)
         try:
@@ -138,8 +138,8 @@ class ApplicationB60Controller:
             services=ALLOWED_CONSUMER_SERVICES,
             phase="armed",
             armed=True,
-            start_deadline_minute=prelease.start_deadline_minute,
-            restore_deadline_minute=prelease.restore_deadline_minute,
+            start_deadline_epoch=prelease.start_deadline_epoch,
+            restore_deadline_epoch=prelease.restore_deadline_epoch,
         )
         atomic_write(self.paths.state, json.dumps(asdict(state), sort_keys=True, separators=(",", ":")) + "\n")
         stopped: list[tuple[str, str]] = []

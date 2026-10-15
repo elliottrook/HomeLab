@@ -55,7 +55,7 @@ class ApplicationB60Watchdog:
         self.observer = observer
         self.allow_effects = allow_effects
 
-    def recover(self, *, lease_id: str, generation: int, now_minute: int, retain_state: bool = False) -> dict[str, object]:
+    def recover(self, *, lease_id: str, generation: int, now_epoch: int, retain_state: bool = False) -> dict[str, object]:
         if not self.allow_effects:
             raise ValueError("application watchdog is advisory-only; live effects are disabled")
         state = self.state_dir / STATE_NAME
@@ -66,10 +66,10 @@ class ApplicationB60Watchdog:
         if (record.get("mode"), record.get("lease_id"), record.get("generation")) != (APPLICATION_MODE, lease_id, generation):
             raise ValueError("application lease identity does not match")
         if (record.get("armed") is not True
-                or not isinstance(record.get("start_deadline_minute"), int)
-                or not isinstance(record.get("restore_deadline_minute"), int)):
+                or not isinstance(record.get("start_deadline_epoch"), int)
+                or not isinstance(record.get("restore_deadline_epoch"), int)):
             raise ValueError("application watchdog is not armed")
-        overdue = now_minute > record["restore_deadline_minute"]
+        overdue = now_epoch > record["restore_deadline_epoch"]
         if overdue:
             self._journal_status(lease_id, generation, "recovery-overdue")
 

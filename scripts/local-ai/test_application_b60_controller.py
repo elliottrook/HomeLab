@@ -72,8 +72,8 @@ class ApplicationB60ControllerTests(unittest.TestCase):
             controller.acquire(self.prelease())
             value = json.loads((Path(temp) / "application-b60.json").read_text())
             self.assertTrue(value["armed"])
-            self.assertEqual(value["start_deadline_minute"], 150)
-            self.assertEqual(value["restore_deadline_minute"], 200)
+            self.assertEqual(value["start_deadline_epoch"], 150)
+            self.assertEqual(value["restore_deadline_epoch"], 200)
 
     def test_effect_intent_and_observed_transitions_are_armed_and_ordered(self):
         with tempfile.TemporaryDirectory() as temp:
