@@ -35,8 +35,10 @@ light watchdog observation leaves unmeasured exact checks unknown rather than
 claiming they passed. The
 systemd unit is still intentionally refused and requires a root-owned runtime
 manifest. A Mini/chat/network loss cannot yet recover production because the
-candidate timer is disabled and the Proxmox-owner TrueNAS transport remains
-unverified.
+candidate timer is disabled. The Proxmox-owner TrueNAS observer transport is
+now verified read-only with the pinned host key and dedicated identity; the
+remaining backup gate is current-cycle artifact/mirror and exact Mac-subset
+receipt evidence.
 
 ## Dry-run procedure
 
