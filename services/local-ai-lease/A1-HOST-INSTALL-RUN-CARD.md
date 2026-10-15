@@ -17,7 +17,7 @@ call and does not claim an application lease.
 | Listener | `192.168.70.10:19104`, no listener during this phase |
 | Backend reference | `http://192.168.70.12:11435/v1`; no backend mutation |
 | Mini peer pin | `192.168.1.206/32`, verified as the source seen by LXC104 |
-| Profile | `a1-full-path-9b-candidate-profile-v1.json`, SHA-256 `af29955fb519aecfcfabeb741f7308fcf6f3c927cab647f8ab4396851846451e` |
+| Profile | `a1-full-path-9b-candidate-profile-v1.json`, SHA-256 `7caddc30074f5925722861c59f70733894037b9fc5b0865feb98bf9e08bbbfec` |
 | Source class | Stream A candidate-path baseline, not production Aster performance |
 
 The systemd network boundary is symmetric and therefore permits only loopback,
@@ -37,12 +37,18 @@ before considering the phase complete:
 - `a1_headless_client.py`: `3d9c84735a7338860648215467996ff0f820aff8778acd7f7f42d6325dad6494`
 - `a1_full_path_capture.py`: `a7bbb2b8fc98dd18c5d748a808e0e838b9c17dd80e84121e2d1e23ad006f9c86`
 - `aster-a1-test.service`: `949bd266a68d9114034ab213208b0dafc6f7c77ef3e87b8225f314e949f59ac0`
+- current source-only sidecar bundle manifest (17 members): `969b6db34e8fe0c00e9a5be6163a498bae5ccfd101e42f699bfafb39f4a8c403`
+- current source-only sidecar archive: `3fe5bae09a268428ee52c8ad5e70007c622a3ae7279981a1569f8c626295b817` (286,720 bytes)
 - wheel manifest: `0fb7f44e2c856736ab741b23a70f28fa69dbd95a2eadad6c6d8d1b4416acadee`
 - wheelhouse archive: `1a557fad83a896a52d675d21f8b00bb22cea74b641e73573d7af78d03da84765`
 
 The wheelhouse contains 34 Linux CPython 3.13 x86_64 wheels. These SHA-256
 values are integrity pins, not signatures. Installation must recheck the
 archive, every wheel, versions, and imports on the target Linux guest.
+
+The current source-only sidecar archive above supersedes the obsolete
+`aster-a1-sidecar-740917a1.tar` (`b608553cf659098b73d10e38e4442e2e2d4f655906be41208512c692d4e6de49`);
+the obsolete archive must not be installed.
 
 The unit uses `LoadCredential=runtime.env:/etc/aster-a1-test/runtime.env` and
 does not use `EnvironmentFile=`. No runtime credential file is created in this

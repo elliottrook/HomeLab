@@ -66,6 +66,15 @@ knowledge, Doctor evidence or household state. The final deployment receipt
 must include every copied file's digest; an unlisted file or digest mismatch
 aborts before service start.
 
+For the disabled-install phase, the reviewed source-only sidecar packet is
+manifest SHA-256
+`969b6db34e8fe0c00e9a5be6163a498bae5ccfd101e42f699bfafb39f4a8c403` and
+archive SHA-256
+`3fe5bae09a268428ee52c8ad5e70007c622a3ae7279981a1569f8c626295b817`
+(286,720 bytes, 17 members). It contains no credentials or data. The earlier
+`aster-a1-sidecar-740917a1.tar` packet (`b608553cf659098b73d10e38e4442e2e2d4f655906be41208512c692d4e6de49`)
+is obsolete and must not be installed.
+
 The final config must be owned by `aster-a1-test:aster-a1-test`, mode 0600, and
 contain the final 20 frozen A1 request hashes. The disposable probe config must
 be a separate file with a separate 20-hash fictional probe set, separate

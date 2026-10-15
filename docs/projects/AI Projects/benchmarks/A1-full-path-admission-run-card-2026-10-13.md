@@ -27,7 +27,7 @@ confounds model and topology changes. A direct llama.cpp call is useful as a
 backend control, never as the full-path result.
 The first full-path control has its own pinned
 [`a1-full-path-9b-candidate-profile-v1.json`](a1-full-path-9b-candidate-profile-v1.json),
-SHA-256 `af29955fb519aecfcfabeb741f7308fcf6f3c927cab647f8ab4396851846451e`.
+SHA-256 `7caddc30074f5925722861c59f70733894037b9fc5b0865feb98bf9e08bbbfec`.
 It is a Stream A candidate-path baseline. The prior direct-backend A1 v2
 profile has a 600-second batch cap and a different prompt path; it must not
 be reused or described as the same full-path profile.
