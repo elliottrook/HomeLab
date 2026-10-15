@@ -1,5 +1,11 @@
 # Aster Home Kodi skin prototype
 
+Version 0.5.5 replaces the split tile with full-screen 1920×1080 hero artwork.
+A continuous left-side dark gradient keeps copy readable without a boxed panel;
+the image fades into ivory behind the queues. Rounded Play (green) and More Info
+(ivory) buttons switch to sage with a white outline when focused. Press Up from
+Continue Watching to reach Play, Right for More Info, and Down to return.
+
 Version 0.5.4 presents a single rounded hero tile split evenly between solid
 charcoal copy and artwork. The year follows the genre in green; the separate
 year line and duplicate backdrop are removed. Navigation rails are square.

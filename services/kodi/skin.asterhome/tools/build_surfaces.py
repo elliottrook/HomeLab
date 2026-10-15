@@ -5,7 +5,7 @@ import struct
 import zlib
 
 
-def png(path, width, height, radius, stroke=0, inverse=False):
+def png(path, width, height, radius, stroke=0, inverse=False, gradient=None):
     def coverage(x, y, inset=0):
         r = max(0, radius - inset)
         if r == 0:
@@ -20,6 +20,13 @@ def png(path, width, height, radius, stroke=0, inverse=False):
         rows.append(0)
         for x in range(width):
             alpha = coverage(x + 0.5, y + 0.5)
+            if gradient == 'bottom':
+                t = max(0, min(1, (y - 330) / 390))
+                alpha *= t * t * (3 - 2 * t)
+            elif gradient == 'left':
+                alpha *= 0.88 * max(0, min(1, (1400 - x) / 850))
+                t = max(0, min(1, (y - 330) / 390))
+                alpha *= 1 - t * t * (3 - 2 * t)
             if stroke:
                 alpha -= coverage(x + 0.5, y + 0.5, stroke)
             if inverse:
@@ -51,3 +58,6 @@ if __name__ == '__main__':
         png(media / (name + '.png'), width, height, radius, stroke)
     png(media / 'ui-card-corners.png', 400, 225, 18, inverse=True)
     png(media / 'ui-hero-corners.png', 1680, 400, 24, inverse=True)
+    png(media / 'ui-hero-bottom-fade.png', 8, 1080, 0, gradient='bottom')
+    png(media / 'ui-hero-left-fade.png', 1920, 1080, 0, gradient='left')
+    png(media / 'ui-button-ring.png', 280, 56, 18, stroke=3)

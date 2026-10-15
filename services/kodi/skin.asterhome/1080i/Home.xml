@@ -3,18 +3,25 @@
     <defaultcontrol always="true">100</defaultcontrol>
     <backgroundcolor>asterIvory</backgroundcolor>
     <controls>
-        <!-- One rounded hero tile: solid copy half and full-bleed art half. -->
+        <!-- Full-screen artwork with continuous readability and row fades. -->
         <control type="image" id="12">
             <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
-            <left>952</left><top>20</top><width>840</width><height>400</height>
+            <left>0</left><top>0</top><width>1920</width><height>1080</height>
             <texture background="true">$VAR[AsterHeroFanart]</texture>
             <aspectratio>scale</aspectratio><fadetime>250</fadetime>
+        </control>
+        <control type="image" id="13">
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
+            <left>0</left><top>0</top><width>1920</width><height>1080</height>
+            <texture>special://skin/media/ui-hero-bottom-fade.png</texture>
+            <colordiffuse>asterIvory</colordiffuse>
+            <aspectratio>stretch</aspectratio>
         </control>
         <control type="group" id="20">
             <control type="image" id="11">
                 <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
-                <left>112</left><top>20</top><width>840</width><height>400</height>
-                <texture>special://skin/media/ui-solid.png</texture>
+                <left>0</left><top>0</top><width>1920</width><height>1080</height>
+                <texture>special://skin/media/ui-hero-left-fade.png</texture>
                 <colordiffuse>asterCharcoal</colordiffuse>
                 <aspectratio>stretch</aspectratio>
             </control>
@@ -291,14 +298,14 @@
             <onleft>8999</onleft>
             <ondown>100</ondown>
             <onright>121</onright>
-            <height>50</height>
+            <height>56</height>
             <font>font28</font>
             <align>center</align>
             <aligny>center</aligny>
             <textcolor>ffece8df</textcolor>
-            <focusedcolor>ffb9f2d0</focusedcolor>
-            <texturefocus>none</texturefocus>
-            <texturenofocus>none</texturenofocus>
+            <focusedcolor>asterInk</focusedcolor>
+            <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
+            <texturenofocus border="20" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturenofocus>
         </control>
         <control type="button" id="121">
             <left>445</left>
@@ -309,23 +316,26 @@
             <onleft>120</onleft>
             <ondown>100</ondown>
             <onright>100</onright>
-            <height>50</height>
+            <height>56</height>
             <font>font28</font>
             <align>center</align>
             <aligny>center</aligny>
-            <textcolor>ffece8df</textcolor>
-            <focusedcolor>ffb9f2d0</focusedcolor>
-            <texturefocus>none</texturefocus>
-            <texturenofocus>none</texturenofocus>
+            <textcolor>asterInk</textcolor>
+            <focusedcolor>asterInk</focusedcolor>
+            <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
+            <texturenofocus border="20" colordiffuse="asterIvory">special://skin/media/ui-panel.png</texturenofocus>
+        </control>
+        <control type="image">
+            <visible>Control.HasFocus(120)</visible>
+            <left>145</left><top>350</top><width>280</width><height>56</height>
+            <texture>special://skin/media/ui-button-ring.png</texture>
+        </control>
+        <control type="image">
+            <visible>Control.HasFocus(121)</visible>
+            <left>445</left><top>350</top><width>280</width><height>56</height>
+            <texture>special://skin/media/ui-button-ring.png</texture>
         </control>
         </control>
-        </control>
-
-        <control type="image" id="13">
-            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005)</visible>
-            <left>112</left><top>20</top><width>1680</width><height>400</height>
-            <texture>special://skin/media/ui-hero-corners.png</texture>
-            <colordiffuse>asterIvory</colordiffuse>
         </control>
 
         <!-- Keep the navigation state uncluttered: media rows are hidden
@@ -340,7 +350,8 @@
             <width>650</width>
             <height>48</height>
             <label>Continue Watching</label>
-            <font>font28</font><textcolor>asterInk</textcolor>
+            <font>font28</font><textcolor>asterIvory</textcolor>
+            <shadowcolor>cc000000</shadowcolor>
         </control>
         <control type="label">
             <left>1590</left>
@@ -349,7 +360,8 @@
             <height>36</height>
             <label>View all  ›</label>
             <font>font20</font>
-            <textcolor>asterGreen</textcolor>
+            <textcolor>asterIvory</textcolor>
+            <shadowcolor>cc000000</shadowcolor>
             <align>right</align>
         </control>
         <control type="panel" id="100">
@@ -360,6 +372,7 @@
             <orientation>horizontal</orientation>
             <scrolltime>180</scrolltime>
             <onleft>8999</onleft>
+            <onup>120</onup>
             <ondown>110</ondown>
             <itemlayout width="420" height="280">
                 <control type="image">

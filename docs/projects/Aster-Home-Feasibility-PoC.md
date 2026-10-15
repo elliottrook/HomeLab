@@ -413,6 +413,17 @@ and inset the pill 24 skin pixels from the artwork's top and right edges.
 Deployed to the Mac test skin and verified visually in live Kodi; XML validation
 passes. This is a local-only milestone; remote synchronization remains pending.
 
+Full-bleed hero trial, 2026-10-14 (v0.5.5): replaced the split tile with
+1920×1080 artwork, a continuous left readability gradient and an ivory lower
+fade behind the queues. Removed the bounded copy panel. Rounded green Play
+and ivory More Info buttons now have sage selected fills and white focus rings;
+Up from Continue Watching reaches Play, Right reaches More Info, Down returns.
+Live Kodi visual checks passed for both focused buttons and the full-width
+image; the corrected fade sits below navigation so the square rail is preserved.
+Existing brand artwork and library/playback state remain unchanged. XML and
+diff validation pass. Local commit only; remote synchronization is pending.
+The split-hero design remains recoverable from local commit `529cc07d`.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
