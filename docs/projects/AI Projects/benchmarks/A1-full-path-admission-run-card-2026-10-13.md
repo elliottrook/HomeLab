@@ -148,6 +148,24 @@ News and schedule postchecks before clearing the host lock. A unit reporting
 
 ## Verified current state and remaining work
 
+The isolated sidecar's Python dependency set has a local, production-version
+matched wheelhouse candidate. Its 34 wheel filenames and SHA-256 hashes are
+recorded in
+[`a1-production-matched-wheelhouse-manifest-2026-10-14.json`](a1-production-matched-wheelhouse-manifest-2026-10-14.json).
+The manifest itself hashes to
+`0fb7f44e2c856736ab741b23a70f28fa69dbd95a2eadad6c6d8d1b4416acadee`.
+All versions match the read-only package inventory of the live LXC 104 Aster
+virtual environment, excluding pip; an offline `pip download --no-index`
+resolution of the six declared requirements succeeds for Linux CPython 3.13
+x86_64. The `http_ece` wheel was copied read-only from that environment's
+pip cache with matching remote/local hash; the remaining wheels were
+downloaded locally. This is dependency preparation, **not** proof that the
+sidecar starts or that its dependency closure is independently qualified.
+The wheel files currently reside outside Git in
+`/private/tmp/aster-a1-prod-wheelhouse`; their hashes must be checked again
+before any supervised installation. A temporary directory is not durable
+custody or an installation receipt.
+
 Read-only checks on 2026-10-13 Vancouver found Proxmox backup enabled at
 00:30 (job `backup-49999802-1365`) and TrueNAS **rsynctasks** 1/3/2 enabled
 at 01:00/02:00/03:00. These
