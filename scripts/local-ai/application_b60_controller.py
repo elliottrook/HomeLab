@@ -12,9 +12,11 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+from datetime import datetime, time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Callable, Sequence
+from zoneinfo import ZoneInfo
 
 from application_b60_lease import (
     ALLOWED_CONSUMER_SERVICES,
@@ -22,6 +24,10 @@ from application_b60_lease import (
     ApplicationLeaseReceipt,
     validate,
 )
+
+MIN_RESTORE_RESERVE_SECONDS = 15 * 60
+LAB_TIMEZONE = ZoneInfo("America/Vancouver")
+LAB_CUTOFF = time(4, 15)
 
 
 @dataclass(frozen=True)
@@ -108,6 +114,13 @@ def _journal(path: Path, event: dict[str, object]) -> None:
         os.fsync(stream.fileno())
 
 
+def _safe_window(prelease: ApplicationPreLease) -> bool:
+    reserve = prelease.restore_deadline_epoch - prelease.restore_start_epoch
+    deadline_local = datetime.fromtimestamp(prelease.restore_deadline_epoch, LAB_TIMEZONE)
+    return (reserve >= MIN_RESTORE_RESERVE_SECONDS
+            and deadline_local.timetz().replace(tzinfo=None) <= LAB_CUTOFF)
+
+
 class ApplicationB60Controller:
     def __init__(self, paths: ApplicationPaths, runner: Callable[[Sequence[str]], None], *, allow_effects: bool = False):
         self.paths = paths
@@ -126,7 +139,8 @@ class ApplicationB60Controller:
                 or not prelease.llama_service_active
                 or not prelease.consumers_healthy or not prelease.news_quiesced
                 or not (prelease.now_epoch < prelease.start_deadline_epoch
-                        <= prelease.restore_start_epoch < prelease.restore_deadline_epoch)):
+                        <= prelease.restore_start_epoch < prelease.restore_deadline_epoch)
+                or not _safe_window(prelease)):
             raise ValueError("application pre-lease checkpoint is incomplete")
         self.paths.root.mkdir(mode=0o700, parents=True, exist_ok=True)
         try:

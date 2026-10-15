@@ -18,7 +18,7 @@ The candidate must use the corrected A1 sidecar pins:
 
 | Artifact | SHA-256 |
 |---|---|
-| `application_b60_controller.py` | `a52a7b84c5add6bf79cb840e0c65e91543c49e060fd82b61c13118844a76375c` |
+| `application_b60_controller.py` | `e3100cccdcadf0327d26660e16a63913e4ff6c789a7a5f21339e98849ff15bcf` |
 | `application_b60_watchdog.py` | `d8b11a849e875659f31d0383ce983897521d6bd0a19e36a9817a4737c7439a68` |
 | `application_b60_lease.py` | `deaf278c8bc3234f3150f1c3ee696b3cc0cdb55e97c575fec6efb65d6ef9c95d` |
 | `application_b60_lease_recovery.py` | `3b855b60dfc9127c99c667bb8ccb7b198023b02f64e712877b5a7285416c0021` |

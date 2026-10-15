@@ -1,7 +1,9 @@
 import json
 import tempfile
 import unittest
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from application_b60_controller import ApplicationB60Controller, ApplicationPaths, ApplicationPreLease, command_for
 from application_b60_lease import ALLOWED_CONSUMER_SERVICES, APPLICATION_MODE, ApplicationLeaseReceipt, SidecarObservation
@@ -16,7 +18,8 @@ class ApplicationB60ControllerTests(unittest.TestCase):
         )
 
     def prelease(self):
-        return ApplicationPreLease(APPLICATION_MODE, "app-1", 2, "app-backup-1", "llama.cpp b11429 SYCL/Level Zero", True, True, True, 100, 150, 185, 200)
+        epoch = lambda hour, minute: int(datetime(2026, 10, 14, hour, minute, tzinfo=ZoneInfo("America/Vancouver")).timestamp())
+        return ApplicationPreLease(APPLICATION_MODE, "app-1", 2, "app-backup-1", "llama.cpp b11429 SYCL/Level Zero", True, True, True, epoch(2, 0), epoch(3, 0), epoch(3, 15), epoch(4, 15))
 
     def test_acquire_and_sidecar_admission_only_touch_allowed_consumers(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -72,9 +75,24 @@ class ApplicationB60ControllerTests(unittest.TestCase):
             controller.acquire(self.prelease())
             value = json.loads((Path(temp) / "application-b60.json").read_text())
             self.assertTrue(value["armed"])
-            self.assertEqual(value["start_deadline_epoch"], 150)
-            self.assertEqual(value["restore_start_epoch"], 185)
-            self.assertEqual(value["restore_deadline_epoch"], 200)
+            self.assertEqual(value["start_deadline_epoch"], self.prelease().start_deadline_epoch)
+            self.assertEqual(value["restore_start_epoch"], self.prelease().restore_start_epoch)
+            self.assertEqual(value["restore_deadline_epoch"], self.prelease().restore_deadline_epoch)
+
+    def test_rejects_less_than_fifteen_minute_restore_reserve(self):
+        from dataclasses import replace
+        prelease = replace(self.prelease(), restore_start_epoch=self.prelease().restore_deadline_epoch - 899)
+        with tempfile.TemporaryDirectory() as temp:
+            with self.assertRaisesRegex(ValueError, "pre-lease"):
+                ApplicationB60Controller(ApplicationPaths(Path(temp)), lambda _: None, allow_effects=True).acquire(prelease)
+
+    def test_rejects_restore_deadline_after_0415_vancouver(self):
+        from dataclasses import replace
+        late = int(datetime(2026, 10, 14, 4, 16, tzinfo=ZoneInfo("America/Vancouver")).timestamp())
+        prelease = replace(self.prelease(), restore_deadline_epoch=late)
+        with tempfile.TemporaryDirectory() as temp:
+            with self.assertRaisesRegex(ValueError, "pre-lease"):
+                ApplicationB60Controller(ApplicationPaths(Path(temp)), lambda _: None, allow_effects=True).acquire(prelease)
 
     def test_effect_intent_and_observed_transitions_are_armed_and_ordered(self):
         with tempfile.TemporaryDirectory() as temp:
