@@ -27,7 +27,7 @@ The new source candidate separates the sequence:
    02:00 and 03:00 TrueNAS tasks, and exact LXC110 mirror; re-stat the same
    archives against the root-owned retained receipt. Check the exact accepted
    SYCL/model/unit/auth runtime, schedules, control plane, owner liveness and
-   independent watchdog timer. The proposed receipt explicitly says the three
+   an active, enabled independent watchdog timer. The proposed receipt explicitly says the three
    consumers are still running.
 3. After persisting the watchdog-compatible state and lock, stop only the
    three allowlisted consumers. Record stop intent and outcome, observe stable
@@ -45,7 +45,7 @@ liveness signal, not human authorization.
 
 ## Evidence and limits
 
-The full local `scripts/local-ai` unittest discovery passed **174 tests, 2
+The full local `scripts/local-ai` unittest discovery passed **175 tests, 2
 root-custody tests skipped on macOS** on October 15. Coverage includes stale
 archives, changed files, partial/over-deadline scans, failed TrueNAS task 1,
 missing guest or whole-job completion and wrong Proxmox job configuration,
@@ -94,12 +94,13 @@ deployment approval. All paths below are relative to the repository root.
 | `retained_archive_producer_candidate.py` | `f3ae1a83f16e5b9c1bca571826029603e4c8d88fc6b529bfe79ffcd465288a3b` |
 | `fixed_source_adapters.py` | `8241f1b1f3f5caa0d514740d36600f445de257b40a0a0d089bb9febadd1418b9` |
 | `full_stop_source_preflight.py` | `a656845321cbaf005ebd6e16945b55a026903d13fd32392f64d28cf65146b572` |
-| `full_stop_acquire_candidate.py` | `6a7085036c9fb9558649c3114d055427c79649342bc5af37ecfb41b90d8fb386` |
+| `full_stop_acquire_candidate.py` | `bb0e1a2cc1efa2c904d374a9fc4c5cac5891bf69d63b689e2c130fa84ccd9e3b` |
 | `lease_controller_candidate.py` | `e5d328937ea482de4b365e0be1869cabd3cd589eae86a2240b1d72bd5ae47226` |
 | `lease_contract.py` | `420ce2ecc44bde3d17ad25218462618d150a4ec37c4a597067ebb45f8e2f780b` |
 | `trusted_observer.py` | `de6d2da913a1dab4f5e371739a6a3eada79b99d8e11e2d3b64cf0f825274074e` |
 | `source_receipt_boundary.py` | `8ed7b3250a531a656ff128a823318fb49d58d876ca3cbea74f85b23b820f7eab` |
 | `platform_receipt_producer.py` | `11d58e2147859ab981f3cc52e09e80af7b9200900f301777c8dc645698909be4` |
+| `quiescence_receipt_adapter.py` | `effebc28fe862f152f67cc8a772e4daed055415a4e4e6d14b7e3428855f4175e` |
 | `lease_owner_heartbeat.py` | `533f3612613f8693d7debeff36e51e6ff42da6b816524946b636cc22b5b92690` |
 
 The disabled heartbeat service and timer pins are

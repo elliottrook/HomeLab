@@ -23,6 +23,7 @@ from full_stop_source_preflight import prepare_pre_acquire
 from lease_controller_candidate import CandidateController, CandidatePaths
 from lease_effect_runner import EffectRunner
 from lease_recovery_executor import secure_root_file
+from retained_archive_integrity import _check_receipt_parent
 from trusted_observer import RuntimeManifest, TrustedHostObserver
 
 
@@ -74,7 +75,9 @@ def _runner(argv, timeout):
 
 
 def _watchdog_active() -> bool:
-    return _runner(("systemctl", "is-active", "local-ai-lease-watchdog.timer"), 5.0) == (0, "active\n")
+    timer = "local-ai-lease-watchdog.timer"
+    return (_runner(("systemctl", "is-active", timer), 5.0) == (0, "active\n")
+            and _runner(("systemctl", "is-enabled", timer), 5.0) == (0, "enabled\n"))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -86,6 +89,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if os.geteuid() != 0:
         raise SystemExit("full-stop acquisition requires root")
+    _check_receipt_parent(ROOT / "archive-integrity.json")
     secure_root_file(MANIFEST)
     if (ROOT / "lease.json").exists() or (ROOT / "lease.lock").exists():
         raise SystemExit("a lease or retained lock already exists")
