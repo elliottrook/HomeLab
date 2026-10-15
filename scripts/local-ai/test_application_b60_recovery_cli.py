@@ -27,3 +27,21 @@ class ApplicationRecoveryCliTests(unittest.TestCase):
             result = subprocess.run(["/usr/bin/python3", str(root / "scripts/local-ai/application_b60_lease_recovery.py"), "--once", "--state", str(state)], capture_output=True, text=True, check=False)
             self.assertNotEqual(result.returncode, 0)
             self.assertRegex(result.stderr, "effect authority|must run as root")
+
+    def test_source_drift_is_not_a_pre_recovery_blocker(self):
+        # The CLI records candidate-source drift in the terminal receipt after
+        # production recovery; it must not gate watchdog restoration.
+        source = Path(__file__).parents[2] / "scripts/local-ai/application_b60_lease_recovery.py"
+        self.assertIn("source_checks()", source.read_text())
+        self.assertIn("retain_state=True", source.read_text())
+
+    def test_waiting_tick_uses_current_time_not_deadline_substitution(self):
+        source = Path(__file__).parents[2] / "scripts/local-ai/application_b60_lease_recovery.py"
+        text = source.read_text()
+        self.assertIn("now_minute < state[\"restore_deadline_minute\"]", text)
+        self.assertIn("now_minute=now_minute", text)
+
+    def test_recovery_cli_does_not_construct_production_key_argv(self):
+        text = (Path(__file__).parents[2] / "scripts/local-ai/application_b60_lease_recovery.py").read_text()
+        self.assertNotIn("cat /etc/aster-llama-api-keys", text)
+        self.assertIn("aster-llama-production-auth-probe", text)

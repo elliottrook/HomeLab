@@ -55,7 +55,7 @@ class ApplicationB60Watchdog:
         self.observer = observer
         self.allow_effects = allow_effects
 
-    def recover(self, *, lease_id: str, generation: int, now_minute: int) -> dict[str, object]:
+    def recover(self, *, lease_id: str, generation: int, now_minute: int, retain_state: bool = False) -> dict[str, object]:
         if not self.allow_effects:
             raise ValueError("application watchdog is advisory-only; live effects are disabled")
         state = self.state_dir / STATE_NAME
@@ -92,9 +92,25 @@ class ApplicationB60Watchdog:
         self._step(lease_id, generation, "start-speech", lambda: self.observer.speech_healthy())
         if not self.observer.consumers_healthy():
             raise ValueError("consumer restoration postcheck failed; lease retained")
+        if not retain_state:
+            state.unlink()
+            lock.rmdir()
+        return {"state": "ready", "mode": APPLICATION_MODE, "lease_id": lease_id, "generation": generation, "overdue": overdue}
+
+    def finalize(self, *, lease_id: str, generation: int) -> None:
+        state = self.state_dir / STATE_NAME
+        lock = self.state_dir / LOCK_NAME
+        if not state.exists() or not lock.exists():
+            raise ValueError("application lease state and lock are required for finalization")
+        record = json.loads(state.read_text(encoding="utf-8"))
+        if (record.get("mode"), record.get("lease_id"), record.get("generation")) != (APPLICATION_MODE, lease_id, generation):
+            raise ValueError("application lease identity does not match finalization")
+        with (self.state_dir / "application-b60-watchdog.jsonl").open("a", encoding="utf-8") as stream:
+            stream.write(json.dumps({"event": "recovery-finalized", "lease_id": lease_id, "generation": generation}, sort_keys=True) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
         state.unlink()
         lock.rmdir()
-        return {"state": "ready", "mode": APPLICATION_MODE, "lease_id": lease_id, "generation": generation, "overdue": overdue}
 
     def _journal_status(self, lease_id: str, generation: int, event: str) -> None:
         journal = self.state_dir / "application-b60-watchdog.jsonl"

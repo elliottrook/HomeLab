@@ -8,8 +8,10 @@ import json
 import os
 import subprocess
 import tempfile
+from datetime import datetime
 from pathlib import Path
 from typing import Sequence
+from zoneinfo import ZoneInfo
 
 from a1_ingress_policy import baseline, parse_chain
 from application_b60_watchdog import ApplicationB60Watchdog, fixed_command
@@ -55,9 +57,8 @@ class HostObserver:
         return code == 0 and output == "active"
 
     def production_auth_ok(self) -> bool:
-        command = ("sh", "-c", "key=$(cat /etc/aster-llama-api-keys); curl --fail --max-time 5 -sS -H \"Authorization: Bearer $key\" -H 'Content-Type: application/json' --data '{\"model\":\"aster-qwen3.5-9b\",\"messages\":[{\"role\":\"user\",\"content\":\"health\"}],\"max_tokens\":1}' http://192.168.70.12:11435/v1/chat/completions | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d.get(\"model\")==\"aster-qwen3.5-9b\" and d.get(\"choices\"); print(\"auth-generation-ok\")'")
-        code, output = _run(_pct("110", *command), timeout=15.0)
-        return code == 0 and output == "auth-generation-ok"
+        code, _ = _run(_pct("110", "/usr/local/sbin/aster-llama-production-auth-probe"), timeout=15.0)
+        return code == 0
 
     def wrong_key_denied(self) -> bool:
         command = ("curl", "-sS", "--max-time", "5", "-o", "/dev/null", "-w", "%{http_code}", "-H", "Authorization: Bearer a1-invalid-key", "-H", "Content-Type: application/json", "--data", "{\"model\":\"aster-qwen3.5-9b\",\"messages\":[{\"role\":\"user\",\"content\":\"health\"}],\"max_tokens\":1}", "http://192.168.70.12:11435/v1/chat/completions")
@@ -128,10 +129,16 @@ def main(argv: Sequence[str]) -> int:
     if not args.effect_authorized:
         raise SystemExit("effect authority is required")
     observer = HostObserver()
-    if not observer.source_checks():
-        raise SystemExit("candidate source checks failed; lease retained")
-    result = ApplicationB60Watchdog(args.state.parent, lambda command: _run(command, timeout=30.0)[0] == 0 or (_ for _ in ()).throw(RuntimeError("fixed recovery command failed")), observer, allow_effects=True).recover(lease_id=state["lease_id"], generation=state["generation"], now_minute=state["restore_deadline_minute"])
-    _write_receipt({"schema": "aster-application-recovery.v1", "state": result["state"], "mode": result["mode"], "lease_id": result["lease_id"], "generation": result["generation"], "overdue": result["overdue"], "source_checks": "candidate-closure-verified"})
+    now = datetime.now(ZoneInfo("America/Vancouver"))
+    now_minute = now.hour * 60 + now.minute
+    if now_minute < state["restore_deadline_minute"]:
+        print(json.dumps({"state": "waiting", "lease_id": state["lease_id"], "generation": state["generation"], "now_minute": now_minute, "restore_deadline_minute": state["restore_deadline_minute"]}, sort_keys=True, separators=(",", ":")))
+        return 0
+    source_ok = observer.source_checks()
+    watchdog = ApplicationB60Watchdog(args.state.parent, lambda command: _run(command, timeout=30.0)[0] == 0 or (_ for _ in ()).throw(RuntimeError("fixed recovery command failed")), observer, allow_effects=True)
+    result = watchdog.recover(lease_id=state["lease_id"], generation=state["generation"], now_minute=now_minute, retain_state=True)
+    _write_receipt({"schema": "aster-application-recovery.v1", "state": result["state"], "mode": result["mode"], "lease_id": result["lease_id"], "generation": result["generation"], "overdue": result["overdue"], "source_checks": "candidate-closure-verified" if source_ok else "candidate-closure-drift-observed"})
+    watchdog.finalize(lease_id=result["lease_id"], generation=result["generation"])
     print(json.dumps({"state": "recovery-receipt-written", "lease_id": result["lease_id"], "generation": result["generation"], "overdue": result["overdue"]}, sort_keys=True, separators=(",", ":")))
     return 0
 
