@@ -52,6 +52,7 @@ files and verify the hashes before enabling the disabled unit:
 | `application_receipt_boundary.py` | `scripts/local-ai/application_receipt_boundary.py` | `f014a914cb10712f840250d8672517dacb0fdd2b202c9c7e62cf89be1e29f376` |
 | `application-b60-watchdog.service` | `services/local-ai-lease/application-b60-watchdog.service` | `f7434db1f18afa4418f1217801152e35a2ae24388c20e04e47e3db8c3288cec7` |
 | `application-b60-watchdog.timer` | `services/local-ai-lease/application-b60-watchdog.timer` | `3e0be0830d60e586e53a1c3035abef7df802ecd156214ddc558f60677111d45a` |
+| `aster-a1-test.service` | `services/local-ai-lease/aster-a1-test.service` | `949bd266a68d9114034ab213208b0dafc6f7c77ef3e87b8225f314e949f59ac0` |
 | `application_b60_lease_recovery.py` | `scripts/local-ai/application_b60_lease_recovery.py` | `91fa5a3ddc1189e75751eca5934b42968f35335b5612ef386e3649c8839969ee` |
 | `application-b60-lease-recovery` | `services/local-ai-lease/application-b60-lease-recovery` | `309774dca1f0b5b37a9159b00fe6eed7b46f123f866c98e5d996e2c9fdc46499` |
 | `llama_auth_probe.py` | `scripts/local-ai/llama_auth_probe.py` | `60fbb3bea92cbb0259a836b92c8794003510bf47d0b2991f2f1915aaed6a47c2` |
@@ -107,10 +108,14 @@ unknown or ambiguous match, and is idempotent after successful removal.
 LXC104 is shared with production Aster, so a container-wide nftables allowlist
 would also restrict production and is explicitly rejected. The disabled unit
 uses per-service `IPAddressAllow`/`IPAddressDeny` as the candidate boundary:
-loopback and `192.168.70.12/32` only. Before any model call, the platform
-owner must discover exactly one named Mini client address and validate that
-only it can reach port 19104 using a host/network ACL; do not substitute a
-whole-subnet allow. If one client address cannot be pinned, abort.
+loopback, backend `192.168.70.12/32`, and the verified Mini peer
+`192.168.1.206/32`. A bounded existing-listener probe observed
+`192.168.1.206` as the source seen by LXC104; this is the exact peer pin, not a
+subnet grant. Because systemd's address filter is symmetric, the Mini peer is
+also an explicitly allowed egress destination; the live observer must attest
+that the only permitted peer set is exactly loopback, backend and Mini, while
+the separate host/network ACL admits only the Mini to TCP 19104. If either
+direction cannot be validated, abort.
 
 The live observer must capture the packet-policy/counter state before and
 after disposable attempts to a known listening Authentik/OpenBao endpoint, a
