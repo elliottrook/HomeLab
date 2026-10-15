@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-10-14 — Aster v2 application-family assets expanded
+
+- Added the private Aster v2 expansion handoff for Music, Books, Podcasts,
+  Settings, Album, Artist, Song, Playlist and the Media, Books, Music and News
+  product lockups.
+- Recorded the owner-approved package checksum, asset inventory, vector safety
+  evidence, implementation guidance and immutable original-release rollback.
+- Kept all large brand binaries in the private Forgejo release and Brand Asset
+  Library rather than Git; no application asset cutover or live service changed.
+
 ## 2026-10-12 — Adopt lab-to-production release lifecycle for Aster Voice
 
 - Defined repository-wide one-way Lab candidate to immutable release to
