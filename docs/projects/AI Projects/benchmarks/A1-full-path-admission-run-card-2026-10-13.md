@@ -491,3 +491,11 @@ pins exact hashes and the first verifier's corrected timer-property check.
 This closes **installation only**. The separate source-bound backup receipt,
 restricted transport identity, live recovery drill, application-only lease
 admission and 20-case benchmark are still required.
+
+**Schedule correction, 2026-10-14 Vancouver:** References above to a paused
+03:15 Stream A exclusive automation describe the earlier proposal. The
+current `aster-stream-a-b60-window` automation is active for a **03:40
+read-only recovery check** after the proposed October 15 platform drill; it
+does not launch this benchmark. A 03:15 platform drill automation was not
+found in the local automation inventory. The live drill and this full-path
+batch therefore remain distinct, unadmitted actions.

@@ -4,8 +4,10 @@
 
 The [Stream A work cadence](Stream-A-Work-Cadence.md) separates continuous
 offline/shared work from exclusive lab tests. The proposed 03:15 Vancouver
-platform drill on 2026-10-15 remains **paused** and is a full-stop recovery drill only; its
-lease stops B60 inference and cannot run the full Aster-path benchmark.
+platform drill on 2026-10-15 is **not verified as scheduled** and would be a
+full-stop recovery drill only; its lease stops B60 inference and cannot run
+the full Aster-path benchmark. The current Stream A automation is instead an
+active 03:40 read-only post-drill recovery check, not a test launcher.
 Continuous Stream A work remains active, and the A1 benchmark needs its
 separate application-only lease and sidecar admission.
 The configured 00:30/01:00/02:00/03:00 backup schedules were checked read-only
