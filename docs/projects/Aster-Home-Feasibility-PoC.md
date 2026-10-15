@@ -424,6 +424,15 @@ Existing brand artwork and library/playback state remain unchanged. XML and
 diff validation pass. Local commit only; remote synchronization is pending.
 The split-hero design remains recoverable from local commit `529cc07d`.
 
+Tile-corner correction, 2026-10-14: fixed artwork alpha masks to each 400×225
+tile using Kodi's `scalediffuse="false"` attribute, and removed ivory inverse
+corner overlays. Source-art cropping no longer crops the mask; the real hero
+background shows through rounded corners. Applied to both rows, focused and
+unfocused layouts. Live Kodi checks showed clean corners on Dark, The Newsroom,
+The Durrells and the movie row, with resume bars and focus ring retained.
+XML and diff checks pass. Remote synchronization remains pending approval.
+Reference: https://kodi.wiki/view/Aspect_Ratio
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

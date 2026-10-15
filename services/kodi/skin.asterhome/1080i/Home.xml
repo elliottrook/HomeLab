@@ -378,12 +378,7 @@
                 <control type="image">
                     <left>8</left><top>8</top><width>400</width><height>225</height>
                     <texture background="true" diffuse="special://skin/media/ui-card-mask.png">$VAR[AsterCardArt]</texture>
-                    <aspectratio>scale</aspectratio>
-                </control>
-                <control type="image">
-                    <left>8</left><top>8</top><width>400</width><height>225</height>
-                    <texture>special://skin/media/ui-card-corners.png</texture>
-                    <colordiffuse>asterIvory</colordiffuse>
+                    <aspectratio scalediffuse="false">scale</aspectratio>
                 </control>
                 <control type="image">
                     <left>22</left><top>218</top><width>372</width><height>6</height>
@@ -409,12 +404,7 @@
                 <control type="image">
                     <left>8</left><top>8</top><width>400</width><height>225</height>
                     <texture background="true" diffuse="special://skin/media/ui-card-mask.png">$VAR[AsterCardArt]</texture>
-                    <aspectratio>scale</aspectratio>
-                </control>
-                <control type="image">
-                    <left>8</left><top>8</top><width>400</width><height>225</height>
-                    <texture>special://skin/media/ui-card-corners.png</texture>
-                    <colordiffuse>asterIvory</colordiffuse>
+                    <aspectratio scalediffuse="false">scale</aspectratio>
                 </control>
                 <control type="image">
                     <left>8</left><top>8</top><width>400</width><height>225</height>
@@ -465,12 +455,7 @@
                 <control type="image">
                     <left>8</left><top>8</top><width>400</width><height>225</height>
                     <texture background="true" diffuse="special://skin/media/ui-card-mask.png">$VAR[AsterCardArt]</texture>
-                    <aspectratio>scale</aspectratio>
-                </control>
-                <control type="image">
-                    <left>8</left><top>8</top><width>400</width><height>225</height>
-                    <texture>special://skin/media/ui-card-corners.png</texture>
-                    <colordiffuse>asterIvory</colordiffuse>
+                    <aspectratio scalediffuse="false">scale</aspectratio>
                 </control>
                 <control type="label">
                     <left>8</left><top>241</top><width>400</width><height>28</height>
@@ -482,12 +467,7 @@
                 <control type="image">
                     <left>8</left><top>8</top><width>400</width><height>225</height>
                     <texture background="true" diffuse="special://skin/media/ui-card-mask.png">$VAR[AsterCardArt]</texture>
-                    <aspectratio>scale</aspectratio>
-                </control>
-                <control type="image">
-                    <left>8</left><top>8</top><width>400</width><height>225</height>
-                    <texture>special://skin/media/ui-card-corners.png</texture>
-                    <colordiffuse>asterIvory</colordiffuse>
+                    <aspectratio scalediffuse="false">scale</aspectratio>
                 </control>
                 <control type="image">
                     <left>8</left><top>8</top><width>400</width><height>225</height>

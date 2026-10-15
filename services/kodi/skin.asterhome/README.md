@@ -5,6 +5,8 @@ A continuous left-side dark gradient keeps copy readable without a boxed panel;
 the image fades into ivory behind the queues. Rounded Play (green) and More Info
 (ivory) buttons switch to sage with a white outline when focused. Press Up from
 Continue Watching to reach Play, Right for More Info, and Down to return.
+Card artwork uses `scalediffuse="false"` so cropping cannot crop the rounded
+alpha mask. Corners are truly transparent, not covered with ivory patches.
 
 Version 0.5.4 presents a single rounded hero tile split evenly between solid
 charcoal copy and artwork. The year follows the genre in green; the separate
