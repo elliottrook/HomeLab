@@ -38,6 +38,13 @@ streamed over stdin, so `__file__` cannot locate the repository tree. The
 installed unit files were independently checked with `systemd-analyze verify`
 and pinned-byte comparison. An initial unmodified stdin run reported that
 single `__file__` harness error; it was not a controller failure.
+Additional installed-path target-Linux suites passed: watchdog **10/10**,
+trusted observer **8/8**, retained archive producer **6/6**, and retained
+archive integrity **6/6**. Recovery executor tests passed **3/3 applicable**;
+the repository-relative unit-path assertion was skipped over stdin and the
+installed watchdog unit was inspected directly. It has
+`RefuseManualStart=yes`; its timer is periodic but disabled/inactive. These
+are synthetic tests and unit inspection, not a powered recovery drill.
 
 Postcheck: no lease or lock; both heartbeat and watchdog timers still
 disabled/inactive; LXC104, 110 and 116 running; `pvescheduler` active; News
