@@ -4,6 +4,27 @@
         <value condition="Container.Content(sets)">Collections</value>
         <value>$INFO[Container.FolderName]</value>
     </variable>
+    <variable name="AsterPosterArt">
+        <value condition="!String.IsEmpty(ListItem.Art(poster))">$INFO[ListItem.Art(poster)]</value>
+        <value condition="!String.IsEmpty(ListItem.Art(tvshow.poster))">$INFO[ListItem.Art(tvshow.poster)]</value>
+        <value>$INFO[ListItem.Art(thumb)]</value>
+    </variable>
+    <variable name="AsterBrowseFanart">
+        <value condition="!String.IsEmpty(Container(50).ListItem.Art(fanart))">$INFO[Container(50).ListItem.Art(fanart)]</value>
+        <value>$INFO[Container(50).ListItem.Art(tvshow.fanart)]</value>
+    </variable>
+    <variable name="AsterBrowseTitle">
+        <value condition="Container(50).ListItem.IsParentFolder">Choose a title</value>
+        <value>$INFO[Container(50).ListItem.Label]</value>
+    </variable>
+    <variable name="AsterPosterLabel">
+        <value condition="ListItem.IsParentFolder">Back</value>
+        <value>$INFO[ListItem.Label]</value>
+    </variable>
+    <variable name="AsterBrowseAction">
+        <value condition="Container.Content(tvshows) | Container.Content(sets) | Container.Content(seasons)">▶  Browse</value>
+        <value>▶  Play</value>
+    </variable>
     <variable name="AsterContinueLabel">
         <value condition="!String.IsEmpty(ListItem.Episode)">$INFO[ListItem.TVShowTitle] — S$INFO[ListItem.Season] E$INFO[ListItem.Episode]</value>
         <value>$INFO[ListItem.Label]</value>
@@ -89,7 +110,29 @@
         <textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
         <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
         <texturenofocus border="20" colordiffuse="asterIvory">special://skin/media/ui-panel.png</texturenofocus>
-        <ondown>100</ondown>
+    </include>
+    <include name="AsterTopCategoryButton">
+        <width>248</width><height>56</height>
+        <font>font20</font><align>left</align><aligny>center</aligny>
+        <textoffsetx>52</textoffsetx>
+        <textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
+        <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus border="20" colordiffuse="asterIvory">special://skin/media/ui-panel.png</texturenofocus>
+        <ondown>120</ondown>
+    </include>
+    <include name="AsterFilterButton">
+        <width>260</width><height>56</height><font>font24</font>
+        <align>center</align><aligny>center</aligny>
+        <textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
+        <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus border="20" colordiffuse="asterPaper">special://skin/media/ui-panel.png</texturenofocus>
+    </include>
+    <include name="AsterKeyboardActionButton">
+        <width>190</width><height>56</height><font>font24</font>
+        <align>center</align><aligny>center</aligny>
+        <textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
+        <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus border="20" colordiffuse="asterPaper">special://skin/media/ui-panel.png</texturenofocus>
     </include>
 
     <include name="AsterActionButton">

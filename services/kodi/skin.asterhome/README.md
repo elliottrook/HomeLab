@@ -1,5 +1,18 @@
 # Aster Home Kodi skin prototype
 
+Version 0.5.7 moves the category pills into the header, separated from the hero
+actions, and uses the approved TV, Film and Archive artwork plus the supplied
+Collections SVG rendered unchanged to a runtime PNG. Asset provenance and hashes
+are recorded in `media/category-icons-provenance.json`.
+Category pages now share the full-screen hero treatment and display rounded 2:3
+portrait posters, with two-line captions. Existing library posters often include
+the title in the artwork; this depends on the supplied poster, not the skin.
+A separate left-hand cluster provides native title filtering, Clear search and
+Reverse order. Select the search field to open the Aster on-screen keyboard,
+or type using a physical keyboard. Filtering is confined to the current category.
+More Info opens a matching artwork/poster/synopsis dialog. No server artwork,
+library tags or media files are modified.
+
 Version 0.5.6 adds a dedicated category lane with five 280×56 pills: TV Shows,
 Movies, Archive TV, Archive Film and Collections. The queues move down and use
 320×180 tiles so five tiles and both rows fit within 1080p. Up from Continue

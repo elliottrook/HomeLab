@@ -450,6 +450,36 @@ compact masks are geometric UI assets. Side-rail utility glyph redesign remains
 a separate visual follow-up. Local commit only; remote synchronization pending.
 Reference: https://kodi.wiki/view/Smart_playlists/Rules_and_groupings
 
+Header and portrait-browser milestone, 2026-10-14 (v0.5.7): moved the five
+category pills into the header, away from Play/More Info, with 248×56 controls
+and approved 128px TV/Film/Archive exports. The owner-supplied
+`19-movie-collections.svg` was rendered directly to a 128px transparent PNG;
+the source was not altered or recreated. Provenance, rendering recipe and hashes
+are recorded in the skin's `media/category-icons-provenance.json`. The approved
+family package SHA256 is
+`2c770b52cfc04cb90d49f01bec1067566e9b1e3c89fd9235a82c0e86be6bcffc`;
+Collections source SHA256 is
+`3f89124d6314320a56368b3f208efce9baf293f899c466e8f113cb5164598fcd`.
+
+The native video browser now uses full-screen selected-media fanart, rounded
+2:3 posters with two-line captions, and a separate left-hand search/filter lane.
+Posters use existing library artwork (many already contain title graphics),
+without promising title-bearing art for every item or changing server images.
+Live Mac Kodi checks verified all header labels fit, portrait corners and wrapped
+captions, dynamic hero metadata, native title filtering (TV: 66 → 2 for Dark →
+66 after clearing), and reversible movie sort order. Added and visually checked
+the Aster native on-screen keyboard; special keys fit inside its panel. Temporary
+filter input was cleared, restoring all 71 Movies-tagged titles. Added a matching
+media-details dialog and verified real poster/fanart/synopsis for Minions and
+A Clockwork Orange. The browser More Info action initially failed with button
+focus; returning focus to control 50 before Action(Info) resolved it and the
+button was verified live. Parent-folder tiles now explicitly say Back.
+
+Four offline geometry/asset tests, all skin XML validation and diff whitespace
+checks pass. No core changes, service deployment, media playback, server library
+or artwork writes occurred. Collections remains Kodi movie sets as documented
+above. Local milestone only; remote synchronization requires fresh approval.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

@@ -1,0 +1,23 @@
+{
+  "approved_family": "aster-brand-v2-2026-10-14",
+  "archive": "aster-version-2-family-candidate.zip",
+  "archive_sha256": "2c770b52cfc04cb90d49f01bec1067566e9b1e3c89fd9235a82c0e86be6bcffc",
+  "exports": {
+    "07-tv.png": "e0b0937372fd09daf8cb6a39910e6f84f8651e6297bf8c950b80defba5de90a2",
+    "08-film.png": "edc27523426d94f4079926dbae872f4793d31b9b9db4ea9f37e141bb664faac9",
+    "09-archive-tv.png": "ba636f672835f826ce0c8040632cd4dd7c9af5b44360d2b6a12c6180ba67af8c",
+    "10-archive-film.png": "dec22c2d8c14800a35c418157154d1067722f8a5a085e23fb9162d5a650f851b"
+  },
+  "export_source_directory": "PNG/128/",
+  "collections": {
+    "source": "19-movie-collections.svg supplied by Jason on 2026-10-14",
+    "source_sha256": "3f89124d6314320a56368b3f208efce9baf293f899c466e8f113cb5164598fcd",
+    "source_dimensions": [1254, 1254],
+    "source_retention": "Original Messages attachment remains unchanged; not duplicated into the add-on.",
+    "renderer": "Sharp/librsvg, resize(128,128).png(); no artwork edits",
+    "runtime_export": "19-movie-collections-128.png",
+    "runtime_sha256": "397ef61365aca95e786ae226a1cf0f09991c08ad6a4c5533d413f302e15a46e4",
+    "safety": "XML parsed; no scripts, image embeds, external references or entity declarations found."
+  },
+  "usage": "Private Aster Home Kodi test skin; labels accompany all small navigation motifs."
+}
