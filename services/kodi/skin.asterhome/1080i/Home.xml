@@ -296,7 +296,7 @@
             <label>▶  Play</label>
             <onclick>PlayMedia($VAR[AsterHeroPath])</onclick>
             <onleft>8999</onleft>
-            <ondown>100</ondown>
+            <ondown>130</ondown>
             <onright>121</onright>
             <height>56</height>
             <font>font28</font>
@@ -314,7 +314,7 @@
             <label>ⓘ  More Info</label>
             <onclick>Info</onclick>
             <onleft>120</onleft>
-            <ondown>100</ondown>
+            <ondown>131</ondown>
             <onright>100</onright>
             <height>56</height>
             <font>font28</font>
@@ -340,13 +340,56 @@
 
         <!-- Keep the navigation state uncluttered: media rows are hidden
              while the expanded rail is active rather than being cut by it. -->
+        <control type="group" id="23">
+            <animation effect="fade" start="100" end="0" time="0" condition="Control.HasFocus(8999) | Control.HasFocus(9001) | Control.HasFocus(9002) | Control.HasFocus(9003) | Control.HasFocus(9004) | Control.HasFocus(9005)">Conditional</animation>
+            <control type="image">
+                <left>112</left><top>414</top><width>1680</width><height>84</height>
+                <texture border="20">special://skin/media/ui-panel.png</texture>
+                <colordiffuse>99292721</colordiffuse>
+            </control>
+            <control type="button" id="130">
+                <left>145</left><top>428</top><label>TV Shows</label>
+                <onclick>ActivateWindow(Videos,special://skin/playlists/tv-shows.xsp,return)</onclick>
+                <onleft>8999</onleft><onright>131</onright><onup>120</onup>
+                <include>AsterCategoryButton</include>
+            </control>
+            <control type="button" id="131">
+                <left>445</left><top>428</top><label>Movies</label>
+                <onclick>ActivateWindow(Videos,special://skin/playlists/movies.xsp,return)</onclick>
+                <onleft>130</onleft><onright>132</onright><onup>121</onup>
+                <include>AsterCategoryButton</include>
+            </control>
+            <control type="button" id="132">
+                <left>745</left><top>428</top><label>Archive TV</label>
+                <onclick>ActivateWindow(Videos,special://skin/playlists/archive-tv.xsp,return)</onclick>
+                <onleft>131</onleft><onright>133</onright><onup>121</onup>
+                <include>AsterCategoryButton</include>
+            </control>
+            <control type="button" id="133">
+                <left>1045</left><top>428</top><label>Archive Film</label>
+                <onclick>ActivateWindow(Videos,special://skin/playlists/archive-film.xsp,return)</onclick>
+                <onleft>132</onleft><onright>134</onright><onup>121</onup>
+                <include>AsterCategoryButton</include>
+            </control>
+            <control type="button" id="134">
+                <left>1345</left><top>428</top><label>Collections</label>
+                <onclick>ActivateWindow(Videos,videodb://movies/sets/,return)</onclick>
+                <onleft>133</onleft><onright>134</onright><onup>121</onup>
+                <include>AsterCategoryButton</include>
+            </control>
+            <control type="image"><visible>Control.HasFocus(130)</visible><left>145</left><top>428</top><width>280</width><height>56</height><texture>special://skin/media/ui-button-ring.png</texture></control>
+            <control type="image"><visible>Control.HasFocus(131)</visible><left>445</left><top>428</top><width>280</width><height>56</height><texture>special://skin/media/ui-button-ring.png</texture></control>
+            <control type="image"><visible>Control.HasFocus(132)</visible><left>745</left><top>428</top><width>280</width><height>56</height><texture>special://skin/media/ui-button-ring.png</texture></control>
+            <control type="image"><visible>Control.HasFocus(133)</visible><left>1045</left><top>428</top><width>280</width><height>56</height><texture>special://skin/media/ui-button-ring.png</texture></control>
+            <control type="image"><visible>Control.HasFocus(134)</visible><left>1345</left><top>428</top><width>280</width><height>56</height><texture>special://skin/media/ui-button-ring.png</texture></control>
+        </control>
         <control type="group" id="22">
             <zorder>2</zorder>
             <animation effect="fade" start="100" end="0" time="0" condition="Control.HasFocus(8999) | Control.HasFocus(9001) | Control.HasFocus(9002) | Control.HasFocus(9003) | Control.HasFocus(9004) | Control.HasFocus(9005)">Conditional</animation>
 
         <control type="label">
             <left>125</left>
-            <top>426</top>
+            <top>500</top>
             <width>650</width>
             <height>48</height>
             <label>Continue Watching</label>
@@ -355,7 +398,7 @@
         </control>
         <control type="label">
             <left>1590</left>
-            <top>434</top>
+            <top>508</top>
             <width>160</width>
             <height>36</height>
             <label>View all  ›</label>
@@ -366,28 +409,28 @@
         </control>
         <control type="panel" id="100">
             <left>125</left>
-            <top>470</top>
-            <width>1680</width>
-            <height>280</height>
+            <top>544</top>
+            <width>1700</width>
+            <height>230</height>
             <orientation>horizontal</orientation>
             <scrolltime>180</scrolltime>
             <onleft>8999</onleft>
-            <onup>120</onup>
+            <onup>130</onup>
             <ondown>110</ondown>
-            <itemlayout width="420" height="280">
+            <itemlayout width="340" height="230">
                 <control type="image">
-                    <left>8</left><top>8</top><width>400</width><height>225</height>
-                    <texture background="true" diffuse="special://skin/media/ui-card-mask.png">$VAR[AsterCardArt]</texture>
+                    <left>8</left><top>8</top><width>320</width><height>180</height>
+                    <texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">$VAR[AsterCardArt]</texture>
                     <aspectratio scalediffuse="false">scale</aspectratio>
                 </control>
                 <control type="image">
-                    <left>22</left><top>218</top><width>372</width><height>6</height>
+                    <left>22</left><top>173</top><width>292</width><height>6</height>
                     <texture border="4">special://skin/media/ui-progress.png</texture>
                     <colordiffuse>aa292721</colordiffuse>
                 </control>
                 <control type="progress">
                     <visible>Integer.IsGreater(ListItem.PercentPlayed,0)</visible>
-                    <left>22</left><top>218</top><width>372</width><height>6</height>
+                    <left>22</left><top>173</top><width>292</width><height>6</height>
                     <texturebg border="4" colordiffuse="00ffffff">special://skin/media/ui-progress.png</texturebg>
                     <midtexture border="4" colordiffuse="asterSage">special://skin/media/ui-progress.png</midtexture>
                     <lefttexture></lefttexture><righttexture></righttexture>
@@ -395,30 +438,30 @@
                     <info>ListItem.PercentPlayed</info>
                 </control>
                 <control type="label">
-                    <left>8</left><top>241</top><width>400</width><height>28</height>
+                    <left>8</left><top>196</top><width>320</width><height>28</height>
                     <label>$VAR[AsterContinueLabel]</label><font>font20</font>
                     <textcolor>asterInk</textcolor><truncate>true</truncate>
                 </control>
             </itemlayout>
-            <focusedlayout width="420" height="280">
+            <focusedlayout width="340" height="230">
                 <control type="image">
-                    <left>8</left><top>8</top><width>400</width><height>225</height>
-                    <texture background="true" diffuse="special://skin/media/ui-card-mask.png">$VAR[AsterCardArt]</texture>
+                    <left>8</left><top>8</top><width>320</width><height>180</height>
+                    <texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">$VAR[AsterCardArt]</texture>
                     <aspectratio scalediffuse="false">scale</aspectratio>
                 </control>
                 <control type="image">
-                    <left>8</left><top>8</top><width>400</width><height>225</height>
-                    <texture>special://skin/media/ui-card-ring.png</texture>
+                    <left>8</left><top>8</top><width>320</width><height>180</height>
+                    <texture>special://skin/media/ui-compact-card-ring.png</texture>
                     <colordiffuse>asterGreen</colordiffuse>
                 </control>
                 <control type="image">
-                    <left>22</left><top>218</top><width>372</width><height>6</height>
+                    <left>22</left><top>173</top><width>292</width><height>6</height>
                     <texture border="4">special://skin/media/ui-progress.png</texture>
                     <colordiffuse>aa292721</colordiffuse>
                 </control>
                 <control type="progress">
                     <visible>Integer.IsGreater(ListItem.PercentPlayed,0)</visible>
-                    <left>22</left><top>218</top><width>372</width><height>6</height>
+                    <left>22</left><top>173</top><width>292</width><height>6</height>
                     <texturebg border="4" colordiffuse="00ffffff">special://skin/media/ui-progress.png</texturebg>
                     <midtexture border="4" colordiffuse="asterSage">special://skin/media/ui-progress.png</midtexture>
                     <lefttexture></lefttexture><righttexture></righttexture>
@@ -426,7 +469,7 @@
                     <info>ListItem.PercentPlayed</info>
                 </control>
                 <control type="label">
-                    <left>8</left><top>241</top><width>400</width><height>28</height>
+                    <left>8</left><top>196</top><width>320</width><height>28</height>
                     <label>$VAR[AsterContinueLabel]</label><font>font20</font>
                     <textcolor>asterInk</textcolor><truncate>true</truncate>
                 </control>
@@ -436,7 +479,7 @@
 
         <control type="label">
             <left>125</left>
-            <top>746</top>
+            <top>770</top>
             <width>650</width>
             <height>48</height>
             <label>Recommended for You</label>
@@ -444,38 +487,38 @@
         </control>
         <control type="panel" id="110">
             <left>125</left>
-            <top>790</top>
-            <width>1680</width>
-            <height>280</height>
+            <top>814</top>
+            <width>1700</width>
+            <height>230</height>
             <orientation>horizontal</orientation>
             <scrolltime>180</scrolltime>
             <onleft>8999</onleft>
             <onup>100</onup>
-            <itemlayout width="420" height="280">
+            <itemlayout width="340" height="230">
                 <control type="image">
-                    <left>8</left><top>8</top><width>400</width><height>225</height>
-                    <texture background="true" diffuse="special://skin/media/ui-card-mask.png">$VAR[AsterCardArt]</texture>
+                    <left>8</left><top>8</top><width>320</width><height>180</height>
+                    <texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">$VAR[AsterCardArt]</texture>
                     <aspectratio scalediffuse="false">scale</aspectratio>
                 </control>
                 <control type="label">
-                    <left>8</left><top>241</top><width>400</width><height>28</height>
+                    <left>8</left><top>196</top><width>320</width><height>28</height>
                     <label>$INFO[ListItem.Label]</label><font>font20</font>
                     <textcolor>asterInk</textcolor><truncate>true</truncate>
                 </control>
             </itemlayout>
-            <focusedlayout width="420" height="280">
+            <focusedlayout width="340" height="230">
                 <control type="image">
-                    <left>8</left><top>8</top><width>400</width><height>225</height>
-                    <texture background="true" diffuse="special://skin/media/ui-card-mask.png">$VAR[AsterCardArt]</texture>
+                    <left>8</left><top>8</top><width>320</width><height>180</height>
+                    <texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">$VAR[AsterCardArt]</texture>
                     <aspectratio scalediffuse="false">scale</aspectratio>
                 </control>
                 <control type="image">
-                    <left>8</left><top>8</top><width>400</width><height>225</height>
-                    <texture>special://skin/media/ui-card-ring.png</texture>
+                    <left>8</left><top>8</top><width>320</width><height>180</height>
+                    <texture>special://skin/media/ui-compact-card-ring.png</texture>
                     <colordiffuse>asterGreen</colordiffuse>
                 </control>
                 <control type="label">
-                    <left>8</left><top>241</top><width>400</width><height>28</height>
+                    <left>8</left><top>196</top><width>320</width><height>28</height>
                     <label>$INFO[ListItem.Label]</label><font>font20</font>
                     <textcolor>asterInk</textcolor><truncate>true</truncate>
                 </control>

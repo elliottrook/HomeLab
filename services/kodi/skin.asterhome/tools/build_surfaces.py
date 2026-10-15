@@ -49,6 +49,8 @@ if __name__ == '__main__':
         ('ui-solid', 2, 2, 0, 0),
         ('ui-card-mask', 400, 225, 18, 0),
         ('ui-card-ring', 400, 225, 18, 3),
+        ('ui-compact-card-mask', 320, 180, 18, 0),
+        ('ui-compact-card-ring', 320, 180, 18, 3),
         ('ui-hero-mask', 1836, 420, 24, 0),
         ('ui-rail-mask', 250, 1080, 20, 0),
         ('ui-rail-collapsed-mask', 84, 1080, 18, 0),

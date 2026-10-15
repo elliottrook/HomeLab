@@ -1,5 +1,14 @@
 # Aster Home Kodi skin prototype
 
+Version 0.5.6 adds a dedicated category lane with five 280×56 pills: TV Shows,
+Movies, Archive TV, Archive Film and Collections. The queues move down and use
+320×180 tiles so five tiles and both rows fit within 1080p. Up from Continue
+Watching reaches the lane; Left/Right chooses a category, Select opens it,
+and Back/Escape returns. A new Aster tile browser supports the video library.
+Categories use existing Jellyfin-synced Kodi tags (`Shows`, `Movies`,
+`Archive TV`, `Archive Movies`); Collections uses Kodi movie sets, not a new
+server-side collection. These filters do not modify media or tags.
+
 Version 0.5.5 replaces the split tile with full-screen 1920×1080 hero artwork.
 A continuous left-side dark gradient keeps copy readable without a boxed panel;
 the image fades into ivory behind the queues. Rounded Play (green) and More Info

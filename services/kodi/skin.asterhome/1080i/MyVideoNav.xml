@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+    <defaultcontrol always="true">50</defaultcontrol>
+    <views>50</views>
+    <backgroundcolor>asterIvory</backgroundcolor>
+    <controls>
+        <control type="image">
+            <left>65</left><top>30</top><width>192</width><height>60</height>
+            <texture>special://skin/media/aster-home-horizontal-512.png</texture><aspectratio>keep</aspectratio>
+        </control>
+        <control type="label">
+            <left>280</left><top>32</top><width>1200</width><height>60</height>
+            <label>$VAR[AsterBrowseHeading]</label><include>AsterTitle</include>
+        </control>
+        <control type="button" id="9000">
+            <left>1540</left><top>34</top><label>Back</label>
+            <include>AsterCategoryButton</include>
+            <onclick>Action(Back)</onclick><ondown>50</ondown>
+        </control>
+        <control type="panel" id="50">
+            <left>65</left><top>125</top><width>1780</width><height>870</height>
+            <viewtype label="Tiles">icon</viewtype>
+            <orientation>vertical</orientation><scrolltime>180</scrolltime>
+            <onup>9000</onup>
+            <itemlayout width="350" height="270">
+                <control type="image">
+                    <left>8</left><top>8</top><width>320</width><height>180</height>
+                    <texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">$VAR[AsterCardArt]</texture>
+                    <aspectratio scalediffuse="false">scale</aspectratio>
+                </control>
+                <control type="label">
+                    <left>8</left><top>196</top><width>320</width><height>58</height>
+                    <label>$INFO[ListItem.Label]</label><font>font20</font>
+                    <textcolor>asterInk</textcolor><wrapmultiline>true</wrapmultiline>
+                </control>
+            </itemlayout>
+            <focusedlayout width="350" height="270">
+                <control type="image">
+                    <left>8</left><top>8</top><width>320</width><height>180</height>
+                    <texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">$VAR[AsterCardArt]</texture>
+                    <aspectratio scalediffuse="false">scale</aspectratio>
+                </control>
+                <control type="image">
+                    <left>8</left><top>8</top><width>320</width><height>180</height>
+                    <texture>special://skin/media/ui-compact-card-ring.png</texture><colordiffuse>asterGreen</colordiffuse>
+                </control>
+                <control type="label">
+                    <left>8</left><top>196</top><width>320</width><height>58</height>
+                    <label>$INFO[ListItem.Label]</label><font>font20</font>
+                    <textcolor>asterGreen</textcolor><wrapmultiline>true</wrapmultiline>
+                </control>
+            </focusedlayout>
+        </control>
+        <control type="label">
+            <left>65</left><top>1015</top><width>1400</width><height>40</height>
+            <label>$INFO[Container.NumItems] items · Select a series or collection to browse inside · Back to return</label>
+            <font>font20</font><textcolor>asterMuted</textcolor>
+        </control>
+    </controls>
+</window>

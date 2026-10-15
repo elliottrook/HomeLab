@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<smartplaylist type="tvshows">
+    <name>Archive TV</name><match>all</match>
+    <rule field="tag" operator="is"><value>Archive TV</value></rule>
+    <order direction="ascending">title</order>
+</smartplaylist>

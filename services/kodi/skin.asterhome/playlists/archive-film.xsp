@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<smartplaylist type="movies">
+    <name>Archive Film</name><match>all</match>
+    <rule field="tag" operator="is"><value>Archive Movies</value></rule>
+    <order direction="ascending">title</order>
+</smartplaylist>

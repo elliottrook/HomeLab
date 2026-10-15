@@ -433,6 +433,23 @@ The Durrells and the movie row, with resume bars and focus ring retained.
 XML and diff checks pass. Remote synchronization remains pending approval.
 Reference: https://kodi.wiki/view/Aspect_Ratio
 
+Category-lane milestone, 2026-10-14 (v0.5.6): added TV Shows, Movies, Archive TV,
+Archive Film and Collections as 280×56 pills in a distinct translucent lane.
+Moved Continue Watching down 74 skin pixels; reduced cards to 320×180 to keep
+five cards and both queues on screen, with properly fixed rounded masks.
+Added the previously missing MyVideoNav tile browser. A clean Kodi restart was
+needed to register the new native window; the initial missing-window/empty-view
+failure was resolved. Reserved native control ID 2 is not used for Back.
+Live category checks returned 66 Shows-tagged series, 71 Movies-tagged films,
+135 Archive TV series, 976 Archive Movies films, and 123 nonempty movie sets.
+Collections displays Kodi movie sets; it does not claim parity with arbitrary
+Jellyfin collections. Keyboard lane focus and Escape return were verified;
+no media playback, tags or server-side library contents were changed.
+XML/diff validation passes. Existing approved branding is reused; neutral
+compact masks are geometric UI assets. Side-rail utility glyph redesign remains
+a separate visual follow-up. Local commit only; remote synchronization pending.
+Reference: https://kodi.wiki/view/Smart_playlists/Rules_and_groupings
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

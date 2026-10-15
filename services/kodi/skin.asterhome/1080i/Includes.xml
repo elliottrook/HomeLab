@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <includes>
+    <variable name="AsterBrowseHeading">
+        <value condition="Container.Content(sets)">Collections</value>
+        <value>$INFO[Container.FolderName]</value>
+    </variable>
     <variable name="AsterContinueLabel">
         <value condition="!String.IsEmpty(ListItem.Episode)">$INFO[ListItem.TVShowTitle] — S$INFO[ListItem.Season] E$INFO[ListItem.Episode]</value>
         <value>$INFO[ListItem.Label]</value>
@@ -77,6 +81,15 @@
         <aligny>center</aligny>
         <texturefocus>special://skin/media/rail-focus.png</texturefocus>
         <texturenofocus>none</texturenofocus>
+    </include>
+
+    <include name="AsterCategoryButton">
+        <width>280</width><height>56</height>
+        <font>font24</font><align>center</align><aligny>center</aligny>
+        <textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
+        <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus border="20" colordiffuse="asterIvory">special://skin/media/ui-panel.png</texturenofocus>
+        <ondown>100</ondown>
     </include>
 
     <include name="AsterActionButton">
