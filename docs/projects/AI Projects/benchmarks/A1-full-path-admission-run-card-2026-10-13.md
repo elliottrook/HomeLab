@@ -416,3 +416,23 @@ the earlier overclaim in source, but no current-cycle Mac source/destination
 comparison exists. The Mac observer remains uninstalled; its future output
 would be diagnostic only, while A1 backup admission and live recovery remain
 blocked on their separate gates.
+
+**Disabled sidecar stage, independently checked 2026-10-14 Vancouver:** Jason
+approved the exact disabled-install phase. The platform owner staged the
+source and 34-wheel dependency set in LXC104 and wrote the content-free
+`/var/lib/aster-a1-test/staging-receipt.json` at local commit `64740ea8`.
+Stream A then independently observed `aster-a1-test.service` loaded but
+disabled/inactive with PID 0, no TCP 19104 listener, no
+`/etc/aster-a1-test/runtime.env`, and dedicated UID/GID 1904 with no other
+groups. The installed unit and isolated-app SHA-256 values match the approved
+card (`949bd266…`, `b634b051…`); the receipt pins the current profile,
+source-bundle and wheel-manifest hashes. LXC110 `aster-llama.service` remained
+active with zero restarts. This proves a reversible disabled stage, **not** a
+live test endpoint or benchmark admission. The application watchdog timer was
+still `not-found`, the full-stop watchdog timer remained disabled/inactive,
+and the installed controller reported `ready` without an A1 lease. The
+20-request full Aster-path benchmark remains **BLOCKED with zero model calls**
+pending a separately reviewed application lease, independent recovery,
+source-bound backup/consumer receipts, test-only auth/ingress and positive and
+negative isolation probes. The 03:15 full-stop drill cannot supply the A1
+application lease because it stops the accepted B60 backend.
