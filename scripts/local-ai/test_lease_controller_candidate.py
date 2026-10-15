@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from admission_state import decode
 from lease_contract import ACCEPTED_BACKEND, ACCEPTED_MODEL, LeaseReceipt
 from lease_controller_candidate import ALLOWLIST, CandidateController, CandidatePaths, command_for
 from lease_watchdog import Observation
@@ -43,6 +44,25 @@ class CandidateControllerTests(unittest.TestCase):
             self.assertTrue((Path(temp) / "lease.json").exists())
             self.assertEqual(len(commands), len(ALLOWLIST))
             self.assertTrue(all(command[:2] == ("pct", "exec") for command in commands))
+
+    def test_acquire_persists_watchdog_compatible_admission_record(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            controller = CandidateController(
+                CandidatePaths(root),
+                lambda _: None,
+                allow_effects=True,
+                observer=self.StubObserver(self.observation()),
+                sleep=lambda _: None,
+            )
+            controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
+
+            record = decode((root / "lease.json").read_text())
+            self.assertEqual(record.lease_id, "lab-1")
+            self.assertEqual(record.generation, 1)
+            self.assertEqual(record.services, tuple(ALLOWLIST))
+            self.assertTrue(record.consumers_isolated)
+            self.assertTrue(record.scheduled_work_quiesced)
 
     def test_duplicate_acquire_fails_closed(self):
         with tempfile.TemporaryDirectory() as temp:
