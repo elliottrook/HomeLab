@@ -10,15 +10,19 @@ from lease_watchdog import Observation
 
 class CandidateControllerTests(unittest.TestCase):
     class StubObserver:
-        def __init__(self, observation, active=False):
+        def __init__(self, observation, active=False, quiesced=True):
             self._observation = observation
             self._active = active
+            self._quiesced = quiesced
 
         def collect(self, lease_expires_minute):
             return self._observation
 
         def service_active(self, vmid, unit):
             return self._active
+
+        def consumers_quiesced(self):
+            return self._quiesced
 
     def receipt(self):
         return LeaseReceipt("lab-1", 1, 220, 255, "backup", ACCEPTED_MODEL, ACCEPTED_BACKEND, True, True)
@@ -33,7 +37,7 @@ class CandidateControllerTests(unittest.TestCase):
     def test_acquire_persists_before_allowlisted_stops(self):
         with tempfile.TemporaryDirectory() as temp:
             commands = []
-            controller = CandidateController(CandidatePaths(Path(temp)), commands.append, allow_effects=True)
+            controller = CandidateController(CandidatePaths(Path(temp)), commands.append, allow_effects=True, observer=self.StubObserver(self.observation()), sleep=lambda _: None)
             result = controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
             self.assertEqual(result["state"], "leased")
             self.assertTrue((Path(temp) / "lease.json").exists())
@@ -42,7 +46,7 @@ class CandidateControllerTests(unittest.TestCase):
 
     def test_duplicate_acquire_fails_closed(self):
         with tempfile.TemporaryDirectory() as temp:
-            controller = CandidateController(CandidatePaths(Path(temp)), lambda _: None, allow_effects=True)
+            controller = CandidateController(CandidatePaths(Path(temp)), lambda _: None, allow_effects=True, observer=self.StubObserver(self.observation()), sleep=lambda _: None)
             controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
             with self.assertRaisesRegex(ValueError, "lock"):
                 controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
@@ -53,6 +57,7 @@ class CandidateControllerTests(unittest.TestCase):
             controller = CandidateController(
                 CandidatePaths(Path(temp)), commands.append, allow_effects=True,
                 observer=self.StubObserver(self.observation(schedule_restored=False)),
+                sleep=lambda _: None,
             )
             controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
             commands.clear()
@@ -70,7 +75,7 @@ class CandidateControllerTests(unittest.TestCase):
                 if len(commands) == 2:
                     raise RuntimeError("injected stop failure")
 
-            controller = CandidateController(CandidatePaths(Path(temp)), fail_on_second, allow_effects=True)
+            controller = CandidateController(CandidatePaths(Path(temp)), fail_on_second, allow_effects=True, observer=self.StubObserver(self.observation()), sleep=lambda _: None)
             with self.assertRaisesRegex(RuntimeError, "injected"):
                 controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
             self.assertTrue((Path(temp) / "lease.lock").exists())
@@ -79,9 +84,23 @@ class CandidateControllerTests(unittest.TestCase):
                 command_for(ALLOWLIST[0][0], ALLOWLIST[0][1], "start"),
             ])
 
+    def test_stop_success_but_service_still_active_does_not_admit(self):
+        with tempfile.TemporaryDirectory() as temp:
+            commands = []
+            controller = CandidateController(
+                CandidatePaths(Path(temp)), commands.append, allow_effects=True,
+                observer=self.StubObserver(self.observation(), quiesced=False),
+                sleep=lambda _: None,
+            )
+            with self.assertRaisesRegex(ValueError, "post-stop consumer quiescence"):
+                controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
+            record = json.loads((Path(temp) / "lease.json").read_text())
+            self.assertFalse(record["consumers_isolated"])
+            self.assertFalse(record["scheduled_work_quiesced"])
+
     def test_restore_rejects_persisted_identity_drift(self):
         with tempfile.TemporaryDirectory() as temp:
-            controller = CandidateController(CandidatePaths(Path(temp)), lambda _: None, allow_effects=True)
+            controller = CandidateController(CandidatePaths(Path(temp)), lambda _: None, allow_effects=True, observer=self.StubObserver(self.observation()), sleep=lambda _: None)
             controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
             with self.assertRaisesRegex(ValueError, "identity"):
                 controller.restore(
@@ -99,6 +118,7 @@ class CandidateControllerTests(unittest.TestCase):
             controller = CandidateController(
                 CandidatePaths(Path(temp)), commands.append, allow_effects=True,
                 observer=self.StubObserver(self.observation()),
+                sleep=lambda _: None,
             )
             active = (ALLOWLIST[0],)
             controller.acquire(self.receipt(), self.observation(), backup_receipt="backup", active_services=active)
@@ -115,6 +135,7 @@ class CandidateControllerTests(unittest.TestCase):
             controller = CandidateController(
                 CandidatePaths(Path(temp)), commands.append, allow_effects=True,
                 observer=self.StubObserver(self.observation(), active=True),
+                sleep=lambda _: None,
             )
             active = (ALLOWLIST[0],)
             controller.acquire(self.receipt(), self.observation(), backup_receipt="backup", active_services=active)
@@ -131,6 +152,7 @@ class CandidateControllerTests(unittest.TestCase):
             controller = CandidateController(
                 CandidatePaths(Path(temp)), commands.append, allow_effects=True,
                 observer=self.StubObserver(self.observation(), active=False),
+                sleep=lambda _: None,
             )
             active = (ALLOWLIST[0],)
             controller.acquire(self.receipt(), self.observation(), backup_receipt="backup", active_services=active)
@@ -146,6 +168,7 @@ class CandidateControllerTests(unittest.TestCase):
             controller = CandidateController(
                 CandidatePaths(Path(temp)), lambda _: None, allow_effects=True,
                 observer=self.StubObserver(self.observation()),
+                sleep=lambda _: None,
             )
             active = (ALLOWLIST[0],)
             controller.acquire(self.receipt(), self.observation(), backup_receipt="backup", active_services=active)
@@ -162,6 +185,7 @@ class CandidateControllerTests(unittest.TestCase):
                 controller = CandidateController(
                     CandidatePaths(Path(temp)), lambda _: None, allow_effects=True,
                     observer=self.StubObserver(self.observation()),
+                    sleep=lambda _: None,
                 )
                 controller.acquire(self.receipt(), self.observation(), backup_receipt="backup", active_services=(ALLOWLIST[0],))
                 with (Path(temp) / "lease.jsonl").open("a") as stream:
@@ -189,6 +213,7 @@ class CandidateControllerTests(unittest.TestCase):
             controller = CandidateController(
                 CandidatePaths(Path(temp)), commands.append, allow_effects=True,
                 observer=self.StubObserver(self.observation()),
+                sleep=lambda _: None,
             )
             controller.acquire(self.receipt(), self.observation(), backup_receipt="backup", active_services=(ALLOWLIST[0],))
             journal = Path(temp) / "lease.jsonl"

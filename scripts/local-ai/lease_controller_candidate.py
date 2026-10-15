@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Callable, Sequence
@@ -82,11 +83,12 @@ def command_for(vmid: str, unit: str, action: str) -> tuple[str, ...]:
 
 
 class CandidateController:
-    def __init__(self, paths: CandidatePaths, runner: Callable[[Sequence[str]], None], *, allow_effects: bool = False, observer: TrustedHostObserver | None = None):
+    def __init__(self, paths: CandidatePaths, runner: Callable[[Sequence[str]], None], *, allow_effects: bool = False, observer: TrustedHostObserver | None = None, sleep: Callable[[float], None] = time.sleep):
         self.paths = paths
         self.runner = runner
         self.allow_effects = allow_effects
         self.observer = observer
+        self.sleep = sleep
 
     def _require_effect_authority(self) -> None:
         if not self.allow_effects:
@@ -94,6 +96,8 @@ class CandidateController:
 
     def acquire(self, receipt: LeaseReceipt, observation: Observation, *, backup_receipt: str, active_services: tuple[tuple[str, str], ...] = ALLOWLIST) -> dict[str, object]:
         self._require_effect_authority()
+        if self.observer is None:
+            raise ValueError("trusted observer is required for effectful acquisition")
         if any(service not in ALLOWLIST for service in active_services):
             raise ValueError("active service set is outside the lease allowlist")
         validate_receipt(receipt, now_minute=observation.now_minute, expected_backup_receipt=backup_receipt, watchdog_alive=observation.heartbeat_alive)
@@ -113,8 +117,8 @@ class CandidateController:
             backup_receipt=receipt.backup_receipt,
             model_identity=receipt.model_identity,
             backend_identity=receipt.backend_identity,
-            consumers_isolated=receipt.consumers_isolated,
-            scheduled_work_quiesced=receipt.scheduled_work_quiesced,
+            consumers_isolated=False,
+            scheduled_work_quiesced=False,
             services=active_services,
         )
         atomic_write(self.paths.state, encode(state))
@@ -126,6 +130,23 @@ class CandidateController:
                 self.runner(command_for(vmid, unit, "stop"))
                 stopped.append((vmid, unit))
                 journal_event(self.paths.journal, {"event": "stop-observed", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
+            if not self.observer.consumers_quiesced():
+                raise ValueError("post-stop consumer quiescence is incomplete")
+            self.sleep(10)
+            if not self.observer.consumers_quiesced():
+                raise ValueError("post-stop consumer quiescence is unstable")
+            admitted = AdmissionRecord(
+                lease_id=receipt.lease_id, generation=receipt.generation,
+                state="leased", issued_minute=receipt.issued_minute,
+                expires_minute=receipt.expires_minute,
+                backup_receipt=receipt.backup_receipt,
+                model_identity=receipt.model_identity,
+                backend_identity=receipt.backend_identity,
+                consumers_isolated=True, scheduled_work_quiesced=True,
+                services=active_services,
+            )
+            atomic_write(self.paths.state, encode(admitted))
+            journal_event(self.paths.journal, {"event": "lease-admitted", "lease_id": receipt.lease_id, "generation": receipt.generation})
             return {"state": "leased", "lease_id": receipt.lease_id, "generation": receipt.generation}
         except Exception:
             journal_event(self.paths.journal, {"event": "stop-failed", "lease_id": receipt.lease_id, "generation": receipt.generation})

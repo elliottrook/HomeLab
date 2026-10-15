@@ -13,7 +13,8 @@ card is approved. Source pins are:
 |---|---|
 | `lease_recovery_executor.py` | `d75ddfae4ccb3de4bd059aca75d41f4cdac6c60f4951d0ea6ab11a13b9f98e4d` |
 | `lease_watchdog_cli.py` (source-only; not installed/executed) | `e79521ae4cfacb61e1232df3b62cdfbb2d5181c0697770b8c1ff6c88c575990d` |
-| `trusted_observer.py` | `fdc64fc200b87d0faba64a02762df3197fc49366dd0bec12b491ed83fb1aa93f` |
+| `trusted_observer.py` | `849ad81a24f3505e808af53b2605005ab195c95416ea0951f75290b04f1b7b99` |
+| `lease_controller_candidate.py` (source-only) | `6ee4334c49a351383f8108c3d6a4682d9061aa562da2dd79ec4f9cd8cf1085cf` |
 | `local-ai-lease-watchdog.service` | `3041ed62efadcb1bcffe0c66e9c311933fc90c0cb101ea08f24b546fc9bc656d` |
 | `local-ai-lease-watchdog.timer` | `9f09de46e3ee55d8f765e1f279d34632ea914c8c6506416f0455853ef538b744` |
 | `local-ai-lease-recovery` | `46ddd8a031ecdeb2f227fadb18f5bc76ee9ad6042bf59d7056522c13ffe5b81c` |
