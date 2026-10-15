@@ -1,5 +1,12 @@
 # Aster Home Kodi skin prototype
 
+Version 0.6.6 carries the approved limestone treatment into the search/filter
+heading and keeps selected hero artwork visible, dimmed, behind the expanded
+navigation rail. The lower ivory fade and interactive media copy/queues hide
+while the rail is open. The Mac Kodi test confirmed the menu no longer opens
+onto a blank canvas; this is visual acceptance only, not LibreELEC playback or
+remote-control acceptance. No remote service changed.
+
 Version 0.6.5 adds a restrained limestone material to unfocused category,
 filter and secondary-action pills, and to the clock pill across the media and
 hub pages. Green primary actions and sage focus states remain solid for

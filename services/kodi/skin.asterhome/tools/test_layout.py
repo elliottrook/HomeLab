@@ -56,6 +56,24 @@ class LayoutTests(unittest.TestCase):
                      'custom_1112_home.xml', 'custom_1113_music.xml'):
             self.assertIn('ui-limestone-panel.png', (ROOT / '1080i' / name).read_text())
 
+    def test_expanded_menu_preserves_dimmed_artwork(self):
+        fanart = self.home.find('.//control[@id="12"]')
+        self.assertIsNone(fanart.find('visible'))
+        fade = self.home.find('.//control[@id="13"]')
+        self.assertIn('!Control.HasFocus(8999)', fade.findtext('visible'))
+        overlays = [control for control in self.home.findall('.//control')
+                    if control.findtext('colordiffuse') == 'b91f211e']
+        self.assertEqual(len(overlays), 1)
+        self.assertIn('Control.HasFocus(8999)', overlays[0].findtext('visible'))
+        self.assertEqual(overlays[0].findtext('texture'), 'special://skin/media/ui-solid.png')
+
+    def test_filter_heading_uses_small_stone_surface(self):
+        panels = [control for control in self.browse.findall('.//control')
+                  if control.findtext('texture') == 'special://skin/media/ui-limestone-panel.png']
+        self.assertTrue(any(control.findtext('width') == '280' and
+                            control.findtext('height') == '56' and
+                            control.findtext('top') == '502' for control in panels))
+
     def test_hero_block_is_centred_and_actions_match_rings(self):
         # Available hero-copy lane: header bottom 100 to queue heading 492.
         self.assertEqual((151 + 385 + 56) / 2, (100 + 492) / 2)

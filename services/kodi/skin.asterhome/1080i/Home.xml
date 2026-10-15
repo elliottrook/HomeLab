@@ -5,7 +5,6 @@
     <controls>
         <!-- Full-screen artwork with continuous readability and row fades. -->
         <control type="image" id="12">
-            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
             <left>0</left><top>0</top><width>1920</width><height>1080</height>
             <texture background="true">$VAR[AsterHeroFanart]</texture>
             <aspectratio>scale</aspectratio><fadetime>250</fadetime>
@@ -15,6 +14,15 @@
             <left>0</left><top>0</top><width>1920</width><height>1080</height>
             <texture>special://skin/media/ui-hero-bottom-fade.png</texture>
             <colordiffuse>asterIvory</colordiffuse>
+            <aspectratio>stretch</aspectratio>
+        </control>
+        <!-- Keep the selected artwork as ambient context behind the open rail.
+             The menu overlay dims it; interactive copy and queues still hide. -->
+        <control type="image">
+            <visible>Control.HasFocus(8999) | Control.HasFocus(9001) | Control.HasFocus(9002) | Control.HasFocus(9003) | Control.HasFocus(9004) | Control.HasFocus(9005) | Control.HasFocus(9007)</visible>
+            <left>0</left><top>0</top><width>1920</width><height>1080</height>
+            <texture>special://skin/media/ui-solid.png</texture>
+            <colordiffuse>b91f211e</colordiffuse>
             <aspectratio>stretch</aspectratio>
         </control>
         <control type="group" id="20">

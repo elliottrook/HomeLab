@@ -150,6 +150,10 @@
       <texture border="20">special://skin/media/ui-panel.png</texture>
       <colordiffuse>e6f2ede4</colordiffuse>
     </control>
+    <control type="image">
+      <left>75</left><top>502</top><width>280</width><height>56</height>
+      <texture>special://skin/media/ui-limestone-panel.png</texture>
+    </control>
     <control type="label">
       <left>85</left>
       <top>512</top>

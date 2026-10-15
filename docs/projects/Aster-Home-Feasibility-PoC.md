@@ -737,6 +737,14 @@ and material appearance held at the test window size. This is a local visual
 trial, not LibreELEC or television acceptance. No remote push or service
 change was made.
 
+Skin v0.6.6 extends that material to the search/filter heading and replaces
+the expanded rail's empty ivory backdrop with the selected hero artwork under
+a dark readability layer. The normal hero copy and queues still hide while
+the menu has focus. Mac Kodi visual inspection confirmed the full-height
+artwork treatment with an expanded rail; offline layout tests cover the
+conditional layers and filter surface. This remains a disposable Mac visual
+test; no LibreELEC/TV playback or control capability is inferred.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
