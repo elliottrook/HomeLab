@@ -22,8 +22,12 @@ receipt. All three one-time checks are now paused. This is a hard evidence
 gate, not a request for more lab time.
 
 The [Stream A work cadence](Stream-A-Work-Cadence.md) separates continuous
-offline/shared work from exclusive lab tests. The proposed 03:15 Vancouver
-platform drill on 2026-10-15 was **not verified as scheduled** and would be a
+offline/shared work from exclusive lab tests. The
+[A1 private-subset scanner hardening](evidence/A1-subset-scanner-descriptor-hardening-2026-10-15.md)
+closes an offline path-substitution race in its content-free observation
+helper; it does not satisfy the source-bound admission gate. The proposed
+03:15 Vancouver platform drill on 2026-10-15 was **not verified as scheduled**
+and would be a
 full-stop recovery drill only; its lease stops B60 inference and cannot run
 the full Aster-path benchmark. The Stream A 03:40 automation was a read-only
 post-window recovery check, not a test launcher; it ran once and is paused.

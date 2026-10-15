@@ -20,32 +20,59 @@ class ScanError(ValueError):
 
 
 def _rows(root: Path, *, max_files: int, max_bytes: int) -> list[tuple[str, int, str]]:
-    if not stat.S_ISDIR(os.lstat(root).st_mode):
-        raise ScanError("subset root is not a real directory")
+    if not hasattr(os, "O_NOFOLLOW") or not hasattr(os, "O_DIRECTORY"):
+        raise ScanError("safe descriptor scan is unavailable")
     rows: list[tuple[str, int, str]] = []
     total = 0
-    pending = [root]
-    while pending:
-        directory = pending.pop()
-        with os.scandir(directory) as entries:
-            for entry in entries:
-                mode = entry.stat(follow_symlinks=False).st_mode
-                if stat.S_ISDIR(mode):
-                    pending.append(Path(entry.path))
-                    continue
-                if not stat.S_ISREG(mode):
-                    raise ScanError("subset contains a non-regular entry")
-                size = entry.stat(follow_symlinks=False).st_size
-                if size < 0 or len(rows) >= max_files or total + size > max_bytes:
-                    raise ScanError("subset exceeds fixed scan bounds")
-                digest = hashlib.sha256()
-                with open(entry.path, "rb") as stream:
-                    while chunk := stream.read(1024 * 1024):
-                        digest.update(chunk)
-                if entry.stat(follow_symlinks=False).st_size != size:
-                    raise ScanError("subset changed during scan")
-                rows.append((Path(entry.path).relative_to(root).as_posix(), size, digest.hexdigest()))
-                total += size
+    directory_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    file_flags = os.O_RDONLY | os.O_NOFOLLOW
+    if hasattr(os, "O_CLOEXEC"):
+        directory_flags |= os.O_CLOEXEC
+        file_flags |= os.O_CLOEXEC
+    pending = [(os.open(root, directory_flags), Path())]
+    try:
+        while pending:
+            directory_fd, relative_dir = pending.pop()
+            try:
+                with os.scandir(directory_fd) as entries:
+                    for entry in entries:
+                        before = os.stat(entry.name, dir_fd=directory_fd, follow_symlinks=False)
+                        relative = relative_dir / entry.name
+                        if stat.S_ISDIR(before.st_mode):
+                            child_fd = os.open(entry.name, directory_flags, dir_fd=directory_fd)
+                            child = os.fstat(child_fd)
+                            if (child.st_dev, child.st_ino) != (before.st_dev, before.st_ino):
+                                os.close(child_fd)
+                                raise ScanError("subset directory changed during scan")
+                            pending.append((child_fd, relative))
+                            continue
+                        if not stat.S_ISREG(before.st_mode):
+                            raise ScanError("subset contains a non-regular entry")
+                        size = before.st_size
+                        if size < 0 or len(rows) >= max_files or total + size > max_bytes:
+                            raise ScanError("subset exceeds fixed scan bounds")
+                        digest = hashlib.sha256()
+                        file_fd = os.open(entry.name, file_flags, dir_fd=directory_fd)
+                        with os.fdopen(file_fd, "rb") as stream:
+                            opened = os.fstat(stream.fileno())
+                            if (opened.st_dev, opened.st_ino, opened.st_mode, opened.st_size) != (
+                                before.st_dev, before.st_ino, before.st_mode, size
+                            ):
+                                raise ScanError("subset file changed before read")
+                            while chunk := stream.read(1024 * 1024):
+                                digest.update(chunk)
+                            after = os.fstat(stream.fileno())
+                            if (after.st_size, after.st_mtime_ns, after.st_ctime_ns) != (
+                                opened.st_size, opened.st_mtime_ns, opened.st_ctime_ns
+                            ):
+                                raise ScanError("subset file changed during read")
+                        rows.append((relative.as_posix(), size, digest.hexdigest()))
+                        total += size
+            finally:
+                os.close(directory_fd)
+    finally:
+        for directory_fd, _ in pending:
+            os.close(directory_fd)
     if not rows:
         raise ScanError("subset is empty")
     rows.sort(key=lambda row: row[0])
