@@ -1,7 +1,8 @@
 # Aster Home version 2 asset guide
 
-Status: core and complete 18-asset family approved by Jason on 2026-10-14;
-private Forgejo release authorized. Application adoption remains a separate decision.
+Status: core and original 18-asset family approved by Jason on 2026-10-14;
+private Forgejo release authorized. A nineteenth Movie Collections selector was
+approved later that day. Application adoption remains a separate decision.
 This document does not claim that live apps have changed.
 
 Start with the [Aster v2 agent handoff](Aster-v2-Agent-Handoff.md) for the
@@ -24,6 +25,27 @@ The accepted pilot is in `core-component-proof-2026-10-14/`; its exact SVG hash
 is `f6a0f19ff9e5ac4728e04cf20c28e86f171d516ec403a1bc3df937c8a456c6a4`.
 The family candidate is `family-candidate-2026-10-14/` and contains the source,
 SVG/PNG/WebP masters, style guide, palette tokens, manual, comparisons and QA.
+
+## Approved post-release extension
+
+`19-movie-collections` is the tile-free selector for movie box-set collections.
+Its compact centre uses three offset film cases and a single four-hole reel,
+leaving the compass points visible. The owner approved the 1254 px transparent
+PNG and then the actual material-preserving SVG render on 2026-10-14.
+
+- Brand-library engagement:
+  `working/2026-10-14-movie-collections-icon/`
+- PNG SHA-256:
+  `5b2df4b991bbfc8ad683c5eeed65763b5414d05bee7cd485ce0d8d0e6c28938c`
+- SVG SHA-256:
+  `3f89124d6314320a56368b3f208efce9baf293f899c466e8f113cb5164598fcd`
+- SVG QA: 23 named components, 1,177 paths, no embedded raster, live font,
+  script, event handler, filter or external reference; 1254 px and small-size
+  renders reviewed on dark and light surfaces.
+
+This extension is not inside the immutable 18-asset Forgejo release ZIP. Do not
+rewrite that release or claim the icon is deployed. A future package revision or
+app adoption requires its own authorized action and rollback record.
 
 Do not restore the rejected flat package from commit `b7f2720`. It was reverted
 by `8be288e`. Approval of geometric accuracy alone did not meet material fidelity.

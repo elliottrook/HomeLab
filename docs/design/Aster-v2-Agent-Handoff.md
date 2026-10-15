@@ -4,6 +4,10 @@ Owner-approved identity family: 2026-10-14. Jason approved the rendered family
 and explicitly authorized publishing the private Forgejo release. This is an
 asset delivery, not an application deployment or a merge to the default branch.
 
+The later-approved Movie Collections selector is documented in the
+[asset/style guide](Aster-Home-v2-Asset-Guide.md). It is a post-release extension
+and is not contained in the immutable 18-asset ZIP below.
+
 ## Retrieve the approved assets
 
 [Aster Home v2 release](https://git.elliottrook.com/jason/homelab/releases/tag/aster-brand-v2-2026-10-14)
