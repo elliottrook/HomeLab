@@ -24,7 +24,10 @@ approval immediately before the drill.
 ## Timing and preflight
 
 - 00:30 Proxmox backup, 01:00 guest pull, 02:00 LXC110 mirror, 03:00 Mac
-  pull; all four must have current-cycle success/integrity receipts.
+  pull; Proxmox artifacts, archive integrity, TrueNAS task order and the
+  LXC110 mirror must have current-cycle success/integrity receipts. The Mac
+  point is scheduler/task-2 success only here, not content-transfer proof;
+  exact Mac subset proof is an A1-specific gate.
 - 03:05–03:10: capture exact Qwen3.5-9B Q4_K_M model, b11429 SYCL/Level Zero
   binary, unit, GPU, authentication, service, schedule and control-plane
   state. Confirm no other lease or active conflicting job.
