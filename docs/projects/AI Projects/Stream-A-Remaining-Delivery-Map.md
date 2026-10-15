@@ -15,6 +15,12 @@ found that the existing manual full-stop controller writes a different lease
 schema from the independent watchdog's strict decoder. Until a compatible
 acquire path is installed and tested, the proposed live full-stop drill is
 NO-GO regardless of the clock or backup completion.
+The [measured archive-integrity timeout](evidence/Full-stop-backup-integrity-timeout-2026-10-14.md)
+adds an independent NO-GO: the 43.585 GB LXC110 archive did not finish the
+fixed 300-second check, so the planned 03:05–03:10 preflight cannot establish
+current-cycle integrity. The platform owner has marked its proposed full-stop
+card NO-GO pending a revised, measured integrity receipt and compatible
+acquisition path. Neither read-only Stream A automation launches a drill.
 The configured 00:30/01:00/02:00/03:00 backup schedules were checked read-only
 on Proxmox and TrueNAS; this does not prove a given night's completion. The
 platform owner's record reports one successful manual light lease, but the

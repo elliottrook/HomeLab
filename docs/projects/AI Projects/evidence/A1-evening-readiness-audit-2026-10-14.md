@@ -44,6 +44,15 @@ Thus the full-stop card is **not approval-ready** merely because its recovery
 files are installed. A compatible source-bound acquire path and target-Linux
 integration test are required before tonight's 03:10 effect window.
 
+A separate [timed archive check](Full-stop-backup-integrity-timeout-2026-10-14.md)
+found another hard gate. `zstd -t` passed the 1.957 GB LXC104 archive in
+17.4 seconds, but the 43.585 GB LXC110 archive remained unverified at the
+fixed 300-second timeout; LXC116 was not reached. The timeout does not show
+corruption. It does show that the proposed five-minute preflight cannot finish
+the current serial integrity method. The platform owner's card now marks the
+03:10 full-stop window NO-GO. A source-bound current-cycle integrity receipt
+or a measured earlier scan must precede a revised effect card and schedule.
+
 The owner-only A1 v2 backup subset is present on the Mac and in TrueNAS task
 2's destination. Independent read-only scans of both locations found **nine
 regular files, 57,692 bytes**, and the same canonical manifest SHA-256
