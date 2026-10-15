@@ -24,6 +24,7 @@ shell wrappers are mode 0755; service/timer files are mode 0644.
 | Proxmox | `/usr/local/sbin/application-b60-lease-recovery` | `309774dca1f0b5b37a9159b00fe6eed7b46f123f866c98e5d996e2c9fdc46499` |
 | Proxmox | `/usr/local/sbin/application-b60-heartbeat` | `867f17d5472e7fa62e1ade7159ad08918438aa669272cb90871f5779ce53849b` |
 | Proxmox | `/usr/local/sbin/application-b60-drill` | `4386211d9c951c7591dcf1619a19f161334be6826bc4d1b51e20ff0ec1c5a967` |
+| Proxmox | `/usr/local/libexec/aster-a1/application-admission-forced-command` | `1bb34877c6306870501d283a498d1bcb4705e5c51ed0e933449ff302686919b2` |
 | Proxmox | `/etc/systemd/system/application-b60-watchdog.service` | `f7434db1f18afa4418f1217801152e35a2ae24388c20e04e47e3db8c3288cec7` |
 | Proxmox | `/etc/systemd/system/application-b60-watchdog.timer` | `3e0be0830d60e586e53a1c3035abef7df802ecd156214ddc558f60677111d45a` |
 | Proxmox | `/etc/systemd/system/application-b60-heartbeat.service` | `8a3c1698bedad471e0cc4434570bbe0e6c6a9f0700e58b7cf1d8a8a2a3621741` |
