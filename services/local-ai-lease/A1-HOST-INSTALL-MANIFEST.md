@@ -1,7 +1,10 @@
 # A1 host installation manifest
 
-Status: offline candidate only. No file in this manifest has been installed
-by this checkout.
+Status: source packet staged and target-Linux validated on 2026-10-14; the
+unit remains disabled/inactive and no runtime credential has been installed.
+The content-free target receipt is
+`/var/lib/aster-a1-test/staging-receipt.json`. No live admission or model call
+has occurred.
 
 ## Exact source/dependency copy set
 

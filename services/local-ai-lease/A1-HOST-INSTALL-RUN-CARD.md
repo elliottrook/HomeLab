@@ -1,8 +1,12 @@
 # A1 disabled-install card
 
-Status: reviewable disabled-install request; **not deployed**. This card is
+Status: staged and target-validated on 2026-10-14; unit remains disabled and
+inactive, with no runtime credential or listener. This card is
 separate from the application lease, the 20-request benchmark, and the 03:15
 full-stop recovery drill.
+
+The content-free target receipt is `/var/lib/aster-a1-test/staging-receipt.json`.
+No live admission or model call has occurred.
 
 ## Purpose and exact identity
 
