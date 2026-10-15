@@ -1,6 +1,6 @@
 # Full-stop Local AI recovery drill
 
-Status: PAUSED / approval-ready for a separate window. This scope is
+Status: NOT APPROVAL-READY. This scope is
 mutually exclusive with the application-only A1 benchmark. A full-stop drill
 always makes A1 NO-GO for that same backup cycle, even if recovery succeeds.
 
@@ -20,6 +20,16 @@ card is approved. Source pins are:
 
 The candidate timer is currently disabled and must remain so until the exact
 approval immediately before the drill.
+
+## Blocking integration issue
+
+The installed `/usr/local/sbin/local-ai-lease` is still the older manual
+`acquire --light` controller, whose `lease.json` schema does not match the
+installed watchdog/recovery executor's strict `AdmissionRecord` schema. The
+watchdog must not be enabled around that controller. A schema-compatible
+source-bound acquisition entrypoint and effect-free integration test are
+required first; the older controller must remain available only as the
+recorded rollback implementation.
 
 ## Timing and preflight
 
