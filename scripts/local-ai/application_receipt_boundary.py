@@ -155,6 +155,24 @@ def host_admission_callback(profile_sha256: str) -> dict[str, object]:
         now_epoch=int(time.time()), profile_sha256=profile_sha256)
 
 
+def renew_watchdog_status(*, now_epoch: int, profile_sha256: str) -> dict[str, object]:
+    """Renew the short watchdog assertion only from a current admission."""
+    admission = load_active_admission_payload(
+        now_epoch=now_epoch, profile_sha256=profile_sha256)
+    from application_b60_watchdog import write_watchdog_status
+    state = json.loads(LEASE_STATE_PATH.read_text())
+    deadline = state["restore_deadline_epoch"]
+    valid_until = min(deadline, now_epoch + 90)
+    if valid_until <= now_epoch:
+        raise ValueError("application restore deadline is not renewable")
+    write_watchdog_status(lease_id=admission["lease_id"],
+                          generation=admission["generation"],
+                          valid_until_epoch=valid_until, state="healthy")
+    return {"state": "healthy", "lease_id": admission["lease_id"],
+            "generation": admission["generation"],
+            "valid_until_epoch": valid_until}
+
+
 def record_owner_receipt(receipt: ApplicationReceipt, *, now_epoch: int,
                          expected_lease_id: str, expected_generation: int) -> None:
     """Atomically publish a validated host receipt at the fixed owner path."""

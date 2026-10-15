@@ -73,6 +73,9 @@ from the fixed root-owned mode-0600 path
 `/var/lib/local-ai-lab/application-b60/application-receipt.json`, read the
 current lease state and lock, and read the current watchdog status. It must
 then project it with `application_receipt_boundary.active_admission_payload`.
+The one-minute host heartbeat renews the healthy watchdog assertion from that
+same current boundary; a missed or stale tick revokes admission after the
+short expiry and cannot be repaired by the Mini.
 The boundary pins
 profile `7caddc30074f5925722861c59f70733894037b9fc5b0865feb98bf9e08bbbfec`,
 sidecar bundle `969b6db34e8fe0c00e9a5be6163a498bae5ccfd101e42f699bfafb39f4a8c403`,
@@ -104,13 +107,15 @@ and ingress restore `9bf3c3cb1e04081f41584f9dc742d86e9e7ead3a1806a243a6ce3478572
 These are a separate drill candidate and are not part of the frozen disabled-
 install packet.
 The current drill-only receipt boundary source hash is
-`dcde70b9d00fdb2d9b37edef7edbe441b2a3ba24e21ac2a341eb7a8cf4933bf7`, and the
+`1b61d3cc5fdbf3bae538a4a49864a57cca2c360fec37d2408e70a8f1e95ca0da`, and the
 watchdog status producer hash is
 `3447d490ec396dee45191a5294537f2132deac6578e3e30376f6f6980a98e8d2`.
 The trusted controller source hash is
 `3daa4204b1e9515e397680dc51bb2ed96994d2a273e0c2c3ef87f728ce6a41af`.
 The host admission CLI hash is
 `3702f50d8425227d435fbfe6044622d1fcca5c78c93bfdbe1047e29f32e0e655`.
+The heartbeat source hash is
+`8b77bb099ed78293d3c779b225ea347a686587388b2ffcbaba7a435e61da63ca`.
 The LXC110 helper package must include `a1_key_file.py` hash
 `25f2c82cb09b051f3307341571b3a27c6b2c4f6002c70b5a1a256ed4e8292b36` before
 the key wrappers can be installed. These producer/helper files are drill-only

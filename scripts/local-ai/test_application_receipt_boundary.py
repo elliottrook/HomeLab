@@ -5,7 +5,8 @@ from application_receipt_boundary import (A1_PROFILE_SHA256, A1_SIDECAR_SOURCE_D
                                           ADMISSION_ENDPOINT, ApplicationReceipt,
                                           CONSUMERS, MODE, SCHEMA, admission_payload,
                                           active_admission_payload, record_owner_receipt,
-                                          validate, host_admission_callback)
+                                          validate, host_admission_callback,
+                                          renew_watchdog_status)
 
 
 class ApplicationReceiptBoundaryTests(unittest.TestCase):
@@ -88,3 +89,22 @@ class ApplicationReceiptBoundaryTests(unittest.TestCase):
              patch("application_receipt_boundary.time.time", return_value=250.9):
             self.assertEqual(host_admission_callback(A1_PROFILE_SHA256), expected)
         loader.assert_called_once_with(now_epoch=250, profile_sha256=A1_PROFILE_SHA256)
+
+    def test_renewal_uses_current_identity_and_short_expiry(self):
+        payload = {"schema": "aster-a1-admission.v1", "lease_id": "lease-1",
+                   "generation": 4}
+        with patch("application_receipt_boundary.load_active_admission_payload", return_value=payload), \
+             patch("pathlib.Path.read_text", return_value='{"restore_deadline_epoch": 1200}'), \
+             patch("application_b60_watchdog.write_watchdog_status") as writer:
+            result = renew_watchdog_status(now_epoch=1100, profile_sha256=A1_PROFILE_SHA256)
+        self.assertEqual(result["valid_until_epoch"], 1190)
+        writer.assert_called_once_with(lease_id="lease-1", generation=4,
+                                       valid_until_epoch=1190, state="healthy")
+
+    def test_renewal_rejects_expired_current_boundary(self):
+        with patch("application_receipt_boundary.load_active_admission_payload",
+                   side_effect=ValueError("watchdog is not current")), \
+             patch("application_b60_watchdog.write_watchdog_status") as writer:
+            with self.assertRaisesRegex(ValueError, "watchdog is not current"):
+                renew_watchdog_status(now_epoch=1100, profile_sha256=A1_PROFILE_SHA256)
+        writer.assert_not_called()
