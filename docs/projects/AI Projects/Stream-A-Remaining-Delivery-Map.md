@@ -3,8 +3,8 @@
 **Owner-facing checkpoint, 2026-10-09.** This page translates the detailed [programme](Aster-Adaptive-Computing.md) and [Codex delegation gates](Codex-Delegation.md) into the next decisions. It does not authorize a deployment, additional cloud question, new tool grant or Git push. Evidence links control factual claims; an unchecked gate remains open even if a nearby experiment passed.
 
 The [Stream A work cadence](Stream-A-Work-Cadence.md) separates continuous
-offline/shared work from exclusive lab tests. The next 03:15 Vancouver
-platform drill on 2026-10-15 is a **full-stop recovery drill only**; its
+offline/shared work from exclusive lab tests. The proposed 03:15 Vancouver
+platform drill on 2026-10-15 remains **paused** and is a full-stop recovery drill only; its
 lease stops B60 inference and cannot run the full Aster-path benchmark.
 Continuous Stream A work remains active, and the A1 benchmark needs its
 separate application-only lease and sidecar admission.
@@ -18,10 +18,13 @@ exclusive test access remain unverified.
 The [2026-10-13 full-path admission card](benchmarks/A1-full-path-admission-run-card-2026-10-13.md)
 pins the 20-case headless synthetic request boundary and fail-closed offline
 preflight. The platform owner has installed an independent full-stop recovery
-candidate disabled/inactive, but has not yet live-proven it. The separate
-application-only controller/watchdog remains source-only; its host ingress
-helper, receipt/observer, source/dependency bundle and timer still need
-installation and live recovery proof. The obsolete evening runner remains
+candidate disabled/inactive, but has not yet live-proven it. Jason approved a
+separate [disabled application-controller installation](evidence/A1-application-controller-disabled-install-2026-10-14.md):
+all 12 pinned files are on Proxmox, its watchdog units are disabled/inactive,
+and no application lease exists. The LXC104 A1 sidecar and dependency bundle
+are also staged disabled. The ingress helper, authenticated admission callback,
+source-bound backup receipt and recovery behavior still need separate live
+proof; installation does not admit a model call. The obsolete evening runner remains
 disabled. The [isolated process contract](benchmarks/A1-isolated-process-contract-2026-10-14.md)
 and [source inventory](benchmarks/A1-Aster-source-bundle-inventory-2026-10-14.md)
 record the current admission gaps and establish that the first run, if
