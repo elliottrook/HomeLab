@@ -407,6 +407,12 @@ the expanded-menu → Right → media-row round trip passed in live Kodi.
 XML validation and `git diff --check` pass. No playback or library state was
 modified. Remote synchronization remains pending explicit push approval.
 
+Clock-pill refinement, 2026-10-14: reduced the hero clock surface to 150×44,
+removed the decorative status dot, centred the time horizontally and vertically,
+and inset the pill 24 skin pixels from the artwork's top and right edges.
+Deployed to the Mac test skin and verified visually in live Kodi; XML validation
+passes. This is a local-only milestone; remote synchronization remains pending.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

@@ -225,19 +225,20 @@
             <aspectratio>keep</aspectratio>
         </control>
         <control type="image">
-            <left>1558</left><top>44</top><width>250</width><height>56</height>
+            <left>1618</left><top>44</top><width>150</width><height>44</height>
             <texture border="20">special://skin/media/ui-panel.png</texture>
             <colordiffuse>ddf2ede4</colordiffuse>
         </control>
         <control type="label">
-            <left>1570</left>
-            <top>52</top>
-            <width>220</width>
-            <height>40</height>
-            <label>$INFO[System.Time]   ●</label>
+            <left>1618</left>
+            <top>44</top>
+            <width>150</width>
+            <height>44</height>
+            <label>$INFO[System.Time]</label>
             <font>font20</font>
             <textcolor>asterMuted</textcolor>
-            <align>right</align>
+            <align>center</align>
+            <aligny>center</aligny>
         </control>
 
         <!-- Hero copy -->
