@@ -57,7 +57,24 @@ checkout. The import set must include `retained_archive_integrity`,
 `lease_controller_candidate`, `lease_recovery_executor`, and
 `platform_receipt_producer`. Round-trip a synthetic `AdmissionRecord` through
 `encode`/`decode`, and inspect `capture`'s `deadline_epoch` parameter on the
-installed copy. Do not pass a production path, credential or model prompt.
+installed copy. Exercise `FixedSourceAdapters.evidence_from_retained()` with
+synthetic fixed-source responses to prove it remains compatible with the
+*installed* `source_receipts.py` and `backup_receipt_adapter.py`, whose bytes
+differ from the current repository but provide the functions used by this
+candidate. Do not replace those two dependencies in this stage or pass a
+production path, credential or model prompt.
+
+Read-only host precheck on October 15 at approximately 14:20 Vancouver found
+Python 3.13.5, a root-owned mode-0700 state directory, absent lease state,
+lock and heartbeat, and a disabled/inactive watchdog timer. The installed
+manual controller SHA-256 was
+`f9744b4efd1340eca513e677af6b9eceda25e992db33e977b2f7f75adc101e23`;
+the recovery executor was
+`d75ddfae4ccb3de4bd059aca75d41f4cdac6c60f4951d0ea6ab11a13b9f98e4d`;
+the watchdog timer was
+`9f09de46e3ee55d8f765e1f279d34632ea914c8c6506416f0455853ef538b744`.
+Recheck these facts immediately before installation; this snapshot is not a
+lease or deployment approval.
 `full_stop_acquire_candidate.main(["--effect-authorized"])` and
 the archive producer `main()` must still report disabled with no host effect.
 Verify the old controller and installed recovery executor/watcher hashes did
