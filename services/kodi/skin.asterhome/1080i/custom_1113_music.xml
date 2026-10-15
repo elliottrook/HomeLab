@@ -8,7 +8,7 @@
     <include content="AsterNavigationRail"><param name="content" value="300" /></include>
     <control type="group">
       <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
-      <control type="image"><left>110</left><top>18</top><width>236</width><height>86</height><texture>special://skin/media/aster-home-horizontal-512.png</texture><aspectratio>keep</aspectratio></control>
+      <control type="image"><left>145</left><top>0</top><width>160</width><height>107</height><texture>special://skin/media/29-aster-music-logo.png</texture><aspectratio>keep</aspectratio></control>
       <control type="image"><left>1750</left><top>32</top><width>146</width><height>44</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>75cbb991</colordiffuse></control>
       <control type="image"><left>1752</left><top>34</top><width>142</width><height>40</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>e029302b</colordiffuse></control>
       <control type="label"><left>1750</left><top>32</top><width>146</width><height>44</height><label>$INFO[System.Time(HH:mm)]</label><font>font20</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny></control>
@@ -26,7 +26,8 @@
       <control type="button" id="301"><left>445</left><top>390</top><label>Refresh</label><include>AsterCategoryButton</include><onclick>RunScript(special://skin/tools/hub_data.py,music)</onclick><onleft>300</onleft><onright>500</onright><ondown>500</ondown><onup>9001</onup></control>
       <control type="image"><left>145</left><top>390</top><width>280</width><height>56</height><texture>special://skin/media/ui-button-ring.png</texture><visible>Control.HasFocus(300)</visible></control>
       <control type="image"><left>445</left><top>390</top><width>280</width><height>56</height><texture>special://skin/media/ui-button-ring.png</texture><visible>Control.HasFocus(301)</visible></control>
-      <control type="label"><left>145</left><top>500</top><width>1400</width><height>48</height><label>Recently added albums</label><font>font28</font><textcolor>asterInk</textcolor></control>
+      <control type="image"><left>145</left><top>500</top><width>44</width><height>44</height><texture>special://skin/media/23-music-album.png</texture><aspectratio>keep</aspectratio></control>
+      <control type="label"><left>201</left><top>500</top><width>1344</width><height>48</height><label>Recently added albums</label><font>font28</font><textcolor>asterInk</textcolor></control>
       <control type="list" id="500">
         <left>145</left><top>562</top><width>1650</width><height>442</height><orientation>vertical</orientation><scrolltime>160</scrolltime><onup>300</onup><onleft>8999</onleft><onright>301</onright>
         <itemlayout height="108" width="1650">

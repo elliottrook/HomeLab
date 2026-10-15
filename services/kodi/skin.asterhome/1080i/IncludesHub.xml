@@ -31,9 +31,7 @@
                 <texture>special://skin/media/aster-home-logo-512.png</texture>
                 <aspectratio>keep</aspectratio>
             </control>
-            <!-- Use the approved v2 app marks for branded destinations. The
-                 utility destinations below retain simple text glyphs because
-                 the release does not contain search/settings symbols. -->
+            <!-- Approved app marks; product logos belong in page headers. -->
             <control type="image">
                 <left>24</left>
                 <top>196</top>
@@ -47,7 +45,7 @@
                 <top>266</top>
                 <width>36</width>
                 <height>36</height>
-                <texture>special://skin/media/audiobooks-128.png</texture>
+                <texture>special://skin/media/21-books-app.png</texture>
                 <aspectratio>keep</aspectratio>
             </control>
             <control type="image"><left>24</left><top>336</top><width>36</width><height>36</height><texture>special://skin/media/news-digest-128.png</texture><aspectratio>keep</aspectratio></control>
@@ -95,17 +93,18 @@
                 <onright>$PARAM[content]</onright>
                 <include>AsterRailButton</include>
             </control>
-            <control type="image"><left>24</left><top>476</top><width>36</width><height>36</height><texture>special://skin/media/music-128.png</texture><aspectratio>keep</aspectratio></control>
+            <control type="image"><left>24</left><top>476</top><width>36</width><height>36</height><texture>special://skin/media/20-music-app.png</texture><aspectratio>keep</aspectratio></control>
             <control type="button" id="9007">
                 <left>72</left><top>460</top><label>Music</label>
                 <onclick>ActivateWindow(1113)</onclick>
                 <onleft>8999</onleft><onup>9004</onup><ondown>9005</ondown>
                 <onright>$PARAM[content]</onright><include>AsterRailButton</include>
             </control>
+            <control type="image"><left>24</left><top>546</top><width>36</width><height>36</height><texture>special://skin/media/31-settings-app.png</texture><aspectratio>keep</aspectratio></control>
             <control type="button" id="9005">
                 <left>72</left>
                 <top>530</top>
-                <label>⚙   Settings</label>
+                <label>Settings</label>
                 <onclick>ActivateWindow(Settings)</onclick>
                 <onleft>8999</onleft>
                 <onup>9007</onup>
@@ -144,7 +143,7 @@
         <control type="image">
             <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
             <left>0</left><top>214</top><width>84</width><height>42</height>
-            <texture>special://skin/media/audiobooks-128.png</texture><aspectratio>keep</aspectratio>
+            <texture>special://skin/media/21-books-app.png</texture><aspectratio>keep</aspectratio>
         </control>
         <control type="image">
             <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
@@ -156,12 +155,12 @@
             <left>0</left><top>342</top><width>84</width><height>42</height>
             <texture>special://skin/media/home-hub-128.png</texture><aspectratio>keep</aspectratio>
         </control>
-        <control type="label">
+        <control type="image">
             <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
             <left>0</left><top>476</top><width>84</width><height>42</height>
-            <label>⚙</label><font>font28</font><textcolor>asterRailText</textcolor><align>center</align>
+            <texture>special://skin/media/31-settings-app.png</texture><aspectratio>keep</aspectratio>
         </control>
-        <control type="image"><visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible><left>20</left><top>406</top><width>44</width><height>42</height><texture>special://skin/media/music-128.png</texture><aspectratio>keep</aspectratio></control>
+        <control type="image"><visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible><left>20</left><top>406</top><width>44</width><height>42</height><texture>special://skin/media/20-music-app.png</texture><aspectratio>keep</aspectratio></control>
         <control type="button" id="8999">
             <visible>!Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
             <left>0</left>

@@ -34,11 +34,38 @@ class LayoutTests(unittest.TestCase):
             self.assertEqual(art.find('aspectratio').get('scalediffuse'), 'false')
 
     def test_runtime_assets_exist(self):
-        for source in (self.home, self.browse, ET.parse(ROOT / '1080i/Includes.xml'), ET.parse(ROOT / '1080i/DialogKeyboard.xml'), ET.parse(ROOT / '1080i/DialogVideoInfo.xml')):
+        names = ('Includes.xml', 'IncludesHub.xml', 'DialogKeyboard.xml',
+                 'DialogVideoInfo.xml', 'custom_1110_books.xml',
+                 'custom_1111_digest.xml', 'custom_1112_home.xml',
+                 'custom_1113_music.xml')
+        for source in (self.home, self.browse, *(ET.parse(ROOT / '1080i' / name) for name in names)):
             for node in source.iter():
                 for value in (node.text, *node.attrib.values()):
                     if value and value.startswith('special://skin/media/'):
                         self.assertTrue((ROOT / value.removeprefix('special://skin/')).is_file(), value)
+
+    def test_expansion_assets_and_page_mapping(self):
+        icons = ('20-music-app', '21-books-app', '22-podcasts-app',
+                 '23-music-album', '24-music-artist', '25-music-song',
+                 '26-music-playlist', '31-settings-app')
+        logos = ('27-aster-media-logo', '28-aster-books-logo',
+                 '29-aster-music-logo', '30-aster-news-logo')
+        for name in icons + logos:
+            data = (ROOT / 'media' / f'{name}.png').read_bytes()[:24]
+            self.assertEqual(data[:8], b'\x89PNG\r\n\x1a\n', name)
+            expected = (128, 128) if name in icons else (512, 341)
+            self.assertEqual(struct.unpack('!II', data[16:24]), expected, name)
+        rail = (ROOT / '1080i/IncludesHub.xml').read_text()
+        for name in ('20-music-app', '21-books-app', '31-settings-app'):
+            self.assertEqual(rail.count(f'{name}.png'), 2, name)
+        for page, mark in (('Home.xml', '27-aster-media-logo'),
+                           ('DialogVideoInfo.xml', '27-aster-media-logo'),
+                           ('custom_1110_books.xml', '28-aster-books-logo'),
+                           ('custom_1111_digest.xml', '30-aster-news-logo'),
+                           ('custom_1113_music.xml', '29-aster-music-logo')):
+            self.assertIn(f'{mark}.png', (ROOT / '1080i' / page).read_text(), page)
+        music = (ROOT / '1080i/custom_1113_music.xml').read_text()
+        self.assertIn('23-music-album.png', music)
 
     def test_poster_masks_are_native_size(self):
         for name in ('ui-poster-mask.png', 'ui-poster-ring.png'):

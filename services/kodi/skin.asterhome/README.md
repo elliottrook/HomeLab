@@ -1,5 +1,17 @@
 # Aster Home Kodi skin prototype
 
+Version 0.6.9 imports twelve right-sized PNG exports from the owner-approved
+private `aster-brand-v2-expansion-2026-10-14` release. The release ZIP SHA-256
+is `e030b6104fbdffb44faf035471f8c55320c3869065046a1ff5f9f0433069c48e`;
+ZIP CRC and all 173 listed file hashes were verified before extraction. Books,
+Music and Settings use their launcher icons in both rail states; Media, Books,
+Music and Digest use their stacked product marks in page headers. The Music
+album symbol labels the existing album list. Podcasts and the artist/song/
+playlist symbols are packaged for future real views, not shown as dead
+navigation. Existing Media, Home Hub and Digest launcher icons remain from the
+approved original family. The Mac test showed the rail, Media and Books pages;
+other views still need endpoint visual acceptance. No remote service changed.
+
 Version 0.6.8 shifts the media hero's lower fade from ivory to a solid warm
 stone colour on Home, browse and video-info views. The fade remains a plain
 colour gradient, not a texture. The Home background matches its endpoint so

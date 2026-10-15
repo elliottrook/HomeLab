@@ -67,15 +67,14 @@
             <zorder>2</zorder>
             <animation effect="fade" start="100" end="0" time="0" condition="Control.HasFocus(8999) | Control.HasFocus(9001) | Control.HasFocus(9002) | Control.HasFocus(9003) | Control.HasFocus(9004) | Control.HasFocus(9005) | Control.HasFocus(9007)">Conditional</animation>
 
-        <!-- Brand header: use the approved v2 horizontal export rather than
-             rebuilding the mark and wordmark from separate UI elements. -->
+        <!-- Approved Aster Media product mark in the media landing header. -->
         <control type="image">
             <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
-            <left>110</left>
-            <top>18</top>
-            <width>236</width>
-            <height>86</height>
-            <texture>special://skin/media/aster-home-horizontal-512.png</texture>
+            <left>145</left>
+            <top>0</top>
+            <width>160</width>
+            <height>107</height>
+            <texture>special://skin/media/27-aster-media-logo.png</texture>
             <aspectratio>keep</aspectratio>
         </control>
         <control type="image">

@@ -762,6 +762,21 @@ no limestone texture was added to the fade. Mac Kodi's media home was restarted
 and visually checked with real Jellyfin artwork. This remains a local visual
 trial only; no Forgejo push or physical-endpoint validation occurred.
 
+Brand expansion import, 2026-10-15 (v0.6.9): retrieved the private immutable
+`aster-brand-v2-expansion-2026-10-14` Forgejo release using existing local
+credentials. Confirmed ZIP size 240,062,428 bytes and SHA-256
+`e030b6104fbdffb44faf035471f8c55320c3869065046a1ff5f9f0433069c48e`,
+then passed CRC and all 173 listed entry hashes. Imported 128px launcher/music
+symbols and 512px product logos without redrawing them. Rail states now use
+the Books, Music and Settings launcher marks; Media/Books/Music/Digest headers
+use their matching stacked marks. Existing original-family marks remain where
+the expansion supplies no replacement. Podcast and artist/song/playlist marks
+are retained for future functional destinations, not linked prematurely.
+Mac Kodi visual checks covered the expanded rail, Media landing and Books
+page; no LibreELEC endpoint test, new integration, Forgejo push or release
+promotion occurred. Previous 0.6.8 markup and exports remain recoverable in
+Git; the disposable Mac add-on can be restored from that revision.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

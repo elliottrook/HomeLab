@@ -16,8 +16,8 @@
             <texture>special://skin/media/ui-hero-bottom-fade.png</texture><colordiffuse>asterStone</colordiffuse><aspectratio>stretch</aspectratio>
         </control>
         <control type="image">
-            <left>65</left><top>30</top><width>192</width><height>60</height>
-            <texture>special://skin/media/aster-home-horizontal-512.png</texture><aspectratio>keep</aspectratio>
+            <left>65</left><top>10</top><width>150</width><height>100</height>
+            <texture>special://skin/media/27-aster-media-logo.png</texture><aspectratio>keep</aspectratio>
         </control>
         <control type="button" id="9000">
             <left>1540</left><top>34</top><label>Back</label><include>AsterCategoryButton</include>
