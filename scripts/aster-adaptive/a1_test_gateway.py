@@ -20,7 +20,12 @@ PATH = "/v1/chat/completions"
 REQUEST_FIELDS = {"model", "messages", "temperature", "max_tokens", "stream",
                   "progress", "persona", "enabled_tools"}
 USER_FIELDS = {"request", "clock", "private_context_locality_constraint", "context"}
-REPO = Path(__file__).resolve().parents[2]
+
+
+def inside_git(path: Path) -> bool:
+    """Reject evidence under any actual Git checkout, independent of install path."""
+    resolved = path.resolve()
+    return any((parent / ".git").exists() for parent in (resolved, *resolved.parents))
 
 
 class DurableAttemptJournal:
@@ -29,8 +34,7 @@ class DurableAttemptJournal:
     def __init__(self, directory: Path):
         if not isinstance(directory, Path) or not directory.is_absolute() or directory.is_symlink():
             raise ValueError("invalid attempt journal directory")
-        resolved = directory.resolve()
-        if resolved == REPO or REPO in resolved.parents:
+        if inside_git(directory):
             raise ValueError("attempt journal must stay outside Git")
         metadata = directory.stat()
         if (not stat.S_ISDIR(metadata.st_mode) or metadata.st_uid != os.getuid()

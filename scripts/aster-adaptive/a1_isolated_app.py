@@ -14,7 +14,7 @@ import re
 import stat
 from pathlib import Path
 
-from a1_test_gateway import A1TestGateway, DurableAttemptJournal, REPO
+from a1_test_gateway import A1TestGateway, DurableAttemptJournal, inside_git
 from aster_asgi_clock import ASGIResponseClock
 
 HEX64 = re.compile(r"[0-9a-f]{64}\Z")
@@ -25,8 +25,7 @@ CLOCK_FIELDS = {"schema_version", "observation_id", "path", "http_status",
 def _owned(path: Path, uid: int, *, directory: bool) -> None:
     if not path.is_absolute() or path.is_symlink():
         raise ValueError("invalid owner-only A1 path")
-    resolved = path.resolve()
-    if resolved == REPO or REPO in resolved.parents:
+    if inside_git(path):
         raise ValueError("A1 evidence must stay outside Git")
     info = path.stat()
     parent = path.parent.stat()

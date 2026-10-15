@@ -10,6 +10,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from a1_isolated_app import create_app
+from a1_test_gateway import inside_git
 from aster_full_path_request import wire_bytes_for
 from test_aster_full_path_request import fixture
 
@@ -115,6 +116,11 @@ class IsolatedAppTests(unittest.TestCase):
         self.root.chmod(0o755)
         with self.assertRaises(ValueError):
             self.build()
+
+    def test_evidence_git_exclusion_uses_actual_checkout_not_source_depth(self):
+        self.assertTrue(inside_git(Path(__file__)))
+        self.assertFalse(inside_git(self.root))
+        self.build()
 
 
 if __name__ == "__main__":
