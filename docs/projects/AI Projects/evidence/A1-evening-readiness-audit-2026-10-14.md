@@ -62,6 +62,12 @@ compact JSON array of `(relative path, byte count, content SHA-256)` tuples.
 No filenames, contents or secrets were printed or committed. This equality
 is a historical observation; it does not prove task-2 transfer for a new
 cycle.
+The new [content-free subset scanner](../../../../scripts/aster-adaptive/a1_private_subset_digest.py)
+reproduced that exact nine-file, 57,692-byte manifest digest locally; its
+three synthetic tests passed. It prints only count, byte total and aggregate
+digest and rejects links, non-regular entries, oversize or changing scans.
+It is an observation helper, not an authenticated producer or an A1 admission
+receipt. The 03:05 current-cycle destination comparison is still pending.
 
 At epoch `1792035502`, before the next 03:00 task, Stream A captured a
 mode-0600 content-free **source-only** snapshot at
