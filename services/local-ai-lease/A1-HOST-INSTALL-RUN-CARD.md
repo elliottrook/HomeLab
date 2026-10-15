@@ -80,7 +80,7 @@ final manifest. Source-only functions are not a substitute for that runner;
 its offline synthetic end-to-end fixture and hash must be added to the later
 admission card before any protected window. The current reviewed runner is
 `scripts/aster-adaptive/a1_admitted_batch.py`, SHA-256
-`c87766ba4d514f87c0152f8dd64d8c6166ad9bf4987f4baaf31d91f64cb0687f`; its
+`3bb98da841a398b15a356376e1e90d625448690b3ab0b94b1c003e46fd832c75`; its
 offline fixture suite reports 31 focused tests. It is a Mini-side client only,
 not a lease issuer or receipt verifier.
 

@@ -55,8 +55,9 @@ class A1AdmittedBatchTests(unittest.TestCase):
     def test_live_admission_rechecked_before_each_transport(self):
         calls = []
 
-        def admission(profile_sha256):
+        def admission(profile_sha256, endpoint):
             self.assertEqual(profile_sha256, self.pin)
+            self.assertEqual(endpoint, "http://192.168.70.10:19104/v1/chat/completions")
             calls.append("admit")
             return True
 
@@ -83,7 +84,7 @@ class A1AdmittedBatchTests(unittest.TestCase):
     def test_lost_admission_blocks_transport(self):
         calls = []
 
-        def admission(_):
+        def admission(*_):
             calls.append("admit")
             if len(calls) == 2:
                 raise RuntimeError("lease lost")
@@ -116,14 +117,14 @@ class A1AdmittedBatchTests(unittest.TestCase):
             self.fail("a false preview must not start evidence or transport")
 
         with self.assertRaisesRegex(RuntimeError, "admission unavailable"):
-            self.run_batch(lambda _: False, lambda *a, **k: None, capture)
+            self.run_batch(lambda *_: False, lambda *a, **k: None, capture)
 
     def test_client_source_drift_blocks_before_admission(self):
         profile = dict(PROFILE, headless_client_sha256="0" * 64)
         self.profile.write_text(json.dumps(profile, sort_keys=True))
         self.pin = hashlib.sha256(self.profile.read_bytes()).hexdigest()
         with self.assertRaisesRegex(ValueError, "client source drift"):
-            self.run_batch(lambda _: self.fail("admission should not run"),
+            self.run_batch(lambda *_: self.fail("admission should not run"),
                            lambda *a, **k: None, lambda *a, **k: None)
 
     def test_fictional_twenty_case_pipeline_seals_private_output(self):
@@ -144,7 +145,7 @@ class A1AdmittedBatchTests(unittest.TestCase):
         self.pin = hashlib.sha256(self.profile.read_bytes()).hexdigest()
         calls = []
 
-        def admission(_):
+        def admission(*_):
             calls.append("admit")
             return True
 
@@ -167,6 +168,17 @@ class A1AdmittedBatchTests(unittest.TestCase):
         self.assertEqual((calls.count("admit"), calls.count("transport")), (21, 20))
         for name in ("attempt-journal.jsonl", "raw-attempts.json", "client-clock.jsonl"):
             self.assertEqual(self.output.joinpath(name).stat().st_mode & 0o777, 0o600)
+
+    def test_non_pinned_endpoint_blocks_before_admission(self):
+        with self.assertRaisesRegex(ValueError, "pinned sidecar endpoint"):
+            run_admitted_batch(
+                cases_path=self.cases, profile_path=self.profile,
+                expected_profile_sha256=self.pin,
+                ingress_token_path=self.token,
+                endpoint="http://192.168.70.11:19104/v1/chat/completions",
+                output_dir=self.output, assert_admitted=lambda *_: True,
+                transport=lambda *a, **k: None,
+                capture=lambda *a, **k: None)
 
 
 if __name__ == "__main__":

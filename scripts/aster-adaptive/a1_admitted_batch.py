@@ -2,8 +2,9 @@
 
 This is a Mini-side client, not a lease issuer or receipt verifier. The
 platform-owned ``assert_admitted`` callback must authenticate current host
-state and raise unless the exact A1 application lease, sidecar and watchdog
-are valid. It is called again immediately before each possible model call.
+state and raise unless the exact A1 application lease, sidecar endpoint and
+watchdog are valid. It is called again immediately before each possible model
+call.
 Importing this module opens no socket and reads no private evidence.
 """
 from __future__ import annotations
@@ -25,6 +26,7 @@ import a1_headless_client as client_module
 HEX64 = re.compile(r"[0-9a-f]{64}\Z")
 MAX_CASE_BYTES = 100_000
 MAX_PROFILE_BYTES = 16_000
+EXPECTED_ENDPOINT = "http://192.168.70.10:19104/v1/chat/completions"
 
 
 def _owner_file(path: Path, *, maximum: int) -> bytes:
@@ -54,18 +56,21 @@ def _owner_file(path: Path, *, maximum: int) -> bytes:
 def run_admitted_batch(*, cases_path: Path, profile_path: Path,
                        expected_profile_sha256: str, ingress_token_path: Path,
                        endpoint: str, output_dir: Path,
-                       assert_admitted: Callable[[str], bool],
+                       assert_admitted: Callable[[str, str], bool],
                        transport=invoke, capture=capture_full_path) -> dict:
     """Run at most one sealed 20-case batch and return content-free counts.
 
     ``assert_admitted`` is an external *authenticated* live check, never a
     boolean from a model or a caller-supplied preview receipt. It must return
-    exactly ``True`` after verification; false/none or an exception denies. A failed check
-    before the batch creates no output; a later failure is journaled as an
-    uncertain stopped attempt. The caller must preserve that partial output.
+    exactly ``True`` after verification of both the profile hash and exact
+    endpoint; false/none or an exception denies. A failed check before the
+    batch creates no output; a later failure is journaled as an uncertain
+    stopped attempt. The caller must preserve that partial output.
     """
     if not callable(assert_admitted) or not callable(transport) or not callable(capture):
         raise ValueError("missing A1 authority or client")
+    if endpoint != EXPECTED_ENDPOINT:
+        raise ValueError("A1 endpoint is not the pinned sidecar endpoint")
     if not isinstance(expected_profile_sha256, str) or not HEX64.fullmatch(expected_profile_sha256):
         raise ValueError("invalid pinned A1 profile")
     with profile_path.open("rb") as profile_stream:
@@ -95,7 +100,7 @@ def run_admitted_batch(*, cases_path: Path, profile_path: Path,
         raise ValueError("invalid A1 ingress credential")
 
     def require_live_admission() -> None:
-        if assert_admitted(expected_profile_sha256) is not True:
+        if assert_admitted(expected_profile_sha256, EXPECTED_ENDPOINT) is not True:
             raise RuntimeError("A1 live admission unavailable")
 
     require_live_admission()
