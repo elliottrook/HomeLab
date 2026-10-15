@@ -18,9 +18,10 @@ change was performed.
 ## Findings
 
 - The live Aster source/dependency identity differs from the reviewed Stream A
-  checkout. The run card now selects the deployed-production-baseline and
-  requires a complete source import closure/dependency inventory; a candidate
-  Aster source must not be silently substituted.
+  checkout. The first run is now explicitly selected as the reproducible
+  Stream A candidate-path baseline at `e6b638e4`; it must not be described as
+  deployed-production performance. The complete import closure is inventoried,
+  while installed dependency wheel hashes remain a live gate.
 - The unit starts exactly one unprivileged worker on port 19104 and allows
   only loopback plus the llama backend at the systemd address-filter layer.
   It does not refuse the platform controller's intentional start/stop.
@@ -51,8 +52,8 @@ change was performed.
 ## Remaining gates before live approval
 
 1. Merge or otherwise make the pinned Stream A A1 source bundle available in
-   this branch; the manifest currently references commit `e4becf9c` in the
-   handoff worktree.
+   this branch; the manifest currently references candidate commit `e6b638e4`
+   in the handoff worktree.
 2. Implement and review the fixed LXC110 ingress-policy apply/restore helper;
    the current artifact set deliberately contains only the restore contract,
    not a broad ruleset replacement.

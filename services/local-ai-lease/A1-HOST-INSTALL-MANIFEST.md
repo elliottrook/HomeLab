@@ -5,24 +5,28 @@ by this checkout.
 
 ## Exact source/dependency copy set
 
-The A1 result is explicitly a **deployed-production-baseline** measurement,
-not a measurement of the reviewed Stream A Aster candidate. The platform
-owner must use the currently deployed LXC104 Aster source snapshot and its
-source-produced dependency inventory, then copy exactly the guarded Stream A1
-files below. The known live identity is:
+The A1 result is explicitly a **stream-a-candidate-path-baseline** measurement,
+not a measurement of the deployed LXC104 Aster. The candidate is pinned to
+commit `e6b638e4`; its complete local import closure is recorded in
+`A1-Aster-source-bundle-inventory-2026-10-14.md`. The platform owner must copy
+that closure and exactly the guarded Stream A1 files below:
 
-| Deployed baseline item | SHA-256 |
+| Candidate baseline item | SHA-256 |
 |---|---|
-| `/opt/aster-agent/aster_agent.py` | `b0b81467d3e06c5277a3a60a70530af28fe67ac1775c6f40694a52da080d405a` |
-| deployed requirements manifest | `28433903f3dd33a33a4264f892f1d24f777a472d5cc5c315d05d8e23e3e7d1` |
+| `aster_agent.py` | `d6a05bcc7edddb1eaa69a67450cfc48c1c0e96ba8688de7a1246a1e9eb847e11` |
+| `requirements.txt` | `a1beddbeac7ac0afc27f3659b41defe0af9f5dcbf9fb91516cd86d9f4ace2929` |
 
-Those two hashes are not a complete import closure. Before installation, the
-platform owner must produce a content-free manifest of every local Python
-module imported by the sidecar, each file's hash, and the exact installed
-dependency versions/hashes. A missing closure member, dependency mismatch or
-candidate/repository source substitution aborts the run.
+The inventory lists the complete local import closure. Before installation,
+the platform owner must additionally prove the exact installed dependency
+versions and wheel hashes. A missing closure member, dependency mismatch or
+deployed-source substitution aborts the run.
 
-The reviewed Stream A source is pinned to worktree commit `e4becf9c` only for
+The candidate requirements pin FastAPI 0.133.1, httpx 0.28.1, Pydantic 2.13.4,
+Uvicorn 0.41.0, PyJWT 2.14.0 and pywebpush 2.5.0. The requirements-file hash
+is pinned above; wheel hashes are not yet known and must be captured by the
+source-local installer without exposing credentials.
+
+The reviewed Stream A source is pinned to worktree commit `e6b638e4` only for
 the guarded gateway/factory files below; it must not replace the deployed Aster
 baseline. The platform owner must copy exactly these files and verify the
 hashes before enabling the disabled unit:
