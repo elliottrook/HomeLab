@@ -17,7 +17,7 @@
       <control type="textbox"><left>145</left><top>287</top><width>880</width><height>52</height><label>$INFO[Window.Property(AsterHub.Description)]</label><font>font20</font><textcolor>asterRailText</textcolor></control>
       <control type="label"><left>145</left><top>346</top><width>1000</width><height>30</height><label>$INFO[Window.Property(AsterHub.Status)]</label><font>font20</font><textcolor>asterSage</textcolor></control>
       <control type="button" id="300">
-        <left>145</left><top>390</top><width>280</width><height>56</height><label>Connection status</label><font>font24</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
+        <left>145</left><top>390</top><width>280</width><height>56</height><label>About library</label><font>font24</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
         <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturenofocus>
         <onclick>RunScript(special://skin/tools/hub_data.py,books,play)</onclick>
         <onleft>8999</onleft><onright>301</onright><ondown>500</ondown><onup>9001</onup>

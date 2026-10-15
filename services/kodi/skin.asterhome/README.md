@@ -1,5 +1,19 @@
 # Aster Home Kodi skin prototype
 
+Version 0.6.2 provides a manual, one-shot Books pilot. Run
+`python3 tools/pilot_books_feed.py` from the Mac to query the existing TrueNAS
+`library.json` over read-only SSH. The script filters on TrueNAS to just
+Audiobookshelf audiobooks and Calibre ebooks, carries the source file's mtime
+as the feed timestamp, validates the result, and installs it mode 0600 into
+the disposable Mac Kodi profile. It prints counts only; it neither changes
+TrueNAS nor exposes an endpoint. The live source contained 46 audiobooks and
+no Calibre ebooks. The Books screen visibly displayed all 46 as a read-only
+catalogue after Kodi restart. **About library** now explains that playback and
+ebooks are not connected. Refresh reloads the local feed; it does not query
+TrueNAS. This one-shot file expires after 24 hours. No personal titles or
+source credentials are stored in Git. The Home feed remains absent and its
+display remains explicitly unconnected.
+
 Version 0.6.1 adds opt-in, credential-free local feed readers for Books and
 Home. The skin reads only bounded JSON files under Kodi's own
 `special://profile/addon_data/skin.asterhome/feeds/` directory. It neither
@@ -23,7 +37,8 @@ is shipped as household data. The contracts are:
 Books expires after 24 hours and Home after 10 minutes. Neither file may be
 symlinked. The reader discards unexpected library authorities and fields and
 does not offer acquisition or household-control actions. Offline tests use
-synthetic records; no real book or home feed was installed in the Mac test.
+synthetic records; at the 0.6.1 contract milestone no real book or home feed
+was installed in the Mac test.
 Next, define a protected read-only delivery route from the existing snapshots
 to this Kodi profile, and separately design reviewed live-state aliases for
 the richer Home Hub display. Do not expose `library.json` on the current

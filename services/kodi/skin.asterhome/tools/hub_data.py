@@ -53,6 +53,18 @@ def main(page, action='refresh'):
         return
     window = xbmcgui.Window(WINDOWS[page])
     if action in ('play', 'chapter'):
+        if page == 'books':
+            message = ('Read-only library titles are available; audiobook playback and ebooks '
+                       'are not connected.' if window.getProperty('AsterHub.BooksReady') == 'true'
+                       else 'The read-only books feed is not connected or is stale.')
+            xbmcgui.Dialog().notification('Aster Books', message)
+            return
+        if page == 'home':
+            message = ('Approved aliases are available; live device values and controls are '
+                       'not connected.' if window.getProperty('AsterHub.HomeReady') == 'true'
+                       else 'The read-only Home Assistant feed is not connected or is stale.')
+            xbmcgui.Dialog().notification('Aster Home', message)
+            return
         if page == 'music':
             album_id = window.getProperty('AsterHub.FirstAlbum')
             if album_id.isdigit():
@@ -106,6 +118,8 @@ def main(page, action='refresh'):
     window.setProperty('AsterHub.Ready', 'false')
     window.setProperty('AsterHub.GeneratedAt', '')
     window.setProperty('AsterHub.FirstAlbum', '')
+    window.setProperty('AsterHub.BooksReady', 'false')
+    window.setProperty('AsterHub.HomeReady', 'false')
     window.setProperty('AsterHub.Status', 'Read-only connection required')
     rows = []
     albums = []
@@ -145,6 +159,7 @@ def main(page, action='refresh'):
         window.setProperty('AsterHub.Description', 'A shared home for ebooks, audiobooks and listening progress. Your library stays with Calibre-Web and Audiobookshelf.')
         try:
             rows = books_view(optional_feed(xbmcvfs, 'books'))
+            window.setProperty('AsterHub.BooksReady', 'true')
             window.setProperty('AsterHub.Status', f'{len(rows)} library titles · read-only snapshot')
             if not rows:
                 rows = [('No books in approved snapshot', 'Refresh when the source has published titles', None)]
@@ -156,6 +171,7 @@ def main(page, action='refresh'):
         window.setProperty('AsterHub.Description', 'Approved household aliases only. Presence is not live device state; controls remain disabled.')
         try:
             rows = home_view(optional_feed(xbmcvfs, 'home'))
+            window.setProperty('AsterHub.HomeReady', 'true')
             window.setProperty('AsterHub.Status', f'{len(rows)} approved aliases · no controls or live values')
             if not rows:
                 rows = [('No reviewed household aliases', 'The read-only registry snapshot is empty', None)]

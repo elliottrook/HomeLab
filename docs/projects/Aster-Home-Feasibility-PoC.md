@@ -571,6 +571,29 @@ review. Do not repurpose the portal's unauthenticated LAN route or deploy the
 offline HA integration without the project risk/rollback checks. This local
 milestone follows `7bf22a7e`; no Forgejo push or release promotion occurred.
 
+### M3a Books one-shot Mac pilot — 2026-10-14
+
+Read-only SSH resolved the TrueNAS unified-media portal's `/data` mount to
+`/mnt/Media/appdata/unified-media-shadow/portal-refresh`. The deployed
+`library.json` was 2.3 MB and contained 46 `audiobookshelf/audiobook` records
+and zero `calibre/ebook` records at the observed check. A manual pilot script
+queries only those two authority/type pairs, projects only the four safe
+fields on TrueNAS with `jq`, uses the source file's mtime as the envelope
+timestamp, and atomically installs a mode-0600 feed in the disposable Mac Kodi
+profile. No raw library snapshot, service credential or personal title was
+committed. No TrueNAS, Home Assistant, firewall or portal configuration was
+changed. This is a one-shot test, not a scheduled synchronization path.
+
+Mac Kodi was restarted with skin v0.6.2. Visual inspection confirmed the
+Books page shows `46 library titles · read-only snapshot` and the actual
+audiobook rows. The About library control was corrected to distinguish an
+available catalogue from unavailable playback/ebook connections. The local
+feed expires after 24 hours; Refresh only reloads that file. Home remains
+unconnected because the offline registry exporter has not been deployed and
+does not provide live room/device values. A protected, recoverable publisher
+and reviewed HA state contract are still required before either feed becomes
+an unattended or production feature. No remote Git operation occurred.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
