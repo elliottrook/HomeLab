@@ -2,6 +2,11 @@
 
 **Owner-facing checkpoint, 2026-10-09.** This page translates the detailed [programme](Aster-Adaptive-Computing.md) and [Codex delegation gates](Codex-Delegation.md) into the next decisions. It does not authorize a deployment, additional cloud question, new tool grant or Git push. Evidence links control factual claims; an unchecked gate remains open even if a nearby experiment passed.
 
+The [October 14 evening execution decision](evidence/Evening-execution-decision-2026-10-14.md)
+separates the actual backup/check schedule from the proposed live windows,
+records both measured full-stop blockers, and sets the October 15 deadline
+expectation. It supersedes any statement that lab time alone remains.
+
 The [Stream A work cadence](Stream-A-Work-Cadence.md) separates continuous
 offline/shared work from exclusive lab tests. The proposed 03:15 Vancouver
 platform drill on 2026-10-15 is **not verified as scheduled** and would be a
