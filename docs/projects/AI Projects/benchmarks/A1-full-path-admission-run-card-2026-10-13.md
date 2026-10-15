@@ -81,6 +81,13 @@ records. An isolated/test-only gateway must be source-pinned and must leave
 the household production route unchanged. No existing live Aster service is
 assumed to satisfy that requirement merely because an offline ASGI fixture
 passed.
+The offline [`a1_full_path_capture.py`](../../../../scripts/aster-adaptive/a1_full_path_capture.py)
+now composes the existing one-attempt private answer journal with a separate
+owner-only, content-free client-clock file. It records a censored clock and
+stops after an uncertain transport or invalid output. Its 32 focused A1
+fixtures passed on 2026-10-14; they open no network socket and do not
+authenticate a lease. The platform-supplied caller must still validate live
+admission immediately before supplying the actual client transport.
 
 ## Exact live admission gates
 
