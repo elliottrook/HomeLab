@@ -34,6 +34,11 @@ recover this lease's sidecar, ingress policy or temporary key.
 The exact host installation, denial probes and recovery sequence are in
 [`A1-HOST-INSTALL-RUN-CARD.md`](A1-HOST-INSTALL-RUN-CARD.md).
 
+The separate disabled-only platform installation gate is
+[`APPLICATION-B60-DISABLED-INSTALL-RUN-CARD.md`](APPLICATION-B60-DISABLED-INSTALL-RUN-CARD.md).
+It must be approved and completed before any application-only recovery drill;
+it does not authorize that drill or a benchmark lease.
+
 ## Effects and evidence
 
 1. Capture the platform checkpoint and application-mode receipt.

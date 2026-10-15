@@ -17,8 +17,8 @@ from application_b60_watchdog import ApplicationB60Watchdog, fixed_command
 
 RECEIPT = Path("/var/lib/local-ai-lab/application-b60/recovery-receipt.json")
 SOURCE_HASHES = {
-    "/opt/aster-a1-test/a1_isolated_app.py": "cf8d88506d19acdcfd53caa88804dd6f780e94412b7c0a2e3f779a59241b2a5d",
-    "/opt/aster-a1-test/a1_test_gateway.py": "5350e9f293caa19cf2f993016a56dfdee5e2ccfc2f049eecaa55044bd1786e07",
+    "/opt/aster-a1-test/a1_isolated_app.py": "b634b0518f018befc88f57697b55ad1ef1011fc107c1088bd90158656c53fed4",
+    "/opt/aster-a1-test/a1_test_gateway.py": "e2e1150a76fd6e61c47da1a6c6f3ce229905a454476c756c49d6a83c9d10aaae",
     "/opt/aster-a1-test/aster-agent/aster_agent.py": "d6a05bcc7edddb1eaa69a67450cfc48c1c0e96ba8688de7a1246a1e9eb847e11",
 }
 
