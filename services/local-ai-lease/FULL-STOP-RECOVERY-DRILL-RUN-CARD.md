@@ -44,6 +44,20 @@ integrity receipt from the 00:30 backup job or a measured pre-03:00 integrity
 scan with freshness and source identity, then recompute the full-stop/A1
 window. Until that evidence exists, the drill is NO-GO.
 
+## 2026-10-15 cycle result
+
+The read-only overnight observation confirmed the 00:30 Proxmox backup and
+TrueNAS task order: task 1 at 01:00, task 3 at 02:00, and task 2 at 03:00
+all reported `SUCCESS`; current-cycle 104/110/116 artifact identities were
+present. The Mac A1 source snapshot and post-task-2 destination snapshot also
+matched the pinned nine-file, 57,692-byte subset and canonical digest.
+
+This does not clear either drill. The 01:10 low-I/O archive scan completed
+104, but the 110 result was unavailable when the observation was interrupted
+and 116 was not scanned. No root-owned retained-integrity receipt was created,
+so archive integrity is unproven for this cycle. The watchdog remained
+disabled/inactive, the lease remained `ready`, and no drill or model call ran.
+
 ## Timing and preflight
 
 - 00:30 Proxmox backup, 01:00 guest pull, 02:00 LXC110 mirror, 03:00 Mac
