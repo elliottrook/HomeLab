@@ -478,3 +478,16 @@ of each Mini call. Its expected lease ID/generation are parameters supplied by
 its caller. The platform owner has been asked to bind the authenticated
 Mini-to-host callback to fresh host lease state and add stale/revoked receipt
 denial tests. No current source-only receipt projection is live admission.
+
+**Disabled helper upgrade, 2026-10-14 Vancouver:** Jason separately approved
+the 24-file helper packet from platform commit `7b36ce64`, card SHA-256
+`21e786df…`. Stream A installed and verified the Proxmox and LXC110 helper
+files with rollback copies of replaced Proxmox bytes. The four candidate
+service/timer units remain disabled and inactive. Target-Linux imports and the
+effect-free `plan` phase passed; the host lease remained `ready`, production
+services active, and no temporary key, ingress rule, A1 lease, listener or
+model call appeared. The [receipt](../evidence/A1-disabled-helper-upgrade-2026-10-14.md)
+pins exact hashes and the first verifier's corrected timer-property check.
+This closes **installation only**. The separate source-bound backup receipt,
+restricted transport identity, live recovery drill, application-only lease
+admission and 20-case benchmark are still required.

@@ -21,8 +21,12 @@ preflight. The platform owner has installed an independent full-stop recovery
 candidate disabled/inactive, but has not yet live-proven it. Jason approved a
 separate [disabled application-controller installation](evidence/A1-application-controller-disabled-install-2026-10-14.md):
 all 12 pinned files are on Proxmox, its watchdog units are disabled/inactive,
-and no application lease exists. The LXC104 A1 sidecar and dependency bundle
-are also staged disabled. The ingress helper, authenticated admission callback,
+and no application lease exists. A subsequent
+[disabled helper upgrade](evidence/A1-disabled-helper-upgrade-2026-10-14.md)
+installed and hash-verified 24 pinned Proxmox/LXC110 files, retained the prior
+Proxmox bytes for rollback, and left both heartbeat and watchdog units
+disabled/inactive. The LXC104 A1 sidecar and dependency bundle
+are also staged disabled. The live ingress effect, authenticated admission callback,
 source-bound backup receipt and recovery behavior still need separate live
 proof; installation does not admit a model call. The obsolete evening runner remains
 disabled. The [isolated process contract](benchmarks/A1-isolated-process-contract-2026-10-14.md)
