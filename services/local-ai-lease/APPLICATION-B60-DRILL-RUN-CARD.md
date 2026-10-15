@@ -59,9 +59,14 @@ needs a separate approval after the recovery drill passes.
 
 ## Authenticated callback contract
 
-The platform callback must read a current host-owned
-`ApplicationReceipt` through the authenticated receipt boundary and project it
-with `application_receipt_boundary.admission_payload`. It must return exactly:
+The platform callback must load the current host-produced `ApplicationReceipt`
+from the fixed root-owned mode-0600 path
+`/var/lib/local-ai-lab/application-b60/application-receipt.json`, then project
+it with `application_receipt_boundary.admission_payload`. The boundary pins
+profile `7caddc30074f5925722861c59f70733894037b9fc5b0865feb98bf9e08bbbfec`,
+sidecar bundle `969b6db34e8fe0c00e9a5be6163a498bae5ccfd101e42f699bfafb39f4a8c403`,
+UID 1904, port 19104 and the exact endpoint. It rejects a caller-created
+receipt, arbitrary profile, or alternate sidecar. It must return exactly:
 
 ```json
 {
