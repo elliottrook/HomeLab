@@ -1,6 +1,15 @@
 # A1 Aster source bundle inventory — 2026-10-14
 
 **Status:** source inventory only; no bundle installed or model call made.
+The corrected source-only sidecar archive
+`/private/tmp/aster-a1-sidecar-0af3a6ea-552759d8.tar` has SHA-256
+`3fe5bae09a268428ee52c8ad5e70007c622a3ae7279981a1569f8c626295b817`.
+Its [per-file manifest](a1-sidecar-source-bundle-manifest-2026-10-14.json)
+has SHA-256
+`969b6db34e8fe0c00e9a5be6163a498bae5ccfd101e42f699bfafb39f4a8c403`.
+The archive was reopened and all 17 source/unit members were checked against
+that manifest. It contains no credential or evidence file. The older
+`740917a1` archive is obsolete and must not be installed.
 This inventory concerns the **Stream A candidate** at commit `e6b638e4`.
 It is not proof that the deployed LXC 104 Aster has the same source.
 
@@ -27,9 +36,10 @@ A1 modules and its separately pinned Python dependency environment.
 `requirements.txt` in Stream A hashes to
 `a1beddbeac7ac0afc27f3659b41defe0af9f5dcbf9fb91516cd86d9f4ace2929`.
 It pins FastAPI, httpx, Pydantic, Uvicorn, PyJWT and pywebpush. The installed
-wheel hashes for a sidecar virtual environment remain
-**UNKNOWN / REQUIRES VERIFICATION**; this list alone is not a reproducible
-dependency lock. A read-only `pip list --format=json` from LXC 104's current
+wheel hashes for a sidecar virtual environment are now recorded in the
+[production-matched wheelhouse manifest](a1-production-matched-wheelhouse-manifest-2026-10-14.json).
+This inventory alone does not prove a target-Linux installation. A read-only
+`pip list --format=json` from LXC 104's current
 production virtual environment showed the same direct versions (FastAPI
 0.133.1, httpx 0.28.1, Pydantic 2.13.4, Uvicorn 0.41.0, PyJWT 2.14.0,
 pywebpush 2.5.0) and 35 packages total. That is installed-version evidence,

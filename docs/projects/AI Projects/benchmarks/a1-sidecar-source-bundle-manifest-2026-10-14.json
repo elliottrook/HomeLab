@@ -1,0 +1,94 @@
+{
+  "aster_source_commit": "e6b638e4",
+  "credential_files_included": false,
+  "files": [
+    {
+      "bytes": 6895,
+      "path": "aster-agent/arr_report.py",
+      "sha256": "adacab07f40b1218be43fd5d4119efc87571ffba06b41151d40f3cc099c231d9"
+    },
+    {
+      "bytes": 145411,
+      "path": "aster-agent/aster_agent.py",
+      "sha256": "d6a05bcc7edddb1eaa69a67450cfc48c1c0e96ba8688de7a1246a1e9eb847e11"
+    },
+    {
+      "bytes": 7709,
+      "path": "aster-agent/broker_approvals.py",
+      "sha256": "cf37fb1782c875622155b50d7b69f31b7c9acc2c30f7881f5da9b4a6538dd324"
+    },
+    {
+      "bytes": 18553,
+      "path": "aster-agent/companion_notifications.py",
+      "sha256": "c0b850d39e50c5a84eb1a54c322ce8ccae306b638d5013b26afe63788fe3b5b4"
+    },
+    {
+      "bytes": 4604,
+      "path": "aster-agent/doctor_incident_adapter.py",
+      "sha256": "c88c4e642426afff9718da79e89db5b8405f1a5c00fbcc0fa09c3ae5956272db"
+    },
+    {
+      "bytes": 3888,
+      "path": "aster-agent/ha_report.py",
+      "sha256": "9d99e511a123fb5a73c93aceb17af7ea7ebbeb442e437798b2c5cfadbdeece81"
+    },
+    {
+      "bytes": 24345,
+      "path": "aster-agent/lab_operations.py",
+      "sha256": "bb57475cf8f3dac16e793598f744ce8cd4627997becf64ee64b2858056f30dc1"
+    },
+    {
+      "bytes": 8908,
+      "path": "aster-agent/source_reports.py",
+      "sha256": "7a85c52a5b350f3dde81b52fdd118f9a37f9a45feaca50db4f86092a297eadd2"
+    },
+    {
+      "bytes": 6072,
+      "path": "aster-agent/sysadmin_incident_store.py",
+      "sha256": "4e8a36a803c3d8e5eac362e4c17a0cadc1f4ae2accca05cc73283b646b8e5c4b"
+    },
+    {
+      "bytes": 2061,
+      "path": "aster-agent/sysadmin_incident_stream.py",
+      "sha256": "8aa8c572cbe3208b9b8c1a0ce34dfdab893a064ba79e7e5a87c7d8decca8d683"
+    },
+    {
+      "bytes": 10293,
+      "path": "aster-agent/sysadmin_investigation.py",
+      "sha256": "bfd5e9675b4a7ef06aa0ddb28e7c9b5fda2076a86957cd5474a75ccbd50ee6fe"
+    },
+    {
+      "bytes": 103,
+      "path": "aster-agent/requirements.txt",
+      "sha256": "a1beddbeac7ac0afc27f3659b41defe0af9f5dcbf9fb91516cd86d9f4ace2929"
+    },
+    {
+      "bytes": 9519,
+      "path": "a1_isolated_app.py",
+      "sha256": "b634b0518f018befc88f57697b55ad1ef1011fc107c1088bd90158656c53fed4"
+    },
+    {
+      "bytes": 9784,
+      "path": "a1_test_gateway.py",
+      "sha256": "e2e1150a76fd6e61c47da1a6c6f3ce229905a454476c756c49d6a83c9d10aaae"
+    },
+    {
+      "bytes": 2641,
+      "path": "aster_asgi_clock.py",
+      "sha256": "e7f8240fc38a62772ac2d7e4e9461ee8f3be21580885d9dfc0cab40fe1919305"
+    },
+    {
+      "bytes": 127,
+      "path": "a1_service_runner.py",
+      "sha256": "feae2ec1f423ec4cbcde33112a64ed6db0963a6c3868726bcdff732b07b520c1"
+    },
+    {
+      "bytes": 1157,
+      "path": "unit/aster-a1-test.service",
+      "sha256": "949bd266a68d9114034ab213208b0dafc6f7c77ef3e87b8225f314e949f59ac0"
+    }
+  ],
+  "guard_source_commit": "0af3a6ea",
+  "schema": "aster-a1-sidecar-source-bundle.v2",
+  "unit_source_commit": "552759d8"
+}
