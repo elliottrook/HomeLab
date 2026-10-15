@@ -1,6 +1,6 @@
 # Stream A evening execution decision — October 14 Vancouver
 
-Status at 21:00 PDT: **no live test admitted; both scheduled Stream A checks
+Status at 21:00 PDT: **no live test admitted; the scheduled Stream A checks
 are read-only**. Reassess from live state at the time, never from this note
 alone.
 
@@ -24,6 +24,11 @@ Two measured blockers now make the proposed 03:10 full-stop card NO-GO:
    archive, not evidence of corruption. The planned 03:05–03:10 integrity
    preflight is therefore too short for the installed method.
 
+A bounded second read of the October 14 LXC110 archive later passed in 367.36
+seconds; LXC116 passed in 31.25 seconds. Those readings make the five-minute
+slot conclusively too short, while the 110 re-read may have benefited from
+cache. The exact October 15 archives remain unverified until scanned.
+
 The full-stop drill and application-only A1 benchmark are mutually exclusive
 within one backup cycle under the platform owner's current card, even if
 full-stop restoration succeeds. A1 has independent missing gates: a trusted
@@ -38,6 +43,7 @@ its destination comparison remains a read-only future-cycle preparation step.
 | --- | --- | --- |
 | 00:30 | Enabled Proxmox all-guest backup job | Completion still must be observed; job success alone is not archive integrity. |
 | 01:00 / 02:00 / 03:00 | Enabled TrueNAS guest, LXC110 and Mac pull tasks | Each actual current-cycle result must be checked. Mac task success is not exact-subset equality. |
+| 01:10 | Active one-time Stream A read-only cold-archive timing check | Runs only after backup and task 1 complete, with low I/O priority and strict deadlines; its result is not a trusted admission receipt. |
 | 03:05 | Active one-time Stream A read-only preflight | Compares current evidence and marks NO-GO if any source or controller gate is absent. It cannot start a lease or model call. |
 | 03:10–03:30 | Platform owner's *proposed*, currently NO-GO full-stop effect window | No effect automation is scheduled by Stream A. A new hash-pinned, tested, approval-ready card and separate live authorization would be needed. |
 | 03:40 | Active one-time Stream A read-only post-window check | Records whether a separately approved drill actually ran and whether exact restoration holds. It cannot retroactively authorize a run. |

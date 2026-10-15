@@ -18,6 +18,12 @@ actual backup, lease and recovery receipts only; it cannot infer completion,
 acquire the host, invoke a model, or re-enable the obsolete runner from the
 clock. The [A1 full-path card](benchmarks/A1-full-path-admission-run-card-2026-10-13.md)
 records the blocking gates and minimum restoration reserve.
+After a measured 43.585 GB archive check exceeded the 300-second adapter
+limit, a one-time **01:10 October 15 read-only timing check** was added. It
+must skip unless the 00:30 backup and 01:00 pull actually finished, no host
+lease is active, it begins by 01:20 and it can finish before 01:40. This
+observes new-archive integrity and timing only; it is not a trusted admission
+producer or live-drill launcher. The 03:05 and 03:40 checks remain read-only.
 An [evening readiness audit](evidence/A1-evening-readiness-audit-2026-10-14.md)
 found that 03:40 is too late for a first A1 admission with 35 minutes of
 reserve before 04:15. A separate one-time **03:05 read-only backup/source
