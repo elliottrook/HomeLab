@@ -60,7 +60,7 @@ state transitions and target-Linux rollback checks. The new command-line
 paths are hard-disabled, nothing has been installed, and the full-stop drill
 is still NO-GO pending a disabled target-Linux validation, observed complete
 current-cycle archive scan and separately approved live run. The offline
-suite passed 175 tests with two root-custody tests skipped on macOS. The
+suite ran 175 tests: 173 passed and two root-custody tests were skipped on macOS. The
 code branch has not yet been reconciled into this Stream A branch or pushed.
 The configured 00:30/01:00/02:00/03:00 backup schedules were checked read-only
 on Proxmox and TrueNAS; this does not prove a given night's completion. The
