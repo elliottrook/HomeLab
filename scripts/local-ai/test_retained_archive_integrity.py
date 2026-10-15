@@ -91,6 +91,25 @@ class RetainedArchiveIntegrityTests(unittest.TestCase):
             archive.capture(self.items, date=self.day, resolve=self.resolve,
                             lstat=os.lstat, probe=modify, clock=lambda: self.now)
 
+    def test_receipt_custody_rejects_weak_parent_and_symlink_destination(self):
+        owner = os.getuid()
+        parent = self.root / "custody"
+        parent.mkdir(mode=0o700)
+        receipt = parent / "receipt.json"
+        archive._check_receipt_parent(receipt, expected_uid=owner)
+        parent.chmod(0o755)
+        with self.assertRaises(archive.IntegrityError):
+            archive._check_receipt_parent(receipt, expected_uid=owner)
+        parent.chmod(0o700)
+        receipt.symlink_to(self.root / "other")
+        with self.assertRaises(archive.IntegrityError):
+            archive._check_existing_receipt(receipt, expected_uid=owner)
+        receipt.unlink()
+        receipt.write_text("{}")
+        receipt.chmod(0o644)
+        with self.assertRaises(archive.IntegrityError):
+            archive._check_existing_receipt(receipt, expected_uid=owner)
+
 
 if __name__ == "__main__":
     unittest.main()
