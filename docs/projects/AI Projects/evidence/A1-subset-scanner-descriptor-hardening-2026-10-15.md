@@ -12,8 +12,9 @@ also fails closed on platforms without the required descriptor flags.
 
 The output contract is unchanged: only entry count, total bytes, canonical
 manifest digest, scan consistency, capture time and `observation-only` claim.
-Five synthetic tests pass, including deterministic file and directory
-replacement before open. `git diff --check` passes.
+Five scanner tests pass, including deterministic file and directory
+replacement before open. The scanner, full-path admission and admitted-batch
+test modules pass together (26 tests). `git diff --check` passes.
 
 This reduces accidental and opportunistic path-substitution risk. It does not
 authenticate the caller, prevent a malicious owner from fabricating or
