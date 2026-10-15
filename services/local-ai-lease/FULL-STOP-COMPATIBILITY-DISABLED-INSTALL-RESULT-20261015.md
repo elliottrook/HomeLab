@@ -31,6 +31,13 @@ false, and calling their CLI entry points returned `disabled` with
 `effects: not-attempted`. A synthetic fixed-source retained-backup exercise
 passed against the **installed older** `source_receipts.py` and
 `backup_receipt_adapter.py`; it made no archive scan or remote query.
+The installed-path full-stop acquisition suite ran **7/7** target-Linux tests.
+The controller suite ran **16/16 applicable** target-Linux tests; its one
+repository-relative unit-file assertion was skipped because the tests were
+streamed over stdin, so `__file__` cannot locate the repository tree. The
+installed unit files were independently checked with `systemd-analyze verify`
+and pinned-byte comparison. An initial unmodified stdin run reported that
+single `__file__` harness error; it was not a controller failure.
 
 Postcheck: no lease or lock; both heartbeat and watchdog timers still
 disabled/inactive; LXC104, 110 and 116 running; `pvescheduler` active; News
