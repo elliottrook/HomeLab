@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import copy
 import json
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
@@ -152,14 +153,23 @@ class Incident:
         record = observation.validate(now)
         if any(item["evidence_id"] == record["evidence_id"] for item in self.observations):
             raise InvestigationError("duplicate evidence_id")
+        pair = (record["target"], record["kind"])
+        planned = Counter((item.target, item.kind) for item in self.observation_plan)
+        recorded = Counter((item["target"], item["kind"]) for item in self.observations)
+        if recorded[pair] >= planned[pair]:
+            raise InvestigationError("observation is not an unfilled planned step")
         self.observations.append(record)
-        while self.cursor < len(self.observation_plan):
-            current = self.observation_plan[self.cursor]
-            if current.target == record["target"] and current.kind == record["kind"]:
-                self.cursor += 1
+        # Evidence can arrive out of order. Advance only over plan steps for
+        # which a corresponding observation has already been recorded.
+        recorded[pair] += 1
+        seen: Counter[tuple[str, str]] = Counter()
+        self.cursor = 0
+        for request in self.observation_plan:
+            step = (request.target, request.kind)
+            seen[step] += 1
+            if recorded[step] < seen[step]:
                 break
-            # Evidence may arrive out of order; do not skip an unobserved plan step.
-            break
+            self.cursor += 1
         return copy.deepcopy(record)
 
     def next_observation(self) -> dict[str, Any]:

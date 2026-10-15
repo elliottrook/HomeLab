@@ -69,9 +69,31 @@ class InvestigationTests(unittest.TestCase):
             incident.add_hypothesis(f"hypothesis {i}")
         with self.assertRaises(InvestigationError):
             incident.add_hypothesis("one too many")
+        bounded = create_incident("inc-001", "Four checks", [
+            EvidenceRequest("aster-gateway", "status", f"Check {i}.") for i in range(4)
+        ])
         for i in range(4):
-            incident.add_observation(observation(evidence_id=f"obs-{i}", observed_at=(NOW - timedelta(seconds=i)).isoformat().replace("+00:00", "Z")), NOW)
-        self.assertEqual(incident.next_observation()["state"], "bounded")
+            bounded.add_observation(observation(evidence_id=f"obs-{i}", observed_at=(NOW - timedelta(seconds=i)).isoformat().replace("+00:00", "Z")), NOW)
+        self.assertEqual(bounded.next_observation()["state"], "bounded")
+
+    def test_rejects_unplanned_and_excess_evidence_without_mutating_incident(self):
+        incident = self.incident()
+        with self.assertRaisesRegex(InvestigationError, "not an unfilled planned step"):
+            incident.add_observation(observation(target="forgejo-main", kind="git"), NOW)
+        self.assertEqual(incident.observations, [])
+        incident.add_observation(observation(), NOW)
+        with self.assertRaisesRegex(InvestigationError, "not an unfilled planned step"):
+            incident.add_observation(observation(evidence_id="obs-002"), NOW)
+        self.assertEqual(len(incident.observations), 1)
+
+    def test_out_of_order_evidence_advances_past_already_filled_step(self):
+        incident = self.incident()
+        incident.add_observation(observation(evidence_id="obs-002", target="inference-server"), NOW)
+        self.assertEqual(incident.next_observation()["target"], "aster-gateway")
+        incident.add_observation(observation(), NOW)
+        self.assertEqual(incident.next_observation()["state"], "sufficient_or_escalate")
+        restored = type(incident).from_record(incident.to_record(), NOW)
+        self.assertEqual(restored.next_observation()["state"], "sufficient_or_escalate")
 
     def test_catalogue_covers_each_approved_read_only_evidence_kind(self):
         plan = [
