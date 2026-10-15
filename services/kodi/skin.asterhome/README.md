@@ -1,5 +1,14 @@
 # Aster Home Kodi skin prototype
 
+Version 0.6.3 prepares, but does not deploy, a three-entity Home Assistant
+pilot: laundry light on/off and hall/outside temperature in °C or °F. The
+offline exporter emits only reviewed aliases and valid bounded values; a v2
+Home feed reader displays those values and omits unavailable readings. The
+exporter is not installed on VM 103, no `home.json` has been delivered to
+Kodi, and household controls remain disabled. A recovery checkpoint, exact
+configuration review, Home Assistant validation and protected delivery path
+are separate deployment gates.
+
 Version 0.6.2 provides a manual, one-shot Books pilot. Run
 `python3 tools/pilot_books_feed.py` from the Mac to query the existing TrueNAS
 `library.json` over read-only SSH. The script filters on TrueNAS to just
@@ -28,11 +37,11 @@ is shipped as household data. The contracts are:
   library snapshot has Audiobookshelf records; a Calibre source is not yet
   confirmed there. The raw snapshot is **not** exposed by the portal API.
 - `home.json`: the same version/timestamp envelope and a `snapshot` containing
-  the existing Aster registry export contract (`schema_version`, `rooms`,
-  `entities`, `timers`, `media_providers`). This is alias **availability**, not
-  current on/off, climate, security or air-quality state. The exporter is
-  offline and has not been deployed; a reviewed publisher would also need to
-  add the timestamp envelope before Kodi can read it.
+  the Aster registry export contract. Snapshot v1 displays reviewed aliases
+  only; v2 may also display approved light on/off and bounded temperature
+  readings. Neither version provides controls, security or air-quality data.
+  The exporter is offline and has not been deployed; a reviewed publisher
+  would also need to add the timestamp envelope before Kodi can read it.
 
 Books expires after 24 hours and Home after 10 minutes. Neither file may be
 symlinked. The reader discards unexpected library authorities and fields and
@@ -67,10 +76,11 @@ individual chapter is not yet guaranteed on this Kodi list control. This skin
 does not synthesize a new voice or store headlines in Git.
 
 Books and Home show the intended information architecture and honest connection
-states. Calibre-Web, Audiobookshelf, Home Assistant and Aster private-assistant
-adapters are not connected; their rows do not expose personal data or operate
-household controls. Those connections need a bounded read-only data contract and
-approved identity path before the screens can show real data. No Kodi core,
+states. The one-shot Audiobookshelf catalogue is available in the disposable
+Mac pilot, but ebook, audiobook playback, Home Assistant and Aster
+private-assistant adapters are not connected. Their rows do not operate
+household controls. Those connections need bounded data contracts and approved
+identity paths before they can function. No Kodi core,
 production service, firewall or credential changes are included. Restore the
 prior local commit `d4b6944b` to roll back this milestone; the Mac Kodi copy is
 a disposable test installation. No remote push accompanies the local commit.

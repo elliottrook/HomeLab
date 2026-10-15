@@ -60,9 +60,12 @@ def main(page, action='refresh'):
             xbmcgui.Dialog().notification('Aster Books', message)
             return
         if page == 'home':
-            message = ('Approved aliases are available; live device values and controls are '
-                       'not connected.' if window.getProperty('AsterHub.HomeReady') == 'true'
-                       else 'The read-only Home Assistant feed is not connected or is stale.')
+            if window.getProperty('AsterHub.HomeValuesReady') == 'true':
+                message = 'Read-only light and temperature values are available; controls are disabled.'
+            elif window.getProperty('AsterHub.HomeReady') == 'true':
+                message = 'Approved aliases are available; live device values and controls are not connected.'
+            else:
+                message = 'The read-only Home Assistant feed is not connected or is stale.'
             xbmcgui.Dialog().notification('Aster Home', message)
             return
         if page == 'music':
@@ -120,6 +123,7 @@ def main(page, action='refresh'):
     window.setProperty('AsterHub.FirstAlbum', '')
     window.setProperty('AsterHub.BooksReady', 'false')
     window.setProperty('AsterHub.HomeReady', 'false')
+    window.setProperty('AsterHub.HomeValuesReady', 'false')
     window.setProperty('AsterHub.Status', 'Read-only connection required')
     rows = []
     albums = []
@@ -156,7 +160,7 @@ def main(page, action='refresh'):
             window.setProperty('AsterHub.Description', 'The existing news service could not supply a fresh briefing. Refresh to retry; no old recording is presented as current.')
             rows = [('No fresh briefing', 'Check the news service, then Refresh', None)]
     elif page == 'books':
-        window.setProperty('AsterHub.Description', 'A shared home for ebooks, audiobooks and listening progress. Your library stays with Calibre-Web and Audiobookshelf.')
+        window.setProperty('AsterHub.Description', 'Browse the approved audiobook catalogue. Ebook discovery and listening progress are separate connections still to be built.')
         try:
             rows = books_view(optional_feed(xbmcvfs, 'books'))
             window.setProperty('AsterHub.BooksReady', 'true')
@@ -168,11 +172,17 @@ def main(page, action='refresh'):
                     ('Ebooks', 'Calibre source not confirmed in the existing snapshot', None),
                     ('Continue listening', 'Personal progress needs a separate approved connection', None)]
     else:
-        window.setProperty('AsterHub.Description', 'Approved household aliases only. Presence is not live device state; controls remain disabled.')
+        window.setProperty('AsterHub.Description', 'A small, read-only household view. Unavailable values disappear; controls remain disabled.')
         try:
-            rows = home_view(optional_feed(xbmcvfs, 'home'))
+            feed = optional_feed(xbmcvfs, 'home')
+            rows = home_view(feed)
             window.setProperty('AsterHub.HomeReady', 'true')
-            window.setProperty('AsterHub.Status', f'{len(rows)} approved aliases · no controls or live values')
+            has_values = (feed['snapshot']['schema_version'] == 2 and
+                          bool(feed['snapshot'].get('lights') or feed['snapshot'].get('temperatures')))
+            if has_values:
+                window.setProperty('AsterHub.HomeValuesReady', 'true')
+            detail = 'read-only light and temperature values' if has_values else 'approved aliases, no live values'
+            window.setProperty('AsterHub.Status', f'{len(rows)} items · {detail}')
             if not rows:
                 rows = [('No reviewed household aliases', 'The read-only registry snapshot is empty', None)]
         except (OSError, ValueError, KeyError, TypeError):

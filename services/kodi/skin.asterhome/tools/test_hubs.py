@@ -66,6 +66,23 @@ class HubTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             home_view(payload)
 
+    def test_home_v2_accepts_only_bounded_light_and_temperature_values(self):
+        payload = {'schema_version': 1, 'generated_at': datetime.now(timezone.utc).isoformat(),
+                   'snapshot': {'schema_version': 2, 'rooms': [], 'entities': ['laundry lights'],
+                                'timers': [], 'media_providers': [],
+                                'lights': [{'alias': 'laundry lights', 'state': 'on'}],
+                                'temperatures': [{'alias': 'hall temperature', 'value': 20.6,
+                                                  'unit': '°C'}]}}
+        self.assertEqual(home_view(payload), [('laundry lights', 'Light · On', None),
+                                              ('hall temperature', 'Temperature · 20.6°C', None)])
+        payload['snapshot']['temperatures'][0]['value'] = float('nan')
+        with self.assertRaises(ValueError):
+            home_view(payload)
+        payload['snapshot']['temperatures'] = []
+        payload['generated_at'] = (datetime.now(timezone.utc) - timedelta(minutes=11)).isoformat()
+        with self.assertRaises(ValueError):
+            home_view(payload)
+
     def test_local_feed_rejects_symlinks_and_oversized_content(self):
         with tempfile.TemporaryDirectory() as directory:
             file = Path(directory) / 'books.json'

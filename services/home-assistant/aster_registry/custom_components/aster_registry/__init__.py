@@ -17,7 +17,7 @@ DOMAIN = "aster_registry"
 CONF_OUTPUT_PATH = "output_path"
 CONF_SNAPSHOT_ID = "snapshot_id"
 CONF_ALIASES = "aliases"
-_GROUPS = ("entities", "rooms", "timers", "media")
+_GROUPS = ("entities", "rooms", "timers", "media", "temperatures")
 
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
@@ -36,7 +36,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     output = safe_output_path(settings[CONF_OUTPUT_PATH])
     aliases = {group: dict(settings[CONF_ALIASES][group]) for group in _GROUPS}
     validate_aliases(aliases)
-    configured_entities = set().union(*(aliases[group] for group in ("entities", "timers", "media")))
+    configured_entities = set().union(*(aliases[group] for group in ("entities", "timers", "media", "temperatures")))
 
     async def refresh(*_args) -> None:
         entity_registry = er.async_get(hass)
@@ -45,8 +45,12 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         existing_areas = {area_id for area_id in aliases["rooms"] if area_registry.async_get_area(area_id)}
         states = {entity_id: state.state for entity_id in existing_entities
                   if (state := hass.states.get(entity_id)) is not None}
+        units = {entity_id: state.attributes.get("unit_of_measurement")
+                 for entity_id in aliases["temperatures"] if entity_id in existing_entities
+                 if (state := hass.states.get(entity_id)) is not None}
         report = build_snapshot(snapshot_id=settings[CONF_SNAPSHOT_ID], aliases=aliases,
-                                entity_ids=existing_entities, area_ids=existing_areas, states=states)
+                                entity_ids=existing_entities, area_ids=existing_areas,
+                                states=states, units=units)
         await hass.async_add_executor_job(write_atomic, output, report)
 
     await refresh()

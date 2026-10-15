@@ -1,15 +1,18 @@
 # Offline review candidate — do not copy into Home Assistant yet.
 #
-# This is the narrowest alias map currently supported by the operational
-# reference. It records the one explicitly reviewed alias as of 2026-10-10;
-# it is not proof that the live registry has not drifted since that review.
-# VM 103 must be snapshotted and the entity ID rechecked before deployment.
+# Offline pilot candidate selected by Jason on 2026-10-14. These three entity
+# IDs were present and enabled in a read-only live registry check. Their live
+# values and units have not been accepted. VM 103 must be snapshotted and the
+# exact configuration reviewed before deployment.
 aster_registry:
   output_path: /share/aster-registry/latest.json
-  snapshot_id: ha-reviewed-v1-laundry-only
+  snapshot_id: ha-home-pilot-v2
   aliases:
     entities:
       light.laundry_laundry_main_lights: "laundry lights"
     rooms: {}
     timers: {}
     media: {}
+    temperatures:
+      sensor.hall_hall_sensor_temperature: "hall temperature"
+      sensor.outside_outdoor_sensor_temperature: "outside temperature"

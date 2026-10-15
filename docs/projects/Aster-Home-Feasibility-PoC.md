@@ -615,6 +615,36 @@ review the exact allowlist and exporter code, then validate HA configuration
 and rollback. Deployment and any data-delivery path need explicit
 authorization; this inventory check granted neither.
 
+### M3c Home pilot offline contract — 2026-10-14
+
+Jason selected the laundry light and hall/outside temperature sensors for a
+read-only pilot. The three exact entity IDs were present and enabled in the
+live VM 103 registry at read-only inspection. Current values and units were
+not inspected. The local exporter contract is now v2: it emits reviewed light
+on/off and finite, bounded temperature values with °C/°F units. Missing,
+unavailable, unknown or out-of-range readings are omitted, and a switch is
+never labelled as a light. The Kodi Home reader accepts legacy alias-only v1
+and v2 values, marks the two cases distinctly, and keeps controls disabled.
+The skin source is v0.6.3; no HA integration/configuration or Home feed has
+been installed. The deployment gate in
+`services/home-assistant/aster_registry/REGISTRY-REVIEW.md` remains open,
+including recovery checkpoint, exact source-local state/unit check,
+`ha core check`, protected feed delivery, validation and rollback. No remote
+Git operation occurred.
+
+Books is a separate integration gap, not an empty design page. The one-shot
+Mac test displayed 46 actual Audiobookshelf titles from the existing sanitized
+unified-media snapshot. That snapshot contained no `calibre/ebook` records,
+although the operational reference documents a separate Calibre library with
+`metadata.db`. Its desktop Calibre deployment has no REST API and Kavita is
+not deployed. Ebook catalogue support needs a deliberate read-only source
+choice: a guarded `metadata.db` projection or a separately scoped reader
+service. Audiobook *playback* also needs an authenticated, least-privilege
+media route and a Kodi playback adapter; title/authority ID alone cannot open
+audio. Continue-listening and resume are additional personal-state writes,
+outside the current read-only snapshot. None of these gaps should be
+represented by invented titles or a falsely working Play button.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

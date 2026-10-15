@@ -2,6 +2,7 @@
 
 import json
 import stat
+import math
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -72,14 +73,36 @@ def books_view(payload):
 
 
 def home_view(payload):
-    """Render the approved registry aliases as availability, never as device state."""
+    """Render reviewed aliases and bounded read-only values, never controls."""
     _fresh(payload, 10 * 60)
     snapshot = payload.get('snapshot')
-    if not isinstance(snapshot, dict) or snapshot.get('schema_version') != 1:
+    if not isinstance(snapshot, dict) or snapshot.get('schema_version') not in (1, 2):
         raise ValueError('Invalid Home Assistant snapshot')
     rows = []
-    for key, noun in (('rooms', 'Room'), ('entities', 'Available light or switch'),
-                      ('timers', 'Active or paused timer'), ('media_providers', 'Available media device')):
+    if snapshot['schema_version'] == 2:
+        lights = snapshot.get('lights', [])
+        temperatures = snapshot.get('temperatures', [])
+        if not isinstance(lights, list) or not isinstance(temperatures, list) or len(lights) > 40 or len(temperatures) > 40:
+            raise ValueError('Invalid Home Assistant values')
+        for light in lights:
+            if not isinstance(light, dict) or light.get('state') not in ('on', 'off'):
+                raise ValueError('Invalid light state')
+            rows.append((_label(light.get('alias')), 'Light · ' + light['state'].title(), None))
+        for sensor in temperatures:
+            if not isinstance(sensor, dict) or sensor.get('unit') not in ('°C', '°F'):
+                raise ValueError('Invalid temperature unit')
+            value = sensor.get('value')
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+                raise ValueError('Invalid temperature value')
+            minimum, maximum = (-50, 60) if sensor['unit'] == '°C' else (-58, 140)
+            if not minimum <= value <= maximum:
+                raise ValueError('Temperature out of range')
+            rows.append((_label(sensor.get('alias')), f'Temperature · {value:g}{sensor["unit"]}', None))
+    groups = (('rooms', 'Room'), ('timers', 'Active or paused timer'),
+              ('media_providers', 'Available media device'))
+    if snapshot['schema_version'] == 1:
+        groups += (('entities', 'Available light or switch'),)
+    for key, noun in groups:
         aliases = snapshot.get(key)
         if not isinstance(aliases, list) or len(aliases) > 40:
             raise ValueError('Invalid Home Assistant aliases')

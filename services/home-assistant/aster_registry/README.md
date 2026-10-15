@@ -7,11 +7,14 @@ non-sensitive aliases and atomically writes mode-0600 JSON to
 `/share/aster-registry/latest.json` initially, on relevant state changes and
 every five minutes.
 
-The allowed output domains are lights/switches, timers and media players. Raw
-friendly names, attributes, device data, unrelated entities and credentials are
-never included. Missing, unknown and unavailable objects fail closed from the
-snapshot. The output path is fixed to prevent configuration from turning the
-integration into a general file writer.
+The allowed output domains are lights/switches, timers, media players and
+explicitly reviewed temperature sensors. The v2 contract additionally emits
+only on/off for reviewed lights and finite, bounded numeric temperature values
+with recognized units (°C or °F). It does not emit raw friendly names,
+attributes, unrelated entities, security state, presence, camera data or
+credentials. Missing, unknown, unavailable or out-of-range values fail closed.
+The output path is fixed to prevent configuration from turning the integration
+into a general file writer.
 
 This directory is an offline deployment candidate. Do not install it or add a
 configuration block until VM 103 is snapshotted, the exact alias map is reviewed,
@@ -22,5 +25,7 @@ acceptance evidence.
 The current offline review candidate is documented in
 [`REGISTRY-REVIEW.md`](REGISTRY-REVIEW.md) and
 [`configuration.reviewed.example.yaml`](configuration.reviewed.example.yaml).
-It contains only the laundry-light alias already recorded in the operational
-reference; it is not a live registry read or deployment authorization.
+It contains the laundry light plus hall and outside temperature IDs selected
+for the Home Hub pilot. All three were confirmed present and enabled in the
+live entity registry read-only; their current state and units remain unverified.
+This is not deployment authorization.
