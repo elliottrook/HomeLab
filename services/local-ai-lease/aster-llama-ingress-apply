@@ -1,0 +1,3 @@
+#!/bin/sh
+set -eu
+exec /usr/bin/python3 /usr/local/libexec/aster-a1/a1_ingress_policy.py apply

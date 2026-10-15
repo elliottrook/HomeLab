@@ -28,7 +28,8 @@ recover this lease's sidecar, ingress policy or temporary key.
   UID 1904, one worker, fixed non-public port 19104, test-only credentials, no privileged
   mounts/sockets, denied unauthorized network paths, and start time within the
   application lease.
-- At least 15 minutes remain before the 04:15 restoration deadline.
+- At least 35 minutes remain before the 04:15 restoration deadline: up to 20
+  minutes for the frozen batch plus the 15-minute restoration reserve.
 
 The exact host installation, denial probes and recovery sequence are in
 [`A1-HOST-INSTALL-RUN-CARD.md`](A1-HOST-INSTALL-RUN-CARD.md).

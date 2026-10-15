@@ -23,7 +23,7 @@ start the sidecar.
 | Production listener | `192.168.70.10:9120` is not used or proxied |
 | Backend | `http://192.168.70.12:11435/v1`, exact accepted llama.cpp b11429 SYCL/Level-Zero profile |
 | Worker/deadlines | one worker; response cap `256`; tool rounds `0`; request timeout `60` seconds |
-| Batch | 20 frozen fictional request digests, one attempt each, maximum 10 minutes |
+| Batch | 20 frozen fictional request digests, one attempt each, maximum 20 minutes (`max_wall_s=1200`) |
 | Lease | `application-b60-exclusive-v1`; distinct source-bound application backup receipt |
 
 The sidecar must not read the production Aster environment, OpenBao material,
@@ -75,7 +75,9 @@ claimed yet, and Stream A must not manufacture a preview receipt from it.
 5. The host controller has generated a planned lease ID/generation in its
    protected pre-lease plan, distinct from the full-stop recovery lease. The
    plan is an input to acquisition, not evidence that a lease is active.
-6. At least 15 minutes remain before the 04:15 restoration deadline.
+6. At least 35 minutes remain before the 04:15 restoration deadline: up to 20
+   minutes for the frozen batch plus the 15-minute restoration reserve. Any
+   preflight/setup time must fit before this gate.
 
 Any failed check means zero service effects and zero model calls.
 

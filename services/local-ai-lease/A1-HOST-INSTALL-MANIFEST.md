@@ -42,6 +42,9 @@ files and verify the hashes before enabling the disabled unit:
 | `a1_headless_client.py` | `scripts/aster-adaptive/a1_headless_client.py` | `beabc81ad44d205bc908c248f2fea50fb12faaac01f654a160712a550aa3fbc2` |
 | `a1_service_runner.py` | `services/local-ai-lease/a1_service_runner.py` | `feae2ec1f423ec4cbcde33112a64ed6db0963a6c3868726bcdff732b07b520c1` |
 | `a1_key_file.py` | `scripts/local-ai/a1_key_file.py` | `018340fe0bf8a7ec7526d2d0709d21cc8f11fcef6c252cdbfeb6798cc6a055cd` |
+| `a1_ingress_policy.py` | `scripts/local-ai/a1_ingress_policy.py` | `faef14be94817c846cf1f6bb8bc618adf49ac31485237087b53566a77be618ed` |
+| `aster-llama-ingress-apply` | `services/local-ai-lease/aster-llama-ingress-apply` | `41b96f560261a198c09fd85d8ba7150478241fbe6a38f28befad9dc4fa40020b` |
+| `aster-llama-ingress-restore` | `services/local-ai-lease/aster-llama-ingress-restore` | `9bf3c3cb1e04081f41584f9dc742d86e9e7ead3a1806a243a6ce3478572ff347` |
 | `aster-agent/` | exact reviewed Aster source/dependency bundle | host preflight required |
 
 The Aster bundle must use the accepted source/dependency manifest and must not
@@ -159,4 +162,10 @@ Speech. If any command or postcheck fails, retain the application lock/state
 and do not start consumers. The offline command contract and recovery-order
 tests are in `scripts/local-ai/application_b60_watchdog.py` and
 `test_application_b60_watchdog.py`.
+
+The ingress helpers are additive and handle-bound: they accept only the
+observed empty `inet filter input` baseline, add one tagged drop rule for
+non-`192.168.70.10` sources to TCP 11435, and restore by deleting only that
+tagged handle. They never replace a complete nftables ruleset. Their focused
+parser tests are in `scripts/local-ai/test_a1_ingress_policy.py`.
 

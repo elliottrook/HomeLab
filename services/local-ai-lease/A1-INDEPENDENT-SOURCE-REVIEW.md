@@ -17,6 +17,10 @@ change was performed.
 
 ## Findings
 
+- Read-only LXC110 inspection confirmed nftables 1.1.3 and an empty
+  `inet filter input` chain with policy accept; the helper is pinned to that
+  exact baseline and refuses drift. The same inspection confirmed the llama
+  key file is `ollama:ollama`, mode 0600. No live mutation was made.
 - The live Aster source/dependency identity differs from the reviewed Stream A
   checkout. The first run is now explicitly selected as the reproducible
   Stream A candidate-path baseline at `e6b638e4`; it must not be described as
@@ -62,7 +66,9 @@ change was performed.
    then sidecar admission.
 4. Install and validate the fixed host helpers for ingress-policy apply/restore,
    hash-bound key removal/reload and watchdog scheduling.
-5. Validate the host-specific UID, Mini source address, existing firewall
+5. Reconcile the frozen A1 batch timing: 20 minutes maximum plus a 15-minute
+   restoration reserve, so at least 35 minutes must remain after preflight.
+6. Validate the host-specific UID, Mini source address, existing firewall
    chain, systemd version and exact Aster dependency bundle read-only.
-6. Run the no-effect preflight and independent host observer checks. Any
+7. Run the no-effect preflight and independent host observer checks. Any
    mismatch keeps the live A1 run blocked.
