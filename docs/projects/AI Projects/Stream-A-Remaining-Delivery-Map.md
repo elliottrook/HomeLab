@@ -3,9 +3,11 @@
 **Owner-facing checkpoint, 2026-10-09.** This page translates the detailed [programme](Aster-Adaptive-Computing.md) and [Codex delegation gates](Codex-Delegation.md) into the next decisions. It does not authorize a deployment, additional cloud question, new tool grant or Git push. Evidence links control factual claims; an unchecked gate remains open even if a nearby experiment passed.
 
 The [Stream A work cadence](Stream-A-Work-Cadence.md) separates continuous
-offline/shared work from exclusive lab tests. The lab wake-up remains paused
-at a reconciled 03:15 readiness slot while the platform owner's lease and
-independent recovery are verified; continuous work remains active.
+offline/shared work from exclusive lab tests. The next 03:15 Vancouver
+platform drill on 2026-10-15 is a **full-stop recovery drill only**; its
+lease stops B60 inference and cannot run the full Aster-path benchmark.
+Continuous Stream A work remains active, and the A1 benchmark needs its
+separate application-only lease and sidecar admission.
 The configured 00:30/01:00/02:00/03:00 backup schedules were checked read-only
 on Proxmox and TrueNAS; this does not prove a given night's completion. The
 platform owner's record reports one successful manual light lease, but the
@@ -15,12 +17,16 @@ exclusive test access remain unverified.
 
 The [2026-10-13 full-path admission card](benchmarks/A1-full-path-admission-run-card-2026-10-13.md)
 pins the 20-case headless synthetic request boundary and fail-closed offline
-preflight. Live Proxmox and TrueNAS schedule queries match the 00:30 and
-01:00/02:00/03:00 configuration, but not tonight's completion. The installed
-host controller is still the old light-only manual version, ready with no
-active lease; independent watchdog, source-bound backup receipt, test-only
-Aster gateway and exact restoration proof remain open. Neither the old
-evening runner nor Stream A's paused wake-up has been enabled.
+preflight. The platform owner has installed an independent full-stop recovery
+candidate disabled/inactive, but has not yet live-proven it. The separate
+application-only controller/watchdog remains source-only; its host ingress
+helper, receipt/observer, source/dependency bundle and timer still need
+installation and live recovery proof. The obsolete evening runner remains
+disabled. The [isolated process contract](benchmarks/A1-isolated-process-contract-2026-10-14.md)
+and [source inventory](benchmarks/A1-Aster-source-bundle-inventory-2026-10-14.md)
+record the current admission gaps and establish that the first run, if
+admitted, measures a pinned **Stream A candidate path**, not today's deployed
+Aster binary.
 An offline guarded Aster gateway candidate now pins the sealed 20-case wire
 requests, separates ingress and isolated inner authentication, and supports a
 durable one-attempt journal. The admission check requires those boundaries and
