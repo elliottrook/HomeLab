@@ -88,6 +88,10 @@ effect paths remain disabled. It printed only content-free status; it wrote
 no candidate files on the host, ran no scan and invoked no model. Its result
 was PASS. This is stronger than a macOS-only import, but it still does not
 prove the installed-path custody, units or recovery behavior.
+The candidate's exact `pvescheduler` whole-job parser was also run against a
+read-only October 15 host journal query and accepted the single 00:30 start
+and later whole-job success in the observed window. It created no retained
+receipt and does not prove a future backup cycle.
 Recheck these facts immediately before installation; this snapshot is not a
 lease or deployment approval.
 `full_stop_acquire_candidate.main(["--effect-authorized"])` and
