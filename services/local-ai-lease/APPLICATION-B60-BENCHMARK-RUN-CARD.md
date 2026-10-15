@@ -39,6 +39,11 @@ The separate disabled-only platform installation gate is
 It must be approved and completed before any application-only recovery drill;
 it does not authorize that drill or a benchmark lease.
 
+The next bounded recovery proposal is
+[`APPLICATION-B60-DRILL-RUN-CARD.md`](APPLICATION-B60-DRILL-RUN-CARD.md).
+It remains a separate approval from both the 03:15 full-stop drill and the
+20-call A1 benchmark.
+
 ## Effects and evidence
 
 1. Capture the platform checkpoint and application-mode receipt.

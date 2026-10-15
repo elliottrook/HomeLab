@@ -10,6 +10,7 @@ SCHEMA = "aster-application-receipt.v1"
 MODE = "application-b60-exclusive-v1"
 BACKEND = "llama.cpp b11429 SYCL/Level Zero"
 CONSUMERS = (("104", "aster-agent.service"), ("116", "aster-speech.service"))
+ADMISSION_ENDPOINT = "http://192.168.70.10:19104/v1/chat/completions"
 
 
 @dataclass(frozen=True)
@@ -66,3 +67,26 @@ def encode(receipt: ApplicationReceipt) -> str:
 
 def digest(receipt: ApplicationReceipt) -> str:
     return hashlib.sha256(encode(receipt).encode()).hexdigest()
+
+
+def admission_payload(receipt: ApplicationReceipt, *, expected_lease_id: str,
+                       expected_generation: int, now_epoch: int,
+                       profile_sha256: str, endpoint: str = ADMISSION_ENDPOINT) -> dict[str, object]:
+    """Create the exact content-free callback payload for the Mini runner.
+
+    The caller must obtain ``receipt`` from the authenticated host-owned
+    receipt boundary; this function only validates and projects it. It never
+    accepts a caller-supplied boolean or arbitrary endpoint.
+    """
+    validate(receipt, expected_lease_id=expected_lease_id,
+             expected_generation=expected_generation, now_epoch=now_epoch)
+    if endpoint != ADMISSION_ENDPOINT or not isinstance(profile_sha256, str) or len(profile_sha256) != 64:
+        raise ValueError("A1 admission endpoint or profile pin is invalid")
+    return {
+        "schema": "aster-a1-admission.v1",
+        "lease_id": receipt.lease_id,
+        "generation": receipt.generation,
+        "receipt_sha256": digest(receipt),
+        "profile_sha256": profile_sha256,
+        "endpoint": ADMISSION_ENDPOINT,
+    }

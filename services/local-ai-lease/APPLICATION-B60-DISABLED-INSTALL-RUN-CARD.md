@@ -26,7 +26,7 @@ The candidate must use the corrected A1 sidecar pins:
 | `trusted_observer.py` | `fdc64fc200b87d0faba64a02762df3197fc49366dd0bec12b491ed83fb1aa93f` |
 | `lease_watchdog.py` | `3146d292dd42a6a3f305b67cccf5518e7c0585c9c6de2e195d1a00686003d1fc` |
 | `lease_contract.py` | `8a8997bdf453a499ae60dc2f11a65da9e28e318044a194122a7635b545adf113` |
-| `application_receipt_boundary.py` | `f014a914cb10712f840250d8672517dacb0fdd2b202c9c7e62cf89be1e29f376` |
+| `application_receipt_boundary.py` | `147ba7fdfc6f46087cf77ca30060155dbe497a7d9a7c165f6b3f31f4d4f2a205` |
 | `application-b60-watchdog.service` | `f7434db1f18afa4418f1217801152e35a2ae24388c20e04e47e3db8c3288cec7` |
 | `application-b60-watchdog.timer` | `3e0be0830d60e586e53a1c3035abef7df802ecd156214ddc558f60677111d45a` |
 | `application-b60-lease-recovery` | `309774dca1f0b5b37a9159b00fe6eed7b46f123f866c98e5d996e2c9fdc46499` |
