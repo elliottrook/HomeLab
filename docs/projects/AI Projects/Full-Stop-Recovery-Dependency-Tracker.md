@@ -8,6 +8,10 @@ status page. The platform-owned
 run card. Neither a checked box nor a calendar time authorizes production
 effects; the separately approved live card and deterministic host gates do.
 
+The [October 15 23:29 pre-cycle read-only check](evidence/Full-stop-precycle-read-only-2026-10-15.md)
+found a ready lease state, disabled/inactive independent watchdog and the
+unchanged disabled producer pin. It does not change any gate status.
+
 ## What will happen automatically
 
 The existing `aster-archive-integrity-timing-check` heartbeat is active for
