@@ -48,7 +48,8 @@ def project_doctor_for_model(observation: Observation, now: datetime) -> dict[st
     source = record["source"]
     if source == AGGREGATE_SOURCE:
         if state == "unavailable":
-            if set(facts) != {"reason"} or facts["reason"] not in UNAVAILABLE_REASONS:
+            if (set(facts) != {"reason"} or type(facts["reason"]) is not str or
+                    facts["reason"] not in UNAVAILABLE_REASONS):
                 raise InvestigationError("invalid aggregate unavailability")
             projected_facts = {"unavailable_reason": facts["reason"]}
         else:

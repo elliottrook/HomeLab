@@ -69,6 +69,7 @@ class DoctorModelProjectionTests(unittest.TestCase):
             aggregate(facts={"check_count": True, "report_digest": "b" * 24}),
             aggregate(source="homelab-doctor-structured/v2", facts={"check_id": PRIVATE, "report_digest": "c" * 24}),
             aggregate(state="unavailable", facts={"reason": PRIVATE}),
+            aggregate(state="unavailable", facts={"reason": ["stale"]}),
             aggregate(truncated=True),
             aggregate(observed_at=(NOW - timedelta(hours=37)).isoformat()),
         ):
