@@ -1,7 +1,9 @@
 """Presentation-only SSE frames for persisted sysadmin incident state.
 
 This module deliberately reads local incident state only. It does not expose
-facts, hypotheses, prompts, model reasoning, credentials or a live adapter.
+incident identity, facts, hypotheses, prompts, model reasoning, credentials
+or a live adapter. The caller keeps the internal incident ID for reconnect;
+the presentation stream needs no copy of that unrestricted text field.
 The gateway integration remains a separately reviewed later change.
 """
 from __future__ import annotations
@@ -37,7 +39,6 @@ def incident_presentation(snapshot: dict[str, Any]) -> dict[str, Any]:
         next_step["reason"] = "Review the next registered observation."
     return {
         "schema_version": 2,
-        "incident_id": incident["incident_id"],
         "title": "Read-only investigation",
         "observation_count": incident["observation_count"],
         "evidence": evidence,
@@ -51,7 +52,6 @@ def reconnect_frames(store: IncidentStore, incident_id: str, now: datetime) -> l
     progress = {
         "type": "aster.progress",
         "state": "reconnected",
-        "incident_id": presentation["incident_id"],
         "observation_count": presentation["observation_count"],
     }
     return [

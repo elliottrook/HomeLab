@@ -47,18 +47,23 @@ class StreamTests(unittest.TestCase):
         snapshot = self.store.reconnect_snapshot("fixture-incident-001", NOW)
         incident = snapshot["incident"]
         incident["title"] = "private-title-marker"
+        incident["incident_id"] = "private-incident-marker"
         incident["observations"][0]["summary"] = "private-summary-marker"
         incident["observations"][0]["source"] = "private-source-marker"
         incident["observations"][0]["evidence_id"] = "private-evidence-marker"
         incident["next"]["reason"] = "private-reason-marker"
         presentation = incident_presentation(snapshot)
         encoded = json.dumps(presentation)
-        for marker in ("private-title-marker", "private-summary-marker",
+        for marker in ("private-title-marker", "private-incident-marker", "private-summary-marker",
                        "private-source-marker", "private-evidence-marker",
                        "private-reason-marker"):
             self.assertNotIn(marker, encoded)
         self.assertEqual(presentation["schema_version"], 2)
         self.assertEqual(presentation["evidence"][0]["target"], "aster-gateway")
+
+    def test_reconnect_frames_do_not_expose_arbitrary_incident_id(self):
+        rendered = "".join(reconnect_frames(self.store, "fixture-incident-001", NOW))
+        self.assertNotIn("fixture-incident-001", rendered)
 
 
 if __name__ == "__main__":
