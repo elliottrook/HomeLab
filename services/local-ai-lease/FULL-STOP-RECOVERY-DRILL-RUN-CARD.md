@@ -19,8 +19,10 @@ card is approved. Source pins are:
 |---|---|
 | `lease_recovery_executor.py` | `d75ddfae4ccb3de4bd059aca75d41f4cdac6c60f4951d0ea6ab11a13b9f98e4d` |
 | `lease_watchdog_cli.py` (source-only; not installed/executed) | `e79521ae4cfacb61e1232df3b62cdfbb2d5181c0697770b8c1ff6c88c575990d` |
-| `trusted_observer.py` | `849ad81a24f3505e808af53b2605005ab195c95416ea0951f75290b04f1b7b99` |
-| `lease_controller_candidate.py` (source-only) | `6ee4334c49a351383f8108c3d6a4682d9061aa562da2dd79ec4f9cd8cf1085cf` |
+| `trusted_observer.py` (installed inactive candidate) | `de6d2da913a1dab4f5e371739a6a3eada79b99d8e11e2d3b64cf0f825274074e` |
+| `lease_controller_candidate.py` (installed inactive candidate) | `e5d328937ea482de4b365e0be1869cabd3cd589eae86a2240b1d72bd5ae47226` |
+| `full_stop_acquire_candidate.py` (installed hard-disabled candidate) | `6a7085036c9fb9558649c3114d055427c79649342bc5af37ecfb41b90d8fb386` |
+| `retained_archive_producer_candidate.py` (installed disabled candidate) | `f3ae1a83f16e5b9c1bca571826029603e4c8d88fc6b529bfe79ffcd465288a3b` |
 | `local-ai-lease-watchdog.service` | `3041ed62efadcb1bcffe0c66e9c311933fc90c0cb101ea08f24b546fc9bc656d` |
 | `local-ai-lease-watchdog.timer` | `9f09de46e3ee55d8f765e1f279d34632ea914c8c6506416f0455853ef538b744` |
 | `local-ai-lease-recovery` | `46ddd8a031ecdeb2f227fadb18f5bc76ee9ad6042bf59d7056522c13ffe5b81c` |
@@ -73,14 +75,15 @@ not recovery proof, and does not change the NO-GO decision.
 
 ## Retained-receipt integration gate
 
-The source-only `backup_from_retained()` adapter exists, but the active
-evidence path still calls `FixedSourceAdapters.evidence()` and therefore the
-serial `backup()` archive scan. The retained method is not selected by the
-receipt producer. Before any revised card can be considered, the explicit
-order must be implemented and tested: pre-acquire source-bound backup receipt
-(using the retained path), then post-stop quiescence receipt, then schema-
-compatible lease admission. A caller-supplied integrity boolean or scheduler
-success must not substitute for the retained receipt.
+The retained adapter and schema-compatible acquisition candidate are installed
+but inactive. The installed receipt producer still calls
+`FixedSourceAdapters.evidence()` and therefore the serial `backup()` archive
+scan; the newer dual-gated retained-receipt CLI checkpoint is not installed or
+enabled. Before any revised card can be considered, the explicit order must
+be implemented and tested: pre-acquire source-bound backup receipt (using the
+retained path), then post-stop quiescence receipt, then schema-compatible
+lease admission. A caller-supplied integrity boolean or scheduler success
+must not substitute for the retained receipt.
 
 ## Timing and preflight
 
