@@ -3,11 +3,49 @@
 import json
 import stat
 import math
+import re
+from html.parser import HTMLParser
 from datetime import datetime, timezone
 from pathlib import Path
 
 
 MAX_BYTES = 262144
+
+
+class _PlainSynopsis(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+        self.hidden = 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ('script', 'style'):
+            self.hidden += 1
+        elif tag in ('p', 'br', 'div', 'li'):
+            self.parts.append(' ')
+
+    def handle_endtag(self, tag):
+        if tag in ('script', 'style') and self.hidden:
+            self.hidden -= 1
+        elif tag in ('p', 'div', 'li'):
+            self.parts.append(' ')
+
+    def handle_data(self, data):
+        if not self.hidden:
+            self.parts.append(data)
+
+
+def plain_synopsis(value):
+    """Bounded display text; never pass HTML or Kodi markup into the skin."""
+    if not isinstance(value, str) or len(value) > 20000:
+        return ''
+    parser = _PlainSynopsis()
+    parser.feed(value)
+    text = ' '.join(''.join(parser.parts).split())
+    text = re.sub(r'https?://\S+', '', text)
+    text = ' '.join(text.replace('[', '(').replace(']', ')').split())
+    text = ''.join(char for char in text if ord(char) >= 32)
+    return text[:997] + '…' if len(text) > 1000 else text
 
 
 def _fresh(payload, max_age_seconds):
@@ -81,7 +119,8 @@ def book_catalogue(payload):
                   ('calibre', 'ebook'): 'Ebook · Calibre',
                   ('audiobookshelf', 'podcast'): 'Podcast · Audiobookshelf'}[kind]
         rows.append({'title': title, 'detail': detail,
-                     'kind': kind[1], 'id': identity})
+                     'kind': kind[1], 'id': identity,
+                     'synopsis': plain_synopsis(record.get('description'))})
         if len(rows) == 1000:
             break
     return rows

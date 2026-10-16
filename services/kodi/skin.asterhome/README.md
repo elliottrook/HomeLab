@@ -342,13 +342,16 @@ trademark, font or redistribution clearance.
 
 ## Local test
 
-The current Books pages are catalogue views, not an ebook reader or audio
-player. The sanitized feed and local cover cache contain no readable ebook
-file or authenticated Audiobookshelf stream; selecting a title therefore does
-not start playback. The visual cards use full-bleed rounded art with portrait
+The current Books pages show bounded, plain-text synopses from Calibre and
+Audiobookshelf but are not yet an ebook reader or audio player. The sanitized
+feed and local cover cache contain no readable ebook file or authenticated
+Audiobookshelf stream; selecting a title therefore does not start playback.
+Titles without source descriptions explicitly show that no synopsis is
+available. The visual cards use full-bleed rounded art with portrait
 eBook and square audio/podcast shapes, while missing-art tiles retain an Aster
-fallback. A separate access decision is required for the audio route and for
-browser handoff versus a Kodi-native ebook reader.
+fallback. The approved next route is a handoff to Audiobookshelf's Kodi add-on
+for audio and to the existing Calibre-Web reader for eBooks; neither is yet
+connected in this milestone.
 
 From the Kodi add-ons directory, install this directory as `skin.asterhome`
 or package it as a ZIP and use Kodi's add-on installer. The prototype has

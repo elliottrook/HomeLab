@@ -940,6 +940,19 @@ existing browser-based Calibre-Web reader or require a new Kodi-native reader.
 Do not turn catalogue IDs into unprotected media URLs or export entire books
 through the feed.
 
+Books synopsis checkpoint, 2026-10-15: The one-shot disposable feed now
+projects bounded, plain-text descriptions from Calibre comments and
+Audiobookshelf book/podcast metadata. The Mac test feed contains 558 titles:
+505 eBooks, 46 audiobooks, and seven subscribed podcasts. Descriptions are
+available for 141 eBooks, 41 audiobooks and all seven podcasts; missing source
+descriptions are not fabricated. The Books hero displays the selected synopsis,
+and the About action is wired to Kodi's full text viewer, pending final UI
+activation check. No file paths, audio payloads, credentials or full books are
+added to the feed. Forty-five offline tests pass. The user approved audio
+connection and eBook reader handoff; the selected implementation path to test
+is Kodi's official-repository Audiobookshelf add-on plus existing Calibre-Web.
+No new server credential or permission is approved by this checkpoint.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

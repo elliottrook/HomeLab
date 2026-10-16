@@ -10,10 +10,11 @@
     <value>Choose your next chapter</value>
   </variable>
   <variable name="AsterBooksHeroDetail">
-    <value condition="Control.HasFocus(501) + !String.IsEmpty(Container(501).ListItem.Label)">$INFO[Container(501).ListItem.Label2]</value>
-    <value condition="Control.HasFocus(503) + !String.IsEmpty(Container(503).ListItem.Label)">$INFO[Container(503).ListItem.Label2]</value>
-    <value condition="!String.IsEmpty(Container(502).ListItem.Label)">$INFO[Container(502).ListItem.Label2]</value>
-    <value condition="!String.IsEmpty(Container(500).ListItem.Label)">$INFO[Container(500).ListItem.Label2]</value>
+    <value condition="Control.HasFocus(501) + !String.IsEmpty(Container(501).ListItem.Property(AsterBooks.Summary))">$INFO[Container(501).ListItem.Property(AsterBooks.Summary)]</value>
+    <value condition="Control.HasFocus(503) + !String.IsEmpty(Container(503).ListItem.Property(AsterBooks.Summary))">$INFO[Container(503).ListItem.Property(AsterBooks.Summary)]</value>
+    <value condition="!String.IsEmpty(Container(502).ListItem.Property(AsterBooks.Summary))">$INFO[Container(502).ListItem.Property(AsterBooks.Summary)]</value>
+    <value condition="!String.IsEmpty(Container(500).ListItem.Property(AsterBooks.Summary))">$INFO[Container(500).ListItem.Property(AsterBooks.Summary)]</value>
+    <value condition="!String.IsEmpty(Container(500).ListItem.Label)">No synopsis available for this title.</value>
     <value condition="!String.IsEmpty(Window.Property(AsterBooks.Search)) + String.IsEmpty(Container(500).ListItem.Label)">Try a different title search.</value>
     <value condition="Window.IsActive(1118)">The eBook catalogue is not connected yet.</value>
     <value condition="Window.IsActive(1120)">No subscribed shows yet. Discover podcasts in Audiobookshelf.</value>
@@ -67,7 +68,7 @@
         <control type="image"><left>220</left><top>200</top><width>320</width><height>320</height><texture>$PARAM[icon]</texture><aspectratio>keep</aspectratio><colordiffuse>aaFFFFFF</colordiffuse></control>
         <control type="label"><left>1050</left><top>160</top><width>700</width><height>38</height><label>$PARAM[heading]</label><font>font24</font><textcolor>asterGold</textcolor></control>
         <control type="textbox"><left>1050</left><top>214</top><width>760</width><height>110</height><label>$VAR[AsterBooksHeroTitle]</label><font>font30</font><textcolor>asterRailText</textcolor></control>
-        <control type="textbox"><left>1050</left><top>330</top><width>710</width><height>70</height><label>$VAR[AsterBooksHeroDetail]</label><font>font24</font><textcolor>asterRailText</textcolor></control>
+        <control type="textbox"><left>1050</left><top>330</top><width>710</width><height>70</height><label>$VAR[AsterBooksHeroDetail]</label><font>font20</font><textcolor>asterRailText</textcolor></control>
         <control type="label"><left>1050</left><top>406</top><width>760</width><height>34</height><label>$INFO[Window.Property(AsterBooks.Status)]</label><font>font20</font><textcolor>asterSage</textcolor></control>
         <control type="button" id="300"><left>1050</left><top>454</top><width>300</width><height>56</height><label>ⓘ  About this title</label><font>font24</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor><texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturenofocus><onclick>RunScript(special://skin/tools/books_data.py,$PARAM[page],open)</onclick><onleft>8999</onleft><onright>500</onright><ondown>500</ondown><onup>111</onup><visible>!String.IsEmpty(Container(500).ListItem.Label) | !String.IsEmpty(Container(501).ListItem.Label) | !String.IsEmpty(Container(502).ListItem.Label) | !String.IsEmpty(Container(503).ListItem.Label)</visible></control>
         <control type="group">

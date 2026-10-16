@@ -1,8 +1,8 @@
 """Read-only Aster Books tiles from the existing sanitized local feed.
 
-The feed has no per-title date, synopsis or playback path. Cover JPEGs may
-come from a separately validated private cache. Never infer recency or create
-a working Play action from catalogue IDs.
+The feed has bounded, sanitized descriptions but no playback path. Cover JPEGs
+may come from a separately validated private cache. Never infer recency or
+create a working Play action from catalogue IDs.
 """
 
 import sys
@@ -63,12 +63,36 @@ def make_item(xbmcgui, row, cover_root=None):
     item.setProperty('AsterBooks.HasCover', 'true' if cover else 'false')
     item.setProperty('AsterBooks.Kind', row['kind'])
     item.setProperty('AsterBooks.Id', row['id'])
-    item.setProperty('AsterBooks.Summary',
-                     'Catalogue title · cover and synopsis not in the current feed')
+    item.setProperty('AsterBooks.Summary', row.get('synopsis', ''))
     return item
 
 
+def selected_row(window, page, records, info_label=None):
+    """Resolve only a row currently present in the approved local feed."""
+    controls = (500,) if page != 'home' else (502, 501, 503)
+    focused = window.getFocusId()
+    order = ([focused] if focused in controls else []) + [id for id in controls if id != focused]
+    for control_id in order:
+        try:
+            item = window.getControl(control_id).getSelectedItem()
+        except (AttributeError, RuntimeError):
+            item = None
+        if item is not None:
+            kind, identity = item.getProperty('AsterBooks.Kind'), item.getProperty('AsterBooks.Id')
+        elif info_label is not None:
+            # Kodi's panel wrapper does not expose getSelectedItem on every build.
+            kind = info_label(f'Container({control_id}).ListItem.Property(AsterBooks.Kind)')
+            identity = info_label(f'Container({control_id}).ListItem.Property(AsterBooks.Id)')
+        else:
+            continue
+        match = next((row for row in records if row['kind'] == kind and row['id'] == identity), None)
+        if match:
+            return match
+    return None
+
+
 def main(page, action='load'):
+    import xbmc
     import xbmcgui
     import xbmcvfs
 
@@ -81,10 +105,6 @@ def main(page, action='load'):
         window.setProperty('AsterBooks.Search', value[:120])
     elif action == 'clear' and page != 'home':
         window.clearProperty('AsterBooks.Search')
-    elif action == 'open':
-        xbmcgui.Dialog().notification('Aster Books',
-                                      'Catalogue only · reading and listening are not connected')
-        return
 
     path = xbmcvfs.translatePath(
         'special://profile/addon_data/skin.asterhome/feeds/books.json')
@@ -96,6 +116,13 @@ def main(page, action='load'):
     except (OSError, ValueError, KeyError, TypeError):
         records = []
         available = False
+
+    if action == 'open':
+        row = selected_row(window, page, records, xbmc.getInfoLabel)
+        if row:
+            xbmcgui.Dialog().textviewer(row['title'],
+                                        row['synopsis'] or 'No synopsis available for this title.')
+        return
 
     counts = {kind: sum(row['kind'] == kind for row in records)
               for kind in HOME_CONTROLS}

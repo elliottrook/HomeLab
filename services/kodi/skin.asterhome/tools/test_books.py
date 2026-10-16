@@ -8,8 +8,8 @@ import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 
-from books_data import PAGES, cached_cover, cover_filename, page_records
-from hub_feeds import book_catalogue
+from books_data import PAGES, cached_cover, cover_filename, page_records, selected_row
+from hub_feeds import book_catalogue, plain_synopsis
 from pilot_books_feed import calibre_items, podcast_items
 from pilot_books_covers import QUERY, validated_covers
 from pilot_podcast_covers import QUERY as PODCAST_COVER_QUERY, validated_covers as validated_podcast_covers
@@ -68,8 +68,51 @@ class BooksTests(unittest.TestCase):
             items = podcast_items()
         self.assertEqual(items, [{'authority': 'audiobookshelf',
                                   'media_type': 'podcast', 'authority_id': 'pod_1',
-                                  'title': 'Example Show'}])
+                                  'title': 'Example Show', 'description': ''}])
         self.assertNotIn('feedURL', items[0])
+
+    def test_synopsis_is_plain_bounded_and_not_markup(self):
+        sample = self.sample()
+        sample['items'][0]['description'] = ('<p>A &amp; B</p><script>ignore()</script>'
+                                              '<p>Second [COLOR red]part</p>')
+        row = book_catalogue(sample)[0]
+        self.assertEqual(row['synopsis'], 'A & B Second (COLOR red)part')
+        self.assertEqual(plain_synopsis('x' * 1200), 'x' * 997 + '…')
+        self.assertEqual(plain_synopsis(None), '')
+
+    def test_selected_row_resolves_only_feed_identity(self):
+        class Item:
+            def getProperty(self, key):
+                return {'AsterBooks.Kind': 'podcast', 'AsterBooks.Id': 'p1'}[key]
+
+        class Control:
+            def getSelectedItem(self):
+                return Item()
+
+        class Window:
+            def getFocusId(self):
+                return 500
+
+            def getControl(self, control_id):
+                return Control()
+
+        records = book_catalogue(self.sample())
+        self.assertEqual(selected_row(Window(), 'podcasts', records)['title'], 'Example Podcast')
+
+    def test_selected_row_uses_panel_info_label_when_wrapper_lacks_selection(self):
+        class Window:
+            def getFocusId(self):
+                return 300
+
+            def getControl(self, control_id):
+                raise RuntimeError('panel selection unavailable')
+
+        def label(name):
+            return {'Container(502).ListItem.Property(AsterBooks.Kind)': 'audiobook',
+                    'Container(502).ListItem.Property(AsterBooks.Id)': 'a1'}.get(name, '')
+
+        records = book_catalogue(self.sample())
+        self.assertEqual(selected_row(Window(), 'home', records, label)['id'], 'a1')
 
     def test_cover_cache_uses_opaque_key_and_rejects_symlink(self):
         row = {'kind': 'audiobook', 'id': 'li_example', 'title': 'Private title'}
