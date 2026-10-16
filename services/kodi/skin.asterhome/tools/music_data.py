@@ -4,24 +4,63 @@ All reads use Kodi's indexed library. Playback requires an explicit click.
 """
 
 import sys
+from urllib.parse import parse_qs, urlsplit
 
 from hub_data import kodi_rpc
 
 
 PAGES = {'home': 11113, 'albums': 11114, 'artists': 11115,
          'songs': 11116, 'playlists': 11117}
+ALBUM_PLAYER = 11121
 LIMITS = {'home': 50, 'albums': 500, 'artists': 500, 'songs': 500,
           'playlists': 500}
 
 
-def playlist_query(xbmcvfs):
-    """Read saved music playlists, not the transient now-playing queue."""
+def playlist_query(xbmc, xbmcgui, xbmcvfs):
+    """Read Kodi playlists and the logged-in Jellyfin add-on's playlist views."""
     root = 'special://musicplaylists/'
     _folders, files = xbmcvfs.listdir(root)
     accepted = ('.xsp', '.m3u', '.m3u8', '.pls', '.b4s', '.wpl')
-    rows = [{'label': name.rsplit('.', 1)[0], 'file': root + name}
+    rows = [{'label': name.rsplit('.', 1)[0], 'file': root + name,
+             'source': 'Kodi', 'thumb': ''}
             for name in sorted(files, key=str.casefold)
             if name.lower().endswith(accepted)]
+    home = xbmcgui.Window(10000)
+    count = min(int(home.getProperty('Jellyfin.wnodes.total') or 0), 30)
+    seen = set()
+    for index in range(count):
+        prefix = f'Jellyfin.wnodes.{index}.'
+        if home.getProperty(prefix + 'type') != 'playlists':
+            continue
+        uri = home.getProperty(prefix + 'content')
+        parsed = urlsplit(uri)
+        params = parse_qs(parsed.query)
+        if (parsed.scheme != 'plugin' or parsed.netloc != 'plugin.video.jellyfin' or
+                params.get('mode') != ['browse'] or params.get('type') != ['playlists']):
+            continue
+        try:
+            files_result = kodi_rpc(xbmc, 'Files.GetDirectory', {
+                'directory': uri, 'media': 'files',
+                'properties': ['title', 'thumbnail']})
+        except (ValueError, KeyError, TypeError):
+            continue
+        for entry in files_result.get('files', []):
+            file_uri = entry.get('file', '')
+            parsed_file = urlsplit(file_uri)
+            file_params = parse_qs(parsed_file.query)
+            if (parsed_file.scheme != 'plugin' or
+                    parsed_file.netloc != 'plugin.video.jellyfin' or
+                    file_params.get('type') != ['playlists'] or
+                    not file_params.get('folder')):
+                continue
+            key = file_params['folder'][0]
+            if key in seen:
+                continue
+            seen.add(key)
+            rows.append({'label': entry.get('label') or entry.get('title') or 'Playlist',
+                         'file': file_uri, 'source': 'Jellyfin',
+                         'thumb': entry.get('thumbnail') or ''})
+    rows.sort(key=lambda row: row['label'].casefold())
     return rows[:LIMITS['playlists']], len(rows)
 
 
@@ -61,8 +100,9 @@ def music_query(xbmc, page, artist_id='', query=''):
 def music_row(page, record):
     title = str(record.get('label') or 'Untitled')
     if page == 'playlists':
-        return {'title': title, 'detail': 'Music playlist',
-                'summary': 'Saved Kodi music playlist', 'thumb': '',
+        source = record.get('source', 'Kodi')
+        return {'title': title, 'detail': source + ' music playlist',
+                'summary': 'Saved ' + source + ' music playlist', 'thumb': record.get('thumb', ''),
                 'fanart': '', 'id': '', 'file': record['file']}
     if page in ('home', 'albums'):
         artist = names(record.get('artist')) or 'Unknown artist'
@@ -88,17 +128,66 @@ def music_row(page, record):
             'id': identifier, 'file': ''}
 
 
-def play_album(xbmc, album_id):
-    songs = kodi_rpc(xbmc, 'AudioLibrary.GetSongs', {
+def album_tracks(xbmc, album_id):
+    return kodi_rpc(xbmc, 'AudioLibrary.GetSongs', {
         'filter': {'albumid': album_id},
+        'properties': ['artist', 'album', 'duration', 'track', 'thumbnail'],
         'sort': {'method': 'track', 'order': 'ascending'},
         'limits': {'start': 0, 'end': 500}}).get('songs', [])
+
+
+def play_album(xbmc, album_id, position=0):
+    songs = album_tracks(xbmc, album_id)
     if not songs:
         raise ValueError('Album has no indexed tracks')
+    if position < 0 or position >= len(songs):
+        raise ValueError('Track is no longer in this album')
     kodi_rpc(xbmc, 'Playlist.Clear', {'playlistid': 0})
     kodi_rpc(xbmc, 'Playlist.Add', {'playlistid': 0,
                                     'item': [{'songid': song['songid']} for song in songs]})
-    kodi_rpc(xbmc, 'Player.Open', {'item': {'playlistid': 0, 'position': 0}})
+    kodi_rpc(xbmc, 'Player.Open', {'item': {'playlistid': 0, 'position': position}})
+
+
+def album_player(xbmc, xbmcgui, action):
+    window = xbmcgui.Window(ALBUM_PLAYER)
+    if action == 'load':
+        pending = xbmcgui.Window(10000)
+        for field in ('AlbumId', 'AlbumTitle', 'AlbumArtist', 'AlbumCover'):
+            window.setProperty('AsterMusic.' + field,
+                               pending.getProperty('AsterMusic.Pending' + field))
+    album_id = window.getProperty('AsterMusic.AlbumId')
+    if not album_id.isdigit():
+        window.setProperty('AsterMusic.TrackStatus', 'Select an album first')
+        return
+    try:
+        if action == 'load':
+            songs = album_tracks(xbmc, int(album_id))
+            listing = window.getControl(50)
+            listing.reset()
+            items = []
+            for index, song in enumerate(songs):
+                seconds = int(song.get('duration') or 0)
+                length = f'{seconds // 60}:{seconds % 60:02d}' if seconds else ''
+                item = xbmcgui.ListItem(str(song.get('label') or 'Untitled'), length)
+                item.setProperty('AsterMusic.TrackNumber', str(song.get('track') or index + 1))
+                item.setProperty('AsterMusic.TrackPosition', str(index))
+                items.append(item)
+            listing.addItems(items)
+            window.setProperty('AsterMusic.TrackStatus',
+                               f'{len(items)} tracks · select to play' if items else
+                               'No indexed tracks in this album')
+        elif action in ('play', 'track'):
+            position = 0
+            if action == 'track':
+                selected = window.getControl(50).getSelectedItem()
+                text = (selected.getProperty('AsterMusic.TrackPosition') if selected else
+                        xbmc.getInfoLabel('Container(50).ListItem.Property(AsterMusic.TrackPosition)'))
+                if not text.isdigit():
+                    return
+                position = int(text)
+            play_album(xbmc, int(album_id), position)
+    except (ValueError, KeyError, TypeError) as error:
+        xbmcgui.Dialog().notification('Aster Music', str(error)[:120])
 
 
 def main(page, action='load'):
@@ -106,6 +195,9 @@ def main(page, action='load'):
     import xbmcgui
     import xbmcvfs
 
+    if page == 'album-player':
+        album_player(xbmc, xbmcgui, action)
+        return
     if page not in PAGES:
         return
     window = xbmcgui.Window(PAGES[page])
@@ -131,6 +223,8 @@ def main(page, action='load'):
                         xbmc.getInfoLabel('Container(500).ListItem.Property(AsterMusic.File)'))
                 if path.startswith('special://musicplaylists/'):
                     xbmc.executebuiltin('PlayMedia(' + path + ')')
+                elif path.startswith('plugin://plugin.video.jellyfin/?'):
+                    xbmc.executebuiltin('ActivateWindow(Videos,' + path + ',return)')
             elif page == 'artists':
                 albums = xbmcgui.Window(PAGES['albums'])
                 albums.setProperty('AsterMusic.ArtistId', identifier_text)
@@ -140,7 +234,15 @@ def main(page, action='load'):
             elif page == 'songs':
                 kodi_rpc(xbmc, 'Player.Open', {'item': {'songid': int(identifier_text)}})
             else:
-                play_album(xbmc, int(identifier_text))
+                pending = xbmcgui.Window(10000)
+                pending.setProperty('AsterMusic.PendingAlbumId', identifier_text)
+                pending.setProperty('AsterMusic.PendingAlbumTitle', selected.getLabel() if selected else
+                                   xbmc.getInfoLabel('Container(500).ListItem.Label'))
+                pending.setProperty('AsterMusic.PendingAlbumArtist', selected.getLabel2() if selected else
+                                   xbmc.getInfoLabel('Container(500).ListItem.Label2'))
+                pending.setProperty('AsterMusic.PendingAlbumCover', selected.getArt('thumb') if selected else
+                                   xbmc.getInfoLabel('Container(500).ListItem.Art(thumb)'))
+                xbmc.executebuiltin('ActivateWindow(1121)')
         except (ValueError, KeyError, TypeError) as error:
             xbmcgui.Dialog().notification('Aster Music', str(error)[:120])
         return
@@ -151,7 +253,7 @@ def main(page, action='load'):
     artist_id = window.getProperty('AsterMusic.ArtistId') if page == 'albums' else ''
     query = window.getProperty('AsterMusic.Search').strip()
     try:
-        records, total = (playlist_query(xbmcvfs) if page == 'playlists' else
+        records, total = (playlist_query(xbmc, xbmcgui, xbmcvfs) if page == 'playlists' else
                           music_query(xbmc, page, artist_id, query))
     except (ValueError, KeyError, TypeError):
         records, total = [], 0
@@ -177,7 +279,7 @@ def main(page, action='load'):
         items.append(item)
     listing.addItems(items)
     if not records:
-        status = ('No saved playlists yet' if page == 'playlists' else
+        status = ('No Kodi or Jellyfin playlists available' if page == 'playlists' else
                   'No indexed music here yet')
     elif not rows:
         status = 'No matches in the loaded library page'

@@ -1081,6 +1081,24 @@ when playback starts; a MusicPlayer-title fallback was added but needs a
 fresh focused-row visual check after reload. No ABS/server changes or remote
 Git operations were part of this revision.
 
+Music album-player and playlist checkpoint, 2026-10-15 (skin v0.7.3):
+The disposable Mac Kodi pilot now opens a dedicated two-column Aster Music
+album page. A live `The Works` check displayed its cover and 15 ordered
+tracks; Play album started audio and exposed elapsed time, progress and
+transport controls. Selecting a track uses the ordered album queue. The
+first pilot click exposed Kodi's custom-window lifecycle rule: selection
+properties must be staged on the Home window until the player exists. That
+was corrected and verified after restart. The original Playlists page
+consulted only an empty Kodi-local `special://musicplaylists/` folder. The
+Plex-to-Jellyfin migration record confirms hand-curated playlists moved to
+Jellyfin. Aster now also enumerates the logged-in Jellyfin Kodi add-on's
+playlist views, using its existing session without copying credentials.
+The Mac pilot displayed 16 playlists and opening `Cardio Workout` showed
+its tracks. Kodi-local playlists remain supported. Seven synthetic music
+tests pass. These checks are Mac pilot evidence, not LibreELEC/TV acceptance;
+no Jellyfin server or media files were changed. New source work remains local
+pending separate push authorization.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

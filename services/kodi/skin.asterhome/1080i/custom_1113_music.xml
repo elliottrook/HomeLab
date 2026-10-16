@@ -10,7 +10,7 @@
       <param name="gridwidth" value="1680" />
       <param name="searchvisible" value="false" />
       <param name="heading" value="Recently Added" />
-      <param name="actionlabel" value="▶  Play selected" />
+      <param name="actionlabel" value="Open album" />
       <param name="righttarget" value="500" />
       <param name="activeleft" value="410" />
       <param name="activevisible" value="false" />

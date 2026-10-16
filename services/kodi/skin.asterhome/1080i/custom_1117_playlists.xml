@@ -10,11 +10,11 @@
       <param name="gridwidth" value="1370" />
       <param name="searchvisible" value="true" />
       <param name="heading" value="Playlists" />
-      <param name="actionlabel" value="▶  Play playlist" />
+      <param name="actionlabel" value="Open playlist" />
       <param name="righttarget" value="301" />
       <param name="activeleft" value="1322" />
       <param name="activevisible" value="true" />
-      <param name="searchhint" value="Saved Kodi music playlists[CR]Create playlists in Kodi" />
+      <param name="searchhint" value="Kodi and Jellyfin playlists[CR]Jellyfin playlists open in the add-on" />
     </include>
   </controls>
 </window>

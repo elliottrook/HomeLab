@@ -10,7 +10,7 @@
       <param name="gridwidth" value="1370" />
       <param name="searchvisible" value="true" />
       <param name="heading" value="Albums" />
-      <param name="actionlabel" value="▶  Play album" />
+      <param name="actionlabel" value="Open album" />
       <param name="righttarget" value="301" />
       <param name="activeleft" value="410" />
       <param name="activevisible" value="true" />
