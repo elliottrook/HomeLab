@@ -64,6 +64,23 @@ for an existing `splash.jpg` first: Kodi prefers that filename over
 removing only this profile override restores the bundled startup image.
 LibreELEC's earlier OS bootsplash is separate and is not changed by this file.
 
+## macOS Kodi Dock icon (disposable test app only)
+
+The Dock/Finder icon is an application-bundle resource, not a Kodi skin image.
+On the disposable Mac pilot, run
+`sh tools/install_macos_dock_icon.sh /tmp/Kodi-test.app` from this directory.
+The script converts the existing approved `media/aster-icon-512.png` (Aster
+compass on its stone surround) into macOS `kodi.icns`, checks Kodi's bundle ID
+and declared icon filename, preserves the original next to the app as
+`/tmp/Kodi-test.original-kodi.icns`, and touches the bundle for Finder refresh.
+Finder shows the Aster icon on the test app. If the Dock still shows a cached
+icon, relaunch the test app or the Dock. This does not change Kodi's menu-bar
+name, splash, or any installed `/Applications/Kodi.app`; do not use it on a
+production/signed app without a signing and rollback plan.
+
+To restore the disposable app's original icon, copy the saved `.icns` back to
+`/tmp/Kodi-test.app/Contents/Resources/kodi.icns` and touch the app bundle.
+
 Version 0.6.9 imports twelve right-sized PNG exports from the owner-approved
 private `aster-brand-v2-expansion-2026-10-14` release. The release ZIP SHA-256
 is `e030b6104fbdffb44faf035471f8c55320c3869065046a1ff5f9f0433069c48e`;

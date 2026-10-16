@@ -788,6 +788,17 @@ acceptance remains open. This does not change LibreELEC's earlier OS boot
 screen or establish physical-device acceptance. Remove only the profile
 override to revert; the bundled Kodi image was not overwritten.
 
+Mac Kodi Dock icon, 2026-10-15: Jason confirmed this is the remaining icon
+request, separate from the startup splash. The existing approved 512px Aster
+compass icon with stone surround was converted to `kodi.icns` and installed in
+the disposable `/tmp/Kodi-test.app` only. The prior `kodi.icns` was saved as
+`/tmp/Kodi-test.original-kodi.icns` (SHA-256
+`1973648d0af3c21f2dddfdccae8fbdb6034ce23ee5759e2a564a41ef2ae0500b`).
+Finder visibly showed the Aster icon on the test app, and Kodi remained open
+with the Aster skin. The repeatable installer and rollback are documented in
+the skin README. Dock cache/relaunch behavior has not been separately observed;
+the production app, LibreELEC endpoint and startup splash are unchanged.
+
 Music visual milestone, 2026-10-15 (skin v0.7.1): replaced the old vertical
 Music list with a recent-albums tile landing and Album, Artist, Song and saved
 Playlist browse pages. The five pages share a full-width fanart hero fading to
