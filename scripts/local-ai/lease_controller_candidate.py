@@ -111,6 +111,12 @@ class CandidateController:
             raise ValueError("lease state directory custody is invalid")
         if self.paths.state.exists() or self.paths.state.is_symlink():
             raise ValueError("existing lease state cannot be overwritten")
+        application_root = self.paths.root / "application-b60"
+        if any(os.path.lexists(path) for path in (
+            application_root / "application-b60.json",
+            application_root / "application-b60.lock",
+        )):
+            raise ValueError("application B60 lease state or lock exists")
         try:
             self.paths.lock.mkdir(mode=0o700)
         except FileExistsError as exc:

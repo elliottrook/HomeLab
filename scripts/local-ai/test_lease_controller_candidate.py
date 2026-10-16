@@ -84,6 +84,23 @@ class CandidateControllerTests(unittest.TestCase):
             self.assertEqual(state.read_text(), '{"legacy":"preserve"}')
             self.assertEqual(commands, [])
 
+    def test_application_lease_blocks_full_stop_before_own_lock_or_effect(self):
+        for marker in ("application-b60.json", "application-b60.lock"):
+            with self.subTest(marker=marker), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                application = root / "application-b60"
+                application.mkdir()
+                (application / marker).symlink_to("missing-target")
+                commands = []
+                controller = CandidateController(
+                    CandidatePaths(root), commands.append, allow_effects=True,
+                    observer=self.StubObserver(self.observation()), sleep=lambda _: None,
+                )
+                with self.assertRaisesRegex(ValueError, "application B60"):
+                    controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
+                self.assertFalse((root / "lease.lock").exists())
+                self.assertEqual(commands, [])
+
     def test_incomplete_restore_does_not_start_services(self):
         with tempfile.TemporaryDirectory() as temp:
             commands = []
