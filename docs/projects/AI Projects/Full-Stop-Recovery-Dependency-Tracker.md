@@ -50,10 +50,14 @@ Jason approved that six-path disabled install, but the [target-Linux import
 failed and the install was rolled back](evidence/Common-host-exclusion-disabled-install-rollback-2026-10-16.md).
 The application controller's real root is `/usr/local/libexec/aster-a1`, not
 the whole-host lease directory. Pre-install hashes, production service state,
-timers and backup schedule were restored/verified. A two-root, seven-path card
-now exists at local `codex/aster-lease-compat` commit `cc03cc2b`; it needs
-independent review and a **new** exact host-change approval. No live gate
-advanced, and the October 17 F2 scan remains unadmitted.
+timers and backup schedule were restored/verified. Jason subsequently approved
+the corrected two-root, seven-path card. Its [target-Linux result](evidence/Common-host-exclusion-disabled-install-v2-2026-10-16.md)
+at local `codex/aster-lease-compat` commit `048adc01` records matching
+installed hashes, both module-root imports, cross-process exclusion, 51/51
+synthetic host tests with one repository-unit-file test excluded, and unchanged
+inactive timers, services and schedules. This is a **disabled installation**;
+it does not admit an unattended F2 scan or advance F3/F6. The October 17 F2
+scan remains unadmitted pending a separately reviewed timing/schedule guard.
 The disabled F3 producer received the same pre-start lease guard in local
 source commit `4e16b964`, integrated by the platform owner as `f4b9da31`.
 Its full local suite passed 177 tests with two macOS root-custody skips. The
