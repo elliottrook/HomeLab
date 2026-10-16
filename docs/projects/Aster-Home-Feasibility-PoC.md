@@ -1055,6 +1055,19 @@ XML validation, 60 local tests and whitespace checks pass. This is a chapter
 output, progress sync, and LibreELEC endpoint behavior remain unverified.
 No server configuration or remote Git state changed.
 
+Listening-page visual revision, 2026-10-15: The Mac Kodi pilot now uses a
+distinct two-column page. The retained dark player panel sits on the left
+with cover art, title, chapter, time/progress and transport controls. The
+chapter/episode selector is an unboxed, scrollable text list on the right,
+using the same small font as the previous synopsis and a narrow green focus
+marker. Row dividers were subsequently removed and chapter spacing tightened
+to fit twelve rows without changing type size. A live Mac screenshot verified the initial layout and
+playback from Opening Credits advancing from 00:00 to 00:08 with controls
+visible. Kodi still sometimes clears the active list row's item properties
+when playback starts; a MusicPlayer-title fallback was added but needs a
+fresh focused-row visual check after reload. No ABS/server changes or remote
+Git operations were part of this revision.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
