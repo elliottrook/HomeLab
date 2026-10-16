@@ -1016,6 +1016,23 @@ running as the Kodi user can still read it. The listening list briefly blanks
 the selected row during playback; that is a remaining UI defect. No proxy,
 firewall, server account or remote Git state was changed in this checkpoint.
 
+Aster Books listening-page milestone, 2026-10-15: The Mac pilot's bare Kodi
+audio list was replaced with an Aster-styled listening view. The plug-in
+reuses the sanitized Books catalogue and local opaque cover cache to show a
+book or podcast cover, parent and episode/part titles, and a bounded synopsis.
+The page shows elapsed/total time, a progress bar, and Kodi transport actions
+for pause/resume, 30-second skips and stop, with an Aster Books idle state
+before selecting a part. XML validation and 57 local unit tests pass. In the
+live Mac UI, an audiobook and a downloaded podcast episode opened with the
+correct art and metadata; the time and progress display advanced. Pause
+changed to Resume and held the audiobook clock, a forward seek advanced it,
+and Stop ended audiobook and podcast playback. Audible output, backward seek,
+resume after restart, Audiobookshelf progress synchronization, real network
+failure, and LibreELEC/TV behavior remain unverified. Kodi still blanks the
+focused episode/chapter list row while that item is actively playing (the
+hero title remains visible); this cosmetic defect is retained for a later
+focused Kodi-list investigation. No credentials or remote Git state changed.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

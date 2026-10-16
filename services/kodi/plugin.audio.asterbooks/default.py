@@ -11,6 +11,25 @@ import xbmcvfs
 from resources.lib.bridge import CONTROL_SOCKET, BridgeError, control_request
 
 
+def catalogue_art(kind, item_id):
+    """Reuse the sanitized Books snapshot and its opaque, local cover cache."""
+    try:
+        skin_tools = Path(xbmcvfs.translatePath('special://home/addons/skin.asterhome/tools'))
+        if str(skin_tools) not in sys.path:
+            sys.path.insert(0, str(skin_tools))
+        from hub_feeds import book_catalogue, read_feed
+
+        feed_root = Path(xbmcvfs.translatePath('special://profile/addon_data/skin.asterhome/feeds'))
+        row = next((record for record in book_catalogue(read_feed(feed_root / 'books.json'))
+                    if record['kind'] == kind and record['id'] == item_id), None)
+        if row:
+            from books_data import cached_cover
+            return row, cached_cover(feed_root / 'covers', row)
+    except (OSError, ValueError, KeyError, TypeError, ImportError):
+        pass
+    return None, None
+
+
 def main():
     base = sys.argv[0]
     handle = int(sys.argv[1])
@@ -31,9 +50,23 @@ def main():
         xbmcplugin.endOfDirectory(handle, succeeded=False)
         return
     xbmcplugin.setContent(handle, 'songs' if kind == 'audiobook' else 'episodes')
+    row, cover = catalogue_art(kind, item_id)
+    title = row['title'] if row else ('Audiobook' if kind == 'audiobook' else 'Podcast')
+    summary = row.get('synopsis', '') if row else ''
+    if len(summary) > 195:
+        summary = summary[:192].rsplit(' ', 1)[0] + '…'
+    art = cover or ('special://skin/media/12-audiobooks.png' if kind == 'audiobook'
+                    else 'special://skin/media/22-podcasts-app.png')
     for entry in entries:
         item = xbmcgui.ListItem(label=entry['title'], path=entry['url'])
         item.setProperty('IsPlayable', 'true')
+        item.setProperty('AsterBooks.ParentTitle', title)
+        item.setProperty('AsterBooks.EntryTitle', entry['title'])
+        item.setProperty('AsterBooks.Summary', summary)
+        item.setProperty('AsterBooks.Kind', kind)
+        item.setArt({'thumb': art, 'icon': art, 'fanart': art})
+        item.setInfo('music', {'title': entry['title'], 'album': title,
+                               'artist': title, 'comment': summary})
         xbmcplugin.addDirectoryItem(handle, entry['url'], item, isFolder=False)
     if not entries:
         xbmcgui.Dialog().notification('Aster Books Audio', 'No playable audio files found for this title.')

@@ -15,8 +15,14 @@ the disposable profile. With no `client.json`, the service stays closed and
 the Aster listening action shows a clear unavailable message; this path was
 checked in the Mac UI. With a dedicated key installed privately, live book
 and podcast metadata resolved and Kodi opened an audiobook as AAC and a
-downloaded podcast episode as MP3. Audible output, seeking, resume/progress
-and the LibreELEC endpoint remain unverified. The live bridge returned 206
+downloaded podcast episode as MP3. The Aster Books listening page now uses
+the local cover cache and catalogue synopsis, shows elapsed/total time and a
+progress bar, and provides pause/resume, 30-second seeks and stop. These
+transport controls were exercised on the Mac pilot with an audiobook; audible
+output, Audiobookshelf progress sync and the LibreELEC endpoint remain
+unverified. Kodi currently blanks the focused chapter/episode list label
+while that item plays; the title remains visible in the hero, and the label
+returns when playback stops. The live bridge returned 206
 and the requested bytes for both media types; a synthetic upstream outage
 returned a generic 502 without exposing the key.
 
