@@ -1,4 +1,6 @@
 import json
+import os
+import stat
 import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
@@ -88,6 +90,24 @@ class ProducerAndStoreTests(unittest.TestCase):
         tiny = IncidentStore(Path(self.tmp.name) / "tiny.sqlite3", max_database_bytes=16_384)
         with self.assertRaises(InvestigationError):
             tiny.save(first, NOW)
+
+    def test_database_and_directory_require_private_custody(self):
+        path = Path(self.tmp.name) / "incidents.sqlite3"
+        self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o600)
+        os.chmod(path, 0o644)
+        with self.assertRaisesRegex(InvestigationError, "database custody"):
+            self.store.load("fixture-incident-001", NOW)
+        os.chmod(path, 0o600)
+        os.chmod(path.parent, 0o755)
+        with self.assertRaisesRegex(InvestigationError, "directory custody"):
+            self.store.load("fixture-incident-001", NOW)
+
+    def test_symlinked_database_is_rejected_before_sqlite_connect(self):
+        target = Path(self.tmp.name) / "incidents.sqlite3"
+        link = Path(self.tmp.name) / "alias.sqlite3"
+        link.symlink_to(target)
+        with self.assertRaisesRegex(InvestigationError, "database custody"):
+            IncidentStore(link)
 
 
 if __name__ == "__main__":

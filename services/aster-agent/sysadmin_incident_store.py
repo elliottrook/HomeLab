@@ -7,8 +7,10 @@ decision. This module never opens a socket or starts an observation itself.
 from __future__ import annotations
 
 import json
+import os
 import re
 import sqlite3
+import stat
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -69,6 +71,22 @@ class IncidentStore:
             )
 
     def _db(self):
+        parent = self.path.parent.lstat()
+        if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid()
+                or stat.S_IMODE(parent.st_mode) != 0o700):
+            raise InvestigationError("incident directory custody is invalid")
+        flags = os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW
+        try:
+            fd = os.open(self.path, flags, 0o600)
+        except OSError as exc:
+            raise InvestigationError("incident database custody is invalid") from exc
+        try:
+            info = os.fstat(fd)
+            if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid()
+                    or stat.S_IMODE(info.st_mode) != 0o600 or info.st_nlink != 1):
+                raise InvestigationError("incident database custody is invalid")
+        finally:
+            os.close(fd)
         db = sqlite3.connect(self.path, timeout=5)
         db.row_factory = sqlite3.Row
         return db
