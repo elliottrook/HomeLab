@@ -57,7 +57,8 @@ installed hashes, both module-root imports, cross-process exclusion, 51/51
 synthetic host tests with one repository-unit-file test excluded, and unchanged
 inactive timers, services and schedules. This is a **disabled installation**;
 it does not admit an unattended F2 scan or advance F3/F6. The October 17 F2
-scan remains unadmitted pending a separately reviewed timing/schedule guard.
+scan remains unadmitted pending the [separately reviewed timing/schedule
+guard](evidence/F2-archive-timing-admission-gap-2026-10-16.md).
 The disabled F3 producer received the same pre-start lease guard in local
 source commit `4e16b964`, integrated by the platform owner as `f4b9da31`.
 Its full local suite passed 177 tests with two macOS root-custody skips. The
