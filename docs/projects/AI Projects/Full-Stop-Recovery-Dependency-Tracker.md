@@ -41,7 +41,8 @@ Its full local suite passed 177 tests with two macOS root-custody skips. The
 producer is still uninstalled/disabled and F3 remains open.
 
 A later [source-only common-exclusion candidate](../../../services/local-ai-lease/COMMON-HOST-EXCLUSION-OFFLINE-CANDIDATE-20261016.md)
-on local `codex/aster-lease-compat` commit `a38da489` holds one advisory
+on local `codex/aster-lease-compat` commit `a38da489`, integrated by the
+platform owner locally as `6fe98336`, holds one advisory
 directory lock through an archive scan or receipt write and through either
 candidate lease's state creation. Its full offline suite passed 188 tests
 with two macOS root-custody skips. It is **not installed** and does not
