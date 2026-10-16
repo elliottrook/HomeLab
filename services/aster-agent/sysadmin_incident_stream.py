@@ -7,6 +7,7 @@ The gateway integration remains a separately reviewed later change.
 from __future__ import annotations
 
 import json
+import hashlib
 from datetime import datetime
 from typing import Any
 
@@ -18,25 +19,29 @@ def incident_presentation(snapshot: dict[str, Any]) -> dict[str, Any]:
     incident = snapshot["incident"]
     evidence = [
         {
-            "evidence_id": item["evidence_id"],
+            # Producer-controlled IDs, summaries and source labels are retained
+            # in the owner-only incident record, never copied into the UI.
+            "evidence_ref": hashlib.sha256(item["evidence_id"].encode()).hexdigest()[:16],
             "target": item["target"],
             "kind": item["kind"],
             "state": item["state"],
             "observed_at": item["observed_at"],
             "age_seconds": item["age_seconds"],
-            "source": item["source"],
-            "summary": item["summary"],
+            "summary": f"{item['target']} {item['kind']}: {item['state']}",
             "truncated": item["truncated"],
         }
         for item in incident["observations"]
     ]
+    next_step = dict(incident["next"])
+    if "reason" in next_step:
+        next_step["reason"] = "Review the next registered observation."
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "incident_id": incident["incident_id"],
-        "title": incident["title"],
+        "title": "Read-only investigation",
         "observation_count": incident["observation_count"],
         "evidence": evidence,
-        "next": incident["next"],
+        "next": next_step,
     }
 
 

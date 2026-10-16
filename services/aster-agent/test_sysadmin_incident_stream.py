@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from sysadmin_incident_store import IncidentStore
-from sysadmin_incident_stream import reconnect_frames
+from sysadmin_incident_stream import incident_presentation, reconnect_frames
 from sysadmin_investigation import EvidenceRequest, create_incident
 
 
@@ -42,6 +42,23 @@ class StreamTests(unittest.TestCase):
         self.assertNotIn("internal hypothesis", rendered)
         self.assertNotIn("facts", rendered)
         self.assertNotIn("hypotheses", rendered)
+
+    def test_untrusted_text_is_not_forwarded_to_presentation(self):
+        snapshot = self.store.reconnect_snapshot("fixture-incident-001", NOW)
+        incident = snapshot["incident"]
+        incident["title"] = "private-title-marker"
+        incident["observations"][0]["summary"] = "private-summary-marker"
+        incident["observations"][0]["source"] = "private-source-marker"
+        incident["observations"][0]["evidence_id"] = "private-evidence-marker"
+        incident["next"]["reason"] = "private-reason-marker"
+        presentation = incident_presentation(snapshot)
+        encoded = json.dumps(presentation)
+        for marker in ("private-title-marker", "private-summary-marker",
+                       "private-source-marker", "private-evidence-marker",
+                       "private-reason-marker"):
+            self.assertNotIn(marker, encoded)
+        self.assertEqual(presentation["schema_version"], 2)
+        self.assertEqual(presentation["evidence"][0]["target"], "aster-gateway")
 
 
 if __name__ == "__main__":
