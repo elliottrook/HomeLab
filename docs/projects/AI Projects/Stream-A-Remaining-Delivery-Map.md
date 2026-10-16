@@ -387,6 +387,11 @@ so source-local sanitization and an explicit data projection remain necessary
 before any model egress. The smallest next implementation is a fixed-target,
 read-only evidence projection and denial tests, reviewed against M1 before
 connection; it is not another framework or a live sysadmin pilot.
+The offline [incident display boundary](evidence/D4-next-step-presentation-boundary-2026-10-16.md)
+now constructs proposed next steps from registered fields instead of copying
+persisted extra fields into UI frames. This closes a presentation leak in the
+candidate only; it does not sanitize producer facts for a model or authorize
+a connected tool.
 An [offline malformed-producer check](evidence/D4-sysadmin-evidence-type-boundary-2026-10-15.md)
 now makes wrong field types, boolean schema versions and non-finite fact values
 fail with a controlled contract error; it changes no live authority.
