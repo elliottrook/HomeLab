@@ -25,6 +25,9 @@ regression.
 The October 16 01:10 read-only archive heartbeat triggered, but no complete
 three-archive result was retained by the time Stream A resumed after the
 start cutoff. It is now **paused**; see the [dated F2 record](evidence/Full-stop-archive-window-missed-2026-10-16.md).
+An uninstalled, source-only read-only observer candidate on
+`codex/aster-lease-compat` at `2826dde6` passed offline tests; it does not
+retroactively supply F2 evidence or authorize a new host schedule.
 It cannot save the trusted root-owned admission receipt. No evidence was
 retained of a watchdog activation, service stop, lease, A1 run or drill.
 There is **no scheduled 03:10 live drill**; the old 03:05 and 03:40 one-time
