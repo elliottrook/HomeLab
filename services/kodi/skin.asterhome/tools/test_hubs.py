@@ -3,7 +3,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import unittest
 import xml.etree.ElementTree as ET
-from hub_data import digest_view, WINDOWS
+from hub_data import digest_view, show_digest_story, story_at_elapsed, WINDOWS
+from digest_data import DigestCards, merge_chapters, public_image
 from hub_feeds import books_view, home_view, read_feed
 import json
 import tempfile
@@ -32,10 +33,56 @@ class HubTests(unittest.TestCase):
         for start in (-1, float('nan'), float('inf'), 14401):
             with self.assertRaises(ValueError):
                 digest_view(self.feed(chapters=[{'title': 'Synthetic', 'start': start}]))
+        with self.assertRaises(ValueError):
+            digest_view(self.feed(chapters=[{'title': 'Later', 'start': 62},
+                                            {'title': 'Earlier', 'start': 61}]))
 
     def test_bounded_rows(self):
         rows, _ = digest_view(self.feed(chapters=[{'title': 'Synthetic', 'start': n} for n in range(100)]))
         self.assertEqual(len(rows), 40)
+
+    def test_published_cards_join_audio_chapters_without_inventing_art(self):
+        parser = DigestCards()
+        parser.feed('''<section><article class="digest-card"><img class="digest-hero"
+            src="https://news.example.org/photo.jpg"><div class="digest-source">BBC &middot; CBC</div>
+            <div class="digest-body"><div class="digest-headline">A &amp; B</div>
+            <p class="digest-summary">A real published summary.</p></div></article></section>''')
+        stories = merge_chapters([('A & B', '1:01', 61.2), ('Unmatched', '2:03', 123.0)],
+                                 parser.cards)
+        self.assertEqual(stories[0]['summary'], 'A real published summary.')
+        self.assertEqual(stories[0]['source'], 'BBC · CBC')
+        self.assertEqual(stories[0]['image'], 'https://news.example.org/photo.jpg')
+        self.assertEqual(stories[1]['image'], '')
+        self.assertEqual(stories[1]['summary'], '')
+
+    def test_feed_images_cannot_target_lan_or_non_https(self):
+        for value in ('http://example.org/x.jpg', 'https://192.168.1.1/x',
+                      'https://news.internal/x', 'https://localhost/x',
+                      'https://example.org:8080/x', 'https://example.org:bad/x',
+                      'https://user:pass@example.org/x'):
+            self.assertEqual(public_image(value), '')
+
+    def test_story_selection_follows_chapter_boundaries(self):
+        stories = [{'start': value} for value in (4, 62, 131)]
+        self.assertEqual([story_at_elapsed(stories, value) for value in (0, 4, 61, 62, 200)],
+                         [0, 0, 0, 1, 2])
+
+    def test_story_panel_bounds_summary_and_keeps_art(self):
+        class Window:
+            properties = {}
+            def setProperty(self, key, value):
+                self.properties[key] = value
+        class Item:
+            def getProperty(self, key):
+                return {'AsterHub.StoryTitle': 'Example',
+                        'AsterHub.StorySummary': 'word ' * 100,
+                        'AsterHub.StorySource': 'Example News',
+                        'AsterHub.StoryImage': 'https://news.example.org/photo.jpg'}[key]
+        window = Window()
+        show_digest_story(window, Item())
+        self.assertLessEqual(len(window.properties['AsterHub.ActiveSummary']), 160)
+        self.assertEqual(window.properties['AsterHub.ActiveImage'], 'https://news.example.org/photo.jpg')
+        self.assertNotIn('watch_digest', (ROOT / 'tools/hub_data.py').read_text())
 
     def test_books_feed_selects_only_approved_library_fields(self):
         payload = {'schema_version': 1, 'generated_at': datetime.now(timezone.utc).isoformat(),
@@ -120,6 +167,10 @@ class HubTests(unittest.TestCase):
             else:
                 self.assertIsNotNone(window.find('.//control[@id="500"]'))
                 self.assertIsNotNone(window.find('.//include[@content="AsterNavigationRail"]'))
+        digest = (ROOT / '1080i/custom_1111_digest.xml').read_text()
+        self.assertIn('AsterHub.ActiveImage', digest)
+        self.assertIn('AsterHub.ActiveSummary', digest)
+        self.assertIn('AsterHub.DigestPlaying', digest)
 
     def test_all_runtime_assets_exist(self):
         for path in (ROOT / '1080i').glob('*.xml'):

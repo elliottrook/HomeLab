@@ -1112,6 +1112,27 @@ and queue tests pass. This is Mac-pilot evidence, not LibreELEC acceptance;
 no server or media files were changed. The source change is local pending
 fresh push authorization.
 
+Digest player candidate, 2026-10-15 (skin v0.7.5, local only): Read-only
+inspection of the published Aster News audio metadata and `/digest` page
+matched 18 of 19 live chapters to story summaries and 15 to public image
+URLs. The candidate uses these fields in a two-column player-like screen with
+an unboxed chapter list, title/source/brief synopsis/art, and transport
+controls. The Mac pilot rendered the 19-story list and the first story, but
+the first synopsis overran its panel; a 160-character panel bound corrected
+that in a second screenshot. Kodi launched its blank audio visualisation on
+Listen; a candidate one-shot return to the Digest window is not yet visually
+verified. A persistent Python watcher proposed for automatic chapter
+following caused macOS Kodi to segfault during Quit: the crash report's
+LanguageInvoker stack ends in `xbmcgui.Window.setProperty` while the main
+thread is cleaning up script threads. The Mac pilot's original `hub_data.py`
+and Digest XML were restored from `/tmp/aster-digest-check.pltEOy/`; there is
+no watcher installed in the pilot. The repository candidate removes the
+persistent watcher and offers manual Refresh to synchronize the displayed
+story to the player's elapsed time. Automatic chapter following and live
+candidate acceptance remain open gates; no LibreELEC claim, server change or
+remote Git operation follows from this checkpoint. Synthetic source tests
+pass, including art URL bounds and chapter mapping.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

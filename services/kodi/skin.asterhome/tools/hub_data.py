@@ -5,6 +5,7 @@ import sys
 from datetime import datetime, timezone
 from urllib.request import urlopen
 from hub_feeds import books_view, home_view, read_feed
+from digest_data import DigestCards, clean_text, merge_chapters
 
 DIGEST_BASE = 'http://192.168.70.13:8080'
 WINDOWS = {'books': 11110, 'digest': 11111, 'home': 11112, 'music': 11113}
@@ -33,15 +34,61 @@ def digest_view(data):
     if age < -300 or age > 36 * 3600:
         raise ValueError('Briefing is stale; refresh the source')
     rows = []
+    previous_start = -1
     for chapter in data.get('chapters', [])[:40]:
         start = float(chapter['start'])
-        if not math.isfinite(start) or start < 0 or start > 14400:
+        if not math.isfinite(start) or start < 0 or start > 14400 or start <= previous_start:
             raise ValueError('Invalid chapter time')
-        title = str(chapter['title']).replace('[', '(').replace(']', ')')[:240]
+        previous_start = start
+        title = clean_text(chapter['title'], 240)
         rows.append((title, f'{int(start)//60}:{int(start)%60:02d}', start))
     if not rows:
         raise ValueError('No chapters published')
     return rows, stamp.astimezone().strftime('%a %d %b, %I:%M %p')
+
+
+def published_digest():
+    with urlopen(DIGEST_BASE + '/static/digest-audio/latest.json', timeout=8) as response:
+        payload = response.read(262145)
+    if len(payload) > 262144:
+        raise ValueError('Feed exceeds size limit')
+    digest = json.loads(payload)
+    rows, stamp = digest_view(digest)
+    cards = DigestCards()
+    try:
+        with urlopen(DIGEST_BASE + '/digest', timeout=8) as response:
+            page = response.read(1048577)
+        if len(page) > 1048576:
+            raise ValueError('Digest page exceeds size limit')
+        cards.feed(page.decode('utf-8'))
+    except (OSError, UnicodeError, ValueError):
+        # Audio chapters remain useful if the optional reading page is down.
+        pass
+    return digest, merge_chapters(rows, cards.cards), stamp
+
+
+def show_digest_story(window, item):
+    if not item:
+        return
+    for field, property_name in (('Title', 'AsterHub.StoryTitle'),
+                                 ('Summary', 'AsterHub.StorySummary'),
+                                 ('Source', 'AsterHub.StorySource'),
+                                 ('Image', 'AsterHub.StoryImage')):
+        value = item.getProperty(property_name)
+        if field == 'Summary' and len(value) > 160:
+            value = value[:157].rsplit(' ', 1)[0] + '…'
+        window.setProperty('AsterHub.Active' + field, value)
+
+
+def story_at_elapsed(stories, elapsed):
+    """Select the last published chapter at or before the current audio time."""
+    active = 0
+    for index, story in enumerate(stories):
+        if story['start'] <= elapsed:
+            active = index
+        else:
+            break
+    return active
 
 
 def main(page, action='refresh'):
@@ -52,6 +99,10 @@ def main(page, action='refresh'):
     if page not in WINDOWS:
         return
     window = xbmcgui.Window(WINDOWS[page])
+    if page == 'digest' and action == 'stop':
+        xbmc.executebuiltin('PlayerControl(Stop)')
+        window.setProperty('AsterHub.DigestPlaying', 'false')
+        return
     if action in ('play', 'chapter'):
         if page == 'books':
             message = ('Read-only library titles are available; audiobook playback and ebooks '
@@ -106,8 +157,15 @@ def main(page, action='refresh'):
             if not selected:
                 return
             item.setProperty('StartOffset', selected.getProperty('AsterStart'))
+            show_digest_story(window, selected)
         # Playback only on an explicit user selection; no autoplay on refresh.
         xbmc.Player().play(DIGEST_BASE + '/static/digest-audio/latest.mp3', item)
+        # Kodi opens MusicVisualisation for audio even though the digest has its
+        # own player. Bring the story/controls back as soon as playback starts.
+        xbmc.sleep(750)
+        if xbmc.Player().isPlayingAudio():
+            window.setProperty('AsterHub.DigestPlaying', 'true')
+            xbmc.executebuiltin('ActivateWindow(1111)')
         return
     titles = {'books': 'Books & Audiobooks', 'digest': 'Daily Digest', 'home': 'Aster Home', 'music': 'Aster Music'}
     subtitles = {
@@ -125,6 +183,18 @@ def main(page, action='refresh'):
     window.setProperty('AsterHub.HomeReady', 'false')
     window.setProperty('AsterHub.HomeValuesReady', 'false')
     window.setProperty('AsterHub.Status', 'Read-only connection required')
+    elapsed = None
+    if page == 'digest':
+        try:
+            playing = (xbmc.Player().isPlayingAudio() and
+                       xbmc.Player().getPlayingFile().startswith(DIGEST_BASE + '/static/digest-audio/latest.mp3'))
+            if playing:
+                elapsed = xbmc.Player().getTime()
+        except RuntimeError:
+            playing = False
+        for field in ('Title', 'Summary', 'Source', 'Image'):
+            window.setProperty('AsterHub.Active' + field, '')
+        window.setProperty('AsterHub.DigestPlaying', 'true' if playing else 'false')
     rows = []
     albums = []
     if page == 'music':
@@ -145,16 +215,15 @@ def main(page, action='refresh'):
             rows = [('No indexed albums', 'Check the existing Jellyfin music sync, then Refresh', None)]
     elif page == 'digest':
         try:
-            with urlopen(DIGEST_BASE + '/static/digest-audio/latest.json', timeout=8) as response:
-                payload = response.read(262145)
-            if len(payload) > 262144:
-                raise ValueError('Feed exceeds size limit')
-            digest = json.loads(payload)
-            rows, stamp = digest_view(digest)
-            window.setProperty('AsterHub.Status', f'{len(rows)} stories · Updated {stamp}')
-            window.setProperty('AsterHub.Description', 'Listen to the latest published Aster briefing, or choose a story below to start at its chapter.')
+            digest, stories, stamp = published_digest()
+            enriched = sum(bool(story['summary']) for story in stories)
+            window.setProperty('AsterHub.Status', f'{len(stories)} stories · Updated {stamp}')
+            window.setProperty('AsterHub.Description',
+                               f'Aster news · {enriched} stories with reading detail' if enriched else
+                               'Audio chapters are ready; story details are unavailable')
             window.setProperty('AsterHub.GeneratedAt', digest['generated_at'])
             window.setProperty('AsterHub.Ready', 'true')
+            rows = [(story['title'], story['clock'], story['start']) for story in stories]
         except Exception:
             window.setProperty('AsterHub.Status', 'Briefing unavailable or stale')
             window.setProperty('AsterHub.Description', 'The existing news service could not supply a fresh briefing. Refresh to retry; no old recording is presented as current.')
@@ -206,8 +275,15 @@ def main(page, action='refresh'):
             item.setArt({'thumb': albums[index].get('thumbnail', '')})
         if start is not None:
             item.setProperty('AsterStart', str(start))
+            if page == 'digest':
+                story = stories[index]
+                for field in ('title', 'summary', 'source', 'image'):
+                    item.setProperty('AsterHub.Story' + field.title(), story[field])
         items.append(item)
     listing.addItems(items)
+    if page == 'digest' and window.getProperty('AsterHub.Ready') == 'true':
+        index = story_at_elapsed(stories, elapsed) if elapsed is not None else 0
+        show_digest_story(window, listing.getListItem(index))
 
 
 if __name__ == '__main__':

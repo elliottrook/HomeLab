@@ -1,5 +1,19 @@
 # Aster Home Kodi skin prototype
 
+Version 0.7.5 is a local Digest-page candidate, not yet accepted on Kodi or
+LibreELEC. It reads the current Aster news briefing and its existing `/digest`
+story cards, joins published headlines to chapter times, and shows available
+source summaries and pictures beside a plain chapter list. The two-column
+layout uses the same player language as Aster Books/Music. Missing source art
+uses the approved Aster News icon. Listen and chapter selection are explicit;
+Refresh also re-reads the currently playing audio time to show the story at
+that chapter. The page does **not** continuously auto-follow chapter changes.
+The first live Mac attempt to auto-follow with a persistent Python watcher
+crashed Kodi on shutdown; the pilot files were restored from a checkpoint and
+the watcher was removed from this candidate. Do not deploy this candidate as
+an automatic story-sync solution. It neither changes the news server nor
+stores or republishes its content.
+
 Version 0.7.4 builds Aster Music into five linked screens: the Recently Added
 landing, then Albums, Artists, Songs and Playlists. The four icon-led pills
 open the browse screens; Recently Added is reached from the Music launcher.
