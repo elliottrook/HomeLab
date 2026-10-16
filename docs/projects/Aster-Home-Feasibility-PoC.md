@@ -903,6 +903,23 @@ page exposes a title search, RSS URL input and OPML import. Acquiring and
 playing a selected podcast through Kodi is a later integration milestone;
 the current Kodi page is a read-only catalogue, not a playback client.
 
+Subscribed-podcast visual pilot and Media mark, 2026-10-15: Jason acquired five
+podcast shows and five downloaded episodes per show in Audiobookshelf. A
+read-only SQLite check confirmed 25 episodes with audio-file metadata. The
+one-shot Kodi feed was refreshed to 556 titles: 505 eBooks, 46 audiobooks
+and five podcast subscriptions. A bounded read-only cover transfer copied
+the five JPEGs from `/podcasts` to Kodi's private cache by exact library-item
+ID; the Books landing and Podcasts browse page visibly render all five. The
+existing *In Our Time* episode “Thomas More's Utopia” was checked against its
+downloaded file: path remained inside `/podcasts`, size matched Audiobookshelf
+metadata (55,591,569 bytes), and first/last bytes were readable with an ID3
+header. This is a file-integrity check, **not** decoded or audible playback.
+No episode was copied to the Mac, and Kodi still has no episode selector or
+authenticated streaming adapter. The Aster Media header mark was centered in
+its 85–375 px gutter and enlarged from 160×107 to 240×160; the live Kodi
+view shows it clear of the category pills and hero greeting. The 41 offline
+skin tests pass. These Mac checks do not replace LibreELEC endpoint testing.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

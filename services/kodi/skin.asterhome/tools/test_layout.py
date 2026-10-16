@@ -22,6 +22,15 @@ class LayoutTests(unittest.TestCase):
             previous_right = left + 248
         self.assertLess(previous_right, 1750)  # clock begins here
 
+    def test_media_logo_is_centered_and_enlarged_in_header_gutter(self):
+        logo = next(control for control in self.home.findall('.//control')
+                    if control.findtext('texture') ==
+                    'special://skin/media/27-aster-media-logo.png')
+        self.assertEqual((logo.findtext('left'), logo.findtext('top'),
+                          logo.findtext('width'), logo.findtext('height')),
+                         ('110', '0', '240', '160'))
+        self.assertEqual(110 + 240 // 2, (85 + 375) // 2)
+
     def test_search_and_portraits_do_not_overlap(self):
         panel = self.browse.find('.//control[@id="50"]')
         search = self.browse.find('.//control[@id="19"]')

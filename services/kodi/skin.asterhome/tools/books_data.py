@@ -1,7 +1,8 @@
 """Read-only Aster Books tiles from the existing sanitized local feed.
 
-The current feed has no per-title date, cover, synopsis or playback path.
-Never infer recency or create a working Play action from its catalogue IDs.
+The feed has no per-title date, synopsis or playback path. Cover JPEGs may
+come from a separately validated private cache. Never infer recency or create
+a working Play action from catalogue IDs.
 """
 
 import sys

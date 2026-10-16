@@ -12,6 +12,7 @@ from books_data import PAGES, cached_cover, cover_filename, page_records
 from hub_feeds import book_catalogue
 from pilot_books_feed import calibre_items, podcast_items
 from pilot_books_covers import QUERY, validated_covers
+from pilot_podcast_covers import QUERY as PODCAST_COVER_QUERY, validated_covers as validated_podcast_covers
 from pilot_ebook_covers import SOURCE as CALIBRE_COVER_SOURCE, validated_covers as validated_ebook_covers
 
 
@@ -101,6 +102,19 @@ class BooksTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validated_ebook_covers(payload.replace(b'"42"', b'"43"'), rows)
         self.assertIn('mode=ro&immutable=1', CALIBRE_COVER_SOURCE)
+
+    def test_podcast_covers_require_subscribed_id_and_jpeg(self):
+        rows = [{'kind': 'podcast', 'id': 'pod_1', 'title': 'Example'}]
+        jpeg = base64.b64encode(b'\xff\xd8\xff' + b'cover').decode()
+        payload = json.dumps([{'id': 'pod_1', 'jpeg': jpeg}]).encode()
+        self.assertEqual(validated_podcast_covers(payload, rows),
+                         {'pod_1': b'\xff\xd8\xffcover'})
+        with self.assertRaises(ValueError):
+            validated_podcast_covers(payload.replace(b'pod_1', b'unknown'), rows)
+        with self.assertRaises(ValueError):
+            validated_podcast_covers(payload, [{'kind': 'audiobook', 'id': 'pod_1'}])
+        self.assertIn('sqlite.OPEN_READONLY', PODCAST_COVER_QUERY)
+        self.assertIn("resolved.startsWith('/podcasts/')", PODCAST_COVER_QUERY)
 
     def test_windows_use_shared_hero_search_and_approved_icons(self):
         shared = ET.parse(ROOT / '1080i/IncludesBooks.xml')

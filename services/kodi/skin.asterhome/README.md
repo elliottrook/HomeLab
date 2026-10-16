@@ -18,22 +18,26 @@ No background playback, media-file write or new credential is introduced.
 
 ## Books catalogue layout (v0.7.2)
 
-The Books landing now has eBook, audiobook and podcast lanes, with three
-matching icon-led browse pages, a shared hero, 24-hour clock and right-side
-search on browse pages. Titles come only from the existing bounded, sanitized
-local `books.json` feed. The current one-shot feed supplies audiobook titles;
-eBook and podcast lanes therefore show honest unconnected states. Approved
-square category icons stand in for missing covers. Search filters the current
-local catalogue and never contacts the source service.
+The Books landing has eBook, audiobook and podcast lanes, with three matching
+icon-led browse pages, a shared hero, 24-hour clock and right-side search.
+Titles come only from the bounded, sanitized local `books.json` feed. The
+current one-shot pilot contains 505 Calibre eBooks, 46 Audiobookshelf
+audiobooks and five subscribed podcasts. Separate bounded one-shot cover
+copies provide 501 eBook, 46 audiobook and five podcast JPEGs; missing art
+uses approved Aster icons. Search filters the local catalogue and never
+contacts a source service.
 
 The feed does not include per-title added dates, covers, synopses or playback
-URLs. Accordingly the audiobook row is called a **catalogue snapshot**, not
+URLs. The cover cache is a separate local file set keyed by source ID.
+Accordingly the audiobook row is called a **catalogue snapshot**, not
 "Latest Added"; the hero displays real title/type only, and its action explains
 that reading/listening is not connected. Once a separately reviewed source
 provides those fields, recency, art and playback can be wired without
 inventing metadata in the skin. Refreshing the Mac pilot remains the explicit
-one-shot `pilot_books_feed.py` step described below. No source or service was
-modified by this layout milestone.
+one-shot `pilot_books_feed.py` step described below. Podcast covers can then
+be copied by `pilot_podcast_covers.py`. These are manual Mac test-profile
+operations, not a continuous publisher. The podcast browse page shows
+subscribed shows, not episodes; Kodi playback remains unconnected.
 
 ## Kodi startup splash (Mac test profile)
 
