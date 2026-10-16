@@ -38,6 +38,11 @@ trap 'rm -f "$temporary"' EXIT HUP INT TERM
 sips -s format icns "$source_icon" --out "$temporary" >/dev/null
 cp "$temporary" "$icon"
 touch "$app"
+if killall Dock >/dev/null 2>&1; then
+  echo "Restarted Dock to refresh its cached app icon"
+else
+  echo "Dock refresh was unavailable; run 'killall Dock' in a normal Mac shell if its icon stays stale" >&2
+fi
 echo "Installed approved Aster Dock icon: $icon"
 echo "Original Kodi icon backed up at: $backup"
 echo "To restore: cp '$backup' '$icon'; touch '$app'"

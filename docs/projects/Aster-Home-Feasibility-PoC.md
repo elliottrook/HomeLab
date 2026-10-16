@@ -795,9 +795,11 @@ the disposable `/tmp/Kodi-test.app` only. The prior `kodi.icns` was saved as
 `/tmp/Kodi-test.original-kodi.icns` (SHA-256
 `1973648d0af3c21f2dddfdccae8fbdb6034ce23ee5759e2a564a41ef2ae0500b`).
 Finder visibly showed the Aster icon on the test app, and Kodi remained open
-with the Aster skin. The repeatable installer and rollback are documented in
-the skin README. Dock cache/relaunch behavior has not been separately observed;
-the production app, LibreELEC endpoint and startup splash are unchanged.
+with the Aster skin. The Dock initially retained its old cached image despite
+the correct saved app path. Restarting only Dock refreshed it, and Jason
+confirmed the live Dock now shows the Aster icon. The repeatable installer
+includes that refresh and rollback is documented in the skin README. The
+production app, LibreELEC endpoint and startup splash are unchanged.
 
 Music visual milestone, 2026-10-15 (skin v0.7.1): replaced the old vertical
 Music list with a recent-albums tile landing and Album, Artist, Song and saved

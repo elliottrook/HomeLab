@@ -73,9 +73,10 @@ The script converts the existing approved `media/aster-icon-512.png` (Aster
 compass on its stone surround) into macOS `kodi.icns`, checks Kodi's bundle ID
 and declared icon filename, preserves the original next to the app as
 `/tmp/Kodi-test.original-kodi.icns`, and touches the bundle for Finder refresh.
-Finder shows the Aster icon on the test app. If the Dock still shows a cached
-icon, relaunch the test app or the Dock. This does not change Kodi's menu-bar
-name, splash, or any installed `/Applications/Kodi.app`; do not use it on a
+Finder shows the Aster icon on the test app. The installer restarts Dock to
+refresh its cached icon, or reports if sandbox controls prevent that (run
+`killall Dock` in a normal Mac shell then). This does not change Kodi's
+menu-bar name, splash, or any installed `/Applications/Kodi.app`; do not use it on a
 production/signed app without a signing and rollback plan.
 
 To restore the disposable app's original icon, copy the saved `.icns` back to
