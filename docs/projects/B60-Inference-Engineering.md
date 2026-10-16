@@ -12,6 +12,14 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+October 16 preparation supplied a concrete, six-test offline recovery-margin
+proposal in the [cross-owner review](B60-Inference-Engineering/peer-integration-review-20261013-1830.md).
+It accounts separately for restoration duration and watchdog trigger lag,
+uses elapsed UTC time across DST, and refuses completion at/after 04:15.
+Budgets are synthetic assumptions, not measured recovery or live admission.
+81 inference and nine owner-admission tests pass; owner adoption/live gates
+remain open. No production or model action follows from this proposal.
+
 The [October 16 nightly prerequisite check](B60-Inference-Engineering/nightly-admission-20261016.md)
 again found no lease, the unchanged manual helper and the staged watchdog
 disabled/inactive. Accepted inference was active with zero restarts. Owner

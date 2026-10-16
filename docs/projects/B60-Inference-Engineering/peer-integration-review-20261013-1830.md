@@ -100,3 +100,44 @@ live acceptance evidence, test exact source pins and integrate the published
 owner adapter. Until then the old coordinator remains prohibited and model
 testing remains BLOCKED. This record does not claim background execution or
 receipt by peers simply because it is published.
+
+## October 16 preparation: concrete recovery-margin proposal
+
+Owner refs remain Adaptive `92d2237ca91552d9326bb182c2bac0cba01adda7` and
+platform `310a0f26c218cb4808d4feb26991fd91fcd76a23`; card/manifest hashes
+remain exactly those recorded above. B60's remote tip before this continuation
+was `4fce27527bf44c5990923b6ab3e1d96cc642cdfb`. The October 16 nightly record
+is included in this scoped liaison update; it is not another model result.
+
+Added `scripts/b60-inference/recovery_margin_candidate.py` and six offline
+tests to make correction 1 directly implementable without altering the owner's
+guard or pretending owner acceptance. It requires an aware trigger timestamp,
+an explicitly supplied recovery budget no shorter than the existing 15-minute
+planning floor, and a separate finite positive trigger-lag budget. It rejects
+recovery completing at or after 04:15 Vancouver. Elapsed-time arithmetic is
+performed in UTC, including across DST; this is not host clock/schedule policy.
+
+All test budgets are fictional. A synthetic 900-second restoration plus
+70-second trigger lag with a 03:50 trigger finishes at 04:06:10; the trigger
+must be strictly before 03:58:50. A 04:05 or 04:15 trigger is refused. These
+numbers demonstrate the invariant, not measured host timing or an approved
+new run window. Real budgets must include the bounded service starts, model
+readiness/hash/device/auth/schedule postchecks and actual timer cadence/jitter,
+and must come from the platform's accepted live recovery evidence.
+
+The helper deliberately emits budgets_measured=false and
+live_admission_authorized=false. It does not authenticate a receipt, arm a
+watchdog, acquire a lease, admit model load, grant tools, promote a model or
+change benchmark quality/latency bars. Adaptive should integrate an equivalent
+margin check into its owned guard after agreeing the platform's source-bound
+budget/trigger semantics; the shape/provenance and other readiness gates above
+remain mandatory. This proposal does not make the existing runner deployable.
+
+Validation this continuation: 81 B60 inference tests and nine exact imported
+Adaptive admission tests pass. Six new tests cover early/late triggers, strict
+completion boundary, timer lag, equivalent UTC/local inputs, DST and invalid
+budgets. The original peer diagnostic still reproduces the OPEN gap in the
+unchanged owner guard. Full implementation checkout remains read-only and does
+not yet contain this proposal; do not combine or silently synchronize test counts.
+No live LAN, model/GPU, service, schedule, mount, download or credential action
+occurred. Only the standing-authorized coordination branch is published.
