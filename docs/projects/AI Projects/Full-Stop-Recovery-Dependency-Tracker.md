@@ -1,7 +1,7 @@
 # Full-stop recovery drill — dependency tracker
 
 **Owner:** Stream A for evidence and coordination; Local AI platform owner for
-host release, lease and recovery. **Last reconciled:** 2026-10-16, 03:33
+host release, lease and recovery. **Last reconciled:** 2026-10-16, 07:35
 America/Vancouver. **Overall decision: NO-GO.** This tracker is the human
 status page. The platform-owned
 `services/local-ai-lease/FULL-STOP-RECOVERY-DRILL-RUN-CARD.md` is the executable
@@ -12,13 +12,13 @@ The [October 15 23:29 pre-cycle read-only check](evidence/Full-stop-precycle-rea
 found a ready lease state, disabled/inactive independent watchdog and the
 unchanged disabled producer pin. It does not change any gate status.
 
-The platform execution card still describes parts of the pre-install source
-state (including a `source-only` controller and the old serial integrity
-selection), while the October 15 inactive-install result records newer
-modules on Proxmox. Its owner was notified to reconcile those exact bytes and
-sequence before any F3/F6/F7 approval. The discrepancy is another reason the
-current run card cannot authorize a live drill; it is not evidence of a host
-regression.
+The platform owner corrected the stale pre-install wording in the execution
+card in local commit `8f598f7b`. It now distinguishes the installed inactive
+controller and retained adapter from the still-uninstalled receipt CLI, while
+keeping the old manual controller separate. The documentation mismatch is
+resolved; this is not an F3/F6/F7 pass or live approval. The owner also
+integrated the missed-window record and the uninstalled read-only observer
+source in local commits `11764480` and `b254bd02`.
 
 ## What will happen automatically
 
