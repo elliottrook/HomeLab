@@ -96,6 +96,16 @@ earliest credible drill cycle is therefore **not October 16 under the current
 configuration**. A later date depends on F3, fresh-cycle success and approval;
 the prior 2–4 calendar-day estimate is conditional, not a reservation.
 
+With the October 16 timing result missing, the earliest *conditional* sequence
+is: complete the disabled installation and unattended-scan controls before
+the October 17 backup cycle; measure F2 at 01:10 October 17; review and release
+F3 only after that measurement; produce a fresh F4 receipt from the October 18
+backup cycle; then consider F5–F9 on October 18 if the run card and Jason's
+live approval are ready. This is a dependency lower bound, **not a booked
+drill**. A failed scan, late F3 release, backup mismatch or absent approval
+pushes it later. It cannot honestly be marked complete by October 17 merely
+because a source candidate or calendar slot exists.
+
 For any failed or uncertain dependency, the observing Stream A or platform
 agent must promptly tell Jason in this chat, in ordinary language:
 
