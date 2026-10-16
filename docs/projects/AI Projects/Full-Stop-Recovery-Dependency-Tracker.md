@@ -1,7 +1,7 @@
 # Full-stop recovery drill — dependency tracker
 
 **Owner:** Stream A for evidence and coordination; Local AI platform owner for
-host release, lease and recovery. **Last reconciled:** 2026-10-15, 15:40
+host release, lease and recovery. **Last reconciled:** 2026-10-16, 03:33
 America/Vancouver. **Overall decision: NO-GO.** This tracker is the human
 status page. The platform-owned
 `services/local-ai-lease/FULL-STOP-RECOVERY-DRILL-RUN-CARD.md` is the executable
@@ -12,14 +12,21 @@ The [October 15 23:29 pre-cycle read-only check](evidence/Full-stop-precycle-rea
 found a ready lease state, disabled/inactive independent watchdog and the
 unchanged disabled producer pin. It does not change any gate status.
 
+The platform execution card still describes parts of the pre-install source
+state (including a `source-only` controller and the old serial integrity
+selection), while the October 15 inactive-install result records newer
+modules on Proxmox. Its owner was notified to reconcile those exact bytes and
+sequence before any F3/F6/F7 approval. The discrepancy is another reason the
+current run card cannot authorize a live drill; it is not evidence of a host
+regression.
+
 ## What will happen automatically
 
-The existing `aster-archive-integrity-timing-check` heartbeat is active for
-**October 16 at 01:10 Vancouver**. It is a conditional, read-only scan of
-that cycle's 104/110/116 backup archives. It must skip if the backup/task-1
-chain, host load or lease checks fail, and must end by its bounded deadline.
-It cannot save the trusted root-owned admission receipt. It cannot activate
-the watchdog, stop a service, acquire a lease, run A1 or launch this drill.
+The October 16 01:10 read-only archive heartbeat triggered, but no complete
+three-archive result was retained by the time Stream A resumed after the
+start cutoff. It is now **paused**; see the [dated F2 record](evidence/Full-stop-archive-window-missed-2026-10-16.md).
+It cannot save the trusted root-owned admission receipt. No evidence was
+retained of a watchdog activation, service stop, lease, A1 run or drill.
 There is **no scheduled 03:10 live drill**; the old 03:05 and 03:40 one-time
 checks are paused. A schedule entry is not evidence that its preconditions
 passed or that a scan finished.
@@ -36,8 +43,8 @@ the end of that backup cycle.
 |---|---|---|---|
 | F0 | **Pinned inactive compatibility source** | Source pins, seven-file rollback checkpoint, 12 installed modules and two heartbeat units match reviewed bytes; no lease/lock or production change. | [x] DONE — `services/local-ai-lease/FULL-STOP-COMPATIBILITY-DISABLED-INSTALL-RESULT-20261015.md` on platform branch; separate local `codex/aster-lease-compat` branch. |
 | F1 | **Target-Linux synthetic compatibility**, after F0 | Installed-path imports, admission-record round-trip, old-dependency compatibility, watchdog/recovery and archive tests; timers stay inactive. | [x] DONE — same result; synthetic tests only. |
-| F2 | **New-cycle read-only archive timing**, after successful 00:30 Proxmox job and 01:00 TrueNAS task 1 | Exact current-cycle 104/110/116 identities; three bounded `zstd -t` exit-0 results before the deadline, without competing work. Failure/unknown/partial is NO-GO. | [ ] WAITING — conditional October 16 01:10 check scheduled. October 15 was partial; 110 exit unknown and 116 untested. |
-| F3 | **Trusted retained-receipt release**, after F0/F1 and timing review | A separately reviewed, hash-pinned producer can write a root-owned mode-0600 receipt in a mode-0700 directory only after all fixed source, whole-job, task-1, archive identity/integrity and deadline checks pass. Partial/late scans leave no success receipt. Test the actual installed path and rollback; obtain bounded host-change approval. | [ ] BLOCKED — installed producer CLI remains hard-disabled. F2 alone cannot satisfy F3. |
+| F2 | **New-cycle read-only archive timing**, after successful 00:30 Proxmox job and 01:00 TrueNAS task 1 | Exact current-cycle 104/110/116 identities; three bounded `zstd -t` exit-0 results before the deadline, without competing work. Failure/unknown/partial is NO-GO. | [ ] UNKNOWN / NO-GO for October 16 — heartbeat triggered, but no complete retained 104/110/116 result was found and the start window elapsed. See [dated evidence](evidence/Full-stop-archive-window-missed-2026-10-16.md). The previous October 15 scan was partial. |
+| F3 | **Trusted retained-receipt release**, after F0/F1 and timing review | A separately reviewed, hash-pinned producer can write a root-owned mode-0600 receipt in a mode-0700 directory only after all fixed source, whole-job, task-1, archive identity/integrity and deadline checks pass. Partial/late scans leave no success receipt. Test the actual installed path and rollback; obtain bounded host-change approval. | [ ] BLOCKED — the new source-only dual-gated CLI candidate (`codex/aster-lease-compat` at `7f1c15a4`) passed offline tests, but its effect flag is false and the installed producer remains the prior disabled pin. F2 alone cannot satisfy F3. |
 | F4 | **Fresh trusted receipt for the drill cycle**, after F3 and that cycle's backup/task 1 | Complete current-cycle receipt exists, is independently re-read and bound to the same archive identities; stale, replaced or incomplete files fail closed. | [ ] BLOCKED by F3 and next eligible backup cycle. No October 15 receipt exists. |
 | F5 | **03:05 full preflight**, after F4 and 02:00/03:00 TrueNAS tasks | Fixed schedules and same-cycle job completions; exact LXC110 mirror; three consumers still running; no conflicting lease/job; pinned Qwen3.5-9B Q4_K_M, llama.cpp b11429 SYCL/Level Zero, GPU, unit and authentication state; News timer active/enabled and job idle. Save non-secret baseline for restoration. | [ ] BLOCKED by F4; must be observed afresh in the chosen cycle. |
 | F6 | **Independent recovery armed**, after F5 and approved live card | Compatible watchdog and owner-liveness paths are verified active/enabled before any stop; exact state schema and constrained recovery executor match pins; old manual `acquire --light` cannot be used with this watchdog. Loss of watchdog/owner closes acquisition. | [ ] BLOCKED — both candidate timers inactive and live arming unapproved. Synthetic tests do not close this gate. |
