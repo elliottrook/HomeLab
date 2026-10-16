@@ -6,6 +6,12 @@ not authorize a timer, archive scan, receipt, lease, service stop, model call
 or full-stop/A1 drill. The platform owner must reconcile the exact installed
 bytes and obtain a separate bounded host-change approval before executing it.
 
+The October 16 read-only host preflight found three existing candidates and
+three absent modules. The earlier version of this card incorrectly described
+four replacements and two additions. The observed installed hashes below are
+preconditions, not evidence that the new source has been installed. Recheck
+them immediately before staging; any drift is a stop and requires a new card.
+
 ## Target and frozen source
 
 Target: Proxmox only, Python modules under
@@ -13,17 +19,17 @@ Target: Proxmox only, Python modules under
 `codex/aster-lease-compat`, source checkpoint `a38da489`. Recompute these
 full-file SHA-256 values immediately before any staging; a mismatch is a stop.
 
-| File | SHA-256 | Expected operation |
+| File | New SHA-256 | Observed installed SHA-256 / required operation |
 |---|---|---|
-| `host_exclusion.py` | `f8c60ad720a8ac1c6c4f3e51c84ce67747b50f25534c02e0ee6ed38efc302563` | Add only if absent |
-| `retained_archive_timing_observer.py` | `f07071d3544fafd0579a4e360674664ec95dd32bd2c4114c3e073c849805e363` | Add only if absent |
-| `retained_archive_producer_candidate.py` | `7e9b82a0c5216aad99ca1350849abb486a482586548c00ae6d7b6f309a1516c8` | Replace only pinned installed candidate |
-| `lease_controller_candidate.py` | `f46509e49227cf7ba78ce662184722192059277202e7315616d12456f0385217` | Replace only pinned installed candidate |
-| `application_b60_controller.py` | `ac5667add59acd7d3d767b1abebfa11f24315ec4edd9c1e4ddf75a7a366eb4ac` | Replace only pinned installed candidate |
-| `full_stop_acquire_candidate.py` | `5859aba6cccb8f0eb8a971ccc4e3ff7054c1039482f0838c800ed7a10fc0f791` | Replace only pinned installed candidate |
+| `host_exclusion.py` | `f8c60ad720a8ac1c6c4f3e51c84ce67747b50f25534c02e0ee6ed38efc302563` | Absent; add only if still absent |
+| `retained_archive_timing_observer.py` | `f07071d3544fafd0579a4e360674664ec95dd32bd2c4114c3e073c849805e363` | Absent; add only if still absent |
+| `retained_archive_producer_candidate.py` | `7e9b82a0c5216aad99ca1350849abb486a482586548c00ae6d7b6f309a1516c8` | `f3ae1a83f16e5b9c1bca571826029603e4c8d88fc6b529bfe79ffcd465288a3b`; replace only this pin |
+| `lease_controller_candidate.py` | `f46509e49227cf7ba78ce662184722192059277202e7315616d12456f0385217` | `e5d328937ea482de4b365e0be1869cabd3cd589eae86a2240b1d72bd5ae47226`; replace only this pin |
+| `application_b60_controller.py` | `ac5667add59acd7d3d767b1abebfa11f24315ec4edd9c1e4ddf75a7a366eb4ac` | Absent; add only if still absent |
+| `full_stop_acquire_candidate.py` | `5859aba6cccb8f0eb8a971ccc4e3ff7054c1039482f0838c800ed7a10fc0f791` | `bb0e1a2cc1efa2c904d374a9fc4c5cac5891bf69d63b689e2c130fa84ccd9e3b`; replace only this pin |
 
 No other Python module, unit, binary, script, schedule, LXC, TrueNAS task,
-network rule, credential or model is in scope. The four existing destination
+network rule, credential or model is in scope. The three existing destination
 bytes must be preserved in a newly named root-only mode-0700 checkpoint
 before replacement. The old `/usr/local/sbin/local-ai-lease` manual
 controller, recovery executor, watchdog units and runtime manifest remain
@@ -37,15 +43,16 @@ byte-identical.
    timers/services are disabled/inactive; no bounded lab lease or backup/pull
    is active. Record only status and hashes, never credentials. If any check
    differs, stop.
-2. Capture ownership, mode and SHA-256 for the four replacement targets, old
-   manual controller, recovery executor and existing units. Require the two
+2. Capture ownership, mode and SHA-256 for the three replacement targets, old
+   manual controller, recovery executor and existing units. Require the three
    add-only paths to be absent. Stop if an unexpected path exists. Preserve
-   the four originals and their metadata in the root-only checkpoint.
+   the three originals and their metadata in the root-only checkpoint.
 3. Stage exactly the six hash-pinned source files under a root-only temporary
    directory. Compare source, stage and destination bytes. Install the new
    `host_exclusion.py` before replacing any module that imports it; install
-   the observer without an executable bit or unit. Replace only the four
-   named modules, root-owned mode 0644. No process is started and no unit is
+   the observer and application controller without an executable bit or unit.
+   Replace only the three named modules, root-owned mode 0644. No process is
+   started and no unit is
    enabled or reloaded for this code-only change.
 
 ## Target-Linux validation while inactive
@@ -95,7 +102,7 @@ acquisition and A1 remain later, separate decisions.
 
 If staging, hash, import, exclusion, disabled-entry or postcheck proof fails,
 stop before any live test. While **both** lease namespaces remain absent,
-restore only the four captured original modules, remove only the two new
+restore only the three captured original modules, remove only the three new
 modules, and verify original hashes, target-Linux imports, inactive units and
 unchanged service/schedule state. Preserve failure evidence and checkpoint.
 If a state or lock unexpectedly appears, do not swap code beneath a possible
