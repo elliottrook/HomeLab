@@ -16,12 +16,14 @@ the Aster listening action shows a clear unavailable message; this path was
 checked in the Mac UI. Audio playback has **not** been checked against the
 household server.
 
-Configuration, once a limited credential and an API-capable HTTPS origin have
-been separately approved: create
-`special://profile/addon_data/plugin.audio.asterbooks/client.json` as a regular
-file with mode 0600, containing `server_url` (bare HTTPS origin) and `api_key`.
-Restart Kodi to load it. Do **not** put the key in a command line, shell history,
-Git file, chat or Kodi setting. The configured HTTPS route must reach the
+Configuration for the Mac pilot: after an admin creates a key bound to the
+limited Audiobookshelf user, run `python3 configure_client.py` in your own
+interactive Terminal from this add-on directory. Paste the key at the hidden
+prompt; the helper creates, but will not replace,
+`special://profile/addon_data/plugin.audio.asterbooks/client.json` as a 0600
+regular file under a 0700 add-on profile. Restart Kodi to load it. Do **not**
+put the key in a command line, shell history, Git file, chat or Kodi setting.
+The configured HTTPS route must reach the
 Audiobookshelf API directly without an interactive SSO redirect. If the
 existing domain redirects to a login page, stop: do not turn on plain HTTP or
 change proxy/firewall exposure as a workaround. The current HTTPS domain gave

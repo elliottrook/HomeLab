@@ -988,6 +988,14 @@ playback, pause/seek and network-loss handling on Mac and then LibreELEC. The
 prototype does not yet sync progress or promise multi-file autoplay. No
 service, firewall or SSO route was changed for this checkpoint.
 
+Private-key handoff preparation, 2026-10-15: `configure_client.py` now accepts
+the dedicated Audiobookshelf key only through a hidden interactive Terminal
+prompt, creates the Mac Kodi config with restrictive permissions, and refuses
+to overwrite an existing config. Three synthetic helper tests pass. Jason
+must run this helper himself after creating the key; the key must not be sent
+through chat or stored in Git. No credential was received or installed at this
+checkpoint.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
