@@ -1,14 +1,18 @@
-"""Read-only Aster Books tiles from the existing sanitized local feed.
+"""Aster Books catalogue, synopsis and bounded reader handoffs.
 
-The feed has bounded, sanitized descriptions but no playback path. Cover JPEGs
-may come from a separately validated private cache. Never infer recency or
-create a working Play action from catalogue IDs.
+The feed has sanitized descriptions but no file paths, media URLs or secrets.
+Cover JPEGs come from a separate validated private cache. Validated source IDs
+may hand off to Calibre-Web or the installed Audiobookshelf add-on; neither
+route grants access on its own, and the add-on still requires sign-in.
 """
 
 import sys
 import hashlib
+import re
 import stat
+import webbrowser
 from pathlib import Path
+from urllib.parse import urlencode
 
 from hub_feeds import book_catalogue, read_feed
 
@@ -20,6 +24,8 @@ KINDS = {'ebooks': 'ebook', 'audiobooks': 'audiobook',
 ICONS = {'ebook': '21-books-app.png', 'audiobook': '12-audiobooks.png',
          'podcast': '22-podcasts-app.png'}
 HOME_CONTROLS = {'ebook': 501, 'audiobook': 502, 'podcast': 503}
+ABS_ADDON = 'plugin.audio.audiobookshelf'
+READER_BASE = 'https://books.elliottrook.com'
 
 
 def page_records(records, page, query=''):
@@ -91,6 +97,36 @@ def selected_row(window, page, records, info_label=None):
     return None
 
 
+def handoff_target(row):
+    """Only validated catalogue IDs may become reader or plugin destinations."""
+    identity = row['id']
+    if row['kind'] == 'ebook' and re.fullmatch(r'[1-9][0-9]{0,9}', identity):
+        return READER_BASE + '/book/' + identity
+    if row['kind'] in ('audiobook', 'podcast') and re.fullmatch(r'[A-Za-z0-9_-]{1,128}', identity):
+        action = 'play' if row['kind'] == 'audiobook' else 'episodes'
+        return 'plugin://' + ABS_ADDON + '/?' + urlencode({'action': action, 'item_id': identity})
+    return None
+
+
+def activate_row(row, xbmc, xbmcgui):
+    destination = handoff_target(row)
+    if destination is None:
+        xbmcgui.Dialog().ok('Aster Books', 'This title has no safe reader destination.')
+    elif row['kind'] == 'ebook':
+        if sys.platform == 'darwin' and webbrowser.open(destination):
+            xbmcgui.Dialog().notification('Aster Books', 'Opened the Calibre-Web reader on this Mac.')
+        else:
+            xbmcgui.Dialog().textviewer('Read on your phone or tablet',
+                                        'Open this link and sign in to Calibre-Web:\n\n' + destination)
+    elif not xbmc.getCondVisibility('System.HasAddon(' + ABS_ADDON + ')'):
+        xbmcgui.Dialog().ok('Audiobookshelf add-on needed',
+                            'Install Audiobookshelf from the official Kodi add-on repository, then sign in there.')
+    elif row['kind'] == 'podcast':
+        xbmc.executebuiltin('ActivateWindow(Music,' + destination + ',return)')
+    else:
+        xbmc.executebuiltin('PlayMedia(' + destination + ')')
+
+
 def main(page, action='load'):
     import xbmc
     import xbmcgui
@@ -117,11 +153,14 @@ def main(page, action='load'):
         records = []
         available = False
 
-    if action == 'open':
+    if action in ('open', 'activate'):
         row = selected_row(window, page, records, xbmc.getInfoLabel)
         if row:
-            xbmcgui.Dialog().textviewer(row['title'],
-                                        row['synopsis'] or 'No synopsis available for this title.')
+            if action == 'open':
+                xbmcgui.Dialog().textviewer(row['title'],
+                                            row['synopsis'] or 'No synopsis available for this title.')
+            else:
+                activate_row(row, xbmc, xbmcgui)
         return
 
     counts = {kind: sum(row['kind'] == kind for row in records)

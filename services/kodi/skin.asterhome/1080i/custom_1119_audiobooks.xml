@@ -6,6 +6,7 @@
   <controls>
     <include content="AsterBooksPage">
       <param name="page" value="audiobooks" />
+      <param name="actionlabel" value="Listen in Kodi" />
       <param name="heading" value="Audiobooks" />
       <param name="activeleft" value="794" />
       <param name="icon" value="special://skin/media/12-audiobooks.png" />

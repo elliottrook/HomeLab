@@ -22,22 +22,29 @@ The Books landing has eBook, audiobook and podcast lanes, with three matching
 icon-led browse pages, a shared hero, 24-hour clock and right-side search.
 Titles come only from the bounded, sanitized local `books.json` feed. The
 current one-shot pilot contains 505 Calibre eBooks, 46 Audiobookshelf
-audiobooks and five subscribed podcasts. Separate bounded one-shot cover
-copies provide 501 eBook, 46 audiobook and five podcast JPEGs; missing art
+audiobooks and seven subscribed podcasts. Separate bounded one-shot cover
+copies provide 501 eBook, 46 audiobook and seven podcast JPEGs; missing art
 uses approved Aster icons. Search filters the local catalogue and never
 contacts a source service.
 
-The feed does not include per-title added dates, covers, synopses or playback
-URLs. The cover cache is a separate local file set keyed by source ID.
-Accordingly the audiobook row is called a **catalogue snapshot**, not
-"Latest Added"; the hero displays real title/type only, and its action explains
-that reading/listening is not connected. Once a separately reviewed source
-provides those fields, recency, art and playback can be wired without
-inventing metadata in the skin. Refreshing the Mac pilot remains the explicit
+The feed includes plain-text, bounded source synopses for 141 eBooks, 41
+audiobooks and all seven podcasts. Missing descriptions are not invented. It
+contains no per-title added dates, cover binaries, file paths, playback URLs or
+credentials. The cover cache is a separate local file set keyed by source ID.
+Accordingly the audiobook row remains a **catalogue snapshot**, not "Latest
+Added". The selected synopsis appears in the hero and the About button opens
+the full text in a branded Kodi dialog. The eBook action hands off a validated
+Calibre ID to the existing Calibre-Web reader: on the Mac it opens the title in
+the default browser; on LibreELEC it displays a URL to open on another device.
+This was verified on the Mac with a Calibre-Web title. Audio actions route
+validated IDs to the installed Audiobookshelf Kodi add-on, but its sign-in and
+actual playback have **not** been tested. The add-on currently puts its bearer
+token in artwork and media URLs, so a dedicated/limited credential or safer
+client is needed before sign-in. Refreshing the Mac pilot remains the explicit
 one-shot `pilot_books_feed.py` step described below. Podcast covers can then
 be copied by `pilot_podcast_covers.py`. These are manual Mac test-profile
 operations, not a continuous publisher. The podcast browse page shows
-subscribed shows, not episodes; Kodi playback remains unconnected.
+subscribed shows; its action delegates episode browsing to the audio add-on.
 
 ## Kodi startup splash (Mac test profile)
 
@@ -342,16 +349,17 @@ trademark, font or redistribution clearance.
 
 ## Local test
 
-The current Books pages show bounded, plain-text synopses from Calibre and
-Audiobookshelf but are not yet an ebook reader or audio player. The sanitized
-feed and local cover cache contain no readable ebook file or authenticated
-Audiobookshelf stream; selecting a title therefore does not start playback.
-Titles without source descriptions explicitly show that no synopsis is
-available. The visual cards use full-bleed rounded art with portrait
-eBook and square audio/podcast shapes, while missing-art tiles retain an Aster
-fallback. The approved next route is a handoff to Audiobookshelf's Kodi add-on
-for audio and to the existing Calibre-Web reader for eBooks; neither is yet
-connected in this milestone.
+The Books pages show bounded, plain-text source synopses and a full-text About
+dialog. Titles without source descriptions explicitly show that no synopsis
+is available. The visual cards use full-bleed rounded art with portrait eBook
+and square audio/podcast shapes, while missing-art tiles retain an Aster
+fallback. "Read this book" opens the corresponding Calibre-Web title in the
+Mac's default browser; this was verified with a real title and its browser
+reader control. On LibreELEC it shows the reader URL for a phone/tablet.
+"Listen in Kodi" and "Browse episodes" route to the official Audiobookshelf
+add-on, installed but not signed in on the disposable Mac profile. Those audio
+actions are not yet verified as playable. The local feed and art cache still
+contain no readable eBook file or authenticated audio stream.
 
 From the Kodi add-ons directory, install this directory as `skin.asterhome`
 or package it as a ZIP and use Kodi's add-on installer. The prototype has

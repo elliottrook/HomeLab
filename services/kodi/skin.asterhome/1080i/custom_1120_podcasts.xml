@@ -6,6 +6,7 @@
   <controls>
     <include content="AsterBooksPage">
       <param name="page" value="podcasts" />
+      <param name="actionlabel" value="Browse episodes" />
       <param name="heading" value="Podcasts" />
       <param name="emptylabel" value="No subscribed shows yet · add one in Audiobookshelf" />
       <param name="activeleft" value="1098" />

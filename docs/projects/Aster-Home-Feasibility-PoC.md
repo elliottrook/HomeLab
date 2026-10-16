@@ -946,12 +946,26 @@ Audiobookshelf book/podcast metadata. The Mac test feed contains 558 titles:
 505 eBooks, 46 audiobooks, and seven subscribed podcasts. Descriptions are
 available for 141 eBooks, 41 audiobooks and all seven podcasts; missing source
 descriptions are not fabricated. The Books hero displays the selected synopsis,
-and the About action is wired to Kodi's full text viewer, pending final UI
-activation check. No file paths, audio payloads, credentials or full books are
-added to the feed. Forty-five offline tests pass. The user approved audio
-connection and eBook reader handoff; the selected implementation path to test
-is Kodi's official-repository Audiobookshelf add-on plus existing Calibre-Web.
-No new server credential or permission is approved by this checkpoint.
+and the About action opens a newly supplied Aster text-viewer dialog, verified
+in the Mac Kodi UI. No file paths, audio payloads, credentials or full books
+are added to the feed. The user approved audio connection and eBook reader
+handoff; the selected implementation path is Kodi's official-repository
+Audiobookshelf add-on plus existing Calibre-Web. No new server credential or
+permission is approved by this checkpoint.
+
+Books handoff checkpoint, 2026-10-15: Explicit hero actions now resolve only
+validated IDs from the sanitized catalogue. "Read this book" opened a real
+Calibre-Web title in the Mac's default browser, with its browser-reader
+control present. On LibreELEC the action displays the authenticated reader
+URL for handoff to a phone/tablet; the physical-device flow remains untested.
+The Audiobookshelf Kodi add-on is installed in the disposable Mac profile and
+the Aster actions target its verified `play` and `episodes` routes, but no
+account has been signed in and playback is **not** yet verified. Source review
+found the add-on embeds its bearer token in artwork and media URLs. A bounded
+credential choice or a safer client implementation is required before using
+it with the production Audiobookshelf service. Forty-seven offline tests pass;
+full text viewer and eBook handoff passed the Mac UI check. No server setting,
+credential or podcast subscription was changed in this handoff milestone.
 
 ## 15. References
 

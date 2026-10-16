@@ -6,6 +6,7 @@
   <controls>
     <include content="AsterBooksPage">
       <param name="page" value="ebooks" />
+      <param name="actionlabel" value="Read this book" />
       <param name="heading" value="eBooks" />
       <param name="activeleft" value="490" />
       <param name="icon" value="special://skin/media/21-books-app.png" />

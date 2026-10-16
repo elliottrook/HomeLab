@@ -8,7 +8,7 @@ import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 
-from books_data import PAGES, cached_cover, cover_filename, page_records, selected_row
+from books_data import PAGES, activate_row, cached_cover, cover_filename, handoff_target, page_records, selected_row
 from hub_feeds import book_catalogue, plain_synopsis
 from pilot_books_feed import calibre_items, podcast_items
 from pilot_books_covers import QUERY, validated_covers
@@ -114,6 +114,38 @@ class BooksTests(unittest.TestCase):
         records = book_catalogue(self.sample())
         self.assertEqual(selected_row(Window(), 'home', records, label)['id'], 'a1')
 
+    def test_handoff_destinations_allow_only_known_id_shapes(self):
+        self.assertEqual(handoff_target({'kind': 'ebook', 'id': '505'}),
+                         'https://books.elliottrook.com/book/505')
+        self.assertEqual(handoff_target({'kind': 'audiobook', 'id': 'li_book-1'}),
+                         'plugin://plugin.audio.audiobookshelf/?action=play&item_id=li_book-1')
+        self.assertEqual(handoff_target({'kind': 'podcast', 'id': 'li_show_1'}),
+                         'plugin://plugin.audio.audiobookshelf/?action=episodes&item_id=li_show_1')
+        for row in ({'kind': 'ebook', 'id': '../../1'},
+                    {'kind': 'podcast', 'id': 'li_1),RunScript(bad)'},
+                    {'kind': 'audiobook', 'id': 'li/1'}):
+            self.assertIsNone(handoff_target(row))
+
+    def test_audio_handoff_uses_addon_without_feed_token(self):
+        class Xbmc:
+            commands = []
+
+            def getCondVisibility(self, condition):
+                return True
+
+            def executebuiltin(self, command):
+                self.commands.append(command)
+
+        class Gui:
+            pass
+
+        xbmc = Xbmc()
+        activate_row({'kind': 'audiobook', 'id': 'li_book'}, xbmc, Gui())
+        activate_row({'kind': 'podcast', 'id': 'li_show'}, xbmc, Gui())
+        self.assertEqual(xbmc.commands,
+                         ['PlayMedia(plugin://plugin.audio.audiobookshelf/?action=play&item_id=li_book)',
+                          'ActivateWindow(Music,plugin://plugin.audio.audiobookshelf/?action=episodes&item_id=li_show,return)'])
+
     def test_cover_cache_uses_opaque_key_and_rejects_symlink(self):
         row = {'kind': 'audiobook', 'id': 'li_example', 'title': 'Private title'}
         self.assertNotIn('Private title', cover_filename(row))
@@ -163,6 +195,11 @@ class BooksTests(unittest.TestCase):
         shared = ET.parse(ROOT / '1080i/IncludesBooks.xml')
         self.assertIsNotNone(shared.find('.//control[@id="301"]'))
         self.assertIsNotNone(shared.find('.//control[@id="500"]'))
+        self.assertEqual(shared.find('.//control[@id="111"]/ondown').text, '300')
+        self.assertEqual(shared.find('.//control[@id="300"]/ondown').text,
+                         '$PARAM[firsttile]')
+        self.assertEqual(ET.parse(ROOT / '1080i/custom_1110_books.xml').find(
+            './/param[@name="firsttile"]').get('value'), '501')
         self.assertIsNotNone(shared.find('.//param[@name="id"][@value="501"]'))
         self.assertIsNotNone(shared.find('.//param[@name="id"][@value="502"]'))
         self.assertIsNotNone(shared.find('.//param[@name="id"][@value="503"]'))
