@@ -25,6 +25,7 @@ class FakeOpener:
     def __init__(self):
         self.calls = []
         self.metadata_reply = None
+        self.audio_offline = False
 
     def open(self, request, timeout):
         self.calls.append((request.full_url, request.get_header('Authorization'),
@@ -38,6 +39,8 @@ class FakeOpener:
                      {'audioFiles': [{'ino': 31, 'metadata': {'filename': 'Part One.m4b'}}]})
             return Reply(json.dumps({'id': 'li_pod' if kind == 'podcast' else 'li_book',
                                      'mediaType': kind, 'media': media}).encode())
+        if self.audio_offline:
+            raise urllib.error.URLError('upstream unavailable')
         if request.get_header('Range') == 'bytes=2-4':
             return Reply(b'cde', 206, {'Content-Type': 'audio/mp4',
                                        'Content-Range': 'bytes 2-4/6', 'Content-Length': '3',
@@ -144,6 +147,22 @@ class BridgeTests(unittest.TestCase):
                 self.assertEqual(control_request(Path(temp) / 'bridge.sock', 'audiobook', 'li_book'), [])
                 opener.metadata_reply = None
                 self.assertEqual(len(control_request(Path(temp) / 'bridge.sock', 'audiobook', 'li_book')), 1)
+            finally:
+                bridge.stop()
+
+    def test_upstream_audio_outage_returns_generic_local_error(self):
+        opener = FakeOpener()
+        with tempfile.TemporaryDirectory() as temp:
+            bridge = Bridge('https://audio.example.test', 's' * 32, opener=opener)
+            socket_path = Path(temp) / 'bridge.sock'
+            bridge.start(socket_path)
+            try:
+                url = control_request(socket_path, 'podcast', 'li_pod')[0]['url']
+                opener.audio_offline = True
+                with self.assertRaises(urllib.error.HTTPError) as context:
+                    urllib.request.urlopen(url)
+                self.assertEqual(context.exception.code, 502)
+                self.assertNotIn(b's' * 32, context.exception.read())
             finally:
                 bridge.stop()
 

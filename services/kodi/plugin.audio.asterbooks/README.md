@@ -16,7 +16,9 @@ the Aster listening action shows a clear unavailable message; this path was
 checked in the Mac UI. With a dedicated key installed privately, live book
 and podcast metadata resolved and Kodi opened an audiobook as AAC and a
 downloaded podcast episode as MP3. Audible output, seeking, resume/progress
-and the LibreELEC endpoint remain unverified.
+and the LibreELEC endpoint remain unverified. The live bridge returned 206
+and the requested bytes for both media types; a synthetic upstream outage
+returned a generic 502 without exposing the key.
 
 Configuration for the Mac pilot: after an admin creates a key bound to the
 limited Audiobookshelf user, run `python3 configure_client.py` in your own

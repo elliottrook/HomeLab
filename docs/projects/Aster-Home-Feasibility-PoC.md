@@ -1004,9 +1004,12 @@ socket pathname was 104 bytes on macOS; cleanup then hung on an unstarted
 listener. A shorter socket name and partial-start cleanup regression test fixed
 both. The restarted Mac Kodi test logged the bridge ready and displayed book
 parts and podcast episodes. Selecting a book part opened Kodi's AAC decoder;
-selecting a podcast episode opened its MP3 decoder. Audio output, seek, resume
-and network-loss behaviour remain unverified, as does LibreELEC. Jellyfin's
-segment monitor logs Kodi's temporary loopback capability URL, so the pilot's
+selecting a podcast episode opened its MP3 decoder. The live loopback bridge
+returned HTTP 206 and exactly 32 requested bytes for
+both media types; a synthetic upstream audio outage returned a generic 502
+without the key. Audible output, Kodi-player seeking, resume, a real outage
+and LibreELEC still need testing. Jellyfin's segment monitor logs Kodi's
+temporary loopback capability URL, so the pilot's
 current Kodi log was made 0600, and bridge startup now enforces that mode or
 fails closed. The URL is not the Audiobookshelf key, but another local process
 running as the Kodi user can still read it. The listening list briefly blanks
