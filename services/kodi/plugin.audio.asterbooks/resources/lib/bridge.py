@@ -8,6 +8,7 @@ in an upstream header. A proxy URL is never a reusable ABS credential.
 
 import http.server
 import json
+import math
 import os
 import re
 import secrets
@@ -34,6 +35,63 @@ CONTROL_SOCKET = 'b.sock'  # Keep the full path below macOS's UNIX socket limit.
 
 class BridgeError(Exception):
     """Safe, non-secret bridge failure."""
+
+
+def finite_seconds(value):
+    """Accept only bounded numeric timeline values, never booleans or NaN."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    if not math.isfinite(value) or value < 0 or value > 7 * 24 * 3600:
+        return None
+    return float(value)
+
+
+def chapter_starts(media, files):
+    """Map global ABS chapter times to verified file indices and local offsets.
+
+    A single audio file needs no track map. For multiple files the ABS tracks
+    must align with audioFiles in order; otherwise file parts remain available.
+    """
+    chapters = media.get('chapters') or []
+    if not isinstance(chapters, list) or not 0 < len(chapters) <= 500 or not files:
+        return []
+    if len(files) == 1:
+        spans = [(0.0, finite_seconds(files[0].get('duration')))]
+    else:
+        tracks = media.get('tracks') or []
+        if not isinstance(tracks, list) or len(tracks) != len(files):
+            return []
+        spans = []
+        for file, track in zip(files, tracks):
+            if not isinstance(track, dict):
+                return []
+            start = finite_seconds(track.get('startOffset'))
+            duration = finite_seconds(track.get('duration'))
+            if start is None or duration is None or duration <= 0:
+                return []
+            file_duration = finite_seconds(file.get('duration'))
+            if file_duration is not None and abs(file_duration - duration) > 1:
+                return []
+            spans.append((start, duration))
+        if spans[0][0] != 0 or any(abs(spans[n][0] - (spans[n-1][0] + spans[n-1][1])) > 1
+                                     for n in range(1, len(spans))):
+            return []
+    result = []
+    for number, chapter in enumerate(chapters, 1):
+        if not isinstance(chapter, dict):
+            continue
+        start = finite_seconds(chapter.get('start'))
+        end = finite_seconds(chapter.get('end'))
+        if start is None or end is None or end <= start:
+            continue
+        for index, (file_start, duration) in enumerate(spans):
+            if start >= file_start and (duration is None or start < file_start + duration):
+                title = chapter.get('title')
+                if not isinstance(title, str) or not title.strip():
+                    title = 'Chapter ' + str(number)
+                result.append((title.strip()[:160], index, start - file_start, end - start, number))
+                break
+    return result
 
 
 def load_config(path):
@@ -140,15 +198,35 @@ class Bridge:
         if len(raw_entries) > 1000:
             raise BridgeError('Too many audio entries.')
         entries = []
+        file_entries = []
         for title, inode in raw_entries:
             inode = str(inode)
             if not INO.fullmatch(inode):
+                file_entries.append(None)
                 continue
             capability = secrets.token_urlsafe(32)
             with self.lock:
                 self.capabilities[capability] = (item_id, inode, self.clock() + TTL)
-            entries.append({'title': (title if isinstance(title, str) else 'Audio')[:160],
-                            'url': 'http://127.0.0.1:' + str(self.http.server_port) + '/audio/' + capability})
+            entry = {'title': (title if isinstance(title, str) else 'Audio')[:160],
+                     'url': 'http://127.0.0.1:' + str(self.http.server_port) + '/audio/' + capability}
+            entries.append(entry)
+            file_entries.append(entry)
+        if kind == 'audiobook' and len(file_entries) == len(files) and all(file_entries):
+            chapters = chapter_starts(media, files)
+            if chapters:
+                chapter_entries = []
+                for title, index, offset, duration, number in chapters:
+                    # Kodi keys music playlist entries by URL. Distinct capabilities
+                    # prevent later chapters of the same file replacing this offset.
+                    capability = secrets.token_urlsafe(32)
+                    with self.lock:
+                        self.capabilities[capability] = (item_id, str(files[index]['ino']), self.clock() + TTL)
+                    chapter_entries.append({'title': title,
+                                            'url': 'http://127.0.0.1:' + str(self.http.server_port) + '/audio/' + capability,
+                                            'start_offset': offset, 'duration': duration, 'number': number})
+                return chapter_entries
+        for number, entry in enumerate(entries, 1):
+            entry['number'] = number
         return entries
 
     def lookup(self, path):

@@ -112,6 +112,61 @@ class BridgeTests(unittest.TestCase):
             finally:
                 bridge.stop()
 
+    def test_single_file_chapters_use_distinct_capabilities_and_local_offsets(self):
+        opener = FakeOpener()
+        opener.metadata_reply = {'id': 'li_book', 'mediaType': 'book', 'media': {
+            'audioFiles': [{'ino': 31, 'duration': 600, 'metadata': {'filename': 'book.m4b'}}],
+            'chapters': [{'title': 'Opening', 'start': 0, 'end': 120},
+                         {'title': 'Second', 'start': 120.5, 'end': 300}]}}
+        with tempfile.TemporaryDirectory() as temp:
+            bridge = Bridge('https://audio.example.test', 's' * 32, opener=opener)
+            bridge.start(Path(temp) / 'bridge.sock')
+            try:
+                entries = control_request(Path(temp) / 'bridge.sock', 'audiobook', 'li_book')
+                self.assertEqual([e['title'] for e in entries], ['Opening', 'Second'])
+                self.assertEqual([e['start_offset'] for e in entries], [0, 120.5])
+                self.assertNotEqual(entries[0]['url'], entries[1]['url'])
+                self.assertEqual(bridge.lookup('/' + entries[1]['url'].split('/', 3)[-1])[1], '31')
+                self.assertEqual(entries[1]['duration'], 179.5)
+            finally:
+                bridge.stop()
+
+    def test_multifile_chapters_map_to_local_file_offset(self):
+        opener = FakeOpener()
+        opener.metadata_reply = {'id': 'li_book', 'mediaType': 'book', 'media': {
+            'audioFiles': [{'ino': 31, 'metadata': {'filename': 'one.mp3'}},
+                           {'ino': 32, 'metadata': {'filename': 'two.mp3'}}],
+            'tracks': [{'startOffset': 0, 'duration': 100},
+                       {'startOffset': 100, 'duration': 200}],
+            'chapters': [{'title': 'First', 'start': 20, 'end': 90},
+                         {'title': 'Second', 'start': 150, 'end': 250}]}}
+        with tempfile.TemporaryDirectory() as temp:
+            bridge = Bridge('https://audio.example.test', 's' * 32, opener=opener)
+            bridge.start(Path(temp) / 'bridge.sock')
+            try:
+                entries = control_request(Path(temp) / 'bridge.sock', 'audiobook', 'li_book')
+                self.assertEqual([e['start_offset'] for e in entries], [20, 50])
+                self.assertNotEqual(entries[0]['url'], entries[1]['url'])
+                self.assertEqual(bridge.lookup('/' + entries[1]['url'].split('/', 3)[-1])[1], '32')
+            finally:
+                bridge.stop()
+
+    def test_missing_track_timing_falls_back_to_file_parts(self):
+        opener = FakeOpener()
+        opener.metadata_reply = {'id': 'li_book', 'mediaType': 'book', 'media': {
+            'audioFiles': [{'ino': 31, 'metadata': {'filename': 'one.mp3'}},
+                           {'ino': 32, 'metadata': {'filename': 'two.mp3'}}],
+            'chapters': [{'title': 'Unsafe guess', 'start': 120, 'end': 200}]}}
+        with tempfile.TemporaryDirectory() as temp:
+            bridge = Bridge('https://audio.example.test', 's' * 32, opener=opener)
+            bridge.start(Path(temp) / 'bridge.sock')
+            try:
+                entries = control_request(Path(temp) / 'bridge.sock', 'audiobook', 'li_book')
+                self.assertEqual([e['title'] for e in entries], ['one.mp3', 'two.mp3'])
+                self.assertTrue(all('start_offset' not in e for e in entries))
+            finally:
+                bridge.stop()
+
     def test_invalid_and_expired_capabilities_fail_closed(self):
         opener = FakeOpener()
         with tempfile.TemporaryDirectory() as temp:

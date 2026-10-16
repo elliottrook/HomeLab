@@ -2,9 +2,10 @@
 
 This local Kodi add-on replaces the official Audiobookshelf add-on for Aster's
 audio handoff. It uses a Kodi service
-for a loopback-only, range-capable playback URL and a plugin for book parts and
-podcast episodes. The service sends the Audiobookshelf key only in an outbound
-HTTPS `Authorization` header; no upstream credential is put in a Kodi URL,
+for a loopback-only, range-capable playback URL and a plugin for audiobook
+chapters and podcast episodes. When book chapter/timing metadata is incomplete,
+the selector falls back to file parts. The service sends the Audiobookshelf key
+only in an outbound HTTPS `Authorization` header; no upstream credential is put in a Kodi URL,
 catalogue feed or log. A random capability in the `127.0.0.1` URL expires with
 the service, and is reachable only from the Kodi host. The private UNIX control
 socket has mode 0600. No credential is included in this repository.
@@ -40,11 +41,16 @@ change proxy/firewall exposure as a workaround. The existing HTTPS domain
 returned live metadata with the dedicated key; no proxy change was needed.
 
 The prototype reads item metadata and maps book `audioFiles[].ino` or podcast
-`episodes[].audioFile.ino` to `/api/items/{id}/file/{ino}/download`. That raw
+`episodes[].audioFile.ino` to `/api/items/{id}/file/{ino}/download`. Audiobook
+chapter starts from `media.chapters` are mapped to file-local offsets using
+`media.tracks`; each chapter gets a distinct expiring local capability because
+Kodi otherwise conflates chapters pointing to the same URL. Kodi's `StartOffset`
+property selects the chapter start. Chapter selection does not yet constrain
+playback to the chapter's end or sync position back to Audiobookshelf. That raw
 file endpoint and byte ranges are documented by Audiobookshelf's own client
 and are synthetically tested here; the Mac Kodi pilot also reached real files.
 No resume/progress synchronization, transcoding or multi-file autoplay is
-claimed. The listener selects a part or episode in Kodi. A server error should
+claimed. The listener selects a chapter, file part or episode in Kodi. A server error should
 fail closed with a generic message, never expose a token.
 
 Security limitations: another process running as the Kodi OS user could read

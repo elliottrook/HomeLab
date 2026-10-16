@@ -60,6 +60,14 @@ def main():
     for entry in entries:
         item = xbmcgui.ListItem(label=entry['title'], path=entry['url'])
         item.setProperty('IsPlayable', 'true')
+        if 'start_offset' in entry:
+            item.setProperty('StartOffset', str(entry['start_offset']))
+        item.setProperty('AsterBooks.Number', str(entry.get('number', '')))
+        seconds = entry.get('duration')
+        if isinstance(seconds, (int, float)):
+            minutes = int(seconds) // 60
+            item.setProperty('AsterBooks.Length', f'{minutes // 60}h {minutes % 60:02d}m'
+                             if minutes >= 60 else f'{minutes} min' if minutes else '<1 min')
         item.setProperty('AsterBooks.ParentTitle', title)
         item.setProperty('AsterBooks.EntryTitle', entry['title'])
         item.setProperty('AsterBooks.Summary', summary)

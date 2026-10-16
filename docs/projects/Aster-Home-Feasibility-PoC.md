@@ -1033,6 +1033,28 @@ focused episode/chapter list row while that item is actively playing (the
 hero title remains visible); this cosmetic defect is retained for a later
 focused Kodi-list investigation. No credentials or remote Git state changed.
 
+Chapter navigation and selector checkpoint, 2026-10-15: The private bridge now
+projects bounded Audiobookshelf `media.chapters` into selectable Kodi entries.
+Single-file books use the chapter start directly; multi-file books require
+aligned `media.tracks` timing and validated file inodes. If timing is absent or
+inconsistent, the safe fallback is the former file-parts list. A read-only
+sample of all 46 live audiobooks found chapter metadata in each, including
+seven multi-file titles with aligned track counts. The first five single-file
+samples and a multi-file sample mapped the same number of chapters as the
+server supplied. Synthetic tests cover single-file offsets, cross-file offsets,
+and the missing-track fallback. Each chapter uses a distinct local capability:
+the initial shared-URL Mac pilot made Kodi jump to the final chapter's offset,
+whereas a replay after assigning separate URLs started Opening Credits near
+00:00. Selecting Chapter 1 showed its title, but a stable measured nonzero
+seek position was not captured, so that behavior remains to verify. The
+listening page's bottom selector now uses a rounded paper panel with numbered
+ivory/green cards, chapter lengths, parent title, and a fallback row label
+while Kodi is playing; the Mac pilot visually showed the revised layout.
+XML validation, 60 local tests and whitespace checks pass. This is a chapter
+*start* selector, not chapter-bounded playback; multi-file autoplay, audible
+output, progress sync, and LibreELEC endpoint behavior remain unverified.
+No server configuration or remote Git state changed.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
