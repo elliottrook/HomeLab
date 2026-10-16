@@ -1,6 +1,6 @@
 # Aster Home Kodi skin prototype
 
-Version 0.7.3 builds Aster Music into five linked screens: the Recently Added
+Version 0.7.4 builds Aster Music into five linked screens: the Recently Added
 landing, then Albums, Artists, Songs and Playlists. The four icon-led pills
 open the browse screens; Recently Added is reached from the Music launcher.
 The pages share the media shell's full-width selected fanart blending into the
@@ -12,10 +12,10 @@ music library. Playlists are read from Kodi's `special://musicplaylists/` and
 the logged-in Jellyfin Kodi add-on's playlist views (not the transient
 now-playing queue); Aster does not store Jellyfin credentials. The page states
 clearly when neither source is available. Selecting an artist opens its albums;
-selecting an album opens a two-column Aster player with ordered tracks, album
-art and transport controls. Playback starts only after Play album or a track
-is selected. Jellyfin playlists open their contents in the existing add-on;
-Kodi playlists retain their normal playback action. Search uses Kodi's indexed album/artist/song filters
+selecting an album, song or playlist opens the same two-column Aster player
+with art, track list and transport controls. Playback starts only after Play
+or a track is selected. Jellyfin playlist tracks use the existing add-on's
+authenticated paths; Kodi-local playlist files remain Kodi-resolved. Search uses Kodi's indexed album/artist/song filters
 across the full local library and shows the first 500 matches; the recently-added
 landing shows up to 50 albums. Playlist search filters saved playlist names.
 No background playback, media-file write or new credential is introduced.

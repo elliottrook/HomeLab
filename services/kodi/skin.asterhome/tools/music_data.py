@@ -11,7 +11,7 @@ from hub_data import kodi_rpc
 
 PAGES = {'home': 11113, 'albums': 11114, 'artists': 11115,
          'songs': 11116, 'playlists': 11117}
-ALBUM_PLAYER = 11121
+MUSIC_PLAYER = 11121
 LIMITS = {'home': 50, 'albums': 500, 'artists': 500, 'songs': 500,
           'playlists': 500}
 
@@ -136,6 +136,46 @@ def album_tracks(xbmc, album_id):
         'limits': {'start': 0, 'end': 500}}).get('songs', [])
 
 
+def player_tracks(xbmc, kind, identifier, path=''):
+    if kind == 'album':
+        return album_tracks(xbmc, int(identifier))
+    if kind == 'song':
+        song = kodi_rpc(xbmc, 'AudioLibrary.GetSongDetails', {
+            'songid': int(identifier),
+            'properties': ['artist', 'album', 'duration', 'track', 'thumbnail']}).get('songdetails')
+        return [song] if song else []
+    parsed = urlsplit(path)
+    if not (path.startswith('special://musicplaylists/') or
+            (parsed.scheme == 'plugin' and parsed.netloc == 'plugin.video.jellyfin'
+             and parse_qs(parsed.query).get('type') == ['playlists'])):
+        raise ValueError('Playlist source is not supported')
+    result = kodi_rpc(xbmc, 'Files.GetDirectory', {
+        'directory': path, 'media': 'files',
+        'properties': ['title', 'duration', 'thumbnail', 'artist']})
+    return [entry for entry in result.get('files', [])
+            if entry.get('filetype') == 'file' and entry.get('file')][:500]
+
+
+def play_selection(xbmc, kind, identifier, path, tracks, position=0):
+    if not tracks:
+        raise ValueError('No playable tracks in this selection')
+    if position < 0 or position >= len(tracks):
+        raise ValueError('Track is no longer in this selection')
+    if kind == 'song':
+        kodi_rpc(xbmc, 'Player.Open', {'item': {'songid': int(identifier)}})
+        return
+    if kind == 'playlist' and path.startswith('special://musicplaylists/'):
+        # Kodi playlist files can contain relative paths and smart rules;
+        # let Kodi resolve them instead of rewriting the saved playlist.
+        kodi_rpc(xbmc, 'Player.Open', {'item': {'file': path}})
+        return
+    items = ([{'songid': song['songid']} for song in tracks] if kind == 'album'
+             else [{'file': song['file']} for song in tracks])
+    kodi_rpc(xbmc, 'Playlist.Clear', {'playlistid': 0})
+    kodi_rpc(xbmc, 'Playlist.Add', {'playlistid': 0, 'item': items})
+    kodi_rpc(xbmc, 'Player.Open', {'item': {'playlistid': 0, 'position': position}})
+
+
 def play_album(xbmc, album_id, position=0):
     songs = album_tracks(xbmc, album_id)
     if not songs:
@@ -148,20 +188,23 @@ def play_album(xbmc, album_id, position=0):
     kodi_rpc(xbmc, 'Player.Open', {'item': {'playlistid': 0, 'position': position}})
 
 
-def album_player(xbmc, xbmcgui, action):
-    window = xbmcgui.Window(ALBUM_PLAYER)
+def music_player(xbmc, xbmcgui, action):
+    window = xbmcgui.Window(MUSIC_PLAYER)
     if action == 'load':
         pending = xbmcgui.Window(10000)
-        for field in ('AlbumId', 'AlbumTitle', 'AlbumArtist', 'AlbumCover'):
+        for field in ('Kind', 'Id', 'Title', 'Artist', 'Cover', 'Path'):
             window.setProperty('AsterMusic.' + field,
                                pending.getProperty('AsterMusic.Pending' + field))
-    album_id = window.getProperty('AsterMusic.AlbumId')
-    if not album_id.isdigit():
-        window.setProperty('AsterMusic.TrackStatus', 'Select an album first')
+    kind = window.getProperty('AsterMusic.Kind')
+    identifier = window.getProperty('AsterMusic.Id')
+    path = window.getProperty('AsterMusic.Path')
+    window.setProperty('AsterMusic.KindLabel', kind.capitalize())
+    if kind not in ('album', 'song', 'playlist') or (kind != 'playlist' and not identifier.isdigit()):
+        window.setProperty('AsterMusic.TrackStatus', 'Select music first')
         return
     try:
         if action == 'load':
-            songs = album_tracks(xbmc, int(album_id))
+            songs = player_tracks(xbmc, kind, identifier, path)
             listing = window.getControl(50)
             listing.reset()
             items = []
@@ -174,8 +217,8 @@ def album_player(xbmc, xbmcgui, action):
                 items.append(item)
             listing.addItems(items)
             window.setProperty('AsterMusic.TrackStatus',
-                               f'{len(items)} tracks · select to play' if items else
-                               'No indexed tracks in this album')
+                               f'{len(items)} {"track" if len(items) == 1 else "tracks"} · select to play' if items else
+                               'No playable tracks found')
         elif action in ('play', 'track'):
             position = 0
             if action == 'track':
@@ -185,7 +228,8 @@ def album_player(xbmc, xbmcgui, action):
                 if not text.isdigit():
                     return
                 position = int(text)
-            play_album(xbmc, int(album_id), position)
+            play_selection(xbmc, kind, identifier, path,
+                           player_tracks(xbmc, kind, identifier, path), position)
     except (ValueError, KeyError, TypeError) as error:
         xbmcgui.Dialog().notification('Aster Music', str(error)[:120])
 
@@ -195,8 +239,8 @@ def main(page, action='load'):
     import xbmcgui
     import xbmcvfs
 
-    if page == 'album-player':
-        album_player(xbmc, xbmcgui, action)
+    if page == 'music-player':
+        music_player(xbmc, xbmcgui, action)
         return
     if page not in PAGES:
         return
@@ -218,30 +262,27 @@ def main(page, action='load'):
         if page != 'playlists' and not identifier_text.isdigit():
             return
         try:
-            if page == 'playlists':
-                path = (selected.getProperty('AsterMusic.File') if selected else
-                        xbmc.getInfoLabel('Container(500).ListItem.Property(AsterMusic.File)'))
-                if path.startswith('special://musicplaylists/'):
-                    xbmc.executebuiltin('PlayMedia(' + path + ')')
-                elif path.startswith('plugin://plugin.video.jellyfin/?'):
-                    xbmc.executebuiltin('ActivateWindow(Videos,' + path + ',return)')
-            elif page == 'artists':
+            if page == 'artists':
                 albums = xbmcgui.Window(PAGES['albums'])
                 albums.setProperty('AsterMusic.ArtistId', identifier_text)
                 albums.setProperty('AsterMusic.ArtistName', selected.getLabel() if selected else
                                    xbmc.getInfoLabel('Container(500).ListItem.Label'))
                 xbmc.executebuiltin('ActivateWindow(1114)')
-            elif page == 'songs':
-                kodi_rpc(xbmc, 'Player.Open', {'item': {'songid': int(identifier_text)}})
             else:
                 pending = xbmcgui.Window(10000)
-                pending.setProperty('AsterMusic.PendingAlbumId', identifier_text)
-                pending.setProperty('AsterMusic.PendingAlbumTitle', selected.getLabel() if selected else
+                kind = ('playlist' if page == 'playlists' else
+                        'song' if page == 'songs' else 'album')
+                pending.setProperty('AsterMusic.PendingKind', kind)
+                pending.setProperty('AsterMusic.PendingId', identifier_text)
+                pending.setProperty('AsterMusic.PendingTitle', selected.getLabel() if selected else
                                    xbmc.getInfoLabel('Container(500).ListItem.Label'))
-                pending.setProperty('AsterMusic.PendingAlbumArtist', selected.getLabel2() if selected else
+                pending.setProperty('AsterMusic.PendingArtist', selected.getLabel2() if selected else
                                    xbmc.getInfoLabel('Container(500).ListItem.Label2'))
-                pending.setProperty('AsterMusic.PendingAlbumCover', selected.getArt('thumb') if selected else
+                pending.setProperty('AsterMusic.PendingCover', selected.getArt('thumb') if selected else
                                    xbmc.getInfoLabel('Container(500).ListItem.Art(thumb)'))
+                pending.setProperty('AsterMusic.PendingPath',
+                                    selected.getProperty('AsterMusic.File') if selected else
+                                    xbmc.getInfoLabel('Container(500).ListItem.Property(AsterMusic.File)'))
                 xbmc.executebuiltin('ActivateWindow(1121)')
         except (ValueError, KeyError, TypeError) as error:
             xbmcgui.Dialog().notification('Aster Music', str(error)[:120])

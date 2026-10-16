@@ -10,7 +10,7 @@
       <param name="gridwidth" value="1370" />
       <param name="searchvisible" value="true" />
       <param name="heading" value="Songs" />
-      <param name="actionlabel" value="▶  Play song" />
+      <param name="actionlabel" value="Open song" />
       <param name="righttarget" value="301" />
       <param name="activeleft" value="1018" />
       <param name="activevisible" value="true" />

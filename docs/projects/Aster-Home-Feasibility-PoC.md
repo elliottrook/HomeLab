@@ -1099,6 +1099,19 @@ tests pass. These checks are Mac pilot evidence, not LibreELEC/TV acceptance;
 no Jellyfin server or media files were changed. New source work remains local
 pending separate push authorization.
 
+Music shared-player checkpoint, 2026-10-15 (skin v0.7.4): Selecting an
+album, song or saved playlist now opens the same Aster Music player instead
+of immediately playing a song or handing a playlist to Kodi's generic view.
+The Mac pilot showed a song with its cover and one-track list, a 13-track
+Jellyfin playlist with ordered tracks, and a 10-track album. The song and
+Jellyfin playlist both started audio in the shared player, with elapsed-time
+progress and transport controls visible; album opening was rechecked after
+the generalization. Playback remains deliberate (Play or track selection),
+and the Jellyfin session remains owned by its Kodi add-on. Synthetic source
+and queue tests pass. This is Mac-pilot evidence, not LibreELEC acceptance;
+no server or media files were changed. The source change is local pending
+fresh push authorization.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

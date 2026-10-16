@@ -3,7 +3,8 @@ from pathlib import Path
 import unittest
 import xml.etree.ElementTree as ET
 
-from music_data import music_row, music_query, playlist_query, album_tracks, play_album, PAGES, ALBUM_PLAYER
+from music_data import (music_row, music_query, playlist_query, album_tracks,
+                        play_album, player_tracks, play_selection, PAGES, MUSIC_PLAYER)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -115,11 +116,44 @@ class MusicTests(unittest.TestCase):
 
     def test_album_player_is_a_separate_two_column_page(self):
         player = ET.parse(ROOT / '1080i/custom_1121_albumplayer.xml').getroot()
-        self.assertEqual(int(player.get('id')) + 10000, ALBUM_PLAYER)
+        self.assertEqual(int(player.get('id')) + 10000, MUSIC_PLAYER)
         self.assertIsNotNone(player.find('.//control[@id="50"]'))
-        self.assertIn('AsterMusic.AlbumCover', ET.tostring(player, encoding='unicode'))
-        self.assertIn('album-player,track', ET.tostring(player, encoding='unicode'))
+        self.assertIn('AsterMusic.Cover', ET.tostring(player, encoding='unicode'))
+        self.assertIn('music-player,track', ET.tostring(player, encoding='unicode'))
         self.assertIn('Open album', (ROOT / '1080i/custom_1114_albums.xml').read_text())
+        self.assertIn('Open song', (ROOT / '1080i/custom_1116_songs.xml').read_text())
+        tiles = (ROOT / '1080i/IncludesMusic.xml').read_text()
+        self.assertIn('<onclick>RunScript(special://skin/tools/music_data.py,$PARAM[page],open)</onclick>', tiles)
+        self.assertIn('Open playlist', (ROOT / '1080i/custom_1117_playlists.xml').read_text())
+
+    def test_song_and_playlist_player_sources_and_queue(self):
+        import json
+        calls = []
+
+        class FakeKodi:
+            def executeJSONRPC(self, payload):
+                request = json.loads(payload)
+                calls.append(request)
+                if request['method'] == 'AudioLibrary.GetSongDetails':
+                    return json.dumps({'result': {'songdetails': {'songid': 8,
+                                                                  'label': 'One song'}}})
+                if request['method'] == 'Files.GetDirectory':
+                    return json.dumps({'result': {'files': [
+                        {'filetype': 'file', 'label': 'First', 'file': 'plugin://plugin.video.jellyfin/?mode=play&id=1'},
+                        {'filetype': 'directory', 'label': 'Skip', 'file': 'plugin://plugin.video.jellyfin/?mode=browse&id=2'}]}})
+                return json.dumps({'result': 'OK'})
+
+        kodi = FakeKodi()
+        song = player_tracks(kodi, 'song', '8')
+        self.assertEqual(song[0]['label'], 'One song')
+        playlist = player_tracks(kodi, 'playlist', '',
+                                 'plugin://plugin.video.jellyfin/?mode=browse&type=playlists&folder=123')
+        self.assertEqual(len(playlist), 1)
+        play_selection(kodi, 'playlist', '', '', playlist)
+        self.assertEqual(calls[-2]['method'], 'Playlist.Add')
+        self.assertEqual(calls[-1]['method'], 'Player.Open')
+        play_selection(kodi, 'song', '8', '', song)
+        self.assertEqual(calls[-1]['params']['item'], {'songid': 8})
 
     def test_recent_is_landing_not_a_pill_and_music_tiles_are_square(self):
         xml = (ROOT / '1080i/IncludesMusic.xml').read_text()
