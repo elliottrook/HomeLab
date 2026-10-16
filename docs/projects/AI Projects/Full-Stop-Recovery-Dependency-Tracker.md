@@ -1,7 +1,7 @@
 # Full-stop recovery drill — dependency tracker
 
 **Owner:** Stream A for evidence and coordination; Local AI platform owner for
-host release, lease and recovery. **Last reconciled:** 2026-10-16, 03:33
+host release, lease and recovery. **Last reconciled:** 2026-10-16, 07:35
 America/Vancouver. **Overall decision: NO-GO.** This tracker is the human
 status page. The platform-owned
 `services/local-ai-lease/FULL-STOP-RECOVERY-DRILL-RUN-CARD.md` is the executable
@@ -12,21 +12,76 @@ The [October 15 23:29 pre-cycle read-only check](evidence/Full-stop-precycle-rea
 found a ready lease state, disabled/inactive independent watchdog and the
 unchanged disabled producer pin. It does not change any gate status.
 
-The platform execution card still describes parts of the pre-install source
-state (including a `source-only` controller and the old serial integrity
-selection), while the October 15 inactive-install result records newer
-modules on Proxmox. Its owner was notified to reconcile those exact bytes and
-sequence before any F3/F6/F7 approval. The discrepancy is another reason the
-current run card cannot authorize a live drill; it is not evidence of a host
-regression.
+The platform owner corrected the stale pre-install wording in the execution
+card in local commit `8f598f7b`. It now distinguishes the installed inactive
+controller and retained adapter from the still-uninstalled receipt CLI, while
+keeping the old manual controller separate. The documentation mismatch is
+resolved; this is not an F3/F6/F7 pass or live approval. The owner also
+integrated the missed-window record and the uninstalled read-only observer
+source in local commits `11764480` and `b254bd02`.
 
 ## What will happen automatically
 
 The October 16 01:10 read-only archive heartbeat triggered, but no complete
 three-archive result was retained by the time Stream A resumed after the
 start cutoff. It is now **paused**; see the [dated F2 record](evidence/Full-stop-archive-window-missed-2026-10-16.md).
+An uninstalled, source-only read-only observer candidate on
+`codex/aster-lease-compat` at `c32db365` passed offline tests and now refuses
+both whole-host and application-B60 lease state/locks at startup. The platform
+owner integrated the guard locally at `26ab170b`; it does not
+retroactively supply F2 evidence or authorize a new host schedule.
 It cannot save the trusted root-owned admission receipt. No evidence was
 retained of a watchdog activation, service stop, lease, A1 run or drill.
+The source guard does not prevent a competing lease or backup from starting
+mid-scan; a reviewed host-side exclusion, load/competing-job check and outer
+process deadline still gate unattended use.
+
+An October 16 read-only Proxmox installation preflight found that the first
+common-exclusion card misclassified the installed files: three modules exist
+and three are absent. The platform owner retained the failed preflight in
+local commit `7e039c6d` without changing the host. Stream A corrected the
+source card at `a0438d81`; the platform owner integrated it locally at
+`574d7bde`. It now pins three observed replacement hashes and three add-only
+absences. This resolves the **card discrepancy only**; a fresh check and
+separate disabled-install authorization are still required, and F2/F3/F6
+remain open.
+
+Jason approved that six-path disabled install, but the [target-Linux import
+failed and the install was rolled back](evidence/Common-host-exclusion-disabled-install-rollback-2026-10-16.md).
+The application controller's real root is `/usr/local/libexec/aster-a1`, not
+the whole-host lease directory. Pre-install hashes, production service state,
+timers and backup schedule were restored/verified. Jason subsequently approved
+the corrected two-root, seven-path card. Its [target-Linux result](evidence/Common-host-exclusion-disabled-install-v2-2026-10-16.md)
+at local `codex/aster-lease-compat` commit `048adc01` records matching
+installed hashes, both module-root imports, cross-process exclusion, 51/51
+synthetic host tests with one repository-unit-file test excluded, and unchanged
+inactive timers, services and schedules. This is a **disabled installation**;
+it does not admit an unattended F2 scan or advance F3/F6. The October 17 F2
+scan remains unadmitted pending a separately reviewed timing/schedule guard.
+The disabled F3 producer received the same pre-start lease guard in local
+source commit `4e16b964`, integrated by the platform owner as `f4b9da31`.
+Its full local suite passed 177 tests with two macOS root-custody skips. The
+producer is still uninstalled/disabled and F3 remains open.
+
+Review of the corrected install's recovery helper found that its first
+version could not roll back an interruption partway through the seven atomic
+file writes. The source-only replacement at local lease-compatibility commit
+`22d80549` now accepts exactly the pinned old/new states or an absent add
+path. Disposable-directory tests pass for all eight interruption points,
+reject symlinks and drift, and restore all four originals. The platform owner
+has the commit for independent review. This improves the rollback candidate;
+it does **not** prove target-Linux behavior, authorize the seven-path install,
+or advance F2/F3/F6.
+
+A later source-only common-exclusion candidate is documented at
+`services/local-ai-lease/COMMON-HOST-EXCLUSION-OFFLINE-CANDIDATE-20261016.md`
+on local `codex/aster-lease-compat` commit `a38da489`, integrated by the
+platform owner locally as `6fe98336`, holds one advisory
+directory lock through an archive scan or receipt write and through either
+candidate lease's state creation. Its full offline suite passed 188 tests
+with two macOS root-custody skips. It is **not installed** and does not
+advance F2 or F3. Target-Linux proof, backup/load exclusion, outer process
+deadline and the old manual controller's bypass remain review blockers.
 There is **no scheduled 03:10 live drill**; the old 03:05 and 03:40 one-time
 checks are paused. A schedule entry is not evidence that its preconditions
 passed or that a scan finished.
@@ -63,6 +118,16 @@ compressed into the 03:10 window merely because the clock reaches it. The
 earliest credible drill cycle is therefore **not October 16 under the current
 configuration**. A later date depends on F3, fresh-cycle success and approval;
 the prior 2–4 calendar-day estimate is conditional, not a reservation.
+
+With the October 16 timing result missing, the earliest *conditional* sequence
+is: complete the disabled installation and unattended-scan controls before
+the October 17 backup cycle; measure F2 at 01:10 October 17; review and release
+F3 only after that measurement; produce a fresh F4 receipt from the October 18
+backup cycle; then consider F5–F9 on October 18 if the run card and Jason's
+live approval are ready. This is a dependency lower bound, **not a booked
+drill**. A failed scan, late F3 release, backup mismatch or absent approval
+pushes it later. It cannot honestly be marked complete by October 17 merely
+because a source candidate or calendar slot exists.
 
 For any failed or uncertain dependency, the observing Stream A or platform
 agent must promptly tell Jason in this chat, in ordinary language:
