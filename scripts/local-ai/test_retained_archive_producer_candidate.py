@@ -101,12 +101,24 @@ class RetainedProducerTests(unittest.TestCase):
                         self.assertRaises(SystemExit):
                     producer.main(["--effect-authorized"])
                 self.assertEqual(scan.call_count, 0)
-                (root / "lease.lock").write_text("held")
+                for path in (
+                    root / "lease.json", root / "lease.lock",
+                    root / "application-b60" / "application-b60.json",
+                    root / "application-b60" / "application-b60.lock",
+                ):
+                    with self.subTest(path=path.name):
+                        path.parent.mkdir(exist_ok=True)
+                        path.write_text("held")
+                        with patch.object(producer.os, "geteuid", return_value=0), \
+                                self.assertRaises(SystemExit):
+                            producer.main(["--effect-authorized"])
+                        path.unlink()
+                (root / "application-b60" / "application-b60.lock").symlink_to("missing-lock")
                 with patch.object(producer.os, "geteuid", return_value=0), \
                         self.assertRaises(SystemExit):
                     producer.main(["--effect-authorized"])
+                (root / "application-b60" / "application-b60.lock").unlink()
                 self.assertEqual(scan.call_count, 0)
-                (root / "lease.lock").unlink()
                 with patch.object(producer.os, "geteuid", return_value=0):
                     self.assertEqual(producer.main(["--effect-authorized"]), 0)
                 scan.assert_called_once()

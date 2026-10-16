@@ -169,8 +169,14 @@ def main(argv: list[str] | None = None) -> int:
     if os.geteuid() != 0:
         raise SystemExit("retained archive producer requires root")
     root = RECEIPT_PATH.parent
-    if (root / "lease.json").exists() or (root / "lease.lock").exists():
-        raise SystemExit("a lease or retained lock already exists")
+    conflicting_state = (
+        root / "lease.json",
+        root / "lease.lock",
+        root / "application-b60" / "application-b60.json",
+        root / "application-b60" / "application-b60.lock",
+    )
+    if any(os.path.lexists(path) for path in conflicting_state):
+        raise SystemExit("a conflicting lease state or lock already exists")
     receipt = produce(_runner, clock=lambda: int(time.time()))
     print(json.dumps({"state": "complete", "date": receipt["date"],
                       "archives": len(receipt["archives"])}, sort_keys=True))
