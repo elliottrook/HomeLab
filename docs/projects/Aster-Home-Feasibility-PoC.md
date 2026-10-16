@@ -1141,6 +1141,20 @@ no LibreELEC claim, server change or remote Git operation follows from this
 checkpoint. All 55 synthetic source tests pass, including art URL bounds and
 chapter mapping.
 
+Digest playback follow-up, 2026-10-15 (local candidate): The Mac pilot
+confirmed that manual Refresh during playback changes the title, synopsis,
+image and highlighted row to the story at the audio clock. Two starts from a
+selected later chapter exposed independent Kodi startup races: the MP3 can
+start after a fixed 750 ms wait, and a window onload refresh can run before
+the seek. A polling-based attempt without windowed playback left Kodi on a
+black audio visualisation, so it was not retained. The next candidate starts
+the published MP3 with Kodi's documented `windowed=True` option, waits up to
+five seconds for audio startup, uses the list control's selected item instead
+of a focus-dependent infolabel for chapter offset, and retains the requested
+story through the initial seek. All 55 source tests pass, but the Mac locked
+before this exact candidate could be visually accepted. No server or remote
+Git change was made; live chapter start and clean stop remain open checks.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

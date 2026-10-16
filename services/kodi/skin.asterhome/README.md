@@ -13,9 +13,11 @@ crashed Kodi on shutdown; the pilot files were restored from a checkpoint and
 the watcher was removed from this candidate. A subsequent watcher-free quit
 was clean. The live pilot loaded 19 stories and started the published audio;
 seeking to a selected chapter worked once, but the corresponding panel/art
-has not been consistently verified after Kodi reopens the Digest page. A
-requested-chapter property now protects the panel during that refresh race;
-this needs another visual check before acceptance. Do not deploy this as an
+has not been consistently verified after Kodi reopens the Digest page. The
+current local candidate uses Kodi's selected-list-item API for the chapter,
+windowed playback, and a requested-chapter property to protect the startup
+refresh race. This exact combination still needs a Mac visual check before
+acceptance. Do not deploy this as an
 automatic story-sync solution. It neither changes the news server nor stores
 or republishes its content.
 
