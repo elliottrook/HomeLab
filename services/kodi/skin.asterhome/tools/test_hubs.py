@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import unittest
 import xml.etree.ElementTree as ET
-from hub_data import digest_view, show_digest_story, story_at_elapsed, WINDOWS
+from hub_data import digest_view, show_digest_story, story_at_elapsed, story_for_playback, WINDOWS
 from digest_data import DigestCards, merge_chapters, public_image
 from hub_feeds import books_view, home_view, read_feed
 import json
@@ -66,6 +66,14 @@ class HubTests(unittest.TestCase):
         stories = [{'start': value} for value in (4, 62, 131)]
         self.assertEqual([story_at_elapsed(stories, value) for value in (0, 4, 61, 62, 200)],
                          [0, 0, 0, 1, 2])
+
+    def test_selected_story_survives_pre_seek_window_refresh(self):
+        stories = [{'start': value} for value in (4, 62, 131)]
+        self.assertEqual(story_for_playback(stories, None, 62), 1)
+        self.assertEqual(story_for_playback(stories, 1, 62), 1)
+        self.assertEqual(story_for_playback(stories, 63, 62), 1)
+        self.assertEqual(story_for_playback(stories, 132, 62), 2)
+        self.assertEqual(story_for_playback(stories, 1, None), 0)
 
     def test_story_panel_bounds_summary_and_keeps_art(self):
         class Window:

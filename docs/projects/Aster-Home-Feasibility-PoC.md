@@ -1120,18 +1120,26 @@ an unboxed chapter list, title/source/brief synopsis/art, and transport
 controls. The Mac pilot rendered the 19-story list and the first story, but
 the first synopsis overran its panel; a 160-character panel bound corrected
 that in a second screenshot. Kodi launched its blank audio visualisation on
-Listen; a candidate one-shot return to the Digest window is not yet visually
-verified. A persistent Python watcher proposed for automatic chapter
+Listen; a one-shot return to the Digest window subsequently worked. A
+persistent Python watcher proposed for automatic chapter
 following caused macOS Kodi to segfault during Quit: the crash report's
 LanguageInvoker stack ends in `xbmcgui.Window.setProperty` while the main
 thread is cleaning up script threads. The Mac pilot's original `hub_data.py`
 and Digest XML were restored from `/tmp/aster-digest-check.pltEOy/`; there is
 no watcher installed in the pilot. The repository candidate removes the
 persistent watcher and offers manual Refresh to synchronize the displayed
-story to the player's elapsed time. Automatic chapter following and live
-candidate acceptance remain open gates; no LibreELEC claim, server change or
-remote Git operation follows from this checkpoint. Synthetic source tests
-pass, including art URL bounds and chapter mapping.
+story to the player's elapsed time. A watcher-free Mac quit/relaunch was
+clean and playback of the published MP3 was observed. Selecting chapter 2
+produced a playback position past 1:02, but the left panel returned to story
+1 as the window reloaded. The candidate now retains the requested chapter
+across that reload until playback reaches its seek point; unit tests cover
+this race, but a further visual check of its title/art and focus navigation
+is required. The list's own click did not dispatch a script reliably, so a
+separate **Play selected** button reads Kodi's retained list selection.
+Automatic chapter following and live candidate acceptance remain open gates;
+no LibreELEC claim, server change or remote Git operation follows from this
+checkpoint. All 55 synthetic source tests pass, including art URL bounds and
+chapter mapping.
 
 ## 15. References
 

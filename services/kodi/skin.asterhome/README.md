@@ -1,18 +1,23 @@
 # Aster Home Kodi skin prototype
 
-Version 0.7.5 is a local Digest-page candidate, not yet accepted on Kodi or
+Version 0.7.5 is a Mac Kodi pilot Digest-page candidate, not yet accepted on
 LibreELEC. It reads the current Aster news briefing and its existing `/digest`
 story cards, joins published headlines to chapter times, and shows available
 source summaries and pictures beside a plain chapter list. The two-column
 layout uses the same player language as Aster Books/Music. Missing source art
-uses the approved Aster News icon. Listen and chapter selection are explicit;
+uses the approved Aster News icon. Playback and chapter selection are explicit;
 Refresh also re-reads the currently playing audio time to show the story at
 that chapter. The page does **not** continuously auto-follow chapter changes.
 The first live Mac attempt to auto-follow with a persistent Python watcher
 crashed Kodi on shutdown; the pilot files were restored from a checkpoint and
-the watcher was removed from this candidate. Do not deploy this candidate as
-an automatic story-sync solution. It neither changes the news server nor
-stores or republishes its content.
+the watcher was removed from this candidate. A subsequent watcher-free quit
+was clean. The live pilot loaded 19 stories and started the published audio;
+seeking to a selected chapter worked once, but the corresponding panel/art
+has not been consistently verified after Kodi reopens the Digest page. A
+requested-chapter property now protects the panel during that refresh race;
+this needs another visual check before acceptance. Do not deploy this as an
+automatic story-sync solution. It neither changes the news server nor stores
+or republishes its content.
 
 Version 0.7.4 builds Aster Music into five linked screens: the Recently Added
 landing, then Albums, Artists, Songs and Playlists. The four icon-led pills
@@ -228,11 +233,12 @@ the audio. The live Mac test displayed 25 albums and opened the first album's
 15-track playlist through the existing Jellyfin integration.
 
 Daily Digest reads the existing published chapter metadata on the private LAN,
-shows a bounded list of stories, and **Listen** starts the published audio only
-on request. An edition older than 36 hours, future-dated, malformed, or absent
-is treated as unavailable. The chapter list is browsable; selecting an
-individual chapter is not yet guaranteed on this Kodi list control. This skin
-does not synthesize a new voice or store headlines in Git.
+shows a bounded list of stories, and **Play selected** starts the published
+audio at the selected story only on request. An edition older than 36 hours,
+future-dated, malformed, or absent is treated as unavailable. Kodi's list
+control does not reliably dispatch a row click, so the separate button is used
+for chapter playback. The chapter panel after seeking remains a live-test gate.
+This skin does not synthesize a new voice or store headlines in Git.
 
 Books and Home show the intended information architecture and honest connection
 states. The one-shot Audiobookshelf catalogue is available in the disposable

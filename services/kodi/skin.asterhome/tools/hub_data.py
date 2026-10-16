@@ -91,6 +91,15 @@ def story_at_elapsed(stories, elapsed):
     return active
 
 
+def story_for_playback(stories, elapsed, requested_start):
+    """Keep an explicit selection visible while Kodi's seek is still settling."""
+    if requested_start is not None and (elapsed is None or elapsed < requested_start - 2):
+        for index, story in enumerate(stories):
+            if abs(story['start'] - requested_start) < 0.1:
+                return index
+    return story_at_elapsed(stories, elapsed) if elapsed is not None else 0
+
+
 def main(page, action='refresh'):
     import xbmc
     import xbmcgui
@@ -102,6 +111,7 @@ def main(page, action='refresh'):
     if page == 'digest' and action == 'stop':
         xbmc.executebuiltin('PlayerControl(Stop)')
         window.setProperty('AsterHub.DigestPlaying', 'false')
+        window.setProperty('AsterHub.RequestedStart', '')
         return
     if action in ('play', 'chapter'):
         if page == 'books':
@@ -152,11 +162,26 @@ def main(page, action='refresh'):
             xbmcgui.Dialog().notification('Aster Home', 'Briefing is stale. Refresh to check for a new edition.')
             return
         item = xbmcgui.ListItem('Daily Digest')
+        chapter_offset = None
+        window.setProperty('AsterHub.RequestedStart', '')
         if action == 'chapter':
-            selected = window.getControl(500).getSelectedItem()
-            if not selected:
+            # A new Python invocation cannot read the list items populated by
+            # the earlier refresh, but Kodi retains the focused item's label.
+            selected_start = xbmc.getInfoLabel('Container(500).ListItem.Property(AsterStart)')
+            try:
+                chapter_offset = float(selected_start)
+                digest, stories, _ = published_digest()
+                if digest['generated_at'] != window.getProperty('AsterHub.GeneratedAt'):
+                    raise ValueError('Briefing changed')
+                selected_story = next(story for story in stories
+                                      if abs(story['start'] - chapter_offset) < 0.1)
+            except (ValueError, StopIteration, KeyError, TypeError, OSError):
+                window.setProperty('AsterHub.Status', 'Story unavailable; refresh the briefing')
                 return
-            item.setProperty('StartOffset', selected.getProperty('AsterStart'))
+            selected = xbmcgui.ListItem(selected_story['title'])
+            for field in ('title', 'summary', 'source', 'image'):
+                selected.setProperty('AsterHub.Story' + field.title(), selected_story[field])
+            window.setProperty('AsterHub.RequestedStart', str(chapter_offset))
             show_digest_story(window, selected)
         # Playback only on an explicit user selection; no autoplay on refresh.
         xbmc.Player().play(DIGEST_BASE + '/static/digest-audio/latest.mp3', item)
@@ -164,8 +189,12 @@ def main(page, action='refresh'):
         # own player. Bring the story/controls back as soon as playback starts.
         xbmc.sleep(750)
         if xbmc.Player().isPlayingAudio():
+            if chapter_offset is not None and chapter_offset > 4:
+                xbmc.Player().seekTime(chapter_offset)
             window.setProperty('AsterHub.DigestPlaying', 'true')
             xbmc.executebuiltin('ActivateWindow(1111)')
+        else:
+            window.setProperty('AsterHub.RequestedStart', '')
         return
     titles = {'books': 'Books & Audiobooks', 'digest': 'Daily Digest', 'home': 'Aster Home', 'music': 'Aster Music'}
     subtitles = {
@@ -174,6 +203,7 @@ def main(page, action='refresh'):
         'home': 'A calmer home. One clear view.',
         'music': 'A soundtrack for your day.',
     }
+    previous_generation = window.getProperty('AsterHub.GeneratedAt') if page == 'digest' else ''
     window.setProperty('AsterHub.Title', titles[page])
     window.setProperty('AsterHub.Subtitle', subtitles[page])
     window.setProperty('AsterHub.Ready', 'false')
@@ -184,12 +214,20 @@ def main(page, action='refresh'):
     window.setProperty('AsterHub.HomeValuesReady', 'false')
     window.setProperty('AsterHub.Status', 'Read-only connection required')
     elapsed = None
+    requested_start = None
     if page == 'digest':
+        try:
+            requested_start = float(window.getProperty('AsterHub.RequestedStart'))
+        except ValueError:
+            pass
         try:
             playing = (xbmc.Player().isPlayingAudio() and
                        xbmc.Player().getPlayingFile().startswith(DIGEST_BASE + '/static/digest-audio/latest.mp3'))
             if playing:
                 elapsed = xbmc.Player().getTime()
+                if requested_start is not None and elapsed >= requested_start - 2:
+                    window.setProperty('AsterHub.RequestedStart', '')
+                    requested_start = None
         except RuntimeError:
             playing = False
         for field in ('Title', 'Summary', 'Source', 'Image'):
@@ -216,6 +254,9 @@ def main(page, action='refresh'):
     elif page == 'digest':
         try:
             digest, stories, stamp = published_digest()
+            if digest['generated_at'] != previous_generation:
+                requested_start = None
+                window.setProperty('AsterHub.RequestedStart', '')
             enriched = sum(bool(story['summary']) for story in stories)
             window.setProperty('AsterHub.Status', f'{len(stories)} stories · Updated {stamp}')
             window.setProperty('AsterHub.Description',
@@ -282,7 +323,7 @@ def main(page, action='refresh'):
         items.append(item)
     listing.addItems(items)
     if page == 'digest' and window.getProperty('AsterHub.Ready') == 'true':
-        index = story_at_elapsed(stories, elapsed) if elapsed is not None else 0
+        index = story_for_playback(stories, elapsed, requested_start)
         show_digest_story(window, listing.getListItem(index))
 
 
