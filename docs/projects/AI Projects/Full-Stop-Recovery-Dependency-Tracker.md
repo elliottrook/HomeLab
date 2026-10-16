@@ -39,6 +39,14 @@ The disabled F3 producer received the same pre-start lease guard in local
 source commit `4e16b964`, integrated by the platform owner as `f4b9da31`.
 Its full local suite passed 177 tests with two macOS root-custody skips. The
 producer is still uninstalled/disabled and F3 remains open.
+
+A later [source-only common-exclusion candidate](../../../services/local-ai-lease/COMMON-HOST-EXCLUSION-OFFLINE-CANDIDATE-20261016.md)
+on local `codex/aster-lease-compat` commit `a38da489` holds one advisory
+directory lock through an archive scan or receipt write and through either
+candidate lease's state creation. Its full offline suite passed 188 tests
+with two macOS root-custody skips. It is **not installed** and does not
+advance F2 or F3. Target-Linux proof, backup/load exclusion, outer process
+deadline and the old manual controller's bypass remain review blockers.
 There is **no scheduled 03:10 live drill**; the old 03:05 and 03:40 one-time
 checks are paused. A schedule entry is not evidence that its preconditions
 passed or that a scan finished.
