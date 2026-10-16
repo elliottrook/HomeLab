@@ -392,6 +392,11 @@ now constructs proposed next steps from registered fields instead of copying
 persisted extra fields into UI frames. This closes a presentation leak in the
 candidate only; it does not sanitize producer facts for a model or authorize
 a connected tool.
+The [offline Doctor model-egress projection](evidence/D4-Doctor-model-egress-projection-2026-10-16.md)
+now builds a minimal typed status view for the two registered Doctor producers
+without copying their summaries or arbitrary facts. It is source-only, cannot
+authenticate a producer by itself, and does not change the M1 or usefulness
+gates for a connected tool.
 An [offline malformed-producer check](evidence/D4-sysadmin-evidence-type-boundary-2026-10-15.md)
 now makes wrong field types, boolean schema versions and non-finite fact values
 fail with a controlled contract error; it changes no live authority.
