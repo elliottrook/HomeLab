@@ -35,6 +35,16 @@ retained of a watchdog activation, service stop, lease, A1 run or drill.
 The source guard does not prevent a competing lease or backup from starting
 mid-scan; a reviewed host-side exclusion, load/competing-job check and outer
 process deadline still gate unattended use.
+
+An October 16 read-only Proxmox installation preflight found that the first
+common-exclusion card misclassified the installed files: three modules exist
+and three are absent. The platform owner retained the failed preflight in
+local commit `7e039c6d` without changing the host. Stream A corrected the
+source card at `a0438d81`; the platform owner integrated it locally at
+`574d7bde`. It now pins three observed replacement hashes and three add-only
+absences. This resolves the **card discrepancy only**; a fresh check and
+separate disabled-install authorization are still required, and F2/F3/F6
+remain open.
 The disabled F3 producer received the same pre-start lease guard in local
 source commit `4e16b964`, integrated by the platform owner as `f4b9da31`.
 Its full local suite passed 177 tests with two macOS root-custody skips. The
