@@ -37,23 +37,21 @@ The Audiobookshelf source is `/mnt/Media/media/audiobooks` on TrueNAS
 (`UNIFIED_AUDIOBOOKS_PATH`), not the empty `/mnt/Media/data/media/audiobooks`
 directory. The running container has this mount **read-write**, plus a
 read-only legacy compatibility mount at `/mnt/Media/media/Audiobooks`, and
-serves on `192.168.20.40:30067`. The checked-in shadow Compose file had
-drifted to a read-only audiobook mount, omitted the compatibility path and
-used `127.0.0.1:30077`; never recreate the live service from that stale
-definition. The candidate here preserves the observed live settings for the
-bounded podcast addition. Converting the audiobook mount to read-only is a
-separate migration with its own scan/artwork/playback proof.
+serves on `192.168.20.40:30067`. The shadow Compose file had drifted to a
+read-only audiobook mount, omitted the compatibility path and used
+`127.0.0.1:30077`. The deployed Compose definition now records the observed
+live settings and adds the separate podcast mount. Converting the audiobook
+mount to read-only is a separate migration with its own scan/artwork/playback
+proof.
 
 For the Aster Home podcast pilot, Audiobookshelf's separate Podcast library
 uses `/mnt/Media/media/podcasts` (`UNIFIED_PODCASTS_PATH`) mounted read-write
-at `/podcasts`. It must remain separate from the read-only audiobook mount.
-Create and permission the host directory before recreating only the
-Audiobookshelf container. Start with an empty library, manual episode
-downloads and automatic downloads disabled; choose a show and retention rule
-before enabling background acquisition. The current audiobook mount remains
-read-write pending a separate migration; the podcast path must not share it.
-Discovery uses Audiobookshelf's
-podcast search or a direct RSS feed in its authenticated web UI. The Aster
+at `/podcasts`. The current audiobook mount remains read-write pending a
+separate migration; the podcast path must not share it. The host directory
+is owned by `apps:apps` at 0770. The Podcast library starts empty, with no
+subscriptions or downloads; choose a show and retention rule before enabling
+background acquisition. Discovery uses Audiobookshelf's authenticated
+`Podcasts` → `Add` search or a direct RSS feed URL. The Aster
 Kodi podcast page is a separate read-only presentation integration until a
 reviewed playback/subscribe adapter is connected.
 

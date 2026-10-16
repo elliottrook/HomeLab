@@ -848,8 +848,9 @@ Audiobooks browse grid. No audiobook files, credentials, cover paths or
 Calibre filesystem paths enter the JSON feed; neither server nor services
 were changed. The source is one-shot and the Calibre query uses SQLite
 immutable read-only mode; a production publisher needs a consistent database
-snapshot and an explicit refresh/retention design. Podcasts remain
-unconnected. Forgejo synchronization is pending specific push approval.
+snapshot and an explicit refresh/retention design. At this checkpoint,
+podcasts remained unconnected. Forgejo synchronization is pending specific
+push approval.
 
 eBook artwork and podcast preparation, 2026-10-15: Calibre's 505 indexed
 books map to 501 source `cover.jpg` files. A bounded one-shot read-only
@@ -880,11 +881,27 @@ break the current endpoint and path compatibility. A `Media/appdata`
 pre-change snapshot and a copy of the Compose file were verified. The empty
 `/mnt/Media/media/podcasts` directory was created with `apps:apps` 0770.
 An initial targeted Compose edit was restored byte-for-byte after drift was
-detected; **the container was not recreated, no Podcast library was created,
-and no episode was downloaded**. A revised candidate preserves all observed
-live settings while adding the separate writable podcast mount. Further
-remote work awaits Jason's explicit decision on this changed risk. No
-snapshot rollback or destructive cleanup was attempted.
+detected; the container was not recreated at that point. Jason then explicitly
+approved preserving all observed live settings in the revised change. The
+targeted edit was reapplied, Compose's effective Audiobookshelf definition
+was checked for the unchanged household port, read-write `/audiobooks`,
+read-only legacy mount, and new read-write `/podcasts`, and only that service
+was recreated. The first HTTP probe ran during startup and failed; logs then
+showed a healthy listener, and a repeat probe returned HTTP 200. Database
+`quick_check` returned `ok`; 46 audiobook items and all 46 cover paths were
+still accessible after the restart.
+
+Using Jason's signed-in Audiobookshelf web UI, a separate `Podcasts` library
+was created with iTunes search and `/podcasts` as its only folder. Scheduled
+library scans are disabled. The library view shows empty; read-only database
+checks show one book library, one podcast library, 46 book items and zero
+podcast items. The host podcast directory remains empty, and no show was
+subscribed or episode downloaded. The one-shot Kodi feed was refreshed with
+551 records (505 eBooks, 46 audiobooks, zero podcasts). Its empty-state copy
+now points to Audiobookshelf discovery. The authenticated `Podcasts` → `Add`
+page exposes a title search, RSS URL input and OPML import. Acquiring and
+playing a selected podcast through Kodi is a later integration milestone;
+the current Kodi page is a read-only catalogue, not a playback client.
 
 ## 15. References
 

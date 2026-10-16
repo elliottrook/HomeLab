@@ -113,6 +113,12 @@ class BooksTests(unittest.TestCase):
         for icon in ('21-books-app.png', '12-audiobooks.png', '22-podcasts-app.png'):
             self.assertIn(icon, text)
         self.assertIn('ui-hero-bottom-fade.png', text)
+        self.assertIn('No subscribed shows yet. Discover podcasts in Audiobookshelf.', text)
+        self.assertIn('No subscribed podcasts · discover in Audiobookshelf', text)
+        podcast_window = ET.parse(ROOT / '1080i/custom_1120_podcasts.xml')
+        self.assertEqual(podcast_window.find('.//param[@name="emptylabel"]').get('value'),
+                         'No subscribed shows yet · add one in Audiobookshelf')
+        self.assertIn('Filter my shows', (ROOT / 'tools/books_data.py').read_text())
         for page, identifier in PAGES.items():
             path = ROOT / f'1080i/custom_{identifier - 10000}_{"books" if page == "home" else page}.xml'
             window = ET.parse(path)

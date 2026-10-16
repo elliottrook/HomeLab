@@ -7,6 +7,7 @@
     <include content="AsterBooksPage">
       <param name="page" value="podcasts" />
       <param name="heading" value="Podcasts" />
+      <param name="emptylabel" value="No subscribed shows yet · add one in Audiobookshelf" />
       <param name="activeleft" value="1098" />
       <param name="icon" value="special://skin/media/22-podcasts-app.png" />
     </include>

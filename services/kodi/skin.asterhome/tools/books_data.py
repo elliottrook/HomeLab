@@ -118,7 +118,9 @@ def main(page, action='load'):
         status = (f'{len(rows)} / {total} catalogue titles' if available else
                   'Books feed unavailable or stale')
         window.setProperty('AsterBooks.SearchLabel',
-                           'Search: ' + query if query else 'Search ' + page)
+                           'Search: ' + query if query else
+                           'Filter my shows' if page == 'podcasts' else
+                           'Search ' + page)
 
     for kind, count in counts.items():
         window.setProperty('AsterBooks.Count.' + kind, str(count))

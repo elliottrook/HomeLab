@@ -6,6 +6,7 @@
     <value condition="!String.IsEmpty(Container(502).ListItem.Label)">$INFO[Container(502).ListItem.Label]</value>
     <value condition="!String.IsEmpty(Container(500).ListItem.Label)">$INFO[Container(500).ListItem.Label]</value>
     <value condition="!String.IsEmpty(Window.Property(AsterBooks.Search)) + String.IsEmpty(Container(500).ListItem.Label)">No matching titles</value>
+    <value condition="Window.IsActive(1120)">Your podcasts</value>
     <value>Choose your next chapter</value>
   </variable>
   <variable name="AsterBooksHeroDetail">
@@ -15,7 +16,7 @@
     <value condition="!String.IsEmpty(Container(500).ListItem.Label)">$INFO[Container(500).ListItem.Label2]</value>
     <value condition="!String.IsEmpty(Window.Property(AsterBooks.Search)) + String.IsEmpty(Container(500).ListItem.Label)">Try a different title search.</value>
     <value condition="Window.IsActive(1118)">The eBook catalogue is not connected yet.</value>
-    <value condition="Window.IsActive(1120)">The podcast catalogue is not connected yet.</value>
+    <value condition="Window.IsActive(1120)">No subscribed shows yet. Discover podcasts in Audiobookshelf.</value>
     <value>Discover eBooks, audiobooks and podcasts here.</value>
   </variable>
   <include name="AsterBooksTile">
@@ -46,6 +47,7 @@
     <param name="activeleft" default="410" />
     <param name="activevisible" default="true" />
     <param name="icon" default="special://skin/media/21-books-app.png" />
+    <param name="emptylabel" default="No titles connected in this section" />
     <definition>
       <control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture>special://skin/media/ui-solid.png</texture><colordiffuse>asterCharcoal</colordiffuse></control>
       <control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture>special://skin/media/ui-hero-bottom-fade.png</texture><colordiffuse>asterStone</colordiffuse><aspectratio>stretch</aspectratio></control>
@@ -75,7 +77,7 @@
           <control type="label"><left>145</left><top>700</top><width>900</width><height>42</height><label>Audiobooks · catalogue snapshot</label><font>font28</font><textcolor>asterInk</textcolor></control>
           <control type="label"><left>145</left><top>745</top><width>1100</width><height>35</height><label>No audiobook titles in the current feed</label><font>font20</font><textcolor>asterMuted</textcolor><visible>String.IsEqual(Window.Property(AsterBooks.Count.audiobook),0)</visible></control>
           <control type="label"><left>145</left><top>880</top><width>900</width><height>42</height><label>Podcasts</label><font>font28</font><textcolor>asterInk</textcolor></control>
-          <control type="label"><left>145</left><top>925</top><width>1100</width><height>35</height><label>Podcast catalogue not connected</label><font>font20</font><textcolor>asterMuted</textcolor><visible>String.IsEqual(Window.Property(AsterBooks.Count.podcast),0)</visible></control>
+          <control type="label"><left>145</left><top>925</top><width>1100</width><height>35</height><label>No subscribed podcasts · discover in Audiobookshelf</label><font>font20</font><textcolor>asterMuted</textcolor><visible>String.IsEqual(Window.Property(AsterBooks.Count.podcast),0)</visible></control>
           <include content="AsterBooksHomeRow"><param name="id" value="501" /><param name="top" value="560" /><param name="up" value="300" /><param name="down" value="502" /></include>
           <include content="AsterBooksHomeRow"><param name="id" value="502" /><param name="top" value="740" /><param name="up" value="501" /><param name="down" value="503" /></include>
           <include content="AsterBooksHomeRow"><param name="id" value="503" /><param name="top" value="920" /><param name="up" value="502" /><param name="down" value="112" /></include>
@@ -93,7 +95,7 @@
             <itemlayout width="300" height="345"><include>AsterBooksTile</include></itemlayout>
             <focusedlayout width="300" height="345"><control type="image"><left>41</left><top>0</top><width>198</width><height>268</height><texture border="28">special://skin/media/ui-panel.png</texture><colordiffuse>asterGreen</colordiffuse><visible>String.IsEqual(ListItem.Property(AsterBooks.Kind),ebook)</visible></control><control type="image"><left>6</left><top>0</top><width>268</width><height>268</height><texture border="28">special://skin/media/ui-panel.png</texture><colordiffuse>asterGreen</colordiffuse><visible>!String.IsEqual(ListItem.Property(AsterBooks.Kind),ebook)</visible></control><include>AsterBooksTile</include></focusedlayout>
           </control>
-          <control type="label"><left>145</left><top>680</top><width>1200</width><height>80</height><label>No titles connected in this section</label><font>font24</font><textcolor>asterMuted</textcolor><visible>String.IsEmpty(Container(500).ListItem.Label) + String.IsEmpty(Window.Property(AsterBooks.Search))</visible></control>
+          <control type="label"><left>145</left><top>680</top><width>1200</width><height>80</height><label>$PARAM[emptylabel]</label><font>font24</font><textcolor>asterMuted</textcolor><visible>String.IsEmpty(Container(500).ListItem.Label) + String.IsEmpty(Window.Property(AsterBooks.Search))</visible></control>
           <control type="label"><left>145</left><top>680</top><width>1200</width><height>80</height><label>No titles match this search</label><font>font24</font><textcolor>asterMuted</textcolor><visible>String.IsEmpty(Container(500).ListItem.Label) + !String.IsEmpty(Window.Property(AsterBooks.Search))</visible></control>
         </control>
       </control>
