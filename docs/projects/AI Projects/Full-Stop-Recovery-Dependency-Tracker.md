@@ -59,6 +59,16 @@ source commit `4e16b964`, integrated by the platform owner as `f4b9da31`.
 Its full local suite passed 177 tests with two macOS root-custody skips. The
 producer is still uninstalled/disabled and F3 remains open.
 
+Review of the corrected install's recovery helper found that its first
+version could not roll back an interruption partway through the seven atomic
+file writes. The source-only replacement at local lease-compatibility commit
+`22d80549` now accepts exactly the pinned old/new states or an absent add
+path. Disposable-directory tests pass for all eight interruption points,
+reject symlinks and drift, and restore all four originals. The platform owner
+has the commit for independent review. This improves the rollback candidate;
+it does **not** prove target-Linux behavior, authorize the seven-path install,
+or advance F2/F3/F6.
+
 A later source-only common-exclusion candidate is documented at
 `services/local-ai-lease/COMMON-HOST-EXCLUSION-OFFLINE-CANDIDATE-20261016.md`
 on local `codex/aster-lease-compat` commit `a38da489`, integrated by the
