@@ -7,17 +7,20 @@ hard-disabled until a separately reviewed, hash-pinned host release exists.
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import re
 import stat
+import subprocess
+import time
 from datetime import datetime
 from typing import Callable
 
 from backup_receipt_adapter import EXPECTED_PROXMOX_BACKUP_ID, verify_proxmox_artifacts
 from fixed_source_adapters import _json, _truenas
 from retained_archive_integrity import (
-    IntegrityError, LOCAL_ZONE, capture, fixed_probe, fixed_resolve,
+    IntegrityError, LOCAL_ZONE, RECEIPT_PATH, capture, fixed_probe, fixed_resolve,
     save_root_owned,
 )
 
@@ -147,8 +150,30 @@ def produce(
     return receipt
 
 
-def main() -> int:
-    print(json.dumps({"state": "disabled", "effects": "not-attempted"}, sort_keys=True))
+def _runner(argv: tuple[str, ...], timeout: float) -> tuple[int, str]:
+    """Run only commands assembled by the fixed-source producer."""
+    result = subprocess.run(argv, capture_output=True, text=True,
+                            timeout=timeout, check=False)
+    return result.returncode, result.stdout
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--effect-authorized", action="store_true")
+    args = parser.parse_args(argv)
+    # Both a separately reviewed source release and an explicit one-shot
+    # invocation are required. The installed candidate has this flag off.
+    if not EFFECTS_ENABLED or not args.effect_authorized:
+        print(json.dumps({"state": "disabled", "effects": "not-attempted"}, sort_keys=True))
+        return 0
+    if os.geteuid() != 0:
+        raise SystemExit("retained archive producer requires root")
+    root = RECEIPT_PATH.parent
+    if (root / "lease.json").exists() or (root / "lease.lock").exists():
+        raise SystemExit("a lease or retained lock already exists")
+    receipt = produce(_runner, clock=lambda: int(time.time()))
+    print(json.dumps({"state": "complete", "date": receipt["date"],
+                      "archives": len(receipt["archives"])}, sort_keys=True))
     return 0
 
 

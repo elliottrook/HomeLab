@@ -88,7 +88,28 @@ class RetainedProducerTests(unittest.TestCase):
                                  read_completion=lambda vmid: f"2026-10-15 00:55:00 INFO: Finished Backup of VM {vmid} (00:00:57)")
         self.assertEqual(self.saved, [])
         with patch.object(producer, "produce", side_effect=AssertionError("must stay disabled")):
-            self.assertEqual(producer.main(), 0)
+            self.assertEqual(producer.main([]), 0)
+            self.assertEqual(producer.main(["--effect-authorized"]), 0)
+
+    def test_effect_entry_requires_root_and_absent_lease(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with patch.object(producer, "EFFECTS_ENABLED", True), \
+                    patch.object(producer, "RECEIPT_PATH", root / "archive-integrity.json"), \
+                    patch.object(producer, "produce", return_value={"date": "2026_10_15", "archives": [{}, {}, {}]}) as scan:
+                with patch.object(producer.os, "geteuid", return_value=501), \
+                        self.assertRaises(SystemExit):
+                    producer.main(["--effect-authorized"])
+                self.assertEqual(scan.call_count, 0)
+                (root / "lease.lock").write_text("held")
+                with patch.object(producer.os, "geteuid", return_value=0), \
+                        self.assertRaises(SystemExit):
+                    producer.main(["--effect-authorized"])
+                self.assertEqual(scan.call_count, 0)
+                (root / "lease.lock").unlink()
+                with patch.object(producer.os, "geteuid", return_value=0):
+                    self.assertEqual(producer.main(["--effect-authorized"]), 0)
+                scan.assert_called_once()
 
     def test_missing_guest_completion_or_wrong_job_blocks_scan(self):
         with patch.object(producer, "capture", side_effect=AssertionError("scan must not begin")):
