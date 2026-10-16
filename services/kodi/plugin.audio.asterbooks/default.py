@@ -8,7 +8,7 @@ import xbmcgui
 import xbmcplugin
 import xbmcvfs
 
-from resources.lib.bridge import BridgeError, control_request
+from resources.lib.bridge import CONTROL_SOCKET, BridgeError, control_request
 
 
 def main():
@@ -24,7 +24,7 @@ def main():
         return
     profile = Path(xbmcvfs.translatePath('special://profile/addon_data/plugin.audio.asterbooks'))
     try:
-        entries = control_request(profile / 'bridge.sock', kind, item_id)
+        entries = control_request(profile / CONTROL_SOCKET, kind, item_id)
     except (OSError, ValueError, BridgeError):
         xbmcgui.Dialog().ok('Aster Books Audio',
                             'The private audio bridge is unavailable. Check its HTTPS connection and local configuration.')

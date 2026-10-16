@@ -11,7 +11,7 @@ import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from resources.lib.bridge import Bridge, BridgeError, control_request, load_config
+from resources.lib.bridge import Bridge, BridgeError, control_request, load_config, secure_kodi_log
 
 
 class Reply(io.BytesIO):
@@ -47,6 +47,18 @@ class FakeOpener:
 
 
 class BridgeTests(unittest.TestCase):
+    def test_kodi_log_is_private_and_symlinks_are_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / 'kodi.log'
+            path.write_text('test')
+            os.chmod(path, 0o644)
+            secure_kodi_log(path)
+            self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+            link = Path(temp) / 'link.log'
+            link.symlink_to(path)
+            with self.assertRaises(OSError):
+                secure_kodi_log(link)
+
     def test_private_https_config(self):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / 'client.json'
@@ -62,6 +74,13 @@ class BridgeTests(unittest.TestCase):
                                         'api_key': 'a' * 32}))
             with self.assertRaises(BridgeError):
                 load_config(path)
+
+    def test_failed_socket_bind_does_not_hang_cleanup(self):
+        with tempfile.TemporaryDirectory() as temp:
+            bridge = Bridge('https://audio.example.test', 's' * 32)
+            with self.assertRaises(OSError):
+                bridge.start(Path(temp) / ('a' * 240))
+            bridge.stop()
 
     def test_book_and_podcast_use_private_header_and_local_capabilities(self):
         opener = FakeOpener()

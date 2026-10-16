@@ -996,6 +996,23 @@ must run this helper himself after creating the key; the key must not be sent
 through chat or stored in Git. No credential was received or installed at this
 checkpoint.
 
+Private audio pilot, 2026-10-15: Jason installed the dedicated key via the
+interactive helper; the Mac `client.json` is owner-only (0600), and the live
+HTTPS API returned one audiobook with an audio file and one podcast with five
+downloaded episodes. The original bridge failed to bind because its UNIX
+socket pathname was 104 bytes on macOS; cleanup then hung on an unstarted
+listener. A shorter socket name and partial-start cleanup regression test fixed
+both. The restarted Mac Kodi test logged the bridge ready and displayed book
+parts and podcast episodes. Selecting a book part opened Kodi's AAC decoder;
+selecting a podcast episode opened its MP3 decoder. Audio output, seek, resume
+and network-loss behaviour remain unverified, as does LibreELEC. Jellyfin's
+segment monitor logs Kodi's temporary loopback capability URL, so the pilot's
+current Kodi log was made 0600, and bridge startup now enforces that mode or
+fails closed. The URL is not the Audiobookshelf key, but another local process
+running as the Kodi user can still read it. The listening list briefly blanks
+the selected row during playback; that is a remaining UI defect. No proxy,
+firewall, server account or remote Git state was changed in this checkpoint.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

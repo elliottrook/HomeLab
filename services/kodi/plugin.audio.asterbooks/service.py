@@ -6,7 +6,7 @@ from pathlib import Path
 import xbmc
 import xbmcvfs
 
-from resources.lib.bridge import Bridge, BridgeError, load_config
+from resources.lib.bridge import CONTROL_SOCKET, Bridge, BridgeError, load_config, secure_kodi_log
 
 
 PROFILE = Path(xbmcvfs.translatePath('special://profile/addon_data/plugin.audio.asterbooks'))
@@ -23,11 +23,15 @@ def main():
         return
     bridge = Bridge(server_url, api_key)
     try:
-        bridge.start(PROFILE / 'bridge.sock')
+        secure_kodi_log(xbmcvfs.translatePath('special://logpath/kodi.log'))
+        bridge.start(PROFILE / CONTROL_SOCKET)
         xbmc.log('Aster Books Audio: loopback bridge ready', xbmc.LOGINFO)
         xbmc.Monitor().waitForAbort(3600 * 24 * 365)
-    except (OSError, BridgeError):
-        xbmc.log('Aster Books Audio: loopback bridge failed to start', xbmc.LOGERROR)
+    except (OSError, BridgeError) as exc:
+        # Log only a failure class/errno; exception text can contain a path.
+        code = getattr(exc, 'errno', None)
+        xbmc.log('Aster Books Audio: loopback bridge failed (' +
+                 type(exc).__name__ + ', errno=' + str(code) + ')', xbmc.LOGERROR)
     finally:
         bridge.stop()
 

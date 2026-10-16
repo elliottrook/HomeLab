@@ -29,6 +29,7 @@ CAP = re.compile(r'/audio/([A-Za-z0-9_-]{32,64})\Z')
 MAX_METADATA = 1024 * 1024
 MAX_CONTROL = 4096
 TTL = 12 * 3600
+CONTROL_SOCKET = 'b.sock'  # Keep the full path below macOS's UNIX socket limit.
 
 
 class BridgeError(Exception):
@@ -53,6 +54,19 @@ def load_config(path):
     return url, key
 
 
+def secure_kodi_log(path):
+    """Keep temporary local playback capabilities out of other users' logs."""
+    flags = os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0)
+    fd = os.open(path, flags)
+    try:
+        info = os.fstat(fd)
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid():
+            raise BridgeError('Kodi log is not a regular file owned by this user.')
+        os.fchmod(fd, 0o600)
+    finally:
+        os.close(fd)
+
+
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, request, fp, code, msg, headers, newurl):
         raise BridgeError('Audiobookshelf redirected the private request.')
@@ -68,6 +82,8 @@ class Bridge:
         self.lock = threading.Lock()
         self.http = None
         self.control = None
+        self.http_started = False
+        self.control_started = False
 
     def upstream(self, path, byte_range=None, method='GET'):
         headers = {'Authorization': 'Bearer ' + self.api_key}
@@ -234,16 +250,20 @@ class Bridge:
         finally:
             os.umask(old_umask)
         threading.Thread(target=self.http.serve_forever, daemon=True).start()
+        self.http_started = True
         threading.Thread(target=self.control.serve_forever, daemon=True).start()
+        self.control_started = True
 
     def stop(self):
         if self.control:
             path = self.control.server_address
-            self.control.shutdown()
+            if self.control_started:
+                self.control.shutdown()
             self.control.server_close()
             os.unlink(path)
         if self.http:
-            self.http.shutdown()
+            if self.http_started:
+                self.http.shutdown()
             self.http.server_close()
 
 
