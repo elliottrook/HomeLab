@@ -12,6 +12,7 @@ import json
 import os
 import time
 
+from host_exclusion import host_exclusion
 from retained_archive_integrity import RECEIPT_PATH
 from retained_archive_producer_candidate import _runner, produce
 
@@ -26,9 +27,10 @@ def observe(*, runner=_runner, clock=lambda: int(time.time())) -> dict:
         root / "application-b60" / "application-b60.json",
         root / "application-b60" / "application-b60.lock",
     )
-    if any(os.path.lexists(path) for path in conflicting_state):
-        raise RuntimeError("conflicting lease state or lock exists")
-    receipt = produce(runner, clock=clock, save=lambda _receipt: None)
+    with host_exclusion(root):
+        if any(os.path.lexists(path) for path in conflicting_state):
+            raise RuntimeError("conflicting lease state or lock exists")
+        receipt = produce(runner, clock=clock, save=lambda _receipt: None)
     return {
         "schema": "aster-read-only-archive-timing.v1",
         "state": "complete",
