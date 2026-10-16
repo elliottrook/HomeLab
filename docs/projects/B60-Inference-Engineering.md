@@ -12,6 +12,11 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October 16 nightly prerequisite check](B60-Inference-Engineering/nightly-admission-20261016.md)
+again found no lease, the unchanged manual helper and the staged watchdog
+disabled/inactive. Accepted inference was active with zero restarts. Owner
+branches and BLOCKED full-path card are unchanged; no model test was admitted.
+
 Latest [October 15 prerequisite check](B60-Inference-Engineering/nightly-admission-20261015.md)
 found the candidate watchdog unit files staged with manifest-matching hashes,
 but the timer disabled and both units inactive. This supersedes October 14's
