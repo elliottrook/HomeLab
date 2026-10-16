@@ -1,6 +1,6 @@
 # Stream A work cadence
 
-> Owner: Jason. Status: continuous lane active; no exclusive benchmark launcher admitted. The one-time October 15 read-only checks are complete and paused. This cadence does not promote a model, deploy a service, grant a tool, or waive an approval gate.
+> Owner: Jason. Status: continuous lane active; no exclusive benchmark launcher admitted. The one-time October 15 and 16 read-only checks are complete and paused. This cadence does not promote a model, deploy a service, grant a tool, or waive an approval gate.
 
 **October 15 afternoon update:** The approved full-stop compatibility
 candidate is installed inactive on Proxmox and passed synthetic installed-path
@@ -15,6 +15,17 @@ live run card and any future watchdog activation. Full-stop and A1 cannot
 share one backup cycle.
 Track every dependency and any failed gate in the
 [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md).
+
+**October 16 reconciliation:** The 01:10 archive timing check did not retain a
+complete three-archive result before its cutoff and is paused. No later scan
+or live drill is implied by the old schedule text below. A source-only common
+host-exclusion candidate and a corrected disabled-install card exist; the
+first host preflight found a card mismatch, which was fixed locally. The
+platform owner has not installed that candidate or enabled a timer. The next
+host change needs a fresh exact approval, target-Linux proof and preserved
+rollback; the old manual lease path and backup/TrueNAS conflict checks still
+gate unattended observation. Continue M1/D4 and M3 work offline while these
+dependencies are resolved.
 
 Stream A has two work lanes. **Continuous lane:** documentation, code and fixture review, local tests, evidence reconciliation, read-only LAN/health checks and low-impact shared-service observation run whenever useful, including between lab windows. Continue this lane when an exclusive run is blocked. During an active whole-host lab lease, keep this lane offline and do not compete with maintenance. Companion session and Keychain behavior remain quiet reliability monitoring under the [D3 gate reassessment](evidence/D3-refresh-gate-reassessment-2026-10-12.md), not a reason to hold other Stream A work. A signed-in request after time has passed may support renewal, but sign-out/re-sign-in is not refresh evidence. Check only content-free observations; do not manufacture expiry or send repeated Codex questions.
 
@@ -87,7 +98,7 @@ Each exclusive candidate has one dated, committed run card with:
 
 Preflight multiple candidates in one continuous-lane pass, but execute serially within the window. Recheck volatile health/occupancy/pins immediately before each candidate. Stop after the first unexpected failure and preserve its partial evidence. Do not rerun an uncertain request. Use existing B60 engineering controls for any backend-changing experiment; Stream A owns assistant-workload evaluation, not the runtime project's promotion decision.
 
-## Current queue, 2026-10-12
+## Current queue, reconciled 2026-10-16
 
 The [next batched offline preflight](evidence/Stream-A-batched-next-lab-preflight-2026-10-12.md)
 classifies five prospective cards and their missing gates. None is yet a
@@ -99,7 +110,7 @@ answer capture and bounded diagnostic evidence while those gates remain open.
 | Companion session and Keychain reliability | Continuous / monitoring | Watch natural ordinary use for renewal failures or repeated prompts; investigate only on a meaningful change. The finite flagged-UI/consent check, not another indefinite refresh wait, gates routine manual-Codex release. No B60 exclusivity. |
 | Gateway and imported-module source reconciliation | Continuous / done locally | Gateway and eight imported modules match production; Lab Operations retains an uninstalled operator-only candidate. Local commits await the normal per-push approval. |
 | M1/D4 authority and diagnostic usefulness | Continuous / open | Continue offline/read-only work. No connected Codex tool or worker grant follows without its own gate. |
-| M3 low-resource decision contract and replay | Continuous / offline probe rechecked | The [first batched preflight](evidence/Stream-A-cadence-first-preflight-2026-10-12.md) accepted the reconciled gateway source; 30 tests passed. Representative labels and live shadow gates remain open. |
+| M3 low-resource decision contract and replay | Continuous / offline probe rechecked | The [current-source component check](evidence/M3-selector-current-source-recheck-2026-10-16.md) passed synthetic conformance, and [fixture validation](evidence/M3-routing-fixture-validation-2026-10-16.md) now rejects malformed development labels. Representative independent labels and live shadow gates remain open. |
 | New 9B/SYCL assistant-workload experiment | Exclusive / DONE, no routing promotion | The [v1 run](experiments/m3-9b-sycl-routing-compatibility/RESULT-2026-10-12.md) stopped at case 1; two distinct-case diagnostics identified a non-plan/capability mismatch. A [versioned v4 development run](experiments/m3-9b-sycl-routing-compatibility/RESULT-V4-2026-10-12.md) returned valid shape on 30/30 but agreed with only 18/30 expected routes, missing all calendar, mixed and private-context examples. Stop prompt tuning on these exposed cases; automatic routing remains off. The old 27B/Vulkan sysadmin scores remain historical. |
 | B60 backend benchmarks | B60 engineering project / outside Stream A run queue | Coordinate with that project's own gates and window. Stream A reads accepted results; it does not run a competing benchmark automatically. |
 | A1 completed-answer control | Shared-service development run / DONE; qualification / open | The six-case development run is done. The first 20-case holdout attempt lost its answer evidence to a local write failure, so v1 has no quality score and must not be replayed. The [fresh v2](benchmarks/answer-holdout-release-v2-2026-10-12.md) passed storage and live admission, then returned 20/20 responses; two blind AI reviews agreed on [14/20 full-rubric passes](experiments/a1-answer-holdout-v2/RESULT-2026-10-12.md). This is a frozen direct-backend regression baseline, not native Aster latency, human ground truth or a promotion bar. Next candidates need separate profiles, independent labels and a paired comparison; do not retune on v2. |
