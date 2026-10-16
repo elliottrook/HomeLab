@@ -159,6 +159,14 @@ class ApplicationB60Controller:
                 or not _safe_window(prelease)):
             raise ValueError("application pre-lease checkpoint is incomplete")
         self.paths.root.mkdir(mode=0o700, parents=True, exist_ok=True)
+        if os.path.lexists(self.paths.state):
+            raise ValueError("existing application lease state cannot be overwritten")
+        host_root = self.paths.root.parent
+        if any(os.path.lexists(path) for path in (
+            host_root / "lease.json",
+            host_root / "lease.lock",
+        )):
+            raise ValueError("whole-host lease state or lock exists")
         try:
             self.paths.lock.mkdir(mode=0o700)
         except FileExistsError as exc:

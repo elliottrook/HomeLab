@@ -69,6 +69,36 @@ class ApplicationB60ControllerTests(unittest.TestCase):
             self.assertFalse((Path(temp) / "application-b60.lock").exists())
             self.assertEqual(commands, [])
 
+    def test_whole_host_lease_blocks_application_before_own_lock_or_effect(self):
+        for marker in ("lease.json", "lease.lock"):
+            with self.subTest(marker=marker), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                application = root / "application-b60"
+                (root / marker).symlink_to("missing-target")
+                commands = []
+                controller = ApplicationB60Controller(
+                    ApplicationPaths(application), commands.append, allow_effects=True,
+                )
+                with self.assertRaisesRegex(ValueError, "whole-host lease"):
+                    controller.acquire(self.prelease())
+                self.assertFalse((application / "application-b60.lock").exists())
+                self.assertEqual(commands, [])
+
+    def test_stale_application_state_without_lock_is_not_overwritten(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            state = root / "application-b60.json"
+            state.write_text('{"prior":"retain"}')
+            commands = []
+            controller = ApplicationB60Controller(
+                ApplicationPaths(root), commands.append, allow_effects=True,
+            )
+            with self.assertRaisesRegex(ValueError, "overwritten"):
+                controller.acquire(self.prelease())
+            self.assertEqual(state.read_text(), '{"prior":"retain"}')
+            self.assertFalse((root / "application-b60.lock").exists())
+            self.assertEqual(commands, [])
+
     def test_stop_failure_restores_completed_consumer_without_name_error(self):
         with tempfile.TemporaryDirectory() as temp:
             commands = []

@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 
 from admission_gate import EXPECTED_BACKUP_SOURCE
 from full_stop_acquire_candidate import acquire_from_fixed_sources, main, _watchdog_active
+import full_stop_acquire_candidate as entry
 from full_stop_source_preflight import PreflightError
 from lease_watchdog import EXPECTED_SCHEDULES, Observation
 from admission_state import decode
@@ -101,6 +102,21 @@ class FullStopAcquireCandidateTests(unittest.TestCase):
     def test_cli_is_hard_disabled_even_when_effect_flag_is_supplied(self):
         with patch("full_stop_acquire_candidate._runner", side_effect=AssertionError("live command")):
             self.assertEqual(main(["--effect-authorized"]), 0)
+
+    def test_cli_rejects_application_lease_before_acquisition(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            application = root / "application-b60"
+            application.mkdir()
+            (application / "application-b60.lock").symlink_to("missing-target")
+            with patch.object(entry, "EFFECTS_ENABLED", True), \
+                    patch.object(entry, "ROOT", root), \
+                    patch.object(entry, "_check_receipt_parent"), \
+                    patch.object(entry, "secure_root_file"), \
+                    patch.object(entry, "_watchdog_active", side_effect=AssertionError("must not query")), \
+                    patch.object(entry.os, "geteuid", return_value=0):
+                with self.assertRaisesRegex(SystemExit, "conflicting lease"):
+                    main(["--effect-authorized"])
 
     def test_watchdog_requires_active_and_enabled_timer(self):
         with patch("full_stop_acquire_candidate._runner", side_effect=[(0, "active\n"), (0, "enabled\n")]):

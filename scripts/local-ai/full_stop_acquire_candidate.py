@@ -91,8 +91,13 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("full-stop acquisition requires root")
     _check_receipt_parent(ROOT / "archive-integrity.json")
     secure_root_file(MANIFEST)
-    if (ROOT / "lease.json").exists() or (ROOT / "lease.lock").exists():
-        raise SystemExit("a lease or retained lock already exists")
+    conflicting_state = (
+        ROOT / "lease.json", ROOT / "lease.lock",
+        ROOT / "application-b60" / "application-b60.json",
+        ROOT / "application-b60" / "application-b60.lock",
+    )
+    if any(os.path.lexists(path) for path in conflicting_state):
+        raise SystemExit("a conflicting lease state or lock already exists")
     if not _watchdog_active():
         raise SystemExit("independent recovery timer is not active")
     manifest = RuntimeManifest(**json.loads(MANIFEST.read_text()))
