@@ -118,9 +118,9 @@ class BooksTests(unittest.TestCase):
         self.assertEqual(handoff_target({'kind': 'ebook', 'id': '505'}),
                          'https://books.elliottrook.com/book/505')
         self.assertEqual(handoff_target({'kind': 'audiobook', 'id': 'li_book-1'}),
-                         'plugin://plugin.audio.audiobookshelf/?action=play&item_id=li_book-1')
+                         'plugin://plugin.audio.asterbooks/?action=book&item_id=li_book-1')
         self.assertEqual(handoff_target({'kind': 'podcast', 'id': 'li_show_1'}),
-                         'plugin://plugin.audio.audiobookshelf/?action=episodes&item_id=li_show_1')
+                         'plugin://plugin.audio.asterbooks/?action=episodes&item_id=li_show_1')
         for row in ({'kind': 'ebook', 'id': '../../1'},
                     {'kind': 'podcast', 'id': 'li_1),RunScript(bad)'},
                     {'kind': 'audiobook', 'id': 'li/1'}):
@@ -143,8 +143,8 @@ class BooksTests(unittest.TestCase):
         activate_row({'kind': 'audiobook', 'id': 'li_book'}, xbmc, Gui())
         activate_row({'kind': 'podcast', 'id': 'li_show'}, xbmc, Gui())
         self.assertEqual(xbmc.commands,
-                         ['PlayMedia(plugin://plugin.audio.audiobookshelf/?action=play&item_id=li_book)',
-                          'ActivateWindow(Music,plugin://plugin.audio.audiobookshelf/?action=episodes&item_id=li_show,return)'])
+                         ['ActivateWindow(Music,plugin://plugin.audio.asterbooks/?action=book&item_id=li_book,return)',
+                          'ActivateWindow(Music,plugin://plugin.audio.asterbooks/?action=episodes&item_id=li_show,return)'])
 
     def test_cover_cache_uses_opaque_key_and_rejects_symlink(self):
         row = {'kind': 'audiobook', 'id': 'li_example', 'title': 'Private title'}

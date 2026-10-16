@@ -3,7 +3,8 @@
 The feed has sanitized descriptions but no file paths, media URLs or secrets.
 Cover JPEGs come from a separate validated private cache. Validated source IDs
 may hand off to Calibre-Web or the installed Audiobookshelf add-on; neither
-route grants access on its own, and the add-on still requires sign-in.
+route grants access on its own, and the audio bridge still requires a private
+credential and HTTPS endpoint.
 """
 
 import sys
@@ -24,7 +25,7 @@ KINDS = {'ebooks': 'ebook', 'audiobooks': 'audiobook',
 ICONS = {'ebook': '21-books-app.png', 'audiobook': '12-audiobooks.png',
          'podcast': '22-podcasts-app.png'}
 HOME_CONTROLS = {'ebook': 501, 'audiobook': 502, 'podcast': 503}
-ABS_ADDON = 'plugin.audio.audiobookshelf'
+AUDIO_ADDON = 'plugin.audio.asterbooks'
 READER_BASE = 'https://books.elliottrook.com'
 
 
@@ -103,8 +104,8 @@ def handoff_target(row):
     if row['kind'] == 'ebook' and re.fullmatch(r'[1-9][0-9]{0,9}', identity):
         return READER_BASE + '/book/' + identity
     if row['kind'] in ('audiobook', 'podcast') and re.fullmatch(r'[A-Za-z0-9_-]{1,128}', identity):
-        action = 'play' if row['kind'] == 'audiobook' else 'episodes'
-        return 'plugin://' + ABS_ADDON + '/?' + urlencode({'action': action, 'item_id': identity})
+        action = 'book' if row['kind'] == 'audiobook' else 'episodes'
+        return 'plugin://' + AUDIO_ADDON + '/?' + urlencode({'action': action, 'item_id': identity})
     return None
 
 
@@ -118,13 +119,11 @@ def activate_row(row, xbmc, xbmcgui):
         else:
             xbmcgui.Dialog().textviewer('Read on your phone or tablet',
                                         'Open this link and sign in to Calibre-Web:\n\n' + destination)
-    elif not xbmc.getCondVisibility('System.HasAddon(' + ABS_ADDON + ')'):
-        xbmcgui.Dialog().ok('Audiobookshelf add-on needed',
-                            'Install Audiobookshelf from the official Kodi add-on repository, then sign in there.')
-    elif row['kind'] == 'podcast':
-        xbmc.executebuiltin('ActivateWindow(Music,' + destination + ',return)')
+    elif not xbmc.getCondVisibility('System.HasAddon(' + AUDIO_ADDON + ')'):
+        xbmcgui.Dialog().ok('Aster Books Audio needed',
+                            'Install and configure the private Aster Books Audio bridge before listening.')
     else:
-        xbmc.executebuiltin('PlayMedia(' + destination + ')')
+        xbmc.executebuiltin('ActivateWindow(Music,' + destination + ',return)')
 
 
 def main(page, action='load'):

@@ -37,10 +37,12 @@ the full text in a branded Kodi dialog. The eBook action hands off a validated
 Calibre ID to the existing Calibre-Web reader: on the Mac it opens the title in
 the default browser; on LibreELEC it displays a URL to open on another device.
 This was verified on the Mac with a Calibre-Web title. Audio actions route
-validated IDs to the installed Audiobookshelf Kodi add-on, but its sign-in and
-actual playback have **not** been tested. The add-on currently puts its bearer
-token in artwork and media URLs, so a dedicated/limited credential or safer
-client is needed before sign-in. Refreshing the Mac pilot remains the explicit
+validated IDs to the local `plugin.audio.asterbooks` bridge, which is being
+tested without a credential; actual playback has **not** been verified. The
+official Audiobookshelf Kodi add-on was rejected for this use because it puts
+its bearer token in artwork and media URLs. The Aster bridge uses private
+HTTPS header authentication and loopback-only playback capabilities. Refreshing
+the Mac pilot remains the explicit
 one-shot `pilot_books_feed.py` step described below. Podcast covers can then
 be copied by `pilot_podcast_covers.py`. These are manual Mac test-profile
 operations, not a continuous publisher. The podcast browse page shows
@@ -356,9 +358,9 @@ and square audio/podcast shapes, while missing-art tiles retain an Aster
 fallback. "Read this book" opens the corresponding Calibre-Web title in the
 Mac's default browser; this was verified with a real title and its browser
 reader control. On LibreELEC it shows the reader URL for a phone/tablet.
-"Listen in Kodi" and "Browse episodes" route to the official Audiobookshelf
-add-on, installed but not signed in on the disposable Mac profile. Those audio
-actions are not yet verified as playable. The local feed and art cache still
+"Listen in Kodi" and "Browse episodes" route to Aster's private audio bridge,
+which has synthetic byte-range tests but no credential or live playback test.
+Those audio actions are not yet verified as playable. The local feed and art cache still
 contain no readable eBook file or authenticated audio stream.
 
 From the Kodi add-ons directory, install this directory as `skin.asterhome`

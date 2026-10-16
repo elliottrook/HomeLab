@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+  <defaultcontrol always="true">50</defaultcontrol>
+  <views>50</views>
+  <backgroundcolor>asterCharcoal</backgroundcolor>
+  <controls>
+    <control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture>special://skin/media/ui-solid.png</texture><colordiffuse>asterStone</colordiffuse></control>
+    <control type="image"><left>0</left><top>0</top><width>1920</width><height>200</height><texture>special://skin/media/ui-solid.png</texture><colordiffuse>asterCharcoal</colordiffuse></control>
+    <control type="image"><left>80</left><top>40</top><width>150</width><height>130</height><texture>special://skin/media/28-aster-books-logo.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>260</left><top>64</top><width>1200</width><height>65</height><label>Aster Books · Listening</label><font>font40</font><textcolor>asterRailText</textcolor></control>
+    <control type="button" id="9000"><left>1550</left><top>58</top><width>260</width><height>58</height><label>Back to Books</label><font>font24</font><align>center</align><aligny>center</aligny><textcolor>asterInk</textcolor><texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20">special://skin/media/ui-limestone-panel.png</texturenofocus><onclick>Action(Back)</onclick><ondown>50</ondown></control>
+    <control type="label"><left>150</left><top>244</top><width>1400</width><height>48</height><label>Choose a book part or podcast episode to play</label><font>font20</font><textcolor>asterInk</textcolor></control>
+    <control type="list" id="50">
+      <left>145</left><top>320</top><width>1630</width><height>650</height>
+      <viewtype label="Audio titles">list</viewtype><orientation>vertical</orientation><scrolltime>150</scrolltime>
+      <onup>9000</onup><onleft>9000</onleft><onright>9000</onright>
+      <itemlayout height="82"><control type="label"><left>32</left><top>13</top><width>1500</width><height>54</height><label>$INFO[ListItem.Label]</label><font>font24</font><textcolor>asterInk</textcolor></control></itemlayout>
+      <focusedlayout height="82"><control type="image"><left>0</left><top>0</top><width>1610</width><height>78</height><texture border="22">special://skin/media/ui-panel.png</texture><colordiffuse>asterSage</colordiffuse></control><control type="label"><left>32</left><top>13</top><width>1500</width><height>54</height><label>$INFO[ListItem.Label]</label><font>font24</font><textcolor>asterInk</textcolor></control></focusedlayout>
+    </control>
+  </controls>
+</window>

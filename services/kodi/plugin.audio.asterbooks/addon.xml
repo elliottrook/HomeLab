@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="plugin.audio.asterbooks" name="Aster Books Audio" version="0.1.0" provider-name="Aster Home">
+  <requires><import addon="xbmc.python" version="3.0.0" /></requires>
+  <extension point="xbmc.python.pluginsource" library="default.py"><provides>audio</provides></extension>
+  <extension point="xbmc.service" library="service.py" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Private Audiobookshelf playback bridge for Aster Books</summary>
+    <description lang="en_GB">Routes authenticated audio through a loopback-only, range-capable bridge without placing the Audiobookshelf credential in Kodi media URLs.</description>
+    <platform>all</platform><license>MIT</license>
+  </extension>
+</addon>

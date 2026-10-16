@@ -958,14 +958,35 @@ validated IDs from the sanitized catalogue. "Read this book" opened a real
 Calibre-Web title in the Mac's default browser, with its browser-reader
 control present. On LibreELEC the action displays the authenticated reader
 URL for handoff to a phone/tablet; the physical-device flow remains untested.
-The Audiobookshelf Kodi add-on is installed in the disposable Mac profile and
-the Aster actions target its verified `play` and `episodes` routes, but no
-account has been signed in and playback is **not** yet verified. Source review
-found the add-on embeds its bearer token in artwork and media URLs. A bounded
-credential choice or a safer client implementation is required before using
-it with the production Audiobookshelf service. Forty-seven offline tests pass;
+The official Audiobookshelf Kodi add-on was installed unconfigured in the
+disposable Mac profile, but no account was signed in and playback is **not**
+verified. Source review found it embeds its bearer token in artwork and media
+URLs. Jason chose the safer-client route. Forty-seven offline tests pass;
 full text viewer and eBook handoff passed the Mac UI check. No server setting,
 credential or podcast subscription was changed in this handoff milestone.
+
+Safe audio bridge design checkpoint, 2026-10-15: Aster's own Kodi add-on now
+implements a loopback-only HTTP byte-range bridge and a private UNIX control
+socket. The add-on requires a 0600 file with an API-capable HTTPS origin and a
+dedicated Audiobookshelf key; neither is present in the repository or Mac
+profile. Metadata is fetched by validated ID, file inodes are selected only
+from returned Audiobookshelf book/podcast metadata, and the upstream credential
+is sent only in an `Authorization` header. Kodi sees random expiring local
+capabilities, not bearer tokens. The Mac has not yet tested the add-on against
+the live Audiobookshelf server. Synthetic book, podcast and range tests pass.
+On the disposable Mac Kodi profile, the add-on was detected but initially
+disabled after a manual directory copy. It was enabled locally and Kodi then
+reported the expected missing-private-configuration state. The Aster
+"Listen in Kodi" action opened the branded listening window and displayed
+the bridge-unavailable message; no token was supplied or audio played. An
+unauthenticated request to the existing
+`https://audiobooks.elliottrook.com/api/items/<id>` path returned HTTP 401
+with valid TLS and no redirect, so no new proxy route appears necessary.
+Remaining gates: authorize/provision a restricted credential without placing
+it in the repository or chat; validate the API response and real episode/book
+playback, pause/seek and network-loss handling on Mac and then LibreELEC. The
+prototype does not yet sync progress or promise multi-file autoplay. No
+service, firewall or SSO route was changed for this checkpoint.
 
 ## 15. References
 
