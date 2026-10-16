@@ -1451,10 +1451,21 @@ check_jellyfin_integrity() {
     local errors=""
     local alerts=""
     local drift=""
+    local jellyfin_auth=""
     local max_age_hours=200  # weekly Wednesday 03:00 cadence + slack
 
     if ! output="$(
         ssh -o BatchMode=yes -o ConnectTimeout=8 truenas /bin/bash -s <<'REMOTE'
+if cd /mnt/Media/data/tools/jellyfin-integrity && python3 -c '
+import json
+from lib.jellyfin import JellyfinClient
+c = json.load(open("config.json"))
+JellyfinClient(c["jellyfin"]["base_url"], c["jellyfin"]["api_key"]).ping()
+' >/dev/null 2>&1; then
+    printf 'jellyfin_auth=ok\n'
+else
+    printf 'jellyfin_auth=failed\n'
+fi
 latest="$(ls -t /mnt/Media/data/tools/jellyfin-integrity/reports/*-run.json 2>/dev/null | head -1)"
 if [[ -z "$latest" ]]; then
     printf 'no_report=1\n'
@@ -1504,11 +1515,15 @@ REMOTE
             errors) errors="$value" ;;
             alerts) alerts="$value" ;;
             drift) drift="$value" ;;
+            jellyfin_auth) jellyfin_auth="$value" ;;
             review_item) review_items+=("$value") ;;
         esac
     done <<< "$output"
 
-    if [[ -z "$report_path" ]]; then
+    if [[ "$jellyfin_auth" != "ok" ]]; then
+        fail "jellyfin-integrity cannot authenticate to Jellyfin; its dedicated API key is missing or invalid"
+        return
+    elif [[ -z "$report_path" ]]; then
         warn "jellyfin-integrity has no report yet"
         return
     fi
@@ -1608,6 +1623,7 @@ check_observability() {
     local grafana_db=""
     local prometheus_ready=""
     local targets_up=""
+    local targets_total=""
     local root_percent=""
 
     if ! output="$(
@@ -1616,6 +1632,7 @@ printf 'services=%s\n' "$(systemctl is-active prometheus grafana-server pve-expo
 printf 'grafana_db=%s\n' "$(curl -fsS --connect-timeout 3 http://192.168.20.31:3000/api/health 2>/dev/null | sed -n 's/.*"database": *"\([^"]*\)".*/\1/p')"
 printf 'prometheus_ready=%s\n' "$(curl -fsS --connect-timeout 3 http://192.168.20.31:9090/-/ready 2>/dev/null | tr ' ' '_')"
 printf 'targets_up=%s\n' "$(curl -fsSG --connect-timeout 3 --data-urlencode 'query=sum(up)' http://192.168.20.31:9090/api/v1/query 2>/dev/null | sed -n 's/.*"value":\[[^,]*,"\([0-9]*\)"\].*/\1/p')"
+printf 'targets_total=%s\n' "$(curl -fsSG --connect-timeout 3 --data-urlencode 'query=count(up)' http://192.168.20.31:9090/api/v1/query 2>/dev/null | sed -n 's/.*"value":\[[^,]*,"\([0-9]*\)"\].*/\1/p')"
 printf 'root_percent=%s\n' "$(df -P / | awk 'NR==2 {gsub("%","",$5); print $5}')"
 REMOTE
     )"; then
@@ -1629,6 +1646,7 @@ REMOTE
             grafana_db) grafana_db="$value" ;;
             prometheus_ready) prometheus_ready="$value" ;;
             targets_up) targets_up="$value" ;;
+            targets_total) targets_total="$value" ;;
             root_percent) root_percent="$value" ;;
         esac
     done <<< "$output"
@@ -1641,7 +1659,8 @@ REMOTE
     [[ "$active_count" != "6" ]] && failures+=("monitoring services=${services:-unknown}")
     [[ "$grafana_db" != "ok" ]] && failures+=("Grafana database=${grafana_db:-unknown}")
     [[ "$prometheus_ready" != "Prometheus_Server_is_Ready." ]] && failures+=("Prometheus readiness failed")
-    [[ "$targets_up" != "8" ]] && failures+=("healthy scrape jobs=${targets_up:-unknown}/8")
+    [[ "$targets_total" != "9" ]] && failures+=("configured scrape jobs=${targets_total:-unknown}/9")
+    [[ "$targets_up" != "9" ]] && failures+=("healthy scrape jobs=${targets_up:-unknown}/9")
 
     if [[ "$root_percent" =~ ^[0-9]+$ ]]; then
         if (( root_percent >= 90 )); then
@@ -1658,7 +1677,7 @@ REMOTE
     elif (( ${#warnings[@]} > 0 )); then
         warn "Observability warning: ${warnings[*]}"
     else
-        pass "Prometheus, Grafana and exporters healthy; 8/8 scrape jobs up; guest root ${root_percent}%"
+        pass "Prometheus, Grafana and exporters healthy; 9/9 scrape jobs up; guest root ${root_percent}%"
     fi
 }
 
@@ -1817,7 +1836,16 @@ printf 'service=%s\n' "$(systemctl is-active frigate-compose.service 2>/dev/null
 findmnt -rn -T /opt/frigate/storage -o SOURCE,FSTYPE 2>/dev/null |
     awk '$2 == "nfs4" {print "mount_source=" $1; print "mount_type=" $2; exit}'
 printf 'newest_recording=%s\n' "$(
-    find /opt/frigate/storage/recordings -type f -name '*.mp4' -printf '%T@\n' 2>/dev/null |
+    root=/opt/frigate/storage/recordings
+    day_dir=""
+    for candidate in "$root/$(date +%F)" "$root/$(date -d yesterday +%F)"; do
+        if [[ -d "$candidate" ]]; then
+            day_dir="$candidate"
+            break
+        fi
+    done
+    hour_dir="$(find "$day_dir" -mindepth 1 -maxdepth 1 -type d -print 2>/dev/null | sort | tail -1)"
+    find "$hour_dir" -mindepth 2 -maxdepth 2 -type f -name '*.mp4' -printf '%T@\n' 2>/dev/null |
         sort -n |
         tail -1
 )"

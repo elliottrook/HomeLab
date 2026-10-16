@@ -18,10 +18,18 @@ class JellyfinClient:
 
     def _request(self, method, path, params=None, body=None):
         params = dict(params or {})
-        params["api_key"] = self.api_key
-        url = f"{self.base_url}{path}?{urllib.parse.urlencode(params)}"
+        query = urllib.parse.urlencode(params)
+        url = f"{self.base_url}{path}"
+        if query:
+            url = f"{url}?{query}"
         data = json.dumps(body).encode() if body is not None else None
         req = urllib.request.Request(url, data=data, method=method)
+        req.add_header(
+            "Authorization",
+            'MediaBrowser Client="jellyfin-integrity", Device="TrueNAS", '
+            'DeviceId="homelab-jellyfin-integrity", Version="1", '
+            f'Token="{self.api_key}"',
+        )
         if data is not None:
             req.add_header("Content-Type", "application/json")
         try:

@@ -17,12 +17,14 @@ EXPECTED_CAPABILITIES = {
     "broker.synthetic.network-change": ("synthetic", "red"),
     "broker.synthetic.restart": ("synthetic", "yellow"),
     "forgejo.read.repository": ("forgejo-mcp", "green"),
+    "forgejo.write.project-documents": ("forgejo-mcp-project-write", "yellow"),
     "forgejo.write.safe-branch": ("forgejo-mcp-safe-write", "yellow"),
     "lab.doctor.latest": ("lab-operations", "green"),
     "lab.doctor.run": ("lab-operations", "yellow"),
 }
 EXPECTED_SERVICES = {
     "forgejo-mcp",
+    "forgejo-mcp-project-write",
     "forgejo-mcp-safe-write",
     "lab-operations",
     "synthetic",
@@ -58,9 +60,11 @@ data={
  "audit":db.execute("SELECT COALESCE(MAX(occurred_at),0),COUNT(*) FROM audit").fetchone(),
  "outcomes":db.execute("SELECT status,COUNT(*) FROM requests GROUP BY status ORDER BY status").fetchall(),
  "services_active":{u:active(u) for u in ["homelab-broker.service","homelab-broker-approval.service",
-   "forgejo-mcp-gateway.service","forgejo-mcp-write-gateway.service","aster-lab-operations-broker.service"]},
+   "forgejo-mcp-gateway.service","forgejo-mcp-project-write-gateway.service",
+   "forgejo-mcp-write-gateway.service","aster-lab-operations-broker.service"]},
  "sockets":{p:socket_shape(p) for p in ["/run/homelab-broker/mcp.sock","/run/homelab-broker/approval.sock",
-   "/run/homelab-forgejo-mcp/gateway.sock","/run/homelab-forgejo-mcp-write/gateway.sock",
+   "/run/homelab-forgejo-mcp/gateway.sock","/run/homelab-forgejo-mcp-project-write/gateway.sock",
+   "/run/homelab-forgejo-mcp-write/gateway.sock",
    "/run/aster-lab-operations-broker/gateway.sock"]},
 }
 db.close()

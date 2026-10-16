@@ -9,6 +9,8 @@ to enabled, independent of whether a count drop has actually happened.
 import json
 import os
 
+from .jellyfin import JellyfinError
+
 DEFAULT_DROP_THRESHOLD = 0.10  # flag a drop of more than 10% from baseline
 
 
@@ -53,10 +55,28 @@ def check_cleanup_task_trigger(jf, task_id):
     """Flag if the 'Clean up collections and playlists' task's trigger
     list is non-empty (it should stay cleared — see 04-Operations.md).
     """
-    task = jf.get_scheduled_task(task_id)
+    try:
+        task = jf.get_scheduled_task(task_id)
+    except JellyfinError as error:
+        if "HTTP 404" not in str(error):
+            raise
+        matches = [
+            candidate
+            for candidate in jf.get("/ScheduledTasks")
+            if candidate.get("Name") == "Clean up collections and playlists"
+        ]
+        if not matches:
+            return {
+                "task_id": None,
+                "triggers": [],
+                "present": False,
+                "drifted": False,
+            }
+        task = matches[0]
     triggers = task.get("Triggers", []) if task else []
     return {
-        "task_id": task_id,
+        "task_id": task.get("Id", task_id) if task else task_id,
         "triggers": triggers,
+        "present": True,
         "drifted": len(triggers) > 0,
     }
