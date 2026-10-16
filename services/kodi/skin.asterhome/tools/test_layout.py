@@ -31,6 +31,20 @@ class LayoutTests(unittest.TestCase):
                          ('110', '0', '240', '160'))
         self.assertEqual(110 + 240 // 2, (85 + 375) // 2)
 
+    def test_product_logos_share_one_header_slot(self):
+        for name, mark in (('Home.xml', '27-aster-media-logo.png'),
+                           ('DialogVideoInfo.xml', '27-aster-media-logo.png'),
+                           ('IncludesBooks.xml', '28-aster-books-logo.png'),
+                           ('IncludesMusic.xml', '29-aster-music-logo.png'),
+                           ('custom_1111_digest.xml', '30-aster-news-logo.png')):
+            root = ET.parse(ROOT / '1080i' / name)
+            logo = next(control for control in root.findall('.//control')
+                        if control.findtext('texture') ==
+                        'special://skin/media/' + mark)
+            self.assertEqual(tuple(logo.findtext(key) for key in
+                                   ('left', 'top', 'width', 'height')),
+                             ('110', '0', '240', '160'), name)
+
     def test_search_and_portraits_do_not_overlap(self):
         panel = self.browse.find('.//control[@id="50"]')
         search = self.browse.find('.//control[@id="19"]')
@@ -137,11 +151,14 @@ class LayoutTests(unittest.TestCase):
                                  for control in root.findall('.//control')), name)
 
     def test_hero_block_is_centred_and_actions_match_rings(self):
-        # Available hero-copy lane: header bottom 100 to queue heading 492.
-        self.assertEqual((151 + 385 + 56) / 2, (100 + 492) / 2)
+        # Leave a gap below the enlarged product mark without hitting the queue.
+        greeting = next(control for control in self.home.findall('.//control')
+                        if control.findtext('label') == 'Good evening, Jason')
+        self.assertGreaterEqual(int(greeting.findtext('top')), 176)
         for identifier in (120, 121):
             button = self.home.find(f'.//control[@id="{identifier}"]')
-            self.assertEqual(button.findtext('top'), '385')
+            self.assertEqual(button.findtext('top'), '411')
+            self.assertLessEqual(int(button.findtext('top')) + 56, 492)
         self.assertEqual(self.browse.find('.//control[@id="19"]').findtext('ondown'), '9200')
 
 

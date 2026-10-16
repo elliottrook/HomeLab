@@ -342,6 +342,14 @@ trademark, font or redistribution clearance.
 
 ## Local test
 
+The current Books pages are catalogue views, not an ebook reader or audio
+player. The sanitized feed and local cover cache contain no readable ebook
+file or authenticated Audiobookshelf stream; selecting a title therefore does
+not start playback. The visual cards use full-bleed rounded art with portrait
+eBook and square audio/podcast shapes, while missing-art tiles retain an Aster
+fallback. A separate access decision is required for the audio route and for
+browser handoff versus a Kodi-native ebook reader.
+
 From the Kodi add-ons directory, install this directory as `skin.asterhome`
 or package it as a ZIP and use Kodi's add-on installer. The prototype has
 debugging enabled so missing controls and invalid conditions are visible in the

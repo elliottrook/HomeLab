@@ -8,12 +8,12 @@
     <include content="AsterNavigationRail"><param name="content" value="300" /></include>
     <control type="group">
       <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
-      <control type="image"><left>145</left><top>0</top><width>160</width><height>107</height><texture>special://skin/media/30-aster-news-logo.png</texture><aspectratio>keep</aspectratio></control>
+      <control type="image"><left>110</left><top>0</top><width>240</width><height>160</height><texture>special://skin/media/30-aster-news-logo.png</texture><aspectratio>keep</aspectratio></control>
       <control type="image"><left>1750</left><top>32</top><width>146</width><height>44</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>75cbb991</colordiffuse></control>
       <control type="image"><left>1752</left><top>34</top><width>142</width><height>40</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>e029302b</colordiffuse></control>
       <control type="label"><left>1750</left><top>32</top><width>146</width><height>44</height><label>$INFO[System.Time(HH:mm)]</label><font>font20</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny></control>
       <control type="image"><left>1180</left><top>110</top><width>430</width><height>360</height><texture>special://skin/media/04-news-digest.png</texture><aspectratio>keep</aspectratio></control>
-      <control type="label"><left>145</left><top>151</top><width>950</width><height>42</height><label>$INFO[Window.Property(AsterHub.Subtitle)]</label><font>font24</font><textcolor>asterGold</textcolor></control>
+      <control type="label"><left>145</left><top>175</top><width>950</width><height>42</height><label>$INFO[Window.Property(AsterHub.Subtitle)]</label><font>font24</font><textcolor>asterGold</textcolor></control>
       <control type="label"><left>145</left><top>206</top><width>950</width><height>78</height><label>$INFO[Window.Property(AsterHub.Title)]</label><font>font40</font><textcolor>asterRailText</textcolor></control>
       <control type="textbox"><left>145</left><top>287</top><width>880</width><height>52</height><label>$INFO[Window.Property(AsterHub.Description)]</label><font>font20</font><textcolor>asterRailText</textcolor></control>
       <control type="label"><left>145</left><top>346</top><width>1000</width><height>30</height><label>$INFO[Window.Property(AsterHub.Status)]</label><font>font20</font><textcolor>asterSage</textcolor></control>

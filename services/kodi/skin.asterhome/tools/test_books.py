@@ -142,7 +142,7 @@ class BooksTests(unittest.TestCase):
     def test_book_art_cards_follow_cover_shape(self):
         shared = ET.parse(ROOT / '1080i/IncludesBooks.xml')
         for name, portrait, square in (('AsterBooksTile', (190, 260), (260, 260)),
-                                       ('AsterBooksSmallTile', (66, 90), (90, 90))):
+                                       ('AsterBooksSmallTile', (79, 108), (108, 108))):
             tile = shared.find(f'.//include[@name="{name}"]')
             panels = [control for control in tile.findall('control')
                       if control.findtext('colordiffuse') == 'asterIvory']
@@ -154,6 +154,18 @@ class BooksTests(unittest.TestCase):
                               int(panels[1].findtext('height'))), square)
             self.assertIn('!String.IsEqual(ListItem.Property(AsterBooks.Kind),ebook)',
                           panels[1].findtext('visible'))
+            covers = [control for control in tile.findall('control')
+                      if control.find('texture') is not None and
+                      control.find('texture').get('diffuse')]
+            self.assertEqual(len(covers), 2)
+            for cover, dimensions, mask in zip(covers, (portrait, square),
+                                                ('ui-poster-mask.png', 'ui-album-mask.png')):
+                self.assertEqual((int(cover.findtext('width')),
+                                  int(cover.findtext('height'))), dimensions)
+                self.assertTrue(cover.find('texture').get('diffuse').endswith(mask))
+                self.assertEqual(cover.find('aspectratio').text, 'scale')
+            self.assertTrue(all('!String.IsEqual(ListItem.Property(AsterBooks.HasCover),true)'
+                                in panel.findtext('visible') for panel in panels))
         for layout in shared.findall('.//focusedlayout'):
             self.assertEqual(layout[-1].tag, 'include')
 

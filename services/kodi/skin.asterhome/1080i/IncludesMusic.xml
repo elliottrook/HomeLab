@@ -42,7 +42,7 @@
       <control type="group">
         <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
         <control type="image">
-          <left>145</left><top>0</top><width>170</width><height>115</height>
+          <left>110</left><top>0</top><width>240</width><height>160</height>
           <texture>special://skin/media/29-aster-music-logo.png</texture><aspectratio>keep</aspectratio>
         </control>
         <control type="button" id="110"><left>410</left><top>28</top><label>Albums</label><include>AsterMusicPillButton</include><onclick>ActivateWindow(1114)</onclick><onleft>8999</onleft><onright>111</onright><ondown>500</ondown></control>

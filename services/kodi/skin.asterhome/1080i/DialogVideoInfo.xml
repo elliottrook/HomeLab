@@ -16,7 +16,7 @@
             <texture>special://skin/media/ui-hero-bottom-fade.png</texture><colordiffuse>asterStone</colordiffuse><aspectratio>stretch</aspectratio>
         </control>
         <control type="image">
-            <left>65</left><top>10</top><width>150</width><height>100</height>
+            <left>110</left><top>0</top><width>240</width><height>160</height>
             <texture>special://skin/media/27-aster-media-logo.png</texture><aspectratio>keep</aspectratio>
         </control>
         <control type="button" id="9000">
@@ -24,12 +24,12 @@
             <onclick>Action(Back)</onclick><ondown>400</ondown>
         </control>
         <control type="label">
-            <left>145</left><top>132</top><width>1450</width><height>42</height>
+            <left>145</left><top>176</top><width>1450</width><height>42</height>
             <label>$INFO[ListItem.Genre]  [COLOR asterSage]$INFO[ListItem.Year][/COLOR]</label>
             <font>font20</font><textcolor>asterGold</textcolor>
         </control>
         <control type="label">
-            <left>145</left><top>185</top><width>1550</width><height>100</height>
+            <left>145</left><top>229</top><width>1550</width><height>100</height>
             <label>$INFO[ListItem.Title]</label><include>AsterHeroTitle</include>
         </control>
         <control type="image">

@@ -102,7 +102,7 @@
         <!-- Hero copy -->
         <control type="label">
             <left>145</left>
-            <top>151</top>
+            <top>177</top>
             <width>460</width>
             <height>42</height>
             <label>Good evening, Jason</label>
@@ -111,7 +111,7 @@
         </control>
         <control type="label">
             <left>145</left>
-            <top>187</top>
+            <top>213</top>
             <width>740</width>
             <height>42</height>
             <label fallback="F E A T U R E D   F O R   Y O U">$VAR[AsterHeroGenre]  [COLOR asterSage]$VAR[AsterHeroYear][/COLOR]</label>
@@ -120,7 +120,7 @@
         </control>
         <control type="label">
             <left>145</left>
-            <top>215</top>
+            <top>241</top>
             <width>670</width>
             <height>70</height>
             <label fallback="Select a title">$VAR[AsterHeroLabel]</label>
@@ -131,7 +131,7 @@
         </control>
         <control type="textbox">
             <left>145</left>
-            <top>287</top>
+            <top>313</top>
             <width>660</width>
             <height>40</height>
             <label fallback="Select a title to see its synopsis.">$VAR[AsterHeroPlot]</label>
@@ -141,13 +141,13 @@
             <aligny>top</aligny>
         </control>
         <control type="label">
-            <left>145</left><top>343</top><width>660</width><height>30</height>
+            <left>145</left><top>369</top><width>660</width><height>30</height>
             <label>$VAR[AsterHeroRating]</label><font>font20</font>
             <textcolor>asterSage</textcolor>
         </control>
         <control type="button" id="120">
             <left>145</left>
-            <top>385</top>
+            <top>411</top>
             <width>280</width>
             <label>▶  Play</label>
             <onclick>PlayMedia($VAR[AsterHeroPath])</onclick>
@@ -166,7 +166,7 @@
         </control>
         <control type="button" id="121">
             <left>445</left>
-            <top>385</top>
+            <top>411</top>
             <width>280</width>
             <label>ⓘ  More Info</label>
             <onclick>Info</onclick>
@@ -185,12 +185,12 @@
         </control>
         <control type="image">
             <visible>Control.HasFocus(120)</visible>
-            <left>145</left><top>385</top><width>280</width><height>56</height>
+            <left>145</left><top>411</top><width>280</width><height>56</height>
             <texture>special://skin/media/ui-button-ring.png</texture>
         </control>
         <control type="image">
             <visible>Control.HasFocus(121)</visible>
-            <left>445</left><top>385</top><width>280</width><height>56</height>
+            <left>445</left><top>411</top><width>280</width><height>56</height>
             <texture>special://skin/media/ui-button-ring.png</texture>
         </control>
         </control>

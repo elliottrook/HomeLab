@@ -920,6 +920,26 @@ its 85–375 px gutter and enlarged from 160×107 to 240×160; the live Kodi
 view shows it clear of the category pills and hero greeting. The 41 offline
 skin tests pass. These Mac checks do not replace LibreELEC endpoint testing.
 
+Books visual and access-path check, 2026-10-15: The disposable Mac skin now
+renders real eBook jackets in full-bleed rounded portrait cards and real
+audiobook/podcast covers in full-bleed rounded square cards, with ivory
+fallback panels only where a cover is absent. Landing-row art is larger. The
+Books, Music, Digest and Media product marks share the same 110,0 / 240×160
+header slot (including Media details); Media hero copy starts below that slot.
+The refreshed Kodi test visibly showed the larger Books mark, full-bleed
+landing artwork and full-bleed Podcasts browse cards without white frames.
+Forty-two offline skin tests pass. The existing Books feed still has only
+sanitized catalogue IDs, titles and cached cover JPEGs. Activating a title
+does not read an eBook or play audio: no ebook file or authenticated audio
+stream is supplied by this feed. Live read-only service inspection found the
+existing Calibre-Web Automated container has the Calibre library mounted and
+Audiobookshelf is running, but neither supplies a Kodi playback/reader route
+in this prototype. Before wiring controls, choose a bounded authenticated
+Audiobookshelf audio route and decide whether eBooks should hand off to the
+existing browser-based Calibre-Web reader or require a new Kodi-native reader.
+Do not turn catalogue IDs into unprotected media URLs or export entire books
+through the feed.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
