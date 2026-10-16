@@ -35,6 +35,10 @@ retained of a watchdog activation, service stop, lease, A1 run or drill.
 The source guard does not prevent a competing lease or backup from starting
 mid-scan; a reviewed host-side exclusion, load/competing-job check and outer
 process deadline still gate unattended use.
+The disabled F3 producer received the same pre-start lease guard in local
+source commit `4e16b964`, integrated by the platform owner as `f4b9da31`.
+Its full local suite passed 177 tests with two macOS root-custody skips. The
+producer is still uninstalled/disabled and F3 remains open.
 There is **no scheduled 03:10 live drill**; the old 03:05 and 03:40 one-time
 checks are paused. A schedule entry is not evidence that its preconditions
 passed or that a scan finished.
