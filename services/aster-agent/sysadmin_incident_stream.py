@@ -14,6 +14,14 @@ from datetime import datetime
 from typing import Any
 
 from sysadmin_incident_store import IncidentStore
+from sysadmin_investigation import InvestigationError, REGISTERED_OBSERVATIONS
+
+
+NEXT_REASONS = {
+    "bounded": "Observation limit reached; review or close the investigation.",
+    "sufficient_or_escalate": "Planned observations complete; review the evidence.",
+    "proposed_read_only": "Review the next registered observation.",
+}
 
 
 def incident_presentation(snapshot: dict[str, Any]) -> dict[str, Any]:
@@ -34,9 +42,23 @@ def incident_presentation(snapshot: dict[str, Any]) -> dict[str, Any]:
         }
         for item in incident["observations"]
     ]
-    next_step = dict(incident["next"])
-    if "reason" in next_step:
-        next_step["reason"] = "Review the next registered observation."
+    # Build the presentation from a fixed contract. Copying the persisted
+    # next-step dict would turn future producer fields into accidental egress.
+    raw_next = incident["next"]
+    if not isinstance(raw_next, dict):
+        raise InvestigationError("invalid next observation state")
+    state = raw_next.get("state")
+    if not isinstance(state, str) or state not in NEXT_REASONS:
+        raise InvestigationError("invalid next observation state")
+    next_step = {"state": state, "reason": NEXT_REASONS[state]}
+    if state == "proposed_read_only":
+        target = raw_next.get("target")
+        kind = raw_next.get("kind")
+        if (not isinstance(target, str) or not isinstance(kind, str)
+                or target not in REGISTERED_OBSERVATIONS
+                or kind not in REGISTERED_OBSERVATIONS[target]):
+            raise InvestigationError("next observation is not registered")
+        next_step.update({"target": target, "kind": kind, "execution": "not performed by the investigation loop"})
     return {
         "schema_version": 2,
         "title": "Read-only investigation",

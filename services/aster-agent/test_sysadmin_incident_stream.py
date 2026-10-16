@@ -6,7 +6,7 @@ from pathlib import Path
 
 from sysadmin_incident_store import IncidentStore
 from sysadmin_incident_stream import incident_presentation, reconnect_frames
-from sysadmin_investigation import EvidenceRequest, create_incident
+from sysadmin_investigation import EvidenceRequest, InvestigationError, create_incident
 
 
 NOW = datetime(2026, 9, 28, 18, 0, tzinfo=timezone.utc)
@@ -64,6 +64,32 @@ class StreamTests(unittest.TestCase):
     def test_reconnect_frames_do_not_expose_arbitrary_incident_id(self):
         rendered = "".join(reconnect_frames(self.store, "fixture-incident-001", NOW))
         self.assertNotIn("fixture-incident-001", rendered)
+
+    def test_next_step_does_not_copy_unknown_or_private_fields(self):
+        snapshot = self.store.reconnect_snapshot("fixture-incident-001", NOW)
+        snapshot["incident"]["next"]["private_note"] = "private-next-marker"
+        snapshot["incident"]["next"]["execution"] = "private-execution-marker"
+        rendered = json.dumps(incident_presentation(snapshot))
+        self.assertNotIn("private-next-marker", rendered)
+        self.assertNotIn("private-execution-marker", rendered)
+        self.assertIn("not performed by the investigation loop", rendered)
+
+    def test_next_step_rejects_unknown_route(self):
+        snapshot = self.store.reconnect_snapshot("fixture-incident-001", NOW)
+        snapshot["incident"]["next"]["target"] = "private-target-marker"
+        with self.assertRaises(InvestigationError):
+            incident_presentation(snapshot)
+
+    def test_terminal_next_steps_use_fixed_explanations(self):
+        snapshot = self.store.reconnect_snapshot("fixture-incident-001", NOW)
+        for state in ("bounded", "sufficient_or_escalate"):
+            snapshot["incident"]["next"] = {
+                "state": state, "reason": "private-reason-marker", "extra": "private-extra-marker"
+            }
+            rendered = json.dumps(incident_presentation(snapshot))
+            self.assertNotIn("private-reason-marker", rendered)
+            self.assertNotIn("private-extra-marker", rendered)
+            self.assertNotIn("target", json.dumps(incident_presentation(snapshot)["next"]))
 
 
 if __name__ == "__main__":
