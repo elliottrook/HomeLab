@@ -1,6 +1,10 @@
 # Common host exclusion — proposed disabled installation card
 
-**Status: REVIEW CANDIDATE; NOT APPROVED OR INSTALLED.** This card is only for
+**Status: SUPERSEDED AFTER FAILED TARGET-LINUX IMPORT AND VERIFIED ROLLBACK.**
+See `COMMON-HOST-EXCLUSION-DISABLED-INSTALL-RESULT-20261016.md`. Do not retry
+this six-path card. A corrected two-root card requires a new exact approval.
+
+This card was only for
 staging and target-Linux validation of the common exclusion source. It does
 not authorize a timer, archive scan, receipt, lease, service stop, model call
 or full-stop/A1 drill. The platform owner must reconcile the exact installed
