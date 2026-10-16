@@ -19,6 +19,7 @@ from typing import Callable
 
 from backup_receipt_adapter import EXPECTED_PROXMOX_BACKUP_ID, verify_proxmox_artifacts
 from fixed_source_adapters import _json, _truenas
+from host_exclusion import host_exclusion
 from retained_archive_integrity import (
     IntegrityError, LOCAL_ZONE, RECEIPT_PATH, capture, fixed_probe, fixed_resolve,
     save_root_owned,
@@ -175,9 +176,10 @@ def main(argv: list[str] | None = None) -> int:
         root / "application-b60" / "application-b60.json",
         root / "application-b60" / "application-b60.lock",
     )
-    if any(os.path.lexists(path) for path in conflicting_state):
-        raise SystemExit("a conflicting lease state or lock already exists")
-    receipt = produce(_runner, clock=lambda: int(time.time()))
+    with host_exclusion(root):
+        if any(os.path.lexists(path) for path in conflicting_state):
+            raise SystemExit("a conflicting lease state or lock already exists")
+        receipt = produce(_runner, clock=lambda: int(time.time()))
     print(json.dumps({"state": "complete", "date": receipt["date"],
                       "archives": len(receipt["archives"])}, sort_keys=True))
     return 0

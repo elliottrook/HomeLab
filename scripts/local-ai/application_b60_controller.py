@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import stat
 import tempfile
 from datetime import datetime, time
 from dataclasses import asdict, dataclass
@@ -24,6 +25,7 @@ from application_b60_lease import (
     ApplicationLeaseReceipt,
     validate,
 )
+from host_exclusion import host_exclusion
 
 MIN_RESTORE_RESERVE_SECONDS = 15 * 60
 LAB_TIMEZONE = ZoneInfo("America/Vancouver")
@@ -159,31 +161,36 @@ class ApplicationB60Controller:
                 or not _safe_window(prelease)):
             raise ValueError("application pre-lease checkpoint is incomplete")
         self.paths.root.mkdir(mode=0o700, parents=True, exist_ok=True)
-        if os.path.lexists(self.paths.state):
-            raise ValueError("existing application lease state cannot be overwritten")
+        root_info = self.paths.root.lstat()
+        if (not stat.S_ISDIR(root_info.st_mode) or root_info.st_uid != os.geteuid()
+                or stat.S_IMODE(root_info.st_mode) != 0o700):
+            raise ValueError("application lease directory custody is invalid")
         host_root = self.paths.root.parent
-        if any(os.path.lexists(path) for path in (
-            host_root / "lease.json",
-            host_root / "lease.lock",
-        )):
-            raise ValueError("whole-host lease state or lock exists")
-        try:
-            self.paths.lock.mkdir(mode=0o700)
-        except FileExistsError as exc:
-            raise ValueError("application lease lock already exists") from exc
-        state = ApplicationLeaseState(
-            mode=prelease.mode,
-            lease_id=prelease.lease_id,
-            generation=prelease.generation,
-            backup_receipt=prelease.backup_receipt,
-            services=ALLOWED_CONSUMER_SERVICES,
-            phase="armed",
-            armed=True,
-            start_deadline_epoch=prelease.start_deadline_epoch,
-            restore_start_epoch=prelease.restore_start_epoch,
-            restore_deadline_epoch=prelease.restore_deadline_epoch,
-        )
-        atomic_write(self.paths.state, json.dumps(asdict(state), sort_keys=True, separators=(",", ":")) + "\n")
+        with host_exclusion(host_root):
+            if os.path.lexists(self.paths.state):
+                raise ValueError("existing application lease state cannot be overwritten")
+            if any(os.path.lexists(path) for path in (
+                host_root / "lease.json",
+                host_root / "lease.lock",
+            )):
+                raise ValueError("whole-host lease state or lock exists")
+            try:
+                self.paths.lock.mkdir(mode=0o700)
+            except FileExistsError as exc:
+                raise ValueError("application lease lock already exists") from exc
+            state = ApplicationLeaseState(
+                mode=prelease.mode,
+                lease_id=prelease.lease_id,
+                generation=prelease.generation,
+                backup_receipt=prelease.backup_receipt,
+                services=ALLOWED_CONSUMER_SERVICES,
+                phase="armed",
+                armed=True,
+                start_deadline_epoch=prelease.start_deadline_epoch,
+                restore_start_epoch=prelease.restore_start_epoch,
+                restore_deadline_epoch=prelease.restore_deadline_epoch,
+            )
+            atomic_write(self.paths.state, json.dumps(asdict(state), sort_keys=True, separators=(",", ":")) + "\n")
         stopped: list[tuple[str, str]] = []
         try:
             _journal(self.paths.journal, {"event": "application-lease-acquired", "lease_id": prelease.lease_id, "generation": prelease.generation})

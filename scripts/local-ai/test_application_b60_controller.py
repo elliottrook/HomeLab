@@ -1,4 +1,5 @@
 import json
+import os
 import tempfile
 import unittest
 from datetime import datetime
@@ -7,6 +8,7 @@ from zoneinfo import ZoneInfo
 
 from application_b60_controller import ApplicationB60Controller, ApplicationPaths, ApplicationPreLease, command_for
 from application_b60_lease import ALLOWED_CONSUMER_SERVICES, APPLICATION_MODE, ApplicationLeaseReceipt, SidecarObservation
+from host_exclusion import HostExclusionError, host_exclusion
 
 
 class ApplicationB60ControllerTests(unittest.TestCase):
@@ -98,6 +100,39 @@ class ApplicationB60ControllerTests(unittest.TestCase):
             self.assertEqual(state.read_text(), '{"prior":"retain"}')
             self.assertFalse((root / "application-b60.lock").exists())
             self.assertEqual(commands, [])
+
+    def test_active_archive_exclusion_blocks_application_acquire(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            application = root / "application-b60"
+            commands = []
+            controller = ApplicationB60Controller(
+                ApplicationPaths(application), commands.append, allow_effects=True,
+            )
+            with host_exclusion(root), self.assertRaises(HostExclusionError):
+                controller.acquire(self.prelease())
+            self.assertFalse((application / "application-b60.lock").exists())
+            self.assertEqual(commands, [])
+
+    def test_application_state_directory_must_be_private_and_not_symlinked(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            application = root / "application-b60"
+            application.mkdir(mode=0o700)
+            os.chmod(application, 0o755)
+            controller = ApplicationB60Controller(
+                ApplicationPaths(application), lambda _: self.fail("effect issued"), allow_effects=True,
+            )
+            with self.assertRaisesRegex(ValueError, "directory custody"):
+                controller.acquire(self.prelease())
+            os.chmod(application, 0o700)
+            alias = root / "alias"
+            alias.symlink_to(application, target_is_directory=True)
+            controller = ApplicationB60Controller(
+                ApplicationPaths(alias), lambda _: self.fail("effect issued"), allow_effects=True,
+            )
+            with self.assertRaisesRegex(ValueError, "directory custody"):
+                controller.acquire(self.prelease())
 
     def test_stop_failure_restores_completed_consumer_without_name_error(self):
         with tempfile.TemporaryDirectory() as temp:

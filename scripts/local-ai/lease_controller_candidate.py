@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Callable, Sequence
 
 from admission_state import AdmissionRecord, decode, encode
+from host_exclusion import host_exclusion
 from lease_contract import LeaseReceipt, validate_pre_acquire_receipt
 from lease_watchdog import Observation, WatchdogState, decide
 from trusted_observer import TrustedHostObserver
@@ -109,32 +110,33 @@ class CandidateController:
         if (not stat.S_ISDIR(root_info.st_mode) or root_info.st_uid != os.geteuid()
                 or stat.S_IMODE(root_info.st_mode) != 0o700):
             raise ValueError("lease state directory custody is invalid")
-        if self.paths.state.exists() or self.paths.state.is_symlink():
-            raise ValueError("existing lease state cannot be overwritten")
-        application_root = self.paths.root / "application-b60"
-        if any(os.path.lexists(path) for path in (
-            application_root / "application-b60.json",
-            application_root / "application-b60.lock",
-        )):
-            raise ValueError("application B60 lease state or lock exists")
-        try:
-            self.paths.lock.mkdir(mode=0o700)
-        except FileExistsError as exc:
-            raise ValueError("host lease lock already exists") from exc
-        state = AdmissionRecord(
-            lease_id=receipt.lease_id,
-            generation=receipt.generation,
-            state="leased",
-            issued_minute=receipt.issued_minute,
-            expires_minute=receipt.expires_minute,
-            backup_receipt=receipt.backup_receipt,
-            model_identity=receipt.model_identity,
-            backend_identity=receipt.backend_identity,
-            consumers_isolated=False,
-            scheduled_work_quiesced=False,
-            services=active_services,
-        )
-        atomic_write(self.paths.state, encode(state))
+        with host_exclusion(self.paths.root):
+            if self.paths.state.exists() or self.paths.state.is_symlink():
+                raise ValueError("existing lease state cannot be overwritten")
+            application_root = self.paths.root / "application-b60"
+            if any(os.path.lexists(path) for path in (
+                application_root / "application-b60.json",
+                application_root / "application-b60.lock",
+            )):
+                raise ValueError("application B60 lease state or lock exists")
+            try:
+                self.paths.lock.mkdir(mode=0o700)
+            except FileExistsError as exc:
+                raise ValueError("host lease lock already exists") from exc
+            state = AdmissionRecord(
+                lease_id=receipt.lease_id,
+                generation=receipt.generation,
+                state="leased",
+                issued_minute=receipt.issued_minute,
+                expires_minute=receipt.expires_minute,
+                backup_receipt=receipt.backup_receipt,
+                model_identity=receipt.model_identity,
+                backend_identity=receipt.backend_identity,
+                consumers_isolated=False,
+                scheduled_work_quiesced=False,
+                services=active_services,
+            )
+            atomic_write(self.paths.state, encode(state))
         stopped: list[tuple[str, str]] = []
         try:
             journal_event(self.paths.journal, {"event": "lease-acquired", "lease_id": receipt.lease_id, "generation": receipt.generation})

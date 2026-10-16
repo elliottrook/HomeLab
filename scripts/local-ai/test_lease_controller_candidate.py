@@ -7,6 +7,7 @@ from admission_state import decode
 from lease_contract import ACCEPTED_BACKEND, ACCEPTED_MODEL, LeaseReceipt
 from lease_controller_candidate import ALLOWLIST, CandidateController, CandidatePaths, command_for
 from lease_watchdog import Observation
+from host_exclusion import HostExclusionError, host_exclusion
 
 
 class CandidateControllerTests(unittest.TestCase):
@@ -100,6 +101,19 @@ class CandidateControllerTests(unittest.TestCase):
                     controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
                 self.assertFalse((root / "lease.lock").exists())
                 self.assertEqual(commands, [])
+
+    def test_active_archive_exclusion_blocks_full_stop_acquire(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            commands = []
+            controller = CandidateController(
+                CandidatePaths(root), commands.append, allow_effects=True,
+                observer=self.StubObserver(self.observation()), sleep=lambda _: None,
+            )
+            with host_exclusion(root), self.assertRaises(HostExclusionError):
+                controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
+            self.assertFalse((root / "lease.lock").exists())
+            self.assertEqual(commands, [])
 
     def test_incomplete_restore_does_not_start_services(self):
         with tempfile.TemporaryDirectory() as temp:

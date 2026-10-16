@@ -2,12 +2,15 @@ import json
 import os
 import tempfile
 import unittest
+from contextlib import nullcontext
 from datetime import datetime
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import retained_archive_producer_candidate as producer
 import retained_archive_integrity as archive
+from host_exclusion import HostExclusionError, host_exclusion
 
 
 ZONE = producer.LOCAL_ZONE
@@ -96,6 +99,7 @@ class RetainedProducerTests(unittest.TestCase):
             root = Path(directory)
             with patch.object(producer, "EFFECTS_ENABLED", True), \
                     patch.object(producer, "RECEIPT_PATH", root / "archive-integrity.json"), \
+                    patch.object(producer, "host_exclusion", return_value=nullcontext()) as exclusion, \
                     patch.object(producer, "produce", return_value={"date": "2026_10_15", "archives": [{}, {}, {}]}) as scan:
                 with patch.object(producer.os, "geteuid", return_value=501), \
                         self.assertRaises(SystemExit):
@@ -122,6 +126,22 @@ class RetainedProducerTests(unittest.TestCase):
                 with patch.object(producer.os, "geteuid", return_value=0):
                     self.assertEqual(producer.main(["--effect-authorized"]), 0)
                 scan.assert_called_once()
+                self.assertEqual(exclusion.call_count, 6)
+
+    def test_effect_entry_holds_exclusion_through_receipt_production(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            def scan(*_args, **_kwargs):
+                with self.assertRaises(HostExclusionError):
+                    with host_exclusion(root):
+                        pass
+                return {"date": "2026_10_16", "archives": [{}, {}, {}]}
+            gate_os = SimpleNamespace(geteuid=lambda: 0, path=os.path)
+            with patch.object(producer, "EFFECTS_ENABLED", True), \
+                    patch.object(producer, "RECEIPT_PATH", root / "archive-integrity.json"), \
+                    patch.object(producer, "os", gate_os), \
+                    patch.object(producer, "produce", side_effect=scan):
+                self.assertEqual(producer.main(["--effect-authorized"]), 0)
 
     def test_missing_guest_completion_or_wrong_job_blocks_scan(self):
         with patch.object(producer, "capture", side_effect=AssertionError("scan must not begin")):

@@ -1,12 +1,15 @@
 import io
 import json
+import os
 import tempfile
 import unittest
-from contextlib import redirect_stdout
+from contextlib import nullcontext, redirect_stdout
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import retained_archive_timing_observer as observer
+from host_exclusion import HostExclusionError, host_exclusion
 
 
 class ReadOnlyTimingTests(unittest.TestCase):
@@ -14,6 +17,7 @@ class ReadOnlyTimingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             with patch.object(observer, "RECEIPT_PATH", Path(directory) / "archive-integrity.json"), \
                     patch.object(observer.os, "geteuid", return_value=0), \
+                    patch.object(observer, "host_exclusion", return_value=nullcontext()) as exclusion, \
                     patch.object(observer, "produce", return_value={
                         "date": "2026_10_17", "archives": [{
                             "vmid": vmid, "volid": f"backups:backup/vzdump-lxc-{vmid}.tar.zst",
@@ -24,6 +28,7 @@ class ReadOnlyTimingTests(unittest.TestCase):
                     }) as scan:
                 result = observer.observe(clock=lambda: 20)
                 scan.call_args.kwargs["save"]({"synthetic": True})
+                exclusion.assert_called_once_with(Path(directory))
             self.assertEqual(len(result["archives"]), 3)
             self.assertFalse(result["admission_receipt_written"])
             self.assertNotIn("must-not-print", json.dumps(result))
@@ -33,6 +38,7 @@ class ReadOnlyTimingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             with patch.object(observer, "RECEIPT_PATH", root / "archive-integrity.json"), \
+                    patch.object(observer, "host_exclusion", return_value=nullcontext()), \
                     patch.object(observer, "produce") as scan:
                 with patch.object(observer.os, "geteuid", return_value=501), \
                         self.assertRaises(PermissionError):
@@ -64,6 +70,20 @@ class ReadOnlyTimingTests(unittest.TestCase):
         self.assertEqual(result["state"], "no_go")
         self.assertEqual(result["error_class"], "RuntimeError")
         self.assertNotIn("private-path", output.getvalue())
+
+    def test_scan_holds_common_exclusion_until_produce_returns(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            def scan(*_args, **_kwargs):
+                with self.assertRaises(HostExclusionError):
+                    with host_exclusion(root):
+                        pass
+                return {"date": "2026_10_16", "archives": []}
+            gate_os = SimpleNamespace(geteuid=lambda: 0, path=os.path)
+            with patch.object(observer, "RECEIPT_PATH", root / "archive-integrity.json"), \
+                    patch.object(observer, "os", gate_os), \
+                    patch.object(observer, "produce", side_effect=scan):
+                self.assertEqual(observer.observe()["archives"], [])
 
 
 if __name__ == "__main__":
