@@ -78,6 +78,18 @@ services/schedules. Preserve the checkpoint and failure record. If a lease
 state/lock appears, do not swap code beneath it; retain the checkpoint and
 require operator reconciliation.
 
+The tracked rollback candidate is
+`host_exclusion_disabled_rollback_v2.py` at SHA-256
+`9abe36246d368c4c0b7adaca9643d04e6eef35a152185e160494b0bac7f1fae8`.
+It accepts a stop after any of the seven atomic replacements: each existing
+target must have exactly its pinned old or new bytes, and each added target
+must be absent or have exactly its pinned new bytes. Unknown bytes, symlinks,
+lease state or checkpoint drift stop rollback without overwriting them.
+Disposable-directory tests cover all eight partial-stage boundaries (including
+zero and all seven writes), symlink/unknown-byte refusal and all four original
+restorations. These are local tests only; target-Linux rollback proof is still
+required during the separately approved disabled installation.
+
 The old manual `acquire --light` route still bypasses the common advisory
 lock. Backup and TrueNAS jobs do too. This disabled installation does **not**
 make an unattended archive observation safe. A later release must cover the
