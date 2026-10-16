@@ -29,7 +29,7 @@ class ReadOnlyTimingTests(unittest.TestCase):
             self.assertNotIn("must-not-print", json.dumps(result))
             self.assertFalse((Path(directory) / "archive-integrity.json").exists())
 
-    def test_nonroot_or_lease_refuses_before_scan(self):
+    def test_nonroot_or_any_lease_refuses_before_scan(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             with patch.object(observer, "RECEIPT_PATH", root / "archive-integrity.json"), \
@@ -37,7 +37,19 @@ class ReadOnlyTimingTests(unittest.TestCase):
                 with patch.object(observer.os, "geteuid", return_value=501), \
                         self.assertRaises(PermissionError):
                     observer.observe()
-                (root / "lease.lock").write_text("synthetic")
+                for path in (
+                    root / "lease.json", root / "lease.lock",
+                    root / "application-b60" / "application-b60.json",
+                    root / "application-b60" / "application-b60.lock",
+                ):
+                    with self.subTest(path=path.name):
+                        path.parent.mkdir(exist_ok=True)
+                        path.write_text("synthetic")
+                        with patch.object(observer.os, "geteuid", return_value=0), \
+                                self.assertRaises(RuntimeError):
+                            observer.observe()
+                        path.unlink()
+                (root / "lease.lock").symlink_to("missing-lock")
                 with patch.object(observer.os, "geteuid", return_value=0), \
                         self.assertRaises(RuntimeError):
                     observer.observe()

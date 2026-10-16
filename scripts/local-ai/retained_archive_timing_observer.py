@@ -20,8 +20,14 @@ def observe(*, runner=_runner, clock=lambda: int(time.time())) -> dict:
     if os.geteuid() != 0:
         raise PermissionError("archive observation requires root")
     root = RECEIPT_PATH.parent
-    if (root / "lease.json").exists() or (root / "lease.lock").exists():
-        raise RuntimeError("lease or retained lock exists")
+    conflicting_state = (
+        root / "lease.json",
+        root / "lease.lock",
+        root / "application-b60" / "application-b60.json",
+        root / "application-b60" / "application-b60.lock",
+    )
+    if any(os.path.lexists(path) for path in conflicting_state):
+        raise RuntimeError("conflicting lease state or lock exists")
     receipt = produce(runner, clock=clock, save=lambda _receipt: None)
     return {
         "schema": "aster-read-only-archive-timing.v1",
