@@ -45,6 +45,15 @@ source card at `a0438d81`; the platform owner integrated it locally at
 absences. This resolves the **card discrepancy only**; a fresh check and
 separate disabled-install authorization are still required, and F2/F3/F6
 remain open.
+
+Jason approved that six-path disabled install, but the [target-Linux import
+failed and the install was rolled back](evidence/Common-host-exclusion-disabled-install-rollback-2026-10-16.md).
+The application controller's real root is `/usr/local/libexec/aster-a1`, not
+the whole-host lease directory. Pre-install hashes, production service state,
+timers and backup schedule were restored/verified. A two-root, seven-path card
+now exists at local `codex/aster-lease-compat` commit `cc03cc2b`; it needs
+independent review and a **new** exact host-change approval. No live gate
+advanced, and the October 17 F2 scan remains unadmitted.
 The disabled F3 producer received the same pre-start lease guard in local
 source commit `4e16b964`, integrated by the platform owner as `f4b9da31`.
 Its full local suite passed 177 tests with two macOS root-custody skips. The
