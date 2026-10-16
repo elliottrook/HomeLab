@@ -18,7 +18,8 @@ def tokens(text):
 
 def proposal(status, labels=()):
     labels = sorted(set(labels))
-    if not set(labels) <= ALLOWED or (status != 'plan' and labels):
+    if (status not in {'plan','clarify','abstain'} or not set(labels) <= ALLOWED
+            or (status == 'plan') != bool(labels)):
         raise ValueError('invalid proposed labels')
     return {'status':status,'labels':labels,'authorization':'not-granted','confidence':None}
 
@@ -74,12 +75,36 @@ def correct(row,prediction):
 
 def load_corpus():
     d=json.loads(CORPUS.read_text())
+    if (not isinstance(d,dict) or set(d) != {'schema_version','data_class','families','presentation_prefixes','forbidden_for_all'}
+            or d['schema_version'] != 'routing-families.v1' or d['data_class'] != 'synthetic'):
+        raise ValueError('invalid corpus contract')
     rows=d['families']
+    prefixes=d['presentation_prefixes']
+    forbidden=d['forbidden_for_all']
+    if (not isinstance(rows,list) or not rows
+            or not isinstance(prefixes,list) or not prefixes
+            or any(not isinstance(p,str) for p in prefixes) or len(set(prefixes)) != len(prefixes)
+            or not isinstance(forbidden,list) or any(not isinstance(p,str) for p in forbidden)
+            or len(set(forbidden)) != len(forbidden) or set(forbidden) & ALLOWED):
+        raise ValueError('invalid corpus collections')
+    for r in rows:
+        if (not isinstance(r,dict) or set(r) != {'id','split','text','required','status'}
+                or not isinstance(r['id'],str) or not r['id']
+                or not isinstance(r['text'],str) or not r['text'].strip()
+                or not isinstance(r['required'],list)
+                or any(not isinstance(x,str) for x in r['required'])
+                or len(set(r['required'])) != len(r['required'])
+                or (r['status'] == 'plan') != bool(r['required'])):
+            raise ValueError('invalid corpus family')
     if len({r['id'] for r in rows})!=len(rows) or len({r['text'] for r in rows})!=len(rows):
         raise ValueError('duplicate family or cross-split exact text')
     for r in rows:
-        if r['split'] not in {'train','calibration','test'} or not set(r['required'])<=ALLOWED:
+        if (r['split'] not in {'train','calibration','test'}
+                or r['status'] not in {'plan','clarify','abstain'}
+                or not set(r['required'])<=ALLOWED):
             raise ValueError('invalid corpus')
+    if any(not any(r['split']==split for r in rows) for split in ('train','calibration','test')):
+        raise ValueError('empty corpus split')
     return d
 
 
