@@ -91,6 +91,20 @@ class ContractsTests(unittest.TestCase):
         data=self.decision.model_dump();data['steps'][0]['capability_id']='shell.execute'
         with self.assertRaises(ValueError):validate_proposal(self.request,Decision.model_validate(data),self.catalogue,now=10)
 
+    def test_public_request_cannot_plan_internal_capability(self):
+        req=DecisionRequest.model_validate(self.request.model_dump() | {'sensitivity':'public'})
+        with self.assertRaisesRegex(ValueError,'exceeds request sensitivity'):
+            validate_proposal(req,self.decision,self.catalogue,now=10)
+        planned=self.decision.steps[0].capability_id
+        cat=self.catalogue.model_copy(update={'capabilities':[
+            c.model_copy(update={'sensitivity':'personal'}) if c.capability_id==planned else c
+            for c in self.catalogue.capabilities]})
+        req=DecisionRequest.model_validate(self.request.model_dump() | {
+            'sensitivity':'internal','registry_digest':cat.digest()})
+        decision=Decision.model_validate(self.decision.model_dump() | {'registry_digest':cat.digest()})
+        with self.assertRaisesRegex(ValueError,'exceeds request sensitivity'):
+            validate_proposal(req,decision,cat,now=10)
+
     def test_missing_catalogue_entry_denies_selector(self):
         cat=self.catalogue.model_copy(update={'capabilities':[]});req=request({'id':'fixture'},cat)
         decision=self.selector.propose(req,cat,[{'role':'user','content':'time'}],now=10)

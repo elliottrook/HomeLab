@@ -215,6 +215,11 @@ control**. Those rules and cases were authored together, and their Mac latency
 cannot be compared with the B60 request timing. The control confirms that a
 future local stack must add measured value beyond simply reproducing these
 examples; it is not an independent quality or deployment result.
+An [offline Decision contract correction](evidence/M3-decision-sensitivity-boundary-2026-10-16.md)
+now rejects a proposed capability whose registry sensitivity exceeds the
+request sensitivity. This closes a synthetic compatibility-check omission;
+it neither establishes request classification accuracy nor grants routing or
+tool authority.
 
 The first [six-case synthetic completed-answer probe](experiments/a1-9b-synthetic-answer/RESULT-2026-10-12.md)
 used the accepted 9B/SYCL service after the platform owner's light lease was

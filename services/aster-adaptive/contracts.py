@@ -142,9 +142,13 @@ def validate_proposal(request: DecisionRequest, decision: Decision, catalogue: C
         raise ValueError('expired proposal')
     if len(decision.steps) > request.max_steps:
         raise ValueError('step budget exceeded')
-    capabilities = {c.capability_id for c in catalogue.capabilities}
+    capabilities = {c.capability_id: c for c in catalogue.capabilities}
     if any(s.capability_id not in capabilities for s in decision.steps):
         raise ValueError('unknown capability')
+    sensitivity_rank = {'public': 0, 'internal': 1, 'personal': 2}
+    if any(sensitivity_rank[capabilities[s.capability_id].sensitivity] >
+           sensitivity_rank[request.sensitivity] for s in decision.steps):
+        raise ValueError('capability exceeds request sensitivity')
     return True
 
 
