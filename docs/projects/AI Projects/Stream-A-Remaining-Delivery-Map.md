@@ -413,6 +413,10 @@ gates for a connected tool.
 An [offline malformed-producer check](evidence/D4-sysadmin-evidence-type-boundary-2026-10-15.md)
 now makes wrong field types, boolean schema versions and non-finite fact values
 fail with a controlled contract error; it changes no live authority.
+The [October 17 persisted-record check](evidence/D4-incident-restore-boundary-2026-10-17.md)
+also rejects damaged observation plans/rows and naive clocks with controlled
+errors. The normal restore path and 30 focused tests pass. This is source-only
+and does not authenticate a producer or authorize a connected tool.
 The [Doctor projection gate](evidence/D4-Doctor-structured-evidence-gate-2026-10-10.md)
 specifies why free-text parsing is insufficient and how one producer-owned
 check ID can be tested offline before any model sees diagnostic evidence.

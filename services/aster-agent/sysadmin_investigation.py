@@ -86,6 +86,8 @@ class Observation:
     truncated: bool = False
 
     def validate(self, now: datetime) -> dict[str, Any]:
+        if not isinstance(now, datetime) or now.tzinfo is None or now.utcoffset() is None:
+            raise InvestigationError("observation requires an aware clock")
         if not isinstance(self.evidence_id, str) or not self.evidence_id or len(self.evidence_id) > 80:
             raise InvestigationError("invalid evidence_id")
         if not isinstance(self.incident_id, str) or not self.incident_id or len(self.incident_id) > 80:
@@ -219,7 +221,12 @@ class Incident:
         if (not isinstance(record, dict) or set(record) != expected or
                 type(record.get("schema_version")) is not int or record["schema_version"] != 1):
             raise InvestigationError("invalid persisted incident record")
-        plan = [EvidenceRequest(**item) for item in record["observation_plan"]]
+        plan_items = record.get("observation_plan")
+        if (not isinstance(plan_items, list) or
+                any(not isinstance(item, dict) or set(item) != {"target", "kind", "reason"}
+                    for item in plan_items)):
+            raise InvestigationError("invalid persisted observation plan")
+        plan = [EvidenceRequest(**item) for item in plan_items]
         incident = create_incident(record["incident_id"], record["title"], plan)
         if not isinstance(record["observations"], list) or not isinstance(record["hypotheses"], list):
             raise InvestigationError("invalid persisted incident contents")
@@ -227,7 +234,12 @@ class Incident:
             incident.add_hypothesis(hypothesis)
         # Stored records have already been validated, but reapply the full
         # evidence contract when restoring so an altered SQLite row fails closed.
+        required_observation = {"evidence_id", "incident_id", "target", "kind",
+                                "observed_at", "source", "state", "summary", "facts"}
         for item in record["observations"]:
+            if (not isinstance(item, dict) or not required_observation <= set(item)
+                    or not set(item) <= required_observation | {"truncated", "age_seconds"}):
+                raise InvestigationError("invalid persisted observation")
             copy_item = dict(item)
             copy_item.pop("age_seconds", None)
             incident.add_observation(Observation(**copy_item), now)

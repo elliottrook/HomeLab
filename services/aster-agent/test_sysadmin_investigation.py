@@ -122,6 +122,22 @@ class InvestigationTests(unittest.TestCase):
         with self.assertRaises(InvestigationError):
             type(self.incident()).from_record(record, NOW)
 
+    def test_restore_rejects_malformed_persisted_shapes_and_clock(self):
+        for now in (None, datetime(2026, 9, 28, 18, 0)):
+            with self.subTest(now=now), self.assertRaisesRegex(InvestigationError, "aware clock"):
+                observation().validate(now)
+        original = self.incident().to_record()
+        damaged = []
+        for plan in (None, ["not a request"], [{"target": "aster-gateway"}],
+                     [{"target": "aster-gateway", "kind": "status", "reason": "x", "extra": "private"}]):
+            damaged.append({**original, "observation_plan": plan})
+        for item in ("not an observation", {"source": "untrusted"},
+                     {**observation().__dict__, "extra": "private"}):
+            damaged.append({**original, "observations": [item]})
+        for record in damaged:
+            with self.subTest(record=record), self.assertRaises(InvestigationError):
+                type(self.incident()).from_record(record, NOW)
+
 
 if __name__ == "__main__":
     unittest.main()
