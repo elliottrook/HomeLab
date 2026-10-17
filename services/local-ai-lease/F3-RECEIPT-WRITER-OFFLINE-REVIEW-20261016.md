@@ -41,3 +41,8 @@ bytes, not proof that the retained receipt path is live. The platform owner
 has been notified. F2 timing, separate F3 effect-enabled source review,
 fresh-cycle receipt, F6 recovery and human drill approval remain independent
 gates.
+
+**Subsequent source revision:** the reader/shape hardening in
+`F3-RECEIPT-READER-OFFLINE-REVIEW-20261016.md` changes the shared file hash.
+For any future release, pin the later complete file and tests; the writer
+hash above remains provenance for this review, not an installation target.
