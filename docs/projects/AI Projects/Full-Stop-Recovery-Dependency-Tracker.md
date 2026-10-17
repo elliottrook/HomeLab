@@ -1,7 +1,7 @@
 # Full-stop recovery drill — dependency tracker
 
 **Owner:** Stream A for evidence and coordination; Local AI platform owner for
-host release, lease and recovery. **Last reconciled:** 2026-10-16, 18:54
+host release, lease and recovery. **Last reconciled:** 2026-10-16, 19:02
 America/Vancouver. **Overall decision: NO-GO.** This tracker is the human
 status page. The platform-owned
 `services/local-ai-lease/FULL-STOP-RECOVERY-DRILL-RUN-CARD.md` is the executable
@@ -76,9 +76,15 @@ The result on `codex/aster-lease-compat` at
 `services/local-ai-lease/F2-DISABLED-INSTALL-RESULT-20261016.md` records 23/23
 F2 and 4/4 installer synthetic tests on target Linux, three exact installed
 hashes, two old-file checkpoints, inactive timers, running guests/News timers,
-and no lease, receipt or scan. The actual F2 scan still needs fresh
-current-cycle preflight, a supervising operator and dated approval. F2 remains
-NO-GO, and October 17 is not promised.
+and no lease, receipt or scan. Jason separately approved **one conditional,
+supervised F2 read-only scan for the October 17 backup cycle**. The active
+one-time Stream A heartbeat will perform a 01:05 preflight; a scan may start
+only before 01:20 if the actual 00:30/01:00 jobs succeeded, the exact
+104/110/116 identities and installed pins match, the host is quiet, and no
+manual backup/pull/lease competes. It must stop by the earlier of 20 minutes
+or 01:40 Vancouver and skip on any failed, late or uncertain gate. This is no
+F2 timing result yet: F2 remains NO-GO until all three tests exit 0 within
+the bound. It grants no receipt, full-stop drill, model call or service stop.
 The source checkpoint and live schedule-type assertions were clarified in
 `62125a65`; the conditional stage/test/install wording is in `9f9ae8a9`.
 The platform owner integrated the matching source locally at `1829271d`,
