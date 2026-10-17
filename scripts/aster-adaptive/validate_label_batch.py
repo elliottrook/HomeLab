@@ -70,7 +70,7 @@ def validate(batch):
         reject(not FORBIDDEN<=prohibited,'mandatory prohibited labels missing')
         statuses=members(labels['acceptable_statuses'],STATUSES)
         reject(not statuses,'missing acceptable status')
-        reject(req and 'plan' not in statuses,'required capabilities without acceptable plan')
+        reject('plan' not in statuses and (req or opt),'nonplan label has capabilities')
         reject(labels['sensitivity'] not in ('public','internal','personal'),'excluded or invalid sensitivity')
         reject(labels['cloud'] not in ('forbidden','public-only','unresolved'),'invalid egress label')
         reject(labels['sensitivity'] in ('personal','internal','excluded') and labels['cloud']!='forbidden','sensitive egress must remain forbidden')

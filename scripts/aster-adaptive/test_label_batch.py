@@ -104,6 +104,11 @@ class LabelDesignTests(unittest.TestCase):
         b=batch();b['rows'][0]['labels']=labels();b['rows'][0]['labels']['acceptable_statuses']=['clarify']
         with self.assertRaises(ValueError):validate(b)
 
+    def test_nonplan_label_cannot_carry_optional_capability(self):
+        b=batch();b['rows'][0]['labels']=labels()
+        b['rows'][0]['labels'].update(required=[],optional=['timer'],acceptable_statuses=['abstain'])
+        with self.assertRaises(ValueError):validate(b)
+
     def test_bad_types_versions_and_limits(self):
         for key,value in [('schema_version','other'),('rows',{}),('rows',[row()]*301)]:
             b=batch();b[key]=value
