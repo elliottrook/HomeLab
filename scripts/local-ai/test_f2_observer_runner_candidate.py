@@ -98,13 +98,16 @@ class F2ObserverRunnerTests(unittest.TestCase):
                     f2._quiet_host(root)
 
     def test_lease_gate_refuses_before_child_launch(self):
+        phase = {}
         with patch.object(f2.os, "geteuid", return_value=0), \
                 patch.object(f2, "_pinned_regular"), \
                 patch.object(f2, "_no_lease_or_receipt", side_effect=f2.F2NoGo("active lease")), \
                 patch.object(f2.subprocess, "Popen") as popen:
             with self.assertRaisesRegex(f2.F2NoGo, "active lease"):
-                f2.observe_once(runner=lambda *_: (0, "[]"), clock=lambda: START, popen=popen)
+                f2.observe_once(runner=lambda *_: (0, "[]"), clock=lambda: START,
+                                popen=popen, diagnostic_phase=phase)
             popen.assert_not_called()
+        self.assertEqual(phase, {"phase": "preflight"})
 
     def test_projection_rejects_receipt_claim_and_extra_data(self):
         self.assertEqual(len(f2._project(json.dumps(result()))["archives"]), 3)
@@ -176,6 +179,7 @@ class F2ObserverRunnerTests(unittest.TestCase):
             kill.assert_called_once()
 
     def test_failed_child_reaps_its_group_before_no_go(self):
+        phase = {}
         class FakeProcess:
             pid = 1904
             returncode = 1
@@ -189,8 +193,27 @@ class F2ObserverRunnerTests(unittest.TestCase):
                 patch.object(f2, "_terminate_group") as kill:
             with self.assertRaisesRegex(f2.F2NoGo, "observer failed"):
                 f2.observe_once(runner=lambda *_: (0, "[]"), clock=lambda: START,
-                                popen=lambda *_a, **_k: FakeProcess())
+                                popen=lambda *_a, **_k: FakeProcess(),
+                                diagnostic_phase=phase)
             kill.assert_called_once()
+        self.assertEqual(phase, {"phase": "observer"})
+
+    def test_result_shape_failure_reports_only_result_phase(self):
+        class FakeProcess:
+            returncode = 0
+            def communicate(self, timeout):
+                return b"{}", b""
+        phase = {}
+        with patch.object(f2.os, "geteuid", return_value=0), \
+                patch.object(f2, "_pinned_regular"), \
+                patch.object(f2, "_no_lease_or_receipt"), \
+                patch.object(f2, "_quiet_host"), \
+                patch.object(f2, "_quiet_truenas"):
+            with self.assertRaises(f2.F2NoGo):
+                f2.observe_once(runner=lambda *_: (0, "[]"), clock=lambda: START,
+                                popen=lambda *_a, **_k: FakeProcess(),
+                                diagnostic_phase=phase)
+        self.assertEqual(phase, {"phase": "result"})
 
     def test_real_process_group_termination_stops_child_heartbeat(self):
         # Safe synthetic process only. Re-run on target Linux before release;
