@@ -66,6 +66,7 @@
         <control type="group" id="21">
             <zorder>2</zorder>
             <animation effect="fade" start="100" end="0" time="0" condition="Control.HasFocus(8999) | Control.HasFocus(9001) | Control.HasFocus(9002) | Control.HasFocus(9003) | Control.HasFocus(9004) | Control.HasFocus(9005) | Control.HasFocus(9007)">Conditional</animation>
+            <animation effect="fade" start="100" end="0" time="120" reversible="true" condition="Control.HasFocus(140) | Control.HasFocus(141) | Control.HasFocus(142) | Control.HasFocus(143) | Control.HasFocus(144) | Control.HasFocus(145)">Conditional</animation>
 
         <!-- Approved Aster Media product mark in the media landing header. -->
         <control type="image">
@@ -229,6 +230,7 @@
         <control type="group" id="22">
             <zorder>2</zorder>
             <animation effect="fade" start="100" end="0" time="0" condition="Control.HasFocus(8999) | Control.HasFocus(9001) | Control.HasFocus(9002) | Control.HasFocus(9003) | Control.HasFocus(9004) | Control.HasFocus(9005) | Control.HasFocus(9007)">Conditional</animation>
+            <animation effect="slide" start="0,0" end="0,-380" time="220" reversible="true" condition="Control.HasFocus(140) | Control.HasFocus(141) | Control.HasFocus(142) | Control.HasFocus(143) | Control.HasFocus(144) | Control.HasFocus(145)">Conditional</animation>
 
         <control type="label">
             <left>125</left>
@@ -337,6 +339,7 @@
             <scrolltime>180</scrolltime>
             <onleft>8999</onleft>
             <onup>100</onup>
+            <ondown>140</ondown>
             <itemlayout width="340" height="230">
                 <control type="image">
                     <left>8</left><top>8</top><width>320</width><height>180</height>
@@ -368,6 +371,22 @@
             </focusedlayout>
             <content target="videos">videodb://recentlyaddedmovies/</content>
         </control>
+
+        <!-- The next lane deliberately peeks above the lower edge. Focusing it
+             lifts the three media lanes together so all six portrait choices
+             become visible without disturbing the initial hero composition. -->
+        <include content="AsterGenreTile"><param name="id" value="140"/><param name="left" value="125"/><param name="label" value="Comedy"/><param name="preview" value="special://skin/playlists/genre-previews/comedy-tv.xsp"/><param name="browse" value="special://skin/playlists/genres/comedy-tv.xsp"/><param name="lefttarget" value="8999"/><param name="righttarget" value="141"/></include>
+        <include content="AsterGenreTile"><param name="id" value="141"/><param name="left" value="405"/><param name="label" value="Drama"/><param name="preview" value="special://skin/playlists/genre-previews/drama-film.xsp"/><param name="browse" value="special://skin/playlists/genres/drama-film.xsp"/><param name="lefttarget" value="140"/><param name="righttarget" value="142"/></include>
+        <include content="AsterGenreTile"><param name="id" value="142"/><param name="left" value="685"/><param name="label" value="Action"/><param name="preview" value="special://skin/playlists/genre-previews/action-film.xsp"/><param name="browse" value="special://skin/playlists/genres/action-film.xsp"/><param name="lefttarget" value="141"/><param name="righttarget" value="143"/></include>
+        <include content="AsterGenreTile"><param name="id" value="143"/><param name="left" value="965"/><param name="label" value="Sci-Fi"/><param name="preview" value="special://skin/playlists/genre-previews/scifi-tv.xsp"/><param name="browse" value="special://skin/playlists/genres/scifi-tv.xsp"/><param name="lefttarget" value="142"/><param name="righttarget" value="144"/></include>
+        <include content="AsterGenreTile"><param name="id" value="144"/><param name="left" value="1245"/><param name="label" value="Documentary"/><param name="preview" value="special://skin/playlists/genre-previews/documentary-film.xsp"/><param name="browse" value="special://skin/playlists/genres/documentary-film.xsp"/><param name="lefttarget" value="143"/><param name="righttarget" value="145"/></include>
+        <include content="AsterGenreTile"><param name="id" value="145"/><param name="left" value="1525"/><param name="label" value="Horror"/><param name="preview" value="special://skin/playlists/genre-previews/horror-film.xsp"/><param name="browse" value="special://skin/playlists/genres/horror-film.xsp"/><param name="lefttarget" value="144"/><param name="righttarget" value="145"/></include>
+        <control type="label"><left>156</left><top>1358</top><width>218</width><height>42</height><label>Comedy</label><font>font20</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny></control>
+        <control type="label"><left>436</left><top>1358</top><width>218</width><height>42</height><label>Drama</label><font>font20</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny></control>
+        <control type="label"><left>716</left><top>1358</top><width>218</width><height>42</height><label>Action</label><font>font20</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny></control>
+        <control type="label"><left>996</left><top>1358</top><width>218</width><height>42</height><label>Sci-Fi</label><font>font20</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny></control>
+        <control type="label"><left>1276</left><top>1358</top><width>218</width><height>42</height><label>Documentary</label><font>font20</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny></control>
+        <control type="label"><left>1556</left><top>1358</top><width>218</width><height>42</height><label>Horror</label><font>font20</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny></control>
         </control>
     </controls>
 </window>

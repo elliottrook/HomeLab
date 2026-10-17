@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<smartplaylist type="movies"><name>Documentary preview</name><match>all</match><rule field="genre" operator="contains"><value>Documentary</value></rule><limit>1</limit><order direction="ascending">random</order></smartplaylist>

@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<smartplaylist type="movies"><name>Action Movies</name><match>all</match><rule field="genre" operator="contains"><value>Action</value></rule><order direction="ascending">random</order></smartplaylist>

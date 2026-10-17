@@ -1296,6 +1296,24 @@ behaviour, data sources or navigation. Live Mac Kodi validation confirmed the
 inset, vertical centring and stronger outline on the media library screen; all
 63 offline tests and every skin XML validation pass.
 
+Media genre discovery rail, 2026-10-17 (skin v0.8.13): The Media landing page
+now places a third portrait rail beneath Recommended for You for Comedy,
+Drama, Action, Sci-Fi, Documentary and Horror. Its upper edge deliberately
+peeks into the initial viewport; focusing the rail lifts all three media lanes
+to expose the full controls. Each tile selects a slightly washed poster at
+random from a matching native Kodi movie or TV smart playlist, and opens the
+corresponding complete genre playlist. An initial Python Home-load callback
+failed its live gate with a Kodi 21.3 native segmentation fault in
+`ControlList.reset()`; that unsafe cross-thread GUI mutation was removed before
+commit. Preview and browsing now use only native, read-only Kodi containers.
+This performs no metadata change, acquisition or network lookup. Offline and
+live-Kodi validation then passed: the initial viewport showed only the poster
+tops; Down lifted the three rails cleanly while hiding the hero copy; all six
+labels and random posters rendered; and horizontal navigation into Horror
+opened the complete 83-title Horror Movies view. Kodi remained stable. All 65
+offline tests and every skin/playlist XML validation pass. LibreELEC remains a
+later hardware gate.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

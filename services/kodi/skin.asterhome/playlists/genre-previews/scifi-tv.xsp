@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<smartplaylist type="tvshows"><name>Sci-Fi preview</name><match>all</match><rule field="genre" operator="contains"><value>Sci-Fi</value></rule><limit>1</limit><order direction="ascending">random</order></smartplaylist>

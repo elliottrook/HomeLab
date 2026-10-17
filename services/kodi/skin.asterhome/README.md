@@ -1,5 +1,14 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.13 adds a portrait genre rail beneath Recommended for You. Comedy,
+Drama, Action, Sci-Fi, Documentary and Horror each use a randomly selected,
+slightly washed local movie or TV poster. The rail deliberately peeks into the
+initial viewport, lifts into view on focus, and opens a bounded local smart
+playlist for the represented media type and exact indexed genre. It performs
+no metadata write or remote lookup. Both preview and browse data use native
+Kodi smart-playlist containers; no background script mutates a live GUI
+control.
+
 Version 0.8.12 adds a deliberate left inset and vertical centring to search
 entry text, and strengthens the utility-field outline with Aster gold while
 leaving the shared clock outline restrained.
