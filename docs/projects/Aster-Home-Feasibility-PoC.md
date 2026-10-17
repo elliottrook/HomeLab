@@ -1211,6 +1211,19 @@ highlight advanced to its matching row. Stop removed the playback controls
 without a stall. The 58-test suite passes and asserts the queued focus command;
 LibreELEC playback remains a later hardware validation gate.
 
+Books feed reconnection, 2026-10-17 (skin v0.7.9): The Books landing page
+correctly routed to its three catalogue windows, but its sanitized snapshot had
+expired. The one-shot publisher incorrectly used the upstream unified-media
+file's modification time as the snapshot generation time, so an unchanged
+library could not be republished as fresh. The publisher now records capture
+time in `generated_at` and preserves upstream activity separately in
+`source_updated_at`. A new read-only snapshot restored 558 records. Live Mac
+validation showed all three landing rows and their linked pages populated with
+505 eBooks, 46 audiobooks and 7 podcasts, including existing cached artwork and
+synopses. No media, server configuration, credentials or remote Git state was
+changed. All 59 offline skin tests pass, including the separated timestamp
+contract; LibreELEC remains a later hardware validation gate.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

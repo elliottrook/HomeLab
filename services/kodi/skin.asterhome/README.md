@@ -1,5 +1,10 @@
 # Aster Home Kodi skin prototype
 
+Version 0.7.9 repairs the disposable Books catalogue publisher's freshness
+contract. A snapshot is now dated when it is captured; the upstream library's
+modification time is retained separately for audit. An unchanged library can
+therefore be safely republished without being rejected immediately as stale.
+
 Version 0.7.8 advances the Digest list's green story highlight from the same
 bounded active index as its headline, synopsis, source and artwork. The
 two-second sync queues Kodi's supported `Control.SetFocus` built-in only when

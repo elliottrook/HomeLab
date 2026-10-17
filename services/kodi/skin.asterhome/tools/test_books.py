@@ -10,7 +10,7 @@ import xml.etree.ElementTree as ET
 
 from books_data import PAGES, activate_row, cached_cover, cover_filename, handoff_target, page_records, selected_row
 from hub_feeds import book_catalogue, plain_synopsis
-from pilot_books_feed import calibre_items, podcast_items
+from pilot_books_feed import calibre_items, feed_payload, podcast_items
 from pilot_books_covers import QUERY, validated_covers
 from pilot_podcast_covers import QUERY as PODCAST_COVER_QUERY, validated_covers as validated_podcast_covers
 from pilot_ebook_covers import SOURCE as CALIBRE_COVER_SOURCE, validated_covers as validated_ebook_covers
@@ -70,6 +70,16 @@ class BooksTests(unittest.TestCase):
                                   'media_type': 'podcast', 'authority_id': 'pod_1',
                                   'title': 'Example Show', 'description': ''}])
         self.assertNotIn('feedURL', items[0])
+
+    def test_feed_freshness_records_capture_time_not_source_mtime(self):
+        captured = datetime(2026, 10, 17, 16, 0, tzinfo=timezone.utc)
+        feed = feed_payload([], 1_600_000_000, captured)
+        self.assertEqual(feed['generated_at'], captured.isoformat())
+        self.assertEqual(feed['source_updated_at'],
+                         datetime.fromtimestamp(1_600_000_000, timezone.utc).isoformat())
+        self.assertNotEqual(feed['generated_at'], feed['source_updated_at'])
+        with self.assertRaises(ValueError):
+            feed_payload([], 1_600_000_000, captured.replace(tzinfo=None))
 
     def test_synopsis_is_plain_bounded_and_not_markup(self):
         sample = self.sample()

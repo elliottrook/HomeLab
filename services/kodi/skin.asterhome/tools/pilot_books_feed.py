@@ -110,6 +110,18 @@ def podcast_items():
     return items
 
 
+def feed_payload(items, source_modified, generated_at=None):
+    """Record snapshot freshness separately from upstream catalogue activity."""
+    captured = generated_at or datetime.now(timezone.utc)
+    if captured.tzinfo is None:
+        raise ValueError('Snapshot timestamp has no time zone')
+    return {'schema_version': 1,
+            'generated_at': captured.isoformat(),
+            'source_updated_at': datetime.fromtimestamp(
+                source_modified, timezone.utc).isoformat(),
+            'items': items}
+
+
 def main():
     modified = int(remote('stat', '-c', '%Y', SOURCE).decode().strip())
     jq_filter = ('[.[] | select((.authority == "audiobookshelf" and .media_type == "audiobook") '
@@ -124,9 +136,7 @@ def main():
             item['description'] = descriptions.get(item.get('authority_id'), '')
     items.extend(calibre_items())
     items.extend(podcast_items())
-    feed = {'schema_version': 1,
-            'generated_at': datetime.fromtimestamp(modified, timezone.utc).isoformat(),
-            'items': items}
+    feed = feed_payload(items, modified)
     books_view(feed)  # Reject stale or malformed data before touching the profile.
     encoded = (json.dumps(feed, ensure_ascii=False, separators=(',', ':')) + '\n').encode()
     if len(encoded) > MAX_BYTES:
