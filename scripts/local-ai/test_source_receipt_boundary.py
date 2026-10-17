@@ -33,6 +33,38 @@ class SourceReceiptBoundaryTests(unittest.TestCase):
                 with self.assertRaisesRegex(Exception, "boundary|lease"):
                     read_receipt(path, lease_id="lab-1", generation=1, now_minute=221, window_end_minute=255, now_epoch=101)
 
+    def test_writer_rejects_unsafe_parent_before_touching_fixed_temp_name(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "receipt.json"
+            sentinel = root / "sentinel"
+            sentinel.write_text("unchanged")
+            (root / "receipt.json.new").symlink_to(sentinel)
+            os.chmod(root, 0o755)
+            with patch("source_receipt_boundary.os.geteuid", return_value=0), \
+                    self.assertRaisesRegex(ValueError, "directory custody"):
+                _write_envelope(path, self.evidence(), lease_id="lab-1", generation=2, captured_epoch=100)
+            self.assertEqual(sentinel.read_text(), "unchanged")
+            self.assertFalse(path.exists())
+
+    def test_writer_uses_unique_temp_and_keeps_previous_receipt_on_replace_failure(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "receipt.json"
+            sentinel = root / "sentinel"
+            sentinel.write_text("unchanged")
+            (root / "receipt.json.new").symlink_to(sentinel)
+            path.write_text("old receipt")
+            with patch("source_receipt_boundary.os.geteuid", return_value=0), \
+                    patch("source_receipt_boundary._parent_custody"), \
+                    patch("source_receipt_boundary._custody"), \
+                    patch("source_receipt_boundary.os.replace", side_effect=OSError("synthetic failure")):
+                with self.assertRaisesRegex(OSError, "synthetic failure"):
+                    _write_envelope(path, self.evidence(), lease_id="lab-1", generation=2, captured_epoch=100)
+            self.assertEqual(path.read_text(), "old receipt")
+            self.assertEqual(sentinel.read_text(), "unchanged")
+            self.assertEqual([p.name for p in root.iterdir() if p.name.startswith(".source-receipt-")], [])
+
     def test_producer_requires_lease_issue_time(self):
         import inspect
         self.assertIn("lease_issued_epoch", str(inspect.signature(__import__("source_receipt_boundary").produce_candidate_receipt)))

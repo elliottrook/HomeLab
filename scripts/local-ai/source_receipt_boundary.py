@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import stat
+import tempfile
 from pathlib import Path
 
 from admission_gate import AdmissionEvidence, AdmissionEvidenceError, validate_evidence_shape
@@ -14,12 +15,18 @@ BOUNDARY_MARKER = "aster-source-receipt-boundary-v1"
 RECEIPT_MODE = 0o600
 
 
-def _custody(path: Path) -> None:
+def _parent_custody(path: Path) -> None:
     parent = path.parent.lstat()
-    if parent.st_uid != 0 or stat.S_IMODE(parent.st_mode) != 0o700:
+    if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid != 0
+            or stat.S_IMODE(parent.st_mode) != 0o700):
         raise AdmissionEvidenceError("receipt directory custody is not root-owned mode 0700")
+
+
+def _custody(path: Path) -> None:
+    _parent_custody(path)
     info = path.lstat()
-    if stat.S_ISLNK(info.st_mode) or not stat.S_ISREG(info.st_mode) or info.st_uid != 0 or stat.S_IMODE(info.st_mode) != RECEIPT_MODE:
+    if (not stat.S_ISREG(info.st_mode) or info.st_uid != 0 or info.st_nlink != 1
+            or stat.S_IMODE(info.st_mode) != RECEIPT_MODE):
         raise AdmissionEvidenceError("receipt custody is not root-owned mode 0600")
 
 
@@ -44,10 +51,25 @@ def _write_envelope(path: Path, evidence: AdmissionEvidence, *, lease_id: str, g
             "source_observed": evidence.source_observed,
         },
     }
-    temporary = path.with_name(path.name + ".new")
-    temporary.write_text(json.dumps(payload, sort_keys=True) + "\n")
-    os.chmod(temporary, RECEIPT_MODE)
-    os.replace(temporary, path)
+    _parent_custody(path)
+    if path.exists() or path.is_symlink():
+        _custody(path)
+    descriptor, temporary = tempfile.mkstemp(prefix=".source-receipt-", dir=path.parent)
+    try:
+        with os.fdopen(descriptor, "w") as stream:
+            os.fchmod(stream.fileno(), RECEIPT_MODE)
+            stream.write(json.dumps(payload, sort_keys=True) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+        directory_fd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
     _custody(path)
 
 
