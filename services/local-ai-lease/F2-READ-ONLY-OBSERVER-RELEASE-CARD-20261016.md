@@ -149,20 +149,22 @@ old executable and producer and remove only the new guard; reverify their old ha
 schedules and services. If a scan/lease is active, do not swap code beneath
 it; require operator reconciliation.
 
-The **actual F2 read-only run needs a second, one-cycle approval** after a
-fresh 00:30 backup and 01:00 TrueNAS pull. Before requesting it, the operator
+The **actual F2 read-only run needs a second, one-cycle approval** separate
+from installation. Jason explicitly gave that conditional approval for the
+October 17 Vancouver cycle in this Stream A chat. It becomes executable only
+after a fresh successful 00:30 backup and 01:00 TrueNAS pull; the operator
 must verify the exact current-cycle job/task result, 104/110/116 volids,
 host load, no competing job or lease, installed hashes and matching schedules.
 The operator must remain present for this first cycle and avoid manually
-starting any backup, pull or lease while it runs. Proposed exact approval
-wording: “Approve one supervised read-only F2 run for the verified [date]
-Vancouver backup cycle between 01:10 and 01:19, using the pinned guard and
-104/110/116 archives, with a hard stop by the earlier of 20 minutes or 01:40;
-no receipt, lease, service stop, model call, timer enable or rerun. If any gate
-fails, skip.” Afterward the operator must confirm no orphan scanner, new
+starting any backup, pull or lease while it runs. The bounded approval covers
+one supervised read-only F2 run for the verified October 17 Vancouver backup
+cycle between 01:10 and 01:19, using the pinned guard and 104/110/116 archives,
+with a hard stop by the earlier of 20 minutes or 01:40. It permits no receipt,
+lease, service stop, model call, timer enable or rerun; any failed gate means
+skip. Afterward the operator must confirm no orphan scanner, new
 receipt/lease or changed backup/News schedule and record only bounded result
 metadata. Any failed or uncertain postcheck is NO-GO, not an F2 pass. This
-sample text is not standing authorization.
+approval expires with the October 17 cycle and is not standing authorization.
 
 The fixed 02:00 pull remains untouched and gets at least 20 minutes of
 margin. A passed F2 timing result is not F3 trusted receipt release. F3,
