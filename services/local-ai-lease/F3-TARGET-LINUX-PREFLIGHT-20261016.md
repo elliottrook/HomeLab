@@ -23,13 +23,18 @@ all identities immediately before any later host change; reject drift.
 The combined writer/reader candidate is `codex/aster-lease-compat` commit
 `a8d0f380`, `scripts/local-ai/source_receipt_boundary.py` SHA-256
 `033a21f798536dcc53f9ffcdf6589ff9725067976f4d146b2da142d3530fa784`.
-Its test file SHA-256 is
+Its original test file SHA-256 at that commit is
 `ced83f24f3fa136fabecf1bba2f06c946178f907d979fedc8778234da0fa888f`.
 The platform owner independently integrated the reader change in local commit
 `3170d2a0`; that is source review, not a host deployment. macOS offline tests
 passed 209 with two root-only cases skipped in this branch. The owner reported
 203 passed with two skipped in its broader checkout. Neither substitutes for
-Linux root-custody proof.
+Linux root-custody proof. A subsequent source-only test addition at this
+card's commit adds explicit opened-file symlink, hardlink, wrong-mode,
+oversize and unsafe-parent cases; the new test file hash is
+`9a6c4298e7adee9a72cc9a944294b4866155ce2ef081230de3907b37a5fe1108`.
+The complete Mac suite then passed 207 tests with four expected root-only
+skips (211 total); no target-Linux test was run by this card.
 
 The candidate `produce_candidate_receipt()` obtains evidence from
 `evidence_from_retained()` and binds its backup receipt to the acquired lease.
