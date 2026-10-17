@@ -86,14 +86,13 @@ The result on `codex/aster-lease-compat` at
 F2 and 4/4 installer synthetic tests on target Linux, three exact installed
 hashes, two old-file checkpoints, inactive timers, running guests/News timers,
 and no lease, receipt or scan. Jason separately approved **one conditional,
-supervised F2 read-only scan for the October 17 backup cycle**. The active
-one-time Stream A heartbeat will perform a 01:05 preflight; a scan may start
-only before 01:20 if the actual 00:30/01:00 jobs succeeded, the exact
-104/110/116 identities and installed pins match, the host is quiet, and no
-manual backup/pull/lease competes. It must stop by the earlier of 20 minutes
-or 01:40 Vancouver and skip on any failed, late or uncertain gate. This is no
-F2 timing result yet: F2 remains NO-GO until all three tests exit 0 within
-the bound. It grants no receipt, full-stop drill, model call or service stop.
+supervised F2 read-only scan for the October 17 backup cycle**. That approval
+was consumed by the single guarded attempt described above. The guard returned
+NO-GO without archive results; F2 remains open. The source-only fixed-phase
+diagnostic at `codex/aster-lease-compat` commit `e5963762` passed 212 local
+tests (four Mac root-custody skips) but is not installed and cannot diagnose
+the October 17 failure after the fact. It grants no receipt, full-stop drill,
+model call or service stop.
 The source checkpoint and live schedule-type assertions were clarified in
 `62125a65`; the conditional stage/test/install wording is in `9f9ae8a9`.
 The platform owner integrated the matching source locally at `1829271d`,
@@ -211,6 +210,7 @@ observation or a pinned source/test result. A scheduler `SUCCESS`, file
 presence, synthetic test or another agent's proposal cannot substitute for a
 fresh receipt or actual post-recovery checks. Commit scoped status changes
 locally; remote publication follows the repository's per-push approval rule.
-The read-only October 17 automation must record and report any failed scan
-prerequisite or incomplete result and pause after that one run. The platform
-owner must report any F3–F9 failure during its own reviewed release/drill.
+The October 17 one-shot scan result has been recorded and reported. Its
+automation should be paused after that run; no repeat scan is authorized. The
+platform owner must report any F3–F9 failure during its own reviewed
+release/drill.

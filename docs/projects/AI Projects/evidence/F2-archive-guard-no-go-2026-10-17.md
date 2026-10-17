@@ -32,7 +32,10 @@ or `proxmox-backup` process; no lease/lock, archive-integrity or source-receipt
 file; lease state `ready`; guests 104/110/116 running; the fixed Proxmox job
 unchanged; and News timers active/enabled. A later diagnostic call to the
 guard's **read-only** fixed-file, no-lease, quiet-host and TrueNAS-state
-predicates passed. Those later observations do not reconstruct the failed
+predicates passed. A later read-only replay of only the fixed inventory,
+guest-log, whole-job and task-1 predicates returned three current artifacts
+and `true` for all three completion checks; it used no archive probe or
+receipt save. Those later observations do not reconstruct the failed
 instant or turn the attempt into a successful scan.
 
 No service was stopped, timer enabled, model called, lease acquired, receipt
@@ -42,3 +45,8 @@ source predicates, followed by a new exact run card and separate approval for
 a **later** backup cycle. Do not retry an uncertain scan in this cycle. The
 platform owner owns any future host release; Stream A owns this failure
 record and downstream gate reconciliation.
+
+A later source-only candidate at `codex/aster-lease-compat` commit `e5963762`
+adds fixed `preflight` / `observer` / `result` failure phases for future scans.
+The local suite passed 212 tests with four macOS root-custody skips. This
+candidate is not installed and cannot recover the missing October 17 result.
