@@ -220,6 +220,10 @@ now rejects a proposed capability whose registry sensitivity exceeds the
 request sensitivity. This closes a synthetic compatibility-check omission;
 it neither establishes request classification accuracy nor grants routing or
 tool authority.
+A separate [offline label-boundary correction](evidence/M3-private-category-label-boundary-2026-10-16.md)
+requires calendar and personal development-data categories to remain personal
+and local-only even when their capability lists are incomplete. It changes no
+live route or egress policy.
 
 The first [six-case synthetic completed-answer probe](experiments/a1-9b-synthetic-answer/RESULT-2026-10-12.md)
 used the accepted 9B/SYCL service after the platform owner's light lease was

@@ -76,7 +76,7 @@ def validate(batch):
         reject(labels['sensitivity'] in ('personal','internal','excluded') and labels['cloud']!='forbidden','sensitive egress must remain forbidden')
         reject(labels['adjudication'] not in ('pending','synthetic-fixture-only'),'human adjudication cannot be manufactured')
         requested=req|opt
-        personal=bool(requested & {'calendar','private_context','local_join'}) or row['category']=='mixed'
+        personal=bool(requested & {'calendar','private_context','local_join'}) or row['category'] in {'calendar','mixed','personal'}
         internal=bool(requested & {'lab_read'}) or row['category']=='sysadmin'
         reject(personal and (labels['sensitivity']!='personal' or labels['cloud']!='forbidden'),'private capability requires personal local-only label')
         reject(internal and (labels['sensitivity'] not in ('internal','personal') or labels['cloud']!='forbidden'),'lab capability requires internal local-only label')

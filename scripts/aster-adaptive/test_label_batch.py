@@ -85,6 +85,13 @@ class LabelDesignTests(unittest.TestCase):
         b=batch();b['rows'][0]['category']='mixed';b['rows'][0]['labels']=labels()
         with self.assertRaises(ValueError):validate(b)
 
+    def test_private_category_cannot_be_public_without_a_private_capability(self):
+        for category in ('calendar','personal'):
+            b=batch();b['rows'][0]['category']=category;b['rows'][0]['labels']=labels()
+            with self.subTest(category=category),self.assertRaises(ValueError):validate(b)
+            b['rows'][0]['labels'].update(sensitivity='personal',cloud='forbidden')
+            self.assertFalse(validate(b)['evaluation_authorized'])
+
     def test_content_review_is_explicit_but_never_human_authenticated(self):
         b=batch();b['rows'][0]['labels']=labels()
         for state in ('not-reviewed','human-approved'):

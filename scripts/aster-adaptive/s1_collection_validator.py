@@ -168,7 +168,7 @@ def validate(bundle, registry, expected_plan_sha256, expected_registry_sha256):
                case["cloud"] not in registry["cloud_classes"] or
                case["failure_behavior"] not in registry["failure_behaviors"], "invalid policy label")
         requested = required | optional
-        private = bool(requested & {"calendar", "private_context", "local_join"}) or case["stratum"] == "mixed"
+        private = bool(requested & {"calendar", "private_context", "local_join"}) or case["stratum"] in {"calendar", "mixed", "personal"}
         internal = bool(requested & {"lab_read"}) or case["stratum"] == "sysadmin"
         reject(private and (case["sensitivity"] != "personal" or case["cloud"] != "forbidden"),
                "private capability must remain local personal")

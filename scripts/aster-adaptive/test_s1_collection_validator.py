@@ -39,7 +39,7 @@ def case(number, stratum="timer", constrained=False, adverse=False):
         required = []
         statuses = ["clarify"]
     sensitivity, cloud = "public", "public-only"
-    if stratum == "mixed":
+    if stratum in {"calendar", "mixed", "personal"}:
         sensitivity, cloud = "personal", "forbidden"
     elif stratum == "sysadmin":
         sensitivity, cloud = "internal", "forbidden"
@@ -167,6 +167,16 @@ class S1CollectionTests(unittest.TestCase):
         bundle = full(); item = bundle["cases"][0]; item["required"] = ["lab_read"]
         item["constraint_tags"].remove("multi-capability")
         bundle["acceptances"][0] = receipt(item); self.reject(bundle)
+
+    def test_private_stratum_cannot_be_public_without_a_private_capability(self):
+        for stratum in ("calendar", "personal"):
+            bundle = full()
+            item = next(item for item in bundle["cases"] if item["stratum"] == stratum)
+            item["sensitivity"] = "public"
+            item["cloud"] = "public-only"
+            bundle["acceptances"] = [receipt(case) for case in bundle["cases"]]
+            with self.subTest(stratum=stratum):
+                self.reject(bundle)
 
     def test_content_attestations_must_all_be_true_booleans(self):
         for value in (False, 1, None):
