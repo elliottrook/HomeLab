@@ -1,19 +1,21 @@
 # F2 read-only archive observer — source-pinned release candidate
 
-**Status: SOURCE ONLY; NO INSTALL, TIMER, ARCHIVE SCAN OR RUN APPROVAL.**
+**Status: BOUNDED DISABLED INSTALL COMPLETE; NO ARCHIVE SCAN, RECEIPT OR
+LIVE-RUN APPROVAL.** See
+[the October 16 installation result](F2-DISABLED-INSTALL-RESULT-20261016.md).
 Owner: platform release. Stream A owns the F2 timing evidence. This card
 implements the four gaps recorded in Stream A `b2fa7f9f`; it does not reuse
 Jason's approval for the completed seven-path disabled installation.
 **Immutable source checkpoint:** local branch `codex/aster-lease-compat` at
-`339b554e` for all three proposed host files. The schedule-type regression
+`339b554e` for all three installed host files. The schedule-type regression
 tests were strengthened after that checkpoint and are pinned by file hash
-below. Verify the full source commit and test bytes again before an
-installation review. Earlier common-exclusion commit `a38da489` is historical
+below. The full source commit and test bytes were rechecked before the
+installation. Earlier common-exclusion commit `a38da489` is historical
 background, not the release source for this card.
 
-## Frozen source and current host boundary
+## Frozen source and pre-install host boundary
 
-| Role | Source SHA-256 | Proposed host target / current state |
+| Role | Source SHA-256 | Approved host target / pre-install state |
 |---|---|---|
 | Manual `acquire --light` with common lock | `67ca223d03a4922603f570c6db87fed919879aedf3706e586b2684f7be84073c` | Replace `/usr/local/sbin/local-ai-lease` mode 0750, currently `f9744b4efd1340eca513e677af6b9eceda25e992db33e977b2f7f75adc101e23` |
 | One-shot F2 guard | `d50ee2207bc4185db266ad01af540b9b719397dec3855ee579ee18f983a3535d` | Add `/usr/local/libexec/local-ai-lease/f2_observer_runner_candidate.py` mode 0644; absent now |
