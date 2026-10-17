@@ -255,10 +255,20 @@ def main(page, action='refresh'):
             window.setProperty('AsterHub.HomeTimerDeadline', '')
             name = window.getProperty('AsterHub.HomeTimerName') or 'Timer'
             window.setProperty('AsterHub.HomeTimerLabel', 'Complete')
+            window.setProperty('AsterHub.HomeTimerExpired', 'true')
             window.setProperty('AsterHub.Status', f'{name} complete')
+            xbmc.executebuiltin('PlayMedia(special://skin/media/timer-complete.wav)')
+            xbmc.executebuiltin('AlarmClock(AsterTimerComplete,RunScript('
+                               'special://skin/tools/hub_data.py,home,timer_complete_clear),'
+                               '00:05,silent)')
+        return
+    if page == 'home' and action == 'timer_complete_clear':
+        window.setProperty('AsterHub.HomeTimerExpired', 'false')
         return
     if page == 'home' and action in (*TIMER_PRESETS, 'timer_stop'):
         xbmc.executebuiltin('CancelAlarm(AsterTimerTest,silent)')
+        xbmc.executebuiltin('CancelAlarm(AsterTimerComplete,silent)')
+        window.setProperty('AsterHub.HomeTimerExpired', 'false')
         if action == 'timer_stop':
             window.setProperty('AsterHub.HomeTimerActive', 'false')
             window.setProperty('AsterHub.HomeTimerDeadline', '')
@@ -299,8 +309,10 @@ def main(page, action='refresh'):
         playing_camera = window.getProperty('AsterHub.CameraPlaying') == 'true'
         if action == 'home_stop':
             xbmc.executebuiltin('CancelAlarm(AsterTimerTest,silent)')
+            xbmc.executebuiltin('CancelAlarm(AsterTimerComplete,silent)')
             window.setProperty('AsterHub.HomeTimerActive', 'false')
             window.setProperty('AsterHub.HomeTimerDeadline', '')
+            window.setProperty('AsterHub.HomeTimerExpired', 'false')
         if action in ('camera_stop', 'home_stop') or playing_camera:
             xbmc.executebuiltin('CancelAlarm(AsterCameraFollow,silent)')
             window.setProperty('AsterHub.CameraPlaying', 'false')
@@ -498,7 +510,7 @@ def main(page, action='refresh'):
                             ('CameraStatus', 'Unavailable'), ('TimerName', 'No active timer'),
                             ('TimerLabel', 'Not connected'),
                             ('TimerDigital', '--:--'), ('TimerSecond', '0'),
-                            ('TimerActive', 'false')):
+                            ('TimerActive', 'false'), ('TimerExpired', 'false')):
         window.setProperty('AsterHub.Home' + field, fallback)
     window.setProperty('AsterHub.Status', 'Read-only connection required')
     elapsed = None

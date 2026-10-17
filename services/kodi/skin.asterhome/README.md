@@ -1,5 +1,11 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.6 gives each preset its full visible name, doubles the timer dots
+from 14 to 28 pixels, and adds a five-second local completion state. When a
+local visual timer reaches zero, Kodi pulses the existing Aster Home mark and
+plays a bundled five-second chime; both effects clear automatically and perform
+no Home Assistant or household action.
+
 Version 0.8.5 replaces the perspective-sensitive radial pills with unrotated
 circular dots. It adds a dedicated timer-name line and three bounded local
 visual presets—1, 5 and 30 minutes—without calling Home Assistant or performing

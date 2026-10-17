@@ -2,6 +2,7 @@
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import unittest
+import wave
 import xml.etree.ElementTree as ET
 from hub_data import (CAMERA_PILOT_SECONDS, CAMERA_PILOT_URL, TIMER_PRESETS, WINDOWS,
                       cached_digest_audio, digest_view, show_digest_story,
@@ -101,6 +102,13 @@ class HubTests(unittest.TestCase):
             'timer_5': (300, 'Five minute timer'),
             'timer_30': (1800, 'Thirty minute timer'),
         })
+
+    def test_timer_completion_chime_is_five_seconds(self):
+        with wave.open(str(ROOT / 'media/timer-complete.wav'), 'rb') as chime:
+            self.assertEqual(chime.getnchannels(), 1)
+            self.assertEqual(chime.getsampwidth(), 2)
+            self.assertAlmostEqual(chime.getnframes() / chime.getframerate(), 5.0,
+                                   places=3)
 
     def test_selected_story_survives_pre_seek_window_refresh(self):
         stories = [{'start': value} for value in (4, 62, 131)]
@@ -315,6 +323,11 @@ class HubTests(unittest.TestCase):
         for preset in ('timer_1', 'timer_5', 'timer_30'):
             self.assertIn(f'RunScript(special://skin/tools/hub_data.py,home,{preset})',
                           camera_actions)
+        preset_labels = {node.get('id'): node.findtext('label')
+                         for node in home.findall('.//control[@type="button"]')
+                         if node.get('id') in {'303', '304', '305'}}
+        self.assertEqual(preset_labels, {
+            '303': 'One minute', '304': 'Five minutes', '305': 'Thirty minutes'})
         self.assertEqual(home.getroot().findtext('onunload'),
                          'RunScript(special://skin/tools/hub_data.py,home,home_stop)')
         timer_cards = [node for node in home.findall('.//control[@type="image"]')
@@ -335,6 +348,9 @@ class HubTests(unittest.TestCase):
                          675)
         self.assertTrue(any('AsterHub.HomeTimerName' in label for label in labels))
         ring = ET.parse(ROOT / '1080i/IncludesTimer.xml')
+        dot_definition = ring.find('.//include[@name="AsterTimerDot"]/definition/control')
+        self.assertEqual(dot_definition.findtext('width'), '28')
+        self.assertEqual(dot_definition.findtext('height'), '28')
         dots = ring.findall('.//include[@content="AsterTimerDot"]')
         self.assertEqual(len(dots), 60)
         self.assertEqual([int(node.find("param[@name='threshold']").get('value'))
