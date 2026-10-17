@@ -134,11 +134,18 @@ def cached_digest_audio(xbmcvfs, generated_at):
 def show_digest_story(window, item):
     if not item:
         return
-    for field, property_name in (('Title', 'AsterHub.StoryTitle'),
-                                 ('Summary', 'AsterHub.StorySummary'),
-                                 ('Source', 'AsterHub.StorySource'),
-                                 ('Image', 'AsterHub.StoryImage')):
-        value = item.getProperty(property_name)
+    show_digest_story_data(window, {
+        field.lower(): item.getProperty(property_name)
+        for field, property_name in (('Title', 'AsterHub.StoryTitle'),
+                                     ('Summary', 'AsterHub.StorySummary'),
+                                     ('Source', 'AsterHub.StorySource'),
+                                     ('Image', 'AsterHub.StoryImage'))})
+
+
+def show_digest_story_data(window, story):
+    """Publish one already-sanitized story without touching a GUI control."""
+    for field in ('Title', 'Summary', 'Source', 'Image'):
+        value = story.get(field.lower(), '')
         if field == 'Summary' and len(value) > 160:
             value = value[:157].rsplit(' ', 1)[0] + '…'
         window.setProperty('AsterHub.Active' + field, value)
@@ -164,6 +171,38 @@ def story_for_playback(stories, elapsed, requested_start):
     return story_at_elapsed(stories, elapsed) if elapsed is not None else 0
 
 
+def sync_digest_window(xbmc, window):
+    """One short, alarm-triggered sync; never leaves a Python worker running."""
+    try:
+        player = xbmc.Player()
+        playing = (player.isPlayingAudio() and
+                   player.getPlayingFile() == window.getProperty('AsterHub.AudioPath'))
+    except RuntimeError:
+        playing = False
+    window.setProperty('AsterHub.DigestPlaying', 'true' if playing else 'false')
+    if not playing or window.getProperty('AsterHub.RowsReady') != 'true':
+        return
+    try:
+        elapsed = player.getTime()
+        entries = json.loads(window.getProperty('AsterHub.Stories'))
+        if not entries:
+            return
+        try:
+            requested_start = float(window.getProperty('AsterHub.RequestedStart'))
+        except ValueError:
+            requested_start = None
+        active = story_for_playback(entries, elapsed, requested_start)
+        if requested_start is not None and elapsed >= requested_start + 5:
+            window.setProperty('AsterHub.RequestedStart', '')
+        if window.getProperty('AsterHub.ActiveIndex') != str(active):
+            show_digest_story_data(window, entries[active])
+            window.setProperty('AsterHub.ActiveIndex', str(active))
+    except (IndexError, json.JSONDecodeError, RuntimeError, TypeError, ValueError):
+        # A refresh may replace the snapshot between timer ticks. The next
+        # bounded tick will retry; stale properties are safer than a worker.
+        return
+
+
 def main(page, action='refresh'):
     import xbmc
     import xbmcgui
@@ -171,7 +210,13 @@ def main(page, action='refresh'):
 
     if page not in WINDOWS:
         return
+    if (page == 'digest' and action == 'sync' and
+            xbmcgui.getCurrentWindowId() != WINDOWS['digest']):
+        return
     window = xbmcgui.Window(WINDOWS[page])
+    if page == 'digest' and action == 'sync':
+        sync_digest_window(xbmc, window)
+        return
     if page == 'digest' and action == 'stop':
         xbmc.executebuiltin('PlayerControl(Stop)')
         window.setProperty('AsterHub.DigestPlaying', 'false')
@@ -331,6 +376,8 @@ def main(page, action='refresh'):
     window.setProperty('AsterHub.Title', titles[page])
     window.setProperty('AsterHub.Subtitle', subtitles[page])
     window.setProperty('AsterHub.Ready', 'false')
+    window.setProperty('AsterHub.RowsReady', 'false')
+    window.setProperty('AsterHub.Stories', '[]')
     window.setProperty('AsterHub.GeneratedAt', '')
     window.setProperty('AsterHub.FirstAlbum', '')
     window.setProperty('AsterHub.BooksReady', 'false')
@@ -390,6 +437,7 @@ def main(page, action='refresh'):
                                'Audio chapters are ready; story details are unavailable')
             window.setProperty('AsterHub.GeneratedAt', digest['generated_at'])
             window.setProperty('AsterHub.Ready', 'true')
+            window.setProperty('AsterHub.Stories', json.dumps(stories, separators=(',', ':')))
             rows = [(story['title'], story['clock'], story['start']) for story in stories]
         except Exception:
             window.setProperty('AsterHub.Status', 'Briefing unavailable or stale')
@@ -471,6 +519,8 @@ def main(page, action='refresh'):
         index = story_for_playback(stories, elapsed, requested_start)
         listing.selectItem(index)
         show_digest_story(window, listing.getListItem(index))
+        window.setProperty('AsterHub.ActiveIndex', str(index))
+        window.setProperty('AsterHub.RowsReady', 'true')
 
 
 if __name__ == '__main__':

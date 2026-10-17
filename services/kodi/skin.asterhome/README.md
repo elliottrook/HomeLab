@@ -1,5 +1,15 @@
 # Aster Home Kodi skin prototype
 
+Version 0.7.7 makes the visible Digest story follow audio chapter boundaries
+every two seconds while the Digest window and its own audio remain active.
+It uses Kodi's per-skin looping alarm to invoke a short, one-shot sync and
+cancels the alarm as soon as the page unloads. It does not restore the
+persistent Python watcher that previously crashed Kodi during shutdown, and
+it performs no network read or live list-control access during a sync tick.
+Mac playback followed multiple chapter boundaries, the alarm stopped on page
+exit, and Kodi stopped playback and quit cleanly. LibreELEC remains a later
+hardware validation gate.
+
 Version 0.7.6 adds a read-only Breaking News sibling to the Daily Digest. A
 two-tab Aster News header moves between the two views. Breaking News reads the
 existing server-rendered `/` coverage, bounds it to 40 grouped stories and

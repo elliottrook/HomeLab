@@ -1186,6 +1186,21 @@ load remain the acceptance gate; LibreELEC remains untested. Roll back the
 local milestone commit to remove the page. No production or remote Git state
 changed.
 
+Digest automatic story follow, 2026-10-17 (skin v0.7.7): Live
+use confirmed that audio advanced while the panel remained on story one. The
+fix uses Kodi's native, per-skin looping `AlarmClock` to invoke a
+short one-shot synchronization every two seconds, only while the Digest page
+is open. Each tick reads a bounded story snapshot already held in window
+properties and the local player clock; it performs no network request, does
+not access a live GUI control, and exits immediately. Page unload cancels the
+alarm, and a current-window guard prevents a queued tick from touching the
+closed custom window. This deliberately avoids the persistent Python watcher
+whose shutdown-time window write previously crashed Kodi. The Mac test
+followed multiple chapter boundaries with headline, synopsis, source and art
+updates; leaving Digest stopped the alarm, and Kodi then stopped playback and
+quit cleanly. The 58-test skin suite also covers boundary advancement and the
+timer lifecycle. LibreELEC playback remains a later hardware validation gate.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

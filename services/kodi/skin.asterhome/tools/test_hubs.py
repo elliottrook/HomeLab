@@ -3,7 +3,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import unittest
 import xml.etree.ElementTree as ET
-from hub_data import cached_digest_audio, digest_view, show_digest_story, story_at_elapsed, story_for_playback, WINDOWS
+from hub_data import (WINDOWS, cached_digest_audio, digest_view, show_digest_story,
+                      story_at_elapsed, story_for_playback, sync_digest_window)
 from digest_data import BreakingCards, DigestCards, merge_chapters, public_image
 from hub_feeds import books_view, home_view, read_feed
 import json
@@ -89,6 +90,39 @@ class HubTests(unittest.TestCase):
         self.assertEqual(story_for_playback(stories, 63, 62), 1)
         self.assertEqual(story_for_playback(stories, 132, 62), 2)
         self.assertEqual(story_for_playback(stories, 1, None), 0)
+
+    def test_bounded_digest_sync_advances_panel_without_a_worker(self):
+        class Window:
+            def __init__(self):
+                self.properties = {'AsterHub.AudioPath': '/tmp/digest.mp3',
+                                   'AsterHub.RowsReady': 'true',
+                                   'AsterHub.ActiveIndex': '0',
+                                   'AsterHub.Stories': json.dumps([
+                                       {'start': 0, 'title': 'First',
+                                        'summary': 'First summary', 'source': 'Test source',
+                                        'image': ''},
+                                       {'start': 10, 'title': 'Second',
+                                        'summary': 'Second summary', 'source': 'Test source',
+                                        'image': ''},
+                                       {'start': 20, 'title': 'Third',
+                                        'summary': 'Third summary', 'source': 'Test source',
+                                        'image': ''}])}
+            def getProperty(self, key):
+                return self.properties.get(key, '')
+            def setProperty(self, key, value):
+                self.properties[key] = value
+        class Player:
+            def isPlayingAudio(self): return True
+            def getPlayingFile(self): return '/tmp/digest.mp3'
+            def getTime(self): return 12
+        class Xbmc:
+            def Player(self): return Player()
+        window = Window()
+        sync_digest_window(Xbmc(), window)
+        self.assertEqual(window.properties['AsterHub.ActiveTitle'], 'Second')
+        self.assertEqual(window.properties['AsterHub.ActiveIndex'], '1')
+        self.assertEqual(window.properties['AsterHub.DigestPlaying'], 'true')
+        self.assertFalse(hasattr(window, 'getControl'))
 
     def test_digest_audio_cache_is_bounded_and_reused(self):
         class Vfs:
@@ -227,6 +261,8 @@ class HubTests(unittest.TestCase):
         self.assertIn('AsterHub.ActiveImage', digest)
         self.assertIn('AsterHub.ActiveSummary', digest)
         self.assertIn('AsterHub.DigestPlaying', digest)
+        self.assertIn('AlarmClock(AsterDigestFollow', digest)
+        self.assertIn('CancelAlarm(AsterDigestFollow,silent)', digest)
 
     def test_all_runtime_assets_exist(self):
         for path in (ROOT / '1080i').glob('*.xml'):
