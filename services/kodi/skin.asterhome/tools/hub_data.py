@@ -8,7 +8,7 @@ import tempfile
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from urllib.request import urlopen
-from hub_feeds import books_view, home_view, read_feed
+from hub_feeds import books_view, home_dashboard, home_view, read_feed
 from digest_data import BreakingCards, DigestCards, clean_text, merge_chapters
 
 DIGEST_BASE = 'http://192.168.70.13:8080'
@@ -384,6 +384,12 @@ def main(page, action='refresh'):
     window.setProperty('AsterHub.BooksReady', 'false')
     window.setProperty('AsterHub.HomeReady', 'false')
     window.setProperty('AsterHub.HomeValuesReady', 'false')
+    for field, fallback in (('LightLabel', 'Lighting'), ('LightValue', 'Unavailable'),
+                            ('TemperatureLabel', 'Indoor comfort'),
+                            ('TemperatureValue', 'Unavailable'), ('CameraLabel', 'Cameras'),
+                            ('CameraStatus', 'Unavailable'), ('TimerLabel', 'No active timer'),
+                            ('TimerDigital', '--:--'), ('TimerActive', 'false')):
+        window.setProperty('AsterHub.Home' + field, fallback)
     window.setProperty('AsterHub.Status', 'Read-only connection required')
     elapsed = None
     requested_start = None
@@ -475,6 +481,8 @@ def main(page, action='refresh'):
         try:
             feed = optional_feed(xbmcvfs, 'home')
             rows = home_view(feed)
+            for field, value in home_dashboard(feed).items():
+                window.setProperty('AsterHub.Home' + field, value)
             window.setProperty('AsterHub.HomeReady', 'true')
             has_values = (feed['snapshot']['schema_version'] == 2 and
                           bool(feed['snapshot'].get('lights') or feed['snapshot'].get('temperatures')))
@@ -490,7 +498,8 @@ def main(page, action='refresh'):
             window.setProperty('AsterHub.Status', f'{len(rows)} items · {detail}')
             if not rows:
                 rows = [('No reviewed household aliases', 'The read-only registry snapshot is empty', None)]
-        except (OSError, ValueError, KeyError, TypeError):
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            xbmc.log(f'Aster Home: dashboard feed failed: {error!r}', xbmc.LOGERROR)
             rows = [('Home Assistant Hub', 'Approved registry feed not connected yet', None),
                     ('Aster', 'Private assistant · approved session connection required', None),
                     ('Routines', 'Read-only overview first · controls remain disabled', None),

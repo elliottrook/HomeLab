@@ -1224,6 +1224,25 @@ synopses. No media, server configuration, credentials or remote Git state was
 changed. All 59 offline skin tests pass, including the separated timestamp
 contract; LibreELEC remains a later hardware validation gate.
 
+Aster Home dashboard, 2026-10-17 (skin v0.8.0): The Home page now uses the
+established Aster dashboard language rather than the generic hub list. It shows
+fixed lighting, indoor-comfort, camera and read-only-home summary cards; a
+large camera-status surface; a compact validated-entity list; a 24-hour clock;
+and a square timer card with a central digital display and segmented circular
+countdown treatment. The timer intentionally displays an inactive state until
+an approved timer source publishes bounded countdown data. Camera content
+remains inside authenticated Frigate: this page shows only the reviewed
+`front_of_house` availability state and neither requests nor renders frames.
+The Home publisher now records capture time independently from upstream report
+activity, so an unchanged valid snapshot can be refreshed without appearing
+stale. Live Mac validation displayed Laundry Lights `On`, Closet Temperature
+`16.6°C`, and Front Of House `Online`; refresh completed without another page
+failure. The observed Kodi crash report was confined to the macOS application
+termination callback after a menu-initiated quit, not dashboard navigation or
+refresh. The 60-test skin suite covers the projection, privacy-preserving
+camera label, timer geometry and runtime asset references. No Home Assistant,
+Frigate, network, credential or remote Git state was changed.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

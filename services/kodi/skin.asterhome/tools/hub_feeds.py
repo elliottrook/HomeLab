@@ -170,3 +170,27 @@ def home_view(payload):
             raise ValueError('Invalid Home Assistant aliases')
         rows.extend((_label(alias), noun, None) for alias in aliases)
     return rows[:80]
+
+
+def home_dashboard(payload):
+    """Project the validated Home snapshot into fixed dashboard cards."""
+    home_view(payload)
+    snapshot = payload['snapshot']
+    lights = snapshot.get('lights', []) if snapshot['schema_version'] == 2 else []
+    temperatures = snapshot.get('temperatures', []) if snapshot['schema_version'] == 2 else []
+    cameras = snapshot.get('cameras', []) if snapshot['schema_version'] == 2 else []
+    timers = snapshot.get('timers', [])
+    timer_label = _label(timers[0]) if timers else 'No active timer'
+    values = {
+        'LightLabel': _label(lights[0]['alias']).title() if lights else 'Lighting',
+        'LightValue': lights[0]['state'].title() if lights else 'No reviewed lights',
+        'TemperatureLabel': _label(temperatures[0]['alias']).title() if temperatures else 'Indoor comfort',
+        'TemperatureValue': (f'{temperatures[0]["value"]:g}{temperatures[0]["unit"]}'
+                             if temperatures else 'Unavailable'),
+        'CameraLabel': _label(cameras[0]['alias']).title() if cameras else 'Cameras',
+        'CameraStatus': cameras[0]['status'].title() if cameras else 'No reviewed camera',
+        'TimerLabel': timer_label,
+        'TimerDigital': '--:--',
+        'TimerActive': 'false',
+    }
+    return values

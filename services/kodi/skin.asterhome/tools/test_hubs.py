@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 from hub_data import (WINDOWS, cached_digest_audio, digest_view, show_digest_story,
                       story_at_elapsed, story_for_playback, sync_digest_window)
 from digest_data import BreakingCards, DigestCards, merge_chapters, public_image
-from hub_feeds import books_view, home_view, read_feed
+from hub_feeds import books_view, home_dashboard, home_view, read_feed
 import json
 import io
 import tempfile
@@ -213,6 +213,12 @@ class HubTests(unittest.TestCase):
         self.assertEqual(home_view(payload), [('laundry lights', 'Light · On', None),
                                               ('hall temperature', 'Temperature · 20.6°C', None),
                                               ('Front of house', 'Camera · Online · Live view in Frigate app', None)])
+        self.assertEqual(home_dashboard(payload), {
+            'LightLabel': 'Laundry Lights', 'LightValue': 'On',
+            'TemperatureLabel': 'Hall Temperature', 'TemperatureValue': '20.6°C',
+            'CameraLabel': 'Front Of House', 'CameraStatus': 'Online',
+            'TimerLabel': 'No active timer', 'TimerDigital': '--:--',
+            'TimerActive': 'false'})
         payload['snapshot']['temperatures'][0]['value'] = float('nan')
         with self.assertRaises(ValueError):
             home_view(payload)
@@ -267,6 +273,21 @@ class HubTests(unittest.TestCase):
         self.assertIn('AsterHub.DigestPlaying', digest)
         self.assertIn('AlarmClock(AsterDigestFollow', digest)
         self.assertIn('CancelAlarm(AsterDigestFollow,silent)', digest)
+
+    def test_home_window_is_dashboard_with_camera_and_square_timer(self):
+        home = ET.parse(ROOT / '1080i/custom_1112_home.xml')
+        labels = [node.text or '' for node in home.findall('.//label')]
+        self.assertIn('Cameras', labels)
+        self.assertIn('Timer', labels)
+        self.assertIn('Home Assistant', labels)
+        self.assertTrue(any('AsterHub.HomeCameraLabel' in label for label in labels))
+        self.assertTrue(any('AsterHub.HomeTimerDigital' in label for label in labels))
+        timer_cards = [node for node in home.findall('.//control[@type="image"]')
+                       if node.findtext('left') == '1025' and node.findtext('top') == '478']
+        self.assertEqual(len(timer_cards), 1)
+        self.assertEqual(timer_cards[0].findtext('width'), '370')
+        self.assertEqual(timer_cards[0].findtext('height'), '370')
+        self.assertIsNotNone(home.find('.//control[@id="500"]'))
 
     def test_all_runtime_assets_exist(self):
         for path in (ROOT / '1080i').glob('*.xml'):

@@ -65,7 +65,8 @@ def main():
     except (OSError, ValueError, subprocess.SubprocessError):
         snapshot['cameras'] = []  # No stale or invented camera status.
     feed = {'schema_version': 1,
-            'generated_at': datetime.fromtimestamp(modified, timezone.utc).isoformat(),
+            'generated_at': datetime.now(timezone.utc).isoformat(),
+            'source_updated_at': datetime.fromtimestamp(modified, timezone.utc).isoformat(),
             'snapshot': snapshot}
     home_view(feed)
     encoded = (json.dumps(feed, ensure_ascii=False, separators=(',', ':')) + '\n').encode()

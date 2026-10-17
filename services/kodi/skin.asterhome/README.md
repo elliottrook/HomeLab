@@ -1,5 +1,15 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.0 replaces the Home status list with a living-room Home Assistant
+dashboard: fixed lighting, comfort and camera summary cards; a large camera
+status surface; a compact validated-entity list; and a square timer card with
+a central digital readout and twelve-position circular countdown treatment.
+The existing pilot remains read-only. Camera imagery still stays inside
+Frigate, and the timer displays an inactive state until an approved timer
+source supplies countdown data. The Home publisher now separates snapshot
+capture time from upstream registry activity, matching the Books freshness
+contract.
+
 Version 0.7.9 repairs the disposable Books catalogue publisher's freshness
 contract. A snapshot is now dated when it is captured; the upstream library's
 modification time is retained separately for audit. An unchanged library can
