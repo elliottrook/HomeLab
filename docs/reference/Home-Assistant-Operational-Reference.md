@@ -87,13 +87,16 @@ restore a healthy Core. Do not roll back unrelated Home Assistant state.
 
 VM 103 also runs a separate `aster_home_registry` custom integration with
 `aster_home_registry: {}` in `/config/configuration.yaml`. It writes only
-`/share/aster-home-registry/latest.json` (schema v2, mode 0600), on the
-reviewed light/temperature state changes and every five minutes. It is
+`/share/aster-home-registry/latest.json` (schema v3, mode 0600), on the
+reviewed light/temperature/weather state changes and every five minutes. It is
 independent of the schema-v1 `aster_registry` report above, which must not be
-replaced. The fixed display allowlist is Laundry main light, hall, outside and
-owner-approved closet temperature. Hall/outside Hue readings were unavailable
-at the October 14 pilot; their values are omitted, not guessed. The report
-registers no service, action, entity or HTTP route.
+replaced. The fixed display allowlist is Laundry main light, hall, outside,
+owner-approved closet temperature and `weather.forecast_home`. Weather is
+limited to a reviewed condition, bounded temperature/unit and optional bounded
+humidity; forecasts, pressure, wind, attribution, coordinates and credentials
+are excluded. Hall/outside Hue readings were unavailable at the October 14
+pilot; their values are omitted, not guessed. The report registers no service,
+action, entity or HTTP route.
 
 Recovery points: Proxmox snapshot `aster-home-pre-20261014` and mode-0600
 `/config/configuration.yaml.before-aster-home-20261014`. For file-level
@@ -103,6 +106,13 @@ rollback, restore that YAML copy, remove only
 Core only. Preserve the schema-v1 Aster registry files and report. Use the
 snapshot only if file-level recovery fails; it can roll back unrelated HA
 state. No production rollback drill has been performed.
+
+The 2026-10-17 schema-v3 weather update has the narrower first-line rollback
+copies `__init__.py.before-weather-20261017` and
+`contract.py.before-weather-20261017` beside the live custom-component files.
+Restore those two files, run `ha core check`, and restart Core only. Use the
+broader October 14 recovery path only if that narrow rollback cannot restore a
+healthy exporter.
 
 The Mac Kodi Home test uses a manual source-local projection, not a persistent
 HA endpoint. Frigate contributes one `front_of_house` online/offline status

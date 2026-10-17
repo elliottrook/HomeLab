@@ -1438,8 +1438,22 @@ The local schema-v3 implementation adds only those fields to the isolated Home
 exporter and Aster dashboard; it rejects unknown conditions, non-Celsius/
 Fahrenheit units, out-of-range values and extra entities. It deliberately does
 not call `weather.get_forecasts` or export pressure, wind, attribution,
-coordinates or credentials. Production Home Assistant deployment remains a
-separate bounded change requiring its own checkpoint, Core check and approval.
+coordinates or credentials. Jason approved the bounded production deployment
+on 2026-10-17. The two live Python files were preserved beside the component as
+`.before-weather-20261017` rollback copies; only the hash-matched schema-v3
+initializer and contract were promoted. `ha core check` passed before and
+after a Core-only restart, and Home Assistant returned HTTP 200.
+
+The resulting mode-0600 private report contained Laundry `on`, closet 16.9 °C
+and one current-weather object (`sunny`, 15.9 °C, 60% humidity), with no
+forecast, pressure, wind, location, endpoint or credential fields. Kodi skin
+v0.8.24 and a fresh one-shot mode-0600 projection visibly rendered the weather
+card alongside the existing light, temperature and camera cards. Kodi logged
+the skin at v0.8.24 with no skin or feed exception; its pre-existing macOS
+media-key accessibility warning remains unrelated. Home Assistant logged only
+the expected generic custom-integration warning for this component; older
+Apple TV setup-delay, Sonos and MET connectivity warnings are unchanged and
+outside this deployment.
 
 ## 15. References
 

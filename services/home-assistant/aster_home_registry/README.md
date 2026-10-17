@@ -36,9 +36,14 @@ The deployment checkpoint is Proxmox VM 103 snapshot
 `ha core check` passed before and after the Core-only restart. Both v1 and v2
 reports are mode 0600 and independently refreshed after five minutes. The v2
 report showed Laundry `on` and closet 16.6 °C, with unavailable Hue values
-omitted. Schema v3 is prepared locally but is not deployed yet. The old v1
-report kept its schema and Laundry alias. A real state transition has not been
-induced merely for testing.
+omitted. Schema v3 was deployed on 2026-10-17 after preserving both replaced
+Python files as `.before-weather-20261017` copies. Pre- and post-restart
+`ha core check` passed, Core and HTTP recovered, and the mode-0600 report
+contained only Laundry `on`, closet 16.9 °C and current MET weather (`sunny`,
+15.9 °C, 60% humidity) plus the existing empty compatibility arrays. The
+one-shot Kodi projection visibly rendered that weather card in skin v0.8.24.
+The old v1 report kept its schema and Laundry alias. A real state transition
+has not been induced merely for testing.
 
 The Mac Kodi feed is a **manual, one-shot** projection and expires after ten
 minutes. Run `python3 services/kodi/skin.asterhome/tools/pilot_home_feed.py`
