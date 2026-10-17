@@ -29,7 +29,7 @@ class RetainedProducerTests(unittest.TestCase):
             for vmid in (104, 110, 116)
         ]
         self.tasks = [{"id": 1, "enabled": True,
-                       "schedule": {"hour": 1, "minute": 0},
+                       "schedule": {"hour": "1", "minute": "0"},
                        "job": {"state": "SUCCESS", "arguments": [1],
                                "time_started": {"$date": epoch(1, 1) * 1000},
                                "time_finished": {"$date": epoch(1, 5) * 1000}}}]
@@ -66,6 +66,22 @@ class RetainedProducerTests(unittest.TestCase):
         self.assertEqual(self.saved, [result])
         self.assertEqual(capture.call_args.kwargs["deadline_epoch"], epoch(1, 30))
         self.assertEqual(len(self.calls), 4)
+
+    def test_live_truenas_schedule_representation_is_string_only(self):
+        for schedule in ({"hour": 1, "minute": 0},
+                         {"hour": True, "minute": "0"},
+                         {"hour": "01", "minute": "0"},
+                         {"hour": "1", "minute": 0}):
+            with self.subTest(schedule=schedule):
+                self.tasks[0]["schedule"] = schedule
+                with self.assertRaises(ValueError):
+                    self.produce_candidate()
+                self.assertEqual(self.saved, [])
+        self.tasks[0]["schedule"] = {"hour": "1", "minute": "0"}
+        self.tasks[0]["enabled"] = 1
+        with self.assertRaises(ValueError):
+            self.produce_candidate()
+        self.assertEqual(self.saved, [])
 
     def test_failed_or_stale_task_and_outside_window_save_nothing(self):
         for change in ("FAILED", "stale", "wrong-args"):
