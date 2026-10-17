@@ -78,6 +78,10 @@ class RetainedProducerTests(unittest.TestCase):
                     self.produce_candidate()
                 self.assertEqual(self.saved, [])
         self.tasks[0]["schedule"] = {"hour": "1", "minute": "0"}
+        self.tasks[0]["enabled"] = 1
+        with self.assertRaises(ValueError):
+            self.produce_candidate()
+        self.assertEqual(self.saved, [])
 
     def test_failed_or_stale_task_and_outside_window_save_nothing(self):
         for change in ("FAILED", "stale", "wrong-args"):

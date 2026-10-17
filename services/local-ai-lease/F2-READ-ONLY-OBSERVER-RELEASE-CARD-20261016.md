@@ -4,6 +4,12 @@
 Owner: platform release. Stream A owns the F2 timing evidence. This card
 implements the four gaps recorded in Stream A `b2fa7f9f`; it does not reuse
 Jason's approval for the completed seven-path disabled installation.
+**Immutable source checkpoint:** local branch `codex/aster-lease-compat` at
+`339b554e` for all three proposed host files. The schedule-type regression
+tests were strengthened after that checkpoint and are pinned by file hash
+below. Verify the full source commit and test bytes again before an
+installation review. Earlier common-exclusion commit `a38da489` is historical
+background, not the release source for this card.
 
 ## Frozen source and current host boundary
 
@@ -36,6 +42,11 @@ repair above pins the observed types and rejects numeric, boolean or padded
 variants. This finding requires the producer replacement in this release;
 the earlier two-path card is superseded. A current-cycle job success is still
 unproven by this schedule query.
+`test_retained_archive_producer_candidate.py` and
+`test_f2_observer_runner_candidate.py` assert that boolean `enabled=true` and
+string schedule values pass their respective admission checks, while numeric,
+boolean-as-number and padded schedule variants fail. Recheck those assertions
+on target Linux against the pinned source, without querying a live archive.
 
 The guard accepts only an explicit `--read-only-authorized` one-shot argument.
 It has no timer. It verifies the manual, observer, producer and imported
@@ -66,7 +77,7 @@ The local `scripts/local-ai` suite passed **206 tests, two macOS root-custody
 skips**, including 23 focused F2/manual/producer tests. Test file SHA-256 values:
 manual-lock `32365ef687e3a26e632662df3c559944a06f7d794302976b81ab66f1d5bcaafd`;
 F2 guard `67965725af9b64132dd804d13ddc50e836957c1daff97c78f84bc5bb46c73998`;
-producer `5f1040e9c879a3d00dc701ad0c240f82b96936ed064ec1ae6c4fb504ed9cb660`.
+producer `e8fdc622532efe8e842d58440cbf1df69158fffa261c86f3a3c43845d30f0bfa`.
 An independent reviewer
 must inspect the guard, manual diff and exact dependency hashes before any
 host change.
