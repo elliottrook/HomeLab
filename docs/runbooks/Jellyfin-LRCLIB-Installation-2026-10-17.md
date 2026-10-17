@@ -14,7 +14,9 @@ Media, user accounts, SSO, DNS, firewall policy, certificates and other services
 were excluded.
 
 LRCLIB receives track-identifying metadata when Jellyfin searches for lyrics.
-No new inbound path, credential or scheduled bulk-download task was added.
+No new inbound path or credential was added. After the initial installation was
+validated, Jason separately approved a protected one-time backfill using
+Jellyfin's existing `Download missing lyrics` scheduled task.
 
 ## Pre-change state and risk controls
 
@@ -54,6 +56,25 @@ restarted.
   the first match returned one remote result with provider `LrcLib Lyrics`.
 - No media file was changed by the validation. No bulk lyrics task was started.
 
+## Approved lyrics backfill
+
+Before the backfill, ZFS snapshot
+`Media/data@pre-lrclib-backfill-20261017T071932Z` captured the media dataset.
+Jellyfin's existing `Download missing lyrics` task was then started once and
+left uninterrupted. It completed successfully from `2026-10-17T07:19:51Z` to
+`2026-10-17T12:03:08Z`.
+
+A post-run `zfs diff` against the snapshot found 5,279 new lyric sidecar paths:
+4,403 `.lrc` files and 876 `.txt` files. The required `Scan Media Library` task
+subsequently completed successfully from `2026-10-17T12:17:27Z` to
+`2026-10-17T12:30:11Z`. A source-local API read then returned a stored lyric
+document with 65 lines for a sampled audio item. Jellyfin remained on 12.1.0
+with setup complete, and the private HTTPS SSO endpoint returned HTTP 200.
+
+The daily scheduled trigger remains in place for future missing lyrics. The
+backfill did not restart Jellyfin, expose its protected API credential, or alter
+media other than the expected lyric sidecars.
+
 ## Operation and integration impact
 
 For a track in a compatible Jellyfin client, open its lyrics action. Jellyfin
@@ -72,6 +93,9 @@ match. Accuracy depends on artist, album, title and duration metadata.
 
 ## Close-out
 
-The requested provider is installed and functionally validated. Keep LRCLIB
-updates aligned with Jellyfin's server ABI and repeat the snapshot, checksum,
-restart and provider-query checks for future major upgrades.
+The requested provider and automatic lyric retrieval are installed and
+functionally validated. The approved existing-library backfill completed, its
+sidecar changes are recoverable from the retained snapshot, and the library
+scan made the results available to clients. Keep LRCLIB updates aligned with
+Jellyfin's server ABI and repeat the snapshot, checksum, restart and
+provider-query checks for future major upgrades.
