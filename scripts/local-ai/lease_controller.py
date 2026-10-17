@@ -10,11 +10,14 @@ remain explicit future operations under the same lease contract.
 from __future__ import annotations
 
 import argparse
+import fcntl
 import json
 import os
+import stat
 import subprocess
 import sys
 import time
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -41,6 +44,37 @@ AI_SERVICES = (
 
 class LeaseFailure(RuntimeError):
     pass
+
+
+@contextmanager
+def archive_observation_exclusion():
+    """Share the installed observer's nonblocking directory advisory lock.
+
+    The manual entrypoint lives in /usr/local/sbin, outside the candidate
+    module's import root, so it verifies and locks the same directory itself.
+    This guards acquisition only; its old state schema remains unsuitable for
+    the independently supervised full-stop drill.
+    """
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+    try:
+        fd = os.open(ROOT, flags)
+    except OSError as exc:
+        raise LeaseFailure("host exclusion directory is unavailable") from exc
+    try:
+        info = os.fstat(fd)
+        if (not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid()
+                or stat.S_IMODE(info.st_mode) != 0o700):
+            raise LeaseFailure("host exclusion directory custody is invalid")
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError as exc:
+            raise LeaseFailure("host exclusion is held or unavailable") from exc
+        try:
+            yield
+        finally:
+            fcntl.flock(fd, fcntl.LOCK_UN)
+    finally:
+        os.close(fd)
 
 
 def run(*args: str, check: bool = True) -> str:
@@ -86,6 +120,11 @@ def guest_service_state() -> dict[str, str]:
 
 def acquire(args: argparse.Namespace) -> None:
     ensure_root()
+    with archive_observation_exclusion():
+        _acquire_locked(args)
+
+
+def _acquire_locked(args: argparse.Namespace) -> None:
     if not args.light:
         raise LeaseFailure("only --light is enabled for this bounded live test")
     if not args.backup_verified:
