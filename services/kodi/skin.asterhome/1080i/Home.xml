@@ -8,6 +8,7 @@
             <left>0</left><top>0</top><width>1920</width><height>1080</height>
             <texture background="true">$VAR[AsterHeroFanart]</texture>
             <aspectratio>scale</aspectratio><fadetime>250</fadetime>
+            <animation effect="fade" start="100" end="0" time="220" reversible="true" condition="Control.HasFocus(140) | Control.HasFocus(141) | Control.HasFocus(142) | Control.HasFocus(143) | Control.HasFocus(144) | Control.HasFocus(145) | Control.HasFocus(146)">Conditional</animation>
         </control>
         <control type="image" id="13">
             <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>

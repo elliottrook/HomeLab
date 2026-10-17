@@ -1,5 +1,10 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.16 dissolves the full-screen hero artwork into the existing Aster
+stone background while any genre tile is focused. The transition follows the
+same 220 ms movement as the lifted media lanes, preserving the top-of-page hero
+while giving the below-poster genre names a quiet, consistently legible field.
+
 Version 0.8.15 adds Family as a seventh genre and narrows the complete rail to
 seven evenly spaced 240-pixel lanes with 210 × 315 portrait artwork. All seven
 choices fit across the established content width without changing the poster

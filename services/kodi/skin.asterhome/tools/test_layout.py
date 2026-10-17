@@ -146,6 +146,14 @@ class LayoutTests(unittest.TestCase):
         colours = ET.parse(ROOT / 'colors/defaults.xml')
         self.assertEqual(colours.findtext('.//color[@name="asterStone"]'), 'ffe6dac8')
         self.assertEqual(self.home.findtext('.//backgroundcolor'), 'asterStone')
+        fanart = self.home.find('.//control[@id="12"]')
+        genre_fade = next(node for node in fanart.findall('animation')
+                          if 'Control.HasFocus(140)' in node.get('condition', ''))
+        self.assertEqual((genre_fade.get('effect'), genre_fade.get('start'),
+                          genre_fade.get('end'), genre_fade.get('time'),
+                          genre_fade.get('reversible')),
+                         ('fade', '100', '0', '220', 'true'))
+        self.assertIn('Control.HasFocus(146)', genre_fade.get('condition'))
         for name in ('Home.xml', 'MyVideoNav.xml', 'DialogVideoInfo.xml'):
             root = ET.parse(ROOT / '1080i' / name)
             fades = [control for control in root.findall('.//control')

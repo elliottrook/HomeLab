@@ -1335,6 +1335,16 @@ Family opened the complete 129-title Family Movies view. All 65 offline tests
 and every skin/playlist XML validation pass. This remains a read-only skin
 change.
 
+Genre-focus background transition, 2026-10-17 (skin v0.8.16): focusing any of
+the seven genre tiles now dissolves the full-screen hero artwork over 220 ms,
+revealing the same plain Aster stone colour already established by the hero's
+bottom fade. The transition is reversible when focus returns to the upper
+media lanes, keeping the genre captions legible without changing the initial
+hero composition. Live validation on the disposable macOS Kodi client
+confirmed the hero fully dissolves on genre focus, all seven names remain
+clear against the warm stone field, the artwork returns when focus moves back
+to Recommended for You, and Kodi remains stable.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
