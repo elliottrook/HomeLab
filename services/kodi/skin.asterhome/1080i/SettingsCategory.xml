@@ -1,119 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window id="12">
     <defaultcontrol always="true">3</defaultcontrol>
-    <backgroundcolor>asterIvory</backgroundcolor>
+    <backgroundcolor>asterStone</backgroundcolor>
     <controls>
-        <control type="label" id="2">
-            <left>100</left>
-            <top>70</top>
-            <width>1720</width>
-            <height>70</height>
-            <label>Settings</label>
-            <font>font40</font>
-            <textcolor>asterInk</textcolor>
-        </control>
+        <control type="image"><left>0</left><top>0</top><width>430</width><height>1080</height><texture>special://skin/media/rail-background.png</texture></control>
+        <control type="image"><left>56</left><top>42</top><width>250</width><height>96</height><texture>special://skin/media/aster-home-horizontal-512.png</texture><aspectratio>keep</aspectratio></control>
+        <control type="label"><left>56</left><top>146</top><width>330</width><height>50</height><label>Settings</label><font>font30</font><textcolor>asterRailText</textcolor></control>
+        <!-- Kodi fills this category list from the active settings window. -->
         <control type="grouplist" id="3">
-            <left>100</left>
-            <top>190</top>
-            <width>360</width>
-            <height>700</height>
-            <orientation>vertical</orientation>
-            <itemgap>8</itemgap>
+            <left>42</left><top>230</top><width>370</width><height>690</height>
+            <orientation>vertical</orientation><itemgap>10</itemgap>
             <control type="button" id="10">
-                <width>340</width>
-                <height>70</height>
-                <font>font24</font>
-                <textcolor>asterInk</textcolor>
-                <align>left</align>
-                <aligny>center</aligny>
+                <width>350</width><height>66</height><font>font24</font>
+                <textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
+                <texturefocus border="22" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
+                <texturenofocus>none</texturenofocus>
+                <textoffsetx>22</textoffsetx><align>left</align><aligny>center</aligny>
             </control>
         </control>
-        <control type="grouplist" id="5">
-            <left>500</left>
-            <top>190</top>
-            <width>1250</width>
-            <height>700</height>
-            <orientation>vertical</orientation>
-            <itemgap>10</itemgap>
+        <control type="radiobutton" id="20">
+            <left>42</left><top>948</top><width>350</width><height>62</height>
+            <label>Settings level</label><font>font20</font>
+            <textcolor>asterRailText</textcolor><focusedcolor>asterSage</focusedcolor>
+            <texturefocus border="20" colordiffuse="553f5f4e">special://skin/media/ui-panel.png</texturefocus>
+            <texturenofocus>none</texturenofocus><textoffsetx>18</textoffsetx>
         </control>
-        <!-- Kodi populates the settings area by cloning these template
-             controls. Without them the category opens as an empty panel and
-             the user cannot reach the skin selector. -->
+        <control type="image"><left>466</left><top>104</top><width>1380</width><height>850</height><texture border="34">special://skin/media/ui-limestone-panel.png</texture></control>
+        <control type="label" id="2"><left>520</left><top>142</top><width>1240</width><height>62</height><label>Settings</label><font>font40</font><textcolor>asterInk</textcolor></control>
+        <control type="image"><left>520</left><top>214</top><width>1250</width><height>2</height><texture colordiffuse="asterGold">special://skin/media/ui-solid.png</texture></control>
+        <control type="grouplist" id="5">
+            <left>520</left><top>246</top><width>1250</width><height>594</height>
+            <orientation>vertical</orientation><itemgap>8</itemgap>
+        </control>
+        <!-- Kodi clones these templates into the settings grouplist. Their
+             IDs and types are part of Kodi's settings-window contract. -->
         <control type="button" id="7">
-            <width>1250</width>
-            <height>62</height>
-            <font>font24</font>
-            <textcolor>asterInk</textcolor>
-            <align>left</align>
-            <aligny>center</aligny>
+            <width>1250</width><height>62</height><font>font24</font><textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
+            <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="55f8f5ef">special://skin/media/ui-panel.png</texturenofocus>
+            <textoffsetx>20</textoffsetx><align>left</align><aligny>center</aligny>
         </control>
         <control type="radiobutton" id="8">
-            <width>1250</width>
-            <height>62</height>
-            <font>font24</font>
-            <textcolor>asterInk</textcolor>
-            <align>left</align>
-            <aligny>center</aligny>
+            <width>1250</width><height>62</height><font>font24</font><textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
+            <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="55f8f5ef">special://skin/media/ui-panel.png</texturenofocus>
+            <textoffsetx>20</textoffsetx><align>left</align><aligny>center</aligny>
         </control>
         <control type="spincontrolex" id="9">
-            <width>1250</width>
-            <height>62</height>
-            <font>font24</font>
-            <textcolor>asterInk</textcolor>
-            <align>left</align>
-            <aligny>center</aligny>
+            <width>1250</width><height>62</height><font>font24</font><textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
+            <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="55f8f5ef">special://skin/media/ui-panel.png</texturenofocus>
+            <textoffsetx>20</textoffsetx><align>left</align><aligny>center</aligny>
         </control>
         <control type="sliderex" id="13">
-            <width>1250</width>
-            <height>62</height>
-            <font>font24</font>
-            <textcolor>asterInk</textcolor>
-            <align>left</align>
-            <aligny>center</aligny>
+            <width>1250</width><height>62</height><font>font24</font><textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
+            <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="55f8f5ef">special://skin/media/ui-panel.png</texturenofocus>
+            <textoffsetx>20</textoffsetx><align>left</align><aligny>center</aligny>
         </control>
-        <control type="image" id="11">
-            <width>1250</width>
-            <height>2</height>
-        </control>
-        <control type="label" id="14">
-            <width>1250</width>
-            <height>54</height>
-            <font>font24</font>
-            <textcolor>asterMuted</textcolor>
-            <align>left</align>
-            <aligny>center</aligny>
-        </control>
+        <control type="image" id="11"><width>1250</width><height>2</height><texture colordiffuse="66c2a06b">special://skin/media/ui-solid.png</texture></control>
+        <control type="label" id="14"><width>1250</width><height>54</height><font>font24</font><textcolor>asterGreen</textcolor><align>left</align><aligny>center</aligny></control>
         <control type="colorbutton" id="15">
-            <width>1250</width>
-            <height>62</height>
-            <font>font24</font>
-            <textcolor>asterInk</textcolor>
-            <align>left</align>
-            <aligny>center</aligny>
+            <width>1250</width><height>62</height><font>font24</font><textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
+            <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="55f8f5ef">special://skin/media/ui-panel.png</texturenofocus>
+            <textoffsetx>20</textoffsetx><align>left</align><aligny>center</aligny>
         </control>
-        <control type="textbox" id="6">
-            <left>500</left>
-            <top>900</top>
-            <width>1250</width>
-            <height>80</height>
-            <font>font20</font>
-            <textcolor>asterMuted</textcolor>
-        </control>
-        <control type="radiobutton" id="20">
-            <left>100</left>
-            <bottom>70</bottom>
-            <width>340</width>
-            <height>60</height>
-            <label>Settings level</label>
-            <font>font20</font>
-            <textcolor>asterInk</textcolor>
-        </control>
-        <control type="scrollbar" id="60">
-            <right>50</right>
-            <top>190</top>
-            <height>700</height>
-            <width>12</width>
-            <orientation>vertical</orientation>
-        </control>
+        <control type="textbox" id="6"><left>520</left><top>860</top><width>1250</width><height>66</height><font>font20</font><textcolor>asterMuted</textcolor></control>
+        <control type="scrollbar" id="60"><left>1792</left><top>246</top><height>594</height><width>10</width><orientation>vertical</orientation></control>
+        <include content="AsterClockPill"><param name="top" value="34"/><param name="innertop" value="36"/></include>
     </controls>
 </window>

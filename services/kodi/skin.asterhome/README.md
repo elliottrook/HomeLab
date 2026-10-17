@@ -1,5 +1,11 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.20 gives Kodi's settings landing and category windows a restrained
+Aster treatment. Required Kodi settings control IDs remain unchanged, while a
+dark identity column, warm layered work surface, rounded controls, 24-hour
+clock and sage/gold focus language bring system configuration into the same
+visual family as the rest of Aster Home.
+
 Version 0.8.19 replaces the seven single-media genre destinations with the
 read-only `plugin.video.asterhome` companion. Each genre page now merges
 matching movies and TV shows from Kodi's existing local library, alphabetizes

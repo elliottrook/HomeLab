@@ -276,6 +276,39 @@ class LayoutTests(unittest.TestCase):
                             value.get('condition', ''))
         self.assertEqual(plugin_value.text, '$INFO[Container.PluginCategory]')
 
+    def test_settings_landing_uses_aster_cards_and_identity(self):
+        root = ET.parse(ROOT / '1080i/Settings.xml')
+        self.assertEqual(root.getroot().get('id'), '4')
+        self.assertEqual(root.findtext('./backgroundcolor'), 'asterStone')
+        panel = root.find('.//control[@type="panel"][@id="9000"]')
+        self.assertIsNotNone(panel)
+        self.assertEqual((panel.findtext('left'), panel.findtext('width')),
+                         ('462', '1390'))
+        self.assertEqual(len(panel.findall('./content/item')), 4)
+        self.assertTrue(all(item.find('property[@name="Description"]') is not None
+                            for item in panel.findall('./content/item')))
+        self.assertIsNotNone(root.find(
+            './/texture[.="special://skin/media/aster-home-horizontal-512.png"]'))
+        focus = panel.find('./focusedlayout/control[@type="image"]/texture')
+        self.assertEqual(focus.get('colordiffuse'), 'asterSage')
+
+    def test_settings_category_preserves_kodi_contract_with_aster_styling(self):
+        root = ET.parse(ROOT / '1080i/SettingsCategory.xml')
+        self.assertEqual(root.getroot().get('id'), '12')
+        controls = root.findall('.//control')
+        by_id = {control.get('id'): control for control in controls if control.get('id')}
+        for identifier in ('2', '3', '5', '6', '7', '8', '9', '10', '11',
+                           '13', '14', '15', '20', '60'):
+            self.assertIn(identifier, by_id)
+        self.assertEqual(by_id['3'].get('type'), 'grouplist')
+        self.assertEqual(by_id['5'].get('type'), 'grouplist')
+        for identifier in ('7', '8', '9', '13', '15'):
+            self.assertEqual(by_id[identifier].find('texturefocus').get('colordiffuse'),
+                             'asterSage')
+        self.assertEqual(by_id['2'].findtext('textcolor'), 'asterInk')
+        self.assertIsNotNone(root.find(
+            './/texture[.="special://skin/media/rail-background.png"]'))
+
 
 if __name__ == '__main__':
     unittest.main()
