@@ -1,7 +1,7 @@
 # Full-stop recovery drill — dependency tracker
 
 **Owner:** Stream A for evidence and coordination; Local AI platform owner for
-host release, lease and recovery. **Last reconciled:** 2026-10-16, 17:17
+host release, lease and recovery. **Last reconciled:** 2026-10-16, 18:54
 America/Vancouver. **Overall decision: NO-GO.** This tracker is the human
 status page. The platform-owned
 `services/local-ai-lease/FULL-STOP-RECOVERY-DRILL-RUN-CARD.md` is the executable
@@ -70,21 +70,26 @@ pins all observer imports, rejects bool-as-zero scan exits and handles the
 Linux 15-byte process name for the Proxmox backup client. The full local suite
 passed 206 tests with two macOS root-custody skips. The first scan is planned
 as a **supervised one-cycle** action because backup and pull jobs do not share
-the advisory lease lock. The platform owner must review this revision and
-target-Linux synthetic proof before a distinct disabled-install approval;
-the actual scan needs its own dated approval. Neither has been installed or
-run. F2 remains NO-GO, and October 17 is not promised.
+the advisory lease lock. The platform owner integrated the source and Jason
+separately approved the bounded stage/test/conditional disabled installation.
+The result on `codex/aster-lease-compat` at
+`services/local-ai-lease/F2-DISABLED-INSTALL-RESULT-20261016.md` records 23/23
+F2 and 4/4 installer synthetic tests on target Linux, three exact installed
+hashes, two old-file checkpoints, inactive timers, running guests/News timers,
+and no lease, receipt or scan. The actual F2 scan still needs fresh
+current-cycle preflight, a supervising operator and dated approval. F2 remains
+NO-GO, and October 17 is not promised.
 The source checkpoint and live schedule-type assertions were clarified in
 `62125a65`; the conditional stage/test/install wording is in `9f9ae8a9`.
-Read-only Proxmox checks confirmed that both proposed replacement paths still
-have the pinned old hashes and modes and the add-only guard path is absent.
 The platform owner integrated the matching source locally at `1829271d`,
-with its own full suite passing. These are review/preflight facts, not the
-target-Linux staged test or installation result.
+with its own full suite passing. Those source facts preceded the target-Linux
+result above; none is an F2 timing result.
 The disabled F3 producer received the same pre-start lease guard in local
 source commit `4e16b964`, integrated by the platform owner as `f4b9da31`.
 Its full local suite passed 177 tests with two macOS root-custody skips. The
-producer is still uninstalled/disabled and F3 remains open.
+F3 receipt CLI is still uninstalled/disabled; the F2-installed producer is
+effect-disabled and cannot write a receipt through the read-only observer.
+F3 remains open.
 
 Review of the corrected install's recovery helper found that its first
 version could not roll back an interruption partway through the seven atomic
@@ -104,7 +109,9 @@ directory lock through an archive scan or receipt write and through either
 candidate lease's state creation. Its full offline suite passed 188 tests
 with two macOS root-custody skips. It is **not installed** and does not
 advance F2 or F3. Target-Linux proof, backup/load exclusion, outer process
-deadline and the old manual controller's bypass remain review blockers.
+deadline and the old manual controller's bypass were review blockers at that
+checkpoint; the later disabled F2 install above addresses those source paths
+without arming the F3/F6 release.
 There is **no scheduled 03:10 live drill**; the old 03:05 and 03:40 one-time
 checks are paused. A schedule entry is not evidence that its preconditions
 passed or that a scan finished.
@@ -122,10 +129,10 @@ the end of that backup cycle.
 | F0 | **Pinned inactive compatibility source** | Source pins, seven-file rollback checkpoint, 12 installed modules and two heartbeat units match reviewed bytes; no lease/lock or production change. | [x] DONE — `services/local-ai-lease/FULL-STOP-COMPATIBILITY-DISABLED-INSTALL-RESULT-20261015.md` on platform branch; separate local `codex/aster-lease-compat` branch. |
 | F1 | **Target-Linux synthetic compatibility**, after F0 | Installed-path imports, admission-record round-trip, old-dependency compatibility, watchdog/recovery and archive tests; timers stay inactive. | [x] DONE — same result; synthetic tests only. |
 | F2 | **New-cycle read-only archive timing**, after successful 00:30 Proxmox job and 01:00 TrueNAS task 1 | Exact current-cycle 104/110/116 identities; three bounded `zstd -t` exit-0 results before the deadline, without competing work. Failure/unknown/partial is NO-GO. | [ ] UNKNOWN / NO-GO for October 16 — heartbeat triggered, but no complete retained 104/110/116 result was found and the start window elapsed. See [dated evidence](evidence/Full-stop-archive-window-missed-2026-10-16.md). The previous October 15 scan was partial. |
-| F3 | **Trusted retained-receipt release**, after F0/F1 and timing review | A separately reviewed, hash-pinned producer can write a root-owned mode-0600 receipt in a mode-0700 directory only after all fixed source, whole-job, task-1, archive identity/integrity and deadline checks pass. Partial/late scans leave no success receipt. Test the actual installed path and rollback; obtain bounded host-change approval. | [ ] BLOCKED — the new source-only dual-gated CLI candidate (`codex/aster-lease-compat` at `7f1c15a4`) passed offline tests, but its effect flag is false and the installed producer remains the prior disabled pin. F2 alone cannot satisfy F3. |
+| F3 | **Trusted retained-receipt release**, after F0/F1 and timing review | A separately reviewed, hash-pinned producer can write a root-owned mode-0600 receipt in a mode-0700 directory only after all fixed source, whole-job, task-1, archive identity/integrity and deadline checks pass. Partial/late scans leave no success receipt. Test the actual installed path and rollback; obtain bounded host-change approval. | [ ] BLOCKED — the source-only dual-gated receipt CLI candidate (`codex/aster-lease-compat` at `7f1c15a4`) passed offline tests but is uninstalled and effect-disabled. The corrected producer is installed only for read-only F2 observation; no trusted receipt was produced. F2 alone cannot satisfy F3. |
 | F4 | **Fresh trusted receipt for the drill cycle**, after F3 and that cycle's backup/task 1 | Complete current-cycle receipt exists, is independently re-read and bound to the same archive identities; stale, replaced or incomplete files fail closed. | [ ] BLOCKED by F3 and next eligible backup cycle. No October 15 receipt exists. |
 | F5 | **03:05 full preflight**, after F4 and 02:00/03:00 TrueNAS tasks | Fixed schedules and same-cycle job completions; exact LXC110 mirror; three consumers still running; no conflicting lease/job; pinned Qwen3.5-9B Q4_K_M, llama.cpp b11429 SYCL/Level Zero, GPU, unit and authentication state; News timer active/enabled and job idle. Save non-secret baseline for restoration. | [ ] BLOCKED by F4; must be observed afresh in the chosen cycle. |
-| F6 | **Independent recovery armed**, after F5 and approved live card | Compatible watchdog and owner-liveness paths are verified active/enabled before any stop; exact state schema and constrained recovery executor match pins; old manual `acquire --light` cannot be used with this watchdog. Loss of watchdog/owner closes acquisition. | [ ] BLOCKED — both candidate timers inactive and live arming unapproved. Synthetic tests do not close this gate. |
+| F6 | **Independent recovery armed**, after F5 and approved live card | Compatible watchdog and owner-liveness paths are verified active/enabled before any stop; exact state schema and constrained recovery executor match pins; the manual `acquire --light` remains legacy-schema and cannot be used with this watchdog even after its F2 lock update. Loss of watchdog/owner closes acquisition. | [ ] BLOCKED — both candidate timers inactive and live arming unapproved. Synthetic tests do not close this gate. |
 | F7 | **Human live-drill approval**, after reviewable F3–F6 evidence and revised platform card | Jason approves one exact bounded drill, target services, stop condition, 03:30 hard release cutoff, 04:15 reconciliation reserve and rollback. No automatic approval from this tracker or scheduler. | [ ] NOT REQUESTED — platform run card remains NO-GO. |
 | F8 | **Bounded full-stop acquisition/drill**, after F4–F7 in the same cycle | New source-bound controller persists watchdog-compatible state and lock before stopping only Aster Agent (104), llama.cpp (110) and Speech (116); records each effect and stable isolation. No model call, unrelated host change or News timer stop. | [ ] NOT SCHEDULED. |
 | F9 | **Exact recovery and release**, after F8 | Independent recovery/restore proves original services plus exact model/backend, GPU, auth, unit, schedules, backup points, News and control plane. Release by 03:30 only on a complete match; otherwise retain lock, mark FAILED/UNKNOWN and use 03:30–04:15 for reconciliation. | [ ] NOT STARTED. |
