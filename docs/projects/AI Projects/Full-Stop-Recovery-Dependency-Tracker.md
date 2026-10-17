@@ -39,6 +39,12 @@ review. It is not installed and was not used to retry October 17. The current
 checkout passes 208 local tests with four expected macOS root-custody skips;
 target-Linux proof, a new pinned card and fresh approvals remain required.
 
+Later read-only [post-event observations](evidence/F2-post-event-observations-2026-10-17.md)
+confirmed the lease remained ready, the installed producer matched all three
+fixed guest-log final lines, and the fixed scheduler filter showed one backup
+start and one success with no task error. They narrow source-shape concerns
+but do not reconstruct the failed 01:10 instant or prove a scan ran.
+
 The October 16 01:10 read-only archive heartbeat triggered, but no complete
 three-archive result was retained by the time Stream A resumed after the
 start cutoff. It is now **paused**; see the [dated F2 record](evidence/Full-stop-archive-window-missed-2026-10-16.md).
