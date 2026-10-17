@@ -21,8 +21,9 @@ complete three-archive result before its cutoff and is paused. No later scan
 or live drill is implied by the old schedule text below. A source-only common
 host-exclusion candidate and a corrected disabled-install card exist; the
 first host preflight found a card mismatch, which was fixed locally. The
-platform owner has not installed that candidate or enabled a timer. The next
-host change needs a fresh exact approval, target-Linux proof and preserved
+platform owner had not installed that candidate or enabled a timer at the
+time of this reconciliation. Its next host change needed exact approval,
+target-Linux proof and preserved
 rollback; the old manual lease path and backup/TrueNAS conflict checks still
 gate unattended observation. Continue M1/D4 and M3 work offline while these
 dependencies are resolved.
@@ -32,6 +33,18 @@ controller import check and was [fully rolled back](evidence/Common-host-exclusi
 Its one-root card is superseded by a seven-path, two-root review candidate.
 No archive observation is admitted from that failed attempt; a separate exact
 approval is needed for the corrected host change.
+
+**October 16 evening F2 update:** A later, distinct three-path read-only F2
+candidate was installed disabled on Proxmox after target-Linux synthetic tests
+passed (23 focused tests plus four installer tests). The manual controller,
+producer and one-shot guard match their pinned hashes; no archive scan, receipt,
+lease or timer activation occurred. Jason approved one conditional, supervised
+scan for the **October 17** backup cycle. The 01:05 preflight may start the
+one-shot guard only between 01:10 and 01:19 if that cycle's backup and TrueNAS
+task 1, exact archive identities, installed pins and quiet-host gates all pass.
+The hard stop is the earlier of 20 minutes or 01:40. Any failed or uncertain
+gate means NO-GO without a retry. This approval does not release a trusted
+receipt or full-stop drill; see the dependency tracker for the current F2 gate.
 
 Stream A has two work lanes. **Continuous lane:** documentation, code and fixture review, local tests, evidence reconciliation, read-only LAN/health checks and low-impact shared-service observation run whenever useful, including between lab windows. Continue this lane when an exclusive run is blocked. During an active whole-host lab lease, keep this lane offline and do not compete with maintenance. Companion session and Keychain behavior remain quiet reliability monitoring under the [D3 gate reassessment](evidence/D3-refresh-gate-reassessment-2026-10-12.md), not a reason to hold other Stream A work. A signed-in request after time has passed may support renewal, but sign-out/re-sign-in is not refresh evidence. Check only content-free observations; do not manufacture expiry or send repeated Codex questions.
 
