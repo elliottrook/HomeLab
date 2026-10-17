@@ -165,7 +165,13 @@ def _project(output: str) -> dict:
     return value
 
 
-def observe_once(*, runner, popen=subprocess.Popen, clock=time.time) -> dict:
+def observe_once(*, runner, popen=subprocess.Popen, clock=time.time,
+                 diagnostic_phase: dict[str, str] | None = None) -> dict:
+    # This fixed stage marker is deliberately content-free. It lets a future
+    # one-shot result distinguish a preflight denial from a child failure
+    # without exposing command output, archive paths or private source data.
+    if diagnostic_phase is not None:
+        diagnostic_phase["phase"] = "preflight"
     if os.geteuid() != 0:
         raise F2NoGo("root is required")
     _window(clock())
@@ -182,6 +188,8 @@ def observe_once(*, runner, popen=subprocess.Popen, clock=time.time) -> dict:
     seconds = _window(clock())
     _no_lease_or_receipt()
     _quiet_host()
+    if diagnostic_phase is not None:
+        diagnostic_phase["phase"] = "observer"
     process = popen(("/usr/bin/python3", "-B", str(OBSERVER)),
                     stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                     start_new_session=True,
@@ -196,6 +204,8 @@ def observe_once(*, runner, popen=subprocess.Popen, clock=time.time) -> dict:
     if process.returncode != 0:
         _terminate_group(process)
         raise F2NoGo("observer failed")
+    if diagnostic_phase is not None:
+        diagnostic_phase["phase"] = "result"
     return _project(output.decode("utf-8"))
 
 
@@ -210,12 +220,14 @@ def main(argv=None) -> int:
         result = subprocess.run(command, capture_output=True, text=True,
                                 timeout=timeout, check=False)
         return result.returncode, result.stdout
+    diagnostic_phase: dict[str, str] = {}
     try:
-        print(json.dumps(observe_once(runner=runner), sort_keys=True))
+        print(json.dumps(observe_once(runner=runner, diagnostic_phase=diagnostic_phase), sort_keys=True))
         return 0
     except Exception as exc:
         # Neither command output nor archive paths are included on failure.
-        print(json.dumps({"state": "no_go", "error_class": type(exc).__name__}, sort_keys=True))
+        print(json.dumps({"state": "no_go", "error_class": type(exc).__name__,
+                          "phase": diagnostic_phase.get("phase", "preflight")}, sort_keys=True))
         return 1
 
 
