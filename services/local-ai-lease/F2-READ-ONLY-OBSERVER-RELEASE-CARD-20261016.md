@@ -104,11 +104,22 @@ not authorization to stage or run it now.
 
 ## Separate approvals and rollback
 
-Only after those tests and independent review should Jason be asked to
-approve a **bounded three-path disabled host change**: checkpoint and replace
+After independent source review, Jason may approve **staging, synthetic
+target-Linux tests and a conditional three-path disabled host change** in one
+bounded decision. If any staged hash, import, synthetic test or preflight
+fails, stop before changing installed files; that approval does not waive the
+failed gate. After passing tests, checkpoint and replace
 the old manual executable and producer with the pinned files, add only the
 new guard file, and verify imports, hashes, manual status, inactive timers,
 unchanged backup/News schedules, no lease/receipt and running LXC104/110/116.
+Exact proposed installation approval: “Approve staging the six hash-pinned
+source/test files on Proxmox in a private temporary directory, running only
+synthetic target-Linux tests, and—only if all staged hashes, tests and live
+preconditions pass—replacing the two exact pinned old files and adding the one
+guard file. Preserve both old bytes for rollback and verify the disabled
+post-state. Do not start an archive scan, lease, service stop or model call,
+enable a timer, or change backup schedules.” The approval is one use, for the
+reviewed hashes above; it does not cover a changed source or failed preflight.
 That installation must neither pass `--read-only-authorized` nor invoke the
 observer. Preserve both old files root-only for rollback. If import,
 test or postcheck fails with no scan/lease active, atomically restore only the
