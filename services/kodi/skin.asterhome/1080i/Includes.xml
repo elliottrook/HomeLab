@@ -138,18 +138,18 @@
     <include name="AsterGenreTile">
         <definition>
             <control type="panel" id="$PARAM[id]">
-                <left>$PARAM[left]</left><top>1038</top><width>280</width><height>400</height>
+                <left>$PARAM[left]</left><top>1038</top><width>240</width><height>360</height>
                 <orientation>horizontal</orientation><scrolltime>180</scrolltime>
                 <onleft>$PARAM[lefttarget]</onleft><onright>$PARAM[righttarget]</onright>
                 <onup>110</onup><ondown>$PARAM[id]</ondown>
                 <onclick>ActivateWindow(Videos,$PARAM[browse],return)</onclick>
-                <itemlayout width="280" height="400">
-                    <control type="image"><left>15</left><top>8</top><width>250</width><height>375</height><texture background="true" diffuse="special://skin/media/ui-poster-mask.png">$VAR[AsterPosterArt]</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
-                    <control type="image"><left>15</left><top>8</top><width>250</width><height>375</height><texture border="28" colordiffuse="48f2ede4">special://skin/media/ui-panel.png</texture></control>
+                <itemlayout width="240" height="360">
+                    <control type="image"><left>15</left><top>8</top><width>210</width><height>315</height><texture background="true" diffuse="special://skin/media/ui-poster-mask.png">$VAR[AsterPosterArt]</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
+                    <control type="image"><left>15</left><top>8</top><width>210</width><height>315</height><texture border="28" colordiffuse="48f2ede4">special://skin/media/ui-panel.png</texture></control>
                 </itemlayout>
-                <focusedlayout width="280" height="400">
-                    <control type="image"><left>15</left><top>8</top><width>250</width><height>375</height><texture background="true" diffuse="special://skin/media/ui-poster-mask.png">$VAR[AsterPosterArt]</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
-                    <control type="image"><left>15</left><top>8</top><width>250</width><height>375</height><texture colordiffuse="asterSage">special://skin/media/ui-poster-ring.png</texture></control>
+                <focusedlayout width="240" height="360">
+                    <control type="image"><left>15</left><top>8</top><width>210</width><height>315</height><texture background="true" diffuse="special://skin/media/ui-poster-mask.png">$VAR[AsterPosterArt]</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
+                    <control type="image"><left>15</left><top>8</top><width>210</width><height>315</height><texture colordiffuse="asterSage">special://skin/media/ui-poster-ring.png</texture></control>
                 </focusedlayout>
                 <content target="videos">$PARAM[preview]</content>
             </control>

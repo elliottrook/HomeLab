@@ -185,13 +185,11 @@ class LayoutTests(unittest.TestCase):
     def test_genre_rail_peeks_then_lifts_into_view(self):
         includes = [node for node in self.home.findall('.//include')
                     if node.get('content') == 'AsterGenreTile']
-        self.assertEqual(len(includes), 6)
+        self.assertEqual(len(includes), 7)
         params = [{node.get('name'): node.get('value') for node in include.findall('param')}
                   for include in includes]
-        self.assertEqual([row['label'] for row in params],
-                         ['Comedy', 'Drama', 'Action', 'Sci-Fi', 'Documentary', 'Horror'])
         self.assertEqual([int(row['left']) for row in params],
-                         [125, 405, 685, 965, 1245, 1525])
+                         [125, 365, 605, 845, 1085, 1325, 1565])
         recommended = self.home.find('.//control[@id="110"]')
         self.assertEqual(recommended.findtext('ondown'), '140')
         media_group = self.home.find('.//control[@id="22"]')
@@ -199,7 +197,7 @@ class LayoutTests(unittest.TestCase):
                   if node.get('effect') == 'slide']
         self.assertEqual(len(slides), 1)
         self.assertEqual(slides[0].get('end'), '0,-380')
-        for identifier in range(140, 146):
+        for identifier in range(140, 147):
             self.assertIn(f'Control.HasFocus({identifier})', slides[0].get('condition'))
         hero_group = self.home.find('.//control[@id="21"]')
         genre_fade = next(node for node in hero_group.findall('animation')
@@ -209,21 +207,21 @@ class LayoutTests(unittest.TestCase):
         template = ET.parse(ROOT / '1080i/Includes.xml').find(
             './/include[@name="AsterGenreTile"]/definition/control')
         self.assertEqual((template.findtext('top'), template.findtext('width'),
-                          template.findtext('orientation')), ('1038', '280', 'horizontal'))
+                          template.findtext('orientation')), ('1038', '240', 'horizontal'))
         layout = template.find('itemlayout')
         poster = next(control for control in layout.findall('control')
                       if control.find('texture') is not None and
                       control.find('texture').get('diffuse'))
         self.assertEqual((poster.findtext('width'), poster.findtext('height')),
-                         ('250', '375'))
-        self.assertEqual(int(layout.get('width')) * 6, 1680)
+                         ('210', '315'))
+        self.assertEqual(int(layout.get('width')) * 7, 1680)
         labels = [node.findtext('label') for node in media_group.findall('control')
-                  if node.get('type') == 'label' and node.findtext('top') == '1420']
+                  if node.get('type') == 'label' and node.findtext('top') == '1368']
         self.assertEqual(labels,
-                         ['Comedy', 'Drama', 'Action', 'Sci-Fi', 'Documentary', 'Horror'])
+                         ['Comedy', 'Drama', 'Action', 'Sci-Fi', 'Documentary', 'Horror', 'Family'])
         self.assertTrue(all(node.findtext('textcolor') == 'asterInk'
                             for node in media_group.findall('control')
-                            if node.get('type') == 'label' and node.findtext('top') == '1420'))
+                            if node.get('type') == 'label' and node.findtext('top') == '1368'))
         self.assertFalse(any(control.findtext('top') == '302'
                              for control in template.findall('.//control')))
 
@@ -232,7 +230,7 @@ class LayoutTests(unittest.TestCase):
         self.assertNotIn('genre_data.py', (ROOT / '1080i/Home.xml').read_text())
         for folder in ('genre-previews', 'genres'):
             files = list((ROOT / 'playlists' / folder).glob('*.xsp'))
-            self.assertEqual(len(files), 6)
+            self.assertEqual(len(files), 7)
             for source in files:
                 root = ET.parse(source).getroot()
                 self.assertIn(root.get('type'), ('movies', 'tvshows'))

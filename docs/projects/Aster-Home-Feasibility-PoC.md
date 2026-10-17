@@ -1324,6 +1324,17 @@ confirmed all six captions beneath clean full-height portraits, the Comedy
 focus ring, and the unchanged artwork-only peek. All 65 offline tests and every
 skin/playlist XML validation pass; Kodi remained stable.
 
+Seven-across genre rail, 2026-10-17 (skin v0.8.15): Family is added after
+Horror as the seventh genre. Every lane narrows from 280 to 240 pixels and its
+poster from 250 × 375 to 210 × 315, retaining the exact 2:3 ratio while fitting
+seven evenly across the existing content width. Family uses the same native
+random-preview and complete-browse smart-playlist pattern. Live validation on
+the disposable macOS Kodi client confirmed that all seven tiles and their
+below-poster labels fit across the page, Kodi remained stable, and selecting
+Family opened the complete 129-title Family Movies view. All 65 offline tests
+and every skin/playlist XML validation pass. This remains a read-only skin
+change.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

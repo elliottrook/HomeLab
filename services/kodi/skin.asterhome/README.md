@@ -1,5 +1,10 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.15 adds Family as a seventh genre and narrows the complete rail to
+seven evenly spaced 240-pixel lanes with 210 × 315 portrait artwork. All seven
+choices fit across the established content width without changing the poster
+ratio, caption treatment or peek/lift interaction.
+
 Version 0.8.14 removes the dark caption plates from the genre portraits and
 places each genre name beneath its tile in Aster ink, matching the established
 media-poster treatment while preserving the initial artwork peek.
