@@ -1314,6 +1314,16 @@ opened the complete 83-title Horror Movies view. Kodi remained stable. All 65
 offline tests and every skin/playlist XML validation pass. LibreELEC remains a
 later hardware gate.
 
+Genre-caption alignment, 2026-10-17 (skin v0.8.14): The six genre titles move
+out of the dark image overlays and sit directly beneath their portrait tiles
+in Aster ink, matching the other media-poster grids. Their lower position stays
+outside the initial viewport, preserving the intentional artwork-only peek;
+the captions enter with the focused rail. This is a presentation-only change
+with no library, playlist, service or network mutation. Live visual validation
+confirmed all six captions beneath clean full-height portraits, the Comedy
+focus ring, and the unchanged artwork-only peek. All 65 offline tests and every
+skin/playlist XML validation pass; Kodi remained stable.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

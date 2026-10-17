@@ -1,5 +1,9 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.14 removes the dark caption plates from the genre portraits and
+places each genre name beneath its tile in Aster ink, matching the established
+media-poster treatment while preserving the initial artwork peek.
+
 Version 0.8.13 adds a portrait genre rail beneath Recommended for You. Comedy,
 Drama, Action, Sci-Fi, Documentary and Horror each use a randomly selected,
 slightly washed local movie or TV poster. The rail deliberately peeks into the

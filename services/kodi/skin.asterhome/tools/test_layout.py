@@ -218,9 +218,14 @@ class LayoutTests(unittest.TestCase):
                          ('250', '375'))
         self.assertEqual(int(layout.get('width')) * 6, 1680)
         labels = [node.findtext('label') for node in media_group.findall('control')
-                  if node.get('type') == 'label' and node.findtext('top') == '1358']
+                  if node.get('type') == 'label' and node.findtext('top') == '1420']
         self.assertEqual(labels,
                          ['Comedy', 'Drama', 'Action', 'Sci-Fi', 'Documentary', 'Horror'])
+        self.assertTrue(all(node.findtext('textcolor') == 'asterInk'
+                            for node in media_group.findall('control')
+                            if node.get('type') == 'label' and node.findtext('top') == '1420'))
+        self.assertFalse(any(control.findtext('top') == '302'
+                             for control in template.findall('.//control')))
 
     def test_genre_rail_uses_native_read_only_playlists(self):
         self.assertIsNone(self.home.find('onload'))
