@@ -1,88 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <includes>
-  <!-- Sixty radial pills: one per second. The ring itself defines the dial;
-       sage pills deplete as AsterHub.HomeTimerSecond moves from 60 to 0. -->
-  <include name="AsterTimerPill">
+  <!-- Sixty circular dots: one per second. The ring itself defines the dial;
+       sage dots deplete as AsterHub.HomeTimerSecond moves from 60 to 0. -->
+  <include name="AsterTimerDot">
     <param name="left" />
     <param name="top" />
-    <param name="angle" />
     <param name="threshold" />
     <definition>
       <control type="image">
-        <left>$PARAM[left]</left><top>$PARAM[top]</top><width>10</width><height>28</height>
-        <texture border="5">special://skin/media/ui-progress.png</texture>
-        <colordiffuse>7aD7D2C8</colordiffuse><angle>$PARAM[angle]</angle>
+        <left>$PARAM[left]</left><top>$PARAM[top]</top><width>14</width><height>14</height>
+        <texture border="7">special://skin/media/ui-panel.png</texture>
+        <colordiffuse>7aD7D2C8</colordiffuse>
       </control>
       <control type="image">
-        <left>$PARAM[left]</left><top>$PARAM[top]</top><width>10</width><height>28</height>
-        <texture border="5">special://skin/media/ui-progress.png</texture>
-        <colordiffuse>asterSage</colordiffuse><angle>$PARAM[angle]</angle>
+        <left>$PARAM[left]</left><top>$PARAM[top]</top><width>14</width><height>14</height>
+        <texture border="7">special://skin/media/ui-panel.png</texture>
+        <colordiffuse>asterSage</colordiffuse>
         <visible>String.IsEqual(Window.Property(AsterHub.HomeTimerActive),true) + Integer.IsGreater(Window.Property(AsterHub.HomeTimerSecond),$PARAM[threshold])</visible>
       </control>
     </definition>
   </include>
   <include name="AsterTimerRing">
     <definition>
-      <include content="AsterTimerPill"><param name="left" value="1205" /><param name="top" value="481" /><param name="angle" value="0" /><param name="threshold" value="0" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1224" /><param name="top" value="482" /><param name="angle" value="6" /><param name="threshold" value="1" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1242" /><param name="top" value="485" /><param name="angle" value="12" /><param name="threshold" value="2" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1261" /><param name="top" value="490" /><param name="angle" value="18" /><param name="threshold" value="3" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1278" /><param name="top" value="497" /><param name="angle" value="24" /><param name="threshold" value="4" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1295" /><param name="top" value="505" /><param name="angle" value="30" /><param name="threshold" value="5" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1311" /><param name="top" value="515" /><param name="angle" value="36" /><param name="threshold" value="6" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1325" /><param name="top" value="527" /><param name="angle" value="42" /><param name="threshold" value="7" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1339" /><param name="top" value="541" /><param name="angle" value="48" /><param name="threshold" value="8" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1351" /><param name="top" value="555" /><param name="angle" value="54" /><param name="threshold" value="9" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1361" /><param name="top" value="571" /><param name="angle" value="60" /><param name="threshold" value="10" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1369" /><param name="top" value="588" /><param name="angle" value="66" /><param name="threshold" value="11" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1376" /><param name="top" value="605" /><param name="angle" value="72" /><param name="threshold" value="12" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1381" /><param name="top" value="624" /><param name="angle" value="78" /><param name="threshold" value="13" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1384" /><param name="top" value="642" /><param name="angle" value="84" /><param name="threshold" value="14" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1385" /><param name="top" value="661" /><param name="angle" value="90" /><param name="threshold" value="15" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1384" /><param name="top" value="680" /><param name="angle" value="96" /><param name="threshold" value="16" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1381" /><param name="top" value="698" /><param name="angle" value="102" /><param name="threshold" value="17" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1376" /><param name="top" value="717" /><param name="angle" value="108" /><param name="threshold" value="18" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1369" /><param name="top" value="734" /><param name="angle" value="114" /><param name="threshold" value="19" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1361" /><param name="top" value="751" /><param name="angle" value="120" /><param name="threshold" value="20" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1351" /><param name="top" value="767" /><param name="angle" value="126" /><param name="threshold" value="21" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1339" /><param name="top" value="781" /><param name="angle" value="132" /><param name="threshold" value="22" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1325" /><param name="top" value="795" /><param name="angle" value="138" /><param name="threshold" value="23" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1311" /><param name="top" value="807" /><param name="angle" value="144" /><param name="threshold" value="24" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1295" /><param name="top" value="817" /><param name="angle" value="150" /><param name="threshold" value="25" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1278" /><param name="top" value="825" /><param name="angle" value="156" /><param name="threshold" value="26" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1261" /><param name="top" value="832" /><param name="angle" value="162" /><param name="threshold" value="27" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1242" /><param name="top" value="837" /><param name="angle" value="168" /><param name="threshold" value="28" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1224" /><param name="top" value="840" /><param name="angle" value="174" /><param name="threshold" value="29" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1205" /><param name="top" value="841" /><param name="angle" value="180" /><param name="threshold" value="30" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1186" /><param name="top" value="840" /><param name="angle" value="186" /><param name="threshold" value="31" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1168" /><param name="top" value="837" /><param name="angle" value="192" /><param name="threshold" value="32" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1149" /><param name="top" value="832" /><param name="angle" value="198" /><param name="threshold" value="33" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1132" /><param name="top" value="825" /><param name="angle" value="204" /><param name="threshold" value="34" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1115" /><param name="top" value="817" /><param name="angle" value="210" /><param name="threshold" value="35" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1099" /><param name="top" value="807" /><param name="angle" value="216" /><param name="threshold" value="36" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1085" /><param name="top" value="795" /><param name="angle" value="222" /><param name="threshold" value="37" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1071" /><param name="top" value="781" /><param name="angle" value="228" /><param name="threshold" value="38" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1059" /><param name="top" value="767" /><param name="angle" value="234" /><param name="threshold" value="39" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1049" /><param name="top" value="751" /><param name="angle" value="240" /><param name="threshold" value="40" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1041" /><param name="top" value="734" /><param name="angle" value="246" /><param name="threshold" value="41" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1034" /><param name="top" value="717" /><param name="angle" value="252" /><param name="threshold" value="42" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1029" /><param name="top" value="698" /><param name="angle" value="258" /><param name="threshold" value="43" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1026" /><param name="top" value="680" /><param name="angle" value="264" /><param name="threshold" value="44" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1025" /><param name="top" value="661" /><param name="angle" value="270" /><param name="threshold" value="45" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1026" /><param name="top" value="642" /><param name="angle" value="276" /><param name="threshold" value="46" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1029" /><param name="top" value="624" /><param name="angle" value="282" /><param name="threshold" value="47" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1034" /><param name="top" value="605" /><param name="angle" value="288" /><param name="threshold" value="48" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1041" /><param name="top" value="588" /><param name="angle" value="294" /><param name="threshold" value="49" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1049" /><param name="top" value="571" /><param name="angle" value="300" /><param name="threshold" value="50" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1059" /><param name="top" value="555" /><param name="angle" value="306" /><param name="threshold" value="51" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1071" /><param name="top" value="541" /><param name="angle" value="312" /><param name="threshold" value="52" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1085" /><param name="top" value="527" /><param name="angle" value="318" /><param name="threshold" value="53" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1099" /><param name="top" value="515" /><param name="angle" value="324" /><param name="threshold" value="54" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1115" /><param name="top" value="505" /><param name="angle" value="330" /><param name="threshold" value="55" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1132" /><param name="top" value="497" /><param name="angle" value="336" /><param name="threshold" value="56" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1149" /><param name="top" value="490" /><param name="angle" value="342" /><param name="threshold" value="57" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1168" /><param name="top" value="485" /><param name="angle" value="348" /><param name="threshold" value="58" /></include>
-      <include content="AsterTimerPill"><param name="left" value="1186" /><param name="top" value="482" /><param name="angle" value="354" /><param name="threshold" value="59" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1203" /><param name="top" value="488" /><param name="threshold" value="0" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1222" /><param name="top" value="489" /><param name="threshold" value="1" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1240" /><param name="top" value="492" /><param name="threshold" value="2" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1259" /><param name="top" value="497" /><param name="threshold" value="3" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1276" /><param name="top" value="504" /><param name="threshold" value="4" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1293" /><param name="top" value="512" /><param name="threshold" value="5" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1309" /><param name="top" value="522" /><param name="threshold" value="6" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1323" /><param name="top" value="534" /><param name="threshold" value="7" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1337" /><param name="top" value="548" /><param name="threshold" value="8" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1349" /><param name="top" value="562" /><param name="threshold" value="9" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1359" /><param name="top" value="578" /><param name="threshold" value="10" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1367" /><param name="top" value="595" /><param name="threshold" value="11" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1374" /><param name="top" value="612" /><param name="threshold" value="12" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1379" /><param name="top" value="631" /><param name="threshold" value="13" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1382" /><param name="top" value="649" /><param name="threshold" value="14" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1383" /><param name="top" value="668" /><param name="threshold" value="15" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1382" /><param name="top" value="687" /><param name="threshold" value="16" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1379" /><param name="top" value="705" /><param name="threshold" value="17" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1374" /><param name="top" value="724" /><param name="threshold" value="18" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1367" /><param name="top" value="741" /><param name="threshold" value="19" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1359" /><param name="top" value="758" /><param name="threshold" value="20" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1349" /><param name="top" value="774" /><param name="threshold" value="21" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1337" /><param name="top" value="788" /><param name="threshold" value="22" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1323" /><param name="top" value="802" /><param name="threshold" value="23" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1309" /><param name="top" value="814" /><param name="threshold" value="24" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1293" /><param name="top" value="824" /><param name="threshold" value="25" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1276" /><param name="top" value="832" /><param name="threshold" value="26" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1259" /><param name="top" value="839" /><param name="threshold" value="27" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1240" /><param name="top" value="844" /><param name="threshold" value="28" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1222" /><param name="top" value="847" /><param name="threshold" value="29" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1203" /><param name="top" value="848" /><param name="threshold" value="30" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1184" /><param name="top" value="847" /><param name="threshold" value="31" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1166" /><param name="top" value="844" /><param name="threshold" value="32" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1147" /><param name="top" value="839" /><param name="threshold" value="33" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1130" /><param name="top" value="832" /><param name="threshold" value="34" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1113" /><param name="top" value="824" /><param name="threshold" value="35" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1097" /><param name="top" value="814" /><param name="threshold" value="36" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1083" /><param name="top" value="802" /><param name="threshold" value="37" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1069" /><param name="top" value="788" /><param name="threshold" value="38" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1057" /><param name="top" value="774" /><param name="threshold" value="39" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1047" /><param name="top" value="758" /><param name="threshold" value="40" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1039" /><param name="top" value="741" /><param name="threshold" value="41" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1032" /><param name="top" value="724" /><param name="threshold" value="42" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1027" /><param name="top" value="705" /><param name="threshold" value="43" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1024" /><param name="top" value="687" /><param name="threshold" value="44" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1023" /><param name="top" value="668" /><param name="threshold" value="45" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1024" /><param name="top" value="649" /><param name="threshold" value="46" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1027" /><param name="top" value="631" /><param name="threshold" value="47" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1032" /><param name="top" value="612" /><param name="threshold" value="48" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1039" /><param name="top" value="595" /><param name="threshold" value="49" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1047" /><param name="top" value="578" /><param name="threshold" value="50" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1057" /><param name="top" value="562" /><param name="threshold" value="51" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1069" /><param name="top" value="548" /><param name="threshold" value="52" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1083" /><param name="top" value="534" /><param name="threshold" value="53" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1097" /><param name="top" value="522" /><param name="threshold" value="54" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1113" /><param name="top" value="512" /><param name="threshold" value="55" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1130" /><param name="top" value="504" /><param name="threshold" value="56" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1147" /><param name="top" value="497" /><param name="threshold" value="57" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1166" /><param name="top" value="492" /><param name="threshold" value="58" /></include>
+      <include content="AsterTimerDot"><param name="left" value="1184" /><param name="top" value="489" /><param name="threshold" value="59" /></include>
     </definition>
   </include>
 </includes>

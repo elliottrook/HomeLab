@@ -185,6 +185,13 @@ def timer_display(remaining):
     return digital, str(ring)
 
 
+TIMER_PRESETS = {
+    'timer_1': (60, 'One minute timer'),
+    'timer_5': (5 * 60, 'Five minute timer'),
+    'timer_30': (30 * 60, 'Thirty minute timer'),
+}
+
+
 def sync_digest_window(xbmc, window):
     """One short, alarm-triggered sync; never leaves a Python worker running."""
     try:
@@ -246,23 +253,26 @@ def main(page, action='refresh'):
             xbmc.executebuiltin('CancelAlarm(AsterTimerTest,silent)')
             window.setProperty('AsterHub.HomeTimerActive', 'false')
             window.setProperty('AsterHub.HomeTimerDeadline', '')
-            window.setProperty('AsterHub.HomeTimerLabel', 'Visual test complete')
-            window.setProperty('AsterHub.Status', 'Synthetic 60-second timer completed')
+            name = window.getProperty('AsterHub.HomeTimerName') or 'Timer'
+            window.setProperty('AsterHub.HomeTimerLabel', 'Complete')
+            window.setProperty('AsterHub.Status', f'{name} complete')
         return
-    if page == 'home' and action in ('timer_test', 'timer_stop'):
+    if page == 'home' and action in (*TIMER_PRESETS, 'timer_stop'):
         xbmc.executebuiltin('CancelAlarm(AsterTimerTest,silent)')
         if action == 'timer_stop':
             window.setProperty('AsterHub.HomeTimerActive', 'false')
             window.setProperty('AsterHub.HomeTimerDeadline', '')
             return
-        deadline = datetime.now(timezone.utc).timestamp() + 60
-        digital, ring = timer_display(60)
+        duration, name = TIMER_PRESETS[action]
+        deadline = datetime.now(timezone.utc).timestamp() + duration
+        digital, ring = timer_display(duration)
         window.setProperty('AsterHub.HomeTimerDigital', digital)
         window.setProperty('AsterHub.HomeTimerSecond', ring)
         window.setProperty('AsterHub.HomeTimerDeadline', str(deadline))
         window.setProperty('AsterHub.HomeTimerActive', 'true')
-        window.setProperty('AsterHub.HomeTimerLabel', 'Synthetic visual test')
-        window.setProperty('AsterHub.Status', 'Synthetic 60-second timer · no household action')
+        window.setProperty('AsterHub.HomeTimerName', name)
+        window.setProperty('AsterHub.HomeTimerLabel', 'Local visual timer')
+        window.setProperty('AsterHub.Status', f'{name} · local visual timer · no household action')
         xbmc.executebuiltin('AlarmClock(AsterTimerTest,RunScript('
                            'special://skin/tools/hub_data.py,home,timer_tick),'
                            '00:01,silent,loop)')
@@ -485,7 +495,8 @@ def main(page, action='refresh'):
     for field, fallback in (('LightLabel', 'Lighting'), ('LightValue', 'Unavailable'),
                             ('TemperatureLabel', 'Indoor comfort'),
                             ('TemperatureValue', 'Unavailable'), ('CameraLabel', 'Cameras'),
-                            ('CameraStatus', 'Unavailable'), ('TimerLabel', 'No active timer'),
+                            ('CameraStatus', 'Unavailable'), ('TimerName', 'No active timer'),
+                            ('TimerLabel', 'Not connected'),
                             ('TimerDigital', '--:--'), ('TimerSecond', '0'),
                             ('TimerActive', 'false')):
         window.setProperty('AsterHub.Home' + field, fallback)

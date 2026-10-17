@@ -1,5 +1,11 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.5 replaces the perspective-sensitive radial pills with unrotated
+circular dots. It adds a dedicated timer-name line and three bounded local
+visual presets—1, 5 and 30 minutes—without calling Home Assistant or performing
+any household action. The name field also reserves the Home Assistant timer
+helper's validated friendly name for the later read-only connection.
+
 Version 0.8.4 turns the timer into a larger, full-height black feature panel.
 The separate circular face is removed: a wider, mathematically circular ring
 of sixty longer pills now supplies the entire clock silhouette around the

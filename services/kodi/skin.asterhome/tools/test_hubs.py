@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import unittest
 import xml.etree.ElementTree as ET
-from hub_data import (CAMERA_PILOT_SECONDS, CAMERA_PILOT_URL, WINDOWS,
+from hub_data import (CAMERA_PILOT_SECONDS, CAMERA_PILOT_URL, TIMER_PRESETS, WINDOWS,
                       cached_digest_audio, digest_view, show_digest_story,
                       story_at_elapsed, story_for_playback, sync_digest_window,
                       timer_display)
@@ -94,6 +94,13 @@ class HubTests(unittest.TestCase):
         for invalid in (True, 1.5, '60'):
             with self.assertRaises(ValueError):
                 timer_display(invalid)
+
+    def test_timer_presets_are_named_and_bounded(self):
+        self.assertEqual(TIMER_PRESETS, {
+            'timer_1': (60, 'One minute timer'),
+            'timer_5': (300, 'Five minute timer'),
+            'timer_30': (1800, 'Thirty minute timer'),
+        })
 
     def test_selected_story_survives_pre_seek_window_refresh(self):
         stories = [{'start': value} for value in (4, 62, 131)]
@@ -229,7 +236,8 @@ class HubTests(unittest.TestCase):
             'LightLabel': 'Laundry Lights', 'LightValue': 'On',
             'TemperatureLabel': 'Hall Temperature', 'TemperatureValue': '20.6°C',
             'CameraLabel': 'Front Of House', 'CameraStatus': 'Online',
-            'TimerLabel': 'No active timer', 'TimerDigital': '--:--',
+            'TimerName': 'No active timer', 'TimerLabel': 'Not connected',
+            'TimerDigital': '--:--',
             'TimerSecond': '0', 'TimerActive': 'false'})
         payload['snapshot']['temperatures'][0]['value'] = float('nan')
         with self.assertRaises(ValueError):
@@ -304,8 +312,9 @@ class HubTests(unittest.TestCase):
         camera_actions = [node.text for node in home.findall('.//onclick')]
         self.assertIn('RunScript(special://skin/tools/hub_data.py,home,camera)',
                       camera_actions)
-        self.assertIn('RunScript(special://skin/tools/hub_data.py,home,timer_test)',
-                      camera_actions)
+        for preset in ('timer_1', 'timer_5', 'timer_30'):
+            self.assertIn(f'RunScript(special://skin/tools/hub_data.py,home,{preset})',
+                          camera_actions)
         self.assertEqual(home.getroot().findtext('onunload'),
                          'RunScript(special://skin/tools/hub_data.py,home,home_stop)')
         timer_cards = [node for node in home.findall('.//control[@type="image"]')
@@ -324,13 +333,13 @@ class HubTests(unittest.TestCase):
                          1210)
         self.assertEqual(int(digital.findtext('top')) + int(digital.findtext('height')) // 2,
                          675)
+        self.assertTrue(any('AsterHub.HomeTimerName' in label for label in labels))
         ring = ET.parse(ROOT / '1080i/IncludesTimer.xml')
-        pills = ring.findall('.//include[@content="AsterTimerPill"]')
-        self.assertEqual(len(pills), 60)
+        dots = ring.findall('.//include[@content="AsterTimerDot"]')
+        self.assertEqual(len(dots), 60)
         self.assertEqual([int(node.find("param[@name='threshold']").get('value'))
-                          for node in pills], list(range(60)))
-        self.assertTrue(all(node.find("param[@name='angle']") is not None
-                            for node in pills))
+                          for node in dots], list(range(60)))
+        self.assertTrue(all(node.find("param[@name='angle']") is None for node in dots))
         self.assertIsNotNone(home.find('.//control[@id="500"]'))
 
     def test_all_runtime_assets_exist(self):
