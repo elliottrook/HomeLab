@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-10-17 — ARR stack configuration remediation
+
+- Repaired Bazarr's Sonarr/Radarr synchronization by adding only the exact
+  Docker service identities to Allowed Hosts. Two sync passes and both SignalR
+  feeds passed while an arbitrary Host remained rejected.
+- Pinned the eight scoped container images by digest, refreshed Lidarr on its
+  stable 3.1.0-ls43 image rather than the upstream prerelease, added local
+  health checks, removed Prowlarr's unused media mount and bound recovery ports
+  only to `192.168.20.40`.
+- Corrected scoped service timezone from a malformed inherited value to
+  `America/Vancouver`, returned ARR/Seerr logging to info, and disabled Bazarr
+  analytics/self-update. Historical log databases were preserved.
+- Enabled information-preserving Sonarr/Radarr naming for future imports only.
+  No media was bulk-renamed, moved or deleted; no queue record was retried or
+  dismissed. The remaining Lidarr warning is a safe 49.3% track-match refusal
+  below its 60% threshold.
+
 ## 2026-10-14 — Media Acquisition Hub refresh-quality maintenance
 
 - Started approved Stream A M6 maintenance after read-only evidence showed a

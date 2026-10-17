@@ -1,7 +1,7 @@
 # ARR Stack Operational Reference
 
 > Authority: current-with-exclusions
-> Reviewed: 2026-10-08
+> Reviewed: 2026-10-17
 > Review owner: HomeLab operations
 
 This page is the current operational reference for Aster's ARR curriculum. It
@@ -30,9 +30,10 @@ is more convenient.
 
 ## Current service inventory
 
-All six services run as Docker containers on TrueNAS at `192.168.20.40`.
-Their listeners are host-published on both IPv4 and IPv6; OPNsense remains the
-inter-VLAN policy boundary. The containers use the shared host tree
+The services run as Docker containers on TrueNAS at `192.168.20.40`.
+ARR, downloader, subtitle, request and profile recovery listeners bind only
+that IPv4 application address; OPNsense remains the inter-VLAN policy boundary.
+The containers use the shared host tree
 `/mnt/Media/data` for media workflow data. Configuration volumes and exact
 credentials are outside this reference.
 
@@ -40,7 +41,7 @@ credentials are outside this reference.
 |---|---:|---:|---|---|---|
 | Sonarr | 4.0.20.3014 (`ls326`) | 8989 | TV monitoring, search, completed-download import, naming and library management | `/mnt/Media/data/media/tv` | Receives indexer configuration through Prowlarr and imports completed SABnzbd TV downloads |
 | Radarr | 6.4.4.10685 (`ls318`) | 7878 | Movie monitoring, search, completed-download import, naming and library management | `/mnt/Media/data/media/movies` | Receives indexer configuration through Prowlarr and imports completed SABnzbd movie downloads |
-| Lidarr | 3.1.0.4875 (`ls39`) | 8686 | Album-oriented music monitoring, acquisition, import, metadata and naming | `/mnt/Media/data/media/music` | Uses the shared Prowlarr/SABnzbd acquisition path; requests and imports are album-scoped |
+| Lidarr | 3.1.0.4875 (`ls43`) | 8686 | Album-oriented music monitoring, acquisition, import, metadata and naming | `/mnt/Media/data/media/music` | Uses the shared Prowlarr/SABnzbd acquisition path; requests and imports are album-scoped |
 | Prowlarr | 2.6.5.5623 (`ls162`) | 9696 | Indexer authority and application synchronization | No media-library root | Synchronizes indexer definitions to connected ARR applications; it is upstream of search/grab, not the downloader |
 | SABnzbd | 5.1.3 | 8080 | Download queue, unpack/post-processing and handoff | No canonical library root; working data remains under the shared dataset | Downloads for the ARR applications; completion is not proof that an ARR import succeeded |
 | Jellyfin | 12.1.0 (live check 2026-09-26) | 8096 | Downstream library scan, metadata match and playback visibility | Movies, Shows and Music roots above, plus `/mnt/Media/data/archive-movies` and `/mnt/Media/data/archive-tv` | No downloader authority; observes files only after ARR import or an explicitly managed side workflow |
@@ -105,6 +106,9 @@ must not infer titles, causes or import state from these aggregate counts.
   explicitly labelled services are eligible for unattended image updates.
   Critical ARR, downloader, request and custom media services are not included
   in that automatic update set.
+- Scoped production images are pinned by immutable digest in the deployed
+  Compose definitions. Updating a tag in a registry does not change a running
+  service; HomeLab operations owns checkpointed maintenance-window updates.
 - Jellyfin runs native library and metadata maintenance. Its destructive
   “Clean up collections and playlists” trigger remains disabled and is checked
   for drift by `jellyfin-integrity`.
@@ -168,6 +172,40 @@ counters for Sonarr, Radarr and Lidarr. It still excludes titles, paths,
 release names, queue IDs, API keys and raw responses. The first post-change
 report was generated at `2026-10-08T23:52:57Z` and delivered through the
 existing forced-command transport.
+
+## Configuration remediation — 2026-10-17
+
+The Docker-internal `sonarr` and `radarr` identities are now explicit members
+of the corresponding Allowed Hosts policies, in addition to the private FQDN
+and direct `192.168.20.40` recovery address. This repaired Bazarr's hourly API
+sync and SignalR feeds without accepting arbitrary Host headers. Two manual
+Sonarr/Radarr sync passes completed without the former response-decoding error;
+an unrelated Host still returns HTTP 400.
+
+Sonarr and Radarr rename future imports and include the parsed quality plus a
+conditional release-group suffix. Existing media was not bulk-renamed. Profilarr
+continues to own profiles and custom formats; naming remains application-local.
+
+The scoped Compose definitions now use immutable image digests, bind recovery
+ports only to `192.168.20.40`, and set `America/Vancouver` explicitly rather
+than inheriting the malformed shared `America/Vancouver#comment` value. Sonarr,
+Radarr, Lidarr, Prowlarr, SABnzbd and Bazarr have local HTTP health checks;
+Seerr retains its existing check and Profilarr retains its image-provided check.
+Prowlarr's unused read/write media mount was removed after live file-descriptor
+and configuration-reference counts both returned zero.
+
+ARR and Seerr logging is `info`; Bazarr debug logging, analytics and application
+self-update are disabled. Historical ARR log databases were deliberately not
+deleted even though the Sonarr and Radarr log databases have large sparse-file
+sizes. SABnzbd's history database measured only 2.8 MB, so no retention change
+was justified.
+
+LinuxServer's stable Lidarr image advanced from `3.1.0.4875-ls42` to `ls43`.
+Upstream `3.1.5.5066` was identified as a prerelease and was not deployed. The
+fresh report at `2026-10-17T08:04:08Z` showed Sonarr, Radarr, Prowlarr, SABnzbd
+and Jellyfin healthy. Lidarr retained one safe import refusal caused by a 49.3%
+track match below its 60% threshold amid normal live queue activity; it was not
+retried, dismissed or forced.
 
 ## Configuration recovery — 2026-09-26
 
