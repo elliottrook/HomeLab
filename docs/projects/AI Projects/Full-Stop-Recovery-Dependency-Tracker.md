@@ -20,7 +20,15 @@ resolved; this is not an F3/F6/F7 pass or live approval. The owner also
 integrated the missed-window record and the uninstalled read-only observer
 source in local commits `11764480` and `b254bd02`.
 
-## What will happen automatically
+## Current next action and historical sequence
+
+The **only active overnight action** is a one-time, supervised, read-only F2
+check for October 17. Its 01:05 preflight can start the installed guard once
+between 01:10 and 01:19 only if every fresh-cycle gate passes; otherwise it
+records NO-GO. It will pause after this cycle. No receipt or drill is
+scheduled. The paragraphs below preserve the earlier failed and corrected
+paths as provenance; their earlier “uninstalled” descriptions are historical,
+not the current installed state.
 
 The October 16 01:10 read-only archive heartbeat triggered, but no complete
 three-archive result was retained by the time Stream A resumed after the
@@ -134,7 +142,7 @@ the end of that backup cycle.
 |---|---|---|---|
 | F0 | **Pinned inactive compatibility source** | Source pins, seven-file rollback checkpoint, 12 installed modules and two heartbeat units match reviewed bytes; no lease/lock or production change. | [x] DONE — `services/local-ai-lease/FULL-STOP-COMPATIBILITY-DISABLED-INSTALL-RESULT-20261015.md` on platform branch; separate local `codex/aster-lease-compat` branch. |
 | F1 | **Target-Linux synthetic compatibility**, after F0 | Installed-path imports, admission-record round-trip, old-dependency compatibility, watchdog/recovery and archive tests; timers stay inactive. | [x] DONE — same result; synthetic tests only. |
-| F2 | **New-cycle read-only archive timing**, after successful 00:30 Proxmox job and 01:00 TrueNAS task 1 | Exact current-cycle 104/110/116 identities; three bounded `zstd -t` exit-0 results before the deadline, without competing work. Failure/unknown/partial is NO-GO. | [ ] UNKNOWN / NO-GO for October 16 — heartbeat triggered, but no complete retained 104/110/116 result was found and the start window elapsed. See [dated evidence](evidence/Full-stop-archive-window-missed-2026-10-16.md). The previous October 15 scan was partial. |
+| F2 | **New-cycle read-only archive timing**, after successful 00:30 Proxmox job and 01:00 TrueNAS task 1 | Exact current-cycle 104/110/116 identities; three bounded `zstd -t` exit-0 results before the deadline, without competing work. Failure/unknown/partial is NO-GO. | [ ] NO-GO until a complete result. October 16 was UNKNOWN/NO-GO after the [missed window](evidence/Full-stop-archive-window-missed-2026-10-16.md); October 15 was partial. One conditional supervised October 17 check is approved and scheduled, but its backup/result gates are not yet observed. |
 | F3 | **Trusted retained-receipt release**, after F0/F1 and timing review | A separately reviewed, hash-pinned producer can write a root-owned mode-0600 receipt in a mode-0700 directory only after all fixed source, whole-job, task-1, archive identity/integrity and deadline checks pass. Partial/late scans leave no success receipt. Test the actual installed path and rollback; obtain bounded host-change approval. | [ ] BLOCKED — the source-only dual-gated receipt CLI candidate (`codex/aster-lease-compat` at `7f1c15a4`) passed offline tests but is uninstalled and effect-disabled. The corrected producer is installed only for read-only F2 observation; no trusted receipt was produced. F2 alone cannot satisfy F3. |
 | F4 | **Fresh trusted receipt for the drill cycle**, after F3 and that cycle's backup/task 1 | Complete current-cycle receipt exists, is independently re-read and bound to the same archive identities; stale, replaced or incomplete files fail closed. | [ ] BLOCKED by F3 and next eligible backup cycle. No October 15 receipt exists. |
 | F5 | **03:05 full preflight**, after F4 and 02:00/03:00 TrueNAS tasks | Fixed schedules and same-cycle job completions; exact LXC110 mirror; three consumers still running; no conflicting lease/job; pinned Qwen3.5-9B Q4_K_M, llama.cpp b11429 SYCL/Level Zero, GPU, unit and authentication state; News timer active/enabled and job idle. Save non-secret baseline for restoration. | [ ] BLOCKED by F4; must be observed afresh in the chosen cycle. |
@@ -181,6 +189,6 @@ observation or a pinned source/test result. A scheduler `SUCCESS`, file
 presence, synthetic test or another agent's proposal cannot substitute for a
 fresh receipt or actual post-recovery checks. Commit scoped status changes
 locally; remote publication follows the repository's per-push approval rule.
-The read-only October 16 automation must record and report any failed scan
+The read-only October 17 automation must record and report any failed scan
 prerequisite or incomplete result and pause after that one run. The platform
 owner must report any F3–F9 failure during its own reviewed release/drill.
