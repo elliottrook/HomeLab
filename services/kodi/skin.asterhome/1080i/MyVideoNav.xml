@@ -150,10 +150,6 @@
       <texture border="20">special://skin/media/ui-panel.png</texture>
       <colordiffuse>e6f2ede4</colordiffuse>
     </control>
-    <control type="image">
-      <left>75</left><top>502</top><width>280</width><height>56</height>
-      <texture>special://skin/media/ui-limestone-panel.png</texture>
-    </control>
     <control type="label">
       <left>85</left>
       <top>512</top>
@@ -161,8 +157,9 @@
       <height>40</height>
       <label>Search &amp; filter</label>
       <font>font24</font>
-      <textcolor>asterInk</textcolor>
+      <textcolor>asterMuted</textcolor>
     </control>
+    <include content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="564" /><param name="innerleft" value="87" /><param name="innertop" value="566" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
     <control type="edit" id="19">
       <left>85</left>
       <top>564</top>
@@ -170,14 +167,18 @@
       <height>56</height>
       <hinttext>Search titles…</hinttext>
       <font>font20</font>
-      <textcolor>asterInk</textcolor>
+      <textcolor>asterIvory</textcolor>
       <focusedcolor>asterInk</focusedcolor>
       <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-      <texturenofocus>special://skin/media/ui-limestone-panel.png</texturenofocus>
+      <texturenofocus>none</texturenofocus>
       <onright>50</onright>
       <onup>9100</onup>
       <ondown>9200</ondown>
     </control>
+    <include content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="636" /><param name="innerleft" value="87" /><param name="innertop" value="638" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+    <include content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="708" /><param name="innerleft" value="87" /><param name="innertop" value="710" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+    <include content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="780" /><param name="innerleft" value="87" /><param name="innertop" value="782" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+    <include content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="852" /><param name="innerleft" value="87" /><param name="innertop" value="854" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
     <control type="button" id="9001">
       <left>85</left>
       <top>780</top>

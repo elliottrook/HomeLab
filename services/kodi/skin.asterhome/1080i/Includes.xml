@@ -144,12 +144,35 @@
         <texturenofocus>special://skin/media/ui-limestone-panel.png</texturenofocus>
         <ondown>120</ondown>
     </include>
+    <include name="AsterClockPill">
+        <param name="top" default="32" />
+        <param name="innertop" default="34" />
+        <definition>
+            <control type="image"><left>1750</left><top>$PARAM[top]</top><width>146</width><height>44</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>75cbb991</colordiffuse></control>
+            <control type="image"><left>1752</left><top>$PARAM[innertop]</top><width>142</width><height>40</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>e029302b</colordiffuse></control>
+            <control type="label"><left>1750</left><top>$PARAM[top]</top><width>146</width><height>44</height><label>$INFO[System.Time(HH:mm)]</label><font>font20</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny></control>
+        </definition>
+    </include>
+    <include name="AsterQuietFieldBackplate">
+        <param name="left" default="0" />
+        <param name="top" default="0" />
+        <param name="width" default="260" />
+        <param name="height" default="56" />
+        <param name="innerleft" default="2" />
+        <param name="innertop" default="2" />
+        <param name="innerwidth" default="256" />
+        <param name="innerheight" default="52" />
+        <definition>
+            <control type="image"><left>$PARAM[left]</left><top>$PARAM[top]</top><width>$PARAM[width]</width><height>$PARAM[height]</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>75cbb991</colordiffuse></control>
+            <control type="image"><left>$PARAM[innerleft]</left><top>$PARAM[innertop]</top><width>$PARAM[innerwidth]</width><height>$PARAM[innerheight]</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>e029302b</colordiffuse></control>
+        </definition>
+    </include>
     <include name="AsterFilterButton">
         <width>260</width><height>56</height><font>font24</font>
         <align>center</align><aligny>center</aligny>
-        <textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
+        <textcolor>asterIvory</textcolor><focusedcolor>asterInk</focusedcolor>
         <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus>special://skin/media/ui-limestone-panel.png</texturenofocus>
+        <texturenofocus>none</texturenofocus>
     </include>
     <include name="AsterKeyboardActionButton">
         <width>190</width><height>56</height><font>font24</font>

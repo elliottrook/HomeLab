@@ -77,27 +77,7 @@
             <texture>special://skin/media/27-aster-media-logo.png</texture>
             <aspectratio>keep</aspectratio>
         </control>
-        <control type="image">
-            <left>1750</left><top>32</top><width>146</width><height>44</height>
-            <texture border="20">special://skin/media/ui-panel.png</texture>
-            <colordiffuse>75cbb991</colordiffuse>
-        </control>
-        <control type="image">
-            <left>1752</left><top>34</top><width>142</width><height>40</height>
-            <texture border="20">special://skin/media/ui-panel.png</texture>
-            <colordiffuse>e029302b</colordiffuse>
-        </control>
-        <control type="label">
-            <left>1750</left>
-            <top>32</top>
-            <width>146</width>
-            <height>44</height>
-            <label>$INFO[System.Time(HH:mm)]</label>
-            <font>font20</font>
-            <textcolor>asterIvory</textcolor>
-            <align>center</align>
-            <aligny>center</aligny>
-        </control>
+        <include content="AsterClockPill" />
 
         <!-- Hero copy -->
         <control type="label">

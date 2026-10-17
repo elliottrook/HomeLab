@@ -1273,6 +1273,20 @@ validation showed the enlarged dial filling the existing card, all sixty pills
 evenly spaced, and the `--:--` reader centred in both axes; Kodi loaded v0.8.2
 and its custom Home window without a skin error. The 60-test suite also passed.
 
+Home dashboard first-pass close-out, 2026-10-17 (skin v0.8.11): The
+camera **Live view** action now shares the timer preset lane, top coordinate
+and height. All six page clocks use one 24-hour charcoal pill with the same
+subtle two-pixel gold outline first established on Aster Media. Search and
+filter controls across media, music, books and the on-screen keyboard now use
+the same quieter charcoal-and-gold language; limestone texture remains on
+major navigation and primary actions rather than utility fields. This is a
+skin-only, reversible presentation change with no service, media, camera,
+Home Assistant, credential or network mutation. Live Mac Kodi validation
+confirmed the aligned Home action lane, the outlined 24-hour clock on Media
+and Home, and the new media search controls in focused and idle states. All 63
+offline tests and every skin XML validation pass. LibreELEC remains a later
+hardware gate.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

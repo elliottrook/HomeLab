@@ -26,15 +26,17 @@
       <font>font28</font>
       <textcolor>asterInk</textcolor>
     </control>
+    <include content="AsterQuietFieldBackplate"><param name="left" value="290" /><param name="top" value="430" /><param name="width" value="1300" /><param name="height" value="70" /><param name="innerleft" value="292" /><param name="innertop" value="432" /><param name="innerwidth" value="1296" /><param name="innerheight" value="66" /></include>
     <control type="edit" id="312">
       <left>290</left>
       <top>430</top>
       <width>1300</width>
       <height>70</height>
       <font>font28</font>
-      <textcolor>asterInk</textcolor>
-      <texturefocus border="20" colordiffuse="asterPaper">special://skin/media/ui-panel.png</texturefocus>
-      <texturenofocus border="20" colordiffuse="asterPaper">special://skin/media/ui-panel.png</texturenofocus>
+      <textcolor>asterIvory</textcolor>
+      <focusedcolor>asterInk</focusedcolor>
+      <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
+      <texturenofocus>none</texturenofocus>
       <ondown>100</ondown>
     </control>
     <control type="button" id="100">

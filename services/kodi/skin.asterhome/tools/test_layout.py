@@ -98,13 +98,15 @@ class LayoutTests(unittest.TestCase):
             self.assertEqual(header[:8], b'\x89PNG\r\n\x1a\n')
             self.assertEqual(struct.unpack('!II', header[16:24]), (220, 330))
 
-    def test_limestone_surface_is_button_sized_and_reused(self):
+    def test_limestone_surface_is_button_sized_and_reserved_for_major_actions(self):
         panel = ROOT / 'media/ui-limestone-panel.png'
         header = panel.read_bytes()[:24]
         self.assertEqual(header[:8], b'\x89PNG\r\n\x1a\n')
         self.assertEqual(struct.unpack('!II', header[16:24]), (280, 56))
-        for name in ('Home.xml', 'MyVideoNav.xml', 'Includes.xml'):
+        for name in ('Home.xml', 'Includes.xml', 'custom_1112_home.xml'):
             self.assertIn('ui-limestone-panel.png', (ROOT / '1080i' / name).read_text())
+        self.assertNotIn('ui-limestone-panel.png',
+                         (ROOT / '1080i/MyVideoNav.xml').read_text())
 
     def test_expanded_menu_preserves_dimmed_artwork(self):
         fanart = self.home.find('.//control[@id="12"]')
@@ -117,12 +119,24 @@ class LayoutTests(unittest.TestCase):
         self.assertIn('Control.HasFocus(8999)', overlays[0].findtext('visible'))
         self.assertEqual(overlays[0].findtext('texture'), 'special://skin/media/ui-solid.png')
 
-    def test_filter_heading_uses_small_stone_surface(self):
-        panels = [control for control in self.browse.findall('.//control')
-                  if control.findtext('texture') == 'special://skin/media/ui-limestone-panel.png']
-        self.assertTrue(any(control.findtext('width') == '280' and
-                            control.findtext('height') == '56' and
-                            control.findtext('top') == '502' for control in panels))
+    def test_search_controls_use_quiet_charcoal_and_gold_language(self):
+        includes = ET.parse(ROOT / '1080i/Includes.xml')
+        filter_button = includes.find('.//include[@name="AsterFilterButton"]')
+        self.assertEqual(filter_button.findtext('textcolor'), 'asterIvory')
+        self.assertEqual(filter_button.findtext('texturenofocus'), 'none')
+        backplate = includes.find('.//include[@name="AsterQuietFieldBackplate"]/definition')
+        self.assertEqual([node.findtext('colordiffuse') for node in backplate.findall('control')],
+                         ['75cbb991', 'e029302b'])
+        for name, minimum in (('MyVideoNav.xml', 5), ('IncludesBooks.xml', 2),
+                              ('IncludesMusic.xml', 2), ('DialogKeyboard.xml', 1)):
+            root = ET.parse(ROOT / '1080i' / name)
+            fields = [node for node in root.findall('.//include')
+                      if node.get('content') == 'AsterQuietFieldBackplate']
+            self.assertGreaterEqual(len(fields), minimum, name)
+        self.assertFalse(any(control.findtext('texture') ==
+                             'special://skin/media/ui-limestone-panel.png' and
+                             control.findtext('top') == '502'
+                             for control in self.browse.findall('.//control')))
 
     def test_media_hero_fades_to_plain_stone_colour(self):
         colours = ET.parse(ROOT / 'colors/defaults.xml')
@@ -136,21 +150,22 @@ class LayoutTests(unittest.TestCase):
             self.assertEqual(len(fades), 1, name)
             self.assertEqual(fades[0].findtext('colordiffuse'), 'asterStone', name)
 
-    def test_clocks_use_24_hour_label_without_stone(self):
+    def test_clocks_share_24_hour_charcoal_and_gold_pill(self):
+        includes = ET.parse(ROOT / '1080i/Includes.xml')
+        clock = includes.find('.//include[@name="AsterClockPill"]/definition')
+        self.assertEqual([node.findtext('colordiffuse') for node in
+                          clock.findall('control[@type="image"]')],
+                         ['75cbb991', 'e029302b'])
+        label = clock.find('control[@type="label"]')
+        self.assertEqual(label.findtext('label'), '$INFO[System.Time(HH:mm)]')
+        self.assertEqual(label.findtext('align'), 'center')
         for name in ('Home.xml', 'IncludesBooks.xml',
                      'custom_1111_digest.xml', 'custom_1112_home.xml',
                      'custom_1122_breaking.xml', 'IncludesMusic.xml'):
             root = ET.parse(ROOT / '1080i' / name)
-            labels = [control for control in root.findall('.//control')
-                      if control.findtext('label') == '$INFO[System.Time(HH:mm)]']
-            self.assertEqual(len(labels), 1, name)
-            self.assertEqual(labels[0].findtext('align'), 'center', name)
-            self.assertTrue(any(control.findtext('colordiffuse') == 'e029302b'
-                                for control in root.findall('.//control')), name)
-            self.assertFalse(any(control.findtext('texture') ==
-                                 'special://skin/media/ui-limestone-panel.png'
-                                 and control.findtext('left') == '1750'
-                                 for control in root.findall('.//control')), name)
+            references = [node for node in root.findall('.//include')
+                          if node.get('content') == 'AsterClockPill']
+            self.assertEqual(len(references), 1, name)
 
     def test_hero_block_is_centred_and_actions_match_rings(self):
         # Leave a gap below the enlarged product mark without hitting the queue.

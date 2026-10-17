@@ -328,6 +328,11 @@ class HubTests(unittest.TestCase):
                          if node.get('id') in {'303', '304', '305'}}
         self.assertEqual(preset_labels, {
             '303': 'One minute', '304': 'Five minutes', '305': 'Thirty minutes'})
+        live_view = home.find('.//control[@id="302"]')
+        self.assertEqual(live_view.findtext('top'), '922')
+        self.assertEqual(live_view.findtext('height'), '58')
+        self.assertEqual({home.find(f'.//control[@id="{identifier}"]').findtext('top')
+                          for identifier in ('302', '303', '304', '305')}, {'922'})
         self.assertEqual(home.getroot().findtext('onunload'),
                          'RunScript(special://skin/tools/hub_data.py,home,home_stop)')
         timer_cards = [node for node in home.findall('.//control[@type="image"]')

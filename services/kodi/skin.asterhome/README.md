@@ -1,5 +1,10 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.11 aligns the camera live-view action with the timer presets and
+introduces one shared charcoal-and-gold treatment for every header clock and
+the media, music, books and keyboard search controls. Stone texture remains
+reserved for primary navigation and major actions.
+
 Version 0.8.10 registers a dominant 80-point timer font and enlarges the timer
 name so the countdown reads as the dial's focal point. It also preserves the
 circular marker texture's aspect ratio when Kodi runs in a non-16:9 window.

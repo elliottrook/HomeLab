@@ -65,8 +65,7 @@
         <control type="image"><left>500</left><top>38</top><width>36</width><height>36</height><texture>special://skin/media/21-books-app.png</texture><aspectratio>keep</aspectratio></control>
         <control type="image"><left>804</left><top>38</top><width>36</width><height>36</height><texture>special://skin/media/12-audiobooks.png</texture><aspectratio>keep</aspectratio></control>
         <control type="image"><left>1108</left><top>38</top><width>36</width><height>36</height><texture>special://skin/media/22-podcasts-app.png</texture><aspectratio>keep</aspectratio></control>
-        <control type="image"><left>1750</left><top>32</top><width>146</width><height>44</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>e029302b</colordiffuse></control>
-        <control type="label"><left>1750</left><top>32</top><width>146</width><height>44</height><label>$INFO[System.Time(HH:mm)]</label><font>font20</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny></control>
+        <include content="AsterClockPill" />
         <control type="image"><left>220</left><top>200</top><width>320</width><height>320</height><texture>$PARAM[icon]</texture><aspectratio>keep</aspectratio><colordiffuse>aaFFFFFF</colordiffuse></control>
         <control type="label"><left>1050</left><top>160</top><width>700</width><height>38</height><label>$PARAM[heading]</label><font>font24</font><textcolor>asterGold</textcolor></control>
         <control type="textbox"><left>1050</left><top>214</top><width>760</width><height>110</height><label>$VAR[AsterBooksHeroTitle]</label><font>font30</font><textcolor>asterRailText</textcolor></control>
@@ -90,8 +89,9 @@
           <visible>$PARAM[browsevisible]</visible>
           <control type="label"><left>145</left><top>555</top><width>1050</width><height>48</height><label>$PARAM[heading]</label><font>font30</font><textcolor>asterInk</textcolor></control>
           <control type="image"><left>1540</left><top>615</top><width>300</width><height>420</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>e6f2ede4</colordiffuse></control>
-          <control type="image"><left>1550</left><top>625</top><width>280</width><height>56</height><texture>special://skin/media/ui-limestone-panel.png</texture></control>
-          <control type="label"><left>1560</left><top>636</top><width>260</width><height>40</height><label>Search &amp; filter</label><font>font24</font><textcolor>asterInk</textcolor></control>
+          <control type="label"><left>1560</left><top>636</top><width>260</width><height>40</height><label>Search &amp; filter</label><font>font24</font><textcolor>asterMuted</textcolor></control>
+          <include content="AsterQuietFieldBackplate"><param name="left" value="1560" /><param name="top" value="708" /><param name="innerleft" value="1562" /><param name="innertop" value="710" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+          <include content="AsterQuietFieldBackplate"><param name="left" value="1560" /><param name="top" value="780" /><param name="innerleft" value="1562" /><param name="innertop" value="782" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
           <control type="button" id="301"><left>1560</left><top>708</top><label>$INFO[Window.Property(AsterBooks.SearchLabel)]</label><include>AsterFilterButton</include><onclick>RunScript(special://skin/tools/books_data.py,$PARAM[page],search)</onclick><onleft>500</onleft><onright>8999</onright><onup>300</onup><ondown>302</ondown></control>
           <control type="button" id="302"><left>1560</left><top>780</top><label>Clear search</label><include>AsterFilterButton</include><onclick>RunScript(special://skin/tools/books_data.py,$PARAM[page],clear)</onclick><onleft>500</onleft><onright>8999</onright><onup>301</onup><ondown>500</ondown></control>
           <control type="label"><left>1560</left><top>880</top><width>260</width><height>100</height><label>Searches the current[CR]sanitized catalogue</label><font>font20</font><textcolor>asterMuted</textcolor></control>

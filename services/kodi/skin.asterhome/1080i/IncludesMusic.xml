@@ -54,9 +54,7 @@
         <control type="image"><left>724</left><top>38</top><width>36</width><height>36</height><texture>special://skin/media/24-music-artist.png</texture><aspectratio>keep</aspectratio></control>
         <control type="image"><left>1028</left><top>38</top><width>36</width><height>36</height><texture>special://skin/media/25-music-song.png</texture><aspectratio>keep</aspectratio></control>
         <control type="image"><left>1332</left><top>38</top><width>36</width><height>36</height><texture>special://skin/media/26-music-playlist.png</texture><aspectratio>keep</aspectratio></control>
-        <control type="image"><left>1750</left><top>32</top><width>146</width><height>44</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>75cbb991</colordiffuse></control>
-        <control type="image"><left>1752</left><top>34</top><width>142</width><height>40</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>e029302b</colordiffuse></control>
-        <control type="label"><left>1750</left><top>32</top><width>146</width><height>44</height><label>$INFO[System.Time(HH:mm)]</label><font>font20</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny></control>
+        <include content="AsterClockPill" />
         <control type="label"><left>1050</left><top>163</top><width>700</width><height>38</height><label>$PARAM[heading]</label><font>font24</font><textcolor>asterGold</textcolor></control>
         <control type="label"><left>1050</left><top>214</top><width>760</width><height>68</height><label>$INFO[Container(500).ListItem.Label]</label><font>font40</font><textcolor>asterRailText</textcolor></control>
         <control type="textbox"><left>1050</left><top>288</top><width>710</width><height>85</height><label>$INFO[Container(500).ListItem.Property(AsterMusic.Summary)]</label><font>font24</font><textcolor>asterRailText</textcolor></control>
@@ -67,8 +65,9 @@
         <control type="group">
           <visible>$PARAM[searchvisible]</visible>
           <control type="image"><left>1540</left><top>615</top><width>300</width><height>420</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>e6f2ede4</colordiffuse></control>
-          <control type="image"><left>1550</left><top>625</top><width>280</width><height>56</height><texture>special://skin/media/ui-limestone-panel.png</texture></control>
-          <control type="label"><left>1560</left><top>636</top><width>260</width><height>40</height><label>Search &amp; filter</label><font>font24</font><textcolor>asterInk</textcolor></control>
+          <control type="label"><left>1560</left><top>636</top><width>260</width><height>40</height><label>Search &amp; filter</label><font>font24</font><textcolor>asterMuted</textcolor></control>
+          <include content="AsterQuietFieldBackplate"><param name="left" value="1560" /><param name="top" value="708" /><param name="innerleft" value="1562" /><param name="innertop" value="710" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+          <include content="AsterQuietFieldBackplate"><param name="left" value="1560" /><param name="top" value="780" /><param name="innerleft" value="1562" /><param name="innertop" value="782" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
           <control type="button" id="301"><left>1560</left><top>708</top><label>$INFO[Window.Property(AsterMusic.SearchLabel)]</label><include>AsterFilterButton</include><onclick>RunScript(special://skin/tools/music_data.py,$PARAM[page],search)</onclick><onleft>500</onleft><onright>8999</onright><onup>300</onup><ondown>302</ondown></control>
           <control type="button" id="302"><left>1560</left><top>780</top><label>Clear search</label><include>AsterFilterButton</include><onclick>RunScript(special://skin/tools/music_data.py,$PARAM[page],clear)</onclick><onleft>500</onleft><onright>8999</onright><onup>301</onup><ondown>500</ondown></control>
           <control type="label"><left>1560</left><top>880</top><width>260</width><height>100</height><label>$PARAM[searchhint]</label><font>font20</font><textcolor>asterMuted</textcolor><wrapmultiline>true</wrapmultiline></control>
