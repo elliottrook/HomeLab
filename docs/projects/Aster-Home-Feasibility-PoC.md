@@ -1173,6 +1173,19 @@ source tests pass. The Mac locked before this local-file candidate could be
 visually verified; selected chapter time, pause/stop and fresh-edition behavior
 remain open gates. No server data or remote Git state changed.
 
+Breaking News page, 2026-10-16 (skin v0.7.6, local candidate): Aster News now
+has linked **Daily Digest** and **Breaking News** tabs. The new Kodi page reads
+the existing private news service's server-rendered `/` view rather than
+adding another API or changing the server. It accepts only bounded headline,
+summary and outlet-label text, caps the page at 40 clusters, and fails closed
+when the source is unavailable or malformed. Selection updates a large,
+player-like reading panel; refresh never starts media and source links are not
+exposed in the TV interface. Synthetic parser, navigation, geometry and asset
+checks cover the candidate. Mac rendering, remote focus flow and a live feed
+load remain the acceptance gate; LibreELEC remains untested. Roll back the
+local milestone commit to remove the page. No production or remote Git state
+changed.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

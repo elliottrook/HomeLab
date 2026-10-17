@@ -4,7 +4,7 @@ from pathlib import Path
 import unittest
 import xml.etree.ElementTree as ET
 from hub_data import cached_digest_audio, digest_view, show_digest_story, story_at_elapsed, story_for_playback, WINDOWS
-from digest_data import DigestCards, merge_chapters, public_image
+from digest_data import BreakingCards, DigestCards, merge_chapters, public_image
 from hub_feeds import books_view, home_view, read_feed
 import json
 import io
@@ -56,6 +56,19 @@ class HubTests(unittest.TestCase):
         self.assertEqual(stories[0]['image'], 'https://news.example.org/photo.jpg')
         self.assertEqual(stories[1]['image'], '')
         self.assertEqual(stories[1]['summary'], '')
+
+    def test_breaking_page_parser_keeps_only_reading_fields(self):
+        parser = BreakingCards()
+        parser.feed('''<section><article class="cluster" data-search="discard">
+            <div class="cluster-head"><div><div class="eyebrow">Story cluster</div>
+            <h2>A &amp; B</h2></div><span class="header-stat"><strong>2</strong> sources</span></div>
+            <p class="cluster-summary">A published summary.</p>
+            <div class="outlets"><a href="https://example.org/a">CBC</a>
+            <span class="rating">Centre</span> · <a href="https://example.org/b">BBC</a></div>
+            </article></section>''')
+        self.assertEqual(parser.cards, [{
+            'title': 'A & B', 'summary': 'A published summary.',
+            'source': 'CBC Centre · BBC'}])
 
     def test_feed_images_cannot_target_lan_or_non_https(self):
         for value in ('http://example.org/x.jpg', 'https://192.168.1.1/x',
@@ -193,7 +206,12 @@ class HubTests(unittest.TestCase):
         self.assertIn('ActivateWindow(Home)', routes)
         for page, identifier in WINDOWS.items():
             short = identifier - 10000
-            self.assertIn(f'ActivateWindow({short})', routes)
+            if page == 'breaking':
+                self.assertIn(f'ActivateWindow({short})',
+                              [node.text for node in ET.parse(
+                                  ROOT / '1080i/custom_1111_digest.xml').findall('.//onclick')])
+            else:
+                self.assertIn(f'ActivateWindow({short})', routes)
             window = ET.parse(ROOT / f'1080i/custom_{short}_{page}.xml')
             self.assertEqual(window.getroot().get('id'), str(short))
             if page in ('music', 'books'):

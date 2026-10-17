@@ -36,7 +36,8 @@ class LayoutTests(unittest.TestCase):
                            ('DialogVideoInfo.xml', '27-aster-media-logo.png'),
                            ('IncludesBooks.xml', '28-aster-books-logo.png'),
                            ('IncludesMusic.xml', '29-aster-music-logo.png'),
-                           ('custom_1111_digest.xml', '30-aster-news-logo.png')):
+                           ('custom_1111_digest.xml', '30-aster-news-logo.png'),
+                           ('custom_1122_breaking.xml', '30-aster-news-logo.png')):
             root = ET.parse(ROOT / '1080i' / name)
             logo = next(control for control in root.findall('.//control')
                         if control.findtext('texture') ==
@@ -60,7 +61,7 @@ class LayoutTests(unittest.TestCase):
         names = ('Includes.xml', 'IncludesHub.xml', 'DialogKeyboard.xml',
                  'DialogVideoInfo.xml', 'custom_1110_books.xml',
                  'custom_1111_digest.xml', 'custom_1112_home.xml',
-                 'custom_1113_music.xml')
+                 'custom_1113_music.xml', 'custom_1122_breaking.xml')
         for source in (self.home, self.browse, *(ET.parse(ROOT / '1080i' / name) for name in names)):
             for node in source.iter():
                 for value in (node.text, *node.attrib.values()):
@@ -85,6 +86,7 @@ class LayoutTests(unittest.TestCase):
                            ('DialogVideoInfo.xml', '27-aster-media-logo'),
                            ('IncludesBooks.xml', '28-aster-books-logo'),
                            ('custom_1111_digest.xml', '30-aster-news-logo'),
+                           ('custom_1122_breaking.xml', '30-aster-news-logo'),
                            ('IncludesMusic.xml', '29-aster-music-logo')):
             self.assertIn(f'{mark}.png', (ROOT / '1080i' / page).read_text(), page)
         music = (ROOT / '1080i/IncludesMusic.xml').read_text()
@@ -137,7 +139,7 @@ class LayoutTests(unittest.TestCase):
     def test_clocks_use_24_hour_label_without_stone(self):
         for name in ('Home.xml', 'IncludesBooks.xml',
                      'custom_1111_digest.xml', 'custom_1112_home.xml',
-                     'IncludesMusic.xml'):
+                     'custom_1122_breaking.xml', 'IncludesMusic.xml'):
             root = ET.parse(ROOT / '1080i' / name)
             labels = [control for control in root.findall('.//control')
                       if control.findtext('label') == '$INFO[System.Time(HH:mm)]']

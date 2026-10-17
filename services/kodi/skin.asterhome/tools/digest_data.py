@@ -81,6 +81,55 @@ class DigestCards(HTMLParser):
             self.depth = 0
 
 
+class BreakingCards(HTMLParser):
+    """Extract the bounded reading fields from Aster News' breaking page."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.cards = []
+        self.card = None
+        self.depth = 0
+        self.capture = ''
+        self.parts = []
+
+    def handle_starttag(self, tag, attrs):
+        classes = set(dict(attrs).get('class', '').split())
+        if tag == 'article' and 'cluster' in classes:
+            self.card = {'title': '', 'summary': '', 'source': ''}
+            self.depth = 1
+            return
+        if self.card is None:
+            return
+        if tag not in ('img', 'br', 'hr', 'input'):
+            self.depth += 1
+        if tag == 'h2':
+            self.capture, self.parts = 'title', []
+        elif 'cluster-summary' in classes:
+            self.capture, self.parts = 'summary', []
+        elif 'outlets' in classes:
+            self.capture, self.parts = 'source', []
+
+    def handle_data(self, data):
+        if self.card is not None and self.capture:
+            self.parts.append(data)
+
+    def handle_endtag(self, tag):
+        if self.card is None:
+            return
+        if ((self.capture == 'title' and tag == 'h2') or
+                (self.capture in ('summary', 'source') and tag in ('p', 'div'))):
+            limit = 480 if self.capture == 'summary' else 240
+            self.card[self.capture] = clean_text(''.join(self.parts), limit)
+            self.capture, self.parts = '', []
+        if tag not in ('img', 'br', 'hr', 'input'):
+            self.depth -= 1
+        if self.depth <= 0:
+            if self.card['title'] and self.card['summary']:
+                self.cards.append(self.card)
+            self.card = None
+            self.depth = 0
+
+
 def merge_chapters(chapters, cards):
     by_title = {}
     for card in cards[:80]:

@@ -1,5 +1,13 @@
 # Aster Home Kodi skin prototype
 
+Version 0.7.6 adds a read-only Breaking News sibling to the Daily Digest. A
+two-tab Aster News header moves between the two views. Breaking News reads the
+existing server-rendered `/` coverage, bounds it to 40 grouped stories and
+shows the selected headline, summary and outlet labels beside a compact story
+list. It does not autoplay, open source links, retain articles, or add a new
+news-server endpoint. Missing or malformed coverage fails closed. This is a
+local candidate pending Mac visual verification and LibreELEC testing.
+
 Version 0.7.5 is a Mac Kodi pilot Digest-page candidate, not yet accepted on
 LibreELEC. It reads the current Aster news briefing and its existing `/digest`
 story cards, joins published headlines to chapter times, and shows available

@@ -9,10 +9,11 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from urllib.request import urlopen
 from hub_feeds import books_view, home_view, read_feed
-from digest_data import DigestCards, clean_text, merge_chapters
+from digest_data import BreakingCards, DigestCards, clean_text, merge_chapters
 
 DIGEST_BASE = 'http://192.168.70.13:8080'
-WINDOWS = {'books': 11110, 'digest': 11111, 'home': 11112, 'music': 11113}
+WINDOWS = {'books': 11110, 'digest': 11111, 'home': 11112, 'music': 11113,
+           'breaking': 11122}
 FEEDS = {'books': 'books.json', 'home': 'home.json'}
 
 
@@ -69,6 +70,25 @@ def published_digest():
         # Audio chapters remain useful if the optional reading page is down.
         pass
     return digest, merge_chapters(rows, cards.cards), stamp
+
+
+def published_breaking():
+    """Read the existing server-rendered breaking feed without adding an API."""
+    parser = BreakingCards()
+    with urlopen(DIGEST_BASE + '/', timeout=8) as response:
+        page = response.read(1048577)
+        date_header = response.headers.get('Date', '')
+    if len(page) > 1048576:
+        raise ValueError('Breaking-news page exceeds size limit')
+    parser.feed(page.decode('utf-8'))
+    stories = parser.cards[:40]
+    if not stories:
+        raise ValueError('No breaking-news stories published')
+    try:
+        stamp = parsedate_to_datetime(date_header).astimezone().strftime('%a %d %b, %H:%M')
+    except (TypeError, ValueError):
+        stamp = datetime.now().astimezone().strftime('%a %d %b, %H:%M')
+    return stories, stamp
 
 
 def cached_digest_audio(xbmcvfs, generated_at):
@@ -298,10 +318,12 @@ def main(page, action='refresh'):
         else:
             window.setProperty('AsterHub.Status', 'Audio is still starting; check the player')
         return
-    titles = {'books': 'Books & Audiobooks', 'digest': 'Daily Digest', 'home': 'Aster Home', 'music': 'Aster Music'}
+    titles = {'books': 'Books & Audiobooks', 'digest': 'Daily Digest',
+              'breaking': 'Breaking News', 'home': 'Aster Home', 'music': 'Aster Music'}
     subtitles = {
         'books': 'Your next chapter, at your pace.',
         'digest': 'A considered view of the day.',
+        'breaking': 'The latest coverage, grouped across sources.',
         'home': 'A calmer home. One clear view.',
         'music': 'A soundtrack for your day.',
     }
@@ -337,6 +359,7 @@ def main(page, action='refresh'):
         window.setProperty('AsterHub.DigestPlaying', 'true' if playing else 'false')
     rows = []
     albums = []
+    breaking_stories = []
     if page == 'music':
         try:
             result = kodi_rpc(xbmc, 'AudioLibrary.GetRecentlyAddedAlbums', {'properties': ['artist', 'year', 'thumbnail'], 'limits': {'start': 0, 'end': 40}})
@@ -372,6 +395,20 @@ def main(page, action='refresh'):
             window.setProperty('AsterHub.Status', 'Briefing unavailable or stale')
             window.setProperty('AsterHub.Description', 'The existing news service could not supply a fresh briefing. Refresh to retry; no old recording is presented as current.')
             rows = [('No fresh briefing', 'Check the news service, then Refresh', None)]
+    elif page == 'breaking':
+        window.setProperty('AsterHub.Description',
+                           'Latest Aster News coverage, grouped across reporting outlets. '
+                           'Summaries and source labels are non-authoritative.')
+        try:
+            breaking_stories, stamp = published_breaking()
+            window.setProperty('AsterHub.Status',
+                               f'{len(breaking_stories)} story clusters · Checked {stamp}')
+            window.setProperty('AsterHub.Ready', 'true')
+            rows = [(story['title'], story['source'], None)
+                    for story in breaking_stories]
+        except (OSError, UnicodeError, ValueError):
+            window.setProperty('AsterHub.Status', 'Breaking-news feed unavailable')
+            rows = [('No current coverage', 'Check Aster News, then Refresh', None)]
     elif page == 'books':
         window.setProperty('AsterHub.Description', 'Browse the approved audiobook catalogue. Ebook discovery and listening progress are separate connections still to be built.')
         try:
@@ -423,6 +460,11 @@ def main(page, action='refresh'):
                 story = stories[index]
                 for field in ('title', 'summary', 'source', 'image'):
                     item.setProperty('AsterHub.Story' + field.title(), story[field])
+        if page == 'breaking' and breaking_stories:
+            story = breaking_stories[index]
+            item.setProperty('AsterHub.StoryTitle', story['title'])
+            item.setProperty('AsterHub.StorySummary', story['summary'])
+            item.setProperty('AsterHub.StorySource', story['source'])
         items.append(item)
     listing.addItems(items)
     if page == 'digest' and window.getProperty('AsterHub.Ready') == 'true':
