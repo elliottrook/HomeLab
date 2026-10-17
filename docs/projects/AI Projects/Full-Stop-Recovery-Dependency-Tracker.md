@@ -27,7 +27,9 @@ current-cycle backup and task-1 pull passed preflight. It returned `F2NoGo`
 without per-archive results; the [dated record](evidence/F2-archive-guard-no-go-2026-10-17.md)
 marks this cycle FAILED/UNKNOWN and prohibits a retry under the consumed
 approval. Production and schedules remained normal in the postcheck. No
-receipt or drill is scheduled. The paragraphs below preserve the earlier failed and corrected
+receipt or drill is scheduled. The [bounded diagnostic plan](evidence/F2-no-go-diagnostic-plan-2026-10-17.md)
+separates offline reproduction from any later one-cycle scan approval; it does
+not change F2 status. The paragraphs below preserve the earlier failed and corrected
 paths as provenance; their earlier “uninstalled” descriptions are historical,
 not the current installed state.
 
