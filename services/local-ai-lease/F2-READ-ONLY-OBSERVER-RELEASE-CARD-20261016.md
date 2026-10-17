@@ -1,7 +1,7 @@
 # F2 read-only archive observer — source-pinned release candidate
 
-**Status: BOUNDED DISABLED INSTALL COMPLETE; NO ARCHIVE SCAN, RECEIPT OR
-LIVE-RUN APPROVAL.** See
+**Status: BOUNDED DISABLED INSTALL COMPLETE; ONE CONDITIONAL OCTOBER 17
+READ-ONLY SCAN APPROVED, NOT YET RUN; NO RECEIPT OR LIVE DRILL.** See
 [the October 16 installation result](F2-DISABLED-INSTALL-RESULT-20261016.md).
 Owner: platform release. Stream A owns the F2 timing evidence. This card
 implements the four gaps recorded in Stream A `b2fa7f9f`; it does not reuse
