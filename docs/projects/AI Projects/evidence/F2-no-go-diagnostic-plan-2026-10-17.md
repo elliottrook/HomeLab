@@ -15,6 +15,13 @@ Later read-only predicate checks passed, but they cannot identify the failed
 instant or prove that any `zstd` test completed. Do not infer archive corruption
 or a controller bug from this result.
 
+The [one-cycle F2 record](F2-archive-guard-no-go-2026-10-17.md) already
+retains a later read-only replay in which inventory, guest-log, whole-job and
+task-1 predicates passed without an archive probe. An October 17 afternoon
+recheck reproduced those retrospective passes and found the lease ready.
+That repeated source-shape evidence is **not a replay of the 01:10 guard**;
+it does not identify the failed predicate or change the NO-GO decision.
+
 ## Review order before any new release
 
 1. **Offline deterministic replay:** exercise the exact installed-source
