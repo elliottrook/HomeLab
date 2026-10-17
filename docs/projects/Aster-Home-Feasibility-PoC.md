@@ -1155,6 +1155,24 @@ story through the initial seek. All 55 source tests pass, but the Mac locked
 before this exact candidate could be visually accepted. No server or remote
 Git change was made; live chapter start and clean stop remain open checks.
 
+Digest chapter seek investigation, 2026-10-16 (local candidate, not accepted):
+The Mac pilot loaded the new 17-story edition. The list's `onclick` did not
+dispatch reliably, so story selection remains separate from **Play selected**.
+Reading the retained `Container(500).ListItem.Property(AsterStart)` from that
+button displayed the selected second story's title, synopsis and wildfire
+image. The published HTTP MP3 has `Accept-Ranges: bytes`, but Kodi's
+`Player.Seek` reported an immediate position of 0:00 for a requested 1:02
+chapter, despite `canseek=true`; the elapsed display advanced from the start.
+That makes HTTP seek unsuitable for chapter playback in this pilot. The next
+candidate caches the published MP3 under Kodi's local temporary directory,
+bounded at 25 MiB and keyed to the digest generation timestamp. It checks
+`Last-Modified` against the generation timestamp to reject an edition race,
+waits for Kodi to report seekability, and stops audio if the verified seek
+position is not within three seconds of the selected chapter. All 56 offline
+source tests pass. The Mac locked before this local-file candidate could be
+visually verified; selected chapter time, pause/stop and fresh-edition behavior
+remain open gates. No server data or remote Git state changed.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

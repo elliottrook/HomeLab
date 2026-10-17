@@ -1,8 +1,12 @@
 """Read-only Aster hub presentation. No credentials or household mutations."""
 import json
 import math
+import hashlib
+import os
 import sys
+import tempfile
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from urllib.request import urlopen
 from hub_feeds import books_view, home_view, read_feed
 from digest_data import DigestCards, clean_text, merge_chapters
@@ -65,6 +69,46 @@ def published_digest():
         # Audio chapters remain useful if the optional reading page is down.
         pass
     return digest, merge_chapters(rows, cards.cards), stamp
+
+
+def cached_digest_audio(xbmcvfs, generated_at):
+    """Cache one bounded published MP3 locally so Kodi can seek reliably."""
+    cache_dir = xbmcvfs.translatePath('special://temp/skin.asterhome/digest')
+    os.makedirs(cache_dir, exist_ok=True)
+    digest_id = hashlib.sha256(generated_at.encode('utf-8')).hexdigest()[:16]
+    target = os.path.join(cache_dir, f'digest-{digest_id}.mp3')
+    if os.path.exists(target) and os.path.getsize(target) > 0:
+        return target
+    partial = None
+    try:
+        with urlopen(DIGEST_BASE + '/static/digest-audio/latest.mp3', timeout=15) as source:
+            length = source.headers.get('Content-Length')
+            if length and int(length) > 25 * 1024 * 1024:
+                raise ValueError('Briefing audio exceeds size limit')
+            modified = source.headers.get('Last-Modified')
+            if not modified or abs((parsedate_to_datetime(modified) -
+                                    datetime.fromisoformat(generated_at)).total_seconds()) > 2:
+                raise ValueError('Briefing audio changed; refresh the digest')
+            total = 0
+            with tempfile.NamedTemporaryFile(prefix='digest-', suffix='.part',
+                                             dir=cache_dir, delete=False) as output:
+                partial = output.name
+                while True:
+                    block = source.read(65536)
+                    if not block:
+                        break
+                    total += len(block)
+                    if total > 25 * 1024 * 1024:
+                        raise ValueError('Briefing audio exceeds size limit')
+                    output.write(block)
+        if total == 0:
+            raise ValueError('Briefing audio is empty')
+        os.replace(partial, target)
+        return target
+    except Exception:
+        if partial and os.path.exists(partial):
+            os.unlink(partial)
+        raise
 
 
 def show_digest_story(window, item):
@@ -167,11 +211,13 @@ def main(page, action='refresh'):
         window.setProperty('AsterHub.RequestedStart', '')
         window.setProperty('AsterHub.RequestedGeneration', '')
         if action == 'chapter':
-            # The list retains its selection when focus moves to Play selected.
-            # Container.ListItem infolabels can instead refer to the focused
-            # button and silently start the briefing at zero.
-            selected_item = window.getControl(500).getSelectedItem()
-            selected_start = selected_item.getProperty('AsterStart') if selected_item else ''
+            # Kodi's list selection becomes -1 after focus moves to the play
+            # button. The container info label retains the selected row.
+            listing = window.getControl(500)
+            selected_index = listing.getSelectedPosition()
+            selected_item = listing.getListItem(selected_index) if selected_index >= 0 else None
+            selected_start = (selected_item.getProperty('AsterStart') if selected_item else
+                              xbmc.getInfoLabel('Container(500).ListItem.Property(AsterStart)'))
             try:
                 chapter_offset = float(selected_start)
                 digest, stories, _ = published_digest()
@@ -179,7 +225,8 @@ def main(page, action='refresh'):
                     raise ValueError('Briefing changed')
                 selected_story = next(story for story in stories
                                       if abs(story['start'] - chapter_offset) < 0.1)
-            except (ValueError, StopIteration, KeyError, TypeError, OSError):
+            except (ValueError, StopIteration, KeyError, TypeError, OSError) as error:
+                xbmc.log(f'Aster Digest: chapter selection failed: {error}; index={selected_index} start={selected_start!r}', xbmc.LOGWARNING)
                 window.setProperty('AsterHub.Status', 'Story unavailable; refresh the briefing')
                 return
             selected = xbmcgui.ListItem(selected_story['title'])
@@ -189,7 +236,16 @@ def main(page, action='refresh'):
             window.setProperty('AsterHub.RequestedGeneration', digest['generated_at'])
             show_digest_story(window, selected)
         # Playback only on an explicit user selection; no autoplay on refresh.
-        xbmc.Player().play(DIGEST_BASE + '/static/digest-audio/latest.mp3', item, windowed=True)
+        # Kodi reports the HTTP MP3 seekable but ignores absolute chapter seeks
+        # on the Mac pilot. Its local cache permits a verifiable seek.
+        try:
+            audio_path = cached_digest_audio(xbmcvfs, window.getProperty('AsterHub.GeneratedAt'))
+        except (OSError, ValueError) as error:
+            xbmc.log(f'Aster Digest: audio cache failed: {error}', xbmc.LOGWARNING)
+            window.setProperty('AsterHub.Status', 'Briefing audio unavailable')
+            return
+        window.setProperty('AsterHub.AudioPath', audio_path)
+        xbmc.Player().play(audio_path, item, windowed=True)
         # Startup is asynchronous, especially for the first network playback.
         for _ in range(20):
             if xbmc.Player().isPlayingAudio():
@@ -197,7 +253,43 @@ def main(page, action='refresh'):
             xbmc.sleep(250)
         if xbmc.Player().isPlayingAudio():
             if chapter_offset is not None and chapter_offset > 4:
-                xbmc.Player().seekTime(chapter_offset)
+                # Audio startup precedes seekability for HTTP MP3s. Wait for
+                # Kodi's player to report it can seek, then verify the
+                # returned position rather than assuming seekTime succeeded.
+                for _ in range(20):
+                    try:
+                        state = kodi_rpc(xbmc, 'Player.GetProperties', {
+                            'playerid': 0, 'properties': ['canseek', 'time']})
+                        if state.get('canseek'):
+                            break
+                    except ValueError:
+                        pass
+                    xbmc.sleep(250)
+                else:
+                    xbmc.log('Aster Digest: player did not become seekable', xbmc.LOGWARNING)
+                    xbmc.executebuiltin('PlayerControl(Stop)')
+                    window.setProperty('AsterHub.Status', 'Unable to skip to this story')
+                    return
+                offset = int(chapter_offset)
+                try:
+                    result = kodi_rpc(xbmc, 'Player.Seek', {
+                        'playerid': 0,
+                        'value': {'time': {'hours': offset // 3600,
+                                           'minutes': (offset // 60) % 60,
+                                           'seconds': offset % 60}}})
+                    xbmc.log(f'Aster Digest: seek to {chapter_offset} returned {result}', xbmc.LOGINFO)
+                    for _ in range(8):
+                        actual = xbmc.Player().getTime()
+                        if abs(actual - chapter_offset) <= 3:
+                            break
+                        xbmc.sleep(250)
+                    else:
+                        raise ValueError(f'seek landed at {actual:.1f}, expected {chapter_offset:.1f}')
+                except (RuntimeError, ValueError) as error:
+                    xbmc.log(f'Aster Digest: seek failed: {error}', xbmc.LOGWARNING)
+                    xbmc.executebuiltin('PlayerControl(Stop)')
+                    window.setProperty('AsterHub.Status', 'Unable to skip to this story')
+                    return
             window.setProperty('AsterHub.DigestPlaying', 'true')
             xbmc.executebuiltin('ActivateWindow(1111)')
             # The onload refresh can run before Kodi applies the seek. Rebuild
@@ -232,7 +324,7 @@ def main(page, action='refresh'):
             pass
         try:
             playing = (xbmc.Player().isPlayingAudio() and
-                       xbmc.Player().getPlayingFile().startswith(DIGEST_BASE + '/static/digest-audio/latest.mp3'))
+                       xbmc.Player().getPlayingFile() == window.getProperty('AsterHub.AudioPath'))
             if playing:
                 elapsed = xbmc.Player().getTime()
                 if requested_start is not None and elapsed >= requested_start + 5:

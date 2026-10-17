@@ -3,11 +3,13 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import unittest
 import xml.etree.ElementTree as ET
-from hub_data import digest_view, show_digest_story, story_at_elapsed, story_for_playback, WINDOWS
+from hub_data import cached_digest_audio, digest_view, show_digest_story, story_at_elapsed, story_for_playback, WINDOWS
 from digest_data import DigestCards, merge_chapters, public_image
 from hub_feeds import books_view, home_view, read_feed
 import json
+import io
 import tempfile
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -74,6 +76,34 @@ class HubTests(unittest.TestCase):
         self.assertEqual(story_for_playback(stories, 63, 62), 1)
         self.assertEqual(story_for_playback(stories, 132, 62), 2)
         self.assertEqual(story_for_playback(stories, 1, None), 0)
+
+    def test_digest_audio_cache_is_bounded_and_reused(self):
+        class Vfs:
+            def __init__(self, path):
+                self.path = path
+            def translatePath(self, name):
+                self.assert_name = name
+                return self.path
+        class Source(io.BytesIO):
+            headers = {'Content-Length': '7',
+                       'Last-Modified': 'Fri, 16 Oct 2026 00:00:00 GMT'}
+        with tempfile.TemporaryDirectory() as directory:
+            vfs = Vfs(directory)
+            with patch('hub_data.urlopen', return_value=Source(b'example')) as fetch:
+                path = cached_digest_audio(vfs, '2026-10-16T00:00:00+00:00')
+                self.assertEqual(Path(path).read_bytes(), b'example')
+                self.assertEqual(cached_digest_audio(vfs, '2026-10-16T00:00:00+00:00'), path)
+                fetch.assert_called_once()
+            with patch('hub_data.urlopen', return_value=Source(b'different')):
+                other = cached_digest_audio(vfs, '2026-10-16T00:00:01+00:00')
+                self.assertNotEqual(other, path)
+            with patch('hub_data.urlopen', return_value=Source(b'')):
+                with self.assertRaises(ValueError):
+                    cached_digest_audio(vfs, '2026-10-16T00:00:02+00:00')
+            with patch('hub_data.urlopen', return_value=Source(b'changed')):
+                with self.assertRaisesRegex(ValueError, 'changed'):
+                    cached_digest_audio(vfs, '2026-10-17T00:00:00+00:00')
+            self.assertFalse(list(Path(directory).glob('*.part')))
 
     def test_story_panel_bounds_summary_and_keeps_art(self):
         class Window:
