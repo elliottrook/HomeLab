@@ -162,6 +162,17 @@ class AskRouteBenchmarkTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "locality mismatch"):
             bench.score(self.fixture, self.run_bytes, manifest)
 
+    def test_manifest_identifiers_cannot_carry_free_text(self):
+        for field, value in (("backend_id", "private request text"),
+                             ("model_id", "secret\nvalue"),
+                             ("runtime_id", {"private": "text"}),
+                             ("reasoning_mode", "x" * 129),
+                             ("run_schema", "")):
+            with self.subTest(field=field):
+                manifest = {**self.manifest, field: value}
+                with self.assertRaisesRegex(ValueError, "invalid backend identifier"):
+                    bench.score(self.fixture, self.run_bytes, manifest)
+
     def test_label_blind_adapter_shape_can_be_scored(self):
         # Synthetic adapter-conformance fixture, not a real Codex result.
         value = json.loads(self.run_bytes)

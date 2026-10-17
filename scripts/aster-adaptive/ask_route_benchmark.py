@@ -9,12 +9,14 @@ import argparse
 import hashlib
 import json
 import math
+import re
 import statistics
 from collections import defaultdict
 from pathlib import Path
 
 SUITE_ID = "ask-routing-development-v1"
 FIXTURE_SHA256 = "c797533494119e44c9c927d5b9b274ccd6426cacd50ca7cd93391861c0663cec"
+IDENTIFIER = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:+/@-]{0,127}\Z")
 
 
 def sha256(raw: bytes) -> str:
@@ -49,6 +51,10 @@ def score(fixture_raw: bytes, run_raw: bytes, manifest: dict) -> dict:
         raise ValueError("invalid backend class")
     if manifest["backend_class"] == "codex_subscription" and manifest["egress"] != "cloud":
         raise ValueError("cloud backend locality mismatch")
+    for field in ("backend_id", "model_id", "runtime_id", "reasoning_mode", "run_schema"):
+        value = manifest[field]
+        if type(value) is not str or IDENTIFIER.fullmatch(value) is None:
+            raise ValueError("invalid backend identifier")
     for field in ("fixture_sha256", "run_sha256", "prompt_sha256", "adapter_sha256"):
         value = manifest[field]
         if not isinstance(value, str) or len(value) != 64 or any(c not in "0123456789abcdef" for c in value):

@@ -66,6 +66,11 @@ lexical rules, with nearest-rank p95 values 0.708 s and rounded 0.0 s.
 This closes a raw-text channel in future run artifacts; it does not improve
 the router or supply independent labels. Historical manifests and scores keep
 their original evaluator identity.
+The later October 17 manifest check also requires bounded, single-line ASCII
+backend/model/runtime/reasoning/schema identifiers, because the backend ID is
+copied into the score. The focused suite passes 17 tests and retains the same
+two baseline results. It does not verify that an asserted backend identity is
+true; release provenance and model attestation remain separate evidence.
 
 ## What a comparable backend run must provide
 
