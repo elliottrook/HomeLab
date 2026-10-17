@@ -191,6 +191,7 @@ def home_dashboard(payload):
         'CameraStatus': cameras[0]['status'].title() if cameras else 'No reviewed camera',
         'TimerLabel': timer_label,
         'TimerDigital': '--:--',
+        'TimerSecond': '0',
         'TimerActive': 'false',
     }
     return values

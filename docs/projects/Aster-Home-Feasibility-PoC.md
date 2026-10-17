@@ -1260,6 +1260,19 @@ then closed. Production promotion still requires a monitored, least-privilege
 per-client bridge and LibreELEC validation; this commit does not make the
 manual Mac tunnel permanent.
 
+Sixty-second timer dial refinement, 2026-10-17 (skin v0.8.2): The timer card
+remains fixed at 370 × 370 pixels, while its dark dial expands to 360 × 360 and
+the larger 56-pixel digital reader is mathematically centred on both axes. The
+former twelve broad marks are replaced by sixty separately positioned radial
+pills, one per second. Their muted layer preserves an honest inactive state;
+their sage layer is already gated by the bounded `HomeTimerSecond` and
+`HomeTimerActive` presentation properties so a later approved read-only timer
+publisher can deplete the ring without another layout redesign. This milestone
+does not create, start or claim an active household timer. Live Mac Kodi
+validation showed the enlarged dial filling the existing card, all sixty pills
+evenly spaced, and the `--:--` reader centred in both axes; Kodi loaded v0.8.2
+and its custom Home window without a skin error. The 60-test suite also passed.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

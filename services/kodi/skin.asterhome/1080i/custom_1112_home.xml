@@ -46,9 +46,10 @@
 
       <control type="label"><left>1025</left><top>425</top><width>370</width><height>42</height><label>Timer</label><font>font28</font><textcolor>asterInk</textcolor></control>
       <control type="image"><left>1025</left><top>478</top><width>370</width><height>370</height><texture border="28">special://skin/media/ui-panel.png</texture><colordiffuse>asterPaper</colordiffuse></control>
-      <control type="image"><left>1040</left><top>493</top><width>340</width><height>340</height><texture>special://skin/media/ui-timer-idle-v2.png</texture><aspectratio>keep</aspectratio></control>
-      <control type="label"><left>1090</left><top>615</top><width>240</width><height>72</height><label>$INFO[Window.Property(AsterHub.HomeTimerDigital)]</label><font>font40</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny></control>
-      <control type="label"><left>1060</left><top>797</top><width>300</width><height>32</height><label>$INFO[Window.Property(AsterHub.HomeTimerLabel)]</label><font>font18</font><textcolor>asterMuted</textcolor><align>center</align></control>
+      <control type="image"><left>1030</left><top>483</top><width>360</width><height>360</height><texture>special://skin/media/ui-timer-base.png</texture><aspectratio>keep</aspectratio></control>
+      <include content="AsterTimerRing" />
+      <control type="label"><left>1060</left><top>616</top><width>300</width><height>94</height><label>$INFO[Window.Property(AsterHub.HomeTimerDigital)]</label><font>font56</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny></control>
+      <control type="label"><left>1060</left><top>785</top><width>300</width><height>32</height><label>$INFO[Window.Property(AsterHub.HomeTimerLabel)]</label><font>font18</font><textcolor>asterMuted</textcolor><align>center</align></control>
 
       <control type="label"><left>1425</left><top>425</top><width>370</width><height>42</height><label>Home Assistant</label><font>font28</font><textcolor>asterInk</textcolor></control>
       <control type="image"><left>1425</left><top>478</top><width>370</width><height>526</height><texture border="28">special://skin/media/ui-panel.png</texture><colordiffuse>asterPaper</colordiffuse></control>

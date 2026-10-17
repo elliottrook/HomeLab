@@ -36,5 +36,10 @@
             <filename>arial.ttf</filename>
             <size>40</size>
         </font>
+        <font>
+            <name>font56</name>
+            <filename>arial.ttf</filename>
+            <size>56</size>
+        </font>
     </fontset>
 </fonts>

@@ -1,5 +1,16 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.2 keeps the timer card at 370 pixels but expands its dial to 360
+pixels, centres a larger 56-pixel digital readout on the card, and replaces the
+twelve broad marks with sixty radial pills—one for each second. The muted ring
+is shown while no approved timer source is active. Each pill also has an
+active sage layer driven by the bounded `AsterHub.HomeTimerSecond` property, so
+the ring can deplete from 60 to 0 when the read-only timer feed is connected;
+this visual milestone does not invent or start a household timer. The
+transparency-preserving timer-base builder keeps the dial independent of the
+card colour. Live Mac Kodi validation confirmed the complete ring and centred
+reader with no skin-load error.
+
 Version 0.8.1 enlarges the circular timer face from 280 to 340 pixels while
 preserving its 370-pixel square card. It also proves an explicitly selected
 Front of House preview inside the dashboard card. The disposable Mac pilot

@@ -433,7 +433,8 @@ def main(page, action='refresh'):
                             ('TemperatureLabel', 'Indoor comfort'),
                             ('TemperatureValue', 'Unavailable'), ('CameraLabel', 'Cameras'),
                             ('CameraStatus', 'Unavailable'), ('TimerLabel', 'No active timer'),
-                            ('TimerDigital', '--:--'), ('TimerActive', 'false')):
+                            ('TimerDigital', '--:--'), ('TimerSecond', '0'),
+                            ('TimerActive', 'false')):
         window.setProperty('AsterHub.Home' + field, fallback)
     window.setProperty('AsterHub.Status', 'Read-only connection required')
     elapsed = None

@@ -219,7 +219,7 @@ class HubTests(unittest.TestCase):
             'TemperatureLabel': 'Hall Temperature', 'TemperatureValue': '20.6°C',
             'CameraLabel': 'Front Of House', 'CameraStatus': 'Online',
             'TimerLabel': 'No active timer', 'TimerDigital': '--:--',
-            'TimerActive': 'false'})
+            'TimerSecond': '0', 'TimerActive': 'false'})
         payload['snapshot']['temperatures'][0]['value'] = float('nan')
         with self.assertRaises(ValueError):
             home_view(payload)
@@ -299,9 +299,24 @@ class HubTests(unittest.TestCase):
         self.assertEqual(timer_cards[0].findtext('width'), '370')
         self.assertEqual(timer_cards[0].findtext('height'), '370')
         timer_face = [node for node in home.findall('.//control[@type="image"]')
-                      if node.findtext('texture') == 'special://skin/media/ui-timer-idle-v2.png']
-        self.assertEqual(timer_face[0].findtext('width'), '340')
-        self.assertEqual(timer_face[0].findtext('height'), '340')
+                      if node.findtext('texture') == 'special://skin/media/ui-timer-base.png']
+        self.assertEqual((timer_face[0].findtext('left'), timer_face[0].findtext('top'),
+                          timer_face[0].findtext('width'), timer_face[0].findtext('height')),
+                         ('1030', '483', '360', '360'))
+        digital = next(node for node in home.findall('.//control[@type="label"]')
+                       if 'AsterHub.HomeTimerDigital' in (node.findtext('label') or ''))
+        self.assertEqual(digital.findtext('font'), 'font56')
+        self.assertEqual(int(digital.findtext('left')) + int(digital.findtext('width')) // 2,
+                         1025 + 370 // 2)
+        self.assertEqual(int(digital.findtext('top')) + int(digital.findtext('height')) // 2,
+                         478 + 370 // 2)
+        ring = ET.parse(ROOT / '1080i/IncludesTimer.xml')
+        pills = ring.findall('.//include[@content="AsterTimerPill"]')
+        self.assertEqual(len(pills), 60)
+        self.assertEqual([int(node.find("param[@name='threshold']").get('value'))
+                          for node in pills], list(range(60)))
+        self.assertTrue(all(node.find("param[@name='angle']") is not None
+                            for node in pills))
         self.assertIsNotNone(home.find('.//control[@id="500"]'))
 
     def test_all_runtime_assets_exist(self):
