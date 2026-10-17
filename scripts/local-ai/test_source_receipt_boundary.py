@@ -1,4 +1,3 @@
-import json
 import os
 import stat
 import tempfile
@@ -7,7 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from admission_gate import EXPECTED_BACKUP_SOURCE, EXPECTED_CONSUMERS, AdmissionEvidence
-from source_receipt_boundary import _write_envelope, produce_candidate_receipt, read_receipt
+from source_receipt_boundary import _validate_payload, _write_envelope, produce_candidate_receipt, read_receipt
 
 
 class SourceReceiptBoundaryTests(unittest.TestCase):
@@ -25,13 +24,50 @@ class SourceReceiptBoundaryTests(unittest.TestCase):
                 read_receipt(path, lease_id="lab-1", generation=3, now_minute=221, window_end_minute=255, now_epoch=101)
 
     def test_untrusted_marker_does_not_authorize(self):
-        with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / "receipt.json"
-            path.write_text(json.dumps({"boundary": "fake", "evidence": {}}))
-            os.chmod(path, 0o600)
-            with patch("source_receipt_boundary._custody"):
-                with self.assertRaisesRegex(Exception, "boundary|lease"):
-                    read_receipt(path, lease_id="lab-1", generation=1, now_minute=221, window_end_minute=255, now_epoch=101)
+        payload = self.valid_payload()
+        payload["boundary"] = "fake"
+        with self.assertRaisesRegex(ValueError, "current lease"):
+            self.validate(payload)
+
+    def valid_payload(self):
+        evidence = self.evidence()
+        return {"boundary": "aster-source-receipt-boundary-v1", "lease_id": "lab-1",
+                "generation": 2, "captured_epoch": 100,
+                "evidence": {"source": evidence.source,
+                             "backup_receipt": evidence.backup_receipt,
+                             "backup_completed_minute": evidence.backup_completed_minute,
+                             "backup_verified": evidence.backup_verified,
+                             "consumers_quiesced": list(evidence.consumers_quiesced),
+                             "news_quiesced": evidence.news_quiesced,
+                             "source_observed": evidence.source_observed}}
+
+    def validate(self, payload):
+        return _validate_payload(payload, lease_id="lab-1", generation=2,
+                                 now_minute=221, window_end_minute=255,
+                                 now_epoch=101, max_age_seconds=900)
+
+    def test_malformed_receipt_types_and_fields_fail_closed(self):
+        self.assertEqual(self.validate(self.valid_payload()), "receipt")
+        for field, value in (("generation", True), ("captured_epoch", True),
+                             ("evidence", []), ("boundary", 7)):
+            payload = self.valid_payload()
+            payload[field] = value
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                self.validate(payload)
+        for field, value in (("backup_completed_minute", True),
+                             ("backup_verified", 1), ("news_quiesced", "true"),
+                             ("source_observed", 1), ("consumers_quiesced", "aster-agent"),
+                             ("backup_receipt", [])):
+            payload = self.valid_payload()
+            payload["evidence"][field] = value
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                self.validate(payload)
+        for section in (None, "evidence"):
+            payload = self.valid_payload()
+            target = payload if section is None else payload[section]
+            target["extra"] = "unreviewed"
+            with self.subTest(section=section), self.assertRaises(ValueError):
+                self.validate(payload)
 
     def test_writer_rejects_unsafe_parent_before_touching_fixed_temp_name(self):
         with tempfile.TemporaryDirectory() as directory:
