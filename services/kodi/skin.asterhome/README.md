@@ -1,5 +1,8 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.9 enlarges the digital timer readout and moves its timer name closer
+so the two labels read as one centred unit inside the circular second markers.
+
 Version 0.8.8 reduces the circular timer markers to 16 pixels so every second
 has visible breathing room, then recentres the smaller ring within the timer
 card and above the preset controls.

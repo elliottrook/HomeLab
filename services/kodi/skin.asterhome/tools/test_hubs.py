@@ -341,12 +341,15 @@ class HubTests(unittest.TestCase):
         self.assertEqual(timer_face, [])
         digital = next(node for node in home.findall('.//control[@type="label"]')
                        if 'AsterHub.HomeTimerDigital' in (node.findtext('label') or ''))
-        self.assertEqual(digital.findtext('font'), 'font56')
+        self.assertEqual(digital.findtext('font'), 'font64')
         self.assertEqual(int(digital.findtext('left')) + int(digital.findtext('width')) // 2,
                          1210)
         self.assertEqual(int(digital.findtext('top')) + int(digital.findtext('height')) // 2,
                          675)
-        self.assertTrue(any('AsterHub.HomeTimerName' in label for label in labels))
+        timer_name = next(node for node in home.findall('.//control[@type="label"]')
+                          if 'AsterHub.HomeTimerName' in (node.findtext('label') or ''))
+        self.assertEqual(int(timer_name.findtext('top')) +
+                         int(timer_name.findtext('height')) // 2, 749)
         ring = ET.parse(ROOT / '1080i/IncludesTimer.xml')
         dot_definition = ring.find('.//include[@name="AsterTimerDot"]/definition/control')
         self.assertEqual(dot_definition.findtext('width'), '16')
