@@ -175,6 +175,16 @@ def story_for_playback(stories, elapsed, requested_start):
     return story_at_elapsed(stories, elapsed) if elapsed is not None else 0
 
 
+def timer_display(remaining):
+    """Return a bounded digital value and a 60-pip seconds-ring value."""
+    if isinstance(remaining, bool) or not isinstance(remaining, int):
+        raise ValueError('Invalid timer value')
+    remaining = max(0, min(24 * 3600, remaining))
+    digital = f'{remaining // 60:02d}:{remaining % 60:02d}'
+    ring = 60 if remaining and remaining % 60 == 0 else remaining % 60
+    return digital, str(ring)
+
+
 def sync_digest_window(xbmc, window):
     """One short, alarm-triggered sync; never leaves a Python worker running."""
     try:
@@ -219,6 +229,44 @@ def main(page, action='refresh'):
             xbmcgui.getCurrentWindowId() != WINDOWS['digest']):
         return
     window = xbmcgui.Window(WINDOWS[page])
+    if page == 'home' and action == 'timer_tick':
+        if (xbmcgui.getCurrentWindowId() != WINDOWS['home'] or
+                window.getProperty('AsterHub.HomeTimerActive') != 'true'):
+            xbmc.executebuiltin('CancelAlarm(AsterTimerTest,silent)')
+            return
+        try:
+            deadline = float(window.getProperty('AsterHub.HomeTimerDeadline'))
+            remaining = max(0, math.ceil(deadline - datetime.now(timezone.utc).timestamp()))
+            digital, ring = timer_display(remaining)
+        except ValueError:
+            remaining, digital, ring = 0, '00:00', '0'
+        window.setProperty('AsterHub.HomeTimerDigital', digital)
+        window.setProperty('AsterHub.HomeTimerSecond', ring)
+        if remaining == 0:
+            xbmc.executebuiltin('CancelAlarm(AsterTimerTest,silent)')
+            window.setProperty('AsterHub.HomeTimerActive', 'false')
+            window.setProperty('AsterHub.HomeTimerDeadline', '')
+            window.setProperty('AsterHub.HomeTimerLabel', 'Visual test complete')
+            window.setProperty('AsterHub.Status', 'Synthetic 60-second timer completed')
+        return
+    if page == 'home' and action in ('timer_test', 'timer_stop'):
+        xbmc.executebuiltin('CancelAlarm(AsterTimerTest,silent)')
+        if action == 'timer_stop':
+            window.setProperty('AsterHub.HomeTimerActive', 'false')
+            window.setProperty('AsterHub.HomeTimerDeadline', '')
+            return
+        deadline = datetime.now(timezone.utc).timestamp() + 60
+        digital, ring = timer_display(60)
+        window.setProperty('AsterHub.HomeTimerDigital', digital)
+        window.setProperty('AsterHub.HomeTimerSecond', ring)
+        window.setProperty('AsterHub.HomeTimerDeadline', str(deadline))
+        window.setProperty('AsterHub.HomeTimerActive', 'true')
+        window.setProperty('AsterHub.HomeTimerLabel', 'Synthetic visual test')
+        window.setProperty('AsterHub.Status', 'Synthetic 60-second timer · no household action')
+        xbmc.executebuiltin('AlarmClock(AsterTimerTest,RunScript('
+                           'special://skin/tools/hub_data.py,home,timer_tick),'
+                           '00:01,silent,loop)')
+        return
     if page == 'home' and action == 'camera_tick':
         if (xbmcgui.getCurrentWindowId() == WINDOWS['home'] and
                 window.getProperty('AsterHub.CameraPlaying') == 'true'):
@@ -237,14 +285,19 @@ def main(page, action='refresh'):
             frame = int(now)
             window.setProperty('AsterHub.CameraImage', f'{CAMERA_PILOT_URL}?frame={frame}')
         return
-    if page == 'home' and action in ('camera', 'camera_stop'):
+    if page == 'home' and action in ('camera', 'camera_stop', 'home_stop'):
         playing_camera = window.getProperty('AsterHub.CameraPlaying') == 'true'
-        if action == 'camera_stop' or playing_camera:
+        if action == 'home_stop':
+            xbmc.executebuiltin('CancelAlarm(AsterTimerTest,silent)')
+            window.setProperty('AsterHub.HomeTimerActive', 'false')
+            window.setProperty('AsterHub.HomeTimerDeadline', '')
+        if action in ('camera_stop', 'home_stop') or playing_camera:
             xbmc.executebuiltin('CancelAlarm(AsterCameraFollow,silent)')
             window.setProperty('AsterHub.CameraPlaying', 'false')
             window.setProperty('AsterHub.CameraImage', '')
             window.setProperty('AsterHub.CameraStarted', '')
-            window.setProperty('AsterHub.Status', 'Camera preview stopped')
+            if action != 'home_stop':
+                window.setProperty('AsterHub.Status', 'Camera preview stopped')
             return
         if window.getProperty('AsterHub.HomeCameraStatus') != 'Online':
             xbmcgui.Dialog().notification('Aster Home', 'The reviewed camera is not online.')

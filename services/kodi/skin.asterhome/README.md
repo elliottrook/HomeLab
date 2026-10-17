@@ -1,5 +1,13 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.3 adds a bounded **Test 60 seconds** action to the Home timer card.
+It drives only Kodi window properties: no Home Assistant timer or household
+action is created. A one-second Kodi alarm recalculates the display from a UTC
+deadline so delayed ticks do not accumulate drift, and page exit cancels the
+test. Live Mac Kodi validation observed `01:00` with all 60 pills active,
+`00:21` with exactly 21 active pills, and a clean `00:00` state with the ring
+fully muted. The Kodi log contained no skin or script error during the run.
+
 Version 0.8.2 keeps the timer card at 370 pixels but expands its dial to 360
 pixels, centres a larger 56-pixel digital readout on the card, and replaces the
 twelve broad marks with sixty radial pills—one for each second. The muted ring

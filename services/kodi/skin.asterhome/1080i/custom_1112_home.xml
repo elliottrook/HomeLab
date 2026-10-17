@@ -2,7 +2,7 @@
 <window id="1112" type="window">
   <defaultcontrol always="true">300</defaultcontrol>
   <onload>RunScript(special://skin/tools/hub_data.py,home)</onload>
-  <onunload>RunScript(special://skin/tools/hub_data.py,home,camera_stop)</onunload>
+  <onunload>RunScript(special://skin/tools/hub_data.py,home,home_stop)</onunload>
   <backgroundcolor>asterStone</backgroundcolor>
   <controls>
     <control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture>special://skin/media/ui-solid.png</texture><colordiffuse>asterStone</colordiffuse></control>
@@ -41,7 +41,7 @@
       <control type="image"><left>185</left><top>518</top><width>770</width><height>330</height><texture background="true">$INFO[Window.Property(AsterHub.CameraImage)]</texture><aspectratio align="center" aligny="center">keep</aspectratio><visible>String.IsEqual(Window.Property(AsterHub.CameraPlaying),true)</visible></control>
       <control type="label"><left>185</left><top>874</top><width>520</width><height>44</height><label>$INFO[Window.Property(AsterHub.HomeCameraLabel)]</label><font>font28</font><textcolor>asterIvory</textcolor></control>
       <control type="label"><left>185</left><top>924</top><width>500</width><height>34</height><label>$INFO[Window.Property(AsterHub.HomeCameraStatus)] · Private local preview</label><font>font18</font><textcolor>asterSage</textcolor></control>
-      <control type="button" id="302"><left>730</left><top>895</top><width>225</width><height>64</height><label>Live view</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor><texturefocus border="22" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="22">special://skin/media/ui-limestone-panel.png</texturenofocus><onclick>RunScript(special://skin/tools/hub_data.py,home,camera)</onclick><onup>300</onup><ondown>500</ondown><onleft>8999</onleft><onright>500</onright></control>
+      <control type="button" id="302"><left>730</left><top>895</top><width>225</width><height>64</height><label>Live view</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor><texturefocus border="22" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="22">special://skin/media/ui-limestone-panel.png</texturenofocus><onclick>RunScript(special://skin/tools/hub_data.py,home,camera)</onclick><onup>300</onup><ondown>500</ondown><onleft>8999</onleft><onright>303</onright></control>
       <control type="image"><left>916</left><top>886</top><width>14</width><height>14</height><texture border="7">special://skin/media/ui-panel.png</texture><colordiffuse>asterSage</colordiffuse></control>
 
       <control type="label"><left>1025</left><top>425</top><width>370</width><height>42</height><label>Timer</label><font>font28</font><textcolor>asterInk</textcolor></control>
@@ -50,6 +50,7 @@
       <include content="AsterTimerRing" />
       <control type="label"><left>1060</left><top>616</top><width>300</width><height>94</height><label>$INFO[Window.Property(AsterHub.HomeTimerDigital)]</label><font>font56</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny></control>
       <control type="label"><left>1060</left><top>785</top><width>300</width><height>32</height><label>$INFO[Window.Property(AsterHub.HomeTimerLabel)]</label><font>font18</font><textcolor>asterMuted</textcolor><align>center</align></control>
+      <control type="button" id="303"><left>1025</left><top>870</top><width>370</width><height>64</height><label>Test 60 seconds</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor><texturefocus border="22" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="22">special://skin/media/ui-limestone-panel.png</texturenofocus><onclick>RunScript(special://skin/tools/hub_data.py,home,timer_test)</onclick><onup>300</onup><ondown>500</ondown><onleft>302</onleft><onright>500</onright></control>
 
       <control type="label"><left>1425</left><top>425</top><width>370</width><height>42</height><label>Home Assistant</label><font>font28</font><textcolor>asterInk</textcolor></control>
       <control type="image"><left>1425</left><top>478</top><width>370</width><height>526</height><texture border="28">special://skin/media/ui-panel.png</texture><colordiffuse>asterPaper</colordiffuse></control>

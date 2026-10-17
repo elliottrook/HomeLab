@@ -5,7 +5,8 @@ import unittest
 import xml.etree.ElementTree as ET
 from hub_data import (CAMERA_PILOT_SECONDS, CAMERA_PILOT_URL, WINDOWS,
                       cached_digest_audio, digest_view, show_digest_story,
-                      story_at_elapsed, story_for_playback, sync_digest_window)
+                      story_at_elapsed, story_for_playback, sync_digest_window,
+                      timer_display)
 from digest_data import BreakingCards, DigestCards, merge_chapters, public_image
 from hub_feeds import books_view, home_dashboard, home_view, read_feed
 import json
@@ -83,6 +84,16 @@ class HubTests(unittest.TestCase):
         stories = [{'start': value} for value in (4, 62, 131)]
         self.assertEqual([story_at_elapsed(stories, value) for value in (0, 4, 61, 62, 200)],
                          [0, 0, 0, 1, 2])
+
+    def test_timer_display_uses_sixty_pips_at_minute_boundary(self):
+        self.assertEqual(timer_display(60), ('01:00', '60'))
+        self.assertEqual(timer_display(59), ('00:59', '59'))
+        self.assertEqual(timer_display(1), ('00:01', '1'))
+        self.assertEqual(timer_display(0), ('00:00', '0'))
+        self.assertEqual(timer_display(90000), ('1440:00', '60'))
+        for invalid in (True, 1.5, '60'):
+            with self.assertRaises(ValueError):
+                timer_display(invalid)
 
     def test_selected_story_survives_pre_seek_window_refresh(self):
         stories = [{'start': value} for value in (4, 62, 131)]
@@ -293,6 +304,10 @@ class HubTests(unittest.TestCase):
         camera_actions = [node.text for node in home.findall('.//onclick')]
         self.assertIn('RunScript(special://skin/tools/hub_data.py,home,camera)',
                       camera_actions)
+        self.assertIn('RunScript(special://skin/tools/hub_data.py,home,timer_test)',
+                      camera_actions)
+        self.assertEqual(home.getroot().findtext('onunload'),
+                         'RunScript(special://skin/tools/hub_data.py,home,home_stop)')
         timer_cards = [node for node in home.findall('.//control[@type="image"]')
                        if node.findtext('left') == '1025' and node.findtext('top') == '478']
         self.assertEqual(len(timer_cards), 1)
