@@ -62,6 +62,10 @@
                 <item><label>Player</label><property name="Description">Playback behaviour, video and audio controls</property><onclick>ActivateWindow(PlayerSettings)</onclick></item>
                 <item><label>Services</label><property name="Description">Network access, control and connected services</property><onclick>ActivateWindow(ServiceSettings)</onclick></item>
                 <item><label>Add-ons</label><property name="Description">Installed extensions and available updates</property><onclick>ActivateWindow(AddonBrowser)</onclick></item>
+                <item><label>Remote controls</label><property name="Description">Map remote and keyboard buttons for Aster</property><onclick>RunAddon(script.keymap)</onclick><visible>System.HasAddon(script.keymap)</visible></item>
+                <item><label>Backup &amp; restore</label><property name="Description">Protect this Kodi profile before upgrades</property><onclick>RunAddon(script.xbmcbackup)</onclick><visible>System.HasAddon(script.xbmcbackup)</visible></item>
+                <item><label>Diagnostics</label><property name="Description">Read the local Kodi log without uploading it</property><onclick>RunAddon(script.logviewer)</onclick><visible>System.HasAddon(script.logviewer)</visible></item>
+                <item><label>Lyrics</label><property name="Description">Configure synchronized lyrics for Aster Music</property><onclick>Addon.OpenSettings(script.cu.lrclyrics)</onclick><visible>System.HasAddon(script.cu.lrclyrics)</visible></item>
             </content>
         </control>
         <include content="AsterClockPill"><param name="top" value="34"/><param name="innertop" value="36"/></include>

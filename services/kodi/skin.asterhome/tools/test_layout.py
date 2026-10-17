@@ -74,6 +74,53 @@ class LayoutTests(unittest.TestCase):
                    for node in addon.findall('.//requires/import')}
         self.assertEqual(imports.get('plugin.video.asterhome'), '0.1.0')
 
+    def test_settings_exposes_only_installed_support_tools(self):
+        settings = ET.parse(ROOT / '1080i/Settings.xml')
+        items = settings.findall('.//control[@id="9000"]/content/item')
+        actions = {item.findtext('label'): item.findtext('onclick') for item in items}
+        self.assertEqual(actions['Remote controls'], 'RunAddon(script.keymap)')
+        self.assertEqual(actions['Backup & restore'], 'RunAddon(script.xbmcbackup)')
+        self.assertEqual(actions['Diagnostics'], 'RunAddon(script.logviewer)')
+        self.assertEqual(actions['Lyrics'], 'Addon.OpenSettings(script.cu.lrclyrics)')
+        for label, addon_id in (('Remote controls', 'script.keymap'),
+                                ('Backup & restore', 'script.xbmcbackup'),
+                                ('Diagnostics', 'script.logviewer'),
+                                ('Lyrics', 'script.cu.lrclyrics')):
+            item = next(item for item in items if item.findtext('label') == label)
+            self.assertEqual(item.findtext('visible'), f'System.HasAddon({addon_id})')
+
+    def test_support_addon_dialog_contracts_are_present(self):
+        select = ET.parse(ROOT / '1080i/DialogSelect.xml')
+        self.assertEqual(select.getroot().get('id'), '2000')
+        self.assertEqual(select.findtext('./defaultcontrol'), '3')
+        self.assertEqual(select.find('.//control[@id="3"]').get('type'), 'list')
+        self.assertEqual(select.find('.//control[@id="1"]').get('type'), 'label')
+        confirm = ET.parse(ROOT / '1080i/DialogConfirm.xml')
+        self.assertEqual(confirm.findtext('./defaultcontrol'), '10')
+        for identifier in ('1', '9', '10', '11', '12'):
+            self.assertIsNotNone(confirm.find(f'.//control[@id="{identifier}"]'))
+
+        context = ET.parse(ROOT / '1080i/DialogContextMenu.xml')
+        self.assertEqual(context.findtext('./defaultcontrol'), '996')
+        self.assertEqual(context.find('.//control[@id="996"]').get('type'), 'grouplist')
+        self.assertEqual(context.find('.//control[@id="1000"]').get('type'), 'button')
+
+        addon_settings = ET.parse(ROOT / '1080i/DialogAddonSettings.xml')
+        expected_controls = (
+            ('grouplist', '3'), ('grouplist', '5'), ('button', '7'),
+            ('radiobutton', '8'), ('spincontrolex', '9'), ('edit', '12'),
+            ('sliderex', '13'), ('label', '14'), ('colorbutton', '15'),
+            ('scrollbar', '60'),
+        )
+        for control_type, identifier in expected_controls:
+            control = addon_settings.find(
+                f'.//control[@type="{control_type}"][@id="{identifier}"]')
+            self.assertIsNotNone(control, f'{control_type} {identifier}')
+        for identifier in ('28', '29', '30'):
+            control = addon_settings.find(
+                f'.//control[@type="button"][@id="{identifier}"]')
+            self.assertIsNotNone(control, f'button {identifier}')
+
     def test_expansion_assets_and_page_mapping(self):
         icons = ('20-music-app', '21-books-app', '22-podcasts-app',
                  '23-music-album', '24-music-artist', '25-music-song',
@@ -284,7 +331,7 @@ class LayoutTests(unittest.TestCase):
         self.assertIsNotNone(panel)
         self.assertEqual((panel.findtext('left'), panel.findtext('width')),
                          ('462', '1390'))
-        self.assertEqual(len(panel.findall('./content/item')), 4)
+        self.assertEqual(len(panel.findall('./content/item')), 8)
         self.assertTrue(all(item.find('property[@name="Description"]') is not None
                             for item in panel.findall('./content/item')))
         self.assertIsNotNone(root.find(

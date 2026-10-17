@@ -1400,6 +1400,37 @@ remained functional. Three sound-pack tests verify mapping, format, duration
 and channel weighting. No media, service, network or production setting was
 changed.
 
+Official support-add-on milestone, 2026-10-17 (skin v0.8.23): The disposable
+Mac Kodi profile now has the official Omega versions of Keymap Editor, Backup,
+Log Viewer for Kodi and CU LRC Lyrics plus their previously absent required
+Python modules. Exact versions and the official mirror index are recorded in
+`services/kodi/official-addons.lock`; no unofficial repository was enabled.
+The pre-change add-on database and GUI settings are retained under
+`/tmp/aster-kodi-addon-checkpoint-20261017`. Kodi rediscovered the packages,
+all nine requested add-on/module records are enabled, and a clean restart
+reported no dependency or skin-load error. Aster Settings exposes the four
+tools as Remote controls, Backup & restore, Diagnostics and Lyrics, with each
+entry hidden when its add-on is absent. Backup has no cloud destination or
+schedule configured, and no key mapping has been written before the physical
+remote is available.
+
+Live launch checks exposed four Kodi dialog contracts required by these tools.
+`DialogSelect`, `DialogConfirm`, `DialogContextMenu` and
+`DialogAddonSettings` now use Aster's dimmed charcoal, limestone and sage
+language while retaining Kodi's required control IDs. Log Viewer opened both
+the selector and local text reader; Keymap Editor reached its edit screen
+without saving a map; CU LRC Lyrics opened its settings; and a media context
+menu rendered correctly. A clean 0.8.23 restart reported no missing-window or
+add-on exception. The disposable macOS build still logs its pre-existing media
+key accessibility warning, which is not a skin or add-on failure.
+
+The separately reviewed Home Assistant Weather add-on was not installed. It
+would require placing a Home Assistant server address and credential in Kodi,
+while this project deliberately gives Kodi only an expiring, field-bounded
+Aster projection. Forecast data will instead extend that existing projection
+after the candidate Home Assistant weather entity and allowed fields are
+verified; this preserves the no-HA-credential-on-Kodi boundary.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

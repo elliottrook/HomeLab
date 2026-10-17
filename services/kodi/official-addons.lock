@@ -1,0 +1,15 @@
+# Official Kodi Omega support add-ons used by the Aster Home pilot.
+# Source index: https://mirrors.kodi.tv/addons/omega/addons.xml.gz
+# This records reproducible pilot inputs; it does not vendor third-party code.
+
+script.keymap=1.4.0
+script.xbmcbackup=1.7.3
+script.logviewer=2.1.8+matrix.1
+script.cu.lrclyrics=6.7.1
+
+# Dependencies absent from the Kodi 21.3 Mac pilot before this milestone.
+script.module.defusedxml=0.6.0+matrix.1
+script.module.future=1.0.0+matrix.1
+script.module.dropbox=10.3.1+matrix.1
+script.module.pyqrcode=1.2.1+matrix.4
+script.module.mutagen=1.47.0

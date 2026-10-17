@@ -1,16 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window>
+    <defaultcontrol always="true">10</defaultcontrol>
     <controls>
+        <control type="image">
+            <left>0</left><top>0</top><width>1920</width><height>1080</height>
+            <texture>special://skin/media/ui-solid.png</texture><colordiffuse>cc101512</colordiffuse>
+        </control>
         <control type="group">
             <centerleft>50%</centerleft>
             <centertop>50%</centertop>
             <width>900</width>
             <height>360</height>
+            <control type="image">
+                <left>0</left><top>0</top><width>900</width><height>360</height>
+                <texture border="32">special://skin/media/ui-panel.png</texture><colordiffuse>asterStone</colordiffuse>
+            </control>
+            <control type="image">
+                <left>0</left><top>0</top><width>900</width><height>78</height>
+                <texture border="28">special://skin/media/ui-limestone-panel.png</texture>
+            </control>
+            <control type="label" id="1">
+                <left>34</left><top>18</top><width>832</width><height>42</height>
+                <font>font28</font><textcolor>asterInk</textcolor><aligny>center</aligny>
+            </control>
             <control type="textbox" id="9">
-                <left>30</left>
-                <top>30</top>
-                <width>840</width>
-                <height>210</height>
+                <left>34</left>
+                <top>96</top>
+                <width>832</width>
+                <height>142</height>
                 <font>font24</font>
                 <textcolor>asterInk</textcolor>
             </control>
@@ -27,6 +44,9 @@
                     <height>64</height>
                     <font>font24</font>
                     <textcolor>asterInk</textcolor>
+                    <focusedcolor>asterIvory</focusedcolor>
+                    <texturefocus border="26" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus>
+                    <texturenofocus border="26">special://skin/media/ui-limestone-panel.png</texturenofocus>
                     <align>center</align>
                     <aligny>center</aligny>
                 </control>
@@ -35,8 +55,18 @@
                     <height>64</height>
                     <font>font24</font>
                     <textcolor>asterInk</textcolor>
+                    <focusedcolor>asterIvory</focusedcolor>
+                    <texturefocus border="26" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus>
+                    <texturenofocus border="26">special://skin/media/ui-limestone-panel.png</texturenofocus>
                     <align>center</align>
                     <aligny>center</aligny>
+                </control>
+                <control type="button" id="12">
+                    <width>220</width><height>64</height><font>font24</font>
+                    <textcolor>asterInk</textcolor><focusedcolor>asterIvory</focusedcolor>
+                    <texturefocus border="26" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus>
+                    <texturenofocus border="26">special://skin/media/ui-limestone-panel.png</texturenofocus>
+                    <align>center</align><aligny>center</aligny>
                 </control>
             </control>
         </control>
