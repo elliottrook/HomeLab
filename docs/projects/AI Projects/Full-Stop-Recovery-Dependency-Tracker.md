@@ -97,6 +97,13 @@ F3 receipt CLI is still uninstalled/disabled; the F2-installed producer is
 effect-disabled and cannot write a receipt through the read-only observer.
 F3 remains open.
 
+The subsequent source-only F3 custody-test update is integrated locally in
+`511123a4`. It adds explicit opened-file symlink, hardlink, wrong-mode,
+oversize and unsafe-parent checks; the complete local suite now passes 207
+tests with four expected macOS root-only skips. This strengthens the
+preflight candidate but is not target-Linux root proof and does not authorize
+installation or receipt production.
+
 Review of the corrected install's recovery helper found that its first
 version could not roll back an interruption partway through the seven atomic
 file writes. The source-only replacement at local lease-compatibility commit
