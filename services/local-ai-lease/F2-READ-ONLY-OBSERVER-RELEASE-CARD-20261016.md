@@ -48,6 +48,19 @@ string schedule values pass their respective admission checks, while numeric,
 boolean-as-number and padded schedule variants fail. Recheck those assertions
 on target Linux against the pinned source, without querying a live archive.
 
+The one-use disabled installer is
+`services/local-ai-lease/f2_disabled_install_v1.py`, SHA-256
+`00e2134617fdd18761cea129b37f224d31d0d4db267fe38e1617c769eb106d6c`.
+Its disposable-directory test is `test_f2_disabled_install_v1.py`, SHA-256
+`41c1fa76d6f2f95bc235d94cfb7f9fb09b10595c9cca1a135e104d29e5de2571`.
+It requires root and the exact private stage, checks old/new bytes, creates
+root-only checkpoints of the two originals, writes only the three plan paths
+with atomic replacement under the common lock, and rolls back an interrupted
+install if installed bytes remain known. The four local tests include failure
+at each of the three write points. Its fixed path and hash constants must be
+reviewed and verified on target Linux before invocation; it does not invoke
+the F2 observer, lease or any service command.
+
 The guard accepts only an explicit `--read-only-authorized` one-shot argument.
 It has no timer. It verifies the manual, observer, producer and imported
 runtime file custody/hashes,
@@ -100,7 +113,14 @@ test_retained_archive_producer_candidate test_f2_observer_runner_candidate`; `<p
 mode 0700. This command never invokes the real observer. The process-group
 test spawns and kills only a synthetic sleeper and verifies its child stops
 writing a disposable heartbeat. The command is a future test instruction,
-not authorization to stage or run it now.
+not authorization from this document. Jason separately approved this bounded
+stage/test/conditional-install operation on October 16; the approval covers
+only the exact reviewed three-path scope and no F2 archive scan.
+Run the four installer tests from the same private stage with
+`PYTHONDONTWRITEBYTECODE=1 TMPDIR=<private-stage>/tmp PYTHONPATH=<private-stage>
+python3 -m unittest test_f2_disabled_install_v1`; this uses disposable target
+paths only. Do not invoke the installer's command-line entry until all staged
+and installed hashes, tests, services and lease preconditions have passed.
 
 ## Separate approvals and rollback
 
