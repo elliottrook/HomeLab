@@ -1345,6 +1345,16 @@ confirmed the hero fully dissolves on genre focus, all seven names remain
 clear against the warm stone field, the artwork returns when focus moves back
 to Recommended for You, and Kodi remains stable.
 
+Active-rail heading treatment, 2026-10-17 (skin v0.8.17): the portrait rail now
+has a dedicated Genre heading. Continue Watching, Recommended for You and
+Genre use Aster ink while idle and change to ivory only when their respective
+rail has focus. Tile captions remain ink in both states so the focus treatment
+belongs to each rail rather than each individual title. Live validation showed
+Continue Watching in ivory while active with the other headings in ink, then
+Genre in ivory after navigation with every genre caption still in ink. Moving
+the portrait lane down reserved clean space for the new heading and removed
+the initial overlap with the final Recommended caption; Kodi remained stable.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

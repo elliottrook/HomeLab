@@ -215,7 +215,7 @@ class LayoutTests(unittest.TestCase):
         template = ET.parse(ROOT / '1080i/Includes.xml').find(
             './/include[@name="AsterGenreTile"]/definition/control')
         self.assertEqual((template.findtext('top'), template.findtext('width'),
-                          template.findtext('orientation')), ('1038', '240', 'horizontal'))
+                          template.findtext('orientation')), ('1100', '240', 'horizontal'))
         layout = template.find('itemlayout')
         poster = next(control for control in layout.findall('control')
                       if control.find('texture') is not None and
@@ -223,15 +223,33 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual((poster.findtext('width'), poster.findtext('height')),
                          ('210', '315'))
         self.assertEqual(int(layout.get('width')) * 7, 1680)
-        labels = [node.findtext('label') for node in media_group.findall('control')
-                  if node.get('type') == 'label' and node.findtext('top') == '1368']
-        self.assertEqual(labels,
+        self.assertEqual([row['label'] for row in params],
                          ['Comedy', 'Drama', 'Action', 'Sci-Fi', 'Documentary', 'Horror', 'Family'])
-        self.assertTrue(all(node.findtext('textcolor') == 'asterInk'
-                            for node in media_group.findall('control')
-                            if node.get('type') == 'label' and node.findtext('top') == '1368'))
+        for layout_name in ('itemlayout', 'focusedlayout'):
+            caption = next(control for control in template.find(layout_name).findall('control')
+                           if control.get('type') == 'label')
+            self.assertEqual(caption.findtext('label'), '$PARAM[label]')
+            self.assertEqual(caption.findtext('textcolor'), 'asterInk')
         self.assertFalse(any(control.findtext('top') == '302'
                              for control in template.findall('.//control')))
+
+    def test_active_rail_heading_changes_from_black_to_white(self):
+        media_group = self.home.find('.//control[@id="22"]')
+        expectations = {
+            'Continue Watching': 'Control.HasFocus(100)',
+            'Recommended for You': 'Control.HasFocus(110)',
+            'Genre': 'Control.HasFocus(140)',
+        }
+        for label, focus_condition in expectations.items():
+            headings = [control for control in media_group.findall('control')
+                        if control.get('type') == 'label' and
+                        control.findtext('label') == label]
+            self.assertEqual(len(headings), 2, label)
+            by_colour = {control.findtext('textcolor'): control
+                         for control in headings}
+            self.assertEqual(set(by_colour), {'asterInk', 'asterIvory'})
+            self.assertIn(focus_condition,
+                          by_colour['asterIvory'].findtext('visible'))
 
     def test_genre_rail_uses_native_read_only_playlists(self):
         self.assertIsNone(self.home.find('onload'))

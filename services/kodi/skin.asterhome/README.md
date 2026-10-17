@@ -1,5 +1,9 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.17 adds a Genre heading above the portrait rail and standardizes
+all three media-rail headings as black at rest and white while their rail has
+focus. Individual media and genre captions remain black in both states.
+
 Version 0.8.16 dissolves the full-screen hero artwork into the existing Aster
 stone background while any genre tile is focused. The transition follows the
 same 220 ms movement as the lifted media lanes, preserving the top-of-page hero

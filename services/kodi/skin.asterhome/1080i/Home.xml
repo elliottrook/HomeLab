@@ -239,8 +239,14 @@
             <width>650</width>
             <height>48</height>
             <label>Continue Watching</label>
-            <font>font28</font><textcolor>asterIvory</textcolor>
-            <shadowcolor>cc000000</shadowcolor>
+            <font>font28</font><textcolor>asterInk</textcolor>
+            <visible>!Control.HasFocus(100)</visible>
+        </control>
+        <control type="label">
+            <left>125</left><top>500</top><width>650</width><height>48</height>
+            <label>Continue Watching</label><font>font28</font>
+            <textcolor>asterIvory</textcolor><shadowcolor>cc000000</shadowcolor>
+            <visible>Control.HasFocus(100)</visible>
         </control>
         <control type="label">
             <left>1590</left>
@@ -330,6 +336,13 @@
             <height>48</height>
             <label>Recommended for You</label>
             <font>font28</font><textcolor>asterInk</textcolor>
+            <visible>!Control.HasFocus(110)</visible>
+        </control>
+        <control type="label">
+            <left>125</left><top>770</top><width>650</width><height>48</height>
+            <label>Recommended for You</label><font>font28</font>
+            <textcolor>asterIvory</textcolor><shadowcolor>cc000000</shadowcolor>
+            <visible>Control.HasFocus(110)</visible>
         </control>
         <control type="panel" id="110">
             <left>125</left>
@@ -373,23 +386,18 @@
             <content target="videos">videodb://recentlyaddedmovies/</content>
         </control>
 
-        <!-- The next lane deliberately peeks above the lower edge. Focusing it
-             lifts the three media lanes together so all six portrait choices
-             become visible without disturbing the initial hero composition. -->
-        <include content="AsterGenreTile"><param name="id" value="140"/><param name="left" value="125"/><param name="preview" value="special://skin/playlists/genre-previews/comedy-tv.xsp"/><param name="browse" value="special://skin/playlists/genres/comedy-tv.xsp"/><param name="lefttarget" value="8999"/><param name="righttarget" value="141"/></include>
-        <include content="AsterGenreTile"><param name="id" value="141"/><param name="left" value="365"/><param name="preview" value="special://skin/playlists/genre-previews/drama-film.xsp"/><param name="browse" value="special://skin/playlists/genres/drama-film.xsp"/><param name="lefttarget" value="140"/><param name="righttarget" value="142"/></include>
-        <include content="AsterGenreTile"><param name="id" value="142"/><param name="left" value="605"/><param name="preview" value="special://skin/playlists/genre-previews/action-film.xsp"/><param name="browse" value="special://skin/playlists/genres/action-film.xsp"/><param name="lefttarget" value="141"/><param name="righttarget" value="143"/></include>
-        <include content="AsterGenreTile"><param name="id" value="143"/><param name="left" value="845"/><param name="preview" value="special://skin/playlists/genre-previews/scifi-tv.xsp"/><param name="browse" value="special://skin/playlists/genres/scifi-tv.xsp"/><param name="lefttarget" value="142"/><param name="righttarget" value="144"/></include>
-        <include content="AsterGenreTile"><param name="id" value="144"/><param name="left" value="1085"/><param name="preview" value="special://skin/playlists/genre-previews/documentary-film.xsp"/><param name="browse" value="special://skin/playlists/genres/documentary-film.xsp"/><param name="lefttarget" value="143"/><param name="righttarget" value="145"/></include>
-        <include content="AsterGenreTile"><param name="id" value="145"/><param name="left" value="1325"/><param name="preview" value="special://skin/playlists/genre-previews/horror-film.xsp"/><param name="browse" value="special://skin/playlists/genres/horror-film.xsp"/><param name="lefttarget" value="144"/><param name="righttarget" value="146"/></include>
-        <include content="AsterGenreTile"><param name="id" value="146"/><param name="left" value="1565"/><param name="preview" value="special://skin/playlists/genre-previews/family-film.xsp"/><param name="browse" value="special://skin/playlists/genres/family-film.xsp"/><param name="lefttarget" value="145"/><param name="righttarget" value="146"/></include>
-        <control type="label"><left>140</left><top>1368</top><width>210</width><height>32</height><label>Comedy</label><font>font20</font><textcolor>asterInk</textcolor><align>center</align><aligny>center</aligny></control>
-        <control type="label"><left>380</left><top>1368</top><width>210</width><height>32</height><label>Drama</label><font>font20</font><textcolor>asterInk</textcolor><align>center</align><aligny>center</aligny></control>
-        <control type="label"><left>620</left><top>1368</top><width>210</width><height>32</height><label>Action</label><font>font20</font><textcolor>asterInk</textcolor><align>center</align><aligny>center</aligny></control>
-        <control type="label"><left>860</left><top>1368</top><width>210</width><height>32</height><label>Sci-Fi</label><font>font20</font><textcolor>asterInk</textcolor><align>center</align><aligny>center</aligny></control>
-        <control type="label"><left>1100</left><top>1368</top><width>210</width><height>32</height><label>Documentary</label><font>font20</font><textcolor>asterInk</textcolor><align>center</align><aligny>center</aligny></control>
-        <control type="label"><left>1340</left><top>1368</top><width>210</width><height>32</height><label>Horror</label><font>font20</font><textcolor>asterInk</textcolor><align>center</align><aligny>center</aligny></control>
-        <control type="label"><left>1580</left><top>1368</top><width>210</width><height>32</height><label>Family</label><font>font20</font><textcolor>asterInk</textcolor><align>center</align><aligny>center</aligny></control>
+        <!-- The next lane is announced by its heading at the lower edge.
+             Focusing it lifts all three media lanes so the heading, portrait
+             choices and captions fit without colliding with Recommended. -->
+        <control type="label"><left>125</left><top>1048</top><width>650</width><height>32</height><label>Genre</label><font>font28</font><textcolor>asterInk</textcolor><visible>!Control.HasFocus(140) + !Control.HasFocus(141) + !Control.HasFocus(142) + !Control.HasFocus(143) + !Control.HasFocus(144) + !Control.HasFocus(145) + !Control.HasFocus(146)</visible></control>
+        <control type="label"><left>125</left><top>1048</top><width>650</width><height>32</height><label>Genre</label><font>font28</font><textcolor>asterIvory</textcolor><shadowcolor>cc000000</shadowcolor><visible>Control.HasFocus(140) | Control.HasFocus(141) | Control.HasFocus(142) | Control.HasFocus(143) | Control.HasFocus(144) | Control.HasFocus(145) | Control.HasFocus(146)</visible></control>
+        <include content="AsterGenreTile"><param name="id" value="140"/><param name="left" value="125"/><param name="label" value="Comedy"/><param name="preview" value="special://skin/playlists/genre-previews/comedy-tv.xsp"/><param name="browse" value="special://skin/playlists/genres/comedy-tv.xsp"/><param name="lefttarget" value="8999"/><param name="righttarget" value="141"/></include>
+        <include content="AsterGenreTile"><param name="id" value="141"/><param name="left" value="365"/><param name="label" value="Drama"/><param name="preview" value="special://skin/playlists/genre-previews/drama-film.xsp"/><param name="browse" value="special://skin/playlists/genres/drama-film.xsp"/><param name="lefttarget" value="140"/><param name="righttarget" value="142"/></include>
+        <include content="AsterGenreTile"><param name="id" value="142"/><param name="left" value="605"/><param name="label" value="Action"/><param name="preview" value="special://skin/playlists/genre-previews/action-film.xsp"/><param name="browse" value="special://skin/playlists/genres/action-film.xsp"/><param name="lefttarget" value="141"/><param name="righttarget" value="143"/></include>
+        <include content="AsterGenreTile"><param name="id" value="143"/><param name="left" value="845"/><param name="label" value="Sci-Fi"/><param name="preview" value="special://skin/playlists/genre-previews/scifi-tv.xsp"/><param name="browse" value="special://skin/playlists/genres/scifi-tv.xsp"/><param name="lefttarget" value="142"/><param name="righttarget" value="144"/></include>
+        <include content="AsterGenreTile"><param name="id" value="144"/><param name="left" value="1085"/><param name="label" value="Documentary"/><param name="preview" value="special://skin/playlists/genre-previews/documentary-film.xsp"/><param name="browse" value="special://skin/playlists/genres/documentary-film.xsp"/><param name="lefttarget" value="143"/><param name="righttarget" value="145"/></include>
+        <include content="AsterGenreTile"><param name="id" value="145"/><param name="left" value="1325"/><param name="label" value="Horror"/><param name="preview" value="special://skin/playlists/genre-previews/horror-film.xsp"/><param name="browse" value="special://skin/playlists/genres/horror-film.xsp"/><param name="lefttarget" value="144"/><param name="righttarget" value="146"/></include>
+        <include content="AsterGenreTile"><param name="id" value="146"/><param name="left" value="1565"/><param name="label" value="Family"/><param name="preview" value="special://skin/playlists/genre-previews/family-film.xsp"/><param name="browse" value="special://skin/playlists/genres/family-film.xsp"/><param name="lefttarget" value="145"/><param name="righttarget" value="146"/></include>
         </control>
     </controls>
 </window>
