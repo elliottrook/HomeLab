@@ -1,7 +1,7 @@
 # Full-stop recovery drill — dependency tracker
 
 **Owner:** Stream A for evidence and coordination; Local AI platform owner for
-host release, lease and recovery. **Last reconciled:** 2026-10-16, 07:35
+host release, lease and recovery. **Last reconciled:** 2026-10-16, 17:10
 America/Vancouver. **Overall decision: NO-GO.** This tracker is the human
 status page. The platform-owned
 `services/local-ai-lease/FULL-STOP-RECOVERY-DRILL-RUN-CARD.md` is the executable
@@ -59,13 +59,21 @@ inactive timers, services and schedules. This is a **disabled installation**;
 it does not admit an unattended F2 scan or advance F3/F6. The October 17 F2
 scan remains unadmitted pending the [separately reviewed timing/schedule
 guard](evidence/F2-archive-timing-admission-gap-2026-10-16.md).
-The source-only F2 guard packet is prepared on local
-`codex/aster-lease-compat` commit `2a0c63c1`. It pins a lock-compatible old
-manual controller, a one-shot read-only observer wrapper, an external child
-deadline and synthetic tests (205 local suite passes, two macOS custody
-skips). The platform owner is reviewing it. It has **not** been installed or
-run on target Linux; the separate host-change and one-cycle F2 approvals
-have not been requested. This is no change to F2's NO-GO status.
+The source-only F2 guard packet was revised at local
+`codex/aster-lease-compat` commit `339b554e`. A read-only TrueNAS query
+confirmed that task 1/2/3 `enabled` values are booleans and schedule
+hour/minute values are strings. The disabled installed producer expected
+numbers, so it cannot admit the observed live configuration. The packet now
+pins a corrected producer as a **third** proposed host path, alongside the
+lock-compatible old manual controller and one-shot read-only guard. It also
+pins all observer imports, rejects bool-as-zero scan exits and handles the
+Linux 15-byte process name for the Proxmox backup client. The full local suite
+passed 206 tests with two macOS root-custody skips. The first scan is planned
+as a **supervised one-cycle** action because backup and pull jobs do not share
+the advisory lease lock. The platform owner must review this revision and
+target-Linux synthetic proof before a distinct disabled-install approval;
+the actual scan needs its own dated approval. Neither has been installed or
+run. F2 remains NO-GO, and October 17 is not promised.
 The disabled F3 producer received the same pre-start lease guard in local
 source commit `4e16b964`, integrated by the platform owner as `f4b9da31`.
 Its full local suite passed 177 tests with two macOS root-custody skips. The
@@ -128,14 +136,15 @@ configuration**. A later date depends on F3, fresh-cycle success and approval;
 the prior 2–4 calendar-day estimate is conditional, not a reservation.
 
 With the October 16 timing result missing, the earliest *conditional* sequence
-is: complete the disabled installation and unattended-scan controls before
-the October 17 backup cycle; measure F2 at 01:10 October 17; review and release
-F3 only after that measurement; produce a fresh F4 receipt from the October 18
-backup cycle; then consider F5–F9 on October 18 if the run card and Jason's
-live approval are ready. This is a dependency lower bound, **not a booked
+is: complete the source review, target-Linux synthetic proof and separate
+three-path disabled installation before an eligible backup cycle; supervise
+one approved F2 scan in that cycle; review and release
+F3 only after that measurement; produce a fresh F4 receipt from a later
+backup cycle; then consider F5–F9 on that cycle only if the run card
+and Jason's live approval are ready. This is a dependency order, **not a booked
 drill**. A failed scan, late F3 release, backup mismatch or absent approval
-pushes it later. It cannot honestly be marked complete by October 17 merely
-because a source candidate or calendar slot exists.
+pushes it later. It cannot honestly be marked complete merely because a source
+candidate or calendar slot exists.
 
 For any failed or uncertain dependency, the observing Stream A or platform
 agent must promptly tell Jason in this chat, in ordinary language:
