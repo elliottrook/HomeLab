@@ -101,8 +101,9 @@ def _task_one_complete(items: list[dict], *, date: str, last_artifact_ctime: int
     start = job.get("time_started", {}).get("$date")
     end = job.get("time_finished", {}).get("$date")
     return (
-        task.get("enabled") is True and schedule.get("hour") == 1
-        and schedule.get("minute") == 0 and job.get("state") == "SUCCESS"
+        task.get("enabled") is True and type(schedule.get("hour")) is str
+        and schedule["hour"] == "1" and type(schedule.get("minute")) is str
+        and schedule["minute"] == "0" and job.get("state") == "SUCCESS"
         and job.get("arguments") == [1] and type(start) is int
         and type(end) is int and last_artifact_ctime * 1000 <= start <= end <= now_epoch * 1000
         and datetime.fromtimestamp(start / 1000, LOCAL_ZONE).strftime("%Y_%m_%d") == date
