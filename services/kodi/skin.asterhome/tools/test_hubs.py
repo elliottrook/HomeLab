@@ -341,15 +341,16 @@ class HubTests(unittest.TestCase):
         self.assertEqual(timer_face, [])
         digital = next(node for node in home.findall('.//control[@type="label"]')
                        if 'AsterHub.HomeTimerDigital' in (node.findtext('label') or ''))
-        self.assertEqual(digital.findtext('font'), 'font64')
+        self.assertEqual(digital.findtext('font'), 'font80')
         self.assertEqual(int(digital.findtext('left')) + int(digital.findtext('width')) // 2,
                          1210)
         self.assertEqual(int(digital.findtext('top')) + int(digital.findtext('height')) // 2,
-                         675)
+                         665)
         timer_name = next(node for node in home.findall('.//control[@type="label"]')
                           if 'AsterHub.HomeTimerName' in (node.findtext('label') or ''))
         self.assertEqual(int(timer_name.findtext('top')) +
-                         int(timer_name.findtext('height')) // 2, 749)
+                         int(timer_name.findtext('height')) // 2, 734)
+        self.assertEqual(timer_name.findtext('font'), 'font24')
         ring = ET.parse(ROOT / '1080i/IncludesTimer.xml')
         dot_definition = ring.find('.//include[@name="AsterTimerDot"]/definition/control')
         self.assertEqual(dot_definition.findtext('width'), '16')
@@ -357,6 +358,12 @@ class HubTests(unittest.TestCase):
         self.assertIsNone(dot_definition.find('texture').get('border'))
         self.assertEqual(dot_definition.findtext('texture'),
                          'special://skin/media/ui-timer-dot.png')
+        self.assertEqual(dot_definition.findtext('aspectratio'), 'keep')
+        fonts = ET.parse(ROOT / '1080i/Font.xml')
+        font_sizes = {node.findtext('name'): node.findtext('size')
+                      for node in fonts.findall('.//font')}
+        self.assertEqual(font_sizes.get('font64'), '64')
+        self.assertEqual(font_sizes.get('font80'), '80')
         ring_group = next(node for node in home.findall('.//control[@type="group"]')
                           if node.find("include[@content='AsterTimerRing']") is not None)
         self.assertEqual(ring_group.findtext('left'), '-6')

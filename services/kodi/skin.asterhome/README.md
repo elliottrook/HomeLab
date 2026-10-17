@@ -1,5 +1,9 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.10 registers a dominant 80-point timer font and enlarges the timer
+name so the countdown reads as the dial's focal point. It also preserves the
+circular marker texture's aspect ratio when Kodi runs in a non-16:9 window.
+
 Version 0.8.9 enlarges the digital timer readout and moves its timer name closer
 so the two labels read as one centred unit inside the circular second markers.
 

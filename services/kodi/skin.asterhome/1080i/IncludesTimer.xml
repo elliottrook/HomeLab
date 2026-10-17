@@ -10,11 +10,13 @@
       <control type="image">
         <left>$PARAM[left]</left><top>$PARAM[top]</top><width>16</width><height>16</height>
         <texture>special://skin/media/ui-timer-dot.png</texture>
+        <aspectratio>keep</aspectratio>
         <colordiffuse>7aD7D2C8</colordiffuse>
       </control>
       <control type="image">
         <left>$PARAM[left]</left><top>$PARAM[top]</top><width>16</width><height>16</height>
         <texture>special://skin/media/ui-timer-dot.png</texture>
+        <aspectratio>keep</aspectratio>
         <colordiffuse>asterSage</colordiffuse>
         <visible>String.IsEqual(Window.Property(AsterHub.HomeTimerActive),true) + Integer.IsGreater(Window.Property(AsterHub.HomeTimerSecond),$PARAM[threshold])</visible>
       </control>
