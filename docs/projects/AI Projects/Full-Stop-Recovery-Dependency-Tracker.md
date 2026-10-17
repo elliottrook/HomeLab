@@ -180,20 +180,20 @@ F2 can be measured while F3 is engineered, but a read-only F2 result is not
 retroactively a trusted F4 receipt. F3 must exist and be approved **before**
 the backup cycle from which F4 is produced. F5–F9 are serial: they cannot be
 compressed into the 03:10 window merely because the clock reaches it. The
-earliest credible drill cycle is therefore **not October 16 under the current
-configuration**. A later date depends on F3, fresh-cycle success and approval;
-the prior 2–4 calendar-day estimate is conditional, not a reservation.
+October 17 guard failed without archive results, so **no October 17 drill or
+A1 benchmark can follow from this cycle**. A later date depends on a diagnosed
+and separately approved F2 attempt, F3 release, fresh-cycle evidence and live
+approval; the prior 2–4 calendar-day estimate is not a reservation.
 
-With the October 16 timing result missing, the earliest *conditional* sequence
-is: complete the source review, target-Linux synthetic proof and separate
-three-path disabled installation before an eligible backup cycle; supervise
-one approved F2 scan in that cycle; review and release
-F3 only after that measurement; produce a fresh F4 receipt from a later
-backup cycle; then consider F5–F9 on that cycle only if the run card
-and Jason's live approval are ready. This is a dependency order, **not a booked
-drill**. A failed scan, late F3 release, backup mismatch or absent approval
-pushes it later. It cannot honestly be marked complete merely because a source
-candidate or calendar slot exists.
+The earliest *conditional* sequence is: review the October 17 failure and any
+source-only diagnostics, validate a revised guard on target Linux, and obtain
+separate approval for a later one-cycle F2 scan. Only a complete bounded
+three-archive result can advance F2. Review and release F3 after that timing
+evidence, then produce a fresh F4 receipt from a **subsequent** backup cycle.
+Consider F5–F9 in that same subsequent cycle only if their own run card and
+Jason's live approval are ready. This is a dependency order, **not a booked
+drill**. Another failed scan, late F3 release, backup mismatch or absent
+approval pushes it later. Source code and a calendar slot are insufficient.
 
 For any failed or uncertain dependency, the observing Stream A or platform
 agent must promptly tell Jason in this chat, in ordinary language:
