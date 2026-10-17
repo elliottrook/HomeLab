@@ -57,6 +57,16 @@ evaluator digest; a later run records the revised evaluator digest and does
 not rewrite those historical files. This integrity check changes no route,
 label or promotion decision.
 
+**2026-10-17 content-free failure check:** An invalid attempt may now retain
+only its bounded failure metadata and latency, not status, capabilities or
+runner-claimed agreement fields. Optional run-level timings must be finite,
+non-negative numbers. The focused scorer suite passed 16 tests. Re-scoring the
+unchanged retained runs still gives 18/30 for 9B/SYCL and 30/30 for the
+lexical rules, with nearest-rank p95 values 0.708 s and rounded 0.0 s.
+This closes a raw-text channel in future run artifacts; it does not improve
+the router or supply independent labels. Historical manifests and scores keep
+their original evaluator identity.
+
 ## What a comparable backend run must provide
 
 Each backend—deterministic, newer local stack or subscription-backed Codex—gets

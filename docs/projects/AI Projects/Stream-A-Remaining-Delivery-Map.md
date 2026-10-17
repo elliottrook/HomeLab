@@ -215,6 +215,10 @@ control**. Those rules and cases were authored together, and their Mac latency
 cannot be compared with the B60 request timing. The control confirms that a
 future local stack must add measured value beyond simply reproducing these
 examples; it is not an independent quality or deployment result.
+The October 17 [scorer hardening](benchmarks/ask-routing-development-v1/README.md)
+rejects decision fields on invalid attempts and nonnumeric run timings while
+preserving both baseline scores. This protects the evidence format; it does
+not advance the independent-label or shadow-routing gate.
 An [offline Decision contract correction](evidence/M3-decision-sensitivity-boundary-2026-10-16.md)
 now rejects a proposed capability whose registry sensitivity exceeds the
 request sensitivity. This closes a synthetic compatibility-check omission;

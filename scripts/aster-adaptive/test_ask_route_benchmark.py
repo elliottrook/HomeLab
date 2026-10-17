@@ -90,6 +90,44 @@ class AskRouteBenchmarkTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "valid route contradicts failure"):
                     bench.score(self.fixture, changed, manifest)
 
+    def test_invalid_attempt_cannot_carry_route_or_private_text(self):
+        for field, value in (("status", "private request text"),
+                             ("capabilities", ["private request text"]),
+                             ("exact_match", False), ("missing", []), ("extra", [])):
+            with self.subTest(field=field):
+                run = json.loads(self.run_bytes)
+                record = run["records"][0]
+                record["valid"] = False
+                record[field] = value
+                changed = json.dumps(run).encode()
+                manifest = {**self.manifest, "run_sha256": bench.sha256(changed)}
+                with self.assertRaisesRegex(ValueError, "invalid route carries decision fields"):
+                    bench.score(self.fixture, changed, manifest)
+
+    def test_content_free_invalid_attempt_remains_in_denominator(self):
+        run = json.loads(self.run_bytes)
+        run["records"][0] = {"id": run["records"][0]["id"], "valid": False,
+                             "latency_seconds": 0.1, "failure": "transport_error"}
+        run.pop("valid", None)
+        run.pop("exact_match", None)
+        changed = json.dumps(run).encode()
+        manifest = {**self.manifest, "run_sha256": bench.sha256(changed)}
+        result = bench.score(self.fixture, changed, manifest)
+        self.assertEqual(result["attempted"], 30)
+        self.assertEqual(result["valid"], 29)
+        self.assertEqual(result["exact_agreement"], 17)
+        self.assertIsNone(result["request_latency_p95_seconds"])
+
+    def test_optional_run_timing_rejects_text_bool_and_nonfinite(self):
+        for value in ("private request text", True, float("inf"), -1):
+            with self.subTest(value=value):
+                run = json.loads(self.run_bytes)
+                run["elapsed_seconds"] = value
+                changed = json.dumps(run).encode()
+                manifest = {**self.manifest, "run_sha256": bench.sha256(changed)}
+                with self.assertRaisesRegex(ValueError, "invalid run timing"):
+                    bench.score(self.fixture, changed, manifest)
+
     def test_http_and_error_fields_are_bounded_codes(self):
         for extra, error in (({"http_status": True}, "invalid HTTP status"),
                              ({"error_type": "private path /tmp/secret"}, "invalid error type")):

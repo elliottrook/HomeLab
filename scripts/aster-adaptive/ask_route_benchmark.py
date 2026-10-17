@@ -83,6 +83,10 @@ def score(fixture_raw: bytes, run_raw: bytes, manifest: dict) -> dict:
         "no confidence calibration, authority or production routing",
     ]:
         raise ValueError("unexpected free-text run limit")
+    for field in ("elapsed_seconds", "p50_seconds", "p95_seconds"):
+        if field in run and (type(run[field]) not in {float, int}
+                             or not math.isfinite(run[field]) or run[field] < 0):
+            raise ValueError("invalid run timing")
     cases = fixture.get("families")
     records = run.get("records")
     if not isinstance(cases, list) or len(cases) != 30 or not isinstance(records, list):
@@ -141,6 +145,10 @@ def score(fixture_raw: bytes, run_raw: bytes, manifest: dict) -> dict:
                 raise ValueError("unknown or duplicate capability")
             if record["status"] != "plan" and caps:
                 raise ValueError("non-plan capability")
+        elif set(record) & {"status", "capabilities", "exact_match", "missing", "extra"}:
+            # An invalid attempt is still retained in the denominator. It
+            # must not become a channel for free text or claimed route labels.
+            raise ValueError("invalid route carries decision fields")
         actual[case_id] = record
     by_family = defaultdict(lambda: {"cases": 0, "exact": 0, "valid": 0})
     exact = status_match = valid = missing_caps = extra_caps = false_clarify = false_abstain = 0
