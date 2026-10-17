@@ -31,6 +31,12 @@ receipt or drill is scheduled. The paragraphs below preserve the earlier failed 
 paths as provenance; their earlier “uninstalled” descriptions are historical,
 not the current installed state.
 
+A source-only follow-up candidate at local `b9094cc6` adds a fixed,
+content-free failure phase (`preflight`, `observer`, or `result`) for a future
+review. It is not installed and was not used to retry October 17. The current
+checkout passes 208 local tests with four expected macOS root-custody skips;
+target-Linux proof, a new pinned card and fresh approvals remain required.
+
 The October 16 01:10 read-only archive heartbeat triggered, but no complete
 three-archive result was retained by the time Stream A resumed after the
 start cutoff. It is now **paused**; see the [dated F2 record](evidence/Full-stop-archive-window-missed-2026-10-16.md).

@@ -13,9 +13,9 @@ the fail-closed decision, scan limits, lease behavior, host effects, or the
 October 17 result. A phase narrows a future investigation; it does not identify
 which predicate failed or prove archive integrity.
 
-The local `scripts/local-ai` suite passed 212 tests (four root-custody tests
-skipped on macOS), including phase assertions for preflight denial, observer
-failure, and malformed result. This candidate is **not installed**. Its changed
-hash requires target-Linux review, a new pinned release card, separate host
-change approval, and fresh one-cycle scan approval before use. Never rerun the
-October 17 attempt to diagnose it.
+The current checkout's `scripts/local-ai` suite passed 208 tests (four
+root-custody tests skipped on macOS), including phase assertions for preflight
+denial, observer failure, and malformed result. This candidate is **not
+installed**. Its changed hash requires target-Linux review, a new pinned
+release card, separate host change approval, and fresh one-cycle scan approval
+before use. Never rerun the October 17 attempt to diagnose it.
