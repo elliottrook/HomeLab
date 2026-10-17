@@ -286,7 +286,7 @@ class HubTests(unittest.TestCase):
         self.assertIn('AlarmClock(AsterDigestFollow', digest)
         self.assertIn('CancelAlarm(AsterDigestFollow,silent)', digest)
 
-    def test_home_window_is_dashboard_with_camera_and_square_timer(self):
+    def test_home_window_is_dashboard_with_camera_and_black_timer_panel(self):
         home = ET.parse(ROOT / '1080i/custom_1112_home.xml')
         labels = [node.text or '' for node in home.findall('.//label')]
         self.assertIn('Cameras', labels)
@@ -309,22 +309,21 @@ class HubTests(unittest.TestCase):
         self.assertEqual(home.getroot().findtext('onunload'),
                          'RunScript(special://skin/tools/hub_data.py,home,home_stop)')
         timer_cards = [node for node in home.findall('.//control[@type="image"]')
-                       if node.findtext('left') == '1025' and node.findtext('top') == '478']
+                       if node.findtext('left') == '1005' and node.findtext('top') == '478']
         self.assertEqual(len(timer_cards), 1)
-        self.assertEqual(timer_cards[0].findtext('width'), '370')
-        self.assertEqual(timer_cards[0].findtext('height'), '370')
+        self.assertEqual(timer_cards[0].findtext('width'), '400')
+        self.assertEqual(timer_cards[0].findtext('height'), '526')
+        self.assertEqual(timer_cards[0].findtext('colordiffuse'), 'ff10110f')
         timer_face = [node for node in home.findall('.//control[@type="image"]')
                       if node.findtext('texture') == 'special://skin/media/ui-timer-base.png']
-        self.assertEqual((timer_face[0].findtext('left'), timer_face[0].findtext('top'),
-                          timer_face[0].findtext('width'), timer_face[0].findtext('height')),
-                         ('1030', '483', '360', '360'))
+        self.assertEqual(timer_face, [])
         digital = next(node for node in home.findall('.//control[@type="label"]')
                        if 'AsterHub.HomeTimerDigital' in (node.findtext('label') or ''))
         self.assertEqual(digital.findtext('font'), 'font56')
         self.assertEqual(int(digital.findtext('left')) + int(digital.findtext('width')) // 2,
-                         1025 + 370 // 2)
+                         1210)
         self.assertEqual(int(digital.findtext('top')) + int(digital.findtext('height')) // 2,
-                         478 + 370 // 2)
+                         675)
         ring = ET.parse(ROOT / '1080i/IncludesTimer.xml')
         pills = ring.findall('.//include[@content="AsterTimerPill"]')
         self.assertEqual(len(pills), 60)

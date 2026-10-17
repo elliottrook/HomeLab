@@ -1,5 +1,13 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.4 turns the timer into a larger, full-height black feature panel.
+The separate circular face is removed: a wider, mathematically circular ring
+of sixty longer pills now supplies the entire clock silhouette around the
+centred digital display. The label and bounded test control remain inside the
+same panel so the timer reads as one component rather than stacked cards. Live
+Mac Kodi validation confirmed the complete and partially depleted rings on the
+black panel, with no skin-load or timer-script error in the Kodi log.
+
 Version 0.8.3 adds a bounded **Test 60 seconds** action to the Home timer card.
 It drives only Kodi window properties: no Home Assistant timer or household
 action is created. A one-second Kodi alarm recalculates the display from a UTC
