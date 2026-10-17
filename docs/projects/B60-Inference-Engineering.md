@@ -12,6 +12,13 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October 17 prerequisite check](B60-Inference-Engineering/nightly-admission-20261017.md)
+found a newly changed installed manual lease helper with archive-observer
+directory exclusion, not yet reflected on the published platform branch.
+Do not overwrite it or infer idle from absent lease paths alone. Watchdog
+remains disabled; independent recovery and full-path admission remain BLOCKED.
+No model call ran. The exact drift and source/receipt request are retained locally.
+
 October 16 preparation supplied a concrete, six-test offline recovery-margin
 proposal in the [cross-owner review](B60-Inference-Engineering/peer-integration-review-20261013-1830.md).
 It accounts separately for restoration duration and watchdog trigger lag,
