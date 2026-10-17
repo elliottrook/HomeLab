@@ -1,7 +1,7 @@
 # Full-stop recovery drill — dependency tracker
 
 **Owner:** Stream A for evidence and coordination; Local AI platform owner for
-host release, lease and recovery. **Last reconciled:** 2026-10-16, 19:02
+host release, lease and recovery. **Last reconciled:** 2026-10-17, 01:12
 America/Vancouver. **Overall decision: NO-GO.** This tracker is the human
 status page. The platform-owned
 `services/local-ai-lease/FULL-STOP-RECOVERY-DRILL-RUN-CARD.md` is the executable
@@ -20,7 +20,16 @@ resolved; this is not an F3/F6/F7 pass or live approval. The owner also
 integrated the missed-window record and the uninstalled read-only observer
 source in local commits `11764480` and `b254bd02`.
 
-## What will happen automatically
+## Current next action and historical sequence
+
+The one-time October 17 supervised F2 guard was invoked once after the
+current-cycle backup and task-1 pull passed preflight. It returned `F2NoGo`
+without per-archive results; the [dated record](evidence/F2-archive-guard-no-go-2026-10-17.md)
+marks this cycle FAILED/UNKNOWN and prohibits a retry under the consumed
+approval. Production and schedules remained normal in the postcheck. No
+receipt or drill is scheduled. The paragraphs below preserve the earlier failed and corrected
+paths as provenance; their earlier “uninstalled” descriptions are historical,
+not the current installed state.
 
 The October 16 01:10 read-only archive heartbeat triggered, but no complete
 three-archive result was retained by the time Stream A resumed after the
@@ -141,8 +150,8 @@ the end of that backup cycle.
 |---|---|---|---|
 | F0 | **Pinned inactive compatibility source** | Source pins, seven-file rollback checkpoint, 12 installed modules and two heartbeat units match reviewed bytes; no lease/lock or production change. | [x] DONE — `services/local-ai-lease/FULL-STOP-COMPATIBILITY-DISABLED-INSTALL-RESULT-20261015.md` on platform branch; separate local `codex/aster-lease-compat` branch. |
 | F1 | **Target-Linux synthetic compatibility**, after F0 | Installed-path imports, admission-record round-trip, old-dependency compatibility, watchdog/recovery and archive tests; timers stay inactive. | [x] DONE — same result; synthetic tests only. |
-| F2 | **New-cycle read-only archive timing**, after successful 00:30 Proxmox job and 01:00 TrueNAS task 1 | Exact current-cycle 104/110/116 identities; three bounded `zstd -t` exit-0 results before the deadline, without competing work. Failure/unknown/partial is NO-GO. | [ ] UNKNOWN / NO-GO for October 16 — heartbeat triggered, but no complete retained 104/110/116 result was found and the start window elapsed. See [dated evidence](evidence/Full-stop-archive-window-missed-2026-10-16.md). The previous October 15 scan was partial. |
-| F3 | **Trusted retained-receipt release**, after F0/F1 and timing review | A separately reviewed, hash-pinned producer can write a root-owned mode-0600 receipt in a mode-0700 directory only after all fixed source, whole-job, task-1, archive identity/integrity and deadline checks pass. Partial/late scans leave no success receipt. Test the actual installed path and rollback; obtain bounded host-change approval. | [ ] BLOCKED — the source-only dual-gated receipt CLI candidate (`codex/aster-lease-compat` at `7f1c15a4`) passed offline tests but is uninstalled and effect-disabled. The corrected producer is installed only for read-only F2 observation; no trusted receipt was produced. F2 alone cannot satisfy F3. |
+| F2 | **New-cycle read-only archive timing**, after successful 00:30 Proxmox job and 01:00 TrueNAS task 1 | Exact current-cycle 104/110/116 identities; three bounded `zstd -t` exit-0 results before the deadline, without competing work. Failure/unknown/partial is NO-GO. | [ ] **FAILED/UNKNOWN, October 17** — [one approved guard attempt](evidence/F2-archive-guard-no-go-2026-10-17.md) returned `F2NoGo` without archive rows despite passing observable backup/task-1 preflight. No retry this cycle. October 16 was UNKNOWN/NO-GO after the [missed window](evidence/Full-stop-archive-window-missed-2026-10-16.md); October 15 was partial. A future attempt needs a revised card and approval. |
+| F3 | **Trusted retained-receipt release**, after F0/F1 and timing review | A separately reviewed, hash-pinned producer can write a root-owned mode-0600 receipt in a mode-0700 directory only after all fixed source, whole-job, task-1, archive identity/integrity and deadline checks pass. Partial/late scans leave no success receipt. Test the actual installed path and rollback; obtain bounded host-change approval. | [ ] BLOCKED — the receipt CLI entrypoint and an older receipt-boundary file exist on Proxmox, but the F3 path is not released or invoked. The writer/reader candidate through `a8d0f380` needs target-Linux root proof and a complete effect-enabled release review. The later source-only writer hardening and custody tests remain local-only. The corrected archive producer is installed only for read-only F2 observation; no trusted receipt was produced. F2 alone cannot satisfy F3. |
 | F4 | **Fresh trusted receipt for the drill cycle**, after F3 and that cycle's backup/task 1 | Complete current-cycle receipt exists, is independently re-read and bound to the same archive identities; stale, replaced or incomplete files fail closed. | [ ] BLOCKED by F3 and next eligible backup cycle. No October 15 receipt exists. |
 | F5 | **03:05 full preflight**, after F4 and 02:00/03:00 TrueNAS tasks | Fixed schedules and same-cycle job completions; exact LXC110 mirror; three consumers still running; no conflicting lease/job; pinned Qwen3.5-9B Q4_K_M, llama.cpp b11429 SYCL/Level Zero, GPU, unit and authentication state; News timer active/enabled and job idle. Save non-secret baseline for restoration. | [ ] BLOCKED by F4; must be observed afresh in the chosen cycle. |
 | F6 | **Independent recovery armed**, after F5 and approved live card | Compatible watchdog and owner-liveness paths are verified active/enabled before any stop; exact state schema and constrained recovery executor match pins; the manual `acquire --light` remains legacy-schema and cannot be used with this watchdog even after its F2 lock update. Loss of watchdog/owner closes acquisition. | [ ] BLOCKED — both candidate timers inactive and live arming unapproved. Synthetic tests do not close this gate. |
