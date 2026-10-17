@@ -41,7 +41,7 @@ class F2ObserverRunnerTests(unittest.TestCase):
 
     def test_truenas_schedules_and_busy_state(self):
         tasks = [{"id": i, "enabled": True,
-                  "schedule": {"hour": h, "minute": m},
+                  "schedule": {"hour": str(h), "minute": str(m)},
                   "job": {"state": "SUCCESS"}}
                  for i, (h, m) in f2.TRUENAS_SCHEDULES.items()]
         runner = lambda _command, _timeout: (0, json.dumps(tasks))
@@ -50,7 +50,14 @@ class F2ObserverRunnerTests(unittest.TestCase):
         with self.assertRaises(f2.F2NoGo):
             f2._quiet_truenas(runner)
         tasks[1]["job"]["state"] = "SUCCESS"
-        tasks[0]["schedule"]["hour"] = 2
+        tasks[0]["schedule"]["hour"] = "2"
+        with self.assertRaises(f2.F2NoGo):
+            f2._quiet_truenas(runner)
+        tasks[0]["schedule"]["hour"] = 1
+        with self.assertRaises(f2.F2NoGo):
+            f2._quiet_truenas(runner)
+        tasks[0]["schedule"]["hour"] = "1"
+        tasks[0]["enabled"] = 1
         with self.assertRaises(f2.F2NoGo):
             f2._quiet_truenas(runner)
 
@@ -85,6 +92,10 @@ class F2ObserverRunnerTests(unittest.TestCase):
             with patch.object(f2.os, "getloadavg", return_value=(0.5, 0, 0)):
                 with self.assertRaisesRegex(f2.F2NoGo, "competing"):
                     f2._quiet_host(root)
+            (process / "comm").write_text("proxmox-backup\n")
+            with patch.object(f2.os, "getloadavg", return_value=(0.5, 0, 0)):
+                with self.assertRaisesRegex(f2.F2NoGo, "competing"):
+                    f2._quiet_host(root)
 
     def test_lease_gate_refuses_before_child_launch(self):
         with patch.object(f2.os, "geteuid", return_value=0), \
@@ -107,6 +118,10 @@ class F2ObserverRunnerTests(unittest.TestCase):
             f2._project(json.dumps(bad))
         bad = result()
         bad["archives"][1]["test_exit"] = 1
+        with self.assertRaises(f2.F2NoGo):
+            f2._project(json.dumps(bad))
+        bad = result()
+        bad["archives"][1]["test_exit"] = False
         with self.assertRaises(f2.F2NoGo):
             f2._project(json.dumps(bad))
 
@@ -132,12 +147,14 @@ class F2ObserverRunnerTests(unittest.TestCase):
             created.append((args, kwargs))
             return FakeProcess()
         with patch.object(f2.os, "geteuid", return_value=0), \
-                patch.object(f2, "_pinned_regular"), \
+                patch.object(f2, "_pinned_regular") as pinned, \
                 patch.object(f2, "_no_lease_or_receipt"), \
                 patch.object(f2, "_quiet_host"), \
                 patch.object(f2, "_quiet_truenas"):
             output = f2.observe_once(runner=lambda *_: (0, "[]"), clock=lambda: START, popen=popen)
         self.assertFalse(output["admission_receipt_written"])
+        self.assertIn(f2.PRODUCER, [call.args[0] for call in pinned.call_args_list])
+        self.assertEqual(len(pinned.call_args_list), 6)
         self.assertEqual(len(created), 1)
         self.assertTrue(created[0][1]["start_new_session"])
         self.assertEqual(created[0][1]["stderr"], subprocess.DEVNULL)

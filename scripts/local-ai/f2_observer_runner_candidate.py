@@ -25,11 +25,22 @@ from retained_archive_integrity import LOCAL_ZONE
 ROOT = Path("/var/lib/local-ai-lab")
 MANUAL = Path("/usr/local/sbin/local-ai-lease")
 OBSERVER = Path("/usr/local/libexec/local-ai-lease/retained_archive_timing_observer.py")
+PRODUCER = Path("/usr/local/libexec/local-ai-lease/retained_archive_producer_candidate.py")
 RECEIPT = ROOT / "archive-integrity.json"
 MANUAL_SHA256 = "67ca223d03a4922603f570c6db87fed919879aedf3706e586b2684f7be84073c"
 OBSERVER_SHA256 = "f07071d3544fafd0579a4e360674664ec95dd32bd2c4114c3e073c849805e363"
+PRODUCER_SHA256 = "5cfe1a53578250590ee656c7b5a808b6b94a60650255efa4857d1fdd94507acb"
+RUNTIME_PINS = (
+    (Path("/usr/local/libexec/local-ai-lease/host_exclusion.py"),
+     "f8c60ad720a8ac1c6c4f3e51c84ce67747b50f25534c02e0ee6ed38efc302563"),
+    (Path("/usr/local/libexec/local-ai-lease/retained_archive_integrity.py"),
+     "11b536ede74d0bcea3b7bd5fe123c3f670715fcc96ef9059723c29a504cc54a5"),
+    (Path("/usr/local/libexec/local-ai-lease/fixed_source_adapters.py"),
+     "8241f1b1f3f5caa0d514740d36600f445de257b40a0a0d089bb9febadd1418b9"),
+)
 TRUENAS_SCHEDULES = {1: (1, 0), 3: (2, 0), 2: (3, 0)}
-BUSY_COMM = frozenset({"vzdump", "zstd", "rsync", "pbs-client", "proxmox-backup-client"})
+# Linux /proc/<pid>/comm is limited to 15 visible bytes.
+BUSY_COMM = frozenset({"vzdump", "zstd", "rsync", "pbs-client", "proxmox-backup"})
 MAX_LOAD_1M = 4.0  # conservative source candidate, review against host baseline
 RESULT_FIELDS = frozenset({"schema", "state", "date", "archives", "admission_receipt_written"})
 ROW_FIELDS = frozenset({"vmid", "volid", "size", "ctime", "test_started_epoch",
@@ -101,8 +112,8 @@ def _quiet_truenas(runner) -> None:
         schedule = task.get("schedule")
         job = task.get("job")
         if (task.get("enabled") is not True or not isinstance(schedule, dict)
-                or type(schedule.get("hour")) is not int or schedule["hour"] != hour
-                or type(schedule.get("minute")) is not int or schedule["minute"] != minute
+                or type(schedule.get("hour")) is not str or schedule["hour"] != str(hour)
+                or type(schedule.get("minute")) is not str or schedule["minute"] != str(minute)
                 or not isinstance(job, dict) or job.get("state") in {"RUNNING", "STARTING", "WAITING"}):
             raise F2NoGo("fixed TrueNAS task is changed or busy")
         if task_id == 1 and job.get("state") != "SUCCESS":
@@ -146,7 +157,7 @@ def _project(output: str) -> dict:
     for vmid, row in zip(("104", "110", "116"), value["archives"]):
         if (not isinstance(row, dict) or set(row) != ROW_FIELDS or row["vmid"] != vmid
                 or type(row["volid"]) is not str or not row["volid"].startswith("backups:backup/")
-                or row["test_exit"] != 0
+                or type(row["test_exit"]) is not int or row["test_exit"] != 0
                 or any(type(row[key]) is not int for key in
                        ("size", "ctime", "test_started_epoch", "test_finished_epoch", "test_elapsed_ms", "test_exit"))
                 or not row["ctime"] <= row["test_started_epoch"] <= row["test_finished_epoch"]):
@@ -160,6 +171,9 @@ def observe_once(*, runner, popen=subprocess.Popen, clock=time.time) -> dict:
     _window(clock())
     _pinned_regular(MANUAL, MANUAL_SHA256, 0o750, 32_768)
     _pinned_regular(OBSERVER, OBSERVER_SHA256, 0o644, 16_384)
+    _pinned_regular(PRODUCER, PRODUCER_SHA256, 0o644, 16_384)
+    for path, digest in RUNTIME_PINS:
+        _pinned_regular(path, digest, 0o644, 32_768)
     _no_lease_or_receipt()
     _quiet_host()
     _quiet_truenas(runner)
