@@ -68,6 +68,12 @@ class LayoutTests(unittest.TestCase):
                     if value and value.startswith('special://skin/media/'):
                         self.assertTrue((ROOT / value.removeprefix('special://skin/')).is_file(), value)
 
+    def test_combined_genre_plugin_is_a_required_skin_dependency(self):
+        addon = ET.parse(ROOT / 'addon.xml')
+        imports = {node.get('addon'): node.get('version')
+                   for node in addon.findall('.//requires/import')}
+        self.assertEqual(imports.get('plugin.video.asterhome'), '0.1.0')
+
     def test_expansion_assets_and_page_mapping(self):
         icons = ('20-music-app', '21-books-app', '22-podcasts-app',
                  '23-music-album', '24-music-artist', '25-music-song',
@@ -243,20 +249,32 @@ class LayoutTests(unittest.TestCase):
             self.assertEqual(headings[0].findtext('textcolor'), 'asterInk')
             self.assertIsNone(headings[0].find('visible'))
 
-    def test_genre_rail_uses_native_read_only_playlists(self):
+    def test_genre_rail_uses_read_only_previews_and_combined_browser(self):
         self.assertIsNone(self.home.find('onload'))
         self.assertNotIn('genre_data.py', (ROOT / '1080i/Home.xml').read_text())
-        for folder in ('genre-previews', 'genres'):
-            files = list((ROOT / 'playlists' / folder).glob('*.xsp'))
-            self.assertEqual(len(files), 7)
-            for source in files:
-                root = ET.parse(source).getroot()
-                self.assertIn(root.get('type'), ('movies', 'tvshows'))
-                self.assertEqual(root.find('rule').get('field'), 'genre')
-                self.assertEqual(root.find('rule').get('operator'), 'contains')
-                self.assertEqual(root.findtext('order'), 'random')
-                self.assertEqual(root.findtext('limit'),
-                                 '1' if folder == 'genre-previews' else None)
+        files = list((ROOT / 'playlists' / 'genre-previews').glob('*.xsp'))
+        self.assertEqual(len(files), 7)
+        for source in files:
+            root = ET.parse(source).getroot()
+            self.assertIn(root.get('type'), ('movies', 'tvshows'))
+            self.assertEqual(root.find('rule').get('field'), 'genre')
+            self.assertEqual(root.find('rule').get('operator'), 'contains')
+            self.assertEqual(root.findtext('order'), 'random')
+            self.assertEqual(root.findtext('limit'), '1')
+        includes = [node for node in self.home.findall('.//include')
+                    if node.get('content') == 'AsterGenreTile']
+        browse = [{param.get('name'): param.get('value')
+                   for param in include.findall('param')} for include in includes]
+        for row in browse:
+            self.assertEqual(row['browse'],
+                             f"plugin://plugin.video.asterhome/?genre={row['label']}")
+        self.assertFalse(list((ROOT / 'playlists' / 'genres').glob('*.xsp')))
+        includes_root = ET.parse(ROOT / '1080i/Includes.xml')
+        heading = includes_root.find('.//variable[@name="AsterBrowseHeading"]')
+        plugin_value = next(value for value in heading.findall('value')
+                            if 'plugin.video.asterhome' in
+                            value.get('condition', ''))
+        self.assertEqual(plugin_value.text, '$INFO[Container.PluginCategory]')
 
 
 if __name__ == '__main__':

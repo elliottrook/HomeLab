@@ -1,5 +1,13 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.19 replaces the seven single-media genre destinations with the
+read-only `plugin.video.asterhome` companion. Each genre page now merges
+matching movies and TV shows from Kodi's existing local library, alphabetizes
+the shared result, plays movies through their indexed path and opens a show's
+existing seasons view. Its browse heading identifies the active genre as a
+combined Movies & TV collection. Landing-page previews remain native one-item
+playlists. Kodi must enable the companion add-on after it is first installed.
+
 Version 0.8.18 keeps Continue Watching, Recommended for You and Genre in Aster
 ink in every focus state. The permanent black treatment gives all three rail
 headings reliable contrast against the light stone field; tile rings retain

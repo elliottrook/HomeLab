@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="plugin.video.asterhome" name="Aster Media Library" version="0.1.0" provider-name="Aster Home">
+  <requires><import addon="xbmc.python" version="3.0.0" /></requires>
+  <extension point="xbmc.python.pluginsource" library="default.py"><provides>video</provides></extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Combined movie and television genre views for Aster Media</summary>
+    <description lang="en_GB">Builds read-only genre directories from Kodi's existing movie and television libraries.</description>
+    <platform>all</platform><license>MIT</license>
+  </extension>
+</addon>

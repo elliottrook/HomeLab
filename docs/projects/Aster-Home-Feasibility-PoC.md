@@ -1362,6 +1362,23 @@ in every focus state; existing tile focus rings provide the navigation cue.
 Live validation on the disposable macOS Kodi client confirmed the permanent
 ink treatment remains legible on both the hero fade and plain stone field.
 
+Combined genre browser, 2026-10-17 (skin v0.8.19; companion plug-in v0.1.0):
+Kodi's native smart playlists cannot combine Movies and TV Shows, so the seven
+single-class genre destinations are replaced by a small read-only Aster video
+plug-in. It queries both existing Kodi library collections through JSON-RPC,
+filters the selected indexed genre, merges and alphabetizes results in memory,
+plays movie paths already held by Kodi, and opens TV shows through their native
+season nodes. It performs no Kodi, Jellyfin or media-file writes. The landing
+page retains the native one-item preview playlists.
+
+Live validation on the disposable macOS Kodi client enabled the separately
+installed companion and confirmed that Comedy opens one 455-title result made
+from 399 movies and 56 TV shows. The same path opened Sci-Fi as a 271-title
+combined result, and selecting `3rd Rock from the Sun` opened its native seven
+season entries with the action correctly changing from Play to Browse. Movie
+selection remained playable through Kodi's indexed Jellyfin path. No plug-in
+errors were recorded in Kodi's log during either combined-library traversal.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
