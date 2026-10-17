@@ -1,5 +1,11 @@
 # Aster Home Kodi skin prototype
 
+Version 0.7.8 advances the Digest list's green story highlight from the same
+bounded active index as its headline, synopsis, source and artwork. The
+two-second sync queues Kodi's supported `Control.SetFocus` built-in only when
+the chapter changes; it still avoids direct background access to the list
+control.
+
 Version 0.7.7 makes the visible Digest story follow audio chapter boundaries
 every two seconds while the Digest window and its own audio remain active.
 It uses Kodi's per-skin looping alarm to invoke a short, one-shot sync and

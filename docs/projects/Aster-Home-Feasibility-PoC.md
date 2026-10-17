@@ -1201,6 +1201,16 @@ updates; leaving Digest stopped the alarm, and Kodi then stopped playback and
 quit cleanly. The 58-test skin suite also covers boundary advancement and the
 timer lifecycle. LibreELEC playback remains a later hardware validation gate.
 
+Digest playback highlight, 2026-10-17 (skin v0.7.8): The same bounded active
+story index now queues Kodi's supported `Control.SetFocus` built-in when a
+chapter changes, keeping the green row highlight aligned with the headline,
+synopsis, source and artwork without restoring unsafe direct list-control
+access. A live Mac test started at the 8:02 story and crossed the 8:46 chapter
+boundary: the panel advanced to the Brazilian Amazon story and the green
+highlight advanced to its matching row. Stop removed the playback controls
+without a stall. The 58-test suite passes and asserts the queued focus command;
+LibreELEC playback remains a later hardware validation gate.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

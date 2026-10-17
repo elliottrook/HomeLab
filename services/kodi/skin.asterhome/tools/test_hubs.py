@@ -116,12 +116,16 @@ class HubTests(unittest.TestCase):
             def getPlayingFile(self): return '/tmp/digest.mp3'
             def getTime(self): return 12
         class Xbmc:
+            def __init__(self): self.builtins = []
             def Player(self): return Player()
+            def executebuiltin(self, command): self.builtins.append(command)
         window = Window()
-        sync_digest_window(Xbmc(), window)
+        xbmc = Xbmc()
+        sync_digest_window(xbmc, window)
         self.assertEqual(window.properties['AsterHub.ActiveTitle'], 'Second')
         self.assertEqual(window.properties['AsterHub.ActiveIndex'], '1')
         self.assertEqual(window.properties['AsterHub.DigestPlaying'], 'true')
+        self.assertEqual(xbmc.builtins, ['Control.SetFocus(500,1,absolute)'])
         self.assertFalse(hasattr(window, 'getControl'))
 
     def test_digest_audio_cache_is_bounded_and_reused(self):

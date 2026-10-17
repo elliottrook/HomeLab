@@ -197,6 +197,7 @@ def sync_digest_window(xbmc, window):
         if window.getProperty('AsterHub.ActiveIndex') != str(active):
             show_digest_story_data(window, entries[active])
             window.setProperty('AsterHub.ActiveIndex', str(active))
+            xbmc.executebuiltin(f'Control.SetFocus(500,{active},absolute)')
     except (IndexError, json.JSONDecodeError, RuntimeError, TypeError, ValueError):
         # A refresh may replace the snapshot between timer ticks. The next
         # bounded tick will retry; stale properties are safer than a worker.
