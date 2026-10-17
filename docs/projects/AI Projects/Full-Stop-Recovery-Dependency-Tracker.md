@@ -59,6 +59,13 @@ inactive timers, services and schedules. This is a **disabled installation**;
 it does not admit an unattended F2 scan or advance F3/F6. The October 17 F2
 scan remains unadmitted pending the [separately reviewed timing/schedule
 guard](evidence/F2-archive-timing-admission-gap-2026-10-16.md).
+The source-only F2 guard packet is prepared on local
+`codex/aster-lease-compat` commit `2a0c63c1`. It pins a lock-compatible old
+manual controller, a one-shot read-only observer wrapper, an external child
+deadline and synthetic tests (205 local suite passes, two macOS custody
+skips). The platform owner is reviewing it. It has **not** been installed or
+run on target Linux; the separate host-change and one-cycle F2 approvals
+have not been requested. This is no change to F2's NO-GO status.
 The disabled F3 producer received the same pre-start lease guard in local
 source commit `4e16b964`, integrated by the platform owner as `f4b9da31`.
 Its full local suite passed 177 tests with two macOS root-custody skips. The
