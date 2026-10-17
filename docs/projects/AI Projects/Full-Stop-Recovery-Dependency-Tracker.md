@@ -101,8 +101,10 @@ result above; none is an F2 timing result.
 The disabled F3 producer received the same pre-start lease guard in local
 source commit `4e16b964`, integrated by the platform owner as `f4b9da31`.
 Its full local suite passed 177 tests with two macOS root-custody skips. The
-F3 receipt CLI is still uninstalled/disabled; the F2-installed producer is
-effect-disabled and cannot write a receipt through the read-only observer.
+F3 receipt CLI entrypoint exists on Proxmox but is not released or invoked;
+the F2-installed archive producer is effect-disabled and cannot write a
+receipt through the read-only observer. Read-only inventory found no current
+archive-integrity or source-receipt file.
 F3 remains open.
 An offline F3 writer review at local `codex/aster-lease-compat` commit
 `68ffacb7` (`services/local-ai-lease/F3-RECEIPT-WRITER-OFFLINE-REVIEW-20261016.md`)
@@ -117,6 +119,12 @@ file and rejects malformed receipt shapes before candidate admission. Its
 full offline suite passed 209 tests with two Mac root-custody skips; the
 platform owner has the exact hashes for review. The later file hash supersedes
 the writer-only hash as a future release candidate, but F3 remains HOLD.
+The source-only target-Linux preflight card at lease-compatibility commit
+`ca28466a` pins the observed installed and candidate hashes, rollback target,
+and root-only test requirements. It identified two *known older* installed
+source dependencies; neither is evidence of a host fault, but both must be
+included in the actual installed-path compatibility proof. The card makes no
+host change and does not authorize F3 release.
 
 Review of the corrected install's recovery helper found that its first
 version could not roll back an interruption partway through the seven atomic
