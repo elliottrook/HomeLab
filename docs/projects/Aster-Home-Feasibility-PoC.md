@@ -1243,6 +1243,23 @@ refresh. The 60-test skin suite covers the projection, privacy-preserving
 camera label, timer geometry and runtime asset references. No Home Assistant,
 Frigate, network, credential or remote Git state was changed.
 
+Timer scale and private camera-preview test, 2026-10-17 (skin v0.8.1): The
+timer card remains 370 × 370 pixels while its circular face grows from 280 ×
+280 to 340 × 340, leaving only the deliberate card inset. A bounded Mac-only
+camera test used an SSH local forward from `127.0.0.1:15102` to Frigate's
+existing loopback API; Frigate remained private and no credential, public
+route or configuration change was introduced. Kodi first proved it could
+decode the MJPEG stream, but its video player forced that path into the
+full-screen window. The accepted dashboard implementation instead updates the
+reviewed `front_of_house` latest JPEG every two seconds inside the camera card.
+It starts only on **Live view**, stops on page exit or a second selection, and
+expires after five minutes to bound exposure and image-cache growth. Live Mac
+validation showed successive camera timestamps in place and confirmed the
+refresh alarm stopped after leaving the page. The temporary SSH tunnel was
+then closed. Production promotion still requires a monitored, least-privilege
+per-client bridge and LibreELEC validation; this commit does not make the
+manual Mac tunnel permanent.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

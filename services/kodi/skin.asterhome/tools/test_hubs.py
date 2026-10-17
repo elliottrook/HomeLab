@@ -3,7 +3,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import unittest
 import xml.etree.ElementTree as ET
-from hub_data import (WINDOWS, cached_digest_audio, digest_view, show_digest_story,
+from hub_data import (CAMERA_PILOT_SECONDS, CAMERA_PILOT_URL, WINDOWS,
+                      cached_digest_audio, digest_view, show_digest_story,
                       story_at_elapsed, story_for_playback, sync_digest_window)
 from digest_data import BreakingCards, DigestCards, merge_chapters, public_image
 from hub_feeds import books_view, home_dashboard, home_view, read_feed
@@ -282,11 +283,25 @@ class HubTests(unittest.TestCase):
         self.assertIn('Home Assistant', labels)
         self.assertTrue(any('AsterHub.HomeCameraLabel' in label for label in labels))
         self.assertTrue(any('AsterHub.HomeTimerDigital' in label for label in labels))
+        self.assertEqual(CAMERA_PILOT_URL,
+                         'http://127.0.0.1:15102/api/front_of_house/latest.jpg')
+        self.assertEqual(CAMERA_PILOT_SECONDS, 300)
+        camera_images = [node for node in home.findall('.//control[@type="image"]')
+                         if node.findtext('texture') ==
+                         '$INFO[Window.Property(AsterHub.CameraImage)]']
+        self.assertEqual(len(camera_images), 1)
+        camera_actions = [node.text for node in home.findall('.//onclick')]
+        self.assertIn('RunScript(special://skin/tools/hub_data.py,home,camera)',
+                      camera_actions)
         timer_cards = [node for node in home.findall('.//control[@type="image"]')
                        if node.findtext('left') == '1025' and node.findtext('top') == '478']
         self.assertEqual(len(timer_cards), 1)
         self.assertEqual(timer_cards[0].findtext('width'), '370')
         self.assertEqual(timer_cards[0].findtext('height'), '370')
+        timer_face = [node for node in home.findall('.//control[@type="image"]')
+                      if node.findtext('texture') == 'special://skin/media/ui-timer-idle-v2.png']
+        self.assertEqual(timer_face[0].findtext('width'), '340')
+        self.assertEqual(timer_face[0].findtext('height'), '340')
         self.assertIsNotNone(home.find('.//control[@id="500"]'))
 
     def test_all_runtime_assets_exist(self):

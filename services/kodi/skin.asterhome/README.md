@@ -1,5 +1,15 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.1 enlarges the circular timer face from 280 to 340 pixels while
+preserving its 370-pixel square card. It also proves an explicitly selected
+Front of House preview inside the dashboard card. The disposable Mac pilot
+reads Frigate's loopback-only latest-frame endpoint through a manually started
+SSH tunnel on `127.0.0.1:15102`; it stores no camera credential, refreshes at a
+bounded two-second cadence, stops on page exit or a second button press, and
+expires automatically after five minutes. This is evidence for the interface,
+not the production delivery architecture. Each LibreELEC client still needs a
+monitored, least-privilege private bridge before this can be promoted.
+
 Version 0.8.0 replaces the Home status list with a living-room Home Assistant
 dashboard: fixed lighting, comfort and camera summary cards; a large camera
 status surface; a compact validated-entity list; and a square timer card with

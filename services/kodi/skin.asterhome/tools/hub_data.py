@@ -12,6 +12,10 @@ from hub_feeds import books_view, home_dashboard, home_view, read_feed
 from digest_data import BreakingCards, DigestCards, clean_text, merge_chapters
 
 DIGEST_BASE = 'http://192.168.70.13:8080'
+# The disposable Mac test binds this loopback-only endpoint through a manual
+# SSH tunnel. It is not a production Frigate route or a credential carrier.
+CAMERA_PILOT_URL = 'http://127.0.0.1:15102/api/front_of_house/latest.jpg'
+CAMERA_PILOT_SECONDS = 300
 WINDOWS = {'books': 11110, 'digest': 11111, 'home': 11112, 'music': 11113,
            'breaking': 11122}
 FEEDS = {'books': 'books.json', 'home': 'home.json'}
@@ -215,6 +219,47 @@ def main(page, action='refresh'):
             xbmcgui.getCurrentWindowId() != WINDOWS['digest']):
         return
     window = xbmcgui.Window(WINDOWS[page])
+    if page == 'home' and action == 'camera_tick':
+        if (xbmcgui.getCurrentWindowId() == WINDOWS['home'] and
+                window.getProperty('AsterHub.CameraPlaying') == 'true'):
+            now = datetime.now(timezone.utc).timestamp()
+            try:
+                started = float(window.getProperty('AsterHub.CameraStarted'))
+            except ValueError:
+                started = 0
+            if started <= 0 or now - started > CAMERA_PILOT_SECONDS:
+                xbmc.executebuiltin('CancelAlarm(AsterCameraFollow,silent)')
+                window.setProperty('AsterHub.CameraPlaying', 'false')
+                window.setProperty('AsterHub.CameraImage', '')
+                window.setProperty('AsterHub.CameraStarted', '')
+                window.setProperty('AsterHub.Status', 'Camera preview ended after five minutes')
+                return
+            frame = int(now)
+            window.setProperty('AsterHub.CameraImage', f'{CAMERA_PILOT_URL}?frame={frame}')
+        return
+    if page == 'home' and action in ('camera', 'camera_stop'):
+        playing_camera = window.getProperty('AsterHub.CameraPlaying') == 'true'
+        if action == 'camera_stop' or playing_camera:
+            xbmc.executebuiltin('CancelAlarm(AsterCameraFollow,silent)')
+            window.setProperty('AsterHub.CameraPlaying', 'false')
+            window.setProperty('AsterHub.CameraImage', '')
+            window.setProperty('AsterHub.CameraStarted', '')
+            window.setProperty('AsterHub.Status', 'Camera preview stopped')
+            return
+        if window.getProperty('AsterHub.HomeCameraStatus') != 'Online':
+            xbmcgui.Dialog().notification('Aster Home', 'The reviewed camera is not online.')
+            return
+        window.setProperty('AsterHub.CameraPlaying', 'true')
+        now = datetime.now(timezone.utc).timestamp()
+        frame = int(now)
+        window.setProperty('AsterHub.CameraStarted', str(now))
+        window.setProperty('AsterHub.CameraImage', f'{CAMERA_PILOT_URL}?frame={frame}')
+        xbmc.executebuiltin('AlarmClock(AsterCameraFollow,RunScript('
+                           'special://skin/tools/hub_data.py,home,camera_tick),'
+                           '00:02,silent,loop)')
+        window.setProperty('AsterHub.Status',
+                           'Private live preview · local pilot tunnel · 2 second refresh')
+        return
     if page == 'digest' and action == 'sync':
         sync_digest_window(xbmc, window)
         return
