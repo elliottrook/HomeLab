@@ -8,13 +8,13 @@
     <param name="threshold" />
     <definition>
       <control type="image">
-        <left>$PARAM[left]</left><top>$PARAM[top]</top><width>28</width><height>28</height>
-        <texture border="14">special://skin/media/ui-panel.png</texture>
+        <left>$PARAM[left]</left><top>$PARAM[top]</top><width>21</width><height>21</height>
+        <texture>special://skin/media/ui-timer-dot.png</texture>
         <colordiffuse>7aD7D2C8</colordiffuse>
       </control>
       <control type="image">
-        <left>$PARAM[left]</left><top>$PARAM[top]</top><width>28</width><height>28</height>
-        <texture border="14">special://skin/media/ui-panel.png</texture>
+        <left>$PARAM[left]</left><top>$PARAM[top]</top><width>21</width><height>21</height>
+        <texture>special://skin/media/ui-timer-dot.png</texture>
         <colordiffuse>asterSage</colordiffuse>
         <visible>String.IsEqual(Window.Property(AsterHub.HomeTimerActive),true) + Integer.IsGreater(Window.Property(AsterHub.HomeTimerSecond),$PARAM[threshold])</visible>
       </control>

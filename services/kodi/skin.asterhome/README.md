@@ -1,5 +1,10 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.7 reduces the timer markers to the midpoint between their original
+and enlarged sizes, centres the complete ring horizontally within its card,
+and keeps the completion wording safely inside the circle beneath the pulsing
+Aster Home mark.
+
 Version 0.8.6 gives each preset its full visible name, doubles the timer dots
 from 14 to 28 pixels, and adds a five-second local completion state. When a
 local visual timer reaches zero, Kodi pulses the existing Aster Home mark and
