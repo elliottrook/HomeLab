@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from admission_gate import EXPECTED_BACKUP_SOURCE, EXPECTED_CONSUMERS, AdmissionEvidence
-from source_receipt_boundary import _validate_payload, _write_envelope, produce_candidate_receipt, read_receipt
+from source_receipt_boundary import MAX_RECEIPT_BYTES, _validate_payload, _write_envelope, produce_candidate_receipt, read_receipt
 
 
 class SourceReceiptBoundaryTests(unittest.TestCase):
@@ -141,6 +141,49 @@ class SourceReceiptBoundaryTests(unittest.TestCase):
             _write_envelope(path, self.evidence(), lease_id="lab-1", generation=2, captured_epoch=100)
             with self.assertRaisesRegex(ValueError, "stale"):
                 read_receipt(path, lease_id="lab-1", generation=2, now_minute=221, window_end_minute=255, now_epoch=1101)
+
+    @unittest.skipUnless(os.geteuid() == 0, "requires root-owned custody test")
+    def test_opened_file_denies_symlink_hardlink_and_wrong_mode(self):
+        def read(path):
+            return read_receipt(path, lease_id="lab-1", generation=2,
+                                now_minute=221, window_end_minute=255, now_epoch=101)
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "receipt.json"
+            _write_envelope(path, self.evidence(), lease_id="lab-1", generation=2, captured_epoch=100)
+            self.assertEqual(read(path), "receipt")
+
+            os.chmod(path, 0o644)
+            with self.assertRaisesRegex(ValueError, "custody"):
+                read(path)
+            os.chmod(path, 0o600)
+
+            hardlink = path.with_name("other-link")
+            os.link(path, hardlink)
+            with self.assertRaisesRegex(ValueError, "custody"):
+                read(path)
+            hardlink.unlink()
+
+            target = path.with_name("target")
+            path.rename(target)
+            path.symlink_to(target)
+            with self.assertRaises(ValueError):
+                read(path)
+
+    @unittest.skipUnless(os.geteuid() == 0, "requires root-owned custody test")
+    def test_opened_file_denies_oversized_and_unsafe_parent(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "receipt.json"
+            _write_envelope(path, self.evidence(), lease_id="lab-1", generation=2, captured_epoch=100)
+            with path.open("ab") as stream:
+                stream.write(b"x" * MAX_RECEIPT_BYTES)
+            with self.assertRaisesRegex(ValueError, "custody"):
+                read_receipt(path, lease_id="lab-1", generation=2,
+                             now_minute=221, window_end_minute=255, now_epoch=101)
+            os.chmod(directory, 0o755)
+            with self.assertRaisesRegex(ValueError, "directory custody"):
+                read_receipt(path, lease_id="lab-1", generation=2,
+                             now_minute=221, window_end_minute=255, now_epoch=101)
 
 
 if __name__ == "__main__":
