@@ -1379,6 +1379,27 @@ season entries with the action correctly changing from Play to Browse. Movie
 selection remained playable through Kodi's indexed Jellyfin path. No plug-in
 errors were recorded in Kodi's log during either combined-library traversal.
 
+Settings and UI-sound refinement, 2026-10-17 (skin v0.8.20; UI sounds v0.1.0):
+Kodi's settings landing and category windows now use a restrained Aster shell:
+dark identity column, warm layered work surface, rounded rows, sage focus and
+gold accents while preserving Kodi's required settings-control IDs. Live Mac
+checks covered the landing page plus Interface and Services navigation; 69
+skin-layout tests, four video-plug-in tests and all XML validation passed.
+
+The separate `resource.uisounds.asterhome` add-on replaces Kodi's sustained
+cursor swish with original sub-100 ms stereo PCM clicks. Left and Right are
+weighted toward their travel direction; Up and Down use centred high/low pitch
+cues because a stereo UI sound has no vertical axis. Kodi's UI-sound contract
+maps actions to WAV files but exposes neither focused-control coordinates nor
+runtime pan, so exact tile-position audio would require a Kodi core change and
+is deliberately out of scope. The add-on was installed, enabled and selected
+in the disposable Mac profile after preserving the add-on database and GUI
+settings. Kodi then loaded
+`resource://resource.uisounds.asterhome/sounds.xml`; directional navigation
+remained functional. Three sound-pack tests verify mapping, format, duration
+and channel weighting. No media, service, network or production setting was
+changed.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
@@ -1390,6 +1411,7 @@ errors were recorded in Kodi's log during either combined-library traversal.
 - Official Kodi: https://github.com/xbmc/xbmc
 - Official LibreELEC: https://github.com/LibreELEC/LibreELEC.tv
 - Kodi skin development: https://kodi.wiki/view/Skin_development_introduction
+- Kodi UI-sound mapping: https://kodi.wiki/view/Sounds.xml
 - Kodi add-on rules and licensing guidance: https://kodi.wiki/view/Add-on_rules
 - Home Assistant dashboards: https://www.home-assistant.io/dashboards
 - Home Assistant frontend themes: https://www.home-assistant.io/integrations/frontend/
