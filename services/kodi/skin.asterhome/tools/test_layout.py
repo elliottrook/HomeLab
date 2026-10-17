@@ -126,7 +126,11 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(filter_button.findtext('texturenofocus'), 'none')
         backplate = includes.find('.//include[@name="AsterQuietFieldBackplate"]/definition')
         self.assertEqual([node.findtext('colordiffuse') for node in backplate.findall('control')],
-                         ['75cbb991', 'e029302b'])
+                         ['b0c2a06b', 'e029302b'])
+        search_entry = self.browse.find('.//control[@id="19"]')
+        self.assertEqual(search_entry.findtext('textoffsetx'), '16')
+        self.assertEqual(search_entry.findtext('align'), 'left')
+        self.assertEqual(search_entry.findtext('aligny'), 'center')
         for name, minimum in (('MyVideoNav.xml', 5), ('IncludesBooks.xml', 2),
                               ('IncludesMusic.xml', 2), ('DialogKeyboard.xml', 1)):
             root = ET.parse(ROOT / '1080i' / name)

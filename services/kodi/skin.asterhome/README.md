@@ -1,5 +1,9 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.12 adds a deliberate left inset and vertical centring to search
+entry text, and strengthens the utility-field outline with Aster gold while
+leaving the shared clock outline restrained.
+
 Version 0.8.11 aligns the camera live-view action with the timer presets and
 introduces one shared charcoal-and-gold treatment for every header clock and
 the media, music, books and keyboard search controls. Stone texture remains

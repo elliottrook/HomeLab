@@ -163,7 +163,7 @@
         <param name="innerwidth" default="256" />
         <param name="innerheight" default="52" />
         <definition>
-            <control type="image"><left>$PARAM[left]</left><top>$PARAM[top]</top><width>$PARAM[width]</width><height>$PARAM[height]</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>75cbb991</colordiffuse></control>
+            <control type="image"><left>$PARAM[left]</left><top>$PARAM[top]</top><width>$PARAM[width]</width><height>$PARAM[height]</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>b0c2a06b</colordiffuse></control>
             <control type="image"><left>$PARAM[innerleft]</left><top>$PARAM[innertop]</top><width>$PARAM[innerwidth]</width><height>$PARAM[innerheight]</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>e029302b</colordiffuse></control>
         </definition>
     </include>

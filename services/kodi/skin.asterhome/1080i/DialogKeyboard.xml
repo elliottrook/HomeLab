@@ -35,6 +35,9 @@
       <font>font28</font>
       <textcolor>asterIvory</textcolor>
       <focusedcolor>asterInk</focusedcolor>
+      <textoffsetx>18</textoffsetx>
+      <align>left</align>
+      <aligny>center</aligny>
       <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
       <texturenofocus>none</texturenofocus>
       <ondown>100</ondown>

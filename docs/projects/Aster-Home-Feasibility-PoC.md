@@ -1287,6 +1287,15 @@ and Home, and the new media search controls in focused and idle states. All 63
 offline tests and every skin XML validation pass. LibreELEC remains a later
 hardware gate.
 
+Search-field legibility refinement, 2026-10-17 (skin v0.8.12):
+Search entry text retains left alignment but gains a deliberate inset and
+vertical centring. Utility-field borders use a stronger Aster-gold tint while
+the shared clock outline remains quieter. The same treatment applies to the
+library search field and on-screen keyboard entry without changing search
+behaviour, data sources or navigation. Live Mac Kodi validation confirmed the
+inset, vertical centring and stronger outline on the media library screen; all
+63 offline tests and every skin XML validation pass.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
