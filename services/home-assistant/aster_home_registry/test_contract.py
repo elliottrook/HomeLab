@@ -22,7 +22,28 @@ class ContractTests(unittest.TestCase):
         self.assertEqual(result["temperatures"], [
             {"alias": "hall temperature", "value": 20.6, "unit": "°C"},
             {"alias": "outside temperature", "value": 68.0, "unit": "°F"}])
-        self.assertEqual(result["schema_version"], 2)
+        self.assertEqual(result["schema_version"], 3)
+        self.assertEqual(result["weather"], [])
+
+    def test_reviewed_weather_is_bounded(self):
+        result = CONTRACT.build_snapshot(
+            {CONTRACT.WEATHER: "partlycloudy"}, {},
+            {CONTRACT.WEATHER: {"temperature": 16.4, "temperature_unit": "°C",
+                                "humidity": 55, "pressure": 1023,
+                                "friendly_name": "Forecast Home"}})
+        self.assertEqual(result["weather"], [{
+            "alias": "home weather", "condition": "partlycloudy",
+            "temperature": 16.4, "unit": "°C", "humidity": 55.0}])
+
+    def test_weather_fails_closed(self):
+        for condition, attributes in (
+                ("unavailable", {"temperature": 16, "temperature_unit": "°C"}),
+                ("sunny", {"temperature": "nan", "temperature_unit": "°C"}),
+                ("sunny", {"temperature": 16, "temperature_unit": "K"}),
+                ("sunny", {"temperature": 999, "temperature_unit": "°C"})):
+            result = CONTRACT.build_snapshot(
+                {CONTRACT.WEATHER: condition}, {}, {CONTRACT.WEATHER: attributes})
+            self.assertEqual(result["weather"], [])
 
     def test_unknown_and_unavailable_fail_closed(self):
         for value in ("unknown", "unavailable", "nan", "999"):
@@ -45,6 +66,8 @@ class ContractTests(unittest.TestCase):
             CONTRACT.build_snapshot({"lock.front": "locked"}, {})
         with self.assertRaises(ValueError):
             CONTRACT.build_snapshot({}, {"sensor.other": "°C"})
+        with self.assertRaises(ValueError):
+            CONTRACT.build_snapshot({}, {}, {"weather.other": {}})
 
     def test_private_atomic_output(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -52,7 +75,7 @@ class ContractTests(unittest.TestCase):
                 CONTRACT.write_atomic(CONTRACT.build_snapshot({}, {}))
                 target = Path(directory) / "latest.json"
                 self.assertEqual(stat.S_IMODE(target.stat().st_mode), 0o600)
-                self.assertEqual(json.loads(target.read_text())["schema_version"], 2)
+                self.assertEqual(json.loads(target.read_text())["schema_version"], 3)
 
 
 if __name__ == "__main__":

@@ -1431,6 +1431,16 @@ Aster projection. Forecast data will instead extend that existing projection
 after the candidate Home Assistant weather entity and allowed fields are
 verified; this preserves the no-HA-credential-on-Kodi boundary.
 
+Read-only discovery then confirmed one enabled MET entity,
+`weather.forecast_home`. Its Recorder state provides the reviewed fields needed
+for a current-weather card: condition, bounded temperature/unit and humidity.
+The local schema-v3 implementation adds only those fields to the isolated Home
+exporter and Aster dashboard; it rejects unknown conditions, non-Celsius/
+Fahrenheit units, out-of-range values and extra entities. It deliberately does
+not call `weather.get_forecasts` or export pressure, wind, attribution,
+coordinates or credentials. Production Home Assistant deployment remains a
+separate bounded change requiring its own checkpoint, Core check and approval.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

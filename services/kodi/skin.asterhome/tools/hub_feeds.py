@@ -10,6 +10,11 @@ from pathlib import Path
 
 
 MAX_BYTES = 262144
+WEATHER_CONDITIONS = {
+    'clear-night', 'cloudy', 'exceptional', 'fog', 'hail', 'lightning',
+    'lightning-rainy', 'partlycloudy', 'pouring', 'rainy', 'snowy',
+    'snowy-rainy', 'sunny', 'windy', 'windy-variant',
+}
 
 
 class _PlainSynopsis(HTMLParser):
@@ -130,10 +135,10 @@ def home_view(payload):
     """Render reviewed aliases and bounded read-only values, never controls."""
     _fresh(payload, 10 * 60)
     snapshot = payload.get('snapshot')
-    if not isinstance(snapshot, dict) or snapshot.get('schema_version') not in (1, 2):
+    if not isinstance(snapshot, dict) or snapshot.get('schema_version') not in (1, 2, 3):
         raise ValueError('Invalid Home Assistant snapshot')
     rows = []
-    if snapshot['schema_version'] == 2:
+    if snapshot['schema_version'] in (2, 3):
         lights = snapshot.get('lights', [])
         temperatures = snapshot.get('temperatures', [])
         cameras = snapshot.get('cameras', [])
@@ -160,6 +165,35 @@ def home_view(payload):
                 raise ValueError('Invalid camera status')
             rows.append((_label(camera.get('alias')),
                          f'Camera · {camera["status"].title()} · Live view in Frigate app', None))
+        if snapshot['schema_version'] == 3:
+            weather = snapshot.get('weather', [])
+            if not isinstance(weather, list) or len(weather) > 1:
+                raise ValueError('Invalid weather values')
+            for current in weather:
+                if (not isinstance(current, dict)
+                        or current.get('condition') not in WEATHER_CONDITIONS
+                        or current.get('unit') not in ('°C', '°F')):
+                    raise ValueError('Invalid weather state')
+                temperature = current.get('temperature')
+                if (isinstance(temperature, bool)
+                        or not isinstance(temperature, (int, float))
+                        or not math.isfinite(temperature)):
+                    raise ValueError('Invalid weather temperature')
+                minimum, maximum = (-50, 60) if current['unit'] == '°C' else (-58, 140)
+                if not minimum <= temperature <= maximum:
+                    raise ValueError('Weather temperature out of range')
+                humidity = current.get('humidity')
+                if (humidity is not None and
+                        (isinstance(humidity, bool)
+                         or not isinstance(humidity, (int, float))
+                         or not math.isfinite(humidity) or not 0 <= humidity <= 100)):
+                    raise ValueError('Invalid weather humidity')
+                condition = current['condition'].replace('-', ' ').replace('partlycloudy',
+                                                                            'partly cloudy')
+                detail = f'{condition.title()} · {temperature:g}{current["unit"]}'
+                if humidity is not None:
+                    detail += f' · {humidity:g}% humidity'
+                rows.append((_label(current.get('alias')), detail, None))
     groups = (('rooms', 'Room'), ('timers', 'Active or paused timer'),
               ('media_providers', 'Available media device'))
     if snapshot['schema_version'] == 1:
@@ -176,11 +210,20 @@ def home_dashboard(payload):
     """Project the validated Home snapshot into fixed dashboard cards."""
     home_view(payload)
     snapshot = payload['snapshot']
-    lights = snapshot.get('lights', []) if snapshot['schema_version'] == 2 else []
-    temperatures = snapshot.get('temperatures', []) if snapshot['schema_version'] == 2 else []
-    cameras = snapshot.get('cameras', []) if snapshot['schema_version'] == 2 else []
+    lights = snapshot.get('lights', []) if snapshot['schema_version'] in (2, 3) else []
+    temperatures = snapshot.get('temperatures', []) if snapshot['schema_version'] in (2, 3) else []
+    cameras = snapshot.get('cameras', []) if snapshot['schema_version'] in (2, 3) else []
+    weather = snapshot.get('weather', []) if snapshot['schema_version'] == 3 else []
     timers = snapshot.get('timers', [])
     timer_label = _label(timers[0]) if timers else 'No active timer'
+    if weather:
+        condition = weather[0]['condition'].replace('-', ' ').replace('partlycloudy',
+                                                                       'partly cloudy').title()
+        weather_detail = f'{weather[0]["temperature"]:g}{weather[0]["unit"]}'
+        if weather[0].get('humidity') is not None:
+            weather_detail += f' · {weather[0]["humidity"]:g}% humidity'
+    else:
+        condition, weather_detail = 'Unavailable', 'No reviewed weather'
     values = {
         'LightLabel': _label(lights[0]['alias']).title() if lights else 'Lighting',
         'LightValue': lights[0]['state'].title() if lights else 'No reviewed lights',
@@ -189,6 +232,9 @@ def home_dashboard(payload):
                              if temperatures else 'Unavailable'),
         'CameraLabel': _label(cameras[0]['alias']).title() if cameras else 'Cameras',
         'CameraStatus': cameras[0]['status'].title() if cameras else 'No reviewed camera',
+        'WeatherLabel': _label(weather[0]['alias']).title() if weather else 'Weather',
+        'WeatherValue': condition,
+        'WeatherDetail': weather_detail,
         'TimerName': timer_label,
         'TimerLabel': 'Home Assistant timer' if timers else 'Not connected',
         'TimerDigital': '--:--',

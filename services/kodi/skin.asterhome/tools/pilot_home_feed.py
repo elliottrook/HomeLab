@@ -47,11 +47,11 @@ def camera_status():
 
 def main():
     modified = int(guest('stat', '-c', '%Y', SOURCE))
-    fields = '{schema_version,snapshot_id,lights,temperatures,rooms,entities,timers,media_providers}'
+    fields = '{schema_version,snapshot_id,lights,temperatures,weather,rooms,entities,timers,media_providers}'
     # QEMU guest-agent text forwarding can mojibake non-ASCII output; JSON
     # escapes preserve the exact unit across the transport.
     snapshot = json.loads(guest('jq', '-ac', fields, SOURCE))
-    if snapshot.get('schema_version') != 2 or snapshot.get('snapshot_id') != 'ha-home-pilot-v2':
+    if snapshot.get('schema_version') != 3 or snapshot.get('snapshot_id') != 'ha-home-pilot-v3':
         raise ValueError('Unexpected Home snapshot')
     if any(snapshot.get(key) != [] for key in ('rooms', 'entities', 'timers', 'media_providers')):
         raise ValueError('Unexpected Home aliases')
@@ -86,6 +86,7 @@ def main():
             os.unlink(temporary)
     print(f'Installed read-only Home feed: {len(snapshot["lights"])} light, '
           f'{len(snapshot["temperatures"])} temperatures, '
+          f'{len(snapshot["weather"])} weather, '
           f'{len(snapshot["cameras"])} camera status')
 
 

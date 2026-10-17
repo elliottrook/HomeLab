@@ -606,13 +606,23 @@ def main(page, action='refresh'):
             for field, value in home_dashboard(feed).items():
                 window.setProperty('AsterHub.Home' + field, value)
             window.setProperty('AsterHub.HomeReady', 'true')
-            has_values = (feed['snapshot']['schema_version'] == 2 and
-                          bool(feed['snapshot'].get('lights') or feed['snapshot'].get('temperatures')))
+            has_values = (feed['snapshot']['schema_version'] in (2, 3) and
+                          bool(feed['snapshot'].get('lights') or
+                               feed['snapshot'].get('temperatures') or
+                               feed['snapshot'].get('weather')))
             if has_values:
                 window.setProperty('AsterHub.HomeValuesReady', 'true')
             if has_values:
-                detail = ('read-only light, temperature and camera status'
-                          if feed['snapshot'].get('cameras') else 'read-only light and temperature values')
+                values = []
+                if feed['snapshot'].get('lights'):
+                    values.append('light')
+                if feed['snapshot'].get('temperatures'):
+                    values.append('temperature')
+                if feed['snapshot'].get('weather'):
+                    values.append('weather')
+                detail = 'read-only ' + ', '.join(values)
+                if feed['snapshot'].get('cameras'):
+                    detail += ' and camera status'
             elif feed['snapshot'].get('cameras'):
                 detail = 'read-only camera status, no household values'
             else:

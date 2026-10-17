@@ -30,8 +30,9 @@
       <control type="label"><left>991</left><top>286</top><width>330</width><height>30</height><label>$INFO[Window.Property(AsterHub.HomeCameraLabel)]</label><font>font20</font><textcolor>asterMuted</textcolor></control>
       <control type="label"><left>991</left><top>325</top><width>330</width><height>46</height><label>$INFO[Window.Property(AsterHub.HomeCameraStatus)]</label><font>font28</font><textcolor>asterInk</textcolor></control>
       <control type="image"><left>1369</left><top>263</top><width>426</width><height>132</height><texture border="24">special://skin/media/ui-panel.png</texture><colordiffuse>asterPaper</colordiffuse></control>
-      <control type="label"><left>1399</left><top>286</top><width>366</width><height>30</height><label>Home</label><font>font20</font><textcolor>asterMuted</textcolor></control>
-      <control type="label"><left>1399</left><top>325</top><width>366</width><height>46</height><label>Read-only overview</label><font>font28</font><textcolor>asterInk</textcolor></control>
+      <control type="label"><left>1399</left><top>278</top><width>366</width><height>28</height><label>$INFO[Window.Property(AsterHub.HomeWeatherLabel)]</label><font>font18</font><textcolor>asterMuted</textcolor></control>
+      <control type="label"><left>1399</left><top>309</top><width>366</width><height>38</height><label>$INFO[Window.Property(AsterHub.HomeWeatherValue)]</label><font>font24</font><textcolor>asterInk</textcolor></control>
+      <control type="label"><left>1399</left><top>349</top><width>366</width><height>26</height><label>$INFO[Window.Property(AsterHub.HomeWeatherDetail)]</label><font>font16</font><textcolor>asterGreen</textcolor></control>
 
       <control type="label"><left>145</left><top>425</top><width>820</width><height>42</height><label>Cameras</label><font>font28</font><textcolor>asterInk</textcolor></control>
       <control type="image"><left>145</left><top>478</top><width>850</width><height>526</height><texture border="28">special://skin/media/ui-panel.png</texture><colordiffuse>asterCharcoal</colordiffuse></control>

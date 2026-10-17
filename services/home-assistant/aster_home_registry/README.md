@@ -9,11 +9,14 @@ reviewed YAML block opts in. It registers no entities, services, actions,
 network listener or credentials.
 
 The exact allowlist is compiled into `contract.py`: the Laundry main light,
-hall temperature, outside temperature and the owner-approved closet
-temperature. The light exports only on/off;
-temperatures export only finite values from -50 to 60 °C or -58 to 140 °F.
-Unknown, unavailable, stale-at-source or unexpected units are omitted. The
-schema-v2 output retains empty compatibility arrays for the Kodi Home reader.
+hall temperature, outside temperature, the owner-approved closet temperature,
+and `weather.forecast_home` from the built-in MET integration. The light
+exports only on/off; temperatures export only finite values from -50 to 60 °C
+or -58 to 140 °F. Current weather exports only a reviewed condition enum, a
+bounded temperature and optional 0–100% humidity; forecast arrays, pressure,
+wind, attribution, coordinates and service calls are excluded. Unknown,
+unavailable, stale-at-source or unexpected units are omitted. The schema-v3
+output retains empty compatibility arrays for the Kodi Home reader.
 Output is atomic and mode 0600, initially and on reviewed state changes or
 every five minutes. Kodi is not connected automatically: a separate protected
 delivery step must wrap this snapshot with a timestamp and copy only the
@@ -33,8 +36,9 @@ The deployment checkpoint is Proxmox VM 103 snapshot
 `ha core check` passed before and after the Core-only restart. Both v1 and v2
 reports are mode 0600 and independently refreshed after five minutes. The v2
 report showed Laundry `on` and closet 16.6 °C, with unavailable Hue values
-omitted. The old v1 report kept its schema and Laundry alias. A real state
-transition has not been induced merely for testing.
+omitted. Schema v3 is prepared locally but is not deployed yet. The old v1
+report kept its schema and Laundry alias. A real state transition has not been
+induced merely for testing.
 
 The Mac Kodi feed is a **manual, one-shot** projection and expires after ten
 minutes. Run `python3 services/kodi/skin.asterhome/tools/pilot_home_feed.py`

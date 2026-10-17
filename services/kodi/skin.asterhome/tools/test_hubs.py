@@ -244,6 +244,8 @@ class HubTests(unittest.TestCase):
             'LightLabel': 'Laundry Lights', 'LightValue': 'On',
             'TemperatureLabel': 'Hall Temperature', 'TemperatureValue': '20.6°C',
             'CameraLabel': 'Front Of House', 'CameraStatus': 'Online',
+            'WeatherLabel': 'Weather', 'WeatherValue': 'Unavailable',
+            'WeatherDetail': 'No reviewed weather',
             'TimerName': 'No active timer', 'TimerLabel': 'Not connected',
             'TimerDigital': '--:--',
             'TimerSecond': '0', 'TimerActive': 'false'})
@@ -256,6 +258,29 @@ class HubTests(unittest.TestCase):
             home_view(payload)
         payload['snapshot']['cameras'][0]['status'] = 'online'
         payload['generated_at'] = (datetime.now(timezone.utc) - timedelta(minutes=11)).isoformat()
+        with self.assertRaises(ValueError):
+            home_view(payload)
+
+    def test_home_v3_projects_bounded_current_weather(self):
+        payload = {'schema_version': 1, 'generated_at': datetime.now(timezone.utc).isoformat(),
+                   'snapshot': {'schema_version': 3, 'rooms': [], 'entities': [],
+                                'timers': [], 'media_providers': [], 'lights': [],
+                                'temperatures': [], 'cameras': [],
+                                'weather': [{'alias': 'home weather',
+                                             'condition': 'partlycloudy',
+                                             'temperature': 16.4, 'unit': '°C',
+                                             'humidity': 55.0}]}}
+        self.assertEqual(home_view(payload), [
+            ('home weather', 'Partly Cloudy · 16.4°C · 55% humidity', None)])
+        dashboard = home_dashboard(payload)
+        self.assertEqual(dashboard['WeatherLabel'], 'Home Weather')
+        self.assertEqual(dashboard['WeatherValue'], 'Partly Cloudy')
+        self.assertEqual(dashboard['WeatherDetail'], '16.4°C · 55% humidity')
+        payload['snapshot']['weather'][0]['condition'] = 'secret-state'
+        with self.assertRaises(ValueError):
+            home_view(payload)
+        payload['snapshot']['weather'][0]['condition'] = 'sunny'
+        payload['snapshot']['weather'][0]['humidity'] = 101
         with self.assertRaises(ValueError):
             home_view(payload)
 
