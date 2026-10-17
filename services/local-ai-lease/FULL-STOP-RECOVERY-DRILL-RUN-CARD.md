@@ -76,14 +76,14 @@ not recovery proof, and does not change the NO-GO decision.
 ## Retained-receipt integration gate
 
 The retained adapter and schema-compatible acquisition candidate are installed
-but inactive. The installed receipt producer still calls
-`FixedSourceAdapters.evidence()` and therefore the serial `backup()` archive
-scan; the newer dual-gated retained-receipt CLI checkpoint is not installed or
-enabled. Before any revised card can be considered, the explicit order must
-be implemented and tested: pre-acquire source-bound backup receipt (using the
-retained path), then post-stop quiescence receipt, then schema-compatible
-lease admission. A caller-supplied integrity boolean or scheduler success
-must not substitute for the retained receipt.
+but inactive. The deployed source-receipt boundary calls
+`FixedSourceAdapters.evidence_from_retained()` and binds the resulting backup
+receipt to the acquired lease; it does not authorize itself or run while the
+candidate CLI remains disabled. Before any revised card can be considered,
+the explicit order must be preserved and tested: pre-acquire source-bound
+backup receipt (using the retained path), then post-stop quiescence receipt,
+then schema-compatible lease admission. A caller-supplied integrity boolean
+or scheduler success must not substitute for the retained receipt.
 
 ## Timing and preflight
 
