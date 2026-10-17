@@ -46,9 +46,9 @@
 
       <control type="label"><left>1005</left><top>425</top><width>400</width><height>42</height><label>Timer</label><font>font28</font><textcolor>asterInk</textcolor></control>
       <control type="image"><left>1005</left><top>478</top><width>400</width><height>526</height><texture border="28">special://skin/media/ui-panel.png</texture><colordiffuse>ff10110f</colordiffuse></control>
-      <!-- The 21 px ring spans x=1014..1395 and y=510..891: centred within the card width
+      <!-- The 16 px ring spans x=1017..1393 and y=512..888: centred within the card width
            and within the usable vertical area between the card top and preset buttons. -->
-      <control type="group"><left>-9</left><top>22</top><include content="AsterTimerRing" /></control>
+      <control type="group"><left>-6</left><top>24</top><include content="AsterTimerRing" /></control>
       <control type="label"><left>1030</left><top>620</top><width>360</width><height>110</height><label>$INFO[Window.Property(AsterHub.HomeTimerDigital)]</label><font>font56</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny><visible>!String.IsEqual(Window.Property(AsterHub.HomeTimerExpired),true)</visible></control>
       <control type="label"><left>1040</left><top>752</top><width>340</width><height>38</height><label>$INFO[Window.Property(AsterHub.HomeTimerName)]</label><font>font20</font><textcolor>asterSage</textcolor><align>center</align><aligny>center</aligny><visible>!String.IsEqual(Window.Property(AsterHub.HomeTimerExpired),true)</visible></control>
       <control type="image"><left>1120</left><top>540</top><width>180</width><height>180</height><texture>special://skin/media/02-home-hub.png</texture><aspectratio>keep</aspectratio><visible>String.IsEqual(Window.Property(AsterHub.HomeTimerExpired),true)</visible><animation effect="fade" start="20" end="100" time="450" pulse="true" condition="String.IsEqual(Window.Property(AsterHub.HomeTimerExpired),true)">Conditional</animation></control>

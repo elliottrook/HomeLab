@@ -1,5 +1,9 @@
 # Aster Home Kodi skin prototype
 
+Version 0.8.8 reduces the circular timer markers to 16 pixels so every second
+has visible breathing room, then recentres the smaller ring within the timer
+card and above the preset controls.
+
 Version 0.8.7 reduces the timer markers to the midpoint between their original
 and enlarged sizes, centres the complete ring horizontally within its card,
 and keeps the completion wording safely inside the circle beneath the pulsing
