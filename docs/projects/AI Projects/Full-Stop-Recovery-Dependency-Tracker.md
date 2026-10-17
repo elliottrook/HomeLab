@@ -1,7 +1,7 @@
 # Full-stop recovery drill — dependency tracker
 
 **Owner:** Stream A for evidence and coordination; Local AI platform owner for
-host release, lease and recovery. **Last reconciled:** 2026-10-16, 17:10
+host release, lease and recovery. **Last reconciled:** 2026-10-16, 17:17
 America/Vancouver. **Overall decision: NO-GO.** This tracker is the human
 status page. The platform-owned
 `services/local-ai-lease/FULL-STOP-RECOVERY-DRILL-RUN-CARD.md` is the executable
@@ -74,6 +74,13 @@ the advisory lease lock. The platform owner must review this revision and
 target-Linux synthetic proof before a distinct disabled-install approval;
 the actual scan needs its own dated approval. Neither has been installed or
 run. F2 remains NO-GO, and October 17 is not promised.
+The source checkpoint and live schedule-type assertions were clarified in
+`62125a65`; the conditional stage/test/install wording is in `9f9ae8a9`.
+Read-only Proxmox checks confirmed that both proposed replacement paths still
+have the pinned old hashes and modes and the add-only guard path is absent.
+The platform owner integrated the matching source locally at `1829271d`,
+with its own full suite passing. These are review/preflight facts, not the
+target-Linux staged test or installation result.
 The disabled F3 producer received the same pre-start lease guard in local
 source commit `4e16b964`, integrated by the platform owner as `f4b9da31`.
 Its full local suite passed 177 tests with two macOS root-custody skips. The
