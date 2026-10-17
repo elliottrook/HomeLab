@@ -1355,6 +1355,13 @@ Genre in ivory after navigation with every genre caption still in ink. Moving
 the portrait lane down reserved clean space for the new heading and removed
 the initial overlap with the final Recommended caption; Kodi remained stable.
 
+Rail-heading contrast refinement, 2026-10-17 (skin v0.8.18): live review found
+that the v0.8.17 ivory active state did not work against the lighter stone
+field. Continue Watching, Recommended for You and Genre now remain Aster ink
+in every focus state; existing tile focus rings provide the navigation cue.
+Live validation on the disposable macOS Kodi client confirmed the permanent
+ink treatment remains legible on both the hero fade and plain stone field.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

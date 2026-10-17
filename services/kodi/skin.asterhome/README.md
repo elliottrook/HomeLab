@@ -1,8 +1,12 @@
 # Aster Home Kodi skin prototype
 
-Version 0.8.17 adds a Genre heading above the portrait rail and standardizes
-all three media-rail headings as black at rest and white while their rail has
-focus. Individual media and genre captions remain black in both states.
+Version 0.8.18 keeps Continue Watching, Recommended for You and Genre in Aster
+ink in every focus state. The permanent black treatment gives all three rail
+headings reliable contrast against the light stone field; tile rings retain
+the navigation cue. Individual media and genre captions also remain black.
+
+Version 0.8.17 added the dedicated Genre heading and established its reserved
+space above the portrait rail.
 
 Version 0.8.16 dissolves the full-screen hero artwork into the existing Aster
 stone background while any genre tile is focused. The transition follows the

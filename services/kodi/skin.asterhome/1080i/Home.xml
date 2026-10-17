@@ -240,13 +240,6 @@
             <height>48</height>
             <label>Continue Watching</label>
             <font>font28</font><textcolor>asterInk</textcolor>
-            <visible>!Control.HasFocus(100)</visible>
-        </control>
-        <control type="label">
-            <left>125</left><top>500</top><width>650</width><height>48</height>
-            <label>Continue Watching</label><font>font28</font>
-            <textcolor>asterIvory</textcolor><shadowcolor>cc000000</shadowcolor>
-            <visible>Control.HasFocus(100)</visible>
         </control>
         <control type="label">
             <left>1590</left>
@@ -336,13 +329,6 @@
             <height>48</height>
             <label>Recommended for You</label>
             <font>font28</font><textcolor>asterInk</textcolor>
-            <visible>!Control.HasFocus(110)</visible>
-        </control>
-        <control type="label">
-            <left>125</left><top>770</top><width>650</width><height>48</height>
-            <label>Recommended for You</label><font>font28</font>
-            <textcolor>asterIvory</textcolor><shadowcolor>cc000000</shadowcolor>
-            <visible>Control.HasFocus(110)</visible>
         </control>
         <control type="panel" id="110">
             <left>125</left>
@@ -389,8 +375,7 @@
         <!-- The next lane is announced by its heading at the lower edge.
              Focusing it lifts all three media lanes so the heading, portrait
              choices and captions fit without colliding with Recommended. -->
-        <control type="label"><left>125</left><top>1048</top><width>650</width><height>32</height><label>Genre</label><font>font28</font><textcolor>asterInk</textcolor><visible>!Control.HasFocus(140) + !Control.HasFocus(141) + !Control.HasFocus(142) + !Control.HasFocus(143) + !Control.HasFocus(144) + !Control.HasFocus(145) + !Control.HasFocus(146)</visible></control>
-        <control type="label"><left>125</left><top>1048</top><width>650</width><height>32</height><label>Genre</label><font>font28</font><textcolor>asterIvory</textcolor><shadowcolor>cc000000</shadowcolor><visible>Control.HasFocus(140) | Control.HasFocus(141) | Control.HasFocus(142) | Control.HasFocus(143) | Control.HasFocus(144) | Control.HasFocus(145) | Control.HasFocus(146)</visible></control>
+        <control type="label"><left>125</left><top>1048</top><width>650</width><height>32</height><label>Genre</label><font>font28</font><textcolor>asterInk</textcolor></control>
         <include content="AsterGenreTile"><param name="id" value="140"/><param name="left" value="125"/><param name="label" value="Comedy"/><param name="preview" value="special://skin/playlists/genre-previews/comedy-tv.xsp"/><param name="browse" value="special://skin/playlists/genres/comedy-tv.xsp"/><param name="lefttarget" value="8999"/><param name="righttarget" value="141"/></include>
         <include content="AsterGenreTile"><param name="id" value="141"/><param name="left" value="365"/><param name="label" value="Drama"/><param name="preview" value="special://skin/playlists/genre-previews/drama-film.xsp"/><param name="browse" value="special://skin/playlists/genres/drama-film.xsp"/><param name="lefttarget" value="140"/><param name="righttarget" value="142"/></include>
         <include content="AsterGenreTile"><param name="id" value="142"/><param name="left" value="605"/><param name="label" value="Action"/><param name="preview" value="special://skin/playlists/genre-previews/action-film.xsp"/><param name="browse" value="special://skin/playlists/genres/action-film.xsp"/><param name="lefttarget" value="141"/><param name="righttarget" value="143"/></include>

@@ -233,23 +233,15 @@ class LayoutTests(unittest.TestCase):
         self.assertFalse(any(control.findtext('top') == '302'
                              for control in template.findall('.//control')))
 
-    def test_active_rail_heading_changes_from_black_to_white(self):
+    def test_rail_headings_remain_black(self):
         media_group = self.home.find('.//control[@id="22"]')
-        expectations = {
-            'Continue Watching': 'Control.HasFocus(100)',
-            'Recommended for You': 'Control.HasFocus(110)',
-            'Genre': 'Control.HasFocus(140)',
-        }
-        for label, focus_condition in expectations.items():
+        for label in ('Continue Watching', 'Recommended for You', 'Genre'):
             headings = [control for control in media_group.findall('control')
                         if control.get('type') == 'label' and
                         control.findtext('label') == label]
-            self.assertEqual(len(headings), 2, label)
-            by_colour = {control.findtext('textcolor'): control
-                         for control in headings}
-            self.assertEqual(set(by_colour), {'asterInk', 'asterIvory'})
-            self.assertIn(focus_condition,
-                          by_colour['asterIvory'].findtext('visible'))
+            self.assertEqual(len(headings), 1, label)
+            self.assertEqual(headings[0].findtext('textcolor'), 'asterInk')
+            self.assertIsNone(headings[0].find('visible'))
 
     def test_genre_rail_uses_native_read_only_playlists(self):
         self.assertIsNone(self.home.find('onload'))
