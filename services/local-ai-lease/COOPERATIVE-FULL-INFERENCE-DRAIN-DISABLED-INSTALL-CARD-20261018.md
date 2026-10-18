@@ -9,7 +9,7 @@ Stage exactly fourteen files under the concrete target path
 `/usr/local/libexec/local-ai-lease/full-inference-drain/` on the target
 Proxmox host, not in an LXC. The directory is root-owned mode 0700; modules
 are root-owned mode 0644. The test is evidence-only and is not a runtime
-entrypoint. The source commit `c5bd92dc` containing the final source/validator
+entrypoint. The source commit `97aa7390` containing the final source/validator
 packet and the hashes below must match before staging:
 
 | File | SHA-256 |
@@ -21,11 +21,11 @@ packet and the hashes below must match before staging:
 | `test_cooperative_lab_host_adapter.py` | `e9433ab5b35dc11881f0a5416e5c8cd94243919b5b7264e9ccf629bffbf73b7a` |
 | `full_inference_lab_sources.py` | `1f53e61b6909c26b6658d17396eff9babb4f2253b470fe33d8b188bfc9980c39` |
 | `full_inference_lab_validator.py` | `5cf1562a98c7a01528c5e3f2e2d80c69c5805f0e9dc4fceec1916d15d0d686f4` |
-| `full_inference_lab_runtime.py` | `8beab54e617853a73908108aba6207e47dfcc4546e13a6275790ce87bffd249b` |
+| `full_inference_lab_runtime.py` | `1a9898dde72399f435ed93f88322be53675dd2ac49a0aeb20495a9781ad80848` |
 | `full_inference_lab_install_preflight.py` | `72ab5857e1a964f4d831ea923957356d3ce5799ae0e3cc1dc2a3c9cf82d2388e` |
 | `test_full_inference_lab_sources.py` | `eab6fb2fc1bc7aa0dd14ee001aee7a58bafb73faf5b3c0f0adb52b31e5be8650` |
 | `test_full_inference_lab_validator.py` | `b3806c9e769dbcf77efe23d616147365961087c91e7cd6413e3e7cb8c6341f91` |
-| `test_full_inference_lab_install_preflight.py` | `2e6eb97b8521ba782ce3914970ff5b7dd3414d70049525451b2862b6d38eee5d` |
+| `test_full_inference_lab_install_preflight.py` | `ddcc8d65982d8bf33e5af5f2691b4df713ac4ea38aecbcc7a6f6ae3e44443025` |
 | `application_b60_lease.py` | `deaf278c8bc3234f3150f1c3ee696b3cc0cdb55e97c575fec6efb65d6ef9c95d` |
 | `host_exclusion.py` | `f8c60ad720a8ac1c6c4f3e51c84ce67747b50f25534c02e0ee6ed38efc302563` |
 
