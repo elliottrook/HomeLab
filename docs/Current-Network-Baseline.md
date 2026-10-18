@@ -461,7 +461,7 @@ homelab-gateway — 192.168.20.20
 | 192.168.20.41 | Synology DS920+ `bond0` | eth0 00:11:32:ca:e5:e5 / eth1 00:11:32:ca:e5:e6 | Et28 + Et24, both access VLAN 20, 1G, active-backup bond (2026-09-05). Formerly dual-homed with `eth1` as 192.168.1.41 on VLAN 10 — removed, see the asymmetric-routing incident below |
 | 192.168.20.42 (historical) | Backup Synology — retired 2026-09-22 | 00:11:32:c8:06:c5 | Former Et48, access VLAN 20; no live-link expectation |
 | 192.168.30.102 | Lutron | ec:24:b8:8e:d4:10 | Et45, access VLAN 30 |
-| 192.168.30.153 | Downstairs Apple TV | d0:03:4b:29:99:21 | Et33 via UniFi Wi-Fi, tagged VLAN 30 |
+| 192.168.30.153 | Downstairs Apple TV | d0:03:4b:29:99:21 | Reserved address; Et33 via UniFi Wi-Fi, tagged VLAN 30 |
 | 192.168.30.164 | Philips Hue | 00:17:88:22:42:e5 | Et46, access VLAN 30 |
 | 192.168.30.166 | Aqara Hub M3 (wired) | 18:c2:3c:62:07:b0 | Et16, access VLAN 30 |
 | 192.168.20.10 | Frigate VM 102 | bc:24:11:f5:09:a3 | Et4 via Proxmox, tagged VLAN 20 |
@@ -519,7 +519,7 @@ homelab-gateway — 192.168.20.20
 - Arista `192.168.50.2` was reachable from OPNsense and Proxmox but not from
   Jason's Mac during the 2026-08-26 troubleshooting session. The Mac-specific
   path remains a later investigation.
-- OPNsense IoT interface `vlan0.30` is active on parent `ix0` at 192.168.30.1/24. Dnsmasq serves 192.168.30.100-192.168.30.199 with 86,400-second leases and the `iot.internal` DHCP domain. The validated rule order allows IoT DNS and NTP to the interface address, permits only the Downstairs Apple TV (`192.168.30.153`) to reach Jellyfin (`192.168.20.40:8096/TCP`), blocks remaining access to the firewall and RFC1918 networks, and permits remaining IPv4 Internet traffic. The Jellyfin exception is logged rule `cafdbabd-25c3-4b22-8b10-7ee97726b6b8`, sequence 899 immediately before the sequence-900 RFC1918 block.
+- OPNsense IoT interface `vlan0.30` is active on parent `ix0` at 192.168.30.1/24. Dnsmasq serves 192.168.30.100-192.168.30.199 with 86,400-second leases and the `iot.internal` DHCP domain. The Downstairs Apple TV's existing reservation was corrected from stale Trusted address `192.168.1.215` to `192.168.30.153` for MAC `d0:03:4b:29:99:21`. The validated rule order allows IoT DNS and NTP to the interface address, permits only that Apple TV to reach Jellyfin (`192.168.20.40:8096/TCP`), blocks remaining access to the firewall and RFC1918 networks, and permits remaining IPv4 Internet traffic. The Jellyfin exception is logged rule `cafdbabd-25c3-4b22-8b10-7ee97726b6b8`, sequence 899 immediately before the sequence-900 RFC1918 block.
 - The OPNsense `os-mdns-repeater` plugin relays multicast DNS only among `ix0` (LAN), `vlan0.20` (Servers) and `vlan0.30` (IoT). Guest and WAN are excluded.
 - Philips Hue on Et46 uses 192.168.30.164 and Lutron on Et45 uses 192.168.30.102. Both vendor apps and Apple Home remained functional after migration to VLAN 30.
 - Et15 is now the 10 Gbps TrueNAS standby link on access VLAN 20. The Downstairs Apple TV is currently wireless at `192.168.30.153` / `d0:03:4b:29:99:21`; Arista learns it on VLAN 30 through the UniFi uplink at Et33. Aqara Hub M3 remains documented on Et16. Et17 currently learns the living-room Apple TV MAC at 1 Gbps on VLAN 20; its stale `TrueNAS-Failover-Servers` switch description requires cleanup after the intended Apple TV VLAN is confirmed.

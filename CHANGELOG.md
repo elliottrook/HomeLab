@@ -8,6 +8,12 @@
   Jellyfin at `192.168.20.40:8096/TCP`, immediately before the existing IoT
   RFC1918 deny. The rule created three real Apple TV-to-Jellyfin states during
   validation; the broader VLAN isolation rule remains in place.
+- Corrected the Apple TV's stale DHCP reservation from `192.168.1.215` to
+  `192.168.30.153`. Its generated host record, active lease and reachability
+  now agree. The restart also exposed an unrelated malformed generated Philips
+  Hue reservation caused by its empty hostname; Dnsmasq was restored with a
+  transient corrected line, but the persistent Hue hostname remains follow-up
+  work before the next configuration regeneration.
 
 ## 2026-10-17 — ARR stack configuration remediation
 
