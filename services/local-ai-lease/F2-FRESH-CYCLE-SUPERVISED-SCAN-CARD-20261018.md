@@ -1,15 +1,17 @@
-# F2 fresh-cycle supervised read-only scan card
+# F2 recurring daily supervised read-only scan protocol
 
-**Status: NOT APPROVED / NOT SCHEDULED / NOT RUN.** This card is a
-preparation artifact for one later eligible backup cycle. It does not carry
-forward the consumed October 17 approval and does not authorize a host action,
-scan, lease, receipt, service stop, timer, drill or model call.
+**Status: DAILY PROTOCOL APPROVED / NO HOST INVOCATION IN THIS CARD.** This
+card defines a bounded recurring daily protocol. Each cycle still requires
+fresh gates; approval does not carry forward a failed or uncertain result and
+does not authorize a lease, receipt, service stop, timer, drill or model call.
 
 ## Exact bounded operation
 
-After Jason separately approves this exact card for a named cycle, an operator
-present on the Proxmox host may invoke the installed diagnostic guard exactly
-once with `--read-only-authorized` between **01:10 and 01:19 America/Vancouver**.
+For each completed backup cycle, an operator present on the Proxmox host may
+invoke the installed diagnostic guard at most once with
+`--read-only-authorized` between **01:10 and 01:19 America/Vancouver**, after
+that cycle's fresh gates pass. There is never more than one attempt per
+completed cycle.
 The outer process-group deadline is the earlier of 20 minutes from child start
 or **01:40 Vancouver**. The operator must not manually start a backup, TrueNAS
 pull, lease, maintenance task or competing scan during the operation.
@@ -57,7 +59,8 @@ Immediately before the bounded operation, record only sanitized metadata:
    overlaps the operation.
 
 Any missing, late, contradictory or uncertain gate means **skip**. Do not
-invoke the guard or retry that cycle.
+invoke the guard or retry that cycle. Competing work or operator absence also
+means skip.
 
 ## Result and failure recording
 
@@ -74,6 +77,11 @@ approved identity fields or secrets.
 Afterward verify no scanner child, lease, lock, receipt or changed schedule
 remains. Any uncertain postcheck is **NO-GO** and requires operator
 reconciliation; do not rerun in the same cycle.
+
+The daily automation must pause after the first complete three-row exit-zero
+result, or immediately when installed/source drift, a safety failure,
+uncertain postcheck, competing work, or any condition requiring review is
+detected. Resumption requires review of the card and a fresh explicit decision.
 
 This card produces no trusted F3/F4 receipt, does not arm F6, does not stop a
 service, does not run the full-stop recovery drill, and does not authorize or

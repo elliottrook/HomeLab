@@ -232,10 +232,12 @@ The old guard is checkpointed for rollback, the new guard and all dependencies
 match their pins, and the 14/14 synthetic suite passes. No scan was invoked;
 F2 remains FAILED/UNKNOWN.
 
-The exact next-cycle supervised scan procedure is prepared in
+The approved bounded recurring daily scan protocol is documented in
 `services/local-ai-lease/F2-FRESH-CYCLE-SUPERVISED-SCAN-CARD-20261018.md`.
-It is not scheduled or approved; Jason must separately approve the named
-cycle and this exact bounded operation before any invocation.
+It allows at most one supervised attempt per completed cycle, with fresh
+gates every time, and pauses after the first complete three-row pass or any
+drift/safety/review condition. It does not authorize automatic promotion or
+any host action beyond the separately controlled read-only invocation.
 
 ## Critical path and failure reporting
 
