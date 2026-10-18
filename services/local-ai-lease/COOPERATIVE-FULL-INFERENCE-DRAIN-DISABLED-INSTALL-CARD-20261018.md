@@ -9,13 +9,13 @@ Stage exactly seven files under the concrete target path
 `/usr/local/libexec/local-ai-lease/full-inference-drain/` on the target
 Proxmox host, not in an LXC. The directory is root-owned mode 0700; modules
 are root-owned mode 0644. The test is evidence-only and is not a runtime
-entrypoint. The source commit containing the final controller/observer fix and
+entrypoint. The source commit `ac81eb8d` containing the final controller/observer fix and
 the hashes below must match before staging:
 
 | File | SHA-256 |
 |---|---|
-| `full_inference_lab_session.py` | `ba56b832c47cda20dde9716b77522ada0a4829c3c4f5a5543f01d8f4ac0f7992` |
-| `test_full_inference_lab_session.py` | `1a47dad9da6855c946ec7514c3853355014c4d5f3fc417d9b5128f676dcdbd20` |
+| `full_inference_lab_session.py` | `d6bee982522696603924969dfcfd1a9e8303f6a5b3148f9e8158add4141a6c77` |
+| `test_full_inference_lab_session.py` | `2e163db3eeb9ba53f10e78c54e33dafc90f378fba0408764fe36a0eb95effa89` |
 | `cooperative_lab_session.py` | `1a1c1f11219c0ec4a89671b7acb552e40d005a8e7fe056b8eab8225cc374e260` |
 | `cooperative_lab_host_adapter.py` | `0f49cca4a08aa56a2c1178820d55d2ee6f3050e794f232a7a7b94658f0f358b7` |
 | `test_cooperative_lab_host_adapter.py` | `e9433ab5b35dc11881f0a5416e5c8cd94243919b5b7264e9ccf629bffbf73b7a` |

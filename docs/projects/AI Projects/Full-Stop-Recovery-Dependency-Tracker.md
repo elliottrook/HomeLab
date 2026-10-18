@@ -263,7 +263,7 @@ recorded in
 and `services/local-ai-lease/COOPERATIVE-FULL-INFERENCE-DRAIN-RUN-CARD-20261018.md`.
 They use the historically verified MacBook→Proxmox administration path but
 leave the first workload and fresh baseline checkpoint as explicit gates.
-The fixed five-effect implementation is local in `7e8d259e`, with its
+The fixed five-effect implementation is local in `ac81eb8d`, with its
 self-contained disabled-install card at
 `services/local-ai-lease/COOPERATIVE-FULL-INFERENCE-DRAIN-DISABLED-INSTALL-CARD-20261018.md`.
 The approved outage ceiling is up to 90 minutes, but the first pilot remains
