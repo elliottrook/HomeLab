@@ -90,6 +90,11 @@ The accepted backend is not preserved during this candidate window. The
 MacBook operator may only use an explicitly reviewed workload path after the
 drain is proven; the existing direct `192.168.70.12:11435` endpoint is not
 assumed reachable or admission-controlled.
+The five-effect inventory is not proof that all B60 activity has stopped. Until
+the GPU occupancy receipt and a deterministic device-admission boundary exist,
+this card describes only known-consumer isolation; it must not claim host-wide
+exclusive B60 access. Any unlisted render-node user during the window is a
+hard stop and retains the lock for reconciliation.
 
 The named workload candidate for a later usable session is the B60 branch's
 queued fresh accepted-9B control. It is a control candidate only: it must not

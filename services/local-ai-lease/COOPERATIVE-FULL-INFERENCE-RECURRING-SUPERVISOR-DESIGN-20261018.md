@@ -101,6 +101,44 @@ journal hashes, expected command sequence, failure injection, watchdog kill
 receipt and final lock state. A passing synthetic suite does not authorize
 host installation or live recurring lab hours.
 
+## GPU occupancy boundary
+
+Stopping the five known consumers is not equivalent to proving that all other
+B60 activity has stopped. Before any claim of exclusivity, the host adapter
+must inventory the actual render node and its launch paths with bounded,
+read-only observations equivalent to:
+
+```sh
+stat -Lc '%t:%T %a %U:%G %n' /dev/dri/renderD128
+fuser -v /dev/dri/renderD128
+ps -eo pid=,ppid=,user=,etimes=,cmd= --forest
+systemctl list-units --type=service --state=running --no-legend --no-pager
+systemctl list-timers --all --no-legend --no-pager
+```
+
+The sanitized occupancy receipt must bind each render-node user to PID,
+start-time, cgroup/unit, executable identity and observation time, without
+exporting command secrets. Capture it immediately before masks, during the
+workload at a fixed interval, after workload stop, and after restoration. The
+before/during/after sets must distinguish the accepted baseline service,
+approved workload process and every other user; `systemctl active` alone is
+not evidence.
+
+The current design has no deterministic host-wide admission boundary that
+prevents an unlisted privileged process from opening `/dev/dri/renderD128`.
+Therefore the first run is explicitly **known-consumer isolation**, not
+“exclusive access to the B60.” A new render-node PID, cgroup or executable
+outside the approved set is a hard stop: stop the workload, restore the fixed
+inventory, retain the lock if any observation is uncertain, and report the
+run as failed. A future true-exclusivity release needs a separately reviewed
+host device-admission boundary; it cannot be inferred from the five masks.
+
+The offline false-new-consumer test inserts an unlisted render-node user into
+the during snapshot and independently changes its PID/cgroup identity. The
+candidate must reject both cases, emit no workload admission, preserve the
+failure journal and require recovery. A passing test proves only detection
+logic, not host-wide prevention.
+
 ## First named workload for the full-drain path
 
 The first usable full-drain workload is **accepted-9B direct-backend control
