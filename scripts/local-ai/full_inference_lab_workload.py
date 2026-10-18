@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import signal
 import subprocess
@@ -21,6 +22,16 @@ LAB_COMMAND = (
 
 def lab_command(*, lease_id: str, generation: int) -> tuple[str, ...]:
     return LAB_COMMAND + ("--lease-id", lease_id, "--generation", str(generation))
+
+
+def scope_unit(*, lease_id: str, generation: int) -> str:
+    digest = hashlib.sha256(f"{lease_id}:{generation}".encode()).hexdigest()[:16]
+    return f"aster-llama-lab-smoke-{digest}.scope"
+
+
+def lab_cleanup_command(*, lease_id: str, generation: int) -> tuple[str, ...]:
+    return ("pct", "exec", "110", "--", "systemctl", "stop",
+            scope_unit(lease_id=lease_id, generation=generation))
 
 
 class LabWorkloadError(ValueError):

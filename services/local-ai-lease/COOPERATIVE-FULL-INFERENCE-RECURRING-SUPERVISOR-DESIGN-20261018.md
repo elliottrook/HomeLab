@@ -192,9 +192,13 @@ wrapper candidate `scripts/local-ai/aster_llama_lab_smoke_wrapper.py`, with
 synthetic tests in the corresponding `test_` files. The wrapper starts only a
 separate loopback `llama-server` process on port 11436, creates its API key in
 an owner-only `/run` directory, refuses an active/unmasked production service,
-and kills its process group in `finally`. It returns only a content-free
-receipt. These files are not part of the 14-file disabled-stage packet and are
-not installed, enabled or callable on the target host.
+and runs it inside a deterministic lease-derived systemd scope. The wrapper
+and watchdog can independently stop that exact scope, so killing the host
+`pct exec` child cannot leave an unowned lab server behind. The supervisor
+requires a no-lab-listener/process/GPU-handle probe before production restore.
+It returns only a content-free receipt. These files are not part of the 14-file
+disabled-stage packet and are not installed, enabled or callable on the target
+host.
 The supervisor converts remaining wall-clock time into a monotonic child
 deadline, checks the wall cutoff on every heartbeat, attempts exact recovery
 after a newly armed partial-mask failure, and restores after a false GPU-user

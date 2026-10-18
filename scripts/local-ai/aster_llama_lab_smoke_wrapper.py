@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import argparse
+import hashlib
 import os
 import secrets
 import shutil
@@ -40,8 +41,14 @@ def production_is_masked(runner: Callable[..., subprocess.CompletedProcess] = su
     return active.returncode != 0 and enabled.stdout.strip() in {"masked", "masked-runtime"}
 
 
-def server_command(key_path: str) -> tuple[str, ...]:
-    return (RUNUSER, "--user", "ollama", "--", SERVER, "-m", MODEL_PATH, "--host", "127.0.0.1", "--port", str(PORT),
+def scope_unit(lease_id: str, generation: int) -> str:
+    digest = hashlib.sha256(f"{lease_id}:{generation}".encode()).hexdigest()[:16]
+    return f"aster-llama-lab-smoke-{digest}.scope"
+
+
+def server_command(key_path: str, *, lease_id: str, generation: int) -> tuple[str, ...]:
+    return ("/usr/bin/systemd-run", "--quiet", "--collect", "--scope",
+            f"--unit={scope_unit(lease_id, generation)}", RUNUSER, "--user", "ollama", "--", SERVER, "-m", MODEL_PATH, "--host", "127.0.0.1", "--port", str(PORT),
             "--api-key-file", key_path, "-ngl", "999", "-c", "8192", "-np", "1",
             "-t", "4", "-tb", "4", "-b", "256", "-ub", "128", "-fa", "on",
             "-ctk", "q4_0", "-ctv", "q4_0", "--jinja", "--reasoning", "off",
@@ -97,7 +104,7 @@ def run(*, lease_id: str, generation: int, clock: Callable[[], float] = time.mon
     process = None
     observations = []
     try:
-        process = popen(server_command(str(key_path)), stdout=subprocess.DEVNULL,
+        process = popen(server_command(str(key_path), lease_id=lease_id, generation=generation), stdout=subprocess.DEVNULL,
                         stderr=subprocess.DEVNULL, start_new_session=True,
                         env={**os.environ, "LD_LIBRARY_PATH": LD_LIBRARY_PATH,
                              "ONEAPI_DEVICE_SELECTOR": "level_zero:gpu",
@@ -116,6 +123,8 @@ def run(*, lease_id: str, generation: int, clock: Callable[[], float] = time.mon
                 "request_count": len(observations), "observation_ids": observations,
                 "exit_status": 0}
     finally:
+        subprocess.run(("systemctl", "stop", scope_unit(lease_id, generation)),
+                       capture_output=True, text=True, check=False)
         if process is not None:
             try:
                 os.killpg(process.pid, signal.SIGTERM)

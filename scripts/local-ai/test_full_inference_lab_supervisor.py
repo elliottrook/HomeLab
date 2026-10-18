@@ -47,7 +47,8 @@ class SupervisorTests(unittest.TestCase):
             receipt = '{"schema":"aster-9b-direct-control-smoke.v1","profile":"accepted-9b-direct-control-smoke-v1","lease_id":"lease-1","generation":2,"port":11436,"production_service":"masked-inactive","credential_exported":false,"tool_mode":"disabled","request_count":3,"observation_ids":["a","b","c"],"exit_status":0}'
             supervisor = PersistentFullDrainSupervisor(
                 controller, workload_runner=lambda command, timeout: (0, receipt),
-                production_masked=lambda: True, gpu_users=lambda: frozenset({known}),
+                production_masked=lambda: True, lab_absent=lambda: True,
+                gpu_users=lambda: frozenset({known}),
                 allowed_gpu_users=frozenset({known}), wall_clock=lambda: 110)
             value = supervisor.begin(self.preflight())
             self.assertEqual(supervisor.run_smoke()["request_count"], 3)
@@ -64,7 +65,8 @@ class SupervisorTests(unittest.TestCase):
                 owner_id="owner", allow_effects=True)
             supervisor = PersistentFullDrainSupervisor(
                 controller, workload_runner=lambda *_: (1, ""),
-                production_masked=lambda: False, gpu_users=lambda: frozenset({known}),
+                production_masked=lambda: False, lab_absent=lambda: True,
+                gpu_users=lambda: frozenset({known}),
                 allowed_gpu_users=frozenset({known}), wall_clock=lambda: 110)
             supervisor.begin(self.preflight())
             with self.assertRaisesRegex(SupervisorError, "production"):
@@ -82,7 +84,8 @@ class SupervisorTests(unittest.TestCase):
                 owner_id="owner", allow_effects=True)
             supervisor = PersistentFullDrainSupervisor(
                 controller, workload_runner=lambda *_: (0, receipt),
-                production_masked=lambda: True, gpu_users=lambda: next(snapshots),
+                production_masked=lambda: True, lab_absent=lambda: True,
+                gpu_users=lambda: next(snapshots),
                 allowed_gpu_users=frozenset({known}), wall_clock=lambda: 110)
             supervisor.begin(self.preflight())
             with self.assertRaisesRegex(SupervisorError, "unlisted"):
@@ -114,7 +117,8 @@ class SupervisorTests(unittest.TestCase):
                 owner_id="owner", allow_effects=True)
             supervisor = PersistentFullDrainSupervisor(
                 controller, workload_runner=lambda *_: (1, ""),
-                production_masked=lambda: True, gpu_users=lambda: frozenset({known}),
+                production_masked=lambda: True, lab_absent=lambda: True,
+                gpu_users=lambda: frozenset({known}),
                 allowed_gpu_users=frozenset({known}), wall_clock=lambda: 1800)
             supervisor.begin(self.preflight())
             captured = {}
@@ -140,11 +144,31 @@ class SupervisorTests(unittest.TestCase):
                 owner_id="owner", allow_effects=True)
             supervisor = PersistentFullDrainSupervisor(
                 controller, workload_runner=lambda *_: (1, ""),
-                production_masked=lambda: True, gpu_users=lambda: frozenset(),
+                production_masked=lambda: True, lab_absent=lambda: True,
+                gpu_users=lambda: frozenset(),
                 allowed_gpu_users=frozenset(), wall_clock=lambda: 110)
             with self.assertRaisesRegex(Exception, "nonzero"):
                 supervisor.begin(self.preflight())
             self.assertFalse(controller.paths.lock.exists())
+
+    def test_orphaned_lab_scope_blocks_production_restore(self):
+        known = GpuUser(10, 20, "svc", "/bin/known")
+        receipt = '{"schema":"aster-9b-direct-control-smoke.v1","profile":"accepted-9b-direct-control-smoke-v1","lease_id":"lease-1","generation":2,"port":11436,"production_service":"masked-inactive","credential_exported":false,"tool_mode":"disabled","request_count":3,"observation_ids":["a","b","c"],"exit_status":0}'
+        with TemporaryDirectory() as tmp:
+            controller = FullInferenceDrainController(
+                FullDrainPaths(Path(tmp) / "state"), lambda _: None,
+                observer=lambda *_: True, validator=lambda: True,
+                owner_id="owner", allow_effects=True)
+            supervisor = PersistentFullDrainSupervisor(
+                controller, workload_runner=lambda *_: (0, receipt),
+                production_masked=lambda: True, lab_absent=lambda: False,
+                gpu_users=lambda: frozenset({known}), allowed_gpu_users=frozenset({known}),
+                wall_clock=lambda: 110)
+            supervisor.begin(self.preflight())
+            with self.assertRaisesRegex(SupervisorError, "remains"):
+                supervisor.run_smoke()
+            self.assertTrue(controller.paths.lock.exists())
+            controller._exclusion.__exit__(None, None, None)
 
 
 if __name__ == "__main__":

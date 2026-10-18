@@ -2,13 +2,15 @@ import unittest
 from pathlib import Path
 
 from aster_llama_lab_smoke_wrapper import (MODEL, MODEL_PATH, PORT, PROFILE,
-    SERVER, server_command)
+    SERVER, scope_unit, server_command)
 
 
 class LabSmokeWrapperTests(unittest.TestCase):
     def test_server_is_distinct_loopback_process(self):
-        command = server_command("/run/lab/api-key")
-        self.assertEqual(command[0], "/usr/sbin/runuser")
+        command = server_command("/run/lab/api-key", lease_id="lease-1", generation=2)
+        self.assertEqual(command[0], "/usr/bin/systemd-run")
+        self.assertIn("--scope", command)
+        self.assertIn(f"--unit={scope_unit('lease-1', 2)}", command)
         self.assertIn(SERVER, command)
         self.assertIn("127.0.0.1", command)
         self.assertIn(str(PORT), command)

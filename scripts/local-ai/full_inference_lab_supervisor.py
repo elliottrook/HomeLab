@@ -58,12 +58,14 @@ class PersistentFullDrainSupervisor:
     def __init__(self, controller: FullInferenceDrainController, *,
                  workload_runner: Callable[[Sequence[str], float], tuple[int, str]],
                  production_masked: Callable[[], bool],
+                 lab_absent: Callable[[], bool],
                  gpu_users: Callable[[], FrozenSet[GpuUser]],
                  allowed_gpu_users: FrozenSet[GpuUser],
                  wall_clock: Callable[[], int]):
         self.controller = controller
         self.workload_runner = workload_runner
         self.production_masked = production_masked
+        self.lab_absent = lab_absent
         self.gpu_users = gpu_users
         self.allowed_gpu_users = allowed_gpu_users
         self.wall_clock = wall_clock
@@ -117,10 +119,11 @@ class PersistentFullDrainSupervisor:
                                       lease_id=self.plan.lease_id,
                                       generation=self.plan.generation)
             require_known_gpu_users(self.gpu_users(), self.allowed_gpu_users)
+            if not self.lab_absent():
+                raise SupervisorError("lab process or listener remains after workload")
             return receipt
         except BaseException:
-            self.controller.restore(self.plan, now_epoch=self.wall_clock(), owner_present=True)
-            self.active = False
+            self.restore(now_epoch=self.wall_clock(), owner_present=True)
             raise
 
     def run_smoke_bounded(self, *, heartbeat: Callable[[], None],
@@ -142,15 +145,18 @@ class PersistentFullDrainSupervisor:
                 monotonic=monotonic, lease_id=self.plan.lease_id,
                 generation=self.plan.generation)
             require_known_gpu_users(self.gpu_users(), self.allowed_gpu_users)
+            if not self.lab_absent():
+                raise SupervisorError("lab process or listener remains after workload")
             return receipt
         except BaseException:
-            self.controller.restore(self.plan, now_epoch=self.wall_clock(), owner_present=True)
-            self.active = False
+            self.restore(now_epoch=self.wall_clock(), owner_present=True)
             raise
 
     def restore(self, *, now_epoch: int, owner_present: bool) -> None:
         if not self.active or self.plan is None:
             raise SupervisorError("supervisor is not active")
+        if not self.lab_absent():
+            raise SupervisorError("lab process or listener remains; retain lock")
         self.controller.restore(self.plan, now_epoch=now_epoch, owner_present=owner_present)
         self.active = False
 
