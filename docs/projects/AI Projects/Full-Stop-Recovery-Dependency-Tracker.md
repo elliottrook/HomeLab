@@ -199,6 +199,13 @@ also rejects admission at or after the recovery trigger. This closes only the
 naming ambiguity and trigger-boundary gap; it does not provide live source authentication, measured recovery
 budgets, target-Linux proof, or A1 authorization.
 
+The next offline platform gate is the uninstalled source-bound pre-lease
+candidate in `evidence/A1-source-bound-prelease-candidate-2026-10-18.md`.
+It binds backup, TrueNAS, Mac-subset and runtime observations to one cycle and
+rejects fabricated, stale, future or partial inputs. Its adapter interfaces
+still require fixed root-owned host implementations and independent custody
+proof before any entrypoint wiring or host approval.
+
 ## Critical path and failure reporting
 
 F2 can be measured while F3 is engineered, but a read-only F2 result is not
