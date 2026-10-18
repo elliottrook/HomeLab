@@ -394,3 +394,14 @@ That is not yet a reliable household restoration guarantee for Jason. The
 platform owner has been asked to correct the arithmetic and design/test a
 bounded independent rescue or prove an equivalent attended recovery path
 before a live approval is requested. No effectful command was run.
+
+A source-only one-shot guardian was proposed after this review, but its first
+form does not yet meet the prearm requirement. It needs an exact lease ID
+before pilot start, while the source producer creates that ID from the current
+time *inside* the later pilot. If the pilot owner hangs, it also retains the
+host exclusion lock; the guardian's rescue command waits for that lock and
+can time out without restoring service. These are executable counterexamples,
+not merely missing tests. The platform owner has been asked for a trusted
+preissued identity or safe state binding, plus a bounded owner-fencing path
+tested against a hung owner. The guardian and manual rescue are source-only;
+the installed `b43d4971` binary has neither. The live pilot remains NO-GO.
