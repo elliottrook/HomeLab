@@ -46,6 +46,16 @@ The operator remains present on the verified MacBook administration session for
 the complete 45-minute reservation and watches the receipt, cutoff, and
 restoration evidence; disconnection or uncertainty is a stop condition.
 
+The concrete reservation is defined at the final gate as `S` (the recorded
+start epoch): lab work is `[S, S+1800)`, restoration is `[S+1800, S+2700)`,
+and the next News ingest epoch `N` must satisfy `S+1800+300 <= N`. Immediately
+after MacBook custody is proven, the operator must run the read-only command
+`pct exec 114 -- systemctl list-timers --all --no-legend --no-pager
+news-aggregator-ingest.timer`, record its next-run epoch as `N`, and either
+select the first start time satisfying that
+inequality or declare the pilot NO-GO. A stale or missing `N` is not a valid
+window.
+
 During the 30-minute window this is an explicit product outage: Aster
 Companion requests, LXC104 Aster Agent, LXC116 Speech, LXC110 production
 Qwen3.5 service, and News ingest/digest are unavailable. Backup schedules,
@@ -149,11 +159,10 @@ control with the drain/recovery proof. Without those gates, the combined run
 is NO-GO and no isolation-only live outage should be scheduled merely to
 produce a partial usability claim.
 
-The named workload candidate for a later usable session is the B60 branch's
-queued fresh accepted-9B control. It is a control candidate only: it must not
-run until the operator path, fresh recovery checkpoint and post-drain
-restoration are independently verified.
-The persistent supervisor and workload boundary are designed separately in
+The first live workload is the fixed accepted-9B three-request control already
+specified by the installed wrapper. There is no later or separate workload in
+this card, and no B60 branch workload or arbitrary client request is included.
+The persistent supervisor and workload boundary remain documented separately in
 `COOPERATIVE-FULL-INFERENCE-RECURRING-SUPERVISOR-DESIGN-20261018.md`.
 
 ### Recovery baseline
@@ -174,22 +183,27 @@ in operator-reconciliation state.
 
 ## Explicit gates
 
-- A fresh Proxmox host source adapter must prove the GPU and rollback VM state;
-  historical documentation is not a live checkpoint.
-- The MacBook SSH identity and host-key custody must be revalidated for the
-  actual operator session; the historical pass does not authorize a new write.
-- A named first workload and its exact admin command path must be reviewed
-  separately. No direct backend client is accepted merely because `ss` shows a
-  peer.
-- The full drain candidate must pass disabled target-Linux staging and an
-  independent review before any live service stop.
-- Partial drain, owner-process loss, exact `resume_existing` identity and
-  final local-Proxmox restoration validation must be demonstrated before a
-  live run. If ownership is lost, the lock remains held until a supervisor
-  resumes the exact lease or manually reconciles it.
+The pilot may start only when all of these are true:
 
-This card is therefore feasible as a supervised drain/recovery prerequisite,
-but it does not yet close the usable MacBook B60 experiment milestone. Any
-later workload that mutates files, models or runtime configuration requires its
-own stronger restore checkpoint and rollback card, including the TrueNAS/F2/F3
-gates where applicable.
+1. The installed 20-file manifest and wrapper hashes match the disabled-stage
+   card; target paths, modes, and required executables are unchanged.
+2. The current Proxmox backup source check passes, the manual lease is
+   `ready`, the accepted model/binary/unit hashes match, VM105 is stopped and
+   unmapped, and the GPU `xe` baseline is current.
+3. The MacBook fingerprint, pinned host key, read-only UID-0 proof, and
+   attended operator path are captured for this session.
+4. The post-custody News timer check records a future `N` satisfying the exact
+   30+15+5-minute window inequality above.
+5. The fixed production GPU holder is the exact LXC110
+   `aster-llama.service` cgroup identity; after masking, no GPU holder remains.
+6. The operator explicitly accepts the Aster/News outage and remains present
+   for the whole reservation.
+
+The run stops and retains the lock on any nonzero or uncertain drain command,
+new/unlisted GPU holder, listener/process/GPU-handle residue, stale heartbeat,
+monotonic or wall-clock cutoff, failed smoke receipt, failed authentication
+probe, failed restoration postcheck, changed hash, or lost operator session.
+The lock is not cleared to make the outage appear healthy; reconciliation is
+required. A successful run must produce every restoration artifact listed
+above. This card does not close TrueNAS mirror, F2/F3, or host-wide GPU
+exclusivity gates.
