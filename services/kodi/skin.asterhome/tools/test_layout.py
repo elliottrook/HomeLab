@@ -68,11 +68,12 @@ class LayoutTests(unittest.TestCase):
                     if value and value.startswith('special://skin/media/'):
                         self.assertTrue((ROOT / value.removeprefix('special://skin/')).is_file(), value)
 
-    def test_combined_genre_plugin_is_a_required_skin_dependency(self):
+    def test_v1_companion_plugins_are_required_skin_dependencies(self):
         addon = ET.parse(ROOT / 'addon.xml')
         imports = {node.get('addon'): node.get('version')
                    for node in addon.findall('.//requires/import')}
-        self.assertEqual(imports.get('plugin.video.asterhome'), '0.1.0')
+        self.assertEqual(imports.get('plugin.video.asterhome'), '1.0.0')
+        self.assertEqual(imports.get('plugin.audio.asterbooks'), '1.0.0')
 
     def test_settings_exposes_only_installed_support_tools(self):
         settings = ET.parse(ROOT / '1080i/Settings.xml')

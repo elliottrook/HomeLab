@@ -8,3 +8,6 @@ __pycache__/
 # Editors
 .vscode/
 .idea/
+
+# Local deterministic release artifacts (rebuild from tracked sources)
+services/kodi/dist/

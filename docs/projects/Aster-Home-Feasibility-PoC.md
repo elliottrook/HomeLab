@@ -1,6 +1,6 @@
 # Aster Home — EH-001: LibreELEC/Kodi feasibility experiment
 
-> **Status:** Active — Stream A; M0 accepted 2026-10-13; M1 software test authorized
+> **Status:** Active — Stream A; Aster skin v1.0.0 production candidate accepted 2026-10-17; awaiting physical M2 hardware acceptance
 > **Owner:** Jason
 > **Date:** 2026-10-13
 > **Authorization:** Stream A requested for bounded, reversible proof of concept; operational execution remains subject to the actual environment, project-standard and platform safety gates.
@@ -223,7 +223,7 @@ Record pinned versions, tested guest ID, source commits, upstream image checksum
 - [x] **M0 — Read-only inventory and risk gate:** 2026-10-13 baseline gathered and accepted. Live Proxmox, guest, VLAN, media, HA, Aster, speech and backup evidence is recorded in the evidence log; household capabilities and the bounded software-test envelope are now explicit.
 - [x] **M1 — Integrated boot:** 2026-10-13. VM 127 installed LibreELEC 12.2.1 with its bundled Kodi image, booted repeatedly from the installed target, and reached the LibreELEC splash on each clean boot. `std`, `qxl` and `virtio` KVM display profiles produced the same result: Kodi UI did not become visible and the installed guest's `.kodi/temp/kodi.log` remained empty. Gate result: **boot/install passed; KVM UI result inconclusive**. This is a virtualization limitation to carry into physical HDMI testing, not a software rejection; do not substitute Debian+Kodi as the primary test.
 - [ ] **M2 — Audiovisual:** Jellyfin library/direct play, music, collections, remote navigation, codecs, subtitles and playback stability. M2 now has a physical endpoint candidate: boot the verified LibreELEC Generic x86_64 image from a disposable USB on the Lenovo X390 Yoga, without installing to or altering its internal drive. Use the X390's Thunderbolt 3/USB-C DisplayPort output with a known 4K60-capable HDMI adapter for the 4K path; its built-in HDMI 1.4b is limited to 4K24 and is not the production-path test. HDMI-CEC is now an optional appliance-integration test, not a software gate; prove a reliable local Bluetooth, IR or USB-HID control path instead. Gate: no media mutation; measurable direct-play, HDR10, audio passthrough, network and navigation results, with hardware limitations explicitly separated from software results.
-- [ ] **M3 — Customization:** throwaway Aster-styled Kodi skin/add-on, Home Assistant **read** dashboard, mocked commands and Aster AI query. Gate: prove extensibility and upgrade compatibility without core fork if possible.
+- [x] **M3 — Customization:** 2026-10-17. Owner accepted Aster Home skin v1.0.0 as the first private production candidate. The normal Mac Kodi path now covers the Media/Jellyfin interface, playback OSD, Music, Books/Audiobooks/Podcasts, Digest/Breaking News, Home status/camera pilot/timer, settings, sounds and watch state without a Kodi core fork. Deterministic private release packaging, checksums, install order and rollback are recorded in `services/kodi/skin.asterhome/RELEASE.md`. Physical LibreELEC compatibility remains M2 rather than being inferred from Mac acceptance.
 - [ ] **M4 — Voice/intelligence:** consume existing Aster voice service with opt-in mic/control, demonstrate speech/turn and timeout/fallback handling without new TTS implementation. Gate: privacy and canonical-voice compliance.
 - [ ] **M5 — SOFTWARE GO/NO-GO:** issue `Aster-Home-EH-001-Feasibility-Decision.md` explicitly stating **USE / CONDITIONAL USE / REJECT**, weighted tests plus hard constraints and source-supported alternatives if rejected. **No hardware purchasing study is necessary after REJECT** beyond documenting what alternatives need testing.
 - [ ] **M6 — Conditional hardware/pricing:** **only if USE/CONDITIONAL USE**. Compare powerful mini-PC and cheaper local-decoding thin endpoint; measure network/server/client CPU, RAM, codec support, 4K/HDR, control path (Bluetooth/IR/USB-HID and optional HDMI-CEC), audio passthrough, boot/recovery and wattage on available hardware; distinguish measured versus vendor claims. Price at least two viable products **per class** from Canadian retailers, with SKU, dated CAD offers/stock, sources, shipping/tax/accessories, support, 5-year TCO and ranked no-buy/reuse/buy choices. Gate: defensible minimum/efficient/premium specification and a specific recommended purchase or explicit defer.
@@ -1520,6 +1520,36 @@ output resolution. The pre-change installed skin remains available at
 `/private/tmp/asterhome-kodi-watch-badges-pre-20261017` for local rollback.
 All 74 skin tests, four bridge tests, complete XML parsing, Kodi-log inspection
 and whitespace validation passed.
+
+Version 1 production-candidate preparation, 2026-10-17: Jason accepted the
+complete skin design and requested that it be called version 1 and prepared
+for production while the hardware test remains pending. The skin and its three
+private support components now identify as v1.0.0. Add-on metadata no longer
+describes the accepted interface as a prototype, and the skin publishes its
+approved Aster icon. A private release guide records install order, client
+state, credential boundaries, 1080p-to-4K scaling, rollback and the exact
+physical production gate.
+
+The deterministic release builder produced four independently installable
+ZIPs and a per-file manifest under the ignored local build directory
+`services/kodi/dist/aster-home-v1.0.0/`. Independent tests confirmed repeatable
+archive hashes, matching internal add-on IDs/versions, exclusion of tests,
+build/pilot tools, SVG sources and caches, and refusal to overwrite a non-empty
+output directory. The compact tracked release record is
+`services/kodi/releases/aster-home-v1.0.0.json`. This milestone completes M3,
+not M2/M5/M7: the release remains a production candidate until LibreELEC,
+4K/HDR10, receiver passthrough, remote reconnect, resource and rollback tests
+pass on the physical endpoint.
+
+The installation rehearsal preserved all four prior disposable-client add-ons
+under `/private/tmp/aster-home-v1-predeploy-20261017`, installed the generated
+ZIP contents, and restarted Kodi. JSON-RPC and the Kodi log independently
+reported the skin, genre plugin, Audiobookshelf bridge and UI-sound resource
+enabled at v1.0.0; the skin and sound resource loaded without a dependency or
+skin error, and the complete Media home artwork populated after normal library
+refresh. Final validation passed 74 skin tests, four genre-plugin tests, 13
+audio-bridge tests, three deterministic-package tests, 48 XML parses, all four
+ZIP CRC checks, archive/manifest hash verification and whitespace validation.
 
 ## 15. References
 

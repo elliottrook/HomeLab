@@ -1,0 +1,52 @@
+{
+  "schema": "aster-home-kodi-release-record.v1",
+  "release": "1.0.0",
+  "status": "production-candidate-pending-physical-libreelec-gate",
+  "built_on": "2026-10-17",
+  "design_canvas": "1920x1080-16:9-scales-to-4k",
+  "artifact_directory": "services/kodi/dist/aster-home-v1.0.0",
+  "manifest_sha256": "a4ce310afb48ce8ac4ceee683856aa59c2416e537ce3a3fcd67a860954e50386",
+  "artifacts": [
+    {
+      "addon_id": "plugin.video.asterhome",
+      "archive": "plugin.video.asterhome-1.0.0.zip",
+      "bytes": 2658,
+      "sha256": "1c1b9d50e390c92446e6dbfe45fee5dfe487765a9ced27947ed1915f069d26bd"
+    },
+    {
+      "addon_id": "plugin.audio.asterbooks",
+      "archive": "plugin.audio.asterbooks-1.0.0.zip",
+      "bytes": 10018,
+      "sha256": "362da5ff27cce8c05efa42a65512fd8c336ff34ecdc76d54c68e9235f6527cce"
+    },
+    {
+      "addon_id": "resource.uisounds.asterhome",
+      "archive": "resource.uisounds.asterhome-1.0.0.zip",
+      "bytes": 82957,
+      "sha256": "f0d3beb55f407f39515dcd6cb30f1baf0521f3e311cc26359f8d537c2338b84b"
+    },
+    {
+      "addon_id": "skin.asterhome",
+      "archive": "skin.asterhome-1.0.0.zip",
+      "bytes": 4535119,
+      "sha256": "087f1dc788c62f9ebf0a73591ea0944845c6da4c353782e56796218793b5a747"
+    }
+  ],
+  "install_order": [
+    "plugin.video.asterhome",
+    "plugin.audio.asterbooks",
+    "resource.uisounds.asterhome",
+    "skin.asterhome"
+  ],
+  "validation": {
+    "skin_tests": 74,
+    "video_plugin_tests": 4,
+    "audio_bridge_tests": 13,
+    "packaging_tests": 3,
+    "xml_files_parsed": 48,
+    "zip_crc_checks": 4,
+    "disposable_kodi_install_rehearsal": "passed-all-four-components-enabled-at-v1.0.0"
+  },
+  "rollback_checkpoint": "/private/tmp/aster-home-v1-predeploy-20261017",
+  "graduation_blocker": "Physical LibreELEC 4K/HDR10, receiver passthrough, remote reconnect, soak, resource and rollback validation"
+}

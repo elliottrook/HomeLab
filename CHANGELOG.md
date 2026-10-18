@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-10-17 — Aster Home skin v1 production candidate
+
+- Promoted the owner-accepted Aster Home Kodi skin and its private support
+  components to v1.0.0 without claiming completion of the pending physical
+  LibreELEC hardware test.
+- Added deterministic private ZIP packaging, per-file and archive checksums,
+  install order, client-state and credential boundaries, Estuary fallback and
+  the 4K/HDR10/audio/remote/recovery production gate.
+- Completed the customization milestone without a Kodi core fork. The release
+  remains a production candidate until the physical audiovisual milestone and
+  project decision gates pass.
+
 ## 2026-10-10 — Fotosforfun project started
 
 - Created the Stream A project for Alisa's growing `fotosforfun.ca` gallery.

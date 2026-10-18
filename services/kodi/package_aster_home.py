@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+"""Build deterministic private Aster Home Kodi add-on archives."""
+
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import stat
+import zipfile
+
+
+HERE = Path(__file__).resolve().parent
+RELEASE = "1.0.0"
+ADDONS = (
+    "plugin.video.asterhome",
+    "plugin.audio.asterbooks",
+    "resource.uisounds.asterhome",
+    "skin.asterhome",
+)
+ZIP_TIME = (2026, 10, 17, 0, 0, 0)
+
+
+def development_only(relative: Path) -> bool:
+    parts = relative.parts
+    name = relative.name
+    if name in {".DS_Store", ".gitkeep", "README.md", "RELEASE.md"}:
+        return True
+    if "__pycache__" in parts or name.endswith((".pyc", ".pyo")):
+        return True
+    if name.startswith("test_") and name.endswith(".py"):
+        return True
+    if parts and parts[0] == "tools":
+        return name.startswith(("test_", "build_", "pilot_")) or name == "install_macos_dock_icon.sh"
+    return relative.suffix.lower() == ".svg"
+
+
+def package_files(addon: Path):
+    return [path for path in sorted(addon.rglob("*"))
+            if path.is_file() and not development_only(path.relative_to(addon))]
+
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def build_archive(addon_id: str, output: Path) -> dict:
+    source = HERE / addon_id
+    if not (source / "addon.xml").is_file():
+        raise ValueError(f"missing add-on source: {source}")
+    archive = output / f"{addon_id}-{RELEASE}.zip"
+    records = []
+    with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as bundle:
+        for path in package_files(source):
+            relative = path.relative_to(source)
+            member = Path(addon_id) / relative
+            info = zipfile.ZipInfo(member.as_posix(), ZIP_TIME)
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.create_system = 3
+            info.external_attr = (stat.S_IFREG | 0o644) << 16
+            data = path.read_bytes()
+            bundle.writestr(info, data, compress_type=zipfile.ZIP_DEFLATED,
+                            compresslevel=9)
+            records.append({"path": member.as_posix(),
+                            "sha256": hashlib.sha256(data).hexdigest(),
+                            "bytes": len(data)})
+    return {"addon_id": addon_id, "archive": archive.name,
+            "sha256": sha256(archive), "bytes": archive.stat().st_size,
+            "files": records}
+
+
+def build(output: Path) -> dict:
+    output.mkdir(parents=True, exist_ok=True)
+    if any(output.iterdir()):
+        raise ValueError(f"output directory is not empty: {output}")
+    archives = [build_archive(addon_id, output) for addon_id in ADDONS]
+    manifest = {
+        "schema": "aster-home-kodi-release.v1",
+        "release": RELEASE,
+        "status": "production-candidate-pending-physical-libreelec-gate",
+        "design_canvas": "1920x1080-16:9-scales-to-4k",
+        "install_order": list(ADDONS),
+        "archives": archives,
+    }
+    manifest_path = output / f"aster-home-v{RELEASE}-manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+    os.chmod(manifest_path, 0o644)
+    return manifest
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output", required=True, type=Path)
+    args = parser.parse_args()
+    manifest = build(args.output.resolve())
+    print(json.dumps({"release": manifest["release"],
+                      "archives": [{"archive": item["archive"],
+                                    "sha256": item["sha256"],
+                                    "bytes": item["bytes"]}
+                                   for item in manifest["archives"]]},
+                     indent=2))
+
+
+if __name__ == "__main__":
+    main()
