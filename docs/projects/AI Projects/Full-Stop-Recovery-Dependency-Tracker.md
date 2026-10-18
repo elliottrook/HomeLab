@@ -267,6 +267,11 @@ The fixed five-effect implementation and complete source/validator packet are
 local in the subsequent Stream A commits, with its
 self-contained disabled-install card at
 `services/local-ai-lease/COOPERATIVE-FULL-INFERENCE-DRAIN-DISABLED-INSTALL-CARD-20261018.md`.
+The newer single-process bounded pilot wiring is separately pinned at source
+tip `af839c0f`, with its own disabled-install card at
+`services/local-ai-lease/COOPERATIVE-FULL-INFERENCE-PILOT-DISABLED-INSTALL-CARD-20261018.md`.
+It supersedes the phased runtime as the candidate pilot entrypoint, but remains
+offline and does not claim continuous host-wide GPU exclusivity.
 The fixed Proxmox→TrueNAS observer route is currently NO-GO after bounded SSH
 connect timeout; see
 `services/local-ai-lease/FULL-DRAIN-TRUENAS-OBSERVER-NO-GO-20261018.md`.
