@@ -313,3 +313,16 @@ the five service masks without failing the allowlist comparison. Admission
 must bind preexisting holders to the exact accepted production process or
 require no holders after drain. This counterexample was sent to the platform
 owner for a regression test and source correction.
+
+The platform owner then froze a separate 19-file host packet plus one LXC110
+wrapper through `f3b62a3e`. All 20 listed file hashes matched the current
+source, and 45 focused offline tests passed, including new pilot-path tests.
+No target Linux stage occurred. Independent review found one remaining
+admission counterexample: the revised baseline accepts any single GPU holder
+whose executable path ends in the accepted `llama-server`, even if that
+process is unrelated to LXC110's production `aster-llama.service`. A rogue
+same-binary process could survive the five masks while remaining allowlisted.
+The platform owner has been asked to bind the allowed process to the actual
+service/cgroup or require zero GPU holders after drain. The pilot still lacks
+continuous device admission and must not be described as host-wide exclusive
+B60 time. The older 14-file approval remains inapplicable to this new packet.
