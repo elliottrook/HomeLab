@@ -92,6 +92,64 @@ def _production_masked(runner: Callable[..., tuple[int, str]]) -> bool:
     return active[0] != 0 and enabled[1].strip() in {"masked", "masked-runtime"}
 
 
+def _accepted_gpu_baseline(users: frozenset[GpuUser]) -> frozenset[GpuUser]:
+    """Accept only the single fixed production llama identity as baseline."""
+    if len(users) > 1 or any(not user.executable.endswith(
+            "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server")
+            for user in users):
+        raise SupervisorError("pre-existing GPU holder is outside the accepted production identity")
+    return users
+
+
+def _run_pilot(args: argparse.Namespace, paths: FullDrainPaths, *,
+               runner: Callable[..., tuple[int, str]] = _host_runner,
+               gpu_users: Callable[[], frozenset[GpuUser]] = _gpu_users,
+               wall_clock: Callable[[], float] = time.time) -> int:
+    baseline = AcceptedBaseline(args.model_sha256, args.binary_sha256, args.unit_sha256)
+    producer = LocalProxmoxFullDrainSourceProducer(
+        runner, baseline, TrustedOwnerAttestation(args.owner_id, args.admin_path_evidence),
+        wall_clock=wall_clock)
+    preflight = producer.collect(cycle=args.cycle, session_start_epoch=args.session_start_epoch)
+    controller = FullInferenceDrainController(
+        paths, lambda command: runner(command, 30.0), observer=CooperativeHostObserver(runner),
+        validator=LocalProxmoxFullDrainValidator(runner, baseline, cycle=args.cycle),
+        owner_id=args.owner_id, allow_effects=True)
+    allowed_gpu_users = _accepted_gpu_baseline(gpu_users())
+    current_plan: dict[str, object] = {}
+
+    def lab_absent() -> bool:
+        plan = current_plan.get("plan")
+        if plan is None:
+            return True
+        return lab_is_absent(runner, lease_id=plan.lease_id, generation=plan.generation)
+
+    supervisor = PersistentFullDrainSupervisor(
+        controller, workload_runner=runner,
+        production_masked=lambda: _production_masked(runner),
+        lab_absent=lab_absent, gpu_users=gpu_users,
+        allowed_gpu_users=allowed_gpu_users, wall_clock=lambda: int(wall_clock()))
+    owner = TrustedDrainOwner(args.owner_id, wall_clock=wall_clock)
+    plan = supervisor.begin(preflight)
+    current_plan["plan"] = plan
+    try:
+        receipt = supervisor.run_smoke_bounded(
+            heartbeat=lambda: supervisor.heartbeat(owner.now_epoch()))
+        supervisor.restore(now_epoch=owner.now_epoch(), owner_present=True)
+    except BaseException:
+        if supervisor.active:
+            try:
+                supervisor.restore(now_epoch=owner.now_epoch(), owner_present=True)
+            except BaseException:
+                pass
+        raise
+    print(json.dumps({"effects": "pilot-complete", "lease_id": plan.lease_id,
+                      "generation": plan.generation,
+                      "receipt": {"profile": receipt["profile"],
+                                  "request_count": receipt["request_count"],
+                                  "exit_status": receipt["exit_status"]}}, sort_keys=True))
+    return 0
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--phase", choices=("pilot", "start", "heartbeat", "resume", "restore"), required=True)
@@ -131,48 +189,7 @@ def main(argv: list[str] | None = None) -> int:
     runner = _host_runner
     observer = CooperativeHostObserver(runner)
     if args.phase == "pilot":
-        baseline = AcceptedBaseline(args.model_sha256, args.binary_sha256, args.unit_sha256)
-        producer = LocalProxmoxFullDrainSourceProducer(
-            runner, baseline, TrustedOwnerAttestation(args.owner_id, args.admin_path_evidence))
-        preflight = producer.collect(cycle=args.cycle, session_start_epoch=args.session_start_epoch)
-        controller = FullInferenceDrainController(
-            paths, lambda command: runner(command, 30.0), observer=observer,
-            validator=LocalProxmoxFullDrainValidator(runner, baseline, cycle=args.cycle),
-            owner_id=args.owner_id, allow_effects=True)
-        allowed_gpu_users = _gpu_users()
-        current_plan: dict[str, object] = {}
-
-        def lab_absent() -> bool:
-            plan = current_plan.get("plan")
-            if plan is None:
-                return True
-            return lab_is_absent(runner, lease_id=plan.lease_id, generation=plan.generation)
-
-        supervisor = PersistentFullDrainSupervisor(
-            controller, workload_runner=runner,
-            production_masked=lambda: _production_masked(runner),
-            lab_absent=lab_absent, gpu_users=_gpu_users,
-            allowed_gpu_users=allowed_gpu_users, wall_clock=lambda: int(time.time()))
-        owner = TrustedDrainOwner(args.owner_id)
-        plan = supervisor.begin(preflight)
-        current_plan["plan"] = plan
-        try:
-            receipt = supervisor.run_smoke_bounded(
-                heartbeat=lambda: supervisor.heartbeat(owner.now_epoch()))
-            supervisor.restore(now_epoch=owner.now_epoch(), owner_present=True)
-        except BaseException:
-            if supervisor.active:
-                try:
-                    supervisor.restore(now_epoch=owner.now_epoch(), owner_present=True)
-                except BaseException:
-                    pass
-            raise
-        print(json.dumps({"effects": "pilot-complete", "lease_id": plan.lease_id,
-                          "generation": plan.generation,
-                          "receipt": {"profile": receipt["profile"],
-                                      "request_count": receipt["request_count"],
-                                      "exit_status": receipt["exit_status"]}}, sort_keys=True))
-        return 0
+        return _run_pilot(args, paths, runner=runner)
     if args.phase == "start":
         baseline = AcceptedBaseline(args.model_sha256, args.binary_sha256, args.unit_sha256)
         producer = LocalProxmoxFullDrainSourceProducer(
