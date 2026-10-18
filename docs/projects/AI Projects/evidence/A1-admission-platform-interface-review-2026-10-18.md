@@ -75,3 +75,12 @@ This reproduction used the platform test module's fictional receipt/state;
 it did not inspect a host, acquire a lease or call a model. Stream A sent the
 exact result to the platform owner for correction and boundary tests. No
 live A1 gate is advanced by `e26b2bc3`.
+
+**Source correction reviewed:** the platform owner added the missing
+`now_epoch >= restore_start_epoch` refusal in local commit `ce4e1bef` and an
+exact synthetic boundary test: 249 passes; 250, 251 and 299 reject for a
+trigger at 250 and hard deadline at 300. Stream A inspected the one-line
+guard and test diff. This closes the *offline post-trigger denial finding*,
+not source authentication, measured recovery/lag, installed-path validation
+or a live application-only drill. The current platform callback still must
+not be treated as A1 release authority until those separate gates pass.
