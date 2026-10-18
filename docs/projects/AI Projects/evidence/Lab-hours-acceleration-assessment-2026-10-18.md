@@ -305,3 +305,11 @@ prove known-consumer drain and restoration; it must not claim exclusive use of
 the whole B60 without continuous occupancy evidence or a deny-new-opens
 boundary. Both gaps and the need for a fresh combined-source install card were
 sent to the platform owner. No host stage or live pilot followed this review.
+
+A second source check found that the pilot initializes its allowed GPU users
+from **every** process holding `renderD128` before drain. An unlisted process
+already using the GPU would therefore be implicitly trusted and could survive
+the five service masks without failing the allowlist comparison. Admission
+must bind preexisting holders to the exact accepted production process or
+require no holders after drain. This counterexample was sent to the platform
+owner for a regression test and source correction.
