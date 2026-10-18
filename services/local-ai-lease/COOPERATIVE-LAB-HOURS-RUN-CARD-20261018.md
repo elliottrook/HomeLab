@@ -60,9 +60,11 @@ unverified GPU/authentication, News timer drift, and any window that cannot
 finish before its hard deadline and before the next hourly News ingest with a
 five-minute margin. Stopping the hourly ingest is not a free pause: unless a
 future run explicitly supplies a reviewed catch-up, the bounded first pilot
-must fit before that next fire. The source-only producer and fixed-file host
-adapter are documented in commits `e34b3297` and `d74b58b9`; neither is wired
-to the live entrypoint.
+must fit before that next fire. The offline producer and fixed Linux observer
+are `scripts/local-ai/cooperative_lab_sources.py` and
+`scripts/local-ai/cooperative_lab_host_adapter.py`; neither is wired to the
+live entrypoint. The observer's direct-client exclusivity check is a blocking
+gate: no configured allowed client or any unknown established peer is NO-GO.
 
 ## Cooperative sequence
 
@@ -84,8 +86,9 @@ to the live entrypoint.
 
 ## Disabled staging and rollback gate
 
-Before a live pilot, stage the planner, its tests and the source-bound adapter
-in a new root-owned mode-0700 private directory on target Linux. Run imports
+Before a live pilot, stage exactly the session controller, source producer,
+Linux observer and their three focused tests in a new root-owned mode-0700
+private directory on target Linux. Run imports
 and synthetic tests only; do not create a lease, call a service, start a
 timer, or run a model. Preserve exact old bytes if any host helper is later
 replaced. A mismatch or failed test aborts before host effects. If a reviewed
@@ -96,16 +99,11 @@ write or runtime state is uncertain, retain it for reconciliation and stop.
 
 ## Current evidence and remaining gates
 
-`scripts/local-ai/cooperative_lab_session.py` is source-only and disabled by
-default. It now contains a separate effectful candidate controller with fixed
-runtime-mask/unmask commands, host exclusion, atomic state, phase journaling,
-durable owner/heartbeat state, resumable recovery, and exact injected
-postchecks; no live wrapper enables it. Recovery remains callable after a
-missed deadline and records that condition for reconciliation.
-Its focused tests pass 5/5; the full
-`scripts/local-ai` suite passes 222 tests with 4 expected macOS root-custody
-skips. The installed F2 diagnostic guard is unrelated read-only infrastructure
-and does not provide this lab lease.
+The session controller, source producer and Linux observer are source-only and
+disabled by default. Their focused tests pass 9/9; the full `scripts/local-ai`
+suite passes 228 tests with 4 expected macOS root-custody skips. The installed
+F2 diagnostic guard is unrelated read-only infrastructure and does not provide
+this lab lease.
 
 Live pilot approval must separately cover the named daytime window, target
 host, exact source-bound producer/adapter pins, service/timer allowlist,
