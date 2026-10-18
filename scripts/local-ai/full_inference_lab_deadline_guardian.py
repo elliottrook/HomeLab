@@ -25,8 +25,17 @@ def fence_owner_unit(unit: str, runner: Callable[..., subprocess.CompletedProces
     state = runner(("systemctl", "is-active", unit), capture_output=True,
                    text=True, timeout=10, check=False)
     detail = f"{state.stdout}\n{state.stderr}".lower()
-    return state.returncode != 0 and any(
-        marker in detail for marker in ("inactive", "failed", "unknown", "not found", "not-found"))
+    if state.returncode == 0:
+        return False
+    tasks = runner(("systemctl", "show", unit, "--property=TasksCurrent", "--value"),
+                   capture_output=True, text=True, timeout=10, check=False)
+    main_pid = runner(("systemctl", "show", unit, "--property=MainPID", "--value"),
+                      capture_output=True, text=True, timeout=10, check=False)
+    if (tasks.returncode == 0 and tasks.stdout.strip() == "0"
+            and main_pid.returncode == 0 and main_pid.stdout.strip() == "0"):
+        return True
+    return (any(marker in detail for marker in ("unknown", "not found", "not-found"))
+            and tasks.returncode != 0 and main_pid.returncode != 0)
 
 
 def rescue_command(*, script: Path, state_root: Path, owner_id: str,
@@ -110,18 +119,14 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"effects": "not-attempted", "state": "disabled"}, sort_keys=True))
         return 0
     root = Path(__file__).resolve().parent
-    command = rescue_command(
-        script=root / "full_inference_lab_runtime.py", state_root=args.state_root,
-        owner_id=args.owner_id, lease_id="__discovered__", generation=0,
-        cycle=args.cycle, model_sha256=args.model_sha256,
-        binary_sha256=args.binary_sha256, unit_sha256=args.unit_sha256)
     result = run_guardian(
         state_path=args.state_root / "full-inference-drain.json", owner_id=args.owner_id,
         owner_fence=lambda: fence_owner_unit(args.owner_unit),
-        rescue_command_factory=lambda lease_id, generation: tuple(
-            value if value not in {"__discovered__", "0"} else
-            (lease_id if value == "__discovered__" else str(generation))
-            for value in command),
+        rescue_command_factory=lambda lease_id, generation: rescue_command(
+            script=root / "full_inference_lab_runtime.py", state_root=args.state_root,
+            owner_id=args.owner_id, lease_id=lease_id, generation=generation,
+            cycle=args.cycle, model_sha256=args.model_sha256,
+            binary_sha256=args.binary_sha256, unit_sha256=args.unit_sha256),
         rescue_at=args.rescue_at, hard_deadline=args.hard_deadline)
     print(json.dumps(result, sort_keys=True))
     return 0
