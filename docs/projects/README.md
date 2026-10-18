@@ -20,6 +20,7 @@
 | Surveillance expansion | One-camera baseline complete; expansion proposed | [Surveillance expansion](Surveillance-Expansion.md) | [Surveillance runbook](../07-Surveillance.md) |
 | NUT/UPS deployment | Handover ready | [NUT/UPS handover](../handovers/UPS-Power-Resilience-Claude-Handover.md) | Architecture, shutdown and recovery requirements are contained in the handover |
 | Media RAIDZ2 widening | Eight-drive expansion and scrub passed | [Media RAIDZ2 widening](Media-RAIDZ-Widening.md) | BJ7Z and 471FR complete; BTVM/BK81 held; 10.9 TiB free after cleanup |
+| Disposable lab mirror | Deployed and validated | [Lab scratch mirror](Lab-Scratch-Mirror.md) | BTVM/BK81 mirror; 3.51 TiB available; NFSv4 shared scratch for VLAN70 only |
 | Recovery SATA mirror | Migration and old-source retirement complete | [Recovery SATA mirror](Recovery-SATA-Mirror.md) | Two qualified 4 TB SATA drives; live mirrored backups plus private EHS backup |
 | TrueNAS DIY SAS expansion | Ready | [TrueNAS DIY SAS expansion](TrueNAS-DIY-SAS-Expansion.md) | Eight-bay backplane-free enclosure using two vacant x4 ports on the LSI SAS 9300-16i |
 | Music playlist acquisition bridge | Prototype | [Music playlist acquisition bridge](Music-Playlist-Acquisition-Bridge.md) | Hybrid Cmdarr plus local export-file bridge: translate Spotify/Apple Music and generic playlist exports into conservative Lidarr album requests, then publish a complete duplicate playlist in Jellyfin after the media is indexed |

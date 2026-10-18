@@ -167,6 +167,12 @@ RAIDZ2, with clean completed expansion scrub; Recovery and boot pool healthy.
 | 37H0A019FT2C1711 | 50000397a832e111 | HP MB4000JFDSN / 4,000,787,030,016 B | 69354:31 | 0 | 0/0 | 343 |
 | 37H0A01HFT2C1711 | 50000397a832e289 | HP MB4000JFDSN / 4,000,787,030,016 B | 69354:39 | 0 | 0/0 | 294 |
 
+Physical location reported by Jason on 2026-10-18: these two candidates occupy
+**NAS expansion enclosure bays 3 and 6**. The individual serial-to-bay assignment
+has not yet been confirmed; do not infer it from table order, Linux device letters
+or controller PHY numbers. Both serials belong to this two-bay set. Confirm which
+serial occupies each bay before recording an individual mapping or removing one.
+
 Both report HPD1 firmware, 512-byte logical sectors, 7200 RPM, 2017 week 11
 manufacture, 24 C and SMART health OK. Both active SAS ports initially show four
 invalid DWORDs, four disparity errors, one synchronization loss, zero reset
@@ -195,3 +201,15 @@ confirming nothing needs preservation on these new drives. This turn does not
 claim a pass, schedule an automatic pool addition, or authorize erasing unknown
 contents. No production service, network, identity, NetBox/Beszel service object,
 backup policy or speech output changed; existing TrueNAS health monitoring remains.
+
+## 2026-10-18 — rejected disks reused for disposable lab storage
+
+Qualification check at 15:47 PDT: both HP candidates still report background
+long tests in progress, SMART health passed, zero grown defects and zero
+uncorrected read/write errors. No completed test pass claimed. Expected finish
+remains approximately 17:43 PDT; tests were not interrupted by Docker recovery.
+
+At Jason’s request, BTVM and BK81 now form the separate `lab` mirror; they
+remain excluded from production Media. See [lab scratch mirror](Lab-Scratch-Mirror.md)
+for exact identities, VLAN70 NFS access, limitations and validation. Both new
+HP replacement disks continue their extended SMART qualification unchanged.

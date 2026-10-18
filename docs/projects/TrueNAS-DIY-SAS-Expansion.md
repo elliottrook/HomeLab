@@ -369,6 +369,15 @@ procedures are current.
 
 ## Evidence log
 
+### 2026-10-18 — Replacement candidates in expansion bays 3 and 6
+
+Jason confirms that the two new Media-pool candidates occupy physical expansion
+enclosure **bays 3 and 6**. Candidate serials are `37H0A019FT2C1711`
+(WWN `50000397a832e111`) and `37H0A01HFT2C1711` (WWN `50000397a832e289`).
+The exact serial-to-bay pairing is pending confirmation: neither table ordering
+nor controller lane numbering establishes that pairing. Qualification details
+are in [Media RAIDZ widening](Media-RAIDZ-Widening.md#replacement-sas-qualification--2026-10-18).
+
 ### 2026-09-26 — Failed-drive identification and handoff
 
 Read-only sysfs mapping places both failed drives on the second SAS3008
