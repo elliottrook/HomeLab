@@ -51,6 +51,7 @@ FIXED = {
     "news_digest_enabled": ("pct", "exec", "114", "--", "systemctl", "is-enabled", "news-aggregator-digest.timer"),
     "gpu": ("pct", "exec", "110", "--", "test", "-e", "/dev/dri/renderD128"),
     "auth": ("pct", "exec", "110", "--", "/usr/local/sbin/aster-llama-production-auth-probe"),
+    "legacy_status": ("/usr/local/sbin/local-ai-lease", "status"),
 }
 
 LOCAL_PROXMOX_FIXED = {
@@ -225,6 +226,8 @@ class FullDrainSourceProducer:
         self._hash("110", "/etc/systemd/system/aster-llama.service", self.baseline.unit_sha256, "unit")
         if not self._backup_current(cycle):
             raise FullDrainSourceError("current backup schedule/status is not verified")
+        if self._run("legacy_status") != "ready":
+            raise FullDrainSourceError("legacy local-ai-lease is not ready")
         if (self._run("news_ingest_active") != "active" or self._run("news_digest_active") != "active"
                 or self._run("news_ingest_enabled") != "enabled" or self._run("news_digest_enabled") != "enabled"):
             raise FullDrainSourceError("News timers are not active and enabled")

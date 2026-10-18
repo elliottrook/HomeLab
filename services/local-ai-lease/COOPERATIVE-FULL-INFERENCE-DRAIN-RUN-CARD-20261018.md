@@ -50,6 +50,10 @@ The producer must not call the TrueNAS observer in this mode. A separate
 read-only Mac-mini observation may be recorded as nonauthoritative evidence,
 but a failed or unavailable observer remains **NO-GO for mirror/F2/F3 claims**.
 This mode does not mutate backup or model files and does not close F2 or F3.
+Before any masks, the source producer must also report the existing manual
+`local-ai-lease status` as `ready`. The pilot is attended: the supervisor must
+not start the old manual controller during the window, and no unattended
+recurring drain or automatic owner-death recovery is claimed.
 
 ### Fixed drain inventory
 
@@ -91,6 +95,10 @@ the lock for operator reconciliation.
   peer.
 - The full drain candidate must pass disabled target-Linux staging and an
   independent review before any live service stop.
+- Partial drain, owner-process loss, exact `resume_existing` identity and
+  final local-Proxmox restoration validation must be demonstrated before a
+  live run. If ownership is lost, the lock remains held until a supervisor
+  resumes the exact lease or manually reconciles it.
 
 This card is therefore feasible as a supervised drain/recovery prerequisite,
 but it does not yet close the usable MacBook B60 experiment milestone. Any

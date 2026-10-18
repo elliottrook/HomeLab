@@ -70,6 +70,43 @@ class FullInferenceLabSessionTests(unittest.TestCase):
             self.assertTrue(paths.state.exists())
             controller._exclusion.__exit__(None, None, None)
 
+    def test_partial_drain_owner_loss_can_resume_by_exact_identity(self):
+        calls = []
+        def fail_on_third(command):
+            calls.append(command)
+            if len(calls) == 3:
+                raise RuntimeError("synthetic owner loss during drain")
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = FullDrainPaths(Path(tmp) / "state")
+            first = FullInferenceDrainController(paths, fail_on_third,
+                observer=lambda *_: True, validator=lambda: True,
+                owner_id="owner-1", allow_effects=True)
+            with self.assertRaises(RuntimeError):
+                first.begin(self.preflight())
+            first._exclusion.__exit__(None, None, None)
+            resumed_calls = []
+            resumed = FullInferenceDrainController(paths, resumed_calls.append,
+                observer=lambda *_: True, validator=lambda: True,
+                owner_id="owner-1", allow_effects=True)
+            value = resumed.resume_existing(lease_id="drain-1", generation=1)
+            resumed.restore(value, now_epoch=self.epoch(10, 20), owner_present=True)
+            self.assertEqual(len(resumed_calls), 10)
+            self.assertFalse(paths.lock.exists())
+
+    def test_resume_rejects_wrong_owner_or_identity(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = FullDrainPaths(Path(tmp) / "state")
+            first = FullInferenceDrainController(paths, lambda _: None,
+                observer=lambda *_: True, validator=lambda: True,
+                owner_id="owner-1", allow_effects=True)
+            first.begin(self.preflight())
+            first._exclusion.__exit__(None, None, None)
+            wrong = FullInferenceDrainController(paths, lambda _: None,
+                observer=lambda *_: True, validator=lambda: True,
+                owner_id="owner-2", allow_effects=True)
+            with self.assertRaisesRegex(FullDrainError, "identity"):
+                wrong.resume_existing(lease_id="drain-1", generation=1)
+
     def test_final_validator_failure_retains_lock(self):
         with tempfile.TemporaryDirectory() as tmp:
             paths = FullDrainPaths(Path(tmp) / "state")

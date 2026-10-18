@@ -48,7 +48,10 @@ state retains the directory and lock for operator reconciliation.
 
 ## Promotion gates
 
-The first live 30+15 run is isolation/recovery only. A later usable run needs
+The first live 30+15 run is isolation/recovery only and attended throughout.
+It must not be installed as an unattended recurring controller; owner loss
+retains the lock for supervised `resume_existing` or manual reconciliation. A
+later usable run needs
 the named queued accepted-9B control, a fresh source-bound baseline, verified
 MacBook operator/admin path, and explicit confirmation that restored SYCL/GPU,
 model, service and schedule state matches the accepted baseline. F2/F3 remain

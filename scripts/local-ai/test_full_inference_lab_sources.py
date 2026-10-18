@@ -49,6 +49,7 @@ class FullInferenceLabSourcesTests(unittest.TestCase):
             if command in (FIXED["news_ingest_enabled"], FIXED["news_digest_enabled"]): return 0, "enabled\n"
             if command == FIXED["gpu"]: return 0, ""
             if command == FIXED["auth"]: return 0, ""
+            if command == FIXED["legacy_status"]: return 0, "ready\n"
             if command[-3:] in (("systemctl", "is-active", "aster-agent.service"),
                                 ("systemctl", "is-active", "aster-llama.service"),
                                 ("systemctl", "is-active", "aster-speech.service")): return 0, "active\n"
