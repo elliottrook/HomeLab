@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-10-18 — Downstairs Apple TV Jellyfin access
+
+- Corrected the live Downstairs Apple TV record to `192.168.30.153`, MAC
+  `d0:03:4b:29:99:21`, on IoT VLAN 30 over the UniFi uplink at Arista Et33.
+- Added one logged OPNsense pass rule allowing only that Apple TV to reach
+  Jellyfin at `192.168.20.40:8096/TCP`, immediately before the existing IoT
+  RFC1918 deny. The rule created three real Apple TV-to-Jellyfin states during
+  validation; the broader VLAN isolation rule remains in place.
+
 ## 2026-10-17 — ARR stack configuration remediation
 
 - Repaired Bazarr's Sonarr/Radarr synchronization by adding only the exact
