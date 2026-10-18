@@ -7,7 +7,7 @@ from full_inference_lab_runtime import main as runtime_main
 class FullInferenceInstallPreflightTests(unittest.TestCase):
     def test_import_and_command_contract_is_no_effect(self):
         value = validate_imports()
-        self.assertEqual(value["modules"], 8)
+        self.assertEqual(value["modules"], 10)
         self.assertEqual(value["drain_effects"], 5)
         self.assertEqual(value["restore_effects"], 11)
         self.assertEqual(value["effects"], "not-attempted")

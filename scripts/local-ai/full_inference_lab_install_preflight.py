@@ -12,6 +12,7 @@ REQUIRED_MODULES = (
     "application_b60_lease", "host_exclusion", "cooperative_lab_session",
     "cooperative_lab_host_adapter", "full_inference_lab_session",
     "full_inference_lab_sources", "full_inference_lab_validator",
+    "full_inference_lab_supervisor", "full_inference_lab_workload",
     "full_inference_lab_runtime",
 )
 
