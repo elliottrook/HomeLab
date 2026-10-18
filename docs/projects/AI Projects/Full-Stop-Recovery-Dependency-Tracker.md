@@ -1,7 +1,7 @@
 # Full-stop recovery drill — dependency tracker
 
 **Owner:** Stream A for evidence and coordination; Local AI platform owner for
-host release, lease and recovery. **Last reconciled:** 2026-10-17, 01:12
+host release, lease and recovery. **Last reconciled:** 2026-10-18
 America/Vancouver. **Overall decision: NO-GO.** This tracker is the human
 status page. The platform-owned
 `services/local-ai-lease/FULL-STOP-RECOVERY-DRILL-RUN-CARD.md` is the executable
@@ -29,7 +29,12 @@ marks this cycle FAILED/UNKNOWN and prohibits a retry under the consumed
 approval. Production and schedules remained normal in the postcheck. No
 receipt or drill is scheduled. The [bounded diagnostic plan](evidence/F2-no-go-diagnostic-plan-2026-10-17.md)
 separates offline reproduction from any later one-cycle scan approval; it does
-not change F2 status. The paragraphs below preserve the earlier failed and corrected
+not change F2 status. A [reviewed disabled diagnostic candidate](evidence/F2-diagnostic-candidate-independent-review-2026-10-18.md)
+now has matching source hashes and 14 passing focused synthetic tests. It is
+not installed and reports only a content-free failure phase. It cannot recover
+the missing October 17 archive results; a bounded target-Linux installation
+and a later one-cycle scan each need their own authorization. The paragraphs
+below preserve the earlier failed and corrected
 paths as provenance; their earlier “uninstalled” descriptions are historical,
 not the current installed state.
 
