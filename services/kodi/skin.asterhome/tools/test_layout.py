@@ -189,6 +189,8 @@ class LayoutTests(unittest.TestCase):
                             for condition in conditions))
         self.assertTrue(any('ListItem.IsResumable' in condition
                             for condition in conditions))
+        textures = [node.text or '' for node in badges.findall('.//texture')]
+        self.assertIn('special://skin/media/ui-timer-dot.png', textures)
 
         for page in ('Home.xml', 'MyVideoNav.xml'):
             tree = ET.parse(ROOT / '1080i' / page)

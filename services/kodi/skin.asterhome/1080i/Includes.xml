@@ -112,7 +112,7 @@
         </control>
         <control type="image">
             <left>$PARAM[left]</left><top>$PARAM[top]</top><width>32</width><height>32</height>
-            <texture border="14" colordiffuse="asterSage">special://skin/media/ui-panel.png</texture>
+            <texture colordiffuse="asterSage">special://skin/media/ui-timer-dot.png</texture>
             <visible>!ListItem.IsParentFolder + !ListItem.IsResumable + !Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + [String.IsEqual(ListItem.Overlay,OverlayWatched.png) | Integer.IsGreater(ListItem.PlayCount,0)]</visible>
         </control>
         <control type="label">
