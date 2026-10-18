@@ -4,9 +4,11 @@ Status: disabled stage installed and verified; live effects are not approved.
 The installed source is `b43d4971`, bound to the exact 20-file manifest in
 `COOPERATIVE-FULL-INFERENCE-PILOT-DISABLED-INSTALL-CARD-20261018.md`. The
 one-shot rescue and independent deadline guardian are source-only at
-`b67373c4`; both require their own
-disabled-stage update before a live pilot. The earlier phased 14-file approval
-does not apply. This is not the F2/F3 fault-injection or receipt drill.
+`b67373c4`; the exact four-path upgrade from installed `b43d4971` is defined
+in `COOPERATIVE-FULL-INFERENCE-PILOT-RESCUE-GUARDIAN-UPGRADE-DISABLED-INSTALL-CARD-20261018.md`
+and requires separate disabled-stage approval before a live pilot. The earlier
+phased 14-file approval does not apply. This is not the F2/F3 fault-injection
+or receipt drill.
 
 ## Installed disabled-stage evidence
 
@@ -105,7 +107,8 @@ This mode does not mutate backup or model files and does not close F2 or F3.
 Before any masks, the source producer must also report the existing manual
 `local-ai-lease status` as `ready`. The pilot is attended: the supervisor must
 not start the old manual controller during the window, and no unattended
-recurring drain or automatic owner-death recovery is claimed.
+recurring drain is claimed. One-shot owner-loss protection is provided only by
+the separately staged and prearmed deadline guardian described below.
 
 The final release check uses `LocalProxmoxFullDrainValidator` (not the
 TrueNAS-dependent `FullDrainValidator`). The exact source tip and hashes are
@@ -136,7 +139,9 @@ accepted production GPU identity, drains the fixed five consumers, runs the
 three-request control on loopback port 11436, heartbeats through the deadline,
 proves lab scope/listener/process/GPU absence, and restores through the final
 validator. If the owner process dies or restoration becomes uncertain, the
-lock remains for supervised reconciliation; no unattended watchdog is enabled.
+guardian fences the owner scope and attempts rescue; if the separately staged
+guardian or its fence fails, the lock remains for supervised reconciliation.
+No recurring watchdog is enabled.
 
 ### Independent owner-loss protection
 
