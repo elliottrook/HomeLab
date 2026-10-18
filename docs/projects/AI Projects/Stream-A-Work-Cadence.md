@@ -1,6 +1,15 @@
 # Stream A work cadence
 
-> Owner: Jason. Status: continuous lane active; no exclusive benchmark launcher admitted. The one-time October 15 and 16 read-only checks are complete and paused. This cadence does not promote a model, deploy a service, grant a tool, or waive an approval gate.
+> Owner: Jason. Status: continuous lane active; no exclusive benchmark launcher admitted. The one-time October 15, 16 and 17 read-only checks are complete and paused. This cadence does not promote a model, deploy a service, grant a tool, or waive an approval gate.
+
+**October 17 evening schedule check:** the October 17 F2 guard returned NO-GO
+without archive rows. Its daily heartbeat entry was explicitly set to
+`PAUSED` and the saved status was verified; it is not a new nightly scan.
+The separate four-hour continuous-work heartbeat remains active for
+offline/shared work. The enabled normal backup chain remains 00:30 Proxmox
+and 01:00/02:00/03:00 TrueNAS, subject to actual nightly completion. No
+full-stop drill, A1 benchmark or B60 exclusive test is scheduled by this
+cadence. A later F2 scan requires a new reviewed card and one-cycle approval.
 
 **October 15 afternoon update:** The approved full-stop compatibility
 candidate is installed inactive on Proxmox and passed synthetic installed-path

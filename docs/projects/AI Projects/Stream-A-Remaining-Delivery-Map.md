@@ -12,6 +12,13 @@ is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the
 October 16 read-only scan from an unscheduled live drill.
 
+**October 17 evening correction:** the later supervised October 17 F2 guard
+attempt returned NO-GO without any archive results. Its one-cycle approval
+is spent and its recurring automation is now verified `PAUSED`. The normal
+backup schedule continues; no F2 retry, full-stop drill or A1 benchmark is
+scheduled for the following night. Source-only failure diagnostics and result
+projection corrections are not installed and do not lift these gates.
+
 **October 15 afternoon compatibility checkpoint:** Jason approved the
 hash-pinned **inactive** full-stop candidate installation on Proxmox. The
 installation result on the separate local branch `codex/aster-lease-compat`

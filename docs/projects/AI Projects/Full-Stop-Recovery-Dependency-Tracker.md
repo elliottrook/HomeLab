@@ -32,6 +32,8 @@ separates offline reproduction from any later one-cycle scan approval; it does
 not change F2 status. The paragraphs below preserve the earlier failed and corrected
 paths as provenance; their earlier “uninstalled” descriptions are historical,
 not the current installed state.
+The one-cycle F2 automation was verified `PAUSED` in its saved status on
+October 17 evening; its daily schedule is no longer an active scan trigger.
 
 The October 16 01:10 read-only archive heartbeat triggered, but no complete
 three-archive result was retained by the time Stream A resumed after the
