@@ -52,7 +52,7 @@ direct MacBook model access.
 
 The concrete reservation is defined at the final gate as `S` (the recorded
 start epoch): lab work is `[S, S+1800)`, restoration is `[S+1800, S+2700)`,
-and the next News ingest epoch `N` must satisfy `S+1800+300 <= N`. Immediately
+and the next News ingest epoch `N` must satisfy `S+2700+300 <= N`. Immediately
 after MacBook custody is proven, the operator must run the read-only command
 `pct exec 114 -- systemctl list-timers --all --no-legend --no-pager
 news-aggregator-ingest.timer`, record its next-run epoch as `N`, and either
@@ -64,8 +64,9 @@ The latest read-only schedule observation recorded next ingest at 23:02:15 UTC
 (16:02:15 Vancouver), followed by approximately 17:02 Vancouver, with the
 digest at approximately 17:15. This makes 16:05–16:50 Vancouver a conditional
 candidate slot only if the final custody, hash, and timer checks occur before
-16:05 and confirm the later ingest as `N`; otherwise the operator must recompute
-`S` and `N` rather than reuse this slot.
+16:05 and confirm the later ingest as `N`: with `S=16:05`, restoration ends at
+16:50, the five-minute margin ends at 16:55, and `16:55 <= N≈17:02`. Otherwise
+the operator must recompute `S` and `N` rather than reuse this slot.
 
 During the 30-minute window this is an explicit product outage: Aster
 Companion requests, LXC104 Aster Agent, LXC116 Speech, LXC110 production
