@@ -194,3 +194,38 @@ current-cycle backup evidence. That would allow a false PASS. The platform
 owner was sent the actual outputs and is correcting source collection and
 positive/negative tests before any target stage. The first pilot remains
 NO-GO until a corrected packet passes this review and target-Linux checks.
+
+## October 18 daytime acceleration decision
+
+Jason accepted a **maximum 90-minute daytime Aster/voice outage** for a first
+supervised pilot, excluding host reboot and fault injection. This is an outage
+budget, not approval of a host installation or live service drain. The News
+ingest timer runs hourly, so the first card limits itself to 30 minutes of lab
+time, 15 minutes of restoration and five minutes before the next ingest.
+That pilot proves isolation and recovery only. It does not yet give the MacBook
+agent a verified, usable workload path, and it cannot establish unattended
+recurring lab hours.
+
+Read-only Proxmox evidence showed the current-cycle 00:30 all-guest `vzdump`
+task completed successfully and positive-size current-cycle archives exist
+for 104, 110 and 116. The Proxmox-to-TrueNAS observer SSH route timed out;
+that is a route failure, not proof that TrueNAS itself is down. The platform
+owner therefore prepared a distinct **local-Proxmox-only** preflight for the
+no-reboot, no-file-change pilot. TrueNAS mirror, F2 archive integrity and F3
+retained-receipt claims remain closed on this evidence.
+
+Independent review caught a consequential source mismatch: the local-only
+preflight could admit the pilot while the original final validator still
+required the unavailable TrueNAS route. Platform commits through `1d230b8f`
+added a separate local-only final validator and a legacy-lease readiness
+check, plus synthetic partial-stop and owner-loss recovery cases. The packet
+is **not yet approved for target staging** because its 14-file card omits an
+imported `backup_receipt_adapter` dependency, and it lacks a pinned host
+entrypoint that assembles the trusted sources, fixed runner, owner, supervisor
+and exact recovery command. The platform owner has these concrete findings.
+Until they are corrected and the no-effect target-Linux tests pass, the live
+daytime drain remains NO-GO. The old manual controller remains a separate
+conflict risk because it does not participate in the new advisory lock; a
+readiness snapshot alone cannot establish durable exclusion. The first live
+run must remain attended, with any partial effect reconciled before the lock
+is released.
