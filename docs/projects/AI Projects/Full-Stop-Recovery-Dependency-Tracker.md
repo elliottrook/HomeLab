@@ -206,6 +206,13 @@ rejects fabricated, stale, future or partial inputs. Its adapter interfaces
 still require fixed root-owned host implementations and independent custody
 proof before any entrypoint wiring or host approval.
 
+The following custody boundary is recorded in
+`evidence/A1-fixed-host-source-adapter-candidate-2026-10-18.md`: a future
+producer must read fixed root-owned envelopes, validate private parent/file
+custody, exact source/cycle/time and a pinned payload digest before setting
+`verified=True`. The candidate is not wired or installed; synthetic
+`verified` flags remain non-authoritative.
+
 ## Critical path and failure reporting
 
 F2 can be measured while F3 is engineered, but a read-only F2 result is not
