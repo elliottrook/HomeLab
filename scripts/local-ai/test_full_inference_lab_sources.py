@@ -21,6 +21,12 @@ class FullInferenceLabSourcesTests(unittest.TestCase):
         self.assertEqual(ACCEPTED_BACKEND, "llama.cpp b11429 SYCL/Level Zero")
         self.assertEqual(len(baseline.model_sha256), 64)
 
+    def test_next_timer_explicit_utc_is_converted_to_vancouver(self):
+        producer = FullDrainSourceProducer(lambda command, timeout: (0, "Sun 2026-10-18 16:01:59 UTC  1h\n"),
+            AcceptedBaseline("a" * 64, "b" * 64, "c" * 64), TrustedOwnerAttestation("owner-1", "m2"))
+        expected = int(datetime(2026, 10, 18, 9, 1, 59, tzinfo=ZoneInfo("America/Vancouver")).timestamp())
+        self.assertEqual(producer._next_ingest_epoch(expected - 60), expected)
+
     def test_collect_happy_path_uses_fixed_host_observations(self):
         now = int(datetime(2026, 10, 18, 10, 0, tzinfo=ZoneInfo("America/Vancouver")).timestamp())
         finished = int(datetime(2026, 10, 18, 9, 0, tzinfo=ZoneInfo("America/Vancouver")).timestamp() * 1000)
@@ -32,9 +38,9 @@ class FullInferenceLabSourcesTests(unittest.TestCase):
             if command == FIXED["vm_config"]: return 0, "memory: 1024\n"
             if command == FIXED["schedules"]: return 0, "[{\"vmid\":104,\"ctime\":%d,\"size\":10},{\"vmid\":110,\"ctime\":%d,\"size\":10},{\"vmid\":116,\"ctime\":%d,\"size\":10}]\n" % (finished // 1000, finished // 1000, finished // 1000)
             if command == FIXED["truenas"]:
-                return 0, ("[{\"id\":1,\"enabled\":true,\"job\":{\"state\":\"SUCCESS\",\"time_finished\":{\"$date\":%d}}},"
-                           "{\"id\":2,\"enabled\":true,\"job\":{\"state\":\"SUCCESS\",\"time_finished\":{\"$date\":%d}}},"
-                           "{\"id\":3,\"enabled\":true,\"job\":{\"state\":\"SUCCESS\",\"time_finished\":{\"$date\":%d}}}]\n" % (finished, finished, finished))
+                return 0, ("[{\"id\":1,\"enabled\":true,\"schedule\":{\"hour\":1,\"minute\":0},\"job\":{\"state\":\"SUCCESS\",\"arguments\":[1],\"time_started\":{\"$date\":%d},\"time_finished\":{\"$date\":%d}}},"
+                           "{\"id\":2,\"enabled\":true,\"schedule\":{\"hour\":3,\"minute\":0},\"job\":{\"state\":\"SUCCESS\",\"arguments\":[2],\"time_started\":{\"$date\":%d},\"time_finished\":{\"$date\":%d}}},"
+                           "{\"id\":3,\"enabled\":true,\"schedule\":{\"hour\":2,\"minute\":0},\"job\":{\"state\":\"SUCCESS\",\"arguments\":[3],\"time_started\":{\"$date\":%d},\"time_finished\":{\"$date\":%d}}}]\n" % (finished, finished, finished + 1, finished + 2, finished + 3, finished + 4))
             if command == FIXED["next_ingest"]: return 0, "Sun 2026-10-18 11:30:00 PDT  1h\n"
             if command in (FIXED["news_ingest_active"], FIXED["news_digest_active"]): return 0, "active\n"
             if command in (FIXED["news_ingest_enabled"], FIXED["news_digest_enabled"]): return 0, "enabled\n"

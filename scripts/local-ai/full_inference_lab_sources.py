@@ -6,7 +6,7 @@ import json
 import re
 import time
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Callable, Sequence
 from zoneinfo import ZoneInfo
 
@@ -57,6 +57,54 @@ def _service(vmid: str, unit: str) -> tuple[str, ...]:
     return ("pct", "exec", vmid, "--", "systemctl", "is-active", unit)
 
 
+def validate_backup_sources(pve: object, truenas: object, *, cycle: str, now_epoch: int) -> bool:
+    """Validate current-cycle artifact/task ordering without requiring F2 integrity."""
+    if not isinstance(pve, list) or not isinstance(truenas, list):
+        return False
+    cycle_key = cycle.replace("-", "_")
+    artifacts = {}
+    for item in pve:
+        try:
+            vmid, ctime, size = int(item.get("vmid")), item.get("ctime"), item.get("size", 0)
+        except (AttributeError, TypeError, ValueError):
+            continue
+        if vmid in {104, 110, 116} and type(ctime) is int and size > 0:
+            if datetime.fromtimestamp(ctime, LOCAL_ZONE).strftime("%Y_%m_%d") == cycle_key:
+                artifacts[vmid] = max(artifacts.get(vmid, 0), ctime)
+    if set(artifacts) != {104, 110, 116}:
+        return False
+    expected = {1: 60, 3: 120, 2: 180}
+    started, finished, task_ids = [], [], set()
+    for item in truenas:
+        if not isinstance(item, dict) or item.get("id") not in expected:
+            continue
+        task_id = item["id"]
+        task_ids.add(task_id)
+        schedule = item.get("schedule", {})
+        if (not item.get("enabled") or int(schedule.get("hour", -1)) * 60 + int(schedule.get("minute", -1)) != expected[task_id]):
+            return False
+        job = item.get("job", {})
+        started_ms = job.get("time_started", {}).get("$date")
+        finished_ms = job.get("time_finished", {}).get("$date")
+        if (job.get("state") != "SUCCESS" or job.get("arguments") != [task_id]
+                or type(started_ms) is not int or type(finished_ms) is not int
+                or started_ms > finished_ms):
+            return False
+        started_dt = datetime.fromtimestamp(started_ms / 1000, LOCAL_ZONE)
+        finished_dt = datetime.fromtimestamp(finished_ms / 1000, LOCAL_ZONE)
+        if (started_dt.strftime("%Y_%m_%d") != cycle_key or finished_dt.strftime("%Y_%m_%d") != cycle_key
+                or started_dt.hour * 60 + started_dt.minute < expected[task_id]
+                or finished_ms / 1000 > now_epoch):
+            return False
+        started.append(started_ms)
+        finished.append(finished_ms)
+        if started_ms / 1000 < max(artifacts.values()):
+            return False
+    return (task_ids == {1, 2, 3} and started == sorted(started)
+            and finished == sorted(finished) and started[1] >= finished[0]
+            and started[2] >= finished[1])
+
+
 class FullDrainSourceProducer:
     """Derives preflight facts from fixed probes; caller cannot supply booleans."""
 
@@ -87,35 +135,7 @@ class FullDrainSourceProducer:
             truenas = json.loads(self._run("truenas"))
         except (json.JSONDecodeError, FullDrainSourceError):
             return False
-        if not isinstance(pve, list) or not isinstance(truenas, list):
-            return False
-        for item_id in (1, 2, 3):
-            item = next((x for x in truenas if x.get("id") == item_id), None)
-            if not item or not item.get("enabled") or item.get("job", {}).get("state") != "SUCCESS":
-                return False
-        cycle_key = cycle.replace("-", "_")
-        expected_guests = {104, 110, 116}
-        seen_guests = set()
-        for item in pve:
-            vmid = item.get("vmid")
-            ctime = item.get("ctime")
-            if vmid in expected_guests and type(ctime) is int and item.get("size", 0) > 0:
-                if datetime.fromtimestamp(ctime, LOCAL_ZONE).strftime("%Y_%m_%d") == cycle_key:
-                    seen_guests.add(vmid)
-        if seen_guests != expected_guests:
-            return False
-        seen = set()
-        for item in truenas:
-            if item.get("id") in (1, 2, 3):
-                seen.add(item["id"])
-                finished = item.get("job", {}).get("time_finished", {}).get("$date")
-                if type(finished) is not int:
-                    return False
-                if datetime.fromtimestamp(finished / 1000, LOCAL_ZONE).strftime("%Y_%m_%d") != cycle_key:
-                    return False
-        if seen != {1, 2, 3}:
-            return False
-        return True
+        return validate_backup_sources(pve, truenas, cycle=cycle, now_epoch=int(self.wall_clock()))
 
     def _next_ingest_epoch(self, now: int) -> int:
         raw = self._run("next_ingest")
@@ -123,10 +143,12 @@ class FullDrainSourceProducer:
             value = int(raw)
             return value // 1_000_000 if value > 10_000_000_000 else value
         except ValueError:
-            match = re.search(r"(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2})", raw)
+            match = re.search(r"(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2})\s+(UTC|PDT|PST)", raw)
             if not match:
                 raise FullDrainSourceError("next News ingest timestamp is unavailable")
-            value = datetime.strptime(" ".join(match.groups()), "%Y-%m-%d %H:%M:%S").replace(tzinfo=LOCAL_ZONE)
+            offsets = {"UTC": timezone.utc, "PDT": timezone(timedelta(hours=-7)),
+                       "PST": timezone(timedelta(hours=-8))}
+            value = datetime.strptime(" ".join(match.groups()[:2]), "%Y-%m-%d %H:%M:%S").replace(tzinfo=offsets[match.group(3)])
             return int(value.timestamp())
 
     def collect(self, *, cycle: str, session_start_epoch: int,

@@ -4,16 +4,18 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from typing import Callable, Sequence
 
-from full_inference_lab_sources import AcceptedBaseline, FIXED
+from full_inference_lab_sources import AcceptedBaseline, FIXED, validate_backup_sources
 
 Runner = Callable[[Sequence[str], float], tuple[int, str]]
 
 
 class FullDrainValidator:
-    def __init__(self, runner: Runner, baseline: AcceptedBaseline):
-        self.runner, self.baseline = runner, baseline
+    def __init__(self, runner: Runner, baseline: AcceptedBaseline, *, cycle: str,
+                 wall_clock: Callable[[], float] = time.time):
+        self.runner, self.baseline, self.cycle, self.wall_clock = runner, baseline, cycle, wall_clock
 
     def _run(self, command: Sequence[str], timeout: float = 10.0) -> str:
         code, output = self.runner(command, timeout)
@@ -36,8 +38,7 @@ class FullDrainValidator:
                 return False
             pve = json.loads(self._run(FIXED["schedules"]))
             truenas = json.loads(self._run(FIXED["truenas"]))
-            if not isinstance(pve, list) or {item.get("vmid") for item in pve
-                                             if type(item.get("ctime")) is int and item.get("size", 0) > 0} != {104, 110, 116}:
+            if not validate_backup_sources(pve, truenas, cycle=self.cycle, now_epoch=int(self.wall_clock())):
                 return False
             for item_id in (1, 2, 3):
                 item = next((x for x in truenas if x.get("id") == item_id), None)
