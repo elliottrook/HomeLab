@@ -22,9 +22,9 @@ for f in \
   application_b60_lease.py host_exclusion.py; do
   git show a6cbbec8:scripts/local-ai/$f > "$stage/$f" || exit 1
 done
-sha256sum "$stage"/*.py | sort > "$stage/SHA256SUMS"
+shasum -a 256 "$stage"/*.py | sort > "$stage/SHA256SUMS"
 cd "$stage"
-sha256sum --check <<'EOF'
+shasum -a 256 -c <<'EOF'
 104d6bdfa2296abfe026d0017ab935ca2351519fab84116b073e11afb3c6301d  full_inference_lab_session.py
 8d2d07119dd12f0f6c61a4cf4f7d679a445f60f8959170b759a78c7666470624  test_full_inference_lab_session.py
 1a1c1f11219c0ec4a89671b7acb552e40d005a8e7fe056b8eab8225cc374e260  cooperative_lab_session.py
