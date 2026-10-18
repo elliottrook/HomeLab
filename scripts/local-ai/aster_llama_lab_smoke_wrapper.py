@@ -21,6 +21,8 @@ from typing import Callable
 MODEL = "aster-qwen3.5-9b"
 MODEL_PATH = "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf"
 SERVER = "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"
+RUNUSER = "/usr/sbin/runuser"
+LD_LIBRARY_PATH = "/opt/aster-sycl-b11429/loader/usr/lib/x86_64-linux-gnu:/opt/aster-sycl-b11429/driver/usr/local/lib:/opt/aster-sycl-b11429/driver/usr/lib/x86_64-linux-gnu:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/compiler/2026.1/lib:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/compiler/2026.1/lib/clang/22/lib/x86_64-unknown-linux-gnu:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/dnnl/2026.0/lib:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/mkl/2026.1/lib:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/tbb/2023.1/lib:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/umf/1.1/lib:/opt/aster-sycl-b11429/oneapi/usr/lib/x86_64-linux-gnu"
 PORT = 11436
 PROFILE = "accepted-9b-direct-control-smoke-v1"
 PROMPTS = ("Reply with the word ready.", "Count from one to three.", "Name the current model.")
@@ -39,7 +41,7 @@ def production_is_masked(runner: Callable[..., subprocess.CompletedProcess] = su
 
 
 def server_command(key_path: str) -> tuple[str, ...]:
-    return (SERVER, "-m", MODEL_PATH, "--host", "127.0.0.1", "--port", str(PORT),
+    return (RUNUSER, "--user", "ollama", "--", SERVER, "-m", MODEL_PATH, "--host", "127.0.0.1", "--port", str(PORT),
             "--api-key-file", key_path, "-ngl", "999", "-c", "8192", "-np", "1",
             "-t", "4", "-tb", "4", "-b", "256", "-ub", "128", "-fa", "on",
             "-ctk", "q4_0", "-ctv", "q4_0", "--jinja", "--reasoning", "off",
@@ -60,6 +62,22 @@ def _request(key: str, prompt: str, *, timeout: float) -> None:
         raise SmokeError("lab response schema is invalid")
 
 
+def _wait_ready(key: str, *, deadline: float, clock: Callable[[], float]) -> None:
+    request = urllib.request.Request(
+        f"http://127.0.0.1:{PORT}/v1/models",
+        headers={"Authorization": f"Bearer {key}"})
+    while clock() < deadline:
+        try:
+            with urllib.request.urlopen(request, timeout=min(5.0, max(1.0, deadline - clock()))) as response:
+                value = json.loads(response.read(64 * 1024))
+            if response.status == 200 and any(item.get("id") == MODEL for item in value.get("data", [])):
+                return
+        except (OSError, ValueError, urllib.error.URLError):
+            pass
+        time.sleep(0.5)
+    raise SmokeError("lab process did not become ready before deadline")
+
+
 def run(*, lease_id: str, generation: int, clock: Callable[[], float] = time.monotonic,
         popen: Callable[..., subprocess.Popen] = subprocess.Popen,
         production_check: Callable[[], bool] = production_is_masked) -> dict[str, object]:
@@ -70,16 +88,22 @@ def run(*, lease_id: str, generation: int, clock: Callable[[], float] = time.mon
     if not os.path.isfile(SERVER) or not os.path.isfile(MODEL_PATH):
         raise SmokeError("accepted lab binary or model is absent")
     root = Path(tempfile.mkdtemp(prefix="aster-llama-lab-smoke.", dir="/run"))
+    shutil.chown(root, user="ollama", group="ollama")
     key_path = root / "api-key"
     key = secrets.token_hex(32)
     key_path.write_text(key + "\n", encoding="ascii")
     key_path.chmod(0o600)
+    shutil.chown(key_path, user="ollama", group="ollama")
     process = None
     observations = []
     try:
         process = popen(server_command(str(key_path)), stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL, start_new_session=True)
+                        stderr=subprocess.DEVNULL, start_new_session=True,
+                        env={**os.environ, "LD_LIBRARY_PATH": LD_LIBRARY_PATH,
+                             "ONEAPI_DEVICE_SELECTOR": "level_zero:gpu",
+                             "GGML_SYCL_ENABLE_FUSION": "1"})
         deadline = clock() + 300
+        _wait_ready(key, deadline=deadline, clock=clock)
         for prompt in PROMPTS:
             if clock() >= deadline:
                 raise SmokeError("lab smoke deadline reached")
@@ -111,9 +135,14 @@ def run(*, lease_id: str, generation: int, clock: Callable[[], float] = time.mon
 if __name__ == "__main__":
     try:
         parser = argparse.ArgumentParser()
+        parser.add_argument("--profile", required=True)
+        parser.add_argument("--port", required=True, type=int)
+        parser.add_argument("--requests", required=True, type=int)
         parser.add_argument("--lease-id", required=True)
         parser.add_argument("--generation", required=True, type=int)
         args = parser.parse_args()
+        if (args.profile, args.port, args.requests) != (PROFILE, PORT, len(PROMPTS)):
+            raise SmokeError("lab wrapper arguments differ from the pinned profile")
         print(json.dumps(run(lease_id=args.lease_id, generation=args.generation), sort_keys=True))
     except (OSError, SmokeError, ValueError, urllib.error.URLError):
         raise SystemExit("lab smoke failed")

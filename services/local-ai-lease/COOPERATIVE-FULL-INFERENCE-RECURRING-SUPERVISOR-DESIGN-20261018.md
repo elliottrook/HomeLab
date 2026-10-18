@@ -195,6 +195,11 @@ an owner-only `/run` directory, refuses an active/unmasked production service,
 and kills its process group in `finally`. It returns only a content-free
 receipt. These files are not part of the 14-file disabled-stage packet and are
 not installed, enabled or callable on the target host.
+The supervisor converts remaining wall-clock time into a monotonic child
+deadline, checks the wall cutoff on every heartbeat, attempts exact recovery
+after a newly armed partial-mask failure, and restores after a false GPU-user
+observation. These are synthetic guarantees only; target execution remains
+unverified.
 
 ## Recommendation: combine the first useful pilot, conditionally
 

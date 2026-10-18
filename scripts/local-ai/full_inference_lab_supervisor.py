@@ -74,17 +74,28 @@ class PersistentFullDrainSupervisor:
 
     def begin(self, preflight: FullDrainPreflight) -> FullDrainPlan:
         self.preflight = preflight
-        self.plan = self.controller.begin(preflight)
+        was_clear = not self.controller.paths.state.exists() and not self.controller.paths.lock.exists()
         try:
+            self.plan = self.controller.begin(preflight)
             self.before_users = self.gpu_users()
             require_known_gpu_users(self.before_users, self.allowed_gpu_users)
             self.active = True
             return self.plan
         except BaseException:
-            try:
-                self.controller.restore(self.plan, now_epoch=self.wall_clock(), owner_present=True)
-            finally:
-                self.active = False
+            if was_clear and self.controller.paths.state.exists() and self.controller.paths.lock.exists():
+                if self.controller._exclusion is not None:
+                    self.controller._exclusion.__exit__(None, None, None)
+                    self.controller._exclusion = None
+                try:
+                    import json
+                    state = json.loads(self.controller.paths.state.read_text(encoding="utf-8"))
+                    plan = self.controller.resume_existing(
+                        lease_id=state["lease_id"], generation=int(state["generation"]))
+                    self.controller.restore(plan, now_epoch=self.wall_clock(), owner_present=True)
+                except BaseException:
+                    self.active = False
+                    raise
+            self.active = False
             raise
 
     def heartbeat(self, now_epoch: int) -> None:
@@ -120,9 +131,14 @@ class PersistentFullDrainSupervisor:
             if not self.production_masked():
                 raise SupervisorError("production llama service is not masked and inactive")
             require_known_gpu_users(self.gpu_users(), self.allowed_gpu_users)
+            remaining = max(0.0, float(self.preflight.lab_end_epoch - self.wall_clock()))
+            monotonic_deadline = monotonic() + min(300.0, remaining)
+            def guarded_heartbeat() -> None:
+                if self.wall_clock() >= self.preflight.lab_end_epoch:
+                    raise SupervisorError("hard lab cutoff has passed")
+                heartbeat()
             receipt = run_fixed_smoke_bounded(
-                heartbeat=heartbeat, deadline=min(float(self.preflight.lab_end_epoch),
-                                                  monotonic() + 300.0),
+                heartbeat=guarded_heartbeat, deadline=monotonic_deadline,
                 monotonic=monotonic, lease_id=self.plan.lease_id,
                 generation=self.plan.generation)
             require_known_gpu_users(self.gpu_users(), self.allowed_gpu_users)

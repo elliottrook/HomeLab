@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 from dataclasses import replace
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -103,6 +104,47 @@ class SupervisorTests(unittest.TestCase):
             recovery_only(replacement, lease_id=plan.lease_id, generation=plan.generation,
                           restore_now_epoch=120)
             self.assertEqual(len(calls), 11)
+
+    def test_bounded_deadline_uses_remaining_wall_seconds(self):
+        known = GpuUser(10, 20, "svc", "/bin/known")
+        with TemporaryDirectory() as tmp:
+            controller = FullInferenceDrainController(
+                FullDrainPaths(Path(tmp) / "state"), lambda _: None,
+                observer=lambda *_: True, validator=lambda: True,
+                owner_id="owner", allow_effects=True)
+            supervisor = PersistentFullDrainSupervisor(
+                controller, workload_runner=lambda *_: (1, ""),
+                production_masked=lambda: True, gpu_users=lambda: frozenset({known}),
+                allowed_gpu_users=frozenset({known}), wall_clock=lambda: 1800)
+            supervisor.begin(self.preflight())
+            captured = {}
+            def fake_bounded(**kwargs):
+                captured.update(kwargs)
+                kwargs["heartbeat"]()
+                return {"ok": True}
+            with patch("full_inference_lab_supervisor.run_fixed_smoke_bounded", fake_bounded):
+                self.assertEqual(supervisor.run_smoke_bounded(heartbeat=lambda: None,
+                    monotonic=lambda: 1000), {"ok": True})
+            self.assertEqual(captured["deadline"], 1100.0)
+            supervisor.restore(now_epoch=1810, owner_present=True)
+
+    def test_partial_mask_failure_attempts_recovery(self):
+        calls = []
+        def runner(command):
+            calls.append(command)
+            return (1, "mask failed") if len(calls) == 3 else None
+        with TemporaryDirectory() as tmp:
+            controller = FullInferenceDrainController(
+                FullDrainPaths(Path(tmp) / "state"), runner,
+                observer=lambda *_: True, validator=lambda: True,
+                owner_id="owner", allow_effects=True)
+            supervisor = PersistentFullDrainSupervisor(
+                controller, workload_runner=lambda *_: (1, ""),
+                production_masked=lambda: True, gpu_users=lambda: frozenset(),
+                allowed_gpu_users=frozenset(), wall_clock=lambda: 110)
+            with self.assertRaisesRegex(Exception, "nonzero"):
+                supervisor.begin(self.preflight())
+            self.assertFalse(controller.paths.lock.exists())
 
 
 if __name__ == "__main__":
