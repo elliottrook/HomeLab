@@ -18,6 +18,14 @@ LAB_COMMAND = (
     "/usr/local/sbin/aster-llama-lab-smoke",
     "--profile", LAB_PROFILE, "--port", LAB_PORT, "--requests", "3",
 )
+GPU_HANDLE_PROBE = (
+    "sh", "-c",
+    "for fd in /proc/[0-9]*/fd/*; do "
+    "[ -e \"$fd\" ] || continue; "
+    "target=$(readlink \"$fd\" 2>/dev/null) || exit 2; "
+    "case \"$target\" in /dev/dri/renderD128) printf '%s\\n' \"$fd\"; exit 0;; esac; "
+    "done; exit 1",
+)
 
 
 def lab_command(*, lease_id: str, generation: int) -> tuple[str, ...]:
@@ -40,7 +48,7 @@ def lab_absence_commands(*, lease_id: str, generation: int) -> tuple[tuple[str, 
         ("pct", "exec", "110", "--", "systemctl", "is-active", unit),
         ("pct", "exec", "110", "--", "ss", "-Hlnpt", "sport", "=", ":11436"),
         ("pct", "exec", "110", "--", "pgrep", "-af", "aster-llama-lab-smoke"),
-        ("pct", "exec", "110", "--", "fuser", "-v", "/dev/dri/renderD128"),
+        ("pct", "exec", "110", "--", *GPU_HANDLE_PROBE),
     )
 
 
@@ -52,7 +60,7 @@ def lab_is_absent(runner: Callable[[Sequence[str], float], tuple[int, str]], *,
     gpu_code, gpu_output = runner(lab_absence_commands(lease_id=lease_id, generation=generation)[3], 10.0)
     return (active_code != 0 and socket_code == 0 and not socket_output.strip()
             and process_code != 0 and not process_output.strip()
-            and gpu_code != 0 and not gpu_output.strip())
+            and gpu_code == 1 and not gpu_output.strip())
 
 
 class LabWorkloadError(ValueError):

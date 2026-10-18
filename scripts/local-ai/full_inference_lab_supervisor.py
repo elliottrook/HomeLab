@@ -168,9 +168,9 @@ def recovery_only(controller: FullInferenceDrainController, *, lease_id: str,
                   lab_absent: Callable[[], bool]) -> FullDrainPlan:
     """Clean up the fixed lab scope, prove absence, then restore only."""
     plan = controller.resume_existing(lease_id=lease_id, generation=generation)
-    cleanup_code, _ = cleanup_runner(
+    cleanup_runner(
         lab_cleanup_command(lease_id=plan.lease_id, generation=plan.generation), 30.0)
-    if cleanup_code != 0 or not lab_absent():
+    if not lab_absent():
         raise SupervisorError("lab scope/listener/process/GPU absence is unproven; lock retained")
     controller.restore(plan, now_epoch=restore_now_epoch, owner_present=True)
     return plan

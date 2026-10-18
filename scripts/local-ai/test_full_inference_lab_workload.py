@@ -2,7 +2,8 @@ import json
 import unittest
 
 from full_inference_lab_workload import (LAB_COMMAND, LAB_PROFILE, LabWorkloadError,
-                                         lab_command, run_fixed_smoke, validate_receipt)
+                                         lab_command, lab_is_absent, run_fixed_smoke,
+                                         validate_receipt)
 
 
 class FullInferenceLabWorkloadTests(unittest.TestCase):
@@ -64,6 +65,22 @@ class FullInferenceLabWorkloadTests(unittest.TestCase):
                 heartbeat=lambda: None, deadline=0, monotonic=lambda: 1,
                 poll_seconds=0, lease_id="lease-1", generation=2)
         self.assertTrue(process.killed)
+
+    def test_gpu_handle_probe_requires_explicit_no_handle_exit(self):
+        calls = []
+        def runner(command, timeout):
+            calls.append(tuple(command))
+            return ((1, "") if len(calls) in (1, 3, 4) else (0, ""))
+        self.assertTrue(lab_is_absent(runner, lease_id="lease-1", generation=2))
+
+    def test_gpu_handle_or_probe_error_blocks_absence(self):
+        for result in ((0, "/proc/42/fd/7\\n"), (2, "")):
+            with self.subTest(result=result):
+                calls = []
+                def runner(command, timeout):
+                    calls.append(tuple(command))
+                    return result if len(calls) == 4 else (1, "")
+                self.assertFalse(lab_is_absent(runner, lease_id="lease-1", generation=2))
 
 
 if __name__ == "__main__":

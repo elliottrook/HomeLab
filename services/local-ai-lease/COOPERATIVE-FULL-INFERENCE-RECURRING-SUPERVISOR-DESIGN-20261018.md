@@ -113,7 +113,8 @@ read-only observations equivalent to:
 
 ```sh
 stat -Lc '%t:%T %a %U:%G %n' /dev/dri/renderD128
-fuser -v /dev/dri/renderD128
+bounded `/proc/[pid]/fd` scan for `/dev/dri/renderD128` (exit 1 means no
+handle, exit 0 means a handle, and any other exit is probe failure)
 ps -eo pid=,ppid=,user=,etimes=,cmd= --forest
 systemctl list-units --type=service --state=running --no-legend --no-pager
 systemctl list-timers --all --no-legend --no-pager

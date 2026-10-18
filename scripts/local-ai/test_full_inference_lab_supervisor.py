@@ -126,6 +126,23 @@ class SupervisorTests(unittest.TestCase):
                               lab_absent=lambda: False)
             self.assertTrue(paths.lock.exists())
 
+    def test_recovery_only_allows_missing_scope_after_independent_absence_proof(self):
+        with TemporaryDirectory() as tmp:
+            paths = FullDrainPaths(Path(tmp) / "state")
+            first = FullInferenceDrainController(paths, lambda _: None,
+                observer=lambda *_: True, validator=lambda: True,
+                owner_id="owner", allow_effects=True)
+            plan = first.begin(self.preflight())
+            first._exclusion.__exit__(None, None, None)
+            calls = []
+            replacement = FullInferenceDrainController(paths, calls.append,
+                observer=lambda *_: True, validator=lambda: True,
+                owner_id="owner", allow_effects=True)
+            recovery_only(replacement, lease_id=plan.lease_id, generation=plan.generation,
+                          restore_now_epoch=120, cleanup_runner=lambda *_: (1, "unit not found"),
+                          lab_absent=lambda: True)
+            self.assertFalse(paths.lock.exists())
+
     def test_bounded_deadline_uses_remaining_wall_seconds(self):
         known = GpuUser(10, 20, "svc", "/bin/known")
         with TemporaryDirectory() as tmp:
