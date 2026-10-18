@@ -5,15 +5,17 @@
 **October 18 daytime lab-hours path:** Jason accepted up to 90 minutes of
 daytime Aster/voice unavailability for a first supervised, no-reboot pilot.
 The [measured acceleration assessment](evidence/Lab-hours-acceleration-assessment-2026-10-18.md)
-separates that outage budget from host-change approval. The platform owner has
-an offline, hash-pinned full-inference drain candidate and disabled-install
-card. Stream A verified its 14 local hashes and 21 focused synthetic tests;
-the candidate has not been staged on Proxmox. The proposed first live run is
-30 minutes of isolation plus a 15-minute restore reserve between hourly News
-ingests. It cannot yet be scheduled or described as usable MacBook lab hours:
-continuous exclusion, target-Linux checks, the named workload path and
-recovery from owner loss remain open. The old manual controller and the F2/F3
-full-stop drill are separate gates. No clock-triggered daytime drain is active.
+separates that outage budget from host-change approval. Jason approved the
+combined 19-file Proxmox and one-wrapper LXC110 **disabled** packet at
+`b43d4971`. Stream A verified all 20 installed hashes, target-Linux imports,
+47 focused synthetic tests, unchanged production services and no lab listener.
+The proposed first live run is 30 minutes of isolation plus a 15-minute
+restore reserve between hourly News ingests. A newer independent guardian and
+manual rescue are source-only and need a separately approved, pinned disabled
+upgrade and target-Linux proof. No live drain or lab-hours schedule is active.
+The fixed in-guest smoke does not prove MacBook handoff or continuous host-wide
+GPU exclusivity. The old manual controller and F2/F3 full-stop drill remain
+separate gates.
 
 **October 17 evening schedule check:** the October 17 F2 guard returned NO-GO
 without archive rows. Its daily heartbeat entry was explicitly set to

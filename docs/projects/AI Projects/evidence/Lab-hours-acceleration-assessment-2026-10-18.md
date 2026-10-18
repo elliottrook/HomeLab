@@ -424,3 +424,13 @@ The live card still contains an older statement disclaiming automatic
 owner-death recovery alongside its new guardian requirement. A reconciled
 run card and a fresh hash-pinned disabled-upgrade manifest are needed before
 another host stage. No live pilot or new host effect followed this review.
+
+The platform owner subsequently bounded the rescue subprocess by the
+remaining wall-clock reserve in `c3f559e2`. Independent review found the
+owner-fence sequence could still consume 35 seconds from a 15-second budget;
+the owner corrected that with a cumulative monotonic deadline in `b67373c4`.
+Its ten focused offline guardian tests pass. These corrections remove the
+specific timing counterexamples above at source level; they are **not**
+installed-path proof or live owner-loss recovery evidence. The separate
+four-path disabled upgrade, target-Linux checks, one-shot guardian prearm and
+bounded restoration demonstration remain open.
