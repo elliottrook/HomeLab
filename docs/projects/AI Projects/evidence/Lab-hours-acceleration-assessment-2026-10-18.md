@@ -218,14 +218,21 @@ Independent review caught a consequential source mismatch: the local-only
 preflight could admit the pilot while the original final validator still
 required the unavailable TrueNAS route. Platform commits through `1d230b8f`
 added a separate local-only final validator and a legacy-lease readiness
-check, plus synthetic partial-stop and owner-loss recovery cases. The packet
-is **not yet approved for target staging** because its 14-file card omits an
-imported `backup_receipt_adapter` dependency, and it lacks a pinned host
-entrypoint that assembles the trusted sources, fixed runner, owner, supervisor
-and exact recovery command. The platform owner has these concrete findings.
-Until they are corrected and the no-effect target-Linux tests pass, the live
-daytime drain remains NO-GO. The old manual controller remains a separate
-conflict risk because it does not participate in the new advisory lock; a
-readiness snapshot alone cannot establish durable exclusion. The first live
-run must remain attended, with any partial effect reconciled before the lock
-is released.
+check, plus synthetic partial-stop and owner-loss recovery cases. The initial
+14-file card also omitted an imported dependency; `97aa7390` removed that
+dependency and added a fixed host entrypoint. Subsequent review caught a
+nonzero-command handling defect and a mismatch between promised authenticated
+warm-up and actual restore order. Platform commits through `1b612c91`
+corrected both. Stream A independently ran the 21 focused offline tests and
+verified all 14 card hashes against the local source; these checks passed.
+
+The packet is **not yet staged on Proxmox**. An exact disabled-install approval
+is pending; staging would test Linux imports and leave all effects off. The
+live daytime drain remains NO-GO until installed-path tests and a separate
+reviewed live card pass. The old manual controller does not participate in
+the new advisory lock, and the short-lived entrypoint does not hold that
+lock across the whole proposed session. A readiness snapshot plus human
+supervision is not an unattended exclusion or recovery guarantee. The first
+live run must remain attended, with any partial effect reconciled before the
+lock is released; recurring lab hours need a durable supervisor and
+independent owner-loss recovery proof.
