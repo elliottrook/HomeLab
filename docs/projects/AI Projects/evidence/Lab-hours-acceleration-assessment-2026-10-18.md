@@ -449,3 +449,14 @@ guardian; durable state remained, but no second recovery attempt occurred.
 The platform owner is correcting the bounded timeout path before a final
 upgrade stage. Keeping the lock on uncertainty is appropriate, but a stopped
 guardian cannot meet the intended automatic-restoration claim.
+
+The timeout exception was handled in source `6308984a`, with two additional
+focused tests. The platform owner pinned the revised four-path upgrade in
+`COOPERATIVE-FULL-INFERENCE-PILOT-RESCUE-GUARDIAN-UPGRADE-DISABLED-INSTALL-CARD-20261018.md`
+at `7c8a252a`. Stream A independently archived exact source `6308984a`,
+matched all four new hashes to the card, and ran the complete local-AI suite:
+`295` tests passed with four expected Mac root-custody skips. The read-only
+target hash check still showed both `b43d4971` replacement bytes and both
+guardian additions absent. This is ready for a **separate disabled-stage
+decision**. It does not close target-Linux, guardian prearm, live owner-loss
+recovery, MacBook access or ongoing lab-hours gates.
