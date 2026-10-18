@@ -434,3 +434,18 @@ specific timing counterexamples above at source level; they are **not**
 installed-path proof or live owner-loss recovery evidence. The separate
 four-path disabled upgrade, target-Linux checks, one-shot guardian prearm and
 bounded restoration demonstration remain open.
+
+The platform owner pinned a separate four-path disabled-upgrade card at
+`31501e0c`: two replacements and two additions. Stream A compared every new
+SHA-256 against a clean `b67373c4` archive, ran its complete local-AI suite
+(`293` tests, four expected Mac root-custody skips), and checked Proxmox
+read-only: both replacement paths still match the old `b43d4971` hashes, and
+both guardian paths remain absent. This makes the proposed delta concrete but
+does not authorize or execute it.
+
+A further synthetic timeout test raised `subprocess.TimeoutExpired` from the
+guardian's rescue runner. At `b67373c4` the exception escaped the one-shot
+guardian; durable state remained, but no second recovery attempt occurred.
+The platform owner is correcting the bounded timeout path before a final
+upgrade stage. Keeping the lock on uncertainty is appropriate, but a stopped
+guardian cannot meet the intended automatic-restoration claim.
