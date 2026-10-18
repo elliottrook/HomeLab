@@ -12,6 +12,21 @@ is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the
 October 16 read-only scan from an unscheduled live drill.
 
+**October 18 lab-hours pilot checkpoint:** Jason approved up to 90 minutes of
+daytime Aster/voice unavailability for a first supervised no-reboot pilot.
+The combined 19-file Proxmox plus one-wrapper LXC110 packet from `b43d4971`
+is installed **inactive** and passed 47 target-Linux synthetic tests; no
+service was stopped. The platform owner has since produced an independent
+deadline guardian and manual rescue, and Stream A verified the frozen
+`dafc0332` source and four-file upgrade card `da082685` with 296 offline tests
+(four expected Mac root-custody skips). That upgrade needs its own exact
+disabled-stage authorization and Linux check. A later live 30-minute lab plus
+15-minute restoration pilot has a separate approval and fresh News/backup,
+operator, runtime and recovery gates. It tests known-consumer isolation and a
+fixed in-guest model smoke, **not** recurring MacBook lab hours or continuous
+host-wide GPU exclusivity. The [dated assessment](evidence/Lab-hours-acceleration-assessment-2026-10-18.md)
+retains the review and measured counterexamples.
+
 **October 18 A1 interface checkpoint:** the platform owner corrected the
 recovery-trigger/deadline ambiguity and versioned the callback as
 `aster-a1-admission.v2`; Stream A's [client candidate](benchmarks/A1-full-path-admission-run-card-2026-10-13.md)
