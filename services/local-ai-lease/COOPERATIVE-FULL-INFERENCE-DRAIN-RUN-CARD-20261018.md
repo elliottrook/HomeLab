@@ -27,9 +27,29 @@ and accepted runtime checkpoint, but does not require the incomplete F2
 retained-archive-integrity path or an F3 trusted receipt.
 
 The current Proxmox→TrueNAS observer route is NO-GO after a bounded SSH
-connect timeout; see `FULL-DRAIN-TRUENAS-OBSERVER-NO-GO-20261018.md`. No pilot
-window can be scheduled until that fixed read-only route is restored or an
-independently verified equivalent is adopted.
+connect timeout; see `FULL-DRAIN-TRUENAS-OBSERVER-NO-GO-20261018.md`. That
+route remains mandatory for any claim about the TrueNAS mirror, F2 archive
+integrity, or F3 retained receipts, but it is not a gate for the narrower
+attended no-file-mutation isolation pilot below.
+
+### Narrow local-Proxmox pilot source mode
+
+The first attended 30+15 pilot may use the separately named
+`LocalProxmoxFullDrainSourceProducer`. It is authoritative only for this
+narrow isolation run and must prove, from the current Proxmox host:
+
+1. all three fresh positive-size 104/110/116 archive artifacts are from the
+   current cycle;
+2. the fixed enabled `backup-49999802-1365` all-guest `vzdump` job remains at
+   `00:30`; and
+3. exactly one current-cycle `vzdump` task is `OK`, has a valid Proxmox UPID,
+   and its end time is after every required artifact and before the observation
+   cutoff.
+
+The producer must not call the TrueNAS observer in this mode. A separate
+read-only Mac-mini observation may be recorded as nonauthoritative evidence,
+but a failed or unavailable observer remains **NO-GO for mirror/F2/F3 claims**.
+This mode does not mutate backup or model files and does not close F2 or F3.
 
 ### Fixed drain inventory
 
@@ -75,4 +95,5 @@ the lock for operator reconciliation.
 This card is therefore feasible as a supervised drain/recovery prerequisite,
 but it does not yet close the usable MacBook B60 experiment milestone. Any
 later workload that mutates files, models or runtime configuration requires its
-own stronger restore checkpoint and rollback card.
+own stronger restore checkpoint and rollback card, including the TrueNAS/F2/F3
+gates where applicable.

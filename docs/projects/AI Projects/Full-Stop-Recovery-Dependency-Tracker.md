@@ -264,12 +264,18 @@ and `services/local-ai-lease/COOPERATIVE-FULL-INFERENCE-DRAIN-RUN-CARD-20261018.
 They use the historically verified MacBook→Proxmox administration path but
 leave the first workload and fresh baseline checkpoint as explicit gates.
 The fixed five-effect implementation and complete source/validator packet are
-local in `3d976dd4`, with its
+local in the subsequent Stream A commits, with its
 self-contained disabled-install card at
 `services/local-ai-lease/COOPERATIVE-FULL-INFERENCE-DRAIN-DISABLED-INSTALL-CARD-20261018.md`.
 The fixed Proxmox→TrueNAS observer route is currently NO-GO after bounded SSH
 connect timeout; see
 `services/local-ai-lease/FULL-DRAIN-TRUENAS-OBSERVER-NO-GO-20261018.md`.
+That observer remains required for mirror, F2 and F3 claims. The narrower
+attended no-file-mutation isolation pilot may instead use the separately named
+local-Proxmox source mode: current-cycle 104/110/116 artifacts plus one exact
+current-cycle `vzdump` task with status `OK` and end time after all artifacts.
+This is not a TrueNAS, F2 or F3 result and does not authorize a live run by
+itself.
 The approved outage ceiling is up to 90 minutes, but the first pilot remains
 the stricter 45-minute reservation (30 minutes lab plus 15 minutes restore),
 and must fit before the next hourly News ingest with a five-minute margin as

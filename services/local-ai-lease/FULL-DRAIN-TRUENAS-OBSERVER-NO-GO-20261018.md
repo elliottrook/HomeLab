@@ -11,8 +11,12 @@ Bounded read-only diagnostic from the current workstation on 2026-10-18:
 - delegated Proxmox-side nested observation also produced no output and timed
   out before termination.
 
-Result: **NO-GO**. No TrueNAS schedule/task JSON was accepted, no current-cycle
-backup proof was produced, and no staging or host mutation occurred. The source
-producer fails closed on this route. Revalidation requires the target
-Proxmox host's pinned key/known-host custody, bounded SSH reachability, and
-valid `rsynctask.query` JSON with the exact task/order/date checks.
+Result: **NO-GO**. No TrueNAS schedule/task JSON was accepted, no staging or
+host mutation occurred, and this route cannot support a mirror, F2, or F3
+claim. The full producer still fails closed on this route. The separately
+reviewed narrow isolation pilot may use local Proxmox current-cycle artifact
+and completed-task proof without treating this observer as authoritative; that
+pilot does not mutate backup/model files and does not claim F2/F3 completion.
+Revalidation requires the target Proxmox host's pinned key/known-host custody,
+bounded SSH reachability, and valid `rsynctask.query` JSON with the exact
+task/order/date checks.

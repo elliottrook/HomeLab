@@ -11,6 +11,7 @@ from typing import Callable, Sequence
 from zoneinfo import ZoneInfo
 
 from application_b60_lease import ACCEPTED_BACKEND
+from backup_receipt_adapter import EXPECTED_PROXMOX_BACKUP_ID
 from full_inference_lab_session import FullDrainPreflight
 
 Runner = Callable[[Sequence[str], float], tuple[int, str]]
@@ -51,6 +52,13 @@ FIXED = {
     "gpu": ("pct", "exec", "110", "--", "test", "-e", "/dev/dri/renderD128"),
     "auth": ("pct", "exec", "110", "--", "/usr/local/sbin/aster-llama-production-auth-probe"),
 }
+
+LOCAL_PROXMOX_FIXED = {
+    "backup_job": ("pvesh", "get", f"/cluster/backup/{EXPECTED_PROXMOX_BACKUP_ID}", "--output-format", "json"),
+    "backup_tasks": ("pvesh", "get", "/nodes/proxmox/tasks", "--typefilter", "vzdump", "--output-format", "json"),
+}
+
+_VZDUMP_UPID = re.compile(r"^UPID:proxmox:[0-9A-F]+:[0-9A-F]+:[0-9A-F]+:vzdump::[^:]+$")
 
 
 def _service(vmid: str, unit: str) -> tuple[str, ...]:
@@ -103,6 +111,52 @@ def validate_backup_sources(pve: object, truenas: object, *, cycle: str, now_epo
     return (task_ids == {1, 2, 3} and started == sorted(started)
             and finished == sorted(finished) and started[1] >= finished[0]
             and started[2] >= finished[1])
+
+
+def _current_proxmox_artifacts(pve: object, *, cycle: str, now_epoch: int) -> tuple[int, ...] | None:
+    if not isinstance(pve, list):
+        return None
+    cycle_key = cycle.replace("-", "_")
+    latest: dict[int, int] = {}
+    for item in pve:
+        try:
+            vmid, ctime, size = int(item.get("vmid")), item.get("ctime"), item.get("size", 0)
+        except (AttributeError, TypeError, ValueError):
+            continue
+        if (vmid in {104, 110, 116} and type(ctime) is int and ctime <= now_epoch and size > 0
+                and datetime.fromtimestamp(ctime, LOCAL_ZONE).strftime("%Y_%m_%d") == cycle_key):
+            latest[vmid] = max(latest.get(vmid, 0), ctime)
+    if set(latest) != {104, 110, 116}:
+        return None
+    return tuple(latest[vmid] for vmid in (104, 110, 116))
+
+
+def _local_proxmox_job_complete(tasks: object, *, date: str, latest_artifact: int,
+                                now_epoch: int, job: object) -> bool:
+    if (not isinstance(job, dict) or str(job.get("id")) != EXPECTED_PROXMOX_BACKUP_ID
+            or job.get("enabled") not in (1, True) or job.get("schedule") != "00:30"
+            or job.get("storage") != "backups" or job.get("type") != "vzdump"
+            or job.get("all") not in (1, True)):
+        return False
+    if not isinstance(tasks, list):
+        return False
+    candidates = []
+    for task in tasks:
+        if not isinstance(task, dict) or task.get("type") != "vzdump" or task.get("status") != "OK":
+            continue
+        upid = task.get("upid")
+        start, finish = task.get("starttime"), task.get("endtime")
+        if (isinstance(upid, str) and _VZDUMP_UPID.fullmatch(upid)
+                and type(start) is int and type(finish) is int):
+            candidates.append((start, finish, task))
+    if len(candidates) != 1:
+        return False
+    start, finish, task = candidates[0]
+    local_start = datetime.fromtimestamp(start, LOCAL_ZONE)
+    return (local_start.strftime("%Y_%m_%d") == date
+            and 30 <= local_start.hour * 60 + local_start.minute < 35
+            and start <= latest_artifact <= finish <= now_epoch
+            and (task.get("node") in (None, "proxmox")))
 
 
 class FullDrainSourceProducer:
@@ -189,3 +243,28 @@ class FullDrainSourceProducer:
             f"application-chain:{cycle}", ACCEPTED_BACKEND, True, True, True, True, True,
             True, True, True, True, now, session_start_epoch, lab_end, lab_end + 15 * 60,
             next_ingest)
+
+
+class LocalProxmoxFullDrainSourceProducer(FullDrainSourceProducer):
+    """Narrow pilot source: local Proxmox cycle proof, with no TrueNAS gate.
+
+    This is intentionally a different producer type rather than a caller flag.
+    It proves only that the fresh local guest archives and the whole local
+    Proxmox backup job completed before the attended no-file-mutation drain.
+    It does not assert TrueNAS mirror success, F2 archive integrity, or F3
+    retained-receipt readiness.
+    """
+
+    def _backup_current(self, cycle: str) -> bool:
+        try:
+            pve = json.loads(self._run("schedules"))
+            job = json.loads(self._run_command(LOCAL_PROXMOX_FIXED["backup_job"], timeout=10.0))
+            tasks = json.loads(self._run_command(LOCAL_PROXMOX_FIXED["backup_tasks"], timeout=10.0))
+        except (json.JSONDecodeError, FullDrainSourceError):
+            return False
+        artifacts = _current_proxmox_artifacts(pve, cycle=cycle, now_epoch=int(self.wall_clock()))
+        if artifacts is None:
+            return False
+        return _local_proxmox_job_complete(
+            tasks, date=cycle.replace("-", "_"), latest_artifact=max(artifacts),
+            now_epoch=int(self.wall_clock()), job=job)

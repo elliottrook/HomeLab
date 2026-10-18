@@ -1,9 +1,12 @@
+import json
 import unittest
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from application_b60_lease import ACCEPTED_BACKEND
-from full_inference_lab_sources import AcceptedBaseline, FIXED, FullDrainSourceError, FullDrainSourceProducer, TrustedOwnerAttestation
+from full_inference_lab_sources import (AcceptedBaseline, FIXED, LOCAL_PROXMOX_FIXED,
+    FullDrainSourceError, FullDrainSourceProducer, LocalProxmoxFullDrainSourceProducer,
+    TrustedOwnerAttestation)
 
 
 class FullInferenceLabSourcesTests(unittest.TestCase):
@@ -74,6 +77,45 @@ class FullInferenceLabSourcesTests(unittest.TestCase):
                                            wall_clock=lambda: 1792336800)
         with self.assertRaisesRegex(FullDrainSourceError, "backup"):
             producer.collect(cycle="2026_10_18", session_start_epoch=1792336800)
+
+    def test_local_proxmox_mode_proves_cycle_and_never_calls_truenas(self):
+        now = int(datetime(2026, 10, 18, 10, 0, tzinfo=ZoneInfo("America/Vancouver")).timestamp())
+        artifact = int(datetime(2026, 10, 18, 0, 34, tzinfo=ZoneInfo("America/Vancouver")).timestamp())
+        started = int(datetime(2026, 10, 18, 0, 30, tzinfo=ZoneInfo("America/Vancouver")).timestamp())
+        finished = int(datetime(2026, 10, 18, 0, 35, tzinfo=ZoneInfo("America/Vancouver")).timestamp())
+        calls = []
+        def runner(command, timeout):
+            command = tuple(command)
+            calls.append(command)
+            if command == FIXED["schedules"]:
+                return 0, "[{\"vmid\":104,\"ctime\":%d,\"size\":10},{\"vmid\":110,\"ctime\":%d,\"size\":10},{\"vmid\":116,\"ctime\":%d,\"size\":10}]" % (artifact, artifact, artifact)
+            if command == LOCAL_PROXMOX_FIXED["backup_job"]:
+                return 0, "{\"id\":\"backup-49999802-1365\",\"enabled\":1,\"schedule\":\"00:30\",\"storage\":\"backups\",\"type\":\"vzdump\",\"all\":1}"
+            if command == LOCAL_PROXMOX_FIXED["backup_tasks"]:
+                return 0, json.dumps([{"upid": "UPID:proxmox:ABC:DEF:123:vzdump::root@pam", "type": "vzdump", "status": "OK", "starttime": started, "endtime": finished, "node": "proxmox"}])
+            if command == FIXED["truenas"]:
+                raise AssertionError("local-only pilot must not call TrueNAS")
+            return 1, ""
+        producer = LocalProxmoxFullDrainSourceProducer(
+            runner, AcceptedBaseline("a" * 64, "b" * 64, "c" * 64),
+            TrustedOwnerAttestation("owner-1", "macbook-ssh-m2"), wall_clock=lambda: now)
+        self.assertTrue(producer._backup_current("2026_10_18"))
+        self.assertNotIn(FIXED["truenas"], calls)
+
+    def test_local_proxmox_mode_rejects_missing_whole_job_completion(self):
+        now = int(datetime(2026, 10, 18, 10, 0, tzinfo=ZoneInfo("America/Vancouver")).timestamp())
+        artifact = int(datetime(2026, 10, 18, 9, 0, tzinfo=ZoneInfo("America/Vancouver")).timestamp())
+        def runner(command, timeout):
+            command = tuple(command)
+            if command == FIXED["schedules"]:
+                return 0, "[{\"vmid\":104,\"ctime\":%d,\"size\":10},{\"vmid\":110,\"ctime\":%d,\"size\":10},{\"vmid\":116,\"ctime\":%d,\"size\":10}]" % (artifact, artifact, artifact)
+            if command == LOCAL_PROXMOX_FIXED["backup_job"]:
+                return 0, "{\"id\":\"backup-49999802-1365\",\"enabled\":1,\"schedule\":\"00:30\",\"storage\":\"backups\",\"type\":\"vzdump\",\"all\":1}"
+            return 0, ""
+        producer = LocalProxmoxFullDrainSourceProducer(
+            runner, AcceptedBaseline("a" * 64, "b" * 64, "c" * 64),
+            TrustedOwnerAttestation("owner-1", "macbook-ssh-m2"), wall_clock=lambda: now)
+        self.assertFalse(producer._backup_current("2026_10_18"))
 
 
 if __name__ == "__main__":
