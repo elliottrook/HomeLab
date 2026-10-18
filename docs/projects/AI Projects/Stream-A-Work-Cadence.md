@@ -2,6 +2,19 @@
 
 > Owner: Jason. Status: continuous lane active; no exclusive benchmark launcher admitted. The one-time October 15, 16 and 17 read-only checks are complete and paused. This cadence does not promote a model, deploy a service, grant a tool, or waive an approval gate.
 
+**October 18 daytime lab-hours path:** Jason accepted up to 90 minutes of
+daytime Aster/voice unavailability for a first supervised, no-reboot pilot.
+The [measured acceleration assessment](evidence/Lab-hours-acceleration-assessment-2026-10-18.md)
+separates that outage budget from host-change approval. The platform owner has
+an offline, hash-pinned full-inference drain candidate and disabled-install
+card. Stream A verified its 14 local hashes and 21 focused synthetic tests;
+the candidate has not been staged on Proxmox. The proposed first live run is
+30 minutes of isolation plus a 15-minute restore reserve between hourly News
+ingests. It cannot yet be scheduled or described as usable MacBook lab hours:
+continuous exclusion, target-Linux checks, the named workload path and
+recovery from owner loss remain open. The old manual controller and the F2/F3
+full-stop drill are separate gates. No clock-triggered daytime drain is active.
+
 **October 17 evening schedule check:** the October 17 F2 guard returned NO-GO
 without archive rows. Its daily heartbeat entry was explicitly set to
 `PAUSED` and the saved status was verified; it is not a new nightly scan.
