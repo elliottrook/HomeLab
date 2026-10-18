@@ -96,7 +96,8 @@ def _accepted_gpu_baseline(users: frozenset[GpuUser]) -> frozenset[GpuUser]:
     """Validate production identity, then require no holders after drain."""
     if len(users) > 1 or any(not user.executable.endswith(
             "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server")
-            or "lxc/110" not in user.cgroup
+            or not user.cgroup.endswith(
+                "/lxc/110/ns/system.slice/aster-llama.service")
             for user in users):
         raise SupervisorError("pre-existing GPU holder is outside the accepted production identity")
     return frozenset()
