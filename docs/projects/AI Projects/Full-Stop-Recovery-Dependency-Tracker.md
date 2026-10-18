@@ -257,6 +257,12 @@ an actual client-admission enforcement boundary is independently verified. The
 read-only path inventory is Mac/Companion → `aster.elliottrook.com` → LXC104
 gateway → internal LXC110 backend; no static MacBook identity or direct-backend
 ACL is established, and the pilot stops LXC104.
+An alternative full-inference drain assessment and smaller 30+15 run card are
+recorded in
+`services/local-ai-lease/COOPERATIVE-FULL-INFERENCE-DRAIN-ASSESSMENT-20261018.md`
+and `services/local-ai-lease/COOPERATIVE-FULL-INFERENCE-DRAIN-RUN-CARD-20261018.md`.
+They use the historically verified MacBook→Proxmox administration path but
+leave the first workload and fresh baseline checkpoint as explicit gates.
 The approved outage ceiling is up to 90 minutes, but the first pilot remains
 the stricter 45-minute reservation (30 minutes lab plus 15 minutes restore),
 and must fit before the next hourly News ingest with a five-minute margin as

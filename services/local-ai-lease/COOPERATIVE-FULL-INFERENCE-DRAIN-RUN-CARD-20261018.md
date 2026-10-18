@@ -1,0 +1,66 @@
+# Supervised full-inference drain — offline candidate
+
+Status: architecture candidate; not installed, not enabled, and not approved
+for live effects. This is a smaller alternative to the preserve-backend
+cooperative controller. It is not the F2/F3 fault-injection or receipt drill.
+
+## Finding
+
+The established MacBook administration path is verified historically:
+Jason's MacBook SSH identity reached `root@192.168.50.10` (Proxmox), with the
+known host-key limitation recorded in the MacBook administration evidence.
+The client-facing Aster path is separately `aster.elliottrook.com` → LXC104 →
+internal LXC110, but that gateway is intentionally drained here. A direct
+MacBook-to-model workload has not been demonstrated, so the first run proves
+drain/recovery only. A usable experiment requires a separately named command
+workload over the reviewed Proxmox administration path and is not implied by
+this card.
+
+## Bounded 30+15 pilot
+
+The attended pilot is 30 minutes of lab time plus a 15-minute restoration
+reserve. It requires a fresh source-bound backup/cycle and runtime preflight,
+the host exclusion, owner heartbeat and monotonic cutoff. No reboot, PCI
+rebind, VM 105 use, fault injection, benchmark batch or arbitrary model call
+is included.
+
+### Fixed drain inventory
+
+1. Mask News ingest and digest timers in LXC114 with reversible runtime masks.
+2. Stop `aster-agent.service` in LXC104.
+3. Stop `aster-speech.service` in LXC116.
+4. Stop the accepted `aster-llama.service` in LXC110.
+5. Verify all four consumers/timers are inactive or masked and journal every
+   intent/observation. Any ambiguity retains the lock and stops.
+
+The accepted backend is not preserved during this candidate window. The
+MacBook operator may only use an explicitly reviewed workload path after the
+drain is proven; the existing direct `192.168.70.12:11435` endpoint is not
+assumed reachable or admission-controlled.
+
+### Recovery baseline
+
+Before effects, capture fresh hashes and state for the accepted Qwen3.5-9B
+Q4_K_M model, `llama-b11429` binary, `aster-llama.service` unit, GPU `xe`
+binding, VM105 stopped/no B60 mapping, and LXC104/110/116 configuration.
+Recovery must stop any lab process, restore the pinned accepted files/config,
+start LXC110 and wait for authenticated warm-up, then start LXC116 and LXC104,
+unmask/start the News timers, and run exact postchecks including
+`scripts/check-aster-b60.sh`, service health, SYCL/GPU identity, schedule
+state, and the source-bound client path. A failed or uncertain check retains
+the lock for operator reconciliation.
+
+## Explicit gates
+
+- A fresh Proxmox host source adapter must prove the GPU and rollback VM state;
+  historical documentation is not a live checkpoint.
+- The MacBook SSH identity and host-key custody must be revalidated for the
+  actual operator session; the historical pass does not authorize a new write.
+- A named first workload and its exact admin command path must be reviewed
+  separately. No direct backend client is accepted merely because `ss` shows a
+  peer.
+- The full drain candidate must pass disabled target-Linux staging and an
+  independent review before any live service stop.
+
+This card is therefore feasible as a supervised drain/recovery prerequisite,
+but it does not yet close the usable MacBook B60 experiment milestone.
