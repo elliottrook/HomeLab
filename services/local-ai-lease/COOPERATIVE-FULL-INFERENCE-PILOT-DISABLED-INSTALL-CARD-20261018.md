@@ -112,9 +112,9 @@ The independent deadline-guardian candidate is deliberately separate from the
 
 | File | SHA-256 |
 |---|---|
-| `full_inference_lab_deadline_guardian.py` | `f509150750ba2220f9b7d104f65458dafdbfb9539fbd9a8ce9b8d11d39fcb6a9` |
-| `test_full_inference_lab_deadline_guardian.py` | `1c2ed2d2168a3d67768bc9853e26926c38ad55e6d93d71ef3159649c722136c8` |
+| `full_inference_lab_deadline_guardian.py` | `cfd122eae66b0d00fd52029ee614bb71e79b1150aa2752cdd13d89dd49ae2449` |
+| `test_full_inference_lab_deadline_guardian.py` | `caec767d32165c68d3f2d16c30cced6a97dfc157f1259ec0446a83546611858f` |
 
-Guardian source tip: `6e4e634f`. It is not installed or enabled by this card.
+Guardian source tip: `1172cf5b`. It is not installed or enabled by this card.
 It requires a separate disabled-stage review before the live pilot can claim
 owner-loss protection.
