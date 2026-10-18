@@ -13,10 +13,11 @@ class CooperativeLabSourcesTests(unittest.TestCase):
             "mac_subset": {"guest_ids": ["104", "110", "116"]},
             "runtime": {"backend_identity": ACCEPTED_BACKEND, "gpu_visible": True,
                         "authentication_verified": True, "consumers_healthy": True,
-                        "news_timers_active": True, "deny_new_starts_supported": True},
+                        "news_timers_active": True, "deny_new_starts_supported": True,
+                        "direct_client_admission_enforced": False},
             "news": {"next_ingest_epoch": 2000},
         }
-        return {name: AttestedSource(SOURCES[name], "cycle-1", 100, payload, "digest")
+        return {name: AttestedSource(SOURCES[name], "cycle-1", 990, payload, "digest")
                 for name, payload in payloads.items()}
 
     def test_produces_typed_preflight_from_complete_attested_bundle(self):

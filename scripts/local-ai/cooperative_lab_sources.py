@@ -22,6 +22,8 @@ SOURCES = {
     "news": "proxmox:news-ingest-observer-v1",
 }
 EXPECTED_GUESTS = ("104", "110", "116")
+MAX_SOURCE_AGE = {"backup": 15 * 60, "truenas": 15 * 60,
+                  "mac_subset": 15 * 60, "runtime": 30, "news": 30}
 
 
 class CooperativeSourceError(ValueError):
@@ -45,6 +47,8 @@ def _source(bundle: Mapping[str, AttestedSource], name: str, cycle: str,
         raise CooperativeSourceError(f"{name} source attestation is incomplete")
     if value.observed_epoch > now_epoch:
         raise CooperativeSourceError(f"{name} source is from the future")
+    if now_epoch - value.observed_epoch > MAX_SOURCE_AGE[name]:
+        raise CooperativeSourceError(f"{name} source is stale")
     return value.payload
 
 
@@ -73,6 +77,8 @@ def produce_preflight(bundle: Mapping[str, AttestedSource], *, cycle: str,
     }
     if any(runtime.get(key) != value for key, value in expected_runtime.items()):
         raise CooperativeSourceError("runtime observation is incomplete")
+    if type(runtime.get("direct_client_admission_enforced")) is not bool:
+        raise CooperativeSourceError("direct-client admission proof is incomplete")
     next_ingest = news.get("next_ingest_epoch")
     if type(next_ingest) is not int or next_ingest <= window.now_epoch:
         raise CooperativeSourceError("next News ingest is not a future source observation")
@@ -83,4 +89,5 @@ def produce_preflight(bundle: Mapping[str, AttestedSource], *, cycle: str,
         consumers_healthy=True, news_timers_active=True, deny_new_starts_supported=True,
         now_epoch=window.now_epoch, session_start_epoch=window.session_start_epoch,
         lab_end_epoch=window.lab_end_epoch, restore_deadline_epoch=window.restore_deadline_epoch,
-        next_news_ingest_epoch=next_ingest)
+        next_news_ingest_epoch=next_ingest,
+        direct_client_admission_enforced=runtime["direct_client_admission_enforced"])

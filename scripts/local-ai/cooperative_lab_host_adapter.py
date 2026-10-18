@@ -37,14 +37,14 @@ class CooperativeHostObserver:
             raise LabSessionError("observer command is outside canonical restore inventory")
         vmid, unit = command[2], command[-1]
         if phase == "mask":
-            return (self._state(vmid, unit, "UnitFileState") == "masked"
+            return (self._state(vmid, unit, "UnitFileState") in {"masked", "masked-runtime"}
                     and self._state(vmid, unit, "ActiveState") == "inactive")
         if phase == "unmask":
             return self._state(vmid, unit, "UnitFileState") in {"enabled", "disabled"}
         return self._state(vmid, unit, "ActiveState") == "active"
 
     def backend_client_exclusive(self) -> bool:
-        """Prove the listener has no unknown established clients; no client means NO-GO."""
+        """Return only an instant observation; this is never admission enforcement."""
         if not self.allowed_backend_client:
             return False
         output = self._run(("pct", "exec", "110", "--", "ss", "-Htn", "sport", "=", ":11435"))

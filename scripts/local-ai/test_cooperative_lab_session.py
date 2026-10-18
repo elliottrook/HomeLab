@@ -6,7 +6,8 @@ from zoneinfo import ZoneInfo
 
 from application_b60_lease import ACCEPTED_BACKEND
 from cooperative_lab_session import (ALLOWED_CONSUMERS, CooperativeLabController,
-    CooperativeLabPaths, CooperativeLabPreflight, LabSessionError, plan)
+    CooperativeLabPaths, CooperativeLabPreflight, LabSessionError, plan,
+    require_usable_workload)
 
 
 class CooperativeLabSessionTests(unittest.TestCase):
@@ -16,7 +17,7 @@ class CooperativeLabSessionTests(unittest.TestCase):
     def preflight(self):
         return CooperativeLabPreflight("cooperative-lab-v1", "lab-1", 3, "backup-1",
             ACCEPTED_BACKEND, True, True, True, True, True, True,
-            self.epoch(10, 0), self.epoch(10, 0), self.epoch(10, 30), self.epoch(10, 45), self.epoch(11, 30))
+            self.epoch(10, 0), self.epoch(10, 0), self.epoch(10, 30), self.epoch(10, 45), self.epoch(11, 30), False)
 
     def test_plan_is_source_bound_and_preserves_backend(self):
         value = plan(self.preflight())
@@ -44,6 +45,10 @@ class CooperativeLabSessionTests(unittest.TestCase):
             with self.assertRaisesRegex(LabSessionError, "advisory"):
                 controller.begin(self.preflight())
         self.assertEqual(calls, [])
+
+    def test_usable_workload_requires_admission_enforcement(self):
+        with self.assertRaisesRegex(LabSessionError, "admission"):
+            require_usable_workload(self.preflight())
 
     def test_effectful_begin_journals_fixed_effects_and_restore_releases(self):
         calls = []

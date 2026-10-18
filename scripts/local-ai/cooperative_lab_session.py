@@ -45,6 +45,7 @@ class CooperativeLabPreflight:
     lab_end_epoch: int
     restore_deadline_epoch: int
     next_news_ingest_epoch: int
+    direct_client_admission_enforced: bool
 
 
 @dataclass(frozen=True)
@@ -151,6 +152,12 @@ def plan(preflight: CooperativeLabPreflight, *, lab_seconds: int = DEFAULT_PILOT
         preserve_backend=True,
         stop_commands=stop, restore_commands=restore,
     )
+
+
+def require_usable_workload(preflight: CooperativeLabPreflight) -> None:
+    """Separate gate for usable MacBook work; an observation is not enforcement."""
+    if not preflight.direct_client_admission_enforced:
+        raise LabSessionError("usable B60 workload is blocked: client admission is not enforced")
 
 
 class CooperativeLabController:

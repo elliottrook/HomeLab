@@ -40,10 +40,12 @@ model, schedule definition or unrelated guest is changed.
 The first pilot is an isolation-and-recovery proof. It keeps the backend
 available, but the candidate controller does not grant arbitrary B60 requests
 or a benchmark batch. A later usable-lab release must name one reviewed
-workload and prove that direct clients to `192.168.70.12:11435` are admitted
-only under the host-owned lease; unrecognized/new requests remain denied while
-the fixed consumers are masked. This distinction prevents a successful drain
-test from being mistaken for a production workload authorization.
+workload and prove an actual admission-enforcement boundary for direct clients
+to `192.168.70.12:11435`; an instant `ss` observation, a single allowed peer,
+or zero connections is not enforcement. Until an existing gateway/ACL or a
+separately reviewed temporary source restriction is verified, usable MacBook
+B60 work remains NO-GO. This distinction prevents a successful drain test from
+being mistaken for a production workload authorization.
 
 ## Required host-owned preflight
 
@@ -53,6 +55,11 @@ subset state, exact backend/model/SYCL/GPU/auth state, consumer/timer state,
 and a fresh host lock/lease identity. It must bind a unique lease ID and
 generation to the 30-minute first-pilot work window and 15-minute restoration
 reserve (45 minutes remains the later measured maximum).
+
+Volatile runtime and next-ingest observations must be no more than 30 seconds
+old at effect admission; backup, TrueNAS and Mac-subset observations must be
+no more than 15 minutes old. Re-observe the volatile state immediately before
+the first mask and treat any mismatch as NO-GO.
 
 The preflight must reject stale, fabricated, partial or future evidence,
 existing whole-host/application leases, competing jobs, backend drift,
