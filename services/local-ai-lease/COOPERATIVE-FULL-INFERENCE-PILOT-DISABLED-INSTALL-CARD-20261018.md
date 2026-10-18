@@ -7,7 +7,7 @@ review; that earlier approval must not be reused for this packet.
 
 ## Frozen source
 
-The source tip is `309c655e`. The host packet contains exactly eighteen files
+The source tip is `af839c0f`. The host packet contains exactly nineteen files
 under `/usr/local/libexec/local-ai-lease/full-inference-pilot/`; the in-guest
 wrapper is a separately located candidate for LXC110, and its test is evidence
 only. Every staged file must match these SHA-256 values before any future
@@ -21,7 +21,7 @@ installation review.
 | `cooperative_lab_host_adapter.py` | `720a2c9ac9fb278223e31c998fe58af234d84451344daa63dabcf55b2ebd98a6` |
 | `cooperative_lab_session.py` | `1a1c1f11219c0ec4a89671b7acb552e40d005a8e7fe056b8eab8225cc374e260` |
 | `full_inference_lab_install_preflight.py` | `5a8586c9e6002ba6ce1a479a2b8fd1de3085e463d171abc11189c2b0ceb81f05` |
-| `full_inference_lab_runtime.py` | `f4a426278cd81cd50e2c15ad241be4655c04fe73717b16a712332fb5dbf46b7a` |
+| `full_inference_lab_runtime.py` | `0a7142ecff9fe69ae40812a95569d5573e61f1bf76a4e96ca7c7d0ef2e472c06` |
 | `full_inference_lab_session.py` | `104d6bdfa2296abfe026d0017ab935ca2351519fab84116b073e11afb3c6301d` |
 | `full_inference_lab_sources.py` | `1f53e61b6909c26b6658d17396eff9babb4f2253b470fe33d8b188bfc9980c39` |
 | `full_inference_lab_supervisor.py` | `7ee567a16040213ca3e8e0157019108074a06746fd15c8d38f91a943364a8684` |
@@ -30,6 +30,7 @@ installation review.
 | `host_exclusion.py` | `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61` |
 | `test_cooperative_lab_host_adapter.py` | `e9433ab5b35dc11881f0a5416e5c8cd94243919b5b7264e9ccf629bffbf73b7a` |
 | `test_full_inference_lab_install_preflight.py` | `698b1699a48766dcda0aa470b08851ddf3f0c462f19edd0bb0d70f36cdabe2fa` |
+| `test_full_inference_lab_runtime.py` | `bc0969f4429cf01eab61ae5854b267c73f73fef1ed2ad6605a7110fc8375c916` |
 | `test_full_inference_lab_session.py` | `8d2d07119dd12f0f6c61a4cf4f7d679a445f60f8959170b759a78c7666470624` |
 | `test_full_inference_lab_sources.py` | `eab6fb2fc1bc7aa0dd14ee001aee7a58bafb73faf5b3c0f0adb52b31e5be8650` |
 | `test_full_inference_lab_supervisor.py` | `b8c2f503fa7ada32b17c7dbeeca8530f0c219922435eb77b50a8531b34612909` |
