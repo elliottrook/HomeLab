@@ -30,7 +30,7 @@ class FullInferenceLabSourcesTests(unittest.TestCase):
             if command == FIXED["driver"]: return 0, "../../../../../../bus/pci/drivers/xe\n"
             if command == FIXED["vm"]: return 0, "status: stopped\n"
             if command == FIXED["vm_config"]: return 0, "memory: 1024\n"
-            if command == FIXED["schedules"]: return 0, "[{\"enabled\":true,\"schedule\":\"2026_10_18\"}]\n"
+            if command == FIXED["schedules"]: return 0, "[{\"vmid\":104,\"ctime\":%d,\"size\":10},{\"vmid\":110,\"ctime\":%d,\"size\":10},{\"vmid\":116,\"ctime\":%d,\"size\":10}]\n" % (finished // 1000, finished // 1000, finished // 1000)
             if command == FIXED["truenas"]:
                 return 0, ("[{\"id\":1,\"enabled\":true,\"job\":{\"state\":\"SUCCESS\",\"time_finished\":{\"$date\":%d}}},"
                            "{\"id\":2,\"enabled\":true,\"job\":{\"state\":\"SUCCESS\",\"time_finished\":{\"$date\":%d}}},"
@@ -58,7 +58,7 @@ class FullInferenceLabSourcesTests(unittest.TestCase):
             if tuple(command) == FIXED["driver"]: return 0, "../../../../../../bus/pci/drivers/xe\n"
             if tuple(command) == FIXED["vm"]: return 0, "status: stopped\n"
             if tuple(command) == FIXED["vm_config"]: return 0, "memory: 1024\n"
-            if tuple(command) == FIXED["schedules"]: return 0, "[{\"enabled\":true,\"schedule\":\"2026_10_18\"}]\n"
+            if tuple(command) == FIXED["schedules"]: return 0, "[{\"vmid\":104,\"ctime\":1792320000,\"size\":10}]\n"
             if tuple(command) == FIXED["truenas"]: return 0, "[{\"id\":1,\"enabled\":true,\"job\":{\"state\":\"SUCCESS\"}}]\n"
             if tuple(command[-2:]) == ("sha256sum", "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf"): return 0, "a" * 64 + " model\n"
             if tuple(command[-2:]) == ("sha256sum", "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"): return 0, "b" * 64 + " binary\n"

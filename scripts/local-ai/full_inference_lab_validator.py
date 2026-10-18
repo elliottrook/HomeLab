@@ -36,7 +36,8 @@ class FullDrainValidator:
                 return False
             pve = json.loads(self._run(FIXED["schedules"]))
             truenas = json.loads(self._run(FIXED["truenas"]))
-            if not isinstance(pve, list) or not pve:
+            if not isinstance(pve, list) or {item.get("vmid") for item in pve
+                                             if type(item.get("ctime")) is int and item.get("size", 0) > 0} != {104, 110, 116}:
                 return False
             for item_id in (1, 2, 3):
                 item = next((x for x in truenas if x.get("id") == item_id), None)

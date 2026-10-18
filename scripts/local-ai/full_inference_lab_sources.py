@@ -38,7 +38,7 @@ FIXED = {
     "driver": ("readlink", "/sys/bus/pci/devices/0000:04:00.0/driver"),
     "vm": ("qm", "status", "105"),
     "vm_config": ("qm", "config", "105"),
-    "schedules": ("pvesh", "get", "/cluster/backup", "--output-format", "json"),
+    "schedules": ("pvesh", "get", "/nodes/proxmox/storage/backups/content", "--content", "backup", "--output-format", "json"),
     "truenas": ("ssh", "-o", "BatchMode=yes", "-o", "IdentitiesOnly=yes",
                 "-o", "StrictHostKeyChecking=yes", "-o", "UserKnownHostsFile=/etc/local-ai-lab/truenas_known_hosts",
                 "-i", "/etc/local-ai-lab/truenas_schedule_observer",
@@ -94,7 +94,15 @@ class FullDrainSourceProducer:
             if not item or not item.get("enabled") or item.get("job", {}).get("state") != "SUCCESS":
                 return False
         cycle_key = cycle.replace("-", "_")
-        if not any(item.get("enabled") and cycle_key in json.dumps(item, sort_keys=True) for item in pve):
+        expected_guests = {104, 110, 116}
+        seen_guests = set()
+        for item in pve:
+            vmid = item.get("vmid")
+            ctime = item.get("ctime")
+            if vmid in expected_guests and type(ctime) is int and item.get("size", 0) > 0:
+                if datetime.fromtimestamp(ctime, LOCAL_ZONE).strftime("%Y_%m_%d") == cycle_key:
+                    seen_guests.add(vmid)
+        if seen_guests != expected_guests:
             return False
         seen = set()
         for item in truenas:
