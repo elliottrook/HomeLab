@@ -90,6 +90,22 @@ class FullInferenceRuntimePilotTests(unittest.TestCase):
         self.assertEqual(self.run_harness(harness), 0)
         self.assertEqual(harness.restore_calls, 1)
 
+    def test_slow_preflight_aborts_before_supervisor_begin(self):
+        harness = PilotHarness()
+        with TemporaryDirectory() as tmp:
+            args = self.args()
+            args.state_root = Path(tmp) / "state"
+            with patch.object(runtime, "LocalProxmoxFullDrainSourceProducer", FakeProducer), \
+                 patch.object(runtime, "LocalProxmoxFullDrainValidator", lambda *a, **k: object()), \
+                 patch.object(runtime, "FullInferenceDrainController", FakeController), \
+                 patch.object(runtime, "PersistentFullDrainSupervisor", FakeSupervisorFactory(harness)):
+                with self.assertRaisesRegex(runtime.SupervisorError, "outside the bounded"):
+                    runtime._run_pilot(args, runtime.FullDrainPaths(args.state_root),
+                                       runner=lambda *a: (0, ""),
+                                       gpu_users=lambda: frozenset(),
+                                       wall_clock=lambda: 101, sleep=lambda _: None)
+            self.assertFalse(harness.active)
+
     def test_partial_drain_failure_is_propagated_before_workload(self):
         harness = PilotHarness(begin_error=RuntimeError("mask failed"))
         with self.assertRaisesRegex(RuntimeError, "mask failed"):

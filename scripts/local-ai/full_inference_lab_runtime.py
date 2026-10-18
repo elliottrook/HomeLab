@@ -107,12 +107,21 @@ def _accepted_gpu_baseline(users: frozenset[GpuUser]) -> frozenset[GpuUser]:
 def _run_pilot(args: argparse.Namespace, paths: FullDrainPaths, *,
                runner: Callable[..., tuple[int, str]] = _host_runner,
                gpu_users: Callable[[], frozenset[GpuUser]] = _gpu_users,
-               wall_clock: Callable[[], float] = time.time) -> int:
+               wall_clock: Callable[[], float] = time.time,
+               sleep: Callable[[float], None] = time.sleep) -> int:
     baseline = AcceptedBaseline(args.model_sha256, args.binary_sha256, args.unit_sha256)
     producer = LocalProxmoxFullDrainSourceProducer(
         runner, baseline, TrustedOwnerAttestation(args.owner_id, args.admin_path_evidence),
         wall_clock=wall_clock)
     preflight = producer.collect(cycle=args.cycle, session_start_epoch=args.session_start_epoch)
+    now = int(wall_clock())
+    lead = args.session_start_epoch - now
+    if lead < 0 or lead > 60:
+        raise SupervisorError("effect start is outside the bounded preflight-to-S window")
+    if lead:
+        sleep(float(lead))
+    if int(wall_clock()) != args.session_start_epoch:
+        raise SupervisorError("effect start did not bind exactly to declared S")
     controller = FullInferenceDrainController(
         paths, lambda command: runner(command, 30.0), observer=CooperativeHostObserver(runner),
         validator=LocalProxmoxFullDrainValidator(runner, baseline, cycle=args.cycle),
