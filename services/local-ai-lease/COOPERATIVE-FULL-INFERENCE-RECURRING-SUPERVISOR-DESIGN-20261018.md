@@ -38,6 +38,69 @@ no network or credential authority beyond the fixed probes and named workload
 wrapper. It must not be a timer that starts a drain without a fresh
 source-bound manifest.
 
+## Independent watchdog and falsifiable plan
+
+`Restart=on-failure` is insufficient for a hung owner. A separate
+`full-inference-lab-watchdog.service` must run under an independent systemd
+unit/timer and hold no workload authority. It reads only the durable session
+state, supervisor PID/invocation identity, heartbeat age, monotonic deadline
+and hard News cutoff. Its decisions are fixed:
+
+- fresh heartbeat and before cutoff: observe only;
+- stale heartbeat, missing owner, supervisor exit or process identity drift:
+  mark the lease recovery-only, send the fixed TERM then KILL sequence to the
+  recorded supervisor PID, and wait for the exclusion to be released;
+- after exclusion acquisition: run only exact restore commands and the
+  `LocalProxmoxFullDrainValidator`; and
+- any uncertainty, failed postcheck or missed cutoff: retain the lock and
+  durable journal for operator reconciliation.
+
+The watchdog must never restart the lab workload, extend the deadline, accept
+new owner strings, or clear the lock from a failed recovery. The fixed hard
+wall cutoff is enforced by both the supervisor's monotonic clock and the
+watchdog's independently computed deadline; the earlier News-safe deadline
+wins. Restoration must include LXC110 authenticated warm-up before Speech,
+Agent and News timers, followed by exact accepted model/binary/unit/GPU/auth,
+service and timer checks.
+
+Legacy-controller exclusion is a separate required host change, not a prose
+promise. Before recurring mode can be live, the old manual
+`local-ai-lease` entrypoint must refuse to acquire while the durable
+full-drain admission marker exists, and its refusal must be tested. If that
+wrapper cannot be changed and verified, recurring mode remains NO-GO; a status
+probe alone is not exclusion. The supervisor and watchdog must also verify the
+marker and exact lease identity before any effect.
+
+The offline acceptance plan is falsifiable and has no host effects:
+
+1. Fake fixed transport: prove start writes the durable marker/state before
+   the first mask, holds the exclusion, and rejects a simulated legacy
+   acquisition.
+2. Nonzero effect: return failure for each mask, warm-up, start and restore;
+   prove no failed command is journaled as observed and the lock remains.
+3. Hung owner: freeze heartbeat after the first mask; prove the independent
+   watchdog marks recovery-only, kills the exact recorded process, restores
+   all five consumers in order, validates LXC110 warm-up and retains the lock
+   on any failed postcheck.
+4. Hard cutoff: advance wall and monotonic clocks independently; prove the
+   workload is stopped at the earlier lab/News deadline and no extension is
+   accepted.
+5. News boundary: make the next ingest fall inside the reserve; prove
+   acquisition is refused and make a timer restoration failure retain state.
+6. Identity drift: alter PID, invocation, owner, lease, generation or marker;
+   prove recovery refuses to act and does not clear state.
+7. MacBook disappearance: remove the client heartbeat/connection while the
+   supervisor remains healthy; prove the watchdog does not infer identity from
+   connection presence and follows only the owner heartbeat/deadline contract.
+8. Final baseline: return active/enabled service state but drift the model,
+   binary, unit, GPU, auth or schedule; prove `LocalProxmoxFullDrainValidator`
+   refuses release.
+
+The resulting evidence must include the fake transport transcript, state and
+journal hashes, expected command sequence, failure injection, watchdog kill
+receipt and final lock state. A passing synthetic suite does not authorize
+host installation or live recurring lab hours.
+
 ## First named workload for the full-drain path
 
 The first usable full-drain workload is **accepted-9B direct-backend control
