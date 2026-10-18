@@ -111,13 +111,13 @@
             <visible>!ListItem.IsParentFolder + Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + [String.IsEqual(ListItem.DBType,tvshow) | String.IsEqual(ListItem.DBType,season)]</visible>
         </control>
         <control type="image">
-            <left>$PARAM[left]</left><top>$PARAM[top]</top><width>42</width><height>42</height>
-            <texture border="18" colordiffuse="asterSage">special://skin/media/ui-panel.png</texture>
+            <left>$PARAM[left]</left><top>$PARAM[top]</top><width>32</width><height>32</height>
+            <texture border="14" colordiffuse="asterSage">special://skin/media/ui-panel.png</texture>
             <visible>!ListItem.IsParentFolder + !ListItem.IsResumable + !Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + [String.IsEqual(ListItem.Overlay,OverlayWatched.png) | Integer.IsGreater(ListItem.PlayCount,0)]</visible>
         </control>
         <control type="label">
-            <left>$PARAM[left]</left><top>$PARAM[top]</top><width>42</width><height>42</height>
-            <label>✓</label><font>font24</font><textcolor>asterInk</textcolor>
+            <left>$PARAM[left]</left><top>$PARAM[top]</top><width>32</width><height>32</height>
+            <label>✓</label><font>font16</font><textcolor>asterInk</textcolor>
             <align>center</align><aligny>center</aligny>
             <visible>!ListItem.IsParentFolder + !ListItem.IsResumable + !Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + [String.IsEqual(ListItem.Overlay,OverlayWatched.png) | Integer.IsGreater(ListItem.PlayCount,0)]</visible>
         </control>
