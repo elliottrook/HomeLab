@@ -22,7 +22,9 @@ The attended pilot is 30 minutes of lab time plus a 15-minute restoration
 reserve. It requires a fresh source-bound backup/cycle and runtime preflight,
 the host exclusion, owner heartbeat and monotonic cutoff. No reboot, PCI
 rebind, VM 105 use, fault injection, benchmark batch or arbitrary model call
-is included.
+is included. The isolation pilot needs a fresh source-verified backup status
+and accepted runtime checkpoint, but does not require the incomplete F2
+retained-archive-integrity path or an F3 trusted receipt.
 
 ### Fixed drain inventory
 
@@ -66,4 +68,6 @@ the lock for operator reconciliation.
   independent review before any live service stop.
 
 This card is therefore feasible as a supervised drain/recovery prerequisite,
-but it does not yet close the usable MacBook B60 experiment milestone.
+but it does not yet close the usable MacBook B60 experiment milestone. Any
+later workload that mutates files, models or runtime configuration requires its
+own stronger restore checkpoint and rollback card.
