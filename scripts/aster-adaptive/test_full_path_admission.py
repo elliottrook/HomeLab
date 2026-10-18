@@ -46,7 +46,7 @@ def observed():
                   "production_aster_quiesced": True, "speech_quiesced": True},
         "watchdog": {"source": "proxmox-systemd", "lease_id": "test-lease-20261014",
                      "generation": 1, "scope": "aster-app-benchmark",
-                     "armed": True, "deadline_at": "2026-10-14T04:05:00-07:00",
+                     "armed": True, "deadline_at": "2026-10-14T03:58:00-07:00",
                      "independent_of_mini": True,
                      "stops_sidecar": True, "restores_backend_ingress": True,
                      "removes_test_backend_key": True,
@@ -86,7 +86,7 @@ class FullPathAdmissionTests(unittest.TestCase):
     def test_complete_snapshot_passes_without_claiming_authority(self):
         result = admit(card(), observed(), now=NOW)
         self.assertEqual(result["state"], "preflight_passed_not_authority")
-        self.assertEqual(result["latest_batch_end_at"], "2026-10-14T03:50:00-07:00")
+        self.assertEqual(result["latest_batch_end_at"], "2026-10-14T03:43:00-07:00")
         self.assertNotIn("http", str(result))
 
     def test_missing_watchdog_and_wrong_lease_fail_closed(self):
@@ -167,6 +167,13 @@ class FullPathAdmissionTests(unittest.TestCase):
     def test_deadlines_leave_restoration_budget(self):
         self.deny("insufficient_recovery_time", lambda x: x["watchdog"].update(
             deadline_at="2026-10-14T03:40:00-07:00"))
+        # The watchdog fires at its deadline; that is not the time recovery
+        # finishes. A trigger at 04:05 or the 04:15 cutoff must fail even
+        # when an ordinary batch could finish before it.
+        self.deny("insufficient_recovery_time", lambda x: x["watchdog"].update(
+            deadline_at="2026-10-14T04:05:00-07:00"))
+        self.deny("insufficient_recovery_time", lambda x: x["watchdog"].update(
+            deadline_at="2026-10-14T04:15:00-07:00"))
         self.deny("insufficient_recovery_time", lambda x: x["lease"].update(
             expires_at="2026-10-14T03:40:00-07:00"))
         self.deny("insufficient_recovery_time", lambda x: x, now=datetime(

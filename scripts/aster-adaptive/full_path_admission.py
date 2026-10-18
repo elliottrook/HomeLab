@@ -8,13 +8,17 @@ owner must supply and verify the live receipt/watchdog interface separately.
 from __future__ import annotations
 
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 HEX64 = re.compile(r"[0-9a-f]{64}\Z")
 TZ = ZoneInfo("America/Vancouver")
 CASE_SHA256 = "8c5293382a457cbcf4f9999a8904820d6b1d126477fbfc6b672b41a87b62cab9"
 RESTORE_RESERVE = timedelta(minutes=15)
+# A watchdog deadline is a recovery *trigger*, not proof of completed restore.
+# This is only a minimum refusal bound. The platform must later supply measured
+# restoration and timer-lag budgets; synthetic passage is not live admission.
+MIN_TRIGGER_LAG = timedelta(minutes=1)
 ACCEPTED_MODEL = "Qwen3.5 9B Q4_K_M"
 ACCEPTED_BACKEND = "llama.cpp b11429 SYCL/Level Zero"
 
@@ -186,7 +190,8 @@ def admit(card: dict, observed: dict, *, now: datetime) -> dict:
             or lease_issued < backup_completed or lease_issued > current):
         raise AdmissionDenied("stale_or_unbound_receipt")
     if (current >= cutoff or expiry <= current or watchdog_deadline <= current
-            or watchdog_deadline > cutoff
+            or (watchdog_deadline.astimezone(timezone.utc) + RESTORE_RESERVE + MIN_TRIGGER_LAG
+                >= cutoff.astimezone(timezone.utc))
             or current + timedelta(seconds=card["max_wall_s"]) + RESTORE_RESERVE
                > min(expiry, watchdog_deadline, cutoff)):
         raise AdmissionDenied("insufficient_recovery_time")

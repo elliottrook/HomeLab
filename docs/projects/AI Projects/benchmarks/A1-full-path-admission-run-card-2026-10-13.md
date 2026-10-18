@@ -150,6 +150,18 @@ independent exact SYCL/device/auth response check plus the Aster, Speech,
 News and schedule postchecks before clearing the host lock. A unit reporting
 `active` is insufficient.
 
+**October 17 offline timing correction:** the watchdog's `deadline_at` is a
+recovery *trigger*, not proof that restoration has finished. The consistency
+checker now refuses a trigger whose minimum 15-minute restoration allowance
+plus one-minute trigger-lag floor reaches or exceeds 04:15, using UTC elapsed
+time. The B60 peer's published `6104f422` proposal identified this gap.
+These floors are necessary refusal conditions, **not measured recovery
+budgets**. A live card still needs platform-owned worst-case restoration and
+timer-lag evidence, a source-bound admission check for those values, and an
+independent postcheck before any lease or model call is authorized. The
+unchanged `v2` input shape and synthetic passing fixture do not provide that
+missing live proof.
+
 ## Verified current state and remaining work
 
 The isolated sidecar's Python dependency set has a local, production-version
