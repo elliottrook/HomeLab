@@ -247,6 +247,10 @@ consumer set with runtime deny-new-start masks, and remains offline pending
 source-bound host wiring and a separate daytime pilot approval. The offline
 review is recorded in
 `services/local-ai-lease/COOPERATIVE-LAB-HOURS-OFFLINE-REVIEW-20261018.md`.
+The disabled source producer, exact Linux observer and rollback card are local
+in Stream A commit `71d91314`; direct-client exclusivity remains an explicit
+NO-GO until a reviewed MacBook identity and exact established-peer proof are
+available.
 The approved outage ceiling is up to 90 minutes, but the first pilot remains
 the stricter 45-minute reservation (30 minutes lab plus 15 minutes restore),
 and must fit before the next hourly News ingest with a five-minute margin as
