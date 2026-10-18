@@ -176,3 +176,9 @@ drill. It prohibits Proxmox reboot, PCI rebind, fault injection and model
 promotion. The restored production service, not an AI judgment, is the release
 criterion. The platform owner is preparing its bounded controller and disabled
 Linux card for independent review.
+
+The live LXC114 News ingest timer was observed firing about once per hour. A
+90-minute outage allowance therefore does not translate to a 90-minute usable
+lab session without a separately reviewed missed-ingest/catch-up policy. The
+first 30+15 pilot fits between hourly ingests with a five-minute margin; every
+later longer reservation must explicitly address that production dependency.
