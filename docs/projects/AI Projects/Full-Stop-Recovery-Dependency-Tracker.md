@@ -280,6 +280,12 @@ The approved outage ceiling is up to 90 minutes, but the first pilot remains
 the stricter 45-minute reservation (30 minutes lab plus 15 minutes restore),
 and must fit before the next hourly News ingest with a five-minute margin as
 well as before the 17:15 News run.
+The follow-on recurring-supervisor and first accepted-9B direct-backend
+control design is recorded in
+`services/local-ai-lease/COOPERATIVE-FULL-INFERENCE-RECURRING-SUPERVISOR-DESIGN-20261018.md`.
+It is offline only: the persistent supervisor, fixed workload wrapper and
+MacBook custody proof remain separate gates. The Aster full-path benchmark is
+not interchangeable with this direct-backend control.
 
 ## Critical path and failure reporting
 

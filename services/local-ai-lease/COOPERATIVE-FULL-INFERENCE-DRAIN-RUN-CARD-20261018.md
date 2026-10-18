@@ -95,6 +95,8 @@ The named workload candidate for a later usable session is the B60 branch's
 queued fresh accepted-9B control. It is a control candidate only: it must not
 run until the operator path, fresh recovery checkpoint and post-drain
 restoration are independently verified.
+The persistent supervisor and workload boundary are designed separately in
+`COOPERATIVE-FULL-INFERENCE-RECURRING-SUPERVISOR-DESIGN-20261018.md`.
 
 ### Recovery baseline
 
