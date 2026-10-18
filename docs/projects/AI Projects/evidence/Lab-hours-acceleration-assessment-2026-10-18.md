@@ -229,10 +229,15 @@ verified all 14 card hashes against the local source; these checks passed.
 The packet is **not yet staged on Proxmox**. An exact disabled-install approval
 is pending; staging would test Linux imports and leave all effects off. The
 live daytime drain remains NO-GO until installed-path tests and a separate
-reviewed live card pass. The old manual controller does not participate in
-the new advisory lock, and the short-lived entrypoint does not hold that
-lock across the whole proposed session. A readiness snapshot plus human
-supervision is not an unattended exclusion or recovery guarantee. The first
+reviewed live card pass. The short-lived entrypoint does not hold its
+advisory lock across the whole proposed session. The currently installed
+manual helper hashes to `67ca223d03a4922603f570c6db87fed919879aedf3706e586b2684f7be84073c`,
+matching the B60 project's October 17 observation of a newer helper with an
+archive-exclusion wrapper; the platform owner is verifying its exact shared
+lock path and source provenance. Even if it participates in the same lock,
+the gap between phased CLI invocations permits a competing acquisition. A
+readiness snapshot plus human supervision is not an unattended exclusion or
+recovery guarantee. The first
 live run must remain attended, with any partial effect reconciled before the
 lock is released; recurring lab hours need a durable supervisor and
 independent owner-loss recovery proof.
