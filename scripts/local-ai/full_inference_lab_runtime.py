@@ -18,7 +18,7 @@ from full_inference_lab_sources import (AcceptedBaseline,
     LocalProxmoxFullDrainSourceProducer, TrustedOwnerAttestation)
 from full_inference_lab_validator import LocalProxmoxFullDrainValidator
 from full_inference_lab_supervisor import (GpuUser, PersistentFullDrainSupervisor,
-                                            SupervisorError)
+                                            SupervisorError, recovery_only)
 from full_inference_lab_workload import lab_cleanup_command, lab_is_absent
 
 
@@ -152,9 +152,31 @@ def _run_pilot(args: argparse.Namespace, paths: FullDrainPaths, *,
     return 0
 
 
+def _run_rescue(args: argparse.Namespace, paths: FullDrainPaths, *,
+                runner: Callable[..., tuple[int, str]] = _host_runner) -> int:
+    """Restore one exact durable lease; never resumes or starts workload."""
+    state = json.loads(paths.state.read_text(encoding="utf-8"))
+    if state.get("owner_id") != args.owner_id:
+        raise SupervisorError("rescue owner identity does not match durable state")
+    baseline = AcceptedBaseline(args.model_sha256, args.binary_sha256, args.unit_sha256)
+    controller = FullInferenceDrainController(
+        paths, lambda command: runner(command, 30.0), observer=CooperativeHostObserver(runner),
+        validator=LocalProxmoxFullDrainValidator(runner, baseline, cycle=args.cycle),
+        owner_id=args.owner_id, allow_effects=True)
+    recovery_only(
+        controller, lease_id=args.lease_id, generation=args.generation,
+        restore_now_epoch=int(time.time()),
+        cleanup_runner=runner,
+        lab_absent=lambda: lab_is_absent(runner, lease_id=args.lease_id,
+                                          generation=args.generation))
+    print(json.dumps({"effects": "rescue-restored", "lease_id": args.lease_id,
+                      "generation": args.generation}, sort_keys=True))
+    return 0
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--phase", choices=("pilot", "start", "heartbeat", "resume", "restore"), required=True)
+    parser.add_argument("--phase", choices=("pilot", "rescue", "start", "heartbeat", "resume", "restore"), required=True)
     parser.add_argument("--state-root", type=Path, default=Path("/var/lib/local-ai-lab"))
     parser.add_argument("--cycle")
     parser.add_argument("--session-start-epoch", type=int)
@@ -185,13 +207,18 @@ def main(argv: list[str] | None = None) -> int:
                     args.model_sha256, args.binary_sha256, args.unit_sha256)
         if any(value in (None, "") for value in required):
             raise SystemExit("pilot requires cycle, session start, admin evidence and three baseline hashes")
-    if args.phase in {"heartbeat", "resume", "restore"} and (not args.lease_id or args.generation is None):
+    if args.phase in {"heartbeat", "resume", "restore", "rescue"} and (not args.lease_id or args.generation is None):
         raise SystemExit("this phase requires the exact lease id and generation")
     paths = FullDrainPaths(args.state_root)
     runner = _host_runner
     observer = CooperativeHostObserver(runner)
     if args.phase == "pilot":
         return _run_pilot(args, paths, runner=runner)
+    if args.phase == "rescue":
+        required = (args.cycle, args.model_sha256, args.binary_sha256, args.unit_sha256)
+        if any(value in (None, "") for value in required):
+            raise SystemExit("rescue requires cycle and three baseline hashes")
+        return _run_rescue(args, paths, runner=runner)
     if args.phase == "start":
         baseline = AcceptedBaseline(args.model_sha256, args.binary_sha256, args.unit_sha256)
         producer = LocalProxmoxFullDrainSourceProducer(

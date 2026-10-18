@@ -1,4 +1,5 @@
 import unittest
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
@@ -160,6 +161,39 @@ class FullInferenceRuntimePilotTests(unittest.TestCase):
                                        runner=lambda *a: (0, ""),
                                        gpu_users=lambda: frozenset({rogue}),
                                        wall_clock=lambda: 100)
+
+    def test_one_shot_rescue_uses_exact_durable_identity_and_never_workload(self):
+        with TemporaryDirectory() as tmp:
+            args = self.args()
+            args.state_root = Path(tmp) / "state"
+            args.lease_id = "lease-1"
+            args.generation = 2
+            args.phase = "rescue"
+            args.state_root.mkdir()
+            args.state_root.joinpath("full-inference-drain.json").write_text(
+                json.dumps({"owner_id": "owner-1"}) + "\n", encoding="utf-8")
+            calls = []
+            with patch.object(runtime, "LocalProxmoxFullDrainValidator", lambda *a, **k: object()), \
+                 patch.object(runtime, "FullInferenceDrainController", FakeController), \
+                 patch.object(runtime, "recovery_only", lambda *a, **k: calls.append(k)):
+                self.assertEqual(runtime._run_rescue(
+                    args, runtime.FullDrainPaths(args.state_root), runner=lambda *a: (0, "")), 0)
+            self.assertEqual(calls[0]["lease_id"], "lease-1")
+            self.assertEqual(calls[0]["generation"], 2)
+            self.assertIn("cleanup_runner", calls[0])
+
+    def test_one_shot_rescue_rejects_owner_identity_drift(self):
+        with TemporaryDirectory() as tmp:
+            args = self.args()
+            args.state_root = Path(tmp) / "state"
+            args.lease_id = "lease-1"
+            args.generation = 2
+            args.state_root.mkdir()
+            args.state_root.joinpath("full-inference-drain.json").write_text(
+                json.dumps({"owner_id": "different-owner"}) + "\n", encoding="utf-8")
+            with self.assertRaisesRegex(runtime.SupervisorError, "does not match"):
+                runtime._run_rescue(args, runtime.FullDrainPaths(args.state_root),
+                                     runner=lambda *a: (0, ""))
 
 
 if __name__ == "__main__":
