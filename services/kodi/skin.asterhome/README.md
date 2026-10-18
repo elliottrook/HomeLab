@@ -551,6 +551,15 @@ family release remain outside this add-on. The handoff explicitly limits the
 family to private Aster/HomeLab use; this prototype does not assert public
 trademark, font or redistribution clearance.
 
+## Video playback controls
+
+Version 0.8.25 adds Aster-owned `VideoOSD`, `VideoFullScreen` and seek-overlay
+contracts. During full-screen video, Kodi's normal OSD action now opens a
+large remote-first control panel with playback identity, elapsed/total time,
+progress, previous/next, discrete −10/+30 second seeking, pause/resume, stop
+and information controls. The skin changes presentation only; playback and
+all actions continue to use Kodi's built-in player.
+
 ## Local test
 
 The Books pages show bounded, plain-text source synopses and a full-text About

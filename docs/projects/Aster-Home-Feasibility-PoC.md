@@ -1455,6 +1455,24 @@ the expected generic custom-integration warning for this component; older
 Apple TV setup-delay, Sonos and MET connectivity warnings are unchanged and
 outside this deployment.
 
+Video playback controls, 2026-10-17 (skin v0.8.25): live reproduction showed
+that Jellyfin video playback itself worked, but Aster supplied neither Kodi's
+`VideoOSD` skin contract nor a useful seek overlay. Full-screen playback
+therefore had no visible, focusable controls. Aster now provides a TV-scaled
+charcoal-and-gold control surface with dynamic title, series/episode context,
+elapsed/total time, progress, previous/next, ten-second back, thirty-second
+forward, pause/resume, stop and information actions. It also supplies the
+minimal full-screen window contract and an Aster seek-progress overlay.
+
+The disposable macOS client loaded both new windows without a skin exception.
+Kodi's standard OSD action visibly opened the panel over a real Jellyfin
+episode, left/right focus moved from Pause to the thirty-second control, and
+activating it advanced the displayed time from 00:10:48 to 00:11:37 including
+normal playback elapsed during the observation. Playback was then stopped.
+All 73 skin tests, complete XML parsing and whitespace validation passed. The
+pre-change installed skin is retained at
+`/private/tmp/asterhome-kodi-osd-pre-20261017` for local rollback.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

@@ -121,6 +121,30 @@ class LayoutTests(unittest.TestCase):
                 f'.//control[@type="button"][@id="{identifier}"]')
             self.assertIsNotNone(control, f'button {identifier}')
 
+    def test_video_player_osd_contract_is_present(self):
+        osd = ET.parse(ROOT / '1080i/VideoOSD.xml')
+        self.assertEqual(osd.findtext('./defaultcontrol'), '602')
+        by_id = {control.get('id'): control for control in osd.findall('.//control')
+                 if control.get('id')}
+        for identifier in ('600', '601', '602', '603', '605', '606', '607',
+                           '70043', '9000'):
+            self.assertIn(identifier, by_id)
+        actions = [node.text for node in osd.findall('.//onclick')]
+        for action in ('PlayerControl(Previous)', 'Seek(-10)',
+                       'PlayerControl(Play)', 'Seek(30)',
+                       'PlayerControl(Next)', 'PlayerControl(Stop)', 'Info'):
+            self.assertIn(action, actions)
+        self.assertIsNotNone(osd.find('.//info[.="Player.Progress"]'))
+        labels = [node.text or '' for node in osd.findall('.//label')]
+        self.assertTrue(any('Player.Time' in label for label in labels))
+        self.assertTrue(any('Player.Duration' in label for label in labels))
+        ET.parse(ROOT / '1080i/VideoFullScreen.xml')
+
+        seek = ET.parse(ROOT / '1080i/DialogSeekBar.xml')
+        self.assertIsNotNone(seek.find('.//info[.="Player.Progress"]'))
+        self.assertTrue(any('VideoPlayer.Title' in (node.text or '')
+                            for node in seek.findall('.//label')))
+
     def test_expansion_assets_and_page_mapping(self):
         icons = ('20-music-app', '21-books-app', '22-podcasts-app',
                  '23-music-album', '24-music-artist', '25-music-song',
