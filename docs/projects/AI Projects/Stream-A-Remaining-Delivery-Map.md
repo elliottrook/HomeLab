@@ -12,6 +12,17 @@ is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the
 October 16 read-only scan from an unscheduled live drill.
 
+**October 18 A1 interface checkpoint:** the platform owner corrected the
+recovery-trigger/deadline ambiguity and versioned the callback as
+`aster-a1-admission.v2`; Stream A's [client candidate](benchmarks/A1-full-path-admission-run-card-2026-10-13.md)
+now requires that shape and refuses a batch or request reaching the recovery
+trigger. The platform's typed pre-lease and fixed-file custody adapters are
+offline, uninstalled and not connected to actual source-specific Proxmox,
+TrueNAS or LXC observers. They do not yet authenticate the backup chain or
+prove restoration time. The application-only drill and full Aster-path A1
+benchmark remain BLOCKED. The [interface review](evidence/A1-admission-platform-interface-review-2026-10-18.md)
+distinguishes completed source checks from the remaining live gates.
+
 **October 17 evening correction:** the later supervised October 17 F2 guard
 attempt returned NO-GO without any archive results. Its one-cycle approval
 is spent and its recurring automation is now verified `PAUSED`. The normal
