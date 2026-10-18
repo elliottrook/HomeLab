@@ -38,6 +38,11 @@ MacBook operator may only use an explicitly reviewed workload path after the
 drain is proven; the existing direct `192.168.70.12:11435` endpoint is not
 assumed reachable or admission-controlled.
 
+The named workload candidate for a later usable session is the B60 branch's
+queued fresh accepted-9B control. It is a control candidate only: it must not
+run until the operator path, fresh recovery checkpoint and post-drain
+restoration are independently verified.
+
 ### Recovery baseline
 
 Before effects, capture fresh hashes and state for the accepted Qwen3.5-9B
