@@ -181,6 +181,13 @@ the end of that backup cycle.
 | F10 | **Evidence close-out**, after F8/F9 | Keep immutable observations, unexpected effects, rollback result and decision record; update run card and this tracker; no A1 promotion inferred. | [ ] NOT STARTED. |
 | A1 | **Aster full-path benchmark**, only on a later separate backup cycle | Its own application-only lease, source-bound A1 admission, sidecar/ingress/auth and recovery gates, frozen workload and independent scoring. A full-stop attempt makes A1 NO-GO for that same cycle even if recovery succeeds. | [ ] SEPARATE BLOCKED LANE — not part of F8/F9 approval. |
 
+The B60 peer's offline watchdog timing proposal requires at least 15 minutes
+for restoration plus a one-minute trigger-lag floor before 04:15. It is a
+necessary refusal condition, not a measured recovery budget or live admission.
+The corresponding A1 source/tests are absent from this Stream A branch, so
+the candidate was not resurrected or integrated here; platform-owned measured
+restoration/lag evidence and a source-bound guard remain required.
+
 ## Critical path and failure reporting
 
 F2 can be measured while F3 is engineered, but a read-only F2 result is not
