@@ -125,6 +125,24 @@ class FullInferenceRuntimePilotTests(unittest.TestCase):
                                        wall_clock=lambda: 100)
             self.assertFalse(harness.active)
 
+    def test_same_binary_outside_lxc110_is_not_allowlisted(self):
+        harness = PilotHarness()
+        rogue = runtime.GpuUser(
+            43, 8, "0::/system.slice/rogue.service",
+            "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server")
+        with TemporaryDirectory() as tmp:
+            args = self.args()
+            args.state_root = Path(tmp) / "state"
+            with patch.object(runtime, "LocalProxmoxFullDrainSourceProducer", FakeProducer), \
+                 patch.object(runtime, "LocalProxmoxFullDrainValidator", lambda *a, **k: object()), \
+                 patch.object(runtime, "FullInferenceDrainController", FakeController), \
+                 patch.object(runtime, "PersistentFullDrainSupervisor", FakeSupervisorFactory(harness)):
+                with self.assertRaisesRegex(runtime.SupervisorError, "outside the accepted"):
+                    runtime._run_pilot(args, runtime.FullDrainPaths(args.state_root),
+                                       runner=lambda *a: (0, ""),
+                                       gpu_users=lambda: frozenset({rogue}),
+                                       wall_clock=lambda: 100)
+
 
 if __name__ == "__main__":
     unittest.main()

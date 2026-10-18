@@ -93,12 +93,13 @@ def _production_masked(runner: Callable[..., tuple[int, str]]) -> bool:
 
 
 def _accepted_gpu_baseline(users: frozenset[GpuUser]) -> frozenset[GpuUser]:
-    """Accept only the single fixed production llama identity as baseline."""
+    """Validate production identity, then require no holders after drain."""
     if len(users) > 1 or any(not user.executable.endswith(
             "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server")
+            or "lxc/110" not in user.cgroup
             for user in users):
         raise SupervisorError("pre-existing GPU holder is outside the accepted production identity")
-    return users
+    return frozenset()
 
 
 def _run_pilot(args: argparse.Namespace, paths: FullDrainPaths, *,
