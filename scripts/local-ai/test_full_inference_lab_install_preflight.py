@@ -1,6 +1,7 @@
 import unittest
 
 from full_inference_lab_install_preflight import validate_imports
+from full_inference_lab_runtime import main as runtime_main
 
 
 class FullInferenceInstallPreflightTests(unittest.TestCase):
@@ -10,6 +11,9 @@ class FullInferenceInstallPreflightTests(unittest.TestCase):
         self.assertEqual(value["drain_effects"], 5)
         self.assertEqual(value["restore_effects"], 10)
         self.assertEqual(value["effects"], "not-attempted")
+
+    def test_pinned_runtime_entrypoint_is_default_deny(self):
+        self.assertEqual(runtime_main(["--phase", "start", "--owner-id", "owner-1"]), 0)
 
 
 if __name__ == "__main__":

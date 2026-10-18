@@ -56,12 +56,19 @@ not start the old manual controller during the window, and no unattended
 recurring drain or automatic owner-death recovery is claimed.
 
 The final release check must use `LocalProxmoxFullDrainValidator` (not the
-TrueNAS-dependent `FullDrainValidator`). On the target host, the supervised
-operator invokes the pinned module with `PYTHONPATH=/usr/local/libexec/local-ai-lease/full-inference-drain` and calls its validator after the
-canonical restore commands; if the owner process dies, the supervisor first
-reacquires the shared exclusion and calls `resume_existing(lease_id,
-generation)` with the exact durable identity. No watchdog or automatic
-recovery is enabled by this card.
+TrueNAS-dependent `FullDrainValidator`). The pinned host entrypoint is
+`/usr/bin/python3 -B /usr/local/libexec/local-ai-lease/full-inference-drain/full_inference_lab_runtime.py` with
+`PYTHONPATH=/usr/local/libexec/local-ai-lease/full-inference-drain`.
+The supervised start command is:
+
+    PYTHONPATH=/usr/local/libexec/local-ai-lease/full-inference-drain /usr/bin/python3 -B /usr/local/libexec/local-ai-lease/full-inference-drain/full_inference_lab_runtime.py --phase start --owner-id <owner> --admin-path-evidence <attestation> --cycle <YYYY_MM_DD> --session-start-epoch <epoch> --model-sha256 <sha256> --binary-sha256 <sha256> --unit-sha256 <sha256> --effect-authorized
+
+The supervisor heartbeats with the same owner and exact lease identity using
+`--phase heartbeat --lease-id <lease> --generation <generation>`, and restores
+with `--phase restore` plus the same cycle and three hashes. If the owner
+process dies, the supervisor uses `--phase resume` with the exact durable
+identity, then the restore command. No watchdog or automatic recovery is
+enabled by this card.
 
 ### Fixed drain inventory
 
