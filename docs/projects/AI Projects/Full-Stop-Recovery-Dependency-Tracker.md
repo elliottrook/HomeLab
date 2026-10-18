@@ -95,6 +95,12 @@ diagnostic at `codex/aster-lease-compat` commit `e5963762` passed 212 local
 tests (four Mac root-custody skips) but is not installed and cannot diagnose
 the October 17 failure after the fact. It grants no receipt, full-stop drill,
 model call or service stop.
+A later source-only projection correction on that branch at `1dd38c76`
+rejects a child result labelled complete when its cycle, fixed archive name,
+size, ctime or elapsed bound is inconsistent. The local suite passed 213
+tests with four Mac root-custody skips. It is uninstalled, cannot explain the
+October 17 NO-GO, and needs target-Linux review and a new exact release card
+before any future host change.
 The source checkpoint and live schedule-type assertions were clarified in
 `62125a65`; the conditional stage/test/install wording is in `9f9ae8a9`.
 The platform owner integrated the matching source locally at `1829271d`,
