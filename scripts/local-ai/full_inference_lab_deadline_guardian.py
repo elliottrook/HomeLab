@@ -8,11 +8,25 @@ from pathlib import Path
 import subprocess
 import sys
 import time
+import re
 from typing import Callable, Sequence
 
 
 class GuardianError(RuntimeError):
     pass
+
+
+def fence_owner_unit(unit: str, runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> bool:
+    """Stop the exact owner scope and require it to be inactive before rescue."""
+    if not re.fullmatch(r"aster-local-ai-pilot-owner-[A-Za-z0-9_-]+\.scope", unit):
+        raise GuardianError("owner unit identity is outside the fixed pilot scope")
+    runner(("systemctl", "stop", unit), capture_output=True, text=True,
+           timeout=30, check=False)
+    state = runner(("systemctl", "is-active", unit), capture_output=True,
+                   text=True, timeout=10, check=False)
+    detail = f"{state.stdout}\n{state.stderr}".lower()
+    return state.returncode != 0 and any(
+        marker in detail for marker in ("inactive", "failed", "unknown", "not found", "not-found"))
 
 
 def rescue_command(*, script: Path, state_root: Path, owner_id: str,
@@ -27,21 +41,45 @@ def rescue_command(*, script: Path, state_root: Path, owner_id: str,
             "--effect-authorized")
 
 
-def run_guardian(*, state_path: Path, rescue_at: int, hard_deadline: int,
-                 command: Sequence[str], clock: Callable[[], float] = time.time,
+def _discover_identity(state_path: Path, owner_id: str) -> tuple[str, int]:
+    value = json.loads(state_path.read_text(encoding="utf-8"))
+    lease_id = value.get("lease_id")
+    generation = value.get("generation")
+    if (value.get("owner_id") != owner_id
+            or value.get("mode") != "full-inference-drain-v1"
+            or not isinstance(lease_id, str)
+            or not lease_id.startswith(owner_id + ":")
+            or not lease_id[len(owner_id) + 1:].isdigit()
+            or type(generation) is not int or generation < 1
+            or value.get("phase") not in {"armed", "drained"}):
+        raise GuardianError("durable state is not the armed pilot lease")
+    return lease_id, generation
+
+
+def run_guardian(*, state_path: Path, owner_id: str, owner_fence: Callable[[], bool],
+                 rescue_command_factory: Callable[[str, int], Sequence[str]],
+                 rescue_at: int, hard_deadline: int, clock: Callable[[], float] = time.time,
                  sleep: Callable[[float], None] = time.sleep,
                  runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> dict[str, object]:
     """Wait for the cutoff, then rescue only while the reserve remains."""
     if hard_deadline <= rescue_at:
         raise GuardianError("guardian hard deadline must follow rescue cutoff")
+    if state_path.exists():
+        raise GuardianError("durable state already exists when guardian is armed")
     while clock() < rescue_at:
         sleep(min(5.0, max(0.0, rescue_at - clock())))
     attempts = 0
+    fenced = False
     while clock() <= hard_deadline:
         if not state_path.exists():
             return {"state": "complete", "effects": "not-attempted"}
         attempts += 1
-        result = runner(tuple(command), capture_output=True, text=True,
+        if not fenced:
+            if not owner_fence():
+                raise GuardianError("owner scope could not be fenced before rescue")
+            fenced = True
+        lease_id, generation = _discover_identity(state_path, owner_id)
+        result = runner(tuple(rescue_command_factory(lease_id, generation)), capture_output=True, text=True,
                         timeout=120, check=False)
         if result.returncode == 0 and not state_path.exists():
             return {"state": "rescued", "effects": "restored", "attempts": attempts}
@@ -55,8 +93,7 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--state-root", type=Path, required=True)
     parser.add_argument("--owner-id", required=True)
-    parser.add_argument("--lease-id", required=True)
-    parser.add_argument("--generation", required=True, type=int)
+    parser.add_argument("--owner-unit", required=True)
     parser.add_argument("--cycle", required=True)
     parser.add_argument("--model-sha256", required=True)
     parser.add_argument("--binary-sha256", required=True)
@@ -75,12 +112,17 @@ def main(argv: list[str] | None = None) -> int:
     root = Path(__file__).resolve().parent
     command = rescue_command(
         script=root / "full_inference_lab_runtime.py", state_root=args.state_root,
-        owner_id=args.owner_id, lease_id=args.lease_id, generation=args.generation,
+        owner_id=args.owner_id, lease_id="__discovered__", generation=0,
         cycle=args.cycle, model_sha256=args.model_sha256,
         binary_sha256=args.binary_sha256, unit_sha256=args.unit_sha256)
     result = run_guardian(
-        state_path=args.state_root / "full-inference-drain.json",
-        rescue_at=args.rescue_at, hard_deadline=args.hard_deadline, command=command)
+        state_path=args.state_root / "full-inference-drain.json", owner_id=args.owner_id,
+        owner_fence=lambda: fence_owner_unit(args.owner_unit),
+        rescue_command_factory=lambda lease_id, generation: tuple(
+            value if value not in {"__discovered__", "0"} else
+            (lease_id if value == "__discovered__" else str(generation))
+            for value in command),
+        rescue_at=args.rescue_at, hard_deadline=args.hard_deadline)
     print(json.dumps(result, sort_keys=True))
     return 0
 

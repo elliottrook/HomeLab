@@ -67,6 +67,7 @@ class FullInferenceRuntimePilotTests(unittest.TestCase):
             "--phase", "pilot", "--state-root", "/tmp/pilot-test-state",
             "--cycle", "2026_10_18", "--session-start-epoch", "100",
             "--owner-id", "owner-1", "--admin-path-evidence", "attested",
+            "--owner-unit", "aster-local-ai-pilot-owner-owner-1.scope",
             "--model-sha256", "model", "--binary-sha256", "binary",
             "--unit-sha256", "unit", "--effect-authorized",
         ])

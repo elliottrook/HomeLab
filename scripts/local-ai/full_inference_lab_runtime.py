@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import time
 from dataclasses import dataclass
@@ -181,6 +182,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--cycle")
     parser.add_argument("--session-start-epoch", type=int)
     parser.add_argument("--owner-id", required=True)
+    parser.add_argument("--owner-unit")
     parser.add_argument("--admin-path-evidence", default="")
     parser.add_argument("--lease-id")
     parser.add_argument("--generation", type=int)
@@ -204,9 +206,12 @@ def main(argv: list[str] | None = None) -> int:
             raise SystemExit("start requires cycle, session start, admin evidence and three baseline hashes")
     if args.phase == "pilot":
         required = (args.cycle, args.session_start_epoch, args.admin_path_evidence,
-                    args.model_sha256, args.binary_sha256, args.unit_sha256)
+                    args.model_sha256, args.binary_sha256, args.unit_sha256,
+                    args.owner_unit)
         if any(value in (None, "") for value in required):
-            raise SystemExit("pilot requires cycle, session start, admin evidence and three baseline hashes")
+            raise SystemExit("pilot requires cycle, session start, owner unit, admin evidence and three baseline hashes")
+        if not re.fullmatch(r"aster-local-ai-pilot-owner-[A-Za-z0-9_-]+\.scope", args.owner_unit):
+            raise SystemExit("pilot owner unit is outside the fixed scope identity")
     if args.phase in {"heartbeat", "resume", "restore", "rescue"} and (not args.lease_id or args.generation is None):
         raise SystemExit("this phase requires the exact lease id and generation")
     paths = FullDrainPaths(args.state_root)
