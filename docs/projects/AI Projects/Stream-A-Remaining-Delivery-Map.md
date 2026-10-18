@@ -28,7 +28,11 @@ attempt returned NO-GO without any archive results. Its one-cycle approval
 is spent and its recurring automation is now verified `PAUSED`. The normal
 backup schedule continues; no F2 retry, full-stop drill or A1 benchmark is
 scheduled for the following night. Source-only failure diagnostics and result
-projection corrections are not installed and do not lift these gates.
+projection corrections did not lift these gates. On October 18, Jason approved
+only the disabled diagnostic guard replacement. The platform owner's
+[installed-path result](../../../services/local-ai-lease/F2-DIAGNOSTIC-DISABLED-INSTALL-RESULT-20261018.md)
+and Stream A's independent hash, ownership, timer and no-receipt checks passed.
+No archive scan ran, no new scan is approved, and F2 remains FAILED/UNKNOWN.
 
 **October 15 afternoon compatibility checkpoint:** Jason approved the
 hash-pinned **inactive** full-stop candidate installation on Proxmox. The

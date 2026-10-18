@@ -30,13 +30,22 @@ approval. Production and schedules remained normal in the postcheck. No
 receipt or drill is scheduled. The [bounded diagnostic plan](evidence/F2-no-go-diagnostic-plan-2026-10-17.md)
 separates offline reproduction from any later one-cycle scan approval; it does
 not change F2 status. A [reviewed disabled diagnostic candidate](evidence/F2-diagnostic-candidate-independent-review-2026-10-18.md)
-now has matching source hashes and 14 passing focused synthetic tests. It is
-not installed and reports only a content-free failure phase. It cannot recover
-the missing October 17 archive results; a bounded target-Linux installation
-and a later one-cycle scan each need their own authorization. The paragraphs
+now has matching source hashes and 14 passing focused synthetic tests. It
+reports only a content-free failure phase and cannot recover the missing
+October 17 archive results. Its later disabled installation is recorded below;
+a new one-cycle scan still needs separate authorization. The paragraphs
 below preserve the earlier failed and corrected
 paths as provenance; their earlier “uninstalled” descriptions are historical,
 not the current installed state.
+
+**October 18 disabled diagnostic installation:** Jason approved the bounded
+one-file replacement. The platform owner recorded the [host result](../../../services/local-ai-lease/F2-DIAGNOSTIC-DISABLED-INSTALL-RESULT-20261018.md)
+at commit `5e049e0a`: the old guard is checkpointed, the installed diagnostic
+guard and seven dependencies match pinned hashes and custody, and 14 target-Linux
+synthetic tests pass. Stream A independently read the installed guard hash,
+root:root `0644` mode, inactive/disabled timers and absence of lease/receipt.
+No scan was invoked. This closes only the disabled diagnostic installation;
+F2 is still FAILED/UNKNOWN and no fresh-cycle scan is approved.
 The one-cycle F2 automation was verified `PAUSED` in its saved status on
 October 17 evening; its daily schedule is no longer an active scan trigger.
 
