@@ -181,3 +181,27 @@ does not satisfy these gates and does not authorize this workload.
 The first workload remains blocked until the persistent supervisor, wrapper,
 MacBook custody proof, and a dry-run of owner-loss recovery are independently
 reviewed. No Aster/Qwen sysadmin authority is inferred from this control.
+
+## Recommendation: combine the first useful pilot, conditionally
+
+Do not spend a live outage on an isolation-only run if the workload gates are
+ready. After disabled target-Linux proof, persistent supervisor/legacy
+exclusion, MacBook identity and pinned host-key proof, fixed wrapper review,
+owner-loss dry-run, and GPU occupancy checks all pass, combine one tiny control
+with the first attended drain/recovery pilot:
+
+| Elapsed | Bounded action |
+|---|---|
+| 00–05 min | Recheck source-bound backup, runtime, lease, News cutoff and GPU occupancy; acquire the persistent supervisor lock. |
+| 05–10 min | Apply and verify the five masks; reject any unlisted render-node user. |
+| 10–15 min | Confirm settled known-consumer isolation and authenticated LXC110 warm-up. |
+| 15–20 min | Run exactly three no-tool accepted-9B direct-backend control requests from the frozen set through the fixed MacBook→Proxmox wrapper; no retries. |
+| 20–30 min | Capture content-free control/occupancy evidence and stop the workload; leave unused time as safety margin. |
+| 30–45 min | Restore with the LXC110 warm-up gate, exact validator and before/during/after occupancy comparison. |
+
+This saves a second outage while keeping the first workload deliberately
+small. The three-request smoke profile is not the 20-case A1 benchmark and
+cannot establish quality, full-path behavior or sysadmin capability. If any
+one of the prerequisites is missing, the combined run is **NO-GO** and the
+candidate remains offline; do not weaken source, rollback, owner, occupancy or
+MacBook-custody checks to make the schedule fit.

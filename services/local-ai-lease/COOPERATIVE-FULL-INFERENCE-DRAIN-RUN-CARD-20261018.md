@@ -95,6 +95,12 @@ the GPU occupancy receipt and a deterministic device-admission boundary exist,
 this card describes only known-consumer isolation; it must not claim host-wide
 exclusive B60 access. Any unlisted render-node user during the window is a
 hard stop and retains the lock for reconciliation.
+If the persistent supervisor, fixed direct-backend wrapper, MacBook custody,
+owner-loss recovery and occupancy gates are all independently ready, the first
+attended 30+15 reservation should combine a three-request accepted-9B smoke
+control with the drain/recovery proof. Without those gates, the combined run
+is NO-GO and no isolation-only live outage should be scheduled merely to
+produce a partial usability claim.
 
 The named workload candidate for a later usable session is the B60 branch's
 queued fresh accepted-9B control. It is a control candidate only: it must not
