@@ -6,7 +6,7 @@ cooperative controller. It is not the F2/F3 fault-injection or receipt drill.
 
 ## Finding
 
-The established MacBook administration path is verified historically:
+The established MacBook administration path is documented historically:
 Jason's MacBook SSH identity reached `root@192.168.50.10` (Proxmox), with the
 known host-key limitation recorded in the MacBook administration evidence.
 The client-facing Aster path is separately `aster.elliottrook.com` → LXC104 →
@@ -69,6 +69,15 @@ with `--phase restore` plus the same cycle and three hashes. If the owner
 process dies, the supervisor uses `--phase resume` with the exact durable
 identity, then the restore command. No watchdog or automatic recovery is
 enabled by this card.
+
+The `--owner-id` and `--admin-path-evidence` values are operator inputs, not
+proof of MacBook custody. The actual SSH identity, pinned host key and
+attended operator path must be independently checked before any live effect.
+The phased CLI releases its process-level flock between commands, so this
+packet does not claim continuous host exclusion or live readiness. A live run
+remains NO-GO until a persistent supervisor holds the exclusion across the
+full window, or the legacy controller is separately blocked by a reviewed
+host change.
 
 ### Fixed drain inventory
 

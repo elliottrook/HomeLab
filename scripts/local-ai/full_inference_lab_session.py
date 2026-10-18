@@ -171,7 +171,10 @@ class FullInferenceDrainController:
         _journal(self.paths.journal, {"event": f"{phase}-intent", "lease_id": lease_id,
                                       "unit": unit, "command": list(command)})
         try:
-            self.runner(command)
+            result = self.runner(command)
+            if (isinstance(result, tuple) and len(result) == 2
+                    and type(result[0]) is int and result[0] != 0):
+                raise FullDrainError(f"fixed {phase} command returned nonzero status for {unit}")
             probe_phase = ("mask" if "mask" in command else "stop") if phase == "drain" else (
                 "unmask" if "unmask" in command else "start")
             if self.observer is None or not self.observer(probe_phase, command):

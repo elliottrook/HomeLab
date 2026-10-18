@@ -119,6 +119,35 @@ class FullInferenceLabSessionTests(unittest.TestCase):
             self.assertTrue(paths.lock.exists())
             controller._exclusion.__exit__(None, None, None)
 
+    def test_nonzero_mask_result_is_not_observed_success(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = FullDrainPaths(Path(tmp) / "state")
+            controller = FullInferenceDrainController(paths, lambda _: (1, "command failed"),
+                observer=lambda *_: True, validator=lambda: True,
+                owner_id="owner-1", allow_effects=True)
+            with self.assertRaisesRegex(FullDrainError, "nonzero"):
+                controller.begin(self.preflight())
+            self.assertTrue(paths.lock.exists())
+            self.assertNotIn('"event": "drain-observed"', paths.journal.read_text())
+            controller._exclusion.__exit__(None, None, None)
+
+    def test_nonzero_restore_result_retains_lock(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = FullDrainPaths(Path(tmp) / "state")
+            first = FullInferenceDrainController(paths, lambda _: None,
+                observer=lambda *_: True, validator=lambda: True,
+                owner_id="owner-1", allow_effects=True)
+            value = first.begin(self.preflight())
+            first._exclusion.__exit__(None, None, None)
+            restored = FullInferenceDrainController(paths, lambda _: (1, "command failed"),
+                observer=lambda *_: True, validator=lambda: True,
+                owner_id="owner-1", allow_effects=True)
+            value = restored.resume_existing(lease_id=value.lease_id, generation=value.generation)
+            with self.assertRaisesRegex(FullDrainError, "nonzero"):
+                restored.restore(value, now_epoch=self.epoch(10, 40), owner_present=True)
+            self.assertTrue(paths.lock.exists())
+            restored._exclusion.__exit__(None, None, None)
+
 
 if __name__ == "__main__":
     unittest.main()
