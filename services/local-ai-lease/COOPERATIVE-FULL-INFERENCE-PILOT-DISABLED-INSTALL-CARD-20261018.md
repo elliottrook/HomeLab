@@ -7,7 +7,7 @@ review; that earlier approval must not be reused for this packet.
 
 ## Frozen source
 
-The source tip is `af839c0f`. The host packet contains exactly nineteen files
+The source tip is `73b17c92`. The host packet contains exactly nineteen files
 under `/usr/local/libexec/local-ai-lease/full-inference-pilot/`; the in-guest
 wrapper is a separately located candidate for LXC110, and its test is evidence
 only. Every staged file must match these SHA-256 values before any future
@@ -21,7 +21,7 @@ installation review.
 | `cooperative_lab_host_adapter.py` | `720a2c9ac9fb278223e31c998fe58af234d84451344daa63dabcf55b2ebd98a6` |
 | `cooperative_lab_session.py` | `1a1c1f11219c0ec4a89671b7acb552e40d005a8e7fe056b8eab8225cc374e260` |
 | `full_inference_lab_install_preflight.py` | `5a8586c9e6002ba6ce1a479a2b8fd1de3085e463d171abc11189c2b0ceb81f05` |
-| `full_inference_lab_runtime.py` | `0a7142ecff9fe69ae40812a95569d5573e61f1bf76a4e96ca7c7d0ef2e472c06` |
+| `full_inference_lab_runtime.py` | `7509608d75025e49eeae7c304ee00fe451fd5f07f48b6916efef0d5d38a0a03a` |
 | `full_inference_lab_session.py` | `104d6bdfa2296abfe026d0017ab935ca2351519fab84116b073e11afb3c6301d` |
 | `full_inference_lab_sources.py` | `1f53e61b6909c26b6658d17396eff9babb4f2253b470fe33d8b188bfc9980c39` |
 | `full_inference_lab_supervisor.py` | `7ee567a16040213ca3e8e0157019108074a06746fd15c8d38f91a943364a8684` |
@@ -80,7 +80,10 @@ GPU-opens boundary and do not claim host-wide B60 exclusivity. The pilot uses
 the host's bounded `/proc` render-node descriptor observer. A
 probe error is not interpreted as absence. The wrapper treats an already-gone
 `--collect` systemd scope as harmless only when the independent absence proof
-passes; unexpected stop failures remain errors.
+passes; unexpected stop failures remain errors. A pre-existing holder is
+accepted only when it is the fixed production `llama-server` in the LXC110
+cgroup, and the post-drain allowed-holder set is empty; a same-binary holder
+outside that identity is rejected.
 
 ## Disabled verification and rollback
 
