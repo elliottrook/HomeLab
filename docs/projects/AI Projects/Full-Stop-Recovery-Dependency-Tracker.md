@@ -245,6 +245,9 @@ are documented in
 preserves the accepted backend, quiesces only the fixed Aster/Speech/News
 consumer set, and remains offline pending source-bound host wiring and a
 separate daytime pilot approval.
+The approved outage ceiling is up to 90 minutes, but the first pilot remains
+the stricter 60-minute reservation and must end at least 45 minutes before
+the 17:15 News run.
 
 ## Critical path and failure reporting
 

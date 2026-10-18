@@ -5,6 +5,11 @@ This is separate from the full-stop fault-injection drill, F2 archive timing,
 F3 receipt release and the A1 benchmark. It performs no reboot, fault
 injection, model benchmark, lease acquisition or schedule change by itself.
 
+Jason's approved daytime Aster/voice outage ceiling is up to 90 minutes and
+the reservation must end at least 45 minutes before the 17:15 News run. The
+first pilot intentionally uses the stricter 60-minute bound below; expanding
+it requires measured evidence and a revised approval.
+
 ## Smallest viable pilot
 
 The earliest reviewable pilot is a **60-minute daytime reservation**:
