@@ -11,11 +11,13 @@ from typing import Callable, Sequence
 from zoneinfo import ZoneInfo
 
 from application_b60_lease import ACCEPTED_BACKEND
-from backup_receipt_adapter import EXPECTED_PROXMOX_BACKUP_ID
 from full_inference_lab_session import FullDrainPreflight
 
 Runner = Callable[[Sequence[str], float], tuple[int, str]]
 LOCAL_ZONE = ZoneInfo("America/Vancouver")
+# Fixed production Proxmox job identity; kept inline so the 14-file target
+# packet has no hidden dependency on the broader receipt adapter.
+EXPECTED_PROXMOX_BACKUP_ID = "backup-49999802-1365"
 
 
 class FullDrainSourceError(ValueError):

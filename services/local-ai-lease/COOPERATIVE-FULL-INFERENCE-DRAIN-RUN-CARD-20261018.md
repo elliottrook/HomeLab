@@ -55,6 +55,14 @@ Before any masks, the source producer must also report the existing manual
 not start the old manual controller during the window, and no unattended
 recurring drain or automatic owner-death recovery is claimed.
 
+The final release check must use `LocalProxmoxFullDrainValidator` (not the
+TrueNAS-dependent `FullDrainValidator`). On the target host, the supervised
+operator invokes the pinned module with `PYTHONPATH=/usr/local/libexec/local-ai-lease/full-inference-drain` and calls its validator after the
+canonical restore commands; if the owner process dies, the supervisor first
+reacquires the shared exclusion and calls `resume_existing(lease_id,
+generation)` with the exact durable identity. No watchdog or automatic
+recovery is enabled by this card.
+
 ### Fixed drain inventory
 
 1. Apply reversible runtime masks with `--now` to News ingest/digest timers,
