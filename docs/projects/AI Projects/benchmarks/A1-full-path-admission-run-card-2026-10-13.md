@@ -90,7 +90,6 @@ passed.
 The offline [`a1_full_path_capture.py`](../../../../scripts/aster-adaptive/a1_full_path_capture.py)
 now composes the existing one-attempt private answer journal with a separate
 owner-only, content-free client-clock file. It records a censored clock and
-<<<<<<< HEAD
 stops after an uncertain transport or invalid output. The 33 focused A1
 fixtures passed on 2026-10-14; they open no network socket and do not
 authenticate a lease. The platform-supplied caller must still validate live
