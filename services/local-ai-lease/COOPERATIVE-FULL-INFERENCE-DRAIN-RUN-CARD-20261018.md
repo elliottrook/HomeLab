@@ -1,30 +1,40 @@
-# Supervised full-inference drain — offline candidate
+# Combined supervised accepted-9B pilot — live run card
 
-Status: architecture candidate; not installed, not enabled, and not approved
-for live effects. This is a smaller alternative to the preserve-backend
-cooperative controller. It is not the F2/F3 fault-injection or receipt drill.
+Status: prepared but not approved for live effects. The new combined source
+must first pass its separate disabled-install approval and target-Linux review;
+the earlier phased 14-file approval does not apply. This is not the F2/F3
+fault-injection or receipt drill.
 
 ## Finding
 
 The established MacBook administration path is documented historically:
 Jason's MacBook SSH identity reached `root@192.168.50.10` (Proxmox), with the
 known host-key limitation recorded in the MacBook administration evidence.
-The client-facing Aster path is separately `aster.elliottrook.com` → LXC104 →
-internal LXC110, but that gateway is intentionally drained here. A direct
-MacBook-to-model workload has not been demonstrated, so the first run proves
-drain/recovery only. A usable experiment requires a separately named command
-workload over the reviewed Proxmox administration path and is not implied by
-this card.
+The client-facing Aster path is `aster.elliottrook.com` → LXC104 → internal
+LXC110, and that path is intentionally unavailable during this pilot. The
+fixed workload is a bounded, three-request loopback control in LXC110; it is
+not an arbitrary MacBook model client and does not claim host-wide GPU
+exclusivity.
 
 ## Bounded 30+15 pilot
 
-The attended pilot is 30 minutes of lab time plus a 15-minute restoration
-reserve. It requires a fresh source-bound backup/cycle and runtime preflight,
-the host exclusion, owner heartbeat and monotonic cutoff. No reboot, PCI
-rebind, VM 105 use, fault injection, benchmark batch or arbitrary model call
-is included. The isolation pilot needs a fresh source-verified backup status
-and accepted runtime checkpoint, but does not require the incomplete F2
-retained-archive-integrity path or an F3 trusted receipt.
+The attended pilot is exactly 30 minutes of lab time plus a 15-minute
+restoration reserve. The supervisor holds the host exclusion, sends owner
+heartbeats, runs the fixed three-request smoke, and enforces a monotonic
+cutoff. No reboot, PCI rebind, VM105 use, fault injection, benchmark batch,
+or arbitrary model call is included. The pilot needs a fresh source-verified
+backup status and accepted runtime checkpoint, but does not close F2 or F3.
+The operator remains present on the verified MacBook administration session for
+the complete 45-minute reservation and watches the receipt, cutoff, and
+restoration evidence; disconnection or uncertainty is a stop condition.
+
+During the 30-minute window this is an explicit product outage: Aster
+Companion requests, LXC104 Aster Agent, LXC116 Speech, LXC110 production
+Qwen3.5 service, and News ingest/digest are unavailable. Backup schedules,
+TrueNAS services, and unrelated non-GPU services are not part of the drain.
+The 15-minute reserve is for restoration and evidence, not additional lab
+work. If restoration is not complete by the deadline, the lock is retained
+and the operator reconciles the outage manually.
 
 The current Proxmox→TrueNAS observer route is NO-GO after a bounded SSH
 connect timeout; see `FULL-DRAIN-TRUENAS-OBSERVER-NO-GO-20261018.md`. That
@@ -55,29 +65,48 @@ Before any masks, the source producer must also report the existing manual
 not start the old manual controller during the window, and no unattended
 recurring drain or automatic owner-death recovery is claimed.
 
-The final release check must use `LocalProxmoxFullDrainValidator` (not the
-TrueNAS-dependent `FullDrainValidator`). The pinned host entrypoint is
-`/usr/bin/python3 -B /usr/local/libexec/local-ai-lease/full-inference-drain/full_inference_lab_runtime.py` with
-`PYTHONPATH=/usr/local/libexec/local-ai-lease/full-inference-drain`.
-The supervised start command is:
+The final release check uses `LocalProxmoxFullDrainValidator` (not the
+TrueNAS-dependent `FullDrainValidator`). The exact source tip and hashes are
+in `COOPERATIVE-FULL-INFERENCE-PILOT-DISABLED-INSTALL-CARD-20261018.md`.
+The target artifact checkpoint must record SHA-256 values for:
 
-    PYTHONPATH=/usr/local/libexec/local-ai-lease/full-inference-drain /usr/bin/python3 -B /usr/local/libexec/local-ai-lease/full-inference-drain/full_inference_lab_runtime.py --phase start --owner-id <owner> --admin-path-evidence <attestation> --cycle <YYYY_MM_DD> --session-start-epoch <epoch> --model-sha256 <sha256> --binary-sha256 <sha256> --unit-sha256 <sha256> --effect-authorized
+| Artifact | Target path |
+|---|---|
+| Qwen3.5-9B Q4_K_M model | `/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf` |
+| SYCL `llama-server` | `/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server` |
+| production systemd unit | `/etc/systemd/system/aster-llama.service` |
 
-The supervisor heartbeats with the same owner and exact lease identity using
-`--phase heartbeat --lease-id <lease> --generation <generation>`, and restores
-with `--phase restore` plus the same cycle and three hashes. If the owner
-process dies, the supervisor uses `--phase resume` with the exact durable
-identity, then the restore command. No watchdog or automatic recovery is
-enabled by this card.
+The target preflight must also verify, read-only, the existence and expected
+identity of `/usr/bin/systemd-run`, `/usr/sbin/runuser`,
+`/usr/local/sbin/aster-llama-production-auth-probe`, and the staged
+`/usr/local/sbin/aster-llama-lab-smoke`; no replacement or installation is
+permitted during the pilot.
+
+The pinned host entrypoint is
+`/usr/bin/python3 -B /usr/local/libexec/local-ai-lease/full-inference-pilot/full_inference_lab_runtime.py` with
+`PYTHONPATH=/usr/local/libexec/local-ai-lease/full-inference-pilot`.
+The single supervised command is:
+
+    PYTHONPATH=/usr/local/libexec/local-ai-lease/full-inference-pilot /usr/bin/python3 -B /usr/local/libexec/local-ai-lease/full-inference-pilot/full_inference_lab_runtime.py --phase pilot --owner-id <owner> --admin-path-evidence <attestation> --cycle <YYYY_MM_DD> --session-start-epoch <epoch> --model-sha256 <sha256> --binary-sha256 <sha256> --unit-sha256 <sha256> --effect-authorized
+
+This is one bounded process: it performs source preflight, captures the
+accepted production GPU identity, drains the fixed five consumers, runs the
+three-request control on loopback port 11436, heartbeats through the deadline,
+proves lab scope/listener/process/GPU absence, and restores through the final
+validator. If the owner process dies or restoration becomes uncertain, the
+lock remains for supervised reconciliation; no unattended watchdog is enabled.
 
 The `--owner-id` and `--admin-path-evidence` values are operator inputs, not
 proof of MacBook custody. The actual SSH identity, pinned host key and
 attended operator path must be independently checked before any live effect.
-The phased CLI releases its process-level flock between commands, so this
-packet does not claim continuous host exclusion or live readiness. A live run
-remains NO-GO until a persistent supervisor holds the exclusion across the
-full window, or the legacy controller is separately blocked by a reviewed
-host change.
+The operator must capture, from the unlocked MacBook and without exposing
+private key material, the identity fingerprint (`ssh-add -l -E sha256`), the
+pinned `known_hosts` entry, and a successful read-only proof using
+`ssh -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes
+-o UserKnownHostsFile=<pinned-known-hosts> root@192.168.50.10 'hostname; id -u'`.
+The evidence must show the expected Proxmox host and UID 0 before the pilot is
+allowed to start. A failed, interactive, or differently keyed connection is
+NO-GO.
 
 ### Fixed drain inventory
 
@@ -86,10 +115,10 @@ host change.
 2. Verify all five fixed entries are inactive and masked, and journal every
    intent/observation. Any ambiguity retains the lock and stops.
 
-The accepted backend is not preserved during this candidate window. The
-MacBook operator may only use an explicitly reviewed workload path after the
-drain is proven; the existing direct `192.168.70.12:11435` endpoint is not
-assumed reachable or admission-controlled.
+The accepted production backend is not available during this window. The
+MacBook operator must not use the direct `192.168.70.12:11435` endpoint or
+send arbitrary requests; only the fixed in-guest three-request control is
+allowed after the drain is proven.
 The five-effect inventory is not proof that all B60 activity has stopped. Until
 the GPU occupancy receipt and a deterministic device-admission boundary exist,
 this card describes only known-consumer isolation; it must not claim host-wide
@@ -114,12 +143,16 @@ The persistent supervisor and workload boundary are designed separately in
 Before effects, capture fresh hashes and state for the accepted Qwen3.5-9B
 Q4_K_M model, `llama-b11429` binary, `aster-llama.service` unit, GPU `xe`
 binding, VM105 stopped/no B60 mapping, and LXC104/110/116 configuration.
-Recovery must stop any lab process, restore the pinned accepted files/config,
-start LXC110, run the exact production authentication probe and require its
-success, then start LXC116 and LXC104, unmask/start the News timers, and run exact postchecks including
-`scripts/check-aster-b60.sh`, service health, SYCL/GPU identity, schedule
-state, and the source-bound client path. A failed or uncertain check retains
-the lock for operator reconciliation.
+Recovery must stop any lab process and independently prove the lab scope,
+listener, process, and GPU handle are absent; restore the pinned accepted
+files/config; start LXC110; run the exact production authentication probe and
+require its success; then start LXC116 and LXC104 and unmask/start the News
+timers. The evidence bundle must include the source and target artifact
+hashes, drain/restore journal, pre/post service and timer state, successful
+auth probe, `scripts/check-aster-b60.sh`, SYCL/GPU identity, schedule state,
+the content-free smoke receipt, and the restored source-bound client path.
+A failed or uncertain check retains the lock and the product outage remains
+in operator-reconciliation state.
 
 ## Explicit gates
 
