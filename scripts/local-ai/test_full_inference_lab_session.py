@@ -41,12 +41,16 @@ class FullInferenceLabSessionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             paths = FullDrainPaths(Path(tmp) / "state")
             controller = FullInferenceDrainController(paths, calls.append, observer=observe,
+                                                       validator=lambda: True,
                                                        owner_id="owner-1", allow_effects=True)
             value = controller.begin(self.preflight())
             self.assertEqual(len(calls), 5)
+            controller.require_work_window(self.epoch(10, 29))
+            with self.assertRaisesRegex(FullDrainError, "window has ended"):
+                controller.require_work_window(self.epoch(10, 30))
             controller.restore(value, now_epoch=self.epoch(10, 50), owner_present=True)
-            self.assertEqual(len(calls), 12)
-            self.assertEqual(len(observations), 12)
+            self.assertEqual(len(calls), 15)
+            self.assertEqual(len(observations), 15)
             self.assertFalse(paths.lock.exists())
             self.assertIn("restore-overdue", paths.journal.read_text())
 

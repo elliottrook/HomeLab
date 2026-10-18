@@ -31,14 +31,22 @@ class CooperativeHostObserver:
 
     def __call__(self, phase: str, command: Sequence[str]) -> bool:
         stop, restore = _canonical_commands()
-        if phase == "mask" and tuple(command) not in stop:
+        full_stop = full_restore = ()
+        if phase in {"mask", "stop", "unmask", "start"}:
+            from full_inference_lab_session import canonical_commands
+            full_stop, full_restore = canonical_commands()
+        stop_inventory = stop + full_stop
+        restore_inventory = restore + full_restore
+        if phase in {"mask", "stop"} and tuple(command) not in stop_inventory:
             raise LabSessionError("observer command is outside canonical mask inventory")
-        if phase in {"unmask", "start"} and tuple(command) not in restore:
+        if phase in {"unmask", "start"} and tuple(command) not in restore_inventory:
             raise LabSessionError("observer command is outside canonical restore inventory")
         vmid, unit = command[2], command[-1]
         if phase == "mask":
             return (self._state(vmid, unit, "UnitFileState") in {"masked", "masked-runtime"}
                     and self._state(vmid, unit, "ActiveState") == "inactive")
+        if phase == "stop":
+            return self._state(vmid, unit, "ActiveState") == "inactive"
         if phase == "unmask":
             return self._state(vmid, unit, "UnitFileState") in {"enabled", "disabled"}
         return self._state(vmid, unit, "ActiveState") == "active"

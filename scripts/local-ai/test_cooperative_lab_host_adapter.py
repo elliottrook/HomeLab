@@ -2,6 +2,7 @@ import unittest
 
 from cooperative_lab_host_adapter import CooperativeHostObserver
 from cooperative_lab_session import _canonical_commands
+from full_inference_lab_session import canonical_commands
 
 
 class CooperativeLabHostAdapterTests(unittest.TestCase):
@@ -33,6 +34,18 @@ class CooperativeLabHostAdapterTests(unittest.TestCase):
         self.assertFalse(observer.backend_client_exclusive())
         observer = CooperativeHostObserver(self.runner, allowed_backend_client="192.168.70.51")
         self.assertFalse(observer.backend_client_exclusive())
+
+    def test_observer_accepts_full_drain_stop_and_timer_mask_phases(self):
+        def full_runner(argv, timeout):
+            if "--property=UnitFileState" in argv:
+                return 0, "masked-runtime\n"
+            if "--property=ActiveState" in argv:
+                return 0, "inactive\n"
+            return 1, ""
+        observer = CooperativeHostObserver(full_runner)
+        drain, _ = canonical_commands()
+        self.assertTrue(observer("stop", drain[0]))
+        self.assertTrue(observer("mask", drain[3]))
 
 
 if __name__ == "__main__":
