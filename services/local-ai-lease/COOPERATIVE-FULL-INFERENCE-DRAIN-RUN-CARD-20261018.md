@@ -102,8 +102,8 @@ Before effects, capture fresh hashes and state for the accepted Qwen3.5-9B
 Q4_K_M model, `llama-b11429` binary, `aster-llama.service` unit, GPU `xe`
 binding, VM105 stopped/no B60 mapping, and LXC104/110/116 configuration.
 Recovery must stop any lab process, restore the pinned accepted files/config,
-start LXC110 and wait for authenticated warm-up, then start LXC116 and LXC104,
-unmask/start the News timers, and run exact postchecks including
+start LXC110, run the exact production authentication probe and require its
+success, then start LXC116 and LXC104, unmask/start the News timers, and run exact postchecks including
 `scripts/check-aster-b60.sh`, service health, SYCL/GPU identity, schedule
 state, and the source-bound client path. A failed or uncertain check retains
 the lock for operator reconciliation.

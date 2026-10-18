@@ -78,6 +78,9 @@ def _command(vmid: str, *args: str) -> tuple[str, ...]:
     return ("pct", "exec", vmid, "--", *args)
 
 
+FULL_WARMUP_COMMAND = _command("110", "/usr/local/sbin/aster-llama-production-auth-probe")
+
+
 def canonical_commands() -> tuple[tuple[tuple[str, ...], ...], tuple[tuple[str, ...], ...]]:
     drain = tuple(_command(v, "systemctl", "mask", "--runtime", "--now", u)
                   for v, u in FULL_DRAIN_CONSUMERS)
@@ -86,6 +89,7 @@ def canonical_commands() -> tuple[tuple[tuple[str, ...], ...], tuple[tuple[str, 
         _command("116", "systemctl", "unmask", "--runtime", "aster-speech.service"),
         _command("104", "systemctl", "unmask", "--runtime", "aster-agent.service"),
         _command("110", "systemctl", "start", "aster-llama.service"),
+        FULL_WARMUP_COMMAND,
         _command("116", "systemctl", "start", "aster-speech.service"),
         _command("104", "systemctl", "start", "aster-agent.service"),
         _command("114", "systemctl", "unmask", "--runtime", "news-aggregator-ingest.timer"),
@@ -176,7 +180,8 @@ class FullInferenceDrainController:
                     and type(result[0]) is int and result[0] != 0):
                 raise FullDrainError(f"fixed {phase} command returned nonzero status for {unit}")
             probe_phase = ("mask" if "mask" in command else "stop") if phase == "drain" else (
-                "unmask" if "unmask" in command else "start")
+                "warmup" if tuple(command) == FULL_WARMUP_COMMAND else
+                ("unmask" if "unmask" in command else "start"))
             if self.observer is None or not self.observer(probe_phase, command):
                 raise FullDrainError(f"exact {phase} postcheck failed for {unit}")
         except Exception:
@@ -246,7 +251,8 @@ class FullInferenceDrainController:
                     (_read_journal(self.paths.journal))
                     if event.get("event") == "restore-observed"}
         for command in value.restore_commands:
-            phase = "unmask" if "unmask" in command else "start"
+            phase = ("warmup" if tuple(command) == FULL_WARMUP_COMMAND else
+                     ("unmask" if "unmask" in command else "start"))
             if tuple(command) in observed:
                 if self.observer is None or not self.observer(phase, command):
                     raise FullDrainError("prior restore observation is no longer valid")

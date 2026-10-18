@@ -49,8 +49,8 @@ class FullInferenceLabSessionTests(unittest.TestCase):
             with self.assertRaisesRegex(FullDrainError, "window has ended"):
                 controller.require_work_window(self.epoch(10, 30))
             controller.restore(value, now_epoch=self.epoch(10, 50), owner_present=True)
-            self.assertEqual(len(calls), 15)
-            self.assertEqual(len(observations), 15)
+            self.assertEqual(len(calls), 16)
+            self.assertEqual(len(observations), 16)
             self.assertFalse(paths.lock.exists())
             self.assertIn("restore-overdue", paths.journal.read_text())
 
@@ -90,7 +90,7 @@ class FullInferenceLabSessionTests(unittest.TestCase):
                 owner_id="owner-1", allow_effects=True)
             value = resumed.resume_existing(lease_id="drain-1", generation=1)
             resumed.restore(value, now_epoch=self.epoch(10, 20), owner_present=True)
-            self.assertEqual(len(resumed_calls), 10)
+            self.assertEqual(len(resumed_calls), 11)
             self.assertFalse(paths.lock.exists())
 
     def test_resume_rejects_wrong_owner_or_identity(self):

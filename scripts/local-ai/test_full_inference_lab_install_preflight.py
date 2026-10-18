@@ -9,7 +9,7 @@ class FullInferenceInstallPreflightTests(unittest.TestCase):
         value = validate_imports()
         self.assertEqual(value["modules"], 8)
         self.assertEqual(value["drain_effects"], 5)
-        self.assertEqual(value["restore_effects"], 10)
+        self.assertEqual(value["restore_effects"], 11)
         self.assertEqual(value["effects"], "not-attempted")
 
     def test_pinned_runtime_entrypoint_is_default_deny(self):

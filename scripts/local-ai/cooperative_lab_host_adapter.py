@@ -37,6 +37,11 @@ class CooperativeHostObserver:
             full_stop, full_restore = canonical_commands()
         stop_inventory = stop + full_stop
         restore_inventory = restore + full_restore
+        if phase == "warmup":
+            from full_inference_lab_session import FULL_WARMUP_COMMAND
+            if tuple(command) != FULL_WARMUP_COMMAND:
+                raise LabSessionError("observer command is outside canonical warmup inventory")
+            return self._run(command) == ""
         if phase in {"mask", "stop"} and tuple(command) not in stop_inventory:
             raise LabSessionError("observer command is outside canonical mask inventory")
         if phase in {"unmask", "start"} and tuple(command) not in restore_inventory:
