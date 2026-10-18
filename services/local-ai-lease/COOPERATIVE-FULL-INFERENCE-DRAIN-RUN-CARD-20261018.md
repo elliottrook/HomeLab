@@ -4,7 +4,7 @@ Status: disabled stage installed and verified; live effects are not approved.
 The installed source is `b43d4971`, bound to the exact 20-file manifest in
 `COOPERATIVE-FULL-INFERENCE-PILOT-DISABLED-INSTALL-CARD-20261018.md`. The
 one-shot rescue and independent deadline guardian are source-only at
-`1172cf5b`; both require their own
+`b67373c4`; both require their own
 disabled-stage update before a live pilot. The earlier phased 14-file approval
 does not apply. This is not the F2/F3 fault-injection or receipt drill.
 
