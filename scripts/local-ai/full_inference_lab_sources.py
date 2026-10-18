@@ -142,13 +142,16 @@ def _local_proxmox_job_complete(tasks: object, *, date: str, latest_artifact: in
         return False
     candidates = []
     for task in tasks:
-        if not isinstance(task, dict) or task.get("type") != "vzdump" or task.get("status") != "OK":
+        if not isinstance(task, dict) or task.get("type") != "vzdump":
             continue
         upid = task.get("upid")
         start, finish = task.get("starttime"), task.get("endtime")
-        if (isinstance(upid, str) and _VZDUMP_UPID.fullmatch(upid)
-                and type(start) is int and type(finish) is int):
-            candidates.append((start, finish, task))
+        if type(start) is not int or datetime.fromtimestamp(start, LOCAL_ZONE).strftime("%Y_%m_%d") != date:
+            continue
+        if (task.get("status") != "OK" or not isinstance(upid, str)
+                or not _VZDUMP_UPID.fullmatch(upid) or type(finish) is not int):
+            return False
+        candidates.append((start, finish, task))
     if len(candidates) != 1:
         return False
     start, finish, task = candidates[0]
