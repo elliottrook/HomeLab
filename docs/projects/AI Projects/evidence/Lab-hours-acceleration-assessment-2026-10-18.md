@@ -257,3 +257,15 @@ not yet implemented. These findings were sent to the platform owner. The
 existing 14-file disabled-install question concerns only no-effect staging of
 the earlier source packet; it must not be represented as approval of the
 combined pilot or recurring lab hours.
+
+The platform owner's next offline combined candidate through `632f21a3`
+adds a bounded workload process, a fixed in-guest lab wrapper and synthetic
+deadline/recovery tests. Independent review found a remaining process-lifetime
+gate: killing the host-side `pct exec` process group does not prove the
+in-guest wrapper or its separately started llama-server stopped. The wrapper
+starts that server in a new session, so an abnormal wrapper termination can
+leave a GPU consumer running while production is restored. The combined live
+card must bind the in-guest process/PID or cgroup, test forced owner loss, and
+prove no lab listener/process/GPU handle remains **before** production
+unmasks. This finding was sent to the platform owner; no host change or model
+call followed.
