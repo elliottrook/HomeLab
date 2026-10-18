@@ -3,7 +3,8 @@
 Status: disabled stage installed and verified; live effects are not approved.
 The installed source is `b43d4971`, bound to the exact 20-file manifest in
 `COOPERATIVE-FULL-INFERENCE-PILOT-DISABLED-INSTALL-CARD-20261018.md`. The
-one-shot rescue addition is source-only at `27dba88f` and requires its own
+one-shot rescue addition is source-only at `27dba88f`, and the independent
+deadline guardian is source-only at `3a7e32b7`; both require their own
 disabled-stage update before a live pilot. The earlier phased 14-file approval
 does not apply. This is not the F2/F3 fault-injection or receipt drill.
 
@@ -137,20 +138,29 @@ proves lab scope/listener/process/GPU absence, and restores through the final
 validator. If the owner process dies or restoration becomes uncertain, the
 lock remains for supervised reconciliation; no unattended watchdog is enabled.
 
-### One-shot owner-loss rescue
+### Independent owner-loss protection
 
-If the pilot owner disappears while the durable lock remains, and the rescue
-source update has separately passed disabled staging, a separate operator with
-the verified Proxmox path may run this exact manual rescue after
-confirming the recorded lease identity and hashes:
+Manual rescue is only a fallback. Before a live pilot, the separately staged
+host-owned deadline guardian must be prearmed in a one-shot systemd scope. It
+waits independently of the SSH/Codex owner, exits harmlessly if no lease was
+created or the lease clears normally, and invokes the exact rescue path at
+`S+1800`, retrying only until `S+2700`:
+
+    systemd-run --quiet --collect --unit=aster-local-ai-pilot-guardian-<lease> --property=User=root --property=Restart=no /usr/bin/python3 -B /usr/local/libexec/local-ai-lease/full-inference-pilot/full_inference_lab_deadline_guardian.py --state-root /var/lib/local-ai-lab --owner-id <recorded-owner> --lease-id <recorded-lease> --generation <recorded-generation> --cycle <YYYY_MM_DD> --model-sha256 <sha256> --binary-sha256 <binary-sha256> --unit-sha256 <unit-sha256> --rescue-at <S+1800> --hard-deadline <S+2700> --effect-authorized
+
+The guardian is a one-shot host-owned process, not a timer or recurring
+watchdog. Its own start, unit identity, deadline, rescue result, and final
+state must be recorded. Rescue stops only the exact recorded lab scope,
+requires independent listener/process/GPU absence, and then runs the final
+restoration validator; it never starts the smoke or resumes the owner. If the
+guardian cannot be separately staged, prearmed, and observed, the pilot is
+NO-GO because manual rescue alone is not an adequate owner-loss guarantee.
+
+If the guardian itself fails, the operator may use the manual rescue command
+below from the separate verified path, but that is emergency fallback and does
+not make the original run automatically safe.
 
     PYTHONPATH=/usr/local/libexec/local-ai-lease/full-inference-pilot /usr/bin/python3 -B /usr/local/libexec/local-ai-lease/full-inference-pilot/full_inference_lab_runtime.py --phase rescue --owner-id <recorded-owner> --lease-id <recorded-lease> --generation <recorded-generation> --cycle <YYYY_MM_DD> --model-sha256 <sha256> --binary-sha256 <sha256> --unit-sha256 <sha256> --effect-authorized
-
-Rescue stops only the exact recorded lab scope, requires independent
-listener/process/GPU absence, and then runs the final restoration validator.
-It never starts the smoke or resumes the owner. This is a one-shot manual
-recovery channel, not a systemd timer or recurring watchdog; if the separate
-operator path is unavailable, the pilot is not safe to start.
 
 The `--owner-id` and `--admin-path-evidence` values are operator inputs, not
 proof of MacBook custody. The actual SSH identity, pinned host key and

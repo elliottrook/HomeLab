@@ -106,3 +106,15 @@ The source includes a separate manual `--phase rescue` path for owner loss.
 It accepts only the exact durable owner/lease/generation and baseline hashes,
 proves lab absence, and restores through the final validator; it never resumes
 or starts the workload. It is not installed as a timer or recurring watchdog.
+
+The independent deadline-guardian candidate is deliberately separate from the
+20-file installed packet. Its source-only hashes are:
+
+| File | SHA-256 |
+|---|---|
+| `full_inference_lab_deadline_guardian.py` | `8f5dbc6d4ffb8f8becdf6fa99faa5fecaafdc8ea0e6bfc3ed2a2934e848ce5bd` |
+| `test_full_inference_lab_deadline_guardian.py` | `5f2c9e7f1ebe7bcb14ae11bdc037a4f53f8e5822bfe091c992dcba6671129257` |
+
+Guardian source tip: `3a7e32b7`. It is not installed or enabled by this card.
+It requires a separate disabled-stage review before the live pilot can claim
+owner-loss protection.
