@@ -239,15 +239,18 @@ gates every time, and pauses after the first complete three-row pass or any
 drift/safety/review condition. It does not authorize automatic promotion or
 any host action beyond the separately controlled read-only invocation.
 
-The separate cooperative daytime lab-hours candidate and 60-minute pilot card
+The separate cooperative daytime lab-hours candidate and bounded first-pilot card
 are documented in
 `services/local-ai-lease/COOPERATIVE-LAB-HOURS-RUN-CARD-20261018.md`. It
 preserves the accepted backend, quiesces only the fixed Aster/Speech/News
-consumer set, and remains offline pending source-bound host wiring and a
-separate daytime pilot approval.
+consumer set with runtime deny-new-start masks, and remains offline pending
+source-bound host wiring and a separate daytime pilot approval. The offline
+review is recorded in
+`services/local-ai-lease/COOPERATIVE-LAB-HOURS-OFFLINE-REVIEW-20261018.md`.
 The approved outage ceiling is up to 90 minutes, but the first pilot remains
-the stricter 60-minute reservation and must end at least 45 minutes before
-the 17:15 News run.
+the stricter 45-minute reservation (30 minutes lab plus 15 minutes restore),
+and must fit before the next hourly News ingest with a five-minute margin as
+well as before the 17:15 News run.
 
 ## Critical path and failure reporting
 

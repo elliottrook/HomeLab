@@ -1,41 +1,78 @@
+import tempfile
 import unittest
 from datetime import datetime
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from application_b60_controller import ApplicationPreLease
-from application_b60_lease import ACCEPTED_BACKEND, APPLICATION_MODE
-from cooperative_lab_session import LabRuntimePreflight, LabSessionError, plan
+from application_b60_lease import ACCEPTED_BACKEND
+from cooperative_lab_session import (ALLOWED_CONSUMERS, CooperativeLabController,
+    CooperativeLabPaths, CooperativeLabPreflight, LabSessionError, plan)
 
 
 class CooperativeLabSessionTests(unittest.TestCase):
-    def prelease(self):
-        epoch = lambda hour, minute: int(datetime(2026, 10, 18, hour, minute,
-                                                  tzinfo=ZoneInfo("America/Vancouver")).timestamp())
-        return ApplicationPreLease(APPLICATION_MODE, "lab-1", 3, "application-chain:1",
-                                   ACCEPTED_BACKEND, True, True, True,
-                                   epoch(10, 0), epoch(10, 5), epoch(11, 0), epoch(11, 15))
+    def epoch(self, hour, minute):
+        return int(datetime(2026, 10, 18, hour, minute, tzinfo=ZoneInfo("America/Vancouver")).timestamp())
 
-    def runtime(self):
-        return LabRuntimePreflight(ACCEPTED_BACKEND, True, True, True, True)
+    def preflight(self):
+        return CooperativeLabPreflight("cooperative-lab-v1", "lab-1", 3, "backup-1",
+            ACCEPTED_BACKEND, True, True, True, True, True, True,
+            self.epoch(10, 0), self.epoch(10, 0), self.epoch(10, 45), self.epoch(11, 0), self.epoch(11, 30))
 
-    def test_plan_preserves_backend_and_quiesces_allowlisted_consumers(self):
-        value = plan(self.prelease(), self.runtime())
+    def test_plan_is_source_bound_and_preserves_backend(self):
+        value = plan(self.preflight())
         self.assertTrue(value.preserve_backend)
-        self.assertEqual(value.lab_seconds, 2700)
-        self.assertEqual(len(value.stop_commands), 4)
-        self.assertEqual(value.stop_commands[2][2:5], ("114", "--", "systemctl"))
+        self.assertEqual(len(value.stop_commands), len(ALLOWED_CONSUMERS))
+        self.assertIn("mask", value.stop_commands[0])
+        self.assertIn("--runtime", value.stop_commands[0])
         self.assertEqual(value.restore_reserve_seconds, 900)
 
-    def test_rejects_incomplete_runtime_or_overlong_budget(self):
+    def test_rejects_incomplete_runtime_or_bad_chronology(self):
+        bad = self.preflight().__class__(**{**self.preflight().__dict__, "news_timers_active": False})
         with self.assertRaisesRegex(LabSessionError, "runtime"):
-            plan(self.prelease(), LabRuntimePreflight(ACCEPTED_BACKEND, False, True, True, True))
-        with self.assertRaisesRegex(LabSessionError, "budget"):
-            plan(self.prelease(), self.runtime(), lab_seconds=2701)
+            plan(bad)
+        bad = self.preflight().__class__(**{**self.preflight().__dict__, "next_news_ingest_epoch": self.epoch(11, 4)})
+        with self.assertRaisesRegex(LabSessionError, "News ingest"):
+            plan(bad)
+        bad = self.preflight().__class__(**{**self.preflight().__dict__, "lab_end_epoch": self.epoch(11, 1)})
+        with self.assertRaisesRegex(LabSessionError, "chronology|duration"):
+            plan(bad)
 
-    def test_rejects_missing_restore_reserve(self):
-        bad = self.prelease().__class__(**{**self.prelease().__dict__, "restore_start_epoch": self.prelease().restore_deadline_epoch - 899})
-        with self.assertRaisesRegex(LabSessionError, "reserve"):
-            plan(bad, self.runtime())
+    def test_advisory_controller_never_runs_commands(self):
+        calls = []
+        with tempfile.TemporaryDirectory() as tmp:
+            controller = CooperativeLabController(CooperativeLabPaths(Path(tmp) / "state"), calls.append)
+            with self.assertRaisesRegex(LabSessionError, "advisory"):
+                controller.begin(self.preflight())
+        self.assertEqual(calls, [])
+
+    def test_effectful_begin_journals_fixed_effects_and_restore_releases(self):
+        calls = []
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = CooperativeLabPaths(Path(tmp) / "state")
+            controller = CooperativeLabController(paths, calls.append, allow_effects=True, observer=lambda: True)
+            value = controller.begin(self.preflight())
+            self.assertEqual(len(calls), 4)
+            self.assertTrue(paths.lock.exists())
+            controller.restore(value, now_epoch=self.epoch(10, 50), owner_present=True)
+            self.assertEqual(len(calls), 12)
+            self.assertFalse(paths.lock.exists())
+            self.assertIn("restore-verified", paths.journal.read_text())
+
+    def test_failed_effect_keeps_lock_and_does_not_auto_restore(self):
+        calls = []
+        def fail_on_third(command):
+            calls.append(command)
+            if len(calls) == 3:
+                raise RuntimeError("synthetic failure")
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = CooperativeLabPaths(Path(tmp) / "state")
+            controller = CooperativeLabController(paths, fail_on_third, allow_effects=True)
+            with self.assertRaises(RuntimeError):
+                controller.begin(self.preflight())
+            self.assertTrue(paths.lock.exists())
+            self.assertTrue(paths.state.exists())
+            self.assertEqual(len(calls), 3)
+            controller._exclusion.__exit__(None, None, None)
 
 
 if __name__ == "__main__":

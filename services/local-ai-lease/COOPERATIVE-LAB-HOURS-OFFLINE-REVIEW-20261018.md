@@ -1,0 +1,48 @@
+# Cooperative lab-hours offline review — 2026-10-18
+
+## Result
+
+The earlier planner was not runnable: it reused the application benchmark
+pre-lease contract, required contradictory News state, had no current-time
+chronology, and did not hold a host exclusion or deny new starts. It is
+replaced by a separate source-bound candidate in
+`scripts/local-ai/cooperative_lab_session.py`.
+
+The candidate remains disabled by default and has no live wrapper or schedule.
+It preserves the `llama.cpp b11429 SYCL/Level Zero` backend and fixes the
+daytime inventory to Aster 104, Speech 116, and the two News timers in 114.
+Runtime systemd masks are applied before the lab window, so the fixed
+consumers cannot restart during the window. Unmask/start recovery is explicit
+and journaled.
+
+## Safety properties tested offline
+
+- source identity, backend, GPU/authentication, consumer health, active News
+  timers, and deny-new-start capability are required;
+- current time, start, end, and restore deadline are ordered and duration-bound;
+- the 45-minute lab maximum and 15-minute restoration reserve are enforced;
+- the first pilot can be bounded to 30 minutes and requires a fresh next-hourly-
+  News-ingest timestamp plus a five-minute margin; a timer stop is not treated
+  as permission to silently skip an ingest;
+- a host exclusion is held across the effect and restore phases;
+- state is atomically persisted and every effect has intent/observed journal
+  events;
+- failed effects leave the lock and state for reconciliation and do not
+  auto-restore under uncertainty;
+- restore requires owner presence, a live deadline, and a positive post-restore
+  observer before releasing the lock;
+- advisory mode executes no command.
+
+Focused result: `test_cooperative_lab_session.py` — 5 passed.
+
+The first usable pilot is still intentionally an isolation/recovery proof. The
+backend remains available, but a separate reviewed workload declaration is
+required before B60 requests are authorized. This candidate does not itself
+authorize arbitrary model calls or a benchmark batch.
+
+## Remaining gates
+
+Target-Linux disabled installation, source-bound live producer/adapter wiring,
+direct-client admission enforcement for `192.168.70.12:11435`, and an explicit
+daytime pilot approval remain outstanding. No host effects, reboot, schedule
+change, F2 scan, F3 receipt, full-stop drill, or A1 benchmark was performed.

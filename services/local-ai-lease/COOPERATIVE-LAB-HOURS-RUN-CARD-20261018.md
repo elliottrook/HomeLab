@@ -12,27 +12,38 @@ it requires measured evidence and a revised approval.
 
 ## Smallest viable pilot
 
-The earliest reviewable pilot is a **60-minute daytime reservation**:
+The earliest reviewable pilot is a **45-minute daytime reservation**:
 
-- up to **45 minutes** of exclusive B60 lab work;
+- **30 minutes** of exclusive B60 lab work;
 - a **15-minute minimum restoration reserve**;
+- a fresh next-News-ingest timestamp plus a five-minute margin;
 - a hard session deadline supplied by the host-owned preflight;
 - one operator present for the entire reservation;
 - no automatic extension, retry or handoff.
 
-The accepted Qwen3.5-9B/SYCL backend remains running and exclusively reserved
-for the lab. The session plan quiesces only these allowlisted competing
+The accepted `llama.cpp b11429 SYCL/Level Zero` backend (Qwen3.5-9B) remains
+running and exclusively reserved for the lab. The session plan quiesces only these allowlisted competing
 consumers:
 
 | Guest | Unit/timer | Lab action |
 |---|---|---|
-| 104 | `aster-agent.service` | stop, then verify restored |
-| 116 | `aster-speech.service` | stop, then verify restored |
-| 114 | `news-aggregator-ingest.timer` | stop, then verify restored |
-| 114 | `news-aggregator-digest.timer` | stop, then verify restored |
+| 104 | `aster-agent.service` | runtime-mask and stop, then unmask/start/verify |
+| 116 | `aster-speech.service` | runtime-mask and stop, then unmask/start/verify |
+| 114 | `news-aggregator-ingest.timer` | runtime-mask and stop, then unmask/start/verify |
+| 114 | `news-aggregator-digest.timer` | runtime-mask and stop, then unmask/start/verify |
 
-No command targets LXC110 `aster-llama.service`; no network policy, key,
+The runtime masks are the deny-new-start boundary for the fixed inventory;
+they are reversible and journaled. No command targets LXC110
+`aster-llama.service`; no network policy, key,
 model, schedule definition or unrelated guest is changed.
+
+The first pilot is an isolation-and-recovery proof. It keeps the backend
+available, but the candidate controller does not grant arbitrary B60 requests
+or a benchmark batch. A later usable-lab release must name one reviewed
+workload and prove that direct clients to `192.168.70.12:11435` are admitted
+only under the host-owned lease; unrecognized/new requests remain denied while
+the fixed consumers are masked. This distinction prevents a successful drain
+test from being mistaken for a production workload authorization.
 
 ## Required host-owned preflight
 
@@ -45,7 +56,10 @@ generation to the 45-minute work window and 15-minute restoration reserve.
 The preflight must reject stale, fabricated, partial or future evidence,
 existing whole-host/application leases, competing jobs, backend drift,
 unverified GPU/authentication, News timer drift, and any window that cannot
-finish before its hard deadline. The source-only producer and fixed-file host
+finish before its hard deadline and before the next hourly News ingest with a
+five-minute margin. Stopping the hourly ingest is not a free pause: unless a
+future run explicitly supplies a reviewed catch-up, the bounded first pilot
+must fit before that next fire. The source-only producer and fixed-file host
 adapter are documented in commits `e34b3297` and `d74b58b9`; neither is wired
 to the live entrypoint.
 
@@ -54,10 +68,11 @@ to the live entrypoint.
 1. Record fresh source-bound preflight and operator identity; acquire the host
    lock without stopping anything.
 2. Verify backend, GPU, auth and all four competing consumer/timer states.
-3. Stop only the four allowlisted Aster/Speech/News entries and verify each
-   stop; preserve the backend.
-4. Perform bounded lab work. No reboot, fault injection, benchmark batch or
-   arbitrary model call is part of this pilot.
+3. Acquire the host-wide exclusion, persist the lease state, apply the four
+   fixed runtime masks (which deny new starts), then verify each effect;
+   preserve the backend.
+4. Perform bounded lab work for at most 30 minutes. No reboot, fault
+   injection, benchmark batch or arbitrary model call is part of this pilot.
 5. Stop lab work before the restoration reserve, restore the four entries,
    and verify exact service/timer state, backend/model/SYCL/GPU/auth and
    schedule state.
@@ -79,8 +94,11 @@ write or runtime state is uncertain, retain it for reconciliation and stop.
 
 ## Current evidence and remaining gates
 
-`scripts/local-ai/cooperative_lab_session.py` is source-only and generates a
-fixed plan without executing commands. Its focused tests pass 3/3; the full
+`scripts/local-ai/cooperative_lab_session.py` is source-only and disabled by
+default. It now contains a separate effectful candidate controller with fixed
+runtime-mask/unmask commands, host exclusion, atomic state, phase journaling,
+owner/deadline checks and post-restore observation; no live wrapper enables it.
+Its focused tests pass 5/5; the full
 `scripts/local-ai` suite passes 222 tests with 4 expected macOS root-custody
 skips. The installed F2 diagnostic guard is unrelated read-only infrastructure
 and does not provide this lab lease.
