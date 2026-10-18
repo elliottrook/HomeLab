@@ -269,3 +269,12 @@ card must bind the in-guest process/PID or cgroup, test forced owner loss, and
 prove no lab listener/process/GPU handle remains **before** production
 unmasks. This finding was sent to the platform owner; no host change or model
 call followed.
+
+Platform source commits through `01cc0a32` now add a lease-derived systemd
+scope, a recovery-only cleanup path, a distinct no-listener/process/GPU-handle
+check, and a fail-closed `/proc` render-device probe after a live read-only
+check found `fuser` absent in LXC110. These are **offline candidate repairs**.
+The combined supervisor, in-guest wrapper, independent watchdog and GPU
+absence observer have not been staged or validated together on target Linux;
+no actual owner-loss or production-restoration proof exists. The earlier
+14-file disabled-install card remains a separate limited package.
