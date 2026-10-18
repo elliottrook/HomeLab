@@ -2,7 +2,7 @@ import json
 import unittest
 
 from full_inference_lab_workload import (LAB_COMMAND, LAB_PROFILE, LabWorkloadError,
-                                         run_fixed_smoke, validate_receipt)
+                                         lab_command, run_fixed_smoke, validate_receipt)
 
 
 class FullInferenceLabWorkloadTests(unittest.TestCase):
@@ -39,7 +39,7 @@ class FullInferenceLabWorkloadTests(unittest.TestCase):
             return 0, json.dumps(self.receipt())
         value = run_fixed_smoke(runner, lease_id="lease-1", generation=2)
         self.assertNotIn("answer", value)
-        self.assertEqual(seen, [(LAB_COMMAND, 300.0)])
+        self.assertEqual(seen, [(lab_command(lease_id="lease-1", generation=2), 300.0)])
 
     def test_rejects_production_or_credential_drift(self):
         for updates in ({"production_service": "active"}, {"credential_exported": True},
@@ -47,6 +47,23 @@ class FullInferenceLabWorkloadTests(unittest.TestCase):
             with self.subTest(updates=updates):
                 with self.assertRaises(LabWorkloadError):
                     validate_receipt(self.receipt(**updates), lease_id="lease-1", generation=2)
+
+    def test_bounded_process_is_killed_on_deadline(self):
+        class FakeProcess:
+            pid = 123
+            def __init__(self): self.returncode = None; self.killed = False
+            def poll(self): return self.returncode
+            def communicate(self): return "", ""
+            def terminate(self): self.killed = True; self.returncode = 143
+            def wait(self, timeout=None): self.returncode = 143
+            def kill(self): self.killed = True; self.returncode = 137
+        process = FakeProcess()
+        from full_inference_lab_workload import run_fixed_smoke_bounded
+        with self.assertRaises(LabWorkloadError):
+            run_fixed_smoke_bounded(process_factory=lambda *a, **k: process,
+                heartbeat=lambda: None, deadline=0, monotonic=lambda: 1,
+                poll_seconds=0, lease_id="lease-1", generation=2)
+        self.assertTrue(process.killed)
 
 
 if __name__ == "__main__":

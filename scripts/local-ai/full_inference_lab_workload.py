@@ -3,6 +3,10 @@
 from __future__ import annotations
 
 import json
+import os
+import signal
+import subprocess
+import time
 from typing import Callable, Sequence
 
 
@@ -13,6 +17,10 @@ LAB_COMMAND = (
     "/usr/local/sbin/aster-llama-lab-smoke",
     "--profile", LAB_PROFILE, "--port", LAB_PORT, "--requests", "3",
 )
+
+
+def lab_command(*, lease_id: str, generation: int) -> tuple[str, ...]:
+    return LAB_COMMAND + ("--lease-id", lease_id, "--generation", str(generation))
 
 
 class LabWorkloadError(ValueError):
@@ -43,7 +51,7 @@ def validate_receipt(value: object, *, lease_id: str, generation: int) -> dict[s
 def run_fixed_smoke(runner: Callable[[Sequence[str], float], tuple[int, str]], *,
                     lease_id: str, generation: int) -> dict[str, object]:
     """Run only the pinned wrapper; raw answers never cross this boundary."""
-    code, output = runner(LAB_COMMAND, 300.0)
+    code, output = runner(lab_command(lease_id=lease_id, generation=generation), 300.0)
     if code != 0 or len(output) > 16_384:
         raise LabWorkloadError("fixed lab wrapper failed or exceeded receipt bound")
     try:
@@ -51,3 +59,43 @@ def run_fixed_smoke(runner: Callable[[Sequence[str], float], tuple[int, str]], *
     except json.JSONDecodeError as exc:
         raise LabWorkloadError("fixed lab wrapper did not return JSON") from exc
     return validate_receipt(receipt, lease_id=lease_id, generation=generation)
+
+
+def run_fixed_smoke_bounded(*, process_factory: Callable[..., object] = subprocess.Popen,
+                            heartbeat: Callable[[], None], deadline: float,
+                            monotonic: Callable[[], float] = time.monotonic,
+                            poll_seconds: float = 1.0, lease_id: str,
+                            generation: int) -> dict[str, object]:
+    """Run the fixed wrapper in a process group with heartbeat/deadline checks."""
+    process = process_factory(lab_command(lease_id=lease_id, generation=generation), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                              text=True, start_new_session=True)
+    try:
+        while True:
+            heartbeat()
+            if monotonic() >= deadline:
+                raise LabWorkloadError("lab workload deadline reached")
+            result = process.poll()
+            if result is not None:
+                output, _ = process.communicate()
+                if result != 0 or len(output) > 16_384:
+                    raise LabWorkloadError("fixed lab wrapper failed or exceeded receipt bound")
+                try:
+                    receipt = json.loads(output)
+                except json.JSONDecodeError as exc:
+                    raise LabWorkloadError("fixed lab wrapper did not return JSON") from exc
+                return validate_receipt(receipt, lease_id=lease_id, generation=generation)
+            time.sleep(poll_seconds)
+    except BaseException:
+        try:
+            os.killpg(process.pid, signal.SIGTERM)
+        except (AttributeError, OSError):
+            process.terminate()
+        try:
+            process.wait(timeout=5)
+        except Exception:
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except (AttributeError, OSError):
+                process.kill()
+            process.wait()
+        raise

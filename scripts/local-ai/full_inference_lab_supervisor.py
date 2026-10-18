@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import time
 from typing import Callable, FrozenSet, Sequence
 
 from full_inference_lab_session import (FullDrainError, FullDrainPlan,
     FullDrainPreflight, FullInferenceDrainController)
-from full_inference_lab_workload import run_fixed_smoke
+from full_inference_lab_workload import run_fixed_smoke, run_fixed_smoke_bounded
 
 
 class SupervisorError(FullDrainError):
@@ -74,10 +75,17 @@ class PersistentFullDrainSupervisor:
     def begin(self, preflight: FullDrainPreflight) -> FullDrainPlan:
         self.preflight = preflight
         self.plan = self.controller.begin(preflight)
-        self.before_users = self.gpu_users()
-        require_known_gpu_users(self.before_users, self.allowed_gpu_users)
-        self.active = True
-        return self.plan
+        try:
+            self.before_users = self.gpu_users()
+            require_known_gpu_users(self.before_users, self.allowed_gpu_users)
+            self.active = True
+            return self.plan
+        except BaseException:
+            try:
+                self.controller.restore(self.plan, now_epoch=self.wall_clock(), owner_present=True)
+            finally:
+                self.active = False
+            raise
 
     def heartbeat(self, now_epoch: int) -> None:
         if not self.active or self.plan is None:
@@ -90,14 +98,39 @@ class PersistentFullDrainSupervisor:
             raise SupervisorError("supervisor is not active")
         if self.wall_clock() >= self.preflight.lab_end_epoch:
             raise SupervisorError("hard lab cutoff has passed")
-        if not self.production_masked():
-            raise SupervisorError("production llama service is not masked and inactive")
-        require_known_gpu_users(self.gpu_users(), self.allowed_gpu_users)
-        receipt = run_fixed_smoke(self.workload_runner,
-                                  lease_id=self.plan.lease_id,
-                                  generation=self.plan.generation)
-        require_known_gpu_users(self.gpu_users(), self.allowed_gpu_users)
-        return receipt
+        try:
+            if not self.production_masked():
+                raise SupervisorError("production llama service is not masked and inactive")
+            require_known_gpu_users(self.gpu_users(), self.allowed_gpu_users)
+            receipt = run_fixed_smoke(self.workload_runner,
+                                      lease_id=self.plan.lease_id,
+                                      generation=self.plan.generation)
+            require_known_gpu_users(self.gpu_users(), self.allowed_gpu_users)
+            return receipt
+        except BaseException:
+            self.controller.restore(self.plan, now_epoch=self.wall_clock(), owner_present=True)
+            self.active = False
+            raise
+
+    def run_smoke_bounded(self, *, heartbeat: Callable[[], None],
+                          monotonic: Callable[[], float] = time.monotonic) -> dict[str, object]:
+        if not self.active or self.plan is None or self.preflight is None:
+            raise SupervisorError("supervisor is not active")
+        try:
+            if not self.production_masked():
+                raise SupervisorError("production llama service is not masked and inactive")
+            require_known_gpu_users(self.gpu_users(), self.allowed_gpu_users)
+            receipt = run_fixed_smoke_bounded(
+                heartbeat=heartbeat, deadline=min(float(self.preflight.lab_end_epoch),
+                                                  monotonic() + 300.0),
+                monotonic=monotonic, lease_id=self.plan.lease_id,
+                generation=self.plan.generation)
+            require_known_gpu_users(self.gpu_users(), self.allowed_gpu_users)
+            return receipt
+        except BaseException:
+            self.controller.restore(self.plan, now_epoch=self.wall_clock(), owner_present=True)
+            self.active = False
+            raise
 
     def restore(self, *, now_epoch: int, owner_present: bool) -> None:
         if not self.active or self.plan is None:

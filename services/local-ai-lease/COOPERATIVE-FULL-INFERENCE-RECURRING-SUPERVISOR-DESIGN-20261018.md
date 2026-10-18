@@ -187,9 +187,14 @@ reviewed. No Aster/Qwen sysadmin authority is inferred from this control.
 
 The offline implementation candidates are
 `scripts/local-ai/full_inference_lab_supervisor.py` and
-`scripts/local-ai/full_inference_lab_workload.py`, with synthetic tests in the
-corresponding `test_` files. They are not part of the 14-file disabled-stage
-packet and are not installed, enabled or callable on the target host.
+`scripts/local-ai/full_inference_lab_workload.py`, plus the fixed in-guest
+wrapper candidate `scripts/local-ai/aster_llama_lab_smoke_wrapper.py`, with
+synthetic tests in the corresponding `test_` files. The wrapper starts only a
+separate loopback `llama-server` process on port 11436, creates its API key in
+an owner-only `/run` directory, refuses an active/unmasked production service,
+and kills its process group in `finally`. It returns only a content-free
+receipt. These files are not part of the 14-file disabled-stage packet and are
+not installed, enabled or callable on the target host.
 
 ## Recommendation: combine the first useful pilot, conditionally
 

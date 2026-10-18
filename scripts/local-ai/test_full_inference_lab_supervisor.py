@@ -7,7 +7,7 @@ from application_b60_lease import ACCEPTED_BACKEND
 from full_inference_lab_session import (FullDrainPaths, FullDrainPreflight,
     FullInferenceDrainController)
 from full_inference_lab_supervisor import (GpuUser, PersistentFullDrainSupervisor,
-    SupervisorError, require_known_gpu_users, watchdog_decision)
+    SupervisorError, recovery_only, require_known_gpu_users, watchdog_decision)
 
 
 class SupervisorTests(unittest.TestCase):
@@ -68,6 +68,41 @@ class SupervisorTests(unittest.TestCase):
             supervisor.begin(self.preflight())
             with self.assertRaisesRegex(SupervisorError, "production"):
                 supervisor.run_smoke()
+
+    def test_new_gpu_user_during_smoke_restores_and_retains_no_workload(self):
+        known = GpuUser(10, 20, "svc", "/bin/known")
+        rogue = GpuUser(11, 21, "rogue", "/tmp/rogue")
+        snapshots = iter((frozenset({known}), frozenset({known, rogue})))
+        receipt = '{"schema":"aster-9b-direct-control-smoke.v1","profile":"accepted-9b-direct-control-smoke-v1","lease_id":"lease-1","generation":2,"port":11436,"production_service":"masked-inactive","credential_exported":false,"tool_mode":"disabled","request_count":3,"observation_ids":["a","b","c"],"exit_status":0}'
+        with TemporaryDirectory() as tmp:
+            controller = FullInferenceDrainController(
+                FullDrainPaths(Path(tmp) / "state"), lambda _: None,
+                observer=lambda *_: True, validator=lambda: True,
+                owner_id="owner", allow_effects=True)
+            supervisor = PersistentFullDrainSupervisor(
+                controller, workload_runner=lambda *_: (0, receipt),
+                production_masked=lambda: True, gpu_users=lambda: next(snapshots),
+                allowed_gpu_users=frozenset({known}), wall_clock=lambda: 110)
+            supervisor.begin(self.preflight())
+            with self.assertRaisesRegex(SupervisorError, "unlisted"):
+                supervisor.run_smoke()
+            self.assertFalse(controller.paths.lock.exists())
+
+    def test_owner_loss_uses_recovery_only_and_never_runs_workload(self):
+        with TemporaryDirectory() as tmp:
+            paths = FullDrainPaths(Path(tmp) / "state")
+            first = FullInferenceDrainController(paths, lambda _: None,
+                observer=lambda *_: True, validator=lambda: True,
+                owner_id="owner", allow_effects=True)
+            plan = first.begin(self.preflight())
+            first._exclusion.__exit__(None, None, None)
+            calls = []
+            replacement = FullInferenceDrainController(paths, calls.append,
+                observer=lambda *_: True, validator=lambda: True,
+                owner_id="owner", allow_effects=True)
+            recovery_only(replacement, lease_id=plan.lease_id, generation=plan.generation,
+                          restore_now_epoch=120)
+            self.assertEqual(len(calls), 11)
 
 
 if __name__ == "__main__":
