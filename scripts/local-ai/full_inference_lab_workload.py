@@ -34,6 +34,27 @@ def lab_cleanup_command(*, lease_id: str, generation: int) -> tuple[str, ...]:
             scope_unit(lease_id=lease_id, generation=generation))
 
 
+def lab_absence_commands(*, lease_id: str, generation: int) -> tuple[tuple[str, ...], ...]:
+    unit = scope_unit(lease_id=lease_id, generation=generation)
+    return (
+        ("pct", "exec", "110", "--", "systemctl", "is-active", unit),
+        ("pct", "exec", "110", "--", "ss", "-Hlnpt", "sport", "=", ":11436"),
+        ("pct", "exec", "110", "--", "pgrep", "-af", "aster-llama-lab-smoke"),
+        ("pct", "exec", "110", "--", "fuser", "-v", "/dev/dri/renderD128"),
+    )
+
+
+def lab_is_absent(runner: Callable[[Sequence[str], float], tuple[int, str]], *,
+                  lease_id: str, generation: int) -> bool:
+    active_code, _ = runner(lab_absence_commands(lease_id=lease_id, generation=generation)[0], 10.0)
+    socket_code, socket_output = runner(lab_absence_commands(lease_id=lease_id, generation=generation)[1], 10.0)
+    process_code, process_output = runner(lab_absence_commands(lease_id=lease_id, generation=generation)[2], 10.0)
+    gpu_code, gpu_output = runner(lab_absence_commands(lease_id=lease_id, generation=generation)[3], 10.0)
+    return (active_code != 0 and socket_code == 0 and not socket_output.strip()
+            and process_code != 0 and not process_output.strip()
+            and gpu_code != 0 and not gpu_output.strip())
+
+
 class LabWorkloadError(ValueError):
     pass
 

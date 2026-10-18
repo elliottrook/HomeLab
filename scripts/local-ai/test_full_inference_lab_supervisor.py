@@ -105,8 +105,26 @@ class SupervisorTests(unittest.TestCase):
                 observer=lambda *_: True, validator=lambda: True,
                 owner_id="owner", allow_effects=True)
             recovery_only(replacement, lease_id=plan.lease_id, generation=plan.generation,
-                          restore_now_epoch=120)
+                          restore_now_epoch=120, cleanup_runner=lambda *_: (0, ""),
+                          lab_absent=lambda: True)
             self.assertEqual(len(calls), 11)
+
+    def test_recovery_only_retains_lock_when_lab_absence_is_unproven(self):
+        with TemporaryDirectory() as tmp:
+            paths = FullDrainPaths(Path(tmp) / "state")
+            first = FullInferenceDrainController(paths, lambda _: None,
+                observer=lambda *_: True, validator=lambda: True,
+                owner_id="owner", allow_effects=True)
+            plan = first.begin(self.preflight())
+            first._exclusion.__exit__(None, None, None)
+            replacement = FullInferenceDrainController(paths, [],
+                observer=lambda *_: True, validator=lambda: True,
+                owner_id="owner", allow_effects=True)
+            with self.assertRaisesRegex(SupervisorError, "absence is unproven"):
+                recovery_only(replacement, lease_id=plan.lease_id, generation=plan.generation,
+                              restore_now_epoch=120, cleanup_runner=lambda *_: (0, ""),
+                              lab_absent=lambda: False)
+            self.assertTrue(paths.lock.exists())
 
     def test_bounded_deadline_uses_remaining_wall_seconds(self):
         known = GpuUser(10, 20, "svc", "/bin/known")

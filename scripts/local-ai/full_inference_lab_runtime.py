@@ -16,6 +16,7 @@ from full_inference_lab_session import (FullDrainError, FullDrainPaths,
 from full_inference_lab_sources import (AcceptedBaseline,
     LocalProxmoxFullDrainSourceProducer, TrustedOwnerAttestation)
 from full_inference_lab_validator import LocalProxmoxFullDrainValidator
+from full_inference_lab_workload import lab_cleanup_command, lab_is_absent
 
 
 @dataclass
@@ -114,6 +115,11 @@ def main(argv: list[str] | None = None) -> int:
     validator = LocalProxmoxFullDrainValidator(
         runner, AcceptedBaseline(args.model_sha256, args.binary_sha256, args.unit_sha256), cycle=args.cycle)
     controller.validator = validator
+    cleanup_code, _ = runner(lab_cleanup_command(lease_id=plan.lease_id,
+                                                  generation=plan.generation), 30.0)
+    if cleanup_code != 0 or not lab_is_absent(runner, lease_id=plan.lease_id,
+                                              generation=plan.generation):
+        raise SystemExit("lab scope/listener/process absence is unproven; lock retained")
     controller.restore(plan, now_epoch=int(time.time()), owner_present=True)
     print(json.dumps({"effects": "restored", "lease_id": plan.lease_id}, sort_keys=True))
     return 0

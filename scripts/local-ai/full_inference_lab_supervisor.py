@@ -8,7 +8,8 @@ from typing import Callable, FrozenSet, Sequence
 
 from full_inference_lab_session import (FullDrainError, FullDrainPlan,
     FullDrainPreflight, FullInferenceDrainController)
-from full_inference_lab_workload import run_fixed_smoke, run_fixed_smoke_bounded
+from full_inference_lab_workload import (lab_cleanup_command, lab_is_absent,
+    run_fixed_smoke, run_fixed_smoke_bounded)
 
 
 class SupervisorError(FullDrainError):
@@ -162,8 +163,14 @@ class PersistentFullDrainSupervisor:
 
 
 def recovery_only(controller: FullInferenceDrainController, *, lease_id: str,
-                  generation: int, restore_now_epoch: int) -> FullDrainPlan:
-    """Reacquire exact durable state and restore; never resumes workload."""
+                  generation: int, restore_now_epoch: int,
+                  cleanup_runner: Callable[[Sequence[str], float], tuple[int, str]],
+                  lab_absent: Callable[[], bool]) -> FullDrainPlan:
+    """Clean up the fixed lab scope, prove absence, then restore only."""
     plan = controller.resume_existing(lease_id=lease_id, generation=generation)
+    cleanup_code, _ = cleanup_runner(
+        lab_cleanup_command(lease_id=plan.lease_id, generation=plan.generation), 30.0)
+    if cleanup_code != 0 or not lab_absent():
+        raise SupervisorError("lab scope/listener/process/GPU absence is unproven; lock retained")
     controller.restore(plan, now_epoch=restore_now_epoch, owner_present=True)
     return plan

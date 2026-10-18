@@ -123,8 +123,8 @@ def run(*, lease_id: str, generation: int, clock: Callable[[], float] = time.mon
                 "request_count": len(observations), "observation_ids": observations,
                 "exit_status": 0}
     finally:
-        subprocess.run(("systemctl", "stop", scope_unit(lease_id, generation)),
-                       capture_output=True, text=True, check=False)
+        cleanup = subprocess.run(("systemctl", "stop", scope_unit(lease_id, generation)),
+                                 capture_output=True, text=True, check=False)
         if process is not None:
             try:
                 os.killpg(process.pid, signal.SIGTERM)
@@ -138,6 +138,8 @@ def run(*, lease_id: str, generation: int, clock: Callable[[], float] = time.mon
                 except OSError:
                     process.kill()
                 process.wait()
+        if cleanup.returncode != 0:
+            raise SmokeError("lab systemd scope cleanup failed")
         shutil.rmtree(root, ignore_errors=True)
 
 
