@@ -29,8 +29,11 @@ def fence_owner_unit(unit: str, budget: float,
         remaining = deadline - monotonic()
         if remaining <= 0:
             return None
-        return runner(command, capture_output=True, text=True,
-                      timeout=min(maximum, remaining), check=False)
+        try:
+            return runner(command, capture_output=True, text=True,
+                          timeout=min(maximum, remaining), check=False)
+        except subprocess.TimeoutExpired:
+            return None
     call(("systemctl", "stop", unit), 30.0)
     state = call(("systemctl", "is-active", unit), 10.0)
     if state is None:
@@ -103,9 +106,13 @@ def run_guardian(*, state_path: Path, owner_id: str, owner_fence: Callable[[], b
         remaining = max(0.0, hard_deadline - clock())
         if remaining <= 0:
             break
-        result = runner(tuple(rescue_command_factory(lease_id, generation)), capture_output=True, text=True,
-                        timeout=min(120.0, remaining), check=False)
-        if result.returncode == 0 and not state_path.exists():
+        try:
+            result = runner(tuple(rescue_command_factory(lease_id, generation)),
+                            capture_output=True, text=True,
+                            timeout=min(120.0, remaining), check=False)
+        except subprocess.TimeoutExpired:
+            result = None
+        if result is not None and result.returncode == 0 and not state_path.exists():
             return {"state": "rescued", "effects": "restored", "attempts": attempts}
         if clock() >= hard_deadline:
             break

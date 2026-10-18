@@ -1,4 +1,5 @@
 import json
+import subprocess
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -181,6 +182,30 @@ class DeadlineGuardianTests(unittest.TestCase):
                     clock=lambda: now[0], sleep=sleep,
                     runner=lambda command, **kwargs: seen.append(kwargs["timeout"]) or failed)
             self.assertEqual(seen, [15.0])
+
+    def test_rescue_timeout_exception_becomes_controlled_expiry(self):
+        with TemporaryDirectory() as tmp:
+            state = Path(tmp) / "state"
+            now = [100.0]
+            def sleep(seconds):
+                state.write_text(json.dumps({"owner_id": "owner-1", "mode": "full-inference-drain-v1",
+                                              "lease_id": "owner-1:123", "generation": 1,
+                                              "phase": "drained"}), encoding="utf-8")
+                now[0] = 110.0 if now[0] < 110.0 else 125.0
+            with self.assertRaisesRegex(GuardianError, "did not clear"):
+                run_guardian(
+                    state_path=state, rescue_at=110, hard_deadline=125,
+                    owner_id="owner-1", owner_fence=lambda budget: True,
+                    rescue_command_factory=lambda *_: ("rescue",),
+                    clock=lambda: now[0], sleep=sleep,
+                    runner=lambda *a, **k: (_ for _ in ()).throw(
+                        subprocess.TimeoutExpired(a[0], k["timeout"])))
+
+    def test_owner_stop_timeout_is_fail_closed(self):
+        def timed_out(*args, **kwargs):
+            raise subprocess.TimeoutExpired(args[0], kwargs["timeout"])
+        self.assertFalse(fence_owner_unit("aster-local-ai-pilot-owner-x.scope", 15,
+                                          runner=timed_out))
 
 
 if __name__ == "__main__":
