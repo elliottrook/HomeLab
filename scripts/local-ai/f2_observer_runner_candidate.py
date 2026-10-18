@@ -11,6 +11,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import signal
 import stat
 import subprocess
@@ -142,7 +143,7 @@ def _terminate_group(process) -> None:
     process.communicate(timeout=5)
 
 
-def _project(output: str) -> dict:
+def _project(output: str, *, expected_date: str | None = None) -> dict:
     if len(output) > 8192:
         raise F2NoGo("observer result is oversized")
     try:
@@ -152,14 +153,21 @@ def _project(output: str) -> dict:
     if (not isinstance(value, dict) or set(value) != RESULT_FIELDS
             or value["schema"] != "aster-read-only-archive-timing.v1"
             or value["state"] != "complete" or value["admission_receipt_written"] is not False
+            or type(value["date"]) is not str
+            or re.fullmatch(r"\d{4}_\d{2}_\d{2}", value["date"]) is None
+            or (expected_date is not None and value["date"] != expected_date)
             or not isinstance(value["archives"], list) or len(value["archives"]) != 3):
         raise F2NoGo("observer result is incomplete")
     for vmid, row in zip(("104", "110", "116"), value["archives"]):
         if (not isinstance(row, dict) or set(row) != ROW_FIELDS or row["vmid"] != vmid
-                or type(row["volid"]) is not str or not row["volid"].startswith("backups:backup/")
+                or type(row["volid"]) is not str
+                or re.fullmatch(rf"backups:backup/vzdump-lxc-{vmid}-{value['date']}-\d{{2}}_\d{{2}}_\d{{2}}\.tar\.zst", row["volid"]) is None
                 or type(row["test_exit"]) is not int or row["test_exit"] != 0
                 or any(type(row[key]) is not int for key in
                        ("size", "ctime", "test_started_epoch", "test_finished_epoch", "test_elapsed_ms", "test_exit"))
+                or row["size"] <= 0 or row["ctime"] <= 0
+                or row["test_elapsed_ms"] < 0
+                or row["test_elapsed_ms"] > (900_000 if vmid == "110" else 120_000)
                 or not row["ctime"] <= row["test_started_epoch"] <= row["test_finished_epoch"]):
             raise F2NoGo("observer archive result differs")
     return value
@@ -206,7 +214,8 @@ def observe_once(*, runner, popen=subprocess.Popen, clock=time.time,
         raise F2NoGo("observer failed")
     if diagnostic_phase is not None:
         diagnostic_phase["phase"] = "result"
-    return _project(output.decode("utf-8"))
+    return _project(output.decode("utf-8"),
+                    expected_date=datetime.fromtimestamp(clock(), LOCAL_ZONE).strftime("%Y_%m_%d"))
 
 
 def main(argv=None) -> int:

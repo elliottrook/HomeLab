@@ -20,12 +20,14 @@ START = datetime(2026, 10, 17, 1, 10, tzinfo=ZONE).timestamp()
 
 
 def result():
+    started = int(START) + 60
     return {
         "schema": "aster-read-only-archive-timing.v1", "state": "complete",
         "date": "2026_10_17", "admission_receipt_written": False,
-        "archives": [{"vmid": vmid, "volid": f"backups:backup/vzdump-lxc-{vmid}.tar.zst",
-                      "size": 100, "ctime": 1, "test_started_epoch": 2,
-                      "test_finished_epoch": 3, "test_elapsed_ms": 1000, "test_exit": 0}
+        "archives": [{"vmid": vmid, "volid": f"backups:backup/vzdump-lxc-{vmid}-2026_10_17-00_30_00.tar.zst",
+                      "size": 100, "ctime": started - 3600,
+                      "test_started_epoch": started,
+                      "test_finished_epoch": started + 1, "test_elapsed_ms": 1000, "test_exit": 0}
                      for vmid in ("104", "110", "116")],
     }
 
@@ -127,6 +129,23 @@ class F2ObserverRunnerTests(unittest.TestCase):
         bad["archives"][1]["test_exit"] = False
         with self.assertRaises(f2.F2NoGo):
             f2._project(json.dumps(bad))
+
+    def test_projection_rejects_wrong_cycle_and_impossible_archive_measurements(self):
+        self.assertEqual(len(f2._project(json.dumps(result()), expected_date="2026_10_17")["archives"]), 3)
+        mutations = (
+            lambda x: x.update(date="2026_10_16"),
+            lambda x: x.update(date="not-a-date"),
+            lambda x: x["archives"][0].update(volid="backups:backup/other.tar.zst"),
+            lambda x: x["archives"][0].update(size=-1),
+            lambda x: x["archives"][0].update(test_elapsed_ms=-1),
+            lambda x: x["archives"][0].update(test_elapsed_ms=120_001),
+            lambda x: x["archives"][1].update(test_elapsed_ms=900_001),
+        )
+        for mutate in mutations:
+            bad = result()
+            mutate(bad)
+            with self.subTest(bad=bad), self.assertRaises(f2.F2NoGo):
+                f2._project(json.dumps(bad), expected_date="2026_10_17")
 
     def test_no_child_spawn_without_source_and_job_gates(self):
         with patch.object(f2.os, "geteuid", return_value=0), \
