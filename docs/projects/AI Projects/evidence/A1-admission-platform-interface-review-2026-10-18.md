@@ -84,3 +84,14 @@ guard and test diff. This closes the *offline post-trigger denial finding*,
 not source authentication, measured recovery/lag, installed-path validation
 or a live application-only drill. The current platform callback still must
 not be treated as A1 release authority until those separate gates pass.
+
+**Pre-lease interface reviewed:** platform local commit `e34b3297` adds an
+offline typed collector. Stream A reran its four focused tests successfully.
+It has no fixed host adapters or authenticated custody: a synthetic caller
+can set `verified=True` and pass a string such as
+`application-chain:caller-created`, which the interface accepts. This is
+consistent with its explicit offline scope, but the receipt prefix is not
+source authentication. The next platform step is an owner-controlled adapter
+that reads the fixed source receipt and verifies custody, digest, cycle and
+actual job outcomes before constructing those typed observations. A1 remains
+BLOCKED.
