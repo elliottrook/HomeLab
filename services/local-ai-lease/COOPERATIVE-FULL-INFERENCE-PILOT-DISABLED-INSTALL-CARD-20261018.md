@@ -7,7 +7,7 @@ review; that earlier approval must not be reused for this packet.
 
 ## Frozen source
 
-The source tip is `b67373c4`. The host packet contains exactly nineteen files
+The source tip is `6308984a`. The host packet contains exactly nineteen files
 under `/usr/local/libexec/local-ai-lease/full-inference-pilot/`; the in-guest
 wrapper is a separately located candidate for LXC110, and its test is evidence
 only. Every staged file must match these SHA-256 values before any future
@@ -112,9 +112,9 @@ The independent deadline-guardian candidate is deliberately separate from the
 
 | File | SHA-256 |
 |---|---|
-| `full_inference_lab_deadline_guardian.py` | `8a003024a2c2a2e191d85389c3022e61322a5f33710712249d37eb9692c6e50f` |
-| `test_full_inference_lab_deadline_guardian.py` | `a44cdaf240ce3a8b2ce1cdd3679bef46cc7d0ac9e6774c93a55a13b5637437e5` |
+| `full_inference_lab_deadline_guardian.py` | `98149f2f0ef18813629f7d40e301351b5fe6c0209ddec5808faf312ea12f7b0d` |
+| `test_full_inference_lab_deadline_guardian.py` | `911b3391d864944b8375f8d2c3b590f6795854847af2924d1ec582373274175a` |
 
-Guardian source tip: `b67373c4`. It is not installed or enabled by this card.
+Guardian source tip: `6308984a`. It is not installed or enabled by this card.
 It requires a separate disabled-stage review before the live pilot can claim
 owner-loss protection.
