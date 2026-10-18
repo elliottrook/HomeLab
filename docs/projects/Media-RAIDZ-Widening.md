@@ -154,3 +154,44 @@ BK81 has 1,205 grown defects, historical read/write uncorrected 3/5, and an olde
 failed long test. Adding either is not appropriate with current evidence and
 ample capacity. Further expansion requires a suitable qualified replacement or
 separate resolution of the remaining drives' health concerns.
+
+## Replacement SAS qualification — 2026-10-18
+
+Jason requested testing the two newly installed SAS drives for possible Media
+integration. Scope of this step: non-destructive qualification only; no formatting,
+write-pattern tests, pool attach or push. Media remains the healthy eight-disk
+RAIDZ2, with clean completed expansion scrub; Recovery and boot pool healthy.
+
+| Serial | WWN | Model / size | Initial power-on hours | Grown defects | Uncorrected read/write | Non-medium |
+|---|---|---|---:|---:|---|---:|
+| 37H0A019FT2C1711 | 50000397a832e111 | HP MB4000JFDSN / 4,000,787,030,016 B | 69354:31 | 0 | 0/0 | 343 |
+| 37H0A01HFT2C1711 | 50000397a832e289 | HP MB4000JFDSN / 4,000,787,030,016 B | 69354:39 | 0 | 0/0 | 294 |
+
+Both report HPD1 firmware, 512-byte logical sectors, 7200 RPM, 2017 week 11
+manufacture, 24 C and SMART health OK. Both active SAS ports initially show four
+invalid DWORDs, four disparity errors, one synchronization loss, zero reset
+problems; negotiated 12 Gbps. These are baseline observations, not established
+active faults. No self-tests were logged. The detailed smartctl -x unsupported
+statistics-page flag is not interpreted as a failed health test.
+
+Verified by exact serial/WWN in disk.get_unused, no partitions or imported/exported
+pool membership. Current Linux letters sdg and sdl are informational only; never
+reuse letters without identity verification. Existing questionable BK81 and BTVM
+remain separate unused disks and are not targets.
+
+Extended background self-tests started 08:45:45 PDT on both drives. Firmware
+estimates 537 minutes, expected completion around 17:42:45 PDT October 18.
+They run on the drives independently of the chat. Baseline text/JSON and start
+records are root-only under /mnt/Media/backup-ops/sas-qualification-20261018/.
+Resume with smartctl -a/-x on the two WWN paths; do not restart an active test.
+Require completed successful results and compare media, non-medium and PHY
+counters against the preserved baseline. Reject/diagnose failures or growing
+errors before any integration. Their approximately 7.9 years of power-on time
+must remain part of the suitability assessment despite a SMART OK summary.
+
+Next qualification gate after extended tests: host full-surface read and, before
+final production integration, consider a destructive full write/read test after
+confirming nothing needs preservation on these new drives. This turn does not
+claim a pass, schedule an automatic pool addition, or authorize erasing unknown
+contents. No production service, network, identity, NetBox/Beszel service object,
+backup policy or speech output changed; existing TrueNAS health monitoring remains.
