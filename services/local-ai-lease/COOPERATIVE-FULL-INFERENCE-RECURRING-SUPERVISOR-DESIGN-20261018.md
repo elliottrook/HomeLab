@@ -182,6 +182,12 @@ The first workload remains blocked until the persistent supervisor, wrapper,
 MacBook custody proof, and a dry-run of owner-loss recovery are independently
 reviewed. No Aster/Qwen sysadmin authority is inferred from this control.
 
+The offline implementation candidates are
+`scripts/local-ai/full_inference_lab_supervisor.py` and
+`scripts/local-ai/full_inference_lab_workload.py`, with synthetic tests in the
+corresponding `test_` files. They are not part of the 14-file disabled-stage
+packet and are not installed, enabled or callable on the target host.
+
 ## Recommendation: combine the first useful pilot, conditionally
 
 Do not spend a live outage on an isolation-only run if the workload gates are
