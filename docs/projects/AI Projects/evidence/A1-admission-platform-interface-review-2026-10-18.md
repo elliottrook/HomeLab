@@ -59,3 +59,19 @@ Stream A owns the workload, offline checker, private answer evidence and
 scoring. The platform owner owns host observations, source authentication,
 lease/recovery effects and production restoration. No source-only bridge should
 promote itself to an authority boundary.
+
+## Review of the first platform correction
+
+The platform owner added distinct receipt fields in local commit `e26b2bc3`.
+That resolves the ambiguous *field names* offline, but a synthetic direct
+call to its `active_admission_payload()` still returned
+`aster-a1-admission.v1` at `now_epoch` 250, 251 and 299 for a state with
+`restore_start_epoch=250` and `restore_deadline_epoch=300`. The active
+boundary checked only that the hard deadline was still in the future. This
+is a **source-level denial gap**: admission must stop no later than the
+recovery trigger, not merely by the completion deadline. The same boundary
+also feeds watchdog-status renewal and needs a separate boundary review.
+This reproduction used the platform test module's fictional receipt/state;
+it did not inspect a host, acquire a lease or call a model. Stream A sent the
+exact result to the platform owner for correction and boundary tests. No
+live A1 gate is advanced by `e26b2bc3`.
