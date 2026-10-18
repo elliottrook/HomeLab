@@ -7,7 +7,7 @@ review; that earlier approval must not be reused for this packet.
 
 ## Frozen source
 
-The source tip is `27dba88f`. The host packet contains exactly nineteen files
+The source tip is `6e4e634f`. The host packet contains exactly nineteen files
 under `/usr/local/libexec/local-ai-lease/full-inference-pilot/`; the in-guest
 wrapper is a separately located candidate for LXC110, and its test is evidence
 only. Every staged file must match these SHA-256 values before any future
@@ -21,7 +21,7 @@ installation review.
 | `cooperative_lab_host_adapter.py` | `720a2c9ac9fb278223e31c998fe58af234d84451344daa63dabcf55b2ebd98a6` |
 | `cooperative_lab_session.py` | `1a1c1f11219c0ec4a89671b7acb552e40d005a8e7fe056b8eab8225cc374e260` |
 | `full_inference_lab_install_preflight.py` | `5a8586c9e6002ba6ce1a479a2b8fd1de3085e463d171abc11189c2b0ceb81f05` |
-| `full_inference_lab_runtime.py` | `485770824f87d2e38386d2cd8a64bc81e5350c35bb075b388ebb94305af8e629` |
+| `full_inference_lab_runtime.py` | `55feabc1175bd4c1e4cc97f27eae9d3ee3704a2291c514d885f9f88ef49c7cdc` |
 | `full_inference_lab_session.py` | `104d6bdfa2296abfe026d0017ab935ca2351519fab84116b073e11afb3c6301d` |
 | `full_inference_lab_sources.py` | `1f53e61b6909c26b6658d17396eff9babb4f2253b470fe33d8b188bfc9980c39` |
 | `full_inference_lab_supervisor.py` | `7ee567a16040213ca3e8e0157019108074a06746fd15c8d38f91a943364a8684` |
@@ -30,7 +30,7 @@ installation review.
 | `host_exclusion.py` | `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61` |
 | `test_cooperative_lab_host_adapter.py` | `e9433ab5b35dc11881f0a5416e5c8cd94243919b5b7264e9ccf629bffbf73b7a` |
 | `test_full_inference_lab_install_preflight.py` | `698b1699a48766dcda0aa470b08851ddf3f0c462f19edd0bb0d70f36cdabe2fa` |
-| `test_full_inference_lab_runtime.py` | `c225b41e5643ed351054286735bfab45ba542ff99f66c82540a043926abf92d2` |
+| `test_full_inference_lab_runtime.py` | `3efc850f9e8f42fa5aec2e74fa2083fa1c4ff2e6f491004aec10a6345a2eba` |
 | `test_full_inference_lab_session.py` | `8d2d07119dd12f0f6c61a4cf4f7d679a445f60f8959170b759a78c7666470624` |
 | `test_full_inference_lab_sources.py` | `eab6fb2fc1bc7aa0dd14ee001aee7a58bafb73faf5b3c0f0adb52b31e5be8650` |
 | `test_full_inference_lab_supervisor.py` | `b8c2f503fa7ada32b17c7dbeeca8530f0c219922435eb77b50a8531b34612909` |
@@ -112,9 +112,9 @@ The independent deadline-guardian candidate is deliberately separate from the
 
 | File | SHA-256 |
 |---|---|
-| `full_inference_lab_deadline_guardian.py` | `8f5dbc6d4ffb8f8becdf6fa99faa5fecaafdc8ea0e6bfc3ed2a2934e848ce5bd` |
-| `test_full_inference_lab_deadline_guardian.py` | `5f2c9e7f1ebe7bcb14ae11bdc037a4f53f8e5822bfe091c992dcba6671129257` |
+| `full_inference_lab_deadline_guardian.py` | `f509150750ba2220f9b7d104f65458dafdbfb9539fbd9a8ce9b8d11d39fcb6a9` |
+| `test_full_inference_lab_deadline_guardian.py` | `1c2ed2d2168a3d67768bc9853e26926c38ad55e6d93d71ef3159649c722136c8` |
 
-Guardian source tip: `3a7e32b7`. It is not installed or enabled by this card.
+Guardian source tip: `6e4e634f`. It is not installed or enabled by this card.
 It requires a separate disabled-stage review before the live pilot can claim
 owner-loss protection.
