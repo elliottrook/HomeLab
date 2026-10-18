@@ -241,3 +241,19 @@ recovery guarantee. The first
 live run must remain attended, with any partial effect reconciled before the
 lock is released; recurring lab hours need a durable supervisor and
 independent owner-loss recovery proof.
+
+**Midday design review:** The platform owner reconciled the installed manual
+helper's exact hash and found that it takes the same state-directory flock on
+acquisition but does not inspect a full-drain marker. This confirms the
+between-invocation gap rather than removing it. A separate source-only
+persistent-supervisor design at `be19d82f` and combined-pilot proposal at
+`dcbcdd74` would avoid consuming an outage on isolation alone: one attended
+45-minute run could stop the known consumers, exercise three fixed direct-9B
+smoke requests and restore production. A later source candidate at
+`6a79e987` is **not live-ready**: its first GPU-user check occurs after effects,
+its smoke command can block without enforcing the cutoff, its watchdog
+decision is not wired to an independent process, and the in-guest wrapper is
+not yet implemented. These findings were sent to the platform owner. The
+existing 14-file disabled-install question concerns only no-effect staging of
+the earlier source packet; it must not be represented as approval of the
+combined pilot or recurring lab hours.
