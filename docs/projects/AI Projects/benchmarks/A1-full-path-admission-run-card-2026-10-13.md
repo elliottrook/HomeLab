@@ -187,6 +187,13 @@ This offline Stream A client candidate hashes to
 it is not the older, frozen v1 runner. The 54 focused A1 tests passed locally.
 Its local clock check is a refusal boundary only; the host callback still
 owns authenticated time, lease state and watchdog status.
+An offline cross-source shape check against platform local commit `2b99fe88`
+passed only after replacing that platform test's deliberately short
+`250..300` recovery window with a fictional `2000..3000` window. The short
+window was correctly refused by Stream A's 900-second minimum reserve. The
+matching v2 payload then passed the local shape/timing guard at fictional
+`now=200`; this exercise used no authenticated host callback and grants no
+live admission.
 
 ## Verified current state and remaining work
 
