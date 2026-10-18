@@ -184,9 +184,11 @@ the end of that backup cycle.
 The B60 peer's offline watchdog timing proposal requires at least 15 minutes
 for restoration plus a one-minute trigger-lag floor before 04:15. It is a
 necessary refusal condition, not a measured recovery budget or live admission.
-The corresponding A1 source/tests are absent from this Stream A branch, so
-the candidate was not resurrected or integrated here; platform-owned measured
-restoration/lag evidence and a source-bound guard remain required.
+The corresponding A1 source/tests are present on the separate Stream A
+lineage (`d5510733` through `ede3c268`) but are not integrated into this
+platform branch. The candidate was therefore not cherry-picked blindly;
+platform-owned measured restoration/lag evidence and an agreed authoritative
+source-bound admission interface remain required.
 
 ## Critical path and failure reporting
 
