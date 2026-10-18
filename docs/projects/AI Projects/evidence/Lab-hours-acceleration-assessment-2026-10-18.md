@@ -294,3 +294,14 @@ authorize installation of the combined candidate. The wrapper also needs a
 target-Linux check for an already collected transient scope: cleanup must
 distinguish an absent unit from a surviving process using independent
 listener, process and GPU-handle evidence before production restarts.
+
+Platform commit `f1e6715f` now adds a `--phase pilot` entrypoint that invokes
+the persistent supervisor and bounded fixed smoke; the 40 focused offline
+tests pass. This closes the missing import/call path **in source**, but the
+tests do not yet exercise the effectful `pilot` CLI from admission through
+restoration. A new process could also open the render node during the three
+requests and exit between the before/after GPU snapshots. The candidate may
+prove known-consumer drain and restoration; it must not claim exclusive use of
+the whole B60 without continuous occupancy evidence or a deny-new-opens
+boundary. Both gaps and the need for a fresh combined-source install card were
+sent to the platform owner. No host stage or live pilot followed this review.
