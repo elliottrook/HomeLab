@@ -267,6 +267,9 @@ The fixed five-effect implementation and complete source/validator packet are
 local in `3d976dd4`, with its
 self-contained disabled-install card at
 `services/local-ai-lease/COOPERATIVE-FULL-INFERENCE-DRAIN-DISABLED-INSTALL-CARD-20261018.md`.
+The fixed Proxmox→TrueNAS observer route is currently NO-GO after bounded SSH
+connect timeout; see
+`services/local-ai-lease/FULL-DRAIN-TRUENAS-OBSERVER-NO-GO-20261018.md`.
 The approved outage ceiling is up to 90 minutes, but the first pilot remains
 the stricter 45-minute reservation (30 minutes lab plus 15 minutes restore),
 and must fit before the next hourly News ingest with a five-minute margin as

@@ -26,6 +26,11 @@ is included. The isolation pilot needs a fresh source-verified backup status
 and accepted runtime checkpoint, but does not require the incomplete F2
 retained-archive-integrity path or an F3 trusted receipt.
 
+The current Proxmox→TrueNAS observer route is NO-GO after a bounded SSH
+connect timeout; see `FULL-DRAIN-TRUENAS-OBSERVER-NO-GO-20261018.md`. No pilot
+window can be scheduled until that fixed read-only route is restored or an
+independently verified equivalent is adopted.
+
 ### Fixed drain inventory
 
 1. Apply reversible runtime masks with `--now` to News ingest/digest timers,
