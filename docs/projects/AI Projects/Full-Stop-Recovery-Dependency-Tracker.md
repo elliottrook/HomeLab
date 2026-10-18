@@ -194,8 +194,9 @@ The platform-side offline contract is now recorded in
 `evidence/A1-source-bound-window-contract-2026-10-18.md`: the receipt and
 admission projection keep `restore_start_epoch` (trigger) distinct from
 `restore_deadline_epoch` (hard completion). The complete local suite passes
-211 tests with four expected root-custody skips. This closes only the naming
-ambiguity; it does not provide live source authentication, measured recovery
+212 tests with four expected root-custody skips. A follow-up boundary review
+also rejects admission at or after the recovery trigger. This closes only the
+naming ambiguity and trigger-boundary gap; it does not provide live source authentication, measured recovery
 budgets, target-Linux proof, or A1 authorization.
 
 ## Critical path and failure reporting

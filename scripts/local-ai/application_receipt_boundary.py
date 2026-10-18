@@ -121,6 +121,7 @@ def validate_active_lease(receipt: ApplicationReceipt, state: dict,
             or not isinstance(state.get("restore_deadline_epoch"), int)
             or state["restore_deadline_epoch"] <= now_epoch
             or type(state.get("restore_start_epoch")) is not int
+            or state["restore_start_epoch"] <= now_epoch
             or receipt.restore_start_epoch != state["restore_start_epoch"]
             or receipt.restore_deadline_epoch != state["restore_deadline_epoch"]):
         raise ValueError("application lease is not currently admitted")

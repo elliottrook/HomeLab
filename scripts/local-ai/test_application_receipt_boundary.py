@@ -132,3 +132,22 @@ class ApplicationReceiptBoundaryTests(unittest.TestCase):
             active_admission_payload(self.receipt(restore_start_epoch=251), state,
                                      watchdog, now_epoch=200,
                                      profile_sha256=A1_PROFILE_SHA256)
+
+    def test_active_admission_stops_at_recovery_trigger_boundary(self):
+        state = {"mode": MODE, "phase": "sidecar-admitted", "armed": True,
+                 "lease_id": "lease-1", "generation": 4,
+                 "restore_start_epoch": 250, "restore_deadline_epoch": 300}
+        watchdog = {"schema": "aster-application-watchdog-status.v1",
+                    "state": "healthy", "lease_id": "lease-1", "generation": 4,
+                    "valid_until_epoch": 300}
+        self.assertEqual(
+            active_admission_payload(self.receipt(), state, watchdog,
+                                     now_epoch=249,
+                                     profile_sha256=A1_PROFILE_SHA256)["schema"],
+            "aster-a1-admission.v1")
+        for now_epoch in (250, 251, 299):
+            with self.subTest(now_epoch=now_epoch), self.assertRaisesRegex(
+                    ValueError, "not currently admitted"):
+                active_admission_payload(self.receipt(), state, watchdog,
+                                         now_epoch=now_epoch,
+                                         profile_sha256=A1_PROFILE_SHA256)

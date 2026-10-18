@@ -22,11 +22,13 @@ being treated as a recovery trigger.
 
 - Changed source: `scripts/local-ai/application_receipt_boundary.py` and
   `scripts/local-ai/application_b60_controller.py`.
-- Focused application tests: 62 passed.
-- Complete `scripts/local-ai` suite: 211 passed, 4 expected macOS
+- Focused application tests: 63 passed.
+- Complete `scripts/local-ai` suite: 212 passed, 4 expected macOS
   root-custody skips.
 - Tests cover invalid/past windows and a receipt window mismatched to current
-  persisted state.
+  persisted state. A current admission is accepted at
+  `restore_start_epoch - 1` and rejected at the exact trigger and afterward;
+  renewal uses the same current-boundary loader.
 
 ## Remaining gates
 
