@@ -63,13 +63,16 @@ wins. Restoration must include LXC110 authenticated warm-up before Speech,
 Agent and News timers, followed by exact accepted model/binary/unit/GPU/auth,
 service and timer checks.
 
-Legacy-controller exclusion is a separate required host change, not a prose
-promise. Before recurring mode can be live, the old manual
-`local-ai-lease` entrypoint must refuse to acquire while the durable
-full-drain admission marker exists, and its refusal must be tested. If that
-wrapper cannot be changed and verified, recurring mode remains NO-GO; a status
-probe alone is not exclusion. The supervisor and watchdog must also verify the
-marker and exact lease identity before any effect.
+The installed manual helper is confirmed to share the `/var/lib/local-ai-lab`
+directory flock during its acquisition call, but it does not inspect the
+candidate's separate full-drain marker. That prevents simultaneous acquisition
+only while both callers hold the flock; it does not cover the phased CLI gap.
+Before recurring mode can be live, the persistent supervisor must hold the
+same exclusion across the full window and the legacy helper must either refuse
+when the durable full-drain marker exists or be separately blocked by a
+reviewed host change. A status probe alone is not exclusion. The supervisor
+and watchdog must also verify the marker and exact lease identity before any
+effect.
 
 The offline acceptance plan is falsifiable and has no host effects:
 

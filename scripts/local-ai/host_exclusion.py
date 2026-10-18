@@ -1,8 +1,12 @@
 """Source-only host exclusion primitive for archive scans and lease admission.
 
 An advisory lock on the existing private state directory creates no lock file.
-Every permitted entrypoint must participate for this to be a real exclusion
-boundary. The old manual lease controller does not yet participate.
+The installed manual helper (hash recorded in the Stream A read-only evidence)
+uses the same directory flock during its acquisition call. That is only an
+acquisition-time boundary: the phased full-drain CLI releases its flock
+between commands, and the manual helper does not inspect the candidate's
+separate full-drain lock directory. Recurring live use therefore still needs
+a persistent supervisor or an explicit legacy-controller admission change.
 """
 
 from __future__ import annotations
