@@ -32,7 +32,13 @@ projection corrections did not lift these gates. On October 18, Jason approved
 only the disabled diagnostic guard replacement. The platform owner's
 [installed-path result](../../../services/local-ai-lease/F2-DIAGNOSTIC-DISABLED-INSTALL-RESULT-20261018.md)
 and Stream A's independent hash, ownership, timer and no-receipt checks passed.
-No archive scan ran, no new scan is approved, and F2 remains FAILED/UNKNOWN.
+No archive scan ran in that installation, and F2 remains FAILED/UNKNOWN.
+Jason then approved one conditional October 19 read-only F2 attempt under the
+[fresh-cycle card](../../../services/local-ai-lease/F2-FRESH-CYCLE-SUPERVISED-SCAN-CARD-20261018.md).
+The Codex wake-up is saved as one occurrence at 01:05 Vancouver; backup,
+TrueNAS, installed-source, quiet-host, lease and operator gates are checked
+at the time. It may skip. No scan result, receipt, drill or A1 benchmark is
+claimed before actual evidence is retained.
 
 **October 15 afternoon compatibility checkpoint:** Jason approved the
 hash-pinned **inactive** full-stop candidate installation on Proxmox. The
