@@ -283,6 +283,7 @@
                     <overlaytexture></overlaytexture>
                     <info>ListItem.PercentPlayed</info>
                 </control>
+                <include content="AsterWatchBadges"><param name="left" value="278"/><param name="top" value="18"/></include>
                 <control type="label">
                     <left>8</left><top>196</top><width>320</width><height>28</height>
                     <label>$VAR[AsterContinueLabel]</label><font>font20</font>
@@ -314,6 +315,7 @@
                     <overlaytexture></overlaytexture>
                     <info>ListItem.PercentPlayed</info>
                 </control>
+                <include content="AsterWatchBadges"><param name="left" value="278"/><param name="top" value="18"/></include>
                 <control type="label">
                     <left>8</left><top>196</top><width>320</width><height>28</height>
                     <label>$VAR[AsterContinueLabel]</label><font>font20</font>
@@ -347,6 +349,7 @@
                     <texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">$VAR[AsterCardArt]</texture>
                     <aspectratio scalediffuse="false">scale</aspectratio>
                 </control>
+                <include content="AsterWatchBadges"><param name="left" value="278"/><param name="top" value="18"/></include>
                 <control type="label">
                     <left>8</left><top>196</top><width>320</width><height>28</height>
                     <label>$INFO[ListItem.Label]</label><font>font20</font>
@@ -364,6 +367,7 @@
                     <texture>special://skin/media/ui-compact-card-ring.png</texture>
                     <colordiffuse>asterGreen</colordiffuse>
                 </control>
+                <include content="AsterWatchBadges"><param name="left" value="278"/><param name="top" value="18"/></include>
                 <control type="label">
                     <left>8</left><top>196</top><width>320</width><height>28</height>
                     <label>$INFO[ListItem.Label]</label><font>font20</font>

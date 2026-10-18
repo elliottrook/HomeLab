@@ -176,6 +176,25 @@ class LayoutTests(unittest.TestCase):
         self.assertTrue(any('VideoPlayer.Title' in (node.text or '')
                             for node in seek.findall('.//label')))
 
+    def test_media_cards_expose_watch_state_and_episode_counts(self):
+        includes = ET.parse(ROOT / '1080i/Includes.xml')
+        badges = includes.find('.//include[@name="AsterWatchBadges"]')
+        self.assertIsNotNone(badges)
+        labels = [node.text or '' for node in badges.findall('.//label')]
+        self.assertIn('✓', labels)
+        self.assertIn('●', labels)
+        self.assertTrue(any('UnWatchedEpisodes' in label for label in labels))
+        conditions = [node.text or '' for node in badges.findall('.//visible')]
+        self.assertTrue(any('ListItem.PlayCount' in condition
+                            for condition in conditions))
+        self.assertTrue(any('ListItem.IsResumable' in condition
+                            for condition in conditions))
+
+        for page in ('Home.xml', 'MyVideoNav.xml'):
+            tree = ET.parse(ROOT / '1080i' / page)
+            uses = tree.findall('.//include[@content="AsterWatchBadges"]')
+            self.assertGreaterEqual(len(uses), 2, page)
+
     def test_expansion_assets_and_page_mapping(self):
         icons = ('20-music-app', '21-books-app', '22-podcasts-app',
                  '23-music-album', '24-music-artist', '25-music-song',

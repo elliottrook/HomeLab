@@ -95,6 +95,40 @@
         <value>$INFO[Container(100).ListItem.FileNameAndPath]</value>
     </variable>
 
+    <!-- Media-state badges use Kodi's library metadata directly. TV shows and
+         seasons expose their remaining episode count; playable titles use a
+         check or dot without adding another artwork dependency. -->
+    <include name="AsterWatchBadges">
+        <control type="image">
+            <left>$PARAM[left]</left><top>$PARAM[top]</top><width>56</width><height>42</height>
+            <texture border="18" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texture>
+            <visible>!ListItem.IsParentFolder + Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + [String.IsEqual(ListItem.DBType,tvshow) | String.IsEqual(ListItem.DBType,season)]</visible>
+        </control>
+        <control type="label">
+            <left>$PARAM[left]</left><top>$PARAM[top]</top><width>56</width><height>42</height>
+            <label>$INFO[ListItem.Property(UnWatchedEpisodes)]</label><font>font20</font>
+            <textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny>
+            <visible>!ListItem.IsParentFolder + Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + [String.IsEqual(ListItem.DBType,tvshow) | String.IsEqual(ListItem.DBType,season)]</visible>
+        </control>
+        <control type="image">
+            <left>$PARAM[left]</left><top>$PARAM[top]</top><width>42</width><height>42</height>
+            <texture border="18" colordiffuse="asterSage">special://skin/media/ui-panel.png</texture>
+            <visible>!ListItem.IsParentFolder + !ListItem.IsResumable + !Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + [String.IsEqual(ListItem.Overlay,OverlayWatched.png) | Integer.IsGreater(ListItem.PlayCount,0)]</visible>
+        </control>
+        <control type="label">
+            <left>$PARAM[left]</left><top>$PARAM[top]</top><width>42</width><height>42</height>
+            <label>✓</label><font>font24</font><textcolor>asterInk</textcolor>
+            <align>center</align><aligny>center</aligny>
+            <visible>!ListItem.IsParentFolder + !ListItem.IsResumable + !Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + [String.IsEqual(ListItem.Overlay,OverlayWatched.png) | Integer.IsGreater(ListItem.PlayCount,0)]</visible>
+        </control>
+        <control type="label">
+            <left>$PARAM[left]</left><top>$PARAM[top]</top><width>42</width><height>42</height>
+            <label>●</label><font>font16</font><textcolor>asterSage</textcolor>
+            <align>center</align><aligny>center</aligny>
+            <visible>!ListItem.IsParentFolder + !ListItem.IsResumable + !Integer.IsGreater(ListItem.PlayCount,0) + !Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + [String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,episode)]</visible>
+        </control>
+    </include>
+
     <include name="AsterPageBackground">
         <texture>none</texture>
         <animation effect="fade" start="0" end="100" time="180">WindowOpen</animation>

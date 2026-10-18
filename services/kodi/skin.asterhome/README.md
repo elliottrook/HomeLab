@@ -575,6 +575,14 @@ to its selected media container before requesting the standard Kodi video
 information dialog. This avoids the no-op caused by invoking `Info` while the
 button itself, rather than a media item, owns focus.
 
+Version 0.8.28 adds watch-state cues to the Media landing rails and the
+TV/movie library grids. Unwatched movies and episodes use a small standalone
+sage dot, watched titles use a sage check, and TV-show/season cards display
+Kodi's live `UnWatchedEpisodes` count. Resumable items deliberately show only
+their existing progress bar so an in-progress title cannot also appear fully
+watched. The skin reads Kodi library metadata and does not maintain a parallel
+watch-state database.
+
 ## Local test
 
 The Books pages show bounded, plain-text source synopses and a full-text About

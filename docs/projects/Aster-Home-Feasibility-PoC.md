@@ -1503,6 +1503,24 @@ the selected media container before invoking its information action. Pressing
 that exact button opened the selected episode's Aster detail page with title,
 artwork and synopsis. Playback was stopped after the test.
 
+Watch-state badges, 2026-10-17 (skin v0.8.28): Aster now projects Kodi's own
+watched state onto the Media landing rails and TV/movie library cards. A small
+background-free sage dot identifies an unwatched movie or episode, a sage
+check identifies a fully watched title or series, and TV-show/season cards
+show their live `UnWatchedEpisodes` total. Resumable items retain only the
+existing progress bar, avoiding the contradictory combination of partial
+progress and a watched check.
+
+The disposable macOS client visually confirmed numeric badges including 1,
+2, 3, 10, 13, 18 and 36 across the TV Shows grid, plus a watched-series check.
+The landing page showed precise standalone dots on unwatched recommendations
+and no watched mark over in-progress episodes. The implementation uses the
+skin's 1920x1080 design canvas; Kodi scales that 16:9 canvas to the configured
+output resolution. The pre-change installed skin remains available at
+`/private/tmp/asterhome-kodi-watch-badges-pre-20261017` for local rollback.
+All 74 skin tests, four bridge tests, complete XML parsing, Kodi-log inspection
+and whitespace validation passed.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
