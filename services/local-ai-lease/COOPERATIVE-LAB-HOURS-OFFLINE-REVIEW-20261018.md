@@ -29,8 +29,11 @@ and journaled.
   events;
 - failed effects leave the lock and state for reconciliation and do not
   auto-restore under uncertainty;
-- restore requires owner presence, a live deadline, and a positive post-restore
-  observer before releasing the lock;
+- restore requires owner presence and positive exact postchecks before releasing
+  the lock; a missed deadline records an overdue event but does not block
+  emergency recovery;
+- the durable state carries an owner identity and heartbeat and can be resumed
+  by a reviewed recovery process after the original owner process ends;
 - advisory mode executes no command.
 
 Focused result: `test_cooperative_lab_session.py` — 5 passed.
@@ -39,6 +42,13 @@ The first usable pilot is still intentionally an isolation/recovery proof. The
 backend remains available, but a separate reviewed workload declaration is
 required before B60 requests are authorized. This candidate does not itself
 authorize arbitrary model calls or a benchmark batch.
+
+The preflight dataclass is an offline contract, not proof that its booleans,
+epochs, or receipt came from the host. A live producer must obtain and
+authenticate those values from the pinned backup, schedule, backend, GPU,
+consumer and client-observer sources; caller-supplied JSON is not acceptable.
+The exact observer callback must likewise be bound to read-only service/timer
+state checks before target-Linux installation can be considered.
 
 ## Remaining gates
 

@@ -15,6 +15,7 @@ from application_b60_lease import ACCEPTED_BACKEND
 from host_exclusion import host_exclusion
 
 MAX_LAB_SECONDS = 45 * 60
+DEFAULT_PILOT_SECONDS = 30 * 60
 MIN_RESTORE_RESERVE_SECONDS = 15 * 60
 MIN_NEWS_MARGIN_SECONDS = 5 * 60
 LAB_TIMEZONE = ZoneInfo("America/Vancouver")
@@ -110,7 +111,7 @@ def _command(vmid: str, *args: str) -> tuple[str, ...]:
     return ("pct", "exec", vmid, "--", *args)
 
 
-def plan(preflight: CooperativeLabPreflight, *, lab_seconds: int = MAX_LAB_SECONDS) -> LabSessionPlan:
+def plan(preflight: CooperativeLabPreflight, *, lab_seconds: int = DEFAULT_PILOT_SECONDS) -> LabSessionPlan:
     """Validate a current source-bound reservation and return fixed commands."""
     if (preflight.mode != "cooperative-lab-v1" or not preflight.lease_id
             or type(preflight.generation) is not int or preflight.generation < 1
@@ -149,8 +150,11 @@ class CooperativeLabController:
     """Effectful candidate; disabled unless explicitly enabled by a platform wrapper."""
 
     def __init__(self, paths: CooperativeLabPaths, runner: Callable[[Sequence[str]], None], *,
-                 allow_effects: bool = False, observer: Callable[[], bool] | None = None):
+                 allow_effects: bool = False,
+                 observer: Callable[[str, Sequence[str]], bool] | None = None,
+                 owner_id: str = ""):
         self.paths, self.runner, self.allow_effects, self.observer = paths, runner, allow_effects, observer
+        self.owner_id = owner_id
         self._exclusion = None
         self._active = False
 
@@ -158,8 +162,10 @@ class CooperativeLabController:
         if not self.allow_effects:
             raise LabSessionError("cooperative lab controller is advisory-only; live effects are disabled")
 
-    def begin(self, preflight: CooperativeLabPreflight, *, lab_seconds: int = MAX_LAB_SECONDS) -> LabSessionPlan:
+    def begin(self, preflight: CooperativeLabPreflight, *, lab_seconds: int = DEFAULT_PILOT_SECONDS) -> LabSessionPlan:
         self._require_effects()
+        if not self.owner_id:
+            raise LabSessionError("durable owner identity is required")
         value = plan(preflight, lab_seconds=lab_seconds)
         self.paths.root.mkdir(mode=0o700, parents=True, exist_ok=True)
         if self.paths.state.exists() or self.paths.lock.exists():
@@ -170,18 +176,57 @@ class CooperativeLabController:
             if self.paths.state.exists() or self.paths.lock.exists():
                 raise LabSessionError("existing cooperative lab state or lock is present")
             self.paths.lock.mkdir(mode=0o700)
-            state = {**asdict(value), "phase": "armed", "restore_deadline_epoch": preflight.restore_deadline_epoch}
+            state = {**asdict(value), "phase": "armed", "owner_id": self.owner_id,
+                     "heartbeat_epoch": preflight.now_epoch,
+                     "restore_deadline_epoch": preflight.restore_deadline_epoch}
             _atomic_write(self.paths.state, json.dumps(state, sort_keys=True) + "\n")
+            self._active = True
             for command in value.stop_commands:
                 unit = command[-1]
                 _journal(self.paths.journal, {"event": "effect-intent", "lease_id": value.lease_id, "unit": unit})
                 self.runner(command)
+                if self.observer is None or not self.observer("mask", command):
+                    raise LabSessionError(f"exact postcheck failed for {unit}")
                 _journal(self.paths.journal, {"event": "effect-observed", "lease_id": value.lease_id, "unit": unit})
             _atomic_write(self.paths.state, json.dumps({**state, "phase": "leased"}, sort_keys=True) + "\n")
-            self._active = True
             return value
         except Exception:
             _journal(self.paths.journal, {"event": "effect-uncertain", "lease_id": value.lease_id})
+            raise
+
+    def heartbeat(self, now_epoch: int) -> None:
+        """Refresh the durable owner heartbeat while the process holds the lock."""
+        self._require_effects()
+        if not self._active or not self.paths.state.exists():
+            raise LabSessionError("no active cooperative lab lease")
+        state = json.loads(self.paths.state.read_text(encoding="utf-8"))
+        if state.get("owner_id") != self.owner_id:
+            raise LabSessionError("cooperative lab owner identity does not match")
+        state["heartbeat_epoch"] = now_epoch
+        _atomic_write(self.paths.state, json.dumps(state, sort_keys=True) + "\n")
+        _journal(self.paths.journal, {"event": "heartbeat", "lease_id": state["lease_id"], "owner_id": self.owner_id})
+
+    def resume_existing(self, *, lease_id: str, generation: int) -> LabSessionPlan:
+        """Reacquire a durable locked lease after the original owner process ended."""
+        self._require_effects()
+        if not self.owner_id or not self.paths.lock.exists() or not self.paths.state.exists():
+            raise LabSessionError("durable cooperative lab state is unavailable")
+        self._exclusion = host_exclusion(self.paths.root.parent)
+        self._exclusion.__enter__()
+        try:
+            state = json.loads(self.paths.state.read_text(encoding="utf-8"))
+            if (state.get("owner_id") != self.owner_id or state.get("lease_id") != lease_id
+                    or int(state.get("generation", -1)) != generation):
+                raise LabSessionError("durable cooperative lab identity does not match")
+            self._active = True
+            return LabSessionPlan(state["mode"], state["lease_id"], int(state["generation"]),
+                                  int(state["lab_seconds"]), int(state["restore_reserve_seconds"]),
+                                  bool(state["preserve_backend"]),
+                                  tuple(tuple(x) for x in state["stop_commands"]),
+                                  tuple(tuple(x) for x in state["restore_commands"]))
+        except Exception:
+            self._exclusion.__exit__(None, None, None)
+            self._exclusion = None
             raise
 
     def restore(self, value: LabSessionPlan, *, now_epoch: int, owner_present: bool) -> None:
@@ -190,15 +235,19 @@ class CooperativeLabController:
             raise LabSessionError("owner presence and active lab lease are required for restore")
         state = json.loads(self.paths.state.read_text(encoding="utf-8"))
         if now_epoch > int(state["restore_deadline_epoch"]):
-            raise LabSessionError("restore deadline has passed; retain lock for reconciliation")
+            _journal(self.paths.journal, {"event": "restore-overdue", "lease_id": value.lease_id})
         for command in value.restore_commands:
             unit = command[-1]
             _journal(self.paths.journal, {"event": "restore-intent", "lease_id": value.lease_id, "unit": unit})
-            self.runner(command)
+            try:
+                self.runner(command)
+                phase = "unmask" if "unmask" in command else "start"
+                if self.observer is None or not self.observer(phase, command):
+                    raise LabSessionError(f"exact postcheck failed for {unit}")
+            except Exception:
+                _journal(self.paths.journal, {"event": "restore-uncertain", "lease_id": value.lease_id, "unit": unit})
+                raise
             _journal(self.paths.journal, {"event": "restore-observed", "lease_id": value.lease_id, "unit": unit})
-        if self.observer is None or not self.observer():
-            _journal(self.paths.journal, {"event": "restore-uncertain", "lease_id": value.lease_id})
-            raise LabSessionError("post-restore observation is incomplete; retain lock")
         _journal(self.paths.journal, {"event": "restore-verified", "lease_id": value.lease_id})
         self.paths.state.unlink(missing_ok=True)
         self.paths.lock.rmdir()

@@ -16,7 +16,7 @@ class CooperativeLabSessionTests(unittest.TestCase):
     def preflight(self):
         return CooperativeLabPreflight("cooperative-lab-v1", "lab-1", 3, "backup-1",
             ACCEPTED_BACKEND, True, True, True, True, True, True,
-            self.epoch(10, 0), self.epoch(10, 0), self.epoch(10, 45), self.epoch(11, 0), self.epoch(11, 30))
+            self.epoch(10, 0), self.epoch(10, 0), self.epoch(10, 30), self.epoch(10, 45), self.epoch(11, 30))
 
     def test_plan_is_source_bound_and_preserves_backend(self):
         value = plan(self.preflight())
@@ -30,7 +30,7 @@ class CooperativeLabSessionTests(unittest.TestCase):
         bad = self.preflight().__class__(**{**self.preflight().__dict__, "news_timers_active": False})
         with self.assertRaisesRegex(LabSessionError, "runtime"):
             plan(bad)
-        bad = self.preflight().__class__(**{**self.preflight().__dict__, "next_news_ingest_epoch": self.epoch(11, 4)})
+        bad = self.preflight().__class__(**{**self.preflight().__dict__, "next_news_ingest_epoch": self.epoch(10, 49)})
         with self.assertRaisesRegex(LabSessionError, "News ingest"):
             plan(bad)
         bad = self.preflight().__class__(**{**self.preflight().__dict__, "lab_end_epoch": self.epoch(11, 1)})
@@ -49,12 +49,18 @@ class CooperativeLabSessionTests(unittest.TestCase):
         calls = []
         with tempfile.TemporaryDirectory() as tmp:
             paths = CooperativeLabPaths(Path(tmp) / "state")
-            controller = CooperativeLabController(paths, calls.append, allow_effects=True, observer=lambda: True)
+            observations = []
+            def observer(phase, command):
+                observations.append((phase, tuple(command)))
+                return True
+            controller = CooperativeLabController(paths, calls.append, allow_effects=True,
+                                                   observer=observer, owner_id="test-owner")
             value = controller.begin(self.preflight())
             self.assertEqual(len(calls), 4)
             self.assertTrue(paths.lock.exists())
             controller.restore(value, now_epoch=self.epoch(10, 50), owner_present=True)
             self.assertEqual(len(calls), 12)
+            self.assertEqual(len(observations), 12)
             self.assertFalse(paths.lock.exists())
             self.assertIn("restore-verified", paths.journal.read_text())
 
@@ -66,13 +72,15 @@ class CooperativeLabSessionTests(unittest.TestCase):
                 raise RuntimeError("synthetic failure")
         with tempfile.TemporaryDirectory() as tmp:
             paths = CooperativeLabPaths(Path(tmp) / "state")
-            controller = CooperativeLabController(paths, fail_on_third, allow_effects=True)
+            controller = CooperativeLabController(paths, fail_on_third, allow_effects=True,
+                                                   observer=lambda *_: True, owner_id="test-owner")
             with self.assertRaises(RuntimeError):
                 controller.begin(self.preflight())
             self.assertTrue(paths.lock.exists())
             self.assertTrue(paths.state.exists())
             self.assertEqual(len(calls), 3)
-            controller._exclusion.__exit__(None, None, None)
+            controller.restore(plan(self.preflight()), now_epoch=self.epoch(10, 50), owner_present=True)
+            self.assertFalse(paths.lock.exists())
 
 
 if __name__ == "__main__":

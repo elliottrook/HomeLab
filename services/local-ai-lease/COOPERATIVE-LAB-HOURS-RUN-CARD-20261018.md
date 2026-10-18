@@ -7,8 +7,8 @@ injection, model benchmark, lease acquisition or schedule change by itself.
 
 Jason's approved daytime Aster/voice outage ceiling is up to 90 minutes and
 the reservation must end at least 45 minutes before the 17:15 News run. The
-first pilot intentionally uses the stricter 60-minute bound below; expanding
-it requires measured evidence and a revised approval.
+first pilot intentionally uses the stricter 45-minute reservation below;
+expanding it requires measured evidence and a revised approval.
 
 ## Smallest viable pilot
 
@@ -51,7 +51,8 @@ Before a live pilot, the fixed source-bound producer must obtain—not receive
 from caller JSON—the current backup/cycle, TrueNAS schedule/task state, Mac
 subset state, exact backend/model/SYCL/GPU/auth state, consumer/timer state,
 and a fresh host lock/lease identity. It must bind a unique lease ID and
-generation to the 45-minute work window and 15-minute restoration reserve.
+generation to the 30-minute first-pilot work window and 15-minute restoration
+reserve (45 minutes remains the later measured maximum).
 
 The preflight must reject stale, fabricated, partial or future evidence,
 existing whole-host/application leases, competing jobs, backend drift,
@@ -97,7 +98,9 @@ write or runtime state is uncertain, retain it for reconciliation and stop.
 `scripts/local-ai/cooperative_lab_session.py` is source-only and disabled by
 default. It now contains a separate effectful candidate controller with fixed
 runtime-mask/unmask commands, host exclusion, atomic state, phase journaling,
-owner/deadline checks and post-restore observation; no live wrapper enables it.
+durable owner/heartbeat state, resumable recovery, and exact injected
+postchecks; no live wrapper enables it. Recovery remains callable after a
+missed deadline and records that condition for reconciliation.
 Its focused tests pass 5/5; the full
 `scripts/local-ai` suite passes 222 tests with 4 expected macOS root-custody
 skips. The installed F2 diagnostic guard is unrelated read-only infrastructure
