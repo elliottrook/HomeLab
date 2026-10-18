@@ -334,3 +334,12 @@ binary, model and production authentication-probe paths present. This is
 path availability only. It does not prove the target Linux import, scope
 cleanup, GPU process identity, credential flow, model call, restoration or
 MacBook custody, and it does not authorize staging or the live pilot.
+
+A further read-only Proxmox check of the active production GPU holder found
+the exact cgroup `0::/lxc/110/ns/system.slice/aster-llama.service`, the
+accepted `llama-server` executable path, and an fd to
+`/dev/dri/renderD128`. The revised source at `73b17c92` matches only the
+broader `lxc/110` substring. A same-binary process in another LXC110 unit
+could still be accepted as baseline. The platform owner received the observed
+cgroup and a request to bind admission to the exact production unit and test
+the same-guest/different-unit case. No GPU workload was started.
