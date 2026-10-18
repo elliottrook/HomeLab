@@ -355,3 +355,30 @@ new exact approval has been requested for that **disabled installation only**.
 The target Linux import, full process-lifetime check and live drain remain
 unproven. Continuous host-wide GPU exclusivity is still outside the pilot's
 claim, and the first live run retains its separate attended approval gate.
+
+## Disabled target installation — October 18, 15:54 Vancouver
+
+Jason approved the **new** 19-file Proxmox plus one-wrapper LXC110 packet,
+superseding the unanswered older 14-file staging request. The files were
+extracted from source commit `b43d4971`, checked against the combined card,
+and installed only into previously absent paths:
+
+- Proxmox: `/usr/local/libexec/local-ai-lease/full-inference-pilot/`,
+  `root:root` mode 0700 directory with 19 mode-0644 files.
+- LXC110: `/usr/local/sbin/aster-llama-lab-smoke`, `root:root` mode 0750.
+
+All **20 installed SHA-256 hashes** matched the card. The target-Linux import
+preflight returned 10 modules, five drain effects, eleven restore effects and
+`effects=not-attempted`. The target ran 47 focused synthetic tests successfully;
+the in-guest wrapper parsed successfully. A postcheck found the manual lease
+`ready`, Aster Agent, Speech and production llama active, both News timers
+active, and no listener on lab port 11436. No unit/timer was installed or
+enabled, no service was stopped, and no model request or live pilot was invoked.
+
+This closes **disabled staging and target import** only. The revised combined
+live run card, actual MacBook operator custody, no-overlap timing, attended
+stop/recovery and independent restoration checks are still required before
+using `--effect-authorized`. The pilot can demonstrate known-consumer isolation
+and fixed smoke; its point-in-time GPU checks do not establish recurring or
+host-wide exclusive lab hours. Rollback for this stage removes only the new
+Proxmox directory and LXC110 wrapper after confirming they are unused.
