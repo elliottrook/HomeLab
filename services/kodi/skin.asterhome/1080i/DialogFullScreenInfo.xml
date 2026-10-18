@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+  <defaultcontrol always="true">999</defaultcontrol>
+  <controls>
+    <control type="button" id="999">
+      <left>0</left><top>0</top><width>1920</width><height>1080</height>
+      <texturefocus></texturefocus><texturenofocus></texturenofocus>
+      <onright>StepForward</onright><onleft>StepBack</onleft>
+      <onup>ChapterOrBigStepForward</onup><ondown>ChapterOrBigStepBack</ondown>
+      <onclick>OSD</onclick>
+    </control>
+    <control type="image"><left>80</left><top>610</top><width>1760</width><height>390</height><texture border="34" colordiffuse="ed292721">special://skin/media/ui-panel.png</texture></control>
+    <control type="image"><left>80</left><top>610</top><width>1760</width><height>390</height><texture border="34" colordiffuse="asterGold">special://skin/media/ui-button-ring.png</texture></control>
+    <control type="image"><left>136</left><top>658</top><width>82</width><height>82</height><texture>special://skin/media/aster-compass-128.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>248</left><top>640</top><width>1210</width><height>64</height><label>$INFO[VideoPlayer.Title]</label><font>font40</font><textcolor>asterRailText</textcolor><truncate>true</truncate></control>
+    <control type="label"><left>250</left><top>704</top><width>1210</width><height>38</height><label>$INFO[VideoPlayer.TVShowTitle]$INFO[VideoPlayer.Season,  ·  S,]$INFO[VideoPlayer.Episode,E,]$INFO[VideoPlayer.Year,  ·  ,]</label><font>font20</font><textcolor>asterGold</textcolor><truncate>true</truncate></control>
+    <control type="label"><right>138</right><top>660</top><width>310</width><height>44</height><label>$INFO[Player.Time(hh:mm:ss)]  /  $INFO[Player.Duration(hh:mm:ss)]</label><font>font20</font><textcolor>asterRailText</textcolor><align>right</align></control>
+    <control type="textbox"><left>138</left><top>770</top><width>1644</width><height>150</height><label>$INFO[VideoPlayer.Plot]</label><font>font24</font><textcolor>asterRailText</textcolor><autoscroll delay="8000" time="2500" repeat="8000">true</autoscroll></control>
+    <control type="progress"><left>138</left><top>944</top><width>1644</width><height>12</height><texturebg border="5" colordiffuse="asterMuted">special://skin/media/ui-progress.png</texturebg><midtexture border="5" colordiffuse="asterSage">special://skin/media/ui-progress.png</midtexture><lefttexture></lefttexture><righttexture></righttexture><overlaytexture></overlaytexture><info>Player.Progress</info></control>
+  </controls>
+</window>

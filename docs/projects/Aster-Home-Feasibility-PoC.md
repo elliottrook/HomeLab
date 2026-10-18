@@ -1473,6 +1473,26 @@ All 73 skin tests, complete XML parsing and whitespace validation passed. The
 pre-change installed skin is retained at
 `/private/tmp/asterhome-kodi-osd-pre-20261017` for local rollback.
 
+Playback stream controls, 2026-10-17 (skin v0.8.26): the OSD now adds a
+secondary remote-first row for Audio, Subtitles and Quality, backed by an
+Aster-styled implementation of Kodi's runtime settings dialog. A live
+Jellyfin episode exposed its DD+ 5.1 audio stream and passthrough control, 35
+subtitle streams plus enable/offset controls, and its active H.264 1920x1080
+video stream. The Quality control opens Kodi's resolution selector when the
+player publishes adaptive alternatives; for a direct-play Jellyfin file such
+as this test, Kodi publishes one stream, so it instead exposes the current
+resolution and video processing controls rather than inventing a transcode
+ladder.
+
+The previously inert Info control was repaired with an Aster full-screen
+information contract. Live playback visibly opened the episode title,
+series/episode/year, elapsed and total time, two-line synopsis and progress
+overlay. Subtitle, audio, video and information dialogs all loaded without a
+skin exception, and playback was stopped after validation. All 73 skin tests,
+complete XML parsing and whitespace validation passed. The pre-change
+installed skin is retained at
+`/private/tmp/asterhome-kodi-stream-controls-pre-20261017` for local rollback.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

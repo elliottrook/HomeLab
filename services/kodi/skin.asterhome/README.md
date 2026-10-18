@@ -560,6 +560,15 @@ progress, previous/next, discrete −10/+30 second seeking, pause/resume, stop
 and information controls. The skin changes presentation only; playback and
 all actions continue to use Kodi's built-in player.
 
+Version 0.8.26 extends that panel with Audio, Subtitles and Quality controls
+and adds Aster-styled runtime settings and full-screen information dialogs.
+Audio and subtitle buttons expose Kodi's real stream selectors and related
+offset/passthrough controls. Quality opens Kodi's resolution picker when the
+active player advertises alternatives; direct-play files normally expose only
+their active video stream, in which case the button shows that resolution and
+Kodi's video-processing settings. Info now opens the current title,
+series/episode/year, synopsis, time and progress instead of doing nothing.
+
 ## Local test
 
 The Books pages show bounded, plain-text source synopses and a full-text About

@@ -127,7 +127,7 @@ class LayoutTests(unittest.TestCase):
         by_id = {control.get('id'): control for control in osd.findall('.//control')
                  if control.get('id')}
         for identifier in ('600', '601', '602', '603', '605', '606', '607',
-                           '70043', '9000'):
+                           '70043', '7100', '7101', '7102', '9000'):
             self.assertIn(identifier, by_id)
         actions = [node.text for node in osd.findall('.//onclick')]
         for action in ('PlayerControl(Previous)', 'Seek(-10)',
@@ -138,7 +138,31 @@ class LayoutTests(unittest.TestCase):
         labels = [node.text or '' for node in osd.findall('.//label')]
         self.assertTrue(any('Player.Time' in label for label in labels))
         self.assertTrue(any('Player.Duration' in label for label in labels))
+        self.assertEqual(by_id['7100'].findtext('onclick'),
+                         'ActivateWindow(osdaudiosettings)')
+        self.assertEqual(by_id['7101'].findtext('onclick'),
+                         'ActivateWindow(osdsubtitlesettings)')
+        quality_actions = [node.text for node in by_id['7102'].findall('onclick')]
+        self.assertEqual(quality_actions,
+                         ['PlayerResolutionSelect',
+                          'ActivateWindow(osdvideosettings)'])
         ET.parse(ROOT / '1080i/VideoFullScreen.xml')
+
+        settings = ET.parse(ROOT / '1080i/DialogSettings.xml')
+        for control_type, identifier in (('grouplist', '5'), ('button', '7'),
+                                         ('radiobutton', '8'),
+                                         ('spincontrolex', '9'),
+                                         ('sliderex', '13'),
+                                         ('scrollbar', '60')):
+            self.assertIsNotNone(settings.find(
+                f'.//control[@type="{control_type}"][@id="{identifier}"]'))
+
+        full_info = ET.parse(ROOT / '1080i/DialogFullScreenInfo.xml')
+        self.assertEqual(full_info.findtext('./defaultcontrol'), '999')
+        self.assertEqual(full_info.find('.//control[@id="999"]/onclick').text,
+                         'OSD')
+        self.assertTrue(any('VideoPlayer.Plot' in (node.text or '')
+                            for node in full_info.findall('.//label')))
 
         seek = ET.parse(ROOT / '1080i/DialogSeekBar.xml')
         self.assertIsNotNone(seek.find('.//info[.="Player.Progress"]'))
