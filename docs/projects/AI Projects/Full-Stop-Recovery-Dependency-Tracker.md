@@ -239,6 +239,13 @@ gates every time, and pauses after the first complete three-row pass or any
 drift/safety/review condition. It does not authorize automatic promotion or
 any host action beyond the separately controlled read-only invocation.
 
+The separate cooperative daytime lab-hours candidate and 60-minute pilot card
+are documented in
+`services/local-ai-lease/COOPERATIVE-LAB-HOURS-RUN-CARD-20261018.md`. It
+preserves the accepted backend, quiesces only the fixed Aster/Speech/News
+consumer set, and remains offline pending source-bound host wiring and a
+separate daytime pilot approval.
+
 ## Critical path and failure reporting
 
 F2 can be measured while F3 is engineered, but a read-only F2 result is not
