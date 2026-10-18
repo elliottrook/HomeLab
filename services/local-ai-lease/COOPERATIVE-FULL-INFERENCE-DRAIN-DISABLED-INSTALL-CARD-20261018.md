@@ -9,9 +9,8 @@ Stage exactly fourteen files under the concrete target path
 `/usr/local/libexec/local-ai-lease/full-inference-drain/` on the target
 Proxmox host, not in an LXC. The directory is root-owned mode 0700; modules
 are root-owned mode 0644. The test is evidence-only and is not a runtime
-entrypoint. The source commit `54278256` containing the final source/validator
+entrypoint. The source commit `3d976dd4` containing the final source/validator
 packet and the hashes below must match before staging:
-the hashes below must match before staging:
 
 | File | SHA-256 |
 |---|---|
@@ -20,12 +19,12 @@ the hashes below must match before staging:
 | `cooperative_lab_session.py` | `1a1c1f11219c0ec4a89671b7acb552e40d005a8e7fe056b8eab8225cc374e260` |
 | `cooperative_lab_host_adapter.py` | `0f49cca4a08aa56a2c1178820d55d2ee6f3050e794f232a7a7b94658f0f358b7` |
 | `test_cooperative_lab_host_adapter.py` | `e9433ab5b35dc11881f0a5416e5c8cd94243919b5b7264e9ccf629bffbf73b7a` |
-| `full_inference_lab_sources.py` | `59a653bc221fd3337ffbb5ad6d117c984a4f477edde65e8ba2ed30d12beb6d6f` |
-| `full_inference_lab_validator.py` | `3ba71cb4c3ad796efd3e0f705b91304c2bb15e2cac4b55c9834e44dbe9677701` |
+| `full_inference_lab_sources.py` | `5db6a81dda9407dea33fb6ae4a6567a249b720acb88d4176e474ddb96814872a` |
+| `full_inference_lab_validator.py` | `59cde81f3011243c227d7c5d170524eaf7436dfeabe4a6d710103a54aad5ff88` |
 | `full_inference_lab_runtime.py` | `8beab54e617853a73908108aba6207e47dfcc4546e13a6275790ce87bffd249b` |
 | `full_inference_lab_install_preflight.py` | `72ab5857e1a964f4d831ea923957356d3ce5799ae0e3cc1dc2a3c9cf82d2388e` |
-| `test_full_inference_lab_sources.py` | `a6876a3b04ca1c293651157b7429e6a9c814366bec22b0f645542a3938785649` |
-| `test_full_inference_lab_validator.py` | `5e9c368f3d4b66fec239c22c8d45a269c1af52536a3f2aca90fee39dcf2ea0ff` |
+| `test_full_inference_lab_sources.py` | `41d756ed018227096c7a4e97d13655e35c4417e0bb099c1406bac45b382c3ded` |
+| `test_full_inference_lab_validator.py` | `e89c516e6190ab69936bbe4544d5a75aa0742410db160ddc9e592108485da7dd` |
 | `test_full_inference_lab_install_preflight.py` | `2e6eb97b8521ba782ce3914970ff5b7dd3414d70049525451b2862b6d38eee5d` |
 | `application_b60_lease.py` | `deaf278c8bc3234f3150f1c3ee696b3cc0cdb55e97c575fec6efb65d6ef9c95d` |
 | `host_exclusion.py` | `f8c60ad720a8ac1c6c4f3e51c84ce67747b50f25534c02e0ee6ed38efc302563` |
