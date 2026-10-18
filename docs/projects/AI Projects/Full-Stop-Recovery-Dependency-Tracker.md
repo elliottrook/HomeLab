@@ -39,6 +39,12 @@ review. It is not installed and was not used to retry October 17. The current
 checkout passes 208 local tests with four expected macOS root-custody skips;
 target-Linux proof, a new pinned card and fresh approvals remain required.
 
+A later source-only projection review at local `588be180` binds future
+complete results to the cycle date and fixed archive names, and rejects
+impossible size, ctime and elapsed-time values. The current checkout passes
+209 tests with four expected macOS root-custody skips. This candidate remains
+uninstalled and does not explain the October 17 failure.
+
 Later read-only [post-event observations](evidence/F2-post-event-observations-2026-10-17.md)
 confirmed the lease remained ready, the installed producer matched all three
 fixed guest-log final lines, and the fixed scheduler filter showed one backup
