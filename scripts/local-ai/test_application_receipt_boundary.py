@@ -86,14 +86,14 @@ class ApplicationReceiptBoundaryTests(unittest.TestCase):
                                  expected_lease_id="lease-1", expected_generation=4)
 
     def test_host_callback_owns_time_and_loads_current_boundary(self):
-        expected = {"schema": "aster-a1-admission.v1"}
+        expected = {"schema": "aster-a1-admission.v2"}
         with patch("application_receipt_boundary.load_active_admission_payload", return_value=expected) as loader, \
              patch("application_receipt_boundary.time.time", return_value=250.9):
             self.assertEqual(host_admission_callback(A1_PROFILE_SHA256), expected)
         loader.assert_called_once_with(now_epoch=250, profile_sha256=A1_PROFILE_SHA256)
 
     def test_renewal_uses_current_identity_and_short_expiry(self):
-        payload = {"schema": "aster-a1-admission.v1", "lease_id": "lease-1",
+        payload = {"schema": "aster-a1-admission.v2", "lease_id": "lease-1",
                    "generation": 4}
         with patch("application_receipt_boundary.load_active_admission_payload", return_value=payload), \
              patch("pathlib.Path.read_text", return_value='{"restore_deadline_epoch": 1200}'), \
@@ -144,7 +144,7 @@ class ApplicationReceiptBoundaryTests(unittest.TestCase):
             active_admission_payload(self.receipt(), state, watchdog,
                                      now_epoch=249,
                                      profile_sha256=A1_PROFILE_SHA256)["schema"],
-            "aster-a1-admission.v1")
+            "aster-a1-admission.v2")
         for now_epoch in (250, 251, 299):
             with self.subTest(now_epoch=now_epoch), self.assertRaisesRegex(
                     ValueError, "not currently admitted"):

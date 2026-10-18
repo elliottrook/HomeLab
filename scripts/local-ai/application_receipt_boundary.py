@@ -98,7 +98,7 @@ def admission_payload(receipt: ApplicationReceipt, *, expected_lease_id: str,
     if endpoint != ADMISSION_ENDPOINT or profile_sha256 != A1_PROFILE_SHA256:
         raise ValueError("A1 admission endpoint or profile pin is invalid")
     return {
-        "schema": "aster-a1-admission.v1",
+        "schema": "aster-a1-admission.v2",
         "lease_id": receipt.lease_id,
         "generation": receipt.generation,
         "restore_start_epoch": receipt.restore_start_epoch,

@@ -14,7 +14,9 @@ The platform-owned `ApplicationReceipt` now carries two distinct fields:
 application state. The receipt validator rejects non-integer or non-increasing
 windows and receipts past the hard deadline. The active-admission projection
 requires both fields to match the current armed state, lease identity and
-generation; it includes both fields in the content-free admission payload.
+generation; it includes both fields in the content-free
+`aster-a1-admission.v2` payload. The schema version is intentionally advanced
+because v1 consumers reject the added fields.
 This prevents the former ambiguous mapping of `watchdog_deadline_epoch` from
 being treated as a recovery trigger.
 

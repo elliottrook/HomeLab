@@ -14,7 +14,7 @@ class ApplicationAdmissionCliTests(unittest.TestCase):
             callback.assert_not_called()
 
     def test_projects_only_boundary_payload(self):
-        payload = {"schema": "aster-a1-admission.v1", "lease_id": "lease-1",
+        payload = {"schema": "aster-a1-admission.v2", "lease_id": "lease-1",
                    "generation": 2, "receipt_sha256": "a" * 64,
                    "profile_sha256": A1_PROFILE_SHA256,
                    "endpoint": "http://192.168.70.10:19104/v1/chat/completions"}
