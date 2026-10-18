@@ -150,3 +150,29 @@ The platform owner has received these findings. **Release order:** source and
 Linux proof, one attended isolation/restore pilot, then one separately reviewed
 MacBook workload with direct-client exclusivity; recurring unattended hours
 only after independent owner-loss recovery is measured.
+
+## Architecture correction: drain the production backend for real experiments
+
+The preserve-backend pilot is useful to test four consumer stops, but it cannot
+by itself deliver exclusive GPU experimentation. The accepted llama.cpp server
+still listens on `192.168.70.12:11435`, and an instant `ss` peer check cannot
+prevent a later direct request. Building a new lease-aware gateway solely to
+solve that pilot would add another trust boundary before proving the basic
+lab/production transition.
+
+For a first *usable* no-reboot lab session, the smaller candidate is to drain
+the accepted LXC110 inference service along with Aster Agent, Speech and News
+timers, then let the MacBook operator launch one reviewed workload through its
+historically verified Proxmox SSH administration path. This removes the
+production backend as a competing listener. It requires a fresh check that the
+MacBook operator can use that path today, a named workload, a known-good
+Qwen3.5-9B/b11429 SYCL restoration point, and exact authenticated warm-up and
+schedule postchecks. Platform commit `282f9733` records the comparative
+assessment and an offline 30+15 run card. Historical SSH success is not live
+operator custody; no service stop or workload is yet approved or executed.
+
+This attended light drain remains separate from the F2/F3 full-stop fault
+drill. It prohibits Proxmox reboot, PCI rebind, fault injection and model
+promotion. The restored production service, not an AI judgment, is the release
+criterion. The platform owner is preparing its bounded controller and disabled
+Linux card for independent review.
