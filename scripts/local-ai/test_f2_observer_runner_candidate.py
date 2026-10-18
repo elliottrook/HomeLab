@@ -158,6 +158,28 @@ class F2ObserverRunnerTests(unittest.TestCase):
                 f2.observe_once(runner=lambda *_: (0, "[]"), clock=lambda: START, popen=popen)
             popen.assert_not_called()
 
+    def test_diagnostic_replay_denies_each_preflight_gate_without_child(self):
+        gates = (
+            ("window", "_window"),
+            ("custody", "_pinned_regular"),
+            ("lease", "_no_lease_or_receipt"),
+            ("host", "_quiet_host"),
+            ("truenas", "_quiet_truenas"),
+        )
+        for name, gate in gates:
+            with self.subTest(gate=name), \
+                    patch.object(f2.os, "geteuid", return_value=0), \
+                    patch.object(f2, "_pinned_regular"), \
+                    patch.object(f2, "_no_lease_or_receipt"), \
+                    patch.object(f2, "_quiet_host"), \
+                    patch.object(f2, "_quiet_truenas"), \
+                    patch.object(f2, gate, side_effect=f2.F2NoGo(f"synthetic {name}")), \
+                    patch.object(f2.subprocess, "Popen") as popen:
+                with self.assertRaisesRegex(f2.F2NoGo, f"synthetic {name}"):
+                    f2.observe_once(runner=lambda *_: (0, "[]"),
+                                    clock=lambda: START)
+                popen.assert_not_called()
+
     def test_one_shot_passes_isolated_child_and_no_receipt(self):
         class FakeProcess:
             returncode = 0

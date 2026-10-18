@@ -213,6 +213,13 @@ custody, exact source/cycle/time and a pinned payload digest before setting
 `verified=True`. The candidate is not wired or installed; synthetic
 `verified` flags remain non-authoritative.
 
+The next F2 diagnostic candidate is documented in
+`services/local-ai-lease/F2-DIAGNOSTIC-DISABLED-RELEASE-CARD-20261018.md`.
+It is source-only and HOLD: 14 focused synthetic tests pass, including one
+denial per preflight gate with no child launch. Any target-Linux staging or
+future scan requires new bounded approvals; the October 17 approval remains
+consumed.
+
 ## Critical path and failure reporting
 
 F2 can be measured while F3 is engineered, but a read-only F2 result is not
