@@ -17,25 +17,31 @@ class GuardianError(RuntimeError):
 
 
 def fence_owner_unit(unit: str, budget: float,
-                     runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> bool:
+                     runner: Callable[..., subprocess.CompletedProcess] = subprocess.run,
+                     monotonic: Callable[[], float] = time.monotonic) -> bool:
     """Stop the exact owner scope and require it to be inactive before rescue."""
     if not re.fullmatch(r"aster-local-ai-pilot-owner-[A-Za-z0-9_-]+\.scope", unit):
         raise GuardianError("owner unit identity is outside the fixed pilot scope")
     if budget <= 0:
         return False
-    stop_timeout = min(30.0, max(0.1, budget / 2))
-    runner(("systemctl", "stop", unit), capture_output=True, text=True,
-           timeout=stop_timeout, check=False)
-    remaining = max(0.1, budget - stop_timeout)
-    state = runner(("systemctl", "is-active", unit), capture_output=True,
-                   text=True, timeout=min(10.0, remaining), check=False)
+    deadline = monotonic() + budget
+    def call(command: tuple[str, ...], maximum: float):
+        remaining = deadline - monotonic()
+        if remaining <= 0:
+            return None
+        return runner(command, capture_output=True, text=True,
+                      timeout=min(maximum, remaining), check=False)
+    call(("systemctl", "stop", unit), 30.0)
+    state = call(("systemctl", "is-active", unit), 10.0)
+    if state is None:
+        return False
     detail = f"{state.stdout}\n{state.stderr}".lower()
     if state.returncode == 0:
         return False
-    tasks = runner(("systemctl", "show", unit, "--property=TasksCurrent", "--value"),
-                   capture_output=True, text=True, timeout=10, check=False)
-    main_pid = runner(("systemctl", "show", unit, "--property=MainPID", "--value"),
-                      capture_output=True, text=True, timeout=10, check=False)
+    tasks = call(("systemctl", "show", unit, "--property=TasksCurrent", "--value"), 10.0)
+    main_pid = call(("systemctl", "show", unit, "--property=MainPID", "--value"), 10.0)
+    if tasks is None or main_pid is None:
+        return False
     if (tasks.returncode == 0 and tasks.stdout.strip() == "0"
             and main_pid.returncode == 0 and main_pid.stdout.strip() == "0"):
         return True

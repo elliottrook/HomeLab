@@ -148,6 +148,20 @@ class DeadlineGuardianTests(unittest.TestCase):
             return Result(0, "0\n")
         self.assertTrue(fence_owner_unit("aster-local-ai-pilot-owner-x.scope", 20, runner=empty))
 
+    def test_owner_fence_checks_share_one_cumulative_budget(self):
+        now = [0.0]
+        timeouts = []
+        class Result:
+            def __init__(self, code=0, stdout="0\n"):
+                self.returncode, self.stdout, self.stderr = code, stdout, ""
+        def consuming(command, **kwargs):
+            timeouts.append(kwargs["timeout"])
+            now[0] += kwargs["timeout"]
+            return Result(3, "failed\n") if command[1] == "is-active" else Result()
+        self.assertFalse(fence_owner_unit("aster-local-ai-pilot-owner-x.scope", 15,
+                                          runner=consuming, monotonic=lambda: now[0]))
+        self.assertEqual(timeouts, [15.0])
+
     def test_rescue_timeout_is_bounded_by_remaining_reserve(self):
         with TemporaryDirectory() as tmp:
             state = Path(tmp) / "state"
