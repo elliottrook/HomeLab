@@ -278,3 +278,19 @@ The combined supervisor, in-guest wrapper, independent watchdog and GPU
 absence observer have not been staged or validated together on target Linux;
 no actual owner-loss or production-restoration proof exists. The earlier
 14-file disabled-install card remains a separate limited package.
+
+An independent October 18 source check at `01cc0a32` passed all **39 focused
+offline tests**. It also found the decisive remaining integration gap: the
+`PersistentFullDrainSupervisor` and bounded three-request workload are used by
+tests but not by the host entrypoint. `full_inference_lab_runtime.py` still
+exposes separate `start`, `heartbeat`, `resume` and `restore` phases and does
+not invoke the persistent supervisor or smoke. A successful disabled install
+of the older 14-file packet would therefore prove imports only; it would not
+deliver a supervised lab session. The platform owner has been asked for one
+bounded host entrypoint wired to the fixed observers, workload and recovery,
+followed by a **new** exact hash-pinned disabled-install card. The older stage
+approval question, if answered, applies only to that older packet and cannot
+authorize installation of the combined candidate. The wrapper also needs a
+target-Linux check for an already collected transient scope: cleanup must
+distinguish an absent unit from a surviving process using independent
+listener, process and GPU-handle evidence before production restarts.
