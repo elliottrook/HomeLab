@@ -460,3 +460,11 @@ target hash check still showed both `b43d4971` replacement bytes and both
 guardian additions absent. This is ready for a **separate disabled-stage
 decision**. It does not close target-Linux, guardian prearm, live owner-loss
 recovery, MacBook access or ongoing lab-hours gates.
+
+The final source-only timing correction at `dafc0332` rechecks the declared
+start after the potentially long preflight and refuses a stale or more-than-
+60-second early effect start. Its updated four-file card is `da082685`; the
+two runtime hashes changed, so the preceding `6308984a` staging question is
+superseded. Stream A matched all four new hashes against an exact clean
+archive and ran the full local-AI suite: `296` tests passed with four expected
+Mac root-custody skips. No target file has been changed for this revision.
