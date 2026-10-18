@@ -182,3 +182,15 @@ The live LXC114 News ingest timer was observed firing about once per hour. A
 lab session without a separately reviewed missed-ingest/catch-up policy. The
 first 30+15 pilot fits between hourly ingests with a five-minute margin; every
 later longer reservation must explicitly address that production dependency.
+
+The first complete offline full-drain packet at platform commit `b247f57f`
+was **not** cleared for disabled installation. Independent read-only Linux
+checks found that its News `NextElapseUSecRealtimeUSec` probe returned an
+empty value, the GPU-driver `readlink` returned a relative target while the
+validator expected an absolute one, and the authentication helper was only
+available through its absolute `/usr/local/sbin/` path. More seriously, the
+backup check treated any nonempty Proxmox backup *schedule* list as successful
+current-cycle backup evidence. That would allow a false PASS. The platform
+owner was sent the actual outputs and is correcting source collection and
+positive/negative tests before any target stage. The first pilot remains
+NO-GO until a corrected packet passes this review and target-Linux checks.
