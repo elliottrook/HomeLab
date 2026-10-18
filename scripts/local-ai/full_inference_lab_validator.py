@@ -32,6 +32,14 @@ class FullDrainValidator:
                 return False
             if "04:00.0" in self._run(FIXED["vm_config"]):
                 return False
+            pve = json.loads(self._run(FIXED["schedules"]))
+            truenas = json.loads(self._run(FIXED["truenas"]))
+            if not isinstance(pve, list) or not pve:
+                return False
+            for item_id in (1, 2, 3):
+                item = next((x for x in truenas if x.get("id") == item_id), None)
+                if not item or not item.get("enabled") or item.get("job", {}).get("state") != "SUCCESS":
+                    return False
             self._hash("110", "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf", self.baseline.model_sha256)
             self._hash("110", "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server", self.baseline.binary_sha256)
             self._hash("110", "/etc/systemd/system/aster-llama.service", self.baseline.unit_sha256)

@@ -15,6 +15,10 @@ class FullInferenceValidatorTests(unittest.TestCase):
                 return 0, "status: stopped\n"
             if command == FIXED["vm_config"]:
                 return 0, "memory: 1024\n"
+            if command == FIXED["schedules"]:
+                return 0, "[{\"id\":1},{\"id\":2}]\n"
+            if command == FIXED["truenas"]:
+                return 0, "[{\"id\":1,\"enabled\":true,\"job\":{\"state\":\"SUCCESS\"}},{\"id\":2,\"enabled\":true,\"job\":{\"state\":\"SUCCESS\"}},{\"id\":3,\"enabled\":true,\"job\":{\"state\":\"SUCCESS\"}}]\n"
             if command[-2:] == ("sha256sum", "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf"):
                 return 0, "a" * 64 + "  model\n"
             if command[-2:] == ("sha256sum", "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"):
