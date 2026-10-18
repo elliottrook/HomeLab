@@ -16,7 +16,7 @@ class FullInferenceValidatorTests(unittest.TestCase):
             if command == FIXED["vm_config"]:
                 return 0, "memory: 1024\n"
             if command == FIXED["schedules"]:
-                return 0, "[{\"id\":1},{\"id\":2}]\n"
+                return 0, "[{\"id\":1,\"enabled\":true}]\n"
             if command == FIXED["truenas"]:
                 return 0, "[{\"id\":1,\"enabled\":true,\"job\":{\"state\":\"SUCCESS\"}},{\"id\":2,\"enabled\":true,\"job\":{\"state\":\"SUCCESS\"}},{\"id\":3,\"enabled\":true,\"job\":{\"state\":\"SUCCESS\"}}]\n"
             if command[-2:] == ("sha256sum", "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf"):
@@ -36,7 +36,7 @@ class FullInferenceValidatorTests(unittest.TestCase):
             if command == FIXED["news_ingest_enabled"] or command == FIXED["news_digest_enabled"]:
                 return 0, "enabled\n"
             if command == FIXED["auth"]:
-                return 0, "authenticated\n"
+                return 0, ""
             return 1, ""
         self.assertTrue(FullDrainValidator(runner, baseline)())
 

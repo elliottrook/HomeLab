@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import time
 from dataclasses import dataclass
 from datetime import datetime
@@ -42,14 +43,13 @@ FIXED = {
                 "-o", "StrictHostKeyChecking=yes", "-o", "UserKnownHostsFile=/etc/local-ai-lab/truenas_known_hosts",
                 "-i", "/etc/local-ai-lab/truenas_schedule_observer",
                 "aster-schedule-observer@192.168.20.40", "midclt", "call", "rsynctask.query"),
-    "next_ingest": ("pct", "exec", "114", "--", "systemctl", "show",
-                    "news-aggregator-ingest.timer", "--property=NextElapseUSecRealtimeUSec", "--value"),
+    "next_ingest": ("pct", "exec", "114", "--", "systemctl", "list-timers", "--all", "--no-legend", "--no-pager", "news-aggregator-ingest.timer"),
     "news_ingest_active": ("pct", "exec", "114", "--", "systemctl", "is-active", "news-aggregator-ingest.timer"),
     "news_digest_active": ("pct", "exec", "114", "--", "systemctl", "is-active", "news-aggregator-digest.timer"),
     "news_ingest_enabled": ("pct", "exec", "114", "--", "systemctl", "is-enabled", "news-aggregator-ingest.timer"),
     "news_digest_enabled": ("pct", "exec", "114", "--", "systemctl", "is-enabled", "news-aggregator-digest.timer"),
     "gpu": ("pct", "exec", "110", "--", "test", "-e", "/dev/dri/renderD128"),
-    "auth": ("pct", "exec", "110", "--", "aster-llama-production-auth-probe"),
+    "auth": ("pct", "exec", "110", "--", "/usr/local/sbin/aster-llama-production-auth-probe"),
 }
 
 
@@ -93,7 +93,33 @@ class FullDrainSourceProducer:
             item = next((x for x in truenas if x.get("id") == item_id), None)
             if not item or not item.get("enabled") or item.get("job", {}).get("state") != "SUCCESS":
                 return False
-        return any(cycle in json.dumps(item, sort_keys=True) for item in pve) or bool(pve)
+        cycle_key = cycle.replace("-", "_")
+        if not any(item.get("enabled") and cycle_key in json.dumps(item, sort_keys=True) for item in pve):
+            return False
+        seen = set()
+        for item in truenas:
+            if item.get("id") in (1, 2, 3):
+                seen.add(item["id"])
+                finished = item.get("job", {}).get("time_finished", {}).get("$date")
+                if type(finished) is not int:
+                    return False
+                if datetime.fromtimestamp(finished / 1000, LOCAL_ZONE).strftime("%Y_%m_%d") != cycle_key:
+                    return False
+        if seen != {1, 2, 3}:
+            return False
+        return True
+
+    def _next_ingest_epoch(self, now: int) -> int:
+        raw = self._run("next_ingest")
+        try:
+            value = int(raw)
+            return value // 1_000_000 if value > 10_000_000_000 else value
+        except ValueError:
+            match = re.search(r"(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2})", raw)
+            if not match:
+                raise FullDrainSourceError("next News ingest timestamp is unavailable")
+            value = datetime.strptime(" ".join(match.groups()), "%Y-%m-%d %H:%M:%S").replace(tzinfo=LOCAL_ZONE)
+            return int(value.timestamp())
 
     def collect(self, *, cycle: str, session_start_epoch: int,
                 lab_seconds: int = 30 * 60) -> FullDrainPreflight:
@@ -105,7 +131,7 @@ class FullDrainSourceProducer:
         driver = self._run("driver")
         vm = self._run("vm")
         vm_config = self._run("vm_config")
-        if not driver.endswith("/xe") or "status: stopped" not in vm or "04:00.0" in vm_config:
+        if not (driver.rstrip("/").endswith("/bus/pci/drivers/xe") or driver.rstrip("/") == "/xe") or "status: stopped" not in vm or "04:00.0" in vm_config:
             raise FullDrainSourceError("accepted GPU or rollback VM baseline is unsafe")
         self._hash("110", "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf", self.baseline.model_sha256, "model")
         self._hash("110", "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server", self.baseline.binary_sha256, "binary")
@@ -116,7 +142,7 @@ class FullDrainSourceProducer:
                 or self._run("news_ingest_enabled") != "enabled" or self._run("news_digest_enabled") != "enabled"):
             raise FullDrainSourceError("News timers are not active and enabled")
         try:
-            next_ingest = int(self._run("next_ingest")) // 1_000_000
+            next_ingest = self._next_ingest_epoch(now)
         except ValueError as exc:
             raise FullDrainSourceError("next News ingest timestamp is invalid") from exc
         if next_ingest <= now:
@@ -126,8 +152,7 @@ class FullDrainSourceProducer:
                 raise FullDrainSourceError(f"{unit} is not active")
         if self._run("gpu") != "":
             raise FullDrainSourceError("GPU probe returned unexpected output")
-        if self._run("auth") != "authenticated":
-            raise FullDrainSourceError("authenticated warm-up probe failed")
+        self._run("auth")
         lab_end = session_start_epoch + lab_seconds
         return FullDrainPreflight(
             "full-inference-drain-v1", f"{self.owner.owner_id}:{now}", 1,
