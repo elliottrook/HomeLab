@@ -42,9 +42,13 @@ heartbeats, runs the fixed three-request smoke, and enforces a monotonic
 cutoff. No reboot, PCI rebind, VM105 use, fault injection, benchmark batch,
 or arbitrary model call is included. The pilot needs a fresh source-verified
 backup status and accepted runtime checkpoint, but does not close F2 or F3.
-The operator remains present on the verified MacBook administration session for
+The selected operator remains present on the verified administration session for
 the complete 45-minute reservation and watches the receipt, cutoff, and
-restoration evidence; disconnection or uncertainty is a stop condition.
+restoration evidence; disconnection or uncertainty is a stop condition. The
+standard mode requires the verified MacBook custody described below. A separate
+Mac-mini Stream A control-only mode may supervise this fixed in-guest smoke if
+explicitly approved, but it does not prove MacBook custody, client handoff, or
+direct MacBook model access.
 
 The concrete reservation is defined at the final gate as `S` (the recorded
 start epoch): lab work is `[S, S+1800)`, restoration is `[S+1800, S+2700)`,
@@ -55,6 +59,13 @@ news-aggregator-ingest.timer`, record its next-run epoch as `N`, and either
 select the first start time satisfying that
 inequality or declare the pilot NO-GO. A stale or missing `N` is not a valid
 window.
+
+The latest read-only schedule observation recorded next ingest at 23:02:15 UTC
+(16:02:15 Vancouver), followed by approximately 17:02 Vancouver, with the
+digest at approximately 17:15. This makes 16:05–16:50 Vancouver a conditional
+candidate slot only if the final custody, hash, and timer checks occur before
+16:05 and confirm the later ingest as `N`; otherwise the operator must recompute
+`S` and `N` rather than reuse this slot.
 
 During the 30-minute window this is an explicit product outage: Aster
 Companion requests, LXC104 Aster Agent, LXC116 Speech, LXC110 production
@@ -190,8 +201,11 @@ The pilot may start only when all of these are true:
 2. The current Proxmox backup source check passes, the manual lease is
    `ready`, the accepted model/binary/unit hashes match, VM105 is stopped and
    unmapped, and the GPU `xe` baseline is current.
-3. The MacBook fingerprint, pinned host key, read-only UID-0 proof, and
-   attended operator path are captured for this session.
+3. In standard mode, the MacBook fingerprint, pinned host key, read-only UID-0
+   proof, and attended operator path are captured for this session. In the
+   separately approved Mac-mini control-only mode, the Mac-mini session and
+   operator identity are captured instead, with an explicit record that no
+   MacBook custody or client handoff is claimed.
 4. The post-custody News timer check records a future `N` satisfying the exact
    30+15+5-minute window inequality above.
 5. The fixed production GPU holder is the exact LXC110
