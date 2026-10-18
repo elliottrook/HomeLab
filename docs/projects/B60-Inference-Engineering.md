@@ -12,6 +12,12 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October 18 prerequisite check](B60-Inference-Engineering/nightly-admission-20261018.md)
+found the same changed manual helper, disabled watchdog and unchanged owner
+readiness records. A read-only directory-lock snapshot found no matching lock;
+that is not an admission or concurrency guarantee. Accepted inference is active;
+no model test was admitted. Eight offline diagnostic tests pass.
+
 The [October 17 prerequisite check](B60-Inference-Engineering/nightly-admission-20261017.md)
 found a newly changed installed manual lease helper with archive-observer
 directory exclusion, not yet reflected on the published platform branch.
