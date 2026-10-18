@@ -6,11 +6,22 @@ pilot.
 
 ## Candidate set
 
-Stage only the session controller, source producer, Linux observer, and their
-three focused tests under a new root-owned mode-0700 private directory. Record
-source commit, SHA-256, owner and mode for every staged file; preserve the
-prior checkpoint before any future replacement. Existing F2 guards and lease
-controllers are outside this card and must not be overwritten.
+Stage exactly six files from Stream A source commit `84cf51cd` under a new
+root-owned mode-0700 private directory on the target Proxmox host (not in an
+LXC):
+
+| File | SHA-256 |
+|---|---|
+| `cooperative_lab_session.py` | `1a1c1f11219c0ec4a89671b7acb552e40d005a8e7fe056b8eab8225cc374e260` |
+| `cooperative_lab_sources.py` | `8825d1be3a695c0743e86db3da67628483e0b777a76ad920d39e55c2bfa18586` |
+| `cooperative_lab_host_adapter.py` | `36b4c738c2ab665be79831833cee20f7ab0b88bddb139e7920e5bf92ffa491a9` |
+| `test_cooperative_lab_session.py` | `985fd360d28930d6ae356091176c71db0e9081d0cc85b5dc2742b3b11cd737b8` |
+| `test_cooperative_lab_sources.py` | `6df005816329ad8fde9c80871d5c960dbba74f542cb5980cdc3fa4ad5c28f6a6` |
+| `test_cooperative_lab_host_adapter.py` | `11ded83817ad848541aced28a9f63d70fd22105f438d1682ddc3477b42b8e5ca` |
+
+The target path and packaging mode must be recorded before staging. Preserve
+the prior checkpoint before any future replacement. Existing F2 guards and
+lease controllers are outside this card and must not be overwritten.
 
 ## Disabled verification
 

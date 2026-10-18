@@ -251,6 +251,9 @@ The disabled source producer, exact Linux observer and rollback card are local
 in Stream A commit `71d91314`; direct-client exclusivity remains an explicit
 NO-GO until a reviewed MacBook identity and exact established-peer proof are
 available.
+The 30+15 isolation/recovery pilot is a prerequisite only; it does not close
+the usable MacBook B60 workload milestone. That milestone remains blocked until
+an actual client-admission enforcement boundary is independently verified.
 The approved outage ceiling is up to 90 minutes, but the first pilot remains
 the stricter 45-minute reservation (30 minutes lab plus 15 minutes restore),
 and must fit before the next hourly News ingest with a five-minute margin as
