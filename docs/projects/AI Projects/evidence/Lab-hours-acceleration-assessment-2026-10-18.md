@@ -382,3 +382,15 @@ using `--effect-authorized`. The pilot can demonstrate known-consumer isolation
 and fixed smoke; its point-in-time GPU checks do not establish recurring or
 host-wide exclusive lab hours. Rollback for this stage removes only the new
 Proxmox directory and LXC110 wrapper after confirming they are unused.
+
+The first revised live card did **not** clear the 16:05 Vancouver candidate.
+It defined a 30-minute lab interval and a 15-minute restoration reserve but
+compared the next News ingest against `S+1800+300`, omitting the restoration
+reserve. The correct admission is at least `S+2700+300 <= N`, subject to the
+source planner's exact check. More fundamentally, an interrupted owner/SSH
+process has no independent live recovery executor; the present behavior
+retains the lock and leaves the product outage for manual reconciliation.
+That is not yet a reliable household restoration guarantee for Jason. The
+platform owner has been asked to correct the arithmetic and design/test a
+bounded independent rescue or prove an equivalent attended recovery path
+before a live approval is requested. No effectful command was run.
