@@ -1,9 +1,27 @@
 # Combined supervised accepted-9B pilot — live run card
 
-Status: prepared but not approved for live effects. The new combined source
-must first pass its separate disabled-install approval and target-Linux review;
-the earlier phased 14-file approval does not apply. This is not the F2/F3
+Status: disabled stage installed and verified; live effects are not approved.
+The installed source is `b43d4971`, bound to the exact 20-file manifest in
+`COOPERATIVE-FULL-INFERENCE-PILOT-DISABLED-INSTALL-CARD-20261018.md`. The
+earlier phased 14-file approval does not apply. This is not the F2/F3
 fault-injection or receipt drill.
+
+## Installed disabled-stage evidence
+
+The approved source-only stage is present at
+`/usr/local/libexec/local-ai-lease/full-inference-pilot/` on Proxmox as 19
+`root:root` mode-0644 files in a root-only directory. The fixed LXC110 wrapper
+is present at `/usr/local/sbin/aster-llama-lab-smoke` as `root:root` mode 0750.
+All 20 installed SHA-256 values match the frozen manifest. Target-Linux
+preflight returned 10 modules, 5 drain effects, 11 restore effects and
+`effects=not-attempted`; 47 focused target tests and wrapper syntax passed.
+The postcheck found the manual lease `ready`, all five production consumers
+active, and no listener on port 11436. No model call, unit/timer install,
+service stop, or remote push occurred.
+
+This evidence authorizes no live effect. Before the pilot, repeat the
+read-only baseline and MacBook custody checks below; if any installed hash,
+service state, listener state, or path differs, the pilot is NO-GO.
 
 ## Finding
 
