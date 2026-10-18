@@ -133,3 +133,20 @@ baseline inventory, not exclusive access or admission. The platform owner has
 been sent the five defects for correction. The next reviewable artifact is a
 single source-bound host producer and effect/recovery card, not another clock
 reservation or wider approval.
+
+Subsequent source-only revisions through platform commit `1e4b341b` reduce
+those first defects and narrow the initial card to **30 minutes of lab time
+plus 15 minutes of restoration**, finishing at least five minutes before the
+next hourly News ingest. This remains an *isolation/recovery pilot*, not yet
+usable lab hours for the MacBook agent. A successful drain and restore does not
+show that the other Codex can run its experiments.
+
+The revised controller still accepts a caller-supplied restoration command
+list; it must instead derive commands from its fixed allowlist and match the
+persisted owner, lease and generation. Its heartbeat and owner presence are
+caller claims until the host wrapper supplies trusted sources. No live
+producer, target-Linux observer or deadline-enforcing supervisor is installed.
+The platform owner has received these findings. **Release order:** source and
+Linux proof, one attended isolation/restore pilot, then one separately reviewed
+MacBook workload with direct-client exclusivity; recurring unattended hours
+only after independent owner-loss recovery is measured.
