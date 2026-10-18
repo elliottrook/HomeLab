@@ -171,6 +171,23 @@ be copied across by name. A source-bound projection must retain the distinct
 timer-lag evidence. Until that contract is reviewed and tested, this offline
 checker cannot admit the live A1 run even if its synthetic fixtures pass.
 
+**October 18 offline consumer contract:** the platform callback changed its
+content-free payload to `aster-a1-admission.v2`, with both restoration epochs.
+The Stream A batch runner now requires that exact shape. Its local clock
+refuses the first admission unless the full 20-minute batch allowance ends
+before the recovery trigger, and rechecks that each bounded request can finish
+before the trigger. A changed trigger or hard deadline during the batch stops
+transport. The final private manifest records both epochs. These are
+defense-in-depth checks on an *authenticated* platform callback, not a way to
+authenticate a caller-supplied receipt or replace measured host recovery.
+The platform source callback, client runner and their schema/pins must be
+reviewed together before any live A1 card is READY.
+This offline Stream A client candidate hashes to
+`af7bcceb1d7e196645786991bea546bd6826062493b4c101b5a30da88bfec0d7`;
+it is not the older, frozen v1 runner. The 54 focused A1 tests passed locally.
+Its local clock check is a refusal boundary only; the host callback still
+owns authenticated time, lease state and watchdog status.
+
 ## Verified current state and remaining work
 
 The isolated sidecar's Python dependency set has a local, production-version

@@ -25,12 +25,15 @@ PROFILE = {
 }
 
 
-def admission_receipt(profile, generation=2, digest="a" * 64):
+def admission_receipt(profile, generation=2, digest="a" * 64,
+                      trigger=4000, deadline=5000):
     return {
-        "schema": "aster-a1-admission.v1", "lease_id": "lease-1",
+        "schema": "aster-a1-admission.v2", "lease_id": "lease-1",
         "generation": generation, "receipt_sha256": digest,
         "profile_sha256": profile,
         "endpoint": A1_TEST_ENDPOINT,
+        "restore_start_epoch": trigger,
+        "restore_deadline_epoch": deadline,
     }
 
 
@@ -51,7 +54,7 @@ class A1AdmittedBatchTests(unittest.TestCase):
         self.pin = hashlib.sha256(self.profile.read_bytes()).hexdigest()
         self.output = self.root / "new-evidence"
 
-    def run_batch(self, admission, transport, capture):
+    def run_batch(self, admission, transport, capture, clock=lambda: 1000):
         with patch("a1_admitted_batch.load_cases", return_value=[{"id": "fictional"}]):
             return run_admitted_batch(
                 cases_path=self.cases, profile_path=self.profile,
@@ -59,7 +62,7 @@ class A1AdmittedBatchTests(unittest.TestCase):
                 ingress_token_path=self.token,
                 endpoint=A1_TEST_ENDPOINT,
                 output_dir=self.output, assert_admitted=admission,
-                transport=transport, capture=capture)
+                transport=transport, capture=capture, clock=clock)
 
     def test_live_admission_rechecked_before_each_transport(self):
         calls = []
@@ -175,7 +178,7 @@ class A1AdmittedBatchTests(unittest.TestCase):
                 ingress_token_path=self.token,
                 endpoint=A1_TEST_ENDPOINT,
                 output_dir=self.output, assert_admitted=admission,
-                transport=transport)
+                transport=transport, clock=lambda: 1000)
         self.assertEqual((summary["completed"], summary["client_clock_rows"]), (20, 20))
         self.assertEqual((calls.count("admit"), calls.count("transport")), (21, 20))
         for name in ("attempt-journal.jsonl", "raw-attempts.json", "client-clock.jsonl"):
@@ -212,6 +215,45 @@ class A1AdmittedBatchTests(unittest.TestCase):
             self.run_batch(lambda *_: True, lambda *a, **k: None,
                            lambda *a, **k: self.fail("must not capture"))
 
+    def test_old_or_late_admission_cannot_start_capture(self):
+        for change in (
+            {"schema": "aster-a1-admission.v1"},
+            {"restore_start_epoch": 2200},
+            {"restore_start_epoch": 1000},
+            {"restore_deadline_epoch": 4800},
+        ):
+            with self.subTest(change=change):
+                current = admission_receipt(self.pin) | change
+                with self.assertRaisesRegex(RuntimeError, "authenticated admission"):
+                    self.run_batch(lambda *_: current,
+                                   lambda *a, **k: self.fail("must not transport"),
+                                   lambda *a, **k: self.fail("must not capture"))
+
+    def test_recovery_window_drift_blocks_transport(self):
+        calls = []
+
+        def admission(*_):
+            calls.append("admit")
+            return admission_receipt(self.pin, trigger=4000 if len(calls) == 1 else 4100)
+
+        def capture(raw, pin, out, callback, **kwargs):
+            callback({"id": "fictional"}, timeout_s=60)
+
+        with self.assertRaisesRegex(RuntimeError, "lease identity changed"):
+            self.run_batch(admission, lambda *a, **k: self.fail("must not transport"), capture)
+        self.assertEqual(calls, ["admit", "admit"])
+
+    def test_request_cannot_cross_recovery_trigger(self):
+        times = iter((1000, 3970))
+
+        def capture(raw, pin, out, callback, **kwargs):
+            callback({"id": "fictional"}, timeout_s=60)
+
+        with self.assertRaisesRegex(RuntimeError, "authenticated admission"):
+            self.run_batch(lambda *_: admission_receipt(self.pin),
+                           lambda *a, **k: self.fail("must not transport"),
+                           capture, clock=lambda: next(times))
+
     def test_final_manifest_binds_lease_generation_and_receipt_digest(self):
         def admission(profile, endpoint):
             self.assertEqual(endpoint, A1_TEST_ENDPOINT)
@@ -225,6 +267,8 @@ class A1AdmittedBatchTests(unittest.TestCase):
         manifest = json.loads((self.output / "final-manifest.json").read_text())
         self.assertEqual(manifest["lease_id"], "lease-1")
         self.assertEqual(manifest["generation"], 2)
+        self.assertEqual(manifest["restore_start_epoch"], 4000)
+        self.assertEqual(manifest["restore_deadline_epoch"], 5000)
         self.assertEqual(manifest["receipt_digests"], ["c" * 64])
         self.assertEqual(manifest["profile_sha256"], self.pin)
         self.assertEqual(manifest["endpoint"], A1_TEST_ENDPOINT)

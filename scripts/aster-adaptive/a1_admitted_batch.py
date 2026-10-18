@@ -14,6 +14,7 @@ import json
 import os
 import re
 import stat
+import time
 from pathlib import Path
 from typing import Callable
 
@@ -28,8 +29,11 @@ MAX_CASE_BYTES = 100_000
 MAX_PROFILE_BYTES = 16_000
 A1_TEST_ENDPOINT = "http://192.168.70.10:19104/v1/chat/completions"
 ADMISSION_FIELDS = {"schema", "lease_id", "generation", "receipt_sha256",
-                    "profile_sha256", "endpoint"}
-ADMISSION_SCHEMA = "aster-a1-admission.v1"
+                    "profile_sha256", "endpoint", "restore_start_epoch",
+                    "restore_deadline_epoch"}
+ADMISSION_SCHEMA = "aster-a1-admission.v2"
+MAX_BATCH_WALL_S = 1200
+MIN_RESTORE_RESERVE_S = 900
 
 
 def _owner_file(path: Path, *, maximum: int) -> bytes:
@@ -56,7 +60,8 @@ def _owner_file(path: Path, *, maximum: int) -> bytes:
     return raw
 
 
-def _validate_admission(value: object, profile_sha256: str) -> dict[str, object]:
+def _validate_admission(value: object, profile_sha256: str, *,
+                        now_epoch: int, remaining_s: int) -> dict[str, object]:
     if (type(value) is not dict or set(value) != ADMISSION_FIELDS
             or value.get("schema") != ADMISSION_SCHEMA
             or not isinstance(value.get("lease_id"), str)
@@ -66,7 +71,12 @@ def _validate_admission(value: object, profile_sha256: str) -> dict[str, object]
             or not isinstance(value.get("receipt_sha256"), str)
             or not HEX64.fullmatch(value["receipt_sha256"])
             or value.get("profile_sha256") != profile_sha256
-            or value.get("endpoint") != A1_TEST_ENDPOINT):
+            or value.get("endpoint") != A1_TEST_ENDPOINT
+            or type(value.get("restore_start_epoch")) is not int
+            or type(value.get("restore_deadline_epoch")) is not int
+            or value["restore_start_epoch"] <= now_epoch + remaining_s
+            or value["restore_deadline_epoch"] - value["restore_start_epoch"]
+               < MIN_RESTORE_RESERVE_S):
         raise RuntimeError("A1 authenticated admission receipt unavailable")
     return value
 
@@ -83,6 +93,8 @@ def _write_final_manifest(directory: Path, *, profile_sha256: str,
         "endpoint": A1_TEST_ENDPOINT,
         "lease_id": admission["lease_id"],
         "generation": admission["generation"],
+        "restore_start_epoch": admission["restore_start_epoch"],
+        "restore_deadline_epoch": admission["restore_deadline_epoch"],
         "receipt_digests": sorted(receipt_digests),
         "admission_checks": checks,
         "completed": summary.get("completed"),
@@ -109,14 +121,15 @@ def run_admitted_batch(*, cases_path: Path, profile_path: Path,
                        expected_profile_sha256: str, ingress_token_path: Path,
                        endpoint: str, output_dir: Path,
                        assert_admitted: Callable[[str, str], dict],
-                       transport=invoke, capture=capture_full_path) -> dict:
+                       transport=invoke, capture=capture_full_path,
+                       clock=time.time) -> dict:
     """Run at most one sealed 20-case batch and return content-free counts.
 
     ``assert_admitted`` is an external *authenticated* live check, never a
-    boolean from a model or a caller-supplied preview receipt. It must return
-    The callback must return a content-free authenticated receipt containing
-    the lease ID, generation, host receipt digest, profile hash and exact
-    endpoint. A failed check before the batch creates no output; a later
+    boolean from a model or a caller-supplied preview receipt. The callback
+    must return a content-free authenticated receipt containing the lease ID,
+    generation, host receipt digest, profile hash, exact endpoint and both
+    restoration epochs. A failed check before the batch creates no output; a later
     failure is journaled as an uncertain stopped attempt. The caller must
     preserve that partial output.
     """
@@ -156,21 +169,26 @@ def run_admitted_batch(*, cases_path: Path, profile_path: Path,
     receipt_digests: set[str] = set()
     admission_checks = 0
 
-    def require_live_admission() -> None:
+    def require_live_admission(*, remaining_s: int) -> None:
         nonlocal admission, admission_checks
         current = _validate_admission(
             assert_admitted(expected_profile_sha256, A1_TEST_ENDPOINT),
-            expected_profile_sha256)
-        if admission is not None and (current["lease_id"], current["generation"]) != (admission["lease_id"], admission["generation"]):
+            expected_profile_sha256, now_epoch=int(clock()),
+            remaining_s=remaining_s)
+        if admission is not None and any(current[key] != admission[key] for key in (
+                "lease_id", "generation", "restore_start_epoch",
+                "restore_deadline_epoch")):
             raise RuntimeError("A1 lease identity changed during batch")
         admission = current
         receipt_digests.add(current["receipt_sha256"])
         admission_checks += 1
 
-    require_live_admission()
+    require_live_admission(remaining_s=MAX_BATCH_WALL_S)
 
     def admitted_invoke(case: dict, *, timeout_s: float):
-        require_live_admission()
+        if type(timeout_s) not in (int, float) or not 0 < timeout_s <= 60:
+            raise RuntimeError("A1 request timeout is invalid")
+        require_live_admission(remaining_s=int(timeout_s) + 1)
         return transport(case, endpoint=endpoint, ingress_token=token,
                          timeout_s=timeout_s)
 
