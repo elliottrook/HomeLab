@@ -47,6 +47,18 @@ separately reviewed temporary source restriction is verified, usable MacBook
 B60 work remains NO-GO. This distinction prevents a successful drain test from
 being mistaken for a production workload authorization.
 
+## Connection-path finding
+
+Read-only repository inventory establishes the current client path as
+`https://aster.elliottrook.com` → Aster Agent LXC 104
+(`192.168.70.10:9120`) → internal llama.cpp LXC 110
+(`192.168.70.12:11435`). The platform contract says clients must not call the
+backend address directly. No static MacBook source identity or direct-backend
+ACL is established in this project. Because the isolation pilot stops LXC104,
+it is not itself a usable MacBook workload release. A later usable release
+needs a separately reviewed lease-aware lab gateway/admission boundary, or a
+reviewed temporary source restriction, before any B60 request is authorized.
+
 ## Required host-owned preflight
 
 Before a live pilot, the fixed source-bound producer must obtain—not receive
