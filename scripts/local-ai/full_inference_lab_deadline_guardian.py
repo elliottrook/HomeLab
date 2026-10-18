@@ -16,14 +16,19 @@ class GuardianError(RuntimeError):
     pass
 
 
-def fence_owner_unit(unit: str, runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> bool:
+def fence_owner_unit(unit: str, budget: float,
+                     runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> bool:
     """Stop the exact owner scope and require it to be inactive before rescue."""
     if not re.fullmatch(r"aster-local-ai-pilot-owner-[A-Za-z0-9_-]+\.scope", unit):
         raise GuardianError("owner unit identity is outside the fixed pilot scope")
+    if budget <= 0:
+        return False
+    stop_timeout = min(30.0, max(0.1, budget / 2))
     runner(("systemctl", "stop", unit), capture_output=True, text=True,
-           timeout=30, check=False)
+           timeout=stop_timeout, check=False)
+    remaining = max(0.1, budget - stop_timeout)
     state = runner(("systemctl", "is-active", unit), capture_output=True,
-                   text=True, timeout=10, check=False)
+                   text=True, timeout=min(10.0, remaining), check=False)
     detail = f"{state.stdout}\n{state.stderr}".lower()
     if state.returncode == 0:
         return False
@@ -84,12 +89,16 @@ def run_guardian(*, state_path: Path, owner_id: str, owner_fence: Callable[[], b
             return {"state": "complete", "effects": "not-attempted"}
         attempts += 1
         if not fenced:
-            if not owner_fence():
+            remaining = max(0.0, hard_deadline - clock())
+            if remaining <= 0 or not owner_fence(remaining):
                 raise GuardianError("owner scope could not be fenced before rescue")
             fenced = True
         lease_id, generation = _discover_identity(state_path, owner_id)
+        remaining = max(0.0, hard_deadline - clock())
+        if remaining <= 0:
+            break
         result = runner(tuple(rescue_command_factory(lease_id, generation)), capture_output=True, text=True,
-                        timeout=120, check=False)
+                        timeout=min(120.0, remaining), check=False)
         if result.returncode == 0 and not state_path.exists():
             return {"state": "rescued", "effects": "restored", "attempts": attempts}
         if clock() >= hard_deadline:
@@ -121,7 +130,7 @@ def main(argv: list[str] | None = None) -> int:
     root = Path(__file__).resolve().parent
     result = run_guardian(
         state_path=args.state_root / "full-inference-drain.json", owner_id=args.owner_id,
-        owner_fence=lambda: fence_owner_unit(args.owner_unit),
+        owner_fence=lambda budget: fence_owner_unit(args.owner_unit, budget),
         rescue_command_factory=lambda lease_id, generation: rescue_command(
             script=root / "full_inference_lab_runtime.py", state_root=args.state_root,
             owner_id=args.owner_id, lease_id=lease_id, generation=generation,

@@ -18,7 +18,7 @@ class DeadlineGuardianTests(unittest.TestCase):
                 state.unlink(missing_ok=True)
             value = run_guardian(state_path=state, rescue_at=110, hard_deadline=125,
                                  owner_id="owner-1",
-                                 owner_fence=lambda: True,
+                                 owner_fence=lambda budget: True,
                                  rescue_command_factory=lambda *_: ("rescue",),
                                  clock=lambda: now[0], sleep=sleep,
                                  runner=lambda *a, **k: calls.append(a) or None)
@@ -42,12 +42,12 @@ class DeadlineGuardianTests(unittest.TestCase):
                                               "phase": "drained"}), encoding="utf-8")
             value = run_guardian(state_path=state, rescue_at=110, hard_deadline=125,
                                  owner_id="owner-1",
-                                 owner_fence=lambda: fenced.append(True) or True,
+                                 owner_fence=lambda budget: fenced.append(budget) or True,
                                  rescue_command_factory=lambda lease, generation: ("rescue", lease, str(generation)),
                                  clock=lambda: now[0], sleep=sleep, runner=runner)
             self.assertEqual(value["state"], "rescued")
             self.assertEqual(calls, [("rescue", "owner-1:123", "1")])
-            self.assertEqual(fenced, [True])
+            self.assertEqual(len(fenced), 1)
 
     def test_failed_rescue_retains_state_and_expires(self):
         with TemporaryDirectory() as tmp:
@@ -62,7 +62,7 @@ class DeadlineGuardianTests(unittest.TestCase):
             with self.assertRaisesRegex(GuardianError, "did not clear"):
                 run_guardian(state_path=state, rescue_at=110, hard_deadline=125,
                              owner_id="owner-1",
-                             owner_fence=lambda: True,
+                             owner_fence=lambda budget: True,
                              rescue_command_factory=lambda *_: ("rescue",),
                              clock=lambda: now[0], sleep=sleep,
                              runner=lambda *a, **k: failed)
@@ -73,7 +73,7 @@ class DeadlineGuardianTests(unittest.TestCase):
             with self.assertRaisesRegex(GuardianError, "follow"):
                 run_guardian(state_path=Path(tmp) / "state", rescue_at=10,
                              hard_deadline=10, owner_id="owner-1",
-                             owner_fence=lambda: True,
+                             owner_fence=lambda budget: True,
                              rescue_command_factory=lambda *_: ("rescue",), clock=lambda: 0)
 
     def test_hung_owner_fence_is_required_before_rescue(self):
@@ -87,7 +87,7 @@ class DeadlineGuardianTests(unittest.TestCase):
                                               "phase": "drained"}), encoding="utf-8")
             rescued = []
             value = run_guardian(state_path=state, rescue_at=110, hard_deadline=125,
-                                 owner_id="owner-1", owner_fence=lambda: rescued.append("fenced") or True,
+                                 owner_id="owner-1", owner_fence=lambda budget: rescued.append("fenced") or True,
                                  rescue_command_factory=lambda *_: rescued.append("rescued") or ("rescue",),
                                  clock=lambda: now[0], sleep=sleep,
                                  runner=lambda *a, **k: state.unlink() or type("Result", (), {"returncode": 0})())
@@ -105,7 +105,7 @@ class DeadlineGuardianTests(unittest.TestCase):
                                               "phase": "drained"}), encoding="utf-8")
             with self.assertRaisesRegex(GuardianError, "fenced"):
                 run_guardian(state_path=state, rescue_at=110, hard_deadline=125,
-                             owner_id="owner-1", owner_fence=lambda: False,
+                             owner_id="owner-1", owner_fence=lambda budget: False,
                              rescue_command_factory=lambda *_: ("rescue",),
                              clock=lambda: now[0], sleep=sleep,
                              runner=lambda *a, **k: (_ for _ in ()).throw(AssertionError("rescue ran")))
@@ -122,7 +122,7 @@ class DeadlineGuardianTests(unittest.TestCase):
             calls = []
             result = run_guardian(
                 state_path=state, rescue_at=110, hard_deadline=125, owner_id="0",
-                owner_fence=lambda: True,
+                owner_fence=lambda budget: True,
                 rescue_command_factory=lambda lease, generation: ("rescue", lease, str(generation)),
                 clock=lambda: now[0], sleep=sleep,
                 runner=lambda command, **kwargs: calls.append(command) or state.unlink()
@@ -140,13 +140,33 @@ class DeadlineGuardianTests(unittest.TestCase):
             if "TasksCurrent" in command:
                 return Result(0, "1\n")
             return Result(0, "1234\n")
-        self.assertFalse(fence_owner_unit("aster-local-ai-pilot-owner-x.scope", runner=busy))
+        self.assertFalse(fence_owner_unit("aster-local-ai-pilot-owner-x.scope", 20, runner=busy))
 
         def empty(command, **kwargs):
             if command[1] == "is-active":
                 return Result(3, "failed\n")
             return Result(0, "0\n")
-        self.assertTrue(fence_owner_unit("aster-local-ai-pilot-owner-x.scope", runner=empty))
+        self.assertTrue(fence_owner_unit("aster-local-ai-pilot-owner-x.scope", 20, runner=empty))
+
+    def test_rescue_timeout_is_bounded_by_remaining_reserve(self):
+        with TemporaryDirectory() as tmp:
+            state = Path(tmp) / "state"
+            now = [100.0]
+            seen = []
+            failed = type("Result", (), {"returncode": 1})()
+            def sleep(seconds):
+                state.write_text(json.dumps({"owner_id": "owner-1", "mode": "full-inference-drain-v1",
+                                              "lease_id": "owner-1:123", "generation": 1,
+                                              "phase": "drained"}), encoding="utf-8")
+                now[0] = 110.0 if now[0] < 110.0 else 125.0
+            with self.assertRaisesRegex(GuardianError, "did not clear"):
+                run_guardian(
+                    state_path=state, rescue_at=110, hard_deadline=125,
+                    owner_id="owner-1", owner_fence=lambda budget: True,
+                    rescue_command_factory=lambda *_: ("rescue",),
+                    clock=lambda: now[0], sleep=sleep,
+                    runner=lambda command, **kwargs: seen.append(kwargs["timeout"]) or failed)
+            self.assertEqual(seen, [15.0])
 
 
 if __name__ == "__main__":
