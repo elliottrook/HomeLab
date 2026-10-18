@@ -343,3 +343,15 @@ broader `lxc/110` substring. A same-binary process in another LXC110 unit
 could still be accepted as baseline. The platform owner received the observed
 cgroup and a request to bind admission to the exact production unit and test
 the same-guest/different-unit case. No GPU workload was started.
+
+Platform source `b43d4971` now requires the observed exact production service
+cgroup, and its synthetic same-binary/different-unit case rejects the rogue
+holder. The refreshed combined card lists 19 host files and one LXC110
+wrapper; all 20 hashes matched the current source. The full local AI test
+suite passed **281 tests with four expected skips**. Read-only checks found
+both proposed target paths absent, so disabled staging can be rolled back by
+removing only newly created paths after proving no process is using them. A
+new exact approval has been requested for that **disabled installation only**.
+The target Linux import, full process-lifetime check and live drain remain
+unproven. Continuous host-wide GPU exclusivity is still outside the pilot's
+claim, and the first live run retains its separate attended approval gate.
