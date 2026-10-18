@@ -4,7 +4,7 @@ Status: disabled stage installed and verified; live effects are not approved.
 The installed source is `b43d4971`, bound to the exact 20-file manifest in
 `COOPERATIVE-FULL-INFERENCE-PILOT-DISABLED-INSTALL-CARD-20261018.md`. The
 one-shot rescue and independent deadline guardian are source-only at
-`6308984a`; the exact four-path upgrade from installed `b43d4971` is defined
+`dafc0332`; the exact four-path upgrade from installed `b43d4971` is defined
 in `COOPERATIVE-FULL-INFERENCE-PILOT-RESCUE-GUARDIAN-UPGRADE-DISABLED-INSTALL-CARD-20261018.md`
 and requires separate disabled-stage approval before a live pilot. The earlier
 phased 14-file approval does not apply. This is not the F2/F3 fault-injection
@@ -63,6 +63,14 @@ news-aggregator-ingest.timer`, record its next-run epoch as `N`, and either
 select the first start time satisfying that
 inequality or declare the pilot NO-GO. A stale or missing `N` is not a valid
 window.
+
+After all source probes and hashes complete, the runtime rechecks wall time
+immediately before creating the durable lease and applying any mask. `S` is
+the lower bound for the first effect; the first mask may occur a few seconds
+after `S` while the controller records its intent and observation. It waits
+at most 60 seconds for the declared `S`; if preflight has crossed `S`, or `S`
+is more than 60 seconds away, it aborts with no effects. The guardian uses the
+same `S` for its rescue cutoff.
 
 The latest read-only schedule observation recorded next ingest at 23:02:15 UTC
 (16:02:15 Vancouver), followed by approximately 17:02 Vancouver, with the
