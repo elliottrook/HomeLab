@@ -405,3 +405,22 @@ not merely missing tests. The platform owner has been asked for a trusted
 preissued identity or safe state binding, plus a bounded owner-fencing path
 tested against a hung owner. The guardian and manual rescue are source-only;
 the installed `b43d4971` binary has neither. The live pilot remains NO-GO.
+
+### Guardian follow-up — October 18
+
+The platform owner corrected the lease discovery and owner-scope fencing in
+source commit `1172cf5b`. Eight focused offline tests passed. The fix is
+**source-only**; the 20-file `b43d4971` target installation has not changed.
+The new guardian has a further measurable deadline defect: with a durable
+lease present, `rescue_at=110`, `hard_deadline=125`, and the clock at 110,
+`run_guardian` gives the rescue subprocess a fixed 120-second timeout despite
+only 15 seconds of reserve. A synthetic runner using that budget returned
+`state=rescued` at simulated time 230, **105 seconds after the deadline**.
+The owner-fencing commands can also consume time before rescue. The promised
+`S+2700` restoration limit is therefore not yet enforced. This exact result
+was sent to the platform owner for a bounded-time fix and regression test.
+
+The live card still contains an older statement disclaiming automatic
+owner-death recovery alongside its new guardian requirement. A reconciled
+run card and a fresh hash-pinned disabled-upgrade manifest are needed before
+another host stage. No live pilot or new host effect followed this review.
