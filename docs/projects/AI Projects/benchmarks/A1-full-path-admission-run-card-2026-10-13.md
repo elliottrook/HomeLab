@@ -162,6 +162,15 @@ independent postcheck before any lease or model call is authorized. The
 unchanged `v2` input shape and synthetic passing fixture do not provide that
 missing live proof.
 
+The [October 18 platform-interface review](../evidence/A1-admission-platform-interface-review-2026-10-18.md)
+found a further exact naming trap: the platform receipt currently calls its
+**hard restoration deadline** `watchdog_deadline_epoch`, while this checker's
+`watchdog.deadline_at` means the **recovery trigger**. Those fields must never
+be copied across by name. A source-bound projection must retain the distinct
+`restore_start_epoch` and `restore_deadline_epoch`, plus measured recovery and
+timer-lag evidence. Until that contract is reviewed and tested, this offline
+checker cannot admit the live A1 run even if its synthetic fixtures pass.
+
 ## Verified current state and remaining work
 
 The isolated sidecar's Python dependency set has a local, production-version
