@@ -326,3 +326,11 @@ The platform owner has been asked to bind the allowed process to the actual
 service/cgroup or require zero GPU holders after drain. The pilot still lacks
 continuous device admission and must not be described as host-wide exclusive
 B60 time. The older 14-file approval remains inapplicable to this new packet.
+
+Read-only target preflight after the packet freeze found Proxmox's manual
+lease `ready`; LXC110's production `aster-llama.service` active and enabled;
+the render node present; and the fixed `systemd-run`, `runuser`, accepted
+binary, model and production authentication-probe paths present. This is
+path availability only. It does not prove the target Linux import, scope
+cleanup, GPU process identity, credential flow, model call, restoration or
+MacBook custody, and it does not authorize staging or the live pilot.
