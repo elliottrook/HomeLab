@@ -26,11 +26,9 @@ is included.
 
 ### Fixed drain inventory
 
-1. Mask News ingest and digest timers in LXC114 with reversible runtime masks.
-2. Stop `aster-agent.service` in LXC104.
-3. Stop `aster-speech.service` in LXC116.
-4. Stop the accepted `aster-llama.service` in LXC110.
-5. Verify all four consumers/timers are inactive or masked and journal every
+1. Apply reversible runtime masks with `--now` to News ingest/digest timers,
+   Aster Agent 104, Aster Speech 116 and accepted `aster-llama.service` 110.
+2. Verify all five fixed entries are inactive and masked, and journal every
    intent/observation. Any ambiguity retains the lock and stops.
 
 The accepted backend is not preserved during this candidate window. The

@@ -70,6 +70,18 @@ class FullInferenceLabSessionTests(unittest.TestCase):
             self.assertTrue(paths.state.exists())
             controller._exclusion.__exit__(None, None, None)
 
+    def test_final_validator_failure_retains_lock(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = FullDrainPaths(Path(tmp) / "state")
+            controller = FullInferenceDrainController(paths, lambda _: None,
+                observer=lambda *_: True, validator=lambda: False,
+                owner_id="owner-1", allow_effects=True)
+            value = controller.begin(self.preflight())
+            with self.assertRaisesRegex(FullDrainError, "validation"):
+                controller.restore(value, now_epoch=self.epoch(10, 40), owner_present=True)
+            self.assertTrue(paths.lock.exists())
+            controller._exclusion.__exit__(None, None, None)
+
 
 if __name__ == "__main__":
     unittest.main()
