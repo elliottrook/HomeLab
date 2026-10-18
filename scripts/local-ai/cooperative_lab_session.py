@@ -111,6 +111,15 @@ def _command(vmid: str, *args: str) -> tuple[str, ...]:
     return ("pct", "exec", vmid, "--", *args)
 
 
+def _canonical_commands() -> tuple[tuple[tuple[str, ...], ...], tuple[tuple[str, ...], ...]]:
+    stop = tuple(_command(v, "systemctl", "mask", "--runtime", "--now", u)
+                 for v, u in ALLOWED_CONSUMERS)
+    restore = tuple(command for v, u in reversed(ALLOWED_CONSUMERS)
+                    for command in (_command(v, "systemctl", "unmask", "--runtime", u),
+                                    _command(v, "systemctl", "start", u)))
+    return stop, restore
+
+
 def plan(preflight: CooperativeLabPreflight, *, lab_seconds: int = DEFAULT_PILOT_SECONDS) -> LabSessionPlan:
     """Validate a current source-bound reservation and return fixed commands."""
     if (preflight.mode != "cooperative-lab-v1" or not preflight.lease_id
@@ -135,14 +144,12 @@ def plan(preflight: CooperativeLabPreflight, *, lab_seconds: int = DEFAULT_PILOT
     deadline = datetime.fromtimestamp(preflight.restore_deadline_epoch, LAB_TIMEZONE)
     if deadline.timetz().replace(tzinfo=None) > time(17, 15):
         raise LabSessionError("lab restore deadline crosses the news boundary")
+    stop, restore = _canonical_commands()
     return LabSessionPlan(
         mode="cooperative-lab-v1", lease_id=preflight.lease_id, generation=preflight.generation,
         lab_seconds=lab_seconds, restore_reserve_seconds=MIN_RESTORE_RESERVE_SECONDS,
         preserve_backend=True,
-        stop_commands=tuple(_command(v, "systemctl", "mask", "--runtime", "--now", u) for v, u in ALLOWED_CONSUMERS),
-        restore_commands=tuple(command for v, u in reversed(ALLOWED_CONSUMERS)
-                               for command in (_command(v, "systemctl", "unmask", "--runtime", u),
-                                               _command(v, "systemctl", "start", u))),
+        stop_commands=stop, restore_commands=restore,
     )
 
 
@@ -178,6 +185,7 @@ class CooperativeLabController:
             self.paths.lock.mkdir(mode=0o700)
             state = {**asdict(value), "phase": "armed", "owner_id": self.owner_id,
                      "heartbeat_epoch": preflight.now_epoch,
+                     "lab_end_epoch": preflight.lab_end_epoch,
                      "restore_deadline_epoch": preflight.restore_deadline_epoch}
             _atomic_write(self.paths.state, json.dumps(state, sort_keys=True) + "\n")
             self._active = True
@@ -206,6 +214,18 @@ class CooperativeLabController:
         _atomic_write(self.paths.state, json.dumps(state, sort_keys=True) + "\n")
         _journal(self.paths.journal, {"event": "heartbeat", "lease_id": state["lease_id"], "owner_id": self.owner_id})
 
+    def require_work_window(self, now_epoch: int) -> None:
+        """Trusted wrapper hook: stop the lab workload at the source-bound cutoff."""
+        self._require_effects()
+        if not self._active or not self.paths.state.exists():
+            raise LabSessionError("no active cooperative lab lease")
+        state = json.loads(self.paths.state.read_text(encoding="utf-8"))
+        if state.get("owner_id") != self.owner_id:
+            raise LabSessionError("cooperative lab owner identity does not match")
+        if now_epoch >= int(state["lab_end_epoch"]):
+            _journal(self.paths.journal, {"event": "lab-cutoff", "lease_id": state["lease_id"]})
+            raise LabSessionError("lab work window has ended; restore is required")
+
     def resume_existing(self, *, lease_id: str, generation: int) -> LabSessionPlan:
         """Reacquire a durable locked lease after the original owner process ended."""
         self._require_effects()
@@ -218,6 +238,10 @@ class CooperativeLabController:
             if (state.get("owner_id") != self.owner_id or state.get("lease_id") != lease_id
                     or int(state.get("generation", -1)) != generation):
                 raise LabSessionError("durable cooperative lab identity does not match")
+            stop, restore = _canonical_commands()
+            if (tuple(tuple(x) for x in state.get("stop_commands", ())) != stop
+                    or tuple(tuple(x) for x in state.get("restore_commands", ())) != restore):
+                raise LabSessionError("durable cooperative lab command inventory is not canonical")
             self._active = True
             return LabSessionPlan(state["mode"], state["lease_id"], int(state["generation"]),
                                   int(state["lab_seconds"]), int(state["restore_reserve_seconds"]),
@@ -234,6 +258,13 @@ class CooperativeLabController:
         if not self._active or not owner_present:
             raise LabSessionError("owner presence and active lab lease are required for restore")
         state = json.loads(self.paths.state.read_text(encoding="utf-8"))
+        if (state.get("owner_id") != self.owner_id or state.get("lease_id") != value.lease_id
+                or int(state.get("generation", -1)) != value.generation
+                or state.get("phase") not in {"armed", "leased"}):
+            raise LabSessionError("cooperative lab lease authority does not match")
+        stop, restore = _canonical_commands()
+        if value.stop_commands != stop or value.restore_commands != restore:
+            raise LabSessionError("cooperative lab command inventory is not canonical")
         if now_epoch > int(state["restore_deadline_epoch"]):
             _journal(self.paths.journal, {"event": "restore-overdue", "lease_id": value.lease_id})
         for command in value.restore_commands:

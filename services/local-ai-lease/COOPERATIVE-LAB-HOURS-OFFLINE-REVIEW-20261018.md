@@ -34,6 +34,9 @@ and journaled.
   emergency recovery;
 - the durable state carries an owner identity and heartbeat and can be resumed
   by a reviewed recovery process after the original owner process ends;
+- restore derives and validates the canonical fixed command inventory instead
+  of trusting caller-supplied commands, and the workload wrapper has an
+  explicit source-bound lab-end cutoff hook;
 - advisory mode executes no command.
 
 Focused result: `test_cooperative_lab_session.py` — 5 passed.
@@ -49,6 +52,9 @@ authenticate those values from the pinned backup, schedule, backend, GPU,
 consumer and client-observer sources; caller-supplied JSON is not acceptable.
 The exact observer callback must likewise be bound to read-only service/timer
 state checks before target-Linux installation can be considered.
+The owner-presence flag and clock passed to the offline methods are contracts
+for that trusted wrapper, not independent authority; target-Linux work must
+bind them to the operator session and a monotonic timer.
 
 ## Remaining gates
 

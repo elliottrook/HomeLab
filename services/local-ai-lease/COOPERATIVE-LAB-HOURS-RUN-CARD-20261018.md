@@ -72,7 +72,8 @@ to the live entrypoint.
 3. Acquire the host-wide exclusion, persist the lease state, apply the four
    fixed runtime masks (which deny new starts), then verify each effect;
    preserve the backend.
-4. Perform bounded lab work for at most 30 minutes. No reboot, fault
+4. The trusted owner wrapper must enforce the source-bound lab-end cutoff with
+   its monotonic timer. Perform bounded lab work for at most 30 minutes. No reboot, fault
    injection, benchmark batch or arbitrary model call is part of this pilot.
 5. Stop lab work before the restoration reserve, restore the four entries,
    and verify exact service/timer state, backend/model/SYCL/GPU/auth and

@@ -58,6 +58,9 @@ class CooperativeLabSessionTests(unittest.TestCase):
             value = controller.begin(self.preflight())
             self.assertEqual(len(calls), 4)
             self.assertTrue(paths.lock.exists())
+            controller.require_work_window(self.epoch(10, 29))
+            with self.assertRaisesRegex(LabSessionError, "window has ended"):
+                controller.require_work_window(self.epoch(10, 30))
             controller.restore(value, now_epoch=self.epoch(10, 50), owner_present=True)
             self.assertEqual(len(calls), 12)
             self.assertEqual(len(observations), 12)
