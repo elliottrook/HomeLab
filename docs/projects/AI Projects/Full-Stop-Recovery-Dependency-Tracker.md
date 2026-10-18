@@ -225,6 +225,13 @@ denial per preflight gate with no child launch. Any target-Linux staging or
 future scan requires new bounded approvals; the October 17 approval remains
 consumed.
 
+The approved disabled target-Linux replacement completed on the Proxmox host
+root and is recorded in
+`services/local-ai-lease/F2-DIAGNOSTIC-DISABLED-INSTALL-RESULT-20261018.md`.
+The old guard is checkpointed for rollback, the new guard and all dependencies
+match their pins, and the 14/14 synthetic suite passes. No scan was invoked;
+F2 remains FAILED/UNKNOWN.
+
 ## Critical path and failure reporting
 
 F2 can be measured while F3 is engineered, but a read-only F2 result is not
