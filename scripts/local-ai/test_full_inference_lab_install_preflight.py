@@ -15,6 +15,9 @@ class FullInferenceInstallPreflightTests(unittest.TestCase):
     def test_pinned_runtime_entrypoint_is_default_deny(self):
         self.assertEqual(runtime_main(["--phase", "start", "--owner-id", "owner-1"]), 0)
 
+    def test_combined_pilot_entrypoint_is_default_deny(self):
+        self.assertEqual(runtime_main(["--phase", "pilot", "--owner-id", "owner-1"]), 0)
+
 
 if __name__ == "__main__":
     unittest.main()

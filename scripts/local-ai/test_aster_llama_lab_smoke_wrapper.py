@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 
 from aster_llama_lab_smoke_wrapper import (MODEL, MODEL_PATH, PORT, PROFILE,
-    SERVER, scope_unit, server_command)
+    SERVER, _stop_scope, scope_unit, server_command)
 
 
 class LabSmokeWrapperTests(unittest.TestCase):
@@ -26,6 +26,20 @@ class LabSmokeWrapperTests(unittest.TestCase):
         self.assertIn('add_argument("--generation", required=True', source)
         self.assertIn('add_argument("--profile", required=True)', source)
         self.assertIn("_wait_ready", source)
+
+    def test_already_gone_collect_scope_is_harmless(self):
+        import subprocess
+        def gone(*args, **kwargs):
+            return subprocess.CompletedProcess(args[0], 5, "", "Unit a.scope not loaded.")
+        result = _stop_scope("a.scope", runner=gone)
+        self.assertEqual(result.returncode, 0)
+
+    def test_unexpected_scope_stop_failure_remains_failure(self):
+        import subprocess
+        def failed(*args, **kwargs):
+            return subprocess.CompletedProcess(args[0], 5, "", "permission denied")
+        result = _stop_scope("a.scope", runner=failed)
+        self.assertEqual(result.returncode, 5)
 
 
 if __name__ == "__main__":

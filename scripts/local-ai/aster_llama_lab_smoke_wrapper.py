@@ -33,6 +33,15 @@ class SmokeError(RuntimeError):
     pass
 
 
+def _stop_scope(unit: str, runner: Callable[..., subprocess.CompletedProcess] = subprocess.run):
+    result = runner(("systemctl", "stop", unit), capture_output=True, text=True, check=False)
+    if result.returncode != 0:
+        detail = f"{result.stdout}\n{result.stderr}".lower()
+        if "not loaded" in detail or "not found" in detail or "could not be found" in detail:
+            return subprocess.CompletedProcess(result.args, 0, result.stdout, result.stderr)
+    return result
+
+
 def production_is_masked(runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> bool:
     active = runner(("systemctl", "is-active", "aster-llama.service"),
                     capture_output=True, text=True, check=False)
@@ -87,7 +96,8 @@ def _wait_ready(key: str, *, deadline: float, clock: Callable[[], float]) -> Non
 
 def run(*, lease_id: str, generation: int, clock: Callable[[], float] = time.monotonic,
         popen: Callable[..., subprocess.Popen] = subprocess.Popen,
-        production_check: Callable[[], bool] = production_is_masked) -> dict[str, object]:
+        production_check: Callable[[], bool] = production_is_masked,
+        stop_scope: Callable[[str], subprocess.CompletedProcess] = _stop_scope) -> dict[str, object]:
     if os.geteuid() != 0:
         raise SmokeError("lab wrapper requires root")
     if not production_check():
@@ -123,8 +133,7 @@ def run(*, lease_id: str, generation: int, clock: Callable[[], float] = time.mon
                 "request_count": len(observations), "observation_ids": observations,
                 "exit_status": 0}
     finally:
-        cleanup = subprocess.run(("systemctl", "stop", scope_unit(lease_id, generation)),
-                                 capture_output=True, text=True, check=False)
+        cleanup = stop_scope(scope_unit(lease_id, generation))
         if process is not None:
             try:
                 os.killpg(process.pid, signal.SIGTERM)

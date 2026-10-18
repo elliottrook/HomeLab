@@ -94,6 +94,8 @@ class PersistentFullDrainSupervisor:
                     state = json.loads(self.controller.paths.state.read_text(encoding="utf-8"))
                     plan = self.controller.resume_existing(
                         lease_id=state["lease_id"], generation=int(state["generation"]))
+                    if not self.lab_absent():
+                        raise SupervisorError("lab scope/listener/process/GPU absence is unproven; lock retained")
                     self.controller.restore(plan, now_epoch=self.wall_clock(), owner_present=True)
                 except BaseException:
                     self.active = False
