@@ -190,6 +190,14 @@ platform branch. The candidate was therefore not cherry-picked blindly;
 platform-owned measured restoration/lag evidence and an agreed authoritative
 source-bound admission interface remain required.
 
+The platform-side offline contract is now recorded in
+`evidence/A1-source-bound-window-contract-2026-10-18.md`: the receipt and
+admission projection keep `restore_start_epoch` (trigger) distinct from
+`restore_deadline_epoch` (hard completion). The complete local suite passes
+211 tests with four expected root-custody skips. This closes only the naming
+ambiguity; it does not provide live source authentication, measured recovery
+budgets, target-Linux proof, or A1 authorization.
+
 ## Critical path and failure reporting
 
 F2 can be measured while F3 is engineered, but a read-only F2 result is not

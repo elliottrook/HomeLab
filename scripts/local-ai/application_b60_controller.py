@@ -241,7 +241,9 @@ class ApplicationB60Controller:
         validate(receipt, expected_lease_id=expected_lease_id, expected_generation=expected_generation)
         from application_receipt_boundary import from_lease_receipt
         owner_receipt = from_lease_receipt(
-            receipt, watchdog_deadline_epoch=value["restore_deadline_epoch"])
+            receipt,
+            restore_start_epoch=value["restore_start_epoch"],
+            restore_deadline_epoch=value["restore_deadline_epoch"])
         current_epoch = self.now_epoch()
         self.receipt_writer(owner_receipt, now_epoch=current_epoch,
                             expected_lease_id=expected_lease_id,

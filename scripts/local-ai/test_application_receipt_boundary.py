@@ -11,7 +11,7 @@ from application_receipt_boundary import (A1_PROFILE_SHA256, A1_SIDECAR_SOURCE_D
 
 class ApplicationReceiptBoundaryTests(unittest.TestCase):
     def receipt(self, **changes):
-        value = ApplicationReceipt(SCHEMA, MODE, "lease-1", 4, "application-backup:x", 300,
+        value = ApplicationReceipt(SCHEMA, MODE, "lease-1", 4, "application-backup:x", 250, 300,
             "llama.cpp b11429 SYCL/Level Zero", True, True, True, CONSUMERS, True,
             A1_SIDECAR_SOURCE_DIGEST, 1904, 1, 19104, True, True, True)
         return ApplicationReceipt(**{**value.__dict__, **changes})
@@ -38,6 +38,8 @@ class ApplicationReceiptBoundaryTests(unittest.TestCase):
         self.assertEqual(payload["endpoint"], ADMISSION_ENDPOINT)
         self.assertEqual(payload["lease_id"], "lease-1")
         self.assertEqual(payload["generation"], 4)
+        self.assertEqual(payload["restore_start_epoch"], 250)
+        self.assertEqual(payload["restore_deadline_epoch"], 300)
         self.assertEqual(len(payload["receipt_sha256"]), 64)
 
     def test_rejects_arbitrary_admission_endpoint(self):
@@ -59,7 +61,7 @@ class ApplicationReceiptBoundaryTests(unittest.TestCase):
     def test_rejects_cached_receipt_after_lease_release(self):
         state = {"mode": MODE, "phase": "released", "armed": False,
                  "lease_id": "lease-1", "generation": 4,
-                 "restore_deadline_epoch": 300}
+                 "restore_start_epoch": 250, "restore_deadline_epoch": 300}
         watchdog = {"schema": "aster-application-watchdog-status.v1",
                     "state": "healthy", "lease_id": "lease-1", "generation": 4,
                     "valid_until_epoch": 300}
@@ -70,7 +72,7 @@ class ApplicationReceiptBoundaryTests(unittest.TestCase):
     def test_rejects_stale_watchdog_generation(self):
         state = {"mode": MODE, "phase": "sidecar-admitted", "armed": True,
                  "lease_id": "lease-1", "generation": 4,
-                 "restore_deadline_epoch": 300}
+                 "restore_start_epoch": 250, "restore_deadline_epoch": 300}
         watchdog = {"schema": "aster-application-watchdog-status.v1",
                     "state": "healthy", "lease_id": "lease-1", "generation": 3,
                     "valid_until_epoch": 300}
@@ -108,3 +110,25 @@ class ApplicationReceiptBoundaryTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "watchdog is not current"):
                 renew_watchdog_status(now_epoch=1100, profile_sha256=A1_PROFILE_SHA256)
         writer.assert_not_called()
+
+    def test_rejects_invalid_or_past_recovery_window(self):
+        for changes, message in (
+            ({"restore_start_epoch": 300}, "recovery window"),
+            ({"restore_deadline_epoch": 250}, "recovery window"),
+            ({"restore_deadline_epoch": 199}, "recovery window"),
+        ):
+            with self.subTest(changes=changes), self.assertRaisesRegex(ValueError, message):
+                validate(self.receipt(**changes), expected_lease_id="lease-1",
+                         expected_generation=4, now_epoch=200)
+
+    def test_rejects_receipt_window_mismatched_to_current_state(self):
+        state = {"mode": MODE, "phase": "sidecar-admitted", "armed": True,
+                 "lease_id": "lease-1", "generation": 4,
+                 "restore_start_epoch": 250, "restore_deadline_epoch": 300}
+        watchdog = {"schema": "aster-application-watchdog-status.v1",
+                    "state": "healthy", "lease_id": "lease-1", "generation": 4,
+                    "valid_until_epoch": 300}
+        with self.assertRaisesRegex(ValueError, "not currently admitted"):
+            active_admission_payload(self.receipt(restore_start_epoch=251), state,
+                                     watchdog, now_epoch=200,
+                                     profile_sha256=A1_PROFILE_SHA256)

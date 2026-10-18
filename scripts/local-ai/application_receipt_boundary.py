@@ -31,7 +31,8 @@ class ApplicationReceipt:
     lease_id: str
     generation: int
     backup_receipt: str
-    watchdog_deadline_epoch: int
+    restore_start_epoch: int
+    restore_deadline_epoch: int
     backend_identity: str
     llama_service_active: bool
     exclusive_backend_claim: bool
@@ -54,8 +55,12 @@ def validate(receipt: ApplicationReceipt, *, expected_lease_id: str, expected_ge
         raise ValueError("application receipt identity does not match")
     if not receipt.backup_receipt or receipt.backup_receipt.startswith("full-stop:"):
         raise ValueError("application receipt requires a distinct backup receipt")
-    if now_epoch > receipt.watchdog_deadline_epoch:
-        raise ValueError("application receipt is past its watchdog deadline")
+    if (type(receipt.restore_start_epoch) is not int
+            or type(receipt.restore_deadline_epoch) is not int
+            or receipt.restore_start_epoch >= receipt.restore_deadline_epoch):
+        raise ValueError("application recovery window is invalid")
+    if now_epoch > receipt.restore_deadline_epoch:
+        raise ValueError("application receipt is past its restore deadline")
     if (receipt.backend_identity != BACKEND or not receipt.llama_service_active
             or not receipt.exclusive_backend_claim or not receipt.backend_listener_ipv4_only):
         raise ValueError("backend is not host-attested and exclusively claimed")
@@ -96,6 +101,8 @@ def admission_payload(receipt: ApplicationReceipt, *, expected_lease_id: str,
         "schema": "aster-a1-admission.v1",
         "lease_id": receipt.lease_id,
         "generation": receipt.generation,
+        "restore_start_epoch": receipt.restore_start_epoch,
+        "restore_deadline_epoch": receipt.restore_deadline_epoch,
         "receipt_sha256": digest(receipt),
         "profile_sha256": profile_sha256,
         "endpoint": ADMISSION_ENDPOINT,
@@ -113,7 +120,9 @@ def validate_active_lease(receipt: ApplicationReceipt, state: dict,
             or state.get("generation") != receipt.generation
             or not isinstance(state.get("restore_deadline_epoch"), int)
             or state["restore_deadline_epoch"] <= now_epoch
-            or receipt.watchdog_deadline_epoch != state["restore_deadline_epoch"]):
+            or type(state.get("restore_start_epoch")) is not int
+            or receipt.restore_start_epoch != state["restore_start_epoch"]
+            or receipt.restore_deadline_epoch != state["restore_deadline_epoch"]):
         raise ValueError("application lease is not currently admitted")
     if (watchdog.get("schema") != "aster-application-watchdog-status.v1"
             or watchdog.get("state") != "healthy"
@@ -213,7 +222,8 @@ def load_owner_receipt(path: Path = OWNER_RECEIPT_PATH) -> ApplicationReceipt:
     return ApplicationReceipt(**value)
 
 
-def from_lease_receipt(lease_receipt, *, watchdog_deadline_epoch: int) -> ApplicationReceipt:
+def from_lease_receipt(lease_receipt, *, restore_start_epoch: int,
+                       restore_deadline_epoch: int) -> ApplicationReceipt:
     """Convert the validated lease observation into the host-owned receipt."""
     sidecar = lease_receipt.sidecar
     return ApplicationReceipt(
@@ -222,7 +232,8 @@ def from_lease_receipt(lease_receipt, *, watchdog_deadline_epoch: int) -> Applic
         lease_id=lease_receipt.lease_id,
         generation=lease_receipt.generation,
         backup_receipt=lease_receipt.backup_receipt,
-        watchdog_deadline_epoch=watchdog_deadline_epoch,
+        restore_start_epoch=restore_start_epoch,
+        restore_deadline_epoch=restore_deadline_epoch,
         backend_identity=lease_receipt.backend_identity,
         llama_service_active=lease_receipt.llama_service_active,
         exclusive_backend_claim=lease_receipt.exclusive_backend_claim,
