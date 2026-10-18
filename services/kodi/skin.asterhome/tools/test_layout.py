@@ -132,7 +132,7 @@ class LayoutTests(unittest.TestCase):
         actions = [node.text for node in osd.findall('.//onclick')]
         for action in ('PlayerControl(Previous)', 'Seek(-10)',
                        'PlayerControl(Play)', 'Seek(30)',
-                       'PlayerControl(Next)', 'PlayerControl(Stop)', 'Info'):
+                       'PlayerControl(Next)', 'PlayerControl(Stop)'):
             self.assertIn(action, actions)
         self.assertIsNotNone(osd.find('.//info[.="Player.Progress"]'))
         labels = [node.text or '' for node in osd.findall('.//label')]
@@ -146,6 +146,13 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(quality_actions,
                          ['PlayerResolutionSelect',
                           'ActivateWindow(osdvideosettings)'])
+        self.assertEqual([node.text for node in by_id['70043'].findall('onclick')],
+                         ['Dialog.Close(VideoOSD)',
+                          'ActivateWindow(fullscreeninfo)'])
+        home_info = self.home.find('.//control[@id="121"]')
+        self.assertIsNotNone(home_info)
+        self.assertEqual([node.text for node in home_info.findall('onclick')],
+                         ['SetFocus(100)', 'Action(Info)'])
         ET.parse(ROOT / '1080i/VideoFullScreen.xml')
 
         settings = ET.parse(ROOT / '1080i/DialogSettings.xml')

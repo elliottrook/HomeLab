@@ -1493,6 +1493,16 @@ complete XML parsing and whitespace validation passed. The pre-change
 installed skin is retained at
 `/private/tmp/asterhome-kodi-stream-controls-pre-20261017` for local rollback.
 
+Information-button correction, 2026-10-17 (skin v0.8.27): follow-up testing
+identified that the earlier evidence invoked Kodi's global Info action rather
+than activating the visible OSD button. The OSD button now explicitly closes
+the controls and opens `fullscreeninfo`; navigating from Pause across to Info
+and pressing that exact control visibly opened the Aster playback synopsis.
+The Media landing-page More Info button was also corrected to return focus to
+the selected media container before invoking its information action. Pressing
+that exact button opened the selected episode's Aster detail page with title,
+artwork and synopsis. Playback was stopped after the test.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

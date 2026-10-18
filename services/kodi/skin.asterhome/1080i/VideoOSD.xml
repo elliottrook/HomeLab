@@ -126,7 +126,9 @@
         <font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
         <texturefocus border="24" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
         <texturenofocus border="24" colordiffuse="d9292721">special://skin/media/ui-panel.png</texturenofocus>
-        <onclick>Info</onclick><onleft>603</onleft><onright>600</onright><onup>7102</onup>
+        <onclick>Dialog.Close(VideoOSD)</onclick>
+        <onclick>ActivateWindow(fullscreeninfo)</onclick>
+        <onleft>603</onleft><onright>600</onright><onup>7102</onup>
       </control>
     </control>
   </controls>

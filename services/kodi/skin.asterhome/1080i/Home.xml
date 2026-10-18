@@ -151,7 +151,8 @@
             <top>411</top>
             <width>280</width>
             <label>ⓘ  More Info</label>
-            <onclick>Info</onclick>
+            <onclick>SetFocus(100)</onclick>
+            <onclick>Action(Info)</onclick>
             <onleft>120</onleft>
             <onup>131</onup>
             <ondown>100</ondown>

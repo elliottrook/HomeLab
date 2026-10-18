@@ -569,6 +569,12 @@ their active video stream, in which case the button shows that resolution and
 Kodi's video-processing settings. Info now opens the current title,
 series/episode/year, synopsis, time and progress instead of doing nothing.
 
+Version 0.8.27 makes both information paths explicit. The playback OSD closes
+before opening `fullscreeninfo`, while the Media landing page restores focus
+to its selected media container before requesting the standard Kodi video
+information dialog. This avoids the no-op caused by invoking `Info` while the
+button itself, rather than a media item, owns focus.
+
 ## Local test
 
 The Books pages show bounded, plain-text source synopses and a full-text About
