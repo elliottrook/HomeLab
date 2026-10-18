@@ -154,6 +154,27 @@ independent exact SYCL/device/auth response check plus the Aster, Speech,
 News and schedule postchecks before clearing the host lock. A unit reporting
 `active` is insufficient.
 
+**October 17 offline timing correction:** the watchdog's `deadline_at` is a
+recovery *trigger*, not proof that restoration has finished. The consistency
+checker now refuses a trigger whose minimum 15-minute restoration allowance
+plus one-minute trigger-lag floor reaches or exceeds 04:15, using UTC elapsed
+time. The B60 peer's published `6104f422` proposal identified this gap.
+These floors are necessary refusal conditions, **not measured recovery
+budgets**. A live card still needs platform-owned worst-case restoration and
+timer-lag evidence, a source-bound admission check for those values, and an
+independent postcheck before any lease or model call is authorized. The
+unchanged `v2` input shape and synthetic passing fixture do not provide that
+missing live proof.
+
+The [October 18 platform-interface review](../evidence/A1-admission-platform-interface-review-2026-10-18.md)
+found a further exact naming trap: the platform receipt currently calls its
+**hard restoration deadline** `watchdog_deadline_epoch`, while this checker's
+`watchdog.deadline_at` means the **recovery trigger**. Those fields must never
+be copied across by name. A source-bound projection must retain the distinct
+`restore_start_epoch` and `restore_deadline_epoch`, plus measured recovery and
+timer-lag evidence. Until that contract is reviewed and tested, this offline
+checker cannot admit the live A1 run even if its synthetic fixtures pass.
+
 ## Verified current state and remaining work
 
 Read-only checks on 2026-10-13 Vancouver found Proxmox backup enabled at
