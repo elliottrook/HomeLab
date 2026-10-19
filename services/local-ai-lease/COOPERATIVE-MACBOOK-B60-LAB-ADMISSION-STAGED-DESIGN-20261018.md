@@ -77,6 +77,12 @@ The API key remains in LXC110 and is never returned to the MacBook.
 Gate: disposable transport tests show accepted matching requests and rejection
 of every drift class; no production ingress or firewall change is made.
 
+The slow F2 source chain is a separate preflight concern. Its source-only
+snapshot candidate is documented in
+`F2-PREFLIGHT-SNAPSHOT-SOURCE-REVIEW-20261019.md`; it must complete before a
+narrow final freshness/exclusion guard, and it does not itself establish F2
+content integrity.
+
 ### D — Persistent supervisor and independent recovery
 
 Install only after the existing manual `local-ai-lease` path is shown to share
