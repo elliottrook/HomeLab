@@ -1,6 +1,7 @@
 # Local Proxmox whole-job proof repair — disabled-install card
 
-Status: source-only repair candidate; not installed and not live-authorized.
+Status: disabled-stage repair installed and verified; live pilot remains
+unauthorized.
 This card fixes the stale Proxmox task-list admission path used by the
 disabled full-inference pilot. It does not authorize a pilot, guardian
 prearming, service changes, timer changes, or a remote push.
@@ -34,8 +35,8 @@ separate install approval is granted:
 | `scripts/local-ai/test_full_inference_lab_validator.py` | `b3806c9e769dbcf77efe23d616147365961087c91e7cd6413e3e7cb8c6341f91` | `75dbe8afe4b925844702a33339356414ceb955dfa4cb3603da97a43fd75ef4d5` |
 
 The exact journal command is generated from a validated `YYYY_MM_DD` cycle;
-the source does not accept an arbitrary shell string. The repair is source
-only until installed hashes and the live read-only postcheck are recorded.
+the source does not accept an arbitrary shell string. The repair is installed
+only in the existing inactive pilot directory; no unit or timer was enabled.
 
 ## Verification completed
 
@@ -44,13 +45,18 @@ passes: 297 tests, 4 expected skips. Verification includes the real trailing
 colon in the observed Proxmox UPID, successful artifact custody, missing
 whole-job rejection, local-only no-TrueNAS behavior, and validator release.
 
+Target-Linux installation verification also passed: 65 tests; exact repair
+hashes; exact rollback checkpoint at
+`/root/aster-pilot-backup-source-rollback-c66b9ae8`; and the live
+`LocalProxmoxFullDrainSourceProducer` returned `local_backup_proof=True` for
+the current 2026-10-18 cycle. The bounded journal contained the expected
+00:30 start and 00:50:40 completion evidence. The postcheck found no pilot
+scope, guardian unit, 11436 listener, pilot process, model call, service stop,
+or timer change.
+
 ## Install and rollback gate
 
-An installer must copy only the four files above into the existing disabled
-pilot source directory, preserve ownership/mode, run the complete suite in an
-isolated copy, verify the four repair hashes, and confirm no pilot unit,
-guardian, listener, model call, service stop, or timer was created. Rollback is
-the exact four target hashes from `dafc0332`; do not alter the already installed
-runtime/guardian upgrade. After installation, a fresh read-only Proxmox check
-must show the bounded journal proof and artifact ordering before any pilot
-approval is considered.
+Rollback restores only the four target hashes from `dafc0332` using the
+checkpoint above; do not alter the already installed runtime/guardian
+upgrade. The installed repair makes the local backup source gate pass, but it
+does not authorize a pilot, guardian prearm, service drain, or remote push.
