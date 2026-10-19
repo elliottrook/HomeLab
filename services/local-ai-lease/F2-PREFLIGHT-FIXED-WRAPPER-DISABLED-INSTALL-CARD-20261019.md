@@ -1,8 +1,8 @@
 # F2 fixed preflight wrapper — disabled-install card
 
-Status: source-only candidate; not installed, scheduled, or run. This card
-does not authorize an F2 scan, receipt, lease, timer, service change, or
-remote push.
+Status: disabled-stage installed and verified; F2 remains OPEN. This card does
+not authorize an F2 scan, receipt, lease, timer, service change, or remote
+push.
 
 ## Exact candidate and rollback
 
@@ -38,6 +38,24 @@ Rollback removes only the two newly added modules and the empty preflight
 directory, or restores captured prior bytes if a target unexpectedly existed.
 Do not remove the shared `/var/lib/local-ai-lab` root or alter the existing
 manual helper/dependencies.
+
+## Target-Linux installation receipt
+
+The approved disabled install completed using the absent-state rollback
+checkpoint `/root/aster-f2-preflight-rollback-5e77cd7b/targets-were-absent`
+mode 0600. Installed hashes match the table above; both modules are root:root
+0644; `/var/lib/local-ai-lab/f2-preflight` is root:root 0700 and empty. The
+installed-path suite passed 9/9, including root-custody tests.
+
+The clean postcheck found the manual lease ready; no snapshot, receipt, F2 or
+zstd process; Aster 104/110/114/116 running; Aster Agent/Llama/Speech active;
+News timers active and enabled; and pvescheduler/pvestatd active. Temporary
+staging was removed. No capture, scan, timer, lease, service stop, receipt or
+model call occurred.
+
+This receipt advances only the disabled-install gate. F2 remains OPEN pending
+a separate fresh-cycle capture, final-gate revalidation, and the bounded
+three-row scan.
 
 ## Disabled-stage procedure
 
