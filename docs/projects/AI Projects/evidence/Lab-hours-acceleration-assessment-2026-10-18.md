@@ -505,9 +505,10 @@ armed, service stopped or model called.
 
 A durable task-log file for the 00:30 `vzdump` UPID still exists. The
 read-only Proxmox task-status endpoint reports `stopped`, `exitstatus=OK`,
-`starttime=1792308600`; the root-owned task file's mtime is 1792309840
+`starttime=1792308600`; the Proxmox task file's mtime is 1792309840
 (00:50:40 Vancouver), after the three artifact times, and its final line is
-exactly `TASK OK`. This is a **candidate** source for a reviewed, bounded
+exactly `TASK OK`. Its actual custody is `www-data:root` mode 0640 beneath
+root-owned mode-0755 task directories. This is a **candidate** source for a reviewed, bounded
 completion adapter, not admission evidence from the current code. A separate
 source defect also rejects this observed valid UPID because its regex omits
 the final colon. Both findings and the need for ambiguity/custody checks were
