@@ -57,7 +57,9 @@ fi
 if [ "$doctor_result" -ne 0 ]; then
     doctor_failures="$(
         printf '%s\n' "$doctor_output" |
-        grep '^🔴' || true
+        grep '^🔴' |
+        grep -vE '^🔴 (Failed:|HomeLab doctor)' |
+        awk '!seen[$0]++' || true
     )"
 
     if [ -n "$doctor_failures" ]; then

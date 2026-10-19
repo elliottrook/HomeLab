@@ -665,7 +665,9 @@ check_bazarr() {
     local state
     if ! state="$(ssh -o BatchMode=yes -o ConnectTimeout=5 truenas '
         container="$(docker inspect -f "{{.State.Status}}" bazarr 2>/dev/null || true)"
-        http="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 http://127.0.0.1:6767/ 2>/dev/null || true)"
+        # Bazarr is deliberately published only on the TrueNAS service IP,
+        # not loopback. Probe the same bounded direct path users and NPM use.
+        http="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 http://192.168.20.40:6767/ 2>/dev/null || true)"
         policy="$(python3 - <<"PY"
 import yaml
 try:

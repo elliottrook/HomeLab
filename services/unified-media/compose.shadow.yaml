@@ -157,7 +157,7 @@ services:
       - ${UNIFIED_AUDIOBOOKS_PATH:-/mnt/Media/media/audiobooks}:/audiobooks:ro
     ports:
       - "127.0.0.1:30077:80"
-    restart: "no"
+    restart: unless-stopped
 
   calibre-web:
     image: lscr.io/linuxserver/calibre-web:latest
