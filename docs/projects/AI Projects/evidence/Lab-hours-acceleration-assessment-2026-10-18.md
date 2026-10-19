@@ -641,3 +641,12 @@ test also supplies a missing parent even though the hardened writer correctly
 refuses one. MacBook staging remains **HOLD** until the path is reconciled and
 the target-root expiry, replay, config and symlink tests exercise the actual
 fixed installation shape.
+
+Platform commit `15ce1d88` reconciles the attestation path to
+`/var/lib/local-ai-lab/macbook-attestation`, updates the source hash and adds
+expired-envelope, consume-once replay, config-custody and symlink-parent
+tests. This closes the identified source/card mismatch. It does not identify
+or verify the actual MacBook public key, install an authorized-key entry, or
+provide target-root positive evidence. The complete MacBook ingress install
+therefore remains **HOLD** pending those source-bound identity and Linux
+custody gates; it is not included in the F2-only disabled-install request.
