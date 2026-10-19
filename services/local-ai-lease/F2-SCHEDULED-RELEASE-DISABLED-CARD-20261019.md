@@ -1,8 +1,8 @@
 # F2 scheduled release candidate — disabled card
 
-Status: source-only, disabled, and not installed. This card does not authorize
-enabling a timer, running an F2 scan, issuing a lease, changing services, or
-pushing to a remote.
+Status: disabled-stage installed and verified; F2 remains OPEN. This card does
+not authorize enabling a timer, running an F2 scan, issuing a lease, changing
+services, or pushing to a remote.
 
 ## Purpose and boundary
 
@@ -19,8 +19,7 @@ observes state only and reports completion, failure, or required action.
 
 ## Pinned source set
 
-Hashes below are for the source tree and must be recomputed immediately before
-any future target-Linux staging. The candidate is not installed by this commit.
+Hashes below are the source and installed target set for the disabled candidate.
 
 | Source | SHA-256 |
 |---|---|
@@ -36,33 +35,39 @@ modules recorded in `F2-PREFLIGHT-FIXED-WRAPPER-DISABLED-INSTALL-CARD-20261019.m
 It must not broaden that dependency map or silently replace the installed
 disabled modules.
 
-## Proposed target paths and unit controls
+## Installed target paths and unit controls
 
-If separately authorized, stage the Python entrypoint at
+The Python entrypoint is installed at
 `/usr/local/libexec/local-ai-lease/f2_scheduled_release_candidate.py` as
 root:root 0644. Stage the four units under
-`/etc/systemd/system/` as root:root 0644, run `systemd-analyze verify` and the
-target-Linux tests, then leave all four units disabled and stopped.
+`/etc/systemd/system/` as root:root 0644. Target-Linux tests and
+`systemd-analyze verify` passed; all four units remain disabled and stopped.
 
 The prepare service creates the fixed state directory as root:root 0700 before
 the Python custody check. Both services use the exact fixed `ExecStart`, `User=root`,
 `NoNewPrivileges=yes`, `ProtectHome=yes`, `ProtectSystem=full`, `PrivateTmp=yes`,
 `UMask=0077`, bounded startup time, `Restart=no`, and null stdout/stderr.
 The timers have zero randomization, one-second accuracy, and `Persistent=no`.
-The state directories are the only declared writable paths. No unit is enabled
-or started by this source-only step.
+The state directories are the only declared writable paths. The rollback
+checkpoint is `/root/aster-f2-scheduled-rollback-correction-56fcf4f3`, with
+root:root 0700 directory custody and 0600 saved files. The scheduled state
+directory is root:root 0700 and empty. No daemon reload, unit enablement,
+start, capture, scan, lease, service stop, or model request occurred.
+
+The next resolved calendar times are preparation at 2026-10-20 01:09 PDT and
+final at 2026-10-20 01:10 PDT. The heartbeat observes only terminal state and
+reports completion, failure, or required action.
 
 ## Evidence required before activation
 
 1. Recompute all six hashes above and revalidate every dependency pin from the
-   disabled-install card.
-2. On Linux, run `systemd-analyze verify` on all four units and the focused
-   scheduled-candidate, fixed-wrapper, and snapshot suites; then run the full
-   local suite.
+   disabled-install card after any future source change.
+2. Before activation, repeat `systemd-analyze verify`, the focused target-Linux
+   suites, and the full local suite.
 3. Confirm no timer, service, receipt, snapshot, lease, GPU/model request, or
-   service state changed during staging.
-4. Obtain a fresh explicit authorization for installation/enablement and a
-   separate fresh authorization for any remote push.
+   service state changed during the activation decision.
+4. Obtain a fresh explicit authorization for enablement and a separate fresh
+   authorization for any remote push.
 
-Until those gates are met, F2 remains OPEN and this is only a reviewable
-source candidate.
+Until those gates are met, F2 remains OPEN and the installed candidate remains
+disabled.
