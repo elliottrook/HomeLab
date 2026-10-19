@@ -1,11 +1,17 @@
 import json
+import os
+import tempfile
 import unittest
 from datetime import datetime
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from f2_preflight_snapshot import (F2PreflightError, PVE_ARTIFACTS, PVE_JOB,
-                                   TRUENAS_MIRROR, TRUENAS_TASKS, LEASE_STATUS,
-                                   collect_snapshot, final_guard)
+from f2_preflight_snapshot import (CLOCK, EXCLUSION_TOKEN, F2PreflightError, INSTALLED_PINS,
+                                   LEASE_STATUS, LOCK_ABSENCE, PVE_ARTIFACTS,
+                                   PVE_JOB, QUIET_PROCESSES, RECEIPT_ABSENCE,
+                                   STATE_ABSENCE, TRUENAS_MIRROR, TRUENAS_TASKS,
+                                   collect_snapshot, final_guard, read_snapshot,
+                                   write_snapshot)
 
 
 class F2PreflightSnapshotTests(unittest.TestCase):
@@ -31,15 +37,50 @@ class F2PreflightSnapshotTests(unittest.TestCase):
 
     def test_collects_slow_chain_and_final_guard_accepts_fresh_exclusion(self):
         snapshot = collect_snapshot(self.runner(), cycle="2026-10-19", lease_issued_epoch=self.epoch(4, 0), captured_epoch=self.epoch(3, 10), exclusion_token="lease-1")
-        final_guard(snapshot, now_epoch=self.epoch(3, 11), exclusion_token="lease-1")
+        def guard(command, timeout):
+            if command == CLOCK: return 0, str(self.epoch(3, 11))
+            if command in (LOCK_ABSENCE, STATE_ABSENCE, RECEIPT_ABSENCE): return 0, ""
+            if command == EXCLUSION_TOKEN: return 0, "lease-1\n"
+            if command == QUIET_PROCESSES: return 1, ""
+            if command == INSTALLED_PINS: return 0, "pin  /path\n"
+            raise AssertionError(command)
+        final_guard(snapshot, runner=guard, expected_pin="pin")
         self.assertTrue(snapshot.archive_identity_verified)
 
     def test_final_guard_rejects_stale_or_changed_exclusion(self):
         snapshot = collect_snapshot(self.runner(), cycle="2026-10-19", lease_issued_epoch=self.epoch(4, 0), captured_epoch=self.epoch(3, 10), exclusion_token="lease-1")
+        def guard(command, timeout):
+            if command == CLOCK: return 0, str(self.epoch(3, 12))
+            if command in (LOCK_ABSENCE, STATE_ABSENCE, RECEIPT_ABSENCE): return 0, ""
+            if command == EXCLUSION_TOKEN: return 0, "lease-1\n"
+            if command == QUIET_PROCESSES: return 1, ""
+            if command == INSTALLED_PINS: return 0, "pin  /path\n"
+            raise AssertionError(command)
         with self.assertRaisesRegex(F2PreflightError, "stale"):
-            final_guard(snapshot, now_epoch=self.epoch(3, 12), exclusion_token="lease-1")
+            final_guard(snapshot, runner=guard, expected_pin="pin")
+        def changed(command, timeout):
+            if command == CLOCK: return 0, str(self.epoch(3, 11))
+            if command in (LOCK_ABSENCE, STATE_ABSENCE, RECEIPT_ABSENCE): return 0, ""
+            if command == EXCLUSION_TOKEN: return 0, "other\n"
+            if command == QUIET_PROCESSES: return 1, ""
+            if command == INSTALLED_PINS: return 0, "pin  /path\n"
+            raise AssertionError(command)
         with self.assertRaisesRegex(F2PreflightError, "exclusion"):
-            final_guard(snapshot, now_epoch=self.epoch(3, 11), exclusion_token="other")
+            final_guard(snapshot, runner=changed, expected_pin="pin")
+
+    def test_f2_window_allows_task_one_before_tasks_two_and_three(self):
+        artifacts, tasks, mirror = self.sources()
+        tasks[1]["job"] = {}
+        tasks[2]["job"] = {}
+        def run(command, timeout):
+            if command == PVE_ARTIFACTS: return 0, json.dumps(artifacts)
+            if command == PVE_JOB: return 0, json.dumps({"id": "backup-49999802-1365", "enabled": 1, "schedule": "00:30", "storage": "backups", "type": "vzdump", "all": 1})
+            if command == TRUENAS_TASKS: return 0, json.dumps(tasks)
+            if command == TRUENAS_MIRROR: return 0, json.dumps(mirror)
+            if command == LEASE_STATUS: return 0, '{"state":"ready"}'
+            raise AssertionError(command)
+        snapshot = collect_snapshot(run, cycle="2026-10-19", lease_issued_epoch=self.epoch(1, 7), captured_epoch=self.epoch(1, 7), exclusion_token="lease-1")
+        self.assertTrue(snapshot.archive_identity_verified)
 
     def test_missing_or_failed_chain_fails_closed(self):
         def bad(command, timeout):
@@ -47,6 +88,22 @@ class F2PreflightSnapshotTests(unittest.TestCase):
             return self.runner()(command, timeout)
         with self.assertRaises(F2PreflightError):
             collect_snapshot(bad, cycle="2026-10-19", lease_issued_epoch=self.epoch(4, 0), captured_epoch=self.epoch(3, 10), exclusion_token="lease-1")
+
+    def test_snapshot_reader_rejects_untrusted_custody(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(F2PreflightError, "custody"):
+                read_snapshot(Path(tmp) / "snapshot.json")
+
+    @unittest.skipUnless(os.geteuid() == 0, "root-custody positive test requires root")
+    def test_snapshot_round_trip_under_root_custody(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp) / "snapshots"
+            directory.mkdir(mode=0o700)
+            os.chmod(directory, 0o700)
+            snapshot = collect_snapshot(self.runner(), cycle="2026-10-19", lease_issued_epoch=self.epoch(4, 0), captured_epoch=self.epoch(3, 10), exclusion_token="lease-1")
+            path = directory / "lease-1.json"
+            write_snapshot(path, snapshot)
+            self.assertEqual(read_snapshot(path), snapshot)
 
 
 if __name__ == "__main__":

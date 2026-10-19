@@ -9,7 +9,11 @@ fingerprint and pinned host key.
 from __future__ import annotations
 
 import re
+import json
+import os
+import stat
 from dataclasses import dataclass
+from pathlib import Path
 
 from lab_workload_admission import LabAdmissionError, LabAdmissionManifest
 
@@ -50,3 +54,24 @@ def manifest_from_authenticated_session(
         issued_epoch=issued_epoch,
         expires_epoch=expires_epoch,
     )
+
+
+def load_forced_command_session(path: Path) -> AuthenticatedMacBookSession:
+    """Load only a root-owned 0600 attestation written by the forced command."""
+    parent = path.parent.lstat()
+    info = path.lstat()
+    if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid != 0
+            or stat.S_IMODE(parent.st_mode) != 0o700
+            or stat.S_ISLNK(info.st_mode) or not stat.S_ISREG(info.st_mode)
+            or info.st_uid != 0 or info.st_nlink != 1
+            or stat.S_IMODE(info.st_mode) != 0o600):
+        raise LabAdmissionError("forced-command attestation custody is invalid")
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise LabAdmissionError("forced-command attestation is unreadable") from exc
+    if type(value) is not dict or set(value) != {"principal", "client_key_fingerprint", "host_key_sha256", "session_id"}:
+        raise LabAdmissionError("forced-command attestation schema is invalid")
+    session = AuthenticatedMacBookSession(**value)
+    _validate_session(session)
+    return session
