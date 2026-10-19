@@ -1,13 +1,15 @@
 # Pilot rescue and deadline-guardian upgrade — disabled-install card
 
-Status: source-only upgrade candidate. This card is separate authorization
-from the already staged `b43d4971` pilot packet. It does not authorize a live
-pilot, guardian prearming, timer creation, service changes, or a remote push.
+Status: disabled upgrade installed and verified; live effects remain
+unauthorized. This card is separate from the already staged `b43d4971` pilot
+packet. It does not authorize a live pilot, guardian prearming, timer creation,
+service changes, or a remote push.
 
 ## Exact base and delta
 
-The target currently has the b43d4971 pilot packet installed. Preserve a
-recoverable checkpoint before replacement. Replace/add exactly these four
+The target had the b43d4971 pilot packet installed. The recoverable checkpoint
+is `/root/aster-pilot-guardian-rollback-dafc0332`, preserving both original
+runtime hashes. Replace/add exactly these four
 files under `/usr/local/libexec/local-ai-lease/full-inference-pilot/`; do not
 touch any other staged file:
 
@@ -22,7 +24,7 @@ The upgrade source tip is `dafc0332`. Runtime files remain `root:root` mode
 0644 in the existing root-only directory. This upgrade creates no systemd
 unit or timer and does not prearm the guardian.
 
-## No-effect verification
+## Completed no-effect verification
 
 Run the focused rescue/guardian tests and the complete local-AI suite from an
 isolated copy. Verify the rescue parser, exact owner/lease/generation binding,
@@ -31,7 +33,10 @@ token `0`, near-deadline timeout bound, and failed-fence retention tests.
 Verify the installed hash table after replacement and confirm the existing
 manual lease remains `ready`, all five production consumers remain active, and
 port 11436 has no listener. No model call, scope, service stop, timer, or
-network change is permitted during this upgrade.
+network change is permitted during this upgrade. The completed target result
+was 65 focused tests; manual lease `ready`; all five production consumers
+active/enabled as applicable; no pilot unit; no port 11436 listener; and no
+guardian armed.
 
 ## Rollback and promotion gate
 
