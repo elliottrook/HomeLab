@@ -147,3 +147,14 @@ snapshot directory are absent, the existing state root is root-owned mode
 card. This makes the **F2 disabled installation review-ready**; it is not yet
 installed and is not authorization to capture a snapshot or run a scan.
 
+Jason approved that bounded disabled installation. The fresh host preflight
+matched the card, and the four source/test files were copied only to a private
+temporary staging directory. The pre-install target-Linux suite then stopped
+the operation at 7/8 passes: the missing-snapshot test expected an error
+containing `custody`, while the reader correctly returned `snapshot is
+unreadable`. The root-owned positive snapshot round trip passed. No production
+module or state directory was installed, and no service, timer, lease, scan,
+receipt, GPU or model effect occurred. The platform owner received the exact
+failure; the approved installation may resume only after the corrected test
+passes against the unchanged pinned source or a newly reviewed source card.
+
