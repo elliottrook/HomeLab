@@ -16,9 +16,9 @@ D = "d" * 64
 
 
 def card():
-    return {"schema_version": "aster-full-path-admission.v0",
+    return {"schema_version": "aster-full-path-admission.v2",
             "case_sha256": CASE_SHA256, "profile_sha256": A,
-            "gateway_sha256": B, "scorer_sha256": C,
+            "gateway_sha256": B, "sidecar_sha256": B, "scorer_sha256": C,
             "accepted_restore_sha256": D,
             "max_calls": 20, "max_wall_s": 1200,
             "per_request_timeout_s": 60, "output_token_cap": 256,
@@ -40,18 +40,35 @@ def observed():
                   "consumers_isolated": True, "scheduled_work_quiesced": True,
                   "state": "leased", "issued_at": "2026-10-14T03:10:00-07:00",
                   "expires_at": "2026-10-14T04:10:00-07:00",
-                  "host_lock_held": True, "owner": "aster-stream-a"},
+                  "host_lock_held": True, "owner": "aster-stream-a",
+                  "scope": "aster-app-benchmark", "accepted_backend_active": True,
+                  "exclusive_backend_claim": True,
+                  "production_aster_quiesced": True, "speech_quiesced": True},
         "watchdog": {"source": "proxmox-systemd", "lease_id": "test-lease-20261014",
-                     "generation": 1,
-                     "armed": True, "deadline_at": "2026-10-14T04:05:00-07:00",
-                     "independent_of_mini": True},
+                     "generation": 1, "scope": "aster-app-benchmark",
+                     "armed": True, "deadline_at": "2026-10-14T03:58:00-07:00",
+                     "independent_of_mini": True,
+                     "stops_sidecar": True, "restores_backend_ingress": True,
+                     "removes_test_backend_key": True,
+                     "revalidates_production_auth": True,
+                     "restores_consumers": True},
         "consumers": {"source": "platform-host-controller", "news_quiesced": True,
                       "other_ai_quiesced": True, "no_new_starts": True},
+        "sidecar": {"source": "platform-host-controller",
+                    "lease_id": "test-lease-20261014", "generation": 1,
+                    "source_sha256": B, "unit": "aster-a1-test.service",
+                    "distinct_uid": True, "single_worker": True,
+                    "test_port_attested": True,
+                    "credential_denial_checked": True,
+                    "network_denial_checked": True,
+                    "started_inside_lease": True},
         "gateway": {"source": "aster-test-adapter", "profile_sha256": B,
                     "model_profile_sha256": A, "scorer_sha256": C,
                     "accepted_restore_sha256": D,
                     "auth_scope": "test_only", "egress": "lan_only",
                     "test_only": True, "tools_disabled": True,
+                    "durable_attempt_journal": True, "distinct_inner_auth": True,
+                    "pinned_request_set": True, "common_gateway_topology": True,
                     "production_route_unchanged": True,
                     "candidate_id": "synthetic-candidate"},
         "evidence": {"source": "aster-owner-custody", "owner_only": True,
@@ -69,7 +86,7 @@ class FullPathAdmissionTests(unittest.TestCase):
     def test_complete_snapshot_passes_without_claiming_authority(self):
         result = admit(card(), observed(), now=NOW)
         self.assertEqual(result["state"], "preflight_passed_not_authority")
-        self.assertEqual(result["latest_batch_end_at"], "2026-10-14T03:50:00-07:00")
+        self.assertEqual(result["latest_batch_end_at"], "2026-10-14T03:43:00-07:00")
         self.assertNotIn("http", str(result))
 
     def test_missing_watchdog_and_wrong_lease_fail_closed(self):
@@ -83,6 +100,23 @@ class FullPathAdmissionTests(unittest.TestCase):
         self.deny("lease_unverified", lambda x: x["lease"].update(
             scheduled_work_quiesced=False))
         self.deny("watchdog_unverified", lambda x: x["watchdog"].update(generation=2))
+        self.deny("watchdog_unverified", lambda x: x["watchdog"].update(
+            scope="whole-host-recovery"))
+        for field in ("stops_sidecar", "restores_backend_ingress",
+                      "removes_test_backend_key", "revalidates_production_auth",
+                      "restores_consumers"):
+            with self.subTest(field=field):
+                self.deny("watchdog_unverified", lambda x, key=field:
+                          x["watchdog"].update({key: False}))
+
+    def test_backend_must_remain_active_and_exclusive_in_app_lease(self):
+        self.deny("lease_unverified", lambda x: x["lease"].update(
+            scope="whole-host-recovery"))
+        for field in ("accepted_backend_active", "exclusive_backend_claim",
+                      "production_aster_quiesced", "speech_quiesced"):
+            with self.subTest(field=field):
+                self.deny("lease_unverified", lambda x, key=field:
+                          x["lease"].update({key: False}))
 
     def test_backup_must_be_source_bound_and_same_night(self):
         self.deny("backup_unverified", lambda x: x["backup"].update(mirror_verified=False))
@@ -98,6 +132,24 @@ class FullPathAdmissionTests(unittest.TestCase):
             production_route_unchanged=False))
         self.deny("gateway_unverified", lambda x: x["gateway"].update(tools_disabled=False))
         self.deny("gateway_unverified", lambda x: x["gateway"].update(egress="cloud"))
+        for field in ("durable_attempt_journal", "distinct_inner_auth",
+                      "pinned_request_set", "common_gateway_topology"):
+            with self.subTest(field=field):
+                self.deny("gateway_unverified", lambda x, key=field: x["gateway"].update({key: False}))
+
+    def test_sidecar_requires_independent_host_attestation(self):
+        self.deny("sidecar_unverified", lambda x: x["sidecar"].update(
+            source="aster-test-adapter"))
+        self.deny("sidecar_unverified", lambda x: x["sidecar"].update(
+            generation=2))
+        self.deny("sidecar_unverified", lambda x: x["sidecar"].update(
+            source_sha256=A))
+        for field in ("distinct_uid", "single_worker", "test_port_attested",
+                      "credential_denial_checked", "network_denial_checked",
+                      "started_inside_lease"):
+            with self.subTest(field=field):
+                self.deny("sidecar_unverified", lambda x, key=field:
+                          x["sidecar"].update({key: False}))
 
     def test_exact_candidate_and_restore_pins_are_required(self):
         self.deny("gateway_unverified", lambda x: x["gateway"].update(
@@ -115,6 +167,13 @@ class FullPathAdmissionTests(unittest.TestCase):
     def test_deadlines_leave_restoration_budget(self):
         self.deny("insufficient_recovery_time", lambda x: x["watchdog"].update(
             deadline_at="2026-10-14T03:40:00-07:00"))
+        # The watchdog fires at its deadline; that is not the time recovery
+        # finishes. A trigger at 04:05 or the 04:15 cutoff must fail even
+        # when an ordinary batch could finish before it.
+        self.deny("insufficient_recovery_time", lambda x: x["watchdog"].update(
+            deadline_at="2026-10-14T04:05:00-07:00"))
+        self.deny("insufficient_recovery_time", lambda x: x["watchdog"].update(
+            deadline_at="2026-10-14T04:15:00-07:00"))
         self.deny("insufficient_recovery_time", lambda x: x["lease"].update(
             expires_at="2026-10-14T03:40:00-07:00"))
         self.deny("insufficient_recovery_time", lambda x: x, now=datetime(

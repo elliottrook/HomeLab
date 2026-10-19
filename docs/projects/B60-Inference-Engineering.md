@@ -12,6 +12,15 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October 19 owner-integration receipt](B60-Inference-Engineering/owner-integration-receipt-20261019.md)
+supersedes the earlier unchanged-owner status: Adaptive `a2cae9e3` and platform
+`442c0c00` publish substantial admission/recovery work. B60 imported the exact
+corrected offline guard; its old 04:15 trigger bug is now refused (not live
+recovery proof). 81 B60 plus 11 owner tests pass; 22 additional exact-peer
+fake-client tests pass separately. F2 is armed for one October 20 cycle;
+F3/F4 are staged inactive. Recovery/drill and full-path model admission remain
+open, with no duplicate runner or production action authorized here.
+
 The [October 19 nightly timing refusal](B60-Inference-Engineering/nightly-admission-20261019.md)
 records a heartbeat timestamp of 04:39 PDT and execution clock 04:56 PDT,
 both after restoration must finish. No live checks/load were attempted during
