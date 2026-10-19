@@ -79,6 +79,25 @@ malformed, extra or stale. HomeLab Doctor requires a zero drift count and
 reports missing, stale, warning or failed monthly state without exposing corpus
 content.
 
+Collector staging beneath `docs/.aster-wiki-runs` is diagnostic scratch space,
+not a recovery authority. Each completed run keeps only the three newest valid
+run directories by default; set `ASTER_WIKI_RUN_STAGE_RETENTION` to another
+positive bound only after reviewing storage and diagnostic needs. Accepted
+content, protected originals, reports, last-good state and rollback copies are
+outside that pruning boundary.
+
+Sysadmin Aster records a privacy-minimized counter when it actually invokes
+knowledge retrieval. The counter contains only time, the fixed `sysadmin`
+persona, result count, coarse returned source IDs and whether directory-first
+retrieval was enabled. It never stores query text, excerpts, answers, user
+identity or conversation content. Review the aggregate after the measurement
+period on LXC 104 with:
+
+```sh
+/opt/aster-agent/venv/bin/python /opt/aster-agent/knowledge_usage.py \
+  /var/lib/aster/knowledge-usage/events.sqlite3 --days 30
+```
+
 Restore service in dependency order: recover the private human repository and
 protected retained originals/state; verify the accepted corpus; rebuild and
 verify the derived mirror; rebuild Aster's deterministic snapshot; then start

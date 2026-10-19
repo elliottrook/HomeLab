@@ -82,6 +82,38 @@ class CollectorTests(unittest.TestCase):
             self.assertEqual(1, result["quarantined"])
             self.assertEqual("good\n", (wiki / "docs/upstream/safe-source/content.txt").read_text())
 
+    def test_run_staging_retention_keeps_only_three_newest_runs(self):
+        temporary, wiki, state = self.roots()
+        with temporary:
+            collector = Collector(
+                wiki, state,
+                lambda _: Fetched(
+                    b"password=not-a-real-fixture-secret\n",
+                    "text/plain",
+                    "https://docs.example.invalid/guide",
+                ),
+            )
+            for index in range(5):
+                collector.run([source()], f"failed-{index}")
+            retained = sorted(path.name for path in (wiki / "docs/.aster-wiki-runs").iterdir())
+            self.assertEqual(["failed-2", "failed-3", "failed-4"], retained)
+
+    def test_run_staging_retention_ignores_unrecognized_and_symlink_entries(self):
+        temporary, wiki, state = self.roots()
+        with temporary:
+            runs = wiki / "docs/.aster-wiki-runs"
+            runs.mkdir(parents=True)
+            outside = wiki.parent / "outside"
+            outside.mkdir()
+            (runs / "not a run").mkdir()
+            (runs / "linked-run").symlink_to(outside, target_is_directory=True)
+            collector = Collector(wiki, state, lambda _: Fetched(
+                b"safe\n", "text/plain", "https://docs.example.invalid/guide"))
+            collector.run([source()], "accepted")
+            self.assertTrue((runs / "not a run").is_dir())
+            self.assertTrue((runs / "linked-run").is_symlink())
+            self.assertTrue(outside.is_dir())
+
     def test_not_modified_reuses_only_verified_accepted_content(self):
         temporary, wiki, state = self.roots()
         with temporary:

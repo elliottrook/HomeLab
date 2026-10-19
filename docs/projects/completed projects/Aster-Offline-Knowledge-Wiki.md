@@ -605,6 +605,61 @@ If the analysis layer is untrustworthy, remove the mirror sources from the
 snapshot manifest and return Aster to the currently graduated second-brain
 snapshot; the complete human repository remains intact.
 
+## Post-graduation intent and efficiency review — 2026-10-19
+
+Available evidence shows that the human Wiki is not currently earning its
+operational complexity. Across 28,365 recorded Codex shell-action events,
+Codex consulted repository operational documents hundreds of times but did not
+retrieve a Wiki article or source dashboard. Retained NPM access logs likewise
+contain no article, source-dashboard or enrollment visit. Direct value to Codex
+as the administrative agent is therefore near zero: Codex uses the repository
+and live-system inspection instead.
+
+The derived mirror remains technically integrated with 1,810 entries from 26
+sources, but Aster did not retain tool-call telemetry, so organic mirror use is
+unknown rather than proven absent. LXC 113 uses little live memory, while 57
+unbounded diagnostic staging runs consumed about 452 MiB and inflated daily
+guest archives.
+
+Jason accepted a bounded 30-day measurement and cleanup on 2026-10-19:
+
+- retain the mirror temporarily and record only aggregate retrieval time,
+  fixed persona, result count, coarse source IDs and directory-first state;
+- never record queries, excerpts, answers, user identity or conversations;
+- retain only the three newest valid diagnostic staging runs;
+- deploy the reviewed immutable source pins; and
+- never prune accepted sources, originals, reports, last-good state or
+  rollback copies.
+
+Review the aggregate on or after 2026-11-18. If organic retrieval remains
+negligible, retire or further simplify the human portal, collector and mirror.
+
+Production activation completed on 2026-10-19 after both current LXC 104 and
+113 archives passed full Zstandard integrity tests. The corrected collector
+accepted 29 sources with 2 unchanged and zero failures or quarantines, then a
+second independent run repeated that result and left systemd `Result=success`.
+Accepted-corpus verification checked all 31 sources. The derived mirror rebuilt
+and verified 1,811 entries across 26 directory sources at content SHA-256
+`3bdb217932c26cdfcd587f87e1b50697f34e08c28d83ad5b1e860802ace52d2e`;
+corpus health is healthy with zero warnings, failures, stale sources, broken
+links, duplicates, taxonomy gaps or directory drift.
+
+Fifteen obsolete staging directories were removed after the first cleanup pass
+exposed legacy root ownership. The three retained directories are now all
+collector-owned, and an independent production run exercised automatic
+retention successfully, reducing staging from about 452 MiB before maintenance
+to 12 MiB. Accepted content, protected originals, reports and all named mirror
+rollback generations remain intact.
+
+On LXC 104, candidate validation proved that query and excerpt text never enter
+the usage database. The deployed suite passes 138/138 after reconciling one
+pre-existing stale runtime assertion to the already active Qwen3.5 9B
+SYCL/Level Zero path. Aster restarted healthy; its state directory is
+`aster:aster` mode `0700`, and the live 30-day counter was reset to an exact
+zero-event baseline after removing the synthetic validation event. Final
+HomeLab Doctor reports 88 passes, one pre-existing dirty-worktree warning and
+zero failures, with the Wiki, Aster, backups and corpus-health checks green.
+
 ## Evidence log
 
 | Date | Milestone | Evidence | Result |

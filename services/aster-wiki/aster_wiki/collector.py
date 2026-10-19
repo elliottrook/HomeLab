@@ -26,6 +26,7 @@ EXECUTABLE_MAGIC = (b"MZ", b"\x7fELF", b"#!")
 SAFE_TYPES = {"text/html", "text/markdown", "text/plain", "application/pdf"}
 RUN_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,95}$")
 MINIMUM_HOST_INTERVAL_SECONDS = 2.0
+RUN_STAGE_RETENTION = max(1, int(os.environ.get("ASTER_WIKI_RUN_STAGE_RETENTION", "3")))
 GIT_DOCUMENT_SUFFIXES = {".adoc", ".html", ".md", ".markdown", ".mdx", ".rst", ".txt"}
 
 
@@ -295,13 +296,33 @@ class Collector:
         if summary["quarantined"] or summary["failed"]:
             self.state.finish(run_id, "failed")
             self._write_report(run_id, summary)
+            self._prune_run_stages()
             return summary
         candidate = {"schema_version": 1, "run_id": run_id, "sources": sorted(accepted, key=lambda x: x["source_id"])}
         (stage / "accepted-lock.json").write_bytes(canonical_json(candidate))
         self._atomic_publish(stage)
         self.state.finish(run_id, "accepted")
         self._write_report(run_id, summary)
+        self._prune_run_stages()
         return summary
+
+    def _prune_run_stages(self) -> None:
+        """Keep only the newest bounded diagnostic staging directories.
+
+        Accepted content, retained originals, reports, last-good data and
+        rollback copies live outside this tree and are never considered here.
+        """
+
+        runs = self.wiki_root / "docs/.aster-wiki-runs"
+        if not runs.is_dir():
+            return
+        candidates = [
+            path for path in runs.iterdir()
+            if path.is_dir() and not path.is_symlink() and RUN_ID.fullmatch(path.name)
+        ]
+        candidates.sort(key=lambda path: (path.stat().st_mtime_ns, path.name), reverse=True)
+        for obsolete in candidates[RUN_STAGE_RETENTION:]:
+            shutil.rmtree(obsolete)
 
     def _atomic_publish(self, stage: Path) -> None:
         generated = self.wiki_root / "docs/upstream"
