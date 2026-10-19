@@ -57,14 +57,19 @@ Install only the pinned admission module, its tests, the source-bound
 producer/adapter, and the reviewed supervisor/workload files into a private
 inactive directory. Verify imports, hashes, ownership/mode, and target tests.
 Prove no unit, timer, listener, lease state, model request, or service change.
+The replay store must be under a private root-owned lease directory with a
+pinned per-lease-generation filename; the installed adapter must reject
+symlink/hardlink replacement, missing state after lease start, and any parent
+ownership or mode drift. A missing or unreadable replay store is fail-closed.
 
 Gate: exact rollback checkpoint and clean before/after state comparison.
 
 ### C — Source-bound MacBook ingress
 
 The adapter must authenticate the existing MacBook administration identity,
-verify the pinned Proxmox host key, create the manifest from live preflight
-values, and pass only the fixed admission envelope to the in-guest wrapper.
+derive the client fingerprint from that authenticated SSH session, verify the
+pinned Proxmox host key, create the manifest from live preflight values, and
+pass only the fixed admission envelope to the in-guest wrapper.
 It must reject arbitrary URL/model/path/command fields, stale generations,
 host-key drift, source/profile drift, and requests after the lease expiry.
 The API key remains in LXC110 and is never returned to the MacBook.
