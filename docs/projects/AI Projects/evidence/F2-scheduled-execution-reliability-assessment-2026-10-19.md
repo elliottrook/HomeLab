@@ -158,3 +158,15 @@ receipt, GPU or model effect occurred. The platform owner received the exact
 failure; the approved installation may resume only after the corrected test
 passes against the unchanged pinned source or a newly reviewed source card.
 
+The platform owner corrected only the failing test expectation in commit
+`56c43bdc`; both reviewed module hashes remained unchanged. The corrected
+target-Linux suite passed 9/9, including root custody, and the approved
+installation then completed. The two installed modules match the release
+card, their private state directory is root-owned mode 0700 and empty, and a
+clean postcheck found no snapshot, receipt, lease, scan or service/schedule
+regression. Temporary staging was removed and the absent-state rollback marker
+was retained. See the
+[disabled-install result](F2-deterministic-preflight-disabled-install-2026-10-19.md).
+This closes only deterministic-preparation installation; F2 remains open
+until a fresh cycle produces all three bounded archive rows.
+
