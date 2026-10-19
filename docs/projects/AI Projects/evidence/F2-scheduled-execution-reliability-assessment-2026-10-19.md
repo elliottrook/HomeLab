@@ -137,3 +137,13 @@ fixed pin map; none may be caller selected. No F2 file is installed from this
 commit, and F2 remains open until the target-root tests and measured cycle
 pass.
 
+The release-engineering revision at platform commit `5e77cd7b` removes the
+synthetic token and uses the existing `/var/lib/local-ai-lab` directory flock.
+Its separate disabled-install card pins two new modules, six existing
+dependencies, exact ownership/modes, absent-state rollback and target-root
+tests. Stream A independently verified that the two target files and child
+snapshot directory are absent, the existing state root is root-owned mode
+0700, all six live dependency hashes match, and both source hashes match the
+card. This makes the **F2 disabled installation review-ready**; it is not yet
+installed and is not authorization to capture a snapshot or run a scan.
+

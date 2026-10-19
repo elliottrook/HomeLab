@@ -632,3 +632,12 @@ from a verified installed configuration. MacBook admission remains **HOLD**
 pending an expiring, consume-once envelope, fixed config and authorized-keys
 shape, descriptor-based custody checks and target-Linux negative tests. The
 F2 snapshot work can advance independently of this ingress gate.
+
+The separate MacBook disabled-install card at platform commit `5e77cd7b`
+still fails source/card reconciliation. The code writes under
+`/var/lib/local-ai-lease/macbook-attestation`, while the card specifies
+`/var/lib/local-ai-lab/macbook-attestation`. Its root-only positive writer
+test also supplies a missing parent even though the hardened writer correctly
+refuses one. MacBook staging remains **HOLD** until the path is reconciled and
+the target-root expiry, replay, config and symlink tests exercise the actual
+fixed installation shape.
