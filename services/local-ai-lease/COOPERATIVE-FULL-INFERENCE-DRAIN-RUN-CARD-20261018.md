@@ -57,7 +57,8 @@ direct MacBook model access.
 The concrete reservation is defined at the final gate as `S` (the recorded
 start epoch): lab work is `[S, S+1800)`, restoration is `[S+1800, S+2700)`,
 and the next News ingest epoch `N` must satisfy `S+2700+300 <= N`. Immediately
-after MacBook custody is proven, the operator must run the read-only command
+after standard MacBook custody or the separately approved Mac-mini control-only
+session is verified, the operator must run the read-only command
 `pct exec 114 -- systemctl list-timers --all --no-legend --no-pager
 news-aggregator-ingest.timer`, record its next-run epoch as `N`, and either
 select the first start time satisfying that
@@ -236,8 +237,10 @@ in operator-reconciliation state.
 
 The pilot may start only when all of these are true:
 
-1. The installed 20-file manifest and wrapper hashes match the disabled-stage
-   card; target paths, modes, and required executables are unchanged.
+1. The unchanged base files and wrapper hashes match the base disabled-stage
+   card, and the two runtime replacements plus two guardian additions match
+   the exact four-path upgrade card; target paths, modes, and required
+   executables are unchanged.
 2. The current Proxmox backup source check passes, the manual lease is
    `ready`, the accepted model/binary/unit hashes match, VM105 is stopped and
    unmapped, and the GPU `xe` baseline is current.
@@ -246,8 +249,8 @@ The pilot may start only when all of these are true:
    separately approved Mac-mini control-only mode, the Mac-mini session and
    operator identity are captured instead, with an explicit record that no
    MacBook custody or client handoff is claimed.
-4. The post-custody News timer check records a future `N` satisfying the exact
-   30+15+5-minute window inequality above.
+4. The post-operator-authentication News timer check records a future `N`
+   satisfying the exact 30+15+5-minute window inequality above.
 5. The fixed production GPU holder is the exact LXC110
    `aster-llama.service` cgroup identity; after masking, no GPU holder remains.
 6. The operator explicitly accepts the Aster/News outage and remains present
