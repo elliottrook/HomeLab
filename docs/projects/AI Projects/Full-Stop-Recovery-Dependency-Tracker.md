@@ -59,6 +59,14 @@ condition. A scheduled wake-up does not prove the gates passed or that a scan
 ran. The October 17 approval remains consumed. No F3 receipt, full-stop
 drill or A1 action is included.
 
+The [October 19 heartbeat](evidence/F2-window-missed-2026-10-19.md) arrived
+at 01:06, but a complete preflight was not retained before the 01:20 start
+cutoff. The next observed host clock was 03:45. No guard or archive scan ran;
+the lease was `ready` and no scanner or F2 receipt remained. This cycle is
+NO-GO/UNMEASURED, not an F2 pass or an archive failure. The daily protocol
+still requires a fresh, supervised gate for each later cycle; it does not
+authorize replay of October 19.
+
 The October 16 01:10 read-only archive heartbeat triggered, but no complete
 three-archive result was retained by the time Stream A resumed after the
 start cutoff. It is now **paused**; see the [dated F2 record](evidence/Full-stop-archive-window-missed-2026-10-16.md).
@@ -197,7 +205,7 @@ the end of that backup cycle.
 |---|---|---|---|
 | F0 | **Pinned inactive compatibility source** | Source pins, seven-file rollback checkpoint, 12 installed modules and two heartbeat units match reviewed bytes; no lease/lock or production change. | [x] DONE — `services/local-ai-lease/FULL-STOP-COMPATIBILITY-DISABLED-INSTALL-RESULT-20261015.md` on platform branch; separate local `codex/aster-lease-compat` branch. |
 | F1 | **Target-Linux synthetic compatibility**, after F0 | Installed-path imports, admission-record round-trip, old-dependency compatibility, watchdog/recovery and archive tests; timers stay inactive. | [x] DONE — same result; synthetic tests only. |
-| F2 | **New-cycle read-only archive timing**, after successful 00:30 Proxmox job and 01:00 TrueNAS task 1 | Exact current-cycle 104/110/116 identities; three bounded `zstd -t` exit-0 results before the deadline, without competing work. Failure/unknown/partial is NO-GO. | [ ] **FAILED/UNKNOWN, October 17** — [one approved guard attempt](evidence/F2-archive-guard-no-go-2026-10-17.md) returned `F2NoGo` without archive rows. October 16 was UNKNOWN/NO-GO after the [missed window](evidence/Full-stop-archive-window-missed-2026-10-16.md); October 15 was partial. The diagnostic guard is installed; the bounded daily protocol is active, but no later complete result has been observed and F2 remains open. |
+| F2 | **New-cycle read-only archive timing**, after successful 00:30 Proxmox job and 01:00 TrueNAS task 1 | Exact current-cycle 104/110/116 identities; three bounded `zstd -t` exit-0 results before the deadline, without competing work. Failure/unknown/partial is NO-GO. | [ ] **OPEN** — October 19 was [missed without a scan](evidence/F2-window-missed-2026-10-19.md); October 17's [one approved guard attempt](evidence/F2-archive-guard-no-go-2026-10-17.md) returned `F2NoGo` without archive rows. October 16 was UNKNOWN/NO-GO after a missed window; October 15 was partial. The diagnostic guard is installed and the bounded daily protocol is active, but no complete three-archive result has been observed. |
 | F3 | **Trusted retained-receipt release**, after F0/F1 and timing review | A separately reviewed, hash-pinned producer can write a root-owned mode-0600 receipt in a mode-0700 directory only after all fixed source, whole-job, task-1, archive identity/integrity and deadline checks pass. Partial/late scans leave no success receipt. Test the actual installed path and rollback; obtain bounded host-change approval. | [ ] BLOCKED — the receipt CLI entrypoint and an older receipt-boundary file exist on Proxmox, but the F3 path is not released or invoked. The writer/reader candidate through `a8d0f380` needs target-Linux root proof and a complete effect-enabled release review. The corrected archive producer is installed only for read-only F2 observation; no trusted receipt was produced. F2 alone cannot satisfy F3. |
 | F4 | **Fresh trusted receipt for the drill cycle**, after F3 and that cycle's backup/task 1 | Complete current-cycle receipt exists, is independently re-read and bound to the same archive identities; stale, replaced or incomplete files fail closed. | [ ] BLOCKED by F3 and next eligible backup cycle. No October 15 receipt exists. |
 | F5 | **03:05 full preflight**, after F4 and 02:00/03:00 TrueNAS tasks | Fixed schedules and same-cycle job completions; exact LXC110 mirror; three consumers still running; no conflicting lease/job; pinned Qwen3.5-9B Q4_K_M, llama.cpp b11429 SYCL/Level Zero, GPU, unit and authentication state; News timer active/enabled and job idle. Save non-secret baseline for restoration. | [ ] BLOCKED by F4; must be observed afresh in the chosen cycle. |
