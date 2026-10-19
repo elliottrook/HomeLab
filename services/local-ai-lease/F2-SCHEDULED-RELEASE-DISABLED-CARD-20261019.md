@@ -24,11 +24,11 @@ any future target-Linux staging. The candidate is not installed by this commit.
 
 | Source | SHA-256 |
 |---|---|
-| `scripts/local-ai/f2_scheduled_release_candidate.py` | `6aae9275d64f66cfe0214749cf314d98d90cc063ef58e950e337f478f89513db` |
-| `scripts/local-ai/test_f2_scheduled_release_candidate.py` | `07d82b58a1767cc791a0e635d2bc6307f5c65f7683d731747033499a5de195fc` |
-| `services/local-ai-lease/systemd/f2-preflight-prepare.service` | `9e070de457da584248fcafe76fccc54792651e6a542b0e0b9a1084e08ea93854` |
+| `scripts/local-ai/f2_scheduled_release_candidate.py` | `142960c51b4dbd2a02b7e98cd3a343402eaebe2f076169a9d372f6e98b5d931e` |
+| `scripts/local-ai/test_f2_scheduled_release_candidate.py` | `42fcab435d885b8c3ee17b0ba8f6e41c492535c5be8312ca0f0cbad8308b6ca9` |
+| `services/local-ai-lease/systemd/f2-preflight-prepare.service` | `48998c82799e39cd3f8c988c05c8d0eff73b7b63a2bd16325ef5a3cef5004e4c` |
 | `services/local-ai-lease/systemd/f2-preflight-prepare.timer` | `93567ab331acc4b574ae04cbb8d3a3161d1ccbbc8cf8e153776a464aa1660aa7` |
-| `services/local-ai-lease/systemd/f2-preflight-final.service` | `6a87414fb23997861a137d88e8a6437750e1b18680e23368e2dc1c922047b32b` |
+| `services/local-ai-lease/systemd/f2-preflight-final.service` | `dd7bb66a6575956ffe55056406b1082da25377cd802a5eaeec5f30aa6d2338c5` |
 | `services/local-ai-lease/systemd/f2-preflight-final.timer` | `fd64356e68508b98427338b50b87170adb1e47faa7ea0c2a5a03fcf75b81dfff` |
 
 The release candidate depends on the already pinned fixed wrapper and snapshot

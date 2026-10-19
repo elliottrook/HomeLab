@@ -18,6 +18,8 @@ class F2ScheduledUnitTests(unittest.TestCase):
                 f"f2_scheduled_release_candidate.py --phase {phase}", text)
             self.assertIn("Restart=no", text)
             self.assertIn("NoNewPrivileges=yes", text)
+            self.assertIn("KillMode=control-group", text)
+            self.assertIn("TimeoutStopSec=10s", text)
             self.assertIn("ProtectSystem=full", text)
             self.assertIn("ProtectHome=yes", text)
             self.assertIn("PrivateTmp=yes", text)

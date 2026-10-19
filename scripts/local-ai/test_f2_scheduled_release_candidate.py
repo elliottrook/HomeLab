@@ -15,9 +15,9 @@ class Result:
     def communicate(self, timeout=None):
         return (b'{"schema":"aster-read-only-archive-timing.v1","state":"complete",'
                 b'"date":"2026_10_19","archives":['
-                b'{"vmid":"104","volid":"backups:backup/104.tar.zst","size":1,"ctime":1,"test_started_epoch":1,"test_finished_epoch":2,"test_elapsed_ms":1,"test_exit":0},'
-                b'{"vmid":"110","volid":"backups:backup/110.tar.zst","size":1,"ctime":1,"test_started_epoch":1,"test_finished_epoch":2,"test_elapsed_ms":1,"test_exit":0},'
-                b'{"vmid":"116","volid":"backups:backup/116.tar.zst","size":1,"ctime":1,"test_started_epoch":1,"test_finished_epoch":2,"test_elapsed_ms":1,"test_exit":0}],'
+                b'{"vmid":"104","volid":"backups:backup/vzdump-lxc-104-2026_10_19-00_00_00.tar.zst","size":1,"ctime":1,"test_started_epoch":1,"test_finished_epoch":2,"test_elapsed_ms":1,"test_exit":0},'
+                b'{"vmid":"110","volid":"backups:backup/vzdump-lxc-110-2026_10_19-00_00_00.tar.zst","size":1,"ctime":1,"test_started_epoch":1,"test_finished_epoch":2,"test_elapsed_ms":1,"test_exit":0},'
+                b'{"vmid":"116","volid":"backups:backup/vzdump-lxc-116-2026_10_19-00_00_00.tar.zst","size":1,"ctime":1,"test_started_epoch":1,"test_finished_epoch":2,"test_elapsed_ms":1,"test_exit":0}],'
                 b'"admission_receipt_written":false}', None)
 
 
@@ -96,6 +96,16 @@ class F2ScheduledReleaseTests(unittest.TestCase):
             path.symlink_to("/etc/hosts")
             with self.assertRaises((candidate.ScheduledF2Error, OSError)):
                 candidate._existing_state("2026-10-19")
+
+    def test_state_root_rejects_symlink(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            real = Path(tmp) / "real"
+            real.mkdir(mode=0o700)
+            link = Path(tmp) / "link"
+            link.symlink_to(real, target_is_directory=True)
+            with patch.object(candidate, "STATE_ROOT", link):
+                with self.assertRaisesRegex(candidate.ScheduledF2Error, "symlink"):
+                    candidate._state_root()
 
 
 if __name__ == "__main__":

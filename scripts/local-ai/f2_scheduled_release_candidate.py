@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import signal
 import stat
 import subprocess
@@ -60,9 +61,19 @@ def _state_path(cycle: str) -> Path:
 
 
 def _state_root() -> Path:
-    if not STATE_ROOT.exists():
-        raise ScheduledF2Error("scheduled state directory is absent")
-    meta = STATE_ROOT.stat()
+    try:
+        meta = os.lstat(STATE_ROOT)
+        if stat.S_ISLNK(meta.st_mode):
+            raise ScheduledF2Error("scheduled state directory is a symlink")
+        fd = os.open(STATE_ROOT, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+        try:
+            meta = os.fstat(fd)
+        finally:
+            os.close(fd)
+    except FileNotFoundError as exc:
+        raise ScheduledF2Error("scheduled state directory is absent") from exc
+    except OSError as exc:
+        raise ScheduledF2Error("scheduled state directory is not a directory") from exc
     if (not stat.S_ISDIR(meta.st_mode) or not _root_custody(meta)
             or stat.S_IMODE(meta.st_mode) != 0o700):
         raise ScheduledF2Error("scheduled state directory custody differs")
@@ -85,6 +96,12 @@ def _write_state(cycle: str, phase: str, state: str, error_class: str = "",
         os.fchmod(fd, 0o600)
         os.write(fd, raw)
         os.fsync(fd)
+    except Exception:
+        try:
+            os.unlink(temp_name)
+        except FileNotFoundError:
+            pass
+        raise
     finally:
         os.close(fd)
     os.replace(temp_name, path)
@@ -206,12 +223,14 @@ def _validate_projection(value: object, cycle: str) -> None:
     for vmid, row in zip(("104", "110", "116"), value["archives"]):
         if (not isinstance(row, dict) or set(row) != row_fields or row.get("vmid") != vmid
                 or not isinstance(row.get("volid"), str)
-                or not row["volid"].startswith("backups:backup/")
+                or re.fullmatch(rf"backups:backup/vzdump-lxc-{vmid}-{expected_date}-\d{{2}}_\d{{2}}_\d{{2}}\.tar\.zst", row["volid"]) is None
                 or any(type(row.get(key)) is not int for key in
                        ("size", "ctime", "test_started_epoch", "test_finished_epoch",
                         "test_elapsed_ms", "test_exit"))
                 or row["size"] <= 0 or row["ctime"] <= 0 or row["test_exit"] != 0
-                or row["test_elapsed_ms"] < 0):
+                or row["test_elapsed_ms"] < 0
+                or row["test_elapsed_ms"] > (900_000 if vmid == "110" else 120_000)
+                or not row["ctime"] <= row["test_started_epoch"] <= row["test_finished_epoch"]):
             raise ScheduledF2Error("bounded observer projection differs")
 
 
