@@ -219,3 +219,24 @@ installed or enabled. The owner received the exact counterexamples and was
 asked for a revised source/card. The disabled preparation modules already on
 the host remain unchanged and production remains available.
 
+The subsequent revisions closed those review findings in stages. Commit
+`4342f7e7` moved preparation to 01:09, added the fixed state directory,
+retained the bounded observer projection and added process-group timeout
+handling. A disabled installation of that revision was then superseded before
+activation. Commit `c99a241f` added no-follow state-directory custody, exact
+archive row validation and explicit systemd control-group cleanup. Final
+commit `56fcf4f3` added the missing 8 KiB output bound and complete state-file
+writes. The platform install receipt is recorded at `01923cfb`.
+
+Stream A independently verified the final installed hashes against the card,
+root ownership/modes, the root-owned rollback checkpoint, an empty scheduled
+state directory, absent preflight snapshot, successful installed import and
+calendar resolution for 01:09/01:10 Vancouver. Both timers and both services
+remain disabled and inactive. The lease is `ready`; Aster Agent, accepted
+Llama, Speech and both News timers remain active. No daemon reload, timer
+enablement, start, capture, scan, lease, service stop or model call occurred.
+
+This closes the disabled scheduler installation only. Activation remains a
+separate production change. F2 remains open until one activated fresh cycle
+retains a complete validated three-row result and clean postcheck.
+
