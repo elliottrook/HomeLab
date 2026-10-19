@@ -12,6 +12,13 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October 19 nightly timing refusal](B60-Inference-Engineering/nightly-admission-20261019.md)
+records a heartbeat timestamp of 04:39 PDT and execution clock 04:56 PDT,
+both after restoration must finish. No live checks/load were attempted during
+protected analysis time. Owner admission evidence remains unchanged; this
+reinforces the persistent-runner requirement without diagnosing delay from
+timestamps alone. Six offline recovery-margin tests pass.
+
 The [October 18 scratch-storage review](B60-Inference-Engineering/scratch-storage-review-20261018.md)
 receives main's new disposable VLAN70 NFS storage deployment as a possible
 public-model staging lead. It is not a mounted/immutable/private evidence path
