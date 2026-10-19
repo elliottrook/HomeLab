@@ -35,3 +35,14 @@ This closes inactive installation and source provenance only. F3 remains
 blocked until F2 succeeds and Jason separately approves one effect-enabled,
 current-cycle receipt run. That later action must revalidate the 12 hashes,
 current-cycle evidence and rollback before writing anything.
+
+## One-attempt safeguard
+
+Jason separately approved the final inactive boundary replacement from commit
+`421ac11b`. The installed `source_receipt_boundary.py` now has SHA-256
+`4c981c94e33ff5bf11f50eec2b2f091a31fd8c3d32e20bed49ea3a3d8a3082ee`
+and refuses to overwrite any existing receipt. Its exact predecessor is held
+under `/root/aster-f3-boundary-rollback-421ac11b`. Target-Linux focused tests
+again passed 46/46 and all 12 clean source hashes match the live installation.
+The receipt, lease and lock remain absent; no producer invocation or other
+live effect occurred.
