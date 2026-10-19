@@ -21,3 +21,7 @@ service stop, model call, F3 receipt, full-stop drill or A1 benchmark is
 claimed. F2 remains open. The next daily cycle requires its own completed
 fresh preflight and operator supervision; this missed cycle must not be
 replayed.
+
+A later read-only postcheck found LXC104, 110 and 116 running and both News
+ingest and digest timers active. This is a postcheck snapshot, not proof of
+the uncompleted pre-scan gates or an archive result.
