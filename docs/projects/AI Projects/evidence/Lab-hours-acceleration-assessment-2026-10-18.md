@@ -589,3 +589,14 @@ findings, not installed-path failures. Durable lease-bound replay/idempotency,
 a bounded session expiry and an authenticated MacBook transport still gate
 target staging or any live workload admission. The owner received the exact
 synthetic counterexample; no host change followed.
+
+The owner then added a file-backed replay store and a 45-minute manifest
+limit in `f4fc919e`; the synthetic restart test now rejects the repeated ID.
+This closes the specific in-memory replay and unbounded-window counterexamples
+at source level. The future target adapter still must prove that the replay
+file and lock live in a root-owned private directory, cannot be replaced by a
+symlink or cleared during the lease, and are bound to the active lease
+generation. A fresh missing store after lease start must not silently reopen
+previous requests. The transport must derive the MacBook identity from an
+authenticated session; matching caller-supplied strings are not authority.
+The module remains uninstalled, and no live admission is released.
