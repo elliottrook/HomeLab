@@ -58,7 +58,10 @@ bind them to the operator session and a monotonic timer.
 
 ## Remaining gates
 
-Target-Linux disabled installation, source-bound live producer/adapter wiring,
+The owner-facing staged path is pinned in
+`COOPERATIVE-MACBOOK-B60-LAB-ADMISSION-STAGED-DESIGN-20261018.md`.
+Target-Linux disabled installation of the admission module, source-bound live
+producer/adapter wiring, persistent supervisor/independent recovery,
 direct-client admission enforcement for `192.168.70.12:11435`, and an explicit
 daytime pilot approval remain outstanding. No host effects, reboot, schedule
 change, F2 scan, F3 receipt, full-stop drill, or A1 benchmark was performed.
