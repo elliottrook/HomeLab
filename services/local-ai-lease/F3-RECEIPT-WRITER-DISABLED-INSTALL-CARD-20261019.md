@@ -1,8 +1,8 @@
 # F3 receipt writer — disabled-install card
 
-Status: preparation complete; HOLD. This card is not authorization to install,
-write a receipt, acquire a lease, stop a service, call a model, activate a
-timer, or push remotely.
+Status: disabled install completed and verified; F3 remains OPEN. This card is
+not authorization to invoke the producer, write a receipt, acquire a lease,
+stop a service, call a model, activate a timer, or push remotely.
 
 ## Reviewed effect-enabled call graph
 
@@ -71,3 +71,19 @@ F3 is not complete until a separately approved effect-enabled run produces a
 current-cycle receipt after all source and quiescence checks pass, followed by
 independent installed-path and rollback verification. F2 read-only output
 cannot substitute for this receipt.
+
+## Disabled-install receipt — 2026-10-19
+
+The approved 11-file replacement completed using rollback checkpoint
+`/root/aster-f3-receipt-rollback-9e04061e`, root:root 0700 with saved files
+root:root 0600. The two drifted files were replaced only as part of the
+complete pinned set; all 11 installed hashes match the source table. Modules
+are root:root 0644 and `local-ai-lease-produce-receipt` is root:root 0755.
+
+Target-Linux validation passed 46/46 focused tests, compilation, imports, and
+custody checks. The rollback hashes match the pre-install inventory. The
+receipt path, lease path, and lease lock remain absent; the F3 producer was
+never invoked; the retained producer remains `EFFECTS_ENABLED = False`; F2
+exact-cycle timers are active and both F2 services are inactive; F2 state is
+empty; and temporary staging was removed. No daemon reload, schedule change,
+service stop, model request, or receipt write occurred.
