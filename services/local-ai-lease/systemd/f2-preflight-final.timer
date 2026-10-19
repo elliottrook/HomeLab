@@ -1,0 +1,12 @@
+[Unit]
+Description=F2 archive final gate timer (disabled candidate)
+
+[Timer]
+OnCalendar=*-*-* 01:10:00 America/Vancouver
+AccuracySec=1s
+RandomizedDelaySec=0
+Persistent=no
+Unit=f2-preflight-final.service
+
+[Install]
+WantedBy=timers.target

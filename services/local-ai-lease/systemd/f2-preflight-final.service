@@ -1,0 +1,20 @@
+[Unit]
+Description=F2 archive final gate and bounded scan (disabled candidate)
+After=f2-preflight-prepare.service
+ConditionPathExists=/usr/local/libexec/local-ai-lease/f2_scheduled_release_candidate.py
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/bin/python3 -B /usr/local/libexec/local-ai-lease/f2_scheduled_release_candidate.py --phase final
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=full
+ReadWritePaths=/var/lib/local-ai-lab/f2-preflight /var/lib/local-ai-lab/f2-scheduled
+UMask=0077
+TimeoutStartSec=30min
+Restart=no
+StandardOutput=null
+StandardError=null
