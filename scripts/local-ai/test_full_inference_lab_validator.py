@@ -2,8 +2,9 @@ import unittest
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from full_inference_lab_sources import AcceptedBaseline, FIXED, LOCAL_PROXMOX_FIXED
+from full_inference_lab_sources import AcceptedBaseline, FIXED, LOCAL_PROXMOX_FIXED, _pvescheduler_journal_command
 from full_inference_lab_validator import FullDrainValidator, LocalProxmoxFullDrainValidator
+from test_full_inference_lab_sources import scheduler_journal
 
 
 class FullInferenceValidatorTests(unittest.TestCase):
@@ -68,7 +69,7 @@ class FullInferenceValidatorTests(unittest.TestCase):
             if command == FIXED["gpu"]: return 0, ""
             if command == FIXED["schedules"]: return 0, "[{\"vmid\":104,\"ctime\":%d,\"size\":10},{\"vmid\":110,\"ctime\":%d,\"size\":10},{\"vmid\":116,\"ctime\":%d,\"size\":10}]" % (artifact, artifact, artifact)
             if command == LOCAL_PROXMOX_FIXED["backup_job"]: return 0, "{\"id\":\"backup-49999802-1365\",\"enabled\":1,\"schedule\":\"00:30\",\"storage\":\"backups\",\"type\":\"vzdump\",\"all\":1}"
-            if command == LOCAL_PROXMOX_FIXED["backup_tasks"]: return 0, "[{\"upid\":\"UPID:proxmox:ABC:DEF:123:vzdump::root@pam\",\"type\":\"vzdump\",\"status\":\"OK\",\"starttime\":%d,\"endtime\":%d,\"node\":\"proxmox\"}]" % (started, finished)
+            if command == _pvescheduler_journal_command("2026_10_18"): return 0, scheduler_journal(started, finished)
             if command == FIXED["truenas"]: raise AssertionError("local validator must not call TrueNAS")
             if command[-2:] == ("sha256sum", "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf"): return 0, "a" * 64 + " model\n"
             if command[-2:] == ("sha256sum", "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"): return 0, "b" * 64 + " binary\n"

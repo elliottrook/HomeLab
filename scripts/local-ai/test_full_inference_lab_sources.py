@@ -1,12 +1,23 @@
 import json
 import unittest
 from datetime import datetime
+from typing import Optional
 from zoneinfo import ZoneInfo
 
 from application_b60_lease import ACCEPTED_BACKEND
 from full_inference_lab_sources import (AcceptedBaseline, FIXED, LOCAL_PROXMOX_FIXED,
     FullDrainSourceError, FullDrainSourceProducer, LocalProxmoxFullDrainSourceProducer,
-    TrustedOwnerAttestation)
+    TrustedOwnerAttestation, _pvescheduler_journal_command)
+
+
+def scheduler_journal(started: int, finished: int, *, start_message: Optional[str] = None,
+                      finish_message: str = "INFO: Backup job finished successfully") -> str:
+    start_message = start_message or ("<root@pam> starting task "
+        "UPID:proxmox:00168668:03AB8784:6AD47578:vzdump::root@pam:")
+    return "\n".join(json.dumps(row) for row in (
+        {"__REALTIME_TIMESTAMP": str(started * 1_000_000), "MESSAGE": start_message},
+        {"__REALTIME_TIMESTAMP": str(finished * 1_000_000), "MESSAGE": finish_message},
+    ))
 
 
 class FullInferenceLabSourcesTests(unittest.TestCase):
@@ -92,8 +103,8 @@ class FullInferenceLabSourcesTests(unittest.TestCase):
                 return 0, "[{\"vmid\":104,\"ctime\":%d,\"size\":10},{\"vmid\":110,\"ctime\":%d,\"size\":10},{\"vmid\":116,\"ctime\":%d,\"size\":10}]" % (artifact, artifact, artifact)
             if command == LOCAL_PROXMOX_FIXED["backup_job"]:
                 return 0, "{\"id\":\"backup-49999802-1365\",\"enabled\":1,\"schedule\":\"00:30\",\"storage\":\"backups\",\"type\":\"vzdump\",\"all\":1}"
-            if command == LOCAL_PROXMOX_FIXED["backup_tasks"]:
-                return 0, json.dumps([{"upid": "UPID:proxmox:ABC:DEF:123:vzdump::root@pam", "type": "vzdump", "status": "OK", "starttime": started, "endtime": finished, "node": "proxmox"}])
+            if command == _pvescheduler_journal_command("2026_10_18"):
+                return 0, scheduler_journal(started, finished)
             if command == FIXED["truenas"]:
                 raise AssertionError("local-only pilot must not call TrueNAS")
             return 1, ""
@@ -112,6 +123,8 @@ class FullInferenceLabSourcesTests(unittest.TestCase):
                 return 0, "[{\"vmid\":104,\"ctime\":%d,\"size\":10},{\"vmid\":110,\"ctime\":%d,\"size\":10},{\"vmid\":116,\"ctime\":%d,\"size\":10}]" % (artifact, artifact, artifact)
             if command == LOCAL_PROXMOX_FIXED["backup_job"]:
                 return 0, "{\"id\":\"backup-49999802-1365\",\"enabled\":1,\"schedule\":\"00:30\",\"storage\":\"backups\",\"type\":\"vzdump\",\"all\":1}"
+            if command == _pvescheduler_journal_command("2026_10_18"):
+                return 0, ""
             return 0, ""
         producer = LocalProxmoxFullDrainSourceProducer(
             runner, AcceptedBaseline("a" * 64, "b" * 64, "c" * 64),

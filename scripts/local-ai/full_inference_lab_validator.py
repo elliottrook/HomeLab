@@ -9,6 +9,7 @@ from typing import Callable, Sequence
 
 from full_inference_lab_sources import (
     AcceptedBaseline, FIXED, LOCAL_PROXMOX_FIXED, _current_proxmox_artifacts,
+    _pvescheduler_journal_command,
     _local_proxmox_job_complete, validate_backup_sources,
 )
 
@@ -87,11 +88,11 @@ class LocalProxmoxFullDrainValidator(FullDrainValidator):
                 return False
             pve = json.loads(self._run(FIXED["schedules"]))
             job = json.loads(self._run(LOCAL_PROXMOX_FIXED["backup_job"]))
-            tasks = json.loads(self._run(LOCAL_PROXMOX_FIXED["backup_tasks"]))
+            journal = self._run(_pvescheduler_journal_command(self.cycle.replace("-", "_")))
             artifacts = _current_proxmox_artifacts(
                 pve, cycle=self.cycle, now_epoch=int(self.wall_clock()))
             if artifacts is None or not _local_proxmox_job_complete(
-                    tasks, date=self.cycle.replace("-", "_"),
+                    journal, date=self.cycle.replace("-", "_"),
                     latest_artifact=max(artifacts), now_epoch=int(self.wall_clock()), job=job):
                 return False
             if self._run(FIXED["legacy_status"]) != "ready":

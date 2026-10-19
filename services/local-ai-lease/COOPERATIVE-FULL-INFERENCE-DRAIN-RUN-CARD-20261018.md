@@ -105,9 +105,17 @@ narrow isolation run and must prove, from the current Proxmox host:
    current cycle;
 2. the fixed enabled `backup-49999802-1365` all-guest `vzdump` job remains at
    `00:30`; and
-3. exactly one current-cycle `vzdump` task is `OK`, has a valid Proxmox UPID,
-   and its end time is after every required artifact and before the observation
-   cutoff.
+3. exactly one bounded `pvescheduler` journal start record and the exact
+   `INFO: Backup job finished successfully` record are present in order; the
+   start uses the valid trailing-colon Proxmox UPID format and the finish is
+   after every required artifact and before the observation cutoff.
+
+The currently installed `dafc0332` source still uses the aged
+`/nodes/proxmox/tasks` listing and is therefore NO-GO when that list no longer
+contains the 00:30 job. The durable journal replacement is source-only and is
+recorded in `COOPERATIVE-FULL-INFERENCE-LOCAL-BACKUP-SOURCE-REPAIR-DISABLED-INSTALL-CARD-20261018.md`;
+it must be separately installed and read-only verified before this gate can
+be reconsidered.
 
 The producer must not call the TrueNAS observer in this mode. A separate
 read-only Mac-mini observation may be recorded as nonauthoritative evidence,
@@ -120,8 +128,8 @@ recurring drain is claimed. One-shot owner-loss protection is provided only by
 the separately staged and prearmed deadline guardian described below.
 
 The final release check uses `LocalProxmoxFullDrainValidator` (not the
-TrueNAS-dependent `FullDrainValidator`). The exact source tip and hashes are
-in `COOPERATIVE-FULL-INFERENCE-PILOT-DISABLED-INSTALL-CARD-20261018.md`.
+TrueNAS-dependent `FullDrainValidator`) after the source repair is installed.
+The exact source tip and hashes are in the disabled-install cards above.
 The target artifact checkpoint must record SHA-256 values for:
 
 | Artifact | Target path |

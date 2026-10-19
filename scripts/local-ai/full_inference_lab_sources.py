@@ -58,10 +58,21 @@ FIXED = {
 
 LOCAL_PROXMOX_FIXED = {
     "backup_job": ("pvesh", "get", f"/cluster/backup/{EXPECTED_PROXMOX_BACKUP_ID}", "--output-format", "json"),
-    "backup_tasks": ("pvesh", "get", "/nodes/proxmox/tasks", "--typefilter", "vzdump", "--output-format", "json"),
 }
 
-_VZDUMP_UPID = re.compile(r"^UPID:proxmox:[0-9A-F]+:[0-9A-F]+:[0-9A-F]+:vzdump::[^:]+$")
+_VZDUMP_UPID = re.compile(r"^UPID:proxmox:[0-9A-F]+:[0-9A-F]+:[0-9A-F]+:vzdump::root@pam:$")
+_JOB_START = re.compile(r"<root@pam> starting task UPID:proxmox:[0-9A-F]+:[0-9A-F]+:[0-9A-F]+:vzdump::root@pam:")
+_JOURNAL_FILTER = "starting task UPID:.*:vzdump:|Backup job finished successfully|TASK ERROR"
+
+
+def _pvescheduler_journal_command(date: str) -> tuple[str, ...]:
+    """Return the fixed bounded journal query for one validated local date."""
+    if not re.fullmatch(r"\d{4}_\d{2}_\d{2}", date):
+        raise FullDrainSourceError("backup cycle date is not canonical")
+    day = date.replace("_", "-")
+    return ("journalctl", "-u", "pvescheduler", "--since", f"{day} 00:29:00",
+            "--until", f"{day} 01:10:00", "--no-pager", "-o", "json",
+            "-g", _JOURNAL_FILTER)
 
 
 def _service(vmid: str, unit: str) -> tuple[str, ...]:
@@ -134,35 +145,30 @@ def _current_proxmox_artifacts(pve: object, *, cycle: str, now_epoch: int) -> tu
     return tuple(latest[vmid] for vmid in (104, 110, 116))
 
 
-def _local_proxmox_job_complete(tasks: object, *, date: str, latest_artifact: int,
+def _local_proxmox_job_complete(journal: object, *, date: str, latest_artifact: int,
                                 now_epoch: int, job: object) -> bool:
     if (not isinstance(job, dict) or str(job.get("id")) != EXPECTED_PROXMOX_BACKUP_ID
             or job.get("enabled") not in (1, True) or job.get("schedule") != "00:30"
             or job.get("storage") != "backups" or job.get("type") != "vzdump"
             or job.get("all") not in (1, True)):
         return False
-    if not isinstance(tasks, list):
+    if not isinstance(journal, str) or len(journal) > 65_536:
         return False
-    candidates = []
-    for task in tasks:
-        if not isinstance(task, dict) or task.get("type") != "vzdump":
-            continue
-        upid = task.get("upid")
-        start, finish = task.get("starttime"), task.get("endtime")
-        if type(start) is not int or datetime.fromtimestamp(start, LOCAL_ZONE).strftime("%Y_%m_%d") != date:
-            continue
-        if (task.get("status") != "OK" or not isinstance(upid, str)
-                or not _VZDUMP_UPID.fullmatch(upid) or type(finish) is not int):
-            return False
-        candidates.append((start, finish, task))
-    if len(candidates) != 1:
+    lines = journal.splitlines()
+    if len(lines) != 2:
         return False
-    start, finish, task = candidates[0]
+    try:
+        rows = [json.loads(line) for line in lines]
+        start = int(rows[0]["__REALTIME_TIMESTAMP"]) // 1_000_000
+        finish = int(rows[1]["__REALTIME_TIMESTAMP"]) // 1_000_000
+    except (ValueError, KeyError, TypeError, json.JSONDecodeError):
+        return False
     local_start = datetime.fromtimestamp(start, LOCAL_ZONE)
     return (local_start.strftime("%Y_%m_%d") == date
             and 30 <= local_start.hour * 60 + local_start.minute < 35
             and start <= latest_artifact <= finish <= now_epoch
-            and (task.get("node") in (None, "proxmox")))
+            and bool(_JOB_START.fullmatch(rows[0].get("MESSAGE", "")))
+            and rows[1].get("MESSAGE") == "INFO: Backup job finished successfully")
 
 
 class FullDrainSourceProducer:
@@ -267,12 +273,12 @@ class LocalProxmoxFullDrainSourceProducer(FullDrainSourceProducer):
         try:
             pve = json.loads(self._run("schedules"))
             job = json.loads(self._run_command(LOCAL_PROXMOX_FIXED["backup_job"], timeout=10.0))
-            tasks = json.loads(self._run_command(LOCAL_PROXMOX_FIXED["backup_tasks"], timeout=10.0))
+            journal = self._run_command(_pvescheduler_journal_command(cycle.replace("-", "_")), timeout=10.0)
         except (json.JSONDecodeError, FullDrainSourceError):
             return False
         artifacts = _current_proxmox_artifacts(pve, cycle=cycle, now_epoch=int(self.wall_clock()))
         if artifacts is None:
             return False
         return _local_proxmox_job_complete(
-            tasks, date=cycle.replace("-", "_"), latest_artifact=max(artifacts),
+            journal, date=cycle.replace("-", "_"), latest_artifact=max(artifacts),
             now_epoch=int(self.wall_clock()), job=job)
