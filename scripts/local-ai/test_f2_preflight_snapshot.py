@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from f2_preflight_snapshot import (CLOCK, EXCLUSION_TOKEN, F2PreflightError, INSTALLED_PINS,
+from f2_preflight_snapshot import (CLOCK, EXCLUSION_TOKEN, F2PreflightError, LOADAVG,
                                    LEASE_STATUS, LOCK_ABSENCE, PVE_ARTIFACTS,
                                    PVE_JOB, QUIET_PROCESSES, RECEIPT_ABSENCE,
                                    STATE_ABSENCE, TRUENAS_MIRROR, TRUENAS_TASKS,
@@ -36,37 +36,43 @@ class F2PreflightSnapshotTests(unittest.TestCase):
         return run
 
     def test_collects_slow_chain_and_final_guard_accepts_fresh_exclusion(self):
-        snapshot = collect_snapshot(self.runner(), cycle="2026-10-19", lease_issued_epoch=self.epoch(4, 0), captured_epoch=self.epoch(3, 10), exclusion_token="lease-1")
+        snapshot = collect_snapshot(self.runner(), cycle="2026-10-19", lease_issued_epoch=self.epoch(4, 0), captured_epoch=self.epoch(1, 10), exclusion_token="lease-1")
         def guard(command, timeout):
-            if command == CLOCK: return 0, str(self.epoch(3, 11))
+            if command == CLOCK: return 0, str(self.epoch(1, 11))
             if command in (LOCK_ABSENCE, STATE_ABSENCE, RECEIPT_ABSENCE): return 0, ""
             if command == EXCLUSION_TOKEN: return 0, "lease-1\n"
+            if command == LEASE_STATUS: return 0, '{"state":"ready"}'
             if command == QUIET_PROCESSES: return 1, ""
-            if command == INSTALLED_PINS: return 0, "pin  /path\n"
+            if command == LOADAVG: return 0, "1.0 0.5 0.2 1/100 1\n"
+            if command == ("sha256sum", "/pin"): return 0, "pin  /pin\n"
             raise AssertionError(command)
-        final_guard(snapshot, runner=guard, expected_pin="pin")
+        final_guard(snapshot, runner=guard, expected_pins={"/pin": "pin"})
         self.assertTrue(snapshot.archive_identity_verified)
 
     def test_final_guard_rejects_stale_or_changed_exclusion(self):
-        snapshot = collect_snapshot(self.runner(), cycle="2026-10-19", lease_issued_epoch=self.epoch(4, 0), captured_epoch=self.epoch(3, 10), exclusion_token="lease-1")
+        snapshot = collect_snapshot(self.runner(), cycle="2026-10-19", lease_issued_epoch=self.epoch(4, 0), captured_epoch=self.epoch(1, 10), exclusion_token="lease-1")
         def guard(command, timeout):
-            if command == CLOCK: return 0, str(self.epoch(3, 12))
+            if command == CLOCK: return 0, str(self.epoch(1, 12))
             if command in (LOCK_ABSENCE, STATE_ABSENCE, RECEIPT_ABSENCE): return 0, ""
             if command == EXCLUSION_TOKEN: return 0, "lease-1\n"
+            if command == LEASE_STATUS: return 0, '{"state":"ready"}'
             if command == QUIET_PROCESSES: return 1, ""
-            if command == INSTALLED_PINS: return 0, "pin  /path\n"
+            if command == LOADAVG: return 0, "1.0 0.5 0.2 1/100 1\n"
+            if command == ("sha256sum", "/pin"): return 0, "pin  /pin\n"
             raise AssertionError(command)
         with self.assertRaisesRegex(F2PreflightError, "stale"):
-            final_guard(snapshot, runner=guard, expected_pin="pin")
+            final_guard(snapshot, runner=guard, expected_pins={"/pin": "pin"})
         def changed(command, timeout):
-            if command == CLOCK: return 0, str(self.epoch(3, 11))
+            if command == CLOCK: return 0, str(self.epoch(1, 11))
             if command in (LOCK_ABSENCE, STATE_ABSENCE, RECEIPT_ABSENCE): return 0, ""
             if command == EXCLUSION_TOKEN: return 0, "other\n"
+            if command == LEASE_STATUS: return 0, '{"state":"ready"}'
             if command == QUIET_PROCESSES: return 1, ""
-            if command == INSTALLED_PINS: return 0, "pin  /path\n"
+            if command == LOADAVG: return 0, "1.0 0.5 0.2 1/100 1\n"
+            if command == ("sha256sum", "/pin"): return 0, "pin  /pin\n"
             raise AssertionError(command)
         with self.assertRaisesRegex(F2PreflightError, "exclusion"):
-            final_guard(snapshot, runner=changed, expected_pin="pin")
+            final_guard(snapshot, runner=changed, expected_pins={"/pin": "pin"})
 
     def test_f2_window_allows_task_one_before_tasks_two_and_three(self):
         artifacts, tasks, mirror = self.sources()

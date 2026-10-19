@@ -13,8 +13,10 @@ import os
 import stat
 import tempfile
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Callable, Mapping
+from zoneinfo import ZoneInfo
 
 from backup_receipt_adapter import (BackupReceiptError, verify_lxc110_mirror,
                                     verify_proxmox_artifacts)
@@ -35,7 +37,12 @@ STATE_ABSENCE = ("test", "!", "-e", "/var/lib/local-ai-lab/cooperative-lab.json"
 RECEIPT_ABSENCE = ("test", "!", "-e", "/var/lib/local-ai-lab/f2-receipt.json")
 EXCLUSION_TOKEN = ("cat", "/var/lib/local-ai-lab/f2-exclusion.token")
 QUIET_PROCESSES = ("pgrep", "-af", "[v]zdump|[r]sync|[z]std|[f]2_observer|[f]ull_stop")
-INSTALLED_PINS = ("sha256sum", "/usr/local/libexec/local-ai-lease/f2_observer_runner_candidate.py")
+LOADAVG = ("cat", "/proc/loadavg")
+INSTALLED_PIN_PATHS = (
+    "/usr/local/libexec/local-ai-lease/f2_observer_runner_candidate.py",
+    "/usr/local/libexec/local-ai-lease/retained_archive_producer_candidate.py",
+    "/usr/local/libexec/local-ai-lease/fixed_source_adapters.py",
+)
 
 
 class F2PreflightError(ValueError):
@@ -90,8 +97,6 @@ def _f2_schedule_ok(items: list[dict], *, date_prefix: str,
             or started > finished):
         return False
     start_epoch, finish_epoch = started // 1000, finished // 1000
-    from datetime import datetime
-    from zoneinfo import ZoneInfo
     zone = ZoneInfo("America/Vancouver")
     local_start = datetime.fromtimestamp(start_epoch, zone)
     local_finish = datetime.fromtimestamp(finish_epoch, zone)
@@ -153,12 +158,13 @@ def _check_root_private(path: Path, *, directory: bool) -> None:
         info = path.lstat()
     except FileNotFoundError:
         raise F2PreflightError("root-custody path is missing")
-    if stat.S_ISLNK(info.st_mode) or info.st_nlink != 1 or info.st_uid != 0:
-        raise F2PreflightError("root-custody path is not a private regular object")
+    if stat.S_ISLNK(info.st_mode) or info.st_uid != 0:
+        raise F2PreflightError("root-custody path is not private")
     if directory:
         if not stat.S_ISDIR(info.st_mode) or stat.S_IMODE(info.st_mode) != 0o700:
             raise F2PreflightError("snapshot directory custody is invalid")
-    elif not stat.S_ISREG(info.st_mode) or stat.S_IMODE(info.st_mode) != 0o600:
+    elif (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1
+          or stat.S_IMODE(info.st_mode) != 0o600):
         raise F2PreflightError("snapshot file custody is invalid")
 
 
@@ -177,6 +183,11 @@ def write_snapshot(path: Path, snapshot: F2PreflightSnapshot) -> None:
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(name, path)
+        dir_fd = os.open(directory, os.O_RDONLY)
+        try:
+            os.fsync(dir_fd)
+        finally:
+            os.close(dir_fd)
         _check_root_private(path, directory=False)
     except Exception:
         try:
@@ -188,16 +199,28 @@ def write_snapshot(path: Path, snapshot: F2PreflightSnapshot) -> None:
 
 def read_snapshot(path: Path) -> F2PreflightSnapshot:
     _check_root_private(path.parent, directory=True)
-    _check_root_private(path, directory=False)
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_CLOEXEC", 0)
     try:
-        value = json.loads(path.read_text(encoding="utf-8"))
+        fd = os.open(path, flags)
+    except OSError as exc:
+        raise F2PreflightError("snapshot is unreadable") from exc
+    try:
+        info = os.fstat(fd)
+        if (not stat.S_ISREG(info.st_mode) or info.st_uid != 0
+                or info.st_nlink != 1 or stat.S_IMODE(info.st_mode) != 0o600):
+            raise F2PreflightError("snapshot file custody is invalid")
+        with os.fdopen(fd, "r", encoding="utf-8") as stream:
+            payload = stream.read(65537)
+        if len(payload) > 65536:
+            raise F2PreflightError("snapshot is oversized")
+        value = json.loads(payload)
         return F2PreflightSnapshot(**value)
     except (OSError, json.JSONDecodeError, TypeError, ValueError) as exc:
         raise F2PreflightError("snapshot is unreadable") from exc
 
 
 def final_guard(snapshot: F2PreflightSnapshot, *, runner: Runner,
-               expected_pin: str) -> None:
+               expected_pins: Mapping[str, str]) -> None:
     """Re-read the trusted host boundary immediately before the narrow scan."""
     code, output = runner(CLOCK, 3.0)
     try:
@@ -206,6 +229,9 @@ def final_guard(snapshot: F2PreflightSnapshot, *, runner: Runner,
         raise F2PreflightError("trusted host clock is unavailable") from exc
     if code != 0:
         raise F2PreflightError("trusted host clock probe failed")
+    local = datetime.fromtimestamp(now_epoch, ZoneInfo("America/Vancouver"))
+    if local.strftime("%Y-%m-%d") != snapshot.cycle or not (10 <= local.hour * 60 + local.minute - 60 < 20):
+        raise F2PreflightError("F2 final guard is outside the 01:10-01:19 window")
     for command in (LOCK_ABSENCE, STATE_ABSENCE, RECEIPT_ABSENCE):
         code, _ = runner(command, 3.0)
         if code != 0:
@@ -213,12 +239,27 @@ def final_guard(snapshot: F2PreflightSnapshot, *, runner: Runner,
     code, current_exclusion = runner(EXCLUSION_TOKEN, 3.0)
     if code != 0 or current_exclusion.strip() != snapshot.exclusion_token:
         raise F2PreflightError("host exclusion does not match preflight")
+    code, status = runner(LEASE_STATUS, 3.0)
+    try:
+        lease_state = json.loads(status)
+    except json.JSONDecodeError as exc:
+        raise F2PreflightError("current lease status is not JSON") from exc
+    if code != 0 or not isinstance(lease_state, dict) or lease_state.get("state") != "ready":
+        raise F2PreflightError("current manual lease is not ready")
     code, _ = runner(QUIET_PROCESSES, 3.0)
     if code != 1:
         raise F2PreflightError("backup, pull, scan or maintenance process is present")
-    code, output = runner(INSTALLED_PINS, 3.0)
-    if code != 0 or not output.startswith(expected_pin + "  "):
-        raise F2PreflightError("installed F2 identity does not match")
+    code, output = runner(LOADAVG, 3.0)
+    try:
+        load_1 = float(output.split()[0])
+    except (ValueError, IndexError) as exc:
+        raise F2PreflightError("host load probe is invalid") from exc
+    if code != 0 or load_1 > 8.0:
+        raise F2PreflightError("host load is unsuitable for F2")
+    for path, expected_pin in expected_pins.items():
+        code, output = runner(("sha256sum", path), 3.0)
+        if code != 0 or not output.startswith(expected_pin + "  "):
+            raise F2PreflightError("installed F2 identity does not match")
     if not snapshot.archive_identity_verified or not snapshot.lease_ready:
         raise F2PreflightError("preflight snapshot is incomplete")
     if type(now_epoch) is not int or now_epoch < snapshot.captured_epoch:

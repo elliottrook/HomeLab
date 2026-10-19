@@ -14,8 +14,10 @@ manual lease readiness. It stores only content-free digests and booleans.
 At the intended 01:10 boundary, the preflight requires task 1 to be complete
 after the Proxmox artifacts while validating the fixed schedule identities for
 tasks 1/3/2; it does not incorrectly require the future 02:00 and 03:00 jobs
-to have run. The final guard independently reads the host clock, exclusion
-token, lease/receipt absence, competing-process absence and installed pin. A
+to have run. The final guard independently reads the host clock, confirms the
+local cycle and 01:10–01:19 window, re-reads manual lease readiness, exclusion
+token, lease/receipt absence, competing-process absence, suitable load, and all
+configured installed pins. A
 stale snapshot, changed exclusion, missing source, malformed JSON,
 artifact/mirror mismatch, schedule failure, or lease drift fails closed.
 
@@ -31,7 +33,11 @@ logs, archive paths, secrets, or credentials. Its tests cover a complete chain,
 stale snapshot, exclusion drift, and missing artifact failure.
 
 The same source-only change adds
-`scripts/local-ai/lab_macbook_admission_adapter.py`. It constructs the lab
+`scripts/local-ai/lab_macbook_admission_adapter.py` and
+`scripts/local-ai/lab_macbook_forced_command.py`. The fixed forced-command
+producer binds the fresh session to sshd's `SSH_ORIGINAL_COMMAND` and
+`SSH_CONNECTION`, a reviewed authorized-key fingerprint/host key, a fresh
+nonce, and a 120-second expiry. It constructs the lab
 manifest only from an authenticated session principal, client-key fingerprint,
 and pinned host key; caller request JSON cannot supply those identities. The
 forced-command attestation loader requires a root-owned private directory and
