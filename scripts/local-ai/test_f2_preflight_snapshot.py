@@ -97,8 +97,15 @@ class F2PreflightSnapshotTests(unittest.TestCase):
 
     def test_snapshot_reader_rejects_untrusted_custody(self):
         with tempfile.TemporaryDirectory() as tmp:
-            with self.assertRaisesRegex(F2PreflightError, "custody"):
+            with self.assertRaisesRegex(F2PreflightError, "custody|unreadable"):
                 read_snapshot(Path(tmp) / "snapshot.json")
+
+    def test_snapshot_reader_rejects_insecure_parent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            parent = Path(tmp) / "snapshots"
+            parent.mkdir(mode=0o755)
+            with self.assertRaisesRegex(F2PreflightError, "custody"):
+                read_snapshot(parent / "snapshot.json")
 
     @unittest.skipUnless(os.geteuid() == 0, "root-custody positive test requires root")
     def test_snapshot_round_trip_under_root_custody(self):
