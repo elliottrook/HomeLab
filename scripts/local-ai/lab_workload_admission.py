@@ -8,6 +8,9 @@ lease before forwarding a request to the fixed in-guest wrapper.
 
 from __future__ import annotations
 
+import hashlib
+import re
+import time
 from dataclasses import dataclass
 
 
@@ -37,7 +40,6 @@ class LabAdmissionRequest:
     host_key_sha256: str
     source_sha256: str
     profile_sha256: str
-    now_epoch: int
     request_id: str
 
 
@@ -62,31 +64,45 @@ def validate_manifest(manifest: LabAdmissionManifest) -> None:
         raise LabAdmissionError("admission expiry is invalid")
 
 
-def authorize_request(manifest: LabAdmissionManifest, request: LabAdmissionRequest) -> dict[str, object]:
-    """Return a content-free receipt only when every source-bound value matches."""
-    validate_manifest(manifest)
-    if request.owner_id != manifest.owner_id or request.lease_id != manifest.lease_id:
-        raise LabAdmissionError("owner or lease identity does not match")
-    if request.generation != manifest.generation:
-        raise LabAdmissionError("lease generation does not match")
-    if request.client_key_fingerprint != manifest.client_key_fingerprint:
-        raise LabAdmissionError("MacBook identity does not match")
-    if request.host_key_sha256 != manifest.host_key_sha256:
-        raise LabAdmissionError("Proxmox host key does not match")
-    if request.source_sha256 != manifest.source_sha256:
-        raise LabAdmissionError("source digest does not match")
-    if request.profile_sha256 != manifest.profile_sha256:
-        raise LabAdmissionError("workload profile does not match")
-    if type(request.now_epoch) is not int or not (manifest.issued_epoch <= request.now_epoch < manifest.expires_epoch):
-        raise LabAdmissionError("request is outside the lease admission window")
-    if not request.request_id or len(request.request_id) > 128:
-        raise LabAdmissionError("request identity is invalid")
-    return {
-        "admitted": True,
-        "owner_id": manifest.owner_id,
-        "lease_id": manifest.lease_id,
-        "generation": manifest.generation,
-        "request_id": request.request_id,
-        "source_sha256": manifest.source_sha256,
-        "profile_sha256": manifest.profile_sha256,
-    }
+class LabAdmissionVerifier:
+    """Verifier-owned clock and replay state for one durable lease."""
+
+    _REQUEST_ID = re.compile(r"req-[a-z0-9]{16,32}\Z")
+
+    def __init__(self, manifest: LabAdmissionManifest):
+        validate_manifest(manifest)
+        self.manifest = manifest
+        self._seen_request_ids: set[str] = set()
+
+    def authorize(self, request: LabAdmissionRequest) -> dict[str, object]:
+        """Return a content-free receipt using the verifier's current clock."""
+        manifest = self.manifest
+        if request.owner_id != manifest.owner_id or request.lease_id != manifest.lease_id:
+            raise LabAdmissionError("owner or lease identity does not match")
+        if request.generation != manifest.generation:
+            raise LabAdmissionError("lease generation does not match")
+        if request.client_key_fingerprint != manifest.client_key_fingerprint:
+            raise LabAdmissionError("MacBook identity does not match")
+        if request.host_key_sha256 != manifest.host_key_sha256:
+            raise LabAdmissionError("Proxmox host key does not match")
+        if request.source_sha256 != manifest.source_sha256:
+            raise LabAdmissionError("source digest does not match")
+        if request.profile_sha256 != manifest.profile_sha256:
+            raise LabAdmissionError("workload profile does not match")
+        now_epoch = int(time.time())
+        if not (manifest.issued_epoch <= now_epoch < manifest.expires_epoch):
+            raise LabAdmissionError("request is outside the lease admission window")
+        if not self._REQUEST_ID.fullmatch(request.request_id):
+            raise LabAdmissionError("request identity is invalid")
+        if request.request_id in self._seen_request_ids:
+            raise LabAdmissionError("request identity has already been admitted")
+        self._seen_request_ids.add(request.request_id)
+        return {
+            "admitted": True,
+            "owner_id": manifest.owner_id,
+            "lease_id": manifest.lease_id,
+            "generation": manifest.generation,
+            "request_id_sha256": hashlib.sha256(request.request_id.encode()).hexdigest(),
+            "source_sha256": manifest.source_sha256,
+            "profile_sha256": manifest.profile_sha256,
+        }
