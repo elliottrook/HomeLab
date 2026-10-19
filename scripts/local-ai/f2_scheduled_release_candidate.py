@@ -94,7 +94,12 @@ def _write_state(cycle: str, phase: str, state: str, error_class: str = "",
     fd, temp_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=root)
     try:
         os.fchmod(fd, 0o600)
-        os.write(fd, raw)
+        view = memoryview(raw)
+        while view:
+            written = os.write(fd, view)
+            if written <= 0:
+                raise OSError("short scheduled state write")
+            view = view[written:]
         os.fsync(fd)
     except Exception:
         try:
@@ -190,6 +195,8 @@ def final(runner: Callable, *, popen=subprocess.run,
             raise ScheduledF2Error("bounded observer reached hard deadline") from exc
         if process.returncode != 0:
             raise ScheduledF2Error("bounded observer returned no-go")
+        if len(output) > 8_192:
+            raise ScheduledF2Error("bounded observer projection is oversized")
         try:
             projection = json.loads(output.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:

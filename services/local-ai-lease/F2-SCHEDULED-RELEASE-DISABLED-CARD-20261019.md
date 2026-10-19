@@ -24,8 +24,8 @@ any future target-Linux staging. The candidate is not installed by this commit.
 
 | Source | SHA-256 |
 |---|---|
-| `scripts/local-ai/f2_scheduled_release_candidate.py` | `142960c51b4dbd2a02b7e98cd3a343402eaebe2f076169a9d372f6e98b5d931e` |
-| `scripts/local-ai/test_f2_scheduled_release_candidate.py` | `42fcab435d885b8c3ee17b0ba8f6e41c492535c5be8312ca0f0cbad8308b6ca9` |
+| `scripts/local-ai/f2_scheduled_release_candidate.py` | `67510f7b7be42feec28d98c80109793b6e34538ecae3e495aeb7478b36f28f3d` |
+| `scripts/local-ai/test_f2_scheduled_release_candidate.py` | `7dab3d555880d6517f85a805bffb855a59fbcba28f245871054d77622efb6949` |
 | `services/local-ai-lease/systemd/f2-preflight-prepare.service` | `48998c82799e39cd3f8c988c05c8d0eff73b7b63a2bd16325ef5a3cef5004e4c` |
 | `services/local-ai-lease/systemd/f2-preflight-prepare.timer` | `93567ab331acc4b574ae04cbb8d3a3161d1ccbbc8cf8e153776a464aa1660aa7` |
 | `services/local-ai-lease/systemd/f2-preflight-final.service` | `dd7bb66a6575956ffe55056406b1082da25377cd802a5eaeec5f30aa6d2338c5` |

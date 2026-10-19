@@ -33,6 +33,11 @@ class TimeoutResult(Result):
         return (b"", None)
 
 
+class OversizedResult(Result):
+    def communicate(self, timeout=None):
+        return (b"{" + b"x" * 8192, None)
+
+
 class F2ScheduledReleaseTests(unittest.TestCase):
     def epoch(self, hour, minute):
         return datetime(2026, 10, 19, hour, minute, tzinfo=ZoneInfo("America/Vancouver")).timestamp()
@@ -84,6 +89,12 @@ class F2ScheduledReleaseTests(unittest.TestCase):
                 candidate.final(self.runner(self.epoch(1, 11)), popen=lambda *a, **k: TimeoutResult(), clock=lambda: self.epoch(1, 11))
             killpg.assert_called_once()
             self.assertEqual(candidate._existing_state("2026-10-19")["state"], "no_go")
+
+    def test_final_rejects_oversized_projection_before_parse(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True), patch.object(candidate, "run_fixed_final_guard"):
+            candidate._write_state("2026-10-19", "prepare", "prepared")
+            with self.assertRaisesRegex(candidate.ScheduledF2Error, "oversized"):
+                candidate.final(self.runner(self.epoch(1, 11)), popen=lambda *a, **k: OversizedResult(), clock=lambda: self.epoch(1, 11))
 
     def test_state_rejects_wrong_mode_and_symlink(self):
         with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True):
