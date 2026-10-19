@@ -15,12 +15,17 @@ restore reserve between hourly News ingests. Jason then approved the exact
 four pins, 65 target-Linux tests passed, and production postchecks remained
 normal. No one-shot guardian has been armed, no live drain has run, and no
 lab-hours schedule is active.
-The October 18 read-only live-source preflight then returned NO-GO: the
-installed producer cannot find the completed 00:30 backup in Proxmox's
-current task listing after later transfer tasks displaced it. Its UPID regex
-also rejects the observed valid trailing-colon format. A durable backup-task
-log candidate exists, but must be converted into a reviewed source adapter
-before any conditional live pilot runs. No outage followed this finding.
+The first October 18 read-only live-source preflight returned NO-GO: the
+completed 00:30 backup had aged out of Proxmox's current task list, and the
+UPID parser rejected its valid trailing colon. The platform owner repaired
+that source in `c66b9ae8` using bounded `pvescheduler` journal proof. Jason
+approved the separate inactive four-file install; all four installed hashes,
+rollback hashes and 65 target-Linux tests passed, and the read-only current-
+cycle local backup proof returned `True`. The one-shot guardian remains
+unarmed, and no outage followed. A **fresh** backup and News timer check,
+MacBook operator custody, accepted GPU holder and separate live approval
+still gate a 30-minute pilot plus 15-minute restoration. The proposed
+six-minute 18:05–18:11 slot is not a valid run window for that profile.
 The fixed in-guest smoke does not prove MacBook handoff or continuous host-wide
 GPU exclusivity. The old manual controller and F2/F3 full-stop drill remain
 separate gates.
