@@ -1,8 +1,11 @@
 # F3 receipt writer — disabled-install card
 
-Status: disabled install completed and verified; F3 remains OPEN. This card is
-not authorization to invoke the producer, write a receipt, acquire a lease,
-stop a service, call a model, activate a timer, or push remotely.
+Status: NO-GO for effect-enabled F3 use. The inactive install completed, but
+its live 12-file set includes a pre-existing uncommitted `source_receipts.py`
+variant, so the installed result is not reproducible from the release commit.
+This card is not authorization to invoke the producer, write a receipt,
+acquire a lease, stop a service, call a model, activate a timer, or push
+remotely.
 
 ## Reviewed effect-enabled call graph
 
@@ -16,10 +19,11 @@ archive producer remains a separately pinned disabled dependency with
 
 ## Source and installed inventory
 
-The source hashes below are the reviewed release set. The installed hashes are
-the read-only 2026-10-19 Proxmox inventory. The boundary and backup adapter
-are explicitly drifted and must be checkpointed before replacement; no other
-file is silently assumed identical.
+The table below is the reconciled live 12-file set. The installed hashes are
+the read-only 2026-10-19 Proxmox inventory after the inactive install. The
+boundary and backup adapter were explicitly drifted and replaced. The
+`source_receipts.py` hash is a pre-existing working-tree variant, not a clean
+release-commit artifact; this is the remaining provenance blocker.
 
 | Source path | Source SHA-256 | Installed path/hash | Mode |
 |---|---|---|---|
@@ -29,16 +33,21 @@ file is silently assumed identical.
 | `scripts/local-ai/admission_gate.py` | `8b6497565ba95e5ee8b21993b64f48d704f7a1298414f1ce1131adb969970e77` | same / `8b6497565ba95e5ee8b21993b64f48d704f7a1298414f1ce1131adb969970e77` | root:root 0644 |
 | `scripts/local-ai/backup_receipt_adapter.py` | `26a7741b484cee6159827fb2fd8f9fd62c5d305c267d04a3d0b6367f76b38a2f` | same / `9bc07d567657deee07a757cb2518c078c37ef187d1922ff849d150313ec60a64` | root:root 0644 |
 | `scripts/local-ai/quiescence_receipt_adapter.py` | `effebc28fe862f152f67cc8a772e4daed055415a4e4e6d14b7e3428855f4175e` | same / `effebc28fe862f152f67cc8a772e4daed055415a4e4e6d14b7e3428855f4175e` | root:root 0644 |
-| `scripts/local-ai/source_receipts.py` | `35bbecdacec30226e5483e7214f7e318008c1e40d418b37861f000b0e8d701d4` | same / `35bbecdacec30226e5483e7214f7e318008c1e40d418b37861f000b0e8d701d4` | root:root 0644 |
+| `scripts/local-ai/source_receipts.py` | `35bbecdacec30226e5483e7214f7e318008c1e40d418b37861f000b0e8d701d4` (working tree) | same / `35bbecdacec30226e5483e7214f7e318008c1e40d418b37861f000b0e8d701d4` | root:root 0644 |
 | `scripts/local-ai/retained_archive_producer_candidate.py` | `5cfe1a53578250590ee656c7b5a808b6b94a60650255efa4857d1fdd94507acb` | same / `5cfe1a53578250590ee656c7b5a808b6b94a60650255efa4857d1fdd94507acb` | root:root 0644 |
 | `scripts/local-ai/retained_archive_integrity.py` | `11b536ede74d0bcea3b7bd5fe123c3f670715fcc96ef9059723c29a504cc54a5` | same / `11b536ede74d0bcea3b7bd5fe123c3f670715fcc96ef9059723c29a504cc54a5` | root:root 0644 |
-| `scripts/local-ai/host_exclusion.py` | `f8c60ad720a8ac1c6c4f3e51c84ce67747b50f25534c02e0ee6ed38efc302563` | same / `f8c60ad720a8ac1c6c4f3e51c84ce67747b50f25534c02e0ee6ed38efc302563` | root:root 0644 |
+| `scripts/local-ai/host_exclusion.py` | `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61` | same / `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61` | root:root 0644 |
 | `scripts/local-ai/admission_state.py` | `af0854b9bd5f1157dba9027485ea7f91fdd88473f85c49ea850faa31f8181acc` | same / `af0854b9bd5f1157dba9027485ea7f91fdd88473f85c49ea850faa31f8181acc` | root:root 0644 |
 | `services/local-ai-lease/local-ai-lease-produce-receipt` | `ebd3902f12e7045d480577eb7f88daaf8ac505c041b30d9b93b2d2d4cbc2bcc0` | same / `ebd3902f12e7045d480577eb7f88daaf8ac505c041b30d9b93b2d2d4cbc2bcc0` | root:root 0755 |
 
-The complete source set is 11 files. The two differing installed files must
-not be replaced independently: checkpoint all 11 prior bytes, install the
-whole set, and verify every post-install hash.
+The complete installed set is 12 files: 11 modules plus the entrypoint. The
+`host_exclusion.py` version is required because it documents the installed
+manual-helper participation; its code path is otherwise unchanged. The
+`source_receipts.py` variant removes only the unused optional `authenticated`
+compatibility parameter and passed the installed-path tests, but it must be
+explicitly committed or intentionally reverted before F3 can proceed. The
+two differing installed files must not be replaced independently: checkpoint
+all 12 prior bytes, install the whole set, and verify every post-install hash.
 
 ## Offline evidence
 
@@ -54,7 +63,7 @@ whole set, and verify every post-install hash.
 ## Disabled installation and rollback plan
 
 If separately authorized, verify every installed hash above, then checkpoint
-all 11 target files under a fresh root:root 0700 directory such as
+all 12 target files under a fresh root:root 0700 directory such as
 `/root/aster-f3-receipt-rollback-<commit>`, with saved files root:root 0600.
 Install only the pinned set at the corresponding paths, preserving the
 entrypoint mode 0755 and module modes 0644. Run target-Linux imports,
@@ -64,7 +73,7 @@ The producer must remain uncalled. Confirm before and after that the target
 receipt path is unchanged, no lease or lock was created, all F2 timers and
 services remain unchanged, the retained producer remains effects-disabled, and
 no model or service stop occurred. Any failed precondition or postcheck rolls
-back only these 11 files and verifies the restored hashes. Do not overwrite an
+back only these 12 files and verifies the restored hashes. Do not overwrite an
 uncertain prior-good receipt.
 
 F3 is not complete until a separately approved effect-enabled run produces a
@@ -74,16 +83,31 @@ cannot substitute for this receipt.
 
 ## Disabled-install receipt — 2026-10-19
 
-The approved 11-file replacement completed using rollback checkpoint
+The approved 12-file replacement completed using rollback checkpoint
 `/root/aster-f3-receipt-rollback-9e04061e`, root:root 0700 with saved files
 root:root 0600. The two drifted files were replaced only as part of the
-complete pinned set; all 11 installed hashes match the source table. Modules
+complete pinned set; all 12 installed hashes match the reconciled live table. Modules
 are root:root 0644 and `local-ai-lease-produce-receipt` is root:root 0755.
 
 Target-Linux validation passed 46/46 focused tests, compilation, imports, and
-custody checks. The rollback hashes match the pre-install inventory. The
+custody checks against both the staged source set and the actual installed
+directory. The rollback hashes match the pre-install inventory. The
 receipt path, lease path, and lease lock remain absent; the F3 producer was
 never invoked; the retained producer remains `EFFECTS_ENABLED = False`; F2
 exact-cycle timers are active and both F2 services are inactive; F2 state is
 empty; and temporary staging was removed. No daemon reload, schedule change,
 service stop, model request, or receipt write occurred.
+
+## NO-GO reconciliation gate
+
+The 46/46 installed-path test result is valid, but effect-enabled F3 remains
+blocked because `source_receipts.py` at `35bbecd...` was a pre-existing dirty
+working-tree variant rather than a clean artifact from the release commit.
+`host_exclusion.py` at `b39680d...` is the required committed version and is
+not a functional risk. The source-receipt variant is functionally compatible
+with this call graph—the optional authenticated argument is unused—but its
+provenance is not acceptable for release. Commit that exact variant as an
+explicit F3 source or intentionally restore the clean `51052b...` variant,
+rerun the 46-test installed-path suite, and issue a fresh release card before
+invoking the producer. No host mutation or producer invocation is authorized
+by this NO-GO record.
