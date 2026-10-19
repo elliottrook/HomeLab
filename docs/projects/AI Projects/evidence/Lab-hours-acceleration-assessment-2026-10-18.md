@@ -531,3 +531,26 @@ NO-GO for this cycle, but does not establish a safe live lab window or
 authorize a pilot. The proposed six-minute start window also conflicts with
 the implemented 30-minute lab plus 15-minute restoration profile; a new
 time-accurate live card and separate approval are required.
+
+### Goal boundary: a successful pilot is not established lab hours
+
+The installed `full-inference-pilot` and the separate source-only
+`cooperative-lab` candidate solve different problems. The installed pilot
+stops five named Aster/News consumers, runs a fixed three-request control
+inside LXC110, and restores the accepted backend. It does **not** admit
+arbitrary MacBook Codex work, prove the Aster full path, prevent every other
+host process from opening the B60 render node, or create a recurring schedule.
+The cooperative candidate keeps the production backend running but has no
+reviewed MacBook client admission boundary; stopping LXC104 also removes the
+current approved client path. Neither candidate alone meets Jason's requested
+usable lab hours.
+
+The programme may call lab hours *established* only after one reviewed
+MacBook-to-host identity and request path is admitted under the lease; an
+independent host-owned deadline and recovery path can stop that work and
+restore production without the MacBook; a deterministic B60 admission
+boundary prevents unlisted users (observation alone supports only a
+*known-consumer* claim); and a scheduled run demonstrates the same cycle-bound
+preflight, bounded work, cutoff, restoration and next-production margin.
+The first supervised 30+15 pilot is valuable evidence for the drain/recovery
+part of that chain. It cannot close the remaining criteria by inference.
