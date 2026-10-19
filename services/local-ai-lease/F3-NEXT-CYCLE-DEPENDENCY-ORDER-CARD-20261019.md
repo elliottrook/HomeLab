@@ -116,7 +116,7 @@ review of this card.
 | `scripts/local-ai/host_exclusion.py` | `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61` |
 | `scripts/local-ai/admission_state.py` | `af0854b9bd5f1157dba9027485ea7f91fdd88473f85c49ea850faa31f8181acc` |
 | `services/local-ai-lease/local-ai-lease-produce-receipt` | `ebd3902f12e7045d480577eb7f88daaf8ac505c041b30d9b93b2d2d4cbc2bcc0` |
-| `scripts/local-ai/full_stop_acquire_candidate.py` | `5859aba6cccb8f0eb8a971ccc4e3ff7054c1039482f0838c800ed7a10fc0f791` |
+| `scripts/local-ai/full_stop_acquire_candidate.py` | `fb59110ebf8236c67c40818f16f2e501503ebe2740e0eaf9672a5a09174b4ecb` |
 | `scripts/local-ai/full_stop_source_preflight.py` | `a656845321cbaf005ebd6e16945b55a026903d13fd32392f64d28cf65146b572` |
 | `scripts/local-ai/lease_controller_candidate.py` | `f46509e49227cf7ba78ce662184722192059277202e7315616d12456f0385217` |
 | `scripts/local-ai/lease_contract.py` | `420ce2ecc44bde3d17ad25218462618d150a4ec37c4a597067ebb45f8e2f780b` |
