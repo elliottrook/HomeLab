@@ -1,9 +1,12 @@
 # Combined supervised accepted-9B pilot — live run card
 
 Status: disabled stage installed and verified; live effects are not approved.
-The installed source is `dafc0332`, consisting of the exact base manifest plus
-the four-file upgrade from `b43d4971` defined in
+The installed source is the exact `dafc0332` base plus its four-file upgrade
+and the four-file durable-backup-proof repair from local commit `c66b9ae8`,
+defined in
 `COOPERATIVE-FULL-INFERENCE-PILOT-RESCUE-GUARDIAN-UPGRADE-DISABLED-INSTALL-CARD-20261018.md`.
+The repair installation and rollback checkpoint are recorded in
+`COOPERATIVE-FULL-INFERENCE-LOCAL-BACKUP-SOURCE-REPAIR-DISABLED-INSTALL-CARD-20261018.md`.
 The earlier phased 14-file approval does not apply. This is not the F2/F3
 fault-injection or receipt drill.
 
@@ -110,12 +113,11 @@ narrow isolation run and must prove, from the current Proxmox host:
    start uses the valid trailing-colon Proxmox UPID format and the finish is
    after every required artifact and before the observation cutoff.
 
-The currently installed `dafc0332` source still uses the aged
-`/nodes/proxmox/tasks` listing and is therefore NO-GO when that list no longer
-contains the 00:30 job. The durable journal replacement is source-only and is
-recorded in `COOPERATIVE-FULL-INFERENCE-LOCAL-BACKUP-SOURCE-REPAIR-DISABLED-INSTALL-CARD-20261018.md`;
-it must be separately installed and read-only verified before this gate can
-be reconsidered.
+The durable journal replacement is now installed and read-only verified. The
+current-cycle source proof returned true with the expected 00:30 start and
+00:50:40 completion evidence. This clears the local-Proxmox whole-job source
+gate only; it does not clear MacBook custody, TrueNAS/F2/F3, or live-effect
+approval.
 
 The producer must not call the TrueNAS observer in this mode. A separate
 read-only Mac-mini observation may be recorded as nonauthoritative evidence,
