@@ -127,3 +127,13 @@ requires descriptor-based no-follow reading and `fstat`, a bounded payload,
 directory `fsync` after replacement, target-root custody tests, and all final
 dynamic gates. `b39c4be2` remains uninstalled.
 
+The next source-only revision at `59e50fa9` corrects the directory-link rule,
+uses a bounded no-follow descriptor read, syncs the parent after replacement,
+and adds trusted date/window, lease, load, process and installed-pin probes.
+Its focused Stream A replay passed 21 tests with three root-custody positives
+skipped on macOS. The F2 core may proceed to a release wrapper and target-
+Linux review only if that wrapper owns the clock, exclusion token and complete
+fixed pin map; none may be caller selected. No F2 file is installed from this
+commit, and F2 remains open until the target-root tests and measured cycle
+pass.
+

@@ -621,3 +621,14 @@ attestation or otherwise supplies identity directly to the admission process.
 The request body must have no way to choose the principal, key fingerprint,
 host-key digest, session ID or expiry. This remains a source-level interface,
 not authenticated MacBook ingress.
+
+The forced-command candidate added in `59e50fa9` derives a fresh session ID
+from sshd connection data and computes a 120-second expiry, but its writer
+stores only the session fields and discards that expiry; the reader therefore
+cannot enforce it. The writer also creates or changes its parent directory
+without first proving a fixed root-owned, non-symlink path, and its reviewed
+key configuration is still supplied as a Python object rather than loaded
+from a verified installed configuration. MacBook admission remains **HOLD**
+pending an expiring, consume-once envelope, fixed config and authorized-keys
+shape, descriptor-based custody checks and target-Linux negative tests. The
+F2 snapshot work can advance independently of this ingress gate.
