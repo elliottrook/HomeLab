@@ -5,8 +5,8 @@ does not authorize a scan, receipt, lease, timer, service change, or remote
 push.
 
 `scripts/local-ai/f2_preflight_fixed_wrapper.py` owns the cycle from the host
-clock, the exclusion token from the fixed host path, the snapshot path, and
-the complete installed dependency pin map. Callers cannot choose those values.
+clock, the real shared `host_exclusion` flock, the snapshot path, and the
+complete installed dependency pin map. Callers cannot choose those values.
 It runs the slow backup/TrueNAS/artifact/mirror/job preflight before the
 01:10–01:19 boundary, atomically writes the root-custodied snapshot, and then
 the fixed final guard re-reads current clock, lease readiness, exclusion,

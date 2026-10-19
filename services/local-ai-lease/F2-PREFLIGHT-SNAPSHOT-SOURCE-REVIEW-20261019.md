@@ -15,8 +15,9 @@ At the intended 01:10 boundary, the preflight requires task 1 to be complete
 after the Proxmox artifacts while validating the fixed schedule identities for
 tasks 1/3/2; it does not incorrectly require the future 02:00 and 03:00 jobs
 to have run. The final guard independently reads the host clock, confirms the
-local cycle and 01:10–01:19 window, re-reads manual lease readiness, exclusion
-token, lease/receipt absence, competing-process absence, suitable load, and all
+local cycle and 01:10–01:19 window, requires the real shared `host_exclusion`
+flock, re-reads manual lease readiness, lease/receipt absence,
+competing-process absence, suitable load, and all
 configured installed pins. A
 stale snapshot, changed exclusion, missing source, malformed JSON,
 artifact/mirror mismatch, schedule failure, or lease drift fails closed.

@@ -15,6 +15,7 @@ import re
 import secrets
 import stat
 import tempfile
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -23,6 +24,8 @@ from lab_macbook_admission_adapter import AuthenticatedMacBookSession
 
 FORCED_COMMAND = "aster-lab-session-attest"
 ATTESTATION_SECONDS = 120
+CONFIG_PATH = Path("/etc/local-ai-lab/aster-lab-session.json")
+ATTESTATION_PATH = Path("/var/lib/local-ai-lease/macbook-attestation/session.json")
 
 
 class ForcedCommandError(ValueError):
@@ -122,3 +125,16 @@ def write_fresh_attestation(path: Path, session: AuthenticatedMacBookSession,
         except FileNotFoundError:
             pass
         raise
+
+
+def main() -> int:
+    """Fixed authorized_keys command; no request-controlled arguments."""
+    config = load_forced_command_config(CONFIG_PATH)
+    session, _ = create_fresh_session(config, ssh_env=dict(os.environ),
+                                      now_epoch=int(time.time()))
+    write_fresh_attestation(ATTESTATION_PATH, session)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -21,6 +21,7 @@ from zoneinfo import ZoneInfo
 from backup_receipt_adapter import (BackupReceiptError, verify_lxc110_mirror,
                                     verify_proxmox_artifacts)
 from fixed_source_adapters import _truenas
+from host_exclusion import host_exclusion
 
 Runner = Callable[[tuple[str, ...], float], tuple[int, str]]
 EXPECTED_BACKUP_ID = "backup-49999802-1365"
@@ -35,7 +36,6 @@ CLOCK = ("date", "+%s")
 LOCK_ABSENCE = ("test", "!", "-e", "/var/lib/local-ai-lab/cooperative-lab.lock")
 STATE_ABSENCE = ("test", "!", "-e", "/var/lib/local-ai-lab/cooperative-lab.json")
 RECEIPT_ABSENCE = ("test", "!", "-e", "/var/lib/local-ai-lab/f2-receipt.json")
-EXCLUSION_TOKEN = ("cat", "/var/lib/local-ai-lab/f2-exclusion.token")
 QUIET_PROCESSES = ("pgrep", "-af", "[v]zdump|[r]sync|[z]std|[f]2_observer|[f]ull_stop")
 LOADAVG = ("cat", "/proc/loadavg")
 INSTALLED_PIN_PATHS = (
@@ -59,7 +59,6 @@ class F2PreflightSnapshot:
     mirror_identity_sha256: str
     backup_job_sha256: str
     lease_ready: bool
-    exclusion_token: str
 
 
 def _digest(value: object) -> str:
@@ -108,11 +107,11 @@ def _f2_schedule_ok(items: list[dict], *, date_prefix: str,
 
 
 def collect_snapshot(runner: Runner, *, cycle: str, lease_issued_epoch: int,
-                     captured_epoch: int, exclusion_token: str) -> F2PreflightSnapshot:
+                     captured_epoch: int) -> F2PreflightSnapshot:
     """Collect the slow read-only chain before the final scan window."""
     if len(cycle) != 10 or cycle[4] != "-" or cycle[7] != "-":
         raise F2PreflightError("cycle is not canonical")
-    if type(captured_epoch) is not int or not exclusion_token:
+    if type(captured_epoch) is not int:
         raise F2PreflightError("preflight identity is invalid")
     artifacts_raw = _json(runner, PVE_ARTIFACTS, 30.0)
     job = _json(runner, PVE_JOB, 10.0)
@@ -149,7 +148,6 @@ def collect_snapshot(runner: Runner, *, cycle: str, lease_issued_epoch: int,
         truenas_schedule_sha256=_digest(tasks),
         mirror_identity_sha256=_digest(mirror_identity),
         backup_job_sha256=_digest(job), lease_ready=True,
-        exclusion_token=exclusion_token,
     )
 
 
@@ -219,8 +217,33 @@ def read_snapshot(path: Path) -> F2PreflightSnapshot:
         raise F2PreflightError("snapshot is unreadable") from exc
 
 
+class F2Coordinator:
+    """Fixed coordinator owning the real shared host exclusion flock."""
+
+    def __init__(self, root: Path):
+        self.root = root
+        self._context = None
+        self._held = False
+
+    def __enter__(self):
+        self._context = host_exclusion(self.root)
+        self._context.__enter__()
+        self._held = True
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._held = False
+        if self._context is not None:
+            return self._context.__exit__(exc_type, exc_value, traceback)
+        return None
+
+    @property
+    def held(self) -> bool:
+        return self._held
+
+
 def final_guard(snapshot: F2PreflightSnapshot, *, runner: Runner,
-               expected_pins: Mapping[str, str]) -> None:
+               expected_pins: Mapping[str, str], coordinator: F2Coordinator) -> None:
     """Re-read the trusted host boundary immediately before the narrow scan."""
     code, output = runner(CLOCK, 3.0)
     try:
@@ -236,9 +259,8 @@ def final_guard(snapshot: F2PreflightSnapshot, *, runner: Runner,
         code, _ = runner(command, 3.0)
         if code != 0:
             raise F2PreflightError("F2 lease or receipt state is present")
-    code, current_exclusion = runner(EXCLUSION_TOKEN, 3.0)
-    if code != 0 or current_exclusion.strip() != snapshot.exclusion_token:
-        raise F2PreflightError("host exclusion does not match preflight")
+    if not coordinator.held:
+        raise F2PreflightError("fixed host exclusion is not held")
     code, status = runner(LEASE_STATUS, 3.0)
     try:
         lease_state = json.loads(status)
