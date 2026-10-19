@@ -578,3 +578,14 @@ offline reproduction. No host change, service stop, model call, live pilot or
 permission grant followed this review. The admission candidate remains HOLD
 until the trust boundary and expiry/replay tests are corrected and independently
 rechecked.
+
+The owner corrected the caller-clock and unrestricted-ID issues in source
+`2e64b072`: the verifier now reads its own clock, validates the request-ID
+shape and emits an ID digest. Stream A reproduced a remaining restart case:
+constructing a second verifier with the same manifest admits the same ID
+again because the replay set exists only in memory. The manifest also accepts
+an arbitrarily long issued-to-expiry interval. These are source-level review
+findings, not installed-path failures. Durable lease-bound replay/idempotency,
+a bounded session expiry and an authenticated MacBook transport still gate
+target staging or any live workload admission. The owner received the exact
+synthetic counterexample; no host change followed.
