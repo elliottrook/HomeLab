@@ -19,6 +19,35 @@ from pathlib import Path
 
 LINE = re.compile(r"^([🟢🟡🔴])\s+(.+)$")
 STATUS = {"🟢": "pass", "🟡": "warn", "🔴": "fail"}
+AGGREGATE = re.compile(r"^(?:Passed|Warnings|Failed):\s+\d+$")
+FINAL_OUTCOME = re.compile(
+    r"^HomeLab (?:doctor found one or more failures|is operational with warnings|is healthy)$",
+    re.IGNORECASE,
+)
+
+
+def extract_checks(output: str) -> list[dict[str, str]]:
+    """Return unique actionable Doctor rows, excluding aggregate summaries."""
+    checks: list[dict[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for line in output.splitlines():
+        match = LINE.match(line)
+        if not match:
+            continue
+        summary = match.group(2)
+        if AGGREGATE.fullmatch(summary) or FINAL_OUTCOME.fullmatch(summary):
+            continue
+        status = STATUS[match.group(1)]
+        key = (status, summary)
+        if key in seen:
+            continue
+        seen.add(key)
+        checks.append({
+            "name": "HomeLab Doctor",
+            "status": status,
+            "summary": summary[:500],
+        })
+    return checks
 
 
 def main() -> int:
@@ -37,19 +66,19 @@ def main() -> int:
             completed = subprocess.run([str(args.doctor)], text=True, capture_output=True, check=False, timeout=900)
         except subprocess.TimeoutExpired:
             completed = subprocess.CompletedProcess([], 1, "🔴 Doctor timed out; health collection is incomplete.", "")
-    checks: list[dict[str, str]] = []
-    for line in (completed.stdout + "\n" + completed.stderr).splitlines():
-        match = LINE.match(line)
-        if match:
-            checks.append({"name": "HomeLab Doctor", "status": STATUS[match.group(1)], "summary": match.group(2)[:500]})
+    checks = extract_checks(completed.stdout + "\n" + completed.stderr)
     if not checks:
         checks.append({"name": "HomeLab Doctor", "status": "fail", "summary": "Doctor produced no recognizable checks; health collection is incomplete."})
+    elif completed.returncode and not any(check["status"] == "fail" for check in checks):
+        checks.insert(0, {
+            "name": "HomeLab Doctor",
+            "status": "fail",
+            "summary": "Doctor exited unsuccessfully; use the operator report for details.",
+        })
     overall = "failed" if completed.returncode or any(c["status"] == "fail" for c in checks) else ("warning" if any(c["status"] == "warn" for c in checks) else "healthy")
     # Preserve actionable states if Doctor grows beyond the report-size cap.
     selected_checks = [check for check in checks if check["status"] != "pass"]
     selected_checks.extend(check for check in checks if check["status"] == "pass")
-    if completed.returncode and not selected_checks:
-        selected_checks.append({"name": "HomeLab Doctor", "status": "fail", "summary": "Doctor exited unsuccessfully; use the operator report for details."})
     report = {
         "schema": 1,
         "generated_at": datetime.now(timezone.utc).isoformat(),

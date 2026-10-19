@@ -30,6 +30,11 @@ summary sections.
 - Scheduled alert extraction now removes Doctor's aggregate final-status rows
   and de-duplicates identical red findings, so one failure produces one email
   line.
+- The bounded Aster health publisher used the same overly broad icon parsing:
+  it treated `Failed: 0` as a failure and repeated warnings from Doctor's
+  attention block. It now excludes aggregate/final-outcome rows, de-duplicates
+  actionable checks, and retains a synthetic failure when Doctor exits
+  unsuccessfully without a recognizable failure line.
 
 ## Validation
 
