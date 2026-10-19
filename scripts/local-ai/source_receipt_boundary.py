@@ -58,7 +58,7 @@ def _write_envelope(path: Path, evidence: AdmissionEvidence, *, lease_id: str, g
     }
     _parent_custody(path)
     if path.exists() or path.is_symlink():
-        _custody(path)
+        raise AdmissionEvidenceError("receipt already exists; operator review is required")
     encoded = (json.dumps(payload, sort_keys=True) + "\n").encode()
     if len(encoded) > MAX_RECEIPT_BYTES:
         raise AdmissionEvidenceError("receipt exceeds size limit")

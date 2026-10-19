@@ -83,23 +83,18 @@ class SourceReceiptBoundaryTests(unittest.TestCase):
             self.assertEqual(sentinel.read_text(), "unchanged")
             self.assertFalse(path.exists())
 
-    def test_writer_uses_unique_temp_and_keeps_previous_receipt_on_replace_failure(self):
+    def test_writer_is_one_attempt_and_preserves_previous_receipt(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             path = root / "receipt.json"
             sentinel = root / "sentinel"
             sentinel.write_text("unchanged")
-            (root / "receipt.json.new").symlink_to(sentinel)
             path.write_text("old receipt")
-            with patch("source_receipt_boundary.os.geteuid", return_value=0), \
-                    patch("source_receipt_boundary._parent_custody"), \
-                    patch("source_receipt_boundary._custody"), \
-                    patch("source_receipt_boundary.os.replace", side_effect=OSError("synthetic failure")):
-                with self.assertRaisesRegex(OSError, "synthetic failure"):
+            with patch("source_receipt_boundary.os.geteuid", return_value=0), patch("source_receipt_boundary._parent_custody"):
+                with self.assertRaisesRegex(ValueError, "already exists"):
                     _write_envelope(path, self.evidence(), lease_id="lab-1", generation=2, captured_epoch=100)
             self.assertEqual(path.read_text(), "old receipt")
             self.assertEqual(sentinel.read_text(), "unchanged")
-            self.assertEqual([p.name for p in root.iterdir() if p.name.startswith(".source-receipt-")], [])
 
     def test_producer_requires_lease_issue_time(self):
         import inspect
