@@ -514,3 +514,20 @@ source defect also rejects this observed valid UPID because its regex omits
 the final colon. Both findings and the need for ambiguity/custody checks were
 sent to the platform owner. The current source must be corrected, tested and
 reinstalled under its own bounded approval before a live pilot can proceed.
+
+### Inactive backup-proof repair — October 18
+
+The platform owner corrected the aged task-list dependency in source commit
+`c66b9ae8`, using bounded `pvescheduler` start/success journal records tied to
+the exact current-cycle archive times. The valid trailing colon in the
+Proxmox UPID is accepted. Jason separately approved the four-file inactive
+installation. Read-only inspection confirms all four installed Proxmox hashes
+match that card and the rollback checkpoint retains the prior four hashes.
+The focused target-Linux suite passes 10 tests; the platform owner reports
+65 installed-path tests and `local_backup_proof=True` for the October 18
+cycle. The manual lease remains `ready`; no pilot unit, guardian arm, lab
+listener or pilot process was started. This fixes the observed backup-proof
+NO-GO for this cycle, but does not establish a safe live lab window or
+authorize a pilot. The proposed six-minute start window also conflicts with
+the implemented 30-minute lab plus 15-minute restoration profile; a new
+time-accurate live card and separate approval are required.
