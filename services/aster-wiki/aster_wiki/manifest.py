@@ -69,6 +69,9 @@ def validate_source(source: dict[str, Any]) -> dict[str, Any]:
             raise ManifestError("git source requires a safe immutable ref")
         if not GIT_COMMIT.fullmatch(str(source.get("expected_commit", ""))):
             raise ManifestError("git source requires an expected commit")
+        git_ref = str(source["git_ref"])
+        if GIT_COMMIT.fullmatch(git_ref) and git_ref != source["expected_commit"]:
+            raise ManifestError("immutable commit ref must match expected commit")
     for field, minimum, maximum in (
         ("refresh_hours", 24, 24 * 365),
         ("size_limit_bytes", 1, 100 * 1024 * 1024),

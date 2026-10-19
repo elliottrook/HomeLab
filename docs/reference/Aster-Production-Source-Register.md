@@ -32,16 +32,16 @@ accepted provenance and every permitted derived entry.
 
 | Source | Repository/ref | Expected commit | Selected boundary | Licence | Disposition |
 |---|---|---|---|---|---|
-| SABnzbd manual | `https://github.com/sabnzbd/sabnzbd.github.io.git` `master` | `dd1e220a71e1b54aff16d32fdfdab1324d30bfdf` | `wiki/introduction/howto.html`, `wiki/introduction/downloads-cannot-be-completed.html`, `wiki/configuration/5.1/`, `LICENSE.md` | GPL-3.0 | Import; installed-minor match; 18 files / 237,183 bytes |
-| Home Assistant user/integration docs | `https://github.com/home-assistant/home-assistant.io.git` `current` | `18035547fe0ea9b1847f145bf395d88fdce9d63e` | `source/common-tasks/os.markdown`, `source/_docs/{automation/,scripts.markdown,scripts/,scene.markdown,scene/}`, `source/_integrations/{backup,homekit,homekit_controller,hue,lutron_caseta,matter,scene,script,sonos,timer}.markdown`, `LICENSE.md` | CC BY-NC-SA 4.0 | Import privately with attribution and same-licence notice; 28 files / 362,683 bytes |
-| OPNsense docs | `https://github.com/opnsense/docs.git` `master` | `2c85e8a9ea43f4e008a536734ad428783fae94f9` | 20 named `source/manual/` RST pages for interfaces, firewall/NAT, Dnsmasq/Unbound/DHCP, backups and diagnostics plus `LICENSE` | BSD-2-Clause | Import; 21 files / 321,306 bytes |
-| Proxmox VE docs | `https://github.com/proxmox/pve-docs.git` `master` | `439ce4394b050b0e55b6a85cc74cfccab3e0b474` | 14 named AsciiDoc pages for host administration, networking/firewall, LXC/QEMU, PCI passthrough and used storage/backup types plus `LICENSE` | GFDL-1.3 | Import with licence/attribution; 15 files / 264,129 bytes |
+| SABnzbd manual | `https://github.com/sabnzbd/sabnzbd.github.io.git` `dd1e220a…` | `dd1e220a71e1b54aff16d32fdfdab1324d30bfdf` | `wiki/introduction/howto.html`, `wiki/introduction/downloads-cannot-be-completed.html`, `wiki/configuration/5.1/`, `LICENSE.md` | GPL-3.0 | Import; installed-minor match; exact reviewed commit |
+| Home Assistant user/integration docs | `https://github.com/home-assistant/home-assistant.io.git` `ea6e6b35…` | `ea6e6b35e02ca5870efafb497325c30cfe1ede10` | `source/common-tasks/os.markdown`, `source/_docs/{automation/,scripts.markdown,scripts/,scene.markdown,scene/}`, `source/_integrations/{backup,homekit,homekit_controller,hue,lutron_caseta,matter,scene,script,sonos,timer}.markdown`, `LICENSE.md` | CC BY-NC-SA 4.0 | Import privately with attribution and same-licence notice; reviewed for deployed Core 2026.9.1 |
+| OPNsense docs | `https://github.com/opnsense/docs.git` `2c85e8a9…` | `2c85e8a9ea43f4e008a536734ad428783fae94f9` | 20 named `source/manual/` RST pages for interfaces, firewall/NAT, Dnsmasq/Unbound/DHCP, backups and diagnostics plus `LICENSE` | BSD-2-Clause | Import at exact reviewed commit |
+| Proxmox VE docs | `https://github.com/proxmox/pve-docs.git` `14247d9d…` | `14247d9da540e08d40268d80e0d6cd2749edd588` | 14 named AsciiDoc pages for host administration, networking/firewall, LXC/QEMU, PCI passthrough and used storage/backup types plus `LICENSE` | GFDL-1.3 | Import with licence/attribution at exact reviewed commit |
 | Servarr Wiki | `https://github.com/Servarr/Wiki.git` `master` | `198dcb59ef1c08828455232fc7b7d908284f69e7` | per-application quick start, settings, activity, library, system, troubleshooting and Docker pages | No repository licence found | Link only; do not copy |
-| Jellyfin documentation | `https://github.com/jellyfin/jellyfin.org.git` `master` | `1edeb876d1a197de6ead0148ca32e4ae241a6f2d` | administration, backup/restore, storage, troubleshooting, networking and Intel acceleration pages | CC BY-ND 4.0 | Human only after no-derivative mirror enforcement; otherwise link only |
-| TrueNAS documentation | `https://github.com/truenas/documentation.git` `master` | `e523684d5b274a807f38223c0d4cdb9999f6402f` | `content/SCALE/{Storage,Datasets,Shares/SMB,DataProtection,Apps,SystemSettings/Update,GettingStarted/Install}/`, `LICENSE.md` | CC BY-NC-SA 4.0 | Import at pinned current-doc commit for deployed TrueNAS 25.10.5; 91 text files / 734,054 bytes measured before licence file |
-| Pi-hole documentation | `https://github.com/pi-hole/docs.git` `master` | `873b42ada09e8bcd2fe76f0e9f824fd7b378a350` | DNS operation, upstreams, blocking, backup/restore and troubleshooting pages plus `LICENSE` | CC BY-SA 4.0 | Import at pinned current-doc commit for deployed 2026.05.0/2026.07.2 instances |
+| Jellyfin documentation | `https://github.com/jellyfin/jellyfin.org.git` `40d3fde8…` | `40d3fde8ad1a2efcffef0e043304e1e46b20a40a` | administration, backup/restore, storage, troubleshooting, networking and Intel acceleration pages | CC BY-ND 4.0 | Human only at exact reviewed commit after no-derivative mirror enforcement |
+| TrueNAS documentation | `https://github.com/truenas/documentation.git` `0c73733a…` from release branch `25.10` | `0c73733ae2d689c0b288dc56f8c51e70d961f532` | 21 exact paths under `content/{SCALETutorials,SCALEUIReference,GettingStarted}` plus `LICENSE.md` | CC BY-NC-SA 4.0 | Import at exact reviewed 25.10-branch commit for deployed TrueNAS 25.10.5; never follow newer-version `master` |
+| Pi-hole documentation | `https://github.com/pi-hole/docs.git` `873b42ad…` | `873b42ada09e8bcd2fe76f0e9f824fd7b378a350` | DNS operation, upstreams, blocking, backup/restore and troubleshooting pages plus `LICENSE` | CC BY-SA 4.0 | Import at exact reviewed commit for deployed 2026.05.0/2026.07.2 instances |
 | authentik documentation | `https://github.com/goauthentik/authentik.git` `version/2026.8.0` | `f3753ec20ce13ef672401a131379d1a5a2d3439b` | selected `website/docs/{install-config,sys-mgmt,add-secure-apps,customize,troubleshooting,security}/` pages plus `LICENSE` | CC BY-SA 4.0 for `website/` | Import; exact deployed tag |
-| Forgejo documentation | `https://codeberg.org/forgejo/docs.git` `v15.0` | `28300386afa884d287e07165192516a0352b36b8` | selected `docs/admin/` installation, configuration, backup/upgrade, reverse-proxy, authentication, Actions and troubleshooting pages plus selected `docs/user/actions/` and `docs/license.md` | CC BY-SA 4.0 with identified Apache-2.0 inherited portions | Import; release branch matching deployed Forgejo 15.0.7, commit pinned |
+| Forgejo documentation | `https://codeberg.org/forgejo/docs.git` `28300386…` from release branch `v15.0` | `28300386afa884d287e07165192516a0352b36b8` | selected `docs/admin/` installation, configuration, backup/upgrade, reverse-proxy, authentication, Actions and troubleshooting pages plus selected `docs/user/actions/` and `docs/license.md` | CC BY-SA 4.0 with identified Apache-2.0 inherited portions | Import; exact reviewed commit for deployed Forgejo 15.0.7 |
 | Nginx Proxy Manager | `https://github.com/NginxProxyManager/nginx-proxy-manager.git` `v2.15.1` | `76f09db610cfcaecf6d608a8947d6f75aa028870` | `README.md`, `docs/`, `LICENSE` | MIT | Import; exact deployed tag |
 | Prometheus | `https://github.com/prometheus/prometheus.git` `v3.13.2` | `bb5dff00cf8fdfbf5c65e0531aa835fa238a43a2` | selected `docs/` pages for configuration, storage, querying, alerting and operations plus licence | Apache-2.0 | Import; exact deployed tag |
 | Grafana | `https://github.com/grafana/grafana.git` `v13.2.0` | `f681b1359f6a0b8ecb9f2c49a88ac72b75bde73b` | `docs/sources/administration/{back-up-grafana,provisioning}/`, `docs/sources/alerting/{set-up,fundamentals,best-practices,troubleshooting}/`, `docs/sources/setup-grafana/configure-grafana/`, `LICENSE` | AGPL-3.0-only | Import; exact deployed tag; 40 files / 593,350 bytes |
@@ -74,13 +74,13 @@ also enforces the hard 256-file ceiling independently.
 | Source group | Measured maximum | Manifest byte limit | Refresh | Class / authority | Mirror policy |
 |---|---:|---:|---:|---|---|
 | Installed-version product README/licence pairs | 2–3 files; largest 40,513 bytes | 256 KiB | 8,760 h; explicit version review | Upstream / generic product reference | `allow-derived` with recorded source licence |
-| SABnzbd manual | 18 files / 237,183 bytes | 512 KiB | 720 h; expected-commit drift quarantines | Upstream / generic product reference | `allow-derived`, GPL-3.0 |
-| Home Assistant selected docs | 28 files / 362,683 bytes | 1 MiB | 720 h; expected-commit drift quarantines | Upstream / generic and integration reference | `allow-derived`, CC-BY-NC-SA-4.0 |
-| OPNsense selected docs | 21 files / 321,306 bytes | 1 MiB | 720 h; expected-commit drift quarantines | Upstream / generic infrastructure reference | `allow-derived`, BSD-2-Clause |
-| Proxmox VE selected docs | 15 files / 264,129 bytes | 1 MiB | 720 h; expected-commit drift quarantines | Upstream / generic infrastructure reference | `allow-derived`, GFDL-1.3 |
-| TrueNAS selected docs | 90 files / 744,990 bytes | 2 MiB | 720 h; expected-commit drift quarantines | Upstream / generic storage reference | `allow-derived`, CC-BY-NC-SA-4.0 |
+| SABnzbd manual | 18 files / 238,314 fetched bytes | 512 KiB | 720 h; exact reviewed commit | Upstream / generic product reference | `allow-derived`, GPL-3.0 |
+| Home Assistant selected docs | 28 files / 364,426 fetched bytes | 1 MiB | 720 h; exact reviewed commit | Upstream / generic and integration reference | `allow-derived`, CC-BY-NC-SA-4.0 |
+| OPNsense selected docs | 21 files / 280,714 fetched bytes | 1 MiB | 720 h; exact reviewed commit | Upstream / generic infrastructure reference | `allow-derived`, BSD-2-Clause |
+| Proxmox VE selected docs | 15 files / 268,373 fetched bytes | 1 MiB | 720 h; exact reviewed commit | Upstream / generic infrastructure reference | `allow-derived`, GFDL-1.3 |
+| TrueNAS selected docs | 21 files / 226,250 fetched bytes | 2 MiB | 720 h; exact reviewed 25.10 commit | Upstream / generic storage reference | `allow-derived`, CC-BY-NC-SA-4.0 |
 | authentik selected docs | 103 files / 325,991 bytes | 1 MiB | 8,760 h; explicit version review | Upstream / generic identity reference | `allow-derived`, CC-BY-SA-4.0 |
-| Forgejo selected docs | 46 files / 597,413 bytes | 1 MiB | 720 h; release-branch commit drift quarantines | Upstream / generic Git-service reference | `allow-derived`, CC-BY-SA-4.0 |
+| Forgejo selected docs | selected paths / 169,429 fetched bytes | 1 MiB | 720 h; exact reviewed v15.0 commit | Upstream / generic Git-service reference | `allow-derived`, CC-BY-SA-4.0 |
 | Nginx Proxy Manager selected docs | 13 files / 38,952 bytes | 256 KiB | 8,760 h; explicit version review | Upstream / generic reverse-proxy reference | `allow-derived`, MIT |
 | Frigate selected docs | 53 files / 544,084 bytes | 1 MiB | 8,760 h; explicit version review | Upstream / generic surveillance reference | `allow-derived`, MIT |
 | Prometheus selected docs | 32 files / 542,268 bytes | 1 MiB | 8,760 h; explicit version review | Upstream / generic monitoring reference | `allow-derived`, Apache-2.0 |
@@ -110,9 +110,13 @@ the production-corpus mirror does not duplicate those private details.
 | Prometheus / Grafana | 3.13.2 / 13.2.0 | Live executable versions and build commits; both exactly match dereferenced Git tags |
 | Network UPS Tools | 2.8.1-5 | Reviewed installed Debian package baseline; upstream 2.8.1 tag used for generic documentation |
 
-Branch-backed documentation is frozen by both branch name and expected commit.
-Any upstream movement quarantines collection until a human reviews and updates
-the expected commit. Installed-version tags remain preferred wherever present.
+Moving documentation branches are used only while selecting and reviewing an
+update. The accepted manifest fetches the reviewed 40-character commit itself,
+with `git_ref` and `expected_commit` equal, so unrelated later movement of
+`master`, `current`, or a release branch cannot create a recurring quarantine.
+Installed-version tags remain preferred wherever present. A product upgrade or
+deliberate documentation refresh requires a new branch-to-pin comparison and
+then an explicit update of both commit fields.
 
 ## Reviewed local authority
 

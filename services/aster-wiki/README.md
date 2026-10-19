@@ -19,6 +19,14 @@ input hashes without exposing source content. Exact fetched bytes are retained
 content-addressed beneath the protected collector state tree; normalized
 human-readable copies remain the only generated corpus content.
 
+Git sources may use a release tag or an exact 40-character reviewed commit as
+`git_ref`. Prefer the exact commit for documentation repositories whose
+`master` or `current` branch moves independently of the deployed product.
+Set `git_ref` and `expected_commit` to the same SHA in that case. Upstream
+branch movement then becomes a deliberate review/update task instead of a
+recurring quarantine, while the collector still fetches and verifies only the
+approved bytes.
+
 Run the tests with:
 
 ```sh

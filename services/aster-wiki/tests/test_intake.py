@@ -87,6 +87,16 @@ class IntakeTests(unittest.TestCase):
                 "boundary": "README.md", "license_status": "permitted",
             })
 
+    def test_exact_commit_ref_must_match_expected_commit(self):
+        with self.assertRaisesRegex(ManifestError, "must match expected commit"):
+            preview({
+                "kind": "git", "title": "Bad pin", "owner": "Example",
+                "location": "https://git.example.invalid/team/project.git",
+                "boundary_type": "repository-paths", "boundary": "README.md",
+                "media_type": "text/markdown", "license_status": "permitted",
+                "git_ref": "a" * 40, "expected_commit": "b" * 40,
+            })
+
     def test_human_only_policy_and_license_are_validated(self):
         result = preview({
             "kind": "web", "title": "Vendor Manual",

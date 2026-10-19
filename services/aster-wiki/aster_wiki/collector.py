@@ -83,15 +83,33 @@ def fetch_git(source: dict) -> Fetched:
     allowed = _git_paths(source["boundary"]["value"])
     with tempfile.TemporaryDirectory() as directory:
         repository = Path(directory) / "repo.git"
-        subprocess.run(
-            ["git", "clone", "--bare", "--filter=blob:none", "--depth", "1", "--no-tags",
-             "--branch", source["git_ref"],
-             "--", source["canonical_url"], str(repository)],
-            check=True, capture_output=True, timeout=60,
-            env={"PATH": os.environ.get("PATH", ""), "GIT_TERMINAL_PROMPT": "0"},
-        )
+        treeish = "HEAD"
+        git_env = {"PATH": os.environ.get("PATH", ""), "GIT_TERMINAL_PROMPT": "0"}
+        if re.fullmatch(r"[0-9a-f]{40}", source["git_ref"]):
+            # A reviewed commit is the genuinely immutable form of a Git
+            # source. Fetch it directly so a later move of upstream's
+            # default/current branch does not turn unchanged accepted content
+            # into a recurring quarantine incident.
+            subprocess.run(
+                ["git", "init", "--bare", "--quiet", str(repository)],
+                check=True, capture_output=True, timeout=15, env=git_env,
+            )
+            subprocess.run(
+                ["git", "--git-dir", str(repository), "fetch", "--quiet",
+                 "--filter=blob:none", "--depth", "1", "--no-tags", "--",
+                 source["canonical_url"], source["git_ref"]],
+                check=True, capture_output=True, timeout=60, env=git_env,
+            )
+            treeish = "FETCH_HEAD"
+        else:
+            subprocess.run(
+                ["git", "clone", "--bare", "--filter=blob:none", "--depth", "1", "--no-tags",
+                 "--branch", source["git_ref"],
+                 "--", source["canonical_url"], str(repository)],
+                check=True, capture_output=True, timeout=60, env=git_env,
+            )
         listing = subprocess.run(
-            ["git", "--git-dir", str(repository), "ls-tree", "-r", "--name-only", "HEAD"],
+            ["git", "--git-dir", str(repository), "ls-tree", "-r", "--name-only", treeish],
             check=True, capture_output=True, text=True, timeout=15,
         ).stdout.splitlines()
         selected = sorted(path for path in listing if any(path == item or path.startswith(item.rstrip("/") + "/") for item in allowed))
@@ -102,7 +120,7 @@ def fetch_git(source: dict) -> Fetched:
         total = 0
         for path in selected:
             data = subprocess.run(
-                ["git", "--git-dir", str(repository), "show", f"HEAD:{path}"],
+                ["git", "--git-dir", str(repository), "show", f"{treeish}:{path}"],
                 check=True, capture_output=True, timeout=15,
             ).stdout
             total += len(data)
@@ -110,7 +128,7 @@ def fetch_git(source: dict) -> Fetched:
                 raise Quarantine("size-limit-exceeded")
             chunks.append(f"\n\n<!-- source-file: {path} -->\n".encode() + data)
         commit = subprocess.run(
-            ["git", "--git-dir", str(repository), "rev-parse", "HEAD"],
+            ["git", "--git-dir", str(repository), "rev-parse", treeish],
             check=True, capture_output=True, text=True, timeout=15,
         ).stdout.strip()
         if commit != source["expected_commit"]:

@@ -112,7 +112,7 @@
       "mirror_policy": "allow-derived",
       "license_id": "GPL-3.0-only",
       "enabled": true,
-      "git_ref": "master",
+      "git_ref": "dd1e220a71e1b54aff16d32fdfdab1324d30bfdf",
       "expected_commit": "dd1e220a71e1b54aff16d32fdfdab1324d30bfdf"
     },
     {
@@ -150,8 +150,8 @@
       "mirror_policy": "human-only",
       "license_id": "CC-BY-ND-4.0",
       "enabled": true,
-      "git_ref": "master",
-      "expected_commit": "1edeb876d1a197de6ead0148ca32e4ae241a6f2d"
+      "git_ref": "40d3fde8ad1a2efcffef0e043304e1e46b20a40a",
+      "expected_commit": "40d3fde8ad1a2efcffef0e043304e1e46b20a40a"
     },
     {
       "id": "arr-operational-reference",

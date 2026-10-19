@@ -98,3 +98,26 @@ The remaining warnings are bounded and were not silently changed:
 2. France24 returned one malformed XML response after several successful
    hourly fetches. Other feeds and the aggregator remained healthy.
 3. The repository contains pre-existing unrelated uncommitted work.
+
+## Aster Wiki follow-up — 2026-10-19
+
+The eight-source warning was traced to a manifest design error, not damaged or
+untrusted accepted content. The affected sources used moving branch names
+(`master`, `current`, or a moving release branch) while also requiring the
+branch tip to equal an exact reviewed commit. Normal upstream activity therefore
+caused a fail-closed `repository-ref-commit-mismatch`; the last accepted corpus
+remained live and verified throughout.
+
+The collector now supports fetching a reviewed SHA directly. The seven sources
+whose accepted boundaries remain version-correct retain their already reviewed
+commits as both `git_ref` and `expected_commit`. TrueNAS is corrected separately:
+the live appliance is 25.10.5, so its source is pinned to the reviewed
+`25.10`-branch commit `0c73733ae2d689c0b288dc56f8c51e70d961f532`
+and the 21 equivalent paths in that branch's reorganized documentation tree;
+it no longer follows the newer-version `master` branch.
+
+All 57 local Wiki tests pass. All eight real repositories were fetched through
+the new exact-commit path, and their bounded content passed media type, size,
+secret-pattern and prompt-injection validation. Production deployment and the
+post-change collector/mirror/Doctor validation require the normal separately
+confirmed remote mutation.

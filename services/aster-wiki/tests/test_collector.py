@@ -206,6 +206,32 @@ class CollectorTests(unittest.TestCase):
             with self.assertRaisesRegex(Quarantine, "commit-mismatch"):
                 fetch_git(item)
 
+    def test_git_fetch_accepts_an_exact_commit_as_the_immutable_ref(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repository = Path(directory) / "source"
+            repository.mkdir()
+            subprocess.run(["git", "init", "-q", str(repository)], check=True)
+            subprocess.run(["git", "-C", str(repository), "config", "user.name", "Tests"], check=True)
+            subprocess.run(["git", "-C", str(repository), "config", "user.email", "tests@example.invalid"], check=True)
+            (repository / "README.md").write_text("# Reviewed docs\n")
+            subprocess.run(["git", "-C", str(repository), "add", "README.md"], check=True)
+            subprocess.run(["git", "-C", str(repository), "commit", "-qm", "reviewed"], check=True)
+            reviewed = subprocess.run(
+                ["git", "-C", str(repository), "rev-parse", "HEAD"], check=True,
+                capture_output=True, text=True,
+            ).stdout.strip()
+            (repository / "README.md").write_text("# Later unreviewed docs\n")
+            subprocess.run(["git", "-C", str(repository), "commit", "-qam", "later"], check=True)
+            item = source(
+                "git-source", kind="git", canonical_url=str(repository),
+                boundary={"type": "repository-paths", "value": "README.md"},
+                media_type="text/markdown", git_ref=reviewed, expected_commit=reviewed,
+            )
+            fetched = fetch_git(item)
+            self.assertEqual(reviewed, fetched.etag)
+            self.assertIn(b"Reviewed docs", fetched.body)
+            self.assertNotIn(b"unreviewed", fetched.body)
+
     def test_manual_fetch_is_source_scoped_and_bounded(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); path = root / "manual-source/manual.txt"

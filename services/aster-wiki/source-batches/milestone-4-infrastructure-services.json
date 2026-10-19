@@ -7,7 +7,7 @@
       "title": "TrueNAS SCALE selected storage, sharing, protection and application documentation",
       "owner": "TrueNAS",
       "canonical_url": "https://github.com/truenas/documentation.git",
-      "boundary": {"type": "repository-paths", "value": "LICENSE.md,content/SCALE/Storage/StorageDashboardScreens.md,content/SCALE/Storage/Disks/DriveHealthManagement.md,content/SCALE/Storage/Disks/ReplacingDisks.md,content/SCALE/Storage/Pools/CreatingPools.md,content/SCALE/Storage/Pools/ImportPool.md,content/SCALE/Storage/Pools/ManagePools.md,content/SCALE/Datasets/ManagingDatasets.md,content/SCALE/Datasets/Permissions/ConfiguringACLs.md,content/SCALE/Datasets/Snapshots/CreatingSnapshots.md,content/SCALE/Datasets/Snapshots/ManageSnapshots.md,content/SCALE/Shares/SMB/AddManageSMBShares.md,content/SCALE/Shares/SMB/AddSMBShadowCopies.md,content/SCALE/DataProtection/PeriodicSnapshotTasks/AddingPeriodicSnapshotTasks.md,content/SCALE/DataProtection/Replication/LocalReplication.md,content/SCALE/DataProtection/Replication/RemoteReplication.md,content/SCALE/DataProtection/Rsync/RsyncTasks.md,content/SCALE/Apps/AppsScreens.md,content/SCALE/Apps/InstallCustomAppScreens.md,content/SCALE/SystemSettings/Update/UpdatingTrueNAS.md,content/SCALE/GettingStarted/Install/InstallingSCALE.md"},
+      "boundary": {"type": "repository-paths", "value": "LICENSE.md,content/SCALEUIReference/Storage/_index.md,content/SCALETutorials/Storage/Disks/DriveHealthManagement.md,content/SCALETutorials/Storage/Disks/ReplacingDisks.md,content/SCALETutorials/Storage/CreatePoolWizard.md,content/SCALETutorials/Storage/ImportPoolScale.md,content/SCALETutorials/Storage/ManagePoolsScale.md,content/SCALETutorials/Datasets/DatasetsSCALE.md,content/SCALETutorials/Datasets/PermissionsSCALE.md,content/SCALETutorials/Datasets/CreatingSnapshots.md,content/SCALETutorials/Datasets/ManageSnapshotsSCALE.md,content/SCALETutorials/Shares/SMB/ManageSMBShares.md,content/SCALETutorials/Shares/SMB/AddSMBShadowCopies.md,content/SCALETutorials/DataProtection/PeriodicSnapshotTasksSCALE.md,content/SCALETutorials/DataProtection/Replication/LocalReplicationSCALE.md,content/SCALETutorials/DataProtection/Replication/RemoteReplicationSCALE.md,content/SCALETutorials/DataProtection/RsyncTasksSCALE.md,content/SCALEUIReference/Apps/_index.md,content/SCALEUIReference/Apps/InstallCustomAppScreens.md,content/SCALETutorials/SystemSettings/UpdateSCALE.md,content/GettingStarted/Install/InstallingSCALE.md"},
       "source_class": "upstream",
       "media_type": "text/markdown",
       "version_policy": "reviewed-current-docs-for-25-10-5",
@@ -17,8 +17,8 @@
       "mirror_policy": "allow-derived",
       "license_id": "CC-BY-NC-SA-4.0",
       "enabled": true,
-      "git_ref": "master",
-      "expected_commit": "e523684d5b274a807f38223c0d4cdb9999f6402f"
+      "git_ref": "0c73733ae2d689c0b288dc56f8c51e70d961f532",
+      "expected_commit": "0c73733ae2d689c0b288dc56f8c51e70d961f532"
     },
     {
       "id": "frigate-docs-0-17-2",
@@ -74,7 +74,7 @@
       "mirror_policy": "allow-derived",
       "license_id": "CC-BY-SA-4.0",
       "enabled": true,
-      "git_ref": "v15.0",
+      "git_ref": "28300386afa884d287e07165192516a0352b36b8",
       "expected_commit": "28300386afa884d287e07165192516a0352b36b8"
     },
     {
