@@ -13,6 +13,7 @@ import json
 import os
 import re
 import secrets
+import stat
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -35,6 +36,31 @@ class ForcedCommandConfig:
     host_key_sha256: str
 
 
+def load_forced_command_config(path: Path) -> ForcedCommandConfig:
+    """Load the fixed root-owned key configuration, never request data."""
+    parent = path.parent.lstat()
+    if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid != 0
+            or stat.S_IMODE(parent.st_mode) != 0o700):
+        raise ForcedCommandError("forced-command config custody is invalid")
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_CLOEXEC", 0)
+    try:
+        fd = os.open(path, flags)
+        info = os.fstat(fd)
+        if (not stat.S_ISREG(info.st_mode) or info.st_uid != 0
+                or info.st_nlink != 1 or stat.S_IMODE(info.st_mode) != 0o600):
+            raise ForcedCommandError("forced-command config custody is invalid")
+        with os.fdopen(fd, "r", encoding="utf-8") as stream:
+            payload = stream.read(4097)
+        if len(payload) > 4096:
+            raise ForcedCommandError("forced-command config is oversized")
+        value = json.loads(payload)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ForcedCommandError("forced-command config is unreadable") from exc
+    if type(value) is not dict or set(value) != {"principal", "client_key_fingerprint", "host_key_sha256"}:
+        raise ForcedCommandError("forced-command config schema is invalid")
+    return ForcedCommandConfig(**value)
+
+
 def create_fresh_session(config: ForcedCommandConfig, *, ssh_env: dict[str, str],
                          now_epoch: int, nonce: Optional[str] = None) -> tuple[AuthenticatedMacBookSession, int]:
     if config.principal != "jelliott" or not re.fullmatch(r"SHA256:[A-Za-z0-9+/=]+", config.client_key_fingerprint):
@@ -51,17 +77,31 @@ def create_fresh_session(config: ForcedCommandConfig, *, ssh_env: dict[str, str]
     nonce = nonce or secrets.token_urlsafe(18)
     if not re.fullmatch(r"[A-Za-z0-9_-]{16,64}", nonce):
         raise ForcedCommandError("forced-command nonce is invalid")
+    expires_epoch = now_epoch + ATTESTATION_SECONDS
     session_id = hashlib.sha256(f"{connection}|{nonce}|{now_epoch}".encode()).hexdigest()[:32]
     return AuthenticatedMacBookSession(config.principal, config.client_key_fingerprint,
-                                      config.host_key_sha256, session_id), now_epoch + ATTESTATION_SECONDS
+                                      config.host_key_sha256, session_id,
+                                      hashlib.sha256(connection.encode()).hexdigest(),
+                                      now_epoch, expires_epoch), expires_epoch
 
 
 def write_fresh_attestation(path: Path, session: AuthenticatedMacBookSession,
                             *, parent_mode: int = 0o700) -> None:
     """Atomically publish only the fresh session fields to a private path."""
     parent = path.parent
-    parent.mkdir(mode=parent_mode, parents=True, exist_ok=True)
-    os.chmod(parent, parent_mode)
+    try:
+        parent_info = parent.lstat()
+        if (not stat.S_ISDIR(parent_info.st_mode) or parent_info.st_uid != 0
+                or stat.S_IMODE(parent_info.st_mode) != parent_mode):
+            raise ForcedCommandError("forced-command attestation parent custody is invalid")
+        if path.exists() or path.is_symlink():
+            info = path.lstat()
+            if (stat.S_ISLNK(info.st_mode) or not stat.S_ISREG(info.st_mode)
+                    or info.st_uid != 0 or info.st_nlink != 1
+                    or stat.S_IMODE(info.st_mode) != 0o600):
+                raise ForcedCommandError("forced-command attestation file custody is invalid")
+    except FileNotFoundError as exc:
+        raise ForcedCommandError("forced-command attestation parent is missing") from exc
     payload = json.dumps(session.__dict__, sort_keys=True, separators=(",", ":")) + "\n"
     fd, name = tempfile.mkstemp(prefix=f".{path.name}.", dir=parent)
     try:

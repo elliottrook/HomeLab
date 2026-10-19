@@ -1,6 +1,8 @@
 import unittest
 import os
 import tempfile
+import hashlib
+import json
 from pathlib import Path
 from unittest import skipUnless
 
@@ -12,7 +14,8 @@ from lab_workload_admission import LabAdmissionError, validate_manifest
 
 class LabMacBookAdmissionAdapterTests(unittest.TestCase):
     def session(self):
-        return AuthenticatedMacBookSession("jelliott", "SHA256:clientFingerprint=", "a" * 64, "ssh-session-1")
+        return AuthenticatedMacBookSession("jelliott", "SHA256:clientFingerprint=", "a" * 64,
+                                           "ssh-session-1", "b" * 64, 100, 200)
 
     def kwargs(self):
         return dict(lease_id="lease-1", generation=2, source_sha256="b" * 64,
@@ -42,7 +45,7 @@ class LabMacBookAdmissionAdapterTests(unittest.TestCase):
             path = Path(tmp) / "session.json"
             path.write_text("{}")
             with self.assertRaisesRegex(LabAdmissionError, "custody"):
-                load_forced_command_session(path)
+                load_forced_command_session(path, now_epoch=150, connection="x")
 
     @skipUnless(os.geteuid() == 0, "root-custody positive test requires root")
     def test_reads_root_owned_forced_command_attestation(self):
@@ -51,9 +54,9 @@ class LabMacBookAdmissionAdapterTests(unittest.TestCase):
             directory.mkdir(mode=0o700)
             os.chmod(directory, 0o700)
             path = directory / "session.json"
-            path.write_text('{"principal":"jelliott","client_key_fingerprint":"SHA256:clientFingerprint=","host_key_sha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","session_id":"ssh-session-1"}')
+            path.write_text(json.dumps({"principal": "jelliott", "client_key_fingerprint": "SHA256:clientFingerprint=", "host_key_sha256": "a" * 64, "session_id": "ssh-session-1", "connection_sha256": hashlib.sha256(b"x").hexdigest(), "issued_epoch": 100, "expires_epoch": 200}))
             os.chmod(path, 0o600)
-            self.assertEqual(load_forced_command_session(path).principal, "jelliott")
+            self.assertEqual(load_forced_command_session(path, now_epoch=150, connection="x").principal, "jelliott")
 
 
 if __name__ == "__main__":
