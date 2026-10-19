@@ -26,7 +26,7 @@ the clean source tree now matches the live installed set exactly.
 | Source path | Source SHA-256 | Installed path/hash | Mode |
 |---|---|---|---|
 | `scripts/local-ai/platform_receipt_producer.py` | `11d58e2147859ab981f3cc52e09e80af7b9200900f301777c8dc645698909be4` | `/usr/local/libexec/local-ai-lease/platform_receipt_producer.py` / `11d58e2147859ab981f3cc52e09e80af7b9200900f301777c8dc645698909be4` | root:root 0644 |
-| `scripts/local-ai/source_receipt_boundary.py` | `033a21f798536dcc53f9ffcdf6589ff9725067976f4d146b2da142d3530fa784` | `/usr/local/libexec/local-ai-lease/source_receipt_boundary.py` / `8ed7b3250a531a656ff128a823318fb49d58d876ca3cbea74f85b23b820f7eab` | root:root 0644 |
+| `scripts/local-ai/source_receipt_boundary.py` | `4c981c94e33ff5bf11f50eec2b2f091a31fd8c3d32e20bed49ea3a3d8a3082ee` | `/usr/local/libexec/local-ai-lease/source_receipt_boundary.py` / `4c981c94e33ff5bf11f50eec2b2f091a31fd8c3d32e20bed49ea3a3d8a3082ee` | root:root 0644 |
 | `scripts/local-ai/fixed_source_adapters.py` | `8241f1b1f3f5caa0d514740d36600f445de257b40a0a0d089bb9febadd1418b9` | same / `8241f1b1f3f5caa0d514740d36600f445de257b40a0a0d089bb9febadd1418b9` | root:root 0644 |
 | `scripts/local-ai/admission_gate.py` | `8b6497565ba95e5ee8b21993b64f48d704f7a1298414f1ce1131adb969970e77` | same / `8b6497565ba95e5ee8b21993b64f48d704f7a1298414f1ce1131adb969970e77` | root:root 0644 |
 | `scripts/local-ai/backup_receipt_adapter.py` | `26a7741b484cee6159827fb2fd8f9fd62c5d305c267d04a3d0b6367f76b38a2f` | same / `9bc07d567657deee07a757cb2518c078c37ef187d1922ff849d150313ec60a64` | root:root 0644 |
@@ -95,6 +95,13 @@ never invoked; the retained producer remains `EFFECTS_ENABLED = False`; F2
 exact-cycle timers are active and both F2 services are inactive; F2 state is
 empty; and temporary staging was removed. No daemon reload, schedule change,
 service stop, model request, or receipt write occurred.
+
+The later single-file safeguard replacement completed from commit `421ac11b`
+using `/root/aster-f3-boundary-rollback-421ac11b`. The prior boundary hash was
+`033a21f...`; the installed one-attempt boundary is now `4c981c94...`,
+root:root 0644. Its rollback file is root:root 0600. Target-Linux focused
+tests passed 46/46 again, all 12 clean source hashes match the live install,
+and no receipt, lease, lock, service, timer, or model state changed.
 
 ## Reconciliation result
 

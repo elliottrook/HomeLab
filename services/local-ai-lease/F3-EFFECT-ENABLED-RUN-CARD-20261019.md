@@ -24,10 +24,10 @@ success alone is insufficient and must not be reused as that receipt.
 ## Exact 12-file release set
 
 Before any run, every installed path must match these clean committed hashes.
-The current live host still has the prior boundary hash
-`033a21f798536dcc53f9ffcdf6589ff9725067976f4d146b2da142d3530fa784`; the
-one-attempt boundary required by this card is `4c981c94...`. Any mismatch is a
-NO-GO and requires a separately approved inactive replacement first.
+The current live host now has the one-attempt boundary hash
+`4c981c94e33ff5bf11f50eec2b2f091a31fd8c3d32e20bed49ea3a3d8a3082ee`. Any
+mismatch is a NO-GO and requires a separately approved inactive replacement
+first.
 
 | Source path | Required SHA-256 | Target path/mode |
 |---|---|---|
