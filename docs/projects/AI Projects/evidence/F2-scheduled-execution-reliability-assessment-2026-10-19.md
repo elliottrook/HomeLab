@@ -240,3 +240,17 @@ This closes the disabled scheduler installation only. Activation remains a
 separate production change. F2 remains open until one activated fresh cycle
 retains a complete validated three-row result and clean postcheck.
 
+## Exact-cycle activation
+
+Jason subsequently approved the exact October 20 activation from platform
+commit `f5d76d84`. Stream A installed and armed only the non-recurring 01:09
+and 01:10 timer units, verified their source hashes and calendar resolutions,
+and kept the old daily timers disabled. Neither service ran during activation;
+the state directory remained empty and production services remained available.
+
+The Codex automation is now a one-occurrence 01:42 observation and cleanup
+task. It cannot invoke or retry F2. This assigns the hard timing boundary to
+systemd and leaves Codex responsible only for independent reconciliation.
+See [the activation record](F2-exact-cycle-activation-2026-10-19.md). F2 is
+armed but remains open pending the measured October 20 result.
+
