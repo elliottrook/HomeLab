@@ -29,12 +29,16 @@ that admits a request only when all of these match the durable lease manifest:
 - the pinned Proxmox host-key SHA-256;
 - lease ID and generation;
 - the source/runtime digest and fixed workload-profile digest; and
-- the current time inside the issued/expiry window.
+- the verifier-owned current time inside an issued/expiry window capped at the
+  approved 45-minute session.
 
-The returned receipt is content-free and contains no key, prompt, answer or
-credential. The verifier does not open a socket or grant GPU access. Its five
-synthetic tests cover a matching request, identity/key drift, source/profile
-drift, malformed or unbounded manifests, and expiry/request identity failure.
+Replay IDs are stored in a lease-owned, file-locked durable store, so a
+verifier restart cannot reopen an admitted request. The returned receipt is
+content-free and contains no key, prompt, answer, credential, or raw
+caller-supplied ID. The verifier does not open a socket or grant GPU access.
+Synthetic tests cover a matching request, identity/key drift, source/profile
+drift, malformed or overlong manifests, verifier-clock expiry, restart replay,
+and unsafe request IDs.
 
 ## Staged gates
 

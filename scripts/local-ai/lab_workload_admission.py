@@ -9,13 +9,23 @@ lease before forwarding a request to the fixed in-guest wrapper.
 from __future__ import annotations
 
 import hashlib
+import json
+import os
 import re
+import tempfile
 import time
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Set
+
+import fcntl
 
 
 class LabAdmissionError(ValueError):
     pass
+
+
+MAX_ADMISSION_SECONDS = 45 * 60
 
 
 @dataclass(frozen=True)
@@ -62,6 +72,52 @@ def validate_manifest(manifest: LabAdmissionManifest) -> None:
         raise LabAdmissionError("admission epochs are invalid")
     if not manifest.issued_epoch < manifest.expires_epoch:
         raise LabAdmissionError("admission expiry is invalid")
+    if manifest.expires_epoch - manifest.issued_epoch > MAX_ADMISSION_SECONDS:
+        raise LabAdmissionError("admission window exceeds the session bound")
+
+
+class DurableReplayStore:
+    """Lease-owned replay state shared across verifier restarts and processes."""
+
+    def __init__(self, path: Path):
+        self.path = Path(path)
+        self.lock_path = self.path.with_name(self.path.name + ".lock")
+
+    def consume(self, request_id: str) -> bool:
+        self.path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        with self.lock_path.open("a+", encoding="utf-8") as lock_stream:
+            os.chmod(self.lock_path, 0o600)
+            fcntl.flock(lock_stream.fileno(), fcntl.LOCK_EX)
+            try:
+                seen: Set[str] = set()
+                if self.path.exists():
+                    try:
+                        value = json.loads(self.path.read_text(encoding="utf-8"))
+                    except (OSError, json.JSONDecodeError):
+                        raise LabAdmissionError("replay state is unreadable")
+                    if not isinstance(value, list) or any(not isinstance(x, str) for x in value):
+                        raise LabAdmissionError("replay state is invalid")
+                    seen = set(value)
+                if request_id in seen:
+                    return False
+                seen.add(request_id)
+                fd, name = tempfile.mkstemp(prefix=f".{self.path.name}.", dir=self.path.parent)
+                try:
+                    os.fchmod(fd, 0o600)
+                    with os.fdopen(fd, "w", encoding="utf-8") as stream:
+                        json.dump(sorted(seen), stream, separators=(",", ":"))
+                        stream.flush()
+                        os.fsync(stream.fileno())
+                    os.replace(name, self.path)
+                except Exception:
+                    try:
+                        os.unlink(name)
+                    except FileNotFoundError:
+                        pass
+                    raise
+                return True
+            finally:
+                fcntl.flock(lock_stream.fileno(), fcntl.LOCK_UN)
 
 
 class LabAdmissionVerifier:
@@ -69,10 +125,10 @@ class LabAdmissionVerifier:
 
     _REQUEST_ID = re.compile(r"req-[a-z0-9]{16,32}\Z")
 
-    def __init__(self, manifest: LabAdmissionManifest):
+    def __init__(self, manifest: LabAdmissionManifest, replay_store: DurableReplayStore):
         validate_manifest(manifest)
         self.manifest = manifest
-        self._seen_request_ids: set[str] = set()
+        self.replay_store = replay_store
 
     def authorize(self, request: LabAdmissionRequest) -> dict[str, object]:
         """Return a content-free receipt using the verifier's current clock."""
@@ -94,9 +150,8 @@ class LabAdmissionVerifier:
             raise LabAdmissionError("request is outside the lease admission window")
         if not self._REQUEST_ID.fullmatch(request.request_id):
             raise LabAdmissionError("request identity is invalid")
-        if request.request_id in self._seen_request_ids:
+        if not self.replay_store.consume(request.request_id):
             raise LabAdmissionError("request identity has already been admitted")
-        self._seen_request_ids.add(request.request_id)
         return {
             "admitted": True,
             "owner_id": manifest.owner_id,
