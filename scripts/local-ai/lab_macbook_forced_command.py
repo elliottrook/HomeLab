@@ -25,7 +25,7 @@ from lab_macbook_admission_adapter import AuthenticatedMacBookSession
 FORCED_COMMAND = "aster-lab-session-attest"
 ATTESTATION_SECONDS = 120
 CONFIG_PATH = Path("/etc/local-ai-lab/aster-lab-session.json")
-ATTESTATION_PATH = Path("/var/lib/local-ai-lease/macbook-attestation/session.json")
+ATTESTATION_PATH = Path("/var/lib/local-ai-lab/macbook-attestation/session.json")
 
 
 class ForcedCommandError(ValueError):

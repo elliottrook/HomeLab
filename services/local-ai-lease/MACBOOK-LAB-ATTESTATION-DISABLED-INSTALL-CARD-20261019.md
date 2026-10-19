@@ -7,7 +7,7 @@ SSH access, change `authorized_keys`, admit a workload, or start a lease.
 
 | Source | SHA-256 | Future target path/mode |
 |---|---|---|
-| `lab_macbook_forced_command.py` | `43cf8bcc533f2aa619acfd0980f9a1484e5ff9740bdb1415564408ce6e56d232` | `/usr/local/libexec/local-ai-lease/lab_macbook_forced_command.py`, root:root 0750 |
+| `lab_macbook_forced_command.py` | `76a4bc792c0fd06d3d8e32e5d6adabcd1387595c7947f72bce7a1d944a036b16` | `/usr/local/libexec/local-ai-lease/lab_macbook_forced_command.py`, root:root 0750 |
 | `lab_macbook_admission_adapter.py` | `7d04042c4b80efbfc331a21bca2c7e1c6b39d6e459ff76384cfa273e531c3e26` | `/usr/local/libexec/local-ai-lease/lab_macbook_admission_adapter.py`, root:root 0644 |
 | `lab_workload_admission.py` | `c128ab7825b525df97c4164f078750a52e1b15f39b4292e4bbcea756a43455fb` | `/usr/local/libexec/local-ai-lease/lab_workload_admission.py`, root:root 0644 |
 

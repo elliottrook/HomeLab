@@ -6,6 +6,7 @@ from pathlib import Path
 
 from lab_macbook_forced_command import (ATTESTATION_SECONDS, FORCED_COMMAND,
                                         ForcedCommandConfig, ForcedCommandError,
+                                        load_forced_command_config,
                                         create_fresh_session,
                                         write_fresh_attestation)
 
@@ -36,11 +37,30 @@ class LabMacBookForcedCommandTests(unittest.TestCase):
         with self.assertRaisesRegex(ForcedCommandError, "configuration"):
             create_fresh_session(ForcedCommandConfig("caller", "SHA256:x=", "a" * 64), ssh_env=self.env(), now_epoch=100, nonce="abcdefghijklmnop")
 
+    def test_rejects_untrusted_config_parent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "config.json"
+            path.write_text('{"principal":"jelliott","client_key_fingerprint":"SHA256:x=","host_key_sha256":"' + "a" * 64 + '"}')
+            with self.assertRaisesRegex(ForcedCommandError, "custody"):
+                load_forced_command_config(path)
+
+    def test_rejects_symlinked_config_parent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "root"
+            root.mkdir()
+            alias = Path(tmp) / "alias"
+            alias.symlink_to(root, target_is_directory=True)
+            with self.assertRaisesRegex(ForcedCommandError, "custody"):
+                load_forced_command_config(alias / "config.json")
+
     @skipUnless(os.geteuid() == 0, "root-custody positive test requires root")
     def test_writes_fresh_attestation(self):
         session, _ = create_fresh_session(self.config(), ssh_env=self.env(), now_epoch=100, nonce="abcdefghijklmnop")
         with tempfile.TemporaryDirectory() as tmp:
-            path = Path(tmp) / "state" / "session.json"
+            parent = Path(tmp) / "state"
+            parent.mkdir(mode=0o700)
+            os.chmod(parent, 0o700)
+            path = parent / "session.json"
             write_fresh_attestation(path, session)
             self.assertEqual(path.read_text().count("jelliott"), 1)
 

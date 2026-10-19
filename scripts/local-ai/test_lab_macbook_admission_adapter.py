@@ -57,6 +57,28 @@ class LabMacBookAdmissionAdapterTests(unittest.TestCase):
             path.write_text(json.dumps({"principal": "jelliott", "client_key_fingerprint": "SHA256:clientFingerprint=", "host_key_sha256": "a" * 64, "session_id": "ssh-session-1", "connection_sha256": hashlib.sha256(b"x").hexdigest(), "issued_epoch": 100, "expires_epoch": 200}))
             os.chmod(path, 0o600)
             self.assertEqual(load_forced_command_session(path, now_epoch=150, connection="x").principal, "jelliott")
+            with self.assertRaises(LabAdmissionError):
+                load_forced_command_session(path, now_epoch=150, connection="x")
+
+    @skipUnless(os.geteuid() == 0, "root-custody positive test requires root")
+    def test_rejects_expired_forced_command_attestation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp) / "attest"
+            directory.mkdir(mode=0o700)
+            path = directory / "session.json"
+            path.write_text(json.dumps({"principal": "jelliott", "client_key_fingerprint": "SHA256:clientFingerprint=", "host_key_sha256": "a" * 64, "session_id": "ssh-session-1", "connection_sha256": hashlib.sha256(b"x").hexdigest(), "issued_epoch": 100, "expires_epoch": 120}))
+            os.chmod(path, 0o600)
+            with self.assertRaisesRegex(LabAdmissionError, "expired"):
+                load_forced_command_session(path, now_epoch=120, connection="x")
+
+    def test_rejects_symlinked_attestation_parent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "root"
+            root.mkdir()
+            alias = Path(tmp) / "alias"
+            alias.symlink_to(root, target_is_directory=True)
+            with self.assertRaisesRegex(LabAdmissionError, "custody"):
+                load_forced_command_session(alias / "session.json", now_epoch=100, connection="x")
 
 
 if __name__ == "__main__":
