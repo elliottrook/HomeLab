@@ -1,11 +1,9 @@
 # F3 receipt writer — disabled-install card
 
-Status: NO-GO for effect-enabled F3 use. The inactive install completed, but
-its live 12-file set includes a pre-existing uncommitted `source_receipts.py`
-variant, so the installed result is not reproducible from the release commit.
-This card is not authorization to invoke the producer, write a receipt,
-acquire a lease, stop a service, call a model, activate a timer, or push
-remotely.
+Status: disabled install reconciled and verified; F3 remains OPEN pending a
+separate effect-enabled authorization. This card is not authorization to invoke
+the producer, write a receipt, acquire a lease, stop a service, call a model,
+activate a timer, or push remotely.
 
 ## Reviewed effect-enabled call graph
 
@@ -22,8 +20,8 @@ archive producer remains a separately pinned disabled dependency with
 The table below is the reconciled live 12-file set. The installed hashes are
 the read-only 2026-10-19 Proxmox inventory after the inactive install. The
 boundary and backup adapter were explicitly drifted and replaced. The
-`source_receipts.py` hash is a pre-existing working-tree variant, not a clean
-release-commit artifact; this is the remaining provenance blocker.
+`source_receipts.py` variant is explicitly committed as the F3 release source;
+the clean source tree now matches the live installed set exactly.
 
 | Source path | Source SHA-256 | Installed path/hash | Mode |
 |---|---|---|---|
@@ -33,7 +31,7 @@ release-commit artifact; this is the remaining provenance blocker.
 | `scripts/local-ai/admission_gate.py` | `8b6497565ba95e5ee8b21993b64f48d704f7a1298414f1ce1131adb969970e77` | same / `8b6497565ba95e5ee8b21993b64f48d704f7a1298414f1ce1131adb969970e77` | root:root 0644 |
 | `scripts/local-ai/backup_receipt_adapter.py` | `26a7741b484cee6159827fb2fd8f9fd62c5d305c267d04a3d0b6367f76b38a2f` | same / `9bc07d567657deee07a757cb2518c078c37ef187d1922ff849d150313ec60a64` | root:root 0644 |
 | `scripts/local-ai/quiescence_receipt_adapter.py` | `effebc28fe862f152f67cc8a772e4daed055415a4e4e6d14b7e3428855f4175e` | same / `effebc28fe862f152f67cc8a772e4daed055415a4e4e6d14b7e3428855f4175e` | root:root 0644 |
-| `scripts/local-ai/source_receipts.py` | `35bbecdacec30226e5483e7214f7e318008c1e40d418b37861f000b0e8d701d4` (working tree) | same / `35bbecdacec30226e5483e7214f7e318008c1e40d418b37861f000b0e8d701d4` | root:root 0644 |
+| `scripts/local-ai/source_receipts.py` | `35bbecdacec30226e5483e7214f7e318008c1e40d418b37861f000b0e8d701d4` | same / `35bbecdacec30226e5483e7214f7e318008c1e40d418b37861f000b0e8d701d4` | root:root 0644 |
 | `scripts/local-ai/retained_archive_producer_candidate.py` | `5cfe1a53578250590ee656c7b5a808b6b94a60650255efa4857d1fdd94507acb` | same / `5cfe1a53578250590ee656c7b5a808b6b94a60650255efa4857d1fdd94507acb` | root:root 0644 |
 | `scripts/local-ai/retained_archive_integrity.py` | `11b536ede74d0bcea3b7bd5fe123c3f670715fcc96ef9059723c29a504cc54a5` | same / `11b536ede74d0bcea3b7bd5fe123c3f670715fcc96ef9059723c29a504cc54a5` | root:root 0644 |
 | `scripts/local-ai/host_exclusion.py` | `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61` | same / `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61` | root:root 0644 |
@@ -43,9 +41,9 @@ release-commit artifact; this is the remaining provenance blocker.
 The complete installed set is 12 files: 11 modules plus the entrypoint. The
 `host_exclusion.py` version is required because it documents the installed
 manual-helper participation; its code path is otherwise unchanged. The
-`source_receipts.py` variant removes only the unused optional `authenticated`
-compatibility parameter and passed the installed-path tests, but it must be
-explicitly committed or intentionally reverted before F3 can proceed. The
+`source_receipts.py` release intentionally excludes the later optional `authenticated`
+compatibility parameter because the current F3 call graph never passes it;
+retaining it would change the reviewed artifact without adding evidence. The
 two differing installed files must not be replaced independently: checkpoint
 all 12 prior bytes, install the whole set, and verify every post-install hash.
 
@@ -53,7 +51,7 @@ all 12 prior bytes, install the whole set, and verify every post-install hash.
 
 - Local focused F3 suites: 38 passed, 4 expected skips.
 - Target-Linux focused suites: 46 passed, 0 skips.
-- Local full `scripts/local-ai` suite: 335 passed, 8 expected skips.
+- Local full `scripts/local-ai` suite: 336 passed, 8 expected skips.
 - Target staging was temporary and removed; no installed file, receipt, lease,
   service, schedule, or model state changed.
 - Boundary tests cover valid round trip, malformed/oversized input, symlink,
@@ -98,16 +96,10 @@ exact-cycle timers are active and both F2 services are inactive; F2 state is
 empty; and temporary staging was removed. No daemon reload, schedule change,
 service stop, model request, or receipt write occurred.
 
-## NO-GO reconciliation gate
+## Reconciliation result
 
-The 46/46 installed-path test result is valid, but effect-enabled F3 remains
-blocked because `source_receipts.py` at `35bbecd...` was a pre-existing dirty
-working-tree variant rather than a clean artifact from the release commit.
-`host_exclusion.py` at `b39680d...` is the required committed version and is
-not a functional risk. The source-receipt variant is functionally compatible
-with this call graph—the optional authenticated argument is unused—but its
-provenance is not acceptable for release. Commit that exact variant as an
-explicit F3 source or intentionally restore the clean `51052b...` variant,
-rerun the 46-test installed-path suite, and issue a fresh release card before
-invoking the producer. No host mutation or producer invocation is authorized
-by this NO-GO record.
+The provenance gap is closed by commit `625505ed`, which pins the exact live
+`source_receipts.py` bytes. The 46-test installed-path suite was rerun after
+that commit, and all 12 clean committed source hashes now equal the live
+installed hashes. F3 remains operationally closed until a separately approved
+effect-enabled receipt run; no producer invocation is implied by this card.
