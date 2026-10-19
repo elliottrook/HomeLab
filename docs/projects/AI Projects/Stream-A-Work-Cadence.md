@@ -15,6 +15,12 @@ restore reserve between hourly News ingests. Jason then approved the exact
 four pins, 65 target-Linux tests passed, and production postchecks remained
 normal. No one-shot guardian has been armed, no live drain has run, and no
 lab-hours schedule is active.
+The October 18 read-only live-source preflight then returned NO-GO: the
+installed producer cannot find the completed 00:30 backup in Proxmox's
+current task listing after later transfer tasks displaced it. Its UPID regex
+also rejects the observed valid trailing-colon format. A durable backup-task
+log candidate exists, but must be converted into a reviewed source adapter
+before any conditional live pilot runs. No outage followed this finding.
 The fixed in-guest smoke does not prove MacBook handoff or continuous host-wide
 GPU exclusivity. The old manual controller and F2/F3 full-stop drill remain
 separate gates.

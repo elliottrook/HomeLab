@@ -27,6 +27,11 @@ operator, runtime and recovery gates. It tests known-consumer isolation and a
 fixed in-guest model smoke, **not** recurring MacBook lab hours or continuous
 host-wide GPU exclusivity. The [dated assessment](evidence/Lab-hours-acceleration-assessment-2026-10-18.md)
 retains the review and measured counterexamples.
+The first read-only live-source check failed on October 18 because the
+completed 00:30 backup task had fallen out of Proxmox's current task listing;
+the installed UPID pattern also rejects its valid trailing-colon form. The
+conditional 18:05 pilot is NO-GO without a reviewed, installed durable-task
+adapter. No guardian was armed or production service stopped.
 
 **October 18 A1 interface checkpoint:** the platform owner corrected the
 recovery-trigger/deadline ambiguity and versioned the callback as

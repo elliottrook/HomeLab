@@ -489,3 +489,27 @@ received the hash and test result for its release record. This closes the
 four-file **disabled installation** only. A one-shot live guardian, verified
 operator path, fresh schedule/source admission, supervised outage and
 restoration remain unproved and separately gated.
+
+### Live-source preflight NO-GO — October 18, 17:29 Vancouver
+
+After the inactive upgrade, a read-only call to the installed
+`LocalProxmoxFullDrainSourceProducer._backup_current("2026_10_18")` returned
+`False`. The fixed 00:30 all-guest Proxmox job is enabled and three positive-
+size current-cycle 104/110/116 archives exist at 00:34, 00:39 and 00:48.
+However, the producer queries `/nodes/proxmox/tasks --typefilter vzdump`,
+which returned no tasks. An unfiltered 5,000-item query returned only 689
+later `push_file`/`pull_file` tasks, oldest 07:38. The completed 00:30 task
+has aged out of that listing. A proposed 18:05 pilot is therefore **NO-GO**
+even if its separate conditional authorization is given; no guardian was
+armed, service stopped or model called.
+
+A durable task-log file for the 00:30 `vzdump` UPID still exists. The
+read-only Proxmox task-status endpoint reports `stopped`, `exitstatus=OK`,
+`starttime=1792308600`; the root-owned task file's mtime is 1792309840
+(00:50:40 Vancouver), after the three artifact times, and its final line is
+exactly `TASK OK`. This is a **candidate** source for a reviewed, bounded
+completion adapter, not admission evidence from the current code. A separate
+source defect also rejects this observed valid UPID because its regex omits
+the final colon. Both findings and the need for ambiguity/custody checks were
+sent to the platform owner. The current source must be corrected, tested and
+reinstalled under its own bounded approval before a live pilot can proceed.
