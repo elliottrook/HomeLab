@@ -170,3 +170,52 @@ was retained. See the
 This closes only deterministic-preparation installation; F2 remains open
 until a fresh cycle produces all three bounded archive rows.
 
+## Remaining scheduler integration gap
+
+After installation, Stream A re-read the active Codex automation. It still
+wakes at 01:05 and instructs the agent to perform the original multi-step
+preflight and invoke the diagnostic guard directly. It does not call the new
+snapshot/fixed-wrapper entry points. Consequently, the successful disabled
+installation alone does not prevent another missed start window.
+
+This is a design mismatch, not an archive or production failure. Official
+OpenAI scheduled-task guidance describes scheduled work as an app-managed
+task whose local execution depends on the computer and desktop app remaining
+available; it does not establish a hard dispatch deadline. The corrective
+design is therefore a platform-owned, hash-pinned one-shot preparation and
+final-gate schedule, with Codex reduced to read-only supervision,
+reconciliation and reporting. The platform owner has been asked to prepare
+that package offline. No unit or timer is installed or enabled by this
+assessment, and the existing heartbeat must not be represented as sufficient
+for the next F2 cycle until the invocation paths are reconciled.
+
+## First deterministic schedule candidate review
+
+The platform owner produced the requested disabled, source-only candidate at
+commit `7baa171d`. Its intended structure is correct: a non-persistent 01:07
+preparation timer, a non-persistent 01:10 final timer, no retry, hardened
+one-shot services and a content-free terminal state. The reported repository
+suite passed 331 tests with eight expected skips. Independent source review
+found six blockers before target staging:
+
+1. the installed snapshot guard permits 90 seconds of freshness, but a
+   snapshot captured at 01:07 is at least about 180 seconds old at the first
+   permitted 01:10 final invocation;
+2. the proposed writable scheduled-state directory is absent on the host and
+   neither the units nor the release card creates it before applying
+   `ProtectSystem=full`;
+3. the observer's validated three archive rows are discarded, leaving only a
+   `complete` marker that cannot satisfy F2's retained-evidence condition;
+4. the coordinator's outer `subprocess.run` timeout can kill the observer
+   parent without proving termination of the observer's separate archive
+   process group;
+5. scheduled-state reads and writes lack the no-follow, bounded, atomic and
+   custody checks already required for the snapshot; and
+6. focused tests do not exercise the real timer gap, retained result,
+   process-group timeout, state custody or installed systemd runtime.
+
+These are fail-before-effect findings. No file from `7baa171d` was staged,
+installed or enabled. The owner received the exact counterexamples and was
+asked for a revised source/card. The disabled preparation modules already on
+the host remain unchanged and production remains available.
+
