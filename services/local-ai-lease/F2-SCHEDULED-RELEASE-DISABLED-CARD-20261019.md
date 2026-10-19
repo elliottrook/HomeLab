@@ -7,7 +7,7 @@ pushing to a remote.
 ## Purpose and boundary
 
 This candidate separates the slow preflight from the short final gate. A
-01:07 Vancouver preparation run captures the fixed snapshot. A 01:10 run
+01:09 Vancouver preparation run captures the fixed snapshot. A 01:10 run
 rechecks the live boundary and invokes the existing bounded observer once,
 with a hard 01:40 deadline. There is no retry, extension, receipt, lease,
 service stop, model request, or output capture in this candidate.
@@ -24,10 +24,10 @@ any future target-Linux staging. The candidate is not installed by this commit.
 
 | Source | SHA-256 |
 |---|---|
-| `scripts/local-ai/f2_scheduled_release_candidate.py` | `c45831f7b47d21115244060f6d767e2fa862cf7723cddaa022f786b38116e87c` |
-| `scripts/local-ai/test_f2_scheduled_release_candidate.py` | `774aa458412e15bc8b6d58d4e2ab59c8a6fd70643d8df720b4e11192b1db4da0` |
-| `services/local-ai-lease/systemd/f2-preflight-prepare.service` | `f2257d94ef077cee5bb834f4288ee507f144940dd3cad18496ba9136743694e3` |
-| `services/local-ai-lease/systemd/f2-preflight-prepare.timer` | `b3b4678060dd4c2df0014efbe0c8d40ed6a6e97a3798b98f6d7e2b304b1e3423` |
+| `scripts/local-ai/f2_scheduled_release_candidate.py` | `6aae9275d64f66cfe0214749cf314d98d90cc063ef58e950e337f478f89513db` |
+| `scripts/local-ai/test_f2_scheduled_release_candidate.py` | `07d82b58a1767cc791a0e635d2bc6307f5c65f7683d731747033499a5de195fc` |
+| `services/local-ai-lease/systemd/f2-preflight-prepare.service` | `9e070de457da584248fcafe76fccc54792651e6a542b0e0b9a1084e08ea93854` |
+| `services/local-ai-lease/systemd/f2-preflight-prepare.timer` | `93567ab331acc4b574ae04cbb8d3a3161d1ccbbc8cf8e153776a464aa1660aa7` |
 | `services/local-ai-lease/systemd/f2-preflight-final.service` | `6a87414fb23997861a137d88e8a6437750e1b18680e23368e2dc1c922047b32b` |
 | `services/local-ai-lease/systemd/f2-preflight-final.timer` | `fd64356e68508b98427338b50b87170adb1e47faa7ea0c2a5a03fcf75b81dfff` |
 
@@ -44,7 +44,8 @@ root:root 0644. Stage the four units under
 `/etc/systemd/system/` as root:root 0644, run `systemd-analyze verify` and the
 target-Linux tests, then leave all four units disabled and stopped.
 
-Both services use the exact fixed `ExecStart`, `User=root`,
+The prepare service creates the fixed state directory as root:root 0700 before
+the Python custody check. Both services use the exact fixed `ExecStart`, `User=root`,
 `NoNewPrivileges=yes`, `ProtectHome=yes`, `ProtectSystem=full`, `PrivateTmp=yes`,
 `UMask=0077`, bounded startup time, `Restart=no`, and null stdout/stderr.
 The timers have zero randomization, one-second accuracy, and `Persistent=no`.

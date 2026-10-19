@@ -25,7 +25,7 @@ class F2ScheduledUnitTests(unittest.TestCase):
             self.assertIn("StandardError=null", text)
 
     def test_timers_are_non_persistent_and_not_randomized(self):
-        for phase, minute in (("prepare", "01:07:00"), ("final", "01:10:00")):
+        for phase, minute in (("prepare", "01:09:00"), ("final", "01:10:00")):
             text = self.read(f"f2-preflight-{phase}.timer")
             self.assertIn(f"OnCalendar=*-*-* {minute} America/Vancouver", text)
             self.assertIn("RandomizedDelaySec=0", text)

@@ -8,6 +8,7 @@ Type=oneshot
 User=root
 Group=root
 ExecStart=/usr/bin/python3 -B /usr/local/libexec/local-ai-lease/f2_scheduled_release_candidate.py --phase prepare
+ExecStartPre=/usr/bin/install -d -o root -g root -m 700 /var/lib/local-ai-lab/f2-scheduled
 NoNewPrivileges=yes
 PrivateTmp=yes
 ProtectHome=yes
