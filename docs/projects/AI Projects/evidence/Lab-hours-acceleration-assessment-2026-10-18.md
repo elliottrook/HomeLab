@@ -554,3 +554,27 @@ boundary prevents unlisted users (observation alone supports only a
 preflight, bounded work, cutoff, restoration and next-production margin.
 The first supervised 30+15 pilot is valuable evidence for the drain/recovery
 part of that chain. It cannot close the remaining criteria by inference.
+
+### MacBook admission candidate review — October 18
+
+The platform owner produced a separate offline-only admission contract at
+`2a95c2d7` with staged gates for a usable MacBook workload. Stream A reviewed
+the exact source, tests and design. It is not installed or connected to a
+trusted transport. Two synthetic counterexamples hold its next stage:
+
+1. `authorize_request` reads `now_epoch` from the supplied request. A matching
+   request containing an in-window timestamp is admitted even when presented
+   after actual expiry. The check must use a verifier-owned clock captured at
+   admission, with no caller control over that value.
+2. The claimed content-free receipt copies `request_id` without a format
+   restriction. A caller-provided marker is echoed verbatim. Generate or
+   strictly validate a bounded opaque identifier before recording it; never
+   let request text or secrets become a receipt field.
+
+The MacBook key fingerprint is likewise a request field in the candidate;
+only a trusted ingress adapter's authenticated session observation can supply
+it as authority. The platform owner received these findings and a concrete
+offline reproduction. No host change, service stop, model call, live pilot or
+permission grant followed this review. The admission candidate remains HOLD
+until the trust boundary and expiry/replay tests are corrected and independently
+rechecked.
