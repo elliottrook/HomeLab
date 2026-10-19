@@ -1,5 +1,5 @@
 import unittest
-from digest_text import coherent_event, dedupe_titles, repeat_story, same_story, speech_text
+from digest_text import coherent_event, dedupe_titles, narration_units, repeat_story, same_story, speech_text, spoken_ordinal
 
 class DigestTextTests(unittest.TestCase):
     def test_dedupes_evolving_headlines(self):
@@ -42,6 +42,69 @@ class DigestTextTests(unittest.TestCase):
             speech_text("U.S. suspect connected to U.S.A. school shooting."),
             "United States suspect connected to United States school shooting.",
         )
+
+    def test_speech_expands_hyphenated_dotted_abbreviations(self):
+        self.assertEqual(
+            speech_text("A U.S.-style proposal from a B.C.-based group."),
+            "A United States-style proposal from a British Columbia-based group.",
+        )
+
+    def test_speech_removes_bare_urls(self):
+        self.assertEqual(
+            speech_text("Read more at https://example.com/story or example.ca/news."),
+            "Read more at or.",
+        )
+
+    def test_calendar_ordinal_is_written_for_speech(self):
+        self.assertEqual(spoken_ordinal(12), "twelfth")
+
+    def test_emergency_911_is_spoken_digit_by_digit(self):
+        self.assertEqual(
+            speech_text("Police released audio from a 911 call."),
+            "Police released audio from a nine one one call.",
+        )
+
+    def test_porsche_911_is_not_rewritten(self):
+        self.assertEqual(speech_text("The Porsche 911 was updated."), "The Porsche 911 was updated.")
+
+    def test_roman_numerals_are_spoken_as_numbers(self):
+        self.assertEqual(speech_text("World War II and Apollo XIII."), "World War two and Apollo thirteen.")
+        self.assertEqual(speech_text("I remember the event."), "I remember the event.")
+
+    def test_speech_expands_saint_petersburg_without_sentence_pause(self):
+        self.assertEqual(
+            speech_text("An oil terminal in St. Petersburg was struck."),
+            "An oil terminal in Saint Petersburg was struck.",
+        )
+        self.assertEqual(speech_text("ST. PETERSBURG, Fla."), "Saint Petersburg, Fla.")
+
+    def test_speech_reads_grouped_thousands_as_words(self):
+        self.assertEqual(
+            speech_text("More than 1,000 drones hit 10.000 targets."),
+            "More than one thousand drones hit ten thousand targets.",
+        )
+        self.assertEqual(
+            speech_text("The total rose from 32,000 to 1.000.000."),
+            "The total rose from thirty-two thousand to one million.",
+        )
+
+    def test_speech_preserves_decimal_numbers(self):
+        self.assertEqual(
+            speech_text("The values were 2.925 billion, 1.000 percent, and 0.00036."),
+            "The values were 2.925 billion, 1.000 percent, and 0.00036.",
+        )
+
+    def test_narration_units_are_bounded_with_controlled_pauses(self):
+        text = (
+            "A short opening sentence. "
+            "This deliberately long sentence contains a useful first clause, "
+            "then a second clause that should be joined gently rather than cut at an arbitrary phoneme window."
+        )
+        units = narration_units(text, maximum=90)
+        self.assertTrue(all(len(unit) <= 90 for unit, _ in units))
+        self.assertEqual(units[0], ("A short opening sentence.", 0.18))
+        self.assertIn(0.08, [pause for _, pause in units])
+        self.assertEqual(units[-1][1], 0.0)
 
     def test_speech_keeps_approved_plain_product_names(self):
         self.assertEqual(
