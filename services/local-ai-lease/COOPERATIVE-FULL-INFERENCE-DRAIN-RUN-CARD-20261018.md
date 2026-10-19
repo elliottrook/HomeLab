@@ -73,13 +73,13 @@ at most 60 seconds for the declared `S`; if preflight has crossed `S`, or `S`
 is more than 60 seconds away, it aborts with no effects. The guardian uses the
 same `S` for its rescue cutoff.
 
-The latest read-only schedule observation recorded next ingest at 23:02:15 UTC
-(16:02:15 Vancouver), followed by approximately 17:02 Vancouver, with the
-digest at approximately 17:15. This makes 16:05–16:50 Vancouver a conditional
-candidate slot only if the final custody, hash, and timer checks occur before
-16:05 and confirm the later ingest as `N`: with `S=16:05`, restoration ends at
-16:50, the five-minute margin ends at 16:55, and `16:55 <= N≈17:02`. Otherwise
-the operator must recompute `S` and `N` rather than reuse this slot.
+The latest read-only schedule observation recorded next ingest at 18:01:02
+Vancouver, with the following cycle expected at approximately 19:01; this must
+be rechecked after the 18:01 ingest. A full-profile start at `S=18:05` would
+end restoration at 18:50, require the five-minute margin through 18:55, and is
+valid only if the fresh `N` satisfies `18:55 <= N`. The separately proposed
+18:05–18:11 six-minute window is not a valid invocation of this 30+15 pilot;
+a shorter control would require a new profile, card, and approval.
 
 During the 30-minute window this is an explicit product outage: Aster
 Companion requests, LXC104 Aster Agent, LXC116 Speech, LXC110 production
