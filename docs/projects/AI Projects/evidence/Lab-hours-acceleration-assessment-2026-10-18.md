@@ -600,3 +600,14 @@ generation. A fresh missing store after lease start must not silently reopen
 previous requests. The transport must derive the MacBook identity from an
 authenticated session; matching caller-supplied strings are not authority.
 The module remains uninstalled, and no live admission is released.
+
+The owner later added a source-only `lab_macbook_admission_adapter.py` in
+`5958e365`. Its focused tests reject malformed principal, fingerprint,
+session and host-key fields, but the adapter still accepts an
+`AuthenticatedMacBookSession` object constructed by its caller. It therefore
+defines a validation interface rather than proving an authenticated transport
+boundary. Target staging remains blocked until an sshd/forced-command or
+equivalent root-owned adapter derives the principal and key fingerprint from
+the authenticated connection and prevents request JSON from supplying or
+overriding those values. No installation or live MacBook admission follows
+from this commit.

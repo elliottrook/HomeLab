@@ -89,3 +89,25 @@ Before another F2 cycle can be called operationally dependable:
 Until then, F2 remains **OPEN / UNMEASURED**. This correction does not advance
 F3, authorize a full-stop drill, establish MacBook lab admission or run A1.
 
+## First source candidate review
+
+The platform owner produced a source-only candidate at `5958e365`. Its 12
+focused tests pass when replayed independently, but it is not eligible for
+target staging:
+
+1. its slow collector reuses the full-drill `_schedule_ok` helper, which
+   requires the 01:00, 02:00 and 03:00 TrueNAS tasks all to have completed;
+   that condition is impossible during the intended 01:10–01:19 F2 window;
+2. its test captures the snapshot at 03:10 and therefore does not exercise the
+   actual F2 timing boundary;
+3. its final guard rechecks only age and a supplied exclusion token, not the
+   live lease/lock/receipt, competing-job, load and installed-pin gates; and
+4. the source does not yet provide the required root-custody atomic snapshot
+   writer/reader.
+
+The owner received these exact counterexamples. The next candidate must have
+an F2-specific task-1 completion rule while separately verifying the fixed
+task 1/3/2 schedules, a real 01:07 fixture in which tasks 2/3 have not run, a
+trusted clock and source-local dynamic recheck, and the custody tests listed
+above. No installation follows from `5958e365`.
+
