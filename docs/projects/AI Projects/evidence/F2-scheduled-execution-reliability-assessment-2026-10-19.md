@@ -111,3 +111,19 @@ task 1/3/2 schedules, a real 01:07 fixture in which tasks 2/3 have not run, a
 trusted clock and source-local dynamic recheck, and the custody tests listed
 above. No installation follows from `5958e365`.
 
+The corrected source-only candidate at `b39c4be2` fixes the task-1 timing rule
+and adds dynamic probes and snapshot-custody code, but independent review
+found another target blocker. Its common custody helper requires `st_nlink ==
+1` for both files and directories. A normal private Unix directory has a link
+count of at least two; a disposable mode-0700 directory measured `nlink=2`.
+The positive custody tests are skipped when the suite is not root, so the
+reported Mac suite did not exercise this path. The snapshot reader also
+performs an `lstat` followed by a path-based read, leaving a replacement race,
+and the final guard does not yet enforce the trusted local cycle/start window,
+live lease status, host load or the complete installed dependency pin set.
+
+The owner received these additional counterexamples. The next source review
+requires descriptor-based no-follow reading and `fstat`, a bounded payload,
+directory `fsync` after replacement, target-root custody tests, and all final
+dynamic gates. `b39c4be2` remains uninstalled.
+

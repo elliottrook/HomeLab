@@ -611,3 +611,13 @@ equivalent root-owned adapter derives the principal and key fingerprint from
 the authenticated connection and prevents request JSON from supplying or
 overriding those values. No installation or live MacBook admission follows
 from this commit.
+
+The follow-up at `b39c4be2` reads a root-owned mode-0600 attestation file, but
+no fixed forced-command producer or current-session binding accompanies it.
+A static valid file could therefore describe an earlier authenticated
+session. Before staging, the installed design must show how sshd's pinned key
+entry invokes a fixed wrapper that creates a fresh, expiring session
+attestation or otherwise supplies identity directly to the admission process.
+The request body must have no way to choose the principal, key fingerprint,
+host-key digest, session ID or expiry. This remains a source-level interface,
+not authenticated MacBook ingress.
