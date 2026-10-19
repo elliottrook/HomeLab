@@ -19,8 +19,9 @@ is installed **inactive** and passed 47 target-Linux synthetic tests; no
 service was stopped. The platform owner has since produced an independent
 deadline guardian and manual rescue, and Stream A verified the frozen
 `dafc0332` source and four-file upgrade card `da082685` with 296 offline tests
-(four expected Mac root-custody skips). That upgrade needs its own exact
-disabled-stage authorization and Linux check. A later live 30-minute lab plus
+(four expected Mac root-custody skips). Jason approved that exact inactive
+upgrade; all four target hashes and 65 target-Linux tests passed, with
+production unchanged. A later live 30-minute lab plus
 15-minute restoration pilot has a separate approval and fresh News/backup,
 operator, runtime and recovery gates. It tests known-consumer isolation and a
 fixed in-guest model smoke, **not** recurring MacBook lab hours or continuous

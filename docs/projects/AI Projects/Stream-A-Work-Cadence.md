@@ -10,9 +10,11 @@ combined 19-file Proxmox and one-wrapper LXC110 **disabled** packet at
 `b43d4971`. Stream A verified all 20 installed hashes, target-Linux imports,
 47 focused synthetic tests, unchanged production services and no lab listener.
 The proposed first live run is 30 minutes of isolation plus a 15-minute
-restore reserve between hourly News ingests. A newer independent guardian and
-manual rescue are source-only and need a separately approved, pinned disabled
-upgrade and target-Linux proof. No live drain or lab-hours schedule is active.
+restore reserve between hourly News ingests. Jason then approved the exact
+`dafc0332` four-file guardian/rescue upgrade: the inactive target matches all
+four pins, 65 target-Linux tests passed, and production postchecks remained
+normal. No one-shot guardian has been armed, no live drain has run, and no
+lab-hours schedule is active.
 The fixed in-guest smoke does not prove MacBook handoff or continuous host-wide
 GPU exclusivity. The old manual controller and F2/F3 full-stop drill remain
 separate gates.

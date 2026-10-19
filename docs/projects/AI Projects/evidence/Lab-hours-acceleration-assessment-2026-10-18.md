@@ -468,3 +468,24 @@ two runtime hashes changed, so the preceding `6308984a` staging question is
 superseded. Stream A matched all four new hashes against an exact clean
 archive and ran the full local-AI suite: `296` tests passed with four expected
 Mac root-custody skips. No target file has been changed for this revision.
+
+### Approved inactive rescue upgrade — October 18
+
+Jason approved the revised `dafc0332` four-file **inactive** upgrade. The
+first transfer archive contained macOS AppleDouble metadata; the exact-member
+check rejected it before any target file changed. A plain four-file archive
+then passed the same guard. Both old Proxmox files were checkpointed in the
+root-only `/root/aster-pilot-guardian-rollback-dafc0332` directory; their
+SHA-256 values match `b43d4971`. The two replacement and two added files
+now match every SHA-256 in card `da082685`. The target-Linux suite passed
+**65 tests**.
+
+Independent postchecks found the manual lease `ready`, Aster Agent 104,
+production llama 110 and Speech 116 active, both News timers active and
+enabled, no pilot systemd unit, and no listener on lab port 11436. The
+temporary transfer files were removed after verification. No guardian was
+armed, service stopped, model called, or live pilot run. The platform owner
+received the hash and test result for its release record. This closes the
+four-file **disabled installation** only. A one-shot live guardian, verified
+operator path, fresh schedule/source admission, supervised outage and
+restoration remain unproved and separately gated.
