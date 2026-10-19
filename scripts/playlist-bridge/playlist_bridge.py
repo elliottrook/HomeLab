@@ -82,6 +82,11 @@ def read_playlist(path: Path | str, playlist_name: str | None = None):
         return playlist_name or path.stem, [t for t in tracks if t.title and t.artist]
     if suffix == ".json":
         data = json.loads(path.read_text(encoding="utf-8"))
+        if (isinstance(data, list) and len(data) == 1 and isinstance(data[0], dict)
+                and isinstance(data[0].get("tracks"), list)):
+            record = data[0]
+            rows = record["tracks"]
+            return playlist_name or record.get("name") or path.stem, [_track(r) for r in rows if _track(r).title]
         if isinstance(data, dict) and "playlists" in data:
             choices = data["playlists"]
             selected = next((p for p in choices if p.get("name") == playlist_name), choices[0])
@@ -128,6 +133,12 @@ class Api:
         headers = {"Accept": "application/json"}
         if self.auth == "header":
             headers["X-Api-Key"] = self.key
+        elif self.auth == "mediabrowser":
+            headers["Authorization"] = (
+                'MediaBrowser Client="playlist-bridge", Device="TrueNAS", '
+                'DeviceId="homelab-playlist-bridge", Version="1", '
+                f'Token="{self.key}"'
+            )
         payload = None
         if body is not None:
             payload = json.dumps(body).encode()
@@ -202,12 +213,13 @@ def request_album(lidarr: Api, track: Track, config, execute: bool):
     # Lidarr validates the profiles and root against the nested ArtistResource,
     # including when the request was initiated from an album lookup.
     artist = dict(payload.get("artist") or {})
-    artist.update({"monitored": True, "rootFolderPath": config["root_folder"],
+    artist.update({"monitored": False, "monitorNewItems": "none", "rootFolderPath": config["root_folder"],
                    "qualityProfileId": config["quality_profile_id"],
                    "metadataProfileId": config["metadata_profile_id"],
                    "addOptions": {"monitor": "none", "searchForMissingAlbums": False}})
     payload.update({"artist": artist, "monitored": True,
-                    "addOptions": {"searchForNewAlbum": True}})
+                    "addOptions": {"monitor": "none", "searchForNewAlbum": True,
+                                    "searchForMissingAlbums": False}})
     try:
         created = lidarr.request("POST", "/api/v1/album", body=payload)
         album_id = created.get("id")
@@ -249,12 +261,28 @@ def playlist_fingerprint(tracks):
     return hashlib.sha256(payload).hexdigest()
 
 
+def merge_playlist_tracks(previous, current):
+    """Append new source tracks while preserving the existing playlist order."""
+    merged = []
+    seen = set()
+    for raw in list(previous or []) + list(current or []):
+        track = raw if isinstance(raw, Track) else Track(
+            str(raw.get("title", "")), str(raw.get("artist", "")),
+            str(raw.get("album", "")), str(raw.get("isrc", "")))
+        key = (normalized(track.title), normalized(track.artist), normalized(track.album))
+        if track.title and track.artist and key not in seen:
+            seen.add(key)
+            merged.append(track)
+    return merged
+
+
 def wait_decision(state, name, tracks, missing_count, max_wait_hours, now, execute):
     """Return (deadline expired, report), persisting a new timer on execute."""
     fingerprint = playlist_fingerprint(tracks)
     record = state.get("playlists", {}).get(name)
     if not record or record.get("fingerprint") != fingerprint:
-        record = {"fingerprint": fingerprint, "first_incomplete_at": now.isoformat()}
+        record = {"fingerprint": fingerprint, "first_incomplete_at": now.isoformat(),
+                  "status": "waiting"}
         if execute:
             state.setdefault("playlists", {})[name] = record
     started = datetime.fromisoformat(record["first_incomplete_at"])
@@ -263,6 +291,7 @@ def wait_decision(state, name, tracks, missing_count, max_wait_hours, now, execu
     return expired, {"status": "deadline-expired" if expired else "waiting",
                      "missing": missing_count, "elapsed_hours": round(elapsed_hours, 2),
                      "max_wait_hours": max_wait_hours,
+                     "first_incomplete_at": started.isoformat(),
                      "deadline": datetime.fromtimestamp(
                          started.timestamp() + max_wait_hours * 3600, timezone.utc).isoformat()}
 
@@ -273,18 +302,25 @@ def main(argv=None):
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--playlist-name")
     parser.add_argument("--execute", action="store_true")
-    parser.add_argument("--max-wait-hours", type=float, default=24,
-                        help="create an incomplete playlist after this many hours (default: 24)")
+    parser.add_argument("--max-wait-hours", type=float, default=72,
+                        help="create an incomplete playlist after this many hours (default: 72)")
+    parser.add_argument("--no-partial", action="store_true",
+                        help="never create a partial playlist when the wait deadline expires")
     parser.add_argument("--state", type=Path,
                         help="persistent state file (default: state.json beside config)")
+    parser.add_argument("--report-dir", type=Path,
+                        help="write a JSON run report here (default: reports beside config)")
     args = parser.parse_args(argv)
     config = json.loads(args.config.read_text())
     state_path = args.state or args.config.with_name("state.json")
+    report_dir = args.report_dir or args.config.with_name("reports")
     state = json.loads(state_path.read_text()) if state_path.exists() else {"playlists": {}}
     name, tracks = read_playlist(args.playlist, args.playlist_name)
     if not tracks:
         parser.error("playlist contains no supported track metadata")
-    jf = Api(config["jellyfin"]["base_url"], config["jellyfin"]["api_key"], auth="query")
+    prior = state.get("playlists", {}).get(name, {})
+    tracks = merge_playlist_tracks(prior.get("tracks", []), tracks)
+    jf = Api(config["jellyfin"]["base_url"], config["jellyfin"]["api_key"], auth="mediabrowser")
     lidarr = Api(config["lidarr"]["base_url"], config["lidarr"]["api_key"])
     items = jellyfin_tracks(jf, config["jellyfin"]["user_id"])
     found, missing = [], []
@@ -301,19 +337,45 @@ def main(argv=None):
     if missing:
         expired, playlist = wait_decision(state, name, tracks, len(missing), args.max_wait_hours,
                                           datetime.now(timezone.utc), args.execute)
-        if expired:
+        if expired and not args.no_partial:
             playlist = replace_playlist(jf, config["jellyfin"]["user_id"], name,
                                         [item["Id"] for _, item in found], args.execute)
             playlist["partial"] = True
             playlist["omitted"] = [asdict(track) for track, _ in missing]
+            playlist["transfer_status"] = "watching"
+        elif expired:
+            playlist["status"] = "waiting-no-partial"
+            playlist["transfer_status"] = "watching"
+        else:
+            playlist["transfer_status"] = "watching"
     else:
         playlist = replace_playlist(jf, config["jellyfin"]["user_id"], name,
                                     [item["Id"] for _, item in found], args.execute)
-        state.get("playlists", {}).pop(name, None)
+        playlist["transfer_status"] = "complete"
     if args.execute:
+        record = state.setdefault("playlists", {}).setdefault(name, {
+            "fingerprint": playlist_fingerprint(tracks),
+            "first_incomplete_at": datetime.now(timezone.utc).isoformat(),
+        })
+        record.update({"source_file": str(args.playlist),
+                       "last_checked_at": datetime.now(timezone.utc).isoformat(),
+                       "status": playlist.get("transfer_status", "complete"),
+                       "matched": len(found), "missing": len(missing),
+                       "tracks": [asdict(track) for track in tracks],
+                       "playlist_id": playlist.get("id", record.get("playlist_id"))})
         state_path.write_text(json.dumps(state, indent=2) + "\n")
     report = {"playlist": name, "source_tracks": len(tracks), "matched": len(found),
-              "missing": len(missing), "lidarr": requests, "jellyfin": playlist}
+              "missing": len(missing), "lidarr": requests, "jellyfin": playlist,
+              "transfer_status": playlist.get("transfer_status", "complete")}
+    report.update({"generated_at": datetime.now(timezone.utc).isoformat(),
+                   "source_file": str(args.playlist),
+                   "max_wait_hours": args.max_wait_hours,
+                   "merge_policy": "append-by-track-identity"})
+    if args.execute:
+        report_dir.mkdir(parents=True, exist_ok=True)
+        report_name = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") or "playlist"
+        report_path = report_dir / f"{report_name}-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json"
+        report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
     return 0 if not missing or playlist.get("partial") else 2
 

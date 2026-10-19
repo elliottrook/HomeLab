@@ -1,7 +1,7 @@
 {
-  "name": "Unified Media Recommendations",
-  "short_name": "Recommendations",
-  "description": "Private, explainable media recommendations",
+  "name": "Media Acquisition Hub",
+  "short_name": "Media Hub",
+  "description": "Private media discovery, requests, and playlist acquisition",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0b1020",

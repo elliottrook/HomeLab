@@ -1,6 +1,76 @@
 # Music Playlist Acquisition Bridge
 
-Status: live playlist creation/replacement path validated (2026-09-07); Lidarr acquisition test pending
+Status: active follow-on expansion (2026-10-08); 72-hour hold, report path and portal UI implemented
+locally; TrueNAS deployment and cron migration pending explicit remote-change approval
+
+## Expansion request — Spotify sources, durable acquisition and GUI
+
+Jason requested that this project expand beyond exports and public Spotify links to support
+authenticated Spotify playlist selection and repeatable future transfers from the Unified Media
+Recommendations portal. A transfer must not silently drop a track that is absent from Jellyfin:
+the bridge should identify the track's album from Spotify metadata, request that album through
+Lidarr, and keep the transfer pending until Jellyfin contains every requested track. Partial
+playlists must be opt-in rather than the automatic result of a timer expiring.
+
+### Approved design direction
+
+- Use Spotify OAuth with PKCE for private playlist access. Store only the non-secret client ID and
+  the resulting access/refresh tokens in the existing protected unified-media state; never put
+  tokens in Git, browser storage, reports or logs. The user sees only a normal Spotify login and
+  consent screen.
+- Read Spotify playlist and track metadata only: playlist identity/snapshot, track title, artists,
+  album identity/name, release information, ISRC when supplied, and Spotify attribution links.
+  Spotify remains a metadata source; audio acquisition continues through Lidarr and its configured
+  quality, provenance and library-integrity controls.
+- Persist one transfer record per Spotify playlist snapshot. Track each source item, its Jellyfin
+  match, requested album, Lidarr state, retry history and final disposition. Re-runs must be
+  idempotent and must not create duplicate Jellyfin playlists or repeatedly request the same album.
+- Change the default completion policy to `wait-until-complete`: no Jellyfin playlist is created or
+  replaced while any source track is unresolved. The GUI may offer an explicit, clearly labelled
+  partial-snapshot option with a user-selected deadline, preserving the current safety behaviour
+  only when deliberately chosen.
+- Add a private `/transfers` page to the Unified Media Recommendations portal. It should support
+  Spotify connection, playlist selection, preview, target Jellyfin user, transfer start/continue,
+  per-track status, requested albums, retry/error details, and an explicit completion/partial action.
+  Existing Recommendations and Search pages remain unchanged.
+- Accept exported playlist files through the portal inbox. TrueNAS remains the worker: the portal
+  does not receive Lidarr/Jellyfin write authority merely to provide the upload and log UI.
+- Default incomplete handling is a 72-hour hold. At expiry the bridge creates the playlist with
+  all tracks found at that point and records `complete` or `partial` evidence in a JSON report.
+- Expose a separate `/transfers/log` page that polls durable reports and shows matched, missing,
+  deadline and final playlist status.
+
+### Scope, exclusions and stop conditions
+
+This is a Stream A implementation, explicitly restarted by Jason on 2026-10-07. The autonomous
+envelope covers local implementation, tests, documentation, protected-state schema changes and
+non-destructive validation of the existing bridge/portal. Deployment, Spotify application
+registration, secret installation, callback exposure and production transfer execution remain
+authorization boundaries and will pause the stream when reached.
+The scope is the bridge, the private Recommendations portal, the existing Lidarr/Jellyfin path,
+protected transfer state and the required documentation/tests. It excludes Spotify audio downloading,
+writing back to Spotify playlists, automatic deletion or replacement of unrelated Jellyfin playlists,
+new public ingress, and broad changes to Lidarr quality or monitoring policy. Stop before deployment
+if Spotify OAuth credentials, callback routing, the protected secret path, or the target Jellyfin
+user cannot be validated; stop on ambiguous album identity rather than guessing.
+
+### Pre-start risk assessment
+
+- **Confidentiality:** Spotify OAuth tokens and playlist contents are personal data. Mitigation is
+  secret-file custody, least-privilege read scopes, redacted logs and no source-track payloads sent
+  to the recommendation model.
+- **Integrity:** Album-level acquisition may add more tracks than the playlist requires. Mitigation
+  is explicit preview, a visible album request list, existing Lidarr profiles, and no Jellyfin
+  playlist mutation until every item is matched.
+- **Availability:** Lidarr metadata/search providers and Jellyfin scans can be slow or unavailable.
+  Mitigation is a durable retry state machine, bounded backoff, and resumability rather than a
+  request timeout that silently drops tracks.
+- **Privacy/network:** Spotify OAuth callback remains on the existing private Recommendations host;
+  no new Internet ingress or firewall trust is required. Validate the existing Authentik/NPM path
+  before enabling the callback.
+- **Recovery:** Preserve transfer state and reports under protected configuration backup coverage;
+  create-first Jellyfin playlist replacement remains the rollback-safe path. No media deletion is
+  part of this expansion.
 
 ## Goal
 
@@ -37,7 +107,9 @@ Lidarr quality profiles and provenance.
 5. Exit `2` while incomplete. Lidarr downloads/imports into the existing canonical music root;
    Jellyfin detects or scans the new files.
 6. On a later run, once every track matches, create the complete private Jellyfin playlist. If an
-   exact-name playlist already exists, delete it only after its replacement is safely created.
+   exact-name playlist already exists, delete it only after its replacement is safely created. If
+   the 72-hour deadline expires first, create a partial private playlist and record the omitted
+   tracks rather than silently dropping them.
    Jellyfin API keys cannot use its owner-authorized update endpoint because they have no user
    identity; create-first makes a failed deletion leave a recoverable duplicate instead of data loss.
 
@@ -91,8 +163,11 @@ TrueNAS cron job `3` runs the bridge every six hours at minute 15. If tracks rem
 the deadline, it creates a private partial playlist for Jason and reports the omitted tracks.
 Later runs can improve the playlist as additional tracks arrive.
 - [ ] Add persistent manual mappings and a bridge ownership marker before unattended scheduling.
-- [ ] Install on TrueNAS under `/mnt/Media/data/tools/playlist-bridge/` following the established
-  integrity-tool pattern; schedule daily only after two clean manual cycles.
+- [ ] Install the inbox runner on TrueNAS under `/mnt/Media/data/tools/playlist-bridge/` following
+  the established integrity-tool pattern; update Cron Job 3 to process the inbox every six hours.
+- [x] Add the portal upload page and separate polling transfer log page locally, with bounded file
+  types/size and no credential-bearing upload payloads.
+- [x] Change the bridge default hold to 72 hours and persist per-run JSON reports.
 - [ ] Add JSON reports, backup coverage, and a `lab doctor` freshness/failure check.
 - [ ] Evaluate Cmdarr separately with one disposable live-source playlist before enabling its
   Lidarr custom list.
@@ -106,3 +181,19 @@ Later runs can improve the playlist as additional tracks arrive.
 - [MiniMediaPlaylists](https://github.com/MusicMoveArr/MiniMediaPlaylists)
 - [Lidarr API](https://lidarr.audio/docs/api/)
 - [Jellyfin playlist API model](https://github.com/jellyfin/jellyfin/blob/master/Jellyfin.Api/Models/PlaylistDtos/CreatePlaylistDto.cs)
+
+## 2026-10-19 reconciliation checkpoint
+
+The dormant October 8 implementation was recovered from the shared dirty
+checkout into the dedicated `codex/playlist-bridge-recovery` branch. The
+recovered scope includes the 72-hour reconciliation/report path, inbox runner,
+portal upload and transfer-log UI, Spotify PKCE helper, protected Compose mounts
+and regression coverage. Twenty Playlist Bridge tests and twenty-four portal /
+Spotify tests pass locally.
+
+This checkpoint is source preservation, not deployment evidence. TrueNAS still
+needs the dedicated API identities, protected paths, inbox runner installation,
+Cron Job 3 migration, backup/Doctor coverage and controlled user-path
+validation. No production configuration, credential, timer or playlist was
+changed during reconciliation. Forgejo synchronization remains pending explicit
+push confirmation.

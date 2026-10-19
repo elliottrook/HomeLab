@@ -17,10 +17,18 @@ After adding an album, the bridge explicitly queues Lidarr's `AlbumSearch` comma
 around Lidarr's `searchForNewAlbum` bug when the requested album is monitored but its parent artist
 is deliberately left unmonitored to prevent full-discography acquisition.
 
-Incomplete playlists wait up to 24 hours by default. The timer is persisted in `state.json` beside
+Incomplete playlists wait up to 72 hours by default. The timer is persisted in `state.json` beside
 the config and resets when the source playlist changes. After the deadline, the bridge creates a
 partial playlist containing every matched track and reports the omitted tracks. Override the delay
-with `--max-wait-hours`; the bridge must be invoked periodically for the deadline to fire.
+with `--max-wait-hours`; the bridge must be invoked periodically for the deadline to fire. Execute
+runs also write a JSON report under `reports/` for the Recommendations portal.
+The source file remains in `inbox/` after a partial result. Its state record is retained, so each
+future six-hour run rechecks Jellyfin and safely replaces the same-named partial playlist as more
+tracks arrive. It changes to `complete` only when every source track is present; remove the source
+file only when you intentionally want to stop watching that request.
+Uploading another export with the same playlist name uses append semantics: the persisted source
+tracks are merged with the new file by normalized title, artist and album, then the existing
+Jellyfin playlist is reconciled without dropping tracks that were already present.
 
 Spotify's public embed metadata currently omits album identity. Link tracks already present in
 Jellyfin can be matched, but unmatched tracks are reported as `needs-album-metadata` and are never

@@ -7,7 +7,9 @@ from unittest.mock import patch
 from unittest.mock import Mock
 
 from portal.server import (Handler, _lazylibrarian_request, action_key,
-                           load_recommendations, reject_item, render_html)
+                           load_recommendations, reject_item, render_html,
+                           render_transfer_log_html, save_transfer_upload,
+                           _transfer_records)
 from portal.refresh import (_prepare_candidates, _seerr_candidate,
                             _unique_exact_album, collect_tmdb_recommendations)
 
@@ -178,6 +180,38 @@ class PortalTests(unittest.TestCase):
             with patch("portal.server.SNAPSHOT_PATH", Path(handle.name)):
                 with self.assertRaises(ValueError):
                     load_recommendations()
+
+    def test_transfer_upload_accepts_supported_export_and_sanitizes_name(self):
+        with tempfile.TemporaryDirectory() as directory:
+            inbox = Path(directory) / "inbox"
+            with patch("portal.server.TRANSFER_INBOX_PATH", inbox):
+                result = save_transfer_upload("../Coffee Table Jazz.json", b"[]")
+            self.assertEqual(result["status"], "uploaded")
+            self.assertTrue((inbox / "Coffee Table Jazz.json").exists())
+
+    def test_transfer_upload_rejects_unsupported_format(self):
+        with tempfile.TemporaryDirectory() as directory, patch(
+                "portal.server.TRANSFER_INBOX_PATH", Path(directory)):
+            with self.assertRaises(RuntimeError):
+                save_transfer_upload("playlist.exe", b"not a playlist")
+
+    def test_transfer_log_reads_latest_report_and_inbox(self):
+        with tempfile.TemporaryDirectory() as directory:
+            inbox, reports = Path(directory) / "inbox", Path(directory) / "reports"
+            inbox.mkdir(); reports.mkdir()
+            (inbox / "new.json").write_text("[]")
+            (reports / "old.json").write_text(json.dumps({
+                "playlist": "Coffee Table Jazz", "source_file": "/inbox/new.json",
+                "source_tracks": 54, "matched": 51, "missing": 3,
+                "jellyfin": {"status": "waiting", "deadline": "2030-01-01T00:00:00+00:00"},
+            }))
+            with patch("portal.server.TRANSFER_INBOX_PATH", inbox), patch(
+                    "portal.server.TRANSFER_REPORT_PATH", reports):
+                records = _transfer_records()
+                page = render_transfer_log_html()
+            self.assertEqual(records[0]["playlist"], "Coffee Table Jazz")
+            self.assertIn("Transfer log", page)
+            self.assertIn("/api/transfers", page)
 
     def test_action_key_is_stable_and_scoped_to_authority_identity(self):
         item = {"authority": "seerr", "authority_id": "1"}

@@ -4,7 +4,9 @@ import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from playlist_bridge import Api, Track, match, normalized, read_playlist, read_spotify_url, replace_playlist, request_album, wait_decision
+from playlist_bridge import (Api, Track, match, merge_playlist_tracks, normalized,
+                              read_playlist, read_spotify_url, replace_playlist,
+                              request_album, wait_decision)
 
 
 class FakeApi:
@@ -53,6 +55,16 @@ class PlaylistBridgeTests(unittest.TestCase):
             ]}]}))
             name, tracks = read_playlist(path)
         self.assertEqual((name, tracks[0].title), ("Mix", "Song"))
+
+    def test_songshift_single_playlist_array(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "export.json"
+            path.write_text(json.dumps([{"tracks": [{
+                "track": "Song", "artist": "Artist", "album": "Album", "isrc": "ISRC"
+            }]}]))
+            name, tracks = read_playlist(path, "Imported Mix")
+        self.assertEqual(name, "Imported Mix")
+        self.assertEqual(tracks, [Track("Song", "Artist", "Album", "ISRC")])
 
     def test_match_ignores_remaster_suffix(self):
         item = {"Id": "1", "Name": "Song - 2011 Remastered", "Artists": ["Beyoncé"], "Album": "Hits"}
@@ -111,10 +123,33 @@ class PlaylistBridgeTests(unittest.TestCase):
                                         now + timedelta(hours=24, seconds=1), True)
         self.assertTrue(expired)
         self.assertEqual(report["status"], "deadline-expired")
+        self.assertEqual(state["playlists"]["Mix"]["status"], "waiting")
+
+    def test_incomplete_state_is_retained_for_future_reconciliation(self):
+        now = datetime(2026, 1, 1, 12, tzinfo=timezone.utc)
+        state = {"playlists": {}}
+        tracks = [Track("Song", "Artist")]
+        wait_decision(state, "Mix", tracks, 1, 72, now, True)
+        self.assertIn("Mix", state["playlists"])
+        self.assertEqual(state["playlists"]["Mix"]["status"], "waiting")
+        expired, report = wait_decision(state, "Mix", tracks, 1, 72,
+                                        now + timedelta(days=30), True)
+        self.assertTrue(expired)
+        self.assertEqual(report["first_incomplete_at"], now.isoformat())
+
+    def test_existing_playlist_upload_appends_new_tracks_without_duplicates(self):
+        merged = merge_playlist_tracks(
+            [{"title": "Old song", "artist": "Artist", "album": "Old"}],
+            [Track("Old song", "Artist", "Old"), Track("New song", "Artist", "New")])
+        self.assertEqual([track.title for track in merged], ["Old song", "New song"])
 
     def test_jellyfin_uses_query_auth(self):
         api = Api("http://jellyfin", "secret", auth="query")
         self.assertEqual(api.auth, "query")
+
+    def test_jellyfin_uses_current_mediabrowser_auth(self):
+        api = Api("http://jellyfin", "secret", auth="mediabrowser")
+        self.assertEqual(api.auth, "mediabrowser")
 
     def test_existing_playlist_is_replaced_create_first(self):
         api = FakeApi([{"Items": [{"Id": "playlist-1", "Name": "Mix"}]},

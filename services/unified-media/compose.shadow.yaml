@@ -108,11 +108,13 @@ services:
       - TRAKT_OAUTH_STATE_PATH=/state/trakt-oauth.json
       - TRAKT_DEVICE_STATE_PATH=/state/trakt-device.json
       - SPOTIFY_CLIENT_ID_PATH=/run/unified-secrets/spotify-client-id
-      - SPOTIFY_CLIENT_SECRET_PATH=/run/unified-secrets/spotify-client-secret
       - SPOTIFY_ACCESS_TOKEN_PATH=/run/unified-secrets/spotify-access-token
       - SPOTIFY_REFRESH_TOKEN_PATH=/run/unified-secrets/spotify-refresh-token
       - SPOTIFY_REDIRECT_URI=${SPOTIFY_REDIRECT_URI:-https://recommendations.elliottrook.com/oauth/spotify/callback}
       - SPOTIFY_OAUTH_STATE_PATH=/state/spotify-oauth.json
+      - PLAYLIST_BRIDGE_INBOX_PATH=/playlist-bridge/inbox
+      - PLAYLIST_BRIDGE_REPORT_PATH=/playlist-bridge/reports
+      - PLAYLIST_BRIDGE_STATE_PATH=/playlist-bridge/state.json
     volumes:
       - ${UNIFIED_CONFIG_PATH}/portal-refresh:/data
       - ${UNIFIED_CONFIG_PATH}/portal/state:/state
@@ -123,9 +125,9 @@ services:
       - ${UNIFIED_CONFIG_PATH}/secrets/trakt-client-id:/run/unified-secrets/trakt-client-id:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/trakt-refresh-token:/run/unified-secrets/trakt-refresh-token
       - ${UNIFIED_CONFIG_PATH}/secrets/spotify-client-id:/run/unified-secrets/spotify-client-id:ro
-      - ${UNIFIED_CONFIG_PATH}/secrets/spotify-client-secret:/run/unified-secrets/spotify-client-secret:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/spotify-access-token:/run/unified-secrets/spotify-access-token
       - ${UNIFIED_CONFIG_PATH}/secrets/spotify-refresh-token:/run/unified-secrets/spotify-refresh-token
+      - ${PLAYLIST_BRIDGE_PATH:-/mnt/Media/data/tools/playlist-bridge}:/playlist-bridge
     ports:
       - "127.0.0.1:8787:8787"
       - "192.168.20.40:8787:8787"

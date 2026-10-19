@@ -19,7 +19,7 @@ from urllib.parse import urlparse
 from trakt_oauth import (begin_device, begin_pkce, exchange_code, poll_device,
                          write_secret)
 from spotify_oauth import (api_get as spotify_get, authorization_url as spotify_authorization_url,
-                           exchange_code as spotify_exchange_code, refresh_token as spotify_refresh_token)
+                           exchange_code_pkce as spotify_exchange_code, refresh_token_pkce as spotify_refresh_token)
 
 
 SNAPSHOT_PATH = Path(os.environ.get("PORTAL_SNAPSHOT_PATH", "/data/recommendations.json"))
@@ -45,11 +45,15 @@ REJECTED_PATH = Path(os.environ.get("PORTAL_REJECTED_PATH", "/data/rejected.json
 # British Columbia's permanent daylight-time convention: UTC−07:00 year-round.
 DISPLAY_TIMEZONE = timezone(timedelta(hours=-7), "Pacific Daylight Time")
 SPOTIFY_CLIENT_ID_PATH = os.environ.get("SPOTIFY_CLIENT_ID_PATH", "/run/unified-secrets/spotify-client-id")
-SPOTIFY_CLIENT_SECRET_PATH = os.environ.get("SPOTIFY_CLIENT_SECRET_PATH", "/run/unified-secrets/spotify-client-secret")
 SPOTIFY_ACCESS_TOKEN_PATH = os.environ.get("SPOTIFY_ACCESS_TOKEN_PATH", "/run/unified-secrets/spotify-access-token")
 SPOTIFY_REFRESH_TOKEN_PATH = os.environ.get("SPOTIFY_REFRESH_TOKEN_PATH", "/run/unified-secrets/spotify-refresh-token")
 SPOTIFY_OAUTH_STATE_PATH = Path(os.environ.get("SPOTIFY_OAUTH_STATE_PATH", "/state/spotify-oauth.json"))
 SPOTIFY_REDIRECT_URI = os.environ.get("SPOTIFY_REDIRECT_URI", "https://recommendations.elliottrook.com/oauth/spotify/callback")
+TRANSFER_INBOX_PATH = Path(os.environ.get("PLAYLIST_BRIDGE_INBOX_PATH", "/playlist-bridge/inbox"))
+TRANSFER_REPORT_PATH = Path(os.environ.get("PLAYLIST_BRIDGE_REPORT_PATH", "/playlist-bridge/reports"))
+TRANSFER_STATE_PATH = Path(os.environ.get("PLAYLIST_BRIDGE_STATE_PATH", "/playlist-bridge/state.json"))
+TRANSFER_ALLOWED_SUFFIXES = {".csv", ".tsv", ".json", ".xml", ".m3u", ".m3u8"}
+TRANSFER_MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 
 
 def load_recommendations() -> list[dict[str, Any]]:
@@ -138,9 +142,9 @@ def _spotify_connect_url() -> str:
     client_id = Path(SPOTIFY_CLIENT_ID_PATH).read_text(encoding="utf-8").strip()
     if not client_id:
         raise RuntimeError("Spotify client ID is not configured")
-    url, state = spotify_authorization_url(client_id, SPOTIFY_REDIRECT_URI)
+    url, state, verifier = spotify_authorization_url(client_id, SPOTIFY_REDIRECT_URI)
     SPOTIFY_OAUTH_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    SPOTIFY_OAUTH_STATE_PATH.write_text(json.dumps({"state": state}), encoding="utf-8")
+    SPOTIFY_OAUTH_STATE_PATH.write_text(json.dumps({"state": state, "verifier": verifier}), encoding="utf-8")
     SPOTIFY_OAUTH_STATE_PATH.chmod(0o600)
     return url
 
@@ -154,8 +158,7 @@ def _spotify_callback(query: Mapping[str, list[str]]) -> str:
     if not isinstance(pending, Mapping) or not secrets.compare_digest(state, str(pending.get("state", ""))):
         raise RuntimeError("Spotify authorization state did not match")
     client_id = Path(SPOTIFY_CLIENT_ID_PATH).read_text(encoding="utf-8").strip()
-    client_secret = Path(SPOTIFY_CLIENT_SECRET_PATH).read_text(encoding="utf-8").strip()
-    payload = spotify_exchange_code(client_id, client_secret, code, SPOTIFY_REDIRECT_URI)
+    payload = spotify_exchange_code(client_id, code, SPOTIFY_REDIRECT_URI, str(pending["verifier"]))
     write_secret(SPOTIFY_ACCESS_TOKEN_PATH, str(payload["access_token"]))
     if payload.get("refresh_token"):
         write_secret(SPOTIFY_REFRESH_TOKEN_PATH, str(payload["refresh_token"]))
@@ -169,8 +172,7 @@ def _spotify_access_token() -> str:
         return access.read_text(encoding="utf-8").strip()
     refresh = Path(SPOTIFY_REFRESH_TOKEN_PATH).read_text(encoding="utf-8").strip()
     client_id = Path(SPOTIFY_CLIENT_ID_PATH).read_text(encoding="utf-8").strip()
-    client_secret = Path(SPOTIFY_CLIENT_SECRET_PATH).read_text(encoding="utf-8").strip()
-    payload = spotify_refresh_token(client_id, client_secret, refresh)
+    payload = spotify_refresh_token(client_id, refresh)
     write_secret(SPOTIFY_ACCESS_TOKEN_PATH, str(payload["access_token"]))
     return str(payload["access_token"])
 
@@ -449,7 +451,7 @@ document.querySelectorAll('.card').forEach((card) => {
 </style>
 """
     style = style.replace('.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}.card{display:grid;', '.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}.card[hidden]{display:none}.card{display:grid;')
-    style = style.replace('.toolbar{display:flex;', '.page-nav{display:flex;gap:10px;margin-bottom:26px}.page-pill{border:1px solid var(--line);border-radius:999px;padding:9px 16px;color:var(--muted);text-decoration:none}.page-pill.active,.page-pill:hover{background:var(--accent);color:#07111d;border-color:var(--accent)}.toolbar{display:flex;')
+    style = style.replace('.toolbar{display:flex;', '.page-nav{display:flex;align-items:center;gap:10px;margin-bottom:26px;flex-wrap:wrap}.page-pill{display:inline-flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;line-height:1.2;border:1px solid var(--line);border-radius:999px;padding:9px 16px;color:var(--muted);text-decoration:none}.page-pill.active,.page-pill:hover{background:var(--accent);color:#07111d;border-color:var(--accent)}.toolbar{display:flex;')
     style = style.replace('.refreshed{margin-left:auto;', '.refresh-controls{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin:0 0 14px}.refresh-button{border:1px solid var(--line);border-radius:10px;background:#111a2c;color:var(--accent);font:700 .82rem system-ui;padding:8px 12px;cursor:pointer}.refresh-button:hover{background:var(--accent);color:#07111d}.refresh-button:disabled{opacity:.7;cursor:wait}.refresh-controls #refresh-status{color:var(--muted);font-size:.76rem}.refresh-error{color:#ffaaa8!important}.refreshed{margin-left:0;')
     style = style.replace('.filters{display:flex;', '.source-status{color:var(--muted);font-size:.78rem;margin:0 0 14px}.source-status strong{color:var(--accent2)}.filters{display:flex;')
     style = style.replace('.card-footer{display:flex;', '.season-picker{display:flex;flex-wrap:wrap;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:14px}.season-picker legend{color:var(--accent2);font-size:.76rem;padding:0 4px}.season-picker label{font-size:.78rem;color:var(--muted);padding:4px 7px;border-radius:7px;background:#111a2c}.season-picker input{accent-color:var(--accent)}.season-warning{display:block;color:#ffaaa8;font-size:.78rem;margin-top:12px}.card-footer{display:flex;')
@@ -457,7 +459,7 @@ document.querySelectorAll('.card').forEach((card) => {
         search_value = html.escape(" ".join(str(item.get(key, "")) for key in ("title", "overview", "explanation")).casefold(), quote=True)
         cards[cards.index(card)] = card.replace("<article class='card'", f"<article data-search='{search_value}' class='card'", 1)
     body = "\n".join(cards) or "<div class='empty'><h2>No safe recommendations yet</h2><p>The refresh service has not produced any candidates. Check its health before requesting anything.</p></div>"
-    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0b1020'><link rel='icon' type='image/png' sizes='32x32' href='/icon-32.png'><link rel='apple-touch-icon' sizes='180x180' href='/icon-180.png'><link rel='manifest' href='/manifest.webmanifest'><title>Unified Media Recommendations</title>" + style + "</head><body><main><nav class='page-nav' aria-label='Media portal pages'><a class='page-pill active' href='/'>Recommendations</a><a class='page-pill' href='/search'>Search</a></nav><header><div><div class='kicker'>Private media concierge</div><h1>What should we add next?</h1><p>Review a short, explainable list and approve only what you actually want. Nothing is acquired without your button press.</p></div></header><div class='refresh-controls'><span class='refreshed'>Updated " + html.escape(refreshed) + "</span><button id='refresh-now' class='refresh-button' type='button'>Refresh recommendations</button><span id='refresh-status' role='status'></span></div><div class='source-status'><strong>Sources checked</strong> · " + source_summary + "</div><nav class='filters' aria-label='Filter recommendations'>" + "".join(buttons) + "</nav><section class='grid' aria-live='polite'>" + body + "</section><footer>Source counts are candidates returned before ownership and archive suppression. Search is read-only; requests remain explicit and go through the owning service.</footer></main>" + script + "</body></html>"
+    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0b1020'><link rel='icon' type='image/png' sizes='32x32' href='/icon-32.png'><link rel='apple-touch-icon' sizes='180x180' href='/icon-180.png'><link rel='manifest' href='/manifest.webmanifest'><title>Media Acquisition Hub · Recommendations</title>" + style + "</head><body><main><nav class='page-nav' aria-label='Media portal pages'><a class='page-pill active' href='/'>Recommendations</a><a class='page-pill' href='/search'>Search</a><a class='page-pill' href='/transfers'>Playlist transfers</a></nav><header><div><div class='kicker'>Media Acquisition Hub</div><h1>What should we add next?</h1><p>Review a short, explainable list and approve only what you actually want. Nothing is acquired without your button press.</p></div></header><div class='refresh-controls'><span class='refreshed'>Updated " + html.escape(refreshed) + "</span><button id='refresh-now' class='refresh-button' type='button'>Refresh recommendations</button><span id='refresh-status' role='status'></span></div><div class='source-status'><strong>Sources checked</strong> · " + source_summary + "</div><nav class='filters' aria-label='Filter recommendations'>" + "".join(buttons) + "</nav><section class='grid' aria-live='polite'>" + body + "</section><footer>Source counts are candidates returned before ownership and archive suppression. Search is read-only; requests remain explicit and go through the owning service.</footer></main>" + script + "</body></html>"
 
 
 def render_search_html() -> str:
@@ -477,23 +479,81 @@ button.addEventListener('click',run);input.addEventListener('keydown',e=>{if(e.k
 """
     style = style.replace('.source-link{display:inline-block;color:var(--accent);margin-top:10px;text-decoration:none}', '.source-link{display:inline-block;color:var(--accent);margin-top:10px;text-decoration:none}.search-action{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px}.search-result{font-size:.78rem;color:var(--muted)}.success{color:var(--accent2)}.error{color:#ffaaa8}')
     style = style.replace('.search-action{display:flex;', '.season-picker{display:flex;flex-wrap:wrap;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:14px}.season-picker legend{color:var(--accent2);font-size:.76rem;padding:0 4px}.season-picker label{font-size:.78rem;color:var(--muted);padding:4px 7px;border-radius:7px;background:#111a2c}.season-picker input{accent-color:var(--accent)}.search-action{display:flex;')
-    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0b1020'><link rel='icon' href='/icon-32.png'><title>Media Search</title>" + style + "</head><body><main><nav class='page-nav' aria-label='Media portal pages'><a class='page-pill' href='/'>Recommendations</a><a class='page-pill active' href='/search'>Search</a></nav><header><div><div class='kicker'>Private media concierge</div><h1>Find something specific</h1><p>Search films, TV, books, audiobooks and music across the connected metadata providers. Search is read-only until you press an individual request button.</p></div></header><div class='toolbar'><input id='provider-search' type='search' placeholder='Title, author, artist or keyword…' autocomplete='off'><select id='provider-type' aria-label='Media type'><option value='all'>All media</option><option value='movie'>Films</option><option value='tv'>TV</option><option value='ebook'>Books</option><option value='audiobook'>Audiobooks</option><option value='album'>Music</option></select><button id='provider-submit' class='request-button' type='button'>Search all media</button></div><section id='provider-results' class='search-results' hidden aria-live='polite'></section><footer>Sources: TMDB via Seerr, Open Library and MusicBrainz. Search requests are revalidated by the owning service.</footer></main>" + script + "</body></html>"
+    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0b1020'><link rel='icon' href='/icon-32.png'><title>Media Acquisition Hub · Search</title>" + style + "</head><body><main><nav class='page-nav' aria-label='Media portal pages'><a class='page-pill' href='/'>Recommendations</a><a class='page-pill active' href='/search'>Search</a><a class='page-pill' href='/transfers'>Playlist transfers</a></nav><header><div><div class='kicker'>Media Acquisition Hub</div><h1>Find something specific</h1><p>Search films, TV, books, audiobooks and music across the connected metadata providers. Search is read-only until you press an individual request button.</p></div></header><div class='toolbar'><input id='provider-search' type='search' placeholder='Title, author, artist or keyword…' autocomplete='off'><select id='provider-type' aria-label='Media type'><option value='all'>All media</option><option value='movie'>Films</option><option value='tv'>TV</option><option value='ebook'>Books</option><option value='audiobook'>Audiobooks</option><option value='album'>Music</option></select><button id='provider-submit' class='request-button' type='button'>Search all media</button></div><section id='provider-results' class='search-results' hidden aria-live='polite'></section><footer>Sources: TMDB via Seerr, Open Library and MusicBrainz. Search requests are revalidated by the owning service.</footer></main>" + script + "</body></html>"
 
 
 def render_transfers_html() -> str:
-    """Initial transfer surface; Spotify data is loaded only after explicit connection."""
-    return ("<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' "
-            "content='width=device-width,initial-scale=1'><title>Playlist Transfers</title></head><body>"
-            "<main style='max-width:60rem;margin:3rem auto;font:1rem system-ui;padding:0 1rem'>"
-            "<nav><a href='/'>Recommendations</a> · <a href='/search'>Search</a> · "
-            "<a href='/transfers'>Playlist transfers</a></nav>"
-            "<h1>Playlist transfers</h1>"
-            "<p>Connect Spotify to select a playlist. Missing tracks will be requested as albums "
-            "through Lidarr and the Jellyfin playlist will wait until complete.</p>"
-            "<p><a href='/oauth/spotify/start'>Connect Spotify</a></p>"
-            "<button id='load' type='button'>Load my playlists</button><pre id='result'>Not connected.</pre>"
-            "<script>document.querySelector('#load').onclick=async()=>{const r=await fetch('/api/spotify/playlists');"
-            "document.querySelector('#result').textContent=await r.text()}</script></main></body></html>")
+    return _transfer_page("Upload playlists", """
+      <p class='lede'>Upload an Apple Music, SongShift, Spotify export, CSV, XML or M3U file. The bridge requests missing albums through Lidarr, waits up to <strong>72 hours</strong>, then creates a complete or partial Jellyfin playlist. Uploading another file for the same playlist appends new tracks and preserves the existing list.</p>
+      <form id='upload-form' class='panel'><label for='source'>Playlist export</label><input id='source' type='file' accept='.json,.csv,.tsv,.xml,.m3u,.m3u8' required><button class='primary' type='submit'>Start transfer</button><span id='upload-status' role='status'></span></form>
+      <div class='actions'><a class='button' href='/transfers/log'>Open transfer log</a><a class='button' href='/oauth/spotify/start'>Connect Spotify</a></div>
+      <section class='panel'><h2>How it works</h2><p>The uploaded file is placed in the private bridge inbox. TrueNAS checks it every six hours. The first incomplete run starts the 72-hour hold; each run updates the match count and requested albums. At the deadline, the log records whether Jellyfin received the full playlist or a partial one.</p></section>
+      <script>
+      document.querySelector('#upload-form').addEventListener('submit', async (event) => { event.preventDefault(); const input=document.querySelector('#source'); const status=document.querySelector('#upload-status'); const file=input.files[0]; if(!file)return; status.textContent='Uploading…'; try { const r=await fetch('/api/transfers/upload?filename='+encodeURIComponent(file.name), {method:'POST', body:file}); const data=await r.json(); if(!r.ok) throw new Error(data.error||'Upload failed'); status.textContent='Uploaded. Open the log to follow progress.'; input.value=''; } catch (e) { status.textContent=e.message; } });
+      </script>
+    """)
+
+
+def _transfer_page(title: str, content: str) -> str:
+    style = """<style>:root{--bg:#0b1020;--panel:#111a2c;--line:#273653;--text:#f4f7fb;--muted:#a9b6cc;--accent:#8aa7ff;--good:#75dfb0}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px system-ui,sans-serif}main{max-width:70rem;margin:0 auto;padding:2rem 1rem 4rem}.page-nav{display:flex;align-items:center;gap:8px;margin-bottom:2rem;flex-wrap:wrap}.page-pill,.button{display:inline-flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;line-height:1.2;color:var(--text);border:1px solid var(--line);border-radius:999px;padding:.55rem .85rem;text-decoration:none;background:#101a30}.page-pill.active,.button:hover,.primary{background:var(--accent);color:#0b1020}.kicker{color:var(--accent);font-size:.8rem;text-transform:uppercase;letter-spacing:.14em}h1{font-size:clamp(2rem,5vw,3.6rem);margin:.4rem 0}h2{margin-top:0}.lede{color:var(--muted);max-width:60rem;line-height:1.6}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:1.2rem;margin:1rem 0}.panel label{display:block;color:var(--muted);margin-bottom:.5rem}.panel input[type=file]{display:block;width:100%;padding:1rem;border:1px dashed var(--line);border-radius:10px;color:var(--muted);margin-bottom:1rem}.primary,.button{display:inline-flex;align-items:center;justify-content:center;border:0;cursor:pointer;font:inherit}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:1.2rem 0}#upload-status{color:var(--good);margin-left:1rem}.log-row{display:grid;grid-template-columns:1.3fr .8fr .7fr .7fr;gap:1rem;align-items:center;border-top:1px solid var(--line);padding:1rem 0}.log-row:first-child{border-top:0}.status{color:var(--accent)}.complete{color:var(--good)}.muted{color:var(--muted);font-size:.9rem}@media(max-width:650px){.log-row{grid-template-columns:1fr 1fr}.log-row>*:last-child{grid-column:1/-1}}</style>"""
+    nav = "<nav class='page-nav' aria-label='Media portal pages'><a class='page-pill' href='/'>Recommendations</a><a class='page-pill' href='/search'>Search</a><a class='page-pill active' href='/transfers'>Playlist transfers</a></nav>"
+    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>" + html.escape(title) + " · Media Acquisition Hub</title>" + style + "</head><body><main>" + nav + "<div class='kicker'>Media Acquisition Hub</div><h1>" + html.escape(title) + "</h1>" + content + "</main></body></html>"
+
+
+def _transfer_records() -> list[dict[str, Any]]:
+    records: dict[str, dict[str, Any]] = {}
+    try:
+        files = list(TRANSFER_INBOX_PATH.iterdir())
+    except OSError:
+        files = []
+    for path in files:
+        if path.is_file() and path.suffix.lower() in TRANSFER_ALLOWED_SUFFIXES:
+            records[path.name] = {"source_file": path.name, "status": "uploaded", "matched": None, "missing": None}
+    try:
+        state = json.loads(TRANSFER_STATE_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError, json.JSONDecodeError):
+        state = {}
+    for playlist, value in (state.get("playlists", {}) if isinstance(state, dict) else {}).items():
+        if not isinstance(value, dict):
+            continue
+        source = Path(str(value.get("source_file", ""))).name
+        if source:
+            records.setdefault(source, {"source_file": source})
+            records[source].update({"playlist": playlist, "transfer_status": value.get("status", "watching"),
+                                    "matched": value.get("matched"), "missing": value.get("missing"),
+                                    "last_checked_at": value.get("last_checked_at"),
+                                    "playlist_id": value.get("playlist_id")})
+    try:
+        reports = sorted(TRANSFER_REPORT_PATH.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+    except OSError:
+        reports = []
+    for report_path in reports[:100]:
+        try:
+            value = json.loads(report_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError, json.JSONDecodeError):
+            continue
+        if not isinstance(value, dict):
+            continue
+        source = Path(str(value.get("source_file", ""))).name or report_path.name
+        value["source_file"] = source
+        value["report_file"] = report_path.name
+        value.setdefault("transfer_status", (value.get("jellyfin") or {}).get("transfer_status", "watching"))
+        records[source] = value
+    return sorted(records.values(), key=lambda item: str(item.get("generated_at", "")), reverse=True)
+
+
+def render_transfer_log_html() -> str:
+    return _transfer_page("Transfer log", """
+      <p class='lede'>This durable progress view refreshes every 15 seconds and shows the latest bridge report for each uploaded source.</p>
+      <div class='actions'><a class='button' href='/transfers'>Upload another playlist</a></div>
+      <section id='log' class='panel' aria-live='polite'>Loading transfer history…</section>
+      <script>
+      function esc(v){const n=document.createElement('div');n.textContent=v==null?'':v;return n.innerHTML;}
+      function row(x){const jf=x.jellyfin||{};const status=x.transfer_status||jf.transfer_status||jf.status||x.status||'watching';const matched=x.matched==null?'—':x.matched;const missing=x.missing==null?'—':x.missing;const deadline=jf.deadline||'Rechecks every six hours';const tracks=x.source_tracks||'—';return `<div class='log-row'><div><strong>${esc(x.playlist||x.source_file)}</strong><div class='muted'>${esc(x.source_file||'')}</div></div><div class='${status==='complete'?'complete':'status'}'>${esc(status)}</div><div>${esc(matched)} / ${esc(tracks)} matched<br><span class='muted'>${esc(missing)} missing</span></div><div class='muted'>Deadline<br>${esc(deadline)}<br>Last check ${esc(x.last_checked_at||'pending')}</div></div>`;}
+      async function load(){try{const r=await fetch('/api/transfers');const data=await r.json();document.querySelector('#log').innerHTML=data.length?data.map(row).join(''):'<p class="muted">No transfers yet.</p>';}catch(e){document.querySelector('#log').textContent='Could not load transfer history.';}}
+      load();setInterval(load,15000);
+      </script>
+    """)
 
 
 def action_key(item: Mapping[str, Any]) -> str:
@@ -884,6 +944,22 @@ def reject_item(body: Mapping[str, Any]) -> dict[str, Any]:
     return {"status": "rejected", "title": item["title"]}
 
 
+def save_transfer_upload(filename: str, payload: bytes) -> dict[str, Any]:
+    """Store a bounded export in the bridge inbox; the worker owns processing."""
+    safe_name = Path(urllib.parse.unquote(filename)).name
+    suffix = Path(safe_name).suffix.lower()
+    if not safe_name or suffix not in TRANSFER_ALLOWED_SUFFIXES:
+        raise RuntimeError("unsupported playlist export format")
+    if not payload or len(payload) > TRANSFER_MAX_UPLOAD_BYTES:
+        raise RuntimeError("playlist export is empty or exceeds the 10 MB limit")
+    TRANSFER_INBOX_PATH.mkdir(parents=True, exist_ok=True)
+    target = TRANSFER_INBOX_PATH / safe_name
+    temporary = target.with_suffix(target.suffix + ".uploading")
+    temporary.write_bytes(payload)
+    os.replace(temporary, target)
+    return {"status": "uploaded", "source_file": safe_name, "bytes": len(payload)}
+
+
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)
@@ -957,6 +1033,9 @@ class Handler(BaseHTTPRequestHandler):
             except (OSError, RuntimeError, ValueError, urllib.error.URLError, json.JSONDecodeError) as exc:
                 self._send(409, json.dumps({"error": str(exc)}).encode(), "application/json")
             return
+        if path == "/api/transfers":
+            self._send(200, json.dumps(_transfer_records()).encode(), "application/json")
+            return
         asset = STATIC_ASSETS.get(path)
         if asset:
             asset_path = ASSET_DIR / asset[0]
@@ -972,6 +1051,9 @@ class Handler(BaseHTTPRequestHandler):
             return
         if path == "/transfers":
             self._send(200, render_transfers_html().encode(), "text/html; charset=utf-8")
+            return
+        if path == "/transfers/log":
+            self._send(200, render_transfer_log_html().encode(), "text/html; charset=utf-8")
             return
         try:
             items = load_recommendations()
@@ -999,6 +1081,17 @@ class Handler(BaseHTTPRequestHandler):
                 body = json.loads(self.rfile.read(length) or b"{}")
                 self._send(200, json.dumps(reject_item(body)).encode(), "application/json")
             except (KeyError, RuntimeError, ValueError, json.JSONDecodeError, OSError) as exc:
+                self._send(409, json.dumps({"error": str(exc)}).encode(), "application/json")
+            return
+        if path == "/api/transfers/upload":
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                if length > TRANSFER_MAX_UPLOAD_BYTES:
+                    raise RuntimeError("playlist export exceeds the 10 MB limit")
+                filename = (urllib.parse.parse_qs(urlparse(self.path).query).get("filename") or [""])[0]
+                result = save_transfer_upload(filename, self.rfile.read(length))
+                self._send(201, json.dumps(result).encode(), "application/json")
+            except (RuntimeError, ValueError, OSError) as exc:
                 self._send(409, json.dumps({"error": str(exc)}).encode(), "application/json")
             return
         if path not in {"/api/request", "/api/search/request"}:
