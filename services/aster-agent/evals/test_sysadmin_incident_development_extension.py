@@ -2,7 +2,7 @@ import json
 import unittest
 from pathlib import Path
 
-from validate_sysadmin_incident_intake import validate_intake
+from validate_sysadmin_incident_intake import validate_for_qualification, validate_intake
 
 
 class DevelopmentExtensionDraftTests(unittest.TestCase):
@@ -16,6 +16,13 @@ class DevelopmentExtensionDraftTests(unittest.TestCase):
         self.assertEqual(self.draft["status"], "draft_extension_requires_jason_review")
         self.assertIn("not Jason-reviewed", self.draft["extension_provenance"]["claim"])
         self.assertNotEqual(self.draft["status"], "development_intake_complete")
+        self.assertEqual(
+            validate_for_qualification(self.draft),
+            [
+                "qualification requires status development_intake_complete",
+                "qualification rejects unreviewed extension provenance",
+            ],
+        )
 
     def test_extension_preserves_reviewed_fields_and_adds_only_declared_draft_fields(self):
         canonical = {case["id"]: case for case in self.canonical["cases"]}

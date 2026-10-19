@@ -1,8 +1,11 @@
 import json
+import tempfile
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 
-from validate_sysadmin_incident_intake import validate_intake
+from validate_sysadmin_incident_intake import main, validate_for_qualification, validate_intake
 
 
 class ValidateIntakeTests(unittest.TestCase):
@@ -51,6 +54,39 @@ class ValidateIntakeTests(unittest.TestCase):
         self.complete_fixture_extension()
         self.value["cases"] = self.value["cases"][:-1]
         self.assertEqual(validate_intake(self.value), ["complete development intake must equal development_target"])
+
+    def test_qualification_requires_complete_status(self):
+        errors = validate_for_qualification(self.value)
+        self.assertIn("qualification requires status development_intake_complete", errors)
+
+    def test_qualification_accepts_completed_reviewed_fixture(self):
+        self.complete_fixture_extension()
+        self.assertEqual(validate_for_qualification(self.value), [])
+
+    def test_qualification_rejects_non_jason_review(self):
+        self.complete_fixture_extension()
+        self.value["cases"][0]["reviewer"] = "Codex"
+        self.assertEqual(
+            validate_for_qualification(self.value),
+            [f"{self.value['cases'][0]['id']}: qualification requires Jason review"],
+        )
+
+    def test_cli_makes_qualification_an_explicit_separate_mode(self):
+        for case in self.value["cases"]:
+            case.update(
+                repair_scope="fixture advisory only",
+                expected_postcheck="fixture verification",
+                latency_protocol="fixture timing",
+            )
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "intake.json"
+            path.write_text(json.dumps(self.value))
+            output = StringIO()
+            with redirect_stdout(output):
+                main([str(path)])
+            self.assertIn("structurally valid", output.getvalue())
+            with self.assertRaisesRegex(SystemExit, "qualification requires status"):
+                main([str(path), "--qualification"])
 
 
 if __name__ == "__main__":

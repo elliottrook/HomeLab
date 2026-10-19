@@ -499,6 +499,14 @@ retained source checkpoint; Aster stayed healthy and its service account could
 still read the current 32-check report. This changes the existing local
 health path only. The D4 connected-tool, schema 2, blinded usefulness and M1
 authority gates remain open.
+The twelve reviewed incident descriptions now also have a separate
+[offline extension draft](evidence/D4-development-corpus-extension-draft-2026-10-19.md)
+for repair scope, postcheck and latency fields.  A subsequent
+[qualification-boundary check](evidence/D4-development-corpus-qualification-boundary-2026-10-19.md)
+allows that draft to be schema-tested but rejects it as qualification evidence
+until it has complete status, Jason review for every case and no unreviewed
+provenance marker.  This prevents AI-authored extensions from silently
+becoming promotion evidence; it does not complete D4 or M1.
 
 ## Immediate next action and stop rule
 

@@ -1,5 +1,6 @@
-"""Validate the reviewed sysadmin-incident intake before it is used as evaluation input."""
+"""Validate sysadmin-incident intake structure and qualification eligibility."""
 
+import argparse
 import json
 from collections import Counter
 from pathlib import Path
@@ -46,12 +47,48 @@ def validate_intake(value):
     return errors
 
 
-def main():
-    path = Path(__file__).with_name("sysadmin-incident-intake-v1.json")
-    errors = validate_intake(json.loads(path.read_text()))
+def validate_for_qualification(value):
+    """Reject structurally valid drafts that have not completed human review.
+
+    ``validate_intake`` deliberately checks the shape of work-in-progress
+    corpora so draft extensions can be tested offline.  Qualification is a
+    separate boundary: a caller must not infer approval from schema validity.
+    """
+    errors = validate_intake(value)
+    if value.get("status") != "development_intake_complete":
+        errors.append("qualification requires status development_intake_complete")
+
+    provenance = value.get("extension_provenance")
+    if provenance is not None:
+        claim = provenance.get("claim", "") if isinstance(provenance, dict) else ""
+        if not isinstance(provenance, dict) or "not Jason-reviewed" in claim:
+            errors.append("qualification rejects unreviewed extension provenance")
+
+    for case in value.get("cases", []):
+        identifier = case.get("id", "<missing id>")
+        if case.get("reviewer") != "Jason":
+            errors.append(f"{identifier}: qualification requires Jason review")
+    return errors
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "path", nargs="?", type=Path,
+        default=Path(__file__).with_name("sysadmin-incident-intake-v1.json"),
+    )
+    parser.add_argument(
+        "--qualification", action="store_true",
+        help="require completed human review rather than structural validity only",
+    )
+    args = parser.parse_args(argv)
+    value = json.loads(args.path.read_text())
+    errors = (validate_for_qualification(value) if args.qualification
+              else validate_intake(value))
     if errors:
         raise SystemExit("\n".join(errors))
-    print("sysadmin incident intake: valid")
+    state = "qualification eligible" if args.qualification else "structurally valid"
+    print(f"sysadmin incident intake: {state}")
 
 
 if __name__ == "__main__":
