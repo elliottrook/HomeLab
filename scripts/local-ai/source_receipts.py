@@ -47,7 +47,6 @@ def compose_candidate_evidence(
     *,
     now_minute: int,
     window_end_minute: int,
-    authenticated: bool = False,
 ) -> AdmissionEvidence:
     """Bind two source-shaped receipts into one candidate evidence object."""
     if backup.source != EXPECTED_BACKUP_SOURCE or backup.chain_id != EXPECTED_BACKUP_SOURCE:
@@ -74,5 +73,4 @@ def compose_candidate_evidence(
         consumers_quiesced=quiescence.consumers,
         news_quiesced=quiescence.news_quiesced,
         source_observed=True,
-        adapter_attested=authenticated,
     )
