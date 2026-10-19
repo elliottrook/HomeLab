@@ -12,6 +12,11 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October 18 scratch-storage review](B60-Inference-Engineering/scratch-storage-review-20261018.md)
+receives main's new disposable VLAN70 NFS storage deployment as a possible
+public-model staging lead. It is not a mounted/immutable/private evidence path
+or a solution to the still-open lease/recovery/full-path admission gates.
+
 The [October 18 prerequisite check](B60-Inference-Engineering/nightly-admission-20261018.md)
 found the same changed manual helper, disabled watchdog and unchanged owner
 readiness records. A read-only directory-lock snapshot found no matching lock;
