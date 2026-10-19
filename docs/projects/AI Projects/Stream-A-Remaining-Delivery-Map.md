@@ -29,9 +29,15 @@ host-wide GPU exclusivity. The [dated assessment](evidence/Lab-hours-acceleratio
 retains the review and measured counterexamples.
 The first read-only live-source check failed on October 18 because the
 completed 00:30 backup task had fallen out of Proxmox's current task listing;
-the installed UPID pattern also rejects its valid trailing-colon form. The
-conditional 18:05 pilot is NO-GO without a reviewed, installed durable-task
-adapter. No guardian was armed or production service stopped.
+the installed UPID pattern also rejected its valid trailing-colon form. The
+platform owner replaced that source with bounded, durable journal proof in
+`c66b9ae8`. Jason approved its separate four-file inactive installation;
+installed hashes and focused Linux tests match, and the owner reports a
+successful read-only current-cycle backup proof. The proposed six-minute
+18:05 start window still cannot fit the implemented 30-minute lab plus
+15-minute restoration profile. A new time-accurate live card, fresh gates
+and separate approval remain necessary. No guardian was armed or production
+service stopped.
 
 **October 18 A1 interface checkpoint:** the platform owner corrected the
 recovery-trigger/deadline ambiguity and versioned the callback as
