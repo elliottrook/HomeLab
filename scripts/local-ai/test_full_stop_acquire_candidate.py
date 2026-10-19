@@ -6,7 +6,7 @@ from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 from admission_gate import EXPECTED_BACKUP_SOURCE
-from full_stop_acquire_candidate import acquire_from_fixed_sources, main, _watchdog_active
+from full_stop_acquire_candidate import acquire_from_fixed_sources, acquire_from_prepared_receipt, main, _watchdog_active
 import full_stop_acquire_candidate as entry
 from full_stop_source_preflight import PreflightError
 from lease_watchdog import EXPECTED_SCHEDULES, Observation
@@ -75,6 +75,34 @@ class FullStopAcquireCandidateTests(unittest.TestCase):
         self.assertEqual(observer.cutoff, 210)
         self.assertEqual(controller.backup_receipt, self.backup().integrity_receipt)
         self.assertFalse(controller.receipt.consumers_isolated)
+
+    def test_prepared_receipt_is_consumed_before_controller_effect_boundary(self):
+        receipt = LeaseReceipt(
+            "proposal-1", 1, 185, 210,
+            self.backup().integrity_receipt,
+            "Qwen3.5 9B Q4_K_M", "llama.cpp b11429 SYCL/Level Zero",
+            False, False,
+        )
+        observation = self.observation(now_minute=185)
+        class Controller:
+            def __init__(self):
+                self.called = False
+            def acquire(self, observed_receipt, observed, *, backup_receipt):
+                self.called = True
+                self.receipt = observed_receipt
+                self.observation = observed
+                self.backup_receipt = backup_receipt
+                return {"state": "leased"}
+        controller = Controller()
+        with patch.object(entry, "read_root_owned", return_value=(receipt, observation, 1000)):
+            result = acquire_from_prepared_receipt(
+                controller, path=Path("/var/lib/local-ai-lab/pre-acquire-receipt.json"),
+                clock=lambda: NOW,
+            )
+        self.assertEqual(result["state"], "leased")
+        self.assertTrue(controller.called)
+        self.assertFalse(controller.receipt.consumers_isolated)
+        self.assertEqual(controller.backup_receipt, receipt.backup_receipt)
 
     def test_bad_backup_or_runtime_makes_no_effect_call(self):
         for backup, observation in (

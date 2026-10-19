@@ -23,12 +23,14 @@ from full_stop_source_preflight import prepare_pre_acquire
 from lease_controller_candidate import CandidateController, CandidatePaths
 from lease_effect_runner import EffectRunner
 from lease_recovery_executor import secure_root_file
+from pre_acquire_receipt import read_root_owned
 from retained_archive_integrity import _check_receipt_parent
 from trusted_observer import RuntimeManifest, TrustedHostObserver
 
 
 ROOT = Path("/var/lib/local-ai-lab")
 MANIFEST = ROOT / "runtime-manifest.json"
+PRE_ACQUIRE_RECEIPT = ROOT / "pre-acquire-receipt.json"
 ZONE = ZoneInfo("America/Vancouver")
 WINDOW_START = 190  # 03:10 Vancouver
 ACQUIRE_CUTOFF = 195  # 03:15 Vancouver
@@ -69,6 +71,28 @@ def acquire_from_fixed_sources(
     return controller.acquire(receipt, observation, backup_receipt=backup.integrity_receipt)
 
 
+def acquire_from_prepared_receipt(
+    controller: CandidateController,
+    *,
+    path: Path,
+    clock,
+) -> dict[str, object]:
+    """Consume F4/F5 evidence without re-running sources or stopping early.
+
+    The receipt was produced before F7/F8 from the retained archive proof and
+    a healthy non-isolated observation.  The controller remains the first
+    effectful boundary; this function only reads and validates the proposal.
+    """
+    now = clock().astimezone(ZONE)
+    minute = now.hour * 60 + now.minute
+    receipt, observation, _captured = read_root_owned(
+        path, now_minute=minute, now_epoch=int(now.timestamp())
+    )
+    if not WINDOW_START <= minute < ACQUIRE_CUTOFF:
+        raise ValueError("full-stop acquisition is outside its fixed window")
+    return controller.acquire(receipt, observation, backup_receipt=receipt.backup_receipt)
+
+
 def _runner(argv, timeout):
     result = subprocess.run(argv, capture_output=True, text=True, timeout=timeout, check=False)
     return result.returncode, result.stdout
@@ -106,9 +130,10 @@ def main(argv: list[str] | None = None) -> int:
         CandidatePaths(ROOT), EffectRunner().run,
         allow_effects=True, observer=observer,
     )
-    result = acquire_from_fixed_sources(
-        FixedSourceAdapters(_runner), observer, controller,
-        clock=lambda: datetime.now(ZONE), lease_id="lab-" + uuid.uuid4().hex,
+    result = acquire_from_prepared_receipt(
+        controller,
+        path=PRE_ACQUIRE_RECEIPT,
+        clock=lambda: datetime.now(ZONE),
     )
     print(json.dumps(result, sort_keys=True))
     return 0

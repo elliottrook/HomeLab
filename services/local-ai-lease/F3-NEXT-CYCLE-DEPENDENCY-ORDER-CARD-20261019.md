@@ -7,85 +7,91 @@ receipt, call a model, change a timer, or push a remote.
 
 ## Decision and cycle boundary
 
-The current F2 exact-cycle observer cannot be reused as F3 evidence. It writes
-no trusted archive-integrity receipt and makes no lease admission claim. F3
-therefore begins only in a fresh cycle in which the retained archive producer
-has created and independently verified the current-cycle integrity receipt.
+The canonical tracker is serial: F3 is retained-receipt release; F4 is a
+fresh trusted receipt for a later drill cycle; F5 is the 03:05 preflight; F6
+arms independent recovery; F7 is Jason's human approval; F8 acquires the
+full-stop lease and runs the bounded drill; F9 restores and releases it. F3
+and F4 are evidence gates and must not stop services or acquire a lease.
 
-F3 source-receipt production and the full-stop lease must share that same
-cycle: the lease binds the backup digest and the source receipt binds the
-admitted lease. The retained producer and full-stop acquisition are separate
-effects, but their evidence chain is one cycle. F2 observation may precede
-them in that cycle, but it remains timing evidence only.
+The current F2 observer cannot be reused as F3 or F4 evidence. It writes no
+trusted retained-integrity receipt and makes no lease admission claim. The
+post-stop `/source-receipt.json` producer is also not an F4 producer because
+it requires `state=leased` and observes quiescence after the stops. F4 instead
+uses the new durable, non-effect pre-acquire receipt described below; the
+full-stop controller consumes that receipt only after F6 and F7.
 
 ## Dependency-ordered run sequence
 
 1. **Inactive release check.** Verify every staged file against the frozen
    hashes below, ownership/mode, disabled effect flags, and inactive/disabled
-   systemd units. Confirm no archive-integrity receipt, source receipt, lease,
-   lock, or application-B60 state exists. If any path is live, drifted, or
-   ambiguous, stop before the cycle.
-2. **F2 observation.** Run the approved read-only three-row observation and
-   record a successful current-cycle result. It must not be relabeled as a
-   trusted F3/F4 receipt.
-3. **Retained archive effect.** In the approved 01:10–01:20 window, with the
-   producer release separately authorized, invoke the retained producer once
-   with its effect gate. It verifies the fixed backup chain and all three
-   retained archives, then atomically writes
-   `/var/lib/local-ai-lab/archive-integrity.json`. The hard deadline is 01:40.
-   There is no retry and no overwrite of an existing or uncertain receipt.
-4. **Independent archive readback.** Open the receipt through the pinned
-   read-only verifier. Rebind it to the current Proxmox/TrueNAS/Mac artifacts,
-   unchanged archive identities, local date, and freshness. Require root:root
-   0600 under a root:root 0700 parent and no temporary files. Failure is NO-GO.
-5. **Watchdog-compatible lease acquisition.** During 03:10–03:15, use only
-   the approved full-stop controller path. Require the watchdog service and
-   timer active/enabled, an exact matching archive backup digest, fresh trusted
-   observations, and no conflicting lease. The controller persists its
-   watchdog-compatible lock/state before stopping only the allowlisted
-   LXC104/LXC110/LXC116 services. News remains active. Admit the lease only
-   after the required repeated quiescence checks pass. The lease expires at
-   the 03:30 hard cutoff.
-6. **Exactly one F3 source receipt.** After `state=leased`,
-   `consumers_isolated=true`, and `scheduled_work_quiesced=true`, invoke
-   `/usr/local/sbin/local-ai-lease-produce-receipt` exactly once. It must bind
-   the current lease ID/generation and backup digest and atomically write
-   `/var/lib/local-ai-lab/source-receipt.json`. The one-attempt boundary
-   refuses an existing destination; do not retry, delete, or overwrite after
-   an uncertain result.
-7. **Independent source readback.** Validate the exact boundary schema,
-   lease identity/generation, backup digest, freshness (maximum 15 minutes),
-   custody, and absence of temporary files. Capture only the content-free
-   status projection; never log receipt contents.
-8. **Restore and reconcile.** Use the existing watchdog/controller restore
-   path, not ad-hoc service commands. Restore all services that were active,
-   verify schedule/GPU/health checks, then release the lease and lock only on
-   complete restore. Restore must finish by 03:30; otherwise retain the
-   lock/state and classify the cycle FAILED/UNKNOWN for operator review.
-   Record archive receipt, lease, source receipt, restore, and final
-   postchecks independently.
+   systemd units. Confirm no archive-integrity receipt, pre-acquire receipt,
+   post-stop source receipt, lease, lock, or application-B60 state exists. Any
+   live, drifted, or ambiguous path is a NO-GO.
+2. **F3 retained-receipt release.** In the approved 01:10–01:20 window,
+   separately authorize the retained producer and invoke it once with effects
+   enabled. It verifies the fixed backup chain and all three retained archives,
+   then atomically writes `/var/lib/local-ai-lab/archive-integrity.json` by
+   01:40. It never creates a lease or stops a service. No retry or overwrite
+   follows an existing or uncertain receipt.
+3. **F3 independent readback.** Rebind the archive receipt to current
+   Proxmox/TrueNAS/Mac artifacts, unchanged archive identities, local date and
+   freshness. Require root:root 0600 under a root:root 0700 parent and no
+   temporary files. This closes F3 only after target-Linux custody/release
+   evidence and rollback are recorded.
+4. **F4 fresh pre-acquire receipt.** In the next eligible backup cycle, after
+   task 1 and the F3 release, run the fixed retained adapter and 03:05 runtime
+   observer without stopping anything. Pass the retained digest plus the
+   healthy production observation through `prepare_pre_acquire`, then encode
+   one root-owned `/var/lib/local-ai-lab/pre-acquire-receipt.json`. The
+   envelope is schema-pinned, fresh for at most 15 minutes, lease-identity and
+   digest bound, and explicitly records `consumers_isolated=false` and
+   `scheduled_work_quiesced=false`. Independently read it back. This is F4;
+   it is evidence only and does not grant permission to stop.
+5. **F5 03:05 preflight.** Confirm the exact current-cycle schedules and
+   completions, LXC110 mirror, three consumers still active, no competing
+   lease/job, accepted Qwen3.5 9B Q4_K_M / llama.cpp b11429 SYCL-Level Zero / GPU
+   / unit / authentication state, and News timer active/enabled and idle.
+   The pre-acquire envelope must match this observation and backup digest.
+6. **F6 recovery armed.** Verify the compatible watchdog and owner-liveness
+   paths active/enabled, exact admission schema and constrained recovery
+   executor. Do this before any stop. Loss of watchdog/owner is a NO-GO.
+7. **F7 human approval.** Obtain approval for this exact bounded drill,
+   target services, stop condition, 03:30 hard cutoff, 04:15 reconciliation
+   reserve, and rollback. F7 is not implied by a schedule or an evidence file.
+8. **F8 acquire and drill.** During 03:10–03:15, the controller reads and
+   validates the F4 pre-acquire envelope, then persists the watchdog-compatible
+   lock/state before stopping only LXC104/LXC110/LXC116. It performs repeated
+   quiescence checks; News remains active. The post-stop source receipt may be
+   produced exactly once for drill evidence, but it is not F4 and cannot be
+   used to justify the earlier stop.
+9. **F9 restore and reconcile.** Use only the watchdog/controller restore path.
+   Restore previously active services, verify schedule/GPU/health checks, then
+   release lease and lock only after complete restoration. If restoration is
+   not complete by 03:30, retain lock/state and classify FAILED/UNKNOWN.
 
-The retained producer and source receipt can share one backup cycle. The F2
-observation can share that cycle as read-only evidence. Full-stop acquisition,
-source receipt, and restore must be one contiguous lease sequence. F6 recovery
-arming/human drill and A1/B60 benchmarking remain separate gates and must not
-be inferred from F3; any competing exclusive experiment is mutually exclusive
-with this full-stop sequence.
+F3/F4/F5 can share a backup cycle only where F3 was already released before
+that cycle; F5 must still be fresh. F6/F7/F8/F9 are serial and cannot be
+compressed or inferred from earlier evidence. F6 recovery arming, F7 approval,
+and A1/B60 benchmarking remain separate gates; competing exclusive work is
+mutually exclusive with F8.
 
 ## Inactive staging versus live effects
 
 The following are staged only while inactive/disabled: the retained producer
-and integrity verifier; `full_stop_acquire_candidate.py`, its preflight,
-controller, lease contract, trusted observer, recovery executor, and source
-receipt modules; the receipt producer wrapper; and the watchdog/recovery/
-heartbeat units. Staging includes hash, owner, mode, dependency, and rollback
-verification. It does not enable a unit or create state.
+and integrity verifier; `pre_acquire_receipt.py`; `full_stop_acquire_candidate.py`,
+its preflight, controller, lease contract, trusted observer, recovery executor,
+and post-stop source-receipt modules; the receipt producer wrapper; and the
+watchdog/recovery/heartbeat units. Staging includes hash, owner, mode,
+dependency, and rollback verification. It does not enable a unit or create
+state.
 
-The following are live effects and require the cycle-specific approval: enabling
-or invoking the retained producer with effects; writing the archive-integrity
-receipt; acquiring the host lock/lease; stopping the three allowlisted
-services; writing the source receipt; and invoking watchdog/controller restore
-and lease cleanup. F3 itself makes no model request. A partial stop, uncertain
+The following are live effects and require the applicable gate: enabling or
+invoking the retained producer with effects and writing the F3 archive receipt;
+writing the F4 pre-acquire evidence envelope (without a lease or stop);
+arming watchdog/owner-liveness for F6; acquiring the host lock/lease and
+stopping the three allowlisted services only after F7; writing the post-stop
+source receipt; and invoking watchdog/controller restore and lease cleanup.
+F3/F4 make no model request and stop no service. A partial stop, uncertain
 write, watchdog loss, receipt mismatch, expiry, or restore failure is a
 fail-closed stop requiring review.
 
@@ -104,6 +110,7 @@ review of this card.
 | `scripts/local-ai/backup_receipt_adapter.py` | `26a7741b484cee6159827fb2fd8f9fd62c5d305c267d04a3d0b6367f76b38a2f` |
 | `scripts/local-ai/quiescence_receipt_adapter.py` | `effebc28fe862f152f67cc8a772e4daed055415a4e4e6d14b7e3428855f4175e` |
 | `scripts/local-ai/source_receipts.py` | `35bbecdacec30226e5483e7214f7e318008c1e40d418b37861f000b0e8d701d4` |
+| `scripts/local-ai/pre_acquire_receipt.py` | `7c70b6c8097ec9b5b9d2dd6e980f59a6b15ebd8397fbf5acbced98a2e7cc2170` |
 | `scripts/local-ai/retained_archive_producer_candidate.py` | `5cfe1a53578250590ee656c7b5a808b6b94a60650255efa4857d1fdd94507acb` |
 | `scripts/local-ai/retained_archive_integrity.py` | `11b536ede74d0bcea3b7bd5fe123c3f670715fcc96ef9059723c29a504cc54a5` |
 | `scripts/local-ai/host_exclusion.py` | `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61` |
@@ -136,16 +143,14 @@ review of this card.
 - The retained producer window is 01:10–01:20 with hard deadline 01:40;
   full-stop acquisition is 03:10–03:15 with restore hard cutoff 03:30.
 
-## Tracker semantics
+## Canonical tracker semantics
 
-F3 means one independently verified, lease-bound source receipt and complete
-restore/reconciliation. F4 means a fresh next-cycle receipt/evidence chain; it
-cannot be closed by the F2 observer or by this card. F5 means the live
-full-stop/watchdog recovery path has completed its own approved drill. F6 means
-recovery arming, human drill, and any A1/B60 benchmark gates; those remain
-independent and mutually exclusive per cycle. These labels follow the existing
-cards' gate semantics where the repository does not provide a single central
-F4/F5/F6 registry.
+The project tracker is authoritative: F3 is trusted retained-receipt release;
+F4 is the fresh trusted pre-acquire receipt for the drill cycle; F5 is the
+03:05 full preflight; F6 is independent recovery armed; F7 is human live-drill
+approval; F8 is bounded full-stop acquisition/drill; F9 is exact recovery and
+release; F10 is evidence close-out. No F3/F4 evidence may claim isolation or
+authorize a stop. The post-stop source receipt is F8/F9 evidence, not F4.
 
 ## Offline evidence
 
