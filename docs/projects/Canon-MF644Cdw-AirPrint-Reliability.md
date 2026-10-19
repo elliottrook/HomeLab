@@ -17,7 +17,8 @@
 Keep the Canon MF644Cdw discoverable to Apple clients through Bonjour/AirPrint
 while retaining the printer's normal energy-saving sleep behaviour. Printing
 must continue to use IPP directly to the printer; the Mac mini publishes only
-the discovery record and does not proxy print jobs.
+the discovery record and does not proxy print jobs. Keep both Canon printers
+on stable addresses so saved print queues and recovery paths remain valid.
 
 ## Current state and evidence
 
@@ -35,6 +36,9 @@ the discovery record and does not proxy print jobs.
 - The evidence substantiates a printer firmware/sleep interaction: ordinary
   sleep suppresses this device's Bonjour responder even though the network and
   print service remain available. Wireless LAN Power Save is not the cause.
+- The Canon MF210 `Hall` printer, MAC `28:C2:DD:F1:B2:E7`, answers fresh mDNS
+  service, SRV, TXT and host queries directly at `192.168.1.205`; it does not
+  reproduce the MF644 sleep-time failure. Its IPP port also remains reachable.
 
 Official Canon references:
 
@@ -48,6 +52,7 @@ Official Canon references:
 In scope:
 
 - preserve `192.168.1.183` for the printer in OPNsense Dnsmasq;
+- preserve `192.168.1.205` for the MF210 `Hall` printer in OPNsense Dnsmasq;
 - publish one static `_ipp._tcp,_universal` Bonjour record from the always-awake
   Mac mini;
 - retain the printer's existing AirPrint capabilities and one-minute sleep;
@@ -55,7 +60,8 @@ In scope:
 
 Excluded: firmware update, disabling sleep, firewall/VLAN changes, public
 exposure, credential changes, scan-protocol changes, print-queue migration,
-NetBox device creation, and changes to the other Canon printer.
+NetBox device creation, and a Bonjour proxy or printer-setting change for the
+MF210.
 
 ## Authority model
 
@@ -98,9 +104,11 @@ print payloads go directly from client to printer.
 | Dnsmasq restart briefly interrupts DHCP/DNS | Configuration checkpoint, bounded restart and immediate health/DNS validation |
 
 No destructive or irreversible action is required. The OPNsense recovery
-checkpoint is `/conf/backup/config-canon-airprint-20261019-1642.xml`. Abort on
-Dnsmasq failure, address mismatch, hostname collision or loss of IPP reachability.
-No synthetic user data is needed.
+checkpoints are `/conf/backup/config-canon-airprint-20261019-1642.xml` for the
+MF644 work and
+`/conf/backup/config-canon-mf210-reservation-20261019-1655.xml` for the MF210
+reservation. Abort on Dnsmasq failure, address mismatch, hostname collision or
+loss of IPP reachability. No synthetic user data is needed.
 
 ## Persistence plan
 
@@ -123,6 +131,7 @@ with `dns-sd -L 'Canon MF644Cdw Office' _ipp._tcp local.`.
 - [x] Install and load the persistent LaunchAgent.
 - [x] Validate discovery and direct IPP reachability after the printer's
   one-minute sleep interval.
+- [x] Verify the MF210's native Bonjour behaviour and reserve its current address.
 - [x] Complete documentation and close-out review.
 
 ## Validation and evaluation
@@ -150,14 +159,15 @@ or macOS upgrades.
 ## Backup, restore and rollback
 
 The tracked plist and project record are the configuration backup. OPNsense has
-the pre-change XML checkpoint named above.
+the two pre-change XML checkpoints named above.
 
 Rollback:
 
 1. `launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.jason.homelab.canon-mf644-airprint.plist`
 2. remove the installed plist (retain the Git copy for evidence);
-3. remove only the `canon-mf644cdw` Dnsmasq reservation, or restore the named
-   OPNsense checkpoint if broader Dnsmasq recovery is required;
+3. remove only the affected `canon-mf644cdw` or `canon-mf210-hall` Dnsmasq
+   reservation, or restore its named OPNsense checkpoint if broader Dnsmasq
+   recovery is required;
 4. restart Dnsmasq and verify its health;
 5. clients fall back to native discovery while the printer is awake or direct
    IPP at `192.168.1.183`.
@@ -166,14 +176,15 @@ Rollback:
 
 - HomeLab Doctor: not changed; bounded user-facing discovery has a direct-IP fallback.
 - Monitoring/Beszel: no new host or service endpoint; LaunchAgent logs are sufficient.
-- Backup/recovery: Git-tracked plist plus OPNsense checkpoint.
+- Backup/recovery: Git-tracked plist plus two OPNsense checkpoints.
 - NetBox: no topology, interface or VLAN change; reservation ownership remains OPNsense.
 - Human wiki/Aster mirror: not required for this small local workaround.
 - Operational reference: this document is the runbook and recovery record.
 - Environment/release lifecycle: not a deployed application release; LAN utility only.
 - Repository documentation: project portfolio and changelog updated.
 - Diagrams/rack/Homepage/authentication/certificates/firewall: no impact.
-- DNS: one private Dnsmasq reservation and generated `canon-mf644cdw.internal` record.
+- DNS: two private Dnsmasq reservations and generated
+  `canon-mf644cdw.internal` / `canon-mf210-hall.internal` records.
 - Automation: one user LaunchAgent, retained and observable.
 - Security inventory/AI administration: no credential or AI capability exists or is added.
 
@@ -194,6 +205,8 @@ documented, logs are collision-free, and this record contains the final evidence
 | 2026-10-19 | Installed the tracked plist with mode `0600`; `launchctl` reports one running process and the installed file matches the tracked source | Persistent publisher active |
 | 2026-10-19 | After the sleep interval, subtype browsing returned `Canon MF644Cdw Office`, service resolution returned `canon-mf644-proxy.local:631`, the hostname resolved to `192.168.1.183`, and TCP 631 connected | End-to-end discovery and direct print path passed |
 | 2026-10-19 | Publisher output contains both successful registrations and no `Name in use` or conflict entry | Collision control passed |
+| 2026-10-19 | Queried the MF210 directly on UDP 5353 after it had been idle; `_ipp._tcp.local` returned `Hall`, its full AirPrint TXT/SRV data and `Canon5fb19f.local` at `192.168.1.205`; TCP 631 also connected | MF210 does not reproduce the MF644 issue; no proxy warranted |
+| 2026-10-19 | Confirmed the active lease maps `28:C2:DD:F1:B2:E7` to `192.168.1.205`, saved the second checkpoint, added `canon-mf210-hall.internal`, restarted Dnsmasq and validated both port 53 and direct port 53053 resolution | MF210 reservation healthy; Bonjour and IPP unchanged |
 
 ## User-facing handover
 

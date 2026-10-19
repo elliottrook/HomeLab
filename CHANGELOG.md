@@ -11,6 +11,10 @@
   the printer's native AirPrint capabilities through
   `canon-mf644-proxy.local`; discovery, target resolution and direct IPP all
   pass after the sleep interval, and printing is not proxied through the Mac.
+- Verified the Canon MF210 `Hall` printer does not reproduce the sleep-time
+  Bonjour failure, then reserved its existing `192.168.1.205` address for MAC
+  `28:C2:DD:F1:B2:E7` as `canon-mf210-hall.internal`; DNS, IPP and native
+  Bonjour all passed after the Dnsmasq restart.
 
 ## 2026-10-18 — Downstairs Apple TV Jellyfin access
 
