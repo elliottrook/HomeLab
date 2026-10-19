@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-10-19 — Canon MF644Cdw AirPrint sleep workaround
+
+- Confirmed that the printer's one-minute normal sleep suppresses fresh mDNS
+  discovery while HTTP, SNMP and IPP remain reachable; another Canon printer on
+  the same LAN continues to advertise, excluding a general multicast failure.
+- Repaired the accumulated collision-suffixed AirPrint name to `Canon MF644Cdw
+  Office` and reserved `192.168.1.183` for MAC `10:98:C3:DE:85:91` in OPNsense.
+- Installed and validated a collision-safe Mac mini LaunchAgent that publishes
+  the printer's native AirPrint capabilities through
+  `canon-mf644-proxy.local`; discovery, target resolution and direct IPP all
+  pass after the sleep interval, and printing is not proxied through the Mac.
+
 ## 2026-10-18 — Downstairs Apple TV Jellyfin access
 
 - Corrected the live Downstairs Apple TV record to `192.168.30.153`, MAC

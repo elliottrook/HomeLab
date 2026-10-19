@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.jason.homelab.canon-mf644-airprint</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/dns-sd</string>
+    <string>-P</string>
+    <string>Canon MF644Cdw Office</string>
+    <string>_ipp._tcp,_universal</string>
+    <string>local.</string>
+    <string>631</string>
+    <string>canon-mf644-proxy.local.</string>
+    <string>192.168.1.183</string>
+    <string>txtvers=1</string>
+    <string>rp=ipp/print</string>
+    <string>note=Office</string>
+    <string>qtotal=1</string>
+    <string>priority=10</string>
+    <string>ty=Canon MF642C/643C/644C</string>
+    <string>product=(CNMF642C/643C/644C)</string>
+    <string>pdl=application/octet-stream,image/urf,image/pwg-raster,image/jpeg,application/pdf</string>
+    <string>adminurl=http://192.168.1.183/airprint.html</string>
+    <string>Color=T</string>
+    <string>Copies=T</string>
+    <string>Duplex=T</string>
+    <string>Scan=T</string>
+    <string>Fax=T</string>
+    <string>TLS=1.2</string>
+    <string>URF=ADOBERGB24,CP255,DM1,PQ4,RS300,SRGB24,W8-16,FN3,IS1-4,OB10-40,V1.4</string>
+    <string>kind=document,envelope,postcard</string>
+  </array>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+
+  <key>StandardOutPath</key>
+  <string>/Users/jelliott/lab/monitoring-state/reports/canon-mf644-airprint-output.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/jelliott/lab/monitoring-state/reports/canon-mf644-airprint-error.log</string>
+</dict>
+</plist>
