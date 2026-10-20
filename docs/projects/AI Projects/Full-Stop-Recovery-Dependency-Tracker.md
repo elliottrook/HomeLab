@@ -109,6 +109,14 @@ service or scan and changed no production consumer. A one-occurrence 01:42
 Stream A observer is active for terminal reconciliation only; it cannot retry
 or advance F3.
 
+The platform owner has also prepared the conditional post-F2 F3/F4 sequence
+at `29018e69ce893f970d899c5b30631624d8f5d7cf`. Stream A's
+[independent review](evidence/F3-F4-conditional-sequence-independent-review-2026-10-20.md)
+verified the card digest and its isolated 2/2 pin/contract tests. F3 and F4
+remain distinct future approvals: F3 may write one durable archive receipt
+only after complete F2 evidence; F4 later binds that receipt to a fresh live
+observation. Neither effect is currently authorized.
+
 The October 16 01:10 read-only archive heartbeat triggered, but no complete
 three-archive result was retained by the time Stream A resumed after the
 start cutoff. It is now **paused**; see the [dated F2 record](evidence/Full-stop-archive-window-missed-2026-10-16.md).
