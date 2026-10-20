@@ -35,6 +35,43 @@ class FairScorerTests(unittest.TestCase):
         self.keys[0]["acceptable_check_sets"] = [["hidden_label"]]
         with self.assertRaises(ValueError): self.run_score()
 
+    def test_malformed_containers_fail_closed(self):
+        for field, value in (
+            ("capabilities", None),
+            ("capabilities", {}),
+            ("capabilities", [{"id": "service_status", "description": ""}]),
+        ):
+            self.cases[0][field] = value
+            with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                self.run_score()
+            self.setUp()
+
+        for value in (None, {}, "service_status", ["service_status"]):
+            self.keys[0]["acceptable_check_sets"] = value
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                self.run_score()
+            self.setUp()
+
+    def test_nonlist_reviews_and_record_shape_fail_closed(self):
+        for value in ({}, {"id": "dev-1"}, "review", None):
+            self.reviews = value
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                self.run_score()
+            self.setUp()
+
+        self.reviews[0]["unexpected"] = True
+        with self.assertRaises(ValueError):
+            self.run_score()
+
+    def test_extra_case_or_key_fields_fail_closed(self):
+        self.cases[0]["hidden"] = "value"
+        with self.assertRaises(ValueError):
+            self.run_score()
+        self.setUp()
+        self.keys[0]["hidden"] = "value"
+        with self.assertRaises(ValueError):
+            self.run_score()
+
     def test_all_effect_claims_fail(self):
         self.predictions[0]["effects"] = ["unexpected_mutation"]
         self.assertEqual(self.run_score()["passed"], 0)

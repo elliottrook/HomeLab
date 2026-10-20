@@ -534,6 +534,12 @@ Its focused offline suite passed 16/16 tests, including malformed container,
 target and review-field types. This prepares a reproducible D4
 evaluation boundary without reviewing the draft on Jason's behalf, calling a
 model, granting a tool or creating promotion evidence.
+The existing offline fair scorer now also has a
+[malformed-input boundary](evidence/D4-fair-scorer-malformed-input-boundary-2026-10-20.md):
+case, capability, key and review collections fail closed on unexpected shapes
+instead of crashing or being interpreted as missing review. The combined
+focused D4 suite passed 28/28 tests. This hardens future comparison only; no
+corpus has been reviewed and no model has been evaluated or promoted.
 
 ## Immediate next action and stop rule
 

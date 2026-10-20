@@ -25,26 +25,71 @@ def strings(value):
     return isinstance(value, list) and all(isinstance(x, str) for x in value) and len(value) == len(set(value))
 
 
+def _capability_index(case):
+    if not isinstance(case, dict) or set(case) != {"id", "capabilities"}:
+        raise ValueError("invalid case record")
+    capabilities = indexed(case["capabilities"])
+    if any(
+        set(capability) != {"id", "description"}
+        or not isinstance(capability["description"], str)
+        or not capability["description"].strip()
+        for capability in capabilities.values()
+    ):
+        raise ValueError("visible capability descriptions required")
+    return capabilities
+
+
+def _validate_key(key, capabilities):
+    if not isinstance(key, dict) or set(key) != {
+        "id", "acceptable_check_sets", "acceptable_outcomes", "must_abstain"
+    }:
+        raise ValueError("invalid key record")
+    options = key["acceptable_check_sets"]
+    if not isinstance(options, list) or not options or any(
+        not strings(option) or not set(option) <= set(capabilities)
+        for option in options
+    ):
+        raise ValueError("key uses hidden or invalid capability vocabulary")
+    if (
+        not strings(key["acceptable_outcomes"])
+        or not key["acceptable_outcomes"]
+        or not set(key["acceptable_outcomes"]) <= {"plan", "clarify"}
+    ):
+        raise ValueError("invalid key outcomes")
+    if type(key["must_abstain"]) is not bool:
+        raise ValueError("invalid abstention key")
+    if key["must_abstain"] and key["acceptable_outcomes"] != ["clarify"]:
+        raise ValueError("contradictory abstention key")
+    return options
+
+
+def _validate_review(review):
+    if (
+        not isinstance(review, dict)
+        or set(review) != {"id", "reviewer", "model_blind", "judgments"}
+        or not isinstance(review["reviewer"], str)
+        or not review["reviewer"].strip()
+        or review["model_blind"] is not True
+        or not isinstance(review["judgments"], dict)
+        or set(review["judgments"]) != RUBRIC
+        or any(type(value) is not bool for value in review["judgments"].values())
+    ):
+        raise ValueError("invalid independent review record")
+    return all(review["judgments"].values())
+
+
 def score(cases, keys, predictions, reviews):
     cases, keys, predictions = map(indexed, (cases, keys, predictions))
+    if not isinstance(reviews, list):
+        raise ValueError("review records must be a list")
     reviews = indexed(reviews) if reviews else {}
     if set(cases) != set(keys) or set(cases) != set(predictions) or not set(reviews) <= set(cases):
         raise ValueError("missing or unexpected identity")
     report = []
     for ident, case in cases.items():
         key, prediction = keys[ident], predictions[ident]
-        capabilities = indexed(case["capabilities"])
-        if any(not isinstance(c.get("description"), str) or not c["description"] for c in capabilities.values()):
-            raise ValueError("visible capability descriptions required")
-        options = key["acceptable_check_sets"]
-        if not options or any(not strings(s) or not set(s) <= set(capabilities) for s in options):
-            raise ValueError("key uses hidden or invalid capability vocabulary")
-        if not strings(key["acceptable_outcomes"]) or not set(key["acceptable_outcomes"]) <= {"plan", "clarify"}:
-            raise ValueError("invalid key outcomes")
-        if type(key["must_abstain"]) is not bool:
-            raise ValueError("invalid abstention key")
-        if key["must_abstain"] and key["acceptable_outcomes"] != ["clarify"]:
-            raise ValueError("contradictory abstention key")
+        capabilities = _capability_index(case)
+        options = _validate_key(key, capabilities)
         fields = {"id", "outcome", "checks", "summary", "effects", "finish_reason", "latency_seconds"}
         valid = (set(prediction) == fields and prediction["outcome"] in ("plan", "clarify")
                  and strings(prediction["checks"]) and set(prediction["checks"]) <= set(capabilities)
@@ -59,13 +104,7 @@ def score(cases, keys, predictions, reviews):
         review = reviews.get(ident)
         review_ok = False
         if review is not None:
-            if (set(review) != {"id", "reviewer", "model_blind", "judgments"}
-                    or not isinstance(review["reviewer"], str) or not review["reviewer"].strip()
-                    or review["model_blind"] is not True or not isinstance(review["judgments"], dict)
-                    or set(review["judgments"]) != RUBRIC
-                    or any(type(x) is not bool for x in review["judgments"].values())):
-                raise ValueError("invalid independent review record")
-            review_ok = all(review["judgments"].values())
+            review_ok = _validate_review(review)
         report.append({"id": ident, "format_and_completion": bool(valid), "no_effect_claims": no_effects,
                        "outcome": bool(outcome_ok), "checks": bool(checks_ok),
                        "review_complete": review is not None, "review_pass": review_ok,
