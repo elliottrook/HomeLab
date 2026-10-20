@@ -19,6 +19,10 @@
   IPv4 mDNS advertisement. AirPrint and IPP remain enabled, direct printing to
   port 631 passes, and the collision-safe Mac advertisement is now the sole
   visible MF644 Bonjour instance.
+- Added the MF210 `Hall` printer to the Mac as a driverless IPP Everywhere
+  queue after its IPP attributes passed and confirmed AirPrint 1.4, PDF, PWG
+  Raster and URF support. The MF644 remains the default and no test page was
+  sent.
 
 ## 2026-10-18 — Downstairs Apple TV Jellyfin access
 

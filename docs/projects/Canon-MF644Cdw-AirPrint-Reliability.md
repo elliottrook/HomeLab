@@ -59,6 +59,7 @@ In scope:
 
 - preserve `192.168.1.183` for the printer in OPNsense Dnsmasq;
 - preserve `192.168.1.205` for the MF210 `Hall` printer in OPNsense Dnsmasq;
+- add one driverless macOS queue for the MF210 using direct IPP Everywhere;
 - publish one static `_ipp._tcp,_universal` Bonjour record from the always-awake
   Mac mini;
 - disable only the MF644's native IPv4 mDNS advertisement to prevent duplicate
@@ -67,9 +68,9 @@ In scope:
 - document validation, recovery and rollback.
 
 Excluded: firmware update, disabling sleep, firewall/VLAN changes, public
-exposure, credential changes, scan-protocol changes, print-queue migration,
-NetBox device creation, and a Bonjour proxy or printer-setting change for the
-MF210.
+exposure, credential changes, scan-protocol changes, changing the existing
+MF644 queue/default, NetBox device creation, and a Bonjour proxy or
+printer-setting change for the MF210.
 
 ## Authority model
 
@@ -110,6 +111,7 @@ print payloads go directly from client to printer.
 | Mac mini unavailable or logged-out session absent | Mac mini has system sleep disabled; native printer discovery may still work while awake; direct-IP printing remains available |
 | Incorrect TXT data affects client choices | Values copied from the printer's own working advertisement and resolved before installation |
 | Dnsmasq restart briefly interrupts DHCP/DNS | Configuration checkpoint, bounded restart and immediate health/DNS validation |
+| macOS cannot locate a vendor MF210 driver | Use the printer's verified IPP Everywhere/AirPrint capability; no downloaded driver or test page required |
 
 No destructive or irreversible action is required. The OPNsense recovery
 checkpoints are `/conf/backup/config-canon-airprint-20261019-1642.xml` for the
@@ -140,6 +142,7 @@ with `dns-sd -L 'Canon MF644Cdw Office' _ipp._tcp local.`.
 - [x] Validate discovery and direct IPP reachability after the printer's
   one-minute sleep interval.
 - [x] Verify the MF210's native Bonjour behaviour and reserve its current address.
+- [x] Add and validate a driverless MF210 queue on the Mac mini.
 - [x] Complete documentation and close-out review.
 
 ## Validation and evaluation
@@ -155,6 +158,8 @@ Required graduation evidence:
 6. TCP 631 is reachable while the printer UI reports sleep.
 7. publisher logs contain no `Name in use` collision.
 8. discovery shows one MF644 instance after the retired native record expires.
+9. `Canon_MF210_Hall` is idle/enabled, uses the reserved direct IPP URI and
+   exposes the printer's media and quality options without a vendor driver.
 
 ## Observability and maintenance
 
@@ -183,6 +188,8 @@ Rollback:
 5. restart Dnsmasq and verify its health;
 6. clients fall back to native discovery while the printer is awake or direct
    IPP at `192.168.1.183`.
+7. remove the Mac's Hall queue, if required, with
+   `lpadmin -x Canon_MF210_Hall`; this does not alter the printer or reservation.
 
 ## Documentation and systems-of-record impact
 
@@ -221,6 +228,8 @@ documented, logs are collision-free, and this record contains the final evidence
 | 2026-10-19 | Confirmed the active lease maps `28:C2:DD:F1:B2:E7` to `192.168.1.205`, saved the second checkpoint, added `canon-mf210-hall.internal`, restarted Dnsmasq and validated both port 53 and direct port 53053 resolution | MF210 reservation healthy; Bonjour and IPP unchanged |
 | 2026-10-19 | Duplicate screenshot and live browse showed the proxy's clean instance plus the printer's collision-suffixed native instance; the printer did not answer a direct mDNS query while asleep | Duplicate mechanism confirmed rather than inferred |
 | 2026-10-19 | With approval, disabled only MF644 IPv4 mDNS. Remote UI still reports AirPrint On and IPP Printing On; direct UDP 5353 now times out, TCP 631 connects, the proxy resolves to `canon-mf644-proxy.local:631`, and after cache expiry browse shows one MF644 plus `Hall` | Duplicate eliminated without proxying print traffic |
+| 2026-10-19 | Hall appeared in the AirPrint subtype, but macOS 26.6.2 had no Canon MF210 vendor PPD. A read-only IPP test passed and reported IPP 2.0, AirPrint 1.4/1.3, PDF/PWG Raster/URF and accepting-jobs state | Driver download is unnecessary; printer is valid for driverless IPP Everywhere |
+| 2026-10-19 | With approval, added `Canon_MF210_Hall` at `ipp://192.168.1.205/ipp/print` with model `everywhere`; queue is idle/enabled and exposes Letter, A4, envelopes, media types, grayscale and quality controls | Hall is installed without a vendor driver; MF644 remains the default; no test page sent |
 
 ## User-facing handover
 
@@ -232,6 +241,10 @@ running and check the LaunchAgent with `launchctl print
 gui/$(id -u)/com.jason.homelab.canon-mf644-airprint`. Direct IPP at
 `192.168.1.183:631` remains the recovery path. Do not remove the OPNsense
 reservation unless the LaunchAgent is also disabled or retargeted.
+
+For the monochrome printer, choose `Canon MF210 Hall` in the Mac print dialog.
+It is a driverless IPP Everywhere queue and does not require Canon software.
+The MF644 remains the system default.
 
 ## Close-out
 
