@@ -517,6 +517,14 @@ allows that draft to be schema-tested but rejects it as qualification evidence
 until it has complete status, Jason review for every case and no unreviewed
 provenance marker.  This prevents AI-authored extensions from silently
 becoming promotion evidence; it does not complete D4 or M1.
+The subsequent
+[qualification-gated plan builder](evidence/D4-qualification-gated-evaluation-plan-2026-10-20.md)
+refuses that unreviewed extension and the incomplete canonical intake before
+any evaluation can be planned. An eligible input produces only a digest and
+bounded counts with model, tool and execution authority explicitly false.
+Its focused offline suite passed 14/14 tests. This prepares a reproducible D4
+evaluation boundary without reviewing the draft on Jason's behalf, calling a
+model, granting a tool or creating promotion evidence.
 
 ## Immediate next action and stop rule
 
