@@ -77,8 +77,10 @@ contains no archive rows. Because the final generic error replaced the
 earlier preparation state while unit output was suppressed, the exact failed
 preparation sub-gate is unknown. Production postchecks passed and all F2
 timers are disabled. F2 remains failed/unmeasured; no F3 release, drill or
-A1 run follows. A bounded first-failure diagnostic correction and a fresh
-reviewed cycle are required.
+A1 run follows. The bounded first-failure diagnostic correction is now
+installed inactive with verified rollback and 10/10 target-Linux tests; it
+does not repair the historical result. A fresh reviewed and separately
+approved cycle is still required.
 
 **October 15 afternoon compatibility checkpoint:** Jason approved the
 hash-pinned **inactive** full-stop candidate installation on Proxmox. The

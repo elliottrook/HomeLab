@@ -10,6 +10,12 @@ suppressed. Production remained healthy and no lease, receipt, drill, A1 run
 or model call occurred. A platform diagnostic-preservation correction,
 offline/target proof and a fresh approved cycle are required before another
 F2 attempt; no F2 schedule is now active.
+The bounded one-file diagnostic correction was subsequently installed with
+Jason's approval. Its installed hash and root-only rollback match the reviewed
+card, and 10/10 target-Linux focused tests pass. It preserves the first bounded
+failure phase/class on a future attempt. All F2 timers remain disabled; the
+failed helper-service status and terminal October 20 evidence remain intact.
+This installation does not authorize or schedule another scan.
 
 **October 18 daytime lab-hours path:** Jason accepted up to 90 minutes of
 daytime Aster/voice unavailability for a first supervised, no-reboot pilot.
