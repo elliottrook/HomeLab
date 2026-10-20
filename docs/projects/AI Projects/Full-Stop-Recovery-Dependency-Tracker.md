@@ -81,6 +81,15 @@ The platform owner must first preserve a
 bounded first-failure phase/code and pass offline plus target-Linux tests;
 another cycle needs a fresh card and approval.
 
+The platform owner's source-only correction is pinned at
+`183e7cfcc6d5de9c6e1da0d7f86c0cc8269f80c9`. Stream A's
+[independent review](evidence/F2-first-failure-correction-independent-review-2026-10-20.md)
+verified both frozen hashes, the first-failure preservation logic and a 10/10
+isolated focused pass. The platform owner reports 344 local passes with eight
+expected skips and 10/10 target-Linux focused tests. This advances only the
+source-review gate: the correction is uninstalled, no F2 schedule is active,
+and no new scan is authorized.
+
 The October 16 01:10 read-only archive heartbeat triggered, but no complete
 three-archive result was retained by the time Stream A resumed after the
 start cutoff. It is now **paused**; see the [dated F2 record](evidence/Full-stop-archive-window-missed-2026-10-16.md).
