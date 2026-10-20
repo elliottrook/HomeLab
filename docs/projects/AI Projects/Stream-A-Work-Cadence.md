@@ -2,6 +2,15 @@
 
 > Owner: Jason. Status: continuous lane active; no exclusive benchmark launcher admitted. The one-time October 15, 16 and 17 read-only checks are complete and paused. This cadence does not promote a model, deploy a service, grant a tool, or waive an approval gate.
 
+**October 20 F2 result:** the two exact-date timers fired and are now disabled,
+but preparation failed after five seconds and final failed immediately. No
+archive row or scan result was produced. The exact preparation sub-gate is
+unknown because the final generic state overwrote it while service output was
+suppressed. Production remained healthy and no lease, receipt, drill, A1 run
+or model call occurred. A platform diagnostic-preservation correction,
+offline/target proof and a fresh approved cycle are required before another
+F2 attempt; no F2 schedule is now active.
+
 **October 18 daytime lab-hours path:** Jason accepted up to 90 minutes of
 daytime Aster/voice unavailability for a first supervised, no-reboot pilot.
 The [measured acceleration assessment](evidence/Lab-hours-acceleration-assessment-2026-10-18.md)

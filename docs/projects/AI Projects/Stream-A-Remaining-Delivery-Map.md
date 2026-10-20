@@ -70,6 +70,16 @@ cycle. It must pause after one complete three-archive success or a safety/
 review condition. No scan result, receipt, drill or A1 benchmark is claimed
 before actual evidence is retained.
 
+**October 20 exact-cycle result:** both date-specific timers fired, but the
+preparation service failed after five seconds and the final service failed
+immediately. The [terminal record](evidence/F2-exact-cycle-no-go-2026-10-20.md)
+contains no archive rows. Because the final generic error replaced the
+earlier preparation state while unit output was suppressed, the exact failed
+preparation sub-gate is unknown. Production postchecks passed and all F2
+timers are disabled. F2 remains failed/unmeasured; no F3 release, drill or
+A1 run follows. A bounded first-failure diagnostic correction and a fresh
+reviewed cycle are required.
+
 **October 15 afternoon compatibility checkpoint:** Jason approved the
 hash-pinned **inactive** full-stop candidate installation on Proxmox. The
 installation result on the separate local branch `codex/aster-lease-compat`
