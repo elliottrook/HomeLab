@@ -51,21 +51,21 @@ class F2ScheduledReleaseTests(unittest.TestCase):
 
     def test_prepare_owns_cycle_and_writes_only_prepared_state(self):
         with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True), patch.object(candidate, "capture_fixed_preflight", return_value=object()) as capture:
-            value = candidate.prepare(self.runner(self.epoch(1, 9)), clock=lambda: self.epoch(1, 9))
+            value = candidate.prepare(self.runner(self.epoch(1, 15)), clock=lambda: self.epoch(1, 15))
             self.assertEqual(value["state"], "prepared")
             capture.assert_called_once()
 
     def test_prepare_rejects_outside_window_without_capture(self):
         with patch.object(candidate, "capture_fixed_preflight") as capture:
             with self.assertRaisesRegex(candidate.ScheduledF2Error, "outside"):
-                candidate.prepare(self.runner(self.epoch(1, 20)), clock=lambda: self.epoch(1, 20))
+                candidate.prepare(self.runner(self.epoch(1, 16)), clock=lambda: self.epoch(1, 16))
             capture.assert_not_called()
 
     def test_final_is_one_shot_and_hard_deadline_bound(self):
         with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True), patch.object(candidate, "run_fixed_final_guard") as gate:
             candidate._write_state("2026-10-19", "prepare", "prepared")
             process = Result()
-            value = candidate.final(self.runner(self.epoch(1, 11)), popen=lambda *a, **k: process, clock=lambda: self.epoch(1, 11))
+            value = candidate.final(self.runner(self.epoch(1, 20)), popen=lambda *a, **k: process, clock=lambda: self.epoch(1, 20))
             self.assertEqual(value["state"], "complete")
             self.assertEqual(value["result"]["archives"][1]["vmid"], "110")
             gate.assert_called_once()
@@ -77,28 +77,28 @@ class F2ScheduledReleaseTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True), patch.object(candidate, "run_fixed_final_guard", side_effect=candidate.ScheduledF2Error("drift")):
             candidate._write_state("2026-10-19", "prepare", "prepared")
             with self.assertRaises(candidate.ScheduledF2Error):
-                candidate.final(self.runner(self.epoch(1, 11)), clock=lambda: self.epoch(1, 11))
+                candidate.final(self.runner(self.epoch(1, 20)), clock=lambda: self.epoch(1, 20))
             self.assertEqual(candidate._existing_state("2026-10-19")["state"], "no_go")
             with self.assertRaisesRegex(candidate.ScheduledF2Error, "prepared state"):
-                candidate.final(self.runner(self.epoch(1, 11)), clock=lambda: self.epoch(1, 11))
+                candidate.final(self.runner(self.epoch(1, 20)), clock=lambda: self.epoch(1, 20))
 
     def test_first_prepare_failure_survives_final_attempt(self):
         with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True), patch.object(candidate, "capture_fixed_preflight", side_effect=candidate.ScheduledF2Error("fixed source failed")):
             with self.assertRaises(candidate.ScheduledF2Error):
-                candidate.prepare(self.runner(self.epoch(1, 9)), clock=lambda: self.epoch(1, 9))
+                candidate.prepare(self.runner(self.epoch(1, 15)), clock=lambda: self.epoch(1, 15))
             before = candidate._existing_state("2026-10-19")
             self.assertEqual(before["phase"], "prepare")
             self.assertEqual(before["first_failure_phase"], "prepare")
             self.assertEqual(before["failure_class"], "PREFLIGHT_FAILED")
             with self.assertRaises(candidate.ScheduledF2Error):
-                candidate.final(self.runner(self.epoch(1, 11)), clock=lambda: self.epoch(1, 11))
+                candidate.final(self.runner(self.epoch(1, 20)), clock=lambda: self.epoch(1, 20))
             self.assertEqual(candidate._existing_state("2026-10-19"), before)
 
     def test_final_timeout_records_bounded_class_and_first_phase(self):
         with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True), patch.object(candidate, "run_fixed_final_guard"):
             candidate._write_state("2026-10-19", "prepare", "prepared")
             with self.assertRaisesRegex(candidate.ScheduledF2Error, "hard deadline"):
-                candidate.final(self.runner(self.epoch(1, 11)), popen=lambda *a, **k: TimeoutResult(), clock=lambda: self.epoch(1, 11))
+                candidate.final(self.runner(self.epoch(1, 20)), popen=lambda *a, **k: TimeoutResult(), clock=lambda: self.epoch(1, 20))
             saved = candidate._existing_state("2026-10-19")
             self.assertEqual(saved["phase"], "final")
             self.assertEqual(saved["first_failure_phase"], "final")
@@ -109,7 +109,7 @@ class F2ScheduledReleaseTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True), patch.object(candidate, "run_fixed_final_guard"), patch.object(candidate.os, "killpg") as killpg:
             candidate._write_state("2026-10-19", "prepare", "prepared")
             with self.assertRaisesRegex(candidate.ScheduledF2Error, "hard deadline"):
-                candidate.final(self.runner(self.epoch(1, 11)), popen=lambda *a, **k: TimeoutResult(), clock=lambda: self.epoch(1, 11))
+                candidate.final(self.runner(self.epoch(1, 20)), popen=lambda *a, **k: TimeoutResult(), clock=lambda: self.epoch(1, 20))
             killpg.assert_called_once()
             self.assertEqual(candidate._existing_state("2026-10-19")["state"], "no_go")
 
@@ -117,7 +117,7 @@ class F2ScheduledReleaseTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True), patch.object(candidate, "run_fixed_final_guard"):
             candidate._write_state("2026-10-19", "prepare", "prepared")
             with self.assertRaisesRegex(candidate.ScheduledF2Error, "oversized"):
-                candidate.final(self.runner(self.epoch(1, 11)), popen=lambda *a, **k: OversizedResult(), clock=lambda: self.epoch(1, 11))
+                candidate.final(self.runner(self.epoch(1, 20)), popen=lambda *a, **k: OversizedResult(), clock=lambda: self.epoch(1, 20))
 
     def test_state_rejects_wrong_mode_and_symlink(self):
         with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True):

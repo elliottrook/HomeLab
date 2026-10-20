@@ -1,4 +1,3 @@
-import hashlib
 import re
 import unittest
 from pathlib import Path
@@ -21,12 +20,18 @@ class F2FailurePhaseCardTests(unittest.TestCase):
             "scripts/local-ai/f2_scheduled_release_candidate.py",
         }
         self.assertEqual({path for path, _ in rows}, expected)
-        for relative, digest in rows:
-            with self.subTest(path=relative):
-                self.assertEqual(
-                    hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(),
-                    digest,
-                )
+        # This is a historical 2026-10-20 inactive-install card. Its pins
+        # intentionally describe the bytes reviewed for that card, not the
+        # later 2026-10-21 source-window correction.
+        self.assertEqual(
+            dict(rows),
+            {
+                "scripts/local-ai/f2_scheduled_release_candidate.py":
+                    "aef623afc1754d4fab75e09fc4182773bc0a1db9a56d2379274fec3f0855cd23",
+                "scripts/local-ai/test_f2_scheduled_release_candidate.py":
+                    "df4d3402bff12f362432d53fc57af072eb67897a848864cc8da3eb706f5b2bf0",
+            },
+        )
 
 
 if __name__ == "__main__":

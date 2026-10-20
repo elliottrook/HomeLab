@@ -28,6 +28,8 @@ LOCAL_ZONE = ZoneInfo("America/Vancouver")
 STATE_ROOT = Path("/var/lib/local-ai-lab/f2-scheduled")
 OBSERVER = Path("/usr/local/libexec/local-ai-lease/f2_observer_runner_candidate.py")
 HARD_END_MINUTE = 100  # 01:40 Vancouver
+PREPARE_MINUTE = 75  # 01:15 Vancouver
+FINAL_MINUTE = 80  # 01:20 Vancouver
 SCHEMA = "aster-f2-scheduled.v1"
 
 FAILURE_CLASSES = frozenset({
@@ -98,7 +100,7 @@ def _state_root() -> Path:
 def _failure_class(phase: str, exc: BaseException) -> str:
     """Map internal failures to a bounded, content-free diagnostic code."""
     text = str(exc)
-    if "outside the 01:09" in text or "outside the 01:10" in text:
+    if "outside the 01:15" in text or "outside the 01:20" in text:
         return "WINDOW"
     if "custody" in text or "state directory" in text:
         return "STATE_CUSTODY"
@@ -213,8 +215,8 @@ def prepare(runner: Callable, *, clock: Callable[[], float] = time.time) -> dict
     epoch = int(clock())
     cycle, minute = _cycle(epoch)
     try:
-        if minute != 69:
-            raise ScheduledF2Error("prepare is outside the 01:09 window")
+        if minute != PREPARE_MINUTE:
+            raise ScheduledF2Error("prepare is outside the 01:15 window")
         if _existing_state(cycle) is not None:
             raise ScheduledF2Error("cycle already has terminal or prepared state")
         capture_fixed_preflight(runner)
@@ -234,8 +236,8 @@ def final(runner: Callable, *, popen=subprocess.run,
     epoch = int(clock())
     cycle, minute = _cycle(epoch)
     try:
-        if not 70 <= minute < 80:
-            raise ScheduledF2Error("final gate is outside the 01:10-01:19 window")
+        if minute != FINAL_MINUTE:
+            raise ScheduledF2Error("final gate is outside the 01:20 window")
         if _existing_state(cycle) != {"schema": SCHEMA, "cycle": cycle,
                                       "phase": "prepare", "state": "prepared",
                                       "error_class": "", "first_failure_phase": "",

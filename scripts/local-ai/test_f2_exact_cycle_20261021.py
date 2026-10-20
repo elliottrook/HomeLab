@@ -23,12 +23,14 @@ class F2ExactCycle20261021Tests(unittest.TestCase):
             self.assertIn("Persistent=no", text)
             self.assertIn("Unit=f2-preflight-", text)
 
-    def test_card_refuses_current_coordinator_window(self):
+    def test_card_pins_corrected_coordinator_window(self):
         text = CARD.read_text(encoding="utf-8")
-        self.assertIn("not feasible for activation", text)
-        self.assertIn("preparation only at 01:09 and final only from 01:10", text)
+        self.assertIn("PREPARE_MINUTE = 75", text)
+        self.assertIn("FINAL_MINUTE = 80", text)
+        self.assertNotIn("not feasible for activation", text)
         self.assertIn("184cd8b0f96644519ccf666d22dcfc7cf4799dbc8457e5f68f35dd25a98c6dab", text)
         self.assertIn("a18f8a797c4f4148aa5450e5569545fac1b0c7a2266550ebb5b02912a793cf9d", text)
+        self.assertIn("fd711a4c1afa9fe128464f61390d63c54f7e513a8811cbc79f0d27c522452356", text)
 
     def test_card_contains_exact_unit_hashes_after_replacement(self):
         text = CARD.read_text(encoding="utf-8")
