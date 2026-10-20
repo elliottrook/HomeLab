@@ -24,8 +24,9 @@ on stable addresses so saved print queues and recovery paths remain valid.
 
 - Printer: Canon MF644Cdw, Ethernet/Wi-Fi MAC `10:98:C3:DE:85:91`, IPv4
   `192.168.1.183`, original DHCP hostname `Canoncf5f20`.
-- Printer AirPrint, IPP and IPv4 mDNS were enabled; Wireless LAN Power Save was
-  off; Auto Sleep was one minute; main-controller firmware was `14.03`.
+- Printer AirPrint, IPP and IPv4 mDNS were initially enabled; Wireless LAN
+  Power Save was off; Auto Sleep was one minute; main-controller firmware was
+  `14.03`.
 - The prior mDNS service name was corrupted by accumulated collision suffixes.
   It was changed, with approval, to `Canon MF644Cdw Office` and the printer was
   restarted.
@@ -36,6 +37,11 @@ on stable addresses so saved print queues and recovery paths remain valid.
 - The evidence substantiates a printer firmware/sleep interaction: ordinary
   sleep suppresses this device's Bonjour responder even though the network and
   print service remain available. Wireless LAN Power Save is not the cause.
+- A permanently active proxy beside native mDNS produced two discovery entries
+  whenever the printer woke, because the printer collision-renamed its native
+  instance to `Canon MF644Cdw Office (de:85:91)`. IPv4 mDNS is now disabled on
+  the MF644 only; AirPrint and IPP remain enabled, making the Mac proxy the sole
+  Bonjour authority while clients still print directly to the printer.
 - The Canon MF210 `Hall` printer, MAC `28:C2:DD:F1:B2:E7`, answers fresh mDNS
   service, SRV, TXT and host queries directly at `192.168.1.205`; it does not
   reproduce the MF644 sleep-time failure. Its IPP port also remains reachable.
@@ -55,6 +61,8 @@ In scope:
 - preserve `192.168.1.205` for the MF210 `Hall` printer in OPNsense Dnsmasq;
 - publish one static `_ipp._tcp,_universal` Bonjour record from the always-awake
   Mac mini;
+- disable only the MF644's native IPv4 mDNS advertisement to prevent duplicate
+  discovery entries while retaining AirPrint and IPP;
 - retain the printer's existing AirPrint capabilities and one-minute sleep;
 - document validation, recovery and rollback.
 
@@ -146,6 +154,7 @@ Required graduation evidence:
 5. the proxy hostname resolves to `192.168.1.183`.
 6. TCP 631 is reachable while the printer UI reports sleep.
 7. publisher logs contain no `Name in use` collision.
+8. discovery shows one MF644 instance after the retired native record expires.
 
 ## Observability and maintenance
 
@@ -165,11 +174,14 @@ Rollback:
 
 1. `launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.jason.homelab.canon-mf644-airprint.plist`
 2. remove the installed plist (retain the Git copy for evidence);
-3. remove only the affected `canon-mf644cdw` or `canon-mf210-hall` Dnsmasq
+3. re-enable IPv4 mDNS on the MF644 only after the proxy has stopped; restore
+   its desired native mDNS/AirPrint name if the printer retained a collision
+   suffix;
+4. remove only the affected `canon-mf644cdw` or `canon-mf210-hall` Dnsmasq
    reservation, or restore its named OPNsense checkpoint if broader Dnsmasq
    recovery is required;
-4. restart Dnsmasq and verify its health;
-5. clients fall back to native discovery while the printer is awake or direct
+5. restart Dnsmasq and verify its health;
+6. clients fall back to native discovery while the printer is awake or direct
    IPP at `192.168.1.183`.
 
 ## Documentation and systems-of-record impact
@@ -207,6 +219,8 @@ documented, logs are collision-free, and this record contains the final evidence
 | 2026-10-19 | Publisher output contains both successful registrations and no `Name in use` or conflict entry | Collision control passed |
 | 2026-10-19 | Queried the MF210 directly on UDP 5353 after it had been idle; `_ipp._tcp.local` returned `Hall`, its full AirPrint TXT/SRV data and `Canon5fb19f.local` at `192.168.1.205`; TCP 631 also connected | MF210 does not reproduce the MF644 issue; no proxy warranted |
 | 2026-10-19 | Confirmed the active lease maps `28:C2:DD:F1:B2:E7` to `192.168.1.205`, saved the second checkpoint, added `canon-mf210-hall.internal`, restarted Dnsmasq and validated both port 53 and direct port 53053 resolution | MF210 reservation healthy; Bonjour and IPP unchanged |
+| 2026-10-19 | Duplicate screenshot and live browse showed the proxy's clean instance plus the printer's collision-suffixed native instance; the printer did not answer a direct mDNS query while asleep | Duplicate mechanism confirmed rather than inferred |
+| 2026-10-19 | With approval, disabled only MF644 IPv4 mDNS. Remote UI still reports AirPrint On and IPP Printing On; direct UDP 5353 now times out, TCP 631 connects, the proxy resolves to `canon-mf644-proxy.local:631`, and after cache expiry browse shows one MF644 plus `Hall` | Duplicate eliminated without proxying print traffic |
 
 ## User-facing handover
 
@@ -222,11 +236,10 @@ reservation unless the LaunchAgent is also disabled or retargeted.
 ## Close-out
 
 The persistent publisher is active and the post-deployment intent/efficiency
-review passed: one idle `dns-sd` process provides discovery, introduces no print
-proxy or new trust path, and retains native sleep and direct IPP. The accepted
-limitation is that stable Bonjour discovery depends on the Mac mini user
-LaunchAgent. The printer also advertises a collision-suffixed native instance
-when awake; clients should use the stable unsuffixed proxy instance.
+review passed: one idle `dns-sd` process provides the sole MF644 discovery
+record, introduces no print proxy or new trust path, and retains native sleep,
+AirPrint capability and direct IPP. Stable Bonjour discovery depends on the Mac
+mini user LaunchAgent; direct-IP printing is the independent recovery path.
 
 ## Documentation adequacy reflection
 

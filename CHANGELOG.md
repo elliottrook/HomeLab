@@ -15,6 +15,10 @@
   Bonjour failure, then reserved its existing `192.168.1.205` address for MAC
   `28:C2:DD:F1:B2:E7` as `canon-mf210-hall.internal`; DNS, IPP and native
   Bonjour all passed after the Dnsmasq restart.
+- Removed the MF644's duplicate discovery entry by disabling only its native
+  IPv4 mDNS advertisement. AirPrint and IPP remain enabled, direct printing to
+  port 631 passes, and the collision-safe Mac advertisement is now the sole
+  visible MF644 Bonjour instance.
 
 ## 2026-10-18 — Downstairs Apple TV Jellyfin access
 
