@@ -522,7 +522,8 @@ The subsequent
 refuses that unreviewed extension and the incomplete canonical intake before
 any evaluation can be planned. An eligible input produces only a digest and
 bounded counts with model, tool and execution authority explicitly false.
-Its focused offline suite passed 14/14 tests. This prepares a reproducible D4
+Its focused offline suite passed 16/16 tests, including malformed container,
+target and review-field types. This prepares a reproducible D4
 evaluation boundary without reviewing the draft on Jason's behalf, calling a
 model, granting a tool or creating promotion evidence.
 

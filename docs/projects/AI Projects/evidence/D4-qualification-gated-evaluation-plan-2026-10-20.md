@@ -29,14 +29,16 @@ necessary input gate, not permission to run an evaluation or promote a model.
 
 ## Verification
 
-The focused intake, extension and plan suite passed **14/14** tests on the
+The focused intake, extension and plan suite passed **16/16** tests on the
 Stream A checkout. The tests prove that:
 
 1. the unreviewed extension draft fails closed;
 2. the incomplete canonical intake fails closed;
 3. a synthetic completed/reviewed fixture produces bounded metadata;
 4. private evaluation fields are absent from the output; and
-5. changing reviewed corpus content changes the bound digest.
+5. changing reviewed corpus content changes the bound digest; and
+6. malformed root, case-container, target and review-field types fail closed
+   instead of crashing or being treated as reviewed input.
 
 ## Practical implication
 

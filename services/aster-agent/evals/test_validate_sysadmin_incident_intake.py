@@ -88,6 +88,33 @@ class ValidateIntakeTests(unittest.TestCase):
             with self.assertRaisesRegex(SystemExit, "qualification requires status"):
                 main([str(path), "--qualification"])
 
+    def test_malformed_container_shapes_fail_closed(self):
+        self.assertEqual(validate_intake([]), ["intake must be an object"])
+        self.assertEqual(validate_for_qualification([]), ["intake must be an object"])
+
+        malformed = self.value | {"required_fields": "id", "cases": "not-a-list"}
+        self.assertIn("required_fields must not be empty", validate_intake(malformed))
+        self.assertIn("cases must be a list", validate_intake(malformed))
+        self.assertIn("cases must be a list", validate_for_qualification(malformed))
+
+        malformed = self.value | {"cases": ["not-an-object"]}
+        self.assertIn("every case must be an object", validate_intake(malformed))
+        self.assertIn("every case must be an object", validate_for_qualification(malformed))
+
+    def test_boolean_or_negative_targets_and_non_string_review_fail_closed(self):
+        self.complete_fixture_extension()
+        self.value["development_target"] = True
+        self.value["holdout_target"] = -1
+        self.value["cases"][0]["reviewer"] = ["Jason"]
+        self.value["cases"][0]["reviewed_at"] = {"date": "2026-09-28"}
+        errors = validate_intake(self.value)
+        self.assertIn("development_target must be a nonnegative integer", errors)
+        self.assertIn("holdout_target must be a nonnegative integer", errors)
+        self.assertIn(
+            f"{self.value['cases'][0]['id']}: reviewer and reviewed_at are required",
+            errors,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
