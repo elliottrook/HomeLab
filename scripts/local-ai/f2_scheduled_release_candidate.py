@@ -30,6 +30,21 @@ OBSERVER = Path("/usr/local/libexec/local-ai-lease/f2_observer_runner_candidate.
 HARD_END_MINUTE = 100  # 01:40 Vancouver
 SCHEMA = "aster-f2-scheduled.v1"
 
+FAILURE_CLASSES = frozenset({
+    "WINDOW",
+    "STATE_CONFLICT",
+    "STATE_CUSTODY",
+    "PREFLIGHT_FAILED",
+    "FINAL_GUARD_FAILED",
+    "OBSERVER_TIMEOUT",
+    "OBSERVER_FAILED",
+    "OBSERVER_OUTPUT_OVERSIZED",
+    "OBSERVER_OUTPUT_INVALID",
+    "OBSERVER_PROJECTION_INVALID",
+    "FINAL_FAILED",
+    "UNKNOWN",
+})
+
 
 class ScheduledF2Error(ValueError):
     pass
@@ -80,12 +95,47 @@ def _state_root() -> Path:
     return STATE_ROOT
 
 
+def _failure_class(phase: str, exc: BaseException) -> str:
+    """Map internal failures to a bounded, content-free diagnostic code."""
+    text = str(exc)
+    if "outside the 01:09" in text or "outside the 01:10" in text:
+        return "WINDOW"
+    if "custody" in text or "state directory" in text:
+        return "STATE_CUSTODY"
+    if "cycle already" in text or "prepared state" in text:
+        return "STATE_CONFLICT"
+    if isinstance(exc, subprocess.TimeoutExpired) or "hard deadline" in text:
+        return "OBSERVER_TIMEOUT"
+    if "bounded observer returned" in text:
+        return "OBSERVER_FAILED"
+    if "projection is oversized" in text:
+        return "OBSERVER_OUTPUT_OVERSIZED"
+    if "projection is invalid" in text:
+        return "OBSERVER_OUTPUT_INVALID"
+    if "projection is incomplete" in text or "projection differs" in text:
+        return "OBSERVER_PROJECTION_INVALID"
+    if phase == "prepare":
+        return "PREFLIGHT_FAILED"
+    if "final gate" in text or "fixed F2" in text:
+        return "FINAL_GUARD_FAILED"
+    if phase == "final":
+        return "FINAL_FAILED"
+    return "UNKNOWN"
+
+
 def _write_state(cycle: str, phase: str, state: str, error_class: str = "",
-                 result: Optional[dict] = None) -> None:
+                 result: Optional[dict] = None, *,
+                 first_failure_phase: str = "", failure_class: str = "") -> None:
     root = _state_root()
     path = root / f"{cycle}.json"
+    if error_class not in FAILURE_CLASSES | {""} or failure_class not in FAILURE_CLASSES | {""}:
+        raise ScheduledF2Error("failure class is not bounded")
+    if first_failure_phase not in {"", "prepare", "final"}:
+        raise ScheduledF2Error("failure phase is invalid")
     payload = {"schema": SCHEMA, "cycle": cycle, "phase": phase,
-               "state": state, "error_class": error_class}
+               "state": state, "error_class": error_class,
+               "first_failure_phase": first_failure_phase,
+               "failure_class": failure_class}
     if result is not None:
         payload["result"] = result
     raw = (json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n").encode()
@@ -143,6 +193,21 @@ def _existing_state(cycle: str) -> Optional[dict]:
     return value
 
 
+def _record_failure(cycle: str, phase: str, exc: BaseException) -> dict:
+    """Persist the first failure and never overwrite an earlier terminal no-go."""
+    existing = _existing_state(cycle)
+    if existing is not None and existing.get("state") == "no_go":
+        return existing
+    code = _failure_class(phase, exc)
+    _write_state(cycle, phase, "no_go", code,
+                 first_failure_phase=phase, failure_class=code)
+    return _existing_state(cycle) or {
+        "schema": SCHEMA, "cycle": cycle, "phase": phase,
+        "state": "no_go", "error_class": code,
+        "first_failure_phase": phase, "failure_class": code,
+    }
+
+
 def prepare(runner: Callable, *, clock: Callable[[], float] = time.time) -> dict:
     """Run the slow chain before 01:10 and persist one prepared state."""
     epoch = int(clock())
@@ -157,7 +222,7 @@ def prepare(runner: Callable, *, clock: Callable[[], float] = time.time) -> dict
         return {"schema": SCHEMA, "cycle": cycle, "phase": "prepare", "state": "prepared"}
     except Exception as exc:
         try:
-            _write_state(cycle, "prepare", "no_go", type(exc).__name__)
+            _record_failure(cycle, "prepare", exc)
         except Exception:
             pass
         raise
@@ -173,7 +238,8 @@ def final(runner: Callable, *, popen=subprocess.run,
             raise ScheduledF2Error("final gate is outside the 01:10-01:19 window")
         if _existing_state(cycle) != {"schema": SCHEMA, "cycle": cycle,
                                       "phase": "prepare", "state": "prepared",
-                                      "error_class": ""}:
+                                      "error_class": "", "first_failure_phase": "",
+                                      "failure_class": ""}:
             raise ScheduledF2Error("prepared state is absent or not exact")
         run_fixed_final_guard(runner)
         local = datetime.fromtimestamp(epoch, LOCAL_ZONE)
@@ -208,7 +274,7 @@ def final(runner: Callable, *, popen=subprocess.run,
         return value
     except Exception as exc:
         try:
-            _write_state(cycle, "final", "no_go", type(exc).__name__)
+            _record_failure(cycle, "final", exc)
         except Exception:
             pass
         raise
@@ -255,8 +321,9 @@ def main(argv=None) -> int:
         print(json.dumps(value, sort_keys=True))
         return 0
     except Exception as exc:
+        failure_class = _failure_class(args.phase, exc)
         print(json.dumps({"schema": SCHEMA, "state": "no_go",
-                          "error_class": type(exc).__name__}, sort_keys=True))
+                          "phase": args.phase, "failure_class": failure_class}, sort_keys=True))
         return 1
 
 

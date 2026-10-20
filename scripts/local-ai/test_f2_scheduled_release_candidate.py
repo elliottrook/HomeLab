@@ -82,6 +82,29 @@ class F2ScheduledReleaseTests(unittest.TestCase):
             with self.assertRaisesRegex(candidate.ScheduledF2Error, "prepared state"):
                 candidate.final(self.runner(self.epoch(1, 11)), clock=lambda: self.epoch(1, 11))
 
+    def test_first_prepare_failure_survives_final_attempt(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True), patch.object(candidate, "capture_fixed_preflight", side_effect=candidate.ScheduledF2Error("fixed source failed")):
+            with self.assertRaises(candidate.ScheduledF2Error):
+                candidate.prepare(self.runner(self.epoch(1, 9)), clock=lambda: self.epoch(1, 9))
+            before = candidate._existing_state("2026-10-19")
+            self.assertEqual(before["phase"], "prepare")
+            self.assertEqual(before["first_failure_phase"], "prepare")
+            self.assertEqual(before["failure_class"], "PREFLIGHT_FAILED")
+            with self.assertRaises(candidate.ScheduledF2Error):
+                candidate.final(self.runner(self.epoch(1, 11)), clock=lambda: self.epoch(1, 11))
+            self.assertEqual(candidate._existing_state("2026-10-19"), before)
+
+    def test_final_timeout_records_bounded_class_and_first_phase(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True), patch.object(candidate, "run_fixed_final_guard"):
+            candidate._write_state("2026-10-19", "prepare", "prepared")
+            with self.assertRaisesRegex(candidate.ScheduledF2Error, "hard deadline"):
+                candidate.final(self.runner(self.epoch(1, 11)), popen=lambda *a, **k: TimeoutResult(), clock=lambda: self.epoch(1, 11))
+            saved = candidate._existing_state("2026-10-19")
+            self.assertEqual(saved["phase"], "final")
+            self.assertEqual(saved["first_failure_phase"], "final")
+            self.assertEqual(saved["failure_class"], "OBSERVER_TIMEOUT")
+            self.assertIn(saved["failure_class"], candidate.FAILURE_CLASSES)
+
     def test_final_kills_process_group_on_early_deadline(self):
         with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True), patch.object(candidate, "run_fixed_final_guard"), patch.object(candidate.os, "killpg") as killpg:
             candidate._write_state("2026-10-19", "prepare", "prepared")
