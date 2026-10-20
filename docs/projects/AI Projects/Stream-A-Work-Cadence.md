@@ -16,6 +16,12 @@ card, and 10/10 target-Linux focused tests pass. It preserves the first bounded
 failure phase/class on a future attempt. All F2 timers remain disabled; the
 failed helper-service status and terminal October 20 evidence remain intact.
 This installation does not authorize or schedule another scan.
+Jason then approved a fresh October 21 exact cycle. A fixed-window coordinator
+with a root-only rollback is installed; two nonpersistent timers are active
+for preparation at 01:15 and final/read-only scan at 01:20 PDT, with a 01:40
+hard deadline. The recurring timers remain disabled. A one-occurrence 01:42
+Stream A heartbeat may only reconcile the terminal state and remove/disable
+the spent timers; it cannot retry or advance F3 automatically.
 
 **October 18 daytime lab-hours path:** Jason accepted up to 90 minutes of
 daytime Aster/voice unavailability for a first supervised, no-reboot pilot.

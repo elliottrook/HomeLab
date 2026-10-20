@@ -81,6 +81,12 @@ A1 run follows. The bounded first-failure diagnostic correction is now
 installed inactive with verified rollback and 10/10 target-Linux tests; it
 does not repair the historical result. A fresh reviewed and separately
 approved cycle is still required.
+Jason has now approved and activated that fresh cycle for October 21. The
+fixed-window coordinator is installed with verified rollback; preparation is
+scheduled once at 01:15 PDT and the read-only scan once at 01:20, bounded by
+01:40. A 01:42 observer is reconciliation-only. F2 remains open until the
+actual terminal evidence contains exactly three valid exit-zero archive rows
+and clean postchecks; no F3 or full-stop action follows merely from activation.
 
 **October 15 afternoon compatibility checkpoint:** Jason approved the
 hash-pinned **inactive** full-stop candidate installation on Proxmox. The
