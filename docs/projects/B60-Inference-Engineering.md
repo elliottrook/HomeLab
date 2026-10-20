@@ -12,6 +12,14 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October 20 F2 review](B60-Inference-Engineering/f2-cycle-review-20261020.md)
+observed on-time prepare/final service dispatch but terminal NO-GO with zero
+retained archive rows; the one-shot timers are disabled. Four offline findings
+identify a wrong process-factory default, an early mirror timing conflict and
+failure-provenance loss in the published source. A minimal disposable launcher
+correction passes eight owner tests. Newer installed coordinator bytes require
+owner reconciliation; no live fix, retry, scan or model call ran here.
+
 The [October 19 owner-integration receipt](B60-Inference-Engineering/owner-integration-receipt-20261019.md)
 supersedes the earlier unchanged-owner status: Adaptive `a2cae9e3` and platform
 `442c0c00` publish substantial admission/recovery work. B60 imported the exact
