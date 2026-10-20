@@ -1551,6 +1551,45 @@ refresh. Final validation passed 74 skin tests, four genre-plugin tests, 13
 audio-bridge tests, three deterministic-package tests, 48 XML parses, all four
 ZIP CRC checks, archive/manifest hash verification and whitespace validation.
 
+YouTube v1 scope addition, 2026-10-19: Jason chose YouTube as the final v1
+feature and deferred Blu-ray to a separate v2 decision. This remains within
+the approved Stream A Kodi scope. The bounded change affects only the private
+skin, release metadata and the disposable/physical Kodi clients; it creates no
+new inbound network path and does not alter Jellyfin, media files or household
+services. YouTube necessarily sends searches, playback and signed-in activity
+to Google. Its API key, OAuth client secret, account session and history are
+therefore client-private state and are excluded from Git and the release ZIP.
+Rollback is the preceding v1 skin archive or Estuary fallback. Abort promotion
+if the official add-on breaks skin loading, requires credentials in tracked
+files, or cannot sustain the physical endpoint's agreed playback tests.
+
+The skin now requires official Kodi Omega `plugin.video.youtube` 7.4.4 and
+places YouTube between Music and Settings in both rail states. Selection opens
+the add-on's maintained root catalogue; Aster's video browser recognizes its
+folder path, heading and official installed icon without vendoring or
+recreating YouTube artwork. The deterministic manifest declares the official
+external dependency, while account provisioning remains a per-client install
+step. Blu-ray code, optical-drive handling and DRM work are explicitly absent
+from v1. Offline validation passed 75 skin tests, four genre-plugin tests, 13
+audio-bridge tests, three package tests, complete XML parsing, deterministic
+archive comparison and Git whitespace checks. Live sign-in, subscriptions,
+1080p60/2160p60, dropped-frame and HDR behaviour remain part of the physical
+LibreELEC gate rather than being claimed from the Mac layout check.
+
+The disposable Mac deployment was checkpointed at
+`/private/tmp/aster-youtube-predeploy-20261019`. Official Omega packages for
+YouTube 7.4.4, InputStream Adaptive 21.5.25, InputStream Helper 0.8.6 and
+PySocks 1.7.0 were installed from `mirrors.kodi.tv`; Kodi's database and
+JSON-RPC independently reported all four enabled, and the updated Aster skin
+loaded without a missing dependency or skin exception. Activating the exact
+YouTube plugin URI reached its first-run setup wizard and created only local
+add-on state. No API/OAuth credential or Google account was entered. The Mac
+locked before visual rail inspection, so wizard choices, account sign-in and
+playback remain an owner-present acceptance step rather than a completed
+claim. A logged loopback-listener error on the locked Mac pilot must also be
+rechecked after the wizard selects its default loopback HTTP setting; it does
+not justify broadening the listener or opening a firewall path.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

@@ -8,6 +8,13 @@ and can render at its native source resolution. See `RELEASE.md` for the
 private deployment bundle, install order, client-state boundary, rollback and
 hardware graduation checklist.
 
+The final v1 scope adds the official Kodi `plugin.video.youtube` 7.4.4 as an
+external dependency and a first-class Aster navigation destination. The skin
+opens the add-on's own root catalogue and uses its maintained icon; it does not
+fork, vendor or scrape YouTube. Google API/OAuth credentials remain private
+per-client add-on state and are never stored in this repository or release
+bundle. Blu-ray support is deliberately deferred to a possible v2 decision.
+
 Version 0.8.20 gives Kodi's settings landing and category windows a restrained
 Aster treatment. Required Kodi settings control IDs remain unchanged, while a
 dark identity column, warm layered work surface, rounded controls, 24-hour

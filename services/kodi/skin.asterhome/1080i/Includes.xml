@@ -13,6 +13,7 @@
         <value>Minimum score…</value>
     </variable>
     <variable name="AsterBrowseIcon">
+        <value condition="String.Contains(Container.FolderPath,plugin.video.youtube)">special://home/addons/plugin.video.youtube/resources/media/icon.png</value>
         <value condition="String.Contains(Container.FolderPath,plugin.video.asterhome)">special://skin/media/media-128.png</value>
         <value condition="String.Contains(Container.FolderPath,archive-tv.xsp)">special://skin/media/09-archive-tv.png</value>
         <value condition="String.Contains(Container.FolderPath,archive-film.xsp)">special://skin/media/10-archive-film.png</value>
@@ -26,6 +27,7 @@
         <value>Score unavailable</value>
     </variable>
     <variable name="AsterBrowseHeading">
+        <value condition="String.Contains(Container.FolderPath,plugin.video.youtube)">YouTube</value>
         <value condition="Container.Content(sets)">Collections</value>
         <value condition="String.Contains(Container.FolderPath,plugin.video.asterhome)">$INFO[Container.PluginCategory]</value>
         <value>$INFO[Container.FolderName]</value>
@@ -48,6 +50,7 @@
         <value>$INFO[ListItem.Label]</value>
     </variable>
     <variable name="AsterBrowseAction">
+        <value condition="Container(50).ListItem.IsFolder">▶  Browse</value>
         <value condition="String.IsEqual(Container(50).ListItem.Property(AsterMediaKind),tvshow)">▶  Browse</value>
         <value condition="Container.Content(tvshows) | Container.Content(sets) | Container.Content(seasons)">▶  Browse</value>
         <value>▶  Play</value>

@@ -30,6 +30,10 @@ class ReleasePackageTests(unittest.TestCase):
             manifest = json.loads((Path(first) / "aster-home-v1.0.0-manifest.json").read_text())
             self.assertEqual(manifest["status"],
                              "production-candidate-pending-physical-libreelec-gate")
+            self.assertEqual(manifest["external_dependencies"], [
+                {"addon_id": "plugin.video.youtube", "version": "7.4.4",
+                 "source": "Kodi Omega repository"}
+            ])
 
     def test_nonempty_output_fails_closed(self):
         with tempfile.TemporaryDirectory() as directory:

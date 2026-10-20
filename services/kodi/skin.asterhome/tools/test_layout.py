@@ -68,12 +68,42 @@ class LayoutTests(unittest.TestCase):
                     if value and value.startswith('special://skin/media/'):
                         self.assertTrue((ROOT / value.removeprefix('special://skin/')).is_file(), value)
 
-    def test_v1_companion_plugins_are_required_skin_dependencies(self):
+    def test_v1_companion_and_youtube_plugins_are_required_dependencies(self):
         addon = ET.parse(ROOT / 'addon.xml')
         imports = {node.get('addon'): node.get('version')
                    for node in addon.findall('.//requires/import')}
         self.assertEqual(imports.get('plugin.video.asterhome'), '1.0.0')
         self.assertEqual(imports.get('plugin.audio.asterbooks'), '1.0.0')
+        self.assertEqual(imports.get('plugin.video.youtube'), '7.4.4')
+
+    def test_youtube_is_a_first_class_navigation_destination(self):
+        rail = ET.parse(ROOT / '1080i/IncludesHub.xml')
+        youtube = rail.find('.//control[@id="9008"]')
+        self.assertIsNotNone(youtube)
+        self.assertEqual(youtube.findtext('label'), 'YouTube')
+        self.assertEqual(
+            youtube.findtext('onclick'),
+            'ActivateWindow(Videos,"plugin://plugin.video.youtube/",return)')
+        self.assertEqual(youtube.findtext('onup'), '9007')
+        self.assertEqual(youtube.findtext('ondown'), '9005')
+        self.assertEqual(rail.find('.//control[@id="9007"]').findtext('ondown'),
+                         '9008')
+        self.assertEqual(rail.find('.//control[@id="9005"]').findtext('onup'),
+                         '9008')
+        youtube_icons = [node.text for node in rail.findall('.//texture')
+                         if node.text and 'plugin.video.youtube' in node.text]
+        self.assertEqual(len(youtube_icons), 2)
+        self.assertTrue(all(icon.endswith('/resources/media/icon.png')
+                            for icon in youtube_icons))
+
+        includes = ET.parse(ROOT / '1080i/Includes.xml')
+        icon = includes.find('.//variable[@name="AsterBrowseIcon"]/value[1]')
+        self.assertIn('plugin.video.youtube', icon.get('condition'))
+        self.assertEqual(icon.text,
+                         'special://home/addons/plugin.video.youtube/resources/media/icon.png')
+        heading = includes.find('.//variable[@name="AsterBrowseHeading"]/value[1]')
+        self.assertIn('plugin.video.youtube', heading.get('condition'))
+        self.assertEqual(heading.text, 'YouTube')
 
     def test_settings_exposes_only_installed_support_tools(self):
         settings = ET.parse(ROOT / '1080i/Settings.xml')

@@ -2,10 +2,10 @@
   "schema": "aster-home-kodi-release-record.v1",
   "release": "1.0.0",
   "status": "production-candidate-pending-physical-libreelec-gate",
-  "built_on": "2026-10-17",
+  "built_on": "2026-10-19",
   "design_canvas": "1920x1080-16:9-scales-to-4k",
   "artifact_directory": "services/kodi/dist/aster-home-v1.0.0",
-  "manifest_sha256": "a4ce310afb48ce8ac4ceee683856aa59c2416e537ce3a3fcd67a860954e50386",
+  "manifest_sha256": "9b33084462076386c060cc12752571f7fbb4be7c054736f9beaba9f242858aef",
   "artifacts": [
     {
       "addon_id": "plugin.video.asterhome",
@@ -28,8 +28,8 @@
     {
       "addon_id": "skin.asterhome",
       "archive": "skin.asterhome-1.0.0.zip",
-      "bytes": 4535119,
-      "sha256": "087f1dc788c62f9ebf0a73591ea0944845c6da4c353782e56796218793b5a747"
+      "bytes": 4535288,
+      "sha256": "67b3cfd920913bbbfe02a30e77069fcb5f210e49f1263ad8036098e3b781beaf"
     }
   ],
   "install_order": [
@@ -38,14 +38,23 @@
     "resource.uisounds.asterhome",
     "skin.asterhome"
   ],
+  "external_dependencies": [
+    {
+      "addon_id": "plugin.video.youtube",
+      "version": "7.4.4",
+      "source": "Kodi Omega repository"
+    }
+  ],
   "validation": {
-    "skin_tests": 74,
+    "skin_tests": 75,
     "video_plugin_tests": 4,
     "audio_bridge_tests": 13,
     "packaging_tests": 3,
     "xml_files_parsed": 48,
     "zip_crc_checks": 4,
-    "disposable_kodi_install_rehearsal": "passed-all-four-components-enabled-at-v1.0.0"
+    "disposable_kodi_install_rehearsal": "passed-all-four-components-enabled-at-v1.0.0",
+    "youtube_official_addon": "7.4.4-enabled-with-inputstream-adaptive-21.5.25",
+    "youtube_mac_route": "reached-first-run-setup-wizard-no-credentials-entered"
   },
   "rollback_checkpoint": "/private/tmp/aster-home-v1-predeploy-20261017",
   "graduation_blocker": "Physical LibreELEC 4K/HDR10, receiver passthrough, remote reconnect, soak, resource and rollback validation"

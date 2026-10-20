@@ -29,14 +29,19 @@ python3 services/kodi/package_aster_home.py \
 ```
 
 The deterministic bundle contains four independently installable Kodi ZIPs
-and `aster-home-v1.0.0-manifest.json`:
+and `aster-home-v1.0.0-manifest.json`. It also declares one external official
+Kodi dependency, `plugin.video.youtube` 7.4.4; third-party source is not
+vendored into the private bundle:
 
 1. `plugin.video.asterhome` — combined movie/TV genre directories.
 2. `plugin.audio.asterbooks` — loopback-only Audiobookshelf playback bridge.
 3. `resource.uisounds.asterhome` — optional directional Aster clicks.
 4. `skin.asterhome` — the v1 interface.
 
-Install the two plugins first, then the sound resource, then the skin. Use
+Install YouTube 7.4.4 from the official Kodi Omega repository, then install
+the two private plugins, sound resource and skin. Kodi may resolve YouTube
+automatically from that repository because the skin declares it as a required
+dependency, but confirm its installed version before enabling Aster Home. Use
 Kodi's **Add-ons → Install from ZIP file** workflow. Select **Aster Home** under
 **Settings → Interface → Skin**. Select **Aster Home UI Sounds** separately if
 the directional click set is wanted.
@@ -55,6 +60,7 @@ ZIP:
 - Audiobookshelf bridge configuration under the audio add-on's `addon_data`;
 - Aster Books, Home and Digest feed snapshots under the skin's `addon_data`;
 - generated media filters and local Kodi GUI/region/audio settings;
+- YouTube add-on settings, Google API/OAuth credentials, sign-in and history;
 - the optional private camera bridge; and
 - the selected UI-sound preference.
 
@@ -93,6 +99,8 @@ passthrough, or requires broader credentials/network access than documented.
 - [ ] Verify HDR10 through the television and Dolby Atmos/DTS passthrough
       through the receiver using known representative files.
 - [ ] Verify subtitle/audio selection, playback OSD, watched state and resume.
+- [ ] Verify YouTube search, account sign-in, subscriptions and 1080p60 /
+      2160p60 playback; record dropped frames and test HDR separately.
 - [ ] Exercise Music, Books/Audiobooks/Podcasts, Digest and Home failure states.
 - [ ] Measure CPU, GPU, memory, temperature, network and UI responsiveness.
 - [ ] Prove profile backup, Estuary fallback and Aster restore.

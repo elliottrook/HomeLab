@@ -18,6 +18,10 @@ ADDONS = (
     "resource.uisounds.asterhome",
     "skin.asterhome",
 )
+OFFICIAL_DEPENDENCIES = (
+    {"addon_id": "plugin.video.youtube", "version": "7.4.4",
+     "source": "Kodi Omega repository"},
+)
 ZIP_TIME = (2026, 10, 17, 0, 0, 0)
 
 
@@ -84,6 +88,7 @@ def build(output: Path) -> dict:
         "status": "production-candidate-pending-physical-libreelec-gate",
         "design_canvas": "1920x1080-16:9-scales-to-4k",
         "install_order": list(ADDONS),
+        "external_dependencies": list(OFFICIAL_DEPENDENCIES),
         "archives": archives,
     }
     manifest_path = output / f"aster-home-v{RELEASE}-manifest.json"
