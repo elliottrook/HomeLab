@@ -12,9 +12,13 @@ The installed F5/F6 source and unit files were reconciled read-only on
 SYCL/Level Zero, GPU devices, pinned binary, model, and `aster-llama.service`
 identities match the manifest. The API-key file is root-readable only.
 
-The model file is currently `root:root 0777`; this security discrepancy must
-be accepted or corrected by separate review before F5 can report READY. No
-correction is authorized here. The watchdog and owner-heartbeat units are
+The model path is a `root:root 0777` symlink, not a writable model blob. F5
+must resolve it to the pinned regular blob
+`/usr/share/ollama/.ollama/models/blobs/sha256-cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`,
+verify target hash, `ollama:ollama 0644` custody, and the root-controlled
+parent path. LXC110 runs `aster-llama.service` as `ollama:ollama` with `video`
+and `render` supplementary groups. This resolves the apparent mode discrepancy
+and is not a blocker by itself. The watchdog and owner-heartbeat units are
 installed but inactive/disabled, and their state files, lease, lock, watchdog
 status, and owner heartbeat are absent. The recovery candidate is installed
 but cannot be armed by this card.
@@ -22,12 +26,13 @@ but cannot be armed by this card.
 The retained producer remains `EFFECTS_ENABLED = False`; F5/F6 cannot promote
 that producer or infer F3 success.
 
-The LXC110 namespace does not expose the Aster Agent, Speech, or News unit
-names queried during reconciliation; the production llama process is active
-and the News renderer process is present on the host. F5 must use the fixed
-observer ownership/probe paths and record the actual service identity before
-acceptance. This is an evidence discrepancy, not permission to rename,
-restart, or repair services.
+The fixed service namespaces are now identified: LXC104
+`aster-agent.service` (`aster:aster`), LXC116 `aster-speech.service`
+(`aster-speech:aster-speech`), and LXC114
+`news-aggregator-ingest.timer`/`news-aggregator-digest.timer` (active/waiting,
+enabled) plus `news-aggregator-ui.service` (active/running, enabled,
+`root`). F5 must still observe these fresh in the chosen cycle; today's
+identities are not future F5 success and no service may be restarted here.
 
 ## F5 read-only contract
 

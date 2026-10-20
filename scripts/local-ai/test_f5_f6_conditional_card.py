@@ -17,7 +17,12 @@ class F5F6ConditionalCardTests(unittest.TestCase):
             "After F5 is independently reviewed complete",
             "F7 human approval remains mandatory",
             "EFFECTS_ENABLED",
-            "0777",
+            "0777` symlink",
+            "resolve it to the pinned regular blob",
+            "LXC104",
+            "LXC116",
+            "LXC114",
+            "aster-speech:aster-speech",
             "does not install or arm",
         ):
             self.assertIn(phrase, text)
