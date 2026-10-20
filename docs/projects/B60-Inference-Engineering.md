@@ -12,6 +12,11 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October 20 late nightly dispatch](B60-Inference-Engineering/nightly-admission-20261020.md)
+arrived at 13:17 PDT, outside the lab window; no live work was replayed. This
+is separate from the on-time host F2 services' earlier preflight failure.
+Published owner evidence remains unchanged and six offline margin tests pass.
+
 The [October 20 F2 review](B60-Inference-Engineering/f2-cycle-review-20261020.md)
 observed on-time prepare/final service dispatch but terminal NO-GO with zero
 retained archive rows; the one-shot timers are disabled. Four offline findings
