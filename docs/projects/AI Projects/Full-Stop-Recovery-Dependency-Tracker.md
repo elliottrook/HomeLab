@@ -117,6 +117,14 @@ remain distinct future approvals: F3 may write one durable archive receipt
 only after complete F2 evidence; F4 later binds that receipt to a fresh live
 observation. Neither effect is currently authorized.
 
+The downstream conditional F5/F6 card is pinned at platform commit `5106efc0`.
+Stream A's [independent review](evidence/F5-F6-conditional-gates-independent-review-2026-10-20.md)
+passed its isolated 2/2 contract tests and corrected two false/ambiguous
+preflight findings: the model path is a symlink to a restricted pinned blob,
+and the Aster/Speech/News observer namespaces are now explicit. F5 still needs
+fresh read-only observation after F4; F6 remains inactive and separately
+approval-gated. No lease or service stop is prepared as an automatic effect.
+
 The October 16 01:10 read-only archive heartbeat triggered, but no complete
 three-archive result was retained by the time Stream A resumed after the
 start cutoff. It is now **paused**; see the [dated F2 record](evidence/Full-stop-archive-window-missed-2026-10-16.md).
