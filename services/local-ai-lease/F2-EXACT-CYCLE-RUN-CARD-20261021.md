@@ -27,10 +27,12 @@ completed LXC110 mirror and binds it to the later F4/F5 observation.
 ## Source-window correction and feasibility
 
 The source correction pins preparation to an internal `PREPARE_MINUTE = 75`
-(01:15) and final to an internal `FINAL_MINUTE = 80` (01:20). These are exact
-constants, not caller-controlled arguments or broad time ranges. The existing
-01:40 hard deadline, one-attempt state ownership, exact-cycle binding and
-first-failure preservation remain unchanged. The corrected source is still
+(01:15) and final to an internal `FINAL_MINUTE = 80` (01:20). All cooperating
+sources now agree on that exact final minute: the preflight final guard, the
+observer admission window, and the retained producer start window. The
+preflight snapshot remains valid for the fixed 01:15-to-01:20 handoff, and the
+observer/producer hard deadline remains 01:40. These are exact constants, not
+caller-controlled arguments or broad time ranges. The corrected source is still
 source-only until the bounded installation below is separately approved.
 
 ## Exact candidate timer files
@@ -52,12 +54,14 @@ They reference the existing candidate services, pinned as follows:
 | Currently installed coordinator / rollback source | `aef623afc1754d4fab75e09fc4182773bc0a1db9a56d2379274fec3f0855cd23` |
 | `scripts/local-ai/test_f2_scheduled_release_candidate.py` | `ef336677c57a03eca0796e136cd009c2933dad947bc39917346c7eab7544a43b` |
 | `scripts/local-ai/test_f2_exact_cycle_20261021.py` | `42230751765ab14e944a44ad928b996aa1044e04b68b7e81451af03b5597a7e3` |
-| `scripts/local-ai/f2_preflight_snapshot.py` | `22c2d86f68f3afa382ceabe7ba9db791d4730e957792c4d10aefd49ebfd82426` |
-| `scripts/local-ai/test_f2_preflight_snapshot.py` | `759c13ecf6eb68cc97a992d27dbaecdb523f13866c527cfda0bc4ca891199073` |
+| `scripts/local-ai/f2_preflight_snapshot.py` | `a199e369b2a3843a911a3978b410b525db7f1c67a9a8a7878f86f4a829cf57d7` |
+| `scripts/local-ai/test_f2_preflight_snapshot.py` | `7502d7df0872850cb4f4f315ecc6ea5bfd2b49de1a241b47fdb5a5c8748f14c2` |
 | `scripts/local-ai/f2_preflight_fixed_wrapper.py` | `2b381465300db3d7cc1d521123665df19ff58fad12d5cccd54720b9f89cb433c` |
-| `scripts/local-ai/f2_observer_runner_candidate.py` | `6d18f9c88067edb11a04eae84d7c5fb3f0d3f4eb518b359f57277205539f3a2f` |
+| `scripts/local-ai/f2_observer_runner_candidate.py` | `2af6689b82dce85d4a1856ffb6803269a5e2a20bee286012ff92faf9f925578e` |
+| `scripts/local-ai/test_f2_observer_runner_candidate.py` | `c564f560a8c15b4f6d5876859a99b173d99a1c40b7c3a2e505b4ba4621cc38b8` |
 | `scripts/local-ai/fixed_source_adapters.py` | `8241f1b1f3f5caa0d514740d36600f445de257b40a0a0d089bb9febadd1418b9` |
-| `scripts/local-ai/retained_archive_producer_candidate.py` | `5cfe1a53578250590ee656c7b5a808b6b94a60650255efa4857d1fdd94507acb` |
+| `scripts/local-ai/retained_archive_producer_candidate.py` | `5d98f6d9dde9797a92802060b151e9929a4d24849555679f76d65f32ed7caaaf` |
+| `scripts/local-ai/test_retained_archive_producer_candidate.py` | `097136b7388b98120caf8936f516ed081486459d56a8da01b745b107ad8ba070` |
 
 ## Bounded inactive installation and activation card
 

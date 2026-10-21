@@ -25,7 +25,7 @@ Replace only the installed snapshot collector:
 
 | Source | Installed target | Old installed SHA-256 | Required new SHA-256 |
 |---|---|---|---|
-| `scripts/local-ai/f2_preflight_snapshot.py` | `/usr/local/libexec/local-ai-lease/f2_preflight_snapshot.py` | `a2324d6a5ba4869778713319a511acc207f1d8332dd1af7e4520be382cfe02fa` | `22c2d86f68f3afa382ceabe7ba9db791d4730e957792c4d10aefd49ebfd82426` |
+| `scripts/local-ai/f2_preflight_snapshot.py` | `/usr/local/libexec/local-ai-lease/f2_preflight_snapshot.py` | `a2324d6a5ba4869778713319a511acc207f1d8332dd1af7e4520be382cfe02fa` | `a199e369b2a3843a911a3978b410b525db7f1c67a9a8a7878f86f4a829cf57d7` |
 
 The correction removes only the pre-02:00 LXC110 mirror requirement and leaves
 the field empty as an explicit deferred value. F5 remains responsible for
@@ -54,8 +54,8 @@ The source correction was tested with the existing F2 coordinator contract:
 
 | Source | SHA-256 |
 |---|---|
-| `scripts/local-ai/f2_preflight_snapshot.py` | `22c2d86f68f3afa382ceabe7ba9db791d4730e957792c4d10aefd49ebfd82426` |
-| `scripts/local-ai/test_f2_preflight_snapshot.py` | `759c13ecf6eb68cc97a992d27dbaecdb523f13866c527cfda0bc4ca891199073` |
+| `scripts/local-ai/f2_preflight_snapshot.py` | `a199e369b2a3843a911a3978b410b525db7f1c67a9a8a7878f86f4a829cf57d7` |
+| `scripts/local-ai/test_f2_preflight_snapshot.py` | `7502d7df0872850cb4f4f315ecc6ea5bfd2b49de1a241b47fdb5a5c8748f14c2` |
 | `scripts/local-ai/f2_scheduled_release_candidate.py` | `fd711a4c1afa9fe128464f61390d63c54f7e513a8811cbc79f0d27c522452356` |
 
 The new test proves a future LXC110 mirror is not required by F2 prepare and

@@ -25,7 +25,8 @@ from host_exclusion import host_exclusion
 
 Runner = Callable[[tuple[str, ...], float], tuple[int, str]]
 EXPECTED_BACKUP_ID = "backup-49999802-1365"
-FRESHNESS_SECONDS = 90
+FINAL_MINUTE = 80  # 01:20 Vancouver
+FRESHNESS_SECONDS = 360  # 01:15 prepare snapshot remains valid at 01:20 final
 
 PVE_ARTIFACTS = ("pvesh", "get", "/nodes/proxmox/storage/backups/content", "--content", "backup", "--output-format", "json")
 PVE_JOB = ("pvesh", "get", f"/cluster/backup/{EXPECTED_BACKUP_ID}", "--output-format", "json")
@@ -251,8 +252,8 @@ def final_guard(snapshot: F2PreflightSnapshot, *, runner: Runner,
     if code != 0:
         raise F2PreflightError("trusted host clock probe failed")
     local = datetime.fromtimestamp(now_epoch, ZoneInfo("America/Vancouver"))
-    if local.strftime("%Y-%m-%d") != snapshot.cycle or not (10 <= local.hour * 60 + local.minute - 60 < 20):
-        raise F2PreflightError("F2 final guard is outside the 01:10-01:19 window")
+    if local.strftime("%Y-%m-%d") != snapshot.cycle or local.hour * 60 + local.minute != FINAL_MINUTE:
+        raise F2PreflightError("F2 final guard is outside the exact 01:20 window")
     for command in (LOCK_ABSENCE, STATE_ABSENCE, RECEIPT_ABSENCE):
         code, _ = runner(command, 3.0)
         if code != 0:

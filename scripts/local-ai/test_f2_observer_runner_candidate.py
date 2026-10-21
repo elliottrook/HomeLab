@@ -16,7 +16,7 @@ import f2_observer_runner_candidate as f2
 
 
 ZONE = ZoneInfo("America/Vancouver")
-START = datetime(2026, 10, 17, 1, 10, tzinfo=ZONE).timestamp()
+START = datetime(2026, 10, 17, 1, 20, tzinfo=ZONE).timestamp()
 
 
 def result():
@@ -38,8 +38,10 @@ class F2ObserverRunnerTests(unittest.TestCase):
         with self.assertRaises(f2.F2NoGo):
             f2._window(START - 60)
         with self.assertRaises(f2.F2NoGo):
+            f2._window(START + 60)
+        with self.assertRaises(f2.F2NoGo):
             f2._window(START + 600)
-        self.assertLessEqual(f2._window(START + 9 * 60), 1200)
+        self.assertEqual(f2._window(START), 1200)
 
     def test_truenas_schedules_and_busy_state(self):
         tasks = [{"id": i, "enabled": True,

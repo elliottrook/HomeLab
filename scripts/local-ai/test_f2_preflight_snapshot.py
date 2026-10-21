@@ -36,9 +36,9 @@ class F2PreflightSnapshotTests(unittest.TestCase):
         return run
 
     def test_collects_slow_chain_and_final_guard_accepts_fresh_exclusion(self):
-        snapshot = collect_snapshot(self.runner(), cycle="2026-10-19", lease_issued_epoch=self.epoch(4, 0), captured_epoch=self.epoch(1, 10))
+        snapshot = collect_snapshot(self.runner(), cycle="2026-10-19", lease_issued_epoch=self.epoch(4, 0), captured_epoch=self.epoch(1, 15))
         def guard(command, timeout):
-            if command == CLOCK: return 0, str(self.epoch(1, 11))
+            if command == CLOCK: return 0, str(self.epoch(1, 20))
             if command in (LOCK_ABSENCE, STATE_ABSENCE, RECEIPT_ABSENCE): return 0, ""
             if command == LEASE_STATUS: return 0, '{"state":"ready"}'
             if command == QUIET_PROCESSES: return 1, ""
@@ -62,9 +62,9 @@ class F2PreflightSnapshotTests(unittest.TestCase):
         self.assertEqual(snapshot.mirror_identity_sha256, "")
 
     def test_final_guard_rejects_stale_or_changed_exclusion(self):
-        snapshot = collect_snapshot(self.runner(), cycle="2026-10-19", lease_issued_epoch=self.epoch(4, 0), captured_epoch=self.epoch(1, 10))
+        snapshot = collect_snapshot(self.runner(), cycle="2026-10-19", lease_issued_epoch=self.epoch(4, 0), captured_epoch=self.epoch(1, 13))
         def guard(command, timeout):
-            if command == CLOCK: return 0, str(self.epoch(1, 12))
+            if command == CLOCK: return 0, str(self.epoch(1, 20))
             if command in (LOCK_ABSENCE, STATE_ABSENCE, RECEIPT_ABSENCE): return 0, ""
             if command == LEASE_STATUS: return 0, '{"state":"ready"}'
             if command == QUIET_PROCESSES: return 1, ""
@@ -75,7 +75,7 @@ class F2PreflightSnapshotTests(unittest.TestCase):
             with tempfile.TemporaryDirectory() as tmp, F2Coordinator(Path(tmp)) as coordinator:
                 final_guard(snapshot, runner=guard, expected_pins={"/pin": "pin"}, coordinator=coordinator)
         def changed(command, timeout):
-            if command == CLOCK: return 0, str(self.epoch(1, 11))
+            if command == CLOCK: return 0, str(self.epoch(1, 20))
             if command in (LOCK_ABSENCE, STATE_ABSENCE, RECEIPT_ABSENCE): return 0, ""
             if command == LEASE_STATUS: return 0, '{"state":"ready"}'
             if command == QUIET_PROCESSES: return 1, ""
@@ -99,6 +99,29 @@ class F2PreflightSnapshotTests(unittest.TestCase):
             raise AssertionError(command)
         snapshot = collect_snapshot(run, cycle="2026-10-19", lease_issued_epoch=self.epoch(1, 7), captured_epoch=self.epoch(1, 7))
         self.assertTrue(snapshot.archive_identity_verified)
+
+    def test_final_guard_requires_exact_0120_minute(self):
+        snapshot = collect_snapshot(self.runner(), cycle="2026-10-19",
+                                    lease_issued_epoch=self.epoch(4, 0),
+                                    captured_epoch=self.epoch(1, 15))
+
+        def guard_at(minute):
+            def guard(command, timeout):
+                if command == CLOCK: return 0, str(self.epoch(1, minute))
+                if command in (LOCK_ABSENCE, STATE_ABSENCE, RECEIPT_ABSENCE): return 0, ""
+                if command == LEASE_STATUS: return 0, '{"state":"ready"}'
+                if command == QUIET_PROCESSES: return 1, ""
+                if command == LOADAVG: return 0, "1.0 0.5 0.2 1/100 1\n"
+                if command == ("sha256sum", "/pin"): return 0, "pin  /pin\n"
+                raise AssertionError(command)
+            return guard
+
+        with tempfile.TemporaryDirectory() as tmp, F2Coordinator(Path(tmp)) as coordinator:
+            final_guard(snapshot, runner=guard_at(20), expected_pins={"/pin": "pin"}, coordinator=coordinator)
+        for minute in (19, 21):
+            with self.subTest(minute=minute), self.assertRaisesRegex(F2PreflightError, "exact 01:20"):
+                with tempfile.TemporaryDirectory() as tmp, F2Coordinator(Path(tmp)) as coordinator:
+                    final_guard(snapshot, runner=guard_at(minute), expected_pins={"/pin": "pin"}, coordinator=coordinator)
 
     def test_missing_or_failed_chain_fails_closed(self):
         def bad(command, timeout):

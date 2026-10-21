@@ -124,8 +124,8 @@ def _quiet_truenas(runner) -> None:
 def _window(now_epoch: float) -> float:
     local = datetime.fromtimestamp(now_epoch, LOCAL_ZONE)
     minute = local.hour * 60 + local.minute
-    if not 70 <= minute < 80:
-        raise F2NoGo("outside 01:10–01:19 observation start window")
+    if minute != 80:
+        raise F2NoGo("outside exact 01:20 observation start window")
     hard_end = local.replace(hour=1, minute=40, second=0, microsecond=0).timestamp()
     seconds = min(1200.0, hard_end - now_epoch)
     if seconds <= 0:

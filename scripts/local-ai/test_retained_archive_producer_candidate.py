@@ -55,7 +55,7 @@ class RetainedProducerTests(unittest.TestCase):
     def produce_candidate(self, *, now=None):
         with patch.object(producer, "capture", return_value={"synthetic": True}) as capture:
             result = producer.produce(
-                self.runner, clock=lambda: epoch(1, 10) if now is None else now,
+                self.runner, clock=lambda: epoch(1, 20) if now is None else now,
                 save=self.saved.append,
                 read_completion=lambda vmid: f"2026-10-15 00:55:00 INFO: Finished Backup of VM {vmid} (00:00:57)",
             )
@@ -64,7 +64,7 @@ class RetainedProducerTests(unittest.TestCase):
     def test_current_task_and_fixed_inventory_precede_scan_and_save(self):
         result, capture = self.produce_candidate()
         self.assertEqual(self.saved, [result])
-        self.assertEqual(capture.call_args.kwargs["deadline_epoch"], epoch(1, 30))
+        self.assertEqual(capture.call_args.kwargs["deadline_epoch"], epoch(1, 40))
         self.assertEqual(len(self.calls), 4)
 
     def test_live_truenas_schedule_representation_is_string_only(self):
@@ -93,13 +93,13 @@ class RetainedProducerTests(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(producer.IntegrityError):
                 self.produce_candidate()
         with self.assertRaises(producer.IntegrityError):
-            self.produce_candidate(now=epoch(1, 20))
+            self.produce_candidate(now=epoch(1, 30))
         self.assertEqual(self.saved, [])
 
     def test_partial_scan_never_saves_and_cli_is_disabled(self):
         with patch.object(producer, "capture", side_effect=producer.IntegrityError("timeout")):
             with self.assertRaises(producer.IntegrityError):
-                producer.produce(self.runner, clock=lambda: epoch(1, 10), save=self.saved.append,
+                producer.produce(self.runner, clock=lambda: epoch(1, 20), save=self.saved.append,
                                  read_completion=lambda vmid: f"2026-10-15 00:55:00 INFO: Finished Backup of VM {vmid} (00:00:57)")
         self.assertEqual(self.saved, [])
         with patch.object(producer, "produce", side_effect=AssertionError("must stay disabled")):
@@ -158,7 +158,7 @@ class RetainedProducerTests(unittest.TestCase):
     def test_missing_guest_completion_or_wrong_job_blocks_scan(self):
         with patch.object(producer, "capture", side_effect=AssertionError("scan must not begin")):
             with self.assertRaises(producer.IntegrityError):
-                producer.produce(self.runner, clock=lambda: epoch(1, 10), save=self.saved.append,
+                producer.produce(self.runner, clock=lambda: epoch(1, 20), save=self.saved.append,
                                  read_completion=lambda vmid: "backup still running")
             self.job["schedule"] = "02:00"
             with self.assertRaises(producer.IntegrityError):
@@ -179,7 +179,7 @@ class RetainedProducerTests(unittest.TestCase):
                 (root / item["volid"].rsplit("/", 1)[-1]).write_bytes(b"x" * item["size"])
             with patch.object(archive, "BACKUP_ROOT", root):
                 result = producer.produce(
-                    self.runner, clock=lambda: epoch(1, 10),
+                    self.runner, clock=lambda: epoch(1, 20),
                     resolve=lambda volid: str(root / volid.rsplit("/", 1)[-1]),
                     lstat=os.lstat, probe=lambda path, timeout: (0, 100),
                     save=self.saved.append,

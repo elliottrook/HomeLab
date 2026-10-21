@@ -27,8 +27,8 @@ from retained_archive_integrity import (
 
 
 EFFECTS_ENABLED = False
-START_MINUTE = 70   # 01:10 Vancouver
-LAST_START = 80     # 01:20 Vancouver, exclusive
+START_MINUTE = 80   # 01:20 Vancouver
+LAST_START = 90     # 01:30 Vancouver, exclusive
 HARD_END = 100      # 01:40 Vancouver; 20 minutes before the 02:00 pull
 FINISHED = re.compile(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) INFO: Finished Backup of VM (104|110|116) \(\d{2}:\d{2}:\d{2}\)")
 JOB_START = re.compile(r"<root@pam> starting task UPID:proxmox:[0-9A-F]+:[0-9A-F]+:[0-9A-F]+:vzdump::root@pam:")
