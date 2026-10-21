@@ -88,6 +88,16 @@ scheduled once at 01:15 PDT and the read-only scan once at 01:20, bounded by
 actual terminal evidence contains exactly three valid exit-zero archive rows
 and clean postchecks; no F3 or full-stop action follows merely from activation.
 
+**October 21 exact-cycle result:** the prepare phase returned
+[NO-GO](evidence/F2-exact-cycle-no-go-2026-10-21.md) and no archive scan or
+result rows followed. Direct schedule/source reconciliation found two
+incompatible assumptions in the pinned release: its 01:15 preflight required
+the LXC110 mirror populated by the 02:00 task, and its 01:20 final call was
+outside the 01:10–01:19 windows accepted by the final guard, observer and
+producer. The spent exact-date timers were removed and production remained
+healthy. F2 and F3 remain blocked pending one internally consistent,
+target-Linux-tested replacement and a new exact activation approval.
+
 **October 15 afternoon compatibility checkpoint:** Jason approved the
 hash-pinned **inactive** full-stop candidate installation on Proxmox. The
 installation result on the separate local branch `codex/aster-lease-compat`
