@@ -550,6 +550,12 @@ case, capability, key and review collections fail closed on unexpected shapes
 instead of crashing or being interpreted as missing review. The combined
 focused D4 suite passed 28/28 tests. This hardens future comparison only; no
 corpus has been reviewed and no model has been evaluated or promoted.
+The synthetic investigation runner now also has a
+[fixture and transport boundary](evidence/D4-investigation-fixture-and-transport-boundary-2026-10-21.md):
+it validates the complete private evidence catalogue before a transport call,
+rejects malformed response containers and retains only bounded typed metadata.
+The complete eval unit suite passed 110/110. This protects future evidence
+capture; it does not call or qualify a model, connect a tool or advance M1.
 
 ## Immediate next action and stop rule
 

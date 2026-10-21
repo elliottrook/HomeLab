@@ -84,5 +84,42 @@ class InvestigationTests(unittest.TestCase):
         self.assertEqual(self.replay([answer(extra='unexpected')])[0]['status'], 'invalid_answer')
         self.assertEqual(self.replay([answer('conclude')])[0]['status'], 'invalid_terminal_check')
 
+    def test_malformed_fixture_fails_before_transport(self):
+        malformed = copy.deepcopy(self.case)
+        malformed['initial_observations'][0]['text'] = None
+        calls = []
+        with self.assertRaisesRegex(ValueError, 'invalid fixture evidence'):
+            investigate(malformed, 'thinking', 'fixture-model',
+                        lambda payload, timeout: calls.append(payload))
+        self.assertEqual(calls, [])
+
+    def test_fixture_requires_exact_catalogue_and_unique_evidence_ids(self):
+        malformed = copy.deepcopy(self.case)
+        malformed['responses'].pop(next(iter(malformed['responses'])))
+        with self.assertRaisesRegex(ValueError, 'invalid fixture catalogue'):
+            self.replay([], malformed)
+
+        malformed = copy.deepcopy(self.case)
+        next(iter(malformed['responses'].values()))['id'] = 'initial'
+        with self.assertRaisesRegex(ValueError, 'duplicate fixture evidence identity'):
+            self.replay([], malformed)
+
+    def test_invalid_transport_container_and_metadata_fail_closed(self):
+        result, _ = self.replay([['not', 'a', 'record']])
+        self.assertEqual(result['status'], 'invalid_transport_response')
+        self.assertEqual(result['steps'], [])
+
+        for field, value in [('latency_seconds', float('nan')),
+                             ('reasoning_present', 'yes'),
+                             ('reasoning_characters', True),
+                             ('completion_tokens', -1),
+                             ('finish_reason', 'x' * 65)]:
+            with self.subTest(field=field):
+                malformed = answer()
+                malformed[field] = value
+                result, _ = self.replay([malformed])
+                self.assertEqual(result['status'], 'invalid_transport_metadata')
+                self.assertEqual(result['steps'], [])
+
 
 if __name__ == '__main__': unittest.main()

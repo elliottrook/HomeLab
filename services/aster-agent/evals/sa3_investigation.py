@@ -1,6 +1,7 @@
 """Bounded synthetic investigation engine. Evidence lookup never executes a tool."""
 import copy
 import json
+import math
 import time
 from sa3_fair_request import build_request
 
@@ -13,6 +14,57 @@ SYSTEM = (
     "and proposed verification briefly; do not provide private reasoning. "
     "Never claim a repair was performed. Effects must be empty."
 )
+
+
+def _observation(value):
+    return (isinstance(value, dict)
+            and set(value) == {'id', 'freshness', 'text'}
+            and all(isinstance(value[field], str) and value[field].strip()
+                    for field in ('id', 'freshness', 'text')))
+
+
+def _validated_case(case):
+    """Copy and validate the complete private fixture before any model call."""
+    if not isinstance(case, dict) or set(case) != {
+            'id', 'prompt', 'capabilities', 'initial_observations', 'responses'}:
+        raise ValueError('invalid investigation fixture')
+    case = copy.deepcopy(case)
+    # build_request owns validation of the public case catalogue.
+    build_request({key: case[key] for key in ('id', 'prompt', 'capabilities')},
+                  'nonthinking', 'fixture-validation')
+    if (not isinstance(case['initial_observations'], list)
+            or not case['initial_observations']
+            or any(not _observation(value) for value in case['initial_observations'])
+            or not isinstance(case['responses'], dict)):
+        raise ValueError('invalid fixture evidence')
+    capabilities = [value['id'] for value in case['capabilities']]
+    if set(case['responses']) != set(capabilities):
+        raise ValueError('invalid fixture catalogue')
+    if any(not _observation(value) for value in case['responses'].values()):
+        raise ValueError('invalid fixture evidence')
+    evidence = case['initial_observations'] + list(case['responses'].values())
+    identities = [value['id'] for value in evidence]
+    if len(identities) != len(set(identities)):
+        raise ValueError('duplicate fixture evidence identity')
+    return case
+
+
+def _metadata(response):
+    specs = {
+        'latency_seconds': lambda value: type(value) in (int, float)
+        and math.isfinite(value) and value >= 0,
+        'finish_reason': lambda value: isinstance(value, str) and 0 < len(value) <= 64,
+        'reasoning_present': lambda value: type(value) is bool,
+        'reasoning_characters': lambda value: type(value) is int and value >= 0,
+        'completion_tokens': lambda value: type(value) is int and value >= 0,
+    }
+    metadata = {}
+    for field, check in specs.items():
+        if field in response:
+            if not check(response[field]):
+                raise ValueError('invalid transport metadata')
+            metadata[field] = response[field]
+    return metadata
 
 
 def request_for(case, observations, used, mode, model):
@@ -41,15 +93,9 @@ def investigate(case, mode, model, transport, clock=time.monotonic):
     Limit: two simulated checks, three model calls, 300 seconds total. Transport
     must enforce the supplied timeout and must not retry or perform tool calls.
     """
-    case = copy.deepcopy(case)
+    case = _validated_case(case)
     capabilities = {c['id'] for c in case['capabilities']}
-    if len(capabilities) != len(case['capabilities']) or capabilities != set(case['responses']):
-        raise ValueError('invalid fixture catalogue')
     observations = copy.deepcopy(case['initial_observations'])
-    all_evidence = observations + list(case['responses'].values())
-    ids = [x['id'] for x in all_evidence]
-    if len(ids) != len(set(ids)):
-        raise ValueError('duplicate fixture evidence identity')
     started = clock()
     used, steps = [], []
     attempts, failure = 0, None
@@ -69,9 +115,13 @@ def investigate(case, mode, model, transport, clock=time.monotonic):
                        'request_timeout_seconds': min(240, remaining)}
             status = 'transport_error:' + type(exc).__name__; break
         # Never retain raw responses or reasoning fields supplied by a transport.
+        if not isinstance(response, dict):
+            status = 'invalid_transport_response'; break
+        try:
+            metadata = _metadata(response)
+        except ValueError:
+            status = 'invalid_transport_metadata'; break
         answer = response.get('answer')
-        metadata = {k: response[k] for k in ('latency_seconds', 'finish_reason',
-                    'reasoning_present', 'reasoning_characters', 'completion_tokens') if k in response}
         step = {'metadata': metadata, 'answer': None}
         steps.append(step)
         if clock()-started >= 300:
