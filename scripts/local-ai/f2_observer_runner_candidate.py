@@ -30,7 +30,7 @@ PRODUCER = Path("/usr/local/libexec/local-ai-lease/retained_archive_producer_can
 RECEIPT = ROOT / "archive-integrity.json"
 MANUAL_SHA256 = "67ca223d03a4922603f570c6db87fed919879aedf3706e586b2684f7be84073c"
 OBSERVER_SHA256 = "f07071d3544fafd0579a4e360674664ec95dd32bd2c4114c3e073c849805e363"
-PRODUCER_SHA256 = "5cfe1a53578250590ee656c7b5a808b6b94a60650255efa4857d1fdd94507acb"
+PRODUCER_SHA256 = "5d98f6d9dde9797a92802060b151e9929a4d24849555679f76d65f32ed7caaaf"
 RUNTIME_PINS = (
     (Path("/usr/local/libexec/local-ai-lease/host_exclusion.py"),
      "f8c60ad720a8ac1c6c4f3e51c84ce67747b50f25534c02e0ee6ed38efc302563"),

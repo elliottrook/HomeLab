@@ -27,13 +27,14 @@ The combined source correction makes the chain internally consistent:
 ## Exact source replacements, not yet installed
 
 Preserve each current installed file as a root-owned 0600 rollback checkpoint,
-then replace only these three files after a fresh bounded approval. The current
+then replace only these four files after a fresh bounded approval. The current
 coordinator remains unchanged and is already aligned to 01:20.
 
 | Installed path | Current installed SHA-256 | Corrected source SHA-256 |
 |---|---|---|
 | `/usr/local/libexec/local-ai-lease/f2_preflight_snapshot.py` | `a2324d6a5ba4869778713319a511acc207f1d8332dd1af7e4520be382cfe02fa` | `a199e369b2a3843a911a3978b410b525db7f1c67a9a8a7878f86f4a829cf57d7` |
-| `/usr/local/libexec/local-ai-lease/f2_observer_runner_candidate.py` | `6d18f9c88067edb11a04eae84d7c5fb3f0d3f4eb518b359f57277205539f3a2f` | `2af6689b82dce85d4a1856ffb6803269a5e2a20bee286012ff92faf9f925578e` |
+| `/usr/local/libexec/local-ai-lease/f2_preflight_fixed_wrapper.py` | `2b381465300db3d7cc1d521123665df19ff58fad12d5cccd54720b9f89cb433c` | `0dbdbce56be6f72ada8df54dd28cfcda32f6494200ba97f4b40703496271ba9f` |
+| `/usr/local/libexec/local-ai-lease/f2_observer_runner_candidate.py` | `6d18f9c88067edb11a04eae84d7c5fb3f0d3f4eb518b359f57277205539f3a2f` | `27edca21a68dd9d575bbb6bd66a7b5787880f3bc590b8f6efe3457c40722aeb0` |
 | `/usr/local/libexec/local-ai-lease/retained_archive_producer_candidate.py` | `5cfe1a53578250590ee656c7b5a808b6b94a60650255efa4857d1fdd94507acb` | `5d98f6d9dde9797a92802060b151e9929a4d24849555679f76d65f32ed7caaaf` |
 
 The live installed hashes must still be re-read immediately before any future
@@ -50,10 +51,10 @@ producer effects, scan, receipt, lease, timer, or service.
 
 Before installation, re-read all installed hashes and custody, verify the
 coordinator pin remains `fd711a4c1afa9fe128464f61390d63c54f7e513a8811cbc79f0d27c522452356`,
-and preserve the three old bytes before replacement. The exact three-file
+and preserve the four old bytes before replacement. The exact four-file
 replacement requires its own fresh approval; timer activation or date
 rescheduling requires a separate approval.
 
-Rollback is restoration of only those three checkpoints after stopping any
+Rollback is restoration of only those four checkpoints after stopping any
 future date-specific candidate units, without clearing terminal state or
 retrying the failed 2026-10-21 cycle.

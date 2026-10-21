@@ -56,8 +56,8 @@ They reference the existing candidate services, pinned as follows:
 | `scripts/local-ai/test_f2_exact_cycle_20261021.py` | `42230751765ab14e944a44ad928b996aa1044e04b68b7e81451af03b5597a7e3` |
 | `scripts/local-ai/f2_preflight_snapshot.py` | `a199e369b2a3843a911a3978b410b525db7f1c67a9a8a7878f86f4a829cf57d7` |
 | `scripts/local-ai/test_f2_preflight_snapshot.py` | `7502d7df0872850cb4f4f315ecc6ea5bfd2b49de1a241b47fdb5a5c8748f14c2` |
-| `scripts/local-ai/f2_preflight_fixed_wrapper.py` | `2b381465300db3d7cc1d521123665df19ff58fad12d5cccd54720b9f89cb433c` |
-| `scripts/local-ai/f2_observer_runner_candidate.py` | `2af6689b82dce85d4a1856ffb6803269a5e2a20bee286012ff92faf9f925578e` |
+| `scripts/local-ai/f2_preflight_fixed_wrapper.py` | `0dbdbce56be6f72ada8df54dd28cfcda32f6494200ba97f4b40703496271ba9f` |
+| `scripts/local-ai/f2_observer_runner_candidate.py` | `27edca21a68dd9d575bbb6bd66a7b5787880f3bc590b8f6efe3457c40722aeb0` |
 | `scripts/local-ai/test_f2_observer_runner_candidate.py` | `c564f560a8c15b4f6d5876859a99b173d99a1c40b7c3a2e505b4ba4621cc38b8` |
 | `scripts/local-ai/fixed_source_adapters.py` | `8241f1b1f3f5caa0d514740d36600f445de257b40a0a0d089bb9febadd1418b9` |
 | `scripts/local-ai/retained_archive_producer_candidate.py` | `5d98f6d9dde9797a92802060b151e9929a4d24849555679f76d65f32ed7caaaf` |

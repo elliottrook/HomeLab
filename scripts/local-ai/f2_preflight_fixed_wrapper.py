@@ -19,8 +19,8 @@ SNAPSHOT_DIR = Path("/var/lib/local-ai-lab/f2-preflight")
 SNAPSHOT_PATH = SNAPSHOT_DIR / "current.json"
 COORDINATOR_ROOT = Path("/var/lib/local-ai-lab")
 EXPECTED_PINS = {
-    "/usr/local/libexec/local-ai-lease/f2_observer_runner_candidate.py": "6d18f9c88067edb11a04eae84d7c5fb3f0d3f4eb518b359f57277205539f3a2f",
-    "/usr/local/libexec/local-ai-lease/retained_archive_producer_candidate.py": "5cfe1a53578250590ee656c7b5a808b6b94a60650255efa4857d1fdd94507acb",
+    "/usr/local/libexec/local-ai-lease/f2_observer_runner_candidate.py": "27edca21a68dd9d575bbb6bd66a7b5787880f3bc590b8f6efe3457c40722aeb0",
+    "/usr/local/libexec/local-ai-lease/retained_archive_producer_candidate.py": "5d98f6d9dde9797a92802060b151e9929a4d24849555679f76d65f32ed7caaaf",
     "/usr/local/libexec/local-ai-lease/retained_archive_integrity.py": "11b536ede74d0bcea3b7bd5fe123c3f670715fcc96ef9059723c29a504cc54a5",
     "/usr/local/libexec/local-ai-lease/fixed_source_adapters.py": "8241f1b1f3f5caa0d514740d36600f445de257b40a0a0d089bb9febadd1418b9",
     "/usr/local/libexec/local-ai-lease/host_exclusion.py": "f8c60ad720a8ac1c6c4f3e51c84ce67747b50f25534c02e0ee6ed38efc302563",
