@@ -1,0 +1,63 @@
+# F2 preflight mirror-deferred correction — inactive-install card
+
+Status: source-only correction; HOLD. This card is not authorization to
+install, retry October 21, reschedule timers, run a scan, create a receipt,
+acquire a lease, stop production, clear failed units/state, or push.
+
+## Retained evidence and practical cause
+
+The approved October 21 prepare failed at 01:15 with bounded state:
+
+`schema=aster-f2-scheduled.v1`, `state=no_go`,
+`first_failure_phase=prepare`, `failure_class=PREFLIGHT_FAILED`; no prepared
+snapshot or result rows were written. Proxmox has current 00:30 artifacts for
+104/110/116 and TrueNAS task 1 completed successfully. The current-cycle
+LXC110 mirror is absent because its fixed job is scheduled for 02:00. The F2
+prepare implementation incorrectly required that future mirror before 02:00,
+so it could never succeed at the approved 01:15 window.
+
+No retry or reschedule is authorized. The October 21 terminal state, failed
+services, and absent snapshot remain historical evidence.
+
+## Smallest source correction
+
+Replace only the installed snapshot collector:
+
+| Source | Installed target | Old installed SHA-256 | Required new SHA-256 |
+|---|---|---|---|
+| `scripts/local-ai/f2_preflight_snapshot.py` | `/usr/local/libexec/local-ai-lease/f2_preflight_snapshot.py` | `a2324d6a5ba4869778713319a511acc207f1d8332dd1af7e4520be382cfe02fa` | `22c2d86f68f3afa382ceabe7ba9db791d4730e957792c4d10aefd49ebfd82426` |
+
+The correction removes only the pre-02:00 LXC110 mirror requirement and leaves
+the field empty as an explicit deferred value. F5 remains responsible for
+validating the completed 02:00 mirror. Proxmox artifacts, task-1 completion,
+fixed schedule identity, lease readiness, custody, and final guards remain
+unchanged.
+
+## Bounded installation and rollback
+
+If separately approved, checkpoint the old target as
+`/root/aster-f2-preflight-snapshot-rollback-22c2d86f/f2_preflight_snapshot.py`
+with root-only custody, verify its old hash, install only the corrected file
+as `root:root 0644`, and run target-Linux compile/import plus the focused F2
+snapshot and coordinator tests. Restore only the checkpoint if any hash,
+custody, import, or test check fails.
+
+Do not install or enable any timer, alter the October 21 timer state, clear
+the failed prepare/final services, delete the terminal state, invoke the F2
+coordinator, query zstd, create a receipt, acquire a lease, stop a service,
+call a model, or change backup schedules. A later exact-cycle timer card must
+be separately prepared and approved after this correction is reviewed.
+
+## Offline pins and tests
+
+The source correction was tested with the existing F2 coordinator contract:
+
+| Source | SHA-256 |
+|---|---|
+| `scripts/local-ai/f2_preflight_snapshot.py` | `22c2d86f68f3afa382ceabe7ba9db791d4730e957792c4d10aefd49ebfd82426` |
+| `scripts/local-ai/test_f2_preflight_snapshot.py` | `759c13ecf6eb68cc97a992d27dbaecdb523f13866c527cfda0bc4ca891199073` |
+| `scripts/local-ai/f2_scheduled_release_candidate.py` | `fd711a4c1afa9fe128464f61390d63c54f7e513a8811cbc79f0d27c522452356` |
+
+The new test proves a future LXC110 mirror is not required by F2 prepare and
+that the deferred field is explicit. No live source was invoked during this
+preparation.

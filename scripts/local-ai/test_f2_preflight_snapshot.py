@@ -48,6 +48,18 @@ class F2PreflightSnapshotTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp, F2Coordinator(Path(tmp)) as coordinator:
             final_guard(snapshot, runner=guard, expected_pins={"/pin": "pin"}, coordinator=coordinator)
         self.assertTrue(snapshot.archive_identity_verified)
+        self.assertEqual(snapshot.mirror_identity_sha256, "")
+
+    def test_prepare_does_not_require_future_lxc110_mirror(self):
+        runner = self.runner()
+        def before_0200(command, timeout):
+            if command == TRUENAS_MIRROR:
+                raise AssertionError("F2 must defer the future 02:00 mirror to F5")
+            return runner(command, timeout)
+        snapshot = collect_snapshot(before_0200, cycle="2026-10-19",
+                                    lease_issued_epoch=self.epoch(1, 7),
+                                    captured_epoch=self.epoch(1, 7))
+        self.assertEqual(snapshot.mirror_identity_sha256, "")
 
     def test_final_guard_rejects_stale_or_changed_exclusion(self):
         snapshot = collect_snapshot(self.runner(), cycle="2026-10-19", lease_issued_epoch=self.epoch(4, 0), captured_epoch=self.epoch(1, 10))

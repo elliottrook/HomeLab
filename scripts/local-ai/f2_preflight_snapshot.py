@@ -1,7 +1,8 @@
 """Slow, read-only F2 preflight snapshot candidate.
 
-This candidate performs the backup-chain observations before the narrow scan
-window and leaves only freshness and exclusion revalidation to the final guard.
+This candidate performs the pre-02:00 backup observations before the narrow
+scan window and leaves the future 02:00 LXC110 mirror to F5. It leaves only
+freshness and exclusion revalidation to the final guard.
 It emits digests and booleans, never archive paths, task logs or credentials.
 """
 
@@ -18,8 +19,7 @@ from pathlib import Path
 from typing import Callable, Mapping
 from zoneinfo import ZoneInfo
 
-from backup_receipt_adapter import (BackupReceiptError, verify_lxc110_mirror,
-                                    verify_proxmox_artifacts)
+from backup_receipt_adapter import BackupReceiptError, verify_proxmox_artifacts
 from fixed_source_adapters import _truenas
 from host_exclusion import host_exclusion
 
@@ -116,14 +116,12 @@ def collect_snapshot(runner: Runner, *, cycle: str, lease_issued_epoch: int,
     artifacts_raw = _json(runner, PVE_ARTIFACTS, 30.0)
     job = _json(runner, PVE_JOB, 10.0)
     tasks = _json(runner, TRUENAS_TASKS, 10.0)
-    mirror = _json(runner, TRUENAS_MIRROR, 10.0)
-    if not isinstance(artifacts_raw, list) or not isinstance(tasks, list) or not isinstance(mirror, list) or not isinstance(job, dict):
+    if not isinstance(artifacts_raw, list) or not isinstance(tasks, list) or not isinstance(job, dict):
         raise F2PreflightError("F2 source shape is invalid")
     try:
         artifacts = verify_proxmox_artifacts(artifacts_raw, date_prefix=cycle.replace("-", "_"))
-        verify_lxc110_mirror(mirror, artifacts[1])
     except BackupReceiptError as exc:
-        raise F2PreflightError("backup artifact identity or mirror is invalid") from exc
+        raise F2PreflightError("backup artifact identity is invalid") from exc
     if not _f2_schedule_ok(tasks, date_prefix=cycle.replace("-", "_"),
                            artifact_ctimes=tuple(item.ctime for item in artifacts),
                            lease_issued_epoch=lease_issued_epoch):
@@ -140,13 +138,13 @@ def collect_snapshot(runner: Runner, *, cycle: str, lease_issued_epoch: int,
     if code != 0 or not isinstance(lease_state, dict) or lease_state.get("state") != "ready":
         raise F2PreflightError("manual lease is not ready")
     artifact_identity = [(item.vmid, item.volid, item.size, item.ctime) for item in artifacts]
-    mirror_identity = sorted((item.get("name"), item.get("path"), item.get("size")) for item in mirror)
     return F2PreflightSnapshot(
         cycle=cycle, captured_epoch=captured_epoch,
         artifact_identity_sha256=_digest(artifact_identity),
         archive_identity_verified=True,
         truenas_schedule_sha256=_digest(tasks),
-        mirror_identity_sha256=_digest(mirror_identity),
+        # The 02:00 LXC110 mirror is deliberately deferred to F5.
+        mirror_identity_sha256="",
         backup_job_sha256=_digest(job), lease_ready=True,
     )
 

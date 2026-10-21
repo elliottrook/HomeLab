@@ -20,6 +20,10 @@ The 01:20 final leaves more than the required 20-minute margin before the
 02:00 pull. The 01:15 prepare has approximately eight minutes of measured
 margin after the latest observed task-1 completion.
 
+F2 deliberately does not require the current-cycle LXC110 mirror at prepare:
+that mirror is produced at 02:00. F5 is the first gate that validates the
+completed LXC110 mirror and binds it to the later F4/F5 observation.
+
 ## Source-window correction and feasibility
 
 The source correction pins preparation to an internal `PREPARE_MINUTE = 75`
@@ -48,7 +52,8 @@ They reference the existing candidate services, pinned as follows:
 | Currently installed coordinator / rollback source | `aef623afc1754d4fab75e09fc4182773bc0a1db9a56d2379274fec3f0855cd23` |
 | `scripts/local-ai/test_f2_scheduled_release_candidate.py` | `ef336677c57a03eca0796e136cd009c2933dad947bc39917346c7eab7544a43b` |
 | `scripts/local-ai/test_f2_exact_cycle_20261021.py` | `42230751765ab14e944a44ad928b996aa1044e04b68b7e81451af03b5597a7e3` |
-| `scripts/local-ai/f2_preflight_snapshot.py` | `a2324d6a5ba4869778713319a511acc207f1d8332dd1af7e4520be382cfe02fa` |
+| `scripts/local-ai/f2_preflight_snapshot.py` | `22c2d86f68f3afa382ceabe7ba9db791d4730e957792c4d10aefd49ebfd82426` |
+| `scripts/local-ai/test_f2_preflight_snapshot.py` | `759c13ecf6eb68cc97a992d27dbaecdb523f13866c527cfda0bc4ca891199073` |
 | `scripts/local-ai/f2_preflight_fixed_wrapper.py` | `2b381465300db3d7cc1d521123665df19ff58fad12d5cccd54720b9f89cb433c` |
 | `scripts/local-ai/f2_observer_runner_candidate.py` | `6d18f9c88067edb11a04eae84d7c5fb3f0d3f4eb518b359f57277205539f3a2f` |
 | `scripts/local-ai/fixed_source_adapters.py` | `8241f1b1f3f5caa0d514740d36600f445de257b40a0a0d089bb9febadd1418b9` |
