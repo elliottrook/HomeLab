@@ -22,6 +22,14 @@ for preparation at 01:15 and final/read-only scan at 01:20 PDT, with a 01:40
 hard deadline. The recurring timers remain disabled. A one-occurrence 01:42
 Stream A heartbeat may only reconcile the terminal state and remove/disable
 the spent timers; it cannot retry or advance F3 automatically.
+That October 21 attempt subsequently failed in prepare without a scan. The
+superseding [four-file correction](evidence/F2-final-minute-consistency-inactive-install-2026-10-21.md)
+is now installed inactive with root-only rollback and 33/33 target-Linux
+tests. It removes F2's future 02:00 LXC110 mirror dependency and aligns the
+final guard, observer and producer to the coordinator's 01:20 start and 01:40
+deadline. Recurring F2 timers remain disabled; no scan, receipt or lease ran.
+A fresh exact-cycle card and approval remain necessary before F2 can produce
+qualifying evidence.
 
 **October 18 daytime lab-hours path:** Jason accepted up to 90 minutes of
 daytime Aster/voice unavailability for a first supervised, no-reboot pilot.

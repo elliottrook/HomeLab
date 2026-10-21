@@ -95,8 +95,11 @@ incompatible assumptions in the pinned release: its 01:15 preflight required
 the LXC110 mirror populated by the 02:00 task, and its 01:20 final call was
 outside the 01:10–01:19 windows accepted by the final guard, observer and
 producer. The spent exact-date timers were removed and production remained
-healthy. F2 and F3 remain blocked pending one internally consistent,
-target-Linux-tested replacement and a new exact activation approval.
+healthy. The [internally consistent replacement](evidence/F2-final-minute-consistency-inactive-install-2026-10-21.md)
+is now installed inactive with exact rollback custody and 33/33 target-Linux
+tests. It removes the future-mirror dependency and aligns the final chain to
+01:20/01:40. No timer, scan, receipt or lease followed. F2 and F3 remain
+blocked pending a fresh exact-cycle activation approval and measured result.
 
 **October 15 afternoon compatibility checkpoint:** Jason approved the
 hash-pinned **inactive** full-stop candidate installation on Proxmox. The
