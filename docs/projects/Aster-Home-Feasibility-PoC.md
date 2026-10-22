@@ -276,6 +276,71 @@ Record pinned versions, tested guest ID, source commits, upstream image checksum
 
 Checkboxes cannot be marked complete without documented validation.
 
+### M2/M6 comparative endpoint campaign — 2026-10-22
+
+The owner has selected three complementary physical roles instead of treating
+one successful PC as proof of a hardware class:
+
+1. **BOSGAME E3 Neo / Intel N95 / 16 GB / 512 GB** — install the immutable
+   Aster Home v1.0.2 candidate, qualify it as the likely production living-room
+   endpoint, and complete the selected remote test. Intel specifies the N95's
+   integrated UHD Graphics and HDMI capability at up to 4096x2160 at 60 Hz;
+   the actual BOSGAME connector, firmware, EDID path, LibreELEC driver and sink
+   must still prove that mode. LibreELEC documents Alder Lake under Generic
+   x86-64, but model-specific boot success must not be inferred from the CPU.
+2. **HP ProDesk 400 G5 Desktop Mini / i5-9500T / 16 GB** — preserve the
+   measured v1 baseline and use it as the recoverable Aster Home 2 development
+   and physical visual-validation client. Source-deployed v2 work belongs here,
+   not on the BOSGAME production candidate.
+3. **Older Lenovo mini PC** — after recording its exact model, CPU/GPU, RAM,
+   storage, firmware and display outputs, install the same v1 release and run
+   the same measurements to establish a truthful low-cost bedroom-client
+   floor. Do not simplify the skin, lower the test workload or change server
+   behavior only for this endpoint; otherwise results are not comparable.
+
+The BOSGAME begins with a non-destructive LibreELEC USB boot. Capture DMI,
+firmware, storage, network, Bluetooth, audio, DRM/EDID and available display
+modes before any internal installation. Confirm cold boot, restart, Ethernet,
+Wi-Fi if needed, Bluetooth and 4K output from removable media first. Erasing or
+repartitioning its internal 512 GB SSD requires a separate explicit target
+confirmation after those checks. If stable LibreELEC 12.2.1 fails to boot, save
+the failure evidence and make a separate version decision; do not silently
+substitute a nightly image or a different operating system.
+
+After the hardware gate, deploy only the checksum-verified v1.0.2 release ZIPs
+and official dependencies, then reproduce the established client state without
+copying secrets into Git or benchmark evidence. Give each endpoint a unique
+hostname and profile checkpoint. Authenticate Jellyfin interactively, publish
+the bounded Aster feeds, keep Estuary available, and verify that no v2 source
+overlay or HP-specific profile drift reached the BOSGAME or Lenovo.
+
+Run one common matrix on all three systems:
+
+- cold boot and Kodi-ready time; restart recovery; idle and loaded temperature,
+  memory, CPU/GPU, network and storage state;
+- 1080p H.264/HEVC, 4K HEVC SDR, high-bitrate 4K 10-bit HEVC HDR10, subtitles,
+  music, audiobook/podcast and Digest playback, with Jellyfin direct-play or
+  transcode decision recorded;
+- negotiated resolution/refresh, colourspace/HDR evidence, decoder identity,
+  dropped/skipped frames, cache and buffering at start, five minutes and after
+  a 20-minute soak;
+- Aster page-load/focus behavior using the same populated libraries, including
+  rapid rail navigation and artwork loading, with crashes and Kodi errors
+  counted rather than described only as “smooth”;
+- the G20BTS Plus pairing path, every required key, Back behavior, wake/idle
+  reconnect, reboot reconnect, usable range and microphone/voice-search input;
+  distinguish Bluetooth, USB-HID receiver and IR behavior rather than treating
+  them as interchangeable; and
+- measured wall power when a meter is available, plus fan/noise observations,
+  recovery media, Estuary fallback and profile restore.
+
+Use the BOSGAME result for the efficient production recommendation, the HP for
+v2 development headroom, and the Lenovo result for a bedroom minimum only if
+it passes the same hard playback, control, recovery and stability gates. A
+slower catalogue load may be acceptable for a bedroom tier; dropped playback,
+buffering, unreliable remote reconnection, missing HDR10 where required, or an
+unrecoverable boot path is not.
+
 ## 10. Evaluation and acceptance criteria
 
 Predeclare household requirements and their severity (hard requirement vs
@@ -316,6 +381,7 @@ Deliver: (1) software go/no-go decision, (2) hardware and live Canadian purchasi
 
 | Date | Action | Result |
 | --- | --- | --- |
+| 2026-10-22 | Defined a three-endpoint comparison after the owner purchased a BOSGAME E3 Neo N95 and nominated the HP for v2 lab work plus an older Lenovo for the low-cost floor. | The BOSGAME will receive a non-destructive stable-LibreELEC hardware gate before any separately authorized internal install, then immutable v1.0.2 and the selected G20BTS Plus remote. All three systems use one playback, UI, telemetry, recovery and control matrix; no lighter workload may manufacture a Lenovo pass. |
 | 2026-10-13 | Imported/reviewed the Jason-authorized staging project because no local or Forgejo-main copy existed. | Scope preserved; Forgejo remains canonical; no remote write performed. |
 | 2026-10-13 | Reviewed `AGENTS.md` and `docs/Project-Creation-Standard.md`; traced `docs/Environment-and-Release-Lifecycle.md` through the active local Production Service Placement and Release Registry project and checked Forgejo refs read-only. | Lifecycle standard found in the owning local project workspace; not yet present in Forgejo `main` or the current Forgejo registry branch ref (`fc60e5a2`). Both standards govern this project; no remote write performed. |
 | 2026-10-13 | Read-only Git baseline: detached worktree at `2b5b941e` (`origin/main`), clean status, `origin` is Forgejo HTTPS and `github` is the mirror remote. | No unrelated local changes; no push or remote mutation. |
@@ -1885,6 +1951,8 @@ the remaining v2 recommendations.
 - `../design/HomeLab-UI-Style-Guide.md`
 - Official Kodi: https://github.com/xbmc/xbmc
 - Official LibreELEC: https://github.com/LibreELEC/LibreELEC.tv
+- LibreELEC Generic x86-64 hardware guidance: https://wiki.libreelec.tv/hardware/intel-x86-64-generic
+- Intel N95 specifications: https://www.intel.com/content/www/us/en/products/sku/231800/intel-processor-n95-6m-cache-up-to-3-40-ghz/specifications.html
 - LibreELEC boot init splash lookup: https://github.com/LibreELEC/LibreELEC.tv/blob/master/packages/sysutils/busybox/scripts/init
 - LibreELEC custom bootsplash: https://wiki.libreelec.tv/how-to/change-bootscreen
 - Kodi skin development: https://kodi.wiki/view/Skin_development_introduction
