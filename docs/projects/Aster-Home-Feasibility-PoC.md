@@ -2210,6 +2210,46 @@ Play/Pause focus and all control labels render over moving video. This is a
 source-deployed visual candidate, not a new release package or completion of
 the remaining v2 recommendations.
 
+### BOSGAME production deployment and Jellyfin recovery — 2026-10-22
+
+The BOSGAME E3 Neo production candidate was installed with LibreELEC 12.2.1
+and Kodi 21.3 on its internal 512 GB NVMe after the owner explicitly approved
+overwriting Windows. Its hostname is `AsterTVProd`; the observed deployment
+address is `192.168.1.157`. The pre-Aster profile checkpoint is
+`/storage/.aster-checkpoints/20261022-pre-aster-v1.0.3.tar.gz` with SHA-256
+`91e6fa86607d789eb884e13e6f0e1d642637bf6641a0d2a28b8da5cd6301b868`.
+The four Aster v1.0.3 components, startup artwork, G20 profile and official
+YouTube and Jellyfin add-ons were installed. The system presents the Aster skin
+at 3840×2160/60 Hz and exposes the LG HDR display's HDMI audio capabilities.
+
+The first Jellyfin setup attempt exposed a production keymap defect. The G20
+Select mappings called `special://skin/tools/select_dispatch.py`, so switching
+to Estuary for recovery made Return, Enter and left-click invoke a script that
+did not exist in the active skin. Jellyfin's custom first-run dialog then
+became unusable and two forced restarts coincided with complete endpoint
+unresponsiveness. No i915, NVMe, OOM, watchdog or filesystem fault was recorded;
+the failure followed the dialog/input path. Recovery stopped Kodi during boot,
+quarantined both the keymap and Jellyfin add-on, and restarted cleanly.
+
+Authentication was completed without exposing a password: a Jellyfin Quick
+Connect request was initiated directly from the production endpoint, approved
+by the owner, exchanged locally, validated against `/Users/Me`, and saved only
+in Jellyfin's protected profile data. Jellyfin then reported `User is
+authenticated` and opened its websocket. Add-on playback and all five eligible
+libraries plus Collections were selected; the initial full synchronization
+completed cleanly across Archive Movies, Archive TV, Movies, Music, Shows and
+Collections. The server currently returns 404 for the optional Kodi Sync Queue
+settings endpoint; initial synchronization and websocket operation are proven,
+while server-side Sync Queue compatibility remains a follow-up check.
+
+The production keymap now uses the stable dispatcher path
+`special://home/addons/skin.asterhome/tools/select_dispatch.py`. This preserves
+Select behavior when Estuary or another recovery skin is active. XML validation
+passed, the corrected map loaded after restart, Aster Home v1.0.3 loaded, and
+Jellyfin reauthenticated with its websocket open. The immutable v1.0.3 bundle
+still contains the original keymap and must not be used for another deployment
+without this corrective overlay or a superseding release package.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

@@ -12,11 +12,11 @@
 <keymap>
   <global>
     <keyboard>
-      <return>RunScript(special://skin/tools/select_dispatch.py)</return>
-      <enter>RunScript(special://skin/tools/select_dispatch.py)</enter>
+      <return>RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)</return>
+      <enter>RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)</enter>
     </keyboard>
     <mouse>
-      <leftclick>RunScript(special://skin/tools/select_dispatch.py)</leftclick>
+      <leftclick>RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)</leftclick>
       <rightclick>Back</rightclick>
     </mouse>
   </global>
