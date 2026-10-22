@@ -12,6 +12,11 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October 22 preparation checkout recovery](B60-Inference-Engineering/preparation-checkout-recovery-20261022.md)
+replaces the damaged disposable checkout with an independent Forgejo clone.
+Git connectivity and 81 offline tests pass; owner readiness remains unchanged.
+Use the new checkout named in that record, not the old shared-object checkout.
+
 The [October 20 late nightly dispatch](B60-Inference-Engineering/nightly-admission-20261020.md)
 arrived at 13:17 PDT, outside the lab window; no live work was replayed. This
 is separate from the on-time host F2 services' earlier preflight failure.
