@@ -44,6 +44,12 @@ production is healthy. Do not schedule another attempt until the platform
 owner adds a bounded final subphase/code and proves the correction offline and
 on target Linux; a fresh cycle still requires its own reviewed card and
 approval.
+The final-subcheck diagnostic correction was subsequently
+[installed inactive](evidence/F2-final-subcheck-diagnostic-inactive-install-2026-10-22.md)
+with the prior coordinator preserved in a root-only rollback checkpoint.
+Target-Linux focused tests passed 14/14, all F2 timers remain disabled and
+production is healthy. This permits a future failed attempt to identify its
+bounded final subcheck; it does not authorize or schedule that attempt.
 
 **October 18 daytime lab-hours path:** Jason accepted up to 90 minutes of
 daytime Aster/voice unavailability for a first supervised, no-reboot pilot.

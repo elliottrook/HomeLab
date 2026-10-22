@@ -43,6 +43,14 @@ with eight expected skips. This is ready only for a separately approved
 inactive one-file installation; it does not diagnose the October 22 failure
 retroactively or authorize another scan.
 
+Jason approved that inactive installation. The
+[installed-path result](evidence/F2-final-subcheck-diagnostic-inactive-install-2026-10-22.md)
+records the corrected coordinator at its pinned hash, the former bytes in a
+root-only rollback checkpoint, 14/14 target-Linux focused tests, disabled F2
+timers and healthy production postchecks. No scan, lease, receipt or F3 action
+ran. The platform owner may now prepare a fresh exact-cycle candidate, but a
+separate reviewed activation approval is still required.
+
 The one-time October 17 supervised F2 guard was invoked once after the
 current-cycle backup and task-1 pull passed preflight. It returned `F2NoGo`
 without per-archive results; the [dated record](evidence/F2-archive-guard-no-go-2026-10-17.md)
