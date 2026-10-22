@@ -1899,11 +1899,24 @@ audio capture device. The receiver initially produced no key events, then
 completed its own wireless handshake without a LibreELEC or Kodi change; the
 owner confirmed that the remote began working normally.
 
-Bounded Kodi debug capture mapped the required ordinary controls end to end:
-Up, Down, Left, Right, OK/Select, Back, Home, Volume Up, Volume Down, Mute and
-Play/Pause all arrive as the expected Kodi actions. No custom keymap is needed
-for those controls. The microphone button arrives as Linux scancode `0x246`,
-but Kodi assigns it no action. The USB microphone can be opened through
+Bounded Kodi and direct libinput capture mapped the required controls end to
+end. Up, Down, Left, Right, Home, Volume Up, Volume Down, Mute and Play/Pause
+arrive as their expected keyboard/media keys. The receiver reports OK as
+mouse-left and Back as mouse-right, a known G20S Linux behavior that makes the
+default Kodi interaction pointer-dependent. The narrow profile-level
+`g20s-pro-plus.xml` compatibility map changes only those two buttons to Select
+and Back, with OK opening the OSD during full-screen playback. The owner turned
+off air-mouse mode and confirmed that D-pad focus, OK and Back then behaved
+correctly. The source and rollback guidance are retained under
+`services/kodi/remote/`.
+
+The endpoint rebooted and returned to active Kodi in about 16 seconds. Its USB
+receiver re-enumerated automatically, although Linux assigned different event
+numbers after boot; identity therefore follows USB vendor/product and device
+name rather than a fixed `/dev/input/event*` path. Kodi restarted again after
+keymap deployment and retained correct physical control. The microphone button
+arrives as Linux scancode `0x246`, but Kodi assigns it no action. The USB
+microphone can be opened through
 LibreELEC's PulseAudio compatibility layer; an initial 5.6-second test WAV was
 nearly silent. A subsequent 7.9-second press-to-talk sample had approximately
 ten times the RMS level and a 4,137 peak. The existing Aster STT service
@@ -1918,9 +1931,9 @@ public reverse-proxy route timed out from this client and is unnecessary for
 the private design. Voice search therefore remains an M4 client/authentication
 integration, not a microphone, firewall or new-speech-platform requirement.
 Least-privilege service authentication, button-triggered capture, transcript
-routing, idle/reboot reconnection and usable-range tests remain open. No
-credential, keymap, firewall rule, persistent audio source or retained voice
-recording was created by this baseline.
+routing, extended-idle reconnection and usable-range tests remain open. No
+credential, firewall rule, persistent audio source or retained voice recording
+was created by this baseline.
 
 ### First v2 visual milestone — shared lightweight players — 2026-10-22
 

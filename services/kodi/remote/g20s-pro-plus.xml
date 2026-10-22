@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Kodi compatibility map for the G20S Pro Plus 2.4 GHz USB receiver.
+
+  The receiver exposes the directional and media controls as keyboard keys,
+  but exposes OK and Back as mouse-left and mouse-right.  Map only those two
+  pointer buttons; leave every correctly reported keyboard/media key alone.
+  Normal couch use should keep the remote's air-mouse mode disabled.
+-->
+<keymap>
+  <global>
+    <mouse>
+      <leftclick>Select</leftclick>
+      <rightclick>Back</rightclick>
+    </mouse>
+  </global>
+  <FullscreenVideo>
+    <mouse>
+      <leftclick>OSD</leftclick>
+      <rightclick>Fullscreen</rightclick>
+    </mouse>
+  </FullscreenVideo>
+  <FullscreenGame>
+    <mouse>
+      <leftclick>OSD</leftclick>
+      <rightclick>Back</rightclick>
+    </mouse>
+  </FullscreenGame>
+  <Visualisation>
+    <mouse>
+      <leftclick>OSD</leftclick>
+      <rightclick>Back</rightclick>
+    </mouse>
+  </Visualisation>
+</keymap>
