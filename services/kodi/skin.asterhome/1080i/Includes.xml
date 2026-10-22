@@ -182,7 +182,7 @@
                 <left>$PARAM[left]</left><top>1100</top><width>240</width><height>360</height>
                 <orientation>horizontal</orientation><scrolltime>180</scrolltime>
                 <onleft>$PARAM[lefttarget]</onleft><onright>$PARAM[righttarget]</onright>
-                <onup>110</onup><ondown>$PARAM[id]</ondown>
+                <onup>$PARAM[uptarget]</onup><ondown>$PARAM[id]</ondown>
                 <onclick>ActivateWindow(Videos,$PARAM[browse],return)</onclick>
                 <itemlayout width="240" height="360">
                     <control type="image"><left>15</left><top>8</top><width>210</width><height>315</height><texture background="true" diffuse="special://skin/media/ui-poster-mask.png">$VAR[AsterPosterArt]</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
@@ -199,9 +199,9 @@
         </definition>
     </include>
     <include name="AsterTopCategoryButton">
-        <width>248</width><height>56</height>
-        <font>font20</font><align>left</align><aligny>center</aligny>
-        <textoffsetx>52</textoffsetx>
+        <width>210</width><height>46</height>
+        <font>font20</font><align>center</align><aligny>center</aligny>
+        <textoffsetx>0</textoffsetx>
         <textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor>
         <texturefocus border="20" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus>
         <texturenofocus border="20" colordiffuse="c929302b">special://skin/media/ui-panel.png</texturenofocus>

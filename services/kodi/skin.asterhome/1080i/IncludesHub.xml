@@ -6,6 +6,7 @@
 </variable>
 <include name="AsterNavigationRail">
 <param name="content" default="100" />
+<param name="railfocus" default="9001" />
 <definition>
         <!-- Collapsed/revealing navigation rail. -->
         <control type="group" id="9000">
@@ -179,6 +180,10 @@
             <font>font40</font>
             <textcolor>ffece8df</textcolor>
             <focusedcolor>asterSage</focusedcolor>
+            <!-- Entering the collapsed rail should land on a real route.  The
+                 old two-step 8999 -> Right -> route sequence looked open but
+                 left the user without a selected item. -->
+            <onfocus>SetFocus($PARAM[railfocus])</onfocus>
             <onright>9001</onright>
             <texturefocus>none</texturefocus>
             <texturenofocus>none</texturenofocus>

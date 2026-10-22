@@ -413,6 +413,14 @@ def main(page, action='refresh'):
         chapter_offset = None
         window.setProperty('AsterHub.RequestedStart', '')
         window.setProperty('AsterHub.RequestedGeneration', '')
+        if action == 'play':
+            show_digest_story_data(window, {
+                'title': 'Daily Digest',
+                'summary': 'Opening briefing · the full edition will continue in order.',
+                'source': 'Aster News',
+                'image': '',
+            })
+            window.setProperty('AsterHub.ActiveIndex', '')
         if action == 'chapter':
             # Kodi's list selection becomes -1 after focus moves to the play
             # button. The container info label retains the selected row.

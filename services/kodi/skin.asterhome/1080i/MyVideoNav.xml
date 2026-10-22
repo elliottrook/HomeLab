@@ -281,20 +281,24 @@
       </itemlayout>
       <focusedlayout width="280" height="410">
         <control type="image">
+          <left>2</left><top>0</top><width>240</width><height>358</height>
+          <texture border="28" colordiffuse="88000000">special://skin/media/ui-panel.png</texture>
+        </control>
+        <control type="image">
           <visible>ListItem.IsParentFolder</visible>
-          <left>12</left>
-          <top>8</top>
-          <width>220</width>
-          <height>330</height>
+          <left>6</left>
+          <top>2</top>
+          <width>232</width>
+          <height>348</height>
           <texture border="20">special://skin/media/ui-panel.png</texture>
           <colordiffuse>asterPaper</colordiffuse>
         </control>
         <control type="label">
           <visible>ListItem.IsParentFolder</visible>
-          <left>12</left>
-          <top>8</top>
-          <width>220</width>
-          <height>330</height>
+          <left>6</left>
+          <top>2</top>
+          <width>232</width>
+          <height>348</height>
           <label>‹ Back</label>
           <font>font40</font>
           <textcolor>asterGreen</textcolor>
@@ -302,26 +306,26 @@
           <aligny>center</aligny>
         </control>
         <control type="image">
-          <left>12</left>
-          <top>8</top>
-          <width>220</width>
-          <height>330</height>
+          <left>6</left>
+          <top>2</top>
+          <width>232</width>
+          <height>348</height>
           <texture background="true" diffuse="special://skin/media/ui-poster-mask.png">$VAR[AsterPosterArt]</texture>
           <aspectratio scalediffuse="false">scale</aspectratio>
         </control>
         <control type="image">
-          <left>12</left>
-          <top>8</top>
-          <width>220</width>
-          <height>330</height>
+          <left>6</left>
+          <top>2</top>
+          <width>232</width>
+          <height>348</height>
           <texture>special://skin/media/ui-poster-ring.png</texture>
-          <colordiffuse>asterGreen</colordiffuse>
+          <colordiffuse>asterSage</colordiffuse>
         </control>
-        <include content="AsterWatchBadges"><param name="left" value="184"/><param name="top" value="20"/></include>
+        <include content="AsterWatchBadges"><param name="left" value="196"/><param name="top" value="14"/></include>
         <control type="textbox">
-          <left>12</left>
+          <left>6</left>
           <top>350</top>
-          <width>220</width>
+          <width>232</width>
           <height>48</height>
           <label>$VAR[AsterPosterLabel]</label>
           <font>font20</font>

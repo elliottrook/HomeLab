@@ -38,7 +38,7 @@
         <texture>special://skin/media/ui-hero-bottom-fade.png</texture>
         <colordiffuse>asterStone</colordiffuse><aspectratio>stretch</aspectratio>
       </control>
-      <include content="AsterNavigationRail"><param name="content" value="500" /></include>
+      <include content="AsterNavigationRail"><param name="content" value="500" /><param name="railfocus" value="9007" /></include>
       <control type="group">
         <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
         <control type="image">
@@ -83,12 +83,13 @@
             <control type="label"><left>10</left><top>307</top><width>260</width><height>26</height><label>$INFO[ListItem.Label2]</label><font>font16</font><textcolor>asterMuted</textcolor></control>
           </itemlayout>
           <focusedlayout width="300" height="345">
-            <control type="image"><left>10</left><top>4</top><width>260</width><height>260</height><texture border="28">special://skin/media/ui-panel.png</texture><colordiffuse>asterIvory</colordiffuse><visible>!String.IsEqual(ListItem.Property(AsterMusic.HasArt),true)</visible></control>
-            <control type="image"><left>76</left><top>70</top><width>128</width><height>128</height><texture>$INFO[ListItem.Art(thumb)]</texture><aspectratio>keep</aspectratio><visible>!String.IsEqual(ListItem.Property(AsterMusic.HasArt),true)</visible></control>
-            <control type="image"><left>10</left><top>4</top><width>260</width><height>260</height><texture background="true" diffuse="special://skin/media/ui-album-mask.png">$INFO[ListItem.Art(thumb)]</texture><aspectratio scalediffuse="false">scale</aspectratio><visible>String.IsEqual(ListItem.Property(AsterMusic.HasArt),true)</visible></control>
-            <control type="image"><left>10</left><top>4</top><width>260</width><height>260</height><texture>special://skin/media/ui-album-ring.png</texture><colordiffuse>asterGreen</colordiffuse></control>
-            <control type="label"><left>10</left><top>274</top><width>260</width><height>32</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterGreen</textcolor></control>
-            <control type="label"><left>10</left><top>307</top><width>260</width><height>26</height><label>$INFO[ListItem.Label2]</label><font>font16</font><textcolor>asterMuted</textcolor></control>
+            <control type="image"><left>0</left><top>0</top><width>280</width><height>280</height><texture border="28" colordiffuse="88000000">special://skin/media/ui-panel.png</texture></control>
+            <control type="image"><left>4</left><top>0</top><width>272</width><height>272</height><texture border="28">special://skin/media/ui-panel.png</texture><colordiffuse>asterIvory</colordiffuse><visible>!String.IsEqual(ListItem.Property(AsterMusic.HasArt),true)</visible></control>
+            <control type="image"><left>76</left><top>68</top><width>128</width><height>128</height><texture>$INFO[ListItem.Art(thumb)]</texture><aspectratio>keep</aspectratio><visible>!String.IsEqual(ListItem.Property(AsterMusic.HasArt),true)</visible></control>
+            <control type="image"><left>4</left><top>0</top><width>272</width><height>272</height><texture background="true" diffuse="special://skin/media/ui-album-mask.png">$INFO[ListItem.Art(thumb)]</texture><aspectratio scalediffuse="false">scale</aspectratio><visible>String.IsEqual(ListItem.Property(AsterMusic.HasArt),true)</visible></control>
+            <control type="image"><left>4</left><top>0</top><width>272</width><height>272</height><texture>special://skin/media/ui-album-ring.png</texture><colordiffuse>asterSage</colordiffuse></control>
+            <control type="label"><left>4</left><top>280</top><width>272</width><height>32</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterGreen</textcolor></control>
+            <control type="label"><left>4</left><top>313</top><width>272</width><height>26</height><label>$INFO[ListItem.Label2]</label><font>font16</font><textcolor>asterMuted</textcolor></control>
           </focusedlayout>
         </control>
       </control>

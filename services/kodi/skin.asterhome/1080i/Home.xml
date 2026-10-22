@@ -184,50 +184,50 @@
         <control type="group" id="23">
             <animation effect="fade" start="100" end="0" time="0" condition="Control.HasFocus(8999) | Control.HasFocus(9001) | Control.HasFocus(9002) | Control.HasFocus(9003) | Control.HasFocus(9004) | Control.HasFocus(9005) | Control.HasFocus(9007)">Conditional</animation>
             <control type="image">
-                <left>360</left><top>14</top><width>1336</width><height>80</height>
+                <left>405</left><top>19</top><width>1210</width><height>70</height>
                 <texture border="20">special://skin/media/ui-panel.png</texture>
                 <colordiffuse>99292721</colordiffuse>
             </control>
             <control type="button" id="130">
-                <left>375</left><top>26</top><label>TV Shows</label>
+                <left>430</left><top>31</top><label>TV Shows</label>
                 <onclick>ActivateWindow(Videos,special://skin/playlists/tv-shows.xsp,return)</onclick>
                 <onleft>8999</onleft><onright>131</onright><onup>130</onup>
                 <include>AsterTopCategoryButton</include>
             </control>
             <control type="button" id="131">
-                <left>639</left><top>26</top><label>Movies</label>
+                <left>670</left><top>31</top><label>Movies</label>
                 <onclick>ActivateWindow(Videos,special://skin/playlists/movies.xsp,return)</onclick>
                 <onleft>130</onleft><onright>132</onright><onup>131</onup>
                 <include>AsterTopCategoryButton</include>
             </control>
             <control type="button" id="132">
-                <left>903</left><top>26</top><label>Archive TV</label>
+                <left>910</left><top>31</top><label>Archive TV</label>
                 <onclick>ActivateWindow(Videos,special://skin/playlists/archive-tv.xsp,return)</onclick>
                 <onleft>131</onleft><onright>133</onright><onup>132</onup>
                 <include>AsterTopCategoryButton</include>
             </control>
             <control type="button" id="133">
-                <left>1167</left><top>26</top><label>Archive Film</label>
+                <left>1150</left><top>31</top><label>Archive Film</label>
                 <onclick>ActivateWindow(Videos,special://skin/playlists/archive-film.xsp,return)</onclick>
                 <onleft>132</onleft><onright>134</onright><onup>133</onup>
                 <include>AsterTopCategoryButton</include>
             </control>
             <control type="button" id="134">
-                <left>1431</left><top>26</top><label>Collections</label>
+                <left>1390</left><top>31</top><label>Collections</label>
                 <onclick>ActivateWindow(Videos,videodb://movies/sets/,return)</onclick>
                 <onleft>133</onleft><onright>134</onright><onup>134</onup>
                 <include>AsterTopCategoryButton</include>
             </control>
-            <control type="image"><left>389</left><top>36</top><width>36</width><height>36</height><texture>special://skin/media/07-tv.png</texture><aspectratio>keep</aspectratio></control>
-            <control type="image"><left>653</left><top>36</top><width>36</width><height>36</height><texture>special://skin/media/08-film.png</texture><aspectratio>keep</aspectratio></control>
-            <control type="image"><left>917</left><top>36</top><width>36</width><height>36</height><texture>special://skin/media/09-archive-tv.png</texture><aspectratio>keep</aspectratio></control>
-            <control type="image"><left>1181</left><top>36</top><width>36</width><height>36</height><texture>special://skin/media/10-archive-film.png</texture><aspectratio>keep</aspectratio></control>
-            <control type="image"><left>1445</left><top>36</top><width>36</width><height>36</height><texture>special://skin/media/19-movie-collections-128.png</texture><aspectratio>keep</aspectratio></control>
-            <control type="image"><visible>Control.HasFocus(130)</visible><left>375</left><top>26</top><width>248</width><height>56</height><texture>special://skin/media/ui-top-button-ring.png</texture></control>
-            <control type="image"><visible>Control.HasFocus(131)</visible><left>639</left><top>26</top><width>248</width><height>56</height><texture>special://skin/media/ui-top-button-ring.png</texture></control>
-            <control type="image"><visible>Control.HasFocus(132)</visible><left>903</left><top>26</top><width>248</width><height>56</height><texture>special://skin/media/ui-top-button-ring.png</texture></control>
-            <control type="image"><visible>Control.HasFocus(133)</visible><left>1167</left><top>26</top><width>248</width><height>56</height><texture>special://skin/media/ui-top-button-ring.png</texture></control>
-            <control type="image"><visible>Control.HasFocus(134)</visible><left>1431</left><top>26</top><width>248</width><height>56</height><texture>special://skin/media/ui-top-button-ring.png</texture></control>
+            <control type="image"><left>442</left><top>40</top><width>28</width><height>28</height><texture>special://skin/media/07-tv.png</texture><aspectratio>keep</aspectratio></control>
+            <control type="image"><left>682</left><top>40</top><width>28</width><height>28</height><texture>special://skin/media/08-film.png</texture><aspectratio>keep</aspectratio></control>
+            <control type="image"><left>922</left><top>40</top><width>28</width><height>28</height><texture>special://skin/media/09-archive-tv.png</texture><aspectratio>keep</aspectratio></control>
+            <control type="image"><left>1162</left><top>40</top><width>28</width><height>28</height><texture>special://skin/media/10-archive-film.png</texture><aspectratio>keep</aspectratio></control>
+            <control type="image"><left>1402</left><top>40</top><width>28</width><height>28</height><texture>special://skin/media/19-movie-collections-128.png</texture><aspectratio>keep</aspectratio></control>
+            <control type="image"><visible>Control.HasFocus(130)</visible><left>430</left><top>31</top><width>210</width><height>46</height><texture>special://skin/media/ui-top-button-ring.png</texture></control>
+            <control type="image"><visible>Control.HasFocus(131)</visible><left>670</left><top>31</top><width>210</width><height>46</height><texture>special://skin/media/ui-top-button-ring.png</texture></control>
+            <control type="image"><visible>Control.HasFocus(132)</visible><left>910</left><top>31</top><width>210</width><height>46</height><texture>special://skin/media/ui-top-button-ring.png</texture></control>
+            <control type="image"><visible>Control.HasFocus(133)</visible><left>1150</left><top>31</top><width>210</width><height>46</height><texture>special://skin/media/ui-top-button-ring.png</texture></control>
+            <control type="image"><visible>Control.HasFocus(134)</visible><left>1390</left><top>31</top><width>210</width><height>46</height><texture>special://skin/media/ui-top-button-ring.png</texture></control>
         </control>
         <control type="group" id="22">
             <zorder>2</zorder>
@@ -262,7 +262,7 @@
             <scrolltime>180</scrolltime>
             <onleft>8999</onleft>
             <onup>120</onup>
-            <ondown>110</ondown>
+            <ondown>SetFocus(110,$INFO[Container(100).Position],absolute)</ondown>
             <itemlayout width="340" height="230">
                 <control type="image">
                     <left>8</left><top>8</top><width>320</width><height>180</height>
@@ -292,14 +292,18 @@
             </itemlayout>
             <focusedlayout width="340" height="230">
                 <control type="image">
-                    <left>8</left><top>8</top><width>320</width><height>180</height>
+                    <left>0</left><top>2</top><width>336</width><height>194</height>
+                    <texture border="28" colordiffuse="88000000">special://skin/media/ui-panel.png</texture>
+                </control>
+                <control type="image">
+                    <left>2</left><top>2</top><width>332</width><height>187</height>
                     <texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">$VAR[AsterCardArt]</texture>
                     <aspectratio scalediffuse="false">scale</aspectratio>
                 </control>
                 <control type="image">
-                    <left>8</left><top>8</top><width>320</width><height>180</height>
+                    <left>2</left><top>2</top><width>332</width><height>187</height>
                     <texture>special://skin/media/ui-compact-card-ring.png</texture>
-                    <colordiffuse>asterGreen</colordiffuse>
+                    <colordiffuse>asterSage</colordiffuse>
                 </control>
                 <control type="image">
                     <left>22</left><top>173</top><width>292</width><height>6</height>
@@ -341,7 +345,12 @@
             <orientation>horizontal</orientation>
             <scrolltime>180</scrolltime>
             <onleft>8999</onleft>
-            <onup>100</onup>
+            <onup>SetFocus(100,$INFO[Container(110).Position],absolute)</onup>
+            <ondown condition="Container(110).Position(0)">SetFocus(140)</ondown>
+            <ondown condition="Container(110).Position(1)">SetFocus(141)</ondown>
+            <ondown condition="Container(110).Position(2)">SetFocus(142)</ondown>
+            <ondown condition="Container(110).Position(3)">SetFocus(143)</ondown>
+            <ondown condition="Container(110).Position(4)">SetFocus(144)</ondown>
             <ondown>140</ondown>
             <itemlayout width="340" height="230">
                 <control type="image">
@@ -358,14 +367,18 @@
             </itemlayout>
             <focusedlayout width="340" height="230">
                 <control type="image">
-                    <left>8</left><top>8</top><width>320</width><height>180</height>
+                    <left>0</left><top>2</top><width>336</width><height>194</height>
+                    <texture border="28" colordiffuse="88000000">special://skin/media/ui-panel.png</texture>
+                </control>
+                <control type="image">
+                    <left>2</left><top>2</top><width>332</width><height>187</height>
                     <texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">$VAR[AsterCardArt]</texture>
                     <aspectratio scalediffuse="false">scale</aspectratio>
                 </control>
                 <control type="image">
-                    <left>8</left><top>8</top><width>320</width><height>180</height>
+                    <left>2</left><top>2</top><width>332</width><height>187</height>
                     <texture>special://skin/media/ui-compact-card-ring.png</texture>
-                    <colordiffuse>asterGreen</colordiffuse>
+                    <colordiffuse>asterSage</colordiffuse>
                 </control>
                 <include content="AsterWatchBadges"><param name="left" value="278"/><param name="top" value="18"/></include>
                 <control type="label">
@@ -381,13 +394,13 @@
              Focusing it lifts all three media lanes so the heading, portrait
              choices and captions fit without colliding with Recommended. -->
         <control type="label"><left>125</left><top>1048</top><width>650</width><height>32</height><label>Genre</label><font>font28</font><textcolor>asterInk</textcolor></control>
-        <include content="AsterGenreTile"><param name="id" value="140"/><param name="left" value="125"/><param name="label" value="Comedy"/><param name="preview" value="special://skin/playlists/genre-previews/comedy-tv.xsp"/><param name="browse" value="plugin://plugin.video.asterhome/?genre=Comedy"/><param name="lefttarget" value="8999"/><param name="righttarget" value="141"/></include>
-        <include content="AsterGenreTile"><param name="id" value="141"/><param name="left" value="365"/><param name="label" value="Drama"/><param name="preview" value="special://skin/playlists/genre-previews/drama-film.xsp"/><param name="browse" value="plugin://plugin.video.asterhome/?genre=Drama"/><param name="lefttarget" value="140"/><param name="righttarget" value="142"/></include>
-        <include content="AsterGenreTile"><param name="id" value="142"/><param name="left" value="605"/><param name="label" value="Action"/><param name="preview" value="special://skin/playlists/genre-previews/action-film.xsp"/><param name="browse" value="plugin://plugin.video.asterhome/?genre=Action"/><param name="lefttarget" value="141"/><param name="righttarget" value="143"/></include>
-        <include content="AsterGenreTile"><param name="id" value="143"/><param name="left" value="845"/><param name="label" value="Sci-Fi"/><param name="preview" value="special://skin/playlists/genre-previews/scifi-tv.xsp"/><param name="browse" value="plugin://plugin.video.asterhome/?genre=Sci-Fi"/><param name="lefttarget" value="142"/><param name="righttarget" value="144"/></include>
-        <include content="AsterGenreTile"><param name="id" value="144"/><param name="left" value="1085"/><param name="label" value="Documentary"/><param name="preview" value="special://skin/playlists/genre-previews/documentary-film.xsp"/><param name="browse" value="plugin://plugin.video.asterhome/?genre=Documentary"/><param name="lefttarget" value="143"/><param name="righttarget" value="145"/></include>
-        <include content="AsterGenreTile"><param name="id" value="145"/><param name="left" value="1325"/><param name="label" value="Horror"/><param name="preview" value="special://skin/playlists/genre-previews/horror-film.xsp"/><param name="browse" value="plugin://plugin.video.asterhome/?genre=Horror"/><param name="lefttarget" value="144"/><param name="righttarget" value="146"/></include>
-        <include content="AsterGenreTile"><param name="id" value="146"/><param name="left" value="1565"/><param name="label" value="Family"/><param name="preview" value="special://skin/playlists/genre-previews/family-film.xsp"/><param name="browse" value="plugin://plugin.video.asterhome/?genre=Family"/><param name="lefttarget" value="145"/><param name="righttarget" value="146"/></include>
+        <include content="AsterGenreTile"><param name="id" value="140"/><param name="left" value="125"/><param name="label" value="Comedy"/><param name="preview" value="special://skin/playlists/genre-previews/comedy-tv.xsp"/><param name="browse" value="plugin://plugin.video.asterhome/?genre=Comedy"/><param name="lefttarget" value="8999"/><param name="righttarget" value="141"/><param name="uptarget" value="SetFocus(110,0,absolute)"/></include>
+        <include content="AsterGenreTile"><param name="id" value="141"/><param name="left" value="365"/><param name="label" value="Drama"/><param name="preview" value="special://skin/playlists/genre-previews/drama-film.xsp"/><param name="browse" value="plugin://plugin.video.asterhome/?genre=Drama"/><param name="lefttarget" value="140"/><param name="righttarget" value="142"/><param name="uptarget" value="SetFocus(110,1,absolute)"/></include>
+        <include content="AsterGenreTile"><param name="id" value="142"/><param name="left" value="605"/><param name="label" value="Action"/><param name="preview" value="special://skin/playlists/genre-previews/action-film.xsp"/><param name="browse" value="plugin://plugin.video.asterhome/?genre=Action"/><param name="lefttarget" value="141"/><param name="righttarget" value="143"/><param name="uptarget" value="SetFocus(110,2,absolute)"/></include>
+        <include content="AsterGenreTile"><param name="id" value="143"/><param name="left" value="845"/><param name="label" value="Sci-Fi"/><param name="preview" value="special://skin/playlists/genre-previews/scifi-tv.xsp"/><param name="browse" value="plugin://plugin.video.asterhome/?genre=Sci-Fi"/><param name="lefttarget" value="142"/><param name="righttarget" value="144"/><param name="uptarget" value="SetFocus(110,3,absolute)"/></include>
+        <include content="AsterGenreTile"><param name="id" value="144"/><param name="left" value="1085"/><param name="label" value="Documentary"/><param name="preview" value="special://skin/playlists/genre-previews/documentary-film.xsp"/><param name="browse" value="plugin://plugin.video.asterhome/?genre=Documentary"/><param name="lefttarget" value="143"/><param name="righttarget" value="145"/><param name="uptarget" value="SetFocus(110,4,absolute)"/></include>
+        <include content="AsterGenreTile"><param name="id" value="145"/><param name="left" value="1325"/><param name="label" value="Horror"/><param name="preview" value="special://skin/playlists/genre-previews/horror-film.xsp"/><param name="browse" value="plugin://plugin.video.asterhome/?genre=Horror"/><param name="lefttarget" value="144"/><param name="righttarget" value="146"/><param name="uptarget" value="SetFocus(110,4,absolute)"/></include>
+        <include content="AsterGenreTile"><param name="id" value="146"/><param name="left" value="1565"/><param name="label" value="Family"/><param name="preview" value="special://skin/playlists/genre-previews/family-film.xsp"/><param name="browse" value="plugin://plugin.video.asterhome/?genre=Family"/><param name="lefttarget" value="145"/><param name="righttarget" value="146"/><param name="uptarget" value="SetFocus(110,4,absolute)"/></include>
         </control>
     </controls>
 </window>

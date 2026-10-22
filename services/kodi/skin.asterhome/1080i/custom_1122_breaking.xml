@@ -6,7 +6,7 @@
   <controls>
     <control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture>special://skin/media/ui-solid.png</texture><colordiffuse>asterStone</colordiffuse></control>
     <control type="image"><left>0</left><top>0</top><width>1920</width><height>180</height><texture>special://skin/media/ui-solid.png</texture><colordiffuse>asterCharcoal</colordiffuse></control>
-    <include content="AsterNavigationRail"><param name="content" value="500" /></include>
+    <include content="AsterNavigationRail"><param name="content" value="500" /><param name="railfocus" value="9003" /></include>
     <control type="group">
       <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
       <control type="image"><left>110</left><top>0</top><width>240</width><height>160</height><texture>special://skin/media/30-aster-news-logo.png</texture><aspectratio>keep</aspectratio></control>

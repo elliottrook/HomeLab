@@ -174,6 +174,11 @@ def main(page, action='load'):
                                                      'podcast': 'podcasts'}[kind])[:12]])
         status = ('Read-only catalogue snapshot · no per-title added dates'
                   if available else 'Books feed unavailable or stale')
+        if action == 'load':
+            first_row = next((HOME_CONTROLS[kind] for kind in
+                              ('ebook', 'audiobook', 'podcast') if counts[kind]), None)
+            if first_row is not None:
+                xbmc.executebuiltin(f'Control.SetFocus({first_row},0,absolute)')
     else:
         query = window.getProperty('AsterBooks.Search').strip()
         rows = page_records(records, page, query)
@@ -187,6 +192,8 @@ def main(page, action='load'):
                            'Search: ' + query if query else
                            'Filter my shows' if page == 'podcasts' else
                            'Search ' + page)
+        if action == 'load' and rows:
+            xbmc.executebuiltin('Control.SetFocus(500,0,absolute)')
 
     for kind, count in counts.items():
         window.setProperty('AsterBooks.Count.' + kind, str(count))

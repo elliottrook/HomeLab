@@ -16,11 +16,41 @@ class LayoutTests(unittest.TestCase):
         previous_right = 0
         for identifier in range(130, 135):
             button = self.home.find(f'.//control[@id="{identifier}"]')
-            self.assertEqual(button.findtext('top'), '26')
+            self.assertEqual(button.findtext('top'), '31')
             left = int(button.findtext('left'))
             self.assertGreater(left, previous_right)
-            previous_right = left + 248
+            previous_right = left + 210
         self.assertLess(previous_right, 1750)  # clock begins here
+        category = ET.parse(ROOT / '1080i/Includes.xml').find(
+            './/include[@name="AsterTopCategoryButton"]')
+        self.assertEqual((category.findtext('width'), category.findtext('height')),
+                         ('210', '46'))
+        self.assertEqual(category.findtext('align'), 'center')
+
+    def test_media_rows_preserve_the_visible_column(self):
+        watching = self.home.find('.//control[@id="100"]')
+        recommended = self.home.find('.//control[@id="110"]')
+        self.assertEqual(watching.findtext('ondown'),
+                         'SetFocus(110,$INFO[Container(100).Position],absolute)')
+        self.assertEqual(recommended.findtext('onup'),
+                         'SetFocus(100,$INFO[Container(110).Position],absolute)')
+        conditional = [(node.get('condition'), node.text)
+                       for node in recommended.findall('ondown') if node.get('condition')]
+        self.assertEqual(conditional, [
+            (f'Container(110).Position({index})', f'SetFocus({140 + index})')
+            for index in range(5)])
+
+    def test_collapsed_rail_enters_the_current_section(self):
+        rail = ET.parse(ROOT / '1080i/IncludesHub.xml')
+        reveal = rail.find('.//control[@id="8999"]')
+        self.assertEqual(reveal.findtext('onfocus'), 'SetFocus($PARAM[railfocus])')
+        expected = {'IncludesBooks.xml': '9002', 'IncludesMusic.xml': '9007',
+                    'custom_1111_digest.xml': '9003', 'custom_1112_home.xml': '9004'}
+        for source, target in expected.items():
+            root = ET.parse(ROOT / '1080i' / source)
+            include = root.find('.//include[@content="AsterNavigationRail"]')
+            params = {node.get('name'): node.get('value') for node in include.findall('param')}
+            self.assertEqual(params['railfocus'], target, source)
 
     def test_media_logo_is_centered_and_enlarged_in_header_gutter(self):
         logo = next(control for control in self.home.findall('.//control')
@@ -359,7 +389,7 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual([int(row['left']) for row in params],
                          [125, 365, 605, 845, 1085, 1325, 1565])
         recommended = self.home.find('.//control[@id="110"]')
-        self.assertEqual(recommended.findtext('ondown'), '140')
+        self.assertEqual(recommended.findall('ondown')[-1].text, '140')
         media_group = self.home.find('.//control[@id="22"]')
         slides = [node for node in media_group.findall('animation')
                   if node.get('effect') == 'slide']

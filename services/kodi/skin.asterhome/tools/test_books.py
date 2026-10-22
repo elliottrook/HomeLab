@@ -259,6 +259,11 @@ class BooksTests(unittest.TestCase):
         for layout in shared.findall('.//focusedlayout'):
             self.assertEqual(layout[-1].tag, 'include')
 
+    def test_script_populated_rows_receive_an_initial_focus(self):
+        source = (ROOT / 'tools/books_data.py').read_text()
+        self.assertIn('Control.SetFocus({first_row},0,absolute)', source)
+        self.assertIn('Control.SetFocus(500,0,absolute)', source)
+
 
 if __name__ == '__main__':
     unittest.main()

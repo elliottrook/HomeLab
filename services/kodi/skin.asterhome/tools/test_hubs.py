@@ -333,6 +333,8 @@ class HubTests(unittest.TestCase):
         self.assertIn('AsterHub.DigestPlaying', digest)
         self.assertIn('AlarmClock(AsterDigestFollow', digest)
         self.assertIn('CancelAlarm(AsterDigestFollow,silent)', digest)
+        self.assertIn('<label>Play full digest</label>', digest)
+        self.assertIn('RunScript(special://skin/tools/hub_data.py,digest,play)', digest)
 
     def test_home_window_is_dashboard_with_camera_and_black_timer_panel(self):
         home = ET.parse(ROOT / '1080i/custom_1112_home.xml')

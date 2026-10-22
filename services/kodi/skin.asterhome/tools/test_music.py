@@ -20,6 +20,8 @@ class MusicTests(unittest.TestCase):
             root = ET.parse(source)
             self.assertEqual(int(root.getroot().get('id')) + 10000, identifier)
             self.assertEqual(root.find('.//param[@name="page"]').get('value'), page)
+        self.assertIn('Control.SetFocus(500,0,absolute)',
+                      (ROOT / 'tools/music_data.py').read_text())
 
     def test_queries_are_bounded_and_artist_filter_is_local(self):
         calls = []

@@ -1,6 +1,6 @@
 # Aster Home — EH-001: LibreELEC/Kodi feasibility experiment
 
-> **Status:** Active — Stream A; Aster Home v1.0.2 production candidate built and deployed 2026-10-22; physical M2 baseline, cold boot, 20-minute 4K soak and non-YouTube page/media sweep passed with receiver, remote, private audio/camera routing and destructive recovery gates still open
+> **Status:** Active — Stream A; Aster Home v1.0.2 production candidate built and deployed 2026-10-22; physical M2 baseline, cold boot, 20-minute 4K soak, non-YouTube page/media sweep and G20 control path passed with receiver audio, production camera routing, voice integration and destructive recovery gates still open
 > **Owner:** Jason
 > **Date:** 2026-10-13
 > **Authorization:** Stream A requested for bounded, reversible proof of concept; operational execution remains subject to the actual environment, project-standard and platform safety gates.
@@ -381,6 +381,7 @@ Deliver: (1) software go/no-go decision, (2) hardware and live Canadian purchasi
 
 | Date | Action | Result |
 | --- | --- | --- |
+| 2026-10-22 | Deployed the remote-first UI focus milestone to the HP over a full skin checkpoint; validated same-column Media movement, immediate selected side rail, compact centred category pills, stronger focused cards, post-load Music/Books selection and full-Digest playback from the opening. | All 79 skin tests, XML parsing, Python compilation and `git diff --check` passed; Kodi remained active with no new skin error or traceback. Full Digest queued and prepared its complete audio, Music opened its selected album player, and the Books eBook handoff opened the bounded Calibre-Web destination. |
 | 2026-10-22 | Defined a three-endpoint comparison after the owner purchased a BOSGAME E3 Neo N95 and nominated the HP for v2 lab work plus an older Lenovo for the low-cost floor. | The BOSGAME will receive a non-destructive stable-LibreELEC hardware gate before any separately authorized internal install, then immutable v1.0.2 and the selected G20BTS Plus remote. All three systems use one playback, UI, telemetry, recovery and control matrix; no lighter workload may manufacture a Lenovo pass. |
 | 2026-10-13 | Imported/reviewed the Jason-authorized staging project because no local or Forgejo-main copy existed. | Scope preserved; Forgejo remains canonical; no remote write performed. |
 | 2026-10-13 | Reviewed `AGENTS.md` and `docs/Project-Creation-Standard.md`; traced `docs/Environment-and-Release-Lifecycle.md` through the active local Production Service Placement and Release Registry project and checked Forgejo refs read-only. | Lifecycle standard found in the owning local project workspace; not yet present in Forgejo `main` or the current Forgejo registry branch ref (`fc60e5a2`). Both standards govern this project; no remote write performed. |
@@ -1934,6 +1935,43 @@ Least-privilege service authentication, button-triggered capture, transcript
 routing, extended-idle reconnection and usable-range tests remain open. No
 credential, firewall rule, persistent audio source or retained voice recording
 was created by this baseline.
+
+### Remote-first focus and activation refinement — 2026-10-22
+
+The physical G20 trial exposed several focus-graph defects that were less
+obvious with a mouse. Media's horizontal rows remembered independent item
+positions, so moving vertically could jump to an unrelated tile; entering the
+collapsed navigation rail stopped on its reveal chevron; and script-populated
+Music and Books rows could miss Kodi's initial focus because their controls
+were still empty when the window opened. The source and HP candidate now carry
+the visible column between Continue Watching and Recommended, map each visible
+Recommended position to the matching Genre choice, and map Genre back to the
+nearest visible Recommended position. Entering the rail immediately selects
+the current app route, while Music and Books explicitly establish the first
+valid row selection after population.
+
+The same milestone reduces Media's five library controls from 248 × 56 to
+210 × 46, centres their wording, and retains the approved section icons.
+Focused landscape cards and the portrait library grid now grow within their
+layout cell, add a bounded shadow and use the sage focus ring; Music's selected
+cover receives the same treatment. Daily Digest adds a separate **Play full
+digest** action, makes it the initial action, and presents an opening state
+before normal story synchronization begins. Story-specific playback remains a
+separate action.
+
+Before deployment, the complete previous skin directory was archived at
+`/storage/.kodi/addons/skin.asterhome-checkpoints/pre-ui-nav-20261022.tar.gz`,
+SHA-256
+`e2084e84168a128f26db62f90adc6c88ac39aede554df00e4484499ce5ac8093`.
+All 79 offline skin tests, XML parsing, Python compilation and
+`git diff --check` passed. Live 3840 × 2160 captures confirmed the compact
+labelled controls, enlarged Media/Music/library focus, selected Aster Media
+rail entry and selected first eBook. The Music activation handler opened the
+album player, the Books handler opened the bounded Calibre-Web handoff, and
+full-Digest audio reached Kodi's queued/ready state before being stopped.
+Kodi remained active and the post-test log contained no new skin error,
+traceback or crash. No media, server, credential, network or remote Git state
+changed.
 
 ### First v2 visual milestone — shared lightweight players — 2026-10-22
 

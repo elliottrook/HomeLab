@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window id="1111" type="window">
-  <defaultcontrol always="true">300</defaultcontrol>
+  <defaultcontrol always="true">305</defaultcontrol>
   <onload>RunScript(special://skin/tools/hub_data.py,digest)</onload>
   <onload>AlarmClock(AsterDigestFollow,RunScript(special://skin/tools/hub_data.py,digest,sync),00:02,silent,loop)</onload>
   <onunload>CancelAlarm(AsterDigestFollow,silent)</onunload>
@@ -8,7 +8,7 @@
   <controls>
     <control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture>special://skin/media/ui-solid.png</texture><colordiffuse>asterStone</colordiffuse></control>
     <control type="image"><left>0</left><top>0</top><width>1920</width><height>180</height><texture>special://skin/media/ui-solid.png</texture><colordiffuse>asterCharcoal</colordiffuse></control>
-    <include content="AsterNavigationRail"><param name="content" value="500" /></include>
+    <include content="AsterNavigationRail"><param name="content" value="500" /><param name="railfocus" value="9003" /></include>
     <control type="group">
       <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
       <control type="image"><left>110</left><top>0</top><width>240</width><height>160</height><texture>special://skin/media/30-aster-news-logo.png</texture><aspectratio>keep</aspectratio></control>
@@ -31,10 +31,11 @@
       <control type="progress"><left>150</left><top>881</top><width>710</width><height>10</height><texturebg border="4" colordiffuse="asterMuted">special://skin/media/ui-progress.png</texturebg><midtexture border="4" colordiffuse="asterSage">special://skin/media/ui-progress.png</midtexture><lefttexture></lefttexture><righttexture></righttexture><overlaytexture></overlaytexture><info>Player.Progress</info><visible>String.IsEqual(Window.Property(AsterHub.DigestPlaying),true)</visible></control>
       <control type="label"><left>150</left><top>846</top><width>710</width><height>38</height><label>Select a story or listen from the beginning</label><font>font20</font><textcolor>asterInk</textcolor><visible>!String.IsEqual(Window.Property(AsterHub.DigestPlaying),true)</visible></control>
 
-      <control type="button" id="300"><left>150</left><top>916</top><width>235</width><label>Play selected</label><include>AsterPlayerPrimaryControlLight</include><onclick>RunScript(special://skin/tools/hub_data.py,digest,chapter)</onclick><onleft>8999</onleft><onright>302</onright><onup>301</onup></control>
-      <control type="button" id="302"><left>405</left><top>921</top><width>190</width><label>Pause</label><include>AsterPlayerControlLight</include><onclick>PlayerControl(Play)</onclick><onleft>300</onleft><onright>303</onright><onup>301</onup><visible>String.IsEqual(Window.Property(AsterHub.DigestPlaying),true) + !Player.Paused</visible></control>
-      <control type="button" id="304"><left>405</left><top>921</top><width>190</width><label>Play</label><include>AsterPlayerControlLight</include><onclick>PlayerControl(Play)</onclick><onleft>300</onleft><onright>303</onright><onup>301</onup><visible>String.IsEqual(Window.Property(AsterHub.DigestPlaying),true) + Player.Paused</visible></control>
-      <control type="button" id="303"><left>615</left><top>921</top><width>160</width><label>Stop</label><include>AsterPlayerControlLight</include><onclick>RunScript(special://skin/tools/hub_data.py,digest,stop)</onclick><onleft>302</onleft><onright>500</onright><onup>301</onup><visible>String.IsEqual(Window.Property(AsterHub.DigestPlaying),true)</visible></control>
+      <control type="button" id="305"><left>150</left><top>916</top><width>220</width><label>Play full digest</label><include>AsterPlayerPrimaryControlLight</include><onclick>RunScript(special://skin/tools/hub_data.py,digest,play)</onclick><onleft>8999</onleft><onright>300</onright><onup>301</onup></control>
+      <control type="button" id="300"><left>386</left><top>921</top><width>200</width><label>Play story</label><include>AsterPlayerControlLight</include><onclick>RunScript(special://skin/tools/hub_data.py,digest,chapter)</onclick><onleft>305</onleft><onright>302</onright><onup>301</onup></control>
+      <control type="button" id="302"><left>602</left><top>921</top><width>120</width><label>Pause</label><include>AsterPlayerControlLight</include><onclick>PlayerControl(Play)</onclick><onleft>300</onleft><onright>303</onright><onup>301</onup><visible>String.IsEqual(Window.Property(AsterHub.DigestPlaying),true) + !Player.Paused</visible></control>
+      <control type="button" id="304"><left>602</left><top>921</top><width>120</width><label>Play</label><include>AsterPlayerControlLight</include><onclick>PlayerControl(Play)</onclick><onleft>300</onleft><onright>303</onright><onup>301</onup><visible>String.IsEqual(Window.Property(AsterHub.DigestPlaying),true) + Player.Paused</visible></control>
+      <control type="button" id="303"><left>738</left><top>921</top><width>110</width><label>Stop</label><include>AsterPlayerControlLight</include><onclick>RunScript(special://skin/tools/hub_data.py,digest,stop)</onclick><onleft>302</onleft><onright>500</onright><onup>301</onup><visible>String.IsEqual(Window.Property(AsterHub.DigestPlaying),true)</visible></control>
 
       <control type="label"><left>970</left><top>224</top><width>790</width><height>65</height><label>In this briefing</label><font>font40</font><textcolor>asterInk</textcolor></control>
       <control type="label"><left>970</left><top>286</top><width>850</width><height>38</height><label>$INFO[Window.Property(AsterHub.Status)]</label><font>font20</font><textcolor>asterMuted</textcolor><truncate>true</truncate></control>

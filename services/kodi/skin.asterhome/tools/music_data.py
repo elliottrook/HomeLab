@@ -319,6 +319,11 @@ def main(page, action='load'):
         item.setProperty('AsterMusic.File', row['file'])
         items.append(item)
     listing.addItems(items)
+    # Script-populated panels are empty when Kodi applies <defaultcontrol>.
+    # Restore a real selection after the rows exist so OK/Select works on the
+    # first visit instead of leaving an apparently highlighted dead page.
+    if action == 'load' and items:
+        xbmc.executebuiltin('Control.SetFocus(500,0,absolute)')
     if not records:
         status = ('No Kodi or Jellyfin playlists available' if page == 'playlists' else
                   'No indexed music here yet')
