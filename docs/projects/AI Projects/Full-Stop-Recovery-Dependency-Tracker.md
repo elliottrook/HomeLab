@@ -51,6 +51,14 @@ timers and healthy production postchecks. No scan, lease, receipt or F3 action
 ran. The platform owner may now prepare a fresh exact-cycle candidate, but a
 separate reviewed activation approval is still required.
 
+The platform owner prepared the October 23 exact-cycle candidate at corrected
+commit `58edf4e1`. Stream A's
+[independent review](evidence/F2-exact-cycle-activation-review-2026-10-23.md)
+verified both timer hashes, exact dates, nonpersistent scheduling, preservation
+of October 19–22 evidence and the observation-only cleanup owner. The candidate
+is ready for a separate activation decision; no timer is active and no scan is
+authorized yet.
+
 The one-time October 17 supervised F2 guard was invoked once after the
 current-cycle backup and task-1 pull passed preflight. It returned `F2NoGo`
 without per-archive results; the [dated record](evidence/F2-archive-guard-no-go-2026-10-17.md)
