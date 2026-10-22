@@ -2166,6 +2166,24 @@ Six media-library unit tests and 26 targeted skin-layout tests passed. A final
 physical confirmation that the expected movie and episode cards are visible
 remains useful but is not required to prove that resume data is being recorded.
 
+### HP production-path CEC probe — 2026-10-22
+
+A read-only probe on the production-connected HP confirmed that the active
+`card0-HDMI-A-1` path carries HDMI video/audio, EDID and connector hot-plug
+state, but exposes no operating-system CEC endpoint. There is no `/dev/cec*`
+device or `/sys/class/cec` adapter, no CEC kernel module/device was registered,
+`cec-ctl --list-devices` returned none, and libCEC 7.1.1 reported
+`Found devices: NONE`. Kodi consequently has no libCEC peripheral to bind to.
+The connected USB devices were the G20 receiver, Logitech Bolt receiver and
+Intel Bluetooth; no Pulse-Eight adapter was present.
+
+This is a hardware-path result rather than a Kodi mapping defect: CEC traffic
+may exist elsewhere between the television and receiver, but the HP native
+HDMI port cannot send or receive it through LibreELEC. The accepted G20 USB-HID
+path remains the production control method. If CEC power/input integration is
+later judged valuable, test a supported inline USB-to-CEC adapter as an
+optional v2 accessory; do not make it a v1 production dependency.
+
 All skin XML parsed, `git diff --check` passed, and 76 skin, four video-plugin
 and 13 audio-bridge tests passed. Before deployment, the physical endpoint's
 affected XML was checkpointed at

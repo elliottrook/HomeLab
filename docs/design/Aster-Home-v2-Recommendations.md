@@ -368,6 +368,22 @@ assets already in the private brand package.
   sequence is firmware Aster mark → LibreELEC Aster splash → Kodi Aster splash;
   failure or rollback at one layer must not remove branding at the others.
 
+### P2 — optional HDMI-CEC accessory trial
+
+The production-connected HP exposes HDMI video/audio, EDID and hot-plug state
+but no Linux CEC adapter: both `cec-ctl` and libCEC found no device. Native HP
+HDMI therefore cannot carry TV-remote commands into Kodi or originate CEC
+power/input commands. Keep the proven G20 USB-HID remote as the primary control
+path.
+
+Only if coordinated TV/receiver power or input selection is worth the added
+hardware, test a supported inline USB-to-CEC adapter such as Pulse-Eight in v2.
+Record adapter enumeration, logical/physical address discovery, TV remote
+navigation, active-source switching, standby/wake behavior, receiver volume
+routing, reboot recovery and ten repeated power cycles. Prevent command loops
+and disable any action that unexpectedly powers down other HDMI devices. The
+adapter must remain removable without impairing normal Aster playback.
+
 ### P2 — polish, accessibility and performance
 
 - Define one focus contract for tiles, rows, pills, buttons and text fields.
