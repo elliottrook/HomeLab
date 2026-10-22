@@ -54,6 +54,13 @@ at `https://ytaddon.page.link/keys`, store the resulting values only in that
 client's YouTube add-on settings, and never add them to this repository or the
 release archive. Aster does not provide, proxy or share Google credentials.
 
+On the disposable macOS 26.6.2 pilot only, YouTube 7.4.4 required a reversible
+loopback-address compatibility change because its UDP-port-zero discovery
+probe advertised a stale LAN address for its locally generated DASH manifest.
+This change is deliberately not shipped in the Aster bundle. Test the official
+add-on unchanged on LibreELEC; do not expose its helper listener to the LAN as
+a workaround.
+
 The package deliberately excludes tests, build tools, pilot publishers,
 source SVGs, caches and developer documentation. It contains no API key,
 password, profile database, Kodi library database, watched-state database or

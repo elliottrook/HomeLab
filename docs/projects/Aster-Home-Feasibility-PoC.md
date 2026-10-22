@@ -1607,6 +1607,25 @@ stored. The add-on's separate broadcast-address probe still logs macOS error
 49 while its service continues; this does not justify a broader listener or
 firewall change and remains a physical-client recheck.
 
+YouTube playback follow-up, 2026-10-21: a selected item reached
+InputStream Adaptive but failed because YouTube 7.4.4's HTTP helper attempted
+to discover its client address by connecting a UDP socket to port zero.
+macOS 26.6.2 returns error 49 for that probe, after which the add-on advertised
+Kodi's stale `192.168.1.206` address even though the helper was listening only
+on `127.0.0.1:50152`. A client-local compatibility change now returns the
+configured address directly when the configured listener is explicitly
+loopback (`127.0.0.1` or `::1`). The original installed file is preserved as
+`http_server.py.pre-aster-macos-loopback-20261021` beside the add-on source.
+After restarting Kodi, the listener remained bound only to `127.0.0.1`, the
+generated manifest used `http://127.0.0.1:50152/`, InputStream Adaptive parsed
+the VOD manifest, opened H.264 video, and sustained visible playback with the
+Aster OSD. Playback was then stopped through Kodi JSON-RPC. The add-on also
+logged a non-fatal `Please sign in` response from its first player client before
+falling back successfully. This pilot-only compatibility change is outside the
+release ZIP, may be overwritten by a YouTube add-on update, and is not assumed
+necessary on LibreELEC; the physical endpoint must still test the unmodified
+official add-on first.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
