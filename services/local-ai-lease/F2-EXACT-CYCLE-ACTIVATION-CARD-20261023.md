@@ -29,16 +29,25 @@ The coordinator diagnostic correction is installed at SHA-256
 rollback at `/root/aster-f2-final-subcheck-rollback-1ca66cee`. The four
 supporting final-window sources remain pinned and installed from the prior
 approved correction. Re-read all hashes, custody, timer state, lease state,
-and absence of F2 state/receipt immediately before any activation.
+and the activation gates below immediately before any activation. The
+historical terminal evidence for October 19, 20, 21, and 22 must be preserved.
+
+The absence gate is limited to the new-cycle file
+`/var/lib/local-ai-lab/f2-scheduled/2026-10-23.json`, the cooperative lease
+state and lock, and the trusted F2 receipt. It must not delete, replace, or
+require absence of preserved `/var/lib/local-ai-lab/f2-scheduled/*.json`
+terminal evidence from October 19–22.
 
 ## Bounded activation boundary
 
 After separate approval, stage and validate only these two 2026-10-23 timer
 units, daemon-reload, and enable them without manually starting either service.
-At completion, no-go, failure, or 01:40, disable and stop both units and
-verify every F2 timer is inactive/disabled. Preserve the terminal result and
-do not retry automatically. F3/F4 remain separately gated on successful F2
-and a clean postcheck.
+At completion, no-go, failure, or 01:40, the Stream A observation-only Codex
+heartbeat owns cleanup at 01:42 PDT: it may disable and stop only the spent
+2026-10-23 units, verify every F2 timer is inactive/disabled, and report the
+terminal result. It cannot delete historical evidence, retry, reschedule,
+launch F2, acquire a lease, or advance F3. F3/F4 remain separately gated on
+successful F2 and a clean postcheck.
 
 Rollback is limited to disabling/removing these two date-specific units. Do
 not restore the coordinator rollback checkpoint unless separately authorized.
