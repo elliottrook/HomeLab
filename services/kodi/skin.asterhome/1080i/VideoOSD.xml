@@ -2,134 +2,28 @@
 <window>
   <defaultcontrol always="true">602</defaultcontrol>
   <controls>
-    <control type="button" id="9000">
-      <left>0</left><top>0</top><width>1920</width><height>650</height>
-      <texturefocus></texturefocus><texturenofocus></texturenofocus>
-      <onclick>Action(Close)</onclick><ondown>602</ondown>
-    </control>
-
+    <control type="button" id="9000"><left>0</left><top>0</top><width>1920</width><height>650</height><texturefocus></texturefocus><texturenofocus></texturenofocus><onclick>Action(Close)</onclick><ondown>602</ondown></control>
     <control type="group">
-      <left>60</left><top>650</top><width>1800</width><height>370</height>
+      <left>0</left><top>610</top><width>1920</width><height>470</height>
       <visible>!Window.IsVisible(osdaudiosettings) + !Window.IsVisible(osdsubtitlesettings) + !Window.IsVisible(osdvideosettings)</visible>
-      <animation effect="slide" start="0,370" end="0,0" time="220" tween="cubic" easing="out">WindowOpen</animation>
-      <animation effect="slide" start="0,0" end="0,370" time="180" tween="cubic" easing="in">WindowClose</animation>
-      <control type="image">
-        <left>0</left><top>0</top><width>1800</width><height>370</height>
-        <texture border="34" colordiffuse="e6292721">special://skin/media/ui-panel.png</texture>
-      </control>
-      <control type="image">
-        <left>0</left><top>0</top><width>1800</width><height>370</height>
-        <texture border="34" colordiffuse="asterGold">special://skin/media/ui-button-ring.png</texture>
-      </control>
-      <control type="image">
-        <left>58</left><top>42</top><width>72</width><height>72</height>
-        <texture>special://skin/media/aster-compass-128.png</texture><aspectratio>keep</aspectratio>
-      </control>
-      <control type="label">
-        <left>154</left><top>34</top><width>1240</width><height>54</height>
-        <label>$INFO[VideoPlayer.Title]</label><font>font40</font><textcolor>asterRailText</textcolor><truncate>true</truncate>
-      </control>
-      <control type="label">
-        <left>156</left><top>91</top><width>1238</width><height>34</height>
-        <label>$INFO[VideoPlayer.TVShowTitle]$INFO[VideoPlayer.Season,  ·  S,]$INFO[VideoPlayer.Episode,E,]</label>
-        <font>font20</font><textcolor>asterGold</textcolor><truncate>true</truncate>
-        <visible>!String.IsEmpty(VideoPlayer.TVShowTitle)</visible>
-      </control>
-      <control type="label">
-        <right>60</right><top>46</top><width>340</width><height>44</height>
-        <label>$INFO[Player.Time(hh:mm:ss)]  /  $INFO[Player.Duration(hh:mm:ss)]</label>
-        <font>font24</font><textcolor>asterRailText</textcolor><align>right</align>
-      </control>
-      <control type="progress">
-        <left>58</left><top>144</top><width>1684</width><height>12</height>
-        <texturebg border="5" colordiffuse="asterMuted">special://skin/media/ui-progress.png</texturebg>
-        <midtexture border="5" colordiffuse="asterSage">special://skin/media/ui-progress.png</midtexture>
-        <lefttexture></lefttexture><righttexture></righttexture><overlaytexture></overlaytexture>
-        <info>Player.Progress</info>
-      </control>
-
-      <control type="button" id="7100">
-        <left>1030</left><top>174</top><width>220</width><height>60</height><label>Audio</label>
-        <font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
-        <texturefocus border="22" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="22" colordiffuse="d9292721">special://skin/media/ui-panel.png</texturenofocus>
-        <onclick>ActivateWindow(osdaudiosettings)</onclick><onleft>7102</onleft><onright>7101</onright><onup>9000</onup><ondown>601</ondown>
-      </control>
-      <control type="button" id="7101">
-        <left>1270</left><top>174</top><width>220</width><height>60</height><label>Subtitles</label>
-        <font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
-        <texturefocus border="22" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="22" colordiffuse="d9292721">special://skin/media/ui-panel.png</texturenofocus>
-        <onclick>ActivateWindow(osdsubtitlesettings)</onclick><onleft>7100</onleft><onright>7102</onright><onup>9000</onup><ondown>607</ondown>
-      </control>
-      <control type="button" id="7102">
-        <left>1510</left><top>174</top><width>220</width><height>60</height><label>Quality</label>
-        <font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
-        <texturefocus border="22" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="22" colordiffuse="d9292721">special://skin/media/ui-panel.png</texturenofocus>
-        <onclick condition="Player.HasResolutions">PlayerResolutionSelect</onclick>
-        <onclick condition="!Player.HasResolutions">ActivateWindow(osdvideosettings)</onclick>
-        <onleft>7101</onleft><onright>7100</onright><onup>9000</onup><ondown>70043</ondown>
-      </control>
-
-      <control type="button" id="600">
-        <left>284</left><top>254</top><width>170</width><height>82</height><label>Previous</label>
-        <font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
-        <texturefocus border="24" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="24" colordiffuse="d9292721">special://skin/media/ui-panel.png</texturenofocus>
-        <onclick>PlayerControl(Previous)</onclick><onleft>70043</onleft><onright>601</onright><onup>7100</onup>
-      </control>
-      <control type="button" id="601">
-        <left>474</left><top>254</top><width>150</width><height>82</height><label>−10 sec</label>
-        <font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
-        <texturefocus border="24" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="24" colordiffuse="d9292721">special://skin/media/ui-panel.png</texturenofocus>
-        <onclick>Seek(-10)</onclick><onleft>600</onleft><onright>602</onright><onup>7100</onup><visible>Player.SeekEnabled</visible>
-      </control>
-      <control type="button" id="602">
-        <left>644</left><top>242</top><width>200</width><height>106</height><label>Pause</label>
-        <font>font24</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
-        <texturefocus border="28" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="28" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturenofocus>
-        <onclick>PlayerControl(Play)</onclick><onleft>601</onleft><onright>606</onright><onup>7100</onup><visible>!Player.Paused</visible>
-      </control>
-      <control type="button" id="605">
-        <left>644</left><top>242</top><width>200</width><height>106</height><label>Resume</label>
-        <font>font24</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
-        <texturefocus border="28" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="28" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturenofocus>
-        <onclick>PlayerControl(Play)</onclick><onleft>601</onleft><onright>606</onright><onup>7100</onup><visible>Player.Paused</visible>
-      </control>
-      <control type="button" id="606">
-        <left>864</left><top>254</top><width>150</width><height>82</height><label>+30 sec</label>
-        <font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
-        <texturefocus border="24" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="24" colordiffuse="d9292721">special://skin/media/ui-panel.png</texturenofocus>
-        <onclick>Seek(30)</onclick><onleft>602</onleft><onright>607</onright><onup>7101</onup><visible>Player.SeekEnabled</visible>
-      </control>
-      <control type="button" id="607">
-        <left>1034</left><top>254</top><width>150</width><height>82</height><label>Next</label>
-        <font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
-        <texturefocus border="24" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="24" colordiffuse="d9292721">special://skin/media/ui-panel.png</texturenofocus>
-        <onclick>PlayerControl(Next)</onclick><onleft>606</onleft><onright>603</onright><onup>7101</onup>
-      </control>
-      <control type="button" id="603">
-        <left>1204</left><top>254</top><width>130</width><height>82</height><label>Stop</label>
-        <font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
-        <texturefocus border="24" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="24" colordiffuse="d9292721">special://skin/media/ui-panel.png</texturenofocus>
-        <onclick>PlayerControl(Stop)</onclick><onleft>607</onleft><onright>70043</onright><onup>7102</onup>
-      </control>
-      <control type="button" id="70043">
-        <left>1354</left><top>254</top><width>160</width><height>82</height><label>Info</label>
-        <font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
-        <texturefocus border="24" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="24" colordiffuse="d9292721">special://skin/media/ui-panel.png</texturenofocus>
-        <onclick>Dialog.Close(VideoOSD)</onclick>
-        <onclick>ActivateWindow(fullscreeninfo)</onclick>
-        <onleft>603</onleft><onright>600</onright><onup>7102</onup>
-      </control>
+      <animation effect="slide" start="0,470" end="0,0" time="220" tween="cubic" easing="out">WindowOpen</animation><animation effect="slide" start="0,0" end="0,470" time="180" tween="cubic" easing="in">WindowClose</animation>
+      <control type="image"><left>0</left><top>0</top><width>1920</width><height>470</height><texture flipy="true">special://skin/media/ui-hero-bottom-fade.png</texture><colordiffuse>e6000000</colordiffuse><aspectratio>stretch</aspectratio></control>
+      <control type="image"><left>70</left><top>112</top><width>54</width><height>54</height><texture>special://skin/media/aster-compass-128.png</texture><aspectratio>keep</aspectratio></control>
+      <control type="label"><left>146</left><top>96</top><width>1220</width><height>54</height><label>$INFO[VideoPlayer.Title]</label><font>font40</font><textcolor>asterRailText</textcolor><truncate>true</truncate></control>
+      <control type="label"><left>148</left><top>151</top><width>1218</width><height>32</height><label>$INFO[VideoPlayer.TVShowTitle]$INFO[VideoPlayer.Season,  ·  S,]$INFO[VideoPlayer.Episode,E,]</label><font>font20</font><textcolor>asterGold</textcolor><truncate>true</truncate><visible>!String.IsEmpty(VideoPlayer.TVShowTitle)</visible></control>
+      <control type="label"><right>70</right><top>116</top><width>390</width><height>40</height><label>$INFO[Player.Time(hh:mm:ss)]  /  $INFO[Player.Duration(hh:mm:ss)]</label><font>font20</font><textcolor>asterRailText</textcolor><align>right</align></control>
+      <control type="progress"><left>70</left><top>208</top><width>1780</width><height>8</height><texturebg border="4" colordiffuse="asterMuted">special://skin/media/ui-progress.png</texturebg><midtexture border="4" colordiffuse="asterSage">special://skin/media/ui-progress.png</midtexture><lefttexture></lefttexture><righttexture></righttexture><overlaytexture></overlaytexture><info>Player.Progress</info></control>
+      <control type="button" id="600"><left>250</left><top>272</top><width>150</width><label>Previous</label><include>AsterPlayerControl</include><onclick>PlayerControl(Previous)</onclick><onleft>70043</onleft><onright>601</onright><onup>7100</onup></control>
+      <control type="button" id="601"><left>420</left><top>272</top><width>120</width><label>−10</label><include>AsterPlayerControl</include><onclick>Seek(-10)</onclick><onleft>600</onleft><onright>602</onright><onup>7100</onup><visible>Player.SeekEnabled</visible></control>
+      <control type="button" id="602"><left>560</left><top>267</top><width>170</width><label>Pause</label><include>AsterPlayerPrimaryControl</include><onclick>PlayerControl(Play)</onclick><onleft>601</onleft><onright>606</onright><onup>7100</onup><visible>!Player.Paused</visible></control>
+      <control type="button" id="605"><left>560</left><top>267</top><width>170</width><label>Play</label><include>AsterPlayerPrimaryControl</include><onclick>PlayerControl(Play)</onclick><onleft>601</onleft><onright>606</onright><onup>7100</onup><visible>Player.Paused</visible></control>
+      <control type="button" id="606"><left>750</left><top>272</top><width>120</width><label>+30</label><include>AsterPlayerControl</include><onclick>Seek(30)</onclick><onleft>602</onleft><onright>607</onright><onup>7101</onup><visible>Player.SeekEnabled</visible></control>
+      <control type="button" id="607"><left>890</left><top>272</top><width>130</width><label>Next</label><include>AsterPlayerControl</include><onclick>PlayerControl(Next)</onclick><onleft>606</onleft><onright>603</onright><onup>7101</onup></control>
+      <control type="button" id="603"><left>1040</left><top>272</top><width>110</width><label>Stop</label><include>AsterPlayerControl</include><onclick>PlayerControl(Stop)</onclick><onleft>607</onleft><onright>70043</onright><onup>7102</onup></control>
+      <control type="button" id="70043"><left>1170</left><top>272</top><width>110</width><label>Info</label><include>AsterPlayerControl</include><onclick>Dialog.Close(VideoOSD)</onclick><onclick>ActivateWindow(fullscreeninfo)</onclick><onleft>603</onleft><onright>600</onright><onup>7102</onup></control>
+      <control type="button" id="7100"><left>1310</left><top>280</top><width>120</width><label>Audio</label><include>AsterPlayerSecondaryControl</include><onclick>ActivateWindow(osdaudiosettings)</onclick><onleft>7102</onleft><onright>7101</onright><onup>9000</onup><ondown>601</ondown></control>
+      <control type="button" id="7101"><left>1440</left><top>280</top><width>140</width><label>Subtitles</label><include>AsterPlayerSecondaryControl</include><onclick>ActivateWindow(osdsubtitlesettings)</onclick><onleft>7100</onleft><onright>7102</onright><onup>9000</onup><ondown>607</ondown></control>
+      <control type="button" id="7102"><left>1590</left><top>280</top><width>130</width><label>Quality</label><include>AsterPlayerSecondaryControl</include><onclick condition="Player.HasResolutions">PlayerResolutionSelect</onclick><onclick condition="!Player.HasResolutions">ActivateWindow(osdvideosettings)</onclick><onleft>7101</onleft><onright>7100</onright><onup>9000</onup><ondown>70043</ondown></control>
     </control>
   </controls>
 </window>

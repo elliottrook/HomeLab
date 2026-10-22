@@ -603,6 +603,16 @@ their existing progress bar so an in-progress title cannot also appear fully
 watched. The skin reads Kodi library metadata and does not maintain a parallel
 watch-state database.
 
+The first Aster Home 2.0 visual milestone introduces shared player-control
+includes without changing playback behaviour. Video now uses a full-width
+lower-edge gradient, one thin progress line and compact unboxed transport and
+stream controls. Music, audiobook/podcast and Digest players use the same
+focus ring and remove their enclosing player cards in favour of open gradients.
+Music and Books page tabs, Media category buttons and secondary Digest actions
+also remain visually quiet until focused; search fields retain their explicit
+input affordance but no longer sit inside a large enclosing card. This source
+candidate remains version 1.0.2 until the visual work is accepted and packaged.
+
 ## Local test
 
 The Books pages show bounded, plain-text source synopses and a full-text About

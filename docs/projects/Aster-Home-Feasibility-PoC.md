@@ -1822,7 +1822,32 @@ The evidence-backed v2 design review is recorded separately at
 `docs/design/Aster-Home-v2-Recommendations.md`. Its priorities are a purpose-
 built series/season/episode screen, global focus/search consistency, listening
 queues and controls inspired by Plexamp/Audible, and a Home Assistant-style
-section grid. It is a proposal only and does not authorize v2 implementation.
+section grid.
+
+### First v2 visual milestone — shared lightweight players — 2026-10-22
+
+Jason authorized carrying the compact OSD language across every Aster player
+and reducing heavy main-page chrome. A new shared player include now provides
+compact transport, primary, secondary and Back focus treatments: unfocused
+controls have no tile and focus receives a thin sage/gold ring. Video retains
+all ten accepted controls and replaces its 1800 × 370 panel with a full-width
+lower-edge gradient. Music, audiobook/podcast and Digest players retain their
+existing actions, progress and content lists while replacing their enclosing
+cards with open gradients. Music/Books page tabs, Media category controls,
+search/filter containers and secondary Digest actions were also lightened;
+primary actions and actual search fields retain explicit affordance.
+
+All skin XML parsed, `git diff --check` passed, and 76 skin, four video-plugin
+and 13 audio-bridge tests passed. Before deployment, the physical endpoint's
+affected XML was checkpointed at
+`/storage/.kodi/addons/skin.asterhome.checkpoints/20261022-player-ui/`.
+LibreELEC loaded the revised includes and custom windows after repeated Kodi
+restarts without a warning, error or crash. Live 3840 × 2160 captures verified
+the open Music landing page, Music player, populated Digest page and video OSD;
+bounded Jellyfin playback confirmed the new OSD title, timeline, initial
+Play/Pause focus and all control labels render over moving video. This is a
+source-deployed visual candidate, not a new release package or completion of
+the remaining v2 recommendations.
 
 ## 15. References
 

@@ -88,7 +88,6 @@
         <control type="group">
           <visible>$PARAM[browsevisible]</visible>
           <control type="label"><left>145</left><top>555</top><width>1050</width><height>48</height><label>$PARAM[heading]</label><font>font30</font><textcolor>asterInk</textcolor></control>
-          <control type="image"><left>1540</left><top>615</top><width>300</width><height>420</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>e6f2ede4</colordiffuse></control>
           <control type="label"><left>1560</left><top>636</top><width>260</width><height>40</height><label>Search &amp; filter</label><font>font24</font><textcolor>asterMuted</textcolor></control>
           <include content="AsterQuietFieldBackplate"><param name="left" value="1560" /><param name="top" value="708" /><param name="innerleft" value="1562" /><param name="innertop" value="710" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
           <include content="AsterQuietFieldBackplate"><param name="left" value="1560" /><param name="top" value="780" /><param name="innerleft" value="1562" /><param name="innertop" value="782" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>

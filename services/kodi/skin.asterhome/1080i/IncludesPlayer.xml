@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<includes>
+  <!-- Shared 2.0 player language: controls disappear into the canvas until
+       focused, then receive a restrained sage/gold ring instead of a tile. -->
+  <include name="AsterPlayerControl">
+    <height>58</height><font>font20</font>
+    <align>center</align><aligny>center</aligny>
+    <textcolor>asterRailText</textcolor><focusedcolor>asterSage</focusedcolor>
+    <texturefocus border="22" colordiffuse="asterGold">special://skin/media/ui-button-ring.png</texturefocus>
+    <texturenofocus>none</texturenofocus>
+  </include>
+  <include name="AsterPlayerPrimaryControl">
+    <height>68</height><font>font24</font>
+    <align>center</align><aligny>center</aligny>
+    <textcolor>asterSage</textcolor><focusedcolor>asterIvory</focusedcolor>
+    <texturefocus border="24" colordiffuse="asterSage">special://skin/media/ui-button-ring.png</texturefocus>
+    <texturenofocus>none</texturenofocus>
+  </include>
+  <include name="AsterPlayerSecondaryControl">
+    <height>48</height><font>font16</font>
+    <align>center</align><aligny>center</aligny>
+    <textcolor>asterMuted</textcolor><focusedcolor>asterSage</focusedcolor>
+    <texturefocus border="18" colordiffuse="asterGold">special://skin/media/ui-button-ring.png</texturefocus>
+    <texturenofocus>none</texturenofocus>
+  </include>
+  <include name="AsterPlayerControlLight">
+    <height>58</height><font>font20</font>
+    <align>center</align><aligny>center</aligny>
+    <textcolor>asterInk</textcolor><focusedcolor>asterGreen</focusedcolor>
+    <texturefocus border="22" colordiffuse="asterGold">special://skin/media/ui-button-ring.png</texturefocus>
+    <texturenofocus>none</texturenofocus>
+  </include>
+  <include name="AsterPlayerPrimaryControlLight">
+    <height>68</height><font>font24</font>
+    <align>center</align><aligny>center</aligny>
+    <textcolor>asterGreen</textcolor><focusedcolor>asterGreen</focusedcolor>
+    <texturefocus border="24" colordiffuse="asterSage">special://skin/media/ui-button-ring.png</texturefocus>
+    <texturenofocus>none</texturenofocus>
+  </include>
+  <include name="AsterPlayerBackControl">
+    <height>56</height><font>font20</font>
+    <align>center</align><aligny>center</aligny>
+    <textcolor>asterRailText</textcolor><focusedcolor>asterSage</focusedcolor>
+    <texturefocus border="20" colordiffuse="asterGold">special://skin/media/ui-button-ring.png</texturefocus>
+    <texturenofocus>none</texturenofocus>
+  </include>
+</includes>

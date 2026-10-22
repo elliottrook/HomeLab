@@ -1,8 +1,10 @@
 # Aster Home 2.0 — design and feature recommendations
 
-> **Status:** Research-backed proposal, 2026-10-22. No v2 implementation or
-> infrastructure change is authorized by this document. Aster Home 1.0.2
-> remains the physical-test production candidate.
+> **Status:** Research-backed programme with its first visual milestone in
+> implementation, 2026-10-22. The shared lightweight player language and
+> reduced page chrome are deployed as a reversible physical-client candidate;
+> the remaining recommendations are not yet implemented. Aster Home 1.0.2
+> remains the packaged production candidate until a later release gate.
 
 ## 1. Direction
 
@@ -175,6 +177,13 @@ This is the highest-value v2 interface change.
 - Standardize empty, loading, stale, offline and permission-denied states.
 
 ### P1 — compact video-player controls
+
+**Milestone status, 2026-10-22:** the first implementation pass now replaces
+the boxed video OSD with a lower-edge gradient, compact unboxed controls and a
+thin sage/gold focus ring. The same reusable control treatment is applied to
+Music, Books audio/Podcasts and Daily Digest without changing their Kodi
+actions or data authority. This is deployed from source to the physical client
+with a rollback checkpoint; it is not yet a new packaged release.
 
 - Remove the current 1800 × 370 stone panel and every persistent per-control
   box. Use only a restrained lower-edge black gradient for contrast over the

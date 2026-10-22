@@ -4,6 +4,7 @@
     <include file="IncludesMusic.xml" />
     <include file="IncludesBooks.xml" />
     <include file="IncludesTimer.xml" />
+    <include file="IncludesPlayer.xml" />
     <variable name="AsterGenreFilterLabel">
         <value condition="String.Contains(Container.FolderPath,skin.asterhome/filters/) + !String.IsEmpty(Window(10025).Property(AsterFilterGenre))">$INFO[Window(10025).Property(AsterFilterGenre),Genre: ]</value>
         <value>Genre…</value>
@@ -171,9 +172,9 @@
     <include name="AsterCategoryButton">
         <width>280</width><height>56</height>
         <font>font24</font><align>center</align><aligny>center</aligny>
-        <textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
-        <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus>special://skin/media/ui-limestone-panel.png</texturenofocus>
+        <textcolor>asterInk</textcolor><focusedcolor>asterGreen</focusedcolor>
+        <texturefocus border="20" colordiffuse="asterGold">special://skin/media/ui-button-ring.png</texturefocus>
+        <texturenofocus>none</texturenofocus>
     </include>
     <include name="AsterGenreTile">
         <definition>
@@ -201,9 +202,9 @@
         <width>248</width><height>56</height>
         <font>font20</font><align>left</align><aligny>center</aligny>
         <textoffsetx>52</textoffsetx>
-        <textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
-        <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus>special://skin/media/ui-limestone-panel.png</texturenofocus>
+        <textcolor>asterInk</textcolor><focusedcolor>asterGreen</focusedcolor>
+        <texturefocus border="20" colordiffuse="asterGold">special://skin/media/ui-button-ring.png</texturefocus>
+        <texturenofocus>none</texturenofocus>
         <ondown>120</ondown>
     </include>
     <include name="AsterClockPill">
