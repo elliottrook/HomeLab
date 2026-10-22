@@ -311,6 +311,34 @@ assets already in the private brand package.
 - Camera cards should show freshness, privacy state and failure reason. Never
   leave a stale frame looking live.
 
+### P2 — appliance startup branding
+
+- Extend the accepted Aster startup sequence one stage earlier by replacing
+  the HP firmware/POST image with an approved Aster-on-black logo. If visual
+  silence proves preferable in the room, test a plain black image as the
+  fallback; do not alter or redraw the approved Aster artwork.
+- Treat this as firmware state, not a Kodi skin asset. The physical endpoint
+  reports an HP ProDesk 400 G5 Desktop Mini with R23 BIOS 02.20.00 dated
+  2023-12-15. HP's commercial BIOS utility supports a custom JPEG no larger
+  than 32,768 bytes through `HpFirmwareUpdRec.exe -e<filename>` and removes it
+  with `-x`; the operation is command-line only and requires a BIOS password
+  file when an administrator password is configured.
+- Prepare and validate an HP BIOS-recovery USB before changing the logo. Run
+  the official utility from a temporary Windows or WinPE environment, never
+  from LibreELEC and never through an unofficial firmware editor. Capture the
+  current BIOS identity, utility log and clean-boot evidence before and after.
+- Keep firmware maintenance separate from artwork installation. HP currently
+  lists R23 02.22.00 for this exact model with later security fixes, but a BIOS
+  upgrade is not required merely to test custom-logo support. Evaluate and
+  authorize any firmware upgrade as its own recoverable maintenance change.
+- Fail closed if the utility reports unsupported firmware, an invalid image or
+  a security violation. Do not bypass firmware signing, Secure Boot, BIOS
+  passwords or HP recovery protections to obtain a branded screen.
+- Preserve the already deployed `/flash/oemsplash.png` LibreELEC image and
+  `/storage/.kodi/media/splash.png` Kodi image independently. The desired
+  sequence is firmware Aster mark → LibreELEC Aster splash → Kodi Aster splash;
+  failure or rollback at one layer must not remove branding at the others.
+
 ### P2 — polish, accessibility and performance
 
 - Define one focus contract for tiles, rows, pills, buttons and text fields.
@@ -336,6 +364,11 @@ assets already in the private brand package.
    work independently reversible from the television UI branch.
 5. **2.0 release candidate:** Home sections, accessibility, performance soak,
    remote-only navigation audit and recovery rehearsal.
+6. **Optional appliance-branding gate:** with the release candidate otherwise
+   stable, create the compliant firmware JPEG, prepare HP recovery media, test
+   custom-logo install/removal from temporary WinPE, and retain evidence of a
+   clean cold boot. This gate must not block the software release if the R23
+   firmware reports custom-logo support as unavailable.
 
 Each stage should be a separate resumable milestone with a local commit,
 physical endpoint evidence and an immutable release package. Promotion should
@@ -361,6 +394,9 @@ not overwrite the last accepted v1 artifact or its rollback checkpoint.
 - 1080p canvas scaling, 4K output, memory, temperature and artwork loading meet
   or improve the v1 physical baseline.
 - The complete v1 skin and profile rollback remain independently usable.
+- Firmware branding either displays the approved Aster image through a clean
+  cold boot or remains untouched; its rollback restores HP's normal POST image
+  without affecting the LibreELEC or Kodi splashes.
 
 ## 7. Research sources
 
@@ -389,4 +425,6 @@ not overwrite the last accepted v1 artifact or its rollback checkpoint.
 - Readium, [Guided Navigation](https://readium.org/guided-navigation/)
 - Kodi, [Python Window API](https://xbmc.github.io/docs.kodi.tv/master/kodi-dev-kit/group__python__xbmcgui__window.html)
 - Kokoro ONNX, [duration-enabled model releases](https://github.com/thewh1teagle/kokoro-onnx/releases)
+- HP, [Commercial BIOS (UEFI) Setup Administration Guide](https://ftp.hp.com/pub/caps-softpaq/cmit/whitepapers/HPBIOSSetup.pdf)
+- HP, [R23 BIOS 02.22.00 for the ProDesk 400 G5 Desktop Mini](https://ftp.hp.com/pub/softpaq/sp156501-157000/sp156688.html)
 
