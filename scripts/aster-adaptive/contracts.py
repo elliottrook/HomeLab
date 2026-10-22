@@ -134,6 +134,12 @@ class Outcome(Contract):
     quality: Literal['not-evaluated'] = 'not-evaluated'
     data_class: Literal['synthetic'] = 'synthetic'
 
+    @model_validator(mode='after')
+    def bind_status_to_verification(self):
+        if (self.status == 'completed') != (self.verification == 'fixture-conformance'):
+            raise ValueError('outcome status and verification disagree')
+        return self
+
 
 class Experiment(Contract):
     schema_version: Literal['experiment.v1'] = 'experiment.v1'

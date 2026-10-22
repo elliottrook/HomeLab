@@ -112,6 +112,21 @@ class DecisionSemanticTests(unittest.TestCase):
                     Decision.model_validate(candidate)
 
 
+class OutcomeSemanticTests(unittest.TestCase):
+    def test_outcome_status_and_verification_must_agree(self):
+        complete = dict(run_id='r', status='completed', verification='fixture-conformance',
+                        tool_calls=0, elapsed_ms=0.0, output_bytes=0)
+        self.assertEqual('completed', Outcome(**complete).status)
+        for status in ('denied', 'expired', 'cancelled', 'budget-exceeded', 'failed'):
+            with self.subTest(status=status):
+                value = dict(complete, status=status, verification='not-executed')
+                self.assertEqual(status, Outcome(**value).status)
+                with self.assertRaises(ValidationError):
+                    Outcome(**(value | {'verification': 'fixture-conformance'}))
+        with self.assertRaises(ValidationError):
+            Outcome(**(complete | {'verification': 'not-executed'}))
+
+
 class AdapterTests(unittest.IsolatedAsyncioTestCase):
     async def test_real_source_slice_fixed_cases_with_network_forbidden(self):
         with patch.object(socket.socket, 'connect', side_effect=AssertionError('network forbidden')):

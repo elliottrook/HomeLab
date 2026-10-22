@@ -338,6 +338,13 @@ supported outcomes cannot carry a policy-denial reason, and denial cannot be
 described as supported. Focused tests cover every accepted combination and
 contradictory examples. This improves audit semantics only; routing remains
 disabled and the historical reviewed-source pin was not repinned.
+The typed Outcome contract now likewise enforces an
+[outcome status/verification boundary](evidence/M3-outcome-status-verification-boundary-2026-10-22.md):
+only a completed attempt may claim fixture conformance, while every failed,
+denied, expired, cancelled or budget-exceeded attempt is recorded as not
+executed. The isolated contract and evidence suites passed 14/14 without
+repinning the historically drifted adapter source. This protects later
+evidence semantics; it does not establish routing accuracy or enable routing.
 
 The first [six-case synthetic completed-answer probe](experiments/a1-9b-synthetic-answer/RESULT-2026-10-12.md)
 used the accepted 9B/SYCL service after the platform owner's light lease was
