@@ -11,7 +11,7 @@ import zipfile
 
 
 HERE = Path(__file__).resolve().parent
-RELEASE = "1.0.2"
+RELEASE = "1.0.3"
 ADDONS = (
     "plugin.video.asterhome",
     "plugin.audio.asterbooks",
@@ -23,6 +23,13 @@ OFFICIAL_DEPENDENCIES = (
      "source": "Kodi Omega repository"},
 )
 ZIP_TIME = (2026, 10, 22, 1, 0, 0)
+CLIENT_FILES = (
+    {
+        "source": HERE / "remote" / "g20s-pro-plus.xml",
+        "name": "g20s-pro-plus.xml",
+        "install_target": "userdata/keymaps/g20s-pro-plus.xml",
+    },
+)
 
 
 def development_only(relative: Path) -> bool:
@@ -82,6 +89,18 @@ def build(output: Path) -> dict:
     if any(output.iterdir()):
         raise ValueError(f"output directory is not empty: {output}")
     archives = [build_archive(addon_id, output) for addon_id in ADDONS]
+    client_files = []
+    for record in CLIENT_FILES:
+        data = record["source"].read_bytes()
+        destination = output / record["name"]
+        destination.write_bytes(data)
+        os.chmod(destination, 0o644)
+        client_files.append({
+            "file": record["name"],
+            "install_target": record["install_target"],
+            "sha256": hashlib.sha256(data).hexdigest(),
+            "bytes": len(data),
+        })
     manifest = {
         "schema": "aster-home-kodi-release.v1",
         "release": RELEASE,
@@ -90,6 +109,7 @@ def build(output: Path) -> dict:
         "install_order": list(ADDONS),
         "external_dependencies": list(OFFICIAL_DEPENDENCIES),
         "archives": archives,
+        "client_files": client_files,
     }
     manifest_path = output / f"aster-home-v{RELEASE}-manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")

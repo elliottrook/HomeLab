@@ -1,12 +1,13 @@
 # Aster Home Kodi skin
 
-Version 1.0.2 is the current Aster Home private production candidate. It retains
+Version 1.0.3 is the current Aster Home private deployment candidate. It retains
 the v1.0.1 selection-dialog correction and uses percentage-based seeking for
 Daily Digest MP3 chapters after the physical LibreELEC player proved inaccurate
 absolute-time seeking. The complete Mac-validated interface and physical HP
 ProDesk baseline now include cold boot, a 20-minute high-bitrate 4K soak and
 live Music, Digest, News, Home and TV-episode tests, but do not yet claim
-receiver, remote or destructive recovery gates.
+receiver-audio or destructive recovery gates. The selected G20 remote now has
+a physical navigation and dynamic-list activation pass.
 The source uses Kodi's 1920x1080
 16:9 design canvas and scales to 4K output; media fanart remains independent
 and can render at its native source resolution. See `RELEASE.md` for the
@@ -629,8 +630,8 @@ Music and Books page tabs and Media category buttons use restrained translucent
 charcoal backplates so they remain legible over variable hero artwork, while
 secondary Digest actions remain visually quiet until focused. Search fields
 retain their explicit input affordance but no longer sit inside a large
-enclosing card. This source candidate remains version 1.0.2 until the visual
-work is accepted and packaged.
+enclosing card. The accepted milestone and subsequent remote activation fix
+are packaged in the private v1.0.3 deployment candidate.
 
 ## Local test
 

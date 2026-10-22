@@ -1,0 +1,71 @@
+{
+  "schema": "aster-home-kodi-release-record.v1",
+  "release": "1.0.3",
+  "status": "production-candidate-pending-physical-libreelec-gate",
+  "built_on": "2026-10-22",
+  "design_canvas": "1920x1080-16:9-scales-to-4k",
+  "artifact_directory": "services/kodi/dist/aster-home-v1.0.3",
+  "manifest_sha256": "4dc5a71855eaf0398e473de262e3a7a392e6d57a27ff75093ab699110f6aa47a",
+  "artifacts": [
+    {
+      "addon_id": "plugin.video.asterhome",
+      "archive": "plugin.video.asterhome-1.0.3.zip",
+      "bytes": 2660,
+      "sha256": "a62b6955bbf2c2d687472fbd4df05770a916e19583a152e787f62ee2c59abcda"
+    },
+    {
+      "addon_id": "plugin.audio.asterbooks",
+      "archive": "plugin.audio.asterbooks-1.0.3.zip",
+      "bytes": 10020,
+      "sha256": "532ecd9067ad4d63f38b4aa9d579eef79679221cfa36345fc0306dde1e0bcf90"
+    },
+    {
+      "addon_id": "resource.uisounds.asterhome",
+      "archive": "resource.uisounds.asterhome-1.0.3.zip",
+      "bytes": 82960,
+      "sha256": "cad5ad1c141449b42d02244710860bd823b72acd4d20bb1a120d508e90b9b638"
+    },
+    {
+      "addon_id": "skin.asterhome",
+      "archive": "skin.asterhome-1.0.3.zip",
+      "bytes": 4537671,
+      "sha256": "20079850f9c0654f55d3c10c63b0ea560d937b33f22f4a037401cfcdd3924904"
+    }
+  ],
+  "client_files": [
+    {
+      "file": "g20s-pro-plus.xml",
+      "bytes": 1582,
+      "sha256": "43f4d53fc5ae5dab269b587539950fb3894e937114074d6744ee9b259e5118db",
+      "install_target": "userdata/keymaps/g20s-pro-plus.xml"
+    }
+  ],
+  "install_order": [
+    "plugin.video.asterhome",
+    "plugin.audio.asterbooks",
+    "resource.uisounds.asterhome",
+    "skin.asterhome"
+  ],
+  "external_dependencies": [
+    {
+      "addon_id": "plugin.video.youtube",
+      "version": "7.4.4",
+      "source": "Kodi Omega repository"
+    }
+  ],
+  "validation": {
+    "skin_tests": 83,
+    "video_plugin_tests": 4,
+    "audio_bridge_tests": 13,
+    "ui_sound_tests": 3,
+    "packaging_tests": 3,
+    "physical_remote": "g20-return-and-mouse-left-ok-dispatch-with-album-open-passed",
+    "physical_focus": "same-column-media-navigation-selected-rail-and-dual-keyline-focus-deployed",
+    "physical_music": "selected-album-opened-from-tile-by-physical-g20-ok",
+    "physical_digest": "full-digest-and-selected-story-actions-reached-player",
+    "physical_kodi_health": "active-after-keymap-and-skin-restart-debug-disabled",
+    "package_client_file": "g20-keymap-hash-and-install-target-recorded"
+  },
+  "rollback_checkpoint": "/storage/.kodi/addons/skin.asterhome-checkpoints/pre-select-hotfix-20261022.tar.gz",
+  "graduation_blocker": "BOSGAME deployment, TV HDR indicator, receiver passthrough, Audiobookshelf and camera production routes, and destructive recovery validation"
+}

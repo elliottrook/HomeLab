@@ -36,6 +36,16 @@ class ReleasePackageTests(unittest.TestCase):
                 {"addon_id": "plugin.video.youtube", "version": "7.4.4",
                  "source": "Kodi Omega repository"}
             ])
+            self.assertEqual(len(manifest["client_files"]), 1)
+            keymap = manifest["client_files"][0]
+            self.assertEqual(keymap["file"], "g20s-pro-plus.xml")
+            self.assertEqual(keymap["install_target"],
+                             "userdata/keymaps/g20s-pro-plus.xml")
+            self.assertEqual(
+                keymap["sha256"],
+                release.sha256(Path(first) / keymap["file"]),
+            )
+            ET.parse(Path(first) / keymap["file"])
 
     def test_nonempty_output_fails_closed(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -48,11 +58,16 @@ class ReleasePackageTests(unittest.TestCase):
                              f"aster-home-v{release.RELEASE}.json").read_text())
         with tempfile.TemporaryDirectory() as directory:
             rebuilt = release.build(Path(directory))
+            rebuilt_manifest = (Path(directory) /
+                                f"aster-home-v{release.RELEASE}-manifest.json")
+            self.assertEqual(release.sha256(rebuilt_manifest),
+                             record["manifest_sha256"])
         expected = {item["addon_id"]: (item["sha256"], item["bytes"])
                     for item in record["artifacts"]}
         actual = {item["addon_id"]: (item["sha256"], item["bytes"])
                   for item in rebuilt["archives"]}
         self.assertEqual(actual, expected)
+        self.assertEqual(rebuilt["client_files"], record["client_files"])
 
 
 if __name__ == "__main__":

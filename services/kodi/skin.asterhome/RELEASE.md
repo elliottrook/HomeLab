@@ -1,17 +1,17 @@
-# Aster Home 1.0.2 release candidate
+# Aster Home 1.0.3 deployment candidate
 
 ## Status and boundary
 
-Aster Home 1.0.2 is the current owner-accepted **private production candidate**
-for the Kodi interface. It retains the complete v1.0.1 interface and changes
-Daily Digest chapter selection to percentage-based MP3 seeking after LibreELEC
-proved that absolute-time seeking landed at roughly half the requested offset.
-The HP ProDesk LibreELEC
-baseline has exercised populated 4K UI, 1080p and high-bitrate 4K HEVC direct
-stream, refresh matching, OSD and audio/subtitle selection. It is not yet the
-production-appliance release: receiver HDR/audio confirmation,
-Bluetooth/USB-HID remote control and destructive recovery drills remain. A
-normal cold boot and a 20-minute high-bitrate 4K playback soak have passed.
+Aster Home 1.0.3 is the current owner-accepted **private deployment candidate**
+for the Kodi interface. It retains the v1.0.2 media and Digest fixes and
+packages the source-deployed remote-first navigation, lightweight player UI,
+startup-branding support, G20 OK activation repair and clearer tile focus.
+The HP ProDesk LibreELEC baseline has exercised the populated 4K UI, 1080p and
+high-bitrate 4K HEVC direct stream, refresh matching, OSD, audio/subtitle
+selection and physical G20 navigation. It is not yet the production-appliance
+release: receiver HDR/audio confirmation, production-endpoint validation and
+destructive recovery drills remain. A normal cold boot and a 20-minute
+high-bitrate 4K playback soak have passed on the HP candidate.
 
 The skin uses a 1920x1080, 16:9 Kodi design canvas. Kodi scales that canvas to
 3840x2160 output. Kodi renders video separately at the source/output mode, and
@@ -29,11 +29,12 @@ Build with:
 
 ```sh
 python3 services/kodi/package_aster_home.py \
-  --output /path/to/aster-home-v1.0.2
+  --output /path/to/aster-home-v1.0.3
 ```
 
-The deterministic bundle contains four independently installable Kodi ZIPs
-and `aster-home-v1.0.2-manifest.json`. It also declares one external official
+The deterministic bundle contains four independently installable Kodi ZIPs,
+the profile-level `g20s-pro-plus.xml` keymap and
+`aster-home-v1.0.3-manifest.json`. It also declares one external official
 Kodi dependency, `plugin.video.youtube` 7.4.4; third-party source is not
 vendored into the private bundle:
 
@@ -41,6 +42,13 @@ vendored into the private bundle:
 2. `plugin.audio.asterbooks` — loopback-only Audiobookshelf playback bridge.
 3. `resource.uisounds.asterhome` — optional directional Aster clicks.
 4. `skin.asterhome` — the v1 interface.
+
+After installing the add-ons, copy `g20s-pro-plus.xml` to
+`/storage/.kodi/userdata/keymaps/g20s-pro-plus.xml` and restart Kodi. The file
+handles both Return and mouse-left forms of the G20 centre OK control, routes
+only known Aster dynamic lists to their bounded activation handlers and leaves
+normal Kodi Select behavior intact elsewhere. The manifest records its hash
+and install target; the add-on ZIPs do not silently alter profile keymaps.
 
 Install YouTube 7.4.4 from the official Kodi Omega repository, then install
 the two private plugins, sound resource and skin. Kodi may resolve YouTube
@@ -126,7 +134,7 @@ passthrough, or requires broader credentials/network access than documented.
 
 - [x] Boot and restart LibreELEC repeatedly without manual repair.
 - [x] Install and hash-check the v1 bundle from a clean client profile.
-- [ ] Confirm the complete navigation path with the selected remote after
+- [x] Confirm the complete navigation path with the selected remote after
       pairing, reboot and idle reconnection.
 - [x] Verify 1080p and 4K direct play, refresh-rate switching and sustained
       playback without dropped frames or unexpected transcoding.
@@ -141,5 +149,5 @@ passthrough, or requires broader credentials/network access than documented.
 - [ ] Record accepted limitations and issue the project USE / CONDITIONAL USE /
       REJECT decision before replacing the Apple TV.
 
-Until those checks pass, use **v1.0.2 production candidate**, not **production
+Until those checks pass, use **v1.0.3 deployment candidate**, not **production
 appliance**, in operator records.

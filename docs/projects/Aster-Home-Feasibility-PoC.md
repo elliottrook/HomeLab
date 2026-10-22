@@ -1,6 +1,6 @@
 # Aster Home — EH-001: LibreELEC/Kodi feasibility experiment
 
-> **Status:** Active — Stream A; Aster Home v1.0.2 production candidate built and deployed 2026-10-22; physical M2 baseline, cold boot, 20-minute 4K soak, non-YouTube page/media sweep and G20 control path passed with receiver audio, production camera routing, voice integration and destructive recovery gates still open
+> **Status:** Active — Stream A; Aster Home v1.0.3 deployment candidate packaged 2026-10-22 from the physically verified HP baseline; cold boot, 20-minute 4K soak, non-YouTube page/media sweep and G20 control path passed with BOSGAME production-client deployment, receiver audio, production camera routing, voice integration and destructive recovery gates still open
 > **Owner:** Jason
 > **Date:** 2026-10-13
 > **Authorization:** Stream A requested for bounded, reversible proof of concept; operational execution remains subject to the actual environment, project-standard and platform safety gates.
@@ -282,7 +282,7 @@ The owner has selected three complementary physical roles instead of treating
 one successful PC as proof of a hardware class:
 
 1. **BOSGAME E3 Neo / Intel N95 / 16 GB / 512 GB** — install the immutable
-   Aster Home v1.0.2 candidate, qualify it as the likely production living-room
+   Aster Home v1.0.3 candidate, qualify it as the likely production living-room
    endpoint, and complete the selected remote test. Intel specifies the N95's
    integrated UHD Graphics and HDMI capability at up to 4096x2160 at 60 Hz;
    the actual BOSGAME connector, firmware, EDID path, LibreELEC driver and sink
@@ -307,7 +307,7 @@ confirmation after those checks. If stable LibreELEC 12.2.1 fails to boot, save
 the failure evidence and make a separate version decision; do not silently
 substitute a nightly image or a different operating system.
 
-After the hardware gate, deploy only the checksum-verified v1.0.2 release ZIPs
+After the hardware gate, deploy only the checksum-verified v1.0.3 release ZIPs
 and official dependencies, then reproduce the established client state without
 copying secrets into Git or benchmark evidence. Give each endpoint a unique
 hostname and profile checkpoint. Authenticate Jellyfin interactively, publish
@@ -382,7 +382,7 @@ Deliver: (1) software go/no-go decision, (2) hardware and live Canadian purchasi
 | Date | Action | Result |
 | --- | --- | --- |
 | 2026-10-22 | Deployed the remote-first UI focus milestone to the HP over a full skin checkpoint; validated same-column Media movement, immediate selected side rail, compact centred category pills, stronger focused cards, post-load Music/Books selection and full-Digest playback from the opening. | All 79 skin tests, XML parsing, Python compilation and `git diff --check` passed; Kodi remained active with no new skin error or traceback. Full Digest queued and prepared its complete audio, Music opened its selected album player, and the Books eBook handoff opened the bounded Calibre-Web destination. |
-| 2026-10-22 | Defined a three-endpoint comparison after the owner purchased a BOSGAME E3 Neo N95 and nominated the HP for v2 lab work plus an older Lenovo for the low-cost floor. | The BOSGAME will receive a non-destructive stable-LibreELEC hardware gate before any separately authorized internal install, then immutable v1.0.2 and the selected G20BTS Plus remote. All three systems use one playback, UI, telemetry, recovery and control matrix; no lighter workload may manufacture a Lenovo pass. |
+| 2026-10-22 | Defined a three-endpoint comparison after the owner purchased a BOSGAME E3 Neo N95 and nominated the HP for v2 lab work plus an older Lenovo for the low-cost floor. | The BOSGAME will receive a non-destructive stable-LibreELEC hardware gate before any separately authorized internal install, then immutable v1.0.3 and the selected G20S Pro Plus remote. All three systems use one playback, UI, telemetry, recovery and control matrix; no lighter workload may manufacture a Lenovo pass. |
 | 2026-10-13 | Imported/reviewed the Jason-authorized staging project because no local or Forgejo-main copy existed. | Scope preserved; Forgejo remains canonical; no remote write performed. |
 | 2026-10-13 | Reviewed `AGENTS.md` and `docs/Project-Creation-Standard.md`; traced `docs/Environment-and-Release-Lifecycle.md` through the active local Production Service Placement and Release Registry project and checked Forgejo refs read-only. | Lifecycle standard found in the owning local project workspace; not yet present in Forgejo `main` or the current Forgejo registry branch ref (`fc60e5a2`). Both standards govern this project; no remote write performed. |
 | 2026-10-13 | Read-only Git baseline: detached worktree at `2b5b941e` (`origin/main`), clean status, `origin` is Forgejo HTTPS and `github` is the mirror remote. | No unrelated local changes; no push or remote mutation. |
@@ -2009,10 +2009,37 @@ that the selected album opened. Debug logging was then disabled. The tile-focus
 treatment deployed with the hotfix replaces the ambiguous lower shadow with a
 contrasting ivory outer keyline and Aster-green inner ring across the Media
 home rows, portrait library grid and Music grid while retaining the modest
-size lift. The tracked v1.0.2
-release archive intentionally remains unchanged, so its deterministic package
-test reports the expected source/archive mismatch until a later release is
-cut.
+size lift. These accepted changes are included in the immutable v1.0.3
+deployment bundle, together with the separately installed and checksum-recorded
+G20 profile keymap.
+
+### Aster Home v1.0.3 deployment package — 2026-10-22
+
+The owner authorized packaging and pushing the physically accepted HP
+candidate for deployment to the BOSGAME production client. Version 1.0.3 bumps
+the skin and all three private companion add-ons in lockstep. Its deterministic
+bundle is under `services/kodi/dist/aster-home-v1.0.3/`; the source-controlled
+release record is `services/kodi/releases/aster-home-v1.0.3.json`. The package
+contains the four independently installable add-on ZIPs plus
+`g20s-pro-plus.xml` as an explicit client file whose manifest target is
+`userdata/keymaps/g20s-pro-plus.xml`. Profile state is therefore not mutated by
+an add-on install, while the remote dependency can no longer be omitted from a
+production-client handoff.
+
+Manifest SHA-256 is
+`4dc5a71855eaf0398e473de262e3a7a392e6d57a27ff75093ab699110f6aa47a`.
+Archive SHA-256 values are `a62b6955...abcda` for the video companion,
+`532ecd90...bcf90` for the audio companion, `cad5ad1c...b638` for UI sounds
+and `20079850...24904` for the skin; the complete hashes and byte counts are in
+the release record. The keymap SHA-256 is
+`43f4d53fc5ae5dab269b587539950fb3894e937114074d6744ee9b259e5118db`.
+Two independent builds were byte-identical. All 83 skin tests, four video-
+plugin tests, 13 audio-bridge tests, three UI-sound tests and three packaging
+tests passed, as did XML parsing and `git diff --check`.
+
+This package is ready for the separately observed BOSGAME deployment gate; it
+is not a claim that the BOSGAME has passed HDR10, receiver passthrough, remote
+reconnection, camera/Audiobookshelf production routing or recovery validation.
 
 ### First v2 visual milestone — shared lightweight players — 2026-10-22
 
