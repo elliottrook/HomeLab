@@ -21,3 +21,9 @@ Install it as:
 Restart Kodi after installation. Keep the remote's air-mouse mode disabled for
 normal directional navigation. Removing the file and restarting Kodi restores
 Kodi's default mouse behavior.
+
+The power button is intentionally unmapped in the immutable v1.0.3 profile.
+Aster Home v2 will capture its real event per client and may map a short press
+to bounded system suspend only after USB wake, HDMI/audio/network recovery and
+resume-state testing pass. Hardware that cannot pass will use an explicitly
+labelled Display off fallback rather than pretending to sleep.

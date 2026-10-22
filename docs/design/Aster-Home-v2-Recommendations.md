@@ -3,8 +3,8 @@
 > **Status:** Research-backed programme with its first visual milestone in
 > implementation, 2026-10-22. The shared lightweight player language and
 > reduced page chrome are deployed as a reversible physical-client candidate;
-> the remaining recommendations are not yet implemented. Aster Home 1.0.2
-> remains the packaged production candidate until a later release gate.
+> the remaining recommendations are not yet implemented. Aster Home 1.0.3 is
+> the packaged deployment candidate while the remaining appliance gates run.
 
 ## 1. Direction
 
@@ -176,14 +176,43 @@ This is the highest-value v2 interface change.
   level, then expose the rail. Never strand focus in decorative controls.
 - Standardize empty, loading, stale, offline and permission-denied states.
 
+### P1 — remote power, sleep and wake
+
+- Capture the G20 power button's real Linux/Kodi event on every target client;
+  do not infer it from the button legend or assume it matches OK's keyboard/
+  mouse mode changes. Bind only the identified power event.
+- A short power press should pause active playback, allow Kodi/Jellyfin to
+  persist progress, and then request the operating system's supported suspend
+  state. It must not silently power off, reboot, or expose a generic shutdown
+  menu during normal couch use.
+- Keep full shutdown and reboot as explicit Settings/Power actions. Do not
+  overload a remote long press unless the receiver proves that it emits a
+  distinct, stable event rather than repeated short presses.
+- Treat wake as part of the same feature. The USB receiver must be permitted to
+  wake only the intended client, and BIOS/UEFI, ACPI and LibreELEC must resume
+  the GPU, HDMI link, network, audio device and receiver without manual input.
+  Do not enable broad wake sources merely to manufacture a pass.
+- Run at least ten sleep/wake cycles from idle and ten while media is paused.
+  Record suspend and usable-UI times, wall power where available, remote
+  re-enumeration, Jellyfin reconnection, retained focus, resume position, HDMI
+  resolution/HDR state and receiver audio output. Include an overnight cycle.
+- Abort the suspend mapping on any client that intermittently loses video,
+  audio, networking, USB wake or Kodi state. Its documented fallback is Kodi
+  idle plus display power management/blanking; label that honestly as
+  **Display off**, not **Sleep**.
+- Implement the final mapping as a separate v2 client-profile keymap with a
+  rollback copy and per-hardware acceptance record. Do not retrofit the
+  immutable v1.0.3 keymap before the HP lab client and BOSGAME production
+  candidate pass this gate.
+
 ### P1 — compact video-player controls
 
 **Milestone status, 2026-10-22:** the first implementation pass now replaces
 the boxed video OSD with a lower-edge gradient, compact unboxed controls and a
 thin sage/gold focus ring. The same reusable control treatment is applied to
 Music, Books audio/Podcasts and Daily Digest without changing their Kodi
-actions or data authority. This is deployed from source to the physical client
-with a rollback checkpoint; it is not yet a new packaged release.
+actions or data authority. This is deployed to the physical client with a
+rollback checkpoint and included in the v1.0.3 deployment candidate.
 
 - Remove the current 1800 × 370 stone panel and every persistent per-control
   box. Use only a restrained lower-edge black gradient for contrast over the
@@ -359,12 +388,15 @@ assets already in the private brand package.
 2. **2.0 alpha:** global shell, search overlay and media detail hierarchy.
 3. **2.0 beta:** Music queue, audiobook/podcast refinements and Digest controls,
    after their production network paths pass.
-4. **Aster Reader proof:** one DRM-free EPUB chapter, canonical Aster narration,
+4. **Appliance sleep proof:** capture the physical power event, implement a
+   bounded suspend candidate, then prove USB wake and the repeated recovery/
+   power matrix on the HP before testing the BOSGAME.
+5. **Aster Reader proof:** one DRM-free EPUB chapter, canonical Aster narration,
    measured timing and synchronized highlighting; keep this service-dependent
    work independently reversible from the television UI branch.
-5. **2.0 release candidate:** Home sections, accessibility, performance soak,
+6. **2.0 release candidate:** Home sections, accessibility, performance soak,
    remote-only navigation audit and recovery rehearsal.
-6. **Optional appliance-branding gate:** with the release candidate otherwise
+7. **Optional appliance-branding gate:** with the release candidate otherwise
    stable, create the compliant firmware JPEG, prepare HP recovery media, test
    custom-logo install/removal from temporary WinPE, and retain evidence of a
    clean cold boot. This gate must not block the software release if the R23
@@ -385,6 +417,9 @@ not overwrite the last accepted v1 artifact or its rollback checkpoint.
 - The video OSD exposes all ten accepted v1 functions without persistent
   button boxes; remote centre/left/right/up/down behaviour remains predictable,
   and focus is visible without obscuring programme content.
+- The remote power button enters a measured suspend state only on clients that
+  pass the repeated sleep/wake matrix; unsupported clients expose the honest
+  Display off fallback and retain explicit shutdown/reboot controls.
 - The Reader proof highlights the correct spoken passage without cumulative
   drift, turns pages at the right boundary and resumes the same EPUB location
   after restart; no book text or generated narration leaves the HomeLab.
