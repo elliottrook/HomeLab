@@ -377,11 +377,27 @@ power/input commands. Keep the proven G20 USB-HID remote as the primary control
 path.
 
 Only if coordinated TV/receiver power or input selection is worth the added
-hardware, test a supported inline USB-to-CEC adapter such as Pulse-Eight in v2.
-Record adapter enumeration, logical/physical address discovery, TV remote
-navigation, active-source switching, standby/wake behavior, receiver volume
-routing, reboot recovery and ten repeated power cycles. Prevent command loops
-and disable any action that unexpectedly powers down other HDMI devices. The
+hardware, test the external Pulse-Eight USB-CEC adapter in v2. Do **not** place
+it inline on this media path: the current adapter is rated inline for 4K60
+4:2:0 8-bit, while Aster requires HDR10 and high-bitrate receiver audio that
+Pulse-Eight identifies as outside or unreliable in that path.
+
+Use Pulse-Eight's two-cable topology instead. Leave the accepted HP HDMI → TCL
+connection untouched for picture and sound. Feed a second, otherwise unused
+TCL HDMI input from one of the HP's spare DisplayPort outputs through a
+DP-to-HDMI adapter and the USB-CEC adapter, and connect its data lead to HP USB.
+The second link is CEC-only; its physical HDMI port must be configured in
+libCEC and must not become Kodi's display or audio sink. This should allow the
+HP to request TV/receiver standby, wake/active-source and receiver volume, and
+allow compatible TV-remote keys to reach Kodi, while preserving the existing
+4K/HDR/audio path. It cannot guarantee that a powered-off HP will wake; treat
+USB suspend wake and TV standby wake as separate acceptance tests.
+
+Record adapter/firmware enumeration, logical and physical addresses, TV and
+audio-system power status, active-source switching, receiver volume/mute,
+TV-remote navigation, HP suspend/wake behavior, display/audio sink selection,
+reboot recovery and ten repeated power cycles. Prevent command loops and
+disable any action that unexpectedly powers down other HDMI devices. The
 adapter must remain removable without impairing normal Aster playback.
 
 ### P2 — polish, accessibility and performance
@@ -478,4 +494,8 @@ not overwrite the last accepted v1 artifact or its rollback checkpoint.
 - Kokoro ONNX, [duration-enabled model releases](https://github.com/thewh1teagle/kokoro-onnx/releases)
 - HP, [Commercial BIOS (UEFI) Setup Administration Guide](https://ftp.hp.com/pub/caps-softpaq/cmit/whitepapers/HPBIOSSetup.pdf)
 - HP, [R23 BIOS 02.22.00 for the ProDesk 400 G5 Desktop Mini](https://ftp.hp.com/pub/softpaq/sp156501-157000/sp156688.html)
+- Pulse-Eight, [USB-CEC Adapter user manual](https://support.pulse-eight.com/support/solutions/articles/30000048842-usb-cec-adapter-user-manual)
+- Pulse-Eight, [USB-CEC Adapter maximum resolution and two-cable topology](https://support.pulse-eight.com/support/solutions/articles/30000053070-what-is-the-maximum-supported-resolution-of-the-usb-cec-adapter-)
+- Pulse-Eight, [CEC Adapter getting started](https://support.pulse-eight.com/support/solutions/articles/30000053516-getting-started-%E2%80%94-cec-adapter)
+- Kodi, [HDMI-CEC and external adapters](https://kodi.wiki/view/HDMI_CEC)
 

@@ -2181,8 +2181,21 @@ This is a hardware-path result rather than a Kodi mapping defect: CEC traffic
 may exist elsewhere between the television and receiver, but the HP native
 HDMI port cannot send or receive it through LibreELEC. The accepted G20 USB-HID
 path remains the production control method. If CEC power/input integration is
-later judged valuable, test a supported inline USB-to-CEC adapter as an
-optional v2 accessory; do not make it a v1 production dependency.
+later judged valuable, test a supported USB-to-CEC adapter as an optional v2
+accessory; do not make it a v1 production dependency.
+
+Current Pulse-Eight guidance rules out an inline deployment for Aster's target:
+the adapter is specified inline for 4K60 4:2:0 8-bit, while HDR10 is outside
+spec and high-bitrate TrueHD/Atmos is identified as unreliable. The HP is
+currently driving the TCL `Beyond TV` at 4096×2160/24 Hz and direct playback
+switches to 4096×2160/23.976 Hz; the EDID advertises HDR-capable deep colour,
+4K60/120 modes and the receiver audio formats. Preserve that accepted media
+path. A future trial should use the vendor's two-cable method: native HP HDMI
+directly to the existing TCL input for video/audio, plus a spare HP DisplayPort
+through DP-to-HDMI and the USB-CEC adapter to a spare TCL HDMI input for CEC
+only. This topology is expected to expose TV/receiver standby, active source,
+volume/mute and compatible remote commands, subject to physical testing of the
+specific TCL/eARC/receiver bus and HP USB suspend behavior.
 
 All skin XML parsed, `git diff --check` passed, and 76 skin, four video-plugin
 and 13 audio-bridge tests passed. Before deployment, the physical endpoint's
