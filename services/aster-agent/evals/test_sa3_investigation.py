@@ -113,6 +113,15 @@ class InvestigationTests(unittest.TestCase):
                         lambda payload, timeout: calls.append(payload))
         self.assertEqual(calls, [])
 
+    def test_fixture_rejects_oversized_evidence_before_transport(self):
+        malformed = copy.deepcopy(self.case)
+        malformed['initial_observations'][0]['text'] = 'x' * 20_000
+        calls = []
+        with self.assertRaisesRegex(ValueError, 'exceeds development envelope'):
+            investigate(malformed, 'thinking', 'fixture-model',
+                        lambda payload, timeout: calls.append(payload))
+        self.assertEqual(calls, [])
+
     def test_invalid_transport_container_and_metadata_fail_closed(self):
         result, _ = self.replay([['not', 'a', 'record']])
         self.assertEqual(result['status'], 'invalid_transport_response')

@@ -589,8 +589,9 @@ The complete eval unit suite passed 110/110. This protects future evidence
 capture; it does not call or qualify a model, connect a tool or advance M1.
 The lower-level engine now also enforces the package's closed
 [freshness vocabulary](evidence/D4-investigation-freshness-vocabulary-boundary-2026-10-22.md)
-before transport. An unrecognised freshness claim cannot reach the model, and
-the complete eval suite passes 111/111. This aligns two offline validation
+before transport and applies the same 16,000-byte development-case envelope.
+Unrecognised freshness and oversized observations cannot reach the model, and
+the complete eval suite passes 112/112. This aligns two offline validation
 layers; producer authentication, representative incidents and connected-tool
 authority remain open.
 

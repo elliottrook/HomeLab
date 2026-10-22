@@ -30,6 +30,8 @@ def _validated_case(case):
             'id', 'prompt', 'capabilities', 'initial_observations', 'responses'}:
         raise ValueError('invalid investigation fixture')
     case = copy.deepcopy(case)
+    if len(json.dumps(case, sort_keys=True, separators=(',', ':')).encode()) > 16_000:
+        raise ValueError('investigation fixture exceeds development envelope')
     # build_request owns validation of the public case catalogue.
     build_request({key: case[key] for key in ('id', 'prompt', 'capabilities')},
                   'nonthinking', 'fixture-validation')
