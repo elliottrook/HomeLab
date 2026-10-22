@@ -33,6 +33,16 @@ and production postchecks passed. F2 remains open and F3 cannot advance. The
 platform owner must preserve a bounded final subphase/code and prove the
 correction offline and on target Linux before a fresh card and approval.
 
+The platform owner supplied that source-only correction at
+`1ca66cee2953c50563da90fe2071a70b62372c2c`. Stream A's
+[independent review](evidence/F2-final-subcheck-diagnostic-independent-review-2026-10-22.md)
+first rejected a missing observer-communication test, then verified the
+corrected pin and 14/14 focused local tests after the gap was fixed. The
+platform owner reports 14/14 target-Linux focused tests and 361 local passes
+with eight expected skips. This is ready only for a separately approved
+inactive one-file installation; it does not diagnose the October 22 failure
+retroactively or authorize another scan.
+
 The one-time October 17 supervised F2 guard was invoked once after the
 current-cycle backup and task-1 pull passed preflight. It returned `F2NoGo`
 without per-archive results; the [dated record](evidence/F2-archive-guard-no-go-2026-10-17.md)
