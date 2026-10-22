@@ -2130,6 +2130,13 @@ All 83 skin regression tests and XML parsing passed before deployment. Manual
 English-track selection and receiver-format indication remain physical
 acceptance checks.
 
+Jason completed the physical acceptance test on the main television and
+confirmed success: preferred-English selection, remote navigation to the OSD
+Audio selector, playback audio and receiver passthrough all worked on the
+deployed HP endpoint. This closes the HP HDMI audio recovery check. It does not
+by itself close M2's separate HDR indication, mixed-format soak, recovery or
+production-client gates.
+
 All skin XML parsed, `git diff --check` passed, and 76 skin, four video-plugin
 and 13 audio-bridge tests passed. Before deployment, the physical endpoint's
 affected XML was checkpointed at
