@@ -19,7 +19,6 @@
 | MacBook administration layer | Active — Stream A; M0-M3 closed (baseline, toolkit, independent SSH identity/enrollment, Doctor parity); M4 (recovery, integration, graduation) in progress | [MacBook administration layer](MacBook-Administration-Layer.md) | Independent internal toolkit, credentials and recovery; mini-only scheduled automation; no SSD migration |
 | Surveillance expansion | One-camera baseline complete; expansion proposed | [Surveillance expansion](Surveillance-Expansion.md) | [Surveillance runbook](../07-Surveillance.md) |
 | NUT/UPS deployment | Handover ready | [NUT/UPS handover](../handovers/UPS-Power-Resilience-Claude-Handover.md) | Architecture, shutdown and recovery requirements are contained in the handover |
-| Media RAIDZ2 widening | Eight-drive expansion and scrub passed | [Media RAIDZ2 widening](Media-RAIDZ-Widening.md) | BJ7Z and 471FR complete; BTVM/BK81 held; 10.9 TiB free after cleanup |
 | Disposable lab mirror | Deployed and validated | [Lab scratch mirror](Lab-Scratch-Mirror.md) | BTVM/BK81 mirror; 3.51 TiB available; NFSv4 shared scratch for VLAN70 only |
 | Recovery SATA mirror | Migration and old-source retirement complete | [Recovery SATA mirror](Recovery-SATA-Mirror.md) | Two qualified 4 TB SATA drives; live mirrored backups plus private EHS backup |
 | TrueNAS DIY SAS expansion | Ready | [TrueNAS DIY SAS expansion](TrueNAS-DIY-SAS-Expansion.md) | Eight-bay backplane-free enclosure using two vacant x4 ports on the LSI SAS 9300-16i |
@@ -48,6 +47,7 @@
 
 | Project | Completed | Closing document | Outcome |
 |---|---|---|---|
+| Media RAIDZ2 widening | 2026-10-21 | [Media RAIDZ2 widening](completed%20projects/Media-RAIDZ-Widening.md) | Ten-member RAIDZ2; clean final scrub, zero ZFS errors, 15.0 TiB available; stable non-medium counters retained as a known limitation; heartbeat paused |
 | Authentik rollout | 2026-09-26 | [Authentik rollout](completed%20projects/Authentik-Rollout.md) | Accepted passkey/SSO workflows, optional Jellyfin account choice and verified configuration recovery; NPM/TrueNAS/UniFi/Home Assistant follow-ups and Seerr deferral retained; Immich photos separately owned by Jason |
 | AI Privileged Access Management (AI-PAM) / credential broker | 2026-09-26 | [AI-PAM and credential broker](completed%20projects/homelab-credential-broker.md) | M0–M9 graduated: recoverable OpenBao, passkey approvals, lifecycle and emergency management, bounded Forgejo/Doctor execution, native Companion parity, fail-closed dependency behavior, monitoring, backup/restore, human guidance and sanitized Aster retrieval are all evidenced |
 | Aster Companion App | 2026-09-23 | [Aster Companion App](completed%20projects/Aster-Companion-App.md) | Mac/iPhone voice and notifications accepted; native authentication persistence repaired; permission regressions and notification recovery verified; bounded operational exceptions recorded, live ARR execution deferred |

@@ -288,7 +288,14 @@ changing `Media`:
 | Add a complete six- or eight-disk RAIDZ2 VDEV to `Media` | Large capacity increase and all disks remain directly visible to ZFS | Requires the complete VDEV disk set at creation; failure of either VDEV loses the pool; existing data is not automatically rebalanced |
 | Create a separate external pool | Separates failure and power domains logically and permits a different lifecycle | Capacity is not automatically combined with `Media`; datasets, shares and applications may need migration |
 
-Default control: do not extend the existing RAIDZ2 beyond eight members. A
+2026-10-18 exception: Jason explicitly selected expansion of the existing Media
+RAIDZ2 to ten members using the two HP candidates, conditional on full write/read
+verification and sequential expansion/scrub gates. See
+[current authorization](completed%20projects/Media-RAIDZ-Widening.md#2026-10-18--full-verification-and-ten-member-expansion-authorization).
+The older eight-member limit below remains historical context, superseded only
+for this bounded ten-member operation.
+
+Original default control: do not extend the existing RAIDZ2 beyond eight members. A
 fourteen-disk-wide RAIDZ2 VDEV is not an approved use of the eight new lanes.
 
 - [ ] Record required usable capacity, disk count/budget, failure-domain choice,
@@ -376,7 +383,7 @@ enclosure **bays 3 and 6**. Candidate serials are `37H0A019FT2C1711`
 (WWN `50000397a832e111`) and `37H0A01HFT2C1711` (WWN `50000397a832e289`).
 The exact serial-to-bay pairing is pending confirmation: neither table ordering
 nor controller lane numbering establishes that pairing. Qualification details
-are in [Media RAIDZ widening](Media-RAIDZ-Widening.md#replacement-sas-qualification--2026-10-18).
+are in [Media RAIDZ widening](completed%20projects/Media-RAIDZ-Widening.md#replacement-sas-qualification--2026-10-18).
 
 ### 2026-09-26 — Failed-drive identification and handoff
 
