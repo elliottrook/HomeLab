@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-from sa3_fresh_package import digest, run_package, schedule, validate_cases
+from sa3_fresh_package import MAX_LEDGER_BYTES, digest, run_package, schedule, validate_cases
 from validate_sa3_holdout_release import canonical_digest
 
 
@@ -114,6 +114,13 @@ class FreshPackageTests(unittest.TestCase):
         with self.assertRaises(OSError): self.run_fixture()
         self.path.unlink(); self.path.touch(mode=0o600); self.path.chmod(0o644)
         with self.assertRaisesRegex(ValueError, 'owner-only'): self.run_fixture()
+
+    def test_oversized_existing_ledger_is_rejected_before_parsing(self):
+        with self.path.open('wb') as stream:
+            stream.truncate(MAX_LEDGER_BYTES + 1)
+        self.path.chmod(0o600)
+        with self.assertRaisesRegex(ValueError, 'bounded evidence envelope'):
+            self.run_fixture()
 
 
 if __name__ == '__main__': unittest.main()

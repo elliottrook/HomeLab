@@ -13,6 +13,9 @@ from sa3_investigation import investigate
 from validate_sa3_holdout_release import validate_release
 
 
+MAX_LEDGER_BYTES = 4 * 1024 * 1024
+
+
 def digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
@@ -113,6 +116,8 @@ def run_package(bundle, manifest, ledger, transport, ready, model='qwen3.8-27b',
         stat = os.fstat(stream.fileno())
         if stat.st_uid != os.getuid() or stat.st_mode & 0o077:
             raise ValueError('ledger must be owner-only')
+        if stat.st_size > MAX_LEDGER_BYTES:
+            raise ValueError('ledger exceeds the bounded evidence envelope')
         raw = stream.read()
         if raw and not raw.endswith('\n'):
             raise ValueError('partial journal; manual reconciliation required')

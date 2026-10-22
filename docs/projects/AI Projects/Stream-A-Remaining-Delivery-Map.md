@@ -607,6 +607,12 @@ before a finished event is journalled. A synthetic `NaN` result did not reach
 the journal, the surviving started marker blocked replay, and the complete
 eval suite passed 114/114. This makes the evidence portable JSON; it does not
 turn development results into qualification or promotion evidence.
+The private journal now also has a
+[four-MiB existing-file boundary](evidence/D4-ledger-size-boundary-2026-10-22.md)
+checked on the locked descriptor before reading. An owner-only oversized
+fixture was rejected before parsing, and the complete eval suite passed
+115/115. This limits corrupted-input resource use; it does not reconcile or
+rewrite an existing journal.
 
 ## Immediate next action and stop rule
 
