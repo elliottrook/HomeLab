@@ -251,7 +251,7 @@ be copied by `pilot_podcast_covers.py`. These are manual Mac test-profile
 operations, not a continuous publisher. The podcast browse page shows
 subscribed shows; its action delegates episode browsing to the audio add-on.
 
-## Kodi startup splash (Mac test profile)
+## Kodi and LibreELEC startup branding
 
 Kodi's startup image is separate from the skin. The 1920 × 1080
 `branding/splash.png` places the unmodified, approved Aster Home logo export
@@ -265,7 +265,24 @@ For the disposable Mac Kodi profile, install the file as
 for an existing `splash.jpg` first: Kodi prefers that filename over
 `splash.png`. The Kodi app bundle and its bundled splash remain unchanged;
 removing only this profile override restores the bundled startup image.
-LibreELEC's earlier OS bootsplash is separate and is not changed by this file.
+
+On LibreELEC, install the same approved asset in both supported locations:
+
+- `/storage/.kodi/media/splash.png` controls Kodi startup; and
+- `/flash/oemsplash.png` controls the earlier LibreELEC boot stage.
+
+Use `tools/install_libreelec_startup_branding.sh` on the endpoint with the PNG
+path as its only argument. The script checkpoints existing overrides under
+`/storage/.aster-checkpoints`, refuses to continue if a higher-precedence
+`splash.jpg` would hide the approved image, writes `/flash` only while it is
+explicitly remounted read-write, and returns it to read-only even on an
+interrupted install. Removing the two installed overrides restores the bundled
+LibreELEC and Kodi images; restore checkpointed files if they existed.
+
+The computer manufacturer's logo is firmware/POST output before LibreELEC owns
+the display and cannot be changed by the skin or these overrides. Disabling a
+firmware logo, if the model exposes that option, is a separate BIOS decision;
+replacing firmware artwork is outside this project.
 
 ## macOS Kodi Dock icon (disposable test app only)
 

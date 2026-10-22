@@ -35,7 +35,7 @@ def development_only(relative: Path) -> bool:
     if name.startswith("test_") and name.endswith(".py"):
         return True
     if parts and parts[0] == "tools":
-        return name.startswith(("test_", "build_", "pilot_")) or name == "install_macos_dock_icon.sh"
+        return name.startswith(("test_", "build_", "pilot_", "install_"))
     return relative.suffix.lower() == ".svg"
 
 

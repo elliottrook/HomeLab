@@ -1844,6 +1844,25 @@ backplate with ivory copy and retains the green focused state. Live 4K captures
 of populated Media and Music pages confirmed consistent contrast without
 restoring the former limestone/stone weight.
 
+### Physical startup branding — 2026-10-22
+
+The approved repository-owned 1920x1080 Aster Home startup image was installed
+on the HP ProDesk in both supported layers: Kodi's profile override at
+`/storage/.kodi/media/splash.png` and LibreELEC's OEM boot override at
+`/flash/oemsplash.png`. Neither location had a prior override. A recovery record
+was created at `/storage/.aster-checkpoints/aster-splash-pre-20261022/`; both
+deployed files matched repository SHA-256
+`738b96b4639c25634ad6639e3e2be9c9985e3f3d5606e8599e0804bea20d85e3`.
+The boot partition was returned to read-only before reboot.
+
+A full endpoint reboot returned host `AsterTV`, Kodi active and Aster Home
+v1.0.2 loaded with no startup warning or fatal error. The two splash checksums
+still matched after boot and `/flash` remained read-only. HP's logo is
+firmware/POST output before LibreELEC owns the display; this milestone does not
+modify firmware. A repeatable installer and rollback boundary are documented
+in the skin README. LibreELEC's lookup order and `oemsplash.png` mechanism were
+verified against its official init source and bootsplash documentation.
+
 All skin XML parsed, `git diff --check` passed, and 76 skin, four video-plugin
 and 13 audio-bridge tests passed. Before deployment, the physical endpoint's
 affected XML was checkpointed at
@@ -1866,6 +1885,8 @@ the remaining v2 recommendations.
 - `../design/HomeLab-UI-Style-Guide.md`
 - Official Kodi: https://github.com/xbmc/xbmc
 - Official LibreELEC: https://github.com/LibreELEC/LibreELEC.tv
+- LibreELEC boot init splash lookup: https://github.com/LibreELEC/LibreELEC.tv/blob/master/packages/sysutils/busybox/scripts/init
+- LibreELEC custom bootsplash: https://wiki.libreelec.tv/how-to/change-bootscreen
 - Kodi skin development: https://kodi.wiki/view/Skin_development_introduction
 - Kodi UI-sound mapping: https://kodi.wiki/view/Sounds.xml
 - Kodi add-on rules and licensing guidance: https://kodi.wiki/view/Add-on_rules

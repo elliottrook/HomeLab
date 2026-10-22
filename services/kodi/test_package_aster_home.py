@@ -25,6 +25,7 @@ class ReleasePackageTests(unittest.TestCase):
                     self.assertEqual(addon.attrib["id"], item["addon_id"])
                     self.assertEqual(addon.attrib["version"], release.RELEASE)
                     self.assertFalse(any("/test_" in name for name in names))
+                    self.assertFalse(any("/tools/install_" in name for name in names))
                     self.assertFalse(any(name.endswith(".svg") for name in names))
                     self.assertFalse(any("/__pycache__/" in name for name in names))
             manifest = json.loads((Path(first) /

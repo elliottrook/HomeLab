@@ -70,6 +70,15 @@ source SVGs, caches and developer documentation. It contains no API key,
 password, profile database, Kodi library database, watched-state database or
 generated household feed.
 
+`skin.asterhome/branding/splash.png` in the skin archive is the approved
+1920x1080 startup asset. After installing the add-on on LibreELEC, copy that
+asset to `/storage/.kodi/media/splash.png` for Kodi startup and to
+`/flash/oemsplash.png` for the earlier LibreELEC boot stage. Use the source-tree
+`tools/install_libreelec_startup_branding.sh` runbook helper so existing
+overrides are checkpointed and `/flash` returns to read-only. These profile and
+boot-partition files are client state, not Kodi skin resources, so installing
+or updating the ZIP alone does not activate them.
+
 ## Client state and normal operation
 
 The following state belongs to each Kodi client and is not part of the release
@@ -81,7 +90,8 @@ ZIP:
 - generated media filters and local Kodi GUI/region/audio settings;
 - YouTube add-on settings, Google API/OAuth credentials, sign-in and history;
 - the optional private camera bridge; and
-- the selected UI-sound preference.
+- the selected UI-sound preference; and
+- the optional Kodi and LibreELEC startup-splash overrides.
 
 Use a 24-hour Kodi regional clock. Audio passthrough, display refresh-rate
 switching, HDR and resolution are endpoint settings and must be chosen during
