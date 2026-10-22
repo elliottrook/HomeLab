@@ -43,6 +43,10 @@ FAILURE_CLASSES = frozenset({
     "OBSERVER_OUTPUT_OVERSIZED",
     "OBSERVER_OUTPUT_INVALID",
     "OBSERVER_PROJECTION_INVALID",
+    "FINAL_GUARD_SUBCHECK_FAILED",
+    "OBSERVER_LAUNCH_FAILED",
+    "OBSERVER_COMMUNICATION_FAILED",
+    "OBSERVER_EXIT_NONZERO",
     "FINAL_FAILED",
     "UNKNOWN",
 })
@@ -50,6 +54,16 @@ FAILURE_CLASSES = frozenset({
 
 class ScheduledF2Error(ValueError):
     pass
+
+
+class FinalSubcheckError(ScheduledF2Error):
+    """Content-free classification for a bounded final subcheck failure."""
+
+    def __init__(self, code: str, message: str):
+        if code not in FAILURE_CLASSES:
+            raise ValueError("final subcheck code is not bounded")
+        super().__init__(message)
+        self.code = code
 
 
 def _root_custody(meta) -> bool:
@@ -99,6 +113,8 @@ def _state_root() -> Path:
 
 def _failure_class(phase: str, exc: BaseException) -> str:
     """Map internal failures to a bounded, content-free diagnostic code."""
+    if isinstance(exc, FinalSubcheckError):
+        return exc.code
     text = str(exc)
     if "outside the 01:15" in text or "outside the 01:20" in text:
         return "WINDOW"
@@ -243,15 +259,23 @@ def final(runner: Callable, *, popen=subprocess.run,
                                       "error_class": "", "first_failure_phase": "",
                                       "failure_class": ""}:
             raise ScheduledF2Error("prepared state is absent or not exact")
-        run_fixed_final_guard(runner)
+        try:
+            run_fixed_final_guard(runner)
+        except Exception as exc:
+            raise FinalSubcheckError("FINAL_GUARD_SUBCHECK_FAILED",
+                                     "final guard subcheck failed") from exc
         local = datetime.fromtimestamp(epoch, LOCAL_ZONE)
         hard_end = local.replace(hour=1, minute=40, second=0, microsecond=0).timestamp()
         timeout = max(1, int(hard_end - epoch))
-        process = popen(("/usr/bin/python3", "-B", str(OBSERVER), "--read-only-authorized"),
-                        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                        start_new_session=True,
-                        env={"PATH": "/usr/bin:/bin", "PYTHONPATH": str(OBSERVER.parent),
-                             "PYTHONDONTWRITEBYTECODE": "1", "LANG": "C"})
+        try:
+            process = popen(("/usr/bin/python3", "-B", str(OBSERVER), "--read-only-authorized"),
+                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                            start_new_session=True,
+                            env={"PATH": "/usr/bin:/bin", "PYTHONPATH": str(OBSERVER.parent),
+                                 "PYTHONDONTWRITEBYTECODE": "1", "LANG": "C"})
+        except Exception as exc:
+            raise FinalSubcheckError("OBSERVER_LAUNCH_FAILED",
+                                     "bounded observer launch failed") from exc
         try:
             output, _ = process.communicate(timeout=max(1, timeout - 5))
         except subprocess.TimeoutExpired as exc:
@@ -261,8 +285,12 @@ def final(runner: Callable, *, popen=subprocess.run,
                 pass
             process.communicate(timeout=5)
             raise ScheduledF2Error("bounded observer reached hard deadline") from exc
+        except Exception as exc:
+            raise FinalSubcheckError("OBSERVER_COMMUNICATION_FAILED",
+                                     "bounded observer communication failed") from exc
         if process.returncode != 0:
-            raise ScheduledF2Error("bounded observer returned no-go")
+            raise FinalSubcheckError("OBSERVER_EXIT_NONZERO",
+                                     "bounded observer returned no-go")
         if len(output) > 8_192:
             raise ScheduledF2Error("bounded observer projection is oversized")
         try:

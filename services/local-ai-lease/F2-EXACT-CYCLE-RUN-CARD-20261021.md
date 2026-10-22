@@ -46,13 +46,18 @@ Both files are nonpersistent, one-shot candidates only:
 
 They reference the existing candidate services, pinned as follows:
 
+The coordinator installed for that historical cycle was
+`fd711a4c1afa9fe128464f61390d63c54f7e513a8811cbc79f0d27c522452356`; the
+current source pin below includes the later bounded final-subcheck diagnostic
+correction.
+
 | Source | SHA-256 |
 |---|---|
 | `services/local-ai-lease/systemd/f2-preflight-prepare.service` | `48998c82799e39cd3f8c988c05c8d0eff73b7b63a2bd16325ef5a3cef5004e4c` |
 | `services/local-ai-lease/systemd/f2-preflight-final.service` | `dd7bb66a6575956ffe55056406b1082da25377cd802a5eaeec5f30aa6d2338c5` |
-| `scripts/local-ai/f2_scheduled_release_candidate.py` / proposed installed coordinator | `fd711a4c1afa9fe128464f61390d63c54f7e513a8811cbc79f0d27c522452356` |
+| `scripts/local-ai/f2_scheduled_release_candidate.py` / proposed installed coordinator | `98b26e88fc17418f0f48dbf24aafb3b44b06069de5fec2d244b55e58d7adb425` |
 | Currently installed coordinator / rollback source | `aef623afc1754d4fab75e09fc4182773bc0a1db9a56d2379274fec3f0855cd23` |
-| `scripts/local-ai/test_f2_scheduled_release_candidate.py` | `ef336677c57a03eca0796e136cd009c2933dad947bc39917346c7eab7544a43b` |
+| `scripts/local-ai/test_f2_scheduled_release_candidate.py` | `863939328e7411ea9bff8c2b085af9e27a634b609e95ea63b32b5caa6378e8cf` |
 | `scripts/local-ai/test_f2_exact_cycle_20261021.py` | `42230751765ab14e944a44ad928b996aa1044e04b68b7e81451af03b5597a7e3` |
 | `scripts/local-ai/f2_preflight_snapshot.py` | `a199e369b2a3843a911a3978b410b525db7f1c67a9a8a7878f86f4a829cf57d7` |
 | `scripts/local-ai/test_f2_preflight_snapshot.py` | `7502d7df0872850cb4f4f315ecc6ea5bfd2b49de1a241b47fdb5a5c8748f14c2` |
