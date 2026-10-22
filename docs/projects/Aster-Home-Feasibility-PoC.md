@@ -1905,8 +1905,9 @@ end. Up, Down, Left, Right, Home, Volume Up, Volume Down, Mute and Play/Pause
 arrive as their expected keyboard/media keys. The receiver reports OK as
 mouse-left and Back as mouse-right, a known G20S Linux behavior that makes the
 default Kodi interaction pointer-dependent. The narrow profile-level
-`g20s-pro-plus.xml` compatibility map changes only those two buttons to Select
-and Back, with OK opening the OSD during full-screen playback. The owner turned
+`g20s-pro-plus.xml` compatibility map changes only those two buttons: OK uses
+the bounded Aster Select dispatcher described below and Back remains Kodi Back,
+with OK opening the OSD during full-screen playback. The owner turned
 off air-mouse mode and confirmed that D-pad focus, OK and Back then behaved
 correctly. The source and rollback guidance are retained under
 `services/kodi/remote/`.
@@ -1972,6 +1973,46 @@ full-Digest audio reached Kodi's queued/ready state before being stopped.
 Kodi remained active and the post-test log contained no new skin error,
 traceback or crash. No media, server, credential, network or remote Git state
 changed.
+
+### G20 OK activation hotfix — 2026-10-22
+
+Physical use found that Kodi's normal Select action opened native TV and movie
+items but did nothing on Music, Books and Digest rows populated through
+`xbmcgui.ControlList.addItems`. Those items deliberately carry no direct media
+path, and Kodi 21 did not dispatch the list-level skin `onclick`. The centre OK
+button was therefore the correct control but had no action to invoke. The
+separate Music hero action was also misleading: moving up to reach it changed
+the selected album whenever the grid had more than one row, so it was removed.
+
+The G20 can present OK as mouse-left or keyboard Return depending on its active
+mode and wireless handshake; a debug capture on the production candidate
+confirmed Return (`scancode 0x1c`) after the initial mouse-mode observation.
+Both forms of OK now call a small bounded Select dispatcher. It
+recognizes only the known Aster custom-window list controls for Music, the
+Music player track list, Books and Digest stories and invokes their existing
+activation handlers. Every other window and control is passed to Kodi's normal
+Select action, while full-screen video and visualization mappings remain
+unchanged. Music's grid now moves directly to its section tabs when leaving the
+top row rather than offering the removed hero action.
+
+The previous deployed skin tools, Music include and keymap are recoverable from
+`/storage/.kodi/addons/skin.asterhome-checkpoints/pre-select-hotfix-20261022.tar.gz`,
+SHA-256
+`a03866592298b30d5cf82d0c309803da9a89c2eed0278507817287b9fda994bb`.
+All 83 skin-tool tests, XML parsing and `git diff --check` passed. The endpoint
+loaded the revised skin and keymap after a Kodi restart; invoking the exact
+dispatcher used by OK on a populated Music tile opened
+`custom_1121_albumplayer.xml` without a Python exception. A subsequent physical
+G20 Return/OK press was logged as
+`RunScript(special://skin/tools/select_dispatch.py)` and the owner confirmed
+that the selected album opened. Debug logging was then disabled. The tile-focus
+treatment deployed with the hotfix replaces the ambiguous lower shadow with a
+contrasting ivory outer keyline and Aster-green inner ring across the Media
+home rows, portrait library grid and Music grid while retaining the modest
+size lift. The tracked v1.0.2
+release archive intentionally remains unchanged, so its deterministic package
+test reports the expected source/archive mismatch until a later release is
+cut.
 
 ### First v2 visual milestone — shared lightweight players — 2026-10-22
 

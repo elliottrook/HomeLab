@@ -59,22 +59,20 @@
         <control type="label"><left>1050</left><top>214</top><width>760</width><height>68</height><label>$INFO[Container(500).ListItem.Label]</label><font>font40</font><textcolor>asterRailText</textcolor></control>
         <control type="textbox"><left>1050</left><top>288</top><width>710</width><height>85</height><label>$INFO[Container(500).ListItem.Property(AsterMusic.Summary)]</label><font>font24</font><textcolor>asterRailText</textcolor></control>
         <control type="label"><left>1050</left><top>386</top><width>760</width><height>32</height><label>$INFO[Window.Property(AsterMusic.Status)]</label><font>font20</font><textcolor>asterSage</textcolor></control>
-        <control type="image"><left>1050</left><top>440</top><width>280</width><height>56</height><texture>special://skin/media/ui-button-ring.png</texture><visible>Control.HasFocus(300) + !String.IsEmpty(Container(500).ListItem.Label)</visible></control>
-        <control type="button" id="300"><left>1050</left><top>440</top><width>280</width><height>56</height><label>$PARAM[actionlabel]</label><font>font24</font><align>center</align><aligny>center</aligny><textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor><texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturenofocus><onclick>RunScript(special://skin/tools/music_data.py,$PARAM[page],open)</onclick><onleft>8999</onleft><onright>500</onright><ondown>500</ondown><onup>111</onup><visible>!String.IsEmpty(Container(500).ListItem.Label)</visible></control>
         <control type="label"><left>$PARAM[gridleft]</left><top>555</top><width>1060</width><height>48</height><label>$PARAM[heading]</label><font>font30</font><textcolor>asterInk</textcolor></control>
         <control type="group">
           <visible>$PARAM[searchvisible]</visible>
           <control type="label"><left>1560</left><top>636</top><width>260</width><height>40</height><label>Search &amp; filter</label><font>font24</font><textcolor>asterMuted</textcolor></control>
           <include content="AsterQuietFieldBackplate"><param name="left" value="1560" /><param name="top" value="708" /><param name="innerleft" value="1562" /><param name="innertop" value="710" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
           <include content="AsterQuietFieldBackplate"><param name="left" value="1560" /><param name="top" value="780" /><param name="innerleft" value="1562" /><param name="innertop" value="782" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
-          <control type="button" id="301"><left>1560</left><top>708</top><label>$INFO[Window.Property(AsterMusic.SearchLabel)]</label><include>AsterFilterButton</include><onclick>RunScript(special://skin/tools/music_data.py,$PARAM[page],search)</onclick><onleft>500</onleft><onright>8999</onright><onup>300</onup><ondown>302</ondown></control>
+          <control type="button" id="301"><left>1560</left><top>708</top><label>$INFO[Window.Property(AsterMusic.SearchLabel)]</label><include>AsterFilterButton</include><onclick>RunScript(special://skin/tools/music_data.py,$PARAM[page],search)</onclick><onleft>500</onleft><onright>8999</onright><onup>111</onup><ondown>302</ondown></control>
           <control type="button" id="302"><left>1560</left><top>780</top><label>Clear search</label><include>AsterFilterButton</include><onclick>RunScript(special://skin/tools/music_data.py,$PARAM[page],clear)</onclick><onleft>500</onleft><onright>8999</onright><onup>301</onup><ondown>500</ondown></control>
           <control type="label"><left>1560</left><top>880</top><width>260</width><height>100</height><label>$PARAM[searchhint]</label><font>font20</font><textcolor>asterMuted</textcolor><wrapmultiline>true</wrapmultiline></control>
         </control>
         <control type="panel" id="500">
           <left>$PARAM[gridleft]</left><top>615</top><width>$PARAM[gridwidth]</width><height>430</height>
           <viewtype label="Album tiles">icon</viewtype><orientation>vertical</orientation><scrolltime>180</scrolltime><preloaditems>2</preloaditems>
-          <onleft>8999</onleft><onright>$PARAM[righttarget]</onright><onup>300</onup><onclick>RunScript(special://skin/tools/music_data.py,$PARAM[page],open)</onclick>
+          <onleft>8999</onleft><onright>$PARAM[righttarget]</onright><onup>111</onup><onclick>RunScript(special://skin/tools/music_data.py,$PARAM[page],open)</onclick>
           <itemlayout width="300" height="345">
             <control type="image"><left>10</left><top>4</top><width>260</width><height>260</height><texture border="28">special://skin/media/ui-panel.png</texture><colordiffuse>asterIvory</colordiffuse><visible>!String.IsEqual(ListItem.Property(AsterMusic.HasArt),true)</visible></control>
             <control type="image"><left>76</left><top>70</top><width>128</width><height>128</height><texture>$INFO[ListItem.Art(thumb)]</texture><aspectratio>keep</aspectratio><visible>!String.IsEqual(ListItem.Property(AsterMusic.HasArt),true)</visible></control>
@@ -83,11 +81,11 @@
             <control type="label"><left>10</left><top>307</top><width>260</width><height>26</height><label>$INFO[ListItem.Label2]</label><font>font16</font><textcolor>asterMuted</textcolor></control>
           </itemlayout>
           <focusedlayout width="300" height="345">
-            <control type="image"><left>0</left><top>0</top><width>280</width><height>280</height><texture border="28" colordiffuse="88000000">special://skin/media/ui-panel.png</texture></control>
+            <control type="image"><left>0</left><top>0</top><width>280</width><height>280</height><texture>special://skin/media/ui-album-ring.png</texture><colordiffuse>asterIvory</colordiffuse></control>
             <control type="image"><left>4</left><top>0</top><width>272</width><height>272</height><texture border="28">special://skin/media/ui-panel.png</texture><colordiffuse>asterIvory</colordiffuse><visible>!String.IsEqual(ListItem.Property(AsterMusic.HasArt),true)</visible></control>
             <control type="image"><left>76</left><top>68</top><width>128</width><height>128</height><texture>$INFO[ListItem.Art(thumb)]</texture><aspectratio>keep</aspectratio><visible>!String.IsEqual(ListItem.Property(AsterMusic.HasArt),true)</visible></control>
             <control type="image"><left>4</left><top>0</top><width>272</width><height>272</height><texture background="true" diffuse="special://skin/media/ui-album-mask.png">$INFO[ListItem.Art(thumb)]</texture><aspectratio scalediffuse="false">scale</aspectratio><visible>String.IsEqual(ListItem.Property(AsterMusic.HasArt),true)</visible></control>
-            <control type="image"><left>4</left><top>0</top><width>272</width><height>272</height><texture>special://skin/media/ui-album-ring.png</texture><colordiffuse>asterSage</colordiffuse></control>
+            <control type="image"><left>4</left><top>0</top><width>272</width><height>272</height><texture>special://skin/media/ui-album-ring.png</texture><colordiffuse>asterGreen</colordiffuse></control>
             <control type="label"><left>4</left><top>280</top><width>272</width><height>32</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>asterGreen</textcolor></control>
             <control type="label"><left>4</left><top>313</top><width>272</width><height>26</height><label>$INFO[ListItem.Label2]</label><font>font16</font><textcolor>asterMuted</textcolor></control>
           </focusedlayout>

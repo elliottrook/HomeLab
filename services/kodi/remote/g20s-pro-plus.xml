@@ -2,31 +2,49 @@
 <!--
   Kodi compatibility map for the G20S Pro Plus 2.4 GHz USB receiver.
 
-  The receiver exposes the directional and media controls as keyboard keys,
-  but exposes OK and Back as mouse-left and mouse-right.  Map only those two
-  pointer buttons; leave every correctly reported keyboard/media key alone.
+  The receiver can expose OK as keyboard Return or mouse-left depending on its
+  current mode/handshake, while Back is mouse-right. Route both OK forms
+  through the Aster Select dispatcher so script-populated Music, Books and
+  Digest rows activate like native Kodi items; all other controls receive
+  normal Select. Leave every other correctly reported keyboard/media key alone.
   Normal couch use should keep the remote's air-mouse mode disabled.
 -->
 <keymap>
   <global>
+    <keyboard>
+      <return>RunScript(special://skin/tools/select_dispatch.py)</return>
+      <enter>RunScript(special://skin/tools/select_dispatch.py)</enter>
+    </keyboard>
     <mouse>
-      <leftclick>Select</leftclick>
+      <leftclick>RunScript(special://skin/tools/select_dispatch.py)</leftclick>
       <rightclick>Back</rightclick>
     </mouse>
   </global>
   <FullscreenVideo>
+    <keyboard>
+      <return>OSD</return>
+      <enter>OSD</enter>
+    </keyboard>
     <mouse>
       <leftclick>OSD</leftclick>
       <rightclick>Fullscreen</rightclick>
     </mouse>
   </FullscreenVideo>
   <FullscreenGame>
+    <keyboard>
+      <return>OSD</return>
+      <enter>OSD</enter>
+    </keyboard>
     <mouse>
       <leftclick>OSD</leftclick>
       <rightclick>Back</rightclick>
     </mouse>
   </FullscreenGame>
   <Visualisation>
+    <keyboard>
+      <return>OSD</return>
+      <enter>OSD</enter>
+    </keyboard>
     <mouse>
       <leftclick>OSD</leftclick>
       <rightclick>Back</rightclick>

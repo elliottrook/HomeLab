@@ -282,7 +282,8 @@
       <focusedlayout width="280" height="410">
         <control type="image">
           <left>2</left><top>0</top><width>240</width><height>358</height>
-          <texture border="28" colordiffuse="88000000">special://skin/media/ui-panel.png</texture>
+          <texture>special://skin/media/ui-poster-ring.png</texture>
+          <colordiffuse>asterIvory</colordiffuse>
         </control>
         <control type="image">
           <visible>ListItem.IsParentFolder</visible>
@@ -319,7 +320,7 @@
           <width>232</width>
           <height>348</height>
           <texture>special://skin/media/ui-poster-ring.png</texture>
-          <colordiffuse>asterSage</colordiffuse>
+          <colordiffuse>asterGreen</colordiffuse>
         </control>
         <include content="AsterWatchBadges"><param name="left" value="196"/><param name="top" value="14"/></include>
         <control type="textbox">
