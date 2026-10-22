@@ -20,7 +20,8 @@ def _observation(value):
     return (isinstance(value, dict)
             and set(value) == {'id', 'freshness', 'text'}
             and all(isinstance(value[field], str) and value[field].strip()
-                    for field in ('id', 'freshness', 'text')))
+                    for field in ('id', 'freshness', 'text'))
+            and value['freshness'] in ('current', 'stale', 'unavailable'))
 
 
 def _validated_case(case):
