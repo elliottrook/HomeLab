@@ -1890,6 +1890,38 @@ built series/season/episode screen, global focus/search consistency, listening
 queues and controls inspired by Plexamp/Audible, and a Home Assistant-style
 section grid.
 
+### M2 G20S Pro Plus receiver and control baseline — 2026-10-22
+
+The owner connected the G20S Pro Plus USB receiver to the HP endpoint. It
+enumerated as HAOBO Technology USB composite device `4842:0001`, exposing a
+keyboard event device, a mouse/air-mouse event device and a 16 kHz mono USB
+audio capture device. The receiver initially produced no key events, then
+completed its own wireless handshake without a LibreELEC or Kodi change; the
+owner confirmed that the remote began working normally.
+
+Bounded Kodi debug capture mapped the required ordinary controls end to end:
+Up, Down, Left, Right, OK/Select, Back, Home, Volume Up, Volume Down, Mute and
+Play/Pause all arrive as the expected Kodi actions. No custom keymap is needed
+for those controls. The microphone button arrives as Linux scancode `0x246`,
+but Kodi assigns it no action. The USB microphone can be opened through
+LibreELEC's PulseAudio compatibility layer; an initial 5.6-second test WAV was
+nearly silent. A subsequent 7.9-second press-to-talk sample had approximately
+ten times the RMS level and a 4,137 peak. The existing Aster STT service
+successfully transcribed the requested phrase as “Faster, find science fiction
+movies”; only the leading wake word “Aster” was misheard. The temporary capture
+source was unloaded, Kodi debug logging was disabled, and every temporary audio
+copy was removed after the test.
+
+The endpoint can reach the existing canonical Aster speech service directly at
+`192.168.70.14:9130`; its unauthenticated health route returned HTTP 200. The
+public reverse-proxy route timed out from this client and is unnecessary for
+the private design. Voice search therefore remains an M4 client/authentication
+integration, not a microphone, firewall or new-speech-platform requirement.
+Least-privilege service authentication, button-triggered capture, transcript
+routing, idle/reboot reconnection and usable-range tests remain open. No
+credential, keymap, firewall rule, persistent audio source or retained voice
+recording was created by this baseline.
+
 ### First v2 visual milestone — shared lightweight players — 2026-10-22
 
 Jason authorized carrying the compact OSD language across every Aster player
