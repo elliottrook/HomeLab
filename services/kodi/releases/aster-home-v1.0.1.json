@@ -1,0 +1,66 @@
+{
+  "schema": "aster-home-kodi-release-record.v1",
+  "release": "1.0.1",
+  "status": "production-candidate-pending-physical-libreelec-gate",
+  "built_on": "2026-10-22",
+  "design_canvas": "1920x1080-16:9-scales-to-4k",
+  "artifact_directory": "services/kodi/dist/aster-home-v1.0.1",
+  "manifest_sha256": "9acff0c633c8af1ca7f6cf3ac99b232e7d890cbe6c015c421a3b84a8e51fc54a",
+  "artifacts": [
+    {
+      "addon_id": "plugin.video.asterhome",
+      "archive": "plugin.video.asterhome-1.0.1.zip",
+      "bytes": 2660,
+      "sha256": "533126b1918d753102bfd501e8a1c996b079dc26a10c1cf6eac80e87458ba420"
+    },
+    {
+      "addon_id": "plugin.audio.asterbooks",
+      "archive": "plugin.audio.asterbooks-1.0.1.zip",
+      "bytes": 10021,
+      "sha256": "4df602a5f52424c3499a0c7ade693ba837291159f4d41821e898c880e9a91d31"
+    },
+    {
+      "addon_id": "resource.uisounds.asterhome",
+      "archive": "resource.uisounds.asterhome-1.0.1.zip",
+      "bytes": 82959,
+      "sha256": "a7807ee76b1492c3b06f2d0425dda3289fa65667a4739fcbcd8edf94a5adb553"
+    },
+    {
+      "addon_id": "skin.asterhome",
+      "archive": "skin.asterhome-1.0.1.zip",
+      "bytes": 4535356,
+      "sha256": "93c8887008e7a61fa93c28499b0eeec9865ff361734c4ea7084ed8ee264aa887"
+    }
+  ],
+  "install_order": [
+    "plugin.video.asterhome",
+    "plugin.audio.asterbooks",
+    "resource.uisounds.asterhome",
+    "skin.asterhome"
+  ],
+  "external_dependencies": [
+    {
+      "addon_id": "plugin.video.youtube",
+      "version": "7.4.4",
+      "source": "Kodi Omega repository"
+    }
+  ],
+  "validation": {
+    "skin_tests": 75,
+    "video_plugin_tests": 4,
+    "audio_bridge_tests": 13,
+    "packaging_tests": 3,
+    "xml_files_parsed": 48,
+    "zip_crc_checks": 4,
+    "physical_libreelec_ui": "populated-3840x2160-aster-home",
+    "physical_1080p_playback": "jellyfin-static-direct-stream-vaapi",
+    "physical_4k_hdr10_playback": "jellyfin-static-direct-stream-vaapi-bt2020-ycc-zero-drops-short-sample",
+    "physical_refresh_match": "3840x2160p30-to-23.98-on-start-and-restored-on-stop",
+    "physical_osd_stream_selection": "audio-and-pgs-subtitle-selection-passed",
+    "physical_endpoint_upgrade": "all-four-components-enabled-hashes-verified-jellyfin-session-retained",
+    "jellyfin_kodi_sync_queue": "optional-client-setting-disabled-server-plugin-not-installed",
+    "physical_cold_boot": "kodi-active-aster-v1.0.1-jellyfin-authenticated-websocket-open-no-startup-warnings"
+  },
+  "rollback_checkpoint": "/storage/.aster-checkpoints/kodi-fresh-profile-20261022.tgz",
+  "graduation_blocker": "TV HDR indicator, receiver passthrough, remote reconnect, sustained playback and recovery validation"
+}

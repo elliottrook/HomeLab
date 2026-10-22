@@ -10,17 +10,19 @@
       <control type="label" id="1"><left>42</left><top>20</top><width>930</width><height>48</height><font>font30</font><textcolor>asterInk</textcolor><aligny>center</aligny></control>
       <control type="list" id="3">
         <left>34</left><top>112</top><width>972</width><height>550</height>
-        <pagecontrol>60</pagecontrol><onright>60</onright>
+        <pagecontrol>60</pagecontrol><onright>60</onright><onup>5</onup><ondown>5</ondown>
         <itemlayout width="972" height="72">
           <control type="label"><left>22</left><top>0</top><width>900</width><height>72</height><label>$INFO[ListItem.Label]</label><font>font24</font><textcolor>asterInk</textcolor><aligny>center</aligny></control>
+          <control type="label"><left>900</left><top>0</top><width>42</width><height>72</height><label>✓</label><font>font24</font><textcolor>asterGreen</textcolor><align>center</align><aligny>center</aligny><visible>ListItem.IsSelected</visible></control>
         </itemlayout>
         <focusedlayout width="972" height="72">
           <control type="image"><left>0</left><top>3</top><width>956</width><height>66</height><texture border="26" colordiffuse="asterSage">special://skin/media/ui-panel.png</texture></control>
           <control type="label"><left>22</left><top>0</top><width>900</width><height>72</height><label>$INFO[ListItem.Label]</label><font>font24</font><textcolor>asterGreen</textcolor><selectedcolor>asterGreen</selectedcolor><aligny>center</aligny></control>
+          <control type="label"><left>900</left><top>0</top><width>42</width><height>72</height><label>✓</label><font>font24</font><textcolor>asterGreen</textcolor><align>center</align><aligny>center</aligny><visible>ListItem.IsSelected</visible></control>
         </focusedlayout>
       </control>
       <control type="scrollbar" id="60"><left>992</left><top>112</top><width>10</width><height>550</height><onleft>3</onleft></control>
-      <control type="button" id="5"><left>390</left><top>678</top><width>260</width><height>58</height><font>font20</font><textcolor>asterInk</textcolor><focusedcolor>asterIvory</focusedcolor><texturefocus border="24" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="24">special://skin/media/ui-limestone-panel.png</texturenofocus><align>center</align><aligny>center</aligny></control>
+      <control type="button" id="5"><left>390</left><top>678</top><width>260</width><height>58</height><font>font20</font><textcolor>asterInk</textcolor><focusedcolor>asterIvory</focusedcolor><texturefocus border="24" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="24">special://skin/media/ui-limestone-panel.png</texturenofocus><align>center</align><aligny>center</aligny><onup>3</onup></control>
     </control>
   </controls>
 </window>

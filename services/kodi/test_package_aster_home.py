@@ -27,7 +27,8 @@ class ReleasePackageTests(unittest.TestCase):
                     self.assertFalse(any("/test_" in name for name in names))
                     self.assertFalse(any(name.endswith(".svg") for name in names))
                     self.assertFalse(any("/__pycache__/" in name for name in names))
-            manifest = json.loads((Path(first) / "aster-home-v1.0.0-manifest.json").read_text())
+            manifest = json.loads((Path(first) /
+                                   f"aster-home-v{release.RELEASE}-manifest.json").read_text())
             self.assertEqual(manifest["status"],
                              "production-candidate-pending-physical-libreelec-gate")
             self.assertEqual(manifest["external_dependencies"], [
@@ -43,7 +44,7 @@ class ReleasePackageTests(unittest.TestCase):
 
     def test_tracked_release_record_matches_rebuilt_archives(self):
         record = json.loads((Path(__file__).parent / "releases" /
-                             "aster-home-v1.0.0.json").read_text())
+                             f"aster-home-v{release.RELEASE}.json").read_text())
         with tempfile.TemporaryDirectory() as directory:
             rebuilt = release.build(Path(directory))
         expected = {item["addon_id"]: (item["sha256"], item["bytes"])

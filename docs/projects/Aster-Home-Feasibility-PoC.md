@@ -1,6 +1,6 @@
 # Aster Home — EH-001: LibreELEC/Kodi feasibility experiment
 
-> **Status:** Active — Stream A; Aster skin v1.0.0 production candidate accepted 2026-10-17; awaiting physical M2 hardware acceptance
+> **Status:** Active — Stream A; Aster Home v1.0.1 production candidate built 2026-10-22; physical M2 baseline and cold boot passed with receiver, remote, soak and destructive recovery gates still open
 > **Owner:** Jason
 > **Date:** 2026-10-13
 > **Authorization:** Stream A requested for bounded, reversible proof of concept; operational execution remains subject to the actual environment, project-standard and platform safety gates.
@@ -222,69 +222,57 @@ Record pinned versions, tested guest ID, source commits, upstream image checksum
 
 - [x] **M0 — Read-only inventory and risk gate:** 2026-10-13 baseline gathered and accepted. Live Proxmox, guest, VLAN, media, HA, Aster, speech and backup evidence is recorded in the evidence log; household capabilities and the bounded software-test envelope are now explicit.
 - [x] **M1 — Integrated boot:** 2026-10-13. VM 127 installed LibreELEC 12.2.1 with its bundled Kodi image, booted repeatedly from the installed target, and reached the LibreELEC splash on each clean boot. `std`, `qxl` and `virtio` KVM display profiles produced the same result: Kodi UI did not become visible and the installed guest's `.kodi/temp/kodi.log` remained empty. Gate result: **boot/install passed; KVM UI result inconclusive**. This is a virtualization limitation to carry into physical HDMI testing, not a software rejection; do not substitute Debian+Kodi as the primary test.
-- [ ] **M2 — Audiovisual:** Jellyfin library/direct play, music, collections, remote navigation, codecs, subtitles and playback stability. M2 now has a physical endpoint candidate: boot the verified LibreELEC Generic x86_64 image from a disposable USB on the Lenovo X390 Yoga, without installing to or altering its internal drive. Use the X390's Thunderbolt 3/USB-C DisplayPort output with a known 4K60-capable HDMI adapter for the 4K path; its built-in HDMI 1.4b is limited to 4K24 and is not the production-path test. HDMI-CEC is now an optional appliance-integration test, not a software gate; prove a reliable local Bluetooth, IR or USB-HID control path instead. Gate: no media mutation; measurable direct-play, HDR10, audio passthrough, network and navigation results, with hardware limitations explicitly separated from software results.
+- [ ] **M2 — Audiovisual:** Jellyfin library/direct play, music, collections, remote navigation, codecs, subtitles and playback stability. M2 is running on the owner-purchased HP ProDesk 400 G5 Desktop Mini with LibreELEC 12.2.1 installed to its explicitly authorised internal Samsung NVMe. Validate the actual HDMI path through the television and receiver, and separate endpoint, adapter/cable, sink and software limitations. HDMI-CEC is optional rather than gating; prove a reliable local Bluetooth, IR or USB-HID control path instead. Gate: no media-file mutation; measurable direct-play, HDR10, receiver audio passthrough, network and navigation results, with hardware limitations explicitly separated from software results.
 - [x] **M3 — Customization:** 2026-10-17. Owner accepted Aster Home skin v1.0.0 as the first private production candidate. The normal Mac Kodi path now covers the Media/Jellyfin interface, playback OSD, Music, Books/Audiobooks/Podcasts, Digest/Breaking News, Home status/camera pilot/timer, settings, sounds and watch state without a Kodi core fork. Deterministic private release packaging, checksums, install order and rollback are recorded in `services/kodi/skin.asterhome/RELEASE.md`. Physical LibreELEC compatibility remains M2 rather than being inferred from Mac acceptance.
 - [ ] **M4 — Voice/intelligence:** consume existing Aster voice service with opt-in mic/control, demonstrate speech/turn and timeout/fallback handling without new TTS implementation. Gate: privacy and canonical-voice compliance.
 - [ ] **M5 — SOFTWARE GO/NO-GO:** issue `Aster-Home-EH-001-Feasibility-Decision.md` explicitly stating **USE / CONDITIONAL USE / REJECT**, weighted tests plus hard constraints and source-supported alternatives if rejected. **No hardware purchasing study is necessary after REJECT** beyond documenting what alternatives need testing.
 - [ ] **M6 — Conditional hardware/pricing:** **only if USE/CONDITIONAL USE**. Compare powerful mini-PC and cheaper local-decoding thin endpoint; measure network/server/client CPU, RAM, codec support, 4K/HDR, control path (Bluetooth/IR/USB-HID and optional HDMI-CEC), audio passthrough, boot/recovery and wattage on available hardware; distinguish measured versus vendor claims. Price at least two viable products **per class** from Canadian retailers, with SKU, dated CAD offers/stock, sources, shipping/tax/accessories, support, 5-year TCO and ranked no-buy/reuse/buy choices. Gate: defensible minimum/efficient/premium specification and a specific recommended purchase or explicit defer.
 - [ ] **M7 — Decision, recovery and handover:** reproduce key tests, verify independent rollback, update Doctor/Beszel/NetBox/wiki/operational references as applicable, apply the Aster internal style guide, produce non-technical user guide and final recommendation. No production deployment or order under this experiment.
 
-### M2 physical X390 runbook
+### M2 physical HP ProDesk runbook
 
-1. Record the exact Lenovo machine type, CPU SKU, BIOS version, RAM, internal
-   storage health and battery/charger state. Do not update firmware as part of
-   this test unless a separate hardware-risk decision is recorded.
-2. Verify the pinned LibreELEC 12.2.1 Generic x86_64 image and checksum already
-   recorded in this project. Write it to a dedicated USB stick only after the
-   user identifies the removable target; never use the X390 internal disk.
-3. Boot the X390 from USB through its UEFI boot menu. Preserve the existing OS
-   and data as the rollback path. Use a USB keyboard/trackpad for first boot;
-   Apple TV remote pairing is a later, separate compatibility test.
-4. First test video and audio through the X390 Thunderbolt 3/USB-C display
-   output, a confirmed 4K60 HDMI 2.0-capable adapter and the AVR. Record the
-   negotiated resolution/refresh rate, TV HDR10 state, AVR input/audio format,
-   Kodi dropped frames and buffering. Treat the built-in HDMI port as a
-   separate 4K24 control test only.
+1. Reconfirm the recorded HP model, CPU, RAM, internal NVMe identity and
+   LibreELEC version. Firmware changes remain outside this test unless a
+   separate hardware-risk decision is recorded.
+2. Retain the verified LibreELEC 12.2.1 Generic x86_64 image, its recorded
+   checksum and the removable installer as the bare-metal recovery path. The
+   owner-authorised internal Samsung NVMe install is now the appliance target;
+   Windows and its recovery partitions are intentionally no longer rollback.
+3. Preserve a hash-checked clean Kodi-profile checkpoint before client
+   integration. Use SSH public-key authentication with password login disabled;
+   do not record client or service credentials in project evidence.
+4. Install the deterministic Aster release bundle and official dependencies,
+   then select the Aster skin and 24-hour regional clock. Keep Estuary available
+   as the interface rollback path.
 5. Connect to the existing network without adding a VLAN, firewall rule or
-   public route. Sign in manually with the least-privilege Jellyfin test
-   identity; do not place credentials in the project record or logs.
-6. Install only the Jellyfin Kodi integration needed for the trial, use a
-   separate Kodi profile, disable watched-state/library writes initially and
-   verify that playback does not mutate production Jellyfin or TrueNAS data.
-7. Test Jellyfin direct play and fallback/transcode with representative video,
-   HDR10, subtitles, music and the available DTS/Atmos-capable samples. Record
-   whether the AVR receives the expected bitstream rather than inferring it
-   from Kodi's selection screen.
-8. Establish the control/observation path before the stress run. The user must
-   physically boot the USB, select the LibreELEC target in UEFI and enable
-   LibreELEC SSH from its local Services screen; then provide only the X390's
-   LAN address and port, never a password or key. From SSH, collect read-only
-   host/Kodi telemetry: version and kernel, CPU/RAM utilisation, thermal
-   sensors, network link, Kodi log, DRM/audio messages, dropped-frame and
-   buffering evidence, and playback soak snapshots. Keep the physical screen,
-   TV HDR indicator and AVR front-panel format as the human-observed evidence;
-   SSH is the repeatable measurement/control channel, not a replacement for
-   verifying the actual display and receiver.
-9. Run bounded real-workload tests rather than an artificial stress test first:
-   idle baseline, Kodi navigation, Jellyfin catalogue access, 1080p direct
-   play, 4K HEVC/HDR10, subtitles, music, audio passthrough and a 20–30 minute
-   mixed playback soak. Escalate to a synthetic stress tool only if these
-   results leave a specific capacity question; do not install unrelated tools
-   into the test image merely to generate load.
-10. Treat HDMI-CEC as optional rather than gating. If the display adapter does
-   not expose it, record that as an adapter-path limitation and continue with a
-   local control path. Prove the paths in this order: USB keyboard/trackpad for
-   baseline; a standard Bluetooth HID remote or controller for pairing,
-   reconnect and range; then a USB IR receiver with a standard MCE/RC6 remote
-   or FLIRC-style keyboard-emulating receiver. Reuse of an Apple TV remote is
-   a separate experiment: older Apple IR remotes may be mappable, while newer
-   Siri remotes are Bluetooth devices whose pairing and button mapping must be
-   demonstrated rather than assumed. Do not broaden network control or enable
-   Kodi's unrestricted HTTP interface merely to obtain a remote.
-11. Shut down, remove the USB and verify that the X390 boots its original OS.
-   Preserve the LibreELEC USB as the repeatable rollback/test artifact. A
-   persistent LibreELEC install or internal-disk replacement is outside this
-   runbook and requires a new explicit risk decision.
+   public route. Authenticate the Jellyfin integration interactively and sync
+   the approved libraries; verify library counts and populated Aster rails
+   without changing media files.
+6. Test the HP's physical display output first at the sink and then through the
+   intended AVR path. Record EDID, negotiated resolution/refresh modes, HDR10
+   state, available audio devices, AVR input/format, Kodi dropped frames and
+   buffering. A missing 4K60 or audio mode must be attributed to the endpoint,
+   adapter/cable, sink or receiver path rather than assumed to be Kodi.
+7. Test Jellyfin direct play and fallback/transcode with representative 1080p,
+   4K HEVC/HDR10, subtitles, music and available DTS/Atmos samples. Confirm the
+   actual server decision and receiver format rather than inferring support
+   from a Kodi settings screen.
+8. Collect read-only host/Kodi telemetry during each workload: OS/Kodi version,
+   CPU/GPU/RAM utilisation, thermal sensors, link state, logs, DRM/audio state,
+   dropped frames and buffering. Keep TV HDR indicators and AVR front-panel
+   formats as human-observed evidence; SSH measurement does not replace them.
+9. Run bounded real workloads first: idle baseline, Aster navigation, Jellyfin
+   catalogue access, 1080p playback, 4K HEVC/HDR10, subtitles, music, receiver
+   passthrough and a 20–30 minute mixed playback soak. Add a synthetic stress
+   tool only if a specific capacity question remains.
+10. Treat HDMI-CEC as optional. Prove USB keyboard control as the baseline,
+   followed by the purchased Bluetooth/USB-HID remote for pairing, mapping,
+   voice input where supported, reboot reconnection, idle reconnection and
+   range. Apple TV remote reuse remains a separate compatibility experiment.
+11. Reboot from the internal NVMe repeatedly, verify Aster and integrations
+   recover without manual repair, then prove Estuary fallback, profile restore
+   and reinstall from the retained release bundle. The verified LibreELEC
+   installer remains the last-resort clean rebuild path.
 
 Checkboxes cannot be marked complete without documented validation.
 
@@ -1657,12 +1645,95 @@ volume is healthy and its bundled `KERNEL.md5` and `SYSTEM.md5` both match the
 written `KERNEL` and `SYSTEM` files exactly. This is sufficient to proceed to
 the physical UEFI boot; installation to the Samsung NVMe has not yet begun.
 
-Next physical gate: enter HP firmware, disable Secure Boot if LibreELEC is not
-accepted, boot the Kingston in UEFI mode, select only the named Samsung NVMe
-as the LibreELEC target, remove the installer after completion, and enable SSH
-in the first-run LibreELEC wizard. Abort if firmware presents an unexpected
-storage device, the installer cannot distinguish the internal NVMe from the
-USB, or the display path fails before the target confirmation screen.
+The physical install subsequently passed those gates. The owner selected only
+the named Samsung NVMe in the LibreELEC installer, removed the USB installer,
+and the HP booted LibreELEC 12.2.1 from the internal disk. The first-run wizard
+completed with hostname `AsterTV`. SSH was converted from the temporary
+first-run password to public-key-only access, and the default password path was
+disabled. A clean-profile recovery archive was created before add-on setup at
+`/storage/.aster-checkpoints/kodi-fresh-profile-20261022.tgz`, SHA-256
+`b375656fe99f46db730cba0c0df190ec00ff6d27e4949ec5a1a64d1e64689e4`.
+
+### M2 HP ProDesk Aster/Jellyfin baseline — 2026-10-22
+
+The hash-verified Aster Home v1.0.0 release bundle was installed on the clean
+LibreELEC client together with its declared official dependencies. The Aster
+skin and Aster UI sounds are active, the regional clock is 24-hour, and the
+client is set to `America/Vancouver`. A physical 3840x2160 screenshot confirms
+that the 1920x1080 Aster design canvas scales and renders on the Intel UHD 630
+endpoint. A generic Kodi selection-dialog defect discovered during first-run
+library selection had no remote route from the list to the confirmation button;
+the source and deployed skin now add deterministic Up/Down focus links and a
+selected-item marker. XML validation passed. This endpoint correction must be
+included in the next deterministic release build rather than retained as
+client-only drift.
+
+The official Jellyfin repository v1.0.0 and Jellyfin for Kodi v2.2.0+py3 were
+installed. The owner completed interactive authentication to the existing
+Jellyfin 12.1.0 server as the `jason` account; no credential is recorded here.
+Add-on playback mode and all approved video, music and collection libraries
+were selected. Initial sync completed in 6 minutes 33 seconds. The final Kodi
+databases contained 1,049 movies, 134 TV shows, 5,002 episodes, 17,095 songs,
+1,331 albums and 1,043 artists. Reloading the skin after the one-time import
+populated the Aster hero, Continue Watching and Recommended rails with live
+Jellyfin-backed artwork and metadata at 3840x2160.
+
+Read-only display inventory identifies an LG 4K HDR sink. Its EDID advertises
+HDR static metadata type 1, PQ and BT.2020, but the current physical path offers
+3840x2160 only through 30 Hz (plus 29.97/25/24/23.976), while 1920x1080 offers
+60 Hz. This is a path limitation to isolate with the intended television/AVR
+connection; it is not evidence that LibreELEC or UHD 630 cannot produce 4K60.
+The current bench sink exposes PCH analog and Bluetooth but no HDMI passthrough
+device, so receiver Dolby/DTS/Atmos acceptance is explicitly still untested.
+At library-sync load the client used about 640 MiB of 16 GiB RAM, with observed
+thermal readings around 46 C CPU and 33 C secondary, leaving the 232.7 GiB
+storage volume effectively empty.
+
+Bounded playback then proved the client path rather than library presence only.
+A 1080p HEVC/AAC 5.1 film used Jellyfin's static direct-stream path with Intel
+VAAPI decoding and no server transcode. A 3840x2160 10-bit HEVC HDR10 title at
+about 83 Mb/s also used static direct stream and VAAPI. Kodi changed the DRM
+connector colourspace from Default to BT.2020 YCC; the current sink must still
+confirm its HDR indicator because the connector does not expose a readable HDR
+metadata property. With refresh-rate adjustment changed from Off to **On start
+/ stop**, 23.976 fps playback switched the display from 3840x2160p30 to the
+advertised 3840x2160p23.98 mode and restored p30 after stop. Kodi's debug
+overlay recorded video queue 99%, zero dropped frames, two startup skips and
+one packet correction in the short high-bitrate sample. The same item exposed
+TrueHD 7.1, AC3, E-AC3 and PGS choices; JSON-RPC selection of AC3 5.1 and a PGS
+subtitle succeeded, and the Aster OSD rendered Audio, Subtitles, Quality and
+transport controls at 4K. Current playback still decodes audio locally because
+the bench path lacks HDMI audio. Definitive TV HDR10 indication, receiver
+passthrough, selected-remote operation, destructive recovery drills and the
+20–30 minute mixed playback soak remain the M2 gates.
+
+The physical selection-dialog fix is released reproducibly rather than left as
+endpoint drift. Aster Home v1.0.1 bumps the four private bundle components in
+lockstep, preserves v1.0.0 as an immutable prior artifact, and records the new
+manifest and archive hashes in
+`services/kodi/releases/aster-home-v1.0.1.json`. Two independent package builds
+are byte-identical, all four ZIP CRC checks pass, all 75 skin tests pass, and
+the video plugin, audio bridge and packaging suites pass. The complete v1.0.1
+bundle was transferred to the endpoint, verified against the release hashes
+and installed over a recovery checkpoint containing all four v1.0.0 add-on
+directories and `Addons33.db`. Kodi reports all four v1.0.1 components enabled,
+and the populated Aster interface and Jellyfin authentication survived the
+upgrade.
+
+The Jellyfin client initially displayed a startup warning because its optional
+Kodi Sync Queue setting defaults on while that server plugin is not installed.
+The endpoint's client setting is now explicitly off, with its previous settings
+file retained at
+`/storage/.aster-checkpoints/jellyfin-settings-pre-disable-kodisyncqueue-20261022.xml`.
+This avoids adding a new server component during endpoint qualification; normal
+server-event and manual library synchronization remain available. A clean Kodi
+restart produced no Sync Queue 404, warning or error. A subsequent full endpoint
+reboot also recovered without intervention: Kodi became active, all four Aster
+components remained at v1.0.1, Jellyfin reported the retained user authenticated
+and reopened its websocket, and the startup log contained no warning or error.
+The host returned with about 15.3 GB of 16 GB RAM available, a 34 C CPU reading
+and the 232.7 GB storage volume effectively empty. Estuary/profile restoration
+and clean reinstall remain the destructive recovery drills still to prove.
 
 ## 15. References
 

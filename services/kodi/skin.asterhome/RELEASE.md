@@ -1,13 +1,16 @@
-# Aster Home 1.0.0 release candidate
+# Aster Home 1.0.1 release candidate
 
 ## Status and boundary
 
-Aster Home 1.0.0 is the first owner-accepted **private production candidate**
-for the Kodi interface. Its complete interface and normal Mac Kodi workflows
-have been exercised against the household libraries. It is not yet the
-production-appliance release: physical LibreELEC testing must still prove 4K,
-HDR10, receiver audio passthrough, sustained playback, Bluetooth/USB-HID remote
-control, reboot recovery and acceptable performance on the selected endpoint.
+Aster Home 1.0.1 is the current owner-accepted **private production candidate**
+for the Kodi interface. It retains the complete v1.0.0 interface and adds the
+physical-client selection-dialog navigation fix: Up/Down now reaches the OK
+button and selected entries have a visible marker. The HP ProDesk LibreELEC
+baseline has exercised populated 4K UI, 1080p and high-bitrate 4K HEVC direct
+stream, refresh matching, OSD and audio/subtitle selection. It is not yet the
+production-appliance release: receiver HDR/audio confirmation, sustained
+playback, Bluetooth/USB-HID remote control and destructive recovery drills
+remain. A normal cold boot has passed.
 
 The skin uses a 1920x1080, 16:9 Kodi design canvas. Kodi scales that canvas to
 3840x2160 output. Kodi renders video separately at the source/output mode, and
@@ -25,11 +28,11 @@ Build with:
 
 ```sh
 python3 services/kodi/package_aster_home.py \
-  --output /path/to/aster-home-v1.0.0
+  --output /path/to/aster-home-v1.0.1
 ```
 
 The deterministic bundle contains four independently installable Kodi ZIPs
-and `aster-home-v1.0.0-manifest.json`. It also declares one external official
+and `aster-home-v1.0.1-manifest.json`. It also declares one external official
 Kodi dependency, `plugin.video.youtube` 7.4.4; third-party source is not
 vendored into the private bundle:
 
@@ -122,5 +125,5 @@ passthrough, or requires broader credentials/network access than documented.
 - [ ] Record accepted limitations and issue the project USE / CONDITIONAL USE /
       REJECT decision before replacing the Apple TV.
 
-Until those checks pass, use **v1.0.0 production candidate**, not **production
+Until those checks pass, use **v1.0.1 production candidate**, not **production
 appliance**, in operator records.

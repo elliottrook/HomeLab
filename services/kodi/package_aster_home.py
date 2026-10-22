@@ -11,7 +11,7 @@ import zipfile
 
 
 HERE = Path(__file__).resolve().parent
-RELEASE = "1.0.0"
+RELEASE = "1.0.1"
 ADDONS = (
     "plugin.video.asterhome",
     "plugin.audio.asterbooks",
@@ -22,7 +22,7 @@ OFFICIAL_DEPENDENCIES = (
     {"addon_id": "plugin.video.youtube", "version": "7.4.4",
      "source": "Kodi Omega repository"},
 )
-ZIP_TIME = (2026, 10, 17, 0, 0, 0)
+ZIP_TIME = (2026, 10, 22, 0, 0, 0)
 
 
 def development_only(relative: Path) -> bool:
