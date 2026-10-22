@@ -74,6 +74,22 @@ and future microphone affordance, and keep queue destinations explicit. Do not
 wrap or imitate YouTube's watch page; launch and visually contain the official
 Kodi add-on.
 
+### Playback controls on television
+
+Apple's system player keeps the moving picture dominant and limits custom
+transport controls to the actions that matter during playback. Android TV
+assigns the centre button to play/pause, left and right to bounded seeking, and
+up/down to reveal information without pausing. YouTube places less-frequent
+Audio, Subtitles and Quality choices behind a compact settings path rather than
+giving each one equal visual weight.
+
+**Use in Aster:** retain every control that Aster 1.0 exposes, but separate
+frequency from availability. Use remote buttons for immediate playback and
+seeking, one compact unboxed transport rail for visible controls, and a quieter
+secondary group for Info, Audio, Subtitles and Quality. The video, title and
+progress remain the hierarchy; the controls must not read as a large stone
+dialog laid over the programme.
+
 ### Plex and Plexamp
 
 Plex uses a useful hierarchy for television: series → seasons → episodes →
@@ -158,6 +174,42 @@ This is the highest-value v2 interface change.
   level, then expose the rail. Never strand focus in decorative controls.
 - Standardize empty, loading, stale, offline and permission-denied states.
 
+### P1 — compact video-player controls
+
+- Remove the current 1800 × 370 stone panel and every persistent per-control
+  box. Use only a restrained lower-edge black gradient for contrast over the
+  moving picture.
+- Preserve the current ten functions: Previous, −10 seconds, Play/Pause,
+  +30 seconds, Next, Stop, Info, Audio, Subtitles and Quality. This is a visual
+  simplification, not a capability reduction.
+- Keep title and episode context at lower left, elapsed/total time at the ends
+  of one thin progress line, and active resolution/HDR state as quiet factual
+  metadata. Never claim HDR or 4K from filename metadata alone.
+- Centre a compact icon-only transport rail. Play/Pause is slightly larger;
+  all other transport icons share one smaller size. Unfocused controls have no
+  background. The focused control receives a thin sage/gold halo, modest scale
+  and elevation, with no clipped glow.
+- Keep Info, Audio, Subtitles and Quality in a smaller secondary group on the
+  same baseline. Labels may remain beneath their icons for ten-foot clarity,
+  but the group must not compete visually with transport controls.
+- Make the remote itself the fastest control path: centre toggles play/pause,
+  left/right seek by the configured intervals, and up/down reveal the OSD
+  without changing playback. OSD focus should initially land on Play/Pause.
+- Keep Kodi as playback authority. Audio and Subtitle open Kodi's real stream
+  selectors; Quality continues to show the active stream or Kodi processing
+  settings when no alternate resolution exists; Info returns to the current
+  full-screen information view.
+- Auto-hide after inactivity, restore the programme without a residual panel,
+  and retain a reduced-motion option. Opening a selector pauses the hide timer
+  and Back first closes the selector, then the OSD.
+
+The mockup below is a hierarchy and spacing target, not copied product trade
+dress. The fictional programme still and generated layout are disposable;
+production implementation must use the exact approved Aster logo and icon
+assets already in the private brand package.
+
+![Aster Home 2.0 compact media-player controls mockup](assets/aster-home-v2-player-controls-mockup.png)
+
 ### P1 — Music, audiobooks and podcasts
 
 **Music**
@@ -188,6 +240,39 @@ This is the highest-value v2 interface change.
   played/progress state and download/availability state.
 - Add Play Next/Later and a persistent episode queue; never auto-download or
   subscribe without an explicit user action.
+
+### P2 — Aster Reader and synchronized narration
+
+- Replace the television's URL-only eBook handoff with an Aster Reader for
+  DRM-free, reflowable EPUB titles while retaining Calibre as catalogue and
+  source authority. Do not modify source books or attempt to remove DRM.
+- Use a dedicated reader service to sanitize and paginate EPUB XHTML, render
+  each television page faithfully, and publish a bounded page manifest with
+  stable text locations and word bounding boxes. Kodi should display the page
+  and move one lightweight highlight overlay rather than trying to reproduce
+  arbitrary EPUB HTML in skin labels.
+- Narrate exact book text through Aster's canonical local Kokoro `bm_daniel`
+  voice at the approved language, speed, cleanup and sentence/clause cadence.
+  Do not create another application-local voice implementation.
+- Extend the canonical batch speech contract to return validated phoneme/word
+  timing, or align completed local audio against the exact source text when
+  the approved model cannot expose duration data. Never estimate timing from
+  character or word length.
+- Buffer the opening sentences, then synthesize the remainder of the chapter
+  through the lower-priority batch queue. Cache private derived chapter audio
+  and timing manifests independently of the original book; make cache removal
+  explicit and never distribute generated narration.
+- Provide a calm reading page with adjustable type size, margins and line
+  spacing; word, phrase or sentence highlighting; automatic page turns;
+  Play/Pause; sentence/paragraph seeking; chapter navigation; narration speed;
+  sleep timer; and a Follow narration toggle.
+- Store resume state as a stable EPUB location plus text offset so reading and
+  narration return to the same passage. Cross-device synchronization remains
+  a later authority decision rather than a second uncoordinated progress store.
+- Start with one real EPUB and one chapter. Gate expansion on timing drift,
+  page-turn accuracy, pronunciation, first-audio latency, long-run queue
+  behaviour and remote-only usability. PDF/OCR, fixed-layout books and complex
+  interactive content are explicitly later work.
 
 ### P2 — Digest and Breaking News
 
@@ -232,12 +317,15 @@ This is the highest-value v2 interface change.
 
 ## 5. Proposed delivery sequence
 
-1. **2.0 design prototype:** series/season/episode page and global focus
-   contract using existing Kodi/Jellyfin data; no new service.
+1. **2.0 design prototype:** compact video OSD, series/season/episode page and
+   global focus contract using existing Kodi/Jellyfin data; no new service.
 2. **2.0 alpha:** global shell, search overlay and media detail hierarchy.
 3. **2.0 beta:** Music queue, audiobook/podcast refinements and Digest controls,
    after their production network paths pass.
-4. **2.0 release candidate:** Home sections, accessibility, performance soak,
+4. **Aster Reader proof:** one DRM-free EPUB chapter, canonical Aster narration,
+   measured timing and synchronized highlighting; keep this service-dependent
+   work independently reversible from the television UI branch.
+5. **2.0 release candidate:** Home sections, accessibility, performance soak,
    remote-only navigation audit and recovery rehearsal.
 
 Each stage should be a separate resumable milestone with a local commit,
@@ -252,6 +340,12 @@ not overwrite the last accepted v1 artifact or its rollback checkpoint.
   fewer and can browse another season without losing their place.
 - Every player exposes the controls appropriate to its media type and returns
   to the previously focused item.
+- The video OSD exposes all ten accepted v1 functions without persistent
+  button boxes; remote centre/left/right/up/down behaviour remains predictable,
+  and focus is visible without obscuring programme content.
+- The Reader proof highlights the correct spoken passage without cumulative
+  drift, turns pages at the right boundary and resumes the same EPUB location
+  after restart; no book text or generated narration leaves the HomeLab.
 - Empty, stale, offline and forbidden states are truthful and visually calm.
 - No credential, token URL, private source path or household entity ID appears
   in skin XML, logs, screenshots or release archives.
@@ -265,8 +359,12 @@ not overwrite the last accepted v1 artifact or its rollback checkpoint.
 - Apple, [Interface fundamentals](https://developer.apple.com/documentation/technologyoverviews/interface-fundamentals)
 - Apple, [Find things to watch](https://support.apple.com/guide/tvapp/find-things-to-watch-atvbb35c9fc3/web)
 - Apple, [Customizing the tvOS playback experience](https://developer.apple.com/documentation/avkit/customizing-the-tvos-playback-experience)
+- Apple, [Playing video](https://developer.apple.com/design/human-interface-guidelines/playing-video)
+- Apple, [Remotes](https://developer.apple.com/design/human-interface-guidelines/remotes)
 - Google, [Explore the YouTube app on your TV](https://support.google.com/youtube/answer/7583931?hl=en-GB)
 - Google, [Latest improvements to YouTube on TV](https://support.google.com/youtube/thread/308597587/q4-24-quarterly-update-latest-improvements-to-youtube-on-tv?hl=en)
+- Google, [Playback controls on TV](https://developer.android.com/training/tv/playback/controls)
+- Google, [Change video quality](https://support.google.com/youtube/answer/91449)
 - Plex, [Using the Library View](https://support.plex.tv/articles/200392126-using-the-library-view/)
 - Plex, [Modern Layout](https://www.plex.tv/blog/choose-your-own-adventure-introducing-modern-layout/)
 - Plex, [Plexamp](https://plexamp.com/)
@@ -276,4 +374,10 @@ not overwrite the last accepted v1 artifact or its rollback checkpoint.
 - Home Assistant, [Sections](https://www.home-assistant.io/dashboards/sections/)
 - Home Assistant, [Dashboard cards](https://www.home-assistant.io/dashboards/cards/)
 - Home Assistant, [Badges](https://www.home-assistant.io/dashboards/badges)
+- W3C, [EPUB Media Overlays 3.2](https://www.w3.org/publishing/epub32/epub-mediaoverlays.html)
+- W3C, [EPUB Reading Systems 3.3](https://www.w3.org/TR/epub-rs-33/)
+- Readium, [Navigator architecture](https://readium.org/technical/r2-navigator-architecture/)
+- Readium, [Guided Navigation](https://readium.org/guided-navigation/)
+- Kodi, [Python Window API](https://xbmc.github.io/docs.kodi.tv/master/kodi-dev-kit/group__python__xbmcgui__window.html)
+- Kokoro ONNX, [duration-enabled model releases](https://github.com/thewh1teagle/kokoro-onnx/releases)
 
