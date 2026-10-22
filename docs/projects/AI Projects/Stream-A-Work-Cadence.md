@@ -36,6 +36,14 @@ are enabled and active for 01:15 prepare and 01:20 final, with a 01:40 hard
 deadline and one observation-only 01:42 reconciliation. Recurring F2 timers
 remain disabled. No scan result is claimed before the terminal state is read;
 failure or uncertainty means NO-GO without a same-cycle retry.
+The [October 22 result](evidence/F2-exact-cycle-no-go-2026-10-22.md) is now
+terminal NO-GO: prepare succeeded, final exited `1` after one second, and the
+retained bounded class is `FINAL_FAILED` with no archive rows. The scanner did
+not run. Exact-date timers were removed, recurring timers remain disabled and
+production is healthy. Do not schedule another attempt until the platform
+owner adds a bounded final subphase/code and proves the correction offline and
+on target Linux; a fresh cycle still requires its own reviewed card and
+approval.
 
 **October 18 daytime lab-hours path:** Jason accepted up to 90 minutes of
 daytime Aster/voice unavailability for a first supervised, no-reboot pilot.

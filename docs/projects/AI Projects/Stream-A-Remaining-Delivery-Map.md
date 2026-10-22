@@ -106,6 +106,16 @@ disabled, and a one-time observation-only reconciliation is due at 01:42.
 Activation is not a pass; only three bounded exit-zero archive rows and clean
 postchecks can complete F2.
 
+**October 22 exact-cycle result:** preparation succeeded, but the final phase
+returned [NO-GO](evidence/F2-exact-cycle-no-go-2026-10-22.md) after one second
+with bounded class `FINAL_FAILED`. No archive row was produced and the scanner
+did not run. The exact final-guard subcheck is unknown because the service
+suppressed its internal error and the retained class is intentionally coarse.
+The spent exact-date timers were removed, recurring timers remain disabled and
+production postchecks passed. F2 and F3 remain blocked pending a more specific
+bounded final diagnostic, offline and target-Linux proof, and a fresh reviewed
+cycle.
+
 **October 15 afternoon compatibility checkpoint:** Jason approved the
 hash-pinned **inactive** full-stop candidate installation on Proxmox. The
 installation result on the separate local branch `codex/aster-lease-compat`
