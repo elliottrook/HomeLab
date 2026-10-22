@@ -30,6 +30,12 @@ final guard, observer and producer to the coordinator's 01:20 start and 01:40
 deadline. Recurring F2 timers remain disabled; no scan, receipt or lease ran.
 A fresh exact-cycle card and approval remain necessary before F2 can produce
 qualifying evidence.
+Jason subsequently approved the reviewed October 22 exact cycle. The two
+[date-specific timers](evidence/F2-exact-cycle-activation-result-2026-10-22.md)
+are enabled and active for 01:15 prepare and 01:20 final, with a 01:40 hard
+deadline and one observation-only 01:42 reconciliation. Recurring F2 timers
+remain disabled. No scan result is claimed before the terminal state is read;
+failure or uncertainty means NO-GO without a same-cycle retry.
 
 **October 18 daytime lab-hours path:** Jason accepted up to 90 minutes of
 daytime Aster/voice unavailability for a first supervised, no-reboot pilot.

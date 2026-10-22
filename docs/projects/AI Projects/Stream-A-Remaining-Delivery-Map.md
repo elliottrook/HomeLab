@@ -99,7 +99,12 @@ healthy. The [internally consistent replacement](evidence/F2-final-minute-consis
 is now installed inactive with exact rollback custody and 33/33 target-Linux
 tests. It removes the future-mirror dependency and aligns the final chain to
 01:20/01:40. No timer, scan, receipt or lease followed. F2 and F3 remain
-blocked pending a fresh exact-cycle activation approval and measured result.
+blocked pending a fresh measured result. Jason subsequently approved the
+[October 22 exact-cycle activation](evidence/F2-exact-cycle-activation-result-2026-10-22.md):
+date-specific 01:15 and 01:20 timers are active, recurring F2 timers remain
+disabled, and a one-time observation-only reconciliation is due at 01:42.
+Activation is not a pass; only three bounded exit-zero archive rows and clean
+postchecks can complete F2.
 
 **October 15 afternoon compatibility checkpoint:** Jason approved the
 hash-pinned **inactive** full-stop candidate installation on Proxmox. The
