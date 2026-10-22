@@ -79,6 +79,20 @@ class FreshPackageTests(unittest.TestCase):
             self.run_fixture(engine=oversized)
         self.assertLess(self.path.stat().st_size, 1_000)
 
+    def test_nonfinite_engine_output_is_not_journalled(self):
+        def nonfinite(case, mode, *args):
+            return {'case_id': case['id'], 'mode': mode, 'status': 'clarify',
+                    'steps': [], 'elapsed_seconds': float('nan')}
+        with self.assertRaisesRegex(ValueError, 'finite JSON'):
+            self.run_fixture(engine=nonfinite)
+        # The durable start marker makes the uncertain call visible while the
+        # invalid result itself never reaches the private journal.
+        journal = self.path.read_text()
+        self.assertIn('"type": "started"', journal)
+        self.assertNotIn('NaN', journal)
+        with self.assertRaisesRegex(ValueError, 'uncertain'):
+            self.run_fixture()
+
     def test_tamper_or_partial_journal_rejected(self):
         self.run_fixture(ready=lambda: False)
         original = self.path.read_text()

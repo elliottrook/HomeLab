@@ -84,7 +84,15 @@ def validate_engine_result(result, case_id, mode):
             or result.get('mode') != mode or not isinstance(result.get('status'), str)
             or not result['status'] or not isinstance(result.get('steps'), list)):
         raise ValueError('invalid engine result; manual reconciliation required')
-    if len(json.dumps(result, sort_keys=True, separators=(',', ':')).encode()) > 65_536:
+    try:
+        encoded = json.dumps(
+            result, sort_keys=True, separators=(',', ':'), allow_nan=False
+        ).encode()
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            'engine result is not finite JSON; manual reconciliation required'
+        ) from exc
+    if len(encoded) > 65_536:
         raise ValueError('engine result exceeds journal envelope; manual reconciliation required')
     return copy.deepcopy(result)
 

@@ -601,6 +601,12 @@ and the surviving started marker makes the uncertain attempt non-replayable.
 The complete eval suite passes 113/113. This prevents a faulty injected engine
 from persisting private reasoning; it does not establish investigation quality
 or connected-tool authority.
+The same boundary now also rejects
+[non-finite engine values](evidence/D4-engine-result-finite-json-boundary-2026-10-22.md)
+before a finished event is journalled. A synthetic `NaN` result did not reach
+the journal, the surviving started marker blocked replay, and the complete
+eval suite passed 114/114. This makes the evidence portable JSON; it does not
+turn development results into qualification or promotion evidence.
 
 ## Immediate next action and stop rule
 
