@@ -2081,6 +2081,36 @@ modify firmware. A repeatable installer and rollback boundary are documented
 in the skin README. LibreELEC's lookup order and `oemsplash.png` mechanism were
 verified against its official init source and bootsplash documentation.
 
+### HP main-TV HDMI audio recovery — 2026-10-22
+
+After moving the HP to the main TCL television path, Kodi continued to open
+the ProDesk's Conexant analogue output. Read-only diagnosis separated this
+from Kodi configuration: DRM reported `card0-HDMI-A-1` connected and decoded a
+valid 512-byte TCL `Beyond TV` EDID with LPCM, AC-3, E-AC-3, MAT/TrueHD,
+DTS and DTS-HD descriptors, but ALSA created no HDMI PCM or ELD. The Intel
+Kabylake HDMI codec existed and logged `HDMI: pin NID 0x5 not registered`;
+codec pin 0x5 was active but its firmware default connectivity was `N/A`.
+
+The persistent, narrowly scoped override
+`services/kodi/libreelec/modprobe.d/aster-hp-hdmi.conf` sets
+`snd_hda_codec_hdmi.enable_all_pins=1`. The deployed copy is
+`/storage/.config/modprobe.d/aster-hp-hdmi.conf`, SHA-256
+`fe53916c33af27ab8ae8491adf4108f88a1587495abd05631ba79146d1091935`.
+The pre-change checkpoint is
+`/storage/.config/modprobe.d/checkpoints/pre-aster-hdmi-20261022-130037/`.
+After reboot the parameter read `Y`; ALSA exposed HDMI devices 3, 7 and 8;
+HDMI 0 resolved to `Beyond TV`; and ELD 2.0 reported `monitor_present 1`,
+`eld_valid 1` with ten audio descriptors.
+
+Kodi's normal and passthrough device selectors were then changed to
+`ALSA:hdmi:CARD=PCH,DEV=0|HDA Intel PCH`, with passthrough deliberately left
+disabled until the receiver test. The pre-change Kodi checkpoint is
+`/storage/.kodi/userdata/checkpoints/pre-hdmi-audio-20261022-130159/`.
+Kodi subsequently opened
+`hdmi:CARD=PCH,DEV=0,AES0=0x04,AES1=0x82,AES2=0x00,AES3=0x00` without fallback.
+This proves device creation and sink selection; audible output and receiver
+passthrough remain physical acceptance checks.
+
 All skin XML parsed, `git diff --check` passed, and 76 skin, four video-plugin
 and 13 audio-bridge tests passed. Before deployment, the physical endpoint's
 affected XML was checkpointed at
