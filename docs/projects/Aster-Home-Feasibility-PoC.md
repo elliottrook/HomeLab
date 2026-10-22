@@ -1590,6 +1590,23 @@ claim. A logged loopback-listener error on the locked Mac pilot must also be
 rechecked after the wizard selects its default loopback HTTP setting; it does
 not justify broadening the listener or opening a firewall path.
 
+Post-unlock validation, 2026-10-21: the original temporary test app had been
+partially purged and its replacement became stuck in macOS `dyld` after the
+app icon modification required an ad-hoc signature. The stalled process was
+terminated, the modified bundle was preserved at
+`/private/tmp/Kodi-test-aster-icon-adhoc-20261021.app`, and an intact signed
+copy from the mounted Kodi image was launched as
+`/private/tmp/Kodi-test-fresh-20261021.app`. The existing profile, Aster skin
+and add-ons were unaffected. Kodi reopened Aster Home, exposed its loopback
+JSON-RPC listener, and the YouTube rail route rendered the official add-on's
+13-item root catalogue in the Aster video browser. Opening Trending then
+failed closed at the add-on's documented personal API-key requirement. This
+confirms the navigation and skin integration but not Google Data API access,
+account sign-in or playback. No Google credential was created, entered or
+stored. The add-on's separate broadcast-address probe still logs macOS error
+49 while its service continues; this does not justify a broader listener or
+firewall change and remains a physical-client recheck.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

@@ -46,6 +46,14 @@ Kodi's **Add-ons → Install from ZIP file** workflow. Select **Aster Home** und
 **Settings → Interface → Skin**. Select **Aster Home UI Sounds** separately if
 the directional click set is wanted.
 
+The official YouTube add-on renders its root catalogue without credentials,
+but Data API routes such as Trending and search require an owner-created
+YouTube Data API v3 key. Account features additionally require the owner's
+OAuth client and interactive sign-in. Follow the add-on's maintained key guide
+at `https://ytaddon.page.link/keys`, store the resulting values only in that
+client's YouTube add-on settings, and never add them to this repository or the
+release archive. Aster does not provide, proxy or share Google credentials.
+
 The package deliberately excludes tests, build tools, pilot publishers,
 source SVGs, caches and developer documentation. It contains no API key,
 password, profile database, Kodi library database, watched-state database or

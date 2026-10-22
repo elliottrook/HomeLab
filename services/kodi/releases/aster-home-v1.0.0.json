@@ -54,7 +54,7 @@
     "zip_crc_checks": 4,
     "disposable_kodi_install_rehearsal": "passed-all-four-components-enabled-at-v1.0.0",
     "youtube_official_addon": "7.4.4-enabled-with-inputstream-adaptive-21.5.25",
-    "youtube_mac_route": "reached-first-run-setup-wizard-no-credentials-entered"
+    "youtube_mac_route": "root-catalogue-rendered-data-browse-requires-owner-api-key-no-credentials-entered"
   },
   "rollback_checkpoint": "/private/tmp/aster-home-v1-predeploy-20261017",
   "graduation_blocker": "Physical LibreELEC 4K/HDR10, receiver passthrough, remote reconnect, soak, resource and rollback validation"
