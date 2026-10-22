@@ -35,3 +35,22 @@ service, mount or download action occurred.
 Next continuation must use the new independent verified checkout, fetch all
 three owner branches, and follow the existing F2 source-reconciliation request.
 Do not deploy the old coordinator or infer readiness from local recovery.
+
+## Nightly admission observation, 01:51 PDT
+
+The nightly trigger timestamp was 08:50:55 UTC (01:50:55 PDT), and the
+execution clock 08:51:06 UTC (01:51:06 PDT). Unlike the last two nightly
+turns, this is before 04:15, but clock eligibility alone grants no admission.
+Fresh fetches leave all three owner refs above unchanged; the published
+Adaptive admission-card SHA-256 remains
+`d0152400c4fc5bbf446490189dea8acb27970cc598cb34185dfb8e3d46a85b55`
+and platform coordinator SHA-256 remains
+`67510f7b7be42feec28d98c80109793b6e34538ecae3e495aeb7478b36f28f3d`.
+No source reconciliation, trusted receipt, independent live recovery or READY
+benchmark card has been published. F3/F4's inactive stage is not that proof.
+Eight offline peer-admission/recovery-margin tests and Git connectivity pass.
+No fresh host/service health is claimed: this turn stayed local/repository-only
+and did not acquire a lease, collect production preflight, invoke F2, stop
+consumers or make a model call. The GitHub protection ref still matches the
+published base. No push and no duplicate owner request; the existing F2
+source-reconciliation request remains the next action.
