@@ -82,6 +82,36 @@ class ContractTests(unittest.TestCase):
                        metric='offline-payload-construction-ms', promotion_authority='automatic')
 
 
+class DecisionSemanticTests(unittest.TestCase):
+    def value(self):
+        return dict(request_id='r', principal_ref='p', status='answer', steps=(),
+                    reason='supported', expires_at=1000,
+                    policy_digest=POLICY, registry_digest=REGISTRY)
+
+    def test_decision_status_and_policy_reason_must_agree(self):
+        base = self.value()
+        accepted = [('plan', 'supported'), ('answer', 'supported'),
+                    ('clarify', 'ambiguous'), ('clarify', 'unavailable'),
+                    ('abstain', 'ambiguous'), ('abstain', 'unavailable'),
+                    ('unsupported', 'unavailable'), ('deny', 'policy-denied')]
+        for status, reason in accepted:
+            with self.subTest(status=status, reason=reason):
+                candidate = dict(base, status=status, reason=reason)
+                if status == 'plan':
+                    candidate['steps'] = ({'step_id': 's', 'capability_id': 'c'},)
+                self.assertEqual(status, Decision.model_validate(candidate).status)
+
+        for status, reason in [('plan', 'policy-denied'), ('deny', 'supported'),
+                               ('unsupported', 'ambiguous'), ('answer', 'unavailable'),
+                               ('clarify', 'supported')]:
+            with self.subTest(status=status, reason=reason):
+                candidate = dict(base, status=status, reason=reason)
+                if status == 'plan':
+                    candidate['steps'] = ({'step_id': 's', 'capability_id': 'c'},)
+                with self.assertRaises(ValidationError):
+                    Decision.model_validate(candidate)
+
+
 class AdapterTests(unittest.IsolatedAsyncioTestCase):
     async def test_real_source_slice_fixed_cases_with_network_forbidden(self):
         with patch.object(socket.socket, 'connect', side_effect=AssertionError('network forbidden')):

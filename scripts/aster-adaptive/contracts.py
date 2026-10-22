@@ -66,6 +66,16 @@ class Decision(Contract):
     def ordered_dag(self):
         if (self.status == 'plan') != bool(self.steps):
             raise ValueError('only plans contain nonempty steps')
+        allowed_reasons = {
+            'plan': {'supported'},
+            'answer': {'supported'},
+            'clarify': {'ambiguous', 'unavailable'},
+            'abstain': {'ambiguous', 'unavailable'},
+            'unsupported': {'unavailable'},
+            'deny': {'policy-denied'},
+        }
+        if self.reason not in allowed_reasons[self.status]:
+            raise ValueError('decision status and reason disagree')
         seen = set()
         for step in self.steps:
             if step.step_id in seen or not set(step.after) <= seen:

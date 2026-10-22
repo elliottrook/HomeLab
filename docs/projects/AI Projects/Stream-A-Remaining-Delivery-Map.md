@@ -322,6 +322,12 @@ A separate [offline label-boundary correction](evidence/M3-private-category-labe
 requires calendar and personal development-data categories to remain personal
 and local-only even when their capability lists are incomplete. It changes no
 live route or egress policy.
+The typed Decision contract now also enforces a
+[status/reason boundary](evidence/M3-decision-status-reason-boundary-2026-10-21.md):
+supported outcomes cannot carry a policy-denial reason, and denial cannot be
+described as supported. Focused tests cover every accepted combination and
+contradictory examples. This improves audit semantics only; routing remains
+disabled and the historical reviewed-source pin was not repinned.
 
 The first [six-case synthetic completed-answer probe](experiments/a1-9b-synthetic-answer/RESULT-2026-10-12.md)
 used the accepted 9B/SYCL service after the platform owner's light lease was
