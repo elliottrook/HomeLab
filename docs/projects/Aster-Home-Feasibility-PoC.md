@@ -2111,6 +2111,25 @@ Kodi subsequently opened
 This proves device creation and sink selection; audible output and receiver
 passthrough remain physical acceptance checks.
 
+Jason then confirmed normal playback audio reached the main-TV path. The
+receiver-facing profile was enabled from the connected ELD rather than an
+assumed capability list: decoded PCM uses Kodi's 7.1 layout and passthrough is
+enabled for AC-3, E-AC-3, DTS, MAT/TrueHD and DTS-HD, with AC-3 transcoding
+left off. Kodi now prefers correctly tagged English audio and retains its
+default-stream preference within that language. English selection therefore
+falls back safely when no English stream exists, but cannot correct absent or
+incorrect source language tags.
+
+The video OSD's Audio action was also corrected. Audio now follows Info in the
+ordinary left/right focus chain, the last secondary control wraps to Previous,
+and Audio opens Kodi's focused audio-stream selector directly rather than the
+larger audio-settings dialog. The endpoint checkpoint covering the prior OSD
+and `guisettings.xml` is
+`/storage/.kodi/addons/skin.asterhome.checkpoints/20261022-130837-audio-osd-passthrough/`.
+All 83 skin regression tests and XML parsing passed before deployment. Manual
+English-track selection and receiver-format indication remain physical
+acceptance checks.
+
 All skin XML parsed, `git diff --check` passed, and 76 skin, four video-plugin
 and 13 audio-bridge tests passed. Before deployment, the physical endpoint's
 affected XML was checkpointed at

@@ -200,7 +200,11 @@ class LayoutTests(unittest.TestCase):
         self.assertTrue(any('Player.Time' in label for label in labels))
         self.assertTrue(any('Player.Duration' in label for label in labels))
         self.assertEqual(by_id['7100'].findtext('onclick'),
-                         'ActivateWindow(osdaudiosettings)')
+                         'DialogSelectAudio')
+        self.assertEqual(by_id['70043'].findtext('onright'), '7100')
+        self.assertEqual(by_id['7100'].findtext('onleft'), '70043')
+        self.assertEqual(by_id['7102'].findtext('onright'), '600')
+        self.assertEqual(by_id['600'].findtext('onleft'), '7102')
         self.assertEqual(by_id['7101'].findtext('onclick'),
                          'ActivateWindow(osdsubtitlesettings)')
         quality_actions = [node.text for node in by_id['7102'].findall('onclick')]

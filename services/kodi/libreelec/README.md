@@ -26,3 +26,15 @@ audio device selection if needed. Do not use this override as a generic HDMI
 fix: first prove that EDID advertises audio and that the codec pin is being
 skipped.
 
+The validated HP/TCL path uses Kodi device
+`ALSA:hdmi:CARD=PCH,DEV=0|HDA Intel PCH`. Its ELD advertises eight-channel PCM,
+AC-3, E-AC-3, MAT/TrueHD, DTS and DTS-HD, so the lab profile enables those
+passthrough families, disables AC-3 transcoding, and uses the 7.1 channel
+layout for decoded PCM. Codec switches must follow the current sink ELD rather
+than being copied blindly to another client or display path.
+
+Kodi's preferred audio language is `English` with "prefer default audio
+streams" enabled. This selects an English stream when the source metadata
+correctly tags one; content with missing or incorrect language tags still
+requires manual selection.
+
