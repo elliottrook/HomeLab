@@ -72,8 +72,8 @@ class LayoutTests(unittest.TestCase):
         addon = ET.parse(ROOT / 'addon.xml')
         imports = {node.get('addon'): node.get('version')
                    for node in addon.findall('.//requires/import')}
-        self.assertEqual(imports.get('plugin.video.asterhome'), '1.0.1')
-        self.assertEqual(imports.get('plugin.audio.asterbooks'), '1.0.1')
+        self.assertEqual(imports.get('plugin.video.asterhome'), '1.0.2')
+        self.assertEqual(imports.get('plugin.audio.asterbooks'), '1.0.2')
         self.assertEqual(imports.get('plugin.video.youtube'), '7.4.4')
 
     def test_youtube_is_a_first_class_navigation_destination(self):

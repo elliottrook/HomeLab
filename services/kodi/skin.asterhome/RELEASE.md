@@ -1,11 +1,12 @@
-# Aster Home 1.0.1 release candidate
+# Aster Home 1.0.2 release candidate
 
 ## Status and boundary
 
-Aster Home 1.0.1 is the current owner-accepted **private production candidate**
-for the Kodi interface. It retains the complete v1.0.0 interface and adds the
-physical-client selection-dialog navigation fix: Up/Down now reaches the OK
-button and selected entries have a visible marker. The HP ProDesk LibreELEC
+Aster Home 1.0.2 is the current owner-accepted **private production candidate**
+for the Kodi interface. It retains the complete v1.0.1 interface and changes
+Daily Digest chapter selection to percentage-based MP3 seeking after LibreELEC
+proved that absolute-time seeking landed at roughly half the requested offset.
+The HP ProDesk LibreELEC
 baseline has exercised populated 4K UI, 1080p and high-bitrate 4K HEVC direct
 stream, refresh matching, OSD and audio/subtitle selection. It is not yet the
 production-appliance release: receiver HDR/audio confirmation,
@@ -28,11 +29,11 @@ Build with:
 
 ```sh
 python3 services/kodi/package_aster_home.py \
-  --output /path/to/aster-home-v1.0.1
+  --output /path/to/aster-home-v1.0.2
 ```
 
 The deterministic bundle contains four independently installable Kodi ZIPs
-and `aster-home-v1.0.1-manifest.json`. It also declares one external official
+and `aster-home-v1.0.2-manifest.json`. It also declares one external official
 Kodi dependency, `plugin.video.youtube` 7.4.4; third-party source is not
 vendored into the private bundle:
 
@@ -130,5 +131,5 @@ passthrough, or requires broader credentials/network access than documented.
 - [ ] Record accepted limitations and issue the project USE / CONDITIONAL USE /
       REJECT decision before replacing the Apple TV.
 
-Until those checks pass, use **v1.0.1 production candidate**, not **production
+Until those checks pass, use **v1.0.2 production candidate**, not **production
 appliance**, in operator records.

@@ -1,6 +1,6 @@
 # Aster Home — EH-001: LibreELEC/Kodi feasibility experiment
 
-> **Status:** Active — Stream A; Aster Home v1.0.1 production candidate built 2026-10-22; physical M2 baseline, cold boot and 20-minute 4K soak passed with receiver, remote and destructive recovery gates still open
+> **Status:** Active — Stream A; Aster Home v1.0.2 production candidate built and deployed 2026-10-22; physical M2 baseline, cold boot, 20-minute 4K soak and non-YouTube page/media sweep passed with receiver, remote, private audio/camera routing and destructive recovery gates still open
 > **Owner:** Jason
 > **Date:** 2026-10-13
 > **Authorization:** Stream A requested for bounded, reversible proof of concept; operational execution remains subject to the actual environment, project-standard and platform safety gates.
@@ -1760,6 +1760,67 @@ Kodi, re-authenticated Jellyfin and reopened its websocket with no startup or
 Sync Queue warning. Repeated cold boot is therefore closed. Restoring the full
 clean-profile archive remains a separate destructive drill.
 
+### M2 non-YouTube page and media sweep — 2026-10-22
+
+The complete non-YouTube page sweep used live Kodi JSON-RPC state, bounded
+playback and the client log rather than library presence alone. A TV series
+opened its seven-entry season level and 139-episode all-seasons level; the
+selected episode exposed series, season, episode, title, duration and synopsis,
+then direct-played with the correct `S01E01` identity. Music exposed 25 recent
+albums, 499 of 17,095 songs, 500 of 1,042 artists and 16 Jellyfin playlists.
+An album opened its 13-track player and played; an individual song opened and
+played; a Jellyfin playlist opened with 18 tracks and played; and artist
+selection correctly filtered the album page. Each playback was stopped without
+altering source media.
+
+The refreshed Books snapshot exposed 558 records: 505 eBooks, 46 audiobooks
+and seven podcast series. All three pages displayed real synopsis data and
+cached art; an eBook produced the safe Calibre-Web reader handoff. Audiobook
+and podcast playback could not complete because
+`audiobooks.elliottrook.com` resolves internally to `192.168.50.23`, and the
+client subnet cannot establish TCP/443 to that private reverse proxy. The
+loopback audio bridge and private configuration are present and fail closed;
+no TLS bypass, bearer URL, firewall broadening or alternate credential path was
+introduced. A narrow reviewed network path remains a production prerequisite.
+
+Daily Digest loaded 21 current stories and played its cached 18:56 MP3. The
+physical client revealed that Kodi's absolute-time MP3 seek landed near 22
+seconds for a requested 47.291-second chapter and then fell back near the
+beginning. Percentage seek on the same verified duration landed at 49 seconds.
+Aster Home v1.0.2 therefore converts the bounded chapter offset to a percentage,
+verifies the resulting position and preserves the selected-story panel while
+the normal two-second synchronization resumes. After deployment, story two
+started at 54 seconds including startup time, audio remained active, and both
+the active index and title matched story two. Breaking News independently
+loaded 40 current story clusters.
+
+The refreshed Home feed exposed one approved light, temperature, weather and
+online camera status; the dashboard reported values ready. A one-minute local
+timer counted from `01:00` to `00:58` with the expected 60-pip state and was
+stopped cleanly. Camera UI state started and stopped correctly, but image fetch
+failed because its URL remains the disposable Mac-only
+`127.0.0.1:15102` tunnel. A production camera proxy/route is required; stale
+or invented imagery was not substituted. Settings opened under Aster and Kodi
+remained active. The only error-severity line in the final page sweep was the
+Jellyfin player's benign “not playing any file” message after a deliberate
+stop; there was no Kodi or skin crash.
+
+The v1.0.2 deterministic release bumps the four private bundle components in
+lockstep and records hashes in
+`services/kodi/releases/aster-home-v1.0.2.json`. Offline validation passed 76
+skin tests, four video-plugin tests, 13 audio-bridge tests, three UI-sound tests,
+three packaging tests and `git diff --check`. Archive hashes matched after
+transfer. The endpoint retained its per-client feeds and private bridge config,
+all four components report enabled at v1.0.2, and the packaged Digest fix passed
+the same physical story-two playback check. The pre-upgrade checkpoint is
+`/storage/.aster-checkpoints/aster-v1.0.1-pre-v1.0.2-20261022.tgz`.
+
+The evidence-backed v2 design review is recorded separately at
+`docs/design/Aster-Home-v2-Recommendations.md`. Its priorities are a purpose-
+built series/season/episode screen, global focus/search consistency, listening
+queues and controls inspired by Plexamp/Audible, and a Home Assistant-style
+section grid. It is a proposal only and does not authorize v2 implementation.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
@@ -1776,3 +1837,4 @@ clean-profile archive remains a separate destructive drill.
 - Home Assistant dashboards: https://www.home-assistant.io/dashboards
 - Home Assistant frontend themes: https://www.home-assistant.io/integrations/frontend/
 - Home Assistant custom cards: https://developers.home-assistant.io/docs/frontend/custom-ui/custom-card/
+- `../design/Aster-Home-v2-Recommendations.md`

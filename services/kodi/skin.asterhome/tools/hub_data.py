@@ -185,6 +185,23 @@ def timer_display(remaining):
     return digital, str(ring)
 
 
+def seek_percentage(offset, duration):
+    """Convert an absolute chapter offset to Kodi's portable MP3 seek form."""
+    if (isinstance(offset, bool) or not isinstance(offset, (int, float)) or
+            not math.isfinite(offset) or offset < 0 or not isinstance(duration, dict)):
+        raise ValueError('Invalid digest seek position')
+    try:
+        total = (int(duration.get('hours', 0)) * 3600 +
+                 int(duration.get('minutes', 0)) * 60 +
+                 int(duration.get('seconds', 0)) +
+                 int(duration.get('milliseconds', 0)) / 1000)
+    except (TypeError, ValueError):
+        raise ValueError('Invalid digest duration')
+    if total <= 0 or offset > total:
+        raise ValueError('Digest seek position is outside the recording')
+    return min(100.0, offset * 100.0 / total)
+
+
 TIMER_PRESETS = {
     'timer_1': (60, 'One minute timer'),
     'timer_5': (5 * 60, 'Five minute timer'),
@@ -422,8 +439,9 @@ def main(page, action='refresh'):
             window.setProperty('AsterHub.RequestedGeneration', digest['generated_at'])
             show_digest_story(window, selected)
         # Playback only on an explicit user selection; no autoplay on refresh.
-        # Kodi reports the HTTP MP3 seekable but ignores absolute chapter seeks
-        # on the Mac pilot. Its local cache permits a verifiable seek.
+        # Kodi reports the HTTP MP3 seekable, but platform demuxers can resolve
+        # absolute VBR MP3 timestamps inaccurately. A local cache plus a
+        # duration-derived percentage permits a portable, verifiable seek.
         try:
             audio_path = cached_digest_audio(xbmcvfs, window.getProperty('AsterHub.GeneratedAt'))
         except (OSError, ValueError) as error:
@@ -439,13 +457,13 @@ def main(page, action='refresh'):
             xbmc.sleep(250)
         if xbmc.Player().isPlayingAudio():
             if chapter_offset is not None and chapter_offset > 4:
-                # Audio startup precedes seekability for HTTP MP3s. Wait for
+                # Audio startup precedes seekability for MP3s. Wait for
                 # Kodi's player to report it can seek, then verify the
                 # returned position rather than assuming seekTime succeeded.
                 for _ in range(20):
                     try:
                         state = kodi_rpc(xbmc, 'Player.GetProperties', {
-                            'playerid': 0, 'properties': ['canseek', 'time']})
+                            'playerid': 0, 'properties': ['canseek', 'time', 'totaltime']})
                         if state.get('canseek'):
                             break
                     except ValueError:
@@ -456,14 +474,13 @@ def main(page, action='refresh'):
                     xbmc.executebuiltin('PlayerControl(Stop)')
                     window.setProperty('AsterHub.Status', 'Unable to skip to this story')
                     return
-                offset = int(chapter_offset)
                 try:
+                    percentage = seek_percentage(chapter_offset, state.get('totaltime'))
                     result = kodi_rpc(xbmc, 'Player.Seek', {
                         'playerid': 0,
-                        'value': {'time': {'hours': offset // 3600,
-                                           'minutes': (offset // 60) % 60,
-                                           'seconds': offset % 60}}})
-                    xbmc.log(f'Aster Digest: seek to {chapter_offset} returned {result}', xbmc.LOGINFO)
+                        'value': {'percentage': percentage}})
+                    xbmc.log(f'Aster Digest: seek to {chapter_offset} ({percentage:.3f}%) '
+                             f'returned {result}', xbmc.LOGINFO)
                     for _ in range(8):
                         actual = xbmc.Player().getTime()
                         if abs(actual - chapter_offset) <= 3:

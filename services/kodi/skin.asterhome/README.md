@@ -1,11 +1,12 @@
 # Aster Home Kodi skin
 
-Version 1.0.1 is the current Aster Home private production candidate. It adds
-deterministic remote focus between Kodi's generic selection list and its OK
-button, plus a selected-item marker, after physical LibreELEC library setup
-exposed the v1.0.0 navigation gap. The complete Mac-validated interface and
-physical HP ProDesk baseline now include cold boot and a 20-minute high-bitrate
-4K soak, but do not yet claim receiver, remote or destructive recovery gates.
+Version 1.0.2 is the current Aster Home private production candidate. It retains
+the v1.0.1 selection-dialog correction and uses percentage-based seeking for
+Daily Digest MP3 chapters after the physical LibreELEC player proved inaccurate
+absolute-time seeking. The complete Mac-validated interface and physical HP
+ProDesk baseline now include cold boot, a 20-minute high-bitrate 4K soak and
+live Music, Digest, News, Home and TV-episode tests, but do not yet claim
+receiver, remote or destructive recovery gates.
 The source uses Kodi's 1920x1080
 16:9 design canvas and scales to 4K output; media fanart remains independent
 and can render at its native source resolution. See `RELEASE.md` for the

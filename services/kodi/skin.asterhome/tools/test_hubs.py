@@ -5,7 +5,7 @@ import unittest
 import wave
 import xml.etree.ElementTree as ET
 from hub_data import (CAMERA_PILOT_SECONDS, CAMERA_PILOT_URL, TIMER_PRESETS, WINDOWS,
-                      cached_digest_audio, digest_view, show_digest_story,
+                      cached_digest_audio, digest_view, seek_percentage, show_digest_story,
                       story_at_elapsed, story_for_playback, sync_digest_window,
                       timer_display)
 from digest_data import BreakingCards, DigestCards, merge_chapters, public_image
@@ -102,6 +102,13 @@ class HubTests(unittest.TestCase):
             'timer_5': (300, 'Five minute timer'),
             'timer_30': (1800, 'Thirty minute timer'),
         })
+
+    def test_digest_seek_uses_duration_percentage(self):
+        duration = {'hours': 0, 'minutes': 18, 'seconds': 56, 'milliseconds': 64}
+        self.assertAlmostEqual(seek_percentage(47.291, duration), 4.1627, places=3)
+        for offset, invalid_duration in ((-1, duration), (1, {}), (1200, duration)):
+            with self.assertRaises(ValueError):
+                seek_percentage(offset, invalid_duration)
 
     def test_timer_completion_chime_is_five_seconds(self):
         with wave.open(str(ROOT / 'media/timer-complete.wav'), 'rb') as chime:

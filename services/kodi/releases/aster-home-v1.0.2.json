@@ -1,0 +1,66 @@
+{
+  "schema": "aster-home-kodi-release-record.v1",
+  "release": "1.0.2",
+  "status": "production-candidate-pending-physical-libreelec-gate",
+  "built_on": "2026-10-22",
+  "design_canvas": "1920x1080-16:9-scales-to-4k",
+  "artifact_directory": "services/kodi/dist/aster-home-v1.0.2",
+  "manifest_sha256": "1f0587dbca685a1f90bb4ef269b416497be884ce0d4c47eaf304e8db2a470de9",
+  "artifacts": [
+    {
+      "addon_id": "plugin.video.asterhome",
+      "archive": "plugin.video.asterhome-1.0.2.zip",
+      "bytes": 2660,
+      "sha256": "9a33231369ff250e1b53ecc97de5db7916c805e8c69635d90d967d3ea76c098d"
+    },
+    {
+      "addon_id": "plugin.audio.asterbooks",
+      "archive": "plugin.audio.asterbooks-1.0.2.zip",
+      "bytes": 10021,
+      "sha256": "634ee6d4fa7e07807a16d018b84010bce2c9b31936b3ff1ca5d4b46383e62312"
+    },
+    {
+      "addon_id": "resource.uisounds.asterhome",
+      "archive": "resource.uisounds.asterhome-1.0.2.zip",
+      "bytes": 82960,
+      "sha256": "e569ce7524b28f209e6295505e26d9a38065f76b4787395d0f22fabe4e8bdf6b"
+    },
+    {
+      "addon_id": "skin.asterhome",
+      "archive": "skin.asterhome-1.0.2.zip",
+      "bytes": 4535615,
+      "sha256": "06f7f429cad7952e6680b96344f47e02302edd837a2a3442d00e6b2b9f73e68a"
+    }
+  ],
+  "install_order": [
+    "plugin.video.asterhome",
+    "plugin.audio.asterbooks",
+    "resource.uisounds.asterhome",
+    "skin.asterhome"
+  ],
+  "external_dependencies": [
+    {
+      "addon_id": "plugin.video.youtube",
+      "version": "7.4.4",
+      "source": "Kodi Omega repository"
+    }
+  ],
+  "validation": {
+    "skin_tests": 76,
+    "video_plugin_tests": 4,
+    "audio_bridge_tests": 13,
+    "ui_sound_tests": 3,
+    "packaging_tests": 3,
+    "physical_tv_episode_playback": "series-season-all-episodes-navigation-and-episode-playback-passed",
+    "physical_music_playback": "album-song-and-jellyfin-playlist-player-paths-passed",
+    "physical_digest_playback": "21-story-feed-selected-chapter-percentage-seek-and-highlight-passed",
+    "physical_breaking_news": "40-current-story-clusters-loaded",
+    "physical_home_status": "fresh-read-only-feed-and-local-timer-passed",
+    "physical_books_catalogue": "505-ebooks-46-audiobooks-7-podcasts-with-synopsis-and-reader-handoff",
+    "physical_audiobookshelf": "catalogue-passed-playback-blocked-by-subnet-to-private-reverse-proxy-route",
+    "physical_camera": "status-passed-preview-blocked-by-disposable-mac-loopback-tunnel-design",
+    "physical_kodi_health": "active-after-complete-page-sweep-no-skin-crash"
+  },
+  "rollback_checkpoint": "/storage/.aster-checkpoints/kodi-fresh-profile-20261022.tgz",
+  "graduation_blocker": "TV HDR indicator, receiver passthrough, remote reconnect, Audiobookshelf and camera network paths, and destructive recovery validation"
+}
