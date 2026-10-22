@@ -1626,6 +1626,44 @@ release ZIP, may be overwritten by a YouTube add-on update, and is not assumed
 necessary on LibreELEC; the physical endpoint must still test the unmodified
 official add-on first.
 
+### M2 HP ProDesk physical endpoint preparation — 2026-10-22
+
+The physical endpoint changed from the non-destructive Lenovo X390 USB trial
+to an owner-purchased HP ProDesk 400 G5 Desktop Mini intended for the Aster
+Home appliance role. Read-only SSH inventory identified an Intel Core
+i5-9500T (six cores), 16 GB RAM, Intel UHD Graphics 630, UEFI firmware with
+Secure Boot enabled, Realtek gigabit Ethernet and a 256 GB Samsung
+`MZVLB256HBHQ-000H1` NVMe system disk. The approved install target is that
+NVMe device, serial `0025_3882_01C0_76BC.`. The owner explicitly authorized
+erasing its Windows installation, BitLocker state, recovery partitions and
+all other internal-disk data. This supersedes the X390 runbook's prohibition
+on internal installation for this named HP endpoint only.
+
+The owner also explicitly authorized erasing the attached 124 GB Kingston
+DataTraveler 3.0, serial `6B00A94048C9`, to create the installer and declined
+a backup of its 170 photo files because they were copies. LibreELEC Generic
+x86_64 12.2.1 and the Aster Home v1 release bundle were transferred to
+`C:\Aster-Staging`; the compressed image, official creator and Aster manifest
+matched their recorded SHA-256 values after transfer. The official LibreELEC
+USB-SD Creator required the current Microsoft-signed x64 Visual C++ v14
+runtime, which was installed only on the disposable Windows environment.
+
+The creator wrote the Generic image to the identity-checked Kingston. The
+result has the expected GPT layout: a 1 GiB FAT `LIBREELEC` partition followed
+by the 32 MiB installer partition. Windows mounted the writable FAT partition
+and changed filesystem metadata, so the whole raw-device hash no longer equals
+the immutable source image. Payload-level validation passed instead: the FAT
+volume is healthy and its bundled `KERNEL.md5` and `SYSTEM.md5` both match the
+written `KERNEL` and `SYSTEM` files exactly. This is sufficient to proceed to
+the physical UEFI boot; installation to the Samsung NVMe has not yet begun.
+
+Next physical gate: enter HP firmware, disable Secure Boot if LibreELEC is not
+accepted, boot the Kingston in UEFI mode, select only the named Samsung NVMe
+as the LibreELEC target, remove the installer after completion, and enable SSH
+in the first-run LibreELEC wizard. Abort if firmware presents an unexpected
+storage device, the installer cannot distinguish the internal NVMe from the
+USB, or the display path fails before the target confirmation screen.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`
