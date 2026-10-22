@@ -1750,6 +1750,13 @@ emit the already-known ALSA sink warning and is not treated as an AVR result.
 The sanitized endpoint sample log remains at
 `/storage/downloads/aster-soak-20261022.log`.
 
+The non-destructive interface fallback path also passed. Kodi changed from
+Aster Home v1.0.1 to the retained Estuary skin, opened Estuary's Home window
+and accepted an input action. It then changed back to `skin.asterhome` without
+a restart, returned to Aster's Home window and retained the active Jellyfin
+websocket. This proves that a skin-level failure does not strand the endpoint.
+Restoring the full clean-profile archive remains a separate destructive drill.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

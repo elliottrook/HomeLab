@@ -101,6 +101,11 @@ profile/add-on checkpoint. Removing the skin does not alter Jellyfin media,
 TrueNAS files, Home Assistant entities, Audiobookshelf media or watched-state
 authority.
 
+The HP ProDesk validation switched from Aster Home v1.0.1 to retained Estuary,
+opened its Home window, accepted input and switched back to Aster without a
+restart. Jellyfin remained connected. This proves the skin fallback path; it
+does not replace a later full-profile restore drill.
+
 Abort physical promotion and retain the existing Apple TV if Kodi repeatedly
 crashes, loses remote control after reboot, cannot restore the previous skin,
 transcodes material expected to direct play, fails HDR10 or receiver
@@ -109,10 +114,10 @@ passthrough, or requires broader credentials/network access than documented.
 ## Physical production gate
 
 - [ ] Boot and restart LibreELEC repeatedly without manual repair.
-- [ ] Install and hash-check the v1 bundle from a clean client profile.
+- [x] Install and hash-check the v1 bundle from a clean client profile.
 - [ ] Confirm the complete navigation path with the selected remote after
       pairing, reboot and idle reconnection.
-- [ ] Verify 1080p and 4K direct play, refresh-rate switching and sustained
+- [x] Verify 1080p and 4K direct play, refresh-rate switching and sustained
       playback without dropped frames or unexpected transcoding.
 - [ ] Verify HDR10 through the television and Dolby Atmos/DTS passthrough
       through the receiver using known representative files.
@@ -120,7 +125,7 @@ passthrough, or requires broader credentials/network access than documented.
 - [ ] Verify YouTube search, account sign-in, subscriptions and 1080p60 /
       2160p60 playback; record dropped frames and test HDR separately.
 - [ ] Exercise Music, Books/Audiobooks/Podcasts, Digest and Home failure states.
-- [ ] Measure CPU, GPU, memory, temperature, network and UI responsiveness.
+- [x] Measure CPU, GPU, memory, temperature, network and UI responsiveness.
 - [ ] Prove profile backup, Estuary fallback and Aster restore.
 - [ ] Record accepted limitations and issue the project USE / CONDITIONAL USE /
       REJECT decision before replacing the Apple TV.
