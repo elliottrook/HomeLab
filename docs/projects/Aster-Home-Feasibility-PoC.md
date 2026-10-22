@@ -1814,6 +1814,9 @@ transfer. The endpoint retained its per-client feeds and private bridge config,
 all four components report enabled at v1.0.2, and the packaged Digest fix passed
 the same physical story-two playback check. The pre-upgrade checkpoint is
 `/storage/.aster-checkpoints/aster-v1.0.1-pre-v1.0.2-20261022.tgz`.
+One final full endpoint reboot then returned Kodi with Aster v1.0.2 active,
+Jellyfin authenticated and its websocket open, no active player and no startup
+warning/error. The idle endpoint reported 14.6 GB available RAM and 34 C.
 
 The evidence-backed v2 design review is recorded separately at
 `docs/design/Aster-Home-v2-Recommendations.md`. Its priorities are a purpose-

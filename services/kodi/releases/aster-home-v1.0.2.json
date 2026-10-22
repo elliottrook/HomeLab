@@ -59,7 +59,8 @@
     "physical_books_catalogue": "505-ebooks-46-audiobooks-7-podcasts-with-synopsis-and-reader-handoff",
     "physical_audiobookshelf": "catalogue-passed-playback-blocked-by-subnet-to-private-reverse-proxy-route",
     "physical_camera": "status-passed-preview-blocked-by-disposable-mac-loopback-tunnel-design",
-    "physical_kodi_health": "active-after-complete-page-sweep-no-skin-crash"
+    "physical_kodi_health": "active-after-complete-page-sweep-no-skin-crash",
+    "physical_cold_boot": "aster-v1.0.2-active-jellyfin-authenticated-websocket-open-no-active-player-no-startup-warning"
   },
   "rollback_checkpoint": "/storage/.aster-checkpoints/kodi-fresh-profile-20261022.tgz",
   "graduation_blocker": "TV HDR indicator, receiver passthrough, remote reconnect, Audiobookshelf and camera network paths, and destructive recovery validation"
