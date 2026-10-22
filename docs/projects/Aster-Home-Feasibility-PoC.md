@@ -1,6 +1,6 @@
 # Aster Home — EH-001: LibreELEC/Kodi feasibility experiment
 
-> **Status:** Active — Stream A; Aster Home v1.0.1 production candidate built 2026-10-22; physical M2 baseline and cold boot passed with receiver, remote, soak and destructive recovery gates still open
+> **Status:** Active — Stream A; Aster Home v1.0.1 production candidate built 2026-10-22; physical M2 baseline, cold boot and 20-minute 4K soak passed with receiver, remote and destructive recovery gates still open
 > **Owner:** Jason
 > **Date:** 2026-10-13
 > **Authorization:** Stream A requested for bounded, reversible proof of concept; operational execution remains subject to the actual environment, project-standard and platform safety gates.
@@ -1704,8 +1704,8 @@ TrueHD 7.1, AC3, E-AC3 and PGS choices; JSON-RPC selection of AC3 5.1 and a PGS
 subtitle succeeded, and the Aster OSD rendered Audio, Subtitles, Quality and
 transport controls at 4K. Current playback still decodes audio locally because
 the bench path lacks HDMI audio. Definitive TV HDR10 indication, receiver
-passthrough, selected-remote operation, destructive recovery drills and the
-20–30 minute mixed playback soak remain the M2 gates.
+passthrough, selected-remote operation and destructive recovery drills remain
+the M2 gates.
 
 The physical selection-dialog fix is released reproducibly rather than left as
 endpoint drift. Aster Home v1.0.1 bumps the four private bundle components in
@@ -1734,6 +1734,21 @@ and reopened its websocket, and the startup log contained no warning or error.
 The host returned with about 15.3 GB of 16 GB RAM available, a 34 C CPU reading
 and the 232.7 GB storage volume effectively empty. Estuary/profile restoration
 and clean reinstall remain the destructive recovery drills still to prove.
+
+A sustained high-bitrate playback gate then ran the same approximately 83 Mb/s
+3840x2160 10-bit HEVC HDR10 title for 20 minutes. Every one-minute sample
+reported speed 1 with monotonically advancing playback and cache positions;
+the final Kodi process labels remained `ff-hevc-vaapi`, 3840x2160, 23.976 fps
+and 99% cache. A three-second pause/resume cycle at minute 15 returned directly
+to speed 1. Temperature stayed between 36 C and 38 C, Kodi RSS ended around
+479 MB, and the host retained about 14.6 GB available RAM. The Ethernet counter
+advanced by 10.35 GB during a measured 15-minute subsection with zero receive
+or transmit errors. No buffer, stall, decoder or playback error occurred after
+the one-time start transition. Stopping playback restored the GUI from the
+native 23.976 mode to 3840x2160p30. The disconnected audio path continued to
+emit the already-known ALSA sink warning and is not treated as an AVR result.
+The sanitized endpoint sample log remains at
+`/storage/downloads/aster-soak-20261022.log`.
 
 ## 15. References
 

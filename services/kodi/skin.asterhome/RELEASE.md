@@ -8,9 +8,9 @@ physical-client selection-dialog navigation fix: Up/Down now reaches the OK
 button and selected entries have a visible marker. The HP ProDesk LibreELEC
 baseline has exercised populated 4K UI, 1080p and high-bitrate 4K HEVC direct
 stream, refresh matching, OSD and audio/subtitle selection. It is not yet the
-production-appliance release: receiver HDR/audio confirmation, sustained
-playback, Bluetooth/USB-HID remote control and destructive recovery drills
-remain. A normal cold boot has passed.
+production-appliance release: receiver HDR/audio confirmation,
+Bluetooth/USB-HID remote control and destructive recovery drills remain. A
+normal cold boot and a 20-minute high-bitrate 4K playback soak have passed.
 
 The skin uses a 1920x1080, 16:9 Kodi design canvas. Kodi scales that canvas to
 3840x2160 output. Kodi renders video separately at the source/output mode, and

@@ -59,8 +59,9 @@
     "physical_osd_stream_selection": "audio-and-pgs-subtitle-selection-passed",
     "physical_endpoint_upgrade": "all-four-components-enabled-hashes-verified-jellyfin-session-retained",
     "jellyfin_kodi_sync_queue": "optional-client-setting-disabled-server-plugin-not-installed",
-    "physical_cold_boot": "kodi-active-aster-v1.0.1-jellyfin-authenticated-websocket-open-no-startup-warnings"
+    "physical_cold_boot": "kodi-active-aster-v1.0.1-jellyfin-authenticated-websocket-open-no-startup-warnings",
+    "physical_4k_soak": "20-minutes-83mbps-hevc-vaapi-23.976-99pct-cache-38c-max-no-sustained-errors"
   },
   "rollback_checkpoint": "/storage/.aster-checkpoints/kodi-fresh-profile-20261022.tgz",
-  "graduation_blocker": "TV HDR indicator, receiver passthrough, remote reconnect, sustained playback and recovery validation"
+  "graduation_blocker": "TV HDR indicator, receiver passthrough, remote reconnect and destructive recovery validation"
 }
