@@ -2111,14 +2111,11 @@ Kodi subsequently opened
 This proves device creation and sink selection; audible output and receiver
 passthrough remain physical acceptance checks.
 
-Jason then confirmed normal playback audio reached the main-TV path. The
-receiver-facing profile was enabled from the connected ELD rather than an
-assumed capability list: decoded PCM uses Kodi's 7.1 layout and passthrough is
-enabled for AC-3, E-AC-3, DTS, MAT/TrueHD and DTS-HD, with AC-3 transcoding
-left off. Kodi now prefers correctly tagged English audio and retains its
-default-stream preference within that language. English selection therefore
-falls back safely when no English stream exists, but cannot correct absent or
-incorrect source language tags.
+Jason then confirmed normal playback audio reached the main-TV path. Kodi now
+prefers correctly tagged English audio and retains its default-stream
+preference within that language. English selection therefore falls back safely
+when no English stream exists, but cannot correct absent or incorrect source
+language tags.
 
 The video OSD's Audio action was also corrected. Audio now follows Info in the
 ordinary left/right focus chain, the last secondary control wraps to Previous,
@@ -2130,12 +2127,44 @@ All 83 skin regression tests and XML parsing passed before deployment. Manual
 English-track selection and receiver-format indication remain physical
 acceptance checks.
 
-Jason completed the physical acceptance test on the main television and
-confirmed success: preferred-English selection, remote navigation to the OSD
-Audio selector, playback audio and receiver passthrough all worked on the
-deployed HP endpoint. This closes the HP HDMI audio recovery check. It does not
-by itself close M2's separate HDR indication, mixed-format soak, recovery or
-production-client gates.
+The initial physical check confirmed preferred-English selection, remote
+navigation to the OSD Audio selector, ordinary playback audio and Dolby-path
+passthrough. A subsequent DTS-HD MA 7.1 direct-stream test exposed a downstream
+failure: Kodi opened the raw eight-channel passthrough stream successfully,
+but the receiver produced no sound and the HDMI/eARC chain then remained mute
+for direct two-channel PCM until the receiver was rebooted. Direct ALSA stereo
+tests and an HP reboot did not recover the sink; rebooting the receiver did.
+The ELD capability claim is therefore not sufficient evidence that this
+TV/eARC/receiver route is stable for DTS passthrough.
+
+The recovery profile retains the 7.1 decoded-PCM layout and enables only AC-3,
+E-AC-3 and MAT/TrueHD passthrough. DTS and DTS-HD passthrough are disabled so
+Kodi decodes those sources to multichannel PCM; AC-3 transcoding remains off.
+The known-good stereo rollback is checkpointed at
+`/storage/.kodi/userdata/checkpoints/pre-hybrid-audio-20261022-133213/`.
+Dolby-format indication and DTS-to-multichannel-PCM playback remain physical
+acceptance checks. M2's separate HDR indication, mixed-format soak, recovery
+and production-client gates also remain open.
+
+### Mixed Continue Watching repair — 2026-10-22
+
+Playback diagnosis confirmed that Kodi and Jellyfin were recording resume
+bookmarks correctly, including recently stopped movies. The Aster home rail
+was nevertheless bound to an episode-only smart playlist, so films could never
+appear and the result looked like a general tracking failure. The rail now uses
+the read-only Aster media plug-in to merge resumable movies and episodes, order
+them by `lastplayed`, retain their resume point and expose the original playable
+library path. Media-type-specific JSON-RPC property sets avoid Kodi 21 rejecting
+episode requests, and resume metadata is applied through Kodi 21's supported
+`InfoTagVideo` API.
+
+The endpoint was checkpointed at
+`/storage/.kodi/addons/aster-checkpoints/20261022-133953-continue-watching`.
+After deployment Kodi registered `plugin.video.asterhome` v1.0.3 and restarted
+with the mixed directory loaded without plug-in, directory or focus errors.
+Six media-library unit tests and 26 targeted skin-layout tests passed. A final
+physical confirmation that the expected movie and episode cards are visible
+remains useful but is not required to prove that resume data is being recorded.
 
 All skin XML parsed, `git diff --check` passed, and 76 skin, four video-plugin
 and 13 audio-bridge tests passed. Before deployment, the physical endpoint's

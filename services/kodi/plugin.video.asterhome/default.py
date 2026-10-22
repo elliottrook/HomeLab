@@ -1,25 +1,37 @@
-"""Read-only combined Movies + TV genre directories for Aster Home."""
+"""Read-only combined Kodi-library directories for Aster Home."""
 
 import json
 import sys
+import traceback
 from urllib.parse import parse_qs
 
 import xbmc
 import xbmcgui
 import xbmcplugin
 
-from library import canonical_genre, combined_items
+from library import canonical_genre, combined_items, continue_items
 
 
 PROPERTIES = ['title', 'plot', 'year', 'genre', 'rating', 'mpaa', 'art', 'file']
+CONTINUE_PROPERTIES = PROPERTIES + [
+    'lastplayed', 'resume', 'runtime', 'playcount',
+]
+EPISODE_PROPERTIES = [
+    'title', 'plot', 'rating', 'art', 'file', 'lastplayed', 'resume',
+    'runtime', 'playcount', 'showtitle', 'season', 'episode',
+]
 
 
-def rpc(method):
+def rpc(method, properties=PROPERTIES, sort=None, filter_value=None, limits=None):
     request = {
         'jsonrpc': '2.0', 'id': 1, 'method': method,
-        'params': {'properties': PROPERTIES,
-                   'sort': {'method': 'title', 'order': 'ascending'}},
+        'params': {'properties': properties,
+                   'sort': sort or {'method': 'title', 'order': 'ascending'}},
     }
+    if filter_value is not None:
+        request['params']['filter'] = filter_value
+    if limits is not None:
+        request['params']['limits'] = limits
     response = json.loads(xbmc.executeJSONRPC(json.dumps(request)))
     if 'error' in response:
         raise ValueError(response['error'].get('message', 'Kodi library query failed'))
@@ -33,11 +45,16 @@ def add_item(handle, row):
         'title': row['label'], 'plot': row.get('plot', ''),
         'year': row.get('year', 0), 'genre': row.get('genre', []),
         'rating': row.get('rating', 0), 'mpaa': row.get('mpaa', ''),
-        'mediatype': row['kind'],
+        'mediatype': row['kind'], 'duration': row.get('runtime', 0),
+        'tvshowtitle': row.get('showtitle', ''),
+        'season': row.get('season', 0), 'episode': row.get('episode', 0),
     })
     art = row.get('art') if isinstance(row.get('art'), dict) else {}
     if art:
         item.setArt(art)
+    if row.get('resume_position', 0) > 0:
+        item.getVideoInfoTag().setResumePoint(
+            row['resume_position'], row.get('resume_total', 0))
     if row['kind'] == 'tvshow':
         url = f"videodb://tvshows/titles/{row['id']}/"
         xbmcplugin.addDirectoryItem(handle, url, item, isFolder=True)
@@ -47,9 +64,39 @@ def add_item(handle, row):
     xbmcplugin.addDirectoryItem(handle, url, item, isFolder=False)
 
 
+def add_continue_watching(handle):
+    latest = {'method': 'lastplayed', 'order': 'descending'}
+    # Kodi 21 rejects the documented ``inprogress`` JSON-RPC filter on some
+    # library providers. Fetch the recently played candidates and let
+    # continue_items() validate their resume points instead.
+    limits = {'start': 0, 'end': 100}
+    movie_result = rpc('VideoLibrary.GetMovies', CONTINUE_PROPERTIES,
+                       latest, limits=limits)
+    episode_result = rpc('VideoLibrary.GetEpisodes', EPISODE_PROPERTIES,
+                         latest, limits=limits)
+    rows = continue_items(movie_result.get('movies', []),
+                          episode_result.get('episodes', []))
+    xbmcplugin.setPluginCategory(handle, 'Continue Watching')
+    xbmcplugin.setContent(handle, 'videos')
+    for row in rows:
+        add_item(handle, row)
+    xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
+
+
 def main():
     handle = int(sys.argv[1])
-    genre = canonical_genre(parse_qs(sys.argv[2].lstrip('?')).get('genre', [''])[0])
+    query = parse_qs(sys.argv[2].lstrip('?'))
+    if query.get('mode', [''])[0] == 'continue':
+        try:
+            add_continue_watching(handle)
+        except Exception as error:  # Kodi surfaces only a generic directory error.
+            xbmc.log(f'Aster Media Continue Watching: {error}\n{traceback.format_exc()}',
+                     xbmc.LOGERROR)
+            xbmcgui.Dialog().notification('Aster Media',
+                                          'Continue Watching could not be refreshed.')
+            xbmcplugin.endOfDirectory(handle, succeeded=False, cacheToDisc=False)
+        return
+    genre = canonical_genre(query.get('genre', [''])[0])
     if genre is None:
         xbmcgui.Dialog().ok('Aster Media', 'Choose a supported genre from the Aster Media page.')
         xbmcplugin.endOfDirectory(handle, succeeded=False)

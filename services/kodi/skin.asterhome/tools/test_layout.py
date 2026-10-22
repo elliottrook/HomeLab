@@ -40,6 +40,9 @@ class LayoutTests(unittest.TestCase):
             (f'Container(110).Position({index})', f'SetFocus({140 + index})')
             for index in range(5)])
 
+        self.assertEqual(watching.findtext('content'),
+                         'plugin://plugin.video.asterhome/?mode=continue')
+
     def test_collapsed_rail_enters_the_current_section(self):
         rail = ET.parse(ROOT / '1080i/IncludesHub.xml')
         reveal = rail.find('.//control[@id="8999"]')

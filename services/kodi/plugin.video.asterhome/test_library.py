@@ -2,7 +2,7 @@
 
 import unittest
 
-from library import canonical_genre, combined_items, matches_genre
+from library import canonical_genre, combined_items, continue_items, matches_genre
 
 
 class LibraryTests(unittest.TestCase):
@@ -33,6 +33,31 @@ class LibraryTests(unittest.TestCase):
     def test_malformed_rows_fail_closed(self):
         self.assertEqual(combined_items('bad', [{'label': 'No id', 'genre': ['Drama']}],
                                         'Drama'), [])
+
+    def test_continue_watching_merges_movies_and_episodes_by_last_played(self):
+        movies = [{
+            'movieid': 9, 'label': 'Movie', 'lastplayed': '2026-10-22 10:00:00',
+            'resume': {'position': 300, 'total': 7200},
+        }]
+        episodes = [{
+            'episodeid': 7, 'label': 'Episode', 'showtitle': 'Show',
+            'season': 2, 'episode': 4, 'lastplayed': '2026-10-22 11:00:00',
+            'resume': {'position': 600, 'total': 2700},
+        }]
+        rows = continue_items(movies, episodes)
+        self.assertEqual([(row['label'], row['kind']) for row in rows],
+                         [('Episode', 'episode'), ('Movie', 'movie')])
+        self.assertEqual(rows[0]['resume_position'], 600)
+        self.assertEqual(rows[0]['resume_total'], 2700)
+
+    def test_continue_watching_rejects_invalid_and_complete_resume_points(self):
+        rows = continue_items([
+            {'label': 'No resume'},
+            {'label': 'Complete', 'resume': {'position': 100, 'total': 100}},
+            {'label': 'Bad', 'resume': {'position': 'nope', 'total': 100}},
+            {'label': 'Valid', 'resume': {'position': 1, 'total': 100}},
+        ], [], limit=1)
+        self.assertEqual([row['label'] for row in rows], ['Valid'])
 
 
 if __name__ == '__main__':

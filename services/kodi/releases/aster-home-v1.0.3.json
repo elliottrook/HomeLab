@@ -5,13 +5,13 @@
   "built_on": "2026-10-22",
   "design_canvas": "1920x1080-16:9-scales-to-4k",
   "artifact_directory": "services/kodi/dist/aster-home-v1.0.3",
-  "manifest_sha256": "4dc5a71855eaf0398e473de262e3a7a392e6d57a27ff75093ab699110f6aa47a",
+  "manifest_sha256": "97bc480fd24fe085a3f1a3457a8b7440fb12754def60713628ca004f63510827",
   "artifacts": [
     {
       "addon_id": "plugin.video.asterhome",
       "archive": "plugin.video.asterhome-1.0.3.zip",
-      "bytes": 2660,
-      "sha256": "a62b6955bbf2c2d687472fbd4df05770a916e19583a152e787f62ee2c59abcda"
+      "bytes": 3555,
+      "sha256": "907aae42c05591e9c52247be9158287c9a0a1f4c096fb76c14e51922d31a06e3"
     },
     {
       "addon_id": "plugin.audio.asterbooks",
@@ -28,8 +28,8 @@
     {
       "addon_id": "skin.asterhome",
       "archive": "skin.asterhome-1.0.3.zip",
-      "bytes": 4537671,
-      "sha256": "20079850f9c0654f55d3c10c63b0ea560d937b33f22f4a037401cfcdd3924904"
+      "bytes": 4537667,
+      "sha256": "1402769a68d68c1da021edad3df0497c7a3dfed7d9695c329ce074bbe0e809e9"
     }
   ],
   "client_files": [
@@ -55,7 +55,7 @@
   ],
   "validation": {
     "skin_tests": 83,
-    "video_plugin_tests": 4,
+    "video_plugin_tests": 6,
     "audio_bridge_tests": 13,
     "ui_sound_tests": 3,
     "packaging_tests": 3,
@@ -64,7 +64,8 @@
     "physical_music": "selected-album-opened-from-tile-by-physical-g20-ok",
     "physical_digest": "full-digest-and-selected-story-actions-reached-player",
     "physical_kodi_health": "active-after-keymap-and-skin-restart-debug-disabled",
-    "package_client_file": "g20-keymap-hash-and-install-target-recorded"
+    "package_client_file": "g20-keymap-hash-and-install-target-recorded",
+    "physical_continue_watching": "mixed-movie-and-episode-directory-loaded-without-kodi-errors"
   },
   "rollback_checkpoint": "/storage/.kodi/addons/skin.asterhome-checkpoints/pre-select-hotfix-20261022.tar.gz",
   "graduation_blocker": "BOSGAME deployment, TV HDR indicator, receiver passthrough, Audiobookshelf and camera production routes, and destructive recovery validation"

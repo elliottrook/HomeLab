@@ -43,3 +43,33 @@ def combined_items(movies, shows, genre):
                 row['label'] = source.get('label') or source.get('title') or 'Untitled'
                 result.append(row)
     return sorted(result, key=lambda row: (row['label'].casefold(), row['kind']))
+
+
+def continue_items(movies, episodes, limit=24):
+    """Merge resumable movies and episodes in most-recently-played order."""
+    result = []
+    for kind, rows in (('movie', movies), ('episode', episodes)):
+        if not isinstance(rows, list):
+            continue
+        for source in rows:
+            if not isinstance(source, dict):
+                continue
+            resume = source.get('resume')
+            if not isinstance(resume, dict):
+                continue
+            try:
+                position = float(resume.get('position', 0))
+                total = float(resume.get('total', 0))
+            except (TypeError, ValueError):
+                continue
+            if position <= 0 or total <= 0 or position >= total:
+                continue
+            row = dict(source)
+            row['kind'] = kind
+            row['label'] = source.get('label') or source.get('title') or 'Untitled'
+            row['resume_position'] = position
+            row['resume_total'] = total
+            result.append(row)
+    result.sort(key=lambda row: (row.get('lastplayed') or '', row['label'].casefold()),
+                reverse=True)
+    return result[:limit]

@@ -28,10 +28,13 @@ skipped.
 
 The validated HP/TCL path uses Kodi device
 `ALSA:hdmi:CARD=PCH,DEV=0|HDA Intel PCH`. Its ELD advertises eight-channel PCM,
-AC-3, E-AC-3, MAT/TrueHD, DTS and DTS-HD, so the lab profile enables those
-passthrough families, disables AC-3 transcoding, and uses the 7.1 channel
-layout for decoded PCM. Codec switches must follow the current sink ELD rather
-than being copied blindly to another client or display path.
+AC-3, E-AC-3, MAT/TrueHD, DTS and DTS-HD, but the real TV/eARC route wedged on
+DTS-HD passthrough and remained silent until the receiver was rebooted. The
+lab profile therefore enables AC-3, E-AC-3 and MAT/TrueHD passthrough, disables
+DTS and DTS-HD passthrough, disables AC-3 transcoding, and uses the 7.1 channel
+layout so Kodi can decode DTS sources to multichannel PCM. Codec switches must
+follow measured end-to-end behavior rather than being copied from ELD alone or
+blindly applied to another client or display path.
 
 Kodi's preferred audio language is `English` with "prefer default audio
 streams" enabled. This selects an English stream when the source metadata
