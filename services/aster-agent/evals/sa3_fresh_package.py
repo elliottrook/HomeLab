@@ -74,6 +74,21 @@ def schedule(cases):
     return result
 
 
+def validate_engine_result(result, case_id, mode):
+    """Reject unbounded or raw engine output before it reaches the journal."""
+    allowed = {'case_id', 'mode', 'status', 'steps', 'checks', 'observations',
+               'elapsed_seconds', 'attempted_calls', 'failure', 'limit'}
+    required = {'case_id', 'mode', 'status', 'steps'}
+    if (not isinstance(result, dict) or not required <= set(result)
+            or not set(result) <= allowed or result.get('case_id') != case_id
+            or result.get('mode') != mode or not isinstance(result.get('status'), str)
+            or not result['status'] or not isinstance(result.get('steps'), list)):
+        raise ValueError('invalid engine result; manual reconciliation required')
+    if len(json.dumps(result, sort_keys=True, separators=(',', ':')).encode()) > 65_536:
+        raise ValueError('engine result exceeds journal envelope; manual reconciliation required')
+    return copy.deepcopy(result)
+
+
 def run_package(bundle, manifest, ledger, transport, ready, model='qwen3.8-27b', engine=investigate):
     """Run/resume only when separately approved; ready() must verify idle/healthy.
 
@@ -133,7 +148,8 @@ def run_package(bundle, manifest, ledger, transport, ready, model='qwen3.8-27b',
                 append({'type': 'paused', 'reason': 'not_confirmed_idle_healthy'})
                 return {'status': 'paused', 'completed_sessions': len(done)}
             append({'type': 'started', 'case_id': case['id'], 'mode': mode})
-            result = engine(case, mode, model, transport)
+            result = validate_engine_result(engine(case, mode, model, transport),
+                                            case['id'], mode)
             append({'type': 'finished', 'result': result})
             if result['status'].startswith('transport_error') or result['status'] == 'time_budget_exhausted':
                 return {'status': 'stopped', 'completed_sessions': len(done), 'reconciliation_required': True}

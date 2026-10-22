@@ -594,6 +594,13 @@ Unrecognised freshness and oversized observations cannot reach the model, and
 the complete eval suite passes 112/112. This aligns two offline validation
 layers; producer authentication, representative incidents and connected-tool
 authority remain open.
+The fresh package now also enforces a
+[bounded engine-result journal boundary](evidence/D4-engine-result-journal-boundary-2026-10-22.md):
+unexpected raw fields and oversized results are rejected before journalling,
+and the surviving started marker makes the uncertain attempt non-replayable.
+The complete eval suite passes 113/113. This prevents a faulty injected engine
+from persisting private reasoning; it does not establish investigation quality
+or connected-tool authority.
 
 ## Immediate next action and stop rule
 

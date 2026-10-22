@@ -56,9 +56,28 @@ class FreshPackageTests(unittest.TestCase):
 
     def test_timeout_is_retained_and_blocks_resume(self):
         def timeout(case, mode, *args):
-            return {'case_id':case['id'],'mode':mode,'status':'transport_error:TimeoutError'}
+            return {'case_id':case['id'],'mode':mode,'status':'transport_error:TimeoutError',
+                    'steps': []}
         self.assertEqual(self.run_fixture(engine=timeout)['status'], 'stopped')
         with self.assertRaisesRegex(ValueError, 'reconciliation'): self.run_fixture()
+
+    def test_raw_or_oversized_engine_output_is_not_journalled(self):
+        def raw(case, mode, *args):
+            return {'case_id': case['id'], 'mode': mode, 'status': 'clarify',
+                    'steps': [], 'reasoning': 'private synthetic reasoning'}
+        with self.assertRaisesRegex(ValueError, 'invalid engine result'):
+            self.run_fixture(engine=raw)
+        self.assertNotIn('private synthetic reasoning', self.path.read_text())
+        with self.assertRaisesRegex(ValueError, 'uncertain'):
+            self.run_fixture()
+
+        self.path.unlink()
+        def oversized(case, mode, *args):
+            return {'case_id': case['id'], 'mode': mode, 'status': 'clarify',
+                    'steps': [], 'observations': ['x' * 70_000]}
+        with self.assertRaisesRegex(ValueError, 'journal envelope'):
+            self.run_fixture(engine=oversized)
+        self.assertLess(self.path.stat().st_size, 1_000)
 
     def test_tamper_or_partial_journal_rejected(self):
         self.run_fixture(ready=lambda: False)
