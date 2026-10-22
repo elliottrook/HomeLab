@@ -608,10 +608,12 @@ includes without changing playback behaviour. Video now uses a full-width
 lower-edge gradient, one thin progress line and compact unboxed transport and
 stream controls. Music, audiobook/podcast and Digest players use the same
 focus ring and remove their enclosing player cards in favour of open gradients.
-Music and Books page tabs, Media category buttons and secondary Digest actions
-also remain visually quiet until focused; search fields retain their explicit
-input affordance but no longer sit inside a large enclosing card. This source
-candidate remains version 1.0.2 until the visual work is accepted and packaged.
+Music and Books page tabs and Media category buttons use restrained translucent
+charcoal backplates so they remain legible over variable hero artwork, while
+secondary Digest actions remain visually quiet until focused. Search fields
+retain their explicit input affordance but no longer sit inside a large
+enclosing card. This source candidate remains version 1.0.2 until the visual
+work is accepted and packaged.
 
 ## Local test
 

@@ -2,9 +2,9 @@
 <includes>
   <include name="AsterMusicPillButton">
     <width>280</width><height>56</height><font>font20</font><align>left</align><aligny>center</aligny>
-    <textoffsetx>56</textoffsetx><textcolor>asterInk</textcolor><focusedcolor>asterGreen</focusedcolor>
-    <texturefocus border="20" colordiffuse="asterGold">special://skin/media/ui-button-ring.png</texturefocus>
-    <texturenofocus>none</texturenofocus>
+    <textoffsetx>56</textoffsetx><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor>
+    <texturefocus border="20" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus>
+    <texturenofocus border="20" colordiffuse="c929302b">special://skin/media/ui-panel.png</texturenofocus>
   </include>
   <include name="AsterMusicPage">
     <param name="page" />

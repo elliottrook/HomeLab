@@ -1837,6 +1837,13 @@ cards with open gradients. Music/Books page tabs, Media category controls,
 search/filter containers and secondary Digest actions were also lightened;
 primary actions and actual search fields retain explicit affordance.
 
+Physical review immediately caught that fully transparent Media/Music/Books
+navigation pills lost grouping and contrast over bright or detailed hero art.
+The deployed correction gives those shared controls a translucent charcoal
+backplate with ivory copy and retains the green focused state. Live 4K captures
+of populated Media and Music pages confirmed consistent contrast without
+restoring the former limestone/stone weight.
+
 All skin XML parsed, `git diff --check` passed, and 76 skin, four video-plugin
 and 13 audio-bridge tests passed. Before deployment, the physical endpoint's
 affected XML was checkpointed at

@@ -172,9 +172,9 @@
     <include name="AsterCategoryButton">
         <width>280</width><height>56</height>
         <font>font24</font><align>center</align><aligny>center</aligny>
-        <textcolor>asterInk</textcolor><focusedcolor>asterGreen</focusedcolor>
-        <texturefocus border="20" colordiffuse="asterGold">special://skin/media/ui-button-ring.png</texturefocus>
-        <texturenofocus>none</texturenofocus>
+        <textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor>
+        <texturefocus border="20" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus border="20" colordiffuse="c929302b">special://skin/media/ui-panel.png</texturenofocus>
     </include>
     <include name="AsterGenreTile">
         <definition>
@@ -202,9 +202,9 @@
         <width>248</width><height>56</height>
         <font>font20</font><align>left</align><aligny>center</aligny>
         <textoffsetx>52</textoffsetx>
-        <textcolor>asterInk</textcolor><focusedcolor>asterGreen</focusedcolor>
-        <texturefocus border="20" colordiffuse="asterGold">special://skin/media/ui-button-ring.png</texturefocus>
-        <texturenofocus>none</texturenofocus>
+        <textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor>
+        <texturefocus border="20" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus border="20" colordiffuse="c929302b">special://skin/media/ui-panel.png</texturenofocus>
         <ondown>120</ondown>
     </include>
     <include name="AsterClockPill">
