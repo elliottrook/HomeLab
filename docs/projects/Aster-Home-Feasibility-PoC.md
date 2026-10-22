@@ -1755,7 +1755,10 @@ Aster Home v1.0.1 to the retained Estuary skin, opened Estuary's Home window
 and accepted an input action. It then changed back to `skin.asterhome` without
 a restart, returned to Aster's Home window and retained the active Jellyfin
 websocket. This proves that a skin-level failure does not strand the endpoint.
-Restoring the full clean-profile archive remains a separate destructive drill.
+Another full endpoint reboot then retained Aster as the selected skin, started
+Kodi, re-authenticated Jellyfin and reopened its websocket with no startup or
+Sync Queue warning. Repeated cold boot is therefore closed. Restoring the full
+clean-profile archive remains a separate destructive drill.
 
 ## 15. References
 

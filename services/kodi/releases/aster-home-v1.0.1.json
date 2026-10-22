@@ -59,7 +59,7 @@
     "physical_osd_stream_selection": "audio-and-pgs-subtitle-selection-passed",
     "physical_endpoint_upgrade": "all-four-components-enabled-hashes-verified-jellyfin-session-retained",
     "jellyfin_kodi_sync_queue": "optional-client-setting-disabled-server-plugin-not-installed",
-    "physical_cold_boot": "kodi-active-aster-v1.0.1-jellyfin-authenticated-websocket-open-no-startup-warnings",
+    "physical_cold_boot": "repeated-kodi-active-aster-v1.0.1-jellyfin-authenticated-websocket-open-no-startup-warnings",
     "physical_4k_soak": "20-minutes-83mbps-hevc-vaapi-23.976-99pct-cache-38c-max-no-sustained-errors",
     "physical_estuary_fallback": "estuary-home-operable-and-aster-restored-without-restart"
   },

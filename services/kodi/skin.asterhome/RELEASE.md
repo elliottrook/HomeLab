@@ -113,7 +113,7 @@ passthrough, or requires broader credentials/network access than documented.
 
 ## Physical production gate
 
-- [ ] Boot and restart LibreELEC repeatedly without manual repair.
+- [x] Boot and restart LibreELEC repeatedly without manual repair.
 - [x] Install and hash-check the v1 bundle from a clean client profile.
 - [ ] Confirm the complete navigation path with the selected remote after
       pairing, reboot and idle reconnection.
