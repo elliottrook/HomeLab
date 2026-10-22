@@ -42,6 +42,11 @@ class NonzeroResult(Result):
     returncode = 1
 
 
+class CommunicationFailureResult(Result):
+    def communicate(self, timeout=None):
+        raise RuntimeError("synthetic communication failure")
+
+
 class F2ScheduledReleaseTests(unittest.TestCase):
     def epoch(self, hour, minute):
         return datetime(2026, 10, 19, hour, minute, tzinfo=ZoneInfo("America/Vancouver")).timestamp()
@@ -106,6 +111,15 @@ class F2ScheduledReleaseTests(unittest.TestCase):
             with self.assertRaisesRegex(candidate.ScheduledF2Error, "launch failed"):
                 candidate.final(self.runner(self.epoch(1, 20)), popen=lambda *a, **k: (_ for _ in ()).throw(OSError("hidden")), clock=lambda: self.epoch(1, 20))
             self.assertEqual(candidate._existing_state("2026-10-19")["failure_class"], "OBSERVER_LAUNCH_FAILED")
+
+    def test_final_observer_communication_records_bounded_code(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True), patch.object(candidate, "run_fixed_final_guard"):
+            candidate._write_state("2026-10-19", "prepare", "prepared")
+            with self.assertRaisesRegex(candidate.ScheduledF2Error, "communication failed"):
+                candidate.final(self.runner(self.epoch(1, 20)), popen=lambda *a, **k: CommunicationFailureResult(), clock=lambda: self.epoch(1, 20))
+            saved = candidate._existing_state("2026-10-19")
+            self.assertEqual(saved["first_failure_phase"], "final")
+            self.assertEqual(saved["failure_class"], "OBSERVER_COMMUNICATION_FAILED")
 
     def test_first_prepare_failure_survives_final_attempt(self):
         with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True), patch.object(candidate, "capture_fixed_preflight", side_effect=candidate.ScheduledF2Error("fixed source failed")):

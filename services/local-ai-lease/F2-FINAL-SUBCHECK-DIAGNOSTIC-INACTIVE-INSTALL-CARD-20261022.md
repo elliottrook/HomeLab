@@ -41,7 +41,7 @@ approved correction.
 | `/usr/local/libexec/local-ai-lease/f2_scheduled_release_candidate.py` | `fd711a4c1afa9fe128464f61390d63c54f7e513a8811cbc79f0d27c522452356` | `98b26e88fc17418f0f48dbf24aafb3b44b06069de5fec2d244b55e58d7adb425` |
 
 Source test pin: `scripts/local-ai/test_f2_scheduled_release_candidate.py` is
-`863939328e7411ea9bff8c2b085af9e27a634b609e95ea63b32b5caa6378e8cf`.
+`5d07939244276d465636b01e97f34e14fd3797804fbbcd825dd545ae2fa52ddb`.
 Proposed rollback checkpoint:
 `/root/aster-f2-final-subcheck-rollback-<new-source-short-hash>`.
 
