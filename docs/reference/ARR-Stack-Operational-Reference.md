@@ -184,7 +184,9 @@ an unrelated Host still returns HTTP 400.
 
 Sonarr and Radarr rename future imports and include the parsed quality plus a
 conditional release-group suffix. Existing media was not bulk-renamed. Profilarr
-continues to own profiles and custom formats; naming remains application-local.
+remains the intended profile-as-code authority, but a 2026-10-23 live review
+found zero configured ARR instances and zero assigned profiles, so it is not
+currently synchronizing Sonarr or Radarr. Naming remains application-local.
 
 The scoped Compose definitions now use immutable image digests, bind recovery
 ports only to `192.168.20.40`, and set `America/Vancouver` explicitly rather
@@ -206,6 +208,29 @@ fresh report at `2026-10-17T08:04:08Z` showed Sonarr, Radarr, Prowlarr, SABnzbd
 and Jellyfin healthy. Lidarr retained one safe import refusal caused by a 49.3%
 track match below its 60% threshold amid normal live queue activity; it was not
 retried, dismissed or forced.
+
+## English-first audio policy and reviewed removal — 2026-10-23
+
+Every Sonarr and Radarr quality profile now scores `Original Audio` 100 and
+`English Audio` 50 with a minimum custom-format score of 100. This requires the
+work's original audio, prefers releases that also contain English, and preserves
+foreign originals. Upgrades remain disabled. The release parser is only an
+acquisition filter; direct stream inspection remains authoritative because ARR
+metadata disagreed with `ffprobe` for several existing files.
+
+The initial full-library audit identified 32 files whose direct stream tags had
+no English audio. Jason accepted foreign originals when English subtitles are
+available. Seven foreign originals were retained, including `A Man Called Ove`,
+which was added to Radarr as a monitored present movie without a search. The 25
+English-original mismatches were explicitly approved for deletion without a new
+snapshot, removed through Sonarr/Radarr, and validated as monitored and missing.
+No search or grab was started and queues did not change. `Parasite` and `The
+Lunchbox` remain known foreign-original English-subtitle gaps. See
+`docs/projects/ARR-Original-Audio-Guard-and-Repair.md` and its linked evidence.
+Separately approved targeted searches then found a score-150 English-parsed
+result for every one of the 25 missing records. The first imported replacement
+was directly verified with an English audio track; the remaining downloads are
+not accepted as stream-verified until their post-import probes pass.
 
 ## Configuration recovery — 2026-09-26
 
