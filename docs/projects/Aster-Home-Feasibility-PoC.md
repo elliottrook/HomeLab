@@ -2387,6 +2387,26 @@ The deterministic v1.0.4 package was rebuilt so the release keymap and skin
 contain both tested corrections; the superseded local build was retained only
 in `/tmp` during validation and is not a release artefact.
 
+The same attended pass confirmed episode playback, the lightweight OSD, both
+audio and subtitle selectors, and full-Digest playback. Selecting an individual
+Digest story initially exposed a player-readiness race: Kodi reported a newly
+opened cached VBR MP3 as seekable before its demuxer had stabilized, then reset
+some accepted percentage seeks to the beginning. The final handler uses Kodi's
+documented absolute-time seek object, reuses the current briefing player when
+possible, and waits for a newly opened player to advance before seeking. The
+owner verified both a cold single-story start and selecting a second story
+while the briefing was already playing. The final deterministic v1.0.4 package
+and staged device copy include this correction.
+
+A normal-speed automated sweep subsequently loaded Books, Digest, Home, Music,
+Albums, Artists, Songs, Playlists, eBooks, Audiobooks, Podcasts and Breaking
+News with the expected custom window and a usable focused control where data
+was available. Kodi stayed active. A clean Kodi restart then reloaded the
+v1.0.4 keymap and skin, reauthenticated Jellyfin, reopened its websocket,
+opened a Music album, started a selected track and stopped playback. The
+post-restart log contained no XML, Python, Kodi error or traceback, and the
+three live corrected-file hashes matched the final package source.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

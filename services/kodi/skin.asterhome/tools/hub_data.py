@@ -185,21 +185,17 @@ def timer_display(remaining):
     return digital, str(ring)
 
 
-def seek_percentage(offset, duration):
-    """Convert an absolute chapter offset to Kodi's portable MP3 seek form."""
+def seek_time(offset):
+    """Convert a bounded chapter offset to Kodi's absolute-time seek form."""
     if (isinstance(offset, bool) or not isinstance(offset, (int, float)) or
-            not math.isfinite(offset) or offset < 0 or not isinstance(duration, dict)):
+            not math.isfinite(offset) or offset < 0 or offset > 14400):
         raise ValueError('Invalid digest seek position')
-    try:
-        total = (int(duration.get('hours', 0)) * 3600 +
-                 int(duration.get('minutes', 0)) * 60 +
-                 int(duration.get('seconds', 0)) +
-                 int(duration.get('milliseconds', 0)) / 1000)
-    except (TypeError, ValueError):
-        raise ValueError('Invalid digest duration')
-    if total <= 0 or offset > total:
-        raise ValueError('Digest seek position is outside the recording')
-    return min(100.0, offset * 100.0 / total)
+    total_milliseconds = round(offset * 1000)
+    total_seconds, milliseconds = divmod(total_milliseconds, 1000)
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return {'hours': hours, 'minutes': minutes, 'seconds': seconds,
+            'milliseconds': milliseconds}
 
 
 TIMER_PRESETS = {
@@ -457,17 +453,25 @@ def main(page, action='refresh'):
             window.setProperty('AsterHub.Status', 'Briefing audio unavailable')
             return
         window.setProperty('AsterHub.AudioPath', audio_path)
-        xbmc.Player().play(audio_path, item, windowed=True)
+        player = xbmc.Player()
+        try:
+            reuse_player = (chapter_offset is not None and player.isPlayingAudio() and
+                            player.getPlayingFile() == audio_path)
+        except RuntimeError:
+            reuse_player = False
+        if not reuse_player:
+            player.play(audio_path, item, windowed=True)
         # Startup is asynchronous, especially for the first network playback.
         for _ in range(20):
-            if xbmc.Player().isPlayingAudio():
+            if player.isPlayingAudio():
                 break
             xbmc.sleep(250)
-        if xbmc.Player().isPlayingAudio():
+        if player.isPlayingAudio():
             if chapter_offset is not None and chapter_offset > 4:
                 # Audio startup precedes seekability for MP3s. Wait for
-                # Kodi's player to report it can seek, then verify the
-                # returned position rather than assuming seekTime succeeded.
+                # Kodi's player to report it can seek. A freshly opened VBR
+                # MP3 can still reset an immediately accepted seek, so let its
+                # demuxer advance before the first absolute-time request.
                 for _ in range(20):
                     try:
                         state = kodi_rpc(xbmc, 'Player.GetProperties', {
@@ -482,15 +486,22 @@ def main(page, action='refresh'):
                     xbmc.executebuiltin('PlayerControl(Stop)')
                     window.setProperty('AsterHub.Status', 'Unable to skip to this story')
                     return
+                if not reuse_player:
+                    for _ in range(24):
+                        try:
+                            if player.getTime() >= 3:
+                                break
+                        except RuntimeError:
+                            pass
+                        xbmc.sleep(250)
                 try:
-                    percentage = seek_percentage(chapter_offset, state.get('totaltime'))
+                    position = seek_time(chapter_offset)
                     result = kodi_rpc(xbmc, 'Player.Seek', {
-                        'playerid': 0,
-                        'value': {'percentage': percentage}})
-                    xbmc.log(f'Aster Digest: seek to {chapter_offset} ({percentage:.3f}%) '
+                        'playerid': 0, 'value': {'time': position}})
+                    xbmc.log(f'Aster Digest: seek to {chapter_offset} '
                              f'returned {result}', xbmc.LOGINFO)
-                    for _ in range(8):
-                        actual = xbmc.Player().getTime()
+                    for _ in range(20):
+                        actual = player.getTime()
                         if abs(actual - chapter_offset) <= 3:
                             break
                         xbmc.sleep(250)

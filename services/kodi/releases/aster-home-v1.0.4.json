@@ -5,7 +5,7 @@
   "built_on": "2026-10-22",
   "design_canvas": "1920x1080-16:9-scales-to-4k",
   "artifact_directory": "services/kodi/dist/aster-home-v1.0.4",
-  "manifest_sha256": "bfb8ba2c4b9944bcca9c9ab31dcfae84bd15b4b9b99789af40bb987cc7bfe2e6",
+  "manifest_sha256": "3a0e7e5285e3efc2474888a1d961de7916db0ccc6b1f064ccda9f27f152bdec8",
   "artifacts": [
     {
       "addon_id": "plugin.video.asterhome",
@@ -28,8 +28,8 @@
     {
       "addon_id": "skin.asterhome",
       "archive": "skin.asterhome-1.0.4.zip",
-      "bytes": 4531776,
-      "sha256": "76b76b9db39b303a17dc08aba0cceae7e4fb31779f9c734eb012b92a214d3a44"
+      "bytes": 4531832,
+      "sha256": "1389b5075e6b0b4272ca419535120dff4678ee87f05d2dd50ea76de4ce860c8e"
     }
   ],
   "client_files": [
@@ -69,7 +69,10 @@
     "rollback_checkpoint_verification": "tar-readable-and-all-156-files-match-live-v1.0.3",
     "startup_branding_checkpoint": "/storage/.aster-checkpoints/aster-startup-branding-20261022-203418",
     "staged_package_device_verification": "corrected-build-all-archive-sha256-crc-addon-metadata-internal-file-sha256-and-keymap-xml-passed",
-    "g20_physical_select": "key-select-353-mapped-and-album-plus-track-activation-owner-verified"
+    "g20_physical_select": "key-select-353-mapped-and-album-plus-track-activation-owner-verified",
+    "digest_story_selection": "fresh-start-and-in-progress-absolute-time-seek-owner-verified",
+    "custom_page_sweep": "all-twelve-custom-destinations-loaded-at-normal-speed",
+    "post_restart_music": "album-open-track-playback-and-stop-passed-with-clean-log"
   },
   "graduation_blocker": "BOSGAME main-TV HDR indicator, receiver passthrough, G20 production mapping, YouTube playback, Audiobookshelf and camera production routes, soak, and destructive recovery validation"
 }
