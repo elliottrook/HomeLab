@@ -101,6 +101,29 @@ class FreshPackageTests(unittest.TestCase):
         self.path.write_text(original.rstrip())
         with self.assertRaisesRegex(ValueError, 'partial'): self.run_fixture()
 
+    def test_rehashed_unexpected_journal_fields_are_rejected(self):
+        self.run_fixture(ready=lambda: False)
+        row = json.loads(self.path.read_text())
+        row['unexpected'] = 'synthetic private field'
+        sealed = dict(row); sealed.pop('digest')
+        row['digest'] = digest(sealed)
+        self.path.write_text(json.dumps(row) + '\n')
+        with self.assertRaisesRegex(ValueError, 'row shape'):
+            self.run_fixture()
+
+    def test_rehashed_finished_result_is_revalidated(self):
+        def timeout(case, mode, *args):
+            return {'case_id': case['id'], 'mode': mode,
+                    'status': 'transport_error:TimeoutError', 'steps': []}
+        self.assertEqual(self.run_fixture(engine=timeout)['status'], 'stopped')
+        rows = [json.loads(line) for line in self.path.read_text().splitlines()]
+        rows[-1]['event']['result']['reasoning'] = 'synthetic private reasoning'
+        sealed = dict(rows[-1]); sealed.pop('digest')
+        rows[-1]['digest'] = digest(sealed)
+        self.path.write_text('\n'.join(json.dumps(row) for row in rows) + '\n')
+        with self.assertRaisesRegex(ValueError, 'invalid engine result'):
+            self.run_fixture()
+
     def test_case_tamper_and_labels_rejected(self):
         self.bundle['cases'][0]['prompt'] += 'changed'
         with self.assertRaises(ValueError): validate_cases(self.bundle, self.manifest)

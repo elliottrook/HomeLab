@@ -124,25 +124,40 @@ def run_package(bundle, manifest, ledger, transport, ready, model='qwen3.8-27b',
         previous, active, done = '', None, set()
         for line in raw.splitlines():
             row = json.loads(line)
+            if not isinstance(row, dict) or set(row) != {'release', 'previous', 'event', 'digest'}:
+                raise ValueError('invalid journal row shape')
             sealed = dict(row); stored = sealed.pop('digest')
             if row['previous'] != previous or digest(sealed) != stored or row['release'] != manifest['release_digest']:
                 raise ValueError('journal integrity/release mismatch')
             previous = stored
             event = row['event']
+            if not isinstance(event, dict) or not isinstance(event.get('type'), str):
+                raise ValueError('invalid journal event')
             if event['type'] == 'started':
+                if set(event) != {'type', 'case_id', 'mode'}:
+                    raise ValueError('invalid started event')
                 pair = (event['case_id'], event['mode'])
                 if active is not None or pair in done or pair not in allowed:
                     raise ValueError('invalid session sequence')
                 active = pair
             elif event['type'] == 'finished':
-                pair = (event['result']['case_id'], event['result']['mode'])
+                if set(event) != {'type', 'result'} or not isinstance(event['result'], dict):
+                    raise ValueError('invalid finished event')
+                raw_result = event['result']
+                result = validate_engine_result(
+                    raw_result, raw_result.get('case_id'), raw_result.get('mode')
+                )
+                pair = (result['case_id'], result['mode'])
                 if pair != active:
                     raise ValueError('completion without matching start')
-                status = event['result']['status']
+                status = result['status']
                 if status.startswith('transport_error') or status == 'time_budget_exhausted':
                     raise ValueError('failed session requires explicit reconciliation; no replay')
                 done.add(pair); active = None
-            elif event['type'] != 'paused':
+            elif event['type'] == 'paused':
+                if set(event) != {'type', 'reason'} or event['reason'] != 'not_confirmed_idle_healthy':
+                    raise ValueError('invalid paused event')
+            else:
                 raise ValueError('unknown journal event')
         if active is not None:
             raise ValueError('uncertain session; no replay')

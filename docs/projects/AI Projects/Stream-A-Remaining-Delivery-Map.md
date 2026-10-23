@@ -613,6 +613,12 @@ checked on the locked descriptor before reading. An owner-only oversized
 fixture was rejected before parsing, and the complete eval suite passed
 115/115. This limits corrupted-input resource use; it does not reconcile or
 rewrite an existing journal.
+Resume now also
+[revalidates exact journal rows, events and finished results](evidence/D4-journal-resume-validation-boundary-2026-10-22.md)
+after verifying the chain. Correctly rehashed fixtures with an unexpected
+outer field or a private-reasoning result were rejected, and the complete
+eval suite passed 117/117. This closes a malformed-record acceptance path; the
+hash chain remains an integrity structure rather than a signature.
 
 ## Immediate next action and stop rule
 
