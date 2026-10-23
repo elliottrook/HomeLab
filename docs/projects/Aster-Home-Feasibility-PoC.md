@@ -1,6 +1,6 @@
 # Aster Home — EH-001: LibreELEC/Kodi feasibility experiment
 
-> **Status:** Active — Stream A; Aster Home v1.0.3 is proven on the HP LibreELEC 12 baseline and has passed a non-destructive BOSGAME E3 Neo live trial on pinned LibreELEC 13 nightly/Kodi 22, including Aster skin load and 4K60 HEVC HDR10/AV1 playback; the BOSGAME internal-install decision, receiver audio, production camera routing, voice integration and destructive recovery gates remain open
+> **Status:** Active — Stream A; the BOSGAME E3 Neo internal NVMe now runs the pinned LibreELEC 13 nightly/Kodi 22 baseline with Aster Home v1.0.3, synchronized Jellyfin media/music libraries, approved AsterTV startup branding and prior 4K60 HEVC HDR10/AV1 playback evidence; v1.0.4 is packaged locally while main-TV HDR/receiver passthrough, G20 production mapping, YouTube playback, Books/Home/Digest client-state migration, soak and destructive recovery gates remain open
 > **Owner:** Jason
 > **Date:** 2026-10-13
 > **Authorization:** Stream A requested for bounded, reversible proof of concept; operational execution remains subject to the actual environment, project-standard and platform safety gates.
@@ -2323,6 +2323,42 @@ matches its prior SHA-256
 After a controlled reboot Kodi returned active, both deployed hashes persisted,
 and `/flash` was read-only. No library, playback, remote-control or firmware
 state was changed by this branding cutover.
+
+### BOSGAME unattended audit and v1.0.4 package — 2026-10-22
+
+An unattended-safe audit confirmed the internally installed LibreELEC 13
+nightly `20261021-440640e`, Kodi 22 RC1 and Aster Home v1.0.3 remained active
+after the branding reboot. The endpoint renders through Intel ADL-N graphics
+to the attached LG HDR 4K sink and has 467 GB free in `/storage`. Jellyfin
+re-authenticated after controlled Kodi restarts and reopened its websocket.
+Read-only database counts were 1,049 movies, 208 shows, 6,157 episodes, 129
+sets, 1,043 artists, 1,334 albums and 17,113 songs. The count changes from the
+earlier sync record are normal library updates rather than a new local import.
+
+A scripted shell-navigation sweep opened Books, Digest, Home, Music, Albums,
+Artists, Songs, Playlists, eBooks, Audiobooks, Podcasts, the music player and
+Breaking News, then returned to Home. Kodi did not crash. Script-populated
+lists emitted transient initial-focus warnings during the artificial one-second
+sweep; their post-population focus path remains covered by tests and requires
+normal-speed owner review rather than being claimed visually from this run.
+The audit exposed missing client state rather than code failures: this profile
+has no `books.json` or `home.json`, no Audiobookshelf `client.json`, and no
+music playlist files. Accordingly Books/Home use their bounded unavailable
+states, Audiobookshelf playback is not ready, and Playlists is empty. Digest
+and Home household data, credentials and personal playlists were not copied
+from another endpoint during the unattended test.
+
+The approved AsterTV splash changed the packaged skin, so immutable v1.0.3 was
+not rewritten. The four add-ons were versioned to 1.0.4 and a deterministic
+local bundle plus release record were generated. Validation passed 83 skin,
+6 media-plugin, 13 private audio-bridge, 3 UI-sound and 3 packaging tests. The
+live endpoint remains on v1.0.3 until the v1.0.4 install and rollback checkpoint
+are exercised as a separate bounded deployment. After diagnostics, Kodi was
+restarted cleanly, its loopback JSON-RPC listener had no retained connections,
+Jellyfin reported `User is authenticated`, and the websocket reopened.
+The six v1.0.4 artifacts were staged without activation under
+`/storage/.aster-staging/aster-home-v1.0.4/`; remote SHA-256 readback matched
+the release record for every file and Kodi remained active.
 
 ## 15. References
 

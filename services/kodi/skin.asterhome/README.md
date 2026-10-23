@@ -1,6 +1,6 @@
 # Aster Home Kodi skin
 
-Version 1.0.3 is the current Aster Home private deployment candidate. It retains
+Version 1.0.4 is the current Aster Home private deployment candidate. It retains
 the v1.0.1 selection-dialog correction and uses percentage-based seeking for
 Daily Digest MP3 chapters after the physical LibreELEC player proved inaccurate
 absolute-time seeking. The complete Mac-validated interface and physical HP
@@ -633,7 +633,7 @@ charcoal backplates so they remain legible over variable hero artwork, while
 secondary Digest actions remain visually quiet until focused. Search fields
 retain their explicit input affordance but no longer sit inside a large
 enclosing card. The accepted milestone and subsequent remote activation fix
-are packaged in the private v1.0.3 deployment candidate.
+are packaged in the private v1.0.4 deployment candidate.
 
 ## Local test
 

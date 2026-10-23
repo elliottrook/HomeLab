@@ -1,0 +1,70 @@
+{
+  "schema": "aster-home-kodi-release-record.v1",
+  "release": "1.0.4",
+  "status": "production-candidate-pending-physical-libreelec-gate",
+  "built_on": "2026-10-22",
+  "design_canvas": "1920x1080-16:9-scales-to-4k",
+  "artifact_directory": "services/kodi/dist/aster-home-v1.0.4",
+  "manifest_sha256": "52839bf437aeaa090adb49c4f8d0e64a9ca9ab839a44be0e64e7fdee7c74edde",
+  "artifacts": [
+    {
+      "addon_id": "plugin.video.asterhome",
+      "archive": "plugin.video.asterhome-1.0.4.zip",
+      "bytes": 3556,
+      "sha256": "5393719805113b6181a754d1516a63ebe3c7086793060476c76d874ec83ee7fe"
+    },
+    {
+      "addon_id": "plugin.audio.asterbooks",
+      "archive": "plugin.audio.asterbooks-1.0.4.zip",
+      "bytes": 10021,
+      "sha256": "0eebe26eafb78f932bfd220d5bf24f4801d454b2f205e456191e4035d8bb1fbe"
+    },
+    {
+      "addon_id": "resource.uisounds.asterhome",
+      "archive": "resource.uisounds.asterhome-1.0.4.zip",
+      "bytes": 82959,
+      "sha256": "75eaac64d9fb6314f676a3fe7f0fb1d3ced2109980ae4f2df92ce6ac00f81abf"
+    },
+    {
+      "addon_id": "skin.asterhome",
+      "archive": "skin.asterhome-1.0.4.zip",
+      "bytes": 4531779,
+      "sha256": "59c5e7fffa4b124bd4acefa5336b301ff42252653af091d01f496369bc33b55a"
+    }
+  ],
+  "client_files": [
+    {
+      "file": "g20s-pro-plus.xml",
+      "bytes": 1648,
+      "sha256": "88aee19391d3efec6fd52573037ce382caa2555d7a1aba246707e17b00715394",
+      "install_target": "userdata/keymaps/g20s-pro-plus.xml"
+    }
+  ],
+  "install_order": [
+    "plugin.video.asterhome",
+    "plugin.audio.asterbooks",
+    "resource.uisounds.asterhome",
+    "skin.asterhome"
+  ],
+  "external_dependencies": [
+    {
+      "addon_id": "plugin.video.youtube",
+      "version": "7.4.4",
+      "source": "Kodi Omega repository"
+    }
+  ],
+  "validation": {
+    "skin_tests": 83,
+    "video_plugin_tests": 6,
+    "audio_bridge_tests": 13,
+    "ui_sound_tests": 3,
+    "packaging_tests": 3,
+    "physical_libreelec": "bosgame-libreelec-13-nightly-kodi-22-active-at-4k60",
+    "physical_playback": "hevc-hdr10-av1-movie-episode-and-music-direct-play-passed",
+    "physical_library": "jellyfin-movies-shows-episodes-sets-artists-albums-and-songs-synchronized",
+    "startup_branding": "astertv-kodi-and-libreelec-splashes-persisted-after-reboot",
+    "startup_splash_sha256": "912228f3866b33749905eb8154b470d3170fe4747f92799811470bb49b986cce",
+    "rollback_checkpoint": "/storage/.aster-checkpoints/aster-startup-branding-20261022-203418"
+  },
+  "graduation_blocker": "BOSGAME main-TV HDR indicator, receiver passthrough, G20 production mapping, YouTube playback, Audiobookshelf and camera production routes, soak, and destructive recovery validation"
+}

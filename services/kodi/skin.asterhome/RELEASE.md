@@ -1,11 +1,12 @@
-# Aster Home 1.0.3 deployment candidate
+# Aster Home 1.0.4 deployment candidate
 
 ## Status and boundary
 
-Aster Home 1.0.3 is the current owner-accepted **private deployment candidate**
-for the Kodi interface. It retains the v1.0.2 media and Digest fixes and
-packages the source-deployed remote-first navigation, lightweight player UI,
-startup-branding support, G20 OK activation repair and clearer tile focus.
+Aster Home 1.0.4 is the current **private deployment candidate** for the Kodi
+interface. It retains the owner-accepted v1.0.3 media, Digest, remote-first
+navigation and lightweight player UI, and adopts the approved AsterTV
+production lockup for both supported startup stages without rewriting the
+immutable v1.0.3 bundle.
 The HP ProDesk LibreELEC baseline has exercised the populated 4K UI, 1080p and
 high-bitrate 4K HEVC direct stream, refresh matching, OSD, audio/subtitle
 selection and physical G20 navigation. It is not yet the production-appliance
@@ -29,12 +30,12 @@ Build with:
 
 ```sh
 python3 services/kodi/package_aster_home.py \
-  --output /path/to/aster-home-v1.0.3
+  --output /path/to/aster-home-v1.0.4
 ```
 
 The deterministic bundle contains four independently installable Kodi ZIPs,
 the profile-level `g20s-pro-plus.xml` keymap and
-`aster-home-v1.0.3-manifest.json`. It also declares one external official
+`aster-home-v1.0.4-manifest.json`. It also declares one external official
 Kodi dependency, `plugin.video.youtube` 7.4.4; third-party source is not
 vendored into the private bundle:
 
@@ -149,5 +150,5 @@ passthrough, or requires broader credentials/network access than documented.
 - [ ] Record accepted limitations and issue the project USE / CONDITIONAL USE /
       REJECT decision before replacing the Apple TV.
 
-Until those checks pass, use **v1.0.3 deployment candidate**, not **production
+Until those checks pass, use **v1.0.4 deployment candidate**, not **production
 appliance**, in operator records.
