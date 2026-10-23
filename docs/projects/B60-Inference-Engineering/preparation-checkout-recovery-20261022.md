@@ -54,3 +54,21 @@ and did not acquire a lease, collect production preflight, invoke F2, stop
 consumers or make a model call. The GitHub protection ref still matches the
 published base. No push and no duplicate owner request; the existing F2
 source-reconciliation request remains the next action.
+
+## October 23 nightly continuation
+
+The trigger carries 07:29:35 UTC (00:29:35 PDT), but the first execution
+clock is 10:00:35 UTC (03:00:35 PDT): approximately 2h31m later. This is
+an observed timestamp difference, not a diagnosis of scheduler or sleep cause.
+The turn did not acquire a lease or execute GPU work. The same three owner
+refs and admission/source hashes above remain current after a fresh fetch;
+the additionally fetched compatibility branch is
+`1dd38c762e7598646a94d49cc44188376d6952ea`, an already documented source-only
+October 17 projection correction, not a new F2 success or live release.
+A failed guessed-path lookup was corrected with the branch tree listing;
+its empty-pipeline digest was discarded, not accepted as a receipt.
+The protection branch still matches the published B60 base. Eight offline
+admission/recovery-margin tests pass. No new owner READY evidence exists;
+the F2 source-reconciliation request and independent recovery/A1 gates still
+control continuation. No fresh production state is asserted, no missed scan
+was retried, no model call ran, and no push occurred.
