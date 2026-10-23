@@ -1,7 +1,7 @@
 # Full-stop recovery drill — dependency tracker
 
 **Owner:** Stream A for evidence and coordination; Local AI platform owner for
-host release, lease and recovery. **Last reconciled:** 2026-10-20
+host release, lease and recovery. **Last reconciled:** 2026-10-23
 America/Vancouver. **Overall decision: NO-GO.** This tracker is the human
 status page. The platform-owned
 `services/local-ai-lease/FULL-STOP-RECOVERY-DRILL-RUN-CARD.md` is the executable
@@ -56,8 +56,12 @@ commit `58edf4e1`. Stream A's
 [independent review](evidence/F2-exact-cycle-activation-review-2026-10-23.md)
 verified both timer hashes, exact dates, nonpersistent scheduling, preservation
 of October 19–22 evidence and the observation-only cleanup owner. The candidate
-is ready for a separate activation decision; no timer is active and no scan is
-authorized yet.
+did not receive its separate activation approval before the fixed window and
+is now expired. The [04:00 reconciliation](evidence/F2-window-not-activated-2026-10-23.md)
+confirmed both exact-date units absent, recurring F2 timers disabled/inactive,
+and no cycle state, lease, lock or scanner. No scan ran. F2 remains open; the
+platform owner must prepare a fresh-date card before another activation
+decision.
 
 The one-time October 17 supervised F2 guard was invoked once after the
 current-cycle backup and task-1 pull passed preflight. It returned `F2NoGo`
