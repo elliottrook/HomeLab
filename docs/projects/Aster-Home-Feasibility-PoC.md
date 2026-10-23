@@ -1,6 +1,6 @@
 # Aster Home — EH-001: LibreELEC/Kodi feasibility experiment
 
-> **Status:** Active — Stream A; Aster Home v1.0.3 deployment candidate packaged 2026-10-22 from the physically verified HP baseline; cold boot, 20-minute 4K soak, non-YouTube page/media sweep and G20 control path passed with BOSGAME production-client deployment, receiver audio, production camera routing, voice integration and destructive recovery gates still open
+> **Status:** Active — Stream A; Aster Home v1.0.3 is proven on the HP LibreELEC 12 baseline and has passed a non-destructive BOSGAME E3 Neo live trial on pinned LibreELEC 13 nightly/Kodi 22, including Aster skin load and 4K60 HEVC HDR10/AV1 playback; the BOSGAME internal-install decision, receiver audio, production camera routing, voice integration and destructive recovery gates remain open
 > **Owner:** Jason
 > **Date:** 2026-10-13
 > **Authorization:** Stream A requested for bounded, reversible proof of concept; operational execution remains subject to the actual environment, project-standard and platform safety gates.
@@ -2249,6 +2249,57 @@ passed, the corrected map loaded after restart, Aster Home v1.0.3 loaded, and
 Jellyfin reauthenticated with its websocket open. The immutable v1.0.3 bundle
 still contains the original keymap and must not be used for another deployment
 without this corrective overlay or a superseding release package.
+
+### BOSGAME LibreELEC 12 failure and LibreELEC 13 live recovery — 2026-10-22
+
+The internal LibreELEC 12.2.1/Kodi 21.3 installation on the BOSGAME E3 Neo was
+not production-stable. The whole endpoint repeatedly became unresponsive within
+roughly 40 seconds, including local input, ICMP and SSH. The failure reproduced
+with Estuary, third-party add-ons disabled and Kodi stopped. Immediately before
+one lock the load average rose above 38,000 while memory remained available;
+there was no corresponding OOM, NVMe, filesystem, i915 reset or watchdog
+evidence. Firmware also emitted unresolved ACPI `\_SB.UBTC.RUCC` errors. Adding
+`intel_idle.max_cstate=1` to both internal boot configurations and disabling the
+firmware's master C-state control did not resolve the lock.
+
+The retained Kingston installer was copied to both the Mac and HP before it was
+reused. The Mac backup is
+`/tmp/Kingston-LibreELEC-12.2.1-installer-backup.tgz`, SHA-256
+`f0e15dc736570017390a855ccaba2019c4319a1b17eab68e227ff98f36fee5f3`;
+the HP retains the same archive under `/storage/`. The USB was then written and
+read back byte-for-byte with official Generic x86-64 LibreELEC 13 nightly
+`20261021-440640e`; the raw-image SHA-256 is
+`5a01c84f31c613bbc942d6cb663f57838e0e34738bff299aa508cd9b808cb52a`.
+The first write exposed an HP USB-port/automount path problem; changing ports,
+temporarily masking only the two udevil mount units and rewriting produced an
+exact readback. The BOSGAME booted this media in `live` mode as `AsterTVTest`,
+leaving the internal NVMe untouched.
+
+LibreELEC 13 uses Linux 7.3.0 and Kodi 22.0 on this image. The live system
+remained responsive for more than an hour with low load and about 14.4 GB of
+available memory. Deep-idle C6/C8/C10 counters continued to advance, including
+substantial C10 use, which indicates that the newer kernel handles this
+platform without the unsuccessful C-state restriction. No GPU reset or new
+kernel error occurred during the trial.
+
+Bounded playback passed at 3840x2160/60 Hz with 10-bit output for official
+Jellyfin Creative Commons HEVC 10-bit SDR, HEVC HDR10 and AV1 10-bit SDR
+samples, each at 40 Mbit/s.
+
+The exact Aster Home v1.0.3 four-component bundle and official YouTube 7.4.4
+were then staged into the disposable live profile. All 83 local Aster skin
+tests and `git diff --check` passed before transfer, and remote package hashes
+matched the local artifacts. Kodi registered the sideloaded packages disabled,
+so its add-on database was checkpointed and the four Aster entries were enabled
+before activation. Kodi 22 then loaded `skin.asterhome` v1.0.3 at 4K60. The
+post-load observation showed no XML failure, Python traceback, GPU reset,
+memory pressure or rising load, and manual navigation remained responsive.
+
+This is a compatibility and stability pass for the pinned nightly, not approval
+to erase or rewrite the BOSGAME internal NVMe. A production install requires a
+fresh explicit destructive authorization, preservation of the live recovery
+USB and deployment of the corrected stable-dispatcher keymap rather than the
+uncorrected immutable v1.0.3 keymap.
 
 ## 15. References
 
