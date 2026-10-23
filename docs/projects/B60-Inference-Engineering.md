@@ -12,6 +12,13 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October 23 Adaptive receipt](B60-Inference-Engineering/adaptive-recovery-receipt-20261023.md)
+receives substantial newly published recovery progress at `cf5cfaf3`, including
+installed diagnostic/window corrections and the approved October 24 F2 timers.
+This supersedes unchanged-owner observations below. F2 has not passed; model
+admission remains closed. The cited newer platform source is not fetchable
+from Forgejo here; an exact publication/process-contract request is recorded.
+
 The [October 22 preparation checkout recovery](B60-Inference-Engineering/preparation-checkout-recovery-20261022.md)
 replaces the damaged disposable checkout with an independent Forgejo clone.
 Git connectivity and 81 offline tests pass; owner readiness remains unchanged.
