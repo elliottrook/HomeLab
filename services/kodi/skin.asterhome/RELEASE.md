@@ -79,8 +79,8 @@ password, profile database, Kodi library database, watched-state database or
 generated household feed.
 
 `skin.asterhome/branding/splash.png` in the skin archive is the approved
-1920x1080 startup asset. After installing the add-on on LibreELEC, copy that
-asset to `/storage/.kodi/media/splash.png` for Kodi startup and to
+1920x1080 AsterTV startup asset. After installing the add-on on LibreELEC,
+copy that asset to `/storage/.kodi/media/splash.png` for Kodi startup and to
 `/flash/oemsplash.png` for the earlier LibreELEC boot stage. Use the source-tree
 `tools/install_libreelec_startup_branding.sh` runbook helper so existing
 overrides are checkpointed and `/flash` returns to read-only. These profile and

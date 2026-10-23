@@ -2301,6 +2301,29 @@ fresh explicit destructive authorization, preservation of the live recovery
 USB and deployment of the corrected stable-dispatcher keymap rather than the
 uncorrected immutable v1.0.3 keymap.
 
+### AsterTV production startup lockup — 2026-10-22
+
+The separately approved `AsterTV` production lockup was retrieved from the
+private Forgejo release `aster-brand-v2-tv-2026-10-22` and used without
+redrawing or substitution. The release ZIP matched published SHA-256
+`6a888ef158f9272f56e73c84494b20c7d7190a6e474deed403e6c72b474c95b0`;
+the selected 1254 px PNG matched
+`f54e9e3da5b03b99e0fd2fc25ca903b8bdc6fe0893612a893cbe21b31b9c412e`.
+The checksum-pinned builder composed the lockup on the existing 1920x1080
+dark-green startup canvas, producing repository and deployed SHA-256
+`912228f3866b33749905eb8154b470d3170fe4747f92799811470bb49b986cce`.
+
+On `AsterTVProd`, both `/flash/oemsplash.png` and
+`/storage/.kodi/media/splash.png` were replaced with that same image so the
+LibreELEC and Kodi startup stages retain one identity. The previous Aster Home
+pair remains at
+`/storage/.aster-checkpoints/aster-startup-branding-20261022-203418/` and
+matches its prior SHA-256
+`738b96b4639c25634ad6639e3e2be9c9985e3f3d5606e8599e0804bea20d85e3`.
+After a controlled reboot Kodi returned active, both deployed hashes persisted,
+and `/flash` was read-only. No library, playback, remote-control or firmware
+state was changed by this branding cutover.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

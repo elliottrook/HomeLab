@@ -255,11 +255,13 @@ subscribed shows; its action delegates episode browsing to the audio add-on.
 ## Kodi and LibreELEC startup branding
 
 Kodi's startup image is separate from the skin. The 1920 × 1080
-`branding/splash.png` places the unmodified, approved Aster Home logo export
-on a solid dark-green background. It was generated from the checksum-verified
-`aster-version-2-family-candidate.zip` with
+`branding/splash.png` places the unmodified, approved AsterTV production
+lockup on a solid dark-green background. It was generated from the
+checksum-verified `aster-brand-v2-tv-2026-10-22.zip` release with
 `python3 tools/build_startup_splash.py ARCHIVE branding/splash.png`
-(Pillow required). The original logo is not redrawn or bundled separately.
+(Pillow required). The builder verifies both the release archive and selected
+1254 px PNG before composition; the original logo is not redrawn or bundled
+separately.
 
 For the disposable Mac Kodi profile, install the file as
 `~/Library/Application Support/Kodi/media/splash.png` and restart Kodi. Check
