@@ -7,7 +7,13 @@ import tempfile
 import unittest
 import urllib.error
 import urllib.request
-from sa3_fresh_execute import MAX_HTTP_BYTES, NoRedirect, read_bounded
+from sa3_fresh_execute import (
+    MAX_HTTP_BYTES,
+    MAX_INPUT_BYTES,
+    NoRedirect,
+    load_bounded_json,
+    read_bounded,
+)
 from test_sa3_fresh_package import fixture
 
 
@@ -36,6 +42,19 @@ class ExecuteTests(unittest.TestCase):
         self.assertEqual('{"ok":true}', read_bounded(io.BytesIO(b'{"ok":true}')))
         with self.assertRaisesRegex(ValueError, 'bounded envelope'):
             read_bounded(io.BytesIO(b'x' * (MAX_HTTP_BYTES + 1)))
+
+    def test_evaluation_inputs_are_bounded_and_reject_duplicate_keys(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'input.json'
+            path.write_text('{"ok":true}')
+            self.assertEqual({'ok': True}, load_bounded_json(path))
+            path.write_text('{"ok":true,"ok":false}')
+            with self.assertRaisesRegex(ValueError, 'duplicate JSON key'):
+                load_bounded_json(path)
+            with path.open('wb') as stream:
+                stream.truncate(MAX_INPUT_BYTES + 1)
+            with self.assertRaisesRegex(ValueError, 'bounded envelope'):
+                load_bounded_json(path)
 
 
 if __name__ == '__main__': unittest.main()

@@ -11,6 +11,24 @@ from sa3_investigation_runner import sanitize_response
 
 BASE = 'http://192.168.70.12:11435'
 MAX_HTTP_BYTES = 1_048_576
+MAX_INPUT_BYTES = 1_048_576
+
+
+def _unique_object(pairs):
+    value = {}
+    for key, item in pairs:
+        if key in value:
+            raise ValueError('duplicate JSON key in evaluation input')
+        value[key] = item
+    return value
+
+
+def load_bounded_json(path, limit=MAX_INPUT_BYTES):
+    with Path(path).open('rb') as stream:
+        raw = stream.read(limit + 1)
+    if len(raw) > limit:
+        raise ValueError('evaluation input exceeds bounded envelope')
+    return json.loads(raw, object_pairs_hook=_unique_object)
 
 
 def read_bounded(response, limit=MAX_HTTP_BYTES):
@@ -33,8 +51,8 @@ def main():
     parser.add_argument('--ledger', type=Path)
     parser.add_argument('--execute', action='store_true')
     args = parser.parse_args()
-    bundle = json.loads(args.cases.read_text())
-    manifest = json.loads(args.manifest.read_text())
+    bundle = load_bounded_json(args.cases)
+    manifest = load_bounded_json(args.manifest)
     if manifest.get('release_digest') != args.expected_release_digest:
         raise SystemExit('Release does not match explicitly selected digest')
     validate_cases(bundle, manifest)

@@ -631,6 +631,12 @@ The fresh executor now also enforces a
 before decoding health, metrics or completion JSON. An oversized fixture was
 rejected and the complete eval suite passed 118/118. This bounds future runner
 memory use; it does not call or qualify a model.
+The executor now applies the same
+[one-MiB boundary to its case bundle and release manifest](evidence/D4-evaluation-input-envelope-boundary-2026-10-23.md)
+before JSON decoding and rejects repeated object keys. Normal, oversized and
+duplicate-key fixtures behaved as expected, and the complete eval suite passed
+119/119. This closes a local-input ambiguity and resource boundary; it does not
+read the private holdout, execute the evaluation or advance D4/M1.
 
 ## Immediate next action and stop rule
 
