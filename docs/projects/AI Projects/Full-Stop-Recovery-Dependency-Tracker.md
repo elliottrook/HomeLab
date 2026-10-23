@@ -63,6 +63,15 @@ and no cycle state, lease, lock or scanner. No scan ran. F2 remains open; the
 platform owner must prepare a fresh-date card before another activation
 decision.
 
+The platform owner then prepared a fresh October 24 candidate at full commit
+`054ada0698d4b35cf99217b1d6fe7bac97ff1cb3`. Stream A's
+[independent review](evidence/F2-exact-cycle-activation-review-2026-10-24.md)
+recomputed both timer hashes, verified the 01:15/01:20 exact-date,
+nonpersistent schedules, confirmed that historical evidence is preserved, and
+confirmed the observation-only cleanup boundary. The candidate is ready for a
+separate activation decision; no timer is installed or enabled and no scan is
+authorized yet.
+
 The one-time October 17 supervised F2 guard was invoked once after the
 current-cycle backup and task-1 pull passed preflight. It returned `F2NoGo`
 without per-archive results; the [dated record](evidence/F2-archive-guard-no-go-2026-10-17.md)
