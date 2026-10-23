@@ -2,6 +2,17 @@
 
 > Owner: Jason. Status: continuous lane active; no exclusive benchmark launcher admitted. The one-time October 15, 16 and 17 read-only checks are complete and paused. This cadence does not promote a model, deploy a service, grant a tool, or waive an approval gate.
 
+**October 23/24 activation cadence correction:** the October 23 F2 packet was
+technically ready about seventeen hours before its window, but its distinct
+host-activation approval was not received before 01:15. No timer or scan ran.
+The [measured review](evidence/F2-october-24-target-validation-and-missed-window-analysis.md)
+records this as an approval-workflow miss, not an F2 or backup failure. Exact-
+cycle cards must now be reviewed by noon where possible, raised immediately as
+a timed blocking decision, reminded once at 18:00, and retired at 22:00 if
+still unapproved. The replacement October 24 candidate has passed target-side
+unit/calendar, installed-pin, custody and current absence checks, but remains
+inactive pending its own explicit approval.
+
 **October 20 F2 result:** the two exact-date timers fired and are now disabled,
 but preparation failed after five seconds and final failed immediately. No
 archive row or scan result was produced. The exact preparation sub-gate is

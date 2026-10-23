@@ -71,6 +71,12 @@ nonpersistent schedules, confirmed that historical evidence is preserved, and
 confirmed the observation-only cleanup boundary. The candidate is ready for a
 separate activation decision; no timer is installed or enabled and no scan is
 authorized yet.
+The subsequent [target-side validation](evidence/F2-october-24-target-validation-and-missed-window-analysis.md)
+matched both candidate and all five installed source hashes, passed systemd
+unit/calendar checks, found the required live absence gates and healthy core
+guests/Proxmox daemons, then removed its temporary files. This closes the
+pre-activation validation step only. The future backup/task-1 gates remain
+volatile, and activation still requires explicit approval.
 
 The one-time October 17 supervised F2 guard was invoked once after the
 current-cycle backup and task-1 pull passed preflight. It returned `F2NoGo`
