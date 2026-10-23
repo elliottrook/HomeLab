@@ -13,6 +13,7 @@ from sa3_fresh_execute import (
     MAX_INPUT_BYTES,
     NoRedirect,
     build_local_opener,
+    decode_unique_json,
     load_bounded_json,
     read_bounded,
 )
@@ -50,6 +51,9 @@ class ExecuteTests(unittest.TestCase):
         self.assertEqual('{"ok":true}', read_bounded(io.BytesIO(b'{"ok":true}')))
         with self.assertRaisesRegex(ValueError, 'bounded envelope'):
             read_bounded(io.BytesIO(b'x' * (MAX_HTTP_BYTES + 1)))
+        self.assertEqual({'ok': True}, decode_unique_json('{"ok":true}'))
+        with self.assertRaisesRegex(ValueError, 'duplicate JSON key'):
+            decode_unique_json('{"ok":true,"ok":false}')
 
     def test_evaluation_inputs_are_bounded_and_reject_duplicate_keys(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -23,12 +23,16 @@ def _unique_object(pairs):
     return value
 
 
+def decode_unique_json(raw):
+    return json.loads(raw, object_pairs_hook=_unique_object)
+
+
 def load_bounded_json(path, limit=MAX_INPUT_BYTES):
     with Path(path).open('rb') as stream:
         raw = stream.read(limit + 1)
     if len(raw) > limit:
         raise ValueError('evaluation input exceeds bounded envelope')
-    return json.loads(raw, object_pairs_hook=_unique_object)
+    return decode_unique_json(raw)
 
 
 def read_bounded(response, limit=MAX_HTTP_BYTES):
@@ -81,7 +85,7 @@ def main():
             return read_bounded(response)
 
     def ready():
-        health = json.loads(get('/health'))
+        health = decode_unique_json(get('/health'))
         processing = [float(line.split()[-1]) for line in get('/metrics').splitlines()
                       if line and not line.startswith('#')
                       and line.split()[0].split('{')[0].endswith('requests_processing')]
@@ -92,7 +96,7 @@ def main():
         request = urllib.request.Request(BASE+'/v1/chat/completions', headers=headers,
                                          data=json.dumps(payload).encode())
         with opener.open(request, timeout=timeout) as response:
-            value = json.loads(read_bounded(response))
+            value = decode_unique_json(read_bounded(response))
         result = sanitize_response(value, time.monotonic()-start)
         # A content-free progress event; model answers remain in the private ledger.
         print(json.dumps({'event': 'request_complete', 'seconds': result['latency_seconds'],

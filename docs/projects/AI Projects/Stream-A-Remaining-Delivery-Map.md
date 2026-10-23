@@ -644,6 +644,11 @@ synthetic proxy setting was excluded and the complete eval suite passed
 120/120. This prevents an invoking-shell proxy from becoming an unintended
 credential or payload path; it does not read a key, make a request or authorize
 the future run.
+Health and completion response JSON now also
+[rejects repeated object keys](evidence/D4-local-service-duplicate-key-boundary-2026-10-23.md)
+instead of retaining the last value. Normal and ambiguous synthetic responses
+behaved as expected and the complete eval suite remained 120/120. This closes
+an offline parser ambiguity without making a model call or advancing D4/M1.
 
 ## Immediate next action and stop rule
 
