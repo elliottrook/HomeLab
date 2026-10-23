@@ -47,6 +47,33 @@ This extension is not inside the immutable 18-asset Forgejo release ZIP. Do not
 rewrite that release or claim the icon is deployed. A future package revision or
 app adoption requires its own authorized action and rollback record.
 
+## AsterTV production lockup
+
+`32-aster-tv-logo` is the owner-approved product lockup for AsterTV. It retains
+the centred compass, gold arc and textured gold `Aster` construction, with a
+jade uppercase `TV` butted against the lowercase r. The TV has a deliberate
+optical overshoot above the capital A; the r terminal sits beneath the left arm
+of the T without touching its vertical stem.
+
+- Private Forgejo release:
+  `aster-brand-v2-tv-2026-10-22`
+- Brand-library engagement:
+  `working/2026-10-22-aster-tv-logo/`
+- Approved PNG proof SHA-256:
+  `e67c4faa46a3aee5aa41a75157c81db02c8c14efb10f9a788579ce2aec4eca79`
+- Outlined production SVG SHA-256:
+  `911175f5b63a703930def4aa959652a34d3b5f5b7eef178e63834689a29d2a2d`
+- Release ZIP SHA-256:
+  `6a888ef158f9272f56e73c84494b20c7d7190a6e474deed403e6c72b474c95b0`
+- SVG QA: 1,474 paths, no live text, embedded raster, scripts, event handlers,
+  external references, duplicate IDs or missing local references. The outlined
+  render differs from the exact approved proof by only 0.0094695% of pixels
+  above an eight-channel tolerance.
+
+Use the SVG as the scalable production master and a supplied right-sized raster
+for ordinary UI delivery. The complete lockup is recommended at 256 px wide or
+larger. The release is additive and does not itself change a live application.
+
 Do not restore the rejected flat package from commit `b7f2720`. It was reverted
 by `8be288e`. Approval of geometric accuracy alone did not meet material fidelity.
 

@@ -8,6 +8,18 @@ The later-approved Movie Collections selector is documented in the
 [asset/style guide](Aster-Home-v2-Asset-Guide.md). It is a post-release extension
 and is not contained in the immutable 18-asset ZIP below.
 
+The outlined `AsterTV` production lockup is published as a separate additive
+private release:
+
+[AsterTV production logo](https://git.elliottrook.com/jason/homelab/releases/tag/aster-brand-v2-tv-2026-10-22)
+
+Download the attached `aster-brand-v2-tv-2026-10-22.zip`. Its SHA-256 is
+`6a888ef158f9272f56e73c84494b20c7d7190a6e474deed403e6c72b474c95b0`;
+the outlined SVG SHA-256 is
+`911175f5b63a703930def4aa959652a34d3b5f5b7eef178e63834689a29d2a2d`.
+This additive release does not rewrite the original family release or deploy an
+application consumer.
+
 ## Retrieve the approved assets
 
 [Aster Home v2 release](https://git.elliottrook.com/jason/homelab/releases/tag/aster-brand-v2-2026-10-14)
