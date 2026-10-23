@@ -637,6 +637,13 @@ before JSON decoding and rejects repeated object keys. Normal, oversized and
 duplicate-key fixtures behaved as expected, and the complete eval suite passed
 119/119. This closes a local-input ambiguity and resource boundary; it does not
 read the private holdout, execute the evaluation or advance D4/M1.
+The executor also now
+[ignores environment-derived HTTP proxies](evidence/D4-local-credential-proxy-boundary-2026-10-23.md)
+for its fixed private inference endpoint while retaining redirect denial. A
+synthetic proxy setting was excluded and the complete eval suite passed
+120/120. This prevents an invoking-shell proxy from becoming an unintended
+credential or payload path; it does not read a key, make a request or authorize
+the future run.
 
 ## Immediate next action and stop rule
 

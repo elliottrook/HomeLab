@@ -43,6 +43,12 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         raise urllib.error.HTTPError(req.full_url, code, 'Redirect forbidden', headers, fp)
 
 
+def build_local_opener():
+    # Do not send the fixed local-service bearer credential through a proxy
+    # inherited from the invoking environment.
+    return urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--cases', required=True, type=Path)
@@ -67,7 +73,7 @@ def main():
     if not key:
         raise SystemExit('Existing local service authentication required')
     headers = {'Authorization': 'Bearer '+key, 'Content-Type': 'application/json'}
-    opener = urllib.request.build_opener(NoRedirect())
+    opener = build_local_opener()
 
     def get(path):
         request = urllib.request.Request(BASE+path, headers=headers)

@@ -7,10 +7,12 @@ import tempfile
 import unittest
 import urllib.error
 import urllib.request
+from unittest import mock
 from sa3_fresh_execute import (
     MAX_HTTP_BYTES,
     MAX_INPUT_BYTES,
     NoRedirect,
+    build_local_opener,
     load_bounded_json,
     read_bounded,
 )
@@ -37,6 +39,12 @@ class ExecuteTests(unittest.TestCase):
         req = urllib.request.Request('http://example.invalid', headers={'Authorization': 'Bearer fixture'})
         with self.assertRaises(urllib.error.HTTPError):
             NoRedirect().redirect_request(req, None, 302, 'moved', {}, 'https://other.invalid')
+
+    def test_local_service_transport_ignores_environment_proxies(self):
+        with mock.patch.dict('os.environ', {'HTTP_PROXY': 'http://proxy.invalid:3128'}):
+            opener = build_local_opener()
+        self.assertFalse(any(isinstance(handler, urllib.request.ProxyHandler)
+                             for handler in opener.handlers))
 
     def test_local_service_response_is_bounded_before_json_parsing(self):
         self.assertEqual('{"ok":true}', read_bounded(io.BytesIO(b'{"ok":true}')))
