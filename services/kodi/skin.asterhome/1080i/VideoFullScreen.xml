@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window>
+  <onunload condition="Player.HasMedia">PlayerControl(Stop)</onunload>
   <controls>
     <!-- Kodi renders the active video beneath this intentionally empty window. -->
   </controls>

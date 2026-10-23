@@ -1,0 +1,72 @@
+{
+  "schema": "aster-home-kodi-release-record.v1",
+  "release": "1.0.5",
+  "status": "production-candidate-pending-physical-libreelec-gate",
+  "built_on": "2026-10-23",
+  "design_canvas": "1920x1080-16:9-scales-to-4k",
+  "artifact_directory": "services/kodi/dist/aster-home-v1.0.5",
+  "manifest_sha256": "2639ea02d38b4bbb18f9a490cbc9172840dfeb4f869cfe3fde1226dfac726292",
+  "artifacts": [
+    {
+      "addon_id": "plugin.video.asterhome",
+      "archive": "plugin.video.asterhome-1.0.5.zip",
+      "bytes": 3556,
+      "sha256": "8b1bc2a83b45e650ec088df0c1403e9b69594c86b57f13e26d97770154040a1d"
+    },
+    {
+      "addon_id": "plugin.audio.asterbooks",
+      "archive": "plugin.audio.asterbooks-1.0.5.zip",
+      "bytes": 10021,
+      "sha256": "cbb1f8b2cb4e66a18edb264e4036c76971aacdba6dce25775af91d1a535ff8b6"
+    },
+    {
+      "addon_id": "resource.uisounds.asterhome",
+      "archive": "resource.uisounds.asterhome-1.0.5.zip",
+      "bytes": 82960,
+      "sha256": "58f4496ab60f30bb2b48490a1c070c5e4afa25295dbfca281d6916e928bcd1f2"
+    },
+    {
+      "addon_id": "skin.asterhome",
+      "archive": "skin.asterhome-1.0.5.zip",
+      "bytes": 4532781,
+      "sha256": "35ce882492c3f2eddd11cf77c48cdfbe9042f7d2c1c349528ee9c582d3828a7e"
+    }
+  ],
+  "client_files": [
+    {
+      "bytes": 2051,
+      "file": "g20s-pro-plus.xml",
+      "install_target": "userdata/keymaps/g20s-pro-plus.xml",
+      "sha256": "1c3661aa1c9109b9390b9004203ce6cbe53d03d559f88a019db01d22a430d2c1"
+    }
+  ],
+  "external_dependencies": [
+    {
+      "addon_id": "plugin.video.youtube",
+      "source": "Kodi Omega repository",
+      "version": "7.4.4"
+    }
+  ],
+  "changes": [
+    "Stop playback when exiting fullscreen video, Music, Books listening and Digest players.",
+    "Map fullscreen Back to Stop for the G20 remote.",
+    "Focus the first playable Books chapter or podcast episode after native list population.",
+    "Route Books parent selection and Back button to Books home."
+  ],
+  "validation": {
+    "skin_tests": 86,
+    "audio_bridge_tests": 13,
+    "video_plugin_tests": 6,
+    "live_audiobook": "first-entry-focus-and-later-chapter-playback-at-12m01s-passed",
+    "live_podcast": "first-entry-focus-and-playback-clock-advancement-passed",
+    "live_back": "no-active-player-after-Back-for-audiobook-and-podcast",
+    "owner_video": "Back-stops-and-retains-Continue-Watching-position",
+    "owner_music_digest": "Back-stops-owner-confirmed",
+    "deployment": "local-candidate-only; BOSGAME remains v1.0.4 with tested source hotfixes; HP unchanged"
+  },
+  "limitations": [
+    "Books catalogue refresh remains manual with 24-hour freshness limit.",
+    "Audiobookshelf listening-progress synchronization is not implemented.",
+    "Intermittent receiver-volume jump remains unresolved; owner deferred investigation."
+  ]
+}

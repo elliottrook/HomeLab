@@ -2407,6 +2407,125 @@ opened a Music album, started a selected track and stopped playback. The
 post-restart log contained no XML, Python, Kodi error or traceback, and the
 three live corrected-file hashes matched the final package source.
 
+### BOSGAME stop playback on player exit — 2026-10-23
+
+Owner testing established that explicit Stop saved Tow to Continue Watching,
+whereas Back left video playing behind the library. The G20 fullscreen
+right-click/Back mapping explicitly used `Fullscreen`. Reopening that same
+playing Jellyfin item could seek it to zero and fail plugin resolution, after
+which Jellyfin received a zero resume position. These observations explain the
+reported workflow failure; the separate intermittent receiver-volume jump is
+unresolved and further investigation was deferred at the owner's request.
+
+After explicit deployment approval, changed fullscreen video and visualisation
+Back inputs to Stop and added conditional `PlayerControl(Stop)` unload actions
+to VideoFullScreen, MyMusicNav (Books listening), the Music player and Digest.
+Player dialogs retain their existing dismissal behavior. Prior files are
+recoverable at
+`AsterTVProd:/storage/.aster-checkpoints/stop-on-player-exit-20261023/`.
+All five deployed hashes match source; deployed XML parsed successfully, 26
+layout checks passed, and Kodi restarted, loaded the G20 keymap and authenticated
+Jellyfin. The owner then confirmed the Tow resume/Back test worked: Back stopped
+playback and preserved the updated Continue Watching position. Exit behavior on
+Music, Books listening and Digest still needs a physical regression pass.
+This is a source-tracked hotfix on the BOSGAME; the immutable v1.0.4 release
+bundle has not been republished. Packaging determinism checks passed, but the
+tracked-release comparison correctly fails until a new release records the
+changed files. The HP did not receive this hotfix.
+
+### BOSGAME Books and private audio provisioning — 2026-10-23
+
+Owner explicitly approved catalogue/covers deployment, secure reuse of the
+existing restricted audio configuration and an exact BOSGAME HTTPS rule.
+The fresh source export contains 505 Calibre eBooks, 46 Audiobookshelf
+audiobooks and seven subscribed podcasts. All 558 records passed the deployed
+feed reader, and 554 existing JPEG covers matched their catalogue IDs.
+Installed under `AsterTVProd:/storage/.kodi/userdata/addon_data/skin.asterhome/feeds/`.
+Books remains a read-only catalogue and external Calibre-Web reader handoff;
+the LibreELEC endpoint displays the reader URL for another device.
+
+The prior connection timeout was an ingress firewall deny. Added only rule
+`feb35a23-036b-494a-9d37-a61509de25ff`, LAN sequence 3091, TCP
+`192.168.1.157` to `192.168.50.23:443`. OPNsense checkpoint:
+`/conf/backup/config-before-aster-books-20261023-205452.xml`.
+After filter reload, the exact rule appears in live pf output and the BOSGAME
+receives certificate-validated HTTPS 200 from Audiobookshelf. Calibre-Web
+returns its expected authentication redirect over the same existing HTTPS
+gateway. No other client, backend or public access rule was added.
+
+Reused the owner's approved existing Audiobookshelf configuration through SSH
+without printing its key or persisting it locally. Verified account `jason`
+is active, type `user`, with upload/update/delete disabled and download enabled.
+It is an existing shared user identity, not a newly created per-device identity.
+The BOSGAME config is mode 0600 beneath a 0700 profile; no credential entered
+Git. Setup checkpoint directory:
+`/storage/.aster-checkpoints/books-setup-20261023/` (prior audio profile was empty).
+Kodi restarted and logged `Aster Books Audio: loopback bridge ready`.
+Read-only bridge probes resolved 36 audiobook chapter entries and seven podcast
+episode entries; each first entry returned HTTP 206 and 4096 requested audio
+bytes. Receiver-audible playback, chapter selection and Books Back-to-stop
+remain owner acceptance checks. The bridge still does not synchronize listening
+progress back to Audiobookshelf.
+
+Remaining operational gap: Books is a manually published snapshot with a
+24-hour freshness limit. This deployment did not create a recurring publisher;
+the catalogue needs an approved refresh workflow before unattended acceptance.
+Do not extend timestamps on old data or remove freshness checks to conceal
+that gap. To refresh manually, use the existing source exporter with its
+destination redirected to a private staging directory, validate with
+`book_catalogue`, then publish the new `books.json` to the endpoint. Covers
+remain cached separately. To roll back provisioning, stop Kodi, move the new
+feed/audio profile files into a recovery directory, remove only the recorded
+firewall UUID and reload filters, then restart Kodi. Preserve shared source
+libraries and the HP configuration.
+
+### Books chapter entry-focus correction prepared — 2026-10-23
+
+Owner reported a chapter-selection dialog asking to choose a book. Live Kodi
+inspection found Music window 10502 initially selected its `..` parent entry;
+activating that entry requested the add-on root without an action/item ID and
+raised the dialog. Owner subsequently confirmed actual chapter playback works.
+Prepared `books_player.py` to wait for list population and focus entry 1 only
+when entry 0 is the Books parent. Updated Select dispatch to route the Books
+parent to Books home and the visible Back button to the same destination.
+Existing chapter selections and native selection of playable entries are
+preserved. Three focused tests, four Select-dispatch tests and 26 layout tests
+pass. Prior deployed navigation files are checkpointed at
+`/storage/.aster-checkpoints/books-chapter-focus-20261023/`.
+Automatic approval review rejected code deployment because `continue` was not
+accepted as the repository's immediate remote-write confirmation. No focus-fix
+code was deployed at that stage. The owner subsequently explicitly approved
+deployment and unattended follow-up testing.
+
+The first live focus check found the initial implementation returned before
+Kodi activated window 10502. Corrected it to wait for window activation and
+directory population and use native `SetFocus(50,1,absolute)` rather than a
+Python ControlList wrapper. Deployed after the owner's approval, preserving
+the recorded checkpoint. Live checks now show Opening Credits at position 1;
+selecting it activates Kodi's audio player. Selecting Chapter 2 starts at
+12:01 with playback speed 1. A podcast opens on its first actual episode,
+starts playback and advances to 00:02. Back leaves no active player for both
+types. The owner also confirmed Music and News stop on exit. Receiver-audible
+output is not inferred from these unattended player-state checks. Kodi remains
+active; transient native-list initial-focus messages remain in its log.
+
+Prepared a new immutable local v1.0.5 candidate and tracked release record,
+containing stop-on-exit, the G20 Back mapping and Books focus fixes. The old
+v1.0.4 record is preserved. All 111 checks pass: 86 skin/tools, 13 audio bridge,
+six video plugin, three sound pack and three deterministic packaging checks.
+Local artifacts are under `services/kodi/dist/aster-home-v1.0.5/`; the release
+record contains archive and manifest hashes. BOSGAME remains version-labelled
+1.0.4 with the tested source hotfixes; a full v1.0.5 package promotion was not
+performed. HP is unchanged. No push was authorized or performed.
+
+On asking whether audiobook/podcast progress is saved, the owner was informed
+explicitly that the current bridge does not save/restore listening progress.
+Resume currently means choosing a chapter manually; selecting a chapter starts
+at its boundary and a podcast starts at its beginning. Cross-device resume
+through Audiobookshelf remains unimplemented and must not be claimed from the
+successful stop-on-exit tests. Catalogue refresh and listening-progress sync
+remain the next substantive tasks.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

@@ -49,6 +49,12 @@ def main():
         focus_id = xbmcgui.Window(window_id).getFocusId()
     except RuntimeError:
         focus_id = 0
+    if window_id == 10502 and focus_id == 50:
+        from books_player import is_books_parent
+        if is_books_parent(xbmc.getInfoLabel('Container.FolderPath'),
+                           xbmc.getInfoLabel('Container(50).ListItem.Label')):
+            xbmc.executebuiltin('ActivateWindow(11110)')
+            return
     xbmc.executebuiltin(dispatched_action(window_id, focus_id) or 'Action(Select)')
 
 

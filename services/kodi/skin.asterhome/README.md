@@ -1,6 +1,6 @@
 # Aster Home Kodi skin
 
-Version 1.0.4 is the current Aster Home private deployment candidate. It retains
+Version 1.0.5 is the current Aster Home private deployment candidate. It retains
 the v1.0.1 selection-dialog correction and uses percentage-based seeking for
 Daily Digest MP3 chapters after the physical LibreELEC player proved inaccurate
 absolute-time seeking. The complete Mac-validated interface and physical HP
@@ -219,6 +219,23 @@ authenticated paths; Kodi-local playlist files remain Kodi-resolved. Search uses
 across the full local library and shows the first 500 matches; the recently-added
 landing shows up to 50 albums. Playlist search filters saved playlist names.
 No background playback, media-file write or new credential is introduced.
+
+## Player exit and Books focus (v1.0.5 candidate)
+
+Leaving fullscreen video, the Music player, Books listening or Digest stops
+playback. The G20 fullscreen Back/right-click now means Stop instead of hiding
+the running player. Back within a playback dialog keeps its existing dismissal
+behavior. Books listening waits for Kodi's native list to populate before
+selecting the first real chapter/episode, and its parent entry returns to Books
+home. Already-selected chapters are not moved by the focus helper.
+
+The BOSGAME received these changes as checkpointed v1.0.4 hotfixes. Live checks
+proved first-entry focus, later audiobook chapter playback at its offset,
+podcast playback and no active player after Back. Movie resume after Back was
+owner-confirmed. The complete v1.0.5 bundle is prepared locally; it has not
+been promoted to either endpoint. Audiobookshelf listening-progress save and
+restore are still **not implemented**, and the Books catalogue still requires
+manual refresh within its 24-hour freshness limit.
 
 ## Books catalogue layout (v0.7.2)
 

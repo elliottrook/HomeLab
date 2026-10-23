@@ -4,6 +4,7 @@
   <onload>RunScript(special://skin/tools/hub_data.py,digest)</onload>
   <onload>AlarmClock(AsterDigestFollow,RunScript(special://skin/tools/hub_data.py,digest,sync),00:02,silent,loop)</onload>
   <onunload>CancelAlarm(AsterDigestFollow,silent)</onunload>
+  <onunload condition="Player.HasMedia">PlayerControl(Stop)</onunload>
   <backgroundcolor>asterStone</backgroundcolor>
   <controls>
     <control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture>special://skin/media/ui-solid.png</texture><colordiffuse>asterStone</colordiffuse></control>

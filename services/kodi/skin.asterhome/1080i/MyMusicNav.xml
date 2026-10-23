@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window>
+  <onload>RunScript(special://skin/tools/books_player.py)</onload>
+  <onunload condition="Player.HasMedia">PlayerControl(Stop)</onunload>
   <defaultcontrol always="true">50</defaultcontrol>
   <views>50</views>
   <backgroundcolor>asterCharcoal</backgroundcolor>
@@ -8,7 +10,7 @@
     <control type="image"><left>0</left><top>0</top><width>1920</width><height>180</height><texture>special://skin/media/ui-solid.png</texture><colordiffuse>asterCharcoal</colordiffuse></control>
     <control type="image"><left>80</left><top>30</top><width>160</width><height>140</height><texture>special://skin/media/28-aster-books-logo.png</texture><aspectratio>keep</aspectratio></control>
     <control type="label"><left>270</left><top>58</top><width>1060</width><height>70</height><label>Aster Books  /  Listening</label><font>font40</font><textcolor>asterRailText</textcolor></control>
-    <control type="button" id="9000"><left>1540</left><top>62</top><width>240</width><label>Back to Books</label><include>AsterPlayerBackControl</include><onclick>Action(Back)</onclick><ondown>50</ondown></control>
+    <control type="button" id="9000"><left>1540</left><top>62</top><width>240</width><label>Back to Books</label><include>AsterPlayerBackControl</include><onclick>ActivateWindow(11110)</onclick><ondown>50</ondown></control>
 
     <!-- A soft edge gradient preserves contrast without enclosing the player. -->
     <control type="image"><left>0</left><top>180</top><width>1920</width><height>900</height><texture>special://skin/media/ui-hero-left-fade.png</texture><colordiffuse>d9292721</colordiffuse><aspectratio>stretch</aspectratio></control>

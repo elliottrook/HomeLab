@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="skin.asterhome" name="Aster Home" version="1.0.4" provider-name="HomeLab">
+<addon id="skin.asterhome" name="Aster Home" version="1.0.5" provider-name="HomeLab">
     <requires>
         <import addon="xbmc.gui" version="5.17.0" />
         <import addon="xbmc.python" version="3.0.0" />
-        <import addon="plugin.video.asterhome" version="1.0.4" />
-        <import addon="plugin.audio.asterbooks" version="1.0.4" />
+        <import addon="plugin.video.asterhome" version="1.0.5" />
+        <import addon="plugin.audio.asterbooks" version="1.0.5" />
         <import addon="plugin.video.youtube" version="7.4.4" />
     </requires>
     <extension point="xbmc.gui.skin" debugging="false">

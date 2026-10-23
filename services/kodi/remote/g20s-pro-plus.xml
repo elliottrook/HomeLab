@@ -24,13 +24,16 @@
   </global>
   <FullscreenVideo>
     <keyboard>
+      <escape>Stop</escape>
+      <backspace>Stop</backspace>
+      <browser_back>Stop</browser_back>
       <select>OSD</select>
       <return>OSD</return>
       <enter>OSD</enter>
     </keyboard>
     <mouse>
       <leftclick>OSD</leftclick>
-      <rightclick>Fullscreen</rightclick>
+      <rightclick>Stop</rightclick>
     </mouse>
   </FullscreenVideo>
   <FullscreenGame>
@@ -46,13 +49,16 @@
   </FullscreenGame>
   <Visualisation>
     <keyboard>
+      <escape>Stop</escape>
+      <backspace>Stop</backspace>
+      <browser_back>Stop</browser_back>
       <select>OSD</select>
       <return>OSD</return>
       <enter>OSD</enter>
     </keyboard>
     <mouse>
       <leftclick>OSD</leftclick>
-      <rightclick>Back</rightclick>
+      <rightclick>Stop</rightclick>
     </mouse>
   </Visualisation>
 </keymap>
