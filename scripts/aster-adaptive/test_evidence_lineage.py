@@ -64,3 +64,17 @@ class LineageTests(unittest.TestCase):
         restored = EvidenceStore(backup)
         self.addCleanup(restored.close)
         self.assertEqual(head,restored.verify(expected_head=head))
+
+    def test_completed_outcome_must_fit_registered_run_budget(self):
+        h = self.store.append('run', 'run', self.run)
+        outcome = dict(run_id=self.run['run']['run_id'], status='completed',
+                       verification='fixture-conformance', tool_calls=1,
+                       elapsed_ms=0.1, output_bytes=100)
+        linked = dict(experiment_id=self.spec['experiment_id'],
+                      run_event_digest=h, outcome=outcome)
+        for change in ({'tool_calls': 0}, {'tool_calls': 2},
+                       {'elapsed_ms': 1000.1}, {'output_bytes': 65537}):
+            with self.subTest(change=change), self.assertRaisesRegex(
+                    ValueError, 'budget'):
+                self.store.append('out', 'linked-outcome',
+                                  linked | {'outcome': outcome | change})

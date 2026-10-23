@@ -164,6 +164,15 @@ class EvidenceStore:
                   and p['event_digest']==record['run_event_digest']]
             if len(runs)!=1 or runs[0]['experiment_id']!=record['experiment_id'] or runs[0]['run_id']!=record['outcome']['run_id']:
                 raise ValueError('outcome needs exact registered run')
+            run, outcome = runs[0], record['outcome']
+            budget = run['budget']
+            if outcome['tool_calls'] > budget['tool_calls']:
+                raise ValueError('outcome exceeds registered tool budget')
+            if outcome['status'] == 'completed' and (
+                    outcome['tool_calls'] != len(run['decision']['steps']) or
+                    outcome['elapsed_ms'] > budget['wall_ms'] or
+                    outcome['output_bytes'] > budget['output_bytes']):
+                raise ValueError('completed outcome disagrees with registered run budget')
             if any(p['kind']=='review' and p['record']['experiment_id']==record['experiment_id'] for p in prior):
                 raise ValueError('experiment already reviewed; use a new experiment')
             if any(p['kind']=='linked-outcome' and p['record']['run_event_digest']==record['run_event_digest'] for p in prior):

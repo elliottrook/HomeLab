@@ -345,6 +345,13 @@ denied, expired, cancelled or budget-exceeded attempt is recorded as not
 executed. The isolated contract and evidence suites passed 14/14 without
 repinning the historically drifted adapter source. This protects later
 evidence semantics; it does not establish routing accuracy or enable routing.
+The append-only evidence store now also binds a
+[completed outcome to its registered run budget](evidence/M3-outcome-budget-lineage-boundary-2026-10-23.md):
+tool-call count must match the frozen Decision, and elapsed/output measurements
+must remain within the registered limits. Focused evidence suites passed 27/27;
+the historically drifted source pin was not changed. This prevents a producer
+from labelling an over-budget synthetic run conformant, but supplies no routing
+accuracy or promotion evidence.
 
 The first [six-case synthetic completed-answer probe](experiments/a1-9b-synthetic-answer/RESULT-2026-10-12.md)
 used the accepted 9B/SYCL service after the platform owner's light lease was
