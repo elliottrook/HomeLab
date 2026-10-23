@@ -232,10 +232,24 @@ home. Already-selected chapters are not moved by the focus helper.
 The BOSGAME received these changes as checkpointed v1.0.4 hotfixes. Live checks
 proved first-entry focus, later audiobook chapter playback at its offset,
 podcast playback and no active player after Back. Movie resume after Back was
-owner-confirmed. The complete v1.0.5 bundle is prepared locally; it has not
-been promoted to either endpoint. Audiobookshelf listening-progress save and
-restore are still **not implemented**, and the Books catalogue still requires
-manual refresh within its 24-hour freshness limit.
+owner-confirmed. The complete v1.0.5 bundle is now installed on the BOSGAME;
+the HP remains unchanged. Audiobookshelf listening-progress save and restore
+are still **not implemented**.
+
+On LibreELEC, the supplied `aster-books-refresh.service` and `.timer` refresh
+audiobooks, subscribed podcasts, descriptions and missing covers through the
+existing private HTTPS audio configuration. The timer runs after boot and every
+six hours. EBooks remain the owner-accepted frozen snapshot, with their original
+snapshot timestamp recorded separately. Failed or malformed upstream responses
+do not replace or retimestamp the last good audio feed. Covers use Aster icons
+if unavailable. No media files, subscriptions or listening progress are changed.
+The 24-hour feed freshness check remains in place.
+
+Check `systemctl status aster-books-refresh.timer aster-books-refresh.service`
+and the private `feeds/refresh-status.json` file for timer health and the last
+successful refresh. A service failure is reported through systemd/journal using
+only a failure class; no credential or upstream private path is logged. Run
+`systemctl start aster-books-refresh.service` for an immediate refresh.
 
 ## Books catalogue layout (v0.7.2)
 

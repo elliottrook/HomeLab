@@ -1,0 +1,10 @@
+[Unit]
+Description=Refresh Aster audiobook and podcast catalogue
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+UMask=0077
+ExecStart=/usr/bin/python3 /storage/.kodi/addons/skin.asterhome/tools/refresh_books.py --profile /storage/.kodi/userdata
+TimeoutStartSec=10min

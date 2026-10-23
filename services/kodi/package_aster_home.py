@@ -29,6 +29,16 @@ CLIENT_FILES = (
         "name": "g20s-pro-plus.xml",
         "install_target": "userdata/keymaps/g20s-pro-plus.xml",
     },
+    {
+        "source": HERE / "libreelec" / "aster-books-refresh.service",
+        "name": "aster-books-refresh.service",
+        "install_target": "/storage/.config/system.d/aster-books-refresh.service",
+    },
+    {
+        "source": HERE / "libreelec" / "aster-books-refresh.timer",
+        "name": "aster-books-refresh.timer",
+        "install_target": "/storage/.config/system.d/aster-books-refresh.timer",
+    },
 )
 
 

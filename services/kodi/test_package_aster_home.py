@@ -36,7 +36,10 @@ class ReleasePackageTests(unittest.TestCase):
                 {"addon_id": "plugin.video.youtube", "version": "7.4.4",
                  "source": "Kodi Omega repository"}
             ])
-            self.assertEqual(len(manifest["client_files"]), 1)
+            self.assertEqual(len(manifest["client_files"]), 3)
+            self.assertEqual({row['file'] for row in manifest['client_files']},
+                             {'g20s-pro-plus.xml', 'aster-books-refresh.service',
+                              'aster-books-refresh.timer'})
             keymap = manifest["client_files"][0]
             self.assertEqual(keymap["file"], "g20s-pro-plus.xml")
             self.assertEqual(keymap["install_target"],

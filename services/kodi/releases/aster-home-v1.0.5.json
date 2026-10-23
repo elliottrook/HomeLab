@@ -5,7 +5,7 @@
   "built_on": "2026-10-23",
   "design_canvas": "1920x1080-16:9-scales-to-4k",
   "artifact_directory": "services/kodi/dist/aster-home-v1.0.5",
-  "manifest_sha256": "2639ea02d38b4bbb18f9a490cbc9172840dfeb4f869cfe3fde1226dfac726292",
+  "manifest_sha256": "1d5adfe89e8e004883b5451b296dfe32278f4474b53909f05036d2f5b07ac445",
   "artifacts": [
     {
       "addon_id": "plugin.video.asterhome",
@@ -28,8 +28,8 @@
     {
       "addon_id": "skin.asterhome",
       "archive": "skin.asterhome-1.0.5.zip",
-      "bytes": 4532781,
-      "sha256": "35ce882492c3f2eddd11cf77c48cdfbe9042f7d2c1c349528ee9c582d3828a7e"
+      "bytes": 4535673,
+      "sha256": "4c3176deabba0df3246e35fae01000fdcd03411fe1b05ef8afc64c9289e2e0a6"
     }
   ],
   "client_files": [
@@ -38,6 +38,18 @@
       "file": "g20s-pro-plus.xml",
       "install_target": "userdata/keymaps/g20s-pro-plus.xml",
       "sha256": "1c3661aa1c9109b9390b9004203ce6cbe53d03d559f88a019db01d22a430d2c1"
+    },
+    {
+      "bytes": 299,
+      "file": "aster-books-refresh.service",
+      "install_target": "/storage/.config/system.d/aster-books-refresh.service",
+      "sha256": "b5f34302d8876a20bee31f14b857619aae2cdfdba9c3e9948e6662d38701ff8a"
+    },
+    {
+      "bytes": 192,
+      "file": "aster-books-refresh.timer",
+      "install_target": "/storage/.config/system.d/aster-books-refresh.timer",
+      "sha256": "679e94798f03cf35599e4842ef1a18f26d427568d85d29304a0459c6c09566f0"
     }
   ],
   "external_dependencies": [
@@ -51,10 +63,11 @@
     "Stop playback when exiting fullscreen video, Music, Books listening and Digest players.",
     "Map fullscreen Back to Stop for the G20 remote.",
     "Focus the first playable Books chapter or podcast episode after native list population.",
-    "Route Books parent selection and Back button to Books home."
+    "Route Books parent selection and Back button to Books home.",
+    "Refresh audiobook/podcast catalogue and new cover art every six hours using the existing private HTTPS identity; preserve frozen eBook snapshot and last good feed on failure."
   ],
   "validation": {
-    "skin_tests": 86,
+    "skin_tests": 90,
     "audio_bridge_tests": 13,
     "video_plugin_tests": 6,
     "live_audiobook": "first-entry-focus-and-later-chapter-playback-at-12m01s-passed",
@@ -62,11 +75,16 @@
     "live_back": "no-active-player-after-Back-for-audiobook-and-podcast",
     "owner_video": "Back-stops-and-retains-Continue-Watching-position",
     "owner_music_digest": "Back-stops-owner-confirmed",
-    "deployment": "local-candidate-only; BOSGAME remains v1.0.4 with tested source hotfixes; HP unchanged"
+    "deployment": "BOSGAME v1.0.5 installed; all four add-ons enabled; all 151 packaged files match; HP unchanged",
+    "catalogue_refresh": "two live executions passed; 46 audiobooks, 7 podcasts, 505 retained eBooks; no missing audio covers; six-hour timer enabled",
+    "prepromotion_backup_sha256": "5a3d34c754968f4f628125b9943722761f65c798a1bf39cff5d38ab62ddc5e1a",
+    "current_backup_sha256": "9ee417f6afae3f73d3b5cf2cbfa5fffa3560df4c66fe72c6a62a19a237c49c0f",
+    "backup_verification": "prepromotion: 2943 regular files; current: 2955 regular files; all bytes matched; off-device current archive checksum matched",
+    "startup": "Jellyfin authenticated and private audio bridge ready after restart; no startup errors"
   },
   "limitations": [
-    "Books catalogue refresh remains manual with 24-hour freshness limit.",
     "Audiobookshelf listening-progress synchronization is not implemented.",
-    "Intermittent receiver-volume jump remains unresolved; owner deferred investigation."
+    "Intermittent receiver-volume jump remains unresolved; owner deferred investigation.",
+    "eBook records remain the owner-accepted frozen snapshot; audio catalogue refresh does not refresh Calibre."
   ]
 }

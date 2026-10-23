@@ -2526,6 +2526,92 @@ through Audiobookshelf remains unimplemented and must not be claimed from the
 successful stop-on-exit tests. Catalogue refresh and listening-progress sync
 remain the next substantive tasks.
 
+### Pre-production beta scope decision — 2026-10-23
+
+Owner accepts leaving the v1 eBook handoff/catalogue as-is because the useful
+large-screen reader/TTS experience is deferred to v2. YouTube API provisioning
+and playback tests are explicitly deferred until the owner has time; do not
+claim YouTube passed. A subscription video downloader is undecided and is
+excluded from the v3 roster; research alone does not authorize implementation.
+
+Near-term beta follow-up is normal-use stability, cold-start/remote reconnect
+after the latest hotfixes, and consolidating the tested BOSGAME hotfixes into
+the prepared v1.0.5 release and current recovery checkpoint before promotion.
+The shared Books feed still expires after 24 hours, including audiobook and
+podcast catalogue entries, so waiving eBook usefulness does not resolve that
+operational limitation if audio browsing is expected to remain available.
+Listening progress sync is accepted as v2 work. Camera production routing and
+formal display/receiver/recovery gates remain separately documented; normal
+use acceptance must not be represented as comprehensive hardware certification.
+
+### Family beta consolidation and catalogue refresh — 2026-10-23
+
+The owner requested the remaining catalogue-refresh and release/recovery work,
+then explicitly approved v1.0.5 deployment, a six-hour refresh timer and a brief
+Kodi stop for a verified private backup. No HP v2 deployment was authorized or
+performed by this change.
+
+Added a bounded `refresh_books.py` client and LibreELEC systemd oneshot/timer.
+It uses the existing 0600 Audiobookshelf configuration and HTTPS access, reads
+accessible audio libraries with pagination, sanitizes IDs/titles/descriptions,
+validates the complete feed and atomically publishes it. It downloads missing
+bounded JPEG covers only, never book/audio content. The owner-accepted frozen
+Calibre entries are retained with their original `ebook_snapshot_at`; new audio
+capture time is recorded separately. Redirects are rejected so the bearer
+credential cannot follow a login/cross-origin redirect. An unexpectedly empty,
+incomplete, oversized or invalid response fails before replacing the old feed.
+A single-instance lock prevents overlapping refreshes. The timer starts after
+boot and every six hours; failures leave the last good feed unchanged and are
+visible through systemd Result/journal and the last-success status file.
+
+All 115 checks passed: 90 skin/tools, 13 bridge, six media plugin, three sound
+pack and three deterministic packaging checks. Before promotion, device-side
+archive CRCs, every packaged file hash and all client-file hashes passed.
+The only differences from the running hotfix baseline were four add-on version
+descriptors and the new refresh tool. All 151 release files matched after
+installation, and Kodi JSON-RPC reports all four enabled add-ons at 1.0.5.
+Two refresh executions both yielded 46 audiobooks, seven podcasts, 505 retained
+eBooks and zero missing audio covers. The timer is enabled, its next execution
+is scheduled and the service reports success. Kodi restarted with Jellyfin
+authenticated and the private audio bridge ready, without startup errors.
+
+Pre-promotion backup:
+`/storage/.aster-checkpoints/aster-v1.0.5-prepromotion-20261023/kodi-profile-config-and-boot.tar.gz`,
+SHA-256 `5a3d34c754968f4f628125b9943722761f65c798a1bf39cff5d38ab62ddc5e1a`;
+2,943 archived regular files matched their stopped-source bytes.
+Working v1.0.5 recovery backup:
+`/storage/.aster-checkpoints/aster-v1.0.5-accepted-20261023/kodi-profile-config-and-boot.tar.gz`,
+SHA-256 `9ee417f6afae3f73d3b5cf2cbfa5fffa3560df4c66fe72c6a62a19a237c49c0f`;
+2,955 archived regular files matched source. Includes Kodi add-ons/userdata,
+private credentials, remote mappings, LibreELEC service/network configuration,
+SSH authorization and boot config/branding. It excludes source media and the
+OS disk image. A partial first attempt using incompatible BusyBox tar multiple
+`-C` semantics was retained as `failed-busybox-backup.tar.gz` and is not a
+recovery candidate; the accepted backup was recreated and verified with Python.
+
+The accepted 157,437,807-byte archive and checksum are also stored outside Git
+at `/Users/jelliott/lab/private-backups/aster-tv/bosgame/2026-10-23-v1.0.5/`.
+The Mac copy is mode 0600 under private directories and its checksum matches
+the endpoint. Both backups contain secrets and must not be published or added
+to Git. This is archive-integrity/file-match evidence, not a destructive restore
+drill or proof of cold-boot recovery. The retained installer and pinned OS
+baseline remain prerequisites for a replacement-disk restore.
+
+Operator handover: family beta can continue on BOSGAME v1.0.5. Back stops
+playback and movie/episode resume is available through Jellyfin; audiobook and
+podcast listening-progress sync remains accepted v2 work. Books audio catalogue
+refresh no longer depends on the Mac. YouTube tests are deferred, eBook TTS is
+v2, and the downloader is excluded from the v3 roster. A future cold-start and
+remote/receiver reconnect check remains owner-observed. The HP is the nominated
+v2 lab endpoint and should not receive production changes automatically.
+
+Integration impact: no new network/DNS/authentication access, household identity
+or media authority was introduced. The new endpoint-local job uses the existing
+restricted account and is covered by the profile backup; operational health is
+currently handed to systemd plus `refresh-status.json`, with no new centralized
+Doctor/Beszel alert claimed. NetBox/addressing, rack and Homepage facts are
+unchanged. No push was performed.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

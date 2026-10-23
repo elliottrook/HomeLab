@@ -1,0 +1,11 @@
+[Unit]
+Description=Keep Aster Books audio catalogue fresh
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=6h
+RandomizedDelaySec=2min
+Unit=aster-books-refresh.service
+
+[Install]
+WantedBy=timers.target
