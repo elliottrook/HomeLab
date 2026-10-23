@@ -35,7 +35,7 @@ def dispatched_action(window_id, focus_id):
                     + page + ',activate)')
     if window_id == 11111 and focus_id == 500:
         return 'RunScript(special://skin/tools/hub_data.py,digest,chapter)'
-    if window_id == 11121 and focus_id == 9000:
+    if window_id == 11121 and focus_id == 50:
         return 'RunScript(special://skin/tools/music_data.py,music-player,track)'
     return None
 

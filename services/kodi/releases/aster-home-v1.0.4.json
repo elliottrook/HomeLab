@@ -5,7 +5,7 @@
   "built_on": "2026-10-22",
   "design_canvas": "1920x1080-16:9-scales-to-4k",
   "artifact_directory": "services/kodi/dist/aster-home-v1.0.4",
-  "manifest_sha256": "52839bf437aeaa090adb49c4f8d0e64a9ca9ab839a44be0e64e7fdee7c74edde",
+  "manifest_sha256": "bfb8ba2c4b9944bcca9c9ab31dcfae84bd15b4b9b99789af40bb987cc7bfe2e6",
   "artifacts": [
     {
       "addon_id": "plugin.video.asterhome",
@@ -28,15 +28,15 @@
     {
       "addon_id": "skin.asterhome",
       "archive": "skin.asterhome-1.0.4.zip",
-      "bytes": 4531779,
-      "sha256": "59c5e7fffa4b124bd4acefa5336b301ff42252653af091d01f496369bc33b55a"
+      "bytes": 4531776,
+      "sha256": "76b76b9db39b303a17dc08aba0cceae7e4fb31779f9c734eb012b92a214d3a44"
     }
   ],
   "client_files": [
     {
       "file": "g20s-pro-plus.xml",
-      "bytes": 1648,
-      "sha256": "88aee19391d3efec6fd52573037ce382caa2555d7a1aba246707e17b00715394",
+      "bytes": 1853,
+      "sha256": "f04c0a09c1b366ab918963aad6cb8963ae81b21c8fcca6263c9d247e27668030",
       "install_target": "userdata/keymaps/g20s-pro-plus.xml"
     }
   ],
@@ -68,7 +68,8 @@
     "rollback_checkpoint_sha256": "6ca70eb38aa1ed338636dde10b4ddbb5f5e8ee57347fac2dfda435f2a0af6756",
     "rollback_checkpoint_verification": "tar-readable-and-all-156-files-match-live-v1.0.3",
     "startup_branding_checkpoint": "/storage/.aster-checkpoints/aster-startup-branding-20261022-203418",
-    "staged_package_device_verification": "all-archive-sha256-crc-addon-metadata-internal-file-sha256-and-keymap-xml-passed"
+    "staged_package_device_verification": "corrected-build-all-archive-sha256-crc-addon-metadata-internal-file-sha256-and-keymap-xml-passed",
+    "g20_physical_select": "key-select-353-mapped-and-album-plus-track-activation-owner-verified"
   },
   "graduation_blocker": "BOSGAME main-TV HDR indicator, receiver passthrough, G20 production mapping, YouTube playback, Audiobookshelf and camera production routes, soak, and destructive recovery validation"
 }

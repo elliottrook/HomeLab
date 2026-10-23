@@ -26,9 +26,10 @@ class SelectDispatchTests(unittest.TestCase):
             'RunScript(special://skin/tools/hub_data.py,digest,chapter)',
         )
         self.assertEqual(
-            dispatched_action(11121, 9000),
+            dispatched_action(11121, 50),
             'RunScript(special://skin/tools/music_data.py,music-player,track)',
         )
+        self.assertIsNone(dispatched_action(11121, 9000))
 
 
 if __name__ == '__main__':

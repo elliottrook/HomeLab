@@ -1,6 +1,6 @@
 # Aster Home — EH-001: LibreELEC/Kodi feasibility experiment
 
-> **Status:** Active — Stream A; the BOSGAME E3 Neo internal NVMe now runs the pinned LibreELEC 13 nightly/Kodi 22 baseline with Aster Home v1.0.3, synchronized Jellyfin media/music libraries, approved AsterTV startup branding and prior 4K60 HEVC HDR10/AV1 playback evidence; v1.0.4 is packaged locally while main-TV HDR/receiver passthrough, G20 production mapping, YouTube playback, Books/Home/Digest client-state migration, soak and destructive recovery gates remain open
+> **Status:** Active — Stream A; the BOSGAME E3 Neo internal NVMe now runs the pinned LibreELEC 13 nightly/Kodi 22 baseline with Aster Home v1.0.4, synchronized Jellyfin media/music libraries, approved AsterTV startup branding and prior 4K60 HEVC HDR10/AV1 playback evidence; main-TV HDR/receiver passthrough, YouTube playback, Books/Home/Digest client-state migration, soak and destructive recovery gates remain open
 > **Owner:** Jason
 > **Date:** 2026-10-13
 > **Authorization:** Stream A requested for bounded, reversible proof of concept; operational execution remains subject to the actual environment, project-standard and platform safety gates.
@@ -2373,6 +2373,19 @@ free in `/storage`; this checkpoint does not
 include household feed data, credentials, media databases or watched state.
 The endpoint was deliberately left running v1.0.3 pending an attended visual
 promotion and rollback test.
+
+The attended promotion installed all four v1.0.4 components, preserved the
+working keymap and restarted Kodi cleanly. Jellyfin reauthenticated and opened
+its websocket without an XML, Python or startup error, and the owner accepted
+the rendered home view. Physical capture then proved that this G20 receiver's
+centre button emits Linux `KEY_SELECT` (code 353), a mode not covered by the
+first v1.0.4 keymap. Adding the explicit Select route restored Music album
+activation. A second defect was isolated to the Music player: its track list
+is control 50, while the dispatcher incorrectly checked Back control 9000.
+Correcting that ID restored direct track selection, which the owner verified.
+The deterministic v1.0.4 package was rebuilt so the release keymap and skin
+contain both tested corrections; the superseded local build was retained only
+in `/tmp` during validation and is not a release artefact.
 
 ## 15. References
 

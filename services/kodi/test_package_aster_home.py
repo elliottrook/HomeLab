@@ -45,7 +45,15 @@ class ReleasePackageTests(unittest.TestCase):
                 keymap["sha256"],
                 release.sha256(Path(first) / keymap["file"]),
             )
-            ET.parse(Path(first) / keymap["file"])
+            keymap_xml = ET.parse(Path(first) / keymap["file"])
+            self.assertEqual(
+                keymap_xml.findtext("./global/keyboard/select"),
+                "RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)",
+            )
+            self.assertEqual(
+                keymap_xml.findtext("./FullscreenVideo/keyboard/select"),
+                "OSD",
+            )
 
     def test_nonempty_output_fails_closed(self):
         with tempfile.TemporaryDirectory() as directory:

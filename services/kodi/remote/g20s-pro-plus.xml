@@ -2,8 +2,9 @@
 <!--
   Kodi compatibility map for the G20S Pro Plus 2.4 GHz USB receiver.
 
-  The receiver can expose OK as keyboard Return or mouse-left depending on its
-  current mode/handshake, while Back is mouse-right. Route both OK forms
+  The receiver can expose OK as Linux KEY_SELECT, keyboard Return or
+  mouse-left depending on its current mode/handshake, while Back is
+  mouse-right. Route all observed OK forms
   through the Aster Select dispatcher so script-populated Music, Books and
   Digest rows activate like native Kodi items; all other controls receive
   normal Select. Leave every other correctly reported keyboard/media key alone.
@@ -12,6 +13,7 @@
 <keymap>
   <global>
     <keyboard>
+      <select>RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)</select>
       <return>RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)</return>
       <enter>RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)</enter>
     </keyboard>
@@ -22,6 +24,7 @@
   </global>
   <FullscreenVideo>
     <keyboard>
+      <select>OSD</select>
       <return>OSD</return>
       <enter>OSD</enter>
     </keyboard>
@@ -32,6 +35,7 @@
   </FullscreenVideo>
   <FullscreenGame>
     <keyboard>
+      <select>OSD</select>
       <return>OSD</return>
       <enter>OSD</enter>
     </keyboard>
@@ -42,6 +46,7 @@
   </FullscreenGame>
   <Visualisation>
     <keyboard>
+      <select>OSD</select>
       <return>OSD</return>
       <enter>OSD</enter>
     </keyboard>
