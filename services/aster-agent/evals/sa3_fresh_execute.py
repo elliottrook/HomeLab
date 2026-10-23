@@ -23,8 +23,13 @@ def _unique_object(pairs):
     return value
 
 
+def _reject_non_json_constant(value):
+    raise ValueError(f'non-JSON numeric constant in evaluation data: {value}')
+
+
 def decode_unique_json(raw):
-    return json.loads(raw, object_pairs_hook=_unique_object)
+    return json.loads(raw, object_pairs_hook=_unique_object,
+                      parse_constant=_reject_non_json_constant)
 
 
 def load_bounded_json(path, limit=MAX_INPUT_BYTES):

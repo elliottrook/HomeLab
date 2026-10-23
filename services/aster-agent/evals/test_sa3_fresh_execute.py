@@ -54,6 +54,10 @@ class ExecuteTests(unittest.TestCase):
         self.assertEqual({'ok': True}, decode_unique_json('{"ok":true}'))
         with self.assertRaisesRegex(ValueError, 'duplicate JSON key'):
             decode_unique_json('{"ok":true,"ok":false}')
+        for value in ('NaN', 'Infinity', '-Infinity'):
+            with self.subTest(value=value), self.assertRaisesRegex(
+                    ValueError, 'non-JSON numeric constant'):
+                decode_unique_json('{"value":' + value + '}')
 
     def test_evaluation_inputs_are_bounded_and_reject_duplicate_keys(self):
         with tempfile.TemporaryDirectory() as directory:

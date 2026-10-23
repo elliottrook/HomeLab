@@ -649,6 +649,12 @@ Health and completion response JSON now also
 instead of retaining the last value. Normal and ambiguous synthetic responses
 behaved as expected and the complete eval suite remained 120/120. This closes
 an offline parser ambiguity without making a model call or advancing D4/M1.
+The shared bounded decoder now also
+[rejects non-standard non-finite numeric tokens](evidence/D4-strict-json-number-boundary-2026-10-23.md)
+across case, manifest, health and completion data. Normal input passed while
+`NaN` and both infinities were rejected; the complete eval suite remained
+120/120. This preserves portable JSON semantics without executing a run or
+changing authority.
 
 ## Immediate next action and stop rule
 
