@@ -10,6 +10,14 @@ from sa3_fresh_package import run_package, validate_cases
 from sa3_investigation_runner import sanitize_response
 
 BASE = 'http://192.168.70.12:11435'
+MAX_HTTP_BYTES = 1_048_576
+
+
+def read_bounded(response, limit=MAX_HTTP_BYTES):
+    raw = response.read(limit + 1)
+    if len(raw) > limit:
+        raise ValueError('local service response exceeds bounded envelope')
+    return raw.decode('utf-8')
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -46,7 +54,7 @@ def main():
     def get(path):
         request = urllib.request.Request(BASE+path, headers=headers)
         with opener.open(request, timeout=10) as response:
-            return response.read().decode()
+            return read_bounded(response)
 
     def ready():
         health = json.loads(get('/health'))
@@ -60,7 +68,7 @@ def main():
         request = urllib.request.Request(BASE+'/v1/chat/completions', headers=headers,
                                          data=json.dumps(payload).encode())
         with opener.open(request, timeout=timeout) as response:
-            value = json.load(response)
+            value = json.loads(read_bounded(response))
         result = sanitize_response(value, time.monotonic()-start)
         # A content-free progress event; model answers remain in the private ledger.
         print(json.dumps({'event': 'request_complete', 'seconds': result['latency_seconds'],

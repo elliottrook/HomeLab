@@ -626,6 +626,11 @@ after verifying the chain. Correctly rehashed fixtures with an unexpected
 outer field or a private-reasoning result were rejected, and the complete
 eval suite passed 117/117. This closes a malformed-record acceptance path; the
 hash chain remains an integrity structure rather than a signature.
+The fresh executor now also enforces a
+[one-MiB local-service response boundary](evidence/D4-local-service-response-size-boundary-2026-10-23.md)
+before decoding health, metrics or completion JSON. An oversized fixture was
+rejected and the complete eval suite passed 118/118. This bounds future runner
+memory use; it does not call or qualify a model.
 
 ## Immediate next action and stop rule
 

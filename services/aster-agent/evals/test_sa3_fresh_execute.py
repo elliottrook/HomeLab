@@ -1,4 +1,5 @@
 import json
+import io
 from pathlib import Path
 import subprocess
 import sys
@@ -6,7 +7,7 @@ import tempfile
 import unittest
 import urllib.error
 import urllib.request
-from sa3_fresh_execute import NoRedirect
+from sa3_fresh_execute import MAX_HTTP_BYTES, NoRedirect, read_bounded
 from test_sa3_fresh_package import fixture
 
 
@@ -30,6 +31,11 @@ class ExecuteTests(unittest.TestCase):
         req = urllib.request.Request('http://example.invalid', headers={'Authorization': 'Bearer fixture'})
         with self.assertRaises(urllib.error.HTTPError):
             NoRedirect().redirect_request(req, None, 302, 'moved', {}, 'https://other.invalid')
+
+    def test_local_service_response_is_bounded_before_json_parsing(self):
+        self.assertEqual('{"ok":true}', read_bounded(io.BytesIO(b'{"ok":true}')))
+        with self.assertRaisesRegex(ValueError, 'bounded envelope'):
+            read_bounded(io.BytesIO(b'x' * (MAX_HTTP_BYTES + 1)))
 
 
 if __name__ == '__main__': unittest.main()
