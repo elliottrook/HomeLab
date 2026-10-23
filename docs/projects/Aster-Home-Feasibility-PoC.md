@@ -2360,6 +2360,20 @@ The six v1.0.4 artifacts were staged without activation under
 `/storage/.aster-staging/aster-home-v1.0.4/`; remote SHA-256 readback matched
 the release record for every file and Kodi remained active.
 
+An additional device-side verification opened every staged ZIP, passed its CRC
+test, matched the archive and every packaged-file SHA-256 against the manifest,
+parsed each `addon.xml`, confirmed all four add-on IDs at version 1.0.4, and
+parsed the staged G20 keymap XML. Before any activation, the running v1.0.3
+add-on directories and working G20 keymap were archived and read-tested at
+`/storage/.aster-checkpoints/aster-v1.0.3-pre-v1.0.4-20261022.tar.gz` (SHA-256
+`6ca70eb38aa1ed338636dde10b4ddbb5f5e8ee57347fac2dfda435f2a0af6756`,
+4.4 MB). A second read-only comparison opened the archive and matched all 156
+files byte-for-byte to the running v1.0.3 installation. The BOSGAME has 467 GB
+free in `/storage`; this checkpoint does not
+include household feed data, credentials, media databases or watched state.
+The endpoint was deliberately left running v1.0.3 pending an attended visual
+promotion and rollback test.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

@@ -64,7 +64,11 @@
     "physical_library": "jellyfin-movies-shows-episodes-sets-artists-albums-and-songs-synchronized",
     "startup_branding": "astertv-kodi-and-libreelec-splashes-persisted-after-reboot",
     "startup_splash_sha256": "912228f3866b33749905eb8154b470d3170fe4747f92799811470bb49b986cce",
-    "rollback_checkpoint": "/storage/.aster-checkpoints/aster-startup-branding-20261022-203418"
+    "rollback_checkpoint": "/storage/.aster-checkpoints/aster-v1.0.3-pre-v1.0.4-20261022.tar.gz",
+    "rollback_checkpoint_sha256": "6ca70eb38aa1ed338636dde10b4ddbb5f5e8ee57347fac2dfda435f2a0af6756",
+    "rollback_checkpoint_verification": "tar-readable-and-all-156-files-match-live-v1.0.3",
+    "startup_branding_checkpoint": "/storage/.aster-checkpoints/aster-startup-branding-20261022-203418",
+    "staged_package_device_verification": "all-archive-sha256-crc-addon-metadata-internal-file-sha256-and-keymap-xml-passed"
   },
   "graduation_blocker": "BOSGAME main-TV HDR indicator, receiver passthrough, G20 production mapping, YouTube playback, Audiobookshelf and camera production routes, soak, and destructive recovery validation"
 }
