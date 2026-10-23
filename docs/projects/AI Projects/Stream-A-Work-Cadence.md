@@ -2,6 +2,37 @@
 
 > Owner: Jason. Status: continuous lane active; no exclusive benchmark launcher admitted. The one-time October 15, 16 and 17 read-only checks are complete and paused. This cadence does not promote a model, deploy a service, grant a tool, or waive an approval gate.
 
+## Operator approval and timed-test signal
+
+When an explicit approval is the only remaining blocker, Stream A must send a
+standalone notification whose first line is:
+
+> 🚨 **ACTION REQUIRED — APPROVAL**
+
+The notification must state the exact action being approved, its decision
+deadline, expected effect, explicit exclusions and what will happen if approval
+does not arrive. Do not bury this request in a progress report or wait for Jason
+to ask what is next. One reminder may be sent at the card's recorded reminder
+time; an expired request is retired and reported as NO-GO rather than silently
+carried into another cycle.
+
+Immediately after approval has been applied and the resulting installation,
+activation or preflight has been checked, report exactly one of:
+
+- **TIMED TEST: GO — SCHEDULED / CONDITIONAL**: the exact runner or timer is
+  active, static hashes/custody and cleanup observation passed, and the next
+  trigger time is stated. List any fresh runtime gates that must still pass at
+  execution, such as the current backup chain, host load and absence of a
+  competing lease. These conditions do not require another approval unless the
+  reviewed action changes.
+- **TIMED TEST: NO-GO**: the test is not safely runnable or scheduled. State the
+  first failed dependency, practical effect and the exact next approval or
+  corrective action. Present that approval request immediately when it is ready.
+
+Routine status may follow this signal, but must not obscure it. This convention
+changes operator communication only; it does not weaken repository, platform or
+live-change approval boundaries.
+
 **October 23/24 activation cadence correction:** the October 23 F2 packet was
 technically ready about seventeen hours before its window, but its distinct
 host-activation approval was not received before 01:15. No timer or scan ran.
