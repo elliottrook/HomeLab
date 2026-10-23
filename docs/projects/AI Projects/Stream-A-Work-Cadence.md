@@ -12,6 +12,12 @@ a timed blocking decision, reminded once at 18:00, and retired at 22:00 if
 still unapproved. The replacement October 24 candidate has passed target-side
 unit/calendar, installed-pin, custody and current absence checks, but remains
 inactive pending its own explicit approval.
+Jason subsequently approved that exact activation. The
+[October 24 activation](evidence/F2-exact-cycle-activation-result-2026-10-24.md)
+is now live: prepare is scheduled once at 01:15, final once at 01:20, and the
+observation-only reconciliation once at 01:42 PDT. Recurring F2 timers remain
+disabled. The future backup and TrueNAS completion gates remain mandatory; a
+failed or uncertain gate means NO-GO without retry.
 
 **October 20 F2 result:** the two exact-date timers fired and are now disabled,
 but preparation failed after five seconds and final failed immediately. No

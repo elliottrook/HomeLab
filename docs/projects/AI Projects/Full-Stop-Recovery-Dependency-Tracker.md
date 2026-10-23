@@ -77,6 +77,13 @@ unit/calendar checks, found the required live absence gates and healthy core
 guests/Proxmox daemons, then removed its temporary files. This closes the
 pre-activation validation step only. The future backup/task-1 gates remain
 volatile, and activation still requires explicit approval.
+Jason then explicitly approved activation. The
+[activation result](evidence/F2-exact-cycle-activation-result-2026-10-24.md)
+records matching installed hashes, enabled/active one-shot timers for 01:15
+and 01:20 PDT, disabled/inactive recurring timers, healthy Proxmox/guest
+postchecks, and an active one-occurrence 01:42 observation-only reconciliation.
+No service was manually started and no scan, lease, receipt or F3 action has
+yet occurred. F2 remains open until terminal evidence is reconciled.
 
 The one-time October 17 supervised F2 guard was invoked once after the
 current-cycle backup and task-1 pull passed preflight. It returned `F2NoGo`
