@@ -49,6 +49,13 @@ is now live: prepare is scheduled once at 01:15, final once at 01:20, and the
 observation-only reconciliation once at 01:42 PDT. Recurring F2 timers remain
 disabled. The future backup and TrueNAS completion gates remain mandatory; a
 failed or uncertain gate means NO-GO without retry.
+The [October 24 terminal result](evidence/F2-exact-cycle-no-go-2026-10-24.md)
+is now **NO-GO**: preparation passed, final failed after one second with
+`FINAL_GUARD_SUBCHECK_FAILED`, and there are no archive rows. The exact-date
+timers were removed, recurring timers remain disabled, and production is
+healthy. The installed wrapper does not retain which final-guard subcheck
+failed; a per-subcheck diagnostic correction, offline/target proof and a fresh
+reviewed and approved cycle are required before another attempt.
 
 **October 20 F2 result:** the two exact-date timers fired and are now disabled,
 but preparation failed after five seconds and final failed immediately. No

@@ -12,6 +12,15 @@ is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the
 October 16 read-only scan from an unscheduled live drill.
 
+**October 24 F2 result:** the approved exact-date preparation succeeded at
+01:15, but the 01:20 final service returned NO-GO with bounded class
+`FINAL_GUARD_SUBCHECK_FAILED` and no archive rows. The
+[terminal record](evidence/F2-exact-cycle-no-go-2026-10-24.md) confirms no
+scanner, lease or receipt remained, the spent timers were removed and
+production postchecks passed. The installed wrapper still reduces all final
+guard exceptions to one class, so another cycle is blocked on a per-subcheck
+diagnostic correction and fresh proof. F3 cannot advance.
+
 **October 18 lab-hours pilot checkpoint:** Jason approved up to 90 minutes of
 daytime Aster/voice unavailability for a first supervised no-reboot pilot.
 The combined 19-file Proxmox plus one-wrapper LXC110 packet from `b43d4971`

@@ -1,7 +1,7 @@
 # Full-stop recovery drill — dependency tracker
 
 **Owner:** Stream A for evidence and coordination; Local AI platform owner for
-host release, lease and recovery. **Last reconciled:** 2026-10-23
+host release, lease and recovery. **Last reconciled:** 2026-10-24
 America/Vancouver. **Overall decision: NO-GO.** This tracker is the human
 status page. The platform-owned
 `services/local-ai-lease/FULL-STOP-RECOVERY-DRILL-RUN-CARD.md` is the executable
@@ -84,6 +84,17 @@ and 01:20 PDT, disabled/inactive recurring timers, healthy Proxmox/guest
 postchecks, and an active one-occurrence 01:42 observation-only reconciliation.
 No service was manually started and no scan, lease, receipt or F3 action has
 yet occurred. F2 remains open until terminal evidence is reconciled.
+
+The [October 24 terminal result](evidence/F2-exact-cycle-no-go-2026-10-24.md)
+is NO-GO. Preparation succeeded, but the final service exited 1 with bounded
+phase `final` and class `FINAL_GUARD_SUBCHECK_FAILED`; no archive rows were
+produced and no scan result exists. The spent exact-date timers were removed,
+recurring timers remain disabled, and production postchecks passed. The
+installed coordinator collapses every exception from the final guard into this
+one class, so the failed clock/window, absence, exclusion, lease,
+quiet-process, load, installed-pin or snapshot/freshness subcheck remains
+unknown. F2 and F3 stay blocked pending a per-subcheck diagnostic correction,
+offline and target-Linux proof, and a fresh reviewed cycle.
 
 The one-time October 17 supervised F2 guard was invoked once after the
 current-cycle backup and task-1 pull passed preflight. It returned `F2NoGo`
@@ -329,7 +340,7 @@ the end of that backup cycle.
 |---|---|---|---|
 | F0 | **Pinned inactive compatibility source** | Source pins, seven-file rollback checkpoint, 12 installed modules and two heartbeat units match reviewed bytes; no lease/lock or production change. | [x] DONE — `services/local-ai-lease/FULL-STOP-COMPATIBILITY-DISABLED-INSTALL-RESULT-20261015.md` on platform branch; separate local `codex/aster-lease-compat` branch. |
 | F1 | **Target-Linux synthetic compatibility**, after F0 | Installed-path imports, admission-record round-trip, old-dependency compatibility, watchdog/recovery and archive tests; timers stay inactive. | [x] DONE — same result; synthetic tests only. |
-| F2 | **New-cycle read-only archive timing**, after successful 00:30 Proxmox job and 01:00 TrueNAS task 1 | Exact current-cycle 104/110/116 identities; three bounded `zstd -t` exit-0 results before the deadline, without competing work. Failure/unknown/partial is NO-GO. | [ ] **OCTOBER 22 FAILED / NO-GO** — preparation succeeded, but the final service failed after one second with bounded phase `final` and class `FINAL_FAILED`; there are no archive rows and no scan result. The [dated result](evidence/F2-exact-cycle-no-go-2026-10-22.md) records clean production postchecks and removal of the spent date-specific timers. Recurring timers remain disabled. The exact failed final subcheck is unknown; platform correction and fresh target-Linux proof must precede another separately reviewed cycle. F3 cannot advance. |
+| F2 | **New-cycle read-only archive timing**, after successful 00:30 Proxmox job and 01:00 TrueNAS task 1 | Exact current-cycle 104/110/116 identities; three bounded `zstd -t` exit-0 results before the deadline, without competing work. Failure/unknown/partial is NO-GO. | [ ] **OCTOBER 24 FAILED / NO-GO** — preparation succeeded, but the final service failed after one second with bounded phase `final` and class `FINAL_GUARD_SUBCHECK_FAILED`; there are no archive rows and no scan result. The [dated result](evidence/F2-exact-cycle-no-go-2026-10-24.md) records clean production postchecks and removal of the spent exact-date timers. Recurring timers remain disabled. The installed wrapper still collapses all final-guard failures into one code, so the exact subcheck is unknown. A per-subcheck correction and fresh offline/target-Linux proof must precede another reviewed and approved cycle. F3 cannot advance. |
 | F3 | **Trusted retained-receipt release**, after F0/F1 and timing review | A separately reviewed, hash-pinned producer can write a root-owned mode-0600 receipt in a mode-0700 directory only after all fixed source, whole-job, task-1, archive identity/integrity and deadline checks pass. Partial/late scans leave no success receipt. Test the actual installed path and rollback; obtain bounded host-change approval. | [ ] **INSTALLED INACTIVE / BLOCKED** — the [12-file disabled installation](evidence/F3-disabled-receipt-writer-install-2026-10-19.md) is provenance-clean after an independent hash check caught and corrected a stale 11-file report. All clean committed source hashes equal the live files; 46 target-Linux tests and 336 local tests pass. The separately approved one-attempt boundary is installed and refuses to overwrite an existing receipt; both rollback checkpoints are retained. The producer remains uncalled and no receipt exists. Effect-enabled use still requires a successful F2 result, a fresh later-cycle retained-integrity receipt and matching lease, plus separate approval. |
 | F4 | **Fresh trusted pre-acquire receipt for the drill cycle**, after F3 and that cycle's backup/task 1 | Complete current-cycle pre-acquire envelope exists, is independently re-read and bound to the same archive identities, backup digest, proposed lease identity and still-running production observation; stale, replaced or incomplete files fail closed. It grants no authority to stop services. | [ ] **INACTIVE PATH STAGED / BLOCKED** — the new pre-acquire boundary and corrected controller consumer are installed inactive from clean commit `6309e5f7`; target-Linux focused tests passed 13/13 and the dependency suite passed 83/83. No receipt, lease or lock exists. F4 still requires F3 release plus a later fresh backup cycle; F5–F7 must pass before F8 can consume it. See the platform [stage result](../../../services/local-ai-lease/F3-F4-INACTIVE-STAGE-RESULT-20261019.md). |
 | F5 | **03:05 full preflight**, after F4 and 02:00/03:00 TrueNAS tasks | Fixed schedules and same-cycle job completions; exact LXC110 mirror; three consumers still running; no conflicting lease/job; pinned Qwen3.5-9B Q4_K_M, llama.cpp b11429 SYCL/Level Zero, GPU, unit and authentication state; News timer active/enabled and job idle. Save non-secret baseline for restoration. | [ ] BLOCKED by F4; must be observed afresh in the chosen cycle. |
