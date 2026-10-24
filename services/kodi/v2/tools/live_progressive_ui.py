@@ -3,6 +3,7 @@ import json,os,subprocess,sys,time
 from pathlib import Path
 import xbmc
 assert os.uname().nodename=='AsterTV'
+normal='--normal' in sys.argv
 sys.path.insert(0,'/storage/.kodi/addons/script.astermusic.v2lab/resources/lib')
 from music_catalogue import read_catalogue
 from queue_reader import QueueUnavailable,read_queue
@@ -35,8 +36,10 @@ assert idle()
 until(lambda:focus(500),'Start on Music genres')
 view=read_catalogue(rpc)
 path=Path('/storage/.kodi/userdata/addon_data/script.astermusic.v2lab/live-trial.json')
-with path.open('x') as f:json.dump({'song_ids':sorted(view.songs),'queue_limit':20000,'expires_at':int(time.time())+900},f)
-path.chmod(0o600)
+if normal:assert not path.exists()
+else:
+    with path.open('x') as f:json.dump({'song_ids':sorted(view.songs),'queue_limit':20000,'expires_at':int(time.time())+900},f)
+    path.chmod(0o600)
 passed=False;metrics={}
 try:
     press('up');until(lambda:focus(200),'Browse focus')
@@ -107,10 +110,11 @@ try:
     metrics['exit_kind']='home' if '--home-exit' in sys.argv else 'back'
     passed=True
 finally:
-    path.unlink(missing_ok=True)
+    if normal:assert not path.exists()
+    else:path.unlink(missing_ok=True)
     if not passed:
         press('back');xbmc.sleep(5000)
     assert idle(),'Unexpected queue/player retained; stop testing'
     p=Path('/storage/.aster-checkpoints/aster-music-progressive-20261024')/('native-ui-'+str(time.time_ns())+'.json')
-    with p.open('x') as f:json.dump({'passed':passed,'metrics':metrics,'grant_removed':True,'empty_queue_restored':True},f)
+    with p.open('x') as f:json.dump({'passed':passed,'normal_mode':normal,'metrics':metrics,'grant_removed':True,'empty_queue_restored':True},f)
     p.chmod(0o600)

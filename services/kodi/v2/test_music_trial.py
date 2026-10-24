@@ -5,7 +5,7 @@ import unittest
 from unittest.mock import patch
 
 from music_trial import (TrialPlayer,TrialUnavailable,capability,
-                         save_empty_checkpoint,validate_write)
+                         normal_playback_capability,save_empty_checkpoint,validate_write)
 from music_queue import QueueSnapshot
 
 
@@ -42,6 +42,16 @@ class FakePlayer:
 
 
 class TrialTests(unittest.TestCase):
+    def test_normal_mode_is_an_explicit_hp_only_nonsecret_profile_setting(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path=Path(folder)/'normal.json'
+            self.assertFalse(normal_playback_capability(path,host='AsterTV'))
+            valid=dict(enabled=True,queue_limit=20000,host='AsterTV')
+            path.write_text(json.dumps(valid));self.assertTrue(normal_playback_capability(path,host='AsterTV'))
+            self.assertFalse(normal_playback_capability(path,host='AsterTVProd'))
+            for change in (dict(enabled=1),dict(queue_limit=True),dict(queue_limit=20001),dict(host='AsterTVProd')):
+                path.write_text(json.dumps({**valid,**change}))
+                self.assertFalse(normal_playback_capability(path,host='AsterTV'))
     def setUp(self):
         self.player=FakePlayer();self.trial=TrialPlayer(self.player,[10,20,30],lambda s:True,sleep=lambda n:None)
 

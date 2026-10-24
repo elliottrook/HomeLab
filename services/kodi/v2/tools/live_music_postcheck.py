@@ -21,6 +21,12 @@ assert not rpc('Player.GetActivePlayers',{})
 assert rpc('Playlist.GetItems',{'playlistid':0,'limits':{'start':0,'end':1}})['limits']['total']==0
 profile=Path('/storage/.kodi/userdata/addon_data/script.astermusic.v2lab')
 assert not (profile/'live-trial.json').exists()
+normal=False
+if (profile/'normal-playback.json').exists():
+    assert json.loads((profile/'normal-playback.json').read_text())==dict(enabled=True,queue_limit=20000,host='AsterTV')
+    normal=True
+if (profile/'shared-playlist-pending.json').exists():
+    assert json.loads((profile/'shared-playlist-pending.json').read_text()).get('status')=='verified','shared-save-recovery-required'
 keys=['Window(Home).Property(AsterV2Lab.'+name+')' for name in ('TrialRecovery','AlbumWindow','Window')]
 assert not any(rpc('XBMC.GetInfoLabels',{'labels':keys}).values()),'live-or-recovery-window-retained'
 stage=Path('/storage/.aster-staging');addons=Path('/storage/.kodi/addons')
@@ -59,5 +65,5 @@ with output.open('x') as handle:
                'av_language_settings_verified':len(values),
                'database_integrity':'ok','missing_primary_artist_links':0,
                'no_player':True,'original_empty_queue':True,'capability_removed':True,
-               'all_lab_windows_closed':True},handle)
+               'all_lab_windows_closed':True,'approved_normal_playback':normal},handle)
 output.chmod(0o600)

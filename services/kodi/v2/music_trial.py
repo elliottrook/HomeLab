@@ -18,6 +18,16 @@ class TrialUnavailable(ValueError):
     pass
 
 
+def normal_playback_capability(path,*,host):
+    if host!='AsterTV':return False
+    try:
+        value=json.loads(Path(path).read_text())
+        return (isinstance(value,dict) and set(value)=={'enabled','queue_limit','host'}
+                and value['enabled'] is True and type(value['queue_limit']) is int
+                and value['queue_limit']==20000 and value['host']=='AsterTV')
+    except (OSError,ValueError,TypeError):return False
+
+
 def serialized(method):
     @wraps(method)
     def guarded(self,*args,**kwargs):

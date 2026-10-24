@@ -10,8 +10,10 @@ class LabModel:
         self.offset, self.index, self.query, self.column = 0, 0, '', 0
         self.genre_index = 0
         self.artist_id = None
+        self.playlists=();self.playlist_origin=None
 
     def context(self):
+        if self.mode=='playlists':return ('playlists',None,'playlist')
         return (self.mode, self.category, self.kind,self.artist_id) if self.mode == 'detail' else ('genres',None,'')
 
     def page_size(self): return 8 if self.mode=='genres' else 4
@@ -24,6 +26,9 @@ class LabModel:
         self.clamp()
 
     def page(self):
+        if self.mode=='playlists':
+            rows=[row for row in self.playlists if self.query.casefold() in row['label'].casefold()]
+            return dict(rows=deepcopy(rows[self.offset:self.offset+4]),total=len(rows),has_more=self.offset+4<len(rows),uncredited_song_count=0)
         if self.mode == 'genres':
             rows = [r for r in self.catalogue.categories() if self.query.casefold() in r['label'].casefold()]
             return {'rows': deepcopy(rows[self.offset:self.offset+8]), 'total': len(rows),
@@ -55,6 +60,12 @@ class LabModel:
         self.mode = 'genres';self.artist_id=None
         self.restore()
 
+    def open_playlists(self,rows):
+        if self.mode!='playlists':
+            self.remember();self.playlist_origin=(self.mode,self.category,self.kind,self.artist_id)
+        else:self.remember()
+        self.playlists=tuple(deepcopy(rows));self.mode='playlists';self.kind='playlist';self.artist_id=None;self.restore()
+
     def open_artist(self,identity):
         if (self.mode!='detail' or self.kind!='artist' or type(identity) is not int
                 or identity not in self.catalogue.membership[self.category]['artist']):
@@ -62,6 +73,9 @@ class LabModel:
         self.remember();self.artist_id=identity;self.kind='album';self.restore()
 
     def back(self):
+        if self.mode=='playlists':
+            self.remember();self.mode,self.category,self.kind,self.artist_id=self.playlist_origin
+            self.restore();return True
         if self.mode=='detail' and self.artist_id is not None:
             self.remember();self.artist_id=None;self.kind='artist';self.restore();return True
         if self.mode=='detail':self.genres();return True
@@ -70,6 +84,7 @@ class LabModel:
     def set_kind(self, kind):
         if kind not in ('album','artist','song'):
             raise ValueError('unsupported-view')
+        if self.mode=='playlists':self.back()
         if self.mode == 'genres':
             rows = self.page()['rows']
             if not rows:

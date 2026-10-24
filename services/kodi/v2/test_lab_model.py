@@ -86,3 +86,13 @@ class LabTests(unittest.TestCase):
         for identity in (True,999):
             with self.assertRaises(ValueError):m.open_artist(identity)
             self.assertEqual(m.context(),before)
+
+    def test_playlists_search_page_and_back_preserve_previous_browse_context(self):
+        m=self.model;m.enter(2);m.set_kind('song');m.search('Cambodia')
+        rows=[dict(playlistid=str(i),label=f'List {i}') for i in range(9)]
+        m.open_playlists(rows);self.assertEqual((m.mode,m.kind,m.page()['total']),('playlists','playlist',9))
+        m.turn_page(1);self.assertEqual(m.offset,4)
+        m.search('List 8');self.assertEqual(m.page()['total'],1)
+        self.assertTrue(m.back());self.assertEqual((m.kind,m.query),('song','Cambodia'))
+        m.open_playlists(rows);self.assertEqual(m.query,'List 8')
+        m.set_kind('album');self.assertEqual((m.mode,m.kind),('detail','album'))

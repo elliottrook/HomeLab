@@ -32,6 +32,8 @@ class RuntimeTests(unittest.TestCase):
         with patch.dict(sys.modules,{'xbmc':self.xbmc,'xbmcgui':self.gui}):
             spec=importlib.util.spec_from_file_location('aster_v2_lab_runtime',HERE/'script.astermusic.v2lab/default.py')
             self.runtime=importlib.util.module_from_spec(spec);spec.loader.exec_module(self.runtime)
+        normal=patch.object(self.runtime,'normal_playback',return_value=False)
+        normal.start();self.addCleanup(normal.stop)
         self.xbmc.executeJSONRPC.return_value=json.dumps({'result':{}})
         self.window=self.runtime.MusicLab()
         self.window.model=LabModel(read_catalogue(FakeLibrary()))
@@ -89,6 +91,33 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual((w.model.artist_id,w.model.kind),(identity,'album'))
         self.action(92);self.assertEqual(w.model.kind,'artist');self.assertIsNone(w.model.artist_id)
 
+    def test_repeated_playlist_occurrences_use_unique_capability_but_preserve_requested_order(self):
+        w=self.runtime.AlbumLab();w.allowed=(1,2,1);w.queue_limit=20000
+        trial=Mock();trial.observe.return_value.current_index=None
+        with patch.object(self.runtime,'live_grant',return_value=((1,2),20000)),patch.object(self.runtime,'ExpandedTrial',return_value=trial) as engine,patch.object(w,'start_cancellable') as start:
+            w.live('play',w.allowed)
+            self.assertEqual(engine.call_args.args[1],(1,2))
+            self.assertEqual(start.call_args.args[0],(1,2,1))
+
+    def test_audio_title_and_count_labels_have_separate_vertical_lanes(self):
+        root=ET.parse(HERE/'script.astermusic.v2lab/resources/skins/Default/1080i/AlbumLab.xml')
+        labels={c.findtext('label'):c for c in root.findall('.//control[@type="label"]')}
+        previous=775
+        for name in ('Album.AudioDetails','Album.Title','Album.Count'):
+            node=labels['$INFO[Window.Property('+name+')]']
+            self.assertGreater(int(node.findtext('top')),previous)
+            previous=int(node.findtext('top'))+int(node.findtext('height'))
+
+    def test_normal_mode_enables_verified_selection_without_external_trial_grant(self):
+        selection=Mock();selection.song_ids=(1,2,1)
+        native=Mock()
+        with patch.object(self.runtime,'normal_playback',return_value=True),patch.object(self.runtime,'live_grant') as grant,patch.object(self.runtime,'AlbumLab',return_value=native),patch.object(self.window,'art',return_value='fallback'):
+            self.window.open_selection(selection,{'label':'Playlist'})
+            self.assertEqual(native.allowed,(1,2,1));self.assertEqual(native.queue_limit,20000)
+            self.assertTrue(self.runtime.playback_allowed(native.allowed,20000))
+            self.assertFalse(self.runtime.playback_allowed(tuple(range(20001)),20000))
+            grant.assert_not_called()
+
     def test_cancelled_or_failed_refresh_keeps_previous_view(self):
         w=self.window;before=w.model.catalogue
         with patch.object(self.runtime,'load_catalogue',return_value=(None,'Refresh cancelled')):w.onClick(302)
@@ -131,7 +160,7 @@ class RuntimeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as one,tempfile.TemporaryDirectory() as two:
             first=build(one);second=build(two)
             self.assertEqual(first['sha256'],second['sha256'])
-            self.assertEqual(len(first['files']),37)
+            self.assertEqual(len(first['files']),42)
             self.assertTrue(all(r['path'].startswith('script.astermusic.v2lab/') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_queue.py') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_album.py') for r in first['files']))

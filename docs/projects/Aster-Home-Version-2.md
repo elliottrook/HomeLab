@@ -989,3 +989,160 @@ retained an absolute-path script miss in its VFS cache; using the equivalent
 `special://home/../.aster-staging/` path loaded the existing file without a
 Kodi restart or add-on modification. Do not call those failed attempts passes.
 Continue Music work; production and Git remotes remain untouched.
+
+#### Factual source audio and shared-playlist gate — 2026-10-24
+
+Candidate39 SHA-256
+`3da260c105594123258c5ad57975bbcecf285e7c4fd53bfe8e6ce26bf1d42474`
+is live on HP with 38 verified files, candidate38 private recovery retained.
+188 v2 tests pass. New source-format line reads only five MusicPlayer labels;
+rejects malformed/missing fields, requests no media paths and makes no
+bit-perfect, receiver codec or negotiated-output claim. Native
+`song-artist-1792859496978333053.json` verifies the real source label plus
+single-song controls and artist navigation. Screenshot inspected: quiet FLAC /
+24-bit / stereo / bitrate line beneath square artwork, no overlap. The first
+candidate39 driver hit a transient double-read mismatch during exit; corrected
+read-only polling handles only that retryable transition. No write is retried.
+`postcheck-1792859583000916516.json` verifies all 38 files, 149 unchanged baseline
+files plus four approved overlay pages/assets, all 68 AV/language values, healthy
+DB and idle/empty/no-grant/no-live-window state.
+
+Jason chose shared Jellyfin playlists rather than device-local saves. Read-only
+inventory finds 16 audio playlists; the add-on exposes plug-in track URIs, not
+Kodi song IDs. The existing read-only Jellyfin mapping DB contains 17,128 song
+references, so develop exact ID translation rather than fuzzy title matching or
+URL-based queue writes. Inventory evidence `playlist-inventory-1792859504814826367.json`.
+No paths/tokens retained in that evidence. Existing authenticated session works
+with the installed client's MediaBrowser Authorization scheme; the initial
+legacy-token-header attempt returned 401 and made no changes.
+
+Identity preflight found the HP's existing user is an administrator. This was
+disclosed. Jason explicitly approved one bounded trial with that signed-in
+account: create and verify one new private **Aster lab** playlist, then delete
+only that exact newly created test playlist; leave existing playlists untouched.
+This grants no general server administration, account/permission/token change,
+overwrite/replace or mass playlist cleanup. The isolated test must checkpoint
+the 16 existing IDs/content fingerprints, pin the same user/server fingerprint,
+use only three previously verified indexed songs (including duplicate-order
+coverage if supported), refuse redirects, journal before create, never retry an
+uncertain POST, verify private ownership/exact order, and delete only its proven
+new ID. Retain evidence and independently verify the original playlist set and
+all existing ordered contents afterward. A permissions/identity mismatch,
+uncertain creation or deletion failure is a stop condition with no blind retry.
+Current live Save button remains disabled pending this gate; production, new
+services and further Git pushes remain excluded.
+
+#### Shared-playlist trial result and create-only UI authority — 2026-10-24
+
+The one approved trial passed: `shared-save-1792859893121517673/results.json`.
+Exactly one POST created one new private Audio playlist with the requested
+duplicate order. Its metadata/access/order were verified, then exactly that new
+ID was deleted once. All 16 pre-existing IDs, names, ordered ItemIds and sharing
+settings matched the verified before checkpoint afterward. No queue/player,
+credential, identity or existing playlist writes. Server's own OpenAPI schema
+was inspected read-only (reported version 12.1.0): CreatePlaylistDto, private
+IsPublic=false, PlaylistDto OpenAccess/Shares/ItemIds and current-user reads.
+Do not reuse the existing playlist bridge's replace/delete-old behavior.
+
+Jason subsequently approved enabling HP **create-only Save queue to Jellyfin**
+with a name and confirmation for every save, refusing duplicate names,
+overwrites and edits to existing playlists, plus one disposable native UI
+save/verify/delete test. Existing administrator-session risk remains disclosed
+and accepted only for this bounded create-only path; no admin key or additional
+credentials. Pin the previously verified user/server identity fingerprint;
+changed identity requires review. Production, public sharing, general delete,
+playlist updates/renames and remote Git writes remain excluded.
+
+Implement in the isolated HP Music add-on, checkpoint candidate41 before
+activation. The writer exposes only POST /Playlists with private Audio/current
+user/exact IDs; there is no update/delete/admin route. Require the same owned
+queue fingerprint immediately before sending, exact server-ID mappings, fresh
+complete name inventory, and durable private intent before POST. Name checks
+are optimistic: Jellyfin has no atomic unique-name creation contract, so a
+concurrent external creator could still race; never overwrite/delete to hide it.
+After a possibly sent request, verify or retain a sticky recovery gate; do not
+retry or create another playlist automatically, including after restarting the
+player. Resolve in-flight worker before exit; cancellation before sending must
+not stop music or create a playlist. Preserve the paused/playing queue throughout
+Save. Confirmed Save is a user operation, not an autoplay or scheduled server job.
+
+The UI test must cancel a name/confirmation without a POST, perform exactly one
+confirmed Save from the native player, verify private access/exact duplicate
+order/unchanged paused playback, checkpoint and remove only that verified new
+test ID, compare all original 16 ordered contents/shares, and stop/restore its
+owned native queue. Retain all journals and failed-test evidence. Recovery,
+identity/permissions or unexpected existing-content changes remain stop gates.
+
+#### Shared playlist player and native Save delivered on HP — 2026-10-24
+
+Candidate41 (41 files), SHA-256
+`f86c8cb1333c22024374ea8aec7c3af5fa3f8c02be18cadc0ea3d168369f4a48`,
+replaced candidate39 with its exact private recovery retained. Candidate40 was
+not installed: the source-format line needed a separate lane from the title;
+candidate41 separates artwork, audio facts, title and count with a regression
+test. Exact read-only Jellyfin playlist reader uses the existing session only,
+refuses redirects/foreign origins/arbitrary routes, strips returned data to
+IDs/names, and reads only its current user's list plus selected playlist DTOs.
+All server IDs map exactly through the read-only add-on DB; no URI queue writes,
+fuzzy title matching or omitted tracks. Missing/unindexed/stale/oversized and
+empty cases are explicit. Playlists supports search/pagination/Back context.
+
+Native `playlist-player-1792860268811121494.json` verified all 16 playlists and
+their ordered track counts (18,13,13,13,7,21,18,63,1,9,10,8,5,11,19,6). The first
+18-track playlist passes read-only preview, complete-order Play, Pause/Resume,
+Back to same playlist tile, original empty-queue restoration and grant removal.
+No server playlist changes in that test. Duplicate selection occurrences use a
+unique permission set but preserve requested order. 206 v2 tests passed.
+
+Candidate42 (42 files), SHA-256
+`8f79dcbc433df1dbc91086ace5ec55c8bd0d4fc29fc6fb38ac6ed4edb6768edd`,
+then deployed with candidate41 recovery. Menu Save is available on owned album,
+song/playlist and shuffle queues. Name and explicit private-create confirmation
+are mandatory; worker performs no GUI calls, checks current ownership/fingerprint,
+and journals before POST. It is joined before exit. Persistent uncertain or
+created-unverified state blocks another save across window restarts; cancelled
+unsent requests remain retryable. No overwrite/update/delete path is shipped.
+Playlist refresh also refreshes the server list while retaining query/context.
+214 unit tests cover success, cancellation, stale state, corrupt/sticky journal,
+uncertain no-retry, exact duplicate order and route/user/public-access denial.
+
+Approved native UI trial `shared-save-ui-1792860791946956675/results.json` passes
+name cancel and confirmation cancel with no writes, one confirmed private
+five-occurrence save, independent exact duplicate-order/access verification,
+unchanged paused queue, one deletion of only the proven new test ID, all 16
+original IDs/ordered contents/shares unchanged, and owned-queue stop/restore.
+The private verified save journal intentionally remains as audit evidence even
+though the named disposable test playlist was subsequently removed. No further
+test create/delete is authorized by these consumed one-off trial approvals;
+ordinary confirmed create-only HP user saves are approved. No production or
+remote Git change, new credentials, permission or service changes.
+
+#### Approved normal HP Music pilot playback — 2026-10-24
+
+Jason explicitly enabled normal HP pilot playback without an expiring
+engineering grant. Candidate43 (42 files), SHA-256
+`b83d1989b9a0e4526a79eead286f081ca5bb0e103f15e8e188a9c3f08c5fa70b`,
+deployed with exact candidate42 recovery. A private nonsecret profile setting
+`normal-playback.json` explicitly enables only host AsterTV with queue limit
+20,000; prior absence recorded in `before-candidate43`. Absent/malformed/foreign
+host settings remain read-only unless a valid temporary test grant exists.
+Window permissions derive only from the verified selected IDs; native writes
+recheck mode/grant, exact ownership and the bounded queue rules. Play/Replace/
+Shuffle still require confirmation. External playback/nonempty initial queues
+are refused, not interrupted. Back/exit retains owned Stop/empty restoration.
+No equivalent flag, package or settings were written to BOSGAME.
+
+216 v2 tests pass, including no-grant normal selection and strict profile/host/
+limit validation. Proceed directly to native normal-mode song/artist, playlist
+and partial-shuffle controls/exit tests; do not create an engineering grant for
+those checks. Then continue the remaining interactive scrubber/stateful shuffle/
+audio-output/atmosphere/long-session integration work. M3 remains open; native
+automation is not physical listening, G20 acceptance or production graduation.
+
+Normal-mode native song/artist `song-artist-1792861180937551449.json` and
+playlist `playlist-player-1792861232675867303.json` both pass without creating
+or removing an engineering grant. Song/playlist entry does not autoplay;
+confirmed Play, Pause/Resume, exact saved order, Back/origin and empty-queue
+restore all pass. All 16 playlist mappings are reverified. Continue directly
+with the normal-mode partial-shuffle seek/Home test and interactive scrubber;
+no server test playlist creation is part of those checks.

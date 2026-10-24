@@ -17,19 +17,24 @@ from lab_model import LabModel
 from music_catalogue import CatalogueUnavailable, read_catalogue
 from music_album import AlbumUnavailable, read_album
 from music_selection import SelectionUnavailable,read_song
+from music_audio import read_source
+from music_playlists import PlaylistUnavailable,read_playlists,read_playlist,indexed_mapping,server_mapping
+from music_jellyfin import PlaylistReader,PlaylistCreator
+from music_shared_save import save_owned_queue
+from music_playlist_save import PlaylistSaveUnavailable
 from music_queue import propose,nonholiday_shuffle
 from queue_reader import QueueUnavailable, read_queue
-from music_trial import TrialPlayer,TrialUnavailable,capability,save_empty_checkpoint,validate_write
+from music_trial import TrialPlayer,TrialUnavailable,capability,normal_playback_capability,save_empty_checkpoint,validate_write
 from music_expanded_trial import ExpandedTrial,TrialCancelled,expanded_capability,save_intent
 from music_progressive import ProgressiveSession,clock_milliseconds,clock_label
 
 ASSETS = 'special://home/addons/skin.asterhome/media/'
 READS = {'AudioLibrary.GetAlbums','AudioLibrary.GetArtists','AudioLibrary.GetSongs',
          'AudioLibrary.GetAlbumDetails','AudioLibrary.GetArtistDetails','AudioLibrary.GetSongDetails',
-         'Player.GetActivePlayers','Player.GetProperties','Player.GetItem','Playlist.GetItems'}
+         'Player.GetActivePlayers','Player.GetProperties','Player.GetItem','Playlist.GetItems','XBMC.GetInfoLabels'}
 BACK = {9,10,92,216,247,257,275}
 DIRECTIONS = {1:'left',2:'right',3:'up',4:'down'}
-ICONS = {'album':'23-music-album.png','artist':'24-music-artist.png','song':'25-music-song.png'}
+ICONS = {'album':'23-music-album.png','artist':'24-music-artist.png','song':'25-music-song.png','playlist':'26-music-playlist.png'}
 
 
 def rpc(method,params):
@@ -54,6 +59,17 @@ def live_ids():
 
 def live_grant():
     return expanded_capability(trial_directory()/'live-trial.json',host=platform.node(),now=time.time())
+
+
+def normal_playback():
+    return normal_playback_capability(trial_directory()/'normal-playback.json',host=platform.node())
+
+
+def playback_allowed(ids,limit):
+    if len(ids)>limit:return False
+    if normal_playback() and limit==20000:return True
+    granted,current_limit=live_grant()
+    return limit==current_limit and set(ids)<=set(granted)
 
 
 def load_catalogue():
@@ -132,14 +148,15 @@ class AlbumLab(xbmcgui.WindowXML):
         self.setProperty('Album.Title',self.title)
         self.setProperty('Album.Id',str(self.selection.album_id))
         self.setProperty('Album.Art',self.artwork)
+        self.setProperty('Album.AudioDetails','')
         ordering='disc / track' if self.selection.disc_numbers_available else 'track tags · disc numbers unavailable'
-        self.setProperty('Album.Count','1 song' if kind=='song' else str(len(self.selection.tracks))+' tracks · ordered by '+ordering)
+        self.setProperty('Album.Count','1 song' if kind=='song' else str(len(self.selection.tracks))+' tracks · '+('saved playlist order' if kind=='playlist' else 'ordered by '+ordering))
         self.setProperty('Album.Status','Read-only queue preview · no playback starts')
         self.setProperty('Album.Live','true' if self.allowed else 'false')
         self.setProperty('Album.Help','Preview only · select a track for its queue options. Back returns to the same tile. No playback or queue changes.')
         if self.allowed:
-            self.setProperty('Album.Status',f'HP live trial · {len(self.allowed)} approved tracks · Back stops and restores the original empty queue')
-            self.setProperty('Album.Help','Live test: approved tracks only. OK opens track actions. Replace needs confirmation; stop before replacing. Back stops this trial and restores the original queue.')
+            self.setProperty('Album.Status',f'HP Music pilot · {len(self.allowed)} tracks · Back stops and restores the original empty queue' if normal_playback() else f'HP live trial · {len(self.allowed)} approved tracks · Back stops and restores the original empty queue')
+            self.setProperty('Album.Help','OK opens track actions. Menu saves a private Jellyfin playlist. Replace needs confirmation; stop before replacing. Back stops playback.')
         self.configure_controls()
         items=[]
         for row in self.selection.tracks:
@@ -198,7 +215,7 @@ class AlbumLab(xbmcgui.WindowXML):
                     speed=rpc('Player.GetProperties',{'playerid':0,'properties':['speed']}).get('speed')
                     action='resume' if speed==0 else 'pause'
                 else:action='play'
-            if action not in ('stop',) and not set(self.allowed)<=set(live_ids()):
+            if action not in ('stop',) and not playback_allowed(self.allowed,self.queue_limit):
                 raise TrialUnavailable('trial-capability-expired')
             confirmed=False
             if action in ('play','replace'):
@@ -211,14 +228,13 @@ class AlbumLab(xbmcgui.WindowXML):
                 def transport(method,params):
                     if method in READS:return rpc(method,params)
                     if method not in ('Player.Stop','Playlist.Clear'):
-                        granted,limit=live_grant()
-                        if limit!=self.queue_limit or not set(self.allowed)<=set(granted):
+                        if not playback_allowed(self.allowed,self.queue_limit):
                             raise TrialUnavailable('trial-capability-expired')
                     validate_write(method,params,self.allowed,queue_limit=self.queue_limit)
                     xbmc.log('AsterMusicTrial write='+method,xbmc.LOGINFO)
                     return execute(method,params)
                 stamp=time.time_ns()
-                self.trial=ExpandedTrial(transport,self.allowed,lambda snapshot:save_empty_checkpoint(
+                self.trial=ExpandedTrial(transport,tuple(dict.fromkeys(self.allowed)),lambda snapshot:save_empty_checkpoint(
                     trial_directory()/f'queue-checkpoint-{stamp}.json',snapshot),queue_limit=self.queue_limit,
                     intent=lambda snapshot,**kw:save_intent(trial_directory()/f'queue-intent-{stamp}.json',snapshot,**kw))
             if action=='play':self.start_cancellable(ids,confirmed)
@@ -231,7 +247,8 @@ class AlbumLab(xbmcgui.WindowXML):
             self.getControl(400).setLabel(self.control_labels[400])
             self.setProperty('Album.Icon400',str(ROOT/'resources'/'controls'/('pause.png' if active and not paused else 'play.png')))
             self.onFocus(self.getFocusId())
-            self.setProperty('Album.Status','HP trial · '+action+' completed · Back stops and restores the original queue')
+            self.setProperty('Album.Status','HP Music · '+action+' completed · Back stops and restores the original queue')
+            self.setProperty('Album.AudioDetails',read_source(rpc) if active else '')
         except TrialCancelled:
             self.setProperty('Album.Status','Start cancelled · playback stopped and original empty queue restored')
         except (TrialUnavailable,QueueUnavailable,ValueError,OSError) as error:
@@ -277,11 +294,67 @@ class AlbumLab(xbmcgui.WindowXML):
             xbmcgui.Dialog().notification('Music trial recovery required','Unexpected playback/queue state. Checkpoint retained; do not continue testing.')
         finally:super().close()
 
+    def save_shared_queue(self,engine,snapshot):
+        self.dialog_open=True
+        try:
+            keyboard=xbmc.Keyboard('','Name saved Jellyfin playlist')
+            keyboard.doModal()
+            if not keyboard.isConfirmed():return
+            name=keyboard.getText().strip()
+        finally:self.dialog_open=False;self.back_guard_until=time.monotonic()+.3
+        if not name or len(name)>100 or any(ord(c)<32 or ord(c)==127 for c in name):
+            self.dialog('ok','Playlist name','Use a name of 1–100 characters without control characters.');return
+        if not self.dialog('yesno','Save queue to Jellyfin',f'Create a new private playlist “{name}” with {len(snapshot.song_ids)} tracks under the signed-in account? Existing playlists will not be changed.'):return
+        progress=xbmcgui.DialogProgress();progress.create('Saving playlist','Preparing the private shared playlist. Back cancels before the request is sent.')
+        cancelled=threading.Event();result=[];errors=[];self.dialog_open=True
+        def work():
+            try:
+                import xbmcvfs
+                creator=PlaylistCreator(xbmcvfs.translatePath('special://profile/addon_data/plugin.video.jellyfin/data.json'))
+                result.append(save_owned_queue(engine,snapshot.fingerprint,name,creator,
+                    lambda ids:server_mapping(xbmcvfs.translatePath('special://profile/Database/jellyfin.db'),ids),
+                    trial_directory(),confirmed=True,cancelled=cancelled.is_set))
+            except Exception as error:errors.append(error)
+        worker=threading.Thread(target=work,name='AsterSharedPlaylistSave')
+        try:
+            worker.start()
+            while worker.is_alive():
+                if progress.iscanceled() or xbmc.Monitor().abortRequested():cancelled.set()
+                progress.update(50,'Finishing safely; a sent request must be resolved.' if cancelled.is_set() else 'Verifying exact song order and private access…')
+                xbmc.sleep(50)
+            worker.join()
+        finally:
+            progress.close();self.dialog_open=False;self.back_guard_until=time.monotonic()+.3
+        if errors:
+            error=errors[0];code=str(error) if isinstance(error,(PlaylistSaveUnavailable,PlaylistUnavailable)) else 'shared-save-unavailable'
+            message={'playlist-save-cancelled':'Save cancelled before sending. Your queue and server playlists are unchanged.',
+                'playlist-name-already-exists':'That playlist name already exists. Choose a different name; nothing was overwritten.',
+                'queue-preview-stale':'The queue or playing song changed. Open Menu again to review a fresh queue.',
+                'playlist-saving-identity-changed':'The signed-in identity changed. Shared saving needs review before it can continue.',
+                'shared-save-recovery-required':'An earlier save has an uncertain result. Do not repeat it; retain the recovery journal for review.'}.get(code,
+                'The save could not be verified. A request may have reached Jellyfin: do not repeat it. The private recovery journal is retained; playback is unchanged.')
+            self.dialog('ok','Playlist not saved' if code in ('playlist-save-cancelled','playlist-name-already-exists','queue-preview-stale') else 'Check playlist save',message)
+        elif result:
+            self.setProperty('Album.Status',f'Saved private Jellyfin playlist · {result[0]["count"]} tracks · playback unchanged')
+            xbmcgui.Dialog().notification('Playlist saved',result[0]['name'])
+
     def onAction(self,action):
         if self.finished:return
         key=action.getId()
         if key in BACK:
             if not self.dialog_open and time.monotonic()>=self.back_guard_until:self.close()
+            return
+        if key==117:
+            if self.dialog_open:return
+            if not self.trial:
+                self.dialog('ok','Queue not started','Start music in this player before saving its owned queue.');return
+            try:
+                snapshot=self.trial.observe()
+                if not snapshot.song_ids:
+                    self.dialog('ok','Empty queue','There is no queued music to save.');return
+                if self.dialog('select','Queue actions',['Save queue to Jellyfin…'])==0:self.save_shared_queue(self.trial,snapshot)
+            except (TrialUnavailable,QueueUnavailable):
+                self.dialog('ok','Queue changed','The queue could not be verified. No playlist was saved.')
             return
         control=self.getFocusId()
         buttons=(400,404,401,402,403) if self.allowed else (401,402,403)
@@ -303,6 +376,7 @@ class ShuffleLab(AlbumLab):
         self.page_offset=0;self.current_position=0
         self.initialized=False
         self.control_worker=None;self.control_errors=[]
+        self.next_audio_update=0
 
     def onInit(self):
         super().onInit()
@@ -360,6 +434,8 @@ class ShuffleLab(AlbumLab):
                 identity=self.allowed[position]
                 item=rpc('Player.GetItem',{'playerid':0,'properties':[]}).get('item',{})
                 if item.get('type')=='song' and item.get('id')==identity:
+                    if time.monotonic()>=self.next_audio_update:
+                        self.setProperty('Album.AudioDetails',read_source(rpc));self.next_audio_update=time.monotonic()+3
                     try:
                         elapsed=clock_milliseconds(props.get('time'));duration=clock_milliseconds(props.get('totaltime'))
                         if not 0<=elapsed<=duration or not duration:raise TrialUnavailable('playback-clock-unavailable')
@@ -415,7 +491,7 @@ class ShuffleLab(AlbumLab):
         snapshot=self.session.engine.observe()
         position=self.page_offset+self.getControl(600).getSelectedPosition()
         if not 0<=position<len(snapshot.song_ids):return
-        option=self.dialog('select','Queue actions',['Remove selected song','Stop and clear queue…'])
+        option=self.dialog('select','Queue actions',['Remove selected song','Stop and clear queue…','Save queue to Jellyfin…'])
         if option==0:
             if position==snapshot.current_index:
                 self.dialog('ok','Keep playing song','The playing occurrence cannot be removed. Select another queued song.');return
@@ -423,6 +499,7 @@ class ShuffleLab(AlbumLab):
                 self.control('remove',(position,snapshot.fingerprint))
         elif option==1 and self.dialog('yesno','Stop and clear queue','Stop this player and clear its queue? Your library and saved playlists are unchanged.'):
             self.control('clear',snapshot.fingerprint)
+        elif option==2:self.save_shared_queue(self.session.engine,snapshot)
 
     def onClick(self,control):
         if self.finished:return
@@ -476,11 +553,11 @@ class ShuffleLab(AlbumLab):
 class MusicLab(xbmcgui.WindowXML):
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
-        self.model=None; self.rail=False; self.pending_focus=None; self.art_cache={}
+        self.model=None; self.rail=False; self.pending_focus=None; self.art_cache={};self.playlist_reader=None
 
     def onInit(self):
         self.setProperty('Lab.Rail','false')
-        self.prop('Status','Read-only pilot · no playback or library changes')
+        self.prop('Status','HP Music pilot · confirm Play / Shuffle · Back stops playback' if normal_playback() else 'Read-only pilot · no playback or library changes')
         self.render()
         self.focus_grid()
         xbmcgui.Window(10000).setProperty('AsterV2Lab.Window',str(xbmcgui.getCurrentWindowId()))
@@ -496,6 +573,7 @@ class MusicLab(xbmcgui.WindowXML):
 
     def art(self,row):
         if self.model.mode=='genres': return ASSETS+ICONS['album']
+        if self.model.kind=='playlist':return ASSETS+ICONS['playlist']
         kind=self.model.kind; identity=row[kind+'id']; key=(kind,identity)
         if key not in self.art_cache:
             value=''
@@ -513,7 +591,7 @@ class MusicLab(xbmcgui.WindowXML):
         page=self.model.page();rows=page['rows']
         self.prop('View','genres' if self.model.mode=='genres' else self.model.kind)
         artist=self.model.catalogue.artists.get(self.model.artist_id,{}).get('label')
-        self.prop('Heading','Browse genres' if self.model.mode=='genres' else self.model.category+' / '+((artist+' / ') if artist else '')+self.model.kind.title()+'s')
+        self.prop('Heading','Browse genres' if self.model.mode=='genres' else 'Jellyfin / Playlists' if self.model.mode=='playlists' else self.model.category+' / '+((artist+' / ') if artist else '')+self.model.kind.title()+'s')
         self.prop('Count',f"{page['total']:,} "+('categories' if self.model.mode=='genres' else self.model.kind+'s'))
         self.prop('Search',self.model.query or 'Search…')
         self.prop('Page',f"{self.model.offset+1 if rows else 0}–{self.model.offset+len(rows)} of {page['total']:,}")
@@ -534,10 +612,10 @@ class MusicLab(xbmcgui.WindowXML):
         if self.model.mode=='genres' and row:
             copy=f"{row['song_count']:,} tracks · {row['album_count']:,} albums · {row['artist_count']:,} known artists"
         else:
-            copy=(self.model.category or 'Your music')+' · Select an artist for their albums, or a song/album for the player. Playback requires the bounded HP test grant.'
+            copy=(self.model.category or 'Your music')+' · Select an artist for their albums, or a song/album/playlist for the player. '+('Play needs confirmation; Back stops playback.' if normal_playback() else 'Playback requires the bounded HP test grant.')
         self.prop('Copy',copy)
         self.prop('HeroArt',self.art(row) if row else ASSETS+ICONS['album'])
-        self.prop('Shuffle',f"{len(self.model.catalogue.shuffle_summary['eligible_ids']):,} eligible tracks · preview only")
+        self.prop('Shuffle',f"{len(self.model.catalogue.shuffle_summary['eligible_ids']):,} eligible tracks · "+('confirm to shuffle' if normal_playback() else 'preview only'))
 
     def onFocus(self,control):
         if 500<=control<508 and control-500<len(self.model.page()['rows']):
@@ -553,18 +631,26 @@ class MusicLab(xbmcgui.WindowXML):
                 if self.model.kind=='album':self.open_album(selected)
                 elif self.model.kind=='artist':
                     self.model.open_artist(selected['artistid']);self.render();self.focus_grid()
-                else:self.open_song(selected)
+                elif self.model.kind=='song':self.open_song(selected)
+                else:self.open_playlist(selected)
             else:self.render();self.focus_grid()
         elif control in (100,101,102):
             self.model.set_kind({100:'album',101:'artist',102:'song'}[control]);self.render();self.focus_grid()
         elif control==103:
-            xbmcgui.Dialog().ok('Playlists','Existing playlists remain in ordinary Aster Music. This isolated pilot tests Genres, Albums, Artists and Songs only.')
+            try:
+                import xbmcvfs
+                reader=PlaylistReader(xbmcvfs.translatePath('special://profile/addon_data/plugin.video.jellyfin/data.json'))
+                rows=read_playlists(reader)
+                self.playlist_reader=reader;self.model.open_playlists(rows);self.render();self.focus_grid()
+            except PlaylistUnavailable:
+                xbmcgui.Dialog().ok('Playlists unavailable','The signed-in Jellyfin playlists could not be read completely. Your current view and playlists are unchanged.')
         elif control==104:
             self.model.genres();self.render();self.focus_grid()
         elif control==200:self.focus_grid()
         elif control==201:
             s=self.model.catalogue.shuffle_summary
             granted,limit=live_grant()
+            if normal_playback():limit=20000;granted=s['eligible_ids']
             if s['eligible_ids'] and len(s['eligible_ids'])<=limit and set(s['eligible_ids'])<=set(granted):
                 self.open_shuffle(limit)
             else:xbmcgui.Dialog().ok('Shuffle all · eligibility preview',f"{len(s['eligible_ids']):,} eligible tracks; {s['excluded']:,} excluded by track or album holiday tags.\n\nNo playback starts and your queue is unchanged.")
@@ -576,6 +662,11 @@ class MusicLab(xbmcgui.WindowXML):
         elif control==301:
             self.model.search('');self.render();self.focus_grid()
         elif control==302:
+            if self.model.mode=='playlists':
+                try:
+                    self.model.open_playlists(read_playlists(self.playlist_reader));self.render();self.prop('Status','Jellyfin playlists refreshed')
+                except PlaylistUnavailable:self.prop('Status','Playlist refresh unavailable · previous view retained')
+                self.focus(302);return
             view,error=load_catalogue()
             if view is None:self.prop('Status',(error or 'Refresh failed')+' · previous view retained')
             else:
@@ -596,8 +687,7 @@ class MusicLab(xbmcgui.WindowXML):
             def transport(method,params):
                 if method in READS:return rpc(method,params)
                 if method not in ('Player.Stop','Playlist.Clear'):
-                    grant,current_limit=live_grant()
-                    if current_limit!=limit or not set(ids)<=set(grant):raise TrialUnavailable('trial-capability-expired')
+                    if not playback_allowed(ids,limit):raise TrialUnavailable('trial-capability-expired')
                 validate_write(method,params,set(ids),queue_limit=limit)
                 return execute(method,params)
             def resources():
@@ -659,14 +749,28 @@ class MusicLab(xbmcgui.WindowXML):
     def open_selection(self,selection,row):
         window=AlbumLab('AlbumLab.xml',str(ROOT),'Default','1080i')
         window.selection=selection;window.title=row.get('label','Album');window.artwork=self.art(row)
-        window.allowed=tuple(i for i in selection.song_ids if i in live_ids())
-        window.queue_limit=live_grant()[1]
+        if normal_playback():window.allowed=selection.song_ids;window.queue_limit=20000
+        else:
+            window.allowed=tuple(i for i in selection.song_ids if i in live_ids())
+            window.queue_limit=live_grant()[1]
         try:window.doModal()
         finally:
             window.close()  # Also clean up when Kodi navigates away globally.
             xbmcgui.Window(10000).clearProperty('AsterV2Lab.AlbumWindow')
             del window
         self.focus_grid()
+
+    def open_playlist(self,row):
+        try:
+            import xbmcvfs
+            if self.playlist_reader is None:raise PlaylistUnavailable('playlist-reader-unavailable')
+            selection=read_playlist(self.playlist_reader,row['playlistid'],self.model.playlists,self.model.catalogue,
+                lambda ids:indexed_mapping(xbmcvfs.translatePath('special://profile/Database/jellyfin.db'),ids))
+            if not selection.tracks:
+                xbmcgui.Dialog().ok('Empty playlist','This saved playlist has no songs yet. No playback starts.');return
+        except PlaylistUnavailable:
+            xbmcgui.Dialog().ok('Playlist unavailable','The complete saved order could not be matched to indexed songs. Refresh the catalogue or let Jellyfin finish syncing; no tracks were guessed or omitted.');return
+        self.open_selection(selection,row)
 
     def onAction(self,action):
         key=action.getId()
