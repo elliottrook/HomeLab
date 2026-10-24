@@ -102,3 +102,8 @@ class SeriesTests(unittest.TestCase):
     def test_inputs_not_mutated(self):
         rows=[episode(2,2,1),episode()];before=copy.deepcopy(rows)
         self.page(rows);self.assertEqual(rows,before)
+
+    def test_canonical_title_does_not_duplicate_kodi_formatted_numbering(self):
+        source=episode(title='Actual title');source['label']='1x01. Actual title'
+        row=self.page([source]).seasons[0].episodes[0]
+        self.assertEqual(row.title,'Actual title');self.assertEqual(row.numbering,'S1 E1')

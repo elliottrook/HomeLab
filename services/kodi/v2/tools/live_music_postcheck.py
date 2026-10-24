@@ -35,6 +35,7 @@ if (profile/'normal-playback.json').exists():
 if (profile/'shared-playlist-pending.json').exists():
     _require((json.loads((profile/'shared-playlist-pending.json').read_text()).get('status')=='verified'), ('shared-save-recovery-required'))
 keys=['Window(Home).Property(AsterV2Lab.'+name+')' for name in ('TrialRecovery','AlbumWindow','Window')]
+keys.append('Window(Home).Property(AsterSeries.PreviewWindow)')
 _require((not any(rpc('XBMC.GetInfoLabels',{'labels':keys}).values())), ('live-or-recovery-window-retained'))
 stage=Path('/storage/.aster-staging');addons=Path('/storage/.kodi/addons')
 baseline=json.loads((stage/'aster-artist-repair-v1-baseline-20261023.json').read_text())

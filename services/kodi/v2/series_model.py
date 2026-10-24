@@ -127,7 +127,7 @@ def build_series(show_id, records, *, expected_total, next_episode_id=None, toda
         text=lambda key,default='':source.get(key) if isinstance(source.get(key),str) and source[key] else default
         duration=_seconds(source.get('runtime'))
         rows.append(Episode(identity,_number(source.get('season')),_number(source.get('episode')),
-            text('label',text('title','Untitled episode')),text('plot'),
+            text('title',text('label','Untitled episode')),text('plot'),
             art.get('thumb') if isinstance(art.get('thumb'),str) else '',
             duration if duration else None,aired,available,playcount>0,
             position if valid_resume else None,position/total*100 if valid_resume else None,text('lastplayed')))

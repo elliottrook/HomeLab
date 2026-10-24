@@ -32,6 +32,9 @@
   has reappeared server-side and is retained pending one-cleanup authority. Exact evidence and
   recovery references are at the end. M3 not graduated; physical remote/listening
   acceptance of the corrections remains pending. Production is unchanged.
+  M2 standalone read-only series preview4 is staged separately (five files,
+  manifest `f7874ed5b99b656c2e437f514e34a7fab0fe086be39be3626a3cb06e37423d3d`);
+  it does not replace normal TV navigation or enable episode playback.
 - Up Next is urgent and extracted into the separate
   [v1.1 project](Aster-Home-Version-1.1-Up-Next.md); v2 consumes its accepted
   result, not another implementation or an excuse to delay it.
@@ -2266,3 +2269,119 @@ playback remains enabled; production and server playlists unchanged. 321 tests
 pass normally and under optimized Python, including row Up/Down, geometry,
 per-song cover caching, exact-ID cover resolution and missing-art fallback.
 Operator guide updated. Local commit only; Forgejo push awaits approval.
+
+### Next bounded M2 step — isolated series preview (2026-10-24)
+
+Jason accepted the Music corrections and directed continuation. Build and test
+the next prepared series/episode view on HP only, under his standing lab-test
+authority. First deliver a separately staged **read-only preview**, not a blanket
+MyVideoNav replacement or a production promotion. Kodi's complete indexed show
+and episode snapshot owns metadata/progress; the installed accepted v1.1
+`next_up_item` supplies the next identity. No new sequencing policy, stream URL
+dispatch, metadata/watch changes, credentials, speech or server requests.
+
+Risks: incomplete/stale snapshots, mixed-show rows, lost focus and misleading
+primary action. Require two equal bounded complete local RPC reads, exact IDs,
+explicit unknown states, stable season/episode restoration, no autoplay and
+Back escape. Preview actions inspect details only and are labelled as preview.
+Stage immutable files separately; verify their manifest and isolated restore,
+launch only while HP is idle and retain the source window/focus. No existing
+installed file needs replacement or Kodi restart; recovery is closing the
+preview. Validate synthetic guards, native read-only navigation/screenshots,
+unchanged player/queue/settings/database and accepted Music/rail manifests.
+Infrastructure, Beszel/NetBox, authentication/network and voice changes are not
+applicable: this adds no service, listener, identity, scheduled job or speech.
+Normal TV-route/playback integration remains a separately assessed next slice.
+
+Preview implementation: bounded paginated `GetTVShowDetails`/`GetEpisodes`,
+two equal complete snapshots, model validation before the installed accepted
+`next_up_item`, canonical episode titles, truthful unknown metadata, no stream
+paths retained in the model. Layout retains the logo/clock anchors, show hero,
+genre/year/rating, episode stills, synopsis and genuine progress only. No row
+cards; a restrained shared reading pane improves contrast. Per-season exact-ID
+memory is separate from remote Up/Down adjacency. Single-season chooser hidden;
+Specials/unknown groups remain reachable. Empty/unavailable reads have Back.
+
+Initial preview1 manifest
+`5cf87b6dd179fbdfd811a2f01edbe4b16a05de2fcffeb73b00a4b2b39bb30332`
+passed checkpoint/isolated restore but native `native-1792878849289805845.json`
+failed ready: asynchronous WindowXML initialization had not created selection.
+Fixed with explicit ready/identity/finished lifecycle and no early control read.
+Preview2 manifest
+`28c2fc1a48dc3051b24ed446e5d3398b7511cb25f72bd50563ed149d714cc2c0`
+then failed `native-1792878951958216596.json` on Left: numeric XML navigation
+overrode the Python season-picker target. Self-target XML lets the controller
+own that edge. Preview3 manifest
+`9e459384b0723991882b512adc8c2c2b60de152b40c9e8b4c1b9cccdc93a74ce`
+adds stable pending-index guards around population and canonical titles.
+`native-1792879110927949369.json` failed second-season selection because the
+driver's SetFocus targeted the underlying window rather than the modal chooser;
+changed the driver to real remote Up/Down, not the application selection policy.
+
+Preview3 native runs `native-1792879176462255339.json` and
+`native-1792879294997761043.json` pass adjacency, exact season round-trip,
+single/multiple seasons (139 and3 indexed episodes), preview-only OK details,
+modal Back retention and exact source-focus return. Hardened
+`native-1792879394499353592.json` additionally matches the actual native
+container episode ID to the controller ID. All finish idle/empty with no media
+or server writes. Screenshot review still showed the initial row's implicit
+focus accent; preview4 binds the accent/title to an explicit selected property
+in both row layouts, with no geometry change or zoom. New native gate requires
+that property's match too, then repeats the visual review. No acceptance of
+that final visual correction is claimed until the following evidence.
+
+Every stage has five-file manifest/hash and isolated-restore proof under
+`/storage/.aster-checkpoints/aster-series-preview-20261024/aster-series-previewN/`.
+No installed add-on or v1 file was replaced. Preview4 preflight is
+`postcheck-1792879522299705468.json`; source v1.1 adapter hash is pinned to
+`f1e0bf2192d99936529a6092ad80d6cd4483d95903f5e87d15a4ff4afc48d0a0`.
+The preservation tool now explicitly refuses an open series preview as well as
+open Music windows. 337 local v2 tests and125 original skin/video tests pass;
+optimized-Python/native completion and final read-only preservation follow.
+
+#### Series preview operator handover (HP only)
+
+The standalone preview uses the HP's existing synced Kodi library; no new login
+or server account. Once left open for review, Up/Down browses adjacent episode
+rows. Left reaches the season chooser (or the hero action for single-season
+shows); OK on the chooser opens a season list. Returning to a season restores
+the exact previously selected episode. OK on a row or hero action opens episode
+details only: the page explicitly says **preview / no playback**. Back from the
+details closes the dialog; Back from the page restores the original source.
+The single-season page hides the redundant chooser. Missing stills, synopsis,
+duration and dates are explicit; resume percentages are never invented.
+
+If a complete stable snapshot cannot be verified, “Series preview unavailable”
+states that nothing was played or changed. Close it and let library sync settle.
+Recovery is Back/close; ordinary TV/Movies and Music remain unchanged. A restart
+is not needed. Normal series-route handoff, real playback/resume/stop-on-exit,
+intro/outro and unavailable-source integration still require the next bounded
+implementation slice and owner layout review; M2 is not graduated by a preview.
+
+Final preview4 native gates `native-1792879565069085272.json` and independent
+`native-1792879632337090186.json` both pass with optimized-Python checks enforced.
+They compare controller identity, native container identity and explicit row
+selection state, plus season round trips, adjacent Up/Down, single-season
+simplification, preview details/no autoplay, modal Back and exact Home-focus
+return. Both finish idle/empty and make no media/server writes. Native 4K image
+review now confirms episode2 carries the green title/accent, not episode1;
+stills/labels retain geometry. No row zoom or heavy per-row box.
+
+Final `postcheck-1792879667369470238.json` verifies Music64/48 files, unchanged
+141 v1 members, four player overlays, eight Music integration members, rail3,
+all68 AV/language settings, healthy database/zero missing primary artist links,
+no active player/empty queue, shuffle off and all lab windows closed before the
+intentional owner-review launch. Kodi PID15921/NRestarts0 is unchanged; no restart
+was needed. 337 v2 tests pass normally and under optimized Python; the100 original
+skin and25 original video tests pass. Source/diff checks clean. No installed
+file, service/network/identity change, production contact or Git remote write.
+
+The owner-review launcher verifies preview4 manifest/members and idle queues
+before opening a real multiseason show. This intentionally leaves only the
+read-only preview visible after preservation; Back safely returns to Home.
+Next input is owner layout review before replacing normal series navigation;
+real playback/resume and intro/outro regression remain unclaimed, not elided.
+Pending shared-playlist cleanup approval is independent and was not exercised.
+`review-ready-1792879694437979371.json` confirms preview4 is visible with a
+selected episode, explicit no-playback label and no active player. HP is left
+there for owner review; Back returns to the unchanged media Home page.
