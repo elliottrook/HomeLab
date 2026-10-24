@@ -63,6 +63,13 @@ platform commit and 24/24 target-Linux tests pass. All F2 timers remain absent
 or inactive and production postchecks are healthy. A fresh date-specific card,
 independent review and separate activation approval still precede another
 timed attempt.
+The platform owner's fresh October 25 exact-cycle candidate at `3b15f8c6` has
+now passed [independent review](evidence/F2-exact-cycle-activation-review-2026-10-25.md):
+both nonpersistent timer hashes match, target systemd/calendar checks resolve
+to 01:15/01:20 PDT, installed diagnostic pins match and required cycle state is
+absent. The timers remain uninstalled/inactive pending exact activation
+approval. An observation-only reconciliation at 01:42 owns cleanup; runtime
+backup, host and lease gates still fail closed.
 
 **October 20 F2 result:** the two exact-date timers fired and are now disabled,
 but preparation failed after five seconds and final failed immediately. No
