@@ -6,9 +6,9 @@ import xbmc
 def require(value,message):
     if not value:raise RuntimeError(message)
 require(os.uname().nodename=='AsterTV','hp-only')
-stage=Path('/storage/.aster-staging/aster-series-preview4')
+stage=Path('/storage/.aster-staging/aster-series-preview5')
 require(hashlib.sha256((stage/'manifest.json').read_bytes()).hexdigest()==
-    'f7874ed5b99b656c2e437f514e34a7fab0fe086be39be3626a3cb06e37423d3d','verified-preview-only')
+    'ddfcc48021de66a56e4f6805b049f01fca8b94e1cdcb1442b630050275a73030','verified-preview-only')
 for row in json.loads((stage/'manifest.json').read_text())['files']:
     require(hashlib.sha256((stage/row['path']).read_bytes()).hexdigest()==row['sha256'],'preview-member-drift')
 def read(method,params=None):
@@ -30,7 +30,7 @@ while time.monotonic()<deadline:
 else:raise RuntimeError('review-preview-not-ready')
 require(not read('Player.GetActivePlayers'),'review-must-not-autoplay')
 path=Path('/storage/.aster-checkpoints/aster-series-preview-20261024')/('review-ready-'+str(time.time_ns())+'.json')
-with path.open('x') as output:json.dump(dict(preview=4,ready=True,no_player=True,
+with path.open('x') as output:json.dump(dict(preview=5,ready=True,no_player=True,
     selected_id_present=bool(xbmc.getInfoLabel('Window.Property(Series.SelectedId)')),
     mode=xbmc.getInfoLabel('Window.Property(Series.Mode)'),no_installed_file_changes=True),output)
 path.chmod(0o600)

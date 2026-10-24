@@ -32,8 +32,8 @@
   has reappeared server-side and is retained pending one-cleanup authority. Exact evidence and
   recovery references are at the end. M3 not graduated; physical remote/listening
   acceptance of the corrections remains pending. Production is unchanged.
-  M2 standalone read-only series preview4 is staged separately (five files,
-  manifest `f7874ed5b99b656c2e437f514e34a7fab0fe086be39be3626a3cb06e37423d3d`);
+  M2 standalone read-only series preview5 is staged separately (five files,
+  manifest `ddfcc48021de66a56e4f6805b049f01fca8b94e1cdcb1442b630050275a73030`);
   it does not replace normal TV navigation or enable episode playback.
 - Up Next is urgent and extracted into the separate
   [v1.1 project](Aster-Home-Version-1.1-Up-Next.md); v2 consumes its accepted
@@ -2385,3 +2385,36 @@ Pending shared-playlist cleanup approval is independent and was not exercised.
 `review-ready-1792879694437979371.json` confirms preview4 is visible with a
 selected episode, explicit no-playback label and no active player. HP is left
 there for owner review; Back returns to the unchanged media Home page.
+
+### Series preview — owner-requested floating episode pills (2026-10-24)
+
+Jason requests small separation between episodes like floating pills. Bounded
+HP-only visual revision: existing210px rows get198px rounded ivory backplates,
+a12px gap, faint offset shadow and a1px gold selected edge. Existing green
+selected title/accent remains; no stone texture or change to still/text sizes,
+row positions, season/focus model, metadata, playback or server state. Only
+the preview XML changes in the five-file staged package. The unavailable label
+moves7px up to keep it within its pill. Existing preview4/recovery retained;
+close only the idle foreground preview, require fresh preservation, verify the
+immutable preview5 stage and isolated restore, repeat native navigation and
+visually inspect before leaving it open. No install/restart/production/push.
+Preview5 manifest:
+`ddfcc48021de66a56e4f6805b049f01fca8b94e1cdcb1442b630050275a73030`.
+337 local tests pass, including identical row geometry and12px separation.
+
+Preview5 checkpoint/isolated restore verifies all five members; manifest diff
+confirms only the XML changed from preview4. Native
+`native-1792880097145126211.json` and independent
+`native-1792880124712298722.json` both pass exact selected ID/property,
+single/multiple seasons, adjacent rows, season memory, modal/Back and empty
+player/queue recovery (139 and3 indexed episodes). Native4K screenshot confirms
+separate rounded pills, clear gaps, subtle shadow, selected gold edge and green
+title/accent without moving the still or text. 337 tests pass normally and under
+optimized Python; diff checks clean. Final preservation/review launch follows.
+
+`postcheck-1792880155677935625.json` confirms all accepted Music/rail/player/v1
+members and68 AV/language settings preserved, healthy database, empty queues
+and closed lab windows. `review-ready-1792880172549149099.json` then verifies
+preview5 open with selected episode and no player. HP is left on the new pills
+for owner review. Still read-only: OK opens details, Back returns to Home;
+normal TV/playback and production remain unchanged. Local commit, no push.

@@ -26,7 +26,7 @@ class SeriesViewTests(unittest.TestCase):
         row=build_series(12,[episode(1,None,None)],expected_total=1).seasons[0].episodes[0]
         self.assertEqual(episode_metadata(row),'Episode number unavailable · Duration unavailable · Air date unavailable')
 
-    def test_native_layout_has_stable_rows_and_no_heavy_row_boxes(self):
+    def test_native_layout_has_stable_rows_and_quiet_floating_pills(self):
         root=ET.parse(HERE/'series_preview/resources/skins/Default/1080i/SeriesPreview.xml')
         rows=root.find('.//control[@id="300"]')
         self.assertEqual(rows.find('itemlayout').attrib,rows.find('focusedlayout').attrib)
@@ -39,6 +39,11 @@ class SeriesViewTests(unittest.TestCase):
                 self.assertLessEqual(int(control.findtext('top'))+int(control.findtext('height')),210)
         self.assertEqual(root.findtext('defaultcontrol'),'202')
         for layout in (rows.find('itemlayout'),rows.find('focusedlayout')):
+            plates=[c for c in layout.findall('control') if (c.findtext('texture') or '').endswith('/ui-panel.png')]
+            self.assertEqual(len(plates),4)
+            self.assertEqual(int(layout.get('height'))-int(plates[1].findtext('height')),12)
+            self.assertEqual(plates[1].find('texture').get('border'),'24')
+            self.assertEqual(plates[2].find('texture').get('colordiffuse'),'ffad8a4d')
             titles=[c for c in layout.findall('control') if c.findtext('label')=='$INFO[ListItem.Label]']
             self.assertEqual(len(titles),2)
             selected=next(c for c in titles if c.findtext('textcolor')=='ff005c46')
