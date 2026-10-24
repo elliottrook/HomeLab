@@ -359,6 +359,11 @@ execution-broker-independence checks. It preserves chat, voice and OpenBao on
 9120 and covers both Companion clients without an app rebuild. The first
 cutover would be explicitly Yellow-only: Red and management remain denied until
 a real passkey-specific claim is proven. No live cutover is authorized yet.
+The [static preflight](evidence/M1-zero-overlap-cutover-static-preflight-2026-10-24.md)
+is GO: installed state, empty live pending/approved counts, NPM host 18 and the
+loaded firewall match the card. The next operation is the separately approved,
+reversible supervised pilot; it returns to the current route afterward and does
+not create or consume an approval.
 
 Milestones 3 and 6 proceed independently of D3 session aging. Connected tools wait for milestone 3; automatic routing does not need to be built before a limited manual Codex release. The earlier SA0–SA5 table records operational requirements and historical Qwen work; it is **not** a second obligation to rerun the closed Qwen general-sysadmin trial. Its still-applicable authority, investigation, repair and acceptance checks map into milestones 3–7.
 
