@@ -3,7 +3,14 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-from sa3_fresh_package import MAX_LEDGER_BYTES, digest, run_package, schedule, validate_cases
+from sa3_fresh_package import (
+    MAX_LEDGER_BYTES,
+    decode_journal_json,
+    digest,
+    run_package,
+    schedule,
+    validate_cases,
+)
 from validate_sa3_holdout_release import canonical_digest
 
 
@@ -122,6 +129,14 @@ class FreshPackageTests(unittest.TestCase):
         self.path.write_text(json.dumps(row) + '\n')
         with self.assertRaisesRegex(ValueError, 'row shape'):
             self.run_fixture()
+
+    def test_ambiguous_or_nonfinite_journal_json_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'duplicate JSON key'):
+            decode_journal_json('{"event":{},"event":{}}')
+        for value in ('NaN', 'Infinity', '-Infinity'):
+            with self.subTest(value=value), self.assertRaisesRegex(
+                    ValueError, 'non-JSON numeric constant'):
+                decode_journal_json('{"value":' + value + '}')
 
     def test_rehashed_finished_result_is_revalidated(self):
         def timeout(case, mode, *args):

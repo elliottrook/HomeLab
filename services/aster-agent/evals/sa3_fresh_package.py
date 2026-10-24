@@ -32,6 +32,24 @@ ENGINE_STATUSES = frozenset({
 TRANSPORT_ERROR = re.compile(r'^transport_error:[A-Za-z_][A-Za-z0-9_]{0,127}$')
 
 
+def _unique_object(pairs):
+    value = {}
+    for key, item in pairs:
+        if key in value:
+            raise ValueError('duplicate JSON key in private journal')
+        value[key] = item
+    return value
+
+
+def _reject_non_json_constant(value):
+    raise ValueError(f'non-JSON numeric constant in private journal: {value}')
+
+
+def decode_journal_json(raw):
+    return json.loads(raw, object_pairs_hook=_unique_object,
+                      parse_constant=_reject_non_json_constant)
+
+
 def digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
@@ -141,7 +159,7 @@ def run_package(bundle, manifest, ledger, transport, ready, model='qwen3.8-27b',
             raise ValueError('partial journal; manual reconciliation required')
         previous, active, done = '', None, set()
         for line in raw.splitlines():
-            row = json.loads(line)
+            row = decode_journal_json(line)
             if not isinstance(row, dict) or set(row) != {'release', 'previous', 'event', 'digest'}:
                 raise ValueError('invalid journal row shape')
             sealed = dict(row); stored = sealed.pop('digest')

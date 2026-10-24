@@ -676,6 +676,13 @@ Invented, malformed and oversized transport-error statuses were rejected before
 a finished event, and the complete eval suite passed 121/121. This prevents a
 faulty injected engine from turning an unknown status into a completed session;
 it does not execute or qualify the holdout.
+Journal resume now also uses a
+[strict JSON decoder](evidence/D4-private-journal-strict-json-boundary-2026-10-24.md)
+that rejects repeated object keys and non-standard `NaN`/infinity constants
+before the existing shape, sequence and hash-chain checks. Synthetic ambiguous
+rows were rejected and the complete eval suite passed 122/122. This closes an
+offline private-record parser ambiguity; it does not read the holdout, call a
+model or advance D4/M1.
 
 ## Immediate next action and stop rule
 
