@@ -116,6 +116,7 @@ class RuntimeTests(unittest.TestCase):
             self.assertEqual(len(first['files']),7)
             self.assertTrue(all(r['path'].startswith('script.astermusic.v2lab/') for r in first['files']))
             self.assertFalse(any(r['path'].endswith('/music_queue.py') for r in first['files']))
+            self.assertFalse(any(r['path'].endswith('/music_album.py') for r in first['files']))
 
 
 if __name__=='__main__':unittest.main()

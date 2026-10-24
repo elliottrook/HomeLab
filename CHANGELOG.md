@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-10-23 - v2 ordered album selection groundwork
+
+- Pushed saved HP pilot/clock work through `40f14133` to Forgejo; verified
+  the GitHub mirror matches. Subsequent album work remains local.
+- Added complete, two-pass disc/track-ordered album selection for offline queue
+  proposals. No pilot installation or live playback/queue integration.
+- Read-only HP sampling passes three multi-disc albums and flags two albums
+  with six unnumbered tracks, without guessing or repairing tags.
+- 76 v2 tests, ten focus checks and three unchanged release checks pass.
+
 ## 2026-10-23 - HP Music clock correction and offline queue proposals
 
 - Centred the HP pilot's 24-hour clock vertically within its unchanged pill;

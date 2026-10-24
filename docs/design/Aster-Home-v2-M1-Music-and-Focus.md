@@ -366,3 +366,50 @@ infrastructure is introduced. Next work is a local ordered album resolver and
 queue interaction/confirmation UI; live player/queue integration remains a
 separate bounded approval gate, including classification policy and recovery
 testing. M1 is not declared complete from visual acceptance alone.
+
+### Ordered album selection — 2026-10-23 continuation
+
+The requested push of saved work through `40f14133` completed to Forgejo on
+`codex/aster-home-eh001-m0`; the GitHub protection mirror independently advertised
+the same full ref, `40f14133f5bf452ad3539071bf6a55b51e2e1376`.
+
+Added local `music_album.py` for the next playback milestone, **not installed or
+bundled in the read-only pilot**. It requests only album ID, disc, track and
+duration through `AudioLibrary.GetSongs` (title labels are returned by Kodi),
+avoiding paths and the problematic artist-credit join. The HP runtime's
+`JSONRPC.Introspect` confirms those fields in API 13.5.0. It requires exact
+membership from the complete catalogue's album association, not just the songs
+visible in one genre/search/page. Two bounded complete reads must match before
+producing an immutable selection sorted by disc then track. Sets larger than
+500 tracks are paginated, not truncated; the explicit safety ceiling is 10,000.
+
+Missing track numbers, duplicate positions, mixed known/unknown discs, missing
+parents/identities, changed membership or read errors fail with safe codes.
+All-zero disc tags remain unknown and may be ordered only by unique track tags;
+they are never presented as invented Disc 1 metadata. Returned order feeds the
+existing offline Play Next proposal unchanged, preserving the current queue's
+duplicates and current position. No player or queue write adapter exists.
+
+Retained `tools/validate_album_order.py` generates a stdin-only, method-allowlisted
+HP probe. It installs nothing, writes no remote files, sends no input and prints
+only aggregates. A live read indexed all **17,113 songs / 1,335 albums** and
+sampled five albums: three multi-disc albums ordered successfully; two refused
+with `album-track-number-unavailable`. The complete basic index contains **six
+tracks with track number zero, across two albums**. This is a metadata limitation,
+not missing content; do not retag or repair the library automatically. A future
+album screen should explain this and retain individual-song access rather than
+silently guessing album order. Playback/queue RPC results matched before/after.
+These five samples are not exhaustive album-order acceptance for all 1,335.
+
+76 v2 tests, ten focus checks and three unchanged v1 package tests pass. Local
+coverage includes multi-disc order, 601-track pagination, missing credits,
+malformed numbering/pages, same-count changes, error sanitisation and the
+generated probe's write-method denial. HP candidate3 remains unchanged and
+production remains untouched. No speech, service, port or credential is added.
+
+Next bounded milestone: local album/queue confirmation UI, then seek approval
+for an HP-only player candidate with queue checkpoint/recovery and explicit
+Replace versus Play Next/Add to Queue behavior. Before enabling live writes,
+resolve classification review, mixed file/stream queue handling, races during
+mutation and Back/exit-stop behavior. This continuation does not authorize that
+deployment, server metadata repairs, production promotion or another push.

@@ -299,3 +299,15 @@ unchanged v1 package checks passing. See the M1 record for limitations. Next:
 local album track-order resolution and queue UI/confirmation design; physical
 remote/policy review and separately approved live playback tests remain gates.
 No new push authorized or performed in this continuation.
+
+2026-10-23 next continuation: Jason requested the push; saved work through
+`40f14133` is now on Forgejo and verified at the same GitHub mirror ref. Continued
+locally with a read-only ordered-album resolver, excluded from the pilot bundle.
+Two complete reads and exact complete-catalogue album membership guard against
+truncation/change; disc/track sorting never substitutes title order. The retained
+HP stdin-only probe validates three multi-disc sample albums and truthfully
+rejects two albums containing six unnumbered tracks. No metadata repair,
+installation, playback/queue write or production change. 76 v2 tests, ten focus
+checks and three unchanged release checks pass. The M1 design record contains
+limits/evidence and the next bounded player/queue approval gates. New ordered-
+album work is a local milestone; no second push implied by the completed push.
