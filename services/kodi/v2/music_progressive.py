@@ -6,6 +6,20 @@ from music_trial import TrialUnavailable
 from music_expanded_trial import TrialCancelled
 
 
+def clock_milliseconds(value):
+    if (not isinstance(value,dict) or set(value)!={'hours','minutes','seconds','milliseconds'}
+            or any(type(value[key]) is not int or not 0<=value[key]<=limit
+                   for key,limit in (('hours',167),('minutes',59),('seconds',59),('milliseconds',999)))):
+        raise TrialUnavailable('playback-clock-unavailable')
+    return ((value['hours']*60+value['minutes'])*60+value['seconds'])*1000+value['milliseconds']
+
+
+def clock_label(value):
+    if type(value) is not int or value<0:raise TrialUnavailable('playback-clock-unavailable')
+    seconds=value//1000;hours,seconds=divmod(seconds,3600);minutes,seconds=divmod(seconds,60)
+    return f'{hours}:{minutes:02}:{seconds:02}' if hours else f'{minutes}:{seconds:02}'
+
+
 class ProgressiveSession:
     def __init__(self,engine,*,first_batch=25,fill_batch=50,resource_check=None):
         if type(first_batch) is not int or not 1<=first_batch<=200:
@@ -102,6 +116,44 @@ class ProgressiveSession:
             self.engine.write('Player.Open',{'item':{'playlistid':0,'position':position}})
             self.engine.wait_for(lambda:self.engine.observe().current_index==position)
             self.record(self.engine.observe(),status='playing')
+
+    def seek(self,offset):
+        if type(offset) is not int or offset not in (-10,10):raise TrialUnavailable('invalid-seek-step')
+        self.control_pending.set()
+        try:
+            with self.engine.lock:
+                if self.closed or self.engine.cancel.is_set():raise TrialUnavailable('session-closed')
+                before=self.engine.observe()
+                if before.current_index is None:raise TrialUnavailable('no-trial-playback')
+                properties=self.engine.rpc('Player.GetProperties',{'playerid':0,'properties':['time','totaltime','canseek','speed']})
+                if (properties.get('canseek') is not True or type(properties.get('speed')) is not int
+                        or properties['speed'] not in (0,1)):
+                    raise TrialUnavailable('seek-unavailable')
+                current=clock_milliseconds(properties.get('time'))//1000
+                duration=clock_milliseconds(properties.get('totaltime'))//1000
+                if not 0<=current<duration:raise TrialUnavailable('seek-unavailable')
+                step=max(-current,min(offset,duration-current-1))
+                if not step:return
+                if self.engine.observe().current_index!=before.current_index:
+                    raise TrialUnavailable('track-changed-before-seek')
+                self.engine.check_cancel()
+                self.engine.write('Player.Seek',{'playerid':0,'value':{'seconds':step}})
+                # Kodi PAPlayer::SeekTime explicitly resumes paused music.
+                # Restore the requested pause, not by retrying Seek or by
+                # toggling, after a quick native player/song identity check.
+                actual=self.engine.rpc('Player.GetProperties',{'playerid':0,'properties':['playlistid','position','speed']})
+                item=self.engine.rpc('Player.GetItem',{'playerid':0,'properties':[]}).get('item',{})
+                if (actual.get('playlistid')!=0 or actual.get('position')!=before.current_index
+                        or item.get('type')!='song' or item.get('id')!=before.song_ids[before.current_index]):
+                    raise TrialUnavailable('seek-state-changed')
+                if properties['speed']==0 and actual.get('speed')==1:
+                    self.engine.write('Player.PlayPause',{'playerid':0,'play':False})
+                    self.engine.wait_for(lambda:self.engine.rpc('Player.GetProperties',{'playerid':0,'properties':['speed']}).get('speed')==0)
+                after=self.engine.observe()
+                speed=self.engine.rpc('Player.GetProperties',{'playerid':0,'properties':['speed']}).get('speed')
+                if after.current_index!=before.current_index or speed!=properties['speed']:
+                    raise TrialUnavailable('seek-state-changed')
+        finally:self.control_pending.clear()
 
     def close(self):
         # Set cancellation without taking the engine lock; a batch may own it.

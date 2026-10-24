@@ -20,7 +20,7 @@ from music_queue import propose,nonholiday_shuffle
 from queue_reader import QueueUnavailable, read_queue
 from music_trial import TrialPlayer,TrialUnavailable,capability,save_empty_checkpoint,validate_write
 from music_expanded_trial import ExpandedTrial,TrialCancelled,expanded_capability,save_intent
-from music_progressive import ProgressiveSession
+from music_progressive import ProgressiveSession,clock_milliseconds,clock_label
 
 ASSETS = 'special://home/addons/skin.asterhome/media/'
 READS = {'AudioLibrary.GetAlbums','AudioLibrary.GetArtists','AudioLibrary.GetSongs',
@@ -272,6 +272,7 @@ class ShuffleLab(AlbumLab):
 
     def onInit(self):
         super().onInit()
+        self.setProperty('Album.Shuffle','true')
         self.setProperty('Album.Context','SHUFFLE ALL / NO HOLIDAY MUSIC')
         self.setProperty('Album.Count',f'{len(self.allowed):,} verified songs')
         self.setProperty('Album.Help','Select a loaded song to play it. Previous / Next page browse the queue; Current returns to the playing song. Stop or Back stops and cancels loading.')
@@ -297,6 +298,8 @@ class ShuffleLab(AlbumLab):
                 error=self.control_errors.pop(0)
                 if isinstance(error,TrialUnavailable) and str(error)=='selected-track-not-loaded':
                     self.dialog('ok','Still loading','This song has not reached the native queue yet. Choose a loaded song or wait.')
+                elif isinstance(error,TrialUnavailable) and str(error) in ('seek-unavailable','playback-clock-unavailable','track-changed-before-seek'):
+                    self.dialog('ok','Seek unavailable','This song does not currently report a stable seekable duration. Playback is unchanged.')
                 else:raise TrialUnavailable('player-control-failed')
         state=self.session.status()
         if state['phase']=='failed':raise TrialUnavailable(state['error'] or 'progressive-fill-failed')
@@ -306,12 +309,19 @@ class ShuffleLab(AlbumLab):
                 ('Ready' if state['phase']=='ready' else 'Loading in background · Back cancels safely'))
         if time.monotonic()>=self.next_player_update:
             self.next_player_update=time.monotonic()+1
-            props=rpc('Player.GetProperties',{'playerid':0,'properties':['position','speed']})
+            props=rpc('Player.GetProperties',{'playerid':0,'properties':['position','speed','time','totaltime','canseek']})
             position=props.get('position')
             if type(position) is int and 0<=position<len(self.allowed):
                 identity=self.allowed[position]
                 item=rpc('Player.GetItem',{'playerid':0,'properties':[]}).get('item',{})
                 if item.get('type')=='song' and item.get('id')==identity:
+                    try:
+                        elapsed=clock_milliseconds(props.get('time'));duration=clock_milliseconds(props.get('totaltime'))
+                        if not 0<=elapsed<=duration or not duration:raise TrialUnavailable('playback-clock-unavailable')
+                        self.setProperty('Album.Clock',clock_label(elapsed)+' / '+clock_label(duration))
+                        self.getControl(610).setPercent(elapsed/duration*100)
+                    except TrialUnavailable:
+                        self.setProperty('Album.Clock','— / —');self.getControl(610).setPercent(0)
                     self.current_position=position
                     if identity!=self.current_song:
                         visible=self.allowed[self.page_offset:self.page_offset+200]
@@ -337,6 +347,7 @@ class ShuffleLab(AlbumLab):
         def work():
             try:
                 if action=='pause':self.session.pause(value)
+                elif action=='seek':self.session.seek(value)
                 else:self.session.select(value)
             except Exception as error:self.control_errors.append(error)
         self.getControl(400).setLabel('Updating…')
@@ -349,6 +360,7 @@ class ShuffleLab(AlbumLab):
             if control==400:
                 self.control('pause',self.paused)
             elif control==404:self.close()
+            elif control in (405,406):self.control('seek',-10 if control==405 else 10)
             elif control in (401,402,403):
                 target={401:max(0,self.page_offset-200),402:min((len(self.allowed)-1)//200*200,self.page_offset+200),403:self.current_position//200*200}[control]
                 self.page_offset=target;self.render_page()
@@ -370,7 +382,13 @@ class ShuffleLab(AlbumLab):
         buttons=(400,404,401,402,403)
         if control in buttons:
             if key in (1,2):self.setFocusId(buttons[max(0,min(len(buttons)-1,buttons.index(control)+(1 if key==2 else -1)))])
+            elif key==4 and control in (400,404):self.setFocusId(405 if control==400 else 406)
             elif key in (3,4):self.setFocusId(600)
+        elif control in (405,406):
+            if key==1:self.setFocusId(405)
+            elif key==2:self.setFocusId(406)
+            elif key==3:self.setFocusId(400 if control==405 else 404)
+            elif key==4:self.setFocusId(600)
         elif control==600 and key==1:self.setFocusId(400)
 
     def close(self):

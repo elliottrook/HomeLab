@@ -724,3 +724,21 @@ supports a typed `Player.Seek` value containing a time or seconds object:
 [upstream schema](https://github.com/xbmc/xbmc/blob/21.3-Omega/xbmc/interfaces/json-rpc/schema/methods.json#L711-L797).
 This is an implementation step within Music, not a new conversational approval
 gate. It is not yet claimed as implemented or live-tested.
+
+Follow-up implemented and tested on HP candidate32: thin progress line,
+elapsed/total readout and compact text-style -10s/+10s controls under the main
+player controls. Down from Pause/Stop reaches seek; Up returns, Left/Right
+moves between seeks and Back/Home retains stop-on-exit. Unavailable duration
+renders an em dash, unsupported seek explains without stopping valid playback.
+No false zero duration, seek on another player, queue reorder or volume change.
+
+Kodi PAPlayer resumes paused playback inside SeekTime. The initial candidate31
+test caught that and failed safely; candidate32 rechecks native song/playlist
+identity, restores pause explicitly, then re-verifies full queue ownership and
+pause state. Do not infer that all decoder paths are silent during that native
+seek transition; physical listening remains a family/sofa acceptance item.
+Both paused-seek directions and native Back/stable-Home workflows passed;
+151 v2 tests, 144 unchanged v1 tests and ten focus checks pass. Final screenshot
+inspected with no overlap. Project outcome records real timings and failed-run
+history; candidate30 and31 recovery artifacts remain available. The pilot still
+returns to read-only when its temporary test grant is removed.

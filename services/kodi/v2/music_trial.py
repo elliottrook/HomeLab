@@ -79,6 +79,12 @@ def validate_write(method, params, allowed, *, queue_limit=3):
         if (set(params)!=keys or type(params['playerid']) is not int or params['playerid']!=0
                 or (method=='Player.PlayPause' and type(params['play']) is not bool)):
             raise TrialUnavailable('trial-write-denied')
+    elif method=='Player.Seek':
+        value=params.get('value')
+        if (set(params)!={'playerid','value'} or type(params['playerid']) is not int
+                or params['playerid']!=0 or not isinstance(value,dict) or set(value)!={'seconds'}
+                or type(value['seconds']) is not int or not 1<=abs(value['seconds'])<=10):
+            raise TrialUnavailable('trial-write-denied')
     else:raise TrialUnavailable('trial-write-denied')
 
 

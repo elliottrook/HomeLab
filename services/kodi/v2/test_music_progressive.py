@@ -2,7 +2,7 @@ import threading
 import unittest
 
 from music_expanded_trial import ExpandedTrial
-from music_progressive import ProgressiveSession
+from music_progressive import ProgressiveSession,clock_milliseconds,clock_label
 from music_trial import TrialUnavailable
 from test_music_trial import FakePlayer
 
@@ -132,6 +132,80 @@ class ProgressiveTests(unittest.TestCase):
         self.engine.rpc=foreign
         with self.assertRaisesRegex(TrialUnavailable,'unrelated-playback'):self.engine.observe()
         self.engine.rpc=original;session.close()
+
+    def test_clock_format_and_invalid_metadata_are_truthful(self):
+        self.assertEqual(clock_milliseconds(dict(hours=1,minutes=2,seconds=3,milliseconds=456)),3723456)
+        self.assertEqual(clock_label(3723456),'1:02:03');self.assertEqual(clock_label(65000),'1:05')
+        for value in (None,{},dict(hours=True,minutes=0,seconds=0,milliseconds=0),
+                      dict(hours=0,minutes=60,seconds=0,milliseconds=0)):
+            with self.assertRaises(TrialUnavailable):clock_milliseconds(value)
+
+    def test_seek_is_small_owned_and_preserves_pause_and_queue(self):
+        session=self.make(3);session.start([1,2,3],confirmed=True);session.worker.join()
+        session.pause(False);before=list(self.player.ids)
+        session.seek(10);self.assertEqual(self.player.elapsed,35000)
+        session.seek(-10);self.assertEqual(self.player.elapsed,25000)
+        self.assertEqual(self.player.speed,0);self.assertEqual(self.player.ids,before)
+        self.player.elapsed=3000;session.seek(-10);self.assertEqual(self.player.elapsed,0)
+        self.player.elapsed=178000;session.seek(10);self.assertEqual(self.player.elapsed,179000)
+        calls=len(self.player.calls);session.seek(10)
+        self.assertFalse(any(m=='Player.Seek' for m,p in self.player.calls[calls:]))
+        session.close()
+
+    def test_seek_refuses_unknown_duration_unsupported_external_and_closed(self):
+        session=self.make(3);session.start([1,2,3],confirmed=True);session.worker.join()
+        for offset in (True,1,100):
+            with self.assertRaises(TrialUnavailable):session.seek(offset)
+        self.player.canseek=False
+        with self.assertRaisesRegex(TrialUnavailable,'seek-unavailable'):session.seek(10)
+        self.player.canseek=True;self.player.duration=0
+        with self.assertRaisesRegex(TrialUnavailable,'seek-unavailable'):session.seek(10)
+        self.player.duration=180000;self.player.ids=[99999]
+        with self.assertRaisesRegex(TrialUnavailable,'external-queue-change'):session.seek(10)
+        self.assertFalse(any(m=='Player.Seek' for m,p in self.player.calls))
+        self.player.ids=[1,2,3];session.close()
+        with self.assertRaisesRegex(TrialUnavailable,'session-closed'):session.seek(10)
+
+    def test_seek_rechecks_song_after_reading_the_clock(self):
+        session=self.make(3);session.start([1,2,3],confirmed=True);session.worker.join()
+        original=self.engine.rpc
+        def transition(method,params):
+            result=original(method,params)
+            if method=='Player.GetProperties' and 'canseek' in params['properties']:self.player.position=1
+            return result
+        self.engine.rpc=transition
+        with self.assertRaisesRegex(TrialUnavailable,'track-changed-before-seek'):session.seek(10)
+        self.assertFalse(any(m=='Player.Seek' for m,p in self.player.calls))
+        self.engine.rpc=original;session.close()
+
+    def test_close_waits_for_inflight_seek_before_owned_stop(self):
+        session=self.make(3);session.start([1,2,3],confirmed=True);session.worker.join()
+        entered=threading.Event();release=threading.Event();original=self.engine.rpc
+        def delayed(method,params):
+            if method=='Player.Seek':entered.set();release.wait(2)
+            return original(method,params)
+        self.engine.rpc=delayed
+        seeker=threading.Thread(target=lambda:session.seek(10));seeker.start()
+        self.assertTrue(entered.wait(2))
+        closer=threading.Thread(target=session.close);closer.start()
+        self.assertTrue(closer.is_alive());release.set();seeker.join(2);closer.join(2)
+        self.assertFalse(seeker.is_alive());self.assertFalse(closer.is_alive())
+        self.assertEqual(self.player.ids,[]);self.assertIsNone(self.player.position)
+
+    def test_native_seek_resume_is_explicitly_repaused_not_reseeked(self):
+        session=self.make(3);session.start([1,2,3],confirmed=True);session.worker.join()
+        session.pause(False);original=self.engine.rpc
+        def native(method,params):
+            result=original(method,params)
+            if method=='Player.Seek':self.player.speed=1
+            return result
+        self.engine.rpc=native;begin=len(self.player.calls);session.seek(10)
+        changes=[(method,params) for method,params in self.player.calls[begin:]
+                 if method in ('Player.Seek','Player.PlayPause')]
+        self.assertEqual(changes,[('Player.Seek',{'playerid':0,'value':{'seconds':10}}),
+                                  ('Player.PlayPause',{'playerid':0,'play':False})])
+        self.assertEqual(self.player.speed,0);self.assertEqual(self.player.elapsed,35000)
+        session.close()
 
 
 if __name__=='__main__':unittest.main()

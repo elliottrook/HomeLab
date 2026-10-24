@@ -165,6 +165,23 @@ class RuntimeTests(unittest.TestCase):
         w.current_position=212;w.onClick(403);self.assertEqual(w.page_offset,200)
         w.session.select.assert_not_called();w.session.pause.assert_not_called()
 
+    def test_shuffle_seek_controls_have_explicit_remote_navigation(self):
+        window=self.runtime.ShuffleLab();window.focused=400
+        action=Mock();action.getId.return_value=4;window.onAction(action)
+        self.assertEqual(window.focused,405)
+        action.getId.return_value=2;window.onAction(action);self.assertEqual(window.focused,406)
+        action.getId.return_value=3;window.onAction(action);self.assertEqual(window.focused,404)
+
+    def test_shuffle_unsupported_seek_explains_without_closing_player(self):
+        window=self.runtime.ShuffleLab();window.session=Mock()
+        window.session.status.return_value=dict(phase='ready',loaded=1,total=1)
+        window.control_worker=Mock();window.control_worker.is_alive.return_value=False
+        window.control_errors=[self.runtime.TrialUnavailable('seek-unavailable')]
+        window.next_player_update=float('inf')
+        window.refresh()
+        self.assertFalse(window.finished)
+        self.gui.Dialog.return_value.ok.assert_called()
+
     def test_album_back_and_button_focus_contract(self):
         window=self.runtime.AlbumLab();window.focused=401
         action=Mock();action.getId.return_value=2;window.onAction(action)

@@ -676,3 +676,62 @@ Candidate29 recovery ZIP/tree retained at
 failed attempts and crash evidence remain retained. This is a passing HP
 engineering milestone, not M3/production graduation or family acceptance.
 Continue Music controls under Stream A; no production contact or remote push.
+
+#### Stream A Music progress and small seek controls — 2026-10-24
+
+Next bounded step: factual elapsed/total display, a quiet progress line and
+compact -10s/+10s native controls in the isolated shuffle player. Existing
+HP Music authorization applies; no new account/network/service/credentials,
+server metadata, v1 player, production or push. Native Player.Seek is restricted
+to audio player zero and a typed nonzero integer relative step <=10 seconds.
+Before a seek, reverify the exact owned queue/current song, known valid clock,
+positive duration and explicit seek support; clamp near start/end, preserve
+pause state, never change volume/output or retry a seek with uncertain outcome.
+
+Risk: unintended track transition or unsupported-stream seek. Test fake and
+native paused forward/backward movement, same-song/pause preservation,
+unsupported/unknown duration rejection, explicit remote focus paths and safe
+exit; only brief real samples. Checkpoint candidate30 exact ZIP/tree before
+candidate31, retain private recovery and restore only the lab add-on if needed.
+No Kodi restart expected. Keep the private expiring capability and joined
+control/fill-worker model, and rerun v1/AV/database/idle preservation checks.
+Unexpected ownership/recovery failure stops live testing; ordinary UI engineering
+does not introduce another conversational approval gate.
+
+Candidate31's first native seek attempt correctly failed its pause-preservation
+check and restored the empty queue/grant state; retain failed run
+`native-ui-1792853574158269023.json`. Kodi's PAPlayer explicitly sets speed 1
+inside SeekTime, even when the song was paused:
+[Kodi 21.3 source](https://github.com/xbmc/xbmc/blob/21.3-Omega/xbmc/cores/paplayer/PAPlayer.cpp#L1014-L1028).
+Candidate32 handles that known transition with a quick native song/playlist/
+position check and an explicit PlayPause(false), then re-verifies the complete
+owned queue and pause state. This is not a retry of an uncertain seek, blind
+toggle, vendor patch or external-player override. New unit coverage simulates
+Kodi resuming on seek and checks exactly one seek followed by one explicit
+pause restoration; an in-flight seek must resolve before exit can Stop/Clear.
+
+Candidate32 native Back `native-ui-1792853743777000457.json` and stable Home
+`native-ui-1792853811909798413.json` both pass forward/backward seek while
+preserving the paused song, actual clock rendering, queue paging/selection,
+Pause/Resume and exit/grant/empty-queue cleanup. Back Select 1.902s / Pause 1.745s /
+audio stop 1.453s / cleanup 5.603s; Home Select 2.531s / Pause 2.464s / cleanup
+including stable-Home wait 6.465s. Keep these actual timings, not an “instant”
+control claim. Screenshot `/tmp/aster-progressive-seek-candidate32.png` inspected:
+art-left/unboxed queue-right layout, quiet thin progress line, factual clock,
+small text-style seek controls and centred 24-hour clock pill; no overlap.
+
+151 v2 tests, 144 unchanged v1 tests and ten focus checks pass. Candidate32
+archive SHA-256 `3a176dfbe204e0d3e0190ed78a05a55e07db3e57bbf64da5adf3f7e9ea585ba2`;
+14 installed files; candidate30 and failed31 recovery ZIPs/trees retained.
+Full 16,363-song background-fill evidence remains the candidate29 test above;
+these candidate32 tests exercise controls during partial fill, not another
+complete full-library fill or every-file decode. No physical listening/remote,
+soak, production promotion or remote push is implied.
+
+Final default-read-only native album smoke also passes, with unchanged player/
+queue (`native-album-readonly-1792853833561948214.json`). Final preservation
+`postcheck-1792853866150694753.json` verifies candidate32's 14 files, all 153 v1
+files, all 68 AV/language values, healthy SQLite/zero missing primary links,
+no player or queue, no capability/recovery flag and all lab windows closed.
+Kodi remains active with zero unexpected restarts since repair. HP left on
+ordinary Home. Saved locally; Forgejo/GitHub and production remain untouched.

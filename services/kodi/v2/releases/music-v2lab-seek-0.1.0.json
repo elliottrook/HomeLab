@@ -1,0 +1,41 @@
+{
+  "addon_id": "script.astermusic.v2lab",
+  "version": "0.1.0",
+  "status": "hp-owned-music-clock-and-small-seek-passed-default-read-only",
+  "active_candidate": 32,
+  "artifact_directory": "services/kodi/dist/aster-music-v2lab-0.1.0-candidate32",
+  "sha256": "3a176dfbe204e0d3e0190ed78a05a55e07db3e57bbf64da5adf3f7e9ea585ba2",
+  "file_count": 14,
+  "features": [
+    "Factual elapsed/total clock and thin progress line",
+    "Compact text-style minus/plus ten-second controls with explicit remote focus",
+    "Owned current-song/queue, seekability and known-duration checks; endpoint clamp",
+    "Explicit pause restoration for Kodi PAPlayer resume-on-seek behavior",
+    "Joined control/fill workers and safe Back/Home stop/idle cleanup"
+  ],
+  "validation": {
+    "v2_tests": 151,
+    "unchanged_v1_tests": 144,
+    "focus_checks": 10,
+    "native_paused_seek_both_directions_same_song": true,
+    "native_queue_paging_selection_pause_back_home": true,
+    "native_default_readonly_album_smoke": true,
+    "screenshot_visually_inspected": true,
+    "v1_files_verified": 153,
+    "av_language_values_verified": 68,
+    "database_integrity": "ok",
+    "missing_primary_artist_links": 0,
+    "unexpected_kodi_restarts_since_repair": 0,
+    "no_player_queue_capability_recovery_flag_or_lab_windows": true
+  },
+  "evidence_root": "/storage/.aster-checkpoints/aster-music-progressive-20261024",
+  "failed_native_seek_run": "native-ui-1792853574158269023.json",
+  "passing_back_run": "native-ui-1792853743777000457.json",
+  "passing_home_run": "native-ui-1792853811909798413.json",
+  "passing_postcheck": "postcheck-1792853866150694753.json",
+  "native_readonly_album_run": "native-album-readonly-1792853833561948214.json",
+  "recovery": "/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/before-candidate32",
+  "known_native_behavior_source": "https://github.com/xbmc/xbmc/blob/21.3-Omega/xbmc/cores/paplayer/PAPlayer.cpp#L1014-L1028",
+  "limitations": "HP engineering automation, not physical remote/listening/soak or all-file decode. Full-library fill evidence remains candidate29 in the progressive release record; candidate32 tested controls during partial fill. Progress line is not yet an interactive scrubber. Native decoder can briefly resume during seek before explicit pause restoration; audible acceptance remains untested.",
+  "boundary": "HP Music Stream A only; default read-only without temporary grant. No production, vendor, credentials, infrastructure or remote Git changes. M3 not graduated."
+}

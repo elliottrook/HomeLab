@@ -10,11 +10,18 @@ from music_queue import QueueSnapshot
 
 
 class FakePlayer:
-    def __init__(self):self.ids=[];self.position=None;self.speed=0;self.calls=[]
+    def __init__(self):
+        self.ids=[];self.position=None;self.speed=0;self.calls=[]
+        self.elapsed=25000;self.duration=180000;self.canseek=True
     def __call__(self,method,p):
         self.calls.append((method,p))
         if method=='Player.GetActivePlayers':return [] if self.position is None else [{'playerid':0,'type':'audio'}]
-        if method=='Player.GetProperties':return dict(playlistid=0,position=self.position,speed=self.speed,shuffled=False,repeat='off')
+        if method=='Player.GetProperties':
+            def clock(value):
+                seconds,milliseconds=divmod(value,1000);minutes,seconds=divmod(seconds,60);hours,minutes=divmod(minutes,60)
+                return dict(hours=hours,minutes=minutes,seconds=seconds,milliseconds=milliseconds)
+            return dict(playlistid=0,position=self.position,speed=self.speed,shuffled=False,repeat='off',
+                        canseek=self.canseek,time=clock(self.elapsed),totaltime=clock(self.duration))
         if method=='Player.GetItem':return {'item':{'type':'song','id':self.ids[self.position]}}
         if method=='Playlist.GetItems':
             start,end=p['limits']['start'],p['limits']['end']
@@ -26,6 +33,7 @@ class FakePlayer:
         elif method=='Player.Open':self.position=p['item']['position'];self.speed=1
         elif method=='Player.Stop':self.position=None;self.speed=0
         elif method=='Player.PlayPause':self.speed=1 if p['play'] else 0
+        elif method=='Player.Seek':self.elapsed+=p['value']['seconds']*1000
         else:raise AssertionError(method)
         return 'OK'
 
@@ -111,6 +119,11 @@ class TrialTests(unittest.TestCase):
                  ('Player.Open',{'item':{'playlistid':0,'position':0},'options':{}}),
                  ('Player.Stop',{'playerid':1}),('Player.Stop',{'playerid':False}),
                  ('Player.PlayPause',{'playerid':0,'play':'toggle'}),
+                 ('Player.Seek',{'playerid':1,'value':{'seconds':10}}),
+                 ('Player.Seek',{'playerid':0,'value':{'seconds':True}}),
+                 ('Player.Seek',{'playerid':0,'value':{'seconds':11}}),
+                 ('Player.Seek',{'playerid':0,'value':{'seconds':0}}),
+                 ('Player.Seek',{'playerid':0,'value':{'percentage':50}}),
                  ('Settings.SetSettingValue',{})]
         for method,p in invalid:
             with self.assertRaises(TrialUnavailable):validate_write(method,p,[10,20,30])
