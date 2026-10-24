@@ -64,3 +64,25 @@ class LabTests(unittest.TestCase):
 
     def test_bad_kind_is_rejected(self):
         with self.assertRaises(ValueError):self.model.set_kind('play')
+
+    def test_artist_drilldown_is_category_bounded_and_back_restores_artist(self):
+        m=self.model;m.enter(2);m.set_kind('artist');m.index=1
+        artist=m.page()['rows'][1]['artistid'];m.open_artist(artist)
+        self.assertEqual((m.artist_id,m.kind),(artist,'album'))
+        self.assertEqual([r['albumid'] for r in m.page()['rows']],[1])
+        m.set_kind('song');self.assertEqual([r['songid'] for r in m.page()['rows']],[1])
+        self.assertTrue(m.back());self.assertEqual((m.kind,m.artist_id,m.index),('artist',None,1))
+        self.assertTrue(m.back());self.assertEqual(m.mode,'genres')
+        self.assertFalse(m.back())
+
+    def test_artist_filter_does_not_leak_into_another_genre_or_artist_tab(self):
+        m=self.model;m.enter(2);m.set_kind('artist');m.open_artist(2)
+        m.set_kind('artist');self.assertIsNone(m.artist_id)
+        m.open_artist(2);m.genres();self.assertIsNone(m.artist_id)
+        m.enter(0);self.assertIsNone(m.artist_id)
+
+    def test_invalid_artist_does_not_change_navigation(self):
+        m=self.model;m.enter(2);m.set_kind('artist');before=m.context()
+        for identity in (True,999):
+            with self.assertRaises(ValueError):m.open_artist(identity)
+            self.assertEqual(m.context(),before)

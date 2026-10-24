@@ -888,3 +888,104 @@ read-only queue-editor UI and fresh-state confirmation, then the existing
 capability/ownership-checking native adapter with bounded failure/recovery tests.
 This post-push continuation is retained in a separate local commit, pending a
 future specific push request. No service/inventory/monitoring changes required.
+
+#### Continued implementation and HP deployment authority — 2026-10-24
+
+Jason directed: “Please dont stop untill you need my input” and authorized
+deploying any project tests to lab Aster after validation. Continue ordinary
+implementation, local tests, checkpoints, HP deployment and native validation
+without ending at routine milestone/deployment handoffs. The earlier local-only
+cross-player staging restriction is superseded for tested HP candidates.
+Production, credentials/identity/trust changes, firmware, saved server-playlist
+writes and remote Git mutations remain separately controlled. No automatic
+release promotion or blanket future push authority is inferred.
+
+Current bounded step: owned Music queue removal and explicit Stop-and-clear,
+native remote context menu, ready-queue-only editing, exact stale fingerprints,
+duplicate/current-item preservation and private intent before edits. Restrict
+native Remove to playlist0/bounded integer position; do not remove the playing
+occurrence, mutate external queues or retry an uncertain write. Clear explicitly
+confirms Stop, then uses the verified idle clear proposal. Initial tests use a
+short known song-ID selection and private idle-empty recovery, not another
+ten-minute full-library fill. No new speech/service/account/network path.
+
+After local tests pass, checkpoint immutable candidate36 and deploy only the
+Music lab candidate; run in-process playback/queue/menu/exit/failure checks and
+verify unchanged v1/AV/database state. Then deploy the tested shared-player
+overlay to HP with an exact four-XML/asset checkpoint and native page tests;
+its four intentional skin-file differences must be verified against the new
+overlay manifest, not misreported as unchanged v1. No unrelated skin changes,
+settings reset or production contact. Brief idle-only skin reload is permitted
+under the explicit lab test/deployment direction; unexpected recovery or
+material privacy/authority effects remain a stop condition.
+
+#### HP queue editing and shared player icons — 2026-10-24
+
+Executed the continued-deployment authority, rather than leaving tested work
+staged. Music candidate37 SHA-256
+`6f6bfc09c191ade67304b6021805427f86185465db57d00f391378bf10f562ab`
+installed with all 36 files verified and exact candidate36 recovery retained at
+`/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/before-candidate37`.
+The native five-occurrence test verifies removal before a paused current song,
+correct index adjustment, one duplicate removed at a time, no reopen/Stop on
+Remove, stale/current/unconfirmed denial without writes, and explicit confirmed
+Stop-and-clear. Remote Menu also passes cancellation, protected playing item,
+list rerender, preserved paused playback, and confirmed clear/close. Evidence:
+`queue-edit-1792858209929042466/results.json`,
+`queue-menu-1792858327494539311/host-results.json` and
+`queue-menu-driver-1792858339426488913.json` under the progressive checkpoint root.
+Capabilities removed; original empty queue restored; no saved playlist change.
+
+Shared floating controls are now live on HP's four player XML pages, with 26
+glyph assets. Original four-page recovery ZIP retained at
+`/storage/.aster-checkpoints/aster-floating-controls-20261024/recovery.zip`;
+candidate1 overlay recovery retained in `before-candidate2`. Native testing
+found the inherited Play/Pause focus-target swap was unsafe: Kodi retained the
+hidden Pause ID and a second Select could fail. Candidate2 uses one stable
+focus target, state-dependent Play/Pause glyph/caption and unchanged toggle
+action. Legacy alias button IDs remain hidden, not another selectable target.
+All other actions/navigation/visibility and window hooks are preserved.
+
+Overlay candidate2 SHA-256
+`591cc32b4f9c3a621e395df744d3a8c3b5f7d178623ff8094fda072fa79a16d0`.
+Native `native-1792858686212702427.json` verifies album, Books and Digest idle
+page/focus entry, synthetic-video Pause/Resume, every one of ten video slots,
+and Quality opening native settings. Synthetic MJPEG video is explicitly a
+test fixture, not real-media/watch-history coverage. Failed candidate1 native
+results are retained, not hidden. Screenshots inspected: icon row unclipped,
+clear focused underline and caption; no control pills or stretched artwork.
+The first video screenshot caught a transition; Quality screenshot confirms
+the fully visible OSD. Physical remote/listening remains owner acceptance.
+
+Independent `postcheck-1792858859428517938.json`: 36 Music files, 149 untouched
+v1 files plus all four approved overlay pages/assets, 68 unchanged AV/language
+values, healthy Music DB/zero missing primary artist links, no player/queue/
+capability/recovery/live windows. All 144 v1 regression tests and ten focus
+model checks pass. No Kodi restart, production contact or further Git push.
+Continue immediately with verified single-song player and artist drilldown;
+M3 is not graduated and remaining Music/playlist/scrub/persistence work stays open.
+
+#### Single-song player and artist drilldown — 2026-10-24
+
+Continued directly to candidate38 (37 files), SHA-256
+`649e0c86da934e27e612fe7c60dcaccb6457c85e71288aa50a93a9bb93a0478e`.
+Single-song selection uses two matching GetSongDetails reads, exact current
+catalogue ID/title/album membership, nonnegative duration and no requested or
+retained media path. Missing album track tags do not prevent playing one song.
+Artists now drill into their own albums within the current genre; album/song
+tabs retain that artist filter. Back returns to the originating artist tile;
+Genres/Artists clears the filter instead of leaking it to another category.
+No new playlist write path or permanent playback capability was enabled.
+
+184 v2 unit tests pass, including malformed/stale song responses, sanitized
+transport failures, artist/category bounds, filter reset and focus context.
+Candidate37 recovery retained at `before-candidate38`; native
+`song-artist-1792859143456499221.json` passes artist entry/Back, default read-only
+single-song player, explicit short-lived one-song Play, Pause/Resume, Back to
+same song tile, original empty queue restoration and capability removal.
+The first driver sent two Right events without waiting for native focus and
+failed before playback; corrected driver waits for each event. Kodi also
+retained an absolute-path script miss in its VFS cache; using the equivalent
+`special://home/../.aster-staging/` path loaded the existing file without a
+Kodi restart or add-on modification. Do not call those failed attempts passes.
+Continue Music work; production and Git remotes remain untouched.

@@ -30,6 +30,9 @@ class FakePlayer:
         if method=='Playlist.Clear':self.ids=[]
         elif method=='Playlist.Add':self.ids.extend(row['songid'] for row in p['item'])
         elif method=='Playlist.Insert':self.ids[p['position']:p['position']]=[r['songid'] for r in p['item']]
+        elif method=='Playlist.Remove':
+            position=p['position'];self.ids.pop(position)
+            if self.position is not None and position<self.position:self.position-=1
         elif method=='Player.Open':self.position=p['item']['position'];self.speed=1
         elif method=='Player.Stop':self.position=None;self.speed=0
         elif method=='Player.PlayPause':self.speed=1 if p['play'] else 0
@@ -115,6 +118,10 @@ class TrialTests(unittest.TestCase):
         invalid=[('Playlist.Add',{'playlistid':0,'item':[{'file':'private'}]}),
                  ('Playlist.Add',{'playlistid':0,'item':[{'songid':99}]}),
                  ('Playlist.Clear',{'playlistid':1}),('Playlist.Clear',{'playlistid':False}),
+                 ('Playlist.Remove',{'playlistid':1,'position':0}),
+                 ('Playlist.Remove',{'playlistid':0,'position':True}),
+                 ('Playlist.Remove',{'playlistid':0,'position':-1}),
+                 ('Playlist.Remove',{'playlistid':0,'position':3}),
                  ('Player.Open',{'item':{'file':'private'}}),
                  ('Player.Open',{'item':{'playlistid':0,'position':0},'options':{}}),
                  ('Player.Stop',{'playerid':1}),('Player.Stop',{'playerid':False}),

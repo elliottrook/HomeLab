@@ -5,7 +5,7 @@ from pathlib import Path
 import tempfile
 import threading
 
-from music_queue import identities, propose
+from music_queue import identities, propose, propose_remove, propose_clear, QueueSnapshot
 from music_trial import TrialPlayer, TrialUnavailable, serialized
 
 
@@ -57,6 +57,42 @@ class ExpandedTrial(TrialPlayer):
 
     def check_cancel(self):
         if self.cancel.is_set():raise TrialCancelled('startup-cancelled')
+
+    @serialized
+    def remove(self,position,*,expected_queue):
+        self.check_cancel();state=self.observe()
+        if state.fingerprint!=expected_queue:raise TrialUnavailable('queue-preview-stale')
+        try:plan=propose_remove(state,position)
+        except ValueError:
+            raise TrialUnavailable('queue-remove-refused') from None
+        speed=None
+        if state.current_index is not None:
+            speed=self.rpc('Player.GetProperties',{'playerid':0,'properties':['speed']}).get('speed')
+            if type(speed) is not int or speed not in (0,1):raise TrialUnavailable('player-state-unavailable')
+        self.intent(QueueSnapshot(plan.song_ids,plan.current_index),status='remove-requested')
+        self.check_cancel()
+        if self.observe().fingerprint!=state.fingerprint:raise TrialUnavailable('queue-preview-stale')
+        self.write('Playlist.Remove',{'playlistid':0,'position':position})
+        self.last=QueueSnapshot(plan.song_ids,plan.current_index)
+        actual=self.observe()
+        if actual.current_index!=plan.current_index:raise TrialUnavailable('queue-remove-state-changed')
+        if speed is not None and self.rpc('Player.GetProperties',{'playerid':0,'properties':['speed']}).get('speed')!=speed:
+            raise TrialUnavailable('queue-remove-state-changed')
+        self.saved=actual;self.intent(actual,status='edited')
+        return actual
+
+    @serialized
+    def clear(self,*,expected_queue,confirmed=False):
+        self.check_cancel();state=self.observe()
+        if state.fingerprint!=expected_queue:raise TrialUnavailable('queue-preview-stale')
+        try:plan=propose_clear(state,confirmed=confirmed)
+        except ValueError:raise TrialUnavailable('queue-clear-refused') from None
+        self.intent(QueueSnapshot((),None),status='clear-requested')
+        self.check_cancel()
+        if state.song_ids:self.write('Playlist.Clear',{'playlistid':0})
+        self.last=QueueSnapshot(plan.song_ids,None)
+        actual=self.observe();self.saved=actual;self.intent(actual,status='cleared')
+        return actual
 
     @serialized
     def edit(self,action,selected,*,confirmed=False):

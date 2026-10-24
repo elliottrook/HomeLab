@@ -80,6 +80,15 @@ class RuntimeTests(unittest.TestCase):
         self.assertTrue(all(m in self.runtime.READS for m in methods))
         self.assertNotIn('Player.Open',methods)
 
+    def test_song_tile_opens_verified_selection_and_artist_tile_drills_to_albums(self):
+        w=self.window;w.onClick(502);w.onClick(102)
+        with patch.object(self.runtime,'read_song',return_value=Mock()) as read,patch.object(w,'open_selection') as opened:
+            w.onClick(500);read.assert_called_once();opened.assert_called_once()
+        w.onClick(101);identity=w.model.page()['rows'][0]['artistid']
+        w.onClick(500)
+        self.assertEqual((w.model.artist_id,w.model.kind),(identity,'album'))
+        self.action(92);self.assertEqual(w.model.kind,'artist');self.assertIsNone(w.model.artist_id)
+
     def test_cancelled_or_failed_refresh_keeps_previous_view(self):
         w=self.window;before=w.model.catalogue
         with patch.object(self.runtime,'load_catalogue',return_value=(None,'Refresh cancelled')):w.onClick(302)
@@ -122,7 +131,7 @@ class RuntimeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as one,tempfile.TemporaryDirectory() as two:
             first=build(one);second=build(two)
             self.assertEqual(first['sha256'],second['sha256'])
-            self.assertEqual(len(first['files']),36)
+            self.assertEqual(len(first['files']),37)
             self.assertTrue(all(r['path'].startswith('script.astermusic.v2lab/') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_queue.py') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_album.py') for r in first['files']))
@@ -214,6 +223,7 @@ class RuntimeTests(unittest.TestCase):
 
     def test_shuffle_unsupported_seek_explains_without_closing_player(self):
         window=self.runtime.ShuffleLab();window.session=Mock()
+        window.session.selected=()
         window.session.status.return_value=dict(phase='ready',loaded=1,total=1)
         window.control_worker=Mock();window.control_worker.is_alive.return_value=False
         window.control_errors=[self.runtime.TrialUnavailable('seek-unavailable')]
@@ -221,6 +231,33 @@ class RuntimeTests(unittest.TestCase):
         window.refresh()
         self.assertFalse(window.finished)
         self.gui.Dialog.return_value.ok.assert_called()
+
+    def test_queue_menu_refuses_loading_and_current_removal_without_writes(self):
+        from music_queue import QueueSnapshot
+        window=self.runtime.ShuffleLab();window.session=Mock();window.control=Mock()
+        window.session.status.return_value=dict(phase='loading',writer_active=True)
+        window.queue_menu();window.control.assert_not_called()
+        window.session.status.return_value=dict(phase='ready',writer_active=False)
+        window.session.engine.observe.return_value=QueueSnapshot((1,2),0)
+        window.getControl=lambda identity:Mock(getSelectedPosition=Mock(return_value=0))
+        self.gui.Dialog.return_value.select.return_value=0
+        window.queue_menu();window.control.assert_not_called()
+        self.gui.Dialog.return_value.ok.assert_called()
+
+    def test_queue_menu_uses_explicit_confirmation_and_exact_snapshot(self):
+        from music_queue import QueueSnapshot
+        window=self.runtime.ShuffleLab();window.session=Mock();window.control=Mock()
+        state=QueueSnapshot((1,2,1),0)
+        window.session.status.return_value=dict(phase='ready',writer_active=False)
+        window.session.engine.observe.return_value=state
+        window.getControl=lambda identity:Mock(getSelectedPosition=Mock(return_value=1))
+        self.gui.Dialog.return_value.select.return_value=0
+        self.gui.Dialog.return_value.yesno.return_value=False
+        window.queue_menu();window.control.assert_not_called()
+        self.gui.Dialog.return_value.yesno.return_value=True
+        window.queue_menu();window.control.assert_called_with('remove',(1,state.fingerprint))
+        self.gui.Dialog.return_value.select.return_value=1
+        window.queue_menu();window.control.assert_called_with('clear',state.fingerprint)
 
     def test_album_back_and_button_focus_contract(self):
         window=self.runtime.AlbumLab();window.focused=401

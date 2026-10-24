@@ -150,14 +150,19 @@ class Catalogue:
                                              for i in self.membership[label]['song'])}
                 for label in (*CATEGORIES, OTHER)]
 
-    def browse(self, category, kind, *, query='', offset=0, limit=50):
+    def browse(self, category, kind, *, query='', offset=0, limit=50, artist_id=None):
         if (category not in self.membership or kind not in ('song', 'album', 'artist')
                 or not isinstance(query, str) or type(offset) is not int or offset < 0
-                or type(limit) is not int or not 1 <= limit <= 200):
+                or type(limit) is not int or not 1 <= limit <= 200
+                or (artist_id is not None and (type(artist_id) is not int or artist_id not in self.artists or kind=='artist'))):
             raise CatalogueUnavailable('invalid-browse-options')
         source = {'song': self.songs, 'album': self.albums, 'artist': self.artists}[kind]
         query = query.strip().casefold()
-        rows = [source[identity] for identity in self.membership[category][kind]
+        members=self.membership[category][kind]
+        if artist_id is not None:
+            songs={i for i in self.membership[category]['song'] if artist_id in self.songs[i].get('artistid',[])}
+            members=members & (songs if kind=='song' else {self.songs[i].get('albumid') for i in songs})
+        rows = [source[identity] for identity in members
                 if query in str(source[identity].get('label') or '').casefold()]
         rows.sort(key=lambda row: (str(row.get('label') or '').casefold(), row[kind + 'id']))
         return {'rows': deepcopy(rows[offset:offset+limit]), 'total': len(rows),

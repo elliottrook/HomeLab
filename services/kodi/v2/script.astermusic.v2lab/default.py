@@ -16,6 +16,7 @@ sys.path.insert(0,str(ROOT/'resources'/'lib'))
 from lab_model import LabModel
 from music_catalogue import CatalogueUnavailable, read_catalogue
 from music_album import AlbumUnavailable, read_album
+from music_selection import SelectionUnavailable,read_song
 from music_queue import propose,nonholiday_shuffle
 from queue_reader import QueueUnavailable, read_queue
 from music_trial import TrialPlayer,TrialUnavailable,capability,save_empty_checkpoint,validate_write
@@ -125,16 +126,17 @@ class AlbumLab(xbmcgui.WindowXML):
             self.back_guard_until=time.monotonic()+.3 if cancelled else 0
 
     def onInit(self):
-        self.setProperty('Album.Context','ALBUM / QUEUE PREVIEW')
+        kind=getattr(self.selection,'kind','album')
+        self.setProperty('Album.Context',kind.upper()+' / QUEUE PREVIEW')
         self.setProperty('Album.TrackHeading','Tracks')
         self.setProperty('Album.Title',self.title)
         self.setProperty('Album.Id',str(self.selection.album_id))
         self.setProperty('Album.Art',self.artwork)
         ordering='disc / track' if self.selection.disc_numbers_available else 'track tags · disc numbers unavailable'
-        self.setProperty('Album.Count',str(len(self.selection.tracks))+' tracks · ordered by '+ordering)
+        self.setProperty('Album.Count','1 song' if kind=='song' else str(len(self.selection.tracks))+' tracks · ordered by '+ordering)
         self.setProperty('Album.Status','Read-only queue preview · no playback starts')
         self.setProperty('Album.Live','true' if self.allowed else 'false')
-        self.setProperty('Album.Help','Preview only · select a track for its queue options. Back returns to the same album tile. No playback or queue changes.')
+        self.setProperty('Album.Help','Preview only · select a track for its queue options. Back returns to the same tile. No playback or queue changes.')
         if self.allowed:
             self.setProperty('Album.Status',f'HP live trial · {len(self.allowed)} approved tracks · Back stops and restores the original empty queue')
             self.setProperty('Album.Help','Live test: approved tracks only. OK opens track actions. Replace needs confirmation; stop before replacing. Back stops this trial and restores the original queue.')
@@ -307,7 +309,7 @@ class ShuffleLab(AlbumLab):
         self.setProperty('Album.Shuffle','true')
         self.setProperty('Album.Context','SHUFFLE ALL / NO HOLIDAY MUSIC')
         self.setProperty('Album.Count',f'{len(self.allowed):,} verified songs')
-        self.setProperty('Album.Help','Select a loaded song to play it. Previous / Next page browse the queue; Current returns to the playing song. Stop or Back stops and cancels loading.')
+        self.setProperty('Album.Help','Select to play · Menu edits a fully loaded queue. Page arrows browse; Current finds the playing song. Back stops playback.')
         self.control_labels.update({401:'Previous queue page',402:'Next queue page',403:'Show playing song'})
         self.configure_controls(shuffle=True)
         for identity in (401,402,403):self.getControl(identity).setVisible(True)
@@ -321,7 +323,7 @@ class ShuffleLab(AlbumLab):
         rows=[]
         for n,identity in enumerate(ids):
             item=xbmcgui.ListItem(label=f'{self.page_offset+n+1:,}  '+self.catalogue.songs[identity].get('label','Untitled'))
-            item.setProperty('NowPlaying','true' if identity==self.current_song else 'false');rows.append(item)
+            item.setProperty('NowPlaying','true' if self.current_song is not None and self.page_offset+n==self.current_position else 'false');rows.append(item)
         self.getControl(600).reset();self.getControl(600).addItems(rows)
 
     def refresh(self):
@@ -333,13 +335,23 @@ class ShuffleLab(AlbumLab):
                     self.dialog('ok','Still loading','This song has not reached the native queue yet. Choose a loaded song or wait.')
                 elif isinstance(error,TrialUnavailable) and str(error) in ('seek-unavailable','playback-clock-unavailable','track-changed-before-seek'):
                     self.dialog('ok','Seek unavailable','This song does not currently report a stable seekable duration. Playback is unchanged.')
+                elif isinstance(error,TrialUnavailable) and str(error) in ('queue-preview-stale','queue-remove-refused','queue-still-loading'):
+                    self.dialog('ok','Queue unchanged',{'queue-preview-stale':'The queue or playing song changed. Open Menu again to review a fresh selection.',
+                        'queue-remove-refused':'The playing occurrence cannot be removed. Choose a different queued song.',
+                        'queue-still-loading':'Queue editing becomes available after loading finishes.'}[str(error)])
                 else:raise TrialUnavailable('player-control-failed')
+            if self.session.selected!=self.allowed:
+                self.allowed=self.session.selected
+                self.page_offset=min(self.page_offset,max(0,(len(self.allowed)-1)//200*200))
+                self.current_song=None;self.render_page()
         state=self.session.status()
+        if state['phase']=='cleared':self.close();return
         if state['phase']=='failed':raise TrialUnavailable(state['error'] or 'progressive-fill-failed')
         if state['loaded']!=self.loaded or state['phase']!=self.last_phase:
             self.loaded=state['loaded'];self.last_phase=state['phase']
             self.setProperty('Album.Status',f"{state['loaded']:,} / {state['total']:,} queued · "+
                 ('Ready' if state['phase']=='ready' else 'Loading in background · Back cancels safely'))
+        if self.control_worker:return  # Never interpret half-finished native player transitions as new UI state.
         if time.monotonic()>=self.next_player_update:
             self.next_player_update=time.monotonic()+1
             props=rpc('Player.GetProperties',{'playerid':0,'properties':['position','speed','time','totaltime','canseek']})
@@ -355,11 +367,12 @@ class ShuffleLab(AlbumLab):
                         self.getControl(610).setPercent(elapsed/duration*100)
                     except TrialUnavailable:
                         self.setProperty('Album.Clock','— / —');self.getControl(610).setPercent(0)
+                    old_position=self.current_position
                     self.current_position=position
-                    if identity!=self.current_song:
+                    if identity!=self.current_song or position!=old_position:
                         visible=self.allowed[self.page_offset:self.page_offset+200]
-                        if self.current_song in visible:
-                            self.getControl(600).getListItem(visible.index(self.current_song)).setProperty('NowPlaying','false')
+                        if self.current_song is not None and self.page_offset<=old_position<self.page_offset+len(visible):
+                            self.getControl(600).getListItem(old_position-self.page_offset).setProperty('NowPlaying','false')
                         self.current_song=identity
                         if self.page_offset<=position<self.page_offset+len(visible):self.getControl(600).getListItem(position-self.page_offset).setProperty('NowPlaying','true')
                         song=self.catalogue.songs[identity]
@@ -385,12 +398,31 @@ class ShuffleLab(AlbumLab):
             try:
                 if action=='pause':self.session.pause(value)
                 elif action=='seek':self.session.seek(value)
+                elif action=='remove':self.session.remove(value[0],expected_queue=value[1])
+                elif action=='clear':self.session.clear(expected_queue=value,confirmed=True)
                 else:self.session.select(value)
             except Exception as error:self.control_errors.append(error)
         self.getControl(400).setLabel('Updating…')
         self.setProperty('Album.ControlHint','Updating playback…')
         self.control_worker=threading.Thread(target=work,name='AsterMusicControl')
         self.control_worker.start()
+
+    def queue_menu(self):
+        if self.control_worker:return
+        state=self.session.status()
+        if state['phase']!='ready' or state['writer_active']:
+            self.dialog('ok','Queue loading','Let loading finish before editing the queue. You can still play loaded songs, pause or exit.');return
+        snapshot=self.session.engine.observe()
+        position=self.page_offset+self.getControl(600).getSelectedPosition()
+        if not 0<=position<len(snapshot.song_ids):return
+        option=self.dialog('select','Queue actions',['Remove selected song','Stop and clear queue…'])
+        if option==0:
+            if position==snapshot.current_index:
+                self.dialog('ok','Keep playing song','The playing occurrence cannot be removed. Select another queued song.');return
+            if self.dialog('yesno','Remove queued song','Remove this occurrence from the queue? Your library and saved playlists are unchanged.'):
+                self.control('remove',(position,snapshot.fingerprint))
+        elif option==1 and self.dialog('yesno','Stop and clear queue','Stop this player and clear its queue? Your library and saved playlists are unchanged.'):
+            self.control('clear',snapshot.fingerprint)
 
     def onClick(self,control):
         if self.finished:return
@@ -415,6 +447,9 @@ class ShuffleLab(AlbumLab):
         key=action.getId()
         if key in BACK:
             if not self.dialog_open and time.monotonic()>=self.back_guard_until:self.close()
+            return
+        if key==117:
+            if not self.dialog_open:self.queue_menu()
             return
         control=self.getFocusId()
         buttons=(405,400,406,404,401,402,403)
@@ -477,7 +512,8 @@ class MusicLab(xbmcgui.WindowXML):
     def render(self):
         page=self.model.page();rows=page['rows']
         self.prop('View','genres' if self.model.mode=='genres' else self.model.kind)
-        self.prop('Heading','Browse genres' if self.model.mode=='genres' else self.model.category+' / '+self.model.kind.title()+'s')
+        artist=self.model.catalogue.artists.get(self.model.artist_id,{}).get('label')
+        self.prop('Heading','Browse genres' if self.model.mode=='genres' else self.model.category+' / '+((artist+' / ') if artist else '')+self.model.kind.title()+'s')
         self.prop('Count',f"{page['total']:,} "+('categories' if self.model.mode=='genres' else self.model.kind+'s'))
         self.prop('Search',self.model.query or 'Search…')
         self.prop('Page',f"{self.model.offset+1 if rows else 0}–{self.model.offset+len(rows)} of {page['total']:,}")
@@ -498,7 +534,7 @@ class MusicLab(xbmcgui.WindowXML):
         if self.model.mode=='genres' and row:
             copy=f"{row['song_count']:,} tracks · {row['album_count']:,} albums · {row['artist_count']:,} known artists"
         else:
-            copy=(self.model.category or 'Your music')+' · Select an album for ordered tracks and queue previews. Playback remains disabled.'
+            copy=(self.model.category or 'Your music')+' · Select an artist for their albums, or a song/album for the player. Playback requires the bounded HP test grant.'
         self.prop('Copy',copy)
         self.prop('HeroArt',self.art(row) if row else ASSETS+ICONS['album'])
         self.prop('Shuffle',f"{len(self.model.catalogue.shuffle_summary['eligible_ids']):,} eligible tracks · preview only")
@@ -515,7 +551,9 @@ class MusicLab(xbmcgui.WindowXML):
             selected=self.model.enter(control-500)
             if selected is not None:
                 if self.model.kind=='album':self.open_album(selected)
-                else:xbmcgui.Dialog().ok('Read-only Music pilot',selected.get('label','Untitled')+'\n\nThis '+self.model.kind+' is indexed in your library. Playback is intentionally disabled in this pilot.')
+                elif self.model.kind=='artist':
+                    self.model.open_artist(selected['artistid']);self.render();self.focus_grid()
+                else:self.open_song(selected)
             else:self.render();self.focus_grid()
         elif control in (100,101,102):
             self.model.set_kind({100:'album',101:'artist',102:'song'}[control]);self.render();self.focus_grid()
@@ -585,7 +623,7 @@ class MusicLab(xbmcgui.WindowXML):
             while not window.finished:
                 if xbmc.Monitor().abortRequested():window.close();break
                 active=xbmcgui.Window(10000).getProperty('AsterV2Lab.AlbumWindow')
-                if active and str(xbmcgui.getCurrentWindowId())!=active:
+                if active and str(xbmcgui.getCurrentWindowId())!=active and not window.dialog_open:
                     global_exit=True;window.close();break
                 window.refresh();xbmc.sleep(100)
         except Exception as error:
@@ -610,6 +648,15 @@ class MusicLab(xbmcgui.WindowXML):
                      if str(error)=='album-track-number-unavailable' else
                      'The complete album order could not be verified. Refresh the catalogue and try again.')
             xbmcgui.Dialog().ok('Album order unavailable',message);return
+        self.open_selection(selection,row)
+
+    def open_song(self,row):
+        try:selection=read_song(rpc,row['songid'],row)
+        except SelectionUnavailable:
+            xbmcgui.Dialog().ok('Song unavailable','The selected song could not be verified. Refresh the catalogue and try again.');return
+        self.open_selection(selection,row)
+
+    def open_selection(self,selection,row):
         window=AlbumLab('AlbumLab.xml',str(ROOT),'Default','1080i')
         window.selection=selection;window.title=row.get('label','Album');window.artwork=self.art(row)
         window.allowed=tuple(i for i in selection.song_ids if i in live_ids())
@@ -625,7 +672,7 @@ class MusicLab(xbmcgui.WindowXML):
         key=action.getId()
         if key in BACK:
             if self.rail:self.rail=False;self.prop('Rail','false');self.focus_grid()
-            elif self.model.mode=='detail':self.model.genres();self.render();self.focus_grid()
+            elif self.model.back():self.render();self.focus_grid()
             else:self.close()
             return
         if key not in DIRECTIONS:return

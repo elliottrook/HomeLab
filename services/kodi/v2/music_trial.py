@@ -68,6 +68,11 @@ def validate_write(method, params, allowed, *, queue_limit=3):
     elif method=='Playlist.Clear':
         if set(params)!={'playlistid'} or type(params['playlistid']) is not int or params['playlistid']!=0:
             raise TrialUnavailable('trial-write-denied')
+    elif method=='Playlist.Remove':
+        if (set(params)!={'playlistid','position'} or type(params['playlistid']) is not int
+                or params['playlistid']!=0 or type(params['position']) is not int
+                or not 0<=params['position']<queue_limit):
+            raise TrialUnavailable('trial-write-denied')
     elif method=='Player.Open':
         item=params.get('item')
         if (set(params)!={'item'} or not isinstance(item,dict) or set(item)!={'playlistid','position'}

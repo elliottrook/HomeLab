@@ -117,6 +117,44 @@ class ProgressiveSession:
             self.engine.wait_for(lambda:self.engine.observe().current_index==position)
             self.record(self.engine.observe(),status='playing')
 
+    def editable(self):
+        if self.closed or self.engine.cancel.is_set():raise TrialUnavailable('session-closed')
+        if self.status()['phase']!='ready' or self.status()['writer_active']:
+            raise TrialUnavailable('queue-still-loading')
+
+    def remove(self,position,*,expected_queue):
+        self.control_pending.set()
+        try:
+            with self.engine.lock:
+                self.editable()
+                # The edit intent must be the requested new order, not the
+                # full starting order normally supplied by record().
+                previous=self.engine.intent;self.engine.intent=self.original_intent
+                try:state=self.engine.remove(position,expected_queue=expected_queue)
+                finally:self.engine.intent=previous
+                self.selected=state.song_ids
+                self.update(done=len(self.selected));self.record(state,status='edited')
+                return state
+        finally:self.control_pending.clear()
+
+    def clear(self,*,expected_queue,confirmed=False):
+        if confirmed is not True:raise TrialUnavailable('clear-confirmation-required')
+        self.control_pending.set()
+        try:
+            with self.engine.lock:
+                self.editable();state=self.engine.observe()
+                if state.fingerprint!=expected_queue:raise TrialUnavailable('queue-preview-stale')
+                # Explicit UI confirmation covers Stop as well as Clear.
+                # No implicit Stop is hidden in the idle-only clear planner.
+                self.engine.stop()
+                idle=self.engine.observe()
+                previous=self.engine.intent;self.engine.intent=self.original_intent
+                try:result=self.engine.clear(expected_queue=idle.fingerprint,confirmed=True)
+                finally:self.engine.intent=previous
+                self.selected=();self.update(done=0,phase='cleared')
+                return result
+        finally:self.control_pending.clear()
+
     def seek(self,offset):
         if type(offset) is not int or offset not in (-10,10):raise TrialUnavailable('invalid-seek-step')
         self.control_pending.set()

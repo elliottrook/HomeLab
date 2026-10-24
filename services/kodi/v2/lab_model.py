@@ -9,9 +9,10 @@ class LabModel:
         self.saved = {}
         self.offset, self.index, self.query, self.column = 0, 0, '', 0
         self.genre_index = 0
+        self.artist_id = None
 
     def context(self):
-        return (self.mode, self.category, self.kind) if self.mode == 'detail' else ('genres',None,'')
+        return (self.mode, self.category, self.kind,self.artist_id) if self.mode == 'detail' else ('genres',None,'')
 
     def page_size(self): return 8 if self.mode=='genres' else 4
 
@@ -28,7 +29,7 @@ class LabModel:
             return {'rows': deepcopy(rows[self.offset:self.offset+8]), 'total': len(rows),
                     'has_more': self.offset+8 < len(rows), 'uncredited_song_count': 0}
         return self.catalogue.browse(self.category, self.kind, query=self.query,
-                                     offset=self.offset, limit=self.page_size())
+                                     offset=self.offset, limit=self.page_size(),artist_id=self.artist_id)
 
     def clamp(self):
         page = self.page()
@@ -51,8 +52,20 @@ class LabModel:
 
     def genres(self):
         self.remember()
-        self.mode = 'genres'
+        self.mode = 'genres';self.artist_id=None
         self.restore()
+
+    def open_artist(self,identity):
+        if (self.mode!='detail' or self.kind!='artist' or type(identity) is not int
+                or identity not in self.catalogue.membership[self.category]['artist']):
+            raise ValueError('artist-outside-current-category')
+        self.remember();self.artist_id=identity;self.kind='album';self.restore()
+
+    def back(self):
+        if self.mode=='detail' and self.artist_id is not None:
+            self.remember();self.artist_id=None;self.kind='artist';self.restore();return True
+        if self.mode=='detail':self.genres();return True
+        return False
 
     def set_kind(self, kind):
         if kind not in ('album','artist','song'):
@@ -66,6 +79,7 @@ class LabModel:
             self.mode = 'detail'
         else:
             self.remember()
+        if kind=='artist':self.artist_id=None
         self.kind = kind
         self.restore()
 

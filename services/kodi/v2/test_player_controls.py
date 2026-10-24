@@ -12,7 +12,7 @@ class SharedControlsTests(unittest.TestCase):
     def test_all_four_player_families_are_present(self):
         self.assertEqual(set(PAGES),{'VideoOSD.xml','custom_1121_albumplayer.xml','MyMusicNav.xml','custom_1111_digest.xml'})
 
-    def test_exact_actions_navigation_and_visibility_are_preserved(self):
+    def test_exact_actions_navigation_and_non_toggle_visibility_are_preserved(self):
         fields=('onclick','onleft','onright','onup','ondown','visible','enable','label')
         for name in PAGES:
             source=(SKIN/'1080i'/name).read_bytes();old=ET.fromstring(source);new=ET.fromstring(page(name,source))
@@ -20,13 +20,32 @@ class SharedControlsTests(unittest.TestCase):
                 with self.subTest(page=name,control=identity):
                     original=old.find(f'.//control[@type="button"][@id="{identity}"]')
                     changed=new.find(f'.//control[@type="button"][@id="{identity}"]')
+                    toggles={i for slot in PAGES[name]['slots'] if len(slot)==2 for i in slot}
                     for field in fields:
+                        if identity in toggles and field=='visible':continue
+                        if identity in toggles and identity==next(slot[0] for slot in PAGES[name]['slots'] if identity in slot) and field=='label':continue
                         self.assertEqual([(n.text,n.attrib) for n in original.findall(field)],
                                          [(n.text,n.attrib) for n in changed.findall(field)])
                     self.assertFalse(changed.findtext('texturefocus'));self.assertFalse(changed.findtext('texturenofocus'))
                     self.assertEqual(changed.findtext('textcolor'),'00000000')
             for hook in ('onload','onunload','defaultcontrol'):
                 self.assertEqual([(n.text,n.attrib) for n in old.findall(hook)],[(n.text,n.attrib) for n in new.findall(hook)])
+
+    def test_play_pause_keeps_one_stable_focus_target_and_stateful_glyphs(self):
+        for name,config in PAGES.items():
+            root=ET.fromstring(page(name,(SKIN/'1080i'/name).read_bytes()))
+            for slot in config['slots']:
+                if len(slot)!=2:continue
+                primary,alias=slot
+                button=root.find(f'.//control[@type="button"][@id="{primary}"]')
+                self.assertEqual(button.findtext('label'),'Play / Pause')
+                self.assertIn(' | ',button.findtext('visible'))
+                self.assertEqual(root.find(f'.//control[@type="button"][@id="{alias}"]').findtext('visible'),'false')
+                glyphs=[c for c in root.findall('.//control[@type="image"]')
+                        if f'Control.IsVisible({primary})' in (c.findtext('visible') or '')
+                        and '/player-controls/' in (c.findtext('texture') or '')]
+                self.assertEqual(len(glyphs),4)
+                self.assertTrue(any(c.findtext('texture').endswith('/play.png') and ' + Player.Paused' in c.findtext('visible') for c in glyphs))
 
     def test_every_control_target_and_glyph_fits_declared_row(self):
         for name,config in PAGES.items():

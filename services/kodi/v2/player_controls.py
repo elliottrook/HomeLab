@@ -41,6 +41,8 @@ def page(name,source):
     if span>width:raise ValueError('control-row-exceeds-frame')
     start=left+(width-span)//2
     positions={identity:(start+index*(target+gap),config['top']) for index,slot in enumerate(slots) for identity in slot}
+    pairs={slot[0]:slot[1] for slot in slots if len(slot)==2}
+    aliases=set(pairs.values())
     if 9000 in config['icons']:positions[9000]=(1702,62)
     for identity,glyph in config['icons'].items():
         control=buttons[identity];parent=parents[control]
@@ -50,18 +52,33 @@ def page(name,source):
         if not caption:raise ValueError('missing-accessible-label')
         for include in list(control.findall('include')):control.remove(include)
         for key,value in dict(left=x,top=y,width=target,height=64,font='font20',textcolor='00000000',focusedcolor='00000000',texturefocus=None,texturenofocus=None).items():set_value(control,key,value)
-        for focused,size,color in ((False,44,'asterRailText' if dark else 'asterInk'),(True,48,'asterSage' if dark else 'asterGreen')):
-            image=ET.SubElement(parent,'control',type='image')
-            for key,value in dict(left=x+(target-size)//2,top=y+(64-size)//2,width=size,height=size).items():set_value(image,key,value)
-            ET.SubElement(image,'texture',colordiffuse=color).text=f'special://skin/media/player-controls/{glyph}.png'
-            set_value(image,'aspectratio','keep')
-            set_value(image,'visible',f'Control.IsVisible({identity}) + '+('' if focused else '!')+f'Control.HasFocus({identity})')
+        if identity in aliases:
+            # Kodi retains the focused ID when a Pause button becomes hidden.
+            # Keep the legacy Play alias/action but never swap focus targets.
+            set_value(control,'visible','false')
+            continue
+        variants=[(glyph,None,caption)]
+        if identity in pairs:
+            other=buttons[pairs[identity]]
+            old_visible=control.findtext('visible') or 'true'
+            other_visible=other.findtext('visible') or 'true'
+            set_value(control,'visible',f'[{old_visible}] | [{other_visible}]')
+            set_value(control,'label','Play / Pause')
+            variants=[('pause','!Player.Paused','Pause'),('play','Player.Paused','Play')]
+        for variant,state,_ in variants:
+            for focused,size,color in ((False,44,'asterRailText' if dark else 'asterInk'),(True,48,'asterSage' if dark else 'asterGreen')):
+                image=ET.SubElement(parent,'control',type='image')
+                for key,value in dict(left=x+(target-size)//2,top=y+(64-size)//2,width=size,height=size).items():set_value(image,key,value)
+                ET.SubElement(image,'texture',colordiffuse=color).text=f'special://skin/media/player-controls/{variant}.png'
+                set_value(image,'aspectratio','keep')
+                set_value(image,'visible',f'Control.IsVisible({identity}) + '+('' if focused else '!')+f'Control.HasFocus({identity})'+(' + '+state if state else ''))
         line=ET.SubElement(parent,'control',type='image')
         for key,value in dict(left=x+28,top=y+63,width=20,height=2,visible=f'Control.IsVisible({identity}) + Control.HasFocus({identity})').items():set_value(line,key,value)
         ET.SubElement(line,'texture',colordiffuse='asterGold').text='special://skin/media/ui-solid.png'
-        label=ET.SubElement(parent,'control',type='label')
         caption_left,caption_width=(1540,300) if back else (left,width)
-        for key,value in dict(left=caption_left,top=y+69,width=caption_width,height=28,label=caption,font='font16',textcolor='asterRailText' if dark else 'asterInk',align='center',aligny='center',truncate='true',visible=f'Control.IsVisible({identity}) + Control.HasFocus({identity})').items():set_value(label,key,value)
+        for _,state,text in variants:
+            label=ET.SubElement(parent,'control',type='label')
+            for key,value in dict(left=caption_left,top=y+69,width=caption_width,height=28,label=text,font='font16',textcolor='asterRailText' if dark else 'asterInk',align='center',aligny='center',truncate='true',visible=f'Control.IsVisible({identity}) + Control.HasFocus({identity})'+(' + '+state if state else '')).items():set_value(label,key,value)
     ET.indent(root,space='  ')
     return ET.tostring(root,encoding='utf-8',xml_declaration=True)
 

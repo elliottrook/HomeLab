@@ -207,5 +207,30 @@ class ProgressiveTests(unittest.TestCase):
         self.assertEqual(self.player.speed,0);self.assertEqual(self.player.elapsed,35000)
         session.close()
 
+    def test_ready_session_remove_updates_complete_intent_and_current_position(self):
+        session=self.make(4);session.start([1,2,3,4],confirmed=True);session.worker.join()
+        session.select(2);session.pause(False);before=self.engine.observe()
+        session.remove(0,expected_queue=before.fingerprint)
+        self.assertEqual(session.selected,(2,3,4));self.assertEqual(self.player.position,1)
+        self.assertEqual(self.journal[-1][0].song_ids,(2,3,4))
+        self.assertEqual(session.status()['loaded'],3);session.close()
+
+    def test_queue_edit_during_loading_is_explicitly_refused(self):
+        session=self.make(3);session.start([1,2,3],confirmed=True);session.worker.join()
+        session.update(phase='loading')
+        with self.assertRaisesRegex(TrialUnavailable,'queue-still-loading'):session.remove(2,expected_queue=self.engine.observe().fingerprint)
+        session.update(phase='ready');session.close()
+
+    def test_explicit_clear_stops_owned_player_then_records_empty_intent(self):
+        session=self.make(3);session.start([1,2,3],confirmed=True);session.worker.join()
+        state=self.engine.observe()
+        with self.assertRaisesRegex(TrialUnavailable,'clear-confirmation-required'):session.clear(expected_queue=state.fingerprint)
+        with self.assertRaisesRegex(TrialUnavailable,'queue-preview-stale'):session.clear(expected_queue='old',confirmed=True)
+        self.assertIsNotNone(self.player.position)
+        session.clear(expected_queue=state.fingerprint,confirmed=True)
+        self.assertIsNone(self.player.position);self.assertEqual(self.player.ids,[])
+        self.assertEqual(session.selected,());self.assertEqual(self.journal[-1][0].song_ids,())
+        self.assertEqual(session.status()['phase'],'cleared');session.close()
+
 
 if __name__=='__main__':unittest.main()

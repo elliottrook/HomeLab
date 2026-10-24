@@ -27,7 +27,15 @@ stage=Path('/storage/.aster-staging');addons=Path('/storage/.kodi/addons')
 baseline=json.loads((stage/'aster-artist-repair-v1-baseline-20261023.json').read_text())
 rows=[row for archive in baseline['archives'] for row in archive['files']]
 assert len(rows)==153
-assert all(hashlib.sha256((addons/row['path']).read_bytes()).hexdigest()==row['sha256'] for row in rows)
+overlay_file=Path('/storage/.aster-checkpoints/aster-floating-controls-20261024/overlay-manifest.json')
+overrides={}
+if overlay_file.exists():
+    overlay=json.loads(overlay_file.read_text())
+    assert overlay['sha256']=='591cc32b4f9c3a621e395df744d3a8c3b5f7d178623ff8094fda072fa79a16d0'
+    overrides={'skin.asterhome/'+r['path']:r['sha256'] for r in overlay['files'] if r['path'].startswith('1080i/')}
+    assert len(overrides)==4
+    assert all(hashlib.sha256((addons/'skin.asterhome'/r['path']).read_bytes()).hexdigest()==r['sha256'] for r in overlay['files'])
+assert all(hashlib.sha256((addons/row['path']).read_bytes()).hexdigest()==overrides.get(row['path'],row['sha256']) for row in rows)
 manifest=json.loads((stage/f'aster-music-v2lab-0.1.0-candidate{candidate}/manifest.json').read_text())
 assert manifest['sha256']==expected
 assert hashlib.sha256((stage/f'aster-music-v2lab-0.1.0-candidate{candidate}'/manifest['archive']).read_bytes()).hexdigest()==expected
@@ -47,7 +55,8 @@ root=Path('/storage/.aster-checkpoints/aster-music-progressive-20261024')
 output=root/('postcheck-'+str(time.time_ns())+'.json')
 with output.open('x') as handle:
     json.dump({'candidate':candidate,'sha256':expected,'lab_files_verified':expected_count,
-               'v1_files_verified':153,'av_language_settings_verified':len(values),
+               'v1_files_verified':153-len(overrides),'approved_overlay_pages_verified':len(overrides),
+               'av_language_settings_verified':len(values),
                'database_integrity':'ok','missing_primary_artist_links':0,
                'no_player':True,'original_empty_queue':True,'capability_removed':True,
                'all_lab_windows_closed':True},handle)

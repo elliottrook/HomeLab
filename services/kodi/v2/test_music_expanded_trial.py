@@ -113,5 +113,33 @@ class ExpandedTests(unittest.TestCase):
         trial.replay(confirmed=True)
         self.assertEqual(self.player.ids,[3,1,2]);self.assertEqual(self.player.position,0)
 
+    def test_owned_remove_preserves_duplicate_occurrences_and_paused_song(self):
+        trial=self.make(3);trial.play([1,2,1,3],confirmed=True)
+        self.player.position=2;trial.pause(False)
+        before=trial.observe();begin=len(self.player.calls)
+        state=trial.remove(0,expected_queue=before.fingerprint)
+        self.assertEqual(state.song_ids,(2,1,3));self.assertEqual(state.current_index,1)
+        self.assertEqual(self.player.speed,0)
+        self.assertFalse(any(m in ('Player.Open','Player.Stop','Playlist.Clear') for m,p in self.player.calls[begin:]))
+        trial.close()
+
+    def test_remove_current_stale_or_foreign_queue_never_writes(self):
+        trial=self.make(3);trial.play([1,2,3],confirmed=True);state=trial.observe()
+        start=len(self.player.calls)
+        with self.assertRaisesRegex(TrialUnavailable,'queue-remove-refused'):trial.remove(0,expected_queue=state.fingerprint)
+        with self.assertRaisesRegex(TrialUnavailable,'queue-preview-stale'):trial.remove(1,expected_queue='stale')
+        self.player.ids=[99999]
+        with self.assertRaisesRegex(TrialUnavailable,'external-queue-change'):trial.remove(0,expected_queue=state.fingerprint)
+        self.assertFalse(any(m=='Playlist.Remove' for m,p in self.player.calls[start:]))
+
+    def test_idle_clear_requires_confirmation_and_does_not_stop_or_open(self):
+        trial=self.make(3);trial.edit('append',[1,2,3]);state=trial.observe()
+        with self.assertRaisesRegex(TrialUnavailable,'queue-clear-refused'):trial.clear(expected_queue=state.fingerprint)
+        begin=len(self.player.calls)
+        actual=trial.clear(expected_queue=state.fingerprint,confirmed=True)
+        self.assertEqual(actual.song_ids,())
+        self.assertFalse(any(m in ('Player.Open','Player.Stop') for m,p in self.player.calls[begin:]))
+        trial.close()
+
 
 if __name__=='__main__':unittest.main()
