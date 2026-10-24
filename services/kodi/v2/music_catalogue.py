@@ -138,11 +138,15 @@ class Catalogue:
     membership: dict
     shuffle_summary: dict
 
+    def credited(self,identity):
+        return any(not (i==1 and self.artists.get(i,{}).get('label')=='[Missing Tag]')
+                   for i in self.songs[identity].get('artistid',[]))
+
     def categories(self):
         return [{'label': label,
                  **{kind + '_count': len(self.membership[label][kind])
                     for kind in ('song', 'album', 'artist')},
-                 'uncredited_song_count': sum(not self.songs[i].get('artistid')
+                 'uncredited_song_count': sum(not self.credited(i)
                                              for i in self.membership[label]['song'])}
                 for label in (*CATEGORIES, OTHER)]
 
@@ -158,7 +162,7 @@ class Catalogue:
         rows.sort(key=lambda row: (str(row.get('label') or '').casefold(), row[kind + 'id']))
         return {'rows': deepcopy(rows[offset:offset+limit]), 'total': len(rows),
                 'offset': offset, 'has_more': offset+limit < len(rows),
-                'uncredited_song_count': sum(not self.songs[i].get('artistid')
+                'uncredited_song_count': sum(not self.credited(i)
                                             for i in self.membership[category]['song'])}
 
 
@@ -183,8 +187,11 @@ def build_catalogue(albums, artists, songs):
             group['song'].add(song['songid'])
             if album_id:
                 group['album'].add(album_id)
-            group['artist'].update(artist_ids)
-    summary['artist_unavailable_songs'] = sum(not row.get('artistid') for row in songs)
+            group['artist'].update(i for i in artist_ids
+                                  if not (i==1 and artist_map[i].get('label')=='[Missing Tag]'))
+    summary['artist_unavailable_songs'] = sum(not any(
+        not (i==1 and artist_map[i].get('label')=='[Missing Tag]')
+        for i in row.get('artistid',[])) for row in songs)
     return Catalogue(album_map, artist_map, song_map, memberships, summary)
 
 

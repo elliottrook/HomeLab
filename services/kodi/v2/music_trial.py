@@ -83,23 +83,27 @@ def validate_write(method, params, allowed, *, queue_limit=3):
 
 
 class TrialPlayer:
-    def __init__(self,rpc,allowed,checkpoint,*,sleep=time.sleep,queue_limit=3):
+    def __init__(self,rpc,allowed,checkpoint,*,sleep=time.sleep,queue_limit=3,queue_page_size=500):
         self.lock=threading.RLock()
         self.rpc=rpc;self.allowed=frozenset(identities(allowed,allow_empty=False));self.sleep=sleep
         self.queue_limit=queue_limit
+        self.queue_page_size=queue_page_size
         if (type(queue_limit) is not int or not 1<=queue_limit<=20000
                 or len(allowed)>queue_limit or len(self.allowed)!=len(allowed)):
             raise TrialUnavailable('three-song-capability-required')
-        self.baseline=read_queue(rpc)
+        self.baseline=self.snapshot()
         if self.baseline.song_ids or self.baseline.current_index is not None:
             raise TrialUnavailable('idle-empty-queue-required')
         if checkpoint(self.baseline) is not True:raise TrialUnavailable('checkpoint-verification-failed')
         self.last=self.baseline;self.started=False;self.closed=False
 
+    def snapshot(self):
+        return read_queue(self.rpc,page_size=self.queue_page_size)
+
     @serialized
     def observe(self):
         if self.closed:raise TrialUnavailable('trial-closed')
-        state=read_queue(self.rpc)
+        state=self.snapshot()
         if state.song_ids!=self.last.song_ids:raise TrialUnavailable('external-queue-change')
         if state.current_index is not None:
             if not self.started:raise TrialUnavailable('unrelated-playback')
@@ -168,7 +172,7 @@ class TrialPlayer:
             expected=self.last.song_ids
             self.write('Player.Stop',{'playerid':0})
             def stopped():
-                state=read_queue(self.rpc)
+                state=self.snapshot()
                 if state.song_ids not in (expected,()):raise TrialUnavailable('external-queue-change')
                 if state.current_index is not None:return False
                 self.last=state;return True
@@ -177,7 +181,7 @@ class TrialPlayer:
             # Accept only that exact empty outcome of our own Stop, not a new
             # queue/stream. Do not fight it by silently re-adding the songs.
             for _ in range(40):
-                try:state=read_queue(self.rpc)
+                try:state=self.snapshot()
                 except QueueUnavailable as error:
                     if str(error)!='queue-changed-during-read':raise
                     self.sleep(.1);continue

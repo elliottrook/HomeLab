@@ -78,9 +78,15 @@ class QueueReaderTests(unittest.TestCase):
     def test_errors_sanitised_and_invalid_options_do_not_call_rpc(self):
         def fail(*args):raise RuntimeError('private-url')
         with self.assertRaisesRegex(QueueUnavailable,'^queue-read-failed$'):read_queue(fail)
-        for size in (0,True,1001):
+        for size in (0,True,20001):
             with self.assertRaises(QueueUnavailable):read_queue(self.rpc,page_size=size)
         self.assertEqual(self.calls,[])
+
+    def test_bounded_large_page_still_checks_every_id_twice(self):
+        self.ids=list(range(1,16349))
+        snapshot=read_queue(self.rpc,page_size=20000)
+        self.assertEqual(snapshot.song_ids,tuple(self.ids))
+        self.assertEqual(sum(m=='Playlist.GetItems' for m,p in self.calls),2)
 
 
 if __name__=='__main__':unittest.main()

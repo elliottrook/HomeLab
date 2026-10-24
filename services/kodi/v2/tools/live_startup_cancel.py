@@ -3,28 +3,21 @@
 Start on the read-only verified Cranberries album. Capability is removed even
 on failure; native Back requests the add-on's own cleanup, never a blind Clear.
 """
-import codecs,json,os,socket,subprocess,sys,time
+import json,os,subprocess,sys,time
 from pathlib import Path
 assert os.uname().nodename=='AsterTV'
+assert '--in-process' in sys.argv,'Run inside Kodi; bulk TCP connection churn is retired'
 sys.path.insert(0,'/storage/.kodi/addons/script.astermusic.v2lab/resources/lib')
 from music_album import read_album
 from music_catalogue import read_catalogue
-from queue_reader import read_queue
+from queue_reader import QueueUnavailable,read_queue
 
 
 def rpc(method,params=None):
-    with socket.create_connection(('127.0.0.1',9090),timeout=20) as connection:
-        connection.sendall((json.dumps({'jsonrpc':'2.0','id':1,'method':method,'params':params or {}})+'\n').encode())
-        raw='';decoder=codecs.getincrementaldecoder('utf-8')()
-        while True:
-            part=connection.recv(65536);assert part;raw+=decoder.decode(part)
-            while raw.strip():
-                raw=raw.lstrip()
-                try:reply,end=json.JSONDecoder().raw_decode(raw)
-                except ValueError:break
-                raw=raw[end:]
-                if reply.get('id')==1:
-                    assert 'error' not in reply,'RPC failed';return reply['result']
+    import xbmc
+    reply=json.loads(xbmc.executeJSONRPC(json.dumps({'jsonrpc':'2.0','id':1,'method':method,'params':params or {}})))
+    assert 'error' not in reply,'RPC failed'
+    return reply['result']
 
 
 def label(key):return rpc('XBMC.GetInfoLabels',{'labels':[key]})[key]
@@ -44,7 +37,11 @@ def confirm():
     yes=next(i for i in (10,11) if label('Control.GetLabel('+str(i)+')')=='Yes')
     if not focused(yes):press('right' if yes==11 else 'left')
     select()
-def idle():return not rpc('Player.GetActivePlayers') and not read_queue(rpc).song_ids
+def idle():
+    try:return not rpc('Player.GetActivePlayers') and not read_queue(rpc).song_ids
+    except QueueUnavailable as error:
+        if str(error)=='queue-changed-during-read':return False
+        raise
 
 
 assert idle() and label('Window(Home).Property(AsterV2Lab.AlbumWindow)') and focused(600)
@@ -82,3 +79,6 @@ finally:
         press('back');time.sleep(5)
     assert idle(),'Recovery required; do not overwrite unexpected playback/queue'
     print('Temporary grant removed; HP idle and original empty queue restored',flush=True)
+    result=Path('/storage/.aster-checkpoints/aster-music-artist-repair-20261023')/('native-startup-'+str(time.time_ns())+'.json')
+    with result.open('x') as output:json.dump({'passed':completed,'original_queue_restored':True,'capability_removed':True,'transport':'in-process'},output)
+    result.chmod(0o600)

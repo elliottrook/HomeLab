@@ -1,0 +1,40 @@
+{
+  "addon_id": "script.astermusic.v2lab",
+  "version": "0.1.0",
+  "status": "hp-repair-and-full-queue-retest-passed-default-read-only-performance-gate-open",
+  "active_candidate": 17,
+  "artifact_directory": "services/kodi/dist/aster-music-v2lab-0.1.0-candidate17",
+  "sha256": "fb2767b1145ccadf9a851eb9d8cd238b4582c35ffea83bd19989d135558002a6",
+  "file_count": 13,
+  "repair": {
+    "rows_added": 23,
+    "table": "song_artist",
+    "credit": "Canonical Kodi missing-tag placeholder only; original blank credits not guessed",
+    "all_other_tables_hash_unchanged_at_repair": true,
+    "backup_and_independent_rehearsal_verified": true,
+    "off_device_backup_integrity_and_hash_verified": true,
+    "backup_sha256": "44d29c0483a49039cd20984e34fb8e81362056b406e75fa0ea4422b2afc961b2",
+    "source_reference": "https://github.com/xbmc/xbmc/blob/21.3-Omega/xbmc/music/MusicDatabase.cpp#L730-L732"
+  },
+  "validation": {
+    "v2_tests": 127,
+    "unchanged_v1_tests": 144,
+    "focus_checks": 10,
+    "eligible_tracks_exact_order": 16348,
+    "holiday_tracks_excluded": 765,
+    "queue_order_sha256": "d7aa3fb3f08c3e0aeda4c316ed2387fa73678c18d95b486065d3edf2b606e25d",
+    "first_repaired_staging_and_sample_seconds": 624.8,
+    "optimised_staging_and_sample_seconds": 176.4,
+    "kodi_peak_rss_kib": 1003480,
+    "minimum_system_available_kib": 14498572,
+    "native": "Album order/brief playback, saved-intent replay, cancellation before/after Open, native startup progress Back, normal full album and Back stop/origin tile passed in-process",
+    "crash": "No unexpected restart during repaired tests; bulk TCP churn retired; exact original SIGSEGV cause not proven; Kodi not patched",
+    "limitations": "Not every track decoded/listened; no physical remote/listening/soak or production acceptance; 176.4s pre-play loading still unsuitable for a family-facing Shuffle All",
+    "preservation": "153 v1 files and 68 AV/language values remain checkpointed; no production, vendor, credential or Git remote writes"
+  },
+  "repair_checkpoint": "/storage/.aster-checkpoints/aster-music-artist-repair-20261023",
+  "first_full_retest": "/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/run-1792821428900959476",
+  "optimised_full_retest": "/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/run-1792822397090396741",
+  "recovery": "Original empty queue restored after tests; grants removed; candidate13 and candidate16 recovery ZIPs/trees retained; Music DB pre-repair backup and rehearsal retained",
+  "next_gate": "Owner approval for HP-only small-starting-batch/progressive background shuffle trial; preserve ID/write ceilings, join writer on exit and restore original queue. No production promotion or push."
+}

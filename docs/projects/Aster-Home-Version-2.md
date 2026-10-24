@@ -509,3 +509,105 @@ Next decision: separately authorize a checkpointed HP-only primary-artist-link
 repair using verified metadata (no guessed credits), plus bounded retesting
 through Kodi's in-process interface rather than the bulk TCP harness. This is
 not production promotion or permission to patch Kodi/Jellyfin. Forgejo hold stays.
+
+#### Approved HP repair and bounded retest — 2026-10-23
+
+Jason approved checkpointed HP-only repair of verified artist links and crash
+investigation/bounded retesting. Production and Forgejo remain held. Audit shows
+all 23 song display credits blank, with no existing primary/secondary relations;
+no exact named-artist match. Kodi 21.3's own source requires a canonical missing-
+tag artist relation when credits are absent. Existing HP artist 1 is verified
+as `[Missing Tag]` / `Artist Tag Missing`; restore only that structural link,
+not guessed named performers or album-artist inference. Leave display credits,
+source files/tags, Jellyfin mapping/history, all other DB tables and settings
+unchanged. No credential-store reads, server writes or vendor patches.
+
+Before mutation: require idle/empty HP; briefly stop only Kodi, make private
+SQLite backup, integrity/hash verify and rehearse repair/restore on a disposable
+copy. Apply in one guarded transaction; fail/rollback on changed count, nonempty
+credit, secondary relation, trigger side effect or unrelated table hash drift.
+Retain before/after evidence and restart Kodi. Retest in-process only, bounded
+stages with queue restoration, memory/health checks and no repeated bulk TCP
+connection churn. Another crash or unverifiable recovery stops live work.
+No new voice, network exposure, scheduled task or production promotion.
+
+2026-10-23 repair evidence: all 23 missing relations had blank song display
+credits and no secondary artists, not a uniquely verifiable named performer.
+Restored Kodi's own canonical missing-tag relation only (artist 1 already
+verified as `[Missing Tag]` / `Artist Tag Missing`), matching its
+[21.3 AddSong policy](https://github.com/xbmc/xbmc/blob/21.3-Omega/xbmc/music/MusicDatabase.cpp#L730-L732).
+No names inferred from titles or compilation album artists. Source metadata,
+every original song field/history and every other SQLite table hash unchanged
+at repair commit. Backup/rehearsal passed integrity and logical-table checks;
+independent Mac copy SHA-256 matches, integrity OK and original 23 missing
+relations retained. Private recovery:
+`/storage/.aster-checkpoints/aster-music-artist-repair-20261023/`.
+Normal playback history updates during approved subsequent samples are expected,
+not undone. No vendor/server/credential edits; no automatic recurring DB repair.
+
+Crash mitigation: retire the bulk per-call TCP harness and run queue/GUI tests
+inside Kodi with `xbmc.executeJSONRPC`. The original top frame and
+[Kodi 21.3 TCP source](https://github.com/xbmc/xbmc/blob/21.3-Omega/xbmc/network/TCPServer.cpp#L219-L237)
+are consistent with connection/disconnection concurrency, but do not establish
+the exact crash cause or a general Kodi fix. Do not patch/upgrade Kodi from
+this evidence. One planned stop/start for the SQLite repair; no unexpected
+restart since that planned restart.
+
+First repaired in-process complete test passed all 16,348 eligible IDs in exact
+seeded order, 765 holiday exclusions, sample playback/advancing clock and
+original empty-queue cleanup; album replay and both startup-cancellation cases
+also passed. Run `run-1792821428900959476` retains ID-only intent and results.
+Staging/sample took **624.8 seconds**; Kodi process peak RSS 883,840 KiB and
+minimum system available memory 14,767,624 KiB. The old result key says
+`harness_peak_rss_kib`; in-process this actually measures Kodi's process peak.
+This passes correctness, not family-facing loading performance or all-track
+decoding/physical listening. No silent exclusion of uncredited songs.
+
+Candidate16 native read-only album smoke and startup cancel/full-album/Back
+passed in-process. Initial GUI harness attempt caught a changing queue between
+its own reads during normal Stop cleanup; it restored the baseline, removed its
+grant and reported failure. Harness now waits/retries only that explicit
+read-transition condition; the retained second run passed, not hidden as a
+first-attempt pass. Placeholder artists remain explicitly uncredited in the
+v2 category model, not counted as real performers.
+
+Candidate17 keeps all writer limits and full two-read order checks, but reads
+the approved <=20,000-item trial queue in one bounded page. Kodi GetItems copies
+its whole queue before pagination, so repeated 500-item pages cause avoidable
+work. Default preview reader remains 500; all 127 v2 tests pass including full
+16,348-ID two-read and external reorder rejection. Native performance retest
+completed: private run `run-1792822397090396741` passes full 16,348-item exact
+order/membership, 765 exclusions, sample clock/playback, intent replay, both
+startup cancellation cases and original queue cleanup. The order hash matches
+the earlier slower run. Staging/sample improved to **176.4 seconds** (3.54x);
+Kodi process peak RSS 1,003,480 KiB, minimum system available 14,498,572 KiB.
+Whole-run RPC profiling records 108.3 seconds in 551 GetItems calls and 65.3
+seconds in 86 Add calls; remaining pre-play staging is still too slow for a
+family-facing button. No unexpected restart during either complete retest.
+
+Candidate17 also passed native read-only album smoke and startup-cancel / normal
+album start / Back-stop tests, all in-process. Native temporary grants removed.
+127 v2 tests, all 144 unchanged v1 tests and ten focus checks pass. Candidate17
+ZIP SHA-256 `fb2767b1145ccadf9a851eb9d8cd238b4582c35ffea83bd19989d135558002a6`,
+13 files; all intermediate ZIPs and candidate13/16 recovery trees retained.
+The pilot remains read-only by default; global Shuffle All is still a truthful
+eligibility preview, not a falsely advertised instant player.
+
+Next bounded risk decision: an HP-only progressive shuffle trial, initially
+start a small verified batch then append the remainder in a controlled worker.
+This is a new concurrent playback/background-staging phase, not automatically
+authorized by this repair. Keep existing ID-only guard, 200-per-write/20,000-total
+ceilings, complete queue checks and temporary grant expiry. Back/Cancel must
+signal cancellation, join/resolve its writer before Stop/Clear, and restore the
+original queue; no abandoned worker or overwriting external state. Brief samples
+only; pause during extended fill if necessary. Production/pushes/vendor changes
+stay excluded. M3 is not graduated and physical remote/listening/soak remain.
+
+Final native post-check `postcheck-1792822789043203801.json` verifies candidate17
+13 files, all 153 v1 files, all 68 selected AV/language values, SQLite integrity,
+zero missing primary links, no player, original empty queue, no temporary grant
+or recovery flag and read-only album. Kodi active with zero unexpected restarts
+since the planned DB-repair stop/start. Recovery records retained; new release
+handoff: `services/kodi/v2/releases/music-v2lab-repair-retest-0.1.0.json`.
+No production contact or Forgejo/GitHub push. Stop at progressive-worker risk
+decision, not routine read-only validation or another general project approval.

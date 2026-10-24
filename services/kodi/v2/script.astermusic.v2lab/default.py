@@ -178,6 +178,10 @@ class AlbumLab(xbmcgui.WindowXML):
                 if action in ('stop','pause','resume'):return
                 def transport(method,params):
                     if method in READS:return rpc(method,params)
+                    if method not in ('Player.Stop','Playlist.Clear'):
+                        granted,limit=live_grant()
+                        if limit!=self.queue_limit or not set(self.allowed)<=set(granted):
+                            raise TrialUnavailable('trial-capability-expired')
                     validate_write(method,params,self.allowed,queue_limit=self.queue_limit)
                     xbmc.log('AsterMusicTrial write='+method,xbmc.LOGINFO)
                     return execute(method,params)

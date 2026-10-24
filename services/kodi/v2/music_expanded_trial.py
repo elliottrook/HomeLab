@@ -45,6 +45,10 @@ def save_intent(path, snapshot, *, status):
 
 class ExpandedTrial(TrialPlayer):
     def __init__(self,*args,intent,cancel=None,progress=None,**kwargs):
+        # GetItems copies Kodi's whole playlist before applying page limits.
+        # Read the bounded trial queue in one page, still twice, rather than
+        # paying that full-copy cost once for every 500-item slice.
+        kwargs.setdefault('queue_page_size',min(kwargs.get('queue_limit',3),20000))
         super().__init__(*args,**kwargs)
         self.intent=intent
         self.cancel=cancel if cancel is not None else threading.Event()

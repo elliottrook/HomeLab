@@ -27,6 +27,13 @@ class ExpandedTests(unittest.TestCase):
         trial.close();self.assertEqual(self.player.ids,[])
         self.assertEqual(trial.saved.song_ids,tuple(ids))
 
+    def test_large_queue_read_optimisation_does_not_relax_complete_order_checks(self):
+        trial=self.make();trial.play(list(range(1,431)),confirmed=True)
+        begin=len(self.player.calls);trial.observe()
+        self.assertEqual(sum(m=='Playlist.GetItems' for m,p in self.player.calls[begin:]),2)
+        self.player.ids[0],self.player.ids[1]=self.player.ids[1],self.player.ids[0]
+        with self.assertRaisesRegex(TrialUnavailable,'external-queue-change'):trial.observe()
+
     def test_batch_insert_preserves_current_and_existing_suffix(self):
         trial=self.make(500);trial.play([1,500],confirmed=True)
         trial.edit('next',list(range(2,432)))

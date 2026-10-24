@@ -632,3 +632,37 @@ Production and pushes untouched. Candidate15 is retained, not deployed/accepted.
 The project outcome and new expanded-trial release JSON record exact private
 checkpoint locations. A new risk decision is required for HP library repair
 and bounded in-process retesting; M3 remains incomplete.
+
+## Approved repair and in-process retest — 2026-10-23
+
+Jason approved the HP repair and bounded retest. All 23 original song credits
+were blank, so the repair restores only Kodi's canonical `[Missing Tag]` artist
+relation, following its 21.3 native policy; no performer inferred from titles
+or album artists. Exactly 23 rows inserted in `song_artist`, every other table
+hash unchanged at repair commit. Stopped Kodi briefly; private SQLite backup,
+independent rehearsal and off-device backup integrity/hash checks passed.
+Jellyfin/source tags, mappings, settings and production unchanged. This is not
+an automatic recurring repair: a future rebuild/sync should be re-audited.
+
+Retired bulk TCP test transport, not patched Kodi. Exact crash trigger remains
+unconfirmed; native in-process tests have no unexpected restart. The first
+complete repaired run passed 16,348 exact eligible IDs / 765 holiday exclusions
+but took 624.8s. Candidate17 reads the bounded queue in one page rather than
+repeated full-list copies per 500-item page, retaining both complete matching
+reads, exact order, 200-item write ceiling and external-state refusal. Retest
+passed the same full order/membership and brief playback in 176.4s, plus replay,
+startup cancellation and native full-album/Back workflows. One GUI harness
+attempt encountered normal queue transition during Stop; fixed only that wait,
+retained failure record, then reran successfully.
+
+Unknown-tag placeholders remain uncredited in the UI, not real artist counts.
+127 v2 tests, 144 unchanged v1 tests and ten focus checks pass. Candidate17 is
+HP-only, default read-only; global Shuffle All remains an eligibility preview
+pending acceptable loading behaviour. The project record contains exact hashes,
+memory/RPC timings and private checkpoints. No production changes or pushes.
+
+176.4s is still not acceptable button-to-audio latency. Next owner decision is
+a narrowly bounded progressive-shuffle trial (small verified starting batch,
+controlled background append, cancellation joins before Stop/restore), with the
+existing ID-only and write ceilings retained. No physical listening/remote/soak
+acceptance or M3 graduation is implied by these transport/correctness tests.

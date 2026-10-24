@@ -1,48 +1,48 @@
 """Approved HP-only full-album/shuffle test. Run over SSH, never production.
 
+Launch inside Kodi with --in-process; TCP stress transport is retired.
 Starts idle/empty, checkpoints before writes, plays brief samples, restores the
 empty queue. No titles, song IDs, URLs or credentials are printed to stdout.
 """
-import codecs
 import hashlib
 import json
 import os
 from pathlib import Path
 import resource
-import socket
 import sys
 import threading
 import time
 
 assert os.uname().nodename=='AsterTV','HP only'
-sys.path.insert(0,'/storage/.kodi/addons/script.astermusic.v2lab/resources/lib')
+assert '--in-process' in sys.argv,'Bulk TCP harness retired after crash; launch inside Kodi only'
+sys.dont_write_bytecode=True
+LIB='/storage/.kodi/addons/script.astermusic.v2lab/resources/lib'
+if '--candidate15-libs' in sys.argv:
+    LIB='/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/candidate15-retained-after-crash/resources/lib'
+sys.path.insert(0,LIB)
 from music_album import read_album
 from music_catalogue import read_catalogue
 from music_expanded_trial import ExpandedTrial,TrialCancelled,save_intent
 from music_queue import nonholiday_shuffle
 from music_trial import save_empty_checkpoint,validate_write
-from queue_reader import read_queue
+from queue_reader import read_queue as read_queue_base
 
 READS={'AudioLibrary.GetAlbums','AudioLibrary.GetArtists','AudioLibrary.GetSongs',
        'Player.GetActivePlayers','Player.GetProperties','Player.GetItem','Playlist.GetItems'}
+metrics={}
+
+
+def read_queue(transport):return read_queue_base(transport,page_size=20000)
 
 
 def rpc(method,params=None):
-    with socket.create_connection(('127.0.0.1',9090),timeout=30) as connection:
-        connection.sendall((json.dumps({'jsonrpc':'2.0','id':1,'method':method,'params':params or {}})+'\n').encode())
-        raw='';decoder=codecs.getincrementaldecoder('utf-8')()
-        while True:
-            part=connection.recv(65536)
-            if not part:raise RuntimeError('RPC closed')
-            raw+=decoder.decode(part)
-            while raw.strip():
-                raw=raw.lstrip()
-                try:reply,end=json.JSONDecoder().raw_decode(raw)
-                except ValueError:break
-                raw=raw[end:]
-                if reply.get('id')==1:
-                    if 'error' in reply:raise RuntimeError('RPC failed')
-                    return reply['result']
+    import xbmc
+    start=time.monotonic()
+    reply=json.loads(xbmc.executeJSONRPC(json.dumps({'jsonrpc':'2.0','id':1,'method':method,'params':params or {}})))
+    item=metrics.setdefault(method,{'calls':0,'seconds':0})
+    item['calls']+=1;item['seconds']+=time.monotonic()-start
+    if 'error' in reply:raise RuntimeError('RPC failed')
+    return reply['result']
 
 
 def available():
@@ -163,6 +163,7 @@ try:
         minimum[0]=min(minimum[0],available());assert minimum[0]>=512*1024,'low-memory-stop'
         if done//2000>count[0]:
             count[0]=done//2000;print('Shuffle staged:',done,'/',total,flush=True)
+            private(run/('progress-'+str(done)+'.json'),{'done':done,'total':total,'available_kib':minimum[0]})
     player=trial('shuffle',progress=progress);start=time.monotonic()
     try:
         player.play(ids,confirmed=True);sample(player)
@@ -170,11 +171,12 @@ try:
         elapsed=round(time.monotonic()-start,2)
         results.append({'test':'full_nonholiday_shuffle','tracks':len(ids),'excluded':len(allowed)-len(ids),
                         'seconds':elapsed,'minimum_available_kib':minimum[0],
-                        'harness_peak_rss_kib':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+                        'kodi_process_peak_rss_kib':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
                         'order_sha256':hashlib.sha256(json.dumps(ids).encode()).hexdigest(),'passed':True})
         print('PASS full shuffle exact membership/order, exclusions and brief playback:',len(ids),'tracks;',elapsed,'seconds',flush=True)
     finally:player.close()
 finally:
     assert not rpc('Player.GetActivePlayers') and read_queue(rpc)==baseline,'recovery required'
-    private(run/'results.json',{'results':results,'original_queue_restored':True})
+    private(run/'results.json',{'results':results,'original_queue_restored':True,'transport':'in-process',
+                               'rpc_metrics':metrics})
     print('Verified: HP idle, original empty queue restored; private intent and evidence retained',flush=True)

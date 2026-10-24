@@ -31,6 +31,17 @@ class FakeLibrary:
 
 
 class CatalogueTests(unittest.TestCase):
+    def test_canonical_missing_tag_is_not_a_named_artist_credit(self):
+        fake=FakeLibrary();fake.data['artists'][0]['label']='[Missing Tag]'
+        fake.data['songs'][0]['artistid']=[1]
+        result=read_catalogue(fake)
+        rock=next(row for row in result.categories() if row['label']=='Rock & Alternative')
+        self.assertEqual(rock['uncredited_song_count'],1)
+        self.assertEqual(rock['artist_count'],0)
+        self.assertEqual(result.songs[1]['artistid'],[1])
+        self.assertIn(1,result.shuffle_summary['eligible_ids'])
+        self.assertEqual(result.browse('Rock & Alternative','song')['uncredited_song_count'],1)
+
     def test_live_boundary_only_calls_read_only_music_methods(self):
         fake=FakeLibrary(); before=copy.deepcopy(fake.data)
         result=read_catalogue(fake,page_size=2)

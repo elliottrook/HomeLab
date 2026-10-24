@@ -195,5 +195,16 @@ class RuntimeTests(unittest.TestCase):
         self.gui.Dialog.assert_not_called()
         self.xbmc.executeJSONRPC.assert_not_called()
 
+    def test_expired_capability_is_rechecked_before_native_queue_write(self):
+        window=self.runtime.AlbumLab();window.allowed=(1,)
+        def construct(transport,*args,**kwargs):
+            transport('Playlist.Add',{'playlistid':0,'item':[{'songid':1}]})
+            raise AssertionError('expired grant reached native writer')
+        with patch.object(self.runtime,'live_grant',side_effect=[((1,),3),((),3)]),\
+             patch.object(self.runtime,'ExpandedTrial',side_effect=construct):
+            window.live('append',(1,))
+        self.assertIn('trial-capability-expired',window.props['Album.Status'])
+        self.xbmc.executeJSONRPC.assert_not_called()
+
 
 if __name__=='__main__':unittest.main()

@@ -2,12 +2,17 @@
 
 No player/queue writes; leaves an ordered album open for visual review.
 """
-import codecs,json,socket,subprocess,time
+import codecs,json,socket,subprocess,time,sys
 from pathlib import Path
 assert Path('/etc/hostname').read_text().strip()=='AsterTV','HP only'
 
 
 def rpc(method,params=None):
+    if '--in-process' in sys.argv:
+        import xbmc
+        reply=json.loads(xbmc.executeJSONRPC(json.dumps({'jsonrpc':'2.0','id':1,'method':method,'params':params or {}})))
+        assert 'error' not in reply,'RPC failed'
+        return reply['result']
     with socket.create_connection(('127.0.0.1',9090),timeout=20) as connection:
         connection.sendall((json.dumps({'jsonrpc':'2.0','id':1,'method':method,'params':params or {}})+'\n').encode())
         raw='';decoder=codecs.getincrementaldecoder('utf-8')()
@@ -77,5 +82,9 @@ until(lambda:not label('Window(Home).Property(AsterV2Lab.AlbumWindow)') and focu
 select();until(album_open,'reopen ordered album retains safe entry')
 assert not rpc('Player.GetActivePlayers')
 assert before==rpc('Playlist.GetItems',{'playlistid':0})
+if '--in-process' in sys.argv:
+    p=Path('/storage/.aster-checkpoints/aster-music-artist-repair-20261023')/('native-album-readonly-'+str(time.time_ns())+'.json')
+    with p.open('x') as f:json.dump({'passed':True,'queue_unchanged':True,'transport':'in-process'},f)
+    p.chmod(0o600)
 subprocess.run(['kodi-send','--action=TakeScreenshot(/storage/.aster-staging/aster-v2-album-preview.png)'],check=True,stdout=subprocess.DEVNULL)
 print('PASS no playback or queue change; album left open for visual review',flush=True)

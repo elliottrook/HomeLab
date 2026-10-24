@@ -7,7 +7,7 @@ class QueueUnavailable(ValueError):
 
 
 def read_queue(rpc, *, page_size=500):
-    if type(page_size) is not int or not 1 <= page_size <= 1000:
+    if type(page_size) is not int or not 1 <= page_size <= 20000:
         raise QueueUnavailable('invalid-queue-read-options')
 
     def read(method, params=None):
