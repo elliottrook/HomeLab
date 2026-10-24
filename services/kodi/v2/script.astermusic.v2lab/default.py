@@ -5,6 +5,7 @@ import platform
 import sys
 import time
 import traceback
+import threading
 
 import xbmc
 import xbmcgui
@@ -17,6 +18,7 @@ from music_album import AlbumUnavailable, read_album
 from music_queue import propose
 from queue_reader import QueueUnavailable, read_queue
 from music_trial import TrialPlayer,TrialUnavailable,capability,save_empty_checkpoint,validate_write
+from music_expanded_trial import ExpandedTrial,TrialCancelled,expanded_capability,save_intent
 
 ASSETS = 'special://home/addons/skin.asterhome/media/'
 READS = {'AudioLibrary.GetAlbums','AudioLibrary.GetArtists','AudioLibrary.GetSongs',
@@ -44,7 +46,11 @@ def trial_directory():
 
 
 def live_ids():
-    return capability(trial_directory()/'live-trial.json',host=platform.node(),now=time.time())
+    return live_grant()[0]
+
+
+def live_grant():
+    return expanded_capability(trial_directory()/'live-trial.json',host=platform.node(),now=time.time())
 
 
 def load_catalogue():
@@ -73,6 +79,7 @@ class AlbumLab(xbmcgui.WindowXML):
         super().__init__(*args,**kwargs)
         self.selection=None; self.title=''; self.artwork='';self.allowed=();self.trial=None;self.finished=False
         self.dialog_open=False;self.back_guard_until=0
+        self.queue_limit=3
 
     def dialog(self,method,*args):
         # Native Back may also reach the underlying WindowXML callback while
@@ -98,8 +105,8 @@ class AlbumLab(xbmcgui.WindowXML):
         self.setProperty('Album.Live','true' if self.allowed else 'false')
         self.setProperty('Album.Help','Preview only · select a track for its queue options. Back returns to the same album tile. No playback or queue changes.')
         if self.allowed:
-            self.setProperty('Album.Status','HP live trial · at most three approved songs · Back stops and restores the original empty queue')
-            self.setProperty('Album.Help','Live test: only the three approved tracks. OK opens track actions. Replace needs confirmation; stop before replacing. Back stops this trial and restores the original queue.')
+            self.setProperty('Album.Status',f'HP live trial · {len(self.allowed)} approved tracks · Back stops and restores the original empty queue')
+            self.setProperty('Album.Help','Live test: approved tracks only. OK opens track actions. Replace needs confirmation; stop before replacing. Back stops this trial and restores the original queue.')
             for control,left,width,label in ((401,470,110,'Next'),(402,600,110,'Add'),(403,730,110,'Replace')):
                 self.getControl(control).setPosition(left,930);self.getControl(control).setWidth(width);self.getControl(control).setLabel(label)
         items=[]
@@ -140,7 +147,7 @@ class AlbumLab(xbmcgui.WindowXML):
                 if not 0<=index<len(self.selection.tracks):return
                 identity=self.selection.tracks[index].song_id
                 if identity not in self.allowed:
-                    self.dialog('ok','Bounded HP trial','This track is outside the three approved test songs. No changes made.');return
+                    self.dialog('ok','Bounded HP trial','This track is outside the approved test selection. No changes made.');return
                 option=self.dialog('select','This track',['Play this track','Play Next','Add to Queue','Replace Queue'])
                 if option in (0,1,2,3):self.live(('play','next','append','replace')[option],(identity,))
             return
@@ -171,16 +178,20 @@ class AlbumLab(xbmcgui.WindowXML):
                 if action in ('stop','pause','resume'):return
                 def transport(method,params):
                     if method in READS:return rpc(method,params)
-                    validate_write(method,params,self.allowed)
+                    validate_write(method,params,self.allowed,queue_limit=self.queue_limit)
                     xbmc.log('AsterMusicTrial write='+method,xbmc.LOGINFO)
                     return execute(method,params)
-                self.trial=TrialPlayer(transport,self.allowed,lambda snapshot:save_empty_checkpoint(
-                    trial_directory()/f'queue-checkpoint-{time.time_ns()}.json',snapshot))
-            if action=='play':self.trial.play(ids,confirmed=confirmed)
+                stamp=time.time_ns()
+                self.trial=ExpandedTrial(transport,self.allowed,lambda snapshot:save_empty_checkpoint(
+                    trial_directory()/f'queue-checkpoint-{stamp}.json',snapshot),queue_limit=self.queue_limit,
+                    intent=lambda snapshot,**kw:save_intent(trial_directory()/f'queue-intent-{stamp}.json',snapshot,**kw))
+            if action=='play':self.start_cancellable(ids,confirmed)
             elif action in ('pause','resume'):self.trial.pause(action=='resume')
             elif action=='stop':self.trial.stop()
             else:self.trial.edit(action,ids,confirmed=confirmed)
             self.setProperty('Album.Status','HP trial · '+action+' completed · Back stops and restores the original queue')
+        except TrialCancelled:
+            self.setProperty('Album.Status','Start cancelled · playback stopped and original empty queue restored')
         except (TrialUnavailable,QueueUnavailable,ValueError,OSError) as error:
             message={'replacement-confirmation-required':'Replacement was not confirmed.',
                      'stop-before-replace':'Stop this trial before replacing its queue.',
@@ -190,6 +201,28 @@ class AlbumLab(xbmcgui.WindowXML):
                      'external-queue-change':'The queue changed outside this trial. No further queue changes will be made.'}.get(str(error),'The live trial could not complete safely. Stop testing and retain the checkpoint.')
             self.setProperty('Album.Status','Trial action refused · '+str(error))
             self.dialog('ok','Aster Music trial',message)
+
+    def start_cancellable(self,ids,confirmed):
+        """Only the main thread touches GUI; never abandon an in-flight writer."""
+        progress=xbmcgui.DialogProgress();progress.create('Starting Aster Music','Preparing the verified album queue. Back cancels this start.')
+        errors=[];counts=[0,len(ids)];self.dialog_open=True
+        self.trial.cancel.clear()
+        self.trial.progress=lambda done,total:counts.__setitem__(slice(None),[done,total])
+        def work():
+            try:self.trial.play(ids,confirmed=confirmed)
+            except Exception as error:errors.append(error)
+        worker=threading.Thread(target=work,name='AsterMusicStart')
+        try:
+            worker.start()
+            while worker.is_alive():
+                if progress.iscanceled() or xbmc.Monitor().abortRequested():self.trial.cancel.set()
+                progress.update(min(99,int(counts[0]*100/max(1,counts[1]))),
+                    'Cancelling safely…' if self.trial.cancel.is_set() else 'Preparing queue · '+str(counts[0])+' / '+str(counts[1]))
+                xbmc.sleep(50)
+            worker.join()
+            if errors:raise errors[0]
+        finally:
+            progress.close();self.dialog_open=False;self.back_guard_until=time.monotonic()+.3
 
     def close(self):
         xbmc.log('AsterMusicTrial close='+','.join(frame.name for frame in traceback.extract_stack(limit=3))+' finished='+str(self.finished),xbmc.LOGINFO)
@@ -338,6 +371,7 @@ class MusicLab(xbmcgui.WindowXML):
         window=AlbumLab('AlbumLab.xml',str(ROOT),'Default','1080i')
         window.selection=selection;window.title=row.get('label','Album');window.artwork=self.art(row)
         window.allowed=tuple(i for i in selection.song_ids if i in live_ids())
+        window.queue_limit=live_grant()[1]
         try:window.doModal()
         finally:
             window.close()  # Also clean up when Kodi navigates away globally.

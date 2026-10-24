@@ -1,0 +1,40 @@
+{
+  "addon_id": "script.astermusic.v2lab",
+  "version": "0.1.0",
+  "status": "expanded-trial-held-after-kodi-crash-rolled-back-to-candidate13",
+  "source_candidate_directory": "services/kodi/dist/aster-music-v2lab-0.1.0-candidate15",
+  "source_candidate_sha256": "829eb4002eea73be60a5fe9dcde3249bbb60c5f590ab17917183f99314e717d7",
+  "source_candidate_file_count": 13,
+  "active_candidate": 13,
+  "active_sha256": "7cd0a17e7774e8c66a12d6b2b67146414b486d8cf437ab36887237af1f928be7",
+  "boundary": "Approved expanded HP-only add-on/profile trial; database and vendor repairs excluded; live testing now held for new risk decision; no production or Git remote writes",
+  "validation": {
+    "v2_tests": 118,
+    "unchanged_v1_tests": 144,
+    "focus_checks": 10,
+    "passed": [
+      "Full eleven-track album order, player identity and advancing clock",
+      "Candidate14 cancellation before and after Open restores empty queue",
+      "Native progress Back cancellation, subsequent full-album start, Back stop and originating tile",
+      "Candidate15 durable saved intent and explicit confirmed replay after Jellyfin Stop"
+    ],
+    "not_passed": [
+      "Full 16348-item holiday-excluding live shuffle: first catalogue batch omitted one missing-artist-link song",
+      "Broader candidate15 repeated-album cancellation: Kodi SIGSEGV in TCP JSON-RPC announcement code; exact trigger unconfirmed",
+      "Whole-library performance/soak, physical remote and human listening acceptance"
+    ],
+    "library_audit": {
+      "indexed_songs": 17113,
+      "missing_primary_song_artist_relations": 23,
+      "dangling_artist_references": 0,
+      "database_modified": false
+    },
+    "recovery": "Owned 199-item partial batch verified and cleared; candidate13 restored and 12 member hashes verified; independent Mac recovery ZIP member hashes verified; candidate15 and private evidence retained",
+    "preservation": "153 v1 files and 68 AV/language values match; no production contact, vendor/keymap/settings edits or remote Git writes",
+    "final_state": "HP Kodi active, one automatic restart after crash, ordinary Home, no player, original empty queue, no temporary grant/recovery flag"
+  },
+  "checkpoint_directory": "/storage/.aster-checkpoints/aster-music-expanded-trial-20261023",
+  "rollback_evidence": "/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/rollback-complete.json",
+  "crash_report_private": "/storage/.kodi/temp/kodi_crashlog_20261023222828.log",
+  "next_gate": "New explicit HP-only risk decision for checkpointed primary-artist-link repair using verified metadata and bounded in-process retest; no production promotion or vendor changes"
+}

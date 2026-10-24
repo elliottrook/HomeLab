@@ -412,6 +412,35 @@ not a passed claim. All failed attempts had capabilities removed and empty queue
 restoration independently verified before continuation; no last recovery copy
 was removed or unrelated queue overwritten.
 
+#### Approved broader HP Music testing — 2026-10-23
+
+Jason approved expanding the HP-only trial to full albums, holiday-excluding
+full-catalogue shuffle, recoverable queue backups and startup cancellation
+hardening. This supersedes the earlier three-ID test ceiling only for the
+current isolated HP Music candidate. Production and all Git pushes stay held.
+Normal listening-history effects of short test samples remain accepted; do not
+play the entire catalogue unattended or edit source tags/server history manually.
+
+Enumerated implementation/test changes: extend the expiring HP-local grant to
+the verified indexed song-ID set, cap its queue at 20,000 items, populate in
+batches of at most 200, retain private atomic queue-intent/checkpoint records,
+test explicit replay of intent after Jellyfin Stop, and add cancellable startup
+within the isolated add-on. Profile files and the lab add-on are the only write
+targets. No Jellyfin patches, existing keymap edits, services or infrastructure.
+
+Before each live run require idle/empty queue, verified checkpoint and prior
+package recovery, no foreign player and at least 512 MiB available memory. Record
+queue timings/resource use and exact membership/order. Abort further staging on
+low memory or unexpected state; stop only owned test playback and restore the
+known baseline. Requests/pending writes are not transactional: retain intent and
+halt rather than overwriting an unknown queue or retrying an uncertain write.
+Startup cancellation must either prevent Open or wait for its owned outcome and
+clean up; never leave an unresolved writer running while starting another test.
+Metadata-only source operations remain read-only; no cloud exports or new speech.
+Any need for keymap/vendor changes, failed recovery or broader resource impact
+requires Jason rather than treating this approval as unrestricted admin access.
+
+Prior three-song trial evidence, before the expanded trial below:
 107 v2 tests plus all 144 unchanged v1 tests and ten focus checks pass. All 153
 installed v1 files and 68 selected AV/language settings hash-match; Kodi active,
 zero automatic restarts. Pre-trial eleven-file ZIP restore verified independently
@@ -425,3 +454,58 @@ were explicitly accepted and are not rolled back. Next gate is broader HP-only
 full-album/full-catalogue shuffle/performance testing, with recoverable queue
 intent and startup cancellation work; this first three-ID approval is not an
 unbounded live-playback grant. Scope expansion/promotion and all pushes stay held.
+
+#### Expanded trial outcome and hold — 2026-10-23
+
+Implemented local candidate14/15: explicitly bounded grants (20,000 total,
+200 IDs per write), complete two-read queue verification after each batch,
+private atomic queue-intent journals, explicit confirmed replay after Stop,
+and native cancellable startup. No silent automatic replay or skipped songs.
+118 v2 unit tests, all 144 unchanged v1 tests and ten focus checks pass.
+
+HP evidence: full 11-track Cranberries album queued in disc/track order and
+played with advancing clock. Candidate14 passed cancellation both during staging
+and immediately after accepted Open, restoring the original empty queue. Native
+`live_startup_cancel.py` passed actual progress-dialog Back cancellation, a
+subsequent normal full-album start and Back stop/origin-tile restoration. Candidate15
+also verified durable intent and explicit replay after Jellyfin's delayed Stop
+cleanup. These are bounded samples, not a soak or listening-quality acceptance.
+
+Two blockers prevent graduation:
+
+1. The first 200-ID catalogue batch yielded exactly 199 items: one known song
+   with an unavailable primary artist relationship was omitted by Kodi. No
+   unexpected IDs/order changes. Read-only SQLite audit of HP `MyMusic83.db`
+   finds **23 songs lacking primary song_artist relations**, zero dangling
+   artist references. The diagnostic batch was checkpointed, provenance/order
+   verified and only that owned idle batch cleared; original empty queue was
+   independently restored. Do not claim the full 16,348-item holiday-excluding
+   shuffle passed or silently exclude these records. Library repair is outside
+   this add-on/profile-only authorization.
+2. During candidate15's larger repeated-album cancellation test Kodi crashed
+   (SIGSEGV, service exit 139, one automatic restart). Its crash report's top
+   frame is `JSONRPC::CTCPServer::Announce`. The harness uses TCP JSON-RPC with
+   per-request connections; the exact crash trigger/cause is not established.
+   Do not conflate passing native in-process cancellation with a crash-free
+   bulk TCP test, change vendor Kodi, or resume live stress tests without a new
+   explicit risk decision. Report: private
+   `/storage/.kodi/temp/kodi_crashlog_20261023222828.log`.
+
+Stop-on-surprise was applied. HP isolated add-on rolled back to known candidate13;
+all 12 hashes verified against its recovery ZIP, also independently copied to
+the Mac and all member hashes checked. Candidate15 and all intent/checkpoint/
+crash evidence retained. Kodi is active on ordinary Home, original queue empty,
+no player/capability/recovery flag; all 153 v1 files and 68 AV/language values
+still match. No production contact, database repair, Jellyfin/keymap/settings
+change, intentional service restart or remote Git write. Source candidate15 is
+retained locally but **not active/accepted**. M3 remains open.
+
+Private evidence root:
+`/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/`:
+`before-candidate14`, `before-candidate15`, per-run intent/baseline records,
+verified partial-batch recovery and `rollback-complete.json`. Latest release
+record: `services/kodi/v2/releases/music-v2lab-expanded-trial-0.1.0.json`.
+Next decision: separately authorize a checkpointed HP-only primary-artist-link
+repair using verified metadata (no guessed credits), plus bounded retesting
+through Kodi's in-process interface rather than the bulk TCP harness. This is
+not production promotion or permission to patch Kodi/Jellyfin. Forgejo hold stays.

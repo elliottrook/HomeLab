@@ -601,3 +601,34 @@ acceptance, implement durable queue intent compatible with Jellyfin Stop, harden
 startup/loading cancellation, finish now-playing/seek/output/queue controls and
 obtain physical remote/listening/sofa evidence. This bounded pass does not close
 M3 or authorize production promotion, 16,348-item stress writes or a Git push.
+
+## Expanded Music trial — held after recovery, 2026-10-23
+
+Jason subsequently approved HP-only full albums, full nonholiday shuffle,
+queue-intent checkpoints and startup-cancellation hardening. Candidate14/15
+adds exact batched writes, 20,000-item total/200-item request ceilings,
+private atomic ID-only intent and explicit replay, plus a native cancellable
+startup dialog with joined RPC worker (no abandoned writer/GUI calls in worker).
+118 v2 tests + 144 unchanged v1 tests + ten focus checks pass locally.
+
+Verified on HP: 11-track album order/playback/clock; cancellation before/after
+Open; native startup Back cleanup, normal full-album start and Back return to
+the same tile; explicit saved-intent replay following Jellyfin Stop. No human
+listening/physical-remote acceptance claim, and full shuffle did not pass.
+
+The broader test exposed two gates: one of the first 200 catalogue IDs cannot
+be queued by Kodi; the HP music database has 23 songs without a primary artist
+relationship. No records/tags were repaired or silently excluded. The proven
+199-item owned batch was checkpointed and safely cleared. Separately, the
+candidate15 repeated-album cancellation harness caused a Kodi SIGSEGV; top
+frame is TCP JSON-RPC announcement code, exact cause unconfirmed. Native
+in-process cancellation passed, but this is not proof bulk operations are safe.
+
+Live testing stopped. HP is rolled back to candidate13 (12 member hashes and
+off-device recovery ZIP verified), idle/empty at Home, no capability or recovery
+flag. All 153 v1 files and 68 AV/language settings unchanged. One automatic Kodi
+restart occurred; zero-restart evidence above refers to the earlier trial only.
+Production and pushes untouched. Candidate15 is retained, not deployed/accepted.
+The project outcome and new expanded-trial release JSON record exact private
+checkpoint locations. A new risk decision is required for HP library repair
+and bounded in-process retesting; M3 remains incomplete.

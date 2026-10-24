@@ -49,17 +49,19 @@ def save_empty_checkpoint(path, snapshot):
     return True
 
 
-def validate_write(method, params, allowed):
+def validate_write(method, params, allowed, *, queue_limit=3):
     """Reject paths, unrelated playlists/players, extra options and >3 items."""
+    if type(queue_limit) is not int or not 1<=queue_limit<=20000:
+        raise TrialUnavailable('trial-write-denied')
     if not isinstance(params,dict):raise TrialUnavailable('trial-write-denied')
     if method in ('Playlist.Add','Playlist.Insert'):
         keys={'playlistid','item'} | ({'position'} if method=='Playlist.Insert' else set())
         if set(params)!=keys or type(params['playlistid']) is not int or params['playlistid']!=0:
             raise TrialUnavailable('trial-write-denied')
-        if method=='Playlist.Insert' and (type(params['position']) is not int or not 0<=params['position']<=3):
+        if method=='Playlist.Insert' and (type(params['position']) is not int or not 0<=params['position']<=queue_limit):
             raise TrialUnavailable('trial-write-denied')
         items=params['item']
-        if (not isinstance(items,list) or not 1<=len(items)<=3 or
+        if (not isinstance(items,list) or not 1<=len(items)<=min(queue_limit,200) or
                 any(not isinstance(row,dict) or set(row)!={'songid'} or
                     type(row['songid']) is not int or row['songid'] not in allowed for row in items)):
             raise TrialUnavailable('trial-write-denied')
@@ -70,7 +72,7 @@ def validate_write(method, params, allowed):
         item=params.get('item')
         if (set(params)!={'item'} or not isinstance(item,dict) or set(item)!={'playlistid','position'}
                 or type(item['playlistid']) is not int or item['playlistid']!=0
-                or type(item['position']) is not int or not 0<=item['position']<3):
+                or type(item['position']) is not int or not 0<=item['position']<queue_limit):
             raise TrialUnavailable('trial-write-denied')
     elif method in ('Player.Stop','Player.PlayPause'):
         keys={'playerid','play'} if method=='Player.PlayPause' else {'playerid'}
@@ -81,10 +83,12 @@ def validate_write(method, params, allowed):
 
 
 class TrialPlayer:
-    def __init__(self,rpc,allowed,checkpoint,*,sleep=time.sleep):
+    def __init__(self,rpc,allowed,checkpoint,*,sleep=time.sleep,queue_limit=3):
         self.lock=threading.RLock()
-        self.rpc=rpc;self.allowed=identities(allowed,allow_empty=False);self.sleep=sleep
-        if len(self.allowed)>3 or len(set(self.allowed))!=len(self.allowed):
+        self.rpc=rpc;self.allowed=frozenset(identities(allowed,allow_empty=False));self.sleep=sleep
+        self.queue_limit=queue_limit
+        if (type(queue_limit) is not int or not 1<=queue_limit<=20000
+                or len(allowed)>queue_limit or len(self.allowed)!=len(allowed)):
             raise TrialUnavailable('three-song-capability-required')
         self.baseline=read_queue(rpc)
         if self.baseline.song_ids or self.baseline.current_index is not None:
@@ -107,7 +111,7 @@ class TrialPlayer:
         return state
 
     def write(self,method,params):
-        validate_write(method,params,self.allowed)
+        validate_write(method,params,self.allowed,queue_limit=self.queue_limit)
         try:return self.rpc(method,params)
         except Exception:raise TrialUnavailable('trial-write-outcome-uncertain') from None
 
