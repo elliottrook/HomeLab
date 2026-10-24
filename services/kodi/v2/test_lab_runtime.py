@@ -47,6 +47,43 @@ class RuntimeTests(unittest.TestCase):
         for source in tools:
             with self.subTest(tool=source.name):ast.parse(source.read_text(),filename=str(source))
 
+    def test_integrated_entries_require_hp_normal_mode_and_valid_id(self):
+        with patch.object(self.runtime,'load_catalogue') as load:
+            self.runtime.main(['album','12),PlayMedia(x)'])
+            with patch.object(self.runtime.platform,'node',return_value='AsterTVProd'):
+                self.runtime.main(['song','12'])
+            with patch.object(self.runtime.platform,'node',return_value='AsterTV'):
+                self.runtime.main(['album','12'])
+            load.assert_not_called()
+
+    def test_integrated_album_uses_complete_indexed_ids_and_never_autoplays(self):
+        view=read_catalogue(FakeLibrary());selection=Mock(song_ids=(1,),tracks=(Mock(),))
+        native=Mock()
+        with patch.object(self.runtime,'read_album',return_value=selection) as read,\
+             patch.object(self.runtime,'AlbumLab',return_value=native),\
+             patch.object(self.runtime,'run_owned_window') as show:
+            self.runtime.integrated_selection(view,'album',1)
+            read.assert_called_once_with(self.runtime.rpc,1,[1])
+            self.assertEqual(native.allowed,(1,));self.assertEqual(native.queue_limit,20000)
+            show.assert_called_once_with(native)
+        self.assertNotIn('Player.Open',[json.loads(c.args[0])['method'] for c in self.xbmc.executeJSONRPC.call_args_list])
+
+    def test_integrated_unknown_song_refuses_before_any_player_window(self):
+        view=read_catalogue(FakeLibrary())
+        with patch.object(self.runtime,'AlbumLab') as native:
+            with self.assertRaises(self.runtime.SelectionUnavailable):self.runtime.integrated_selection(view,'song',999)
+            native.assert_not_called()
+
+    def test_direct_shuffle_does_not_close_an_unshown_browser_over_source_page(self):
+        controller=Mock();home=Mock();home.getProperty.return_value=''
+        view=read_catalogue(FakeLibrary())
+        with patch.object(self.gui,'Window',return_value=home),\
+             patch.object(self.runtime,'load_catalogue',return_value=(view,None)),\
+             patch.object(self.runtime,'MusicLab',return_value=controller):
+            self.runtime.admitted_main('shuffle',None)
+        controller.open_shuffle.assert_called_once_with(20000,return_to_browser=False)
+        controller.close.assert_not_called();controller.doModal.assert_not_called()
+
     def test_native_safety_checks_survive_optimized_kodi_python(self):
         for source in (HERE/'tools').glob('*.py'):
             tree=ast.parse(source.read_text(),filename=str(source))
@@ -189,7 +226,7 @@ class RuntimeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as one,tempfile.TemporaryDirectory() as two:
             first=build(one);second=build(two)
             self.assertEqual(first['sha256'],second['sha256'])
-            self.assertEqual(len(first['files']),44)
+            self.assertEqual(len(first['files']),47)
             self.assertTrue(all(r['path'].startswith('script.astermusic.v2lab/') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_queue.py') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_album.py') for r in first['files']))

@@ -40,6 +40,7 @@ stage=Path('/storage/.aster-staging');addons=Path('/storage/.kodi/addons')
 baseline=json.loads((stage/'aster-artist-repair-v1-baseline-20261023.json').read_text())
 rows=[row for archive in baseline['archives'] for row in archive['files']]
 _require((len(rows)==153), ('native-check-failed'))
+base_paths={row['path'] for row in rows}
 overlay_file=Path('/storage/.aster-checkpoints/aster-floating-controls-20261024/overlay-manifest.json')
 overrides={}
 if overlay_file.exists():
@@ -48,6 +49,24 @@ if overlay_file.exists():
     overrides={'skin.asterhome/'+r['path']:r['sha256'] for r in overlay['files'] if r['path'].startswith('1080i/')}
     _require((len(overrides)==4), ('native-check-failed'))
     _require((all(hashlib.sha256((addons/'skin.asterhome'/r['path']).read_bytes()).hexdigest()==r['sha256'] for r in overlay['files'])), ('native-check-failed'))
+overlay_count=len(overrides)
+integration_file=Path('/storage/.aster-checkpoints/aster-music-integration-20261024/active-manifest.json')
+integration_count=0
+if integration_file.exists():
+    _require(len(sys.argv)==5,'integration-manifest-proof-required')
+    integration_sha=sys.argv[4]
+    _require(len(integration_sha)==64 and all(c in '0123456789abcdef' for c in integration_sha),'integration-sha')
+    _require(hashlib.sha256(integration_file.read_bytes()).hexdigest()==integration_sha,'integration-manifest-hash')
+    integration=json.loads(integration_file.read_text())
+    _require(integration.get('schema')==1 and integration.get('kind')=='hp-normal-music-integration','integration-kind')
+    expected_paths={'tools/music_data.py','tools/aster_v2_music.py','1080i/IncludesMusic.xml',
+        '1080i/custom_1113_music.xml','1080i/custom_1114_albums.xml','1080i/custom_1115_artists.xml',
+        '1080i/custom_1116_songs.xml','1080i/custom_1117_playlists.xml'}
+    _require(len(integration['files'])==8 and {r['path'] for r in integration['files']}==expected_paths,'integration-targets')
+    for row in integration['files']:
+        _require(hashlib.sha256((addons/'skin.asterhome'/row['path']).read_bytes()).hexdigest()==row['sha256'],'integration-member-hash')
+        overrides['skin.asterhome/'+row['path']]=row['sha256']
+    integration_count=8
 _require((all(hashlib.sha256((addons/row['path']).read_bytes()).hexdigest()==overrides.get(row['path'],row['sha256']) for row in rows)), ('native-check-failed'))
 manifest=json.loads((stage/f'aster-music-v2lab-0.1.0-candidate{candidate}/manifest.json').read_text())
 _require((manifest['sha256']==expected), ('native-check-failed'))
@@ -70,7 +89,8 @@ with output.open('x') as handle:
     json.dump({'candidate':candidate,'sha256':expected,'lab_files_verified':expected_count,
                'checks_enforced':True,'python_optimization':sys.flags.optimize,
                'music_shuffle_off':True,
-               'v1_files_verified':153-len(overrides),'approved_overlay_pages_verified':len(overrides),
+               'v1_files_verified':sum(row['path'] not in overrides for row in rows),'approved_overlay_pages_verified':overlay_count,
+               'approved_normal_music_files_verified':integration_count,
                'av_language_settings_verified':len(values),
                'database_integrity':'ok','missing_primary_artist_links':0,
                'no_player':True,'original_empty_queue':True,'capability_removed':True,

@@ -20,6 +20,7 @@ SHAPES={
     'add':'<path d="M12 18 H37 M12 32 H30 M12 46 H30 M45 31 V51 M35 41 H55"/>',
     'replace':'<path d="M12 23 H50 L42 15 M50 41 H14 L22 49"/>',
     'play-next':'<path d="M15 18 L35 32 L15 46 Z" fill="white" stroke="none"/><path d="M44 18 V46"/>',
+    'shuffle':'<path d="M12 19 H18 C29 19 35 45 46 45 H53 M46 38 L53 45 L46 52 M12 45 H18 C23 45 26 38 29 33 M35 25 C39 19 42 19 53 19 M46 12 L53 19 L46 26"/>',
 }
 
 def main():

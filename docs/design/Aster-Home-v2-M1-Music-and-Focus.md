@@ -1,7 +1,7 @@
 # Aster v2 M1 - music inventory and interaction contract
 
 Status: HP-only normal Music pilot with enforced playback/queue checks;
-physical remote/listening walkthrough and main-page integration pending,
+physical remote/listening walkthrough pending; main-page integration is active,
 2026-10-24. Historical inventory/design evidence below is dated 2026-10-23;
 the project's latest evidence/resume point governs deployed state. Governing project:
 [Aster Home v2](../projects/Aster-Home-Version-2.md).
@@ -822,6 +822,53 @@ retains the first failed transition test rather than claiming every attempt
 passed; exact initial filler error was not captured and remains unproven.
 Production remains independent and unchanged; physical remote/listening/sofa
 acceptance is not inferred from native dispatcher tests.
+
+## Current HP operator handover — 2026-10-24
+
+This section supersedes the historical expiring-grant instructions above.
+Only the HP lab uses the integrated v2 Music player; BOSGAME is unchanged.
+No new login is needed: Music uses the existing signed-in Jellyfin/Kodi index.
+
+1. Open **Music** from the normal side rail. The first page is still Recently
+   Added. Its header has Albums, Artists, Songs, Playlists, Genres and Shuffle
+   all. During loading, wait for the tiles and selection to become available.
+2. Select an album, song or indexed Jellyfin playlist with OK. This opens the
+   player without starting audio. Select a track or the floating Play icon;
+   replacing the queue requires confirmation. Artists still opens that
+   artist's albums. Local Kodi/smart playlists keep their original player.
+3. On the player, the focused icon's caption explains its action. Play/Pause,
+   Stop, Play Next, Add to Queue, Replace Queue and seek remain available.
+   The progress control supports a seek preview: Left/Right adjusts, OK
+   applies, and Back cancels the preview before a later Back exits.
+4. Genres opens seven truthful categories. Christmas remains browseable.
+   **Shuffle all** specifically excludes holiday-tagged tracks and albums;
+   it does not exclude songs merely because their titles contain “Holiday”.
+   Confirm to start; loading continues behind the player and Back cancels it.
+   Queue-page arrows browse the queue, not previous/next-song transport.
+5. Menu on a track offers track/queue actions. Menu on controls offers queue
+   shuffle, audio details, confirmed clear and Save queue to Jellyfin.
+   Saving creates a new private playlist for the current signed-in account,
+   not automatically for every household user. A confirmation is required;
+   duplicate names, overwrites and existing-playlist edits are refused.
+6. Back or Home from the full player stops its owned audio and cancels loading.
+   Back returns to the exact source tile, even if the source rows were reordered.
+   Home stays on Home. Returning to Music restores that source selection.
+
+Missing/incomplete selections are refused rather than played partially. If
+Music says recovery is required, retain the checkpoint and ask for inspection;
+do not clear an unknown queue or repeatedly start another player. “Music is
+already opening or open” prevents a second controller competing for playback.
+Normal Music entry still uses the existing bounded list/search limits; the
+new genre explorer and non-holiday shuffle validate the complete indexed
+catalogue. Neither retags source files nor changes saved playlists implicitly.
+
+Current deployment: Music candidate60 plus normal integration4. Private exact
+recovery lives under `/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/before-candidate60`
+and `/storage/.aster-checkpoints/aster-music-integration-20261024/` (original
+baseline and versioned revisions retained). Restore only verified affected
+files with Kodi stopped; do not replace credentials, AV settings or watch
+history. Native Back/Home workflows and all six headers passed; the physical
+G20 listening/sofa walkthrough and sustained-use acceptance remain outstanding.
 
 ## Accepted across v2 players — 2026-10-24
 

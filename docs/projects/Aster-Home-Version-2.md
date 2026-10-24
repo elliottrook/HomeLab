@@ -16,14 +16,16 @@
   Items 01-26 and 31-32 were selected; all unticked items are deferred.
 - HP (`192.168.1.140`) is the v2 lab. BOSGAME (`192.168.1.157`) stays on its
   accepted family-beta release until a separately approved promotion.
-- Current resume point (2026-10-24): HP isolated Music candidate58, 44 files,
-  SHA-256 `c1f42d9841170a02165b7ba9d6ed1710e424fe335f7768e465f4cd31e3709e18`;
-  candidate56 recovery retained. Lab test/restart authority reconfirmed by
-  Jason. Two native album queue-control passes, full 16,363-track fill,
-  durations, shared icon overlay, cached-art colour and progressive Home exit
-  revalidated with enforced checks, including startup cancellation/restart.
-  Normal-Music integration approval is pending; exact evidence/resume
-  instructions are at the end. M3 not graduated.
+- Current resume point (2026-10-24): HP Music candidate60, 47 files,
+  SHA-256 `d06ba493969ebea9628b97bed6a82490fd3a81a4a4c80746e5d8d9d1e5d74c5d`;
+  exact candidate59 recovery retained. Normal Music integration4 is active,
+  manifest `d25051c59d459313afd46ca05fd2db08dddf96d8dedcee23c0e9e32a61ed1674`.
+  Recently Added is retained, with direct album/song/server-playlist handoff,
+  Genres and non-holiday Shuffle. Explicit load-generation readiness prevents
+  late reloads resetting focus. Three full native passes succeed, including
+  Home exit and post-restart repeat; final preservation checks pass. Exact evidence and
+  recovery references are at the end. M3 not graduated; physical remote/listening
+  acceptance remains pending. Production is unchanged.
 - Up Next is urgent and extracted into the separate
   [v1.1 project](Aster-Home-Version-1.1-Up-Next.md); v2 consumes its accepted
   result, not another implementation or an excuse to delay it.
@@ -1706,3 +1708,226 @@ then implement/test HP-only. Do not replace the home page with a genres-only
 pilot or bypass context/ownership checks. Physical G20/listening/soak and any
 production promotion remain separate gates. No Git push was requested here;
 focused local commits are retained pending explicit synchronization approval.
+
+### 2026-10-24 — approved normal Music integration started
+
+Jason answered **Yes** to persistent HP normal-Music integration: use the new
+player, Genres and non-holiday Shuffle, preserving Recently Added; BOSGAME stays
+unchanged. This extends the existing Stream A lab scope only for this bounded
+Music integration. Git pushes and other service/identity gates remain excluded.
+
+Assessment: preserve the five existing Music list pages and their indexed
+queries/search/artist drilldown; change only their compact header and selected
+album/song/Jellyfin-playlist player handoff. Seven existing skin files are
+targets (`tools/music_data.py`, `1080i/IncludesMusic.xml`, and the five
+`custom_1113_music`–`custom_1117_playlists` XMLs); add one small
+`tools/aster_v2_music.py` adapter. V1 repository sources remain untouched;
+generate pinned overlays under v2. Existing local/smart Kodi playlist files
+retain their native resolution/player, not silently converted into server IDs.
+
+Handoffs carry only numeric indexed IDs or a canonical Jellyfin playlist GUID.
+Re-read/verify complete selection using the same v2 guards. Never autoplay an
+album/song/playlist; Shuffle still confirms. Host/normal-mode gates and a
+non-blocking local flock prevent production use or duplicate concurrent opens.
+Admission lock is not a replay grant; process death releases it. No new account,
+credential, network path, dependency, speech/TTS or direct server mutation.
+
+Main risks are wrong selection, lost source focus, partial skin activation and
+regression of playback ownership/exit behavior. Before activation verify idle
+queue/windows, source and candidate hashes, exact private recovery ZIP/files
+and isolated restoration. Stop Kodi for the small multi-file activation so
+half-installed navigation is never live, then restart/validate. Restore only
+the pinned changed files and retain the added helper recoverably on rollback;
+retain candidate58 addon recovery. Abort on drift or failed recovery proof.
+Test Recent/Albums/artist drilldown/Songs/Jellyfin playlists/Genres/Shuffle,
+non-first tile return, duplicate opens, confirmation/cancellation, Back/Home,
+unsupported IDs, and all original AV/DB/skin/playlist preservation. Physical
+remote/listening/soak and production promotion remain separate gates.
+
+Candidate59 adds ID-only entries and the shared owner loop, normal-source
+Shuffle entry and the admission lock; 47 files, SHA-256
+`65967e1bbe991c28c2358c1a46a2c955a06446fb66534721ae549c569f34d2d6`.
+277 local tests pass. First install/test it in isolation with candidate58
+recovery before activating the generated normal-page overlay. Existing Kodi
+health/monitoring ownership remains; no host inventory or firewall change.
+
+Candidate59 installed with exact candidate58 recovery. Enforced isolated
+`playlist-player-1792872115666275475.json` passes all 16 playlist mappings,
+durations, no autoplay, scrub/shuffle/direct-track/queue Menu groups and exit.
+Preservation `postcheck-1792872280440458159.json` passed before normal activation.
+
+Generated normal integration1 manifest SHA-256
+`451ea65d8a3979fb0309eeac0225269dd9078b6b7f4ce3f1c0aef4a473b4310c`.
+Six 200×50 header controls fit between the unchanged logo and clock: Albums,
+Artists, Songs, Playlists, Genres, Shuffle all. Original list/search/artist
+behavior remains; only verified selections hand off. Local/smart playlist
+handling remains native, as an explicit compatibility boundary.
+
+The versioned eight-file installer verified source/candidate hashes and a fresh
+idle native proof, checkpointed seven original files, and restored their ZIP
+in isolation before mutation. Recovery ZIP SHA-256
+`b184af4ce914c2a8058b6c02a0be80bf386cf4c24504c1d9e06614ddce11ba23` at
+`/storage/.aster-checkpoints/aster-music-integration-20261024/recovery.zip`.
+Metadata and verified restored files remain in that private checkpoint.
+Kodi stopped only during atomic file activation; active manifest written after
+all eight installed hashes matched. Restart completed: active PID13166,
+NRestarts0. No profile/settings/credentials changes. New player admission lock
+is a local empty `entry.lock`, not a token/grant; flock releases on process exit.
+
+The preservation harness now requires the exact integration-manifest SHA as its
+fifth script argument whenever the overlay is active. It verifies all eight
+members and accounts for seven additional intentional baseline overrides;
+old four-player-overlay checks remain separate. Current command:
+`RunScript(special://home/../.aster-staging/live_music_postcheck_integrated.py,59,65967e1bbe991c28c2358c1a46a2c955a06446fb66534721ae549c569f34d2d6,47,451ea65d8a3979fb0309eeac0225269dd9078b6b7f4ce3f1c0aef4a473b4310c)`.
+Do not reuse the older no-integration postcheck after this activation.
+
+`live_normal_music1.py` now tests the real sidebar/recent-page workflow, exact
+album handoff/non-first source return, duplicate entry refusal, all six header
+buttons, native Artist drilldown, song/Jellyfin-playlist handoff, Genres and
+confirmed/cancelled non-holiday Shuffle with cleanup. Wait for its distinct
+`native-normal-*.json` result before starting another foreground test. 277
+local tests pass; no production or Git remote changes.
+
+First normal-route result `native-normal-1792872428975596805.json` is failed:
+sidebar/album handoff, exact full playback, duplicate-admission refusal and
+cleanup succeeded, but returning to Recently Added reset its non-first tile.
+No acceptance claimed. Enforced initial integrated preservation
+`postcheck-1792872414020517376.json` verified 47 player files, 142 untouched v1
+files, four original overlays, eight normal-Music files, all 68 AV/language
+values and idle/healthy DB. Native 4K header screenshot inspected: all six
+compact pills, logo, clock and existing Recent/hero layout fit clearly.
+
+Cause is the existing normal-page onload population resetting focus to row0.
+Integration2 stores only a schema-versioned source ID and focus target in the
+originating Kodi window's transient properties; onload finds the exact ID in
+fresh rows and consumes that marker. It never matches titles or assumes an old
+row index; absent/ambiguous IDs fall back to normal behavior. Genres/Shuffle
+also retain their source/header focus through the same bounded adapter.
+No token/path/history persistence. Two additional unit tests cover reordered,
+missing/invalid identities and transient-header restoration; 279 tests pass.
+
+Integration2 manifest SHA-256
+`e2fe937e2af429c5b1061ca23f84d654a5a3664bf81444845e249c7e947d158a`,
+player remains candidate59. Revision installer requires the exact prior active
+manifest and current hashes; it preserves a new recovery ZIP and prior active
+manifest under the original checkpoint's `revisions/aster-music-normal-integration2`.
+Original baseline recovery is never overwritten. Fresh native preflight
+`postcheck-1792872646902629798.json` passed before activation. Use the new
+integration SHA with the preservation harness after install, then rerun real
+normal-route checks. No production/Git remote change.
+
+Integration2 recovery ZIP SHA-256
+`55bdbbda9e8e14d8eda6bbf687a28d4e890b2c5f9943980c490ffdf8ecab591e`
+and isolated restore verified before activation. Kodi restarted normally,
+PID13326/NRestarts0 after the deliberate activation restart. No unexpected crash.
+
+`native-normal-1792872784114943171.json` passes the corrected non-first source
+return and every normal route through Genres, but fails Shuffle's final source
+return (audio/queue cleanup passed). Direct Shuffle was closing an unshown
+browser controller over the real source page. Candidate60 removes that close;
+the shown owned player still performs the same joined stop/cancel cleanup.
+Regression test ensures direct Shuffle neither shows nor closes that unused
+browser. Candidate60 SHA-256
+`d06ba493969ebea9628b97bed6a82490fd3a81a4a4c80746e5d8d9d1e5d74c5d`,
+47 files, installed with candidate59 recovery; no Kodi restart/profile change.
+
+First candidate60 route repeat `native-normal-1792872936170909737.json` failed
+at Artist drilldown before reaching Shuffle. The client waited only for a
+native label, insufficient to distinguish cached reload/metadata timing. It now
+waits for an actual stable ID/source field, rather than label-only readiness;
+no app playback write retry or silent pass. Failed evidence remains retained.
+
+`native-normal-1792873080586901163.json` passes **all** normal routes with
+explicit checks under optimization1: real sidebar -> preserved Recently Added,
+non-first album ID/full queue/Play/Pause/Back with exact source restoration,
+duplicate admission denial, all six header controls by arrows, native Artist
+drilldown, Song and Jellyfin playlist no-autoplay ID handoffs, seven Genres,
+Shuffle cancel/confirm/holiday exclusion/pause/Back to its real source and final
+empty restoration. Original v1 regressions144 and focus checks10 pass; local
+v2 count280. Next repeat after an idle restart and final preservation/audit;
+do not graduate based only on this first integrated pass.
+
+### 2026-10-24 — normal Music load readiness and repeatability
+
+The first post-restart repeat (`native-normal-1792873421292807501.json`)
+failed at Shuffle Pause. Its preceding Home-exit cleanup/source restoration
+passed; no silent retry counted as success. The next transport-readiness-aware
+test (`native-normal-1792873647557535006.json`) instead exposed a late normal
+page reload resetting header focus. Both failed results remain retained.
+
+Normal integration4 now clears readiness synchronously on page onload, disables
+selection/header actions while loading, and publishes a fresh generation only
+after rows, metadata and source-focus restoration are complete. Older query
+results are refused before publication; background loads cannot steal focus
+from a different native window. The native driver waits for that generation,
+not a cached tile label or an arbitrary delay, and requires a ready Shuffle
+transport before a single Pause action.
+
+Integration3 was rejected before checkpoint/mutation by the installer AST check
+because an initial text transformation touched an indented legacy-player block.
+No integration3 activation or acceptance is claimed. The corrected builder
+anchors full line indentation and parses every generated Python/XML member
+before creating a deployable output. Integration3's rejected staging directory
+is retained; integration4's predecessor is the actually active integration2.
+
+Integration4 SHA-256
+`d25051c59d459313afd46ca05fd2db08dddf96d8dedcee23c0e9e32a61ed1674`;
+fresh preflight `postcheck-1792874080665779345.json`. The installer verified all
+eight files and an isolated recovery restore before activation/restart. Recovery:
+`/storage/.aster-checkpoints/aster-music-integration-20261024/revisions/aster-music-normal-integration4/recovery.zip`,
+SHA-256 `d8f92126614ef0fc1f88c70067a928b96850c1644fafef6d8900b2c0bb9a0b13`.
+Original recovery and prior active-manifest records remain unchanged.
+
+`native-normal-1792874163239207751.json` passes the complete Back-exit workflow:
+Recently Added/non-first album/full playback/Pause/exact source return,
+duplicate-entry refusal, six header controls, Artist drilldown, Song/server
+playlist selection without autoplay, Genres7, and non-holiday Shuffle cancel,
+confirm, Pause, stop and empty cleanup. All checks enforced under optimization1.
+283 local v2 tests now include executable generated-load tests for success,
+superseded queries and cross-window focus; all 144 v1 regressions and ten focus
+model checks pass. Repeat/Home and restart validation continue; no production,
+credential, volume or Git remote changes.
+
+Second integration4 pass `native-normal-1792874231007005674.json` succeeds,
+including stable Home exit with stopped/empty owned playback, returning through
+the real Music rail to the same non-first album, then every remaining route.
+After fresh preservation proof, a separately authorized idle Kodi restart
+completed. Third full pass `native-normal-1792874346375266265.json` succeeds
+after restart, including Back and Shuffle Pause/cleanup. Native current PID14264,
+NRestarts0; these are planned service restarts, not an assertion that historical
+crashes did not occur. Latest header screenshot was inspected at native 4K:
+all six compact controls fit, with unchanged logo/clock and Recently Added.
+
+Final `postcheck-1792874375732333954.json` verifies candidate60's 47 files,
+142 unchanged original files, four accepted player overlays, eight normal-Music
+members, all 68 AV/language values, database integrity, no missing primary artist
+links, no active player/queue/recovery window, shuffle Off and no engineering
+grant. The explicitly approved normal-playback flag remains enabled.
+`readonly-audit-1792874248098351992.json` verifies all 16 original Jellyfin
+playlists with identical identity, content order and access, and absence of the
+previous disposable trials; no new create/delete trial was performed.
+`check-1792874247967451139.json` revalidates the installed Jellyfin late-start
+guard with synthetic dependencies and no playback/server writes.
+
+Post-deployment intent/efficiency review: normal Music now preserves the user's
+Recent-first workflow rather than requiring a Programs detour. Explicit page
+readiness replaces timing guesses and duplicate admission prevents competing
+controllers. Complete catalogue validation is retained for direct selections,
+Genres and whole-library Shuffle; the existing bounded normal-page search/list
+limits are deliberately not represented as a complete-library search. The
+progressive filler retains its tested cap/cancellation behavior. Idle host
+memory after tests: 1,296MiB used / 15,677MiB total, 14,381MiB available, no swap.
+No new service, listener, schedule, identity or observability object was created;
+existing host/Kodi monitoring remains authoritative for this HP-only overlay.
+Original restore ZIP and every revision's isolated restore remain available.
+
+Current preservation command:
+`RunScript(special://home/../.aster-staging/live_music_postcheck_integrated.py,60,d06ba493969ebea9628b97bed6a82490fd3a81a4a4c80746e5d8d9d1e5d74c5d,47,d25051c59d459313afd46ca05fd2db08dddf96d8dedcee23c0e9e32a61ed1674)`.
+283 tests pass both normally and with `python3 -O`, plus all 144 original
+regressions and ten focus checks. Operator handover updated in
+`docs/design/Aster-Home-v2-M1-Music-and-Focus.md`. Automated integration gate
+passes; M3 remains pilot, not graduated: a real G20/listening/sofa walkthrough
+and sustained use require human acceptance. Production and Forgejo are unchanged.
+Next safe action is that physical HP acceptance, or further bounded Music
+repairs identified by it. Do not promote production, repeat consumed server
+trials or infer authorization for other service integrations.

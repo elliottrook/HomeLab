@@ -19,6 +19,7 @@ from music_album import AlbumUnavailable, read_album
 from music_selection import SelectionUnavailable,read_song
 from music_audio import read_source,read_details
 from music_atmosphere import Atmosphere,DEFAULT as ATMOSPHERE_DEFAULT
+from music_entry import parse_entry,entry_lock
 from music_playlists import PlaylistUnavailable,read_playlists,read_playlist,indexed_mapping,server_mapping
 from music_jellyfin import PlaylistReader,PlaylistCreator
 from music_shared_save import save_owned_queue
@@ -94,6 +95,23 @@ def load_catalogue():
     except Exception:
         return None,'Catalogue unavailable · unexpected-read-error'
     finally: progress.close()
+
+
+def run_owned_window(window):
+    """Same owner loop for pilot tiles and ID-only normal-page handoffs."""
+    global_exit=False
+    try:
+        window.show()
+        while not window.finished:
+            if xbmc.Monitor().abortRequested():window.close();break
+            active=xbmcgui.Window(10000).getProperty('AsterV2Lab.AlbumWindow')
+            if active and str(xbmcgui.getCurrentWindowId())!=active and not window.dialog_open:
+                global_exit=True;window.close();break
+            window.refresh();xbmc.sleep(100)
+    finally:
+        window.close()
+        xbmcgui.Window(10000).clearProperty('AsterV2Lab.AlbumWindow')
+    return global_exit
 
 
 class AlbumLab(xbmcgui.WindowXML):
@@ -993,7 +1011,7 @@ class MusicLab(xbmcgui.WindowXML):
         elif control==9007:
             self.rail=False;self.prop('Rail','false');self.focus_grid()
 
-    def open_shuffle(self,limit):
+    def open_shuffle(self,limit,*,return_to_browser=True):
         view=self.model.catalogue
         ids=nonholiday_shuffle(list(view.songs.values()),list(view.albums.values()),expected_total=len(view.songs),seed=time.time_ns())
         if not xbmcgui.Dialog().yesno('Shuffle all',f'Start {len(ids):,} songs without holiday music? Back stops and cancels loading.'):return
@@ -1041,8 +1059,9 @@ class MusicLab(xbmcgui.WindowXML):
             if window:window.close()
             elif session:session.close()
             xbmcgui.Window(10000).clearProperty('AsterV2Lab.AlbumWindow')
-            if global_exit:self.close()
-            else:self.focus(201)
+            if return_to_browser:
+                if global_exit:self.close()
+                else:self.focus(201)
 
     def open_album(self,row):
         identity=row['albumid']
@@ -1068,19 +1087,7 @@ class MusicLab(xbmcgui.WindowXML):
         else:
             window.allowed=tuple(i for i in selection.song_ids if i in live_ids())
             window.queue_limit=live_grant()[1]
-        global_exit=False
-        try:
-            window.show()
-            while not window.finished:
-                if xbmc.Monitor().abortRequested():window.close();break
-                active=xbmcgui.Window(10000).getProperty('AsterV2Lab.AlbumWindow')
-                if active and str(xbmcgui.getCurrentWindowId())!=active and not window.dialog_open:
-                    global_exit=True;window.close();break
-                window.refresh();xbmc.sleep(100)
-        finally:
-            window.close()  # Also clean up when Kodi navigates away globally.
-            xbmcgui.Window(10000).clearProperty('AsterV2Lab.AlbumWindow')
-            del window
+        global_exit=run_owned_window(window)
         if global_exit:self.close()
         else:self.focus_grid()
 
@@ -1130,20 +1137,72 @@ class MusicLab(xbmcgui.WindowXML):
             elif direction=='down':self.focus(min(305,control+1))
 
 
-def main():
+def integrated_selection(view,kind,identity):
+    """Resolve only indexed identities; never accept a title/path as authority."""
+    if kind=='album':
+        if identity not in view.albums:raise SelectionUnavailable('album-not-indexed')
+        row=view.albums[identity]
+        selection=read_album(rpc,identity,[i for i,song in view.songs.items() if song.get('albumid')==identity])
+    elif kind=='song':
+        if identity not in view.songs:raise SelectionUnavailable('song-not-indexed')
+        row=view.songs[identity];selection=read_song(rpc,identity,row)
+    else:
+        import xbmcvfs
+        reader=PlaylistReader(xbmcvfs.translatePath('special://profile/addon_data/plugin.video.jellyfin/data.json'))
+        rows=read_playlists(reader)
+        row=next((row for row in rows if row['playlistid']==identity),None)
+        if row is None:raise PlaylistUnavailable('playlist-preview-stale')
+        selection=read_playlist(reader,identity,rows,view,
+            lambda ids:indexed_mapping(xbmcvfs.translatePath('special://profile/Database/jellyfin.db'),ids))
+    if not selection.tracks:raise SelectionUnavailable('empty-selection')
+    artwork=ASSETS+ICONS[kind]
+    if kind!='playlist':
+        data=rpc('AudioLibrary.Get'+kind.title()+'Details',{kind+'id':identity,'properties':['thumbnail']})
+        value=data.get(kind+'details',{}).get('thumbnail')
+        if isinstance(value,str) and value:artwork=value
+    window=AlbumLab('AlbumLab.xml',str(ROOT),'Default','1080i')
+    window.selection=selection;window.title=row.get('label','Music');window.artwork=artwork
+    window.allowed=selection.song_ids;window.queue_limit=20000
+    run_owned_window(window)
+
+
+def admitted_main(kind,identity):
     home=xbmcgui.Window(10000)
-    previous=home.getProperty('AsterV2Lab.Window')
-    if previous.isdigit() and xbmc.getCondVisibility('Window.IsVisible('+previous+')'):
-        xbmcgui.Dialog().notification('Aster Music v2 Lab','The pilot is already open.');return
+    if home.getProperty('AsterV2Lab.TrialRecovery'):
+        xbmcgui.Dialog().ok('Music recovery required','Retain the checkpoint and check the existing queue before continuing.');return
+    for name in ('Window','AlbumWindow'):
+        previous=home.getProperty('AsterV2Lab.'+name)
+        if previous.isdigit() and xbmc.getCondVisibility('Window.IsVisible('+previous+')'):
+            xbmcgui.Dialog().notification('Aster Music','Music is already open.');return
     view,error=load_catalogue()
     if view is None:
         xbmcgui.Dialog().ok('Aster Music v2 Lab',error or 'Catalogue unavailable');return
+    if kind in ('album','song','playlist'):
+        try:integrated_selection(view,kind,identity)
+        except (AlbumUnavailable,SelectionUnavailable,PlaylistUnavailable,CatalogueUnavailable):
+            xbmcgui.Dialog().ok('Music selection unavailable','The complete selection could not be verified. Let the library finish syncing and try again; no tracks were guessed or omitted.')
+        return
     window=MusicLab('MusicLab.xml',str(ROOT),'Default','1080i')
     window.model=LabModel(view)
-    try:window.doModal()
+    try:
+        if kind=='shuffle':window.open_shuffle(20000,return_to_browser=False)
+        else:window.doModal()
     finally:
         home.clearProperty('AsterV2Lab.Window')
         del window
+
+
+def main(arguments=None):
+    try:kind,identity=parse_entry(sys.argv[1:] if arguments is None else arguments)
+    except ValueError:
+        xbmcgui.Dialog().ok('Aster Music','This music link is not valid. Nothing was played.');return
+    if platform.node()!='AsterTV' or (kind!='pilot' and not normal_playback()):
+        xbmcgui.Dialog().ok('Aster Music','Normal Music integration is enabled only on the HP lab. Nothing was played.');return
+    try:
+        with entry_lock(trial_directory()):admitted_main(kind,identity)
+    except ValueError as error:
+        if str(error)!='music-already-open':raise
+        xbmcgui.Dialog().notification('Aster Music','Music is already opening or open.')
 
 
 if __name__=='__main__':main()
