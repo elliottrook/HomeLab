@@ -11,10 +11,18 @@ comparison uses a separate disposable environment. Run from the repository root 
 ```
 
 `contracts.py` defines strict, immutable, extra-field-forbidding v1 records for
-Capability, Decision, Harness Run, Outcome and Experiment, plus a filtered
-Projection. JSON schemas are generated for interoperability; cross-record identity,
+Capability, Request Interpretation, Decision, Harness Run, Outcome and Experiment,
+plus a filtered Projection. JSON schemas are generated for interoperability; cross-record identity,
 policy, expiry and DAG predicates require the Python validator too. JSON Schema
 validation alone does not enforce those semantic constraints.
+
+`RequestInterpretation` is the explicit NLU boundary. It records only bounded
+request family, sensitivity, capability needs, ambiguity and disposition plus
+engine/policy provenance. It cannot contain raw prompt text, extracted entities,
+confidence claims or authority. `route` means the request is understood well enough
+for a downstream selector to consider it; it does not select a provider, approve
+egress, project a capability or grant a tool. Privacy/policy checks remain separate,
+and AI-PAM remains the only future authority source.
 
 Catalogue declarations never grant permissions. `project_catalogue` filters using
 an explicitly supplied trusted fixture permission set. Production grant data must

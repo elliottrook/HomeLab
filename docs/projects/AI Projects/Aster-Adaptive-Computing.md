@@ -21,6 +21,14 @@ routine release is **HOLD** after an exact metadata-manifest mismatch blocked
 the consent screen. [Natural refresh is monitored](evidence/D3-refresh-gate-reassessment-2026-10-12.md),
 not an indefinite blocker. Automatic routing and connected tools remain off.
 
+**NLU boundary — 2026-10-24:** Jason approved formalizing the natural-language
+understanding function that had previously been implicit in the selector work.
+The offline [`request-interpretation.v1` boundary](NLU-Selector-Boundary.md)
+records bounded family, sensitivity, capability needs, ambiguity and disposition
+while explicitly granting no route, egress or tool authority. Focused semantic
+tests pass 6/6. No classifier or routing path is deployed; independent labels,
+calibrated abstention and shadow evidence still gate M3–M6 promotion.
+
 The [Stream A work cadence](Stream-A-Work-Cadence.md) keeps offline/shared work moving. Jason paused exclusive lab scheduling until he assigns new time; no lab test runs automatically. Later preflighted READY experiments still require a verified whole-host `ai-lab` lease and completed backups. The old 01:00–02:00 Aster slot is retired.
 
 **Offline boundary checkpoint — 2026-10-09:** The fixed Doctor incident

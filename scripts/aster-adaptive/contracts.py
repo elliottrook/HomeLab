@@ -13,6 +13,46 @@ class Contract(BaseModel):
     model_config = ConfigDict(extra='forbid', strict=True, frozen=True)
 
 
+class RequestInterpretation(Contract):
+    """Content-free NLU result; it describes a request but grants no route or tool."""
+    schema_version: Literal['request-interpretation.v1'] = 'request-interpretation.v1'
+    request_id: Ref
+    principal_ref: Ref
+    request_family: Literal[
+        'household-command',
+        'general-answer',
+        'read-only-investigation',
+        'change-request',
+        'external-research',
+        'unsupported',
+    ]
+    sensitivity: Literal['public', 'internal', 'personal']
+    capability_needs: Annotated[tuple[Ref, ...], Field(max_length=8)] = ()
+    ambiguity: Literal['clear', 'ambiguous']
+    disposition: Literal['route', 'clarify', 'abstain', 'deny']
+    reason: Literal['understood', 'ambiguous', 'unsupported', 'policy-denied']
+    engine_digest: Digest
+    policy_digest: Digest
+    confidence: None = None  # No calibrated probability may be invented.
+    authorization: Literal['not-granted'] = 'not-granted'
+
+    @model_validator(mode='after')
+    def semantic_boundary(self):
+        if len(self.capability_needs) != len(set(self.capability_needs)):
+            raise ValueError('duplicate capability need')
+        allowed = {
+            'route': {('clear', 'understood')},
+            'clarify': {('ambiguous', 'ambiguous')},
+            'abstain': {('ambiguous', 'ambiguous'), ('clear', 'unsupported')},
+            'deny': {('clear', 'policy-denied')},
+        }
+        if (self.ambiguity, self.reason) not in allowed[self.disposition]:
+            raise ValueError('interpretation disposition, ambiguity and reason disagree')
+        if (self.request_family == 'unsupported') != (self.reason == 'unsupported'):
+            raise ValueError('unsupported family and reason disagree')
+        return self
+
+
 class Capability(Contract):
     schema_version: Literal['capability.v1'] = 'capability.v1'
     capability_id: Ref

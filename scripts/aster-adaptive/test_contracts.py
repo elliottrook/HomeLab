@@ -5,7 +5,8 @@ import unittest
 from unittest.mock import patch
 
 from pydantic import ValidationError
-from contracts import Capability, Decision, Experiment, HarnessRun, Outcome, Projection
+from contracts import (Capability, Decision, Experiment, HarnessRun, Outcome, Projection,
+                       RequestInterpretation)
 from fixtures import CATALOGUE, CASES, POLICY, REGISTRY, make_run
 from offline_baseline import FixtureAdapter
 
@@ -80,6 +81,57 @@ class ContractTests(unittest.TestCase):
             Experiment(experiment_id='e', owner='o', baseline_digest=POLICY, candidate_digest=POLICY,
                        evaluator_digest=POLICY, dataset_digest=POLICY, status='retain',
                        metric='offline-payload-construction-ms', promotion_authority='automatic')
+
+
+class RequestInterpretationTests(unittest.TestCase):
+    def value(self):
+        return dict(request_id='r', principal_ref='p', request_family='general-answer',
+                    sensitivity='internal', capability_needs=(), ambiguity='clear',
+                    disposition='route', reason='understood', engine_digest=POLICY,
+                    policy_digest=POLICY)
+
+    def test_content_free_nlu_contract_roundtrip(self):
+        value = RequestInterpretation(**self.value())
+        self.assertEqual(value, RequestInterpretation.model_validate_json(value.model_dump_json()))
+        self.assertEqual('not-granted', value.authorization)
+
+    def test_nlu_contract_rejects_raw_content_authority_and_false_calibration(self):
+        for extra in ({'prompt': 'private'}, {'entities': {'password': 'fixture'}},
+                      {'authorization': 'granted'}, {'confidence': 0.9}):
+            with self.subTest(extra=extra), self.assertRaises(ValidationError):
+                RequestInterpretation(**(self.value() | extra))
+
+    def test_nlu_disposition_semantics_fail_closed(self):
+        accepted = [
+            ('route', 'clear', 'understood', 'general-answer'),
+            ('clarify', 'ambiguous', 'ambiguous', 'change-request'),
+            ('abstain', 'ambiguous', 'ambiguous', 'read-only-investigation'),
+            ('abstain', 'clear', 'unsupported', 'unsupported'),
+            ('deny', 'clear', 'policy-denied', 'external-research'),
+        ]
+        for disposition, ambiguity, reason, family in accepted:
+            with self.subTest(disposition=disposition):
+                value = self.value() | dict(disposition=disposition, ambiguity=ambiguity,
+                                            reason=reason, request_family=family)
+                self.assertEqual(disposition, RequestInterpretation(**value).disposition)
+        rejected = [
+            ('route', 'ambiguous', 'understood', 'general-answer'),
+            ('clarify', 'clear', 'ambiguous', 'general-answer'),
+            ('deny', 'clear', 'understood', 'change-request'),
+            ('route', 'clear', 'understood', 'unsupported'),
+            ('abstain', 'clear', 'unsupported', 'general-answer'),
+        ]
+        for disposition, ambiguity, reason, family in rejected:
+            with self.subTest(disposition=disposition, reason=reason), self.assertRaises(ValidationError):
+                RequestInterpretation(**(self.value() | dict(disposition=disposition,
+                    ambiguity=ambiguity, reason=reason, request_family=family)))
+
+    def test_nlu_capability_needs_are_bounded_and_unique(self):
+        with self.assertRaises(ValidationError):
+            RequestInterpretation(**(self.value() | {'capability_needs': ('clock.read',) * 2}))
+        with self.assertRaises(ValidationError):
+            RequestInterpretation(**(self.value() | {
+                'capability_needs': tuple(f'capability.{i}' for i in range(9))}))
 
 
 class DecisionSemanticTests(unittest.TestCase):

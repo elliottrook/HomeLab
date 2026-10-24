@@ -13,7 +13,8 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pydantic
-from contracts import Capability, Decision, Experiment, HarnessRun, Outcome, Projection
+from contracts import (Capability, Decision, Experiment, HarnessRun, Outcome, Projection,
+                       RequestInterpretation)
 from fixtures import CASES, CATALOGUE, INPUT_SCHEMA, OUTPUT_SCHEMA, content_digest, make_run
 from offline_baseline import FixtureAdapter, FixtureRequest, digest
 
@@ -95,7 +96,8 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     with patch.object(socket.socket, 'connect', side_effect=AssertionError('network forbidden')):
         results = asyncio.run(measure())
-    for model in (Capability, Projection, Decision, HarnessRun, Outcome, Experiment):
+    for model in (Capability, Projection, RequestInterpretation, Decision, HarnessRun, Outcome,
+                  Experiment):
         (args.output / (model.__name__.lower()+'.schema.json')).write_text(
             json.dumps(model.model_json_schema(), indent=2, sort_keys=True)+'\n')
     (args.output / 'fixture-input.schema.json').write_text(json.dumps(INPUT_SCHEMA, indent=2)+'\n')
