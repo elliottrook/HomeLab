@@ -10,7 +10,7 @@
 
 | Project | Status | Project document | Supporting material |
 |---|---|---|---|
-| Aster Home v1.1 - Up Next | Active - Stream M; deployed HP/BOSGAME, household walkthrough pending | [v1.1 Up Next](Aster-Home-Version-1.1-Up-Next.md) | Up Next, real-marker intro/outro and repaired TV episode hero; verified production checkpoint retained |
+| Aster Home v1.1 - Up Next | Active - Stream M; v1.1.1 deployed HP/BOSGAME, household walkthrough pending | [v1.1 Up Next](Aster-Home-Version-1.1-Up-Next.md) | Available-only Up Next (no caught-up/future cards), real-marker intro/outro and repaired TV hero; verified checkpoints retained |
 | Aster Home version 2 | Active - Stream M; M1 local design accepted, HP implementation proposal next | [Version 2 project](Aster-Home-Version-2.md) | Real music genre/holiday inventory and isolated policy/focus tests; no v2 code deployed |
 | Fotosforfun hosting and incremental publishing | Active — Stream A; M0 charter complete, A1 isolated core next; public launch separately gated | [Fotosforfun hosting and incremental publishing](Fotosforfun-Hosting-and-Publishing.md) | Separate home-LAN-only editor for Alisa, append-oriented static gallery releases, dedicated Authentik authorization and recovery on the existing isolated publishing hosts |
 | Aster Unified Voice Service | Active — Stream A; M0 complete, M1 in progress | [Aster Unified Voice Service](Aster-Unified-Voice-Service.md) | One private network-level Kokoro `bm_daniel` service for Companion, Home Assistant, News and future reasoning backends; preserves local-only speech, legacy rollback and exact voice/quality policy while measuring interactive streaming latency |

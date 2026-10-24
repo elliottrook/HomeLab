@@ -11,7 +11,7 @@ import zipfile
 
 
 HERE = Path(__file__).resolve().parent
-RELEASE = "1.1.0"
+RELEASE = "1.1.1"
 ADDONS = (
     "plugin.video.asterhome",
     "plugin.audio.asterbooks",

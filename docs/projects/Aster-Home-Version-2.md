@@ -20,7 +20,7 @@
 
 Make Aster a coherent, premium, remote-first television interface with useful
 episode discovery, music listening, Books narration and Home integration.
-BOSGAME and HP now run the separately approved v1.1 package
+BOSGAME and HP now run the separately approved v1.1.1 package
 with unified Aster Intro/Outro controls. HP retains LibreELEC 12.2.1/Kodi 21.3
 and BOSGAME its accepted hardware-specific OS. English stream
 preferences, watch badges, compact player controls, stop-on-exit, audio
@@ -238,3 +238,8 @@ both clients now have verified candidate9, including the minor TV hero artwork
 fallback repair, tracked in the separate v1.1 project. This does not deploy any
 v2 code or authorize its next HP mutation. Next safe action is the bounded HP
 implementation/recovery proposal, not another production deployment.
+
+The owner subsequently corrected v1.1 to available episodes only. The approved
+v1.1.1 patch is verified on both clients: no caught-up/future placeholders, older
+started shows considered beyond the former 24-show cutoff. This correction is
+part of the v2 regression baseline, not a deferred new feature.

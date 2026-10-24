@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-10-23 - Aster v1.1.1 available-only Up Next correction
+
+- Removed caught-up/future/missing-file placeholders; only an available next
+  unwatched episode returns a series to the rail after library sync/refresh.
+- Included older started series beyond the former 24-show scan; complete
+  bounded reads and numbering gaps fail closed without affecting genuine resume.
+- 144 tests pass. Owner-approved HP-first then production patch verified all
+  153 files on both clients; two live checks each omit MobLand/Morning Show.
+- Verified private pre-patch backups; no AV, identity, watch-state or v2 changes.
+
 ## 2026-10-23 - Aster v1.1 production deployment and TV hero repair
 
 - Reproduced HP/production episode hero failure and added inherited series

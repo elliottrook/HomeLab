@@ -51,6 +51,39 @@ class AdapterTests(unittest.TestCase):
         self.module.xbmcplugin.addDirectoryItem.assert_called_once_with(
             1, 'videodb://tvshows/titles/42/', item, isFolder=True)
 
+    def test_series_beyond_old_recent_24_limit_is_considered(self):
+        calls=[]
+        def rpc(method, *args, **kwargs):
+            if method.endswith('GetMovies'): return {'movies': []}
+            if method.endswith('GetTVShows'):
+                calls.append(kwargs['limits'])
+                return {'tvshows':[{'tvshowid':i, 'watchedepisodes':1} for i in range(30)],
+                        'limits':{'total':30}}
+            if kwargs.get('tvshowid') == 29:
+                return {'episodes':[
+                    {'season':4,'episode':10,'playcount':1},
+                    {'season':5,'episode':1,'playcount':0,'file':'plugin://existing/play'}]}
+            return {'episodes':[]}
+        with patch.object(self.module, 'rpc', side_effect=rpc), \
+                patch.object(self.module, 'add_item') as add:
+            self.module.add_continue_watching(1)
+        self.assertEqual(calls,[{'start':0,'end':1000}])
+        self.assertEqual(add.call_count,1)
+        self.assertEqual(add.call_args.args[1]['season'],5)
+
+    def test_incomplete_show_catalogue_keeps_only_genuine_resume(self):
+        def rpc(method, *args, **kwargs):
+            if method.endswith('GetMovies'):
+                return {'movies':[{'label':'Movie','resume':{'position':1,'total':100}}]}
+            if method.endswith('GetTVShows'):
+                return {'tvshows':[{'tvshowid':1,'watchedepisodes':1}], 'limits':{'total':1001}}
+            return {'episodes':[]}
+        with patch.object(self.module, 'rpc', side_effect=rpc), \
+                patch.object(self.module, 'add_item') as add:
+            self.module.add_continue_watching(1)
+        self.assertEqual(add.call_count,1)
+        self.assertEqual(add.call_args.args[1]['kind'],'movie')
+
 
 if __name__ == '__main__':
     unittest.main()

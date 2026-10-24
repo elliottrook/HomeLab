@@ -1,0 +1,87 @@
+{
+  "client_files": [
+    {
+      "bytes": 2051,
+      "file": "g20s-pro-plus.xml",
+      "install_target": "userdata/keymaps/g20s-pro-plus.xml",
+      "sha256": "1c3661aa1c9109b9390b9004203ce6cbe53d03d559f88a019db01d22a430d2c1"
+    },
+    {
+      "bytes": 299,
+      "file": "aster-books-refresh.service",
+      "install_target": "/storage/.config/system.d/aster-books-refresh.service",
+      "sha256": "b5f34302d8876a20bee31f14b857619aae2cdfdba9c3e9948e6662d38701ff8a"
+    },
+    {
+      "bytes": 192,
+      "file": "aster-books-refresh.timer",
+      "install_target": "/storage/.config/system.d/aster-books-refresh.timer",
+      "sha256": "679e94798f03cf35599e4842ef1a18f26d427568d85d29304a0459c6c09566f0"
+    }
+  ],
+  "design_canvas": "1920x1080-16:9-scales-to-4k",
+  "external_dependencies": [
+    {
+      "addon_id": "plugin.video.youtube",
+      "source": "Kodi Omega repository",
+      "version": "7.4.4"
+    }
+  ],
+  "install_order": [
+    "plugin.video.asterhome",
+    "plugin.audio.asterbooks",
+    "resource.uisounds.asterhome",
+    "skin.asterhome"
+  ],
+  "release": "1.1.1",
+  "schema": "aster-home-kodi-release.v1",
+  "status": "deployed-hp-and-production-pending-household-walkthrough",
+  "manifest_sha256": "228b32975c9a3fa099414b65f47c32d3d9aee5f4bc64a5aad154af8f95ab703a",
+  "artifacts": [
+    {
+      "addon_id": "plugin.video.asterhome",
+      "archive": "plugin.video.asterhome-1.1.1.zip",
+      "bytes": 4896,
+      "sha256": "ac3cb9dbabf5dad6639f065d2f9bd8735358c0cc73ced1713750f32677ea5f64"
+    },
+    {
+      "addon_id": "plugin.audio.asterbooks",
+      "archive": "plugin.audio.asterbooks-1.1.1.zip",
+      "bytes": 10021,
+      "sha256": "7d9d042f57562b0df40b53d718a8bd274f430a0851fb05765f15170dd0de2dd3"
+    },
+    {
+      "addon_id": "resource.uisounds.asterhome",
+      "archive": "resource.uisounds.asterhome-1.1.1.zip",
+      "bytes": 82960,
+      "sha256": "a15fff5729f97e074b47c0b6b6d82865909fa2fd762b60a4bdd6c75c06691f31"
+    },
+    {
+      "addon_id": "skin.asterhome",
+      "archive": "skin.asterhome-1.1.1.zip",
+      "bytes": 4540539,
+      "sha256": "03a3248e04b0ea56f133651a706155d2e610c6953ae9026f6ddc80c2768bdc00"
+    }
+  ],
+  "artifact_directory": "services/kodi/dist/aster-home-v1.1.1-candidate1",
+  "changes": [
+    "Only offer the next available unwatched regular episode; omit caught-up, future-dated and missing-file placeholders.",
+    "Check the complete current series directory up to 1000 shows rather than only 24 recent shows; incomplete reads fail closed to genuine resume items.",
+    "Do not skip missing numbered episodes or seasons; preserve normal resume, film artwork and intro/outro controls."
+  ],
+  "validation": {
+    "local_tests": 144,
+    "deployment": "Owner-approved HP-first patch passed before production; six changed files per client, all 153 manifest files verified and four 1.1.1 add-ons enabled",
+    "live_directories": "Two passes per client: 24 rows, nine available Up Next cards, no series placeholders; MobLand and The Morning Show absent and independently confirmed ineligible",
+    "hp_directory_seconds": [0.590, 0.575],
+    "production_directory_seconds": [0.542, 0.537],
+    "preservation": "136 HP / 145 production AV/language settings preserved; exact Jellyfin settings, remote keymap, refresh units and boot files unchanged; no playback or watch-state writes",
+    "hp_private_backup_sha256": "3a73afa04285ce6a72aa73dd6d606a074d803fbcac85f192d56d1af3a3d2c8fe",
+    "production_private_backup_sha256": "0ac095832eff397bfe76ed2d59f897f1173d56c3c453e4903f8d399b66cfd044"
+  },
+  "limitations": [
+    "Up Next appears after Jellyfin-to-Kodi library synchronization and the next home-rail refresh; this patch does not acquire episodes.",
+    "Complete bounded directory: up to 1000 shows and 2000 episodes per started series; visible rail remains 24 entries.",
+    "Existing genuine resume items remain; missing episode metadata is not invented."
+  ]
+}

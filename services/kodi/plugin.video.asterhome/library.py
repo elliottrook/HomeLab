@@ -79,7 +79,7 @@ def continue_items(movies, episodes, limit=24):
 
 
 def next_up_item(show, episodes, today=None):
-    """One next episode or honest caught-up card for a previously watched show.
+    """One available next episode for a previously watched show, or nothing.
 
     The caller supplies a complete, locally synced season/episode catalogue.
     Specials and episode-zero extras do not advance regular-season ordering.
@@ -99,23 +99,21 @@ def next_up_item(show, episodes, today=None):
     recent = max((row.get('lastplayed') or '' for row in watched), default='')
     if later:
         episode = later[0]
+        # A missing episode is not permission to jump forward over it.
+        sequential = ((episode['season'] == last['season']
+                       and episode['episode'] == last['episode'] + 1)
+                      or (episode['season'] == last['season'] + 1
+                          and episode['episode'] == 1))
         aired = episode.get('firstaired') or ''
-        if episode.get('file') and (not aired or aired[:10] <= today):
+        path = episode.get('file')
+        if sequential and isinstance(path, str) and path.strip() and (not aired or aired[:10] <= today):
             row = dict(episode)
             row.update(kind='episode', resume_position=0, resume_total=0,
                        lastplayed=recent, next_up=True,
                        label=f"Up next · {episode.get('showtitle') or show.get('label', 'Series')}"
                              f" — S{episode['season']} E{episode['episode']}")
             return row
-        status = ('Next episode available ' + aired[:10]
-                  if aired[:10] > today else 'Next episode not yet in library')
-    else:
-        status = 'New episodes when available'
-    row = dict(show)
-    row.update(kind='tvshow', id=show['tvshowid'], lastplayed=recent,
-               next_up=True, label=(show.get('label') or show.get('title') or 'Series')
-               + ' · ' + status)
-    return row
+    return None
 
 
 def watching_items(movies, episodes, shows, episodes_by_show, limit=24, today=None):

@@ -83,8 +83,10 @@ def add_continue_watching(handle):
     try:
         show_result = rpc('VideoLibrary.GetTVShows',
                           PROPERTIES + ['lastplayed', 'watchedepisodes'],
-                          latest, limits={'start': 0, 'end': 24})
+                          latest, limits={'start': 0, 'end': 1000})
         shows = show_result.get('tvshows', [])
+        if show_result.get('limits', {}).get('total', len(shows)) > len(shows):
+            raise ValueError('Series catalogue exceeds complete-read bound')
         for show in shows:
             if not show.get('watchedepisodes', 0):
                 continue

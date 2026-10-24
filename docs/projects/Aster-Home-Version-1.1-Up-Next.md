@@ -2,14 +2,18 @@
 
 Owner: Jason. Created 2026-10-23. Stream M. Status: deployed to HP and BOSGAME;
 production promotion explicitly approved, household remote walkthrough pending.
+Current patch: **1.1.1**, available-episodes-only correction approved/deployed.
 
 ## Purpose, authority and exclusions
 
 Urgent bounded upgrade ahead of v2: the existing Continue Watching rail keeps
 unfinished films/episodes and adds the next unwatched regular episode after
-the last completed episode of a started series. When caught up, retain a
-browsable series card saying New episodes when available. Use real known air
-dates only. Do not recommend every unstarted show or guess future releases.
+the last completed episode of a started series, **only when that episode is
+available in the synced library**. Caught-up series, future-dated entries and
+missing-file episodes produce no card. A newly available first episode of the
+following season can bring a series back. Do not recommend unstarted shows,
+show future-release notices or guess release dates. This supersedes v1.1.0's
+caught-up placeholder design at the owner's explicit correction.
 
 Also requested during this change: Aster's own Skip intro at a real Intro
 marker and Play next episode at a real Outro marker. Owner explicitly approved
@@ -30,8 +34,9 @@ provide tvshowid, season/episode, playcount, resume, lastplayed, firstaired,
 art and existing playback file. Aster's existing rail supplied only resumable
 items; completed episodes therefore disappeared without replacing the row.
 
-Bound queries to 24 recent series and 2,000 episodes per series. A truncated or
-failed query must not be interpreted as caught up. Existing episode resume
+Read the complete series directory up to 1,000 shows and query up to 2,000
+episodes for each started series; visible rail remains at most 24 items. A
+truncated or failed query must not be interpreted as availability. Existing episode resume
 suppresses another Up Next card for the same series. Respect Specials/episode
 zero, season boundaries, unavailable files and future dates. Preserve existing
 Kodi/Jellyfin playback URLs and authentication path. No private state export.
@@ -222,11 +227,15 @@ Retain both the accepted v1.0.5 bundle and immutable candidate9 artifacts.
 ## Operator note
 
 On HP and production Aster Media Home, Continue Watching contains resumable films/episodes,
-Up next episode cards and browsable caught-up series. A future date appears
-only if supplied by indexed metadata; otherwise New episodes when available
-is deliberately non-specific. Series with no viewing history are not added.
-The hero action for a caught-up card is Browse series, not an instruction to
-queue an entire show. Malformed segment responses fail without a prompt.
+and available Up Next episode cards. No caught-up placeholders or future-release
+notices remain. A started show returns when its next unwatched regular episode
+has an indexed playback path and is not future-dated; no numbered episode or
+season gap is skipped. For example, after MobLand episode 6, wait for episode 7;
+after The Morning Show season 4 finale, wait for season 5 episode 1. This follows
+the existing Jellyfin-to-Kodi sync and home-rail refresh, not an immediate push
+notification or a download subscription. Return to/reopen Aster Media if the
+home page has remained open during synchronization. Series with no viewing
+history are not added. Malformed segment responses fail without a prompt.
 
 During a TV episode, Intro markers show Skip intro, Outro markers show Play
 next episode only if a following episode is actually indexed. Press OK to act,
@@ -245,3 +254,49 @@ Preserve private user credentials; never publish recovery XML or profile files.
 References: [Jellyfin media segments](https://jellyfin.org/docs/general/server/metadata/media-segments/)
 documents typed Outro metadata supplied by providers, not a client-side timing
 guess. [Seerr](https://github.com/seerr-team/seerr) is v2, not this change.
+
+## v1.1.1 correction — 2026-10-23
+
+Owner explicitly rejected caught-up cards and approved a checkpointed HP-first,
+then production patch with one Kodi restart per client. Removed those cards;
+future/missing-file next episodes now return no card, and missing numbering
+cannot skip straight to a later episode/season. Expanded the old 24-recent-show
+candidate read to a complete bounded 1,000-show read so a long-absent started
+series can return. Current HP inventory: 209 shows, 51 started, all within the
+complete-read bound. No acquisition, metadata or watch-state writes.
+
+144 tests pass: 100 skin/helper, 25 video plugin, 13 Books bridge, three sounds,
+three deterministic packaging. New synthetic regressions cover both owner's
+examples, delayed availability, missing numbering, resumed films retained and
+an older show beyond the former 24-show cutoff. Complete-read failure keeps
+genuine resume entries rather than silently treating missing data as available.
+
+Both clients received only six changed files: library helper, directory adapter
+and four version descriptors. All 153 packaged files verified on each and all
+four add-ons enabled at 1.1.1. HP validation passed before production began.
+Two independent reads per device return 24 rows / nine available Up Next cards,
+no series placeholders, and no MobLand or The Morning Show card. Independently
+queried both shows' episode catalogues and confirmed no eligible next episode.
+HP rail latency 0.590/0.575 seconds; production 0.542/0.537 seconds, bounded
+and acceptable relative to previous ~0.4-second recent-only reads. No playback
+was initiated, no fake episode was added, and no resume/watch state was set.
+
+Pre-patch private checkpoints on each client:
+`/storage/.aster-checkpoints/aster-v1.1.0-before-v1.1.1-20261023/`.
+Full stopped-session archive/member verification: HP 3,555 regular files,
+SHA-256 `3a73afa04285ce6a72aa73dd6d606a074d803fbcac85f192d56d1af3a3d2c8fe`;
+production 3,044 regular files,
+SHA-256 `0ac095832eff397bfe76ed2d59f897f1173d56c3c453e4903f8d399b66cfd044`.
+Off-device copies are restricted to 0600 under the existing private Mac backup
+tree for each client, dated `2026-10-23-v1.1.1`, outside Git. Rollback needs only
+those six changed add-on files from the client's own checkpoint and a Kodi
+restart; do not restore databases, credentials or another client's profile.
+
+Post-restart comparison preserves 136 HP / 145 production AV/language/subtitle
+settings and exact Jellyfin settings, keymap, refresh units and boot files.
+Both catalogue timers restored; production Kodi active with zero auto-restarts.
+No new network, credential, service or monitoring object; existing integration
+ownership and wiki/mirror publication gate remain as above. No v2 code deployed
+and no Git push authorized. Immutable artifact/manifest:
+`services/kodi/dist/aster-home-v1.1.1-candidate1`, tracked in
+`services/kodi/releases/aster-home-v1.1.1.json`.

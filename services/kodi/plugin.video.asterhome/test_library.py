@@ -79,28 +79,55 @@ class LibraryTests(unittest.TestCase):
     def test_unstarted_series_is_not_promoted_to_up_next(self):
         self.assertIsNone(next_up_item({'tvshowid': 1}, [self.episode(1, 1)]))
 
-    def test_caught_up_card_browses_series_without_invented_date(self):
+    def test_caught_up_series_is_absent_until_an_episode_arrives(self):
         row = next_up_item({'tvshowid': 1, 'label': 'Series'},
                            [self.episode(1, 1, 1)])
-        self.assertEqual(row['kind'], 'tvshow')
-        self.assertEqual(row['id'], 1)
-        self.assertIn('New episodes when available', row['label'])
+        self.assertIsNone(row)
 
-    def test_future_episode_is_not_playable_and_reports_known_date(self):
+    def test_future_episode_does_not_create_a_placeholder(self):
         row = next_up_item({'tvshowid': 1, 'label': 'Series'},
                            [self.episode(1, 1, 1),
                             self.episode(1, 2, firstaired='2026-11-01')],
                            today='2026-10-23')
-        self.assertEqual(row['kind'], 'tvshow')
-        self.assertIn('2026-11-01', row['label'])
+        self.assertIsNone(row)
 
     def test_missing_file_does_not_skip_to_a_later_playable_episode(self):
         missing = self.episode(1, 2)
         missing['file'] = ''
         row = next_up_item({'tvshowid': 1, 'label': 'Series'},
                            [self.episode(1, 1, 1), missing, self.episode(1, 3)])
-        self.assertEqual(row['kind'], 'tvshow')
-        self.assertIn('not yet in library', row['label'])
+        self.assertIsNone(row)
+
+    def test_mobland_episode_seven_appears_only_when_available(self):
+        from copy import deepcopy
+        show = {'tvshowid': 1, 'label': 'MobLand'}
+        rows = [self.episode(1, 6, 1)]
+        original = deepcopy(rows)
+        self.assertIsNone(next_up_item(show, rows))
+        self.assertEqual(rows, original)
+        rows.append(self.episode(1, 7, firstaired='2026-10-30'))
+        self.assertIsNone(next_up_item(show, rows, today='2026-10-23'))
+        result = next_up_item(show, rows, today='2026-10-30')
+        self.assertEqual((result['season'], result['episode']), (1, 7))
+
+    def test_morning_show_returns_only_when_next_season_exists(self):
+        show = {'tvshowid': 1, 'label': 'The Morning Show'}
+        rows = [self.episode(4, 10, 1)]
+        self.assertIsNone(next_up_item(show, rows))
+        rows.append(self.episode(5, 1))
+        result = next_up_item(show, rows)
+        self.assertEqual((result['season'], result['episode']), (5, 1))
+
+    def test_missing_numbered_episode_or_season_does_not_jump_a_gap(self):
+        show = {'tvshowid': 1}
+        self.assertIsNone(next_up_item(show, [self.episode(1, 6, 1), self.episode(1, 8)]))
+        self.assertIsNone(next_up_item(show, [self.episode(1, 6, 1), self.episode(3, 1)]))
+
+    def test_unavailable_series_disappears_without_losing_movie_resume(self):
+        movie = {'label': 'Movie', 'resume': {'position': 100, 'total': 1000}}
+        result = watching_items([movie], [], [{'tvshowid': 1}],
+                                {1: [self.episode(4, 10, 1)]})
+        self.assertEqual([row['label'] for row in result], ['Movie'])
 
     def test_resuming_series_has_priority_over_its_next_episode(self):
         episode = self.episode(1, 2, resume={'position': 100, 'total': 1000})

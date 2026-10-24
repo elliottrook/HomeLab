@@ -1,7 +1,8 @@
 # Aster Home Kodi skin
 
-Version 1.1.0 is deployed to HP and BOSGAME with owner-approved promotion.
-Continue Watching now includes Up Next and caught-up series; real Intro/Outro
+Version 1.1.1 is deployed to HP and BOSGAME with owner-approved promotion.
+Continue Watching includes available Up Next episodes, not caught-up/future
+series placeholders; real Intro/Outro
 markers drive explicit Aster Skip intro / Play next episode controls. TV hero
 artwork falls back to inherited series fanart. No automatic skipping/playback.
 See [v1.1 deployment, recovery and operator note](../../../docs/projects/Aster-Home-Version-1.1-Up-Next.md)
