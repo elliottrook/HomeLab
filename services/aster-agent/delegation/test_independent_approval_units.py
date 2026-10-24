@@ -28,15 +28,8 @@ class IndependentApprovalUnitTests(unittest.TestCase):
 
     def test_approval_socket_has_independent_runtime_directory(self):
         self.assertRegex(BROKER, r"(?m)^RuntimeDirectory=homelab-broker-approval$")
-        self.assertRegex(BROKER, r"(?m)^RuntimeDirectoryMode=0750$")
-        self.assertIn(
-            "ExecStartPre=/usr/bin/chgrp aster-approval /run/homelab-broker-approval",
-            BROKER,
-        )
-        self.assertIn(
-            "ExecStartPre=/usr/bin/chmod 0750 /run/homelab-broker-approval",
-            BROKER,
-        )
+        self.assertRegex(BROKER, r"(?m)^RuntimeDirectoryMode=0711$")
+        self.assertNotIn("ExecStartPre=", BROKER)
         self.assertIn("--socket /run/homelab-broker-approval/approval.sock", BROKER)
         self.assertNotIn("/run/homelab-broker/approval.sock", BROKER)
         self.assertIn("ASTER_APPROVAL_BROKER_SOCKET", Path(

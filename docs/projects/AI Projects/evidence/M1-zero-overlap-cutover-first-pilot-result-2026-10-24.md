@@ -36,25 +36,28 @@ or grant was created or consumed.
 - The live broker database remains `integrity=ok`, with zero pending and zero
   approved-unconsumed requests.
 
-## Corrective candidate
+## First corrective candidate and measured rejection
 
-The unit candidate now adds two unprivileged `ExecStartPre` operations. The
-`hlabroker` process, with systemd's already declared supplementary
-`aster-approval` group, changes only its own runtime directory to group
-`aster-approval` and confirms mode `0750` before starting the broker. It does
-not change the database state directory, add a permanent group membership or
-widen the socket.
+The first correction added two unprivileged `ExecStartPre` operations and was
+installed under a separate approval. On the supervised rerun both commands
+exited zero, but systemd reapplied `Group=hlabroker` to the managed runtime
+directory before the main process. The directory was again
+`0750 hlabroker:hlabroker`; the pilot stopped at the same identity gate and
+performed the same complete rollback before ingress started.
 
-The corrected unit SHA-256 is
-`c24d0ee2f4cba68864887f9cabb0d1dcbc62af3f31e11916c5b256eb21803d49`.
-Six focused unit tests pass. A target-Linux synthetic identity test reproduced
-the systemd credentials and proved the directory becomes exactly
-`0750 hlabroker:aster-approval`. The installed unit remains the prior inactive
-hash pending a separately approved replacement and rerun.
+The next candidate uses systemd's deterministic runtime-directory control:
+mode `0711` on the parent directory and the existing
+`0660 hlabroker:aster-approval` on the socket. The parent can be traversed but
+not listed or written by other identities; connection authority remains at the
+socket, where the AI-facing `aster` identity was already proven denied. This
+does not change the database state directory or add permanent group
+membership. Six focused tests pass and target `systemd-analyze verify` accepts
+the unit. Its exact replacement hash is recorded in the next local commit.
 
 ## Next gate
 
-Replace only the inactive independent-broker unit with the pinned corrected
-unit, run `daemon-reload`, verify both candidate units remain inactive and
-disabled, and repeat the same supervised reversible pilot. The rerun must still
-stop at the first failed gate and perform the same restrictive rollback.
+Replace only the inactive independent-broker unit with the pinned `0711`
+runtime-parent candidate, run `daemon-reload`, verify both candidate units
+remain inactive and disabled, and repeat the same supervised reversible pilot.
+The rerun must still stop at the first failed gate and perform the same
+restrictive rollback.
