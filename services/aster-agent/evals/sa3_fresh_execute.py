@@ -1,6 +1,7 @@
 """Explicit-execution wrapper for a frozen label-free local evaluation package."""
 import argparse
 import json
+import math
 import os
 from pathlib import Path
 import time
@@ -58,6 +59,31 @@ def build_local_opener():
     return urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
 
 
+def parse_processing_metric(raw):
+    """Return the sole finite, nonnegative requests-processing gauge."""
+    values = []
+    for line in raw.splitlines():
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+        fields = line.split()
+        if len(fields) < 2:
+            continue
+        name = fields[0].split('{', 1)[0]
+        if not name.endswith('requests_processing'):
+            continue
+        try:
+            value = float(fields[-1])
+        except ValueError as exc:
+            raise ValueError('invalid requests-processing metric') from exc
+        if not math.isfinite(value) or value < 0:
+            raise ValueError('invalid requests-processing metric')
+        values.append(value)
+    if len(values) != 1:
+        raise ValueError('exactly one requests-processing metric required')
+    return values[0]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--cases', required=True, type=Path)
@@ -91,10 +117,8 @@ def main():
 
     def ready():
         health = decode_unique_json(get('/health'))
-        processing = [float(line.split()[-1]) for line in get('/metrics').splitlines()
-                      if line and not line.startswith('#')
-                      and line.split()[0].split('{')[0].endswith('requests_processing')]
-        return health.get('status') == 'ok' and bool(processing) and not any(processing)
+        processing = parse_processing_metric(get('/metrics'))
+        return health.get('status') == 'ok' and processing == 0
 
     def transport(payload, timeout):
         start = time.monotonic()

@@ -683,6 +683,12 @@ before the existing shape, sequence and hash-chain checks. Synthetic ambiguous
 rows were rejected and the complete eval suite passed 122/122. This closes an
 offline private-record parser ambiguity; it does not read the holdout, call a
 model or advance D4/M1.
+The future local runner's readiness check now also enforces a
+[single finite, nonnegative requests-processing gauge](evidence/D4-local-idle-metric-boundary-2026-10-24.md).
+Missing, duplicate, negative, nonnumeric and nonfinite synthetic metrics were
+rejected; the normal labelled zero gauge passed, and the complete eval suite
+passed 123/123. This closes an offline idle-admission ambiguity without calling
+the service or authorizing the holdout run.
 
 ## Immediate next action and stop rule
 

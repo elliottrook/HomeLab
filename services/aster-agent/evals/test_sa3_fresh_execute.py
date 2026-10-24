@@ -15,6 +15,7 @@ from sa3_fresh_execute import (
     build_local_opener,
     decode_unique_json,
     load_bounded_json,
+    parse_processing_metric,
     read_bounded,
 )
 from test_sa3_fresh_package import fixture
@@ -71,6 +72,25 @@ class ExecuteTests(unittest.TestCase):
                 stream.truncate(MAX_INPUT_BYTES + 1)
             with self.assertRaisesRegex(ValueError, 'bounded envelope'):
                 load_bounded_json(path)
+
+    def test_readiness_metric_is_single_finite_and_nonnegative(self):
+        self.assertEqual(
+            0.0,
+            parse_processing_metric(
+                '# HELP fixture\nllamacpp:requests_processing{model="fixture"} 0\n'
+            ),
+        )
+        for raw in (
+            '',
+            'llamacpp:requests_processing 0\nllamacpp:requests_processing 0\n',
+            'llamacpp:requests_processing NaN\n',
+            'llamacpp:requests_processing +Inf\n',
+            'llamacpp:requests_processing -1\n',
+            'llamacpp:requests_processing not-a-number\n',
+        ):
+            with self.subTest(raw=raw), self.assertRaisesRegex(
+                    ValueError, 'requests-processing metric'):
+                parse_processing_metric(raw)
 
 
 if __name__ == '__main__': unittest.main()
