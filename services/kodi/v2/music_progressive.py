@@ -4,6 +4,7 @@ import threading
 from music_queue import QueueSnapshot,identities
 from music_trial import TrialUnavailable
 from music_expanded_trial import TrialCancelled
+from music_scrub import ScrubPreview
 
 
 def clock_milliseconds(value):
@@ -18,6 +19,42 @@ def clock_label(value):
     if type(value) is not int or value<0:raise TrialUnavailable('playback-clock-unavailable')
     seconds=value//1000;hours,seconds=divmod(seconds,3600);minutes,seconds=divmod(seconds,60)
     return f'{hours}:{minutes:02}:{seconds:02}' if hours else f'{minutes}:{seconds:02}'
+
+
+def verify_seek_state(engine,before,properties):
+    """PAPlayer resumes on seek; restore pause only for the same occurrence."""
+    actual=engine.rpc('Player.GetProperties',{'playerid':0,'properties':['playlistid','position','speed']})
+    item=engine.rpc('Player.GetItem',{'playerid':0,'properties':[]}).get('item',{})
+    if (actual.get('playlistid')!=0 or actual.get('position')!=before.current_index
+            or item.get('type')!='song' or item.get('id')!=before.song_ids[before.current_index]):
+        raise TrialUnavailable('seek-state-changed')
+    if properties['speed']==0 and actual.get('speed')==1:
+        engine.write('Player.PlayPause',{'playerid':0,'play':False})
+        engine.wait_for(lambda:engine.rpc('Player.GetProperties',{'playerid':0,'properties':['speed']}).get('speed')==0)
+    after=engine.observe()
+    speed=engine.rpc('Player.GetProperties',{'playerid':0,'properties':['speed']}).get('speed')
+    if after.current_index!=before.current_index or speed!=properties['speed']:
+        raise TrialUnavailable('seek-state-changed')
+
+
+def seek_owned(engine,selected,preview):
+    """One seek, exact owned queue/occurrence/duration; no retries or GUI calls."""
+    if not isinstance(preview,ScrubPreview):raise TrialUnavailable('invalid-scrub-preview')
+    with engine.lock:
+        engine.check_cancel()
+        if engine.closed:raise TrialUnavailable('session-closed')
+        before=engine.observe()
+        if (before.current_index!=preview.index or before.song_ids[preview.index]!=preview.song_id
+                or QueueSnapshot(selected,before.current_index).fingerprint!=preview.queue_fingerprint):
+            raise TrialUnavailable('scrub-preview-stale')
+        props=engine.rpc('Player.GetProperties',{'playerid':0,'properties':['totaltime','canseek','speed']})
+        if (props.get('canseek') is not True or type(props.get('speed')) is not int or props['speed'] not in (0,1)
+                or clock_milliseconds(props.get('totaltime'))!=preview.duration_ms):
+            raise TrialUnavailable('scrub-preview-stale')
+        if engine.observe().current_index!=before.current_index:raise TrialUnavailable('track-changed-before-seek')
+        engine.check_cancel()
+        engine.write('Player.Seek',{'playerid':0,'value':{'percentage':preview.percentage}})
+        verify_seek_state(engine,before,props)
 
 
 class ProgressiveSession:
@@ -176,22 +213,19 @@ class ProgressiveSession:
                     raise TrialUnavailable('track-changed-before-seek')
                 self.engine.check_cancel()
                 self.engine.write('Player.Seek',{'playerid':0,'value':{'seconds':step}})
-                # Kodi PAPlayer::SeekTime explicitly resumes paused music.
-                # Restore the requested pause, not by retrying Seek or by
-                # toggling, after a quick native player/song identity check.
-                actual=self.engine.rpc('Player.GetProperties',{'playerid':0,'properties':['playlistid','position','speed']})
-                item=self.engine.rpc('Player.GetItem',{'playerid':0,'properties':[]}).get('item',{})
-                if (actual.get('playlistid')!=0 or actual.get('position')!=before.current_index
-                        or item.get('type')!='song' or item.get('id')!=before.song_ids[before.current_index]):
-                    raise TrialUnavailable('seek-state-changed')
-                if properties['speed']==0 and actual.get('speed')==1:
-                    self.engine.write('Player.PlayPause',{'playerid':0,'play':False})
-                    self.engine.wait_for(lambda:self.engine.rpc('Player.GetProperties',{'playerid':0,'properties':['speed']}).get('speed')==0)
-                after=self.engine.observe()
-                speed=self.engine.rpc('Player.GetProperties',{'playerid':0,'properties':['speed']}).get('speed')
-                if after.current_index!=before.current_index or speed!=properties['speed']:
-                    raise TrialUnavailable('seek-state-changed')
+                self.verify_seek_state(before,properties)
         finally:self.control_pending.clear()
+
+    def seek_to(self,preview):
+        if not isinstance(preview,ScrubPreview):raise TrialUnavailable('invalid-scrub-preview')
+        self.control_pending.set()
+        try:
+            if self.closed:raise TrialUnavailable('session-closed')
+            seek_owned(self.engine,self.selected,preview)
+        finally:self.control_pending.clear()
+
+    def verify_seek_state(self,before,properties):
+        verify_seek_state(self.engine,before,properties)
 
     def close(self):
         # Set cancellation without taking the engine lock; a batch may own it.

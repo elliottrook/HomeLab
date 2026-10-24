@@ -1146,3 +1146,67 @@ confirmed Play, Pause/Resume, exact saved order, Back/origin and empty-queue
 restore all pass. All 16 playlist mappings are reverified. Continue directly
 with the normal-mode partial-shuffle seek/Home test and interactive scrubber;
 no server test playlist creation is part of those checks.
+
+Native normal partial-shuffle `native-ui-1792861354392670423.json` passes with
+no engineering grant: Select-to-player 1.500s, Pause 2.105s, queue paging/selected
+track metadata, both small seeks preserving the paused song, stable Home exit
+and empty restoration (6.702s including cleanup/settle). Independent
+`postcheck-1792861549738273077.json` verifies candidate43, all 42 lab files,
+149 untouched baseline files/four approved player overlays, all 68 AV/language
+values, healthy DB, no player/queue/grant/live windows, and only the approved
+normal-playback profile. The saved-playlist native artifact's legacy
+`read_only_preview` field means no autoplay in normal mode, not disabled Play;
+the tool now records that distinction explicitly.
+
+Next bounded package: interactive remote scrub preview in the progressive
+player. Up from Play/Pause focuses the thin bar; arrows preview five-second
+steps, OK applies one seek, Back cancels preview without stopping, and another
+Back retains the existing exit-stop contract. Queue/song/index/duration changes
+invalidate a preview; verified owned background appends may continue without
+invalidating it. Percentage requests are finite, non-boolean and below 100%;
+clamp at least one second before completion. Preserve paused state after Kodi's
+known resume-on-seek behavior, with no uncertain seek retries. No new service,
+server playlist writes or device settings. Test locally, checkpoint43, deploy
+to HP, test preview/cancel/apply during progressive fill and Home cleanup,
+inspect screenshot, then rerun preservation checks. This first scrubber is not
+yet a claim that every album/video/Books player has an interactive bar.
+
+#### Native scrub preview and audio details — 2026-10-24
+
+Candidate44 (43 files), SHA-256
+`0d66997e5d3516da2794029574665d8622c62cda540f5e6e1ffd2e1f39d0b923`,
+deployed with exact candidate43 recovery. Native normal-mode passes
+`native-ui-1792861683792847912.json` (Home exit) and
+`native-ui-1792861823619048930.json` (Back exit) independently verify preview,
+cancel and one confirmed seek during background loading, preserving the same
+paused song. Select latencies 1.835/1.874s, scrub apply 3.102/2.206s; cleanup
+6.282/5.663s. Both restore the empty queue without engineering grant files.
+Screenshot `/tmp/aster-scrub-preview.png` inspected: square artwork, readable
+separate source/title/count lanes, floating controls and thin seek preview.
+222 local tests passed before the following audio-detail correction.
+
+Candidate45 (43 files), SHA-256
+`0f6a7cadef12b79ead75c43f790d2ea9be99e2bdf116cd0164dc06194c091f83`,
+installed with candidate44 ZIP/tree recovery at `before-candidate45` in the
+private expanded-trial checkpoint root. Normal HP profile unchanged. Source
+sample rate now handles Kodi 21.3's unlabelled **kHz** output, verified against
+[the tagged Kodi source](https://github.com/xbmc/xbmc/blob/21.3-Omega/xbmc/guilib/guiinfo/MusicGUIInfo.cpp#L472-L478).
+Menu Audio details reads only `audiooutput.audiodevice`, reports the configured
+device separately and explicitly disclaims receiver measurement/bit-perfect
+proof. Other settings, extra fields and setting writes are denied. 224 local
+tests pass. Native Audio details testing is in progress: first driver sent OK
+before modal focus was ready, timed out and cleaned up; retained as failed
+test evidence, not a product pass. Driver now waits for the OK button focus.
+No production, server playlist or Git remote changes.
+
+Candidate46 (43 files), SHA-256
+`462c70dec22a9bf243b507069f2b6ac4c544fc01ccc5f6f8dd6c0cfcacb47e5e`,
+adds explicit originating-control restoration after Audio details. Candidate45
+recovery verified before activation. Native
+`song-artist-1792862318548631703.json` passes sample-rate/source facts, Menu
+Audio details with paused state preserved, normal Play/Pause/Resume, Artist
+drilldown/Back, no autoplay and final idle/empty restoration without grant.
+225 tests pass. The native driver closes the modal with Back and then verifies
+the restored control; earlier failed focus tests are not counted as passes.
+Next extend the same guarded seek contract to album/song/playlist players;
+share exact seek/paused-state verification rather than duplicate native writes.

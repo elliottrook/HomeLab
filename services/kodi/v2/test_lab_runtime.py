@@ -52,6 +52,19 @@ class RuntimeTests(unittest.TestCase):
             with self.assertRaises(ValueError):self.runtime.rpc(method,{})
         self.xbmc.executeJSONRPC.assert_not_called()
 
+    def test_audio_details_cannot_read_arbitrary_or_secret_settings(self):
+        for params in ({'setting':'services.webserverpassword'},{'setting':'audiooutput.audiodevice','extra':True},{}):
+            with self.assertRaises(ValueError):self.runtime.rpc('Settings.GetSettingValue',params)
+        self.xbmc.executeJSONRPC.assert_not_called()
+
+    def test_audio_details_restores_originating_control_focus(self):
+        window=self.runtime.AlbumLab();window.focused=400
+        def lose_focus(*args):window.focused=0
+        window.dialog=Mock(side_effect=lose_focus)
+        with patch.object(self.runtime,'read_details',return_value='Source: FLAC'):
+            window.audio_details()
+        self.assertEqual(window.focused,400)
+
     def test_arrow_column_retained_after_deferred_focus_callback(self):
         w=self.window;w.model.index=w.model.column=3;w.focused=503
         self.action(4);self.assertEqual(w.focused,506)
@@ -160,7 +173,7 @@ class RuntimeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as one,tempfile.TemporaryDirectory() as two:
             first=build(one);second=build(two)
             self.assertEqual(first['sha256'],second['sha256'])
-            self.assertEqual(len(first['files']),42)
+            self.assertEqual(len(first['files']),43)
             self.assertTrue(all(r['path'].startswith('script.astermusic.v2lab/') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_queue.py') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_album.py') for r in first['files']))
@@ -210,6 +223,20 @@ class RuntimeTests(unittest.TestCase):
         action.getId.return_value=2;window.onAction(action);self.assertEqual(window.focused,400)
         window.onAction(action);self.assertEqual(window.focused,406)
         action.getId.return_value=3;window.onAction(action);self.assertEqual(window.focused,600)
+
+    def test_scrub_arrows_only_preview_back_cancels_and_select_commits_once(self):
+        from music_scrub import ScrubPreview
+        from music_queue import QueueSnapshot
+        window=self.runtime.ShuffleLab();window.focused=611
+        window.scrub=ScrubPreview.start(QueueSnapshot((1,2),0),180000,25000)
+        window.control=Mock();window.close=Mock()
+        action=Mock();action.getId.return_value=2;window.onAction(action)
+        self.assertEqual(window.scrub.target_ms,30000);window.control.assert_not_called()
+        action.getId.return_value=92;window.onAction(action)
+        self.assertIsNone(window.scrub);self.assertEqual(window.focused,400);window.close.assert_not_called()
+        window.scrub=ScrubPreview.start(QueueSnapshot((1,2),0),180000,25000)
+        preview=window.scrub;window.onClick(611)
+        window.control.assert_called_once_with('scrub',preview);self.assertIsNone(window.scrub)
 
     def test_floating_controls_fit_cover_and_keep_readable_focus_caption(self):
         window=self.runtime.ShuffleLab();window.allowed=(1,)

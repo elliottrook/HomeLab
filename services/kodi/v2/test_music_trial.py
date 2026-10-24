@@ -36,7 +36,9 @@ class FakePlayer:
         elif method=='Player.Open':self.position=p['item']['position'];self.speed=1
         elif method=='Player.Stop':self.position=None;self.speed=0
         elif method=='Player.PlayPause':self.speed=1 if p['play'] else 0
-        elif method=='Player.Seek':self.elapsed+=p['value']['seconds']*1000
+        elif method=='Player.Seek':
+            if 'seconds' in p['value']:self.elapsed+=p['value']['seconds']*1000
+            else:self.elapsed=int(self.duration*p['value']['percentage']/100)
         else:raise AssertionError(method)
         return 'OK'
 
@@ -140,7 +142,9 @@ class TrialTests(unittest.TestCase):
                  ('Player.Seek',{'playerid':0,'value':{'seconds':True}}),
                  ('Player.Seek',{'playerid':0,'value':{'seconds':11}}),
                  ('Player.Seek',{'playerid':0,'value':{'seconds':0}}),
-                 ('Player.Seek',{'playerid':0,'value':{'percentage':50}}),
+                 ('Player.Seek',{'playerid':0,'value':{'percentage':True}}),
+                 ('Player.Seek',{'playerid':0,'value':{'percentage':100}}),
+                 ('Player.Seek',{'playerid':0,'value':{'percentage':float('nan')}}),
                  ('Settings.SetSettingValue',{})]
         for method,p in invalid:
             with self.assertRaises(TrialUnavailable):validate_write(method,p,[10,20,30])

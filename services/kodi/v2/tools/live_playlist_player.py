@@ -84,7 +84,7 @@ finally:
     root=Path('/storage/.aster-checkpoints/aster-music-progressive-20261024')
     p=root/('playlist-player-'+str(time.time_ns())+'.json')
     p.write_text(json.dumps(dict(passed=passed,normal_mode=normal,playlists_verified=len(rows),track_counts=counts,
-        exact_id_mapping=True,no_guessed_or_omitted_tracks=True,read_only_preview=True,
+        exact_id_mapping=True,no_guessed_or_omitted_tracks=True,read_only_preview=not normal,preview_does_not_autoplay=True,
         complete_saved_order_playback=passed,pause_resume=passed,back_restores_origin_empty_queue=passed,
         capability_removed=True,no_server_playlist_writes=True)))
     p.chmod(0o600)

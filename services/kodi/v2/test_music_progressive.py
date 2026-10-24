@@ -207,6 +207,36 @@ class ProgressiveTests(unittest.TestCase):
         self.assertEqual(self.player.speed,0);self.assertEqual(self.player.elapsed,35000)
         session.close()
 
+    def test_scrub_commits_one_owned_percentage_seek_and_preserves_native_pause(self):
+        from music_scrub import ScrubPreview
+        from music_queue import QueueSnapshot
+        session=self.make(3);session.start([1,2,3],confirmed=True);session.worker.join();session.pause(False)
+        preview=ScrubPreview.start(QueueSnapshot(session.selected,0),180000,25000).adjust(1)
+        original=self.engine.rpc
+        def native(method,params):
+            result=original(method,params)
+            if method=='Player.Seek':self.player.speed=1
+            return result
+        self.engine.rpc=native;begin=len(self.player.calls);session.seek_to(preview)
+        self.assertAlmostEqual(self.player.elapsed,30000,delta=2);self.assertEqual(self.player.speed,0)
+        writes=[(m,p) for m,p in self.player.calls[begin:] if m in ('Player.Seek','Player.PlayPause')]
+        self.assertEqual(writes,[('Player.Seek',{'playerid':0,'value':{'percentage':preview.percentage}}),
+                                 ('Player.PlayPause',{'playerid':0,'play':False})])
+        session.close()
+
+    def test_scrub_refuses_changed_song_order_duration_and_unseekable_source(self):
+        from music_scrub import ScrubPreview
+        from music_queue import QueueSnapshot
+        session=self.make(3);session.start([1,2,3],confirmed=True);session.worker.join()
+        preview=ScrubPreview.start(QueueSnapshot(session.selected,0),180000,25000)
+        self.player.position=1
+        with self.assertRaisesRegex(TrialUnavailable,'stale'):session.seek_to(preview)
+        self.player.position=0;self.player.duration=190000
+        with self.assertRaisesRegex(TrialUnavailable,'stale'):session.seek_to(preview)
+        self.player.duration=180000;self.player.canseek=False
+        with self.assertRaisesRegex(TrialUnavailable,'stale'):session.seek_to(preview)
+        self.assertFalse(any(m=='Player.Seek' for m,p in self.player.calls));session.close()
+
     def test_ready_session_remove_updates_complete_intent_and_current_position(self):
         session=self.make(4);session.start([1,2,3,4],confirmed=True);session.worker.join()
         session.select(2);session.pause(False);before=self.engine.observe()

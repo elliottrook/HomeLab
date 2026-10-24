@@ -1,4 +1,4 @@
-"""Isolated HP Music pilot; live writes require a temporary three-song trial."""
+"""Isolated HP Music pilot with approved normal mode or expiring test grants."""
 import json
 from pathlib import Path
 import platform
@@ -17,12 +17,13 @@ from lab_model import LabModel
 from music_catalogue import CatalogueUnavailable, read_catalogue
 from music_album import AlbumUnavailable, read_album
 from music_selection import SelectionUnavailable,read_song
-from music_audio import read_source
+from music_audio import read_source,read_details
 from music_playlists import PlaylistUnavailable,read_playlists,read_playlist,indexed_mapping,server_mapping
 from music_jellyfin import PlaylistReader,PlaylistCreator
 from music_shared_save import save_owned_queue
 from music_playlist_save import PlaylistSaveUnavailable
-from music_queue import propose,nonholiday_shuffle
+from music_queue import propose,nonholiday_shuffle,QueueSnapshot
+from music_scrub import ScrubPreview
 from queue_reader import QueueUnavailable, read_queue
 from music_trial import TrialPlayer,TrialUnavailable,capability,normal_playback_capability,save_empty_checkpoint,validate_write
 from music_expanded_trial import ExpandedTrial,TrialCancelled,expanded_capability,save_intent
@@ -31,7 +32,7 @@ from music_progressive import ProgressiveSession,clock_milliseconds,clock_label
 ASSETS = 'special://home/addons/skin.asterhome/media/'
 READS = {'AudioLibrary.GetAlbums','AudioLibrary.GetArtists','AudioLibrary.GetSongs',
          'AudioLibrary.GetAlbumDetails','AudioLibrary.GetArtistDetails','AudioLibrary.GetSongDetails',
-         'Player.GetActivePlayers','Player.GetProperties','Player.GetItem','Playlist.GetItems','XBMC.GetInfoLabels'}
+         'Player.GetActivePlayers','Player.GetProperties','Player.GetItem','Playlist.GetItems','XBMC.GetInfoLabels','Settings.GetSettingValue'}
 BACK = {9,10,92,216,247,257,275}
 DIRECTIONS = {1:'left',2:'right',3:'up',4:'down'}
 ICONS = {'album':'23-music-album.png','artist':'24-music-artist.png','song':'25-music-song.png','playlist':'26-music-playlist.png'}
@@ -39,6 +40,8 @@ ICONS = {'album':'23-music-album.png','artist':'24-music-artist.png','song':'25-
 
 def rpc(method,params):
     if method not in READS: raise CatalogueUnavailable('read-only-pilot')
+    if method=='Settings.GetSettingValue' and params!={'setting':'audiooutput.audiodevice'}:
+        raise CatalogueUnavailable('read-only-pilot')
     return execute(method,params)
 
 
@@ -338,6 +341,13 @@ class AlbumLab(xbmcgui.WindowXML):
             self.setProperty('Album.Status',f'Saved private Jellyfin playlist · {result[0]["count"]} tracks · playback unchanged')
             xbmcgui.Dialog().notification('Playlist saved',result[0]['name'])
 
+    def audio_details(self):
+        focused=self.getFocusId()
+        self.dialog('ok','Audio details',read_details(rpc))
+        # Native modal closure may leave WindowXML without a focused control.
+        # Restore the exact originating control, not an arbitrary track.
+        self.focus_control(focused)
+
     def onAction(self,action):
         if self.finished:return
         key=action.getId()
@@ -352,7 +362,9 @@ class AlbumLab(xbmcgui.WindowXML):
                 snapshot=self.trial.observe()
                 if not snapshot.song_ids:
                     self.dialog('ok','Empty queue','There is no queued music to save.');return
-                if self.dialog('select','Queue actions',['Save queue to Jellyfin…'])==0:self.save_shared_queue(self.trial,snapshot)
+                option=self.dialog('select','Queue actions',['Save queue to Jellyfin…','Audio details'])
+                if option==0:self.save_shared_queue(self.trial,snapshot)
+                elif option==1:self.audio_details()
             except (TrialUnavailable,QueueUnavailable):
                 self.dialog('ok','Queue changed','The queue could not be verified. No playlist was saved.')
             return
@@ -377,10 +389,12 @@ class ShuffleLab(AlbumLab):
         self.initialized=False
         self.control_worker=None;self.control_errors=[]
         self.next_audio_update=0
+        self.scrub=None;self.control_labels[611]='Seek position'
 
     def onInit(self):
         super().onInit()
         self.setProperty('Album.Shuffle','true')
+        self.setProperty('Album.ScrubMode','false')
         self.setProperty('Album.Context','SHUFFLE ALL / NO HOLIDAY MUSIC')
         self.setProperty('Album.Count',f'{len(self.allowed):,} verified songs')
         self.setProperty('Album.Help','Select to play · Menu edits a fully loaded queue. Page arrows browse; Current finds the playing song. Back stops playback.')
@@ -407,7 +421,7 @@ class ShuffleLab(AlbumLab):
                 error=self.control_errors.pop(0)
                 if isinstance(error,TrialUnavailable) and str(error)=='selected-track-not-loaded':
                     self.dialog('ok','Still loading','This song has not reached the native queue yet. Choose a loaded song or wait.')
-                elif isinstance(error,TrialUnavailable) and str(error) in ('seek-unavailable','playback-clock-unavailable','track-changed-before-seek'):
+                elif isinstance(error,TrialUnavailable) and str(error) in ('seek-unavailable','playback-clock-unavailable','track-changed-before-seek','scrub-preview-stale'):
                     self.dialog('ok','Seek unavailable','This song does not currently report a stable seekable duration. Playback is unchanged.')
                 elif isinstance(error,TrialUnavailable) and str(error) in ('queue-preview-stale','queue-remove-refused','queue-still-loading'):
                     self.dialog('ok','Queue unchanged',{'queue-preview-stale':'The queue or playing song changed. Open Menu again to review a fresh selection.',
@@ -439,8 +453,10 @@ class ShuffleLab(AlbumLab):
                     try:
                         elapsed=clock_milliseconds(props.get('time'));duration=clock_milliseconds(props.get('totaltime'))
                         if not 0<=elapsed<=duration or not duration:raise TrialUnavailable('playback-clock-unavailable')
-                        self.setProperty('Album.Clock',clock_label(elapsed)+' / '+clock_label(duration))
-                        self.getControl(610).setPercent(elapsed/duration*100)
+                        if self.scrub and (self.scrub.index!=position or self.scrub.song_id!=identity):self.cancel_scrub()
+                        if not self.scrub:
+                            self.setProperty('Album.Clock',clock_label(elapsed)+' / '+clock_label(duration))
+                            self.getControl(610).setPercent(elapsed/duration*100)
                     except TrialUnavailable:
                         self.setProperty('Album.Clock','— / —');self.getControl(610).setPercent(0)
                     old_position=self.current_position
@@ -474,6 +490,7 @@ class ShuffleLab(AlbumLab):
             try:
                 if action=='pause':self.session.pause(value)
                 elif action=='seek':self.session.seek(value)
+                elif action=='scrub':self.session.seek_to(value)
                 elif action=='remove':self.session.remove(value[0],expected_queue=value[1])
                 elif action=='clear':self.session.clear(expected_queue=value,confirmed=True)
                 else:self.session.select(value)
@@ -483,6 +500,37 @@ class ShuffleLab(AlbumLab):
         self.control_worker=threading.Thread(target=work,name='AsterMusicControl')
         self.control_worker.start()
 
+    def begin_scrub(self):
+        if self.control_worker:return
+        self.session.control_pending.set()
+        try:
+            with self.session.engine.lock:
+                state=self.session.engine.observe()
+                props=rpc('Player.GetProperties',{'playerid':0,'properties':['time','totaltime','canseek']})
+                if props.get('canseek') is not True or state.current_index is None:raise TrialUnavailable('seek-unavailable')
+                self.scrub=ScrubPreview.start(QueueSnapshot(self.session.selected,state.current_index),
+                    clock_milliseconds(props.get('totaltime')),clock_milliseconds(props.get('time')))
+            self.setProperty('Album.ScrubMode','true');self.focus_control(611)
+        except (TrialUnavailable,QueueUnavailable,ValueError):
+            self.scrub=None;self.setProperty('Album.ScrubMode','false')
+            self.dialog('ok','Seek unavailable','This song does not report a stable seekable duration. Playback is unchanged.')
+        finally:self.session.control_pending.clear()
+
+    def render_scrub(self):
+        if not self.scrub:return
+        self.getControl(610).setPercent(self.scrub.percentage)
+        self.getControl(620).setPosition(170+int(self.scrub.percentage/100*360),906)
+        self.setProperty('Album.Clock',clock_label(self.scrub.target_ms)+' / '+clock_label(self.scrub.duration_ms))
+        self.setProperty('Album.ControlHint','Seek '+clock_label(self.scrub.target_ms)+' · Left/right · OK apply · Back cancel')
+
+    def cancel_scrub(self,focus=True):
+        self.scrub=None;self.setProperty('Album.ScrubMode','false');self.next_player_update=0
+        if focus:self.focus_control(400)
+
+    def onFocus(self,control):
+        if control==611 and self.scrub:self.render_scrub()
+        else:super().onFocus(control)
+
     def queue_menu(self):
         if self.control_worker:return
         state=self.session.status()
@@ -491,7 +539,7 @@ class ShuffleLab(AlbumLab):
         snapshot=self.session.engine.observe()
         position=self.page_offset+self.getControl(600).getSelectedPosition()
         if not 0<=position<len(snapshot.song_ids):return
-        option=self.dialog('select','Queue actions',['Remove selected song','Stop and clear queue…','Save queue to Jellyfin…'])
+        option=self.dialog('select','Queue actions',['Remove selected song','Stop and clear queue…','Save queue to Jellyfin…','Audio details'])
         if option==0:
             if position==snapshot.current_index:
                 self.dialog('ok','Keep playing song','The playing occurrence cannot be removed. Select another queued song.');return
@@ -500,11 +548,16 @@ class ShuffleLab(AlbumLab):
         elif option==1 and self.dialog('yesno','Stop and clear queue','Stop this player and clear its queue? Your library and saved playlists are unchanged.'):
             self.control('clear',snapshot.fingerprint)
         elif option==2:self.save_shared_queue(self.session.engine,snapshot)
+        elif option==3:self.audio_details()
 
     def onClick(self,control):
         if self.finished:return
         try:
-            if control==400:
+            if control==611:
+                if self.scrub:
+                    preview=self.scrub;self.cancel_scrub();self.control('scrub',preview)
+                else:self.begin_scrub()
+            elif control==400:
                 self.control('pause',self.paused)
             elif control==404:self.close()
             elif control in (405,406):self.control('seek',-10 if control==405 else 10)
@@ -523,6 +576,8 @@ class ShuffleLab(AlbumLab):
         if self.finished:return
         key=action.getId()
         if key in BACK:
+            if self.scrub:
+                self.cancel_scrub();return
             if not self.dialog_open and time.monotonic()>=self.back_guard_until:self.close()
             return
         if key==117:
@@ -530,9 +585,17 @@ class ShuffleLab(AlbumLab):
             return
         control=self.getFocusId()
         buttons=(405,400,406,404,401,402,403)
-        if control in buttons:
+        if control==611:
+            if key in (1,2):
+                if self.scrub:self.scrub=self.scrub.adjust(-1 if key==1 else 1);self.render_scrub()
+            elif key in (3,4):
+                self.cancel_scrub(focus=False);self.focus_control(600 if key==3 else 400)
+        elif control in buttons:
             if key in (1,2):self.focus_control(buttons[max(0,min(len(buttons)-1,buttons.index(control)+(1 if key==2 else -1)))])
-            elif key in (3,4):self.focus_control(600)
+            elif key==3:
+                if control==400:self.begin_scrub()
+                else:self.focus_control(600)
+            elif key==4:self.focus_control(600)
         elif control==600 and key==1:self.focus_control(400)
 
     def close(self):

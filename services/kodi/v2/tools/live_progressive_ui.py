@@ -92,6 +92,26 @@ try:
         press('right');until(lambda:focus(400),'Seek returns to pause control')
         until(lambda:label('Window.Property(Album.ControlHint)')=='Resume','Focused icon caption follows pause control')
         metrics['native_seek_both_directions_preserves_paused_song']=True
+    if '--scrub-controls' in sys.argv:
+        before_scrub=elapsed();item=rpc('Player.GetItem',{'playerid':0,'properties':[]})['item']['id']
+        assert speed()==0
+        press('up');until(lambda:focus(611) and label('Window.Property(Album.ScrubMode)')=='true','Scrub bar focus')
+        prior=label('Window.Property(Album.Clock)');press('right')
+        until(lambda:label('Window.Property(Album.Clock)')!=prior,'Right previews five seconds')
+        assert abs(elapsed()-before_scrub)<.5 and speed()==0
+        press('back');until(lambda:focus(400) and label('Window.Property(Album.ScrubMode)')=='false','Back cancels only preview')
+        assert abs(elapsed()-before_scrub)<.5 and label('Window(Home).Property(AsterV2Lab.AlbumWindow)')
+        press('up');until(lambda:focus(611),'Scrub again')
+        for _ in range(2):
+            prior=label('Window.Property(Album.Clock)');press('right')
+            until(lambda:label('Window.Property(Album.Clock)')!=prior,'Preview advances')
+        subprocess.run(['kodi-send','--action=TakeScreenshot(/storage/.aster-staging/aster-scrub-preview.png)'],check=True,stdout=subprocess.DEVNULL)
+        apply_start=time.monotonic();select()
+        until(lambda:abs(elapsed()-(before_scrub+10))<1 and speed()==0,'OK applies one paused seek')
+        until(lambda:focus(400) and label('Control.GetLabel(400)')=='Resume','Scrub returns to transport')
+        assert rpc('Player.GetItem',{'playerid':0,'properties':[]})['item']['id']==item
+        metrics['native_scrub_preview_cancel_and_commit_preserves_paused_song']=True
+        metrics['native_scrub_apply_seconds']=round(time.monotonic()-apply_start,3)
     subprocess.run(['kodi-send','--action=TakeScreenshot(/storage/.aster-staging/aster-progressive-player-candidate26.png)'],check=True,stdout=subprocess.DEVNULL)
     assert 'queued' in label('Window.Property(Album.Status)')
     exit_start=time.monotonic()

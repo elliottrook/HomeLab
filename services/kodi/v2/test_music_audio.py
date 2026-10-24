@@ -1,13 +1,14 @@
 import unittest
-from music_audio import LABELS,read_source,source_summary
+from music_audio import LABELS,read_source,read_details,source_summary
 
 
 class AudioFactsTests(unittest.TestCase):
     def test_only_reported_valid_source_fields_are_shown(self):
-        self.assertEqual(source_summary(dict(zip(LABELS,['flac','44100','16','2','720']))),
+        self.assertEqual(source_summary(dict(zip(LABELS,['flac','44.100','16','2','720']))),
             'Source: FLAC · 44.1 kHz · 16-bit · 2 ch · 720 kb/s')
         self.assertEqual(source_summary({'MusicPlayer.Codec':'aac','MusicPlayer.SampleRate':'48 kHz'}),
                          'Source: AAC · 48 kHz')
+        self.assertEqual(source_summary({'MusicPlayer.SampleRate':'96000 Hz'}),'Source: 96 kHz')
     def test_empty_malformed_unknown_and_injected_values_are_not_claims(self):
         for values in (None,{},dict(zip(LABELS,['https://private/token','9999999','0','0','unknown'])),
                        dict(zip(LABELS,['x'*100,'nan','True',True,'-1']))):
@@ -20,3 +21,12 @@ class AudioFactsTests(unittest.TestCase):
     def test_failed_read_has_no_fabricated_quality_or_output_claim(self):
         def rpc(*args):raise RuntimeError('private endpoint')
         self.assertEqual(read_source(rpc),'')
+
+    def test_output_details_are_explicit_configuration_not_receiver_claim(self):
+        calls=[]
+        def rpc(method,params):
+            calls.append((method,params))
+            return {'MusicPlayer.Codec':'flac'} if method=='XBMC.GetInfoLabels' else {'value':'ALSA:hdmi:CARD=Intel,DEV=0'}
+        text=read_details(rpc)
+        self.assertIn('Configured output: HDMI (ALSA)',text);self.assertIn('not a measurement',text)
+        self.assertEqual(calls[-1],('Settings.GetSettingValue',{'setting':'audiooutput.audiodevice'}))

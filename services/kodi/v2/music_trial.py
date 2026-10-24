@@ -9,6 +9,7 @@ from functools import wraps
 from pathlib import Path
 import threading
 import time
+import math
 
 from music_queue import identities, propose
 from queue_reader import QueueUnavailable, read_queue
@@ -97,8 +98,15 @@ def validate_write(method, params, allowed, *, queue_limit=3):
     elif method=='Player.Seek':
         value=params.get('value')
         if (set(params)!={'playerid','value'} or type(params['playerid']) is not int
-                or params['playerid']!=0 or not isinstance(value,dict) or set(value)!={'seconds'}
-                or type(value['seconds']) is not int or not 1<=abs(value['seconds'])<=10):
+                or params['playerid']!=0 or not isinstance(value,dict)):
+            raise TrialUnavailable('trial-write-denied')
+        if set(value)=={'seconds'}:
+            valid=type(value['seconds']) is int and 1<=abs(value['seconds'])<=10
+        elif set(value)=={'percentage'}:
+            percent=value['percentage']
+            valid=type(percent) in (int,float) and math.isfinite(percent) and 0<=percent<100
+        else:valid=False
+        if not valid:
             raise TrialUnavailable('trial-write-denied')
     else:raise TrialUnavailable('trial-write-denied')
 

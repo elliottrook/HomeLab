@@ -70,6 +70,15 @@ try:
     xbmc.sleep(1200);select()
     until(lambda:label('Control.GetLabel(400)')=='Resume','Song paused')
     assert label('Window.Property(Album.AudioDetails)').startswith('Source:'),'factual source-format label'
+    assert 'kHz' in label('Window.Property(Album.AudioDetails)'),'native sample-rate units'
+    press('contextmenu');until(lambda:label('Control.GetLabel(1)')=='Queue actions','Queue actions menu')
+    press('down');select()
+    until(lambda:label('Control.GetLabel(1)')=='Audio details','Audio details dialog')
+    from music_audio import read_details
+    details=read_details(rpc)
+    assert 'kHz' in details and 'Configured output:' in details and 'not a measurement' in details
+    press('back');until(lambda:focus(400),'Audio details closed')
+    assert rpc('Player.GetProperties',dict(playerid=0,properties=['speed']))['speed']==0
     xbmc.executebuiltin('TakeScreenshot(/storage/.aster-staging/song-audio-details.png)')
     select();until(lambda:label('Control.GetLabel(400)')=='Pause','Song resumed')
     press('back');until(lambda:idle() and focus(500) and not label('Window(Home).Property(AsterV2Lab.AlbumWindow)'),'Song exit stops and restores queue')
@@ -86,5 +95,6 @@ finally:
     root=Path('/storage/.aster-checkpoints/aster-music-progressive-20261024')
     path=root/('song-artist-'+str(time.time_ns())+'.json')
     path.write_text(json.dumps(dict(passed=passed,normal_mode=normal,artist_drilldown_and_back=True,preview_does_not_autoplay=True,
-        one_song_play_pause_resume=passed,source_audio_details=passed,back_restores_origin_and_empty_queue=passed,capability_removed=True)))
+        one_song_play_pause_resume=passed,source_audio_details=passed,audio_details_menu_preserves_pause=passed,
+        back_restores_origin_and_empty_queue=passed,capability_removed=True)))
     path.chmod(0o600)
