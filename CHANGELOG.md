@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-10-23 - Aster v2 scope and separate v1.1 Up Next
+
+- Created the bounded v2 Stream M charter from the owner's reviewed list and
+  clarifications: music genres, whole-library non-holiday shuffle, Seerr,
+  voice search, scrub bar and premium controls/icons. Unticked items 27-30 are
+  deferred to v3; no downloader is scheduled.
+- Split urgent Up Next and the later real-credits Play next prompt into v1.1.
+  HP-only test deployment is approved; BOSGAME promotion remains gated.
+- HP v1.1 candidate now includes native Aster Intro skip and Outro/Play next
+  using actual Jellyfin markers, replacing duplicate native client popups.
+  Live exact-seek and saved-bookmark handover passed; no auto-skip/autoplay.
+
 ## 2026-10-17 — Aster Home skin v1 production candidate
 
 - Promoted the owner-accepted Aster Home Kodi skin and its private support
