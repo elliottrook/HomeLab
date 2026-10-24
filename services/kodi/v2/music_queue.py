@@ -91,3 +91,28 @@ def nonholiday_shuffle(songs, albums, *, expected_total, seed):
     selected = sorted(summary['eligible_ids'])
     random.Random(seed).shuffle(selected)
     return tuple(selected)
+
+
+def propose_remove(snapshot, position):
+    """Remove one occurrence by position, never guess by a repeated song ID.
+
+    Planning only. Removing the currently playing occurrence needs an explicit
+    playback-transition design; this proposal deliberately refuses it. A native
+    writer must re-read the full snapshot/fingerprint before any later write.
+    """
+    if not isinstance(snapshot, QueueSnapshot):raise ValueError('Verified queue snapshot required')
+    if type(position) is not int or not 0<=position<len(snapshot.song_ids):
+        raise ValueError('Invalid removal position')
+    if position==snapshot.current_index:raise ValueError('Cannot remove the playing item')
+    selected=snapshot.song_ids[:position]+snapshot.song_ids[position+1:]
+    current=snapshot.current_index
+    if current is not None and position<current:current-=1
+    return QueueProposal('remove',selected,current,snapshot.fingerprint,False)
+
+
+def propose_clear(snapshot, *, confirmed=False):
+    """Explicit idle-only clear proposal; no implicit Stop, save or deletion."""
+    if not isinstance(snapshot, QueueSnapshot):raise ValueError('Verified queue snapshot required')
+    if confirmed is not True:raise ValueError('Queue clear requires explicit confirmation')
+    if snapshot.current_index is not None:raise ValueError('Stop playback before clearing the queue')
+    return QueueProposal('clear',(),None,snapshot.fingerprint,True)

@@ -1,6 +1,6 @@
 import unittest
 
-from music_queue import QueueSnapshot, nonholiday_shuffle, propose
+from music_queue import QueueSnapshot, nonholiday_shuffle, propose, propose_remove, propose_clear
 
 
 class QueueTests(unittest.TestCase):
@@ -77,6 +77,48 @@ class QueueTests(unittest.TestCase):
                                    expected_total=1, seed=0)
         self.assertEqual(result, ())
         with self.assertRaises(ValueError): propose(self.current, result, action='replace')
+
+    def test_remove_duplicate_occurrence_does_not_deduplicate_or_restart(self):
+        plan=propose_remove(self.current,2)
+        self.assertEqual(plan.song_ids,(10,20,30));self.assertEqual(plan.current_index,1)
+        self.assertFalse(plan.replaces_queue);self.assertTrue(plan.matches(self.current))
+        self.assertEqual(self.current.song_ids,(10,20,10,30))
+
+    def test_remove_before_current_keeps_same_song_and_adjusts_index(self):
+        snapshot=QueueSnapshot((10,20,10,30),2)
+        plan=propose_remove(snapshot,0)
+        self.assertEqual(plan.song_ids,(20,10,30));self.assertEqual(plan.current_index,1)
+        self.assertEqual(plan.song_ids[plan.current_index],snapshot.song_ids[snapshot.current_index])
+
+    def test_remove_current_or_invalid_position_is_refused(self):
+        for position in (1,True,-1,4,'2',None):
+            with self.assertRaises(ValueError):propose_remove(self.current,position)
+        with self.assertRaises(ValueError):propose_remove(None,0)
+
+    def test_remove_last_idle_song_produces_an_empty_idle_proposal(self):
+        snapshot=QueueSnapshot((10,),None);plan=propose_remove(snapshot,0)
+        self.assertEqual(plan.song_ids,());self.assertIsNone(plan.current_index)
+
+    def test_remove_proposal_rejects_reorder_and_playback_advance(self):
+        plan=propose_remove(self.current,2)
+        self.assertFalse(plan.matches(QueueSnapshot((10,10,20,30),1)))
+        self.assertFalse(plan.matches(QueueSnapshot(self.current.song_ids,2)))
+
+    def test_clear_requires_real_confirmation_and_never_stops_playback(self):
+        idle=QueueSnapshot((10,20,10),None)
+        for confirmation in (False,None,1,'yes'):
+            with self.assertRaises(ValueError):propose_clear(idle,confirmed=confirmation)
+        with self.assertRaises(ValueError):propose_clear(self.current,confirmed=True)
+        with self.assertRaises(ValueError):propose_clear(None,confirmed=True)
+        plan=propose_clear(idle,confirmed=True)
+        self.assertEqual(plan.song_ids,());self.assertIsNone(plan.current_index)
+        self.assertTrue(plan.replaces_queue);self.assertTrue(plan.matches(idle))
+        self.assertEqual(idle.song_ids,(10,20,10))
+
+    def test_clear_empty_and_stale_proposals_remain_explicit(self):
+        plan=propose_clear(QueueSnapshot((),None),confirmed=True)
+        self.assertTrue(plan.matches(QueueSnapshot((),None)))
+        self.assertFalse(plan.matches(QueueSnapshot((10,),None)))
 
 
 if __name__ == '__main__': unittest.main()

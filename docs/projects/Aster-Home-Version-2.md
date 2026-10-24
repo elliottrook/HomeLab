@@ -861,3 +861,30 @@ artifact, not an installed skin or native acceptance of the other players.
 HP Music candidate36 and the production system remain unchanged. Publish the
 completed branch to Forgejo once under Jason's current request, then verify
 the Forgejo-owned GitHub branch ref read-only; do not push directly to GitHub.
+
+Publication completed: Forgejo push advanced the existing
+`codex/aster-home-eh001-m0` branch from `40f14133` to
+`c7d41d5a192ba6615e6732eadcf94d5f3da453e8`. Standalone read-only ref checks
+confirmed both Forgejo and its GitHub mirror at that exact commit. No direct
+GitHub push, PR, tag or release; unrelated dirty work was not included. This
+consumes the current specific push request, not approval for future pushes.
+
+#### Next Music package started: queue editing proposals — 2026-10-24
+
+Implemented local, transport-free `propose_remove` / `propose_clear` in
+`music_queue.py`. Removal identifies an exact occurrence by queue position,
+preserves intentional duplicates and the current song, shifts its index only
+when removing an earlier item, and refuses removal of the playing occurrence.
+Clear needs a real explicit confirmation and an idle queue; it cannot implicitly
+Stop media. Both retain the full stale-snapshot fingerprint for the later
+native writer. Seven new tests cover duplicate occurrences, index shifts,
+malformed positions, current-track protection, empty queue, stale order/advance
+and real confirmation versus truthy values. 165 v2 tests pass.
+
+These are planning primitives, not a deployed Remove/Clear button or permission
+to modify saved playlists. HP remains immutable candidate36; no live queue,
+player, service, settings or production change in this package. Next safe step:
+read-only queue-editor UI and fresh-state confirmation, then the existing
+capability/ownership-checking native adapter with bounded failure/recovery tests.
+This post-push continuation is retained in a separate local commit, pending a
+future specific push request. No service/inventory/monitoring changes required.
