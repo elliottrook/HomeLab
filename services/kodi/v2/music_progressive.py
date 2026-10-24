@@ -135,6 +135,19 @@ class ProgressiveSession:
         try:self.select_locked(position)
         finally:self.control_pending.clear()
 
+    def next_track(self):
+        self.control_pending.set()
+        try:
+            with self.engine.lock:
+                if self.closed or self.engine.cancel.is_set():raise TrialUnavailable('session-closed')
+                state=self.engine.observe()
+                if state.current_index is None:raise TrialUnavailable('no-trial-playback')
+                target=state.current_index+1
+                if target>=len(self.selected):raise TrialUnavailable('end-of-queue')
+                if target>=len(state.song_ids):raise TrialUnavailable('selected-track-not-loaded')
+                return self.engine.next_track(expected_queue=state.fingerprint)
+        finally:self.control_pending.clear()
+
     def select_locked(self,position):
         with self.engine.lock:
             if self.closed or self.engine.cancel.is_set():raise TrialUnavailable('session-closed')

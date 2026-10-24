@@ -57,24 +57,37 @@ def transformed():
     files['tools/music_data.py']=text.replace(end,end+completion).encode()
     files['tools/aster_v2_music.py']=(HERE/'integration_handoff.py').read_bytes()
     root=ET.fromstring(files['1080i/IncludesMusic.xml'])
+    template=root.find("include[@name='AsterMusicPage']")
+    template.insert(0,ET.Element('param',dict(name='gridup',default='111')))
     pill=root.find("include[@name='AsterMusicPillButton']")
     for field,value in dict(width='200',height='50',textoffsetx='50').items():pill.find(field).text=value
     definition=root.find("include[@name='AsterMusicPage']/definition")
     group=next(group for group in definition.findall('control') if group.find("control[@id='110']") is not None)
+    bar=ET.Element('control',dict(type='image'))
+    for field,value in dict(left='82',top='0',width='1838',height='160',texture='special://skin/media/ui-solid.png',colordiffuse='ff3b3a32').items():ET.SubElement(bar,field).text=value
+    group.insert(1,bar)
     positions={110:385,111:597,112:809,113:1021,114:1233,115:1445}
     for identity in (110,111,112,113):
         control=group.find(f"control[@id='{identity}']")
         control.find('left').text=str(positions[identity])
         control.find('onright').text=str(identity+1)
-    for identity,title,route in ((114,'Genres','genres'),(115,'Shuffle all','shuffle')):
+    for identity,title,route in ((114,'Genres','genres'),):
         control=ET.SubElement(group,'control',dict(type='button',id=str(identity)))
         for field,value in dict(left=str(positions[identity]),top='28',label=title,include='AsterMusicPillButton',
                 onclick=f'RunScript(special://skin/tools/aster_v2_music.py,{route},$PARAM[page])',onleft=str(identity-1),
-                onright='115' if identity==114 else '500',ondown='500').items():ET.SubElement(control,field).text=value
+                onright='500',ondown='500').items():ET.SubElement(control,field).text=value
         icon=ET.SubElement(group,'control',dict(type='image'))
         for field,value in dict(left=str(positions[identity]+10),top='35',width='36',height='36',
                 texture='special://skin/media/20-music-app.png' if identity==114 else
                     'special://home/addons/script.astermusic.v2lab/resources/controls/shuffle.png',aspectratio='keep').items():ET.SubElement(icon,field).text=value
+    hero=ET.SubElement(group,'control',dict(type='button',id='115'))
+    for field,value in dict(left='1050',top='455',width='320',height='56',label='Shuffle all',font='font24',align='center',aligny='center',
+        textcolor='asterIvory',focusedcolor='asterIvory',onleft='110',onright='500',onup='112',ondown='500',
+        visible='Window.IsActive(11113)',
+        onclick='RunScript(special://skin/tools/aster_v2_music.py,shuffle,home)').items():ET.SubElement(hero,field).text=value
+    for field,colour in (('texturefocus','asterGreen'),('texturenofocus','c929302b')):
+        ET.SubElement(hero,field,dict(border='20',colordiffuse=colour)).text='special://skin/media/ui-panel.png'
+    group.find("control[@id='500']/onup").text='$PARAM[gridup]'
     for image in group.findall("control[@type='image']"):
         texture=image.findtext('texture') or ''
         for identity,filename in ((110,'23-music-album.png'),(111,'24-music-artist.png'),(112,'25-music-song.png'),(113,'26-music-playlist.png')):
@@ -89,6 +102,8 @@ def transformed():
         root=ET.fromstring(files[name]);page=root.find(".//param[@name='page']").get('value')
         identity={'home':110,'albums':110,'artists':111,'songs':112,'playlists':113}[page]
         root.find(".//param[@name='activeleft']").set('value',str(positions[identity]))
+        include=root.find(".//include[@content='AsterMusicPage']")
+        ET.SubElement(include,'param',dict(name='gridup',value='115' if page=='home' else '111'))
         window_id={'home':11113,'albums':11114,'artists':11115,'songs':11116,'playlists':11117}[page]
         position=list(root).index(root.find('onload'))
         for offset,command in enumerate((f'ClearProperty(AsterMusic.LoadReady,{window_id})',

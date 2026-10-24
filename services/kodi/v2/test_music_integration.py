@@ -47,7 +47,7 @@ class IntegrationTests(unittest.TestCase):
         self.assertEqual(props['AsterMusic.LoadReady'],'true')
         restore.assert_not_called();kodi.executebuiltin.assert_not_called()
 
-    def test_build_preserves_recently_added_and_has_six_nonoverlapping_controls(self):
+    def test_build_preserves_recently_added_five_header_controls_and_hero_shuffle(self):
         before={name:hashlib.sha256((BASE/name).read_bytes()).hexdigest() for name in BEFORE}
         files=transformed();self.assertEqual(len(files),8)
         self.assertEqual(before,BEFORE)
@@ -57,12 +57,20 @@ class IntegrationTests(unittest.TestCase):
         self.assertTrue(any('music_data.py,home' in command for command in loads))
         self.assertEqual(home.find(".//param[@name='heading']").get('value'),'Recently Added')
         root=ET.fromstring(files['1080i/IncludesMusic.xml']);edge=350
-        for identity in range(110,116):
+        for identity in range(110,115):
             node=root.find(f".//control[@id='{identity}']");left=int(node.findtext('left'))
             self.assertGreater(left,edge);edge=left+200
             self.assertLess(edge,1714)
             self.assertEqual(node.findtext('enable'),'String.IsEqual(Window.Property(AsterMusic.LoadReady),true)')
         self.assertEqual(root.find(".//control[@id='500']/enable").text,'String.IsEqual(Window.Property(AsterMusic.LoadReady),true)')
+        hero=root.find(".//control[@id='115']")
+        self.assertEqual(hero.findtext('top'),'455')
+        self.assertEqual(hero.findtext('visible'),'Window.IsActive(11113)')
+        self.assertEqual(hero.findtext('onclick'),'RunScript(special://skin/tools/aster_v2_music.py,shuffle,home)')
+        self.assertEqual(root.find(".//control[@id='114']/onright").text,'500')
+        self.assertEqual(home.find(".//param[@name='gridup']").get('value'),'115')
+        self.assertTrue(any(c.findtext('colordiffuse')=='ff3b3a32' and c.findtext('height')=='160'
+            for c in root.findall('.//control')))
         self.assertEqual(root.find(".//control[@id='113']/onright").text,'114')
         self.assertEqual(root.find(".//control[@id='114']/onclick").text,'RunScript(special://skin/tools/aster_v2_music.py,genres,$PARAM[page])')
         source=files['tools/music_data.py'].decode();ast.parse(source)

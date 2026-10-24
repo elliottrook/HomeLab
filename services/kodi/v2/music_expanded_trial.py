@@ -84,6 +84,30 @@ class ExpandedTrial(TrialPlayer):
         return actual
 
     @serialized
+    def next_track(self,*,expected_queue):
+        state=self.observe()
+        if state.fingerprint!=expected_queue:raise TrialUnavailable('queue-preview-stale')
+        if state.current_index is None:raise TrialUnavailable('no-trial-playback')
+        if state.current_index+1>=len(state.song_ids):raise TrialUnavailable('end-of-queue')
+        return self.select(state.current_index+1,expected_queue=state.fingerprint)
+
+    @serialized
+    def start_queued(self,*,expected_queue,confirmed=False):
+        """Start the verified idle queue without replacing or duplicating it."""
+        self.check_cancel();state=self.observe()
+        if not confirmed:raise TrialUnavailable('replacement-confirmation-required')
+        if state.fingerprint!=expected_queue:raise TrialUnavailable('queue-preview-stale')
+        if state.current_index is not None or not state.song_ids:raise TrialUnavailable('idle-queued-music-required')
+        self.intent(state,status='start-queued-requested');self.started=True
+        self.write('Player.Open',{'item':{'playlistid':0,'position':0}})
+        self.wait_for(lambda:self.observe().current_index is not None)
+        self.check_cancel()
+        modes=self.rpc('Player.GetProperties',{'playerid':0,'properties':['shuffled','repeat']})
+        if modes.get('shuffled') is not False or modes.get('repeat')!='off':
+            self.stop();raise TrialUnavailable('player-modes-not-supported-in-trial')
+        self.saved=self.observe();self.intent(self.saved,status='playing')
+
+    @serialized
     def remove(self,position,*,expected_queue):
         self.check_cancel();state=self.observe()
         if self.shuffled:raise TrialUnavailable('turn-shuffle-off-before-editing')

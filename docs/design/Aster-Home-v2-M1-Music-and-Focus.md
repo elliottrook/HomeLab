@@ -830,14 +830,21 @@ Only the HP lab uses the integrated v2 Music player; BOSGAME is unchanged.
 No new login is needed: Music uses the existing signed-in Jellyfin/Kodi index.
 
 1. Open **Music** from the normal side rail. The first page is still Recently
-   Added. Its header has Albums, Artists, Songs, Playlists, Genres and Shuffle
-   all. During loading, wait for the tiles and selection to become available.
+   Added. Its header has Albums, Artists, Songs, Playlists and Genres. Shuffle
+   all is on the front hero below its details, not in the destination header.
+   During loading, wait for the tiles and selection to become available.
 2. Select an album, song or indexed Jellyfin playlist with OK. This opens the
    player without starting audio. Select a track or the floating Play icon;
    replacing the queue requires confirmation. Artists still opens that
    artist's albums. Local Kodi/smart playlists keep their original player.
-3. On the player, the focused icon's caption explains its action. Play/Pause,
-   Stop, Play Next, Add to Queue, Replace Queue and seek remain available.
+3. On the player, the focused icon's caption explains its action. The transport
+   group is centred beneath the album art: -10 seconds, Play/Pause, +10 seconds,
+   Stop, Next track. Separate queue tools sit further right: Play Next, Add to
+   Queue, Replace Queue. **Next track** advances playback; **Play Next** inserts
+   the selection into the queue and does not skip the currently playing song.
+   Add to Queue switches the list to the actual queue and updates its count.
+   Adding while stopped does not start audio; Play starts that accumulated queue
+   after confirmation without discarding the added tracks.
    The progress control supports a seek preview: Left/Right adjusts, OK
    applies, and Back cancels the preview before a later Back exits.
 4. Genres opens seven truthful categories. Christmas remains browseable.
@@ -862,12 +869,16 @@ Normal Music entry still uses the existing bounded list/search limits; the
 new genre explorer and non-holiday shuffle validate the complete indexed
 catalogue. Neither retags source files nor changes saved playlists implicitly.
 
-Current deployment: Music candidate60 plus normal integration4. Private exact
-recovery lives under `/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/before-candidate60`
+Current corrected deployment: Music candidate62 plus
+normal integration6. Private exact recovery lives under
+`/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/before-candidate62`
 and `/storage/.aster-checkpoints/aster-music-integration-20261024/` (original
 baseline and versioned revisions retained). Restore only verified affected
 files with Kodi stopped; do not replace credentials, AV settings or watch
-history. Native Back/Home workflows and all six headers passed; the physical
+history. Two native correction runs and the broader Home/navigation regression
+pass with the five headers and separate hero action. An old programmatic test
+playlist has resurfaced server-side; the original16 are unchanged. It is retained
+pending separate one-time cleanup permission, not silently deleted. The physical
 G20 listening/sofa walkthrough and sustained-use acceptance remain outstanding.
 
 ## Accepted across v2 players — 2026-10-24

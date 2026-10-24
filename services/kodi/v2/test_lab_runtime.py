@@ -242,6 +242,32 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(self.gui.Dialog.return_value.ok.call_count,3)
         self.xbmc.executeJSONRPC.assert_not_called()
 
+    def test_add_to_queue_updates_visible_owned_queue_and_feedback(self):
+        from music_queue import QueueSnapshot
+        window=self.runtime.AlbumLab();window.allowed=(1,2);window.queue_limit=20000
+        window.trial=Mock();window.trial.observe.return_value=QueueSnapshot((1,2,1,2),0)
+        window.render_owned_queue=Mock();window.dialog=Mock()
+        with patch.object(self.runtime,'playback_allowed',return_value=True),patch.object(self.runtime,'read_source',return_value=''):
+            window.live('append',(1,2))
+        window.trial.edit.assert_called_once_with('append',(1,2),confirmed=False)
+        self.assertTrue(window.queue_view);window.render_owned_queue.assert_called_once()
+        self.assertEqual(window.props['Album.Count'],'4 queued tracks')
+        self.assertIn('2 tracks added to queue',window.props['Album.Status'])
+
+    def test_play_after_idle_append_starts_existing_queue_not_selection(self):
+        from music_queue import QueueSnapshot
+        window=self.runtime.AlbumLab();window.allowed=(1,2);window.queue_limit=20000
+        window.trial=Mock();state=QueueSnapshot((1,2,1,2),None);window.trial.observe.return_value=state
+        window.render_owned_queue=Mock();window.start_cancellable=Mock();window.dialog=Mock(return_value=True)
+        with patch.object(self.runtime,'playback_allowed',return_value=True):window.live('toggle',(1,2))
+        window.trial.start_queued.assert_called_once_with(expected_queue=state.fingerprint,confirmed=True)
+        window.start_cancellable.assert_not_called();window.trial.edit.assert_not_called()
+
+    def test_next_control_is_not_play_next_queue_insertion(self):
+        window=self.runtime.AlbumLab();window.allowed=(1,2);window.skip_next=Mock();window.live=Mock()
+        window.onClick(407);window.skip_next.assert_called_once();window.live.assert_not_called()
+        window.onClick(401);window.live.assert_called_once_with('next',(1,2))
+
     def test_shuffle_live_route_requires_the_complete_eligible_grant(self):
         w=self.window;w.open_shuffle=Mock()
         with patch.object(self.runtime,'live_grant',return_value=((1,),20000)):w.onClick(201)
@@ -370,16 +396,21 @@ class RuntimeTests(unittest.TestCase):
         window.dialog=Mock(side_effect=[4,True]);window.queue_menu()
         window.control.assert_called_once_with('shuffle',(True,state.fingerprint))
 
-    def test_floating_controls_fit_cover_and_keep_readable_focus_caption(self):
+    def test_transport_group_is_centred_and_separates_specialist_controls(self):
         window=self.runtime.ShuffleLab();window.allowed=(1,)
-        controls={identity:Mock() for identity in (400,401,402,403,404,405,406,8400,8401,8402,8403,8404,8405,8406,9400,9401,9402,9403,9404,9405,9406,10400,10401,10402,10403,10404,10405,10406)}
+        controls={offset+identity:Mock() for identity in range(400,408) for offset in (0,8000,9000,10000)}
         window.getControl=lambda identity:controls[identity]
         window.configure_controls(shuffle=True)
-        for identity in (400,401,402,403,404,405,406):
+        for identity in (400,404,405,406,407):
             left,top=controls[identity].setPosition.call_args.args
             width=controls[identity].setWidth.call_args.args[0]
             self.assertGreaterEqual(left,170);self.assertLessEqual(left+width,700)
             self.assertEqual(top,930);self.assertGreaterEqual(width,44)
+        self.assertEqual((controls[405].setPosition.call_args.args[0]+controls[407].setPosition.call_args.args[0]+64)/2,435)
+        self.assertGreater(controls[401].setPosition.call_args.args[0],controls[407].setPosition.call_args.args[0]+100)
+        for identity in range(400,408):
+            for offset in (8000,9000):
+                self.assertEqual(controls[offset+identity].setWidth.call_args.args,controls[offset+identity].setHeight.call_args.args)
         window.onFocus(405);self.assertEqual(window.props['Album.ControlHint'],'Back 10 seconds')
         window.focus_control(406)
         self.assertEqual(window.focused,406)
@@ -388,7 +419,7 @@ class RuntimeTests(unittest.TestCase):
     def test_icon_controls_have_no_pill_and_artwork_is_square_aspect_kept(self):
         root=ET.parse(HERE/'script.astermusic.v2lab/resources/skins/Default/1080i/AlbumLab.xml')
         controls=root.findall('.//control')
-        for identity in range(400,407):
+        for identity in range(400,408):
             button=next(c for c in controls if c.get('id')==str(identity))
             self.assertFalse(button.findtext('texturefocus'));self.assertFalse(button.findtext('texturenofocus'))
             self.assertEqual(button.findtext('textcolor'),'00000000')
@@ -401,6 +432,11 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(title.findtext('scroll'),'true')
         for source in (HERE/'script.astermusic.v2lab/resources/controls').glob('*.svg'):
             icon=ET.parse(source).getroot();self.assertEqual(icon.get('viewBox'),'0 0 64 64')
+            self.assertEqual((icon.get('width'),icon.get('height')),('256','256'))
+            import struct
+            data=source.with_suffix('.png').read_bytes()
+            self.assertEqual(data[:8],b'\x89PNG\r\n\x1a\n')
+            self.assertEqual(struct.unpack('>II',data[16:24]),(256,256))
             self.assertTrue(source.with_suffix('.png').is_file())
 
     def test_floating_pause_and_seek_clicks_dispatch_to_existing_owned_session(self):

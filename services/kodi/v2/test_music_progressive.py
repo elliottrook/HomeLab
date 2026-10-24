@@ -8,6 +8,15 @@ from test_music_trial import FakePlayer
 
 
 class ProgressiveTests(unittest.TestCase):
+    def test_next_track_uses_owned_queue_not_queue_page_navigation(self):
+        session=self.make(3);session.start([1,2,3],confirmed=True);session.worker.join()
+        before=len(self.player.calls);session.next_track()
+        self.assertEqual(self.player.position,1)
+        self.assertEqual([m for m,p in self.player.calls[before:] if m in ('Player.GoTo','Player.Open','Playlist.Clear')],['Player.GoTo'])
+        session.next_track()
+        with self.assertRaisesRegex(TrialUnavailable,'end-of-queue'):session.next_track()
+        self.assertFalse(session.control_pending.is_set());session.close()
+
     def make(self,n=430,**kwargs):
         self.player=FakePlayer();self.journal=[]
         self.engine=ExpandedTrial(self.player,list(range(1,n+1)),lambda s:True,

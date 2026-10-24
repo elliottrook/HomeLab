@@ -11,6 +11,32 @@ from test_music_trial import FakePlayer
 
 
 class ExpandedTests(unittest.TestCase):
+    def test_next_track_advances_one_occurrence_without_queue_rebuild(self):
+        trial=self.make(3);trial.play([1,2,1,3],confirmed=True)
+        start=len(self.player.calls)
+        result=trial.next_track(expected_queue=trial.observe().fingerprint)
+        self.assertEqual(result,QueueSnapshot((1,2,1,3),1))
+        writes=[m for m,p in self.player.calls[start:] if m in ('Player.GoTo','Playlist.Add','Playlist.Clear','Player.Open')]
+        self.assertEqual(writes,['Player.GoTo'])
+        trial.select(3,expected_queue=trial.observe().fingerprint);start=len(self.player.calls)
+        with self.assertRaisesRegex(TrialUnavailable,'end-of-queue'):trial.next_track(expected_queue=trial.observe().fingerprint)
+        self.assertFalse(any(m=='Player.GoTo' for m,p in self.player.calls[start:]));trial.close()
+
+    def test_queued_idle_additions_start_without_replacement_or_duplication(self):
+        trial=self.make(3);trial.edit('append',[1,2]);trial.edit('append',[3,1])
+        state=trial.observe();start=len(self.player.calls)
+        trial.start_queued(expected_queue=state.fingerprint,confirmed=True)
+        self.assertEqual(trial.observe(),QueueSnapshot((1,2,3,1),0))
+        self.assertEqual([m for m,p in self.player.calls[start:] if m in ('Player.Open','Playlist.Add','Playlist.Clear')],['Player.Open'])
+        trial.close()
+
+    def test_staged_start_and_next_reject_stale_or_unconfirmed_actions(self):
+        trial=self.make(3);trial.edit('append',[1,2]);state=trial.observe();start=len(self.player.calls)
+        with self.assertRaisesRegex(TrialUnavailable,'confirmation'):trial.start_queued(expected_queue=state.fingerprint)
+        with self.assertRaisesRegex(TrialUnavailable,'stale'):trial.start_queued(expected_queue='stale',confirmed=True)
+        with self.assertRaisesRegex(TrialUnavailable,'stale'):trial.next_track(expected_queue='stale')
+        self.assertFalse(any(m in ('Player.Open','Player.GoTo') for m,p in self.player.calls[start:]));trial.close()
+
     def test_owned_selection_navigates_exact_duplicate_without_replacing_queue(self):
         trial=self.make(3);trial.play([1,2,1,3],confirmed=True);trial.pause(False)
         start=len(self.player.calls);state=trial.select(2,expected_queue=trial.observe().fingerprint)

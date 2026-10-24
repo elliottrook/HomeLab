@@ -126,20 +126,20 @@ class AlbumLab(xbmcgui.WindowXML):
         self.display_ids=None;self.queue_view=False;self.rendered_queue=None
         self.marked_index=None
         self.atmosphere=None
-        self.control_labels={400:'Play / Pause',404:'Stop',401:'Play Next',402:'Add to Queue',403:'Replace Queue',405:'Back 10 seconds',406:'Forward 10 seconds'}
+        self.control_labels={400:'Play / Pause',404:'Stop',407:'Next track',401:'Play Next',402:'Add to Queue',403:'Replace Queue',405:'Back 10 seconds',406:'Forward 10 seconds'}
 
     def configure_controls(self,shuffle=False):
-        icons={400:'play',404:'stop',401:'page-back' if shuffle else 'play-next',
-               402:'page-next' if shuffle else 'add',403:'current' if shuffle else 'replace',405:'back',406:'forward'}
-        order=(405,400,406,404,401,402,403) if self.allowed else (401,402,403)
-        width,gap=(64,12) if self.allowed else (76,30)
-        span=len(order)*width+(len(order)-1)*gap
-        start=170+(530-span)//2
-        for index,identity in enumerate(order):
-            left=start+index*(width+gap)
+        icons={400:'play',404:'stop',401:'page-back' if shuffle else 'current',
+               402:'page-next' if shuffle else 'add',403:'current' if shuffle else 'replace',405:'back',406:'forward',407:'play-next'}
+        # Centre the complete transport group on the cover; separate queue tools.
+        slots={405:251,400:327,406:403,404:479,407:555,401:790,402:866,403:942} if self.allowed else {401:283,402:389,403:495}
+        width=64 if self.allowed else 76
+        for identity,left in slots.items():
             self.getControl(identity).setPosition(left,930);self.getControl(identity).setWidth(width)
             for offset,size,top in ((8000,44,940),(9000,48,938),(10000,20,991)):
                 self.getControl(offset+identity).setPosition(left+(width-size)//2,top)
+                self.getControl(offset+identity).setWidth(size)
+                if offset!=10000:self.getControl(offset+identity).setHeight(size)
             self.setProperty('Album.Icon'+str(identity),str(ROOT/'resources'/'controls'/(icons[identity]+'.png')))
             self.getControl(identity).setLabel(self.control_labels[identity])
         self.setProperty('Album.ControlHint','Select a track · playback test' if self.allowed else 'Queue preview only · no playback starts')
@@ -239,6 +239,7 @@ class AlbumLab(xbmcgui.WindowXML):
             elif control==400:
                 self.live('toggle',self.allowed)
             elif control==404:self.live('stop',())
+            elif control==407:self.skip_next()
             elif control in (401,402,403):self.live({401:'next',402:'append',403:'replace'}[control],self.allowed)
             elif control==600:
                 index=self.getControl(600).getSelectedPosition()
@@ -312,16 +313,20 @@ class AlbumLab(xbmcgui.WindowXML):
 
     def live(self,action,ids):
         try:
+            queued=None
             if action=='toggle':
-                if self.trial and self.trial.observe().current_index is not None:
+                state=self.trial.observe() if self.trial else None
+                if state and state.current_index is not None:
                     speed=rpc('Player.GetProperties',{'playerid':0,'properties':['speed']}).get('speed')
                     action='resume' if speed==0 else 'pause'
+                elif state and state.song_ids:action='start-queue';queued=state
                 else:action='play'
             if action not in ('stop',) and not playback_allowed(self.allowed,self.queue_limit):
                 raise TrialUnavailable('trial-capability-expired')
             confirmed=False
-            if action in ('play','replace'):
-                confirmed=self.dialog('yesno','Play music' if action=='play' else 'Replace Queue',
+            if action in ('play','replace','start-queue'):
+                confirmed=self.dialog('yesno','Play music' if action in ('play','start-queue') else 'Replace Queue',
+                    f'Start the {len(queued.song_ids)} queued tracks without replacing them?' if action=='start-queue' else
                     f'This will replace the trial queue with {len(ids)} approved track(s).'+
                     (' Playback will start.' if action=='play' else ' Playback will not start.'))
                 if not confirmed:return
@@ -340,16 +345,23 @@ class AlbumLab(xbmcgui.WindowXML):
                     trial_directory()/f'queue-checkpoint-{stamp}.json',snapshot),queue_limit=self.queue_limit,
                     intent=lambda snapshot,**kw:save_intent(trial_directory()/f'queue-intent-{stamp}.json',snapshot,**kw))
             if action=='play':self.start_cancellable(ids,confirmed)
+            elif action=='start-queue':self.trial.start_queued(expected_queue=queued.fingerprint,confirmed=confirmed)
             elif action in ('pause','resume'):self.trial.pause(action=='resume')
             elif action=='stop':self.trial.stop()
-            else:self.trial.edit(action,ids,confirmed=confirmed)
-            active=self.trial.observe().current_index is not None
+            else:
+                self.trial.edit(action,ids,confirmed=confirmed);self.queue_view=True
+            state=self.trial.observe();self.render_owned_queue(state)
+            active=state.current_index is not None
             paused=active and rpc('Player.GetProperties',{'playerid':0,'properties':['speed']}).get('speed')==0
             self.control_labels[400]='Resume' if paused else 'Pause' if active else 'Play'
             self.getControl(400).setLabel(self.control_labels[400])
             self.setProperty('Album.Icon400',str(ROOT/'resources'/'controls'/('pause.png' if active and not paused else 'play.png')))
             self.onFocus(self.getFocusId())
             self.setProperty('Album.Status','HP Music · '+action+' completed · Back stops and restores the original queue')
+            if action in ('append','next','replace'):
+                self.setProperty('Album.Count',f'{len(state.song_ids)} queued tracks')
+                self.setProperty('Album.Status',f'{len(ids)} tracks '+('added to queue' if action=='append' else 'queued next' if action=='next' else 'queued')+f' · {len(state.song_ids)} queued total')
+                xbmcgui.Dialog().notification('Queue updated',f'{len(state.song_ids)} queued tracks')
             self.setProperty('Album.AudioDetails',read_source(rpc) if active else '')
             self.next_player_update=0
         except TrialCancelled:
@@ -364,6 +376,18 @@ class AlbumLab(xbmcgui.WindowXML):
             if str(error)=='turn-shuffle-off-before-editing':message='Turn shuffle off in Menu before adding or removing tracks. Playback is unchanged.'
             self.setProperty('Album.Status','Trial action refused · '+str(error))
             self.dialog('ok','Aster Music trial',message)
+
+    def skip_next(self):
+        if not self.trial:
+            self.dialog('ok','No playing queue','Start music before selecting Next track.');return
+        state=self.trial.observe()
+        if state.current_index is None or state.current_index+1>=len(state.song_ids):
+            self.dialog('ok','End of queue','There is no next playing track in this queue.');return
+        def work():
+            try:self.trial.next_track(expected_queue=state.fingerprint)
+            except Exception as error:self.control_errors.append(error)
+        self.control_worker=threading.Thread(target=work,name='AsterNextTrack')
+        self.setProperty('Album.Busy','true');self.control_worker.start()
 
     def start_cancellable(self,ids,confirmed):
         """Only the main thread touches GUI; never abandon an in-flight writer."""
@@ -620,7 +644,7 @@ class AlbumLab(xbmcgui.WindowXML):
                 self.dialog('ok','Queue changed','The queue could not be verified. No playlist was saved.')
             return
         control=self.getFocusId()
-        buttons=(405,400,406,404,401,402,403) if self.allowed else (401,402,403)
+        buttons=(405,400,406,404,407,401,402,403) if self.allowed else (401,402,403)
         if control==611:
             if key in (1,2) and self.scrub:self.scrub=self.scrub.adjust(-1 if key==1 else 1);self.render_scrub()
             elif key in (3,4):self.cancel_scrub(focus=False);self.focus_control(600 if key==3 else 400)
@@ -679,6 +703,8 @@ class ShuffleLab(AlbumLab):
                 error=self.control_errors.pop(0)
                 if isinstance(error,TrialUnavailable) and str(error)=='selected-track-not-loaded':
                     self.dialog('ok','Still loading','This song has not reached the native queue yet. Choose a loaded song or wait.')
+                elif isinstance(error,TrialUnavailable) and str(error)=='end-of-queue':
+                    self.dialog('ok','End of queue','There is no next track in this queue.')
                 elif isinstance(error,TrialUnavailable) and str(error) in ('seek-unavailable','playback-clock-unavailable','track-changed-before-seek','scrub-preview-stale'):
                     self.dialog('ok','Seek unavailable','This song does not currently report a stable seekable duration. Playback is unchanged.')
                 elif isinstance(error,TrialUnavailable) and str(error) in ('queue-preview-stale','queue-remove-refused','queue-still-loading'):
@@ -751,6 +777,7 @@ class ShuffleLab(AlbumLab):
         def work():
             try:
                 if action=='pause':self.session.pause(value)
+                elif action=='next-track':self.session.next_track()
                 elif action=='seek':self.session.seek(value)
                 elif action=='scrub':self.session.seek_to(value)
                 elif action=='remove':self.session.remove(value[0],expected_queue=value[1])
@@ -826,6 +853,7 @@ class ShuffleLab(AlbumLab):
                 else:self.begin_scrub()
             elif control==400:
                 self.control('pause',self.paused)
+            elif control==407:self.control('next-track',None)
             elif control==404:self.close()
             elif control in (405,406):self.control('seek',-10 if control==405 else 10)
             elif control in (401,402,403):
@@ -851,7 +879,7 @@ class ShuffleLab(AlbumLab):
             if not self.dialog_open:self.queue_menu()
             return
         control=self.getFocusId()
-        buttons=(405,400,406,404,401,402,403)
+        buttons=(405,400,406,404,407,401,402,403)
         if control==611:
             if key in (1,2):
                 if self.scrub:self.scrub=self.scrub.adjust(-1 if key==1 else 1);self.render_scrub()

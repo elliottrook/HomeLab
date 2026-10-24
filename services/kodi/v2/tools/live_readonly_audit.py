@@ -12,6 +12,15 @@ sys.path.insert(0,'/storage/.kodi/addons/script.astermusic.v2lab/resources/lib')
 from music_jellyfin import PlaylistCreator
 from music_playlists import server_id
 
+
+def check_inventory(before,current):
+    """Existing entries are immutable; separately count, never adopt/delete additions."""
+    old={row['Id']:row for row in before};new={row['Id']:row for row in current}
+    if len(old)!=len(before) or len(new)!=len(current):raise RuntimeError('duplicate-playlist-identity')
+    if any(identity not in new or new[identity]!=row for identity,row in old.items()):
+        raise RuntimeError('original-playlist-content-or-access-drift')
+    return len(new.keys()-old.keys())
+
 root=Path('/storage/.aster-checkpoints/aster-music-progressive-20261024')
 creator=PlaylistCreator('/storage/.kodi/userdata/addon_data/plugin.video.jellyfin/data.json')
 listing=creator.list_playlists()
@@ -21,7 +30,8 @@ current=sorted([dict(Id=row['Id'],Name=row['Name'],Type=row['Type'],MediaType=ro
 ui=root/'shared-save-ui-1792860791946956675'
 trial=root/'shared-save-1792859893121517673'
 before=json.loads((ui/'existing-before.json').read_text())
-if len(current)!=16 or current!=before:raise RuntimeError('original-playlist-content-or-access-drift')
+if len(before)!=16:raise RuntimeError('unexpected-original-inventory')
+additional=check_inventory(before,current)
 for path in (ui/'existing-after.json',trial/'existing-playlists-before.json',trial/'existing-playlists-after.json'):
     prior=json.loads(path.read_text())
     # Earlier raw IDs may include GUID hyphens; compare canonical identities.
@@ -44,6 +54,7 @@ existing={server_id(row['Id']) for row in current}
 if server_id(record['playlist_id']) in existing or server_id(trial_saved['Id']) in existing:
     raise RuntimeError('disposable-playlist-still-present')
 result=dict(original_playlists_verified=16,original_order_and_access_unchanged=True,
+    current_playlist_count=len(current),additional_playlists_preserved=additional,
     disposable_playlists_absent=True,saved_ui_private_five_occurrences=True,
     saved_programmatic_explicit_verifier_passed=True,no_server_writes=True,
     no_playback_writes=True,canonical_identity_verified=True,

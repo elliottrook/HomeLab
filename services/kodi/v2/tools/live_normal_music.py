@@ -97,11 +97,13 @@ try:
     checks.update(sidebar_recently_added=True,album_id_handoff_and_no_autoplay=True,
         duplicate_entry_denied=True,album_play_pause_back='--album-home-exit' not in sys.argv,
         album_home_exit_stops_and_returns_to_source='--album-home-exit' in sys.argv,nonfirst_source_restored=True)
-    # Traverse every header button with arrows, including the two new actions.
-    press('up');until(lambda:focus(111),'normal-header')
-    for identity in (112,113,114,115):press('right');until(lambda:focus(identity),'header-right-'+str(identity))
-    for identity in (114,113,112,111,110):press('left');until(lambda:focus(identity),'header-left-'+str(identity))
-    checks['six_header_controls_reachable']=True
+    # Hero Shuffle is outside the five destination pills.
+    press('up');until(lambda:focus(115),'normal-hero-shuffle')
+    press('up');until(lambda:focus(112),'normal-header')
+    press('left');until(lambda:focus(111),'normal-header-artists')
+    for identity in (112,113,114):press('right');until(lambda:focus(identity),'header-right-'+str(identity))
+    for identity in (113,112,111,110):press('left');until(lambda:focus(identity),'header-left-'+str(identity))
+    checks['five_header_controls_and_hero_reachable']=True
     page(111,11115);artist=label('Container(500).ListItem.Property(AsterMusic.Id)');previous=generation(11114);select()
     until(lambda:loaded(11114,previous) and focus(500) and label('Window.Property(AsterMusic.ArtistId)')==artist,'native-artist-drilldown')
     checks['artist_drilldown_retained']=True
@@ -126,8 +128,10 @@ try:
     require(label('Window.Property(Lab.Count)')=='7 categories' and idle(),'seven-genres-no-autoplay')
     previous=generation(11117);press('back');until(lambda:loaded(11117,previous) and not label('Window(Home).Property(AsterV2Lab.Window)'),'genres-return')
     checks['normal_genres']=True
+    xbmc.executebuiltin('ActivateWindow(Home)');until(lambda:native()==10000,'home-before-hero-shuffle')
+    previous=generation(11113);setfocus(9007);select();until(lambda:loaded(11113,previous),'music-before-hero-shuffle')
     setfocus(115);select();confirm('Shuffle all',False)
-    until(lambda:native()==11117 and xbmcgui.Window(11117).getProperty('AsterMusic.LoadReady')=='true'
+    until(lambda:native()==11113 and xbmcgui.Window(11113).getProperty('AsterMusic.LoadReady')=='true'
         and not label('Window.IsVisible(10100)')=='true' and idle(),'shuffle-cancel-unchanged')
     setfocus(115);select();confirm('Shuffle all',True)
     until(lambda:label('Window.Property(Album.Id)')=='shuffle' and focus(400) and bool(rpc('Player.GetActivePlayers')),'normal-shuffle-player')
@@ -141,7 +145,7 @@ try:
         except QueueUnavailable as error:
             if str(error)=='queue-changed-during-read':return False
             raise
-    until(eligible,'normal-shuffle-holiday-exclusion');back_to(11117)
+    until(eligible,'normal-shuffle-holiday-exclusion');back_to(11113)
     checks['normal_shuffle_confirm_cancel_exclusions_and_exit']=True
     passed=True
 except Exception as error:

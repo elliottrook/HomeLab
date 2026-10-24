@@ -28,7 +28,7 @@ def main():
     node=os.environ.get('ASTER_NODE','/Users/jelliott/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node')
     sharp=os.environ.get('ASTER_SHARP','/Users/jelliott/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/sharp')
     for name,shape in SHAPES.items():
-        svg=('<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 64 64">'
+        svg=('<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 64 64">'
              '<g fill="none" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">'+shape+'</g></svg>')
         (DEST/(name+'.svg')).write_text(svg+'\n')
         subprocess.run([node,'-e',"require(process.argv[1])(Buffer.from(process.argv[2])).png().toFile(process.argv[3])",sharp,svg,str(DEST/(name+'.png'))],check=True)

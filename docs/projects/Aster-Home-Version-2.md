@@ -16,16 +16,19 @@
   Items 01-26 and 31-32 were selected; all unticked items are deferred.
 - HP (`192.168.1.140`) is the v2 lab. BOSGAME (`192.168.1.157`) stays on its
   accepted family-beta release until a separately approved promotion.
-- Current resume point (2026-10-24): HP Music candidate60, 47 files,
-  SHA-256 `d06ba493969ebea9628b97bed6a82490fd3a81a4a4c80746e5d8d9d1e5d74c5d`;
-  exact candidate59 recovery retained. Normal Music integration4 is active,
-  manifest `d25051c59d459313afd46ca05fd2db08dddf96d8dedcee23c0e9e32a61ed1674`.
+- Current resume point (2026-10-24): HP Music candidate62, 47 files,
+  SHA-256 `9d13167195f9122f303dc0346606e1eb3268dec596b80404307bd3f1a60233cb`;
+  exact candidate61/60 recovery retained. Normal Music integration6 is active,
+  manifest `9f79b4275612fc02192b9abeea0703aaaf3fc745076134f1f50c0784235a51ba`.
   Recently Added is retained, with direct album/song/server-playlist handoff,
   Genres and non-holiday Shuffle. Explicit load-generation readiness prevents
-  late reloads resetting focus. Three full native passes succeed, including
-  Home exit and post-restart repeat; final preservation checks pass. Exact evidence and
+  late reloads resetting focus. Corrected/centred transport, real Next, visible
+  queue updates, five header destinations, hero Shuffle and restored top bar
+  pass two native control runs plus broader Home/navigation regression, including
+  restart. Final HP preservation passes; an old programmatic disposable playlist
+  has reappeared server-side and is retained pending one-cleanup authority. Exact evidence and
   recovery references are at the end. M3 not graduated; physical remote/listening
-  acceptance remains pending. Production is unchanged.
+  acceptance of the corrections remains pending. Production is unchanged.
 - Up Next is urgent and extracted into the separate
   [v1.1 project](Aster-Home-Version-1.1-Up-Next.md); v2 consumes its accepted
   result, not another implementation or an excuse to delay it.
@@ -1994,3 +1997,131 @@ page, live catalogue validation, remote-control acceptance or M2 graduation.
 Next safe local work: build the isolated series view and read-only complete
 snapshot adapter, add focus/loading/failure tests, then render before proposing
 the bounded HP candidate. Music acceptance feedback takes priority over it.
+
+### 2026-10-24 — owner Music corrections: transport, queue and hero
+
+Owner walkthrough accepted the general Music layout but reported control order,
+playlist Next and invisible Add to Queue behavior, distorted-looking icons,
+missing top logo backplate, and requested Shuffle on the front hero instead of
+the header. Jason released the HP at Home/stopped for the corrective deployment.
+This supersedes the temporary no-HP-interaction hold during his check.
+
+Sanitized source-local logs show repeated successful Playlist.Add calls during
+the reported test, but no real Next transport was wired: the existing triangle
+control was **Play Next**, which inserts into the queue. Root causes confirmed
+in code: no separate skip action; queue edits left the original selection list
+visible; Play on an idle populated queue replaced it with the original selection.
+Prepared correction adds a distinct owned-queue Next action, visible queue/count
+feedback after edits, and confirmed start of the existing idle queue without
+clear/re-add. Queue caps, same-player identity, stale checks, cancellation,
+source restoration, saved playlists and stop-on-exit remain unchanged.
+
+Initial candidate61 centred Play itself below the cover; transport Left-to-Right is -10, Play/Pause,
++10, Stop, Next track. Specialist queue tools sit in a separate group to the
+right. The request is HP Music only; production/shared video/Books/Digest
+overlays are not changed by this correction. Native Next/append tests must pass
+before acceptance, including duplicates and unchanged playing occurrence.
+
+Kodi 21.3 uses raster-compatible image loading; native SVG support is a Kodi22
+addition ([official announcement](https://kodi.tv/article/kodi-22-piers-beta-2/)).
+Existing SVG masters are re-rendered at 256x256, with explicit square 44/48px
+glyph geometry and aspect keep; no PNG upscale, logo redraw, decoder installation
+or Kodi upgrade. Grey/brown top backplate restored behind Music logos, five
+header destinations retained, and Shuffle all moved to the Recently Added hero.
+
+Candidate61: 47 files, SHA-256
+`3957bd0e9f4b31ef4f21f2f77d01ab023bb0fe7db1d2b38f3493f3225b6be4d2`.
+Normal integration5 manifest
+`ae203a3bd7cc814f20beabdeeb669ecd7860c9f4fc64cbff5eaffcf83b50b0c1`
+uses integration4 as exact predecessor. 307 local tests pass before adding the
+native regression client. Native test `live_music_controls.py` covers real
+normal-page playlist selection, two idle appends, staged Play, exact control
+order/captions, actual Next, playing append, hero Shuffle cancel/start/Next and
+clean Back. No server playlist create/delete tests or credentials/settings writes.
+Deployment uses the existing hash-pinned checkpoint/installers and fresh enforced
+idle proof. Retain candidate60 and integration4 exact recovery. Remote activation,
+native evidence and final acceptance are not yet claimed by this entry.
+
+Owner then clarified that the **complete transport group** must be centred
+under the album art. Candidate62 shifts only those five buttons: their bounding
+box midpoint is exactly the cover's x435 midpoint, with specialist tools still
+separated to the right. Updated unit checks enforce both group centring and
+square icon geometry. Candidate62 SHA-256 (47 files):
+`9d13167195f9122f303dc0346606e1eb3268dec596b80404307bd3f1a60233cb`.
+
+Integration5 activated with verified recovery ZIP
+`171b30b16797f74806ed423c9c76aa861f60d367112b9a453cc534f4f7e4a41f`.
+`native-controls-1792875940870752271.json` failed before playback at the hero
+visibility condition. A literal include parameter was not a valid runtime
+info-label comparison. Integration6 uses the actual front window's active
+condition and explicitly declares the panel's hero-navigation parameter.
+Integration6 SHA-256
+`9f79b4275612fc02192b9abeea0703aaaf3fc745076134f1f50c0784235a51ba`;
+recovery at the original integration checkpoint's `revisions/aster-music-normal-integration6/recovery.zip`,
+SHA-256 `5f30e8195685e1f2d3726c47f15dd6aaf136aa1b506d05b1403e5b626039f4a4`.
+All eight members and isolated restore verified before its activation/restart.
+
+`native-controls-1792876146307981349.json` passed the complete playlist subset:
+actual Next, idle/playing visible appends, confirmed existing-queue Play,
+transport order/captions and no append autoplay. It failed the final Shuffle
+Back check; cleanup still returned idle/empty. The next driver waits for the
+Next control worker's published ready caption, not merely the native position
+change, before testing Back. Retain the failed evidence; do not claim an
+independently proven app defect/root cause from that timing-only failure.
+
+A subsequent preflight correctly refused while a background library sync had
+one temporarily unlinked new song (17,129 indexed SQLite rows). Read-only
+follow-up showed 17,150 rows, zero missing links and intact SQLite integrity.
+No database repair, tag/history edit or weakened preservation check was used.
+Fresh `postcheck-1792876326313743498.json` passed before candidate62 activation;
+candidate61 exact recovery remains in `before-candidate62`, with earlier
+candidate60 recovery retained too. No new Kodi restart for that player update.
+
+`native-controls-1792876404345582703.json` passes **every** corrected workflow
+with checks enforced under optimization1: normal playlist selection, two idle
+appends, existing-queue Play, all transport captions/arrows, Next advancing one
+occurrence, playing append preserving that occurrence, hero Shuffle cancel/start,
+real Shuffle Next, holiday exclusion and clean source return/empty owned exit.
+Native 4K player screenshot inspected: transport group centred, specialist tools
+separated, square crisp glyphs, visible 54-item queue feedback and restored top
+backplate. Hero screenshot confirms the separate front-page Shuffle button.
+Broader normal-navigation repeat and final preservation/audit remain in progress.
+
+Final corrected navigation result `native-normal-1792876488213947510.json`
+passes preserved Recently Added, album Play/Pause/Home-stop, exact source return,
+five header controls plus hero action, Artist drilldown, Song/server-playlist
+entry, Genres and Shuffle. After a fresh idle proof, one deliberate restart
+completed; `native-controls-1792876630349775263.json` independently repeats every
+control/append/staged-play/Next/hero/cleanup check successfully. Current Kodi
+PID15418/NRestarts0. Final `postcheck-1792876716094106938.json` verifies all
+47 player files, 142 unchanged original files, four prior overlays, eight normal
+Music files, 68 AV/language values, healthy DB/zero missing artist links, no
+player/queue/temporary grant/recovery window and shuffle Off.
+
+Current preservation command:
+`RunScript(special://home/../.aster-staging/live_music_postcheck_integrated.py,62,9d13167195f9122f303dc0346606e1eb3268dec596b80404307bd3f1a60233cb,47,9f79b4275612fc02192b9abeea0703aaaf3fc745076134f1f50c0784235a51ba)`.
+309 v2 tests pass, including additive inventory-audit guards; prior full 144
+v1 regressions and ten focus-model checks pass unchanged. Source SVGs, freshly
+rendered 256px textures and native 4K composition were checked; this is not a
+claim that the unrelated low-resolution branded fallback cover was replaced.
+
+**Separate server audit hold:** invoking the read-only audit via Kodi produced
+no fresh proof; it is a system-Python tool and must run through direct SSH.
+That correct invocation refused an inventory change. Source-local restricted
+diff confirmed all 16 original playlists' contents/order/access are identical,
+but there are now 17 entries: the extra ID matches the prior **programmatic**
+disposable trial, not the UI trial. No new server create/delete was performed.
+It coincided with background library additions; resurrection mechanism is not
+proven. Do not claim temporary-trial absence or attribute the extra entry to a
+specific actor. Do not delete it under consumed trial authority.
+
+`live_playlist_drift.py` reports only counts/field classes and trial-match
+booleans, not names/IDs/paths/tokens. `live_readonly_audit.py` now distinguishes
+additions from changes to original entries, with tests that still refuse
+modified/missing/duplicate originals; it continues to refuse a resurfaced
+disposable ID. No baseline rewrite or silent acceptance of the fixture.
+Jason was asked separately for a checkpointed, exact-ID, one-time cleanup,
+preserving the original16 and making no new fixture. If the entry returns after
+that cleanup, stop rather than auto-delete repeatedly. This pending server gate
+does not prevent handover of the completed HP UI/control corrections, but M3
+does not graduate. HP is left Home/idle; production and Git remotes unchanged.
