@@ -20,6 +20,12 @@ scanner, lease or receipt remained, the spent timers were removed and
 production postchecks passed. The installed wrapper still reduces all final
 guard exceptions to one class, so another cycle is blocked on a per-subcheck
 diagnostic correction and fresh proof. F3 cannot advance.
+The platform owner's per-subcheck source correction at `770107df` now has a
+[matching independent review](evidence/F2-final-guard-subcheck-correction-independent-review-2026-10-24.md):
+candidate and live baseline hashes match the card, a clean-archive focused run
+passed 24 tests with one expected macOS custody skip, and the owner reports
+24/24 target-Linux passes. It is ready only for a separately approved inactive
+two-file installation; no retry or timer follows automatically.
 
 **October 18 lab-hours pilot checkpoint:** Jason approved up to 90 minutes of
 daytime Aster/voice unavailability for a first supervised no-reboot pilot.
