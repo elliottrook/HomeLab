@@ -14,6 +14,7 @@ def check(rpc,label,focus,until,press,select):
     def props():return rpc('Player.GetProperties',dict(playerid=0,properties=['speed','time','shuffled']))
     before=props();require(before['speed']==0 and before['shuffled'] is False,'paused-ordered-origin')
     def choose(yes,title):
+        until(lambda:focus(400) and label('Window.Property(Album.ControlHint)')=='Resume','transport ready before Menu')
         press('contextmenu');until(lambda:label('Control.GetLabel(1)')=='Queue actions','Queue menu')
         for _ in range(2):press('down');xbmc.sleep(100)
         select();until(lambda:label('Control.GetLabel(1)')==title,'shuffle confirmation')

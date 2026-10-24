@@ -112,6 +112,10 @@ def validate_write(method, params, allowed, *, queue_limit=3):
         if (set(params)!={'playerid','shuffle'} or type(params['playerid']) is not int
                 or params['playerid']!=0 or type(params['shuffle']) is not bool):
             raise TrialUnavailable('trial-write-denied')
+    elif method=='Player.GoTo':
+        if (set(params)!={'playerid','to'} or type(params['playerid']) is not int or params['playerid']!=0
+                or type(params['to']) is not int or not 0<=params['to']<queue_limit):
+            raise TrialUnavailable('trial-write-denied')
     else:raise TrialUnavailable('trial-write-denied')
 
 

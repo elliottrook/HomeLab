@@ -35,6 +35,7 @@ class FakePlayer:
             position=p['position'];self.ids.pop(position)
             if self.position is not None and position<self.position:self.position-=1
         elif method=='Player.Open':self.position=p['item']['position'];self.speed=1
+        elif method=='Player.GoTo':self.position=p['to'];self.speed=1
         elif method=='Player.Stop':self.position=None;self.speed=0
         elif method=='Player.PlayPause':self.speed=1 if p['play'] else 0
         elif method=='Player.SetShuffle':
@@ -52,6 +53,11 @@ class FakePlayer:
 
 
 class TrialTests(unittest.TestCase):
+    def test_goto_guard_accepts_only_explicit_audio_queue_indexes(self):
+        validate_write('Player.GoTo',dict(playerid=0,to=2),{1},queue_limit=3)
+        for params in (dict(playerid=1,to=2),dict(playerid=0,to=True),dict(playerid=0,to=-1),
+                       dict(playerid=0,to='next'),dict(playerid=0,to=3),dict(playerid=0,to=2,extra=True)):
+            with self.assertRaises(TrialUnavailable):validate_write('Player.GoTo',params,{1},queue_limit=3)
     def test_shuffle_guard_requires_explicit_boolean_and_owned_audio_player(self):
         validate_write('Player.SetShuffle',dict(playerid=0,shuffle=True),{1},queue_limit=3)
         for params in (dict(playerid=True,shuffle=True),dict(playerid=1,shuffle=False),

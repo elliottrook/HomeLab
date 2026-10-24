@@ -55,7 +55,7 @@ writes = []
 
 def transport(method, params):
     if method in ('Playlist.Add', 'Playlist.Insert', 'Playlist.Remove', 'Playlist.Clear',
-                  'Player.Open', 'Player.Stop', 'Player.PlayPause'):
+                  'Player.Open', 'Player.GoTo', 'Player.Stop', 'Player.PlayPause'):
         if method not in ('Player.Stop', 'Playlist.Clear'):
             _require((time.monotonic() < expiry and grant.exists()), ('expired'))
         validate_write(method, params, frozenset(ids), queue_limit=20000)

@@ -11,6 +11,19 @@ from test_music_trial import FakePlayer
 
 
 class ExpandedTests(unittest.TestCase):
+    def test_owned_selection_navigates_exact_duplicate_without_replacing_queue(self):
+        trial=self.make(3);trial.play([1,2,1,3],confirmed=True);trial.pause(False)
+        start=len(self.player.calls);state=trial.select(2,expected_queue=trial.observe().fingerprint)
+        self.assertEqual(state,QueueSnapshot((1,2,1,3),2));self.assertEqual(self.player.speed,1)
+        writes=[m for m,p in self.player.calls[start:] if m in ('Player.Open','Player.GoTo','Player.Stop','Playlist.Clear')]
+        self.assertEqual(writes,['Player.GoTo']);trial.close()
+
+    def test_select_current_resumes_without_restart_and_stale_never_writes(self):
+        trial=self.make(3);trial.play([1,2,3],confirmed=True);trial.pause(False);start=len(self.player.calls)
+        with self.assertRaisesRegex(TrialUnavailable,'stale'):trial.select(1,expected_queue='stale')
+        trial.select(0,expected_queue=trial.observe().fingerprint)
+        self.assertEqual(self.player.elapsed,25000);self.assertEqual(self.player.speed,1)
+        self.assertFalse(any(m in ('Player.GoTo','Player.Open') for m,p in self.player.calls[start:]));trial.close()
     def test_shuffle_allows_bounded_paused_clock_reporting_jitter_not_restart(self):
         trial=self.make(3);trial.play([1,2,3],confirmed=True);trial.pause(False)
         original=trial.rpc;count=[0]

@@ -142,8 +142,7 @@ class ProgressiveSession:
             if state.current_index is None:raise TrialUnavailable('no-trial-playback')
             if position>=len(state.song_ids):raise TrialUnavailable('selected-track-not-loaded')
             if state.song_ids[position]!=self.selected[position]:raise TrialUnavailable('external-queue-change')
-            self.engine.write('Player.Open',{'item':{'playlistid':0,'position':position}})
-            self.engine.wait_for(lambda:self.engine.observe().current_index==position)
+            self.engine.select(position,expected_queue=state.fingerprint)
             self.record(self.engine.observe(),status='playing')
 
     def editable(self):

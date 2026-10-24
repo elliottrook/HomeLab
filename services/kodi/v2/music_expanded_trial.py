@@ -69,6 +69,21 @@ class ExpandedTrial(TrialPlayer):
         self.check_cancel();super().pause(play)
 
     @serialized
+    def select(self,position,*,expected_queue):
+        """Navigate an existing owned occurrence, not open/replace a playlist."""
+        self.check_cancel();state=self.observe()
+        if state.fingerprint!=expected_queue:raise TrialUnavailable('queue-preview-stale')
+        if (type(position) is not int or not 0<=position<len(state.song_ids)
+                or state.current_index is None):raise TrialUnavailable('invalid-queue-position')
+        if position==state.current_index:
+            self.pause(True);return self.observe()
+        if self.observe().fingerprint!=state.fingerprint:raise TrialUnavailable('queue-preview-stale')
+        self.write('Player.GoTo',{'playerid':0,'to':position})
+        self.wait_for(lambda:self.observe().current_index==position)
+        actual=self.observe();self.saved=actual;self.intent(actual,status='playing')
+        return actual
+
+    @serialized
     def remove(self,position,*,expected_queue):
         self.check_cancel();state=self.observe()
         if self.shuffled:raise TrialUnavailable('turn-shuffle-off-before-editing')

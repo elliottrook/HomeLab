@@ -27,6 +27,7 @@ def check(rpc,label,focus,until,press,select):
     press('up');until(lambda:focus(611),'second scrub focus')
     press('right');press('right');select()
     until(lambda:focus(400) and state()['speed']==0 and abs(elapsed(state())-elapsed(before)-10000)<2000,'one paused scrub applied')
+    until(lambda:label('Window.Property(Album.ControlHint)')=='Resume','seek worker released transport')
     after=state()
     _require((after['position']==before['position']), ('native-check-failed'))
     _require((rpc('Player.GetItem',dict(playerid=0,properties=[]))['item']==item), ('native-check-failed'))

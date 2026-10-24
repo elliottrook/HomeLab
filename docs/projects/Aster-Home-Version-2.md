@@ -1438,3 +1438,78 @@ an invitation to repeat. Source audio details are not a receiver measurement.
 Home/Back stop owned playback; other active playback is refused, not replaced.
 Normal mode is HP-only; no BOSGAME change. Physical G20/listening, long-session,
 full enforced large-queue retest and final shell integration remain outstanding.
+
+Local milestone `fedfae20` records the hardened checks, safe Menu substep and
+recoveries; not pushed. Next Music refinement uses native **Player.GoTo** for
+an already-owned queue occurrence, rather than reopening its playlist. Exact
+snapshot/index guards remain; selecting the current paused occurrence resumes
+without restarting it. Normal OK on a track uses that owned navigation when
+the displayed order matches exactly; a genuinely new selection still needs
+confirmed Play/replacement and stops only the owned player before staging.
+The existing delayed-clear settle happens in the joined progress worker, not
+as an unresponsive GUI wait. Playing-row marker follows the exact occurrence,
+and duplicate source positions are never guessed. Native test must check the
+actual selected ID/index, wait 6.5s beyond delayed callbacks, preserve complete
+queue order, and verify the marker and exit. No third-party changes. 251 local
+tests pass before packaging. Checkpoint52, deploy53, run this bounded test.
+
+### 2026-10-24 — HP testing authority and late-start guard
+
+Jason confirmed the HP lab is the test environment and authorized tests,
+including Kodi restarts. This continues the bounded v2 lab envelope; it does
+not authorize production promotion, additional server playlist create/delete
+trials, Git pushes or weakening security/recovery controls.
+
+Candidate53 (`9b39d1628562457e341eaae8e2a5986ee76b9a13cb59f957ecb5d882848ca84e`)
+is installed with candidate52 recovery. Its first native track-control run
+failed before the track check at Menu readiness: the test sent Menu before
+the seek worker had joined. No pass claimed. Helpers now explicitly wait for
+the ready transport caption before Menu. Enforced preservation artifact
+`postcheck-1792866030414662642.json` confirms 43 candidate files, 149 untouched
+baseline files plus four approved overlays, 68 AV/language settings, healthy
+music DB, empty queue, no player/windows/grant and shuffle Off.
+
+Separately approved one-file Jellyfin late-start repair on HP only. Installed
+Jellyfin 2.2.0+py3 `jellyfin_kodi/player.py` before SHA-256
+`a4532bcc3b7a3508b67b9a00cadb6523e763d9510db12dc8f1f53c74c5459112`;
+after `21b93325b6ef9b50fdd3f5c48b273e12820f5a662ae534405dacdebcc15388fd`.
+The caller now returns unless `set_item` registered that exact item object,
+so an already-ended callback cannot use absent playback metadata. This is not
+a volume-setting command or watch-history rewrite. All other vendor/custom
+code remains byte-for-byte unchanged. Verified recovery:
+`/storage/.aster-checkpoints/aster-jellyfin-late-start-20261024/player.py.before`
+and `manifest.json`. Restore only that file while Kodi is stopped if needed;
+an add-on update may replace this local repair and requires reassessment.
+
+One approved stop/start completed; Kodi active PID11276, NRestarts0 after the
+explicit service start (the earlier unexpected crash evidence remains retained;
+this counter reset does not erase it). Pinned-source patch checks and actual
+callback extraction under optimization2 prove ended/stale-item return and
+normal one-report behavior. 254 local v2 tests pass. Native playback and
+post-restart preservation checks continue; no production/server/Git writes.
+
+Post-restart preservation `postcheck-1792866331964955710.json` passes the same
+43/149+4/68/DB/idle checks. Installed callback test
+`aster-jellyfin-late-start-20261024/check-1792866454287277834.json` passes under
+native optimization1 with synthetic dependencies and zero server/player writes.
+
+The first track-switch assertion also raced Kodi's asynchronous item metadata:
+position/speed changed before GetItem. That run failed and its cleanup assertion
+masked the first failure; source-local traceback retained. A normal Back then
+verified stopped/empty state. Test now waits for position **and** exact item ID,
+and waits for the worker-ready caption before failed-run cleanup. No write
+retry added. Independent enforced runs
+`playlist-player-1792866462141692388.json` and
+`playlist-player-1792866526041369986.json` pass all 16 mappings, no-autoplay,
+saved order, seek preview/cancel/apply, Menu cancel/shuffle/original order,
+direct track OK, exact playing marker, 6.5s delayed queue preservation,
+Pause/Resume and Back restoring empty queue/origin. PID11276/NRestarts0 remained
+stable throughout. No additional server playlist writes.
+
+Full enforced progressive-fill retest is now running at
+`/storage/.aster-checkpoints/aster-music-progressive-20261024/run-1792866536785680585`.
+It first cancels a partial fill, verifies restoration, then fills all eligible
+non-holiday songs while paused and samples/resumes before final cleanup. It
+has a 900s fill deadline and memory floor, with bounded ID-only journals. Do
+not start another player test while this run is active. Read `results.json`
+before claiming completion; progress files alone are not a pass. M3 stays open.

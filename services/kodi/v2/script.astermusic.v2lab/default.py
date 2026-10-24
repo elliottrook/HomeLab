@@ -105,6 +105,7 @@ class AlbumLab(xbmcgui.WindowXML):
         self.scrub=None;self.next_player_update=0
         self.control_worker=None;self.control_errors=[]
         self.display_ids=None;self.queue_view=False;self.rendered_queue=None
+        self.marked_index=None
         self.control_labels={400:'Play / Pause',404:'Stop',401:'Play Next',402:'Add to Queue',403:'Replace Queue',405:'Back 10 seconds',406:'Forward 10 seconds'}
 
     def configure_controls(self,shuffle=False):
@@ -165,7 +166,8 @@ class AlbumLab(xbmcgui.WindowXML):
         self.setProperty('Album.Help','Preview only · select a track for its queue options. Back returns to the same tile. No playback or queue changes.')
         if self.allowed:
             self.setProperty('Album.Status',f'HP Music pilot · {len(self.allowed)} tracks · Back stops and restores the original empty queue' if normal_playback() else f'HP live trial · {len(self.allowed)} approved tracks · Back stops and restores the original empty queue')
-            self.setProperty('Album.Help','OK opens track actions. Menu: shuffle/order, audio details and save a private Jellyfin playlist. Back stops playback.')
+            self.setProperty('Album.Help','Select a queued song to play. Menu: shuffle/order, audio details and save a private Jellyfin playlist. Back stops playback.' if normal_playback()
+                else 'OK opens track actions. Menu: shuffle/order, audio details and save a private Jellyfin playlist. Back stops playback.')
         self.configure_controls()
         items=[]
         for row in self.selection.tracks:
@@ -217,6 +219,7 @@ class AlbumLab(xbmcgui.WindowXML):
                 identity=self.display_ids[index] if self.display_ids is not None else self.selection.tracks[index].song_id
                 if identity not in self.allowed:
                     self.dialog('ok','Bounded HP trial','This track is outside the approved test selection. No changes made.');return
+                if normal_playback():self.play_selected(index,identity);return
                 option=self.dialog('select','This track',['Play this track','Play Next','Add to Queue','Replace Queue'])
                 if option in (0,1,2,3):self.live(('play','next','append','replace')[option],(identity,))
             return
@@ -227,6 +230,18 @@ class AlbumLab(xbmcgui.WindowXML):
             if not 0<=index<len(self.selection.tracks):return
             option=self.dialog('select','This track · preview',['Play Next','Add to Queue','Replace Queue'])
             if option in (0,1,2):self.preview(('next','append','replace')[option],(self.selection.tracks[index].song_id,))
+
+    def play_selected(self,index,identity):
+        if self.trial:
+            state=self.trial.observe()
+            displayed=self.display_ids if self.display_ids is not None else self.selection.song_ids
+            if state.current_index is not None and displayed==state.song_ids:
+                def work():
+                    try:self.trial.select(index,expected_queue=state.fingerprint)
+                    except Exception as error:self.control_errors.append(error)
+                self.control_worker=threading.Thread(target=work,name='AsterAlbumSelect')
+                self.control_worker.start();return
+        self.live('play',(identity,))
 
     def live(self,action,ids):
         try:
@@ -290,7 +305,11 @@ class AlbumLab(xbmcgui.WindowXML):
         self.trial.cancel.clear()
         self.trial.progress=lambda done,total:counts.__setitem__(slice(None),[done,total])
         def work():
-            try:self.trial.play(ids,confirmed=confirmed)
+            try:
+                # Explicit confirmed replacement may stop only this verified
+                # owned player, then wait out its existing delayed clear.
+                if self.trial.observe().current_index is not None:self.trial.stop()
+                self.trial.play(ids,confirmed=confirmed)
             except Exception as error:errors.append(error)
         worker=threading.Thread(target=work,name='AsterMusicStart')
         try:
@@ -353,8 +372,11 @@ class AlbumLab(xbmcgui.WindowXML):
 
     def render_owned_queue(self,state):
         key=(state.song_ids,self.trial.shuffled)
-        if not self.queue_view or key==self.rendered_queue:return
+        if not self.queue_view:return
+        if key==self.rendered_queue:
+            self.setProperty('Album.QueueFingerprint',QueueSnapshot(self.display_ids,state.current_index).fingerprint);return
         self.rendered_queue=key;self.display_ids=state.song_ids
+        self.marked_index=None
         details={row.song_id:row for row in self.selection.tracks}
         rows=[]
         for index,identity in enumerate(state.song_ids):
@@ -372,6 +394,20 @@ class AlbumLab(xbmcgui.WindowXML):
         self.setProperty('Album.TrackHeading','Queue · '+('shuffle on' if self.trial.shuffled else 'original order'))
         self.setProperty('Album.Status','HP Music · '+('Shuffle on' if self.trial.shuffled else 'Original order restored')+' · playing song preserved')
 
+    def mark_playing(self,state):
+        displayed=self.display_ids if self.display_ids is not None else self.selection.song_ids
+        target=None
+        if state.current_index is not None:
+            if displayed==state.song_ids:target=state.current_index
+            else:
+                matches=[i for i,identity in enumerate(displayed) if identity==state.song_ids[state.current_index]]
+                if len(matches)==1:target=matches[0]  # Never guess a duplicate source occurrence.
+        if self.marked_index==target:return
+        if self.marked_index is not None and 0<=self.marked_index<len(displayed):
+            self.getControl(600).getListItem(self.marked_index).setProperty('NowPlaying','false')
+        if target is not None:self.getControl(600).getListItem(target).setProperty('NowPlaying','true')
+        self.marked_index=target
+
     def refresh(self):
         if self.control_worker:
             if self.control_worker.is_alive():return
@@ -384,6 +420,7 @@ class AlbumLab(xbmcgui.WindowXML):
         self.next_player_update=time.monotonic()+1
         state=self.trial.observe();active=state.current_index is not None
         self.render_owned_queue(state)
+        self.mark_playing(state)
         self.setProperty('Album.Playing','true' if active else 'false')
         if not active:
             if self.scrub:self.cancel_scrub()

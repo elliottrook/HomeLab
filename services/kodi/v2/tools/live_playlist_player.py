@@ -84,6 +84,10 @@ try:
         import runpy
         check=runpy.run_path(str(Path(__file__).with_name('native_shuffle_menu_check.py')))['check']
         _require(check(rpc,label,focus,until,press,select),'shuffle-menu-check')
+    if '--track-controls' in sys.argv:
+        import runpy
+        check=runpy.run_path(str(Path(__file__).with_name('native_track_select_check.py')))['check']
+        _require(check(rpc,label,focus,until,press,select),'track-selection-check')
     select();until(lambda:label('Control.GetLabel(400)')=='Pause','playlist Resume')
     press('back');until(lambda:idle() and focus(500) and not label('Window(Home).Property(AsterV2Lab.AlbumWindow)'),'playlist Back stops and restores origin')
     passed=True
@@ -91,7 +95,8 @@ finally:
     if normal:_require((not grant.exists()), ('native-check-failed'))
     else:grant.unlink(missing_ok=True)
     if not passed and label('Window(Home).Property(AsterV2Lab.AlbumWindow)'):
-        press('back');xbmc.sleep(5000)
+        until(lambda:label('Window.Property(Album.ControlHint)') in ('Pause','Resume'), 'transport ready before cleanup')
+        press('back');until(idle,'failed-test owned exit cleanup')
     _require((idle()), ('recovery-required'))
     press('back');until(lambda:label('Window.Property(Lab.View)')=='genres','playlist Back to original Genres')
     xbmc.sleep(400);press('back');until(lambda:not label('Window(Home).Property(AsterV2Lab.Window)'),'pilot closed')
@@ -102,6 +107,7 @@ finally:
         exact_id_mapping=True,no_guessed_or_omitted_tracks=True,read_only_preview=not normal,preview_does_not_autoplay=True,
         complete_saved_order_playback=passed,pause_resume=passed,scrub_preview_cancel_apply=passed and '--scrub-controls' in sys.argv,
         shuffle_menu_cancel_on_off_and_visible_order=passed and '--shuffle-controls' in sys.argv,
+        direct_track_ok_and_delayed_queue_preservation=passed and '--track-controls' in sys.argv,
         back_restores_origin_empty_queue=passed,
         capability_removed=True,no_server_playlist_writes=True)))
     p.chmod(0o600)

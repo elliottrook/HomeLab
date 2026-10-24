@@ -318,6 +318,9 @@ class RuntimeTests(unittest.TestCase):
         window.trial.shuffled=False;window.render_owned_queue(state)
         self.assertIn('original order',window.props['Album.TrackHeading'])
         self.assertEqual(window.props['Album.QueueFingerprint'],state.fingerprint)
+        window.mark_playing(state);self.assertEqual(items[0].props['NowPlaying'],'true')
+        window.mark_playing(QueueSnapshot((1,2),1))
+        self.assertEqual(items[0].props['NowPlaying'],'false');self.assertEqual(items[1].props['NowPlaying'],'true')
 
     def test_shuffle_menu_confirmation_targets_fresh_owned_snapshot(self):
         from music_queue import QueueSnapshot

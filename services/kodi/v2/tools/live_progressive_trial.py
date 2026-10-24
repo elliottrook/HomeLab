@@ -95,4 +95,5 @@ for name in ('exit-during-fill','complete-fill'):
     finally:
         session.close()
         _require((not rpc('Player.GetActivePlayers') and snapshot()==baseline), ('native-check-failed'))
-private(run/'results.json',{'results':results,'original_queue_restored':True,'transport':'in-process'})
+private(run/'results.json',{'results':results,'original_queue_restored':True,'transport':'in-process',
+    'checks_enforced':True,'python_optimization':sys.flags.optimize})
