@@ -31,6 +31,13 @@ class FakeLibrary:
 
 
 class CatalogueTests(unittest.TestCase):
+    def test_duration_read_is_explicit_and_paths_remain_excluded(self):
+        fake=FakeLibrary();fake.data['songs'][0].update(duration=208,file='private-path-not-exported')
+        result=read_catalogue(fake)
+        self.assertEqual(result.songs[1]['duration'],208)
+        self.assertNotIn('file',result.songs[1])
+        self.assertTrue(all('duration' in params['properties'] for method,params in fake.calls
+            if method=='AudioLibrary.GetSongs'))
     def test_canonical_missing_tag_is_not_a_named_artist_credit(self):
         fake=FakeLibrary();fake.data['artists'][0]['label']='[Missing Tag]'
         fake.data['songs'][0]['artistid']=[1]

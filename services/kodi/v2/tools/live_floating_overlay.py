@@ -8,7 +8,7 @@ def _require(condition,message="native-check-failed"):
     """Unlike assert, this check remains active in Kodi optimized Python."""
     if not condition:raise AssertionError(message)
 
-import json, os, time
+import json, os, sys, time
 from pathlib import Path
 import xbmc, xbmcgui
 _require((os.uname().nodename=='AsterTV'), ('native-check-failed'))
@@ -87,5 +87,6 @@ finally:
     until(lambda:not rpc('Player.GetActivePlayers'),'idle after fixture')
     root=Path('/storage/.aster-checkpoints/aster-floating-controls-20261024')
     p=root/('native-'+str(time.time_ns())+'.json')
-    p.write_text(json.dumps(dict(passed=passed,checks=checks,synthetic_video=True,no_real_video_history=True)))
+    p.write_text(json.dumps(dict(passed=passed,checks=checks,synthetic_video=True,no_real_video_history=True,
+        checks_enforced=True,python_optimization=sys.flags.optimize)))
     p.chmod(0o600)

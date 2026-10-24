@@ -158,6 +158,7 @@ class AlbumLab(xbmcgui.WindowXML):
         self.setProperty('Album.Id',str(self.selection.album_id))
         self.setProperty('Album.Art',self.artwork)
         self.setProperty('Album.AudioDetails','')
+        self.setProperty('Album.Busy','false')
         self.setProperty('Album.ScrubMode','false');self.setProperty('Album.Playing','false')
         ordering='disc / track' if self.selection.disc_numbers_available else 'track tags · disc numbers unavailable'
         self.setProperty('Album.Count','1 song' if kind=='song' else str(len(self.selection.tracks))+' tracks · '+('saved playlist order' if kind=='playlist' else 'ordered by '+ordering))
@@ -166,7 +167,7 @@ class AlbumLab(xbmcgui.WindowXML):
         self.setProperty('Album.Help','Preview only · select a track for its queue options. Back returns to the same tile. No playback or queue changes.')
         if self.allowed:
             self.setProperty('Album.Status',f'HP Music pilot · {len(self.allowed)} tracks · Back stops and restores the original empty queue' if normal_playback() else f'HP live trial · {len(self.allowed)} approved tracks · Back stops and restores the original empty queue')
-            self.setProperty('Album.Help','Select a queued song to play. Menu: shuffle/order, audio details and save a private Jellyfin playlist. Back stops playback.' if normal_playback()
+            self.setProperty('Album.Help','OK plays a track. Menu on a track: Play Next, add or remove its queued occurrence. Menu on controls: shuffle, save or clear. Back stops playback.' if normal_playback()
                 else 'OK opens track actions. Menu: shuffle/order, audio details and save a private Jellyfin playlist. Back stops playback.')
         self.configure_controls()
         items=[]
@@ -240,8 +241,48 @@ class AlbumLab(xbmcgui.WindowXML):
                     try:self.trial.select(index,expected_queue=state.fingerprint)
                     except Exception as error:self.control_errors.append(error)
                 self.control_worker=threading.Thread(target=work,name='AsterAlbumSelect')
+                self.setProperty('Album.Busy','true')
                 self.control_worker.start();return
         self.live('play',(identity,))
+
+    def track_menu(self):
+        if self.control_worker:return
+        displayed=self.display_ids if self.display_ids is not None else self.selection.song_ids
+        index=self.getControl(600).getSelectedPosition()
+        if not 0<=index<len(displayed):return
+        identity=displayed[index]
+        if identity not in self.allowed:raise TrialUnavailable('song-outside-trial')
+        snapshot=self.trial.observe() if self.trial else None
+        owned=snapshot is not None and displayed==snapshot.song_ids
+        options=['Play this track','Play Next','Add to Queue']
+        if owned:options.append('Remove this queued occurrence…')
+        option=self.dialog('select','This track',options)
+        if option==0:self.play_selected(index,identity)
+        elif option in (1,2):self.live('next' if option==1 else 'append',(identity,))
+        elif option==3 and owned:
+            if index==snapshot.current_index:
+                self.dialog('ok','Keep playing song','The playing occurrence cannot be removed. Select another queued song.');return
+            if self.dialog('yesno','Remove queued song','Remove this occurrence only? Your library and saved playlists are unchanged.'):
+                self.edit_album_queue('remove',(index,snapshot.fingerprint))
+
+    def edit_album_queue(self,action,value):
+        if self.control_worker or not self.trial:return
+        if action not in ('remove','clear'):raise TrialUnavailable('unsupported-queue-edit')
+        self.queue_view=True
+        def work():
+            try:
+                if action=='remove':self.trial.remove(value[0],expected_queue=value[1])
+                else:
+                    with self.trial.lock:
+                        if self.trial.observe().fingerprint!=value:raise TrialUnavailable('queue-preview-stale')
+                        self.trial.stop()
+                        idle=self.trial.observe()
+                        self.trial.clear(expected_queue=idle.fingerprint,confirmed=True)
+            except Exception as error:self.control_errors.append(error)
+        self.setProperty('Album.ControlHint','Updating playback…')
+        self.control_worker=threading.Thread(target=work,name='AsterAlbumQueueEdit')
+        self.setProperty('Album.Busy','true')
+        self.control_worker.start()
 
     def live(self,action,ids):
         try:
@@ -354,6 +395,7 @@ class AlbumLab(xbmcgui.WindowXML):
             try:seek_owned(self.trial,self.trial.last.song_ids,preview)
             except Exception as error:self.control_errors.append(error)
         self.control_worker=threading.Thread(target=work,name='AsterAlbumSeek')
+        self.setProperty('Album.Busy','true')
         self.control_worker.start()
 
     def shuffle_album(self):
@@ -368,6 +410,7 @@ class AlbumLab(xbmcgui.WindowXML):
             try:self.trial.set_shuffle(enabled,expected_queue=state.fingerprint,confirmed=True)
             except Exception as error:self.control_errors.append(error)
         self.control_worker=threading.Thread(target=work,name='AsterAlbumShuffle')
+        self.setProperty('Album.Busy','true')
         self.control_worker.start()
 
     def render_owned_queue(self,state):
@@ -392,7 +435,8 @@ class AlbumLab(xbmcgui.WindowXML):
         self.setProperty('Album.QueueFingerprint',QueueSnapshot(rendered,state.current_index).fingerprint)
         if state.current_index is not None:self.getControl(600).selectItem(state.current_index)
         self.setProperty('Album.TrackHeading','Queue · '+('shuffle on' if self.trial.shuffled else 'original order'))
-        self.setProperty('Album.Status','HP Music · '+('Shuffle on' if self.trial.shuffled else 'Original order restored')+' · playing song preserved')
+        self.setProperty('Album.Status','Queue empty · library and saved playlists unchanged' if not state.song_ids
+            else 'HP Music · '+('Shuffle on' if self.trial.shuffled else 'Original order restored')+' · playing song preserved')
 
     def mark_playing(self,state):
         displayed=self.display_ids if self.display_ids is not None else self.selection.song_ids
@@ -412,6 +456,9 @@ class AlbumLab(xbmcgui.WindowXML):
         if self.control_worker:
             if self.control_worker.is_alive():return
             self.control_worker.join();self.control_worker=None;self.next_player_update=0
+            self.setProperty('Album.Busy','false')
+            if self.getFocusId()==600:
+                self.setProperty('Album.ControlHint','OK plays this track · Menu opens track actions')
             if self.control_errors:
                 self.control_errors.clear()
                 if self.trial and self.trial.shuffle_uncertain:raise TrialUnavailable('shuffle-recovery-required')
@@ -426,7 +473,7 @@ class AlbumLab(xbmcgui.WindowXML):
             if self.scrub:self.cancel_scrub()
             self.control_labels[400]='Play';self.getControl(400).setLabel('Play')
             self.setProperty('Album.Icon400',str(ROOT/'resources'/'controls'/'play.png'))
-            self.setProperty('Album.AudioDetails','');return
+            self.setProperty('Album.AudioDetails','');self.onFocus(self.getFocusId());return
         props=rpc('Player.GetProperties',{'playerid':0,'properties':['time','totaltime','speed']})
         if self.scrub and (self.scrub.queue_fingerprint!=state.fingerprint):self.cancel_scrub()
         if not self.scrub:
@@ -517,6 +564,11 @@ class AlbumLab(xbmcgui.WindowXML):
             return
         if key==117:
             if self.dialog_open or self.control_worker:return
+            if self.getFocusId()==600 and normal_playback():
+                try:self.track_menu()
+                except (TrialUnavailable,QueueUnavailable):
+                    self.dialog('ok','Queue changed','The selected track could not be verified. No action was retried.')
+                return
             if not self.trial:
                 self.dialog('ok','Queue not started','Start music in this player before saving its owned queue.');return
             try:
@@ -524,10 +576,12 @@ class AlbumLab(xbmcgui.WindowXML):
                 if not snapshot.song_ids:
                     self.dialog('ok','Empty queue','There is no queued music to save.');return
                 option=self.dialog('select','Queue actions',['Save queue to Jellyfin…','Audio details',
-                    'Restore original order' if self.trial.shuffled else 'Shuffle queue'])
+                    'Restore original order' if self.trial.shuffled else 'Shuffle queue','Stop and clear queue…'])
                 if option==0:self.save_shared_queue(self.trial,snapshot)
                 elif option==1:self.audio_details()
                 elif option==2:self.shuffle_album()
+                elif option==3 and self.dialog('yesno','Stop and clear queue','Stop this player and clear its queue? Your library and saved playlists are unchanged.'):
+                    self.edit_album_queue('clear',snapshot.fingerprint)
             except (TrialUnavailable,QueueUnavailable):
                 self.dialog('ok','Queue changed','The queue could not be verified. No playlist was saved.')
             return

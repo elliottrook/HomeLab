@@ -19,7 +19,7 @@ class CatalogueUnavailable(ValueError):
 TABLES = (
     ('AudioLibrary.GetAlbums', 'albums', 'albumid', ['genre'], 10000),
     ('AudioLibrary.GetArtists', 'artists', 'artistid', ['genre'], 10000),
-    ('AudioLibrary.GetSongs', 'songs', 'songid', ['genre', 'albumid', 'artistid'], 100000),
+    ('AudioLibrary.GetSongs', 'songs', 'songid', ['genre', 'albumid', 'artistid', 'duration'], 100000),
 )
 
 

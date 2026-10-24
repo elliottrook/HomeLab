@@ -395,6 +395,79 @@ class RuntimeTests(unittest.TestCase):
         window.queue_menu();window.control.assert_not_called()
         self.gui.Dialog.return_value.ok.assert_called()
 
+    def album_track_menu(self,position,choice,*,matching=True,current=0):
+        from music_queue import QueueSnapshot
+        window=self.runtime.AlbumLab();window.trial=Mock();window.allowed=(1,2,1)
+        window.display_ids=(1,2,1) if matching else (2,1)
+        window.trial.observe.return_value=QueueSnapshot((1,2,1),current)
+        window.getControl=lambda identity:Mock(getSelectedPosition=Mock(return_value=position))
+        window.live=Mock();window.play_selected=Mock();window.edit_album_queue=Mock()
+        window.dialog=Mock(side_effect=[choice,True])
+        return window
+
+    def test_album_track_menu_plays_exact_occurrence_or_enqueues_only_one_id(self):
+        window=self.album_track_menu(2,0);window.track_menu()
+        window.play_selected.assert_called_once_with(2,1)
+        for choice,action in ((1,'next'),(2,'append')):
+            window=self.album_track_menu(1,choice);window.track_menu()
+            window.live.assert_called_once_with(action,(2,))
+
+    def test_normal_track_context_menu_is_available_before_playback(self):
+        window=self.runtime.AlbumLab();window.focused=600;window.track_menu=Mock()
+        action=Mock();action.getId.return_value=117
+        with patch.object(self.runtime,'normal_playback',return_value=True):window.onAction(action)
+        window.track_menu.assert_called_once_with()
+
+    def test_album_track_remove_requires_exact_display_confirmation_and_not_current(self):
+        from music_queue import QueueSnapshot
+        window=self.album_track_menu(2,3);window.track_menu()
+        window.edit_album_queue.assert_called_once_with('remove',(2,QueueSnapshot((1,2,1),0).fingerprint))
+        for matching,current in ((False,0),(True,2)):
+            window=self.album_track_menu(1 if not matching else 2,3,matching=matching,current=current)
+            window.track_menu();window.edit_album_queue.assert_not_called()
+        window=self.album_track_menu(2,3);window.dialog=Mock(side_effect=[3,False])
+        window.track_menu();window.edit_album_queue.assert_not_called()
+
+    def test_album_queue_clear_rechecks_stale_snapshot_before_stopping(self):
+        import threading
+        from music_queue import QueueSnapshot
+        window=self.runtime.AlbumLab();window.trial=Mock();window.trial.lock=threading.RLock()
+        window.trial.observe.return_value=QueueSnapshot((1,2),0)
+        window.edit_album_queue('clear','stale');window.control_worker.join(timeout=1)
+        self.assertFalse(window.control_worker.is_alive())
+        window.trial.stop.assert_not_called();window.trial.clear.assert_not_called()
+        self.assertEqual(str(window.control_errors[0]),'queue-preview-stale')
+
+    def test_album_finished_queue_worker_releases_busy_hint_on_track_list(self):
+        window=self.runtime.AlbumLab();window.focused=600
+        worker=Mock();worker.is_alive.return_value=False;window.control_worker=worker
+        window.setProperty('Album.Busy','true');window.refresh()
+        worker.join.assert_called_once_with()
+        self.assertIsNone(window.control_worker)
+        self.assertEqual(window.getProperty('Album.Busy'),'false')
+        self.assertIn('Menu',window.getProperty('Album.ControlHint'))
+
+    def test_album_idle_refresh_releases_transport_updating_caption(self):
+        from music_queue import QueueSnapshot
+        window=self.runtime.AlbumLab();window.focused=400;window.trial=Mock()
+        window.selection=Mock(song_ids=())
+        window.allowed=(1,2)
+        window.trial.observe.return_value=QueueSnapshot((),None)
+        window.setProperty('Album.ControlHint','Updating playback…')
+        window.refresh()
+        self.assertEqual(window.getProperty('Album.ControlHint'),'Play')
+
+    def test_album_queue_clear_stops_owned_player_before_idle_clear(self):
+        import threading
+        from music_queue import QueueSnapshot
+        before=QueueSnapshot((1,2),0);idle=QueueSnapshot((1,2),None)
+        window=self.runtime.AlbumLab();window.trial=Mock();window.trial.lock=threading.RLock()
+        window.trial.observe.side_effect=[before,idle]
+        window.edit_album_queue('clear',before.fingerprint);window.control_worker.join(timeout=1)
+        self.assertFalse(window.control_worker.is_alive());self.assertFalse(window.control_errors)
+        window.trial.stop.assert_called_once_with()
+        window.trial.clear.assert_called_once_with(expected_queue=idle.fingerprint,confirmed=True)
+
     def test_queue_menu_uses_explicit_confirmation_and_exact_snapshot(self):
         from music_queue import QueueSnapshot
         window=self.runtime.ShuffleLab();window.session=Mock();window.control=Mock()

@@ -29,6 +29,12 @@ class PlaylistReadTests(unittest.TestCase):
         self.assertNotIn('file',repr(selected))
     def test_empty_playlist_is_truthful_not_a_placeholder(self):
         self.api.ids=[];self.assertEqual(self.selection().song_ids,())
+    def test_indexed_duration_is_preserved_for_each_duplicate_occurrence(self):
+        self.cat.songs[1]['duration']=208;self.cat.songs[2]['duration']=197
+        self.assertEqual([r.duration for r in self.selection().tracks],[208,197,208])
+        for missing in (None,False,-1,'208'):
+            self.cat.songs[1]['duration']=missing
+            self.assertEqual(self.selection().tracks[0].duration,0)
     def test_no_unindexed_song_is_silently_omitted(self):
         self.links.pop(TWO)
         with self.assertRaisesRegex(PlaylistUnavailable,'not-indexed'):self.selection()

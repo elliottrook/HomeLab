@@ -98,8 +98,11 @@ def read_playlist(api,identity,known,catalogue,mapping):
         links=mapping(ids)
         if set(links)!=set(ids) or any(type(i) is not int or i not in catalogue.songs for i in links.values()):
             raise PlaylistUnavailable('playlist-tracks-not-indexed')
-        return PlaylistSelection(identity,tuple(AlbumTrack(links[i],0,n+1,
-            catalogue.songs[links[i]].get('label','Untitled'),0) for n,i in enumerate(ids)))
+        def track(identity,position):
+            row=catalogue.songs[identity];duration=row.get('duration')
+            return AlbumTrack(identity,0,position,row.get('label','Untitled'),
+                duration if type(duration) is int and duration>0 else 0)
+        return PlaylistSelection(identity,tuple(track(links[i],n+1) for n,i in enumerate(ids)))
     one,two=read(),read()
     if one!=two:raise PlaylistUnavailable('playlist-changed-during-read')
     return two

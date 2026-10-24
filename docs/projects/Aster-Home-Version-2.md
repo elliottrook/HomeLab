@@ -1513,3 +1513,85 @@ non-holiday songs while paused and samples/resumes before final cleanup. It
 has a 900s fill deadline and memory floor, with bounded ID-only journals. Do
 not start another player test while this run is active. Read `results.json`
 before claiming completion; progress files alone are not a pass. M3 stays open.
+
+Full enforced run completed: `run-1792866536785680585/results.json` confirms
+16,363 tracks in the exact requested order, 765 holiday exclusions, first player
+0.480s and complete fill 319.306s. Partial-fill cancellation first-player0.428s,
+exit3.582s; final original empty queue restored. Native optimization1 with
+explicit checks. This replaces the provisional historical full-fill evidence;
+it is an in-process backend test, not a physical remote/listening acceptance.
+Postcheck `postcheck-1792866872255588411.json` passes all preservation checks.
+
+Next bounded refinement: album/playlist track Menu offers Play this track,
+Play Next, Add to Queue and, only when displayed and owned queue orders match,
+confirmed removal of that exact occurrence. Playing occurrence removal is
+refused. Transport Menu retains Save/Audio/Shuffle positions and adds confirmed
+Stop-and-clear. Mutations use existing owned-ID/fingerprint/mode guards;
+remove/clear run in joined workers, preserving UI responsiveness. No server
+playlist writes or new permissions. 259 local v2 tests and 144 original v1
+regressions pass; 10 focus checks pass. Candidate54 SHA-256
+`20ce0e3e417211f3ff852cb7e5aeacd2457b4aa32eb5d4141311233669583f34`
+(43 files) installed with candidate53 recovery under the existing versioned
+installer, no Kodi restart, profile unchanged. Enforced native test now running
+as `live_album_queue54.py` with scrub/shuffle/track/queue flags. Require actual
+Remove/Next/Append/current-denial/cancelled-clear/confirmed-clear evidence and
+repeat before accepting. BOSGAME and Git remotes remain untouched.
+
+Candidate54's native test failed on `queue-changed-during-read` while removal
+completed; the test had not treated that documented optimistic-read transition
+as retryable. Its cleanup then waited on a stale UI caption. No queue-write
+retry added. Source-local traceback retained. Normal Back stopped playback and
+restored empty queue. Candidate55 adds an explicit owner-published Busy flag
+and releases the track-list Updating hint after its joined worker. SHA-256
+`6142af6612e08b4d2073796027dbbaf3a4af3750eff340250976f550f57f35df`,
+43 files; candidate54 recovery retained. Enforced preservation
+`postcheck-1792867055181465404.json` verified candidate54 before installation.
+
+Candidate55 native run reached the playing-occurrence refusal dialog after
+remove/append/next, but failed to dismiss that modal: underlying list focus
+alone was not evidence the dialog had closed. Not counted as a pass. Helper
+now dismisses that known refusal with Back and checks modal closure explicitly;
+failed-test cleanup handles that same known dialog. Failed-run metadata is
+persisted before cleanup so a cleanup exception cannot erase its location.
+Source-local tracebacks retained; normal Back recovery independently showed
+idle/empty/shuffle Off. Candidate55 preservation
+`postcheck-1792867220061930454.json` passed before the next install.
+
+Candidate56 additionally resets the transport caption after an idle clear.
+Visual review found playlist durations were always unknown by construction;
+the read-only catalogue now requests indexed durations and playlist rows retain
+them (including repeated occurrences), with unknown/malformed values still
+shown as unknown. No paths/art URLs added to catalogue output. 263 local tests
+pass. SHA-256
+`1c4d6d2d14b74d072b86892a25216c9035d111d767623b1c5ed53efa3d7d903c`
+(43 files), installed with candidate55 recovery, profile unchanged, no restart.
+Native `live_album_queue56.py` is running with all four control flags. Read
+the new result before accepting. Do not run concurrent foreground player tests.
+
+Candidate56 native control runs
+`playlist-player-1792867292236280595.json` and
+`playlist-player-1792867364854259268.json` independently pass all four control
+groups: scrub, shuffle/order, direct-track OK/marker/delayed preservation,
+and album track Menu remove/append/next/current-denial/cancelled-clear/
+confirmed-clear/exit. Each verifies all 16 saved playlists with exact IDs and
+order, no autoplay, no server playlist writes and final empty restoration.
+The actual native duration check
+`playlist-player-1792867502587464722.json` verifies 18 indexed durations and
+their rendered row property, then playback/pause/resume/Back. All checks run
+under optimization1, explicitly enforced. Native screenshot inspected at 4K
+scale: cover aspect preserved, floating controls clear, centred 24-hour clock;
+the two-line help fits without covering controls/track names.
+
+Shared overlay `native-1792867426270386069.json` also passes with enforced
+checks: idle Music/Books/Digest labelled control/focus and synthetic-video
+Pause/Resume, all ten OSD navigation slots and native Quality dialog. No real
+video opened. This is one enforced overlay pass; retain the older provisional
+evidence separately. No unexpected restart since PID11276 service start.
+
+Next safe Music refinement is optional restrained artwork-derived colour,
+sampled only from Kodi's existing local thumbnail cache, no image download or
+new service. The HP system Python already has Pillow; native availability must
+be checked, with neutral fallback if unavailable. Bound decode dimensions/file
+size and keep sampling off the GUI thread. Never export art URLs/credentials,
+read arbitrary paths, or duplicate a large cover behind the primary art.
+Local prototype files are not deployed/accepted until tests and native review.

@@ -5,7 +5,7 @@ def _require(condition,message="native-check-failed"):
     """Unlike assert, this check remains active in Kodi optimized Python."""
     if not condition:raise AssertionError(message)
 
-import json,os,sys,time
+import json,os,sys,time,traceback
 from pathlib import Path
 import xbmc,xbmcvfs
 _require((os.uname().nodename=='AsterTV'), ('native-check-failed'))
@@ -59,6 +59,11 @@ _require((label('Window.Property(Lab.Count)')=='16 playlists'), ('native-check-f
 select();until(lambda:focus(600) and label('Window.Property(Album.Id)')=='playlist-'+selection.playlist_id,'ordered playlist preview')
 _require((label('Container(600).NumItems')==str(len(selection.tracks)) and label('Window.Property(Album.Live)')==('true' if normal else 'false')), ('native-check-failed'))
 _require(('saved playlist order' in label('Window.Property(Album.Count)') and idle()), ('native-check-failed'))
+duration_count=sum(track.duration>0 for track in selection.tracks)
+if '--indexed-duration' in sys.argv:
+    _require(duration_count==len(selection.tracks),'indexed-playlist-durations')
+    duration=selection.tracks[0].duration
+    _require(label('Container(600).ListItem.Property(Duration)')==f'{duration//60}:{duration%60:02}','displayed-indexed-duration')
 press('back');until(lambda:focus(500) and not label('Window(Home).Property(AsterV2Lab.AlbumWindow)'),'preview Back to playlist tile')
 xbmc.sleep(400)
 grant=Path('/storage/.kodi/userdata/addon_data/script.astermusic.v2lab/live-trial.json')
@@ -88,14 +93,29 @@ try:
         import runpy
         check=runpy.run_path(str(Path(__file__).with_name('native_track_select_check.py')))['check']
         _require(check(rpc,label,focus,until,press,select),'track-selection-check')
-    select();until(lambda:label('Control.GetLabel(400)')=='Pause','playlist Resume')
+    if '--queue-controls' in sys.argv:
+        import runpy
+        check=runpy.run_path(str(Path(__file__).with_name('native_album_queue_check.py')))['check']
+        _require(check(rpc,label,focus,until,press,select),'album-queue-menu-check')
+    else:
+        select();until(lambda:label('Control.GetLabel(400)')=='Pause','playlist Resume')
     press('back');until(lambda:idle() and focus(500) and not label('Window(Home).Property(AsterV2Lab.AlbumWindow)'),'playlist Back stops and restores origin')
     passed=True
+except Exception as error:
+    frame=traceback.extract_tb(error.__traceback__)[-1]
+    path=Path('/storage/.aster-checkpoints/aster-music-progressive-20261024')/('playlist-failed-'+str(time.time_ns())+'.json')
+    with path.open('x') as output:json.dump(dict(passed=False,checks_enforced=True,
+        python_optimization=sys.flags.optimize,failure_type=type(error).__name__,
+        source=Path(frame.filename).name,line=frame.lineno),output)
+    path.chmod(0o600)
+    raise
 finally:
     if normal:_require((not grant.exists()), ('native-check-failed'))
     else:grant.unlink(missing_ok=True)
     if not passed and label('Window(Home).Property(AsterV2Lab.AlbumWindow)'):
-        until(lambda:label('Window.Property(Album.ControlHint)') in ('Pause','Resume'), 'transport ready before cleanup')
+        if label('Control.GetLabel(1)')=='Keep playing song':
+            press('back');until(lambda:label('Control.GetLabel(1)')!='Keep playing song','close owned refusal dialog')
+        until(lambda:idle() or label('Window.Property(Album.Busy)')=='false', 'transport ready before cleanup')
         press('back');until(idle,'failed-test owned exit cleanup')
     _require((idle()), ('recovery-required'))
     press('back');until(lambda:label('Window.Property(Lab.View)')=='genres','playlist Back to original Genres')
@@ -105,9 +125,11 @@ finally:
     p.write_text(json.dumps(dict(passed=passed,checks_enforced=True,python_optimization=sys.flags.optimize,
         normal_mode=normal,playlists_verified=len(rows),track_counts=counts,
         exact_id_mapping=True,no_guessed_or_omitted_tracks=True,read_only_preview=not normal,preview_does_not_autoplay=True,
+        indexed_track_durations=duration_count,displayed_duration_verified='--indexed-duration' in sys.argv,
         complete_saved_order_playback=passed,pause_resume=passed,scrub_preview_cancel_apply=passed and '--scrub-controls' in sys.argv,
         shuffle_menu_cancel_on_off_and_visible_order=passed and '--shuffle-controls' in sys.argv,
         direct_track_ok_and_delayed_queue_preservation=passed and '--track-controls' in sys.argv,
+        album_track_menu_remove_next_append_and_confirmed_clear=passed and '--queue-controls' in sys.argv,
         back_restores_origin_empty_queue=passed,
         capability_removed=True,no_server_playlist_writes=True)))
     p.chmod(0o600)
