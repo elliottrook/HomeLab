@@ -35,7 +35,9 @@ class FreshPackageTests(unittest.TestCase):
 
     def engine(self, case, mode, model, transport):
         self.calls.append((case['id'], mode))
-        return {'case_id': case['id'], 'mode': mode, 'status': 'clarify', 'steps': []}
+        return {'case_id': case['id'], 'mode': mode, 'status': 'clarify', 'steps': [{
+            'metadata': {}, 'answer': {'decision': 'clarify', 'check': '',
+                'evidence_ids': [], 'summary': 'More evidence is required.', 'effects': []}}]}
 
     def run_fixture(self, ready=lambda: True, engine=None):
         return run_package(self.bundle, self.manifest, self.path, None, ready,
@@ -117,6 +119,31 @@ class FreshPackageTests(unittest.TestCase):
                     self.run_fixture(engine=invalid)
                 self.assertNotIn('private', self.path.read_text())
                 self.path.unlink()
+
+    def test_terminal_status_must_match_final_answer(self):
+        base_answer = {'decision': 'clarify', 'check': '', 'evidence_ids': [],
+                       'summary': 'More evidence is required.', 'effects': []}
+        invalid = (
+            ('clarify', []),
+            ('clarify', [{'metadata': {}, 'answer': None}]),
+            ('conclude', [{'metadata': {}, 'answer': base_answer}]),
+            ('clarify', [{'metadata': {}, 'answer': dict(base_answer, check='fixture-check')}]),
+        )
+        for status, steps in invalid:
+            with self.subTest(status=status, steps=steps):
+                def mismatch(case, mode, *args):
+                    return {'case_id': case['id'], 'mode': mode,
+                            'status': status, 'steps': steps}
+                with self.assertRaisesRegex(ValueError, 'final answer disagree'):
+                    self.run_fixture(engine=mismatch)
+                self.path.unlink()
+
+    def test_nontransport_attempt_count_must_match_retained_steps(self):
+        def mismatch(case, mode, *args):
+            return {'case_id': case['id'], 'mode': mode,
+                    'status': 'invalid_answer', 'steps': [], 'attempted_calls': 1}
+        with self.assertRaisesRegex(ValueError, 'attempt count'):
+            self.run_fixture(engine=mismatch)
 
     def test_unknown_or_unbounded_status_is_not_journalled(self):
         for status in ('looks_good', 'transport_error:Bad Value',

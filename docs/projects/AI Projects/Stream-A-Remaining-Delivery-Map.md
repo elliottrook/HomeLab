@@ -710,6 +710,12 @@ and failure records. Synthetic nested reasoning and malformed/nonfinite nested
 values were rejected before a finished event, while the complete eval suite
 passed 124/124. This protects future private evidence without executing or
 qualifying a model.
+The same admission layer now also binds
+[terminal status to the retained final answer](evidence/D4-terminal-answer-lineage-boundary-2026-10-24.md)
+and binds non-transport attempt counts to retained steps. Contradictory or empty
+terminal results fail before journalling, and the complete eval suite passes
+126/126. This protects later scoring and audit; it does not read or qualify the
+holdout, call a model or connect a tool.
 
 ## Immediate next action and stop rule
 

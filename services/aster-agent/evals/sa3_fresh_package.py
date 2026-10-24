@@ -211,6 +211,14 @@ def validate_engine_result(result, case_id, mode):
     if ('limit' in result and result['limit'] !=
             'synthetic development only; terminal status is not a correctness grade'):
         raise ValueError('invalid engine result; manual reconciliation required')
+    if result['status'] in ('conclude', 'clarify'):
+        if (not result['steps'] or result['steps'][-1]['answer'] is None
+                or result['steps'][-1]['answer']['decision'] != result['status']
+                or result['steps'][-1]['answer']['check'] != ''):
+            raise ValueError('terminal status and final answer disagree; manual reconciliation required')
+    if ('attempted_calls' in result and not result['status'].startswith('transport_error')
+            and result['attempted_calls'] != len(result['steps'])):
+        raise ValueError('attempt count and retained steps disagree; manual reconciliation required')
     return copy.deepcopy(result)
 
 
