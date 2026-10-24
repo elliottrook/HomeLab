@@ -353,6 +353,12 @@ configuration now exist on LXC104, but both units have never run and port 9121
 has no listener. The old Aster-trusted path, socket and broker database remain
 unchanged. Starting or routing to the new process, proving real token assurance
 and performing the zero-overlap authority cutover remain separate gates.
+A [supervised zero-overlap cutover card](evidence/M1-independent-ingress-zero-overlap-cutover-card-2026-10-24.md)
+now fixes the exact path split, 9121 firewall scope, service order, denial and
+execution-broker-independence checks. It preserves chat, voice and OpenBao on
+9120 and covers both Companion clients without an app rebuild. The first
+cutover would be explicitly Yellow-only: Red and management remain denied until
+a real passkey-specific claim is proven. No live cutover is authorized yet.
 
 Milestones 3 and 6 proceed independently of D3 session aging. Connected tools wait for milestone 3; automatic routing does not need to be built before a limited manual Codex release. The earlier SA0–SA5 table records operational requirements and historical Qwen work; it is **not** a second obligation to rerun the closed Qwen general-sysadmin trial. Its still-applicable authority, investigation, repair and acceptance checks map into milestones 3–7.
 
