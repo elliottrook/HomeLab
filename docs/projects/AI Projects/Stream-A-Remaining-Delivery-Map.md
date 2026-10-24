@@ -737,6 +737,12 @@ and binds non-transport attempt counts to retained steps. Contradictory or empty
 terminal results fail before journalling, and the complete eval suite passes
 126/126. This protects later scoring and audit; it does not read or qualify the
 holdout, call a model or connect a tool.
+The journal and producer now additionally enforce a
+[terminal/failure lineage boundary](evidence/D4-terminal-failure-lineage-boundary-2026-10-24.md):
+rejected terminal answers are discarded, nonterminal statuses cannot retain a
+terminal answer, failure metadata must agree with transport status, and transport
+attempt counts include exactly the failed call. The complete evaluation suite
+passes 128/128. This is evidence hardening only; D4 qualification remains open.
 
 ## Immediate next action and stop rule
 

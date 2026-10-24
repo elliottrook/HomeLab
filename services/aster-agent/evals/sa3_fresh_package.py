@@ -216,9 +216,18 @@ def validate_engine_result(result, case_id, mode):
                 or result['steps'][-1]['answer']['decision'] != result['status']
                 or result['steps'][-1]['answer']['check'] != ''):
             raise ValueError('terminal status and final answer disagree; manual reconciliation required')
-    if ('attempted_calls' in result and not result['status'].startswith('transport_error')
-            and result['attempted_calls'] != len(result['steps'])):
-        raise ValueError('attempt count and retained steps disagree; manual reconciliation required')
+    elif any(step['answer'] is not None
+             and step['answer']['decision'] in ('conclude', 'clarify')
+             for step in result['steps']):
+        raise ValueError('nonterminal status carries terminal answer; manual reconciliation required')
+    transport_failure = result['status'].startswith('transport_error')
+    has_failure = result.get('failure') is not None
+    if transport_failure != has_failure:
+        raise ValueError('transport status and failure metadata disagree; manual reconciliation required')
+    if 'attempted_calls' in result:
+        expected_attempts = len(result['steps']) + int(transport_failure)
+        if result['attempted_calls'] != expected_attempts:
+            raise ValueError('attempt count and retained steps disagree; manual reconciliation required')
     return copy.deepcopy(result)
 
 

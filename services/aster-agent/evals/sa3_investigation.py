@@ -142,8 +142,10 @@ def investigate(case, mode, model, transport, clock=time.monotonic):
             status = 'invalid_answer'; break
         step['answer'] = copy.deepcopy(answer)
         if answer['effects'] != []:
+            step['answer'] = None
             status = 'effect_claim_rejected'; break
         if not set(answer['evidence_ids']) <= {o['id'] for o in observations}:
+            step['answer'] = None
             status = 'unobserved_evidence_rejected'; break
         if answer['decision'] == 'check':
             check = answer['check']
@@ -153,6 +155,7 @@ def investigate(case, mode, model, transport, clock=time.monotonic):
             observations.append(copy.deepcopy(case['responses'][check]))
         else:
             if answer['check']:
+                step['answer'] = None
                 status = 'invalid_terminal_check'; break
             status = answer['decision']; break
     return {'case_id': case['id'], 'mode': mode, 'status': status, 'steps': steps,

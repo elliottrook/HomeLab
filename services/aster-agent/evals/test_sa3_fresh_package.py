@@ -66,7 +66,10 @@ class FreshPackageTests(unittest.TestCase):
     def test_timeout_is_retained_and_blocks_resume(self):
         def timeout(case, mode, *args):
             return {'case_id':case['id'],'mode':mode,'status':'transport_error:TimeoutError',
-                    'steps': []}
+                    'steps': [], 'attempted_calls': 1,
+                    'failure': {'type': 'TimeoutError', 'attempt': 1,
+                                'elapsed_seconds': 1.0,
+                                'request_timeout_seconds': 10.0}}
         self.assertEqual(self.run_fixture(engine=timeout)['status'], 'stopped')
         with self.assertRaisesRegex(ValueError, 'reconciliation'): self.run_fixture()
 
@@ -145,6 +148,41 @@ class FreshPackageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'attempt count'):
             self.run_fixture(engine=mismatch)
 
+    def test_nonterminal_status_cannot_retain_terminal_answer(self):
+        def mismatch(case, mode, *args):
+            return {'case_id': case['id'], 'mode': mode,
+                    'status': 'invalid_answer', 'steps': [{
+                        'metadata': {}, 'answer': {
+                            'decision': 'conclude', 'check': '', 'evidence_ids': [],
+                            'summary': 'Rejected synthetic conclusion.', 'effects': []}}],
+                    'attempted_calls': 1, 'failure': None}
+        with self.assertRaisesRegex(ValueError, 'nonterminal status'):
+            self.run_fixture(engine=mismatch)
+
+    def test_transport_status_failure_and_attempt_lineage_must_agree(self):
+        failure = {'type': 'TimeoutError', 'attempt': 1, 'elapsed_seconds': 1.0,
+                   'request_timeout_seconds': 10.0}
+        invalid = (
+            ('conclude', failure, 1),
+            ('transport_error:TimeoutError', None, 1),
+            ('transport_error:TimeoutError', failure, 0),
+        )
+        for status, metadata, attempts in invalid:
+            with self.subTest(status=status, metadata=metadata, attempts=attempts):
+                def mismatch(case, mode, *args):
+                    steps = []
+                    if status == 'conclude':
+                        steps = [{'metadata': {}, 'answer': {
+                            'decision': 'conclude', 'check': '', 'evidence_ids': [],
+                            'summary': 'Synthetic conclusion.', 'effects': []}}]
+                    return {'case_id': case['id'], 'mode': mode, 'status': status,
+                            'steps': steps, 'attempted_calls': attempts,
+                            'failure': metadata}
+                error = 'failure metadata' if attempts == 1 else 'attempt count'
+                with self.assertRaisesRegex(ValueError, error):
+                    self.run_fixture(engine=mismatch)
+                self.path.unlink()
+
     def test_unknown_or_unbounded_status_is_not_journalled(self):
         for status in ('looks_good', 'transport_error:Bad Value',
                        'transport_error:' + 'x' * 129):
@@ -186,7 +224,11 @@ class FreshPackageTests(unittest.TestCase):
     def test_rehashed_finished_result_is_revalidated(self):
         def timeout(case, mode, *args):
             return {'case_id': case['id'], 'mode': mode,
-                    'status': 'transport_error:TimeoutError', 'steps': []}
+                    'status': 'transport_error:TimeoutError', 'steps': [],
+                    'attempted_calls': 1,
+                    'failure': {'type': 'TimeoutError', 'attempt': 1,
+                                'elapsed_seconds': 1.0,
+                                'request_timeout_seconds': 10.0}}
         self.assertEqual(self.run_fixture(engine=timeout)['status'], 'stopped')
         rows = [json.loads(line) for line in self.path.read_text().splitlines()]
         rows[-1]['event']['result']['reasoning'] = 'synthetic private reasoning'

@@ -44,10 +44,15 @@ class InvestigationTests(unittest.TestCase):
                                   ([answer(check='restart')], 'check_rejected'),
                                   ([answer(effects=['restart'])], 'effect_claim_rejected')]:
             with self.subTest(status=status):
-                self.assertEqual(self.replay(responses)[0]['status'], status)
+                result = self.replay(responses)[0]
+                self.assertEqual(result['status'], status)
+                if status == 'effect_claim_rejected':
+                    self.assertIsNone(result['steps'][-1]['answer'])
 
     def test_unseen_citation_rejected(self):
-        self.assertEqual(self.replay([answer(evidence=['error-now'])])[0]['status'], 'unobserved_evidence_rejected')
+        result = self.replay([answer(evidence=['error-now'])])[0]
+        self.assertEqual(result['status'], 'unobserved_evidence_rejected')
+        self.assertIsNone(result['steps'][-1]['answer'])
 
     def test_timeout_stops_without_retry(self):
         calls = []
@@ -82,7 +87,9 @@ class InvestigationTests(unittest.TestCase):
 
     def test_invalid_schema_and_terminal_check_stop(self):
         self.assertEqual(self.replay([answer(extra='unexpected')])[0]['status'], 'invalid_answer')
-        self.assertEqual(self.replay([answer('conclude')])[0]['status'], 'invalid_terminal_check')
+        result = self.replay([answer('conclude')])[0]
+        self.assertEqual(result['status'], 'invalid_terminal_check')
+        self.assertIsNone(result['steps'][-1]['answer'])
 
     def test_malformed_fixture_fails_before_transport(self):
         malformed = copy.deepcopy(self.case)
