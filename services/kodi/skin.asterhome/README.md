@@ -1,6 +1,13 @@
 # Aster Home Kodi skin
 
-Version 1.0.5 is the current Aster Home private deployment candidate. It retains
+Version 1.1.0 is deployed to HP and BOSGAME with owner-approved promotion.
+Continue Watching now includes Up Next and caught-up series; real Intro/Outro
+markers drive explicit Aster Skip intro / Play next episode controls. TV hero
+artwork falls back to inherited series fanart. No automatic skipping/playback.
+See [v1.1 deployment, recovery and operator note](../../../docs/projects/Aster-Home-Version-1.1-Up-Next.md)
+for verified evidence and the remaining household walkthrough gate.
+
+Version 1.0.5 established the previous private deployment baseline. It retains
 the v1.0.1 selection-dialog correction and uses percentage-based seeking for
 Daily Digest MP3 chapters after the physical LibreELEC player proved inaccurate
 absolute-time seeking. The complete Mac-validated interface and physical HP

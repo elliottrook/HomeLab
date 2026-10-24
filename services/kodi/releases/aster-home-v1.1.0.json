@@ -35,8 +35,8 @@
   ],
   "release": "1.1.0",
   "schema": "aster-home-kodi-release.v1",
-  "status": "production-candidate-pending-physical-libreelec-gate",
-  "manifest_sha256": "7bc895cff99acb798c883bebe19baab9be7c6a125167eadae098df413f1b98f9",
+  "status": "deployed-production-pending-owner-walkthrough",
+  "manifest_sha256": "e1037428da7bfdbc49d603ed2d16e72e9a484725b30df769100ec93dda8dd6cd",
   "artifacts": [
     {
       "addon_id": "plugin.video.asterhome",
@@ -59,19 +59,20 @@
     {
       "addon_id": "skin.asterhome",
       "archive": "skin.asterhome-1.1.0.zip",
-      "bytes": 4540517,
-      "sha256": "1c7dbcff6eb5c81088df2e9d6f948daa2d2fe59ff00d0aa100da7df0dff947d5"
+      "bytes": 4540538,
+      "sha256": "df1bdac4ef37b7a1d5cd322ee21a05f928fcb67299f4ead157abb4375998d18f"
     }
   ],
   "changes": [
     "Add Up Next and honest caught-up cards to Continue Watching from the complete bounded locally synced episode catalogue.",
     "Retain existing episode resume ahead of series next-episode cards and preserve normal playback authority.",
     "Aster Skip intro and Play next episode prompts use real Jellyfin Intro/Outro markers; no auto-skip or autoplay.",
-    "Stop the old episode session before opening the next with Kodi boolean bookmark resume; preserve stop-on-exit."
+    "Stop the old episode session before opening the next with Kodi boolean bookmark resume; preserve stop-on-exit.",
+    "Home hero falls back to inherited tvshow.fanart for TV episodes while retaining direct film artwork."
   ],
   "validation": {
-    "local_tests": 137,
-    "hp": "candidate8 installed, pending owner remote walkthrough; four add-ons enabled, 153 manifest files verified",
+    "local_tests": 138,
+    "hp": "candidate9 installed; 153 manifest files verified; live episode hero artwork confirmed for The Voice and Dark",
     "live_directory": "multiple passes: 24 rows, eight Up Next, caught-up cards; 0.32-0.44 seconds",
     "live_intro": "real 252.0-310.31s Intro; Skip intro pressed; same episode at 310.310s; stopped afterward",
     "live_outro": "real 4985.628s Outro; Play next episode pressed; next ID 5966 at 29m52s saved bookmark (normal Jellyfin rewind); stopped afterward",
@@ -79,13 +80,16 @@
     "hp_private_settings_checkpoint_sha256": "6eba8a1c07e1f419fe9569b14f8b698ad856d632c1845cade2bb7c1cd90ae1f7",
     "hp_prepromotion_backup_sha256": "57b3e888e338d5dd07036acf6c02101d216d1a0c1a62ea93468aa067c93eb88f",
     "test_state_recovery": "Restored known pre-test 1802s server bookmark and completed/no-resume states of two source episodes; normal test history counters retained",
-    "production": "BOSGAME unchanged v1.0.5; no promotion or push"
+    "production": "Owner-approved candidate9 deployed to BOSGAME; four 1.1.0 add-ons enabled and 153 files verified; two live rail reads, episode hero screenshot and settings-preservation checks passed; no playback or Git push",
+    "production_directory": "24 rows, seven Up Next, 10 episode cards with inherited fanart; 0.63/0.36 seconds",
+    "production_private_backup_sha256": "2458b7e5b41f32643758f28b8aa68baa66b8f01f5ee5253508f6d71679752d42",
+    "production_preservation": "145 audio/display/language/subtitle settings plus keymap, refresh units and boot files unchanged; only two native Jellyfin popup values changed"
   },
-  "artifact_directory": "services/kodi/dist/aster-home-v1.1.0-candidate8",
+  "artifact_directory": "services/kodi/dist/aster-home-v1.1.0-candidate9",
   "limitations": [
     "Markers absent means no prompt; manual Next is retained.",
     "Single configured Jellyfin server supported for segment lookup; multiple servers fail closed.",
     "Only recent 24 series, complete catalogues up to 2000 episodes; no invented future releases.",
-    "Owner remote and embedded rail refresh acceptance required before production promotion."
+    "Production promotion approved and completed; household remote/real-credits walkthrough remains pending."
   ]
 }

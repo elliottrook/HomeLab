@@ -96,8 +96,10 @@
         <value>$INFO[Container(100).ListItem.VideoResolution]</value>
     </variable>
     <variable name="AsterHeroFanart">
-        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Art(fanart)]</value>
-        <value>$INFO[Container(100).ListItem.Art(fanart)]</value>
+        <value condition="Control.HasFocus(110) + !String.IsEmpty(Container(110).ListItem.Art(fanart))">$INFO[Container(110).ListItem.Art(fanart)]</value>
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Art(tvshow.fanart)]</value>
+        <value condition="!String.IsEmpty(Container(100).ListItem.Art(fanart))">$INFO[Container(100).ListItem.Art(fanart)]</value>
+        <value>$INFO[Container(100).ListItem.Art(tvshow.fanart)]</value>
     </variable>
     <variable name="AsterHeroPath">
         <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.FileNameAndPath]</value>

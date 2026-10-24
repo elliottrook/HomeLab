@@ -1,4 +1,14 @@
-# Aster Home 1.0.4 deployment candidate
+# Aster Home deployment and recovery
+
+Current deployed release: **1.1.0** on HP and BOSGAME, 2026-10-23, with explicit
+production authorization and verified private pre-promotion recovery copies.
+The immutable build is `services/kodi/dist/aster-home-v1.1.0-candidate9`;
+checksums/evidence are in `services/kodi/releases/aster-home-v1.1.0.json` and
+the [v1.1 project/operator note](../../../docs/projects/Aster-Home-Version-1.1-Up-Next.md).
+Household remote/credits walkthrough remains pending. V2 is local-only.
+
+The following v1.0.4 guide is historical baseline documentation, not the current
+release manifest or an instruction to replace current client settings.
 
 ## Status and boundary
 

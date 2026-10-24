@@ -1,7 +1,7 @@
 # Aster Home v1.1 - Up Next
 
-Owner: Jason. Created 2026-10-23. Stream M. Status: implementation/local tests;
-HP test deployment approved; production promotion not authorized.
+Owner: Jason. Created 2026-10-23. Stream M. Status: deployed to HP and BOSGAME;
+production promotion explicitly approved, household remote walkthrough pending.
 
 ## Purpose, authority and exclusions
 
@@ -49,7 +49,7 @@ new dependency, unverified checkpoint or unexpected identity/OS change.
   future/missing episode, malformed/nonfinite data, partial reads, dedup/order.
 - [x] M2: package deterministic 1.1.0 candidate without overwriting v1.0.5;
   private HP checkpoint, file-hash verification and restart.
-- [ ] M3: real HP directory/art/focus/refresh tests; no fabricated watch state.
+- [x] M3: real HP directory/art/focus/refresh tests; no fabricated watch state.
 - [x] M4: intro/outro prompt using verified metadata; exact intro seek,
   next-episode bookmark handover, dismiss and manual Next; no auto-play/skip.
 - [ ] M5: owner remote/episode-completion walkthrough, independently accepted
@@ -158,13 +158,70 @@ files matched on HP; release hashes and detailed validation are tracked in
 changed-file checkpoints are retained. No OS, native media files, production
 client or broad network access was changed. HP is idle after tests.
 
-Resume: owner G20/embedded-rail walkthrough remains M3/M5; obtain separate
-BOSGAME promotion approval afterward. No push is authorized. V2 services are
-not deployed. See the operator note below for actual behavior and rollback.
+At the candidate8 handoff, the owner G20/embedded-rail walkthrough and separate
+BOSGAME promotion approval were pending. The later approval/promotion below
+supersedes that hold. No push is authorized; v2 services are not deployed.
+See the operator note below for actual behavior and rollback.
+
+### Production promotion and episode-hero repair — 2026-10-23
+
+The owner confirmed the production unit was available, explicitly requested
+v1.1 deployment, and authorized fixing the TV hero if minor. This supersedes
+the earlier production hold. Both clients were independently confirmed idle.
+
+Read-only directory checks reproduced the same defect on HP and BOSGAME:
+episodes have `tvshow.fanart` but no direct `fanart`, while films normally have
+direct `fanart`. The home hero only read the latter. Added an ordered series
+fallback for both home rails, retaining direct movie artwork. No server data,
+watch state, episode playback path or source artwork was modified. HP received
+only the changed Includes.xml with a verified checkpoint at
+`/storage/.aster-checkpoints/aster-v1.1.0-before-episode-hero-20261023/` and skin
+reload. Actual HP screenshots show The Voice and Dark hero artwork; Dark also
+retains its real episode synopsis. Missing source synopsis/genre/year is not
+invented by this repair.
+
+Candidate9 is reproducible with 138 passing tests (100 skin/helper, 19 media,
+13 Books bridge, three sound and three packaging). All 153 files match this
+same manifest on both clients. BOSGAME was briefly stopped after verifying the
+package, its active refresh timer was paused/restored, and a private profile,
+configuration, SSH and boot archive was created and byte-checked against
+3,023 regular source files before installation. Checkpoint:
+`/storage/.aster-checkpoints/aster-v1.0.5-before-v1.1.0-20261023/`.
+Archive SHA-256:
+`2458b7e5b41f32643758f28b8aa68baa66b8f01f5ee5253508f6d71679752d42`.
+An independently hashed 0600 off-device copy is retained outside Git in
+`/Users/jelliott/lab/private-backups/aster-tv/bosgame/2026-10-23-v1.1.0/`.
+
+Production installation changed the four packaged add-ons and only the two
+Jellyfin popup values (`skipIntroductionMode=0`, `skipCreditsMode=0`);
+`mediaSegmentsEnabled=true` remains unchanged. Verified all four add-ons enabled
+at 1.1.0, no active player and Kodi active with zero automatic restarts.
+Two independent live rail reads returned 24 rows / seven Up Next cards,
+10 episode cards all exposing inherited series fanart, in 0.63/0.36 seconds.
+Production screenshot confirms the selected episode's hero now renders.
+An independent film screenshot confirms direct movie artwork still renders.
+Compared with the stopped-session checkpoint: 145 audio/display/language/
+subtitle settings, remote keymap, catalogue-refresh units and boot files are
+unchanged. No v2 prototype, OS, firmware, identity, network or server changes.
+
+M5 remains open only for the owner's household remote/real-credits walkthrough
+and release acceptance. No production playback was initiated for this promotion;
+the exact marker/seek/handover evidence remains the previous HP tests. No Git
+push is authorized. Existing service-native health/refresh coverage remains;
+there is no new Beszel, Doctor, NetBox, DNS or firewall object to register.
+Repository operator/release records are updated; wiki/mirror publication is
+deferred until owner acceptance (the local mirror checkout is absent).
+
+Recovery: stop Kodi; use this production checkpoint to restore only the four
+changed Aster add-on trees and the checkpointed Jellyfin settings. Remove only
+the new v1.1 intro/outro script/dialog if absent in the v1.0.5 archive, then
+restart and verify ordinary media/resume. Do not restore another client's
+profile, overwrite libraries/watch state or change the OS/audio settings.
+Retain both the accepted v1.0.5 bundle and immutable candidate9 artifacts.
 
 ## Operator note
 
-On HP Aster Media Home, Continue Watching contains resumable films/episodes,
+On HP and production Aster Media Home, Continue Watching contains resumable films/episodes,
 Up next episode cards and browsable caught-up series. A future date appears
 only if supplied by indexed metadata; otherwise New episodes when available
 is deliberately non-specific. Series with no viewing history are not added.
@@ -178,7 +235,7 @@ markers no prompt is invented; the OSD Next button still uses the indexed
 following episode. Finales do not point to nonexistent episodes. Known target
 resume is retained; Kodi/Jellyfin may rewind a few seconds for context.
 
-Both native Jellyfin popups are disabled on HP to avoid two competing prompts;
+Both native Jellyfin popups are disabled on both clients to avoid competing prompts;
 Jellyfin remains the marker and playback authority. The marker reader currently
 supports one configured server, failing closed for multiple servers. To roll
 back, restore accepted v1.0.5 add-ons and the checkpointed Jellyfin settings

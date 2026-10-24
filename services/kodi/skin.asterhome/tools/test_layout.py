@@ -12,6 +12,21 @@ class LayoutTests(unittest.TestCase):
         self.home = ET.parse(ROOT / '1080i/Home.xml')
         self.browse = ET.parse(ROOT / '1080i/MyVideoNav.xml')
 
+    def test_home_hero_falls_back_to_series_art_for_episodes(self):
+        values = ET.parse(ROOT / '1080i/Includes.xml').find(
+            './/variable[@name="AsterHeroFanart"]').findall('value')
+        self.assertEqual([node.text for node in values], [
+            '$INFO[Container(110).ListItem.Art(fanart)]',
+            '$INFO[Container(110).ListItem.Art(tvshow.fanart)]',
+            '$INFO[Container(100).ListItem.Art(fanart)]',
+            '$INFO[Container(100).ListItem.Art(tvshow.fanart)]'])
+        self.assertEqual(values[0].get('condition'),
+                         'Control.HasFocus(110) + !String.IsEmpty(Container(110).ListItem.Art(fanart))')
+        self.assertEqual(values[1].get('condition'), 'Control.HasFocus(110)')
+        self.assertEqual(values[2].get('condition'),
+                         '!String.IsEmpty(Container(100).ListItem.Art(fanart))')
+        self.assertIsNone(values[3].get('condition'))
+
     def test_caught_up_hero_browses_series_instead_of_queuing_episodes(self):
         hero = self.home.find('.//control[@id="120"]')
         self.assertEqual(hero.findtext('label'), '$VAR[AsterHeroActionLabel]')

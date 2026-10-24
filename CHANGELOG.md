@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-10-23 - Aster v1.1 production deployment and TV hero repair
+
+- Reproduced HP/production episode hero failure and added inherited series
+  fanart fallback; actual HP and production screenshots confirm rendering.
+- Owner-approved v1.1 deployed to BOSGAME after a verified 3,023-file private
+  backup; independent off-device recovery copy retained. Both clients match
+  the same 153-file candidate9; 138 local tests pass.
+- Two production rail reads pass; audio/display/language/subtitle settings,
+  remote mapping, catalogue timer and startup files are preserved. Replaced
+  duplicate Jellyfin intro/credits popups with Aster's explicit marker controls.
+- Household remote/credits acceptance remains open; no v2 deployment or push.
+
 ## 2026-10-23 - Aster v2 local Music design prototype
 
 - Added an isolated, non-deployed seven-category Music layout using supplied
