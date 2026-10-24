@@ -689,6 +689,13 @@ Missing, duplicate, negative, nonnumeric and nonfinite synthetic metrics were
 rejected; the normal labelled zero gauge passed, and the complete eval suite
 passed 123/123. This closes an offline idle-admission ambiguity without calling
 the service or authorizing the holdout run.
+The private journal admission layer now also enforces a
+[nested engine-result schema](evidence/D4-engine-result-nested-schema-boundary-2026-10-24.md)
+for steps, metadata, sanitized answers, checks, observations, timing, attempts
+and failure records. Synthetic nested reasoning and malformed/nonfinite nested
+values were rejected before a finished event, while the complete eval suite
+passed 124/124. This protects future private evidence without executing or
+qualifying a model.
 
 ## Immediate next action and stop rule
 

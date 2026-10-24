@@ -7,6 +7,7 @@ import copy
 import fcntl
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -133,6 +134,83 @@ def validate_engine_result(result, case_id, mode):
         ) from exc
     if len(encoded) > 65_536:
         raise ValueError('engine result exceeds journal envelope; manual reconciliation required')
+    if len(result['steps']) > 3:
+        raise ValueError('invalid engine result; manual reconciliation required')
+    for step in result['steps']:
+        if (not isinstance(step, dict) or set(step) != {'metadata', 'answer'}
+                or not isinstance(step['metadata'], dict)
+                or not set(step['metadata']) <= {
+                    'latency_seconds', 'finish_reason', 'reasoning_present',
+                    'reasoning_characters', 'completion_tokens'}):
+            raise ValueError('invalid engine result; manual reconciliation required')
+        metadata = step['metadata']
+        if ('latency_seconds' in metadata
+                and (type(metadata['latency_seconds']) not in (int, float)
+                     or not math.isfinite(metadata['latency_seconds'])
+                     or metadata['latency_seconds'] < 0)):
+            raise ValueError('invalid engine result; manual reconciliation required')
+        if ('finish_reason' in metadata
+                and (not isinstance(metadata['finish_reason'], str)
+                     or not 0 < len(metadata['finish_reason']) <= 64)):
+            raise ValueError('invalid engine result; manual reconciliation required')
+        if ('reasoning_present' in metadata
+                and type(metadata['reasoning_present']) is not bool):
+            raise ValueError('invalid engine result; manual reconciliation required')
+        for field in ('reasoning_characters', 'completion_tokens'):
+            if field in metadata and (type(metadata[field]) is not int or metadata[field] < 0):
+                raise ValueError('invalid engine result; manual reconciliation required')
+        answer = step['answer']
+        if answer is not None:
+            if (not isinstance(answer, dict) or set(answer) != {
+                    'decision', 'check', 'evidence_ids', 'summary', 'effects'}
+                    or answer['decision'] not in ('check', 'conclude', 'clarify')
+                    or not isinstance(answer['check'], str)
+                    or not isinstance(answer['evidence_ids'], list)
+                    or any(not isinstance(item, str) for item in answer['evidence_ids'])
+                    or len(answer['evidence_ids']) != len(set(answer['evidence_ids']))
+                    or not isinstance(answer['summary'], str)
+                    or not 0 < len(answer['summary']) <= 4000
+                    or answer['effects'] != []):
+                raise ValueError('invalid engine result; manual reconciliation required')
+    if 'checks' in result and (not isinstance(result['checks'], list)
+            or len(result['checks']) > 2
+            or any(not isinstance(item, str) for item in result['checks'])
+            or len(result['checks']) != len(set(result['checks']))):
+        raise ValueError('invalid engine result; manual reconciliation required')
+    if 'observations' in result and (not isinstance(result['observations'], list)
+            or any(not isinstance(item, dict)
+                   or set(item) != {'id', 'freshness', 'text'}
+                   or any(not isinstance(item[field], str) or not item[field].strip()
+                          for field in ('id', 'freshness', 'text'))
+                   or item['freshness'] not in ('current', 'stale', 'unavailable')
+                   for item in result['observations'])):
+        raise ValueError('invalid engine result; manual reconciliation required')
+    if 'elapsed_seconds' in result and (
+            type(result['elapsed_seconds']) not in (int, float)
+            or not math.isfinite(result['elapsed_seconds'])
+            or result['elapsed_seconds'] < 0):
+        raise ValueError('invalid engine result; manual reconciliation required')
+    if 'attempted_calls' in result and (
+            type(result['attempted_calls']) is not int
+            or not 0 <= result['attempted_calls'] <= 3):
+        raise ValueError('invalid engine result; manual reconciliation required')
+    if 'failure' in result and result['failure'] is not None:
+        failure = result['failure']
+        if (not isinstance(failure, dict) or set(failure) != {
+                'type', 'attempt', 'elapsed_seconds', 'request_timeout_seconds'}
+                or not isinstance(failure['type'], str)
+                or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]{0,127}', failure['type'])
+                or type(failure['attempt']) is not int or not 1 <= failure['attempt'] <= 3
+                or type(failure['elapsed_seconds']) not in (int, float)
+                or not math.isfinite(failure['elapsed_seconds'])
+                or failure['elapsed_seconds'] < 0
+                or type(failure['request_timeout_seconds']) not in (int, float)
+                or not math.isfinite(failure['request_timeout_seconds'])
+                or not 0 < failure['request_timeout_seconds'] <= 240):
+            raise ValueError('invalid engine result; manual reconciliation required')
+    if ('limit' in result and result['limit'] !=
+            'synthetic development only; terminal status is not a correctness grade'):
+        raise ValueError('invalid engine result; manual reconciliation required')
     return copy.deepcopy(result)
 
 

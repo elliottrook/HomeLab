@@ -100,6 +100,24 @@ class FreshPackageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'uncertain'):
             self.run_fixture()
 
+    def test_nested_engine_output_is_schema_checked_before_journalling(self):
+        invalid_steps = (
+            [{'metadata': {}, 'answer': None, 'reasoning': 'private'}],
+            [{'metadata': {'latency_seconds': float('nan')}, 'answer': None}],
+            [{'metadata': {}, 'answer': {
+                'decision': 'clarify', 'check': '', 'evidence_ids': [],
+                'summary': 'bounded', 'effects': [], 'reasoning': 'private'}}],
+        )
+        for steps in invalid_steps:
+            with self.subTest(steps=steps):
+                def invalid(case, mode, *args):
+                    return {'case_id': case['id'], 'mode': mode,
+                            'status': 'clarify', 'steps': steps}
+                with self.assertRaisesRegex(ValueError, 'manual reconciliation required'):
+                    self.run_fixture(engine=invalid)
+                self.assertNotIn('private', self.path.read_text())
+                self.path.unlink()
+
     def test_unknown_or_unbounded_status_is_not_journalled(self):
         for status in ('looks_good', 'transport_error:Bad Value',
                        'transport_error:' + 'x' * 129):
