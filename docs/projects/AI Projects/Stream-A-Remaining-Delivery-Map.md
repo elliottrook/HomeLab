@@ -367,6 +367,13 @@ must remain within the registered limits. Focused evidence suites passed 27/27;
 the historically drifted source pin was not changed. This prevents a producer
 from labelling an over-budget synthetic run conformant, but supplies no routing
 accuracy or promotion evidence.
+The evidence store now also binds a
+[recorded Outcome to the registered Decision's executable class](evidence/M3-decision-outcome-lineage-boundary-2026-10-24.md).
+A denied, clarify, abstain or unsupported Decision can no longer acquire a
+completed fixture-conformance Outcome; synthetic rejected/accepted examples
+and the focused contract/evidence suites passed 30/30. The historical adapter
+pin remains drifted and unchanged. This improves lineage only; routing remains
+disabled and no promotion follows.
 
 The first [six-case synthetic completed-answer probe](experiments/a1-9b-synthetic-answer/RESULT-2026-10-12.md)
 used the accepted 9B/SYCL service after the platform owner's light lease was

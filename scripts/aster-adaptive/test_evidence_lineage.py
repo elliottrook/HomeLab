@@ -1,4 +1,5 @@
 """Reject lineage substitutions before retaining measured fixture outcomes."""
+import copy
 import json
 import tempfile
 import unittest
@@ -78,3 +79,21 @@ class LineageTests(unittest.TestCase):
                     ValueError, 'budget'):
                 self.store.append('out', 'linked-outcome',
                                   linked | {'outcome': outcome | change})
+
+    def test_non_executable_decision_cannot_gain_completed_outcome(self):
+        denied = copy.deepcopy(self.run)
+        denied['run']['run_id'] = 'denied-run'
+        denied['run']['decision'].update(
+            status='deny', reason='policy-denied', steps=[])
+        denied['run']['budget']['tool_calls'] = 0
+        run_event = self.store.append('denied-run', 'run', denied)
+        outcome = dict(run_id='denied-run', status='completed',
+                       verification='fixture-conformance', tool_calls=0,
+                       elapsed_ms=0.1, output_bytes=0)
+        linked = dict(experiment_id=self.spec['experiment_id'],
+                      run_event_digest=run_event, outcome=outcome)
+        with self.assertRaisesRegex(ValueError, 'non-executable decision'):
+            self.store.append('invalid-completion', 'linked-outcome', linked)
+        linked['outcome'] = outcome | {
+            'status': 'denied', 'verification': 'not-executed'}
+        self.store.append('denied-outcome', 'linked-outcome', linked)

@@ -166,6 +166,10 @@ class EvidenceStore:
                 raise ValueError('outcome needs exact registered run')
             run, outcome = runs[0], record['outcome']
             budget = run['budget']
+            decision_status = run['decision']['status']
+            if (decision_status not in {'plan', 'answer'}
+                    and outcome['status'] != 'denied'):
+                raise ValueError('outcome disagrees with non-executable decision')
             if outcome['tool_calls'] > budget['tool_calls']:
                 raise ValueError('outcome exceeds registered tool budget')
             if outcome['status'] == 'completed' and (
