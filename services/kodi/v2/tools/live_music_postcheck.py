@@ -53,7 +53,7 @@ overlay_count=len(overrides)
 integration_file=Path('/storage/.aster-checkpoints/aster-music-integration-20261024/active-manifest.json')
 integration_count=0
 if integration_file.exists():
-    _require(len(sys.argv)==5,'integration-manifest-proof-required')
+    _require(len(sys.argv) in (5,6),'integration-manifest-proof-required')
     integration_sha=sys.argv[4]
     _require(len(integration_sha)==64 and all(c in '0123456789abcdef' for c in integration_sha),'integration-sha')
     _require(hashlib.sha256(integration_file.read_bytes()).hexdigest()==integration_sha,'integration-manifest-hash')
@@ -67,6 +67,15 @@ if integration_file.exists():
         _require(hashlib.sha256((addons/'skin.asterhome'/row['path']).read_bytes()).hexdigest()==row['sha256'],'integration-member-hash')
         overrides['skin.asterhome/'+row['path']]=row['sha256']
     integration_count=8
+rail_file=Path('/storage/.aster-checkpoints/aster-floating-rail-20261024/active-manifest.json')
+rail_count=0
+if rail_file.exists():
+    _require(len(sys.argv)==6,'rail-manifest-proof-required')
+    _require(hashlib.sha256(rail_file.read_bytes()).hexdigest()==sys.argv[5],'rail-manifest-hash')
+    rail=json.loads(rail_file.read_text())
+    _require(rail.get('schema')==1 and rail.get('kind')=='hp-floating-rail' and rail.get('path')=='1080i/IncludesHub.xml','rail-target')
+    _require(hashlib.sha256((addons/'skin.asterhome'/rail['path']).read_bytes()).hexdigest()==rail['sha256'],'rail-member-hash')
+    overrides['skin.asterhome/'+rail['path']]=rail['sha256'];rail_count=1
 _require((all(hashlib.sha256((addons/row['path']).read_bytes()).hexdigest()==overrides.get(row['path'],row['sha256']) for row in rows)), ('native-check-failed'))
 manifest=json.loads((stage/f'aster-music-v2lab-0.1.0-candidate{candidate}/manifest.json').read_text())
 _require((manifest['sha256']==expected), ('native-check-failed'))
@@ -91,6 +100,7 @@ with output.open('x') as handle:
                'music_shuffle_off':True,
                'v1_files_verified':sum(row['path'] not in overrides for row in rows),'approved_overlay_pages_verified':overlay_count,
                'approved_normal_music_files_verified':integration_count,
+               'approved_floating_rail_files_verified':rail_count,
                'av_language_settings_verified':len(values),
                'database_integrity':'ok','missing_primary_artist_links':0,
                'no_player':True,'original_empty_queue':True,'capability_removed':True,

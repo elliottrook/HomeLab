@@ -869,9 +869,9 @@ Normal Music entry still uses the existing bounded list/search limits; the
 new genre explorer and non-holiday shuffle validate the complete indexed
 catalogue. Neither retags source files nor changes saved playlists implicitly.
 
-Current corrected deployment: Music candidate62 plus
-normal integration6. Private exact recovery lives under
-`/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/before-candidate62`
+Current corrected deployment: Music candidate63 plus normal integration6 and
+the floating shared-rail overlay. Private exact recovery lives under
+`/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/before-candidate63`
 and `/storage/.aster-checkpoints/aster-music-integration-20261024/` (original
 baseline and versioned revisions retained). Restore only verified affected
 files with Kodi stopped; do not replace credentials, AV settings or watch
@@ -880,6 +880,18 @@ pass with the five headers and separate hero action. An old programmatic test
 playlist has resurfaced server-side; the original16 are unchanged. It is retained
 pending separate one-time cleanup permission, not silently deleted. The physical
 G20 listening/sofa walkthrough and sustained-use acceptance remain outstanding.
+
+### Floating side navigation
+
+The shorter rail is centred vertically with space above, below and to its left.
+The chevron is removed. Press Left from the page to open the menu with the
+current page already highlighted; Up/Down chooses a destination and OK opens
+it. Right returns to the page. Books returns to its visible first book row.
+The Music genre browser keeps its existing smaller Music/Back menu, now with
+the same floating geometry. No login, media or volume setting changed.
+Shared-rail recovery is separate under
+`/storage/.aster-checkpoints/aster-floating-rail-20261024/`; preserve its
+original include and versioned revisions alongside the Music recovery.
 
 ## Accepted across v2 players — 2026-10-24
 

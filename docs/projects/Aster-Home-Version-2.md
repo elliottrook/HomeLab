@@ -16,10 +16,13 @@
   Items 01-26 and 31-32 were selected; all unticked items are deferred.
 - HP (`192.168.1.140`) is the v2 lab. BOSGAME (`192.168.1.157`) stays on its
   accepted family-beta release until a separately approved promotion.
-- Current resume point (2026-10-24): HP Music candidate62, 47 files,
-  SHA-256 `9d13167195f9122f303dc0346606e1eb3268dec596b80404307bd3f1a60233cb`;
-  exact candidate61/60 recovery retained. Normal Music integration6 is active,
+- Current resume point (2026-10-24): HP Music candidate63, 47 files,
+  SHA-256 `6b997b12e492a2a03be8c99bd52221f6a7c5c80df4427798464e3e11dd2429f1`;
+  exact candidate62/61/60 recovery retained. Normal Music integration6 is active,
   manifest `9f79b4275612fc02192b9abeea0703aaaf3fc745076134f1f50c0784235a51ba`.
+  Floating shared rail3 is active, manifest
+  `c6a782daec7d665abe68968c3f90ff55c98f0540953ffdda73eb41ab24cd364c`;
+  both shared and Music-browser rails are centred/inset, with no chevron.
   Recently Added is retained, with direct album/song/server-playlist handoff,
   Genres and non-holiday Shuffle. Explicit load-generation readiness prevents
   late reloads resetting focus. Corrected/centred transport, real Next, visible
@@ -2125,3 +2128,101 @@ preserving the original16 and making no new fixture. If the entry returns after
 that cleanup, stop rather than auto-delete repeatedly. This pending server gate
 does not prevent handover of the completed HP UI/control corrections, but M3
 does not graduate. HP is left Home/idle; production and Git remotes unchanged.
+
+### 2026-10-24 — owner-requested floating navigation rail trial
+
+Jason requested a vertically centred shorter rail, inset from the left like the
+header pills, with no chevron. Scope: HP-only shared normal-page navigation
+plus the isolated Music genre browser's existing mini-rail. No route/action,
+player, account, data, permission, network or production changes. Separate
+resurfaced-test-playlist cleanup authority remains pending and is not implied.
+
+Local `floating_rail.py` generates one pinned `IncludesHub.xml` overlay without
+editing the accepted v1 source. Both shared states use a 620px-tall card at
+y230, exactly centred on the 1080 canvas, inset x22. Collapsed width72 ends at
+x94, leaving the current page/logo/tile gutter intact; expanded width250.
+Existing route IDs/order/onclick/directional links and immediate focus entry
+remain. Chevron text is blank, but the invisible 8999 focus proxy is retained
+so Left still lands directly on the current route. Quiet gold edge/brown fill
+uses existing assets; no SVG/PNG/logo regeneration or new speech. The expanded
+slide is shortened to 12px rather than flying in from offscreen.
+
+Five local tests verify geometry/centering/no clipping, every existing route
+action/navigation edge, removal of the chevron and immutable source-preserving
+build. Candidate63 changes only the Music browser XML to match the same floating
+geometry; its simplified Music/Back routes are unchanged. Player backend and
+transport controls remain byte-identical to candidate62. Candidate63:47 files,
+SHA `6b997b12e492a2a03be8c99bd52221f6a7c5c80df4427798464e3e11dd2429f1`.
+Shared rail manifest SHA
+`3ec5bfaa7e8842046c8252928ddcc8c3e02434bf4875037f38938ad7a68ddce1`.
+
+Risk is layout/focus regression, bounded to one shared include and one Music
+browser XML. First require fresh native idle/empty preservation proof; retain
+exact candidate62 recovery, then checkpoint shared include, verify an isolated
+restore, stop Kodi only for atomic include activation and restart once. Refuse
+source drift or unexpected playback. New postcheck requires an explicit rail
+manifest SHA in addition to the normal Music manifest after activation.
+No database/settings/history change or new infrastructure/monitoring object.
+Native gate: repeated Left/current-route/Up-Down/Right return on Media, Music
+and Books; Music genre mini-rail; actual collapsed/expanded 4K screenshots and
+no player/queue residue. No YouTube playback or server cleanup test. Original
+recovery and prior overlays remain intact. Activation is not yet claimed here.
+
+Shared rail1 activated after verified isolated restore. Original include recovery
+SHA `aad82e7ae4c9d8812ac3f3a7d750c0e8d174f3d16e4865c19939315061b1fd1f`
+is retained at the private rail checkpoint. Candidate63 installed with exact
+candidate62 recovery; comparison proves only `MusicLab.xml` changed in its
+47-file bundle. Shared Music player/queue code is untouched.
+
+Native `native-1792877338628862583.json` passes Media Left/direct current-route,
+all seven Up/Down destinations and Right return. Its later failure waited for
+8999 itself to hold focus, contradicting the required immediate redirect. The
+driver was corrected to wait for the real route, not weaken the application.
+`native-1792877400878648956.json` then exposed Books Right targeting hidden
+grid500 on the landing page; source confirms that page's actual first row is501.
+Rail2 changed that target only for Books home. Conditional numeric navigation
+still could not return into the page's focus-dependent hidden content group;
+`native-1792877652467549561.json` is retained as failed.
+
+Rail3 uses explicit SetFocus for Right return, preserving each page's existing
+content target except the confirmed Books-home501 repair. No click/Up/Down/Left
+or page route action changed. Conditional actions are supported by the exact
+[Kodi21.3 GUIAction implementation](https://raw.githubusercontent.com/xbmc/xbmc/21.3-Omega/xbmc/guilib/GUIAction.cpp).
+Versioned installer preserves every prior active manifest and isolated restore,
+without overwriting original recovery. Rail3 manifest SHA
+`c6a782daec7d665abe68968c3f90ff55c98f0540953ffdda73eb41ab24cd364c`.
+Native repeat remains in progress; no new acceptance claimed by these failures.
+
+Rail3 activation verified its immediate predecessor and isolated restore before
+one-file replacement/restart. Recovery at
+`/storage/.aster-checkpoints/aster-floating-rail-20261024/revisions/aster-floating-rail3/IncludesHub.xml.before`
+has SHA `430cbe1ab46e5ec83ca5bdf7a6f22538e170fb73c4d6ce87834be7bef9a4bb4a`;
+rail2 and original v1 recoveries remain retained, not overwritten. The original
+rail checkpoint keeps the active manifest for subsequent preservation checks.
+
+`native-1792877830537735539.json` passes every native gate with optimized-Python
+checks enforced: Media Left directly selects the current route, all seven
+Up/Down destinations work, Right returns to content; Books current-route and
+Right-to-visible-row work; Music Left/Right works; the genre mini-rail restores
+its grid and originating page. No media/server write or playback side effect.
+Both shared states and the genre mini-rail were visually inspected at native
+4K. Equal 230px logical top/bottom margins, left22 gap, unclipped names/icons,
+preserved content gutter and absent chevron confirmed. This also repairs the
+pre-existing hidden-content Right-navigation snag; no extra Right needed to
+highlight a menu item. A second independent run/final preservation follows.
+
+Final acceptance: independent repeat `native-1792877871304483240.json` passes
+the same four navigation gates with enforced checks, idle/empty and no media
+or server writes. Final `postcheck-1792877969529469543.json` verifies candidate63's
+47 files, 141 unchanged v1 files, four approved player overlays, eight normal
+Music integration members and the one approved rail include. All 68 AV/language
+settings are preserved; database integrity is OK with zero missing primary
+artist links. Playback is stopped, queue empty, shuffle off and lab windows
+closed; approved normal Music playback remains enabled. Kodi PID15921 reports
+NRestarts=0 after the planned activation restart. HP is left at Home.
+
+Local verification: 314 v2 tests pass both normally and under optimized Python;
+144 original v1 tests and ten prototype focus checks pass. Diff whitespace checks
+are clean. Production and remote Git refs remain unchanged. This completes the
+bounded floating-rail request; the separate playlist-cleanup approval remains
+pending and no server cleanup was attempted.
