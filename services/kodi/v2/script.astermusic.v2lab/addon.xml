@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="script.astermusic.v2lab" name="Aster Music v2 Lab" version="0.1.0" provider-name="Aster Home">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0" />
+    <import addon="skin.asterhome" version="1.1.1" />
+  </requires>
+  <extension point="xbmc.python.script" library="default.py"><provides>executable</provides></extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Read-only Aster Music design pilot</summary>
+    <description lang="en_GB">Genre, album, artist and song browsing. No playback, queue edits, subscriptions or metadata writes.</description>
+    <platform>all</platform><license>Private HomeLab pilot</license>
+    <assets><icon>resources/icon.png</icon></assets>
+  </extension>
+</addon>

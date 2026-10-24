@@ -1,6 +1,6 @@
 # Aster v2 M1 - music inventory and interaction contract
 
-Status: local design accepted; read-only catalogue adapter validated, 2026-10-23. Governing project:
+Status: read-only Music pilot deployed on HP; owner native walkthrough pending, 2026-10-23. Governing project:
 [Aster Home v2](../projects/Aster-Home-Version-2.md).
 
 ## Live inventory (read-only HP Kodi index)
@@ -179,14 +179,15 @@ on every focus change. Art loads should remain lazy for visible items.
 These are overlapping memberships, not distinct library totals. The alias and
 inherited holiday policy remain reviewable before live queue integration.
 
-## Bounded HP pilot proposal — not yet installed or authorized
+## Bounded HP pilot — approved and deployed 2026-10-23
 
-Next implementation is a separately identified **read-only Music lab script**
+The pilot is a separately identified **read-only Music lab script**
 (`script.astermusic.v2lab`), not a new production skin or replacement of the
 four v1.1.1 add-ons. Its own WindowXML view uses the accepted 1080p layout and
 existing supplied Aster assets/fonts. Launch explicitly as a lab tool, without
-changing Home navigation, the active skin, G20 mapping or autostart. Build/test
-the package locally before requesting the following live approval.
+changing Home navigation, the active skin, G20 mapping or autostart. The owner
+explicitly approved deployment in the continuation request; the package was
+built/tested locally before executing the following bounded installation.
 
 - Target only HP `192.168.1.140`; BOSGAME stays on v1.1.1. Verify hostname,
   current package hashes and no active playback immediately before testing.
@@ -214,6 +215,110 @@ the package locally before requesting the following live approval.
   Kodi/refresh health remains service-native. Record timing and truthful error
   codes, not titles, media paths, tokens or a persistent exported library.
 
-Open gates: build the isolated Kodi pilot; approve its exact HP install/launch
-checkpoint procedure; verify actual G20 behavior. Visual acceptance is recorded,
-but neither a browser prototype nor passing adapter tests closes those gates.
+Open gates: physical G20/sofa walkthrough and native visual acceptance. Browser
+design acceptance and automated native input checks do not substitute for the
+owner's hardware walkthrough. Live queue actions remain a later approval gate.
+
+### Installed artifact and validation
+
+Source: `services/kodi/v2/script.astermusic.v2lab/`, plus the isolated model,
+policy and catalogue modules. Deterministic build:
+
+```sh
+python3 services/kodi/v2/build_lab.py --output /path/to/new-empty-pilot-directory
+python3 -m unittest discover -s services/kodi/v2 -p 'test_*.py'
+```
+
+Final immutable artifact is
+`services/kodi/dist/aster-music-v2lab-0.1.0-candidate2`; its seven deployed files
+and archive checksums are tracked in
+`services/kodi/v2/releases/music-v2lab-0.1.0.json`. The supplied Music icon is
+copied byte-for-byte; runtime logos, masks, controls and fonts are the existing
+v1 assets, not recreated graphics. Native view keeps the accepted neutral/
+green/gold identity, product-logo slot, 24-hour clock pill, thin focus outlines
+and square detail artwork. Genre tiles have two rows; album/artist/song pages
+show four square tiles per page with search and explicit Previous/Next.
+
+50 local tests pass: 31 catalogue/policy, ten pure browse/focus and nine runtime/
+geometry/package tests. Three v1.1.1 deterministic package tests remain green.
+Native callbacks are asynchronous; a regression explicitly verifies preferred
+column survives the deferred focus callback after the short genre row. The
+adapter does not reload on focus changes; only visible detail art is requested,
+with a bounded 128-entry in-memory art cache. No title/path/token export or disk
+library cache is created by the script. Kodi's ordinary artwork cache is reused.
+
+HP-only installation used one clean Kodi stop/start. Verified pre-install
+checkpoint of registration database, GUI settings and remote map (three files):
+`/storage/.aster-checkpoints/aster-before-music-v2lab-20261023/registration-gui-keymaps.tar.gz`,
+SHA-256 `188c5392addb3efcfc6fdeda79e820aabe2ae390e6ab1278081ce997dd7449a4`.
+Independent 0600 off-device copy is in
+`/Users/jelliott/lab/private-backups/aster-tv/hp/2026-10-23-v2-music-lab/`.
+An isolated restoration of the registration database passed SQLite quick_check;
+the temporary restored copy was removed, not applied to the live database.
+Installed/enabled-map comparison changes only the new lab ID. All 136 selected
+AV/language settings and the exact G20 keymap remain unchanged; all 153 v1.1.1
+files match before and after the pilot. No BOSGAME command or write was made.
+
+Candidate1 was installed first; native visual review identified inconsistent
+focus-corner scaling and missing current-tab emphasis. Candidate2 changes only
+the lab XML, checkpointed under
+`/storage/.aster-checkpoints/aster-music-v2lab-before-style-20261023/`; no further
+restart or changes to ordinary Aster were required.
+
+Two independent native UI paths passed using Kodi input and the **actual existing
+G20 Select dispatcher** (not a claim that a person pressed the hardware remote):
+
+1. Genre column down/up, immediate Music rail focus, Back, Rock Albums/Artists,
+   search keyboard, truthful empty result, clear, retained genre, shuffle
+   eligibility dialog, cancelled refresh retaining last-good catalogue,
+   successful refresh and return to ordinary Aster Home.
+2. Other / unclassified Albums/Songs, all eight songs retained with an explicit
+   three-track unavailable-credit notice, read-only item inspection, next page
+   preserving the selected column, Back to the same genre and ordinary Home.
+
+Both paths leave active playback empty and the existing music queue byte-for-
+byte equivalent at the RPC-result level. No song was played or marked listened.
+The retryable live smoke workflow is retained at
+`services/kodi/v2/tools/live_pilot_smoke.py`; run only on the approved HP with
+the pilot already open, with the remote untouched. It closes back to Home.
+Early harness retries were caused by firing keys before view focus settled and
+assuming different Kodi dialog names; the final explicit focus/dialog checks
+passed. No runtime Python traceback was observed.
+
+The pilot is left open on HP for owner review. Kodi and the six-hour catalogue
+refresh timer are active; Kodi reports zero automatic restarts. No new service,
+port, account, subscription, schedule or spoken output is introduced. Existing
+Kodi health is the service-native monitoring handoff; no new Beszel/NetBox/DNS/
+firewall object exists. AI administration uses the already authorized bounded
+HP SSH/Kodi path, not a new static key or autonomous service identity. Wiki/
+mirror publication and broader release acceptance wait for the owner walkthrough.
+
+### Owner handover and recovery
+
+The HP now shows **Aster Music / Read-only v2 Lab**. Choose a genre, then Albums,
+Artists or Songs. OK inspects a tile; it intentionally does not play. Search
+opens Kodi's keyboard; Clear search restores the category. Next/Previous change
+pages. Back returns to the previous genre view, then ordinary Aster. Left from
+the first tile opens the small lab rail with Music immediately selected; Back
+closes that rail first. The shuffle control explains eligibility only. Playlists
+explicitly directs users to existing ordinary Aster Music; it is not a fake
+playlist catalogue. Refresh may be cancelled without erasing the current view.
+
+There is deliberately no permanent Home shortcut or autostart. To reopen from
+the Mac using established HP SSH access:
+
+```sh
+ssh root@192.168.1.140 'kodi-send --action="RunScript(script.astermusic.v2lab)"'
+```
+
+No authentication/key setup is needed beyond that existing connection. A read
+failure produces a safe error code; do not reset/sync-delete the real library
+to fix it. Close the pilot and ordinary v1 Music remains available.
+
+Rollback normally means disable/uninstall only `script.astermusic.v2lab` through
+Kodi after closing it; its immutable ZIP allows reinstall. A verified registration
+checkpoint is retained for exceptional recovery under a stopped Kodi session,
+but must not overwrite later unrelated addon changes. Do not restore watch
+databases, another client's profile or the v1 add-on trees. Further HP/production
+changes, playback/shuffle implementation and metadata repairs need their own
+bounded milestone approval. No push is authorized by the deployment approval.

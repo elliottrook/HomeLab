@@ -3,7 +3,7 @@
 ## 1. Header and authorization
 
 - Owner: Jason. Created: 2026-10-23.
-- Status: active, M1 design accepted and read-only catalogue adapter validated; isolated HP pilot next. **Stream M - Monitored.**
+- Status: active, M1 read-only Music pilot deployed on HP; native owner walkthrough pending. **Stream M - Monitored.**
 - Started: 2026-10-23, by the owner's explicit start request. Remote milestone
   approvals remain required; this does not convert the project to Stream A.
 - Scope authority: owner's marked review and subsequent chat clarification.
@@ -262,3 +262,24 @@ that isolated pilot locally, then request its exact HP install/launch approval.
 Do not treat this continuation request as permission for live queue operations,
 a skin/profile switch or server-side music metadata repair. New v2 work remains
 a separate local milestone until another specific push approval.
+
+2026-10-23 HP pilot: owner explicitly approved deployment. Built isolated
+`script.astermusic.v2lab` 0.1.0 and installed/enabled only that ID on HP after a
+verified private registration/GUI/keymap checkpoint and one clean Kodi restart.
+Final candidate2 has seven manifest-matched files. All 153 installed v1.1.1
+files, 136 selected AV/language settings and exact G20 map remain unchanged.
+BOSGAME was not touched. Recovery archive is independently hashed off-device;
+isolated registration restore passed quick_check. Fifty v2 tests and three
+v1.1.1 package tests pass; two independent live GUI workflows verify browse,
+search/paging, actual Select dispatcher, Back/rail/column restoration, explicit
+unknown-credit notices and cancelled refresh preserving last-good data. No
+playback, queue or watch-state change; no persistent catalogue export.
+
+The [M1 design/operator record](../design/Aster-Home-v2-M1-Music-and-Focus.md)
+contains artifact/checkpoint locations, launch command, recovery and truthful
+pilot limits. The native pilot is left open on HP for owner review. M1 stays
+open for physical G20/sofa/visual acceptance and policy review before real queue
+integration. Next safe action is that walkthrough and local planning for the
+next bounded milestone, not changing production or silently enabling playback.
+No new infrastructure/credential/monitoring object or speech; existing Kodi
+health remains responsible. Wiki/mirror publication waits for acceptance.

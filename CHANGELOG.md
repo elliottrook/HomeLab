@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-10-23 - Aster v2 isolated HP Music pilot
+
+- Owner-approved read-only Music lab add-on deployed only to HP; existing
+  v1.1.1 source, skin selection, AV settings and G20 mapping remain unchanged.
+- Added native genre/album/artist/song browsing, square detail artwork,
+  search/paging, stable focus/Back and safe refresh cancellation. Shuffle and
+  item selection are explicit non-playing previews; no queue/watch-state writes.
+- 50 v2 and three unchanged v1.1.1 packaging tests pass; two native input paths
+  pass. Verified private recovery checkpoint, off-device copy and isolated
+  registration restore. Native owner/G20 walkthrough remains pending.
+
 ## 2026-10-23 - Aster v2 verified Music catalogue adapter
 
 - Added isolated, read-only complete-library genre/album/artist/song indexing,

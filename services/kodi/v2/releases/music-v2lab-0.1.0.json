@@ -1,0 +1,56 @@
+{
+  "addon_id": "script.astermusic.v2lab",
+  "version": "0.1.0",
+  "archive": "script.astermusic.v2lab-0.1.0.zip",
+  "sha256": "6b6b25505ddc324c03ab2bec969e21cd953e64ac64723d446636fb71203c2953",
+  "files": [
+    {
+      "path": "script.astermusic.v2lab/addon.xml",
+      "bytes": 785,
+      "sha256": "04041a63be351fb42d015c8fcf83b7ba3129a23f6205fe34a54a3c56816068f3"
+    },
+    {
+      "path": "script.astermusic.v2lab/default.py",
+      "bytes": 10579,
+      "sha256": "49ae4d8463415a03ca571ec1fda4a08a34d8acba06485da956fb2f63de262ad1"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/icon.png",
+      "bytes": 45348,
+      "sha256": "f1b50c435d799f04f24357e9da4965397bcbb8cef6e6ece24b98250547c8c8b8"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/lab_model.py",
+      "bytes": 3614,
+      "sha256": "bd9fa4ab7d2791a2ae837fa9470d1c1c4a3195964440fd792e36a0cb239030a0"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_catalogue.py",
+      "bytes": 9723,
+      "sha256": "e72c6ce6fb3d835de75131e22318677cca6e443c289ac3ea1197a2a619ed47c3"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_policy.py",
+      "bytes": 4358,
+      "sha256": "f6818e1add1c4f5bfc989c002e1975460bb969c29d42b70ad1307779525071e6"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/skins/Default/1080i/MusicLab.xml",
+      "bytes": 47544,
+      "sha256": "bf15820cf23e3d2f27d0b39647d4d3d8e94a2c9bd3851af686e7208cd1a3ea15"
+    }
+  ],
+  "boundary": "HP only; read-only browse; no v1 changes, playback or queue actions",
+  "status": "hp-read-only-pilot-deployed-pending-owner-walkthrough",
+  "artifact_directory": "services/kodi/dist/aster-music-v2lab-0.1.0-candidate2",
+  "validation": {
+    "local_tests": 50,
+    "unchanged_v1_packaging_tests": 3,
+    "live": "Two independent HP UI paths passed: column/rail/Back, G20 dispatcher, genre Albums/Artists/Songs, search/empty/clear, paging, refresh/cancel, read-only inspection/eligibility preview; no playback/music queue change",
+    "source_preservation": "All 153 v1.1.1 files unchanged; 136 AV/language settings and exact G20 keymap preserved; only new lab addon enablement differs in registration",
+    "private_checkpoint_sha256": "188c5392addb3efcfc6fdeda79e820aabe2ae390e6ab1278081ce997dd7449a4",
+    "recovery": "Private on-device and 0600 off-device copies independently hashed; isolated registration DB restore quick_check passed",
+    "production": "BOSGAME untouched; no v2 code or configuration installed",
+    "remaining": "Physical G20/sofa walkthrough and owner native visual acceptance; no actual shuffle/playback until a later approved milestone"
+  }
+}
