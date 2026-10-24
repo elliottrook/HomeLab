@@ -48,8 +48,9 @@ baseline/regression checks, not new v2 promises.
 Audiobook/podcast progress synchronization is not implemented. eBooks remain
 a frozen 505-title catalogue until Reader work. Cameras need a production
 delivery path. YouTube API setup remains paused until the owner is available.
-Music currently has Home, Albums, Artists, Songs and Playlists; genre metadata
-is displayed but there is no dedicated Music Genres destination. The seven
+At the v2 baseline, Music had Home, Albums, Artists, Songs and Playlists, with
+genre metadata displayed but no dedicated Music Genres destination. HP's current
+pilot now includes Genres and non-holiday Shuffle; production does not. The seven
 TV/film genre destinations are unrelated to the owner's music-genre request.
 
 ## 3. Frozen scope inventory
@@ -1931,3 +1932,65 @@ and sustained use require human acceptance. Production and Forgejo are unchanged
 Next safe action is that physical HP acceptance, or further bounded Music
 repairs identified by it. Do not promote production, repeat consumed server
 trials or infer authorization for other service integrations.
+
+### 2026-10-24 — next-work preparation while owner checks Music
+
+Jason requested preparation of other work while checking the HP himself.
+Preparation is local only: no SSH, remote navigation, playback, deployment or
+restart in this slice. HP candidate60/integration4 remains unchanged for that
+walkthrough; production remains unchanged. This is not a request to start a
+new Codex chat or to reopen the Reader/voice/Seerr/camera/firmware gates.
+
+Next bounded candidate is the M2 **series/episode selection page**. Inspection
+of `MyVideoNav.xml` confirms it is a shared native browse window, so a blanket
+replacement risks movie/genre/directory regressions. Prepare a separate series
+view first, entered only with a verified local show ID; retain normal movie
+navigation and an immediate Back escape. No autoplay, new service, credentials,
+speech, metadata writes or watch-history repair. Before later HP activation,
+require a checkpointed generated overlay, isolated restore and explicit idle
+handoff from the owner's current test. No deployment is claimed here.
+
+Prepared `services/kodi/v2/series_model.py` is an immutable read-only view model:
+
+- Complete same-show snapshot and distinct episode IDs required; truncated,
+  mixed-show, duplicate-ID and malformed watch-state input is refused.
+- Real season/episode numbers, Specials and explicitly unknown numbering are
+  preserved. Different indexed versions retain distinct IDs; no renumbering.
+- Hide the season chooser only when there is one actual group. Specials and
+  unknown-season episodes remain reachable rather than silently discarded.
+- Resume takes priority using genuine finite progress; zero/unknown duration
+  stays unavailable, not a fabricated duration or percentage.
+- The accepted v1.1 adapter supplies the next-episode ID. The new model does
+  not implement another sequencing policy, invent releases, skip an unavailable
+  first episode or turn a caught-up series into a future placeholder.
+- An indexed source and nonfuture known air date permit an offered action;
+  that is explicitly not proof that a remote stream is online. The existing
+  player remains responsible for resolution. Source paths are not retained
+  in the view model, logged or exported.
+- Return selection matches exact episode ID, then remembered season, then a
+  safe first row. Empty results return an escape state, never a fake episode.
+
+Local layout contract, still to implement/render:
+
+1. Preserve the existing logo/clock anchor. Use the accepted TV gold/green/stone
+   identity, not the generic guide's navy recolour; no new/redrawn logo.
+2. Left: restrained show hero/title, real genre/year/rating when known, readable
+   synopsis and one truthful Resume/Play next/Play action. A caught-up show
+   offers browsing, not a nonfunctional next button.
+3. Right: compact season selector above vertical episode rows. Use landscape
+   stills, real S/E labels, title, synopsis in the existing hero-synopsis font,
+   duration/air date and thin genuine progress. Missing stills get an explicit
+   neutral fallback, not a stretched show poster. Remove heavy per-row boxes.
+4. Focus is a clear row accent plus readable selected text, not colour alone.
+   Keep row geometry stable; no zoom that hides adjacent names. Up/Down moves
+   directly to the adjacent row, Left reaches seasons/hero, Back restores the
+   exact source tile. Loading must finish before accepting selection.
+5. Preserve native stop-on-exit, v1.1 Intro/Outro/available-only Up Next, subtitle
+   and audio access. No direct stream URL dispatch or parallel player owner.
+
+17 synthetic model tests pass, covering the above boundaries and non-mutation;
+the complete v2 suite is now 300 tests. This is model preparation, not a rendered
+page, live catalogue validation, remote-control acceptance or M2 graduation.
+Next safe local work: build the isolated series view and read-only complete
+snapshot adapter, add focus/loading/failure tests, then render before proposing
+the bounded HP candidate. Music acceptance feedback takes priority over it.
