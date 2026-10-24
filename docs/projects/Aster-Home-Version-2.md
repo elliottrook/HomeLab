@@ -32,8 +32,8 @@
   has reappeared server-side and is retained pending one-cleanup authority. Exact evidence and
   recovery references are at the end. M3 not graduated; physical remote/listening
   acceptance of the corrections remains pending. Production is unchanged.
-  M2 standalone read-only series preview7 is staged separately (five files,
-  manifest `a6a0aa107ce5ad453ddb91a5a4e5d35a0f83e4eb2985d6e35c77e939287ad801`);
+  M2 standalone read-only series preview8 is staged separately (five files,
+  manifest `0072d6cae6800a2326a166362fd5b864384d0fbf274124a4fb37de8e99bd2b39`);
   it does not replace normal TV navigation or enable episode playback.
 - Up Next is urgent and extracted into the separate
   [v1.1 project](Aster-Home-Version-1.1-Up-Next.md); v2 consumes its accepted
@@ -2485,3 +2485,39 @@ idle/empty queues and closed lab windows. Owner review
 `review-ready-1792881584771443789.json` confirms preview7 visible with a selected
 episode and no player. HP is left on the new full-pill selection; Back returns
 to Home and OK still opens details only. Local commit, no remote push.
+
+### Series preview — final image centring (2026-10-24)
+
+Jason requests vertical centring of the episode still within the pill and says
+that completes the layout. Preview8 moves each118px still/fallback from top10
+to40 inside the198px pill: exactly40px above/below, same size/aspect/left.
+Main title, metadata and synopsis stay in place. The image's progress moves to
+165 and its status to174/20px high, both below the centred image and within the
+pill; no overlap. Full-pill selection ring, floating layout, row gap and all
+navigation/data/playback contracts remain unchanged. Bounded HP-only XML
+revision with retained7, fresh idle proof, immutable five-file stage and
+isolated restore; native navigation/image review then reopen for the owner.
+No install/restart/server/production/push. Layout acceptance is conditional on
+this final correction; M2 playback integration is still not claimed complete.
+Preview8 manifest:
+`0072d6cae6800a2326a166362fd5b864384d0fbf274124a4fb37de8e99bd2b39`.
+
+Fresh `postcheck-1792881767606224464.json`, five-member manifest/isolated restore
+and XML-only comparison to7 pass. Native `native-1792881804342214213.json` passes
+both season shapes, adjacent focus, exact selected row/season memory, details-only
+OK, Back and idle/empty cleanup. Native4K screenshot confirms vertically centred
+stills in selected/unselected pills with unchanged titles, synopsis and full-pill
+outline. 339 tests pass normally and under optimized Python, including equal
+40px margins, fallback alignment and progress/status bounds. Repeat and final
+preservation follow. This completes the owner's conditional layout correction,
+not normal-route playback integration or M2 graduation.
+
+Independent `native-1792881830309261016.json` passes the same gates.
+`postcheck-1792881859581595833.json` verifies Music64/48 members, accepted
+v1/overlay/integration/rail members,68 AV/language settings, healthy database,
+idle/empty queues and closed lab windows before intentional preview reopening.
+Normal TV, server state and production remain unchanged. No restart or push.
+`review-ready-1792881892777630312.json` confirms preview8 visible with selected
+episode and no player. Left open on HP; Back returns to Home, OK is still the
+read-only details preview. This final requested series layout is ready for the
+next separately bounded normal-navigation/playback integration slice.

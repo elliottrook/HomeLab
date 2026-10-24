@@ -66,6 +66,25 @@ class SeriesViewTests(unittest.TestCase):
         self.assertNotIn('urllib',source);self.assertNotIn('requests.',source)
         self.assertNotIn('assert ',source)
 
+    def test_stills_and_fallback_are_centred_in_pills_with_progress_clear(self):
+        root=ET.parse(HERE/'series_preview/resources/skins/Default/1080i/SeriesPreview.xml')
+        for layout in root.find('.//control[@id="300"]'):
+            if layout.tag not in ('itemlayout','focusedlayout'):continue
+            media=[c for c in layout.findall('control') if c.findtext('left')=='12' and c.findtext('height')=='118']
+            self.assertEqual(len(media),3)
+            for control in media:
+                self.assertEqual(int(control.findtext('top'))*2+int(control.findtext('height')),198)
+                self.assertEqual(control.findtext('width'),'198')
+            bar=layout.find('control[@type="progress"]')
+            self.assertGreater(int(bar.findtext('top')),158)
+            status=next(c for c in layout.findall('control') if c.findtext('label')=='$INFO[ListItem.Property(State)]')
+            self.assertGreater(int(status.findtext('top')),int(bar.findtext('top'))+3)
+            self.assertLessEqual(int(status.findtext('top'))+int(status.findtext('height')),198)
+            for label,top in (('$INFO[ListItem.Label]','0'),('$INFO[ListItem.Property(Metadata)]','40'),
+                              ('$INFO[ListItem.Property(Synopsis)]','78')):
+                for control in (c for c in layout.findall('control') if c.findtext('label')==label):
+                    self.assertEqual(control.findtext('top'),top)
+
     def test_episode_pills_float_directly_on_hero_without_shared_panel(self):
         root=ET.parse(HERE/'series_preview/resources/skins/Default/1080i/SeriesPreview.xml')
         for image in root.findall('./controls/control[@type="image"]'):
