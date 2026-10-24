@@ -12,6 +12,13 @@ class LayoutTests(unittest.TestCase):
         self.home = ET.parse(ROOT / '1080i/Home.xml')
         self.browse = ET.parse(ROOT / '1080i/MyVideoNav.xml')
 
+    def test_caught_up_hero_browses_series_instead_of_queuing_episodes(self):
+        hero = self.home.find('.//control[@id="120"]')
+        self.assertEqual(hero.findtext('label'), '$VAR[AsterHeroActionLabel]')
+        actions = {node.get('condition'):node.text for node in hero.findall('onclick')}
+        self.assertEqual(actions['String.IsEqual(Container(100).ListItem.Property(AsterMediaKind),tvshow)'],
+                         'ActivateWindow(videos,$VAR[AsterHeroPath],return)')
+
     def test_top_category_lane(self):
         previous_right = 0
         for identifier in range(130, 135):
@@ -105,8 +112,8 @@ class LayoutTests(unittest.TestCase):
         addon = ET.parse(ROOT / 'addon.xml')
         imports = {node.get('addon'): node.get('version')
                    for node in addon.findall('.//requires/import')}
-        self.assertEqual(imports.get('plugin.video.asterhome'), '1.0.5')
-        self.assertEqual(imports.get('plugin.audio.asterbooks'), '1.0.5')
+        self.assertEqual(imports.get('plugin.video.asterhome'), '1.1.0')
+        self.assertEqual(imports.get('plugin.audio.asterbooks'), '1.1.0')
         self.assertEqual(imports.get('plugin.video.youtube'), '7.4.4')
 
     def test_youtube_is_a_first_class_navigation_destination(self):

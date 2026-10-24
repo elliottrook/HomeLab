@@ -131,8 +131,9 @@
             <left>145</left>
             <top>411</top>
             <width>280</width>
-            <label>▶  Play</label>
-            <onclick>PlayMedia($VAR[AsterHeroPath])</onclick>
+            <label>$VAR[AsterHeroActionLabel]</label>
+            <onclick condition="String.IsEqual(Container(100).ListItem.Property(AsterMediaKind),tvshow)">ActivateWindow(videos,$VAR[AsterHeroPath],return)</onclick>
+            <onclick condition="!String.IsEqual(Container(100).ListItem.Property(AsterMediaKind),tvshow)">PlayMedia($VAR[AsterHeroPath])</onclick>
             <onleft>8999</onleft>
             <onup>130</onup>
             <ondown>100</ondown>

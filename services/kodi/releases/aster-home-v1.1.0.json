@@ -1,0 +1,91 @@
+{
+  "client_files": [
+    {
+      "bytes": 2051,
+      "file": "g20s-pro-plus.xml",
+      "install_target": "userdata/keymaps/g20s-pro-plus.xml",
+      "sha256": "1c3661aa1c9109b9390b9004203ce6cbe53d03d559f88a019db01d22a430d2c1"
+    },
+    {
+      "bytes": 299,
+      "file": "aster-books-refresh.service",
+      "install_target": "/storage/.config/system.d/aster-books-refresh.service",
+      "sha256": "b5f34302d8876a20bee31f14b857619aae2cdfdba9c3e9948e6662d38701ff8a"
+    },
+    {
+      "bytes": 192,
+      "file": "aster-books-refresh.timer",
+      "install_target": "/storage/.config/system.d/aster-books-refresh.timer",
+      "sha256": "679e94798f03cf35599e4842ef1a18f26d427568d85d29304a0459c6c09566f0"
+    }
+  ],
+  "design_canvas": "1920x1080-16:9-scales-to-4k",
+  "external_dependencies": [
+    {
+      "addon_id": "plugin.video.youtube",
+      "source": "Kodi Omega repository",
+      "version": "7.4.4"
+    }
+  ],
+  "install_order": [
+    "plugin.video.asterhome",
+    "plugin.audio.asterbooks",
+    "resource.uisounds.asterhome",
+    "skin.asterhome"
+  ],
+  "release": "1.1.0",
+  "schema": "aster-home-kodi-release.v1",
+  "status": "production-candidate-pending-physical-libreelec-gate",
+  "manifest_sha256": "7bc895cff99acb798c883bebe19baab9be7c6a125167eadae098df413f1b98f9",
+  "artifacts": [
+    {
+      "addon_id": "plugin.video.asterhome",
+      "archive": "plugin.video.asterhome-1.1.0.zip",
+      "bytes": 4875,
+      "sha256": "12b909a525e0a6af87c3112bf45a971d8d7db9591991a732ebf530b952480139"
+    },
+    {
+      "addon_id": "plugin.audio.asterbooks",
+      "archive": "plugin.audio.asterbooks-1.1.0.zip",
+      "bytes": 10019,
+      "sha256": "dfa4c2a312f3d4de508b605b322eb4f192e4567ffdd362eff2dcd1ee6ff56a76"
+    },
+    {
+      "addon_id": "resource.uisounds.asterhome",
+      "archive": "resource.uisounds.asterhome-1.1.0.zip",
+      "bytes": 82959,
+      "sha256": "5be19e7452bcbc15579feb98674681c9b0ad3b4ef38baf0baedf4d8eacd802b5"
+    },
+    {
+      "addon_id": "skin.asterhome",
+      "archive": "skin.asterhome-1.1.0.zip",
+      "bytes": 4540517,
+      "sha256": "1c7dbcff6eb5c81088df2e9d6f948daa2d2fe59ff00d0aa100da7df0dff947d5"
+    }
+  ],
+  "changes": [
+    "Add Up Next and honest caught-up cards to Continue Watching from the complete bounded locally synced episode catalogue.",
+    "Retain existing episode resume ahead of series next-episode cards and preserve normal playback authority.",
+    "Aster Skip intro and Play next episode prompts use real Jellyfin Intro/Outro markers; no auto-skip or autoplay.",
+    "Stop the old episode session before opening the next with Kodi boolean bookmark resume; preserve stop-on-exit."
+  ],
+  "validation": {
+    "local_tests": 137,
+    "hp": "candidate8 installed, pending owner remote walkthrough; four add-ons enabled, 153 manifest files verified",
+    "live_directory": "multiple passes: 24 rows, eight Up Next, caught-up cards; 0.32-0.44 seconds",
+    "live_intro": "real 252.0-310.31s Intro; Skip intro pressed; same episode at 310.310s; stopped afterward",
+    "live_outro": "real 4985.628s Outro; Play next episode pressed; next ID 5966 at 29m52s saved bookmark (normal Jellyfin rewind); stopped afterward",
+    "hp_native_popups": "Owner approved replacement of intro and credits; skipIntroductionMode=0, skipCreditsMode=0, mediaSegmentsEnabled remains true",
+    "hp_private_settings_checkpoint_sha256": "6eba8a1c07e1f419fe9569b14f8b698ad856d632c1845cade2bb7c1cd90ae1f7",
+    "hp_prepromotion_backup_sha256": "57b3e888e338d5dd07036acf6c02101d216d1a0c1a62ea93468aa067c93eb88f",
+    "test_state_recovery": "Restored known pre-test 1802s server bookmark and completed/no-resume states of two source episodes; normal test history counters retained",
+    "production": "BOSGAME unchanged v1.0.5; no promotion or push"
+  },
+  "artifact_directory": "services/kodi/dist/aster-home-v1.1.0-candidate8",
+  "limitations": [
+    "Markers absent means no prompt; manual Next is retained.",
+    "Single configured Jellyfin server supported for segment lookup; multiple servers fail closed.",
+    "Only recent 24 series, complete catalogues up to 2000 episodes; no invented future releases.",
+    "Owner remote and embedded rail refresh acceptance required before production promotion."
+  ]
+}

@@ -57,8 +57,13 @@
         <value>▶  Play</value>
     </variable>
     <variable name="AsterContinueLabel">
+        <value condition="String.IsEqual(ListItem.Property(AsterUpNext),true)">$INFO[ListItem.Label]</value>
         <value condition="!String.IsEmpty(ListItem.Episode)">$INFO[ListItem.TVShowTitle] — S$INFO[ListItem.Season] E$INFO[ListItem.Episode]</value>
         <value>$INFO[ListItem.Label]</value>
+    </variable>
+    <variable name="AsterHeroActionLabel">
+        <value condition="String.IsEqual(Container(100).ListItem.Property(AsterMediaKind),tvshow)">Browse series</value>
+        <value>▶  Play</value>
     </variable>
     <variable name="AsterCardArt">
         <value condition="!String.IsEmpty(ListItem.Art(landscape))">$INFO[ListItem.Art(landscape)]</value>

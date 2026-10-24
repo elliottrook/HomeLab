@@ -9,7 +9,7 @@ import xbmc
 import xbmcgui
 import xbmcplugin
 
-from library import canonical_genre, combined_items, continue_items
+from library import canonical_genre, combined_items, watching_items
 
 
 PROPERTIES = ['title', 'plot', 'year', 'genre', 'rating', 'mpaa', 'art', 'file']
@@ -18,11 +18,11 @@ CONTINUE_PROPERTIES = PROPERTIES + [
 ]
 EPISODE_PROPERTIES = [
     'title', 'plot', 'rating', 'art', 'file', 'lastplayed', 'resume',
-    'runtime', 'playcount', 'showtitle', 'season', 'episode',
+    'runtime', 'playcount', 'showtitle', 'season', 'episode', 'tvshowid', 'firstaired',
 ]
 
 
-def rpc(method, properties=PROPERTIES, sort=None, filter_value=None, limits=None):
+def rpc(method, properties=PROPERTIES, sort=None, filter_value=None, limits=None, **extra):
     request = {
         'jsonrpc': '2.0', 'id': 1, 'method': method,
         'params': {'properties': properties,
@@ -32,6 +32,7 @@ def rpc(method, properties=PROPERTIES, sort=None, filter_value=None, limits=None
         request['params']['filter'] = filter_value
     if limits is not None:
         request['params']['limits'] = limits
+    request['params'].update(extra)
     response = json.loads(xbmc.executeJSONRPC(json.dumps(request)))
     if 'error' in response:
         raise ValueError(response['error'].get('message', 'Kodi library query failed'))
@@ -41,6 +42,8 @@ def rpc(method, properties=PROPERTIES, sort=None, filter_value=None, limits=None
 def add_item(handle, row):
     item = xbmcgui.ListItem(label=row['label'])
     item.setProperty('AsterMediaKind', row['kind'])
+    if row.get('next_up'):
+        item.setProperty('AsterUpNext', 'true')
     item.setInfo('video', {
         'title': row['label'], 'plot': row.get('plot', ''),
         'year': row.get('year', 0), 'genre': row.get('genre', []),
@@ -55,6 +58,8 @@ def add_item(handle, row):
     if row.get('resume_position', 0) > 0:
         item.getVideoInfoTag().setResumePoint(
             row['resume_position'], row.get('resume_total', 0))
+    if row['kind'] == 'episode' and type(row.get('episodeid')) is int:
+        item.getVideoInfoTag().setDbId(row['episodeid'])
     if row['kind'] == 'tvshow':
         url = f"videodb://tvshows/titles/{row['id']}/"
         xbmcplugin.addDirectoryItem(handle, url, item, isFolder=True)
@@ -68,14 +73,33 @@ def add_continue_watching(handle):
     latest = {'method': 'lastplayed', 'order': 'descending'}
     # Kodi 21 rejects the documented ``inprogress`` JSON-RPC filter on some
     # library providers. Fetch the recently played candidates and let
-    # continue_items() validate their resume points instead.
+    # watching_items() validates resume points and adds locally synced Up Next.
     limits = {'start': 0, 'end': 100}
     movie_result = rpc('VideoLibrary.GetMovies', CONTINUE_PROPERTIES,
                        latest, limits=limits)
     episode_result = rpc('VideoLibrary.GetEpisodes', EPISODE_PROPERTIES,
                          latest, limits=limits)
-    rows = continue_items(movie_result.get('movies', []),
-                          episode_result.get('episodes', []))
+    shows, episodes_by_show = [], {}
+    try:
+        show_result = rpc('VideoLibrary.GetTVShows',
+                          PROPERTIES + ['lastplayed', 'watchedepisodes'],
+                          latest, limits={'start': 0, 'end': 24})
+        shows = show_result.get('tvshows', [])
+        for show in shows:
+            if not show.get('watchedepisodes', 0):
+                continue
+            identity = show['tvshowid']
+            result = rpc('VideoLibrary.GetEpisodes', EPISODE_PROPERTIES,
+                         limits={'start': 0, 'end': 2000}, tvshowid=identity)
+            episodes = result.get('episodes', [])
+            if result.get('limits', {}).get('total', len(episodes)) <= len(episodes):
+                episodes_by_show[identity] = episodes
+    except (KeyError, TypeError, ValueError):
+        # Keep resume working if the optional next-episode query fails.
+        xbmc.log('Aster Up Next: local series catalogue unavailable; keeping resume items.',
+                 xbmc.LOGWARNING)
+    rows = watching_items(movie_result.get('movies', []),
+                          episode_result.get('episodes', []), shows, episodes_by_show)
     xbmcplugin.setPluginCategory(handle, 'Continue Watching')
     xbmcplugin.setContent(handle, 'videos')
     for row in rows:

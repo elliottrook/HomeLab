@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="resource.uisounds.asterhome" version="1.0.5" name="Aster Home UI Sounds" provider-name="HomeLab">
+<addon id="resource.uisounds.asterhome" version="1.1.0" name="Aster Home UI Sounds" provider-name="HomeLab">
   <requires>
     <import addon="kodi.resource" version="1.0.0"/>
   </requires>

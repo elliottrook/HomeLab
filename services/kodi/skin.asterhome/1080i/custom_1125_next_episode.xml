@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="1125" type="dialog">
+  <defaultcontrol always="true">10</defaultcontrol>
+  <controls>
+    <control type="group">
+      <left>1120</left><top>825</top><width>730</width><height>205</height>
+      <control type="image"><left>0</left><top>0</top><width>730</width><height>205</height><texture>special://skin/media/ui-solid.png</texture><colordiffuse>e6202923</colordiffuse></control>
+      <control type="label"><left>24</left><top>12</top><width>682</width><height>40</height><label>$INFO[Window(Home).Property(AsterNextEpisode.Label)]</label><font>font20</font><textcolor>asterIvory</textcolor><truncate>true</truncate></control>
+      <control type="button" id="10"><left>16</left><top>68</top><width>390</width><height>68</height><label>$INFO[Window(Home).Property(AsterNextEpisode.ButtonLabel)]</label><include>AsterPlayerPrimaryControl</include><onclick>RunScript(special://skin/tools/next_episode.py,activate)</onclick><onright>11</onright><ondown>11</ondown></control>
+      <control type="button" id="11"><left>425</left><top>68</top><width>285</width><height>68</height><label>Keep watching</label><include>AsterPlayerControl</include><onclick>Dialog.Close(11125)</onclick><onleft>10</onleft><onup>10</onup></control>
+      <control type="label"><left>24</left><top>152</top><width>682</width><height>30</height><label>$INFO[Window(Home).Property(AsterNextEpisode.Description)]</label><font>font20</font><textcolor>asterSage</textcolor></control>
+    </control>
+  </controls>
+</window>

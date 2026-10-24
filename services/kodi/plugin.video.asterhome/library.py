@@ -1,5 +1,8 @@
 """Pure helpers for Aster's read-only combined video library views."""
 
+from datetime import date
+import math
+
 GENRES = {
     'Comedy': ('comedy',),
     'Drama': ('drama',),
@@ -62,13 +65,73 @@ def continue_items(movies, episodes, limit=24):
                 total = float(resume.get('total', 0))
             except (TypeError, ValueError):
                 continue
-            if position <= 0 or total <= 0 or position >= total:
+            if not math.isfinite(position) or not math.isfinite(total) or position <= 0 or total <= 0 or position >= total:
                 continue
             row = dict(source)
             row['kind'] = kind
             row['label'] = source.get('label') or source.get('title') or 'Untitled'
             row['resume_position'] = position
             row['resume_total'] = total
+            result.append(row)
+    result.sort(key=lambda row: (row.get('lastplayed') or '', row['label'].casefold()),
+                reverse=True)
+    return result[:limit]
+
+
+def next_up_item(show, episodes, today=None):
+    """One next episode or honest caught-up card for a previously watched show.
+
+    The caller supplies a complete, locally synced season/episode catalogue.
+    Specials and episode-zero extras do not advance regular-season ordering.
+    Never mark watched, invent an air date, or return a guessed stream URL.
+    """
+    today = today or date.today().isoformat()
+    rows = [row for row in episodes if isinstance(row, dict)
+            and type(row.get('season')) is int and row['season'] > 0
+            and type(row.get('episode')) is int and row['episode'] > 0]
+    watched = [row for row in rows if row.get('playcount', 0) > 0]
+    if not watched:
+        return None
+    order = lambda row: (row['season'], row['episode'])
+    last = max(watched, key=order)
+    later = sorted((row for row in rows if order(row) > order(last)
+                    and not row.get('playcount', 0)), key=order)
+    recent = max((row.get('lastplayed') or '' for row in watched), default='')
+    if later:
+        episode = later[0]
+        aired = episode.get('firstaired') or ''
+        if episode.get('file') and (not aired or aired[:10] <= today):
+            row = dict(episode)
+            row.update(kind='episode', resume_position=0, resume_total=0,
+                       lastplayed=recent, next_up=True,
+                       label=f"Up next · {episode.get('showtitle') or show.get('label', 'Series')}"
+                             f" — S{episode['season']} E{episode['episode']}")
+            return row
+        status = ('Next episode available ' + aired[:10]
+                  if aired[:10] > today else 'Next episode not yet in library')
+    else:
+        status = 'New episodes when available'
+    row = dict(show)
+    row.update(kind='tvshow', id=show['tvshowid'], lastplayed=recent,
+               next_up=True, label=(show.get('label') or show.get('title') or 'Series')
+               + ' · ' + status)
+    return row
+
+
+def watching_items(movies, episodes, shows, episodes_by_show, limit=24, today=None):
+    """Keep genuine resume points; fill recently watched series with Up Next."""
+    result = continue_items(movies, episodes, limit=100)
+    resuming = {row.get('tvshowid') for row in result if row['kind'] == 'episode'}
+    seen = set()
+    for show in shows:
+        identity = show.get('tvshowid')
+        if identity is None or identity in resuming or identity in seen:
+            continue
+        seen.add(identity)
+        if identity not in episodes_by_show:
+            continue  # A failed/truncated query is not evidence of being caught up.
+        row = next_up_item(show, episodes_by_show[identity], today)
+        if row:
             result.append(row)
     result.sort(key=lambda row: (row.get('lastplayed') or '', row['label'].casefold()),
                 reverse=True)
