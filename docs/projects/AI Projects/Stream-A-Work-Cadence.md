@@ -56,6 +56,13 @@ timers were removed, recurring timers remain disabled, and production is
 healthy. The installed wrapper does not retain which final-guard subcheck
 failed; a per-subcheck diagnostic correction, offline/target proof and a fresh
 reviewed and approved cycle are required before another attempt.
+The bounded per-subcheck correction was subsequently
+[installed inactive](evidence/F2-final-guard-subcheck-correction-inactive-install-2026-10-24.md)
+with a fresh root-only rollback checkpoint. Installed hashes match the reviewed
+platform commit and 24/24 target-Linux tests pass. All F2 timers remain absent
+or inactive and production postchecks are healthy. A fresh date-specific card,
+independent review and separate activation approval still precede another
+timed attempt.
 
 **October 20 F2 result:** the two exact-date timers fired and are now disabled,
 but preparation failed after five seconds and final failed immediately. No
