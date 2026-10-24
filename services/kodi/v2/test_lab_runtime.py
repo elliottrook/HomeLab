@@ -1,4 +1,5 @@
 import importlib.util
+import ast
 import json
 from pathlib import Path
 import sys
@@ -38,6 +39,12 @@ class RuntimeTests(unittest.TestCase):
     def action(self,identity):
         action=Mock();action.getId.return_value=identity;self.window.onAction(action)
 
+    def test_native_tool_sources_parse_without_running_on_the_workstation(self):
+        tools=list((HERE/'tools').glob('*.py'))
+        self.assertTrue(tools)
+        for source in tools:
+            with self.subTest(tool=source.name):ast.parse(source.read_text(),filename=str(source))
+
     def test_rpc_refuses_all_mutating_methods(self):
         for method in ('Player.Open','Playlist.Clear','AudioLibrary.SetSongDetails','GUI.ActivateWindow'):
             with self.assertRaises(ValueError):self.runtime.rpc(method,{})
@@ -65,7 +72,8 @@ class RuntimeTests(unittest.TestCase):
         self.action(92);self.assertTrue(w.closed)
 
     def test_shuffle_and_song_select_only_display_explanations(self):
-        w=self.window;w.onClick(201)
+        w=self.window
+        with patch.object(self.runtime,'live_grant',return_value=((),3)):w.onClick(201)
         self.gui.Dialog.return_value.ok.assert_called()
         w.onClick(502);w.onClick(102);w.onClick(500)
         methods=[json.loads(c.args[0])['method'] for c in self.xbmc.executeJSONRPC.call_args_list]
@@ -114,7 +122,7 @@ class RuntimeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as one,tempfile.TemporaryDirectory() as two:
             first=build(one);second=build(two)
             self.assertEqual(first['sha256'],second['sha256'])
-            self.assertEqual(len(first['files']),13)
+            self.assertEqual(len(first['files']),14)
             self.assertTrue(all(r['path'].startswith('script.astermusic.v2lab/') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_queue.py') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_album.py') for r in first['files']))
@@ -129,6 +137,33 @@ class RuntimeTests(unittest.TestCase):
             for control in (401,402,403):window.onClick(control)
         self.assertEqual(self.gui.Dialog.return_value.ok.call_count,3)
         self.xbmc.executeJSONRPC.assert_not_called()
+
+    def test_shuffle_live_route_requires_the_complete_eligible_grant(self):
+        w=self.window;w.open_shuffle=Mock()
+        with patch.object(self.runtime,'live_grant',return_value=((1,),20000)):w.onClick(201)
+        w.open_shuffle.assert_not_called()
+        with patch.object(self.runtime,'live_grant',return_value=((1,3),20000)):w.onClick(201)
+        w.open_shuffle.assert_called_once_with(20000)
+
+    def test_shuffle_now_playing_preserves_unknown_artist_truthfully(self):
+        w=self.runtime.ShuffleLab();w.allowed=(1,3);w.catalogue=self.window.model.catalogue
+        w.session=Mock();w.session.status.return_value=dict(phase='ready',loaded=2,total=2)
+        replies={'Player.GetProperties':{'position':1,'speed':1},
+                 'Player.GetItem':{'item':{'id':3,'type':'song'}},
+                 'AudioLibrary.GetSongDetails':{'songdetails':{}}}
+        with patch.object(self.runtime,'rpc',side_effect=lambda m,p:replies[m]):w.refresh()
+        self.assertEqual(w.props['Album.Title'],'Untagged')
+        self.assertIn('Artist unavailable',w.props['Album.Count'])
+        self.assertEqual(w.current_position,1)
+
+    def test_shuffle_queue_paging_does_not_jump_player(self):
+        from types import SimpleNamespace
+        w=self.runtime.ShuffleLab();w.allowed=tuple(range(1,431));w.session=Mock()
+        w.catalogue=SimpleNamespace(songs={i:{'label':str(i)} for i in w.allowed})
+        w.onClick(402);self.assertEqual(w.page_offset,200)
+        w.onClick(401);self.assertEqual(w.page_offset,0)
+        w.current_position=212;w.onClick(403);self.assertEqual(w.page_offset,200)
+        w.session.select.assert_not_called();w.session.pause.assert_not_called()
 
     def test_album_back_and_button_focus_contract(self):
         window=self.runtime.AlbumLab();window.focused=401
@@ -172,6 +207,23 @@ class RuntimeTests(unittest.TestCase):
         window.close();window.close()
         window.trial.close.assert_called_once()
         self.assertTrue(window.finished)
+
+    def test_shuffle_close_cancels_and_joins_control_before_session_cleanup(self):
+        window=self.runtime.ShuffleLab();events=[]
+        window.session=Mock();window.control_worker=Mock()
+        window.session.engine.cancel.set.side_effect=lambda:events.append('cancel')
+        window.control_worker.join.side_effect=lambda:events.append('join-control')
+        window.session.close.side_effect=lambda:events.append('close-session')
+        window.close();window.close()
+        self.assertEqual(events,['cancel','join-control','close-session'])
+        self.assertTrue(window.finished);self.assertTrue(window.closed)
+
+    def test_shuffle_close_preserves_recovery_flag_on_uncertain_queue(self):
+        window=self.runtime.ShuffleLab();window.session=Mock()
+        window.session.close.side_effect=ValueError('foreign-queue')
+        window.close()
+        self.gui.Window.return_value.setProperty.assert_called_with('AsterV2Lab.TrialRecovery','required')
+        self.assertTrue(window.closed)
 
     def test_popup_cancel_back_never_closes_underlying_trial(self):
         window=self.runtime.AlbumLab();window.trial=Mock()

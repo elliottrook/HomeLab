@@ -666,3 +666,61 @@ a narrowly bounded progressive-shuffle trial (small verified starting batch,
 controlled background append, cancellation joins before Stop/restore), with the
 existing ID-only and write ceilings retained. No physical listening/remote/soak
 acceptance or M3 graduation is implied by these transport/correctness tests.
+
+## Progressive Music continuation — 2026-10-24
+
+Jason reaffirmed HP Music Stream A authority; the conversational progressive-
+worker approval gate in the historical record above is superseded. Production
+and remote Git writes remain held. No new service or speech integration.
+
+The native shuffle player now starts a verified 25-song prefix, then fills the
+remaining requested order with a single joinable worker. Default fill batches
+are 50, below the unchanged 200/write and 20,000-total ceilings. Smaller batches
+trade longer background completion for more responsive Pause and exit. Full
+two-read identity/order checks remain; no abbreviated queue validation.
+
+The same stripped-back album player presents a 200-row queue page, actual
+current song/art/known artist, green current-song marker independent of focus,
+Pause/Resume, Stop, Previous page, Next page and Current. Paging does not change
+playback; selecting an already loaded song does. Unloaded selection explains
+that loading is incomplete rather than pretending it played. Unknown credits
+remain “Artist unavailable”; durations not yet known are not displayed as zero.
+
+All native queue controls serialize through the owned session. Control workers
+are joinable, never detached, and perform no GUI calls. Exit signals cancellation
+before acquiring the queue lock, joins controls and the filler, stops owned
+audio and restores the original empty queue. Global Home must also close the
+hidden parent window and remain Home after cleanup. Unexpected external state
+retains a recovery flag/checkpoint rather than overwriting someone else's queue.
+
+Native 50-item-batch tests before the final Home-parent correction measured
+Select-to-player 1.58–1.65s, Pause 1.33–1.45s, Back audio-stop 1.38s and full
+Back/Home cleanup 5.02–5.41s. These are native dispatcher automation measurements,
+not physical-remote or audible-quality acceptance. An earlier 200-item-batch
+full fill passed exact order for 16,363 songs with 765 holiday exclusions, but
+its longer control latency prompted the smaller batches. The final full-fill
+and preservation evidence belongs in the project/release outcome after it
+finishes; do not treat the still-running 50-item test as passed.
+
+Final outcome: the 50-item full fill passed 16,363 exact ordered IDs / 765
+exclusions, first player 1.102s and complete fill/sample 587.919s. Candidate30's
+Back and stable-Home workflows both passed, with 1.65–1.84s native Select and
+1.70–1.82s Pause. All 153 v1 files / 68 AV-language values remain unchanged;
+queue empty, grants absent, hidden windows closed, Kodi active without an
+unexpected restart. See the project outcome and progressive release record for
+run IDs and archive identity. 143 v2 tests plus 144 v1 / ten focus checks pass.
+
+Operator boundary: without its private expiring song-ID capability, the pilot
+is read-only. Shuffle All explains eligibility, and ordinary Aster Music remains
+available separately. No default/persistent live grant is installed. Temporary
+native test grants are removed in test cleanup; private queue intent is retained
+for diagnosis, never silently replayed. Candidate/recovery ZIPs remain separate
+from v1 packages.
+
+Next local player-control work includes a factual elapsed/duration display and
+owned-player seeking; seek must check current song identity, seekability and a
+known duration, preserve pause state, and never affect another player. Kodi 21.3
+supports a typed `Player.Seek` value containing a time or seconds object:
+[upstream schema](https://github.com/xbmc/xbmc/blob/21.3-Omega/xbmc/interfaces/json-rpc/schema/methods.json#L711-L797).
+This is an implementation step within Music, not a new conversational approval
+gate. It is not yet claimed as implemented or live-tested.

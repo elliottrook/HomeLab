@@ -98,21 +98,35 @@ class TrialPlayer:
         self.last=self.baseline;self.started=False;self.closed=False
 
     def snapshot(self):
-        return read_queue(self.rpc,page_size=self.queue_page_size)
+        for attempt in range(3):
+            try:return read_queue(self.rpc,page_size=self.queue_page_size)
+            except QueueUnavailable as error:
+                # A natural track boundary can fall between the two complete
+                # reads. Retry only the read, never an Add/Open/other write.
+                if str(error)!='queue-changed-during-read' or attempt==2:raise
+                self.sleep(.05)
 
     @serialized
     def observe(self):
         if self.closed:raise TrialUnavailable('trial-closed')
-        state=self.snapshot()
-        if state.song_ids!=self.last.song_ids:raise TrialUnavailable('external-queue-change')
-        if state.current_index is not None:
-            if not self.started:raise TrialUnavailable('unrelated-playback')
-            item=self.rpc('Player.GetItem',{'playerid':0,'properties':[]}).get('item',{})
-            if (item.get('type')!='song' or type(item.get('id')) is not int
-                    or item['id']!=state.song_ids[state.current_index]
-                    or item['id'] not in self.allowed):raise TrialUnavailable('unrelated-playback')
-        self.last=state
-        return state
+        for attempt in range(3):
+            state=self.snapshot()
+            if state.song_ids!=self.last.song_ids:raise TrialUnavailable('external-queue-change')
+            if state.current_index is not None:
+                if not self.started:raise TrialUnavailable('unrelated-playback')
+                item=self.rpc('Player.GetItem',{'playerid':0,'properties':[]}).get('item',{})
+                identity=item.get('id')
+                if (item.get('type')=='song' and (identity is None or
+                        type(identity) is int and identity in self.allowed)
+                        and identity!=state.song_ids[state.current_index] and attempt<2):
+                    # Metadata can lag the position at a track boundary. Read
+                    # again; never retry a write or accept mismatched identity.
+                    self.sleep(.05);continue
+                if (item.get('type')!='song' or type(identity) is not int
+                        or identity!=state.song_ids[state.current_index]
+                        or identity not in self.allowed):raise TrialUnavailable('unrelated-playback')
+            self.last=state
+            return state
 
     def write(self,method,params):
         validate_write(method,params,self.allowed,queue_limit=self.queue_limit)
@@ -165,6 +179,7 @@ class TrialPlayer:
         if type(play) is not bool:raise TrialUnavailable('explicit-pause-state-required')
         if self.observe().current_index is None:raise TrialUnavailable('no-trial-playback')
         self.write('Player.PlayPause',{'playerid':0,'play':play})
+        self.wait_for(lambda:self.rpc('Player.GetProperties',{'playerid':0,'properties':['speed']}).get('speed')==(1 if play else 0))
 
     @serialized
     def stop(self):
@@ -180,6 +195,7 @@ class TrialPlayer:
             # Existing Jellyfin monitor.py clears the queue 3s after OnStop.
             # Accept only that exact empty outcome of our own Stop, not a new
             # queue/stream. Do not fight it by silently re-adding the songs.
+            settling=time.monotonic()
             for _ in range(40):
                 try:state=self.snapshot()
                 except QueueUnavailable as error:
@@ -188,7 +204,10 @@ class TrialPlayer:
                 if state.current_index is not None:raise TrialUnavailable('unrelated-playback')
                 if state.song_ids not in (expected,()):raise TrialUnavailable('external-queue-change')
                 self.last=state
-                if not state.song_ids:break
+                # Track changes can have an earlier OnStop timer too. Don't
+                # return on its first Clear while our latest Stop's 3s timer
+                # could still clear a newly started idle queue afterwards.
+                if not state.song_ids and time.monotonic()-settling>=3.2:break
                 self.sleep(.1)
         self.started=False
 

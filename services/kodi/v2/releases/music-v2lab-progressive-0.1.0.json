@@ -1,0 +1,57 @@
+{
+  "addon_id": "script.astermusic.v2lab",
+  "version": "0.1.0",
+  "status": "hp-progressive-shuffle-engineering-passed-default-read-only",
+  "active_candidate": 30,
+  "artifact_directory": "services/kodi/dist/aster-music-v2lab-0.1.0-candidate30",
+  "sha256": "16d0b9b3b12ccf1bc21b65aeb93d44fcef072842a736ca82c6f01b818211c968",
+  "file_count": 14,
+  "limits": {
+    "initial_batch": 25,
+    "default_fill_batch": 50,
+    "maximum_write_batch": 200,
+    "maximum_queue": 20000,
+    "queue_ui_page": 200,
+    "available_memory_floor_mib": 512,
+    "private_expiring_song_id_grant": true,
+    "no_detached_workers": true,
+    "no_automatic_intent_replay": true
+  },
+  "validation": {
+    "v2_tests": 143,
+    "unchanged_v1_tests": 144,
+    "focus_checks": 10,
+    "eligible_tracks_exact_order": 16363,
+    "holiday_tracks_excluded": 765,
+    "queue_order_sha256": "cd4849fdec675ca6ed14e810993e0ed19ec19a2d502b57a3d00fec938d3f7277",
+    "full_test_first_player_seconds": 1.102,
+    "full_background_fill_and_sample_seconds": 587.919,
+    "exit_during_fill_cleanup_seconds": 3.643,
+    "final_native_back": {
+      "select_to_player_seconds": 1.649,
+      "pause_seconds": 1.816,
+      "audio_stop_seconds": 1.558,
+      "complete_cleanup_seconds": 5.544
+    },
+    "final_native_home": {
+      "select_to_player_seconds": 1.836,
+      "pause_seconds": 1.703,
+      "cleanup_and_stable_home_seconds": 6.356
+    },
+    "queue_paging_preserves_playback": true,
+    "loaded_track_selection_updates_metadata": true,
+    "v1_files_verified": 153,
+    "av_language_values_verified": 68,
+    "database_integrity": "ok",
+    "missing_primary_artist_links": 0,
+    "unexpected_kodi_restarts_since_repair": 0,
+    "final_queue_empty_players_absent_grant_removed_windows_closed": true
+  },
+  "evidence_root": "/storage/.aster-checkpoints/aster-music-progressive-20261024",
+  "full_run": "run-1792852425749841437",
+  "back_run": "native-ui-1792853137532588373.json",
+  "home_run": "native-ui-1792853211877776472.json",
+  "recovery": "/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/before-candidate30",
+  "limitations": "Native dispatcher automation, not physical remote/listening/soak or all-file decoding. Background fill takes about 9.8 minutes; unloaded songs are unavailable until filled. Earlier failure and crash records retained; original TCP crash cause remains unproven.",
+  "continuation": "Continue HP-only Music controls under Stream A. Production, vendor, credential, infrastructure and remote Git writes remain excluded. M3 is not graduated."
+}

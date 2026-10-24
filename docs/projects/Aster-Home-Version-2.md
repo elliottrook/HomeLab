@@ -611,3 +611,68 @@ since the planned DB-repair stop/start. Recovery records retained; new release
 handoff: `services/kodi/v2/releases/music-v2lab-repair-retest-0.1.0.json`.
 No production contact or Forgejo/GitHub push. Stop at progressive-worker risk
 decision, not routine read-only validation or another general project approval.
+
+#### Stream A clarification and progressive loading — 2026-10-24
+
+Jason clarified: “Why stop you are authorized to continue and you have work.”
+Continue HP-only Music implementation and progressive trial under Stream A;
+the self-imposed progressive-worker conversational gate above is superseded.
+Do not ask again for ordinary implementation choices within this envelope.
+Production, remote Git writes, vendor/credential/infrastructure changes and
+non-waivable recovery/surprise controls remain excluded/mandatory respectively.
+
+Progressive implementation: first 25 verified song IDs start playback; one
+owned joinable worker appends at most 200 IDs per request, <=20,000 overall,
+with unchanged full queue checks, short-lived grants, private complete-intent
+checkpoint and >=512 MiB resource floor. No GUI calls in worker. Exit signals
+cancellation without acquiring its queue lock, joins the pending batch, then
+stops only owned playback and restores the original idle queue. Fail on external
+queue/player changes; no blind retry or detached writer. Initial HP tests use
+brief real samples, pause during full fill if needed, explicit private recovery
+and unchanged v1/AV checks. No new speech or service/monitoring object.
+
+Full native candidate29 test `run-1792852425749841437` passed the final default
+50-item fill size: first owned player **1.102s**, complete background fill and
+brief resumed sample **587.919s**; **16,363 eligible / 765 excluded**, exact order
+SHA-256 `cd4849fdec675ca6ed14e810993e0ed19ec19a2d502b57a3d00fec938d3f7277`.
+An earlier cancellation in the same run started in 0.843s and restored idle in
+3.643s. Audio was paused during the extended fill. The catalogue legitimately
+gained 15 ordinary songs since the previous 16,348-ID snapshot; counts were
+re-read, not hardcoded or dropped. Complete intent, grant/evidence and original
+empty-queue checkpoint are private under the progressive checkpoint root.
+
+The longer background fill is an explicit responsiveness tradeoff, not a
+regression hidden as instant full-library readiness. Native UI reports loaded
+count, refuses unloaded selection, pages the queue in 200-row windows and
+separately marks current playback. Actual controls use a joinable worker with
+priority between fill batches. Natural track-boundary inconsistencies may retry
+only reads; no queue mutation is blindly retried. Stop waits for the existing
+Jellyfin delayed-clear window, without modifying Jellyfin/vendor code.
+
+Retained failed GUI attempts exposed asynchronous list initialization and
+unawaited test focus transitions. Initialization now waits for the populated
+list; harness waits for each native focus transition. Subsequent native runs
+passed paging without playback change, loaded-track selection/title/art,
+Pause/Resume, Back-stop and Home-stop. No physical-remote/listening or complete
+file-decode acceptance is claimed. Global Home's hidden parent-window cleanup
+is the final candidate30 correction; its own native/preservation outcome is
+recorded below after validation, not inferred from candidate29.
+
+Candidate30 final native runs passed: Back `native-ui-1792853137532588373.json`
+(Select 1.649s, Pause 1.816s, audio stop 1.558s, cleanup 5.544s), and Home
+`native-ui-1792853211877776472.json` (Select 1.836s, Pause 1.703s, cleanup including
+one-second stable-Home check 6.356s). Both verify queue paging does not alter the
+playing song, loaded-track selection updates metadata, grants removed and queue
+restored. The postcheck verifies 14 installed lab files/archive, all 153 v1 files,
+all 68 AV/language values, SQLite integrity and zero missing primary artist
+links; no player, queue, grant, recovery flag or hidden lab window. Kodi active,
+zero unexpected restarts since the planned repair restart.
+
+Candidate30 ZIP SHA-256
+`16d0b9b3b12ccf1bc21b65aeb93d44fcef072842a736ca82c6f01b818211c968`.
+Candidate29 recovery ZIP/tree retained at
+`/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/before-candidate30`.
+143 v2 tests, 144 unchanged v1 tests and ten focus checks pass locally. Historical
+failed attempts and crash evidence remain retained. This is a passing HP
+engineering milestone, not M3/production graduation or family acceptance.
+Continue Music controls under Stream A; no production contact or remote push.

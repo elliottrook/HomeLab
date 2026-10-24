@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from music_trial import (TrialPlayer,TrialUnavailable,capability,
                          save_empty_checkpoint,validate_write)
@@ -46,6 +47,20 @@ class TrialTests(unittest.TestCase):
     def test_back_cleanup_stops_and_restores_empty_queue_idempotently(self):
         self.trial.play([10,20,30],confirmed=True);self.trial.close();self.trial.close()
         self.assertIsNone(self.player.position);self.assertEqual(self.player.ids,[])
+
+    def test_stop_waits_out_delayed_clear_even_when_queue_is_already_empty(self):
+        clock=[0.0]
+        def sleep(duration):clock[0]+=duration
+        def transport(method,params):
+            result=self.player(method,params)
+            if method=='Player.Stop':self.player.ids=[]
+            return result
+        trial=TrialPlayer(transport,[10],lambda snapshot:True,sleep=sleep)
+        trial.play([10],confirmed=True)
+        with patch('music_trial.time.monotonic',side_effect=lambda:clock[0]):trial.stop()
+        self.assertGreaterEqual(clock[0],3.2)
+        self.assertLess(clock[0],4.1)
+        self.assertEqual(self.player.ids,[])
 
     def test_explicit_replacement_required_and_active_replace_rejected(self):
         with self.assertRaisesRegex(TrialUnavailable,'confirmation'):self.trial.play([10])
