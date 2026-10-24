@@ -47,4 +47,3 @@ authorized. It must prove Aster is denied at the new socket, the verifier is
 accepted, Aster chat remains healthy, approval outage is bounded, the approval
 plane survives an execution-broker stop, and human SSH recovery remains usable.
 That deployment is not authorized or attempted by this checkpoint.
-

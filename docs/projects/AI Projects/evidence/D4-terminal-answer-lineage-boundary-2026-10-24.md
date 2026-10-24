@@ -25,4 +25,3 @@ Focused mismatch cases and the complete evaluation suite pass **126/126** under
 Python 3.12. The test uses only synthetic fixtures. It reads no private holdout,
 contacts no model or service, grants no capability and makes no deployment or
 promotion claim.
-

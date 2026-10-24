@@ -1,6 +1,6 @@
 # F2 October 24 exact-cycle result — NO-GO
 
-**Observed:** 2026-10-24 at 01:42 America/Vancouver. **Gate:** F2.  
+**Observed:** 2026-10-24 at 01:42 America/Vancouver. **Gate:** F2.
 **Decision:** NO-GO; no retry in this cycle.
 
 ## Terminal evidence

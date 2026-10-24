@@ -25,4 +25,3 @@ contract does not revise or rerun that historical experiment.
 No service, model, provider, network client, egress rule, capability projection,
 AI-PAM grant or automatic route changed. The design and later promotion gates are
 recorded in [Aster NLU and selector boundary](../NLU-Selector-Boundary.md).
-

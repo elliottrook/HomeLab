@@ -31,4 +31,3 @@ SystemCallArchitectures=native
 
 # Candidate deliberately has no enablement section. It must replace, never run
 # beside, the current AI-facing approval peer during a reviewed cutover.
-

@@ -17,4 +17,3 @@ route-shape contradictions; personal-data cloud denial; and non-route outcomes.
 
 This is an offline contract boundary. It deploys no selector, sends no content,
 grants no tool and does not promote automatic routing.
-
