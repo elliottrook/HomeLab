@@ -1,0 +1,34 @@
+[Unit]
+Description=HomeLab AI-PAM independent approval socket candidate
+
+[Service]
+Type=simple
+User=hlabroker
+Group=hlabroker
+UMask=0077
+StateDirectory=homelab-broker
+StateDirectoryMode=0700
+RuntimeDirectory=homelab-broker-approval
+RuntimeDirectoryMode=0750
+RuntimeDirectoryPreserve=yes
+ExecStart=/usr/bin/python3 /opt/homelab-broker/broker_approval_service.py --database /var/lib/homelab-broker/broker.db --socket /run/homelab-broker-approval/approval.sock --approver-user aster-approval --socket-group aster-approval --approver-subject-hash ${ASTER_BROKER_APPROVER_SUBJECT_HASHES}
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+CapabilityBoundingSet=
+SystemCallArchitectures=native
+
+# Candidate deliberately has no enablement section. It must replace, never run
+# beside, the current AI-facing approval peer during a reviewed cutover.
+

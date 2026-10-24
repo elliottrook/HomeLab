@@ -1,0 +1,34 @@
+[Unit]
+Description=Aster independent approval ingress candidate
+After=network-online.target homelab-broker-approval-independent.service
+Wants=network-online.target
+Requires=homelab-broker-approval-independent.service
+
+[Service]
+Type=simple
+User=aster-approval
+Group=aster-approval
+UMask=0077
+WorkingDirectory=/opt/aster-agent
+EnvironmentFile=/etc/aster/approval-ingress.env
+ExecStart=/opt/aster-agent/venv/bin/uvicorn approval_ingress_service:create_app --factory --host 192.168.70.10 --port 9121 --workers 1 --no-access-log
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+CapabilityBoundingSet=
+SystemCallArchitectures=native
+
+# Candidate deliberately has no enablement section. Deployment needs an exact
+# separately approved cutover card after identity, firewall and proxy review.
+
