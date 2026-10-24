@@ -122,7 +122,7 @@ class RuntimeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as one,tempfile.TemporaryDirectory() as two:
             first=build(one);second=build(two)
             self.assertEqual(first['sha256'],second['sha256'])
-            self.assertEqual(len(first['files']),14)
+            self.assertEqual(len(first['files']),36)
             self.assertTrue(all(r['path'].startswith('script.astermusic.v2lab/') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_queue.py') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_album.py') for r in first['files']))
@@ -167,10 +167,50 @@ class RuntimeTests(unittest.TestCase):
 
     def test_shuffle_seek_controls_have_explicit_remote_navigation(self):
         window=self.runtime.ShuffleLab();window.focused=400
-        action=Mock();action.getId.return_value=4;window.onAction(action)
+        action=Mock();action.getId.return_value=1;window.onAction(action)
         self.assertEqual(window.focused,405)
-        action.getId.return_value=2;window.onAction(action);self.assertEqual(window.focused,406)
-        action.getId.return_value=3;window.onAction(action);self.assertEqual(window.focused,404)
+        action.getId.return_value=2;window.onAction(action);self.assertEqual(window.focused,400)
+        window.onAction(action);self.assertEqual(window.focused,406)
+        action.getId.return_value=3;window.onAction(action);self.assertEqual(window.focused,600)
+
+    def test_floating_controls_fit_cover_and_keep_readable_focus_caption(self):
+        window=self.runtime.ShuffleLab();window.allowed=(1,)
+        controls={identity:Mock() for identity in (400,401,402,403,404,405,406,8400,8401,8402,8403,8404,8405,8406,9400,9401,9402,9403,9404,9405,9406,10400,10401,10402,10403,10404,10405,10406)}
+        window.getControl=lambda identity:controls[identity]
+        window.configure_controls(shuffle=True)
+        for identity in (400,401,402,403,404,405,406):
+            left,top=controls[identity].setPosition.call_args.args
+            width=controls[identity].setWidth.call_args.args[0]
+            self.assertGreaterEqual(left,170);self.assertLessEqual(left+width,700)
+            self.assertEqual(top,930);self.assertGreaterEqual(width,44)
+        window.onFocus(405);self.assertEqual(window.props['Album.ControlHint'],'Back 10 seconds')
+        window.focus_control(406)
+        self.assertEqual(window.focused,406)
+        self.assertEqual(window.props['Album.ControlHint'],'Forward 10 seconds')
+
+    def test_icon_controls_have_no_pill_and_artwork_is_square_aspect_kept(self):
+        root=ET.parse(HERE/'script.astermusic.v2lab/resources/skins/Default/1080i/AlbumLab.xml')
+        controls=root.findall('.//control')
+        for identity in range(400,407):
+            button=next(c for c in controls if c.get('id')==str(identity))
+            self.assertFalse(button.findtext('texturefocus'));self.assertFalse(button.findtext('texturenofocus'))
+            self.assertEqual(button.findtext('textcolor'),'00000000')
+            self.assertTrue(button.findtext('label'))  # Native label retained for accessibility.
+        art=next(c for c in controls if c.findtext('texture')=='$INFO[Window.Property(Album.Art)]')
+        self.assertEqual(art.findtext('width'),'530');self.assertEqual(art.findtext('height'),'530')
+        self.assertEqual(art.findtext('aspectratio'),'keep')
+        title=next(c for c in controls if c.findtext('label')=='$INFO[Window.Property(Album.Title)]')
+        self.assertEqual(title.get('type'),'label');self.assertEqual(title.findtext('width'),'530')
+        self.assertEqual(title.findtext('scroll'),'true')
+        for source in (HERE/'script.astermusic.v2lab/resources/controls').glob('*.svg'):
+            icon=ET.parse(source).getroot();self.assertEqual(icon.get('viewBox'),'0 0 64 64')
+            self.assertTrue(source.with_suffix('.png').is_file())
+
+    def test_floating_pause_and_seek_clicks_dispatch_to_existing_owned_session(self):
+        window=self.runtime.ShuffleLab();window.control=Mock();window.paused=True
+        window.onClick(400);window.control.assert_called_with('pause',True)
+        window.onClick(405);window.control.assert_called_with('seek',-10)
+        window.onClick(406);window.control.assert_called_with('seek',10)
 
     def test_shuffle_unsupported_seek_explains_without_closing_player(self):
         window=self.runtime.ShuffleLab();window.session=Mock()

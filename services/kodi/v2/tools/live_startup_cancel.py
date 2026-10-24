@@ -69,6 +69,15 @@ try:
     time.sleep(.4);select();confirm()
     until(lambda:'play completed' in label('Window.Property(Album.Status)'),'normal full-album start completes')
     assert read_queue(rpc).song_ids==ids
+    time.sleep(1.1);select()
+    until(lambda:rpc('Player.GetProperties',{'playerid':0,'properties':['speed']})['speed']==0,'floating album Pause')
+    until(lambda:label('Control.GetLabel(400)')=='Resume','album Play icon reflects paused state')
+    subprocess.run(['kodi-send','--action=TakeScreenshot(/storage/.aster-staging/aster-floating-album-live.png)'],check=True,stdout=subprocess.DEVNULL)
+    select();until(lambda:rpc('Player.GetProperties',{'playerid':0,'properties':['speed']})['speed']==1,'floating album Resume')
+    press('right');until(lambda:focused(404),'floating album Stop focus');select()
+    until(lambda:idle() and 'stop completed' in label('Window.Property(Album.Status)'),'floating album Stop')
+    press('left');until(lambda:focused(400),'floating album Play focus');select();confirm()
+    until(lambda:'play completed' in label('Window.Property(Album.Status)'),'restart album after explicit Stop')
     time.sleep(1.1);press('back')
     until(lambda:idle() and not label('Window(Home).Property(AsterV2Lab.AlbumWindow)') and focused(501),
           'Back stops full album and returns to originating album tile')
@@ -80,5 +89,5 @@ finally:
     assert idle(),'Recovery required; do not overwrite unexpected playback/queue'
     print('Temporary grant removed; HP idle and original empty queue restored',flush=True)
     result=Path('/storage/.aster-checkpoints/aster-music-artist-repair-20261023')/('native-startup-'+str(time.time_ns())+'.json')
-    with result.open('x') as output:json.dump({'passed':completed,'original_queue_restored':True,'capability_removed':True,'transport':'in-process'},output)
+    with result.open('x') as output:json.dump({'passed':completed,'floating_album_play_pause_resume_stop':completed,'original_queue_restored':True,'capability_removed':True,'transport':'in-process'},output)
     result.chmod(0o600)

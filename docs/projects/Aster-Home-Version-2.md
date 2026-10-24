@@ -735,3 +735,72 @@ files, all 68 AV/language values, healthy SQLite/zero missing primary links,
 no player or queue, no capability/recovery flag and all lab windows closed.
 Kodi remains active with zero unexpected restarts since repair. HP left on
 ordinary Home. Saved locally; Forgejo/GitHub and production remain untouched.
+
+#### Floating Music icon trial — 2026-10-24
+
+Jason requests replacing the written pill controls with floating icons, fixing
+the apparent non-response and constraining the controls/artwork relationship.
+HP-only Music Stream A: retain square, aspect-preserved cover; fit all control
+hit targets within its 530-unit width, no pill fill, green enlarged focused
+icon plus a small gold underline and a readable focused-action caption. Use
+source-controlled code-native vector glyphs and deterministic PNG derivatives,
+not a new logo or image-generation service. No new speech/service/credentials.
+
+The previous row extended beyond the cover (170–840 versus 170–700), and outside
+an expiring capability the pilot intentionally provides queue previews, not
+playback. Do not misrepresent that preview as working live playback or silently
+remove its guard. Retain explicit preview labeling, test actual icon activation
+under the bounded HP grant, and expose pending control status without hiding
+icons. Validate mouse/remote hit targets and both album/shuffle focus order.
+Checkpoint candidate32 ZIP/tree before replacing only the lab add-on; no Kodi
+restart, production change, vendor/keymap edit or push. Existing idle-empty
+preflight, private checkpoint, joined writers, Back/Home cleanup and v1/AV/
+database preservation remain mandatory. Keep prior assets for rollback.
+
+First candidate33 native run `native-ui-1792854792983248178.json` failed during
+track selection: the test accepted a missing song ID as “changed,” then raised
+KeyError; the filler also reported a failure without its specific code in that
+old logging path. Exact filler cause is not established. Cleanup removed the
+grant and restored the original idle queue, with no recovery flag/restart.
+Do not rewrite this attempt as passed. Candidate34 test now requires a real
+song/type/ID before accepting the transition; add-on failure logging includes
+only bounded lowercase error codes, never raw private transport errors.
+Candidate34 then passed native Back and Home/seek workflows; candidate35 fixes
+the observed focus-caption lag and passes stable Home/seek as well. No queue
+write retries or broadening of the private grant was introduced.
+
+Native floating shuffle passes: candidate34 Back
+`native-ui-1792855027473072435.json` (Select 2.481s / Pause 1.483s / audio stop
+1.753s / cleanup 5.803s), candidate34 Home
+`native-ui-1792855085376361295.json`, and final-caption candidate35 stable Home
+`native-ui-1792855186161962655.json` (Select 1.777s / Pause 1.813s / cleanup
+including stable-Home wait 6.463s). All include both paused seeks, metadata,
+paging without player change, grant removal and original empty-queue cleanup.
+
+Candidate35 separately passes native album preview and full eleven-track
+startup-cancel / Play / Pause / Resume / Stop / explicit restart / Back checks
+(`native-startup-1792855280549534151.json`); all five live album glyphs fit the
+cover width. The inspected screenshot exposed a clipped third title line, so
+candidate36 changes only that title to a single scrolling native label, still
+530 units wide. No song metadata is truncated or rewritten. The final package
+has 36 members: original 14 plus 11 original SVGs and 11 transparent 128px PNGs.
+All 22 source/derivative assets regenerate byte-for-byte; no backdrop pixels.
+154 v2 tests, 144 unchanged v1 tests and ten focus-model checks pass.
+
+Final candidate36 also passes native album preview
+`native-album-readonly-1792855513942129910.json` and the full album floating-
+control/startup-cancel/Back workflow `native-startup-1792855567587076333.json`.
+Screenshot `/tmp/aster-floating-album-candidate36.png` inspected: no stretched
+cover, pill backplates or overflowing controls; long title scrolls within its
+own line. Shuffle screenshot `/tmp/aster-floating-shuffle-candidate35.png`
+retains the tested seven-icon layout and immediately correct focus caption.
+
+Final archive `56484ee0dbdd2040b93c8e2ea31d8b1f143724c91cffc0956bb9728ccd08addb`,
+36 members, HP-only. Preservation `postcheck-1792855593667843735.json` verifies
+all 36 installed files, all 153 v1 files / 68 AV-language values, SQLite health,
+no missing primary artist links, no player/queue/grant/recovery flag or hidden
+lab windows. Kodi active, zero unexpected restarts since repair. Candidate32
+pre-trial recovery remains at `before-candidate33`; each subsequent exact ZIP/
+tree checkpoint retained through `before-candidate36`. HP left at ordinary
+Home; default read-only remains deliberate, not disabled/expired controls
+silently presented as live playback. Production and remote Git untouched.

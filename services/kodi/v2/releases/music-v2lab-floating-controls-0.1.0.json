@@ -1,0 +1,45 @@
+{
+  "addon_id": "script.astermusic.v2lab",
+  "version": "0.1.0",
+  "status": "hp-floating-icon-trial-native-tested-default-read-only",
+  "active_candidate": 36,
+  "artifact_directory": "services/kodi/dist/aster-music-v2lab-0.1.0-candidate36",
+  "sha256": "56484ee0dbdd2040b93c8e2ea31d8b1f143724c91cffc0956bb9728ccd08addb",
+  "file_count": 36,
+  "design": {
+    "pill_backplates": false,
+    "cover": "530x530, centred keep aspect ratio; no forced crop/stretch",
+    "control_row_max_width": 530,
+    "focus": "Larger green glyph, short gold underline, immediate readable caption",
+    "hit_target_minimum_width": 64,
+    "glyphs": "11 original SVG sources and 11 transparent 128px PNGs; byte-for-byte deterministic regeneration",
+    "long_title": "Single scrolling native label contained within cover column"
+  },
+  "validation": {
+    "v2_tests": 154,
+    "unchanged_v1_tests": 144,
+    "focus_checks": 10,
+    "native_album_play_pause_resume_stop_restart_cancel_back": true,
+    "native_shuffle_pause_seeks_paging_selection_back_home": true,
+    "native_default_readonly_album_preview": true,
+    "screenshots_visually_inspected": true,
+    "v1_files_verified": 153,
+    "av_language_values_verified": 68,
+    "database_integrity": "ok",
+    "missing_primary_artist_links": 0,
+    "unexpected_kodi_restarts_since_repair": 0,
+    "final_no_player_queue_grant_recovery_or_lab_window": true
+  },
+  "evidence": {
+    "first_failed_candidate33": "native-ui-1792854792983248178.json",
+    "candidate34_back": "native-ui-1792855027473072435.json",
+    "candidate34_home": "native-ui-1792855085376361295.json",
+    "candidate35_caption_and_home": "native-ui-1792855186161962655.json",
+    "candidate36_readonly_album": "native-album-readonly-1792855513942129910.json",
+    "candidate36_live_album": "native-startup-1792855567587076333.json",
+    "candidate36_preservation": "postcheck-1792855593667843735.json"
+  },
+  "recovery": "/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/before-candidate33 retains pre-trial candidate32; all incremental recovery ZIPs/trees retained through before-candidate36",
+  "limitations": "Preview controls intentionally do not play without the private expiring HP test grant. Native automation is not physical remote/listening acceptance. First candidate33 transition failed and safely cleaned up; its exact filler cause was not captured, not claimed fixed by the icon change. No new full-library fill test in this visual milestone.",
+  "boundary": "HP-only Music Stream A. No persistent playback grant, production, vendor, keymap, credential, infrastructure or remote Git change. M3 remains ungraduated."
+}

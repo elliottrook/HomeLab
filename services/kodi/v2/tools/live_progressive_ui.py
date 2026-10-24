@@ -54,7 +54,7 @@ try:
     select();until(lambda:speed()==1,'Resume')
     until(lambda:label('Window.Property(Album.Title)')!='Shuffle all · no holiday music','Verified now-playing title')
     before=rpc('Player.GetItem',{'playerid':0,'properties':[]})['item']['id']
-    for target in (404,401,402):
+    for target in (406,404,401,402):
         press('right');until(lambda:focus(target),'Queue button '+str(target))
     until(lambda:focus(402),'Next page button');select()
     until(lambda:'201' in label('Window.Property(Album.TrackHeading)'),'Queue next page')
@@ -64,24 +64,30 @@ try:
     press('up');until(lambda:focus(600),'Current queue row')
     row=label('Container(600).ListItem.Label');press('down')
     until(lambda:label('Container(600).ListItem.Label')!=row,'Next queue row');select()
-    until(lambda:rpc('Player.GetItem',{'playerid':0,'properties':[]})['item'].get('id')!=before,'Select loaded track')
+    def selected_ready():
+        item=rpc('Player.GetItem',{'playerid':0,'properties':[]}).get('item',{})
+        return item.get('type')=='song' and type(item.get('id')) is int and item['id']!=before
+    until(selected_ready,'Select loaded track')
     chosen=rpc('Player.GetItem',{'playerid':0,'properties':[]})['item']['id']
     until(lambda:label('Window.Property(Album.Title)')==view.songs[chosen]['label'],'Now-playing follows selected track')
     press('left');until(lambda:focus(400),'Pause after selection');select();until(lambda:speed()==0,'Pause chosen track')
     until(lambda:label('Control.GetLabel(400)')=='Resume','Paused control label is truthful')
     if '--seek-controls' in sys.argv:
         before_seek=elapsed()
-        press('down');until(lambda:focus(405),'Back ten seconds control')
+        press('left');until(lambda:focus(405),'Back ten seconds control')
+        press('right');until(lambda:focus(400),'Play control between seeks')
         press('right');until(lambda:focus(406),'Forward ten seconds control');select()
         until(lambda:abs(elapsed()-(before_seek+10))<1,'Forward ten seconds while paused')
         until(lambda:label('Control.GetLabel(400)')=='Resume','Forward control completed')
         assert speed()==0 and rpc('Player.GetItem',{'playerid':0,'properties':[]})['item']['id']==chosen
+        press('left');until(lambda:focus(400),'Return through play control')
         press('left');until(lambda:focus(405),'Backward control');select()
         until(lambda:abs(elapsed()-before_seek)<1,'Backward ten seconds while paused')
         until(lambda:label('Control.GetLabel(400)')=='Resume','Backward control completed')
         assert speed()==0 and rpc('Player.GetItem',{'playerid':0,'properties':[]})['item']['id']==chosen
         assert ' / ' in label('Window.Property(Album.Clock)') and '—' not in label('Window.Property(Album.Clock)')
-        press('up');until(lambda:focus(400),'Seek returns to pause control')
+        press('right');until(lambda:focus(400),'Seek returns to pause control')
+        until(lambda:label('Window.Property(Album.ControlHint)')=='Resume','Focused icon caption follows pause control')
         metrics['native_seek_both_directions_preserves_paused_song']=True
     subprocess.run(['kodi-send','--action=TakeScreenshot(/storage/.aster-staging/aster-progressive-player-candidate26.png)'],check=True,stdout=subprocess.DEVNULL)
     assert 'queued' in label('Window.Property(Album.Status)')

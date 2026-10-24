@@ -742,3 +742,43 @@ Both paused-seek directions and native Back/stable-Home workflows passed;
 inspected with no overlap. Project outcome records real timings and failed-run
 history; candidate30 and31 recovery artifacts remain available. The pilot still
 returns to read-only when its temporary test grant is removed.
+
+## Floating control-icon trial — 2026-10-24
+
+Jason rejected the written pill row as heavy and too wide. Trial replaces it
+with original monochrome transparent transport glyphs: charcoal at rest,
+slightly larger green on focus, a small gold underline and a focused-action
+caption. Native labels remain for accessibility; there is no button backplate.
+All hit targets are >=64 units wide and the complete row is <=530 units, matching
+the cover width. Cover itself stays 530 x 530 with centred `keep` aspect ratio;
+non-square source art is fitted, not stretched or cropped to force a square.
+Title/artist metadata now respects that same column width.
+
+Shuffle icons, left to right: back 10 seconds, Play/Pause, forward 10 seconds,
+Stop, previous queue page, next queue page, show playing song. The last three
+are queue-navigation controls, not previous/next song. Read the focus caption.
+Left/Right follows the visible order; Up/Down reaches the queue; Left from the
+queue returns to Play/Pause. The focused caption updates immediately rather
+than waiting for the one-second playback poll. Busy actions say “Updating
+playback…” without replacing the visible icon with a word.
+
+Album live-test icons: Play/Pause, Stop, Play Next, Add to Queue, Replace Queue.
+Album preview has only the last three, labelled as previews in the caption.
+This is still the isolated HP lab, launched from Programs → Aster Music v2 Lab,
+using the existing Kodi library. Without the private expiring test capability,
+it does not start music; a queue-preview dialog is intentional, not an apparent
+successful Play. No permanent playback grant, production promotion or v1 change.
+Back/Home during a live test still stops owned music and cancels its loader.
+
+Glyph sources and transparent 128px PNG derivatives are bundled inside the lab;
+`tools/build_control_icons.py` regenerates them deterministically. No new speech,
+external service, raster-generation model, vendor change or remote keymap edit.
+
+Native walkthrough automation passes real album Play/Pause/Resume/Stop/restart,
+startup cancellation and Back, plus shuffle seeks, queue paging, actual-track
+selection and stable Home exit. Final candidate36 and screenshots inspected;
+154 v2 tests, 144 unchanged v1 tests and ten focus checks pass. The project log
+retains the first failed transition test rather than claiming every attempt
+passed; exact initial filler error was not captured and remains unproven.
+Production remains independent and unchanged; physical remote/listening/sofa
+acceptance is not inferred from native dispatcher tests.

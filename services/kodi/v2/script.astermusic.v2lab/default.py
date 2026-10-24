@@ -82,6 +82,33 @@ class AlbumLab(xbmcgui.WindowXML):
         self.selection=None; self.title=''; self.artwork='';self.allowed=();self.trial=None;self.finished=False
         self.dialog_open=False;self.back_guard_until=0
         self.queue_limit=3
+        self.control_labels={400:'Play / Pause',404:'Stop',401:'Play Next',402:'Add to Queue',403:'Replace Queue',405:'Back 10 seconds',406:'Forward 10 seconds'}
+
+    def configure_controls(self,shuffle=False):
+        icons={400:'play',404:'stop',401:'page-back' if shuffle else 'play-next',
+               402:'page-next' if shuffle else 'add',403:'current' if shuffle else 'replace',405:'back',406:'forward'}
+        order=(405,400,406,404,401,402,403) if shuffle else ((400,404,401,402,403) if self.allowed else (401,402,403))
+        width,gap=(64,12) if shuffle else (76,30)
+        span=len(order)*width+(len(order)-1)*gap
+        start=170+(530-span)//2
+        for index,identity in enumerate(order):
+            left=start+index*(width+gap)
+            self.getControl(identity).setPosition(left,930);self.getControl(identity).setWidth(width)
+            for offset,size,top in ((8000,44,940),(9000,48,938),(10000,20,991)):
+                self.getControl(offset+identity).setPosition(left+(width-size)//2,top)
+            self.setProperty('Album.Icon'+str(identity),str(ROOT/'resources'/'controls'/(icons[identity]+'.png')))
+            self.getControl(identity).setLabel(self.control_labels[identity])
+        self.setProperty('Album.ControlHint','Select a track · playback test' if self.allowed else 'Queue preview only · no playback starts')
+
+    def onFocus(self,control):
+        if control in self.control_labels:
+            text=self.control_labels[control]+(' · preview' if not self.allowed else '')
+            if getattr(self,'control_worker',None):text='Updating playback…'
+            self.setProperty('Album.ControlHint',text)
+
+    def focus_control(self,control):
+        self.setFocusId(control)
+        self.onFocus(control)
 
     def dialog(self,method,*args):
         # Native Back may also reach the underlying WindowXML callback while
@@ -111,8 +138,7 @@ class AlbumLab(xbmcgui.WindowXML):
         if self.allowed:
             self.setProperty('Album.Status',f'HP live trial · {len(self.allowed)} approved tracks · Back stops and restores the original empty queue')
             self.setProperty('Album.Help','Live test: approved tracks only. OK opens track actions. Replace needs confirmation; stop before replacing. Back stops this trial and restores the original queue.')
-            for control,left,width,label in ((401,470,110,'Next'),(402,600,110,'Add'),(403,730,110,'Replace')):
-                self.getControl(control).setPosition(left,930);self.getControl(control).setWidth(width);self.getControl(control).setLabel(label)
+        self.configure_controls()
         items=[]
         for row in self.selection.tracks:
             number=f'{row.disc}.{row.track:02}' if row.disc else str(row.track)
@@ -197,6 +223,12 @@ class AlbumLab(xbmcgui.WindowXML):
             elif action in ('pause','resume'):self.trial.pause(action=='resume')
             elif action=='stop':self.trial.stop()
             else:self.trial.edit(action,ids,confirmed=confirmed)
+            active=self.trial.observe().current_index is not None
+            paused=active and rpc('Player.GetProperties',{'playerid':0,'properties':['speed']}).get('speed')==0
+            self.control_labels[400]='Resume' if paused else 'Pause' if active else 'Play'
+            self.getControl(400).setLabel(self.control_labels[400])
+            self.setProperty('Album.Icon400',str(ROOT/'resources'/'controls'/('pause.png' if active and not paused else 'play.png')))
+            self.onFocus(self.getFocusId())
             self.setProperty('Album.Status','HP trial · '+action+' completed · Back stops and restores the original queue')
         except TrialCancelled:
             self.setProperty('Album.Status','Start cancelled · playback stopped and original empty queue restored')
@@ -251,12 +283,12 @@ class AlbumLab(xbmcgui.WindowXML):
             return
         control=self.getFocusId()
         buttons=(400,404,401,402,403) if self.allowed else (401,402,403)
-        if control==600 and key==1:self.setFocusId(buttons[0]);return
+        if control==600 and key==1:self.focus_control(buttons[0]);return
         if control in buttons and key in DIRECTIONS:
             index=buttons.index(control)
-            if key==1:self.setFocusId(buttons[max(0,index-1)])
-            elif key==2:self.setFocusId(buttons[min(len(buttons)-1,index+1)])
-            elif key in (3,4):self.setFocusId(600)
+            if key==1:self.focus_control(buttons[max(0,index-1)])
+            elif key==2:self.focus_control(buttons[min(len(buttons)-1,index+1)])
+            elif key in (3,4):self.focus_control(600)
 
 
 class ShuffleLab(AlbumLab):
@@ -276,10 +308,11 @@ class ShuffleLab(AlbumLab):
         self.setProperty('Album.Context','SHUFFLE ALL / NO HOLIDAY MUSIC')
         self.setProperty('Album.Count',f'{len(self.allowed):,} verified songs')
         self.setProperty('Album.Help','Select a loaded song to play it. Previous / Next page browse the queue; Current returns to the playing song. Stop or Back stops and cancels loading.')
-        for identity,label in ((401,'Previous'),(402,'Next page'),(403,'Current')):
-            self.getControl(identity).setVisible(True);self.getControl(identity).setLabel(label)
+        self.control_labels.update({401:'Previous queue page',402:'Next queue page',403:'Show playing song'})
+        self.configure_controls(shuffle=True)
+        for identity in (401,402,403):self.getControl(identity).setVisible(True)
         self.render_page()
-        self.setFocusId(400)
+        self.focus_control(400)
         self.initialized=True
 
     def render_page(self):
@@ -340,7 +373,11 @@ class ShuffleLab(AlbumLab):
                         except CatalogueUnavailable:pass
                     if props.get('speed') in (0,1):
                         self.paused=props['speed']==0
-                        if not self.control_worker:self.getControl(400).setLabel('Resume' if self.paused else 'Pause')
+                        if not self.control_worker:
+                            self.control_labels[400]='Resume' if self.paused else 'Pause'
+                            self.getControl(400).setLabel(self.control_labels[400])
+                            self.setProperty('Album.Icon400',str(ROOT/'resources'/'controls'/('play.png' if self.paused else 'pause.png')))
+                            self.onFocus(self.getFocusId())
 
     def control(self,action,value):
         if self.control_worker:return
@@ -351,6 +388,7 @@ class ShuffleLab(AlbumLab):
                 else:self.session.select(value)
             except Exception as error:self.control_errors.append(error)
         self.getControl(400).setLabel('Updating…')
+        self.setProperty('Album.ControlHint','Updating playback…')
         self.control_worker=threading.Thread(target=work,name='AsterMusicControl')
         self.control_worker.start()
 
@@ -379,17 +417,11 @@ class ShuffleLab(AlbumLab):
             if not self.dialog_open and time.monotonic()>=self.back_guard_until:self.close()
             return
         control=self.getFocusId()
-        buttons=(400,404,401,402,403)
+        buttons=(405,400,406,404,401,402,403)
         if control in buttons:
-            if key in (1,2):self.setFocusId(buttons[max(0,min(len(buttons)-1,buttons.index(control)+(1 if key==2 else -1)))])
-            elif key==4 and control in (400,404):self.setFocusId(405 if control==400 else 406)
-            elif key in (3,4):self.setFocusId(600)
-        elif control in (405,406):
-            if key==1:self.setFocusId(405)
-            elif key==2:self.setFocusId(406)
-            elif key==3:self.setFocusId(400 if control==405 else 404)
-            elif key==4:self.setFocusId(600)
-        elif control==600 and key==1:self.setFocusId(400)
+            if key in (1,2):self.focus_control(buttons[max(0,min(len(buttons)-1,buttons.index(control)+(1 if key==2 else -1)))])
+            elif key in (3,4):self.focus_control(600)
+        elif control==600 and key==1:self.focus_control(400)
 
     def close(self):
         if self.finished:return
@@ -558,7 +590,9 @@ class MusicLab(xbmcgui.WindowXML):
                 window.refresh();xbmc.sleep(100)
         except Exception as error:
             frames=traceback.extract_tb(error.__traceback__)
-            xbmc.log('AsterMusicShuffle failure='+type(error).__name__+' at '+','.join(f.name+':'+str(f.lineno) for f in frames),xbmc.LOGERROR)
+            code=str(error) if isinstance(error,(TrialUnavailable,QueueUnavailable)) else ''
+            if not code or len(code)>80 or any(c not in 'abcdefghijklmnopqrstuvwxyz0123456789-' for c in code):code='unclassified'
+            xbmc.log('AsterMusicShuffle failure='+type(error).__name__+' code='+code+' at '+','.join(f.name+':'+str(f.lineno) for f in frames),xbmc.LOGERROR)
             xbmcgui.Dialog().ok('Shuffle unavailable','The HP trial could not continue safely. Your recovery checkpoint is retained.')
         finally:
             if window:window.close()

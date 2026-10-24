@@ -10,6 +10,7 @@ import xbmc
 
 assert os.uname().nodename=='AsterTV'
 candidate=int(sys.argv[1]);expected=sys.argv[2]
+expected_count=int(sys.argv[3]) if len(sys.argv)>3 else 14
 assert candidate>0 and len(expected)==64 and all(c in '0123456789abcdef' for c in expected)
 def rpc(method,params):
     reply=json.loads(xbmc.executeJSONRPC(json.dumps({'jsonrpc':'2.0','id':1,'method':method,'params':params})))
@@ -30,7 +31,7 @@ assert all(hashlib.sha256((addons/row['path']).read_bytes()).hexdigest()==row['s
 manifest=json.loads((stage/f'aster-music-v2lab-0.1.0-candidate{candidate}/manifest.json').read_text())
 assert manifest['sha256']==expected
 assert hashlib.sha256((stage/f'aster-music-v2lab-0.1.0-candidate{candidate}'/manifest['archive']).read_bytes()).hexdigest()==expected
-assert len(manifest['files'])==14
+assert len(manifest['files'])==expected_count
 assert all(hashlib.sha256((addons/row['path']).read_bytes()).hexdigest()==row['sha256'] for row in manifest['files'])
 settings=ET.parse('/storage/.kodi/userdata/guisettings.xml')
 values=sorted((node.get('id'),node.text or '') for node in settings.findall('.//setting')
@@ -45,7 +46,7 @@ finally:connection.close()
 root=Path('/storage/.aster-checkpoints/aster-music-progressive-20261024')
 output=root/('postcheck-'+str(time.time_ns())+'.json')
 with output.open('x') as handle:
-    json.dump({'candidate':candidate,'sha256':expected,'lab_files_verified':14,
+    json.dump({'candidate':candidate,'sha256':expected,'lab_files_verified':expected_count,
                'v1_files_verified':153,'av_language_settings_verified':len(values),
                'database_integrity':'ok','missing_primary_artist_links':0,
                'no_player':True,'original_empty_queue':True,'capability_removed':True,
