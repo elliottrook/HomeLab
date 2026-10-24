@@ -59,3 +59,9 @@ No GPU/model call, lease, service/timer/configuration change, credential,
 download or mount action was performed. Next: review fetchable current platform
 source/default-path coverage when published, consume the October 25 terminal
 evidence without duplicate execution, and retain the independent A1 gates.
+
+Publication remains pending: two push attempts stalled. After each, read-only
+Forgejo checks still showed `e8a7800937b15ea95bf3c98f0e1c5747ef0fa84f`;
+the protection mirror also matched that previous ref. Do not claim this receipt
+was delivered. Retry only after checking for intervening remote work at the
+next preparation continuation; no force-push or new approval is implied.
