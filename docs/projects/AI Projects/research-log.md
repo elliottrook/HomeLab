@@ -3157,3 +3157,15 @@ baselines still recompute as 18/30 and 30/30. This protects evidence integrity
 without promoting either backend. The independent routing holdout remains
 unavailable: published cases are exposed, S1 closed incomplete, and a new
 human-reviewed corpus and frozen class thresholds would be required.
+
+## 2026-10-24 — Independent approval ingress installed inactive
+
+Applied the approved M1 inactive-install card to LXC104 from source `523e7f76`.
+Created dedicated UID/GID 1905 and installed the four exact pinned artifacts plus
+a source-locally derived five-key configuration without printing its subject
+allowlist. Independent checks passed both units with zero start timestamp,
+inactive/non-enabled state, imports as the dedicated user, no port 9121 listener,
+healthy production services and unchanged current approval socket and broker
+database. Removed temporary staging. This closes only the inactive installation
+gate; real Authentik assurance, routing and zero-overlap authority cutover remain
+unproved and unapproved.
