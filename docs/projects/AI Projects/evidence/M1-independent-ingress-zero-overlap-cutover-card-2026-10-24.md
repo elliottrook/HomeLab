@@ -55,8 +55,11 @@ Preserve before change:
 ## Exact bounded change
 
 1. Add one private firewall permit from only NPM `192.168.50.23` to only
-   LXC104 `192.168.70.10:9121/TCP`, placed with the existing 9120 permit. Do not
-   widen aliases or create Internet ingress.
+   LXC104 `192.168.70.10:9121/TCP`, immediately after the existing 9120 permit
+   and with the same sequence `2199`. OPNsense permits duplicate sequence
+   values and retains config order; `2200` is the management-interface RFC1918
+   block, so a generated `2201` rule is unreachable. Do not widen aliases or
+   create Internet ingress.
 2. Add one longer-prefix NPM host 18 location for
    `/v1/companion/approvals` to `http://192.168.70.10:9121` while preserving the
    suffix. Do not change `/voice/v2/`, `/voice/`, `/` or TLS.

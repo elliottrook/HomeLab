@@ -54,10 +54,32 @@ does not change the database state directory or add permanent group
 membership. Six focused tests pass and target `systemd-analyze verify` accepts
 the unit. Its exact replacement hash is recorded in the next local commit.
 
+That `0711` candidate was then installed under a separate approval and passed
+the live identity boundary: the runtime parent was exactly
+`0711 hlabroker:hlabroker`, the socket was exactly
+`0660 hlabroker:aster-approval`, `aster` was denied and `aster-approval`
+received a valid content-free broker status. The approval-only ingress started
+as `aster-approval`, listened only on `192.168.70.10:9121`, returned HTTP 401
+locally without a bearer token and had zero restarts.
+
+The pilot stopped at the next network gate. NPM-to-9121 timed out even though
+the temporary OPNsense rule was present. Readback showed that the helper had
+incorrectly treated firewall sequence numbers as unique and selected `2201`.
+The management-interface RFC1918 block is sequence `2200`, so the otherwise
+exact rule was unreachable. It recorded evaluations but accepted zero packets.
+The route, services and firewall rule were again fully rolled back; 9120 health
+remained available.
+
+The corrected temporary-rule helper now clones the established 9120 rule's
+sequence `2199` as well as its interface/source/destination properties and
+inserts it immediately after that rule. A live read-only check confirms the
+source is `2199`, the first management block is `2200`, and no 9121 rule is
+present. A further supervised rerun is required to prove the routed path.
+
 ## Next gate
 
-Replace only the inactive independent-broker unit with the pinned `0711`
-runtime-parent candidate, run `daemon-reload`, verify both candidate units
-remain inactive and disabled, and repeat the same supervised reversible pilot.
-The rerun must still stop at the first failed gate and perform the same
-restrictive rollback.
+The `0711` unit is installed inactive and has passed its live identity test.
+Repeat the supervised reversible pilot using only the corrected temporary
+firewall placement: sequence `2199`, directly after the established 9120 rule
+and before the sequence-2200 block. The rerun must still stop at the first
+failed gate and perform the same restrictive rollback.
