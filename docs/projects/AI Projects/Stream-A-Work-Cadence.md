@@ -70,6 +70,12 @@ to 01:15/01:20 PDT, installed diagnostic pins match and required cycle state is
 absent. The timers remain uninstalled/inactive pending exact activation
 approval. An observation-only reconciliation at 01:42 owns cleanup; runtime
 backup, host and lease gates still fail closed.
+Jason then approved the exact October 25 activation. The
+[activation result](evidence/F2-exact-cycle-activation-result-2026-10-25.md)
+records enabled/active one-shot timers for 01:15 and 01:20 PDT, unchanged
+diagnostic pins and an active observation-only reconciliation at 01:42. The
+timed test is GO — scheduled/conditional; fresh runtime gates still decide
+whether the scanner starts, and any failure means NO-GO without retry.
 
 **October 20 F2 result:** the two exact-date timers fired and are now disabled,
 but preparation failed after five seconds and final failed immediately. No
