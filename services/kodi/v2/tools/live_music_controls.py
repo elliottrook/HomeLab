@@ -17,6 +17,7 @@ from music_catalogue import read_catalogue
 from music_playlists import read_playlists,read_playlist,indexed_mapping
 from music_jellyfin import PlaylistReader
 from music_playlist_save import uuid,PlaylistSaveUnavailable
+from music_art import song_album_art
 
 def rpc(method,params=None):
     result=json.loads(xbmc.executeJSONRPC(json.dumps(dict(jsonrpc='2.0',id=1,method=method,params=params or {}))))
@@ -88,11 +89,25 @@ try:
     setfocus(407);select()
     until(lambda:read_queue(rpc).current_index==1 and label('Window.Property(Album.Busy)')=='false','actual-next-track')
     require(read_queue(rpc).song_ids==expected,'next-keeps-queue-order')
+    # Verify actual playlist album transitions, not merely a nonempty image.
+    covers=set();albums=set();position=1
+    for position in range(1,min(20,len(selection.song_ids))):
+        song_id=selection.song_ids[position]
+        cover=song_album_art(rpc,song_id,'missing')
+        require(cover!='missing','indexed-album-cover-required')
+        until(lambda:label('Window.Property(Album.Art)')==cover,'playing-song-album-art')
+        covers.add(cover);albums.add(view.songs[song_id].get('albumid'))
+        if len(albums)>=2 and len(covers)>=2:break
+        require(position+1<min(20,len(selection.song_ids)),'two-distinct-album-covers-required')
+        select();until(lambda:read_queue(rpc).current_index==position+1
+            and label('Window.Property(Album.Busy)')=='false','next-album-transition')
+    require(len(albums)>=2 and len(covers)>=2,'distinct-playlist-album-art')
     setfocus(402);select();expected+=selection.song_ids
     until(lambda:read_queue(rpc).song_ids==expected and label('Container(600).NumItems')==str(len(expected)),'playing-append-visible')
-    require(read_queue(rpc).current_index==1,'append-keeps-playing-occurrence')
+    require(read_queue(rpc).current_index==position,'append-keeps-playing-occurrence')
     checks.update(playlist_next_advances=True,append_idle_and_playing_visible=True,
-        staged_play_preserves_additions=True,transport_order_and_captions=True,append_no_autoplay=True)
+        staged_play_preserves_additions=True,transport_order_and_captions=True,append_no_autoplay=True,
+        distinct_playing_album_covers=True)
     xbmc.executebuiltin('TakeScreenshot(/storage/.aster-staging/music-player-controls.png)')
     previous=generation(11117);press('back');until(lambda:loaded(11117,previous) and idle(),'playlist-back-clean')
     home_music();setfocus(115);select();confirm('Shuffle all',False)

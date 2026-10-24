@@ -839,8 +839,12 @@ No new login is needed: Music uses the existing signed-in Jellyfin/Kodi index.
    artist's albums. Local Kodi/smart playlists keep their original player.
 3. On the player, the focused icon's caption explains its action. The transport
    group is centred beneath the album art: -10 seconds, Play/Pause, +10 seconds,
-   Stop, Next track. Separate queue tools sit further right: Play Next, Add to
-   Queue, Replace Queue. **Next track** advances playback; **Play Next** inserts
+   Stop, Next track. A second centred row beneath it holds Play Next, Add to
+   Queue, Replace Queue. Both rows sit below the scrub bar and within the cover
+   width. Up/Down moves between rows; the focused action caption is on the right.
+   Playlist and Shuffle artwork follows the playing song's album; missing art
+   uses the standard placeholder rather than the previous album's cover.
+   **Next track** advances playback; **Play Next** inserts
    the selection into the queue and does not skip the currently playing song.
    Add to Queue switches the list to the actual queue and updates its count.
    Adding while stopped does not start audio; Play starts that accumulated queue
@@ -869,9 +873,9 @@ Normal Music entry still uses the existing bounded list/search limits; the
 new genre explorer and non-holiday shuffle validate the complete indexed
 catalogue. Neither retags source files nor changes saved playlists implicitly.
 
-Current corrected deployment: Music candidate63 plus normal integration6 and
+Current corrected deployment: Music candidate64 plus normal integration6 and
 the floating shared-rail overlay. Private exact recovery lives under
-`/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/before-candidate63`
+`/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/before-candidate64`
 and `/storage/.aster-checkpoints/aster-music-integration-20261024/` (original
 baseline and versioned revisions retained). Restore only verified affected
 files with Kodi stopped; do not replace credentials, AV settings or watch

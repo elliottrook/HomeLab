@@ -19,6 +19,7 @@ def build(output):
     for name in ('music_catalogue.py','music_policy.py','lab_model.py','music_album.py','music_selection.py','music_audio.py','music_atmosphere.py','music_entry.py','music_playlists.py','music_playlist_save.py','music_jellyfin.py','music_shared_save.py','music_scrub.py','music_queue.py','queue_reader.py','music_trial.py','music_expanded_trial.py','music_progressive.py'):
         files['resources/lib/'+name]=(HERE/name).read_bytes()
     files['resources/icon.png']=(HERE.parent/'skin.asterhome/media/20-music-app.png').read_bytes()
+    files['resources/lib/music_art.py']=(HERE/'music_art.py').read_bytes()
     archive=output/(ADDON+'-0.1.0.zip')
     records=[]
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:

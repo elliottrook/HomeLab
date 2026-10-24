@@ -16,9 +16,9 @@
   Items 01-26 and 31-32 were selected; all unticked items are deferred.
 - HP (`192.168.1.140`) is the v2 lab. BOSGAME (`192.168.1.157`) stays on its
   accepted family-beta release until a separately approved promotion.
-- Current resume point (2026-10-24): HP Music candidate63, 47 files,
-  SHA-256 `6b997b12e492a2a03be8c99bd52221f6a7c5c80df4427798464e3e11dd2429f1`;
-  exact candidate62/61/60 recovery retained. Normal Music integration6 is active,
+- Current resume point (2026-10-24): HP Music candidate64, 48 files,
+  SHA-256 `3b796b1feaa6e5914161b76a726d77e20e2a35d308b1e0f29bd1b8ba32adfcd7`;
+  exact candidate63/62/61/60 recovery retained. Normal Music integration6 is active,
   manifest `9f79b4275612fc02192b9abeea0703aaaf3fc745076134f1f50c0784235a51ba`.
   Floating shared rail3 is active, manifest
   `c6a782daec7d665abe68968c3f90ff55c98f0540953ffdda73eb41ab24cd364c`;
@@ -2226,3 +2226,43 @@ Local verification: 314 v2 tests pass both normally and under optimized Python;
 are clean. Production and remote Git refs remain unchanged. This completes the
 bounded floating-rail request; the separate playlist-cleanup approval remains
 pending and no server cleanup was attempted.
+
+### Music follow-up — all controls under cover and per-song album art (2026-10-24)
+
+Jason requests every Music control beneath the scrub bar, centred beneath the
+album cover, and the playing song's album artwork during playlists. HP-only
+Stream A trial: two centred rows (transport930, queue tools1000), no new pills
+or stretched icons. Captions/help move to the right to avoid row overlap.
+Read-only exact-song metadata resolves album cover first, song cover second,
+then the existing placeholder; both ordinary and shuffle players use it.
+No server/library writes, permissions, settings, credentials, speech or new
+infrastructure. Risk: layout/focus and stale artwork, controlled by local tests,
+fresh idle native proof, exact candidate63 recovery and repeat native playback
+checks across distinct albums. Production and pending playlist cleanup excluded.
+Candidate64 has48 files, SHA
+`3b796b1feaa6e5914161b76a726d77e20e2a35d308b1e0f29bd1b8ba32adfcd7`.
+318 local tests pass before deployment; native acceptance pending.
+
+Candidate64 installed with verified exact candidate63 recovery at
+`/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/before-candidate64`,
+fresh `postcheck-1792878158035934004.json`, 48 members verified, no restart or
+profile change. The first test invocation preceded activation and refused on
+the absent new helper import, before any playback action; it was rerun only
+after installation. Native `native-controls-1792878227945073637.json` passes
+real Next, idle/playing append, staged Play preserving additions, icon order,
+two distinct playing-song album covers, hero Shuffle cancel/start/Next,
+holiday exclusion and Back cleanup. No server-playlist writes. Native 4K
+screenshot confirms both control rows centred below the scrubber, no overlap,
+and the correct Joni Mitchell album cover for the playing playlist song.
+320 local tests pass; repeat native/preservation acceptance follows.
+
+Independent repeat `native-controls-1792878276046110130.json` passes every gate,
+including distinct playlist album covers and idle/empty Back cleanup. Final
+`postcheck-1792878299198447451.json` verifies all48 candidate files, 141 unchanged
+v1 members, four player overlays, eight normal Music members, floating rail3,
+all68 AV/language settings, healthy database/zero missing primary artist links,
+no active player, empty queue, shuffle off and closed lab windows. Normal HP
+playback remains enabled; production and server playlists unchanged. 321 tests
+pass normally and under optimized Python, including row Up/Down, geometry,
+per-song cover caching, exact-ID cover resolution and missing-art fallback.
+Operator guide updated. Local commit only; Forgejo push awaits approval.

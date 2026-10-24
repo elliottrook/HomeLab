@@ -226,7 +226,7 @@ class RuntimeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as one,tempfile.TemporaryDirectory() as two:
             first=build(one);second=build(two)
             self.assertEqual(first['sha256'],second['sha256'])
-            self.assertEqual(len(first['files']),47)
+            self.assertEqual(len(first['files']),48)
             self.assertTrue(all(r['path'].startswith('script.astermusic.v2lab/') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_queue.py') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_album.py') for r in first['files']))
@@ -401,13 +401,13 @@ class RuntimeTests(unittest.TestCase):
         controls={offset+identity:Mock() for identity in range(400,408) for offset in (0,8000,9000,10000)}
         window.getControl=lambda identity:controls[identity]
         window.configure_controls(shuffle=True)
-        for identity in (400,404,405,406,407):
+        for identity in range(400,408):
             left,top=controls[identity].setPosition.call_args.args
             width=controls[identity].setWidth.call_args.args[0]
             self.assertGreaterEqual(left,170);self.assertLessEqual(left+width,700)
-            self.assertEqual(top,930);self.assertGreaterEqual(width,44)
+            self.assertEqual(top,1000 if identity in (401,402,403) else 930);self.assertGreaterEqual(width,44)
         self.assertEqual((controls[405].setPosition.call_args.args[0]+controls[407].setPosition.call_args.args[0]+64)/2,435)
-        self.assertGreater(controls[401].setPosition.call_args.args[0],controls[407].setPosition.call_args.args[0]+100)
+        self.assertEqual((controls[401].setPosition.call_args.args[0]+controls[403].setPosition.call_args.args[0]+64)/2,435)
         for identity in range(400,408):
             for offset in (8000,9000):
                 self.assertEqual(controls[offset+identity].setWidth.call_args.args,controls[offset+identity].setHeight.call_args.args)
@@ -438,6 +438,34 @@ class RuntimeTests(unittest.TestCase):
             self.assertEqual(data[:8],b'\x89PNG\r\n\x1a\n')
             self.assertEqual(struct.unpack('>II',data[16:24]),(256,256))
             self.assertTrue(source.with_suffix('.png').is_file())
+
+    def test_playing_song_cover_changes_and_is_cached_only_for_that_song(self):
+        window=self.runtime.AlbumLab()
+        with patch('music_art.song_album_art',side_effect=['album-a','album-b','missing']) as resolve:
+            window.refresh_song_art(7);self.assertEqual(window.props['Album.Art'],'album-a')
+            window.refresh_song_art(7);self.assertEqual(resolve.call_count,1)
+            window.refresh_song_art(8);self.assertEqual(window.props['Album.Art'],'album-b')
+            window.refresh_song_art(9);self.assertEqual(window.props['Album.Art'],'missing')
+
+    def test_both_control_rows_are_below_scrubber_without_caption_overlap(self):
+        window=self.runtime.AlbumLab();window.allowed=(1,)
+        controls={offset+identity:Mock() for identity in range(400,408) for offset in (0,8000,9000,10000)}
+        window.getControl=lambda identity:controls[identity];window.configure_controls()
+        root=ET.parse(HERE/'script.astermusic.v2lab/resources/skins/Default/1080i/AlbumLab.xml')
+        bar=root.find('.//control[@id="610"]');bar_bottom=int(bar.findtext('top'))+int(bar.findtext('height'))
+        for identity in range(400,408):
+            self.assertGreater(controls[identity].setPosition.call_args.args[1],bar_bottom)
+        for property_name in ('Album.ControlHint','Album.Help','Album.Status'):
+            caption=next(c for c in root.findall('.//control') if c.findtext('label')=='$INFO[Window.Property('+property_name+')]')
+            self.assertGreaterEqual(int(caption.findtext('left')),850)
+
+    def test_up_down_connects_centred_rows_in_both_players(self):
+        for player in (self.runtime.AlbumLab,self.runtime.ShuffleLab):
+            window=player();window.allowed=(1,);window.focused=400
+            action=Mock();action.getId.return_value=4;window.onAction(action)
+            self.assertEqual(window.focused,401)
+            action.getId.return_value=3;window.onAction(action)
+            self.assertEqual(window.focused,400)
 
     def test_floating_pause_and_seek_clicks_dispatch_to_existing_owned_session(self):
         window=self.runtime.ShuffleLab();window.control=Mock();window.paused=True

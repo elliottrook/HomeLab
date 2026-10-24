@@ -125,19 +125,20 @@ class AlbumLab(xbmcgui.WindowXML):
         self.control_worker=None;self.control_errors=[]
         self.display_ids=None;self.queue_view=False;self.rendered_queue=None
         self.marked_index=None
-        self.atmosphere=None
+        self.atmosphere=None;self.art_song=None
         self.control_labels={400:'Play / Pause',404:'Stop',407:'Next track',401:'Play Next',402:'Add to Queue',403:'Replace Queue',405:'Back 10 seconds',406:'Forward 10 seconds'}
 
     def configure_controls(self,shuffle=False):
         icons={400:'play',404:'stop',401:'page-back' if shuffle else 'current',
                402:'page-next' if shuffle else 'add',403:'current' if shuffle else 'replace',405:'back',406:'forward',407:'play-next'}
-        # Centre the complete transport group on the cover; separate queue tools.
-        slots={405:251,400:327,406:403,404:479,407:555,401:790,402:866,403:942} if self.allowed else {401:283,402:389,403:495}
+        # Both rows share the cover's centre; every action stays below the scrubber.
+        slots={405:251,400:327,406:403,404:479,407:555,401:327,402:403,403:479} if self.allowed else {401:283,402:389,403:495}
         width=64 if self.allowed else 76
         for identity,left in slots.items():
-            self.getControl(identity).setPosition(left,930);self.getControl(identity).setWidth(width)
-            for offset,size,top in ((8000,44,940),(9000,48,938),(10000,20,991)):
-                self.getControl(offset+identity).setPosition(left+(width-size)//2,top)
+            top=1000 if self.allowed and identity in (401,402,403) else 930
+            self.getControl(identity).setPosition(left,top);self.getControl(identity).setWidth(width)
+            for offset,size,y in ((8000,44,top+10),(9000,48,top+8),(10000,20,top+61)):
+                self.getControl(offset+identity).setPosition(left+(width-size)//2,y)
                 self.getControl(offset+identity).setWidth(size)
                 if offset!=10000:self.getControl(offset+identity).setHeight(size)
             self.setProperty('Album.Icon'+str(identity),str(ROOT/'resources'/'controls'/(icons[identity]+'.png')))
@@ -507,6 +508,14 @@ class AlbumLab(xbmcgui.WindowXML):
             colour=self.atmosphere.poll(self.getProperty('Album.Art'))
             if colour!=self.getProperty('Album.Tint'):self.setProperty('Album.Tint',colour)
 
+    def refresh_song_art(self,identity):
+        if identity==self.art_song:return
+        # The owned queue identifies the song; album metadata owns its cover.
+        # Never retain the previous album's cover on missing metadata.
+        from music_art import song_album_art
+        art=song_album_art(rpc,identity,ASSETS+ICONS['album'])
+        self.setProperty('Album.Art',art);self.art_song=identity
+
     def refresh(self):
         self.refresh_atmosphere()
         if self.control_worker:
@@ -531,6 +540,9 @@ class AlbumLab(xbmcgui.WindowXML):
             self.setProperty('Album.Icon400',str(ROOT/'resources'/'controls'/'play.png'))
             self.setProperty('Album.AudioDetails','');self.onFocus(self.getFocusId());return
         props=rpc('Player.GetProperties',{'playerid':0,'properties':['time','totaltime','speed']})
+        identity=state.song_ids[state.current_index]
+        item=rpc('Player.GetItem',{'playerid':0,'properties':[]}).get('item',{})
+        if item.get('type')=='song' and item.get('id')==identity:self.refresh_song_art(identity)
         if self.scrub and (self.scrub.queue_fingerprint!=state.fingerprint):self.cancel_scrub()
         if not self.scrub:
             try:
@@ -654,6 +666,8 @@ class AlbumLab(xbmcgui.WindowXML):
             index=buttons.index(control)
             if key==1:self.focus_control(buttons[max(0,index-1)])
             elif key==2:self.focus_control(buttons[min(len(buttons)-1,index+1)])
+            elif key==3 and self.allowed and control in (401,402,403):self.focus_control({401:400,402:406,403:404}[control])
+            elif key==4 and self.allowed and control in (405,400,406,404,407):self.focus_control({405:401,400:401,406:402,404:403,407:403}[control])
             elif key==3 and control==400:self.begin_scrub()
             elif key in (3,4):self.focus_control(600)
 
@@ -759,10 +773,7 @@ class ShuffleLab(AlbumLab):
                                if i in self.catalogue.artists and not (i==1 and self.catalogue.artists[i].get('label')=='[Missing Tag]')]
                         self.setProperty('Album.Title',song.get('label','Untitled'))
                         self.setProperty('Album.Count',(' / '.join(names) or 'Artist unavailable')+f' · {position+1:,} / {len(self.allowed):,}')
-                        try:
-                            art=rpc('AudioLibrary.GetSongDetails',{'songid':identity,'properties':['thumbnail']}).get('songdetails',{}).get('thumbnail')
-                            self.setProperty('Album.Art',art if isinstance(art,str) and art else ASSETS+ICONS['album'])
-                        except CatalogueUnavailable:pass
+                        self.refresh_song_art(identity)
                     if props.get('speed') in (0,1):
                         self.paused=props['speed']==0
                         if not self.control_worker:
@@ -888,9 +899,10 @@ class ShuffleLab(AlbumLab):
         elif control in buttons:
             if key in (1,2):self.focus_control(buttons[max(0,min(len(buttons)-1,buttons.index(control)+(1 if key==2 else -1)))])
             elif key==3:
-                if control==400:self.begin_scrub()
+                if control in (401,402,403):self.focus_control({401:400,402:406,403:404}[control])
+                elif control==400:self.begin_scrub()
                 else:self.focus_control(600)
-            elif key==4:self.focus_control(600)
+            elif key==4:self.focus_control({405:401,400:401,406:402,404:403,407:403}.get(control,600))
         elif control==600 and key==1:self.focus_control(400)
 
     def close(self):
