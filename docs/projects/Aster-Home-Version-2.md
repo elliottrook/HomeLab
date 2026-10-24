@@ -215,8 +215,16 @@ Current work produces no speech and introduces no live integration objects;
 Doctor/Beszel/NetBox/DNS/firewall/backup coverage remains unchanged. Git holds
 only aggregate counts, local prototype and tests, not a library export.
 
-Next safe action: local visual/focus prototypes using these real categories,
-then the bounded HP deployment/rollback proposal. M1 remains open until its
+Local visual/focus prototype completed under `services/kodi/v2/prototype/`,
+using existing supplied assets, flat controls and truthful preview-only actions.
+Ten focus-model checks and Chromium checks pass; the browser test covers assets,
+row-column restoration, immediate Music rail focus, hero entry, search, modal
+return and layout bounds. The inspected 1080p screenshot and reproduction
+instructions are included with the prototype. Eleven policy tests and three
+unchanged v1 package tests pass. Neither box was changed.
+
+Next safe action: owner visual/category-policy review, then the bounded HP
+implementation/deployment/rollback proposal. M1 remains open until its
 visual/focus and category-policy review gates pass. Do not begin a
 service-dependent live milestone without its immediate approval. Research basis:
 [original recommendations](../design/Aster-Home-v2-Recommendations.md),

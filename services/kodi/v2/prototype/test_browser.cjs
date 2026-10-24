@@ -1,0 +1,54 @@
+// Run with Playwright available in NODE_PATH. Only the local preview is contacted.
+const assert = require('node:assert/strict');
+const { chromium } = require('playwright');
+(async () => {
+  const url = process.argv[2] || 'http://127.0.0.1:8793/v2/prototype/';
+  assert.equal(new URL(url).hostname, '127.0.0.1');
+  const browser = await chromium.launch({headless:true});
+  try {
+    const page = await browser.newPage({viewport:{width:1920,height:1080}});
+    const errors = [], external = [];
+    page.on('pageerror', error => errors.push(error.message));
+    page.on('request', request => { if (new URL(request.url()).hostname !== '127.0.0.1') external.push(request.url()); });
+    await page.goto(url);
+    await page.waitForFunction(() => window.AsterPrototype);
+    assert.equal(await page.locator('.tile').count(),7);
+    assert.equal(await page.locator('img').evaluateAll(images => images.every(img => img.complete && img.naturalWidth > 0)),true);
+    const active = () => page.evaluate(() => ({area:document.activeElement.dataset.area,index:document.activeElement.dataset.index,id:document.activeElement.id}));
+    await page.locator('.tile').nth(3).focus();
+    await page.keyboard.press('ArrowDown');
+    assert.equal((await active()).index,'6');
+    await page.keyboard.press('ArrowUp');
+    assert.equal((await active()).index,'3');
+    await page.keyboard.press('ArrowUp');
+    assert.equal((await active()).id,'browse');
+    await page.locator('.tile').nth(4).focus();
+    await page.keyboard.press('ArrowLeft');
+    assert.deepEqual(await active(),{area:'rail',index:'2',id:''});
+    assert.equal(await page.locator('#rail').evaluate(el => el.classList.contains('expanded')),true);
+    await page.keyboard.press('Escape');
+    assert.equal((await active()).index,'4');
+    await page.locator('#search').fill('Christmas');
+    assert.equal(await page.locator('.tile').count(),1);
+    await page.locator('#search').fill('no such category');
+    assert.equal(await page.locator('#empty').isVisible(),true);
+    await page.locator('#clear').click();
+    assert.equal(await page.locator('.tile').count(),7);
+    await page.locator('#shuffle-all').click();
+    assert.match(await page.locator('#dialog-copy').textContent(),/16,348 eligible.*765 excluded/);
+    await page.keyboard.press('Escape');
+    assert.equal((await active()).id,'shuffle-all');
+    await page.locator('.tile').nth(2).click();
+    assert.equal(await page.locator('#dialog-title').textContent(),'Rock & Alternative');
+    await page.locator('#dialog-close').click();
+    assert.equal((await active()).index,'2');
+    const bounds = await page.evaluate(() => ({tiles:[...document.querySelectorAll('.tile')].map(el => el.getBoundingClientRect().bottom), footer:document.querySelector('footer').getBoundingClientRect().top}));
+    assert.ok(Math.max(...bounds.tiles) < bounds.footer - 8, JSON.stringify(bounds));
+    await page.locator('.tile').nth(0).focus();
+    if (process.env.ASTER_PREVIEW_PNG) await page.screenshot({path:process.env.ASTER_PREVIEW_PNG});
+    await page.setViewportSize({width:1280,height:720});
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),true);
+    assert.deepEqual(errors,[]); assert.deepEqual(external,[]);
+    console.log('Browser checks passed: assets, row/rail/hero focus, search, modal return, bounds, resize, no external requests.');
+  } finally { await browser.close(); }
+})().catch(error => { console.error(error); process.exitCode = 1; });

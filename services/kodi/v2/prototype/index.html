@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Aster v2 Music - local interaction prototype</title>
+  <link rel="stylesheet" href="prototype.css">
+  <script src="focus.cjs" defer></script>
+  <script src="prototype.js" defer></script>
+</head>
+<body>
+  <div id="viewport">
+    <main id="aster" aria-label="Aster Music local layout prototype">
+      <aside id="rail" aria-label="Aster sections">
+        <img class="rail-mark" src="../../skin.asterhome/media/aster-compass-128.png" alt="Aster">
+        <button data-area="rail" data-index="0" aria-label="Media"><img src="../../skin.asterhome/media/07-tv.png" alt=""><span>Media</span></button>
+        <button data-area="rail" data-index="1" aria-label="Books"><img src="../../skin.asterhome/media/21-books-app.png" alt=""><span>Books</span></button>
+        <button data-area="rail" data-index="2" aria-label="Music" aria-current="page"><img src="../../skin.asterhome/media/20-music-app.png" alt=""><span>Music</span></button>
+        <button data-area="rail" data-index="3" aria-label="Digest"><img src="../../skin.asterhome/media/04-news-digest.png" alt=""><span>Digest</span></button>
+        <button data-area="rail" data-index="4" aria-label="Home"><img src="../../skin.asterhome/media/02-home-hub.png" alt=""><span>Home</span></button>
+      </aside>
+      <header>
+        <img class="brand" src="../../skin.asterhome/media/29-aster-music-logo.png" alt="Aster Music">
+        <nav aria-label="Music views">
+          <button data-area="nav" data-index="0" data-page="Albums">Albums</button>
+          <button data-area="nav" data-index="1" data-page="Artists">Artists</button>
+          <button data-area="nav" data-index="2" data-page="Songs">Songs</button>
+          <button data-area="nav" data-index="3" data-page="Playlists">Playlists</button>
+          <button data-area="nav" data-index="4" data-page="Genres" aria-current="page">Genres</button>
+        </nav>
+        <span class="clock" aria-label="Prototype clock">20:24</span>
+      </header>
+      <section class="hero" aria-labelledby="hero-title">
+        <p class="eyebrow" id="hero-kicker">YOUR MUSIC / GENRES</p>
+        <h1 id="hero-title">Pop, Electronic &amp; Hip-Hop</h1>
+        <p class="hero-copy" id="hero-copy">4,308 tracks in this genre. Your library, without the clutter.</p>
+        <div class="hero-actions">
+          <button class="primary" data-area="hero" id="browse">Browse genre</button>
+          <button class="quiet" data-area="hero" id="shuffle-all">Shuffle all · no holiday music</button>
+        </div>
+        <p class="subtle">16,348 eligible tracks · excludes track and album holiday tags</p>
+        <img class="hero-mark" src="../../skin.asterhome/media/23-music-album.png" alt="">
+      </section>
+      <section class="library" aria-label="Music categories">
+        <div class="section-heading"><h2 id="grid-heading">Browse genres</h2><span id="grid-count">7 categories</span></div>
+        <div id="grid" role="group" aria-label="Genre tiles"></div>
+        <p id="empty" hidden>No matching categories. Clear the search to see your library.</p>
+      </section>
+      <section class="filters" aria-label="Search and filter">
+        <h2>Find your music</h2>
+        <label for="search">Search categories</label>
+        <input id="search" data-area="filters" type="search" autocomplete="off" placeholder="Search genres…">
+        <button class="quiet" data-area="filters" id="clear">Clear search</button>
+        <div class="filter-note"><span>Holiday music</span><strong>Still in your library</strong><p>Christmas stays browseable. It is excluded only from Shuffle all.</p></div>
+      </section>
+      <footer><span>LOCAL DESIGN PROTOTYPE · NO PLAYBACK OR LIBRARY CHANGES</span><span>Arrow keys · OK / Enter · Back / Escape</span></footer>
+      <dialog id="preview-dialog" aria-labelledby="dialog-title">
+        <p class="eyebrow">INTERACTION PREVIEW</p><h2 id="dialog-title"></h2><p id="dialog-copy"></p>
+        <button id="dialog-close" class="primary">Back to music</button>
+      </dialog>
+    </main>
+  </div>
+</body>
+</html>

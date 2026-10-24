@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-23 - Aster v2 local Music design prototype
+
+- Added an isolated, non-deployed seven-category Music layout using supplied
+  Aster assets and texture-free controls, with search and remote-focus preview.
+- Verified ten focus checks and Chromium interactions/layout; eleven shuffle
+  policy tests and three v1 packaging tests remain green. No client changes.
+- Retained visual/category review and bounded HP deployment as M1 gates.
+
 ## 2026-10-23 - Aster v2 M1 started
 
 - Started the scoped Stream M project with a complete read-only music

@@ -101,8 +101,18 @@ Remote focus contract:
 
 ## Gates and next work
 
-Inventory and pure policy tests are complete. M1 is not closed: build local
-visual/focus prototypes, confirm category/alias presentation and compile the
+Inventory and pure policy tests are complete. The isolated
+[visual/focus prototype](../../services/kodi/v2/prototype/README.md) now uses
+the supplied Aster assets, restrained texture-free controls, seven category
+tiles and an explicitly simulated non-holiday shuffle action. It makes no API
+or playback calls. Ten focus-model checks and Chromium interaction checks pass:
+short-row column restoration, rail entry with Music immediately focused,
+hero entry, search/empty/clear and modal return focus. All images load; lower
+tiles clear the footer at 1080p and proportional 720p has no horizontal overflow.
+The screenshot was visually reviewed. Eleven policy and three unchanged v1
+package tests also pass. Browser simulation is not live Kodi/G20 validation.
+
+M1 is not closed: confirm the visual/category/alias presentation and compile the
 bounded HP deployment/rollback proposal. No v2 code is installed on HP and no
 production change is authorized. Keep the v1.1 release manifest reproducible.
 Before actual playback tests, checkpoint affected queue and per-user state;
