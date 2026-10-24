@@ -50,13 +50,25 @@ def idle():
         raise
 
 
+normal='--normal' in sys.argv
+if '--open-album' in sys.argv:
+    _require(normal and idle(),'normal-idle-required')
+    until(lambda:focused(500) and label('Window.Property(Lab.View)')=='genres','Music genres')
+    view=read_catalogue(rpc);row=view.browse('Rock & Alternative','album',limit=4)['rows'][1]
+    press('right');until(lambda:focused(501),'second genre')
+    press('right');until(lambda:focused(502),'Rock genre');select()
+    until(lambda:focused(500) and label('Window.Property(Lab.View)')=='album','Rock albums')
+    press('right');until(lambda:focused(501),'verified album tile');select()
+    until(lambda:focused(600) and label('Window.Property(Album.Id)')==str(row['albumid']),'verified album player')
 _require((idle() and label('Window(Home).Property(AsterV2Lab.AlbumWindow)') and focused(600)), ('native-check-failed'))
 album_id=int(label('Window.Property(Album.Id)'));cat=read_catalogue(rpc)
 ids=read_album(rpc,album_id,[i for i,s in cat.songs.items() if s.get('albumid')==album_id]).song_ids
 _require((len(ids)==11), ('native-check-failed'))
 path=Path('/storage/.kodi/userdata/addon_data/script.astermusic.v2lab/live-trial.json')
-with path.open('x') as output:json.dump({'song_ids':ids,'queue_limit':20000,'expires_at':int(time.time())+900},output)
-path.chmod(0o600)
+if normal:_require(not path.exists(),'normal-without-engineering-grant')
+else:
+    with path.open('x') as output:json.dump({'song_ids':ids,'queue_limit':20000,'expires_at':int(time.time())+900},output)
+    path.chmod(0o600)
 completed=False
 try:
     press('back');until(lambda:not label('Window(Home).Property(AsterV2Lab.AlbumWindow)') and focused(501),'close read-only album')
@@ -80,20 +92,28 @@ try:
     until(lambda:label('Control.GetLabel(400)')=='Resume','album Play icon reflects paused state')
     subprocess.run(['kodi-send','--action=TakeScreenshot(/storage/.aster-staging/aster-floating-album-live.png)'],check=True,stdout=subprocess.DEVNULL)
     select();until(lambda:rpc('Player.GetProperties',{'playerid':0,'properties':['speed']})['speed']==1,'floating album Resume')
-    press('right');until(lambda:focused(404),'floating album Stop focus');select()
+    for identity in (406,404):
+        press('right');until(lambda:focused(identity),'floating album control '+str(identity))
+    select()
     until(lambda:idle() and 'stop completed' in label('Window.Property(Album.Status)'),'floating album Stop')
-    press('left');until(lambda:focused(400),'floating album Play focus');select();confirm()
+    for identity in (406,400):
+        press('left');until(lambda:focused(identity),'floating album control '+str(identity))
+    select();confirm()
     until(lambda:'play completed' in label('Window.Property(Album.Status)'),'restart album after explicit Stop')
     time.sleep(1.1);press('back')
     until(lambda:idle() and not label('Window(Home).Property(AsterV2Lab.AlbumWindow)') and focused(501),
           'Back stops full album and returns to originating album tile')
     completed=True
 finally:
-    path.unlink(missing_ok=True)
+    if normal:_require(not path.exists(),'normal-grant-remains-absent')
+    else:path.unlink(missing_ok=True)
     if not completed and label('Window(Home).Property(AsterV2Lab.AlbumWindow)'):
         press('back');time.sleep(5)
     _require((idle()), ('Recovery required; do not overwrite unexpected playback/queue'))
     print('Temporary grant removed; HP idle and original empty queue restored',flush=True)
     result=Path('/storage/.aster-checkpoints/aster-music-artist-repair-20261023')/('native-startup-'+str(time.time_ns())+'.json')
-    with result.open('x') as output:json.dump({'passed':completed,'floating_album_play_pause_resume_stop':completed,'original_queue_restored':True,'capability_removed':True,'transport':'in-process'},output)
+    with result.open('x') as output:json.dump({'passed':completed,'floating_album_play_pause_resume_stop':completed,'original_queue_restored':True,'capability_removed':True,'transport':'in-process','checks_enforced':True,'python_optimization':sys.flags.optimize,'normal_mode':normal},output)
     result.chmod(0o600)
+    if completed and '--open-album' in sys.argv:
+        press('back');until(lambda:label('Window.Property(Lab.View)')=='genres','return to Genres')
+        time.sleep(.4);press('back');until(lambda:not label('Window(Home).Property(AsterV2Lab.Window)'),'pilot closed')

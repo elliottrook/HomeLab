@@ -16,6 +16,14 @@
   Items 01-26 and 31-32 were selected; all unticked items are deferred.
 - HP (`192.168.1.140`) is the v2 lab. BOSGAME (`192.168.1.157`) stays on its
   accepted family-beta release until a separately approved promotion.
+- Current resume point (2026-10-24): HP isolated Music candidate58, 44 files,
+  SHA-256 `c1f42d9841170a02165b7ba9d6ed1710e424fe335f7768e465f4cd31e3709e18`;
+  candidate56 recovery retained. Lab test/restart authority reconfirmed by
+  Jason. Two native album queue-control passes, full 16,363-track fill,
+  durations, shared icon overlay, cached-art colour and progressive Home exit
+  revalidated with enforced checks, including startup cancellation/restart.
+  Normal-Music integration approval is pending; exact evidence/resume
+  instructions are at the end. M3 not graduated.
 - Up Next is urgent and extracted into the separate
   [v1.1 project](Aster-Home-Version-1.1-Up-Next.md); v2 consumes its accepted
   result, not another implementation or an excuse to delay it.
@@ -1595,3 +1603,106 @@ be checked, with neutral fallback if unavailable. Bound decode dimensions/file
 size and keep sampling off the GUI thread. Never export art URLs/credentials,
 read arbitrary paths, or duplicate a large cover behind the primary art.
 Local prototype files are not deployed/accepted until tests and native review.
+
+Shared overlay independent repeat `native-1792867682921967637.json` passes the
+same enforced four-page/synthetic-video checks, with no unexpected restart.
+
+### 2026-10-24 — cached-art atmosphere and restart validation
+
+Optional colour sampling is now HP candidate58 (44 files), SHA-256
+`c1f42d9841170a02165b7ba9d6ed1710e424fe335f7768e465f4cd31e3709e18`.
+Candidate57 was built but never deployed; candidate58 avoids redundant GUI
+property updates. Installer checkpoint is `before-candidate58`, retaining the
+exact accepted candidate56 ZIP/tree. No production, profile or service change.
+
+Palette is 92% existing stone, 8% sampled colour, no duplicate hero/cover image.
+Read only the exact current art's cached texture row and validated local
+thumbnail path; reject traversal/symlinks outside that root, >16MiB files and
+>16Mpixel headers before decode. No network image fetch, new dependency or URL
+logging/persistence. Existing native Pillow is available. One optional reader
+worker, at most three cache attempts per art, neutral fallback and bounded
+close; worker never calls GUI or player APIs. Native cached-art proof
+`atmosphere-1792867755858004444.json` samples in 0.055s, cache-only, no player/
+server writes. Property changes only when tint changes, avoiding redraw churn.
+
+`playlist-player-1792867793976196049.json` passes all four enforced control
+groups plus all 18 indexed/displayed durations on candidate58. Independent
+`song-artist-1792867847925951324.json` verifies actual GUI tint equals its
+current cached cover sample, no autoplay, Artist drilldown/Back, song playback,
+audio details, seek and exit. Native 4K screenshot inspected: subtle warm wash,
+clear text, square cover, floating controls and stable centred clock. No art
+URLs exported. 269 local tests pass, including stale-result denial, cache-only
+path protection, oversized-image pre-decode rejection, bounded retries and
+no redundant GUI property write.
+
+`native-ui-1792867921370488753.json` passes progressive queue paging, actual
+loaded-track GoTo/metadata, Pause/Resume, ±10s seeks, preview/cancel/apply,
+global Home stop/cancel/empty restoration under optimization1. Select-to-player
+1.101s, Pause0.721s, scrub apply1.835s, Home exit5.548s. Preservation
+`postcheck-1792867948801547833.json` verifies all 44/149+4/68/DB/idle/no-grant
+conditions. Read-only `readonly-audit-1792867949256795949.json` reconfirms all
+16 original playlists, content/order/access unchanged, both consumed trial
+playlists absent; no new server mutations.
+
+Using Jason's explicit lab restart authority, restarted Kodi idle for a normal
+persistence test: active PID12635, NRestarts0 after the deliberate restart;
+Jellyfin guard hash remains `21b93325b6ef9b50fdd3f5c48b273e12820f5a662ae534405dacdebcc15388fd`.
+Post-restart preservation requested. Next native startup-cancel test is
+`live_startup_cancel58.py,--in-process,--normal,--open-album`, with no temporary
+engineering grant. It opens the exact indexed album, checks the 11-track bound,
+cancels native startup progress, verifies cleanup, then Play/Pause/Resume/Stop/
+Play/Back. Do not claim a pass until its new `native-startup-*.json` result is
+read. No concurrent foreground player tests. M3 still needs final integration,
+physical remote/listening acceptance and soak; keep production held.
+
+Post-restart `postcheck-1792868049621379179.json` passes candidate58's complete
+44/149+4/68/DB/idle/no-grant checks. First startup run
+`native-startup-1792868126500352138.json` is explicitly **failed**: it reached
+Pause/Resume but the old harness assumed one Right from Play reached Stop;
+the new ±10s icon lies between them. Cleanup restored the original empty
+queue and removed no normal-profile capability. Updated navigation now visits
+Forward-seek then Stop, and crosses Forward-seek when returning to Play. No app
+mutation or queue-write retry was needed. Retest `live_startup_cancel58b.py`
+is active; wait for its distinct result before continuing foreground tests.
+
+Retest `native-startup-1792868199201684872.json` passes under normal mode and
+optimization1: cancellation cleanup, complete album Play/Pause/Resume, explicit
+Stop/empty, replay after Stop and Back restoring the source tile/empty queue.
+No engineering grant was created. Independent post-restart
+`song-artist-1792868351671719981.json` repeats the cached-cover GUI colour,
+artist/song/audio-details/scrub/exit checks successfully. Native 4K screenshot
+was visually reviewed; artwork proportions and floating controls remain intact.
+
+Fresh `shuffle-mode-1792868369364027035/results.json` passes duplicate-count
+preservation, same paused occurrence/clock, exact original-order restore,
+cancelled exit, and actual natural ending with idle shuffle Off/empty restored.
+Shuffle1.463s, restore0.427s. Source-local sanitized error count finds zero
+late-start Volume KeyErrors in the log since the planned restart. Fresh native
+synthetic callback proof `aster-jellyfin-late-start-20261024/check-1792868446434230527.json`
+again verifies the installed guard and normal callback path with no dependency
+writes. No claim that every scheduling race has been exhaustively reproduced.
+
+Final preservation `postcheck-1792868446406258949.json` passes all 44 candidate
+files, 149 untouched v1 files plus four approved overlays, 68 AV/language
+settings, healthy music DB/zero missing primary links, no windows/player/queue/
+grant, shuffle Off and retained approved normal profile. Kodi active PID12635,
+NRestarts0 since the deliberate persistence restart; earlier crash evidence
+retained. 269 v2 tests, 144 original v1 regressions and 10 focus-model checks
+pass. Backups and consumed trial evidence remain retained. Helper flags saying
+no server writes mean **no direct server playlist/library mutations**: normal
+Jellyfin playback/session reporting is expected during real audio tests. No
+manual watch-history edits were made and the 16 original server playlists were
+independently audited unchanged.
+
+Current gate: Jason's broad HP test/restart authority remains recorded. A
+separate request is pending for **persistent normal-Music integration**, outside
+the original isolated-addon/explicit-four-overlay envelope: checkpoint and wire
+the new player, Genres and non-holiday Shuffle into HP's existing Music pages,
+preserving its Recently Added front page. No main navigation files have yet
+changed. Await that choice before cutting over; production stays unchanged.
+If approved, first inspect current live navigation/dispatcher files, assess
+the minimal adapter and source-context recovery, checkpoint exact targets,
+then implement/test HP-only. Do not replace the home page with a genres-only
+pilot or bypass context/ownership checks. Physical G20/listening/soak and any
+production promotion remain separate gates. No Git push was requested here;
+focused local commits are retained pending explicit synchronization approval.

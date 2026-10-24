@@ -18,6 +18,7 @@ from music_catalogue import CatalogueUnavailable, read_catalogue
 from music_album import AlbumUnavailable, read_album
 from music_selection import SelectionUnavailable,read_song
 from music_audio import read_source,read_details
+from music_atmosphere import Atmosphere,DEFAULT as ATMOSPHERE_DEFAULT
 from music_playlists import PlaylistUnavailable,read_playlists,read_playlist,indexed_mapping,server_mapping
 from music_jellyfin import PlaylistReader,PlaylistCreator
 from music_shared_save import save_owned_queue
@@ -106,6 +107,7 @@ class AlbumLab(xbmcgui.WindowXML):
         self.control_worker=None;self.control_errors=[]
         self.display_ids=None;self.queue_view=False;self.rendered_queue=None
         self.marked_index=None
+        self.atmosphere=None
         self.control_labels={400:'Play / Pause',404:'Stop',401:'Play Next',402:'Add to Queue',403:'Replace Queue',405:'Back 10 seconds',406:'Forward 10 seconds'}
 
     def configure_controls(self,shuffle=False):
@@ -157,6 +159,12 @@ class AlbumLab(xbmcgui.WindowXML):
         self.setProperty('Album.Title',self.title)
         self.setProperty('Album.Id',str(self.selection.album_id))
         self.setProperty('Album.Art',self.artwork)
+        self.setProperty('Album.Tint',ATMOSPHERE_DEFAULT)
+        try:
+            import xbmcvfs
+            self.atmosphere=Atmosphere(xbmcvfs.translatePath('special://profile/Database/Textures13.db'),
+                xbmcvfs.translatePath('special://profile/Thumbnails/'))
+        except Exception:self.atmosphere=None
         self.setProperty('Album.AudioDetails','')
         self.setProperty('Album.Busy','false')
         self.setProperty('Album.ScrubMode','false');self.setProperty('Album.Playing','false')
@@ -452,7 +460,13 @@ class AlbumLab(xbmcgui.WindowXML):
         if target is not None:self.getControl(600).getListItem(target).setProperty('NowPlaying','true')
         self.marked_index=target
 
+    def refresh_atmosphere(self):
+        if self.atmosphere:
+            colour=self.atmosphere.poll(self.getProperty('Album.Art'))
+            if colour!=self.getProperty('Album.Tint'):self.setProperty('Album.Tint',colour)
+
     def refresh(self):
+        self.refresh_atmosphere()
         if self.control_worker:
             if self.control_worker.is_alive():return
             self.control_worker.join();self.control_worker=None;self.next_player_update=0
@@ -502,7 +516,9 @@ class AlbumLab(xbmcgui.WindowXML):
         except (TrialUnavailable,QueueUnavailable,ValueError):
             xbmcgui.Window(10000).setProperty('AsterV2Lab.TrialRecovery','required')
             xbmcgui.Dialog().notification('Music trial recovery required','Unexpected playback/queue state. Checkpoint retained; do not continue testing.')
-        finally:super().close()
+        finally:
+            if self.atmosphere:self.atmosphere.close()
+            super().close()
 
     def save_shared_queue(self,engine,snapshot):
         self.dialog_open=True
@@ -638,6 +654,7 @@ class ShuffleLab(AlbumLab):
         self.getControl(600).reset();self.getControl(600).addItems(rows)
 
     def refresh(self):
+        self.refresh_atmosphere()
         if self.control_worker and not self.control_worker.is_alive():
             self.control_worker.join();self.control_worker=None;self.next_player_update=0
             if self.control_errors:
@@ -842,7 +859,9 @@ class ShuffleLab(AlbumLab):
         except Exception:
             xbmcgui.Window(10000).setProperty('AsterV2Lab.TrialRecovery','required')
             xbmcgui.Dialog().notification('Music recovery required','Unexpected queue state. Checkpoint retained; stop testing.')
-        finally:xbmcgui.WindowXML.close(self)
+        finally:
+            if self.atmosphere:self.atmosphere.close()
+            xbmcgui.WindowXML.close(self)
 
 
 class MusicLab(xbmcgui.WindowXML):

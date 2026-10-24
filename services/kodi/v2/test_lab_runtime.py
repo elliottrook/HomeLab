@@ -189,7 +189,7 @@ class RuntimeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as one,tempfile.TemporaryDirectory() as two:
             first=build(one);second=build(two)
             self.assertEqual(first['sha256'],second['sha256'])
-            self.assertEqual(len(first['files']),43)
+            self.assertEqual(len(first['files']),44)
             self.assertTrue(all(r['path'].startswith('script.astermusic.v2lab/') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_queue.py') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_album.py') for r in first['files']))
@@ -456,6 +456,13 @@ class RuntimeTests(unittest.TestCase):
         window.setProperty('Album.ControlHint','Updating playback…')
         window.refresh()
         self.assertEqual(window.getProperty('Album.ControlHint'),'Play')
+
+    def test_art_colour_only_updates_when_changed(self):
+        window=self.runtime.AlbumLab();window.atmosphere=Mock()
+        window.atmosphere.poll.return_value='ffe0d9c9'
+        with patch.object(window,'setProperty',wraps=window.setProperty) as setter:
+            window.refresh_atmosphere();window.refresh_atmosphere()
+        setter.assert_called_once_with('Album.Tint','ffe0d9c9')
 
     def test_album_queue_clear_stops_owned_player_before_idle_clear(self):
         import threading

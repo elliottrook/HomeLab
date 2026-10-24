@@ -57,6 +57,13 @@ tab(102);song=view.browse('Rock & Alternative','song',limit=4)['rows'][0]
 select();until(lambda:label('Window.Property(Album.Id)')=='song-'+str(song['songid']) and focus(600),'single-song preview')
 _require((label('Window.Property(Album.Count)')=='1 song' and label('Window.Property(Album.Live)')==('true' if normal else 'false')), ('native-check-failed'))
 _require((idle()), ('native-check-failed'))
+if '--atmosphere' in sys.argv:
+    from music_atmosphere import sample
+    def tint_matches():
+        expected=sample(label('Window.Property(Album.Art)'),'/storage/.kodi/userdata/Database/Textures13.db','/storage/.kodi/userdata/Thumbnails')
+        return expected is not None and label('Window.Property(Album.Tint)')==expected
+    until(tint_matches,'visible colour matches cached cover')
+    xbmc.executebuiltin('TakeScreenshot(/storage/.aster-staging/song-atmosphere.png)')
 press('back');until(lambda:focus(500) and not label('Window(Home).Property(AsterV2Lab.AlbumWindow)'),'preview Back')
 xbmc.sleep(400)
 grant=Path('/storage/.kodi/userdata/addon_data/script.astermusic.v2lab/live-trial.json')
@@ -106,6 +113,7 @@ finally:
     path=root/('song-artist-'+str(time.time_ns())+'.json')
     path.write_text(json.dumps(dict(passed=passed,checks_enforced=True,python_optimization=sys.flags.optimize,
         normal_mode=normal,artist_drilldown_and_back=True,preview_does_not_autoplay=True,
+        cached_art_colour_verified='--atmosphere' in sys.argv,
         one_song_play_pause_resume=passed,source_audio_details=passed,audio_details_menu_preserves_pause=passed,
         scrub_preview_cancel_apply=passed and '--scrub-controls' in sys.argv,
         back_restores_origin_and_empty_queue=passed,capability_removed=True)))

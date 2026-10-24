@@ -1,6 +1,9 @@
 # Aster v2 M1 - music inventory and interaction contract
 
-Status: read-only Music pilot deployed on HP; owner native walkthrough pending, 2026-10-23. Governing project:
+Status: HP-only normal Music pilot with enforced playback/queue checks;
+physical remote/listening walkthrough and main-page integration pending,
+2026-10-24. Historical inventory/design evidence below is dated 2026-10-23;
+the project's latest evidence/resume point governs deployed state. Governing project:
 [Aster Home v2](../projects/Aster-Home-Version-2.md).
 
 ## Live inventory (read-only HP Kodi index)
@@ -112,11 +115,48 @@ tiles clear the footer at 1080p and proportional 720p has no horizontal overflow
 The screenshot was visually reviewed. Eleven policy and three unchanged v1
 package tests also pass. Browser simulation is not live Kodi/G20 validation.
 
-M1 is not closed: confirm the visual/category/alias presentation and compile the
-bounded HP deployment/rollback proposal. No v2 code is installed on HP and no
-production change is authorized. Keep the v1.1 release manifest reproducible.
-Before actual playback tests, checkpoint affected queue and per-user state;
-prefer disposable fixtures and restore measured test effects explicitly.
+Those were the initial read-only gates. The later approved HP pilot is now
+installed with normal playback, queue safeguards and explicit native checks;
+see the governing project's dated evidence rather than treating the earlier
+assert-dependent results as accepted proof. Physical remote/listening and final
+integration remain open. No production promotion is authorized.
+
+## Current HP pilot operator note — 2026-10-24
+
+Open **Add-ons → Program add-ons → Aster Music v2 Lab**. Normal Music navigation
+still uses v1; the pilot has not silently replaced the Recently Added front
+page. Existing Kodi/Jellyfin sign-in is used; no new login or API key.
+
+- Genres contains seven agreed groups. Christmas remains browseable; only
+  **Shuffle all · no holiday music** excludes track- or album-tagged holidays.
+- Albums/Playlists/Songs open the stripped-back player without autoplay.
+  Confirm initial Play or whole-library Shuffle. OK on an already queued track
+  changes to that exact occurrence; the green playing marker follows it.
+- Floating transport icons sit below the square cover. Up from Play/Pause
+  enters the seek bar: arrows preview, OK applies, Back cancels that preview.
+  The small double-arrow icons seek ten seconds.
+- Menu on a track offers Play, Play Next and Add to Queue. When the displayed
+  order is the actual owned queue, Remove targets that exact occurrence and
+  requires confirmation. The currently playing occurrence cannot be removed.
+- Menu on transport offers private Save, factual Audio details, Shuffle/restore
+  order and confirmed Stop-and-clear. Turn shuffle off before queue edits.
+  Save creates a **new private playlist under the signed-in account**, usable
+  on its other devices; it does not share with all household users or overwrite
+  existing playlists. A duplicate name or uncertain-save warning is a refusal,
+  not an invitation to retry automatically.
+- Back or Home stops owned playback and safely cancels background loading.
+  Exit can take several seconds while outstanding writes/stop callbacks finish.
+  Unrelated external playback is refused, never silently replaced.
+- Missing durations remain unknown; indexed durations are shown when present.
+  Source codec/sample-rate labels are not measurements of receiver output.
+  Subtle artwork colour uses only the existing local thumbnail cache; missing
+  cache/decoder falls back to neutral stone. No extra art is downloaded for it.
+
+If a recovery warning appears, stop testing and retain its checkpoint; do not
+clear/replay a queue that changed externally. Candidate58 and its exact recovery
+references are in the project record. Normal-navigation integration, physical
+G20/listening acceptance, longer soak and production promotion are separate
+remaining gates. No additional automated server create/delete trial is implied.
 
 ## Read-only catalogue adapter — 2026-10-23
 
