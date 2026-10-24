@@ -655,6 +655,12 @@ across case, manifest, health and completion data. Normal input passed while
 `NaN` and both infinities were rejected; the complete eval suite remained
 120/120. This preserves portable JSON semantics without executing a run or
 changing authority.
+The private journal now also enforces the investigation engine's
+[closed terminal-status vocabulary](evidence/D4-engine-status-vocabulary-boundary-2026-10-23.md).
+Invented, malformed and oversized transport-error statuses were rejected before
+a finished event, and the complete eval suite passed 121/121. This prevents a
+faulty injected engine from turning an unknown status into a completed session;
+it does not execute or qualify the holdout.
 
 ## Immediate next action and stop rule
 

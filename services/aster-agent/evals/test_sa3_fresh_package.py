@@ -93,6 +93,18 @@ class FreshPackageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'uncertain'):
             self.run_fixture()
 
+    def test_unknown_or_unbounded_status_is_not_journalled(self):
+        for status in ('looks_good', 'transport_error:Bad Value',
+                       'transport_error:' + 'x' * 129):
+            with self.subTest(status=status):
+                def invalid(case, mode, *args):
+                    return {'case_id': case['id'], 'mode': mode,
+                            'status': status, 'steps': []}
+                with self.assertRaisesRegex(ValueError, 'invalid engine result'):
+                    self.run_fixture(engine=invalid)
+                self.assertNotIn(status, self.path.read_text())
+                self.path.unlink()
+
     def test_tamper_or_partial_journal_rejected(self):
         self.run_fixture(ready=lambda: False)
         original = self.path.read_text()

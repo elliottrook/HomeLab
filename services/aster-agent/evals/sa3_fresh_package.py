@@ -9,11 +9,27 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 from sa3_investigation import investigate
 from validate_sa3_holdout_release import validate_release
 
 
 MAX_LEDGER_BYTES = 4 * 1024 * 1024
+ENGINE_STATUSES = frozenset({
+    'call_budget_exhausted',
+    'time_budget_exhausted',
+    'invalid_transport_response',
+    'invalid_transport_metadata',
+    'incomplete_or_tool_output',
+    'invalid_answer',
+    'effect_claim_rejected',
+    'unobserved_evidence_rejected',
+    'check_rejected',
+    'invalid_terminal_check',
+    'conclude',
+    'clarify',
+})
+TRANSPORT_ERROR = re.compile(r'^transport_error:[A-Za-z_][A-Za-z0-9_]{0,127}$')
 
 
 def digest(value):
@@ -85,7 +101,9 @@ def validate_engine_result(result, case_id, mode):
     if (not isinstance(result, dict) or not required <= set(result)
             or not set(result) <= allowed or result.get('case_id') != case_id
             or result.get('mode') != mode or not isinstance(result.get('status'), str)
-            or not result['status'] or not isinstance(result.get('steps'), list)):
+            or (result['status'] not in ENGINE_STATUSES
+                and TRANSPORT_ERROR.fullmatch(result['status']) is None)
+            or not isinstance(result.get('steps'), list)):
         raise ValueError('invalid engine result; manual reconciliation required')
     try:
         encoded = json.dumps(
