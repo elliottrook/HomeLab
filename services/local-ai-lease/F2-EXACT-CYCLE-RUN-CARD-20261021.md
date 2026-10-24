@@ -55,12 +55,12 @@ correction.
 |---|---|
 | `services/local-ai-lease/systemd/f2-preflight-prepare.service` | `48998c82799e39cd3f8c988c05c8d0eff73b7b63a2bd16325ef5a3cef5004e4c` |
 | `services/local-ai-lease/systemd/f2-preflight-final.service` | `dd7bb66a6575956ffe55056406b1082da25377cd802a5eaeec5f30aa6d2338c5` |
-| `scripts/local-ai/f2_scheduled_release_candidate.py` / proposed installed coordinator | `98b26e88fc17418f0f48dbf24aafb3b44b06069de5fec2d244b55e58d7adb425` |
+| `scripts/local-ai/f2_scheduled_release_candidate.py` / proposed installed coordinator | `9efe6e5dc1aafdbbff5c7caa2af390a31c9b1c9935220243cd371023cb21e8a1` |
 | Currently installed coordinator / rollback source | `aef623afc1754d4fab75e09fc4182773bc0a1db9a56d2379274fec3f0855cd23` |
-| `scripts/local-ai/test_f2_scheduled_release_candidate.py` | `863939328e7411ea9bff8c2b085af9e27a634b609e95ea63b32b5caa6378e8cf` |
+| `scripts/local-ai/test_f2_scheduled_release_candidate.py` | `5d07939244276d465636b01e97f34e14fd3797804fbbcd825dd545ae2fa52ddb` |
 | `scripts/local-ai/test_f2_exact_cycle_20261021.py` | `42230751765ab14e944a44ad928b996aa1044e04b68b7e81451af03b5597a7e3` |
-| `scripts/local-ai/f2_preflight_snapshot.py` | `a199e369b2a3843a911a3978b410b525db7f1c67a9a8a7878f86f4a829cf57d7` |
-| `scripts/local-ai/test_f2_preflight_snapshot.py` | `7502d7df0872850cb4f4f315ecc6ea5bfd2b49de1a241b47fdb5a5c8748f14c2` |
+| `scripts/local-ai/f2_preflight_snapshot.py` | `6340c29e91e03fa57ebe0d3404e9b36d2259b4ad10decb8c6c1412b7272cc684` |
+| `scripts/local-ai/test_f2_preflight_snapshot.py` | `f1217019bf7538014762f6586f88c5217e1e1bf5df6f5d3ab0212b78f5e9a5c0` |
 | `scripts/local-ai/f2_preflight_fixed_wrapper.py` | `0dbdbce56be6f72ada8df54dd28cfcda32f6494200ba97f4b40703496271ba9f` |
 | `scripts/local-ai/f2_observer_runner_candidate.py` | `27edca21a68dd9d575bbb6bd66a7b5787880f3bc590b8f6efe3457c40722aeb0` |
 | `scripts/local-ai/test_f2_observer_runner_candidate.py` | `c564f560a8c15b4f6d5876859a99b173d99a1c40b7c3a2e505b4ba4621cc38b8` |

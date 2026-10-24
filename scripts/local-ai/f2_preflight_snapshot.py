@@ -50,6 +50,14 @@ class F2PreflightError(ValueError):
     pass
 
 
+class F2FinalGuardError(F2PreflightError):
+    """Content-free classification for one final guard subcheck."""
+
+    def __init__(self, code: str, message: str):
+        super().__init__(message)
+        self.code = code
+
+
 @dataclass(frozen=True)
 class F2PreflightSnapshot:
     cycle: str
@@ -248,42 +256,42 @@ def final_guard(snapshot: F2PreflightSnapshot, *, runner: Runner,
     try:
         now_epoch = int(output.strip())
     except ValueError as exc:
-        raise F2PreflightError("trusted host clock is unavailable") from exc
+        raise F2FinalGuardError("FINAL_GUARD_CLOCK", "final guard clock is invalid") from exc
     if code != 0:
-        raise F2PreflightError("trusted host clock probe failed")
+        raise F2FinalGuardError("FINAL_GUARD_CLOCK", "final guard clock probe failed")
     local = datetime.fromtimestamp(now_epoch, ZoneInfo("America/Vancouver"))
     if local.strftime("%Y-%m-%d") != snapshot.cycle or local.hour * 60 + local.minute != FINAL_MINUTE:
-        raise F2PreflightError("F2 final guard is outside the exact 01:20 window")
+        raise F2FinalGuardError("FINAL_GUARD_WINDOW", "final guard is outside the exact 01:20 window")
     for command in (LOCK_ABSENCE, STATE_ABSENCE, RECEIPT_ABSENCE):
         code, _ = runner(command, 3.0)
         if code != 0:
-            raise F2PreflightError("F2 lease or receipt state is present")
+            raise F2FinalGuardError("FINAL_GUARD_LEASE_RECEIPT", "final guard lease or receipt state is present")
     if not coordinator.held:
-        raise F2PreflightError("fixed host exclusion is not held")
+        raise F2FinalGuardError("FINAL_GUARD_EXCLUSION", "final guard host exclusion is not held")
     code, status = runner(LEASE_STATUS, 3.0)
     try:
         lease_state = json.loads(status)
     except json.JSONDecodeError as exc:
-        raise F2PreflightError("current lease status is not JSON") from exc
+        raise F2FinalGuardError("FINAL_GUARD_LEASE_READY", "final guard lease status is invalid") from exc
     if code != 0 or not isinstance(lease_state, dict) or lease_state.get("state") != "ready":
-        raise F2PreflightError("current manual lease is not ready")
+        raise F2FinalGuardError("FINAL_GUARD_LEASE_READY", "final guard manual lease is not ready")
     code, _ = runner(QUIET_PROCESSES, 3.0)
     if code != 1:
-        raise F2PreflightError("backup, pull, scan or maintenance process is present")
+        raise F2FinalGuardError("FINAL_GUARD_QUIET_PROCESSES", "final guard competing process is present")
     code, output = runner(LOADAVG, 3.0)
     try:
         load_1 = float(output.split()[0])
     except (ValueError, IndexError) as exc:
-        raise F2PreflightError("host load probe is invalid") from exc
+        raise F2FinalGuardError("FINAL_GUARD_LOAD", "final guard host load is invalid") from exc
     if code != 0 or load_1 > 8.0:
-        raise F2PreflightError("host load is unsuitable for F2")
+        raise F2FinalGuardError("FINAL_GUARD_LOAD", "final guard host load is unsuitable")
     for path, expected_pin in expected_pins.items():
         code, output = runner(("sha256sum", path), 3.0)
         if code != 0 or not output.startswith(expected_pin + "  "):
-            raise F2PreflightError("installed F2 identity does not match")
+            raise F2FinalGuardError("FINAL_GUARD_INSTALLED_PIN", "final guard installed identity differs")
     if not snapshot.archive_identity_verified or not snapshot.lease_ready:
-        raise F2PreflightError("preflight snapshot is incomplete")
+        raise F2FinalGuardError("FINAL_GUARD_SNAPSHOT_FLAGS", "final guard snapshot flags are incomplete")
     if type(now_epoch) is not int or now_epoch < snapshot.captured_epoch:
-        raise F2PreflightError("preflight clock moved backwards")
+        raise F2FinalGuardError("FINAL_GUARD_CLOCK_MONOTONIC", "final guard clock moved backwards")
     if now_epoch - snapshot.captured_epoch > FRESHNESS_SECONDS:
-        raise F2PreflightError("preflight snapshot is stale")
+        raise F2FinalGuardError("FINAL_GUARD_FRESHNESS", "final guard snapshot is stale")

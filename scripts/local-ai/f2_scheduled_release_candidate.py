@@ -22,7 +22,7 @@ from zoneinfo import ZoneInfo
 
 from f2_preflight_fixed_wrapper import (capture_fixed_preflight,
                                         run_fixed_final_guard)
-from f2_preflight_snapshot import CLOCK, F2PreflightError
+from f2_preflight_snapshot import CLOCK, F2FinalGuardError, F2PreflightError
 
 LOCAL_ZONE = ZoneInfo("America/Vancouver")
 STATE_ROOT = Path("/var/lib/local-ai-lab/f2-scheduled")
@@ -44,6 +44,17 @@ FAILURE_CLASSES = frozenset({
     "OBSERVER_OUTPUT_INVALID",
     "OBSERVER_PROJECTION_INVALID",
     "FINAL_GUARD_SUBCHECK_FAILED",
+    "FINAL_GUARD_CLOCK",
+    "FINAL_GUARD_WINDOW",
+    "FINAL_GUARD_LEASE_RECEIPT",
+    "FINAL_GUARD_EXCLUSION",
+    "FINAL_GUARD_LEASE_READY",
+    "FINAL_GUARD_QUIET_PROCESSES",
+    "FINAL_GUARD_LOAD",
+    "FINAL_GUARD_INSTALLED_PIN",
+    "FINAL_GUARD_SNAPSHOT_FLAGS",
+    "FINAL_GUARD_CLOCK_MONOTONIC",
+    "FINAL_GUARD_FRESHNESS",
     "OBSERVER_LAUNCH_FAILED",
     "OBSERVER_COMMUNICATION_FAILED",
     "OBSERVER_EXIT_NONZERO",
@@ -261,6 +272,8 @@ def final(runner: Callable, *, popen=subprocess.run,
             raise ScheduledF2Error("prepared state is absent or not exact")
         try:
             run_fixed_final_guard(runner)
+        except F2FinalGuardError as exc:
+            raise FinalSubcheckError(exc.code, "final guard subcheck failed") from exc
         except Exception as exc:
             raise FinalSubcheckError("FINAL_GUARD_SUBCHECK_FAILED",
                                      "final guard subcheck failed") from exc

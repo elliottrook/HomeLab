@@ -6,12 +6,13 @@ from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from f2_preflight_snapshot import (CLOCK, F2Coordinator, F2PreflightError, LOADAVG,
+from f2_preflight_snapshot import (CLOCK, F2Coordinator, F2FinalGuardError, F2PreflightError, LOADAVG,
                                    LEASE_STATUS, LOCK_ABSENCE, PVE_ARTIFACTS,
                                    PVE_JOB, QUIET_PROCESSES, RECEIPT_ABSENCE,
                                    STATE_ABSENCE, TRUENAS_MIRROR, TRUENAS_TASKS,
                                    collect_snapshot, final_guard, read_snapshot,
                                    write_snapshot)
+from dataclasses import replace
 
 
 class F2PreflightSnapshotTests(unittest.TestCase):
@@ -122,6 +123,62 @@ class F2PreflightSnapshotTests(unittest.TestCase):
             with self.subTest(minute=minute), self.assertRaisesRegex(F2PreflightError, "exact 01:20"):
                 with tempfile.TemporaryDirectory() as tmp, F2Coordinator(Path(tmp)) as coordinator:
                     final_guard(snapshot, runner=guard_at(minute), expected_pins={"/pin": "pin"}, coordinator=coordinator)
+
+    def test_final_guard_reports_each_bounded_subcheck(self):
+        snapshot = collect_snapshot(self.runner(), cycle="2026-10-19",
+                                    lease_issued_epoch=self.epoch(4, 0),
+                                    captured_epoch=self.epoch(1, 15))
+
+        def good(command, timeout):
+            if command == CLOCK: return 0, str(self.epoch(1, 20))
+            if command in (LOCK_ABSENCE, STATE_ABSENCE, RECEIPT_ABSENCE): return 0, ""
+            if command == LEASE_STATUS: return 0, '{"state":"ready"}'
+            if command == QUIET_PROCESSES: return 1, ""
+            if command == LOADAVG: return 0, "1.0 0.5 0.2 1/100 1\n"
+            if command == ("sha256sum", "/pin"): return 0, "pin  /pin\n"
+            raise AssertionError(command)
+
+        cases = (
+            ("clock", lambda command: command == CLOCK, "FINAL_GUARD_CLOCK"),
+            ("lease-receipt", lambda command: command == LOCK_ABSENCE, "FINAL_GUARD_LEASE_RECEIPT"),
+            ("lease-ready", lambda command: command == LEASE_STATUS, "FINAL_GUARD_LEASE_READY"),
+            ("quiet-processes", lambda command: command == QUIET_PROCESSES, "FINAL_GUARD_QUIET_PROCESSES"),
+            ("load", lambda command: command == LOADAVG, "FINAL_GUARD_LOAD"),
+            ("installed-pin", lambda command: command == ("sha256sum", "/pin"), "FINAL_GUARD_INSTALLED_PIN"),
+        )
+        for name, matches, expected in cases:
+            def failing(command, timeout, matches=matches):
+                if matches(command):
+                    if command == LEASE_STATUS: return 0, "not-json"
+                    if command == LOADAVG: return 0, "not-a-load"
+                    if command == ("sha256sum", "/pin"): return 0, "wrong  /pin\n"
+                    if command == LOCK_ABSENCE: return 1, ""
+                    return 0, ""
+                return good(command, timeout)
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as tmp, F2Coordinator(Path(tmp)) as coordinator:
+                with self.assertRaises(F2FinalGuardError) as caught:
+                    final_guard(snapshot, runner=failing, expected_pins={"/pin": "pin"}, coordinator=coordinator)
+                self.assertEqual(caught.exception.code, expected)
+
+        with self.assertRaises(F2FinalGuardError) as caught:
+            final_guard(snapshot, runner=good, expected_pins={"/pin": "pin"}, coordinator=F2Coordinator(Path(tempfile.mkdtemp())))
+        self.assertEqual(caught.exception.code, "FINAL_GUARD_EXCLUSION")
+
+        with tempfile.TemporaryDirectory() as tmp, F2Coordinator(Path(tmp)) as coordinator:
+            with self.assertRaises(F2FinalGuardError) as caught:
+                final_guard(replace(snapshot, archive_identity_verified=False), runner=good,
+                            expected_pins={"/pin": "pin"}, coordinator=coordinator)
+            self.assertEqual(caught.exception.code, "FINAL_GUARD_SNAPSHOT_FLAGS")
+        with tempfile.TemporaryDirectory() as tmp, F2Coordinator(Path(tmp)) as coordinator:
+            with self.assertRaises(F2FinalGuardError) as caught:
+                final_guard(replace(snapshot, captured_epoch=self.epoch(1, 21)), runner=good,
+                            expected_pins={"/pin": "pin"}, coordinator=coordinator)
+            self.assertEqual(caught.exception.code, "FINAL_GUARD_CLOCK_MONOTONIC")
+        with tempfile.TemporaryDirectory() as tmp, F2Coordinator(Path(tmp)) as coordinator:
+            with self.assertRaises(F2FinalGuardError) as caught:
+                final_guard(replace(snapshot, captured_epoch=self.epoch(1, 10)), runner=good,
+                            expected_pins={"/pin": "pin"}, coordinator=coordinator)
+            self.assertEqual(caught.exception.code, "FINAL_GUARD_FRESHNESS")
 
     def test_missing_or_failed_chain_fails_closed(self):
         def bad(command, timeout):
