@@ -11,6 +11,102 @@ from test_music_trial import FakePlayer
 
 
 class ExpandedTests(unittest.TestCase):
+    def test_shuffle_allows_bounded_paused_clock_reporting_jitter_not_restart(self):
+        trial=self.make(3);trial.play([1,2,3],confirmed=True);trial.pause(False)
+        original=trial.rpc;count=[0]
+        def jitter(method,params):
+            result=original(method,params)
+            if method=='Player.GetProperties' and 'time' in params['properties']:
+                result['time']=dict(hours=0,minutes=0,seconds=25,milliseconds=(0,10,5,20)[count[0]%4]);count[0]+=1
+            return result
+        trial.rpc=jitter
+        trial.set_shuffle(True,expected_queue=trial.observe().fingerprint,confirmed=True)
+        self.assertTrue(trial.shuffled);trial.close()
+
+    def test_shuffle_refuses_clock_still_advancing_before_any_mode_write(self):
+        trial=self.make(3);trial.play([1,2,3],confirmed=True);trial.pause(False)
+        original=trial.rpc
+        def drifting(method,params):
+            if method=='Player.GetProperties' and 'time' in params['properties']:self.player.elapsed+=300
+            return original(method,params)
+        trial.rpc=drifting;start=len(self.player.calls)
+        with self.assertRaisesRegex(TrialUnavailable,'paused-clock-not-stable'):
+            trial.set_shuffle(True,expected_queue=trial.observe().fingerprint,confirmed=True)
+        self.assertFalse(trial.shuffle_uncertain)
+        self.assertFalse(any(m=='Player.SetShuffle' for m,p in self.player.calls[start:]));trial.close()
+
+    def test_shuffle_clock_reset_is_sticky_and_never_retried(self):
+        trial=self.make(3);trial.play([1,2,3],confirmed=True);trial.pause(False);original=trial.rpc
+        def reset(method,params):
+            result=original(method,params)
+            if method=='Player.SetShuffle':self.player.elapsed=0
+            return result
+        trial.rpc=reset
+        with self.assertRaisesRegex(TrialUnavailable,'clock-changed'):
+            trial.set_shuffle(True,expected_queue=trial.observe().fingerprint,confirmed=True)
+        self.assertTrue(trial.shuffle_uncertain)
+        self.assertEqual(sum(m=='Player.SetShuffle' for m,p in self.player.calls),1)
+    def test_native_shuffle_round_trip_preserves_exact_paused_duplicate_and_order(self):
+        trial=self.make(3);trial.play([1,2,1,3,2],confirmed=True)
+        self.player.position=2;trial.pause(False);before=trial.observe();start=len(self.player.calls)
+        shuffled=trial.set_shuffle(True,expected_queue=before.fingerprint,confirmed=True)
+        self.assertEqual(shuffled.song_ids,(2,3,1,2,1));self.assertEqual(shuffled.current_index,2)
+        self.assertEqual(self.player.speed,0);self.assertEqual(self.player.elapsed,25000)
+        for edit in (lambda:trial.edit('append',[1]),lambda:trial.remove(0,expected_queue=shuffled.fingerprint)):
+            with self.assertRaisesRegex(TrialUnavailable,'turn-shuffle-off'):edit()
+        restored=trial.set_shuffle(False,expected_queue=shuffled.fingerprint,confirmed=True)
+        self.assertEqual(restored,before)
+        writes=[m for m,p in self.player.calls[start:] if m.startswith(('Playlist.','Player.')) and m not in
+                ('Playlist.GetItems','Player.GetProperties','Player.GetItem','Player.GetActivePlayers')]
+        self.assertEqual(writes,['Player.SetShuffle','Player.SetShuffle'])
+        trial.close()
+
+    def test_shuffle_confirmation_stale_or_external_mode_denies_without_mutation(self):
+        trial=self.make(3);trial.play([1,2,3],confirmed=True);state=trial.observe();start=len(self.player.calls)
+        with self.assertRaisesRegex(TrialUnavailable,'confirmation'):trial.set_shuffle(True,expected_queue=state.fingerprint)
+        with self.assertRaisesRegex(TrialUnavailable,'stale'):trial.set_shuffle(True,expected_queue='stale',confirmed=True)
+        self.player.shuffled=True
+        with self.assertRaisesRegex(TrialUnavailable,'external-player-mode'):trial.set_shuffle(True,expected_queue=state.fingerprint,confirmed=True)
+        self.assertFalse(any(m=='Player.SetShuffle' for m,p in self.player.calls[start:]))
+        self.player.shuffled=False;trial.close()
+
+    def test_exit_restores_shuffle_mode_even_when_cancelled_before_owned_stop(self):
+        trial=self.make(3);trial.play([1,2,3],confirmed=True)
+        trial.set_shuffle(True,expected_queue=trial.observe().fingerprint,confirmed=True)
+        trial.cancel.set();start=len(self.player.calls);trial.close()
+        writes=[m for m,p in self.player.calls[start:] if m in ('Player.SetShuffle','Player.Stop','Playlist.Clear')]
+        self.assertEqual(writes,['Player.SetShuffle','Player.Stop','Playlist.Clear'])
+        self.assertFalse(self.player.shuffled);self.assertEqual(self.player.ids,[])
+
+    def test_uncertain_shuffle_is_not_retried_or_accepted(self):
+        trial=self.make(3);trial.play([1,2,3],confirmed=True);original=trial.rpc
+        def fail(method,params):
+            if method=='Player.SetShuffle':raise OSError('unknown')
+            return original(method,params)
+        trial.rpc=fail
+        with self.assertRaisesRegex(TrialUnavailable,'uncertain'):
+            trial.set_shuffle(True,expected_queue=trial.observe().fingerprint,confirmed=True)
+        self.assertFalse(trial.shuffled)
+        with self.assertRaisesRegex(TrialUnavailable,'recovery-required'):trial.pause(False)
+        with self.assertRaisesRegex(TrialUnavailable,'recovery-required'):trial.close()
+
+    def test_ended_shuffled_player_restores_mode_without_reopening(self):
+        for vendor_cleared in (False,True):
+            trial=self.make(3);trial.play([1,2,3],confirmed=True)
+            trial.set_shuffle(True,expected_queue=trial.observe().fingerprint,confirmed=True)
+            self.player.position=None
+            if vendor_cleared:self.player.ids=[]
+            start=len(self.player.calls);trial.cancel.set();trial.close()
+            self.assertFalse(self.player.shuffled);self.assertEqual(self.player.ids,[])
+            self.assertFalse(any(m in ('Player.Open','Player.Stop') for m,p in self.player.calls[start:]))
+
+    def test_ended_shuffle_never_clears_foreign_nonempty_queue(self):
+        trial=self.make(3);trial.play([1,2,3],confirmed=True)
+        trial.set_shuffle(True,expected_queue=trial.observe().fingerprint,confirmed=True)
+        self.player.position=None;self.player.ids=[2];start=len(self.player.calls)
+        with self.assertRaisesRegex(TrialUnavailable,'external-queue-change'):trial.close()
+        self.assertEqual(self.player.ids,[2]);self.assertTrue(self.player.shuffled)
+        self.assertFalse(any(m in ('Playlist.Clear','Player.SetShuffle') for m,p in self.player.calls[start:]))
     def make(self,n=430,**kwargs):
         self.player=FakePlayer();self.journal=[]
         self.trial=ExpandedTrial(self.player,list(range(1,n+1)),lambda s:True,

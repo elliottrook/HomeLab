@@ -1,6 +1,12 @@
 """Approved HP-only UI smoke test; requires the lab already open. No playback/queue writes."""
+
+
+def _require(condition,message="native-check-failed"):
+    """Unlike assert, this check remains active in Kodi optimized Python."""
+    if not condition:raise AssertionError(message)
+
 from pathlib import Path
-assert Path("/etc/hostname").read_text().strip()=="AsterTV", "HP lab only"
+_require((Path("/etc/hostname").read_text().strip()=="AsterTV"), ("HP lab only"))
 import codecs,json,socket,subprocess,time
 def rpc(method,params=None):
     with socket.create_connection(('127.0.0.1',9090),timeout=20) as s:
@@ -15,7 +21,7 @@ def rpc(method,params=None):
                 except ValueError:break
                 raw=raw[end:]
                 if r.get('id')==1:
-                    assert 'error' not in r,r.get('error')
+                    _require(('error' not in r), (r.get('error')))
                     return r['result']
 def until(check,description,seconds=12):
     end=time.monotonic()+seconds
@@ -32,11 +38,11 @@ def press(name,target=None):
     if target is not None:until(lambda:focused(target),'focus '+str(target))
 def prop(name):
     window=rpc('XBMC.GetInfoLabels',{'labels':['Window(Home).Property(AsterV2Lab.Window)']})['Window(Home).Property(AsterV2Lab.Window)']
-    assert window.isdigit(), 'Launch the HP Music lab before testing'
+    _require((window.isdigit()), ('Launch the HP Music lab before testing'))
     key='Window('+window+').Property(Lab.'+name+')'
     return rpc('XBMC.GetInfoLabels',{'labels':[key]})[key]
 def dispatch():subprocess.run(['kodi-send','--action=RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)'],check=True,stdout=subprocess.DEVNULL)
-assert not rpc('Player.GetActivePlayers')
+_require((not rpc('Player.GetActivePlayers')), ('native-check-failed'))
 queue_before=rpc('Playlist.GetItems',{'playlistid':0})
 until(lambda:focused(500),'initial genre focus')
 press('right',501);press('right',502);press('right',503)
@@ -45,11 +51,11 @@ press('left',502);press('left',501);press('left',500);press('left',9007);press('
 press('right',501);press('right',502)
 dispatch()
 until(lambda:prop('Heading')=='Rock & Alternative / Albums' and focused(500),'G20 dispatcher opens genre Albums')
-assert prop('Count')=='283 albums'
+_require((prop('Count')=='283 albums'), ('native-check-failed'))
 press('up',200);press('up',104);press('left',103);press('left',102);press('left',101)
 dispatch()
 until(lambda:prop('Heading')=='Rock & Alternative / Artists' and focused(500),'Artists category view')
-assert prop('Count')=='138 artists'
+_require((prop('Count')=='138 artists'), ('native-check-failed'))
 press('right',501);press('right',502);press('right',503);press('right',300)
 dispatch()
 until(lambda:rpc('XBMC.GetInfoLabels',{'labels':['System.CurrentWindow']})['System.CurrentWindow'] in ('Keyboard','Virtual keyboard'),'search keyboard')
@@ -68,11 +74,11 @@ dispatch()
 until(lambda:'progress' in rpc('XBMC.GetInfoLabels',{'labels':['System.CurrentWindow']})['System.CurrentWindow'].lower(),'refresh progress')
 press('back')
 until(lambda:'cancelled' in prop('Status').lower() and focused(302),'cancelled refresh retains previous catalogue')
-assert prop('Count')=='7 categories'
+_require((prop('Count')=='7 categories'), ('native-check-failed'))
 dispatch()
 until(lambda:prop('Status')=='Complete catalogue refreshed' and focused(302),'successful explicit refresh')
 press('back')
 until(lambda:rpc('XBMC.GetInfoLabels',{'labels':['System.CurrentWindow']})['System.CurrentWindow']=='Home','Back returns to ordinary Aster')
-assert not rpc('Player.GetActivePlayers')
-assert rpc('Playlist.GetItems',{'playlistid':0})==queue_before
+_require((not rpc('Player.GetActivePlayers')), ('native-check-failed'))
+_require((rpc('Playlist.GetItems',{'playlistid':0})==queue_before), ('native-check-failed'))
 print('PASS no playback or music queue change',flush=True)

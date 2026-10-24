@@ -2,6 +2,15 @@
 from dataclasses import dataclass,replace
 import re
 from music_queue import QueueSnapshot
+from music_trial import TrialUnavailable
+
+
+def clock_milliseconds(value):
+    if (not isinstance(value,dict) or set(value)!={'hours','minutes','seconds','milliseconds'}
+            or any(type(value[key]) is not int or not 0<=value[key]<=limit
+                   for key,limit in (('hours',167),('minutes',59),('seconds',59),('milliseconds',999)))):
+        raise TrialUnavailable('playback-clock-unavailable')
+    return ((value['hours']*60+value['minutes'])*60+value['seconds'])*1000+value['milliseconds']
 
 
 @dataclass(frozen=True)

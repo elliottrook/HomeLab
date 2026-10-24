@@ -13,6 +13,7 @@ class FakePlayer:
     def __init__(self):
         self.ids=[];self.position=None;self.speed=0;self.calls=[]
         self.elapsed=25000;self.duration=180000;self.canseek=True
+        self.shuffled=False;self.original=None
     def __call__(self,method,p):
         self.calls.append((method,p))
         if method=='Player.GetActivePlayers':return [] if self.position is None else [{'playerid':0,'type':'audio'}]
@@ -20,7 +21,7 @@ class FakePlayer:
             def clock(value):
                 seconds,milliseconds=divmod(value,1000);minutes,seconds=divmod(seconds,60);hours,minutes=divmod(minutes,60)
                 return dict(hours=hours,minutes=minutes,seconds=seconds,milliseconds=milliseconds)
-            return dict(playlistid=0,position=self.position,speed=self.speed,shuffled=False,repeat='off',
+            return dict(playlistid=0,position=self.position,speed=self.speed,shuffled=self.shuffled,repeat='off',
                         canseek=self.canseek,time=clock(self.elapsed),totaltime=clock(self.duration))
         if method=='Player.GetItem':return {'item':{'type':'song','id':self.ids[self.position]}}
         if method=='Playlist.GetItems':
@@ -36,6 +37,13 @@ class FakePlayer:
         elif method=='Player.Open':self.position=p['item']['position'];self.speed=1
         elif method=='Player.Stop':self.position=None;self.speed=0
         elif method=='Player.PlayPause':self.speed=1 if p['play'] else 0
+        elif method=='Player.SetShuffle':
+            if p['shuffle']:
+                self.original=tuple(self.ids);self.ids.reverse();self.position=len(self.ids)-1-self.position
+            else:
+                self.ids=list(self.original) if self.ids else []
+                if self.position is not None:self.position=len(self.ids)-1-self.position
+            self.shuffled=p['shuffle']
         elif method=='Player.Seek':
             if 'seconds' in p['value']:self.elapsed+=p['value']['seconds']*1000
             else:self.elapsed=int(self.duration*p['value']['percentage']/100)
@@ -44,6 +52,12 @@ class FakePlayer:
 
 
 class TrialTests(unittest.TestCase):
+    def test_shuffle_guard_requires_explicit_boolean_and_owned_audio_player(self):
+        validate_write('Player.SetShuffle',dict(playerid=0,shuffle=True),{1},queue_limit=3)
+        for params in (dict(playerid=True,shuffle=True),dict(playerid=1,shuffle=False),
+                       dict(playerid=0,shuffle='toggle'),dict(playerid=0,shuffle=1),
+                       dict(playerid=0,shuffle=True,extra=True)):
+            with self.assertRaises(TrialUnavailable):validate_write('Player.SetShuffle',params,{1})
     def test_normal_mode_is_an_explicit_hp_only_nonsecret_profile_setting(self):
         with tempfile.TemporaryDirectory() as folder:
             path=Path(folder)/'normal.json'

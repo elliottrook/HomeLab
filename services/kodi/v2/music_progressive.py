@@ -4,15 +4,7 @@ import threading
 from music_queue import QueueSnapshot,identities
 from music_trial import TrialUnavailable
 from music_expanded_trial import TrialCancelled
-from music_scrub import ScrubPreview
-
-
-def clock_milliseconds(value):
-    if (not isinstance(value,dict) or set(value)!={'hours','minutes','seconds','milliseconds'}
-            or any(type(value[key]) is not int or not 0<=value[key]<=limit
-                   for key,limit in (('hours',167),('minutes',59),('seconds',59),('milliseconds',999)))):
-        raise TrialUnavailable('playback-clock-unavailable')
-    return ((value['hours']*60+value['minutes'])*60+value['seconds'])*1000+value['milliseconds']
+from music_scrub import ScrubPreview,clock_milliseconds
 
 
 def clock_label(value):
@@ -174,6 +166,18 @@ class ProgressiveSession:
                 return state
         finally:self.control_pending.clear()
 
+    def set_shuffle(self,enabled,*,expected_queue,confirmed=False):
+        self.control_pending.set()
+        try:
+            with self.engine.lock:
+                self.editable()
+                previous=self.engine.intent;self.engine.intent=self.original_intent
+                try:state=self.engine.set_shuffle(enabled,expected_queue=expected_queue,confirmed=confirmed)
+                finally:self.engine.intent=previous
+                self.selected=state.song_ids;self.record(state,status='shuffled' if enabled else 'ordered')
+                return state
+        finally:self.control_pending.clear()
+
     def clear(self,*,expected_queue,confirmed=False):
         if confirmed is not True:raise TrialUnavailable('clear-confirmation-required')
         self.control_pending.set()
@@ -236,5 +240,8 @@ class ProgressiveSession:
             if self.worker:
                 if self.worker is threading.current_thread():raise TrialUnavailable('cannot-join-own-writer')
                 self.worker.join()
-            self.engine.close()
+            previous=self.engine.intent
+            if self.engine.shuffled:self.engine.intent=self.original_intent
+            try:self.engine.close()
+            finally:self.engine.intent=previous
             self.update(closed=True,phase='closed')

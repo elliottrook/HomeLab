@@ -1,9 +1,15 @@
 """HP-only read-only playlist shape inventory; never exports paths/tokens."""
+
+
+def _require(condition,message="native-check-failed"):
+    """Unlike assert, this check remains active in Kodi optimized Python."""
+    if not condition:raise AssertionError(message)
+
 import importlib.util,json,os,sys,time,sqlite3
 from pathlib import Path
 from urllib.parse import urlsplit,parse_qs
 import xbmc,xbmcgui,xbmcvfs
-assert os.uname().nodename=='AsterTV'
+_require((os.uname().nodename=='AsterTV'), ('native-check-failed'))
 sys.dont_write_bytecode=True
 sys.path.insert(0,'/storage/.kodi/addons/skin.asterhome/tools')
 import music_data
@@ -11,11 +17,11 @@ import music_data
 
 def rpc(method,params):
     result=json.loads(xbmc.executeJSONRPC(json.dumps(dict(jsonrpc='2.0',id=1,method=method,params=params))))
-    assert 'error' not in result,'native-read-failed'
+    _require(('error' not in result), ('native-read-failed'))
     return result['result']
 
 
-assert not rpc('Player.GetActivePlayers',{})
+_require((not rpc('Player.GetActivePlayers',{})), ('native-check-failed'))
 rows,total=music_data.playlist_query(xbmc,xbmcgui,xbmcvfs)
 summary=[]
 connection=sqlite3.connect('file:/storage/.kodi/userdata/Database/jellyfin.db?mode=ro',uri=True)

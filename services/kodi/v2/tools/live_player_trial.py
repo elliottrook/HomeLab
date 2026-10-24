@@ -4,26 +4,32 @@ Requires verified private baseline/selection from the pre-trial checkpoint.
 Writes only a temporary local capability; all media actions go through the UI.
 Finally removes that capability and requests native Back cleanup on failure.
 """
+
+
+def _require(condition,message="native-check-failed"):
+    """Unlike assert, this check remains active in Kodi optimized Python."""
+    if not condition:raise AssertionError(message)
+
 import codecs,json,os,socket,subprocess,time
 from pathlib import Path
-assert os.uname().nodename=='AsterTV','HP only'
+_require((os.uname().nodename=='AsterTV'), ('HP only'))
 
 
 def rpc(method,params=None):
-    assert method in {'XBMC.GetInfoLabels','XBMC.GetInfoBooleans','Input.ExecuteAction',
-                      'Player.GetActivePlayers','Player.GetProperties','Player.GetItem','Playlist.GetItems'}
+    _require((method in {'XBMC.GetInfoLabels','XBMC.GetInfoBooleans','Input.ExecuteAction',
+                      'Player.GetActivePlayers','Player.GetProperties','Player.GetItem','Playlist.GetItems'}), ('native-check-failed'))
     with socket.create_connection(('127.0.0.1',9090),timeout=20) as connection:
         connection.sendall((json.dumps({'jsonrpc':'2.0','id':1,'method':method,'params':params or {}})+'\n').encode())
         raw='';decoder=codecs.getincrementaldecoder('utf-8')()
         while True:
-            part=connection.recv(65536);assert part,'RPC closed';raw+=decoder.decode(part)
+            part=connection.recv(65536);_require((part), ('RPC closed'));raw+=decoder.decode(part)
             while raw.strip():
                 raw=raw.lstrip()
                 try:reply,end=json.JSONDecoder().raw_decode(raw)
                 except ValueError:break
                 raw=raw[end:]
                 if reply.get('id')==1:
-                    assert 'error' not in reply,'RPC failed'
+                    _require(('error' not in reply), ('RPC failed'))
                     return reply['result']
 
 
@@ -45,8 +51,8 @@ def select():
     subprocess.run(['kodi-send','--action=RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)'],check=True,stdout=subprocess.DEVNULL)
 def queue():
     result=rpc('Playlist.GetItems',{'playlistid':0})
-    items=result.get('items',[]);assert result['limits']['total']==len(items)
-    assert all(row.get('type')=='song' for row in items)
+    items=result.get('items',[]);_require((result['limits']['total']==len(items)), ('native-check-failed'))
+    _require((all(row.get('type')=='song' for row in items)), ('native-check-failed'))
     return [row['id'] for row in items]
 def current():return rpc('Player.GetItem',{'playerid':0,'properties':[]}).get('item',{}).get('id')
 def props():return rpc('Player.GetProperties',{'playerid':0,'properties':['speed','time']})
@@ -62,18 +68,18 @@ def options():until(lambda:label('Control.GetLabel(1)')=='This track','track act
 
 root=Path('/storage/.aster-checkpoints/aster-music-live-trial-20261023')
 selection=json.loads((root/'trial-selection.json').read_text());ids=selection['song_ids']
-assert label('Window(Home).Property(AsterV2Lab.AlbumWindow)') and focused(600),'Start on the verified album screen'
-assert label('Window.Property(Album.Id)')==str(selection['album_id']),'Verified trial album required'
-assert len(ids)==3 and len(set(ids))==3 and all(type(i) is int and i>0 for i in ids)
+_require((label('Window(Home).Property(AsterV2Lab.AlbumWindow)') and focused(600)), ('Start on the verified album screen'))
+_require((label('Window.Property(Album.Id)')==str(selection['album_id'])), ('Verified trial album required'))
+_require((len(ids)==3 and len(set(ids))==3 and all(type(i) is int and i>0 for i in ids)), ('native-check-failed'))
 baseline=json.loads((root/'queue-baseline.json').read_text())
-assert baseline['limits']['total']==0 and not baseline.get('items')
-assert not rpc('Player.GetActivePlayers') and queue()==[]
+_require((baseline['limits']['total']==0 and not baseline.get('items')), ('native-check-failed'))
+_require((not rpc('Player.GetActivePlayers') and queue()==[]), ('native-check-failed'))
 directory=Path('/storage/.kodi/userdata/addon_data/script.astermusic.v2lab')
 directory.mkdir(mode=0o700,parents=True,exist_ok=True);directory.chmod(0o700)
 path=directory/'live-trial.json'
 data=json.dumps({'song_ids':ids,'expires_at':int(time.time())+1200}).encode()
 with path.open('xb') as output:output.write(data)
-path.chmod(0o600);assert path.read_bytes()==data
+path.chmod(0o600);_require((path.read_bytes()==data), ('native-check-failed'))
 completed=False
 try:
     press('back');until(lambda:not label('Window(Home).Property(AsterV2Lab.AlbumWindow)'),'close preview album')
@@ -81,22 +87,22 @@ try:
     press('left',400);select()
     until(lambda:label('Control.GetLabel(1)')=='Play music','Play confirmation appears before writes')
     press('back');until(lambda:focused(400),'cancel Play restores focus')
-    assert not rpc('Player.GetActivePlayers') and queue()==[]
+    _require((not rpc('Player.GetActivePlayers') and queue()==[]), ('native-check-failed'))
     print('PASS cancelled Play leaves queue and playback untouched',flush=True)
     press('up',600);select();options();select();confirm('Play music')
     until(lambda:bool(rpc('Player.GetActivePlayers')) and current()==ids[0],'first approved song playing')
     until(lambda:seconds()>=1,'real player time advances')
-    assert queue()==[ids[0]]
+    _require((queue()==[ids[0]]), ('native-check-failed'))
     press('left',400);select();until(lambda:props()['speed']==0,'native Pause')
     select();until(lambda:props()['speed']==1,'native Resume')
     resumed=seconds()
     press('up',600);press('down');press('down');select();options()
     press('down');press('down');select()
     until(lambda:queue()==[ids[0],ids[2]],'Add third song preserves current track')
-    assert current()==ids[0]
+    _require((current()==ids[0]), ('native-check-failed'))
     press('up');select();options();press('down');select()
     until(lambda:queue()==ids,'Play Next inserts second song before existing third')
-    assert current()==ids[0] and seconds()>=resumed
+    _require((current()==ids[0] and seconds()>=resumed), ('native-check-failed'))
     print('PASS current item and clock retained through append/insert',flush=True)
     press('left',400);press('right',404);select()
     until(lambda:not rpc('Player.GetActivePlayers'),'native Stop')
@@ -106,10 +112,10 @@ try:
     until(lambda:queue()==ids,'repopulate three-song idle queue for replacement test')
     press('right',403);select()
     until(lambda:label('Control.GetLabel(1)')=='Replace Queue','Replace confirmation')
-    press('back');until(lambda:focused(403),'cancel Replace restores focus');assert queue()==ids
+    press('back');until(lambda:focused(403),'cancel Replace restores focus');_require((queue()==ids), ('native-check-failed'))
     select();confirm('Replace Queue')
-    until(lambda:focused(403),'confirmed replacement completes');assert queue()==ids
-    assert not rpc('Player.GetActivePlayers')
+    until(lambda:focused(403),'confirmed replacement completes');_require((queue()==ids), ('native-check-failed'))
+    _require((not rpc('Player.GetActivePlayers')), ('native-check-failed'))
     print('PASS replacement never auto-starts music',flush=True)
     press('left',402);press('left',401);press('left',404);press('left',400)
     select();confirm('Play music')
@@ -121,7 +127,7 @@ try:
     until(lambda:not rpc('Player.GetActivePlayers') and queue()==[],'Back stops trial and restores original empty queue')
     until(lambda:not label('Window(Home).Property(AsterV2Lab.AlbumWindow)') and focused(501),
           'Back finishes native close and restores original album tile')
-    assert not label('Window(Home).Property(AsterV2Lab.TrialRecovery)')
+    _require((not label('Window(Home).Property(AsterV2Lab.TrialRecovery)')), ('native-check-failed'))
     completed=True
 finally:
     if not completed:
@@ -130,9 +136,9 @@ finally:
         for _ in range(4):
             if not label('Window(Home).Property(AsterV2Lab.AlbumWindow)'):break
             press('back');time.sleep(1)
-    assert path.read_bytes()==data,'Do not remove a changed capability'
+    _require((path.read_bytes()==data), ('Do not remove a changed capability'))
     path.unlink()  # Exact temporary three-song capability; checkpoints retained.
     print('Temporary live capability removed',flush=True)
-assert not rpc('Player.GetActivePlayers') and queue()==[],'Recovery required before any further test'
+_require((not rpc('Player.GetActivePlayers') and queue()==[]), ('Recovery required before any further test'))
 select();until(lambda:label('Window.Property(Album.Live)')=='false' and focused(600),'returns to default read-only album')
 print('PASS approved three-song trial complete; checkpoint retained, no live capability remains',flush=True)

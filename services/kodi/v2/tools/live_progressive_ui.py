@@ -1,8 +1,14 @@
 """HP native Select/Pause/Back workflow, in-process, no bulk TCP client."""
+
+
+def _require(condition,message="native-check-failed"):
+    """Unlike assert, this check remains active in Kodi optimized Python."""
+    if not condition:raise AssertionError(message)
+
 import json,os,subprocess,sys,time
 from pathlib import Path
 import xbmc
-assert os.uname().nodename=='AsterTV'
+_require((os.uname().nodename=='AsterTV'), ('native-check-failed'))
 normal='--normal' in sys.argv
 sys.path.insert(0,'/storage/.kodi/addons/script.astermusic.v2lab/resources/lib')
 from music_catalogue import read_catalogue
@@ -10,7 +16,7 @@ from queue_reader import QueueUnavailable,read_queue
 
 def rpc(method,params=None):
     r=json.loads(xbmc.executeJSONRPC(json.dumps({'jsonrpc':'2.0','id':1,'method':method,'params':params or {}})))
-    assert 'error' not in r,'native-rpc-failed'
+    _require(('error' not in r), ('native-rpc-failed'))
     return r['result']
 def label(key):return rpc('XBMC.GetInfoLabels',{'labels':[key]})[key]
 def focus(i):return rpc('XBMC.GetInfoBooleans',{'booleans':[f'Control.HasFocus({i})']})[f'Control.HasFocus({i})']
@@ -32,11 +38,11 @@ def elapsed():
     value=rpc('Player.GetProperties',{'playerid':0,'properties':['time']})['time']
     return value['hours']*3600+value['minutes']*60+value['seconds']+value['milliseconds']/1000
 
-assert idle()
+_require((idle()), ('native-check-failed'))
 until(lambda:focus(500),'Start on Music genres')
 view=read_catalogue(rpc)
 path=Path('/storage/.kodi/userdata/addon_data/script.astermusic.v2lab/live-trial.json')
-if normal:assert not path.exists()
+if normal:_require((not path.exists()), ('native-check-failed'))
 else:
     with path.open('x') as f:json.dump({'song_ids':sorted(view.songs),'queue_limit':20000,'expires_at':int(time.time())+900},f)
     path.chmod(0o600)
@@ -61,7 +67,7 @@ try:
         press('right');until(lambda:focus(target),'Queue button '+str(target))
     until(lambda:focus(402),'Next page button');select()
     until(lambda:'201' in label('Window.Property(Album.TrackHeading)'),'Queue next page')
-    assert rpc('Player.GetItem',{'playerid':0,'properties':[]})['item']['id']==before
+    _require((rpc('Player.GetItem',{'playerid':0,'properties':[]})['item']['id']==before), ('native-check-failed'))
     press('right');until(lambda:focus(403),'Current button');select()
     until(lambda:'Queue · 1–' in label('Window.Property(Album.TrackHeading)'),'Current returns to first queue page')
     press('up');until(lambda:focus(600),'Current queue row')
@@ -82,25 +88,25 @@ try:
         press('right');until(lambda:focus(406),'Forward ten seconds control');select()
         until(lambda:abs(elapsed()-(before_seek+10))<1,'Forward ten seconds while paused')
         until(lambda:label('Control.GetLabel(400)')=='Resume','Forward control completed')
-        assert speed()==0 and rpc('Player.GetItem',{'playerid':0,'properties':[]})['item']['id']==chosen
+        _require((speed()==0 and rpc('Player.GetItem',{'playerid':0,'properties':[]})['item']['id']==chosen), ('native-check-failed'))
         press('left');until(lambda:focus(400),'Return through play control')
         press('left');until(lambda:focus(405),'Backward control');select()
         until(lambda:abs(elapsed()-before_seek)<1,'Backward ten seconds while paused')
         until(lambda:label('Control.GetLabel(400)')=='Resume','Backward control completed')
-        assert speed()==0 and rpc('Player.GetItem',{'playerid':0,'properties':[]})['item']['id']==chosen
-        assert ' / ' in label('Window.Property(Album.Clock)') and '—' not in label('Window.Property(Album.Clock)')
+        _require((speed()==0 and rpc('Player.GetItem',{'playerid':0,'properties':[]})['item']['id']==chosen), ('native-check-failed'))
+        _require((' / ' in label('Window.Property(Album.Clock)') and '—' not in label('Window.Property(Album.Clock)')), ('native-check-failed'))
         press('right');until(lambda:focus(400),'Seek returns to pause control')
         until(lambda:label('Window.Property(Album.ControlHint)')=='Resume','Focused icon caption follows pause control')
         metrics['native_seek_both_directions_preserves_paused_song']=True
     if '--scrub-controls' in sys.argv:
         before_scrub=elapsed();item=rpc('Player.GetItem',{'playerid':0,'properties':[]})['item']['id']
-        assert speed()==0
+        _require((speed()==0), ('native-check-failed'))
         press('up');until(lambda:focus(611) and label('Window.Property(Album.ScrubMode)')=='true','Scrub bar focus')
         prior=label('Window.Property(Album.Clock)');press('right')
         until(lambda:label('Window.Property(Album.Clock)')!=prior,'Right previews five seconds')
-        assert abs(elapsed()-before_scrub)<.5 and speed()==0
+        _require((abs(elapsed()-before_scrub)<.5 and speed()==0), ('native-check-failed'))
         press('back');until(lambda:focus(400) and label('Window.Property(Album.ScrubMode)')=='false','Back cancels only preview')
-        assert abs(elapsed()-before_scrub)<.5 and label('Window(Home).Property(AsterV2Lab.AlbumWindow)')
+        _require((abs(elapsed()-before_scrub)<.5 and label('Window(Home).Property(AsterV2Lab.AlbumWindow)')), ('native-check-failed'))
         press('up');until(lambda:focus(611),'Scrub again')
         for _ in range(2):
             prior=label('Window.Property(Album.Clock)');press('right')
@@ -109,17 +115,17 @@ try:
         apply_start=time.monotonic();select()
         until(lambda:abs(elapsed()-(before_scrub+10))<1 and speed()==0,'OK applies one paused seek')
         until(lambda:focus(400) and label('Control.GetLabel(400)')=='Resume','Scrub returns to transport')
-        assert rpc('Player.GetItem',{'playerid':0,'properties':[]})['item']['id']==item
+        _require((rpc('Player.GetItem',{'playerid':0,'properties':[]})['item']['id']==item), ('native-check-failed'))
         metrics['native_scrub_preview_cancel_and_commit_preserves_paused_song']=True
         metrics['native_scrub_apply_seconds']=round(time.monotonic()-apply_start,3)
     subprocess.run(['kodi-send','--action=TakeScreenshot(/storage/.aster-staging/aster-progressive-player-candidate26.png)'],check=True,stdout=subprocess.DEVNULL)
-    assert 'queued' in label('Window.Property(Album.Status)')
+    _require(('queued' in label('Window.Property(Album.Status)')), ('native-check-failed'))
     exit_start=time.monotonic()
     if '--home-exit' in sys.argv:
         rpc('Input.Home')
         until(lambda:idle() and not label('Window(Home).Property(AsterV2Lab.AlbumWindow)') and label('System.CurrentWindow')=='Home','Global Home stops and cancels')
         xbmc.sleep(1000)
-        assert label('System.CurrentWindow')=='Home','Home must remain visible after cleanup'
+        _require((label('System.CurrentWindow')=='Home'), ('Home must remain visible after cleanup'))
     else:
         press('back')
         until(lambda:not rpc('Player.GetActivePlayers'),'Audio stops before final cleanup')
@@ -130,11 +136,12 @@ try:
     metrics['exit_kind']='home' if '--home-exit' in sys.argv else 'back'
     passed=True
 finally:
-    if normal:assert not path.exists()
+    if normal:_require((not path.exists()), ('native-check-failed'))
     else:path.unlink(missing_ok=True)
     if not passed:
         press('back');xbmc.sleep(5000)
-    assert idle(),'Unexpected queue/player retained; stop testing'
+    _require((idle()), ('Unexpected queue/player retained; stop testing'))
     p=Path('/storage/.aster-checkpoints/aster-music-progressive-20261024')/('native-ui-'+str(time.time_ns())+'.json')
-    with p.open('x') as f:json.dump({'passed':passed,'normal_mode':normal,'metrics':metrics,'grant_removed':True,'empty_queue_restored':True},f)
+    with p.open('x') as f:json.dump({'passed':passed,'checks_enforced':True,'python_optimization':sys.flags.optimize,
+        'normal_mode':normal,'metrics':metrics,'grant_removed':True,'empty_queue_restored':True},f)
     p.chmod(0o600)

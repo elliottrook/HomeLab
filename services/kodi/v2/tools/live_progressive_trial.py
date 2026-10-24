@@ -1,8 +1,14 @@
 """HP-only in-process progressive trial; samples briefly, pauses during fill."""
+
+
+def _require(condition,message="native-check-failed"):
+    """Unlike assert, this check remains active in Kodi optimized Python."""
+    if not condition:raise AssertionError(message)
+
 import hashlib,json,os,sys,time
 from pathlib import Path
 import xbmc
-assert os.uname().nodename=='AsterTV'
+_require((os.uname().nodename=='AsterTV'), ('native-check-failed'))
 sys.dont_write_bytecode=True
 sys.path.insert(0,'/storage/.kodi/addons/script.astermusic.v2lab/resources/lib')
 from music_catalogue import read_catalogue
@@ -31,14 +37,14 @@ def seconds():
     return t['hours']*3600+t['minutes']*60+t['seconds']+t['milliseconds']/1000
 
 
-assert not rpc('Player.GetActivePlayers') and not snapshot().song_ids
+_require((not rpc('Player.GetActivePlayers') and not snapshot().song_ids), ('native-check-failed'))
 root=Path('/storage/.aster-checkpoints/aster-music-progressive-20261024')
 root.mkdir(mode=0o700,exist_ok=True)
 run=root/('run-'+str(time.time_ns()));run.mkdir(mode=0o700)
 baseline=snapshot();save_empty_checkpoint(run/'baseline.json',baseline)
 catalogue=read_catalogue(rpc);allowed=frozenset(catalogue.songs)
 ids=nonholiday_shuffle(list(catalogue.songs.values()),list(catalogue.albums.values()),expected_total=len(allowed),seed=20261023)
-assert 25<len(ids)<=20000 and set(ids)==set(catalogue.shuffle_summary['eligible_ids'])
+_require((25<len(ids)<=20000 and set(ids)==set(catalogue.shuffle_summary['eligible_ids'])), ('native-check-failed'))
 expiry=time.monotonic()+1800
 private(run/'grant.json',{'song_ids':sorted(allowed),'queue_limit':20000,'expires_at':int(time.time())+1800})
 def transport(method,params):
@@ -65,9 +71,9 @@ for name in ('exit-during-fill','complete-fill'):
         first=time.monotonic()-start
         sample();session.pause(False)
         if name=='exit-during-fill':
-            assert session.status()['loaded']<len(ids) and session.status()['writer_active']
+            _require((session.status()['loaded']<len(ids) and session.status()['writer_active']), ('native-check-failed'))
             exit_start=time.monotonic();session.close()
-            assert not session.status()['writer_active'] and snapshot()==baseline and not rpc('Player.GetActivePlayers')
+            _require((not session.status()['writer_active'] and snapshot()==baseline and not rpc('Player.GetActivePlayers')), ('native-check-failed'))
             results.append({'test':name,'first_player_seconds':round(first,3),'exit_seconds':round(time.monotonic()-exit_start,3),'passed':True})
         else:
             marker=0;deadline=time.monotonic()+900
@@ -77,16 +83,16 @@ for name in ('exit-during-fill','complete-fill'):
                 if bucket>marker:
                     marker=bucket;private(run/('progress-'+str(state['loaded'])+'.json'),state)
                 xbmc.sleep(100)
-            assert session.status()['phase']=='ready',session.status()['error']
-            assert snapshot().song_ids==ids
+            _require((session.status()['phase']=='ready'), (session.status()['error']))
+            _require((snapshot().song_ids==ids), ('native-check-failed'))
             old=seconds();session.pause(True)
             deadline=time.monotonic()+10
             while seconds()<old+1:
-                assert time.monotonic()<deadline;xbmc.sleep(50)
+                _require((time.monotonic()<deadline), ('native-check-failed'));xbmc.sleep(50)
             results.append({'test':name,'first_player_seconds':round(first,3),'fill_seconds':round(time.monotonic()-start,3),
                 'tracks':len(ids),'excluded':catalogue.shuffle_summary['excluded'],
                 'order_sha256':hashlib.sha256(json.dumps(ids).encode()).hexdigest(),'passed':True})
     finally:
         session.close()
-        assert not rpc('Player.GetActivePlayers') and snapshot()==baseline
+        _require((not rpc('Player.GetActivePlayers') and snapshot()==baseline), ('native-check-failed'))
 private(run/'results.json',{'results':results,'original_queue_restored':True,'transport':'in-process'})

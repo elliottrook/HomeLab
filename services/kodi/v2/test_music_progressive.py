@@ -245,6 +245,21 @@ class ProgressiveTests(unittest.TestCase):
         self.assertEqual(self.journal[-1][0].song_ids,(2,3,4))
         self.assertEqual(session.status()['loaded'],3);session.close()
 
+    def test_ready_shuffle_updates_queue_order_and_exit_restores_native_mode(self):
+        session=self.make(4);session.start([1,2,1,4],confirmed=True);session.worker.join();session.pause(False)
+        state=session.engine.observe()
+        shuffled=session.set_shuffle(True,expected_queue=state.fingerprint,confirmed=True)
+        self.assertEqual(session.selected,shuffled.song_ids);self.assertEqual(session.selected,(4,1,2,1))
+        self.assertEqual(self.player.speed,0);self.assertEqual(session.status()['phase'],'ready')
+        session.close();self.assertFalse(self.player.shuffled);self.assertEqual(self.player.ids,[])
+
+    def test_loading_shuffle_refuses_without_a_mode_write(self):
+        session=self.make(3);session.start([1,2,3],confirmed=True);session.worker.join()
+        session.update(phase='loading');start=len(self.player.calls)
+        with self.assertRaisesRegex(TrialUnavailable,'queue-still-loading'):
+            session.set_shuffle(True,expected_queue=self.engine.observe().fingerprint,confirmed=True)
+        self.assertFalse(any(m=='Player.SetShuffle' for m,p in self.player.calls[start:]));session.close()
+
     def test_queue_edit_during_loading_is_explicitly_refused(self):
         session=self.make(3);session.start([1,2,3],confirmed=True);session.worker.join()
         session.update(phase='loading')

@@ -4,6 +4,12 @@ Kodi 21.3 MusicDatabase.cpp uses artist 1 / Artist Tag Missing when a song
 has no artist credits. This restores only those missing required relations.
 Live use requires stopped Kodi, private verified SQLite backup and a dry run.
 """
+
+
+def _require(condition,message="native-check-failed"):
+    """Unlike assert, this check remains active in Kodi optimized Python."""
+    if not condition:raise AssertionError(message)
+
 import hashlib
 import json
 import sqlite3
@@ -15,7 +21,7 @@ MISSING="""SELECT s.idSong FROM song s WHERE
 
 def digest(connection,table):
     # Hash every original field, including history, without exporting its data.
-    assert table.replace('_','').isalnum()
+    _require((table.replace('_','').isalnum()), ('native-check-failed'))
     columns=[r[1] for r in connection.execute('PRAGMA table_info("'+table+'")')]
     order=','.join('"'+c.replace('"','""')+'"' for c in columns)
     rows=connection.execute('SELECT * FROM "'+table+'" ORDER BY '+order)

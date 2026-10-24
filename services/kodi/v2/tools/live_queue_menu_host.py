@@ -1,10 +1,16 @@
 """Short-lived HP native ShuffleLab host for five-occurrence Menu testing."""
+
+
+def _require(condition,message="native-check-failed"):
+    """Unlike assert, this check remains active in Kodi optimized Python."""
+    if not condition:raise AssertionError(message)
+
 import importlib.util, json, os, sys, time
 from pathlib import Path
 from types import SimpleNamespace
 import xbmc, xbmcgui
 
-assert os.uname().nodename == 'AsterTV'
+_require((os.uname().nodename == 'AsterTV'), ('native-check-failed'))
 sys.dont_write_bytecode = True
 addon = Path('/storage/.kodi/addons/script.astermusic.v2lab')
 spec = importlib.util.spec_from_file_location('aster_queue_menu_test', addon / 'default.py')
@@ -16,10 +22,10 @@ from music_trial import save_empty_checkpoint, validate_write
 from queue_reader import read_queue
 
 rpc = app.execute
-assert not rpc('Player.GetActivePlayers', {}) and not read_queue(rpc).song_ids
+_require((not rpc('Player.GetActivePlayers', {}) and not read_queue(rpc).song_ids), ('native-check-failed'))
 view = app.read_catalogue(rpc)
 ids = tuple(json.loads(Path('/storage/.aster-checkpoints/aster-music-live-trial-20261023/trial-selection.json').read_text())['song_ids'])
-assert len(ids) == len(set(ids)) == 3 and set(ids) <= set(view.songs)
+_require((len(ids) == len(set(ids)) == 3 and set(ids) <= set(view.songs)), ('native-check-failed'))
 order = (ids[0], ids[1], ids[0], ids[2], ids[1])
 root = Path('/storage/.aster-checkpoints/aster-music-progressive-20261024')
 run = root / ('queue-menu-' + str(time.time_ns()))
@@ -33,7 +39,7 @@ grant.chmod(0o600)
 def transport(method, params):
     if method not in app.READS:
         if method not in ('Player.Stop', 'Playlist.Clear'):
-            assert grant.exists() and time.monotonic() < expiry, 'expired'
+            _require((grant.exists() and time.monotonic() < expiry), ('expired'))
         validate_write(method, params, frozenset(ids), queue_limit=20000)
     return rpc(method, params)
 
@@ -52,11 +58,11 @@ try:
     window.show()
     deadline=time.monotonic()+10
     while not window.initialized:
-        assert time.monotonic()<deadline, 'window-not-ready'
+        _require((time.monotonic()<deadline), ('window-not-ready'))
         xbmc.sleep(25)
     session.start(order,confirmed=True)
     while not window.finished:
-        assert time.monotonic()<expiry, 'menu-test-timeout'
+        _require((time.monotonic()<expiry), ('menu-test-timeout'))
         window.refresh(); xbmc.sleep(50)
     passed=True
 finally:
@@ -68,4 +74,4 @@ finally:
     path=run/'host-results.json'
     path.write_text(json.dumps(dict(passed=passed,original_queue_restored=restored,capability_removed=not grant.exists())))
     path.chmod(0o600)
-    assert restored, 'recovery-required'
+    _require((restored), ('recovery-required'))

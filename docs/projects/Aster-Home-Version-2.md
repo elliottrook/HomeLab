@@ -5,6 +5,11 @@
 - Owner: Jason. Created: 2026-10-23.
 - Status: active; Music implementation and HP pilot continuation is now
   **Stream A - Autonomous**, explicitly directed by Jason on 2026-10-23.
+- Evidence correction 2026-10-24: Kodi Python uses optimization level 1;
+  historical native `assert` checks were elided. Native claims below are
+  provisional wherever they depended on those checks, until explicitly
+  revalidated by the hardened harness. Shipped playback guards use explicit
+  conditionals and were not elided. See the evidence correction at the end.
 - Started: 2026-10-23. Earlier evidence below retains its historical Stream M
   approvals; the bounded Stream A envelope below governs current continuation.
 - Scope authority: owner's marked review and subsequent chat clarification.
@@ -1210,3 +1215,226 @@ drilldown/Back, no autoplay and final idle/empty restoration without grant.
 the restored control; earlier failed focus tests are not counted as passes.
 Next extend the same guarded seek contract to album/song/playlist players;
 share exact seek/paused-state verification rather than duplicate native writes.
+
+Independent candidate46 preservation
+`postcheck-1792862329333189189.json` verifies all 43 files, 149 unchanged
+baseline files/four intentional overlays, all 68 AV/language values, healthy
+music DB, no live player/queue/grant/windows and the approved normal profile.
+Local checkpoint `4bacfbd4` records this milestone; no push performed.
+
+Next bounded extension uses the same single-seek ownership/occurrence/duration
+and pause-restoration helper for albums, songs and saved playlists. Their
+player gains the same thin progress/preview bar and small ±10s icons inside
+the existing artwork-width control lane. A main-thread refresh loop updates
+the clock/icon state; one joined seek worker does no GUI work. Back cancels a
+preview first, then stops on exit; global Home exit also closes the parent.
+No artwork stretching, receiver setting writes, autoplay on entry or server
+playlist writes. 228 local tests pass before the new native checks. Checkpoint
+candidate46, deploy the next immutable HP build, then test song and playlist
+preview/cancel/apply, same paused song/order and owned exit cleanup.
+
+#### Native evidence correction and authorized revalidation — 2026-10-24
+
+Candidate47 (43 files), SHA-256
+`3e9390b5b1bcb59a2dbcefc4eb83e1cd9c4d893d31fb101d83eb089b6af5189b`,
+is installed on HP with verified candidate46 ZIP/tree recovery. No production
+change. Its historical native song/playlist artifacts claimed scrub success,
+but the scrub helper was invoked inside an `assert` expression. Investigation
+proved actual Kodi Python `sys.flags.optimize=1`, `__debug__=False`: assert
+expressions were removed, including that helper call. Therefore those scrub
+claims are withdrawn, and earlier assertion-dependent native success claims
+are provisional pending corrected checks. Observed `until` transitions and
+unit tests still have evidential value, but do not substitute for skipped
+native verification. No app guard module uses assert; shipped host, identity,
+ownership, confirmation and bounded-write checks use explicit conditionals.
+
+Paused feature deployment and hardened 22 tools with AST-guided mechanical
+assert-to-explicit `_require` checks, including host/idle/identity/checkpoint
+and postcondition checks. Side-effecting checks now execute under optimized
+Python. New regression rejects native-tool asserts and compiles each explicit
+checker with optimization level 2, proving false conditions still raise.
+229 local tests pass. One-off create/delete harnesses were hardened locally
+but **not rerun**; their approvals remain consumed.
+
+Enforced read-only native `postcheck-1792862899221510217.json` actually verifies
+all 43 installed files, 149 unchanged baseline files/four overlays, all 68
+AV/language settings, healthy DB, no player/queue/grant/windows and normal mode.
+SSH/system-Python `readonly-audit-1792862955718699071.json` independently GETs
+the existing user's complete server inventory: all 16 originals match saved
+IDs/order/access exactly, both disposable test IDs are absent, stored UI
+five-occurrence/private evidence is structurally valid, and the programmatic
+trial's explicit `verify_created` result was true. No server/player writes.
+This is preservation evidence, not proof of every historic UI cancellation.
+
+Jason explicitly approved corrected HP playback/queue/exit tests and Music
+continuation after disclosure. Resume enforced song/playlist scrub checks,
+then queue/remove/clear and progressive exit checks; retain failed evidence.
+Use explicit checks and record optimization/checker status in new results.
+No new server create/delete, identity, production or Git push authority.
+
+Enforced optimized-runtime revalidation now passes:
+`song-artist-1792863063327439155.json` (source/audio menu, artist drilldown,
+single-song no-autoplay/Play/Pause/Resume and actual scrub preview/cancel/apply),
+`playlist-player-1792863097943135820.json` (all 16 exact mappings, saved-order
+playback, actual scrub, paused song and Back/empty restoration), and
+`queue-edit-1792863096956329138/results.json` (current/stale/unconfirmed denials,
+one-occurrence removal before and after the paused duplicate, confirmed
+Stop-and-clear and final empty restoration). Each reports `checks_enforced`
+and optimization level 1. Screenshot `/tmp/aster-album-scrub47.png` was actually
+generated and inspected after moving its request outside an elided assert.
+Normal profile remains enabled; no server writes in these rechecks. Original
+v1 suites: 144 tests pass; v2: 229 pass; prototype: 10 focus checks pass.
+Next enforced partial-shuffle/Home exit recheck is running; do not run another
+foreground test concurrently. Standalone engine tests now also refuse any
+open lab/recovery window, even if that preview has not started playback.
+
+Enforced progressive/Home `native-ui-1792863226908643091.json` passes with
+optimization 1: Select 2.336s, Pause 2.192s, actual scrub apply 4.284s, complete
+seek/pause/song and queue-page checks, Home cleanup 6.703s and empty restoration.
+
+Next bounded Music package: stateful native queue shuffle/unshuffle (Menu,
+with explicit confirmation). Kodi's tagged native implementation preserves
+the current occurrence while changing order; Aster verifies complete multiset,
+duplicate counts, same song/speed/paused clock, native mode and exact original
+order on Off. It does not clear, stop or reopen the song to shuffle. The
+original-order index is checked when the same shuffled occurrence remains
+current. Source: [Kodi 21.3 SetShuffle](https://github.com/xbmc/xbmc/blob/21.3-Omega/xbmc/PlayListPlayer.cpp#L496).
+Queue edits refuse while shuffle is on because native Add/Insert can reshuffle
+automatically. Turn Off first; Save may preserve the actual current order.
+Progressive queues must finish loading before a mode change. The actual
+current order drives the visible queue after the change. Exit restores native
+shuffle Off **before** owned Stop/clear, including cancellation. An uncertain
+mode write is sticky, never retried, and blocks further controls/cleanup for
+recovery review rather than guessing the resulting order. No server writes or
+receiver settings. Checkpoint candidate47, deploy the bounded next build,
+then one enforced five-occurrence native round-trip/exit test before UI tests.
+Local tests cover exact duplicate state/order, no Open/Stop/Clear while toggling,
+cancelled cleanup, stale/confirmation/external-mode denial and uncertain outcome.
+
+Candidate48 (43 files), SHA-256
+`ed494da5f96c72f60505ed8c1484d3dfb8968b6f04a4b0000b77b7040574e5d5`,
+deployed after enforced candidate47 preservation
+`postcheck-1792863558742095181.json`, with exact candidate47 recovery. First
+enforced native `shuffle-mode-1792863630620787184` refused on
+`shuffle-playback-clock-changed`: PAPlayer had reported Pause before its last
+buffered timestamp settled (subsequent paused clock was 0.500s). No blind retry.
+Pinned recovery verified the same paused test-song multiset, restored original
+order/second occurrence and unchanged paused clock, then issued owned Stop.
+Its immediate post-Stop read hit a normal `queue-changed-during-read` transition;
+do not call that recovery script a complete pass or rerun its mutation. A
+subsequent independent in-process read confirmed no players, empty queue, no
+lab/recovery windows and **idle music shuffle false**.
+
+The next candidate establishes a stable paused clock over three reads before
+any mode write; the harness also waits for Pause to settle and saves its actual
+before-clock. Failure evidence now records the original error and sticky
+recovery requirement instead of masking it with a second cleanup exception.
+Also handles playback already ended: restore only Aster's owned shuffle mode
+without reopening audio, accept only its exact remaining queue or the existing
+Jellyfin monitor's empty result, and refuse any foreign nonempty queue. Source
+review confirms native Clear does not reset shuffle and the music mode RPC
+remains available when idle. Local tests: 240 pass. Validate both active and
+ended cleanup natively; this is not yet accepted stateful shuffle delivery.
+
+Candidate49 (43 files), SHA-256
+`80e14a8eecf6f0f0af918ee86f54056a6cc01efc28aba040c9c3f819b1faae90`,
+was installed with candidate48 recovery. Enforced native run
+`shuffle-mode-1792863981436792693` refused **before** a mode write because a
+bit-identical paused clock did not settle; cleanup passed, no recovery needed.
+Candidate50 SHA-256
+`bef6c658b148188b562c76e7264a9cf86e366e788a914034eb70509e281642a3`
+adds bounded clock-jitter handling: four paused readings span at most 250ms,
+and before/after differ at most 500ms. Actual reset/advancing-clock/uncertain
+write tests still fail closed. The test seeks well away from zero first.
+Its first harness run was confounded by a repeated Player.Open triggering the
+existing add-on's delayed clear; do not count that run as a shuffle test pass.
+Independent native state then proved idle/empty/mode-off. The corrected harness
+starts the second duplicate occurrence directly, with no repeated Open.
+
+Enforced `shuffle-mode-1792864292499723429/results.json` **passes** under
+optimization 1: measured paused samples span 25.200–25.240s (40ms jitter),
+shuffle 2.023s, original-order restore 0.593s, duplicate counts, the same paused
+occurrence and clock, no Stop/Open/Clear to toggle, edit denial while shuffled,
+cancelled active exit restoring Off/empty, and an independent **actual natural
+end** on a fresh two-song queue (bounded near-end seeks and native advance,
+no repeated Open). Idle cleanup restores shuffle Off and the empty queue.
+Native metadata/clock checks are explicit, not asserts. Preservation
+`postcheck-1792864405546420182.json` verifies candidate50, all 43 files, 149+4
+baseline/overlays, 68 AV/language values, healthy DB and idle mode Off.
+
+A very short near-end test also exposed an existing Jellyfin add-on race:
+`set_item` returns if playback has already ended, but its caller still reads
+`item['Volume']` and logs KeyError. Source review confirms this occurs before
+that start-report call, not an Aster volume-setting write. Track as an
+integration repair; no third-party add-on code or production change made.
+
+Next candidate51 only adds UI clarity/focus: normal pages say Player rather
+than preview, normal whole-library Shuffle has an honest label, modal closure
+restores originating focus, and shuffled queue rows carry their exact song IDs
+for native visual-order checks. A versioned installer now requires fresh
+enforced native preflight (including idle shuffle Off), exact old/new archive
+and member hashes, verified recovery ZIP/tree and atomic package replacement.
+It leaves profiles/history/settings unchanged. 247 local tests pass. Stage51,
+checkpoint50 and use the installer, then native Menu cancel/On/Off, scrub and
+Back/cleanup. BOSGAME and Git remotes remain untouched.
+
+Candidate51 SHA-256
+`6349515085617da866c9b4b2ddf57c897692e651f00d7057384ec387a0b4c0bf`
+was installed with the versioned installer and candidate50 recovery. The new
+Menu test is **not a pass**: Kodi exited with status 139 at 10:58:42 and
+systemd restarted it at 10:58:45 (PID5967 →10834, NRestarts1). No host reboot.
+Stopped further playback tests and inspected source-local sanitized crash
+evidence; no raw log/token export. Crash file retained on HP:
+`/storage/.kodi/temp/kodi_crashlog_20261024105842.log`. The crashing Python
+invoker was the test, in a native binding; the app owner thread was sleeping.
+Timing places the crash after Menu shuffle-on and at the test's new
+`xbmcgui.Window(other_python_window).getControl(600)` read. This is the leading
+hypothesis, **not a symbol-resolved proven root cause**.
+
+Removed all cross-invoker native control wrapping from the test. The owning
+WindowXML now publishes a fingerprint of its own rendered row IDs; test reads
+that and native container count through JSON-RPC. Regression rejects any
+`getControl` call in native test clients. Also fix mode-heading caching when a
+two-song shuffle happens to leave the same order. 248 local tests pass.
+Normal idle Back closed the reopened preview. Enforced post-restart
+`postcheck-1792865131421701234.json` verifies all 43 files, 149+4, all 68 AV/
+language values, healthy DB, no windows/player/queue/grant and shuffle Off.
+Residual retest risk is another HP-only UI restart, within the existing lab
+availability envelope; no production or third-party add-on mutation. Candidate52
+must retain candidate51 recovery, pass fresh preflight, then repeat only the
+bounded Menu test using safe published properties. Do not promote or declare
+Music graduated until native stability and integration/soak gates pass.
+
+Candidate52 SHA-256
+`ed29ece610412386e1fce5011ac88498440890e4629961eb1706fefceba8eaab`
+installed with candidate51 recovery and fresh enforced preflight. Native
+`playlist-player-1792865372758808162.json` passes all 16 mappings, no autoplay,
+exact saved-order playback, actual scrub, Menu cancellation/On/Off, published
+rendered-order fingerprint matching native queue, same paused song, modal
+origin focus, and Back/empty restoration. Optimization1/checks enforced. No
+server writes. Kodi NRestarts remains1/PID10834: no additional restart during
+the safe retest. This supports removing unsafe cross-invoker control reads;
+it does not retroactively prove the unresolved native binding symbol. Repeat
+independently before accepting this UI substep, then preservation and commit.
+
+Independent repeat `playlist-player-1792865486215568451.json` also passes every
+enforced Menu/scrub/order/Back check. No additional Kodi restart (NRestarts1,
+same PID10834). These two safe-client passes accept the Menu UI substep, not
+the whole Music milestone. The original crash and failed tests remain retained.
+
+HP pilot operator note (normal mode, not production): open **Add-ons → Program
+add-ons → Aster Music v2 Lab**, using Kodi's existing Jellyfin sign-in. Artists
+opens their albums; Songs, Albums and Playlists open a player without autoplay.
+Left from the track list reaches Play; initial Play/Replace/whole-library
+Shuffle require confirmation. Up from Play/Pause focuses the thin seek bar:
+left/right previews 5s steps, OK applies, Back cancels preview, then Back stops
+and exits the owned player. Small double-arrow icons seek ±10s. Menu offers
+Audio details, create-only private Save, and Shuffle/Restore original order;
+shuffle needs at least two playing queued songs and a completely loaded queue.
+Turn shuffle off before queue edits. Save asks for a new name and confirmation;
+it never overwrites and is visible on other devices signed into the same
+Jellyfin account. An uncertain-save/recovery warning is a stop condition, not
+an invitation to repeat. Source audio details are not a receiver measurement.
+Home/Back stop owned playback; other active playback is refused, not replaced.
+Normal mode is HP-only; no BOSGAME change. Physical G20/listening, long-session,
+full enforced large-queue retest and final shell integration remain outstanding.

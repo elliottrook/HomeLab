@@ -2,23 +2,29 @@
 
 No player/queue writes; leaves an ordered album open for visual review.
 """
+
+
+def _require(condition,message="native-check-failed"):
+    """Unlike assert, this check remains active in Kodi optimized Python."""
+    if not condition:raise AssertionError(message)
+
 import codecs,json,socket,subprocess,time,sys
 from pathlib import Path
-assert Path('/etc/hostname').read_text().strip()=='AsterTV','HP only'
+_require((Path('/etc/hostname').read_text().strip()=='AsterTV'), ('HP only'))
 
 
 def rpc(method,params=None):
     if '--in-process' in sys.argv:
         import xbmc
         reply=json.loads(xbmc.executeJSONRPC(json.dumps({'jsonrpc':'2.0','id':1,'method':method,'params':params or {}})))
-        assert 'error' not in reply,'RPC failed'
+        _require(('error' not in reply), ('RPC failed'))
         return reply['result']
     with socket.create_connection(('127.0.0.1',9090),timeout=20) as connection:
         connection.sendall((json.dumps({'jsonrpc':'2.0','id':1,'method':method,'params':params or {}})+'\n').encode())
         raw='';decoder=codecs.getincrementaldecoder('utf-8')()
         while True:
             part=connection.recv(65536)
-            assert part,'RPC closed'
+            _require((part), ('RPC closed'))
             raw+=decoder.decode(part)
             while raw.strip():
                 raw=raw.lstrip()
@@ -26,7 +32,7 @@ def rpc(method,params=None):
                 except ValueError:break
                 raw=raw[end:]
                 if reply.get('id')==1:
-                    assert 'error' not in reply,'RPC failed'
+                    _require(('error' not in reply), ('RPC failed'))
                     return reply['result']
 
 
@@ -50,7 +56,7 @@ def album_open():return bool(label('Window(Home).Property(AsterV2Lab.AlbumWindow
 def ok_dialog():return label('System.CurrentWindow') in ('OK','OK dialog')
 
 
-assert not rpc('Player.GetActivePlayers'),'Do not interrupt playback'
+_require((not rpc('Player.GetActivePlayers')), ('Do not interrupt playback'))
 before=rpc('Playlist.GetItems',{'playlistid':0})
 until(lambda:focused(500),'initial genre tile')
 press('right',501);press('right',502);select()
@@ -58,8 +64,8 @@ until(lambda:focused(500),'Rock albums')
 for chosen in range(500,504):
     select();until(lambda:album_open() or ok_dialog(),'album order resolves or explains unavailable tags')
     if album_open():break
-    assert label('Control.GetLabel(1)')=='Album order unavailable'
-    assert 'missing track numbers' in label('Control.GetLabel(9)')
+    _require((label('Control.GetLabel(1)')=='Album order unavailable'), ('native-check-failed'))
+    _require(('missing track numbers' in label('Control.GetLabel(9)')), ('native-check-failed'))
     print('PASS truthful missing-number explanation',flush=True)
     press('back');until(lambda:focused(chosen),'unavailable album retains focus')
     press('right',chosen+1)
@@ -80,8 +86,8 @@ press('back');until(lambda:focused(403),'Replace focus restored')
 press('up',600);press('back')
 until(lambda:not label('Window(Home).Property(AsterV2Lab.AlbumWindow)') and focused(chosen),'Back restores original album tile')
 select();until(album_open,'reopen ordered album retains safe entry')
-assert not rpc('Player.GetActivePlayers')
-assert before==rpc('Playlist.GetItems',{'playlistid':0})
+_require((not rpc('Player.GetActivePlayers')), ('native-check-failed'))
+_require((before==rpc('Playlist.GetItems',{'playlistid':0})), ('native-check-failed'))
 if '--in-process' in sys.argv:
     p=Path('/storage/.aster-checkpoints/aster-music-artist-repair-20261023')/('native-album-readonly-'+str(time.time_ns())+'.json')
     with p.open('x') as f:json.dump({'passed':True,'queue_unchanged':True,'transport':'in-process'},f)

@@ -4,6 +4,12 @@ Launch inside Kodi with --in-process; TCP stress transport is retired.
 Starts idle/empty, checkpoints before writes, plays brief samples, restores the
 empty queue. No titles, song IDs, URLs or credentials are printed to stdout.
 """
+
+
+def _require(condition,message="native-check-failed"):
+    """Unlike assert, this check remains active in Kodi optimized Python."""
+    if not condition:raise AssertionError(message)
+
 import hashlib
 import json
 import os
@@ -13,8 +19,8 @@ import sys
 import threading
 import time
 
-assert os.uname().nodename=='AsterTV','HP only'
-assert '--in-process' in sys.argv,'Bulk TCP harness retired after crash; launch inside Kodi only'
+_require((os.uname().nodename=='AsterTV'), ('HP only'))
+_require(('--in-process' in sys.argv), ('Bulk TCP harness retired after crash; launch inside Kodi only'))
 sys.dont_write_bytecode=True
 LIB='/storage/.kodi/addons/script.astermusic.v2lab/resources/lib'
 if '--candidate15-libs' in sys.argv:
@@ -53,19 +59,19 @@ def available():
 def private(path,data):
     with path.open('xb') as output:output.write(json.dumps(data,sort_keys=True).encode())
     path.chmod(0o600)
-    assert json.loads(path.read_text())==json.loads(json.dumps(data))
+    _require((json.loads(path.read_text())==json.loads(json.dumps(data))), ('native-check-failed'))
 
 
 root=Path('/storage/.aster-checkpoints/aster-music-expanded-trial-20261023')
 root.mkdir(mode=0o700,exist_ok=True)
 run=root/('run-'+str(time.time_ns()));run.mkdir(mode=0o700)
-assert not rpc('Player.GetActivePlayers') and not read_queue(rpc).song_ids
-assert available()>=512*1024
+_require((not rpc('Player.GetActivePlayers') and not read_queue(rpc).song_ids), ('native-check-failed'))
+_require((available()>=512*1024), ('native-check-failed'))
 baseline=read_queue(rpc)
 save_empty_checkpoint(run/'queue-baseline.json',baseline)
 started=time.monotonic();catalogue=read_catalogue(rpc)
 allowed=tuple(catalogue.songs);expiry=time.monotonic()+1800
-assert len(allowed)<=20000
+_require((len(allowed)<=20000), ('native-check-failed'))
 private(run/'approval.json',{'song_ids':allowed,'queue_limit':20000,'expires_at':int(time.time())+1800})
 print('Catalogue verified:',len(allowed),'songs; seconds:',round(time.monotonic()-started,2),flush=True)
 allowed_set=frozenset(allowed)
@@ -92,7 +98,7 @@ def sample(player):
         props=rpc('Player.GetProperties',{'playerid':0,'properties':['time','speed']})
         t=props['time']
         if t['hours'] or t['minutes'] or t['seconds']>=1:
-            assert props['speed']==1 and first in allowed_set
+            _require((props['speed']==1 and first in allowed_set), ('native-check-failed'))
             return
         time.sleep(.1)
     raise AssertionError('player clock did not advance')
@@ -107,14 +113,14 @@ try:
     player=trial('album')
     try:
         player.play(selection.song_ids,confirmed=True);sample(player)
-        assert read_queue(rpc).song_ids==selection.song_ids
+        _require((read_queue(rpc).song_ids==selection.song_ids), ('native-check-failed'))
         results.append({'test':'full_album','tracks':len(selection.song_ids),'passed':True})
         print('PASS full album order, playback and advancing clock:',len(selection.song_ids),'tracks',flush=True)
         player.stop()
-        assert player.saved.song_ids==selection.song_ids
-        assert json.loads((run/'album-intent.json').read_text())['song_ids']==list(selection.song_ids)
+        _require((player.saved.song_ids==selection.song_ids), ('native-check-failed'))
+        _require((json.loads((run/'album-intent.json').read_text())['song_ids']==list(selection.song_ids)), ('native-check-failed'))
         player.replay(confirmed=True);sample(player)
-        assert read_queue(rpc).song_ids==selection.song_ids
+        _require((read_queue(rpc).song_ids==selection.song_ids), ('native-check-failed'))
         print('PASS explicit saved-intent replay after Jellyfin Stop cleanup',flush=True)
     finally:player.close()
     # Cancellation between queue batches must never issue Player.Open.
@@ -128,7 +134,7 @@ try:
         try:player.play(cancel_ids,confirmed=True)
         except TrialCancelled:pass
         else:raise AssertionError('cancel ignored')
-        assert not rpc('Player.GetActivePlayers') and read_queue(rpc)==baseline
+        _require((not rpc('Player.GetActivePlayers') and read_queue(rpc)==baseline), ('native-check-failed'))
         results.append({'test':'cancel_before_open','passed':True})
         print('PASS cancellation during batched staging restores original empty queue',flush=True)
     finally:player.close()
@@ -145,12 +151,12 @@ try:
         try:player.play(selection.song_ids,confirmed=True)
         except TrialCancelled:pass
         else:raise AssertionError('cancel ignored')
-        assert not rpc('Player.GetActivePlayers') and read_queue(rpc)==baseline
+        _require((not rpc('Player.GetActivePlayers') and read_queue(rpc)==baseline), ('native-check-failed'))
         results.append({'test':'cancel_after_open','passed':True})
         print('PASS cancellation after accepted Open resolves and stops owned playback',flush=True)
     finally:player.close()
     ids=nonholiday_shuffle(list(catalogue.songs.values()),list(catalogue.albums.values()),expected_total=len(allowed),seed=20261023)
-    assert set(ids)==set(catalogue.shuffle_summary['eligible_ids']) and len(set(ids))==len(ids)
+    _require((set(ids)==set(catalogue.shuffle_summary['eligible_ids']) and len(set(ids))==len(ids)), ('native-check-failed'))
     missing_credits=sum(not catalogue.songs[i].get('artistid') for i in ids)
     if '--startup-only' in sys.argv or missing_credits:
         print('Full shuffle deferred: missing artist links require a separate library repair decision;',
@@ -160,14 +166,14 @@ try:
         sys.exit(0)
     count=[0];minimum=[available()]
     def progress(done,total):
-        minimum[0]=min(minimum[0],available());assert minimum[0]>=512*1024,'low-memory-stop'
+        minimum[0]=min(minimum[0],available());_require((minimum[0]>=512*1024), ('low-memory-stop'))
         if done//2000>count[0]:
             count[0]=done//2000;print('Shuffle staged:',done,'/',total,flush=True)
             private(run/('progress-'+str(done)+'.json'),{'done':done,'total':total,'available_kib':minimum[0]})
     player=trial('shuffle',progress=progress);start=time.monotonic()
     try:
         player.play(ids,confirmed=True);sample(player)
-        assert read_queue(rpc).song_ids==ids
+        _require((read_queue(rpc).song_ids==ids), ('native-check-failed'))
         elapsed=round(time.monotonic()-start,2)
         results.append({'test':'full_nonholiday_shuffle','tracks':len(ids),'excluded':len(allowed)-len(ids),
                         'seconds':elapsed,'minimum_available_kib':minimum[0],
@@ -176,7 +182,7 @@ try:
         print('PASS full shuffle exact membership/order, exclusions and brief playback:',len(ids),'tracks;',elapsed,'seconds',flush=True)
     finally:player.close()
 finally:
-    assert not rpc('Player.GetActivePlayers') and read_queue(rpc)==baseline,'recovery required'
+    _require((not rpc('Player.GetActivePlayers') and read_queue(rpc)==baseline), ('recovery required'))
     private(run/'results.json',{'results':results,'original_queue_restored':True,'transport':'in-process',
                                'rpc_metrics':metrics})
     print('Verified: HP idle, original empty queue restored; private intent and evidence retained',flush=True)

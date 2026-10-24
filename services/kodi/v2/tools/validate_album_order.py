@@ -4,6 +4,12 @@ Generate locally with --output PATH, then explicitly run on the approved HP:
 ssh -o BatchMode=yes root@192.168.1.140 python3 - < PATH
 Only aggregate evidence is printed; no media paths or library titles exported.
 """
+
+
+def _require(condition,message="native-check-failed"):
+    """Unlike assert, this check remains active in Kodi optimized Python."""
+    if not condition:raise AssertionError(message)
+
 import argparse
 import codecs
 import inspect
@@ -42,11 +48,11 @@ def rpc(method, params=None):
 
 
 def run():
-    assert platform.node() == 'AsterTV', 'HP lab host required'
+    _require((platform.node() == 'AsterTV'), ('HP lab host required'))
     before = [rpc('Player.GetActivePlayers'),rpc('Playlist.GetItems',{'playlistid':0})]
     fields = rpc('JSONRPC.Introspect',{'filter':{'id':'Audio.Fields.Song','type':'type'}})
-    assert {'albumid','disc','track','duration'} <= set(
-        fields['types']['Audio.Fields.Song']['items']['enums'])
+    _require(({'albumid','disc','track','duration'} <= set(
+        fields['types']['Audio.Fields.Song']['items']['enums'])), ('native-check-failed'))
     rows, expected = [], None
     while True:
         start = len(rows)
@@ -55,16 +61,16 @@ def run():
             'limits':{'start':start,'end':start+1000},
             'sort':{'method':'track','order':'ascending'}})
         limits, page = result['limits'], result.get('songs',[])
-        assert all(type(limits.get(k)) is int for k in ('start','end','total'))
-        assert limits['start']==start and limits['end']==start+len(page)
-        assert 0 <= limits['total'] <= 100000 and len(page) <= 1000
-        assert limits['end'] <= limits['total']
-        assert expected is None or limits['total']==expected
+        _require((all(type(limits.get(k)) is int for k in ('start','end','total'))), ('native-check-failed'))
+        _require((limits['start']==start and limits['end']==start+len(page)), ('native-check-failed'))
+        _require((0 <= limits['total'] <= 100000 and len(page) <= 1000), ('native-check-failed'))
+        _require((limits['end'] <= limits['total']), ('native-check-failed'))
+        _require((expected is None or limits['total']==expected), ('native-check-failed'))
         expected = limits['total']
         rows.extend(page)
         if limits['end']==expected:break
-        assert page
-    assert len({r['songid'] for r in rows})==len(rows)
+        _require((page), ('native-check-failed'))
+    _require((len({r['songid'] for r in rows})==len(rows)), ('native-check-failed'))
     albums = {}
     for row in rows:
         if type(row.get('albumid')) is int and row['albumid'] > 0:
@@ -79,12 +85,12 @@ def run():
         except AlbumUnavailable as error:
             rejected[str(error)] = rejected.get(str(error),0)+1
             continue
-        assert set(selection.song_ids)=={r['songid'] for r in albums[identity]}
-        assert len(selection.tracks)==len(albums[identity])
+        _require((set(selection.song_ids)=={r['songid'] for r in albums[identity]}), ('native-check-failed'))
+        _require((len(selection.tracks)==len(albums[identity])), ('native-check-failed'))
         passed += 1
         multidisc_passed += len({r.disc for r in selection.tracks}) > 1
     after = [rpc('Player.GetActivePlayers'),rpc('Playlist.GetItems',{'playlistid':0})]
-    assert before == after, 'Playback/queue changed during read-only observation'
+    _require((before == after), ('Playback/queue changed during read-only observation'))
     print(json.dumps({'indexed_tracks':len(rows),'indexed_albums':len(albums),
                       'sampled_albums':len(candidates),'ordered_albums':passed,
                       'multidisc_ordered':multidisc_passed,'safe_rejections':rejected,

@@ -47,6 +47,22 @@ class RuntimeTests(unittest.TestCase):
         for source in tools:
             with self.subTest(tool=source.name):ast.parse(source.read_text(),filename=str(source))
 
+    def test_native_safety_checks_survive_optimized_kodi_python(self):
+        for source in (HERE/'tools').glob('*.py'):
+            tree=ast.parse(source.read_text(),filename=str(source))
+            self.assertFalse(any(isinstance(node,ast.Assert) for node in ast.walk(tree)),source.name)
+            self.assertFalse(any(isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute)
+                and node.func.attr=='getControl' for node in ast.walk(tree)),source.name)
+            helpers=[node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name in ('_require','require')]
+            if not helpers:continue
+            scope={}
+            code=compile(ast.Module(body=helpers,type_ignores=[]),str(source),'exec',optimize=2)
+            exec(code,scope)
+            name=helpers[0].name
+            with self.assertRaisesRegex((AssertionError,RuntimeError),'optimized-denial'):
+                scope[name](False,'optimized-denial')
+            self.assertIsNone(scope[name](True,'allowed'))
+
     def test_rpc_refuses_all_mutating_methods(self):
         for method in ('Player.Open','Playlist.Clear','AudioLibrary.SetSongDetails','GUI.ActivateWindow'):
             with self.assertRaises(ValueError):self.runtime.rpc(method,{})
@@ -237,6 +253,82 @@ class RuntimeTests(unittest.TestCase):
         window.scrub=ScrubPreview.start(QueueSnapshot((1,2),0),180000,25000)
         preview=window.scrub;window.onClick(611)
         window.control.assert_called_once_with('scrub',preview);self.assertIsNone(window.scrub)
+
+    def test_album_scrub_preview_cancel_and_commit_use_same_remote_contract(self):
+        from music_scrub import ScrubPreview
+        from music_queue import QueueSnapshot
+        window=self.runtime.AlbumLab();window.allowed=(1,2);window.focused=611
+        window.scrub=ScrubPreview.start(QueueSnapshot((1,2),0),180000,25000)
+        window.seek_album=Mock();window.close=Mock()
+        action=Mock();action.getId.return_value=2;window.onAction(action)
+        self.assertEqual(window.scrub.target_ms,30000);window.seek_album.assert_not_called()
+        action.getId.return_value=92;window.onAction(action)
+        self.assertIsNone(window.scrub);window.close.assert_not_called();self.assertEqual(window.focused,400)
+        window.scrub=ScrubPreview.start(QueueSnapshot((1,2),0),180000,25000)
+        preview=window.scrub;window.onClick(611)
+        window.seek_album.assert_called_once_with(preview)
+
+    def test_album_exit_cancels_and_joins_seek_before_stopping_owned_player(self):
+        window=self.runtime.AlbumLab();window.trial=Mock();window.control_worker=Mock();events=[]
+        window.trial.cancel.set.side_effect=lambda:events.append('cancel')
+        window.control_worker.join.side_effect=lambda:events.append('join')
+        window.trial.close.side_effect=lambda:events.append('close')
+        window.close();self.assertEqual(events,['cancel','join','close'])
+
+    def test_album_track_to_controls_starts_on_play_and_up_opens_scrub(self):
+        window=self.runtime.AlbumLab();window.allowed=(1,);window.focused=600
+        window.begin_scrub=Mock();action=Mock();action.getId.return_value=1;window.onAction(action)
+        self.assertEqual(window.focused,400)
+        action.getId.return_value=3;window.onAction(action);window.begin_scrub.assert_called_once()
+
+    def test_album_shuffle_cancel_does_not_start_worker_or_change_queue(self):
+        from music_queue import QueueSnapshot
+        window=self.runtime.AlbumLab();window.trial=Mock();window.trial.shuffled=False
+        window.trial.observe.return_value=QueueSnapshot((1,2),0)
+        window.dialog=Mock(return_value=False)
+        window.shuffle_album()
+        self.assertIsNone(window.control_worker);self.assertFalse(window.queue_view)
+        window.trial.set_shuffle.assert_not_called()
+
+    def test_dialog_restores_origin_focus_and_cancel_guard(self):
+        window=self.runtime.AlbumLab();window.focused=400
+        def cancel(*args):window.focused=0;return False
+        self.gui.Dialog.return_value.yesno.side_effect=cancel
+        self.assertFalse(window.dialog('yesno','Shuffle queue','Confirm?'))
+        self.assertEqual(window.focused,400);self.assertFalse(window.dialog_open)
+        self.assertGreater(window.back_guard_until,0)
+
+    def test_two_song_mode_label_updates_even_when_shuffle_keeps_same_order(self):
+        from music_queue import QueueSnapshot
+        from types import SimpleNamespace
+        window=self.runtime.AlbumLab();window.queue_view=True
+        items=[]
+        class Item:
+            def __init__(self,**kwargs):self.props={}
+            def setProperty(self,key,value):self.props[key]=value
+            def getProperty(self,key):return self.props[key]
+        self.gui.ListItem.side_effect=Item
+        control=Mock();control.reset.side_effect=items.clear;control.addItems.side_effect=items.extend
+        control.getListItem.side_effect=lambda index:items[index]
+        window.getControl=lambda identity:control
+        window.trial=SimpleNamespace(shuffled=True)
+        window.selection=SimpleNamespace(tracks=[SimpleNamespace(song_id=i,title=str(i),duration=180) for i in (1,2)])
+        state=QueueSnapshot((1,2),0);window.render_owned_queue(state)
+        self.assertIn('shuffle on',window.props['Album.TrackHeading'])
+        window.trial.shuffled=False;window.render_owned_queue(state)
+        self.assertIn('original order',window.props['Album.TrackHeading'])
+        self.assertEqual(window.props['Album.QueueFingerprint'],state.fingerprint)
+
+    def test_shuffle_menu_confirmation_targets_fresh_owned_snapshot(self):
+        from music_queue import QueueSnapshot
+        window=self.runtime.ShuffleLab();window.session=Mock();window.session.engine.shuffled=False
+        window.session.status.return_value=dict(phase='ready',writer_active=False)
+        state=QueueSnapshot((1,2,1),0);window.session.engine.observe.return_value=state
+        window.getControl=lambda identity:Mock(getSelectedPosition=Mock(return_value=1))
+        window.dialog=Mock(side_effect=[4,False]);window.control=Mock();window.queue_menu()
+        window.control.assert_not_called()
+        window.dialog=Mock(side_effect=[4,True]);window.queue_menu()
+        window.control.assert_called_once_with('shuffle',(True,state.fingerprint))
 
     def test_floating_controls_fit_cover_and_keep_readable_focus_caption(self):
         window=self.runtime.ShuffleLab();window.allowed=(1,)

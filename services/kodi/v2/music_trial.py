@@ -108,6 +108,10 @@ def validate_write(method, params, allowed, *, queue_limit=3):
         else:valid=False
         if not valid:
             raise TrialUnavailable('trial-write-denied')
+    elif method=='Player.SetShuffle':
+        if (set(params)!={'playerid','shuffle'} or type(params['playerid']) is not int
+                or params['playerid']!=0 or type(params['shuffle']) is not bool):
+            raise TrialUnavailable('trial-write-denied')
     else:raise TrialUnavailable('trial-write-denied')
 
 
