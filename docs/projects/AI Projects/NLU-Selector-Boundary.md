@@ -16,7 +16,7 @@ is an authorization token.
 
 ```text
 request -> deterministic privacy checks -> NLU interpretation
-        -> policy/selector decision -> authority projection -> execution
+        -> digest-bound route proposal -> authority projection -> execution
 ```
 
 The existing deterministic household path remains available before model-based
@@ -45,6 +45,13 @@ reason combinations. Duplicate or oversized capability lists fail closed.
 not approve cloud egress, select a model, project a capability or grant a tool.
 A change request may be understood and routed while still having no permission
 to change anything.
+
+`route-proposal.v1` separately records local, Codex, clarify, abstain or deny;
+the backend and local/cloud/no-egress class; bounded reason; policy and expiry;
+and literal `authorization: not-granted`. It is bound to the canonical
+interpretation digest plus the same request, principal and policy. The first
+profile cannot route personal content to cloud because it has no consent
+artifact. A later consent design requires a new reviewed contract version.
 
 ## Separation of responsibility
 
@@ -77,7 +84,7 @@ baseline remains the operational reference.
 
 ## Validation checkpoint — 2026-10-24
 
-The focused contract, Decision semantic and Outcome semantic suites pass 6/6
+The focused interpretation, route, Decision and Outcome semantic suites pass 11/11
 under Python 3.12 and Pydantic 2.14.1. The full historical adapter suite remains
 blocked by its pre-existing reviewed-source pin drift, as designed. This change
 does not repin that experiment, deploy a classifier, call a model, enable egress

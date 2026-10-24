@@ -1,6 +1,8 @@
 """Versioned offline foundation contracts. These objects never grant authority."""
 from __future__ import annotations
 
+import hashlib
+import json
 from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -51,6 +53,77 @@ class RequestInterpretation(Contract):
         if (self.request_family == 'unsupported') != (self.reason == 'unsupported'):
             raise ValueError('unsupported family and reason disagree')
         return self
+
+
+def contract_digest(value: Contract) -> str:
+    encoded = json.dumps(value.model_dump(mode='json'), sort_keys=True,
+                         separators=(',', ':')).encode()
+    return 'sha256:' + hashlib.sha256(encoded).hexdigest()
+
+
+class RouteProposal(Contract):
+    """Selector output bound to one interpretation; still never an authority grant."""
+    schema_version: Literal['route-proposal.v1'] = 'route-proposal.v1'
+    request_id: Ref
+    principal_ref: Ref
+    interpretation_digest: Digest
+    status: Literal['local', 'codex', 'clarify', 'abstain', 'deny']
+    backend_id: Ref | None
+    egress: Literal['none', 'local', 'cloud']
+    reason: Literal[
+        'deterministic-match',
+        'local-capable',
+        'stronger-capability-required',
+        'ambiguous',
+        'unsupported',
+        'policy-denied',
+    ]
+    policy_digest: Digest
+    expires_at: Annotated[int, Field(ge=1)]
+    authorization: Literal['not-granted'] = 'not-granted'
+
+    @model_validator(mode='after')
+    def route_shape(self):
+        if self.status == 'local':
+            valid = (self.backend_id is not None and self.egress == 'local'
+                     and self.reason in {'deterministic-match', 'local-capable'})
+        elif self.status == 'codex':
+            valid = (self.backend_id is not None and self.egress == 'cloud'
+                     and self.reason == 'stronger-capability-required')
+        else:
+            expected = {'clarify': {'ambiguous'},
+                        'abstain': {'ambiguous', 'unsupported'},
+                        'deny': {'policy-denied'}}[self.status]
+            valid = (self.backend_id is None and self.egress == 'none'
+                     and self.reason in expected)
+        if not valid:
+            raise ValueError('route status, backend, egress and reason disagree')
+        return self
+
+
+def validate_route(interpretation: RequestInterpretation, route: RouteProposal, *, now: int):
+    """Bind NLU to selection only; returning True never grants execution permission."""
+    if route.interpretation_digest != contract_digest(interpretation):
+        raise ValueError('interpretation digest mismatch')
+    if ((route.request_id, route.principal_ref, route.policy_digest) !=
+            (interpretation.request_id, interpretation.principal_ref,
+             interpretation.policy_digest)):
+        raise ValueError('request, principal or policy mismatch')
+    if now >= route.expires_at:
+        raise ValueError('expired route proposal')
+    expected_status = {
+        'route': {'local', 'codex'},
+        'clarify': {'clarify'},
+        'abstain': {'abstain'},
+        'deny': {'deny'},
+    }[interpretation.disposition]
+    if route.status not in expected_status:
+        raise ValueError('interpretation and route disposition disagree')
+    # The first profile has no consent artifact capable of allowing personal
+    # content to leave the local boundary. Later support needs a new version.
+    if interpretation.sensitivity == 'personal' and route.egress == 'cloud':
+        raise ValueError('personal interpretation cannot use cloud egress')
+    return True
 
 
 class Capability(Contract):

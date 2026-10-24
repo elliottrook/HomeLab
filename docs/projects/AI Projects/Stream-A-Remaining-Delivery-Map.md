@@ -328,9 +328,15 @@ is unverified.
 The previously implicit NLU stage now has an explicit
 [request-interpretation boundary](NLU-Selector-Boundary.md). Its content-free
 contract separates family, sensitivity, capability needs and ambiguity from
-provider selection and AI-PAM authority; focused semantic tests pass 6/6. This is
+provider selection and AI-PAM authority; the expanded interpretation/route
+semantic suite passes 11/11. This is
 an offline interface only. The independent labelled holdout, calibrated
 abstention and shadow comparison remain open, so automatic routing stays off.
+The downstream selector now also emits a separate
+[digest-bound route proposal](evidence/M3-NLU-route-lineage-boundary-2026-10-24.md)
+with consistent backend/egress semantics, expiry and no authority. The expanded
+focused suite passes 11/11, including personal-data cloud denial in the initial
+profile. No selector is deployed and no route is promoted.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 Milestones 3 and 6 proceed independently of D3 session aging. Connected tools wait for milestone 3; automatic routing does not need to be built before a limited manual Codex release. The earlier SA0–SA5 table records operational requirements and historical Qwen work; it is **not** a second obligation to rerun the closed Qwen general-sysadmin trial. Its still-applicable authority, investigation, repair and acceptance checks map into milestones 3–7.

@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from pydantic import ValidationError
 from contracts import (Capability, Decision, Experiment, HarnessRun, Outcome, Projection,
-                       RequestInterpretation)
+                       RequestInterpretation, RouteProposal, contract_digest, validate_route)
 from fixtures import CATALOGUE, CASES, POLICY, REGISTRY, make_run
 from offline_baseline import FixtureAdapter
 
@@ -132,6 +132,78 @@ class RequestInterpretationTests(unittest.TestCase):
         with self.assertRaises(ValidationError):
             RequestInterpretation(**(self.value() | {
                 'capability_needs': tuple(f'capability.{i}' for i in range(9))}))
+
+
+class RouteProposalTests(unittest.TestCase):
+    def interpretation(self, **changes):
+        value = dict(request_id='r', principal_ref='p', request_family='general-answer',
+                     sensitivity='internal', capability_needs=(), ambiguity='clear',
+                     disposition='route', reason='understood', engine_digest=POLICY,
+                     policy_digest=POLICY)
+        return RequestInterpretation(**(value | changes))
+
+    def route(self, interpretation, **changes):
+        value = dict(request_id='r', principal_ref='p',
+                     interpretation_digest=contract_digest(interpretation), status='local',
+                     backend_id='aster-local', egress='local', reason='local-capable',
+                     policy_digest=POLICY, expires_at=100)
+        return RouteProposal(**(value | changes))
+
+    def test_bound_local_route_grants_no_authority(self):
+        interpretation = self.interpretation()
+        route = self.route(interpretation)
+        self.assertTrue(validate_route(interpretation, route, now=50))
+        self.assertEqual('not-granted', route.authorization)
+
+    def test_route_shape_fails_closed(self):
+        interpretation = self.interpretation()
+        invalid = (
+            {'status': 'local', 'backend_id': None},
+            {'status': 'local', 'egress': 'cloud'},
+            {'status': 'codex', 'egress': 'local'},
+            {'status': 'clarify', 'backend_id': 'aster-local'},
+            {'status': 'deny', 'reason': 'ambiguous'},
+            {'authorization': 'granted'},
+        )
+        for changes in invalid:
+            with self.subTest(changes=changes), self.assertRaises(ValidationError):
+                self.route(interpretation, **changes)
+
+    def test_digest_identity_policy_expiry_and_disposition_are_bound(self):
+        interpretation = self.interpretation()
+        checks = (
+            ({'interpretation_digest': 'sha256:' + '0' * 64}, 50, 'digest'),
+            ({'principal_ref': 'another'}, 50, 'principal'),
+            ({'policy_digest': 'sha256:' + '0' * 64}, 50, 'policy'),
+            ({}, 100, 'expired'),
+        )
+        for changes, now, error in checks:
+            with self.subTest(error=error), self.assertRaisesRegex(ValueError, error):
+                validate_route(interpretation, self.route(interpretation, **changes), now=now)
+        clarify = self.interpretation(disposition='clarify', reason='ambiguous',
+                                      ambiguity='ambiguous')
+        with self.assertRaisesRegex(ValueError, 'disposition'):
+            validate_route(clarify, self.route(clarify), now=50)
+
+    def test_personal_cloud_route_denied_without_consent_contract(self):
+        interpretation = self.interpretation(sensitivity='personal')
+        route = self.route(interpretation, status='codex', backend_id='codex-subscription',
+                           egress='cloud', reason='stronger-capability-required')
+        with self.assertRaisesRegex(ValueError, 'personal'):
+            validate_route(interpretation, route, now=50)
+
+    def test_nonroute_dispositions_bind_without_backend(self):
+        cases = (
+            ('clarify', 'ambiguous', 'ambiguous', 'clarify'),
+            ('abstain', 'ambiguous', 'ambiguous', 'abstain'),
+            ('deny', 'clear', 'policy-denied', 'deny'),
+        )
+        for disposition, ambiguity, reason, status in cases:
+            interpretation = self.interpretation(disposition=disposition,
+                ambiguity=ambiguity, reason=reason)
+            route = self.route(interpretation, status=status, backend_id=None,
+                               egress='none', reason=reason)
+            self.assertTrue(validate_route(interpretation, route, now=50))
 
 
 class DecisionSemanticTests(unittest.TestCase):

@@ -24,6 +24,13 @@ for a downstream selector to consider it; it does not select a provider, approve
 egress, project a capability or grant a tool. Privacy/policy checks remain separate,
 and AI-PAM remains the only future authority source.
 
+`RouteProposal` is a separate selector record bound to the exact interpretation
+digest, request, principal and policy. Its status must agree with the NLU
+disposition, backend and egress. The initial profile denies cloud routing for a
+personal interpretation because it has no consent artifact; adding such an
+artifact requires a new reviewed contract version. Route proposals expire and
+also carry literal `authorization: not-granted`.
+
 Catalogue declarations never grant permissions. `project_catalogue` filters using
 an explicitly supplied trusted fixture permission set. Production grant data must
 come from AI-PAM, which this adapter cannot contact. Fixture capability IDs do not
