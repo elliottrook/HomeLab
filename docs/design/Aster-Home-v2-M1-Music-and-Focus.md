@@ -782,3 +782,18 @@ retains the first failed transition test rather than claiming every attempt
 passed; exact initial filler error was not captured and remains unproven.
 Production remains independent and unchanged; physical remote/listening/sofa
 acceptance is not inferred from native dispatcher tests.
+
+## Accepted across v2 players — 2026-10-24
+
+Jason accepted floating icons as the common player standard, not just a Music
+experiment. `player_controls.py` builds a separate overlay for VideoOSD, the
+existing music player, Books listening (audiobook/podcast) and Digest. It keeps
+all actions, conditions and navigation, including subtitle/audio/quality
+selection and the distinction between a whole digest and one story. Controls
+remain labelled natively, with a visible action caption on focus. No pill/ring
+background; original monochrome companion glyphs use the same stroke family.
+
+Generated overlay is local/staged, not activated on HP or production. Native
+cross-player review belongs to shell/player integration; no v1 source is edited
+to manufacture a deployment claim. M2 retains the separate interactive-scrubber,
+overlay/auto-hide and remote regression work. HP Music remains candidate36.

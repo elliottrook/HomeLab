@@ -15,8 +15,9 @@
   [v1.1 project](Aster-Home-Version-1.1-Up-Next.md); v2 consumes its accepted
   result, not another implementation or an excuse to delay it.
 - Service/identity/firewall/firmware changes and production promotion remain
-  outside the current autonomous Music envelope. All Forgejo pushes are held
-  at Jason's request; retain focused local commits instead.
+  outside the current autonomous Music envelope. Forgejo pushes require a
+  specific owner request; Jason authorized publishing the completed Music/icon
+  work on 2026-10-24. This does not authorize later unrelated pushes.
 
 ## 2. Purpose and current baseline
 
@@ -804,3 +805,59 @@ pre-trial recovery remains at `before-candidate33`; each subsequent exact ZIP/
 tree checkpoint retained through `before-candidate36`. HP left at ordinary
 Home; default read-only remains deliberate, not disabled/expired controls
 silently presented as live playback. Production and remote Git untouched.
+
+#### Accepted shared icons and Music remainder — 2026-10-24
+
+Jason accepted the floating glyphs and directed using them in all players,
+pushing the work and moving to the next item. Floating transport icons are now
+the v2 standard for video/TV, music, audiobook/podcast and Digest players.
+Keep descriptive labels for accessibility/focused captions, real play/pause
+state, generous hit targets and green/sage focus with a short gold underline.
+Not a direction to replace unrelated navigation or content-decision text.
+
+Bounded next implementation: generate a local v2 overlay for the four existing
+skin player pages, with original actions/conditions/navigation/Stop-on-exit
+unchanged and no modification to the frozen v1 source. Shared glyphs use the
+accepted Music geometry plus a few original companion symbols. Package and
+test every mapping, route, asset and frame bound before deployment. Cross-
+player overlay activation is not silently included in the HP Music deployment
+or BOSGAME promotion; Music remains the deployed native trial. No new service,
+credential, speech, metadata, settings or infrastructure change. Recovery is
+the untouched accepted skin plus immutable local overlay artifacts. Existing
+health/inventory integrations unchanged because no service/host is introduced.
+
+Music remainder is four work packages, not a claim that only styling remains:
+1. Normal integrated entry/playback from Songs, Artists and saved Playlists;
+   remove the operator-only trial friction through a separately validated
+   normal playback path, without quietly deleting the current safety guard.
+2. Stateful album/playlist shuffle and usable queue editing: Play Next/Later,
+   remove, confirmed clear, explicit saved queue/playlist handling and restart
+   behavior. Saved-playlist writes still need their bounded live assessment.
+3. Interactive scrubber, truthful audio/output details and restrained art-derived
+   atmosphere; current progress line and small seeks are not that complete UI.
+4. Full shell integration, physical G20/sofa and listening checks, offline/error/
+   restart/long-session tests, performance and recovery acceptance. M3 stays open.
+
+Next safe Music coding step after the shared icon contract: position-based
+remove and confirmed-clear proposals, duplicate/current-index preservation and
+stale-snapshot tests. Keep those planning-only until their native writer path
+is validated; no saved-playlist or unrelated queue mutations.
+
+Shared overlay implemented: `services/kodi/v2/player_controls.py` generates the
+four player XML replacements and their matching SVG/PNG glyphs without editing
+the accepted skin. All 29 transport/back button mappings retain exact actions,
+conditions, labels, navigation, window-load/unload hooks and default focus.
+Video retains previous/seek/play-pause/next/Stop/Info/Audio/Subtitles/Quality;
+Books covers audiobooks and podcasts; Digest retains full-briefing versus
+individual-story actions. Native accessible labels are not replaced with
+unlabelled images. Light/dark variants keep appropriate focus contrast.
+
+Candidate1 overlay ZIP SHA-256
+`2bdc8f99a6dedb33ab7858f13e38b0ec3ac8ccaa9e2bfec0e920c038ed122b60`;
+source hashes are pinned in its manifest. Four new tests check every action/
+condition, frame bounds/unique IDs, bundled assets, deterministic packaging
+and no source mutation. 158 v2 tests pass. This is a local review/integration
+artifact, not an installed skin or native acceptance of the other players.
+HP Music candidate36 and the production system remain unchanged. Publish the
+completed branch to Forgejo once under Jason's current request, then verify
+the Forgejo-owned GitHub branch ref read-only; do not push directly to GitHub.
