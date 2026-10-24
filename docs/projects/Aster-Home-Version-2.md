@@ -3,7 +3,9 @@
 ## 1. Header and authorization
 
 - Owner: Jason. Created: 2026-10-23.
-- Status: scope recorded; implementation not started. **Stream M - Monitored.**
+- Status: active, M1 local prototypes/inventory in progress. **Stream M - Monitored.**
+- Started: 2026-10-23, by the owner's explicit start request. Remote milestone
+  approvals remain required; this does not convert the project to Stream A.
 - Scope authority: owner's marked review and subsequent chat clarification.
   Items 01-26 and 31-32 were selected; all unticked items are deferred.
 - HP (`192.168.1.140`) is the v2 lab. BOSGAME (`192.168.1.157`) stays on its
@@ -18,8 +20,9 @@
 
 Make Aster a coherent, premium, remote-first television interface with useful
 episode discovery, music listening, Books narration and Home integration.
-Both clients run identical Aster v1.0.5 add-on files; HP retains LibreELEC
-12.2.1/Kodi 21.3 and BOSGAME its accepted hardware-specific OS. English stream
+BOSGAME remains on v1.0.5; HP runs the separately approved v1.1 test candidate
+with unified Aster Intro/Outro controls. HP retains LibreELEC 12.2.1/Kodi 21.3
+and BOSGAME its accepted hardware-specific OS. English stream
 preferences, watch badges, compact player controls, stop-on-exit, audio
 playback, six-hour audio catalogue refresh and startup splashes are delivered
 baseline/regression checks, not new v2 promises.
@@ -188,9 +191,34 @@ whole-library shuffle excluding holiday/Christmas, deferral of all unticked
 items, v2 project creation and urgent separate v1.1 Up Next. HP-only v1.1 test
 deployment subsequently approved. No v2 live mutation occurred.
 
-Next v2 action after v1.1: M1 read-only music metadata inventory and a bounded
-design/acceptance plan. Do not begin a service-dependent live milestone without
-its immediate approval. Research basis:
+Owner subsequently directed v2 to start and deferred v1.1 production deployment
+until the production unit is not in use. No automatic deployment or polling
+job was created; obtain an explicit idle/promotion confirmation before
+interrupting BOSGAME. The existing HP v1.1 candidate stays independently
+recoverable while v2 develops locally outside its release source trees.
+
+M1 started with two complete read-only HP AudioLibrary inventories: 1,335
+albums, 17,113 songs, 21 raw genres (six broad groups plus 15 legacy labels).
+The proposed seventh display bucket is Other / unclassified, retaining eight
+unmatched tracks rather than inventing a genre. Track-only Christmas exclusion
+would catch 585; album inheritance catches 765 across 74 Christmas albums,
+retaining 16,348 eligible tracks. No metadata, queue, playback, service,
+credential, network or deployed skin was changed.
+
+Added an isolated pure policy prototype under `services/kodi/v2/`, with 11
+passing tests including full-library >500 coverage, album inheritance, unknown
+genres and no source mutation. A read-only real-data execution reproduced the
+same 16,348/765 split. Category counts, proposed exact aliases, exclusion rules
+and focus/control contract are recorded in
+[M1 music and focus design](../design/Aster-Home-v2-M1-Music-and-Focus.md).
+Current work produces no speech and introduces no live integration objects;
+Doctor/Beszel/NetBox/DNS/firewall/backup coverage remains unchanged. Git holds
+only aggregate counts, local prototype and tests, not a library export.
+
+Next safe action: local visual/focus prototypes using these real categories,
+then the bounded HP deployment/rollback proposal. M1 remains open until its
+visual/focus and category-policy review gates pass. Do not begin a
+service-dependent live milestone without its immediate approval. Research basis:
 [original recommendations](../design/Aster-Home-v2-Recommendations.md),
 [Seerr upstream](https://github.com/seerr-team/seerr), and
 [existing media request authority](Unified-Media-Automation-and-Recommendations.md).

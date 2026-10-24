@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-10-23 - Aster v2 M1 started
+
+- Started the scoped Stream M project with a complete read-only music
+  inventory and isolated genre/holiday shuffle prototype; 11 tests pass.
+- Confirmed 17,113 tracks, 765 direct/inherited holiday exclusions and 16,348
+  eligible tracks; no source tags, saved playlists or deployed skin changed.
+- Recorded the music focus/design contract and kept v1.1 production promotion
+  deferred until explicit idle/promotion confirmation.
+
 ## 2026-10-23 - Aster v2 scope and separate v1.1 Up Next
 
 - Created the bounded v2 Stream M charter from the owner's reviewed list and
