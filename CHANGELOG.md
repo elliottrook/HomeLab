@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-10-23 - Aster v2 verified Music catalogue adapter
+
+- Added isolated, read-only complete-library genre/album/artist/song indexing,
+  two-pass consistency checks, stable search/paging and safe error codes.
+- Detected HP's short artist-enriched pages; preserve all tracks through a
+  verified complete basic read and explicitly flag 23 unavailable artist credits.
+  No guessed metadata, database repair or queue changes.
+- 31 v2 tests, ten focus checks and three unchanged v1.1.1 package checks pass.
+  Bounded HP pilot proposal recorded; no v2 installation or production changes.
+
 ## 2026-10-23 - Aster v1.1.1 available-only Up Next correction
 
 - Removed caught-up/future/missing-file placeholders; only an available next

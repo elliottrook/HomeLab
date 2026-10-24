@@ -3,7 +3,7 @@
 ## 1. Header and authorization
 
 - Owner: Jason. Created: 2026-10-23.
-- Status: active, M1 local prototypes/inventory in progress. **Stream M - Monitored.**
+- Status: active, M1 design accepted and read-only catalogue adapter validated; isolated HP pilot next. **Stream M - Monitored.**
 - Started: 2026-10-23, by the owner's explicit start request. Remote milestone
   approvals remain required; this does not convert the project to Stream A.
 - Scope authority: owner's marked review and subsequent chat clarification.
@@ -243,3 +243,22 @@ The owner subsequently corrected v1.1 to available episodes only. The approved
 v1.1.1 patch is verified on both clients: no caught-up/future placeholders, older
 started shows considered beyond the former 24-show cutoff. This correction is
 part of the v2 regression baseline, not a deferred new feature.
+
+2026-10-23 continuation: pushed completed Aster work through v1.1.1 to Forgejo;
+read-only GitHub mirror verification matched `a326417fc46cafb2588e5f14305442c7053a68d8`.
+No direct GitHub push. Continued v2 locally with a full-library genre/album/
+artist/song adapter and truthful partial-read handling. Thirty-one v2 tests,
+ten focus-model checks and three unchanged release checks pass. Read-only HP
+execution resolves the complete 17,113 tracks / 1,335 albums / 1,042 artists and
+preserves 23 tracks whose artist-credit joins are missing; those credits are
+flagged unavailable rather than guessed. The initial artist-enriched query's
+998/1,000 mismatch was detected, investigated read-only and covered by tests.
+No database repair, installed v2 code, player/queue action or production change.
+
+The M1 design record now includes the bounded **read-only, separately identified
+HP lab-script proposal**, initial 3.18-second two-pass build timing, integration
+impact, rollback and unresolved package/G20 gates. Next safe action is to build
+that isolated pilot locally, then request its exact HP install/launch approval.
+Do not treat this continuation request as permission for live queue operations,
+a skin/profile switch or server-side music metadata repair. New v2 work remains
+a separate local milestone until another specific push approval.

@@ -1,6 +1,6 @@
 # Aster v2 M1 - music inventory and interaction contract
 
-Status: local prototype, 2026-10-23. Governing project:
+Status: local design accepted; read-only catalogue adapter validated, 2026-10-23. Governing project:
 [Aster Home v2](../projects/Aster-Home-Version-2.md).
 
 ## Live inventory (read-only HP Kodi index)
@@ -117,3 +117,103 @@ bounded HP deployment/rollback proposal. No v2 code is installed on HP and no
 production change is authorized. Keep the v1.1 release manifest reproducible.
 Before actual playback tests, checkpoint affected queue and per-user state;
 prefer disposable fixtures and restore measured test effects explicitly.
+
+## Read-only catalogue adapter — 2026-10-23
+
+The owner accepted the visual prototype and directed continuation. New local
+`services/kodi/v2/music_catalogue.py` injects a read-only Kodi RPC transport,
+fetches complete pages and builds category-to-song/album/artist membership.
+Search/pagination use that verified full index rather than truncate the source
+to the first 500 titles. Two complete reads must match before publication;
+this is optimistic consistency, not a claim of a transactional RPC snapshot.
+Bounds: 100,000 songs, 10,000 albums/artists, pages at most 2,000 records.
+Only indexed IDs, labels and classification/relationship fields are retained;
+unexpected fields and media paths are discarded. No RPC error text is exposed.
+
+Thirty-one v2 tests pass (20 adapter, 11 policy), including the full 17,113-song
+fixture, changing totals/tags, duplicates, missing references, explicit empty
+libraries, partial reads, private-field removal and browse-copy independence.
+Ten focus-model and three immutable v1.1.1 packaging checks also pass. The
+adapter has no player/queue/file write API. It runs from stdin memory for live
+validation, not as an installed add-on. No source metadata was exported.
+
+### Real HP edge case and handling
+
+The initial strict read rejected a real page mismatch: GetSongs requested with
+artist IDs reported a 1,000-row range but returned 998 rows. A basic genre/
+album-ID query returned all 1,000. Read-only SQLite aggregate diagnosis found
+23 songs with no `song_artist` credit row and zero dangling artist references;
+per-item detail lookup also rejected the two omitted sample IDs. Changing sort
+did not fix it. No database repair or sync/reset was attempted.
+
+The adapter now requires a complete basic page for that same range, checks all
+enriched rows agree on identity/classification, and preserves omitted tracks
+with explicit unavailable artist credit rather than guessing an artist or
+dropping music. The fallback is capped at 128 omissions per pass. A short basic
+page, changed limits, duplicate ID or inconsistent metadata still fails closed.
+Category and browse results expose uncredited-song counts for an honest UI
+notice; those tracks remain in Albums/Songs and normal shuffle eligibility.
+They do not create a fictional artist card. No database version/path is baked
+into the runtime adapter: SQLite was diagnostic only.
+
+The upstream [Kodi 21.3 AudioLibrary implementation](https://github.com/xbmc/xbmc/blob/21.3-Omega/xbmc/interfaces/json-rpc/AudioLibrary.cpp)
+is the API-boundary reference; actual HP responses, not an assumed upstream
+fix or OS upgrade, determine the handling above.
+
+Live two-read validation resolves 1,335 albums, 1,042 artists and all 17,113
+tracks; 16,348 shuffle-eligible / 765 excluded, matching the previous policy
+inventory. It explicitly reports the 23 unavailable credits. Two independent
+complete two-pass builds took 3.181/3.187 seconds; refresh must be explicit/bounded, not repeated
+on every focus change. Art loads should remain lazy for visible items.
+
+| Category | Albums represented | Known artists | Missing-credit tracks |
+|---|---:|---:|---:|
+| Pop, Electronic & Hip-Hop | 340 | 458 | 1 |
+| Jazz, Blues, R&B & Soul | 360 | 299 | 0 |
+| Rock & Alternative | 283 | 138 | 5 |
+| Country & Folk | 315 | 221 | 0 |
+| Christmas | 74 | 106 | 14 |
+| Classical | 15 | 16 | 0 |
+| Other / unclassified | 2 | 1 | 3 |
+
+These are overlapping memberships, not distinct library totals. The alias and
+inherited holiday policy remain reviewable before live queue integration.
+
+## Bounded HP pilot proposal — not yet installed or authorized
+
+Next implementation is a separately identified **read-only Music lab script**
+(`script.astermusic.v2lab`), not a new production skin or replacement of the
+four v1.1.1 add-ons. Its own WindowXML view uses the accepted 1080p layout and
+existing supplied Aster assets/fonts. Launch explicitly as a lab tool, without
+changing Home navigation, the active skin, G20 mapping or autostart. Build/test
+the package locally before requesting the following live approval.
+
+- Target only HP `192.168.1.140`; BOSGAME stays on v1.1.1. Verify hostname,
+  current package hashes and no active playback immediately before testing.
+- Capture/verify private add-on registration/GUI/keymap checkpoint and any
+  pre-existing lab-addon directory. Do not overwrite a different existing lab
+  install. Register only the isolated script, launch the view, then close it
+  back to the same v1 page. A skin/profile switch is not part of this pilot.
+- Read the existing per-user Kodi music index through the adapter. Seven genre
+  tiles open Albums / Artists / Songs views with search, real empty/error and
+  unavailable-credit notices. Keep full-index loading outside focus handlers;
+  failed refresh never replaces a valid prior view with a fabricated empty list.
+- This first pilot does not play, shuffle, clear a queue, edit/save playlists,
+  retag files, invoke voice, add credentials, subscribe or download media.
+  The non-holiday shuffle control may show its eligibility preview but must
+  clearly say it does not play yet. Queue actions require their own later gate.
+- Validate G20-only OK/Back/row/rail restoration, stable selected category and
+  filters after returning, known uncredited tracks retained, cancelled/failed
+  refresh, artwork fallbacks and 1080p/scaled-4K readability. Confirm ordinary
+  Aster still works after closing the view and after a normal Kodi restart.
+- Rollback disables/removes only the new lab addon and restores checkpointed
+  registration if required. Never restore another client's credentials/watch
+  database or overwrite the installed v1 add-on trees. Retain immutable v1.1.1
+  packages and the existing private recovery archives independently.
+- No new service/port/identity/DNS/firewall/NetBox/Beszel object or spoken output.
+  Kodi/refresh health remains service-native. Record timing and truthful error
+  codes, not titles, media paths, tokens or a persistent exported library.
+
+Open gates: build the isolated Kodi pilot; approve its exact HP install/launch
+checkpoint procedure; verify actual G20 behavior. Visual acceptance is recorded,
+but neither a browser prototype nor passing adapter tests closes those gates.
