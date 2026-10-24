@@ -38,12 +38,23 @@ class SeriesViewTests(unittest.TestCase):
                 self.assertLessEqual(int(control.findtext('left'))+int(control.findtext('width')),920)
                 self.assertLessEqual(int(control.findtext('top'))+int(control.findtext('height')),210)
         self.assertEqual(root.findtext('defaultcontrol'),'202')
+        home=ET.parse(HERE.parent/'skin.asterhome/1080i/Home.xml')
+        home_ring_colours=[c.findtext('colordiffuse') for c in home.findall('.//focusedlayout/control')
+                           if (c.findtext('texture') or '').endswith('/ui-compact-card-ring.png')][:2]
         for layout in (rows.find('itemlayout'),rows.find('focusedlayout')):
             plates=[c for c in layout.findall('control') if (c.findtext('texture') or '').endswith('/ui-panel.png')]
-            self.assertEqual(len(plates),4)
+            self.assertEqual(len(plates),3)
             self.assertEqual(int(layout.get('height'))-int(plates[1].findtext('height')),12)
             self.assertEqual(plates[1].find('texture').get('border'),'24')
-            self.assertEqual(plates[2].find('texture').get('colordiffuse'),'ffad8a4d')
+            rings=[c for c in layout.findall('control') if (c.findtext('texture') or '').endswith('/ui-compact-card-ring.png')]
+            self.assertEqual([c.find('texture').get('colordiffuse') for c in rings],['asterIvory','asterGreen'])
+            self.assertEqual([c.find('texture').get('colordiffuse') for c in rings],home_ring_colours)
+            self.assertEqual([(c.findtext('left'),c.findtext('top'),c.findtext('width'),c.findtext('height')) for c in rings],
+                             [('0','0','900','198'),('2','2','896','194')])
+            for ring in rings:
+                self.assertEqual(ring.find('texture').get('border'),'20')
+                self.assertEqual(ring.findtext('visible'),'String.IsEqual(ListItem.Property(Selected),true)')
+            self.assertFalse(any(c.findtext('width')=='4' for c in layout.findall('control')))
             titles=[c for c in layout.findall('control') if c.findtext('label')=='$INFO[ListItem.Label]']
             self.assertEqual(len(titles),2)
             selected=next(c for c in titles if c.findtext('textcolor')=='ff005c46')

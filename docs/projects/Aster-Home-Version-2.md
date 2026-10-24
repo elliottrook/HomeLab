@@ -32,8 +32,8 @@
   has reappeared server-side and is retained pending one-cleanup authority. Exact evidence and
   recovery references are at the end. M3 not graduated; physical remote/listening
   acceptance of the corrections remains pending. Production is unchanged.
-  M2 standalone read-only series preview6 is staged separately (five files,
-  manifest `ebfed96fd1645339e01db31f34ffcd0fffe871f35f4c2401d024bf4320aa3131`);
+  M2 standalone read-only series preview7 is staged separately (five files,
+  manifest `a6a0aa107ce5ad453ddb91a5a4e5d35a0f83e4eb2985d6e35c77e939287ad801`);
   it does not replace normal TV navigation or enable episode playback.
 - Up Next is urgent and extracted into the separate
   [v1.1 project](Aster-Home-Version-1.1-Up-Next.md); v2 consumes its accepted
@@ -2450,3 +2450,38 @@ updated verified launcher leaves preview6 open without autoplay. Normal TV,
 production, credentials and watch history remain unchanged; local commit only.
 `review-ready-1792881198763920973.json` confirms preview6 is visible with a
 selected episode and no active player. Back returns to the unchanged Home.
+
+### Series preview — front-page selection ring around entire pill (2026-10-24)
+
+Jason accepts the floating pills and requests the front-page tile selection
+identifier around the whole pill, replacing the short green line. Read-only
+inspection of installed and source Home.xml confirms the existing compact-card
+ring with outer `asterIvory` and2px-inset `asterGreen`, not a new graphic.
+Preview7 reuses that exact asset and colour aliases in both row templates, with
+20px nine-slice borders to retain round corners at the wider pill aspect ratio.
+The selected gold edge and short line are removed; selected title remains
+green. Pill/still/text geometry, gap, controller and metadata remain unchanged.
+HP-only staged XML revision; retain6, require fresh idle preservation and
+five-file manifest/isolated restore, repeat native focus/navigation and inspect
+the whole-pill outline before owner review. No install, playback, server,
+settings, restart, production or push. Preview7 manifest:
+`a6a0aa107ce5ad453ddb91a5a4e5d35a0f83e4eb2985d6e35c77e939287ad801`.
+
+Fresh preflight `postcheck-1792881449036804226.json`, five-file manifest and
+isolated restore pass; package diff confirms XML-only change from6. Native
+`native-1792881482169830607.json` and independent
+`native-1792881514503681949.json` both pass selected ID/property agreement,
+adjacent rows, season round-trip, single/multiseason behavior, details-only OK,
+Back/source focus and idle/empty cleanup. Native4K image review confirms the
+green-and-ivory outline wraps all four sides of episode2 with rounded corners;
+episode1 has no selection ring and the short bar is absent. Pill/art/text sizes
+and gaps unchanged. 338 tests pass normally and under optimized Python; local
+test ties ring aliases to Home.xml and verifies removal of the short marker.
+Final preservation and owner-review launch follow; production unchanged.
+
+Final `postcheck-1792881554642080885.json` verifies Music64/48 files, accepted
+v1/overlay/integration/rail members,68 AV/language settings, database integrity,
+idle/empty queues and closed lab windows. Owner review
+`review-ready-1792881584771443789.json` confirms preview7 visible with a selected
+episode and no player. HP is left on the new full-pill selection; Back returns
+to Home and OK still opens details only. Local commit, no remote push.
