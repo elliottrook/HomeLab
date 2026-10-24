@@ -21,6 +21,18 @@ class SeriesSelection:
         self.season,self.index=self.page.restore(identity,season=group.number)
         return True
 
+    def follow_episode(self,identity):
+        """Restore only an exact positively observed playing episode."""
+        if type(identity) is not int:return False
+        position=self.page.restore(identity)
+        if position is None:return False
+        season,index=position
+        if self.page.seasons[season].episodes[index].episode_id!=identity:return False
+        if self.group:self.remembered[self.group.number]=self.episode.episode_id
+        self.season,self.index=position
+        self.remembered[self.group.number]=identity
+        return True
+
 def episode_metadata(row):
     duration=f'{int(row.duration)//60} min' if row.duration else 'Duration unavailable'
     return row.numbering+' · '+duration+' · '+(row.first_aired or 'Air date unavailable')

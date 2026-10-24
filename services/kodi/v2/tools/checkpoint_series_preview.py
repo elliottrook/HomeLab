@@ -1,4 +1,4 @@
-"""Verify five staged HP preview files and their isolated restore, no install."""
+"""Verify exact staged HP series members and isolated restore, no install."""
 import hashlib,json,os,re,shutil,sys,time
 from pathlib import Path
 
@@ -18,8 +18,9 @@ def main(args):
     manifest=json.loads((stage/'manifest.json').read_text())
     names={'default.py','resources/lib/series_adapter.py','resources/lib/series_model.py','resources/lib/series_view.py',
         'resources/skins/Default/1080i/SeriesPreview.xml'}
-    require(manifest.get('schema')==1 and manifest.get('kind')=='hp-readonly-series-preview','manifest-kind')
-    require(len(manifest['files'])==5 and {r['path'] for r in manifest['files']}==names,'exact-preview-members')
+    require(manifest.get('schema')==1 and manifest.get('kind') in ('hp-readonly-series-preview','hp-series-player'),'manifest-kind')
+    if manifest['kind']=='hp-series-player':names.add('resources/lib/series_playback.py')
+    require(len(manifest['files'])==len(names) and {r['path'] for r in manifest['files']}==names,'exact-preview-members')
     for row in manifest['files']:
         path=stage/row['path'];require(not path.is_symlink() and path.stat().st_size==row['bytes'] and digest(path)==row['sha256'],'member-hash')
     require(digest(Path('/storage/.kodi/addons/plugin.video.asterhome/library.py'))==
@@ -37,6 +38,6 @@ def main(args):
     for row in manifest['files']:require(digest(checkpoint/'isolated-restore'/row['path'])==row['sha256'],'restored-member')
     shutil.copyfile(evidence,checkpoint/'native-preflight.json')
     for path in checkpoint.rglob('*'):path.chmod(0o700 if path.is_dir() else 0o600)
-    print(json.dumps(dict(stage=name,files_verified=5,isolated_restore_verified=True,installed_files_changed=0)))
+    print(json.dumps(dict(stage=name,files_verified=len(names),isolated_restore_verified=True,installed_files_changed=0)))
 
 if __name__=='__main__':main(sys.argv[1:])

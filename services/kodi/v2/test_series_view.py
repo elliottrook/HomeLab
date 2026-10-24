@@ -20,6 +20,14 @@ class SeriesViewTests(unittest.TestCase):
         page=build_series(12,[episode(),episode(2,2,1)],expected_total=2)
         view=SeriesSelection(page,2);self.assertEqual((view.season,view.index),(1,0))
 
+    def test_native_next_tracks_exact_episode_across_seasons_without_guessing(self):
+        page=build_series(12,[episode(),episode(2,1,2),episode(3,2,1)],expected_total=3)
+        view=SeriesSelection(page,2)
+        self.assertTrue(view.follow_episode(3));self.assertEqual((view.season,view.index),(1,0))
+        self.assertTrue(view.change_season(0));self.assertEqual(view.episode.episode_id,2)
+        for value in (999,True,'3',None):
+            self.assertFalse(view.follow_episode(value));self.assertEqual(view.episode.episode_id,2)
+
     def test_empty_and_unknown_values_do_not_invent_content(self):
         view=SeriesSelection(build_series(12,[],expected_total=0))
         self.assertIsNone(view.episode);self.assertFalse(view.change_season(0));view.select(0)
@@ -62,7 +70,7 @@ class SeriesViewTests(unittest.TestCase):
 
     def test_preview_dispatch_has_no_playback_or_server_writes(self):
         source=(HERE/'series_preview/default.py').read_text();ast.parse(source)
-        self.assertNotIn('Player.Open',source);self.assertNotIn('PlayMedia(',source)
+        self.assertNotIn('PlayMedia(',source)
         self.assertNotIn('urllib',source);self.assertNotIn('requests.',source)
         self.assertNotIn('assert ',source)
 
@@ -101,7 +109,7 @@ class SeriesViewTests(unittest.TestCase):
             first=Path(parent)/'one';second=Path(parent)/'two'
             self.assertEqual(build(first),build(second))
             manifest=json.loads((first/'manifest.json').read_text())
-            self.assertEqual(len(manifest['files']),5)
+            self.assertEqual(len(manifest['files']),6)
             for row in manifest['files']:
                 data=(first/row['path']).read_bytes()
                 self.assertEqual(hashlib.sha256(data).hexdigest(),row['sha256'])
@@ -120,5 +128,35 @@ class SeriesViewTests(unittest.TestCase):
             window.publish();window.getControl.assert_not_called()
             self.assertFalse(window.ready);self.assertIsNone(window.identity)
             window.close();window.close();self.assertTrue(window.finished);self.assertEqual(window.closed,1)
+
+    def test_fullscreen_return_retains_allocated_window_and_rebuilds_header(self):
+        from types import SimpleNamespace
+        gui=Mock();gui.WindowXML=type('Window',(),{'__init__':lambda self,*a:None})
+        gui.getCurrentWindowId.return_value=10000
+        with patch.dict(sys.modules,{'xbmc':Mock(),'xbmcgui':gui}):
+            spec=importlib.util.spec_from_file_location('aster_series_return_runtime',HERE/'series_preview/default.py')
+            module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+            window=module.SeriesPreview();window.ready=True;window.identity=13001
+            page=build_series(12,[episode()],expected_total=1)
+            window.snapshot=SimpleNamespace(page=page,title='Series',synopsis='Synopsis',fanart='',genres=(),year=None,rating=None,certificate='')
+            original=window.selection=SeriesSelection(page)
+            window.populate=Mock();window.setProperty=Mock();window.setFocusId=Mock();window.publish=Mock()
+            window.onInit()
+            self.assertEqual(window.identity,13001);self.assertIs(window.selection,original)
+            window.setProperty.assert_any_call('Series.Title','Series')
+            gui.Window.return_value.setProperty.assert_called_with('AsterSeries.PreviewWindow','13001')
+
+    def test_closing_hidden_series_cannot_indirectly_stop_external_video(self):
+        gui=Mock();gui.WindowXML=type('Window',(),{'__init__':lambda self,*a:None})
+        with patch.dict(sys.modules,{'xbmc':Mock(),'xbmcgui':gui}):
+            spec=importlib.util.spec_from_file_location('aster_series_conflict_runtime',HERE/'series_preview/default.py')
+            module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+            for phase in ('conflict','recovery'):
+                window=module.SeriesPreview();window.session=Mock(phase=phase,can_close=True)
+                window.finish_close=Mock()
+                with patch.object(module,'rpc',return_value=[dict(playerid=1,type='video')]):window.close()
+                window.finish_close.assert_not_called();self.assertTrue(window.close_requested)
+                with patch.object(module,'rpc',return_value=[]):window.close()
+                window.finish_close.assert_called_once()
 
 if __name__=='__main__':unittest.main()

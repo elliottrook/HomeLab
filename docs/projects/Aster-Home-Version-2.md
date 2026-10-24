@@ -32,9 +32,13 @@
   has reappeared server-side and is retained pending one-cleanup authority. Exact evidence and
   recovery references are at the end. M3 not graduated; physical remote/listening
   acceptance of the corrections remains pending. Production is unchanged.
-  M2 standalone read-only series preview8 is staged separately (five files,
-  manifest `0072d6cae6800a2326a166362fd5b864384d0fbf274124a4fb37de8e99bd2b39`);
-  it does not replace normal TV navigation or enable episode playback.
+  M2 HP series player16 is now active through the two-file TV-show-only
+  Select integration6, manifest
+  `659d6631fbf660aa549f8aa1e123178173d559d58e8f668a50b311566e10d48b`.
+  Two independent real episode/resume runs (including native Next) and native
+  TV/movie navigation before/after restart pass. Preview8 is retained separately
+  as the accepted read-only layout reference. Remote/listening and timed marker
+  walkthrough remain pending; no production promotion or M2 graduation.
 - Up Next is urgent and extracted into the separate
   [v1.1 project](Aster-Home-Version-1.1-Up-Next.md); v2 consumes its accepted
   result, not another implementation or an excuse to delay it.
@@ -236,6 +240,30 @@ the exact next safe action before any pause; no reliance on chat memory.
 Push only after specific approval, then verify the Forgejo-owned GitHub mirror.
 
 ## 8. Acceptance and operating handover
+
+HP series pilot (2026-10-24; production remains unchanged): open **Media →
+TV Shows**, highlight a series poster and press OK. The floating episode page
+opens without starting playback. Up/Down selects adjacent episodes; Left
+reaches the season selector, OK chooses a season, and returning to a season
+keeps the selected episode. OK on an episode plays that exact library item;
+the hero action uses the verified resume/next identity rather than a guessed
+episode. Menu/Info opens episode information. Back from fullscreen stops video
+and restores the playing episode on this page; another Back returns to the same
+series poster in the library. OSD Audio, Subtitles and Quality keep the existing
+controls, and Next uses the accepted available-next policy. Following an OSD
+Next also updates the episode selected on return. The existing Jellyfin
+10-second resume rewind is retained. No new login or connection setting.
+
+Movies, native season/episode directory items, Home Continue Watching and
+Music/Books/Digest retain their previous actions. A complete stable library
+snapshot is required; absent/stale metadata produces an explicit unavailable
+message without guessing a media path. An uncertain start is not retried:
+stop any active video, close the page and report the status; a retained recovery
+fence needs inspection, not deletion to bypass it. Recovery disables only the
+two-file HP TV Select hook using its verified private checkpoint; it does not
+restore a whole user profile or rewrite playback history. Real remote/listening
+walkthrough and actual timed intro/outro prompt acceptance remain required
+before series graduation/production promotion.
 
 Every selected visible action must be reachable/reversible by G20 alone, with
 stable focus, truthful failures and no hidden background playback on full-player
@@ -2521,3 +2549,167 @@ Normal TV, server state and production remain unchanged. No restart or push.
 episode and no player. Left open on HP; Back returns to Home, OK is still the
 read-only details preview. This final requested series layout is ready for the
 next separately bounded normal-navigation/playback integration slice.
+
+### M2 continuation — accepted series layout to HP navigation/playback (2026-10-24)
+
+Jason says “Perfect. Continue” after the final centred-image preview. The layout
+is accepted; continue the bounded HP lab implementation under his standing lab
+deployment/test/restart authority. Scope: staged series player, exact local show
+IDs from TV-show tiles only, one narrow Select dispatcher hook/helper, normal
+Kodi episode-ID playback with stored boolean resume, return/focus refresh and
+stop-on-exit. Movies, seasons/episode directories, Home Continue Watching,
+Music/Books/Digest and BOSGAME keep their existing actions. Kodi VideoFullScreen
+remains playback/intro/outro/OSD owner; no duplicate sequencing or stream URLs.
+
+Risks: wrong media routing, late/double playback starts, accidental external
+playback stop, stale progress/focus and failed activation. Require fresh episode
+identity/show/availability/progress reads, idle native player/queues, one pending
+open, exact confirmed ownership before any stop, no automatic start retries,
+and retained uncertainty rather than blind playback. Test pure failures and
+synthetic clocks first; stage/checkpoint/isolated restore before any hook and
+verify the unchanged Music/rail/v1 layers. Native video tests may naturally
+update the HP signed-in user's playback time through the existing Jellyfin
+client; no manual history/reset/metadata writes or new server credential access.
+Prefer already-watched fixtures for short play/pause/Back tests. Real live-resume
+and end-marker claims need their own evidence, not mocked passes.
+
+No new speech, listener, service, identity, network/firewall or monitoring object;
+Beszel/NetBox and existing backup/Doctor authority unchanged. New checkpoint and
+operator records cover the two-file hook; rollback restores only those exact
+files and retains the standalone accepted preview8. Expected disruption is at
+most a bounded HP restart if needed; refuse unexpected drift/playback. No
+production activation, playlist cleanup, manual watch-state edits or Git push.
+
+Native integration work in progress: stages9/10 were not activated. Stage10's
+exact-dictionary player comparison rejected Kodi21's additional `playertype`
+field, closing the hidden scripted page and unloading fullscreen. Corrected
+identity matching now accepts optional fields while still requiring one video
+player1 and exact episode/show ownership; unit coverage added. Stage11 passes
+real playback and native OSD Audio/Subtitles/Quality reachability, but fullscreen
+Back exposed WindowXML reinitialization before Kodi updates current-window
+metadata. The callback incorrectly replaced the allocated page ID with Home's
+ID, preventing return. One verified-idle HP restart cleared that orphaned window;
+no installed skin file changed. Stage11 test was accidentally launched after the
+old read-only checkpoint helper rejected its new manifest kind; no activation
+occurred. Subsequent runs use the updated checkpoint helper and a successful
+explicit native preservation result before launch.
+
+Stage13 retains its allocated window ID, repopulates header/rows on reentry,
+explicitly restores the page after an owned stop, and ignores Back callbacks
+from another active window. A hidden page may not close while an unrelated
+player is active (including avoiding indirect fullscreen-unload stops). Native
+tests remain a gate, not an assumption. Stage13 six-file manifest
+`2c25a3869dcf644af6360ad012f179a829be157c378e2d353c75e690d6a86052`
+has a verified isolated restore under
+`/storage/.aster-checkpoints/aster-series-preview-20261024/aster-series-preview13`;
+fresh `postcheck-1792883506381993937.json` preceded its test. Two-file normal TV
+hook remains local/unactivated until two independent native player passes.
+
+Stage13's immediate return raced Kodi's remaining fullscreen unload; stage14
+defers a single explicit restoration until fullscreen has exited. Native
+`native-player-1792883651577772083.json` passes playback, stored resume, pause,
+native stream-control reachability, stop-on-Back, exact episode/source return
+and metadata refresh. Repeat checks exposed two harness assumptions, not
+permission to weaken a gate: (1) Kodi's asynchronous bookmark seek may follow
+fullscreen readiness; (2) Jellyfin's existing `resumeJumpBack=10` adjusts synced
+bookmarks. Read-only source/one-setting inspection explains the observed short
+test rewinds. Do not reset the original2276s fixture or edit history/settings.
+The corrected harness checks a fresh bookmark, waits for the real resume clock,
+plays forward, and compares the saved bookmark with the exit clock allowing
+only the configured rewind/keyframe tolerance. Tests also wait for explicit
+series/container readiness before issuing selection commands; an early row
+command previously overtook the initial list selection.
+
+Stage15 passes `native-player-1792884035042193227.json` and independent
+`native-player-1792884088140991014.json`; the second includes the real OSD Next
+control, existing policy's available already-watched following episode,
+native stop/open handoff and exact following-row return. No percentage-based
+credits detection, new stream resolver, seek-generated marker or manual
+history write. Native intro/outro monitor starts for the real episodes; actual
+timed intro/credits prompt presentation still needs its separate acceptance.
+Series readiness is explicit; directional input cannot become permanently
+trapped behind a pending initial index. Positive following-episode ownership
+updates row/season memory, including cross-season unit coverage.
+
+Stage16 adds the final fail-safe: both conflict and uncertain recovery retain
+the hidden page while another player exists, preventing indirect stop through
+fullscreen unload. If cleanup cannot confirm ownership within32s, persist a
+recovery fence and remain read-only until that player ends or Kodi shuts down;
+no retry/forced stop. Early callbacks are ignored before initialization/after
+closure. Six-file manifest
+`4c090e0b3a66b7b56679a07569453d668c372727eeb458f91d97d27ab772796d`
+has fresh `postcheck-1792884147207288706.json` and isolated restore. Two native
+passes of this exact final stage remain mandatory before activation. The
+two-file integration6 manifest is
+`659d6631fbf660aa549f8aa1e123178173d559d58e8f668a50b311566e10d48b`.
+Installer tests prove drift refusal, two-pass gating, isolated source restore,
+helper-first activation and known-hash rollback retaining the new helper.
+
+#### Final HP series pilot activation and recovery (2026-10-24)
+
+Final stage16 native runs `native-player-1792884203328959419.json` and
+`native-player-1792884245279029373.json` both pass with checks enforced under
+Kodi optimized Python. The first also exercises the real Next button and
+following-episode return; both verify native playback, actual bookmark resume,
+clock progression, pause/resume, marker monitor, OSD stream-control navigation,
+Back-stop, episode/source focus and refresh. Natural Jellyfin reports from
+short resume tests moved the fixture's bookmark slightly earlier through its
+existing10s rewind; no manual progress restore/reset was performed or claimed.
+
+Fresh preflight `postcheck-1792884258413189137.json` preceded integration6
+activation. Only `skin.asterhome/tools/select_dispatch.py` and new
+`tools/aster_v2_series.py` were installed; helper first, dispatcher last, no
+activation restart. The checkpoint is
+`/storage/.aster-checkpoints/aster-series-integration-20261024`, including
+candidate/active manifests, fresh native preflight and isolated original
+`tools/select_dispatch.py` restored and SHA-verified before activation. The
+standalone six-member stage16/isolated restore remains pinned by the hook.
+Installer failure tests verify refusal on source drift/one native pass and
+restoration of the old dispatcher while quarantining the known new helper.
+
+Native `native-navigation-1792884280478926794.json` passes normal TV poster OK,
+populated episode page/no autoplay, Back to the exact show poster/control50 and
+native Movies navigation. After a verified-idle HP Kodi restart, independent
+`native-navigation-1792884372947290372.json` passes again. Their historical
+check label “physical-select-dispatch” means programmatically invoking the same
+installed G20 dispatcher, **not** a physical-remote acceptance claim; the driver
+label is corrected. Kodi PID18405 / NRestarts0, memory about630MiB after the
+restart/navigation run; no crash/restart loop observed.
+
+`postcheck-1792884402695287098.json` verifies Music64's48 members,140 unchanged
+v1 baseline members, four approved player overlays, eight normal Music files,
+rail3, both series-hook files/all staged series members,68 AV/language settings,
+healthy Music database/zero missing primary artist links, shuffle off, no player,
+empty queues, no uncertainty fence and all lab windows closed. Installed
+VideoFullScreen/next_episode source remains the accepted version; no new
+stream resolver or duplicate intro/outro engine. BOSGAME/server settings,
+credentials, saved playlists and production deployment are unchanged. Local
+validation:363 v2 tests normally and with `-O`,100 original skin-tool tests,
+25 original video-addon tests, syntax compilation and diff checks pass.
+
+Intent/efficiency review: normal TV browsing now reaches the accepted design
+without manual script launch or autoplay, and Back stops/restores real playback.
+Native start was about1–2s and return rendering about3–4s including the stable
+metadata reread; bounded polling/snapshot caps are retained. Return latency is
+a pilot trade-off to review on the physical remote, not a claim of final polish.
+No new service/Beszel/NetBox/network identity or listener; existing authorities
+and baseline integration exclusions remain applicable. The retained private
+checkpoints and this section are the recovery/operations record.
+
+Manual rollback (idle HP, all lab windows closed): verify the active manifest
+and both installed hashes against integration6; refuse any drift. Atomically
+restore only `tools/select_dispatch.py` from the isolated restore (original SHA
+`9d3334a1d8b15f465c43139ce038de0b82d0a2b129568cb3e7f7270704419796`), then
+move only the known new helper into that private checkpoint and retire the
+active manifest there. Do not delete the staged player/reference preview,
+restore user databases/settings or overwrite unrelated files. Re-run the
+native preservation check without a series override, then ordinary TV/Music
+navigation. Recovery retained; no rollback is presently required.
+
+Resume point: HP pilot is ready for owner **remote/listening** walkthrough via
+Media → TV Shows; Home is idle. Verify series/season/episode selection, OK play,
+Back-stop/exact return, audio and a real timed intro/credits prompt. These are
+human acceptance gates, not another request for HP test/deployment authority.
+M2 remains open for broader shell/search/scrub scope. Keep production unchanged,
+the pending server-playlist cleanup untouched, and reserve Forgejo pushes until
+separately requested. Save this bounded slice as a focused local commit only.

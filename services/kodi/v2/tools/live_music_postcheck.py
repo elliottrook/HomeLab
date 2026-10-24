@@ -36,6 +36,8 @@ if (profile/'shared-playlist-pending.json').exists():
     _require((json.loads((profile/'shared-playlist-pending.json').read_text()).get('status')=='verified'), ('shared-save-recovery-required'))
 keys=['Window(Home).Property(AsterV2Lab.'+name+')' for name in ('TrialRecovery','AlbumWindow','Window')]
 keys.append('Window(Home).Property(AsterSeries.PreviewWindow)')
+keys.append('Window(Home).Property(AsterSeries.Recovery)')
+_require(not Path('/storage/.aster-checkpoints/aster-series-playback-20261024/unresolved-start.json').exists(),'series-recovery-required')
 _require((not any(rpc('XBMC.GetInfoLabels',{'labels':keys}).values())), ('live-or-recovery-window-retained'))
 stage=Path('/storage/.aster-staging');addons=Path('/storage/.kodi/addons')
 baseline=json.loads((stage/'aster-artist-repair-v1-baseline-20261023.json').read_text())
@@ -54,7 +56,7 @@ overlay_count=len(overrides)
 integration_file=Path('/storage/.aster-checkpoints/aster-music-integration-20261024/active-manifest.json')
 integration_count=0
 if integration_file.exists():
-    _require(len(sys.argv) in (5,6),'integration-manifest-proof-required')
+    _require(len(sys.argv) in (5,6,7),'integration-manifest-proof-required')
     integration_sha=sys.argv[4]
     _require(len(integration_sha)==64 and all(c in '0123456789abcdef' for c in integration_sha),'integration-sha')
     _require(hashlib.sha256(integration_file.read_bytes()).hexdigest()==integration_sha,'integration-manifest-hash')
@@ -71,12 +73,30 @@ if integration_file.exists():
 rail_file=Path('/storage/.aster-checkpoints/aster-floating-rail-20261024/active-manifest.json')
 rail_count=0
 if rail_file.exists():
-    _require(len(sys.argv)==6,'rail-manifest-proof-required')
+    _require(len(sys.argv) in (6,7),'rail-manifest-proof-required')
     _require(hashlib.sha256(rail_file.read_bytes()).hexdigest()==sys.argv[5],'rail-manifest-hash')
     rail=json.loads(rail_file.read_text())
     _require(rail.get('schema')==1 and rail.get('kind')=='hp-floating-rail' and rail.get('path')=='1080i/IncludesHub.xml','rail-target')
     _require(hashlib.sha256((addons/'skin.asterhome'/rail['path']).read_bytes()).hexdigest()==rail['sha256'],'rail-member-hash')
     overrides['skin.asterhome/'+rail['path']]=rail['sha256'];rail_count=1
+series_file=Path('/storage/.aster-checkpoints/aster-series-integration-20261024/active-manifest.json')
+series_count=0
+if series_file.exists():
+    import re
+    _require(len(sys.argv)==7 and hashlib.sha256(series_file.read_bytes()).hexdigest()==sys.argv[6],'series-manifest-proof')
+    series=json.loads(series_file.read_text())
+    _require(series.get('schema')==1 and series.get('kind')=='hp-series-integration','series-kind')
+    _require(len(series['files'])==2 and {r['path'] for r in series['files']}=={'tools/select_dispatch.py','tools/aster_v2_series.py'},'series-targets')
+    for row in series['files']:
+        _require(hashlib.sha256((addons/'skin.asterhome'/row['path']).read_bytes()).hexdigest()==row['sha256'],'series-member-hash')
+        overrides['skin.asterhome/'+row['path']]=row['sha256']
+    _require(re.fullmatch(r'aster-series-preview[1-9][0-9]*',series['series_stage']),'series-stage')
+    player_stage=stage/series['series_stage']
+    _require(hashlib.sha256((player_stage/'manifest.json').read_bytes()).hexdigest()==series['series_manifest_sha256'],'series-stage-hash')
+    player=json.loads((player_stage/'manifest.json').read_text())
+    _require(player.get('kind')=='hp-series-player' and len(player['files'])==6,'series-player-kind')
+    _require(all(hashlib.sha256((player_stage/r['path']).read_bytes()).hexdigest()==r['sha256'] for r in player['files']),'series-player-members')
+    series_count=2
 _require((all(hashlib.sha256((addons/row['path']).read_bytes()).hexdigest()==overrides.get(row['path'],row['sha256']) for row in rows)), ('native-check-failed'))
 manifest=json.loads((stage/f'aster-music-v2lab-0.1.0-candidate{candidate}/manifest.json').read_text())
 _require((manifest['sha256']==expected), ('native-check-failed'))
@@ -102,6 +122,7 @@ with output.open('x') as handle:
                'v1_files_verified':sum(row['path'] not in overrides for row in rows),'approved_overlay_pages_verified':overlay_count,
                'approved_normal_music_files_verified':integration_count,
                'approved_floating_rail_files_verified':rail_count,
+               'approved_series_integration_files_verified':series_count,
                'av_language_settings_verified':len(values),
                'database_integrity':'ok','missing_primary_artist_links':0,
                'no_player':True,'original_empty_queue':True,'capability_removed':True,
