@@ -6,8 +6,8 @@
   </requires>
   <extension point="xbmc.python.script" library="default.py"><provides>executable</provides></extension>
   <extension point="xbmc.addon.metadata">
-    <summary lang="en_GB">Read-only Aster Music design pilot</summary>
-    <description lang="en_GB">Genre, album, artist and song browsing. No playback, queue edits, subscriptions or metadata writes.</description>
+    <summary lang="en_GB">Read-only Aster Music and queue-preview pilot</summary>
+    <description lang="en_GB">Genre, album, artist and song browsing, ordered album tracks and queue previews. No playback, queue edits, subscriptions or metadata writes.</description>
     <platform>all</platform><license>Private HomeLab pilot</license>
     <assets><icon>resources/icon.png</icon></assets>
   </extension>

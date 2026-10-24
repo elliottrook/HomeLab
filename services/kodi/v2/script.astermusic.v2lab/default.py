@@ -10,10 +10,14 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0,str(ROOT/'resources'/'lib'))
 from lab_model import LabModel
 from music_catalogue import CatalogueUnavailable, read_catalogue
+from music_album import AlbumUnavailable, read_album
+from music_queue import propose
+from queue_reader import QueueUnavailable, read_queue
 
 ASSETS = 'special://home/addons/skin.asterhome/media/'
 READS = {'AudioLibrary.GetAlbums','AudioLibrary.GetArtists','AudioLibrary.GetSongs',
-         'AudioLibrary.GetAlbumDetails','AudioLibrary.GetArtistDetails','AudioLibrary.GetSongDetails'}
+         'AudioLibrary.GetAlbumDetails','AudioLibrary.GetArtistDetails','AudioLibrary.GetSongDetails',
+         'Player.GetActivePlayers','Player.GetProperties','Playlist.GetItems'}
 BACK = {9,10,92,216,247,257,275}
 DIRECTIONS = {1:'left',2:'right',3:'up',4:'down'}
 ICONS = {'album':'23-music-album.png','artist':'24-music-artist.png','song':'25-music-song.png'}
@@ -44,6 +48,64 @@ def load_catalogue():
     except Exception:
         return None,'Catalogue unavailable · unexpected-read-error'
     finally: progress.close()
+
+
+class AlbumLab(xbmcgui.WindowXML):
+    """Native album screen; all three queue controls are explicit previews."""
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.selection=None; self.title=''; self.artwork=''
+
+    def onInit(self):
+        self.setProperty('Album.Title',self.title)
+        self.setProperty('Album.Art',self.artwork)
+        ordering='disc / track' if self.selection.disc_numbers_available else 'track tags · disc numbers unavailable'
+        self.setProperty('Album.Count',str(len(self.selection.tracks))+' tracks · ordered by '+ordering)
+        self.setProperty('Album.Status','Read-only queue preview · no playback starts')
+        items=[]
+        for row in self.selection.tracks:
+            number=f'{row.disc}.{row.track:02}' if row.disc else str(row.track)
+            item=xbmcgui.ListItem(label=number+'  '+row.title)
+            item.setProperty('Duration',f'{row.duration//60}:{row.duration%60:02}')
+            items.append(item)
+        self.getControl(600).reset();self.getControl(600).addItems(items)
+        self.setFocusId(600)
+        xbmcgui.Window(10000).setProperty('AsterV2Lab.AlbumWindow',str(xbmcgui.getCurrentWindowId()))
+
+    def preview(self,action,ids):
+        try:
+            snapshot=read_queue(rpc)
+            if action=='next' and snapshot.current_index is None:
+                xbmcgui.Dialog().ok('Play Next · preview','There is no current music track. Add to Queue can preview an idle queue. Nothing has changed.');return
+            plan=propose(snapshot,ids,action=action)
+        except (QueueUnavailable,ValueError) as error:
+            message={'unsupported-queue-item':'The queue contains a file or stream this preview cannot safely represent.',
+                     'unsupported-active-player':'The current player is not a supported music queue.',
+                     'queue-changed-during-read':'The queue changed while reading it. Please try again.'}.get(str(error),'Queue preview unavailable. Please retry without changing playback.')
+            xbmcgui.Dialog().ok('Queue preview unavailable',message+'\n\nYour queue is unchanged.');return
+        names={'next':'Play Next','append':'Add to Queue','replace':'Replace Queue'}
+        effect=('Would replace the existing queue. Live replacement will require confirmation.'
+                if plan.replaces_queue else 'Would preserve the current track and existing queue order.')
+        xbmcgui.Dialog().ok(names[action]+' · preview',f'{len(ids)} selected tracks · {len(snapshot.song_ids)} currently queued · {len(plan.song_ids)} proposed total.\n\n'+effect+'\n\nPreview only. Nothing was played, saved or changed.')
+
+    def onClick(self,control):
+        if control in (401,402,403):
+            self.preview({401:'next',402:'append',403:'replace'}[control],self.selection.song_ids)
+        elif control==600:
+            index=self.getControl(600).getSelectedPosition()
+            if not 0<=index<len(self.selection.tracks):return
+            option=xbmcgui.Dialog().select('This track · preview',['Play Next','Add to Queue','Replace Queue'])
+            if option in (0,1,2):self.preview(('next','append','replace')[option],(self.selection.tracks[index].song_id,))
+
+    def onAction(self,action):
+        key=action.getId()
+        if key in BACK:self.close();return
+        control=self.getFocusId()
+        if control==600 and key==1:self.setFocusId(401);return
+        if control in (401,402,403) and key in DIRECTIONS:
+            if key==1:self.setFocusId(max(401,control-1))
+            elif key==2:self.setFocusId(min(403,control+1))
+            elif key in (3,4):self.setFocusId(600)
 
 
 class MusicLab(xbmcgui.WindowXML):
@@ -106,7 +168,7 @@ class MusicLab(xbmcgui.WindowXML):
         if self.model.mode=='genres' and row:
             copy=f"{row['song_count']:,} tracks · {row['album_count']:,} albums · {row['artist_count']:,} known artists"
         else:
-            copy=(self.model.category or 'Your music')+' · Read-only design pilot. Select to inspect; playback is not enabled.'
+            copy=(self.model.category or 'Your music')+' · Select an album for ordered tracks and queue previews. Playback remains disabled.'
         self.prop('Copy',copy)
         self.prop('HeroArt',self.art(row) if row else ASSETS+ICONS['album'])
         self.prop('Shuffle',f"{len(self.model.catalogue.shuffle_summary['eligible_ids']):,} eligible tracks · preview only")
@@ -122,7 +184,8 @@ class MusicLab(xbmcgui.WindowXML):
         if 500<=control<508:
             selected=self.model.enter(control-500)
             if selected is not None:
-                xbmcgui.Dialog().ok('Read-only Music pilot',selected.get('label','Untitled')+'\n\nThis '+self.model.kind+' is indexed in your library. Playback is intentionally disabled in this pilot.')
+                if self.model.kind=='album':self.open_album(selected)
+                else:xbmcgui.Dialog().ok('Read-only Music pilot',selected.get('label','Untitled')+'\n\nThis '+self.model.kind+' is indexed in your library. Playback is intentionally disabled in this pilot.')
             else:self.render();self.focus_grid()
         elif control in (100,101,102):
             self.model.set_kind({100:'album',101:'artist',102:'song'}[control]);self.render();self.focus_grid()
@@ -152,6 +215,23 @@ class MusicLab(xbmcgui.WindowXML):
         elif control in (305,9008):self.close()
         elif control==9007:
             self.rail=False;self.prop('Rail','false');self.focus_grid()
+
+    def open_album(self,row):
+        identity=row['albumid']
+        expected=[i for i,song in self.model.catalogue.songs.items() if song.get('albumid')==identity]
+        try:selection=read_album(rpc,identity,expected)
+        except AlbumUnavailable as error:
+            message=('This album has missing track numbers. Album order cannot be guessed; its songs remain available in Songs.'
+                     if str(error)=='album-track-number-unavailable' else
+                     'The complete album order could not be verified. Refresh the catalogue and try again.')
+            xbmcgui.Dialog().ok('Album order unavailable',message);return
+        window=AlbumLab('AlbumLab.xml',str(ROOT),'Default','1080i')
+        window.selection=selection;window.title=row.get('label','Album');window.artwork=self.art(row)
+        try:window.doModal()
+        finally:
+            xbmcgui.Window(10000).clearProperty('AsterV2Lab.AlbumWindow')
+            del window
+        self.focus_grid()
 
     def onAction(self,action):
         key=action.getId()

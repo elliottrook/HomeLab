@@ -3,9 +3,10 @@
 ## 1. Header and authorization
 
 - Owner: Jason. Created: 2026-10-23.
-- Status: active, M1 read-only Music pilot deployed on HP; native owner walkthrough pending. **Stream M - Monitored.**
-- Started: 2026-10-23, by the owner's explicit start request. Remote milestone
-  approvals remain required; this does not convert the project to Stream A.
+- Status: active; Music implementation and HP pilot continuation is now
+  **Stream A - Autonomous**, explicitly directed by Jason on 2026-10-23.
+- Started: 2026-10-23. Earlier evidence below retains its historical Stream M
+  approvals; the bounded Stream A envelope below governs current continuation.
 - Scope authority: owner's marked review and subsequent chat clarification.
   Items 01-26 and 31-32 were selected; all unticked items are deferred.
 - HP (`192.168.1.140`) is the v2 lab. BOSGAME (`192.168.1.157`) stays on its
@@ -13,8 +14,9 @@
 - Up Next is urgent and extracted into the separate
   [v1.1 project](Aster-Home-Version-1.1-Up-Next.md); v2 consumes its accepted
   result, not another implementation or an excuse to delay it.
-- This document is not permission for service/identity/firewall/firmware
-  mutations. Each bounded remote milestone needs immediate approval.
+- Service/identity/firewall/firmware changes and production promotion remain
+  outside the current autonomous Music envelope. All Forgejo pushes are held
+  at Jason's request; retain focused local commits instead.
 
 ## 2. Purpose and current baseline
 
@@ -120,8 +122,9 @@ recolour. Latest owner direction removes stone texture from controls.
 
 ## 6. Pre-start assessment and approval gates
 
-Local charter/code/tests are authorized; Stream M requires approval of each
-live candidate. Main risks: focus/playback regressions, wrong-user progress,
+Local charter/code/tests are authorized. Current Music continuation follows the
+bounded Stream A envelope below; other service-dependent gates remain closed.
+Main risks: focus/playback regressions, wrong-user progress,
 queue loss, microphone privacy, unsafe request authority, stale camera imagery,
 sleep/wake failure and firmware recovery. Stage on HP, checkpoint first, stop
 on identity/topology surprises, and never broaden service trust as a shortcut.
@@ -130,6 +133,40 @@ Before a milestone starts, record actual dependencies, affected user/data,
 minimum permissions/network rules, expected interruption, success/failure
 tests, private backup and rollback. Reader, voice, camera, Seerr and firmware
 require their own bounded gate; this charter is not sufficient live approval.
+
+### Current Stream A authorization envelope — 2026-10-23
+
+Jason directed: “Continue stream a on this work. Don’t stop until you need my
+approval. Reserve forgejo pushes until later.” This supersedes per-change
+Stream M approval for the current Music implementation, not the frozen scope or
+non-waivable controls. Enumerated changes:
+
+- Local v2 Music code, tests, album/queue UI, package generation, docs and
+  focused local commits outside the accepted v1 source trees.
+- Checkpoint, install/update and launch only `script.astermusic.v2lab` on HP
+  `192.168.1.140`; bounded native navigation/screenshot tests and reopening the
+  pilot are permitted. Verify previous files and rollback before each update.
+- Read Kodi catalogue and queue state without retaining paths/tokens; develop
+  queue proposal/confirmation and playback safeguards locally. Keep HP writes
+  to queue/playback disabled until a concrete live playback/recovery assessment
+  and unresolved category/exclusion policy are accepted. This is a retained
+  decision gate, not a request for approval of routine reads or pilot updates.
+
+Affected authority is HP's isolated lab add-on; existing Kodi owns the index
+and queues. No new service/network path/account is needed. Risks are a broken
+pilot, lost browse focus or misleading preview: preserve the immutable prior
+ZIP plus exact installed files, verify the new manifest, fail closed on stale
+or unsupported queues, exercise Back/focus and confirm unchanged player/queue
+and all 153 v1 files. Roll back only the pilot. Stop rather than interrupt real
+playback or restore an unverified checkpoint. A Kodi restart is not expected;
+an unexpected need to stop it must be assessed before proceeding.
+
+Exclude BOSGAME, server metadata/watch/progress changes, saved-playlist writes,
+credentials, voice/microphone, Seerr submission, cameras, infrastructure,
+firmware and all Git remote writes. No cloud catalogue export, new spoken
+output or monitoring object; existing Kodi health remains the native monitor.
+Operational/wiki publication and release promotion wait for accepted behavior.
+Policy decisions, unexpected blast radius or failed recovery require Jason.
 
 ## 7. Milestones, persistence and resumability
 
@@ -311,3 +348,24 @@ installation, playback/queue write or production change. 76 v2 tests, ten focus
 checks and three unchanged release checks pass. The M1 design record contains
 limits/evidence and the next bounded player/queue approval gates. New ordered-
 album work is a local milestone; no second push implied by the completed push.
+
+2026-10-23 Stream A milestone: updated the autonomous envelope and portfolio;
+installed only the HP isolated candidate6 with verified recovery checkpoints.
+Album selection now opens artwork-left / unboxed-tracks-right native detail,
+per-track options and whole-album queue previews. Queue snapshots are read-only,
+complete, duplicate-preserving and fail closed for files/streams or changing
+state. Fixed actual native Back-focus reset and verified the exact tile returns.
+90 v2 tests, ten focus checks, three unchanged package checks and both native
+smoke paths pass. Native screenshot inspected; immediate recovery ZIP restored
+independently into a disposable Mac directory and all eleven hashes verified.
+All 153 installed v1 files unchanged; no playback/queue writes, production
+contact, Kodi restart, settings/keymap/registration or infrastructure changes.
+
+The [M1 design record](../design/Aster-Home-v2-M1-Music-and-Focus.md) and
+`services/kodi/v2/releases/music-v2lab-album-preview-0.1.0.json` hold artifacts,
+recovery, operator behavior and remaining gates. HP is left on album detail.
+Autonomous continuation now reaches the retained decision gate: category/holiday
+policy acceptance and a first idle HP-only live queue/player test of at most
+three songs, with queue checkpoint/restore and acknowledgement that test playback
+may update listening history. No automatic source retagging or production
+promotion. Forgejo pushes remain expressly held; completed milestone stays local.

@@ -413,3 +413,87 @@ Replace versus Play Next/Add to Queue behavior. Before enabling live writes,
 resolve classification review, mixed file/stream queue handling, races during
 mutation and Back/exit-stop behavior. This continuation does not authorize that
 deployment, server metadata repairs, production promotion or another push.
+
+### Stream A native album / queue-preview milestone — 2026-10-23
+
+Jason explicitly converted this Music continuation to Stream A and held all
+Forgejo pushes. The project charter now enumerates HP-only add-on updates,
+checkpoints, native tests and local commits; production/service/credential/
+metadata changes and live playback/queue writes remain excluded pending their
+specific gate. Earlier Stream M statements above are historical evidence, not
+the current per-change authorization model.
+
+Delivered candidate6, an eleven-file deterministic isolated pilot. Its SHA-256
+is `0cc540a7bb7d29b389c10f37dfbf82558d7a3cc1121d00c9ff29a734843b4c00`;
+the [release record](../../services/kodi/v2/releases/music-v2lab-album-preview-0.1.0.json)
+identifies the artifact and checks. Unlike earlier snapshots, the pilot now
+**bundles the pure album/queue proposal modules**, plus a new read-only queue
+adapter. No write adapter is present; the runtime's method allowlist still
+rejects Player.Open/Stop, Playlist.Add/Clear and metadata/settings writes.
+
+Album OK opens a separate native screen with supplied Aster logo and centred
+24-hour clock in the same header positions, square artwork left, album title /
+track count, and an unboxed track list right using the existing synopsis font.
+Disc/track tags determine order and durations are shown. Unknown discs are
+labelled unavailable, never guessed. Left reaches compact Play Next, Add to
+Queue and Replace Queue controls; Up/Down returns to the track list. All three
+are clearly described as previews and only show the proposed effect. Track OK
+opens the same options for that track. No sound is started or queue changed.
+
+`queue_reader.py` makes two matching bounded complete song-ID reads and checks
+the active player's queue/position. Repeated IDs/order are retained. Streams,
+file-only items, unsupported players, changing queues, incomplete pages and
+out-of-range positions fail closed with useful messages. No path is requested
+or retained. Idle Play Next explains that no current track exists; Add and
+Replace can still preview an idle queue. This is not a transaction or a claim
+that a future clear/rebuild operation can preserve an active stream.
+
+Native testing found an actual Back-focus reset: `defaultcontrol always=true`
+overrode the originating tile when returning from the child window. Candidate5
+changed the parent's default to `always=false`; the regression test and real
+Back/reopen path now pass. The first sampled Rock album also exercised the
+known missing-track-number explanation; this was truthful library metadata,
+not a player failure. Candidate6 only clarified unknown-disc copy/module
+documentation; the whole native path passed again.
+
+Validation: **90 v2 unit tests**, ten focus-model checks, three unchanged v1
+package checks; existing browse/rail/search/paging/refresh smoke and the new
+`tools/live_album_smoke.py` pass. The new path uses the real G20 Select dispatcher
+but is not evidence of a physical remote press or a human listening test.
+Player/queue RPC results matched before/after. All 153 v1.1.1 files hash-match.
+A native 3840×2160 screenshot was inspected for art, list, control/clock layout
+and clipping. The final album is left open on HP, no audio active. BOSGAME was
+not contacted or changed. No speech, infrastructure, accounts, ports or schedule
+changes; Kodi remains the native health surface.
+
+Before expansion, candidate3's seven installed files and ZIP were verified,
+the full old add-on tree retained under
+`/storage/.aster-checkpoints/aster-music-v2lab-before-album-20261023/`, and the new
+tree switched only after all hashes matched. Focus XML and final-copy updates
+have separate `before-album-focus-20261023` and `before-album-final-20261023`
+checkpoints. Candidate5's eleven-file recovery ZIP was independently copied to
+the Mac, restored into a disposable directory and every file hash checked.
+All prior immutable candidate ZIPs remain available locally and on HP. No Kodi
+restart or registration/keymap/settings change was needed.
+
+Recovery: close the pilot and restore only its verified prior whole add-on
+tree/ZIP, not the v1 skin, profile or watch databases. Candidate3 is the last
+owner-visually-accepted browse-only fallback; candidate5 is the immediate
+eleven-file fallback. Do not merge seven-file rollback contents over an expanded
+tree and leave stale modules behind. Verify the chosen manifest after restoring,
+then reopen; stop on a failed checkpoint rather than resetting Kodi.
+
+**Next owner decision / autonomous stop:** accept (or amend) the seven proposed
+Music groups and track-plus-album holiday exclusion, then authorize a first
+HP-only live player/queue test using at most three indexed songs while idle,
+with a verified queue checkpoint/restore. Ordinary test playback may update
+those songs' listening history through existing integrations; unlike the
+read-only pilot, that side effect is not promised reversible. No production,
+saved-playlist, metadata-tag or infrastructure changes are included. Once
+accepted, implement the smallest live adapter with explicit replace confirmation,
+no silent mixed-stream queue conversion and tested stop-on-exit. Full-library
+16,348-track shuffle/soak is a later performance check, not part of this first
+three-song test. Category/exclusion policy remains proposed: Pop/Electronic/
+Hip-Hop; Jazz/Blues/R&B/Soul; Rock/Alternative; Country/Folk; Christmas;
+Classical; Other/unclassified. Current holiday preview excludes 765 and retains
+16,348 tracks. No Forgejo or other remote Git writes were performed.

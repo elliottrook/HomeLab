@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<window><defaultcontrol always="true">500</defaultcontrol><backgroundcolor>ffe7dfcf</backgroundcolor><controls>
+<window><defaultcontrol always="false">500</defaultcontrol><backgroundcolor>ffe7dfcf</backgroundcolor><controls>
 <control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture colordiffuse="ffe7dfcf">special://home/addons/skin.asterhome/media/ui-solid.png</texture><aspectratio>stretch</aspectratio></control>
 <control type="image"><left>110</left><top>0</top><width>240</width><height>160</height><texture>special://home/addons/skin.asterhome/media/29-aster-music-logo.png</texture><aspectratio>keep</aspectratio></control>
 <control type="button" id="100"><left>394</left><top>31</top><width>215</width><height>48</height><label>Albums</label><font>font20</font><textcolor>ff202b25</textcolor><focusedcolor>fff3eee5</focusedcolor><align>center</align><aligny>center</aligny><texturefocus border="20" colordiffuse="ff005c46">special://home/addons/skin.asterhome/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="fff3eee5">special://home/addons/skin.asterhome/media/ui-panel.png</texturenofocus><onleft>100</onleft><onright>100</onright><onup>100</onup><ondown>100</ondown></control>

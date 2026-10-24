@@ -1,0 +1,28 @@
+{
+  "addon_id": "script.astermusic.v2lab",
+  "version": "0.1.0",
+  "status": "hp-read-only-album-and-queue-preview-deployed",
+  "authorization": "Owner-directed bounded Stream A Music continuation, 2026-10-23; no Forgejo pushes",
+  "artifact_directory": "services/kodi/dist/aster-music-v2lab-0.1.0-candidate6",
+  "archive": "script.astermusic.v2lab-0.1.0.zip",
+  "sha256": "0cc540a7bb7d29b389c10f37dfbf82558d7a3cc1121d00c9ff29a734843b4c00",
+  "file_count": 11,
+  "boundary": "HP only; read-only browse and queue previews; no v1 changes or playback/queue writes",
+  "validation": {
+    "v2_unit_tests": 90,
+    "focus_model_checks": 10,
+    "unchanged_v1_package_tests": 3,
+    "native": "G20 Select dispatcher, truthful missing-track-number error, ordered album screen, native track list, per-track options, idle Play Next explanation, whole-album Add/Replace previews, exact originating tile restored on Back; no playback or queue change",
+    "visual": "Native 3840x2160 screenshot inspected: existing logo/centred 24-hour pill, square cover left, unboxed track list right and compact flat controls",
+    "v1_baseline": "All 153 v1.1.1 installed files verified unchanged",
+    "recovery": "Candidate3 installed tree and verified ZIP retained before expansion; candidate5 recovery ZIP independently transferred, restored in disposable local directory and all eleven member hashes verified",
+    "production": "BOSGAME untouched",
+    "limitations": "Read-only previews only; no playback/queue writes, saved-playlist edits or metadata repair; physical G20 listening/sofa acceptance and category/holiday-policy decision remain outstanding"
+  },
+  "checkpoints": [
+    "/storage/.aster-checkpoints/aster-music-v2lab-before-album-20261023",
+    "/storage/.aster-checkpoints/aster-music-v2lab-before-album-focus-20261023",
+    "/storage/.aster-checkpoints/aster-music-v2lab-before-album-final-20261023"
+  ],
+  "next_gate": "Owner policy decision and explicitly bounded HP-only live playback/queue test, with verified idle queue checkpoint/restore and acknowledgement of possible test-track listening-history updates"
+}

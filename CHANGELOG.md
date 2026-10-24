@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-10-23 - Stream A HP Music album and queue previews
+
+- Recorded owner's bounded autonomous Music direction and hold on Git pushes.
+- HP-only native album screen: square art left, unboxed ordered tracks right,
+  compact controls and per-track/album read-only queue previews.
+- Added complete, duplicate-preserving queue snapshots with unsupported-stream,
+  stale-state and current-position guards. No player/queue write adapter.
+- Fixed native Back resetting album focus; both UI smoke workflows pass.
+- 90 v2 tests, ten focus checks and three unchanged release tests pass. Verified
+  all 153 v1 files unchanged and rehearsed eleven-file recovery independently.
+- Production untouched; policy/live playback approval remains the next gate.
+
 ## 2026-10-23 - v2 ordered album selection groundwork
 
 - Pushed saved HP pilot/clock work through `40f14133` to Forgejo; verified

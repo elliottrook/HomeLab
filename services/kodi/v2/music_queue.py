@@ -1,7 +1,7 @@
 """Offline queue proposals, not a Kodi transport or playback implementation.
 
-Keep this outside the read-only pilot bundle. An eventual write adapter must
-re-read the live queue and require approval before replacing playback. Queue
+The read-only pilot may display these proposals, never apply them. A future
+write adapter must re-read the live queue before replacing playback. Queue
 duplicates are intentional: never deduplicate a user's existing playlist.
 """
 from __future__ import annotations

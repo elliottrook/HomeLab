@@ -89,6 +89,7 @@ class RuntimeTests(unittest.TestCase):
     def test_unique_controls_self_navigation_and_existing_assets(self):
         root=ET.parse(HERE/'script.astermusic.v2lab/resources/skins/Default/1080i/MusicLab.xml')
         ids=[n.get('id') for n in root.findall('.//control') if n.get('id')]
+        self.assertEqual(root.find('defaultcontrol').get('always'),'false')
         self.assertEqual(len(ids),len(set(ids)))
         for control in root.findall('.//control[@type="button"]'):
             for direction in ('onleft','onright','onup','ondown'):
@@ -113,10 +114,58 @@ class RuntimeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as one,tempfile.TemporaryDirectory() as two:
             first=build(one);second=build(two)
             self.assertEqual(first['sha256'],second['sha256'])
-            self.assertEqual(len(first['files']),7)
+            self.assertEqual(len(first['files']),11)
             self.assertTrue(all(r['path'].startswith('script.astermusic.v2lab/') for r in first['files']))
-            self.assertFalse(any(r['path'].endswith('/music_queue.py') for r in first['files']))
-            self.assertFalse(any(r['path'].endswith('/music_album.py') for r in first['files']))
+            self.assertTrue(any(r['path'].endswith('/music_queue.py') for r in first['files']))
+            self.assertTrue(any(r['path'].endswith('/music_album.py') for r in first['files']))
+
+    def test_album_queue_actions_are_read_only_previews(self):
+        from music_album import order_album
+        from music_queue import QueueSnapshot
+        window=self.runtime.AlbumLab()
+        window.selection=order_album(7,[dict(songid=1,albumid=7,disc=1,track=1,
+                                            duration=180,label='One')],[1])
+        with patch.object(self.runtime,'read_queue',return_value=QueueSnapshot((),None)):
+            for control in (401,402,403):window.onClick(control)
+        self.assertEqual(self.gui.Dialog.return_value.ok.call_count,3)
+        self.xbmc.executeJSONRPC.assert_not_called()
+
+    def test_album_back_and_button_focus_contract(self):
+        window=self.runtime.AlbumLab();window.focused=401
+        action=Mock();action.getId.return_value=2;window.onAction(action)
+        self.assertEqual(window.focused,402)
+        action.getId.return_value=3;window.onAction(action)
+        self.assertEqual(window.focused,600)
+        action.getId.return_value=92;window.onAction(action)
+        self.assertTrue(window.closed)
+
+    def test_album_layout_fonts_clock_and_control_navigation_are_defined(self):
+        root=ET.parse(HERE/'script.astermusic.v2lab/resources/skins/Default/1080i/AlbumLab.xml')
+        fonts={n.text for n in ET.parse(HERE.parent/'skin.asterhome/1080i/Font.xml').findall('.//name')}
+        self.assertTrue(all(n.text in fonts for n in root.findall('.//font')))
+        controls=root.findall('.//control')
+        ids=[c.get('id') for c in controls if c.get('id')]
+        self.assertEqual(len(ids),len(set(ids)))
+        clock=next(c for c in controls if c.findtext('label')=='$INFO[System.Time(hh:mm)]')
+        self.assertEqual(clock.findtext('align'),'center')
+        self.assertEqual(clock.findtext('aligny'),'center')
+        for c in controls:
+            if c.get('id') in ('401','402','403','600'):
+                for direction in ('onleft','onright','onup','ondown'):
+                    self.assertEqual(c.findtext(direction),c.get('id'))
+
+    def test_album_unknown_disc_label_is_truthful_and_queue_failure_is_safe(self):
+        from music_album import order_album
+        from queue_reader import QueueUnavailable
+        window=self.runtime.AlbumLab();window.title='Album';window.artwork=''
+        window.selection=order_album(7,[dict(songid=1,albumid=7,disc=0,track=1,
+                                            duration=180,label='One')],[1])
+        window.onInit()
+        self.assertIn('disc numbers unavailable',window.props['Album.Count'])
+        with patch.object(self.runtime,'read_queue',side_effect=QueueUnavailable('unsupported-queue-item')):
+            window.onClick(403)
+        self.assertIn('unchanged',self.gui.Dialog.return_value.ok.call_args.args[1])
+        self.xbmc.executeJSONRPC.assert_not_called()
 
 
 if __name__=='__main__':unittest.main()

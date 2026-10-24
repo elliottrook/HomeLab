@@ -41,7 +41,8 @@
     }
   ],
   "boundary": "HP only; read-only browse; no v1 changes, playback or queue actions",
-  "status": "hp-read-only-pilot-visual-accepted-clock-corrected",
+  "status": "superseded-hp-read-only-pilot-visual-accepted-clock-corrected",
+  "superseded_by": "music-v2lab-album-preview-0.1.0.json",
   "artifact_directory": "services/kodi/dist/aster-music-v2lab-0.1.0-candidate3",
   "validation": {
     "local_tests": 61,
