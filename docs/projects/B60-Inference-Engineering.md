@@ -12,6 +12,12 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October 24 Adaptive follow-up](B60-Inference-Engineering/adaptive-nlu-and-recovery-receipt-20261024.md)
+receives `da86ed53`: the newer diagnostic installation receipt matches B60's
+observed hashes, and an October 25 F2 attempt is approved/activated. NLU now
+has a distinct exposed development benchmark; it is not the answer-quality
+release bar. Source/default-launcher review and live recovery/A1 remain open.
+
 The [October 24 F2 observation](B60-Inference-Engineering/f2-cycle-review-20261024.md)
 finds prepare succeeded but final failed at 01:20 with
 `FINAL_GUARD_SUBCHECK_FAILED`, no success result. Exact-date timers are absent;
