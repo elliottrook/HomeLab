@@ -33,6 +33,14 @@ class IndependentApprovalUnitTests(unittest.TestCase):
         self.assertIn("ASTER_APPROVAL_BROKER_SOCKET", Path(
             __file__).resolve().parents[1].joinpath("approval_ingress_service.py").read_text())
 
+    def test_both_processes_share_one_explicit_subject_allowlist_source(self):
+        environment = "EnvironmentFile=/etc/aster/approval-ingress.env"
+        self.assertIn(environment, INGRESS)
+        self.assertIn(environment, BROKER)
+        self.assertIn("--approver-subject-hash ${ASTER_APPROVAL_SUBJECT_HASHES}", BROKER)
+        self.assertNotIn("ASTER_BROKER_APPROVER_SUBJECT_HASHES", BROKER)
+        self.assertRegex(BROKER, r"(?m)^SupplementaryGroups=aster-approval$")
+
     def test_ingress_is_approval_only_and_private(self):
         command = re.search(r"(?m)^ExecStart=(.+)$", INGRESS).group(1)
         self.assertIn("approval_ingress_service:create_app", command)

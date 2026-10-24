@@ -34,6 +34,12 @@ Five static tests pass. They verify inactive status, absence of the AI-facing
 `aster` identity and old approver group, the independent socket path, the private
 approval-only command, bounded address families and baseline systemd hardening.
 
+A later [environment-lineage review](M1-independent-ingress-environment-lineage-2026-10-24.md)
+found that the broker candidate referenced an environment variable without
+loading its source. The corrected candidate loads the same root-managed file and
+subject-hash variable as the ingress. The expanded static and focused approval
+path now passes 18/18. This source correction is still uninstalled.
+
 ## Remaining deployment gate
 
 Before a change request can be presented, the platform owner must review the
