@@ -346,6 +346,14 @@ gap only. The accepted human-label protocol still needs an independent holdout,
 calibration and no-effect shadow evidence before any automatic handover.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
+The [current M1 live preflight](evidence/M1-independent-ingress-live-preflight-2026-10-24.md)
+confirms the dedicated identity, modules, units and 9121 listener remain absent,
+while the old Aster-trusted approval path is healthy and unchanged. A bounded
+[inactive installation card](evidence/M1-independent-ingress-inactive-install-card-2026-10-24.md)
+now pins four source files, UID/GID 1905, source-local configuration derivation,
+validation and rollback. It requires a separate live-change approval. Starting
+or routing to the new process and the zero-overlap cutover remain later gates.
+
 Milestones 3 and 6 proceed independently of D3 session aging. Connected tools wait for milestone 3; automatic routing does not need to be built before a limited manual Codex release. The earlier SA0–SA5 table records operational requirements and historical Qwen work; it is **not** a second obligation to rerun the closed Qwen general-sysadmin trial. Its still-applicable authority, investigation, repair and acceptance checks map into milestones 3–7.
 
 The [Aster Ask development benchmark](benchmarks/ask-routing-development-v1/README.md) now pins the 9B/SYCL run, model/runtime/prompt provenance and an independent offline scorer for future local or Codex backends. The Codex score is **pending** because the D3 manual pilot used different questions and has no equivalent routing output. The 30 exposed synthetic cases are useful for regression checks; a new human-labelled holdout and shadow evidence still gate any automatic handover.
