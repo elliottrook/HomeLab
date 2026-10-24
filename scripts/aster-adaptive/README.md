@@ -31,6 +31,13 @@ personal interpretation because it has no consent artifact; adding such an
 artifact requires a new reviewed contract version. Route proposals expire and
 also carry literal `authorization: not-granted`.
 
+`nlu_benchmark.py` independently scores content-free interpretation records
+against the pinned 24-case `fixtures/nlu-development-v1.json` suite. It reports
+family, sensitivity, capability needs, ambiguity, disposition and reason
+separately, plus privacy underclassification and unsafe false routes. The fixture
+is exposed synthetic development material. It cannot replace the human-labelled
+holdout, calibration or shadow evidence required for automatic routing.
+
 Catalogue declarations never grant permissions. `project_catalogue` filters using
 an explicitly supplied trusted fixture permission set. Production grant data must
 come from AI-PAM, which this adapter cannot contact. Fixture capability IDs do not

@@ -29,6 +29,11 @@ while explicitly granting no route, egress or tool authority. Focused semantic
 tests now pass 11/11, including the separate digest-bound route proposal. No
 classifier or routing path is deployed; independent labels,
 calibrated abstention and shadow evidence still gate M3–M6 promotion.
+The [pinned NLU development scorer](evidence/M3-NLU-development-scorer-2026-10-24.md)
+now measures family, sensitivity, capabilities, ambiguity, disposition and reason
+separately across 24 exposed synthetic cases. Its focused suite passes 10/10 and
+its records exclude request text. It is development regression evidence only;
+human holdout, calibration and no-effect shadow gates remain open.
 
 The [Stream A work cadence](Stream-A-Work-Cadence.md) keeps offline/shared work moving. Jason paused exclusive lab scheduling until he assigns new time; no lab test runs automatically. Later preflighted READY experiments still require a verified whole-host `ai-lab` lease and completed backups. The old 01:00–02:00 Aster slot is retired.
 

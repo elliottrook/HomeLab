@@ -337,6 +337,13 @@ The downstream selector now also emits a separate
 with consistent backend/egress semantics, expiry and no authority. The expanded
 focused suite passes 11/11, including personal-data cloud denial in the initial
 profile. No selector is deployed and no route is promoted.
+The NLU boundary now also has a
+[pinned dimensional development scorer](evidence/M3-NLU-development-scorer-2026-10-24.md).
+Its 24 exposed synthetic cases and 10/10 scorer tests separately measure family,
+sensitivity, capabilities, ambiguity, disposition and reason, including privacy
+underclassification and unsafe false routing. This closes the development-tooling
+gap only. The accepted human-label protocol still needs an independent holdout,
+calibration and no-effect shadow evidence before any automatic handover.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 Milestones 3 and 6 proceed independently of D3 session aging. Connected tools wait for milestone 3; automatic routing does not need to be built before a limited manual Codex release. The earlier SA0–SA5 table records operational requirements and historical Qwen work; it is **not** a second obligation to rerun the closed Qwen general-sysadmin trial. Its still-applicable authority, investigation, repair and acceptance checks map into milestones 3–7.

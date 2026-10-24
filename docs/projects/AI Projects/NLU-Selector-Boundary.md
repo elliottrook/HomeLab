@@ -82,10 +82,18 @@ not an independent acceptance set. Before live shadow routing, the NLU must have
 Until those gates pass, automatic routing remains off and the deterministic
 baseline remains the operational reference.
 
+The [development scorer](evidence/M3-NLU-development-scorer-2026-10-24.md)
+implements the dimensional reporting boundary against 24 pinned exposed
+synthetic cases. It reports privacy underclassification and unsafe false routes
+as their own blocking signals, retains invalid attempts in the denominator and
+keeps request text out of run and score records. It is regression tooling, not
+the independent holdout required above.
+
 ## Validation checkpoint — 2026-10-24
 
-The focused interpretation, route, Decision and Outcome semantic suites pass 11/11
-under Python 3.12 and Pydantic 2.14.1. The full historical adapter suite remains
-blocked by its pre-existing reviewed-source pin drift, as designed. This change
-does not repin that experiment, deploy a classifier, call a model, enable egress
-or alter AI-PAM.
+The focused interpretation, route, Decision and Outcome semantic suites pass
+11/11, and the NLU development scorer suite passes 10/10, under Python 3.12 and
+Pydantic 2.14.1. The full historical adapter suite remains blocked by its
+pre-existing reviewed-source pin drift, as designed. This change does not repin
+that experiment, deploy a classifier, call a model, enable egress or alter
+AI-PAM.
