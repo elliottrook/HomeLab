@@ -283,3 +283,19 @@ integration. Next safe action is that walkthrough and local planning for the
 next bounded milestone, not changing production or silently enabling playback.
 No new infrastructure/credential/monitoring object or speech; existing Kodi
 health remains responsible. Wiki/mirror publication waits for acceptance.
+
+2026-10-23 continuation: Jason accepted the native appearance, requesting only
+clock centring. HP candidate3 adds vertical alignment in the isolated pilot XML,
+with prior XML checkpointed and a native screenshot inspected; 24-hour time and
+pill geometry are unchanged. No Kodi restart, production change or v1 baseline
+drift (153 files verified). The pilot remains read-only.
+
+Local-only queue proposals now cover Play Next, append, explicit replacement,
+stale-preview detection and full-library holiday-excluding shuffle. Ten new
+tests cover duplicates/order, current position, empty/invalid/oversized queues,
+complete catalogue and inherited holiday tags. This module is deliberately not
+packaged or connected to Kodi. Total: 61 v2 tests, ten focus checks and three
+unchanged v1 package checks passing. See the M1 record for limitations. Next:
+local album track-order resolution and queue UI/confirmation design; physical
+remote/policy review and separately approved live playback tests remain gates.
+No new push authorized or performed in this continuation.

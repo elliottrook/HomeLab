@@ -2,7 +2,7 @@
   "addon_id": "script.astermusic.v2lab",
   "version": "0.1.0",
   "archive": "script.astermusic.v2lab-0.1.0.zip",
-  "sha256": "6b6b25505ddc324c03ab2bec969e21cd953e64ac64723d446636fb71203c2953",
+  "sha256": "730d11796cfe421402df895f4ff30d85c078e4151eb67cc90ac3fb4e36faa380",
   "files": [
     {
       "path": "script.astermusic.v2lab/addon.xml",
@@ -36,21 +36,23 @@
     },
     {
       "path": "script.astermusic.v2lab/resources/skins/Default/1080i/MusicLab.xml",
-      "bytes": 47544,
-      "sha256": "bf15820cf23e3d2f27d0b39647d4d3d8e94a2c9bd3851af686e7208cd1a3ea15"
+      "bytes": 47567,
+      "sha256": "e515de9f9b4d0f55fb6bc8a74ba6d7b2ac97038dc1fec4c916e65dccf8c1e60a"
     }
   ],
   "boundary": "HP only; read-only browse; no v1 changes, playback or queue actions",
-  "status": "hp-read-only-pilot-deployed-pending-owner-walkthrough",
-  "artifact_directory": "services/kodi/dist/aster-music-v2lab-0.1.0-candidate2",
+  "status": "hp-read-only-pilot-visual-accepted-clock-corrected",
+  "artifact_directory": "services/kodi/dist/aster-music-v2lab-0.1.0-candidate3",
   "validation": {
-    "local_tests": 50,
+    "local_tests": 61,
     "unchanged_v1_packaging_tests": 3,
     "live": "Two independent HP UI paths passed: column/rail/Back, G20 dispatcher, genre Albums/Artists/Songs, search/empty/clear, paging, refresh/cancel, read-only inspection/eligibility preview; no playback/music queue change",
     "source_preservation": "All 153 v1.1.1 files unchanged; 136 AV/language settings and exact G20 keymap preserved; only new lab addon enablement differs in registration",
     "private_checkpoint_sha256": "188c5392addb3efcfc6fdeda79e820aabe2ae390e6ab1278081ce997dd7449a4",
     "recovery": "Private on-device and 0600 off-device copies independently hashed; isolated registration DB restore quick_check passed",
     "production": "BOSGAME untouched; no v2 code or configuration installed",
-    "remaining": "Physical G20/sofa walkthrough and owner native visual acceptance; no actual shuffle/playback until a later approved milestone"
+    "clock": "Owner requested centring; candidate3 adds only vertical label centring. Native 3840x2160 screenshot reviewed; unchanged pill bounds and 24-hour format regression tested. Prior XML retained under /storage/.aster-checkpoints/aster-music-v2lab-before-clock-20261023/; pilot reopened without Kodi restart",
+    "offline_queue": "Ten pure queue-planning tests included in local total; module deliberately excluded from pilot package and no live write adapter exists",
+    "remaining": "Physical G20/sofa walkthrough and classification-policy review; no actual shuffle/playback until a later approved milestone"
   }
 }

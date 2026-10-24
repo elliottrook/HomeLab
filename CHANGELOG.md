@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-10-23 - HP Music clock correction and offline queue proposals
+
+- Centred the HP pilot's 24-hour clock vertically within its unchanged pill;
+  retained the old XML for recovery and verified the native render. All 153
+  installed v1.1.1 files unchanged; BOSGAME untouched.
+- Added local-only queue planning for Play Next, append, explicit replacement,
+  stale previews and holiday-excluding shuffle. Not bundled or live-enabled.
+- 61 v2 tests, ten focus checks and three unchanged v1 packaging checks pass.
+
 ## 2026-10-23 - Aster v2 isolated HP Music pilot
 
 - Owner-approved read-only Music lab add-on deployed only to HP; existing

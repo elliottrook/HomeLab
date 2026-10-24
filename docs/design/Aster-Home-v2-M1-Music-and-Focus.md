@@ -322,3 +322,47 @@ but must not overwrite later unrelated addon changes. Do not restore watch
 databases, another client's profile or the v1 add-on trees. Further HP/production
 changes, playback/shuffle implementation and metadata repairs need their own
 bounded milestone approval. No push is authorized by the deployment approval.
+
+### Owner review, clock correction and offline queue planning — 2026-10-23
+
+Jason accepted the native appearance except the clock's alignment. Candidate3
+adds the missing vertical centring to the existing horizontally centred label;
+the pill's dimensions, gold outline and 24-hour format are unchanged. Only the
+lab XML was replaced after verifying the previous candidate and retaining its
+exact XML under
+`/storage/.aster-checkpoints/aster-music-v2lab-before-clock-20261023/`.
+The pilot was closed and reopened without restarting Kodi. A native 3840×2160
+screenshot confirms the correction; all 153 installed v1.1.1 files still match
+their baseline. Candidate1/2 artifacts remain immutable. Candidate3's ZIP SHA-256
+is `730d11796cfe421402df895f4ff30d85c078e4151eb67cc90ac3fb4e36faa380`.
+No production changes or playback occurred.
+
+Continued locally with `services/kodi/v2/music_queue.py`, an **offline proposal
+model only**. It is deliberately excluded from the pilot bundle, imports no
+Kodi API and has no network, persistence or write adapter:
+
+- Play Next inserts after the identified current track without moving it;
+  unknown current position fails closed. Add to Queue preserves the current
+  position and existing duplicate/order semantics.
+- Replace Queue is explicit and does not imply starting playback. Empty or
+  invalid selections and oversized combined queues are rejected.
+- A fingerprint guards against stale previews when queue order, duplicates or
+  current position change. This is not an atomic transaction or permission to
+  clear a live queue; a future adapter must re-read and separately handle races,
+  interruption, confirmation and recovery.
+- Shuffle proposals use the full validated catalogue, excluding direct and
+  album-inherited holiday classifications, never title words. Deterministic
+  seeds make tests reproducible. An all-holiday catalogue yields an empty pool,
+  which cannot replace the queue.
+- Callers must supply verified selection order. Alphabetical browse results
+  are not a substitute for album disc/track ordering; that resolver is still
+  outstanding. Mixed file/stream queues are not represented and must not be
+  silently converted or overwritten by a future adapter.
+
+61 v2 tests (including ten queue tests), ten focus-model checks and three
+unchanged v1 packaging tests pass. A Python 3.9 annotation compatibility issue
+was caught and corrected locally before completing validation. No speech or new
+infrastructure is introduced. Next work is a local ordered album resolver and
+queue interaction/confirmation UI; live player/queue integration remains a
+separate bounded approval gate, including classification policy and recovery
+testing. M1 is not declared complete from visual acceptance alone.

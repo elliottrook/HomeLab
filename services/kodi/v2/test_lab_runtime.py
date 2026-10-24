@@ -98,12 +98,24 @@ class RuntimeTests(unittest.TestCase):
             if text.startswith('special://home/addons/skin.asterhome/media/'):
                 self.assertTrue((HERE.parent/'skin.asterhome/media'/text.rsplit('/',1)[-1]).is_file())
 
+    def test_clock_is_centred_in_unchanged_pill_and_uses_24_hour_time(self):
+        root=ET.parse(HERE/'script.astermusic.v2lab/resources/skins/Default/1080i/MusicLab.xml')
+        clock=next(c for c in root.findall('.//control[@type="label"]')
+                   if c.findtext('label')=='$INFO[System.Time(hh:mm)]')
+        self.assertEqual(clock.findtext('align'),'center')
+        self.assertEqual(clock.findtext('aligny'),'center')
+        bounds=tuple(clock.findtext(k) for k in ('left','top','width','height'))
+        self.assertEqual(bounds,('1715','31','145','48'))
+        self.assertTrue(any(tuple(c.findtext(k) for k in ('left','top','width','height'))==bounds
+                            for c in root.findall('.//control[@type="image"]')))
+
     def test_build_is_deterministic_and_v1_source_is_not_part_of_bundle(self):
         with tempfile.TemporaryDirectory() as one,tempfile.TemporaryDirectory() as two:
             first=build(one);second=build(two)
             self.assertEqual(first['sha256'],second['sha256'])
             self.assertEqual(len(first['files']),7)
             self.assertTrue(all(r['path'].startswith('script.astermusic.v2lab/') for r in first['files']))
+            self.assertFalse(any(r['path'].endswith('/music_queue.py') for r in first['files']))
 
 
 if __name__=='__main__':unittest.main()

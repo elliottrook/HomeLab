@@ -34,7 +34,7 @@
 <control type="label"><left>1314</left><top>31</top><width>215</width><height>48</height><label>Genres</label><font>font20</font><textcolor>fff3eee5</textcolor><align>center</align><aligny>center</aligny><visible>Control.HasFocus(104)</visible></control>
 <control type="image"><left>1714</left><top>30</top><width>147</width><height>50</height><texture border="20" colordiffuse="ffad8a4d">special://home/addons/skin.asterhome/media/ui-panel.png</texture></control>
 <control type="image"><left>1715</left><top>31</top><width>145</width><height>48</height><texture border="20" colordiffuse="fff3eee5">special://home/addons/skin.asterhome/media/ui-panel.png</texture></control>
-<control type="label"><left>1715</left><top>31</top><width>145</width><height>48</height><label>$INFO[System.Time(hh:mm)]</label><font>font24</font><textcolor>ff202b25</textcolor><align>center</align></control>
+<control type="label"><left>1715</left><top>31</top><width>145</width><height>48</height><label>$INFO[System.Time(hh:mm)]</label><font>font24</font><textcolor>ff202b25</textcolor><align>center</align><aligny>center</aligny></control>
 <control type="label"><left>145</left><top>185</top><width>1200</width><height>35</height><label>ASTER MUSIC / READ-ONLY V2 LAB</label><font>font20</font><textcolor>ff806333</textcolor></control>
 <control type="label"><left>145</left><top>236</top><width>1230</width><height>70</height><label>$INFO[Window.Property(Lab.Title)]</label><font>font40</font><textcolor>ff202b25</textcolor></control>
 <control type="label"><left>145</left><top>310</top><width>1230</width><height>52</height><label>$INFO[Window.Property(Lab.Copy)]</label><font>font24</font><textcolor>ff50594d</textcolor><truncate>true</truncate></control>
