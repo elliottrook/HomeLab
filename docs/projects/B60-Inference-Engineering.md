@@ -12,6 +12,13 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October 24 F2 observation](B60-Inference-Engineering/f2-cycle-review-20261024.md)
+finds prepare succeeded but final failed at 01:20 with
+`FINAL_GUARD_SUBCHECK_FAILED`, no success result. Exact-date timers are absent;
+B60 did not change them. Newer installed source still has the launcher default
+defect, which is not established as this earlier guard failure's cause. No
+model trial or scan retry ran; recovery and benchmark admission remain closed.
+
 The [October 23 Adaptive receipt](B60-Inference-Engineering/adaptive-recovery-receipt-20261023.md)
 receives substantial newly published recovery progress at `cf5cfaf3`, including
 installed diagnostic/window corrections and the approved October 24 F2 timers.
