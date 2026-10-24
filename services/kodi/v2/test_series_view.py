@@ -55,6 +55,16 @@ class SeriesViewTests(unittest.TestCase):
         self.assertNotIn('urllib',source);self.assertNotIn('requests.',source)
         self.assertNotIn('assert ',source)
 
+    def test_episode_pills_float_directly_on_hero_without_shared_panel(self):
+        root=ET.parse(HERE/'series_preview/resources/skins/Default/1080i/SeriesPreview.xml')
+        for image in root.findall('./controls/control[@type="image"]'):
+            if (image.findtext('texture') or '').endswith('/ui-panel.png'):
+                self.assertLessEqual(int(image.findtext('width')),200)  # Clock only.
+        for identity in ('201',):
+            heading=root.find('.//control[@id="'+identity+'"]')
+            self.assertEqual(heading.findtext('textcolor'),'fff3eee5')
+            self.assertEqual(heading.findtext('shadowcolor'),'ff202b25')
+
     def test_preview_build_is_deterministic_and_refuses_overwrite(self):
         import json,hashlib
         with tempfile.TemporaryDirectory() as parent:

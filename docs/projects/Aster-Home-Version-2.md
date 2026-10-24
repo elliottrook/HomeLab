@@ -32,8 +32,8 @@
   has reappeared server-side and is retained pending one-cleanup authority. Exact evidence and
   recovery references are at the end. M3 not graduated; physical remote/listening
   acceptance of the corrections remains pending. Production is unchanged.
-  M2 standalone read-only series preview5 is staged separately (five files,
-  manifest `ddfcc48021de66a56e4f6805b049f01fca8b94e1cdcb1442b630050275a73030`);
+  M2 standalone read-only series preview6 is staged separately (five files,
+  manifest `ebfed96fd1645339e01db31f34ffcd0fffe871f35f4c2401d024bf4320aa3131`);
   it does not replace normal TV navigation or enable episode playback.
 - Up Next is urgent and extracted into the separate
   [v1.1 project](Aster-Home-Version-1.1-Up-Next.md); v2 consumes its accepted
@@ -2418,3 +2418,35 @@ and closed lab windows. `review-ready-1792880172549149099.json` then verifies
 preview5 open with selected episode and no player. HP is left on the new pills
 for owner review. Still read-only: OK opens details, Back returns to Home;
 normal TV/playback and production remain unchanged. Local commit, no push.
+
+### Series preview — pills directly on the hero (2026-10-24)
+
+Jason requests removal of the shared background, retaining just the floating
+episode pills. HP-only preview6 removes the large list reading panel and keeps
+all individual pills, gaps, selection cues and geometry. Season/empty headings
+become ivory with a text shadow for readability directly over artwork; no
+replacement heading box. Only the preview XML changes; no controller, metadata,
+playback, server, installed v1/Music/rail or production change. Retain preview5
+and verify the new stage/isolated restore after closing only its idle foreground
+window and obtaining fresh preservation. Native navigation and image review,
+then leave the updated read-only preview open. Recovery remains Back or the
+immutable preceding stage; no restart/push. Preview6 manifest:
+`ebfed96fd1645339e01db31f34ffcd0fffe871f35f4c2401d024bf4320aa3131`.
+
+Fresh `postcheck-1792881090264654231.json` preceded verified five-member stage
+and isolated restore. Manifest comparison proves only XML differs from5.
+Native `native-1792881116629816006.json` passes single/multiseason navigation,
+exact selected row, season memory, details-only OK and clean Back/empty queues.
+Native4K visual review confirms hero visible between pills and above the list,
+readable season heading and retained selected edge/accent. 338 local tests pass
+normally and under optimized Python, including shared-panel absence. Repeat
+native and final preservation follow; no installed file change or restart.
+
+Independent `native-1792881149397179244.json` passes the same gates.
+`postcheck-1792881172338321751.json` verifies all Music64/48 members, approved
+v1/overlay/integration/rail members,68 AV/language settings, healthy database,
+no player, empty queues and all lab windows closed before owner review. The
+updated verified launcher leaves preview6 open without autoplay. Normal TV,
+production, credentials and watch history remain unchanged; local commit only.
+`review-ready-1792881198763920973.json` confirms preview6 is visible with a
+selected episode and no active player. Back returns to the unchanged Home.
