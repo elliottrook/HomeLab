@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-10-23 - Approved bounded HP Music live trial
+
+- Recorded acceptance of seven Music groups and inherited holiday exclusions.
+- Added optional expiring three-song HP trial: guarded music-only writes,
+  confirmation, play/pause, Add/Play Next, Stop and queue restore on ready-player
+  exit. Removed its temporary capability after successful native testing.
+- Accommodated existing Jellyfin delayed Stop clearing without modifying the
+  vendor add-on; fixed idempotent close and modal/late-input handling.
+- 107 v2 plus all 144 v1 tests and ten focus checks pass. Verified original empty
+  queue, 68 AV/language settings, 153 v1 files and independent recovery restore.
+- Production unchanged, no pushes. Broader catalogue testing and startup-loading
+  cancellation remain gated; this is not full Music/production acceptance.
+
 ## 2026-10-23 - Stream A HP Music album and queue previews
 
 - Recorded owner's bounded autonomous Music direction and hold on Git pushes.

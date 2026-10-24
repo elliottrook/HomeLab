@@ -37,6 +37,7 @@ def until(check,description):
     raise AssertionError(description)
 def press(action,focus=None):
     rpc('Input.ExecuteAction',{'action':action})
+    if action=='back':time.sleep(.35)  # Let the modal's native release unwind.
     if focus is not None:until(lambda:focused(focus),'focus '+str(focus))
 def select():
     subprocess.run(['kodi-send','--action=RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)'],check=True,stdout=subprocess.DEVNULL)

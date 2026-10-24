@@ -114,7 +114,7 @@ class RuntimeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as one,tempfile.TemporaryDirectory() as two:
             first=build(one);second=build(two)
             self.assertEqual(first['sha256'],second['sha256'])
-            self.assertEqual(len(first['files']),11)
+            self.assertEqual(len(first['files']),12)
             self.assertTrue(all(r['path'].startswith('script.astermusic.v2lab/') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_queue.py') for r in first['files']))
             self.assertTrue(any(r['path'].endswith('/music_album.py') for r in first['files']))
@@ -165,6 +165,34 @@ class RuntimeTests(unittest.TestCase):
         with patch.object(self.runtime,'read_queue',side_effect=QueueUnavailable('unsupported-queue-item')):
             window.onClick(403)
         self.assertIn('unchanged',self.gui.Dialog.return_value.ok.call_args.args[1])
+        self.xbmc.executeJSONRPC.assert_not_called()
+
+    def test_album_cleanup_is_idempotent_when_back_and_finally_both_close(self):
+        window=self.runtime.AlbumLab();window.trial=Mock()
+        window.close();window.close()
+        window.trial.close.assert_called_once()
+        self.assertTrue(window.finished)
+
+    def test_popup_cancel_back_never_closes_underlying_trial(self):
+        window=self.runtime.AlbumLab();window.trial=Mock()
+        action=Mock();action.getId.return_value=92
+        self.gui.Dialog.return_value.yesno.side_effect=lambda *args:window.onAction(action) or False
+        self.assertFalse(window.dialog('yesno','Replace','Confirm'))
+        window.onAction(action)  # Also consume the native modal's queued Back.
+        self.assertFalse(window.finished)
+        window.trial.close.assert_not_called()
+
+    def test_positive_confirmation_does_not_block_immediate_player_exit(self):
+        window=self.runtime.AlbumLab();window.trial=Mock()
+        self.gui.Dialog.return_value.yesno.return_value=True
+        self.assertTrue(window.dialog('yesno','Play','Confirm'))
+        action=Mock();action.getId.return_value=92;window.onAction(action)
+        window.trial.close.assert_called_once()
+
+    def test_late_select_on_closing_album_never_opens_another_dialog(self):
+        window=self.runtime.AlbumLab();window.finished=True
+        window.onClick(600);window.onClick(400)
+        self.gui.Dialog.assert_not_called()
         self.xbmc.executeJSONRPC.assert_not_called()
 
 

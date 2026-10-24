@@ -168,6 +168,28 @@ output or monitoring object; existing Kodi health remains the native monitor.
 Operational/wiki publication and release promotion wait for accepted behavior.
 Policy decisions, unexpected blast radius or failed recovery require Jason.
 
+#### Approved first live Music trial — 2026-10-23
+
+Jason explicitly approved both outstanding decisions: retain the seven displayed
+Music groups and track-plus-album holiday exclusion (16,348 eligible / 765
+excluded in the current index), and enable/test HP-only live controls with at
+most three indexed songs and verified queue checkpoint/restore. Listening-history
+updates for these test songs through normal playback were disclosed and accepted;
+no source-tag repair or manual server progress edits are authorized.
+
+Implementation remains inside the isolated lab add-on. A short-lived HP-only
+capability identifies the three test song IDs; absent/expired capability means
+read-only previews. For this first test, require an idle empty music queue,
+retain/verify its private checkpoint, cap the trial queue at three items and
+refuse files/streams, stale state or unrelated playback. Replace needs explicit
+confirmation; append/insert must preserve the current item without clear/reopen.
+Stop-on-exit stops only the trial-owned player and restores the original idle
+queue; refuse to overwrite unexpected external changes. Verify actual play,
+pause/resume, queue order, Back/exit-stop and restoration. Disable/remove the
+capability after testing. No production, audio/display settings, saved playlists,
+credentials, new services or pushes. A failed safe restore or material side effect
+outside this envelope requires Jason before further mutation.
+
 ## 7. Milestones, persistence and resumability
 
 - [x] M0: scope, additions, exclusions and separate v1.1 priority recorded.
@@ -369,3 +391,37 @@ policy acceptance and a first idle HP-only live queue/player test of at most
 three songs, with queue checkpoint/restore and acknowledgement that test playback
 may update listening history. No automatic source retagging or production
 promotion. Forgejo pushes remain expressly held; completed milestone stays local.
+
+2026-10-23 approved live trial completed: Jason approved both the seven Music
+groups/inherited holiday policy and the bounded three-song HP test. Final
+candidate13 passed the retained complete native trial with exact current-track
+identity/advancing clock, Pause/Resume, Add/Play Next without restart, confirmation
+and cancellation, Replace without auto-play, ready-player Back stopping audio,
+empty queue/originating tile restore and return to read-only after capability
+removal. One track actually played; three approved IDs exercised queue order.
+This is transport/decoder evidence, not a human listening or output-quality test.
+
+Found a real existing integration behavior: Jellyfin's monitor unconditionally
+clears playlists three seconds after Stop. The isolated adapter now settles that
+known cleanup without modifying Jellyfin or fighting it by silently re-adding
+tracks. Queue persistence across Stop remains M3 work. Also fixed idempotent
+close, cancel-only popup Back isolation and ignoring late input while closing;
+the harness now waits for ready-player/window-close states. Early startup Back
+can be consumed during loading and remains an explicit hardening/acceptance case,
+not a passed claim. All failed attempts had capabilities removed and empty queue
+restoration independently verified before continuation; no last recovery copy
+was removed or unrelated queue overwritten.
+
+107 v2 tests plus all 144 unchanged v1 tests and ten focus checks pass. All 153
+installed v1 files and 68 selected AV/language settings hash-match; Kodi active,
+zero automatic restarts. Pre-trial eleven-file ZIP restore verified independently
+on the Mac. The private `trial-complete.json` confirms no player, original empty
+queue, no capability/recovery flag and read-only album state. Final release record:
+`services/kodi/v2/releases/music-v2lab-live-trial-0.1.0.json`.
+
+No production contact, Jellyfin patch, saved-playlist edit, tag repair, credential,
+service, network or Git remote change. Normal test-track listening-history updates
+were explicitly accepted and are not rolled back. Next gate is broader HP-only
+full-album/full-catalogue shuffle/performance testing, with recoverable queue
+intent and startup cancellation work; this first three-ID approval is not an
+unbounded live-playback grant. Scope expansion/promotion and all pushes stay held.

@@ -1,7 +1,10 @@
-"""Isolated HP browse pilot: no player, playlist, settings or media writes."""
+"""Isolated HP Music pilot; live writes require a temporary three-song trial."""
 import json
 from pathlib import Path
+import platform
 import sys
+import time
+import traceback
 
 import xbmc
 import xbmcgui
@@ -13,11 +16,12 @@ from music_catalogue import CatalogueUnavailable, read_catalogue
 from music_album import AlbumUnavailable, read_album
 from music_queue import propose
 from queue_reader import QueueUnavailable, read_queue
+from music_trial import TrialPlayer,TrialUnavailable,capability,save_empty_checkpoint,validate_write
 
 ASSETS = 'special://home/addons/skin.asterhome/media/'
 READS = {'AudioLibrary.GetAlbums','AudioLibrary.GetArtists','AudioLibrary.GetSongs',
          'AudioLibrary.GetAlbumDetails','AudioLibrary.GetArtistDetails','AudioLibrary.GetSongDetails',
-         'Player.GetActivePlayers','Player.GetProperties','Playlist.GetItems'}
+         'Player.GetActivePlayers','Player.GetProperties','Player.GetItem','Playlist.GetItems'}
 BACK = {9,10,92,216,247,257,275}
 DIRECTIONS = {1:'left',2:'right',3:'up',4:'down'}
 ICONS = {'album':'23-music-album.png','artist':'24-music-artist.png','song':'25-music-song.png'}
@@ -25,9 +29,22 @@ ICONS = {'album':'23-music-album.png','artist':'24-music-artist.png','song':'25-
 
 def rpc(method,params):
     if method not in READS: raise CatalogueUnavailable('read-only-pilot')
+    return execute(method,params)
+
+
+def execute(method,params):
     result=json.loads(xbmc.executeJSONRPC(json.dumps({'jsonrpc':'2.0','id':1,'method':method,'params':params})))
     if 'error' in result: raise CatalogueUnavailable('library-read-failed')
     return result.get('result',{})
+
+
+def trial_directory():
+    import xbmcvfs
+    return Path(xbmcvfs.translatePath('special://profile/addon_data/script.astermusic.v2lab'))
+
+
+def live_ids():
+    return capability(trial_directory()/'live-trial.json',host=platform.node(),now=time.time())
 
 
 def load_catalogue():
@@ -51,17 +68,40 @@ def load_catalogue():
 
 
 class AlbumLab(xbmcgui.WindowXML):
-    """Native album screen; all three queue controls are explicit previews."""
+    """Read-only by default; optional explicitly approved bounded HP trial."""
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
-        self.selection=None; self.title=''; self.artwork=''
+        self.selection=None; self.title=''; self.artwork='';self.allowed=();self.trial=None;self.finished=False
+        self.dialog_open=False;self.back_guard_until=0
+
+    def dialog(self,method,*args):
+        # Native Back may also reach the underlying WindowXML callback while
+        # a Python modal is unwinding. Cancel must not become a second exit.
+        self.dialog_open=True
+        result=None
+        try:
+            result=getattr(xbmcgui.Dialog(),method)(*args)
+            if method=='yesno':xbmc.log('AsterMusicTrial confirmation='+str(bool(result)),xbmc.LOGINFO)
+            return result
+        finally:
+            self.dialog_open=False
+            cancelled=result is False or (method=='select' and type(result) is int and result<0)
+            self.back_guard_until=time.monotonic()+.3 if cancelled else 0
 
     def onInit(self):
         self.setProperty('Album.Title',self.title)
+        self.setProperty('Album.Id',str(self.selection.album_id))
         self.setProperty('Album.Art',self.artwork)
         ordering='disc / track' if self.selection.disc_numbers_available else 'track tags · disc numbers unavailable'
         self.setProperty('Album.Count',str(len(self.selection.tracks))+' tracks · ordered by '+ordering)
         self.setProperty('Album.Status','Read-only queue preview · no playback starts')
+        self.setProperty('Album.Live','true' if self.allowed else 'false')
+        self.setProperty('Album.Help','Preview only · select a track for its queue options. Back returns to the same album tile. No playback or queue changes.')
+        if self.allowed:
+            self.setProperty('Album.Status','HP live trial · at most three approved songs · Back stops and restores the original empty queue')
+            self.setProperty('Album.Help','Live test: only the three approved tracks. OK opens track actions. Replace needs confirmation; stop before replacing. Back stops this trial and restores the original queue.')
+            for control,left,width,label in ((401,470,110,'Next'),(402,600,110,'Add'),(403,730,110,'Replace')):
+                self.getControl(control).setPosition(left,930);self.getControl(control).setWidth(width);self.getControl(control).setLabel(label)
         items=[]
         for row in self.selection.tracks:
             number=f'{row.disc}.{row.track:02}' if row.disc else str(row.track)
@@ -76,35 +116,105 @@ class AlbumLab(xbmcgui.WindowXML):
         try:
             snapshot=read_queue(rpc)
             if action=='next' and snapshot.current_index is None:
-                xbmcgui.Dialog().ok('Play Next · preview','There is no current music track. Add to Queue can preview an idle queue. Nothing has changed.');return
+                self.dialog('ok','Play Next · preview','There is no current music track. Add to Queue can preview an idle queue. Nothing has changed.');return
             plan=propose(snapshot,ids,action=action)
         except (QueueUnavailable,ValueError) as error:
             message={'unsupported-queue-item':'The queue contains a file or stream this preview cannot safely represent.',
                      'unsupported-active-player':'The current player is not a supported music queue.',
                      'queue-changed-during-read':'The queue changed while reading it. Please try again.'}.get(str(error),'Queue preview unavailable. Please retry without changing playback.')
-            xbmcgui.Dialog().ok('Queue preview unavailable',message+'\n\nYour queue is unchanged.');return
+            self.dialog('ok','Queue preview unavailable',message+'\n\nYour queue is unchanged.');return
         names={'next':'Play Next','append':'Add to Queue','replace':'Replace Queue'}
         effect=('Would replace the existing queue. Live replacement will require confirmation.'
                 if plan.replaces_queue else 'Would preserve the current track and existing queue order.')
-        xbmcgui.Dialog().ok(names[action]+' · preview',f'{len(ids)} selected tracks · {len(snapshot.song_ids)} currently queued · {len(plan.song_ids)} proposed total.\n\n'+effect+'\n\nPreview only. Nothing was played, saved or changed.')
+        self.dialog('ok',names[action]+' · preview',f'{len(ids)} selected tracks · {len(snapshot.song_ids)} currently queued · {len(plan.song_ids)} proposed total.\n\n'+effect+'\n\nPreview only. Nothing was played, saved or changed.')
 
     def onClick(self,control):
+        if self.finished:return
+        if self.allowed:
+            if control==400:
+                self.live('toggle',self.allowed)
+            elif control==404:self.live('stop',())
+            elif control in (401,402,403):self.live({401:'next',402:'append',403:'replace'}[control],self.allowed)
+            elif control==600:
+                index=self.getControl(600).getSelectedPosition()
+                if not 0<=index<len(self.selection.tracks):return
+                identity=self.selection.tracks[index].song_id
+                if identity not in self.allowed:
+                    self.dialog('ok','Bounded HP trial','This track is outside the three approved test songs. No changes made.');return
+                option=self.dialog('select','This track',['Play this track','Play Next','Add to Queue','Replace Queue'])
+                if option in (0,1,2,3):self.live(('play','next','append','replace')[option],(identity,))
+            return
         if control in (401,402,403):
             self.preview({401:'next',402:'append',403:'replace'}[control],self.selection.song_ids)
         elif control==600:
             index=self.getControl(600).getSelectedPosition()
             if not 0<=index<len(self.selection.tracks):return
-            option=xbmcgui.Dialog().select('This track · preview',['Play Next','Add to Queue','Replace Queue'])
+            option=self.dialog('select','This track · preview',['Play Next','Add to Queue','Replace Queue'])
             if option in (0,1,2):self.preview(('next','append','replace')[option],(self.selection.tracks[index].song_id,))
 
+    def live(self,action,ids):
+        try:
+            if action=='toggle':
+                if self.trial and self.trial.observe().current_index is not None:
+                    speed=rpc('Player.GetProperties',{'playerid':0,'properties':['speed']}).get('speed')
+                    action='resume' if speed==0 else 'pause'
+                else:action='play'
+            if action not in ('stop',) and not set(self.allowed)<=set(live_ids()):
+                raise TrialUnavailable('trial-capability-expired')
+            confirmed=False
+            if action in ('play','replace'):
+                confirmed=self.dialog('yesno','Play music' if action=='play' else 'Replace Queue',
+                    f'This will replace the trial queue with {len(ids)} approved track(s).'+
+                    (' Playback will start.' if action=='play' else ' Playback will not start.'))
+                if not confirmed:return
+            if self.trial is None:
+                if action in ('stop','pause','resume'):return
+                def transport(method,params):
+                    if method in READS:return rpc(method,params)
+                    validate_write(method,params,self.allowed)
+                    xbmc.log('AsterMusicTrial write='+method,xbmc.LOGINFO)
+                    return execute(method,params)
+                self.trial=TrialPlayer(transport,self.allowed,lambda snapshot:save_empty_checkpoint(
+                    trial_directory()/f'queue-checkpoint-{time.time_ns()}.json',snapshot))
+            if action=='play':self.trial.play(ids,confirmed=confirmed)
+            elif action in ('pause','resume'):self.trial.pause(action=='resume')
+            elif action=='stop':self.trial.stop()
+            else:self.trial.edit(action,ids,confirmed=confirmed)
+            self.setProperty('Album.Status','HP trial · '+action+' completed · Back stops and restores the original queue')
+        except (TrialUnavailable,QueueUnavailable,ValueError,OSError) as error:
+            message={'replacement-confirmation-required':'Replacement was not confirmed.',
+                     'stop-before-replace':'Stop this trial before replacing its queue.',
+                     'three-item-trial-limit':'This first trial is limited to three queued items. Choose one track or stop and replace.',
+                     'trial-capability-expired':'The live trial approval has expired. Back will stop and restore the queue.',
+                     'idle-empty-queue-required':'The HP must be idle with an empty music queue before this trial.',
+                     'external-queue-change':'The queue changed outside this trial. No further queue changes will be made.'}.get(str(error),'The live trial could not complete safely. Stop testing and retain the checkpoint.')
+            self.setProperty('Album.Status','Trial action refused · '+str(error))
+            self.dialog('ok','Aster Music trial',message)
+
+    def close(self):
+        xbmc.log('AsterMusicTrial close='+','.join(frame.name for frame in traceback.extract_stack(limit=3))+' finished='+str(self.finished),xbmc.LOGINFO)
+        if self.finished:return
+        self.finished=True
+        try:
+            if self.trial:self.trial.close()
+        except (TrialUnavailable,QueueUnavailable,ValueError):
+            xbmcgui.Window(10000).setProperty('AsterV2Lab.TrialRecovery','required')
+            xbmcgui.Dialog().notification('Music trial recovery required','Unexpected playback/queue state. Checkpoint retained; do not continue testing.')
+        finally:super().close()
+
     def onAction(self,action):
+        if self.finished:return
         key=action.getId()
-        if key in BACK:self.close();return
+        if key in BACK:
+            if not self.dialog_open and time.monotonic()>=self.back_guard_until:self.close()
+            return
         control=self.getFocusId()
-        if control==600 and key==1:self.setFocusId(401);return
-        if control in (401,402,403) and key in DIRECTIONS:
-            if key==1:self.setFocusId(max(401,control-1))
-            elif key==2:self.setFocusId(min(403,control+1))
+        buttons=(400,404,401,402,403) if self.allowed else (401,402,403)
+        if control==600 and key==1:self.setFocusId(buttons[0]);return
+        if control in buttons and key in DIRECTIONS:
+            index=buttons.index(control)
+            if key==1:self.setFocusId(buttons[max(0,index-1)])
+            elif key==2:self.setFocusId(buttons[min(len(buttons)-1,index+1)])
             elif key in (3,4):self.setFocusId(600)
 
 
@@ -227,8 +337,10 @@ class MusicLab(xbmcgui.WindowXML):
             xbmcgui.Dialog().ok('Album order unavailable',message);return
         window=AlbumLab('AlbumLab.xml',str(ROOT),'Default','1080i')
         window.selection=selection;window.title=row.get('label','Album');window.artwork=self.art(row)
+        window.allowed=tuple(i for i in selection.song_ids if i in live_ids())
         try:window.doModal()
         finally:
+            window.close()  # Also clean up when Kodi navigates away globally.
             xbmcgui.Window(10000).clearProperty('AsterV2Lab.AlbumWindow')
             del window
         self.focus_grid()

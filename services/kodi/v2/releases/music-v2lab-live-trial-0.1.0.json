@@ -1,0 +1,26 @@
+{
+  "addon_id": "script.astermusic.v2lab",
+  "version": "0.1.0",
+  "status": "hp-three-song-trial-passed-capability-removed-default-read-only",
+  "authorization": "Owner approved seven Music groups, inherited holiday exclusion and bounded HP-only live trial; Stream A continuation; no remote Git writes",
+  "artifact_directory": "services/kodi/dist/aster-music-v2lab-0.1.0-candidate13",
+  "archive": "script.astermusic.v2lab-0.1.0.zip",
+  "sha256": "7cd0a17e7774e8c66a12d6b2b67146414b486d8cf437ab36887237af1f928be7",
+  "file_count": 12,
+  "boundary": "Read-only without expiring HP-only capability; trial has three approved song IDs, at most three queue items, empty-idle baseline and exact write-method/parameter guards",
+  "validation": {
+    "v2_unit_tests": 107,
+    "unchanged_v1_tests": 144,
+    "focus_model_checks": 10,
+    "native": "Complete live_player_trial.py passed: Play cancel/confirm, actual first-track identity and advancing player clock, Pause/Resume, Add then Play Next preserving current identity/time, Stop, known Jellyfin delayed queue clear, Replace cancel/confirm without auto-start, ready-player Back stop, original tile/empty queue restoration, capability removal and read-only reentry",
+    "audio_limit": "One of three approved tracks played; all three IDs exercised in exact queue ordering. Human listening/output-quality test not performed",
+    "source_compatibility": "Jellyfin monitor clears the queue 3 seconds after Stop; own adapter accepts only the expected empty result after its own Stop, never patches Jellyfin or restores over unrelated state",
+    "preservation": "All 153 v1.1.1 files match; 68 audiooutput/videoscreen/locale values match private pre-trial hash; no settings or keymap writes",
+    "recovery": "Verified private empty queue and selection checkpoints; pre-trial candidate6 eleven-file recovery ZIP independently transferred/restored/hash-verified; all intermediate candidates/checkpoints retained",
+    "final_state": "No active player; original empty queue restored; live-trial.json removed; no recovery-required flag; album reopened read-only; Kodi active with zero automatic restarts",
+    "production": "BOSGAME untouched; no pushes"
+  },
+  "checkpoint_directory": "/storage/.aster-checkpoints/aster-music-live-trial-20261023",
+  "completion_evidence": "/storage/.aster-checkpoints/aster-music-live-trial-20261023/trial-complete.json",
+  "remaining": "Broader HP live testing needs a new bounded approval. M3 still needs durable queue intent across Jellyfin Stop, full-catalogue shuffle/soak, startup/loading cancellation hardening, full player controls/current-playing indication and physical remote/listening acceptance; no production promotion implied"
+}

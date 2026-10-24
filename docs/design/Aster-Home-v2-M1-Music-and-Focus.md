@@ -497,3 +497,107 @@ three-song test. Category/exclusion policy remains proposed: Pop/Electronic/
 Hip-Hop; Jazz/Blues/R&B/Soul; Rock/Alternative; Country/Folk; Christmas;
 Classical; Other/unclassified. Current holiday preview excludes 765 and retains
 16,348 tracks. No Forgejo or other remote Git writes were performed.
+
+### Accepted policy and bounded live trial — 2026-10-23
+
+Jason explicitly approved both outstanding decisions. The seven displayed
+groups, observed legacy aliases and direct/inherited holiday exclusion are now
+the accepted v2 presentation policy; do not retag source files. The first live
+HP gate is restricted to three chosen indexed song IDs, a three-item queue,
+idle/empty baseline and a verified private checkpoint. Listening-history effects
+from normal test playback were disclosed and accepted, not manually reverted.
+
+The pilot is still read-only by default. `music_trial.py` implements a temporary
+HP-only capability (`live-trial.json` in the add-on's private profile directory),
+positive IDs/expiry validation, exact write parameter/method allowlisting,
+checkpoint-before-mutation, serialized own-client actions, current item/queue
+ownership checks and explicit replacement confirmation. Writes are limited to
+music playlist 0 and player 0: Add/Insert/Clear, Open, explicit PlayPause and Stop.
+Paths, other playlists/players, broad options, settings, media-tag and saved-file
+writes are rejected. Add/Play Next preserve the current item and do not clear or
+restart it. Replace requires idle playback and never auto-starts; Play explicitly
+confirms queue replacement. A missing, invalid, expired or wrong-host capability
+does not enable live controls. Expiry blocks new live actions; cleanup remains
+permitted. This is not a background expiry watchdog or an authentication system.
+
+The native screen exposes compact Play/Pause, Stop, Next, Add and Replace only
+in this bounded mode. Track selection offers the equivalent single-track actions.
+Back cleans up only owned playback and restores the initial empty queue. Late
+input on a closing window is ignored, close is idempotent, and cancellation of a
+popup does not become a second Back exit. The short native-release debounce is
+only applied after cancelled popups, not positive Play confirmation. Unrelated
+queue/player changes stop mutation and retain the checkpoint; no blind restore
+over an unknown stream is attempted. Single-client cooperative operation is still
+required; Kodi's separate read/write calls are not transactional.
+
+#### Native discovery and corrective evidence
+
+Initial attempts exposed timing assumptions, and were **not** reported as passes:
+
+- Kodi can announce an active player before publishing a current song ID; the
+  test now waits for actual identity/time rather than indexing a missing field.
+- Double close through Back and the modal `finally` path reset focus. Cleanup is
+  now idempotent. Native modal-release input and late Select are guarded/tested.
+- What looked like Cancel Replace losing the queue was actually the installed
+  Jellyfin add-on's `jellyfin_kodi/monitor.py:110–120`: it sleeps 3,000 ms after
+  `Player.OnStop`, then clears the playlist when idle. A queue-only probe proved
+  cancellation itself preserves the queue. The isolated trial adapter now waits
+  for that known cleanup after its own Stop and accepts only the exact expected
+  queue or empty baseline. Different queues/streams still fail closed. **No
+  Jellyfin source or setting was changed.** Stop can take about three seconds to
+  finish its GUI cleanup; durable queue intent/nonblocking cleanup remain M3 work.
+- The exit test originally sent Back during startup as soon as identity arrived.
+  It now waits for actual ready-player status/time, then separately for native
+  window closure before reopening. Normal playback exit passes. Cancellation
+  during early loading is explicitly **not yet accepted** and remains a later
+  hardening case; do not infer “every exit at every startup instant” from this run.
+
+All early attempts removed their temporary capability and independently verified
+no player/original empty queue before another mutation. A conservative recovery
+flag during the unhandled delayed clear was acknowledged only after independent
+baseline verification, recorded privately as `recovery-verified-after-cancel.json`.
+No unknown queue was overwritten or failed checkpoint bypassed.
+
+Final **candidate13** ZIP SHA-256:
+`7cd0a17e7774e8c66a12d6b2b67146414b486d8cf437ab36887237af1f928be7`.
+Twelve installed file hashes match. `tools/live_player_trial.py` completed with
+exit 0: cancelled Play leaves the queue unchanged; confirmed Play starts the
+first approved track with advancing time; Pause/Resume work; adding the third and
+inserting the second produces the exact three-ID order without changing the
+current item/time; Stop acknowledges Jellyfin cleanup; idle queue is repopulated
+for Cancel/confirm Replace, which does not auto-play; ready-player Back stops,
+restores the empty baseline and originating tile; capability is removed; album
+reopens read-only. Only the first track actually played; the other two were
+enqueued. No claim of audible output, every track decoding or physical G20 presses
+is made. The actual G20 Select dispatcher was used for activation.
+
+Validation: **107 v2 unit tests + all 144 unchanged v1 tests**, ten focus checks,
+native read-only and complete live workflows. A native 3840×2160 live screenshot
+was inspected for compact controls, cover/list layout and centred clock. The
+post-check independently confirms original queue restored, no active player,
+no live capability/recovery flag, default read-only state, all twelve pilot
+files and 68 selected audio/display/locale values matching their checkpoint.
+All 153 v1.1.1 files still match; Kodi active with zero automatic restarts.
+
+Recovery artifacts remain under
+`/storage/.aster-checkpoints/aster-music-live-trial-20261023/`: verified original
+queue, test selection, AV fingerprint, per-candidate source checkpoints,
+pre-trial candidate6 installed tree and recovery ZIP, and `trial-complete.json`.
+The eleven-file candidate6 ZIP was independently transferred/restored and all
+hashes checked in a disposable Mac directory. Immutable candidate7–13 ZIPs remain
+in staging/local ignored dist; do not discard checkpoints for cosmetic cleanup.
+Only the exact temporary capability was removed after the trial. The earlier
+private v1 registration/GUI/keymap backup is unchanged.
+
+The [live-trial release record](../../services/kodi/v2/releases/music-v2lab-live-trial-0.1.0.json)
+is the current pilot handoff; the HP is left on read-only album detail. New speech,
+services, accounts, ports and schedules: none. Existing Kodi health remains the
+native monitor; no new NetBox/DNS/firewall object or derived wiki publication.
+BOSGAME, v1 source, saved playlists and Jellyfin settings are untouched. No pushes.
+
+Next approval is a broader HP full-album/catalogue playback and holiday-excluding
+shuffle/performance trial, retaining private queue checkpoints. Before wider
+acceptance, implement durable queue intent compatible with Jellyfin Stop, harden
+startup/loading cancellation, finish now-playing/seek/output/queue controls and
+obtain physical remote/listening/sofa evidence. This bounded pass does not close
+M3 or authorize production promotion, 16,348-item stress writes or a Git push.

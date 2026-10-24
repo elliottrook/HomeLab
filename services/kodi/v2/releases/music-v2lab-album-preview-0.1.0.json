@@ -1,7 +1,8 @@
 {
   "addon_id": "script.astermusic.v2lab",
   "version": "0.1.0",
-  "status": "hp-read-only-album-and-queue-preview-deployed",
+  "status": "superseded-hp-read-only-album-and-queue-preview-deployed",
+  "superseded_by": "music-v2lab-live-trial-0.1.0.json",
   "authorization": "Owner-directed bounded Stream A Music continuation, 2026-10-23; no Forgejo pushes",
   "artifact_directory": "services/kodi/dist/aster-music-v2lab-0.1.0-candidate6",
   "archive": "script.astermusic.v2lab-0.1.0.zip",
