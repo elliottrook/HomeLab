@@ -131,3 +131,24 @@ The owner process is a session sentinel; the card must state that lease-state
 heartbeat, rather than sentinel liveness, is the D4/M3 controller-liveness
 signal. The exact GPU-holder, inert-observer and card corrections are with the
 platform owner. Nothing was installed or invoked.
+
+## Fourth implementation packet review
+
+Platform implementation `021cab2f4683ca5224c3f6dc1930072d63489ef8`
+and metadata/card commit `be96196a778481bc9d8e81dd8ee8e7ddbf07f927`
+replace the false device-presence check with the bounded host process scan,
+correct the artifact count and add an explicit observer gate. The revised card
+is SHA-256
+`3bd76773c4bd6d00c3ea8ad9ea70201fa8ea524ea337b8189765c0cf22731b9c`.
+
+Read-only execution of the already installed full-inference holder scan found
+exactly one live render-node holder with the expected llama-server executable
+and LXC110 service cgroup, so the revised GPU identity contract matches the
+target. The packet is nevertheless **rejected before installation** because
+the observer wrapper does not forward `"$@"`. The watchdog supplies lease ID,
+generation and `--observe-authorized`, but the wrapper discards them; the
+observer therefore exits during argument parsing and every recovery
+observation fails. Module-level tests did not exercise the deployed wrapper.
+
+The platform owner received the one-line wrapper fix plus real inert and
+authorized wrapper-invocation regressions. Nothing was installed or invoked.

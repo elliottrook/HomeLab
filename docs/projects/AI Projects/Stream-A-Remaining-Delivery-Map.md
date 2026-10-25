@@ -592,7 +592,11 @@ process exists to bind the new identity, and watchdog status remains unwritten.
 The third packet at `3e843a8e` closes those gaps but still equates render-node
 presence with the accepted GPU holder, hardcodes the resulting holder, has an
 incorrect artifact count and leaves the active observer without an explicit
-authorization flag. Those measured regressions are with the platform owner.
+authorization flag. The fourth packet at `021cab2f` corrects those points and
+its exact GPU-holder contract matches a live read-only host scan, but its
+observer wrapper discards all command-line arguments. The watchdog's required
+identity and authorization flags never reach the observer, so recovery cannot
+run. That final measured integration regression is with the platform owner.
 The platform owner's first pure endpoint-retaining lease candidate at
 `44b26e16` passed its own 7/7 tests and names the correct live backend and News
 timers, but Stream A's
