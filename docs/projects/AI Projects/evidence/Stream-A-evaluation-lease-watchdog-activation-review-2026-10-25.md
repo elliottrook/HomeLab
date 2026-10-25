@@ -178,11 +178,10 @@ re-read the six installed evaluation-entrypoint baseline hashes exactly:
 - host exclusion `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61`; and
 - disabled wrapper `15f3de1ebb5294878d5f0ce0c6a0b7c03a64b42a71c081fda6d036b0c1ef71af`.
 
-The source-only packet is therefore **accepted for one inactive installation**.
-That installation must create only the thirteen pinned artifacts, run the
-target-Linux suite and static unit checks, invoke only the three documented
-inert wrappers, and finish with every candidate service/timer disabled and
-inactive and no runtime state. It must not invoke the restore observer, create
-an identity, arm a timer, acquire a lease, stop a consumer or call a model.
-F6 remains NO-GO until installation passes and a later activation receives its
-own review and approval. The October 26 F2 exact-cycle test remains independent.
+The source-only packet was therefore **accepted for one inactive installation**.
+That installation subsequently passed as recorded in
+`Stream-A-evaluation-watchdog-inactive-install-2026-10-25.md`: all thirteen
+pinned artifacts are installed, 51/51 target-Linux tests passed and every
+candidate unit remains disabled/inactive with no runtime state. F6 activation
+still requires its own review and approval. The October 26 F2 exact-cycle test
+remains independent.

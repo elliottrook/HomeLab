@@ -20,7 +20,11 @@ preflight found every destination absent and the installed disabled
 evaluation-entrypoint baseline exact. The packet is ready for one separately
 approved inactive installation. No watchdog/heartbeat unit is installed,
 enabled or armed yet; F6 and live D4/M3 evaluation remain closed. The October
-26 F2 run is independently scheduled and conditional.
+26 F2 run is independently scheduled and conditional. Jason approved the
+bounded inactive installation, which now passes with 51/51 target-Linux tests,
+exact installed hashes, disabled/inactive units and no runtime state. The next
+F6 step is a source-only activation card and read-only healthy-lease preflight;
+identity creation, timer arming and recovery remain unapproved.
 
 **October 24 M1 approval-plane checkpoint:** the
 [permanent Yellow-only cutover](evidence/M1-permanent-yellow-cutover-result-2026-10-24.md)
