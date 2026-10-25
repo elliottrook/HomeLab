@@ -120,7 +120,7 @@ Review IDs refer to the printable review, not a new priority ordering.
 |---|---|
 | 01 | Series hero, Resume next, season chooser (single-season simplification/Specials), vertical episode still/S-E/synopsis/duration/date rows, stable progress and focus; real numbering only. Up Next behavior comes from v1.1. |
 | 02-03 | Predictable rail/Back and destination focus; grouped global search; truthful empty/loading/offline/denied states; unified Continue for video/audio/reader only when real source progress exists. |
-| 04-05 | Complete modern compact OSD contract, retaining ten video functions, factual stream details, sensible remote seeking/auto-hide/overlay behavior, and regression protection for stop-on-exit. Add a genuinely interactive scrub bar, not just a passive progress line. |
+| 04-05 | Complete modern compact OSD contract, retaining ten video functions, factual stream details, sensible remote seeking/auto-hide/overlay behavior, and regression protection for stop-on-exit. Add a genuinely interactive scrub bar, not just a passive progress line. Pressing Pause must reveal the OSD while preserving the paused position; resuming restores normal auto-hide. |
 | 06-08 | Stateful album/playlist/queue shuffle, Up Next queue, Play Next/Later, remove/save/confirmed clear, quiet audio-quality/output details and restrained art-derived atmosphere. Radio only with real recommendation data. |
 | 09-12 | Audiobookshelf-authoritative book and per-episode podcast resume/completion, multi-file/chapter correctness, speed, progress and sleep presets; bookmarks after conflict testing; show/episode details and persistent queue. No auto-subscribe/download. |
 | 13-15 | One-chapter DRM-free EPUB Reader proof, adjustable reading page, canonical local Aster narration and measured word alignment/highlighting/page turns; stable EPUB-location resume and explicit private cache removal. Expand only after timing/latency/remote gates. |
@@ -4878,3 +4878,21 @@ integrity, all lab windows closed, empty queues and68 AV/language comparisons
 screenshots/proofs are retained in the dated review3, Books and Music
 checkpoints; final recovery/manifest is in review8. No production change,
 credential change, manual history edit or Forgejo push.
+
+#### Owner follow-up — revised sound family and Pause-to-OSD
+
+The owner-published seven-cue canonical revision `5e7b5ccc` is integrated for
+future v2 packaging. Production-only sound adoption uses lossless PCM32 copies,
+retains the previous recovery checkpoint, verifies unchanged settings/mapping
+and requires no Kodi restart. HP stays on its existing sound runtime during
+owner visual testing; migrate its seven files and sound-preservation pin in a
+later idle lab window. See the updated canonical runtime release record for
+hashes, measured levels/balance and recovery. No voice output generated.
+
+Add to M4/IDs04–05: when Pause is pressed during video playback, reveal the
+compact OSD immediately, without a second press or navigating away. Preserve
+the paused frame/position and sensible remote focus, keep controls accessible
+while paused, and restore ordinary auto-hide on resume. Verify movie/episode,
+remote and on-screen pause, repeated pause/resume, subtitles/audio-menu
+interaction and existing Back/stop-on-exit. This is a planned v2 step, not
+claimed implemented by the sound-only deployment.

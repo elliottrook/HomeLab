@@ -16,6 +16,11 @@ class CanonicalDeploymentTests(unittest.TestCase):
         (m.BASE/'masters').mkdir()
         resources=Path(__file__).parent.parent/'resource.uisounds.asterhome/resources'
         original={}
+        config_source=source.with_name('deploy_canonical_clicks.py')
+        spec=importlib.util.spec_from_file_location('canonical_clicks',config_source)
+        config=importlib.util.module_from_spec(spec);spec.loader.exec_module(config)
+        config.configure(m)
+        m.BASE=base/'stage';m.LIVE=base/'live';m.CHECKPOINT=base/'checkpoint'
         for name in m.EXPECTED:
             shutil.copyfile(resources/name,m.BASE/'masters'/name)
             (m.BASE/'resources'/name).write_bytes(promote((resources/name).read_bytes()))

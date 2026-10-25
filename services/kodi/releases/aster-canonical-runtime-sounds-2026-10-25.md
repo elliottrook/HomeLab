@@ -1,6 +1,8 @@
 # Canonical AsterTV runtime sounds — 2026-10-25
 
-Production and HP lab now share the approved canonical navigation sound family.
+Initial adoption: production and HP lab shared the approved navigation family.
+The later owner-approved seven-cue production revision is recorded below; HP
+retains this initial runtime while household visual testing is in progress.
 This is sound-only adoption, not promotion of the HP's version 2 interface.
 Seven native filenames resolve to four cues; all navigation pages inherit the
 existing resource theme and action map. No new list-boundary detection was added.
@@ -70,3 +72,35 @@ Runtime WAV SHA256:
 Physical listening through the receiver remains household acceptance: native
 engine success is not a claim to have heard the receiver remotely. No Git push
 or production version 2 UI deployment is included.
+
+## Later owner revision — seven recorded-click cues
+
+Canonical source `5e7b5cccd09e15f0bd64bc7febb87077093267f3`, integrated locally
+as `08eb1f8d`, replaces the four unique synthesized cues with seven distinct
+recorded-click derivatives. This supersedes the source-commit instruction above
+for future packages; the lossless PCM24→PCM32 compatibility rule is unchanged.
+Masters and license are in the sound-resource directory. Source validation and
+all631 v2 tests pass normally and with optimized Python; six sound-pack tests
+also pass. No normalization, trimming, resampling or balance correction applied.
+
+Durations are165ms left/right,190ms up,205ms down,240ms Back,250ms Select and
+310ms Boundary. Peaks are−31dBFS except Boundary at−33dBFS, with no clipping.
+Measured channel RMS is not centred: most cues favour Left by about4.1–4.3dB;
+Left is8.78dB L/R, Right is−0.55dB L/R. Preserve this owner-approved design
+rather than silently re-pan it; receiver listening may motivate a later source
+revision. Native playback success is not acoustic speaker acceptance.
+
+Production was positively observed idle with the exact previous seven runtime
+hashes before replacement. Only the seven WAVs changed; exposed settings and
+`sounds.xml` compare equal before/after, and no restart was required. Durable
+checkpoint: `/storage/.aster-checkpoints/aster-canonical-clicks-20261025`.
+Its paired `deploy_canonical.py`/`deploy_canonical_sounds.py` supports guarded
+verification/rollback from the new hashes to the previous runtime, without
+overwriting newer files. The earlier recovery checkpoint remains intact.
+Master/runtime hashes and lossless-sample mapping are retained in
+`/storage/.aster-staging/aster-canonical-clicks-20261025/manifest.json` and the
+checkpoint's `verified.json`. HP was not reloaded or changed during owner tests.
+Production native smoke `native-smoke-1792959428751510477.json` exercised all
+seven cues and six rapid repeat requests with zero sound-engine errors, no
+active media and no media/settings writes. Exact runtime/checkpoint verification
+passed after activation; the paired recovery helper is also checked in place.

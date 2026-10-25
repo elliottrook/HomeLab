@@ -6,6 +6,8 @@ import xbmc
 BASE=Path('/storage/.aster-staging/aster-canonical-pcm32-20261025')
 LIVE=Path('/storage/.kodi/addons/resource.uisounds.asterhome/resources')
 CHECKPOINT=Path('/storage/.aster-checkpoints/aster-canonical-pcm32-20261025')
+SOURCE_COMMIT='4c283eaf0a35f34cf9018d06c27304cd09c760a5'
+CUE_COUNT=4
 MOVEMENT='227b863d35a6c6ea67df559b4d302706af669c6eee5ba86a47382164fdf3f0c8'
 MASTER_EXPECTED={**{n:MOVEMENT for n in ('nav-left.wav','nav-right.wav','nav-up.wav','nav-down.wav')},
     'back.wav':'33b9852ee00869cefd0040ce6a65573ec1a5606a87352917e7654d7b36348a54',
@@ -59,7 +61,7 @@ def main(mode='inspect'):
         evidence=json.loads((CHECKPOINT/'verified.json').read_text())
         require(report['assets']==EXPECTED==evidence['assets'],'canonical-assets-drift')
         require(all(sha(CHECKPOINT/name)==digest for name,digest in ORIGINALS[host].items()),'original-checkpoint-drift')
-        report.update(verified=True,unique_assets=4,checkpoint_verified=True);return report
+        report.update(verified=True,unique_assets=CUE_COUNT,checkpoint_verified=True);return report
     require(report['idle'],'playback-active-no-change')
     original=ORIGINALS[host]
     if mode=='rollback':
@@ -98,8 +100,8 @@ def main(mode='inspect'):
         for name in EXPECTED:replace(CHECKPOINT/name,LIVE/name)
         reload_theme();require(snapshot()==original and settings()==before,'automatic-rollback-failed')
         raise
-    report.update(installed=True,assets=snapshot(),unique_assets=4,settings_unchanged=True,mapping_unchanged=True,
-        source_commit='4c283eaf0a35f34cf9018d06c27304cd09c760a5',
+    report.update(installed=True,assets=snapshot(),unique_assets=CUE_COUNT,settings_unchanged=True,mapping_unchanged=True,
+        source_commit=SOURCE_COMMIT,
         checkpoint=str(CHECKPOINT),restart_required=False,timing_and_pcm_unchanged=True,
         encoding='PCM32-lossless-from-PCM24',source_assets=MASTER_EXPECTED)
     (CHECKPOINT/'verified.json').write_text(json.dumps(report,indent=2));return report
