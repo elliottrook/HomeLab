@@ -630,11 +630,13 @@ class AdapterTests(unittest.TestCase):
         self.assertEqual(called, [])
 
     def test_watchdog_binds_identity_and_fixed_deadlines(self):
-        value = WatchdogInput("eval-1", 1, "running", 1100, 1000, 5500, 6400)
+        value = WatchdogInput("eval-1", 1, "stream-a-endpoint-retaining-evaluation-v1",
+                              None, "running", 1100, 1000, 5500, 6400)
         validate_watchdog_input(value, expected_lease_id="eval-1", expected_generation=1)
         with self.assertRaises(ValueError):
             validate_watchdog_input(value, expected_lease_id="foreign", expected_generation=1)
-        stale = WatchdogInput("eval-1", 1, "running", 1100, 1000, 5501, 6400)
+        stale = WatchdogInput("eval-1", 1, "stream-a-endpoint-retaining-evaluation-v1",
+                              None, "running", 1100, 1000, 5501, 6400)
         with self.assertRaises(ValueError):
             validate_watchdog_input(stale, expected_lease_id="eval-1", expected_generation=1)
         result = run_bound_once(value=value, expected_lease_id="eval-1",
@@ -671,6 +673,31 @@ class AdapterTests(unittest.TestCase):
             )
             self.assertEqual(expired["effects"], "recovered")
             self.assertEqual(called, [True, True])
+
+    def test_watchdog_accepts_only_exact_short_exercise_state(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / "lease.json"
+            adapter = EvaluationLeaseAdapter(path, lambda command: None,
+                                              allow_effects=True)
+            value = self.exercise_admission()
+            adapter.prepare_exercise(value, now_epoch=1000)
+            called = []
+            healthy = run_bound_from_state(
+                path=path, expected_lease_id=value.lease_id,
+                expected_generation=value.generation, now_epoch=1010,
+                heartbeat_timeout=30, owner_present=True,
+                effect_authorized=True, recovery=lambda: called.append(True),
+            )
+            self.assertEqual(healthy["effects"], "not-attempted")
+            self.assertEqual(called, [])
+            owner_lost = run_bound_from_state(
+                path=path, expected_lease_id=value.lease_id,
+                expected_generation=value.generation, now_epoch=1011,
+                heartbeat_timeout=30, owner_present=False,
+                effect_authorized=True, recovery=lambda: called.append(True) or "ok",
+            )
+            self.assertEqual(owner_lost["effects"], "recovered")
+            self.assertEqual(called, [True])
 
     def test_watchdog_effect_path_loads_durable_state_and_rejects_duplicate_or_symlink(self):
         with tempfile.TemporaryDirectory() as root:

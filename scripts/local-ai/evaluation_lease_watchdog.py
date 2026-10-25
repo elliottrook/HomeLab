@@ -13,7 +13,16 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
-from evaluation_lease import watchdog_decision
+from evaluation_lease import (
+    EFFECT_DEADLINE_SECONDS,
+    EXERCISE_HARD_DEADLINE_SECONDS,
+    EXERCISE_MARKER,
+    EXERCISE_MODE,
+    EXERCISE_RESTORE_DEADLINE_SECONDS,
+    LEASE_MODE,
+    WINDOW_SECONDS,
+    watchdog_decision,
+)
 from evaluation_lease_adapter import read_state
 
 
@@ -21,6 +30,8 @@ from evaluation_lease_adapter import read_state
 class WatchdogInput:
     lease_id: str
     generation: int
+    lease_mode: str
+    exercise_marker: str | None
     phase: str
     heartbeat_epoch: int
     window_start_epoch: int
@@ -36,7 +47,8 @@ def load_watchdog_input(path: Path, *, expected_lease_id: str,
     state = read_state(path, expected_lease_id=expected_lease_id,
                        expected_generation=expected_generation)
     result = WatchdogInput(
-        state.lease_id, state.generation, state.phase,
+        state.lease_id, state.generation, state.lease_mode,
+        state.exercise_marker, state.phase,
         state.heartbeat_epoch, state.window_start_epoch,
         state.hard_deadline_epoch, state.restore_deadline_epoch,
     )
@@ -48,11 +60,30 @@ def load_watchdog_input(path: Path, *, expected_lease_id: str,
 def validate_watchdog_input(value: WatchdogInput, *, expected_lease_id: str,
                             expected_generation: int) -> None:
     if (value.lease_id != expected_lease_id or value.generation != expected_generation
-            or value.phase not in {"prepared", "quiescing", "running", "restoring"}
-            or value.heartbeat_epoch < value.window_start_epoch
-            or value.hard_deadline_epoch != value.window_start_epoch + 75 * 60
-            or value.restore_deadline_epoch != value.window_start_epoch + 90 * 60):
+            or value.heartbeat_epoch < value.window_start_epoch):
         raise ValueError("watchdog input is not bound to the expected durable lease")
+    if value.lease_mode == LEASE_MODE:
+        valid = (
+            value.exercise_marker is None
+            and value.phase in {"prepared", "quiescing", "running", "restoring"}
+            and value.hard_deadline_epoch
+            == value.window_start_epoch + EFFECT_DEADLINE_SECONDS
+            and value.restore_deadline_epoch
+            == value.window_start_epoch + WINDOW_SECONDS
+        )
+    elif value.lease_mode == EXERCISE_MODE:
+        valid = (
+            value.exercise_marker == EXERCISE_MARKER
+            and value.phase == "prepared"
+            and value.hard_deadline_epoch
+            == value.window_start_epoch + EXERCISE_HARD_DEADLINE_SECONDS
+            and value.restore_deadline_epoch
+            == value.window_start_epoch + EXERCISE_RESTORE_DEADLINE_SECONDS
+        )
+    else:
+        valid = False
+    if not valid:
+        raise ValueError("watchdog input lease mode, marker, phase or deadline is invalid")
 
 
 def run_once(*, now_epoch: int, heartbeat_epoch: int, heartbeat_timeout: int,
