@@ -42,3 +42,45 @@ The pure lease contract at `024f3c06` remains accepted. This first adapter is
 not eligible for target-Linux installation. D4 candidate-G and M3 calibration
 remain unspent; the accepted production backend and all consumers remain in
 their ordinary state.
+
+## Corrected candidate
+
+The platform owner corrected the rejected adapter through commits `792a3312`,
+`7a9e1d0f`, `41d3430a`, `e02655bb`, `760f3496`, `c039572c` and final commit
+`0e633337`. Stream A reviewed each replacement and required the following
+additional boundaries before acceptance:
+
+- exact `quiescing` to observed `running` transition and complete restorable
+  production baseline;
+- one strict owner/mode/symlink-safe durable state reader shared with the
+  independent watchdog;
+- fixed deadline, heartbeat and per-workload remaining-budget checks;
+- idempotent recovery from `quiescing`, `running` and `restoring`;
+- durable D4-before-M3 progression with an in-flight marker written before a
+  first request and terminal outcome validation through the pure contract;
+- rejection of impossible, foreign, uncertain, duplicate and replayed state;
+  and
+- descriptor-bound advisory locking for every read-modify-write transition,
+  with no-follow, close-on-exec, regular-file, owner and exact-mode custody.
+
+## Independent final verification
+
+Stream A exported exact commit `0e633337` into a clean temporary directory.
+The full evaluation-lease suite passed **28/28**, all five Python files
+compiled, `git diff --check` passed and the observed hashes matched the final
+card:
+
+| Path | SHA-256 |
+|---|---|
+| `evaluation_lease.py` | `38a986e9d868d04c7ee7814ae0fbd2f1a1709e7a464916195d594ca2bf286312` |
+| `evaluation_lease_adapter.py` | `8fac397f96b88be5ccb042a2e3b3da6cbbccdc89e91e4afeacf029a13769c6a1` |
+| `evaluation_lease_watchdog.py` | `b6409e9f29d954033ebd2098fdbd983862d0d32eb5de04471f7b06f9aaf74725` |
+| `test_evaluation_lease.py` | `d81112eded8d24ded5fde9643b61501f87883936480aa4321f486f13c6cbb6fc` |
+| `test_evaluation_lease_adapter.py` | `ce328723dc62d753ec7ab16aeb1bdc254eff6bc7ab851a851f2c77e13fc2e35d` |
+| inactive-install card | `4ef9dea4ae4920d3fc7e3c8ecb09da0c35a14ae94c7b04654ef853aaa6738619` |
+
+**Final decision:** **SOURCE ACCEPTED; LIVE EFFECTS REMAIN DISABLED.** The next
+adapter gate is a separately reviewed target-Linux inactive installation and
+synthetic validation. Fresh F2 and F3 evidence, a production deployment card
+and a separate live-run/recovery approval remain mandatory before any consumer
+is stopped or either model workload runs.
