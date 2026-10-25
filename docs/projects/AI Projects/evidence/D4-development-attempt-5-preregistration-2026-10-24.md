@@ -39,7 +39,10 @@ rows and internally consistent counts before returning a decision.
   `9807eab521dcbbce675dfbd5cd5153c40e09be25bedf3a55d8111ca3a7fcda65`
 - `score_sa3_development_review.py` SHA-256:
   `b4afb776c36ab647913bb1612f51ffe2fe00496052377a3ba6f1feb0f4d2e4e1`
-- Complete evaluation suite: 161/161 passed.
+- Exact eleven-file source manifest SHA-256:
+  `67baa870216386e9a46f55535236d0a2c476ccb8004a0afb12a436debe4dc4b6`.
+- Complete evaluation suite: 162/162 passed, including isolated import and
+  exact source-manifest verification.
 
 The next effectful step is one explicitly approved development model run at the
 exact digest above. It must use a new owner-only journal and cannot overwrite

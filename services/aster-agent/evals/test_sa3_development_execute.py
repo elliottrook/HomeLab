@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 import shutil
@@ -44,6 +45,25 @@ class DevelopmentExecuteTests(unittest.TestCase):
                 spec["fixture_file_sha256"],
                 run_spec(changed, self.source, self.plan)["fixture_file_sha256"],
             )
+
+    def test_attempt_5_source_manifest_matches_exact_dry_run(self):
+        manifest = json.loads((
+            self.here / "sa3-development-attempt-5-source-manifest.json"
+        ).read_text())
+        self.assertEqual("candidate-B", manifest["candidate_alias"])
+        self.assertEqual("not-granted", manifest["authority"])
+        spec = run_spec(self.fixtures, self.source, self.plan)
+        from sa3_fresh_package import digest
+        self.assertEqual(digest(spec), manifest["run_digest"])
+        names = [row["name"] for row in manifest["files"]]
+        expected = list(spec["implementation_sha256"]) + [
+            self.fixtures.name, self.source.name, self.plan.name,
+        ]
+        self.assertEqual(expected, names)
+        for row in manifest["files"]:
+            raw = (self.here / row["name"]).read_bytes()
+            self.assertEqual(len(raw), row["bytes"])
+            self.assertEqual(hashlib.sha256(raw).hexdigest(), row["sha256"])
 
     def test_frozen_implementation_set_is_import_complete(self):
         spec = run_spec(self.fixtures, self.source, self.plan)

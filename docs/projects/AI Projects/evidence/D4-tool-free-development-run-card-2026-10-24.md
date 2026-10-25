@@ -82,8 +82,20 @@ It is prepared but not authorized to execute.
 The `8f0cd102...` candidate subsequently ran once and passed the execution
 boundary with 12/12 accepted terminal answers; see
 [attempt 4](D4-tool-free-development-attempt-4-result-2026-10-24.md). Its
-authorization is consumed. No additional model call is needed at this stage.
-The next gate is completion of the digest-bound private model-blind review.
+authorization is consumed. Its subsequent
+[model-blind review](D4-tool-free-development-attempt-4-blind-review-2026-10-24.md)
+was a semantic NO-GO: verification passed 0/12 and diagnosis passed 8/12.
+
+Candidate-B corrects that bounded contract offline by requiring each terminal
+answer to state its discrimination and an explicit unperformed verification.
+It is preregistered at exact run digest
+`7cb33aec4ac580774e884923b223ddd2427cd68fbc6e2b1da3899479d6630fb6`
+under a frozen 12/12 all-dimension decision rule. The exact eleven-file source
+manifest has SHA-256
+`67baa870216386e9a46f55535236d0a2c476ccb8004a0afb12a436debe4dc4b6`,
+and the complete suite passes 162/162. This candidate is prepared but not
+authorized to execute. A new journal must preserve attempt 4, and a fresh
+model-blind review is mandatory before the decision rule is applied.
 
 ## Bounded execution
 
@@ -134,7 +146,9 @@ the model, route, tool authority or repair capability.
 
 ## Approval boundary
 
-The authorization for this exact 12-session run has been consumed. It does not
-authorize a replay, reasoning mode,
+The authorization for attempt 4 has been consumed. Candidate-B's exact
+12-session run is not yet authorized. Any later authorization would cover only
+the digest and bounded execution above; it would not authorize a replay,
+reasoning mode,
 connected tools, new credentials, service restart, configuration change,
 production deployment, automatic routing, holdout access or a Git push.
