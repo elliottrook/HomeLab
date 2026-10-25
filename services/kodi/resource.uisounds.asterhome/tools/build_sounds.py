@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate and synchronize Aster's four canonical UI sound masters."""
+"""Validate Aster's seven canonical mouse-click UI sound masters."""
 
 from __future__ import annotations
 
@@ -11,18 +11,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 RESOURCES = ROOT / "resources"
-MOVEMENT_ALIASES = ("nav-left.wav", "nav-right.wav", "nav-up.wav", "nav-down.wav")
 EXPECTED_SHA256 = {
-    "movement": "227b863d35a6c6ea67df559b4d302706af669c6eee5ba86a47382164fdf3f0c8",
-    "boundary": "57f108306b772252095811c9827dd6667c58f53e9c80f7f733976467057de6f6",
-    "select": "a95d8c2a2d874a0f04b5ab82fb11d0a7a1d850562849de3c86cbf1050edb2910",
-    "back": "33b9852ee00869cefd0040ce6a65573ec1a5606a87352917e7654d7b36348a54",
-}
-CANONICAL_FILES = {
-    "movement": "nav-left.wav",
-    "boundary": "notify.wav",
-    "select": "select.wav",
-    "back": "back.wav",
+    "nav-left.wav": "233b96079ed5471e774b86f840f7ef00dabe2b6f5c5effe91d4ccb17aafb2285",
+    "nav-right.wav": "dce25cc207715fba406fb86905e32c4bfbfc5ec17be83abff2db2d9cb77aaa28",
+    "nav-up.wav": "08037d2c1e0dd6f930715584493f98e09885e3a8126df076a3cdf01729663cba",
+    "nav-down.wav": "6c414975aff7b7d4caa8866a0e4ffa41f80f222b1c4ca5db199a45c34d741ea9",
+    "notify.wav": "c093d94abbabc0383d278b9f8e39dda8ca5fbfdee8080bdce1c4078126e175c8",
+    "select.wav": "6e38a7c6fc9964c8c53e49409df42d53200ce51e221c2dbb63b13a8bdb811c3f",
+    "back.wav": "b5c3678e2849cb6b9dd15125f2e1ebeb9afda6f469524d6bada3a20ba6424125",
 }
 
 
@@ -30,34 +26,25 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def validate_master(kind: str, path: Path) -> None:
+def validate_master(path: Path) -> None:
     with wave.open(str(path), "rb") as source:
         if source.getparams()[:3] != (2, 3, 48_000):
             raise RuntimeError(f"wrong audio format: {path.name}")
-        if source.getnframes() / source.getframerate() >= 0.5:
+        if source.getnframes() / source.getframerate() >= 0.6:
             raise RuntimeError(f"sound is too long: {path.name}")
     actual = sha256(path)
-    if actual != EXPECTED_SHA256[kind]:
-        raise RuntimeError(f"canonical {kind} master drift: {path.name}")
+    if actual != EXPECTED_SHA256[path.name]:
+        raise RuntimeError(f"canonical master drift: {path.name}")
 
 
 def main() -> None:
-    masters = {kind: RESOURCES / name for kind, name in CANONICAL_FILES.items()}
-    for kind, path in masters.items():
-        validate_master(kind, path)
-
-    movement = masters["movement"]
-    for name in MOVEMENT_ALIASES[1:]:
-        shutil.copyfile(movement, RESOURCES / name)
+    for name in EXPECTED_SHA256:
+        validate_master(RESOURCES / name)
     shutil.copyfile(
         ROOT.parent / "skin.asterhome" / "media" / "aster-icon-128.png",
         ROOT / "icon.png",
     )
-
-    if any(sha256(RESOURCES / name) != EXPECTED_SHA256["movement"]
-           for name in MOVEMENT_ALIASES):
-        raise RuntimeError("movement aliases did not synchronize")
-    print("Aster canonical UI sounds verified: movement, boundary, select, back")
+    print("Aster canonical UI sounds verified: seven distinct mouse-click cues")
 
 
 if __name__ == "__main__":

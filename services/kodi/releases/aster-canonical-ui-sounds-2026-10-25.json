@@ -1,12 +1,12 @@
 {
-  "schema": "aster-canonical-ui-sounds.v1",
-  "status": "source-candidate-not-deployed",
+  "schema": "aster-canonical-ui-sounds.v2",
+  "status": "canonical-source-not-deployed",
   "date": "2026-10-25",
   "addon_id": "resource.uisounds.asterhome",
   "archive": {
     "path": "services/kodi/dist/resource.uisounds.asterhome-1.1.1.zip",
-    "bytes": 483828,
-    "sha256": "ee8995e61f11a51803f46eb98877c11db2b459bc795f3d9774260be381f7dfc6"
+    "bytes": 330970,
+    "sha256": "2f2ef470b5b2a4216be544e70eafb617de058c32c1da845553e0f9be67de3731"
   },
   "format": {
     "codec": "PCM",
@@ -15,36 +15,43 @@
     "channels": 2
   },
   "canonical_sounds": {
-    "movement": {
-      "sha256": "227b863d35a6c6ea67df559b4d302706af669c6eee5ba86a47382164fdf3f0c8",
-      "kodi_files": [
-        "nav-left.wav",
-        "nav-right.wav",
-        "nav-up.wav",
-        "nav-down.wav"
-      ]
+    "up": {
+      "sha256": "08037d2c1e0dd6f930715584493f98e09885e3a8126df076a3cdf01729663cba",
+      "kodi_files": ["nav-up.wav"]
+    },
+    "down": {
+      "sha256": "6c414975aff7b7d4caa8866a0e4ffa41f80f222b1c4ca5db199a45c34d741ea9",
+      "kodi_files": ["nav-down.wav"]
+    },
+    "left": {
+      "sha256": "233b96079ed5471e774b86f840f7ef00dabe2b6f5c5effe91d4ccb17aafb2285",
+      "kodi_files": ["nav-left.wav"]
+    },
+    "right": {
+      "sha256": "dce25cc207715fba406fb86905e32c4bfbfc5ec17be83abff2db2d9cb77aaa28",
+      "kodi_files": ["nav-right.wav"]
     },
     "boundary": {
-      "sha256": "57f108306b772252095811c9827dd6667c58f53e9c80f7f733976467057de6f6",
+      "sha256": "c093d94abbabc0383d278b9f8e39dda8ca5fbfdee8080bdce1c4078126e175c8",
       "kodi_files": ["notify.wav"]
     },
     "select": {
-      "sha256": "a95d8c2a2d874a0f04b5ab82fb11d0a7a1d850562849de3c86cbf1050edb2910",
+      "sha256": "6e38a7c6fc9964c8c53e49409df42d53200ce51e221c2dbb63b13a8bdb811c3f",
       "kodi_files": ["select.wav"]
     },
     "back": {
-      "sha256": "33b9852ee00869cefd0040ce6a65573ec1a5606a87352917e7654d7b36348a54",
+      "sha256": "b5c3678e2849cb6b9dd15125f2e1ebeb9afda6f469524d6bada3a20ba6424125",
       "kodi_files": ["back.wav"]
     }
   },
   "validation": {
     "focused_tests": 11,
-    "unique_audio_hashes": 4,
+    "unique_audio_hashes": 7,
     "kodi_wav_files": 7,
-    "movement_aliases_byte_identical": true,
-    "back_exact_stereo_frame_reversal": true,
+    "directional_cues_are_distinct": true,
     "silent_endpoints": true,
     "live_deployment": false,
+    "source": "Kenney CC0 recorded mouseclick1 sample",
     "legacy_full_release_test": "Pre-existing immutable v1.1.1 manifest mismatch reproduced at base commit 71827680; historical release record left unchanged"
   }
 }
