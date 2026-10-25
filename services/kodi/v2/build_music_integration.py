@@ -64,8 +64,8 @@ def transformed():
     definition=root.find("include[@name='AsterMusicPage']/definition")
     group=next(group for group in definition.findall('control') if group.find("control[@id='110']") is not None)
     bar=ET.Element('control',dict(type='image'))
-    for field,value in dict(left='82',top='0',width='1838',height='160',texture='special://skin/media/ui-solid.png',colordiffuse='ff3b3a32').items():ET.SubElement(bar,field).text=value
-    group.insert(1,bar)
+    for field,value in dict(left='0',top='0',width='1920',height='160',texture='special://skin/media/ui-solid.png',colordiffuse='ff3b3a32').items():ET.SubElement(bar,field).text=value
+    group.insert(0,bar)
     positions={110:385,111:597,112:809,113:1021,114:1233,115:1445}
     for identity in (110,111,112,113):
         control=group.find(f"control[@id='{identity}']")

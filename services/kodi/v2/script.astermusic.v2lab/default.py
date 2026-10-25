@@ -926,6 +926,7 @@ class MusicLab(xbmcgui.WindowXML):
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
         self.model=None; self.rail=False; self.pending_focus=None; self.art_cache={};self.playlist_reader=None
+        self.finished=False;self.browser_identity=None
 
     def onInit(self):
         self.setProperty('Lab.Rail','false')
@@ -933,7 +934,32 @@ class MusicLab(xbmcgui.WindowXML):
         self.prop('Status','HP Music pilot · confirm Play / Shuffle · Back stops playback' if normal_playback() else 'Read-only pilot · no playback or library changes')
         self.render()
         self.focus_grid()
-        xbmcgui.Window(10000).setProperty('AsterV2Lab.Window',str(xbmcgui.getCurrentWindowId()))
+        if self.browser_identity is None:self.browser_identity=xbmcgui.getCurrentWindowId()
+        xbmcgui.Window(10000).setProperty('AsterV2Lab.Window',str(self.browser_identity))
+
+    def close(self):
+        if self.finished:return
+        self.finished=True
+        super().close()
+
+    def browse(self):
+        """Release the admission lock on Home/other-page exit, not just Back.
+
+        A hidden WindowXML.doModal can otherwise retain an invisible browser
+        and its entry lock forever. Do not tear down a nested owned player or
+        interrupt an unrelated player's native fullscreen window.
+        """
+        self.show();deadline=time.monotonic()+10
+        while not self.finished:
+            if xbmc.Monitor().abortRequested():self.close();break
+            if self.browser_identity is None:
+                if time.monotonic()>deadline:self.close();raise CatalogueUnavailable('browser-not-ready')
+            elif (xbmcgui.getCurrentWindowId()!=self.browser_identity
+                    and not xbmc.getCondVisibility('System.HasModalDialog')
+                    and not xbmcgui.Window(10000).getProperty('AsterV2Lab.AlbumWindow')
+                    and not rpc('Player.GetActivePlayers',{})):
+                self.close();break
+            xbmc.sleep(100)
 
     def prop(self,key,value): self.setProperty('Lab.'+key,str(value))
 
@@ -1047,7 +1073,11 @@ class MusicLab(xbmcgui.WindowXML):
             self.focus(302)
         elif control in (303,304):
             self.model.turn_page(-1 if control==303 else 1);self.render();self.focus_grid()
-        elif control in (305,9008):self.close()
+        elif control==305:self.close()
+        elif control in (9001,9002,9003,9004,9005):
+            self.close()
+            xbmc.executebuiltin({9001:'ActivateWindow(Home)',9002:'ActivateWindow(1110)',
+                9003:'ActivateWindow(1111)',9004:'ActivateWindow(1112)',9005:'ActivateWindow(Settings)'}[control])
         elif control==9007:
             self.rail=False;self.prop('Rail','false');self.focus_grid()
 
@@ -1159,9 +1189,11 @@ class MusicLab(xbmcgui.WindowXML):
             elif target=='search':self.focus(300)
             elif target=='browse':self.focus(200)
             else:self.focus_grid()
-        elif control in (9007,9008):
+        elif control in (9001,9002,9003,9004,9007,9005):
             if direction=='right':self.rail=False;self.prop('Rail','false');self.focus_grid()
-            elif direction in ('up','down'):self.focus(9008 if control==9007 else 9007)
+            elif direction in ('up','down'):
+                routes=(9001,9002,9003,9004,9007,9005);index=routes.index(control)
+                self.focus(routes[max(0,min(len(routes)-1,index+(-1 if direction=='up' else 1)))])
         elif 100<=control<=104:
             if direction=='left':self.focus(max(100,control-1))
             elif direction=='right':self.focus(min(104,control+1))
@@ -1226,7 +1258,7 @@ def admitted_main(kind,identity):
     window.model=LabModel(view)
     try:
         if kind=='shuffle':window.open_shuffle(20000,return_to_browser=False)
-        else:window.doModal()
+        else:window.browse()
     finally:
         home.clearProperty('AsterV2Lab.Window')
         del window

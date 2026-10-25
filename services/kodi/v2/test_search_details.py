@@ -32,6 +32,20 @@ class SearchDetailsTests(unittest.TestCase):
         _,_,rpc=self.fixture('album')
         self.assertIn('not available',read_details(rpc,Hit('album',5,'Title','')).synopsis)
 
+    def test_video_hero_prefers_fanart_and_audio_uses_available_art(self):
+        row,calls,rpc=self.fixture('movie');row.update(thumbnail='cover',fanart='backdrop')
+        detail=read_details(rpc,Hit('movie',5,'Title',''))
+        self.assertEqual(detail.hero,'backdrop');self.assertEqual(detail.artwork,'cover')
+        self.assertIn('fanart',calls[0][1]['properties'])
+        row,calls,rpc=self.fixture('album');row.update(thumbnail='album-cover')
+        self.assertEqual(read_details(rpc,Hit('album',5,'Title','')).hero,'album-cover')
+        self.assertNotIn('fanart',calls[0][1]['properties'])
+
+    def test_invalid_or_changing_hero_is_rejected(self):
+        for value in ([], 'x'*16385):
+            row,_,rpc=self.fixture('movie');row['fanart']=value
+            with self.assertRaises(SearchUnavailable):read_details(rpc,Hit('movie',5,'Title',''))
+
     def test_different_second_read_rejected(self):
         row,calls,base=self.fixture('movie')
         def rpc(method,params):

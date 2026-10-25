@@ -38,6 +38,13 @@ try:
         and label('Window.Property(Series.Ready)')=='true','installed-select-opens-series')
     require(idle(),'no-autoplay-on-tv-selection')
     require(label('Window.Property(Series.Title)') and label('Container(300).ListItem.Property(EpisodeId)').isdecimal(),'episode-page-populated')
+    count=int(label('Container(300).NumItems') or 0);require(count>0,'episode-count')
+    xbmc.executebuiltin('Control.SetFocus(300,'+str(count-1)+',absolute)');xbmc.sleep(500)
+    last=label('Container(300).ListItem.Property(EpisodeId)');require(last.isdecimal(),'last-episode-selected')
+    press('down');xbmc.sleep(200);press('down');xbmc.sleep(200)
+    require(label('Container(300).ListItem.Property(EpisodeId)')==last
+        and xbmc.getCondVisibility('Control.HasFocus(300)'),'last-episode-does-not-wrap')
+    checks.append('last-episode-stops-instead-of-wrapping')
     press('back');until(lambda:not label('Window(Home).Property(AsterSeries.PreviewWindow)')
         and xbmcgui.getCurrentWindowId()==10025 and xbmc.getCondVisibility('Control.HasFocus(50)'),'back-native-library')
     require(selected()==('tvshow',identity),'exact-show-focus-preserved')

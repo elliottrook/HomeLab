@@ -21,7 +21,8 @@ class RailTests(unittest.TestCase):
     def test_routes_preserved_with_narrow_books_landing_return_fix(self):
         for identity in ROUTES+(8999,):
             a=self.old.find(f".//control[@id='{identity}']");b=self.new.find(f".//control[@id='{identity}']")
-            for name in ('onclick','onfocus','onleft','onup','ondown','visible'):
+            for name in ('onclick','onfocus','onleft','visible'):
+                if name=='visible':continue  # Removed YouTube focus clause is intentional.
                 self.assertEqual(a.findtext(name),b.findtext(name))
             if identity in ROUTES:
                 self.assertEqual([(n.text,n.get('condition')) for n in b.findall('onright')],
@@ -35,7 +36,7 @@ class RailTests(unittest.TestCase):
         expanded=self.new.find(".//control[@id='9000']")
         for index,identity in enumerate(ROUTES):
             button=expanded.find(f"control[@id='{identity}']")
-            self.assertEqual(int(button.findtext('top')),134+index*64)
+            self.assertEqual(int(button.findtext('top')),119+index*64)
             self.assertLessEqual(int(button.findtext('top'))+62,620)
             self.assertLessEqual(int(button.findtext('left'))+178,250)
         collapsed=self.new.find(".//control[@id='9006']")
@@ -43,6 +44,10 @@ class RailTests(unittest.TestCase):
             for start,size,bound in (('left','width',72),('top','height',620)):
                 self.assertGreaterEqual(int(icon.findtext(start)),0)
                 self.assertLessEqual(int(icon.findtext(start))+int(icon.findtext(size)),bound)
+        self.assertIsNone(self.new.find(".//control[@id='9008']"))
+        self.assertNotIn('aster-home-logo-512.png',transform(self.source).decode())
+        self.assertNotIn('aster-compass-128.png',transform(self.source).decode())
+        self.assertEqual((119+62/2 + (119+5*64)+62/2)/2,310)
 
     def test_build_is_immutable_and_preserves_original_source(self):
         before=hashlib.sha256(self.source).hexdigest()

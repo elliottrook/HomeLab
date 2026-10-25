@@ -6,7 +6,9 @@ def require(value,reason):
     if not value:raise RuntimeError(reason)
 require(os.uname().nodename=='AsterTV','hp-only')
 root=Path('/storage/.aster-checkpoints/aster-global-search-20261024')
-stage=Path('/storage/.aster-staging/aster-global-search-ui12')
+active=json.loads((root/'active-manifest.json').read_text())
+require(active.get('stage') in ('aster-global-search-ui12','aster-global-search-ui13'),'known-stage')
+stage=Path('/storage/.aster-staging')/active['stage']
 sys.path.insert(0,str(stage/'resources/lib'))
 from movie_player import read_movie
 lock=os.open(root/'native-driver.lock',os.O_CREAT|os.O_RDWR|os.O_NOFOLLOW,0o600)
@@ -81,9 +83,12 @@ try:
     xbmc.executebuiltin('TakeScreenshot(/storage/.aster-checkpoints/aster-global-search-20261024/movie-page-'+str(time.time_ns())+'.png)')
     if play:
         focus(200);select();until(lambda:owned(1036) and xbmcgui.getCurrentWindowId()==12005,'exact-movie-play')
-        require(seconds()<20,'explicit-play-from-start');xbmc.sleep(1500)
+        require(seconds()<20,'explicit-play-from-start');xbmc.sleep(20000)
         press('osd');until(lambda:xbmc.getCondVisibility('Window.IsVisible(videoosd)'),'movie-osd')
         require(all(xbmc.getCondVisibility('Control.IsVisible('+str(i)+')') for i in (7100,7101,7102)),'osd-audio-subtitle-quality-retained')
+        xbmc.sleep(400)
+        xbmc.executebuiltin('TakeScreenshot(/storage/.aster-checkpoints/aster-feedback-20261024/video-osd.png)')
+        xbmc.sleep(400)
         press('back');until(lambda:not xbmc.getCondVisibility('Window.IsVisible(videoosd)'),'osd-dismissed')
         stop_back(1036);checks.extend(['explicit-movie-play-from-start','existing-osd-retained','fullscreen-back-stops-and-returns'])
     leave(query,1036);checks.append('exact-movie-query-id-focus-return')

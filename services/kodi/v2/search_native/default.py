@@ -187,7 +187,7 @@ def main():
                                 detail=read_details(rpc,hit)
                                 active_detail=detail.hit
                                 for key,value in dict(DetailTitle=detail.hit.title,DetailMetadata=detail.hit.detail,
-                                    DetailSynopsis=detail.synopsis,DetailArt=detail.artwork or 'special://skin/media/'+
+                                    DetailSynopsis=detail.synopsis,DetailHero=detail.hero,DetailArt=detail.artwork or 'special://skin/media/'+
                                     dict(tvshow='07-tv.png',movie='08-film.png',album='23-music-album.png',
                                          artist='24-music-artist.png',song='25-music-song.png')[hit.kind],DetailSource=detail.source).items():
                                     home.setProperty(PREFIX+key,value)
@@ -270,7 +270,7 @@ def main():
                 xbmc.executebuiltin('ActivateWindow(Home)')
         if admitted:
             for key in ('Open','Command','Query','Status','Detail','Ready','DetailOpen','DetailTitle',
-                        'DetailMetadata','DetailSynopsis','DetailArt','DetailSource','CanOpen','OpenLabel','DetailHint','Handoff'):home.clearProperty(PREFIX+key)
+                        'DetailMetadata','DetailSynopsis','DetailArt','DetailHero','DetailSource','CanOpen','OpenLabel','DetailHint','Handoff'):home.clearProperty(PREFIX+key)
             if source_focus and xbmcgui.getCurrentWindowId()==10000:xbmc.executebuiltin('SetFocus('+str(source_focus)+')')
         os.close(fd)
 

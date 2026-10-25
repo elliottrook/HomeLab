@@ -17,6 +17,7 @@ class Detail:
     synopsis: str
     artwork: str
     source: str
+    hero: str = ''
 
 def read_details(rpc,hit):
     if (not isinstance(hit,Hit) or hit.kind not in DETAILS
@@ -25,6 +26,7 @@ def read_details(rpc,hit):
     source=next(s for s in SOURCES if s.kind==hit.kind)
     method,key,synopsis=DETAILS[hit.kind]
     params={source.identity:hit.identity,'properties':list(source.properties)+[synopsis,'thumbnail']}
+    if hit.kind in ('tvshow','movie'):params['properties'].append('fanart')
     def snapshot():
         try:result=rpc(method,params)
         except Exception:raise SearchUnavailable('result-unavailable') from None
@@ -32,11 +34,12 @@ def read_details(rpc,hit):
             raise SearchUnavailable('result-unavailable')
         row=result[key];current=_hit(source,row)
         if current!=hit:raise SearchUnavailable('result-changed-refresh-search')
-        text=row.get(synopsis,'');art=row.get('thumbnail','')
-        if not isinstance(text,str) or len(text)>100000 or not isinstance(art,str) or len(art)>16384:
+        text=row.get(synopsis,'');art=row.get('thumbnail','');hero=row.get('fanart','')
+        if (not isinstance(text,str) or len(text)>100000 or not isinstance(art,str) or len(art)>16384
+                or not isinstance(hero,str) or len(hero)>16384):
             raise SearchUnavailable('invalid-result-details')
         return Detail(current,text.strip() or 'Synopsis is not available in this box’s synced index.',
-                      art,source.label+' · synced Kodi index')
+                      art,source.label+' · synced Kodi index',hero or art)
     first=snapshot();second=snapshot()
     if first!=second:raise SearchUnavailable('result-changed-refresh-search')
     return second

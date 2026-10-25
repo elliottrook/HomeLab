@@ -11,8 +11,8 @@ try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
 except BlockingIOError:
     os.close(lock);raise RuntimeError('native-driver-already-running')
 name=sys.argv[1] if len(sys.argv)==2 else 'aster-global-search-ui5'
-require(name in ('aster-global-search-ui5','aster-global-search-ui6','aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12'),'known-stage')
-movie_linked=name in ('aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12')
+require(name in ('aster-global-search-ui5','aster-global-search-ui6','aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12','aster-global-search-ui13'),'known-stage')
+movie_linked=name in ('aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12','aster-global-search-ui13')
 stage=Path('/storage/.aster-staging')/name
 home=xbmcgui.Window(10000)
 def prop(key):return home.getProperty('AsterSearch.'+key)
@@ -32,7 +32,11 @@ def idle():return not rpc('Player.GetActivePlayers') and all(rpc('Playlist.GetIt
 def label(key):return xbmc.getInfoLabel(key)
 def enter():
     xbmc.executebuiltin('SetFocus(134)');until(lambda:xbmc.getCondVisibility('Control.HasFocus(134)'),'collections-focus')
-    press('right');until(lambda:xbmc.getCondVisibility('Control.HasFocus(135)'),'normal-search-reachable')
+    press('right')
+    if name=='aster-global-search-ui13':
+        until(lambda:xbmc.getCondVisibility('Control.HasFocus(136)'),'youtube-header-reachable')
+        press('right')
+    until(lambda:xbmc.getCondVisibility('Control.HasFocus(135)'),'normal-search-reachable')
     select();until(lambda:xbmcgui.getCurrentWindowId()==11127 and prop('Ready')=='true','normal-search-open')
     require(idle(),'search-entry-no-autoplay')
 def query(value):
@@ -53,6 +57,8 @@ def open_child(index,kind):
     identity,title=result(index,kind)
     require(prop('CanOpen')=='true','link-available-'+kind)
     if kind=='album':
+        require(bool(prop('DetailHero')),'search-hero-property')
+        xbmc.sleep(1500)  # Let asynchronous full-width texture decoding settle.
         xbmc.executebuiltin('TakeScreenshot(/storage/.aster-checkpoints/aster-global-search-20261024/playerlink-detail-'+str(time.time_ns())+'.png)')
         xbmc.sleep(500)
     started=time.monotonic();xbmc.executebuiltin('SetFocus(11)');select()
@@ -83,7 +89,7 @@ try:
         result(index,kind);require(prop('CanOpen')=='false','truthful-details-only-'+kind)
         press('back');until(lambda:xbmcgui.getCurrentWindowId()==11127 and not prop('DetailOpen'),'details-back')
     checks.append('all-video-music-types-connected' if movie_linked else 'unsupported-player-links-remain-details-only')
-    if name in ('aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12'):
+    if name in ('aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12','aster-global-search-ui13'):
         artist_id,title=result(3,'artist')
         require(prop('CanOpen')=='true','artist-link-available')
         xbmc.executebuiltin('SetFocus(11)');select()
@@ -96,7 +102,7 @@ try:
         xbmc.executebuiltin('SetFocus(11)');select()
         until(lambda:prop('Handoff')=='child' and label('Window.Property(Album.Id)')==album_id,'artist-album-player')
         require(idle(),'artist-album-no-autoplay');press('back')
-        until(lambda:xbmcgui.getCurrentWindowId()==(11129 if name in ('aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12') else 11127) and not prop('Handoff') and prop('Ready')=='true'
+        until(lambda:xbmcgui.getCurrentWindowId()==(11129 if name in ('aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12','aster-global-search-ui13') else 11127) and not prop('Handoff') and prop('Ready')=='true'
             and label('Container(30).ListItem.Property(Search.Id)')==album_id and prop('Query')=='Albums · '+title,'artist-album-exact-return')
         xbmc.executebuiltin('TakeScreenshot(/storage/.aster-checkpoints/aster-global-search-20261024/artist-albums-'+str(time.time_ns())+'.png)')
         press('back')

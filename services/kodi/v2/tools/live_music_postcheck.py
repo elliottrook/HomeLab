@@ -60,7 +60,7 @@ if search_file.exists():
     _require(search_manifest.get('kind') in ('hp-search-details','hp-search-playerlinks')
         and len(search_manifest['files'])==((13 if search_manifest.get('movie_page')==11130 else 10 if search_manifest.get('artist_native_window')==11129 else 9 if search_manifest.get('artist_albums') is True else 8) if search_linked else 6),'search-details-kind')
     _require(search_manifest.get('dispatcher_before_sha256')=='466b69269e56d8699838aabbe72ae533a580909603855850a047bf02e76d1a0e','search-dispatch-predecessor')
-    search_stages=[stage/name for name in ('aster-global-search-ui3','aster-global-search-ui4','aster-global-search-ui5','aster-global-search-ui6','aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12')
+    search_stages=[stage/name for name in ('aster-global-search-ui3','aster-global-search-ui4','aster-global-search-ui5','aster-global-search-ui6','aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12','aster-global-search-ui13')
         if (stage/name/'manifest.json').exists() and hashlib.sha256((stage/name/'manifest.json').read_bytes()).hexdigest()==sys.argv[8]]
     _require(len(search_stages)==1,'search-stage-manifest');search_stage=search_stages[0]
     for member in search_manifest['files']:

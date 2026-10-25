@@ -16,7 +16,13 @@
   Items 01-26 and 31-32 were selected; all unticked items are deferred.
 - HP (`192.168.1.140`) is the v2 lab. BOSGAME (`192.168.1.157`) stays on its
   accepted family-beta release until a separately approved promotion.
-- Current resume point (2026-10-24): HP Music candidate64, 48 files,
+- Latest resume point (2026-10-25): the owner-feedback bundle `aster-feedback1`
+  is installed on HP only. It composes Music65, series17, floating rail4,
+  normal Music/series integration7, scrub4 and Search13. Exact manifests,
+  recovery and native acceptance evidence are in the owner-feedback entry
+  at the end. Production has no v2 changes. The following paragraphs retain
+  the previous accepted checkpoint and historical gates.
+- Previous resume point (2026-10-24): HP Music candidate64, 48 files,
   SHA-256 `3b796b1feaa6e5914161b76a726d77e20e2a35d308b1e0f29bd1b8ba32adfcd7`;
   exact candidate63/62/61/60 recovery retained. Normal Music integration6 is active,
   manifest `9f79b4275612fc02192b9abeea0703aaaf3fc745076134f1f50c0784235a51ba`.
@@ -3813,3 +3819,135 @@ README. No new API, external dependency, schedule, public access or TTS path.
 The sound asset hotfix does not change the production add-on version or install
 any v2 code. Source/evidence are retained locally; no Git push is authorized by
 this request.
+
+### 2026-10-25 — Household review corrections on HP
+
+Jason accepted TV/Search/OSD functionality and the floating side rail, then
+requested: full-width Music header; working playlist opens; stop at the end of
+the episode list; hero artwork behind Search details; a much subtler video OSD;
+no logo above the vertically centred rail destinations; short Media, Books,
+News, Home and Settings labels; and YouTube moved into Media's top row.
+Music remains a sixth rail destination. Jason explicitly left HP on Home with
+playback stopped and the remote set aside. Standing HP test/restart authority
+covers this bounded Stream A revision; production is excluded.
+
+Pre-start assessment: this changes only HP v2 implementation/skin files and
+their exact manifests. It produces no speech. It adds no identity, credential,
+API setup, service, network path, monitoring agent, schedule or server playlist
+write. Existing TV UI brand exception and supplied icons are preserved.
+Main risks are hidden native-window ownership, stale cross-feature hash pins,
+focus regression and unreadable controls over video. Controls: exact accepted
+predecessor hashes, idle/native preservation proof, one coordinated checkpoint,
+isolated rollback/failure tests, one planned Kodi restart and native workflows.
+No AV/language setting, receiver command, profile/database restore or manual
+watch-history edit is part of deployment. Actual playback tests may naturally
+update playback progress through the existing Jellyfin integration.
+
+Read-only playlist inspection found 16 audio playlists, all with completely
+matched indexed songs (17,150-song catalogue). An invisible retained Music
+admission lock was observed while no Music window/player was visible. The
+browser now has a non-modal owner loop that closes on Home/other-page exit,
+releasing admission; nested owned players/modal dialogs remain guarded.
+The initial test harness incorrectly treated catalogue DialogProgress as an
+open failure; that claim is rejected. It now waits for the actual owned-player
+marker. No server playlist was created, deleted or edited during these checks.
+
+Implementation:
+
+- Music's 160-pixel header starts at x0 and spans1920, drawn behind its logo.
+- Both shared and Music-browser rails have the same six centred destinations,
+  without a logo/compass above them; no chevron. Existing page headers remain.
+- Media's six compact top pills include YouTube, followed by Search; geometry
+  keeps all controls left of the clock. Existing YouTube authentication/API
+  limitations are unchanged; moving its entry is not a playback success claim.
+- Episode Down at the last row is a no-op instead of self-navigation/wrap;
+  season navigation remains reachable from the list.
+- Search details use full-width video fanart, or the available audio artwork
+  when no dedicated backdrop exists, over the stone-colour base/fades. Original
+  cover and synopsis stay readable. Two matching ID-bound detail reads validate
+  artwork; no stream/path authority is added. Background textures are async:
+  screenshots must wait for decoding, not mistake the initial base for failure.
+- OSD bottom fade is correctly oriented and extended upward gradually, with
+  maximum alpha122/255 instead of230/255. Text shadows preserve readability.
+  Button IDs/actions, audio/subtitle/quality and preview/commit/cancel scrub
+  remain unchanged; the native scrub dialog uses the same restrained shade.
+
+Installed bundle:
+`/storage/.aster-staging/aster-feedback1/manifest.json`, SHA-256
+`92c10fbae5c6660086b15bf1e8fea176c00a2d8451921ee7321aa4e57f1c69b1`.
+All100 plan members verified;15 existing files changed. Predecessor stage
+directories remain immutable and retained. Component identities:
+
+| Component | Identity / SHA-256 |
+| --- | --- |
+| Music65 archive;48 installed members | `dd2d024a15801c6102edd3214d89ce259e42f3df19eb67c0e932d36b78212bd7` |
+| Music65 manifest | `bc1346a117b0356bdb343b1cbab1389c6af89df39c80082c3eef445b4904d915` |
+| Series17 manifest;6 staged members | `2cc2a56f8eb3584034074e6f5eee6ed8e5e43d8e2343225f1948d50135833130` |
+| Normal Music integration7;8 members | `b5d5d866ee442b5fc38cccd51bc35bc6f753a450759082f03baaed12d3efc272` |
+| Series integration7;2 members | `a58433fe44d3317290753669d7ef87ac0fc846c02eda00b686fc91c43a9e88b6` |
+| Floating rail4;1 member | `3c167d9d8db5098abe8d87aaa99cc755692292fa31d6e634359e63baea662b45` |
+| Search13;13 staged/6 installed members | `fc69b8da32ddd4e86d6ff79510a3e6e737f8e325a24e99f509b43b103e0db8bf` |
+| Scrub4;4 staged/2 installed members | `def904ac4d6600fbbefb61d7d5dd450cd026853f820356185919d4e485097bfa` |
+
+Recovery is the private exact-file checkpoint
+`/storage/.aster-checkpoints/aster-feedback-20261024/aster-feedback1`, including
+all replaced originals/active manifests, native preflight, exact bundle manifest
+and paired self-contained `deploy_feedback_bundle.py`. With HP idle and Kodi
+stopped, run that retained helper with `rollback`, the exact bundle SHA above,
+and `unused`. It checks installed and recovery hashes, restores original files
+and active manifests, retains the new stages inert, and never restores a
+database/profile. Start Kodi, then rerun the previous64 preservation command.
+Unknown drift or repeat activation is refused. Isolated tests prove exact
+restore, partial-write failure recovery and drift/profile-path refusal.
+
+Native evidence so far:
+
+- `aster-feedback-20261024/front-1792912485814260298.json`: actual native OK
+  opens a positively identified playlist player without autoplay.
+- `aster-feedback-20261024/browser-exit-1792912624541460200.json`: both Home and the Media rail
+  destination release the lock, and a playlist subsequently reopens without
+  autoplay. No playback/server writes.
+- Rail `native-1792912530484635143.json`: all six routes, Books content return, normal Music
+  return and browser rail pass; native screenshots visually confirm centring,
+  removed logo and full-width Music header.
+- Series `native-navigation-1792912582219029941.json`: pressing Down twice at the last episode
+  retains its exact episode ID/focus; show selection, no-autoplay, exact Back
+  and untouched native film navigation also pass.
+- Search13 native all-type navigation passes, including artist-album nesting,
+  exact result returns and Home/no-match behavior. A second pass checks nonempty
+  hero properties and waits for background decoding; its settled screenshot
+  confirms artwork behind the album cover/synopsis.
+
+Final gates:
+
+- Search13 native passes `native-playerlinks-1792912685355002416.json` and
+  `native-playerlinks-1792912919678716619.json`; the latter also checks the hero
+  property and settled background decoding. Each covers TV/film/album/song
+  entry, artist-album nested return, Home/no-result behavior and no autoplay.
+- Actual film Play/from-start, real existing-bookmark Resume, OSD controls and
+  Back-to-stop/empty queues pass in `native-movie-1792913004882010100.json`.
+  The retained `aster-feedback-20261024/video-osd.png` was captured at20seconds,
+  with a real visible video frame: the scene remains visible behind the gently
+  shaded floating controls, without the old inverted dark edge.
+- Final native preservation `postcheck-1792913078992681104.json`:48 Music
+  members,139 unchanged v1 baseline members,4 player overlays,8 Music integration,
+  1rail,2series,2scrub plus prepared dialog and6Search members verify; all68
+  AV/language settings match, both databases pass integrity, missing primary
+  artist links remain0. Players/queues empty, shuffle off, all lab windows closed
+  and no recovery fence. Kodi PID26231, restart counter0 after the planned restart.
+- All72 original files/manifests and paired recovery helper were copied to the
+  private off-device directory `/tmp/aster-feedback-D379Ph/recovery` and hash
+  verified. This is an extra recovery copy, not a substitute for retained HP
+  checkpoints. No recovery copy or retired candidate was deleted.
+- 487 v2 tests pass in both normal and optimized Python.
+  Original100 skin-tool and25 video-addon tests pass; compile/whitespace checks
+  pass. Native checks use explicit conditions on optimized Kodi Python1.
+
+Handover: HP is on Home, stopped and ready. Recheck playlist opening after
+visiting/leaving Genres, scroll to the last TV episode, use Search→result for
+the new hero, inspect video OSD over a scene, and check Media's YouTube pill and
+the renamed rail. Household visual acceptance of these refinements remains
+pending. This remains an HP pilot, not production promotion or M2/M3 graduation.
+Integration inventory/Doctor/Beszel/NetBox facts are unchanged; no new service
+coverage applies. Recovery/operator guidance is updated here; no new secrets
+or public publication are introduced. No push was requested.

@@ -4,7 +4,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 
 SOURCE=Path(__file__).resolve().parent.parent/'skin.asterhome/1080i/IncludesHub.xml'
-ROUTES=(9001,9002,9003,9004,9007,9008,9005)
+ROUTES=(9001,9002,9003,9004,9007,9005)
 
 
 def transform(data):
@@ -28,25 +28,35 @@ def transform(data):
         for key,value in dict(left=1,top=1,width=width-2,height=618).items():field(inner,key,value)
         ET.SubElement(inner,'texture',dict(border='24',colordiffuse='f23b3a32')).text='special://skin/media/ui-panel.png'
         group.insert(list(group).index(background)+1,inner)
-    # Retain routes/actions; correct only the Books landing page's hidden target.
+    # YouTube moves to the Media header. Centre the six remaining destinations
+    # as one group in both states; the page header owns the product logo.
+    expanded.remove(expanded.find("control[@id='9008']"))
+    for group in (expanded,collapsed):
+        for image in list(group.findall("control[@type='image']")):
+            texture=image.findtext('texture') or ''
+            if texture.endswith(('/aster-home-logo-512.png','/aster-compass-128.png')) or 'plugin.video.youtube/' in texture:
+                group.remove(image)
+        for node in group.iter('visible'):
+            node.text=(node.text or '').replace(' | Control.HasFocus(9008)','').replace(' + !Control.HasFocus(9008)','')
+    labels={9001:'Media',9002:'Books',9003:'News',9004:'Home',9007:'Music',9005:'Settings'}
     for index,identity in enumerate(ROUTES):
         button=expanded.find(f"control[@id='{identity}']")
-        old=int(button.findtext('top'));new=134+index*64
+        old=int(button.findtext('top'));new=119+index*64
         icon=next(c for c in expanded.findall("control[@type='image']") if c.findtext('top')==str(old+16))
         field(button,'top',new);field(button,'left',62)
+        field(button,'label',labels[identity])
+        field(button,'onup',ROUTES[max(0,index-1)])
+        field(button,'ondown',ROUTES[min(len(ROUTES)-1,index+1)])
         field(icon,'top',new+13);field(icon,'left',14)
         right=button.find('onright');right.set('condition','!Window.IsActive(11110)')
         right.text='SetFocus('+right.text+')'
         position=list(button).index(right)
         books=ET.Element('onright',dict(condition='Window.IsActive(11110)'));books.text='SetFocus(501)'
         button.insert(position,books)
-    logo=next(c for c in expanded.findall("control[@type='image']") if (c.findtext('texture') or '').endswith('/aster-home-logo-512.png'))
-    field(logo,'top',24)
-    compass=collapsed.find("control[@id='8997']");field(compass,'left',14);field(compass,'top',24)
     # Match by original position: the XML source does not store Music in visual order.
-    original=(150,214,278,342,406,470,534)
+    original=(150,214,278,342,406,534)
     images=[c for c in collapsed.findall("control[@type='image']") if c.findtext('top') in tuple(map(str,original))]
-    positions={old:143+index*64 for index,old in enumerate(original)}
+    positions={old:128+index*64 for index,old in enumerate(original)}
     for icon in images:
         old=int(icon.findtext('top'))
         for key,value in dict(left=14,top=positions[old],width=44,height=44).items():field(icon,key,value)

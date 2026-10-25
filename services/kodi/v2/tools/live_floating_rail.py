@@ -32,12 +32,12 @@ try:
     setfocus(130);picture('media-closed');press('left');until(lambda:focus(9001),'left-enters-real-media-route')
     require(not xbmc.getInfoLabel('Control.GetLabel(8999)'),'no-chevron')
     picture('media-open')
-    for identity in (9002,9003,9004,9007,9008,9005):
+    for identity in (9002,9003,9004,9007,9005):
         press('down');until(lambda:focus(identity),'rail-down-'+str(identity))
-    for identity in (9008,9007,9004,9003,9002,9001):
+    for identity in (9007,9004,9003,9002,9001):
         press('up');until(lambda:focus(identity),'rail-up-'+str(identity))
     press('right');until(lambda:focus(100),'right-returns-to-media')
-    checks.append('media-left-immediate-route-all-seven-directions-and-return')
+    checks.append('media-left-immediate-route-all-six-directions-and-return')
     xbmc.executebuiltin('SetFocus(8999)');until(lambda:focus(9001),'reopen-media');press('down');until(lambda:focus(9002),'books-route');select()
     until(lambda:xbmcgui.getCurrentWindowId()==11110,'books-page');xbmc.sleep(600)
     xbmc.executebuiltin('SetFocus(8999)');until(lambda:focus(9002),'books-immediate-current-route');picture('books-open')
