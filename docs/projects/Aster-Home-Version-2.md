@@ -4807,3 +4807,74 @@ checkpoint.623 local v2 tests pass; seven guard builder tests pass locally and
 five activation-plan tests passed on TrueNAS (local PyYAML-dependent skips are
 explicit). Production BOSGAME and its previously accepted sound theme remain
 unchanged; no production deployment or Forgejo push was performed.
+
+#### Third household visual review — 2026-10-25
+
+HP-only refinement under the existing lab authorization, following the Aster
+internal UI style guide and Jason's specific preference for lighter glass
+surfaces. No speech generated. Production BOSGAME remains unchanged.
+
+- Audiobook/podcast elapsed and duration labels use Aster green; playback,
+  progress ownership and shared-server safeguard are unchanged.
+- Compact menu backplates reduced from `df000000` to `98000000`. Keyboard
+  keys now have dark faces, subtle rims, soft offset shadows and a green/white
+  focus treatment; inherited ivory/stone action-key surfaces are removed.
+  VideoOSD transport XML and accepted OSD controls remain untouched.
+- Top navigation uses translucent black pills, green focused fill and a white
+  outline. Search has its own proportional capsule with a gold band and30px
+  separation. The Media backplate fits its categories; Archive Movies replaces
+  Archive Film, with an explicit icon/caption column so captions do not collide.
+- Shared and internal Music side rails are416px high, vertically centred,
+  with16px end padding around the six rows; route/focus IDs are retained.
+- Season dropdown uses a maximum five-real-row slice of explicit buttons and
+  clamps at either end. Unused buttons are hidden and the backdrop fits only
+  the real rows; there is no native scrolling-list viewport to leave empty
+  space below the final choice.
+
+Render QA rejected the first candidate's clipped captions: Kodi applies its
+horizontal button-text inset on both sides. Separate caption controls corrected
+that; a further screenshot caught a legacy `ui-top-button-ring.png` outline,
+which was removed. A season screenshot also exposed a native viewport-reset
+artifact despite the initial logical-row test passing. The check now requires
+the expected final season label, not merely an unchanged label at the boundary.
+These corrections were separate immutable successors, never edited in place.
+
+Final candidate: `aster-review8`,45 changed members, manifest
+`1593f1f8982be294c19ec0ad3d51b7879428abc08a1fb6a6f78a5818f230155d`.
+Checkpoints are `/storage/.aster-checkpoints/aster-review3-20261025` through
+`aster-review8-20261025`, retaining exact before-file hashes, native idle proof
+and verified paired restore. Final namespaces: Music72, series24, Search21,
+Books sync13; matching integrity and route records are updated together.
+631 local v2 tests pass under normal and optimized Python. The shared Music
+pill include is materialized before styling: otherwise Kodi's inherited text
+colour overrides the transparent button caption and duplicates the explicit
+icon-caption label. Native Music screenshots exposed this and a dedicated
+regression test now protects it.
+
+Before deployment, an existing Search handoff fence from visual testing was
+investigated rather than cleared blindly: two native observations showed Home,
+no child windows, no playback and empty queues, and a read-only snapshot of
+show126 succeeded. The exact fence was retained as
+`retired-visual-handoff-1792951254.json` with a diagnostic proof. The originating
+interruption is not proven; subsequent exact-show Search→Series→Back checks
+passed. No watch history was edited or unknown playback interrupted.
+
+Final acceptance: all45 review8 members verified; native proof
+`native-ui-1792953969130058687.json` passed actual Season4 selection,
+reopening/Back, four visible real choices, clamped end navigation, exact Search
+return, keyboard opening and empty idle exit. Native screenshots confirm the
+bottom season is highlighted below all preceding choices, not scrolled to the
+top with empty space. Header and green audiobook-clock screenshots inspected.
+Native Music regression `native-normal-1792954036898390400.json` passed album
+play/pause/Back, exact tile restoration, artist/song/Jellyfin playlist routes,
+all five header destinations, genres and confirmed shuffle exclusions/exit.
+No server playlist writes. Books audiobook and podcast normal resume,
+pause-save and Back-save/stop checks passed after the colour update; the later
+header corrections leave their playback code and clock XML byte-identical.
+Final preservation proof `postcheck-1792954058078571626.json` verified48 Music
+members, six Search overlays,13 Books members, canonical sounds, database
+integrity, all lab windows closed, empty queues and68 AV/language comparisons
+(67 exact; known resolution-index remap retained). HP remains4K30. Native
+screenshots/proofs are retained in the dated review3, Books and Music
+checkpoints; final recovery/manifest is in review8. No production change,
+credential change, manual history edit or Forgejo push.

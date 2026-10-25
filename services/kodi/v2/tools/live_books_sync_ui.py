@@ -87,6 +87,7 @@ try:
         until(lambda:owned(url) and home.getProperty('AsterBooks.SyncState')=='ready'
             and before.position-2<=player.getTime()<=before.position+8,'server-position-resumed')
         start=player.getTime();until(lambda:owned(url) and player.getTime()>=start+4,'normal-clock-advances')
+        xbmc.executebuiltin('TakeScreenshot('+str(root/(target['kind']+'-playing.png'))+')')
         if sleep_mode:
             until(lambda:bool(home.getProperty('AsterBooks.SleepToken')),'sleep-owned-token')
             focus(9106);select();until(lambda:xbmcgui.getCurrentWindowDialogId()==12000,'normal-sleep-selector')

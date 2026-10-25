@@ -29,15 +29,17 @@ def allowed(name):
     return ((rest.startswith('1080i/') and len(Path(rest).parts)==2 and p.suffix=='.xml' and p.name!='IncludesHub.xml')
         or rest in ('tools/aster_v2_series.py','tools/compact_menu.py','tools/osd_choices.py','tools/select_dispatch.py',
                     'tools/music_data.py','tools/aster_v2_music.py','resources/skins/Default/1080i/CompactMenu.xml'))
-def run(mode,digest,proof_name,storage=Path('/storage')):
+def run(mode,digest,proof_name,storage=Path('/storage'),*,review=2,validator=None):
+    require(review in (2,3,4,5,6,7,8),'known-review')
+    validator=validator or allowed
     require(mode in ('install','verify','rollback') and re.fullmatch('[0-9a-f]{64}',digest),'mode-digest')
-    stage=storage/'.aster-staging/aster-review2';checkpoint=storage/'.aster-checkpoints/aster-review2-20261025'
+    stage=storage/('.aster-staging/aster-review'+str(review));checkpoint=storage/('.aster-checkpoints/aster-review'+str(review)+'-20261025')
     require(sha(stage/'manifest.json')==digest,'bundle-drift')
     manifest=json.loads((stage/'manifest.json').read_text());rows=manifest['files']
-    require(manifest.get('kind')=='hp-review2' and manifest.get('name')=='aster-review2','bundle-kind')
-    require(50<len(rows)<200 and len({r['path'] for r in rows})==len(rows),'bounded-unique-targets')
+    require(manifest.get('kind')=='hp-review'+str(review) and manifest.get('name')=='aster-review'+str(review),'bundle-kind')
+    require((20 if review in (4,5,6,7,8) else 50)<len(rows)<200 and len({r['path'] for r in rows})==len(rows),'bounded-unique-targets')
     for row in rows:
-        require(allowed(row['path']),'target-outside-review')
+        require(validator(row['path']),'target-outside-review')
         source=stage/'payload'/row['path'];target=storage/row['path']
         require(re.fullmatch('[0-9a-f]{64}',row['sha256']) and (row['before_sha256'] is None or re.fullmatch('[0-9a-f]{64}',row['before_sha256'])),'hash-format')
         require(not any(p.is_symlink() for p in (source,*source.parents,target,*target.parents)) and sha(source)==row['sha256'],'linked-or-changed-file')

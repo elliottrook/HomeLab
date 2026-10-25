@@ -119,14 +119,11 @@ class SeriesPreview(xbmcgui.WindowXML):
             self.season_menu=not self.season_menu
             self.setProperty('Series.SeasonMenu','true' if self.season_menu else 'false')
             if self.season_menu:
-                menu=self.getControl(301);menu.reset()
-                menu.addItems([xbmcgui.ListItem(label=s.label) for s in self.snapshot.page.seasons])
-                menu.setHeight(min(8,len(self.snapshot.page.seasons))*54)
-                self.getControl(302).setHeight(min(8,len(self.snapshot.page.seasons))*54+16)
-                menu.selectItem(self.selection.season);self.setFocusId(301)
+                self.season_cursor=self.selection.season
+                self.draw_seasons()
             else:self.setFocusId(201)
-        elif identity==301 and self.season_menu:
-            index=self.getControl(301).getSelectedPosition()
+        elif 311<=identity<=315 and self.season_menu:
+            index=self.season_start+identity-311
             self.season_menu=False;self.setProperty('Series.SeasonMenu','false')
             self.updating=True
             try:
@@ -155,6 +152,17 @@ class SeriesPreview(xbmcgui.WindowXML):
                         if self.session.phase=='idle':self.dialog('ok','Episode unavailable','The episode or idle player could not be verified. Nothing was started.')
                 else:self.details(row)
             if not self.playback_enabled:self.setFocusId(identity)
+
+    def draw_seasons(self):
+        # A fixed slice avoids native list overscroll leaving empty rows at
+        # the end. Cursor identity remains absolute across slice changes.
+        count=len(self.snapshot.page.seasons);visible=min(5,count)
+        start=min(max(self.season_cursor-2,0),max(0,count-visible))
+        self.season_start=start
+        for row in range(5):
+            self.setProperty('Series.SeasonRow'+str(row),self.snapshot.page.seasons[start+row].label if row<visible else '')
+        self.getControl(302).setHeight(visible*54+16)
+        self.setFocusId(311+self.season_cursor-start)
 
     def details(self,row):
         self.dialog('ok','Episode information' if self.playback_enabled else 'Episode preview',
@@ -230,6 +238,9 @@ class SeriesPreview(xbmcgui.WindowXML):
         key=action.getId()
         try:control=self.getFocusId()
         except RuntimeError:return
+        if 311<=control<=315 and self.season_menu and key in (3,4):
+            self.season_cursor=max(0,min(len(self.snapshot.page.seasons)-1,self.season_cursor+(-1 if key==3 else 1)))
+            self.draw_seasons();return
         if control==300 and key in (3,4):self.pending_index=None
         if key in BACK:
             if xbmcgui.getCurrentWindowId()!=self.identity:return

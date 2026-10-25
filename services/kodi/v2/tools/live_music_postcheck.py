@@ -60,7 +60,7 @@ if search_file.exists():
     _require(search_manifest.get('kind') in ('hp-search-details','hp-search-playerlinks')
         and len(search_manifest['files'])==((13 if search_manifest.get('movie_page')==11130 else 10 if search_manifest.get('artist_native_window')==11129 else 9 if search_manifest.get('artist_albums') is True else 8) if search_linked else 6),'search-details-kind')
     _require(search_manifest.get('dispatcher_before_sha256')=='466b69269e56d8699838aabbe72ae533a580909603855850a047bf02e76d1a0e','search-dispatch-predecessor')
-    search_stages=[stage/name for name in ('aster-global-search-ui3','aster-global-search-ui4','aster-global-search-ui5','aster-global-search-ui6','aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12','aster-global-search-ui13','aster-global-search-ui14','aster-global-search-ui15')
+    search_stages=[stage/name for name in ('aster-global-search-ui3','aster-global-search-ui4','aster-global-search-ui5','aster-global-search-ui6','aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12','aster-global-search-ui13','aster-global-search-ui14','aster-global-search-ui15','aster-global-search-ui16','aster-global-search-ui17','aster-global-search-ui18','aster-global-search-ui19','aster-global-search-ui20','aster-global-search-ui21')
         if (stage/name/'manifest.json').exists() and hashlib.sha256((stage/name/'manifest.json').read_bytes()).hexdigest()==sys.argv[8]]
     _require(len(search_stages)==1,'search-stage-manifest');search_stage=search_stages[0]
     for member in search_manifest['files']:
@@ -98,9 +98,15 @@ if books_file.exists():
         'aster-books-sync4':'d332a979018d92add2999909e4cf272190624c54bf4db5e0f1fb12c281f85af6',
         'aster-books-sync5':'010e23df40c70e1eaeeb478e359b9da7cb56223549701a3795aea2defa676ff8',
         'aster-books-sync6':'dd502b6770ec6c0f76e4c2fb4182c54c4b84e4c5162a70e0c0dd2a205a643dd7',
-        'aster-books-sync7':'0def99963e27add62f7b13c13568bdfcf8d6ea7669fec9a389e1098797b9269c'}
+        'aster-books-sync7':'0def99963e27add62f7b13c13568bdfcf8d6ea7669fec9a389e1098797b9269c',
+        'aster-books-sync8':'ee8701d57dff69cb9290e246c04ce08cd54a0b9289652fac323b5abe65b24c2d',
+        'aster-books-sync9':'7b0a8f7cb34de064970f54857d8c005bcbc7cd1fcf04a04a4f0a06c6a5bb282b',
+        'aster-books-sync10':'59eea94d12ddd2e3495a475d71933ba5e1f5a8fd213565c7edc4f50c32058913',
+        'aster-books-sync11':'793acb6f1b49cb5e95e81b156939e4c499ed687ae89c9c070cd4f89b9a981d31',
+        'aster-books-sync12':'39105d0b69c628c8faffac9dc0ffa2273a98e5a66dfdbe578ebd410f83f81238',
+        'aster-books-sync13':'fa1208744f1d12c9915c19f60876dfa47bfd836a7a9f3bc773680bea1db85e8d'}
     books_name=books.get('stage');_require(books_name in accepted_books and hashlib.sha256(books_file.read_bytes()).hexdigest()==accepted_books[books_name],'books-sync-manifest')
-    expected_books_count=13 if books_name in ('aster-books-sync6','aster-books-sync7') else 9
+    expected_books_count=13 if books_name in ('aster-books-sync6','aster-books-sync7','aster-books-sync8','aster-books-sync9','aster-books-sync10','aster-books-sync11','aster-books-sync12','aster-books-sync13') else 9
     _require(books.get('kind')=='hp-books-shared-progress.v1' and len(books['files'])==expected_books_count,'books-sync-contract')
     _require((stage/books_name/'manifest.json').read_bytes()==books_file.read_bytes(),'books-sync-stage')
     for member in books['files']:
@@ -155,13 +161,78 @@ if scrub_file.exists():
     if scrub_active:
         scrub_osd_sha=next(r['sha256'] for r in scrub['files'] if r['path']=='overlay/VideoOSD.xml')
         scrub_count=2 if native_scrub else 1
+review8_expected={}
+review8_marker=Path('/storage/.aster-checkpoints/aster-review8-20261025/installed.json')
+if review8_marker.exists():
+    review8_sha='1593f1f8982be294c19ec0ad3d51b7879428abc08a1fb6a6f78a5818f230155d'
+    review8_raw=(stage/'aster-review8/manifest.json').read_bytes()
+    _require(hashlib.sha256(review8_raw).hexdigest()==review8_sha,'review8-manifest')
+    _require(json.loads(review8_marker.read_text()).get('manifest_sha256')==review8_sha,'review8-installation')
+    for r in json.loads(review8_raw)['files']:
+        _require(hashlib.sha256((Path('/storage')/r['path']).read_bytes()).hexdigest()==r['sha256'],'review8-installed-member')
+        review8_expected[r['path']]=r['sha256']
+review7_expected={}
+review7_marker=Path('/storage/.aster-checkpoints/aster-review7-20261025/installed.json')
+if review7_marker.exists():
+    review7_sha='0e08428ee0342a4e6d957352b4936681803243c556fe4fbdc43839983462a6a3'
+    review7_raw=(stage/'aster-review7/manifest.json').read_bytes()
+    _require(hashlib.sha256(review7_raw).hexdigest()==review7_sha,'review7-manifest')
+    _require(json.loads(review7_marker.read_text()).get('manifest_sha256')==review7_sha,'review7-installation')
+    for r in json.loads(review7_raw)['files']:
+        _require(hashlib.sha256((Path('/storage')/r['path']).read_bytes()).hexdigest()==review8_expected.get(r['path'],r['sha256']),'review7-installed-member')
+        review7_expected[r['path']]=review8_expected.get(r['path'],r['sha256'])
+review7_expected.update(review8_expected)
+review6_expected={}
+review6_marker=Path('/storage/.aster-checkpoints/aster-review6-20261025/installed.json')
+if review6_marker.exists():
+    review6_sha='abcdf6a8deb7d8907ec34745877d05fcaeebce47c1a7a78e3628558765731472'
+    review6_raw=(stage/'aster-review6/manifest.json').read_bytes()
+    _require(hashlib.sha256(review6_raw).hexdigest()==review6_sha,'review6-manifest')
+    _require(json.loads(review6_marker.read_text()).get('manifest_sha256')==review6_sha,'review6-installation')
+    for r in json.loads(review6_raw)['files']:
+        _require(hashlib.sha256((Path('/storage')/r['path']).read_bytes()).hexdigest()==review7_expected.get(r['path'],r['sha256']),'review6-installed-member')
+        review6_expected[r['path']]=review7_expected.get(r['path'],r['sha256'])
+review6_expected.update(review7_expected)
+review5_expected={}
+review5_marker=Path('/storage/.aster-checkpoints/aster-review5-20261025/installed.json')
+if review5_marker.exists():
+    review5_sha='76e97d657eb6a1ef07d61e2f0f7cbe907fe8ec705631d314e906126d2c3d4966'
+    review5_raw=(stage/'aster-review5/manifest.json').read_bytes()
+    _require(hashlib.sha256(review5_raw).hexdigest()==review5_sha,'review5-manifest')
+    _require(json.loads(review5_marker.read_text()).get('manifest_sha256')==review5_sha,'review5-installation')
+    for r in json.loads(review5_raw)['files']:
+        _require(hashlib.sha256((Path('/storage')/r['path']).read_bytes()).hexdigest()==review6_expected.get(r['path'],r['sha256']),'review5-installed-member')
+        review5_expected[r['path']]=review6_expected.get(r['path'],r['sha256'])
+review5_expected.update(review6_expected)
+review4_expected={}
+review4_marker=Path('/storage/.aster-checkpoints/aster-review4-20261025/installed.json')
+if review4_marker.exists():
+    review4_sha='0f3bffbaf0a23749bf014726fc854b8cbd7ce4d7e76bea9d23392e593a394e6a'
+    review4_raw=(stage/'aster-review4/manifest.json').read_bytes()
+    _require(hashlib.sha256(review4_raw).hexdigest()==review4_sha,'review4-manifest')
+    _require(json.loads(review4_marker.read_text()).get('manifest_sha256')==review4_sha,'review4-installation')
+    for r in json.loads(review4_raw)['files']:
+        _require(hashlib.sha256((Path('/storage')/r['path']).read_bytes()).hexdigest()==review5_expected.get(r['path'],r['sha256']),'review4-installed-member')
+        review4_expected[r['path']]=review5_expected.get(r['path'],r['sha256'])
+review4_expected.update(review5_expected)
+review3_expected={}
+review3_marker=Path('/storage/.aster-checkpoints/aster-review3-20261025/installed.json')
+if review3_marker.exists():
+    review3_sha='7c8809174b1123765822ada12ea4a28bb534703a4baed5cb21a1c30236c2ea11'
+    review3_raw=(stage/'aster-review3/manifest.json').read_bytes()
+    _require(hashlib.sha256(review3_raw).hexdigest()==review3_sha,'review3-manifest')
+    _require(json.loads(review3_marker.read_text()).get('manifest_sha256')==review3_sha,'review3-installation')
+    for r in json.loads(review3_raw)['files']:
+        _require(hashlib.sha256((Path('/storage')/r['path']).read_bytes()).hexdigest()==review4_expected.get(r['path'],r['sha256']),'review3-installed-member')
+        review3_expected[r['path']]=review4_expected.get(r['path'],r['sha256'])
+review3_expected.update(review4_expected)
 if overlay_file.exists():
     overlay=json.loads(overlay_file.read_text())
     _require((overlay['sha256']=='591cc32b4f9c3a621e395df744d3a8c3b5f7d178623ff8094fda072fa79a16d0'), ('native-check-failed'))
     overrides={'skin.asterhome/'+r['path']:r['sha256'] for r in overlay['files'] if r['path'].startswith('1080i/')}
     _require((len(overrides)==4), ('native-check-failed'))
     _require((all(hashlib.sha256((addons/'skin.asterhome'/r['path']).read_bytes()).hexdigest()==
-        (books_overrides.get('skin.asterhome/'+r['path'],scrub_osd_sha if scrub_osd_sha and r['path']=='1080i/VideoOSD.xml' else r['sha256'])) for r in overlay['files'])), ('native-check-failed'))
+        review3_expected.get('.kodi/addons/skin.asterhome/'+r['path'],books_overrides.get('skin.asterhome/'+r['path'],scrub_osd_sha if scrub_osd_sha and r['path']=='1080i/VideoOSD.xml' else r['sha256'])) for r in overlay['files'])), ('native-check-failed'))
     if scrub_osd_sha:overrides['skin.asterhome/1080i/VideoOSD.xml']=scrub_osd_sha
 overlay_count=len(overrides)
 overrides.update(canonical_overrides)
@@ -177,9 +248,10 @@ if review_marker.exists():
     _require(json.loads(review_marker.read_text()).get('manifest_sha256')==review_sha,'review2-installation')
     review=json.loads(review_raw)
     for r in review['files']:
-        _require(hashlib.sha256((Path('/storage')/r['path']).read_bytes()).hexdigest()==r['sha256'],'review2-installed-member')
+        _require(hashlib.sha256((Path('/storage')/r['path']).read_bytes()).hexdigest()==review3_expected.get(r['path'],r['sha256']),'review2-installed-member')
         if r['path'].startswith('.kodi/addons/'):
             overrides[r['path'][len('.kodi/addons/'):]]=r['sha256']
+overrides.update({n[len('.kodi/addons/'):]:d for n,d in review3_expected.items() if n.startswith('.kodi/addons/')})
 if search_home_sha:overrides['skin.asterhome/1080i/Home.xml']=search_home_sha
 integration_file=Path('/storage/.aster-checkpoints/aster-music-integration-20261024/active-manifest.json')
 integration_count=0
