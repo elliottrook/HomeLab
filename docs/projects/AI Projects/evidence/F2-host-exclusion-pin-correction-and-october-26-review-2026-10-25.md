@@ -1,7 +1,7 @@
 # F2 host-exclusion pin correction and October 26 review — 2026-10-25
 
-Status: corrected inactive installation independently verified; October 26
-activation candidate is statically ready but remains unapproved and inactive.
+Status: corrected installation independently verified; the separately approved
+October 26 one-shot timers are active and waiting.
 
 ## Installed correction
 
@@ -40,7 +40,15 @@ pull, archive identity, quiet-host and absence gates. A 01:42 observation-only
 reconciliation must remove the spent one-shot units and report either exactly
 three exit-zero rows or the first bounded failure.
 
+Jason subsequently approved that exact activation. The platform owner recorded
+it at `7d74e6cf9cd2dae057b8ed3b10e3515606f3989e`; Stream A independently
+observed both date-specific timers enabled, active and waiting for 01:15 and
+01:20 PDT. Recurring timers remain disabled/inactive and the lease remains
+ready. The one-occurrence observation-only reconciliation is active for 01:42.
+No service was manually started and no scan or F3 action occurred during
+activation.
+
 ## Authority boundary
 
-This review authorizes no timer installation, service start, scan, retry,
-receipt, lease, production stop, model call or F3 action.
+This record authorizes no manual service start, scan, retry, receipt, lease,
+production stop, model call or F3 action beyond the exact timers Jason approved.
