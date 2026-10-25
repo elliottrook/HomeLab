@@ -54,6 +54,12 @@ source-only correction at `c370cce4` ignores only a fully vanished process,
 keeps all live, malformed, foreign and additional-holder cases fail-closed,
 and passes 90/90 clean tests. Platform integration, target-Linux proof and an
 approved inactive observer/runner replacement precede any new live attempt.
+That revised replacement is now installed: an incomplete test archive first
+rolled back cleanly, then the complete clean archive passed 90/90 target tests.
+The installed correction passed 20/20 read-only live observer calls and full
+exercise prestate with clean custody, healthy production and unchanged F2.
+The next F6 gate is one newly carded and separately approved live prepare-only
+exercise; no retry was inferred from the installation approval.
 
 **October 24 M1 approval-plane checkpoint:** the
 [permanent Yellow-only cutover](evidence/M1-permanent-yellow-cutover-result-2026-10-24.md)

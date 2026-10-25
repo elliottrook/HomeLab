@@ -40,3 +40,33 @@ after matching their two old hashes and capturing root-only rollback copies.
 It requires the same 90 tests on target Linux and leaves all wrappers, units,
 timers and runtime custody unchanged. No exercise retry is included. An exact
 host-change approval is required before that inactive installation.
+
+## Installed result
+
+The first approved transaction under metadata commit `0ddad44f` rolled back
+cleanly after 45 passing evaluation tests because its transport archive omitted
+the unchanged inert lease wrapper needed by the final wrapper test. Both old
+runtime hashes and root:root mode `0644` were restored; F6 remained inactive
+and the whole-host lease remained ready. No source assertion failed.
+
+The platform owner corrected only the archive boundary and checkpoint identity
+in metadata commit `fed7052d`. Jason explicitly approved that revised card.
+Its complete clean archive SHA-256 was
+`96c89b41a51dac2fa9ff273a6e2c6ab2c94c07ad278b51d834521a88bc0b1dcb`.
+
+The revised inactive transaction completed with a fresh root-only checkpoint
+at `/root/stream-a-evaluation-observer-gpu-exit-replacement-20261025`, all
+**90/90** target-Linux tests passing, and the two installed accepted hashes at
+root:root mode `0644`.
+
+Four independently invoked five-observation batches then passed **20/20**.
+Full `Exercise.prestate()` completed with the expected `consumers`, `f2`, `f6`
+and `observation` sections. No lease, lock, identity, intent, heartbeat,
+watchdog status or restore intent remained. LXC104/110/116, Aster Agent, the
+accepted llama service, Speech, both News timers, `pvescheduler` and `pvestatd`
+were healthy. F6 stayed disabled/inactive and the October 26 F2 timers stayed
+scheduled for 01:15 and 01:20 PDT.
+
+The inactive correction and static preflight are complete. A new live
+prepare-only exercise remains a distinct one-attempt approval under an updated
+exact card and must not overlap F2.
