@@ -61,4 +61,21 @@ class SearchBuildTests(unittest.TestCase):
                     module.main()
         home.clearProperty.assert_not_called()
 
+    def test_handoff_native_window_and_small_home_entry(self):
+        with tempfile.TemporaryDirectory() as folder:
+            output=Path(folder)/'handoff';build(output,details=True,handoff=True)
+            manifest=json.loads((output/'manifest.json').read_text())
+            self.assertEqual((manifest['kind'],len(manifest['files'])),('hp-search-playerlinks',8))
+            search=ET.parse(output/'overlay/custom_1127_search.xml').getroot()
+            self.assertEqual(search.get('type'),'window')
+            home=ET.parse(output/'overlay/Home.xml').getroot()
+            button=home.find(".//control[@id='135']")
+            self.assertEqual(button.findtext('width'),'110');self.assertEqual(button.findtext('height'),'46')
+            self.assertEqual(home.findtext(".//control[@id='134']/onright"),'135')
+            self.assertEqual(button.findtext('onleft'),'134')
+            self.assertEqual(button.findtext('align'),'center')
+            self.assertEqual(button.findtext('onclick'),'RunScript(/storage/.aster-staging/aster-global-search-ui5/default.py)')
+            details=ET.parse(output/'overlay/custom_1128_searchdetails.xml').getroot()
+            self.assertEqual(details.findtext(".//control[@id='11']/onclick"),'SetProperty(AsterSearch.Command,open,home)')
+
 if __name__=='__main__':unittest.main()

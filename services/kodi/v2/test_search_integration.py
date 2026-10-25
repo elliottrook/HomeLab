@@ -3,7 +3,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock,patch
 from build_series_integration import dispatcher as series_dispatcher
-from search_integration import BEFORE,dispatcher
+from search_integration import BEFORE,dispatcher,window_dispatcher,home_entry
 
 class SearchIntegrationTests(unittest.TestCase):
     def source(self):
@@ -30,5 +30,14 @@ class SearchIntegrationTests(unittest.TestCase):
         for window in (10025,10502,11110,11113,11114,11115,11116,11117,11121,11111):
             for focus in (50,500,501,502,503):
                 self.assertEqual(a['dispatched_action'](window,focus),b['dispatched_action'](window,focus))
+
+    def test_native_window_hook_leaves_modals_and_other_pages_alone(self):
+        for current,dialog,handled in ((11127,9999,True),(11127,0,True),(11127,11128,False),(11127,10103,False),(10000,9999,False)):
+            calls=[];home=SimpleNamespace(getProperty=lambda key:'true',getFocusId=lambda:30)
+            gui=SimpleNamespace(getCurrentWindowId=lambda:current,getCurrentWindowDialogId=lambda:dialog,Window=lambda _:home)
+            core=SimpleNamespace(executebuiltin=calls.append)
+            namespace={'__name__':'test'};exec(window_dispatcher(dispatcher(self.source())),namespace)
+            with patch.dict('sys.modules',xbmc=core,xbmcgui=gui):namespace['main']()
+            self.assertEqual(calls,['SetProperty(AsterSearch.Command,details,home)'] if handled else ['Action(Select)'])
 
 if __name__=='__main__':unittest.main()

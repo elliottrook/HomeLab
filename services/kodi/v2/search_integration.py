@@ -1,6 +1,9 @@
 """Compose a dialog/control-only search OK hook on accepted series dispatch."""
 import ast,hashlib
+import xml.etree.ElementTree as ET
 BEFORE='466b69269e56d8699838aabbe72ae533a580909603855850a047bf02e76d1a0e'
+DETAILS_BEFORE='d07fe2205153e862ddcfe419ff494ea7f2115fd3d6fdeaf683a91e55468f9d73'
+HOME_BEFORE='09e5eb4a9103a10c2bd591683a254a1dd374030598444dafc1260124b7079fa1'
 
 def dispatcher(data):
     if hashlib.sha256(data).hexdigest()!=BEFORE:raise ValueError('unknown-select-predecessor')
@@ -15,3 +18,28 @@ def dispatcher(data):
           '            xbmc.executebuiltin("SetProperty(AsterSearch.Command,details,home)")\n'
           '            return\n')
     result=source.replace(needle,hook+needle);ast.parse(result);return result.encode()
+
+def window_dispatcher(data):
+    if hashlib.sha256(data).hexdigest()!=DETAILS_BEFORE:raise ValueError('unknown-details-dispatcher')
+    needle='    if xbmcgui.getCurrentWindowDialogId() == 11127:\n'
+    source=data.decode()
+    if source.count(needle)!=1:raise ValueError('ambiguous-dialog-hook')
+    result=source.replace(needle,'    if xbmcgui.getCurrentWindowId() == 11127 and xbmcgui.getCurrentWindowDialogId() in (0, 9999):\n')
+    ast.parse(result);return result.encode()
+
+def home_entry(data,stage):
+    import re
+    if hashlib.sha256(data).hexdigest()!=HOME_BEFORE:raise ValueError('unknown-home-predecessor')
+    if not re.fullmatch(r'aster-global-search-ui[5-6]',stage):raise ValueError('unknown-handoff-stage')
+    root=ET.fromstring(data)
+    if root.find(".//control[@id='135']") is not None:raise ValueError('home-search-id-conflict')
+    group=next(g for g in root.iter('control') if g.find("control[@id='134']") is not None)
+    group.find("control[@id='134']/onright").text='135'
+    button=ET.SubElement(group,'control',dict(type='button',id='135'))
+    fields=dict(left=1620,top=31,width=110,height=46,label='Search',font='font20',align='center',aligny='center',
+        textcolor='asterIvory',focusedcolor='asterInk',onleft=134,onright=134,onup=135,ondown=121,
+        enable='!Player.HasMedia',onclick='RunScript(/storage/.aster-staging/'+stage+'/default.py)')
+    for key,value in fields.items():ET.SubElement(button,key).text=str(value)
+    for name,color in (('texturefocus','asterGold'),('texturenofocus','asterCharcoal')):
+        ET.SubElement(button,name,dict(border='20',colordiffuse=color)).text='special://skin/media/ui-panel.png'
+    return ET.tostring(root,encoding='utf-8',xml_declaration=True)

@@ -39,6 +39,8 @@ keys.append('Window(Home).Property(AsterSeries.PreviewWindow)')
 keys.append('Window(Home).Property(AsterSeries.Recovery)')
 keys.append('Window(Home).Property(AsterVideo.ScrubOpen)')
 keys.extend('Window(Home).Property(AsterSearch.'+name+')' for name in ('Open','DetailOpen'))
+keys.append('Window(Home).Property(AsterSearch.Handoff)')
+_require(not Path('/storage/.aster-checkpoints/aster-global-search-20261024/handoff-pending.json').exists(),'search-handoff-recovery-required')
 _require(not Path('/storage/.aster-checkpoints/aster-series-playback-20261024/unresolved-start.json').exists(),'series-recovery-required')
 _require(not Path('/storage/.aster-checkpoints/aster-video-scrub-20261024/unresolved-seek.json').exists(),'scrub-recovery-required')
 _require((not any(rpc('XBMC.GetInfoLabels',{'labels':keys}).values())), ('live-or-recovery-window-retained'))
@@ -48,13 +50,15 @@ rows=[row for archive in baseline['archives'] for row in archive['files']]
 _require((len(rows)==153), ('native-check-failed'))
 base_paths={row['path'] for row in rows}
 search_file=Path('/storage/.aster-checkpoints/aster-global-search-20261024/active-manifest.json')
-search_dispatch_sha=None;search_count=0
+search_dispatch_sha=None;search_count=0;search_home_sha=None
 if search_file.exists():
     _require(len(sys.argv)==9 and hashlib.sha256(search_file.read_bytes()).hexdigest()==sys.argv[8],'search-manifest-proof')
     search_manifest=json.loads(search_file.read_text())
-    _require(search_manifest.get('kind')=='hp-search-details' and len(search_manifest['files'])==6,'search-details-kind')
+    search_linked=search_manifest.get('kind')=='hp-search-playerlinks'
+    _require(search_manifest.get('kind') in ('hp-search-details','hp-search-playerlinks')
+        and len(search_manifest['files'])==(8 if search_linked else 6),'search-details-kind')
     _require(search_manifest.get('dispatcher_before_sha256')=='466b69269e56d8699838aabbe72ae533a580909603855850a047bf02e76d1a0e','search-dispatch-predecessor')
-    search_stages=[stage/name for name in ('aster-global-search-ui3','aster-global-search-ui4')
+    search_stages=[stage/name for name in ('aster-global-search-ui3','aster-global-search-ui4','aster-global-search-ui5','aster-global-search-ui6')
         if (stage/name/'manifest.json').exists() and hashlib.sha256((stage/name/'manifest.json').read_bytes()).hexdigest()==sys.argv[8]]
     _require(len(search_stages)==1,'search-stage-manifest');search_stage=search_stages[0]
     for member in search_manifest['files']:
@@ -66,6 +70,11 @@ if search_file.exists():
         _require(hashlib.sha256((addons/'skin.asterhome'/target).read_bytes()).hexdigest()==member['sha256'],'search-installed-member')
         if member_name=='select_dispatch.py':search_dispatch_sha=member['sha256']
     search_count=3
+    if search_linked:
+        _require(search_manifest.get('home_before_sha256')=='09e5eb4a9103a10c2bd591683a254a1dd374030598444dafc1260124b7079fa1','search-home-predecessor')
+        member=next(r for r in search_manifest['files'] if r['path']=='overlay/Home.xml')
+        _require(hashlib.sha256((addons/'skin.asterhome/1080i/Home.xml').read_bytes()).hexdigest()==member['sha256'],'search-home-member')
+        search_home_sha=member['sha256'];search_count=4
 overlay_file=Path('/storage/.aster-checkpoints/aster-floating-controls-20261024/overlay-manifest.json')
 overrides={}
 scrub_file=Path('/storage/.aster-checkpoints/aster-video-scrub-20261024/active-manifest.json')
@@ -102,6 +111,7 @@ if overlay_file.exists():
         (scrub_osd_sha if scrub_osd_sha and r['path']=='1080i/VideoOSD.xml' else r['sha256']) for r in overlay['files'])), ('native-check-failed'))
     if scrub_osd_sha:overrides['skin.asterhome/1080i/VideoOSD.xml']=scrub_osd_sha
 overlay_count=len(overrides)
+if search_home_sha:overrides['skin.asterhome/1080i/Home.xml']=search_home_sha
 integration_file=Path('/storage/.aster-checkpoints/aster-music-integration-20261024/active-manifest.json')
 integration_count=0
 if integration_file.exists():

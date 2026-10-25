@@ -49,13 +49,14 @@
   HP is idle; new scrub remote/visual acceptance is pending Jason's availability,
   not a gate on independent work. Grouped local-index search is the next bounded
   M2 slice. Recovery/evidence below.
-  Search details4 is active separately on HP, manifest
-  `e754a024360a05a53ff3fb3d4c34b715e52076af9f4a51efa742aa6dcc8b2246`.
-  OK opens exact-ID artwork/synopsis details in a native dialog; Back preserves
-  query/group/selected result. Five groups pass two native runs, with native TV
-  navigation regression and full preservation. No normal-menu entry or external
-  player handoff yet. Next: connect the existing TV/Music pages with safe source
-  return, then the normal menu route. Production/credentials remain unchanged.
+  Search/player-links6 is active on HP, manifest
+  `def37da8481dd0b53cd2650056ddeee94656ba14b21b83d0b73bafeda5fc9a6c`.
+  Media Home has Search beside the clock. Native search/details open accepted
+  series16/Music64 album/song pages without autoplay; Back restores exact search
+  context and Home exits without being hijacked. Two native passes, including
+  restart, succeed. Movies/artists remain details-only, Books/podcasts/voice
+  explicitly unconnected. Details4 and rejected5 recovery retained. Exact
+  preservation/evidence below; no M2 graduation, production change or push.
 - Up Next is urgent and extracted into the separate
   [v1.1 project](Aster-Home-Version-1.1-Up-Next.md); v2 consumes its accepted
   result, not another implementation or an excuse to delay it.
@@ -3229,3 +3230,193 @@ Additional native run `native-details-ui-1792901059537534175.json` also passes
 all five kinds and explicitly exercises artist10's missing-art path, verifying
 the actual displayed property resolves to supplied `24-music-artist.png`.
 No additional installed code change or user action was needed for that check.
+
+### 2026-10-24 — Approved HP search player-links/menu pre-start
+
+Jason answered “Approve” to the next player-links and normal-menu step. Scope
+is HP only, with the standing lab restart/test authority; not a Forgejo push or
+production promotion. First links are exact-ID TV series, album and song to the
+already accepted series16/Music64 pages. No autoplay: subsequent deliberate
+episode/track/Play selection remains owned by those pages. Movies/artists keep
+read-only details with a truthful unsupported-link state. No new service,
+credential, voice, server write, queue authority or watch-history editing.
+
+Make search a native window (not a Python window/dialog) so child pages use it
+as ordinary navigation history. Close only the native details dialog before
+launch; pause search UI work while the existing child owns navigation/player.
+Back returns to exact query/group/result; global Home leaves search rather than
+being forcibly reopened. Runtime guards require idle initial queues/player,
+fresh exact-ID details and pinned installed child code. Unknown child admission
+is fenced without retry or stopping anyone's playback. Restore by identity,
+not an old list offset; disappeared results get a refresh warning.
+
+The new compact Search button sits in the existing gap between Collections
+and clock on media Home; no floating-rail geometry or AV/settings changes.
+Checkpoint the four exact predecessor skin members, retain/verify isolated
+stage copies and active details4 manifest, then bounded idle HP restart.
+Rollback restores all four and details4's active manifest, never databases or
+profiles. Native tests must cover Home entry/exit focus, three child pages with
+no autoplay, exact Back return, deliberate Home exit, active-player denial,
+empty/unavailable states, source disappearance, normal TV/Music regression,
+safe failure/rollback and full baseline preservation. Existing neutral/gold/
+green styling and supplied icons remain. No new speech/NetBox/Beszel/service
+or permanent poller; private checkpoint/health tools cover this client slice.
+
+### 2026-10-24 — Search/player-links6 normal HP entry delivered
+
+The approved slice is active: compact110x46 Search beside the Media Home clock,
+reachable by Right from Collections and returning focus to Search on exit.
+The floating rail, five category pills, clock and hero geometry remain unchanged.
+Home overlay SHA256 `347b4e47d93ed5d25077d00754a05742d0843f091244e9194bc8db1fd305d575`.
+Search is now a native window11127, with native details dialog11128, so the
+accepted child pages have real native navigation history beneath them. No new
+Python window/dialog, playback engine, keymap or service.
+
+TV series, album and song details expose **Open TV series / Open album player /
+Open song player**. A fresh two-read exact-ID/details check and pinned accepted
+child source verification precede a literal positive-ID script command. TV uses
+series16 (six members; manifest
+`4c090e0b3a66b7b56679a07569453d668c372727eeb458f91d97d27ab772796d`),
+Music uses installed Music64's48 members (manifest
+`0c19d992a337bee55ec449423b16576962e7721e573a60a640e448d3fb220334`).
+No caller-generated file/stream URL, direct player command or autoplay. Existing
+pages retain explicit playback selection/confirmation and stop-on-exit authority.
+Movie/artist details explicitly lack a player link; Books/podcasts and voice
+remain unconnected, not falsely complete. No existing playlist save/delete
+trial was repeated or newly authorized.
+
+The single-owner search controller pauses UI work while its child is active.
+It observes positive child readiness and identity, then restores fresh query/
+group/result **by ID**, not stale list position, after ordinary Back. A missing
+result shows a refresh warning instead of selecting a guessed replacement.
+Global Home is respected: no forced search reopening. External playback is not
+stopped. One-shot admission, bounded30-second startup and an unknown-admission
+fence protect against blind retries. The private fence would contain only kind,
+local ID and timestamp; it is absent after all final tests. Query/results remain
+memory-only; only fixed status/count/ID/timing evidence is retained.
+
+Candidate5 initially exposed a real Kodi condition mismatch before any child
+started: the native custom details dialog is **not** reported by
+`System.HasModalDialog`. Its Select was being intercepted by the underlying
+search list. Sanitized state proved window11127/dialog11128/modal=false, with
+no players/queues. Failed evidence:
+`/storage/.aster-checkpoints/aster-global-search-20261024/native-playerlinks-1792902785612373380.json`.
+No success was claimed. Candidate5 manifest
+`23715e3beb64367d1593040c725d940f96129f37c78999ed202afdaf12ae641a`
+was actually rolled back with Kodi stopped: all four exact details4 predecessor
+members and its active manifest restored. Original full preservation passed
+again before installing6; all recovery artifacts retained.
+
+Corrected6 gates list Select on actual native foreground window11127 **and**
+dialog ID0/9999. Keyboard10103 and details11128 now fall through to their own
+native Select, even though Kodi calls the latter non-modal. The same active-
+dialog guard waits for details to close before child admission. Pure tests
+cover both no-dialog representations and both overlays, plus existing routing
+equivalence. Current dispatcher SHA256
+`f045c19c929bb61a5240de6d527a0a2f3565e2d189cff6e493ee3badf31bde62`.
+The accepted series handler remains composed beneath this bounded search hook.
+
+Current stage `/storage/.aster-staging/aster-global-search-ui6`, manifest SHA256
+`def37da8481dd0b53cd2650056ddeee94656ba14b21b83d0b73bafeda5fc9a6c`.
+Eight staged members/eight isolated restore copies; four installed members:
+Home.xml, search1127 XML, details1128 XML, select_dispatch.py. Exact originals
+and details4's active manifest are saved under
+`/storage/.aster-checkpoints/aster-global-search-20261024/aster-global-search-ui6`.
+No addon source/profile/database/AV or service configuration was overwritten.
+Local recovery tests exercise full install/rollback, unknown Home refusal,
+admission-fence refusal, activation failure restoring all four plus manifest,
+and drift refusal. Native candidate5 recovery proved this same four-member
+footprint; current6 has an independent verified isolated restore.
+
+Two complete normal-entry native runs pass, including one after a fresh Kodi
+restart:
+`native-playerlinks-1792902979348944033.json` and
+`native-playerlinks-1792903156685502312.json` in the search checkpoint root.
+Both use the installed G20 Select-dispatch path (automated input, not physical
+remote acceptance). Gates: Collections→Search→keyboard; three accepted child
+pages/no autoplay; exact query/group/ID/focus on Back; unsupported types remain
+details-only; explicit no-match; Home exits and stays Home; final Search-button
+focus and empty queues. No media was played, so these tests made no playback-
+progress/watch-history change. Active-player refusal and disappearing-result
+restoration are explicit pure tests rather than claims of destructive live
+fixture mutation.
+
+Post-restart measured child opening: TV634ms, album3304/3280ms, song3271ms;
+whole native workflow30530ms. Music retains its existing complete catalogue
+load/verification rather than a new unchecked shortcut; this approximately
+3.3-second pilot latency is a known optimization opportunity, not a claim of
+instant opening. Search return deliberately waits750ms for settled child
+navigation, then re-reads bounded results. Controller observation is local/
+foreground-task-only (100ms during child,50ms during search); no permanent
+service, LAN poller or decoder is added, and it ends on Home/Back. Idle cgroup
+memory about672MiB on HP16GB; Kodi PID22297/NRestarts0 after the verification
+restart. No unbounded result inventory or source cache.
+
+4K visual QA inspected `playerlink-home-1792903126175462220.png` and
+`playerlink-detail-1792903149371583126.png`, private in the checkpoint root;
+transient Mac copies `/tmp/aster-search-home6.png` and `/tmp/aster-search-open6.png`.
+Search fits the gap before the clock, labels are centred, detail actions stay
+unboxed and cover aspect is kept. Existing accepted TV neutral/gold/green style
+and supplied artwork/icons retained; sofa/physical-remote acceptance is pending.
+
+Independent regressions pass:
+`native-music-regression-1792903253964369832.json` in the search checkpoint root
+(normal Music album/song source→owned page, no autoplay, exact original source
+return), and
+`/storage/.aster-checkpoints/aster-series-integration-20261024/native-navigation-1792903316854208215.json`
+(normal TV selection/episode page/Back exact focus and unaffected movie library).
+
+Final full preservation:
+`/storage/.aster-checkpoints/aster-music-progressive-20261024/postcheck-1792903434562924769.json`,
+SHA256 `adebe74960cf3d242b5fe1251b3b872e84ac5e33c77b8f9a5aef422183741dc8`.
+Music48, original v1139 (one additional known Home override), floating player4,
+normal Music8, rail1, series2, scrub2/prepared dialog1, search4 and AV/language68
+verify; both databases `ok`, missing primary artist links0, no player, original
+empty queues, shuffle off, all lab windows closed, no handoff fence. The new
+`check_search_handoff.py` additionally verifies8 staged/restored members, all4
+installed members, prior active/Home recovery, three pinned accepted child
+pages, and two exact-manifest normal-entry native passes.
+
+Local gates:434 v2 tests pass normally and optimized,100 original skin tests,
+25 original video-addon tests, syntax and diff checks. No new speech, credential,
+permissions, server playlist action, manual watch-history edit, production
+contact, network/service/NetBox/Beszel or backup-retention change. Existing
+private recovery/client health coverage remains; no release/wiki graduation
+claim. M2 remains open for other frozen scope and supported types. Forgejo
+synchronization remains held; save a focused local commit only.
+
+Household lab handover: Media Home→top-row Search (immediately after Collections,
+before clock)→OK to enter a title→Down for groups→Right for matches→OK for
+details. TV/album/song has a separate Open action. Choose an episode/track/Play
+only when ready to listen/watch. Back from the child returns to the exact
+search; Home leaves it. Movies/artists currently provide information only.
+Books/podcasts/voice are not yet search adapters. Empty means no indexed match;
+Unavailable means the source could not be verified. Search is idle-only and
+does not clear another queue or interrupt another player. No sign-in needed:
+it uses the already synced current Kodi profile, not a new service account.
+
+Recovery: stop idle HP Kodi; invoke `deploy_search_handoff.py rollback` with
+stage `aster-global-search-ui6`, the exact manifest SHA above and an unused
+proof argument. It refuses unknown drift, restores exactly the four verified
+members and details4's active manifest, retains stage/checkpoints and does not
+touch profiles/history. Restart Kodi; run full preservation with details4's
+SHA as final argument. For current6 preservation, use
+`live_music_postcheck_search.py` with candidate64 and existing Music/rail/series/
+scrub SHAs, then append current6's SHA. A real `handoff-pending.json` requires
+read-only diagnosis before any new launch; never delete it merely to retry.
+HP left on Home. Production and remote Git are unchanged.
+
+Additional owned-playback composition test passed:
+`/storage/.aster-checkpoints/aster-global-search-20261024/native-owned-audio-1792903728228585494.json`.
+Through the normal Home Search entry, an album opened without autoplay; the
+existing Music Play button and explicit native “Play music” Yes confirmation
+then started real indexed audio. After1.8 seconds, Back delegated stop/queue
+cleanup to the existing owner and returned to the exact search album/query/
+focus, then Home. Helper issued no direct Player.Open/Stop or queue mutation.
+This complements the two no-play navigation runs: normal Music listening
+metadata may update through its existing callback; no manual history edit or
+new server-write integration occurred. No TV episode was played this slice.
+Final post-audio preservation and exact-stage handoff check also pass against
+`postcheck-1792903797250217631.json` in the Music progressive checkpoint root;
+its content SHA is the same `adebe74960cf3d242b5fe1251b3b872e84ac5e33c77b8f9a5aef422183741dc8`.
+HP remains idle on Home, all queues/windows closed, with no recovery fence.
