@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import argparse
 import copy
 import hashlib
 import json
+import os
+from pathlib import Path
 
 from nlu_policy_decision import canonical_sha256 as decision_canonical_sha256
 from nlu_policy_decision import load_and_validate
@@ -29,6 +32,23 @@ def canonical_sha256(value: dict) -> str:
     copied.pop("acceptance_sha256", None)
     raw = json.dumps(copied, sort_keys=True, separators=(",", ":")).encode()
     return hashlib.sha256(raw).hexdigest()
+
+
+def canonical_json(value: object) -> bytes:
+    return (json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n").encode()
+
+
+def write_new_private(path: Path, payload: bytes) -> None:
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    try:
+        with os.fdopen(descriptor, "wb") as output:
+            output.write(payload)
+    except BaseException:
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            pass
+        raise
 
 
 def validate_acceptance(value: object) -> list[str]:
@@ -97,3 +117,34 @@ def accept_exact_proposal(proposal_raw: bytes, acceptance_raw: bytes) -> dict:
     if accepted_errors or accepted_value is None:
         raise ValueError("exact acceptance did not produce a valid accepted decision")
     return accepted
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Derive one accepted NLU decision from exact reviewed proposal and acceptance artifacts."
+    )
+    parser.add_argument("--proposal", type=Path, required=True)
+    parser.add_argument("--acceptance", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args(argv)
+    try:
+        accepted = accept_exact_proposal(
+            args.proposal.read_bytes(), args.acceptance.read_bytes()
+        )
+        raw = canonical_json(accepted)
+        write_new_private(args.output, raw)
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
+    print(json.dumps({
+        "schema": accepted["schema"],
+        "status": accepted["status"],
+        "decision_id": accepted["decision_id"],
+        "decision_sha256": accepted["decision_sha256"],
+        "output_sha256": sha256(raw),
+        "authority": accepted["authority"],
+    }, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,5 +1,9 @@
 import copy
+import contextlib
+import io
 import json
+import stat
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -77,6 +81,34 @@ class NluPolicyAcceptanceTests(unittest.TestCase):
         loaded, errors = acceptance.load_and_validate_acceptance(raw)
         self.assertIsNone(loaded)
         self.assertTrue(any("unique-key" in error for error in errors))
+
+    def test_cli_creates_owner_only_output_and_refuses_overwrite(self):
+        proposal_raw = PROPOSAL.read_bytes()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            proposal = root / "proposal.json"
+            approval = root / "acceptance.json"
+            output = root / "accepted.json"
+            proposal.write_bytes(proposal_raw)
+            approval.write_bytes(encoded(record(proposal_raw)))
+            stdout = io.StringIO()
+            with contextlib.redirect_stdout(stdout):
+                self.assertEqual(0, acceptance.main([
+                    "--proposal", str(proposal),
+                    "--acceptance", str(approval),
+                    "--output", str(output),
+                ]))
+            self.assertEqual(0o600, stat.S_IMODE(output.stat().st_mode))
+            accepted, errors = decision.load_and_validate(output.read_bytes())
+            self.assertEqual([], errors)
+            self.assertEqual("accepted", accepted["status"])
+            with contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit):
+                    acceptance.main([
+                        "--proposal", str(proposal),
+                        "--acceptance", str(approval),
+                        "--output", str(output),
+                    ])
 
 
 if __name__ == "__main__":

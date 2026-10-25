@@ -24,12 +24,14 @@ It derives an accepted decision only from a valid exact proposal plus those
 exact acceptance bytes. The registration gate now takes the proposal and
 acceptance separately and reconstructs the accepted decision itself; it no
 longer trusts a caller-supplied accepted status or arbitrary acceptance digest.
+The bounded CLI writes the derived accepted decision as a new owner-only file,
+refuses replacement, and emits only content-free identity and digest fields.
 
 ## Verification
 
-The focused NLU suite passes 77/77. Tests cover exact derivation, proposal
+The focused NLU suite passes 78/78. Tests cover exact derivation, proposal
 drift, fabricated acceptance hashes, unknown fields, duplicate keys and an
-attempted authority claim.
+attempted authority claim, plus mode-0600 and no-overwrite CLI behavior.
 
 ## Effect boundary
 

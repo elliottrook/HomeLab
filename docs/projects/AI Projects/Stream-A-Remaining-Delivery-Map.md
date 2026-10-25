@@ -442,7 +442,7 @@ then passes 74/74. A following
 so registration reconstructs an accepted decision only from the exact proposal
 and a unique-key, self-hashed acceptance record bound to those proposal bytes;
 it no longer trusts an arbitrary acceptance digest. The focused NLU suite now
-passes 77/77. No acceptance record exists and no decision, candidate,
+passes 78/78, including an owner-only no-overwrite derivation CLI. No acceptance record exists and no decision, candidate,
 calibration set or route has been accepted, sealed or enabled.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
