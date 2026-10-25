@@ -574,6 +574,13 @@ postcondition. The old contract checkpoint is retained, the lease controller
 is `ready`, production is healthy, and no state, lock, effect or model request
 exists. The next live dependency is the independent watchdog/recovery
 activation boundary plus fresh F2/F3/F4 evidence and a separate run approval.
+The platform's first watchdog activation boundary at `5d4735c1` is
+[not yet implementation-ready](evidence/Stream-A-evaluation-lease-watchdog-activation-review-2026-10-25.md):
+no watchdog or owner-heartbeat units/wrappers exist, no root-custodied process
+input binds lease identity and generation, the watchdog CLI remains
+source-only, and no constrained recovery executable binds its decision to the
+exact four-consumer restore. F6 is NO-GO pending a hash-pinned inactive packet
+and target tests; nothing has been armed.
 The platform owner's first pure endpoint-retaining lease candidate at
 `44b26e16` passed its own 7/7 tests and names the correct live backend and News
 timers, but Stream A's
