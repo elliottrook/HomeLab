@@ -48,7 +48,7 @@ def load_watchdog_input(path: Path, *, expected_lease_id: str,
 def validate_watchdog_input(value: WatchdogInput, *, expected_lease_id: str,
                             expected_generation: int) -> None:
     if (value.lease_id != expected_lease_id or value.generation != expected_generation
-            or value.phase not in {"quiescing", "running", "restoring"}
+            or value.phase not in {"prepared", "quiescing", "running", "restoring"}
             or value.heartbeat_epoch < value.window_start_epoch
             or value.hard_deadline_epoch != value.window_start_epoch + 75 * 60
             or value.restore_deadline_epoch != value.window_start_epoch + 90 * 60):

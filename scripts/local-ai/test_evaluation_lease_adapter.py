@@ -69,6 +69,57 @@ class AdapterTests(unittest.TestCase):
                                 heartbeat_timeout=30)
             self.assertEqual(calls, [])
 
+    def test_partial_quiescence_failure_is_durably_recoverable(self):
+        calls = []
+
+        def fail_during_quiescence(command):
+            calls.append(command)
+            if len(calls) == 3:
+                raise RuntimeError("synthetic mid-quiescence failure")
+
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / "lease.json"
+            adapter = EvaluationLeaseAdapter(path, fail_during_quiescence,
+                                              allow_effects=True)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            with self.assertRaisesRegex(AdapterError, "quiescence is uncertain"):
+                adapter.quiesce(lease_id="eval-1", generation=1, now_epoch=1000,
+                                heartbeat_timeout=30)
+            self.assertEqual(read_state(path).phase, "quiescing")
+            self.assertTrue(adapter.lock_path.exists())
+
+            recovery_calls = []
+            recovered = EvaluationLeaseAdapter(path, recovery_calls.append,
+                                                allow_effects=True)
+            result = recovered.restore(
+                lease_id="eval-1", generation=1,
+                restored=self.admission().baseline,
+                backend_active=True, endpoint_authenticated=True,
+                endpoint_idle=True, gpu_holders=(BACKEND_TARGET,), recovery=True,
+            )
+            self.assertEqual(result["effects"], "restored")
+            self.assertFalse(path.exists())
+            self.assertFalse(recovered.lock_path.exists())
+            self.assertEqual(len(recovery_calls), 8)
+
+    def test_clean_prepared_lease_can_recover_without_stranding_state(self):
+        calls = []
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / "lease.json"
+            adapter = EvaluationLeaseAdapter(path, calls.append, allow_effects=True)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            self.assertEqual(calls, [])
+            result = adapter.restore(
+                lease_id="eval-1", generation=1,
+                restored=self.admission().baseline,
+                backend_active=True, endpoint_authenticated=True,
+                endpoint_idle=True, gpu_holders=(BACKEND_TARGET,), recovery=True,
+            )
+            self.assertEqual(result["effects"], "restored")
+            self.assertFalse(path.exists())
+            self.assertFalse(adapter.lock_path.exists())
+            self.assertEqual(len(calls), 8)
+
     def test_post_quiescence_rejects_unhealthy_backend_after_quiesce(self):
         calls = []
         with tempfile.TemporaryDirectory() as root:
@@ -478,6 +529,35 @@ class AdapterTests(unittest.TestCase):
                                 heartbeat_timeout=30, owner_present=True,
                                 effect_authorized=False)
         self.assertEqual(result["effects"], "disabled")
+
+    def test_watchdog_accepts_healthy_prepared_and_recovers_expired_prepared(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / "lease.json"
+            adapter = EvaluationLeaseAdapter(path, lambda command: None,
+                                              allow_effects=True)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            called = []
+            healthy = run_bound_from_state(
+                path=path, expected_lease_id="eval-1", expected_generation=1,
+                now_epoch=1010, heartbeat_timeout=30, owner_present=True,
+                effect_authorized=True, recovery=lambda: called.append(True),
+            )
+            self.assertEqual(healthy["effects"], "not-attempted")
+            self.assertEqual(called, [])
+            owner_lost = run_bound_from_state(
+                path=path, expected_lease_id="eval-1", expected_generation=1,
+                now_epoch=1010, heartbeat_timeout=30, owner_present=False,
+                effect_authorized=True, recovery=lambda: called.append(True) or "ok",
+            )
+            self.assertEqual(owner_lost["effects"], "recovered")
+            self.assertEqual(called, [True])
+            expired = run_bound_from_state(
+                path=path, expected_lease_id="eval-1", expected_generation=1,
+                now_epoch=5500, heartbeat_timeout=30, owner_present=True,
+                effect_authorized=True, recovery=lambda: called.append(True) or "ok",
+            )
+            self.assertEqual(expired["effects"], "recovered")
+            self.assertEqual(called, [True, True])
 
     def test_watchdog_effect_path_loads_durable_state_and_rejects_duplicate_or_symlink(self):
         with tempfile.TemporaryDirectory() as root:

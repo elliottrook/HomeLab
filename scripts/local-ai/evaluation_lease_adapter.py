@@ -249,18 +249,21 @@ class EvaluationLeaseAdapter:
                     or state.heartbeat_epoch > now_epoch
                     or now_epoch - state.heartbeat_epoch > heartbeat_timeout):
                 raise AdapterError("quiesce deadline or heartbeat gate failed")
-            try:
-                for target in QUIESCE_TARGETS:
-                    self.runner(consumer_command(target, "mask"))
-                    self.runner(consumer_command(target, "stop"))
-            except Exception as exc:
-                raise AdapterError("consumer quiescence is uncertain; recovery required") from exc
+            # Persist the first effectful phase before issuing any consumer
+            # command.  A crash or command failure must never leave partial
+            # quiescence represented as the no-effect PREPARED phase.
             atomic_state(self.state_path, AdapterState(
                 state.lease_id, state.generation, LeaseState.QUIESCING.value,
                 state.baseline, state.window_start_epoch, now_epoch,
                 state.hard_deadline_epoch, state.restore_deadline_epoch,
                 state.next_workload, state.in_flight_workload, state.completed_outcomes,
             ))
+            try:
+                for target in QUIESCE_TARGETS:
+                    self.runner(consumer_command(target, "mask"))
+                    self.runner(consumer_command(target, "stop"))
+            except Exception as exc:
+                raise AdapterError("consumer quiescence is uncertain; recovery required") from exc
         return {"effects": "quiescing", "state": LeaseState.QUIESCING.value,
                 "lease_id": lease_id, "generation": generation}
 
