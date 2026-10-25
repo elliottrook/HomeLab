@@ -102,6 +102,13 @@ class NluThresholdPolicyTests(unittest.TestCase):
         self.assertIsNone(value)
         self.assertEqual(["threshold policy must be valid UTF-8 JSON"], errors)
 
+    def test_duplicate_policy_keys_are_rejected(self):
+        value, errors = policy.load_and_validate(
+            b'{"schema":"first","schema":"second"}'
+        )
+        self.assertIsNone(value)
+        self.assertEqual(["threshold policy must be valid UTF-8 JSON"], errors)
+
 
 if __name__ == "__main__":
     unittest.main()

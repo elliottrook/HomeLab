@@ -130,6 +130,10 @@ The [calibration exact-release binding](evidence/M3-NLU-calibration-exact-releas
 additionally proves that the release bytes registered by policy decode to the
 same calibration manifest being validated. A valid manifest can no longer be
 paired with different policy-bound release bytes.
+The [duplicate-key JSON boundary](evidence/M3-NLU-duplicate-key-boundary-2026-10-25.md)
+now gives threshold policies, calibration scores and exact calibration releases
+one unambiguous parse for each hashed byte sequence. Repeated object keys fail
+closed instead of taking parser-dependent meaning.
 
 ## Validation checkpoint — 2026-10-24
 

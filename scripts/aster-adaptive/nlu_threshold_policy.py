@@ -63,6 +63,19 @@ def _digest(value: object) -> bool:
     return isinstance(value, str) and HEX64.fullmatch(value) is not None
 
 
+def decode_unique_json(raw: bytes) -> object:
+    """Decode UTF-8 JSON while rejecting duplicate object keys."""
+    def unique_object(pairs):
+        value = {}
+        for key, item in pairs:
+            if key in value:
+                raise ValueError("duplicate JSON object key")
+            value[key] = item
+        return value
+
+    return json.loads(raw, object_pairs_hook=unique_object)
+
+
 def validate_policy(value: object) -> list[str]:
     if not isinstance(value, dict):
         return ["threshold policy must be an object"]
@@ -161,8 +174,8 @@ def validate_policy(value: object) -> list[str]:
 
 def load_and_validate(raw: bytes) -> tuple[dict | None, list[str]]:
     try:
-        value = json.loads(raw)
-    except (UnicodeDecodeError, json.JSONDecodeError):
+        value = decode_unique_json(raw)
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
         return None, ["threshold policy must be valid UTF-8 JSON"]
     errors = validate_policy(value)
     return value if isinstance(value, dict) else None, errors

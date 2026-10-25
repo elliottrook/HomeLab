@@ -123,6 +123,15 @@ class NluThresholdSelectionTests(unittest.TestCase):
             with self.subTest(bad=bad), self.assertRaisesRegex(ValueError, "route_score"):
                 selection.select_threshold(registered(), encoded(value))
 
+    def test_duplicate_calibration_score_keys_are_rejected(self):
+        raw = encoded().replace(
+            b'"schema": "aster-nlu-calibration-score.v1"',
+            b'"schema": "aster-nlu-calibration-score.v1", "schema": "duplicate"',
+            1,
+        )
+        with self.assertRaisesRegex(ValueError, "valid UTF-8 JSON"):
+            selection.select_threshold(registered(), raw)
+
     def test_cli_creates_owner_only_canonical_output_and_bounded_summary(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

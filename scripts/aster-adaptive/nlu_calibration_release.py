@@ -12,7 +12,7 @@ import hashlib
 import json
 import re
 
-from nlu_threshold_policy import FAMILIES, load_and_validate, sha256
+from nlu_threshold_policy import FAMILIES, decode_unique_json, load_and_validate, sha256
 
 
 SCHEMA = "aster-nlu-calibration-release.v1"
@@ -142,8 +142,8 @@ def validate_release(value: object) -> list[str]:
 def validate_release_bundle(value: object, release_raw: bytes, policy_raw: bytes) -> list[str]:
     errors = validate_release(value)
     try:
-        encoded_value = json.loads(release_raw)
-    except (UnicodeDecodeError, json.JSONDecodeError):
+        encoded_value = decode_unique_json(release_raw)
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
         errors.append("exact calibration release must be valid UTF-8 JSON")
     else:
         if encoded_value != value:

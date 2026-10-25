@@ -15,7 +15,13 @@ import os
 import re
 from pathlib import Path
 
-from nlu_threshold_policy import FAMILIES, sha256, validate_policy
+from nlu_threshold_policy import (
+    FAMILIES,
+    decode_unique_json,
+    load_and_validate,
+    sha256,
+    validate_policy,
+)
 
 
 SCORE_SCHEMA = "aster-nlu-calibration-score.v1"
@@ -91,8 +97,8 @@ def select_threshold(registered_policy: dict, score_raw: bytes) -> dict:
     if policy_errors or registered_policy.get("status") != "registered":
         raise ValueError("threshold policy must be valid and registered")
     try:
-        score = json.loads(score_raw)
-    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        score = decode_unique_json(score_raw)
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as error:
         raise ValueError("calibration score must be valid UTF-8 JSON") from error
     score_errors = _validate_score(score, registered_policy)
     if score_errors:
@@ -175,9 +181,12 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        registered_policy = json.loads(args.policy.read_bytes())
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+        policy_raw = args.policy.read_bytes()
+    except OSError as error:
         parser.error(f"cannot read registered policy: {error}")
+    registered_policy, policy_errors = load_and_validate(policy_raw)
+    if policy_errors or registered_policy is None:
+        parser.error("cannot read registered policy: " + "; ".join(policy_errors))
     try:
         score_raw = args.score.read_bytes()
     except OSError as error:

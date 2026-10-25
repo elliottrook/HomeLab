@@ -392,10 +392,12 @@ rejects zero coverage and a 100% selective-error allowance. The subsequent
 requires exact contract, scorer, policy and development non-overlap receipt
 bytes rather than trusting digest-shaped claims. The later
 [calibration exact-release correction](evidence/M3-NLU-calibration-exact-release-binding-2026-10-25.md)
-requires the policy-bound bytes to decode to the manifest under validation; the
-focused NLU suite now passes 49/49. The shadow artifact remains an empty
-template, not collection approval or a route release, and actual numeric
-acceptance values remain open.
+requires the policy-bound bytes to decode to the manifest under validation. A
+[duplicate-key JSON correction](evidence/M3-NLU-duplicate-key-boundary-2026-10-25.md)
+then makes threshold policy, calibration score and exact-release parsing
+unambiguous; the focused NLU suite now passes 51/51. The shadow artifact remains
+an empty template, not collection approval or a route release, and actual
+numeric acceptance values remain open.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)
