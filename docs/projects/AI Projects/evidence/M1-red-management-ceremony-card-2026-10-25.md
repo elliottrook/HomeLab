@@ -61,6 +61,14 @@ This is a later, separately approved action:
    events as evidence; do not restore an older database over newer terminal
    history.
 
+The offline [read-only verifier](M1-red-management-read-only-verifier-2026-10-25.md)
+now freezes the database checks around this sequence. It requires exactly one
+new terminal request and four ordered audit rows (`request.create`,
+`request.approve`, `request.consume`, `agent.state`), including exactly two
+human-authenticated rows. It rejects any policy, grant, service, agent or
+global-switch drift. The verifier itself does not create a checkpoint or
+request and is not deployed.
+
 Any timeout, stale/absent assurance, changed payload hash, duplicate effect,
 unexpected row delta or service degradation is **NO-GO**. Preserve the live
 database for reconciliation and do not retry in the same ceremony.
