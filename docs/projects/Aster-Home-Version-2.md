@@ -3758,3 +3758,58 @@ needs a bounded acknowledgement-timeout simulation/guard before graduation;
 normal native Back stop is proven, not that adverse case. Next safe continuation
 is that bounded fault gate, then broader player soak. Books progress, voice,
 Reader, camera and Seerr retain their separate service/identity approval gates.
+
+### 2026-10-24 — Owner checks and bounded production sound refinement
+
+Jason is available for HP physical checks. Handover order: Music album/playlist
+selection, Next/Add to queue and current-song artwork; floating episode rows
+and season/Back navigation; grouped Search with no autoplay; Search movie
+Play/Resume and Back-to-stop with exact result return; native OSD audio/subtitle
+selection and preview/commit/cancel scrub; floating rail and sofa-distance focus.
+HP is left untouched while Jason performs those checks. Acceptance is pending,
+not implied by the prior automated passes.
+
+Separately, Jason requested softer **production** navigation sounds and explicitly
+confirmed that production was idle and available for a sound-theme reload.
+This bounded Stream M change is an exception to the v2 production exclusion,
+not approval to promote v2. Target: BOSGAME `AsterTVProd`, `192.168.1.157`.
+Preflight verified the selected Aster sound theme, idle playback and exact hashes
+of all seven original WAVs. No speech is produced. No identities, credentials,
+network exposure, service topology, media files/history, receiver volume,
+passthrough, display settings or HP files are changed.
+
+The old pitched clicks are replaced by deterministic two-stage low-pass noise
+puffs, 80–95 ms long, with a rounded 14 ms attack and faded tail. Horizontal
+sounds are exact stereo mirrors with the established direction weighting.
+Peak/edge checks enforce quiet, non-clipping assets and suppress sharp attacks.
+All seven deployed hashes match the repository candidate. Kodi unloaded and
+reselected only the existing UI-sound theme to refresh its WAV cache; no restart
+was issued. The complete exposed Kodi settings map matched before/after in
+memory, and the original `sounds.xml` hash was unchanged. No secret-bearing
+settings values were exported; evidence retains only their aggregate digest.
+
+Recovery checkpoint:
+`/storage/.aster-checkpoints/aster-soft-puff-20261024` — seven verified original
+WAVs and `verified.json`. Deployment/recovery helper:
+`/storage/.aster-staging/aster-soft-puff-20261024/production_soft_puff.py`.
+Run it through Kodi with `rollback` only while production is idle if the trial
+is rejected. It verifies originals and exact current candidate hashes before
+restoring, reloads the theme, checks settings preservation and refuses subsequent
+asset drift. Do not rerun `deploy` blindly: an existing checkpoint aborts.
+Failed reload automatically restores original WAVs/theme. Recovery copies remain.
+
+Validation: ten sound/isolated deployment tests pass in normal and optimized
+Python, including active-playback refusal, original/installed drift refusal,
+failed-reload recovery and exact isolated rollback. Native production evidence
+reports installed, settings unchanged, mapping unchanged and restart not needed;
+Kodi remains active. Household listening through the receiver, especially held
+arrow repeat, is the remaining acceptance gate. Do not label the sound change
+accepted until Jason confirms it.
+
+Integration impact: existing host, service, monitoring, Doctor and NetBox facts
+are unchanged, so no inventory/agent/alert changes apply. Backup/recovery is the
+new exact-file checkpoint; operator guidance is this section and the sound-pack
+README. No new API, external dependency, schedule, public access or TTS path.
+The sound asset hotfix does not change the production add-on version or install
+any v2 code. Source/evidence are retained locally; no Git push is authorized by
+this request.

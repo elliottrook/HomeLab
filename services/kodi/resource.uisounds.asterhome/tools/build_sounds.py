@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the original Aster Home UI click family using only the stdlib."""
+"""Build Aster's original, softly enveloped air-puff UI sounds."""
 
 from __future__ import annotations
 
@@ -15,25 +15,27 @@ ROOT = Path(__file__).resolve().parents[1]
 RATE = 48_000
 
 
-def click(path: Path, *, frequency: float, duration: float = 0.045,
-          left: float = 0.15, right: float = 0.15, second: float | None = None) -> None:
-    """Write a quiet, dry stereo click with no sustained or sweeping component."""
-    rng = random.Random(path.name)
+def click(path: Path, *, frequency: float, duration: float = 0.080,
+          left: float = 0.15, right: float = 0.15) -> None:
+    """Write a low-pass noise puff without a sharp attack or pitched oscillator.
+
+    Keep the old call signature so the established directional gains remain
+    explicit. ``frequency`` now sets the noise filter, not a musical pitch.
+    """
+    rng = random.Random('horizontal' if path.name in ('nav-left.wav', 'nav-right.wav') else path.name)
     frames = []
     count = round(RATE * duration)
+    filtered = 0.0
+    filtered_again = 0.0
+    alpha = 1.0 - math.exp(-2.0 * math.pi * frequency / RATE)
     for index in range(count):
         t = index / RATE
-        attack = min(1.0, t / 0.0007)
-        body = math.exp(-92.0 * t)
-        sample = attack * body * (
-            0.70 * math.sin(2.0 * math.pi * frequency * t)
-            + 0.18 * math.sin(2.0 * math.pi * frequency * 2.13 * t)
-            + 0.08 * (rng.random() * 2.0 - 1.0)
-        )
-        if second is not None and t >= 0.026:
-            t2 = t - 0.026
-            sample += 0.38 * math.exp(-115.0 * t2) * math.sin(
-                2.0 * math.pi * second * t2)
+        filtered += alpha * (rng.uniform(-1.0, 1.0) - filtered)
+        filtered_again += alpha * (filtered - filtered_again)
+        attack = math.sin(min(1.0, t / 0.014) * math.pi / 2.0) ** 2
+        tail = math.sin(min(1.0, (count - 1 - index) / (RATE * 0.035))
+                        * math.pi / 2.0) ** 2
+        sample = filtered_again * attack * tail * math.exp(-20.0 * t) * 2.0
         frames.append(struct.pack('<hh',
                                   round(max(-1.0, min(1.0, sample * left)) * 32767),
                                   round(max(-1.0, min(1.0, sample * right)) * 32767)))
@@ -50,15 +52,15 @@ def main() -> None:
     # Horizontal actions are deliberately weighted toward the destination.
     click(resources / 'nav-left.wav', frequency=930, left=0.18, right=0.055)
     click(resources / 'nav-right.wav', frequency=930, left=0.055, right=0.18)
-    # Vertical motion uses a restrained pitch cue because stereo has no height axis.
+    # Vertical motion uses a subtle timbre cue, never a pitched tone.
     click(resources / 'nav-up.wav', frequency=1160, left=0.13, right=0.13)
     click(resources / 'nav-down.wav', frequency=760, left=0.13, right=0.13)
-    click(resources / 'select.wav', frequency=680, duration=0.065,
-          left=0.17, right=0.17, second=1080)
-    click(resources / 'back.wav', frequency=620, duration=0.075,
-          left=0.13, right=0.13, second=470)
-    click(resources / 'notify.wav', frequency=820, duration=0.085,
-          left=0.14, right=0.14, second=1240)
+    click(resources / 'select.wav', frequency=680, duration=0.090,
+          left=0.17, right=0.17)
+    click(resources / 'back.wav', frequency=620, duration=0.090,
+          left=0.13, right=0.13)
+    click(resources / 'notify.wav', frequency=820, duration=0.095,
+          left=0.14, right=0.14)
     shutil.copyfile(ROOT.parent / 'skin.asterhome' / 'media' / 'aster-icon-128.png',
                     ROOT / 'icon.png')
 
