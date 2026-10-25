@@ -149,3 +149,29 @@ its recurring timers. A direct owner-wrapper launch cannot pass the identity
 binding because its process is not in the hard-coded owner service cgroup. The
 exercise therefore remains NO-GO pending a bounded authentic owner-launch path
 and a corrected exact card; no exercise state was created.
+
+## Fixed transient exercise-owner candidate
+
+The initial prepare-only card could not launch an authentic owner without
+arming a recurring timer: all installed candidate units have
+`RefuseManualStart=yes`, while direct wrapper execution is outside the expected
+owner-service cgroup. Stream A closed the source gap in isolated commits
+`7374a60b` and `af803abd`, integrated by the platform owner as `b971f2a6` and
+`00046b25`.
+
+The owner accepts only the fixed
+`stream-a-evaluation-exercise-owner.service` transient identity, verifies its
+PID/boot/start-time/cmdline/cgroup before writing identity, and rejects direct
+SSH or caller-selected unit names. A new inert-by-default launcher pins the
+fixed unit, root user, `NoNewPrivileges`, strict system/home/tmp protections,
+exact two writable directories and all required owner flags. The clean packet
+passes 41 lease tests plus 23 owner/watchdog/observer/launcher tests. Its
+SHA-256 is
+`7e5303f426f567f3ea70a66e61ab7c57b28ddf9f5d2588b9b8c4e0af6abc7fba`.
+
+The corrected two-file inactive card is platform metadata commit `5a3f8fa6`,
+SHA-256 `e6084fc68a322211a7b0d8cf8f4193bb36b385bd37999d385af993f8ae985099`.
+The corrected later exercise card SHA-256 is
+`30462aa3b49242fb18e718327e667223832c68884a75a831c06254125eaf5c44`.
+Live prestate matches the pinned old owner hash and absent launcher; all runtime
+state remains absent. Installation remains a separate explicit gate.
