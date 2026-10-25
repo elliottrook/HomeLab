@@ -30,12 +30,29 @@ def frozen():
     return value
 
 
+def registered():
+    value = frozen()
+    value.update(status="registered", calibration_score_sha256="", selected_threshold=None)
+    return value
+
+
 class NluThresholdPolicyTests(unittest.TestCase):
     def test_template_is_valid_without_claiming_selection(self):
         self.assertEqual([], policy.validate_policy(json.loads(TEMPLATE.read_text())))
 
     def test_frozen_policy_binds_disjoint_calibration_and_candidate(self):
         self.assertEqual([], policy.validate_policy(frozen()))
+
+    def test_registered_policy_fixes_constraints_without_claiming_result(self):
+        self.assertEqual([], policy.validate_policy(registered()))
+
+    def test_registered_policy_cannot_claim_score_or_threshold(self):
+        value = registered()
+        value["calibration_score_sha256"] = "c" * 64
+        value["selected_threshold"] = 0.75
+        errors = policy.validate_policy(value)
+        self.assertIn("registered policy must not claim calibration_score_sha256", errors)
+        self.assertIn("registered policy must not claim a selected threshold", errors)
 
     def test_template_cannot_claim_threshold_or_evidence(self):
         value = json.loads(TEMPLATE.read_text())

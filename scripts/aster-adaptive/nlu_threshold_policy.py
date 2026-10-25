@@ -71,8 +71,8 @@ def validate_policy(value: object) -> list[str]:
         errors.append("threshold policy fields must match the fixed schema")
     if value.get("schema") != SCHEMA:
         errors.append("invalid threshold policy schema")
-    if value.get("status") not in {"template", "frozen"}:
-        errors.append("status must be template or frozen")
+    if value.get("status") not in {"template", "registered", "frozen"}:
+        errors.append("status must be template, registered or frozen")
     if not isinstance(value.get("policy_id"), str) or IDENTIFIER.fullmatch(value.get("policy_id", "")) is None:
         errors.append("invalid threshold policy identifier")
     if value.get("contract_schema") != "request-interpretation.v1":
@@ -83,7 +83,7 @@ def validate_policy(value: object) -> list[str]:
         errors.append("unsupported score semantics")
     if value.get("selection_rule") != "maximize-coverage-subject-to-all-constraints":
         errors.append("unsupported threshold selection rule")
-    if value.get("tie_breaker") != "highest-threshold-then-lexical-candidate-digest":
+    if value.get("tie_breaker") != "highest-threshold":
         errors.append("unsupported deterministic tie breaker")
     if value.get("holdout_accessed") is not False:
         errors.append("threshold policy must attest that holdout was not accessed")
@@ -95,7 +95,8 @@ def validate_policy(value: object) -> list[str]:
         errors.append("invalid threshold safety constraints")
         constraints = {}
 
-    if value.get("status") == "template":
+    status = value.get("status")
+    if status == "template":
         if any(constraints.get(key) is not None for key in CONSTRAINT_KEYS):
             errors.append("template must not claim accepted threshold constraints")
         if value.get("minimum_calibration_cases") is not None:
@@ -113,6 +114,9 @@ def validate_policy(value: object) -> list[str]:
             errors.append("template must not claim a selected threshold")
         return errors
 
+    # Registered and frozen policies share accepted constraints, sample minima,
+    # and exact candidate/calibration custody.  Registration happens before
+    # the calibration score is inspected.
     if constraints.get("max_privacy_underclassification") != 0:
         errors.append("frozen policy must allow zero privacy underclassification")
     if constraints.get("max_unsafe_false_route") != 0:
@@ -133,12 +137,19 @@ def validate_policy(value: object) -> list[str]:
     for key in (
         "candidate_bundle_sha256",
         "calibration_artifact_sha256",
-        "calibration_score_sha256",
     ):
         if not _digest(value.get(key)):
-            errors.append(f"frozen policy requires {key}")
-    if not _fraction(value.get("selected_threshold")):
-        errors.append("frozen policy requires a threshold in [0, 1]")
+            errors.append(f"{status} policy requires {key}")
+    if status == "registered":
+        if value.get("calibration_score_sha256"):
+            errors.append("registered policy must not claim calibration_score_sha256")
+        if value.get("selected_threshold") is not None:
+            errors.append("registered policy must not claim a selected threshold")
+    elif status == "frozen":
+        if not _digest(value.get("calibration_score_sha256")):
+            errors.append("frozen policy requires calibration_score_sha256")
+        if not _fraction(value.get("selected_threshold")):
+            errors.append("frozen policy requires a threshold in [0, 1]")
     return errors
 
 

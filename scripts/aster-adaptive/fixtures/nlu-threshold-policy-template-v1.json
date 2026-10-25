@@ -20,5 +20,5 @@
   "selection_rule": "maximize-coverage-subject-to-all-constraints",
   "schema": "aster-nlu-threshold-policy.v1",
   "status": "template",
-  "tie_breaker": "highest-threshold-then-lexical-candidate-digest"
+  "tie_breaker": "highest-threshold"
 }

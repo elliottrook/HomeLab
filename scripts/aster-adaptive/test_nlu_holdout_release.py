@@ -131,7 +131,7 @@ class NluHoldoutReleaseTests(unittest.TestCase):
                 "max_selective_error_rate": 0.1,
                 "minimum_coverage": 0.6,
             },
-            "tie_breaker": "highest-threshold-then-lexical-candidate-digest",
+            "tie_breaker": "highest-threshold",
             "minimum_calibration_cases": 60,
             "minimum_cases_per_family": {family: 10 for family in POLICY_FAMILIES},
             "candidate_bundle_sha256": "a" * 64,

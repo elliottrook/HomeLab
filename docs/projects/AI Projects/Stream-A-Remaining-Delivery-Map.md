@@ -371,8 +371,9 @@ pins 36 opaque cases balanced across all six families, four distinct roles and
 the required contract/scorer/threshold/non-overlap digests; its eight tests pass.
 The [threshold-policy boundary](evidence/M3-NLU-threshold-policy-boundary-2026-10-24.md)
 now requires the exact frozen policy artifact alongside a sealed release and
-rejects holdout-informed selection, changed bytes and authority claims; 17
-focused policy/custody tests pass. The template deliberately leaves quality,
+rejects holdout-informed selection, changed bytes and authority claims. Its
+content-free selector freezes a registered policy only when all constraints
+pass; 36 focused NLU tests pass. The template deliberately leaves quality,
 coverage and sample-size acceptance values unset. No cases, labels, calibration
 evidence or selected threshold exist. Independent constraint acceptance, case
 creation, calibration, sealing and no-effect shadow evidence remain open before
