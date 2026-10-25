@@ -12,6 +12,16 @@ is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the
 October 16 read-only scan from an unscheduled live drill.
 
+**October 25 evaluation watchdog checkpoint:** the fifth source-only F6 packet
+at implementation `780c33e2` and card `75b423d4` closes the earlier wrapper,
+owner-liveness and live-observation defects. Independent clean-archive review
+matched all thirteen card hashes and passed 51/51 focused tests; target
+preflight found every destination absent and the installed disabled
+evaluation-entrypoint baseline exact. The packet is ready for one separately
+approved inactive installation. No watchdog/heartbeat unit is installed,
+enabled or armed yet; F6 and live D4/M3 evaluation remain closed. The October
+26 F2 run is independently scheduled and conditional.
+
 **October 24 M1 approval-plane checkpoint:** the
 [permanent Yellow-only cutover](evidence/M1-permanent-yellow-cutover-result-2026-10-24.md)
 passed. Only the Companion approval route now uses the independent broker and

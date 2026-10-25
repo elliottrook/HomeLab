@@ -152,3 +152,37 @@ observation fails. Module-level tests did not exercise the deployed wrapper.
 
 The platform owner received the one-line wrapper fix plus real inert and
 authorized wrapper-invocation regressions. Nothing was installed or invoked.
+
+## Fifth implementation packet review
+
+Platform implementation `780c33e2471536ff0f3eb699a9dba93274808919`
+and metadata/card commit `75b423d43c00611681c5e68ed07e3535c171ceb2`
+correct the deployed-wrapper boundary. The reviewed inactive-install card is
+SHA-256
+`78fd2388168c464877c20b7abab3f99f042bb553de38f7f56d46227ef8d99210`.
+
+Independent clean-archive validation passed all 51 focused evaluation tests.
+The wrapper regression proves the restore observer is inert without
+`--observe-authorized` and forwards the exact lease ID, generation and
+authorization arguments when invoked by the watchdog. All thirteen source
+artifacts match the card's SHA-256 pins, and the clean run left no Python
+bytecode.
+
+Read-only target preflight found all thirteen destination paths absent and
+re-read the six installed evaluation-entrypoint baseline hashes exactly:
+
+- contract `675ebb566de298334f7c612cae9af2637067930f40c0ad2c23a22e1b7e248f1b`;
+- entrypoint `e4efd62036b8d26b0eb972a03f53f2cfdf6fbb6fa8a00f1c652b5803c23b5ce7`;
+- adapter `8fac397f96b88be5ccb042a2e3b3da6cbbccdc89e91e4afeacf029a13769c6a1`;
+- recovery library `b6409e9f29d954033ebd2098fdbd983862d0d32eb5de04471f7b06f9aaf74725`;
+- host exclusion `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61`; and
+- disabled wrapper `15f3de1ebb5294878d5f0ce0c6a0b7c03a64b42a71c081fda6d036b0c1ef71af`.
+
+The source-only packet is therefore **accepted for one inactive installation**.
+That installation must create only the thirteen pinned artifacts, run the
+target-Linux suite and static unit checks, invoke only the three documented
+inert wrappers, and finish with every candidate service/timer disabled and
+inactive and no runtime state. It must not invoke the restore observer, create
+an identity, arm a timer, acquire a lease, stop a consumer or call a model.
+F6 remains NO-GO until installation passes and a later activation receives its
+own review and approval. The October 26 F2 exact-cycle test remains independent.
