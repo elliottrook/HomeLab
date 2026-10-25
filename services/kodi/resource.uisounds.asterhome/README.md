@@ -1,8 +1,8 @@
 # Aster canonical UI sounds
 
-This private Kodi resource contains the seven owner-approved canonical Aster
-interaction sounds. They are derived from one recorded CC0 mouse click, share
-a quiet physical character, and finish at digital silence.
+This private Kodi resource contains the owner-approved canonical Aster startup
+sound and seven interaction sounds. The interaction family is derived from one
+recorded CC0 mouse click. Every cue finishes at digital silence.
 
 | Canonical sound | Kodi files | Use |
 | --- | --- | --- |
@@ -13,9 +13,11 @@ a quiet physical character, and finish at digital silence.
 | Boundary | `notify.wav` | Slower muted double pulse |
 | Select | `select.wav` | Decisive click-clack confirmation |
 | Back | `back.wav` | Retreating downward click |
+| Startup | `startup.wav` | Layered sunrise chimes with a softened outro |
 
 Kodi exposes separate filenames for each directional action. This revision uses
-that capability: all seven WAV files are distinct cues with a shared source.
+that capability: all seven navigation WAV files are distinct cues with a shared
+source. The longer startup master is a separate soundscape.
 
 All masters are deterministic 48 kHz stereo, 24-bit PCM WAV. Pitch shifting,
 time stretching, layering, stereo placement and compact reflections are made

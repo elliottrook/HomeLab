@@ -12,6 +12,6 @@
   </actions>
   <windows>
     <window><name>notification</name><activate>notify.wav</activate><deactivate></deactivate></window>
-    <window><name>startup</name><activate></activate></window>
+    <window><name>startup</name><activate>startup.wav</activate></window>
   </windows>
 </sounds>

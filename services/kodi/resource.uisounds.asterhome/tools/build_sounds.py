@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Aster's seven canonical mouse-click UI sound masters."""
+"""Validate Aster's canonical startup and mouse-click UI sound masters."""
 
 from __future__ import annotations
 
@@ -19,6 +19,7 @@ EXPECTED_SHA256 = {
     "notify.wav": "c093d94abbabc0383d278b9f8e39dda8ca5fbfdee8080bdce1c4078126e175c8",
     "select.wav": "6e38a7c6fc9964c8c53e49409df42d53200ce51e221c2dbb63b13a8bdb811c3f",
     "back.wav": "b5c3678e2849cb6b9dd15125f2e1ebeb9afda6f469524d6bada3a20ba6424125",
+    "startup.wav": "f41cc896c664e234986330799bc3b75c460ab6eb87c3883df338b0353a06b7e2",
 }
 
 
@@ -30,7 +31,8 @@ def validate_master(path: Path) -> None:
     with wave.open(str(path), "rb") as source:
         if source.getparams()[:3] != (2, 3, 48_000):
             raise RuntimeError(f"wrong audio format: {path.name}")
-        if source.getnframes() / source.getframerate() >= 0.6:
+        limit = 4.0 if path.name == "startup.wav" else 0.6
+        if source.getnframes() / source.getframerate() >= limit:
             raise RuntimeError(f"sound is too long: {path.name}")
     actual = sha256(path)
     if actual != EXPECTED_SHA256[path.name]:
@@ -44,7 +46,7 @@ def main() -> None:
         ROOT.parent / "skin.asterhome" / "media" / "aster-icon-128.png",
         ROOT / "icon.png",
     )
-    print("Aster canonical UI sounds verified: seven distinct mouse-click cues")
+    print("Aster canonical UI sounds verified: startup plus seven click cues")
 
 
 if __name__ == "__main__":

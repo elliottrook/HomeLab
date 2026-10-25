@@ -5,8 +5,8 @@
   "addon_id": "resource.uisounds.asterhome",
   "archive": {
     "path": "services/kodi/dist/resource.uisounds.asterhome-1.1.1.zip",
-    "bytes": 330970,
-    "sha256": "2f2ef470b5b2a4216be544e70eafb617de058c32c1da845553e0f9be67de3731"
+    "bytes": 1199151,
+    "sha256": "42e534d4005b917e28ddc6bb8f5eae40f823227db3d0fdd685551745c0578951"
   },
   "format": {
     "codec": "PCM",
@@ -15,6 +15,10 @@
     "channels": 2
   },
   "canonical_sounds": {
+    "startup": {
+      "sha256": "f41cc896c664e234986330799bc3b75c460ab6eb87c3883df338b0353a06b7e2",
+      "kodi_files": ["startup.wav"]
+    },
     "up": {
       "sha256": "08037d2c1e0dd6f930715584493f98e09885e3a8126df076a3cdf01729663cba",
       "kodi_files": ["nav-up.wav"]
@@ -46,8 +50,8 @@
   },
   "validation": {
     "focused_tests": 11,
-    "unique_audio_hashes": 7,
-    "kodi_wav_files": 7,
+    "unique_audio_hashes": 8,
+    "kodi_wav_files": 8,
     "directional_cues_are_distinct": true,
     "silent_endpoints": true,
     "live_deployment": false,
