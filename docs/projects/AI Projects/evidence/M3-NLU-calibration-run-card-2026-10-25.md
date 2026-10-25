@@ -63,6 +63,27 @@ measure the candidate.
   row afterward. A started row without a recorded row is an uncertain attempt
   and forbids replay.
 
+## Execution custody
+
+The networked runner executes inside LXC110 so the accepted local service key
+never leaves that guest. The separately reviewed
+[staging boundary](M3-NLU-calibration-LXC110-staging-boundary-2026-10-25.md)
+pins the minimal source packet and uses one new root-owned mode-`0700`
+directory under `/var/lib/aster-nlu-calibration/`:
+
+- stage only the private cases and content-free release, the public development
+  fixture, runner and its seven pinned Python dependencies;
+- do not stage private labels, the threshold selector or any cloud credential;
+- create the output and journal as mode `0600` files inside that directory;
+- after a terminal run, copy only the content-free output and journal back to
+  the existing owner-only Mac custody directory and verify their hashes;
+- score and select on the Mac, where the private labels already reside; and
+- remove the LXC110 run directory only after custody verification. Retain it
+  unchanged for reconciliation after an uncertain outcome.
+
+Staging, cleanup, lease acquisition and model execution are live effects. None
+is authorized by this card alone.
+
 ## Fresh preflight
 
 Immediately before the first request, require all of the following:

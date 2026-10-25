@@ -505,6 +505,11 @@ The scorer now also
 and binds the exact journal digest into the threshold-selection input. The
 dependency-free NLU suite passes 106/106. A journal can no longer exist merely
 as an ignored sidecar.
+The [LXC110 staging boundary](evidence/M3-NLU-calibration-LXC110-staging-boundary-2026-10-25.md)
+now fixes the minimal ten-file packet, persistent owner-only location,
+content-free return path and retain-on-uncertainty cleanup rule. This avoids
+exporting the local service key and keeps labels on the Mac. It is an offline
+plan only; nothing has been staged.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)
