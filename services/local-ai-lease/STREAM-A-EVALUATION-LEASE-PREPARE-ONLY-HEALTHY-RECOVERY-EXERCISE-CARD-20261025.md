@@ -40,8 +40,10 @@ with the October 26 F2 window.
    accepted cards: implementation commits
    `2f790b6310981d31358a60fb2a7a3f98f7a26633`, `bdf745aa`, `2f59c2b0`,
    `7fbbc017630dc7ab87b212fc3a92ba92bb48663b` and
-   `26dd2a0e90095a787d75353138393b71b3dbd6a4`; the exercise-admission
-   inactive upgrade must also be installed and verified before this exercise.
+   `26dd2a0e90095a787d75353138393b71b3dbd6a4`; the installed watchdog must
+   match `19606f6b398dd6f43a461704081e66f09e292c434f73f4aaee46327f9cc02f53`,
+   and the exercise-admission inactive upgrade must also be installed and
+   verified before this exercise.
 3. All five F6 units and timers remain disabled/inactive; no runtime lease,
    lock, identity, owner intent, heartbeat or watchdog status is present.
 4. Production health, accepted backend/GPU identity and the exact four-consumer

@@ -1,11 +1,25 @@
 # Stream A exercise watchdog schema — inactive upgrade card
 
-Status: **SOURCE-ONLY; ROLLED BACK AFTER VERIFIED TEST FAILURE; NOT AUTHORIZED**
+Status: **INSTALLED INACTIVE AND VERIFIED; EXERCISE NOT AUTHORIZED OR RUN**
 
 This card replaces only the installed watchdog implementation so it can bind
 the exact receipt-free exercise lease mode and two-minute/five-minute window.
 It authorizes no identity, lease, recovery, consumer, model, timer, schedule
 or remote Git operation.
+
+## Verified install result
+
+The corrected one-file install was applied under the approved boundary and
+verified at `/usr/local/libexec/local-ai-lease/stream-a-evaluation/
+evaluation_lease_watchdog.py` with SHA-256
+`19606f6b398dd6f43a461704081e66f09e292c434f73f4aaee46327f9cc02f53`,
+`root:root`, mode `0644`. The fresh rollback checkpoint is
+`/root/stream-a-evaluation-exercise-watchdog-retry-20261025`.
+
+The required Linux suite passed 69/69. All owner/watchdog units remain
+disabled/inactive; lease, lock, identity, intent, heartbeat, status and
+restore state are absent; production health and the October 26 F2 timers are
+unchanged. No live exercise ran.
 
 ## Exact one-file transaction
 
