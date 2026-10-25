@@ -23,18 +23,20 @@ separately reviewed and approved before installation or effectful testing.
    identity, owner, generation and hard deadlines.
 2. Capture the exact production unit/timer baseline.
 3. Keep `lxc110:aster-llama.service` active, authenticated and idle, and prove
-   its GPU holder is the only inference holder.
+   it is the only GPU inference holder.
 4. Quiesce only LXC104 Aster Agent, LXC116 Speech, and the two LXC114 News
    timers. Do not stop or mask the llama backend.
-5. Run D4 candidate-G once, retaining its separate journal/result, then run M3
-   calibration once with its own journal/result. Any transport, lease, source,
+5. Recheck the exact post-quiescence target set, backend holder and endpoint
+   idleness before any model request. Run D4 candidate-G once, retaining its
+   separate journal/result, then run M3 calibration once with its own journal/result. Any transport, lease, source,
    endpoint or custody uncertainty skips the next workload and triggers restore.
 6. Restore the exact baseline, prove production health/authentication and GPU
    idleness, then release the lock. Uncertain recovery retains the lock/state.
 
-The 90-minute window reserves the final 15 minutes for restoration. The fixed
-workload budgets are 36 minutes for D4 and 20 minutes for M3, with a 10-minute
-setup budget; unused time is not borrowable.
+The fixed 90-minute window has a 75-minute effect deadline and reserves the
+final 15 minutes for restoration. The fixed workload budgets are 36 minutes
+for D4 and 20 minutes for M3, with a 10-minute setup budget; unused time is
+not borrowable.
 
 ## Live gates that remain
 

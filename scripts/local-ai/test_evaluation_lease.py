@@ -16,6 +16,7 @@ from evaluation_lease import (
     next_workload,
     plan,
     validate_admission,
+    validate_post_quiescence,
     validate_restoration,
     watchdog_decision,
     workload,
@@ -29,14 +30,15 @@ class EvaluationLeaseTests(unittest.TestCase):
             f2_receipt="f2-1", f3_receipt="f3-1", model=ACCEPTED_MODEL,
             backend=ACCEPTED_BACKEND, endpoint=ACCEPTED_ENDPOINT,
             backend_active=True, endpoint_authenticated=True, endpoint_idle=True,
-            gpu_holders=(BACKEND_TARGET,), quiesced_targets=QUIESCE_TARGETS,
+            gpu_holders=(BACKEND_TARGET,), registered_targets=QUIESCE_TARGETS,
+            quiesced_targets=(),
             baseline=ProductionBaseline(
                 units=(("lxc104:aster-agent.service", "active"),
                        ("lxc116:aster-speech.service", "active")),
                 timers=(("lxc114:news-aggregator-ingest.timer", "active"),
                         ("lxc114:news-aggregator-digest.timer", "active")),
-            ), watchdog_independent=True, hard_deadline_epoch=4500,
-            restore_deadline_epoch=4500 + RESTORE_RESERVE_SECONDS,
+            ), watchdog_independent=True, hard_deadline_epoch=5500,
+            restore_deadline_epoch=5500 + RESTORE_RESERVE_SECONDS,
         )
 
     def test_admission_retains_backend_and_requires_fresh_receipts(self):
@@ -47,23 +49,47 @@ class EvaluationLeaseTests(unittest.TestCase):
 
     def test_backend_cannot_be_quiesced(self):
         value = self.admission()
-        bad = value.__class__(**{**value.__dict__, "quiesced_targets": QUIESCE_TARGETS + (BACKEND_TARGET,)})
+        bad = value.__class__(**{**value.__dict__, "registered_targets": QUIESCE_TARGETS + (BACKEND_TARGET,)})
         with self.assertRaises(EvaluationLeaseError):
             validate_admission(bad, now_epoch=1000)
 
+    def test_post_quiescence_requires_exact_targets_and_backend_holder(self):
+        value = self.admission()
+        validate_post_quiescence(value, observed_targets=QUIESCE_TARGETS,
+                                 backend_active=True, endpoint_authenticated=True,
+                                 endpoint_idle=True, gpu_holders=(BACKEND_TARGET,))
+        with self.assertRaises(EvaluationLeaseError):
+            validate_post_quiescence(value, observed_targets=QUIESCE_TARGETS[:-1],
+                                     backend_active=True, endpoint_authenticated=True,
+                                     endpoint_idle=True, gpu_holders=(BACKEND_TARGET,))
+
     def test_sequence_is_d4_then_m3_and_separate_paths(self):
-        self.assertEqual(next_workload(completed=()).name, "d4-candidate-g")
-        self.assertEqual(next_workload(completed=("d4-candidate-g",)).name, "m3-nlu-calibration")
-        self.assertIsNone(next_workload(completed=("d4-candidate-g", "m3-nlu-calibration")))
+        self.assertEqual(next_workload(completed=(), expected_lease_id="eval-1",
+                                       expected_generation=1).name, "d4-candidate-g")
+        outcome = WorkloadOutcome("eval-1", 1, "d4-candidate-g", D4_DIGEST,
+                                  "completed", "j", "r", 1, 1, True)
+        self.assertEqual(next_workload(completed=("d4-candidate-g",),
+                                       expected_lease_id="eval-1", expected_generation=1,
+                                       outcome=outcome).name, "m3-nlu-calibration")
+        self.assertIsNone(next_workload(completed=("d4-candidate-g", "m3-nlu-calibration"),
+                                        expected_lease_id="eval-1", expected_generation=1))
         self.assertEqual(workload("d4-candidate-g").packet_digest, D4_DIGEST)
         self.assertEqual(workload("m3-nlu-calibration").packet_digest, M3_STAGE_MANIFEST_DIGEST)
         self.assertNotEqual(workload("d4-candidate-g").journal_name, workload("m3-nlu-calibration").journal_name)
 
     def test_uncertain_outcome_cannot_advance(self):
-        outcome = WorkloadOutcome("eval-1", 1, "d4-candidate-g", D4_DIGEST,
+        outcome = WorkloadOutcome("other-lease", 9, "d4-candidate-g", D4_DIGEST,
                                   "completed", "j", "r", 1, 1, True, True)
         with self.assertRaises(EvaluationLeaseError):
-            next_workload(completed=(), outcome=outcome)
+            next_workload(completed=("d4-candidate-g",), expected_lease_id="eval-1",
+                          expected_generation=1, outcome=outcome)
+
+    def test_window_is_fixed_and_budgeted(self):
+        validate_admission(self.admission(), now_epoch=1000)
+        value = self.admission()
+        bad = value.__class__(**{**value.__dict__, "restore_deadline_epoch": 9999})
+        with self.assertRaises(EvaluationLeaseError):
+            validate_admission(bad, now_epoch=1000)
 
     def test_watchdog_recovers_on_deadline_or_owner_loss(self):
         self.assertEqual(watchdog_decision(now_epoch=4500, heartbeat_epoch=4499,
@@ -77,11 +103,11 @@ class EvaluationLeaseTests(unittest.TestCase):
         baseline = self.admission().baseline
         validate_restoration(restored=baseline, expected=baseline,
                              backend_active=True, endpoint_authenticated=True,
-                             gpu_holders=())
+                             endpoint_idle=True, gpu_holders=(BACKEND_TARGET,))
         with self.assertRaises(EvaluationLeaseError):
             validate_restoration(restored=baseline, expected=baseline,
                                  backend_active=True, endpoint_authenticated=True,
-                                 gpu_holders=(BACKEND_TARGET,))
+                                 endpoint_idle=True, gpu_holders=())
 
     def test_plan_is_effect_ordered(self):
         actions = plan()

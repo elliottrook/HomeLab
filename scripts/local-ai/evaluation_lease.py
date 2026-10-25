@@ -27,6 +27,7 @@ M3_STAGE_MANIFEST_DIGEST = "357b4e3d5514fe32b1509ac27f9eac3940edb0635db3a5008b4f
 # The final fifteen minutes are never borrowable by either workload.
 WINDOW_SECONDS = 90 * 60
 RESTORE_RESERVE_SECONDS = 15 * 60
+EFFECT_DEADLINE_SECONDS = WINDOW_SECONDS - RESTORE_RESERVE_SECONDS
 SETUP_BUDGET_SECONDS = 10 * 60
 D4_BUDGET_SECONDS = 36 * 60
 M3_BUDGET_SECONDS = 20 * 60
@@ -102,6 +103,7 @@ class Admission:
     endpoint_authenticated: bool
     endpoint_idle: bool
     gpu_holders: tuple[str, ...]
+    registered_targets: tuple[str, ...]
     quiesced_targets: tuple[str, ...]
     baseline: ProductionBaseline
     watchdog_independent: bool
@@ -139,12 +141,12 @@ def workload(name: str) -> WorkloadSpec:
 
 def validate_window(*, now_epoch: int, hard_deadline_epoch: int,
                     restore_deadline_epoch: int) -> None:
-    if hard_deadline_epoch <= now_epoch:
-        raise EvaluationLeaseError("evaluation deadline has already passed")
-    if restore_deadline_epoch <= hard_deadline_epoch:
-        raise EvaluationLeaseError("restore deadline must follow evaluation deadline")
-    if restore_deadline_epoch - hard_deadline_epoch != RESTORE_RESERVE_SECONDS:
-        raise EvaluationLeaseError("restore reserve is not the fixed fifteen minutes")
+    if hard_deadline_epoch != now_epoch + EFFECT_DEADLINE_SECONDS:
+        raise EvaluationLeaseError("effect deadline is not the fixed seventy-five minutes")
+    if restore_deadline_epoch != now_epoch + WINDOW_SECONDS:
+        raise EvaluationLeaseError("total lease window is not the fixed ninety minutes")
+    if SETUP_BUDGET_SECONDS + D4_BUDGET_SECONDS + M3_BUDGET_SECONDS > EFFECT_DEADLINE_SECONDS:
+        raise EvaluationLeaseError("fixed workload budgets exceed the effect window")
 
 
 def validate_admission(value: Admission, *, now_epoch: int) -> None:
@@ -160,10 +162,10 @@ def validate_admission(value: Admission, *, now_epoch: int) -> None:
         raise EvaluationLeaseError("backend must be active, authenticated and idle")
     if tuple(value.gpu_holders) != (BACKEND_TARGET,):
         raise EvaluationLeaseError("GPU inference slot has an unknown or missing holder")
-    if tuple(value.quiesced_targets) != QUIESCE_TARGETS:
-        raise EvaluationLeaseError("consumer set is not the exact registered set")
-    if any(name == BACKEND_TARGET for name, _ in value.baseline.units):
-        raise EvaluationLeaseError("backend must not be part of the quiesce/restore set")
+    if tuple(value.registered_targets) != QUIESCE_TARGETS:
+        raise EvaluationLeaseError("registered consumer set is not exact")
+    if value.quiesced_targets:
+        raise EvaluationLeaseError("pre-quiescence admission claims consumers are already stopped")
     if not value.watchdog_independent:
         raise EvaluationLeaseError("independent watchdog is required")
     validate_window(now_epoch=now_epoch, hard_deadline_epoch=value.hard_deadline_epoch,
@@ -187,6 +189,18 @@ def plan() -> tuple[str, ...]:
     )
 
 
+def validate_post_quiescence(value: Admission, *, observed_targets: tuple[str, ...],
+                             backend_active: bool, endpoint_authenticated: bool,
+                             endpoint_idle: bool, gpu_holders: tuple[str, ...]) -> None:
+    """Validate the second boundary before either model workload starts."""
+    if tuple(observed_targets) != value.registered_targets:
+        raise EvaluationLeaseError("post-quiescence target set is incomplete or unexpected")
+    if not (backend_active and endpoint_authenticated and endpoint_idle):
+        raise EvaluationLeaseError("post-quiescence backend is not healthy and idle")
+    if tuple(gpu_holders) != (BACKEND_TARGET,):
+        raise EvaluationLeaseError("post-quiescence GPU holder is not the accepted backend")
+
+
 def validate_outcome(value: WorkloadOutcome, *, expected: WorkloadSpec,
                      lease_id: str, generation: int) -> None:
     if (value.lease_id != lease_id or value.generation != generation
@@ -204,16 +218,22 @@ def validate_outcome(value: WorkloadOutcome, *, expected: WorkloadSpec,
         raise EvaluationLeaseError("separate journal and result digests are required")
 
 
-def next_workload(*, completed: tuple[str, ...], outcome: WorkloadOutcome | None = None) -> WorkloadSpec | None:
+def next_workload(*, completed: tuple[str, ...], expected_lease_id: str,
+                  expected_generation: int,
+                  outcome: WorkloadOutcome | None = None) -> WorkloadSpec | None:
     """Allow M3 only after a terminal, unambiguous D4 outcome."""
     if outcome is not None:
         validate_outcome(outcome, expected=workload(outcome.name),
-                         lease_id=outcome.lease_id, generation=outcome.generation)
+                         lease_id=expected_lease_id, generation=expected_generation)
         if outcome.transport_uncertain:
             raise EvaluationLeaseError("uncertain D4 outcome forbids the next workload")
     if completed == ():
+        if outcome is not None:
+            raise EvaluationLeaseError("an outcome cannot precede the first workload")
         return WORKLOADS[0]
     if completed == (WORKLOADS[0].name,):
+        if outcome is None or outcome.name != WORKLOADS[0].name:
+            raise EvaluationLeaseError("M3 requires the terminal D4 outcome for this lease")
         return WORKLOADS[1]
     if completed == tuple(item.name for item in WORKLOADS):
         return None
@@ -237,10 +257,11 @@ def watchdog_decision(*, now_epoch: int, heartbeat_epoch: int,
 def validate_restoration(*, restored: ProductionBaseline,
                          expected: ProductionBaseline,
                          backend_active: bool, endpoint_authenticated: bool,
+                         endpoint_idle: bool,
                          gpu_holders: tuple[str, ...]) -> None:
     if restored != expected:
         raise EvaluationLeaseError("production unit or timer baseline drifted")
-    if not backend_active or not endpoint_authenticated:
-        raise EvaluationLeaseError("backend did not restore healthy and authenticated")
-    if gpu_holders:
-        raise EvaluationLeaseError("GPU is not idle after restoration")
+    if not (backend_active and endpoint_authenticated and endpoint_idle):
+        raise EvaluationLeaseError("backend did not restore healthy, authenticated and idle")
+    if tuple(gpu_holders) != (BACKEND_TARGET,):
+        raise EvaluationLeaseError("accepted backend is not the exact restored GPU holder")
