@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+
+if [ "$#" -ne 1 ] || [ "$1" != "--effect-authorized" ]; then
+  printf '%s\n' '{"effects":"disabled","state":"source-only"}'
+  exit 0
+fi
+
+exec /usr/bin/systemd-run \
+  --unit=stream-a-evaluation-exercise-owner.service \
+  --collect \
+  --service-type=simple \
+  --property=User=root \
+  --property=NoNewPrivileges=yes \
+  --property=ProtectSystem=strict \
+  --property=ProtectHome=yes \
+  --property=PrivateTmp=yes \
+  --property=ReadWritePaths=/etc/local-ai-lab/stream-a-evaluation \
+  --property=ReadWritePaths=/var/lib/local-ai-lab/stream-a-evaluation \
+  /usr/local/sbin/stream-a-evaluation-owner \
+  --run --effect-authorized --exercise-transient
