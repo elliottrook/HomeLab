@@ -33,10 +33,10 @@ measure the candidate.
 - runner source commit: `b5b235742ad120f9e40c795ab4352061da2218bb`, with runner SHA-256
   `484a09d4d1655336808767ead76d7803f6eadf783bbda5bdf1eaec8726389833`;
 - scorer SHA-256:
-  `b5b7b8469aff421e92b0a51125428f61951556f63cf616b82e6c90d115c8e2a4`;
+  `ec4f4e44ff595617f1fe8e337b587bbab049204d001dd2ba050ee1fb146022fd`;
   and
 - threshold selector SHA-256:
-  `1834f495917810c7cf55f2c1e41584d59358b5464f5e6bce631dd7edbb9ba5f5`.
+  `9edc0317fe655bfc49b888d755155393cdc468e11bccc27dbe4881b886922cbb`.
 
 ## Bounds and custody
 
@@ -80,8 +80,9 @@ normal production health rechecked after every terminal outcome.
 
 ## Result path
 
-If all 60 records exist, independently derive the content-free calibration
-score and run the exact registered threshold selector. A valid frozen threshold
+If all 60 records exist, independently verify the exact attempt journal against
+every final record, bind its digest into the content-free calibration score and
+run the exact registered threshold selector. A valid frozen threshold
 is calibration evidence only. A rejected threshold is a measured candidate
 rejection. Neither result opens the independent holdout, deploys the NLU,
 enables shadowing or automatic routing, or changes the accepted B60 runtime.

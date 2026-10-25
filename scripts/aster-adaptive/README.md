@@ -72,6 +72,10 @@ request is uncertain and must not be replayed. The runner exits nonzero for a
 partial run, shrinks each request timeout to the remaining 1,200-second wall
 budget, disables proxy inheritance and never retains request or raw response
 text.
+`nlu_calibration_score.py` requires that exact journal and semantically matches
+every ordered start/result pair to the final 60-record run before deriving a
+score. The score binds the journal digest, so threshold selection cannot ignore
+or silently substitute the custody record.
 
 `nlu_shadow_release.py` provides the later no-effect comparison boundary. The
 initial profile permits only S0 synthetic sources and retains opaque interpretation
