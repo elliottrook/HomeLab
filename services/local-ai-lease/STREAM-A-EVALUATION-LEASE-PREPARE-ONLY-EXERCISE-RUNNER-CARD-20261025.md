@@ -1,6 +1,6 @@
 # Stream A prepare-only exercise runner — source boundary
 
-Status: **SOURCE-ONLY; NOT RUN OR AUTHORIZED**
+Status: **INSTALLED INACTIVE AND VERIFIED; EXERCISE NOT AUTHORIZED OR RUN**
 
 The runner is a single bounded transaction for the separately approved
 prepare-only exercise. It captures and verifies prestate, creates only a
@@ -47,3 +47,12 @@ locally as `95cacab0`; command-boundary and real-wrapper review fixes are in
 
 The runner is not authorization to execute the exercise. Live execution still
 requires a separate approval after the backup/F2 window and a fresh prestate.
+
+## Verified inactive install result
+
+The runner and wrapper were installed under the approved inactive boundary with
+the pinned hashes above: `root:root` modes `0644` and `0755`. The exercise
+receipt directory is `root:root` mode `0700` and empty. The exact target-Linux
+suite passed 77/77; Python compilation and inert `--run-once` validation also
+passed. No exercise ran, no runtime lease/identity/heartbeat/lock/receipt was
+created, and all F6 units/timers remained disabled/inactive.
