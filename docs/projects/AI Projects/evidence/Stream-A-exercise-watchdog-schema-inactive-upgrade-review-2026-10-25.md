@@ -1,6 +1,6 @@
 # Stream A exercise-watchdog schema inactive upgrade review — 2026-10-25
 
-> Decision: **REVISED CANDIDATE READY; INSTALL RETRY NOT YET AUTHORIZED**
+> Decision: **PASS; REVISED WATCHDOG INSTALLED INACTIVE**
 
 ## Scope
 
@@ -52,6 +52,26 @@ Independent validation from its clean archive passed:
 - current installed prehash, root custody, inactive units, absent runtime state,
   healthy core guests/Proxmox daemons and unchanged October 26 F2 timers.
 
-This is static and source-only evidence.  A new explicit approval is required
-to retry the one-file inactive installation.  The later prepare-only live
-exercise remains a separate effectful decision.
+## Revised inactive installation result
+
+Jason approved the exact revised retry.  Fresh preflight re-read the restored
+prehash, root custody, absent runtime state, inactive owner/watchdog units and
+unchanged October 26 F2 timers.  The transaction created a new root-only
+checkpoint at
+`/root/stream-a-evaluation-exercise-watchdog-retry-20261025`, replaced only the
+watchdog source and then passed:
+
+- 69/69 target-Linux tests;
+- Python compile/import validation;
+- installed SHA-256
+  `19606f6b398dd6f43a461704081e66f09e292c434f73f4aaee46327f9cc02f53`;
+- root:root `0644` regular-file custody;
+- disabled/inactive owner heartbeat and watchdog units; and
+- absent lease, operation/lease locks, identity, owner intent/heartbeat,
+  watchdog status and restore intent.
+
+LXC104/110/116 and the Proxmox scheduler/status daemons remained healthy.  The
+October 26 F2 prepare/final timers remain scheduled at 01:15/01:20 PDT.
+No unit was enabled or started, no consumer command or model call ran and no
+schedule changed.  The inactive schema prerequisite is complete.  The later
+prepare-only live recovery exercise remains a separate effectful decision.
