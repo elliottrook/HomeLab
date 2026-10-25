@@ -60,6 +60,13 @@ The installed correction passed 20/20 read-only live observer calls and full
 exercise prestate with clean custody, healthy production and unchanged F2.
 The next F6 gate is one newly carded and separately approved live prepare-only
 exercise; no retry was inferred from the installation approval.
+That [one-attempt exercise subsequently passed](evidence/Stream-A-prepare-only-recovery-exercise-pass-2026-10-25.md):
+healthy observation was inert, owner-loss recovery returned
+`cancelled-prepared`, consumer-command count was zero, runtime custody cleared,
+production remained healthy and F2/F6 were unchanged. This closes the
+pre-effect recovery proof. It does not arm F6 or release D4/M3; fresh F2–F5,
+an exact effectful activation/recovery card and a separate live approval still
+precede consumer isolation and workload execution.
 
 **October 24 M1 approval-plane checkpoint:** the
 [permanent Yellow-only cutover](evidence/M1-permanent-yellow-cutover-result-2026-10-24.md)
