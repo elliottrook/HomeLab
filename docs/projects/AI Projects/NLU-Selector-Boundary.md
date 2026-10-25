@@ -161,6 +161,10 @@ The final
 [holdout candidate-binding correction](evidence/M3-NLU-holdout-candidate-binding-2026-10-25.md)
 extends that exact byte identity into the independent qualification release
 without opening or creating holdout data.
+The numeric draft is now also an exact
+[machine-readable policy proposal](evidence/M3-NLU-machine-readable-policy-proposal-2026-10-25.md)
+at digest `2e0def84…64a3d`. It remains `proposed`: acceptance requires a separate
+exact record, and the proposal grants no authority.
 
 ## Validation checkpoint — 2026-10-24
 

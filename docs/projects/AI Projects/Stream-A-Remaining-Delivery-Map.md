@@ -423,7 +423,12 @@ its bytes through the registered policy. The equivalent
 preserves that exact identity through the later S0-only comparison. The
 [holdout candidate-binding correction](evidence/M3-NLU-holdout-candidate-binding-2026-10-25.md)
 extends it into independent qualification. The focused NLU suite now passes
-63/63. No candidate has been selected or sealed, and no holdout was opened.
+63/63. A later
+[machine-readable policy proposal](evidence/M3-NLU-machine-readable-policy-proposal-2026-10-25.md)
+freezes the proposed numeric decision at digest `2e0def84…64a3d` while requiring
+a separate exact acceptance record before status can become `accepted`; the
+focused NLU suite now passes 68/68. No candidate has been selected or sealed,
+no holdout was opened and the numeric values remain unaccepted.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)
