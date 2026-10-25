@@ -97,3 +97,27 @@ This closes only the inactive two-phase adapter installation. It does not arm
 F6, prepare a lease, quiesce consumers, call a model, or authorize D4/M3. The
 next bounded gate is a reviewed prepare-only healthy-lease/recovery exercise
 that proves watchdog observation and exact cleanup before any consumer effect.
+
+## Prepared cancellation follow-up
+
+Independent review of the platform owner's first prepare-only exercise card at
+`568f8743` found that the installed `PREPARED` recovery path still issued the
+eight normal consumer restore commands. That contradicted the proposed
+pre-effect exercise's zero-consumer-command boundary. Requiring fresh F2–F5
+evidence before proving this pre-effect behavior was also circular; those
+fresh-cycle gates remain mandatory before quiescence, not before a disposable
+prepare/cancel proof.
+
+Stream A corrected the isolated source at commit
+`440c62513e2fe41ba40066b391fe67a715b9c939`. Recovery-authorized cancellation
+from exact `PREPARED` state now validates the unchanged baseline, backend,
+authentication, idle state and accepted GPU holder, then clears the lease and
+lock without invoking the runner. Invalid observations retain state and lock,
+and a caller without recovery authority cannot cancel. The focused clean suite
+passes 41/41 with no bytecode. The adapter SHA-256 is
+`db9c368707f4203d96725a06012adba808d8c425d42b1c25d19e7837052ce7cc`;
+the test SHA-256 is
+`ea64876ebc4248768038074bba10293ade2f45b8b9c62f6b6872ddd310b91ff7`.
+Nothing from this follow-up is installed. Platform integration, a corrected
+hash-pinned inactive upgrade card and independent prestate review remain the
+next steps.
