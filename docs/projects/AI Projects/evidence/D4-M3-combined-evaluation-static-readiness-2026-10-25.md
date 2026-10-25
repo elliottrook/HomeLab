@@ -80,10 +80,32 @@ calling the model:
 - the watchdog/owner packet is installed but every candidate unit/timer remains
   disabled and inactive with no runtime state.
 
-The newly identified platform blocker is phase separation. The current
-`EvaluationLeaseAdapter.acquire()` writes lease state and immediately
-masks/stops the four consumers. It therefore cannot produce a durable healthy
-lease for read-only inspection before effects. The platform owner is preparing
-a source-only acquire-only/start split. Until that split is reviewed and
-installed inactive, F6 activation and both live workloads remain NO-GO even if
-F2 passes.
+## Post-exercise readiness refresh
+
+The phase-separation blocker described in the earlier checkpoint is resolved.
+The acquire-only/quiesce split, watchdog and recovery observer are installed
+inactive, and the exact prepare-only exercise completed successfully under a
+short lease. It produced a durable healthy observation, recovered the
+owner-lost prepared lease as `cancelled-prepared`, issued zero consumer
+commands, cleared its runtime custody and left production plus F2/F6 unchanged.
+This closes the pre-effect recovery proof; it does not arm F6 or authorize a
+consumer stop or model call.
+
+After that exercise, Stream A revalidated both frozen workloads:
+
+- the D4 candidate-G packet is still owner-only mode `0600`, has exactly 11
+  members and matches SHA-256
+  `d5a36cd02be6fdd3d0935e6ca1b23c1d0cad1329d72b04bb4048505fec7e3d47`;
+- the LXC110 M3 directory still has exactly 11 root-owned mode-`0600` inputs,
+  totalling 98,414 bytes, and every file matches the frozen staging manifest;
+- `run.json`, `attempt-journal.jsonl` and `__pycache__` remain absent; and
+- a fresh disposable Python 3.12.14 environment with Pydantic 2.13.4 passes the
+  complete NLU suite, 126/126.
+
+The combined workload is therefore **STATIC READY / LIVE BLOCKED**. Its next
+dependencies are the already scheduled fresh F2 result, the distinct F3/F4
+retained-receipt steps, fresh F5 runtime observation and an exact effectful F6
+activation/recovery card with its own live approval. Candidate-G remains
+approved and unspent. M3 retains its separately recorded live-run gate. A
+failed or uncertain live dependency produces no model call and leaves these
+packets retained for reconciliation.
