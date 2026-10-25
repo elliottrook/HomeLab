@@ -88,6 +88,27 @@ if search_file.exists():
             verify_stage();search_count=6
 overlay_file=Path('/storage/.aster-checkpoints/aster-floating-controls-20261024/overlay-manifest.json')
 overrides={}
+books_count=0;books_overrides={}
+books_file=Path('/storage/.aster-checkpoints/aster-books-sync-20261025/active-manifest.json')
+if books_file.exists():
+    books=json.loads(books_file.read_text())
+    accepted_books={'aster-books-sync1':'252f182781531cb9e54aaaeeb58a9ddc1bbb0e1eb08985a94908a1c16d62e89a',
+        'aster-books-sync2':'fce7bf41f64e7617a62a26af322ae98460eafd6ec87efc681ed812d15ef5485f',
+        'aster-books-sync3':'7bc5c6ec96c8c0bfb0a18272e8da54ecd4bb647622e150864dc229aa41576de9',
+        'aster-books-sync4':'d332a979018d92add2999909e4cf272190624c54bf4db5e0f1fb12c281f85af6'}
+    books_name=books.get('stage');_require(books_name in accepted_books and hashlib.sha256(books_file.read_bytes()).hexdigest()==accepted_books[books_name],'books-sync-manifest')
+    _require(books.get('kind')=='hp-books-shared-progress.v1' and len(books['files'])==9,'books-sync-contract')
+    _require((stage/books_name/'manifest.json').read_bytes()==books_file.read_bytes(),'books-sync-stage')
+    for member in books['files']:
+        _require(hashlib.sha256((Path('/storage')/member['path']).read_bytes()).hexdigest()==member['sha256'],'books-sync-installed')
+        _require(hashlib.sha256((stage/books_name/'payload'/member['path']).read_bytes()).hexdigest()==member['sha256'],'books-sync-payload')
+        if member['path'].startswith('.kodi/addons/'):books_overrides[member['path'][len('.kodi/addons/'):]]=member['sha256']
+    health=rpc('XBMC.GetInfoLabels',{'labels':['Window(Home).Property(AsterBooks.SyncService)','Window(Home).Property(AsterBooks.SyncHeartbeat)']})
+    _require(health.get('Window(Home).Property(AsterBooks.SyncService)')=='ready','books-sync-service-not-ready')
+    _require(-5<=time.time()-float(health.get('Window(Home).Property(AsterBooks.SyncHeartbeat)') or 0)<=30,'books-sync-service-stale')
+    journal=Path('/storage/.kodi/userdata/addon_data/plugin.audio.asterbooks/progress-journal')
+    _require(all(json.loads(p.read_text()).get('status')=='verified' for p in journal.glob('*.json')),'books-sync-write-needs-review')
+    books_count=9
 canonical_count=0
 canonical_overrides={}
 canonical_file=Path('/storage/.aster-checkpoints/aster-canonical-pcm32-20261025/verified.json')
@@ -136,10 +157,11 @@ if overlay_file.exists():
     overrides={'skin.asterhome/'+r['path']:r['sha256'] for r in overlay['files'] if r['path'].startswith('1080i/')}
     _require((len(overrides)==4), ('native-check-failed'))
     _require((all(hashlib.sha256((addons/'skin.asterhome'/r['path']).read_bytes()).hexdigest()==
-        (scrub_osd_sha if scrub_osd_sha and r['path']=='1080i/VideoOSD.xml' else r['sha256']) for r in overlay['files'])), ('native-check-failed'))
+        (books_overrides.get('skin.asterhome/'+r['path'],scrub_osd_sha if scrub_osd_sha and r['path']=='1080i/VideoOSD.xml' else r['sha256'])) for r in overlay['files'])), ('native-check-failed'))
     if scrub_osd_sha:overrides['skin.asterhome/1080i/VideoOSD.xml']=scrub_osd_sha
 overlay_count=len(overrides)
 overrides.update(canonical_overrides)
+overrides.update(books_overrides)
 if search_home_sha:overrides['skin.asterhome/1080i/Home.xml']=search_home_sha
 integration_file=Path('/storage/.aster-checkpoints/aster-music-integration-20261024/active-manifest.json')
 integration_count=0
@@ -224,6 +246,7 @@ with output.open('x') as handle:
                'prepared_video_scrub_dialog_verified':prepared_scrub,
                'approved_search_details_files_verified':search_count,
                'approved_canonical_sound_files_verified':canonical_count,
+               'approved_books_sync_files_verified':books_count,
                'av_language_settings_verified':len(values),
                'av_preservation_details':av_details,
                'database_integrity':'ok','missing_primary_artist_links':0,

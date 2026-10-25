@@ -4220,7 +4220,7 @@ inventory or speech change. Production and its progress remain untouched.
   model/reader/one-shot-writer tests. All 13 original Books bridge/config tests
   pass. Helpers compile and whitespace checks pass.
 
-#### Next bounded M4 proposal — not yet authorized
+#### Normal HP shared-progress pilot — approved 2026-10-25
 
 Connect normal **HP-only** Books audiobook/podcast playback to the same shared
 limited account, with automatic position saving and server-authoritative resume.
@@ -4265,4 +4265,157 @@ Retain both the completed trial evidence and existing v1 path. Authentication/
 infrastructure inventories remain unchanged; future accepted normal behavior
 needs operator guidance and native sync-health/failure visibility, not another
 monitoring service solely for this skin. No generated speech. Normal enabling
-and additional recurring server updates await explicit approval of this proposal.
+and additional recurring server updates were explicitly approved by Jason with
+“Approve” in reply to the normal HP saving/resume proposal. Production remains
+excluded. The following implementation entry governs the bounded first pilot.
+
+#### Normal shared-progress implementation pre-start
+
+The first candidate keeps v1 sources/releases frozen and installs nine exact
+HP overlay members: service/default plugin wrappers, five dependency/model
+modules, the existing Books player XML with a quiet status label, and a private
+non-secret HP/account enable flag. The established streaming bridge itself is
+unchanged/pinned. No remote API write endpoint is exposed to the skin/control
+socket: the service observes only private capabilities explicitly bound to
+verified account/item/episode metadata. Unknown Music/Digest/external streams
+are ignored and never stopped/cleared by the new observer.
+
+Periodic updates are bounded to 15seconds, plus observed pause/stop/exit and
+orderly service shutdown. Fresh account/progress checks, private durable
+pending/verified/uncertain journals and read-back verification cover every
+write. A changed server revision suspends that session. Read outages never
+become offline replay; unknown PATCH results remain fenced across restart.
+The ordinary API race disclosed above remains; do not claim atomic concurrency.
+
+For this initial pilot only, single-file books and uniquely mapped downloaded
+podcast episode files synchronize. Unverified multi-file books remain playable
+without claiming saving. A book Resume row uses fresh server state on actual
+play; explicit chapter clicks keep their own starts. Podcast episode playback
+resumes its own fresh source position. Completed records remain playback-only,
+not silently reset; automatic completion, explicit completed-item restart and
+multi-file/chapter-transition expansion are subsequent tested M4 slices.
+The Resume row deliberately has no cached timestamp that could become stale.
+
+Checkpoint service/default/MyMusicNav originals, copy the reviewed stage and
+paired restore helper, require fresh native idle/composition proof, then one
+brief HP Kodi restart. Recovery restores these three exact originals and
+quarantines only the known enable flag/active marker; new inert dependency
+modules and legitimate server progress are retained. No credentials copied,
+permissions changed, external ingress, new server identity or speech. Current
+native service/UI/data-path monitoring suffices for this pilot; no new Beszel/
+NetBox host/service record or topology change. Stop on unknown drift or failed
+checkpoint. Normal UI and post-restart preservation tests precede handover.
+
+Pilot implementation resume record (2026-10-25):
+
+- `aster-books-sync1` manifest
+  `252f182781531cb9e54aaaeeb58a9ddc1bbb0e1eb08985a94908a1c16d62e89a`
+  installed with three exact originals and paired recovery. Native service
+  authenticated the pinned limited household identity and reported ready.
+- The first normal UI test reached genuine audiobook Resume and saved Pause,
+  then failed because its old Play control9105 is intentionally hidden in the
+  accepted floating-controls UI (combined Play/Pause is9102). That harness was
+  corrected; no complete-pass claim from that run. Bounded visible Stop/Back
+  recovery stopped only the still-selected owned stream.
+- Native Books populates a chapter playlist (37 entries for the test book).
+  Stop alone leaves it behind. Added a **separate owned-queue exit adapter**:
+  once idle and outside the Books player, require every queued URL to have an
+  exact registered scope from this bridge, twice-stable queue snapshots and no
+  other active player/video queue before one Clear. It never stops playback.
+  An unknown clear result gets its own durable fence, never a retry. Foreign
+  or changed queues remain untouched. Pure observer still performs no Stop/
+  Clear; this bounded adapter is needed to restore the original empty queue.
+- An attempted scratch diagnostic inspecting the inactive native Music list
+  correlated with a Kodi SIGSEGV, recorded privately as
+  `/storage/.kodi/temp/kodi_crashlog_20261025064555.log`. Exact causation is not
+  proven by the available symbols. Kodi auto-recovered to idle Home; NRestarts1
+  was observed. This diagnostic produced no passing artifact and is retired
+  at `aster-books-sync-20261025/retired-live_books_queue_audit.py`, excluded
+  from shipped code. Do not re-run it or inspect inactive native ControlList
+  wrappers. Current helpers use safe info labels/active-window operations.
+- Queue adapter successor `aster-books-sync2` is now installed, manifest
+  `fce7bf41f64e7617a62a26af322ae98460eafd6ec87efc681ed812d15ef5485f`.
+  Only service/model differ from sync1; all nine members are verified and
+  backed up. A planned restart followed the separately recorded crash and does
+  not erase that incident. Current native health is ready, stopped and empty.
+- `native-ui-1792936355195668030.json` passes the entire audiobook Resume /
+  Pause / Back-save / stop-and-empty flow, but fails at Podcast pill focus;
+  therefore it is a partial result, not a complete pass. The loader's default
+  focus restoration raced the driver. The driver now waits for population and
+  makes bounded focus-only attempts before selecting anything.
+- `native-ui-1792936498475731590.json` failed an immediate saved-time assertion
+  before resume seeking settled; no complete pass. Corrected driver waits for
+  the observed source position and has owned-stream-only UI failure cleanup.
+  Those test streams were stopped safely; legitimate source positions remain.
+- Private extra recovery `/tmp/aster-books-sync-recovery-khKY72/` verifies
+  sync1's3 and sync2's9 original hashes. Durable on-box checkpoints are under
+  `aster-books-sync-20261025/aster-books-sync{1,2}`. Restore sync2→sync1 first,
+  then sync1→accepted original if required; use each checkpoint's paired helper
+  with Kodi stopped and preserve all legitimate server progress/journals.
+- Screenshot `listening-page.png` inspected at native4K: accepted cover/list/
+  floating controls retained; new Resume row and quiet status fit unclipped.
+  568 local tests pass normal and optimized, including31 Books sync tests.
+  Corrected two-kind native runs and restart/preservation gates continue.
+
+Pilot correction and validation (2026-10-25):
+
+- Sync3 added an explicit podcast episode property so the native driver selects
+  the approved episode by identity, never by directory order. Its manifest is
+  `7bc5c6ec96c8c0bfb0a18272e8da54ecd4bb647622e150864dc229aa41576de9`.
+  This did not alone fix the MP3 start: the observed initial decoder duration
+  was provisional, causing an immediate mismatch rejection despite matching
+  source duration by the failure snapshot. Retain failed native artifacts;
+  these are not successful resume tests.
+- Sync4 waits within the existing ten-second arming deadline for audio timing
+  to settle. No seek/save occurs before duration verification; persistent
+  mismatches still fail closed. It also bounds/prunes issued audio capabilities.
+  Installed manifest
+  `d332a979018d92add2999909e4cf272190624c54bf4db5e0f1fb12c281f85af6`
+  verifies all nine deployed members. The base streaming bridge remains exact.
+- `native-ui-1792937685978816596.json` passes **both** audiobook and exact
+  podcast episode through normal Books entry, source-authoritative Resume,
+  advancing clock, floating Pause/Play, pause-save read-back, Back/exit-save,
+  stopped playback and empty queues. HP returned to Home. These legitimate
+  test positions remain saved under the shared limited household identity.
+- All 570 local v2 tests pass under normal and optimized Python, including33
+  Books sync tests. New transient-duration and capability-bound tests pass.
+  Source compilation succeeds with a temporary permitted bytecode cache;
+  default macOS cache access was denied, not bypassed. Whitespace checks pass.
+- Additional private recovery copy
+  `/tmp/aster-books-sync-recovery-khKY72/` verifies sync1's three original files
+  and all nine predecessors for sync2/3/4. On-box checkpoints remain authoritative
+  under `aster-books-sync-20261025/aster-books-sync{1,2,3,4}` with paired helpers.
+  Restore each successor in reverse order, preserving legitimate progress and
+  pending/uncertain fences. No credentials exported to these checkpoints.
+- Full native composition proof `postcheck-1792937705156682893.json` passes:
+  nine Books members, all accepted v2 overlays, database integrity, idle/empty
+  queues and68 AV/language settings (the previously documented derived display
+  index remap remains the sole semantic rather than byte-exact comparison).
+  An approved idle restart follows to check persisted source Resume and Stop.
+- After that planned restart, `native-ui-1792937765346858949.json` passes both
+  audiobook and exact podcast through persisted source Resume, Pause/save,
+  Play, explicit floating Stop/save and return to idle Home with empty queues.
+  Kodi is active/running with NRestarts0 since the planned restart; the earlier
+  retired diagnostic incident remains recorded above, not erased by this count.
+
+**HP pilot operator guide:** open Books → Audiobooks → a supported title →
+**Resume · household position** to continue. Selecting a chapter deliberately
+  uses that chapter's start instead; explicit chapter behavior is model-tested,
+  not claimed as an additional native acceptance run. For Podcasts, select the
+  downloaded episode and it resumes its own shared saved position. Pause,
+  Stop or Back saves while connected, with a quiet status below the player.
+  If it says position changed elsewhere, reopen to refresh. If saving needs
+  review, do not repeatedly restart hoping to replay the write: preserve the
+  private journal and inspect it. Unverified multi-file books and completed
+  items remain playback-only with progress unchanged. This is one household
+  position, not separate family profiles. Production remains on its existing
+  implementation; no production promotion or Git push is authorized here.
+
+Final pilot gate: `postcheck-1792937820602193317.json` passes accepted file
+composition,68 AV/language checks, database integrity, all lab windows closed,
+no player and original empty queues. Both position journals and the separate
+queue journal are `verified`; no pending/uncertain write remains. HP is idle
+on Home with the normal sync pilot enabled. Focused local commit is retained
+pending separately authorized Forgejo synchronization. Remaining M4 work is
+multi-file ordering/transitions, explicit completion/restart policy and further
+listening features; these are not claimed by this first accepted pilot.
