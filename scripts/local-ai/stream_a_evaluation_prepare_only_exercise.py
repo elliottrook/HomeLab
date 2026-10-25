@@ -30,6 +30,7 @@ WATCHDOG_STATUS = ROOT / "watchdog-status.json"
 RESTORE_INTENT = ROOT / "restore-intent.json"
 RECEIPT_ROOT = ROOT / "exercise-receipts"
 LEASE_ENTRYPOINT = "/usr/local/sbin/stream-a-evaluation-lease"
+WHOLE_HOST_LEASE = "/usr/local/sbin/local-ai-lease"
 OWNER_START = "/usr/local/sbin/stream-a-evaluation-exercise-owner-start"
 HEARTBEAT_ENTRYPOINT = "/usr/local/sbin/stream-a-evaluation-owner-heartbeat"
 WATCHDOG_ENTRYPOINT = "/usr/local/sbin/stream-a-evaluation-watchdog"
@@ -150,6 +151,19 @@ class Exercise:
         self.commands: list[str] = []
 
     def run(self, argv: Sequence[str], *, timeout: int = 20, allowed: tuple[int, ...] = (0,)) -> Result:
+        words = tuple(argv)
+        forbidden = {"mask", "stop", "start", "restart", "reload"}
+        if (words and words[0] == "systemctl" and len(words) > 2
+                and words[1] in forbidden and words[2] != EXERCISE_UNIT):
+            raise ExerciseError("consumer/systemd mutation is forbidden")
+        if any(unit in words for _vmid, unit, _kind in CONSUMERS):
+            if not (words[0:2] == ("pct", "exec")
+                    and ("is-active" in words or "is-enabled" in words)
+                    and not any(action in words for action in forbidden)):
+                raise ExerciseError("consumer command is forbidden")
+        command_text = " ".join(words)
+        if any(token in command_text for token in ("chat/completions", "llama-server", "ollama")):
+            raise ExerciseError("model/backend command is forbidden")
         result = self.command(argv, timeout); self.commands.append(" ".join(argv))
         if result.returncode not in allowed: raise ExerciseError(f"command failed: {argv[0]}")
         return result
@@ -206,7 +220,7 @@ class Exercise:
 
     def prestate(self, lease_id: str) -> dict[str, object]:
         self.require_absent(); self.verify_static_custody()
-        lease = _load_json(self.run(("local-ai-lease", "status")).stdout, {"state"})
+        lease = _load_json(self.run((WHOLE_HOST_LEASE, "status")).stdout, {"state"})
         if lease != {"state": "ready"}: raise ExerciseError("whole-host lease is not ready")
         consumers = [self.unit_state(vmid, unit) for vmid, unit, _kind in CONSUMERS]
         return {"f6": self.f6_snapshot(), "f2": self.f2_snapshot(), "consumers": consumers,

@@ -16,7 +16,7 @@ class FakeHost:
 
     def __call__(self, argv, timeout):
         argv = tuple(argv); self.calls.append(argv)
-        if argv == ("local-ai-lease", "status"):
+        if argv == (exercise.WHOLE_HOST_LEASE, "status"):
             return exercise.Result(0, '{"state":"ready"}\n')
         if argv[:2] == ("pct", "exec"):
             action = argv[5]
@@ -136,6 +136,15 @@ class ExerciseTests(unittest.TestCase):
         self.assertNotIn(b"evaluation_lease_watchdog.py", data)
         self.assertEqual(exercise.PINNED_FILES[exercise.WATCHDOG_ENTRYPOINT],
                          __import__("hashlib").sha256(data).hexdigest())
+
+    def test_runner_denies_consumer_model_and_production_systemd_mutations(self):
+        runner = exercise.Exercise(lambda argv, timeout: exercise.Result(0, ""))
+        for command in (
+                ("systemctl", "stop", "stream-a-evaluation-owner.service"),
+                ("pct", "exec", "104", "--", "systemctl", "stop", "aster-agent.service"),
+                ("curl", "http://127.0.0.1:11435/v1/chat/completions"),):
+            with self.assertRaises(exercise.ExerciseError):
+                runner.run(command)
 
 
 if __name__ == "__main__": unittest.main()
