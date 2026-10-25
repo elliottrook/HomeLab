@@ -53,6 +53,7 @@ class AdapterTests(unittest.TestCase):
             self.assertEqual(result["effects"], "exercise-prepared")
             state = read_state(path)
             self.assertEqual(state.lease_mode, EXERCISE_MODE)
+            self.assertEqual(state.exercise_marker, EXERCISE_MARKER)
             self.assertIsNone(state.next_workload)
             self.assertEqual(state.completed_outcomes, ())
             with self.assertRaisesRegex(AdapterError, "cannot enter consumer quiescence"):

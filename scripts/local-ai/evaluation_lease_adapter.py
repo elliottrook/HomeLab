@@ -25,6 +25,7 @@ from evaluation_lease import (
     EvaluationLeaseError,
     ExerciseAdmission,
     EXERCISE_HARD_DEADLINE_SECONDS,
+    EXERCISE_MARKER,
     EXERCISE_MODE,
     EXERCISE_RESTORE_DEADLINE_SECONDS,
     LEASE_MODE,
@@ -51,6 +52,7 @@ class AdapterState:
     lease_id: str
     generation: int
     lease_mode: str
+    exercise_marker: str | None
     phase: str
     baseline: ProductionBaseline
     window_start_epoch: int
@@ -129,12 +131,15 @@ def read_state(path: Path, *, expected_lease_id: str | None = None,
         if fd != -1:
             os.close(fd)
     if not isinstance(value, dict) or set(value) != {
-            "lease_id", "generation", "lease_mode", "phase", "baseline", "window_start_epoch",
+            "lease_id", "generation", "lease_mode", "exercise_marker", "phase",
+            "baseline", "window_start_epoch",
             "heartbeat_epoch", "hard_deadline_epoch", "restore_deadline_epoch",
             "next_workload", "in_flight_workload", "completed_outcomes"}:
         raise AdapterError("evaluation state key set is not exact")
     if (not isinstance(value["lease_id"], str) or type(value["generation"]) is not int
             or not isinstance(value["lease_mode"], str)
+            or (value["exercise_marker"] is not None
+                and not isinstance(value["exercise_marker"], str))
             or not isinstance(value["phase"], str)
             or any(type(value[key]) is not int for key in (
                 "window_start_epoch", "heartbeat_epoch", "hard_deadline_epoch",
@@ -142,7 +147,8 @@ def read_state(path: Path, *, expected_lease_id: str | None = None,
         raise AdapterError("evaluation state types are invalid")
     try:
         state = AdapterState(
-            value["lease_id"], value["generation"], value["lease_mode"], value["phase"],
+            value["lease_id"], value["generation"], value["lease_mode"],
+            value["exercise_marker"], value["phase"],
             ProductionBaseline(
                 tuple(tuple(item) for item in value["baseline"]["units"]),
                 tuple(tuple(item) for item in value["baseline"]["timers"]),
@@ -156,8 +162,11 @@ def read_state(path: Path, *, expected_lease_id: str | None = None,
     validate_baseline(state.baseline)
     if state.lease_mode not in {LEASE_MODE, EXERCISE_MODE}:
         raise AdapterError("evaluation state lease mode is invalid")
+    if state.lease_mode == LEASE_MODE and state.exercise_marker is not None:
+        raise AdapterError("production state cannot contain an exercise marker")
     if state.lease_mode == EXERCISE_MODE and (
             not state.lease_id.startswith("exercise-")
+            or state.exercise_marker != EXERCISE_MARKER
             or state.phase != LeaseState.PREPARED.value
             or state.hard_deadline_epoch
             != state.window_start_epoch + EXERCISE_HARD_DEADLINE_SECONDS
@@ -252,7 +261,8 @@ class EvaluationLeaseAdapter:
         with self._operation_guard():
             self._lock()
             atomic_state(self.state_path, AdapterState(
-                admission.lease_id, admission.generation, LEASE_MODE, LeaseState.PREPARED.value,
+                admission.lease_id, admission.generation, LEASE_MODE, None,
+                LeaseState.PREPARED.value,
                 admission.baseline, now_epoch, now_epoch, admission.hard_deadline_epoch,
                 admission.restore_deadline_epoch, "d4-candidate-g", None, (),
             ))
@@ -270,6 +280,7 @@ class EvaluationLeaseAdapter:
             self._lock()
             atomic_state(self.state_path, AdapterState(
                 admission.lease_id, admission.generation, EXERCISE_MODE,
+                admission.exercise_marker,
                 LeaseState.PREPARED.value, admission.baseline, now_epoch, now_epoch,
                 admission.hard_deadline_epoch, admission.restore_deadline_epoch,
                 None, None, (),
@@ -297,7 +308,8 @@ class EvaluationLeaseAdapter:
             # command.  A crash or command failure must never leave partial
             # quiescence represented as the no-effect PREPARED phase.
             atomic_state(self.state_path, AdapterState(
-                state.lease_id, state.generation, state.lease_mode, LeaseState.QUIESCING.value,
+                state.lease_id, state.generation, state.lease_mode,
+                state.exercise_marker, LeaseState.QUIESCING.value,
                 state.baseline, state.window_start_epoch, now_epoch,
                 state.hard_deadline_epoch, state.restore_deadline_epoch,
                 state.next_workload, state.in_flight_workload, state.completed_outcomes,
@@ -371,7 +383,8 @@ class EvaluationLeaseAdapter:
             return {"effects": "cancelled-prepared", "lease_id": lease_id,
                     "generation": generation}
         atomic_state(self.state_path, AdapterState(
-            lease_id, generation, state.lease_mode, LeaseState.RESTORING.value, expected,
+            lease_id, generation, state.lease_mode, state.exercise_marker,
+            LeaseState.RESTORING.value, expected,
             state.window_start_epoch, state.heartbeat_epoch,
             state.hard_deadline_epoch, state.restore_deadline_epoch,
             state.next_workload, state.in_flight_workload, state.completed_outcomes,
@@ -431,7 +444,8 @@ class EvaluationLeaseAdapter:
             endpoint_idle=endpoint_idle, gpu_holders=gpu_holders,
         )
         atomic_state(self.state_path, AdapterState(
-            admission.lease_id, admission.generation, state.lease_mode, LeaseState.RUNNING.value,
+            admission.lease_id, admission.generation, state.lease_mode,
+            state.exercise_marker, LeaseState.RUNNING.value,
             admission.baseline, state.window_start_epoch, now_epoch,
             state.hard_deadline_epoch, state.restore_deadline_epoch,
             state.next_workload, state.in_flight_workload, state.completed_outcomes,
@@ -450,7 +464,8 @@ class EvaluationLeaseAdapter:
                                LeaseState.RESTORING.value}:
             raise AdapterError("heartbeat phase is not active")
         atomic_state(self.state_path, AdapterState(
-            state.lease_id, state.generation, state.lease_mode, state.phase, state.baseline,
+            state.lease_id, state.generation, state.lease_mode,
+            state.exercise_marker, state.phase, state.baseline,
             state.window_start_epoch, now_epoch, state.hard_deadline_epoch,
             state.restore_deadline_epoch, state.next_workload,
             state.in_flight_workload, state.completed_outcomes,
@@ -485,7 +500,8 @@ class EvaluationLeaseAdapter:
             state = read_state(self.state_path, expected_lease_id=lease_id,
                                expected_generation=generation)
             atomic_state(self.state_path, AdapterState(
-                state.lease_id, state.generation, state.lease_mode, state.phase, state.baseline,
+                state.lease_id, state.generation, state.lease_mode,
+                state.exercise_marker, state.phase, state.baseline,
                 state.window_start_epoch, now_epoch, state.hard_deadline_epoch,
                 state.restore_deadline_epoch, state.next_workload, workload_name,
                 state.completed_outcomes,
@@ -517,7 +533,8 @@ class EvaluationLeaseAdapter:
         completed = state.completed_outcomes + ((outcome.name, outcome.journal_digest, outcome.result_digest),)
         next_name = "m3-nlu-calibration" if outcome.name == "d4-candidate-g" else None
         atomic_state(self.state_path, AdapterState(
-            state.lease_id, state.generation, state.lease_mode, state.phase, state.baseline,
+            state.lease_id, state.generation, state.lease_mode,
+            state.exercise_marker, state.phase, state.baseline,
             state.window_start_epoch, now_epoch, state.hard_deadline_epoch,
             state.restore_deadline_epoch, next_name, None, completed,
         ))
