@@ -1,6 +1,6 @@
 # Stream A restore observer GPU-exit correction — inactive replacement card
 
-Status: **SOURCE-ONLY; ROLLED BACK AFTER INCOMPLETE TEST ARCHIVE; NOT AUTHORIZED**
+Status: **INSTALLED AND VERIFIED; LIVE RETRY NOT AUTHORIZED**
 
 The latest prepare-only exercise failed closed when `/proc` churn made the
 restore observer intermittent. This exact two-file replacement tolerates only
@@ -15,6 +15,18 @@ back automatically because the transport archive omitted the inert wrapper
 wrapper test. No source assertion failed. Exact rollback restored observer
 `9ecf6476...` and runner `cdac8693...` as `root:root` `0644`; F6 remained
 inactive and the whole-host lease remained ready. No retry is authorized.
+
+## Verified install result
+
+The complete clean archive SHA-256 is
+`96c89b41a51dac2fa9ff273a6e2c6ab2c94c07ad278b51d834521a88bc0b1dcb` and the
+fresh checkpoint is `/root/stream-a-evaluation-observer-gpu-exit-replacement-20261025`.
+Installed observer `70748eb1...` and runner `cf51b1d6...` are `root:root`
+`0644`. Target suites passed 90/90; four independent five-call observer
+batches passed 20/20; full `Exercise.prestate()` passed; and final no-state
+checks passed. Guests, Aster, llama, Speech, News timers, Proxmox daemons,
+F6 state and October 26 F2 timers remained healthy/unchanged. No live exercise
+retry occurred or is authorized.
 
 ## Exact two-file runtime transaction with complete test archive
 
