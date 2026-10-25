@@ -1,10 +1,10 @@
-# D4 label-free fixture review packet — 2026-10-24
+# D4 label-free fixture review acceptance — 2026-10-24
 
-## Decision requested
+## Decision
 
-Review the twelve frozen public-synthetic investigation fixtures in
+Jason accepted the twelve frozen public-synthetic investigation fixtures in
 `services/aster-agent/evals/sysadmin-sa3-development-fixtures-draft-v1.json`.
-Acceptance would make these fixtures eligible for one separately reviewed,
+Acceptance makes these fixtures eligible for one separately reviewed,
 tool-free development evaluation. It would not authorize a model call, B60
 access, connected evidence collection, a production route, a repair, or any
 promotion decision.
@@ -54,8 +54,9 @@ call.
 
 ## Acceptance effect
 
-If Jason accepts this exact bundle, Stream A may change only its status and add
-an exact review record naming Jason, the review date and the canonical review
-digest above. A model run remains a separate gate with an exact model/runtime,
+The bundle now has status `development_fixtures_reviewed` and an exact review
+record naming Jason, the review date and the canonical review digest above.
+Qualification validation and the complete 135-test suite pass after that
+change. A model run remains a separate gate with an exact model/runtime,
 request modes, timeout, output custody, scoring and abort card. Connected tools
 and production Aster remain out of scope.

@@ -524,6 +524,11 @@
     }
   ],
   "classification": "public synthetic development; review required; never a held-out benchmark",
+  "fixture_review": {
+    "fixture_source_sha256": "59aee3a99826a75423327ab614676b31daa44f8879f4b602898ad101287ed07f",
+    "reviewed_at": "2026-10-24",
+    "reviewed_by": "Jason"
+  },
   "model_calls_authorized": false,
   "schema": "aster-sa3-development-fixtures.v1",
   "source_case_sha256": {
@@ -542,6 +547,6 @@
   },
   "source_corpus_sha256": "85e511b8470bbfb753f30668c1589259e73518d92b1e281008aaa7bd0cc0fbbb",
   "source_plan_sha256": "387fdf869d697295fea17736c14241f94b6c62af92067cd91d8fa4555da50791",
-  "status": "draft_fixtures_require_jason_review",
+  "status": "development_fixtures_reviewed",
   "tool_calls_authorized": false
 }
