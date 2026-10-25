@@ -547,6 +547,12 @@ platform owner then closed those gaps and two follow-on fail-open cases in
 10/10 exact-archive tests and isolated compilation. It still has no effectful
 adapter or live entry point. Candidate-G and M3 remain unspent pending the
 adapter, watchdog/target proof, installation decision and fresh F2/F3 evidence.
+The platform owner's first source-only effect adapter at `6e29f0e8` is also
+[rejected before installation](evidence/Stream-A-evaluation-lease-adapter-review-2026-10-25.md).
+It declared `RUNNING` before observed quiescence, did not bind the recovery
+baseline to the exact four consumers, and left watchdog inputs independent of
+durable lease identity. The correction request and direct failure-test
+requirements are with the platform owner; the host remains unchanged.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)
