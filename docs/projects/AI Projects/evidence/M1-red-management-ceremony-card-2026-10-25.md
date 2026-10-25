@@ -26,6 +26,9 @@ agent, capability or request state when an operator is set to the same
 nonterminal state; it writes only the authenticated audit event. The new
 focused regression test preserves a pending Red request across that exact
 same-state operation. The dependency-free broker-core suite passes **22/22**.
+The socket-level broker suite also proves that a synthetic request returns
+`synthetic: true` while all read, write and lab gateway request lists remain
+empty. The combined broker core and transport suites pass **31/31**.
 The separate 13-test approval-service suite also passes. Four HTTP/ingress
 modules remain target-environment checks because the bare Mac Python lacks
 FastAPI and PyJWT; no test failure occurred inside those modules.

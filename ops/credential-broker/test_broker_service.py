@@ -102,6 +102,10 @@ class BrokerServiceTests(unittest.TestCase):
         self.assertFalse(changed["ok"])
         consumed = self.call({"method": "request.consume", "request_id": request_id, "payload": payload})
         self.assertEqual("consumed", consumed["result"]["status"])
+        self.assertTrue(consumed["result"]["synthetic"])
+        self.assertEqual([], self.read_gateway.requests)
+        self.assertEqual([], self.write_gateway.requests)
+        self.assertEqual([], self.lab_gateway.requests)
 
     def test_green_repository_file_read_uses_bounded_read_gateway(self):
         self.store.set_agent_state("agent-test", "operator")
