@@ -30,8 +30,9 @@
   startup-sound promotion is authorized.
   Digest now also has an accepted isolated HP timeline preview (preview4):
   opening briefing, story art/synopsis, adjacent selection and bounded lists.
-  Normal News entry and playback are unchanged. Next safe slice is an isolated
-  owned playback/timeline controller, with an explicit pre-start assessment;
+  Normal News entry and playback are unchanged. The pure owned-playback state
+  model now passes synthetic checks, including replacement/stale-exit fences.
+  Next safe slice is its isolated native adapter and media-identity binding;
   do not wire the preview into normal News or change the publisher/backend.
 - Previous resume point (2026-10-25): Search14 Stop-acknowledgement guard is on
   HP (`732a89c3e3e9189022a1ee7c4fdb9f596c88486d2f13fb53d3832d47c7a46df4`),
@@ -5297,3 +5298,40 @@ evidence. Next work is an isolated owned playback controller that binds one
 edition and observed media duration, updates story/art/highlight from elapsed
 time, includes the opening and stops owned playback on exit. It is not yet
 implemented or promoted by this preview acceptance.
+
+### 2026-10-25 — Digest owned-state model pre-start
+
+Next Stream A slice is local pure-state code and synthetic tests only. Bind a
+verified timeline to one opaque session/media fingerprint; derive active story
+from observed elapsed time, not browse focus. Reject stale observations/actions
+and permanently relinquish ownership on media replacement. Exit may propose a
+single stop only for the same observed session; it must never stop foreign
+media. This layer performs no I/O, playback, downloads, synthesis or progress
+writes. Current HP preview/player and production remain unchanged. Principal
+risks are accidental stop authority, misleading highlight and late callbacks;
+test opening, chapter boundaries, completion, pause, backwards seek, replacement,
+stale intent and repeated exit with synthetic observations. Recovery is local
+code retirement; no live settings, service, identity, inventory, network,
+monitoring or backup changes are needed for this nondeployed model.
+
+### 2026-10-25 — Digest owned-state model synthetic gate passed
+
+`digest_playback_state.py` now derives opening/story/completion and paused state
+from observed elapsed time against a media-duration-verified timeline. It
+rejects preview-only timelines, invalid numeric/boolean observations, raw URLs
+as opaque bindings and invalid chapter selections. Observation sequences fence
+late callbacks; backwards seeks with a newer observation still update correctly.
+Session/media/edition replacement permanently relinquishes ownership. Seek
+intents are tied to the latest observation; stale/replaced/ended observations
+cannot validate them. Exit returns at most one stop proposal, only for matching
+active playback, never for foreign media, stale exit or natural completion.
+
+These are pure proposals, not authentication grants or executed commands. The
+native adapter must independently verify media identity and recheck the exact
+owned session immediately before use. No native playback is claimed here.
+Twelve synthetic tests pass; the full709-test suite passes normally and with
+optimization. No HP installed/staged runtime or production state changed in
+this slice. Next: assess and implement the isolated native adapter, including
+immutable edition/media binding, readback, timeout and owned stop-on-exit.
+Preview4 remains the last live accepted milestone. Remote synchronization of
+the local milestone commits is pending a fresh push request.
