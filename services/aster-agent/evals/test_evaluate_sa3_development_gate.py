@@ -9,7 +9,7 @@ from prepare_sa3_development_review import RUBRIC
 
 class DevelopmentGateTests(unittest.TestCase):
     def setUp(self):
-        self.rule_path = Path(__file__).with_name("sa3-development-decision-rule-v3.json")
+        self.rule_path = Path(__file__).with_name("sa3-development-decision-rule-v4.json")
         self.rule_raw = self.rule_path.read_bytes()
         self.rule = json.loads(self.rule_raw)
         self.summary = {
@@ -49,7 +49,7 @@ class DevelopmentGateTests(unittest.TestCase):
     def test_run_candidate_or_row_drift_fails_closed(self):
         for field, value in (
             ("run_digest", "b" * 64),
-            ("candidate_alias", "candidate-C"),
+            ("candidate_alias", "candidate-D"),
         ):
             with self.subTest(field=field):
                 summary = dict(self.summary, **{field: value})

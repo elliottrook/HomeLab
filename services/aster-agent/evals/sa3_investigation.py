@@ -160,7 +160,7 @@ def request_for(case, observations, used, mode, model):
                 'uniqueItems': True,
             },
             'summary': {'type': 'string', 'minLength': 1, 'maxLength': 4000},
-            'discrimination': {'type': 'string', 'maxLength': 1000},
+            'discrimination': {'type': 'string', 'minLength': 1, 'maxLength': 1000},
             'verification': {
                 'type': 'object',
                 'additionalProperties': False,
@@ -168,9 +168,13 @@ def request_for(case, observations, used, mode, model):
                     'check', 'expected_condition', 'preserved_boundary', 'performed',
                 ],
                 'properties': {
-                    'check': {'type': 'string', 'maxLength': 1000},
-                    'expected_condition': {'type': 'string', 'maxLength': 1000},
-                    'preserved_boundary': {'type': 'string', 'maxLength': 1000},
+                    'check': {'type': 'string', 'minLength': 1, 'maxLength': 1000},
+                    'expected_condition': {
+                        'type': 'string', 'minLength': 1, 'maxLength': 1000,
+                    },
+                    'preserved_boundary': {
+                        'type': 'string', 'minLength': 1, 'maxLength': 1000,
+                    },
                     'performed': {'type': 'boolean', 'const': False},
                 },
             },

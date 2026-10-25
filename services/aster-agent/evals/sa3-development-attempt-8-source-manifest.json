@@ -1,0 +1,63 @@
+{
+  "authority": "not-granted",
+  "candidate_alias": "candidate-E",
+  "files": [
+    {
+      "bytes": 7532,
+      "name": "sa3_development_execute.py",
+      "sha256": "10889d30becdb613debf034a2766fd1313cd25c51a2cea26a7511e0e70776936"
+    },
+    {
+      "bytes": 3221,
+      "name": "sa3_fair_request.py",
+      "sha256": "048573965c474a21f03baf4ce76d2e75c8e78b61f3086db943b78d612209c9ea"
+    },
+    {
+      "bytes": 5430,
+      "name": "sa3_fresh_execute.py",
+      "sha256": "3294e86a1d970ff8f4ba61859f21e0828f30a0c79c08e9ae817957bb5c5150dc"
+    },
+    {
+      "bytes": 18469,
+      "name": "sa3_fresh_package.py",
+      "sha256": "7d32367619d93cd98070e07005945310b14642f2103656fa21179c662836cad2"
+    },
+    {
+      "bytes": 13367,
+      "name": "sa3_investigation.py",
+      "sha256": "facbe89a3e669caa7d3e6df5e6a208910ee263b3a9dc374fbc73d98df12cbfea"
+    },
+    {
+      "bytes": 4284,
+      "name": "sa3_investigation_runner.py",
+      "sha256": "448e3e428f5a7d187f5ec178a12e5f17ec4fac0ae859f78df08ff2b066be62b9"
+    },
+    {
+      "bytes": 4890,
+      "name": "validate_sa3_fixture_bundle.py",
+      "sha256": "57c9a9edac398dbeeb90747d8c6582d2e4282e0b74fd6618e01fae48b58ef31d"
+    },
+    {
+      "bytes": 4497,
+      "name": "validate_sa3_holdout_release.py",
+      "sha256": "64b5344243bf99e11c81bd058f23ee0cf63f1a17de133e8326fcde44a97840c7"
+    },
+    {
+      "bytes": 25303,
+      "name": "sysadmin-sa3-development-fixtures-draft-v1.json",
+      "sha256": "c3999bdd26d66290fb751519fc2439d28f45bc9fde4e13a76bc6a1afae4faf58"
+    },
+    {
+      "bytes": 18711,
+      "name": "sysadmin-incident-development-extension-draft-v1.json",
+      "sha256": "85e511b8470bbfb753f30668c1589259e73518d92b1e281008aaa7bd0cc0fbbb"
+    },
+    {
+      "bytes": 802,
+      "name": "sysadmin-incident-development-plan-v1.json",
+      "sha256": "387fdf869d697295fea17736c14241f94b6c62af92067cd91d8fa4555da50791"
+    }
+  ],
+  "run_digest": "0e6b324a5e779b00744f9258431280016116df75e1f7cccd67d0e383545104d6",
+  "schema": "aster-sa3-development-source-manifest.v1"
+}

@@ -100,10 +100,18 @@ non-resumable. Candidate-C is spent.
 
 Candidate-D adds the missing outer-validator allowance and Boolean type check,
 with an integration test across that boundary. It is preregistered at exact
-digest
-`55d85c44d86c0bcd7caf0410e669b83a033051fe8dbccad320b2395f3cf86e99`.
+digest `55d85c44…e99`. Its approved run completed 12 sessions and 31
+calls, structurally accepted eight terminal answers and rejected four terminal
+answers that omitted a required discrimination or verification string.
+Candidate-D is spent and no blind review ran.
+
+Candidate-E requires nonempty advisory strings in the constrained JSON grammar
+for every decision. Nonterminal values are still cleared before retention;
+terminal values remain available to the blind reviewer. It is preregistered at
+exact digest
+`0e6b324a5e779b00744f9258431280016116df75e1f7cccd67d0e383545104d6`.
 Its eleven-file source manifest has SHA-256
-`0e26b6cf31c50ec2f3ab38855697596e921d8374f976e15b8265ee1128226b4d`,
+`3c46f8de30b871623663cda288623fc55a6bc8348ed044f7b75ac95b319ca4fe`,
 and the complete suite passes 164/164. It has not run.
 
 ## Bounded execution
@@ -155,9 +163,9 @@ the model, route, tool authority or repair capability.
 
 ## Approval boundary
 
-The authorizations for attempts 4, 5 and 6 have been consumed. Candidate-D's
+The authorizations for attempts 4 through 7 have been consumed. Candidate-E's
 exact 12-session run is not authorized. Any later authorization would cover only
-the candidate-D digest and bounded execution above; it would not authorize a replay,
+the candidate-E digest and bounded execution above; it would not authorize a replay,
 reasoning mode,
 connected tools, new credentials, service restart, configuration change,
 production deployment, automatic routing, holdout access or a Git push.

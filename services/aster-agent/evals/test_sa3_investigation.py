@@ -56,6 +56,10 @@ class InvestigationTests(unittest.TestCase):
             third_schema['items']['enum'],
             ['initial', 'status-now', 'error-now'],
         )
+        contract = calls[0]['response_format']['schema']['properties']
+        self.assertEqual(1, contract['discrimination']['minLength'])
+        for field in ('check', 'expected_condition', 'preserved_boundary'):
+            self.assertEqual(1, contract['verification']['properties'][field]['minLength'])
 
     def test_repeated_unknown_check_and_effects_rejected(self):
         for responses, status in [([answer(), answer()], 'check_rejected'),
