@@ -29,6 +29,13 @@ while explicitly granting no route, egress or tool authority. Focused semantic
 tests now pass 11/11, including the separate digest-bound route proposal. No
 classifier or routing path is deployed; independent labels,
 calibrated abstention and shadow evidence still gate M3–M6 promotion.
+Jason accepted the exact initial evaluation policy on 2026-10-25: zero privacy
+underclassification, zero unsafe false routes, at most 10% selective error, at
+least 60% coverage and at least 60 balanced calibration cases. The
+[hash-bound acceptance record](evidence/M3-NLU-owner-policy-acceptance-2026-10-25.md)
+grants no route, egress, tool or deployment authority. Candidate selection,
+calibration, threshold registration and shadow qualification remain open, so
+automatic routing stays off.
 The [pinned NLU development scorer](evidence/M3-NLU-development-scorer-2026-10-24.md)
 now measures family, sensitivity, capabilities, ambiguity, disposition and reason
 separately across 24 exposed synthetic cases. Its focused suite passes 10/10 and

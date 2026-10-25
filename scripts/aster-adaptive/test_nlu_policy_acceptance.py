@@ -14,6 +14,8 @@ from nlu_threshold_policy import sha256
 
 HERE = Path(__file__).parent
 PROPOSAL = HERE / "fixtures" / "nlu-policy-decision-proposal-v1.json"
+ACCEPTANCE = HERE / "fixtures" / "nlu-policy-acceptance-v1.json"
+ACCEPTED = HERE / "fixtures" / "nlu-policy-decision-accepted-v1.json"
 
 
 def encoded(value):
@@ -37,6 +39,34 @@ def record(proposal_raw):
 
 
 class NluPolicyAcceptanceTests(unittest.TestCase):
+    def test_recorded_acceptance_derives_the_recorded_decision(self):
+        acceptance_value, acceptance_errors = acceptance.load_and_validate_acceptance(
+            ACCEPTANCE.read_bytes()
+        )
+        accepted_value, accepted_errors = decision.load_and_validate(
+            ACCEPTED.read_bytes()
+        )
+        self.assertEqual([], acceptance_errors)
+        self.assertEqual([], accepted_errors)
+        self.assertEqual(
+            "96d7f475b819efeeccb5f7ce7ba070bd44ace5ecf506da049549716d350fe6cc",
+            sha256(ACCEPTANCE.read_bytes()),
+        )
+        self.assertEqual(
+            "8ef60a8b63e0a99f151505520bb0c82d5a22719f8f226f1fdc8fbf9d1e7614da",
+            sha256(ACCEPTED.read_bytes()),
+        )
+        self.assertEqual(
+            ACCEPTED.read_bytes(),
+            encoded(
+                acceptance.accept_exact_proposal(
+                    PROPOSAL.read_bytes(), ACCEPTANCE.read_bytes()
+                )
+            ),
+        )
+        self.assertEqual("accepted", acceptance_value["status"])
+        self.assertEqual("accepted", accepted_value["status"])
+
     def test_exact_record_accepts_only_the_exact_proposal(self):
         proposal_raw = PROPOSAL.read_bytes()
         acceptance_raw = encoded(record(proposal_raw))
