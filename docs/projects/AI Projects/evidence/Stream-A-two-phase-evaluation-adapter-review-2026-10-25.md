@@ -173,5 +173,35 @@ The corrected two-file inactive card is platform metadata commit `5a3f8fa6`,
 SHA-256 `e6084fc68a322211a7b0d8cf8f4193bb36b385bd37999d385af993f8ae985099`.
 The corrected later exercise card SHA-256 is
 `30462aa3b49242fb18e718327e667223832c68884a75a831c06254125eaf5c44`.
-Live prestate matches the pinned old owner hash and absent launcher; all runtime
-state remains absent. Installation remains a separate explicit gate.
+Live prestate matched the pinned old owner hash and absent launcher; all runtime
+state was absent before installation.
+
+### Exercise-owner inactive installation
+
+Jason approved the exact two-file inactive installation. The complete packet
+SHA-256 was
+`7e5303f426f567f3ea70a66e61ab7c57b28ddf9f5d2588b9b8c4e0af6abc7fba`
+and the bounded installer SHA-256 was
+`0165a21d300a4730f81677f382afee0846bf3738d25d2a02ea49c2744cdf6759`.
+The transaction created root-only rollback checkpoint
+`/root/stream-a-evaluation-exercise-owner-20261025`, installed the owner at
+SHA-256 `74c8072793cbbcc68e40d0548065f55031c2b8e5bfeab3d9583069aa4c8a22a1`
+with root:root mode 0644, and installed the fixed launcher at SHA-256
+`0d84d35300202c5d9316cc38a853402f7c252aab0ec5069f0b759dd3f3157d22`
+with root:root mode 0755.
+
+Target Linux validation passed all 41 lease tests and all 23
+owner/watchdog/observer/launcher tests. Installed imports passed. No evaluation
+runtime state was created and no transient or persistent unit was activated.
+All five F6 services and timers remained disabled/inactive, production guests
+and services remained healthy, and the October 26 F2 timers remained unchanged
+at 01:15 and 01:20 PDT.
+
+This closes the inactive owner-launch dependency only. The live exercise is
+still a distinct gate. Review of the exercise procedure found that the normal
+production admission schema requires retained-receipt identifiers and the
+production 75/90-minute deadline pair. A disposable pre-effect exercise must
+not satisfy those fields with values that could be mistaken for real evidence.
+The next source gate is therefore a dedicated exercise-only admission path that
+cannot quiesce consumers, cannot start a workload and cannot be promoted into a
+production lease.
