@@ -22,7 +22,7 @@ ACCEPTED_ENDPOINT = "http://192.168.70.12:11435/v1/chat/completions"
 LEASE_MODE = "stream-a-endpoint-retaining-evaluation-v1"
 
 D4_DIGEST = "03b0ad74a862ee04de75e012f52f6662c61192b69b279ea4d1d66c80d9ff9153"
-M3_STAGE_MANIFEST_DIGEST = "357b4e3d5514fe32b1509ac27f9eac3940edb0635db3a5008b4f29fc4f124a00"
+M3_STAGE_MANIFEST_DIGEST = "69ffc58928ebd2f2f64e0600b8c4a7d73ce5f5356c485e1df8c2265741972165"
 
 # The final fifteen minutes are never borrowable by either workload.
 WINDOW_SECONDS = 90 * 60

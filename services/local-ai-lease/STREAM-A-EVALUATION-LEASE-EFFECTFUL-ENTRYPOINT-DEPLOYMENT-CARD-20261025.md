@@ -22,10 +22,19 @@ commit here. Verify every file hash from that clean commit:
 | `scripts/local-ai/host_exclusion.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/host_exclusion.py` | 0644 | `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61` |
 | `services/local-ai-lease/stream-a-evaluation-lease` | `/usr/local/sbin/stream-a-evaluation-lease` | 0755 | `962100b591493b2ae8f62814fa6f66a1875463dd5ca613bb321169764c56c276` |
 
+The accepted D4 packet digest is
+`03b0ad74a862ee04de75e012f52f6662c61192b69b279ea4d1d66c80d9ff9153` and the
+accepted installed M3 staging manifest digest is
+`69ffc58928ebd2f2f64e0600b8c4a7d73ce5f5356c485e1df8c2265741972165`.
+
 The entry point requires both an explicit phase and `--effect-authorized`.
 Without that flag it does not read state or intent and returns
 `effects=disabled`. It supports only `acquire`, `post-quiescence`, `heartbeat`,
 `start`, `outcome` and `restore`; it cannot arm itself or start a timer.
+Effectful mode accepts only the fixed state path
+`/var/lib/local-ai-lab/stream-a-evaluation/lease.json`; arbitrary state paths
+are rejected before intent is read. Intent files are root-owned mode `0600`,
+with exact per-phase keys, typed fields and literal booleans.
 
 ## Effect and recovery contract
 
@@ -46,10 +55,13 @@ Without that flag it does not read state or intent and returns
 ## Inactive deployment sequence
 
 1. Verify `SOURCE_COMMIT`, all hashes, clean source, and the prior inactive
-   candidate's exact target state.
-2. Require the destination root and all target files absent; existing paths are
-   NO-GO. Create the root `root:root 0755`, copy only the five libraries, and
-   copy the wrapper `root:root 0755`.
+   candidate's exact target state. The existing root must be `root:root 0755`
+   and contain the four already-installed libraries with the pinned hashes
+   above, each `0644`.
+2. Require only the new entrypoint under that existing root and the wrapper
+   `/usr/local/sbin/stream-a-evaluation-lease` to be absent. Add exactly those
+   two files; do not remove, replace or rewrite the existing root or four
+   libraries. The entrypoint is `root:root 0644`; the wrapper is `root:root 0755`.
 3. Recheck hashes, owner, mode, regular-file type and no symlinks. Run imports
    and the 28+ entry-point tests with bytecode disabled.
 4. Invoke the wrapper only without `--effect-authorized` and verify the
@@ -59,11 +71,12 @@ Without that flag it does not read state or intent and returns
 
 ## Rollback
 
-The pre-install checkpoint is the exact absent-state manifest. If any copy or
-post-copy check fails, stop and remove only the newly created wrapper and
-destination root after confirming it contains only these candidate files. If
-state is uncertain, retain the root mode `0700` for reconciliation and do not
-retry automatically. Never touch existing lease code, F2 timers, production
+The pre-install checkpoint is the exact existing-root/four-library manifest,
+plus absence of the new entrypoint and wrapper. If any copy or post-copy check
+fails, stop and remove only the newly added entrypoint and wrapper after
+confirming their identities. Preserve the existing root and four libraries. If
+state is uncertain, retain the new files for reconciliation and do not retry
+automatically. Never touch existing lease code, F2 timers, production
 services, credentials or the accepted backend.
 
 This card does not authorize installation, activation, lease acquisition,
