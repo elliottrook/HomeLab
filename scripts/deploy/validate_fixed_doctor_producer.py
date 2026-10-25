@@ -92,9 +92,14 @@ def validate(live: bool = False) -> list[str]:
     results.append("canary:ok")
 
     reports = data["reports"]
-    if set(reports) != {"local", "remote"} or len(reports["local"]) != 4 or len(reports["remote"]) != 2:
+    if set(reports) != {"local", "remote"} or len(reports["local"]) != 4 or len(reports["remote"]) != 4:
         raise ValueError("unexpected report checkpoint set")
-    if len(set(reports["local"] + reports["remote"])) != 6:
+    if reports["remote"][-2:] != [
+        "/var/lib/aster/health/latest.json.new",
+        "/var/lib/aster/health/aster-inference.json.new",
+    ]:
+        raise ValueError("remote staging cleanup paths changed")
+    if len(set(reports["local"] + reports["remote"])) != 8:
         raise ValueError("duplicate report checkpoint")
     results.append("reports:ok")
     return results

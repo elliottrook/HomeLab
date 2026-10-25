@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-25  
 **Status:** approval-ready; no Mac source replacement, Doctor invocation or report publication has occurred under this card  
-**Candidate manifest:** `scripts/deploy/fixed-doctor-producer-manifest.json`, SHA-256 `3fd05d6870d82b1f451af0c9a7e4e7962810db0e0bfde8c9b753a5258074ef8e`
+**Candidate manifest:** `scripts/deploy/fixed-doctor-producer-manifest.json`, SHA-256 `47850a5b3d12d560839a34609c2e25b738d111e5668ecb6d982997a83c8012d1`
 
 ## Purpose
 
@@ -29,8 +29,10 @@ Both targets remain `jelliott:staff` mode `0755`. The existing
 The cutover first creates a new mode-0700 rollback directory under
 `~/lab/private-backups/aster-stream-a/`. It retains the two exact predecessor
 files, the four local report-path states (including explicit absence), and an
-LXC104 root-only checkpoint of the two remote report-path states. A failed
-precondition stops before replacement.
+LXC104 root-only checkpoint of the two final remote report-path states. The two
+fixed remote staging paths, `/var/lib/aster/health/latest.json.new` and
+`/var/lib/aster/health/aster-inference.json.new`, must be absent before the
+canary. A failed precondition stops before replacement.
 
 ## Bounded canary
 
@@ -66,7 +68,7 @@ and alert path.
    schema-1 digest binding. The schema-2 object contains only its allowlisted
    fields and fixed `aster.agent_inference` state.
 7. Remote files remain root:`aster` mode `0640`; local files remain mode
-   `0600`.
+   `0600`. Both remote `.new` staging paths are absent after success.
 8. Aster Agent and the normal broker remain healthy. Both fixed-Doctor services
    remain disabled/inactive, their sockets remain absent and the broker retains
    zero fixed-Doctor rows.
@@ -78,11 +80,13 @@ On replacement, validation or publication failure:
 
 1. restore the two exact Mac predecessor files atomically from the new
    checkpoint and verify their hashes, custody and modes;
-2. restore each local and remote report path to its checkpointed bytes or
+2. restore each local and final remote report path to its checkpointed bytes or
    prior absence;
-3. verify the LaunchAgent remains idle with the unchanged 08:15 schedule;
-4. verify Aster/broker health and absence of fixed-Doctor runtime state; and
-5. retain a content-free failure phase and the checkpoint for review.
+3. remove only the two fixed remote `.new` staging paths, then verify both are
+   absent;
+4. verify the LaunchAgent remains idle with the unchanged 08:15 schedule;
+5. verify Aster/broker health and absence of fixed-Doctor runtime state; and
+6. retain a content-free failure phase and the checkpoint for review.
 
 Do not relaunch the scheduled report to prove rollback. The rollback does not
 repair the pre-existing Mail notification fault.
@@ -96,7 +100,7 @@ rollback checkpoint.
 
 ## Offline validation
 
-- frozen-manifest tests: **3/3 pass**;
+- frozen-manifest tests: **4/4 pass**;
 - live read-only predecessor/schedule validation: **pass**;
 - focused producer/scheduler tests: **7/7 pass**;
 - candidate and predecessor hashes: exact as tabulated above.

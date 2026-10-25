@@ -41,6 +41,16 @@ class ProducerManifestTest(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "builder only"):
                     subject.validate()
 
+    def test_rejects_missing_remote_staging_cleanup(self):
+        data = json.loads(subject.MANIFEST.read_text())
+        data["reports"]["remote"].pop()
+        with tempfile.TemporaryDirectory() as directory:
+            manifest = Path(directory) / "manifest.json"
+            manifest.write_text(json.dumps(data))
+            with patch.object(subject, "MANIFEST", manifest):
+                with self.assertRaisesRegex(ValueError, "checkpoint set"):
+                    subject.validate()
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -53,7 +53,9 @@
     ],
     "remote": [
       "/var/lib/aster/health/latest.json",
-      "/var/lib/aster/health/aster-inference.json"
+      "/var/lib/aster/health/aster-inference.json",
+      "/var/lib/aster/health/latest.json.new",
+      "/var/lib/aster/health/aster-inference.json.new"
     ]
   }
 }
