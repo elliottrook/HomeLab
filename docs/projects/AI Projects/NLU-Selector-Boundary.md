@@ -157,6 +157,10 @@ The same
 [exact-candidate binding now applies to S0 shadow evidence](evidence/M3-NLU-shadow-candidate-binding-2026-10-25.md),
 preventing candidate drift between calibration, threshold selection and the
 later no-effect comparison.
+The final
+[holdout candidate-binding correction](evidence/M3-NLU-holdout-candidate-binding-2026-10-25.md)
+extends that exact byte identity into the independent qualification release
+without opening or creating holdout data.
 
 ## Validation checkpoint — 2026-10-24
 

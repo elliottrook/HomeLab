@@ -15,6 +15,8 @@ from nlu_holdout_release import (
 )
 
 from nlu_threshold_policy import FAMILIES as POLICY_FAMILIES
+import nlu_candidate_bundle as candidate
+import nlu_threshold_policy as policy
 
 
 def template():
@@ -37,6 +39,35 @@ def template():
 CONTRACT_RAW = b"synthetic contract bytes\n"
 SCORER_RAW = b"synthetic scorer bytes\n"
 NONOVERLAP_RAW = b"synthetic non-overlap receipt bytes\n"
+
+
+def encoded(value):
+    return (json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n").encode()
+
+
+def sealed_candidate():
+    value = {
+        "schema": candidate.SCHEMA,
+        "status": "sealed",
+        "candidate_id": "nlu-candidate-v1",
+        "engine_class": "local_model",
+        "engine_sha256": "1" * 64,
+        "policy_sha256": "2" * 64,
+        "contract_sha256": "3" * 64,
+        "adapter_sha256": "4" * 64,
+        "runtime_profile_sha256": "5" * 64,
+        "egress": "local",
+        "tool_mode": "disabled",
+        "case_data_included": False,
+        "bundle_sha256": "",
+        "authority": "not-granted",
+    }
+    value["bundle_sha256"] = candidate.canonical_sha256(value)
+    return value
+
+
+CANDIDATE_RAW = encoded(sealed_candidate())
+CANDIDATE_SHA = policy.sha256(CANDIDATE_RAW)
 
 
 def sealed():
@@ -139,7 +170,7 @@ class NluHoldoutReleaseTests(unittest.TestCase):
             "tie_breaker": "highest-threshold",
             "minimum_calibration_cases": 60,
             "minimum_cases_per_family": {family: 10 for family in POLICY_FAMILIES},
-            "candidate_bundle_sha256": "a" * 64,
+            "candidate_bundle_sha256": CANDIDATE_SHA,
             "calibration_artifact_sha256": "b" * 64,
             "calibration_score_sha256": "c" * 64,
             "selected_threshold": 0.75,
@@ -151,14 +182,15 @@ class NluHoldoutReleaseTests(unittest.TestCase):
         value["threshold_policy_sha256"] = hashlib.sha256(raw).hexdigest()
         value["release_sha256"] = canonical_sha256(value)
         self.assertEqual([], validate_release_bundle(
-            value, raw, CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW,
+            value, raw, CANDIDATE_RAW, CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW,
         ))
 
         changed = raw + b"\n"
         self.assertIn(
             "threshold policy digest does not match sealed release",
             validate_release_bundle(
-                value, changed, CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW,
+                value, changed, CANDIDATE_RAW,
+                CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW,
             ),
         )
 
@@ -170,7 +202,8 @@ class NluHoldoutReleaseTests(unittest.TestCase):
         self.assertIn(
             "sealed release requires a frozen threshold policy",
             validate_release_bundle(
-                value, raw, CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW,
+                value, raw, CANDIDATE_RAW,
+                CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW,
             ),
         )
 
@@ -192,7 +225,7 @@ class NluHoldoutReleaseTests(unittest.TestCase):
             "tie_breaker": "highest-threshold",
             "minimum_calibration_cases": 60,
             "minimum_cases_per_family": {family: 10 for family in POLICY_FAMILIES},
-            "candidate_bundle_sha256": "a" * 64,
+            "candidate_bundle_sha256": CANDIDATE_SHA,
             "calibration_artifact_sha256": "b" * 64,
             "calibration_score_sha256": "c" * 64,
             "selected_threshold": 0.75,
@@ -210,9 +243,48 @@ class NluHoldoutReleaseTests(unittest.TestCase):
         ):
             artifacts = [CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW]
             artifacts[position - 1] += b"drift"
-            errors = validate_release_bundle(value, policy_raw, *artifacts)
+            errors = validate_release_bundle(
+                value, policy_raw, CANDIDATE_RAW, *artifacts,
+            )
             with self.subTest(expected=expected):
                 self.assertIn(expected, errors)
+
+    def test_exact_candidate_bundle_is_required(self):
+        policy_value = {
+            "schema": "aster-nlu-threshold-policy.v1",
+            "status": "frozen",
+            "policy_id": "nlu-threshold-policy-v1",
+            "contract_schema": "request-interpretation.v1",
+            "selection_partition": "disjoint-calibration",
+            "score_semantics": "evaluation-only-route-eligibility",
+            "selection_rule": "maximize-coverage-subject-to-all-constraints",
+            "constraints": {
+                "max_privacy_underclassification": 0,
+                "max_unsafe_false_route": 0,
+                "max_selective_error_rate": 0.1,
+                "minimum_coverage": 0.6,
+            },
+            "tie_breaker": "highest-threshold",
+            "minimum_calibration_cases": 60,
+            "minimum_cases_per_family": {
+                family: 10 for family in POLICY_FAMILIES
+            },
+            "candidate_bundle_sha256": CANDIDATE_SHA,
+            "calibration_artifact_sha256": "b" * 64,
+            "calibration_score_sha256": "c" * 64,
+            "selected_threshold": 0.75,
+            "holdout_accessed": False,
+            "authority": "not-granted",
+        }
+        policy_raw = encoded(policy_value)
+        value = sealed()
+        value["threshold_policy_sha256"] = hashlib.sha256(policy_raw).hexdigest()
+        value["release_sha256"] = canonical_sha256(value)
+        errors = validate_release_bundle(
+            value, policy_raw, CANDIDATE_RAW + b"\n",
+            CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW,
+        )
+        self.assertTrue(any("exact candidate bundle" in error for error in errors))
 
 
 if __name__ == "__main__":

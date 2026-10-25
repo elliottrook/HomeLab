@@ -12,6 +12,7 @@ import json
 import re
 
 from nlu_threshold_policy import load_and_validate, sha256
+from nlu_candidate_bundle import validate_policy_binding
 
 
 SCHEMA = "aster-nlu-holdout-release.v1"
@@ -176,6 +177,7 @@ def validate_release(value: object) -> list[str]:
 def validate_release_bundle(
     value: object,
     threshold_policy_raw: bytes,
+    candidate_raw: bytes,
     contract_raw: bytes,
     scorer_raw: bytes,
     development_nonoverlap_receipt_raw: bytes,
@@ -184,6 +186,10 @@ def validate_release_bundle(
     errors = validate_release(value)
     policy, policy_errors = load_and_validate(threshold_policy_raw)
     errors.extend(f"threshold policy: {error}" for error in policy_errors)
+    errors.extend(
+        f"candidate binding: {error}"
+        for error in validate_policy_binding(threshold_policy_raw, candidate_raw)
+    )
     if isinstance(value, dict) and value.get("status") == "sealed":
         for field, raw, label in (
             ("threshold_policy_sha256", threshold_policy_raw, "threshold policy"),

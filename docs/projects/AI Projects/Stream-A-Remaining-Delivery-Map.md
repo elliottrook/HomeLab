@@ -420,8 +420,10 @@ no-tool/no-authority semantics. The following
 requires the calibration gate to validate that exact sealed manifest and bind
 its bytes through the registered policy. The equivalent
 [shadow candidate-binding correction](evidence/M3-NLU-shadow-candidate-binding-2026-10-25.md)
-preserves that exact identity through the later S0-only comparison; the focused
-NLU suite now passes 62/62. No candidate has been selected or sealed.
+preserves that exact identity through the later S0-only comparison. The
+[holdout candidate-binding correction](evidence/M3-NLU-holdout-candidate-binding-2026-10-25.md)
+extends it into independent qualification. The focused NLU suite now passes
+63/63. No candidate has been selected or sealed, and no holdout was opened.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)
