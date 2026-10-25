@@ -53,7 +53,7 @@ def build(output):
     files = {'default.py':(here / 'digest_player/default.py').read_bytes(),
         'resources/skins/Default/1080i/DigestPlayer.xml':xml(here)}
     for name in ('digest_timeline', 'digest_playback_state', 'digest_player_adapter', 'digest_kodi_port',
-            'digest_player_model', 'digest_preview_model'):
+            'digest_player_model', 'digest_preview_model', 'digest_news_contract'):
         files['resources/lib/'+name+'.py'] = (here / (name+'.py')).read_bytes()
     files['resources/lib/digest_data.py'] = (here.parent / 'skin.asterhome/tools/digest_data.py').read_bytes()
     files['resources/lib/digest_preview_source.py'] = (here / 'digest_preview/default.py').read_bytes()

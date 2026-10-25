@@ -22,6 +22,7 @@ from digest_timeline import build, build_preview
 from digest_player_model import Presentation
 from digest_kodi_port import KodiPort, idle
 from digest_player_adapter import Adapter
+from digest_news_contract import request, row_for
 import deploy_startup as guard
 
 BACK = {9, 10, 92, 216, 247, 257, 275}
@@ -212,15 +213,18 @@ def main():
     window = None
     try:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        require(idle() and xbmcgui.getCurrentWindowId() == 10000, 'home-idle-required')
-        source_focus = xbmcgui.Window(10000).getFocusId()
+        source_window = xbmcgui.getCurrentWindowId()
+        requested = request(sys.argv[1:], source_window)
+        require(idle(), 'idle-required')
+        source_focus = xbmcgui.Window(source_window).getFocusId()
         raw = read('/static/digest-audio/latest.json', 262144)
         feed = json.loads(raw)
         snapshot = load(read, datetime.now(timezone.utc))
         require(snapshot.identity == build_preview(feed, datetime.now(timezone.utc)).identity
             and read('/static/digest-audio/latest.json', 262144) == raw, 'edition-changed')
-        require(idle() and xbmcgui.getCurrentWindowId() == 10000
-            and xbmcgui.Window(10000).getFocusId() == source_focus, 'source-changed')
+        initial_row = row_for(requested, snapshot)
+        require(idle() and xbmcgui.getCurrentWindowId() == source_window
+            and xbmcgui.Window(source_window).getFocusId() == source_focus, 'source-changed')
         stage_raw = (ROOT / 'manifest.json').read_bytes()
         manifest = json.loads(stage_raw)
         for row in manifest['files']:
@@ -234,11 +238,15 @@ def main():
         window.identity = None
         window.show()
         until(lambda:window.identity is not None, 'player-ui-not-ready', 4)
+        if initial_row is not None: window.requests.put(('row', initial_row))
+        left_for_home = False
         monitor = xbmc.Monitor()
         while not window.finished and not monitor.waitForAbort(.1):
             try:
                 if xbmcgui.getCurrentWindowId() == window.identity: window.tick()
-                elif idle() or (window.port is not None and window.port.owned()): window.request_close()
+                elif idle() or (window.port is not None and window.port.owned()):
+                    left_for_home = xbmcgui.getCurrentWindowId() == 10000
+                    window.request_close()
                 elif window.adapter is not None:
                     window.adapter.poll()  # Relinquish; never destroy a hidden page beneath foreign media.
             except (OSError, ValueError, KeyError, RuntimeError, TypeError) as error:
@@ -260,8 +268,13 @@ def main():
             window.close()
             xbmcgui.Window(10000).clearProperty('AsterDigest.PlayerWindow')
             if idle():
-                until(lambda:xbmcgui.getCurrentWindowId() == 10000, 'home-not-restored', 4)
-                xbmc.executebuiltin('Control.SetFocus('+str(source_focus)+')')
+                if locals().get('left_for_home'):
+                    xbmc.executebuiltin('ActivateWindow(Home)')
+                    until(lambda:xbmcgui.getCurrentWindowId() == 10000, 'home-not-restored', 4)
+                else:
+                    until(lambda:xbmcgui.getCurrentWindowId() in (source_window, 10000), 'source-not-restored', 4)
+                    if xbmcgui.getCurrentWindowId() == source_window:
+                        xbmc.executebuiltin('Control.SetFocus('+str(source_focus)+')')
         os.close(lock)
 
 

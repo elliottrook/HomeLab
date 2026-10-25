@@ -35,8 +35,12 @@
   The isolated joined Digest player7 now passes actual playback-driven artwork,
   synopsis/active-row, opening/row seek, pause-preserving seek and Back/owned-stop
   checks. Completion/Stop/Home edges also pass; final evidence is below. Normal
-  News is still unchanged. Next is paired normal-News integration preparation,
-  with exact installed-stage/recovery checks, not publisher/backend changes.
+  HP News now uses the paired two-file integration1 to open player8 on explicit
+  full-briefing/story selection. Back restores News focus/story; Home remains
+  Home with owned audio stopped. Normal route, real rollback/reactivation and
+  full preservation pass. Production is unchanged. Next: assess safe source/read
+  actions and remaining Digest service-identity limits; no publisher changes or
+  inferred cross-briefing queue objects.
 - Previous resume point (2026-10-25): Search14 Stop-acknowledgement guard is on
   HP (`732a89c3e3e9189022a1ee7c4fdb9f596c88486d2f13fb53d3832d47c7a46df4`),
   layered on the owner-feedback bundle below. Two actual movie Play/Resume/Back
@@ -5578,3 +5582,170 @@ verified rollback. Preserve the current News path until that bounded checkpoint
 and native integration checks are ready. Source-read/briefing-queue work needs
 real service identities and does not get inferred from headlines. This turn's
 local commit awaits a separate push request; production stays unchanged.
+
+### 2026-10-25 — Publish joined player; News integration pre-start
+
+Jason explicitly requested push and continuation. Forgejo accepted `868c558c`;
+its automatic GitHub mirror was independently verified at
+`868c558c3de76a3b176e96770e81c469f9c18440`. Unrelated dirty files were excluded.
+
+Read-only live mapping confirms `hub_data.py` remains the exact153-file baseline
+member `abb054bfd3ab8e754846f1445adbd5339bdda45df7f26c7808830a8644da8ca4`.
+News XML is the accepted review10 member
+`fca45b9ef09cbca624f05c5ac5c569a5b66363d2f94759137c80f10dbf1b547b`.
+It handles full playback via `digest,play`, stories via `digest,chapter`, and
+has distinct Refresh, Breaking News and Search. The smallest integration is a
+two-file handler/shim change, not replacing this XML or its navigation. Preserve
+the complete original handler privately and prove isolated rollback before use.
+
+HP-only Stream A slice: a new immutable player successor accepts a strictly
+validated explicit News request and returns Back to exact News focus; native
+Home remains Home. It opens only from idle Home/manual pilot or idle News with
+matching edition. Existing explicit-click bounded MP3 caching is retained from
+the original handler (25MiB, timestamp match, atomic partial-to-complete path),
+with exact feed recheck before/after and no launch if the user navigated away.
+No automatic acquisition on refresh, no subscriptions/downloads outside that
+existing briefing cache, synthesis, server/source/history writes or production.
+
+Checkpoint exact handler and new shim, player manifest, settings/navigation
+digest and a fresh full preservation proof. Verify installed/payload/predecessor
+hashes; paired rollback restores only those files and leaves new unreferenced
+stages retained. Add a separately pinned, exact two-file successor check to the
+baseline harness, including original predecessor/checkpoint, rather than skip
+the handler or relax any prior Search/Home/XML guard. Synthetic drift/busy/
+recovery tests precede native activation. Native gates cover full opening,
+selected-story routing, Back focus/owned-stop, Home exit, no-autoplay refresh,
+Breaking News and Search return. Brief HP restart only if code reload requires
+it; no new service, network, credentials, AV settings, database or infrastructure
+objects. Existing lab authority covers deployment/tests; stop on unknown drift,
+unverified recovery or expanded trust. Applicable identity remains the approved
+Aster TV gold/green design and canonical prerecorded briefing voice.
+
+### 2026-10-25 — Normal HP News playback integration accepted
+
+`aster-digest-news1` is active on HP only, with manifest SHA-256
+`f526f4dcf7277a64fe15ef02dd342628a70635d3558e68fda661bcd9015d36f1`.
+It installs exactly two code members:
+
+- `tools/hub_data.py` successor
+  `98d585519917c524b9278647075a0b766d90faa01dbd74a10cab1f611b930f1e`.
+  Removing its four-line Digest play/chapter interception yields the exact
+  original source, proven by a unit test. All other actions retain their code.
+- New `tools/aster_v2_digest.py` shim
+  `8cd023fd81c409916d0886fb2c4de625adb5224b980bf6372c5d00c849077aca`.
+
+The shim pins player8's17-member stage manifest
+`9cb0ec4b207f1eb930b5a97494615914a0529fed2dcf271eacc709181f500887`
+and every member before each explicit handoff. Player8 accepts only manual idle
+Home entry or a validated explicit News request (full/story, bounded numeric
+position, timezone-qualified generation and exact edition/story). Inputs cannot
+inject a Kodi builtin. It preserves the source window/focus; requested story
+context is retained in the existing News window properties so refresh on Back
+does not reset the selection. Home exit is deliberately not redirected to News.
+
+The existing `cached_digest_audio` function is unchanged. It may fetch the
+published briefing only on the same explicit user Play/selection action as
+before, enforcing its25MiB/timestamp/atomic-completion controls. Exact feed bytes,
+idle state, source page and focus are rechecked before/after cache work; leaving
+during it declines the handoff. Refresh/News entry never starts or fetches audio.
+No new subscription, podcast download, synthesis or source/server write. Actual
+native tests used the current existing cache; baseline cache miss/size/empty/
+timestamp behaviour is covered synthetically by the unchanged24-test hub suite,
+not by deleting/replacing a live cache to force a new transfer.
+
+News XML remains exactly
+`fca45b9ef09cbca624f05c5ac5c569a5b66363d2f94759137c80f10dbf1b547b`.
+No shared header, navigation, Search stage, Breaking News page, skin resource,
+AV setting, credential, service, database or production file was modified.
+The owner-approved Aster TV identity is unchanged; this plays the existing
+canonical briefing narration without producing any new speech.
+
+#### Recovery and preservation evidence
+
+Private checkpoint `/storage/.aster-checkpoints/aster-digest-news1` retains the
+original handler at its exact baseline SHA, the pinned manifest and installed/
+rolled-back state. The immutable paired helpers are retained in
+`/storage/.aster-staging/aster-digest-news1`. Initial activation used full fresh
+`postcheck-1792970658247761382.json`; wrapper before/after settings/navigation
+digests matched, and install returned verified idle/empty state without restart.
+The original preflight proof remains in the existing progressive checkpoint.
+
+The baseline validator now requires a separate external manifest pin whenever
+the News checkpoint exists. It verifies the exact helper bytes, two known
+targets, original predecessor/private backup, installed payload and every player8
+member before accepting that precise successor. All153 baseline rows still
+undergo either their original check or the corresponding exact accepted check;
+the handler is not skipped. Search/Home and earlier review checks are unchanged.
+Read-only native validation also now refuses open Digest preview/player windows.
+The prior native harness is retained as
+`/storage/.aster-staging/live_music_postcheck-before-digest-news.py`.
+
+Real HP rollback restored the original handler byte-for-byte at
+`abb054bfd3ab8e754846f1445adbd5339bdda45df7f26c7808830a8644da8ca4`.
+The introduced shim was retained, known and unreferenced; nothing was deleted.
+`postcheck-1792970900944322754.json` independently passed with zero active Digest
+overrides and all68 AV/language checks. Reinstallation used that fresh proof,
+reverified the original checkpoint and reactivated the same exact payload. No
+Kodi restart was required. Unknown predecessor/shim, linked path, altered backup,
+stage/player drift, active media and unsupported state are refused in tests.
+
+First integrated native run reached the final post-Search Play before the
+existing Search header helper had released its return-focus lock. The handoff
+declined the changed source; that run was not counted as passing. The harness
+now waits for the actual helper lock release and stable restored Search focus,
+rather than removing the handoff focus guard or changing Search code.
+
+Two complete normal-route proofs pass, before and after real rollback:
+
+- `/storage/.aster-checkpoints/aster-digest-news1/native-1792970804008812840/native.json`
+- `/storage/.aster-checkpoints/aster-digest-news1/native-1792970965081377892/native.json`
+
+Both verify no-autoplay News entry, full opening, selected-story handoff and
+correct synopsis, Back restoring exact focus/story, refresh without autoplay,
+Breaking News, Search/return and Home exit with owned playback stopped and no
+News hijack. Both finish idle with empty queues and unchanged settings/navigation.
+The normal-entry4K story-player screenshot was visually inspected: matching
+headline/synopsis/active row; the correct News-logo fallback for a story without
+art; floating controls and no clipping. Player8's independent manual-Home main
+regression also passes at `aster-digest-player-test-1792970587276978256/native.json`.
+
+Final `postcheck-1792971023863797334.json` passes all existing installed stages,
+both exact News files, Music/video database integrity, all68 AV/language values,
+closed lab windows and idle/empty state. Paired verify reports two installed
+files and17 player members intact. Full756-test v2 suite and unchanged24-test
+hub suite pass normally and optimized. HP is left Home with playback stopped.
+No production promotion, new service/inventory object, account, DNS/firewall,
+schedule or additional remote push was included. A local commit records this
+milestone; synchronization awaits a fresh specific push request.
+
+#### Household handover — HP News
+
+On the HP, open **News** normally. Choose **Play full digest** to include the
+introduction, or select a story with OK to start there. Both now open the new
+floating-control briefing player. Its image, synopsis and green active story
+follow the audio; browsing the list alone does not replace what is playing.
+Play/Pause, Previous/Next, Stop and row selection work as in the accepted pilot.
+Seeking while paused stays paused. Back stops and returns to the same News
+button/story; Home stops and stays Home. Refresh, Breaking News and Search are
+unchanged and do not autoplay. Existing authentication is unchanged; no setup
+or API key is required.
+
+If the edition changes, cache work fails, another player starts or navigation
+changes during loading, the request declines with an unavailable/changed notice.
+Wait until idle and refresh News; there is no automatic repeated playback write.
+Physical remote/sofa acceptance of this newly connected route remains unclaimed.
+Production remains on its accepted release.
+
+An operator can run the paired native `deploy_digest_news.py` with `verify` or
+`rollback` and the exact manifest pin above while HP is idle on Home. Rollback
+restores the original handler only, retaining the unreferenced shim/stages and
+private checkpoints. Reinstall requires a fresh full preservation proof and
+known rolled-back state; do not manually edit active markers or bypass drift.
+
+Intent/efficiency review: existing navigation and cached briefing acquisition
+are reused; hashing/loading is bounded and occurs on an explicit handoff, not
+each render tick. No new background worker or recurring request was added.
+The client can now be reached through normal household controls rather than an
+engineering command, with actual context/exit/recovery evidence. Remaining
+Digest work is safe source/read actions and identity-backed queue feasibility,
+not fabricated queueable headlines or automatic publisher changes.

@@ -9,8 +9,8 @@ import time
 import xbmc
 import xbmcgui
 
-ROOT = Path('/storage/.aster-staging/aster-digest-player7')
-PIN = '3536dad430b639c2e36cd638e55a6ba2c21873b6f35d41bb50d66faa9425615a'
+ROOT = Path('/storage/.aster-staging/aster-digest-player8')
+PIN = '9cb0ec4b207f1eb930b5a97494615914a0529fed2dcf271eacc709181f500887'
 sys.path.insert(0, str(ROOT / 'resources/lib'))
 import deploy_startup as guard
 
