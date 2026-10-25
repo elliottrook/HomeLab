@@ -22,6 +22,7 @@ EXPECTED_SHA256 = {
     "notify.wav": "c093d94abbabc0383d278b9f8e39dda8ca5fbfdee8080bdce1c4078126e175c8",
     "select.wav": "6e38a7c6fc9964c8c53e49409df42d53200ce51e221c2dbb63b13a8bdb811c3f",
     "back.wav": "b5c3678e2849cb6b9dd15125f2e1ebeb9afda6f469524d6bada3a20ba6424125",
+    "startup.wav": "f41cc896c664e234986330799bc3b75c460ab6eb87c3883df338b0353a06b7e2",
 }
 
 
@@ -56,11 +57,14 @@ class SoundPackTests(unittest.TestCase):
         self.assertEqual(actions["parentdir"], "back.wav")
         self.assertEqual(actions["previousmenu"], "back.wav")
         self.assertEqual(actions["error"], "notify.wav")
+        startup = root.find("./windows/window[name='startup']")
+        self.assertIsNotNone(startup)
+        self.assertEqual(startup.findtext("activate"), "startup.wav")
 
-    def test_seven_kodi_files_are_distinct_canonical_sounds(self):
+    def test_eight_kodi_files_are_distinct_canonical_sounds(self):
         paths = sorted(RESOURCES.glob("*.wav"))
-        self.assertEqual(len(paths), 7)
-        self.assertEqual(len({sha256(path) for path in paths}), 7)
+        self.assertEqual(len(paths), 8)
+        self.assertEqual(len({sha256(path) for path in paths}), 8)
 
     def test_canonical_hashes_are_locked(self):
         self.assertEqual(
@@ -74,12 +78,14 @@ class SoundPackTests(unittest.TestCase):
                 self.assertEqual(source.getnchannels(), 2, path.name)
                 self.assertEqual(source.getsampwidth(), 3, path.name)
                 self.assertEqual(source.getframerate(), 48_000, path.name)
-                self.assertLess(source.getnframes() / source.getframerate(), 0.6,
+                limit = 4.0 if path.name == "startup.wav" else 0.6
+                self.assertLess(source.getnframes() / source.getframerate(), limit,
                                 path.name)
                 samples = pcm24(source.readframes(source.getnframes()))
             self.assertEqual(samples[:2], [0, 0], path.name)
             self.assertEqual(samples[-2:], [0, 0], path.name)
-            self.assertLess(max(abs(sample) for sample in samples), 300_000,
+            peak_limit = 310_000 if path.name == "startup.wav" else 300_000
+            self.assertLess(max(abs(sample) for sample in samples), peak_limit,
                             path.name)
             self.assertLess(max(abs(sample) for sample in samples[:96]), 200,
                             path.name)

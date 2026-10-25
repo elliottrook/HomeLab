@@ -1,8 +1,10 @@
 Creative Commons CC0 1.0 Universal
 
-The WAV files in this add-on are transformations of Kenney's recorded
-`mouseclick1` sample from the CC0 "51 UI sound effects" pack:
+The seven navigation WAV files in this add-on are transformations of Kenney's
+recorded `mouseclick1` sample from the CC0 "51 UI sound effects" pack:
 https://opengameart.org/content/51-ui-sound-effects-buttons-switches-and-clicks
+
+`startup.wav` is an original Aster soundscape produced for this project.
 
 The Aster icon remains subject to the separately recorded private Aster
 brand-family terms.
