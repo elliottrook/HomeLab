@@ -34,7 +34,7 @@ Before any copy, record a root-owned checkpoint containing:
    - `/usr/local/libexec/local-ai-lease/stream-a-evaluation/evaluation_lease_entrypoint.py`
      — `e4efd62036b8d26b0eb972a03f53f2cfdf6fbb6fa8a00f1c652b5803c23b5ce7`.
    - `/usr/local/sbin/stream-a-evaluation-lease`
-     — `962100b591493b2ae8f62814fa6f66a1875463dd5ca613bb321169764c56c276`.
+     — `15f3de1ebb5294878d5f0ce0c6a0b7c03a64b42a71c081fda6d036b0c1ef71af`.
 
 2. Absence of all 13 manifest targets, with the existing dependency root
    still `root:root 0755`; no target may be a symlink or non-regular file.
