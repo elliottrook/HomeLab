@@ -611,6 +611,17 @@ its exact GPU-holder contract matches a live read-only host scan, but its
 observer wrapper discards all command-line arguments. The watchdog's required
 identity and authorization flags never reach the observer, so recovery cannot
 run. That final measured integration regression is with the platform owner.
+The fifth packet at implementation `780c33e2` and card `75b423d4` fixes the
+wrapper and adds a real copied-wrapper regression. Independent review matched
+all thirteen hashes and passed 51/51 clean-archive tests. Its approved
+[inactive installation](evidence/Stream-A-evaluation-watchdog-inactive-install-2026-10-25.md)
+then passed 51/51 target-Linux tests, installed imports, inert wrapper checks,
+static unit validation and independent rehash. All five units/timers remain
+disabled/inactive and no lease, identity, heartbeat, observer output or other
+runtime state exists. F6 arming remains unapproved. The current adapter also
+combines lease creation with immediate consumer masking/stopping, so a new
+source-only acquire-only/start split is required before the intended
+healthy-lease read-only gate can exist.
 The platform owner's first pure endpoint-retaining lease candidate at
 `44b26e16` passed its own 7/7 tests and names the correct live backend and News
 timers, but Stream A's
