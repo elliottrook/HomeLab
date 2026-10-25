@@ -85,8 +85,8 @@ def main():
     for name, digest in EXPECTED.items():
         require(sha(LIVE / name) == digest, 'Original sound drift: ' + name)
         with wave.open(str(BASE / 'resources' / name), 'rb') as source:
-            require(source.getparams()[:3] == (2, 2, 48000), 'Wrong audio format')
-            require(source.getnframes() < 4800, 'Sound too long')
+            require(source.getparams()[:3] == (2, 3, 48000), 'Wrong audio format')
+            require(source.getnframes() < 24000, 'Sound too long')
     CHECKPOINT.mkdir(parents=True, mode=0o700)
     for name in EXPECTED:
         shutil.copyfile(LIVE / name, CHECKPOINT / name)

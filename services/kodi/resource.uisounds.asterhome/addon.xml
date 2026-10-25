@@ -5,8 +5,8 @@
   </requires>
   <extension point="kodi.resource.uisounds"/>
   <extension point="kodi.addon.metadata">
-    <summary lang="en_GB">Quiet directional click sounds for Aster Home</summary>
-    <description lang="en_GB">Short, low-level navigation clicks with left/right stereo weighting and subtle pitch cues for vertical movement.</description>
+    <summary lang="en_GB">Aster's canonical soft interaction sounds</summary>
+    <description lang="en_GB">Four quiet, related cues for movement, selection, back navigation and boundary feedback.</description>
     <platform>all</platform>
     <license>Creative Commons Attribution-ShareAlike 4.0 International</license>
     <assets>

@@ -1,69 +1,64 @@
 #!/usr/bin/env python3
-"""Build Aster's original, softly enveloped air-puff UI sounds."""
+"""Validate and synchronize Aster's four canonical UI sound masters."""
 
 from __future__ import annotations
 
-import math
-import random
+import hashlib
 import shutil
-import struct
 import wave
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-RATE = 48_000
+RESOURCES = ROOT / "resources"
+MOVEMENT_ALIASES = ("nav-left.wav", "nav-right.wav", "nav-up.wav", "nav-down.wav")
+EXPECTED_SHA256 = {
+    "movement": "227b863d35a6c6ea67df559b4d302706af669c6eee5ba86a47382164fdf3f0c8",
+    "boundary": "57f108306b772252095811c9827dd6667c58f53e9c80f7f733976467057de6f6",
+    "select": "a95d8c2a2d874a0f04b5ab82fb11d0a7a1d850562849de3c86cbf1050edb2910",
+    "back": "33b9852ee00869cefd0040ce6a65573ec1a5606a87352917e7654d7b36348a54",
+}
+CANONICAL_FILES = {
+    "movement": "nav-left.wav",
+    "boundary": "notify.wav",
+    "select": "select.wav",
+    "back": "back.wav",
+}
 
 
-def click(path: Path, *, frequency: float, duration: float = 0.080,
-          left: float = 0.15, right: float = 0.15) -> None:
-    """Write a low-pass noise puff without a sharp attack or pitched oscillator.
+def sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
-    Keep the old call signature so the established directional gains remain
-    explicit. ``frequency`` now sets the noise filter, not a musical pitch.
-    """
-    rng = random.Random('horizontal' if path.name in ('nav-left.wav', 'nav-right.wav') else path.name)
-    frames = []
-    count = round(RATE * duration)
-    filtered = 0.0
-    filtered_again = 0.0
-    alpha = 1.0 - math.exp(-2.0 * math.pi * frequency / RATE)
-    for index in range(count):
-        t = index / RATE
-        filtered += alpha * (rng.uniform(-1.0, 1.0) - filtered)
-        filtered_again += alpha * (filtered - filtered_again)
-        attack = math.sin(min(1.0, t / 0.014) * math.pi / 2.0) ** 2
-        tail = math.sin(min(1.0, (count - 1 - index) / (RATE * 0.035))
-                        * math.pi / 2.0) ** 2
-        sample = filtered_again * attack * tail * math.exp(-20.0 * t) * 2.0
-        frames.append(struct.pack('<hh',
-                                  round(max(-1.0, min(1.0, sample * left)) * 32767),
-                                  round(max(-1.0, min(1.0, sample * right)) * 32767)))
-    with wave.open(str(path), 'wb') as output:
-        output.setnchannels(2)
-        output.setsampwidth(2)
-        output.setframerate(RATE)
-        output.writeframes(b''.join(frames))
+
+def validate_master(kind: str, path: Path) -> None:
+    with wave.open(str(path), "rb") as source:
+        if source.getparams()[:3] != (2, 3, 48_000):
+            raise RuntimeError(f"wrong audio format: {path.name}")
+        if source.getnframes() / source.getframerate() >= 0.5:
+            raise RuntimeError(f"sound is too long: {path.name}")
+    actual = sha256(path)
+    if actual != EXPECTED_SHA256[kind]:
+        raise RuntimeError(f"canonical {kind} master drift: {path.name}")
 
 
 def main() -> None:
-    resources = ROOT / 'resources'
-    resources.mkdir(parents=True, exist_ok=True)
-    # Horizontal actions are deliberately weighted toward the destination.
-    click(resources / 'nav-left.wav', frequency=930, left=0.18, right=0.055)
-    click(resources / 'nav-right.wav', frequency=930, left=0.055, right=0.18)
-    # Vertical motion uses a subtle timbre cue, never a pitched tone.
-    click(resources / 'nav-up.wav', frequency=1160, left=0.13, right=0.13)
-    click(resources / 'nav-down.wav', frequency=760, left=0.13, right=0.13)
-    click(resources / 'select.wav', frequency=680, duration=0.090,
-          left=0.17, right=0.17)
-    click(resources / 'back.wav', frequency=620, duration=0.090,
-          left=0.13, right=0.13)
-    click(resources / 'notify.wav', frequency=820, duration=0.095,
-          left=0.14, right=0.14)
-    shutil.copyfile(ROOT.parent / 'skin.asterhome' / 'media' / 'aster-icon-128.png',
-                    ROOT / 'icon.png')
+    masters = {kind: RESOURCES / name for kind, name in CANONICAL_FILES.items()}
+    for kind, path in masters.items():
+        validate_master(kind, path)
+
+    movement = masters["movement"]
+    for name in MOVEMENT_ALIASES[1:]:
+        shutil.copyfile(movement, RESOURCES / name)
+    shutil.copyfile(
+        ROOT.parent / "skin.asterhome" / "media" / "aster-icon-128.png",
+        ROOT / "icon.png",
+    )
+
+    if any(sha256(RESOURCES / name) != EXPECTED_SHA256["movement"]
+           for name in MOVEMENT_ALIASES):
+        raise RuntimeError("movement aliases did not synchronize")
+    print("Aster canonical UI sounds verified: movement, boundary, select, back")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -3820,6 +3820,39 @@ The sound asset hotfix does not change the production add-on version or install
 any v2 code. Source/evidence are retained locally; no Git push is authorized by
 this request.
 
+### 2026-10-25 — Owner-approved canonical Aster interaction sounds
+
+Jason completed a listening-led design pass and accepted four related cues as
+Aster's canonical interaction sounds: the same quiet centred Movement cue for
+all directional focus changes; a longer related Boundary cue for unavailable
+actions, edges and notifications; an exact stereo-frame reversal of Movement
+for Back; and a 105 ms, lower-pitched 560→440 Hz “tik” for Select. All four are
+48 kHz stereo, 24-bit PCM, remain below −33 dBFS peak, and have guarded digital-
+silence endpoints. They produce no speech and do not invoke the Aster voice
+standard.
+
+The reviewed masters now replace the source assets in
+`resource.uisounds.asterhome`. Kodi requires four directional filenames, so
+`nav-left.wav`, `nav-right.wav`, `nav-up.wav` and `nav-down.wav` are byte-
+identical aliases of the single Movement master. Together with `notify.wav`,
+`select.wav` and `back.wav`, the seven Kodi-facing files contain exactly four
+unique audio hashes. The deterministic validation helper pins all four hashes,
+resynchronizes movement aliases and fails closed on format, duration or master
+drift. Tests also prove Back is the exact frame reversal, semantic durations,
+action mapping, bounded peaks and silent endpoints.
+
+The focused 11-test sound suite and deterministic standalone add-on archive
+pass. The broader legacy rebuild test still compares the evolving branch to
+the immutable deployed v1.1.1 manifest and already failed at untouched base
+commit `71827680`; this sound milestone does not rewrite that historical record.
+
+This milestone packages source only. It does not deploy, reload or promote the
+sound theme on HP or BOSGAME, alter playback/receiver volume, or consume the
+existing production rollback checkpoint. Host, service, network, identity,
+monitoring, Doctor, NetBox and backup integrations are unchanged. Jason
+explicitly requested the focused commit and Forgejo push; the normal read-only
+GitHub mirror verification follows that one push.
+
 ### 2026-10-25 — Household review corrections on HP
 
 Jason accepted TV/Search/OSD functionality and the floating side rail, then

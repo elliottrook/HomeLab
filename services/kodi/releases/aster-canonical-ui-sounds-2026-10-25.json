@@ -1,0 +1,50 @@
+{
+  "schema": "aster-canonical-ui-sounds.v1",
+  "status": "source-candidate-not-deployed",
+  "date": "2026-10-25",
+  "addon_id": "resource.uisounds.asterhome",
+  "archive": {
+    "path": "services/kodi/dist/resource.uisounds.asterhome-1.1.1.zip",
+    "bytes": 483828,
+    "sha256": "ee8995e61f11a51803f46eb98877c11db2b459bc795f3d9774260be381f7dfc6"
+  },
+  "format": {
+    "codec": "PCM",
+    "sample_rate_hz": 48000,
+    "sample_width_bits": 24,
+    "channels": 2
+  },
+  "canonical_sounds": {
+    "movement": {
+      "sha256": "227b863d35a6c6ea67df559b4d302706af669c6eee5ba86a47382164fdf3f0c8",
+      "kodi_files": [
+        "nav-left.wav",
+        "nav-right.wav",
+        "nav-up.wav",
+        "nav-down.wav"
+      ]
+    },
+    "boundary": {
+      "sha256": "57f108306b772252095811c9827dd6667c58f53e9c80f7f733976467057de6f6",
+      "kodi_files": ["notify.wav"]
+    },
+    "select": {
+      "sha256": "a95d8c2a2d874a0f04b5ab82fb11d0a7a1d850562849de3c86cbf1050edb2910",
+      "kodi_files": ["select.wav"]
+    },
+    "back": {
+      "sha256": "33b9852ee00869cefd0040ce6a65573ec1a5606a87352917e7654d7b36348a54",
+      "kodi_files": ["back.wav"]
+    }
+  },
+  "validation": {
+    "focused_tests": 11,
+    "unique_audio_hashes": 4,
+    "kodi_wav_files": 7,
+    "movement_aliases_byte_identical": true,
+    "back_exact_stereo_frame_reversal": true,
+    "silent_endpoints": true,
+    "live_deployment": false,
+    "legacy_full_release_test": "Pre-existing immutable v1.1.1 manifest mismatch reproduced at base commit 71827680; historical release record left unchanged"
+  }
+}
