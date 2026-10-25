@@ -883,6 +883,13 @@ diagnostic, register a distinct least-privilege caller and projection, and
 prove its value and recovery before release. The completed synthetic ceremony
 does not itself authorize that registration or deployment.
 
+The first [fixed Doctor capability candidate](evidence/M1-D4-fixed-doctor-capability-candidate-2026-10-25.md)
+now narrows that shape to the registered `aster.agent_inference` status only.
+Its exact empty request and text-free response contract pass 25/25 combined
+tests and reject unsafe, stale or ambiguous evidence as unavailable. It remains
+source-only: no dedicated caller, broker capability, gateway, production
+schema-2 sidecar, model egress or grant has been created.
+
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)
 deployed caller binding and restrictive checks, while the
 [Stage2 approver/assurance candidate](evidence/M1-stage2-candidate.md) is **not
