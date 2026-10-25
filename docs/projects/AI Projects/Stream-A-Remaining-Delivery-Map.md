@@ -473,6 +473,10 @@ and the dependency-free NLU suite passes 92/92. The
 [60-case live run card](evidence/M3-NLU-calibration-run-card-2026-10-25.md)
 is the next gate. No model call, threshold selection, holdout access, shadow
 collection or routing change has occurred.
+A subsequent [holdout calibration non-overlap correction](evidence/M3-NLU-holdout-calibration-nonoverlap-boundary-2026-10-25.md)
+now requires the future independent holdout to bind separate exact receipts for
+zero overlap with both the development set and the newly sealed calibration
+set. No holdout content has been created or opened.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)

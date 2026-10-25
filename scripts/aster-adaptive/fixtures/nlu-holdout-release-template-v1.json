@@ -1,5 +1,6 @@
 {
   "authority": "not-granted",
+  "calibration_nonoverlap_receipt_sha256": "",
   "cases": [],
   "contract_sha256": "",
   "development_nonoverlap_receipt_sha256": "",

@@ -31,6 +31,7 @@ def template():
         "scorer_sha256": "",
         "threshold_policy_sha256": "",
         "development_nonoverlap_receipt_sha256": "",
+        "calibration_nonoverlap_receipt_sha256": "",
         "cases": [],
         "authority": "not-granted",
     }
@@ -39,6 +40,7 @@ def template():
 CONTRACT_RAW = b"synthetic contract bytes\n"
 SCORER_RAW = b"synthetic scorer bytes\n"
 NONOVERLAP_RAW = b"synthetic non-overlap receipt bytes\n"
+CALIBRATION_NONOVERLAP_RAW = b"synthetic calibration non-overlap receipt bytes\n"
 
 
 def encoded(value):
@@ -79,6 +81,7 @@ def sealed():
         scorer_sha256=hashlib.sha256(SCORER_RAW).hexdigest(),
         threshold_policy_sha256="c" * 64,
         development_nonoverlap_receipt_sha256=hashlib.sha256(NONOVERLAP_RAW).hexdigest(),
+        calibration_nonoverlap_receipt_sha256=hashlib.sha256(CALIBRATION_NONOVERLAP_RAW).hexdigest(),
         cases=[
             {
                 "id": f"NLU-HO-{index:03d}",
@@ -182,7 +185,8 @@ class NluHoldoutReleaseTests(unittest.TestCase):
         value["threshold_policy_sha256"] = hashlib.sha256(raw).hexdigest()
         value["release_sha256"] = canonical_sha256(value)
         self.assertEqual([], validate_release_bundle(
-            value, raw, CANDIDATE_RAW, CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW,
+            value, raw, CANDIDATE_RAW, CONTRACT_RAW, SCORER_RAW,
+            NONOVERLAP_RAW, CALIBRATION_NONOVERLAP_RAW,
         ))
 
         changed = raw + b"\n"
@@ -191,6 +195,7 @@ class NluHoldoutReleaseTests(unittest.TestCase):
             validate_release_bundle(
                 value, changed, CANDIDATE_RAW,
                 CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW,
+                CALIBRATION_NONOVERLAP_RAW,
             ),
         )
 
@@ -204,6 +209,7 @@ class NluHoldoutReleaseTests(unittest.TestCase):
             validate_release_bundle(
                 value, raw, CANDIDATE_RAW,
                 CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW,
+                CALIBRATION_NONOVERLAP_RAW,
             ),
         )
 
@@ -240,8 +246,12 @@ class NluHoldoutReleaseTests(unittest.TestCase):
             (1, "contract digest does not match sealed release"),
             (2, "scorer digest does not match sealed release"),
             (3, "development non-overlap receipt digest does not match sealed release"),
+            (4, "calibration non-overlap receipt digest does not match sealed release"),
         ):
-            artifacts = [CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW]
+            artifacts = [
+                CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW,
+                CALIBRATION_NONOVERLAP_RAW,
+            ]
             artifacts[position - 1] += b"drift"
             errors = validate_release_bundle(
                 value, policy_raw, CANDIDATE_RAW, *artifacts,
@@ -283,6 +293,7 @@ class NluHoldoutReleaseTests(unittest.TestCase):
         errors = validate_release_bundle(
             value, policy_raw, CANDIDATE_RAW + b"\n",
             CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW,
+            CALIBRATION_NONOVERLAP_RAW,
         )
         self.assertTrue(any("exact candidate bundle" in error for error in errors))
 

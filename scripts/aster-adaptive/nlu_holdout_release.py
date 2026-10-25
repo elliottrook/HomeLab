@@ -42,6 +42,7 @@ TOP_KEYS = {
     "scorer_sha256",
     "threshold_policy_sha256",
     "development_nonoverlap_receipt_sha256",
+    "calibration_nonoverlap_receipt_sha256",
     "cases",
     "release_sha256",
     "authority",
@@ -114,6 +115,7 @@ def validate_release(value: object) -> list[str]:
         "scorer_sha256",
         "threshold_policy_sha256",
         "development_nonoverlap_receipt_sha256",
+        "calibration_nonoverlap_receipt_sha256",
     )
     if value.get("status") == "template":
         if cases:
@@ -181,6 +183,7 @@ def validate_release_bundle(
     contract_raw: bytes,
     scorer_raw: bytes,
     development_nonoverlap_receipt_raw: bytes,
+    calibration_nonoverlap_receipt_raw: bytes,
 ) -> list[str]:
     """Validate a release against every exact artifact it claims to bind."""
     errors = validate_release(value)
@@ -199,6 +202,11 @@ def validate_release_bundle(
                 "development_nonoverlap_receipt_sha256",
                 development_nonoverlap_receipt_raw,
                 "development non-overlap receipt",
+            ),
+            (
+                "calibration_nonoverlap_receipt_sha256",
+                calibration_nonoverlap_receipt_raw,
+                "calibration non-overlap receipt",
             ),
         ):
             if value.get(field) != sha256(raw):
