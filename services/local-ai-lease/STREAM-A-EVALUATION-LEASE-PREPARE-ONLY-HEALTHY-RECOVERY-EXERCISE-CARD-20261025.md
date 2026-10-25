@@ -132,3 +132,18 @@ stops for manual reconciliation; it must not retry or broaden scope.
 
 This card authorizes no execution by itself, no production lease, no consumer
 quiescence, no recurring timer arm, no model call and no remote Git operation.
+
+## Latest attempted exercise — failed closed
+
+The approved attempt reached the exact healthy `prepared` state, then recovery
+failed closed because the restore observer was intermittent. Lease
+`exercise-20261025-1792968241-f519cae9` was cancelled before its deadline via
+the installed restore callback; no receipt, lease, lock, identity, intent,
+heartbeat or status remained, and F6, consumers and F2 were unchanged. The
+retained uncertain-status evidence has SHA-256
+`14ef89e12412d76623f2318f7ed0e70f73364fc0d388748aec0fa373be3cae6d`.
+
+Read-only repeats passed 8/10; phase instrumentation passed backend/auth/idle
+10/10 and GPU-holder enumeration 9/10, with one `/proc`-churn RuntimeError.
+No retry is authorized until the observer correction is installed and
+verified.
