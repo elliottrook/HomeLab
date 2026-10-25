@@ -107,6 +107,29 @@ class BrokerServiceTests(unittest.TestCase):
         self.assertEqual([], self.write_gateway.requests)
         self.assertEqual([], self.lab_gateway.requests)
 
+    def test_fresh_passkey_red_synthetic_consume_has_no_executor(self):
+        self.store.set_agent_state("agent-test", "operator")
+        self.store.register_capability("network.change", "synthetic", "red")
+        self.store.grant_capability("agent-test", "network.change")
+        payload = {"ceremony": "fictional-no-executor"}
+        created = self.call({
+            "method": "request.create", "capability": "network.change", "payload": payload,
+        })
+        self.assertEqual("pending", created["result"]["status"])
+        self.store.approve_request(
+            created["result"]["request_id"], created["result"]["payload_hash"],
+            actor="owner-hash", auth_time=self.store._now(), assurance="passkey",
+        )
+        consumed = self.call({
+            "method": "request.consume", "request_id": created["result"]["request_id"],
+            "payload": payload,
+        })
+        self.assertEqual("consumed", consumed["result"]["status"])
+        self.assertTrue(consumed["result"]["synthetic"])
+        self.assertEqual([], self.read_gateway.requests)
+        self.assertEqual([], self.write_gateway.requests)
+        self.assertEqual([], self.lab_gateway.requests)
+
     def test_green_repository_file_read_uses_bounded_read_gateway(self):
         self.store.set_agent_state("agent-test", "operator")
         self.store.register_service("forgejo-mcp")
