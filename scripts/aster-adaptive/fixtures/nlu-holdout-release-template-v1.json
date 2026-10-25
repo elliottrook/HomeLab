@@ -1,0 +1,26 @@
+{
+  "authority": "not-granted",
+  "cases": [],
+  "contract_sha256": "",
+  "development_nonoverlap_receipt_sha256": "",
+  "family_targets": {
+    "change-request": 6,
+    "external-research": 6,
+    "general-answer": 6,
+    "household-command": 6,
+    "read-only-investigation": 6,
+    "unsupported": 6
+  },
+  "release_id": "nlu-holdout-v1",
+  "roles": {
+    "case_custodian": "",
+    "evaluation_operator": "",
+    "label_reviewer": "",
+    "score_reviewer": ""
+  },
+  "schema": "aster-nlu-holdout-release.v1",
+  "scorer_sha256": "",
+  "status": "template",
+  "target_cases": 36,
+  "threshold_policy_sha256": ""
+}

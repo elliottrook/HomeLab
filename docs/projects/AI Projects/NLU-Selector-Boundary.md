@@ -89,6 +89,13 @@ as their own blocking signals, retains invalid attempts in the denominator and
 keeps request text out of run and score records. It is regression tooling, not
 the independent holdout required above.
 
+The [holdout custody boundary](evidence/M3-NLU-holdout-custody-boundary-2026-10-24.md)
+now fixes a content-free 36-case release shape with six opaque cases per family,
+four distinct custody/review roles, frozen contract/scorer/threshold provenance
+and development-set non-overlap evidence. The empty template and validator do
+not create or claim the holdout. Independent case creation, human labels,
+calibration, sealing, evaluation and review remain open.
+
 ## Validation checkpoint — 2026-10-24
 
 The focused interpretation, route, Decision and Outcome semantic suites pass
