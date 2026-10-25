@@ -1,7 +1,9 @@
 """Offline fixtures for Doctor's opt-in, source-owned check evidence."""
 
 import hashlib
+import base64
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -93,16 +95,50 @@ class StructuredDoctorReportTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(legacy.read_text())["schema"], 1)
 
-    def test_cannot_publish_structured_candidate(self):
-        doctor = self.directory / "unused.sh"
+    def test_publishes_digest_bound_pair_without_private_summary(self):
+        doctor = self.directory / "fixture-doctor.sh"
+        doctor.write_text(
+            "#!/bin/bash\nprintf '🔴 token=FIXTURE_NOT_A_SECRET\\n'\n" +
+            HELPER_CODE + "doctor_emit_aster_state fail\n",
+            encoding="utf-8",
+        )
+        doctor.chmod(0o700)
+        fake_bin = self.directory / "bin"
+        fake_bin.mkdir()
+        fake_ssh = fake_bin / "ssh"
+        fake_ssh.write_text('#!/bin/sh\ncat > "$PUBLISH_CAPTURE"\n', encoding="utf-8")
+        fake_ssh.chmod(0o700)
+        published = self.directory / "published-envelope.json"
+        capture = self.directory / "doctor-capture.txt"
+        collector_result = self.directory / "collector-result.json"
+        environment = os.environ.copy()
+        environment["PATH"] = str(fake_bin) + os.pathsep + environment["PATH"]
+        environment["PUBLISH_CAPTURE"] = str(published)
         result = subprocess.run(
             [sys.executable, str(BUILDER), "--doctor", str(doctor),
-             "--output", str(self.aggregate), "--structured-output", str(self.structured), "--publish"],
+             "--output", str(self.aggregate), "--structured-output", str(self.structured),
+             "--capture-output", str(capture), "--result-output", str(collector_result),
+             "--publish"],
+            capture_output=True, text=True, check=False, env=environment,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        envelope = json.loads(published.read_text())
+        self.assertEqual(base64.b64decode(envelope["aggregate"]), self.aggregate.read_bytes())
+        self.assertEqual(base64.b64decode(envelope["structured"]), self.structured.read_bytes())
+        self.assertNotIn("FIXTURE_NOT_A_SECRET", self.structured.read_text())
+        self.assertIn("FIXTURE_NOT_A_SECRET", capture.read_text())
+        self.assertEqual(capture.stat().st_mode & 0o777, 0o600)
+        self.assertEqual({"doctor_exit": 0}, json.loads(collector_result.read_text()))
+        self.assertEqual(collector_result.stat().st_mode & 0o777, 0o600)
+
+    def test_destinations_must_be_distinct(self):
+        result = subprocess.run(
+            [sys.executable, str(BUILDER), "--output", str(self.aggregate),
+             "--structured-output", str(self.aggregate)],
             capture_output=True, text=True, check=False,
         )
         self.assertNotEqual(result.returncode, 0)
         self.assertFalse(self.aggregate.exists())
-        self.assertFalse(self.structured.exists())
 
     def test_structured_output_replaces_symlink_without_writing_its_target(self):
         victim = self.directory / "unrelated.txt"

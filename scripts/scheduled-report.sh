@@ -17,17 +17,23 @@ set +e
 drift_output="$("$repo/scripts/drift-check.sh" check 2>&1)"
 drift_result=$?
 
-doctor_output="$("$repo/scripts/doctor.sh" 2>&1)"
-doctor_result=$?
-
-# Reuse this run's bounded Doctor output; no second scan or extra alert channel.
 doctor_capture="$state_dir/doctor-output.txt"
-printf '%s\n' "$doctor_output" > "$doctor_capture"
-chmod 600 "$doctor_capture"
+doctor_collector_result="$state_dir/doctor-collector-result.json"
+rm -f "$doctor_collector_result"
 /usr/bin/python3 "$repo/scripts/build-aster-health-report.py" \
-    --input "$doctor_capture" --exit-code "$doctor_result" \
-    --output "$state_dir/aster-health.json" --publish
+    --doctor "$repo/scripts/doctor.sh" \
+    --capture-output "$doctor_capture" \
+    --output "$state_dir/aster-health.json" \
+    --structured-output "$state_dir/aster-inference.json" \
+    --result-output "$doctor_collector_result" \
+    --publish
 health_publish_result=$?
+if [ "$health_publish_result" -eq 0 ] && [ -f "$doctor_collector_result" ]; then
+    doctor_result="$(/usr/bin/python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["doctor_exit"])' "$doctor_collector_result")"
+else
+    doctor_result=1
+fi
+doctor_output="$(cat "$doctor_capture" 2>/dev/null || true)"
 
 certificate_output="$("$repo/scripts/certificate-check.sh" 2>&1)"
 certificate_result=$?

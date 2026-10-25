@@ -890,6 +890,15 @@ tests and reject unsafe, stale or ambiguous evidence as unavailable. It remains
 source-only: no dedicated caller, broker capability, gateway, production
 schema-2 sidecar, model egress or grant has been created.
 
+The follow-on [single-run producer candidate](evidence/M1-D4-single-run-doctor-producer-candidate-2026-10-25.md)
+removes the production evidence gap in source without running Doctor twice.
+One fresh invocation supplies the existing operator report, a private local
+transcript and the digest-bound fixed-check sidecar; the 23/23 combined suite
+proves exact-byte binding, atomic writes, privacy separation and safe abstention
+during a mixed update. This is still source-only. The 08:15 schedule and LXC104
+files are unchanged, and no caller, broker registration, grant or model route
+exists yet.
+
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)
 deployed caller binding and restrictive checks, while the
 [Stage2 approver/assurance candidate](evidence/M1-stage2-candidate.md) is **not
