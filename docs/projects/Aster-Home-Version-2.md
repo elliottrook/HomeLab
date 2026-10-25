@@ -102,8 +102,10 @@ preferences, watch badges, compact player controls, stop-on-exit, audio
 playback, six-hour audio catalogue refresh and startup splashes are delivered
 baseline/regression checks, not new v2 promises.
 
-Audiobook/podcast progress synchronization is not implemented. eBooks remain
-a frozen 505-title catalogue until Reader work. Cameras need a production
+Audiobook/podcast progress synchronization was absent at baseline; the HP now
+has the separately approved household-progress pilot documented below. Production
+has not been promoted. eBooks remain a frozen 505-title catalogue until Reader
+work. Cameras need a production
 delivery path. YouTube API setup remains paused until the owner is available.
 At the v2 baseline, Music had Home, Albums, Artists, Songs and Playlists, with
 genre metadata displayed but no dedicated Music Genres destination. HP's current
@@ -4419,3 +4421,65 @@ on Home with the normal sync pilot enabled. Focused local commit is retained
 pending separately authorized Forgejo synchronization. Remaining M4 work is
 multi-file ordering/transitions, explicit completion/restart policy and further
 listening features; these are not claimed by this first accepted pilot.
+
+### M4 next slice — verified multi-file household progress
+
+Jason requested continued HP work after the single-file pilot. Same approved
+normal shared-progress scope, limited account and HP-only exclusions apply.
+Pre-start: this slice changes only the Books bridge overlay to admit multi-file
+books after explicit inode/index/duration/start-offset agreement. Never infer
+file order from names. Reject duplicates, excluded/error files, gaps, shuffled
+tracks, unknown durations or stale Resume pointing to a different file. Use
+whole-book progress with the existing observer's positively owned local time.
+No completion/restart changes, new identity, permissions, ingress or speech.
+
+GET-only survey inspected36 books:33 single-file and3 multi-file examples with
+24/19/40 files. All three pass strict authoritative-map validation on the HP;
+only field names/counts were returned, while original metadata stays in a
+private on-box checkpoint. Official ABS [expanded book/track schema](https://api.audiobookshelf.org/#book-expanded)
+was consulted alongside the installed bridge and actual schema. Local model
+tests cover global-time saves across file transitions and refusal to resume
+the wrong file if another client moved progress. Before enabling acceptance,
+checkpoint all nine overlay predecessors, test a normal owned file transition,
+save/exit and Resume to the correct file, then repeat single-file/podcast
+regressions and full preservation. A test seek near a verified owned file's end
+may accelerate the natural transition; it must never imply completion.
+Recovery is exact sync5→sync4 rollback with progress/journals retained. Production
+is excluded; accepted HP pilot remains independently recoverable.
+
+Multi-file gate evidence (2026-10-25): sync5 manifest
+`010e23df40c70e1eaeeb478e359b9da7cb56223549701a3795aea2defa676ff8`
+installed after fresh idle/composition proof. Only the bridge module differs
+from sync4; all nine exact predecessors are checkpointed on HP and verified in
+the additional private `/tmp/aster-books-sync-recovery-khKY72/aster-books-sync5`
+copy. `multifile-ui-1792940582729171693.json` passes normal title/row selection,
+owned seek to four seconds before file1 end, **natural automatic file1→file2**,
+Pause save with verified whole-book time, Back/exit-stop, reopen and source
+Resume into the correct file2/offset. Completion remains false. The test chose
+a book with no existing progress; that new legitimate household position is
+retained, not deleted/reset. Finished idle/empty at Home. Local575 tests pass
+normal and optimized, including38 sync tests. Single-file/podcast regressions
+and final composition checks follow before this slice is handed over.
+
+Regression `native-ui-1792940630230028060.json` passes normal single-file book
+and exact podcast Resume/Pause/Back saving with the new bridge, leaving Home
+stopped/empty. **HP operator change:** verified multi-file books now offer the
+same household Resume row, which opens the correct file as well as its local
+offset. Explicit chapter selection still means that chapter's start. Unsupported
+maps remain playback-only; this is not support for arbitrary filename ordering.
+
+Final sync5 composition proof `postcheck-1792940686710114066.json` passes all
+accepted overlays, nine Books members,68 AV/language checks, database integrity
+and original idle/empty queues. Recovery copies verified; no source completion
+or history repair was performed. This slice is accepted for HP pilot use only.
+
+Next listening-control preflight: native read-only introspection
+`control-capabilities-1792940707211111044.json` advertises `Player.SetTempo`
+separately from integer fast-forward `Player.SetSpeed`. Advertising a method is
+not proof that the current audio engine supports pitch-preserving speed; verify
+on an exact owned Books stream and restore1.0 before any native speed UI claim.
+Sleep presets will use an ephemeral monotonic deadline tied to one positively
+owned book/episode; save before one verified Stop, never stop unrelated audio,
+cancel on ownership loss, and never replay an expired timer after restart.
+No new service/identity, source completion, privileges, speech or production
+change is included. Existing HP lab tests/restarts remain the authorized scope.

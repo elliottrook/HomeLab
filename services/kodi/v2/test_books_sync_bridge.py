@@ -1,4 +1,4 @@
-import importlib.util,io,json,sys,tempfile,unittest
+import copy,importlib.util,io,json,sys,tempfile,unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -60,3 +60,34 @@ class SyncBridgeTests(unittest.TestCase):
         self.bridge.capabilities={str(i):('book','1',self.bridge.clock()+100) for i in range(6501)}
         with patch.dict(sys.modules,{'resources.lib.bridge':base}),self.assertRaises(base.BridgeError):self.bridge.describe('audiobook','book')
         self.assertEqual(len(self.bridge.capabilities),6501)
+    def multifile(self):
+        self.metadata['media']=dict(audioFiles=[
+            dict(ino=1,index=1,duration=100,metadata=dict(filename='z.mp3')),
+            dict(ino=2,index=2,duration=150,metadata=dict(filename='a.mp3'))],
+            tracks=[dict(ino=1,index=1,duration=100,startOffset=0),dict(ino=2,index=2,duration=150,startOffset=100)],
+            chapters=[dict(title='A',start=0,end=100),dict(title='B',start=100,end=250)])
+    def test_multifile_resume_uses_actual_second_file_not_first_entry(self):
+        self.multifile();self.progress=Progress(Scope('tv','audiobook','book'),250,130,False,False,1)
+        entries=self.bridge.describe('audiobook','book');resume=entries[0]
+        binding=self.bridge.registry.get(resume['url'])
+        self.assertEqual((binding.index,binding.offset),(1,30))
+        self.assertEqual(self.bridge.lookup(__import__('urllib.parse',fromlist=['urlsplit']).urlsplit(resume['url']).path)[1],'2')
+        self.assertEqual(self.bridge.registry.get(entries[2]['url']).index,1)
+        self.assertEqual(self.bridge.registry.get(entries[2]['url']).offset,0)
+        self.assertFalse(self.bridge.registry.get(entries[2]['url']).resume)
+    def test_multifile_file_rows_without_chapters_have_global_indices(self):
+        self.multifile();self.metadata['media']['chapters']=[]
+        entries=self.bridge.describe('audiobook','book')
+        self.assertEqual([self.bridge.registry.get(e['url']).index for e in entries],[0,1])
+    def test_ambiguous_track_maps_never_bind(self):
+        self.multifile();original=copy.deepcopy(self.metadata)
+        changes=[lambda m:m['tracks'].reverse(),lambda m:m['tracks'][1].update(ino=1),
+            lambda m:m['tracks'][1].update(startOffset=90),lambda m:m['tracks'][1].update(duration=151),
+            lambda m:m['audioFiles'][1].update(ino=1),lambda m:m['audioFiles'][1].update(index=1),
+            lambda m:m['audioFiles'][1].update(exclude=True),lambda m:m['tracks'][1].update(error='bad'),
+            lambda m:m['tracks'][1].update(index=True)]
+        for change in changes:
+            with self.subTest(change=changes.index(change)):
+                self.metadata=copy.deepcopy(original);change(self.metadata['media'])
+                entries=self.bridge.describe('audiobook','book')
+                self.assertTrue(entries);self.assertTrue(all(self.bridge.registry.get(e['url']) is None for e in entries))

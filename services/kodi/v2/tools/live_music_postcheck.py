@@ -95,7 +95,8 @@ if books_file.exists():
     accepted_books={'aster-books-sync1':'252f182781531cb9e54aaaeeb58a9ddc1bbb0e1eb08985a94908a1c16d62e89a',
         'aster-books-sync2':'fce7bf41f64e7617a62a26af322ae98460eafd6ec87efc681ed812d15ef5485f',
         'aster-books-sync3':'7bc5c6ec96c8c0bfb0a18272e8da54ecd4bb647622e150864dc229aa41576de9',
-        'aster-books-sync4':'d332a979018d92add2999909e4cf272190624c54bf4db5e0f1fb12c281f85af6'}
+        'aster-books-sync4':'d332a979018d92add2999909e4cf272190624c54bf4db5e0f1fb12c281f85af6',
+        'aster-books-sync5':'010e23df40c70e1eaeeb478e359b9da7cb56223549701a3795aea2defa676ff8'}
     books_name=books.get('stage');_require(books_name in accepted_books and hashlib.sha256(books_file.read_bytes()).hexdigest()==accepted_books[books_name],'books-sync-manifest')
     _require(books.get('kind')=='hp-books-shared-progress.v1' and len(books['files'])==9,'books-sync-contract')
     _require((stage/books_name/'manifest.json').read_bytes()==books_file.read_bytes(),'books-sync-stage')

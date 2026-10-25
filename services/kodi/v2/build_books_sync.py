@@ -14,6 +14,7 @@ LIBRARIES=('books_progress.py','books_progress_reader.py','books_progress_trial.
 FIRST_SHA='252f182781531cb9e54aaaeeb58a9ddc1bbb0e1eb08985a94908a1c16d62e89a'
 SECOND_SHA='fce7bf41f64e7617a62a26af322ae98460eafd6ec87efc681ed812d15ef5485f'
 THIRD_SHA='7bc5c6ec96c8c0bfb0a18272e8da54ecd4bb647622e150864dc229aa41576de9'
+FOURTH_SHA='d332a979018d92add2999909e4cf272190624c54bf4db5e0f1fb12c281f85af6'
 def sha(data):return hashlib.sha256(data).hexdigest()
 def build(snapshot,output):
     snapshot,output=Path(snapshot),Path(output)
@@ -50,14 +51,14 @@ def successor(snapshot,output):
     raw=(snapshot/'manifest.json').read_bytes()
     old=json.loads(raw)
     predecessors={'aster-books-sync1':(FIRST_SHA,'aster-books-sync2'),'aster-books-sync2':(SECOND_SHA,'aster-books-sync3'),
-        'aster-books-sync3':(THIRD_SHA,'aster-books-sync4')}
+        'aster-books-sync3':(THIRD_SHA,'aster-books-sync4'),'aster-books-sync4':(FOURTH_SHA,'aster-books-sync5')}
     if old.get('stage') not in predecessors or sha(raw)!=predecessors[old['stage']][0]:raise ValueError('exact-books-predecessor-required')
     previous,new_name=predecessors[old['stage']]
     files={r['path']:(snapshot/'payload'/r['path']).read_bytes() for r in old['files']}
     if any(sha(files[r['path']])!=r['sha256'] for r in old['files']):raise ValueError('books-sync1-drift')
     files[PLUGIN+'service.py']=(HERE/'books_sync_service.py').read_bytes()
     files[PLUGIN+'resources/lib/books_sync.py']=(HERE/'books_sync.py').read_bytes()
-    if new_name in ('aster-books-sync3','aster-books-sync4'):
+    if new_name in ('aster-books-sync3','aster-books-sync4','aster-books-sync5'):
         files[PLUGIN+'resources/lib/books_sync_bridge.py']=(HERE/'books_sync_bridge.py').read_bytes()
     if new_name=='aster-books-sync3':
         data=files[PLUGIN+'default.py'];needle=b"        item.setProperty('AsterBooks.Kind', kind)"
