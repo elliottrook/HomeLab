@@ -3186,3 +3186,12 @@ automation; only the first attempt coincided with invalid-geometry diagnostics,
 the app stayed alive, and normal mode recovered cleanly. This is retained as an
 inconclusive automation/display observation, not a claimed product failure.
 See [the dated result](evidence/D3-companion-test-window-2026-10-25.md).
+
+## 2026-10-25 — October 26 F2 static state rechecked
+
+At 10:18 PDT, independently re-read the two installed exact-date timer hashes,
+their enabled/active state and 01:15/01:20 next elapses, plus all five pinned
+F2 source hashes. Every byte matched the approved activation card. The October
+26 state, cooperative lease/lock and trusted receipt remained absent. This is
+a static pass only; the future backup, TrueNAS, archive identity and quiet-host
+checks remain mandatory, and no scan, receipt, lease or model call ran.

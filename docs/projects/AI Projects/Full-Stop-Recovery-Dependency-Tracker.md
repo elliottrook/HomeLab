@@ -106,7 +106,11 @@ passes. Jason then approved the exact activation. Platform commit
 enabled, active and waiting for 01:15/01:20 PDT, with recurring timers still
 disabled and no manual service start. Stream A independently confirmed those
 states and created the one-occurrence 01:42 observation/cleanup heartbeat. F2
-is still open until runtime produces three bounded exit-zero rows.
+is still open until runtime produces three bounded exit-zero rows. A later
+[10:18 PDT static recheck](evidence/F2-october-26-static-recheck-2026-10-25.md)
+again matched both timer and all five installed source hashes, found both
+timers active at their exact times, and confirmed the new-cycle state, lease,
+lock and receipt absent. This does not replace the fresh runtime gates.
 
 The [October 24 terminal result](evidence/F2-exact-cycle-no-go-2026-10-24.md)
 is NO-GO. Preparation succeeded, but the final service exited 1 with bounded
