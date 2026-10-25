@@ -245,3 +245,24 @@ lease lock or operation lock, keeps all F6 timers inactive, and leaves the
 October 26 F2 timers active for 01:15 and 01:20 PDT. The source correction is
 ready for one exact inactive installation. That installation does not
 authorize the later exercise.
+
+### Exercise-admission inactive installation
+
+Jason approved the exact three-file inactive installation. The transaction
+matched all old and packet hashes, preserved the old files mode 0600 under the
+root-only mode-0700 checkpoint
+`/root/stream-a-evaluation-exercise-admission-20261025`, and installed only the
+contract, adapter and entrypoint at their accepted hashes with root:root mode
+0644. All 68 target-Linux tests passed, installed imports passed, and the real
+wrapper remained inert without its effect flag.
+
+Independent postcheck matched the three installed hashes and checkpoint
+custody. The durable lease, lease lock, transient operation lock, identity,
+owner intent, heartbeat, watchdog status and restore intent all remained
+absent. All five F6 units/timers remained disabled/inactive; LXC104/110/116,
+`pvescheduler` and `pvestatd` remained healthy. The October 26 F2 timers stayed
+active at 01:15 and 01:20 PDT.
+
+This closes the inactive exercise-admission dependency. It does not authorize
+or prove the prepare-only exercise. The next gate is one exact runner and
+fresh preflight for the separately approved live action.
