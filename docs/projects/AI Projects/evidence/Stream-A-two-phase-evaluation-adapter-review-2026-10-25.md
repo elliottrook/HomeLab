@@ -121,3 +121,31 @@ the test SHA-256 is
 Nothing from this follow-up is installed. Platform integration, a corrected
 hash-pinned inactive upgrade card and independent prestate review remain the
 next steps.
+
+### Prepared-cancel inactive installation
+
+The platform owner integrated the correction as `2f59c2b0` and pinned the
+one-file transaction in metadata commit `fcc40a37` (card SHA-256
+`738a4920c2969c3f040c699a67237d4841bb3ad4258e1d625f7c4fd01fed26bc`).
+Jason approved the exact inactive upgrade. The complete source/test packet
+SHA-256 was
+`446d1bb22a5b4a34be1b0f4e3f7161f32cc1a769493470ff9a1956e153dca6ee`.
+
+The target transaction matched the old adapter prehash, retained a root-only
+mode-0600 rollback file under
+`/root/stream-a-evaluation-prepared-cancel-20261025`, installed only the new
+adapter at root:root mode 0644, and passed 41/41 target-Linux tests plus
+installed imports. Independent postcheck matched adapter SHA-256
+`db9c368707f4203d96725a06012adba808d8c425d42b1c25d19e7837052ce7cc`.
+All five F6 units/timers remained disabled/inactive; lease, lock, operation
+lock, identity, intent, heartbeat, status and restore-intent paths remained
+absent. Production guests/services, pvescheduler and pvestatd remained healthy,
+and the October 26 F2 timers remained scheduled for 01:15/01:20 PDT.
+
+This closes the prepared-cancel source/install dependency. Review of the first
+live exercise card then found that every installed owner/heartbeat/watchdog
+unit has `RefuseManualStart=yes`, while the exercise correctly forbids arming
+its recurring timers. A direct owner-wrapper launch cannot pass the identity
+binding because its process is not in the hard-coded owner service cgroup. The
+exercise therefore remains NO-GO pending a bounded authentic owner-launch path
+and a corrected exact card; no exercise state was created.
