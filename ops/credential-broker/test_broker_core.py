@@ -155,6 +155,18 @@ class BrokerCoreTests(unittest.TestCase):
         with self.assertRaisesRegex(BrokerDenied, "not active"):
             self.store.discover_capabilities("agent-test")
 
+    def test_same_state_management_ceremony_preserves_open_request(self):
+        self.store.set_agent_state("agent-test", "operator")
+        request = self.store.create_request(
+            "agent-test", "network.change", {"ceremony": "no-executor"},
+        )
+        self.store.set_agent_state("agent-test", "operator", actor="a" * 64)
+        self.assertEqual("operator", self.store.management_snapshot()["agents"][0]["state"])
+        self.assertEqual("pending", self.store.get_request(request.request_id).status)
+        events = [row for row in self.store.audit_rows() if row["event"] == "agent.state"]
+        self.assertEqual("operator", events[-1]["outcome"])
+        self.assertEqual("a" * 64, events[-1]["actor"])
+
     def test_capability_revoke_blocks_new_requests_and_outstanding_work(self):
         request = self.store.create_request("agent-test", "health.read", {})
         self.store.revoke_capability("agent-test", "health.read", actor="human-test")
