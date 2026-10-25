@@ -13,7 +13,7 @@ def focus(identity):
     except RuntimeError:return None
 data=dict(window=window,dialog=dialog,focus=focus(window),modal=xbmc.getCondVisibility('System.HasModalDialog'),
     search={key:home.getProperty('AsterSearch.'+key) for key in ('Open','Ready','DetailOpen','CanOpen','Handoff')},
-    child={key:home.getProperty(key) for key in ('AsterSeries.PreviewWindow','AsterV2Lab.AlbumWindow')},
+    child={key:home.getProperty(key) for key in ('AsterSeries.PreviewWindow','AsterV2Lab.AlbumWindow','AsterMovie.Window','AsterMovie.Phase')},
     players=rpc('Player.GetActivePlayers'),
     queues=[rpc('Playlist.GetItems',dict(playlistid=i,limits=dict(start=0,end=1))).get('limits',{}).get('total') for i in (0,1)],
     recovery_fence=Path('/storage/.aster-checkpoints/aster-global-search-20261024/handoff-pending.json').exists())

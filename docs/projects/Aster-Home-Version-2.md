@@ -49,18 +49,23 @@
   HP is idle; new scrub remote/visual acceptance is pending Jason's availability,
   not a gate on independent work. Grouped local-index search is the next bounded
   M2 slice. Recovery/evidence below.
-  Search/artist-links9 is active on HP, manifest
-  `01e499b94aa5f819900fa311515a95a58ead1207f9e3e272fb287590d63b282e`.
+  Search/movie-links12 is active on HP, manifest
+  `df09e4c45a9e67a18fdb0dc7fe5703766cec55e2674175dfb13727c185dca1a3`.
   Media Home has Search beside the clock. Native search/details open accepted
   series16/Music64 album/song pages without autoplay; Back restores exact search
   context and Home exits without being hijacked. Artist search opens an exact-ID
   credited-albums list, then the accepted album player; nested Back preserves
-  both levels. Two native passes, including restart, and artist Search-again/
-  Home exits succeed. Movies remain details-only; Books/podcasts/voice remain
-  explicitly unconnected. Details4/accepted6 and rejected5/7/8 recovery retained. Exact
+  both levels. Movie search now opens a native details/Play/Resume page without
+  autoplay, using exact IDs and positively owned playback/queue cleanup. Actual
+  Play, existing bookmark resume, OSD and Back stop/search return pass; all-type
+  navigation passes before/after restart. Native list restoration now waits for
+  matching category/result/focus rather than saving an old first-row position.
+  Books/podcasts/voice remain explicitly unconnected. Exact9 recovery and
+  retired10/11 candidates are retained along with earlier checkpoints. Exact
   preservation/evidence below; no M2 graduation or production change.
-  Published through `920e1205` on 2026-10-24 at Jason's “Push and continue”;
+  Published through `ebeb1501` on 2026-10-24 at Jason's “Push and continue”;
   Forgejo and its automatic GitHub mirror both verified at that exact commit.
+  Subsequent movie/search12 work is local pending a new specific push request.
 - Up Next is urgent and extracted into the separate
   [v1.1 project](Aster-Home-Version-1.1-Up-Next.md); v2 consumes its accepted
   result, not another implementation or an excuse to delay it.
@@ -3568,3 +3573,188 @@ Production never contacted or changed. The initial requested push through
 local commit pending another specific push request. M2 is not graduated.
 Next bounded work is movie search's real playback/details handoff; its existing
 native information skin lacks Play/Resume and must not be labelled complete.
+
+### 2026-10-24 — Movie search bounded pre-start
+
+Continue under HP lab autonomous test/restart authority, not production
+promotion or another Git push. Search10 will add one native regular movie page
+1130/11130, with exact-ID metadata, artwork, explicit floating Play-from-start
+and conditional Resume controls. The search controller remains read-only;
+the separate movie owner uses Kodi's documented `Player.Open` movieid plus
+boolean resume, never a guessed stream URL. Kodi/Jellyfin retain resolution,
+English preferences, stream selection and watch reporting. Official schema
+checked at https://kodi.wiki/view/JSON-RPC_API/v12 (Player.Open).
+
+Current HP is LibreELEC12.2.1/Kodi21.3 and exact search9. Targets are its five
+existing search overlays plus a previously absent `custom_1130_movie.xml`;
+thirteen immutable staged members. No v1 source edits, native-info replacement,
+new service, identity/permission change, queue editing, credentials or speech.
+The accepted green/gold/neutral TV exception and supplied SVG-derived player
+icons remain; no stone-textured controls or background boxes.
+
+Before each explicit play: reverify staged/installed integrity, accepted
+fullscreen stop-on-exit/episode-marker/Jellyfin late-start guards, an idle
+player and empty audio/video queues, and two agreeing exact movie snapshots.
+Resume requires a real current bookmark; Play-from-start is a distinct action.
+One request only; positive owned movie identity before any cancellation Stop.
+Unknown starts/stops are privately fenced, not retried; unrelated players are
+never stopped and Home is not reopened. Native page Back has explicit Search
+parent; leaving fullscreen retains accepted stop-on-exit semantics.
+
+Checkpoint exact9's five originals/raw manifest and isolated thirteen-member
+stage, then one bounded idle Kodi restart. Failure/rollback restores all five,
+retains introduced movie XML outside the skin path and restores active9; no
+database rollback/history rewrite. Local tests cover unsafe IDs, missing/stale
+sources, absent resume, queue/player collisions, delayed identity, unknown
+results, positive-only Stop, isolated restore, failed activation and drift.
+Native gates: normal Search→movie no-autoplay/exact Back; actual movie1036
+Play, OSD, Back stop and source return; existing bookmarked movie resume only
+if a suitable real bookmark is available. Normal playback can naturally update
+Jellyfin watch/progress, as with prior approved episode tests; never manually
+restore those records. Repeat navigation after restart, normal TV/Music/artist
+regressions, fresh full preservation and no remaining fences. Physical remote,
+listening, HDR and soak acceptance remain unclaimed.
+
+Movie10 no-play navigation passed. The first driver used unsafe native
+`getControl()` inspection and Kodi exited139 before playback; no pass is
+claimed for that run. The existing static harness check caught that access
+when the newly added helper was included. It now navigates using native input
+and projected info labels only; all463 tests then passed normal/optimized.
+Corrected native navigation completed with the same PID and no further restart.
+
+Actual movie1036 started and was positively identified. The first playback
+driver falsely rejected Kodi's extra `playertype=internal` field; its owner
+correctly remained playing. Sanitized native identity evidence verified that
+movie before Back stopped it. Two integration findings must be corrected:
+native fullscreen Back returns directly to Search (do not forcibly reopen the
+movie page), and Kodi leaves its created singleton movie video queue behind.
+
+The no-queue-editing pre-start boundary is refined **only** for restoring this
+owner-created queue to its proven empty entry state: after positive owned
+playback has stopped, require two agreeing snapshots of no players, empty
+audio queue and either an already empty video queue or exactly one movie item
+with the requested positive movie ID. Recheck no players immediately before
+one `Playlist.Clear(1)`; confirm empty afterward. Refuse any different, multiple
+or unverified item. Unknown clear results are fenced without retry. This is
+normal scoped cleanup of the owner's request, not authority over pre-existing
+or other playback queues. No server/API-permission expansion or history edits.
+
+The specific stopped movie1036 queue from candidate10 is retired through the
+same guard, additionally requiring exact10 manifest, its proven empty preflight
+and retained positive native ownership evidence. Then roll back10 to exact9;
+candidate11 will carry the cleanup and direct-search-return correction. Retain
+all failed/diagnostic evidence. Do not clear an arbitrary queue to enable tests.
+
+Owned movie10 queue retirement passed in
+`retired-movie10-queue-1792908248068246866.json`; exact9 rollback was performed.
+Movie11 then passed actual Play/OSD/Back/empty-owned-queue and real existing
+bookmark resume in `native-movie-1792908463412152838.json`, with a no-play
+all-type search run also passing. Its after-restart run exposed an intermittent
+search restoration race: asynchronous native category selection allowed the
+ordinary group-change loop to save the old first-row position over the intended
+returned movie. Idle queues/Home were verified and11 was actually rolled back.
+
+Search/movie12 retains the same thirteen/six-member boundary and exact9
+predecessor. It now holds Ready false until native category/index/result ID and
+focus agree for two consecutive observations, keeping the normal group-change
+loop out of that settling interval. Restore remains by refreshed identity, not
+old offset. Home/other navigation during settling exits without reopening or
+creating an unknown-playback fence. The movie owner is otherwise unchanged.
+The native movie hero also retains a broad dark scrim and text shadow for
+synopsis readability, not a heavy rectangle. Repeat real playback/resume,
+all-type native navigation before/after restart, normal Music/TV/artist exits,
+fresh preservation and exact recovery verification before accepting12.
+
+### 2026-10-24 — HP search/movie12 delivered and recovery verified
+
+Active stage `/storage/.aster-staging/aster-global-search-ui12`, manifest SHA
+`df09e4c45a9e67a18fdb0dc7fe5703766cec55e2674175dfb13727c185dca1a3`:
+thirteen staged members, six installed overlays. The new native movie1130
+page is entered from a verified Movie search result, not from an invented
+media path. It shows the indexed poster/backdrop/title/genre/year/synopsis/
+rating/certificate/runtime, floating labelled Play-from-start, conditional
+current-bookmark Resume and Back. No autoplay, new resolver or volume command.
+Main movie-library selection and existing native information XML are unchanged;
+this milestone connects **search**, not every movie entry point.
+
+Normal native runs passed on this exact stage before/after restart:
+
+- `native-playerlinks-1792909175191587135.json`
+- `native-playerlinks-1792909323527326470.json`
+
+Both cover TV/movie/album/song no-autoplay handoff and exact query/ID/focus
+return, artist→album→player→artist→original result, global Home, no matches and
+Home Search focus. Each took ~41sec; Movie entry ~0.54sec, existing complete
+Music admission ~3.3sec. The asynchronous-return fix is exercised directly
+with delayed-control unit fixtures: readiness needs two agreeing native
+observations; leaving to Home exits without a failed-playback fence; a stuck
+control never marks a wrong result ready. Physical G20 review remains pending.
+
+`native-movie-1792909401764722474.json` passes explicit native movie1036 Play
+from start, positive movie identity, existing audio/subtitle/quality OSD controls,
+fullscreen Back stop, owned singleton video-queue cleanup and exact search
+return. A separate already-existing bookmarked movie was actually resumed;
+observed time allowed the accepted Jellyfin ten-second jump-back. No synthetic
+bookmark or manual history restoration was used. Normal playback naturally
+updates the lab account's progress. Home from the movie page exits without
+reopening Search. The repeated stage12 test finished idle with empty queues.
+
+Independent normal entry/exit regressions pass:
+
+- `native-music-regression-1792909449943386658.json`
+- series checkpoint `native-navigation-1792909502399699120.json`
+- `native-artist-exits-1792909559301450117.json`
+
+They retain ordinary album/song entry and source focus, native TV selection and
+movie browsing, artist Search-again/root/Back Home and artist global Home.
+Movie11 screenshot `movie-page-1792908436991064617.png` was inspected at4K;
+its movie XML is unchanged in12. The broad scrim/text shadow improves the
+synopsis over bright artwork, poster corners/aspect remain correct, logo uses
+the accepted anchor/size, controls float without heavy boxes or texture.
+The shared guide's accessibility/privacy rules and explicit TV gold/green/
+neutral exception apply; no new speech is produced.
+
+Final baseline:
+`/storage/.aster-checkpoints/aster-music-progressive-20261024/postcheck-1792909769031285017.json`,
+SHA `e149b64ace693e0d889041b0b514a1c11c4a84b677881a88873d819d191a5161`.
+It verifies Music48, baseline139, prior floating-player4, normal Music8, rail1,
+series2, scrub2/prepared dialog1, search/movie6 and AV/language68. Music/video
+database integrity passes; missing primary artist links0. No players, both
+queues empty, shuffle off, all lab windows closed, no unresolved movie/search/
+series/scrub fence. Final exact-stage result
+`handoff-postcheck-1792909811398120201.json` additionally verifies all13 staged
+and isolated-restore members, six installed files, four child implementations,
+two native navigation passes, actual movie playback/resume and two paired
+recovery tools. HP PID25018, restart counter0 since the planned restart, warm
+idle842661888bytes (~804MiB). This is not a listening/HDR/soak guarantee.
+
+Recovery checkpoint:
+`/storage/.aster-checkpoints/aster-global-search-20261024/aster-global-search-ui12`.
+It retains all13 isolated stage files, exact9's five originals/raw active
+manifest and a **matched private recovery-tools pair**, so a later staging
+module cannot silently change the rollback target. With Kodi stopped, run
+its `recovery-tools/deploy_movie_search.py rollback` using12's exact SHA above
+and `unused` as final argument, then start Kodi. The helper restores exact9's
+five members/raw manifest, retains the introduced1130 XML off the skin path,
+refuses unknown drift and does not restore databases/history/settings.
+Recovery tool SHA `d0bb1497d39f0c8c735063685660bf42fa76ad173874cdd00477516bbc64cb77`;
+paired movie module SHA `67970abac0c8a1ba6e55a2934291f53db0fb34dbba37dfc9db2b5c7113f3b595`.
+Both match the private tool manifest; module matches the isolated stage.
+Actual earlier10/11 rollbacks plus local install/failure/drift/restore and
+paired-tool tests cover the mechanism. Recovery copies/checkpoints are retained.
+
+Validation:471 v2 tests pass normal and optimized Python;100 original skin
+tests and25 original video add-on tests pass, plus compile/whitespace checks.
+The initial harness crash and rejected navigation candidates are retained above;
+they are not counted as passing tests. Production was never contacted or
+changed. Requested push through `ebeb1501` was completed/mirrored; this new
+milestone is a focused local commit pending another specific push approval.
+
+M2 is **not graduated**: physical remote/visual acceptance, real timed marker
+walkthrough, broader OSD/fault/soak gates and promotion remain. In particular,
+transport-level unknown Stop/Clear failures are fenced without retries, but a
+successful Stop reply followed by indefinitely still-active owned playback
+needs a bounded acknowledgement-timeout simulation/guard before graduation;
+normal native Back stop is proven, not that adverse case. Next safe continuation
+is that bounded fault gate, then broader player soak. Books progress, voice,
+Reader, camera and Seerr retain their separate service/identity approval gates.

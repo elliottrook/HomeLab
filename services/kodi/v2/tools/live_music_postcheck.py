@@ -40,6 +40,8 @@ keys.append('Window(Home).Property(AsterSeries.Recovery)')
 keys.append('Window(Home).Property(AsterVideo.ScrubOpen)')
 keys.extend('Window(Home).Property(AsterSearch.'+name+')' for name in ('Open','DetailOpen','Ready'))
 keys.append('Window(Home).Property(AsterSearch.Handoff)')
+keys.extend('Window(Home).Property(AsterMovie.'+name+')' for name in ('Window','Ready','Phase'))
+_require(not Path('/storage/.aster-checkpoints/aster-movie-playback-20261024/unresolved-start.json').exists(),'movie-recovery-required')
 _require(not Path('/storage/.aster-checkpoints/aster-global-search-20261024/handoff-pending.json').exists(),'search-handoff-recovery-required')
 _require(not Path('/storage/.aster-checkpoints/aster-series-playback-20261024/unresolved-start.json').exists(),'series-recovery-required')
 _require(not Path('/storage/.aster-checkpoints/aster-video-scrub-20261024/unresolved-seek.json').exists(),'scrub-recovery-required')
@@ -56,9 +58,9 @@ if search_file.exists():
     search_manifest=json.loads(search_file.read_text())
     search_linked=search_manifest.get('kind')=='hp-search-playerlinks'
     _require(search_manifest.get('kind') in ('hp-search-details','hp-search-playerlinks')
-        and len(search_manifest['files'])==((10 if search_manifest.get('artist_native_window')==11129 else 9 if search_manifest.get('artist_albums') is True else 8) if search_linked else 6),'search-details-kind')
+        and len(search_manifest['files'])==((13 if search_manifest.get('movie_page')==11130 else 10 if search_manifest.get('artist_native_window')==11129 else 9 if search_manifest.get('artist_albums') is True else 8) if search_linked else 6),'search-details-kind')
     _require(search_manifest.get('dispatcher_before_sha256')=='466b69269e56d8699838aabbe72ae533a580909603855850a047bf02e76d1a0e','search-dispatch-predecessor')
-    search_stages=[stage/name for name in ('aster-global-search-ui3','aster-global-search-ui4','aster-global-search-ui5','aster-global-search-ui6','aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9')
+    search_stages=[stage/name for name in ('aster-global-search-ui3','aster-global-search-ui4','aster-global-search-ui5','aster-global-search-ui6','aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12')
         if (stage/name/'manifest.json').exists() and hashlib.sha256((stage/name/'manifest.json').read_bytes()).hexdigest()==sys.argv[8]]
     _require(len(search_stages)==1,'search-stage-manifest');search_stage=search_stages[0]
     for member in search_manifest['files']:
@@ -71,7 +73,7 @@ if search_file.exists():
         if member_name=='select_dispatch.py':search_dispatch_sha=member['sha256']
     search_count=3
     if search_linked:
-        _require(search_manifest.get('home_before_sha256')==('347b4e47d93ed5d25077d00754a05742d0843f091244e9194bc8db1fd305d575'
+        _require(search_manifest.get('home_before_sha256')==('ca2866a0b306844f8a71534ceaecc77ee1e5946d1f4b6b37c9694d7dda94bb44' if search_manifest.get('movie_page')==11130 else '347b4e47d93ed5d25077d00754a05742d0843f091244e9194bc8db1fd305d575'
             if search_manifest.get('artist_albums') is True else '09e5eb4a9103a10c2bd591683a254a1dd374030598444dafc1260124b7079fa1'),'search-home-predecessor')
         member=next(r for r in search_manifest['files'] if r['path']=='overlay/Home.xml')
         _require(hashlib.sha256((addons/'skin.asterhome/1080i/Home.xml').read_bytes()).hexdigest()==member['sha256'],'search-home-member')
@@ -80,6 +82,10 @@ if search_file.exists():
             member=next(r for r in search_manifest['files'] if r['path']=='overlay/custom_1129_artistalbums.xml')
             _require(hashlib.sha256((addons/'skin.asterhome/1080i/custom_1129_artistalbums.xml').read_bytes()).hexdigest()==member['sha256'],'search-artist-window')
             search_count=5
+        if search_manifest.get('movie_page')==11130:
+            sys.path.insert(0,str(search_stage/'resources/lib'))
+            from movie_player import verify_stage
+            verify_stage();search_count=6
 overlay_file=Path('/storage/.aster-checkpoints/aster-floating-controls-20261024/overlay-manifest.json')
 overrides={}
 scrub_file=Path('/storage/.aster-checkpoints/aster-video-scrub-20261024/active-manifest.json')

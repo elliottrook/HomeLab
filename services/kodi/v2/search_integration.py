@@ -30,7 +30,7 @@ def window_dispatcher(data):
 def home_entry(data,stage):
     import re
     if hashlib.sha256(data).hexdigest()!=HOME_BEFORE:raise ValueError('unknown-home-predecessor')
-    if not re.fullmatch(r'aster-global-search-ui[5-9]',stage):raise ValueError('unknown-handoff-stage')
+    if not re.fullmatch(r'aster-global-search-ui(?:[5-9]|10|11|12)',stage):raise ValueError('unknown-handoff-stage')
     root=ET.fromstring(data)
     if root.find(".//control[@id='135']") is not None:raise ValueError('home-search-id-conflict')
     group=next(g for g in root.iter('control') if g.find("control[@id='134']") is not None)

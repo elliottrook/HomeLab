@@ -14,7 +14,10 @@ class Route:
     marker: str
     expected: str
 
-def route_for(hit):
+def route_for(hit,*,movie=False):
+    if movie and isinstance(hit,Hit) and hit.kind=='movie' and type(hit.identity) is int and 0<hit.identity<=2147483647:
+        from movie_player import MOVIE_STAGE
+        return Route('RunScript(/storage/.aster-staging/'+MOVIE_STAGE+'/movie.py,'+str(hit.identity)+')','AsterMovie.Window',str(hit.identity))
     if not isinstance(hit,Hit) or hit.kind not in LABELS or type(hit.identity) is not int or not 0<hit.identity<=2147483647:
         raise SearchUnavailable('unsupported-search-player-link')
     if hit.kind=='tvshow':
@@ -23,7 +26,12 @@ def route_for(hit):
     return Route('RunScript(script.astermusic.v2lab,'+hit.kind+','+str(hit.identity)+')',
                  'AsterV2Lab.AlbumWindow',str(hit.identity) if hit.kind=='album' else 'song-'+str(hit.identity))
 
-def verify_child(kind,storage=Path('/storage')):
+def verify_child(kind,storage=Path('/storage'),*,movie=False):
+    if kind=='movie' and movie:
+        from movie_player import verify_stage,MovieUnavailable
+        try:verify_stage(storage)
+        except MovieUnavailable:raise SearchUnavailable('accepted-movie-page-changed') from None
+        return
     if kind not in LABELS:raise SearchUnavailable('unsupported-search-player-link')
     stage=storage/'.aster-staging'/('aster-series-preview16' if kind=='tvshow' else 'aster-music-v2lab-0.1.0-candidate64')
     try:

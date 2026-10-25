@@ -2,7 +2,7 @@
 import json, os, re
 from pathlib import Path
 if os.uname().nodename!='AsterTV':raise RuntimeError('hp-only')
-allowed={'live_search_playerlinks.py','default.py','search_extensions.py'}
+allowed={'live_search_playerlinks.py','default.py','search_extensions.py','live_search_movie.py','movie.py','movie_player.py'}
 lines=Path('/storage/.kodi/temp/kodi.log').read_text(errors='replace')[-2000000:].splitlines()
 events=[]
 for index,line in enumerate(lines):

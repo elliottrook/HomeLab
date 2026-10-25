@@ -41,7 +41,7 @@ def build(output,details=False,handoff=False,stage='aster-global-search-ui5'):
         ET.SubElement(button,'texturefocus',dict(border='20',colordiffuse='asterGreen')).text='special://skin/media/ui-compact-card-ring.png'
         ET.SubElement(button,'texturenofocus')
         files['overlay/custom_1128_searchdetails.xml']=ET.tostring(root,encoding='utf-8',xml_declaration=True)
-        if stage in ('aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9'):
+        if stage in ('aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12'):
             files['resources/lib/search_extensions.py']=(HERE/'search_extensions.py').read_bytes()
             root=ET.fromstring(files['overlay/custom_1127_search.xml'])
             if stage=='aster-global-search-ui7':
@@ -52,7 +52,7 @@ def build(output,details=False,handoff=False,stage='aster-global-search-ui5'):
                 files['overlay/custom_1127_search.xml']=ET.tostring(root,encoding='utf-8',xml_declaration=True)
             else:
                 root.set('id','1129')
-                if stage=='aster-global-search-ui9':ET.SubElement(root,'previouswindow').text='1127'
+                if stage in ('aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12'):ET.SubElement(root,'previouswindow').text='1127'
                 for tag in ('onload','onunload'):
                     for node in root.findall(tag):root.remove(node)
                 root.find(".//control[@id='40']/onclick").text='Action(Back)'
@@ -60,6 +60,10 @@ def build(output,details=False,handoff=False,stage='aster-global-search-ui5'):
                 files['overlay/select_dispatch.py']=files['overlay/select_dispatch.py'].replace(
                     b'getCurrentWindowId() == 11127 and',b'getCurrentWindowId() in (11127, 11129) and').replace(
                     b'xbmcgui.Window(11127).getFocusId()',b'xbmcgui.Window(xbmcgui.getCurrentWindowId()).getFocusId()')
+        if stage in ('aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12'):
+            files['movie.py']=(HERE/'movie_native/default.py').read_bytes()
+            files['resources/lib/movie_player.py']=(HERE/'movie_player.py').read_bytes()
+            files['overlay/custom_1130_movie.xml']=(HERE/'movie_native/custom_1130_movie.xml').read_bytes()
     output.mkdir(parents=True)
     rows=[]
     for name,data in sorted(files.items()):
@@ -74,11 +78,15 @@ def build(output,details=False,handoff=False,stage='aster-global-search-ui5'):
         from search_integration import HOME_BEFORE,DETAILS_BEFORE
         manifest.update(stage=stage,previous_manifest_sha256='e754a024360a05a53ff3fb3d4c34b715e52076af9f4a51efa742aa6dcc8b2246',
                         home_before_sha256=HOME_BEFORE,details_dispatcher_before_sha256=DETAILS_BEFORE)
-        if stage in ('aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9'):
+        if stage in ('aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12'):
             manifest.update(artist_albums=True,
                 previous_manifest_sha256='def37da8481dd0b53cd2650056ddeee94656ba14b21b83d0b73bafeda5fc9a6c',
                 home_before_sha256='347b4e47d93ed5d25077d00754a05742d0843f091244e9194bc8db1fd305d575')
-            if stage in ('aster-global-search-ui8','aster-global-search-ui9'):manifest['artist_native_window']=11129
+            if stage in ('aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12'):manifest['artist_native_window']=11129
+        if stage in ('aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12'):
+            from movie_player import PREVIOUS_SEARCH
+            manifest.update(movie_page=11130,previous_manifest_sha256=PREVIOUS_SEARCH,
+                home_before_sha256='ca2866a0b306844f8a71534ceaecc77ee1e5946d1f4b6b37c9694d7dda94bb44')
     data=(json.dumps(manifest,indent=2)+'\n').encode()
     (output/'manifest.json').write_bytes(data)
     return hashlib.sha256(data).hexdigest()

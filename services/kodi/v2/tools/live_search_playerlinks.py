@@ -11,7 +11,8 @@ try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
 except BlockingIOError:
     os.close(lock);raise RuntimeError('native-driver-already-running')
 name=sys.argv[1] if len(sys.argv)==2 else 'aster-global-search-ui5'
-require(name in ('aster-global-search-ui5','aster-global-search-ui6','aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9'),'known-stage')
+require(name in ('aster-global-search-ui5','aster-global-search-ui6','aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12'),'known-stage')
+movie_linked=name in ('aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12')
 stage=Path('/storage/.aster-staging')/name
 home=xbmcgui.Window(10000)
 def prop(key):return home.getProperty('AsterSearch.'+key)
@@ -55,10 +56,10 @@ def open_child(index,kind):
         xbmc.executebuiltin('TakeScreenshot(/storage/.aster-checkpoints/aster-global-search-20261024/playerlink-detail-'+str(time.time_ns())+'.png)')
         xbmc.sleep(500)
     started=time.monotonic();xbmc.executebuiltin('SetFocus(11)');select()
-    marker='AsterSeries.PreviewWindow' if kind=='tvshow' else 'AsterV2Lab.AlbumWindow'
+    marker='AsterSeries.PreviewWindow' if kind=='tvshow' else 'AsterMovie.Window' if kind=='movie' else 'AsterV2Lab.AlbumWindow'
     until(lambda:home.getProperty(marker).isdecimal() and prop('Handoff')=='child','accepted-child-'+kind)
-    expected=title if kind=='tvshow' else identity if kind=='album' else 'song-'+identity
-    until(lambda:label('Window.Property(Series.Title)' if kind=='tvshow' else 'Window.Property(Album.Id)')==expected,'exact-child-'+kind)
+    expected=title if kind=='tvshow' else identity if kind in ('album','movie') else 'song-'+identity
+    until(lambda:label('Window.Property(Series.Title)' if kind=='tvshow' else 'Window.Property(Movie.Id)' if kind=='movie' else 'Window.Property(Album.Id)')==expected,'exact-child-'+kind)
     require(idle(),'child-no-autoplay-'+kind)
     timings.setdefault(kind,[]).append(round((time.monotonic()-started)*1000))
     return identity,marker
@@ -69,7 +70,7 @@ try:
     xbmc.executebuiltin('TakeScreenshot(/storage/.aster-checkpoints/aster-global-search-20261024/'+home_shot+')');xbmc.sleep(500)
     require(hashlib.sha256((stage/'manifest.json').read_bytes()).hexdigest()==hashlib.sha256((Path('/storage/.aster-checkpoints/aster-global-search-20261024')/'active-manifest.json').read_bytes()).hexdigest(),'active-stage')
     enter();query('a');checks.append('normal-home-entry-no-autoplay')
-    for index,kind in ((0,'tvshow'),(2,'album'),(4,'song')):
+    for index,kind in (((0,'tvshow'),(1,'movie'),(2,'album'),(4,'song')) if movie_linked else ((0,'tvshow'),(2,'album'),(4,'song'))):
         identity,marker=open_child(index,kind)
         press('back')
         until(lambda:xbmcgui.getCurrentWindowId()==11127 and prop('Ready')=='true' and not prop('Handoff')
@@ -78,11 +79,11 @@ try:
             and label('Container(30).ListItem.Property(Search.Id)')==identity,'exact-search-return-'+kind)
         require(prop('Query')=='a' and idle(),'query-and-idle-'+kind)
         checks.append(kind+'-page-no-autoplay-exact-search-return')
-    for index,kind in (((1,'movie'),) if name in ('aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9') else ((1,'movie'),(3,'artist'))):
+    for index,kind in (() if movie_linked else ((1,'movie'),) if name in ('aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9') else ((1,'movie'),(3,'artist'))):
         result(index,kind);require(prop('CanOpen')=='false','truthful-details-only-'+kind)
         press('back');until(lambda:xbmcgui.getCurrentWindowId()==11127 and not prop('DetailOpen'),'details-back')
-    checks.append('unsupported-player-links-remain-details-only')
-    if name in ('aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9'):
+    checks.append('all-video-music-types-connected' if movie_linked else 'unsupported-player-links-remain-details-only')
+    if name in ('aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12'):
         artist_id,title=result(3,'artist')
         require(prop('CanOpen')=='true','artist-link-available')
         xbmc.executebuiltin('SetFocus(11)');select()
@@ -95,7 +96,7 @@ try:
         xbmc.executebuiltin('SetFocus(11)');select()
         until(lambda:prop('Handoff')=='child' and label('Window.Property(Album.Id)')==album_id,'artist-album-player')
         require(idle(),'artist-album-no-autoplay');press('back')
-        until(lambda:xbmcgui.getCurrentWindowId()==(11129 if name in ('aster-global-search-ui8','aster-global-search-ui9') else 11127) and not prop('Handoff') and prop('Ready')=='true'
+        until(lambda:xbmcgui.getCurrentWindowId()==(11129 if name in ('aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12') else 11127) and not prop('Handoff') and prop('Ready')=='true'
             and label('Container(30).ListItem.Property(Search.Id)')==album_id and prop('Query')=='Albums · '+title,'artist-album-exact-return')
         xbmc.executebuiltin('TakeScreenshot(/storage/.aster-checkpoints/aster-global-search-20261024/artist-albums-'+str(time.time_ns())+'.png)')
         press('back')
@@ -119,16 +120,18 @@ except Exception as error:
     failure_state=dict(window=xbmcgui.getCurrentWindowId(),dialog=xbmcgui.getCurrentWindowDialogId(),
         result_kind=label('Container(30).ListItem.Property(Search.Kind)'),
         result_id=label('Container(30).ListItem.Property(Search.Id)'),
-        original_query=prop('Query')=='a',ready=prop('Ready')=='true',handoff=prop('Handoff'))
+        original_query=prop('Query')=='a',ready=prop('Ready')=='true',handoff=prop('Handoff'),
+        expected_id=locals().get('identity'),expected_kind=locals().get('kind'))
 finally:
     if idle():
         for dialog in (10103,11128):
             if xbmcgui.getCurrentWindowDialogId()==dialog:press('back');xbmc.sleep(300)
         if home.getProperty('AsterV2Lab.AlbumWindow') or home.getProperty('AsterSeries.PreviewWindow'):
             press('back');xbmc.sleep(1200)
+        if xbmcgui.getCurrentWindowId()==11130:press('back');xbmc.sleep(1200)
         if xbmcgui.getCurrentWindowId()==11129:press('back');xbmc.sleep(500)
         if xbmcgui.getCurrentWindowId()==11127:press('back');xbmc.sleep(500)
-    clean=idle() and xbmcgui.getCurrentWindowId()==10000 and not any(home.getProperty(key) for key in ('AsterSearch.Open','AsterSearch.Handoff','AsterV2Lab.AlbumWindow','AsterSeries.PreviewWindow'))
+    clean=idle() and xbmcgui.getCurrentWindowId()==10000 and not any(home.getProperty(key) for key in ('AsterSearch.Open','AsterSearch.Handoff','AsterV2Lab.AlbumWindow','AsterSeries.PreviewWindow','AsterMovie.Window'))
     path=Path('/storage/.aster-checkpoints/aster-global-search-20261024')/('native-playerlinks-'+str(time.time_ns())+'.json')
     with path.open('x') as handle:json.dump(dict(stage=name,passed=passed,checks_enforced=True,checks=checks,failure=failure,failure_state=failure_state,
         idle_empty=clean,home_screenshot=locals().get('home_shot'),child_open_ms=timings,elapsed_ms=round((time.monotonic()-started_test)*1000),
