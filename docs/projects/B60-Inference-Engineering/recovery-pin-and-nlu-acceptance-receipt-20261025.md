@@ -86,3 +86,14 @@ No NLU runtime/scorer model call or broad adapter suite was run. No production
 probe, scan, lease, service/timer, configuration, credential, download, mount
 or package action occurred. Continue against actual owner formats and consume
 the next terminal result; full recovery and A1 admission still gate B60 trials.
+
+## Delayed nightly continuation, October 25 08:33 PDT
+
+Nightly trigger timestamp 15:33:45 UTC (08:33:45 PDT), measured clock
+15:33:51 UTC (08:33:51 PDT): after the 04:15 restoration cutoff, so no
+missed GPU work was replayed. Fresh fetched owner refs and the correction
+receipt hash above are unchanged; the B60 protection ref matches published
+`676c8248c110de5426d7974608b87a24c68cb0a6`. Six offline recovery-margin
+tests pass. No new production observation or admission is claimed, and no push
+occurred. The diagnosed October 25 F2 refusal and approved October 26 attempt
+were already reported; do not send a duplicate failure alert or owner request.
