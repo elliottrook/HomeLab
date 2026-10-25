@@ -1,6 +1,6 @@
 # Stream A prepare-only recovery exercise — exact one-attempt card
 
-Status: **FRESH ONE-ATTEMPT CANDIDATE; NOT AUTHORIZED OR RUN**
+Status: **ONE ATTEMPT PASSED; EFFECTFUL F6 STILL NOT AUTHORIZED**
 
 This is a fresh, exact one-attempt card after the guest-path and observer
 repairs. It is valid only outside the October 26 F2 margin and never retries
@@ -12,6 +12,31 @@ prior failed attempts are historical evidence only. The installed runner is
 `cf51b1d6546e27aebdef9e44ad4751343e38aa388c8eae682f9a476641f390fb` and the
 observer is `70748eb15c50ff7008cadd85fe9affaf62c9ad3eb388ef962270f9f9389fc1d3`.
 The clean target suites passed 90/90 and full read-only prestate passed.
+
+## Recorded result
+
+The one approved attempt passed with lease
+`exercise-20261025-1792969326-303bb48b`, generation `1`. Healthy observation
+returned `lease-healthy/not-attempted`; owner-loss recovery returned
+`owner-absent/recovered` with nested `cancelled-prepared`; and
+`consumer_commands=0`. F2/F6 and production health were unchanged.
+
+Command digest: `d614cd6b15af54abaa522bd0a185910fe0556213134e586e0647dba750142d30`.
+Prestate digest: `9736b3bc454636f1937a1738f3db10c054968fbc03f54afc11972e3ed290f4cc`.
+Receipt: root-owned `0600`
+`exercise-20261025-1792969326-303bb48b.json`, 6935 bytes, SHA-256
+`d5cad1d3627da55ccb3ae58318105a05791aa653ac77a26984897ef2e060be13`.
+Postcheck confirmed all runtime paths absent, whole-host lease ready, F6
+services inactive/timers disabled, guests/services healthy and F2 unchanged.
+The approval is consumed; no retry is permitted.
+
+## Next exact dependency — not run
+
+The next gate is effectful F6 activation: fresh same-cycle backup/F2/F3/F4/F5
+evidence after the backup window, separately approved F6 identity/owner arm,
+then separately approved `quiesce`, post-quiescence observation and D4/M3
+workload execution with the full restoration reserve. The successful
+prepare-only exercise does not authorize any of those effects.
 
 ## Installed custody pins
 
