@@ -169,9 +169,27 @@ class InvestigationTests(unittest.TestCase):
             with self.subTest(expected=expected):
                 self.assertEqual(answer_shape_status(changed), expected)
 
+    def test_nonterminal_contract_is_canonicalized_before_retention(self):
         nonterminal = answer()['answer']
-        changed = nonterminal | {'discrimination': 'premature diagnosis'}
-        self.assertEqual('nonterminal_contract', answer_shape_status(changed))
+        nonterminal['discrimination'] = 'premature diagnosis'
+        nonterminal['verification'] = {
+            'check': 'future check',
+            'expected_condition': 'future result',
+            'preserved_boundary': 'no changes',
+            'performed': False,
+        }
+        result = self.replay([{
+            'answer': nonterminal,
+            'finish_reason': 'stop',
+            'tool_call_count': 0,
+        }, answer('clarify', '', ['initial', 'status-now'])])[0]
+        retained = result['steps'][0]
+        self.assertEqual('', retained['answer']['discrimination'])
+        self.assertEqual('', retained['answer']['verification']['check'])
+        self.assertEqual('', retained['answer']['verification']['expected_condition'])
+        self.assertEqual('', retained['answer']['verification']['preserved_boundary'])
+        self.assertFalse(retained['answer']['verification']['performed'])
+        self.assertTrue(retained['metadata']['nonterminal_contract_cleared'])
 
     def test_duplicate_observed_citations_are_canonicalized_without_weakening_boundary(self):
         duplicate = answer('clarify', '', ['initial', 'initial'])

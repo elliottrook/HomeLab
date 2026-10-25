@@ -86,16 +86,20 @@ authorization is consumed. Its subsequent
 [model-blind review](D4-tool-free-development-attempt-4-blind-review-2026-10-24.md)
 was a semantic NO-GO: verification passed 0/12 and diagnosis passed 8/12.
 
-Candidate-B corrects that bounded contract offline by requiring each terminal
-answer to state its discrimination and an explicit unperformed verification.
-It is preregistered at exact run digest
-`7cb33aec4ac580774e884923b223ddd2427cd68fbc6e2b1da3899479d6630fb6`
-under a frozen 12/12 all-dimension decision rule. The exact eleven-file source
+Candidate-B required each terminal answer to state its discrimination and an
+explicit unperformed verification. Its approved attempt completed all twelve
+calls but structurally admitted only one: eleven check requests also populated
+the terminal-only advisory fields. Those answers were discarded and no blind
+review ran. Candidate-B is spent.
+
+Candidate-C clears correctly typed nonterminal advisory fields before
+retention and records only whether this canonicalization occurred. It retains
+the full terminal contract. It is preregistered at exact digest
+`1e35bf540491cf00871584edb24d13486fa0de0ddf7d33d8320cc715ee694b92`
+under the unchanged 12/12 all-dimension threshold. Its eleven-file source
 manifest has SHA-256
-`67baa870216386e9a46f55535236d0a2c476ccb8004a0afb12a436debe4dc4b6`,
-and the complete suite passes 162/162. This candidate is prepared but not
-authorized to execute. A new journal must preserve attempt 4, and a fresh
-model-blind review is mandatory before the decision rule is applied.
+`43dff05dfe324460ef1abdce87483e689abde0df8a2206cba2a2c881f85269c7`,
+and the complete suite passes 163/163. It has not run.
 
 ## Bounded execution
 
@@ -146,9 +150,9 @@ the model, route, tool authority or repair capability.
 
 ## Approval boundary
 
-The authorization for attempt 4 has been consumed. Candidate-B's exact
-12-session run is not yet authorized. Any later authorization would cover only
-the digest and bounded execution above; it would not authorize a replay,
+The authorizations for attempts 4 and 5 have been consumed. Candidate-C's exact
+12-session run is not authorized. Any later authorization would cover only the
+candidate-C digest and bounded execution above; it would not authorize a replay,
 reasoning mode,
 connected tools, new credentials, service restart, configuration change,
 production deployment, automatic routing, holdout access or a Git push.

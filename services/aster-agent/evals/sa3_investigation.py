@@ -129,10 +129,9 @@ def answer_shape_status(answer):
         return 'verification_content_type'
     if any(len(value) > 1000 for value in strings):
         return 'verification_content_length'
-    if answer['decision'] == 'check':
-        if answer['discrimination'] or any(strings):
-            return 'nonterminal_contract'
-    elif not answer['discrimination'].strip() or any(not value.strip() for value in strings):
+    if (answer['decision'] != 'check'
+            and (not answer['discrimination'].strip()
+                 or any(not value.strip() for value in strings))):
         return 'terminal_contract'
     return 'valid'
 
@@ -235,6 +234,16 @@ def investigate(
         if metadata['answer_shape_status'] != 'valid':
             status = 'invalid_answer'; break
         answer = copy.deepcopy(answer)
+        if answer['decision'] == 'check':
+            verification_strings = tuple(answer['verification'][field] for field in (
+                'check', 'expected_condition', 'preserved_boundary',
+            ))
+            metadata['nonterminal_contract_cleared'] = bool(
+                answer['discrimination'] or any(verification_strings)
+            )
+            answer['discrimination'] = ''
+            for field in ('check', 'expected_condition', 'preserved_boundary'):
+                answer['verification'][field] = ''
         original_citation_count = len(answer['evidence_ids'])
         answer['evidence_ids'] = list(dict.fromkeys(answer['evidence_ids']))
         metadata['citation_duplicates_removed'] = (

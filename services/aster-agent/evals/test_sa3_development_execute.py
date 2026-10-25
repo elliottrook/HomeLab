@@ -46,11 +46,11 @@ class DevelopmentExecuteTests(unittest.TestCase):
                 run_spec(changed, self.source, self.plan)["fixture_file_sha256"],
             )
 
-    def test_attempt_5_source_manifest_matches_exact_dry_run(self):
+    def test_current_candidate_source_manifest_matches_exact_dry_run(self):
         manifest = json.loads((
-            self.here / "sa3-development-attempt-5-source-manifest.json"
+            self.here / "sa3-development-attempt-6-source-manifest.json"
         ).read_text())
-        self.assertEqual("candidate-B", manifest["candidate_alias"])
+        self.assertEqual("candidate-C", manifest["candidate_alias"])
         self.assertEqual("not-granted", manifest["authority"])
         spec = run_spec(self.fixtures, self.source, self.plan)
         from sa3_fresh_package import digest
