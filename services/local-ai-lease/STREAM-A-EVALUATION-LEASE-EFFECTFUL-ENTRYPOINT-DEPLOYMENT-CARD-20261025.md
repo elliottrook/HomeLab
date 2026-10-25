@@ -10,7 +10,7 @@ path.
 ## Pinned source
 
 The complete source must be reviewed from the full local implementation commit
-`c3b316ab27b770e3703cf6967e5b8665f489172c` and the metadata follow-up that records that
+`e55e9eff` and the metadata follow-up that records that
 commit here. Verify every file hash from that clean commit:
 
 | Source | Target | Mode | SHA-256 |
@@ -18,7 +18,7 @@ commit here. Verify every file hash from that clean commit:
 | `scripts/local-ai/evaluation_lease.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/evaluation_lease.py` | 0644 | `38a986e9d868d04c7ee7814ae0fbd2f1a1709e7a464916195d594ca2bf286312` |
 | `scripts/local-ai/evaluation_lease_adapter.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/evaluation_lease_adapter.py` | 0644 | `8fac397f96b88be5ccb042a2e3b3da6cbbccdc89e91e4afeacf029a13769c6a1` |
 | `scripts/local-ai/evaluation_lease_watchdog.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/evaluation_lease_watchdog.py` | 0644 | `b6409e9f29d954033ebd2098fdbd983862d0d32eb5de04471f7b06f9aaf74725` |
-| `scripts/local-ai/evaluation_lease_entrypoint.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/evaluation_lease_entrypoint.py` | 0644 | `d42963fb84730aa3a6f9a8206c1626b1b526ec2b9ee4ac5456716ed7b4be8b97` |
+| `scripts/local-ai/evaluation_lease_entrypoint.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/evaluation_lease_entrypoint.py` | 0644 | `932bd999c6e16ab646a406936b3dccac2773f6953bd69c0c6205e3ca7a3efcda` |
 | `scripts/local-ai/host_exclusion.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/host_exclusion.py` | 0644 | `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61` |
 | `services/local-ai-lease/stream-a-evaluation-lease` | `/usr/local/sbin/stream-a-evaluation-lease` | 0755 | `962100b591493b2ae8f62814fa6f66a1875463dd5ca613bb321169764c56c276` |
 
