@@ -1,4 +1,5 @@
 import copy
+import hashlib
 import json
 import unittest
 from pathlib import Path
@@ -9,6 +10,7 @@ import nlu_threshold_policy as policy
 
 HERE = Path(__file__).parent
 TEMPLATE = HERE / "fixtures" / "nlu-candidate-bundle-template-v1.json"
+SEALED = HERE / "fixtures" / "nlu-candidate-bundle-qwen35-9b-sycl-v1.json"
 
 
 def sealed():
@@ -59,6 +61,20 @@ def registered(candidate_sha256):
 
 
 class NluCandidateBundleTests(unittest.TestCase):
+    def test_tracked_local_candidate_is_exact_and_valid(self):
+        raw = SEALED.read_bytes()
+        value, errors = bundle.load_and_validate(raw)
+        self.assertEqual([], errors)
+        self.assertEqual("sealed", value["status"])
+        self.assertEqual("local_model", value["engine_class"])
+        self.assertEqual("local", value["egress"])
+        self.assertEqual("disabled", value["tool_mode"])
+        self.assertEqual("not-granted", value["authority"])
+        self.assertEqual(
+            "456cf5af3d36bfea4c6cff3c9b5782d7f594696302e0973f510a661ab4132897",
+            hashlib.sha256(raw).hexdigest(),
+        )
+
     def test_empty_template_is_valid_without_claiming_candidate(self):
         self.assertEqual([], bundle.validate_bundle(json.loads(TEMPLATE.read_text())))
 

@@ -447,9 +447,16 @@ now [accepted the exact proposal](evidence/M3-NLU-owner-policy-acceptance-2026-1
 The recorded acceptance artifact is bound to the proposal bytes at SHA-256
 `96d7f475…fe6cc`, and deterministic derivation produces the accepted decision
 artifact at SHA-256 `8ef60a8b…614da`; its focused dependency-free verification
-passes 68/68. This accepts only the evaluation constraints. No candidate,
-calibration set, registered threshold, shadow route or execution authority has
-been sealed or enabled.
+passes 68/68. This accepts only the evaluation constraints. At that acceptance
+checkpoint no candidate, calibration set, registered threshold, shadow route
+or execution authority had been sealed or enabled.
+The existing Qwen3.5-9B Q4_K_M model and accepted SYCL profile are now also
+[sealed as an exact local evaluation candidate](evidence/M3-NLU-local-candidate-seal-2026-10-25.md)
+with a strict no-tool adapter. Read-only live hashes matched the model and
+runtime profile, and the dependency-free focused NLU suite passes 74/74. This
+selects only what calibration will measure; it does not promote the candidate
+or enable routing. The next M3 gate is independent custody and review of 60
+synthetic calibration cases, ten per family, before a lease-protected model run.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)

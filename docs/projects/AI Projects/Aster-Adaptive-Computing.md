@@ -36,6 +36,11 @@ least 60% coverage and at least 60 balanced calibration cases. The
 grants no route, egress, tool or deployment authority. Candidate selection,
 calibration, threshold registration and shadow qualification remain open, so
 automatic routing stays off.
+The existing local Qwen3.5-9B Q4_K_M model on the accepted SYCL profile is now
+[sealed as the first NLU evaluation candidate](evidence/M3-NLU-local-candidate-seal-2026-10-25.md)
+with a strict no-tool adapter. Its live model and runtime-profile hashes match
+the source manifest. This is candidate provenance, not a quality pass or
+deployment; calibration and independent qualification remain open.
 The [pinned NLU development scorer](evidence/M3-NLU-development-scorer-2026-10-24.md)
 now measures family, sensitivity, capabilities, ambiguity, disposition and reason
 separately across 24 exposed synthetic cases. Its focused suite passes 10/10 and
