@@ -80,7 +80,11 @@ class BrokerHandler(socketserver.StreamRequestHandler):
             payload = request.get("payload")
             if not isinstance(payload, dict):
                 raise BrokerDenied("payload must be an object")
-            record = self.server.store.consume_request(str(request.get("request_id", "")), payload, agent_id=agent_id)  # type: ignore[attr-defined]
+            request_id = str(request.get("request_id", ""))
+            pending = self.server.store.get_request(request_id)  # type: ignore[attr-defined]
+            if pending.capability == "diagnostic.aster-inference.latest" and payload != {}:
+                raise BrokerDenied("fixed Doctor capability accepts no arguments")
+            record = self.server.store.consume_request(request_id, payload, agent_id=agent_id)  # type: ignore[attr-defined]
             if record.capability in {"forgejo.read.repository", "forgejo.write.safe-branch"}:
                 if record.capability == "forgejo.read.repository":
                     tool = payload.get("tool", "get_repo")
@@ -124,6 +128,23 @@ class BrokerHandler(socketserver.StreamRequestHandler):
                 if not result.get("ok"):
                     raise BrokerDenied("Lab Operations gateway denied the request")
                 return {"request_id": record.request_id, "status": record.status, "result": result.get("result")}
+            if record.capability == "diagnostic.aster-inference.latest":
+                rpc = {
+                    "method": "doctor.aster-inference.latest",
+                    "request_id": record.request_id,
+                    "arguments": {},
+                }
+                try:
+                    with socket.socket(socket.AF_UNIX) as gateway:
+                        gateway.settimeout(5)
+                        gateway.connect(self.server.fixed_doctor_socket)  # type: ignore[attr-defined]
+                        gateway.sendall(json.dumps(rpc, separators=(",", ":")).encode() + b"\n")
+                        result = json.loads(gateway.makefile("rb").readline())
+                except (OSError, json.JSONDecodeError) as error:
+                    raise BrokerDenied("Fixed Doctor gateway is unavailable") from error
+                if not isinstance(result, dict) or set(result) != {"ok", "result"} or result.get("ok") is not True:
+                    raise BrokerDenied("Fixed Doctor gateway denied the request")
+                return {"request_id": record.request_id, "status": record.status, "result": result["result"]}
             return {"request_id": record.request_id, "status": record.status, "synthetic": True}
         raise BrokerDenied("method is not exposed")
 
@@ -136,12 +157,14 @@ class BrokerServer(socketserver.UnixStreamServer):
         forgejo_socket: str = "/run/homelab-forgejo-mcp/gateway.sock",
         forgejo_write_socket: str = "/run/homelab-forgejo-mcp-write/gateway.sock",
         lab_operations_socket: str = "/run/aster-lab-operations-broker/gateway.sock",
+        fixed_doctor_socket: str = "/run/aster-fixed-doctor/gateway.sock",
         request_timeout: float = 5.0,
     ):
         self.store = store
         self.forgejo_socket = forgejo_socket
         self.forgejo_write_socket = forgejo_write_socket
         self.lab_operations_socket = lab_operations_socket
+        self.fixed_doctor_socket = fixed_doctor_socket
         self.request_timeout = request_timeout
         super().__init__(socket_path, BrokerHandler)
 
@@ -154,6 +177,7 @@ def main() -> None:
     parser.add_argument("--forgejo-socket", default="/run/homelab-forgejo-mcp/gateway.sock")
     parser.add_argument("--forgejo-write-socket", default="/run/homelab-forgejo-mcp-write/gateway.sock")
     parser.add_argument("--lab-operations-socket", default="/run/aster-lab-operations-broker/gateway.sock")
+    parser.add_argument("--fixed-doctor-socket", default="/run/aster-fixed-doctor/gateway.sock")
     args = parser.parse_args()
     socket_path = Path(args.socket)
     socket_path.parent.mkdir(parents=True, exist_ok=True)
@@ -162,7 +186,7 @@ def main() -> None:
     store = BrokerStore(args.database)
     server = BrokerServer(
         str(socket_path), store, args.forgejo_socket, args.forgejo_write_socket,
-        args.lab_operations_socket,
+        args.lab_operations_socket, args.fixed_doctor_socket,
     )
     os.chmod(socket_path, 0o660)
     os.chown(socket_path, -1, grp.getgrnam(args.socket_group).gr_gid)

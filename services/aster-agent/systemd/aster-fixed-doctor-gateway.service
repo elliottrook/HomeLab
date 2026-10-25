@@ -1,0 +1,34 @@
+[Unit]
+Description=AI-PAM broker-private fixed Doctor gateway
+After=local-fs.target
+
+[Service]
+Type=simple
+User=aster
+Group=aster-lab-broker
+SupplementaryGroups=aster
+UMask=0077
+WorkingDirectory=/opt/aster-agent
+RuntimeDirectory=aster-fixed-doctor
+RuntimeDirectoryMode=0750
+ExecStart=/opt/aster-agent/venv/bin/python /opt/aster-agent/fixed_doctor_gateway.py --socket /run/aster-fixed-doctor/gateway.sock --socket-group aster-lab-broker --broker-user hlabroker --required-owner root --aggregate /var/lib/aster/health/latest.json --structured /var/lib/aster/health/aster-inference.json
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadOnlyPaths=/var/lib/aster/health
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+CapabilityBoundingSet=
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

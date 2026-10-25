@@ -24,6 +24,9 @@ def main() -> None:
     subparsers.add_parser("enable-lab-doctor")
     subparsers.add_parser("disable-lab-doctor")
     subparsers.add_parser("graduate-lab-doctor")
+    fixed_doctor = subparsers.add_parser("enable-fixed-doctor")
+    fixed_doctor.add_argument("--agent-uid", required=True, type=int)
+    subparsers.add_parser("disable-fixed-doctor")
     subparsers.add_parser("status")
     args = parser.parse_args()
     store = BrokerStore(args.database)
@@ -201,6 +204,76 @@ def main() -> None:
                     "UPDATE services SET health='healthy' WHERE service_id='lab-operations'"
                 )
             print("LAB_DOCTOR_GRADUATED")
+        elif args.command == "enable-fixed-doctor":
+            agent = store.connection.execute(
+                "SELECT unix_uid,state FROM agents WHERE agent_id='agent-aster-fixed-doctor'"
+            ).fetchone()
+            if agent is not None and tuple(agent) != (args.agent_uid, "observer"):
+                raise SystemExit("existing fixed Doctor agent does not match the dedicated observer")
+            other_grants = store.connection.execute(
+                "SELECT capability FROM agent_capabilities WHERE agent_id='agent-aster-fixed-doctor' "
+                "AND capability!='diagnostic.aster-inference.latest'"
+            ).fetchall()
+            if other_grants:
+                raise SystemExit("fixed Doctor agent has another capability grant")
+            service = store.connection.execute(
+                """SELECT execution_mode,credential_type,custody_identifier,credential_scope,
+                          rotation_due,revocation_method FROM services
+                     WHERE service_id='aster-fixed-doctor'"""
+            ).fetchone()
+            expected_service = (
+                "proxy", "none", "none", "fixed aster.agent_inference read only",
+                "not-applicable", "disable service and stop dedicated caller",
+            )
+            if service is not None and tuple(service) != expected_service:
+                raise SystemExit("existing fixed Doctor service metadata conflicts")
+            capability = store.connection.execute(
+                "SELECT service_id,risk_class,probation_allowed FROM capabilities "
+                "WHERE capability='diagnostic.aster-inference.latest'"
+            ).fetchone()
+            if capability is not None and tuple(capability) != ("aster-fixed-doctor", "green", 0):
+                raise SystemExit("existing fixed Doctor capability metadata conflicts")
+            if agent is None:
+                store.register_agent("agent-aster-fixed-doctor", args.agent_uid)
+                store.set_agent_state("agent-aster-fixed-doctor", "observer")
+            with store.connection:
+                store.connection.execute(
+                    """INSERT OR IGNORE INTO services(
+                           service_id,execution_mode,enabled,created_at,credential_type,
+                           custody_identifier,credential_scope,rotation_due,revocation_method,health
+                       ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
+                    ("aster-fixed-doctor", *expected_service[:1], 1, store._now(),
+                     *expected_service[1:], "candidate"),
+                )
+                store.connection.execute(
+                    "UPDATE services SET enabled=1 WHERE service_id='aster-fixed-doctor'"
+                )
+                store.connection.execute(
+                    """INSERT OR IGNORE INTO capabilities(
+                           capability,service_id,risk_class,probation_allowed,enabled
+                       ) VALUES('diagnostic.aster-inference.latest','aster-fixed-doctor','green',0,1)"""
+                )
+                store.connection.execute(
+                    "UPDATE capabilities SET enabled=1 WHERE capability='diagnostic.aster-inference.latest'"
+                )
+                store.connection.execute(
+                    """INSERT OR IGNORE INTO agent_capabilities(agent_id,capability)
+                       VALUES('agent-aster-fixed-doctor','diagnostic.aster-inference.latest')"""
+                )
+            print("FIXED_DOCTOR_ENABLED agent=agent-aster-fixed-doctor state=observer risk=green")
+        elif args.command == "disable-fixed-doctor":
+            store.set_service_enabled("aster-fixed-doctor", False)
+            grant = store.connection.execute(
+                """SELECT 1 FROM agent_capabilities
+                     WHERE agent_id='agent-aster-fixed-doctor'
+                       AND capability='diagnostic.aster-inference.latest'"""
+            ).fetchone()
+            if grant is not None:
+                store.revoke_capability(
+                    "agent-aster-fixed-doctor", "diagnostic.aster-inference.latest",
+                )
+            store.set_agent_state("agent-aster-fixed-doctor", "suspended")
+            print("FIXED_DOCTOR_DISABLED")
         else:
             print(json.dumps({"global_enabled": store.global_enabled(), "audit_events": len(store.audit_rows())}, sort_keys=True))
     finally:

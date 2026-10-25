@@ -899,6 +899,15 @@ during a mixed update. This is still source-only. The 08:15 schedule and LXC104
 files are unchanged, and no caller, broker registration, grant or model route
 exists yet.
 
+The subsequent [fixed caller boundary](evidence/M1-D4-fixed-doctor-caller-boundary-2026-10-25.md)
+now defines those missing identities in source. A dedicated observer UID gets
+one Green `diagnostic.aster-inference.latest` grant through an exact caller
+socket; a separate broker-private gateway reads the digest-bound pair and
+returns only the fixed projection. The 73/73 combined suite proves enrollment,
+revocation, kernel peer checks, absence of approval-group membership and
+content-free denial. It is not installed or registered, and Aster still has no
+model-visible route to it.
+
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)
 deployed caller binding and restrictive checks, while the
 [Stage2 approver/assurance candidate](evidence/M1-stage2-candidate.md) is **not

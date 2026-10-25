@@ -71,6 +71,67 @@ class BrokerAdminM7Tests(unittest.TestCase):
             ).fetchone())
             store.close()
 
+    def test_fixed_doctor_enrollment_is_single_grant_and_reversible(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "broker.db"
+            command = [
+                sys.executable, str(Path(__file__).with_name("broker_admin.py")),
+                "--database", str(database), "enable-fixed-doctor", "--agent-uid", "1905",
+            ]
+            subprocess.run(command, check=True, capture_output=True, text=True)
+            subprocess.run(command, check=True, capture_output=True, text=True)
+            store = BrokerStore(database)
+            self.assertEqual((1905, "observer"), tuple(store.connection.execute(
+                "SELECT unix_uid,state FROM agents WHERE agent_id='agent-aster-fixed-doctor'"
+            ).fetchone()))
+            self.assertEqual([
+                ("diagnostic.aster-inference.latest",),
+            ], [tuple(row) for row in store.connection.execute(
+                "SELECT capability FROM agent_capabilities WHERE agent_id='agent-aster-fixed-doctor'"
+            ).fetchall()])
+            self.assertEqual(("aster-fixed-doctor", "green", 0, 1), tuple(store.connection.execute(
+                "SELECT service_id,risk_class,probation_allowed,enabled FROM capabilities "
+                "WHERE capability='diagnostic.aster-inference.latest'"
+            ).fetchone()))
+            store.close()
+
+            subprocess.run(
+                command[:4] + ["disable-fixed-doctor"],
+                check=True, capture_output=True, text=True,
+            )
+            store = BrokerStore(database)
+            self.assertEqual("suspended", store.connection.execute(
+                "SELECT state FROM agents WHERE agent_id='agent-aster-fixed-doctor'"
+            ).fetchone()[0])
+            self.assertEqual(0, store.connection.execute(
+                "SELECT enabled FROM services WHERE service_id='aster-fixed-doctor'"
+            ).fetchone()[0])
+            self.assertEqual(0, store.connection.execute(
+                "SELECT count(*) FROM agent_capabilities WHERE agent_id='agent-aster-fixed-doctor'"
+            ).fetchone()[0])
+            store.close()
+
+    def test_fixed_doctor_enrollment_refuses_other_grant(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "broker.db"
+            store = BrokerStore(database)
+            store.register_agent("agent-aster-fixed-doctor", 1905)
+            store.set_agent_state("agent-aster-fixed-doctor", "observer")
+            store.register_service("other")
+            store.register_capability("other.read", "other", "green")
+            store.grant_capability("agent-aster-fixed-doctor", "other.read")
+            store.close()
+            completed = subprocess.run([
+                sys.executable, str(Path(__file__).with_name("broker_admin.py")),
+                "--database", str(database), "enable-fixed-doctor", "--agent-uid", "1905",
+            ], capture_output=True, text=True)
+            self.assertNotEqual(0, completed.returncode)
+            store = BrokerStore(database)
+            self.assertIsNone(store.connection.execute(
+                "SELECT 1 FROM services WHERE service_id='aster-fixed-doctor'"
+            ).fetchone())
+            store.close()
+
 
 if __name__ == "__main__":
     unittest.main()
