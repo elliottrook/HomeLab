@@ -4545,8 +4545,9 @@ masquerading as narration speed. Production remains unchanged; no push.
 
 ### Next external-write gate — one disposable shared bookmark trial
 
-Not yet authorized: existing progress permission is not permission to mutate
-bookmarks. Proposed next bounded trial uses the same pinned limited TV account
+Jason approved this exact one-bookmark create/verify/remove trial on2026-10-25
+with “you may”; existing progress permission alone was not bookmark authority.
+This bounded trial uses the same pinned limited TV account
 to create one uniquely labelled Aster lab bookmark at an unoccupied integer
 time in one verified book, read it back, then remove **only** that exact newly
 created, unchanged bookmark. Checkpoint private bookmark state locally; never
@@ -4559,3 +4560,63 @@ manual review if ownership of cleanup cannot be proven. No broad restoration
 or deletion is a recovery action. The official
 [bookmark API](https://api.audiobookshelf.org/#create-a-bookmark) was reviewed;
 normal ongoing bookmark saving remains a later separate enablement decision.
+
+Trial implementation assessment: no playback/restart or deployed UI/module
+changes are needed. Stage a reviewed one-shot helper on HP, use the unchanged
+TLS/redirect-refusing bridge locally, read a secret-free account/bookmark/
+progress projection and privately checkpoint it plus installed file hashes.
+Require idle Home/empty queues and the pinned restricted identity before both
+mutations. One durable journal consumes the trial before POST; DELETE requires
+the exact response/read-back record (including creation time) and fresh full
+projection equality. Unknown responses or concurrent changes fence further
+mutation, with no cleanup in a finally block and no retry after restart.
+Offline/synthetic tests precede the one live trial. Validate final bookmark
+projection and all listening positions equal the checkpoint, installed files
+unchanged, idle state and accepted composition. No new permissions, services,
+network/NetBox/Beszel/Doctor inventory, speech or production impact. Private
+on-box recovery/evidence covers this disposable data change; no broad rollback.
+
+#### Disposable bookmark trial — passed, grant consumed
+
+2026-10-25 read-only `inspect-1792941928857085656.json` confirmed the pinned
+limited household identity, idle Home/empty queues, valid book duration, an
+unoccupied integer time, zero existing bookmarks and all13 accepted Books
+members. Before the live call, all603 local v2 tests pass normal/optimized,
+including16 new bookmark tests: collisions, changed account/other bookmark/
+progress, altered response, no deletion after unknown creation, no retry after
+unknown deletion or consumed run, private projection and duplicate identities.
+The read projection discards auth/profile fields in-process and hashes only
+declared progress-state fields, including reader location/progress. Neither
+raw `/api/me` nor the existing client configuration is exported.
+
+Staged helper `/storage/.aster-staging/aster-bookmark-trial1/` uses model SHA
+`f97184770aaf988cf280b9b4f81d4d343b4b6e24f5352b1812b85b0bd4bc9f52`
+and native helper SHA
+`090d13fbdb8507a2205a1c0911877bb54e7a15295e8cbb86a18b417cbc7a79fb`.
+Live `trial1/result-1792941962051928835.json` passes exactly one POST/create,
+exact response plus fresh full bookmark read-back, one DELETE of that unchanged
+created record, and equality with the original bookmark/progress projection.
+Existing bookmark count returns to zero; **the only deleted item was the newly
+created disposable lab bookmark**. No existing bookmark or listening position
+was changed, reset or restored. No playback, restart, UI activation or permission
+change occurred. Journal status is `verified-cleaned`; this authorization is
+consumed and cannot be repeated by rerunning the helper.
+
+Private recovery on HP:
+`/storage/.aster-checkpoints/aster-books-bookmark-20261025/trial1/`.
+Extra protected local copy `/tmp/aster-bookmark-recovery-5Isarq/trial1/`
+verifies all13 checkpoint file hashes and the cleaned journal. These are
+evidence/recovery sources, **not** authority to replay creation, deletion or
+bulk bookmark/progress restoration. Unknown future results require review.
+Final native `postcheck-1792942004066883132.json` passes13 Books members,
+accepted full composition,68 AV/language settings, database integrity and idle
+Home/original empty queues. No production contact/change and no Git push.
+
+User handover: this proves shared Audiobookshelf bookmark access with the
+limited TV identity, not a new button yet. Ordinary bookmark creation remains
+disabled. Next proposed gate is HP-only **create-only** bookmarks with explicit
+save confirmation, fresh collision checks and durable uncertain-result fencing;
+no edits, overwrites or deletions of existing bookmarks. A separately bounded
+disposable native-UI save/read/delete test may accompany that enablement only
+with Jason's explicit approval. The missing CAS/concurrent-client limitation
+remains; this trial does not demonstrate atomic cross-client safe writes.
