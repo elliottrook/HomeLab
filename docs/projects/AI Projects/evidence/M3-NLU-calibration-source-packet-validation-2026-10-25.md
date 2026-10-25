@@ -33,3 +33,16 @@ manifest SHA-256 `357b4e3d5514fe32b1509ac27f9eac3940edb0635db3a5008b4f29fc4f124a
 is retained as superseded provenance; the repinned measurement is the current
 staging input.
 
+## Dependency-closure correction
+
+The first inactive staging attempt proved that the ten-file packet omitted
+`nlu_candidate_bundle.py`, which `nlu_calibration_release.py` imports. The
+attempt stopped before its atomic rename and removed the new LXC directory.
+The source manifest now pins that missing module at SHA-256
+`5a797b2f0166d6ead276c0487887074ea1f78396d2ddfcd4ea7d6915df36e156`.
+The corrected manifest SHA-256 is
+`69ffc58928ebd2f2f64e0600b8c4a7d73ce5f5356c485e1df8c2265741972165`.
+All 11 inputs, 98,414 aggregate bytes, passed the exact byte validator and all
+eight Python modules imported with bytecode writes disabled. This corrected
+packet supersedes the ten-file packet for any later LXC staging.
+

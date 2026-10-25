@@ -506,14 +506,14 @@ and binds the exact journal digest into the threshold-selection input. The
 dependency-free NLU suite passes 106/106. A journal can no longer exist merely
 as an ignored sidecar.
 The [LXC110 staging boundary](evidence/M3-NLU-calibration-LXC110-staging-boundary-2026-10-25.md)
-now fixes the minimal ten-file packet, persistent owner-only location,
+initially fixed a minimal ten-file packet, persistent owner-only location,
 content-free return path and retain-on-uncertainty cleanup rule. This avoids
 exporting the local service key and keeps labels on the Mac. It is an offline
 plan only; nothing has been staged. A read-only LXC110 preflight found the
 target path unused, Python 3.13.5 available, the key file mode `0600` without
 reading it, the accepted service active and adequate disk space.
-The exact packet is now also machine-readable and fail-closed. Its validator
-requires the exact ten staged names and byte-verifies opened regular files
+The exact packet is machine-readable and fail-closed. Its validator
+requires the exact staged names and byte-verifies opened regular files
 without following symlinks; five focused tests and the full 111-test
 dependency-free NLU suite pass. The
 [actual Mac source packet](evidence/M3-NLU-calibration-source-packet-validation-2026-10-25.md)
@@ -521,19 +521,24 @@ also passes 10/10 byte verification. A later
 [llama response-envelope compatibility correction](evidence/M3-NLU-llama-response-envelope-compatibility-2026-10-25.md)
 prevents ordinary accepted `usage`/`timings` metadata from invalidating every
 classification while still rejecting unknown metadata and retaining none of
-it. The repinned 93,612-byte packet passes, and the full NLU suite passes
-113/113 at that checkpoint. The later
+it. The superseded ten-file packet passed at 93,612 bytes but failed closed
+during its first LXC import check because it omitted `nlu_candidate_bundle.py`.
+The [dependency-closure correction](evidence/M3-NLU-staging-dependency-closure-correction-2026-10-25.md)
+adds the one missing local validator dependency. The corrected eleven-file
+packet passes at 98,414 bytes with manifest SHA-256
+`69ffc58928ebd2f2f64e0600b8c4a7d73ce5f5356c485e1df8c2265741972165`, and
+the full NLU suite passes 126/126 in the pinned Pydantic 2.13.4 environment.
+The later
 [staged-custody validator](evidence/M3-NLU-staged-custody-validator-boundary-2026-10-25.md)
-now enforces root ownership, `0700`/`0600` modes, the exact ten-name set and
-absence of outputs or extra files; the current suite passes 115/115. No staging
-effect followed.
+enforces root ownership, `0700`/`0600` modes, the exact manifest name set and
+absence of outputs or extra files.
 The [inactive staging card](evidence/M3-NLU-calibration-inactive-staging-card-2026-10-25.md)
-now removes an unnecessary exclusive-window dependency: the inert ten-file
+removes an unnecessary exclusive-window dependency: the inert eleven-file
 packet may be copied and byte-verified before lab hours under its own bounded
 approval, while the compatible lease and all runtime/recovery gates still
-remain mandatory before the first model request. The live target path is
-currently absent, the lease controller is ready and the accepted llama service
-is active. No file has yet been staged.
+remain mandatory before the first model request. The first ten-file staging
+attempt failed closed before rename and removed its LXC path. The corrected
+packet is ready for a new exact staging approval.
 The platform owner's first pure endpoint-retaining lease candidate at
 `44b26e16` passed its own 7/7 tests and names the correct live backend and News
 timers, but Stream A's

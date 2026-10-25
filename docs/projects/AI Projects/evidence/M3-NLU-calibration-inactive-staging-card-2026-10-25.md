@@ -2,7 +2,7 @@
 
 > State: **READY FOR ONE BOUNDED PRIVATE-DATA STAGING APPROVAL**
 >
-> Effect: copy the already sealed ten-file packet into LXC110; do not start a
+> Effect: copy the corrected, sealed eleven-file packet into LXC110; do not start a
 > lease, process, model request, score, threshold selection or route.
 
 ## Why this can happen before lab hours
@@ -25,16 +25,19 @@ The 11:27 PDT read-only preflight found:
 
 ## Exact source and destination
 
-Use the ten entries and digests in
+Use the eleven entries and digests in
 `scripts/aster-adaptive/fixtures/nlu-calibration-stage-manifest-v1.json`
-(SHA-256 `357b4e3d5514fe32b1509ac27f9eac3940edb0635db3a5008b4f29fc4f124a00`).
-The source packet has already passed 10/10 byte verification at 93,612 bytes.
+(SHA-256 `69ffc58928ebd2f2f64e0600b8c4a7d73ce5f5356c485e1df8c2265741972165`).
+The source packet has passed 11/11 byte verification at 98,414 bytes. The
+additional input is `nlu_candidate_bundle.py`, the local dependency imported
+by the calibration release validator. The first ten-file staging attempt
+failed closed at its import check and removed its incoming LXC directory.
 
 Create only:
 
 `/var/lib/aster-nlu-calibration/nlu-calibration-v1`
 
-The parent and run directory must be root-owned mode `0700`; each of the ten
+The parent and run directory must be root-owned mode `0700`; each of the eleven
 inputs must be root-owned mode `0600`. Do not copy `labels.json`, policy
 registration, threshold selection, cloud credentials, tools or the llama key.
 Do not create `run.json` or `attempt-journal.jsonl` during staging.
@@ -45,7 +48,7 @@ Do not create `run.json` or `attempt-journal.jsonl` during staging.
    is active and the host has no active lease or competing maintenance.
 2. Build a fresh owner-only Mac temporary packet from the exact existing
    sources. Validate all ten opened regular files against the frozen manifest.
-3. Create one root-only `.incoming` directory in LXC110 and stream the ten
+3. Create one root-only `.incoming` directory in LXC110 and stream the eleven
    files over the established SSH transport. Do not persist a packet on the
    Proxmox host.
 4. Recheck the exact name set, file type, owner, mode, size and SHA-256 inside

@@ -81,10 +81,10 @@ every ordered start/result pair to the final 60-record run before deriving a
 score. The score binds the journal digest, so threshold selection cannot ignore
 or silently substitute the custody record.
 `nlu_calibration_stage_manifest.py` validates the exact no-effect LXC110 packet:
-ten pinned inputs, two owner-only outputs, persistent retain-on-uncertainty
+eleven pinned inputs, two owner-only outputs, persistent retain-on-uncertainty
 custody, explicit exclusions and no authority. Validation prepares later
 staging; it does not copy a file, acquire a lease or call the model. When all
-ten `--input NAME=PATH` bindings are supplied, it opens each input without
+eleven `--input NAME=PATH` bindings are supplied, it opens each input without
 following symlinks and verifies the bytes against the frozen digest before a
 packet can be treated as staged.
 

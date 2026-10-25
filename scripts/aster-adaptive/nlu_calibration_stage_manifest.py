@@ -23,6 +23,7 @@ INPUTS = [
     ("nlu_calibration_score.py", "ec4f4e44ff595617f1fe8e337b587bbab049204d001dd2ba050ee1fb146022fd", "source"),
     ("nlu_calibration_journal.py", "992960fe76540941fe9adf7b75ddaf82541c55039782bf4cf360ad6c5279a744", "source"),
     ("nlu_local_model_adapter.py", "3a3b09f12bcd2088f0d604363a5bc0e69190c177eced50dc5a14eb582749aed0", "source"),
+    ("nlu_candidate_bundle.py", "5a797b2f0166d6ead276c0487887074ea1f78396d2ddfcd4ea7d6915df36e156", "source"),
     ("nlu_threshold_policy.py", "984932d8716531858972e22723fe962701077f9a15991c58384c6ee6661ebb5d", "source"),
 ]
 
@@ -68,7 +69,7 @@ def validate_packet_files(manifest: dict, paths: dict[str, Path]) -> dict:
         raise ValueError("cannot validate files against an unfrozen stage manifest")
     expected = {row["name"]: row["sha256"] for row in manifest["inputs"]}
     if set(paths) != set(expected):
-        raise ValueError("packet paths must name the exact ten frozen inputs")
+        raise ValueError("packet paths must name the exact frozen inputs")
     total = 0
     for name, digest in expected.items():
         path = paths[name]

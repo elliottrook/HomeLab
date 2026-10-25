@@ -94,3 +94,24 @@ This accepts the **pure contract only**. It has no live entry point. The
 effectful adapter, independent watchdog integration, target-Linux proof,
 inactive installation and later live-run decision remain separate steps. No
 platform state or F2 timer changed during this review.
+
+## Final source and inactive-install reconciliation
+
+Platform source `0e633337` supplied the final source-only contract, adapter,
+watchdog and operation-lock correction. Stream A reproduced 28/28 tests from a
+clean archive. Platform commit `dd886601` then froze the four-file inactive
+installation packet: manifest SHA-256
+`f14f2e8860c0e783fd9777374393e46b02123ff15125e78f5e43594ea670e83d`
+and card SHA-256
+`81c9201c41f748c551592bbc9d4a7b797fac913d6f487c7b40af72baafdea14e`.
+
+The approved inactive copy reached its final Proxmox destination with all four
+source hashes correct. A subsequent command-line check generated two `.pyc`
+files in `__pycache__`, however, so the exact-name postcheck failed. In
+accordance with the retain-on-uncertainty rule, the directory remains
+root-owned mode `0700`. Read-only reconciliation found exactly the four pinned
+sources and that cache directory, no associated service or timer, no lease or
+operation lock, and no live entry point. The candidate is inert but its
+installation is not yet a pass. Removing only that generated cache, rerunning
+checks with bytecode writes disabled and setting the final directory to mode
+`0755` requires a bounded corrective approval.

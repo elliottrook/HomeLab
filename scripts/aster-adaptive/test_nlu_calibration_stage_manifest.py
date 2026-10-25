@@ -16,7 +16,7 @@ def encoded(value):
 class NluCalibrationStageManifestTests(unittest.TestCase):
     def test_frozen_packet_is_exact_and_has_no_authority(self):
         value = stage.load_and_validate(encoded(stage.expected_manifest()))
-        self.assertEqual(10, len(value["inputs"]))
+        self.assertEqual(11, len(value["inputs"]))
         self.assertEqual("not-granted", value["authority"])
         self.assertIn("labels.json", value["excluded"])
 
