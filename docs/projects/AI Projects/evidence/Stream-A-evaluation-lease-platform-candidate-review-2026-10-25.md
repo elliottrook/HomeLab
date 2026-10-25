@@ -3,7 +3,8 @@
 **Date:** 2026-10-25 America/Vancouver  
 **Stream A source:** `a4faf905`  
 **Platform source reviewed:** `44b26e16a61601c729c9f97df6ef3075d255fe1b`  
-**Decision:** **REJECT FOR EFFECTFUL ADAPTER; SOURCE CORRECTION REQUIRED**
+**Initial decision:** **REJECTED BEFORE EFFECT**
+**Corrected decision:** **PURE CONTRACT ACCEPTED; ADAPTER/INSTALLATION STILL OPEN**
 
 ## Scope
 
@@ -59,3 +60,37 @@ unspent. Their local fixtures, run cards and inert staging path can continue
 independently. A corrected platform commit must pass independent review before
 any adapter, watchdog, installation or live-run decision is prepared. Fresh
 successful F2 and F3 evidence remains a separate prerequisite.
+
+## Corrected source review
+
+The platform owner first returned `02c60a6d`, which corrected the backend
+holder, fixed-window and independent lease-identity defects. Stream A rejected
+two remaining fail-open paths: its post-quiescence check compared names without
+requiring stopped/masked states, and its completed sequence did not require a
+terminal M3 outcome.
+
+Platform commit `024f3c06` closes both remaining paths:
+
+- the exact four registered consumers must each be `masked+inactive` before D4;
+- the accepted llama backend must remain the only holder and be authenticated
+  and idle after quiescence and after restoration;
+- D4 and M3 terminal outcomes must each match the active lease ID, generation,
+  frozen packet digest and workload bounds;
+- the 90-minute total window, 75-minute effect deadline and 15-minute restore
+  reserve are fixed, and the 10 + 36 + 20 minute budgets fit inside the effect
+  period.
+
+Stream A reproduced **10/10** tests from the exact commit archive and compiled
+both Python files with an isolated bytecode cache. The reviewed hashes match
+the platform owner's report:
+
+| File | SHA-256 |
+| --- | --- |
+| `evaluation_lease.py` | `c521ff753e92d290efe2a2cc6d8d78e8b10b1be86e2a1703f7304783cd3522ca` |
+| `test_evaluation_lease.py` | `b29da400849834651679dba114e3d3f26ccea045cce47a7fdafe078100b8b1f9` |
+| inactive card | `157f3d0ef40ce3990e4fa0f8393c6e8f99d7658d14d79d6bac10ffd0c24bbb9a` |
+
+This accepts the **pure contract only**. It has no live entry point. The
+effectful adapter, independent watchdog integration, target-Linux proof,
+inactive installation and later live-run decision remain separate steps. No
+platform state or F2 timer changed during this review.
