@@ -552,6 +552,11 @@ it pins the superseded M3 manifest, conflicts with the installed four-file
 baseline, does not enforce exact schemas for every phase, and accepts weakly
 custodied intent files/arbitrary state paths. The exact regressions are with
 the platform owner. The inert library and M3 packet remain unchanged.
+The final platform correction at `ae56046b` plus card commit `d2a32785` closes
+those source and transaction gaps. Its clean archive passes 32/32 tests and
+the live target exactly matches the required four-file prestate. The bounded
+one-replacement/two-addition inactive upgrade is ready for a separate exact
+installation decision; no effect phase is authorized by that installation.
 The platform owner's first pure endpoint-retaining lease candidate at
 `44b26e16` passed its own 7/7 tests and names the correct live backend and News
 timers, but Stream A's

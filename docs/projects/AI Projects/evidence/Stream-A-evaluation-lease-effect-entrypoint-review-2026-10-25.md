@@ -65,3 +65,33 @@ still prevent installation:
 
 The platform owner received these two exact corrections. The second candidate
 is also rejected before installation or effect.
+
+## Final corrected candidate
+
+Platform implementation `ae56046bc5f361e84c88e72b5af11b4f933c94c4`
+and metadata/card commit `d2a32785e1d7a12fa7582e708f2b46e9b7efd529`
+close both follow-on gaps:
+
+- arbitrary state paths are rejected before the intent loader is called, with
+  a mock assertion covering that order;
+- the card requires installed `evaluation_lease.py` at old hash
+  `38a986e9…6312`, checkpoints and atomically replaces only that file with new
+  hash `675ebb56…f1b`, adds only the entrypoint and wrapper, and preserves the
+  other three libraries on install and rollback; and
+- final card SHA-256 is
+  `bb3b4f9552898fcbe10d0067a71e7438be719bf407a5c529f34a72876c546e4e`.
+
+Stream A reproduced 32/32 tests from a clean archive, compiled the four Python
+modules with an isolated cache and matched the source hashes. Read-only target
+preflight found the exact old four-file baseline, root `0755`, files `0644`,
+the new entrypoint and wrapper absent, fixed state and operation lock absent,
+and the legacy controller `ready`. The three-file install packet is 24,250
+bytes at SHA-256
+`f69dde0c6e7dc9c04e0943e18777abc816d9c39a8287dbe0384c66dde983ef8f`;
+the eight-file target validation packet is 87,676 bytes at SHA-256
+`274298d9f56696480f28f22b7bc750b6e23d3482a59422c6e8538841325ad837`.
+
+The source and inactive upgrade are now **accepted for one exact installation
+decision**. Acceptance does not authorize installation, an effectful phase,
+watchdog activation, a lease, consumer change, model call, D4/M3 execution,
+F2 change or Git push.
