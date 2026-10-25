@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import copy
 import json
 import os
@@ -165,3 +166,40 @@ def register_policy(
     if validate_registration(result):
         raise ValueError("accepted inputs did not produce a valid registration")
     return result
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Register one exact accepted NLU policy without granting route authority."
+    )
+    parser.add_argument("--proposal", type=Path, required=True)
+    parser.add_argument("--acceptance", type=Path, required=True)
+    parser.add_argument("--candidate", type=Path, required=True)
+    parser.add_argument("--calibration", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args(argv)
+    try:
+        value = register_policy(
+            args.proposal.read_bytes(),
+            args.acceptance.read_bytes(),
+            args.candidate.read_bytes(),
+            args.calibration.read_bytes(),
+        )
+        raw = canonical_json(value)
+        write_new_private(args.output, raw)
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
+    print(json.dumps({
+        "schema": value["schema"],
+        "policy_status": value["policy"]["status"],
+        "decision_artifact_sha256": value["decision_artifact_sha256"],
+        "candidate_bundle_sha256": value["candidate_bundle_sha256"],
+        "calibration_artifact_sha256": value["calibration_artifact_sha256"],
+        "registration_artifact_sha256": sha256(raw),
+        "authority": value["authority"],
+    }, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

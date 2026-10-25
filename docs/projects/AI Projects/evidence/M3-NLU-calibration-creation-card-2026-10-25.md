@@ -35,9 +35,11 @@ the independent holdout, select a threshold, enable routing or grant tools.
 4. A scoring operator receives the sealed cases only after labels and review
    receipts are frozen. This role does not create or change labels.
 5. Exact normalized text hashes must not overlap the 24 exposed development
-   cases. The independent 36-case holdout remains unopened; its custodian
-   provides only a content-free non-overlap receipt when the calibration set
-   is sealed.
+   cases. The independent 36-case holdout does not yet exist and remains
+   unopened. Its later creation gate must take the sealed calibration text-set
+   digest as an exclusion input and produce a content-free non-overlap receipt
+   before that holdout can be sealed; calibration must not pre-create or inspect
+   holdout content.
 6. Raw cases, labels and receipts remain owner-only outside Git. Git receives
    only the content-free calibration release: opaque IDs, family, case hash,
    label hash and review-receipt hash.
@@ -54,9 +56,10 @@ custodian cannot act as label reviewer or scoring operator.
 ## Stop conditions
 
 Stop before sealing if the count or family balance differs, a role is reused,
-any development overlap appears, a real/private datum appears, a review
-receipt is missing, or holdout non-overlap cannot be confirmed without opening
-the holdout. Do not repair a reviewed label after seeing candidate output;
+any development overlap appears, a real/private datum appears or a review
+receipt is missing. Record the calibration normalized-text-set digest as a
+mandatory exclusion input for the later holdout gate; do not invent a present
+holdout comparison when no holdout cases exist. Do not repair a reviewed label after seeing candidate output;
 replace the entire unrun release under a new version if pre-run review finds a
 fault.
 

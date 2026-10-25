@@ -1,4 +1,6 @@
 import copy
+import contextlib
+import io
 import json
 import stat
 import tempfile
@@ -14,6 +16,11 @@ import nlu_threshold_policy as policy
 
 
 HERE = Path(__file__).parent
+RECORDED_PROPOSAL = HERE / "fixtures" / "nlu-policy-decision-proposal-v1.json"
+RECORDED_ACCEPTANCE = HERE / "fixtures" / "nlu-policy-acceptance-v1.json"
+RECORDED_CANDIDATE = HERE / "fixtures" / "nlu-candidate-bundle-qwen35-9b-sycl-v1.json"
+RECORDED_CALIBRATION = HERE / "fixtures" / "nlu-calibration-release-v1.json"
+RECORDED_REGISTRATION = HERE / "fixtures" / "nlu-policy-registration-v1.json"
 
 
 def encoded(value):
@@ -89,6 +96,23 @@ def sealed_calibration(candidate_sha256):
 
 
 class NluPolicyRegistrationTests(unittest.TestCase):
+    def test_recorded_inputs_reproduce_the_recorded_registration(self):
+        value = registration.register_policy(
+            RECORDED_PROPOSAL.read_bytes(),
+            RECORDED_ACCEPTANCE.read_bytes(),
+            RECORDED_CANDIDATE.read_bytes(),
+            RECORDED_CALIBRATION.read_bytes(),
+        )
+        self.assertEqual(RECORDED_REGISTRATION.read_bytes(), registration.canonical_json(value))
+        loaded, errors = registration.load_and_validate(RECORDED_REGISTRATION.read_bytes())
+        self.assertEqual([], errors)
+        self.assertEqual("registered", loaded["policy"]["status"])
+        self.assertEqual("not-granted", loaded["authority"])
+        self.assertEqual(
+            "85b5090f929c50cba02d914418c1187bb9a7d848f05c38b174f125f77442df0a",
+            policy.sha256(RECORDED_REGISTRATION.read_bytes()),
+        )
+
     def exact_inputs(self):
         proposal_raw = (
             HERE / "fixtures" / "nlu-policy-decision-proposal-v1.json"
@@ -194,6 +218,41 @@ class NluPolicyRegistrationTests(unittest.TestCase):
             registration.register_policy(
                 proposal_raw, acceptance_raw, candidate_raw, encoded(changed)
             )
+
+    def test_cli_creates_owner_only_registration_and_refuses_overwrite(self):
+        proposal_raw, acceptance_raw, candidate_raw, calibration_raw = self.exact_inputs()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            paths = {
+                "proposal": root / "proposal.json",
+                "acceptance": root / "acceptance.json",
+                "candidate": root / "candidate.json",
+                "calibration": root / "calibration.json",
+                "output": root / "registration.json",
+            }
+            for key, raw in (
+                ("proposal", proposal_raw),
+                ("acceptance", acceptance_raw),
+                ("candidate", candidate_raw),
+                ("calibration", calibration_raw),
+            ):
+                paths[key].write_bytes(raw)
+            arguments = [
+                "--proposal", str(paths["proposal"]),
+                "--acceptance", str(paths["acceptance"]),
+                "--candidate", str(paths["candidate"]),
+                "--calibration", str(paths["calibration"]),
+                "--output", str(paths["output"]),
+            ]
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(0, registration.main(arguments))
+            self.assertEqual(0o600, stat.S_IMODE(paths["output"].stat().st_mode))
+            value, errors = registration.load_and_validate(paths["output"].read_bytes())
+            self.assertEqual([], errors)
+            self.assertEqual("registered", value["policy"]["status"])
+            with contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit):
+                    registration.main(arguments)
 
 
 if __name__ == "__main__":
