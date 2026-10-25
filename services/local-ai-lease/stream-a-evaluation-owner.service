@@ -1,0 +1,19 @@
+[Unit]
+Description=Stream A evaluation owner process (inactive candidate)
+After=local-fs.target
+ConditionPathExists=/var/lib/local-ai-lab/stream-a-evaluation/owner-intent.json
+RefuseManualStart=yes
+
+[Service]
+Type=simple
+ExecStart=/usr/local/sbin/stream-a-evaluation-owner --run --effect-authorized
+User=root
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/etc/local-ai-lab/stream-a-evaluation /var/lib/local-ai-lab/stream-a-evaluation
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

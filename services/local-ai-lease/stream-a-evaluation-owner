@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /usr/bin/python3 -B /usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_owner.py "$@"

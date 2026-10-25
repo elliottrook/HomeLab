@@ -211,7 +211,8 @@ def owner_process_matches(identity: WatchdogIdentity, *, snapshot: Callable[[Wat
 
 def _restore_callback(state: AdapterState, *, intent_path: Path,
                       runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> object:
-    observed = runner((str(OBSERVE_ENTRYPOINT),), check=False,
+    observed = runner((str(OBSERVE_ENTRYPOINT), "--lease-id", state.lease_id,
+                       "--generation", str(state.generation)), check=False,
                       capture_output=True, text=True, timeout=30)
     if observed.returncode != 0:
         raise WatchdogBoundaryError("live restore observer failed")
@@ -220,9 +221,13 @@ def _restore_callback(state: AdapterState, *, intent_path: Path,
     except json.JSONDecodeError as exc:
         raise WatchdogBoundaryError("live restore observer output is malformed") from exc
     if not isinstance(observation, dict) or set(observation) != {
-            "observed_at", "backend_active", "endpoint_authenticated", "endpoint_idle", "gpu_holders"}:
+            "lease_id", "generation", "observed_at", "backend_active",
+            "endpoint_authenticated", "endpoint_idle", "gpu_holders"}:
         raise WatchdogBoundaryError("live restore observer schema is not exact")
-    if type(observation["observed_at"]) is not int or abs(int(time.time()) - observation["observed_at"]) > 15:
+    if (observation["lease_id"] != state.lease_id
+            or observation["generation"] != state.generation
+            or type(observation["observed_at"]) is not int
+            or abs(int(time.time()) - observation["observed_at"]) > 15):
         raise WatchdogBoundaryError("live restore observation is stale")
     for key in ("backend_active", "endpoint_authenticated", "endpoint_idle"):
         if type(observation[key]) is not bool:
@@ -273,7 +278,8 @@ def run_watchdog_once(*, state_path: Path = STATE_PATH, identity_path: Path = ID
                            expected_generation=identity.generation)
         owner_present = True
         try:
-            load_owner_heartbeat(heartbeat_path, identity=identity, now_epoch=now_epoch)
+            heartbeat = load_owner_heartbeat(heartbeat_path, identity=identity, now_epoch=now_epoch)
+            owner_present = now_epoch < heartbeat.expires_epoch
         except WatchdogBoundaryError:
             try:
                 heartbeat_path.lstat()
@@ -293,6 +299,27 @@ def run_watchdog_once(*, state_path: Path = STATE_PATH, identity_path: Path = ID
         return {"effects": "failed-closed", "error": type(exc).__name__}
 
 
+def write_status(result: dict[str, object], path: Path = STATUS_PATH) -> None:
+    allowed = {"effects", "decision", "error"}
+    payload = {key: result[key] for key in result if key in allowed}
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    try:
+        os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as stream:
+            json.dump(payload, stream, sort_keys=True, separators=(",", ":"))
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    except Exception:
+        try:
+            os.unlink(temporary)
+        except FileNotFoundError:
+            pass
+        raise
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--once", action="store_true", required=True)
@@ -309,6 +336,7 @@ def main(argv: list[str] | None = None) -> int:
         recovery=lambda state: _restore_callback(
             state, intent_path=RESTORE_INTENT_PATH),
     )
+    write_status(result)
     print(json.dumps(result, sort_keys=True))
     return 1 if result.get("effects") in {"failed-closed", "uncertain"} else 0
 
