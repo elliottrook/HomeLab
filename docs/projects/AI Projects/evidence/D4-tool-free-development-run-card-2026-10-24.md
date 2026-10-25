@@ -3,8 +3,10 @@
 ## Purpose and status
 
 This card defines one development-only pass over the twelve reviewed,
-public-synthetic D4 investigation fixtures. It is **prepared, tested and not
-authorized to execute**. The run measures whether the accepted production
+public-synthetic D4 investigation fixtures. Its current candidate-G execution
+is **approved, exact and unspent**, as recorded in
+`D4-candidate-G-lease-preflight-no-go-2026-10-25.md`; it may execute only after
+the compatible live lease passes its separately gated admission. The run measures whether the accepted production
 local model can investigate the frozen simulated evidence without effects. It
 does not qualify a sysadmin role, grant a tool, change routing or select a
 provider.
@@ -164,11 +166,14 @@ the model, route, tool authority or repair capability.
 
 ## Approval boundary
 
-The authorizations for attempts 4 through 8 have been consumed. No later
-candidate is authorized. Candidate-F is preregistered at digest
+The authorizations for attempts 4 through 9 have been consumed. Candidate-F
+was preregistered at digest
 `3d746f45f39e496a3f8eb998f367b59847d81dc0506afcd0b53425fc2b7fa827`
-after an offline prompt-only correction derived from candidate-E's six failed
-review cases. Any later authorization would need to bind that tested digest
-and bounded execution; it would not authorize a replay, reasoning mode,
-connected tools, new credentials, service restart, configuration change,
-production deployment, automatic routing, holdout access or a Git push.
+and later spent. Candidate-G supersedes it at exact digest
+`03b0ad74a862ee04de75e012f52f6662c61192b69b279ea4d1d66c80d9ff9153`.
+Jason approved one bounded candidate-G execution plus a conditional fresh blind
+review after 12/12 structural admission. Its first lease preflight failed
+before any lease, journal or model request, so the candidate and approval remain
+unspent. That approval does not authorize a replay, reasoning mode, connected
+tools, new credentials, service restart, configuration change, production
+deployment, automatic routing, holdout access or a Git push.
