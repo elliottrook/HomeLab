@@ -182,7 +182,10 @@ def main():
                     index=results.getSelectedPosition();hits=groups[current].hits
                     if 0<=index<len(hits):
                         hit=hits[index]
-                        if details_enabled:
+                        if linked and (hit.kind in LABELS or (artist_enabled and hit.kind=='artist') or (movie_enabled and hit.kind=='movie')):
+                            # Use the real media page as the sole details page.
+                            active_detail=hit;command='open'
+                        elif details_enabled:
                             try:
                                 detail=read_details(rpc,hit)
                                 active_detail=detail.hit
@@ -199,14 +202,14 @@ def main():
                             except SearchUnavailable:
                                 home.setProperty(PREFIX+'Status','This result changed or is unavailable. Search again to refresh it.')
                         else:home.setProperty(PREFIX+'Detail','Browse-only preview · details are not connected.')
-                elif command=='open' and linked and active_detail and xbmc.getCondVisibility('Window.IsVisible(11128)'):
+                if command=='open' and linked and active_detail and (source_visible() or xbmc.getCondVisibility('Window.IsVisible(11128)')):
                     admission=None
                     try:
                         if artist_enabled and active_detail.kind=='artist':
                             hit=read_details(rpc,active_detail).hit
                             require(idle(),'artist-source-not-idle')
                             parent=Cursor(query,'artist',hit.identity)
-                            xbmc.executebuiltin('Dialog.Close(11128)')
+                            if xbmc.getCondVisibility('Window.IsVisible(11128)'):xbmc.executebuiltin('Dialog.Close(11128)')
                             until=time.monotonic()+5
                             while not source_visible():
                                 require(time.monotonic()<until and not monitor.waitForAbort(.05),'artist-source-not-ready')
@@ -214,7 +217,7 @@ def main():
                             continue
                         detail=read_details(rpc,active_detail);verify_child(detail.hit.kind,movie=movie_enabled)
                         route=route_for(detail.hit,movie=movie_enabled);cursor=Cursor(query,detail.hit.kind,detail.hit.identity)
-                        xbmc.executebuiltin('Dialog.Close(11128)')
+                        if xbmc.getCondVisibility('Window.IsVisible(11128)'):xbmc.executebuiltin('Dialog.Close(11128)')
                         until=time.monotonic()+5
                         while not source_visible():
                             require(time.monotonic()<until and not monitor.waitForAbort(.05),'search-source-not-ready')

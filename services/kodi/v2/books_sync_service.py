@@ -6,7 +6,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parent/'resources/lib'))
 from resources.lib.bridge import Bridge,BridgeError,CONTROL_SOCKET,load_config,secure_kodi_log
 from books_sync import ACCOUNT,Observer,QueueCleaner
 from books_sync_bridge import ProgressBridge
-try:from books_sleep import SleepTimer,Listening
+try:from books_sleep import SleepTimer,Listening,countdown_label,owned_audio_player
 except ImportError:SleepTimer=None  # Historical nine-file overlays have no sleep module.
 PROFILE=Path(xbmcvfs.translatePath('special://profile/addon_data/plugin.audio.asterbooks'))
 
@@ -62,7 +62,7 @@ def main():
             def sleep_stop(url):
                 context=listening()
                 if context is None or context.url!=url:raise RuntimeError('sleep-stop-ownership-changed')
-                if queue_rpc('Player.GetActivePlayers',{})!=[dict(playerid=0,type='audio')]:raise RuntimeError('sleep-only-owned-audio')
+                if not owned_audio_player(queue_rpc('Player.GetActivePlayers',{})):raise RuntimeError('sleep-only-owned-audio')
                 reply=json.loads(xbmc.executeJSONRPC(json.dumps(dict(jsonrpc='2.0',id=1,method='Player.Stop',params=dict(playerid=0)))))
                 if reply.get('result')!='OK':raise RuntimeError('sleep-stop-unacknowledged')
                 for _ in range(20):
@@ -112,7 +112,7 @@ def main():
                             else:sleep_timer.arm(request['minutes'])
                     sleep_timer.tick(known=observed_known)
                     remaining=sleep_timer.remaining()
-                    if remaining is not None:home.setProperty('AsterBooks.SleepStatus','Sleep in '+str((remaining+59)//60)+' min')
+                    if remaining is not None:home.setProperty('AsterBooks.SleepStatus',countdown_label(remaining))
                 except Exception:home.setProperty('AsterBooks.SleepStatus','Sleep timer unavailable · reopen controls')
             if monitor.waitForAbort(.2):break
     except Exception:

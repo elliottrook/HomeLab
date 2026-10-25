@@ -5,6 +5,19 @@ import math,time
 from books_progress import Scope,require
 
 PRESETS=(15,30,45,60)
+def owned_audio_player(players):
+    """Kodi 21 adds playertype; compare identity, not the entire RPC dict."""
+    return (isinstance(players,list) and len(players)==1 and isinstance(players[0],dict)
+            and type(players[0].get('playerid')) is int and players[0]['playerid']==0
+            and players[0].get('type')=='audio'
+            and players[0].get('playertype','internal')=='internal')
+
+def countdown_label(remaining):
+    """Wall-clock seconds for the final two minutes; rounded minutes before."""
+    remaining=max(0,int(remaining))
+    return ('Sleep in '+f'{remaining//60}:{remaining%60:02d}' if remaining<=120
+            else 'Sleep in '+str((remaining+59)//60)+' min')
+
 @dataclass(frozen=True)
 class Listening:
     scope:Scope

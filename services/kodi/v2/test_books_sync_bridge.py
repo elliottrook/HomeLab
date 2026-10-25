@@ -71,6 +71,9 @@ class SyncBridgeTests(unittest.TestCase):
         entries=self.bridge.describe('audiobook','book');resume=entries[0]
         binding=self.bridge.registry.get(resume['url'])
         self.assertEqual((binding.index,binding.offset),(1,30))
+        self.assertEqual(resume['resume_position'],130)
+        self.assertEqual(resume['title'],'Resume · 0:02:10')
+        self.assertEqual(resume['duration'],120)  # Not the displayed resume time.
         self.assertEqual(self.bridge.lookup(__import__('urllib.parse',fromlist=['urlsplit']).urlsplit(resume['url']).path)[1],'2')
         self.assertEqual(self.bridge.registry.get(entries[2]['url']).index,1)
         self.assertEqual(self.bridge.registry.get(entries[2]['url']).offset,0)

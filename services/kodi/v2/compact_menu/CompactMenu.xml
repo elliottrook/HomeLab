@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window><defaultcontrol always="true">10</defaultcontrol><controls>
+<control type="group" id="100"><left>1110</left><top>430</top><width>620</width>
+<control type="image" id="101"><width>620</width><height>114</height><texture colordiffuse="df000000">special://skin/media/ui-solid.png</texture></control>
+<control type="label"><left>22</left><top>10</top><width>576</width><height>42</height><label>$INFO[Window.Property(Compact.Title)]</label><font>font20</font><textcolor>ffd2ab68</textcolor><aligny>center</aligny></control>
+<control type="list" id="10"><left>12</left><top>56</top><width>596</width><height>48</height><onup>noop</onup><ondown>noop</ondown><onleft>10</onleft><onright>10</onright><scrolltime>100</scrolltime>
+<itemlayout width="596" height="48"><control type="label"><left>14</left><width>568</width><height>48</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>fff3eee5</textcolor><aligny>center</aligny><truncate>true</truncate></control></itemlayout>
+<focusedlayout width="596" height="48"><control type="image"><width>596</width><height>48</height><texture border="16" colordiffuse="ff91c6a2">special://skin/media/ui-compact-card-ring.png</texture></control><control type="label"><left>14</left><width>568</width><height>48</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>ff91c6a2</textcolor><aligny>center</aligny><scroll>true</scroll></control></focusedlayout>
+</control></control></controls></window>

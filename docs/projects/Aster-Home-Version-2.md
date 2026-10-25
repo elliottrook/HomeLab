@@ -4716,3 +4716,94 @@ SQLite transaction. HP visual testing is reserved for Jason: no navigation,
 restart, playback or deployment was performed there during this work. Shared
 Linux smoke/backup/activation needs its separately described approval; normal
 HP bookmark controls remain disabled until that gate passes.
+
+### Second household visual review — 2026-10-25 (in progress)
+
+Jason requested: Music time above an art-width scrubber, green during playback;
+anchored season dropdown and Up from the first episode; Search first in the
+media header with even spacing and clear column focus; direct result-to-media
+navigation rather than a duplicate details page; minimal translucent-black
+subtitle/audio/quality menus; accurate whole-book Resume text; final-two-minute
+MM:SS sleep countdown and verified stop; black keyboard and no stone button
+pills. Leave the accepted side rail unchanged. These are corrections within
+the approved HP v2 lab stream; BOSGAME remains unchanged. No new speech.
+
+The isolated Linux safeguard test was approved separately and passed20 tests;
+shared Audiobookshelf activation remains separately gated in its project.
+
+Root causes established before fixes:
+
+- Resume UI inherited current-file remaining duration from the synthetic
+  Resume row. The bridge now exposes whole-book position explicitly in its
+  title/field, preserving the real file offset and playback duration.
+- Live Kodi reports active audio as `{playerid:0,type:audio,playertype:internal}`.
+  Sleep's strict whole-dictionary equality rejected this valid player, so the
+  Stop request was never sent. The new guard checks identity/type/internal
+  player while retaining exact bound-URL ownership checks and no uncertain
+  write replay.
+
+Books sync7 installed on HP with all13 files/checkpoint verified; manifest
+`0def99963e27add62f7b13c13568bdfcf8d6ea7669fec9a389e1098797b9269c`.
+Recovery checkpoint:
+`/storage/.aster-checkpoints/aster-books-sync-20261025/aster-books-sync7`.
+Existing audiobook/podcast normal resume/pause/Back tests passed before update.
+A real15-minute preset test is running through the normal UI, not a shortened
+deadline; do not restart or navigate during it. Its eventual outcome belongs
+in the following evidence entry, not assumed here.
+
+Immutable UI candidate `aster-review2`, manifest
+`e82560124c0d61fb997edac12e158bed3fba95c5d3d5cf4e476909e5bd57929f`,
+contains110 verified members, Music66, series18, Search15 and scrub5, plus
+compact-menu source and texture-only transforms of pinned HP XML. Shared
+player routes/integrity records update together. Exact predecessor hashes,
+idle preservation proof, private per-file checkpoint and paired restore gate
+activation. Native UI acceptance/deployment remains pending at this entry.
+All623 local tests pass normal and optimized Python;16 new checks cover
+layout/focus, direct search, owned stream changes/cancellation, subtitles,
+factual source quality, source preservation and synthetic install/rollback.
+Quality deliberately does not invent a transcoding option for direct playback.
+No Forgejo push or production deployment authorized/performed for this review.
+
+#### Second-review deployment and acceptance evidence
+
+Installed the above110-member UI bundle on HP after the full sleep test, with
+private before-file hashes/restore verified at
+`/storage/.aster-checkpoints/aster-review2-20261025`. No side-rail source change.
+Final manifest verification passed all110 members. Preservation postcheck
+verified Music66, all48 player members, six Search overlays, series18, scrub5,
+Books sync7, canonical sounds, database integrity and68 AV/language comparisons
+(67 exact plus the already-known resolution-index remap). Display remains4K30;
+no audio, display, credentials or production Kodi changes.
+
+- Full native15-minute sleep preset passed in900.72s, with final-two-minute
+  seconds display, saved position, stopped audio and cleared owned queue.
+- Normal Search→TV/movie/album/song direct pages→Back restored the exact result
+  identity/query/focus without autoplay or the redundant details interstitial.
+- Native season test passed Up from first episode, focus301 on the anchored
+  dropdown and selecting back to episodes. Screenshot `season-dropdown.png`.
+- Native compact Soundtrack/Subtitles/Quality menus opened with actual rows;
+  subtitle on/off was first. Back left the owned movie playing; fullscreen Back
+  then stopped and returned to the series page, which closed cleanly.
+- Cross-script `Window.getControl().size()` cannot inspect another Python
+  dialog's owned list reliably: it returned0 despite rendered rows. Corrected
+  the harness to use native Container info labels, with screenshots. This was
+  not an empty-menu/product failure. Test drivers avoid cross-script getControl.
+- Normal Music regression passed album play/pause/Back, non-first-tile focus,
+  artist/song/playlist routes, genres and confirmed shuffle exclusions/cancel/
+  exit. No server playlist write. Keyboard and art-width scrub were visually
+  inspected in native4K screenshots.
+- Read-only Wolf's Bane check matched source whole-book position `0:46:27` to
+  the Resume title/position; current-file remainder was26102s, demonstrating
+  why it must not be presented as the resume point. No seek/play/write in this
+  specific audit. The full sleep fixture had naturally advanced its saved
+  position; test positions are retained, not rewound.
+- Existing audiobook/podcast native resume, pause-save and Back/stop passed
+  again after the separately approved shared safeguard activation. Limited
+  account/progress behavior unchanged; normal bookmark UI remains gated.
+
+Proofs under the above HP checkpoint include `native-ui-*`, `native-player-*`,
+`wolfsbane-*` and native screenshots; Books proofs remain under its own dated
+checkpoint.623 local v2 tests pass; seven guard builder tests pass locally and
+five activation-plan tests passed on TrueNAS (local PyYAML-dependent skips are
+explicit). Production BOSGAME and its previously accepted sound theme remain
+unchanged; no production deployment or Forgejo push was performed.

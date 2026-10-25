@@ -60,7 +60,7 @@ if search_file.exists():
     _require(search_manifest.get('kind') in ('hp-search-details','hp-search-playerlinks')
         and len(search_manifest['files'])==((13 if search_manifest.get('movie_page')==11130 else 10 if search_manifest.get('artist_native_window')==11129 else 9 if search_manifest.get('artist_albums') is True else 8) if search_linked else 6),'search-details-kind')
     _require(search_manifest.get('dispatcher_before_sha256')=='466b69269e56d8699838aabbe72ae533a580909603855850a047bf02e76d1a0e','search-dispatch-predecessor')
-    search_stages=[stage/name for name in ('aster-global-search-ui3','aster-global-search-ui4','aster-global-search-ui5','aster-global-search-ui6','aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12','aster-global-search-ui13','aster-global-search-ui14')
+    search_stages=[stage/name for name in ('aster-global-search-ui3','aster-global-search-ui4','aster-global-search-ui5','aster-global-search-ui6','aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12','aster-global-search-ui13','aster-global-search-ui14','aster-global-search-ui15')
         if (stage/name/'manifest.json').exists() and hashlib.sha256((stage/name/'manifest.json').read_bytes()).hexdigest()==sys.argv[8]]
     _require(len(search_stages)==1,'search-stage-manifest');search_stage=search_stages[0]
     for member in search_manifest['files']:
@@ -97,9 +97,10 @@ if books_file.exists():
         'aster-books-sync3':'7bc5c6ec96c8c0bfb0a18272e8da54ecd4bb647622e150864dc229aa41576de9',
         'aster-books-sync4':'d332a979018d92add2999909e4cf272190624c54bf4db5e0f1fb12c281f85af6',
         'aster-books-sync5':'010e23df40c70e1eaeeb478e359b9da7cb56223549701a3795aea2defa676ff8',
-        'aster-books-sync6':'dd502b6770ec6c0f76e4c2fb4182c54c4b84e4c5162a70e0c0dd2a205a643dd7'}
+        'aster-books-sync6':'dd502b6770ec6c0f76e4c2fb4182c54c4b84e4c5162a70e0c0dd2a205a643dd7',
+        'aster-books-sync7':'0def99963e27add62f7b13c13568bdfcf8d6ea7669fec9a389e1098797b9269c'}
     books_name=books.get('stage');_require(books_name in accepted_books and hashlib.sha256(books_file.read_bytes()).hexdigest()==accepted_books[books_name],'books-sync-manifest')
-    expected_books_count=13 if books_name=='aster-books-sync6' else 9
+    expected_books_count=13 if books_name in ('aster-books-sync6','aster-books-sync7') else 9
     _require(books.get('kind')=='hp-books-shared-progress.v1' and len(books['files'])==expected_books_count,'books-sync-contract')
     _require((stage/books_name/'manifest.json').read_bytes()==books_file.read_bytes(),'books-sync-stage')
     for member in books['files']:
@@ -165,6 +166,20 @@ if overlay_file.exists():
 overlay_count=len(overrides)
 overrides.update(canonical_overrides)
 overrides.update(books_overrides)
+# The second visual-review bundle intentionally changes keyboard and button
+# surfaces outside the older four-player overlay. Verify the entire exact
+# checkpoint before accepting any of its source overrides.
+review_marker=Path('/storage/.aster-checkpoints/aster-review2-20261025/installed.json')
+if review_marker.exists():
+    review_sha='e82560124c0d61fb997edac12e158bed3fba95c5d3d5cf4e476909e5bd57929f'
+    review_root=stage/'aster-review2';review_raw=(review_root/'manifest.json').read_bytes()
+    _require(hashlib.sha256(review_raw).hexdigest()==review_sha,'review2-manifest')
+    _require(json.loads(review_marker.read_text()).get('manifest_sha256')==review_sha,'review2-installation')
+    review=json.loads(review_raw)
+    for r in review['files']:
+        _require(hashlib.sha256((Path('/storage')/r['path']).read_bytes()).hexdigest()==r['sha256'],'review2-installed-member')
+        if r['path'].startswith('.kodi/addons/'):
+            overrides[r['path'][len('.kodi/addons/'):]]=r['sha256']
 if search_home_sha:overrides['skin.asterhome/1080i/Home.xml']=search_home_sha
 integration_file=Path('/storage/.aster-checkpoints/aster-music-integration-20261024/active-manifest.json')
 integration_count=0

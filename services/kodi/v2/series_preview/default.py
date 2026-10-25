@@ -46,7 +46,10 @@ class SeriesPreview(xbmcgui.WindowXML):
     def onInit(self):
         if not self.ready:
             self.dialog_open=False;self.back_guard_until=0
+            self.season_menu=False
             self.selection=SeriesSelection(self.snapshot.page,self.snapshot.page.primary_episode_id)
+        self.season_menu=getattr(self,'season_menu',False)
+        self.setProperty('Series.SeasonMenu','true' if self.season_menu else 'false')
         self.setProperty('Series.Title',self.snapshot.title)
         self.setProperty('Series.Synopsis',self.snapshot.synopsis or 'Synopsis unavailable')
         self.setProperty('Series.Fanart',self.snapshot.fanart)
@@ -113,7 +116,18 @@ class SeriesPreview(xbmcgui.WindowXML):
         if identity==202:self.close()
         elif identity==201:
             self.publish()
-            index=self.dialog('select','Choose season',[s.label for s in self.snapshot.page.seasons],preselect=self.selection.season)
+            self.season_menu=not self.season_menu
+            self.setProperty('Series.SeasonMenu','true' if self.season_menu else 'false')
+            if self.season_menu:
+                menu=self.getControl(301);menu.reset()
+                menu.addItems([xbmcgui.ListItem(label=s.label) for s in self.snapshot.page.seasons])
+                menu.setHeight(min(8,len(self.snapshot.page.seasons))*54)
+                self.getControl(302).setHeight(min(8,len(self.snapshot.page.seasons))*54+16)
+                menu.selectItem(self.selection.season);self.setFocusId(301)
+            else:self.setFocusId(201)
+        elif identity==301 and self.season_menu:
+            index=self.getControl(301).getSelectedPosition()
+            self.season_menu=False;self.setProperty('Series.SeasonMenu','false')
             self.updating=True
             try:
                 changed=self.selection.change_season(index)
@@ -219,11 +233,14 @@ class SeriesPreview(xbmcgui.WindowXML):
         if control==300 and key in (3,4):self.pending_index=None
         if key in BACK:
             if xbmcgui.getCurrentWindowId()!=self.identity:return
+            if self.season_menu:
+                self.season_menu=False;self.setProperty('Series.SeasonMenu','false');self.setFocusId(201);return
             if not self.dialog_open and time.monotonic()>=self.back_guard_until:self.close()
             return
         if self.playback_enabled and key in (11,117) and self.selection.episode:
             self.publish();self.details(self.selection.episode);self.setFocusId(control);return
-        if control==300 and key==1:self.setFocusId(201 if self.snapshot.page.show_season_picker else 200)
+        if control==300 and key==3 and self.selection.index==0 and self.snapshot.page.show_season_picker:self.setFocusId(201)
+        elif control==300 and key==1:self.setFocusId(200)
         elif control in (200,201) and key==2 and self.selection.group:self.setFocusId(300)
 
     def close(self):

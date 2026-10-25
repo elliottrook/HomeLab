@@ -1,8 +1,19 @@
 import unittest
 from books_progress import Scope,ProgressUnavailable
-from books_sleep import SleepTimer,Listening
+from books_sleep import SleepTimer,Listening,countdown_label,owned_audio_player
 
 class SleepTests(unittest.TestCase):
+    def test_native_player_shape_allows_kodi21_internal_audio_only(self):
+        row=dict(playerid=0,type='audio',playertype='internal')
+        self.assertTrue(owned_audio_player([row]))
+        self.assertTrue(owned_audio_player([dict(playerid=0,type='audio')]))
+        for value in ([],[row,row],[dict(row,type='video')],[dict(row,playertype='external')],
+                      [dict(row,playerid=True)],[dict(row,playerid=1)],None):
+            self.assertFalse(owned_audio_player(value))
+    def test_final_two_minutes_have_second_precision(self):
+        for remaining,label in ((121,'Sleep in 3 min'),(120,'Sleep in 2:00'),
+            (119,'Sleep in 1:59'),(60,'Sleep in 1:00'),(9,'Sleep in 0:09'),(0,'Sleep in 0:00')):
+            self.assertEqual(countdown_label(remaining),label)
     def setUp(self):
         self.now=0.;self.context=Listening(Scope('house','audiobook','book'),'private-first')
         self.calls=[];self.status=[]

@@ -432,7 +432,7 @@ class AlbumLab(xbmcgui.WindowXML):
     def render_scrub(self):
         if not self.scrub:return
         self.getControl(610).setPercent(self.scrub.percentage)
-        self.getControl(620).setPosition(170+int(self.scrub.percentage/100*360),906)
+        self.getControl(620).setPosition(170+int(self.scrub.percentage/100*520),906)
         self.setProperty('Album.Clock',clock_label(self.scrub.target_ms)+' / '+clock_label(self.scrub.duration_ms))
         self.setProperty('Album.ControlHint','Seek '+clock_label(self.scrub.target_ms)+' · Left/right · OK apply · Back cancel')
 
@@ -820,7 +820,7 @@ class ShuffleLab(AlbumLab):
     def render_scrub(self):
         if not self.scrub:return
         self.getControl(610).setPercent(self.scrub.percentage)
-        self.getControl(620).setPosition(170+int(self.scrub.percentage/100*360),906)
+        self.getControl(620).setPosition(170+int(self.scrub.percentage/100*520),906)
         self.setProperty('Album.Clock',clock_label(self.scrub.target_ms)+' / '+clock_label(self.scrub.duration_ms))
         self.setProperty('Album.ControlHint','Seek '+clock_label(self.scrub.target_ms)+' · Left/right · OK apply · Back cancel')
 

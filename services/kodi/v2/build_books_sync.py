@@ -16,6 +16,7 @@ SECOND_SHA='fce7bf41f64e7617a62a26af322ae98460eafd6ec87efc681ed812d15ef5485f'
 THIRD_SHA='7bc5c6ec96c8c0bfb0a18272e8da54ecd4bb647622e150864dc229aa41576de9'
 FOURTH_SHA='d332a979018d92add2999909e4cf272190624c54bf4db5e0f1fb12c281f85af6'
 FIFTH_SHA='010e23df40c70e1eaeeb478e359b9da7cb56223549701a3795aea2defa676ff8'
+SIXTH_SHA='dd502b6770ec6c0f76e4c2fb4182c54c4b84e4c5162a70e0c0dd2a205a643dd7'
 def sha(data):return hashlib.sha256(data).hexdigest()
 def build(snapshot,output):
     snapshot,output=Path(snapshot),Path(output)
@@ -53,15 +54,25 @@ def successor(snapshot,output):
     old=json.loads(raw)
     predecessors={'aster-books-sync1':(FIRST_SHA,'aster-books-sync2'),'aster-books-sync2':(SECOND_SHA,'aster-books-sync3'),
         'aster-books-sync3':(THIRD_SHA,'aster-books-sync4'),'aster-books-sync4':(FOURTH_SHA,'aster-books-sync5'),
-        'aster-books-sync5':(FIFTH_SHA,'aster-books-sync6')}
+        'aster-books-sync5':(FIFTH_SHA,'aster-books-sync6'),'aster-books-sync6':(SIXTH_SHA,'aster-books-sync7')}
     if old.get('stage') not in predecessors or sha(raw)!=predecessors[old['stage']][0]:raise ValueError('exact-books-predecessor-required')
     previous,new_name=predecessors[old['stage']]
     files={r['path']:(snapshot/'payload'/r['path']).read_bytes() for r in old['files']}
     if any(sha(files[r['path']])!=r['sha256'] for r in old['files']):raise ValueError('books-sync1-drift')
     files[PLUGIN+'service.py']=(HERE/'books_sync_service.py').read_bytes()
     files[PLUGIN+'resources/lib/books_sync.py']=(HERE/'books_sync.py').read_bytes()
-    if new_name in ('aster-books-sync3','aster-books-sync4','aster-books-sync5'):
+    if new_name in ('aster-books-sync3','aster-books-sync4','aster-books-sync5','aster-books-sync7'):
         files[PLUGIN+'resources/lib/books_sync_bridge.py']=(HERE/'books_sync_bridge.py').read_bytes()
+    if new_name=='aster-books-sync7':
+        files[PLUGIN+'resources/lib/books_sleep.py']=(HERE/'books_sleep.py').read_bytes()
+        # Keep duration for playback metadata; the Resume row displays the
+        # authoritative whole-book position, never current-file remainder.
+        data=files[PLUGIN+'default.py'];needle=b"        item.setProperty('AsterBooks.ParentTitle', title)"
+        if data.count(needle)!=1:raise ValueError('resume-label-anchor')
+        files[PLUGIN+'default.py']=data.replace(needle,
+            b"        if entry.get('number') == 'R' and isinstance(entry.get('resume_position'), (int, float)):\n"
+            b"            position = int(entry['resume_position'])\n"
+            b"            item.setProperty('AsterBooks.Length', f'{position // 3600}:{position // 60 % 60:02d}:{position % 60:02d}')\n"+needle)
     if new_name=='aster-books-sync3':
         data=files[PLUGIN+'default.py'];needle=b"        item.setProperty('AsterBooks.Kind', kind)"
         if data.count(needle)!=1:raise ValueError('books-source-identity-anchor')

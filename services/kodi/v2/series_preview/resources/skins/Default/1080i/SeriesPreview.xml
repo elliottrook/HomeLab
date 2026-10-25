@@ -53,4 +53,9 @@
 <control type="label"><left>230</left><top>166</top><width>650</width><height>28</height><label>$INFO[ListItem.Property(Unavailable)]</label><font>font16</font><textcolor>ff8c6c32</textcolor></control>
 <control type="progress"><left>12</left><top>165</top><width>198</width><height>3</height><info>ListItem.Property(Progress)</info><texturebg colordiffuse="4062695e">special://home/addons/skin.asterhome/media/ui-solid.png</texturebg><lefttexture/><midtexture colordiffuse="ff005c46">special://home/addons/skin.asterhome/media/ui-solid.png</midtexture><righttexture/><overlaytexture/><visible>String.IsEqual(ListItem.Property(HasProgress),true)</visible></control>
 </focusedlayout></control>
+<control type="image" id="302"><left>897</left><top>254</top><width>360</width><height>70</height><texture colordiffuse="df000000">special://home/addons/skin.asterhome/media/ui-solid.png</texture><visible>String.IsEqual(Window.Property(Series.SeasonMenu),true)</visible></control>
+<control type="list" id="301"><left>905</left><top>262</top><width>344</width><height>54</height><onleft>301</onleft><onright>301</onright><onup>noop</onup><ondown>noop</ondown><scrolltime>100</scrolltime><visible>String.IsEqual(Window.Property(Series.SeasonMenu),true)</visible>
+<itemlayout width="344" height="54"><control type="label"><left>16</left><width>312</width><height>54</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>fff3eee5</textcolor><aligny>center</aligny></control></itemlayout>
+<focusedlayout width="344" height="54"><control type="image"><width>344</width><height>54</height><texture border="18" colordiffuse="ff91c6a2">special://home/addons/skin.asterhome/media/ui-compact-card-ring.png</texture></control><control type="label"><left>16</left><width>312</width><height>54</height><label>$INFO[ListItem.Label]</label><font>font20</font><textcolor>ff91c6a2</textcolor><aligny>center</aligny></control></focusedlayout>
+</control>
 </controls></window>

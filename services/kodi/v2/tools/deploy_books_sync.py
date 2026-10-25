@@ -15,6 +15,7 @@ SECOND_SHA='fce7bf41f64e7617a62a26af322ae98460eafd6ec87efc681ed812d15ef5485f'
 THIRD_SHA='7bc5c6ec96c8c0bfb0a18272e8da54ecd4bb647622e150864dc229aa41576de9'
 FOURTH_SHA='d332a979018d92add2999909e4cf272190624c54bf4db5e0f1fb12c281f85af6'
 FIFTH_SHA='010e23df40c70e1eaeeb478e359b9da7cb56223549701a3795aea2defa676ff8'
+SIXTH_SHA='dd502b6770ec6c0f76e4c2fb4182c54c4b84e4c5162a70e0c0dd2a205a643dd7'
 def require(value,code):
     if not value:raise RuntimeError(code)
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -25,7 +26,7 @@ def atomic(path,data):
     os.chmod(name,0o600);os.replace(name,path)
 def run(mode,expected,proof_name,storage=Path('/storage')):
     require(mode in ('install','rollback','verify') and re.fullmatch('[0-9a-f]{64}',expected),'mode-manifest')
-    candidates=[storage/'.aster-staging'/name for name in ('aster-books-sync1','aster-books-sync2','aster-books-sync3','aster-books-sync4','aster-books-sync5','aster-books-sync6')
+    candidates=[storage/'.aster-staging'/name for name in ('aster-books-sync1','aster-books-sync2','aster-books-sync3','aster-books-sync4','aster-books-sync5','aster-books-sync6','aster-books-sync7')
         if (storage/'.aster-staging'/name/'manifest.json').is_file() and sha(storage/'.aster-staging'/name/'manifest.json')==expected]
     require(len(candidates)==1,'one-known-books-stage');stage=candidates[0]
     root=storage/'.aster-checkpoints/aster-books-sync-20261025'
@@ -39,8 +40,9 @@ def run(mode,expected,proof_name,storage=Path('/storage')):
         or (stage.name=='aster-books-sync3' and previous==SECOND_SHA)
         or (stage.name=='aster-books-sync4' and previous==THIRD_SHA)
         or (stage.name=='aster-books-sync5' and previous==FOURTH_SHA)
-        or (stage.name=='aster-books-sync6' and previous==FIFTH_SHA),'known-books-predecessor-manifest')
-    targets=TARGETS|SLEEP_TARGETS if stage.name=='aster-books-sync6' else TARGETS
+        or (stage.name=='aster-books-sync6' and previous==FIFTH_SHA)
+        or (stage.name=='aster-books-sync7' and previous==SIXTH_SHA),'known-books-predecessor-manifest')
+    targets=TARGETS|SLEEP_TARGETS if stage.name in ('aster-books-sync6','aster-books-sync7') else TARGETS
     require(len(rows)==len(targets) and {r['path'] for r in rows}==targets,'exact-books-targets')
     for row in rows:
         source=stage/'payload'/row['path'];target=storage/row['path']

@@ -104,6 +104,10 @@ class ProgressBridge(Bridge):
                     if progress is not None and not progress.finished and progress.position>0:
                         index,offset=resume_target(progress,spans)
                         value=self.clone_resume(entry,item_id,book_inodes[index],offset)
+                        # The row identifies the whole-book position, not the
+                        # remaining length of whichever file contains it.
+                        value['title']='Resume · '+clock_label(progress.position)
+                        value['resume_position']=progress.position
                         value['duration']=spans[index].duration-offset
                         self.registry.add(value['url'],Binding(scope,spans,index,offset,True,self.clock()+TTL))
                         resume_entry=value
