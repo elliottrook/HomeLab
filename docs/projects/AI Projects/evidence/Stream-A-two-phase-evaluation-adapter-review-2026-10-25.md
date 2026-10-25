@@ -47,3 +47,30 @@ Nothing from this candidate was installed or invoked. The currently installed
 inactive contract/adapter/entrypoint and watchdog packet are unchanged. F6
 arming, lease preparation, consumer quiescence and D4/M3 remain NO-GO; the
 October 26 F2 test remains independent.
+
+## Corrected source candidate
+
+Stream A implemented the bounded correction in an isolated worktree at commit
+`d2e296eefaf4ea0ab6abe22ef0b65a0b41b59faa`, based directly on the platform
+owner's `2f790b63` split. It:
+
+- persists `QUIESCING` before the first mask/stop command;
+- retains that phase after a synthetic mid-loop failure;
+- proves recovery restores the four-target baseline and clears state/lock only
+  after validation;
+- covers clean `PREPARED` recovery;
+- admits exact `PREPARED` state to the bound watchdog; and
+- proves healthy prepared state is inert while owner loss and the hard deadline
+  invoke recovery.
+
+A second clean-archive run passes 39/39 focused tests with no bytecode. The
+runtime hashes are contract
+`e79c74035acf22222105b4a8cdcc00f75608bf2289732b4cba9a625252fe45b2`,
+adapter `304edaf3c2f247ac874b333331ee0098ac41d2776877c3ee51431152c294c877`,
+watchdog `68f261c65f48443a7d7c2115ad0017a5de6f5866f9693143a53375e10d7a585f`
+and entrypoint
+`7425ffe9bd6c8b70c41fe3856343a0454d726e54d0f0531cd7ce7225118a332c`.
+The platform owner has been given the local commit for integration and a
+hash-pinned inactive upgrade card. Nothing is installed from this correction;
+the install gate remains closed until that card is committed and independently
+checked against the live prestate.

@@ -32,6 +32,12 @@ found that consumer mask/stop commands run before the durable state becomes
 `QUIESCING`. A crash can therefore leave partial effects recorded as the
 pre-effect phase. The source is not installed; a durable-before-effect ordering
 fix and partial-failure recovery regression are required.
+Stream A has now produced that source correction at local commit `d2e296ee`:
+the durable phase precedes the first consumer command, partial failure and
+prepared-state recovery are covered, and the bound watchdog handles healthy,
+owner-lost and expired prepared leases. A clean archive passes 39/39 focused
+tests. It remains uninstalled pending platform integration, a committed
+hash-pinned upgrade card and independent live-prestate review.
 
 **October 24 M1 approval-plane checkpoint:** the
 [permanent Yellow-only cutover](evidence/M1-permanent-yellow-cutover-result-2026-10-24.md)
