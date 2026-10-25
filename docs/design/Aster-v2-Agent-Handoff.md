@@ -8,6 +8,14 @@ The later-approved Movie Collections selector is documented in the
 [asset/style guide](Aster-Home-v2-Asset-Guide.md). It is a post-release extension
 and is not contained in the immutable 18-asset ZIP below.
 
+The approved Aster YouTube selector is available directly as a repository SVG:
+
+[Aster YouTube production SVG](../assets/aster-v2/SVG/33-aster-youtube.svg)
+
+Its SHA-256 is
+`449f30b8ddff8b4fa3339bd58463064955a2215731766e2f724cd94ff611a3eb`.
+It is an additive asset and is not contained in the immutable 18-asset ZIP.
+
 The outlined `AsterTV` production lockup is published as a separate additive
 private release:
 

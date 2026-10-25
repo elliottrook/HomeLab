@@ -77,6 +77,31 @@ larger. The release is additive and does not itself change a live application.
 Do not restore the rejected flat package from commit `b7f2720`. It was reverted
 by `8be288e`. Approval of geometric accuracy alone did not meet material fidelity.
 
+## Aster YouTube selector
+
+`33-aster-youtube` is the owner-approved tile-free selector for the Aster
+YouTube consumer. It uses a detailed mid-century CRT receiver with rabbit-ear
+aerials, jade glass, restrained play glyph and aged bronze/champagne-gold
+materials over the established compass. The complete compass medallion remains
+intact; an external dark-jade backing fills its transparent centre aperture so
+light interfaces do not create pale bars above or below the television.
+
+- Repository master:
+  [`docs/assets/aster-v2/SVG/33-aster-youtube.svg`](../assets/aster-v2/SVG/33-aster-youtube.svg)
+- Brand-library engagement:
+  `working/2026-10-25-aster-youtube-icon/`
+- Approved revision-08 PNG proof SHA-256:
+  `dce307ddb727cd5113eb4178eb574ebc07bf4d7d5f1a910561bc516d0cf9cc6c`
+- Production SVG SHA-256:
+  `449f30b8ddff8b4fa3339bd58463064955a2215731766e2f724cd94ff611a3eb`
+- SVG QA: 1,154 paths and 26 clipping paths; no embedded raster, live
+  text, external reference, duplicate ID or missing local reference. Transparent,
+  white-background and small-size renders passed visual review.
+
+The SVG is an additive approved asset. Committing it to Forgejo makes the master
+available to authorized production consumers but does not itself deploy or alter
+an application.
+
 ## Interface direction
 
 Keep interfaces calm and restrained: ink `#171C19`, charcoal panels `#242B25`,
