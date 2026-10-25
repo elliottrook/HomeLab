@@ -53,7 +53,14 @@ requires a separately reviewed broker restart and postcheck.
 `validate_fixed_doctor_bundle.py` recomputes all source hashes and rejects
 source drift, activation broadening, duplicate/non-absolute targets, a changed
 replacement/addition split, unsupported rollback, database-boundary changes or
-missing exclusions. Its focused suite passes **3/3**.
+missing exclusions. A deterministic archive builder adds the manifest,
+validator and all 12 source files to one root-owned, mode-0600 archive with
+normalized metadata; it refuses overwrite. The focused suite passes **5/5**.
+
+The current archive at
+`/private/tmp/aster-fixed-doctor-v1-staging.tar.gz` is 17,673 bytes with SHA-256
+`793c94d85346c9d7928c6089ed1d014608c6f818d2cbf0bdc280db2978a9671f`.
+It is a transfer candidate, not a deployed artifact.
 
 Pinned bundle tooling:
 
@@ -62,6 +69,8 @@ Pinned bundle tooling:
 | `fixed-doctor-bundle-manifest.json` | `2d70860f4b83bd2b5fe214dfebba78fc7eae20f1e20eb5e995af4e8a192ea178` |
 | `validate_fixed_doctor_bundle.py` | `bcf63d912d06ff31a04e27ea1ba307a52950e4a2dbb7d7505627db6e15721966` |
 | `test_validate_fixed_doctor_bundle.py` | `137f1cefbca2eacc11f4294547cae5c077d3a0f6f8827d0634280825509de428` |
+| `build_fixed_doctor_staging_archive.py` | `09e0472027cd789f80cb4c7cc2cf1e2bd8cb63b2ed8b6746cb72dfb0965490bc` |
+| `test_build_fixed_doctor_staging_archive.py` | `416a8191ed76c1d6961b681eab9790bd139e8d78579e4ade74fff596ad77e156` |
 
 ## Next gates
 
