@@ -1,5 +1,7 @@
 import json
+import subprocess
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -8,12 +10,13 @@ from evaluation_lease import PRODUCTION_BASELINE_STATES
 from evaluation_lease import watchdog_decision
 from evaluation_lease_adapter import AdapterState
 from stream_a_evaluation_watchdog import (
-    OwnerHeartbeat,
     WatchdogBoundaryError,
     WatchdogIdentity,
     _restore_callback,
     load_owner_heartbeat,
     load_identity,
+    main,
+    owner_process_matches,
     run_watchdog_once,
     write_owner_heartbeat,
 )
@@ -21,7 +24,8 @@ from stream_a_evaluation_watchdog import (
 
 class WatchdogBoundaryTests(unittest.TestCase):
     def identity(self):
-        return WatchdogIdentity("eval-1", 1, 30, "owner-1")
+        return WatchdogIdentity("eval-1", 1, 30, "owner-1", 42, "boot-1", 99,
+                                "/usr/local/bin/owner", "owner.service")
 
     def state(self):
         from evaluation_lease import ProductionBaseline
@@ -50,13 +54,17 @@ class WatchdogBoundaryTests(unittest.TestCase):
             path = Path(root) / "heartbeat.json"
             self.write(path, {"lease_id": "eval-1", "generation": 1,
                               "owner_id": "owner-1", "heartbeat_epoch": 100,
-                              "expires_epoch": 130})
-            with self.assertRaises(WatchdogBoundaryError):
-                load_owner_heartbeat(path, identity=self.identity(), now_epoch=130,
-                                     required_uid=__import__("os").geteuid())
+                              "expires_epoch": 130, "pid": 42, "boot_id": "boot-1",
+                              "starttime_ticks": 99, "cmdline": "/usr/local/bin/owner",
+                              "unit": "owner.service"})
+            heartbeat = load_owner_heartbeat(path, identity=self.identity(), now_epoch=130,
+                                             required_uid=__import__("os").geteuid())
+            self.assertEqual(heartbeat.expires_epoch, 130)
             self.write(path, {"lease_id": "foreign", "generation": 1,
                               "owner_id": "owner-1", "heartbeat_epoch": 100,
-                              "expires_epoch": 130})
+                              "expires_epoch": 130, "pid": 42, "boot_id": "boot-1",
+                              "starttime_ticks": 99, "cmdline": "/usr/local/bin/owner",
+                              "unit": "owner.service"})
             with self.assertRaises(WatchdogBoundaryError):
                 load_owner_heartbeat(path, identity=self.identity(), now_epoch=110,
                                      required_uid=__import__("os").geteuid())
@@ -65,12 +73,24 @@ class WatchdogBoundaryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             path = Path(root) / "heartbeat.json"
             identity = self.identity()
-            with patch("stream_a_evaluation_watchdog.os.geteuid", return_value=0):
+            with patch("stream_a_evaluation_watchdog.os.geteuid", return_value=0), \
+                 patch("stream_a_evaluation_watchdog.owner_process_matches", return_value=True):
                 write_owner_heartbeat(path, identity=identity, now_epoch=100)
                 write_owner_heartbeat(path, identity=identity, now_epoch=110)
             value = json.loads(path.read_text())
             self.assertEqual(value["heartbeat_epoch"], 110)
             self.assertEqual(value["expires_epoch"], 140)
+
+    def test_owner_death_and_pid_reuse_fail_identity_match(self):
+        identity = self.identity()
+        self.assertTrue(owner_process_matches(identity, snapshot=lambda value: {
+            "boot_id": value.boot_id, "starttime_ticks": value.starttime_ticks,
+            "cmdline": value.cmdline, "unit": value.unit,
+        }))
+        self.assertFalse(owner_process_matches(identity, snapshot=lambda value: {
+            "boot_id": value.boot_id, "starttime_ticks": value.starttime_ticks + 1,
+            "cmdline": value.cmdline, "unit": value.unit,
+        }))
 
     def test_lost_owner_runs_bound_recovery_without_resuming_workload(self):
         state = self.state()
@@ -128,24 +148,29 @@ class WatchdogBoundaryTests(unittest.TestCase):
         state = self.state()
         with tempfile.TemporaryDirectory() as root:
             intent = Path(root) / "restore-intent.json"
-            observation = Path(root) / "observation.json"
-            observation.write_text("{}\n")
-            observation.chmod(0o600)
+            responses = [subprocess.CompletedProcess(
+                ["observer"], 0,
+                json.dumps({"observed_at": int(time.time()), "backend_active": True,
+                            "endpoint_authenticated": True, "endpoint_idle": True,
+                            "gpu_holders": ["lxc110:aster-llama.service"]}), ""),
+                        subprocess.CompletedProcess(["entrypoint"], 1, "", "failed")]
             def failed_runner(*args, **kwargs):
-                return __import__("subprocess").CompletedProcess(args[0], 1, "", "failed")
-            with patch("stream_a_evaluation_watchdog._read_root_json", return_value={
-                "backend_active": True, "endpoint_authenticated": True,
-                "endpoint_idle": True, "gpu_holders": ["lxc110:aster-llama.service"],
-            }):
+                return responses.pop(0)
+            with patch("stream_a_evaluation_watchdog.OBSERVE_ENTRYPOINT", Path("observer")):
                 with self.assertRaises(WatchdogBoundaryError):
-                    _restore_callback(state, observation_path=observation,
-                                      intent_path=intent, runner=failed_runner)
+                    _restore_callback(state, intent_path=intent, runner=failed_runner)
             payload = json.loads(intent.read_text())
             self.assertTrue(payload["recovery"])
             self.assertEqual(tuple(tuple(x) for x in payload["restored_baseline"]["units"]),
                              PRODUCTION_BASELINE_STATES[:2])
             self.assertEqual(tuple(tuple(x) for x in payload["restored_baseline"]["timers"]),
                              PRODUCTION_BASELINE_STATES[2:])
+
+    def test_uncertain_cli_result_is_nonzero(self):
+        with patch("stream_a_evaluation_watchdog.os.geteuid", return_value=0), \
+             patch("stream_a_evaluation_watchdog.run_watchdog_once",
+                   return_value={"effects": "uncertain", "decision": "restore-deadline"}):
+            self.assertEqual(main(["--once", "--effect-authorized"]), 1)
 
 
 if __name__ == "__main__":

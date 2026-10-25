@@ -28,9 +28,9 @@ OPERATION_LOCK_PATH = Path("/var/lib/local-ai-lab/stream-a-evaluation/lease.oper
 HEARTBEAT_PATH = Path("/var/lib/local-ai-lab/stream-a-evaluation/owner-heartbeat.json")
 STATUS_PATH = Path("/var/lib/local-ai-lab/stream-a-evaluation/watchdog-status.json")
 IDENTITY_PATH = Path("/etc/local-ai-lab/stream-a-evaluation/watchdog-identity.json")
-RESTORE_OBSERVATION_PATH = Path("/var/lib/local-ai-lab/stream-a-evaluation/restore-observation.json")
 RESTORE_INTENT_PATH = Path("/var/lib/local-ai-lab/stream-a-evaluation/restore-intent.json")
 ENTRYPOINT = Path("/usr/local/sbin/stream-a-evaluation-lease")
+OBSERVE_ENTRYPOINT = Path("/usr/local/sbin/stream-a-evaluation-restore-observe")
 
 
 class WatchdogBoundaryError(ValueError):
@@ -43,6 +43,11 @@ class WatchdogIdentity:
     generation: int
     heartbeat_timeout: int
     owner_id: str
+    pid: int
+    boot_id: str
+    starttime_ticks: int
+    cmdline: str
+    unit: str
 
 
 @dataclass(frozen=True)
@@ -52,6 +57,11 @@ class OwnerHeartbeat:
     owner_id: str
     heartbeat_epoch: int
     expires_epoch: int
+    pid: int
+    boot_id: str
+    starttime_ticks: int
+    cmdline: str
+    unit: str
 
 
 def _unique_pairs(pairs):
@@ -98,33 +108,46 @@ def _integer(value: object, name: str) -> int:
 
 
 def load_identity(path: Path = IDENTITY_PATH, *, required_uid: int = 0) -> WatchdogIdentity:
-    value = _read_root_json(path, {"lease_id", "generation", "heartbeat_timeout", "owner_id"},
+    value = _read_root_json(path, {"lease_id", "generation", "heartbeat_timeout", "owner_id",
+                                   "pid", "boot_id", "starttime_ticks", "cmdline", "unit"},
                             required_uid=required_uid)
     generation = _integer(value["generation"], "generation")
     timeout = _integer(value["heartbeat_timeout"], "heartbeat_timeout")
-    if generation < 1 or timeout < 1:
+    pid = _integer(value["pid"], "pid")
+    starttime = _integer(value["starttime_ticks"], "starttime_ticks")
+    if generation < 1 or timeout < 1 or pid < 1 or starttime < 1:
         raise WatchdogBoundaryError("identity bounds are invalid")
     return WatchdogIdentity(_nonempty(value["lease_id"], "lease_id"), generation,
-                            timeout, _nonempty(value["owner_id"], "owner_id"))
+                            timeout, _nonempty(value["owner_id"], "owner_id"), pid,
+                            _nonempty(value["boot_id"], "boot_id"), starttime,
+                            _nonempty(value["cmdline"], "cmdline"),
+                            _nonempty(value["unit"], "unit"))
 
 
 def load_owner_heartbeat(path: Path = HEARTBEAT_PATH, *, identity: WatchdogIdentity,
                          now_epoch: int, required_uid: int = 0) -> OwnerHeartbeat:
     value = _read_root_json(path, {"lease_id", "generation", "owner_id",
-                                   "heartbeat_epoch", "expires_epoch"}, required_uid=required_uid)
+                                   "heartbeat_epoch", "expires_epoch", "pid", "boot_id",
+                                   "starttime_ticks", "cmdline", "unit"}, required_uid=required_uid)
     heartbeat = OwnerHeartbeat(
         _nonempty(value["lease_id"], "lease_id"),
         _integer(value["generation"], "generation"),
         _nonempty(value["owner_id"], "owner_id"),
         _integer(value["heartbeat_epoch"], "heartbeat_epoch"),
         _integer(value["expires_epoch"], "expires_epoch"),
+        _integer(value["pid"], "pid"), _nonempty(value["boot_id"], "boot_id"),
+        _integer(value["starttime_ticks"], "starttime_ticks"),
+        _nonempty(value["cmdline"], "cmdline"), _nonempty(value["unit"], "unit"),
     )
     if (heartbeat.lease_id != identity.lease_id
             or heartbeat.generation != identity.generation
             or heartbeat.owner_id != identity.owner_id
+            or (heartbeat.pid, heartbeat.boot_id, heartbeat.starttime_ticks,
+                heartbeat.cmdline, heartbeat.unit)
+            != (identity.pid, identity.boot_id, identity.starttime_ticks,
+                identity.cmdline, identity.unit)
             or heartbeat.heartbeat_epoch > now_epoch
             or heartbeat.expires_epoch <= heartbeat.heartbeat_epoch
-            or now_epoch >= heartbeat.expires_epoch
             or heartbeat.expires_epoch - heartbeat.heartbeat_epoch > identity.heartbeat_timeout):
         raise WatchdogBoundaryError("owner heartbeat is foreign, stale or overlong")
     return heartbeat
@@ -134,9 +157,14 @@ def write_owner_heartbeat(path: Path, *, identity: WatchdogIdentity,
                           now_epoch: int) -> None:
     if os.geteuid() != 0:
         raise WatchdogBoundaryError("owner heartbeat requires root")
+    if not owner_process_matches(identity):
+        raise WatchdogBoundaryError("owner process identity is absent or reused")
     payload = {"lease_id": identity.lease_id, "generation": identity.generation,
                "owner_id": identity.owner_id, "heartbeat_epoch": now_epoch,
-               "expires_epoch": now_epoch + identity.heartbeat_timeout}
+               "expires_epoch": now_epoch + identity.heartbeat_timeout,
+               "pid": identity.pid, "boot_id": identity.boot_id,
+               "starttime_ticks": identity.starttime_ticks, "cmdline": identity.cmdline,
+               "unit": identity.unit}
     path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
     try:
@@ -160,11 +188,42 @@ def _baseline_json(state: AdapterState) -> dict[str, list[list[str]]]:
             "timers": [list(item) for item in state.baseline.timers]}
 
 
-def _restore_callback(state: AdapterState, *, observation_path: Path,
-                      intent_path: Path, runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> object:
-    observation = _read_root_json(observation_path, {
-        "backend_active", "endpoint_authenticated", "endpoint_idle", "gpu_holders",
-    })
+def owner_process_matches(identity: WatchdogIdentity, *, snapshot: Callable[[WatchdogIdentity], dict[str, object]] | None = None) -> bool:
+    if snapshot is not None:
+        try:
+            value = snapshot(identity)
+        except (OSError, ValueError):
+            return False
+        return value == {"boot_id": identity.boot_id, "starttime_ticks": identity.starttime_ticks,
+                         "cmdline": identity.cmdline, "unit": identity.unit}
+    try:
+        boot_id = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+        raw = Path(f"/proc/{identity.pid}/stat").read_text()
+        tail = raw[raw.rfind(")") + 2:].split()
+        starttime = int(tail[19])
+        cmdline = Path(f"/proc/{identity.pid}/cmdline").read_bytes().replace(b"\0", b" ").decode().strip()
+        cgroup = Path(f"/proc/{identity.pid}/cgroup").read_text()
+        return (boot_id == identity.boot_id and starttime == identity.starttime_ticks
+                and cmdline == identity.cmdline and identity.unit in cgroup)
+    except (OSError, ValueError, UnicodeError):
+        return False
+
+
+def _restore_callback(state: AdapterState, *, intent_path: Path,
+                      runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> object:
+    observed = runner((str(OBSERVE_ENTRYPOINT),), check=False,
+                      capture_output=True, text=True, timeout=30)
+    if observed.returncode != 0:
+        raise WatchdogBoundaryError("live restore observer failed")
+    try:
+        observation = json.loads(observed.stdout)
+    except json.JSONDecodeError as exc:
+        raise WatchdogBoundaryError("live restore observer output is malformed") from exc
+    if not isinstance(observation, dict) or set(observation) != {
+            "observed_at", "backend_active", "endpoint_authenticated", "endpoint_idle", "gpu_holders"}:
+        raise WatchdogBoundaryError("live restore observer schema is not exact")
+    if type(observation["observed_at"]) is not int or abs(int(time.time()) - observation["observed_at"]) > 15:
+        raise WatchdogBoundaryError("live restore observation is stale")
     for key in ("backend_active", "endpoint_authenticated", "endpoint_idle"):
         if type(observation[key]) is not bool:
             raise WatchdogBoundaryError("restore observation boolean is invalid")
@@ -248,11 +307,10 @@ def main(argv: list[str] | None = None) -> int:
     result = run_watchdog_once(
         now_epoch=int(time.time()), effect_authorized=True,
         recovery=lambda state: _restore_callback(
-            state, observation_path=RESTORE_OBSERVATION_PATH,
-            intent_path=RESTORE_INTENT_PATH),
+            state, intent_path=RESTORE_INTENT_PATH),
     )
     print(json.dumps(result, sort_keys=True))
-    return 1 if result.get("effects") == "failed-closed" else 0
+    return 1 if result.get("effects") in {"failed-closed", "uncertain"} else 0
 
 
 if __name__ == "__main__":

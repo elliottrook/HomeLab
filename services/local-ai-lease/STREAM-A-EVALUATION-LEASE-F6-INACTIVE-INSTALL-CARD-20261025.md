@@ -44,8 +44,10 @@ commit `8fa6d36fe841e5758013ad393aafdee624d91a33` and its metadata follow-up:
 |---|---|---:|---|
 | `scripts/local-ai/stream_a_evaluation_watchdog.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_watchdog.py` | 0644 | `b981854c2f696794d768c9ccd08095361d80a1b1ea40047203e1d8a9bc501369` |
 | `scripts/local-ai/stream_a_evaluation_owner_heartbeat.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_owner_heartbeat.py` | 0644 | `4c45a07098eb8cca31bf95bb50b0824b65c6772e636627b23219761f359ed6cc` |
+| `scripts/local-ai/stream_a_evaluation_restore_observer.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_restore_observer.py` | 0644 | `REPLACE_AFTER_COMMIT` |
 | `services/local-ai-lease/stream-a-evaluation-watchdog` | `/usr/local/sbin/stream-a-evaluation-watchdog` | 0755 | `65012c196134242a76a2131fbc9d7f28b50bcfd9137a87cfda0a416345430c99` |
 | `services/local-ai-lease/stream-a-evaluation-owner-heartbeat` | `/usr/local/sbin/stream-a-evaluation-owner-heartbeat` | 0755 | `e0162f60983601192c5f0fdd6d8395604e6636c05c9653c643d3722872dce12a` |
+| `services/local-ai-lease/stream-a-evaluation-restore-observe` | `/usr/local/sbin/stream-a-evaluation-restore-observe` | 0755 | `REPLACE_AFTER_COMMIT` |
 | `services/local-ai-lease/stream-a-evaluation-watchdog.service` | `/etc/systemd/system/stream-a-evaluation-watchdog.service` | 0644 | `02ff7c4a909228023c1cce8704fd9d3e3395f5101add78a919481cbb4a39d932` |
 | `services/local-ai-lease/stream-a-evaluation-watchdog.timer` | `/etc/systemd/system/stream-a-evaluation-watchdog.timer` | 0644 | `7b2170f6f6d5e137fee14464b3081d229f37f36af1e1856cbc3de4ed3de79811` |
 | `services/local-ai-lease/stream-a-evaluation-owner-heartbeat.service` | `/etc/systemd/system/stream-a-evaluation-owner-heartbeat.service` | 0644 | `a80ee8eca956a435d443e85035a8b03388eb71fdb565969b6c283fa4c0409514` |
@@ -60,7 +62,7 @@ by the inactive install.
 
 1. Verify the implementation commit, all hashes, root ownership, modes,
    regular-file type, no symlinks, and hierarchy-preserving package layout.
-2. Install only the eight listed artifacts, with the two wrappers executable;
+2. Install only the ten listed artifacts, with the three wrappers executable;
    do not create identity or runtime state. Run imports with `-B` and the full
    lease/watchdog test set.
 3. Invoke both wrappers without `--effect-authorized`; require the exact
