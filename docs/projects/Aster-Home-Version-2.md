@@ -4620,3 +4620,87 @@ no edits, overwrites or deletions of existing bookmarks. A separately bounded
 disposable native-UI save/read/delete test may accompany that enablement only
 with Jason's explicit approval. The missing CAS/concurrent-client limitation
 remains; this trial does not demonstrate atomic cross-client safe writes.
+
+### Normal HP create-only bookmarks — approved2026-10-25
+
+Jason approved normal HP-only create-only shared bookmarks and one disposable
+native-UI save/read/delete test with “you may”. This is distinct from the now
+consumed first API trial. Production and existing bookmarks remain excluded.
+Pre-start: checkpoint the current thirteen-member overlay and add a dedicated
+HP/account/create-only feature flag, pure writer/offer model, confirmation UI
+and companion bookmark SVG/PNG. The accepted streaming bridge stays unchanged.
+Only verified, currently owned audiobook scope/time may generate a short-lived
+offer. The new button confirms the captured whole-book timestamp, then sends
+only an opaque one-use offer to the local service. No direct API writes from
+the skin, no podcast bookmark fiction, no title/row-number identity inference.
+
+Before one POST, verify limited account, fresh bookmarks and no collision,
+consume the offer and persist a private per-book/time pending journal. Verify
+the returned record and fresh source read-back; uncertain outcomes fence that
+location across restart with no offline replay. No normal DELETE/PATCH route
+or overwrite action. Account/bookmark snapshots remain in-process/private,
+never raw `/api/me` or exported credentials. The documented ABS check-to-write
+race remains; do not claim atomic simultaneous-client collision protection.
+
+Native test: start one already-used lab book through normal Books, reject one
+confirmation with no write, save once with confirmation, verify the actual
+whole-book timestamp and source bookmark, then delete only that exact unchanged
+new lab record using a separately staged one-shot cleanup helper. Ordinary
+playback may naturally update the already-approved household position; never
+repair/reset it. Preserve all other bookmarks and installed/source state.
+Stop for review on collision, unknown write, changed cleanup target or recovery
+failure. Checkpoint/brief idle HP restart, exact-file rollback, native UI/focus/
+save/sleep/podcast regression and full preservation gates precede handover.
+Rollback restores sync6 and retires the bookmark flag, retaining journals and
+legitimate bookmarks rather than undoing server data. No new service, network,
+permissions, speech, infrastructure/monitoring inventory or production change.
+
+#### Pre-deployment stop — concrete upstream upsert hazard
+
+**Create-only feature remains unimplemented/unenabled.** Read-only verification
+on2026-10-25 confirmed TrueNAS container `unified-audiobookshelf-shadow`, image
+`ghcr.io/advplyr/audiobookshelf:2.36.0`, and its actual
+`/app/server/models/User.js` `createBookmark` method (line853 in that container).
+If the timestamp exists, POST changes its title when different and returns
+that same record; it is not a server-enforced create-only operation. The
+[version-tagged upstream implementation](https://github.com/advplyr/audiobookshelf/blob/v2.36.0/server/models/User.js#L806)
+has the same behavior. Only static source/image reads were performed on TrueNAS;
+no container/configuration/library/bookmark changes or restarts occurred.
+
+This makes the earlier generic no-CAS limitation concrete: another client can
+create a bookmark after our preflight GET but before POST. Aster could rename
+that new bookmark even though preflight found an empty timestamp. A matching
+POST echo and read-back do not prove our request created the identity. A
+subsequent disposable cleanup could likewise delete that foreign identity.
+The successful consumed trial is still factual (zero→one→zero, no concurrent
+change observed), but is **not** proof that its client-only protection can meet
+the strict normal no-edit/no-delete guarantee. Do not reuse that trial writer
+for ongoing creation or repeat its consumed cleanup authorization.
+
+Two offline regression counterexamples in
+`test_books_bookmark_upsert_hazard.py` reproduce title mutation and the false
+ownership/cleanup certification entirely on synthetic records. Passing these
+tests means the hazard was reproduced, not that normal writes are safe.
+The18 bookmark tests pass, including the existing16 checks. This supersedes
+any inference that fresh-read plus response equality alone proves create-only.
+
+Approval covers HP create-only behavior, **not** silently accepting a known
+existing-bookmark overwrite path or modifying the shared Audiobookshelf server.
+No second POST/DELETE/UI test was attempted; no bookmark flag, control, service
+overlay or HP restart was deployed. Current HP remains accepted sync6, production
+unchanged. Risk decision required: (a) recommended, design a server-enforced
+create-only/concurrency guard with its own tested checkpoint/deployment scope;
+(b) explicitly accept the residual concurrent-client upsert risk for an HP-only
+pilot; or(c) use local-only HP bookmarks, deliberately giving up sharing.
+Do not claim that an unreviewed one-line server patch, client-only lock or
+randomized timestamp provides atomic protection against all other clients.
+
+Audit close-out: all605 local tests pass normal and optimized Python, including
+the two deliberately unsafe-contract reproductions; this is not a bookmark
+feature acceptance. HP active manifest remains sync6
+`dd502b6770ec6c0f76e4c2fb4182c54c4b84e4c5162a70e0c0dd2a205a643dd7`
+with every installed member unchanged. No new bookmark mutation, disposable
+UI test, service deployment, restart or Git push occurred. The new UI-test
+authorization is unused, not silently consumed or carried into server changes.
+Keep the local audit commit and resume only after the owner chooses the
+server-side safeguard, explicit risk acceptance or local-only alternative.
