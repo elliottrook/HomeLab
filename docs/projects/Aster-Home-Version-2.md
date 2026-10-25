@@ -4704,3 +4704,15 @@ UI test, service deployment, restart or Git push occurred. The new UI-test
 authorization is unused, not silently consumed or carried into server changes.
 Keep the local audit commit and resume only after the owner chooses the
 server-side safeguard, explicit risk acceptance or local-only alternative.
+
+2026-10-25: Jason requested “then create the safeguard please”. The bounded
+[Audiobookshelf safeguard project](Aster-Books-Bookmark-Safeguard.md) now records
+the implementation, exact image/source hashes,20 synthetic Node/SQLite tests,
+seven package/removal tests and the activation gate. Five-file candidate is
+built/verified locally; no shared-server deployment or new bookmark mutation.
+Dedicated create-only/conditional paths avoid accidental fallback to legacy
+upsert after removal, while all ordinary model bookmark writers share a fresh
+SQLite transaction. HP visual testing is reserved for Jason: no navigation,
+restart, playback or deployment was performed there during this work. Shared
+Linux smoke/backup/activation needs its separately described approval; normal
+HP bookmark controls remain disabled until that gate passes.
