@@ -74,10 +74,30 @@ test stops activation. New source must never silently fall back to upsert.
 - [x] Exact-source overlay builder and controller/router integration verified locally.
 - [x] Synthetic SQLite concurrency and legacy-client compatibility proven locally.
 - [x] Local package/removal proof and gated shared deployment proposal ready.
-- [ ] Separately approved shared-server activation and isolated real trial.
+- [x] Approved isolated Linux / deployed-image runtime check: all20 synthetic tests pass.
+- [x] Separately approved shared-server activation, backup/isolated restore and read validation.
+- [ ] New guarded create-only UI and separately authorized disposable real-write trial.
 - [ ] HP create-only UI integration, user handover and accepted operation.
 
 ## Recovery and resumability
+
+2026-10-25: Jason approved the Linux check only. Ran all20 Node/SQLite/HTTP
+tests in a disposable container from the exact pinned image
+`sha256:66b24f73e543959d5df7e57bc0edbeab5e759730ec356656198b5da123468c15`.
+Candidate manifest SHA256
+`a489b3b041ef7652467952774a80082f3c4abd8721cd575adc184dc04792fdcb`.
+The container had no network, no ports, read-only root/code, a128MiB private
+tmpfs,512MiB memory, one CPU,128 PIDs, no capabilities and no-new-privileges.
+Only synthetic fixtures were mounted under `/test`; no production config,
+database, media or Docker socket mounts. All20 tests passed under the image's
+Node20/Sequelize/sqlite3 runtime, including independent-process races, stale
+instances, conditional deletion, busy/no-replay, legacy behavior and concurrent
+progress writes in DELETE/WAL modes. The expected forced-busy test invalidated
+only its synthetic SQLite connection. `--rm` removed the exact test container;
+a read-only follow-up confirmed it is absent. Private code staging remains at
+`/mnt/Media/appdata/aster-bookmark-linuxcheck-20261025` for reproducibility.
+Shared Audiobookshelf remains unchanged and was not restarted. Activation,
+consistent backup/restore proof and the real guarded UI trial remain gated.
 
 Before any deployment: preserve the live Compose definition privately, exact
 image digest, code files, SQLite-consistent private config backup and mounts;
@@ -160,7 +180,7 @@ from profile updates. Old offline database migrations also mention bookmarks;
 they are outside the concurrent ordinary-client guarantee. The package is
 version/image/source pinned and must not be carried blindly into an upgrade.
 
-## Shared deployment proposal — explicit approval still required
+## Original shared deployment proposal — approval/completion recorded below
 
 First run a disposable Linux/Node20 check using the pinned image, network off,
 no production mounts and bounded private tmpfs. If it fails, leave the shared
@@ -178,3 +198,46 @@ until Jason finishes visual checking; its create-only UI/test is a later step.
 No public ingress, account/privilege change, extra daemon, DB schema migration,
 media download or Git remote write. No server overlay/restart, real bookmark
 mutation or HP control was performed during this local build milestone.
+
+## Approved shared activation — 2026-10-25
+
+Jason explicitly approved the bounded activation after the isolated Linux test.
+Private checkpoint:
+`/mnt/Media/appdata/aster-bookmark-guard-checkpoint-20261025`.
+All17 config/backup files were copied into an isolated restore directory and
+hash-compared; the consistent SQLite backup passed integrity/foreign-key checks
+with28 tables. No original data was overwritten or restored over live history.
+The TrueNAS host's SQLite3.40 cannot parse ABS's newer ORDER BY aggregate
+triggers; its initial integrity attempt stopped before activation. Revalidated
+both backup and isolated restore using the exact pinned service image's SQLite
+in disposable networkless/read-only containers. This was a tool-version mismatch,
+not evidence of corrupt source data. Partial checkpoints were retained.
+
+This stack has no saved `.env`, and the retired Calibre worker has required path
+variables with no live container from which to verify them. Do not invent those
+paths or recreate that worker. The activation helper derives only Audiobookshelf's
+non-secret path substitutions from existing mounts, validates its environment,
+and renders a private one-service Compose with the existing project/network
+identity. The original full Compose receives exactly the five read-only mounts;
+all other service definitions are unchanged. Its new container Compose labels
+reference the private focused definition; that definition and recovery source
+are retained. Future operations must preserve this documented deployment path.
+
+No established connections to30067 were present before the brief one-container
+recreate. All five mounted source hashes, pinned image, original five mounts,
+ports, environment, entrypoint, command, user and working directory verified.
+Network names/IDs and host policy settings are unchanged; Docker serialized an
+empty DNS list as null, which is the same default resolver behavior. Health/ping
+passed; unauthenticated capability access returned401; the unchanged limited
+TV account got audiobook capability200 and podcast400 (books-only contract).
+Existing metadata/progress reads and real audiobook/podcast normal resume,
+pause-save and Back/stop passed on HP after activation. No bookmark POST/DELETE
+was issued, and production Kodi was not changed. Normal bookmark controls remain
+disabled until the create-only client/UI milestone, not advertised as delivered.
+
+Five additional synthetic activation-plan tests passed on TrueNAS with PyYAML:
+five-only readonly mount addition, root-network preservation, missing-anchor
+refusal, rejection of live-config proof mounts, and offline pinned restore proof.
+The local macOS Python lacks PyYAML, so those five explicitly skip there; seven
+local builder/verifier tests pass.20 isolated target-runtime tests also passed.
+No Forgejo push performed.

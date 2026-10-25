@@ -1,8 +1,12 @@
-# Audiobookshelf bookmark safeguard — candidate only
+# Audiobookshelf bookmark safeguard — shared server active, client UI pending
 
 Governing record: [safeguard project](../../../docs/projects/Aster-Books-Bookmark-Safeguard.md).
-No deployment, real bookmark trial or database restore is performed by these
-tools. HP is currently reserved for Jason's visual testing.
+The exact overlay was activated with Jason's approval on2026-10-25. The governing
+project records its private checkpoint, isolated restore, target-runtime tests
+and existing-client checks. No real bookmark mutation or normal UI enablement
+has been performed. Build/verify tools remain non-deploying; `deploy_guard.py`
+is the bounded, one-shot NAS checkpoint/activation helper and requires explicit
+operator authorization. It never restores an older DB over live progress.
 
 ## Contract
 
@@ -54,12 +58,12 @@ SQLite files, never the real configuration/database. Two independent Node
 processes test the cross-process race. Python builder/removal tests run with
 `ASTER_GUARD_NODE=NODE python3 -m unittest discover -s THIS_DIRECTORY`.
 
-Local runtime test results do not substitute for the pending pinned Linux/
-Node20 image smoke test. That test must use a disposable container, no network,
+The approved pinned Linux/Node20 image test passed all20 tests on2026-10-25;
+see the governing project evidence. It used a disposable container, no network,
 no production config/media mounts, a read-only root and private bounded tmpfs.
 No test may import `/config` from the real container for convenience.
 
-## Proposed deployment/removal — not yet approved
+## Deployment/removal procedure
 
 First verify exact image ID `sha256:66b24f73e543959d5df7e57bc0edbeab5e759730ec356656198b5da123468c15`
 and three original code hashes. Preserve current Compose privately at
