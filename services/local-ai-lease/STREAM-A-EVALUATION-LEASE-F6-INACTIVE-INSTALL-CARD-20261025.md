@@ -46,17 +46,17 @@ the durable lease, lock and restore intent for reconciliation.
 ## Pinned packet
 
 The implementation source and all target artifacts must match implementation
-commit `021cab2f4683ca5224c3f6dc1930072d63489ef8` and its metadata follow-up:
+commit `780c33e2471536ff0f3eb699a9dba93274808919` and its metadata follow-up:
 
 | Source | Target | Mode | SHA-256 |
 |---|---|---:|---|
 | `scripts/local-ai/stream_a_evaluation_watchdog.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_watchdog.py` | 0644 | `c406dd4da579d4d5129b13131121b55ac1aacaa1a5125c9d481e0d7f847c9849` |
 | `scripts/local-ai/stream_a_evaluation_owner.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_owner.py` | 0644 | `ee530392ca061f3ea20990d6e8f2aa137dd6b1f49b106e7806bbec273ffe1703` |
 | `scripts/local-ai/stream_a_evaluation_owner_heartbeat.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_owner_heartbeat.py` | 0644 | `4c45a07098eb8cca31bf95bb50b0824b65c6772e636627b23219761f359ed6cc` |
-| `scripts/local-ai/stream_a_evaluation_restore_observer.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_restore_observer.py` | 0644 | `9793effde97af0769667cd0ed01ae1c0dc2df73b47b1013cc4efd8359def18ab` |
+| `scripts/local-ai/stream_a_evaluation_restore_observer.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_restore_observer.py` | 0644 | `9ecf64767e1c7acf402540d2701883241b1d94c6b8ec1b46248f20de6591f22b` |
 | `services/local-ai-lease/stream-a-evaluation-watchdog` | `/usr/local/sbin/stream-a-evaluation-watchdog` | 0755 | `65012c196134242a76a2131fbc9d7f28b50bcfd9137a87cfda0a416345430c99` |
 | `services/local-ai-lease/stream-a-evaluation-owner-heartbeat` | `/usr/local/sbin/stream-a-evaluation-owner-heartbeat` | 0755 | `e0162f60983601192c5f0fdd6d8395604e6636c05c9653c643d3722872dce12a` |
-| `services/local-ai-lease/stream-a-evaluation-restore-observe` | `/usr/local/sbin/stream-a-evaluation-restore-observe` | 0755 | `c2968b587c3ec0761c1b43f6811c884d272023bce3dc5679509d894cfc258259` |
+| `services/local-ai-lease/stream-a-evaluation-restore-observe` | `/usr/local/sbin/stream-a-evaluation-restore-observe` | 0755 | `5cb6bec83864b5a8eeeb1b8c0624b93498fc04b2fcf36afb61e13caa0e64e8ab` |
 | `services/local-ai-lease/stream-a-evaluation-owner` | `/usr/local/sbin/stream-a-evaluation-owner` | 0755 | `4d4e848eeafffdfa3aa9a0ba84097d94487318235442b1a4e4b8edc04a043014` |
 | `services/local-ai-lease/stream-a-evaluation-watchdog.service` | `/etc/systemd/system/stream-a-evaluation-watchdog.service` | 0644 | `02ff7c4a909228023c1cce8704fd9d3e3395f5101add78a919481cbb4a39d932` |
 | `services/local-ai-lease/stream-a-evaluation-watchdog.timer` | `/etc/systemd/system/stream-a-evaluation-watchdog.timer` | 0644 | `7b2170f6f6d5e137fee14464b3081d229f37f36af1e1856cbc3de4ed3de79811` |
