@@ -37,6 +37,19 @@ DIMENSIONS = (
 SENSITIVITY_RANK = {"public": 0, "internal": 1, "personal": 2}
 
 
+def decode_unique_json(raw: bytes | str) -> object:
+    """Decode JSON while rejecting ambiguous repeated object keys."""
+    def unique_object(pairs):
+        value = {}
+        for key, item in pairs:
+            if key in value:
+                raise ValueError("duplicate JSON object key")
+            value[key] = item
+        return value
+
+    return json.loads(raw, object_pairs_hook=unique_object)
+
+
 def sha256(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
 
@@ -92,7 +105,7 @@ def _validate_manifest(manifest: dict) -> None:
 
 
 def _load_fixture(raw: bytes) -> tuple[list[dict], dict[str, dict], set[str]]:
-    fixture = json.loads(raw)
+    fixture = decode_unique_json(raw)
     if not isinstance(fixture, dict) or set(fixture) != {
         "schema_version", "data_class", "evidence_class", "cases"
     }:
@@ -137,7 +150,7 @@ def score(fixture_raw: bytes, run_raw: bytes, manifest: dict) -> dict:
     if sha256(fixture_raw) != manifest["fixture_sha256"] or sha256(run_raw) != manifest["run_sha256"]:
         raise ValueError("pinned NLU input changed")
     cases, expected, allowed_capabilities = _load_fixture(fixture_raw)
-    run = json.loads(run_raw)
+    run = decode_unique_json(run_raw)
     allowed_run_fields = {
         "schema", "engine", "fixture_sha256", "attempted", "valid",
         "all_field_agreement", "records", "elapsed_seconds", "limits",
@@ -284,7 +297,7 @@ def main() -> None:
     result = score(
         args.fixture.read_bytes(),
         args.run.read_bytes(),
-        json.loads(args.manifest.read_text()),
+        decode_unique_json(args.manifest.read_bytes()),
     )
     result["evaluator_sha256"] = sha256(Path(__file__).read_bytes())
     args.output.write_text(json.dumps(result, sort_keys=True, indent=2) + "\n")

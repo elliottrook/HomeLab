@@ -190,6 +190,28 @@ class NluBenchmarkTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "locality"):
             self.score(engine_class="cloud_model", egress="local")
 
+    def test_duplicate_fixture_and_run_keys_are_rejected(self):
+        duplicate_fixture = self.fixture_raw.replace(
+            b'"schema_version": "nlu-development.v1"',
+            b'"schema_version": "nlu-development.v1", "schema_version": "duplicate"',
+            1,
+        )
+        raw = self.encoded()
+        with self.assertRaisesRegex(ValueError, "duplicate JSON object key"):
+            bench.decode_unique_json(duplicate_fixture)
+
+        duplicate_run = raw.replace(
+            b'"schema": "aster-nlu-run.v1"',
+            b'"schema": "aster-nlu-run.v1", "schema": "duplicate"',
+            1,
+        )
+        with self.assertRaisesRegex(ValueError, "duplicate JSON object key"):
+            bench.score(
+                self.fixture_raw,
+                duplicate_run,
+                self.manifest(duplicate_run),
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
