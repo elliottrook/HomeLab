@@ -48,3 +48,18 @@ by this review. The D4 and M3 packets remain static-ready and unspent. The
 October 26 F2 exact-date timers remain the next volatile dependency and must
 not be changed. Once the platform owner supplies a corrected hash-pinned card,
 Stream A can review it offline while waiting for F2.
+
+## Revision check — platform `d6388942`
+
+The first revision corrects D4 custody, binds both workload digests and adds
+the 4,500-second hard / 5,400-second restore deadlines plus a phase sequence.
+Those changes close findings 1, 2 and the timing portion of finding 3.
+
+The card is still **REVISE BEFORE LIVE APPROVAL** because the transaction is
+descriptive rather than executable. It does not list the installed source
+hashes, exact binary/callback paths, four unit names, fixed intent path,
+identity path, rollback checkpoint, journal/output paths or complete command
+arguments. It still contains the placeholder `<0600-root-intent>`. Those
+values must be frozen from the accepted installed cards so an operator cannot
+choose them during the live window. The same-cycle F2–F5 evidence remains
+necessarily pending until runtime.
