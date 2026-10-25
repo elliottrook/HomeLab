@@ -55,6 +55,24 @@ class RestoreObserverTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 scan_gpu_holders(Path(root))
 
+    def test_fully_exited_gpu_holder_is_ignored_and_scan_continues(self):
+        with tempfile.TemporaryDirectory() as root:
+            proc = Path(root) / "42"
+            (proc / "fd").mkdir(parents=True)
+            fd = proc / "fd" / "3"
+            fd.symlink_to("/dev/dri/renderD128")
+            real_readlink = __import__("os").readlink
+
+            def exit_after_fd_observation(path):
+                target = real_readlink(path)
+                if Path(path) == fd:
+                    shutil.rmtree(proc)
+                return target
+
+            with patch("stream_a_evaluation_restore_observer.os.readlink",
+                       side_effect=exit_after_fd_observation):
+                self.assertEqual(scan_gpu_holders(Path(root)), ())
+
     def test_observer_requires_explicit_gate(self):
         self.assertEqual(main([]), 0)
 

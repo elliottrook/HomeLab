@@ -76,7 +76,7 @@ PINNED_FILES = {
     "/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_owner.py": "74c8072793cbbcc68e40d0548065f55031c2b8e5bfeab3d9583069aa4c8a22a1",
     "/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_owner_heartbeat.py": "4c45a07098eb8cca31bf95bb50b0824b65c6772e636627b23219761f359ed6cc",
     "/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_watchdog.py": "c406dd4da579d4d5129b13131121b55ac1aacaa1a5125c9d481e0d7f847c9849",
-    "/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_restore_observer.py": "9ecf64767e1c7acf402540d2701883241b1d94c6b8ec1b46248f20de6591f22b",
+    "/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_restore_observer.py": "70748eb15c50ff7008cadd85fe9affaf62c9ad3eb388ef962270f9f9389fc1d3",
     LEASE_ENTRYPOINT: "15f3de1ebb5294878d5f0ce0c6a0b7c03a64b42a71c081fda6d036b0c1ef71af",
     "/usr/local/sbin/stream-a-evaluation-owner": "4d4e848eeafffdfa3aa9a0ba84097d94487318235442b1a4e4b8edc04a043014",
     HEARTBEAT_ENTRYPOINT: "e0162f60983601192c5f0fdd6d8395604e6636c05c9653c643d3722872dce12a",

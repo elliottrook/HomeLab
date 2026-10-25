@@ -49,6 +49,12 @@ def scan_gpu_holders(proc_root: Path = Path("/proc")) -> tuple[GpuHolder, ...]:
             cgroup = (proc / "cgroup").read_text(encoding="utf-8").strip()
             executable = os.readlink(proc / "exe")
         except FileNotFoundError as exc:
+            # A process that has fully exited cannot retain the render node.
+            # Ignore only that narrow race and continue the complete scan.  If
+            # the proc entry still exists (including rapid PID reuse or a
+            # malformed/partially readable live entry), fail closed.
+            if not proc.exists():
+                continue
             raise RuntimeError("GPU holder PID changed during observation") from exc
         except (OSError, ValueError, UnicodeError) as exc:
             raise RuntimeError("GPU holder observation failed") from exc
