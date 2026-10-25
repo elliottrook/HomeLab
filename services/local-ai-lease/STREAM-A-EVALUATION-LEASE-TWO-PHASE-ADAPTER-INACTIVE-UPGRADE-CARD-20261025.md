@@ -11,8 +11,9 @@ lease, lock, identity, consumer stop/start, model call, timer change or push.
 - `acquire` is no longer an effectful shortcut. Its compatibility method is
   prepare-only and cannot mask or stop a consumer.
 - `prepare` validates the exact admission and writes only the root-owned
-  durable `lease.json`, `lease.lock` and operation-lock custody in phase
-  `prepared`; it performs no systemd command and no model work.
+  durable `lease.json` and `lease.lock` in phase `prepared`; the operation
+  lock is a transient serialized guard, not additional durable lease custody.
+  It performs no systemd command and no model work.
 - `quiesce` is a separate effect-authorized phase. It requires the same
   lease/generation, fixed deadline and fresh controller heartbeat, durably
   promotes the lease to `quiescing` before the first consumer command, then
@@ -47,12 +48,13 @@ enabled.
 
 ## Inactive upgrade sequence
 
-1. Capture root-owned pre-upgrade checkpoint of the three old hashes, modes,
+1. Capture root-owned pre-upgrade checkpoint of the four old hashes, modes,
    owners, regular-file/no-symlink properties and the existing four-library
    root. Refuse the transaction on any drift.
-2. Replace only the three listed files atomically, preserving root custody and
-   mode `0644`. Do not touch the watchdog, host exclusion, wrapper, units,
-   timers, state, lock, identity, owner intent, heartbeat or status.
+2. Replace only the four listed files atomically, preserving root custody and
+   mode `0644`. The already-installed `stream_a_evaluation_watchdog.py`
+   packet and its wrappers, units, timers, host exclusion, state, lock,
+   identity, owner intent, heartbeat and status are unchanged.
 3. Run the full focused lease/entrypoint suite with Python `-B`, imports and
    static hash/mode checks. Confirm `prepare` produces no consumer commands,
    the legacy compatibility call cannot quiesce, a mid-loop failure leaves a
@@ -63,9 +65,9 @@ enabled.
 
 ## Rollback
 
-If any replacement or postcheck fails, restore only the three checkpointed old
-files atomically and rehash them. Preserve the existing watchdog, host
-exclusion, wrapper, units, timers and all runtime custody. If state is
+If any replacement or postcheck fails, restore all four checkpointed old files
+atomically and rehash them. Preserve the already-installed watchdog packet,
+host exclusion, wrappers, units, timers and all runtime custody. If state is
 uncertain, retain the checkpoint and stop for manual reconciliation; never
 retry automatically.
 
