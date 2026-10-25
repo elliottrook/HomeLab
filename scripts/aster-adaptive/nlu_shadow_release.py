@@ -7,8 +7,9 @@ import hashlib
 import json
 import re
 
-from nlu_threshold_policy import FAMILIES, load_and_validate, sha256
+from nlu_threshold_policy import FAMILIES, decode_unique_json, load_and_validate, sha256
 from nlu_candidate_bundle import validate_policy_binding
+import nlu_calibration_corpus as corpus
 
 
 SCHEMA = "aster-nlu-shadow-release.v1"
@@ -28,6 +29,16 @@ FORBIDDEN_KEYS = {
 }
 HEX64 = re.compile(r"[a-f0-9]{64}\Z")
 IDENTIFIER = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,127}\Z")
+INTERPRETATION_KEYS = {
+    "schema_version", "request_id", "principal_ref", "request_family",
+    "sensitivity", "capability_needs", "ambiguity", "disposition", "reason",
+    "engine_digest", "policy_digest", "confidence", "authorization",
+}
+PROPOSAL_KEYS = {
+    "schema_version", "request_id", "principal_ref", "interpretation_digest",
+    "status", "backend_id", "egress", "reason", "policy_digest",
+    "expires_at", "authorization",
+}
 
 
 def canonical_sha256(value: dict) -> str:
@@ -40,6 +51,106 @@ def canonical_sha256(value: dict) -> str:
 
 def _digest(value: object) -> bool:
     return isinstance(value, str) and HEX64.fullmatch(value) is not None
+
+
+def _artifact(raw: bytes, name: str) -> tuple[dict | None, list[str]]:
+    try:
+        value = decode_unique_json(raw)
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
+        return None, [f"{name} must be unique-key UTF-8 JSON"]
+    if not isinstance(value, dict):
+        return None, [f"{name} must be an object"]
+    return value, []
+
+
+def _validate_artifact_semantics(case: dict, interpretation_raw: bytes,
+                                 proposal_raw: bytes, candidate: dict) -> list[str]:
+    errors = []
+    interpretation, parse_errors = _artifact(interpretation_raw, "interpretation")
+    errors.extend(parse_errors)
+    proposal, proposal_errors = _artifact(proposal_raw, "proposal")
+    errors.extend(proposal_errors)
+    if interpretation is None or proposal is None:
+        return errors
+    if set(interpretation) != INTERPRETATION_KEYS:
+        errors.append("interpretation fields must match the fixed contract")
+    else:
+        try:
+            label = {key: interpretation[key] for key in corpus.LABEL_KEYS}
+            corpus._validate_label(label, case["family"])
+        except (KeyError, TypeError, ValueError):
+            errors.append("interpretation dimensions are invalid")
+        expected = {
+            "schema_version": "request-interpretation.v1",
+            "request_id": case["id"],
+            "engine_digest": "sha256:" + candidate.get("engine_sha256", ""),
+            "policy_digest": "sha256:" + candidate.get("policy_sha256", ""),
+            "confidence": None,
+            "authorization": "not-granted",
+        }
+        if any(interpretation.get(key) != value for key, value in expected.items()):
+            errors.append("interpretation provenance or authority is invalid")
+        if not isinstance(interpretation.get("principal_ref"), str) or IDENTIFIER.fullmatch(
+            interpretation.get("principal_ref", "")
+        ) is None:
+            errors.append("interpretation principal is invalid")
+    if set(proposal) != PROPOSAL_KEYS:
+        errors.append("proposal fields must match the fixed contract")
+        return errors
+    canonical_interpretation = json.dumps(
+        interpretation, sort_keys=True, separators=(",", ":")
+    ).encode()
+    if proposal.get("schema_version") != "route-proposal.v1":
+        errors.append("invalid proposal schema")
+    if (
+        proposal.get("request_id") != interpretation.get("request_id")
+        or proposal.get("principal_ref") != interpretation.get("principal_ref")
+        or proposal.get("policy_digest") != interpretation.get("policy_digest")
+        or proposal.get("interpretation_digest") != "sha256:" + sha256(canonical_interpretation)
+    ):
+        errors.append("proposal does not bind the exact interpretation")
+    if proposal.get("status") != case.get("candidate_route"):
+        errors.append("proposal status does not match the shadow candidate route")
+    if proposal.get("authorization") != "not-granted":
+        errors.append("proposal cannot grant authority")
+    if type(proposal.get("expires_at")) is not int or proposal["expires_at"] < 1:
+        errors.append("proposal expiry is invalid")
+    status = proposal.get("status")
+    if status == "local":
+        valid_shape = (
+            isinstance(proposal.get("backend_id"), str)
+            and IDENTIFIER.fullmatch(proposal["backend_id"]) is not None
+            and proposal.get("egress") == "local"
+            and proposal.get("reason") in {"deterministic-match", "local-capable"}
+        )
+    elif status == "codex":
+        valid_shape = (
+            isinstance(proposal.get("backend_id"), str)
+            and IDENTIFIER.fullmatch(proposal["backend_id"]) is not None
+            and proposal.get("egress") == "cloud"
+            and proposal.get("reason") == "stronger-capability-required"
+            and interpretation.get("sensitivity") != "personal"
+        )
+    elif status in {"clarify", "abstain", "deny"}:
+        reasons = {
+            "clarify": {"ambiguous"},
+            "abstain": {"ambiguous", "unsupported"},
+            "deny": {"policy-denied"},
+        }
+        valid_shape = (
+            proposal.get("backend_id") is None
+            and proposal.get("egress") == "none"
+            and proposal.get("reason") in reasons[status]
+        )
+    else:
+        valid_shape = False
+    expected_status = {
+        "route": {"local", "codex"}, "clarify": {"clarify"},
+        "abstain": {"abstain"}, "deny": {"deny"},
+    }.get(interpretation.get("disposition"), set())
+    if not valid_shape or status not in expected_status:
+        errors.append("proposal route semantics are invalid")
+    return errors
 
 
 def validate_release(value: object) -> list[str]:
@@ -138,6 +249,10 @@ def validate_release_bundle(
         f"candidate binding: {error}"
         for error in validate_policy_binding(policy_raw, candidate_raw)
     )
+    try:
+        candidate = decode_unique_json(candidate_raw)
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
+        candidate = None
     if policy is not None and policy.get("status") != "frozen":
         errors.append("sealed shadow release requires a frozen threshold policy")
     if isinstance(value, dict) and value.get("status") == "sealed" and policy is not None:
@@ -169,4 +284,11 @@ def validate_release_bundle(
                 ):
                     if case.get(field) != sha256(artifact):
                         errors.append(f"{case_id}: {field} does not match exact artifact")
+                if isinstance(candidate, dict):
+                    errors.extend(
+                        f"{case_id}: {error}"
+                        for error in _validate_artifact_semantics(
+                            case, artifacts["interpretation"], artifacts["proposal"], candidate
+                        )
+                    )
     return errors

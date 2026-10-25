@@ -64,8 +64,44 @@ def frozen_policy():
     }
 
 
-INTERPRETATION_RAW = b'{"synthetic":"interpretation"}\n'
-PROPOSAL_RAW = b'{"synthetic":"proposal"}\n'
+def interpretation():
+    return {
+        "schema_version": "request-interpretation.v1",
+        "request_id": "SHADOW-01",
+        "principal_ref": "shadow-principal",
+        "request_family": "general-answer",
+        "sensitivity": "internal",
+        "capability_needs": [],
+        "ambiguity": "ambiguous",
+        "disposition": "clarify",
+        "reason": "ambiguous",
+        "engine_digest": "sha256:" + "1" * 64,
+        "policy_digest": "sha256:" + "2" * 64,
+        "confidence": None,
+        "authorization": "not-granted",
+    }
+
+
+def proposal(interpretation_raw):
+    value = json.loads(interpretation_raw)
+    canonical = json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+    return {
+        "schema_version": "route-proposal.v1",
+        "request_id": "SHADOW-01",
+        "principal_ref": "shadow-principal",
+        "interpretation_digest": "sha256:" + policy.sha256(canonical),
+        "status": "clarify",
+        "backend_id": None,
+        "egress": "none",
+        "reason": "ambiguous",
+        "policy_digest": "sha256:" + "2" * 64,
+        "expires_at": 100,
+        "authorization": "not-granted",
+    }
+
+
+INTERPRETATION_RAW = encoded(interpretation())
+PROPOSAL_RAW = encoded(proposal(INTERPRETATION_RAW))
 
 
 def artifacts():
@@ -166,6 +202,34 @@ class ShadowReleaseTests(unittest.TestCase):
             value, policy_raw, CANDIDATE_RAW + b"\n", artifacts(),
         )
         self.assertTrue(any("exact candidate bundle" in error for error in errors))
+
+    def test_artifact_semantics_and_cross_binding_fail_closed(self):
+        policy_raw = encoded(frozen_policy())
+        value = sealed(policy_raw)
+        variants = []
+        changed = interpretation()
+        changed["authorization"] = "granted"
+        variants.append({"interpretation": encoded(changed), "proposal": PROPOSAL_RAW})
+        changed_proposal = proposal(INTERPRETATION_RAW)
+        changed_proposal["status"] = "codex"
+        changed_proposal["backend_id"] = "codex-subscription"
+        changed_proposal["egress"] = "cloud"
+        changed_proposal["reason"] = "stronger-capability-required"
+        variants.append({"interpretation": INTERPRETATION_RAW, "proposal": encoded(changed_proposal)})
+        for artifacts_value in variants:
+            changed_release = copy.deepcopy(value)
+            changed_release["cases"][0]["interpretation_sha256"] = policy.sha256(
+                artifacts_value["interpretation"]
+            )
+            changed_release["cases"][0]["proposal_sha256"] = policy.sha256(
+                artifacts_value["proposal"]
+            )
+            changed_release["release_sha256"] = shadow.canonical_sha256(changed_release)
+            errors = shadow.validate_release_bundle(
+                changed_release, policy_raw, CANDIDATE_RAW,
+                {"SHADOW-01": artifacts_value},
+            )
+            self.assertTrue(errors)
 
 
 if __name__ == "__main__":

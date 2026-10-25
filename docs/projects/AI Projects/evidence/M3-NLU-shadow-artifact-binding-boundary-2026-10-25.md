@@ -15,6 +15,10 @@ bytes are hashed and compared with the per-case fields. Missing, extra,
 malformed or drifted artifacts fail closed. Existing S0-only, no execution,
 no provider egress, frozen-policy and candidate boundaries remain unchanged.
 
+The later [semantic artifact correction](M3-NLU-shadow-semantic-artifact-boundary-2026-10-25.md)
+also validates those exact bytes as mutually bound no-authority interpretation
+and route-proposal contracts; hashes alone are no longer sufficient.
+
 ## Validation
 
 The focused NLU suite passes **52/52** under the bundled Python environment.

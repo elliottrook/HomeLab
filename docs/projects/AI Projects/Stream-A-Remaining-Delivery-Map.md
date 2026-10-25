@@ -400,6 +400,11 @@ unambiguous. A subsequent
 requires each opaque shadow interpretation/proposal digest to match its exact
 content-free artifact; the focused NLU suite now passes 52/52. The shadow
 artifact remains an empty template, not collection approval or a route release.
+The later [shadow semantic artifact correction](evidence/M3-NLU-shadow-semantic-artifact-boundary-2026-10-25.md)
+rejects arbitrary digest-matching JSON and verifies exact contract shape,
+candidate pins, interpretation/proposal lineage, route semantics and the
+personal-cloud prohibition. The current dependency-free NLU suite passes
+97/97; no shadow collection is authorized.
 An [initial policy decision draft](evidence/M3-NLU-initial-threshold-policy-decision-draft-2026-10-25.md)
 proposes zero privacy/unsafe failures, at most 10% selective error, at least 60%
 coverage and 60 balanced calibration cases. The values remain unaccepted and
