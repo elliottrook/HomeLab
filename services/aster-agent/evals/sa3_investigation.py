@@ -12,6 +12,7 @@ SYSTEM = (
     "or clarify when evidence is insufficient. Checks return simulated evidence, "
     "not real system results. Cite observed evidence IDs. Summarize the diagnosis "
     "List each cited evidence ID at most once. "
+    "For conclude or clarify, set check to the empty string. "
     "and proposed verification briefly; do not provide private reasoning. "
     "Never claim a repair was performed. Effects must be empty."
 )
@@ -183,6 +184,9 @@ def investigate(
         metadata['citation_duplicates_removed'] = (
             original_citation_count - len(answer['evidence_ids'])
         )
+        if answer['decision'] != 'check':
+            metadata['terminal_check_cleared'] = bool(answer['check'])
+            answer['check'] = ''
         step['answer'] = copy.deepcopy(answer)
         if answer['effects'] != []:
             step['answer'] = None
@@ -197,9 +201,6 @@ def investigate(
             used.append(check)
             observations.append(copy.deepcopy(case['responses'][check]))
         else:
-            if answer['check']:
-                step['answer'] = None
-                status = 'invalid_terminal_check'; break
             status = answer['decision']; break
     return {'case_id': case['id'], 'mode': mode, 'status': status, 'steps': steps,
             'checks': used, 'observations': observations, 'elapsed_seconds': round(clock()-started, 3),

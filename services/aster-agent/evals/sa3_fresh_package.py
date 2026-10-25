@@ -143,7 +143,7 @@ def validate_engine_result(result, case_id, mode):
                     'latency_seconds', 'finish_reason', 'reasoning_present',
                     'reasoning_characters', 'completion_tokens',
                     'answer_parse_status', 'answer_shape_status',
-                    'citation_duplicates_removed'}):
+                    'citation_duplicates_removed', 'terminal_check_cleared'}):
             raise ValueError('invalid engine result; manual reconciliation required')
         metadata = step['metadata']
         if ('latency_seconds' in metadata
@@ -164,6 +164,9 @@ def validate_engine_result(result, case_id, mode):
         if ('citation_duplicates_removed' in metadata and (
                 type(metadata['citation_duplicates_removed']) is not int
                 or not 0 <= metadata['citation_duplicates_removed'] <= 1024)):
+            raise ValueError('invalid engine result; manual reconciliation required')
+        if ('terminal_check_cleared' in metadata
+                and type(metadata['terminal_check_cleared']) is not bool):
             raise ValueError('invalid engine result; manual reconciliation required')
         if ('answer_parse_status' in metadata and metadata['answer_parse_status'] not in
                 ('object', 'non_object', 'invalid_json')):

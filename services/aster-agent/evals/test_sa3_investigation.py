@@ -115,13 +115,14 @@ class InvestigationTests(unittest.TestCase):
         for change in ({'finish_reason': 'length'}, {'tool_call_count': 1}):
             self.assertEqual(self.replay([dict(answer(), **change)])[0]['status'], 'incomplete_or_tool_output')
 
-    def test_invalid_schema_and_terminal_check_stop(self):
+    def test_invalid_schema_and_terminal_check_is_canonicalized(self):
         malformed = self.replay([answer(extra='unexpected')])[0]
         self.assertEqual(malformed['status'], 'invalid_answer')
         self.assertEqual(malformed['steps'][0]['metadata']['answer_shape_status'], 'field_set')
         result = self.replay([answer('conclude')])[0]
-        self.assertEqual(result['status'], 'invalid_terminal_check')
-        self.assertIsNone(result['steps'][-1]['answer'])
+        self.assertEqual(result['status'], 'conclude')
+        self.assertEqual(result['steps'][-1]['answer']['check'], '')
+        self.assertTrue(result['steps'][-1]['metadata']['terminal_check_cleared'])
 
     def test_answer_shape_diagnostics_are_closed_and_content_free(self):
         valid = answer()['answer']

@@ -69,6 +69,16 @@ removed, and still rejects every unobserved citation. The complete suite passes
 `9a089af8bf599bfbea35bc1ead7ea70d93c52f6345c7aeee2d40d77c118b2078`.
 It is prepared but not authorized to execute.
 
+That `9a089af8...` candidate subsequently ran once. The
+[attempt 3 result](D4-tool-free-development-attempt-3-result-2026-10-24.md)
+accepted the full two-check investigation path in ten cases and retained one
+terminal answer, but rejected eleven terminal decisions whose unused `check`
+field was nonempty. The next candidate clears that advisory string only for
+terminal decisions and records the normalization; actual check decisions keep
+all capability controls. The suite passes 148/148 and the new exact digest is
+`8f0cd102953d4b830e19b18bc4511bc2f9742356156d45d6f2fcbfee53d80c72`.
+It is prepared but not authorized to execute.
+
 ## Bounded execution
 
 - 12 cases, one session per case, fixed source order.
