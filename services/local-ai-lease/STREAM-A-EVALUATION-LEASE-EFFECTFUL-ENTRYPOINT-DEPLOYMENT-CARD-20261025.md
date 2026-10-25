@@ -10,7 +10,7 @@ path.
 ## Pinned source
 
 The complete source must be reviewed from the full local implementation commit
-`ae56046bc5f361e84c88e72b5af11b4f933c94c4` and the metadata follow-up that records that
+`b18302f31b0b0e23bfae7476b737d775a1e38df8` and the metadata follow-up that records that
 commit here. Verify every file hash from that clean commit:
 
 | Source | Target | Mode | SHA-256 |
@@ -20,7 +20,7 @@ commit here. Verify every file hash from that clean commit:
 | `scripts/local-ai/evaluation_lease_watchdog.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/evaluation_lease_watchdog.py` | 0644 | `b6409e9f29d954033ebd2098fdbd983862d0d32eb5de04471f7b06f9aaf74725` |
 | `scripts/local-ai/evaluation_lease_entrypoint.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/evaluation_lease_entrypoint.py` | 0644 | `e4efd62036b8d26b0eb972a03f53f2cfdf6fbb6fa8a00f1c652b5803c23b5ce7` |
 | `scripts/local-ai/host_exclusion.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/host_exclusion.py` | 0644 | `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61` |
-| `services/local-ai-lease/stream-a-evaluation-lease` | `/usr/local/sbin/stream-a-evaluation-lease` | 0755 | `REPLACE_AFTER_COMMIT` |
+| `services/local-ai-lease/stream-a-evaluation-lease` | `/usr/local/sbin/stream-a-evaluation-lease` | 0755 | `15f3de1ebb5294878d5f0ce0c6a0b7c03a64b42a71c081fda6d036b0c1ef71af` |
 
 The accepted D4 packet digest is
 `03b0ad74a862ee04de75e012f52f6662c61192b69b279ea4d1d66c80d9ff9153` and the
