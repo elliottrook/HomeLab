@@ -191,6 +191,15 @@ class WatchdogBoundaryTests(unittest.TestCase):
              patch("stream_a_evaluation_watchdog.write_status"):
             self.assertEqual(main(["--once", "--effect-authorized"]), 1)
 
+    def test_recovered_cli_result_is_zero_and_persisted(self):
+        result = {"effects": "recovered", "decision": "owner-absent",
+                  "result": {"entrypoint": "restored"}}
+        with patch("stream_a_evaluation_watchdog.os.geteuid", return_value=0), \
+             patch("stream_a_evaluation_watchdog.run_watchdog_once", return_value=result), \
+             patch("stream_a_evaluation_watchdog.write_status") as write:
+            self.assertEqual(main(["--once", "--effect-authorized"]), 0)
+        write.assert_called_once_with(result)
+
     def test_status_is_atomic_and_preserves_failure_class(self):
         with tempfile.TemporaryDirectory() as root:
             path = Path(root) / "watchdog-status.json"

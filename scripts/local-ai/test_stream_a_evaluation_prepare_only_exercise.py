@@ -129,5 +129,13 @@ class ExerciseTests(unittest.TestCase):
         with self.assertRaises(exercise.ExerciseError): exercise._load_json('{"state":"ready","state":"ready"}', {"state"})
         with self.assertRaises(exercise.ExerciseError): exercise._load_json('{"effects":"recovered","decision":"x","result":{},"extra":1}', {"effects","decision","result"})
 
+    def test_deployed_wrapper_targets_effectful_watchdog_cli(self):
+        wrapper = Path(__file__).parents[2] / "services/local-ai-lease/stream-a-evaluation-watchdog"
+        data = wrapper.read_bytes()
+        self.assertIn(b"stream_a_evaluation_watchdog.py", data)
+        self.assertNotIn(b"evaluation_lease_watchdog.py", data)
+        self.assertEqual(exercise.PINNED_FILES[exercise.WATCHDOG_ENTRYPOINT],
+                         __import__("hashlib").sha256(data).hexdigest())
+
 
 if __name__ == "__main__": unittest.main()
