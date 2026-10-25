@@ -16,7 +16,8 @@ with the October 26 F2 window.
 - Create and validate only the root-owned identity, owner intent, heartbeat and
   `prepared` lease/lock required to exercise the binding and read-only gates.
 - Run the healthy watchdog observation path and prove it is inert: no recovery,
-  systemd command, consumer command, timer arm, backend call or model call.
+  consumer-systemd command, timer arm, backend call or model call. The only
+  permitted systemd control is the fixed exercise-owner transient unit below.
 - Force one bounded owner-loss or explicit cancel/recovery path after the
   healthy observation. Because the lease is still `prepared`, recovery must
   validate the exact unchanged four-consumer baseline, issue zero consumer or
@@ -55,26 +56,40 @@ with the October 26 F2 window.
    resulting lease has the exact exercise identity/generation, fixed deadlines,
    root custody, `prepared` phase and baseline, while the runner observed zero
    consumer/systemd/model commands.
-4. Run the healthy watchdog observation using the exact lease/generation.
+4. Launch the owner only through the fixed transient exercise unit, using the
+   exact command shape:
+
+   `/usr/bin/systemd-run --unit=stream-a-evaluation-exercise-owner.service --collect --service-type=simple /usr/local/sbin/stream-a-evaluation-owner --exercise-transient`
+
+   The owner must pass PID, boot ID, start-time, command-line and exact cgroup
+   identity checks before writing its identity. Arbitrary unit names and direct
+   SSH launches fail closed. Run heartbeat and watchdog once through their
+   direct one-shot wrappers, not their recurring timers, using the exact lease
+   and generation. The transient owner is the only allowed systemd control;
+   no consumer systemd command is permitted.
+5. Run the healthy watchdog observation using the exact lease/generation.
    Require `not-attempted`, no recovery callback, unchanged consumer baseline,
    unchanged F2 timers and no model/backend call.
-5. Force exactly one bounded recovery case: owner-loss is preferred; an
+6. Force exactly one bounded recovery case: owner-loss is preferred; an
    explicitly bounded cancel is acceptable only if it exercises the same
    recovery contract. The exercise may not wait into the October 26 F2 window.
-6. Require prepared-state recovery to validate the exact four-consumer
+7. Stop and collect only the fixed transient exercise owner, then clear its
+   failed state if necessary. Do not stop or restart any production unit and
+   do not enable or arm a recurring timer.
+8. Require prepared-state recovery to validate the exact four-consumer
    baseline/backend/auth/idle/GPU evidence, issue zero runner commands, clear
    only the exercise lease/lock and temporary identity/intent, and report
    success only after custody and absence checks pass. If validation fails,
    retain `prepared` state and the lock for manual reconciliation.
-7. Recheck production health, GPU holder, all five F6 unit/timer states and F2
+9. Recheck production health, GPU holder, all five F6 unit/timer states and F2
    timer identities/next runs. Write the receipt and stop; never auto-retry.
 
 ## Pass/fail evidence
 
 Pass requires all of the following:
 
-- prepare-only created exactly one bound `prepared` lease and no consumer or
-  systemd commands;
+- prepare-only created exactly one bound `prepared` lease and no consumer
+  systemd commands; the only systemd activity was the fixed transient owner;
 - healthy watchdog observation was inert;
 - owner-loss/cancel recovery validated the exact baseline and cleared the
   exercise state, lock, identity and intent with zero consumer/systemd
