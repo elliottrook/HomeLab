@@ -3,7 +3,8 @@
 Status: **SOURCE-ONLY; EXERCISE NOT AUTHORIZED OR RUN**
 
 This card defines the next bounded validation after the inactive two-phase
-adapter upgrade. It may create a temporary, exact-bound lease and identity
+adapter and exercise-admission upgrades. It may create a temporary,
+exact-bound exercise lease and identity
 only when separately authorized for execution. It must not quiesce consumers,
 arm recurring timers, call a model, alter F2/F3/F4/F5 schedules, or interfere
 with the October 26 F2 window.
@@ -13,8 +14,11 @@ with the October 26 F2 window.
 - Use a uniquely identified, bounded exercise lease with a fixed short
   deadline and a disposable exercise root; never reuse a production lease ID,
   generation, identity, heartbeat or status file.
-- Create and validate only the root-owned identity, owner intent, heartbeat and
-  `prepared` lease/lock required to exercise the binding and read-only gates.
+- Create and validate only the root-owned exercise identity, owner intent,
+  heartbeat and receipt-free `prepared` lease/lock required to exercise the
+  binding and read-only gates. The lease carries the explicit
+  `stream-a-prepare-only-exercise-v1` mode and
+  `PRE-EFFECT-EXERCISE-NOT-PRODUCTION-EVIDENCE` marker.
 - Run the healthy watchdog observation path and prove it is inert: no recovery,
   consumer-systemd command, timer arm, backend call or model call. The only
   permitted systemd control is the fixed exercise-owner transient unit below.
@@ -32,10 +36,11 @@ with the October 26 F2 window.
    no same-cycle F2/F3/F4/F5 evidence is required for this pre-effect proof.
    Fresh backup evidence becomes mandatory before any later quiescence or
    effectful evaluation phase.
-2. The inactive packet and two-phase source pins match the accepted cards:
-   implementation commits `2f790b6310981d31358a60fb2a7a3f98f7a26633` and
-   `bdf745aa`, `2f59c2b0`; corrected card commit `dfeb1374` with card hash
-   `5defe13576de09b0435265a99f4156a58c7acf8554a6c14d0af57d21379c1385`.
+2. The inactive packet, two-phase source and exercise-admission pins match the
+   accepted cards: implementation commits
+   `2f790b6310981d31358a60fb2a7a3f98f7a26633`, `bdf745aa`, `2f59c2b0` and
+   `7fbbc017630dc7ab87b212fc3a92ba92bb48663b`; the exercise-admission
+   inactive upgrade must also be installed and verified before this exercise.
 3. All five F6 units and timers remain disabled/inactive; no runtime lease,
    lock, identity, owner intent, heartbeat or watchdog status is present.
 4. Production health, accepted backend/GPU identity and the exact four-consumer
@@ -52,9 +57,11 @@ with the October 26 F2 window.
    runtime state. Refuse to proceed on drift.
 2. Create the disposable exercise identity and owner intent with a short fixed
    deadline. Do not enable or start recurring units or timers.
-3. Invoke the bound prepare-only path with effect authorization. Prove the
-   resulting lease has the exact exercise identity/generation, fixed deadlines,
-   root custody, `prepared` phase and baseline, while the runner observed zero
+3. Invoke the bound `exercise-prepare` path with effect authorization. Prove
+   the resulting lease has the exact exercise identity/generation, explicit
+   exercise mode/marker, two-minute hard deadline, five-minute restore
+   deadline, root custody, `prepared` phase, no receipt claims, no workload
+   pointer and the exact baseline, while the runner observed zero
    consumer/systemd/model commands.
 4. Launch the owner only through the fixed inert-by-default wrapper
    `/usr/local/sbin/stream-a-evaluation-exercise-owner-start`. It pins
@@ -95,6 +102,9 @@ Pass requires all of the following:
 
 - prepare-only created exactly one bound `prepared` lease and no consumer
   systemd commands; the only systemd activity was the fixed transient owner;
+- the exercise marker/mode, short deadlines, receipt-free schema and absent
+  workload progression were exact, and every production promotion path was
+  rejected;
 - healthy watchdog observation was inert;
 - owner-loss/cancel recovery validated the exact baseline and cleared the
   exercise state, lock, identity and intent with zero consumer/systemd
