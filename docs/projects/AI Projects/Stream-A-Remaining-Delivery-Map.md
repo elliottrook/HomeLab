@@ -580,7 +580,12 @@ no watchdog or owner-heartbeat units/wrappers exist, no root-custodied process
 input binds lease identity and generation, the watchdog CLI remains
 source-only, and no constrained recovery executable binds its decision to the
 exact four-consumer restore. F6 is NO-GO pending a hash-pinned inactive packet
-and target tests; nothing has been armed.
+and target tests; nothing has been armed. The first implementation packet at
+`8fa6d36f` adds the missing artifacts but is also rejected before installation:
+its timer self-renews owner liveness without observing the owner, stale owner
+heartbeats fail closed instead of recovering, uncertain restore exits zero,
+and its restore observation has no constrained fresh writer or lease binding.
+Those exact regressions are with the platform owner.
 The platform owner's first pure endpoint-retaining lease candidate at
 `44b26e16` passed its own 7/7 tests and names the correct live backend and News
 timers, but Stream A's

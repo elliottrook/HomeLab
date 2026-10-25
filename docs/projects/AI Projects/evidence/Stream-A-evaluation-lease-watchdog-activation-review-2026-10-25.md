@@ -50,3 +50,31 @@ F5/F6 remain open. The successful inactive effect entrypoint is unchanged and
 effect-disabled. The October 26 F2 run remains independently scheduled and
 conditional; watchdog implementation work must not alter its timers or fresh
 runtime gates.
+
+## First implementation packet review
+
+Platform implementation `8fa6d36fe841e5758013ad393aafdee624d91a33`
+and metadata/card commit `9992271073a79cb5fd56f8ce12d465c8add0fdd2`
+add the previously missing Python entrypoints, wrappers and four systemd
+units. The inactive-install card is SHA-256
+`a2d274c533e5db91d651fe05f26acda5762ced3237685ab30db376c1efddb9af`.
+The packet is **rejected before installation** for four effect-boundary gaps:
+
+1. The owner-heartbeat timer renews the heartbeat unconditionally from its own
+   process. It does not prove that the evaluation owner remains alive, so loss
+   of the owner can remain invisible while both timers continue running.
+2. Only a missing heartbeat becomes `owner_present=False`. An exact-identity
+   heartbeat that naturally expires raises an exception and produces
+   `failed-closed`, so the expected owner-loss condition does not invoke
+   recovery.
+3. A recovery callback failure returns `effects=uncertain`, but the watchdog
+   CLI exits zero for that result. Systemd could therefore record an uncertain
+   restore as a successful service invocation.
+4. Recovery trusts a prewritten restore-observation file without a writer,
+   lease/generation binding or freshness field. It cannot prove that backend,
+   endpoint and GPU observations are current when restoration is attempted.
+
+The card also names a watchdog status file that the implementation never
+writes. The platform owner received exact owner-PID/PID-reuse, stale-heartbeat,
+uncertain-exit and fresh-observation regression requirements. No packet file or
+unit was installed; F6 remains NO-GO.
