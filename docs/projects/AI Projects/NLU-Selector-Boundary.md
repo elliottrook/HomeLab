@@ -134,6 +134,10 @@ The [duplicate-key JSON boundary](evidence/M3-NLU-duplicate-key-boundary-2026-10
 now gives threshold policies, calibration scores and exact calibration releases
 one unambiguous parse for each hashed byte sequence. Repeated object keys fail
 closed instead of taking parser-dependent meaning.
+The [shadow artifact-binding boundary](evidence/M3-NLU-shadow-artifact-binding-boundary-2026-10-25.md)
+now also requires every opaque shadow row's interpretation and route-proposal
+digests to match supplied content-free artifacts. Missing, extra or drifted
+case artifacts fail closed.
 
 ## Validation checkpoint — 2026-10-24
 

@@ -395,9 +395,12 @@ bytes rather than trusting digest-shaped claims. The later
 requires the policy-bound bytes to decode to the manifest under validation. A
 [duplicate-key JSON correction](evidence/M3-NLU-duplicate-key-boundary-2026-10-25.md)
 then makes threshold policy, calibration score and exact-release parsing
-unambiguous; the focused NLU suite now passes 51/51. The shadow artifact remains
-an empty template, not collection approval or a route release, and actual
-numeric acceptance values remain open.
+unambiguous. A subsequent
+[shadow artifact-binding correction](evidence/M3-NLU-shadow-artifact-binding-boundary-2026-10-25.md)
+requires each opaque shadow interpretation/proposal digest to match its exact
+content-free artifact; the focused NLU suite now passes 52/52. The shadow
+artifact remains an empty template, not collection approval or a route release,
+and actual numeric acceptance values remain open.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)

@@ -124,7 +124,11 @@ def validate_release(value: object) -> list[str]:
     return errors
 
 
-def validate_release_bundle(value: object, policy_raw: bytes) -> list[str]:
+def validate_release_bundle(
+    value: object,
+    policy_raw: bytes,
+    case_artifacts: dict[str, dict[str, bytes]],
+) -> list[str]:
     errors = validate_release(value)
     policy, policy_errors = load_and_validate(policy_raw)
     errors.extend(f"threshold policy: {error}" for error in policy_errors)
@@ -135,4 +139,28 @@ def validate_release_bundle(value: object, policy_raw: bytes) -> list[str]:
             errors.append("shadow release does not bind the exact threshold policy")
         if value.get("candidate_bundle_sha256") != policy.get("candidate_bundle_sha256"):
             errors.append("shadow candidate does not match frozen threshold policy")
+        cases = value.get("cases") if isinstance(value.get("cases"), list) else []
+        expected_ids = {
+            case.get("id") for case in cases
+            if isinstance(case, dict) and isinstance(case.get("id"), str)
+        }
+        if not isinstance(case_artifacts, dict) or set(case_artifacts) != expected_ids:
+            errors.append("shadow artifacts must match every sealed case exactly")
+        else:
+            for case in cases:
+                case_id = case["id"]
+                artifacts = case_artifacts.get(case_id)
+                if (
+                    not isinstance(artifacts, dict)
+                    or set(artifacts) != {"interpretation", "proposal"}
+                    or not all(isinstance(raw, bytes) for raw in artifacts.values())
+                ):
+                    errors.append(f"{case_id}: invalid shadow artifacts")
+                    continue
+                for field, artifact in (
+                    ("interpretation_sha256", artifacts["interpretation"]),
+                    ("proposal_sha256", artifacts["proposal"]),
+                ):
+                    if case.get(field) != sha256(artifact):
+                        errors.append(f"{case_id}: {field} does not match exact artifact")
     return errors

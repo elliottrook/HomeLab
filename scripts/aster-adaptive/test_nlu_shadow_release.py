@@ -38,6 +38,17 @@ def frozen_policy():
     }
 
 
+INTERPRETATION_RAW = b'{"synthetic":"interpretation"}\n'
+PROPOSAL_RAW = b'{"synthetic":"proposal"}\n'
+
+
+def artifacts():
+    return {"SHADOW-01": {
+        "interpretation": INTERPRETATION_RAW,
+        "proposal": PROPOSAL_RAW,
+    }}
+
+
 def sealed(policy_raw):
     value = {
         "schema": shadow.SCHEMA,
@@ -50,8 +61,8 @@ def sealed(policy_raw):
         "cases": [{
             "id": "SHADOW-01",
             "family": "general-answer",
-            "interpretation_sha256": "d" * 64,
-            "proposal_sha256": "e" * 64,
+            "interpretation_sha256": policy.sha256(INTERPRETATION_RAW),
+            "proposal_sha256": policy.sha256(PROPOSAL_RAW),
             "baseline_route": "local",
             "candidate_route": "clarify",
             "route_changed": True,
@@ -75,7 +86,9 @@ class ShadowReleaseTests(unittest.TestCase):
     def test_sealed_shadow_binds_exact_frozen_policy_and_candidate(self):
         policy_raw = encoded(frozen_policy())
         value = sealed(policy_raw)
-        self.assertEqual([], shadow.validate_release_bundle(value, policy_raw))
+        self.assertEqual([], shadow.validate_release_bundle(
+            value, policy_raw, artifacts(),
+        ))
 
     def test_content_effect_egress_and_route_mismatch_fail_closed(self):
         policy_raw = encoded(frozen_policy())
@@ -99,8 +112,22 @@ class ShadowReleaseTests(unittest.TestCase):
         value = sealed(policy_raw)
         changed = copy.deepcopy(policy_value)
         changed["selected_threshold"] = 0.9
-        errors = shadow.validate_release_bundle(value, encoded(changed))
+        errors = shadow.validate_release_bundle(value, encoded(changed), artifacts())
         self.assertTrue(any("exact threshold" in error for error in errors))
+
+    def test_exact_case_artifacts_are_required_and_hash_checked(self):
+        policy_raw = encoded(frozen_policy())
+        value = sealed(policy_raw)
+        self.assertIn(
+            "shadow artifacts must match every sealed case exactly",
+            shadow.validate_release_bundle(value, policy_raw, {}),
+        )
+        changed = artifacts()
+        changed["SHADOW-01"]["proposal"] += b"drift"
+        self.assertIn(
+            "SHADOW-01: proposal_sha256 does not match exact artifact",
+            shadow.validate_release_bundle(value, policy_raw, changed),
+        )
 
 
 if __name__ == "__main__":
