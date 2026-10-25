@@ -1,0 +1,16 @@
+{
+  "adapter_sha256": "",
+  "authority": "not-granted",
+  "bundle_sha256": "",
+  "candidate_id": "nlu-candidate-v1",
+  "case_data_included": false,
+  "contract_sha256": "",
+  "egress": "",
+  "engine_class": "",
+  "engine_sha256": "",
+  "policy_sha256": "",
+  "runtime_profile_sha256": "",
+  "schema": "aster-nlu-candidate-bundle.v1",
+  "status": "template",
+  "tool_mode": "disabled"
+}

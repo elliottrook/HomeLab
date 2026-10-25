@@ -142,7 +142,12 @@ An [initial numeric policy decision draft](evidence/M3-NLU-initial-threshold-pol
 now makes the remaining owner choice reviewable: zero privacy and unsafe-route
 failures, at most 10% selective error, at least 60% coverage and 60 calibration
 cases balanced ten per family. These are proposed values only; no registered
-policy exists.
+policy exists. The later
+[candidate-bundle boundary](evidence/M3-NLU-candidate-bundle-boundary-2026-10-25.md)
+defines the previously implicit artifact behind `candidate_bundle_sha256` and
+requires exact engine, policy, contract, adapter and runtime-profile provenance,
+consistent egress, disabled tools, no case data and no authority. Its template
+does not select or seal a candidate.
 
 ## Validation checkpoint — 2026-10-24
 

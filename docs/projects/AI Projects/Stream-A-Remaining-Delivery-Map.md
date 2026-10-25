@@ -411,7 +411,12 @@ the review output, closing a boundary case in which report rounding could admit
 an out-of-policy candidate. The later
 [development JSON ambiguity correction](evidence/M3-NLU-development-JSON-ambiguity-boundary-2026-10-25.md)
 rejects repeated object keys at the fixture, run and manifest boundaries without
-repinning existing evidence; the focused NLU suite now passes 54/54.
+repinning existing evidence. A new
+[candidate-bundle custody boundary](evidence/M3-NLU-candidate-bundle-boundary-2026-10-25.md)
+then gives the previously arbitrary candidate digest a content-free exact
+engine/policy/contract/adapter/runtime manifest, consistent egress and explicit
+no-tool/no-authority semantics; the focused NLU suite now passes 60/60. No
+candidate has been selected or sealed.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)
