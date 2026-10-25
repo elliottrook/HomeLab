@@ -19,7 +19,7 @@ with no consumer command. The explicit `quiesce` phase is required before
 post-quiescence, so the legacy acquire→post sequence cannot bypass the new
 boundary.
 
-## First failed boundary
+## Failed boundaries
 
 `quiesce()` executes every mask/stop command while the durable lease remains in
 `PREPARED`, then writes `QUIESCING` only after the entire loop succeeds. A
@@ -28,12 +28,20 @@ stopped while the durable state still represents the no-effect phase. The
 focused suite has no partial-quiescence failure/recovery test and no clean
 prepared-state recovery test.
 
+The companion watchdog decoder also still accepts only `QUIESCING`, `RUNNING`
+and `RESTORING`. It rejects the newly introduced `PREPARED` state before the
+deadline decision. A prepared lease therefore cannot pass the intended
+healthy-lease check and cannot reach deadline- or owner-loss recovery.
+
 The correction must atomically persist `QUIESCING` with the exact lease,
 generation and fresh heartbeat before the first consumer command. A synthetic
 mid-loop failure must retain that recoverable phase, and recovery must restore
 the exact four-consumer baseline and clear state/lock only after the existing
 post-restore validation succeeds. A separate prepared-state recovery/cancel
-test must also preserve production state and remove the lease safely.
+test must also preserve production state and remove the lease safely. The
+watchdog input contract must accept exact-identity `PREPARED` state under the
+same fixed deadline constraints, remain inert while its heartbeat/owner are
+healthy, and recover it on owner loss or deadline expiry.
 
 Nothing from this candidate was installed or invoked. The currently installed
 inactive contract/adapter/entrypoint and watchdog packet are unchanged. F6
