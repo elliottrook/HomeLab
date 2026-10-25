@@ -1,3 +1,5 @@
+import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -8,7 +10,9 @@ from evaluation_lease import (
 )
 from evaluation_lease_adapter import AdapterError, EvaluationLeaseAdapter, consumer_command, read_state
 from evaluation_lease_watchdog import run_once
-from evaluation_lease_watchdog import WatchdogInput, run_bound_once, validate_watchdog_input
+from evaluation_lease_watchdog import (
+    WatchdogInput, run_bound_from_state, run_bound_once, validate_watchdog_input,
+)
 
 
 class AdapterTests(unittest.TestCase):
@@ -44,13 +48,20 @@ class AdapterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", calls.append, allow_effects=True)
             adapter.acquire(self.admission(), now_epoch=1000)
-            self.assertFalse(adapter.workload_allowed(lease_id="eval-1", generation=1))
+            self.assertFalse(adapter.workload_allowed(
+                lease_id="eval-1", generation=1, workload_name="d4-candidate-g",
+                now_epoch=1100, heartbeat_timeout=30,
+            ))
             adapter.post_quiescence(
                 observed_states=QUIESCE_STATES, admission=self.admission(),
                 backend_active=True, endpoint_authenticated=True,
                 endpoint_idle=True, gpu_holders=(BACKEND_TARGET,), now_epoch=1100,
+                heartbeat_timeout=200,
             )
-            self.assertTrue(adapter.workload_allowed(lease_id="eval-1", generation=1))
+            self.assertTrue(adapter.workload_allowed(
+                lease_id="eval-1", generation=1, workload_name="d4-candidate-g",
+                now_epoch=1100, heartbeat_timeout=30,
+            ))
             result = adapter.restore(
                 lease_id="eval-1", generation=1,
                 restored=self.admission().baseline,
@@ -124,6 +135,35 @@ class AdapterTests(unittest.TestCase):
             with self.assertRaises(AdapterError):
                 adapter.heartbeat(lease_id="foreign", generation=1, now_epoch=1200)
 
+    def test_late_or_stale_transition_and_insufficient_budget_fail_closed(self):
+        with tempfile.TemporaryDirectory() as root:
+            adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", lambda command: None,
+                                              allow_effects=True)
+            adapter.acquire(self.admission(), now_epoch=1000)
+            with self.assertRaises(AdapterError):
+                adapter.post_quiescence(
+                    observed_states=QUIESCE_STATES, admission=self.admission(),
+                    backend_active=True, endpoint_authenticated=True,
+                    endpoint_idle=True, gpu_holders=(BACKEND_TARGET,),
+                    now_epoch=5500, heartbeat_timeout=30,
+                )
+            adapter.heartbeat(lease_id="eval-1", generation=1, now_epoch=1000)
+            adapter.post_quiescence(
+                observed_states=QUIESCE_STATES, admission=self.admission(),
+                backend_active=True, endpoint_authenticated=True,
+                endpoint_idle=True, gpu_holders=(BACKEND_TARGET,),
+                now_epoch=1000, heartbeat_timeout=30,
+            )
+            adapter.heartbeat(lease_id="eval-1", generation=1, now_epoch=3341)
+            self.assertFalse(adapter.workload_allowed(
+                lease_id="eval-1", generation=1, workload_name="d4-candidate-g",
+                now_epoch=3341, heartbeat_timeout=30,
+            ))
+            self.assertFalse(adapter.workload_allowed(
+                lease_id="eval-1", generation=1, workload_name="m3-nlu-calibration",
+                now_epoch=4301, heartbeat_timeout=30,
+            ))
+
     def test_watchdog_is_inert_without_effect_authority(self):
         called = []
         result = run_once(now_epoch=6500, heartbeat_epoch=1000,
@@ -146,6 +186,34 @@ class AdapterTests(unittest.TestCase):
                                 heartbeat_timeout=30, owner_present=True,
                                 effect_authorized=False)
         self.assertEqual(result["effects"], "disabled")
+
+    def test_watchdog_effect_path_loads_durable_state_and_rejects_duplicate_or_symlink(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / "lease.json"
+            adapter = EvaluationLeaseAdapter(path, lambda command: None, allow_effects=True)
+            adapter.acquire(self.admission(), now_epoch=1000)
+            called = []
+            result = run_bound_from_state(
+                path=path, expected_lease_id="eval-1", expected_generation=1,
+                now_epoch=5500, heartbeat_timeout=30, owner_present=True,
+                effect_authorized=True, recovery=lambda: called.append(True) or "ok",
+            )
+            self.assertEqual(result["effects"], "recovered")
+            self.assertEqual(called, [True])
+
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / "lease.json"
+            path.write_text('{"lease_id":"eval-1","lease_id":"other"}\n')
+            path.chmod(0o600)
+            with self.assertRaises(AdapterError):
+                read_state(path)
+            target = Path(root) / "target.json"
+            target.write_text('{}\n')
+            target.chmod(0o600)
+            link = Path(root) / "link.json"
+            os.symlink(target, link)
+            with self.assertRaises(AdapterError):
+                read_state(link)
 
 
 if __name__ == "__main__":

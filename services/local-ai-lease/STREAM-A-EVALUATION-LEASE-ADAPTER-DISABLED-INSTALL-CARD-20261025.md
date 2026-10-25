@@ -23,6 +23,9 @@ not contact Proxmox, LXC110, systemd, the GPU, F2 timers or the model.
 - Acquisition remains `quiescing` until a separate observed-state check proves
   every registered target is masked and inactive. Workloads are refused until
   that check atomically promotes the durable state to `running`.
+- The transition and every workload gate recheck the fixed hard deadline,
+  heartbeat freshness and the remaining budget for that exact workload; late,
+  future, stale or under-budget requests fail before a first model call.
 - The baseline is exactly four `enabled+active` service/timer records. Missing,
   duplicate, unexpected or differently enabled targets fail before effects.
 - `evaluation_lease_watchdog.py` reports disabled unless a future deployment
@@ -31,6 +34,8 @@ not contact Proxmox, LXC110, systemd, the GPU, F2 timers or the model.
   generation, heartbeat and fixed deadlines before recovery. The public
   unbound watchdog function can never invoke recovery, even if a caller passes
   an authorization flag; only the validated durable-state path may do so.
+  The effect-capable path reads that state through the adapter's descriptor
+  reader, including duplicate-key and exact-schema rejection.
 
 The controller binds the accepted contract's 90-minute total window, 75-minute
 effect deadline, 15-minute restore reserve, and 10+36+20-minute fixed budgets
@@ -52,10 +57,10 @@ Current source hashes:
 | Path | SHA-256 |
 |---|---|
 | `scripts/local-ai/evaluation_lease.py` | `38a986e9d868d04c7ee7814ae0fbd2f1a1709e7a464916195d594ca2bf286312` |
-| `scripts/local-ai/evaluation_lease_adapter.py` | `e015286f21e116c2215d9668bbadbf0d9e6a5399cb7bd5ddb87823035cad6f31` |
-| `scripts/local-ai/evaluation_lease_watchdog.py` | `13cbfb89db55a20d1812379f3f3de8fcbcbf4b95b2d2f73af963cdbe5cb68ff3` |
+| `scripts/local-ai/evaluation_lease_adapter.py` | `7f7ee568cb1154be0fcf68852d310af3227c92ce65935df62535efd5f3f37749` |
+| `scripts/local-ai/evaluation_lease_watchdog.py` | `b6409e9f29d954033ebd2098fdbd983862d0d32eb5de04471f7b06f9aaf74725` |
 | `scripts/local-ai/host_exclusion.py` | `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61` |
-| `scripts/local-ai/test_evaluation_lease_adapter.py` | `59dafc3fbbf06f2655e7b76999b3eec44bf25c5e39b3a41bbb12e797a21bb703` |
+| `scripts/local-ai/test_evaluation_lease_adapter.py` | `8588f069a4d4e517a62eeab0b0d0afc68ff6ef05867a2874eb594125e7661321` |
 
 No pin authorizes installation or live effects. Fresh F2/F3 evidence, target-
 Linux review, an independent recovery path, exact source verification, and a

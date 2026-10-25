@@ -28,6 +28,7 @@ from evaluation_lease import (
     validate_post_quiescence,
     validate_restoration,
     validate_baseline,
+    workload,
 )
 
 
@@ -91,18 +92,38 @@ def read_state(path: Path, *, expected_lease_id: str | None = None,
                expected_generation: int | None = None) -> AdapterState:
     """Read one owner/mode-checked descriptor without reopening its pathname."""
     flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
-    fd = os.open(path, flags)
+    try:
+        fd = os.open(path, flags)
+    except OSError as exc:
+        raise AdapterError("evaluation state descriptor cannot be opened safely") from exc
     try:
         info = os.fstat(fd)
         if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid()
                 or stat.S_IMODE(info.st_mode) != 0o600):
             raise AdapterError("evaluation state custody is weak")
+        def unique_pairs(pairs):
+            result = {}
+            for key, item in pairs:
+                if key in result:
+                    raise AdapterError("evaluation state contains duplicate JSON keys")
+                result[key] = item
+            return result
         with os.fdopen(fd, "r", encoding="utf-8") as stream:
-            value = json.load(stream)
-        fd = -1
+            fd = -1
+            value = json.load(stream, object_pairs_hook=unique_pairs)
     finally:
         if fd != -1:
             os.close(fd)
+    if not isinstance(value, dict) or set(value) != {
+            "lease_id", "generation", "phase", "baseline", "window_start_epoch",
+            "heartbeat_epoch", "hard_deadline_epoch", "restore_deadline_epoch"}:
+        raise AdapterError("evaluation state key set is not exact")
+    if (not isinstance(value["lease_id"], str) or type(value["generation"]) is not int
+            or not isinstance(value["phase"], str)
+            or any(type(value[key]) is not int for key in (
+                "window_start_epoch", "heartbeat_epoch", "hard_deadline_epoch",
+                "restore_deadline_epoch"))):
+        raise AdapterError("evaluation state types are invalid")
     try:
         state = AdapterState(
             value["lease_id"], value["generation"], value["phase"],
@@ -197,13 +218,19 @@ class EvaluationLeaseAdapter:
     def post_quiescence(self, *, observed_states: tuple[tuple[str, str], ...],
                         admission: Admission, backend_active: bool,
                         endpoint_authenticated: bool, endpoint_idle: bool,
-                        gpu_holders: tuple[str, ...], now_epoch: int) -> None:
+                        gpu_holders: tuple[str, ...], now_epoch: int,
+                        heartbeat_timeout: int) -> None:
         if not self.state_path.exists() or not self.lock_path.exists():
             raise AdapterError("durable evaluation state and lock are required")
         state = read_state(self.state_path, expected_lease_id=admission.lease_id,
                            expected_generation=admission.generation)
         if state.phase != LeaseState.QUIESCING.value:
             raise AdapterError("post-quiescence confirmation is not for the pre-run lease")
+        if (now_epoch < state.window_start_epoch
+                or now_epoch >= state.hard_deadline_epoch
+                or state.heartbeat_epoch > now_epoch
+                or now_epoch - state.heartbeat_epoch > heartbeat_timeout):
+            raise AdapterError("post-quiescence deadline or heartbeat gate failed")
         validate_post_quiescence(
             admission, observed_states=observed_states,
             backend_active=backend_active,
@@ -228,10 +255,18 @@ class EvaluationLeaseAdapter:
             state.restore_deadline_epoch,
         ))
 
-    def workload_allowed(self, *, lease_id: str, generation: int) -> bool:
+    def workload_allowed(self, *, lease_id: str, generation: int, workload_name: str,
+                         now_epoch: int, heartbeat_timeout: int) -> bool:
         if not self.state_path.exists():
             return False
         state = read_state(self.state_path, expected_lease_id=lease_id,
                            expected_generation=generation)
-        return state.phase == LeaseState.RUNNING.value
+        if state.phase != LeaseState.RUNNING.value:
+            return False
+        if (now_epoch < state.window_start_epoch
+                or now_epoch >= state.hard_deadline_epoch
+                or state.heartbeat_epoch > now_epoch
+                or now_epoch - state.heartbeat_epoch > heartbeat_timeout):
+            return False
+        return state.hard_deadline_epoch - now_epoch >= workload(workload_name).max_seconds
 

@@ -9,13 +9,12 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
-import stat
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
 from evaluation_lease import watchdog_decision
+from evaluation_lease_adapter import read_state
 
 
 @dataclass(frozen=True)
@@ -31,16 +30,15 @@ class WatchdogInput:
 
 def load_watchdog_input(path: Path, *, expected_lease_id: str,
                         expected_generation: int, required_uid: int | None = None) -> WatchdogInput:
-    info = path.lstat()
-    if stat.S_ISLNK(info.st_mode) or not stat.S_ISREG(info.st_mode) or stat.S_IMODE(info.st_mode) != 0o600:
-        raise ValueError("watchdog state custody is weak")
-    if required_uid is not None and info.st_uid != required_uid:
+    import os
+    if required_uid is not None and required_uid != os.geteuid():
         raise ValueError("watchdog state owner is unexpected")
-    value = json.loads(path.read_text(encoding="utf-8"))
+    state = read_state(path, expected_lease_id=expected_lease_id,
+                       expected_generation=expected_generation)
     result = WatchdogInput(
-        value["lease_id"], value["generation"], value["phase"],
-        value["heartbeat_epoch"], value["window_start_epoch"],
-        value["hard_deadline_epoch"], value["restore_deadline_epoch"],
+        state.lease_id, state.generation, state.phase,
+        state.heartbeat_epoch, state.window_start_epoch,
+        state.hard_deadline_epoch, state.restore_deadline_epoch,
     )
     validate_watchdog_input(result, expected_lease_id=expected_lease_id,
                             expected_generation=expected_generation)
@@ -83,6 +81,17 @@ def run_bound_once(*, value: WatchdogInput, expected_lease_id: str,
     """Run recovery only from a validated, identity-bound durable record."""
     validate_watchdog_input(value, expected_lease_id=expected_lease_id,
                             expected_generation=expected_generation)
+    return {"effects": "disabled", "decision": "in-memory-diagnostic"}
+
+
+def run_bound_from_state(*, path: Path, expected_lease_id: str,
+                         expected_generation: int, now_epoch: int,
+                         heartbeat_timeout: int, owner_present: bool,
+                         effect_authorized: bool,
+                         recovery: Callable[[], object] | None = None) -> dict[str, object]:
+    """Effect-capable path: read the durable descriptor before recovery."""
+    value = load_watchdog_input(path, expected_lease_id=expected_lease_id,
+                                expected_generation=expected_generation)
     decision = watchdog_decision(
         now_epoch=now_epoch, heartbeat_epoch=value.heartbeat_epoch,
         heartbeat_timeout=heartbeat_timeout,
