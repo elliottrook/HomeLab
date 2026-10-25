@@ -17,7 +17,7 @@ signed build was observed working in ordinary use. Its source is pinned in the
 app owner's release record; independent build reproduction and long-duration
 reliability remain open. The browser OpenBao interface was
 not changed. The Mac manual Codex pilot remains hidden in normal use and its
-routine release is **HOLD** after an exact metadata-manifest mismatch blocked
+routine release is **DEFERRED / HOLD** after an exact metadata-manifest mismatch blocked
 the consent screen. [Natural refresh is monitored](evidence/D3-refresh-gate-reassessment-2026-10-12.md),
 not an indefinite blocker. Automatic routing and connected tools remain off.
 
