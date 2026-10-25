@@ -12,6 +12,12 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October 25 NLU contract review](B60-Inference-Engineering/nlu-calibration-contract-review-20261025.md)
+receives `2caa1db2` and independently passes 26 exact-peer offline policy,
+threshold-selection and custody tests. This verifies regression tooling, not
+real calibration, private holdout custody, model quality or live admission.
+The conditional October 25 F2 attempt and separate recovery/A1 gates remain.
+
 The [October 24 Adaptive follow-up](B60-Inference-Engineering/adaptive-nlu-and-recovery-receipt-20261024.md)
 receives `da86ed53`: the newer diagnostic installation receipt matches B60's
 observed hashes, and an October 25 F2 attempt is approved/activated. NLU now
