@@ -48,9 +48,9 @@ class DevelopmentExecuteTests(unittest.TestCase):
 
     def test_current_candidate_source_manifest_matches_exact_dry_run(self):
         manifest = json.loads((
-            self.here / "sa3-development-attempt-6-source-manifest.json"
+            self.here / "sa3-development-attempt-7-source-manifest.json"
         ).read_text())
-        self.assertEqual("candidate-C", manifest["candidate_alias"])
+        self.assertEqual("candidate-D", manifest["candidate_alias"])
         self.assertEqual("not-granted", manifest["authority"])
         spec = run_spec(self.fixtures, self.source, self.plan)
         from sa3_fresh_package import digest

@@ -10,6 +10,7 @@ from sa3_fresh_package import (
     run_package,
     schedule,
     validate_cases,
+    validate_engine_result,
 )
 from validate_sa3_holdout_release import canonical_digest
 
@@ -138,6 +139,39 @@ class FreshPackageTests(unittest.TestCase):
                     self.run_fixture(engine=invalid)
                 self.assertNotIn('private', self.path.read_text())
                 self.path.unlink()
+
+    def test_nonterminal_canonicalization_flag_crosses_journal_boundary(self):
+        check_answer = terminal_answer()
+        check_answer.update({
+            'decision': 'check',
+            'check': 'fixture-check',
+            'discrimination': '',
+            'verification': {
+                'check': '',
+                'expected_condition': '',
+                'preserved_boundary': '',
+                'performed': False,
+            },
+        })
+        result = {
+            'case_id': 'fixture-00',
+            'mode': 'nonthinking',
+            'status': 'clarify',
+            'steps': [
+                {
+                    'metadata': {'nonterminal_contract_cleared': True},
+                    'answer': check_answer,
+                },
+                {'metadata': {}, 'answer': terminal_answer()},
+            ],
+        }
+        validated = validate_engine_result(result, 'fixture-00', 'nonthinking')
+        self.assertTrue(validated['steps'][0]['metadata']['nonterminal_contract_cleared'])
+
+        invalid = copy.deepcopy(result)
+        invalid['steps'][0]['metadata']['nonterminal_contract_cleared'] = 1
+        with self.assertRaisesRegex(ValueError, 'manual reconciliation required'):
+            validate_engine_result(invalid, 'fixture-00', 'nonthinking')
 
     def test_terminal_status_must_match_final_answer(self):
         base_answer = terminal_answer()

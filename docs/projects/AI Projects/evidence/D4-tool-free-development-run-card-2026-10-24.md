@@ -92,14 +92,19 @@ calls but structurally admitted only one: eleven check requests also populated
 the terminal-only advisory fields. Those answers were discarded and no blind
 review ran. Candidate-B is spent.
 
-Candidate-C clears correctly typed nonterminal advisory fields before
-retention and records only whether this canonicalization occurred. It retains
-the full terminal contract. It is preregistered at exact digest
-`1e35bf540491cf00871584edb24d13486fa0de0ddf7d33d8320cc715ee694b92`
-under the unchanged 12/12 all-dimension threshold. Its eleven-file source
-manifest has SHA-256
-`43dff05dfe324460ef1abdce87483e689abde0df8a2206cba2a2c881f85269c7`,
-and the complete suite passes 163/163. It has not run.
+Candidate-C cleared correctly typed nonterminal advisory fields before
+retention. Its approved run stopped during the first case because the outer
+journal validator did not yet allow the new content-free normalization flag.
+Its single start marker makes that journal uncertain and permanently
+non-resumable. Candidate-C is spent.
+
+Candidate-D adds the missing outer-validator allowance and Boolean type check,
+with an integration test across that boundary. It is preregistered at exact
+digest
+`55d85c44d86c0bcd7caf0410e669b83a033051fe8dbccad320b2395f3cf86e99`.
+Its eleven-file source manifest has SHA-256
+`0e26b6cf31c50ec2f3ab38855697596e921d8374f976e15b8265ee1128226b4d`,
+and the complete suite passes 164/164. It has not run.
 
 ## Bounded execution
 
@@ -150,9 +155,9 @@ the model, route, tool authority or repair capability.
 
 ## Approval boundary
 
-The authorizations for attempts 4 and 5 have been consumed. Candidate-C's exact
-12-session run is not authorized. Any later authorization would cover only the
-candidate-C digest and bounded execution above; it would not authorize a replay,
+The authorizations for attempts 4, 5 and 6 have been consumed. Candidate-D's
+exact 12-session run is not authorized. Any later authorization would cover only
+the candidate-D digest and bounded execution above; it would not authorize a replay,
 reasoning mode,
 connected tools, new credentials, service restart, configuration change,
 production deployment, automatic routing, holdout access or a Git push.
