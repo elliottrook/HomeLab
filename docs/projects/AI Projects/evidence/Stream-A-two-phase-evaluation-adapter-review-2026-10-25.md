@@ -205,3 +205,43 @@ not satisfy those fields with values that could be mistaken for real evidence.
 The next source gate is therefore a dedicated exercise-only admission path that
 cannot quiesce consumers, cannot start a workload and cannot be promoted into a
 production lease.
+
+## Exercise-only admission correction
+
+Stream A implemented the correction in isolated source commits
+`7fbbc017630dc7ab87b212fc3a92ba92bb48663b` and
+`26dd2a0e90095a787d75353138393b71b3dbd6a4`. The platform owner integrated
+them as `6e35feab` and `cca7a188` and pinned the corrected cards in metadata
+commit `b22e4ca8`.
+
+The corrected contract has an explicit
+`stream-a-prepare-only-exercise-v1` mode and durable
+`PRE-EFFECT-EXERCISE-NOT-PRODUCTION-EVIDENCE` marker. Its admission schema has
+no backup, F2 or F3 receipt fields. It fixes the exercise hard/restore
+deadlines at two/five minutes, stores no workload pointer, rejects quiescence,
+post-quiescence, workload start, outcome and production-resume paths, and
+removes the transient operation lock only after successful zero-command
+prepared recovery. A failed validation retains the durable state and locks.
+
+Independent clean-archive review matched the integrated source byte-for-byte,
+found no bytecode and passed 45 evaluation tests plus 23 owner, watchdog,
+observer and launcher tests. The accepted runtime hashes are:
+
+- contract: `5c5aa6c7174d53edb775f9a2640a867634b04a9b098d0742a589a1c2dc692686`;
+- adapter: `6876e6892cae0d81c584fee7d6f3c5b79874d9b4737d250987f451f28b6aa910`;
+- entrypoint: `0dab61905c834c36e3a865f8049c2650712422ddc27c534f1cd402b4e5ad52bb`.
+
+The exercise card SHA-256 is
+`e2e45d7a85367d122acdf898adae04d303501a8f59cb8c8a811e2313c45e217f`;
+the inactive three-file upgrade card SHA-256 is
+`6b760970cfbee4a48da487f459fea882d9e5d9563535aba4c9fd51b69a6d6ef3`.
+The complete review packet SHA-256 is
+`51199d2f1a54509b40ed70be5fe6a740cc7f16bd0a0126d2e64413706bdb3dc4`
+and the bounded inactive installer SHA-256 is
+`64184710d1d96a2e8504ad8232defdcaff8146fc22038e2ad842f949f71eb80d`.
+
+Live read-only preflight still matches the three old hashes, shows no lease,
+lease lock or operation lock, keeps all F6 timers inactive, and leaves the
+October 26 F2 timers active for 01:15 and 01:20 PDT. The source correction is
+ready for one exact inactive installation. That installation does not
+authorize the later exercise.
