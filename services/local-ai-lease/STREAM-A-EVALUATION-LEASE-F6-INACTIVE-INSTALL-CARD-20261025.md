@@ -46,14 +46,14 @@ the durable lease, lock and restore intent for reconciliation.
 ## Pinned packet
 
 The implementation source and all target artifacts must match implementation
-commit `3e843a8e839b08758314346fb73fd4827c438dbe` and its metadata follow-up:
+commit `021cab2f4683ca5224c3f6dc1930072d63489ef8` and its metadata follow-up:
 
 | Source | Target | Mode | SHA-256 |
 |---|---|---:|---|
-| `scripts/local-ai/stream_a_evaluation_watchdog.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_watchdog.py` | 0644 | `c2d07a753b6089e360cd560005926eb1694ff6c2b75edd874d11f624ed36dc73` |
+| `scripts/local-ai/stream_a_evaluation_watchdog.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_watchdog.py` | 0644 | `c406dd4da579d4d5129b13131121b55ac1aacaa1a5125c9d481e0d7f847c9849` |
 | `scripts/local-ai/stream_a_evaluation_owner.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_owner.py` | 0644 | `ee530392ca061f3ea20990d6e8f2aa137dd6b1f49b106e7806bbec273ffe1703` |
 | `scripts/local-ai/stream_a_evaluation_owner_heartbeat.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_owner_heartbeat.py` | 0644 | `4c45a07098eb8cca31bf95bb50b0824b65c6772e636627b23219761f359ed6cc` |
-| `scripts/local-ai/stream_a_evaluation_restore_observer.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_restore_observer.py` | 0644 | `04dfbeff63b3b19b6c1ea612c1f1ae18f944cb0efff9b3a970f8969ae18ef969` |
+| `scripts/local-ai/stream_a_evaluation_restore_observer.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_restore_observer.py` | 0644 | `9793effde97af0769667cd0ed01ae1c0dc2df73b47b1013cc4efd8359def18ab` |
 | `services/local-ai-lease/stream-a-evaluation-watchdog` | `/usr/local/sbin/stream-a-evaluation-watchdog` | 0755 | `65012c196134242a76a2131fbc9d7f28b50bcfd9137a87cfda0a416345430c99` |
 | `services/local-ai-lease/stream-a-evaluation-owner-heartbeat` | `/usr/local/sbin/stream-a-evaluation-owner-heartbeat` | 0755 | `e0162f60983601192c5f0fdd6d8395604e6636c05c9653c643d3722872dce12a` |
 | `services/local-ai-lease/stream-a-evaluation-restore-observe` | `/usr/local/sbin/stream-a-evaluation-restore-observe` | 0755 | `c2968b587c3ec0761c1b43f6811c884d272023bce3dc5679509d894cfc258259` |
