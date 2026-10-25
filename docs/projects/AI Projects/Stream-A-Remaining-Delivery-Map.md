@@ -589,7 +589,10 @@ The second packet at `23602180` adds process identity and a fixed observer but
 is rejected too: two fixed observer commands are absent from the live LXC110,
 expired owner heartbeats still remain present, no persistent evaluation-owner
 process exists to bind the new identity, and watchdog status remains unwritten.
-Those measured regressions are with the platform owner.
+The third packet at `3e843a8e` closes those gaps but still equates render-node
+presence with the accepted GPU holder, hardcodes the resulting holder, has an
+incorrect artifact count and leaves the active observer without an explicit
+authorization flag. Those measured regressions are with the platform owner.
 The platform owner's first pure endpoint-retaining lease candidate at
 `44b26e16` passed its own 7/7 tests and names the correct live backend and News
 timers, but Stream A's

@@ -103,3 +103,31 @@ It is also **rejected before installation**:
 The platform owner received the exact target-probe, expired-heartbeat,
 owner-runner, status and observation-binding corrections. Nothing was staged,
 enabled or armed.
+
+## Third implementation packet review
+
+Platform implementation `3e843a8e839b08758314346fb73fd4827c438dbe`
+and metadata/card commit `a37b83113ec27b42029d8692f6a5a79fbcd39028`
+add a persistent session-owner process, correct expired-heartbeat handling,
+persist bounded status and bind fresh observer output to lease identity. The
+card is SHA-256
+`9b20bb454cdb9c2da74735dc2c4e7655d4384ee527f4e14694f4fb34e02a6ef1`.
+It is **rejected before installation** for one material observation flaw and
+two transaction inconsistencies:
+
+1. The observer tests only whether `/dev/dri/renderD128` exists inside LXC110,
+   then reports `lxc110:aster-llama.service` as the sole holder. Device
+   presence proves neither that a process holds the GPU nor that no foreign
+   process holds it. The existing bounded host `/proc/[pid]/fd` scan must bind
+   every holder to PID, start time, cgroup and executable and require exactly
+   the accepted llama service.
+2. The card's table lists 13 artifacts, while its install step says 12.
+3. The card says to invoke “both wrappers” although it lists four. The restore
+   observer is not inert and its authentication probe makes a one-token model
+   request; inactive verification must never invoke it accidentally. It needs
+   an explicit observe-authorization flag with inert default behavior.
+
+The owner process is a session sentinel; the card must state that lease-state
+heartbeat, rather than sentinel liveness, is the D4/M3 controller-liveness
+signal. The exact GPU-holder, inert-observer and card corrections are with the
+platform owner. Nothing was installed or invoked.
