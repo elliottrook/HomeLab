@@ -460,8 +460,19 @@ synthetic calibration cases, ten per family, before a lease-protected model run.
 That gate now has an
 [approval-ready creation card](evidence/M3-NLU-calibration-creation-card-2026-10-25.md)
 fixing the three distinct roles, privacy/non-overlap rules, owner-only raw
-custody and exact stop conditions. No case or label has been created under the
-card yet.
+custody and exact stop conditions. It is now complete: separate fresh contexts
+created 60 private synthetic cases, performed blind pre-model label review and
+derived the byte-verified content-free release. The
+[custody](evidence/M3-NLU-calibration-case-custody-receipt-2026-10-25.md),
+[label review](evidence/M3-NLU-calibration-label-review-receipt-2026-10-25.md)
+and [release](evidence/M3-NLU-calibration-scoring-release-receipt-2026-10-25.md)
+receipts bind the source and release without exposing text or labels. The exact
+accepted policy is now [registered and bound to a preregistered binary route
+score](evidence/M3-NLU-calibration-registration-and-score-boundary-2026-10-25.md),
+and the dependency-free NLU suite passes 91/91. The
+[60-case live run card](evidence/M3-NLU-calibration-run-card-2026-10-25.md)
+is the next gate. No model call, threshold selection, holdout access, shadow
+collection or routing change has occurred.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)
