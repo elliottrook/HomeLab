@@ -38,9 +38,14 @@
   HP News now uses the paired two-file integration1 to open player8 on explicit
   full-briefing/story selection. Back restores News focus/story; Home remains
   Home with owned audio stopped. Normal route, real rollback/reactivation and
-  full preservation pass. Production is unchanged. Next: assess safe source/read
-  actions and remaining Digest service-identity limits; no publisher changes or
-  inferred cross-briefing queue objects.
+  full preservation pass. Production is unchanged. The published-summary reader
+  now has a separately tested pure parsing/selection model, including full
+  summaries, source attribution and stale/ambiguous-card rejection. It is not
+  connected to audio or normal navigation: the reading HTML exposes no edition
+  ID and currently has10 cards versus11 audio chapters. Next: independently
+  staged reading UI, clearly labelled as the current published reading page,
+  without inferred chapter links; cross-briefing queues remain publisher-ID
+  gated. Owner checks are deferred for a larger batch, not requested now.
 - Previous resume point (2026-10-25): Search14 Stop-acknowledgement guard is on
   HP (`732a89c3e3e9189022a1ee7c4fdb9f596c88486d2f13fb53d3832d47c7a46df4`),
   layered on the owner-feedback bundle below. Two actual movie Play/Resume/Back
@@ -5749,3 +5754,99 @@ The client can now be reached through normal household controls rather than an
 engineering command, with actual context/exit/recovery evidence. Remaining
 Digest work is safe source/read actions and identity-backed queue feasibility,
 not fabricated queueable headlines or automatic publisher changes.
+
+### Digest published-summary reader — pre-start envelope (2026-10-25)
+
+Jason deferred his next visual checks until a larger batch. Continue under the
+existing HP Stream A envelope with a pure, bounded reading model first. Live
+read-only inspection found 10 HTML cards and 11 audio chapters; the HTML has no
+machine-readable edition/run marker. These counts alone do not prove stale
+content, but they do rule out treating position as an audio/card identity.
+Repository inspection also shows separate reading/audio filtering pipelines.
+
+Scope: parse the existing Aster-published summary, source labels and comparison
+notes; separate source-report links from image-credit/navigation links; retain
+an exact page fingerprint and refuse stale selection. No full publisher article
+fetch, browser launch, subscription, download, narration, queue, history write or
+publisher/service change. This is a model, not an enabled reader or proof that
+an audio chapter belongs to an HTML card. No inferred audio binding is exposed.
+
+Affected data: bounded existing News HTML, treated as untrusted data. First test
+synthetic fixtures locally, normally and optimized; then the same pure tests
+under HP Python if available. Only new isolated lab staging files may be added;
+active player8/News integration, accounts, network, storage mounts, monitoring,
+NetBox, Doctor, wiki and production remain unchanged. No credentials or raw
+story links in evidence. Source URLs are display data only; validation is not
+an authorization to fetch them or a guarantee about DNS/redirect destinations.
+
+Primary risk is wrong-story attribution or untrusted markup becoming Kodi
+commands. Reject oversize/malformed structure and duplicate ambiguous titles;
+bound fields and sources, strip Kodi markup/control characters, and use exact
+snapshot IDs. No service interruption or destructive operation is planned.
+Recovery is simply leaving this unactivated model out of a future bundle;
+existing immutable HP stages/checkpoints remain intact. Abort a live check on
+unexpected platform/runtime differences. A publisher-backed edition/story
+contract is required before connecting reader cards to playing chapters or
+building cross-briefing queues; do not expand server scope to manufacture it.
+
+#### Reading model implementation and evidence
+
+`services/kodi/v2/digest_read_model.py` is a pure model, separate from deployed
+player8 and the baseline card parser. It captures the published Aster summary
+(not an external full article), comparison notes and up to8 reporting sources.
+Navigation/photo-credit links are excluded. Source references require narrow
+HTTPS/DNS syntax; no DNS resolution, browser, network request or playback action
+exists in this module. This is not an SSRF-safe fetcher and must not be used as
+one. Kodi formatting/control characters are stripped. Page size is capped at
+1MiB, cards at80, depth at40 and text fields at240/6000 characters; truncation is
+explicit. Broken/nested/duplicate field structures fail closed. Ambiguous titles
+are withheld rather than assigned an ordinal audio chapter.
+
+The exact page hash owns every reading-card identity. Selecting from a stale
+page, a missing ID or another page fails. Reading objects deliberately expose no
+audio edition, start time or playback API. Even exact title agreement is not
+represented as a verified audio/card relationship. Today's count difference is
+recorded as a contract limitation, not an established publisher defect.
+
+Fifteen synthetic tests pass normally and optimized, including stale-page
+selection, duplicate-title withholding, source attribution, URL/reference
+rejection, Kodi/bidi controls, nested/active markup, explicit truncation and all
+size/count/depth limits. Full771-test v2 suite passes in both modes after the
+final change. Existing runtime/checkpoint files were not replaced.
+
+HP staging only: `/storage/.aster-staging/aster-digest-read-XXJE1k8c` contains the
+new model and its test, not a launcher or normal-route integration. The same15
+tests pass under HP's optimized Python. Model SHA-256:
+`e888a81042417ffce7df6c0e98cf168cebd0a9f7dd6324af26be0b8b70b2ef18`;
+test SHA-256:
+`729edf201a2016c5cc57c3cd9ed799e6347cbccf255aa56ec3a9841a77d3ae95`.
+
+A single bounded, no-redirect HP request to the existing News `/digest` page
+produced snapshot SHA-256
+`3ae39fc53e9137663b91e0f34a9d7ef4b2e741765a0431c7f15a4cd49b663f4b`:
+10 usable cards,19 reporting references,0 ambiguous titles,0 truncated cards,
+and all10 summaries longer than the player's340-character excerpt. Every
+selection round-trips its exact snapshot identity. No external article request,
+audio binding, server write, production change or service restart occurred.
+This establishes content availability for the next independent reading-page
+preview; it does not claim a delivered normal-navigation reader or owner visual
+acceptance. Owner checks remain batched as requested.
+
+The hardened normal-News harness was rerun from its actual staged path,
+`/storage/.aster-staging/aster-digest-news1/live_digest_news.py`. Fresh proof
+`/storage/.aster-checkpoints/aster-digest-news1/native-1792971748267531268/native.json`
+passes the externally pinned integration/member checks, no-autoplay entry,
+opening and selected-story playback, exact Back context, refresh, Breaking News,
+Search return, Home/owned-stop and unchanged settings/navigation; finishes idle
+with empty queues. The initial invocation used a nonexistent top-level harness
+path and produced no new proof; it is not counted as a test run.
+
+Before/after full preservation proofs
+`postcheck-1792971689141794240.json` and
+`postcheck-1792971803367267439.json` in the existing Music checkpoint both pass:
+all approved stages including the two News members, Music/video database
+integrity, all68 AV/language checks (the previously evidenced display-index
+derivation remains unchanged), no active player, empty queue and closed lab
+windows. No restart, active-stage change or remote Git synchronization was
+performed. Local milestone commit only; the next push still needs a specific
+request. This slice introduces no operator setup or new background process.
