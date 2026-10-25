@@ -63,3 +63,31 @@ arguments. It still contains the placeholder `<0600-root-intent>`. Those
 values must be frozen from the accepted installed cards so an operator cannot
 choose them during the live window. The same-cycle F2–F5 evidence remains
 necessarily pending until runtime.
+
+## Second revision check — platform `6981743b`
+
+The second revision adds source digests, wrapper/callback names, four consumer
+unit names, state and identity paths, fixed intent names, restoration timing,
+one rollback checkpoint and lease-entrypoint command shapes. Its card SHA-256
+is `d5f39d14d61e5fc54823b3c16334bba02480f9807148c6a2791a49b1c78d116b`.
+
+It remains **REVISE BEFORE LIVE APPROVAL** for four concrete reasons:
+
+1. The source table gives basenames rather than the full installed paths, so it
+   still does not uniquely bind the files the live wrapper imports.
+2. Arm, recovery and cleanup remain prose rather than exact invocations and
+   complete fixed payloads. The acquire, post, outcome and restore intent JSON
+   objects are also not frozen to the entrypoint's exact schemas.
+3. The D4 and M3 sections invoke only the lease bookkeeping `start` and
+   `outcome` phases. They do not name the actual workload runners or their
+   exact arguments, credentials boundary, deadlines and evidence paths. Those
+   phases cannot themselves perform either model workload.
+4. The card requires the lease to bind F2/F3/F4/F5 digests, but the installed
+   acquire intent schema accepts only `backup_receipt`, `f2_receipt` and
+   `f3_receipt`. The card must either identify the separately verified F4/F5
+   binding mechanism or revise the controller under a new reviewed inactive
+   change. A live operator cannot improvise extra fields because the
+   entrypoint rejects non-exact intent keys.
+
+These are pre-effect specification gaps. No host change is needed to observe
+them, and the October 26 F2 timers remain undisturbed.
