@@ -1,6 +1,6 @@
 # D3 Companion test window — 2026-10-25
 
-> Result: **STATIC AND NON-UI CHECKS PASS; LIVE UI CHECKS PENDING AN UNLOCKED SESSION**
+> Result: **ORDINARY COMPANION PATH PASS; AI-PAM MANAGEMENT AUTOMATION INCONCLUSIVE**
 
 Jason confirmed that Companion was not in use and authorized the tests needed
 today. This window permits a bounded quit/relaunch, authenticated read-only UI
@@ -44,6 +44,12 @@ the installed binary.
 | Platform lease | `ready` |
 | Aster Agent / accepted llama.cpp SYCL / Speech services | active / active / active |
 | Signed app launch | Process remained alive through the initial soak; no new crash report was present |
+| Persisted-session relaunch | Passed twice; returned directly to signed-in normal mode without a Keychain prompt |
+| AI-PAM approvals | Loaded successfully; no pending approvals |
+| Read-only OpenBao status | Saved session correctly failed closed with HTTP 401; one fresh passkey flow then reported `OpenBao is unsealed` |
+| Recorded delegation | New requests remained closed; expired completed answer said `Do not resend`; unavailable recovery said `No retry was sent` |
+| Ordinary Aster request | One content-free request returned exact `COMPANION_OK` in 2.8 seconds (1,691 input / 5 output tokens; 55.0 tok/s) |
+| Pending ARR action check | Read-only query returned `No pending ARR action right now`; no approval or execution control was used |
 
 The launch occurred while the Mac login session was locked. The only observed
 error-level messages were macOS App Intents failures to contact
@@ -51,20 +57,44 @@ error-level messages were macOS App Intents failures to contact
 OpenBao or bridge failure was logged. Treat those messages as a locked-session
 OS integration observation, not proof of a user-path failure.
 
-## Pending live UI checks
+## Live UI result
 
-After the Mac session is unlocked:
+The normal surface restored its existing session after launch and after two
+bounded quit/relaunch cycles. No Keychain prompt appeared. AI-PAM's Approvals
+tab loaded with no pending approvals. OpenBao status correctly rejected the
+non-fresh session, opened the required passkey flow and then reported the
+service unsealed. No token was entered, and neither unseal nor seal was
+invoked.
 
-1. confirm the app presents the signed-in normal Aster surface without a new
-   crash or unexpected Keychain loop;
-2. inspect the authenticated AI-PAM and read-only OpenBao status surfaces,
-   without submitting an unseal token or invoking seal;
-3. inspect recorded delegation/recovery presentation without resending any
-   uncertain request;
-4. submit at most one uniquely identified ordinary Aster request only if the
-   existing UI state cannot establish the ordinary path; and
-5. leave Companion in normal mode and record whether a Keychain/passkey prompt
-   appeared.
+The recorded Codex surface remained fail closed. Submission was disabled with
+the explicit notice that new requests are closed. Selecting an existing
+completed request whose temporary answer had expired produced the fixed
+`Do not resend` instruction. A second recorded request reported that recovery
+status was unavailable and that no retry was sent. No Codex question, recovery
+request or cancellation was submitted.
 
-Until those checks complete, this evidence does not change D3's safe hold or
-the automatic-routing gate.
+One unique content-free ordinary request asked for exact text
+`COMPANION_OK`. The app showed its context-reading phase and returned that
+exact answer in 2.8 seconds. This proves the current signed-in typed request
+path against the accepted llama.cpp/SYCL service for this observation; it is
+not an NLU, voice, automatic-routing or answer-quality benchmark.
+
+The separate pending ARR action check returned no pending action. No proposal,
+approval or execution request was created or consumed.
+
+## AI-PAM Management observation
+
+Selecting AI-PAM's Management tab twice disconnected the Computer Use
+accessibility channel. The first attempt coincided with repeated AppKit
+`Invalid view geometry` runtime diagnostics; the second produced no new
+Companion error-level entry. In both cases the app process stayed alive and a
+graceful quit/relaunch restored the normal signed-in screen without a Keychain
+prompt. This does not establish whether a human-visible Management rendering
+fault exists. Treat it as a bounded automation/display observation requiring a
+future direct visual check, not as a reason to change authority controls or to
+guess at a source fix.
+
+Companion was left running in normal signed-in mode with the OpenBao panel and
+all sheets closed. Today's result strengthens ordinary Companion reliability
+and recorded-job handling. It does not release the hidden manual-Codex path,
+enable automatic routing, grant a tool or change D3's safe hold.

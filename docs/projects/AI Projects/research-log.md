@@ -3169,3 +3169,20 @@ healthy production services and unchanged current approval socket and broker
 database. Removed temporary staging. This closes only the inactive installation
 gate; real Authentik assurance, routing and zero-overlap authority cutover remain
 unproved and unapproved.
+
+## 2026-10-25 — Companion ordinary path and recorded-job live check
+
+Jason provided an unused Companion window for bounded testing. The accepted
+version 0.3.0/build 16 signed artifact matched its release hash, the native
+suite passed 60/60, all twelve packaged bridge modules matched current source,
+and inert, metadata-only and recovery preflights made no inference call. Two
+quit/relaunch cycles restored the signed-in session without a Keychain prompt.
+AI-PAM Approvals loaded with no pending items; fresh-passkey read-only OpenBao
+status reported unsealed without a seal/unseal action. Recorded Codex intake
+remained closed, an expired answer said not to resend, and unavailable recovery
+said no retry was sent. One unique content-free ordinary request returned exact
+`COMPANION_OK` in 2.8 seconds. AI-PAM Management twice disconnected UI
+automation; only the first attempt coincided with invalid-geometry diagnostics,
+the app stayed alive, and normal mode recovered cleanly. This is retained as an
+inconclusive automation/display observation, not a claimed product failure.
+See [the dated result](evidence/D3-companion-test-window-2026-10-25.md).
