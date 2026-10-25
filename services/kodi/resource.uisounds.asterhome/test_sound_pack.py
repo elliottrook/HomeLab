@@ -15,13 +15,13 @@ sys.path.insert(0, str(KODI_ROOT))
 import package_aster_home as release_package
 MOVEMENT = ("nav-left.wav", "nav-right.wav", "nav-up.wav", "nav-down.wav")
 EXPECTED_SHA256 = {
-    "nav-left.wav": "227b863d35a6c6ea67df559b4d302706af669c6eee5ba86a47382164fdf3f0c8",
-    "nav-right.wav": "227b863d35a6c6ea67df559b4d302706af669c6eee5ba86a47382164fdf3f0c8",
-    "nav-up.wav": "227b863d35a6c6ea67df559b4d302706af669c6eee5ba86a47382164fdf3f0c8",
-    "nav-down.wav": "227b863d35a6c6ea67df559b4d302706af669c6eee5ba86a47382164fdf3f0c8",
-    "notify.wav": "57f108306b772252095811c9827dd6667c58f53e9c80f7f733976467057de6f6",
-    "select.wav": "a95d8c2a2d874a0f04b5ab82fb11d0a7a1d850562849de3c86cbf1050edb2910",
-    "back.wav": "33b9852ee00869cefd0040ce6a65573ec1a5606a87352917e7654d7b36348a54",
+    "nav-left.wav": "233b96079ed5471e774b86f840f7ef00dabe2b6f5c5effe91d4ccb17aafb2285",
+    "nav-right.wav": "dce25cc207715fba406fb86905e32c4bfbfc5ec17be83abff2db2d9cb77aaa28",
+    "nav-up.wav": "08037d2c1e0dd6f930715584493f98e09885e3a8126df076a3cdf01729663cba",
+    "nav-down.wav": "6c414975aff7b7d4caa8866a0e4ffa41f80f222b1c4ca5db199a45c34d741ea9",
+    "notify.wav": "c093d94abbabc0383d278b9f8e39dda8ca5fbfdee8080bdce1c4078126e175c8",
+    "select.wav": "6e38a7c6fc9964c8c53e49409df42d53200ce51e221c2dbb63b13a8bdb811c3f",
+    "back.wav": "b5c3678e2849cb6b9dd15125f2e1ebeb9afda6f469524d6bada3a20ba6424125",
 }
 
 
@@ -57,12 +57,10 @@ class SoundPackTests(unittest.TestCase):
         self.assertEqual(actions["previousmenu"], "back.wav")
         self.assertEqual(actions["error"], "notify.wav")
 
-    def test_seven_kodi_files_resolve_to_four_canonical_sounds(self):
+    def test_seven_kodi_files_are_distinct_canonical_sounds(self):
         paths = sorted(RESOURCES.glob("*.wav"))
         self.assertEqual(len(paths), 7)
-        self.assertEqual(len({sha256(path) for path in paths}), 4)
-        movement_bytes = [(RESOURCES / name).read_bytes() for name in MOVEMENT]
-        self.assertTrue(all(data == movement_bytes[0] for data in movement_bytes[1:]))
+        self.assertEqual(len({sha256(path) for path in paths}), 7)
 
     def test_canonical_hashes_are_locked(self):
         self.assertEqual(
@@ -76,7 +74,7 @@ class SoundPackTests(unittest.TestCase):
                 self.assertEqual(source.getnchannels(), 2, path.name)
                 self.assertEqual(source.getsampwidth(), 3, path.name)
                 self.assertEqual(source.getframerate(), 48_000, path.name)
-                self.assertLess(source.getnframes() / source.getframerate(), 0.5,
+                self.assertLess(source.getnframes() / source.getframerate(), 0.6,
                                 path.name)
                 samples = pcm24(source.readframes(source.getnframes()))
             self.assertEqual(samples[:2], [0, 0], path.name)
@@ -86,21 +84,18 @@ class SoundPackTests(unittest.TestCase):
             self.assertLess(max(abs(sample) for sample in samples[:96]), 200,
                             path.name)
 
-    def test_semantic_durations_and_reversed_back(self):
+    def test_semantic_durations(self):
         def frames(name):
             with wave.open(str(RESOURCES / name), "rb") as source:
                 return source.getnframes(), source.readframes(source.getnframes())
 
-        movement_frames, movement = frames("nav-left.wav")
-        back_frames, back = frames("back.wav")
+        movement_frames, _ = frames("nav-left.wav")
+        back_frames, _ = frames("back.wav")
         select_frames, _ = frames("select.wav")
         boundary_frames, _ = frames("notify.wav")
-        self.assertEqual(back_frames, movement_frames)
-        self.assertLess(select_frames, movement_frames)
+        self.assertGreater(back_frames, movement_frames)
+        self.assertGreater(select_frames, movement_frames)
         self.assertGreater(boundary_frames, movement_frames)
-        movement_stereo = [movement[index:index + 6]
-                           for index in range(0, len(movement), 6)]
-        self.assertEqual(back, b"".join(reversed(movement_stereo)))
 
     def test_canonical_sound_archive_matches_release_record(self):
         record = json.loads((

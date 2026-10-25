@@ -1,5 +1,8 @@
-Creative Commons Attribution-ShareAlike 4.0 International
+Creative Commons CC0 1.0 Universal
 
-The WAV files in this add-on are original, deterministically generated assets
-created for the private Aster Home feasibility project. The Aster icon remains
-subject to the separately recorded private Aster brand-family terms.
+The WAV files in this add-on are transformations of Kenney's recorded
+`mouseclick1` sample from the CC0 "51 UI sound effects" pack:
+https://opengameart.org/content/51-ui-sound-effects-buttons-switches-and-clicks
+
+The Aster icon remains subject to the separately recorded private Aster
+brand-family terms.
