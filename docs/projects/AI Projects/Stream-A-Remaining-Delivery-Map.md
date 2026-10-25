@@ -546,6 +546,12 @@ The [combined static readiness check](evidence/D4-M3-combined-evaluation-static-
 also reconfirms candidate-G's exact 11-file package and the staged M3 packet.
 Both workloads are ready at the file/test boundary; F2/F3 and the platform's
 effect adapter/recovery card remain the live dependencies.
+The platform owner's first explicit effect entrypoint at `c3b316ab` passed its
+own 30 tests but was [rejected before installation](evidence/Stream-A-evaluation-lease-effect-entrypoint-review-2026-10-25.md):
+it pins the superseded M3 manifest, conflicts with the installed four-file
+baseline, does not enforce exact schemas for every phase, and accepts weakly
+custodied intent files/arbitrary state paths. The exact regressions are with
+the platform owner. The inert library and M3 packet remain unchanged.
 The platform owner's first pure endpoint-retaining lease candidate at
 `44b26e16` passed its own 7/7 tests and names the correct live backend and News
 timers, but Stream A's
