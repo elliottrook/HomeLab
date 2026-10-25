@@ -1,0 +1,16 @@
+{
+  "authority": "not-granted",
+  "candidate_bundle_sha256": "",
+  "cases": [],
+  "family_targets": null,
+  "release_id": "nlu-calibration-v1",
+  "release_sha256": "",
+  "roles": {
+    "case_custodian": "",
+    "label_reviewer": "",
+    "scoring_operator": ""
+  },
+  "schema": "aster-nlu-calibration-release.v1",
+  "status": "template",
+  "target_cases": null
+}

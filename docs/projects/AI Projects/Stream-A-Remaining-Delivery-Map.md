@@ -377,7 +377,12 @@ pass; 36 focused NLU tests pass. The template deliberately leaves quality,
 coverage and sample-size acceptance values unset. No cases, labels, calibration
 evidence or selected threshold exist. Independent constraint acceptance, case
 creation, calibration, sealing and no-effect shadow evidence remain open before
-any automatic handover.
+any automatic handover. A new
+[content-free calibration custody boundary](evidence/M3-NLU-calibration-custody-boundary-2026-10-24.md)
+now binds future opaque calibration cases to the registered policy's sample
+minima and exact candidate without inventing values; 42 focused NLU tests pass.
+Numeric constraint acceptance, role assignment and any case/label creation are
+still separate gates.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)

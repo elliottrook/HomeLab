@@ -106,6 +106,11 @@ evidence digest or selected threshold. Those values must be accepted in a
 registered policy before calibration; they cannot be inferred from the
 independent holdout. The selector then freezes the exact calibration-score
 digest and selected threshold or fails when no threshold meets every constraint.
+The [calibration custody boundary](evidence/M3-NLU-calibration-custody-boundary-2026-10-24.md)
+now adds an empty content-free template and a validator whose sealed form takes
+its sample minima only from the registered policy, binds the same candidate and
+uses three distinct custody roles. It creates no cases or labels and does not
+resolve the still-open numeric policy decision.
 
 ## Validation checkpoint — 2026-10-24
 

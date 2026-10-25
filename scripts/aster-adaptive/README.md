@@ -56,6 +56,14 @@ The command prints only its schema, status, selected threshold and output digest
 never reads the independent holdout and its output retains literal
 `authority: not-granted`; threshold selection does not enable automatic routing.
 
+`nlu_calibration_release.py` defines the content-free custody manifest that must
+exist before selection. Its empty template invents no sample count. A sealed
+manifest must match the sample minima from the already registered policy, bind the
+same candidate, contain only opaque case/label/review digests, and be held by three
+distinct roles. The registered policy binds the exact sealed manifest bytes,
+avoiding a circular policy hash. This prepares independent calibration custody; it
+does not create cases, labels, predictions, scores or an accepted policy.
+
 Catalogue declarations never grant permissions. `project_catalogue` filters using
 an explicitly supplied trusted fixture permission set. Production grant data must
 come from AI-PAM, which this adapter cannot contact. Fixture capability IDs do not
