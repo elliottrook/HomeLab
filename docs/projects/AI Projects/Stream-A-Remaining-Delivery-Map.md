@@ -25,6 +25,13 @@ bounded inactive installation, which now passes with 51/51 target-Linux tests,
 exact installed hashes, disabled/inactive units and no runtime state. The next
 F6 step is a source-only activation card and read-only healthy-lease preflight;
 identity creation, timer arming and recovery remain unapproved.
+The first acquire-only/start split at platform commit `2f790b63` passes 36/36
+clean-archive tests and closes the legacy acquire→post shortcut, but its
+[independent review](evidence/Stream-A-two-phase-evaluation-adapter-review-2026-10-25.md)
+found that consumer mask/stop commands run before the durable state becomes
+`QUIESCING`. A crash can therefore leave partial effects recorded as the
+pre-effect phase. The source is not installed; a durable-before-effect ordering
+fix and partial-failure recovery regression are required.
 
 **October 24 M1 approval-plane checkpoint:** the
 [permanent Yellow-only cutover](evidence/M1-permanent-yellow-cutover-result-2026-10-24.md)
