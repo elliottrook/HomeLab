@@ -165,6 +165,11 @@ The numeric draft is now also an exact
 [machine-readable policy proposal](evidence/M3-NLU-machine-readable-policy-proposal-2026-10-25.md)
 at digest `2e0def84…64a3d`. It remains `proposed`: acceptance requires a separate
 exact record, and the proposal grants no authority.
+A new
+[policy registration gate](evidence/M3-NLU-policy-registration-gate-2026-10-25.md)
+then requires an accepted exact decision, one sealed candidate and one matching
+sealed calibration release before it can construct a registered policy. It
+deliberately rejects the current `proposed` artifact.
 
 ## Validation checkpoint — 2026-10-24
 

@@ -429,6 +429,11 @@ freezes the proposed numeric decision at digest `2e0def84…64a3d` while requiri
 a separate exact acceptance record before status can become `accepted`; the
 focused NLU suite now passes 68/68. No candidate has been selected or sealed,
 no holdout was opened and the numeric values remain unaccepted.
+A subsequent
+[deterministic registration gate](evidence/M3-NLU-policy-registration-gate-2026-10-25.md)
+requires the exact accepted decision, sealed candidate and matching sealed
+calibration release before constructing a registered policy; it rejects the
+current proposal by design. The focused NLU suite now passes 72/72.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)
