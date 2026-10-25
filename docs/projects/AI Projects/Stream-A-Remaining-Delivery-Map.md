@@ -399,8 +399,12 @@ unambiguous. A subsequent
 [shadow artifact-binding correction](evidence/M3-NLU-shadow-artifact-binding-boundary-2026-10-25.md)
 requires each opaque shadow interpretation/proposal digest to match its exact
 content-free artifact; the focused NLU suite now passes 52/52. The shadow
-artifact remains an empty template, not collection approval or a route release,
-and actual numeric acceptance values remain open.
+artifact remains an empty template, not collection approval or a route release.
+An [initial policy decision draft](evidence/M3-NLU-initial-threshold-policy-decision-draft-2026-10-25.md)
+proposes zero privacy/unsafe failures, at most 10% selective error, at least 60%
+coverage and 60 balanced calibration cases. The values remain unaccepted and
+cannot be registered until an exact candidate and sealed calibration release
+exist.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)

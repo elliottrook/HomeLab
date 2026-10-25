@@ -138,6 +138,11 @@ The [shadow artifact-binding boundary](evidence/M3-NLU-shadow-artifact-binding-b
 now also requires every opaque shadow row's interpretation and route-proposal
 digests to match supplied content-free artifacts. Missing, extra or drifted
 case artifacts fail closed.
+An [initial numeric policy decision draft](evidence/M3-NLU-initial-threshold-policy-decision-draft-2026-10-25.md)
+now makes the remaining owner choice reviewable: zero privacy and unsafe-route
+failures, at most 10% selective error, at least 60% coverage and 60 calibration
+cases balanced ten per family. These are proposed values only; no registered
+policy exists.
 
 ## Validation checkpoint — 2026-10-24
 
