@@ -153,6 +153,10 @@ The subsequent
 requires calibration admission to receive those exact candidate bytes, validate
 the sealed manifest and prove its hash is the digest named by the registered
 policy. Matching digest-shaped claims alone no longer admit calibration.
+The same
+[exact-candidate binding now applies to S0 shadow evidence](evidence/M3-NLU-shadow-candidate-binding-2026-10-25.md),
+preventing candidate drift between calibration, threshold selection and the
+later no-effect comparison.
 
 ## Validation checkpoint — 2026-10-24
 

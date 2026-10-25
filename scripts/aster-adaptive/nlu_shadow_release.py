@@ -8,6 +8,7 @@ import json
 import re
 
 from nlu_threshold_policy import FAMILIES, load_and_validate, sha256
+from nlu_candidate_bundle import validate_policy_binding
 
 
 SCHEMA = "aster-nlu-shadow-release.v1"
@@ -127,11 +128,16 @@ def validate_release(value: object) -> list[str]:
 def validate_release_bundle(
     value: object,
     policy_raw: bytes,
+    candidate_raw: bytes,
     case_artifacts: dict[str, dict[str, bytes]],
 ) -> list[str]:
     errors = validate_release(value)
     policy, policy_errors = load_and_validate(policy_raw)
     errors.extend(f"threshold policy: {error}" for error in policy_errors)
+    errors.extend(
+        f"candidate binding: {error}"
+        for error in validate_policy_binding(policy_raw, candidate_raw)
+    )
     if policy is not None and policy.get("status") != "frozen":
         errors.append("sealed shadow release requires a frozen threshold policy")
     if isinstance(value, dict) and value.get("status") == "sealed" and policy is not None:

@@ -4,11 +4,37 @@ from pathlib import Path
 import unittest
 
 import nlu_shadow_release as shadow
+import nlu_candidate_bundle as candidate
 import nlu_threshold_policy as policy
 
 
 def encoded(value):
     return (json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n").encode()
+
+
+def sealed_candidate():
+    value = {
+        "schema": candidate.SCHEMA,
+        "status": "sealed",
+        "candidate_id": "nlu-candidate-v1",
+        "engine_class": "local_model",
+        "engine_sha256": "1" * 64,
+        "policy_sha256": "2" * 64,
+        "contract_sha256": "3" * 64,
+        "adapter_sha256": "4" * 64,
+        "runtime_profile_sha256": "5" * 64,
+        "egress": "local",
+        "tool_mode": "disabled",
+        "case_data_included": False,
+        "bundle_sha256": "",
+        "authority": "not-granted",
+    }
+    value["bundle_sha256"] = candidate.canonical_sha256(value)
+    return value
+
+
+CANDIDATE_RAW = encoded(sealed_candidate())
+CANDIDATE_SHA = policy.sha256(CANDIDATE_RAW)
 
 
 def frozen_policy():
@@ -29,7 +55,7 @@ def frozen_policy():
         "tie_breaker": "highest-threshold",
         "minimum_calibration_cases": 12,
         "minimum_cases_per_family": {family: 2 for family in policy.FAMILIES},
-        "candidate_bundle_sha256": "a" * 64,
+        "candidate_bundle_sha256": CANDIDATE_SHA,
         "calibration_artifact_sha256": "b" * 64,
         "calibration_score_sha256": "c" * 64,
         "selected_threshold": 0.8,
@@ -55,7 +81,7 @@ def sealed(policy_raw):
         "status": "sealed",
         "release_id": "nlu-shadow-v1",
         "source_class": "synthetic-S0",
-        "candidate_bundle_sha256": "a" * 64,
+        "candidate_bundle_sha256": CANDIDATE_SHA,
         "threshold_policy_sha256": policy.sha256(policy_raw),
         "case_count": 1,
         "cases": [{
@@ -87,7 +113,7 @@ class ShadowReleaseTests(unittest.TestCase):
         policy_raw = encoded(frozen_policy())
         value = sealed(policy_raw)
         self.assertEqual([], shadow.validate_release_bundle(
-            value, policy_raw, artifacts(),
+            value, policy_raw, CANDIDATE_RAW, artifacts(),
         ))
 
     def test_content_effect_egress_and_route_mismatch_fail_closed(self):
@@ -112,7 +138,9 @@ class ShadowReleaseTests(unittest.TestCase):
         value = sealed(policy_raw)
         changed = copy.deepcopy(policy_value)
         changed["selected_threshold"] = 0.9
-        errors = shadow.validate_release_bundle(value, encoded(changed), artifacts())
+        errors = shadow.validate_release_bundle(
+            value, encoded(changed), CANDIDATE_RAW, artifacts(),
+        )
         self.assertTrue(any("exact threshold" in error for error in errors))
 
     def test_exact_case_artifacts_are_required_and_hash_checked(self):
@@ -120,14 +148,24 @@ class ShadowReleaseTests(unittest.TestCase):
         value = sealed(policy_raw)
         self.assertIn(
             "shadow artifacts must match every sealed case exactly",
-            shadow.validate_release_bundle(value, policy_raw, {}),
+            shadow.validate_release_bundle(value, policy_raw, CANDIDATE_RAW, {}),
         )
         changed = artifacts()
         changed["SHADOW-01"]["proposal"] += b"drift"
         self.assertIn(
             "SHADOW-01: proposal_sha256 does not match exact artifact",
-            shadow.validate_release_bundle(value, policy_raw, changed),
+            shadow.validate_release_bundle(
+                value, policy_raw, CANDIDATE_RAW, changed,
+            ),
         )
+
+    def test_exact_candidate_bundle_is_required(self):
+        policy_raw = encoded(frozen_policy())
+        value = sealed(policy_raw)
+        errors = shadow.validate_release_bundle(
+            value, policy_raw, CANDIDATE_RAW + b"\n", artifacts(),
+        )
+        self.assertTrue(any("exact candidate bundle" in error for error in errors))
 
 
 if __name__ == "__main__":
