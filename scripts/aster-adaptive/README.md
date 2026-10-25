@@ -76,6 +76,10 @@ text.
 every ordered start/result pair to the final 60-record run before deriving a
 score. The score binds the journal digest, so threshold selection cannot ignore
 or silently substitute the custody record.
+`nlu_calibration_stage_manifest.py` validates the exact no-effect LXC110 packet:
+ten pinned inputs, two owner-only outputs, persistent retain-on-uncertainty
+custody, explicit exclusions and no authority. Validation prepares later
+staging; it does not copy a file, acquire a lease or call the model.
 
 `nlu_shadow_release.py` provides the later no-effect comparison boundary. The
 initial profile permits only S0 synthetic sources and retains opaque interpretation

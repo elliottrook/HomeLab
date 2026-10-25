@@ -36,7 +36,12 @@ measure the candidate.
   `ec4f4e44ff595617f1fe8e337b587bbab049204d001dd2ba050ee1fb146022fd`;
   and
 - threshold selector SHA-256:
-  `9edc0317fe655bfc49b888d755155393cdc468e11bccc27dbe4881b886922cbb`.
+  `9edc0317fe655bfc49b888d755155393cdc468e11bccc27dbe4881b886922cbb`;
+- staging manifest SHA-256:
+  `be1e554367cba081135db12723a0b54eb6dabfe92b2576d41423a354e4988463`;
+  and
+- staging validator SHA-256:
+  `0acaa084587cd9a19841c7022e873f1ed2993a0394a80c193e078f274916448e`.
 
 ## Bounds and custody
 

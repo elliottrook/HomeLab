@@ -48,6 +48,15 @@ Stage these exact inputs:
 | `nlu_local_model_adapter.py` | `3a3b09f12bcd2088f0d604363a5bc0e69190c177eced50dc5a14eb582749aed0` |
 | `nlu_threshold_policy.py` | `984932d8716531858972e22723fe962701077f9a15991c58384c6ee6661ebb5d` |
 
+The packet is also frozen in machine-readable fixture
+`scripts/aster-adaptive/fixtures/nlu-calibration-stage-manifest-v1.json` at
+SHA-256 `be1e554367cba081135db12723a0b54eb6dabfe92b2576d41423a354e4988463`.
+Validator `nlu_calibration_stage_manifest.py` at SHA-256
+`0acaa084587cd9a19841c7022e873f1ed2993a0394a80c193e078f274916448e`
+requires the exact paths, modes, endpoint, key location, ten inputs, two
+outputs, exclusions and no-authority attestations. This packet was added at
+local commit `acaeeb079f3010ea3b3e0df21e3f63d9a906be24`.
+
 Although the runner imports the score module for its fixed run schema, it does
 not score inside LXC110. Do not stage `labels.json`, the policy-registration
 artifact, threshold selector, holdout files, cloud credentials or tools.
@@ -76,3 +85,6 @@ artifact, threshold selector, holdout files, cloud credentials or tools.
 This plan does not authorize staging, deletion, a lease, service stop, model
 call, threshold selection, holdout access, shadow collection, routing, egress,
 tool use or production promotion. No live system changed while preparing it.
+
+The machine-readable packet tests pass 3/3, and the complete dependency-free
+NLU suite passes 109/109.
