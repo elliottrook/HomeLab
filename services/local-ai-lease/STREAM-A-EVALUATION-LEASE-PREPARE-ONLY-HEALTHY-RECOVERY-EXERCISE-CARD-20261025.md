@@ -57,6 +57,9 @@ with the October 26 F2 window.
 6. The metadata-only auth-probe repair is installed and its fresh read-only
    preflight passes: the authenticated probe uses only `GET /v1/models`, the
    exact model ID is present, and no completion endpoint is called.
+7. The guest-path runner repair is installed and the complete read-only
+   `Exercise.prestate()` passes. The prior live approval is consumed; any
+   retry requires a new separate approval.
 
 ## Bounded execution sequence — future approval only
 

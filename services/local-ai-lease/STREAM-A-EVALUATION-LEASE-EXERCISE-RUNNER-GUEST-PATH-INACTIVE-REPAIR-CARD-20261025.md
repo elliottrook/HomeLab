@@ -1,6 +1,6 @@
 # Stream A exercise runner guest-path repair — inactive card
 
-Status: **SOURCE-ONLY; NOT INSTALLED OR AUTHORIZED**
+Status: **INSTALLED AND VERIFIED; RETRY REQUIRES NEW APPROVAL**
 
 The first approved live exercise attempt failed closed before creating any
 lease, state or receipt because the runner checked LXC110 helper paths as if
@@ -20,6 +20,18 @@ The correction moves LXC110 helper and wrapper pins into explicit
 `GUEST_PINNED_FILES`, validates regular/no-symlink/UID/mode/hash inside the
 guest, and records guest-qualified pins in the eventual receipt. Host-side
 runner, owner, watchdog, observer and F2 checks remain unchanged.
+
+## Verified install result
+
+The approved one-file repair is installed at the pinned hash
+`cdac8693c41fe1eb47cb0be626da46db2bc51bf4b91478e80b64eae6961b7ab1`,
+`root:root`, mode `0644`. Rollback checkpoint:
+`/root/stream-a-exercise-runner-guest-path-repair-20261025-1545`. The exact
+target suite passed 82/82; Python compilation and inert runner validation
+passed. Guest helper/wrapper pins and custody validate through LXC110, and
+full read-only prestate now passes: whole-host lease ready, F6 inactive, F2
+active, four consumers healthy, metadata auth/idle exact, and one accepted GPU
+holder. No runtime state or receipt exists.
 
 ## Required inactive sequence
 
