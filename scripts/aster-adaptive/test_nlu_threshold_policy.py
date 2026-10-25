@@ -87,6 +87,16 @@ class NluThresholdPolicyTests(unittest.TestCase):
         self.assertIn("family calibration minima must be positive integers", errors)
         self.assertIn("frozen policy requires a threshold in [0, 1]", errors)
 
+    def test_registered_quality_constraints_cannot_be_vacuous(self):
+        value = registered()
+        value["constraints"]["max_selective_error_rate"] = 1
+        value["constraints"]["minimum_coverage"] = 0
+        errors = policy.validate_policy(value)
+        self.assertIn(
+            "frozen policy requires a non-vacuous selective error limit", errors
+        )
+        self.assertIn("frozen policy requires positive minimum coverage", errors)
+
     def test_invalid_json_has_bounded_error(self):
         value, errors = policy.load_and_validate(b"not-json")
         self.assertIsNone(value)

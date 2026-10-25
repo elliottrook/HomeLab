@@ -116,6 +116,11 @@ also fixes an initial S0-only, content-free comparison manifest. It records only
 opaque interpretation/proposal digests and baseline/candidate route names, while
 requiring no execution and no provider egress. Its empty template is preparation,
 not collected evidence or permission to route.
+The [non-vacuous policy boundary](evidence/M3-NLU-nonvacuous-policy-boundary-2026-10-24.md)
+now also rejects zero minimum coverage and a 100% selective-error allowance.
+This prevents an empty or unconstrained calibration result from becoming a
+valid frozen policy while leaving every actual numeric acceptance value open
+for preregistration.
 
 ## Validation checkpoint — 2026-10-24
 

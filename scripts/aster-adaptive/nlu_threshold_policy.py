@@ -124,6 +124,12 @@ def validate_policy(value: object) -> list[str]:
     for key in ("max_selective_error_rate", "minimum_coverage"):
         if not _fraction(constraints.get(key)):
             errors.append(f"frozen policy requires bounded {key}")
+    if (_fraction(constraints.get("max_selective_error_rate"))
+            and constraints["max_selective_error_rate"] >= 1):
+        errors.append("frozen policy requires a non-vacuous selective error limit")
+    if (_fraction(constraints.get("minimum_coverage"))
+            and constraints["minimum_coverage"] <= 0):
+        errors.append("frozen policy requires positive minimum coverage")
     minimum = value.get("minimum_calibration_cases")
     per_family = value.get("minimum_cases_per_family")
     if type(minimum) is not int or minimum <= 0:
