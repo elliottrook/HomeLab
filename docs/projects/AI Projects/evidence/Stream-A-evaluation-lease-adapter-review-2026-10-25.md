@@ -84,3 +84,22 @@ adapter gate is a separately reviewed target-Linux inactive installation and
 synthetic validation. Fresh F2 and F3 evidence, a production deployment card
 and a separate live-run/recovery approval remain mandatory before any consumer
 is stopped or either model workload runs.
+
+## Inactive-install packet review
+
+The platform owner prepared the effect-free target packet at commit
+`dd886601`. Stream A verified manifest SHA-256
+`f14f2e8860c0e783fd9777374393e46b02123ff15125e78f5e43594ea670e83d`
+and card SHA-256
+`81c9201c41f748c551592bbc9d4a7b797fac913d6f487c7b40af72baafdea14e`.
+The manifest contains only the four accepted root-owned mode-`0644` library
+sources in a new directory. It declares no entry point, service or timer, and
+the source hashes match the accepted review above.
+
+A read-only Proxmox preflight found the destination, evaluation lease state,
+lease lock and operation lock absent. `pvescheduler`, `pvestatd`, Aster Agent,
+the accepted llama backend, Speech and both News timers were active. The
+October 26 F2 one-shot timers remained enabled and active for 01:15 and 01:20
+PDT with no current-cycle result or lease. This is an approval-ready inactive
+copy, not authorization to perform it and not evidence that F2/F3 or the live
+evaluation lease has passed.
