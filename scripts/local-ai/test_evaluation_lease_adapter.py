@@ -6,7 +6,7 @@ from evaluation_lease import (
     ACCEPTED_BACKEND, ACCEPTED_ENDPOINT, ACCEPTED_MODEL, BACKEND_TARGET,
     QUIESCE_STATES, QUIESCE_TARGETS, ProductionBaseline, Admission,
 )
-from evaluation_lease_adapter import AdapterError, EvaluationLeaseAdapter, consumer_command
+from evaluation_lease_adapter import AdapterError, EvaluationLeaseAdapter, consumer_command, read_state
 from evaluation_lease_watchdog import run_once
 from evaluation_lease_watchdog import WatchdogInput, run_bound_once, validate_watchdog_input
 
@@ -48,7 +48,7 @@ class AdapterTests(unittest.TestCase):
             adapter.post_quiescence(
                 observed_states=QUIESCE_STATES, admission=self.admission(),
                 backend_active=True, endpoint_authenticated=True,
-                endpoint_idle=True, gpu_holders=(BACKEND_TARGET,),
+                endpoint_idle=True, gpu_holders=(BACKEND_TARGET,), now_epoch=1100,
             )
             self.assertTrue(adapter.workload_allowed(lease_id="eval-1", generation=1))
             result = adapter.restore(
@@ -79,12 +79,57 @@ class AdapterTests(unittest.TestCase):
             self.assertTrue(adapter.state_path.exists())
             self.assertTrue(adapter.lock_path.exists())
 
+    def test_restore_is_idempotent_from_quiescing_and_restoring(self):
+        calls = []
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / "lease.json"
+            adapter = EvaluationLeaseAdapter(path, calls.append, allow_effects=True)
+            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.restore(lease_id="eval-1", generation=1,
+                            restored=self.admission().baseline,
+                            backend_active=True, endpoint_authenticated=True,
+                            endpoint_idle=True, gpu_holders=(BACKEND_TARGET,))
+            self.assertFalse(path.exists())
+
+        calls = []
+        def failing(command):
+            calls.append(command)
+            if command[-1] == "aster-speech.service" and command[-2] == "start":
+                raise RuntimeError("crash during restore")
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / "lease.json"
+            broken = EvaluationLeaseAdapter(path, failing, allow_effects=True)
+            broken.acquire(self.admission(), now_epoch=1000)
+            with self.assertRaises(AdapterError):
+                broken.restore(lease_id="eval-1", generation=1,
+                               restored=self.admission().baseline,
+                               backend_active=True, endpoint_authenticated=True,
+                               endpoint_idle=True, gpu_holders=(BACKEND_TARGET,))
+            self.assertEqual(read_state(path).phase, "restoring")
+            recovered = EvaluationLeaseAdapter(path, lambda command: None, allow_effects=True)
+            recovered.restore(lease_id="eval-1", generation=1,
+                              restored=self.admission().baseline,
+                              backend_active=True, endpoint_authenticated=True,
+                              endpoint_idle=True, gpu_holders=(BACKEND_TARGET,))
+
+    def test_heartbeat_uses_the_same_identity_bound_schema(self):
+        with tempfile.TemporaryDirectory() as root:
+            adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", lambda command: None,
+                                              allow_effects=True)
+            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.heartbeat(lease_id="eval-1", generation=1, now_epoch=1100)
+            state = read_state(adapter.state_path, expected_lease_id="eval-1",
+                               expected_generation=1)
+            self.assertEqual(state.heartbeat_epoch, 1100)
+            with self.assertRaises(AdapterError):
+                adapter.heartbeat(lease_id="foreign", generation=1, now_epoch=1200)
+
     def test_watchdog_is_inert_without_effect_authority(self):
         called = []
         result = run_once(now_epoch=6500, heartbeat_epoch=1000,
                           heartbeat_timeout=30, hard_deadline_epoch=5500,
                           restore_deadline_epoch=6400, owner_present=True,
-                          effect_authorized=False, recovery=called.append)
+                          effect_authorized=True, recovery=called.append)
         self.assertEqual(result["effects"], "disabled")
         self.assertEqual(called, [])
 

@@ -70,13 +70,9 @@ def run_once(*, now_epoch: int, heartbeat_epoch: int, heartbeat_timeout: int,
     )
     if decision.action == "continue":
         return {"effects": "not-attempted", "decision": decision.reason}
-    if not effect_authorized or recovery is None:
-        return {"effects": "disabled", "decision": decision.reason}
-    try:
-        result = recovery()
-    except Exception:
-        return {"effects": "uncertain", "decision": decision.reason}
-    return {"effects": "recovered", "decision": decision.reason, "result": result}
+    # The unbound API is intentionally incapable of recovery.  It remains as
+    # a read-only diagnostic seam for old callers and tests.
+    return {"effects": "disabled", "decision": decision.reason}
 
 
 def run_bound_once(*, value: WatchdogInput, expected_lease_id: str,
@@ -87,14 +83,21 @@ def run_bound_once(*, value: WatchdogInput, expected_lease_id: str,
     """Run recovery only from a validated, identity-bound durable record."""
     validate_watchdog_input(value, expected_lease_id=expected_lease_id,
                             expected_generation=expected_generation)
-    return run_once(
+    decision = watchdog_decision(
         now_epoch=now_epoch, heartbeat_epoch=value.heartbeat_epoch,
         heartbeat_timeout=heartbeat_timeout,
         hard_deadline_epoch=value.hard_deadline_epoch,
         restore_deadline_epoch=value.restore_deadline_epoch,
-        owner_present=owner_present, effect_authorized=effect_authorized,
-        recovery=recovery,
+        owner_present=owner_present,
     )
+    if decision.action == "continue" or not effect_authorized or recovery is None:
+        return {"effects": "disabled" if decision.action != "continue" else "not-attempted",
+                "decision": decision.reason}
+    try:
+        result = recovery()
+    except Exception:
+        return {"effects": "uncertain", "decision": decision.reason}
+    return {"effects": "recovered", "decision": decision.reason, "result": result}
 
 
 def main(argv: list[str] | None = None) -> int:

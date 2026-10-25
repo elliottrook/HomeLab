@@ -42,6 +42,7 @@ class AdapterState:
     phase: str
     baseline: ProductionBaseline
     window_start_epoch: int
+    heartbeat_epoch: int
     hard_deadline_epoch: int
     restore_deadline_epoch: int
 
@@ -86,6 +87,40 @@ def atomic_state(path: Path, value: AdapterState) -> None:
         raise
 
 
+def read_state(path: Path, *, expected_lease_id: str | None = None,
+               expected_generation: int | None = None) -> AdapterState:
+    """Read one owner/mode-checked descriptor without reopening its pathname."""
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+    fd = os.open(path, flags)
+    try:
+        info = os.fstat(fd)
+        if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid()
+                or stat.S_IMODE(info.st_mode) != 0o600):
+            raise AdapterError("evaluation state custody is weak")
+        with os.fdopen(fd, "r", encoding="utf-8") as stream:
+            value = json.load(stream)
+        fd = -1
+    finally:
+        if fd != -1:
+            os.close(fd)
+    try:
+        state = AdapterState(
+            value["lease_id"], value["generation"], value["phase"],
+            ProductionBaseline(
+                tuple(tuple(item) for item in value["baseline"]["units"]),
+                tuple(tuple(item) for item in value["baseline"]["timers"]),
+            ), value["window_start_epoch"], value["heartbeat_epoch"],
+            value["hard_deadline_epoch"], value["restore_deadline_epoch"],
+        )
+    except (KeyError, TypeError, ValueError) as exc:
+        raise AdapterError("evaluation state schema is malformed") from exc
+    validate_baseline(state.baseline)
+    if (expected_lease_id is not None and state.lease_id != expected_lease_id) or (
+            expected_generation is not None and state.generation != expected_generation):
+        raise AdapterError("evaluation state identity does not match")
+    return state
+
+
 class EvaluationLeaseAdapter:
     def __init__(self, state_path: Path, runner: Callable[[Sequence[str]], None], *,
                  allow_effects: bool = False):
@@ -114,7 +149,7 @@ class EvaluationLeaseAdapter:
         self._lock()
         atomic_state(self.state_path, AdapterState(
             admission.lease_id, admission.generation, LeaseState.QUIESCING.value,
-            admission.baseline, now_epoch, admission.hard_deadline_epoch,
+            admission.baseline, now_epoch, now_epoch, admission.hard_deadline_epoch,
             admission.restore_deadline_epoch,
         ))
         try:
@@ -132,18 +167,16 @@ class EvaluationLeaseAdapter:
         self._require_effects()
         if not self.state_path.exists() or not self.lock_path.exists():
             raise AdapterError("durable evaluation state and lock are required for restore")
-        value = json.loads(self.state_path.read_text(encoding="utf-8"))
-        if (value.get("lease_id"), value.get("generation"), value.get("phase")) != (
-                lease_id, generation, LeaseState.RUNNING.value):
-            raise AdapterError("restore identity or phase does not match active lease")
-        expected = ProductionBaseline(
-            tuple(tuple(item) for item in value["baseline"]["units"]),
-            tuple(tuple(item) for item in value["baseline"]["timers"]),
-        )
+        state = read_state(self.state_path, expected_lease_id=lease_id,
+                           expected_generation=generation)
+        if state.phase not in {LeaseState.QUIESCING.value, LeaseState.RUNNING.value,
+                               LeaseState.RESTORING.value}:
+            raise AdapterError("restore phase is not recoverable")
+        expected = state.baseline
         atomic_state(self.state_path, AdapterState(
             lease_id, generation, LeaseState.RESTORING.value, expected,
-            value["window_start_epoch"],
-            value["hard_deadline_epoch"], value["restore_deadline_epoch"],
+            state.window_start_epoch, state.heartbeat_epoch,
+            state.hard_deadline_epoch, state.restore_deadline_epoch,
         ))
         try:
             for target, _state in expected.units + expected.timers:
@@ -164,12 +197,12 @@ class EvaluationLeaseAdapter:
     def post_quiescence(self, *, observed_states: tuple[tuple[str, str], ...],
                         admission: Admission, backend_active: bool,
                         endpoint_authenticated: bool, endpoint_idle: bool,
-                        gpu_holders: tuple[str, ...]) -> None:
+                        gpu_holders: tuple[str, ...], now_epoch: int) -> None:
         if not self.state_path.exists() or not self.lock_path.exists():
             raise AdapterError("durable evaluation state and lock are required")
-        value = json.loads(self.state_path.read_text(encoding="utf-8"))
-        if (value.get("lease_id"), value.get("generation"), value.get("phase")) != (
-                admission.lease_id, admission.generation, LeaseState.QUIESCING.value):
+        state = read_state(self.state_path, expected_lease_id=admission.lease_id,
+                           expected_generation=admission.generation)
+        if state.phase != LeaseState.QUIESCING.value:
             raise AdapterError("post-quiescence confirmation is not for the pre-run lease")
         validate_post_quiescence(
             admission, observed_states=observed_states,
@@ -179,14 +212,26 @@ class EvaluationLeaseAdapter:
         )
         atomic_state(self.state_path, AdapterState(
             admission.lease_id, admission.generation, LeaseState.RUNNING.value,
-            admission.baseline, value["window_start_epoch"],
-            value["hard_deadline_epoch"], value["restore_deadline_epoch"],
+            admission.baseline, state.window_start_epoch, now_epoch,
+            state.hard_deadline_epoch, state.restore_deadline_epoch,
+        ))
+
+    def heartbeat(self, *, lease_id: str, generation: int, now_epoch: int) -> None:
+        state = read_state(self.state_path, expected_lease_id=lease_id,
+                           expected_generation=generation)
+        if state.phase not in {LeaseState.QUIESCING.value, LeaseState.RUNNING.value,
+                               LeaseState.RESTORING.value}:
+            raise AdapterError("heartbeat phase is not active")
+        atomic_state(self.state_path, AdapterState(
+            state.lease_id, state.generation, state.phase, state.baseline,
+            state.window_start_epoch, now_epoch, state.hard_deadline_epoch,
+            state.restore_deadline_epoch,
         ))
 
     def workload_allowed(self, *, lease_id: str, generation: int) -> bool:
         if not self.state_path.exists():
             return False
-        value = json.loads(self.state_path.read_text(encoding="utf-8"))
-        return (value.get("lease_id"), value.get("generation"), value.get("phase")) == (
-            lease_id, generation, LeaseState.RUNNING.value)
+        state = read_state(self.state_path, expected_lease_id=lease_id,
+                           expected_generation=generation)
+        return state.phase == LeaseState.RUNNING.value
 
