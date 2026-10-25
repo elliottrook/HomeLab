@@ -7,10 +7,13 @@ selection metrics; neither artifact grants routing authority.
 """
 from __future__ import annotations
 
+import argparse
 import copy
 import json
 import math
+import os
 import re
+from pathlib import Path
 
 from nlu_threshold_policy import FAMILIES, sha256, validate_policy
 
@@ -141,3 +144,60 @@ def select_threshold(registered_policy: dict, score_raw: bytes) -> dict:
             "no routing, egress, tool use or execution granted",
         ],
     }
+
+
+def canonical_json(value: object) -> bytes:
+    """Encode a selection artifact deterministically for independent hashing."""
+    return (json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n").encode()
+
+
+def write_new_private(path: Path, payload: bytes) -> None:
+    """Create one owner-only output without replacing prior evidence."""
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    try:
+        with os.fdopen(descriptor, "wb") as output:
+            output.write(payload)
+    except BaseException:
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            pass
+        raise
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Freeze an NLU threshold from a registered policy and content-free calibration score."
+    )
+    parser.add_argument("--policy", type=Path, required=True)
+    parser.add_argument("--score", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args(argv)
+
+    try:
+        registered_policy = json.loads(args.policy.read_bytes())
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+        parser.error(f"cannot read registered policy: {error}")
+    try:
+        score_raw = args.score.read_bytes()
+    except OSError as error:
+        parser.error(f"cannot read calibration score: {error}")
+
+    try:
+        result = select_threshold(registered_policy, score_raw)
+        output_raw = canonical_json(result)
+        write_new_private(args.output, output_raw)
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
+
+    print(json.dumps({
+        "schema": result["schema"],
+        "status": result["policy"]["status"],
+        "selected_threshold": result["policy"]["selected_threshold"],
+        "output_sha256": sha256(output_raw),
+    }, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

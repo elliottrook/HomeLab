@@ -1,6 +1,11 @@
 import copy
+import io
 import json
+import os
+import tempfile
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
+from pathlib import Path
 
 import nlu_threshold_policy as policy
 import nlu_threshold_selection as selection
@@ -117,6 +122,50 @@ class NluThresholdSelectionTests(unittest.TestCase):
             value["cases"][0]["route_score"] = bad
             with self.subTest(bad=bad), self.assertRaisesRegex(ValueError, "route_score"):
                 selection.select_threshold(registered(), encoded(value))
+
+    def test_cli_creates_owner_only_canonical_output_and_bounded_summary(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            policy_path = root / "registered.json"
+            score_path = root / "score.json"
+            output_path = root / "selection.json"
+            policy_path.write_text(json.dumps(registered()))
+            score_path.write_bytes(encoded())
+            stdout = io.StringIO()
+            with redirect_stdout(stdout):
+                self.assertEqual(0, selection.main([
+                    "--policy", str(policy_path),
+                    "--score", str(score_path),
+                    "--output", str(output_path),
+                ]))
+            raw = output_path.read_bytes()
+            result = json.loads(raw)
+            summary = json.loads(stdout.getvalue())
+            self.assertEqual(0o600, os.stat(output_path).st_mode & 0o777)
+            self.assertEqual(raw, selection.canonical_json(result))
+            self.assertEqual(selection.sha256(raw), summary["output_sha256"])
+            self.assertEqual({
+                "schema", "status", "selected_threshold", "output_sha256"
+            }, set(summary))
+            self.assertNotIn("cases", result)
+
+    def test_cli_refuses_to_replace_existing_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            policy_path = root / "registered.json"
+            score_path = root / "score.json"
+            output_path = root / "selection.json"
+            policy_path.write_text(json.dumps(registered()))
+            score_path.write_bytes(encoded())
+            output_path.write_text("preserve me")
+            with redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit):
+                    selection.main([
+                        "--policy", str(policy_path),
+                        "--score", str(score_path),
+                        "--output", str(output_path),
+                    ])
+            self.assertEqual("preserve me", output_path.read_text())
 
 
 if __name__ == "__main__":

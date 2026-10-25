@@ -38,6 +38,24 @@ separately, plus privacy underclassification and unsafe false routes. The fixtur
 is exposed synthetic development material. It cannot replace the human-labelled
 holdout, calibration or shadow evidence required for automatic routing.
 
+`nlu_threshold_policy.py` and `nlu_threshold_selection.py` define the fail-closed
+calibration boundary. A policy must be registered before a disjoint, content-free
+calibration score is opened. The selector enforces the registered sample minima and
+constraints, chooses maximum eligible coverage with the registered tie-breaker, and
+creates a new mode-0600 canonical frozen policy artifact without replacing earlier
+evidence:
+
+```sh
+python3 scripts/aster-adaptive/nlu_threshold_selection.py \
+  --policy /private/path/registered-policy.json \
+  --score /private/path/content-free-calibration-score.json \
+  --output /private/path/frozen-selection.json
+```
+
+The command prints only its schema, status, selected threshold and output digest. It
+never reads the independent holdout and its output retains literal
+`authority: not-granted`; threshold selection does not enable automatic routing.
+
 Catalogue declarations never grant permissions. `project_catalogue` filters using
 an explicitly supplied trusted fixture permission set. Production grant data must
 come from AI-PAM, which this adapter cannot contact. Fixture capability IDs do not
