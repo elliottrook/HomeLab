@@ -22,7 +22,10 @@
   regressions and native synthetic fault tests pass. Final preservation passes
   with an explicitly evidenced derived display-index remapping, not a rewritten
   baseline. Local M4 timeline/conflict planning has no live ABS integration;
-  household-shared versus individual progress ownership awaits Jason's choice.
+  Jason selected one shared household progress position; its bounded two-item
+  HP server-progress trial passed: two positions created/read back/resumed,
+  retained as approved. Normal synchronization is not yet enabled; the next
+  recurring-write HP pilot requires the bounded approval at the end.
   Canonical sounds are on both boxes; all other new v2 work remains HP-only.
 - Previous resume point (2026-10-25): the owner-feedback bundle `aster-feedback1`
   is installed on HP only. It composes Music65, series17, floating rail4,
@@ -4131,3 +4134,135 @@ testing is synthetic and did not create a real stuck player. The account
 decision above is required before choosing the live progress authority; no
 further server write is inferred from general HP test authority. Work is
 checkpointed/resumable while awaiting that choice.
+
+### 2026-10-25 — M4 shared-household choice and bounded trial approval
+
+Jason selected **one shared household position** for audiobooks and podcasts.
+The existing TV Audiobookshelf identity will own it; no per-Jellyfin-user
+mapping or new login is implied. A read-only account audit through the installed
+HTTPS client verifies role `user`, unlocked, download allowed and content
+update/delete/upload all false. Identity fingerprint
+`5326816b7ef0f98b2ab17a43d8502a3763947d1bad27f8bd10f6e2ac85bcc206`;
+no token, username, email or raw user response is exported. Installed bridge
+SHA `f37d51aec0bb8b48c1d31e9f9c442e4476130630b67a5bdc070af18dfd1a5c67`.
+The mode0600 private control socket is present. Read-only samples resolve one
+real single-file audiobook and one downloaded podcast episode with stable
+episode ID; both have no progress under that account. No server progress writes
+occurred in these audits. Evidence lives in
+`/storage/.aster-checkpoints/aster-books-progress-20261025/*-read-*.json`.
+
+Prepared a GET-only progress reader with bounded response parsing, identity
+revalidation, no token/PII projection, no redirect weakening and explicit 404
+versus unavailable handling. Refuses admin/broadly privileged account use.
+Endpoint allowlisting also refuses ABS's **mutating GET** remove-from-continue
+route: GET alone is not a read-only guarantee. Nine synthetic tests pass.
+
+Jason explicitly approved this bounded HP trial: checkpoint bridge/player
+files; briefly play one audiobook and one downloaded podcast episode with no
+existing progress; save only those two new positions through the current
+limited TV account; verify resume; retain the new test positions. No other
+progress, permissions, downloads or production settings change. Unknown writes
+are fenced, not retried. This grants the one trial, not normal household sync.
+
+Trial pre-start assessment: HP only, one exact account and one target per kind;
+metadata identity/order is checked twice before playback, existing progress
+must remain absent at the write preflight, and only single-file samples are
+eligible. Direct test playback uses the existing private loopback capabilities;
+only that exact owned URL can be stopped or have its singleton queue cleared.
+At most two PATCH requests, position only, never completion or deletion. A
+durable private prepared/verified/uncertain journal consumes each target before
+the request, survives restart and prevents automatic replay. Ordinary PATCH
+has no CAS guarantee: concurrent use of these same two targets remains a
+disclosed bounded-trial risk; this trial is not evidence of cross-client conflict
+safety or normal sync readiness. Any unexpected preexisting progress aborts.
+
+Preserve and hash-check five existing bridge/player source/XML files under
+`aster-books-progress-20261025/trial1/before`, without copying credentials.
+No installed bridge/player changes or restart are necessary for this isolated
+trial. Code remains a staged HP-only test, not a normal UI hook. Stop/queue
+uncertainty aborts; no blind cleanup of an unidentified player. New server
+positions are intentionally retained, not deleted/reset as rollback. Preserve
+all evidence and run native AV/database/file/queue preservation afterward.
+No infrastructure, access-rule, external ingress, service identity, monitoring
+inventory or speech change. Production and its progress remain untouched.
+
+#### Approved shared-progress trial — completed
+
+- `account-read-1792933293669339456.json` verifies the restricted existing
+  account; `samples-read-1792933398950756785.json` confirms both initial
+  positions absent and stable single-file/episode mapping.
+- Native staged `/storage/.aster-staging/aster-books-progress-trial1/live_books_progress_trial.py`
+  completed once. Durable result:
+  `/storage/.aster-checkpoints/aster-books-progress-20261025/trial1/trial-result.json`.
+  Both real audio samples advanced, stopped and cleaned their owned queues.
+  Exactly two position-only server PATCHes were acknowledged and independently
+  read back. Each saved global position mapped to its verified file and a
+  one-shot native seek resumed the corresponding stream. Both journal states
+  are `verified`. No second save during the resumed verification playback.
+- The two new positions remain saved as approved. No completed flags,
+  deletion, reset, manual history restoration, permissions, subscription or
+  download change. No other item was updated. The trial is consumed: never
+  rerun with a new journal directory to bypass its one-use boundary.
+- A separate process `samples-read-1792933957112773158.json` reads both saved
+  positions and maps them successfully, with **zero** additional server writes.
+  This confirms persistence beyond the native test's memory, not full household
+  sync, multi-file correctness or the normal Books UI.
+- All five installed bridge/player files remain byte-identical. Their private
+  off-device recovery copy `/tmp/aster-books-progress-trial-BrocPR/recovery`
+  verifies 5/5 hashes. No existing key/config was copied; raw account responses,
+  emails, tokens and stream capabilities are absent from the public evidence.
+- Final `postcheck-1792933957735410739.json` passes current Music/series/search/
+  scrub/rail/canonical-sound composition, database integrity, empty players and
+  queues, closed windows and AV preservation with the previously documented
+  exact derived-selector remapping. HP is stopped on Home; production was not
+  contacted or changed during this M4 work.
+- 537 v2 tests pass in normal and optimized Python, including 26 progress
+  model/reader/one-shot-writer tests. All 13 original Books bridge/config tests
+  pass. Helpers compile and whitespace checks pass.
+
+#### Next bounded M4 proposal — not yet authorized
+
+Connect normal **HP-only** Books audiobook/podcast playback to the same shared
+limited account, with automatic position saving and server-authoritative resume.
+This is a recurring progress-write capability and is not inferred from the
+consumed two-item test grant. No production promotion is included.
+
+Proposed allowed changes: checkpoint and version only the HP Books bridge,
+descriptor/selection wiring and a bounded owned-playback observer, keeping the
+v1 release source/package untouched. One idle Kodi restart is permitted if
+needed to reload the service. No new account, credential, login, network route,
+access privilege, service exposure or server administration is needed.
+
+Minimum contract before pilot enablement:
+
+- Bind playback to authenticated account + item + actual podcast episode/file
+  identity, never titles, row positions or temporary capability URL parsing.
+  Detect only positively owned Books playback; Music, Digest and unrelated
+  players remain untouched. Retain existing stop-on-exit behavior.
+- Resume from fresh server progress; explicit chapter selection means that
+  chapter's start, not an unexpected jump back to the stored position. Completed
+  items need explicit restart; missing/unknown timelines must not guess.
+- Save periodically and on confirmed Pause/Stop/Back using observed global
+  media time, with bounded rate, timeouts and durable unknown-result fences.
+  No bulk history edits, deletes, destructive rollback or blind retries.
+  No offline replay; report unsynced/uncertain status truthfully.
+- On externally changed progress, suspend writes and require refresh/resolution,
+  not a greater-position or client-clock winner. Single active HP observer;
+  ordinary ABS writes still have a check-to-write race, so simultaneous outside
+  clients are not claimed atomically safe. Preserve current server authority.
+- Prove multi-file order/chapter transitions separately before enabling them;
+  unsupported content remains playable without falsely claiming progress sync.
+  Mark completion only after explicit independently tested natural-end logic,
+  never simply from a seek near the end. Bookmarks/queues/speed/sleep features
+  remain separate bounded M4 slices.
+- Exercise normal UI entry, save/resume after Pause/Stop/Back and service restart,
+  exact podcast episode isolation, ownership/failure/conflict handling, AV and
+  database/file preservation; give Jason a plain-language HP walkthrough.
+
+Recovery disables only the known HP sync observer/overlay and restores its
+verified local files; it never rewinds or deletes legitimate server progress.
+Retain both the completed trial evidence and existing v1 path. Authentication/
+infrastructure inventories remain unchanged; future accepted normal behavior
+needs operator guidance and native sync-health/failure visibility, not another
+monitoring service solely for this skin. No generated speech. Normal enabling
+and additional recurring server updates await explicit approval of this proposal.
