@@ -52,11 +52,14 @@ The packet is also frozen in machine-readable fixture
 `scripts/aster-adaptive/fixtures/nlu-calibration-stage-manifest-v1.json` at
 SHA-256 `357b4e3d5514fe32b1509ac27f9eac3940edb0635db3a5008b4f29fc4f124a00`.
 Validator `nlu_calibration_stage_manifest.py` at SHA-256
-`eab93406dbde22849f5a884a588744656a6ac175b641032517672a3fb77d46f4`
+`8ea9daf47793aaeed0f2c475b4475cc1873173a9abc65089049e9c5bae86889e`
 requires the exact paths, modes, endpoint, key location, ten inputs, two
 outputs, exclusions and no-authority attestations. When invoked with all ten
 `NAME=PATH` bindings, it rejects missing, changed, extra and symlink inputs and
-hashes the opened regular-file descriptors. The packet was added at local
+hashes the opened regular-file descriptors. Its later
+[staged-custody correction](M3-NLU-staged-custody-validator-boundary-2026-10-25.md)
+also enforces the final root owner, `0700`/`0600` modes, exact ten-name set and
+absence of output or journal files. The packet was added at local
 commit `acaeeb079f3010ea3b3e0df21e3f63d9a906be24`; byte verification was added
 at local commit `531c07fc02d77b36f0f27b9166f9e1b6c831681e`. The later
 [llama response-envelope correction](M3-NLU-llama-response-envelope-compatibility-2026-10-25.md)
@@ -105,5 +108,5 @@ This plan does not authorize staging, deletion, a lease, service stop, model
 call, threshold selection, holdout access, shadow collection, routing, egress,
 tool use or production promotion. No live system changed while preparing it.
 
-The focused runner/staging tests pass 19/19, and the complete dependency-free
-NLU suite passes 113/113.
+The focused runner/staging tests pass 21/21, and the complete dependency-free
+NLU suite passes 115/115.

@@ -49,8 +49,10 @@ Do not create `run.json` or `attempt-journal.jsonl` during staging.
    files over the established SSH transport. Do not persist a packet on the
    Proxmox host.
 4. Recheck the exact name set, file type, owner, mode, size and SHA-256 inside
-   LXC110. Run Python import/compile checks without invoking `main` or reading
-   the service key.
+   LXC110 with the pinned staged-custody validator at SHA-256
+   `8ea9daf47793aaeed0f2c475b4475cc1873173a9abc65089049e9c5bae86889e`.
+   Run Python import/compile checks without invoking `main` or reading the
+   service key.
 5. Atomically rename `.incoming` to `nlu-calibration-v1` only after every
    check passes. Recheck the same properties at the final path.
 6. Confirm there is no runner process, output/journal file, new listener,

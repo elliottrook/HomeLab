@@ -522,7 +522,11 @@ also passes 10/10 byte verification. A later
 prevents ordinary accepted `usage`/`timings` metadata from invalidating every
 classification while still rejecting unknown metadata and retaining none of
 it. The repinned 93,612-byte packet passes, and the full NLU suite passes
-113/113. No staging effect followed.
+113/113 at that checkpoint. The later
+[staged-custody validator](evidence/M3-NLU-staged-custody-validator-boundary-2026-10-25.md)
+now enforces root ownership, `0700`/`0600` modes, the exact ten-name set and
+absence of outputs or extra files; the current suite passes 115/115. No staging
+effect followed.
 The [inactive staging card](evidence/M3-NLU-calibration-inactive-staging-card-2026-10-25.md)
 now removes an unnecessary exclusive-window dependency: the inert ten-file
 packet may be copied and byte-verified before lab hours under its own bounded

@@ -98,6 +98,41 @@ def validate_packet_files(manifest: dict, paths: dict[str, Path]) -> dict:
     return {"input_count": len(expected), "byte_total": total}
 
 
+def validate_staged_directory(manifest: dict, directory: Path, *,
+                              expected_uid: int = 0, expected_gid: int = 0) -> dict:
+    """Validate the exact inactive LXC packet and its root-only custody."""
+    if manifest != expected_manifest():
+        raise ValueError("cannot validate custody against an unfrozen stage manifest")
+    try:
+        metadata = directory.lstat()
+    except OSError as error:
+        raise ValueError("staged directory is unavailable") from error
+    if (not stat.S_ISDIR(metadata.st_mode) or stat.S_ISLNK(metadata.st_mode)
+            or metadata.st_uid != expected_uid or metadata.st_gid != expected_gid
+            or stat.S_IMODE(metadata.st_mode) != 0o700):
+        raise ValueError("staged directory custody is invalid")
+    expected = {row["name"] for row in manifest["inputs"]}
+    try:
+        names = {entry.name for entry in directory.iterdir()}
+    except OSError as error:
+        raise ValueError("cannot enumerate staged directory") from error
+    if names != expected:
+        raise ValueError("staged directory must contain exactly the frozen inputs")
+    paths: dict[str, Path] = {}
+    for name in sorted(expected):
+        path = directory / name
+        try:
+            item = path.lstat()
+        except OSError as error:
+            raise ValueError(f"cannot inspect staged input: {name}") from error
+        if (not stat.S_ISREG(item.st_mode) or stat.S_ISLNK(item.st_mode)
+                or item.st_uid != expected_uid or item.st_gid != expected_gid
+                or stat.S_IMODE(item.st_mode) != 0o600):
+            raise ValueError(f"staged input custody is invalid: {name}")
+        paths[name] = path
+    return validate_packet_files(manifest, paths) | {"custody_verified": True}
+
+
 def _assignments(values: list[str]) -> dict[str, Path]:
     result: dict[str, Path] = {}
     for value in values:
@@ -112,13 +147,20 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate the frozen NLU staging packet.")
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--input", action="append", default=[])
+    parser.add_argument("--staged-directory", type=Path)
     args = parser.parse_args(argv)
     try:
         raw = args.manifest.read_bytes()
         value = load_and_validate(raw)
-        verified = validate_packet_files(value, _assignments(args.input)) if args.input else {
-            "input_count": 0, "byte_total": 0,
-        }
+        if args.input and args.staged_directory is not None:
+            raise ValueError("use either --input or --staged-directory")
+        if args.staged_directory is not None:
+            verified = validate_staged_directory(value, args.staged_directory)
+        elif args.input:
+            verified = validate_packet_files(value, _assignments(args.input))
+        else:
+            verified = {"input_count": 0, "byte_total": 0,
+                        "custody_verified": False}
     except (OSError, ValueError) as error:
         parser.error(str(error))
     print(json.dumps({
@@ -126,6 +168,7 @@ def main(argv: list[str] | None = None) -> int:
         "declared_input_count": len(value["inputs"]),
         "verified_input_count": verified["input_count"],
         "verified_byte_total": verified["byte_total"],
+        "custody_verified": verified.get("custody_verified", False),
         "manifest_sha256": sha256(raw),
         "authority": value["authority"],
     }, sort_keys=True))

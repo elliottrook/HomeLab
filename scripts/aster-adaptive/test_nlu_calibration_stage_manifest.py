@@ -77,6 +77,49 @@ class NluCalibrationStageManifestTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "non-symlink"):
                     stage.validate_packet_files(manifest, {"one.py": link})
 
+    def test_exact_staged_directory_custody_is_verified(self):
+        with tempfile.TemporaryDirectory() as root:
+            directory = Path(root) / "run"
+            directory.mkdir(mode=0o700)
+            path = directory / "one.py"
+            path.write_bytes(b"one\n")
+            path.chmod(0o600)
+            inputs = [("one.py", hashlib.sha256(b"one\n").hexdigest(), "source")]
+            with patch.object(stage, "INPUTS", inputs):
+                result = stage.validate_staged_directory(
+                    stage.expected_manifest(), directory,
+                    expected_uid=directory.stat().st_uid,
+                    expected_gid=directory.stat().st_gid,
+                )
+            self.assertEqual(True, result["custody_verified"])
+            self.assertEqual(4, result["byte_total"])
+
+    def test_staged_directory_rejects_mode_and_extra_output(self):
+        with tempfile.TemporaryDirectory() as root:
+            directory = Path(root) / "run"
+            directory.mkdir(mode=0o700)
+            path = directory / "one.py"
+            path.write_bytes(b"one\n")
+            path.chmod(0o600)
+            inputs = [("one.py", hashlib.sha256(b"one\n").hexdigest(), "source")]
+            with patch.object(stage, "INPUTS", inputs):
+                manifest = stage.expected_manifest()
+                path.chmod(0o644)
+                with self.assertRaisesRegex(ValueError, "custody"):
+                    stage.validate_staged_directory(
+                        manifest, directory,
+                        expected_uid=directory.stat().st_uid,
+                        expected_gid=directory.stat().st_gid,
+                    )
+                path.chmod(0o600)
+                (directory / "run.json").write_text("unused")
+                with self.assertRaisesRegex(ValueError, "exactly"):
+                    stage.validate_staged_directory(
+                        manifest, directory,
+                        expected_uid=directory.stat().st_uid,
+                        expected_gid=directory.stat().st_gid,
+                    )
+
 
 if __name__ == "__main__":
     unittest.main()
