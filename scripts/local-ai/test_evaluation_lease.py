@@ -8,6 +8,7 @@ from evaluation_lease import (
     D4_DIGEST,
     M3_STAGE_MANIFEST_DIGEST,
     QUIESCE_TARGETS,
+    QUIESCE_STATES,
     RESTORE_RESERVE_SECONDS,
     Admission,
     EvaluationLeaseError,
@@ -55,13 +56,20 @@ class EvaluationLeaseTests(unittest.TestCase):
 
     def test_post_quiescence_requires_exact_targets_and_backend_holder(self):
         value = self.admission()
-        validate_post_quiescence(value, observed_targets=QUIESCE_TARGETS,
+        validate_post_quiescence(value, observed_states=QUIESCE_STATES,
                                  backend_active=True, endpoint_authenticated=True,
                                  endpoint_idle=True, gpu_holders=(BACKEND_TARGET,))
         with self.assertRaises(EvaluationLeaseError):
-            validate_post_quiescence(value, observed_targets=QUIESCE_TARGETS[:-1],
+            validate_post_quiescence(value, observed_states=QUIESCE_STATES[:-1],
                                      backend_active=True, endpoint_authenticated=True,
                                      endpoint_idle=True, gpu_holders=(BACKEND_TARGET,))
+        with self.assertRaises(EvaluationLeaseError):
+            validate_post_quiescence(
+                value,
+                observed_states=tuple((target, "active") for target in QUIESCE_TARGETS),
+                backend_active=True, endpoint_authenticated=True,
+                endpoint_idle=True, gpu_holders=(BACKEND_TARGET,),
+            )
 
     def test_sequence_is_d4_then_m3_and_separate_paths(self):
         self.assertEqual(next_workload(completed=(), expected_lease_id="eval-1",
@@ -71,8 +79,12 @@ class EvaluationLeaseTests(unittest.TestCase):
         self.assertEqual(next_workload(completed=("d4-candidate-g",),
                                        expected_lease_id="eval-1", expected_generation=1,
                                        outcome=outcome).name, "m3-nlu-calibration")
-        self.assertIsNone(next_workload(completed=("d4-candidate-g", "m3-nlu-calibration"),
-                                        expected_lease_id="eval-1", expected_generation=1))
+        m3_outcome = WorkloadOutcome("eval-1", 1, "m3-nlu-calibration",
+                                     M3_STAGE_MANIFEST_DIGEST, "completed", "m3j", "m3r", 60, 10, True)
+        self.assertIsNone(next_workload(
+            completed=("d4-candidate-g", "m3-nlu-calibration"),
+            expected_lease_id="eval-1", expected_generation=1, outcome=m3_outcome,
+        ))
         self.assertEqual(workload("d4-candidate-g").packet_digest, D4_DIGEST)
         self.assertEqual(workload("m3-nlu-calibration").packet_digest, M3_STAGE_MANIFEST_DIGEST)
         self.assertNotEqual(workload("d4-candidate-g").journal_name, workload("m3-nlu-calibration").journal_name)
@@ -83,6 +95,21 @@ class EvaluationLeaseTests(unittest.TestCase):
         with self.assertRaises(EvaluationLeaseError):
             next_workload(completed=("d4-candidate-g",), expected_lease_id="eval-1",
                           expected_generation=1, outcome=outcome)
+
+    def test_m3_completion_requires_current_terminal_outcome(self):
+        completed = ("d4-candidate-g", "m3-nlu-calibration")
+        with self.assertRaises(EvaluationLeaseError):
+            next_workload(completed=completed, expected_lease_id="eval-1", expected_generation=1)
+        foreign = WorkloadOutcome("other-lease", 1, "m3-nlu-calibration",
+                                  M3_STAGE_MANIFEST_DIGEST, "completed", "j", "r", 60, 1, True)
+        with self.assertRaises(EvaluationLeaseError):
+            next_workload(completed=completed, expected_lease_id="eval-1",
+                          expected_generation=1, outcome=foreign)
+        uncertain = WorkloadOutcome("eval-1", 1, "m3-nlu-calibration",
+                                    M3_STAGE_MANIFEST_DIGEST, "completed", "j", "r", 60, 1, True, True)
+        with self.assertRaises(EvaluationLeaseError):
+            next_workload(completed=completed, expected_lease_id="eval-1",
+                          expected_generation=1, outcome=uncertain)
 
     def test_window_is_fixed_and_budgeted(self):
         validate_admission(self.admission(), now_epoch=1000)

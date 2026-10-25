@@ -38,6 +38,7 @@ QUIESCE_TARGETS = (
     "lxc114:news-aggregator-ingest.timer",
     "lxc114:news-aggregator-digest.timer",
 )
+QUIESCE_STATES = tuple((target, "masked+inactive") for target in QUIESCE_TARGETS)
 BACKEND_TARGET = "lxc110:aster-llama.service"
 
 
@@ -189,12 +190,15 @@ def plan() -> tuple[str, ...]:
     )
 
 
-def validate_post_quiescence(value: Admission, *, observed_targets: tuple[str, ...],
+def validate_post_quiescence(value: Admission, *,
+                             observed_states: tuple[tuple[str, str], ...],
                              backend_active: bool, endpoint_authenticated: bool,
                              endpoint_idle: bool, gpu_holders: tuple[str, ...]) -> None:
     """Validate the second boundary before either model workload starts."""
-    if tuple(observed_targets) != value.registered_targets:
-        raise EvaluationLeaseError("post-quiescence target set is incomplete or unexpected")
+    if tuple(observed_states) != QUIESCE_STATES:
+        raise EvaluationLeaseError("post-quiescence units are not exactly masked and inactive")
+    if any(state in {"active", "running"} for _, state in observed_states):
+        raise EvaluationLeaseError("a registered consumer remains active")
     if not (backend_active and endpoint_authenticated and endpoint_idle):
         raise EvaluationLeaseError("post-quiescence backend is not healthy and idle")
     if tuple(gpu_holders) != (BACKEND_TARGET,):
@@ -236,6 +240,10 @@ def next_workload(*, completed: tuple[str, ...], expected_lease_id: str,
             raise EvaluationLeaseError("M3 requires the terminal D4 outcome for this lease")
         return WORKLOADS[1]
     if completed == tuple(item.name for item in WORKLOADS):
+        if outcome is None or outcome.name != WORKLOADS[1].name:
+            raise EvaluationLeaseError("completion requires the terminal M3 outcome for this lease")
+        validate_outcome(outcome, expected=WORKLOADS[1],
+                         lease_id=expected_lease_id, generation=expected_generation)
         return None
     raise EvaluationLeaseError("workload sequence is not the frozen D4-then-M3 order")
 
