@@ -34,15 +34,20 @@ def template():
     }
 
 
+CONTRACT_RAW = b"synthetic contract bytes\n"
+SCORER_RAW = b"synthetic scorer bytes\n"
+NONOVERLAP_RAW = b"synthetic non-overlap receipt bytes\n"
+
+
 def sealed():
     value = template()
     value.update(
         status="sealed",
         roles={role: f"{role}-session" for role in ROLE_KEYS},
-        contract_sha256="a" * 64,
-        scorer_sha256="b" * 64,
+        contract_sha256=hashlib.sha256(CONTRACT_RAW).hexdigest(),
+        scorer_sha256=hashlib.sha256(SCORER_RAW).hexdigest(),
         threshold_policy_sha256="c" * 64,
-        development_nonoverlap_receipt_sha256="d" * 64,
+        development_nonoverlap_receipt_sha256=hashlib.sha256(NONOVERLAP_RAW).hexdigest(),
         cases=[
             {
                 "id": f"NLU-HO-{index:03d}",
@@ -145,12 +150,16 @@ class NluHoldoutReleaseTests(unittest.TestCase):
         value = sealed()
         value["threshold_policy_sha256"] = hashlib.sha256(raw).hexdigest()
         value["release_sha256"] = canonical_sha256(value)
-        self.assertEqual([], validate_release_bundle(value, raw))
+        self.assertEqual([], validate_release_bundle(
+            value, raw, CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW,
+        ))
 
         changed = raw + b"\n"
         self.assertIn(
             "threshold policy digest does not match sealed release",
-            validate_release_bundle(value, changed),
+            validate_release_bundle(
+                value, changed, CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW,
+            ),
         )
 
     def test_template_policy_cannot_back_a_sealed_release(self):
@@ -160,8 +169,50 @@ class NluHoldoutReleaseTests(unittest.TestCase):
         value["release_sha256"] = canonical_sha256(value)
         self.assertIn(
             "sealed release requires a frozen threshold policy",
-            validate_release_bundle(value, raw),
+            validate_release_bundle(
+                value, raw, CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW,
+            ),
         )
+
+    def test_every_claimed_artifact_is_verified_from_exact_bytes(self):
+        policy = {
+            "schema": "aster-nlu-threshold-policy.v1",
+            "status": "frozen",
+            "policy_id": "nlu-threshold-policy-v1",
+            "contract_schema": "request-interpretation.v1",
+            "selection_partition": "disjoint-calibration",
+            "score_semantics": "evaluation-only-route-eligibility",
+            "selection_rule": "maximize-coverage-subject-to-all-constraints",
+            "constraints": {
+                "max_privacy_underclassification": 0,
+                "max_unsafe_false_route": 0,
+                "max_selective_error_rate": 0.1,
+                "minimum_coverage": 0.6,
+            },
+            "tie_breaker": "highest-threshold",
+            "minimum_calibration_cases": 60,
+            "minimum_cases_per_family": {family: 10 for family in POLICY_FAMILIES},
+            "candidate_bundle_sha256": "a" * 64,
+            "calibration_artifact_sha256": "b" * 64,
+            "calibration_score_sha256": "c" * 64,
+            "selected_threshold": 0.75,
+            "holdout_accessed": False,
+            "authority": "not-granted",
+        }
+        policy_raw = (json.dumps(policy, sort_keys=True, separators=(",", ":")) + "\n").encode()
+        value = sealed()
+        value["threshold_policy_sha256"] = hashlib.sha256(policy_raw).hexdigest()
+        value["release_sha256"] = canonical_sha256(value)
+        for position, expected in (
+            (1, "contract digest does not match sealed release"),
+            (2, "scorer digest does not match sealed release"),
+            (3, "development non-overlap receipt digest does not match sealed release"),
+        ):
+            artifacts = [CONTRACT_RAW, SCORER_RAW, NONOVERLAP_RAW]
+            artifacts[position - 1] += b"drift"
+            errors = validate_release_bundle(value, policy_raw, *artifacts)
+            with self.subTest(expected=expected):
+                self.assertIn(expected, errors)
 
 
 if __name__ == "__main__":

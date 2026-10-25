@@ -173,14 +173,30 @@ def validate_release(value: object) -> list[str]:
     return errors
 
 
-def validate_release_bundle(value: object, threshold_policy_raw: bytes) -> list[str]:
-    """Validate a release and its exact frozen threshold-policy artifact."""
+def validate_release_bundle(
+    value: object,
+    threshold_policy_raw: bytes,
+    contract_raw: bytes,
+    scorer_raw: bytes,
+    development_nonoverlap_receipt_raw: bytes,
+) -> list[str]:
+    """Validate a release against every exact artifact it claims to bind."""
     errors = validate_release(value)
     policy, policy_errors = load_and_validate(threshold_policy_raw)
     errors.extend(f"threshold policy: {error}" for error in policy_errors)
     if isinstance(value, dict) and value.get("status") == "sealed":
-        if value.get("threshold_policy_sha256") != sha256(threshold_policy_raw):
-            errors.append("threshold policy digest does not match sealed release")
+        for field, raw, label in (
+            ("threshold_policy_sha256", threshold_policy_raw, "threshold policy"),
+            ("contract_sha256", contract_raw, "contract"),
+            ("scorer_sha256", scorer_raw, "scorer"),
+            (
+                "development_nonoverlap_receipt_sha256",
+                development_nonoverlap_receipt_raw,
+                "development non-overlap receipt",
+            ),
+        ):
+            if value.get(field) != sha256(raw):
+                errors.append(f"{label} digest does not match sealed release")
         if policy is not None and policy.get("status") != "frozen":
             errors.append("sealed release requires a frozen threshold policy")
     return errors

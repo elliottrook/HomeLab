@@ -121,6 +121,11 @@ now also rejects zero minimum coverage and a 100% selective-error allowance.
 This prevents an empty or unconstrained calibration result from becoming a
 valid frozen policy while leaving every actual numeric acceptance value open
 for preregistration.
+The [holdout artifact-binding boundary](evidence/M3-NLU-holdout-artifact-binding-boundary-2026-10-25.md)
+now requires the validator to receive and hash the exact contract, scorer,
+threshold-policy and development non-overlap receipt bytes named by a sealed
+holdout manifest. A digest-shaped but unrelated artifact can no longer pass
+bundle validation.
 
 ## Validation checkpoint — 2026-10-24
 

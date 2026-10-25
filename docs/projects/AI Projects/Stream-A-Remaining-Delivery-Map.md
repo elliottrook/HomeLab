@@ -387,10 +387,12 @@ still separate gates. A separate
 binds future opaque comparisons to the exact frozen policy and requires no
 execution or provider egress. A later
 [non-vacuous policy correction](evidence/M3-NLU-nonvacuous-policy-boundary-2026-10-24.md)
-rejects zero coverage and a 100% selective-error allowance; the focused NLU
-suite now passes 47/47. The shadow artifact remains an empty template, not
-collection approval or a route release, and actual numeric acceptance values
-remain open.
+rejects zero coverage and a 100% selective-error allowance. The subsequent
+[holdout artifact-binding correction](evidence/M3-NLU-holdout-artifact-binding-boundary-2026-10-25.md)
+requires exact contract, scorer, policy and development non-overlap receipt
+bytes rather than trusting digest-shaped claims; the focused NLU suite now
+passes 48/48. The shadow artifact remains an empty template, not collection
+approval or a route release, and actual numeric acceptance values remain open.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)
