@@ -3266,3 +3266,18 @@ retain its INFO line, so freshness is recorded as unmeasured. No Red approval,
 management mutation, capability grant, model call or OpenBao action occurred.
 The web candidate is now an optional visibility improvement rather than a
 claim-transport prerequisite.
+
+## 2026-10-25 — Synthetic Red and management authority proof passed
+
+Completed the exact no-executor M1 ceremony after a fresh zero-active-request
+preflight and a root-only SQLite checkpoint. Jason approved one fixed fictional
+Red request through Companion WebAuthn; the stored passkey claim was one second
+old. The broker consumed the exact payload once, returned `synthetic=true` and
+denied the deliberate duplicate. Jason then applied `operator` to the already
+operator `agent-hermes` through Management WebAuthn. The independent read-only
+verifier accepted exactly one terminal request and four audit events in the
+required order, with zero active requests and no policy, grant, service, agent
+or global-switch drift. All four services and ordinary Aster health remained
+normal. Temporary helpers were removed and the verified checkpoint retained.
+This closes synthetic freshness and exact-once authority evidence; it grants no
+generic Red, management or connected-tool authority.
