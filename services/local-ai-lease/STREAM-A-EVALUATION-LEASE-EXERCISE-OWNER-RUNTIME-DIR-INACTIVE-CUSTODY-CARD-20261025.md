@@ -25,11 +25,15 @@ The parent `/etc/local-ai-lab` must retain its existing custody and mode.
    platform, set `root:root` and mode `0700`, then recheck no files exist.
    Do not create identity, intent, lease, lock, heartbeat, receipt, unit or
    timer state.
-3. Validate the exact transient owner launch namespace with a harmless bounded
-   target check: the fixed wrapper may enter its namespace and remain alive
-   long enough to prove `ReadWritePaths` is usable, but must not run the owner
-   identity process, write identity/intent, start a recurring service, call a
-   model or create a lease. The check must leave the directory empty.
+3. Validate namespace entry with a unique transient validation unit, not the
+   owner wrapper, using the exact bounded command shape:
+
+   `/usr/bin/systemd-run --unit=stream-a-evaluation-exercise-path-check.service --collect --wait --property=User=root --property=NoNewPrivileges=yes --property=ProtectSystem=strict --property=ProtectHome=yes --property=PrivateTmp=yes --property=ReadWritePaths=/etc/local-ai-lab/stream-a-evaluation /usr/bin/test -d /etc/local-ai-lab/stream-a-evaluation`
+
+   Require exit `0` and result `finished`; then prove the transient unit is
+   absent/collected and the directory remains empty. This command must run no
+   owner executable, write no identity/intent, create no lease, call no model,
+   and enable or arm no timer.
 4. Recheck all F6 units/timers, four consumer states, F2 timer identities and
    whole-host lease. Record only hashes/custody/results; do not retry the
    consumed live approval.
@@ -42,7 +46,7 @@ file or custody has drifted, retain it and stop for manual reconciliation.
 Never remove the parent directory or any pre-existing path.
 
 The second live attempt's prepared lease
-`exercise-20251025-1792967951-1d319b6d` was cancelled before its restore
+`exercise-20261025-1792967951-1d319b6d` was cancelled before its restore
 deadline with `cancelled-prepared`; final lease/lock/identity/heartbeat/status/
 receipt state was absent, F6 remained disabled/inactive, consumers and F2 were
 unchanged, and the whole-host lease remained ready.
