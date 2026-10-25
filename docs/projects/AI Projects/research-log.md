@@ -3236,3 +3236,19 @@ designated requirements differ, so replacement could disrupt persisted session
 access and weaken rollback. No app was installed or launched. Restore the R2
 signing identity from owner custody or approve an explicit signer transition
 before the live claim check.
+
+## 2026-10-25 — Effect-free web passkey check prepared
+
+The web Companion's ordinary sign-in reached the dedicated Authentik passkey
+flow, but the currently served client has no read-only fresh-auth continuation:
+its saved continuations assume a Red approval or management mutation. Prepared
+a three-hunk candidate that adds an explicit session-only continuation, reports
+the server-derived `passkey_verified` and `fresh` booleans, and rejects unknown
+continuation kinds. Because live LXC104 contains production OpenBao and
+knowledge-usage changes absent from this branch, the candidate is an exact
+zero-fuzz patch against the observed live hash rather than a whole-file source
+replacement. Patch reproduction, Python compilation, the new effect-isolation
+test, seven rendered-client voice tests, eleven notification tests and the
+existing fresh-login test passed. Nothing was installed or restarted. The live
+page is waiting only for the owner account name; no credential was read or
+entered by Stream A.

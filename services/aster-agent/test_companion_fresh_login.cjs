@@ -2,7 +2,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
-const source = fs.readFileSync(__dirname + '/aster_agent.py', 'utf8');
+const source = fs.readFileSync(process.argv[2] || __dirname + '/aster_agent.py', 'utf8');
 const start = source.indexOf('async function login(fresh=');
 const end = source.indexOf('function storeTokens(j)', start);
 assert.ok(start >= 0 && end > start);

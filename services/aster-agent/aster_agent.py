@@ -2054,7 +2054,7 @@ async function loadApprovals(){{
 }}
 
 async function approveBrokerRequest(item){{
-  if(item.risk_class==='red'){{ await login(true,{{request_id:item.request_id,payload_hash:item.payload_hash,action:'approve'}}); return }}
+  if(item.risk_class==='red'){{ await login(true,{{kind:'broker',request_id:item.request_id,payload_hash:item.payload_hash,action:'approve'}}); return }}
   await finishBrokerAction(item,'approve');
 }}
 
@@ -2074,7 +2074,9 @@ async function resumeApprovalAction(){{
   try{{
     const item=JSON.parse(raw);
     if(item.kind==='management') await finishManagementAction(item.body);
-    else await finishBrokerAction(item,item.action);
+    else if(item.kind==='session_check') await loadManagement();
+    else if(item.kind==='broker') await finishBrokerAction(item,item.action);
+    else throw new Error('Unknown pending approval action');
   }}catch(e){{ document.querySelector('#approvalInbox').textContent='Approval action failed: '+e.message }}
 }}
 
@@ -2089,7 +2091,14 @@ async function loadManagement(){{
       approvalApi('/management/snapshot'), approvalApi('/management/history?limit=40'), approvalApi('/management/audit?limit=40'), approvalApi('/session')
     ]);
     panel.innerHTML='';
-    panel.appendChild(mgmtText('p',session.passkey_verified?'Passkey verified. Changes require a fresh passkey confirmation.':'Sign in again with your passkey before making changes.'));
+    const sessionCard=document.createElement('section'); sessionCard.className='mgmtCard'; sessionCard.appendChild(mgmtText('h3','Approval session'));
+    const sessionStatus=session.passkey_verified
+      ? (session.fresh?'Passkey verified in the last two minutes.':'Passkey verified; a fresh confirmation is still required for changes.')
+      : 'This session does not carry the approved passkey claim.';
+    sessionCard.appendChild(mgmtText('p',sessionStatus));
+    const verifySession=mgmtText('button','Verify approval session with passkey');
+    verifySession.onclick=()=>login(true,{{kind:'session_check'}});
+    sessionCard.appendChild(verifySession); panel.appendChild(sessionCard);
     const global=document.createElement('section'); global.className='mgmtCard'; global.appendChild(mgmtText('h3','Emergency controls'));
     global.appendChild(mgmtText('p','Global AI access: '+(snapshot.global_enabled?'ENABLED':'DISABLED'),snapshot.global_enabled?'statusOn':'statusOff'));
     const globalBtn=mgmtText('button',snapshot.global_enabled?'REVOKE ALL AI ACCESS':'Re-enable synthetic AI access','danger');
