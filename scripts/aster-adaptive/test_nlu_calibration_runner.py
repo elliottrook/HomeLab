@@ -99,6 +99,43 @@ class NluCalibrationRunnerTests(unittest.TestCase):
         self.assertEqual("response_invalid", result["records"][0]["error_type"])
         self.assertTrue(result["records"][1]["valid"])
 
+    def test_known_llama_metadata_is_stripped_before_strict_adapter(self):
+        raw = json.loads(response_bytes())
+        raw.update({
+            "id": "chatcmpl-fixture",
+            "object": "chat.completion",
+            "created": 1,
+            "model": "aster-qwen3.5-9b",
+            "system_fingerprint": "fixture",
+            "usage": {"prompt_tokens": 10, "completion_tokens": 4},
+            "timings": {"prompt_n": 10, "predicted_n": 4},
+        })
+        raw["choices"][0].update({"index": 0, "logprobs": None, "stop_reason": None})
+        result = runner.run_cases(
+            cases(1), "s" * 32,
+            opener=Opener([json.dumps(raw).encode()]), clock=Clock(),
+        )
+        self.assertTrue(result["records"][0]["valid"])
+        self.assertNotIn("usage", json.dumps(result))
+        self.assertNotIn("timings", json.dumps(result))
+
+    def test_unknown_envelope_or_choice_metadata_fails_closed(self):
+        variants = []
+        top = json.loads(response_bytes())
+        top["raw_prompt"] = "must not be accepted"
+        variants.append(top)
+        choice = json.loads(response_bytes())
+        choice["choices"][0]["tool_result"] = "must not be accepted"
+        variants.append(choice)
+        for value in variants:
+            with self.subTest(value=value):
+                result = runner.run_cases(
+                    cases(1), "s" * 32,
+                    opener=Opener([json.dumps(value).encode()]), clock=Clock(),
+                )
+                self.assertFalse(result["records"][0]["valid"])
+                self.assertEqual("response_invalid", result["records"][0]["error_type"])
+
     def test_transport_uncertainty_is_one_attempt_and_stops(self):
         opener = Opener([URLError("offline"), response_bytes()])
         result = runner.run_cases(cases(), "s" * 32, opener=opener, clock=Clock())

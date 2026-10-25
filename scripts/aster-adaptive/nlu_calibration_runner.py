@@ -34,6 +34,11 @@ PER_CASE_TIMEOUT_SECONDS = 90
 RUN_DEADLINE_SECONDS = 1_200
 INCOMPLETE_EXIT = 2
 EVIDENCE_EXIT = 3
+ENVELOPE_KEYS = {
+    "choices", "created", "id", "model", "object", "system_fingerprint",
+    "timings", "usage",
+}
+CHOICE_KEYS = {"finish_reason", "index", "logprobs", "message", "stop_reason"}
 
 
 class EvidenceWriteFailure(BaseException):
@@ -83,6 +88,29 @@ def _failure(case_id: str, latency: float, failure: str, error_type: str) -> dic
         "failure": failure,
         "error_type": error_type,
     }
+
+
+def _normalize_response(raw: bytes) -> bytes:
+    """Remove bounded llama/OpenAI metadata before strict NLU parsing."""
+    value = _load(raw, "model response")
+    if not set(value).issubset(ENVELOPE_KEYS) or "choices" not in value:
+        raise ValueError("model response envelope fields changed")
+    choices = value["choices"]
+    if not isinstance(choices, list) or len(choices) != 1:
+        raise ValueError("model response must contain exactly one choice")
+    choice = choices[0]
+    if (
+        not isinstance(choice, dict)
+        or not set(choice).issubset(CHOICE_KEYS)
+        or not {"message", "finish_reason"}.issubset(choice)
+    ):
+        raise ValueError("model response choice fields changed")
+    return json.dumps({
+        "choices": [{
+            "message": choice["message"],
+            "finish_reason": choice["finish_reason"],
+        }]
+    }, sort_keys=True, separators=(",", ":")).encode()
 
 
 def _validate_token(token: str) -> None:
@@ -197,7 +225,7 @@ def run_cases(
                         engine_sha256=ENGINE_SHA256,
                         policy_sha256=POLICY_SHA256,
                         latency_seconds=round(clock() - one_started, 3),
-                        response_raw=raw,
+                        response_raw=_normalize_response(raw),
                     ))
                 except (UnicodeError, json.JSONDecodeError, TypeError, ValueError):
                     records.append(_failure(
