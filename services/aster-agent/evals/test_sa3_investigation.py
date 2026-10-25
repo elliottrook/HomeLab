@@ -134,13 +134,25 @@ class InvestigationTests(unittest.TestCase):
             (valid | {'summary': ''}, 'summary_length'),
             (valid | {'evidence_ids': None}, 'evidence_ids_type'),
             (valid | {'evidence_ids': [1]}, 'evidence_id_type'),
-            (valid | {'evidence_ids': ['initial', 'initial']}, 'duplicate_evidence_id'),
+            (valid | {'evidence_ids': ['initial', 'initial']}, 'valid'),
             (valid | {'effects': None}, 'effects_type'),
             (valid, 'valid'),
         )
         for value, expected in samples:
             with self.subTest(expected=expected):
                 self.assertEqual(answer_shape_status(value), expected)
+
+    def test_duplicate_observed_citations_are_canonicalized_without_weakening_boundary(self):
+        duplicate = answer('clarify', '', ['initial', 'initial'])
+        result = self.replay([duplicate])[0]
+        self.assertEqual(result['status'], 'clarify')
+        self.assertEqual(result['steps'][0]['answer']['evidence_ids'], ['initial'])
+        self.assertEqual(result['steps'][0]['metadata']['citation_duplicates_removed'], 1)
+
+        unseen = answer('clarify', '', ['error-now', 'error-now'])
+        result = self.replay([unseen])[0]
+        self.assertEqual(result['status'], 'unobserved_evidence_rejected')
+        self.assertIsNone(result['steps'][0]['answer'])
 
     def test_malformed_fixture_fails_before_transport(self):
         malformed = copy.deepcopy(self.case)

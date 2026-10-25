@@ -60,6 +60,15 @@ separate invalid JSON from a wrong field/type shape. A one-call content-free
 candidate. Another full development run is not justified until that probe
 identifies and a tested correction closes the exact contract failure.
 
+The approved [one-call probe](D4-one-call-contract-probe-result-2026-10-24.md)
+measured `duplicate_evidence_id`: the accepted llama.cpp path did not enforce
+the schema's `uniqueItems` constraint. The next offline candidate
+canonicalizes repeated citations in first-seen order, records only the count
+removed, and still rejects every unobserved citation. The complete suite passes
+148/148. Its exact run digest is
+`9a089af8bf599bfbea35bc1ead7ea70d93c52f6345c7aeee2d40d77c118b2078`.
+It is prepared but not authorized to execute.
+
 ## Bounded execution
 
 - 12 cases, one session per case, fixed source order.

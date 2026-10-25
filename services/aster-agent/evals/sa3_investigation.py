@@ -11,6 +11,7 @@ SYSTEM = (
     "one unused capability ID, conclude only when evidence supports a diagnosis, "
     "or clarify when evidence is insufficient. Checks return simulated evidence, "
     "not real system results. Cite observed evidence IDs. Summarize the diagnosis "
+    "List each cited evidence ID at most once. "
     "and proposed verification briefly; do not provide private reasoning. "
     "Never claim a repair was performed. Effects must be empty."
 )
@@ -91,8 +92,6 @@ def answer_shape_status(answer):
         return 'evidence_ids_type'
     if any(not isinstance(value, str) for value in answer['evidence_ids']):
         return 'evidence_id_type'
-    if len(answer['evidence_ids']) != len(set(answer['evidence_ids'])):
-        return 'duplicate_evidence_id'
     if not isinstance(answer['effects'], list):
         return 'effects_type'
     return 'valid'
@@ -178,6 +177,12 @@ def investigate(
         metadata['answer_shape_status'] = answer_shape_status(answer)
         if metadata['answer_shape_status'] != 'valid':
             status = 'invalid_answer'; break
+        answer = copy.deepcopy(answer)
+        original_citation_count = len(answer['evidence_ids'])
+        answer['evidence_ids'] = list(dict.fromkeys(answer['evidence_ids']))
+        metadata['citation_duplicates_removed'] = (
+            original_citation_count - len(answer['evidence_ids'])
+        )
         step['answer'] = copy.deepcopy(answer)
         if answer['effects'] != []:
             step['answer'] = None

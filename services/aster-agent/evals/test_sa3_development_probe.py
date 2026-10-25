@@ -45,6 +45,13 @@ class DevelopmentProbeTests(unittest.TestCase):
         self.assertEqual(semantic_status(self.case, None), "invalid_answer:not_object")
         self.assertEqual(semantic_status(self.case, self.valid), "accepted_first_check")
         self.assertEqual(
+            semantic_status(
+                self.case,
+                self.valid | {"evidence_ids": self.valid["evidence_ids"] * 2},
+            ),
+            "accepted_first_check",
+        )
+        self.assertEqual(
             semantic_status(self.case, self.valid | {"evidence_ids": ["not-observed"]}),
             "unobserved_evidence_rejected",
         )

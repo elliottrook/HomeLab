@@ -49,6 +49,8 @@ complete evaluation suite passes 147/147.
 
 The exact probe digest is
 `04774564801ebc0f21347d44fbdec53cbca7555bb0b90b70dff7859eee779873`.
-It is dry-run only until separately approved. A probe result can support a
-specific contract correction; it cannot qualify D4 or authorize another
-twelve-case run.
+It subsequently ran once with separate approval and measured a duplicate
+evidence-ID failure; see the
+[probe result](D4-one-call-contract-probe-result-2026-10-24.md). That result
+supports a specific contract correction, but cannot qualify D4 or authorize
+another twelve-case run.

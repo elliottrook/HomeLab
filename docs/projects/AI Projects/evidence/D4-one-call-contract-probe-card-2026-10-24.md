@@ -45,3 +45,9 @@ Execution needs exact approval for this digest. It authorizes one model call
 and temporary hash-verified staging in LXC104. It does not authorize a second
 call, twelve-case run, connected tool, effect, service/configuration change,
 runtime promotion, route promotion, holdout access, deployment or Git push.
+
+## Completion
+
+The approved call completed once. See the
+[probe result](D4-one-call-contract-probe-result-2026-10-24.md). The approval
+is consumed and does not authorize a replay.
