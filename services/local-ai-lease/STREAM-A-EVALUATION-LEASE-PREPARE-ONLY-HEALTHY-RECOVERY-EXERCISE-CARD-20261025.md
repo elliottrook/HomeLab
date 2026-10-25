@@ -42,8 +42,9 @@ with the October 26 F2 window.
    `7fbbc017630dc7ab87b212fc3a92ba92bb48663b` and
    `26dd2a0e90095a787d75353138393b71b3dbd6a4`; the installed watchdog must
    match `19606f6b398dd6f43a461704081e66f09e292c434f73f4aaee46327f9cc02f53`,
-   and the exercise-admission inactive upgrade must also be installed and
-   verified before this exercise.
+   the metadata-only auth-probe repair must be installed and verified, and
+   the installed runner must match `610b963bccacc028401e6656df071e86dfa8c4066028b3e46291d5f3c9e2ec8a`
+   before this exercise.
 3. All five F6 units and timers remain disabled/inactive; no runtime lease,
    lock, identity, owner intent, heartbeat or watchdog status is present.
 4. Production health, accepted backend/GPU identity and the exact four-consumer
