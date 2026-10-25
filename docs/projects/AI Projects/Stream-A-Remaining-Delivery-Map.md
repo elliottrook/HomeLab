@@ -555,8 +555,19 @@ the platform owner. The inert library and M3 packet remain unchanged.
 The final platform correction at `ae56046b` plus card commit `d2a32785` closes
 those source and transaction gaps. Its clean archive passes 32/32 tests and
 the live target exactly matches the required four-file prestate. The bounded
-one-replacement/two-addition inactive upgrade is ready for a separate exact
-installation decision; no effect phase is authorized by that installation.
+one-replacement/two-addition inactive upgrade received exact approval, but its
+[target installation failed closed](evidence/Stream-A-evaluation-lease-effect-entrypoint-install-no-go-2026-10-25.md)
+after 32/32 tests and installed imports passed. The real disabled wrapper
+created `__pycache__` because it invokes Python without `-B`, violating the
+card's exact-directory postcondition. Automatic rollback restored the original
+four-file baseline, retained the root-only checkpoint and left no state, lock
+or service change. The platform owner has the one-line wrapper correction and
+regression requirement. Platform implementation `b18302f3` and card metadata
+`6bf5f252` now provide that correction: the wrapper uses Python `-B`, the card
+pins its new hash, and an independent clean archive passes 33/33 tests,
+including the real no-bytecode wrapper regression. The corrected transaction
+is ready for a new exact inactive installation decision; no effect phase is
+authorized.
 The platform owner's first pure endpoint-retaining lease candidate at
 `44b26e16` passed its own 7/7 tests and names the correct live backend and News
 timers, but Stream A's
