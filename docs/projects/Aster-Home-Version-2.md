@@ -3984,3 +3984,23 @@ pending. This remains an HP pilot, not production promotion or M2/M3 graduation.
 Integration inventory/Doctor/Beszel/NetBox facts are unchanged; no new service
 coverage applies. Recovery/operator guidance is updated here; no new secrets
 or public publication are introduced. No push was requested.
+
+### 2026-10-25 — Canonical navigation sound adoption, both boxes
+
+Jason requested the canonical AsterTV family on production and all version 2
+navigation. Integrated source commit `4c283eaf` locally. The shared native theme
+now supplies that family on both boxes; production UI remains version 1.1.1.
+No AV settings, credentials, service coverage, inventory, identity boundaries
+or public access changed. No restart or active-playback interruption was needed.
+
+An exact PCM24 trial exposed Kodi's decoded-sample buffer underallocation and
+was rolled back on both boxes. Lossless PCM32 compatibility copies passed HP
+smoke before production adoption, then passed production smoke. Approved masters,
+timing and stereo balance remain unchanged. Both boxes retain paired checkpoints;
+HP preservation passes with all 68 AV/language settings unchanged. Physical
+receiver listening is still pending, not implied by automated engine checks.
+
+See [runtime encoding, packaging, evidence and recovery](../../services/kodi/releases/aster-canonical-runtime-sounds-2026-10-25.md).
+Future deployment packages require `--runtime-sounds`; default source-reference
+archives intentionally retain immutable PCM24 masters, not runtime copies.
+497 v2 tests and 11 sound tests pass normally and optimized. No push requested.

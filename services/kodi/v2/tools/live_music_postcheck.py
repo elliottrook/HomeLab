@@ -88,6 +88,23 @@ if search_file.exists():
             verify_stage();search_count=6
 overlay_file=Path('/storage/.aster-checkpoints/aster-floating-controls-20261024/overlay-manifest.json')
 overrides={}
+canonical_count=0
+canonical_overrides={}
+canonical_file=Path('/storage/.aster-checkpoints/aster-canonical-pcm32-20261025/verified.json')
+if canonical_file.exists():
+    canonical=json.loads(canonical_file.read_text())
+    canonical_expected={**{name:'76cc78bb5b1c2901a0ceabd25c337daa51a4f1d04e828f94b8cc74e0f69c58ac'
+        for name in ('nav-left.wav','nav-right.wav','nav-up.wav','nav-down.wav')},
+        'back.wav':'9966043bb9601362f15e3f11f0272c78bad7f2c7201aee7952200c1c0aaef9a8',
+        'select.wav':'19ffc9a9ea3d74e69c9e1b8a5ea3ca10ef8c6af8de47629b919609379226ad3e',
+        'notify.wav':'5c9f60ac6e86b93beae0801646b9ba8b342e001a9b5fb47cfde3873786dcba80'}
+    _require(canonical.get('kind')=='aster-canonical-ui-sounds.v1' and canonical.get('host')=='AsterTV'
+        and canonical.get('assets')==canonical_expected and canonical.get('installed') is True,'canonical-sound-adoption')
+    for name,expected_sha in canonical_expected.items():
+        path='resource.uisounds.asterhome/resources/'+name
+        _require(hashlib.sha256((addons/path).read_bytes()).hexdigest()==expected_sha,'canonical-sound-drift')
+        canonical_overrides[path]=expected_sha
+    canonical_count=7
 scrub_file=Path('/storage/.aster-checkpoints/aster-video-scrub-20261024/active-manifest.json')
 scrub_active=scrub_file.exists();prepared_scrub=0
 if not scrub_active:scrub_file=Path('/storage/.aster-checkpoints/aster-video-scrub-20261024/prepared-native-manifest.json')
@@ -122,6 +139,7 @@ if overlay_file.exists():
         (scrub_osd_sha if scrub_osd_sha and r['path']=='1080i/VideoOSD.xml' else r['sha256']) for r in overlay['files'])), ('native-check-failed'))
     if scrub_osd_sha:overrides['skin.asterhome/1080i/VideoOSD.xml']=scrub_osd_sha
 overlay_count=len(overrides)
+overrides.update(canonical_overrides)
 if search_home_sha:overrides['skin.asterhome/1080i/Home.xml']=search_home_sha
 integration_file=Path('/storage/.aster-checkpoints/aster-music-integration-20261024/active-manifest.json')
 integration_count=0
@@ -203,6 +221,7 @@ with output.open('x') as handle:
                'approved_video_scrub_files_verified':scrub_count,
                'prepared_video_scrub_dialog_verified':prepared_scrub,
                'approved_search_details_files_verified':search_count,
+               'approved_canonical_sound_files_verified':canonical_count,
                'av_language_settings_verified':len(values),
                'database_integrity':'ok','missing_primary_artist_links':0,
                'video_database_integrity':'ok',

@@ -69,7 +69,7 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def build_archive(addon_id: str, output: Path) -> dict:
+def build_archive(addon_id: str, output: Path, runtime_sounds: bool = False) -> dict:
     source = HERE / addon_id
     if not (source / "addon.xml").is_file():
         raise ValueError(f"missing add-on source: {source}")
@@ -84,6 +84,9 @@ def build_archive(addon_id: str, output: Path) -> dict:
             info.create_system = 3
             info.external_attr = (stat.S_IFREG | 0o644) << 16
             data = path.read_bytes()
+            if runtime_sounds and addon_id == 'resource.uisounds.asterhome' and relative.suffix == '.wav':
+                from v2.canonical_sound_compat import promote
+                data = promote(data)
             bundle.writestr(info, data, compress_type=zipfile.ZIP_DEFLATED,
                             compresslevel=9)
             records.append({"path": member.as_posix(),
@@ -94,11 +97,11 @@ def build_archive(addon_id: str, output: Path) -> dict:
             "files": records}
 
 
-def build(output: Path) -> dict:
+def build(output: Path, runtime_sounds: bool = False) -> dict:
     output.mkdir(parents=True, exist_ok=True)
     if any(output.iterdir()):
         raise ValueError(f"output directory is not empty: {output}")
-    archives = [build_archive(addon_id, output) for addon_id in ADDONS]
+    archives = [build_archive(addon_id, output, runtime_sounds) for addon_id in ADDONS]
     client_files = []
     for record in CLIENT_FILES:
         data = record["source"].read_bytes()
@@ -114,6 +117,7 @@ def build(output: Path) -> dict:
     manifest = {
         "schema": "aster-home-kodi-release.v1",
         "release": RELEASE,
+        "sound_encoding": "PCM32-lossless-from-PCM24" if runtime_sounds else "PCM24-source-reference-not-for-Kodi-runtime",
         "status": "production-candidate-pending-physical-libreelec-gate",
         "design_canvas": "1920x1080-16:9-scales-to-4k",
         "install_order": list(ADDONS),
@@ -130,8 +134,9 @@ def build(output: Path) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--runtime-sounds", action="store_true", help="Required for Kodi deployment: lossless PCM32 sound copies")
     args = parser.parse_args()
-    manifest = build(args.output.resolve())
+    manifest = build(args.output.resolve(), runtime_sounds=args.runtime_sounds)
     print(json.dumps({"release": manifest["release"],
                       "archives": [{"archive": item["archive"],
                                     "sha256": item["sha256"],
