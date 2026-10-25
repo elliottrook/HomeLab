@@ -3207,3 +3207,18 @@ environment passed. Nothing was installed and the live ingress environment,
 service, approvals and management state were untouched. A separately approved
 two-file installation, exact environment line, fresh passkey ceremony and
 rollback check remain the release gate.
+
+## 2026-10-25 — Passkey-aware independent ingress installed
+
+Applied the approved exact two-file M1 installation to LXC104 and added only
+the reviewed Aster WebAuthn ACR mapping. A malformed first `unittest` operator
+command stopped before mutation; corrected discovery then passed. The complete
+post-install target suite passed 31/31. The ingress restarted active on 9121,
+unauthenticated access remained 401, ordinary Aster stayed healthy, and the
+broker database hash and zero-request state were unchanged. The root-only
+rollback checkpoint is retained. AI-PAM Approvals showed no pending items;
+entering Management reached macOS secure UI and made accessibility automation
+unavailable while the app remained alive and continued successful refreshes.
+One human passkey completion plus a read-only session observation is still
+needed to prove claim transport. No Red approval, management mutation, grant or
+model call occurred, so higher authority remains unreleased.
