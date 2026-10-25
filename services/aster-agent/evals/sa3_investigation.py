@@ -72,6 +72,7 @@ def _metadata(response):
 
 def request_for(case, observations, used, mode, model):
     remaining = [c for c in case['capabilities'] if c['id'] not in used]
+    observed_ids = [observation['id'] for observation in observations]
     # Build common settings with the public catalogue; constrain unused IDs below.
     payload = build_request({'id': case['id'], 'prompt': case['prompt'],
                              'capabilities': case['capabilities']}, mode, model)
@@ -84,7 +85,11 @@ def request_for(case, observations, used, mode, model):
         'properties': {
             'decision': {'type': 'string', 'enum': ['check', 'conclude', 'clarify']},
             'check': {'type': 'string', 'enum': [''] + [c['id'] for c in remaining]},
-            'evidence_ids': {'type': 'array', 'items': {'type': 'string'}, 'uniqueItems': True},
+            'evidence_ids': {
+                'type': 'array',
+                'items': {'type': 'string', 'enum': observed_ids},
+                'uniqueItems': True,
+            },
             'summary': {'type': 'string', 'minLength': 1, 'maxLength': 4000},
             'effects': {'type': 'array', 'items': {'type': 'string'}, 'maxItems': 0}}}
     return payload

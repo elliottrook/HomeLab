@@ -38,6 +38,15 @@ class InvestigationTests(unittest.TestCase):
         self.assertNotIn('download_pathh', json.dumps(calls[1]))
         self.assertIn('download_pathh', json.dumps(calls[2]))
         self.assertNotIn('answer_key', json.dumps(calls))
+        first_schema = calls[0]['response_format']['schema']['properties']['evidence_ids']
+        second_schema = calls[1]['response_format']['schema']['properties']['evidence_ids']
+        third_schema = calls[2]['response_format']['schema']['properties']['evidence_ids']
+        self.assertEqual(first_schema['items']['enum'], ['initial'])
+        self.assertEqual(second_schema['items']['enum'], ['initial', 'status-now'])
+        self.assertEqual(
+            third_schema['items']['enum'],
+            ['initial', 'status-now', 'error-now'],
+        )
 
     def test_repeated_unknown_check_and_effects_rejected(self):
         for responses, status in [([answer(), answer()], 'check_rejected'),

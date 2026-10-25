@@ -9,8 +9,8 @@ local model can investigate the frozen simulated evidence without effects. It
 does not qualify a sysadmin role, grant a tool, change routing or select a
 provider.
 
-The revised exact run digest is
-`6299c6b285a440607d5da31790ff7af4275a613c4fdaac97e4bea6a3a2999267`.
+The current corrected exact run digest is
+`d61be2b4165a19498808226e2b2118dddd1899b379d87997d0ff098232657d2e`.
 The dry run accesses no key and makes no request.
 
 ## Frozen inputs and runtime
@@ -38,6 +38,16 @@ temporary package was removed and production stayed healthy. The revised
 manifest includes that module, adds an isolated-package import-completeness
 test and passes the complete 141-test suite. The predecessor approval is spent
 and does not authorize this revised digest.
+
+The next approved execution at predecessor digest `6299c6b2...` completed all
+twelve sessions but every first response was rejected for citing unobserved
+evidence. The [attempt record](D4-tool-free-development-attempt-1-result-2026-10-24.md)
+preserves the bounded measurements and immutable ledger identity. The current
+candidate constrains `evidence_ids` to the IDs actually revealed at each step,
+while retaining the independent fail-closed engine check. It also reports
+accepted-terminal session counts explicitly, so schedule completion cannot be
+mistaken for a quality pass. The complete suite passes 142/142. The prior
+approval is spent and does not authorize the corrected digest.
 
 ## Bounded execution
 

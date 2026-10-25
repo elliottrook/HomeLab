@@ -1,6 +1,7 @@
 """Dry-run by default executor for the reviewed twelve-case D4 development set."""
 
 import argparse
+from collections import Counter
 import copy
 import hashlib
 import json
@@ -17,7 +18,7 @@ from sa3_fresh_execute import (
     parse_processing_metric,
     read_bounded,
 )
-from sa3_fresh_package import digest, run_package
+from sa3_fresh_package import decode_journal_json, digest, run_package
 from sa3_investigation import investigate
 from sa3_investigation_runner import sanitize_response
 from validate_sa3_fixture_bundle import review_source_sha256, validate_for_qualification
@@ -86,6 +87,19 @@ def validate_development_cases(bundle, manifest, source_corpus, source_plan):
             json.dumps(bundle, indent=2, sort_keys=True).encode() + b"\n").hexdigest():
         raise ValueError("development fixture file digest mismatch")
     return copy.deepcopy(cases)
+
+
+def journal_status_counts(path):
+    counts = Counter()
+    with Path(path).open(encoding="utf-8") as stream:
+        for line in stream:
+            row = decode_journal_json(line)
+            event = row.get("event") if isinstance(row, dict) else None
+            if isinstance(event, dict) and event.get("type") == "finished":
+                result = event.get("result")
+                if isinstance(result, dict) and isinstance(result.get("status"), str):
+                    counts[result["status"]] += 1
+    return dict(sorted(counts.items()))
 
 
 def main(argv=None):
@@ -175,8 +189,17 @@ def main(argv=None):
         planner=lambda cases: [(case, "nonthinking") for case in cases],
     )
     result["postcheck_idle_healthy"] = ready()
+    result["session_status_counts"] = journal_status_counts(args.ledger)
+    result["accepted_terminal_sessions"] = sum(
+        result["session_status_counts"].get(status, 0)
+        for status in ("conclude", "clarify")
+    )
     print(json.dumps(result), flush=True)
-    return 0 if result["status"] == "complete" and result["postcheck_idle_healthy"] else 1
+    return 0 if (
+        result["status"] == "complete"
+        and result["postcheck_idle_healthy"]
+        and result["accepted_terminal_sessions"] == EXPECTED_CASES
+    ) else 1
 
 
 if __name__ == "__main__":

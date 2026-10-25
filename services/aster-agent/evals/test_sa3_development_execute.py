@@ -6,7 +6,7 @@ import sys
 import tempfile
 import unittest
 
-from sa3_development_execute import main, run_spec
+from sa3_development_execute import journal_status_counts, main, run_spec
 
 
 class DevelopmentExecuteTests(unittest.TestCase):
@@ -66,6 +66,19 @@ class DevelopmentExecuteTests(unittest.TestCase):
     def test_execute_requires_exact_digest_before_authentication(self):
         with self.assertRaisesRegex(SystemExit, "approved digest"):
             main(["--execute", "--expected-run-digest", "0" * 64])
+
+    def test_journal_status_projection_is_content_free(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "ledger.jsonl"
+            path.write_text("\n".join((
+                json.dumps({"event": {"type": "started"}}),
+                json.dumps({"event": {"type": "finished", "result": {"status": "clarify", "summary": "private"}}}),
+                json.dumps({"event": {"type": "finished", "result": {"status": "invalid_answer"}}}),
+            )) + "\n")
+            self.assertEqual(
+                journal_status_counts(path),
+                {"clarify": 1, "invalid_answer": 1},
+            )
 
 
 if __name__ == "__main__":
