@@ -223,6 +223,21 @@ class InvestigationTests(unittest.TestCase):
         self.assertEqual('selected_check_evidence_missing', result['status'])
         self.assertIsNone(result['steps'][-1]['answer'])
 
+        result = self.replay([
+            answer(),
+            answer(check='error_summary', evidence=['initial', 'status-now']),
+            answer('clarify', '', ['initial', 'status-now']),
+        ])[0]
+        self.assertEqual('selected_check_evidence_missing', result['status'])
+        self.assertIsNone(result['steps'][-1]['answer'])
+
+        result = self.replay([
+            answer(),
+            answer(check='error_summary', evidence=['initial', 'status-now']),
+            answer('clarify', '', ['initial', 'status-now', 'error-now']),
+        ])[0]
+        self.assertEqual('clarify', result['status'])
+
     def test_malformed_fixture_fails_before_transport(self):
         malformed = copy.deepcopy(self.case)
         malformed['initial_observations'][0]['text'] = None

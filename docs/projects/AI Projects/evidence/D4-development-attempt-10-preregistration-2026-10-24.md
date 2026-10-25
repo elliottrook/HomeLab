@@ -31,7 +31,8 @@ remain unchanged.
   `defaf6039e01c7ac0cc16b3c2a28568336335bc949ea8992ec288819d33c23b8`.
 - Frozen candidate-G decision rule SHA-256:
   `35bedd86f244dc527606b463dcb223dde68c242c67d8028674d01553c5a9f089`.
-- Complete offline suite: 165/165 passed.
+- Complete offline suite: 165/165 passed, including one-check and two-check
+  evidence-lineage rejection plus the two-check accepted control.
 
 Candidate-G has not run and its authority is `not-granted`. A later approval
 must bind the exact run digest, a new owner-only attempt-10 journal, no retry
