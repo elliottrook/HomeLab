@@ -488,6 +488,12 @@ The [conditional holdout creation card](evidence/M3-NLU-holdout-conditional-crea
 now fixes those five roles, both exact exclusion sets and private custody, but
 it cannot activate unless calibration first freezes a valid threshold. A
 calibration rejection expires the card unused.
+The calibration runner now also has a
+[strict wall-deadline correction](evidence/M3-NLU-calibration-deadline-boundary-2026-10-25.md):
+it shortens each request timeout to the remaining 1,200-second budget, starts
+no request after expiry and returns nonzero while preserving a partial run for
+reconciliation. The dependency-free NLU suite passes 100/100. No live model
+request or lease followed.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)
