@@ -534,6 +534,17 @@ approval, while the compatible lease and all runtime/recovery gates still
 remain mandatory before the first model request. The live target path is
 currently absent, the lease controller is ready and the accepted llama service
 is active. No file has yet been staged.
+The platform owner's first pure endpoint-retaining lease candidate at
+`44b26e16` passed its own 7/7 tests and names the correct live backend and News
+timers, but Stream A's
+[independent review](evidence/Stream-A-evaluation-lease-platform-candidate-review-2026-10-25.md)
+rejected it before any installation or effect. Its restoration check
+contradicts endpoint retention, its deadline check does not bind the fixed
+90-minute window, its outcome check does not independently bind lease identity,
+and it conflates registered targets with observed post-quiescence state. The
+platform owner has the exact correction request. Candidate-G and M3 remain
+unspent pending a corrected source commit, independent review and fresh F2/F3
+evidence.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)
