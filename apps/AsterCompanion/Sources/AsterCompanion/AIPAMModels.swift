@@ -72,6 +72,12 @@ struct AIPAMSnapshot: Codable, Equatable {
     let activeRequests: [AIPAMActiveRequest]
 }
 
+struct AIPAMSession: Codable, Equatable {
+    let authorized: Bool
+    let passkeyVerified: Bool
+    let fresh: Bool
+}
+
 struct AIPAMHistoryItem: Codable, Identifiable, Equatable {
     let requestId: String
     let agentId: String

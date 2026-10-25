@@ -41,14 +41,18 @@ bytes are held in the root-only rollback checkpoint
 
 ## Remaining live check
 
-Opening AI-PAM Approvals showed no pending items. Selecting Management started
-the approved fresh-session path, after which macOS's secure UI made the window
-unavailable to accessibility automation while the Companion process remained
-alive and continued successful HTTP refreshes. That is consistent with an
-interactive passkey sheet but is not proof that the ceremony completed or that
-the new ingress observed `passkey_verified=true`.
+Opening AI-PAM Approvals showed no pending items. Selecting Management made the
+window unavailable to accessibility automation while the Companion process
+remained alive and completed its four read-only HTTP refreshes successfully.
+Source inspection then established that selecting this tab does **not** invoke
+fresh authentication; only effect-bearing approval and management buttons do.
+The observation is therefore neither a passkey attempt nor proof that the new
+ingress observed `passkey_verified=true`.
 
 The installation therefore remains a stable fail-closed candidate. Complete
-one human passkey prompt and then read only the approval session result. Do not
+one human passkey prompt and then read only the approval session result. The
+installed Companion currently has no non-effecting control that performs those
+two steps together, so a separately reviewed read-only UI candidate is required.
+Do not
 exercise a Red approval or management mutation. Until that observation passes,
 claim transport is pending and no higher authority is released.

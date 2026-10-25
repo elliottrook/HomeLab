@@ -22,6 +22,13 @@ final class AIPAMModelsTests: XCTestCase {
         XCTAssertTrue(try AIPAMCoding.decoder.decode(AIPAMPendingApproval.self, from: pending).requiresFreshAuthentication)
     }
 
+    func testDecodesContentFreeApprovalSession() throws {
+        let data = Data(#"{"authorized":true,"passkey_verified":true,"fresh":true,"subject":"must-not-be-modeled"}"#.utf8)
+        let session = try AIPAMCoding.decoder.decode(AIPAMSession.self, from: data)
+        XCTAssertEqual(session, AIPAMSession(authorized: true, passkeyVerified: true, fresh: true))
+        XCTAssertFalse(String(describing: session).contains("must-not-be-modeled"))
+    }
+
     func testManagementActionEncodesOnlyAllowlistedShape() throws {
         let action = AIPAMManagementAction(action: "service_enabled", target: "lab-operations", enabled: false)
         let object = try XCTUnwrap(JSONSerialization.jsonObject(with: AIPAMCoding.encoder.encode(action)) as? [String: Any])

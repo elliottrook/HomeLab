@@ -3,6 +3,7 @@ import SwiftUI
 @MainActor
 final class AIPAMViewModel: ObservableObject {
     @Published var pending: [AIPAMPendingApproval] = []
+    @Published var session: AIPAMSession?
     @Published var snapshot: AIPAMSnapshot?
     @Published var history: [AIPAMHistoryItem] = []
     @Published var audit: [AIPAMAuditItem] = []
@@ -20,10 +21,20 @@ final class AIPAMViewModel: ObservableObject {
         defer { loading = false }
         do {
             async let pending = client.fetchAIPAMPending()
+            async let session = client.fetchAIPAMSession()
             async let snapshot = client.fetchAIPAMSnapshot()
             async let history = client.fetchAIPAMHistory()
             async let audit = client.fetchAIPAMAudit(event: auditEvent.isEmpty ? nil : auditEvent)
-            (self.pending, self.snapshot, self.history, self.audit) = try await (pending, snapshot, history, audit)
+            (self.pending, self.session, self.snapshot, self.history, self.audit) = try await (pending, session, snapshot, history, audit)
+            errorText = nil
+        } catch { errorText = error.localizedDescription }
+    }
+
+    func refreshSession() async {
+        loading = true
+        defer { loading = false }
+        do {
+            session = try await client.fetchAIPAMSession()
             errorText = nil
         } catch { errorText = error.localizedDescription }
     }
@@ -106,6 +117,21 @@ struct AIPAMView: View {
     private var management: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 12) {
+                GroupBox("Approval session") {
+                    HStack {
+                        if let session = model.session {
+                            Text(session.authorized ? "Authorized" : "Not authorized")
+                            Text(session.passkeyVerified ? "Passkey verified" : "Passkey not verified")
+                            Text(session.fresh ? "Fresh" : "Not fresh")
+                        } else {
+                            Text("Session status unavailable")
+                        }
+                        Spacer()
+                        Button("Verify with passkey") {
+                            fresh { Task { await model.refreshSession() } }
+                        }
+                    }
+                }
                 if let snapshot = model.snapshot {
                     GroupBox("Emergency controls") {
                         HStack {

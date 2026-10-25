@@ -124,6 +124,10 @@ struct AsterClient {
         try await companionRequest(path: "v1/companion/approvals")
     }
 
+    func fetchAIPAMSession() async throws -> AIPAMSession {
+        try await companionRequest(path: "v1/companion/approvals/session")
+    }
+
     func fetchOpenBaoStatus() async throws -> OpenBaoStatus {
         try await companionRequest(path: "v1/openbao/unseal/status")
     }

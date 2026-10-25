@@ -3217,8 +3217,12 @@ post-install target suite passed 31/31. The ingress restarted active on 9121,
 unauthenticated access remained 401, ordinary Aster stayed healthy, and the
 broker database hash and zero-request state were unchanged. The root-only
 rollback checkpoint is retained. AI-PAM Approvals showed no pending items;
-entering Management reached macOS secure UI and made accessibility automation
-unavailable while the app remained alive and continued successful refreshes.
-One human passkey completion plus a read-only session observation is still
-needed to prove claim transport. No Red approval, management mutation, grant or
-model call occurred, so higher authority remains unreleased.
+selecting Management made accessibility automation unavailable while the app
+remained alive and completed its read-only refreshes. Source review corrected
+the initial interpretation: tab selection does not start fresh authentication.
+The installed app therefore cannot complete the claim check without approaching
+an effect-bearing control. A new offline candidate adds a dedicated **Verify
+with passkey** action that performs fresh login followed only by the content-free
+session GET; its complete native suite passes 61/61. It is not installed. No Red
+approval, management mutation, grant or model call occurred, so higher authority
+remains unreleased.
