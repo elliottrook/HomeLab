@@ -6,7 +6,8 @@ def promote(data):
     with wave.open(io.BytesIO(data),'rb') as source:
         if source.getparams()[:3]!=(2,3,48000):raise ValueError('canonical-pcm24-required')
         count=source.getnframes();raw=source.readframes(count)
-    if len(raw)!=count*6 or not 0<count<24000:raise ValueError('invalid-canonical-length')
+    startup=hashlib.sha256(data).hexdigest()=='f41cc896c664e234986330799bc3b75c460ab6eb87c3883df338b0353a06b7e2'
+    if len(raw)!=count*6 or not 0<count<(192000 if startup else 24000):raise ValueError('invalid-canonical-length')
     samples=[int.from_bytes(raw[i:i+3],'little',signed=True)<<8 for i in range(0,len(raw),3)]
     output=io.BytesIO()
     with wave.open(output,'wb') as target:
@@ -25,7 +26,7 @@ def build(source,output):
         (output/'resources'/path.name).write_bytes(converted)
         rows.append(dict(file=path.name,master_sha256=hashlib.sha256(original).hexdigest(),
             runtime_sha256=hashlib.sha256(converted).hexdigest()))
-    if len(rows)!=7:raise ValueError('seven-canonical-files-required')
+    if len(rows)!=8:raise ValueError('eight-canonical-files-required')
     result=dict(kind='aster-canonical-pcm32.v1',encoding='PCM32-lossless-from-PCM24',
         sample_rate=48000,channels=2,normalization=False,resampling=False,files=rows)
     (output/'manifest.json').write_text(json.dumps(result,indent=2)+'\n');return result

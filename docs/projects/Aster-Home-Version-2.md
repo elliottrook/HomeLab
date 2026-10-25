@@ -4969,3 +4969,61 @@ integration members, six Search overlays,13 Books members, seven balanced
 sound files, database integrity and68 AV/language comparisons (67 exact and
 the already-known resolution-index remap). HP remains4K30, all lab windows
 closed, no active player and empty queues. No history or credentials changed.
+
+### 2026-10-25 — HP startup chime; production adoption deferred to v2
+
+Jason supplied the newly published `startup.wav` on
+`codex/astertv-canonical-sounds`, source commit
+`fd40666a2366f0704d5257a3af3ada0ef0943e4d`, then explicitly confirmed HP-only
+deployment and production adoption with Version 2. **Do not promote this sound
+to BOSGAME as a standalone v1 patch.** Production was not contacted or changed
+for this milestone.
+
+The approved 3.8-second,48kHz stereo PCM24 master is unchanged:
+`f41cc896c664e234986330799bc3b75c460ab6eb87c3883df338b0353a06b7e2`.
+Runtime is losslessly promoted to PCM32 to avoid the already-confirmed Kodi GUI
+sound-loader allocation bug; hash
+`cd873b68a8e3b4cbc4f848c2c581c25565fb0aed55bee5a24507b694928110c5`.
+No normalization, channel rebalance, resampling or speech/TTS was introduced.
+The existing seven balanced interaction sounds remain byte-for-byte unchanged.
+
+A separate three-file `service.aster.startup` add-on plays through GUI SFX after
+Aster reaches Home, allowing two seconds for audio readiness without blocking
+the UI. It does not create a media player, populate queues or change any volume,
+audio/display settings, credentials, watch history or listening progress.
+Normal GUI volume/mute behavior applies. Active playback/nonempty queues or
+readiness failure suppress the chime rather than interrupting or retrying later.
+An exclusive session fence uses Kodi PID plus process start time, so concurrent
+invocations, returning Home and skin reloads cannot replay it. Each new Kodi
+process gets one attempt. This is a Kodi-ready chime, not a firmware/early-Linux
+boot sound, and physical HDMI/receiver readiness still needs household listening
+acceptance.
+
+The HP native deployment, first sound request and Kodi restart lifecycle checks
+passed: new process identity, one request in each log, duplicate invocations
+suppressed, no startup/GUI sound-engine errors, empty players/queues, enabled
+service and exact all-settings/navigation digest preservation. Native evidence
+is retained under `/storage/.aster-checkpoints/aster-startup-20261025` and
+staging `/storage/.aster-staging/aster-startup-20261025`. Physical audible
+confirmation is not claimed. Thirteen focused tests pass normally and with
+Python optimization, including exact non-destructive recovery, HP-only target,
+active playback/queued media rejection, asset drift, shutdown, readiness changes
+and per-process behavior.
+
+Recovery: while HP is idle, run the checkpoint's `deploy_startup.py` with
+`rollback` through Kodi `RunScript`. It verifies the installed files, disables
+only `service.aster.startup`, moves that exact add-on into the private checkpoint
+as `disabled-addon`, and rescans local add-ons. It neither deletes the preserved
+files nor restores any database/history. The existing skin, sound mappings and
+navigation files are unaffected. The normal full package builder now supports
+the separately pinned longer startup master without applying the seven-cue
+channel correction to it; historical raw release records remain as published.
+No Forgejo push was requested for this milestone.
+
+Final acceptance:650 v2 tests pass normally and optimized, and the six source
+sound-pack tests pass. Native proof `native-1792963067266244907.json` also
+confirms a skin reload did not replay the sound. Preservation proof
+`postcheck-1792963066773806779.json` passes all existing player, overlay, Search,
+Books, seven navigation-sound, database and68 AV/language checks, with only the
+already-known resolution-index remap. HP remains Home at4K30 with no player or
+queued media. Production startup sound remains pending Version 2 promotion.

@@ -17,7 +17,7 @@ class CompatibilityTests(unittest.TestCase):
     def test_immutable_output_and_original_copies(self):
         with tempfile.TemporaryDirectory() as tmp:
             out=Path(tmp)/'compat';result=build(SOURCE,out)
-            self.assertEqual(len(result['files']),7)
+            self.assertEqual(len(result['files']),8)
             for path in SOURCE.glob('*.wav'):self.assertEqual(path.read_bytes(),(out/'masters'/path.name).read_bytes())
             with self.assertRaisesRegex(ValueError,'immutable'):build(SOURCE,out)
     def test_runtime_archive_uses_promoted_bytes(self):

@@ -96,7 +96,7 @@ def build_archive(addon_id: str, output: Path, runtime_sounds: bool = False, bal
             data = path.read_bytes()
             if runtime_sounds and addon_id == 'resource.uisounds.asterhome' and relative.suffix == '.wav':
                 from v2.canonical_sound_compat import promote
-                data = balanced[path.name] if balanced_sounds else promote(data)
+                data = balanced[path.name] if balanced_sounds and path.name in balanced else promote(data)
             bundle.writestr(info, data, compress_type=zipfile.ZIP_DEFLATED,
                             compresslevel=9)
             records.append({"path": member.as_posix(),
