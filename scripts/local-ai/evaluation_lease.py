@@ -45,6 +45,7 @@ PRODUCTION_BASELINE_STATES = tuple((target, "enabled+active") for target in QUIE
 
 class LeaseState(str, Enum):
     READY = "ready"
+    PREPARED = "prepared"
     QUIESCING = "quiescing"
     RUNNING = "running"
     RESTORING = "restoring"

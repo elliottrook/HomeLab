@@ -216,26 +216,53 @@ class EvaluationLeaseAdapter:
             raise AdapterError("evaluation lease lock already exists") from exc
 
     def acquire(self, admission: Admission, *, now_epoch: int) -> dict[str, object]:
+        """Compatibility name; prepare only, never a quiescence shortcut."""
+        return self.prepare(admission, now_epoch=now_epoch)
+
+    def prepare(self, admission: Admission, *, now_epoch: int) -> dict[str, object]:
         validate_admission(admission, now_epoch=now_epoch)
         if self.state_path.exists() or self.lock_path.exists():
             raise AdapterError("durable evaluation state or lock already exists")
         if not self.allow_effects:
             return {"effects": "disabled", "state": LeaseState.READY.value,
                     "mode": "stream-a-endpoint-retaining-evaluation-v1"}
-        self._lock()
-        atomic_state(self.state_path, AdapterState(
-            admission.lease_id, admission.generation, LeaseState.QUIESCING.value,
-            admission.baseline, now_epoch, now_epoch, admission.hard_deadline_epoch,
-            admission.restore_deadline_epoch, "d4-candidate-g", None, (),
-        ))
-        try:
-            for target in QUIESCE_TARGETS:
-                self.runner(consumer_command(target, "mask"))
-                self.runner(consumer_command(target, "stop"))
-        except Exception as exc:
-            raise AdapterError("consumer quiescence is uncertain; recovery required") from exc
-        return {"effects": "acquired-pre-run", "state": LeaseState.QUIESCING.value,
+        with self._operation_guard():
+            self._lock()
+            atomic_state(self.state_path, AdapterState(
+                admission.lease_id, admission.generation, LeaseState.PREPARED.value,
+                admission.baseline, now_epoch, now_epoch, admission.hard_deadline_epoch,
+                admission.restore_deadline_epoch, "d4-candidate-g", None, (),
+            ))
+        return {"effects": "prepared", "state": LeaseState.PREPARED.value,
                 "lease_id": admission.lease_id, "generation": admission.generation}
+
+    def quiesce(self, *, lease_id: str, generation: int, now_epoch: int,
+                heartbeat_timeout: int) -> dict[str, object]:
+        self._require_effects()
+        with self._operation_guard():
+            state = read_state(self.state_path, expected_lease_id=lease_id,
+                               expected_generation=generation)
+            if state.phase != LeaseState.PREPARED.value:
+                raise AdapterError("quiesce requires a prepared lease")
+            if (now_epoch < state.window_start_epoch
+                    or now_epoch >= state.hard_deadline_epoch
+                    or state.heartbeat_epoch > now_epoch
+                    or now_epoch - state.heartbeat_epoch > heartbeat_timeout):
+                raise AdapterError("quiesce deadline or heartbeat gate failed")
+            try:
+                for target in QUIESCE_TARGETS:
+                    self.runner(consumer_command(target, "mask"))
+                    self.runner(consumer_command(target, "stop"))
+            except Exception as exc:
+                raise AdapterError("consumer quiescence is uncertain; recovery required") from exc
+            atomic_state(self.state_path, AdapterState(
+                state.lease_id, state.generation, LeaseState.QUIESCING.value,
+                state.baseline, state.window_start_epoch, now_epoch,
+                state.hard_deadline_epoch, state.restore_deadline_epoch,
+                state.next_workload, state.in_flight_workload, state.completed_outcomes,
+            ))
+        return {"effects": "quiescing", "state": LeaseState.QUIESCING.value,
+                "lease_id": lease_id, "generation": generation}
 
     def restore(self, *, lease_id: str, generation: int, restored: ProductionBaseline,
                 backend_active: bool, endpoint_authenticated: bool,
@@ -259,7 +286,7 @@ class EvaluationLeaseAdapter:
             raise AdapterError("durable evaluation state and lock are required for restore")
         state = read_state(self.state_path, expected_lease_id=lease_id,
                            expected_generation=generation)
-        if state.phase not in {LeaseState.QUIESCING.value, LeaseState.RUNNING.value,
+        if state.phase not in {LeaseState.PREPARED.value, LeaseState.QUIESCING.value, LeaseState.RUNNING.value,
                                LeaseState.RESTORING.value}:
             raise AdapterError("restore phase is not recoverable")
         if (state.phase == LeaseState.RUNNING.value and not recovery
@@ -341,7 +368,7 @@ class EvaluationLeaseAdapter:
                           now_epoch: int) -> None:
         state = read_state(self.state_path, expected_lease_id=lease_id,
                            expected_generation=generation)
-        if state.phase not in {LeaseState.QUIESCING.value, LeaseState.RUNNING.value,
+        if state.phase not in {LeaseState.PREPARED.value, LeaseState.QUIESCING.value, LeaseState.RUNNING.value,
                                LeaseState.RESTORING.value}:
             raise AdapterError("heartbeat phase is not active")
         atomic_state(self.state_path, AdapterState(

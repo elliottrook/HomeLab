@@ -48,6 +48,12 @@ class EntryPointTests(unittest.TestCase):
         }
         with self.assertRaises(EntryPointError):
             validate_phase_intent("restore", restore)
+
+        with self.assertRaises(EntryPointError):
+            validate_phase_intent("quiesce", {
+                "lease_id": "x", "generation": 1, "now_epoch": 1,
+                "heartbeat_timeout": 30, "unexpected": False,
+            })
         restore["recovery"] = False
         restore["unexpected"] = 1
         with self.assertRaises(EntryPointError):

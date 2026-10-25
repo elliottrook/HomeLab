@@ -36,9 +36,53 @@ class AdapterTests(unittest.TestCase):
         calls = []
         with tempfile.TemporaryDirectory() as root:
             adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", calls.append)
-            result = adapter.acquire(self.admission(), now_epoch=1000)
+            result = adapter.prepare(self.admission(), now_epoch=1000)
         self.assertEqual(result["effects"], "disabled")
         self.assertEqual(calls, [])
+
+    def test_prepare_is_effect_authorized_but_does_not_quiesce_consumers(self):
+        calls = []
+        with tempfile.TemporaryDirectory() as root:
+            adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", calls.append,
+                                              allow_effects=True)
+            result = adapter.prepare(self.admission(), now_epoch=1000)
+            self.assertEqual(result["effects"], "prepared")
+            self.assertEqual(read_state(adapter.state_path).phase, "prepared")
+            self.assertEqual(calls, [])
+            with self.assertRaises(AdapterError):
+                adapter.acquire(self.admission(), now_epoch=1000)
+
+    def test_quiesce_rejects_absent_foreign_and_stale_lease_before_commands(self):
+        calls = []
+        with tempfile.TemporaryDirectory() as root:
+            adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", calls.append,
+                                              allow_effects=True)
+            with self.assertRaises(AdapterError):
+                adapter.quiesce(lease_id="eval-1", generation=1, now_epoch=1000,
+                                heartbeat_timeout=30)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            with self.assertRaises(AdapterError):
+                adapter.quiesce(lease_id="foreign", generation=1, now_epoch=1000,
+                                heartbeat_timeout=30)
+            with self.assertRaises(AdapterError):
+                adapter.quiesce(lease_id="eval-1", generation=1, now_epoch=5500,
+                                heartbeat_timeout=30)
+            self.assertEqual(calls, [])
+
+    def test_post_quiescence_rejects_unhealthy_backend_after_quiesce(self):
+        calls = []
+        with tempfile.TemporaryDirectory() as root:
+            adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", calls.append,
+                                              allow_effects=True)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            adapter.quiesce(lease_id="eval-1", generation=1, now_epoch=1000,
+                            heartbeat_timeout=30)
+            with self.assertRaises(EvaluationLeaseError):
+                adapter.post_quiescence(
+                    observed_states=QUIESCE_STATES, admission=self.admission(),
+                    backend_active=False, endpoint_authenticated=True,
+                    endpoint_idle=True, gpu_holders=(BACKEND_TARGET,),
+                    now_epoch=1000, heartbeat_timeout=30)
 
     def test_command_allowlist_never_targets_backend(self):
         for target in QUIESCE_TARGETS:
@@ -50,7 +94,8 @@ class AdapterTests(unittest.TestCase):
         calls = []
         with tempfile.TemporaryDirectory() as root:
             adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", calls.append, allow_effects=True)
-            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            adapter.quiesce(lease_id="eval-1", generation=1, now_epoch=1000, heartbeat_timeout=30)
             self.assertFalse(adapter.workload_allowed(
                 lease_id="eval-1", generation=1, workload_name="d4-candidate-g",
                 now_epoch=1100, heartbeat_timeout=30,
@@ -100,7 +145,8 @@ class AdapterTests(unittest.TestCase):
                 raise RuntimeError("synthetic start failure")
         with tempfile.TemporaryDirectory() as root:
             adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", failing, allow_effects=True)
-            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            adapter.quiesce(lease_id="eval-1", generation=1, now_epoch=1000, heartbeat_timeout=30)
             with self.assertRaises(AdapterError):
                 adapter.restore(
                     lease_id="eval-1", generation=1,
@@ -116,7 +162,8 @@ class AdapterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             path = Path(root) / "lease.json"
             adapter = EvaluationLeaseAdapter(path, calls.append, allow_effects=True)
-            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            adapter.quiesce(lease_id="eval-1", generation=1, now_epoch=1000, heartbeat_timeout=30)
             adapter.restore(lease_id="eval-1", generation=1,
                             restored=self.admission().baseline,
                             backend_active=True, endpoint_authenticated=True,
@@ -131,7 +178,8 @@ class AdapterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             path = Path(root) / "lease.json"
             broken = EvaluationLeaseAdapter(path, failing, allow_effects=True)
-            broken.acquire(self.admission(), now_epoch=1000)
+            broken.prepare(self.admission(), now_epoch=1000)
+            broken.quiesce(lease_id="eval-1", generation=1, now_epoch=1000, heartbeat_timeout=30)
             with self.assertRaises(AdapterError):
                 broken.restore(lease_id="eval-1", generation=1,
                                restored=self.admission().baseline,
@@ -148,7 +196,8 @@ class AdapterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", lambda command: None,
                                               allow_effects=True)
-            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            adapter.quiesce(lease_id="eval-1", generation=1, now_epoch=1000, heartbeat_timeout=30)
             adapter.heartbeat(lease_id="eval-1", generation=1, now_epoch=1100)
             state = read_state(adapter.state_path, expected_lease_id="eval-1",
                                expected_generation=1)
@@ -160,7 +209,8 @@ class AdapterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", lambda command: None,
                                               allow_effects=True)
-            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            adapter.quiesce(lease_id="eval-1", generation=1, now_epoch=1000, heartbeat_timeout=30)
             with self.assertRaises(AdapterError):
                 adapter.post_quiescence(
                     observed_states=QUIESCE_STATES, admission=self.admission(),
@@ -189,7 +239,8 @@ class AdapterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", lambda command: None,
                                               allow_effects=True)
-            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            adapter.quiesce(lease_id="eval-1", generation=1, now_epoch=1000, heartbeat_timeout=30)
             adapter.post_quiescence(
                 observed_states=QUIESCE_STATES, admission=self.admission(),
                 backend_active=True, endpoint_authenticated=True,
@@ -239,7 +290,8 @@ class AdapterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             path = Path(root) / "lease.json"
             adapter = EvaluationLeaseAdapter(path, lambda command: None, allow_effects=True)
-            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            adapter.quiesce(lease_id="eval-1", generation=1, now_epoch=1000, heartbeat_timeout=30)
             baseline = json.loads(path.read_text())
             for mutation in mutations:
                 changed = dict(baseline)
@@ -269,7 +321,8 @@ class AdapterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", lambda command: None,
                                               allow_effects=True)
-            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            adapter.quiesce(lease_id="eval-1", generation=1, now_epoch=1000, heartbeat_timeout=30)
             adapter.post_quiescence(
                 observed_states=QUIESCE_STATES, admission=self.admission(),
                 backend_active=True, endpoint_authenticated=True,
@@ -299,7 +352,8 @@ class AdapterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", lambda command: None,
                                               allow_effects=True)
-            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            adapter.quiesce(lease_id="eval-1", generation=1, now_epoch=1000, heartbeat_timeout=30)
             adapter.post_quiescence(
                 observed_states=QUIESCE_STATES, admission=self.admission(),
                 backend_active=True, endpoint_authenticated=True,
@@ -339,7 +393,8 @@ class AdapterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", lambda command: None,
                                               allow_effects=True)
-            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            adapter.quiesce(lease_id="eval-1", generation=1, now_epoch=1000, heartbeat_timeout=30)
             adapter.post_quiescence(
                 observed_states=QUIESCE_STATES, admission=self.admission(),
                 backend_active=True, endpoint_authenticated=True,
@@ -372,7 +427,8 @@ class AdapterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", lambda command: None,
                                               allow_effects=True)
-            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            adapter.quiesce(lease_id="eval-1", generation=1, now_epoch=1000, heartbeat_timeout=30)
             with adapter._operation_guard():
                 pass
             adapter.post_quiescence(
@@ -427,7 +483,8 @@ class AdapterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             path = Path(root) / "lease.json"
             adapter = EvaluationLeaseAdapter(path, lambda command: None, allow_effects=True)
-            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            adapter.quiesce(lease_id="eval-1", generation=1, now_epoch=1000, heartbeat_timeout=30)
             called = []
             result = run_bound_from_state(
                 path=path, expected_lease_id="eval-1", expected_generation=1,

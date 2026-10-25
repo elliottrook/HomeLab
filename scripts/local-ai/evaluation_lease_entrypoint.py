@@ -86,6 +86,11 @@ def validate_phase_intent(phase: str, value: dict[str, Any]) -> None:
         _str(value["lease_id"], "lease_id"); _int(value["generation"], "generation")
         _int(value["now_epoch"], "now_epoch")
         return
+    if phase == "quiesce":
+        _exact(value, {"lease_id", "generation", "now_epoch", "heartbeat_timeout"}, phase)
+        _str(value["lease_id"], "lease_id"); _int(value["generation"], "generation")
+        _int(value["now_epoch"], "now_epoch"); _int(value["heartbeat_timeout"], "heartbeat_timeout")
+        return
     if phase == "start":
         _exact(value, {"lease_id", "generation", "workload_name", "now_epoch", "heartbeat_timeout"}, phase)
         _str(value["lease_id"], "lease_id"); _int(value["generation"], "generation")
@@ -186,7 +191,11 @@ def _main_effectful(args: argparse.Namespace, intent: dict[str, Any]) -> dict[st
     phase = args.phase
     if phase == "acquire":
         admission = _admission(intent)
-        return adapter.acquire(admission, now_epoch=intent["now_epoch"])
+        return adapter.prepare(admission, now_epoch=intent["now_epoch"])
+    if phase == "quiesce":
+        return adapter.quiesce(lease_id=intent["lease_id"], generation=intent["generation"],
+                               now_epoch=intent["now_epoch"],
+                               heartbeat_timeout=intent["heartbeat_timeout"])
     if phase == "heartbeat":
         adapter.heartbeat(lease_id=intent["lease_id"], generation=intent["generation"],
                           now_epoch=intent["now_epoch"])
@@ -234,7 +243,7 @@ def _main_effectful(args: argparse.Namespace, intent: dict[str, Any]) -> dict[st
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--phase", choices=("acquire", "post-quiescence", "heartbeat", "start", "outcome", "restore"), required=True)
+    parser.add_argument("--phase", choices=("acquire", "quiesce", "post-quiescence", "heartbeat", "start", "outcome", "restore"), required=True)
     parser.add_argument("--state", type=Path, default=DEFAULT_STATE_PATH)
     parser.add_argument("--intent", type=Path, required=True)
     parser.add_argument("--effect-authorized", action="store_true")
