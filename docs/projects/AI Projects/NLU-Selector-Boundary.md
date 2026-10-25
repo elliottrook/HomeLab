@@ -111,6 +111,11 @@ now adds an empty content-free template and a validator whose sealed form takes
 its sample minima only from the registered policy, binds the same candidate and
 uses three distinct custody roles. It creates no cases or labels and does not
 resolve the still-open numeric policy decision.
+The [no-effect shadow boundary](evidence/M3-NLU-no-effect-shadow-boundary-2026-10-24.md)
+also fixes an initial S0-only, content-free comparison manifest. It records only
+opaque interpretation/proposal digests and baseline/candidate route names, while
+requiring no execution and no provider egress. Its empty template is preparation,
+not collected evidence or permission to route.
 
 ## Validation checkpoint — 2026-10-24
 

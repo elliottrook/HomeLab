@@ -382,7 +382,11 @@ any automatic handover. A new
 now binds future opaque calibration cases to the registered policy's sample
 minima and exact candidate without inventing values; 42 focused NLU tests pass.
 Numeric constraint acceptance, role assignment and any case/label creation are
-still separate gates.
+still separate gates. A separate
+[S0-only no-effect shadow boundary](evidence/M3-NLU-no-effect-shadow-boundary-2026-10-24.md)
+binds future opaque comparisons to the exact frozen policy and requires no
+execution or provider egress; 46 focused NLU tests pass. It is an empty
+template, not collection approval or a route release.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)

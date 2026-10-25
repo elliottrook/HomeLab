@@ -64,6 +64,12 @@ distinct roles. The registered policy binds the exact sealed manifest bytes,
 avoiding a circular policy hash. This prepares independent calibration custody; it
 does not create cases, labels, predictions, scores or an accepted policy.
 
+`nlu_shadow_release.py` provides the later no-effect comparison boundary. The
+initial profile permits only S0 synthetic sources and retains opaque interpretation
+and proposal digests plus baseline/candidate route names. It requires literal
+no-execution and no-provider-egress attestations and exact frozen-policy binding.
+Its empty template does not authorize collection or enable routing.
+
 Catalogue declarations never grant permissions. `project_catalogue` filters using
 an explicitly supplied trusted fixture permission set. Production grant data must
 come from AI-PAM, which this adapter cannot contact. Fixture capability IDs do not

@@ -1,0 +1,14 @@
+{
+  "authority": "not-granted",
+  "candidate_bundle_sha256": "",
+  "case_count": null,
+  "cases": [],
+  "execution_attempted": false,
+  "provider_egress_attempted": false,
+  "release_id": "nlu-shadow-v1",
+  "release_sha256": "",
+  "schema": "aster-nlu-shadow-release.v1",
+  "source_class": "",
+  "status": "template",
+  "threshold_policy_sha256": ""
+}
