@@ -3252,3 +3252,17 @@ test, seven rendered-client voice tests, eleven notification tests and the
 existing fresh-login test passed. Nothing was installed or restarted. The live
 page is waiting only for the owner account name; no credential was read or
 entered by Stream A.
+
+## 2026-10-25 — Production passkey claim transport observed
+
+Jason completed the ordinary Aster WebAuthn ceremony in the web Companion.
+The read-only AI-PAM Management view then displayed **Passkey verified**,
+proving that the independent ingress accepted the exact configured Aster
+WebAuthn ACR. Independent postchecks found all three services active, the
+broker database still at SHA-256 `db583d65…5486d9e`, zero live pending or
+approved-unconsumed requests and unchanged audit maximum 121. The current UI
+does not render the separate `fresh` response field and the ingress does not
+retain its INFO line, so freshness is recorded as unmeasured. No Red approval,
+management mutation, capability grant, model call or OpenBao action occurred.
+The web candidate is now an optional visibility improvement rather than a
+claim-transport prerequisite.

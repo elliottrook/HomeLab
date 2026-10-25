@@ -1,6 +1,6 @@
 # M1 independent-ingress passkey installation result — 2026-10-25
 
-> Result: **INSTALLATION PASS; LIVE CLAIM TRANSPORT CHECK PENDING**
+> Result: **INSTALLATION PASS; LIVE CLAIM TRANSPORT PASSED LATER**
 >
 > Candidate source: `38f4346c`
 >
@@ -39,7 +39,7 @@ bytes are held in the root-only rollback checkpoint
 - No approval, management mutation, capability grant, model call or network
   change occurred.
 
-## Remaining live check
+## Subsequent live check
 
 Opening AI-PAM Approvals showed no pending items. Selecting Management made the
 window unavailable to accessibility automation while the Companion process
@@ -49,10 +49,12 @@ fresh authentication; only effect-bearing approval and management buttons do.
 The observation is therefore neither a passkey attempt nor proof that the new
 ingress observed `passkey_verified=true`.
 
-The installation therefore remains a stable fail-closed candidate. Complete
-one human passkey prompt and then read only the approval session result. The
-installed Companion currently has no non-effecting control that performs those
-two steps together, so a separately reviewed read-only UI candidate is required.
-Do not
-exercise a Red approval or management mutation. Until that observation passes,
-claim transport is pending and no higher authority is released.
+The installation remained a stable fail-closed candidate at this checkpoint.
+Jason later completed the ordinary Aster WebAuthn ceremony in the web
+Companion. The read-only Management view reported **Passkey verified**, while
+the broker database hash, zero live request counts and audit maximum remained
+unchanged. The [dated observation](M1-live-passkey-claim-observation-2026-10-25.md)
+therefore closes exact ACR claim transport. The installed page does not expose
+the separate server-derived freshness boolean, so freshness is explicitly
+unmeasured and no Red approval, management mutation or higher authority was
+released.
