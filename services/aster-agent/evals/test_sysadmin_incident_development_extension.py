@@ -5,17 +5,27 @@ from pathlib import Path
 from validate_sysadmin_incident_intake import validate_for_qualification, validate_intake
 
 
-class DevelopmentExtensionDraftTests(unittest.TestCase):
+class DevelopmentExtensionTests(unittest.TestCase):
     def setUp(self):
         root = Path(__file__).parent
         self.canonical = json.loads((root / "sysadmin-incident-intake-v1.json").read_text())
         self.draft = json.loads((root / "sysadmin-incident-development-extension-draft-v1.json").read_text())
 
-    def test_draft_is_complete_but_cannot_claim_review_or_qualification(self):
+    def test_reviewed_extension_is_complete_and_qualification_eligible(self):
         self.assertEqual(validate_intake(self.draft), [])
-        self.assertEqual(self.draft["status"], "draft_extension_requires_jason_review")
-        self.assertIn("not Jason-reviewed", self.draft["extension_provenance"]["claim"])
-        self.assertNotEqual(self.draft["status"], "development_intake_complete")
+        self.assertEqual(self.draft["status"], "development_intake_complete")
+        provenance = self.draft["extension_provenance"]
+        self.assertEqual(provenance["reviewed_by"], "Jason")
+        self.assertEqual(provenance["reviewed_at"], "2026-10-24")
+        self.assertEqual(
+            provenance["review_source_sha256"],
+            "9f9f02d50175e72f3e987658ade0a817f96ab0ce9868784a52bf9ac72a67dea7",
+        )
+        self.assertEqual(validate_for_qualification(self.draft), [])
+
+    def test_unreviewed_status_or_provenance_still_fails_closed(self):
+        self.draft["status"] = "draft_extension_requires_jason_review"
+        self.draft["extension_provenance"]["claim"] = "Draft fields; not Jason-reviewed."
         self.assertEqual(
             validate_for_qualification(self.draft),
             [

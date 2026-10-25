@@ -25,9 +25,20 @@ class SysadminIncidentEvaluationPlanTests(unittest.TestCase):
         value["status"] = "development_intake_complete"
         return value
 
-    def test_rejects_unreviewed_structurally_valid_draft(self):
+    def test_approved_extension_emits_a_content_free_plan(self):
+        plan = build_evaluation_plan(self.draft)
+        self.assertEqual(plan["case_count"], 12)
+        self.assertTrue(plan["qualification_eligible"])
+        self.assertFalse(plan["execution_authorized"])
+        self.assertFalse(plan["model_calls_authorized"])
+        self.assertFalse(plan["tool_calls_authorized"])
+
+    def test_rejects_an_unreviewed_structurally_valid_copy(self):
+        unreviewed = copy.deepcopy(self.draft)
+        unreviewed["status"] = "draft_extension_requires_jason_review"
+        unreviewed["extension_provenance"]["claim"] = "Draft fields; not Jason-reviewed."
         with self.assertRaisesRegex(QualificationError, "not qualification eligible"):
-            build_evaluation_plan(self.draft)
+            build_evaluation_plan(unreviewed)
 
     def test_rejects_incomplete_canonical_intake(self):
         with self.assertRaisesRegex(QualificationError, "not qualification eligible"):

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "draft_extension_requires_jason_review",
+  "status": "development_intake_complete",
   "development_target": 12,
   "holdout_target": 20,
   "required_fields": [
@@ -315,6 +315,9 @@
     "author": "Codex offline synthesis",
     "date": "2026-10-19",
     "basis": "Existing reviewed symptoms, allowed observations, outcomes and forbidden effects only.",
-    "claim": "Draft evaluation fields; not Jason-reviewed and not eligible for qualification or promotion."
+    "claim": "Jason reviewed and accepted the twelve fixed synthetic development extensions on 2026-10-24; this qualifies development evaluation only and grants no model, tool, repair or deployment authority.",
+    "reviewed_by": "Jason",
+    "reviewed_at": "2026-10-24",
+    "review_source_sha256": "9f9f02d50175e72f3e987658ade0a817f96ab0ce9868784a52bf9ac72a67dea7"
   }
 }

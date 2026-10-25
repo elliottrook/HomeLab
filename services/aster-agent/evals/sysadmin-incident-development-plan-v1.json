@@ -1,0 +1,27 @@
+{
+  "case_count": 12,
+  "corpus_schema_version": 1,
+  "corpus_sha256": "77b6fa351a3c5b84b3d4c151d81a4cc843ae9000b19a34275be0e2677f0892e2",
+  "execution_authorized": false,
+  "family_counts": {
+    "arr_second_login": 1,
+    "b60_software_rendering_regression": 1,
+    "dns_asymmetry": 1,
+    "doctor_parser_schema_crash": 1,
+    "empty_observation_abstention": 1,
+    "interrupted_backup": 1,
+    "media_archive_diagnosis": 1,
+    "missing_backup_configuration": 1,
+    "netbox_guest_reboot_startup": 1,
+    "network_identity_diagnosis": 1,
+    "preflight_abstention": 1,
+    "stale_inventory": 1
+  },
+  "model_calls_authorized": false,
+  "qualification_eligible": true,
+  "schema": "aster-sysadmin-evaluation-plan.v1",
+  "split_counts": {
+    "development": 12
+  },
+  "tool_calls_authorized": false
+}
