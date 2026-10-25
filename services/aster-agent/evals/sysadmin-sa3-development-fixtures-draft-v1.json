@@ -1,0 +1,547 @@
+{
+  "cases": [
+    {
+      "capabilities": [
+        {
+          "description": "Read the retained synthetic sanitized retry summary.",
+          "id": "sanitized_retry_summary"
+        },
+        {
+          "description": "Read the retained synthetic media metadata summary.",
+          "id": "media_metadata_summary"
+        },
+        {
+          "description": "Read the retained synthetic jellyfin task status.",
+          "id": "jellyfin_task_status"
+        }
+      ],
+      "id": "video_archiver_jellyfin_verification",
+      "initial_observations": [
+        {
+          "freshness": "stale",
+          "id": "initial",
+          "text": "Two archive retries fail verification or Jellyfin scan completion. This retained symptom alone does not establish a current cause or repair outcome."
+        }
+      ],
+      "prompt": "Two archive retries fail verification or Jellyfin scan completion. Investigate using only the retained synthetic observations. No change or external collection is permitted.",
+      "responses": {
+        "jellyfin_task_status": {
+          "freshness": "current",
+          "id": "jellyfin_task_status-result",
+          "text": "No library scan was accepted for the item; the retained session class was unauthenticated and no scan was started."
+        },
+        "media_metadata_summary": {
+          "freshness": "current",
+          "id": "media_metadata_summary-result",
+          "text": "The retained metadata record identifies the expected container and duration but has no verified final artifact identity."
+        },
+        "sanitized_retry_summary": {
+          "freshness": "current",
+          "id": "sanitized_retry_summary-result",
+          "text": "Two bounded attempts ended before a complete artifact hash was returned; the original and checkpoint remain preserved."
+        }
+      }
+    },
+    {
+      "capabilities": [
+        {
+          "description": "Read the retained synthetic sanitized guest address inventory.",
+          "id": "sanitized_guest_address_inventory"
+        },
+        {
+          "description": "Read the retained synthetic arp result.",
+          "id": "arp_result"
+        },
+        {
+          "description": "Read the retained synthetic netbox ownership result.",
+          "id": "netbox_ownership_result"
+        }
+      ],
+      "id": "paperless_ip_collision",
+      "initial_observations": [
+        {
+          "freshness": "stale",
+          "id": "initial",
+          "text": "Paperless is unreachable at its documented address while another guest answers ARP. This retained symptom alone does not establish a current cause or repair outcome."
+        }
+      ],
+      "prompt": "Paperless is unreachable at its documented address while another guest answers ARP. Investigate using only the retained synthetic observations. No change or external collection is permitted.",
+      "responses": {
+        "arp_result": {
+          "freshness": "current",
+          "id": "arp_result-result",
+          "text": "One stable MAC is observed at each address; the document guest MAC owns 192.0.2.15 and the speech guest MAC owns 192.0.2.14."
+        },
+        "netbox_ownership_result": {
+          "freshness": "current",
+          "id": "netbox_ownership_result-result",
+          "text": "The inventory records speech at 192.0.2.14 and has no current document-service address; an older document reference still names 192.0.2.14."
+        },
+        "sanitized_guest_address_inventory": {
+          "freshness": "current",
+          "id": "sanitized_guest_address_inventory-result",
+          "text": "The document guest is assigned 192.0.2.15 and the speech guest is assigned 192.0.2.14 in the current synthetic guest inventory."
+        }
+      }
+    },
+    {
+      "capabilities": [
+        {
+          "description": "Read the retained synthetic sanitized http status class.",
+          "id": "sanitized_http_status_class"
+        },
+        {
+          "description": "Read the retained synthetic supported-header capability.",
+          "id": "supported_header_capability"
+        },
+        {
+          "description": "Read the retained synthetic sanitized integration health state.",
+          "id": "sanitized_integration_health_state"
+        }
+      ],
+      "id": "arr_sso_header_mismatch",
+      "initial_observations": [
+        {
+          "freshness": "stale",
+          "id": "initial",
+          "text": "An ARR integration is reachable but rejects a known-good session after a proxy change. This retained symptom alone does not establish a current cause or repair outcome."
+        }
+      ],
+      "prompt": "An ARR integration is reachable but rejects a known-good session after a proxy change. Investigate using only the retained synthetic observations. No change or external collection is permitted.",
+      "responses": {
+        "sanitized_http_status_class": {
+          "freshness": "current",
+          "id": "sanitized_http_status_class-result",
+          "text": "The proxied request reaches the application and returns a second sign-in response; the direct local health response is successful."
+        },
+        "sanitized_integration_health_state": {
+          "freshness": "current",
+          "id": "sanitized_integration_health_state-result",
+          "text": "The integration rejects the request before user lookup because the expected header name is absent; application health remains responsive."
+        },
+        "supported_header_capability": {
+          "freshness": "current",
+          "id": "supported_header_capability-result",
+          "text": "The proxy supplies X-Remote-User while the retained integration capability names Remote-User; no identity or credential value is included."
+        }
+      }
+    },
+    {
+      "capabilities": [
+        {
+          "description": "Read the retained synthetic sanitized exit class.",
+          "id": "sanitized_exit_class"
+        },
+        {
+          "description": "Read the retained synthetic schema/version marker.",
+          "id": "schema_version_marker"
+        },
+        {
+          "description": "Read the retained synthetic count-only finding summary.",
+          "id": "count_only_finding_summary"
+        }
+      ],
+      "id": "doctor_report_shape_failure",
+      "initial_observations": [
+        {
+          "freshness": "stale",
+          "id": "initial",
+          "text": "A scheduled Doctor summary reports a non-success state with no usable finding list. This retained symptom alone does not establish a current cause or repair outcome."
+        }
+      ],
+      "prompt": "A scheduled Doctor summary reports a non-success state with no usable finding list. Investigate using only the retained synthetic observations. No change or external collection is permitted.",
+      "responses": {
+        "count_only_finding_summary": {
+          "freshness": "current",
+          "id": "count_only_finding_summary-result",
+          "text": "Three count-only observations were produced. No target failure class was derived because parsing stopped at the report boundary."
+        },
+        "sanitized_exit_class": {
+          "freshness": "current",
+          "id": "sanitized_exit_class-result",
+          "text": "The collector exits successfully and the reader exits on bounded schema validation before interpreting target health."
+        },
+        "schema_version_marker": {
+          "freshness": "current",
+          "id": "schema_version_marker-result",
+          "text": "The producer marker names observations while the reader contract requires results; both are development schema versions."
+        }
+      }
+    },
+    {
+      "capabilities": [
+        {
+          "description": "Read the retained synthetic sanitized boot classification.",
+          "id": "sanitized_boot_classification"
+        },
+        {
+          "description": "Read the retained synthetic container health summary.",
+          "id": "container_health_summary"
+        },
+        {
+          "description": "Read the retained synthetic http result class.",
+          "id": "http_result_class"
+        },
+        {
+          "description": "Read the retained synthetic count-only inventory check.",
+          "id": "count_only_inventory_check"
+        }
+      ],
+      "id": "netbox_post_reboot_startup",
+      "initial_observations": [
+        {
+          "freshness": "stale",
+          "id": "initial",
+          "text": "NetBox is unavailable after a clean guest reboot while retained inventory evidence is unchanged. This retained symptom alone does not establish a current cause or repair outcome."
+        }
+      ],
+      "prompt": "NetBox is unavailable after a clean guest reboot while retained inventory evidence is unchanged. Investigate using only the retained synthetic observations. No change or external collection is permitted.",
+      "responses": {
+        "container_health_summary": {
+          "freshness": "current",
+          "id": "container_health_summary-result",
+          "text": "Database and cache containers are healthy; the application container is stopped with restart policy set to no."
+        },
+        "count_only_inventory_check": {
+          "freshness": "current",
+          "id": "count_only_inventory_check-result",
+          "text": "The last retained inventory contains 42 devices and remains unchanged; it is evidence of prior state, not current HTTP health."
+        },
+        "http_result_class": {
+          "freshness": "current",
+          "id": "http_result_class-result",
+          "text": "The application port refuses the bounded HTTP probe; no request reached application code."
+        },
+        "sanitized_boot_classification": {
+          "freshness": "current",
+          "id": "sanitized_boot_classification-result",
+          "text": "The guest completed boot, but the application container did not start automatically after the reboot."
+        }
+      }
+    },
+    {
+      "capabilities": [
+        {
+          "description": "Read the retained synthetic sanitized renderer/capability summary.",
+          "id": "sanitized_renderer_capability_summary"
+        },
+        {
+          "description": "Read the retained synthetic bounded latency band.",
+          "id": "bounded_latency_band"
+        },
+        {
+          "description": "Read the retained synthetic service health state.",
+          "id": "service_health_state"
+        }
+      ],
+      "id": "b60_software_rendering",
+      "initial_observations": [
+        {
+          "freshness": "stale",
+          "id": "initial",
+          "text": "A local inference response is unexpectedly slow and retained capability evidence is incomplete. This retained symptom alone does not establish a current cause or repair outcome."
+        }
+      ],
+      "prompt": "A local inference response is unexpectedly slow and retained capability evidence is incomplete. Investigate using only the retained synthetic observations. No change or external collection is permitted.",
+      "responses": {
+        "bounded_latency_band": {
+          "freshness": "current",
+          "id": "bounded_latency_band-result",
+          "text": "Three content-free probes complete in 19.2 to 20.1 seconds against a retained accepted band of 4.8 to 6.2 seconds."
+        },
+        "sanitized_renderer_capability_summary": {
+          "freshness": "current",
+          "id": "sanitized_renderer_capability_summary-result",
+          "text": "The process reports a CPU software backend and no selected SYCL device; the accepted record names a discrete-GPU SYCL backend."
+        },
+        "service_health_state": {
+          "freshness": "current",
+          "id": "service_health_state-result",
+          "text": "The service is active and answers its health probe; no model or runtime setting was changed during collection."
+        }
+      }
+    },
+    {
+      "capabilities": [
+        {
+          "description": "Read the retained synthetic sanitized route/interface result.",
+          "id": "sanitized_route_interface_result"
+        },
+        {
+          "description": "Read the retained synthetic dns response class.",
+          "id": "dns_response_class"
+        },
+        {
+          "description": "Read the retained synthetic endpoint health class.",
+          "id": "endpoint_health_class"
+        }
+      ],
+      "id": "dns_asymmetric_path",
+      "initial_observations": [
+        {
+          "freshness": "stale",
+          "id": "initial",
+          "text": "One service path resolves but a peer path is unreachable despite an apparently healthy endpoint. This retained symptom alone does not establish a current cause or repair outcome."
+        }
+      ],
+      "prompt": "One service path resolves but a peer path is unreachable despite an apparently healthy endpoint. Investigate using only the retained synthetic observations. No change or external collection is permitted.",
+      "responses": {
+        "dns_response_class": {
+          "freshness": "current",
+          "id": "dns_response_class-result",
+          "text": "Peer A resolves service.example.test to 192.0.2.40; peer B receives NXDOMAIN from its configured resolver for the same query."
+        },
+        "endpoint_health_class": {
+          "freshness": "current",
+          "id": "endpoint_health_class-result",
+          "text": "A direct content-free probe from peer B to 192.0.2.40 succeeds and the endpoint health class is healthy."
+        },
+        "sanitized_route_interface_result": {
+          "freshness": "current",
+          "id": "sanitized_route_interface_result-result",
+          "text": "Both peers have a route to 192.0.2.40 and the bounded policy simulation permits the service port."
+        }
+      }
+    },
+    {
+      "capabilities": [
+        {
+          "description": "Read the retained synthetic sanitized coverage state.",
+          "id": "sanitized_coverage_state"
+        },
+        {
+          "description": "Read the retained synthetic backup age band.",
+          "id": "backup_age_band"
+        },
+        {
+          "description": "Read the retained synthetic documented recovery dependency.",
+          "id": "documented_recovery_dependency"
+        }
+      ],
+      "id": "backup_configuration_gap",
+      "initial_observations": [
+        {
+          "freshness": "stale",
+          "id": "initial",
+          "text": "A retained coverage report shows a required backup path has no verified current configuration. This retained symptom alone does not establish a current cause or repair outcome."
+        }
+      ],
+      "prompt": "A retained coverage report shows a required backup path has no verified current configuration. Investigate using only the retained synthetic observations. No change or external collection is permitted.",
+      "responses": {
+        "backup_age_band": {
+          "freshness": "current",
+          "id": "backup_age_band-result",
+          "text": "The newest successful job is current for its configured sources but supplies no evidence about the uncovered path."
+        },
+        "documented_recovery_dependency": {
+          "freshness": "current",
+          "id": "documented_recovery_dependency-result",
+          "text": "The recovery catalogue has no checkpoint attributable to /srv/example-data; its documented recovery requirement remains open."
+        },
+        "sanitized_coverage_state": {
+          "freshness": "current",
+          "id": "sanitized_coverage_state-result",
+          "text": "Enabled jobs cover /etc/example and /srv/other-data; no enabled source or include names /srv/example-data."
+        }
+      }
+    },
+    {
+      "capabilities": [
+        {
+          "description": "Read the retained synthetic sanitized run state.",
+          "id": "sanitized_run_state"
+        },
+        {
+          "description": "Read the retained synthetic last successful age band.",
+          "id": "last_successful_age_band"
+        },
+        {
+          "description": "Read the retained synthetic checkpoint presence.",
+          "id": "checkpoint_presence"
+        },
+        {
+          "description": "Read the retained synthetic recovery-order reference.",
+          "id": "recovery_order_reference"
+        }
+      ],
+      "id": "backup_interruption_recovery",
+      "initial_observations": [
+        {
+          "freshness": "stale",
+          "id": "initial",
+          "text": "A backup record is interrupted before a known recovery checkpoint. This retained symptom alone does not establish a current cause or repair outcome."
+        }
+      ],
+      "prompt": "A backup record is interrupted before a known recovery checkpoint. Investigate using only the retained synthetic observations. No change or external collection is permitted.",
+      "responses": {
+        "checkpoint_presence": {
+          "freshness": "current",
+          "id": "checkpoint_presence-result",
+          "text": "The preceding recovery point remains present and its catalogue hash matches; the interrupted attempt has no valid checkpoint."
+        },
+        "last_successful_age_band": {
+          "freshness": "current",
+          "id": "last_successful_age_band-result",
+          "text": "The immediately preceding scheduled run completed successfully inside the required age band."
+        },
+        "recovery_order_reference": {
+          "freshness": "current",
+          "id": "recovery_order_reference-result",
+          "text": "The retained procedure says preserve the last successful point, classify the partial attempt, and require separate approval before a bounded retry."
+        },
+        "sanitized_run_state": {
+          "freshness": "current",
+          "id": "sanitized_run_state-result",
+          "text": "The latest attempt is marked interrupted after 37 percent and its partial destination is excluded from restore selection."
+        }
+      }
+    },
+    {
+      "capabilities": [
+        {
+          "description": "Read the retained synthetic sanitized document timestamps.",
+          "id": "sanitized_document_timestamps"
+        },
+        {
+          "description": "Read the retained synthetic inventory freshness band.",
+          "id": "inventory_freshness_band"
+        },
+        {
+          "description": "Read the retained synthetic dependency category summary.",
+          "id": "dependency_category_summary"
+        }
+      ],
+      "id": "stale_backup_inventory",
+      "initial_observations": [
+        {
+          "freshness": "stale",
+          "id": "initial",
+          "text": "A planning record calls a backup target offline while a later retained inventory indicates current activity. This retained symptom alone does not establish a current cause or repair outcome."
+        }
+      ],
+      "prompt": "A planning record calls a backup target offline while a later retained inventory indicates current activity. Investigate using only the retained synthetic observations. No change or external collection is permitted.",
+      "responses": {
+        "dependency_category_summary": {
+          "freshness": "current",
+          "id": "dependency_category_summary-result",
+          "text": "The discrepancy is a planning-record inventory dependency; there is no evidence that backup execution itself changed."
+        },
+        "inventory_freshness_band": {
+          "freshness": "current",
+          "id": "inventory_freshness_band-result",
+          "text": "The authoritative inventory lists guests 201, 202, 203, and 204; the plan lists only 201, 202, and 203."
+        },
+        "sanitized_document_timestamps": {
+          "freshness": "current",
+          "id": "sanitized_document_timestamps-result",
+          "text": "The planning record timestamp predates the authoritative inventory timestamp by six days."
+        }
+      }
+    },
+    {
+      "capabilities": [
+        {
+          "description": "Read the retained synthetic sanitized exit state.",
+          "id": "sanitized_exit_state"
+        },
+        {
+          "description": "Read the retained synthetic item count.",
+          "id": "item_count"
+        },
+        {
+          "description": "Read the retained synthetic report schema marker.",
+          "id": "report_schema_marker"
+        }
+      ],
+      "id": "doctor_empty_observation_set",
+      "initial_observations": [
+        {
+          "freshness": "stale",
+          "id": "initial",
+          "text": "A Doctor collection completes with an empty observation set and no stated target fault. This retained symptom alone does not establish a current cause or repair outcome."
+        }
+      ],
+      "prompt": "A Doctor collection completes with an empty observation set and no stated target fault. Investigate using only the retained synthetic observations. No change or external collection is permitted.",
+      "responses": {
+        "item_count": {
+          "freshness": "current",
+          "id": "item_count-result",
+          "text": "The observation item count is zero, so the report contains no target-specific health evidence."
+        },
+        "report_schema_marker": {
+          "freshness": "current",
+          "id": "report_schema_marker-result",
+          "text": "The schema requires at least one item for complete status; unavailable status may use an empty list only with a bounded error class."
+        },
+        "sanitized_exit_state": {
+          "freshness": "current",
+          "id": "sanitized_exit_state-result",
+          "text": "The report claims complete status; no collector exit error class is present."
+        }
+      }
+    },
+    {
+      "capabilities": [
+        {
+          "description": "Read the retained synthetic sanitized preflight outcome.",
+          "id": "sanitized_preflight_outcome"
+        },
+        {
+          "description": "Read the retained synthetic bounded reason category.",
+          "id": "bounded_reason_category"
+        },
+        {
+          "description": "Read the retained synthetic rollback availability marker.",
+          "id": "rollback_availability_marker"
+        }
+      ],
+      "id": "b60_preflight_abstention",
+      "initial_observations": [
+        {
+          "freshness": "stale",
+          "id": "initial",
+          "text": "A B60 preflight is denied before a resource-sensitive operation begins. This retained symptom alone does not establish a current cause or repair outcome."
+        }
+      ],
+      "prompt": "A B60 preflight is denied before a resource-sensitive operation begins. Investigate using only the retained synthetic observations. No change or external collection is permitted.",
+      "responses": {
+        "bounded_reason_category": {
+          "freshness": "current",
+          "id": "bounded_reason_category-result",
+          "text": "Backup freshness and service health pass; whole-host lease ownership is the single denied prerequisite because another owner is active."
+        },
+        "rollback_availability_marker": {
+          "freshness": "current",
+          "id": "rollback_availability_marker-result",
+          "text": "The accepted runtime identity and rollback checklist are retained, but recovery action is unavailable while the other lease remains active."
+        },
+        "sanitized_preflight_outcome": {
+          "freshness": "current",
+          "id": "sanitized_preflight_outcome-result",
+          "text": "The resource-sensitive preflight returns no-go and no service or model operation starts."
+        }
+      }
+    }
+  ],
+  "classification": "public synthetic development; review required; never a held-out benchmark",
+  "model_calls_authorized": false,
+  "schema": "aster-sa3-development-fixtures.v1",
+  "source_case_sha256": {
+    "arr_sso_header_mismatch": "a8280e212d33aa123ab3920b7b22c9261e46f5bfd551a992c3951a1336ee3a3a",
+    "b60_preflight_abstention": "e0bd5cabaec920f322e76bac1f508d321e80c7eabb97126afb9b7625545dc432",
+    "b60_software_rendering": "edf3882230585157ebf41987f1a6cf731010e2cc433a555e98fa63b07d0c0b18",
+    "backup_configuration_gap": "96133f50e0928f87b2bef1161f8cb67c4435e1aea1a64e7068d281822ddc3b6b",
+    "backup_interruption_recovery": "e7de265d379c2c7a4be4b8272e6d1232f83b343f378bda0953ce1f70dd049642",
+    "dns_asymmetric_path": "fe82030aa2f07364aa3104926b862632131fc3c24fd7b802d8105b3dbcea1253",
+    "doctor_empty_observation_set": "f8f74b5892857341fc78f13e78b2eaa8b599e3cdc4c3f8a4e917cecb1027377e",
+    "doctor_report_shape_failure": "2358f231ec61ed715b370f64bf8edad388a6263a99cc13fe90bb3fba27f9de90",
+    "netbox_post_reboot_startup": "b7ef7f31f6a9029ccd3d55781b61e06de7c85e7d73a105eaee73c8d81b407009",
+    "paperless_ip_collision": "d8be90d32c078da367535ccd6c1ba473703b82607bcee5b573e493e6b08157c7",
+    "stale_backup_inventory": "c8fb802720db6d341bb7c27d70adb1fc5034eb3da114de68a3b6809fc31ce634",
+    "video_archiver_jellyfin_verification": "54de84cf1a5c7985c8ee8d60f2dce3e577a799cda194901344ec42ecb411d2ea"
+  },
+  "source_corpus_sha256": "85e511b8470bbfb753f30668c1589259e73518d92b1e281008aaa7bd0cc0fbbb",
+  "source_plan_sha256": "387fdf869d697295fea17736c14241f94b6c62af92067cd91d8fa4555da50791",
+  "status": "draft_fixtures_require_jason_review",
+  "tool_calls_authorized": false
+}
