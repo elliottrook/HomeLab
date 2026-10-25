@@ -1,6 +1,7 @@
 import json
 import os
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 
@@ -70,7 +71,7 @@ class AdapterTests(unittest.TestCase):
             adapter.heartbeat(lease_id="eval-1", generation=1, now_epoch=1150)
             adapter.record_outcome(
                 WorkloadOutcome("eval-1", 1, "d4-candidate-g", D4_DIGEST,
-                                "completed", "d4-journal", "d4-result", 12, 30, True),
+                                "completed", "a" * 64, "b" * 64, 12, 30, True),
                 now_epoch=1200, heartbeat_timeout=100,
             )
             adapter.start_workload(lease_id="eval-1", generation=1,
@@ -79,7 +80,7 @@ class AdapterTests(unittest.TestCase):
             adapter.heartbeat(lease_id="eval-1", generation=1, now_epoch=1250)
             adapter.record_outcome(
                 WorkloadOutcome("eval-1", 1, "m3-nlu-calibration", M3_STAGE_MANIFEST_DIGEST,
-                                "completed", "m3-journal", "m3-result", 60, 30, True),
+                                "completed", "c" * 64, "d" * 64, 60, 30, True),
                 now_epoch=1300, heartbeat_timeout=100,
             )
             result = adapter.restore(
@@ -207,15 +208,15 @@ class AdapterTests(unittest.TestCase):
                                        workload_name="d4-candidate-g",
                                        now_epoch=1000, heartbeat_timeout=30)
             foreign = WorkloadOutcome("other", 1, "d4-candidate-g", D4_DIGEST,
-                                      "completed", "j", "r", 1, 1, True)
+                                      "completed", "a" * 64, "b" * 64, 1, 1, True)
             with self.assertRaises(AdapterError):
                 adapter.record_outcome(foreign, now_epoch=1001, heartbeat_timeout=30)
             uncertain = WorkloadOutcome("eval-1", 1, "d4-candidate-g", D4_DIGEST,
-                                        "completed", "j", "r", 1, 1, True, True)
+                                        "completed", "a" * 64, "b" * 64, 1, 1, True, True)
             with self.assertRaises(EvaluationLeaseError):
                 adapter.record_outcome(uncertain, now_epoch=1001, heartbeat_timeout=30)
             d4 = WorkloadOutcome("eval-1", 1, "d4-candidate-g", D4_DIGEST,
-                                 "completed", "j", "r", 1, 1, True)
+                                 "completed", "a" * 64, "b" * 64, 1, 1, True)
             adapter.record_outcome(d4, now_epoch=1001, heartbeat_timeout=30)
             with self.assertRaises(AdapterError):
                 adapter.record_outcome(d4, now_epoch=1002, heartbeat_timeout=30)
@@ -224,6 +225,75 @@ class AdapterTests(unittest.TestCase):
                                 restored=self.admission().baseline,
                                 backend_active=True, endpoint_authenticated=True,
                                 endpoint_idle=True, gpu_holders=(BACKEND_TARGET,))
+
+    def test_state_mutations_and_valid_inflight_recovery_are_coherent(self):
+        mutations = (
+            {"completed_outcomes": [("m3-nlu-calibration", "a" * 64, "b" * 64)],
+             "next_workload": None, "in_flight_workload": None},
+            {"completed_outcomes": [("m3-nlu-calibration", "a" * 64, "b" * 64),
+                                     ("d4-candidate-g", "c" * 64, "d" * 64)],
+             "next_workload": None, "in_flight_workload": None},
+            {"completed_outcomes": [], "next_workload": "d4-candidate-g",
+             "in_flight_workload": "m3-nlu-calibration"},
+        )
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / "lease.json"
+            adapter = EvaluationLeaseAdapter(path, lambda command: None, allow_effects=True)
+            adapter.acquire(self.admission(), now_epoch=1000)
+            baseline = json.loads(path.read_text())
+            for mutation in mutations:
+                changed = dict(baseline)
+                changed.update(mutation)
+                path.write_text(json.dumps(changed) + "\n")
+                path.chmod(0o600)
+                with self.assertRaises(AdapterError):
+                    read_state(path)
+            path.write_text(json.dumps(baseline) + "\n")
+            path.chmod(0o600)
+            adapter.post_quiescence(
+                observed_states=QUIESCE_STATES, admission=self.admission(),
+                backend_active=True, endpoint_authenticated=True,
+                endpoint_idle=True, gpu_holders=(BACKEND_TARGET,),
+                now_epoch=1000, heartbeat_timeout=30,
+            )
+            adapter.start_workload(lease_id="eval-1", generation=1,
+                                   workload_name="d4-candidate-g",
+                                   now_epoch=1000, heartbeat_timeout=30)
+            self.assertEqual(read_state(path).in_flight_workload, "d4-candidate-g")
+            adapter.restore(lease_id="eval-1", generation=1,
+                            restored=self.admission().baseline,
+                            backend_active=True, endpoint_authenticated=True,
+                            endpoint_idle=True, gpu_holders=(BACKEND_TARGET,), recovery=True)
+
+    def test_concurrent_duplicate_start_has_one_admitter(self):
+        with tempfile.TemporaryDirectory() as root:
+            adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", lambda command: None,
+                                              allow_effects=True)
+            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.post_quiescence(
+                observed_states=QUIESCE_STATES, admission=self.admission(),
+                backend_active=True, endpoint_authenticated=True,
+                endpoint_idle=True, gpu_holders=(BACKEND_TARGET,),
+                now_epoch=1000, heartbeat_timeout=30,
+            )
+            barrier = threading.Barrier(2)
+            successes, failures = [], []
+            def attempt():
+                barrier.wait()
+                try:
+                    adapter.start_workload(lease_id="eval-1", generation=1,
+                                           workload_name="d4-candidate-g",
+                                           now_epoch=1000, heartbeat_timeout=30)
+                    successes.append(True)
+                except AdapterError:
+                    failures.append(True)
+            threads = [threading.Thread(target=attempt) for _ in range(2)]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join()
+            self.assertEqual(len(successes), 1)
+            self.assertEqual(len(failures), 1)
 
     def test_watchdog_is_inert_without_effect_authority(self):
         called = []

@@ -13,6 +13,7 @@ import json
 import os
 import stat
 import tempfile
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Callable, Sequence
@@ -148,11 +149,22 @@ def read_state(path: Path, *, expected_lease_id: str | None = None,
         raise AdapterError("evaluation state next workload is invalid")
     if state.in_flight_workload not in {None, "d4-candidate-g", "m3-nlu-calibration"}:
         raise AdapterError("evaluation state in-flight workload is invalid")
-    if (len(state.completed_outcomes) > 2
-            or len({row[0] for row in state.completed_outcomes}) != len(state.completed_outcomes)
-            or any(len(row) != 3 or row[0] not in {"d4-candidate-g", "m3-nlu-calibration"}
-                   or not row[1] or not row[2] for row in state.completed_outcomes)):
+    rows = state.completed_outcomes
+    if (len(rows) > 2
+            or tuple(row[0] for row in rows)
+            not in {(), ("d4-candidate-g",), ("d4-candidate-g", "m3-nlu-calibration")}
+            or any(len(row) != 3 or not isinstance(row[0], str)
+                   or not isinstance(row[1], str) or not isinstance(row[2], str)
+                   or len(row[1]) != 64 or len(row[2]) != 64
+                   or any(character not in "0123456789abcdef" for character in row[1] + row[2])
+                   for row in rows)):
         raise AdapterError("evaluation state outcome progression is invalid")
+    expected_next = ("d4-candidate-g" if not rows
+                     else "m3-nlu-calibration" if len(rows) == 1 else None)
+    if state.next_workload != expected_next:
+        raise AdapterError("evaluation state next workload is incoherent")
+    if state.in_flight_workload not in {None, expected_next}:
+        raise AdapterError("evaluation state in-flight workload is incoherent")
     if (expected_lease_id is not None and state.lease_id != expected_lease_id) or (
             expected_generation is not None and state.generation != expected_generation):
         raise AdapterError("evaluation state identity does not match")
@@ -164,8 +176,23 @@ class EvaluationLeaseAdapter:
                  allow_effects: bool = False):
         self.state_path = state_path
         self.lock_path = state_path.with_suffix(".lock")
+        self.operation_lock_path = state_path.with_suffix(".operation.lock")
         self.runner = runner
         self.allow_effects = allow_effects
+
+    @contextmanager
+    def _operation_guard(self):
+        try:
+            self.operation_lock_path.mkdir(mode=0o700)
+        except FileExistsError as exc:
+            raise AdapterError("evaluation operation is already in progress") from exc
+        try:
+            yield
+        finally:
+            try:
+                self.operation_lock_path.rmdir()
+            except FileNotFoundError:
+                pass
 
     def _require_effects(self) -> None:
         if not self.allow_effects:
@@ -299,18 +326,19 @@ class EvaluationLeaseAdapter:
 
     def start_workload(self, *, lease_id: str, generation: int, workload_name: str,
                        now_epoch: int, heartbeat_timeout: int) -> None:
-        if not self.workload_allowed(
-                lease_id=lease_id, generation=generation, workload_name=workload_name,
-                now_epoch=now_epoch, heartbeat_timeout=heartbeat_timeout):
-            raise AdapterError("workload start is not admitted by the durable sequence")
-        state = read_state(self.state_path, expected_lease_id=lease_id,
-                           expected_generation=generation)
-        atomic_state(self.state_path, AdapterState(
-            state.lease_id, state.generation, state.phase, state.baseline,
-            state.window_start_epoch, now_epoch, state.hard_deadline_epoch,
-            state.restore_deadline_epoch, state.next_workload, workload_name,
-            state.completed_outcomes,
-        ))
+        with self._operation_guard():
+            if not self.workload_allowed(
+                    lease_id=lease_id, generation=generation, workload_name=workload_name,
+                    now_epoch=now_epoch, heartbeat_timeout=heartbeat_timeout):
+                raise AdapterError("workload start is not admitted by the durable sequence")
+            state = read_state(self.state_path, expected_lease_id=lease_id,
+                               expected_generation=generation)
+            atomic_state(self.state_path, AdapterState(
+                state.lease_id, state.generation, state.phase, state.baseline,
+                state.window_start_epoch, now_epoch, state.hard_deadline_epoch,
+                state.restore_deadline_epoch, state.next_workload, workload_name,
+                state.completed_outcomes,
+            ))
 
     def record_outcome(self, outcome: WorkloadOutcome, *, now_epoch: int,
                        heartbeat_timeout: int) -> None:
