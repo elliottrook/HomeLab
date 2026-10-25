@@ -53,6 +53,9 @@ with the October 26 F2 window.
 5. The exercise host has a pre-created rollback checkpoint and a read-only
    receipt destination. The receipt records hashes, custody, commands and
    results, but contains no secret, recovery share, token or credential.
+6. The metadata-only auth-probe repair is installed and its fresh read-only
+   preflight passes: the authenticated probe uses only `GET /v1/models`, the
+   exact model ID is present, and no completion endpoint is called.
 
 ## Bounded execution sequence — future approval only
 

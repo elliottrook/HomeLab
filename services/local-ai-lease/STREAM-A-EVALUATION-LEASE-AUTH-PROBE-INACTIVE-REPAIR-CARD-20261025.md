@@ -1,12 +1,27 @@
 # Stream A metadata-only auth probe repair — inactive card
 
-Status: **SOURCE-ONLY; NOT INSTALLED OR AUTHORIZED**
+Status: **INSTALLED AND VERIFIED; LIVE EXERCISE STILL NOT AUTHORIZED**
 
 The live exercise preflight is NO-GO because the authenticated probe helper is
 missing on LXC110 and the prior probe would call `/v1/chat/completions`. This
 repair adds a metadata-only probe and replaces the runner so both are pinned
 and verified before another preflight. It authorizes no live exercise, model
 inference, consumer mutation, timer change or remote Git operation.
+
+## Verified install and preflight result
+
+The approved repair is installed and matches the pinned hashes: LXC110 helper
+`0996e1b5...` as `root:root` `0644`, Proxmox runner `610b963b...` as
+`root:root` `0644`, with the auth wrapper unchanged at its pinned hash. The
+rollback checkpoint is `/root/stream-a-auth-probe-repair-20261025-1535`.
+
+The target source suite passed 80/80; Python compilation, no-completion-string
+verification, metadata-only authenticated probe and inert runner checks passed.
+F6 units remain disabled/inactive and runtime/receipt paths are absent. Fresh
+read-only preflight passed: whole-host lease ready, backend active/authenticated/
+idle, exact LXC110 GPU holder, all four consumers enabled+active, and October 26
+F2 timers active at 01:15/01:20 PDT. The live exercise has not run and still
+requires separate exact approval.
 
 ## Exact two-file transaction
 
