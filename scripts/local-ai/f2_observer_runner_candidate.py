@@ -33,7 +33,7 @@ OBSERVER_SHA256 = "f07071d3544fafd0579a4e360674664ec95dd32bd2c4114c3e073c849805e
 PRODUCER_SHA256 = "5d98f6d9dde9797a92802060b151e9929a4d24849555679f76d65f32ed7caaaf"
 RUNTIME_PINS = (
     (Path("/usr/local/libexec/local-ai-lease/host_exclusion.py"),
-     "f8c60ad720a8ac1c6c4f3e51c84ce67747b50f25534c02e0ee6ed38efc302563"),
+     "b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61"),
     (Path("/usr/local/libexec/local-ai-lease/retained_archive_integrity.py"),
      "11b536ede74d0bcea3b7bd5fe123c3f670715fcc96ef9059723c29a504cc54a5"),
     (Path("/usr/local/libexec/local-ai-lease/fixed_source_adapters.py"),

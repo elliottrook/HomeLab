@@ -1,0 +1,12 @@
+[Unit]
+Description=F2 archive final gate timer (2026-10-26 exact-cycle candidate)
+
+[Timer]
+OnCalendar=2026-10-26 01:20:00 America/Vancouver
+AccuracySec=1s
+RandomizedDelaySec=0
+Persistent=no
+Unit=f2-preflight-final.service
+
+[Install]
+WantedBy=timers.target
