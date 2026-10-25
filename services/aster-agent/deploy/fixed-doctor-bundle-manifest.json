@@ -1,0 +1,166 @@
+{
+  "schema": 1,
+  "candidate": "m1-d4-fixed-doctor-v1",
+  "created_at": "2026-10-25",
+  "activation": "disabled",
+  "entries": [
+    {
+      "host": "mac-mini",
+      "source": "scripts/build-aster-health-report.py",
+      "target": "/Users/jelliott/lab/homelab/scripts/build-aster-health-report.py",
+      "source_sha256": "8ec44150b11e362896ad9662fed9cb0b26798c28a56ec6d447208d5cf67e23d7",
+      "predecessor_sha256": "cb05a3bc3cfafc4f69ce12c033c36aa8d6bab41ebdace5a55e1a9392715127b8",
+      "mode": "0755",
+      "owner": "jelliott",
+      "group": "staff",
+      "rollback": "restore"
+    },
+    {
+      "host": "mac-mini",
+      "source": "scripts/scheduled-report.sh",
+      "target": "/Users/jelliott/lab/homelab/scripts/scheduled-report.sh",
+      "source_sha256": "76611cdef24340ec13dd8275c7237cb8d8f8b61d38a97a6ed09afebb500b544e",
+      "predecessor_sha256": "32a52808739cfac0bff260cdc1cba78ad1f7f785101de559eb29b0dcca96b3e0",
+      "mode": "0755",
+      "owner": "jelliott",
+      "group": "staff",
+      "rollback": "restore"
+    },
+    {
+      "host": "lxc104",
+      "source": "ops/credential-broker/broker_admin.py",
+      "target": "/opt/homelab-broker/broker_admin.py",
+      "source_sha256": "d563afa571cce4018d92f60164f0d9ccf8db8a4144adf3bf0f058321fc1bcf50",
+      "predecessor_sha256": "00216b27e179d936e1b5fd9feb1ca17dc25bb6af3e34b044408ae21133924e8b",
+      "mode": "0700",
+      "owner": "root",
+      "group": "root",
+      "rollback": "restore"
+    },
+    {
+      "host": "lxc104",
+      "source": "ops/credential-broker/broker_service.py",
+      "target": "/opt/homelab-broker/broker_service.py",
+      "source_sha256": "c479cd7f207c2761712f41ef4f2376f17303002c295f44a0486ab77c1c64eb35",
+      "predecessor_sha256": "05a555241b97ad7e6a9d268ad91426af0432fb0ae0785dabf46bf4081e713ccb",
+      "mode": "0644",
+      "owner": "root",
+      "group": "root",
+      "rollback": "restore"
+    },
+    {
+      "host": "lxc104",
+      "source": "services/aster-agent/fixed_doctor_caller.py",
+      "target": "/opt/aster-agent/fixed_doctor_caller.py",
+      "source_sha256": "aba9b11adda00e51d555aff5ec1af8d4fb94a2fa547f9435aa696121ebb9628a",
+      "predecessor": "absent",
+      "mode": "0644",
+      "owner": "root",
+      "group": "root",
+      "rollback": "remove"
+    },
+    {
+      "host": "lxc104",
+      "source": "services/aster-agent/fixed_doctor_gateway.py",
+      "target": "/opt/aster-agent/fixed_doctor_gateway.py",
+      "source_sha256": "852e609ef278acee1b4343ea8627d2c01f8f1a2cc42556aeb9acfa184b4bd495",
+      "predecessor": "absent",
+      "mode": "0644",
+      "owner": "root",
+      "group": "root",
+      "rollback": "remove"
+    },
+    {
+      "host": "lxc104",
+      "source": "services/aster-agent/fixed_doctor_capability.py",
+      "target": "/opt/aster-agent/fixed_doctor_capability.py",
+      "source_sha256": "7c0fd1bcc3404661052627ec7d2fa04e811149f43fb3ea23bc27edf57bb5fb3b",
+      "predecessor": "absent",
+      "mode": "0644",
+      "owner": "root",
+      "group": "root",
+      "rollback": "remove"
+    },
+    {
+      "host": "lxc104",
+      "source": "services/aster-agent/doctor_model_projection.py",
+      "target": "/opt/aster-agent/doctor_model_projection.py",
+      "source_sha256": "8fda9190f46ba836d9cf613729650894adf35e99ef7aadb1ae921c540f00c641",
+      "predecessor": "absent",
+      "mode": "0644",
+      "owner": "root",
+      "group": "root",
+      "rollback": "remove"
+    },
+    {
+      "host": "lxc104",
+      "source": "services/aster-agent/doctor_structured_incident_adapter.py",
+      "target": "/opt/aster-agent/doctor_structured_incident_adapter.py",
+      "source_sha256": "aa282d2d5abc762228fec1d4ace01c4302c6712abd60e307a846e2c5a5058b02",
+      "predecessor": "absent",
+      "mode": "0644",
+      "owner": "root",
+      "group": "root",
+      "rollback": "remove"
+    },
+    {
+      "host": "lxc104",
+      "source": "services/aster-agent/systemd/aster-fixed-doctor-caller.service",
+      "target": "/etc/systemd/system/aster-fixed-doctor-caller.service",
+      "source_sha256": "9a4aa0336df27de60483e567cef43360277d0ec4ebbee2fbcb4093e644b055bf",
+      "predecessor": "absent",
+      "mode": "0644",
+      "owner": "root",
+      "group": "root",
+      "rollback": "remove"
+    },
+    {
+      "host": "lxc104",
+      "source": "services/aster-agent/systemd/aster-fixed-doctor-gateway.service",
+      "target": "/etc/systemd/system/aster-fixed-doctor-gateway.service",
+      "source_sha256": "44ee0df1c163bc453148032f7187c56e38a532377efc5084dadb40d461b629ef",
+      "predecessor": "absent",
+      "mode": "0644",
+      "owner": "root",
+      "group": "root",
+      "rollback": "remove"
+    },
+    {
+      "host": "lxc104",
+      "source": "services/aster-agent/systemd/aster-fixed-doctor.sysusers.conf",
+      "target": "/etc/sysusers.d/aster-fixed-doctor.conf",
+      "source_sha256": "60000eda4e09fab0b1401cc2d6cf7df3e5166c3b10486211736106a136470daf",
+      "predecessor": "absent",
+      "mode": "0644",
+      "owner": "root",
+      "group": "root",
+      "rollback": "remove"
+    }
+  ],
+  "database": {
+    "host": "lxc104",
+    "path": "/var/lib/homelab-broker/broker.db",
+    "checkpoint_before_enrollment": true,
+    "enrollment_is_separate": true
+  },
+  "services": {
+    "must_remain_disabled_after_staging": [
+      "aster-fixed-doctor-caller.service",
+      "aster-fixed-doctor-gateway.service"
+    ],
+    "existing_restart_only_after_separate_approval": [
+      "homelab-broker.service"
+    ]
+  },
+  "excluded": [
+    "launchagent-change",
+    "service-start",
+    "service-enable",
+    "broker-restart",
+    "database-enrollment",
+    "capability-grant",
+    "live-read",
+    "model-route",
+    "model-call"
+  ]
+}

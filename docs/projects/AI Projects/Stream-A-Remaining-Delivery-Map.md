@@ -908,6 +908,16 @@ revocation, kernel peer checks, absence of approval-group membership and
 content-free denial. It is not installed or registered, and Aster still has no
 model-visible route to it.
 
+The [frozen deployment bundle](evidence/M1-D4-fixed-doctor-frozen-bundle-2026-10-25.md)
+now pins the 12-file Mac/LXC104 target shape, exact four-file rollback set,
+eight absent additions, modes, ownership and disabled-staging exclusions. Its
+validator passes 3/3 and the measured live predecessors match. No file is
+installed and no identity, service, grant, restart, live read or model route is
+activated. The existing 08:15 report LaunchAgent's recorded last exit is 1 due
+to a Mail AppleEvent timeout; disabled staging is independent, while the first
+live producer validation must distinguish that pre-existing alert fault from
+producer behavior.
+
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)
 deployed caller binding and restrictive checks, while the
 [Stage2 approver/assurance candidate](evidence/M1-stage2-candidate.md) is **not
