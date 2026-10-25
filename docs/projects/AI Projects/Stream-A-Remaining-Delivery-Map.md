@@ -585,7 +585,11 @@ and target tests; nothing has been armed. The first implementation packet at
 its timer self-renews owner liveness without observing the owner, stale owner
 heartbeats fail closed instead of recovering, uncertain restore exits zero,
 and its restore observation has no constrained fresh writer or lease binding.
-Those exact regressions are with the platform owner.
+The second packet at `23602180` adds process identity and a fixed observer but
+is rejected too: two fixed observer commands are absent from the live LXC110,
+expired owner heartbeats still remain present, no persistent evaluation-owner
+process exists to bind the new identity, and watchdog status remains unwritten.
+Those measured regressions are with the platform owner.
 The platform owner's first pure endpoint-retaining lease candidate at
 `44b26e16` passed its own 7/7 tests and names the correct live backend and News
 timers, but Stream A's

@@ -78,3 +78,28 @@ The card also names a watchdog status file that the implementation never
 writes. The platform owner received exact owner-PID/PID-reuse, stale-heartbeat,
 uncertain-exit and fresh-observation regression requirements. No packet file or
 unit was installed; F6 remains NO-GO.
+
+## Second implementation packet review
+
+Platform implementation `2360218042ff3bccc7a2ae2dc12642fd69bcdbbb`
+and metadata/card commit `f823cd940c489a741bc7ca7bb66589c2d8930b00`
+add PID/boot/start-time/process identity, nonzero uncertain exits and a fixed
+live observer. The revised card is SHA-256
+`1d4a90d87d86571764479dd2ac1034d3a0771424177adbe922a13ffaa54bb065`.
+It is also **rejected before installation**:
+
+1. Target read-only inspection proved that the fixed authentication probe
+   exists in LXC110, but the fixed idle and GPU-holder probes do not. The live
+   observer cannot succeed on the actual target.
+2. The claimed expired-heartbeat transition is absent. The loader no longer
+   rejects expiry, `run_watchdog_once` treats the existing expired record as an
+   alive owner, and the new test explicitly accepts `expires_epoch == now`.
+3. No persistent evaluation-owner runner or service exists to supply the PID,
+   boot ID, start time, command and unit identity. The activation card cannot
+   construct a meaningful owner identity from the current system.
+4. `STATUS_PATH` remains declared and card-listed but unwritten. The observer
+   output also omits the requested lease ID and generation binding.
+
+The platform owner received the exact target-probe, expired-heartbeat,
+owner-runner, status and observation-binding corrections. Nothing was staged,
+enabled or armed.
