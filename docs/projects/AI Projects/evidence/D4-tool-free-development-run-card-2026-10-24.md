@@ -9,9 +9,12 @@ local model can investigate the frozen simulated evidence without effects. It
 does not qualify a sysadmin role, grant a tool, change routing or select a
 provider.
 
-The current corrected exact run digest is
-`d61be2b4165a19498808226e2b2118dddd1899b379d87997d0ff098232657d2e`.
-The dry run accesses no key and makes no request.
+The corrected exact run digest
+`d61be2b4165a19498808226e2b2118dddd1899b379d87997d0ff098232657d2e`
+was executed once and is spent. It completed twelve first calls but all twelve
+results were `invalid_answer`; see the
+[attempt 2 result](D4-tool-free-development-attempt-2-result-2026-10-24.md).
+There is no authorization to replay it.
 
 ## Frozen inputs and runtime
 
@@ -48,6 +51,14 @@ while retaining the independent fail-closed engine check. It also reports
 accepted-terminal session counts explicitly, so schedule completion cannot be
 mistaken for a quality pass. The complete suite passes 142/142. The prior
 approval is spent and does not authorize the corrected digest.
+
+The corrected `d61be2b4...` execution also completed its twelve-session
+schedule, but all twelve first responses failed the answer-shape boundary. The
+private journal intentionally discarded those malformed bodies and could not
+separate invalid JSON from a wrong field/type shape. A one-call content-free
+[contract probe](D4-one-call-contract-probe-card-2026-10-24.md) is now the next
+candidate. Another full development run is not justified until that probe
+identifies and a tested correction closes the exact contract failure.
 
 ## Bounded execution
 
@@ -98,7 +109,7 @@ the model, route, tool authority or repair capability.
 
 ## Approval boundary
 
-One later approval may authorize temporary package staging in LXC104 and this
-exact 12-session run. It does not authorize a second attempt, reasoning mode,
+The authorization for this exact 12-session run has been consumed. It does not
+authorize a replay, reasoning mode,
 connected tools, new credentials, service restart, configuration change,
 production deployment, automatic routing, holdout access or a Git push.

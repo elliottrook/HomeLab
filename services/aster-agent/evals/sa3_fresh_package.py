@@ -141,7 +141,8 @@ def validate_engine_result(result, case_id, mode):
                 or not isinstance(step['metadata'], dict)
                 or not set(step['metadata']) <= {
                     'latency_seconds', 'finish_reason', 'reasoning_present',
-                    'reasoning_characters', 'completion_tokens'}):
+                    'reasoning_characters', 'completion_tokens',
+                    'answer_parse_status', 'answer_shape_status'}):
             raise ValueError('invalid engine result; manual reconciliation required')
         metadata = step['metadata']
         if ('latency_seconds' in metadata
@@ -159,6 +160,14 @@ def validate_engine_result(result, case_id, mode):
         for field in ('reasoning_characters', 'completion_tokens'):
             if field in metadata and (type(metadata[field]) is not int or metadata[field] < 0):
                 raise ValueError('invalid engine result; manual reconciliation required')
+        if ('answer_parse_status' in metadata and metadata['answer_parse_status'] not in
+                ('object', 'non_object', 'invalid_json')):
+            raise ValueError('invalid engine result; manual reconciliation required')
+        if ('answer_shape_status' in metadata and metadata['answer_shape_status'] not in (
+                'valid', 'not_object', 'field_set', 'decision', 'check_type',
+                'summary_type', 'summary_length', 'evidence_ids_type',
+                'evidence_id_type', 'duplicate_evidence_id', 'effects_type')):
+            raise ValueError('invalid engine result; manual reconciliation required')
         answer = step['answer']
         if answer is not None:
             if (not isinstance(answer, dict) or set(answer) != {

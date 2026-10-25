@@ -17,6 +17,7 @@ class RunnerTests(unittest.TestCase):
             'content': '{"effects": []}', 'reasoning_content': 'private synthetic reasoning'}}],
             'usage': {'completion_tokens': 7}}, 2)
         self.assertTrue(result['reasoning_present'])
+        self.assertEqual(result['answer_parse_status'], 'object')
         self.assertNotIn('private synthetic reasoning', json.dumps(result))
 
     def test_followup_dry_run_is_bounded_and_explicit(self):
@@ -31,7 +32,14 @@ class RunnerTests(unittest.TestCase):
         result = sanitize_response({'choices': [{'finish_reason': 'length', 'message': {
             'content': '<think>discard this raw output'}}]}, 2)
         self.assertIsNone(result['answer'])
+        self.assertEqual(result['answer_parse_status'], 'invalid_json')
         self.assertNotIn('discard this', json.dumps(result))
+
+    def test_nonobject_json_is_classified_without_retaining_extra_text(self):
+        result = sanitize_response({'choices': [{'finish_reason': 'stop', 'message': {
+            'content': '["synthetic private value"]'}}]}, 1)
+        self.assertEqual(result['answer_parse_status'], 'non_object')
+        self.assertIsInstance(result['answer'], list)
 
 
 if __name__ == '__main__': unittest.main()

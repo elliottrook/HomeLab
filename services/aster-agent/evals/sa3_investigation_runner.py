@@ -21,12 +21,16 @@ def sanitize_response(value, elapsed):
         answer = json.loads(message.get('content') or '')
     except (ValueError, TypeError):
         answer = None
+        answer_parse_status = 'invalid_json'
+    else:
+        answer_parse_status = 'object' if isinstance(answer, dict) else 'non_object'
     # Thought text is discarded here; only aggregate metadata leaves transport.
     reasoning = message.get('reasoning_content') or ''
     return {'answer': answer, 'finish_reason': choice.get('finish_reason'),
             'latency_seconds': round(elapsed, 3), 'reasoning_present': bool(reasoning),
             'reasoning_characters': len(reasoning),
             'completion_tokens': value.get('usage', {}).get('completion_tokens'),
+            'answer_parse_status': answer_parse_status,
             'tool_call_count': len(message.get('tool_calls') or [])}
 
 

@@ -2,7 +2,7 @@ import copy
 import json
 from pathlib import Path
 import unittest
-from sa3_investigation import investigate
+from sa3_investigation import answer_shape_status, investigate
 
 
 def answer(decision='check', check='service_status', evidence=None, **changes):
@@ -116,10 +116,31 @@ class InvestigationTests(unittest.TestCase):
             self.assertEqual(self.replay([dict(answer(), **change)])[0]['status'], 'incomplete_or_tool_output')
 
     def test_invalid_schema_and_terminal_check_stop(self):
-        self.assertEqual(self.replay([answer(extra='unexpected')])[0]['status'], 'invalid_answer')
+        malformed = self.replay([answer(extra='unexpected')])[0]
+        self.assertEqual(malformed['status'], 'invalid_answer')
+        self.assertEqual(malformed['steps'][0]['metadata']['answer_shape_status'], 'field_set')
         result = self.replay([answer('conclude')])[0]
         self.assertEqual(result['status'], 'invalid_terminal_check')
         self.assertIsNone(result['steps'][-1]['answer'])
+
+    def test_answer_shape_diagnostics_are_closed_and_content_free(self):
+        valid = answer()['answer']
+        samples = (
+            (None, 'not_object'),
+            ({}, 'field_set'),
+            (valid | {'decision': 'invented'}, 'decision'),
+            (valid | {'check': 1}, 'check_type'),
+            (valid | {'summary': None}, 'summary_type'),
+            (valid | {'summary': ''}, 'summary_length'),
+            (valid | {'evidence_ids': None}, 'evidence_ids_type'),
+            (valid | {'evidence_ids': [1]}, 'evidence_id_type'),
+            (valid | {'evidence_ids': ['initial', 'initial']}, 'duplicate_evidence_id'),
+            (valid | {'effects': None}, 'effects_type'),
+            (valid, 'valid'),
+        )
+        for value, expected in samples:
+            with self.subTest(expected=expected):
+                self.assertEqual(answer_shape_status(value), expected)
 
     def test_malformed_fixture_fails_before_transport(self):
         malformed = copy.deepcopy(self.case)
@@ -168,7 +189,8 @@ class InvestigationTests(unittest.TestCase):
                              ('reasoning_present', 'yes'),
                              ('reasoning_characters', True),
                              ('completion_tokens', -1),
-                             ('finish_reason', 'x' * 65)]:
+                             ('finish_reason', 'x' * 65),
+                             ('answer_parse_status', 'raw-private-text')]:
             with self.subTest(field=field):
                 malformed = answer()
                 malformed[field] = value

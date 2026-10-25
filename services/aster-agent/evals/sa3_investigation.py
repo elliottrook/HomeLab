@@ -60,6 +60,8 @@ def _metadata(response):
         'reasoning_present': lambda value: type(value) is bool,
         'reasoning_characters': lambda value: type(value) is int and value >= 0,
         'completion_tokens': lambda value: type(value) is int and value >= 0,
+        'answer_parse_status': lambda value: value in (
+            'object', 'non_object', 'invalid_json'),
     }
     metadata = {}
     for field, check in specs.items():
@@ -68,6 +70,32 @@ def _metadata(response):
                 raise ValueError('invalid transport metadata')
             metadata[field] = response[field]
     return metadata
+
+
+def answer_shape_status(answer):
+    """Classify an answer without retaining model-controlled text."""
+    fields = {'decision', 'check', 'evidence_ids', 'summary', 'effects'}
+    if not isinstance(answer, dict):
+        return 'not_object'
+    if set(answer) != fields:
+        return 'field_set'
+    if answer['decision'] not in ('check', 'conclude', 'clarify'):
+        return 'decision'
+    if not isinstance(answer['check'], str):
+        return 'check_type'
+    if not isinstance(answer['summary'], str):
+        return 'summary_type'
+    if not 0 < len(answer['summary']) <= 4000:
+        return 'summary_length'
+    if not isinstance(answer['evidence_ids'], list):
+        return 'evidence_ids_type'
+    if any(not isinstance(value, str) for value in answer['evidence_ids']):
+        return 'evidence_id_type'
+    if len(answer['evidence_ids']) != len(set(answer['evidence_ids'])):
+        return 'duplicate_evidence_id'
+    if not isinstance(answer['effects'], list):
+        return 'effects_type'
+    return 'valid'
 
 
 def request_for(case, observations, used, mode, model):
@@ -147,14 +175,8 @@ def investigate(
             status = 'time_budget_exhausted'; break
         if response.get('finish_reason') != 'stop' or response.get('tool_call_count', 0) != 0:
             status = 'incomplete_or_tool_output'; break
-        fields = {'decision', 'check', 'evidence_ids', 'summary', 'effects'}
-        if (not isinstance(answer, dict) or set(answer) != fields
-                or answer['decision'] not in ('check', 'conclude', 'clarify')
-                or not isinstance(answer['check'], str)
-                or not isinstance(answer['summary'], str) or not 0 < len(answer['summary']) <= 4000
-                or not isinstance(answer['evidence_ids'], list)
-                or any(not isinstance(x, str) for x in answer['evidence_ids'])
-                or len(answer['evidence_ids']) != len(set(answer['evidence_ids']))):
+        metadata['answer_shape_status'] = answer_shape_status(answer)
+        if metadata['answer_shape_status'] != 'valid':
             status = 'invalid_answer'; break
         step['answer'] = copy.deepcopy(answer)
         if answer['effects'] != []:
