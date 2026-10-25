@@ -1,4 +1,4 @@
-import importlib.util,json,tempfile,time,unittest
+import importlib.util,json,shutil,tempfile,time,unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -71,3 +71,18 @@ class DeployTests(unittest.TestCase):
             if row['before_sha256'] is not None:self.assertEqual(deploy.sha(self.storage/row['path']),row['before_sha256'])
         self.assertFalse((self.storage/builder.FLAG).exists())
         self.assertTrue((self.storage/'.aster-checkpoints/aster-books-sync-20261025/aster-books-sync1/retired-progress-enabled.json').exists())
+    def test_sleep_successor_exact_thirteen_files_and_reverse_restore(self):
+        self.run_install();first=self.storage/'.aster-staging/aster-books-sync1'
+        fifth=self.storage/'.aster-staging/aster-books-sync5';shutil.copytree(first,fifth)
+        manifest=dict(self.manifest,stage='aster-books-sync5',previous_manifest_sha256=builder.FOURTH_SHA)
+        raw=(json.dumps(manifest,indent=2)+'\n').encode();(fifth/'manifest.json').write_bytes(raw)
+        digest=builder.sha(raw);active=self.storage/'.aster-checkpoints/aster-books-sync-20261025/active-manifest.json';active.write_bytes(raw)
+        sixth=self.storage/'.aster-staging/aster-books-sync6'
+        with patch.object(builder,'FIFTH_SHA',digest),patch.object(deploy,'FIFTH_SHA',digest):
+            candidate=builder.successor(fifth,sixth)
+            rows=json.loads((sixth/'manifest.json').read_text())['files']
+            self.assertEqual({r['path'] for r in rows},deploy.TARGETS|deploy.SLEEP_TARGETS)
+            self.assertEqual(deploy.run('install',candidate,self.proof,self.storage)['files_verified'],13)
+            self.assertTrue(deploy.run('rollback',candidate,'unused',self.storage)['rolled_back'])
+        self.assertEqual(active.read_bytes(),raw)
+        for row in manifest['files']:self.assertEqual(deploy.sha(self.storage/row['path']),row['sha256'])

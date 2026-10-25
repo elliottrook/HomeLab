@@ -15,6 +15,7 @@ FIRST_SHA='252f182781531cb9e54aaaeeb58a9ddc1bbb0e1eb08985a94908a1c16d62e89a'
 SECOND_SHA='fce7bf41f64e7617a62a26af322ae98460eafd6ec87efc681ed812d15ef5485f'
 THIRD_SHA='7bc5c6ec96c8c0bfb0a18272e8da54ecd4bb647622e150864dc229aa41576de9'
 FOURTH_SHA='d332a979018d92add2999909e4cf272190624c54bf4db5e0f1fb12c281f85af6'
+FIFTH_SHA='010e23df40c70e1eaeeb478e359b9da7cb56223549701a3795aea2defa676ff8'
 def sha(data):return hashlib.sha256(data).hexdigest()
 def build(snapshot,output):
     snapshot,output=Path(snapshot),Path(output)
@@ -51,7 +52,8 @@ def successor(snapshot,output):
     raw=(snapshot/'manifest.json').read_bytes()
     old=json.loads(raw)
     predecessors={'aster-books-sync1':(FIRST_SHA,'aster-books-sync2'),'aster-books-sync2':(SECOND_SHA,'aster-books-sync3'),
-        'aster-books-sync3':(THIRD_SHA,'aster-books-sync4'),'aster-books-sync4':(FOURTH_SHA,'aster-books-sync5')}
+        'aster-books-sync3':(THIRD_SHA,'aster-books-sync4'),'aster-books-sync4':(FOURTH_SHA,'aster-books-sync5'),
+        'aster-books-sync5':(FIFTH_SHA,'aster-books-sync6')}
     if old.get('stage') not in predecessors or sha(raw)!=predecessors[old['stage']][0]:raise ValueError('exact-books-predecessor-required')
     previous,new_name=predecessors[old['stage']]
     files={r['path']:(snapshot/'payload'/r['path']).read_bytes() for r in old['files']}
@@ -64,9 +66,40 @@ def successor(snapshot,output):
         data=files[PLUGIN+'default.py'];needle=b"        item.setProperty('AsterBooks.Kind', kind)"
         if data.count(needle)!=1:raise ValueError('books-source-identity-anchor')
         files[PLUGIN+'default.py']=data.replace(needle,needle+b"\n        item.setProperty('AsterBooks.Episode', entry.get('episode_id', ''))")
+    if new_name=='aster-books-sync6':
+        for name in ('books_sleep.py','books_sleep_ui.py'):files[PLUGIN+'resources/lib/'+name]=(HERE/name).read_bytes()
+        for suffix in ('svg','png'):
+            name='sleep.'+suffix
+            files['.kodi/addons/skin.asterhome/media/player-controls/'+name]=(HERE/'player-control-assets'/name).read_bytes()
+        root=ET.fromstring(files[SKIN]);controls=root.find('controls')
+        for node in controls:
+            identity=node.get('id');left=node.find('left')
+            if left is not None and ((node.get('type')=='button' and identity in ('9101','9102','9103','9104','9105'))
+                or (node.get('type')=='image' and any('('+str(i)+')' in (node.findtext('visible') or '') for i in (9101,9102,9103,9104)))):
+                left.text=str(int(left.text)-56)
+            if identity=='9104':node.find('onright').text='9106'
+        def add(kind,values,identity=None):
+            node=ET.SubElement(controls,'control',dict(type=kind,**({'id':str(identity)} if identity else {})))
+            for key,value in values.items():ET.SubElement(node,key).text=str(value)
+            return node
+        add('button',dict(left=676,top=890,width=76,height=64,label='Sleep timer',font='font20',textcolor='00000000',
+            focusedcolor='00000000',texturefocus='',texturenofocus='',onleft=9104,onright=50,onup=9000,ondown=50,
+            onclick='RunScript(special://home/addons/plugin.audio.asterbooks/resources/lib/books_sleep_ui.py)',
+            visible='Player.HasAudio + !String.IsEmpty(Window(Home).Property(AsterBooks.SleepToken))'),9106)
+        for focused,size,left,top,color in ((False,44,692,900,'asterInk'),(True,48,690,898,'asterGreen')):
+            node=add('image',dict(left=left,top=top,width=size,height=size,aspectratio='keep',
+                visible='Control.IsVisible(9106) + '+('' if focused else '!')+'Control.HasFocus(9106)'))
+            ET.SubElement(node,'texture',dict(colordiffuse=color)).text='special://skin/media/player-controls/sleep.png'
+        node=add('image',dict(left=704,top=953,width=20,height=2,visible='Control.IsVisible(9106) + Control.HasFocus(9106)'))
+        ET.SubElement(node,'texture',dict(colordiffuse='asterGold')).text='special://skin/media/ui-solid.png'
+        add('label',dict(left=150,top=959,width=680,height=28,label='Sleep timer',font='font16',textcolor='asterInk',
+            align='center',aligny='center',visible='Control.IsVisible(9106) + Control.HasFocus(9106)'))
+        add('label',dict(left=150,top=986,width=680,height=24,label='$INFO[Window(Home).Property(AsterBooks.SleepStatus)]',
+            font='font16',textcolor='asterMuted',align='center',truncate='true'))
+        files[SKIN]=ET.tostring(root,encoding='utf-8',xml_declaration=True)
     before={r['path']:r['sha256'] for r in old['files']}
     manifest=dict(old,stage=new_name,previous_manifest_sha256=previous,
-        files=[dict(path=n,sha256=sha(d),before_sha256=before[n]) for n,d in sorted(files.items())])
+        files=[dict(path=n,sha256=sha(d),before_sha256=before.get(n)) for n,d in sorted(files.items())])
     output.mkdir(parents=True)
     for name,data in files.items():
         path=output/'payload'/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)

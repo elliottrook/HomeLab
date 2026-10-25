@@ -4483,3 +4483,79 @@ owned book/episode; save before one verified Stop, never stop unrelated audio,
 cancel on ownership loss, and never replay an expired timer after restart.
 No new service/identity, source completion, privileges, speech or production
 change is included. Existing HP lab tests/restarts remain the authorized scope.
+
+Sleep slice implementation pre-start:13 exact HP overlay members (the prior
+nine plus the pure sleep model, UI selector and original companion moon SVG/PNG).
+No new network listener or API write route: a local process/session token binds
+the selector's request to positively observed Books scope. Presets Off/15/30/
+45/60 minutes count wall-clock time, including pause; file changes within the
+same book keep the timer, another book/account/podcast episode cancels it.
+On expiry, consume once before I/O, save the current position, recheck exact
+ownership, issue one Stop and require stopped playback. Failed save is reported
+truthfully but does not leave the owned audio running; uncertain Stop is not
+retried. Timer state is deliberately ephemeral across service restart. No power,
+receiver, Home Assistant timer or Music behavior changes. Native selector
+arm/cancel and unchanged playback/save regressions supplement injected-clock
+expiry/ownership/failure tests; do not claim a real15-minute endurance run from
+those tests. Checkpoint nine predecessors, retain new inert helper/assets on
+rollback, restore sync5 and never rewind source progress. No speech.
+
+Sleep pilot evidence (2026-10-25): sync6 manifest
+`dd502b6770ec6c0f76e4c2fb4182c54c4b84e4c5162a70e0c0dd2a205a643dd7`
+installed and verifies13 members. Native
+`native-ui-1792941362642842452.json` passes real moon-control selector,
+15-minute arm, Off cancellation and unchanged owned playback for both book and
+podcast, then normal Pause/save/Back/stop/empty. Injected-clock tests cover
+expiry, one-shot save-before-stop, ownership/account/episode changes, same-book
+file transition, uncertainty, failed save, cancellation and no restart replay.
+All587 v2 tests pass normal/optimized. **No real15-minute expiry endurance run
+has been performed**; that remains an explicit pilot test, not a hidden pass.
+Positively observed same-book file changes retain the model timer; an observed
+stop/ownership loss cancels it conservatively (including a gap reported as
+stopped by Kodi). Timer does not migrate to another episode or player.
+
+Native4K `sleep-controls.png` was inspected: group centred under art/scrubber,
+moon keeps the existing ink/green/gold floating focus language, tooltip and
+remaining-time line fit above sync status. It uses a new original companion
+SVG with an aspect-preserving128px PNG derivative, not a stretched old raster.
+The shared Aster UI guide's clarity/focus/accessibility rules apply alongside
+Jason's explicit accepted Kodi stone/green/gold design exception, not a surprise
+navy browser-style reskin. Mobile preview is not applicable to this TV-only
+native page. A pre-existing selected podcast-row text disappearance is visible
+in this screenshot when transport has focus; reproduce separately before
+claiming a label fix. Do not call the whole Books UI visually graduated.
+
+Operator: while a supported audiobook/podcast plays, use the moon beneath
+the artwork → Off/15/30/45/60 minutes. Pause counts toward wall-clock sleep.
+Off cancels without stopping. Expiry attempts a position save then stops only
+that positively owned book/episode, reporting failed save or uncertain Stop;
+no timer survives restart. Existing limited account/connection remains the
+authority; no new login. Restoring sync6→sync5 removes the control/service
+behavior, retains inert new helpers/art and never undoes household positions.
+Nine originals are verified in both on-box and additional private recovery.
+
+Final `postcheck-1792941412231195215.json`:13 Books members, full accepted
+composition,68 AV/language values, database integrity, idle Home/original empty
+queues pass. All four position/queue journals are verified. The tempo probe
+`native-ui-1792940917068356823.json` did not establish working tempo for either
+audio type; normal playback/save/exit passed. It did not establish a verified
+tempo restoration either, so no speed-control claim/UI is enabled. A different
+audio-engine path needs its own assessment rather than integer fast-forward
+masquerading as narration speed. Production remains unchanged; no push.
+
+### Next external-write gate — one disposable shared bookmark trial
+
+Not yet authorized: existing progress permission is not permission to mutate
+bookmarks. Proposed next bounded trial uses the same pinned limited TV account
+to create one uniquely labelled Aster lab bookmark at an unoccupied integer
+time in one verified book, read it back, then remove **only** that exact newly
+created, unchanged bookmark. Checkpoint private bookmark state locally; never
+export credentials, alter other bookmarks, change progress, request privileges,
+or touch production. Compare current bookmark state immediately before each
+mutation. ABS identifies bookmarks by book/time, not a dedicated CAS token:
+there remains a check-to-write concurrency race. Refuse a collision/changed
+record, fence unknown outcomes without retry, and retain the test bookmark for
+manual review if ownership of cleanup cannot be proven. No broad restoration
+or deletion is a recovery action. The official
+[bookmark API](https://api.audiobookshelf.org/#create-a-bookmark) was reviewed;
+normal ongoing bookmark saving remains a later separate enablement decision.

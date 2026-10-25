@@ -5,6 +5,7 @@ import subprocess
 
 DEST=Path(__file__).resolve().parents[1]/'player-control-assets'
 SHAPES={
+ 'sleep':'<path d="M46 45 A22 22 0 1 1 29 9 A19 19 0 0 0 46 45 Z"/>',
  'previous':'<path d="M20 18 V46"/><path d="M47 18 L27 32 L47 46 Z" fill="white" stroke="none"/>',
  'audio':'<path d="M12 26 H22 L33 17 V47 L22 38 H12 Z"/><path d="M42 23 Q51 32 42 41 M49 16 Q64 32 49 48"/>',
  'subtitles':'<rect x="10" y="16" width="44" height="32" rx="4"/><path d="M17 29 H27 M34 29 H47 M17 38 H35 M42 38 H47"/>',

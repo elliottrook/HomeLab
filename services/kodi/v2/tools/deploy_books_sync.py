@@ -7,11 +7,14 @@ SKIN='.kodi/addons/skin.asterhome/1080i/MyMusicNav.xml'
 FLAG='.kodi/userdata/addon_data/plugin.audio.asterbooks/progress-enabled.json'
 LIBRARIES=('books_progress.py','books_progress_reader.py','books_progress_trial.py','books_sync.py','books_sync_bridge.py')
 TARGETS={PLUGIN+'service.py',PLUGIN+'default.py',SKIN,FLAG,*(PLUGIN+'resources/lib/'+n for n in LIBRARIES)}
+SLEEP_TARGETS={PLUGIN+'resources/lib/books_sleep.py',PLUGIN+'resources/lib/books_sleep_ui.py',
+    '.kodi/addons/skin.asterhome/media/player-controls/sleep.svg','.kodi/addons/skin.asterhome/media/player-controls/sleep.png'}
 ACCOUNT='5326816b7ef0f98b2ab17a43d8502a3763947d1bad27f8bd10f6e2ac85bcc206'
 FIRST_SHA='252f182781531cb9e54aaaeeb58a9ddc1bbb0e1eb08985a94908a1c16d62e89a'
 SECOND_SHA='fce7bf41f64e7617a62a26af322ae98460eafd6ec87efc681ed812d15ef5485f'
 THIRD_SHA='7bc5c6ec96c8c0bfb0a18272e8da54ecd4bb647622e150864dc229aa41576de9'
 FOURTH_SHA='d332a979018d92add2999909e4cf272190624c54bf4db5e0f1fb12c281f85af6'
+FIFTH_SHA='010e23df40c70e1eaeeb478e359b9da7cb56223549701a3795aea2defa676ff8'
 def require(value,code):
     if not value:raise RuntimeError(code)
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -22,7 +25,7 @@ def atomic(path,data):
     os.chmod(name,0o600);os.replace(name,path)
 def run(mode,expected,proof_name,storage=Path('/storage')):
     require(mode in ('install','rollback','verify') and re.fullmatch('[0-9a-f]{64}',expected),'mode-manifest')
-    candidates=[storage/'.aster-staging'/name for name in ('aster-books-sync1','aster-books-sync2','aster-books-sync3','aster-books-sync4','aster-books-sync5')
+    candidates=[storage/'.aster-staging'/name for name in ('aster-books-sync1','aster-books-sync2','aster-books-sync3','aster-books-sync4','aster-books-sync5','aster-books-sync6')
         if (storage/'.aster-staging'/name/'manifest.json').is_file() and sha(storage/'.aster-staging'/name/'manifest.json')==expected]
     require(len(candidates)==1,'one-known-books-stage');stage=candidates[0]
     root=storage/'.aster-checkpoints/aster-books-sync-20261025'
@@ -35,8 +38,10 @@ def run(mode,expected,proof_name,storage=Path('/storage')):
     require((stage.name=='aster-books-sync1' and previous is None) or (stage.name=='aster-books-sync2' and previous==FIRST_SHA)
         or (stage.name=='aster-books-sync3' and previous==SECOND_SHA)
         or (stage.name=='aster-books-sync4' and previous==THIRD_SHA)
-        or (stage.name=='aster-books-sync5' and previous==FOURTH_SHA),'known-books-predecessor-manifest')
-    require(len(rows)==len(TARGETS) and {r['path'] for r in rows}==TARGETS,'exact-books-targets')
+        or (stage.name=='aster-books-sync5' and previous==FOURTH_SHA)
+        or (stage.name=='aster-books-sync6' and previous==FIFTH_SHA),'known-books-predecessor-manifest')
+    targets=TARGETS|SLEEP_TARGETS if stage.name=='aster-books-sync6' else TARGETS
+    require(len(rows)==len(targets) and {r['path'] for r in rows}==targets,'exact-books-targets')
     for row in rows:
         source=stage/'payload'/row['path'];target=storage/row['path']
         require(not source.is_symlink() and sha(source)==row['sha256'],'payload-drift')

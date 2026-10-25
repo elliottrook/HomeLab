@@ -18,8 +18,13 @@ client=bridge_module.Bridge(origin,key);del key
 reader=Reader(client.upstream);account=reader.account()
 require(account.limited and account.fingerprint==ACCOUNT,'approved-household-account')
 home=xbmcgui.Window(10000);player=xbmc.Player();checks=[];phase='preflight';stop_mode='--stop' in sys.argv
+tempo_mode='--tempo' in sys.argv
+sleep_mode='--sleep' in sys.argv
 def rpc(method,params=None):
-    require(method in ('Player.GetActivePlayers','Playlist.GetItems','Input.ExecuteAction'),'native-test-input-read-boundary')
+    require(method in ('Player.GetActivePlayers','Playlist.GetItems','Input.ExecuteAction','Player.GetProperties','Player.SetTempo'),'native-test-input-read-boundary')
+    if method=='Player.SetTempo':
+        require(tempo_mode and params.get('playerid')==0 and params.get('tempo') in (1.0,1.25)
+            and 'url' in globals() and owned(url),'bounded-owned-tempo-probe')
     result=json.loads(xbmc.executeJSONRPC(json.dumps(dict(jsonrpc='2.0',id=1,method=method,params=params or {}))))
     require('error' not in result,'native-request');return result['result']
 def press(action):rpc('Input.ExecuteAction',dict(action=action))
@@ -82,6 +87,36 @@ try:
         until(lambda:owned(url) and home.getProperty('AsterBooks.SyncState')=='ready'
             and before.position-2<=player.getTime()<=before.position+8,'server-position-resumed')
         start=player.getTime();until(lambda:owned(url) and player.getTime()>=start+4,'normal-clock-advances')
+        if sleep_mode:
+            until(lambda:bool(home.getProperty('AsterBooks.SleepToken')),'sleep-owned-token')
+            focus(9106);select();until(lambda:xbmcgui.getCurrentWindowDialogId()==12000,'normal-sleep-selector')
+            press('down');press('select')
+            until(lambda:home.getProperty('AsterBooks.SleepStatus')=='Sleep in 15 min','normal-sleep-armed')
+            require(owned(url),'sleep-arm-preserves-playback')
+            xbmc.executebuiltin('TakeScreenshot(/storage/.aster-checkpoints/aster-books-sync-20261025/sleep-controls.png)')
+            focus(9106);select();until(lambda:xbmcgui.getCurrentWindowDialogId()==12000,'normal-sleep-off-selector')
+            press('select');until(lambda:home.getProperty('AsterBooks.SleepStatus')=='Sleep timer off','normal-sleep-cancelled')
+            require(owned(url),'sleep-cancel-preserves-playback')
+            result.setdefault('sleep_controls',[]).append(dict(kind=target['kind'],normal_select_arm_cancel=True))
+        if tempo_mode:
+            probe=dict(kind=target['kind'],supported=False,restored=False)
+            try:
+                props=rpc('Player.GetProperties',dict(playerid=0,properties=['tempo']))
+                require(abs(props['tempo']-1.0)<.01,'normal-tempo-required')
+                rpc('Player.SetTempo',dict(playerid=0,tempo=1.25))
+                until(lambda:abs(rpc('Player.GetProperties',dict(playerid=0,properties=['tempo']))['tempo']-1.25)<.01,'tempo-not-observed',4)
+                clock_start=time.monotonic();media_start=player.getTime();xbmc.sleep(4000)
+                probe.update(supported=True,wall_seconds=round(time.monotonic()-clock_start,2),
+                    media_seconds=round(player.getTime()-media_start,2))
+            except Exception:probe['code']='native-audio-tempo-unavailable'
+            finally:
+                if owned(url):
+                    try:
+                        rpc('Player.SetTempo',dict(playerid=0,tempo=1.0))
+                        props=rpc('Player.GetProperties',dict(playerid=0,properties=['tempo']))
+                        probe['restored']=abs(props['tempo']-1.0)<.01
+                    except Exception:probe['restored']=False
+            result.setdefault('tempo_probes',[]).append(probe)
         phase=target['kind']+'-pause'
         focus(9102);select();until(lambda:xbmc.getCondVisibility('Player.Paused'),'normal-pause')
         paused=player.getTime();until(lambda:home.getProperty('AsterBooks.SyncStatus')=='Saved to household position','pause-save-ack')
@@ -113,6 +148,8 @@ finally:
     # Never inspect inactive native ControlList objects or clear any queue here.
     if not result['passed'] and 'url' in locals() and owned(url) and xbmcgui.getCurrentWindowId()==10502:
         try:
+            if xbmcgui.getCurrentWindowDialogId()==12000:
+                press('back');until(lambda:xbmcgui.getCurrentWindowDialogId()!=12000,'owned-test-dialog-close',4)
             focus(9104);select();until(lambda:not rpc('Player.GetActivePlayers'),'owned-test-stop',8)
             focus(9000);select();until(lambda:xbmcgui.getCurrentWindowId()!=10502,'owned-test-return',8)
             xbmc.sleep(800);result['owned_failure_cleanup']=True

@@ -96,9 +96,11 @@ if books_file.exists():
         'aster-books-sync2':'fce7bf41f64e7617a62a26af322ae98460eafd6ec87efc681ed812d15ef5485f',
         'aster-books-sync3':'7bc5c6ec96c8c0bfb0a18272e8da54ecd4bb647622e150864dc229aa41576de9',
         'aster-books-sync4':'d332a979018d92add2999909e4cf272190624c54bf4db5e0f1fb12c281f85af6',
-        'aster-books-sync5':'010e23df40c70e1eaeeb478e359b9da7cb56223549701a3795aea2defa676ff8'}
+        'aster-books-sync5':'010e23df40c70e1eaeeb478e359b9da7cb56223549701a3795aea2defa676ff8',
+        'aster-books-sync6':'dd502b6770ec6c0f76e4c2fb4182c54c4b84e4c5162a70e0c0dd2a205a643dd7'}
     books_name=books.get('stage');_require(books_name in accepted_books and hashlib.sha256(books_file.read_bytes()).hexdigest()==accepted_books[books_name],'books-sync-manifest')
-    _require(books.get('kind')=='hp-books-shared-progress.v1' and len(books['files'])==9,'books-sync-contract')
+    expected_books_count=13 if books_name=='aster-books-sync6' else 9
+    _require(books.get('kind')=='hp-books-shared-progress.v1' and len(books['files'])==expected_books_count,'books-sync-contract')
     _require((stage/books_name/'manifest.json').read_bytes()==books_file.read_bytes(),'books-sync-stage')
     for member in books['files']:
         _require(hashlib.sha256((Path('/storage')/member['path']).read_bytes()).hexdigest()==member['sha256'],'books-sync-installed')
@@ -109,7 +111,7 @@ if books_file.exists():
     _require(-5<=time.time()-float(health.get('Window(Home).Property(AsterBooks.SyncHeartbeat)') or 0)<=30,'books-sync-service-stale')
     journal=Path('/storage/.kodi/userdata/addon_data/plugin.audio.asterbooks/progress-journal')
     _require(all(json.loads(p.read_text()).get('status')=='verified' for p in journal.glob('*.json')),'books-sync-write-needs-review')
-    books_count=9
+    books_count=expected_books_count
 canonical_count=0
 canonical_overrides={}
 canonical_file=Path('/storage/.aster-checkpoints/aster-canonical-pcm32-20261025/verified.json')
