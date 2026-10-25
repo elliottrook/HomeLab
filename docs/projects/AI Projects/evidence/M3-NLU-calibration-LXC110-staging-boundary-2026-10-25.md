@@ -2,6 +2,22 @@
 
 > State: **OFFLINE PLAN COMPLETE — NO FILE STAGED**
 
+## Read-only target preflight
+
+The October 25 read-only check passed:
+
+- `/var/lib/aster-nlu-calibration` is absent, so the proposed parent does not
+  collide with prior evidence;
+- LXC110 provides Python `3.13.5`;
+- `/etc/aster-llama-api-keys` is `ollama:ollama`, mode `0600`, 325 bytes; its
+  contents were not read;
+- `aster-llama.service` is active; and
+- `/var/lib` has 21,465,428 KiB available, far above the bounded packet and
+  evidence size.
+
+This proves placement feasibility only. Service idleness, exact runtime pins,
+lease ownership, backup state and restoration budget remain fresh live gates.
+
 ## Purpose
 
 The calibration runner must authenticate to the accepted local llama endpoint,

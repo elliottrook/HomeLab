@@ -509,7 +509,9 @@ The [LXC110 staging boundary](evidence/M3-NLU-calibration-LXC110-staging-boundar
 now fixes the minimal ten-file packet, persistent owner-only location,
 content-free return path and retain-on-uncertainty cleanup rule. This avoids
 exporting the local service key and keeps labels on the Mac. It is an offline
-plan only; nothing has been staged.
+plan only; nothing has been staged. A read-only LXC110 preflight found the
+target path unused, Python 3.13.5 available, the key file mode `0600` without
+reading it, the accepted service active and adequate disk space.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)
