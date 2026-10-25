@@ -83,6 +83,8 @@ PINNED_FILES = {
     WATCHDOG_ENTRYPOINT: "65012c196134242a76a2131fbc9d7f28b50bcfd9137a87cfda0a416345430c99",
     RESTORE_OBSERVER: "5cb6bec83864b5a8eeeb1b8c0624b93498fc04b2fcf36afb61e13caa0e64e8ab",
     OWNER_START: "0d84d35300202c5d9316cc38a853402f7c252aab0ec5069f0b759dd3f3157d22",
+    "/usr/local/libexec/aster-a1/llama_auth_probe.py": "0996e1b565ad24b740997bbfe598065267e20380135a5af41687d0562239cae6",
+    "/usr/local/sbin/aster-llama-production-auth-probe": "aac604de1f35c048791c5f1cfc21e25d9eb3e679fb7d799f74671307463313ac",
 }
 
 class ExerciseError(RuntimeError):

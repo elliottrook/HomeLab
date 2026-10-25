@@ -8,7 +8,8 @@ import urllib.error
 import urllib.request
 
 KEY_PATH = "/etc/aster-llama-api-keys"
-URL = "http://192.168.70.12:11435/v1/chat/completions"
+URL = "http://192.168.70.12:11435/v1/models"
+EXPECTED_MODEL = "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf"
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -20,13 +21,16 @@ def probe() -> bool:
     with open(KEY_PATH, encoding="ascii") as stream:
         keys = [line.strip() for line in stream if line.strip()]
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
-    body = json.dumps({"model": "aster-qwen3.5-9b", "messages": [{"role": "user", "content": "health"}], "max_tokens": 1}).encode()
     for key in keys:
-        request = urllib.request.Request(URL, data=body, headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"})
+        request = urllib.request.Request(URL, headers={"Authorization": "Bearer " + key})
         try:
             with opener.open(request, timeout=5) as response:
                 payload = json.loads(response.read(65536))
-            if payload.get("model") == "aster-qwen3.5-9b" and payload.get("choices"):
+            models = payload.get("data")
+            if isinstance(models, list) and any(
+                isinstance(model, dict) and model.get("id") == EXPECTED_MODEL
+                for model in models
+            ):
                 return True
         except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError):
             continue
