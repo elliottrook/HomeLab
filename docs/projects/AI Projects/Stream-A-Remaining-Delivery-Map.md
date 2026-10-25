@@ -437,8 +437,13 @@ current proposal by design. A subsequent
 [registration artifact integrity boundary](evidence/M3-NLU-registration-artifact-integrity-2026-10-25.md)
 adds exact envelope validation, duplicate-key rejection, deterministic
 serialization and owner-only no-overwrite persistence. The focused NLU suite
-now passes 74/74. No decision, candidate, calibration set or route has been
-accepted, sealed or enabled.
+then passes 74/74. A following
+[exact owner-acceptance boundary](evidence/M3-NLU-exact-owner-acceptance-boundary-2026-10-25.md)
+so registration reconstructs an accepted decision only from the exact proposal
+and a unique-key, self-hashed acceptance record bound to those proposal bytes;
+it no longer trusts an arbitrary acceptance digest. The focused NLU suite now
+passes 77/77. No acceptance record exists and no decision, candidate,
+calibration set or route has been accepted, sealed or enabled.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)

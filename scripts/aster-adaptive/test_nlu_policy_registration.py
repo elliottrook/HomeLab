@@ -7,6 +7,7 @@ from pathlib import Path
 
 import nlu_calibration_release as calibration
 import nlu_candidate_bundle as candidate
+import nlu_policy_acceptance as acceptance
 import nlu_policy_decision as decision
 import nlu_policy_registration as registration
 import nlu_threshold_policy as policy
@@ -19,12 +20,19 @@ def encoded(value):
     return (json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n").encode()
 
 
-def accepted_decision():
-    value = json.loads(
-        (HERE / "fixtures" / "nlu-policy-decision-proposal-v1.json").read_text()
-    )
-    value.update(status="accepted", acceptance_record_sha256="a" * 64)
-    value["decision_sha256"] = decision.canonical_sha256(value)
+def acceptance_record(proposal_raw):
+    proposal = json.loads(proposal_raw)
+    value = {
+        "schema": acceptance.SCHEMA,
+        "status": "accepted",
+        "decision_id": proposal["decision_id"],
+        "proposal_artifact_sha256": policy.sha256(proposal_raw),
+        "proposal_decision_sha256": proposal["decision_sha256"],
+        "acceptance_scope": "exact-proposal-values-only",
+        "authority": "not-granted",
+        "acceptance_sha256": "",
+    }
+    value["acceptance_sha256"] = acceptance.canonical_sha256(value)
     return value
 
 
@@ -82,21 +90,29 @@ def sealed_calibration(candidate_sha256):
 
 class NluPolicyRegistrationTests(unittest.TestCase):
     def exact_inputs(self):
+        proposal_raw = (
+            HERE / "fixtures" / "nlu-policy-decision-proposal-v1.json"
+        ).read_bytes()
         candidate_raw = encoded(sealed_candidate())
         return (
-            encoded(accepted_decision()),
+            proposal_raw,
+            encoded(acceptance_record(proposal_raw)),
             candidate_raw,
             encoded(sealed_calibration(policy.sha256(candidate_raw))),
         )
 
     def test_exact_accepted_inputs_create_registered_non_authoritative_policy(self):
-        decision_raw, candidate_raw, calibration_raw = self.exact_inputs()
+        proposal_raw, acceptance_raw, candidate_raw, calibration_raw = self.exact_inputs()
         result = registration.register_policy(
-            decision_raw, candidate_raw, calibration_raw
+            proposal_raw, acceptance_raw, candidate_raw, calibration_raw
         )
         self.assertEqual("registered", result["policy"]["status"])
         self.assertEqual("not-granted", result["authority"])
-        self.assertEqual(policy.sha256(decision_raw), result["decision_artifact_sha256"])
+        accepted = acceptance.accept_exact_proposal(proposal_raw, acceptance_raw)
+        self.assertEqual(
+            policy.sha256(registration.canonical_json(accepted)),
+            result["decision_artifact_sha256"],
+        )
         self.assertEqual(policy.sha256(candidate_raw), result["candidate_bundle_sha256"])
         self.assertEqual(policy.sha256(calibration_raw), result["calibration_artifact_sha256"])
         raw = registration.canonical_json(result)
@@ -105,31 +121,33 @@ class NluPolicyRegistrationTests(unittest.TestCase):
         self.assertEqual(result, loaded)
 
     def test_current_proposal_cannot_register_policy(self):
-        _, candidate_raw, calibration_raw = self.exact_inputs()
-        proposed_raw = (
-            HERE / "fixtures" / "nlu-policy-decision-proposal-v1.json"
-        ).read_bytes()
-        with self.assertRaisesRegex(ValueError, "accepted exact decision"):
-            registration.register_policy(proposed_raw, candidate_raw, calibration_raw)
+        proposal_raw, acceptance_raw, candidate_raw, calibration_raw = self.exact_inputs()
+        changed = json.loads(acceptance_raw)
+        changed["proposal_artifact_sha256"] = "f" * 64
+        changed["acceptance_sha256"] = acceptance.canonical_sha256(changed)
+        with self.assertRaisesRegex(ValueError, "exact owner acceptance"):
+            registration.register_policy(
+                proposal_raw, encoded(changed), candidate_raw, calibration_raw
+            )
 
     def test_candidate_drift_and_calibration_mismatch_fail_closed(self):
-        decision_raw, candidate_raw, calibration_raw = self.exact_inputs()
+        proposal_raw, acceptance_raw, candidate_raw, calibration_raw = self.exact_inputs()
         with self.assertRaisesRegex(ValueError, "exact candidate"):
             registration.register_policy(
-                decision_raw, candidate_raw + b"\n", calibration_raw
+                proposal_raw, acceptance_raw, candidate_raw + b"\n", calibration_raw
             )
         changed = json.loads(calibration_raw)
         changed["candidate_bundle_sha256"] = "f" * 64
         changed["release_sha256"] = calibration.canonical_sha256(changed)
         with self.assertRaisesRegex(ValueError, "exact candidate"):
             registration.register_policy(
-                decision_raw, candidate_raw, encoded(changed)
+                proposal_raw, acceptance_raw, candidate_raw, encoded(changed)
             )
 
     def test_registration_envelope_drift_and_duplicate_keys_fail_closed(self):
-        decision_raw, candidate_raw, calibration_raw = self.exact_inputs()
+        proposal_raw, acceptance_raw, candidate_raw, calibration_raw = self.exact_inputs()
         result = registration.register_policy(
-            decision_raw, candidate_raw, calibration_raw
+            proposal_raw, acceptance_raw, candidate_raw, calibration_raw
         )
         changed = copy.deepcopy(result)
         changed["candidate_bundle_sha256"] = "f" * 64
@@ -163,7 +181,7 @@ class NluPolicyRegistrationTests(unittest.TestCase):
             self.assertEqual(b"first\n", path.read_bytes())
 
     def test_accepted_minima_cannot_be_weakened_by_release(self):
-        decision_raw, candidate_raw, calibration_raw = self.exact_inputs()
+        proposal_raw, acceptance_raw, candidate_raw, calibration_raw = self.exact_inputs()
         changed = json.loads(calibration_raw)
         changed["target_cases"] = 54
         changed["family_targets"]["unsupported"] = 4
@@ -174,7 +192,7 @@ class NluPolicyRegistrationTests(unittest.TestCase):
         changed["release_sha256"] = calibration.canonical_sha256(changed)
         with self.assertRaisesRegex(ValueError, "total minimum"):
             registration.register_policy(
-                decision_raw, candidate_raw, encoded(changed)
+                proposal_raw, acceptance_raw, candidate_raw, encoded(changed)
             )
 
 

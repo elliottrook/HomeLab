@@ -9,7 +9,7 @@ from pathlib import Path
 
 from nlu_calibration_release import validate_release
 from nlu_candidate_bundle import load_and_validate as load_candidate
-from nlu_policy_decision import load_and_validate as load_decision
+from nlu_policy_acceptance import accept_exact_proposal
 from nlu_threshold_policy import (
     FAMILIES,
     decode_unique_json,
@@ -99,13 +99,15 @@ def write_new_private(path: Path, payload: bytes) -> None:
 
 
 def register_policy(
-    decision_raw: bytes,
+    proposal_raw: bytes,
+    acceptance_raw: bytes,
     candidate_raw: bytes,
     calibration_raw: bytes,
 ) -> dict:
-    decision, decision_errors = load_decision(decision_raw)
-    if decision_errors or decision is None or decision.get("status") != "accepted":
-        raise ValueError("policy registration requires an accepted exact decision")
+    try:
+        decision = accept_exact_proposal(proposal_raw, acceptance_raw)
+    except ValueError as error:
+        raise ValueError("policy registration requires exact owner acceptance") from error
     candidate, candidate_errors = load_candidate(candidate_raw)
     if candidate_errors or candidate is None or candidate.get("status") != "sealed":
         raise ValueError("policy registration requires a sealed exact candidate")
@@ -154,7 +156,7 @@ def register_policy(
         raise ValueError("accepted inputs did not produce a valid registered policy")
     result = {
         "schema": SCHEMA,
-        "decision_artifact_sha256": sha256(decision_raw),
+        "decision_artifact_sha256": sha256(canonical_json(decision)),
         "candidate_bundle_sha256": candidate_sha256,
         "calibration_artifact_sha256": sha256(calibration_raw),
         "policy": registered,
