@@ -51,6 +51,9 @@ def main():
         if linked:
             row=next(r for r in manifest['files'] if r['path']=='overlay/Home.xml')
             require(hashlib.sha256(NATIVE.with_name('Home.xml').read_bytes()).hexdigest()==row['sha256'],'normal-search-entry-not-verified')
+            if manifest.get('artist_native_window')==11129:
+                row=next(r for r in manifest['files'] if r['path']=='overlay/custom_1129_artistalbums.xml')
+                require(hashlib.sha256(NATIVE.with_name('custom_1129_artistalbums.xml').read_bytes()).hexdigest()==row['sha256'],'artist-window-not-verified')
         for key in ('Command','Query','Status','Detail','Ready'):home.clearProperty(PREFIX+key)
         home.setProperty(PREFIX+'Query','Search titles…')
         home.setProperty(PREFIX+'Status','Search this box’s synced TV, film and music index.')
@@ -59,10 +62,17 @@ def main():
         while not xbmc.getCondVisibility('Window.IsVisible(11127)'):
             require(time.monotonic()<end and not monitor.waitForAbort(.05),'search-window-not-ready')
         window=xbmcgui.Window(11127);categories=window.getControl(20);results=window.getControl(30)
-        groups=[];current=-1;query='';positions={};active_detail=None
+        groups=[];current=-1;query='';positions={};active_detail=None;artist_context=None
+        artist_enabled=linked and manifest.get('artist_albums') is True
+        if artist_enabled:
+            from global_search import Group
+            from search_extensions import artist_albums
         def idle():
             return not rpc('Player.GetActivePlayers') and all(rpc('Playlist.GetItems',dict(playlistid=i,limits=dict(start=0,end=1)))['limits']['total']==0 for i in (0,1))
-        def source_visible():return xbmcgui.getCurrentWindowId()==11127 and xbmcgui.getCurrentWindowDialogId() in (0,9999)
+        def source_visible():return xbmcgui.getCurrentWindowId()==(11129 if artist_context and manifest.get('artist_native_window')==11129 else 11127) and xbmcgui.getCurrentWindowDialogId() in (0,9999)
+        def attach(identity):
+            nonlocal window,categories,results
+            window=xbmcgui.Window(identity);categories=window.getControl(20);results=window.getControl(30)
         def display(index):
             nonlocal current
             if 0<=current<len(groups):positions[current]=results.getSelectedPosition()
@@ -80,9 +90,18 @@ def main():
             if state is None:
                 state=(f'Showing first {len(group.hits)} of {group.total} matches — refine your search.'
                        if group.truncated else f'{group.total} matches · synced local index')
+            if artist_context:state=artist_context[0].title+' · '+state
             home.setProperty(PREFIX+'Status',state)
         def run_query(value):
-            nonlocal groups,current,query,positions
+            nonlocal groups,current,query,positions,artist_context
+            if artist_context and manifest.get('artist_native_window')==11129:
+                if xbmcgui.getCurrentWindowId()==11129:
+                    xbmc.executebuiltin('ActivateWindow(1127)')
+                    end=time.monotonic()+5
+                    while xbmcgui.getCurrentWindowId()!=11127:
+                        require(time.monotonic()<end and not monitor.waitForAbort(.05),'artist-parent-not-ready')
+                attach(11127)
+            artist_context=None
             query=normalize_query(value);positions={};home.setProperty(PREFIX+'Ready','')
             home.setProperty(PREFIX+'Query',query or 'Search titles…')
             categories.reset();results.reset();groups=[];current=-1
@@ -93,12 +112,45 @@ def main():
                 suffix='Unavailable' if group.state=='unavailable' else str(group.total) if query else '—'
                 categories.addItem(xbmcgui.ListItem(label=group.label,label2=suffix))
             categories.selectItem(0);display(0);home.setProperty(PREFIX+'Ready','true')
+        def browse_artist(hit,parent):
+            nonlocal groups,current,positions,artist_context
+            detail=read_details(rpc,hit)
+            value=artist_albums(rpc,hit.identity,cancelled=lambda:monitor.abortRequested() or not source_visible())
+            artist_context=(detail.hit,parent)
+            if manifest.get('artist_native_window')==11129:
+                if xbmcgui.getCurrentWindowId()!=11129:
+                    xbmc.executebuiltin('ActivateWindow(1129)')
+                    end=time.monotonic()+5
+                    while xbmcgui.getCurrentWindowId()!=11129:
+                        require(time.monotonic()<end and not monitor.waitForAbort(.05),'artist-window-not-ready')
+                attach(11129)
+            groups=[Group('album','Artist albums','ready' if value['hits'] else 'empty',
+                value['hits'],value['total'],value['truncated'])]
+            current=-1;positions={};categories.reset();results.reset()
+            categories.addItem(xbmcgui.ListItem(label='Artist albums',label2=str(value['total'])))
+            home.setProperty(PREFIX+'Query','Albums · '+hit.title)
+            categories.selectItem(0);display(0);home.setProperty(PREFIX+'Ready','true')
+            xbmc.executebuiltin('SetFocus('+('30' if value['hits'] else '40')+')')
+        def restore_search(cursor):
+            run_query(cursor.query)
+            group_index,result_index=restore_cursor(groups,cursor)
+            categories.selectItem(group_index);display(group_index)
+            if result_index is not None:
+                results.selectItem(result_index);xbmc.executebuiltin('SetFocus(30)')
+            else:
+                home.setProperty(PREFIX+'Status','That result no longer matches. Your search has been refreshed.')
+                xbmc.executebuiltin('SetFocus(10)')
         run_query('')
-        while xbmc.getCondVisibility('Window.IsVisible(11127)') and not monitor.abortRequested():
+        while (xbmc.getCondVisibility('Window.IsVisible(11127)') or xbmc.getCondVisibility('Window.IsVisible(11129)')) and not monitor.abortRequested():
+            if artist_context and manifest.get('artist_native_window')==11129 and xbmcgui.getCurrentWindowId()==11127:
+                restore_search(artist_context[1]);continue
             command=home.getProperty(PREFIX+'Command')
             if command:
                 home.clearProperty(PREFIX+'Command')
-                if command=='query':
+                if command=='back' and artist_enabled:
+                    if artist_context:restore_search(artist_context[1])
+                    else:xbmc.executebuiltin('ActivateWindow(Home)')
+                elif command=='query':
                     keyboard=xbmc.Keyboard(query,'Search titles on this Aster box')
                     keyboard.doModal()
                     if keyboard.isConfirmed():
@@ -119,9 +171,9 @@ def main():
                                     dict(tvshow='07-tv.png',movie='08-film.png',album='23-music-album.png',
                                          artist='24-music-artist.png',song='25-music-song.png')[hit.kind],DetailSource=detail.source).items():
                                     home.setProperty(PREFIX+key,value)
-                                can_open=linked and hit.kind in LABELS
+                                can_open=linked and (hit.kind in LABELS or (artist_enabled and hit.kind=='artist'))
                                 home.setProperty(PREFIX+'CanOpen','true' if can_open else 'false')
-                                home.setProperty(PREFIX+'OpenLabel',LABELS[hit.kind] if can_open else '')
+                                home.setProperty(PREFIX+'OpenLabel',('Browse artist albums' if hit.kind=='artist' else LABELS.get(hit.kind,'')) if can_open else '')
                                 home.setProperty(PREFIX+'DetailHint','Opens the existing page · select Play there' if can_open else 'Details only · player link not connected for this type')
                                 xbmc.executebuiltin('ActivateWindow(1128)')
                             except SearchUnavailable:
@@ -130,6 +182,16 @@ def main():
                 elif command=='open' and linked and active_detail and xbmc.getCondVisibility('Window.IsVisible(11128)'):
                     admission=None
                     try:
+                        if artist_enabled and active_detail.kind=='artist':
+                            hit=read_details(rpc,active_detail).hit
+                            require(idle(),'artist-source-not-idle')
+                            parent=Cursor(query,'artist',hit.identity)
+                            xbmc.executebuiltin('Dialog.Close(11128)')
+                            until=time.monotonic()+5
+                            while not source_visible():
+                                require(time.monotonic()<until and not monitor.waitForAbort(.05),'artist-source-not-ready')
+                            browse_artist(hit,parent);active_detail=None
+                            continue
                         detail=read_details(rpc,active_detail);verify_child(detail.hit.kind)
                         route=route_for(detail.hit);cursor=Cursor(query,detail.hit.kind,detail.hit.identity)
                         xbmc.executebuiltin('Dialog.Close(11128)')
@@ -159,8 +221,11 @@ def main():
                         if phase=='left':break
                         # Native child returns to the original search window.
                         # Re-read and restore by identity, never by its old offset.
-                        window=xbmcgui.Window(11127);categories=window.getControl(20);results=window.getControl(30)
-                        run_query(cursor.query);group_index,result_index=restore_cursor(groups,cursor)
+                        attach(11129 if artist_context and manifest.get('artist_native_window')==11129 else 11127)
+                        if artist_context:
+                            artist,parent=artist_context;browse_artist(artist,parent)
+                        else:run_query(cursor.query)
+                        group_index,result_index=restore_cursor(groups,cursor)
                         categories.selectItem(group_index);display(group_index)
                         if result_index is not None:
                             results.selectItem(result_index);xbmc.executebuiltin('SetFocus(30)')
@@ -186,7 +251,7 @@ def main():
         if opened:
             xbmc.executebuiltin('Dialog.Close(11128)')
             if not linked:xbmc.executebuiltin('Dialog.Close(11127)')
-            elif xbmcgui.getCurrentWindowId()==11127 and not rpc('Player.GetActivePlayers'):
+            elif xbmcgui.getCurrentWindowId() in (11127,11129) and not rpc('Player.GetActivePlayers'):
                 xbmc.executebuiltin('ActivateWindow(Home)')
         if admitted:
             for key in ('Open','Command','Query','Status','Detail','Ready','DetailOpen','DetailTitle',

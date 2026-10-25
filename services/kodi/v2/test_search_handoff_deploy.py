@@ -38,7 +38,7 @@ class HandoffDeployTests(unittest.TestCase):
         self.run.assert_not_called()
     def test_unresolved_handoff_refused(self):
         (deploy.ROOT/'handoff-pending.json').write_text('{}')
-        with self.assertRaisesRegex(RuntimeError,'known-details4-no-recovery'):self.install()
+        with self.assertRaisesRegex(RuntimeError,'known-predecessor-no-recovery'):self.install()
         self.run.assert_not_called()
     def test_failed_activation_restores_all_predecessors(self):
         atomic=deploy.atomic
@@ -53,5 +53,58 @@ class HandoffDeployTests(unittest.TestCase):
     def test_rollback_will_not_overwrite_drift(self):
         self.install();(deploy.SKIN/'1080i/Home.xml').write_text('unknown')
         with self.assertRaisesRegex(RuntimeError,'installed-drift'):deploy.main(['rollback','aster-global-search-ui5',self.sha,'unused'])
+
+class ArtistSuccessorDeployTests(unittest.TestCase):
+    candidate='aster-global-search-ui7'
+    def setUp(self):
+        HandoffDeployTests.setUp(self)
+        previous=deploy.STAGING/'aster-global-search-ui6';build(previous,True,True,previous.name)
+        self.previous=deploy.digest(previous/'manifest.json')
+        home=deploy.digest(previous/'overlay/Home.xml')
+        for key,value in (('LINKS6',self.previous),('HOME6',home)):
+            p=patch.object(deploy,key,value);p.start();self.addCleanup(p.stop)
+        stage=deploy.STAGING/self.candidate;build(stage,True,True,stage.name)
+        manifest=json.loads((stage/'manifest.json').read_text());manifest['previous_manifest_sha256']=self.previous
+        manifest['home_before_sha256']=home;(stage/'manifest.json').write_text(json.dumps(manifest))
+        self.sha=deploy.digest(stage/'manifest.json')
+        (deploy.ROOT/'active-manifest.json').write_bytes((previous/'manifest.json').read_bytes())
+        for source,target in deploy.TARGETS.items():(deploy.SKIN/target).write_bytes((previous/source).read_bytes())
+        proof=json.loads((deploy.PROOFS/self.proof).read_text());proof['approved_search_details_files_verified']=4
+        (deploy.PROOFS/self.proof).write_text(json.dumps(proof))
+    def install(self):deploy.main(['install',self.candidate,self.sha,self.proof])
+    def test_nine_member_restore_and_exact_six_rollback(self):
+        self.install()
+        self.assertEqual(len(list((deploy.ROOT/'aster-global-search-ui7/isolated-restore').rglob('*.py'))),6)
+        deploy.main(['rollback','aster-global-search-ui7',self.sha,'unused'])
+        self.assertEqual(deploy.digest(deploy.ROOT/'active-manifest.json'),self.previous)
+        self.assertEqual(deploy.digest(deploy.SKIN/'1080i/Home.xml'),deploy.HOME6)
+    def test_activation_failure_restores_six(self):
+        atomic=deploy.atomic
+        def fail(path,data):
+            if path==deploy.ROOT/'active-manifest.json' and data!=(deploy.ROOT/'active-manifest.json').read_bytes():raise OSError('simulated')
+            atomic(path,data)
+        with patch.object(deploy,'atomic',side_effect=fail):
+            with self.assertRaises(OSError):self.install()
+        self.assertEqual(deploy.digest(deploy.ROOT/'active-manifest.json'),self.previous)
+        for source,target in deploy.TARGETS.items():
+            self.assertEqual((deploy.SKIN/target).read_bytes(),(deploy.STAGING/'aster-global-search-ui6'/source).read_bytes())
+
+class NativeArtistDeployTests(ArtistSuccessorDeployTests):
+    candidate='aster-global-search-ui9'
+    def test_nine_member_restore_and_exact_six_rollback(self):
+        self.install()
+        self.assertTrue((deploy.SKIN/'1080i/custom_1129_artistalbums.xml').exists())
+        deploy.main(['rollback',self.candidate,self.sha,'unused'])
+        self.assertEqual(deploy.digest(deploy.ROOT/'active-manifest.json'),self.previous)
+        self.assertFalse((deploy.SKIN/'1080i/custom_1129_artistalbums.xml').exists())
+        self.assertTrue((deploy.ROOT/self.candidate/'retired-artist-window.xml').exists())
+    def test_activation_failure_restores_six(self):
+        super().test_activation_failure_restores_six()
+        self.assertFalse((deploy.SKIN/'1080i/custom_1129_artistalbums.xml').exists())
+        self.assertTrue((deploy.ROOT/self.candidate/'failed-artist-window.xml').exists())
+    def test_unknown_new_target_is_not_overwritten(self):
+        (deploy.SKIN/'1080i/custom_1129_artistalbums.xml').write_text('foreign')
+        with self.assertRaisesRegex(RuntimeError,'new-artist-target-exists'):self.install()
+        self.run.assert_not_called()
 
 if __name__=='__main__':unittest.main()

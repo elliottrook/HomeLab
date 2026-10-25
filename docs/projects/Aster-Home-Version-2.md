@@ -49,14 +49,18 @@
   HP is idle; new scrub remote/visual acceptance is pending Jason's availability,
   not a gate on independent work. Grouped local-index search is the next bounded
   M2 slice. Recovery/evidence below.
-  Search/player-links6 is active on HP, manifest
-  `def37da8481dd0b53cd2650056ddeee94656ba14b21b83d0b73bafeda5fc9a6c`.
+  Search/artist-links9 is active on HP, manifest
+  `01e499b94aa5f819900fa311515a95a58ead1207f9e3e272fb287590d63b282e`.
   Media Home has Search beside the clock. Native search/details open accepted
   series16/Music64 album/song pages without autoplay; Back restores exact search
-  context and Home exits without being hijacked. Two native passes, including
-  restart, succeed. Movies/artists remain details-only, Books/podcasts/voice
-  explicitly unconnected. Details4 and rejected5 recovery retained. Exact
-  preservation/evidence below; no M2 graduation, production change or push.
+  context and Home exits without being hijacked. Artist search opens an exact-ID
+  credited-albums list, then the accepted album player; nested Back preserves
+  both levels. Two native passes, including restart, and artist Search-again/
+  Home exits succeed. Movies remain details-only; Books/podcasts/voice remain
+  explicitly unconnected. Details4/accepted6 and rejected5/7/8 recovery retained. Exact
+  preservation/evidence below; no M2 graduation or production change.
+  Published through `920e1205` on 2026-10-24 at Jason's “Push and continue”;
+  Forgejo and its automatic GitHub mirror both verified at that exact commit.
 - Up Next is urgent and extracted into the separate
   [v1.1 project](Aster-Home-Version-1.1-Up-Next.md); v2 consumes its accepted
   result, not another implementation or an excuse to delay it.
@@ -3420,3 +3424,147 @@ Final post-audio preservation and exact-stage handoff check also pass against
 `postcheck-1792903797250217631.json` in the Music progressive checkpoint root;
 its content SHA is the same `adebe74960cf3d242b5fe1251b3b872e84ac5e33c77b8f9a5aef422183741dc8`.
 HP remains idle on Home, all queues/windows closed, with no recovery fence.
+
+### 2026-10-24 — Search extensions bounded pre-start
+
+After publishing through `920e1205` (Forgejo and automatic GitHub mirror
+verified), continue HP-only movie/artist discovery. The installed search6,
+Music64 and production remain untouched during this proof. Stage only a
+scratch Python helper and its two read-only adapters, run under existing
+HP lab test authority. Artist albums must use positive local artist IDs,
+bounded pagination, two agreeing reads and explicit truncation, not artist
+name matching. Movie information uses Kodi 21.3's documented
+`Dialog.info(ListItem)` with its video database ID/media type, not a guessed
+stream URL or direct player call. Upstream implementation verified against
+`xbmc/xbmc` tag `21.3-Omega`, `interfaces/legacy/Dialog.cpp` (info) and
+`video/dialogs/GUIDialogVideoInfo.cpp` (ShowFor).
+
+The installed movie info XML was inspected by its non-secret source:
+SHA `dac16d1fb373b426299ae58005f1d7599c10aa35e5ec46d2d0a5dccbdbe14a61`.
+It currently lacks native Play8/Resume9 controls; opening this page alone
+must not be represented as delivering movie playback. The scratch proof
+opens/dismisses exact movie1036 information only, checks artist memberships,
+and verifies idle queues and exact Home return. No playback, server writes,
+credentials, history changes, settings, services, installed overlays or speech.
+The existing installed stage6/checkpoint is the unchanged recovery baseline.
+If unexpected identity/navigation appears, retain evidence and do not dismiss
+an unverified foreign dialog. Before integration, require a separate bounded
+successor manifest/checkpoint and full composition tests. No further push
+is authorized by the consumed publication request.
+
+The scratch proof passed in `native-extension-probe-1792905701364461891.json`:
+five exact-ID artist sources yielded1/1/4/1/1 albums; native movie1036 displayed
+the exact database ID/type/title without autoplay and returned to Home.
+Play/Resume controls were confirmed absent. No title/path/art was exported.
+
+Next bounded HP stage7 connects **artists only**: Browse artist albums replaces
+the search results temporarily with an ID-filtered album list in the same
+native search window. Album details/accepted Music64 player remain unchanged;
+Back restores that album list, then the original artist query/group/ID/focus.
+Search again leaves the artist context. Home leaves normally. Movies stay
+details-only. The same four installed overlay targets are checkpointed against
+exact6; stage7 adds only one pure adapter (nine immutable members). No new
+keymap, service, playback authority or server write. Control-level Back and
+visible Back both go through the context handler. Validate empty/truncated/
+changing artist sources locally, actual nested native navigation, all existing
+TV/album/song links and Home, then full preservation. Safe-failure/isolated
+restore/rollback tests must pass before the bounded idle restart; rollback
+restores exact6's four members and active manifest, retaining all evidence.
+
+Stage7 was rejected and actually rolled back: native Back ignores the proposed
+control-level context handler and returned Home instead of the artist parent.
+No autoplay occurred. A second driver overlapped the first driver's cleanup;
+its TV return result is invalid, not a shipped-series regression. Hardened
+`live_search_playerlinks.py` now holds a nonblocking native-driver file lock
+through final cleanup. The specific TV106 admission fence at1792905991 was
+diagnosed against both enforced idle/no-play runs, then **retained** in stage7's
+checkpoint as `retired-test-admission-1792905991.json` with Kodi stopped, only
+after exact6 restoration. No blind fence deletion/retry or history repair.
+
+Stage8 correction keeps Kodi's native history: Artist albums is a separate
+native regular window1129/11129 (not a Python dialog). Back naturally returns
+to Search1127; the controller restores the exact parent identity. Album player
+Back returns to1129. A narrowly composed Select hook recognizes these two
+search windows only and still excludes details/keyboard dialogs. No keymap
+change. Stage8 adds that one new XML (ten staged members, five installed),
+requires its target absent before install, verifies isolated recovery, and
+retains the introduced XML off the skin path on failure/rollback. Predecessor
+remains exact accepted6, not rejected7. Local install/failure/rollback/drift
+tests pass before repeating the bounded idle restart and native tests.
+
+Stage8 likewise passed TV/album/song and nested artist→album→player→artist,
+but native artist Back still selected Home. It was actually rolled back to6;
+the newly introduced1129 XML was retained outside the skin path. Stage9 adds
+the documented explicit `<previouswindow>1127</previouswindow>` on1129, keeping
+the same ten/five-member boundary, no keymap or player change. Driver cleanup
+now also closes1129 and requires actual Home, not merely empty owner properties.
+Full preservation additionally refuses retained Search.Ready. Repeat native
+tests serially; accept no incomplete return claim.
+
+### 2026-10-24 — HP artist-search links9 delivered and preserved
+
+Active immutable stage `/storage/.aster-staging/aster-global-search-ui9`,
+manifest SHA `01e499b94aa5f819900fa311515a95a58ead1207f9e3e272fb287590d63b282e`:
+ten staged members, five installed overlay members. From Home Search, an artist
+result offers Browse artist albums. That list uses exact indexed artist-credit
+membership (including guest appearances where Kodi indexes that relationship),
+not an album-title/name heuristic. Opening an album still goes through verified
+details and accepted Music64, without autoplay. Back returns to the exact album,
+then the original artist result/query/group/focus. A new query returns to normal
+Search; Home leaves without reopening it. Movies truthfully remain details-only.
+No Books/voice/server identity integration or new speech was added.
+
+Two enforced native runs passed, one after Kodi restart:
+
+- `native-playerlinks-1792906589413781184.json`
+- `native-playerlinks-1792906677815637400.json`
+
+Both include TV, album/song accepted-page links, no autoplay, nested artist
+return, real Home exit, no matches and Home Search focus. Runtime37.1/36.8sec;
+existing full-catalogue Music admission remains approximately3.3sec. Tests use
+native automated input, not a new claim of physical G20 acceptance. Screenshot
+`artist-albums-1792906579393990576.png` was inspected at4K: supplied logo,
+neutral/gold/green palette, unclipped names and light focus rings, no texture.
+
+`native-artist-exits-1792906851718824991.json` independently passes artist
+Search-again→root→Back Home and direct Home from the artist list. An earlier
+exit-driver attempt pressed Select before its requested focus settled; it
+remained idle and was navigated back safely. The corrected driver explicitly
+waits for settled control focus and requires actual Home at cleanup. The
+initial failed evidence is retained, not counted as an acceptance pass.
+
+Normal source regressions also pass:
+`native-music-regression-1792906888296188110.json` and series checkpoint
+`native-navigation-1792906913719208859.json` verify ordinary Music album/song
+opening/return, TV series selection/exact source focus and native movie browse.
+No media was played during this continuation; no manual watch/history edits.
+
+Final preservation is
+`/storage/.aster-checkpoints/aster-music-progressive-20261024/postcheck-1792906931060740395.json`,
+SHA `b2504259bf55f71bbb7d3f2069b49b7f5f671cbd5d5485681b57bd005b94fd40`.
+Music48, baseline139, existing floating player4, normal Music8, rail1,
+series2, native scrub2/prepared dialog1, new search5 and AV/language68 all
+verify. Both database integrity checks pass; missing primary artist links0.
+Queues empty, shuffle off, no players, all lab windows closed and no admission
+fence. The exact-stage check additionally verifies all ten staged/isolated
+restore files, five installed members, three pinned child implementations,
+exact6 recovery and two native passes. HP PID23447, restart counter0, warm idle
+memory857022464bytes (~817MiB); this is not a soak/leak or physical-remote gate.
+
+Recovery: checkpoint
+`/storage/.aster-checkpoints/aster-global-search-20261024/aster-global-search-ui9`
+retains isolated ten-member stage, four exact6 predecessor members and raw
+active6 manifest. Stop idle Kodi; run `deploy_search_handoff.py rollback` with
+stage9 and its exact SHA, then start Kodi. It restores four predecessor members,
+retains the introduced1129 XML outside the skin path, restores active6 and
+refuses unknown drift. Use the final Search SHA argument for current9 proof,
+or exact6 SHA after rollback. Local install/activation-failure/rollback/new-target
+collision tests pass, including the nine→ten-member recovery boundary.
+
+Validation:447 v2 tests pass in normal and optimized Python;100 original skin
+tests and25 original video-add-on tests pass, as do compile and whitespace checks.
+Production never contacted or changed. The initial requested push through
+`920e1205` is complete and mirrored; this later artist milestone is a separate
+local commit pending another specific push request. M2 is not graduated.
+Next bounded work is movie search's real playback/details handoff; its existing
+native information skin lacks Play/Resume and must not be labelled complete.

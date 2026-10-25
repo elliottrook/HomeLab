@@ -41,6 +41,25 @@ def build(output,details=False,handoff=False,stage='aster-global-search-ui5'):
         ET.SubElement(button,'texturefocus',dict(border='20',colordiffuse='asterGreen')).text='special://skin/media/ui-compact-card-ring.png'
         ET.SubElement(button,'texturenofocus')
         files['overlay/custom_1128_searchdetails.xml']=ET.tostring(root,encoding='utf-8',xml_declaration=True)
+        if stage in ('aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9'):
+            files['resources/lib/search_extensions.py']=(HERE/'search_extensions.py').read_bytes()
+            root=ET.fromstring(files['overlay/custom_1127_search.xml'])
+            if stage=='aster-global-search-ui7':
+                for control in root.findall('.//control'):
+                    if control.get('id') in ('10','20','30','40'):
+                        ET.SubElement(control,'onback').text='SetProperty(AsterSearch.Command,back,home)'
+                root.find(".//control[@id='40']/onclick").text='SetProperty(AsterSearch.Command,back,home)'
+                files['overlay/custom_1127_search.xml']=ET.tostring(root,encoding='utf-8',xml_declaration=True)
+            else:
+                root.set('id','1129')
+                if stage=='aster-global-search-ui9':ET.SubElement(root,'previouswindow').text='1127'
+                for tag in ('onload','onunload'):
+                    for node in root.findall(tag):root.remove(node)
+                root.find(".//control[@id='40']/onclick").text='Action(Back)'
+                files['overlay/custom_1129_artistalbums.xml']=ET.tostring(root,encoding='utf-8',xml_declaration=True)
+                files['overlay/select_dispatch.py']=files['overlay/select_dispatch.py'].replace(
+                    b'getCurrentWindowId() == 11127 and',b'getCurrentWindowId() in (11127, 11129) and').replace(
+                    b'xbmcgui.Window(11127).getFocusId()',b'xbmcgui.Window(xbmcgui.getCurrentWindowId()).getFocusId()')
     output.mkdir(parents=True)
     rows=[]
     for name,data in sorted(files.items()):
@@ -55,6 +74,11 @@ def build(output,details=False,handoff=False,stage='aster-global-search-ui5'):
         from search_integration import HOME_BEFORE,DETAILS_BEFORE
         manifest.update(stage=stage,previous_manifest_sha256='e754a024360a05a53ff3fb3d4c34b715e52076af9f4a51efa742aa6dcc8b2246',
                         home_before_sha256=HOME_BEFORE,details_dispatcher_before_sha256=DETAILS_BEFORE)
+        if stage in ('aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9'):
+            manifest.update(artist_albums=True,
+                previous_manifest_sha256='def37da8481dd0b53cd2650056ddeee94656ba14b21b83d0b73bafeda5fc9a6c',
+                home_before_sha256='347b4e47d93ed5d25077d00754a05742d0843f091244e9194bc8db1fd305d575')
+            if stage in ('aster-global-search-ui8','aster-global-search-ui9'):manifest['artist_native_window']=11129
     data=(json.dumps(manifest,indent=2)+'\n').encode()
     (output/'manifest.json').write_bytes(data)
     return hashlib.sha256(data).hexdigest()

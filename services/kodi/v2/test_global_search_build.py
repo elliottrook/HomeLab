@@ -78,4 +78,30 @@ class SearchBuildTests(unittest.TestCase):
             details=ET.parse(output/'overlay/custom_1128_searchdetails.xml').getroot()
             self.assertEqual(details.findtext(".//control[@id='11']/onclick"),'SetProperty(AsterSearch.Command,open,home)')
 
+    def test_artist_successor_has_back_interception_and_exact_predecessor(self):
+        with tempfile.TemporaryDirectory() as folder:
+            output=Path(folder)/'artist';build(output,True,True,'aster-global-search-ui7')
+            manifest=json.loads((output/'manifest.json').read_text())
+            self.assertEqual(len(manifest['files']),9);self.assertTrue(manifest['artist_albums'])
+            self.assertEqual(manifest['previous_manifest_sha256'],'def37da8481dd0b53cd2650056ddeee94656ba14b21b83d0b73bafeda5fc9a6c')
+            search=ET.parse(output/'overlay/custom_1127_search.xml').getroot()
+            for identity in ('10','20','30','40'):
+                self.assertEqual(search.findtext(".//control[@id='"+identity+"']/onback"),'SetProperty(AsterSearch.Command,back,home)')
+            self.assertEqual(search.findtext(".//control[@id='40']/onclick"),'SetProperty(AsterSearch.Command,back,home)')
+
+    def test_native_artist_successor_uses_history_not_back_override(self):
+        with tempfile.TemporaryDirectory() as folder:
+            output=Path(folder)/'artist';build(output,True,True,'aster-global-search-ui9')
+            manifest=json.loads((output/'manifest.json').read_text())
+            self.assertEqual(len(manifest['files']),10);self.assertEqual(manifest['artist_native_window'],11129)
+            artist=ET.parse(output/'overlay/custom_1129_artistalbums.xml').getroot()
+            self.assertEqual((artist.get('id'),artist.get('type')),('1129','window'))
+            self.assertEqual(artist.findtext('previouswindow'),'1127')
+            self.assertIsNone(artist.find('onload'));self.assertIsNone(artist.find('onunload'))
+            self.assertEqual(artist.findtext(".//control[@id='40']/onclick"),'Action(Back)')
+            self.assertNotIn('onback',(output/'overlay/custom_1127_search.xml').read_text())
+            dispatch=(output/'overlay/select_dispatch.py').read_text()
+            self.assertIn('getCurrentWindowId() in (11127, 11129)',dispatch)
+            self.assertIn('Window(xbmcgui.getCurrentWindowId()).getFocusId()',dispatch)
+
 if __name__=='__main__':unittest.main()
