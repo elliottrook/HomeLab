@@ -17,6 +17,7 @@
     "case_custodian": "",
     "evaluation_operator": "",
     "label_reviewer": "",
+    "nonoverlap_reviewer": "",
     "score_reviewer": ""
   },
   "schema": "aster-nlu-holdout-release.v1",

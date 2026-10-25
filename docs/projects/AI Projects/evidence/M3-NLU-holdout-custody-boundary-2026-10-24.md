@@ -4,9 +4,10 @@
 
 The NLU work now has a content-free sealed-release contract for its independent
 holdout. It fixes 36 opaque cases, six for each `request-interpretation.v1`
-family, and requires separate case custody, label review, evaluation and score
-review roles. The manifest pins the interpretation contract, scorer, threshold
-policy and a development-set non-overlap receipt before evaluation.
+family, and requires separate case custody, label review, non-overlap review,
+evaluation and score-review roles. The manifest pins the interpretation
+contract, scorer, threshold policy and separate development/calibration
+non-overlap receipts before evaluation.
 
 The validator permits only case identifiers, family names and SHA-256 digests.
 It rejects request text, labels, entities, notes, reasoning, answers and other

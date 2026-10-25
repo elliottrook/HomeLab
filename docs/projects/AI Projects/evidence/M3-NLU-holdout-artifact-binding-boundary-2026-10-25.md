@@ -2,18 +2,20 @@
 
 ## Problem
 
-The content-free holdout manifest carried SHA-256 fields for the frozen
-interpretation contract, scorer, threshold policy and development-set
+The content-free holdout manifest originally carried SHA-256 fields for the
+frozen interpretation contract, scorer, threshold policy and development-set
 non-overlap receipt. Its bundle validator independently read and checked only
 the threshold-policy bytes. A manifest with syntactically valid but unrelated
 contract, scorer or non-overlap digests could therefore pass bundle validation.
 
 ## Correction
 
-A sealed holdout bundle must now supply the exact bytes for all four claimed
-artifacts. The validator hashes each input and compares it to its named manifest
-field before accepting the bundle. Threshold-policy semantic validation and the
-requirement for a frozen policy remain unchanged.
+A sealed holdout bundle must supply the exact bytes for every claimed artifact.
+The validator hashes each input and compares it to its named manifest field
+before accepting the bundle. The later calibration-overlap correction adds a
+second exact non-overlap receipt; both receipts now also undergo semantic
+validation. Threshold-policy semantic validation and the requirement for a
+frozen policy remain unchanged.
 
 ## Validation
 

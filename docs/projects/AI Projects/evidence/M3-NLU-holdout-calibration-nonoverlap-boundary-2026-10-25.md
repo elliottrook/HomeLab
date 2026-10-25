@@ -13,8 +13,11 @@ That leakage would invalidate independent qualification.
 A sealed holdout manifest must now carry a separate
 `calibration_nonoverlap_receipt_sha256`. Bundle validation requires the exact
 receipt bytes and verifies their digest independently from the existing
-development non-overlap receipt. The template leaves both fields empty and
-cannot claim either proof.
+development non-overlap receipt. Both receipts must pass the new fixed semantic
+schema: exact reference artifact and normalized-set pins, 36-case common
+subject, zero overlap, an independent non-overlap reviewer, self-hash and no
+authority. The two receipts must describe the same holdout source and text set.
+The template leaves both fields empty and cannot claim either proof.
 
 The future holdout custodian must take the sealed calibration normalized-text-
 set SHA-256
@@ -24,7 +27,8 @@ normalized overlap without placing request text in Git.
 
 ## Validation and effect
 
-The expanded 12-test holdout-release suite passes, including independent drift
-of the calibration receipt. The full dependency-free NLU suite remains 92/92.
+The 16 focused receipt/holdout tests pass, including unique-key parsing,
+reference drift, nonzero overlap, authority and mismatched-subject failures.
+The full dependency-free NLU suite passes 96/96.
 No holdout case or label was created or opened; no model ran; no threshold,
 shadow route, deployment, tool or authority was granted.

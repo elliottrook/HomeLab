@@ -13,6 +13,7 @@ import re
 
 from nlu_threshold_policy import load_and_validate, sha256
 from nlu_candidate_bundle import validate_policy_binding
+from nlu_nonoverlap_receipt import load_and_validate as validate_nonoverlap
 
 
 SCHEMA = "aster-nlu-holdout-release.v1"
@@ -28,6 +29,7 @@ FAMILIES = (
 ROLE_KEYS = (
     "case_custodian",
     "label_reviewer",
+    "nonoverlap_reviewer",
     "evaluation_operator",
     "score_reviewer",
 )
@@ -193,6 +195,24 @@ def validate_release_bundle(
         f"candidate binding: {error}"
         for error in validate_policy_binding(threshold_policy_raw, candidate_raw)
     )
+    development_receipt, development_errors = validate_nonoverlap(
+        development_nonoverlap_receipt_raw, "development"
+    )
+    calibration_receipt, calibration_errors = validate_nonoverlap(
+        calibration_nonoverlap_receipt_raw, "calibration"
+    )
+    errors.extend(f"development non-overlap: {error}" for error in development_errors)
+    errors.extend(f"calibration non-overlap: {error}" for error in calibration_errors)
+    if development_receipt is not None and calibration_receipt is not None:
+        subject_fields = (
+            "subject_source_sha256", "subject_normalized_text_set_sha256",
+            "subject_case_count",
+        )
+        if any(
+            development_receipt.get(field) != calibration_receipt.get(field)
+            for field in subject_fields
+        ):
+            errors.append("non-overlap receipts do not describe the same holdout subject")
     if isinstance(value, dict) and value.get("status") == "sealed":
         for field, raw, label in (
             ("threshold_policy_sha256", threshold_policy_raw, "threshold policy"),

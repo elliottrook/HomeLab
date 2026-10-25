@@ -16,6 +16,7 @@ from nlu_holdout_release import (
 
 from nlu_threshold_policy import FAMILIES as POLICY_FAMILIES
 import nlu_candidate_bundle as candidate
+import nlu_nonoverlap_receipt as nonoverlap
 import nlu_threshold_policy as policy
 
 
@@ -39,12 +40,34 @@ def template():
 
 CONTRACT_RAW = b"synthetic contract bytes\n"
 SCORER_RAW = b"synthetic scorer bytes\n"
-NONOVERLAP_RAW = b"synthetic non-overlap receipt bytes\n"
-CALIBRATION_NONOVERLAP_RAW = b"synthetic calibration non-overlap receipt bytes\n"
 
 
 def encoded(value):
     return (json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n").encode()
+
+
+def nonoverlap_raw(reference_class):
+    reference = nonoverlap.REFERENCES[reference_class]
+    value = {
+        "schema": nonoverlap.SCHEMA,
+        "reference_class": reference_class,
+        "subject_source_sha256": "6" * 64,
+        "subject_normalized_text_set_sha256": "7" * 64,
+        "subject_case_count": 36,
+        "reference_artifact_sha256": reference["artifact_sha256"],
+        "reference_normalized_text_set_sha256": reference["normalized_text_set_sha256"],
+        "reference_case_count": reference["case_count"],
+        "overlap_count": 0,
+        "reviewer": nonoverlap.REVIEWER,
+        "authority": "not-granted",
+        "receipt_sha256": "",
+    }
+    value["receipt_sha256"] = nonoverlap.canonical_sha256(value)
+    return encoded(value)
+
+
+NONOVERLAP_RAW = nonoverlap_raw("development")
+CALIBRATION_NONOVERLAP_RAW = nonoverlap_raw("calibration")
 
 
 def sealed_candidate():
