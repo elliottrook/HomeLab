@@ -368,6 +368,11 @@ empty broker database. The final [supervised pilot passed](evidence/M1-zero-over
 with sequence 2199, an authenticated content-free Companion read and execution-
 broker independence, then restored the exact database hash and old route.
 Permanent Yellow-only cutover and boot/recovery validation are the next gate.
+A [pinned permanent-cutover card](evidence/M1-permanent-yellow-cutover-card-2026-10-24.md)
+now defines the two boot-enabled release units, exact sequence-2199 firewall
+placement, NPM route, zero-overlap service order, one LXC104 reboot, recovery
+proof and restrictive rollback. Eleven focused tests and target-Linux unit
+verification pass. It remains a separately approved production change.
 
 Milestones 3 and 6 proceed independently of D3 session aging. Connected tools wait for milestone 3; automatic routing does not need to be built before a limited manual Codex release. The earlier SA0–SA5 table records operational requirements and historical Qwen work; it is **not** a second obligation to rerun the closed Qwen general-sysadmin trial. Its still-applicable authority, investigation, repair and acceptance checks map into milestones 3–7.
 
