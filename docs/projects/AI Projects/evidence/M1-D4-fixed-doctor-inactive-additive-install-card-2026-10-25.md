@@ -1,10 +1,27 @@
 # M1/D4 fixed Doctor inactive additive install card
 
 **Date:** 2026-10-25  
-**Source:** Stream A commit `a37686d9`  
-**Manifest SHA-256:** `ea56672fe1885508c015b0543d808e89559def45f9bbdb71108d1411d31fde0b`  
-**Transfer candidate:** `/private/tmp/aster-fixed-doctor-v1-staging-v2.tar.gz`, 18,032 bytes, SHA-256 `ef730c8290ce7e36812ac776311a926077e14ec1404dba481b558e3384dee5ec`  
-**State:** approval-ready; not executed
+**Source predecessor:** Stream A commit `a37686d9`
+
+**Corrected manifest SHA-256:** `43a3bfae841467b010cc0df4bef15e5dc90c48eab7847247fa6b3f9860904c49`
+
+**Corrected transfer candidate:** `/private/tmp/aster-fixed-doctor-v1-staging-v3.tar.gz`, 18,147 bytes, SHA-256 `f57c1cf64f140c3bc64603402f6ea925bb34b559fc63ce41a5b19051f10feb81`
+
+**State:** corrected after rolled-back first attempt; new approval required
+
+## First attempt and rollback
+
+The approved first attempt stopped before identity creation because LXC104 does
+not have `/etc/sysusers.d`. The five Python files and two unit files copied
+before that error were removed by the rollback trap. Read-only reconciliation
+proved all eight targets and all three proposed identities/groups absent, both
+runtime sockets absent, no temporary staging directory/archive, and Aster plus
+the broker active/enabled. No enrollment, grant, read, model call or F2/B60
+effect occurred.
+
+The current platform path is `/usr/lib/sysusers.d`, confirmed on LXC104 with
+systemd 257. This corrected card changes only that target path. Its new pinned
+manifest/archive values follow after regeneration.
 
 ## Purpose and limit
 
@@ -32,7 +49,7 @@ Abort before writing if any check fails:
    - `/opt/aster-agent/doctor_structured_incident_adapter.py`
    - `/etc/systemd/system/aster-fixed-doctor-caller.service`
    - `/etc/systemd/system/aster-fixed-doctor-gateway.service`
-   - `/etc/sysusers.d/aster-fixed-doctor.conf`
+   - `/usr/lib/sysusers.d/aster-fixed-doctor.conf`
 3. `aster-doctor-caller` and `aster-doctor-client` are absent.
 4. The three installed dependency hashes equal the manifest pins.
 5. `aster-fixed-doctor-caller.service` and
@@ -48,7 +65,7 @@ Abort before writing if any check fails:
 2. Install only the eight `rollback=remove` entries at their exact manifest
    paths, ownership and modes. Do not install any `rollback=restore` entry.
 3. Run `systemd-sysusers` against only
-   `/etc/sysusers.d/aster-fixed-doctor.conf`.
+   `/usr/lib/sysusers.d/aster-fixed-doctor.conf`.
 4. Run `systemctl daemon-reload` and `systemd-analyze verify` on the two exact
    units. Do not start or enable them.
 5. Verify:

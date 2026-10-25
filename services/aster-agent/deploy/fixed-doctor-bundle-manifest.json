@@ -128,7 +128,7 @@
     {
       "host": "lxc104",
       "source": "services/aster-agent/systemd/aster-fixed-doctor.sysusers.conf",
-      "target": "/etc/sysusers.d/aster-fixed-doctor.conf",
+      "target": "/usr/lib/sysusers.d/aster-fixed-doctor.conf",
       "source_sha256": "60000eda4e09fab0b1401cc2d6cf7df3e5166c3b10486211736106a136470daf",
       "predecessor": "absent",
       "mode": "0644",

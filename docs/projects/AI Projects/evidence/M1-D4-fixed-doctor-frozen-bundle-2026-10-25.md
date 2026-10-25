@@ -80,10 +80,11 @@ dependency pins. A deterministic archive builder adds the manifest,
 validator and all 12 source files to one root-owned, mode-0600 archive with
 normalized metadata; it refuses overwrite. The focused suite passes **5/5**.
 
-The focused suite passes **6/6** after the dependency addition. The current
-archive at `/private/tmp/aster-fixed-doctor-v1-staging-v2.tar.gz` is 18,032
+The focused suite passes **7/7** after the dependency and exact target-path
+checks. The current archive at
+`/private/tmp/aster-fixed-doctor-v1-staging-v3.tar.gz` is 18,147
 bytes with SHA-256
-`ef730c8290ce7e36812ac776311a926077e14ec1404dba481b558e3384dee5ec`.
+`f57c1cf64f140c3bc64603402f6ea925bb34b559fc63ce41a5b19051f10feb81`.
 It contains the same 12 executable/config source files as the target-Linux
 validated archive plus the stricter manifest/validator metadata; it is a
 transfer candidate, not a deployed artifact.
@@ -92,9 +93,9 @@ Pinned bundle tooling:
 
 | File | SHA-256 |
 |---|---|
-| `fixed-doctor-bundle-manifest.json` | `ea56672fe1885508c015b0543d808e89559def45f9bbdb71108d1411d31fde0b` |
-| `validate_fixed_doctor_bundle.py` | `ff92ff3418fbdcbaf07c3784ad0bcfbaffdc09aadd4329fce92e4515c8af076c` |
-| `test_validate_fixed_doctor_bundle.py` | `fe3613346123ac9d6e3190087cfa7520b5276a87a22688309751ec828475929e` |
+| `fixed-doctor-bundle-manifest.json` | `43a3bfae841467b010cc0df4bef15e5dc90c48eab7847247fa6b3f9860904c49` |
+| `validate_fixed_doctor_bundle.py` | `269c6bb9733ad74dbb0a6584f1ac9d7dd22810014fab41142cb6a46e9bcf5964` |
+| `test_validate_fixed_doctor_bundle.py` | `ec2c053664bd35d221597480dce582f00dad65f434e76419574f8d085e3e70a8` |
 | `build_fixed_doctor_staging_archive.py` | `09e0472027cd789f80cb4c7cc2cf1e2bd8cb63b2ed8b6746cb72dfb0965490bc` |
 | `test_build_fixed_doctor_staging_archive.py` | `416a8191ed76c1d6961b681eab9790bd139e8d78579e4ade74fff596ad77e156` |
 

@@ -59,6 +59,22 @@ def validate(manifest_path: Path = MANIFEST, root: Path = ROOT) -> dict[str, int
             raise ValueError("unsupported rollback action")
     if replacements != 4 or additions != 8:
         raise ValueError("unexpected replacement/addition split")
+    expected_targets = {
+        ("mac-mini", "/Users/jelliott/lab/homelab/scripts/build-aster-health-report.py"),
+        ("mac-mini", "/Users/jelliott/lab/homelab/scripts/scheduled-report.sh"),
+        ("lxc104", "/opt/homelab-broker/broker_admin.py"),
+        ("lxc104", "/opt/homelab-broker/broker_service.py"),
+        ("lxc104", "/opt/aster-agent/fixed_doctor_caller.py"),
+        ("lxc104", "/opt/aster-agent/fixed_doctor_gateway.py"),
+        ("lxc104", "/opt/aster-agent/fixed_doctor_capability.py"),
+        ("lxc104", "/opt/aster-agent/doctor_model_projection.py"),
+        ("lxc104", "/opt/aster-agent/doctor_structured_incident_adapter.py"),
+        ("lxc104", "/etc/systemd/system/aster-fixed-doctor-caller.service"),
+        ("lxc104", "/etc/systemd/system/aster-fixed-doctor-gateway.service"),
+        ("lxc104", "/usr/lib/sysusers.d/aster-fixed-doctor.conf"),
+    }
+    if seen_targets != expected_targets:
+        raise ValueError("target path boundary changed")
     if data["database"] != {
         "host": "lxc104", "path": "/var/lib/homelab-broker/broker.db",
         "checkpoint_before_enrollment": True, "enrollment_is_separate": True,
