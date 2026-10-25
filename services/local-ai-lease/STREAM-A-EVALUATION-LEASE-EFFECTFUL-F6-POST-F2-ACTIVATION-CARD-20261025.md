@@ -40,6 +40,39 @@ backup cycle:
 3. Installed source/custody pins, owner identity path, operation lock and
    rollback checkpoint match the accepted inactive cards. Any drift is NO-GO.
 
+## Fixed installed paths and pins
+
+The effect transaction must use these exact installed files and no alternate
+copy:
+
+| File | SHA-256 |
+|---|---|
+| `evaluation_lease.py` | `5c5aa6c7174d53edb775f9a2640a867634b04a9b098d0742a589a1c2dc692686` |
+| `evaluation_lease_adapter.py` | `6876e6892cae0d81c584fee7d6f3c5b79874d9b4737d250987f451f28b6aa910` |
+| `evaluation_lease_entrypoint.py` | `0dab61905c834c36e3a865f8049c2650712422ddc27c534f1cd402b4e5ad52bb` |
+| `stream_a_evaluation_watchdog.py` | `c406dd4da579d4d5129b13131121b55ac1aacaa1a5125c9d481e0d7f847c9849` |
+| `stream_a_evaluation_owner.py` | `74c8072793cbbcc68e40d0548065f55031c2b8e5bfeab3d9583069aa4c8a22a1` |
+| `stream_a_evaluation_owner_heartbeat.py` | `4c45a07098eb8cca31bf95bb50b0824b65c6772e636627b23219761f359ed6cc` |
+| `stream_a_evaluation_restore_observer.py` | `70748eb15c50ff7008cadd85fe9affaf62c9ad3eb388ef962270f9f9389fc1d3` |
+| `stream_a_evaluation_prepare_only_exercise.py` | `cf51b1d6546e27aebdef9e44ad4751343e38aa388c8eae682f9a476641f390fb` |
+The fixed binaries/callbacks are:
+
+- `/usr/local/sbin/stream-a-evaluation-lease`
+- `/usr/local/sbin/stream-a-evaluation-owner`
+- `/usr/local/sbin/stream-a-evaluation-owner-heartbeat`
+- `/usr/local/sbin/stream-a-evaluation-watchdog`
+- `/usr/local/sbin/stream-a-evaluation-restore-observe`
+- `stream_a_evaluation_watchdog.py::run_watchdog_once` with
+  `_restore_callback` only
+
+Fixed custody paths are `/var/lib/local-ai-lab/stream-a-evaluation/lease.json`,
+`lease.lock`, `lease.operation.lock`, `owner-intent.json`,
+`owner-heartbeat.json`, `watchdog-status.json`, `restore-intent.json`, and
+`/etc/local-ai-lab/stream-a-evaluation/watchdog-identity.json`.
+The four consumer units are exactly `lxc104:aster-agent.service`,
+`lxc116:aster-speech.service`, `lxc114:news-aggregator-ingest.timer`, and
+`lxc114:news-aggregator-digest.timer`.
+
 ## Frozen effect transaction — future approval only
 
 Use one generated lease ID, generation `1`, and one same-cycle wall-clock
@@ -54,26 +87,52 @@ The separately approved transaction is exactly:
 1. **Arm:** create only the root-owned owner identity/intent for the exact
    lease/generation and arm the pinned owner, heartbeat and watchdog controls.
    Verify readiness without a lease or consumer mutation.
-2. **Acquire:** invoke the fixed entrypoint with `--phase acquire --state
-   /var/lib/local-ai-lab/stream-a-evaluation/lease.json --intent <0600-root-intent>
+2. **Acquire:** write the root-owned `0600`
+   `/var/lib/local-ai-lab/stream-a-evaluation/production-intent.json`, then
+   invoke `/usr/local/sbin/stream-a-evaluation-lease --phase acquire --state
+   /var/lib/local-ai-lab/stream-a-evaluation/lease.json --intent
+   /var/lib/local-ai-lab/stream-a-evaluation/production-intent.json
    --effect-authorized`; require exact production admission and durable
    `prepared` state/lock.
-3. **Quiesce:** invoke `--phase quiesce` with the exact lease/generation,
-   current time and heartbeat timeout. It may mask/stop only the four baseline
-   consumers; any uncertain command retains `quiescing` for recovery.
-4. **Post:** invoke `--phase post-quiescence` with the exact admission and
+3. **Quiesce:** invoke the same fixed entrypoint with
+   `--phase quiesce --state /var/lib/local-ai-lab/stream-a-evaluation/lease.json
+   --intent /var/lib/local-ai-lab/stream-a-evaluation/quiesce-intent.json
+   --effect-authorized`; the exact intent contains only the generated lease ID,
+   generation `1`, current epoch and heartbeat timeout `5`. It may mask/stop
+   only the four baseline consumers; any uncertain command retains `quiescing`
+   for recovery.
+4. **Post:** invoke `/usr/local/sbin/stream-a-evaluation-lease --phase
+   post-quiescence --state /var/lib/local-ai-lab/stream-a-evaluation/lease.json
+   --intent /var/lib/local-ai-lab/stream-a-evaluation/post-intent.json
+   --effect-authorized` with the exact admission and
    independent four-consumer/backend/auth/idle/GPU observations. Require
    `running` before any workload.
-5. **D4:** invoke the one approved candidate-G start/outcome under the exact
-   run digest, archive and timeout. Seal output/journal custody before M3.
+5. **D4:** invoke `/usr/local/sbin/stream-a-evaluation-lease --phase start
+   --state /var/lib/local-ai-lab/stream-a-evaluation/lease.json --intent
+   /var/lib/local-ai-lab/stream-a-evaluation/d4-start-intent.json
+   --effect-authorized`, then the same fixed entrypoint with `--phase outcome`
+   and `/var/lib/local-ai-lab/stream-a-evaluation/d4-outcome-intent.json`.
+   Both intents contain the exact lease/generation and workload
+   `d4-candidate-g`; outcome packet digest is the fixed D4 run digest and the
+   timeout is 2160 seconds. Seal
+   `/var/lib/local-ai-lab/stream-a-evaluation/d4-candidate-g.journal.jsonl`
+   and `d4-candidate-g.result.json` as root-owned `0600` before M3.
 6. **M3:** only after validated D4 outcome, revalidate the 11 exact LXC110
-   inputs and manifest digest, then invoke the one approved M3 start/outcome.
+   inputs and manifest digest, then invoke the same fixed entrypoint with
+   `--phase start --state /var/lib/local-ai-lab/stream-a-evaluation/lease.json
+   --intent /var/lib/local-ai-lab/stream-a-evaluation/m3-start-intent.json
+   --effect-authorized`, followed by `--phase outcome` with
+   `/var/lib/local-ai-lab/stream-a-evaluation/m3-outcome-intent.json`.
+   Seal `/var/lib/local-ai-lab/stream-a-evaluation/m3-nlu-calibration.journal.jsonl`
+   and `m3-nlu-calibration.result.json` as root-owned `0600`.
 7. **Restore/recover:** on normal completion, owner loss, deadline or command
    uncertainty, invoke recovery with the exact lease/generation and observed
    baseline. Require all four consumers restored and independent postcheck
    before clearing lease, lease lock, operation lock, identity, intent,
    heartbeat, status, restore intent and output/journal state.
-8. **Cleanup:** write a content-free result only after exact custody/absence,
+8. **Cleanup:** use rollback checkpoint
+   `/root/stream-a-evaluation-effectful-f6-rollback-20261025` and write a
+   content-free result only after exact custody/absence,
    F2/F3/F4/F5 digest, production health, GPU holder, consumer baseline and
    timer checks pass. Never retry automatically.
 
