@@ -79,6 +79,12 @@ all capability controls. The suite passes 148/148 and the new exact digest is
 `8f0cd102953d4b830e19b18bc4511bc2f9742356156d45d6f2fcbfee53d80c72`.
 It is prepared but not authorized to execute.
 
+The `8f0cd102...` candidate subsequently ran once and passed the execution
+boundary with 12/12 accepted terminal answers; see
+[attempt 4](D4-tool-free-development-attempt-4-result-2026-10-24.md). Its
+authorization is consumed. No additional model call is needed at this stage.
+The next gate is completion of the digest-bound private model-blind review.
+
 ## Bounded execution
 
 - 12 cases, one session per case, fixed source order.
