@@ -56,9 +56,9 @@ with exact per-phase keys, typed fields and literal booleans.
 
 1. Verify `SOURCE_COMMIT`, all hashes, clean source, and the prior inactive
    candidate's exact target state. The existing root must be `root:root 0755`
-   and contain the four already-installed libraries with the pinned hashes
-   above, each `0644`. The installed `evaluation_lease.py` is the one planned
-   replacement: checkpoint old hash
+   and contain the three unchanged libraries with the pinned hashes above,
+   each `0644`. The installed `evaluation_lease.py` must instead be the
+   checkpointed prestate hash
    `38a986e9d868d04c7ee7814ae0fbd2f1a1709e7a464916195d594ca2bf286312`, then
    replace it atomically with the new pinned hash above. Preserve the other
    three libraries byte-for-byte.
