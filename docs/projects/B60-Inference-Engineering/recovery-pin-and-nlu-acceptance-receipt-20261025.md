@@ -97,3 +97,38 @@ receipt hash above are unchanged; the B60 protection ref matches published
 tests pass. No new production observation or admission is claimed, and no push
 occurred. The diagnosed October 25 F2 refusal and approved October 26 attempt
 were already reported; do not send a duplicate failure alert or owner request.
+
+## Accepted llama response envelope: independent compatibility review
+
+Fresh Adaptive receipt `bd377b4e8f717fa6a4eee05182cf120ca60c4c37` adds
+a calibration-runner normalization fix and a static recheck of the already
+approved October 26 F2 timers. Platform source ref remains unchanged.
+The peer evidence under `docs/projects/AI Projects/evidence/` is:
+
+- `M3-NLU-llama-response-envelope-compatibility-2026-10-25.md`, SHA-256
+  `8a36033ba101415db910c1bf584dc9bd2973845e59202caa1050d82f9b156ab9`;
+- `F2-october-26-static-recheck-2026-10-25.md`, SHA-256
+  `b88d369237ff649e70b33844eb1e6636e3197553541f33a2da1ecb6b0d4b717d`.
+
+Reviewed the normalization diff and both complete test modules, then exported
+exact-peer dependencies into a fresh disposable directory. Ran only
+`test_nlu_calibration_runner` and `test_nlu_calibration_stage_manifest`:
+**19/19 pass**, with fake openers, synthetic credentials/clocks and disposable
+evidence files. No socket, production credential or private case was used.
+
+The runner now strips known llama/OpenAI `usage`, `timings` and other fixed
+metadata before the strict classification adapter, while unknown envelope/
+choice fields and tool/content extras remain rejected. This closes a concrete
+wire-format mismatch; it does not weaken the message/classification schema,
+grant authority or establish model performance. Discarded metadata must not
+later be described as measured token/reasoning telemetry in NLU evidence.
+
+Independently hashed exact-peer runner
+`b8ada869ff939255ba62618180a720cf5f6ebe60e1ee7e2250ee00a1f34e5e11`,
+stage validator `eab93406dbde22849f5a884a588744656a6ac175b641032517672a3fb77d46f4`
+and stage manifest
+`357b4e3d5514fe32b1509ac27f9eac3940edb0635db3a5008b4f29fc4f124a00`
+match the peer evidence. This is not verification of the owner's real private
+ten-input staging packet or a guest installation; neither was accessed here.
+The 19 tests are a distinct runner/staging subset, not a new model score or
+an addition to independent calibration sample size. No live admission changed.

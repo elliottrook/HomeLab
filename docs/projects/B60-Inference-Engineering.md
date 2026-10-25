@@ -12,6 +12,11 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+Latest [October 25 compatibility follow-up](B60-Inference-Engineering/recovery-pin-and-nlu-acceptance-receipt-20261025.md)
+receives `bd377b4e` and independently passes 19 fake-transport runner/staging
+tests of the corrected llama metadata envelope. No guest staging, private case,
+credential, model request or live admission was exercised.
+
 The [October 25 pin/acceptance receipt](B60-Inference-Engineering/recovery-pin-and-nlu-acceptance-receipt-20261025.md)
 receives `c21a8bda`: stale exclusion-helper pins caused the latest F2 refusal
 and are reportedly corrected, with October 26 timers approved/active. NLU
