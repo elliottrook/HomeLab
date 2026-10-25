@@ -13,13 +13,13 @@ recurring timer, or changes F2/F3/F4/F5 schedules.
 
 | File | SHA-256 | Mode |
 |---|---|---:|
-| `scripts/local-ai/stream_a_evaluation_prepare_only_exercise.py` | `d3a18f3bf9d6feb835fcf727b43d6f40fdb8ccf9cb2c6300f6c0b065288957ce` | 0644 |
-| `scripts/local-ai/test_stream_a_evaluation_prepare_only_exercise.py` | `f5a9652fc5810abc45e53004e1df11843ce9c906ca8b40a2f58d097efc43b309` | 0644 |
+| `scripts/local-ai/stream_a_evaluation_prepare_only_exercise.py` | `df106ae07754a219e69366faffcfe7cdcd5f83630728a002a3327bad23288821` | 0644 |
+| `scripts/local-ai/test_stream_a_evaluation_prepare_only_exercise.py` | `17a50b960fc313028598041ecdfa3ff8752dd47537b9bc2740d10d7231cdfbc7` | 0644 |
 | `services/local-ai-lease/stream-a-evaluation-prepare-only-exercise` | `87f206b51bbe489a391ec43615644cc411cdc7cfe0666592fdb9ffe622ae300c` | 0755 |
 
 Implementation commit: `f94dd5d46690a5770769390ff8d7a01eb389078d`, integrated
 locally as `95cacab0`; command-boundary and real-wrapper review fixes are in
-`16608358` and `2c633a68`. The current focused source suites pass 77 tests
+`16608358`, `2c633a68` and `17285d77`. The current focused source suites pass 77 tests
 (46 evaluation, 24 owner/watchdog/observer/launcher, 7 runner).
 
 ## Safety contract
