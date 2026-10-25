@@ -90,12 +90,23 @@ def request_for(case, observations, used, mode, model):
     return payload
 
 
-def investigate(case, mode, model, transport, clock=time.monotonic):
+def investigate(
+        case, mode, model, transport, clock=time.monotonic,
+        request_timeout_seconds=240, total_timeout_seconds=300):
     """Transport(payload, timeout) returns sanitized answer metadata, never thoughts.
 
-    Limit: two simulated checks, three model calls, 300 seconds total. Transport
-    must enforce the supplied timeout and must not retry or perform tool calls.
+    Limit: two simulated checks and three model calls. The default total budget
+    is 300 seconds; reviewed callers may select a smaller positive finite
+    request and total budget. Transport must enforce the supplied timeout and
+    must not retry or perform tool calls.
     """
+    if (type(request_timeout_seconds) not in (int, float)
+            or not math.isfinite(request_timeout_seconds)
+            or request_timeout_seconds <= 0
+            or type(total_timeout_seconds) not in (int, float)
+            or not math.isfinite(total_timeout_seconds)
+            or total_timeout_seconds <= 0):
+        raise ValueError('invalid investigation time budget')
     case = _validated_case(case)
     capabilities = {c['id'] for c in case['capabilities']}
     observations = copy.deepcopy(case['initial_observations'])
@@ -104,18 +115,18 @@ def investigate(case, mode, model, transport, clock=time.monotonic):
     attempts, failure = 0, None
     status = 'call_budget_exhausted'
     for _ in range(3):
-        remaining = 300-(clock()-started)
+        remaining = total_timeout_seconds-(clock()-started)
         if remaining <= 0:
             status = 'time_budget_exhausted'; break
         payload = request_for(case, observations, used, mode, model)
         attempts += 1
         attempt_started = clock()
         try:
-            response = transport(payload, min(240, remaining))
+            response = transport(payload, min(request_timeout_seconds, remaining))
         except Exception as exc:
             failure = {'type': type(exc).__name__, 'attempt': attempts,
                        'elapsed_seconds': round(clock()-attempt_started, 3),
-                       'request_timeout_seconds': min(240, remaining)}
+                       'request_timeout_seconds': min(request_timeout_seconds, remaining)}
             status = 'transport_error:' + type(exc).__name__; break
         # Never retain raw responses or reasoning fields supplied by a transport.
         if not isinstance(response, dict):
@@ -127,7 +138,7 @@ def investigate(case, mode, model, transport, clock=time.monotonic):
         answer = response.get('answer')
         step = {'metadata': metadata, 'answer': None}
         steps.append(step)
-        if clock()-started >= 300:
+        if clock()-started >= total_timeout_seconds:
             status = 'time_budget_exhausted'; break
         if response.get('finish_reason') != 'stop' or response.get('tool_call_count', 0) != 0:
             status = 'incomplete_or_tool_output'; break

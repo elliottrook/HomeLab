@@ -231,14 +231,16 @@ def validate_engine_result(result, case_id, mode):
     return copy.deepcopy(result)
 
 
-def run_package(bundle, manifest, ledger, transport, ready, model='qwen3.8-27b', engine=investigate):
+def run_package(
+        bundle, manifest, ledger, transport, ready, model='qwen3.8-27b',
+        engine=investigate, case_validator=validate_cases, planner=schedule):
     """Run/resume only when separately approved; ready() must verify idle/healthy.
 
     Hash-chained private journal is locked for the run. Incomplete writes or an
     unmatched start block resume. Completed sessions are never silently replayed.
     """
-    cases = validate_cases(bundle, manifest)
-    plan = schedule(cases)
+    cases = case_validator(bundle, manifest)
+    plan = planner(cases)
     allowed = {(c['id'], mode) for c, mode in plan}
     ledger = Path(ledger)
     fd = os.open(ledger, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)

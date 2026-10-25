@@ -74,6 +74,27 @@ class InvestigationTests(unittest.TestCase):
         self.assertEqual(result['status'], 'time_budget_exhausted')
         self.assertEqual(result['checks'], [])
 
+    def test_reviewed_sixty_second_request_budget_is_enforced(self):
+        observed = []
+        def transport(payload, timeout):
+            observed.append(timeout)
+            return answer('clarify', '', ['initial'])
+        result = investigate(
+            self.case, 'nonthinking', 'fixture-model', transport,
+            request_timeout_seconds=60, total_timeout_seconds=180,
+        )
+        self.assertEqual(result['status'], 'clarify')
+        self.assertEqual(observed, [60])
+
+    def test_invalid_time_budgets_fail_before_transport(self):
+        for request, total in ((0, 180), (60, float('nan')), (True, 180)):
+            with self.subTest(request=request, total=total), self.assertRaisesRegex(
+                    ValueError, 'time budget'):
+                investigate(
+                    self.case, 'nonthinking', 'fixture-model', lambda *_: None,
+                    request_timeout_seconds=request, total_timeout_seconds=total,
+                )
+
     def test_insufficient_evidence_clarification(self):
         case = json.loads(Path(__file__).with_name('sa3-investigation-development.json').read_text())['cases'][1]
         result, calls = self.replay([answer(), answer(check='error_summary'),
