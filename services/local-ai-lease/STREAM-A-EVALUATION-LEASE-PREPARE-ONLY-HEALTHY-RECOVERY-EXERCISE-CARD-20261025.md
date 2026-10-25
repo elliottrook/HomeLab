@@ -38,8 +38,9 @@ with the October 26 F2 window.
    effectful evaluation phase.
 2. The inactive packet, two-phase source and exercise-admission pins match the
    accepted cards: implementation commits
-   `2f790b6310981d31358a60fb2a7a3f98f7a26633`, `bdf745aa`, `2f59c2b0` and
-   `7fbbc017630dc7ab87b212fc3a92ba92bb48663b`; the exercise-admission
+   `2f790b6310981d31358a60fb2a7a3f98f7a26633`, `bdf745aa`, `2f59c2b0`,
+   `7fbbc017630dc7ab87b212fc3a92ba92bb48663b` and
+   `26dd2a0e90095a787d75353138393b71b3dbd6a4`; the exercise-admission
    inactive upgrade must also be installed and verified before this exercise.
 3. All five F6 units and timers remain disabled/inactive; no runtime lease,
    lock, identity, owner intent, heartbeat or watchdog status is present.
@@ -91,8 +92,10 @@ with the October 26 F2 window.
 8. Require prepared-state recovery to validate the exact four-consumer
    baseline/backend/auth/idle/GPU evidence, issue zero runner commands, clear
    only the exercise lease/lock and temporary identity/intent, and report
-   success only after custody and absence checks pass. If validation fails,
-   retain `prepared` state and the lock for manual reconciliation.
+   success only after custody and absence checks pass, including explicit
+   absence of the durable lease, lease lock, transient operation lock and
+   exercise identity/intent. If validation fails, retain `prepared` state and
+   the lock for manual reconciliation.
 9. Recheck production health, GPU holder, all five F6 unit/timer states and F2
    timer identities/next runs. Write the receipt and stop; never auto-retry.
 
@@ -108,7 +111,7 @@ Pass requires all of the following:
 - healthy watchdog observation was inert;
 - owner-loss/cancel recovery validated the exact baseline and cleared the
   exercise state, lock, identity and intent with zero consumer/systemd
-  commands;
+  commands, and the transient operation lock was absent;
 - no consumer, backend, model, timer or schedule changed;
 - the October 26 F2 schedule and all F6 units/timers are byte-for-byte/state-
   for-state unchanged.
