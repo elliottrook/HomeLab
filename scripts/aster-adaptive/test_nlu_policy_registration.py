@@ -1,5 +1,7 @@
 import copy
 import json
+import stat
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -97,6 +99,10 @@ class NluPolicyRegistrationTests(unittest.TestCase):
         self.assertEqual(policy.sha256(decision_raw), result["decision_artifact_sha256"])
         self.assertEqual(policy.sha256(candidate_raw), result["candidate_bundle_sha256"])
         self.assertEqual(policy.sha256(calibration_raw), result["calibration_artifact_sha256"])
+        raw = registration.canonical_json(result)
+        loaded, errors = registration.load_and_validate(raw)
+        self.assertEqual([], errors)
+        self.assertEqual(result, loaded)
 
     def test_current_proposal_cannot_register_policy(self):
         _, candidate_raw, calibration_raw = self.exact_inputs()
@@ -119,6 +125,42 @@ class NluPolicyRegistrationTests(unittest.TestCase):
             registration.register_policy(
                 decision_raw, candidate_raw, encoded(changed)
             )
+
+    def test_registration_envelope_drift_and_duplicate_keys_fail_closed(self):
+        decision_raw, candidate_raw, calibration_raw = self.exact_inputs()
+        result = registration.register_policy(
+            decision_raw, candidate_raw, calibration_raw
+        )
+        changed = copy.deepcopy(result)
+        changed["candidate_bundle_sha256"] = "f" * 64
+        _, errors = registration.load_and_validate(encoded(changed))
+        self.assertIn("registration candidate binding mismatch", errors)
+
+        changed = copy.deepcopy(result)
+        changed["unexpected"] = True
+        _, errors = registration.load_and_validate(encoded(changed))
+        self.assertIn(
+            "policy registration fields must match the fixed schema", errors
+        )
+
+        raw = registration.canonical_json(result)
+        duplicate = raw.replace(
+            b'"schema":"aster-nlu-policy-registration.v1"',
+            b'"schema":"aster-nlu-policy-registration.v1","schema":"duplicate"',
+        )
+        loaded, errors = registration.load_and_validate(duplicate)
+        self.assertIsNone(loaded)
+        self.assertTrue(any("duplicate JSON object key" in error for error in errors))
+
+    def test_private_writer_is_owner_only_and_never_overwrites(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "registration.json"
+            registration.write_new_private(path, b"first\n")
+            self.assertEqual(b"first\n", path.read_bytes())
+            self.assertEqual(0o600, stat.S_IMODE(path.stat().st_mode))
+            with self.assertRaises(FileExistsError):
+                registration.write_new_private(path, b"second\n")
+            self.assertEqual(b"first\n", path.read_bytes())
 
     def test_accepted_minima_cannot_be_weakened_by_release(self):
         decision_raw, candidate_raw, calibration_raw = self.exact_inputs()
