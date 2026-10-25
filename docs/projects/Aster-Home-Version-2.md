@@ -46,7 +46,14 @@
   Preview/cancel/apply and paused/playing behavior pass episode/movie tests;
   repeated series-background tests and the post-restart normal entry pass.
   The earlier scripted-dialog candidate was rolled back/retired after a hang.
-  HP is idle; new scrub remote/visual acceptance is next. Recovery/evidence below.
+  HP is idle; new scrub remote/visual acceptance is pending Jason's availability,
+  not a gate on independent work. Grouped local-index search is the next bounded
+  M2 slice. Recovery/evidence below.
+  Search preview2 is prepared separately on HP, manifest
+  `97439284ffadb61a6375853569cabdc2f085c5f41b8d3a51fbdabdf66136b6bc`.
+  It is a browse-only native dialog, not a completed/global menu integration.
+  Existing TV/music result-opening handoffs remain next; no autoplay and no
+  production/credential changes. Exact evidence and limitations are below.
 - Up Next is urgent and extracted into the separate
   [v1.1 project](Aster-Home-Version-1.1-Up-Next.md); v2 consumes its accepted
   result, not another implementation or an excuse to delay it.
@@ -2947,3 +2954,139 @@ is requested. M2 global/shell search and the other frozen v2 milestones remain
 open. Keep production unchanged and the unrelated playlist-cleanup decision
 pending. Save this slice as a local commit; Forgejo synchronization stays held
 until explicitly requested.
+
+### 2026-10-24 — M2 grouped search pre-start boundary
+
+Jason cannot review the scrubber now and directed continuation. Its physical
+acceptance stays pending; independent frozen-scope M2 work proceeds under the
+standing HP lab test/deployment/restart authorization. Production is excluded.
+
+First slice: read-only existing Kodi-index title searches grouped into TV shows,
+movies, albums, artists and songs. No new service connection, credential,
+microphone, server playlist or progress mutation. Query/result text remains in
+memory; evidence exports only counts, fixed status codes and test outcomes.
+No speech is produced. Existing Aster TV gold/green/neutral style is retained.
+Books/podcasts are explicitly unsupported, not misleading zero-result groups.
+
+Risks: changing indexes, missing sources, truncated matches, wrong identities,
+selection/focus regressions and scripted-window composition. Mitigations:
+two matching bounded reads per group, strict positive local IDs, projected
+display fields only, explicit partial/unavailable states, no autoplay, and
+native XML rather than stacked Python-owned windows. First validate the real
+Kodi RPC filter/schema and local pure tests before any UI installation. A
+query is not media availability proof. Cross-group reads are not transactional.
+Later result handoffs require fresh exact-ID validation and safe source return.
+
+Recovery for this first adapter qualification is removal/retention of isolated
+staged code only; no installed skin/profile changes. A normal-entry UI overlay
+will need its own exact predecessor hashes, isolated restore and live evidence
+before activation. Preserve Music64, rail3, series16/integration6, native scrub3,
+68 AV/language settings and existing databases. No production, infrastructure,
+permissions, monitoring, NetBox or voice dependency is added. No Forgejo push.
+
+### 2026-10-24 — M2 grouped local search, isolated native preview
+
+The first adapter/UI slice is implemented outside v1 add-on roots. Five groups:
+TV shows, movies, albums, artists and songs. Titles/artist names use bounded
+native JSON-RPC `contains` filters; multiple words are ANDed as literal JSON
+values, not interpolated SQL, URLs or builtins. NFC normalization, control-
+character rejection, 100-character/eight-word query bound, positive local IDs,
+projected display fields, duplicate/malformed page checks and two matching
+reads per group prevent partial or stale identity publication. The 500-match
+per-group cap reports the full native match count and asks for refinement;
+it never claims the first500 are the complete set. Empty, unavailable and idle
+are separate states; one unavailable source does not erase healthy groups.
+Queries/results are in memory only; no automatic library/media/server writes.
+
+Actual read-only Kodi qualification:
+`/storage/.aster-checkpoints/aster-global-search-20261024/native-search-1792897904114629429.json`.
+All five groups and a deliberate no-match query pass in426ms for the broad
+qualification query. The first run exposed Kodi's scalar artist-name field
+(album/song credits are arrays); that projection was corrected and explicitly
+tested. Native filtered counts were131 TV,749 movies,832 albums,724 artists
+and11115 songs; counts describe that query, not complete library inventories.
+
+Native preview uses new `custom_1127_search.xml`/dialog11127 and an isolated
+controller, not another Python WindowXML stacked over scripted pages. Entry
+requires Home, no player and both queues empty. Native keyboard entry/cancel,
+left/right group/results navigation, explicit no-match, cap messaging and Back
+to Home pass. No speech, microphone, artwork fetch or persistent poller. The
+20Hz controller exists only while this search dialog is open. Current visual
+uses the accepted neutral/gold/green palette, supplied Aster mark and compact
+whole-row rings. Groups retain selection while results have focus; no stone
+texture, heavy cards or logo redraw. Native screenshot was inspected at4K.
+
+Historical preview1 manifest
+`0d0f20343e0a378afe5870058dc9794a4806f15196fb4925d77cc02aecf2275e`
+passed browsing twice, including
+`native-ui-1792898306957257537.json`; screenshot
+`native-search-view-1792898305354072831.png` is private on HP, a transient
+inspection copy is `/tmp/aster-search-preview.png`. One initial test expected
+dynamic-list XML onclick to open details: it does not on this Kodi build,
+the same limitation already handled by the existing Music/Books dispatcher.
+That result-activation claim was explicitly withdrawn, not called a pass.
+The subsequent harness says **browse-only-no-autoplay**. A separate repeat
+exposed render-thread label lag; the harness now waits for actual native
+container contents rather than trusting the controller's readiness property
+alone. No weakened product guard or assertion-elision workaround.
+
+Preview1 was actually rolled back with Kodi stopped: exact known native XML
+quarantined and prepared manifest retired inside its checkpoint, then original
+HP preservation rerun successfully. Existing macOS `._*.xml` resource forks
+initially blocked collision scanning before any change; only files bearing the
+AppleDouble magic are excluded, unknown malformed XML still fails closed.
+No user sidecar or source file was removed. Recovery remains retained.
+
+Preview2 fixes duplicate-entry ownership: a rejected lock contender cannot
+clear the live owner's Home properties. A mock-Kodi regression executes this
+path under normal and optimized Python. Stage2 is immutable at
+`/storage/.aster-staging/aster-global-search-ui2`, manifest
+`97439284ffadb61a6375853569cabdc2f085c5f41b8d3a51fbdabdf66136b6bc`;
+three members, one newly installed native XML, isolated restored copies verified
+before its brief Kodi restart. Its stage-specific recovery is under
+`/storage/.aster-checkpoints/aster-global-search-20261024/aster-global-search-ui2`.
+No normal-menu entry is installed. Tools retain exact-stage/hash gates and
+refuse unknown native XML, conflicting window IDs, absent native adapter pass,
+stale baseline proof or rollback while Kodi is running. Local tests exercise
+install failure/quarantine, unknown-file preservation and exact rollback.
+
+Limitations/next work: preview results display title/year/artist/album, not
+posters or synopsis. Opening titles is **not connected**; TV/music handoffs,
+source/query/focus return and a normal-menu route need separate composition
+tests before this becomes household search. Books/podcasts explicitly say
+not connected; voice and server adapters remain gated. No claim of cross-
+database transaction, current server reachability or physical remote acceptance.
+The inactive result-details onclick is not relied upon by qualification.
+This is a bounded foundation, not M2 completion or graduation. Continue those
+local handoff/integration steps without waiting for the owner's scrub review.
+
+Local gates:403 v2 tests pass normally and with `-O`;100 original skin tests
+and25 original video-add-on tests pass. Syntax/diff checks pass. Production,
+AV/language settings, credentials, existing queues/playlists and manual watch
+history are unchanged. No service identity, exposure, network/NetBox/Beszel or
+backup retention change; private checkpoints and existing recovery cover this
+client-only work. The unrelated resurrected-playlist cleanup remains unapproved.
+
+Final preview2 native runs pass with enforced checks:
+`native-ui-1792898494693748510.json` and
+`native-ui-1792898545849986552.json`, in the search checkpoint root. Final source-
+local search postcheck verifies all3 staged/restored members, installed native
+XML, matching prepared manifest and two exact-stage UI passes. Its baseline is
+`/storage/.aster-checkpoints/aster-music-progressive-20261024/postcheck-1792898561306204434.json`,
+SHA256 `9e723fa2fd3904da99c5312f1774633f4f5863df221185eadbdd59194832cf79`:
+Music48, original v1140, player overlay4, normal Music8, rail1, series2,
+scrub2 plus prepared dialog1, AV/language68, Music/video integrity `ok`, missing
+primary artist links0; no player, empty queues, closed lab windows, shuffle off.
+HP left on Home. Kodi PID21144, NRestarts0, about520MiB. No production contact.
+
+Operator route (engineering preview only): from idle HP Home,
+`RunScript(/storage/.aster-staging/aster-global-search-ui2/default.py)`.
+OK on the search field opens the native keyboard; Down selects groups,
+Right enters matches, Left returns to groups, Back closes without playback.
+The query covers only this user's synced local title/artist index and is not
+saved across launches. No voice input yet. To recover, stop Kodi, invoke
+`deploy_global_search_preview.py rollback aster-global-search-ui2` with the exact
+manifest SHA above and any unused fourth argument; verify retained quarantine,
+then start Kodi and run original preservation. Do not restore databases or
+profiles. Normal menu integration and result activation are the next work;
+the owner need not be present. Scrub physical review remains pending separately.
