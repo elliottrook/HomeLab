@@ -142,7 +142,7 @@ def build_packet(
         if run_digest is not None:
             review_cases[-1]["candidate"].update({
                 "discrimination": answer.get("discrimination"),
-                "verification": answer.get("verification"),
+                "post_change_verification": answer.get("post_change_verification"),
             })
     packet = {
         "schema": "aster-d4-model-blind-review-packet.v1",

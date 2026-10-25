@@ -46,7 +46,7 @@ class DevelopmentReviewPacketTests(unittest.TestCase):
                 "evidence_ids": ["initial"],
                 "summary": "Synthetic conclusion.",
                 "discrimination": "Current evidence distinguishes the bounded states.",
-                "verification": {
+                "post_change_verification": {
                     "check": "Re-read the bounded synthetic state.",
                     "expected_condition": "The classified state remains present.",
                     "preserved_boundary": "No repair or external collection.",
@@ -85,7 +85,7 @@ class DevelopmentReviewPacketTests(unittest.TestCase):
         self.assertEqual("candidate-B", packet["candidate_alias"])
         candidate = packet["cases"][0]["candidate"]
         self.assertIn("discrimination", candidate)
-        self.assertFalse(candidate["verification"]["performed"])
+        self.assertFalse(candidate["post_change_verification"]["performed"])
 
     def test_nonterminal_or_mismatched_answer_is_rejected(self):
         for change in (

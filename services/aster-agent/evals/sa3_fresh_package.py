@@ -25,6 +25,7 @@ ENGINE_STATUSES = frozenset({
     'invalid_answer',
     'effect_claim_rejected',
     'unobserved_evidence_rejected',
+    'selected_check_evidence_missing',
     'check_rejected',
     'invalid_terminal_check',
     'conclude',
@@ -178,7 +179,8 @@ def validate_engine_result(result, case_id, mode):
         if ('answer_shape_status' in metadata and metadata['answer_shape_status'] not in (
                 'valid', 'not_object', 'field_set', 'decision', 'check_type',
                 'summary_type', 'summary_length', 'evidence_ids_type',
-                'evidence_id_type', 'duplicate_evidence_id', 'effects_type',
+                'evidence_id_type', 'evidence_ids_empty',
+                'duplicate_evidence_id', 'effects_type',
                 'completion_claim', 'discrimination_type', 'discrimination_length',
                 'verification_type', 'verification_fields', 'verification_performed',
                 'verification_content_type', 'verification_content_length',

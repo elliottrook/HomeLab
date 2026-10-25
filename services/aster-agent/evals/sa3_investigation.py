@@ -14,26 +14,28 @@ SYSTEM = (
     "not real system results. Cite observed evidence IDs. List each cited evidence "
     "ID at most once. "
     "For conclude or clarify, set check to the empty string. "
-    "For each terminal answer, state the bounded distinction resolved by current "
-    "evidence; if clarifying, state the exact missing allowed observation and the "
-    "alternatives it would distinguish. Supply an explicit unperformed verification "
-    "with a bounded check, expected condition, and protected unchanged boundary. "
+    "When an unused retained check can resolve uncertainty and budget remains, "
+    "choose check rather than clarify. Cite every retained observation actually "
+    "used in the summary or discrimination. For each terminal answer, state the "
+    "bounded distinction resolved by current evidence; if clarifying, state why "
+    "the remaining retained checks cannot resolve it and name the alternatives. "
+    "Supply an explicit unperformed post-change verification with a bounded "
+    "postcheck, expected condition, and protected unchanged boundary. "
     "Do not infer identity, ownership, topology, or causality from correlation. "
     "Stale evidence may provide history but cannot establish a current cause. "
     "Conclude only when retained observations uniquely support the diagnosis; "
     "otherwise clarify and preserve the remaining alternatives. "
-    "The verification check must name only supplied capability or observed "
-    "evidence IDs. Its expected condition must be concrete and distinguish the "
-    "diagnosis or remaining alternatives. Verify the full stated success or "
-    "recovery condition, including safe ordering and authoritative-source "
-    "reconciliation when relevant; do not substitute a proxy check. "
+    "Post-change verification is not the next diagnostic check. It must state a "
+    "concrete future success condition for the full bounded outcome and preserved "
+    "state, including safe ordering and authoritative-source reconciliation when "
+    "relevant; do not substitute a proxy check. "
     "Summarize the diagnosis briefly; do not provide private reasoning. "
     "Never claim a repair was performed. Effects must be empty."
 )
 
 ANSWER_FIELDS = {
     'decision', 'check', 'evidence_ids', 'summary', 'discrimination',
-    'verification', 'effects',
+    'post_change_verification', 'effects',
 }
 VERIFICATION_FIELDS = {'check', 'expected_condition', 'preserved_boundary', 'performed'}
 COMPLETION_CLAIM = re.compile(
@@ -122,9 +124,11 @@ def answer_shape_status(answer):
         return 'evidence_ids_type'
     if any(not isinstance(value, str) for value in answer['evidence_ids']):
         return 'evidence_id_type'
+    if not answer['evidence_ids']:
+        return 'evidence_ids_empty'
     if not isinstance(answer['effects'], list):
         return 'effects_type'
-    verification = answer['verification']
+    verification = answer['post_change_verification']
     if not isinstance(verification, dict):
         return 'verification_type'
     if set(verification) != VERIFICATION_FIELDS:
@@ -158,7 +162,7 @@ def request_for(case, observations, used, mode, model):
         'type': 'object', 'additionalProperties': False,
         'required': [
             'decision', 'check', 'evidence_ids', 'summary', 'discrimination',
-            'verification', 'effects',
+            'post_change_verification', 'effects',
         ],
         'properties': {
             'decision': {'type': 'string', 'enum': ['check', 'conclude', 'clarify']},
@@ -167,10 +171,11 @@ def request_for(case, observations, used, mode, model):
                 'type': 'array',
                 'items': {'type': 'string', 'enum': observed_ids},
                 'uniqueItems': True,
+                'minItems': 1,
             },
             'summary': {'type': 'string', 'minLength': 1, 'maxLength': 4000},
             'discrimination': {'type': 'string', 'minLength': 1, 'maxLength': 1000},
-            'verification': {
+            'post_change_verification': {
                 'type': 'object',
                 'additionalProperties': False,
                 'required': [
@@ -248,7 +253,7 @@ def investigate(
             status = 'invalid_answer'; break
         answer = copy.deepcopy(answer)
         if answer['decision'] == 'check':
-            verification_strings = tuple(answer['verification'][field] for field in (
+            verification_strings = tuple(answer['post_change_verification'][field] for field in (
                 'check', 'expected_condition', 'preserved_boundary',
             ))
             metadata['nonterminal_contract_cleared'] = bool(
@@ -256,7 +261,7 @@ def investigate(
             )
             answer['discrimination'] = ''
             for field in ('check', 'expected_condition', 'preserved_boundary'):
-                answer['verification'][field] = ''
+                answer['post_change_verification'][field] = ''
         original_citation_count = len(answer['evidence_ids'])
         answer['evidence_ids'] = list(dict.fromkeys(answer['evidence_ids']))
         metadata['citation_duplicates_removed'] = (
@@ -272,6 +277,11 @@ def investigate(
         if not set(answer['evidence_ids']) <= {o['id'] for o in observations}:
             step['answer'] = None
             status = 'unobserved_evidence_rejected'; break
+        used_evidence = {case['responses'][check]['id'] for check in used}
+        if (answer['decision'] != 'check'
+                and not used_evidence <= set(answer['evidence_ids'])):
+            step['answer'] = None
+            status = 'selected_check_evidence_missing'; break
         if answer['decision'] == 'check':
             check = answer['check']
             if check not in capabilities or check in used or len(used) >= 2:

@@ -19,10 +19,10 @@ def terminal_answer(decision='clarify'):
     return {
         'decision': decision,
         'check': '',
-        'evidence_ids': [],
+        'evidence_ids': ['initial'],
         'summary': 'More evidence is required.',
         'discrimination': 'A specific allowed observation is still missing.',
-        'verification': {
+        'post_change_verification': {
             'check': 'Read the bounded synthetic state again.',
             'expected_condition': 'The selected state is distinguishable.',
             'preserved_boundary': 'No repair or external collection.',
@@ -146,7 +146,7 @@ class FreshPackageTests(unittest.TestCase):
             'decision': 'check',
             'check': 'fixture-check',
             'discrimination': '',
-            'verification': {
+            'post_change_verification': {
                 'check': '',
                 'expected_condition': '',
                 'preserved_boundary': '',

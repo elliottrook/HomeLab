@@ -19,7 +19,7 @@ class DevelopmentProbeTests(unittest.TestCase):
             "evidence_ids": [self.case["initial_observations"][0]["id"]],
             "summary": "Synthetic summary.",
             "discrimination": "",
-            "verification": {
+            "post_change_verification": {
                 "check": "",
                 "expected_condition": "",
                 "preserved_boundary": "",

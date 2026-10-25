@@ -10,7 +10,7 @@ def answer(decision='check', check='service_status', evidence=None, **changes):
     value = {'decision': decision, 'check': check, 'evidence_ids': evidence or ['initial'],
              'summary': 'Synthetic fixture summary; no repair performed.',
              'discrimination': ('Current evidence distinguishes the bounded states.' if terminal else ''),
-             'verification': {
+             'post_change_verification': {
                  'check': 'Read the bounded synthetic state again.' if terminal else '',
                  'expected_condition': 'The classified state remains present.' if terminal else '',
                  'preserved_boundary': 'No repair or external collection.' if terminal else '',
@@ -51,6 +51,7 @@ class InvestigationTests(unittest.TestCase):
         second_schema = calls[1]['response_format']['schema']['properties']['evidence_ids']
         third_schema = calls[2]['response_format']['schema']['properties']['evidence_ids']
         self.assertEqual(first_schema['items']['enum'], ['initial'])
+        self.assertEqual(1, first_schema['minItems'])
         self.assertEqual(second_schema['items']['enum'], ['initial', 'status-now'])
         self.assertEqual(
             third_schema['items']['enum'],
@@ -59,11 +60,12 @@ class InvestigationTests(unittest.TestCase):
         contract = calls[0]['response_format']['schema']['properties']
         self.assertEqual(1, contract['discrimination']['minLength'])
         for field in ('check', 'expected_condition', 'preserved_boundary'):
-            self.assertEqual(1, contract['verification']['properties'][field]['minLength'])
+            self.assertEqual(1, contract['post_change_verification']['properties'][field]['minLength'])
         system = calls[0]['messages'][0]['content']
         self.assertIn('cannot establish a current cause', system)
         self.assertIn('uniquely support the diagnosis', system)
-        self.assertIn('only supplied capability or observed evidence IDs', system)
+        self.assertIn('choose check rather than clarify', system)
+        self.assertIn('Post-change verification is not the next diagnostic check', system)
         self.assertIn('do not substitute a proxy check', system)
 
     def test_repeated_unknown_check_and_effects_rejected(self):
@@ -153,11 +155,12 @@ class InvestigationTests(unittest.TestCase):
             (valid | {'summary': ''}, 'summary_length'),
             (valid | {'summary': 'We restarted it.'}, 'completion_claim'),
             (valid | {'discrimination': None}, 'discrimination_type'),
-            (valid | {'verification': None}, 'verification_type'),
-            (valid | {'verification': dict(valid['verification'], performed=True)},
+            (valid | {'post_change_verification': None}, 'verification_type'),
+            (valid | {'post_change_verification': dict(valid['post_change_verification'], performed=True)},
              'verification_performed'),
             (valid | {'evidence_ids': None}, 'evidence_ids_type'),
             (valid | {'evidence_ids': [1]}, 'evidence_id_type'),
+            (valid | {'evidence_ids': []}, 'evidence_ids_empty'),
             (valid | {'evidence_ids': ['initial', 'initial']}, 'valid'),
             (valid | {'effects': None}, 'effects_type'),
             (valid, 'valid'),
@@ -170,9 +173,9 @@ class InvestigationTests(unittest.TestCase):
         terminal = answer('clarify', '', ['initial'])['answer']
         for changed, expected in (
             (terminal | {'discrimination': ''}, 'terminal_contract'),
-            (terminal | {'verification': dict(terminal['verification'], check='')},
+            (terminal | {'post_change_verification': dict(terminal['post_change_verification'], check='')},
              'terminal_contract'),
-            (terminal | {'verification': dict(terminal['verification'], performed=True)},
+            (terminal | {'post_change_verification': dict(terminal['post_change_verification'], performed=True)},
              'verification_performed'),
         ):
             with self.subTest(expected=expected):
@@ -181,7 +184,7 @@ class InvestigationTests(unittest.TestCase):
     def test_nonterminal_contract_is_canonicalized_before_retention(self):
         nonterminal = answer()['answer']
         nonterminal['discrimination'] = 'premature diagnosis'
-        nonterminal['verification'] = {
+        nonterminal['post_change_verification'] = {
             'check': 'future check',
             'expected_condition': 'future result',
             'preserved_boundary': 'no changes',
@@ -194,10 +197,10 @@ class InvestigationTests(unittest.TestCase):
         }, answer('clarify', '', ['initial', 'status-now'])])[0]
         retained = result['steps'][0]
         self.assertEqual('', retained['answer']['discrimination'])
-        self.assertEqual('', retained['answer']['verification']['check'])
-        self.assertEqual('', retained['answer']['verification']['expected_condition'])
-        self.assertEqual('', retained['answer']['verification']['preserved_boundary'])
-        self.assertFalse(retained['answer']['verification']['performed'])
+        self.assertEqual('', retained['answer']['post_change_verification']['check'])
+        self.assertEqual('', retained['answer']['post_change_verification']['expected_condition'])
+        self.assertEqual('', retained['answer']['post_change_verification']['preserved_boundary'])
+        self.assertFalse(retained['answer']['post_change_verification']['performed'])
         self.assertTrue(retained['metadata']['nonterminal_contract_cleared'])
 
     def test_duplicate_observed_citations_are_canonicalized_without_weakening_boundary(self):
@@ -211,6 +214,14 @@ class InvestigationTests(unittest.TestCase):
         result = self.replay([unseen])[0]
         self.assertEqual(result['status'], 'unobserved_evidence_rejected')
         self.assertIsNone(result['steps'][0]['answer'])
+
+    def test_terminal_answer_must_cite_each_selected_check_result(self):
+        result = self.replay([
+            answer(),
+            answer('clarify', '', ['initial']),
+        ])[0]
+        self.assertEqual('selected_check_evidence_missing', result['status'])
+        self.assertIsNone(result['steps'][-1]['answer'])
 
     def test_malformed_fixture_fails_before_transport(self):
         malformed = copy.deepcopy(self.case)
