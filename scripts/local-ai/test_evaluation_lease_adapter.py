@@ -382,6 +382,24 @@ class AdapterTests(unittest.TestCase):
                 now_epoch=1000, heartbeat_timeout=30,
             )
 
+    def test_operation_lock_rejects_symlink_and_weak_mode(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / "lease.json"
+            adapter = EvaluationLeaseAdapter(path, lambda command: None,
+                                              allow_effects=True)
+            target = Path(root) / "target.lock"
+            target.write_text("lock\n")
+            os.symlink(target, adapter.operation_lock_path)
+            with self.assertRaises(AdapterError):
+                with adapter._operation_guard():
+                    pass
+            adapter.operation_lock_path.unlink()
+            adapter.operation_lock_path.write_text("lock\n")
+            adapter.operation_lock_path.chmod(0o644)
+            with self.assertRaises(AdapterError):
+                with adapter._operation_guard():
+                    pass
+
     def test_watchdog_is_inert_without_effect_authority(self):
         called = []
         result = run_once(now_epoch=6500, heartbeat_epoch=1000,
