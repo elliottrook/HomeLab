@@ -16,7 +16,19 @@
   Items 01-26 and 31-32 were selected; all unticked items are deferred.
 - HP (`192.168.1.140`) is the v2 lab. BOSGAME (`192.168.1.157`) stays on its
   accepted family-beta release until a separately approved promotion.
-- Latest resume point (2026-10-25): Search14 Stop-acknowledgement guard is on
+- Latest resume point (2026-10-25): HP Music72, series24, Search22, Books sync13,
+  review9/review10 shared landing headers and the paired exact-file repairs are
+  active. Household Audiobookshelf progress is enabled through the separately
+  approved guarded pilot; the historical trial gates below are not current
+  blockers. Seven balanced navigation cues are accepted on both boxes. The
+  separate startup chime is HP-only, once per Kodi process, with production
+  adoption explicitly deferred to Version 2. Work through `f5d6644f` was pushed
+  to Forgejo and verified at its automatic GitHub mirror at Jason's latest
+  “Push and continue”. Pause-to-OSD is now active on HP through its separate
+  two-file player-UI service; native movie/episode/menu/exit and restart checks
+  pass. Physical remote/sofa acceptance remains unclaimed. No automatic production UI or
+  startup-sound promotion is authorized.
+- Previous resume point (2026-10-25): Search14 Stop-acknowledgement guard is on
   HP (`732a89c3e3e9189022a1ee7c4fdb9f596c88486d2f13fb53d3832d47c7a46df4`),
   layered on the owner-feedback bundle below. Two actual movie Play/Resume/Back
   regressions and native synthetic fault tests pass. Final preservation passes
@@ -5027,3 +5039,74 @@ confirms a skin reload did not replay the sound. Preservation proof
 Books, seven navigation-sound, database and68 AV/language checks, with only the
 already-known resolution-index remap. HP remains Home at4K30 with no player or
 queued media. Production startup sound remains pending Version 2 promotion.
+
+### 2026-10-25 — Published startup/branding; HP Pause-to-OSD delivery
+
+Jason's “Push and continue” authorized the one Forgejo push through
+`f5d6644f38b7826f8664c82a543941bbe28dc343`. Forgejo accepted it and its automatic
+GitHub mirror was verified read-only at the identical full SHA. The unrelated
+dirty recommendation/feasibility/v1.0.5 files were neither committed nor pushed.
+Subsequent work below remains a new local milestone, not authority for another
+push or production promotion.
+
+**Pre-start boundary:** deliver only the explicitly requested video Pause-to-OSD
+behavior on HP. The possible failure is focus loss or an intrusive/hidden OSD;
+recovery disables one new Kodi add-on. No systemd/backend service, server API,
+new identity, credentials, keymap, skin/player code or global setting is changed.
+The accepted compact OSD retains its existing Aster appearance and controls;
+no speech/TTS or new icon assets are produced. Aster internal design-guide
+interaction/focus requirements apply, with the already-approved TV skin visual
+identity retained. Live tests use only existing watched, zero-resume fixtures;
+ordinary playback reports are allowed, no manufactured history writes.
+
+`service.aster.playerui` contains just `addon.xml` and `service.py`, built by
+`v2/build_pause_osd.py`. The HP-only guard also exists in the runtime service,
+not just its installer. It watches local Kodi boolean state at100ms intervals;
+it opens the existing native OSD on the transition into paused fullscreen video,
+without pausing, playing, seeking or stopping anything itself. Existing OSDs
+are not toggled closed. Audio/background playback, other skins and open modal
+menus are excluded. Closing the OSD while paused is respected until the next
+pause transition. After resume, a quiet idle grace hides only the managed OSD;
+remote activity and any open subtitle/audio/quality/scrub/info dialog defer the
+hide. The paused clock and existing Back/stop-on-exit policy remain unchanged.
+
+This uses native dialog opening/closing rather than changing the OSD XML or
+fullscreen skin handler. Kodi's own
+[fullscreen OSD code](https://github.com/xbmc/xbmc/blob/master/xbmc/video/windows/GUIWindowFullScreen.cpp)
+distinguishes manual toggling from timed triggering; Aster's controller adds the
+pause-edge and menu-safe resume behavior without changing either native path.
+
+HP deployment checkpoint `/storage/.aster-checkpoints/aster-pause-osd1` retains
+the exact new-file manifest, settings/navigation digest and paired deployment
+helpers. Immutable stage `/storage/.aster-staging/aster-pause-osd1` identifies
+the two accepted members. The new add-on enabled without a Kodi restart; a
+subsequent idle restart confirmed automatic lifecycle startup alongside the
+already accepted single startup chime. Both installers' verification still
+passes with unchanged settings/navigation. Rollback through the checkpoint's
+`deploy_pause_osd.py,rollback` verifies current hashes, disables only this add-on,
+and moves its files into `disabled-addon` inside the checkpoint. It does not
+delete files or restore any database/history. Local recovery tests pass.
+
+Thirteen new focused state-machine/recovery tests pass normally and optimized;
+the full v2 suite is663 tests in each mode. Four native watched-video runs pass:
+movie and episode before restart, then both after restart with the additional
+resume-inside-menu test. Final proofs `native-1792963822697098021.json` (movie)
+and `native-1792963877700331161.json` (episode) show pause-to-visible latency of
+167ms and250ms respectively, paused controls held past the normal timeout,
+unchanged paused position, resume auto-hide, all three stream-menu focus paths,
+resume while a menu remains open, explicit dismissal, another pause transition,
+and existing two-stage Back → close OSD / stop fullscreen with empty queues.
+These are native input simulations, not a claim of a physical G20/sofa test.
+Production has no new UI or startup-sound change.
+
+Final preservation `postcheck-1792963913567921303.json` passes all prior player,
+shell, Search, Books, seven-sound, database and68 AV/language checks. The only
+non-exact value remains the previously evidenced resolution-index derivation;
+actual HP output remains4K30. Both new add-ons' exact-file/settings checks pass
+after the restart. HP is left Home, shuffle off, no player and empty queues.
+
+Next safe work: M4 Digest timeline/source-identity assessment and bounded
+offline fixtures before any replacement of its accepted story/audio sync.
+Reader/voice, Seerr, cameras and firmware retain their separate live gates;
+this local UI service does not reopen those authorities. No further push is
+authorized by the completed earlier push operation.

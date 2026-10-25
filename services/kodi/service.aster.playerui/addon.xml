@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="service.aster.playerui" name="Aster Player Interface" version="2.0.0" provider-name="Aster Home">
+  <requires><import addon="xbmc.python" version="3.0.0" /></requires>
+  <extension point="xbmc.service" library="service.py" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Reveal compact video controls on Pause</summary>
+    <description lang="en_GB">Local UI only. No playback, seek, queue, account, server or settings writes.</description>
+    <platform>linux</platform><license>MIT</license>
+  </extension>
+</addon>
