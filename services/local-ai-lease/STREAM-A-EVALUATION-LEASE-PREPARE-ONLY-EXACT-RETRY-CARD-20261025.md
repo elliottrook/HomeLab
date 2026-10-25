@@ -1,11 +1,17 @@
 # Stream A prepare-only recovery exercise — exact one-attempt card
 
-Status: **SOURCE-ONLY; ONE ATTEMPT NOT AUTHORIZED OR RUN**
+Status: **FRESH ONE-ATTEMPT CANDIDATE; NOT AUTHORIZED OR RUN**
 
 This is a fresh, exact one-attempt card after the guest-path and observer
 repairs. It is valid only outside the October 26 F2 margin and never retries
 automatically. The attempt ends before consumer quiescence and must be followed
 by full post-attempt reconciliation.
+
+The observer and runner are already installed and statically verified; the
+prior failed attempts are historical evidence only. The installed runner is
+`cf51b1d6546e27aebdef9e44ad4751343e38aa388c8eae682f9a476641f390fb` and the
+observer is `70748eb15c50ff7008cadd85fe9affaf62c9ad3eb388ef962270f9f9389fc1d3`.
+The clean target suites passed 90/90 and full read-only prestate passed.
 
 ## Installed custody pins
 
@@ -22,6 +28,7 @@ any intent:
 | owner heartbeat | `4c45a07098eb8cca31bf95bb50b0824b65c6772e636627b23219761f359ed6cc` |
 | effectful watchdog | `c406dd4da579d4d5129b13131121b55ac1aacaa1a5125c9d481e0d7f847c9849` |
 | restore observer | `70748eb15c50ff7008cadd85fe9affaf62c9ad3eb388ef962270f9f9389fc1d3` |
+| exercise runner | `cf51b1d6546e27aebdef9e44ad4751343e38aa388c8eae682f9a476641f390fb` |
 | lease wrapper | `15f3de1ebb5294878d5f0ce0c6a0b7c03a64b42a71c081fda6d036b0c1ef71af` |
 | owner wrapper | `4d4e848eeafffdfa3aa9a0ba84097d94487318235442b1a4e4b8edc04a043014` |
 | heartbeat wrapper | `e0162f60983601192c5f0fdd6d8395604e6636c05c9653c643d3722872dce12a` |
