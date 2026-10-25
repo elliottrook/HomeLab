@@ -22,8 +22,8 @@ def validate(manifest_path: Path = MANIFEST, root: Path = ROOT) -> dict[str, int
         "database", "services", "excluded",
     }:
         raise ValueError("manifest fields changed")
-    if data["schema"] != 1 or data["activation"] != "disabled":
-        raise ValueError("bundle must remain a disabled schema-1 candidate")
+    if data["schema"] != 1 or data["activation"] != "target-shape-only":
+        raise ValueError("bundle must remain a target-shape-only schema-1 candidate")
     entries = data["entries"]
     if not isinstance(entries, list) or len(entries) != 12:
         raise ValueError("exactly twelve frozen files are required")

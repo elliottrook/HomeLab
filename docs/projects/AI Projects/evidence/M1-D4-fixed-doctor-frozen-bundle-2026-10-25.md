@@ -11,7 +11,14 @@ four exact replacements and eight additions whose target paths must still be
 absent. Every source byte, target path, owner, group, mode, predecessor and
 rollback action is explicit.
 
-The staging boundary deliberately excludes LaunchAgent changes, service start
+The manifest is an exact **final target shape**, not permission to copy its
+files into those paths. Replacing either Mac script would affect the next
+scheduled 08:15 execution even if the LaunchAgent itself were unchanged, and
+replacing the running broker's source would create a latent change on its next
+restart. The safe staging boundary is therefore an isolated, non-live target-
+Linux directory.
+
+The target boundary deliberately excludes LaunchAgent changes, service start
 or enablement, broker restart, database enrollment, capability grant, live
 read, model route and model call. The broker database must be checkpointed
 before the later, separate enrollment change. The two new services must remain
@@ -52,17 +59,24 @@ Pinned bundle tooling:
 
 | File | SHA-256 |
 |---|---|
-| `fixed-doctor-bundle-manifest.json` | `8b5da16e1def82cf7569e254986484b7fc7ee43d2a76752fd44cc95140caa624` |
-| `validate_fixed_doctor_bundle.py` | `a9f8363fcfddeebff26ef6424343bf0e8f29e264ef4d2a3acddff9f6e444b0e3` |
-| `test_validate_fixed_doctor_bundle.py` | `5a33542c26a2df5c5cccfe32ea1eebb865e58f3c83c76c0ec7788efb12ac686a` |
+| `fixed-doctor-bundle-manifest.json` | `2d70860f4b83bd2b5fe214dfebba78fc7eae20f1e20eb5e995af4e8a192ea178` |
+| `validate_fixed_doctor_bundle.py` | `bcf63d912d06ff31a04e27ea1ba307a52950e4a2dbb7d7505627db6e15721966` |
+| `test_validate_fixed_doctor_bundle.py` | `137f1cefbca2eacc11f4294547cae5c077d3a0f6f8827d0634280825509de428` |
 
 ## Next gates
 
-The next operational step is a disabled installation only: checkpoint the four
-replaced files, require every observed predecessor/absence to match, copy the
-12 exact files, run target-Linux imports plus `systemd-analyze verify`, create
-the system identities through the pinned sysusers fragment, and prove both new
-units remain disabled/inactive. That change needs its own approval.
+The next operational step is isolated validation only: copy the pinned Linux
+sources and units to a fresh root-only staging directory, verify every source
+hash, run target-Linux imports plus `systemd-analyze verify`, and remove the
+staging directory after retaining content-free results. It must not replace a
+live file, create a system identity, reload systemd or touch the Mac producer.
+That bounded remote write needs its own approval.
+
+Only after the staged validation passes should an inactive final-path install
+card be prepared. That later card must checkpoint the four replacements,
+require every predecessor/absence to match, copy the exact files, create the
+system identities, and prove both new units remain disabled/inactive. The Mac
+producer replacements remain part of their own activation card.
 
 Producer activation, broker restart, caller/gateway activation, AI-PAM database
 enrollment, first live fixed read and model-route exposure remain separate

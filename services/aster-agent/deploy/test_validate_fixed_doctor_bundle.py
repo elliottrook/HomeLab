@@ -30,7 +30,7 @@ class FrozenBundleTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "manifest.json"
             path.write_text(json.dumps(data))
-            with self.assertRaisesRegex(ValueError, "must remain a disabled"):
+            with self.assertRaisesRegex(ValueError, "must remain a target-shape-only"):
                 validate(path, ROOT)
 
         data = json.loads(MANIFEST.read_text())
