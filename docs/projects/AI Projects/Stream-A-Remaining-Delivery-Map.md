@@ -457,6 +457,11 @@ runtime profile, and the dependency-free focused NLU suite passes 74/74. This
 selects only what calibration will measure; it does not promote the candidate
 or enable routing. The next M3 gate is independent custody and review of 60
 synthetic calibration cases, ten per family, before a lease-protected model run.
+That gate now has an
+[approval-ready creation card](evidence/M3-NLU-calibration-creation-card-2026-10-25.md)
+fixing the three distinct roles, privacy/non-overlap rules, owner-only raw
+custody and exact stop conditions. No case or label has been created under the
+card yet.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)
