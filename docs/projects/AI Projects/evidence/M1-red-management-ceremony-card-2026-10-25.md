@@ -69,6 +69,14 @@ human-authenticated rows. It rejects any policy, grant, service, agent or
 global-switch drift. The verifier itself does not create a checkpoint or
 request and is not deployed.
 
+The broker-side [exact operator candidate](M1-red-management-operator-candidate-2026-10-25.md)
+also removes freehand request JSON from the ceremony. It binds the fictional
+payload to SHA-256 `90b1d505…ad06`, requires the exact pending Red response,
+stops without retry on an uncertain consume, and performs the duplicate check
+only after an affirmative synthetic consume. It cannot approve a request or
+apply the Management action. The combined broker/verifier/operator suite
+passes 45/45; neither candidate is installed.
+
 Any timeout, stale/absent assurance, changed payload hash, duplicate effect,
 unexpected row delta or service degradation is **NO-GO**. Preserve the live
 database for reconciliation and do not retry in the same ceremony.
