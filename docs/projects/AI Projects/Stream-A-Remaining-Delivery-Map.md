@@ -36,8 +36,13 @@ Stream A has now produced that source correction at local commit `d2e296ee`:
 the durable phase precedes the first consumer command, partial failure and
 prepared-state recovery are covered, and the bound watchdog handles healthy,
 owner-lost and expired prepared leases. A clean archive passes 39/39 focused
-tests. It remains uninstalled pending platform integration, a committed
-hash-pinned upgrade card and independent live-prestate review.
+tests. The platform owner integrated it at `bdf745aa` and corrected the four-path
+upgrade card at metadata commit `dfeb1374`. Jason approved the exact inactive
+upgrade; the complete packet passed 39/39 clean and target-Linux tests, all
+four installed hashes and root:root 0644 metadata match, a root-only rollback
+checkpoint is retained, every F6 unit remains disabled/inactive and no runtime
+state exists. The next bounded gate is the prepare-only healthy-lease and
+recovery exercise; consumer quiescence and model calls remain closed.
 
 **October 24 M1 approval-plane checkpoint:** the
 [permanent Yellow-only cutover](evidence/M1-permanent-yellow-cutover-result-2026-10-24.md)

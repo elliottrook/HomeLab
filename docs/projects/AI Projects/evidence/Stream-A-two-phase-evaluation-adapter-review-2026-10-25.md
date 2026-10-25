@@ -1,6 +1,6 @@
 # Stream A two-phase evaluation adapter review — 2026-10-25
 
-> Decision: **NO-GO; durable quiescence ordering correction required**
+> Decision: **CORRECTED AND INSTALLED INACTIVE; live effects remain closed**
 
 Platform source commit `2f790b6310981d31358a60fb2a7a3f98f7a26633`
 separates durable lease preparation from consumer quiescence. Independent
@@ -70,7 +70,30 @@ adapter `304edaf3c2f247ac874b333331ee0098ac41d2776877c3ee51431152c294c877`,
 watchdog `68f261c65f48443a7d7c2115ad0017a5de6f5866f9693143a53375e10d7a585f`
 and entrypoint
 `7425ffe9bd6c8b70c41fe3856343a0454d726e54d0f0531cd7ce7225118a332c`.
-The platform owner has been given the local commit for integration and a
-hash-pinned inactive upgrade card. Nothing is installed from this correction;
-the install gate remains closed until that card is committed and independently
-checked against the live prestate.
+The platform owner integrated the correction at `bdf745aa` and committed the
+corrected four-path card at metadata commit `dfeb1374` (card SHA-256
+`5defe13576de09b0435265a99f4156a58c7acf8554a6c14d0af57d21379c1385`).
+
+## Inactive installation result
+
+Jason approved the exact inactive upgrade on October 25. The complete review
+packet SHA-256 was
+`19d5a7a9ba8865ccae358fac880668403558dba8a60b4c6ae2ef381d87b8995b`;
+it includes the wrapper dependencies omitted from the first local review
+archive and passes 39/39 clean-archive tests without bytecode.
+
+The transaction revalidated all four old live hashes, created the root-only
+checkpoint `/root/stream-a-evaluation-two-phase-20261025`, and atomically
+installed the four card-pinned files. Target-Linux tests passed 39/39, installed
+imports passed, and the existing wrapper returned the exact inert
+`source-only` result without reading an intent. Independent postcheck matched
+all four new hashes and root:root mode 0644. The five evaluation services and
+timers remained disabled/inactive, all lease/lock/identity/intent/heartbeat/
+status files remained absent, LXC104/110/116 and their production services
+remained running, and pvescheduler/pvestatd remained active. The October 26 F2
+exact-date timers remained enabled for 01:15 and 01:20 PDT.
+
+This closes only the inactive two-phase adapter installation. It does not arm
+F6, prepare a lease, quiesce consumers, call a model, or authorize D4/M3. The
+next bounded gate is a reviewed prepare-only healthy-lease/recovery exercise
+that proves watchdog observation and exact cleanup before any consumer effect.
