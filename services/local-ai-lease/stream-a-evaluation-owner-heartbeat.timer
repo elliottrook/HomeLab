@@ -1,0 +1,11 @@
+[Unit]
+Description=Stream A evaluation owner heartbeat timer (inactive candidate)
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=15s
+RandomizedDelaySec=3s
+Unit=stream-a-evaluation-owner-heartbeat.service
+
+[Install]
+WantedBy=timers.target
