@@ -920,6 +920,12 @@ report LaunchAgent's recorded last exit is 1 due
 to a Mail AppleEvent timeout; disabled staging is independent, while the first
 live producer validation must distinguish that pre-existing alert fault from
 producer behavior.
+The follow-on [inactive additive install card](evidence/M1-D4-fixed-doctor-inactive-additive-install-card-2026-10-25.md)
+is now frozen at source commit `a37686d9`. It includes only the eight absent
+LXC104 files plus dedicated sysusers identities and leaves both services
+disabled/inactive. Broker/Mac replacements, restart, enrollment, grant, read,
+route, model call and F2/F6 effects are explicitly excluded. It is prepared but
+has not run.
 
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)
 deployed caller binding and restrictive checks, while the
