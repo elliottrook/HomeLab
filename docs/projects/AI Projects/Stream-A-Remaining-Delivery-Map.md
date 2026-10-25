@@ -12,6 +12,19 @@ is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the
 October 16 read-only scan from an unscheduled live drill.
 
+**October 24 M1 approval-plane checkpoint:** the
+[permanent Yellow-only cutover](evidence/M1-permanent-yellow-cutover-result-2026-10-24.md)
+passed. Only the Companion approval route now uses the independent broker and
+dedicated ingress identity. The old approval service is disabled, both new
+units are enabled, and service restart, execution-broker outage and LXC104
+reboot recovery all passed. NPM and OPNsense retained their exact least-
+privilege route, the signed-in read-only UI recovered, and the broker database
+remained byte-for-byte unchanged with no pending or approved-unconsumed
+request. This is a Yellow-only release: Red and management remain closed until
+a separately proven passkey claim exists. Remaining M1 work is offline
+demotion, revocation, expiry, stale-request and duplicate-consumption boundary
+coverage; a real ceremony or grant is not implied.
+
 **October 24 F2 result:** the approved exact-date preparation succeeded at
 01:15, but the 01:20 final service returned NO-GO with bounded class
 `FINAL_GUARD_SUBCHECK_FAILED` and no archive rows. The
