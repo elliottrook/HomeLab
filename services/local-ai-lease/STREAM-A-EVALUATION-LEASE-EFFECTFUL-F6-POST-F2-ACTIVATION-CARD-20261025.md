@@ -24,6 +24,11 @@ quiescence or model workload.
   effect occurred.
 - The exact prepare-only exercise passed with zero consumer commands and full
   cleanup; its receipt and digests are recorded in the exact-retry card.
+- M1 synthetic authority proof commit `df22b221` passed: one fixed Red request
+  with one-second-old passkey assurance was consumed once, duplicate approval
+  was denied, same-state `agent-hermes=operator` management passed, the exact
+  four-row audit delta matched, and policy/service/grant state remained
+  unchanged. This is synthetic-only and releases no generic authority.
 
 ## LIVE BLOCKED preconditions
 
@@ -161,3 +166,7 @@ Any failure, stale evidence, owner loss, backend/GPU drift, uncertain command,
 F2/F3/F4/F5 overlap or incomplete restoration retains evidence and stops. No
 automatic retry, schedule modification, consumer bypass or model call is
 permitted.
+
+The card remains blocked on source support for unique full installed paths and
+complete payload schemas, real D4/M3 runner and credential boundaries, and an
+executable same-cycle F4/F5 binding mechanism. M1 does not waive those gates.
