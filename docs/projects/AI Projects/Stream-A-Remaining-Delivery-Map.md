@@ -494,6 +494,12 @@ it shortens each request timeout to the remaining 1,200-second budget, starts
 no request after expiry and returns nonzero while preserving a partial run for
 reconciliation. The dependency-free NLU suite passes 100/100. No live model
 request or lease followed.
+The subsequent
+[durable attempt-journal correction](evidence/M3-NLU-calibration-attempt-journal-boundary-2026-10-25.md)
+reserves owner-only evidence before inference and records each opaque attempt
+start and completion durably before proceeding. An interrupted request is now
+identifiably uncertain and cannot be replayed. The dependency-free NLU suite
+passes 104/104; the live gates are unchanged.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)

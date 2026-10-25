@@ -29,9 +29,10 @@ runner and its tests:
 - a transport-stopped or deadline-stopped partial artifact is retained but
   the CLI returns exit status `2`.
 
-The corrected runner SHA-256 is
+The deadline-only runner SHA-256 was
 `4951ecb6aad8fe96df305cd9cb402445b57db92daab142ad1dcad19d831040f6`.
-The run card now pins this exact source commit and digest.
+It is superseded by the durable attempt-journal correction recorded in the run
+card; the timeout and nonzero partial-run guarantees remain unchanged.
 
 ## Verification
 

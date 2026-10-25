@@ -30,8 +30,8 @@ measure the candidate.
 - model-policy SHA-256:
   `57887883010ac682d50af9931b0dc80c71d2fe3b41309bf7b772fec70f4ed179`;
 - endpoint: accepted local `aster-llama` chat-completions endpoint only; and
-- runner source commit: `17a12ae8a9e7e6b8126279a63bb2426b84b7a3f9`, with runner SHA-256
-  `4951ecb6aad8fe96df305cd9cb402445b57db92daab142ad1dcad19d831040f6`;
+- runner source commit: `b5b235742ad120f9e40c795ab4352061da2218bb`, with runner SHA-256
+  `484a09d4d1655336808767ead76d7803f6eadf783bbda5bdf1eaec8726389833`;
 - scorer SHA-256:
   `b5b7b8469aff421e92b0a51125428f61951556f63cf616b82e6c90d115c8e2a4`;
   and
@@ -48,7 +48,8 @@ measure the candidate.
   copied into arguments or written to evidence;
 - raw request text remains in the owner-only source; raw model envelopes are
   parsed in memory and discarded;
-- the run, score and threshold artifacts are new owner-only mode-`0600` files;
+- the attempt journal, run, score and threshold artifacts are new owner-only
+  mode-`0600` files;
   Git receives only content-free receipts and fixtures; and
 - an invalid response is retained in the denominator without retry. A transport
   uncertainty, timeout, endpoint failure, lease loss, pin drift or service
@@ -56,7 +57,11 @@ measure the candidate.
 - each HTTP timeout is reduced to the remaining total wall budget, so a late
   case cannot extend the 1,200-second run deadline; and
 - a partial run is retained for reconciliation but the runner exits nonzero.
-  It cannot be mistaken for a completed calibration command.
+  It cannot be mistaken for a completed calibration command; and
+- the runner reserves both evidence paths before inference and durably records
+  `attempt_started` before each request plus a content-free completion/error
+  row afterward. A started row without a recorded row is an uncertain attempt
+  and forbids replay.
 
 ## Fresh preflight
 

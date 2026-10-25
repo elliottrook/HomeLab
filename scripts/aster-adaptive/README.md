@@ -64,6 +64,15 @@ distinct roles. The registered policy binds the exact sealed manifest bytes,
 avoiding a circular policy hash. This prepares independent calibration custody; it
 does not create cases, labels, predictions, scores or an accepted policy.
 
+`nlu_calibration_runner.py` is the bounded one-attempt local runner for the
+sealed 60-case release. Its live use requires the separate reviewed run card.
+It requires distinct new `--output` and `--journal` paths, reserves both before
+inference and durably records content-free attempt boundaries. An interrupted
+request is uncertain and must not be replayed. The runner exits nonzero for a
+partial run, shrinks each request timeout to the remaining 1,200-second wall
+budget, disables proxy inheritance and never retains request or raw response
+text.
+
 `nlu_shadow_release.py` provides the later no-effect comparison boundary. The
 initial profile permits only S0 synthetic sources and retains opaque interpretation
 and proposal digests plus baseline/candidate route names. It requires literal
