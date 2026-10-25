@@ -212,7 +212,7 @@ def owner_process_matches(identity: WatchdogIdentity, *, snapshot: Callable[[Wat
 def _restore_callback(state: AdapterState, *, intent_path: Path,
                       runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> object:
     observed = runner((str(OBSERVE_ENTRYPOINT), "--lease-id", state.lease_id,
-                       "--generation", str(state.generation)), check=False,
+                       "--generation", str(state.generation), "--observe-authorized"), check=False,
                       capture_output=True, text=True, timeout=30)
     if observed.returncode != 0:
         raise WatchdogBoundaryError("live restore observer failed")

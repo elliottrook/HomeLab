@@ -24,14 +24,17 @@ The future packet uses only these fixed paths:
 
 Identity, owner intent, heartbeat and status files are root-owned mode `0600`;
 their schemas are exact, duplicate-key rejecting, and bound to `lease_id` and
-`generation`. The persistent `stream-a-evaluation-owner.service` is the only
-owner process: it reads the root-only owner intent, records its own PID, boot
+`generation`. The persistent `stream-a-evaluation-owner.service` is a session
+sentinel, not the D4/M3 controller: it reads the root-only owner intent, records its own PID, boot
 ID, process start time, command line and unit identity, and never acquires a
 lease. The heartbeat timer can renew only while that exact process identity is
 alive. Missing or expired identity-correct heartbeat is owner loss and may
 invoke only deadline-bound recovery. Foreign, malformed, symlinked,
 weakly-custodied or reused-process identity data fails closed without a
 callback.
+
+The lease-state heartbeat remains the D4/M3 controller-liveness signal; it must
+still recover if that heartbeat expires even while the session sentinel lives.
 
 The watchdog can call only `run_bound_from_state` and its constrained callback.
 The callback writes one root-only restore intent and invokes only the pinned
@@ -64,9 +67,13 @@ commit `3e843a8e839b08758314346fb73fd4827c438dbe` and its metadata follow-up:
 The packet depends on the already pinned entrypoint and four-library packet.
 The live observer uses only verified existing Linux interfaces: `systemctl
 is-active`, the installed production authentication probe, `ss` connection
-state for port 11435, and `/dev/dri/renderD128` existence. It emits the exact
-lease ID and generation supplied by the watchdog, so its fresh output is
-identity-bound rather than a trusted prewritten observation file.
+state for port 11435, and a bounded host `/proc/[pid]/fd` scan. It requires
+exactly one `/dev/dri/renderD128` holder with the accepted llama-server
+executable and `/lxc/110/ns/system.slice/aster-llama.service` cgroup; PID,
+start-time, executable or cgroup observation failures fail closed. It emits the
+exact lease ID and generation supplied by the watchdog, so its fresh output is
+identity-bound rather than a trusted prewritten observation file. The observer
+also requires `--observe-authorized` and is not invoked during inactive install.
 The units must remain disabled and inactive after installation; no identity,
 heartbeat, lease, lock, observation, status or restore-intent file is created
 by the inactive install.
@@ -75,11 +82,14 @@ by the inactive install.
 
 1. Verify the implementation commit, all hashes, root ownership, modes,
    regular-file type, no symlinks, and hierarchy-preserving package layout.
-2. Install only the twelve listed artifacts, with the four wrappers executable;
+2. Install only the thirteen listed artifacts, with the four wrappers executable;
    do not create identity or runtime state. Run imports with `-B` and the full
    lease/watchdog test set.
-3. Invoke both wrappers without `--effect-authorized`; require the exact
-   disabled response and no `__pycache__` or `.pyc` files.
+3. Invoke only the three inert wrappers—the owner, owner-heartbeat and
+   watchdog wrappers—without `--effect-authorized`; require the exact disabled
+   response and no `__pycache__` or `.pyc` files. Do not invoke the restore
+   observer during inactive install; it requires `--observe-authorized` and its
+   authentication probe makes a bounded one-token model request.
 4. Run static unit checks. Confirm the owner, watchdog and heartbeat services
    and timers are disabled and inactive, with no lease, lock, identity,
    heartbeat, status or restore intent.

@@ -1,19 +1,27 @@
 import subprocess
+import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
-from stream_a_evaluation_restore_observer import collect_restore_observation
+from stream_a_evaluation_restore_observer import (
+    GpuHolder, collect_restore_observation, main, require_exact_gpu_holder, scan_gpu_holders,
+)
 
 
 class RestoreObserverTests(unittest.TestCase):
     def test_exact_read_only_probe_set_produces_accepted_observation(self):
         commands = []
-        outputs = iter(("active\n", "", "", ""))
+        outputs = iter(("active\n", "", ""))
 
         def runner(command, **kwargs):
             commands.append(command)
             return subprocess.CompletedProcess(command, 0, next(outputs), "")
 
-        result = collect_restore_observation(runner, lease_id="eval-1", generation=1)
+        with patch("stream_a_evaluation_restore_observer.scan_gpu_holders", return_value=(GpuHolder(
+                42, 99, "/lxc/110/ns/system.slice/aster-llama.service",
+                "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"),)):
+            result = collect_restore_observation(runner, lease_id="eval-1", generation=1)
         self.assertTrue(result["backend_active"])
         self.assertEqual(result["lease_id"], "eval-1")
         self.assertEqual(result["generation"], 1)
@@ -27,6 +35,26 @@ class RestoreObserverTests(unittest.TestCase):
 
         with self.assertRaises(RuntimeError):
             collect_restore_observation(failed, lease_id="eval-1", generation=1)
+
+    def test_no_holder_extra_holder_and_foreign_holder_fail_closed(self):
+        accepted = GpuHolder(42, 99, "/lxc/110/ns/system.slice/aster-llama.service",
+                             "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server")
+        foreign = GpuHolder(43, 100, "/lxc/999/ns/system.slice/other.service",
+                            "/usr/bin/other-gpu-client")
+        for holders in ((), (accepted, foreign), (foreign,)):
+            with self.subTest(holders=holders), self.assertRaises(RuntimeError):
+                require_exact_gpu_holder(holders)
+
+    def test_pid_churn_during_gpu_scan_fails_closed(self):
+        with tempfile.TemporaryDirectory() as root:
+            proc = Path(root) / "42"
+            (proc / "fd").mkdir(parents=True)
+            (proc / "fd" / "3").symlink_to("/dev/dri/renderD128")
+            with self.assertRaises(RuntimeError):
+                scan_gpu_holders(Path(root))
+
+    def test_observer_requires_explicit_gate(self):
+        self.assertEqual(main(["--lease-id", "eval-1", "--generation", "1"]), 0)
 
 
 if __name__ == "__main__":
