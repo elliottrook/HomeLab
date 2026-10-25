@@ -6,8 +6,17 @@ from sa3_investigation import answer_shape_status, investigate
 
 
 def answer(decision='check', check='service_status', evidence=None, **changes):
+    terminal = decision in ('conclude', 'clarify')
     value = {'decision': decision, 'check': check, 'evidence_ids': evidence or ['initial'],
-             'summary': 'Synthetic fixture summary; no repair performed.', 'effects': []}
+             'summary': 'Synthetic fixture summary; no repair performed.',
+             'discrimination': ('Current evidence distinguishes the bounded states.' if terminal else ''),
+             'verification': {
+                 'check': 'Read the bounded synthetic state again.' if terminal else '',
+                 'expected_condition': 'The classified state remains present.' if terminal else '',
+                 'preserved_boundary': 'No repair or external collection.' if terminal else '',
+                 'performed': False,
+             },
+             'effects': []}
     value.update(changes)
     return {'answer': value, 'finish_reason': 'stop', 'tool_call_count': 0,
             'reasoning_content': 'must never be retained'}
@@ -133,6 +142,11 @@ class InvestigationTests(unittest.TestCase):
             (valid | {'check': 1}, 'check_type'),
             (valid | {'summary': None}, 'summary_type'),
             (valid | {'summary': ''}, 'summary_length'),
+            (valid | {'summary': 'We restarted it.'}, 'completion_claim'),
+            (valid | {'discrimination': None}, 'discrimination_type'),
+            (valid | {'verification': None}, 'verification_type'),
+            (valid | {'verification': dict(valid['verification'], performed=True)},
+             'verification_performed'),
             (valid | {'evidence_ids': None}, 'evidence_ids_type'),
             (valid | {'evidence_ids': [1]}, 'evidence_id_type'),
             (valid | {'evidence_ids': ['initial', 'initial']}, 'valid'),
@@ -142,6 +156,22 @@ class InvestigationTests(unittest.TestCase):
         for value, expected in samples:
             with self.subTest(expected=expected):
                 self.assertEqual(answer_shape_status(value), expected)
+
+    def test_terminal_contract_requires_discrimination_and_unperformed_verification(self):
+        terminal = answer('clarify', '', ['initial'])['answer']
+        for changed, expected in (
+            (terminal | {'discrimination': ''}, 'terminal_contract'),
+            (terminal | {'verification': dict(terminal['verification'], check='')},
+             'terminal_contract'),
+            (terminal | {'verification': dict(terminal['verification'], performed=True)},
+             'verification_performed'),
+        ):
+            with self.subTest(expected=expected):
+                self.assertEqual(answer_shape_status(changed), expected)
+
+        nonterminal = answer()['answer']
+        changed = nonterminal | {'discrimination': 'premature diagnosis'}
+        self.assertEqual('nonterminal_contract', answer_shape_status(changed))
 
     def test_duplicate_observed_citations_are_canonicalized_without_weakening_boundary(self):
         duplicate = answer('clarify', '', ['initial', 'initial'])

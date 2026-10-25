@@ -18,6 +18,13 @@ class DevelopmentProbeTests(unittest.TestCase):
             "check": self.case["capabilities"][0]["id"],
             "evidence_ids": [self.case["initial_observations"][0]["id"]],
             "summary": "Synthetic summary.",
+            "discrimination": "",
+            "verification": {
+                "check": "",
+                "expected_condition": "",
+                "preserved_boundary": "",
+                "performed": False,
+            },
             "effects": [],
         }
 

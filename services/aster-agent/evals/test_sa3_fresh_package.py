@@ -14,6 +14,23 @@ from sa3_fresh_package import (
 from validate_sa3_holdout_release import canonical_digest
 
 
+def terminal_answer(decision='clarify'):
+    return {
+        'decision': decision,
+        'check': '',
+        'evidence_ids': [],
+        'summary': 'More evidence is required.',
+        'discrimination': 'A specific allowed observation is still missing.',
+        'verification': {
+            'check': 'Read the bounded synthetic state again.',
+            'expected_condition': 'The selected state is distinguishable.',
+            'preserved_boundary': 'No repair or external collection.',
+            'performed': False,
+        },
+        'effects': [],
+    }
+
+
 def fixture():
     public = json.loads(Path(__file__).with_name('sa3-investigation-development.json').read_text())['cases'][0]
     cases = [dict(copy.deepcopy(public), id=f'fixture-{i:02}') for i in range(20)]
@@ -36,8 +53,7 @@ class FreshPackageTests(unittest.TestCase):
     def engine(self, case, mode, model, transport):
         self.calls.append((case['id'], mode))
         return {'case_id': case['id'], 'mode': mode, 'status': 'clarify', 'steps': [{
-            'metadata': {}, 'answer': {'decision': 'clarify', 'check': '',
-                'evidence_ids': [], 'summary': 'More evidence is required.', 'effects': []}}]}
+            'metadata': {}, 'answer': terminal_answer()}]}
 
     def run_fixture(self, ready=lambda: True, engine=None):
         return run_package(self.bundle, self.manifest, self.path, None, ready,
@@ -124,8 +140,7 @@ class FreshPackageTests(unittest.TestCase):
                 self.path.unlink()
 
     def test_terminal_status_must_match_final_answer(self):
-        base_answer = {'decision': 'clarify', 'check': '', 'evidence_ids': [],
-                       'summary': 'More evidence is required.', 'effects': []}
+        base_answer = terminal_answer()
         invalid = (
             ('clarify', []),
             ('clarify', [{'metadata': {}, 'answer': None}]),
@@ -153,8 +168,9 @@ class FreshPackageTests(unittest.TestCase):
             return {'case_id': case['id'], 'mode': mode,
                     'status': 'invalid_answer', 'steps': [{
                         'metadata': {}, 'answer': {
-                            'decision': 'conclude', 'check': '', 'evidence_ids': [],
-                            'summary': 'Rejected synthetic conclusion.', 'effects': []}}],
+                            **terminal_answer('conclude'),
+                            'summary': 'Rejected synthetic conclusion.',
+                        }}],
                     'attempted_calls': 1, 'failure': None}
         with self.assertRaisesRegex(ValueError, 'nonterminal status'):
             self.run_fixture(engine=mismatch)
@@ -173,8 +189,9 @@ class FreshPackageTests(unittest.TestCase):
                     steps = []
                     if status == 'conclude':
                         steps = [{'metadata': {}, 'answer': {
-                            'decision': 'conclude', 'check': '', 'evidence_ids': [],
-                            'summary': 'Synthetic conclusion.', 'effects': []}}]
+                            **terminal_answer('conclude'),
+                            'summary': 'Synthetic conclusion.',
+                        }}]
                     return {'case_id': case['id'], 'mode': mode, 'status': status,
                             'steps': steps, 'attempted_calls': attempts,
                             'failure': metadata}

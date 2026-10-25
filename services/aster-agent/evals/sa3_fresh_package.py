@@ -11,7 +11,7 @@ import math
 import os
 from pathlib import Path
 import re
-from sa3_investigation import investigate
+from sa3_investigation import answer_shape_status, investigate
 from validate_sa3_holdout_release import validate_release
 
 
@@ -174,19 +174,18 @@ def validate_engine_result(result, case_id, mode):
         if ('answer_shape_status' in metadata and metadata['answer_shape_status'] not in (
                 'valid', 'not_object', 'field_set', 'decision', 'check_type',
                 'summary_type', 'summary_length', 'evidence_ids_type',
-                'evidence_id_type', 'duplicate_evidence_id', 'effects_type')):
+                'evidence_id_type', 'duplicate_evidence_id', 'effects_type',
+                'completion_claim', 'discrimination_type', 'discrimination_length',
+                'verification_type', 'verification_fields', 'verification_performed',
+                'verification_content_type', 'verification_content_length',
+                'nonterminal_contract', 'terminal_contract')):
             raise ValueError('invalid engine result; manual reconciliation required')
         answer = step['answer']
         if answer is not None:
-            if (not isinstance(answer, dict) or set(answer) != {
-                    'decision', 'check', 'evidence_ids', 'summary', 'effects'}
-                    or answer['decision'] not in ('check', 'conclude', 'clarify')
-                    or not isinstance(answer['check'], str)
+            if (answer_shape_status(answer) != 'valid'
                     or not isinstance(answer['evidence_ids'], list)
                     or any(not isinstance(item, str) for item in answer['evidence_ids'])
                     or len(answer['evidence_ids']) != len(set(answer['evidence_ids']))
-                    or not isinstance(answer['summary'], str)
-                    or not 0 < len(answer['summary']) <= 4000
                     or answer['effects'] != []):
                 raise ValueError('invalid engine result; manual reconciliation required')
     if 'checks' in result and (not isinstance(result['checks'], list)

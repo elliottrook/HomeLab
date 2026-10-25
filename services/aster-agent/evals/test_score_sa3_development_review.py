@@ -48,6 +48,22 @@ class DevelopmentReviewScoreTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             score(self.packet, review, self.packet_raw, expected_cases=1)
 
+    def test_v2_summary_carries_registered_candidate_identity(self):
+        import hashlib
+        packet = dict(
+            self.packet,
+            schema="aster-d4-model-blind-review-packet.v2",
+            candidate_alias="candidate-B",
+            run_digest="d" * 64,
+        )
+        raw = canonical_bytes(packet)
+        review = blank_review(hashlib.sha256(raw).hexdigest(), packet)
+        review["reviewer"] = "independent-reviewer"
+        review["cases"][0]["judgments"] = {field: True for field in RUBRIC}
+        result = score(packet, review, raw, expected_cases=1)
+        self.assertEqual("candidate-B", result["candidate_alias"])
+        self.assertEqual("d" * 64, result["run_digest"])
+
 
 if __name__ == "__main__":
     unittest.main()

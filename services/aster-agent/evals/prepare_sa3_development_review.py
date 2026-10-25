@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 
 from sa3_fresh_package import decode_journal_json, digest
+from sa3_investigation import answer_shape_status
 
 
 RUBRIC = (
@@ -61,7 +62,9 @@ def read_ledger(path, expected_release, limit=4 * 1024 * 1024):
     return events, sha256_bytes(raw)
 
 
-def build_packet(fixtures, source, events, ledger_sha256, expected_cases=12):
+def build_packet(
+        fixtures, source, events, ledger_sha256, expected_cases=12,
+        run_digest=None, candidate_alias="candidate-A"):
     if not isinstance(fixtures, dict) or not isinstance(fixtures.get("cases"), list):
         raise ValueError("invalid fixture bundle")
     if not isinstance(source, dict) or not isinstance(source.get("cases"), list):
@@ -118,6 +121,8 @@ def build_packet(fixtures, source, events, ledger_sha256, expected_cases=12):
             or answer.get("effects") != []
         ):
             raise ValueError("terminal answer lineage mismatch")
+        if run_digest is not None and answer_shape_status(answer) != "valid":
+            raise ValueError("invalid v2 terminal answer contract")
         reference = source_by_id[ident]
         if any(field not in reference for field in REFERENCE_FIELDS):
             raise ValueError("incomplete review reference")
@@ -134,15 +139,33 @@ def build_packet(fixtures, source, events, ledger_sha256, expected_cases=12):
                 "effects": answer.get("effects"),
             },
         })
-    return {
+        if run_digest is not None:
+            review_cases[-1]["candidate"].update({
+                "discrimination": answer.get("discrimination"),
+                "verification": answer.get("verification"),
+            })
+    packet = {
         "schema": "aster-d4-model-blind-review-packet.v1",
-        "candidate_alias": "candidate-A",
+        "candidate_alias": candidate_alias,
         "model_identity_disclosed": False,
         "timing_disclosed": False,
         "ledger_sha256": ledger_sha256,
         "rubric": list(RUBRIC),
         "cases": review_cases,
     }
+    if run_digest is not None:
+        if (
+            not isinstance(run_digest, str)
+            or len(run_digest) != 64
+            or any(character not in "0123456789abcdef" for character in run_digest)
+            or not isinstance(candidate_alias, str)
+            or not candidate_alias.strip()
+            or len(candidate_alias) > 64
+        ):
+            raise ValueError("invalid review candidate identity")
+        packet["schema"] = "aster-d4-model-blind-review-packet.v2"
+        packet["run_digest"] = run_digest
+    return packet
 
 
 def blank_review(packet_sha256, packet):
@@ -177,6 +200,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--ledger", required=True, type=Path)
     parser.add_argument("--run-digest", required=True)
+    parser.add_argument("--candidate-alias", required=True)
     parser.add_argument("--fixtures", type=Path, default=here / "sysadmin-sa3-development-fixtures-draft-v1.json")
     parser.add_argument("--source", type=Path, default=here / "sysadmin-incident-development-extension-draft-v1.json")
     parser.add_argument("--packet", required=True, type=Path)
@@ -189,6 +213,8 @@ def main(argv=None):
         json.loads(args.source.read_text()),
         events,
         ledger_sha256,
+        run_digest=args.run_digest,
+        candidate_alias=args.candidate_alias,
     )
     packet_sha256 = write_exclusive(args.packet, packet)
     review_sha256 = write_exclusive(args.review, blank_review(packet_sha256, packet))

@@ -45,6 +45,13 @@ class DevelopmentReviewPacketTests(unittest.TestCase):
                 "check": "",
                 "evidence_ids": ["initial"],
                 "summary": "Synthetic conclusion.",
+                "discrimination": "Current evidence distinguishes the bounded states.",
+                "verification": {
+                    "check": "Re-read the bounded synthetic state.",
+                    "expected_condition": "The classified state remains present.",
+                    "preserved_boundary": "No repair or external collection.",
+                    "performed": False,
+                },
                 "effects": [],
             }}],
             "checks": [],
@@ -66,6 +73,19 @@ class DevelopmentReviewPacketTests(unittest.TestCase):
         self.assertTrue(review["model_blind"])
         self.assertEqual(set(review["cases"][0]["judgments"]), set(RUBRIC))
         self.assertTrue(all(value is None for value in review["cases"][0]["judgments"].values()))
+
+    def test_v2_packet_binds_run_and_new_terminal_contract(self):
+        packet = build_packet(
+            {"cases": [self.fixture]}, {"cases": [self.source_case]},
+            self.events, "a" * 64, expected_cases=1,
+            run_digest="d" * 64, candidate_alias="candidate-B",
+        )
+        self.assertEqual("aster-d4-model-blind-review-packet.v2", packet["schema"])
+        self.assertEqual("d" * 64, packet["run_digest"])
+        self.assertEqual("candidate-B", packet["candidate_alias"])
+        candidate = packet["cases"][0]["candidate"]
+        self.assertIn("discrimination", candidate)
+        self.assertFalse(candidate["verification"]["performed"])
 
     def test_nonterminal_or_mismatched_answer_is_rejected(self):
         for change in (
