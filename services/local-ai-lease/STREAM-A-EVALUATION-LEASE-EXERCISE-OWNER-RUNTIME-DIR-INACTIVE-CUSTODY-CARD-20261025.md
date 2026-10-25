@@ -1,6 +1,6 @@
 # Stream A exercise-owner runtime directory — inactive custody card
 
-Status: **SOURCE-ONLY; NOT INSTALLED OR AUTHORIZED**
+Status: **INSTALLED AND VERIFIED; RETRY REQUIRES NEW APPROVAL**
 
 The second live exercise attempt failed closed before owner identity or
 watchdog action because the transient unit's pinned `ReadWritePaths` directory
@@ -8,6 +8,17 @@ watchdog action because the transient unit's pinned `ReadWritePaths` directory
 cancelled safely and all runtime state is absent. This card defines only the
 bounded static directory prerequisite; it authorizes no exercise retry,
 service start, lease, model call, consumer mutation, timer change or push.
+
+## Verified custody result
+
+The target directory was created empty as `root:root` mode `0700`; its parent
+remained `root:root` mode `0700`. The exact transient namespace check completed
+successfully in 35ms with exit `0`, was collected to `LoadState=not-found`, and
+left the directory empty with no owner or runtime state. Fresh full prestate
+passed with exact guest pins, whole-host lease ready, F6 inactive, four healthy
+consumers, metadata-only auth/idle, accepted GPU holder and unchanged October
+26 F2 timers at 01:15/01:20 PDT. No exercise retry occurred; any new attempt
+requires separate approval.
 
 ## Exact static-custody transaction
 
