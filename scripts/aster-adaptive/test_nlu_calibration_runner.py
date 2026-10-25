@@ -67,6 +67,14 @@ class Clock:
         return self.value
 
 
+class ScriptedClock:
+    def __init__(self, values):
+        self.values = iter(values)
+
+    def __call__(self):
+        return next(self.values)
+
+
 class NluCalibrationRunnerTests(unittest.TestCase):
     def test_valid_run_is_local_tool_free_and_content_free(self):
         opener = Opener([response_bytes(), response_bytes()])
@@ -104,6 +112,30 @@ class NluCalibrationRunnerTests(unittest.TestCase):
     def test_credentials_are_bounded(self):
         with self.assertRaisesRegex(ValueError, "credential"):
             runner.run_cases(cases(), "short", opener=Opener([]), clock=Clock())
+
+    def test_remaining_wall_budget_bounds_the_request_timeout(self):
+        opener = Opener([response_bytes()])
+        result = runner.run_cases(
+            cases(1), "s" * 32, opener=opener,
+            clock=ScriptedClock([0.0, 1_150.0, 1_151.0, 1_152.0]),
+        )
+        self.assertTrue(runner.completed(result, 1))
+        self.assertEqual(50.0, opener.requests[0][1])
+
+    def test_expired_wall_budget_starts_no_request_and_fails_closed(self):
+        opener = Opener([])
+        result = runner.run_cases(
+            cases(1), "s" * 32, opener=opener,
+            clock=ScriptedClock([0.0, 1_200.0]),
+        )
+        self.assertEqual([], opener.requests)
+        self.assertFalse(runner.completed(result, 1))
+
+    def test_partial_transport_result_has_nonzero_cli_status(self):
+        opener = Opener([URLError("offline")])
+        result = runner.run_cases(cases(), "s" * 32, opener=opener, clock=Clock())
+        self.assertFalse(runner.completed(result, 2))
+        self.assertEqual(2, runner.INCOMPLETE_EXIT)
 
 
 if __name__ == "__main__":

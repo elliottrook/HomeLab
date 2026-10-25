@@ -31,6 +31,7 @@ KEY_PATH = Path("/etc/aster-llama-api-keys")
 MAX_RESPONSE = 65_536
 PER_CASE_TIMEOUT_SECONDS = 90
 RUN_DEADLINE_SECONDS = 1_200
+INCOMPLETE_EXIT = 2
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -89,7 +90,8 @@ def run_cases(cases: list[dict], token: str, *, opener=None, clock=time.monotoni
     started = clock()
     records = []
     for case in cases:
-        if clock() - started >= RUN_DEADLINE_SECONDS:
+        remaining = RUN_DEADLINE_SECONDS - (clock() - started)
+        if remaining <= 0:
             break
         request = urllib.request.Request(
             ENDPOINT,
@@ -103,7 +105,9 @@ def run_cases(cases: list[dict], token: str, *, opener=None, clock=time.monotoni
         one_started = clock()
         stop_run = False
         try:
-            with transport.open(request, timeout=PER_CASE_TIMEOUT_SECONDS) as response:
+            with transport.open(
+                request, timeout=min(PER_CASE_TIMEOUT_SECONDS, remaining)
+            ) as response:
                 raw = response.read(MAX_RESPONSE + 1)
                 status = response.status
             if status != 200 or len(raw) > MAX_RESPONSE:
@@ -154,6 +158,16 @@ def run_cases(cases: list[dict], token: str, *, opener=None, clock=time.monotoni
     }
 
 
+def completed(result: dict, expected_cases: int) -> bool:
+    """Return whether the one-attempt run reached every frozen case.
+
+    Invalid model responses still count as completed attempts and remain in the
+    scorer denominator. Transport uncertainty and deadline exhaustion leave a
+    shorter artifact and must make the command fail closed.
+    """
+    return len(result["records"]) == expected_cases
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run the approved local NLU calibration once.")
     parser.add_argument("--source", type=Path, required=True)
@@ -171,14 +185,15 @@ def main(argv: list[str] | None = None) -> int:
         corpus.write_new_private(args.output, corpus.canonical_json(result))
     except (IndexError, OSError, ValueError) as error:
         parser.error(str(error))
+    is_complete = completed(result, len(cases))
     print(json.dumps({
         "schema": result["schema"],
         "attempted": len(result["records"]),
         "valid": sum(row["valid"] for row in result["records"]),
-        "complete": len(result["records"]) == 60,
+        "complete": is_complete,
         "authority": result["authority"],
     }, sort_keys=True))
-    return 0
+    return 0 if is_complete else INCOMPLETE_EXIT
 
 
 if __name__ == "__main__":
