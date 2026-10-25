@@ -141,6 +141,13 @@ def validate_release(value: object) -> list[str]:
 
 def validate_release_bundle(value: object, release_raw: bytes, policy_raw: bytes) -> list[str]:
     errors = validate_release(value)
+    try:
+        encoded_value = json.loads(release_raw)
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        errors.append("exact calibration release must be valid UTF-8 JSON")
+    else:
+        if encoded_value != value:
+            errors.append("exact calibration release bytes do not match validated manifest")
     policy, policy_errors = load_and_validate(policy_raw)
     errors.extend(f"threshold policy: {error}" for error in policy_errors)
     if policy is not None and policy.get("status") != "registered":

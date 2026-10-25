@@ -126,6 +126,10 @@ now requires the validator to receive and hash the exact contract, scorer,
 threshold-policy and development non-overlap receipt bytes named by a sealed
 holdout manifest. A digest-shaped but unrelated artifact can no longer pass
 bundle validation.
+The [calibration exact-release binding](evidence/M3-NLU-calibration-exact-release-binding-2026-10-25.md)
+additionally proves that the release bytes registered by policy decode to the
+same calibration manifest being validated. A valid manifest can no longer be
+paired with different policy-bound release bytes.
 
 ## Validation checkpoint — 2026-10-24
 

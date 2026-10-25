@@ -82,6 +82,18 @@ class CalibrationReleaseTests(unittest.TestCase):
         policy_raw = encoded(registered(policy.sha256(raw)))
         self.assertEqual([], release.validate_release_bundle(value, raw, policy_raw))
 
+    def test_exact_release_bytes_must_decode_to_the_validated_manifest(self):
+        value = sealed()
+        other = copy.deepcopy(value)
+        other["release_id"] = "other-calibration-release"
+        other["release_sha256"] = release.canonical_sha256(other)
+        other_raw = encoded(other)
+        policy_raw = encoded(registered(policy.sha256(other_raw)))
+        errors = release.validate_release_bundle(value, other_raw, policy_raw)
+        self.assertIn(
+            "exact calibration release bytes do not match validated manifest", errors
+        )
+
     def test_content_and_candidate_or_artifact_drift_fail_closed(self):
         value = sealed()
         raw = encoded(value)
