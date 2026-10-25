@@ -18,6 +18,31 @@ ENGINE = "1" * 64
 POLICY = "2" * 64
 
 
+def journal_for(run, release_raw):
+    journal = [{
+        "event": "run_started",
+        "schema": "aster-nlu-calibration-attempt-journal.v1",
+        "candidate_bundle_sha256": run["candidate_bundle_sha256"],
+        "calibration_artifact_sha256": sha256(release_raw),
+        "planned": 60,
+        "authority": "not-granted",
+    }]
+    for record in run["records"]:
+        journal.append({"event": "attempt_started", "case_id": record["id"]})
+        event = {
+            "event": "attempt_recorded",
+            "case_id": record["id"],
+            "valid": record["valid"],
+        }
+        if not record["valid"]:
+            event["error_type"] = record["error_type"]
+        journal.append(event)
+    journal.append({
+        "event": "run_finished", "attempted": len(run["records"]), "complete": True,
+    })
+    return b"".join(encoded(row) for row in journal)
+
+
 def run_inputs():
     source_raw = encoded(source())
     label_value = labels(source_raw)
@@ -52,16 +77,17 @@ def run_inputs():
         "records": records,
         "authority": "not-granted",
     }
-    return source_raw, label_raw, release_raw, run
+    return source_raw, label_raw, release_raw, run, journal_for(run, release_raw)
 
 
 class NluCalibrationScoreTests(unittest.TestCase):
     def derive(self, changes=None):
-        source_raw, label_raw, release_raw, run = run_inputs()
+        source_raw, label_raw, release_raw, run, _ = run_inputs()
         if changes:
             changes(run)
+        journal_raw = journal_for(run, release_raw)
         return score.derive_score(
-            source_raw, label_raw, release_raw, encoded(run), DEVELOPMENT,
+            source_raw, label_raw, release_raw, encoded(run), journal_raw, DEVELOPMENT,
             engine_sha256=ENGINE, policy_sha256=POLICY,
         )
 
@@ -126,13 +152,33 @@ class NluCalibrationScoreTests(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(ValueError):
                 self.derive(change)
 
+    def test_attempt_journal_must_match_every_final_record(self):
+        source_raw, label_raw, release_raw, run, journal_raw = run_inputs()
+        changed = journal_raw.replace(
+            run["records"][0]["id"].encode(), b"CAL-UNKNOWN", 1
+        )
+        with self.assertRaisesRegex(ValueError, "journal"):
+            score.derive_score(
+                source_raw, label_raw, release_raw, encoded(run), changed, DEVELOPMENT,
+                engine_sha256=ENGINE, policy_sha256=POLICY,
+            )
+
+    def test_attempt_journal_digest_is_bound_into_score(self):
+        source_raw, label_raw, release_raw, run, journal_raw = run_inputs()
+        result = score.derive_score(
+            source_raw, label_raw, release_raw, encoded(run), journal_raw, DEVELOPMENT,
+            engine_sha256=ENGINE, policy_sha256=POLICY,
+        )
+        self.assertEqual(sha256(journal_raw), result["attempt_journal_sha256"])
+
     def test_cli_creates_owner_only_score_and_refuses_overwrite(self):
-        source_raw, label_raw, release_raw, run = run_inputs()
+        source_raw, label_raw, release_raw, run, _ = run_inputs()
         run["engine_sha256"] = score.SEALED_ENGINE_SHA256
         run["policy_sha256"] = score.SEALED_POLICY_SHA256
         for row in run["records"]:
             row["interpretation"]["engine_digest"] = "sha256:" + score.SEALED_ENGINE_SHA256
             row["interpretation"]["policy_digest"] = "sha256:" + score.SEALED_POLICY_SHA256
+        journal_raw = journal_for(run, release_raw)
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             paths = {
@@ -140,6 +186,7 @@ class NluCalibrationScoreTests(unittest.TestCase):
                 "labels": label_raw,
                 "release": release_raw,
                 "run": encoded(run),
+                "journal": journal_raw,
                 "development": DEVELOPMENT,
             }
             for name, raw in paths.items():
@@ -150,6 +197,7 @@ class NluCalibrationScoreTests(unittest.TestCase):
                 "--labels", str(root / "labels.json"),
                 "--release", str(root / "release.json"),
                 "--run", str(root / "run.json"),
+                "--journal", str(root / "journal.json"),
                 "--development", str(root / "development.json"),
                 "--output", str(output),
             ]

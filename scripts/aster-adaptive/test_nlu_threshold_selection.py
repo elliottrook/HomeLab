@@ -63,6 +63,7 @@ def score():
         "schema": selection.SCORE_SCHEMA,
         "candidate_bundle_sha256": "a" * 64,
         "calibration_artifact_sha256": "b" * 64,
+        "attempt_journal_sha256": "c" * 64,
         "cases": rows,
     }
 

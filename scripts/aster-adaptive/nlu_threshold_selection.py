@@ -25,7 +25,10 @@ from nlu_threshold_policy import (
 
 
 SCORE_SCHEMA = "aster-nlu-calibration-score.v1"
-TOP_KEYS = {"schema", "candidate_bundle_sha256", "calibration_artifact_sha256", "cases"}
+TOP_KEYS = {
+    "schema", "candidate_bundle_sha256", "calibration_artifact_sha256",
+    "attempt_journal_sha256", "cases",
+}
 CASE_KEYS = {
     "id",
     "family",
@@ -51,6 +54,9 @@ def _validate_score(value: object, policy: dict) -> list[str]:
         errors.append("calibration candidate does not match registered policy")
     if value.get("calibration_artifact_sha256") != policy.get("calibration_artifact_sha256"):
         errors.append("calibration artifact does not match registered policy")
+    journal_sha = value.get("attempt_journal_sha256")
+    if not isinstance(journal_sha, str) or re.fullmatch(r"[0-9a-f]{64}", journal_sha) is None:
+        errors.append("invalid calibration attempt journal digest")
     rows = value.get("cases")
     if not isinstance(rows, list):
         return errors + ["calibration cases must be a list"]

@@ -15,6 +15,7 @@ from pathlib import Path
 import math
 
 import nlu_calibration_corpus as corpus
+from nlu_calibration_journal import validate_journal
 from nlu_calibration_release import validate_release
 from nlu_threshold_policy import decode_unique_json, sha256
 
@@ -68,6 +69,7 @@ def derive_score(
     label_raw: bytes,
     release_raw: bytes,
     run_raw: bytes,
+    journal_raw: bytes,
     development_raw: bytes,
     *,
     engine_sha256: str,
@@ -125,6 +127,7 @@ def derive_score(
             raise ValueError("invalid calibration record latency")
     if set(actual) != set(gold):
         raise ValueError("calibration run does not cover the frozen release")
+    validate_journal(journal_raw, run)
 
     rows = []
     source = _load(source_raw, "calibration source")
@@ -152,6 +155,7 @@ def derive_score(
         "schema": SCORE_SCHEMA,
         "candidate_bundle_sha256": corpus.CANDIDATE_SHA256,
         "calibration_artifact_sha256": sha256(release_raw),
+        "attempt_journal_sha256": sha256(journal_raw),
         "cases": rows,
     }
 
@@ -181,6 +185,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--labels", type=Path, required=True)
     parser.add_argument("--release", type=Path, required=True)
     parser.add_argument("--run", type=Path, required=True)
+    parser.add_argument("--journal", type=Path, required=True)
     parser.add_argument("--development", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
@@ -190,6 +195,7 @@ def main(argv: list[str] | None = None) -> int:
             args.labels.read_bytes(),
             args.release.read_bytes(),
             args.run.read_bytes(),
+            args.journal.read_bytes(),
             args.development.read_bytes(),
             engine_sha256=SEALED_ENGINE_SHA256,
             policy_sha256=SEALED_POLICY_SHA256,
