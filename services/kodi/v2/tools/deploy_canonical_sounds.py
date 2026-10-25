@@ -8,6 +8,7 @@ LIVE=Path('/storage/.kodi/addons/resource.uisounds.asterhome/resources')
 CHECKPOINT=Path('/storage/.aster-checkpoints/aster-canonical-pcm32-20261025')
 SOURCE_COMMIT='4c283eaf0a35f34cf9018d06c27304cd09c760a5'
 CUE_COUNT=4
+TRANSFORM=None
 MOVEMENT='227b863d35a6c6ea67df559b4d302706af669c6eee5ba86a47382164fdf3f0c8'
 MASTER_EXPECTED={**{n:MOVEMENT for n in ('nav-left.wav','nav-right.wav','nav-up.wav','nav-down.wav')},
     'back.wav':'33b9852ee00869cefd0040ce6a65573ec1a5606a87352917e7654d7b36348a54',
@@ -104,6 +105,7 @@ def main(mode='inspect'):
         source_commit=SOURCE_COMMIT,
         checkpoint=str(CHECKPOINT),restart_required=False,timing_and_pcm_unchanged=True,
         encoding='PCM32-lossless-from-PCM24',source_assets=MASTER_EXPECTED)
+    if TRANSFORM is not None:report.update(transform=TRANSFORM,timing_and_pcm_unchanged=False,timing_unchanged=True)
     (CHECKPOINT/'verified.json').write_text(json.dumps(report,indent=2));return report
 
 if __name__=='__main__':

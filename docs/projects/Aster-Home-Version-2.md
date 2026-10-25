@@ -4896,3 +4896,76 @@ while paused, and restore ordinary auto-hide on resume. Verify movie/episode,
 remote and on-screen pause, repeated pause/resume, subtitles/audio-menu
 interaction and existing Back/stop-on-exit. This is a planned v2 step, not
 claimed implemented by the sound-only deployment.
+
+#### Full landing-page branding and balanced sound adoption — 2026-10-25
+
+Owner follow-up approved the Media header treatment across Books (shared by
+all three catalogue pages), Music (shared by its native catalogue pages), News,
+Breaking News, Home and Settings. HP-only UI scope; production receives only
+the separately requested balance correction. Aster internal style guide applies;
+no speech generated, household/server permissions and progress unchanged.
+
+Each landing header now has Media's fitted translucent-black navigation
+capsule, green/white focus, and separate gold-edged Search capsule. Broad
+Music/News/Home top strips are removed. Existing button actions are retained;
+Home has Refresh/Status until its future destinations exist. Search truthfully
+uses the existing synced TV/film/music index; Books' section catalogue filters
+remain available, rather than claiming global book/news/entity indexing.
+Search returns to the originating landing page. A bounded wrapper waits for
+known catalogue reload focus before restoring Search, avoiding the Books loader
+resetting focus after the return. Settings has eight compact navigation areas,
+the shared left side rail, and six live read-only fields: device, Kodi build,
+display, local IP, available memory and Kodi uptime. Uninstalled add-on areas
+remain disabled with readable muted captions; no add-ons were installed.
+
+Deployments/checkpoints on HP:
+
+- `aster-review9-20261025`:23 members, manifest
+  `70c5661d2305e332655ef10ebf19cce883c4d221c60001b54ff19b2d0c34ae78`.
+  Search22 and its Home entry/integrity records move together; Music72/series24
+  player engines, Books sync13 and the accepted OSD remain unchanged.
+- `aster-review10-20261025`:eight-member header-return successor, manifest
+  `3b2662f81d0b7202dda23b93c7ff50fbec6a8dbcb4d6a1e3c4106a7bbf8f595a`.
+  Exact predecessor hashes and private paired restore verified for both bundles.
+- `aster-branding-search-repair-20261025`: retained before XML and exact native
+  Search overlay completion. The first live trial refused the mismatched screen
+  hash instead of opening a stale Back-to-Home screen. Builder now includes it.
+- `aster-branding-settings-repair-20261025` and
+  `aster-branding-settings-disabled-20261025`: retained before XML and verified
+  one-file repairs. Screenshot QA caught undefined `font18`; standard `font20`
+  plus explicit disabled text colour fixes missing/blank captions. Font existence
+  is now tested against the skin font table. Repair settings compare unchanged.
+
+Native six-page proof `native-branding-1792961275122467020.json` verifies Search,
+Back, stable return focus after catalogue reload, no autoplay and all six live
+status values. Settings-only final proof `native-branding-1792961461325929340.json`
+also verifies all eight captions and side-rail entry. Native screenshots of all
+six pages inspected; no claim of newly connected Home feeds. HP returned Home
+with no player/queue. A postcheck variable-shadowing error was corrected in the
+harness, without weakening its archive/hash checks or changing player code.
+
+At the owner's further request, common left-channel bias was removed by
+attenuating Left4.1141dB (gain0.6227221498528474), leaving Right and all timing
+unchanged, with no boost/normalization. Non-directional cues are within0.16dB;
+Left/Right movement retains mirrored ±4.66772dB placement. Balanced cues are
+installed on HP and production, with independent per-box previous-file
+checkpoints at `aster-balanced-clicks-20261025`; no audio output/volume/display
+or mapping changes, and no production restart. Production was initially active
+and left untouched until Jason replied “now”; then its idle gate admitted the
+sound-only update. Seven-cue native engine smoke passed on each box, including
+rapid repeats, and paired recovery-helper verification passed. Physical speaker
+acceptance remains with the household.
+
+Future packages must explicitly select `--runtime-sounds --balanced-sounds`.
+Raw canonical masters remain untouched; deterministic balanced runtime hashes
+and per-box predecessor pins live in `canonical_sound_balance.py` and
+`tools/deploy_balanced_clicks.py`. Recovery is reverse-order: restore the exact
+one-file repair backups while idle, then the review10/review9 paired checkpoint
+engine; sounds roll back independently through their paired helper. Never
+restore listening history or overwrite newer files. No Forgejo push this turn.
+Final637 v2 tests pass normally and optimized. Preservation proof
+`postcheck-1792961636068335074.json` verifies48 player files, eight Music
+integration members, six Search overlays,13 Books members, seven balanced
+sound files, database integrity and68 AV/language comparisons (67 exact and
+the already-known resolution-index remap). HP remains4K30, all lab windows
+closed, no active player and empty queues. No history or credentials changed.

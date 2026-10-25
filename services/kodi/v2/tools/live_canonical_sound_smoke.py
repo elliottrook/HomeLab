@@ -10,8 +10,9 @@ def rpc(method,params=None):
     r=json.loads(xbmc.executeJSONRPC(json.dumps(dict(jsonrpc='2.0',id=1,method=method,params=params or {}))))
     require('error' not in r,'rpc-error');return r['result']
 def idle():return not rpc('Player.GetActivePlayers') and all(rpc('Playlist.GetItems',dict(playlistid=i,limits=dict(start=0,end=1)))['limits']['total']==0 for i in (0,1))
-clicks='--clicks' in sys.argv
-base=Path('/storage/.aster-checkpoints/aster-canonical-clicks-20261025' if clicks else '/storage/.aster-checkpoints/aster-canonical-pcm32-20261025')
+balanced='--balanced' in sys.argv
+clicks='--clicks' in sys.argv or balanced
+base=Path('/storage/.aster-checkpoints/aster-balanced-clicks-20261025' if balanced else '/storage/.aster-checkpoints/aster-canonical-clicks-20261025' if clicks else '/storage/.aster-checkpoints/aster-canonical-pcm32-20261025')
 result={};log=Path('/storage/.kodi/temp/kodi.log');stat=log.stat()
 try:
     require(idle(),'idle-empty-required')

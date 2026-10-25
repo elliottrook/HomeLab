@@ -30,14 +30,14 @@ def allowed(name):
         or rest in ('tools/aster_v2_series.py','tools/compact_menu.py','tools/osd_choices.py','tools/select_dispatch.py',
                     'tools/music_data.py','tools/aster_v2_music.py','resources/skins/Default/1080i/CompactMenu.xml'))
 def run(mode,digest,proof_name,storage=Path('/storage'),*,review=2,validator=None):
-    require(review in (2,3,4,5,6,7,8),'known-review')
+    require(review in (2,3,4,5,6,7,8,9,10),'known-review')
     validator=validator or allowed
     require(mode in ('install','verify','rollback') and re.fullmatch('[0-9a-f]{64}',digest),'mode-digest')
     stage=storage/('.aster-staging/aster-review'+str(review));checkpoint=storage/('.aster-checkpoints/aster-review'+str(review)+'-20261025')
     require(sha(stage/'manifest.json')==digest,'bundle-drift')
     manifest=json.loads((stage/'manifest.json').read_text());rows=manifest['files']
     require(manifest.get('kind')=='hp-review'+str(review) and manifest.get('name')=='aster-review'+str(review),'bundle-kind')
-    require((20 if review in (4,5,6,7,8) else 50)<len(rows)<200 and len({r['path'] for r in rows})==len(rows),'bounded-unique-targets')
+    require((5 if review==10 else 20 if review in (4,5,6,7,8,9) else 50)<len(rows)<200 and len({r['path'] for r in rows})==len(rows),'bounded-unique-targets')
     for row in rows:
         require(validator(row['path']),'target-outside-review')
         source=stage/'payload'/row['path'];target=storage/row['path']

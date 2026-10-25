@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import stat
+import tempfile
 import zipfile
 
 
@@ -69,12 +70,21 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def build_archive(addon_id: str, output: Path, runtime_sounds: bool = False) -> dict:
+def build_archive(addon_id: str, output: Path, runtime_sounds: bool = False, balanced_sounds: bool = False) -> dict:
+    if balanced_sounds and not runtime_sounds:
+        raise ValueError('balanced sounds require runtime encoding')
     source = HERE / addon_id
     if not (source / "addon.xml").is_file():
         raise ValueError(f"missing add-on source: {source}")
     archive = output / f"{addon_id}-{RELEASE}.zip"
     records = []
+    balanced = {}
+    if balanced_sounds and addon_id == 'resource.uisounds.asterhome':
+        from v2.canonical_sound_balance import build as balance
+        with tempfile.TemporaryDirectory() as directory:
+            prepared = Path(directory) / 'balanced'
+            balance(source / 'resources', prepared)
+            balanced = {p.name: p.read_bytes() for p in (prepared / 'resources').glob('*.wav')}
     with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as bundle:
         for path in package_files(source):
             relative = path.relative_to(source)
@@ -86,7 +96,7 @@ def build_archive(addon_id: str, output: Path, runtime_sounds: bool = False) -> 
             data = path.read_bytes()
             if runtime_sounds and addon_id == 'resource.uisounds.asterhome' and relative.suffix == '.wav':
                 from v2.canonical_sound_compat import promote
-                data = promote(data)
+                data = balanced[path.name] if balanced_sounds else promote(data)
             bundle.writestr(info, data, compress_type=zipfile.ZIP_DEFLATED,
                             compresslevel=9)
             records.append({"path": member.as_posix(),
@@ -97,11 +107,11 @@ def build_archive(addon_id: str, output: Path, runtime_sounds: bool = False) -> 
             "files": records}
 
 
-def build(output: Path, runtime_sounds: bool = False) -> dict:
+def build(output: Path, runtime_sounds: bool = False, balanced_sounds: bool = False) -> dict:
     output.mkdir(parents=True, exist_ok=True)
     if any(output.iterdir()):
         raise ValueError(f"output directory is not empty: {output}")
-    archives = [build_archive(addon_id, output, runtime_sounds) for addon_id in ADDONS]
+    archives = [build_archive(addon_id, output, runtime_sounds, balanced_sounds) for addon_id in ADDONS]
     client_files = []
     for record in CLIENT_FILES:
         data = record["source"].read_bytes()
@@ -118,6 +128,7 @@ def build(output: Path, runtime_sounds: bool = False) -> dict:
         "schema": "aster-home-kodi-release.v1",
         "release": RELEASE,
         "sound_encoding": "PCM32-lossless-from-PCM24" if runtime_sounds else "PCM24-source-reference-not-for-Kodi-runtime",
+        "sound_balance": "owner-approved-left-bias-correction" if balanced_sounds else "source-channel-placement",
         "status": "production-candidate-pending-physical-libreelec-gate",
         "design_canvas": "1920x1080-16:9-scales-to-4k",
         "install_order": list(ADDONS),
@@ -135,8 +146,9 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--runtime-sounds", action="store_true", help="Required for Kodi deployment: lossless PCM32 sound copies")
+    parser.add_argument("--balanced-sounds", action="store_true", help="Use the owner-approved balanced seven-cue runtime profile")
     args = parser.parse_args()
-    manifest = build(args.output.resolve(), runtime_sounds=args.runtime_sounds)
+    manifest = build(args.output.resolve(), runtime_sounds=args.runtime_sounds, balanced_sounds=args.balanced_sounds)
     print(json.dumps({"release": manifest["release"],
                       "archives": [{"archive": item["archive"],
                                     "sha256": item["sha256"],

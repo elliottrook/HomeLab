@@ -104,3 +104,36 @@ Production native smoke `native-smoke-1792959428751510477.json` exercised all
 seven cues and six rapid repeat requests with zero sound-engine errors, no
 active media and no media/settings writes. Exact runtime/checkpoint verification
 passed after activation; the paired recovery helper is also checked in place.
+
+## Owner-requested balance correction — current accepted runtime
+
+The subsequent explicit “rebalance sounds” request supersedes the unchanged
+channel placement above. Both boxes now use the deterministic balanced profile.
+Left attenuation is4.1141137282dB (gain0.6227221498528474), Right gain1. There is
+no boost, normalization, resampling or timing change. The shared bias is removed
+while retaining mirrored directional cues (±4.66772dB L/R); all other cues are
+within0.16dB of centre. Original canonical source WAVs are retained unchanged.
+
+Build future archives with:
+
+```sh
+python3 services/kodi/package_aster_home.py --runtime-sounds --balanced-sounds --output /tmp/aster-balanced-release
+```
+
+The optional balance flag is deliberately explicit; historical source-reference
+and unbalanced compatibility builds remain reproducible. Balanced packaging is
+tested byte-for-byte against the same runtime used on both boxes. For a private
+dual-source/runtime manifest, run `v2/canonical_sound_balance.py --source
+services/kodi/resource.uisounds.asterhome/resources --output <new-directory>`.
+Pinned hashes and per-box predecessors are in `tools/deploy_balanced_clicks.py`.
+
+Independent per-box checkpoint: `/storage/.aster-checkpoints/aster-balanced-clicks-20261025`.
+Its paired `deploy_canonical.py`, engine and configuration helper verify current
+files and restore only the matching former runtime. Both original recovery
+chains remain intact. Production was active on the initial check; deployment
+waited for the owner's “now” response and a fresh idle check. No Kodi restart,
+output/volume/passthrough/display or action-map changes. Native seven-cue and
+rapid-repeat smoke passed: HP `native-smoke-1792961356093723032.json`, production
+`native-smoke-1792960697204985437.json`, zero sound-engine errors. Both paired
+checkpoint helpers verify successfully in place. No remote acoustic judgement
+or production v2 UI promotion is claimed.
