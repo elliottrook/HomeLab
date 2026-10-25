@@ -40,6 +40,7 @@ QUIESCE_TARGETS = (
 )
 QUIESCE_STATES = tuple((target, "masked+inactive") for target in QUIESCE_TARGETS)
 BACKEND_TARGET = "lxc110:aster-llama.service"
+PRODUCTION_BASELINE_STATES = tuple((target, "enabled+active") for target in QUIESCE_TARGETS)
 
 
 class LeaseState(str, Enum):
@@ -133,6 +134,14 @@ class WatchdogDecision:
     reason: str
 
 
+def validate_baseline(value: ProductionBaseline) -> None:
+    """Require the complete, ordered, duplicate-free production baseline."""
+    observed = tuple(value.units) + tuple(value.timers)
+    expected = PRODUCTION_BASELINE_STATES
+    if observed != expected or len({target for target, _ in observed}) != len(expected):
+        raise EvaluationLeaseError("production baseline is not the exact four-target schema")
+
+
 def workload(name: str) -> WorkloadSpec:
     for item in WORKLOADS:
         if item.name == name:
@@ -167,6 +176,7 @@ def validate_admission(value: Admission, *, now_epoch: int) -> None:
         raise EvaluationLeaseError("registered consumer set is not exact")
     if value.quiesced_targets:
         raise EvaluationLeaseError("pre-quiescence admission claims consumers are already stopped")
+    validate_baseline(value.baseline)
     if not value.watchdog_independent:
         raise EvaluationLeaseError("independent watchdog is required")
     validate_window(now_epoch=now_epoch, hard_deadline_epoch=value.hard_deadline_epoch,
@@ -269,6 +279,7 @@ def validate_restoration(*, restored: ProductionBaseline,
                          gpu_holders: tuple[str, ...]) -> None:
     if restored != expected:
         raise EvaluationLeaseError("production unit or timer baseline drifted")
+    validate_baseline(expected)
     if not (backend_active and endpoint_authenticated and endpoint_idle):
         raise EvaluationLeaseError("backend did not restore healthy, authenticated and idle")
     if tuple(gpu_holders) != (BACKEND_TARGET,):

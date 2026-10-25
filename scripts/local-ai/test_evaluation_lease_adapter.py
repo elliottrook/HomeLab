@@ -8,6 +8,7 @@ from evaluation_lease import (
 )
 from evaluation_lease_adapter import AdapterError, EvaluationLeaseAdapter, consumer_command
 from evaluation_lease_watchdog import run_once
+from evaluation_lease_watchdog import WatchdogInput, run_bound_once, validate_watchdog_input
 
 
 class AdapterTests(unittest.TestCase):
@@ -17,10 +18,10 @@ class AdapterTests(unittest.TestCase):
             ACCEPTED_BACKEND, ACCEPTED_ENDPOINT, True, True, True,
             (BACKEND_TARGET,), QUIESCE_TARGETS, (),
             ProductionBaseline(
-                (("lxc104:aster-agent.service", "active"),
-                 ("lxc116:aster-speech.service", "active")),
-                (("lxc114:news-aggregator-ingest.timer", "active"),
-                 ("lxc114:news-aggregator-digest.timer", "active")),
+                (("lxc104:aster-agent.service", "enabled+active"),
+                 ("lxc116:aster-speech.service", "enabled+active")),
+                (("lxc114:news-aggregator-ingest.timer", "enabled+active"),
+                 ("lxc114:news-aggregator-digest.timer", "enabled+active")),
             ), True, 5500, 6400,
         )
 
@@ -43,11 +44,13 @@ class AdapterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", calls.append, allow_effects=True)
             adapter.acquire(self.admission(), now_epoch=1000)
+            self.assertFalse(adapter.workload_allowed(lease_id="eval-1", generation=1))
             adapter.post_quiescence(
                 observed_states=QUIESCE_STATES, admission=self.admission(),
                 backend_active=True, endpoint_authenticated=True,
                 endpoint_idle=True, gpu_holders=(BACKEND_TARGET,),
             )
+            self.assertTrue(adapter.workload_allowed(lease_id="eval-1", generation=1))
             result = adapter.restore(
                 lease_id="eval-1", generation=1,
                 restored=self.admission().baseline,
@@ -84,6 +87,20 @@ class AdapterTests(unittest.TestCase):
                           effect_authorized=False, recovery=called.append)
         self.assertEqual(result["effects"], "disabled")
         self.assertEqual(called, [])
+
+    def test_watchdog_binds_identity_and_fixed_deadlines(self):
+        value = WatchdogInput("eval-1", 1, "running", 1100, 1000, 5500, 6400)
+        validate_watchdog_input(value, expected_lease_id="eval-1", expected_generation=1)
+        with self.assertRaises(ValueError):
+            validate_watchdog_input(value, expected_lease_id="foreign", expected_generation=1)
+        stale = WatchdogInput("eval-1", 1, "running", 1100, 1000, 5501, 6400)
+        with self.assertRaises(ValueError):
+            validate_watchdog_input(stale, expected_lease_id="eval-1", expected_generation=1)
+        result = run_bound_once(value=value, expected_lease_id="eval-1",
+                                expected_generation=1, now_epoch=6500,
+                                heartbeat_timeout=30, owner_present=True,
+                                effect_authorized=False)
+        self.assertEqual(result["effects"], "disabled")
 
 
 if __name__ == "__main__":

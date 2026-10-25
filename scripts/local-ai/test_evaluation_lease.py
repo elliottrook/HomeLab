@@ -34,10 +34,10 @@ class EvaluationLeaseTests(unittest.TestCase):
             gpu_holders=(BACKEND_TARGET,), registered_targets=QUIESCE_TARGETS,
             quiesced_targets=(),
             baseline=ProductionBaseline(
-                units=(("lxc104:aster-agent.service", "active"),
-                       ("lxc116:aster-speech.service", "active")),
-                timers=(("lxc114:news-aggregator-ingest.timer", "active"),
-                        ("lxc114:news-aggregator-digest.timer", "active")),
+                units=(("lxc104:aster-agent.service", "enabled+active"),
+                       ("lxc116:aster-speech.service", "enabled+active")),
+                timers=(("lxc114:news-aggregator-ingest.timer", "enabled+active"),
+                        ("lxc114:news-aggregator-digest.timer", "enabled+active")),
             ), watchdog_independent=True, hard_deadline_epoch=5500,
             restore_deadline_epoch=5500 + RESTORE_RESERVE_SECONDS,
         )
@@ -117,6 +117,18 @@ class EvaluationLeaseTests(unittest.TestCase):
         bad = value.__class__(**{**value.__dict__, "restore_deadline_epoch": 9999})
         with self.assertRaises(EvaluationLeaseError):
             validate_admission(bad, now_epoch=1000)
+
+    def test_baseline_rejects_incomplete_duplicate_or_wrong_targets(self):
+        value = self.admission()
+        for units in (
+            value.baseline.units[:-1],
+            value.baseline.units + (("lxc104:aster-agent.service", "enabled+active"),),
+            (("lxc999:wrong.service", "enabled+active"), value.baseline.units[1]),
+        ):
+            bad_baseline = ProductionBaseline(units, value.baseline.timers)
+            bad = value.__class__(**{**value.__dict__, "baseline": bad_baseline})
+            with self.assertRaises(EvaluationLeaseError):
+                validate_admission(bad, now_epoch=1000)
 
     def test_watchdog_recovers_on_deadline_or_owner_loss(self):
         self.assertEqual(watchdog_decision(now_epoch=4500, heartbeat_epoch=4499,

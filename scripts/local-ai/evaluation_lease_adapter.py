@@ -27,6 +27,7 @@ from evaluation_lease import (
     validate_admission,
     validate_post_quiescence,
     validate_restoration,
+    validate_baseline,
 )
 
 
@@ -40,6 +41,7 @@ class AdapterState:
     generation: int
     phase: str
     baseline: ProductionBaseline
+    window_start_epoch: int
     hard_deadline_epoch: int
     restore_deadline_epoch: int
 
@@ -112,21 +114,16 @@ class EvaluationLeaseAdapter:
         self._lock()
         atomic_state(self.state_path, AdapterState(
             admission.lease_id, admission.generation, LeaseState.QUIESCING.value,
-            admission.baseline, admission.hard_deadline_epoch,
+            admission.baseline, now_epoch, admission.hard_deadline_epoch,
             admission.restore_deadline_epoch,
         ))
         try:
             for target in QUIESCE_TARGETS:
                 self.runner(consumer_command(target, "mask"))
                 self.runner(consumer_command(target, "stop"))
-            atomic_state(self.state_path, AdapterState(
-                admission.lease_id, admission.generation, LeaseState.RUNNING.value,
-                admission.baseline, admission.hard_deadline_epoch,
-                admission.restore_deadline_epoch,
-            ))
         except Exception as exc:
             raise AdapterError("consumer quiescence is uncertain; recovery required") from exc
-        return {"effects": "acquired", "state": LeaseState.RUNNING.value,
+        return {"effects": "acquired-pre-run", "state": LeaseState.QUIESCING.value,
                 "lease_id": admission.lease_id, "generation": admission.generation}
 
     def restore(self, *, lease_id: str, generation: int, restored: ProductionBaseline,
@@ -145,6 +142,7 @@ class EvaluationLeaseAdapter:
         )
         atomic_state(self.state_path, AdapterState(
             lease_id, generation, LeaseState.RESTORING.value, expected,
+            value["window_start_epoch"],
             value["hard_deadline_epoch"], value["restore_deadline_epoch"],
         ))
         try:
@@ -167,10 +165,28 @@ class EvaluationLeaseAdapter:
                         admission: Admission, backend_active: bool,
                         endpoint_authenticated: bool, endpoint_idle: bool,
                         gpu_holders: tuple[str, ...]) -> None:
+        if not self.state_path.exists() or not self.lock_path.exists():
+            raise AdapterError("durable evaluation state and lock are required")
+        value = json.loads(self.state_path.read_text(encoding="utf-8"))
+        if (value.get("lease_id"), value.get("generation"), value.get("phase")) != (
+                admission.lease_id, admission.generation, LeaseState.QUIESCING.value):
+            raise AdapterError("post-quiescence confirmation is not for the pre-run lease")
         validate_post_quiescence(
             admission, observed_states=observed_states,
             backend_active=backend_active,
             endpoint_authenticated=endpoint_authenticated,
             endpoint_idle=endpoint_idle, gpu_holders=gpu_holders,
         )
+        atomic_state(self.state_path, AdapterState(
+            admission.lease_id, admission.generation, LeaseState.RUNNING.value,
+            admission.baseline, value["window_start_epoch"],
+            value["hard_deadline_epoch"], value["restore_deadline_epoch"],
+        ))
+
+    def workload_allowed(self, *, lease_id: str, generation: int) -> bool:
+        if not self.state_path.exists():
+            return False
+        value = json.loads(self.state_path.read_text(encoding="utf-8"))
+        return (value.get("lease_id"), value.get("generation"), value.get("phase")) == (
+            lease_id, generation, LeaseState.RUNNING.value)
 
