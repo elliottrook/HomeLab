@@ -3226,3 +3226,13 @@ with passkey** action that performs fresh login followed only by the content-fre
 session GET; its complete native suite passes 61/61. It is not installed. No Red
 approval, management mutation, grant or model call occurred, so higher authority
 remains unreleased.
+
+The read-only Companion candidate then built successfully after correcting the
+packaging check for Xcode 27's standard SwiftPM resource-bundle layout. The
+staged bundle passed strict signature verification with app registration off.
+Installation remains NO-GO: production is signed by the valid R2 certificate,
+while the Keychain currently exposes only the earlier signing identity. Their
+designated requirements differ, so replacement could disrupt persisted session
+access and weaken rollback. No app was installed or launched. Restore the R2
+signing identity from owner custody or approve an explicit signer transition
+before the live claim check.

@@ -40,9 +40,14 @@ done
 RESOURCE_BUNDLE="AsterCompanion_AsterCompanion.bundle"
 cp -R "$BIN_PATH/$RESOURCE_BUNDLE" "$APP_DIR/Contents/Resources/$RESOURCE_BUNDLE"
 
-# Fail the build before signing if the packaged location no longer agrees
-# with SwiftPM's generated runtime lookup contract.
-test -f "$APP_DIR/Contents/Resources/$RESOURCE_BUNDLE/AsterOrb.png"
+# SwiftPM may emit a flat resource bundle or a standard macOS bundle with
+# Contents/Resources. Accept only those two exact layouts and fail before
+# signing if neither contains the pinned image.
+if [ ! -f "$APP_DIR/Contents/Resources/$RESOURCE_BUNDLE/AsterOrb.png" ] && \
+   [ ! -f "$APP_DIR/Contents/Resources/$RESOURCE_BUNDLE/Contents/Resources/AsterOrb.png" ]; then
+    echo "Packaged AsterOrb.png is missing from the SwiftPM resource bundle" >&2
+    exit 1
+fi
 
 # swift build already applies an ad-hoc signature to the loose binary,
 # but that's from before Info.plist existed and the .app structure was

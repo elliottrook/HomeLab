@@ -29,7 +29,10 @@ proves an injected subject field is not represented by the model.
 | `AIPAMView.swift` | `359c51a1194fd7f0892cbe582efdc6993db6f29d8676b338b18544b8695d9461` |
 | `AIPAMModelsTests.swift` | `6f13434feccbb02077030d62bd0f293aa93e67ad2b7bf15de02d1346a3e1602d` |
 
-The complete native suite passes **61/61** on the Mac. Installation, signing,
-launch and a real passkey ceremony remain a separate live change. Preserve the
+The complete native suite passes **61/61** on the Mac. A subsequent
+[build preflight](M1-companion-read-only-passkey-session-build-preflight-2026-10-25.md)
+produced a valid staged bundle but found that its available signing identity
+does not match the installed R2 signer. Installation is therefore NO-GO until
+signer continuity is restored or an exact transition is approved. Preserve the
 current signed app and rollback copy; do not exercise Red approval or any
 management mutation during that check.
