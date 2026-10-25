@@ -46,6 +46,7 @@ def run_spec(fixtures, source_corpus, source_plan):
             "sa3_investigation.py",
             "sa3_investigation_runner.py",
             "validate_sa3_fixture_bundle.py",
+            "validate_sa3_holdout_release.py",
         )
     }
     return {

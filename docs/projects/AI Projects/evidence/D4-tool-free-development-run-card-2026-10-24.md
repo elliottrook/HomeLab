@@ -9,8 +9,8 @@ local model can investigate the frozen simulated evidence without effects. It
 does not qualify a sysadmin role, grant a tool, change routing or select a
 provider.
 
-The exact run digest is
-`8db6fdee02f55a14c8a1bbfa52ea96307cb716ac33b7780905322883fe2b563b`.
+The revised exact run digest is
+`6299c6b285a440607d5da31790ff7af4275a613c4fdaac97e4bea6a3a2999267`.
 The dry run accesses no key and makes no request.
 
 ## Frozen inputs and runtime
@@ -28,8 +28,16 @@ The dry run accesses no key and makes no request.
   SYCL/Level Zero, accepted production unit and existing bearer identity.
 - Mode: `nonthinking` only. The accepted service is explicitly reasoning-off;
   this card does not pretend that a compact-thinking comparison is available.
-- The run manifest also binds SHA-256 values for all seven executor, engine,
+- The run manifest also binds SHA-256 values for all eight executor, engine,
   request, journal and validation modules.
+
+The first approved staging attempt for predecessor digest `8db6fdee...` stopped
+at the target dry run before authentication because the package omitted the
+transitive `validate_sa3_holdout_release.py` import. No model request ran. The
+temporary package was removed and production stayed healthy. The revised
+manifest includes that module, adds an isolated-package import-completeness
+test and passes the complete 141-test suite. The predecessor approval is spent
+and does not authorize this revised digest.
 
 ## Bounded execution
 

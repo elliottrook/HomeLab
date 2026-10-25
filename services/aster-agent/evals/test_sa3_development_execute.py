@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -27,7 +28,7 @@ class DevelopmentExecuteTests(unittest.TestCase):
         self.assertEqual(value["run_spec"]["mode"], "nonthinking")
         self.assertFalse(value["run_spec"]["connected_tools"])
         self.assertFalse(value["run_spec"]["effects"])
-        self.assertEqual(len(value["run_spec"]["implementation_sha256"]), 7)
+        self.assertEqual(len(value["run_spec"]["implementation_sha256"]), 8)
         self.assertTrue(all(
             len(item) == 64
             for item in value["run_spec"]["implementation_sha256"].values()
@@ -43,6 +44,24 @@ class DevelopmentExecuteTests(unittest.TestCase):
                 spec["fixture_file_sha256"],
                 run_spec(changed, self.source, self.plan)["fixture_file_sha256"],
             )
+
+    def test_frozen_implementation_set_is_import_complete(self):
+        spec = run_spec(self.fixtures, self.source, self.plan)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in spec["implementation_sha256"]:
+                shutil.copy2(self.here / name, root / name)
+            for path in (self.fixtures, self.source, self.plan):
+                shutil.copy2(path, root / path.name)
+            result = subprocess.run(
+                [sys.executable, str(root / "sa3_development_execute.py")],
+                cwd=root,
+                env={},
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            self.assertEqual(json.loads(result.stdout)["status"], "dry_run_valid")
 
     def test_execute_requires_exact_digest_before_authentication(self):
         with self.assertRaisesRegex(SystemExit, "approved digest"):
