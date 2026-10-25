@@ -415,8 +415,11 @@ repinning existing evidence. A new
 [candidate-bundle custody boundary](evidence/M3-NLU-candidate-bundle-boundary-2026-10-25.md)
 then gives the previously arbitrary candidate digest a content-free exact
 engine/policy/contract/adapter/runtime manifest, consistent egress and explicit
-no-tool/no-authority semantics; the focused NLU suite now passes 60/60. No
-candidate has been selected or sealed.
+no-tool/no-authority semantics. The following
+[calibration candidate-binding correction](evidence/M3-NLU-calibration-candidate-binding-2026-10-25.md)
+requires the calibration gate to validate that exact sealed manifest and bind
+its bytes through the registered policy; the focused NLU suite now passes
+61/61. No candidate has been selected or sealed.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)

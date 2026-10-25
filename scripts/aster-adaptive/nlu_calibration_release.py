@@ -13,6 +13,7 @@ import json
 import re
 
 from nlu_threshold_policy import FAMILIES, decode_unique_json, load_and_validate, sha256
+from nlu_candidate_bundle import validate_policy_binding
 
 
 SCHEMA = "aster-nlu-calibration-release.v1"
@@ -139,7 +140,12 @@ def validate_release(value: object) -> list[str]:
     return errors
 
 
-def validate_release_bundle(value: object, release_raw: bytes, policy_raw: bytes) -> list[str]:
+def validate_release_bundle(
+    value: object,
+    release_raw: bytes,
+    policy_raw: bytes,
+    candidate_raw: bytes,
+) -> list[str]:
     errors = validate_release(value)
     try:
         encoded_value = decode_unique_json(release_raw)
@@ -150,6 +156,10 @@ def validate_release_bundle(value: object, release_raw: bytes, policy_raw: bytes
             errors.append("exact calibration release bytes do not match validated manifest")
     policy, policy_errors = load_and_validate(policy_raw)
     errors.extend(f"threshold policy: {error}" for error in policy_errors)
+    errors.extend(
+        f"candidate binding: {error}"
+        for error in validate_policy_binding(policy_raw, candidate_raw)
+    )
     if policy is not None and policy.get("status") != "registered":
         errors.append("calibration release requires a registered threshold policy")
     if isinstance(value, dict) and value.get("status") == "sealed" and policy is not None:

@@ -148,6 +148,11 @@ defines the previously implicit artifact behind `candidate_bundle_sha256` and
 requires exact engine, policy, contract, adapter and runtime-profile provenance,
 consistent egress, disabled tools, no case data and no authority. Its template
 does not select or seal a candidate.
+The subsequent
+[calibration candidate-binding correction](evidence/M3-NLU-calibration-candidate-binding-2026-10-25.md)
+requires calibration admission to receive those exact candidate bytes, validate
+the sealed manifest and prove its hash is the digest named by the registered
+policy. Matching digest-shaped claims alone no longer admit calibration.
 
 ## Validation checkpoint — 2026-10-24
 
