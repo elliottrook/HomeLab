@@ -512,9 +512,10 @@ exporting the local service key and keeps labels on the Mac. It is an offline
 plan only; nothing has been staged. A read-only LXC110 preflight found the
 target path unused, Python 3.13.5 available, the key file mode `0600` without
 reading it, the accepted service active and adequate disk space.
-The exact packet is now also machine-readable and fail-closed: three focused
-tests and the full 109-test dependency-free NLU suite pass. No staging effect
-followed.
+The exact packet is now also machine-readable and fail-closed. Its validator
+requires the exact ten staged names and byte-verifies opened regular files
+without following symlinks; five focused tests and the full 111-test
+dependency-free NLU suite pass. No staging effect followed.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)

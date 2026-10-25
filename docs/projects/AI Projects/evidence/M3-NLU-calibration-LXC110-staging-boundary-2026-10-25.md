@@ -52,10 +52,13 @@ The packet is also frozen in machine-readable fixture
 `scripts/aster-adaptive/fixtures/nlu-calibration-stage-manifest-v1.json` at
 SHA-256 `be1e554367cba081135db12723a0b54eb6dabfe92b2576d41423a354e4988463`.
 Validator `nlu_calibration_stage_manifest.py` at SHA-256
-`0acaa084587cd9a19841c7022e873f1ed2993a0394a80c193e078f274916448e`
+`044827f55bf41dd9df144b6de06be34801846168629a1f4a7b459ae346197df5`
 requires the exact paths, modes, endpoint, key location, ten inputs, two
-outputs, exclusions and no-authority attestations. This packet was added at
-local commit `acaeeb079f3010ea3b3e0df21e3f63d9a906be24`.
+outputs, exclusions and no-authority attestations. When invoked with all ten
+`NAME=PATH` bindings, it rejects missing, changed, extra and symlink inputs and
+hashes the opened regular-file descriptors. The packet was added at local
+commit `acaeeb079f3010ea3b3e0df21e3f63d9a906be24`; byte verification was added
+at local commit `531c07fc02d77b36f0f27b9166f9e1b6c831681e`.
 
 Although the runner imports the score module for its fixed run schema, it does
 not score inside LXC110. Do not stage `labels.json`, the policy-registration
@@ -86,5 +89,5 @@ This plan does not authorize staging, deletion, a lease, service stop, model
 call, threshold selection, holdout access, shadow collection, routing, egress,
 tool use or production promotion. No live system changed while preparing it.
 
-The machine-readable packet tests pass 3/3, and the complete dependency-free
-NLU suite passes 109/109.
+The machine-readable packet tests pass 5/5, and the complete dependency-free
+NLU suite passes 111/111.

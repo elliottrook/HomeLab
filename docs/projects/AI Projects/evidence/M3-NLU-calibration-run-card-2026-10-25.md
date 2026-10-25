@@ -41,7 +41,7 @@ measure the candidate.
   `be1e554367cba081135db12723a0b54eb6dabfe92b2576d41423a354e4988463`;
   and
 - staging validator SHA-256:
-  `0acaa084587cd9a19841c7022e873f1ed2993a0394a80c193e078f274916448e`.
+  `044827f55bf41dd9df144b6de06be34801846168629a1f4a7b459ae346197df5`.
 
 ## Bounds and custody
 
@@ -78,6 +78,8 @@ directory under `/var/lib/aster-nlu-calibration/`:
 
 - stage only the private cases and content-free release, the public development
   fixture, runner and its seven pinned Python dependencies;
+- before use, supply all ten staged paths to the pinned validator and require
+  exact names, regular non-symlink files and matching opened-file digests;
 - do not stage private labels, the threshold selector or any cloud credential;
 - create the output and journal as mode `0600` files inside that directory;
 - after a terminal run, copy only the content-free output and journal back to

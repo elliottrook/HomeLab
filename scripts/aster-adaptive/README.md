@@ -79,7 +79,10 @@ or silently substitute the custody record.
 `nlu_calibration_stage_manifest.py` validates the exact no-effect LXC110 packet:
 ten pinned inputs, two owner-only outputs, persistent retain-on-uncertainty
 custody, explicit exclusions and no authority. Validation prepares later
-staging; it does not copy a file, acquire a lease or call the model.
+staging; it does not copy a file, acquire a lease or call the model. When all
+ten `--input NAME=PATH` bindings are supplied, it opens each input without
+following symlinks and verifies the bytes against the frozen digest before a
+packet can be treated as staged.
 
 `nlu_shadow_release.py` provides the later no-effect comparison boundary. The
 initial profile permits only S0 synthetic sources and retains opaque interpretation
