@@ -150,5 +150,33 @@ class ExerciseTests(unittest.TestCase):
             with self.assertRaises(exercise.ExerciseError):
                 runner.run(command)
 
+    def test_guest_pins_are_checked_in_lxc110_with_exact_custody(self):
+        calls = []
+        def command(argv, _timeout):
+            argv = tuple(argv); calls.append(argv); path = argv[-1]
+            if argv[4] == "stat":
+                mode = "755" if path.endswith("production-auth-probe") else "644"
+                return exercise.Result(0, f"0:{mode}\n")
+            if argv[4] == "sha256sum":
+                digest = exercise.GUEST_PINNED_FILES[("110", path)][0]
+                return exercise.Result(0, f"{digest}  {path}\n")
+            return exercise.Result(0, "")
+        runner = exercise.Exercise(command)
+        runner.verify_guest_custody()
+        self.assertEqual(len(calls), 8)
+        self.assertTrue(all(call[:4] == ("pct", "exec", "110", "--") for call in calls))
+
+    def test_guest_pin_hash_mismatch_fails_closed(self):
+        def command(argv, _timeout):
+            path = argv[-1]
+            if argv[4] == "stat":
+                mode = "755" if path.endswith("production-auth-probe") else "644"
+                return exercise.Result(0, f"0:{mode}\n")
+            if argv[4] == "sha256sum":
+                return exercise.Result(0, f"{'0' * 64}  {path}\n")
+            return exercise.Result(0, "")
+        with self.assertRaises(exercise.ExerciseError):
+            exercise.Exercise(command).verify_guest_custody()
+
 
 if __name__ == "__main__": unittest.main()

@@ -83,8 +83,12 @@ PINNED_FILES = {
     WATCHDOG_ENTRYPOINT: "65012c196134242a76a2131fbc9d7f28b50bcfd9137a87cfda0a416345430c99",
     RESTORE_OBSERVER: "5cb6bec83864b5a8eeeb1b8c0624b93498fc04b2fcf36afb61e13caa0e64e8ab",
     OWNER_START: "0d84d35300202c5d9316cc38a853402f7c252aab0ec5069f0b759dd3f3157d22",
-    "/usr/local/libexec/aster-a1/llama_auth_probe.py": "0996e1b565ad24b740997bbfe598065267e20380135a5af41687d0562239cae6",
-    "/usr/local/sbin/aster-llama-production-auth-probe": "aac604de1f35c048791c5f1cfc21e25d9eb3e679fb7d799f74671307463313ac",
+}
+GUEST_PINNED_FILES = {
+    ("110", "/usr/local/libexec/aster-a1/llama_auth_probe.py"):
+        ("0996e1b565ad24b740997bbfe598065267e20380135a5af41687d0562239cae6", "644"),
+    ("110", "/usr/local/sbin/aster-llama-production-auth-probe"):
+        ("aac604de1f35c048791c5f1cfc21e25d9eb3e679fb7d799f74671307463313ac", "755"),
 }
 
 class ExerciseError(RuntimeError):
@@ -221,10 +225,22 @@ class Exercise:
                 raise ExerciseError(f"installed pin custody failed: {path.name}")
             if hashlib.sha256(path.read_bytes()).hexdigest() != expected:
                 raise ExerciseError(f"installed pin drifted: {path.name}")
+        self.verify_guest_custody()
         info = self.receipt_root.lstat()
         if (stat.S_ISLNK(info.st_mode) or not stat.S_ISDIR(info.st_mode)
                 or info.st_uid != 0 or stat.S_IMODE(info.st_mode) != 0o700):
             raise ExerciseError("receipt directory custody is not root-owned 0700")
+
+    def verify_guest_custody(self) -> None:
+        for (vmid, raw), (expected_hash, expected_mode) in GUEST_PINNED_FILES.items():
+            self.run(("pct", "exec", vmid, "--", "test", "-f", raw))
+            self.run(("pct", "exec", vmid, "--", "test", "!", "-L", raw))
+            metadata = self.run(("pct", "exec", vmid, "--", "stat", "-c", "%u:%a", raw)).stdout.strip()
+            if metadata != f"0:{expected_mode}":
+                raise ExerciseError(f"guest pin custody failed: {raw}")
+            words = self.run(("pct", "exec", vmid, "--", "sha256sum", raw)).stdout.split()
+            if words != [expected_hash, raw]:
+                raise ExerciseError(f"guest pin drifted: {raw}")
 
     def prestate(self, lease_id: str) -> dict[str, object]:
         self.require_absent(); self.verify_static_custody()
@@ -328,7 +344,10 @@ class Exercise:
                        "healthy_effects": healthy["effects"], "healthy_decision": healthy["decision"],
                        "recovery_effects": recovered["effects"], "recovery_decision": recovered["decision"],
                        "consumer_commands": 0, "f2_unchanged": True, "f6_unchanged": True,
-                       "installed_pins": dict(PINNED_FILES), "prestate_digest": snapshot_digest,
+                       "installed_pins": {**PINNED_FILES, **{
+                           f"lxc{vmid}:{path}": digest
+                           for (vmid, path), (digest, _mode) in GUEST_PINNED_FILES.items()
+                       }}, "prestate_digest": snapshot_digest,
                        "commands": list(command_rows),
                        "commands_digest": hashlib.sha256("\n".join(command_rows).encode()).hexdigest(),
                        "completed_epoch": self.clock()}
