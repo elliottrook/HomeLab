@@ -73,22 +73,29 @@ now passes the repinned byte verifier: 10/10 regular non-symlink inputs and
 93,612 aggregate bytes matched the frozen manifest. This was read-only and did
 not stage a file.
 
-## Live sequence after separate approval
+## Inactive staging split
 
-1. Prove the compatible lease, quiet-host, backup and restoration gates from
+The later [inactive staging card](M3-NLU-calibration-inactive-staging-card-2026-10-25.md)
+separates the ten-file copy from model execution. A compatible lease is not
+required merely to place and byte-verify an inert root-only packet while no
+other host work is active. The fresh lease, idle endpoint, runtime pins and
+restoration reserve remain mandatory before the first request. This reduces
+exclusive-time setup without authorizing staging or inference by itself.
+
+## Live execution sequence after separate approval
+
+1. Require the exact staged packet and re-read size, mode, owner and SHA-256
+   inside LXC110. Any mismatch is NO-GO and no model request follows.
+2. Prove the compatible lease, quiet-host, backup and restoration gates from
    the main run card.
-2. Create the fresh directory and copy the ten pinned inputs without printing
-   content.
-3. Re-read size, mode, owner and SHA-256 inside LXC110. Any mismatch is NO-GO;
-   remove the never-used directory and make no model request.
-4. Invoke the runner once with distinct new `run.json` and
+3. Invoke the runner once with distinct new `run.json` and
    `attempt-journal.jsonl` paths. Never retry an uncertain attempt.
-5. Copy only those two content-free outputs to the existing owner-only Mac
+4. Copy only those two content-free outputs to the existing owner-only Mac
    calibration custody directory. Verify source/destination hashes and modes.
-6. Validate journal-to-run agreement and derive the score on the Mac using the
+5. Validate journal-to-run agreement and derive the score on the Mac using the
    existing private labels. Threshold selection follows only on a complete,
    valid 60-record run.
-7. After verified Mac custody and a normal production postcheck, remove only
+6. After verified Mac custody and a normal production postcheck, remove only
    this run directory. If any outcome is uncertain, leave it mode `0700` for
    reconciliation and do not clean or rerun.
 

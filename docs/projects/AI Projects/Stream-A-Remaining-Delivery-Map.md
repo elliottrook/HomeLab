@@ -523,6 +523,13 @@ prevents ordinary accepted `usage`/`timings` metadata from invalidating every
 classification while still rejecting unknown metadata and retaining none of
 it. The repinned 93,612-byte packet passes, and the full NLU suite passes
 113/113. No staging effect followed.
+The [inactive staging card](evidence/M3-NLU-calibration-inactive-staging-card-2026-10-25.md)
+now removes an unnecessary exclusive-window dependency: the inert ten-file
+packet may be copied and byte-verified before lab hours under its own bounded
+approval, while the compatible lease and all runtime/recovery gates still
+remain mandatory before the first model request. The live target path is
+currently absent, the lease controller is ready and the accepted llama service
+is active. No file has yet been staged.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)
