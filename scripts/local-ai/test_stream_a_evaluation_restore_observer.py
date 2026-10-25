@@ -1,4 +1,6 @@
+import json
 import subprocess
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -54,7 +56,38 @@ class RestoreObserverTests(unittest.TestCase):
                 scan_gpu_holders(Path(root))
 
     def test_observer_requires_explicit_gate(self):
-        self.assertEqual(main(["--lease-id", "eval-1", "--generation", "1"]), 0)
+        self.assertEqual(main([]), 0)
+
+    def test_copied_wrapper_is_inert_then_forwards_authorized_arguments(self):
+        wrapper_source = (Path(__file__).resolve().parent.parent.parent /
+                          "services/local-ai-lease/stream-a-evaluation-restore-observe")
+        module_source = Path(__file__).resolve().parent / "stream_a_evaluation_restore_observer.py"
+        with tempfile.TemporaryDirectory() as root:
+            root = Path(root)
+            module = root / "stream_a_evaluation_restore_observer.py"
+            shutil.copy2(module_source, module)
+            wrapper = root / "wrapper"
+            wrapper.write_text(wrapper_source.read_text().replace(
+                "/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_restore_observer.py",
+                str(module)))
+            wrapper.chmod(0o755)
+            inert = subprocess.run(["/bin/sh", str(wrapper)], check=True,
+                                   capture_output=True, text=True)
+            self.assertEqual(json.loads(inert.stdout),
+                             {"effects": "disabled", "state": "source-only"})
+            fake = root / "fake_restore_observer.py"
+            fake.write_text("import json, sys; print(json.dumps(sys.argv[1:]))\n")
+            authorized_wrapper = root / "authorized-wrapper"
+            authorized_wrapper.write_text(wrapper_source.read_text().replace(
+                "/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_restore_observer.py",
+                str(fake)))
+            authorized_wrapper.chmod(0o755)
+            authorized = subprocess.run(
+                ["/bin/sh", str(authorized_wrapper), "--lease-id", "eval-1",
+                 "--generation", "7", "--observe-authorized"],
+                check=True, capture_output=True, text=True)
+            self.assertEqual(json.loads(authorized.stdout), [
+                "--lease-id", "eval-1", "--generation", "7", "--observe-authorized"])
 
 
 if __name__ == "__main__":

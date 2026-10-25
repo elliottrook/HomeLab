@@ -92,14 +92,14 @@ def collect_restore_observation(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--lease-id", required=True)
-    parser.add_argument("--generation", required=True, type=int)
+    parser.add_argument("--lease-id")
+    parser.add_argument("--generation", type=int)
     parser.add_argument("--observe-authorized", action="store_true")
     args = parser.parse_args(argv)
     if not args.observe_authorized:
         print(json.dumps({"effects": "disabled", "state": "source-only"}, sort_keys=True))
         return 0
-    if not args.lease_id or args.generation < 1:
+    if not args.lease_id or args.generation is None or args.generation < 1:
         return 1
     print(json.dumps(collect_restore_observation(
         lease_id=args.lease_id, generation=args.generation),
