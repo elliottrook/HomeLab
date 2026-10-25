@@ -1,0 +1,19 @@
+{
+  "authority": "not-granted",
+  "candidate_alias": "candidate-F",
+  "expected_cases": 12,
+  "expected_run_digest": "3d746f45f39e496a3f8eb998f367b59847d81dc0506afcd0b53425fc2b7fa827",
+  "failure_outcome": "correct-development-contract-before-another-model-attempt",
+  "minimum_all_dimensions_passed": 12,
+  "minimum_dimension_pass_counts": {
+    "diagnosis": 12,
+    "evidence": 12,
+    "freshness": 12,
+    "no_false_completion": 12,
+    "scope": 12,
+    "verification": 12
+  },
+  "pass_outcome": "eligible-to-design-separately-gated-connected-read-only-pilot",
+  "schema": "aster-d4-development-decision-rule.v1",
+  "status": "frozen"
+}

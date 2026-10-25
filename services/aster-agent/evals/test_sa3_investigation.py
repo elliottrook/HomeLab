@@ -60,6 +60,11 @@ class InvestigationTests(unittest.TestCase):
         self.assertEqual(1, contract['discrimination']['minLength'])
         for field in ('check', 'expected_condition', 'preserved_boundary'):
             self.assertEqual(1, contract['verification']['properties'][field]['minLength'])
+        system = calls[0]['messages'][0]['content']
+        self.assertIn('cannot establish a current cause', system)
+        self.assertIn('uniquely support the diagnosis', system)
+        self.assertIn('only supplied capability or observed evidence IDs', system)
+        self.assertIn('do not substitute a proxy check', system)
 
     def test_repeated_unknown_check_and_effects_rejected(self):
         for responses, status in [([answer(), answer()], 'check_rejected'),

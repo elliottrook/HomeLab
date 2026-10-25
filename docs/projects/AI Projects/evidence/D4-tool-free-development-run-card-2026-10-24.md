@@ -108,11 +108,12 @@ Candidate-D is spent and no blind review ran.
 Candidate-E requires nonempty advisory strings in the constrained JSON grammar
 for every decision. Nonterminal values are still cleared before retention;
 terminal values remain available to the blind reviewer. It is preregistered at
-exact digest
-`0e6b324a5e779b00744f9258431280016116df75e1f7cccd67d0e383545104d6`.
-Its eleven-file source manifest has SHA-256
-`3c46f8de30b871623663cda288623fc55a6bc8348ed044f7b75ac95b319ca4fe`,
-and the complete suite passes 164/164. It has not run.
+exact digest `0e6b324a…104d6`. Its approved run passed the structural
+gate with 12/12 accepted terminal sessions. A fresh-history blind review then
+passed all dimensions in only 6/12 cases: diagnosis 10/12, evidence 10/12,
+freshness 11/12, scope 12/12, verification 7/12 and no-false-completion 12/12.
+The frozen rule returned NO-GO. Candidate-E is spent and authority remains
+not granted.
 
 ## Bounded execution
 
@@ -163,9 +164,11 @@ the model, route, tool authority or repair capability.
 
 ## Approval boundary
 
-The authorizations for attempts 4 through 7 have been consumed. Candidate-E's
-exact 12-session run is not authorized. Any later authorization would cover only
-the candidate-E digest and bounded execution above; it would not authorize a replay,
-reasoning mode,
+The authorizations for attempts 4 through 8 have been consumed. No later
+candidate is authorized. Candidate-F is preregistered at digest
+`3d746f45f39e496a3f8eb998f367b59847d81dc0506afcd0b53425fc2b7fa827`
+after an offline prompt-only correction derived from candidate-E's six failed
+review cases. Any later authorization would need to bind that tested digest
+and bounded execution; it would not authorize a replay, reasoning mode,
 connected tools, new credentials, service restart, configuration change,
 production deployment, automatic routing, holdout access or a Git push.
