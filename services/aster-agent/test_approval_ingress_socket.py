@@ -38,7 +38,8 @@ class ApprovalIngressSocketTests(unittest.TestCase):
     def setUp(self):
         self.tempdir = tempfile.TemporaryDirectory()
         root = Path(self.tempdir.name)
-        self.store = BrokerStore(root / "broker.db", clock=lambda: int(time.time()))
+        self.now = int(time.time())
+        self.store = BrokerStore(root / "broker.db", clock=lambda: self.now)
         self.store.register_agent("agent", 1234)
         self.store.set_agent_state("agent", "operator")
         self.store.register_service("synthetic")
@@ -124,6 +125,41 @@ class ApprovalIngressSocketTests(unittest.TestCase):
                                   headers=self.headers(), json={"payload_hash": pending.payload_hash})
         self.assertEqual(503, response.status_code)
         self.assertEqual("pending", self.store.get_request(pending.request_id).status)
+
+    def test_demotion_closes_the_http_approval_path(self):
+        headers = self.headers()
+        demoted = self.store.create_request("agent", "restart", {"case": "demotion"})
+        self.store.set_agent_state("agent", "observer")
+        response = self.http.post(
+            f"{ROOT}/{demoted.request_id}/approve", headers=headers,
+            json={"payload_hash": demoted.payload_hash},
+        )
+        self.assertEqual(409, response.status_code)
+        self.assertEqual("revoked", self.store.get_request(demoted.request_id).status)
+
+    def test_capability_revocation_closes_the_http_approval_path(self):
+        headers = self.headers()
+        revoked = self.store.create_request("agent", "restart", {"case": "revocation"})
+        self.store.revoke_capability("agent", "restart")
+        response = self.http.post(
+            f"{ROOT}/{revoked.request_id}/approve", headers=headers,
+            json={"payload_hash": revoked.payload_hash},
+        )
+        self.assertEqual(409, response.status_code)
+        self.assertEqual("revoked", self.store.get_request(revoked.request_id).status)
+
+    def test_expiry_closes_the_http_approval_path(self):
+        headers = self.headers()
+        expired = self.store.create_request(
+            "agent", "restart", {"case": "expiry"}, ttl_seconds=1,
+        )
+        self.now += 2
+        response = self.http.post(
+            f"{ROOT}/{expired.request_id}/approve", headers=headers,
+            json={"payload_hash": expired.payload_hash},
+        )
+        self.assertEqual(409, response.status_code)
+        self.assertEqual("expired", self.store.get_request(expired.request_id).status)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 
@@ -42,6 +43,46 @@ class BrokerCoreTests(unittest.TestCase):
         self.assertEqual("consumed", self.store.consume_request(request.request_id, payload, agent_id="agent-test").status)
         with self.assertRaisesRegex(BrokerDenied, "not approved"):
             self.store.consume_request(request.request_id, payload, agent_id="agent-test")
+
+    def test_duplicate_consumers_race_to_one_terminal_result(self):
+        payload = {"target": "synthetic", "parameters": {"probe": "race"}}
+        request = self.store.create_request("agent-test", "health.read", payload)
+        second = BrokerStore(self.store.database, clock=lambda: self.now)
+        barrier = threading.Barrier(2)
+        results = []
+
+        def consume(store):
+            barrier.wait()
+            try:
+                results.append(store.consume_request(
+                    request.request_id, payload, agent_id="agent-test",
+                ).status)
+            except BrokerDenied as error:
+                results.append(str(error))
+
+        threads = [threading.Thread(target=consume, args=(store,)) for store in (self.store, second)]
+        try:
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join(timeout=5)
+            self.assertTrue(all(not thread.is_alive() for thread in threads))
+            self.assertEqual(1, results.count("consumed"))
+            self.assertEqual(1, results.count("request is not approved"))
+            self.assertEqual("consumed", self.store.get_request(request.request_id).status)
+        finally:
+            second.close()
+
+    def test_stale_approved_request_revalidates_current_policy(self):
+        payload = {"target": "synthetic", "parameters": {"probe": "policy"}}
+        request = self.store.create_request("agent-test", "health.read", payload)
+        self.store.connection.execute(
+            "UPDATE capabilities SET risk_class='yellow' WHERE capability='health.read'"
+        )
+        self.store.connection.commit()
+        with self.assertRaisesRegex(BrokerDenied, "policy changed"):
+            self.store.consume_request(request.request_id, payload, agent_id="agent-test")
+        self.assertEqual("approved", self.store.get_request(request.request_id).status)
 
     def test_non_green_requires_promotion_and_approval(self):
         with self.assertRaisesRegex(BrokerDenied, "probation"):

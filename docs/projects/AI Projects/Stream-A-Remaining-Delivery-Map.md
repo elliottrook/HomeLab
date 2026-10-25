@@ -24,6 +24,15 @@ request. This is a Yellow-only release: Red and management remain closed until
 a separately proven passkey claim exists. Remaining M1 work is offline
 demotion, revocation, expiry, stale-request and duplicate-consumption boundary
 coverage; a real ceremony or grant is not implied.
+The [first follow-on boundary suite](evidence/M1-approval-boundary-offline-coverage-2026-10-24.md)
+now closes that offline test gap for the current source candidate: 40 broker
+and HTTP/socket tests pass, including concurrent duplicate consumption, stale
+policy, demotion, capability revocation and expiry. Production's installed
+broker core is an earlier reviewed lineage; its synthetic demotion and expiry
+paths pass, while the newer capability-revocation operator method is absent.
+That difference is not exposed by the Yellow-only HTTP release, but it must be
+handled as a separate hash-pinned broker-source promotion rather than inferred
+from the successful ingress cutover.
 
 **October 24 F2 result:** the approved exact-date preparation succeeded at
 01:15, but the 01:20 final service returned NO-GO with bounded class
