@@ -1,6 +1,11 @@
 import copy
+import contextlib
+import io
 import json
+import stat
+import tempfile
 import unittest
+from pathlib import Path
 
 import nlu_calibration_corpus as corpus
 import nlu_calibration_score as score
@@ -120,6 +125,41 @@ class NluCalibrationScoreTests(unittest.TestCase):
         for change in variants:
             with self.subTest(change=change), self.assertRaises(ValueError):
                 self.derive(change)
+
+    def test_cli_creates_owner_only_score_and_refuses_overwrite(self):
+        source_raw, label_raw, release_raw, run = run_inputs()
+        run["engine_sha256"] = score.SEALED_ENGINE_SHA256
+        run["policy_sha256"] = score.SEALED_POLICY_SHA256
+        for row in run["records"]:
+            row["interpretation"]["engine_digest"] = "sha256:" + score.SEALED_ENGINE_SHA256
+            row["interpretation"]["policy_digest"] = "sha256:" + score.SEALED_POLICY_SHA256
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            paths = {
+                "source": source_raw,
+                "labels": label_raw,
+                "release": release_raw,
+                "run": encoded(run),
+                "development": DEVELOPMENT,
+            }
+            for name, raw in paths.items():
+                (root / f"{name}.json").write_bytes(raw)
+            output = root / "score.json"
+            argv = [
+                "--source", str(root / "source.json"),
+                "--labels", str(root / "labels.json"),
+                "--release", str(root / "release.json"),
+                "--run", str(root / "run.json"),
+                "--development", str(root / "development.json"),
+                "--output", str(output),
+            ]
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(0, score.main(argv))
+            self.assertEqual(0o600, stat.S_IMODE(output.stat().st_mode))
+            self.assertEqual(score.SCORE_SCHEMA, json.loads(output.read_bytes())["schema"])
+            with contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit):
+                    score.main(argv)
 
 
 if __name__ == "__main__":

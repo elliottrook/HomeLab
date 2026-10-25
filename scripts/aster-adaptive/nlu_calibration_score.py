@@ -8,7 +8,10 @@ confidence or execution grant.
 
 from __future__ import annotations
 
+import argparse
 import json
+import os
+from pathlib import Path
 import math
 
 import nlu_calibration_corpus as corpus
@@ -28,6 +31,8 @@ SENSITIVITY_RANK = {"public": 0, "internal": 1, "personal": 2}
 ERROR_TYPES = {
     "deadline_exceeded", "engine_unavailable", "response_invalid", "transport_error",
 }
+SEALED_ENGINE_SHA256 = "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13"
+SEALED_POLICY_SHA256 = "57887883010ac682d50af9931b0dc80c71d2fe3b41309bf7b772fec70f4ed179"
 
 
 def _load(raw: bytes, name: str) -> dict:
@@ -149,3 +154,58 @@ def derive_score(
         "calibration_artifact_sha256": sha256(release_raw),
         "cases": rows,
     }
+
+
+def canonical_json(value: object) -> bytes:
+    return (json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n").encode()
+
+
+def write_new_private(path: Path, payload: bytes) -> None:
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    try:
+        with os.fdopen(descriptor, "wb") as output:
+            output.write(payload)
+    except BaseException:
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            pass
+        raise
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Derive one content-free score from the sealed NLU calibration run."
+    )
+    parser.add_argument("--source", type=Path, required=True)
+    parser.add_argument("--labels", type=Path, required=True)
+    parser.add_argument("--release", type=Path, required=True)
+    parser.add_argument("--run", type=Path, required=True)
+    parser.add_argument("--development", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args(argv)
+    try:
+        result = derive_score(
+            args.source.read_bytes(),
+            args.labels.read_bytes(),
+            args.release.read_bytes(),
+            args.run.read_bytes(),
+            args.development.read_bytes(),
+            engine_sha256=SEALED_ENGINE_SHA256,
+            policy_sha256=SEALED_POLICY_SHA256,
+        )
+        output_raw = canonical_json(result)
+        write_new_private(args.output, output_raw)
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
+    print(json.dumps({
+        "schema": result["schema"],
+        "case_count": len(result["cases"]),
+        "score_sha256": sha256(output_raw),
+        "authority": "not-granted",
+    }, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

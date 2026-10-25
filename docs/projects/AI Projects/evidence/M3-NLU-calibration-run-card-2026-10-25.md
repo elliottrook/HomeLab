@@ -30,8 +30,13 @@ measure the candidate.
 - model-policy SHA-256:
   `57887883010ac682d50af9931b0dc80c71d2fe3b41309bf7b772fec70f4ed179`;
 - endpoint: accepted local `aster-llama` chat-completions endpoint only; and
-- runner: `scripts/aster-adaptive/nlu_calibration_runner.py` from the commit
-  containing this card.
+- runner source commit: `3a141e6d`, with runner SHA-256
+  `1ebe14ecd689f9be84ca8493343b209271ce1b1cea6672c92536ec8a77f2de1a`;
+- scorer SHA-256:
+  `b5b7b8469aff421e92b0a51125428f61951556f63cf616b82e6c90d115c8e2a4`;
+  and
+- threshold selector SHA-256:
+  `1834f495917810c7cf55f2c1e41584d59358b5464f5e6bce631dd7edbb9ba5f5`.
 
 ## Bounds and custody
 
@@ -71,3 +76,6 @@ score and run the exact registered threshold selector. A valid frozen threshold
 is calibration evidence only. A rejected threshold is a measured candidate
 rejection. Neither result opens the independent holdout, deploys the NLU,
 enables shadowing or automatic routing, or changes the accepted B60 runtime.
+The scorer and selector each create a new owner-only mode-`0600` artifact and
+refuse to replace existing evidence; their command summaries contain only
+schema, count/status and digest fields.

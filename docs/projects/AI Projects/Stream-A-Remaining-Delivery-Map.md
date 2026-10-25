@@ -469,7 +469,7 @@ and [release](evidence/M3-NLU-calibration-scoring-release-receipt-2026-10-25.md)
 receipts bind the source and release without exposing text or labels. The exact
 accepted policy is now [registered and bound to a preregistered binary route
 score](evidence/M3-NLU-calibration-registration-and-score-boundary-2026-10-25.md),
-and the dependency-free NLU suite passes 91/91. The
+and the dependency-free NLU suite passes 92/92. The
 [60-case live run card](evidence/M3-NLU-calibration-run-card-2026-10-25.md)
 is the next gate. No model call, threshold selection, holdout access, shadow
 collection or routing change has occurred.

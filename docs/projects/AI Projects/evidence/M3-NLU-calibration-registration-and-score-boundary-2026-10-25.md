@@ -44,7 +44,8 @@ still must satisfy all accepted constraints over the complete run.
   `f13a795f5c3b1890d87e2b6417c972c47817ded027f607bc00ad05a6e4c894a1`;
 - registration artifact SHA-256:
   `85b5090f929c50cba02d914418c1187bb9a7d848f05c38b174f125f77442df0a`;
-- dependency-free NLU suite: `91/91` passed after runner and score tests; and
+- dependency-free NLU suite: `92/92` passed after runner, scorer CLI and score
+  tests; and
 - tracked calibration and registration artifacts contain no request text or
   raw label content.
 
