@@ -1,6 +1,8 @@
 import io
 import json
+import tempfile
 import unittest
+from pathlib import Path
 from urllib.error import URLError
 
 import nlu_calibration_runner as runner
@@ -136,6 +138,49 @@ class NluCalibrationRunnerTests(unittest.TestCase):
         result = runner.run_cases(cases(), "s" * 32, opener=opener, clock=Clock())
         self.assertFalse(runner.completed(result, 2))
         self.assertEqual(2, runner.INCOMPLETE_EXIT)
+
+    def test_observer_records_attempt_boundaries_without_content(self):
+        events = []
+        result = runner.run_cases(
+            cases(1), "s" * 32, opener=Opener([response_bytes()]),
+            clock=Clock(), observer=events.append,
+        )
+        self.assertTrue(runner.completed(result, 1))
+        self.assertEqual("attempt_started", events[0]["event"])
+        self.assertEqual("attempt_recorded", events[1]["event"])
+        self.assertNotIn("Synthetic", json.dumps(events))
+
+    def test_journal_failure_stops_before_model_request(self):
+        opener = Opener([response_bytes()])
+
+        def failed_observer(event):
+            raise runner.EvidenceWriteFailure("synthetic evidence failure")
+
+        with self.assertRaises(runner.EvidenceWriteFailure):
+            runner.run_cases(
+                cases(1), "s" * 32, opener=opener, clock=Clock(),
+                observer=failed_observer,
+            )
+        self.assertEqual([], opener.requests)
+
+    def test_reserved_output_is_atomically_sealed_private(self):
+        with tempfile.TemporaryDirectory() as root:
+            output = Path(root) / "run.json"
+            with runner._create_private(output):
+                pass
+            runner._seal_reserved(output, b'{"synthetic":true}\n')
+            self.assertEqual(b'{"synthetic":true}\n', output.read_bytes())
+            self.assertEqual(0o600, output.stat().st_mode & 0o777)
+
+    def test_failed_journal_reservation_removes_empty_output(self):
+        with tempfile.TemporaryDirectory() as root:
+            output = Path(root) / "run.json"
+            journal = Path(root) / "attempt.jsonl"
+            journal.write_text("existing")
+            with self.assertRaises(FileExistsError):
+                runner._reserve_evidence(output, journal)
+            self.assertFalse(output.exists())
+            self.assertEqual("existing", journal.read_text())
 
 
 if __name__ == "__main__":

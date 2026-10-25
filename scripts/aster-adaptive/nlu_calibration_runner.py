@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import time
 import urllib.error
 import urllib.request
@@ -32,6 +33,11 @@ MAX_RESPONSE = 65_536
 PER_CASE_TIMEOUT_SECONDS = 90
 RUN_DEADLINE_SECONDS = 1_200
 INCOMPLETE_EXIT = 2
+EVIDENCE_EXIT = 3
+
+
+class EvidenceWriteFailure(BaseException):
+    """Stop the run before another request when durable evidence fails."""
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -79,11 +85,77 @@ def _failure(case_id: str, latency: float, failure: str, error_type: str) -> dic
     }
 
 
-def run_cases(cases: list[dict], token: str, *, opener=None, clock=time.monotonic) -> dict:
+def _validate_token(token: str) -> None:
     if not isinstance(token, str) or not 16 <= len(token) <= 256 or any(
         not 33 <= ord(character) <= 126 for character in token
     ):
         raise ValueError("invalid local service credential")
+
+
+def _write_event(stream, event: dict) -> None:
+    try:
+        raw = (json.dumps(
+            event, sort_keys=True, separators=(",", ":"), allow_nan=False
+        ) + "\n").encode()
+        stream.write(raw)
+        stream.flush()
+        os.fsync(stream.fileno())
+    except (OSError, TypeError, ValueError) as error:
+        raise EvidenceWriteFailure(
+            "private calibration journal failed; stop without retry"
+        ) from error
+
+
+def _create_private(path: Path):
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    return os.fdopen(os.open(path, flags, 0o600), "wb")
+
+
+def _seal_reserved(path: Path, payload: bytes) -> None:
+    pending = path.with_name(f".{path.name}.tmp-{os.getpid()}")
+    try:
+        with _create_private(pending) as output:
+            output.write(payload)
+            output.flush()
+            os.fsync(output.fileno())
+        os.replace(pending, path)
+        directory = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+    except OSError as error:
+        try:
+            pending.unlink()
+        except FileNotFoundError:
+            pass
+        raise EvidenceWriteFailure(
+            "final calibration write failed; journal retained; stop without retry"
+        ) from error
+
+
+def _reserve_evidence(output_path: Path, journal_path: Path):
+    """Reserve both paths before inference, cleaning up a partial reservation."""
+    with _create_private(output_path):
+        pass
+    try:
+        return _create_private(journal_path)
+    except BaseException:
+        try:
+            output_path.unlink()
+        except FileNotFoundError:
+            pass
+        raise
+
+
+def run_cases(
+    cases: list[dict], token: str, *, opener=None, clock=time.monotonic,
+    observer=None,
+) -> dict:
+    _validate_token(token)
+    emit = observer if observer is not None else lambda event: None
     transport = opener if opener is not None else urllib.request.build_opener(
         urllib.request.ProxyHandler({}), _NoRedirect()
     )
@@ -92,7 +164,9 @@ def run_cases(cases: list[dict], token: str, *, opener=None, clock=time.monotoni
     for case in cases:
         remaining = RUN_DEADLINE_SECONDS - (clock() - started)
         if remaining <= 0:
+            emit({"event": "run_stopped", "reason": "deadline_exhausted"})
             break
+        emit({"event": "attempt_started", "case_id": case["id"]})
         request = urllib.request.Request(
             ENDPOINT,
             data=adapter.build_payload(case["text"]),
@@ -145,6 +219,15 @@ def run_cases(cases: list[dict], token: str, *, opener=None, clock=time.monotoni
                 case["id"], clock() - one_started, "engine_error", "transport_error"
             ))
             stop_run = True
+        recorded = records[-1]
+        event = {
+            "event": "attempt_recorded",
+            "case_id": case["id"],
+            "valid": recorded["valid"],
+        }
+        if not recorded["valid"]:
+            event["error_type"] = recorded["error_type"]
+        emit(event)
         if stop_run:
             break
     return {
@@ -174,18 +257,46 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--release", type=Path, required=True)
     parser.add_argument("--development", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--journal", type=Path, required=True)
     parser.add_argument("--key-file", type=Path, default=KEY_PATH)
     args = parser.parse_args(argv)
     try:
+        if args.output == args.journal:
+            raise ValueError("output and journal paths must differ")
         source_raw = args.source.read_bytes()
         release_raw = args.release.read_bytes()
         cases = validate_inputs(source_raw, release_raw, args.development.read_bytes())
         token = args.key_file.read_text().splitlines()[0].strip()
-        result = run_cases(cases, token)
-        corpus.write_new_private(args.output, corpus.canonical_json(result))
+        _validate_token(token)
     except (IndexError, OSError, ValueError) as error:
         parser.error(str(error))
-    is_complete = completed(result, len(cases))
+    try:
+        with _reserve_evidence(args.output, args.journal) as journal:
+            _write_event(journal, {
+                "event": "run_started",
+                "schema": "aster-nlu-calibration-attempt-journal.v1",
+                "candidate_bundle_sha256": corpus.CANDIDATE_SHA256,
+                "calibration_artifact_sha256": RELEASE_ARTIFACT_SHA256,
+                "planned": len(cases),
+                "authority": "not-granted",
+            })
+            result = run_cases(
+                cases, token, observer=lambda event: _write_event(journal, event)
+            )
+            is_complete = completed(result, len(cases))
+            _write_event(journal, {
+                "event": "run_finished",
+                "attempted": len(result["records"]),
+                "complete": is_complete,
+            })
+        _seal_reserved(args.output, corpus.canonical_json(result))
+    except FileExistsError as error:
+        parser.error(f"private evidence path already exists: {error.filename}")
+    except OSError as error:
+        parser.error(f"private evidence reservation failed: {error.filename}")
+    except EvidenceWriteFailure as error:
+        print(str(error))
+        return EVIDENCE_EXIT
     print(json.dumps({
         "schema": result["schema"],
         "attempted": len(result["records"]),
