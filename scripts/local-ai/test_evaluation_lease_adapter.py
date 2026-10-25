@@ -536,18 +536,24 @@ class AdapterTests(unittest.TestCase):
                 try:
                     adapter.heartbeat(lease_id="eval-1", generation=1, now_epoch=1001)
                 except AdapterError as exc:
-                    failures.append(exc)
+                    failures.append(("heartbeat", exc))
             def outcome_writer():
                 barrier.wait()
                 try:
                     adapter.record_outcome(outcome, now_epoch=1001, heartbeat_timeout=30)
                 except AdapterError as exc:
-                    failures.append(exc)
+                    failures.append(("outcome", exc))
             threads = [threading.Thread(target=heartbeat), threading.Thread(target=outcome_writer)]
             for thread in threads:
                 thread.start()
             for thread in threads:
                 thread.join()
+            # The operation guard is deliberately non-blocking.  If the
+            # outcome writer loses the race, its caller must retry after the
+            # competing heartbeat releases the guard; otherwise this test
+            # would incorrectly require the outcome to win every schedule.
+            if any(name == "outcome" for name, _exc in failures):
+                adapter.record_outcome(outcome, now_epoch=1001, heartbeat_timeout=30)
             state = read_state(adapter.state_path)
             self.assertEqual(tuple(row[0] for row in state.completed_outcomes), ("d4-candidate-g",))
             self.assertIsNone(state.in_flight_workload)
