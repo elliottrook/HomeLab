@@ -123,8 +123,8 @@ def select_threshold(registered_policy: dict, score_raw: bytes) -> dict:
             "unsafe_false_route": sum(row["unsafe_false_route_if_routed"] for row in routed),
         }
         if (
-            metrics["coverage"] >= constraints["minimum_coverage"]
-            and metrics["selective_error_rate"] <= constraints["max_selective_error_rate"]
+            coverage >= constraints["minimum_coverage"]
+            and error_rate <= constraints["max_selective_error_rate"]
             and metrics["privacy_underclassification"] <= constraints["max_privacy_underclassification"]
             and metrics["unsafe_false_route"] <= constraints["max_unsafe_false_route"]
         ):

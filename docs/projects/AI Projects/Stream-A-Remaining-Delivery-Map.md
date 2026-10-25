@@ -404,7 +404,11 @@ An [initial policy decision draft](evidence/M3-NLU-initial-threshold-policy-deci
 proposes zero privacy/unsafe failures, at most 10% selective error, at least 60%
 coverage and 60 balanced calibration cases. The values remain unaccepted and
 cannot be registered until an exact candidate and sealed calibration release
-exist.
+exist. A subsequent
+[threshold-enforcement correction](evidence/M3-NLU-unrounded-policy-enforcement-2026-10-25.md)
+applies those future constraints to the exact computed ratios and rounds only
+the review output, closing a boundary case in which report rounding could admit
+an out-of-policy candidate; the focused NLU suite now passes 53/53.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)

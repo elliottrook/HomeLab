@@ -108,6 +108,20 @@ class NluThresholdSelectionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "no calibration threshold"):
             selection.select_threshold(registered(), encoded(value))
 
+    def test_policy_is_enforced_before_metrics_are_rounded_for_reporting(self):
+        value = score()
+        for index, row in enumerate(value["cases"]):
+            row["route_score"] = 0.8 if index < 3 else 0.2
+            row["safe_and_correct_if_routed"] = index < 2
+            row["unsafe_false_route_if_routed"] = False
+        policy_value = registered()
+        policy_value["constraints"].update(
+            minimum_coverage=0.25,
+            max_selective_error_rate=(1 / 3) - 1e-13,
+        )
+        with self.assertRaisesRegex(ValueError, "no calibration threshold"):
+            selection.select_threshold(policy_value, encoded(value))
+
     def test_only_registered_policy_can_select(self):
         value = registered()
         value["status"] = "frozen"
