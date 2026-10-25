@@ -34,13 +34,13 @@ underclassification, zero unsafe false routes, at most 10% selective error, at
 least 60% coverage and at least 60 balanced calibration cases. The
 [hash-bound acceptance record](evidence/M3-NLU-owner-policy-acceptance-2026-10-25.md)
 grants no route, egress, tool or deployment authority. Candidate selection,
-calibration, threshold registration and shadow qualification remain open, so
-automatic routing stays off.
+live calibration measurement, threshold selection and shadow qualification
+remain open, so automatic routing stays off.
 The existing local Qwen3.5-9B Q4_K_M model on the accepted SYCL profile is now
 [sealed as the first NLU evaluation candidate](evidence/M3-NLU-local-candidate-seal-2026-10-25.md)
 with a strict no-tool adapter. Its live model and runtime-profile hashes match
 the source manifest. This is candidate provenance, not a quality pass or
-deployment; calibration and independent qualification remain open.
+deployment; measured calibration and independent qualification remain open.
 Three separate fresh contexts have now created and blindly reviewed the
 60-case balanced synthetic calibration set and derived its content-free sealed
 release. The accepted policy, candidate and release deterministically produce
@@ -48,13 +48,22 @@ a registered policy with no selected threshold. A preregistered binary route
 score and bounded [live run card](evidence/M3-NLU-calibration-run-card-2026-10-25.md)
 are ready for a separately approved, lease-protected local run. No inference,
 holdout access, shadowing, deployment or routing change has occurred.
+The future holdout contract now separately binds semantic zero-overlap receipts
+against both the exposed development set and the sealed calibration set, and
+requires an independent non-overlap reviewer. Holdout content remains unopened
+until a threshold is frozen.
 The [pinned NLU development scorer](evidence/M3-NLU-development-scorer-2026-10-24.md)
 now measures family, sensitivity, capabilities, ambiguity, disposition and reason
 separately across 24 exposed synthetic cases. Its focused suite passes 10/10 and
 its records exclude request text. It is development regression evidence only;
-human holdout, calibration and no-effect shadow gates remain open.
+human holdout, measured calibration and no-effect shadow gates remain open.
 
-The [Stream A work cadence](Stream-A-Work-Cadence.md) keeps offline/shared work moving. Jason paused exclusive lab scheduling until he assigns new time; no lab test runs automatically. Later preflighted READY experiments still require a verified whole-host `ai-lab` lease and completed backups. The old 01:00–02:00 Aster slot is retired.
+The [Stream A work cadence](Stream-A-Work-Cadence.md) keeps offline/shared work
+moving. The lab-hours recovery lane has one exact, conditional F2 archive scan
+scheduled for the October 26 cycle; that scan is evidence toward a qualified
+lease, not general lab-hours availability. Candidate-G and the new NLU
+calibration run still require a verified compatible `ai-lab` lease. The old
+01:00–02:00 Aster slot remains retired.
 
 **Offline boundary checkpoint — 2026-10-09:** The fixed Doctor incident
 adapter and the existing ARR aggregate reader now have local candidates that
