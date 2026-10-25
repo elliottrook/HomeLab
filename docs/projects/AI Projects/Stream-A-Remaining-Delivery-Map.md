@@ -479,6 +479,10 @@ zero overlap with both the development set and the newly sealed calibration
 set. Both receipts have fixed semantics and must describe the same 36-case
 subject under a fifth independent non-overlap-review role. The dependency-free
 NLU suite passes 96/96. No holdout content has been created or opened.
+The [conditional holdout creation card](evidence/M3-NLU-holdout-conditional-creation-card-2026-10-25.md)
+now fixes those five roles, both exact exclusion sets and private custody, but
+it cannot activate unless calibration first freezes a valid threshold. A
+calibration rejection expires the card unused.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)
