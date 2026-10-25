@@ -64,6 +64,13 @@ Although the runner imports the score module for its fixed run schema, it does
 not score inside LXC110. Do not stage `labels.json`, the policy-registration
 artifact, threshold selector, holdout files, cloud credentials or tools.
 
+## Source-packet validation
+
+The [actual ten-file Mac source packet](M3-NLU-calibration-source-packet-validation-2026-10-25.md)
+now passes the pinned byte verifier: 10/10 regular non-symlink inputs and
+92,467 aggregate bytes matched the frozen manifest. This was read-only and did
+not stage a file.
+
 ## Live sequence after separate approval
 
 1. Prove the compatible lease, quiet-host, backup and restoration gates from
