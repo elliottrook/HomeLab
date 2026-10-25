@@ -3195,3 +3195,15 @@ F2 source hashes. Every byte matched the approved activation card. The October
 26 state, cooperative lease/lock and trusted receipt remained absent. This is
 a static pass only; the future backup, TrueNAS, archive identity and quiet-host
 checks remain mandatory, and no scan, receipt, lease or model call ran.
+
+## 2026-10-25 — Independent approval passkey mapping made reviewable offline
+
+Added a fail-closed configuration boundary for the permanent approval ingress:
+blank configuration retains Yellow-only mode, while only the previously
+verified `urn:homelab:aster:webauthn:1` claim can be configured. Generic MFA,
+alternate claims and multi-value lists fail before binding. Three dependency-
+free Mac tests and 31 in-memory candidate tests in LXC104's existing service
+environment passed. Nothing was installed and the live ingress environment,
+service, approvals and management state were untouched. A separately approved
+two-file installation, exact environment line, fresh passkey ceremony and
+rollback check remain the release gate.

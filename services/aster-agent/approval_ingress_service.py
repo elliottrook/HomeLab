@@ -1,8 +1,10 @@
-"""Dormant, fail-closed process factory for the separate approval ingress.
+"""Fail-closed process factory for the separate approval ingress.
 
-This is not installed. A future unit must invoke
+The production unit invokes
 ``uvicorn approval_ingress_service:create_app --factory`` under its own UID.
-No configuration here enables passkey assurance or grants socket access.
+Passkey assurance remains disabled unless the operator supplies the one exact
+previously verified Aster WebAuthn ACR. Configuration never grants socket
+access or approval authority by itself.
 """
 
 from __future__ import annotations
@@ -16,6 +18,7 @@ import jwt
 from fastapi import FastAPI
 
 from approval_ingress import build_app
+from approval_passkey_config import passkey_acrs
 from broker_approvals import BrokerApprovalClient
 
 
@@ -37,6 +40,7 @@ def create_app() -> FastAPI:
     socket_path = Path(_required("ASTER_APPROVAL_BROKER_SOCKET"))
     hashes = frozenset(part.strip() for part in
                        _required("ASTER_APPROVAL_SUBJECT_HASHES").split(","))
+    configured_passkey_acrs = passkey_acrs(os.environ.get("ASTER_APPROVAL_PASSKEY_ACRS"))
 
     parsed = urlsplit(issuer)
     if (parsed.scheme != "https" or not parsed.hostname or parsed.username or
@@ -61,7 +65,5 @@ def create_app() -> FastAPI:
         ),
         broker_client=BrokerApprovalClient(socket_path),
         approver_subject_hashes=hashes,
-        # Deliberately no production passkey mapping. Red and management stay
-        # denied until a separately proven, reviewed claim path exists.
-        passkey_acrs=frozenset(),
+        passkey_acrs=configured_passkey_acrs,
     )

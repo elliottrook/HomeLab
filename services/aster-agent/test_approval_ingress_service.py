@@ -12,6 +12,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi.testclient import TestClient
 
 from approval_ingress_service import create_app
+from approval_passkey_config import PASSKEY_ACR
 
 
 ISSUER = "https://identity.example.test/application/o/aster-companion/"
@@ -63,6 +64,29 @@ class ApprovalIngressServiceTests(unittest.TestCase):
         self.assertEqual(False, session.json()["passkey_verified"])
         self.assertEqual(404, http.get("/v1/chat/completions", headers=headers).status_code)
         self.assertEqual(401, http.get("/v1/companion/approvals/session").status_code)
+
+    def test_only_exact_reviewed_acr_can_enable_passkey_assurance(self):
+        jwks = SimpleNamespace(get_signing_key_from_jwt=lambda _: SimpleNamespace(key=self.key.public_key()))
+        config = {**CONFIG, "ASTER_APPROVAL_PASSKEY_ACRS": PASSKEY_ACR}
+        with patch.dict(os.environ, config, clear=True):
+            with patch("approval_ingress_service.jwt.PyJWKClient", return_value=jwks):
+                http = TestClient(create_app())
+        token = jwt.encode({"iss": ISSUER, "aud": "aster-companion", "sub": SUBJECT,
+                            "exp": int(time.time()) + 600, "auth_time": int(time.time()),
+                            "acr": PASSKEY_ACR}, self.key, algorithm="RS256")
+        session = http.get("/v1/companion/approvals/session",
+                           headers={"Authorization": "Bearer " + token})
+        self.assertEqual(200, session.status_code)
+        self.assertEqual(True, session.json()["passkey_verified"])
+
+    def test_generic_or_multiple_acr_configuration_fails_before_binding(self):
+        for value in ("mfa", "urn:example:webauthn", PASSKEY_ACR + ",mfa"):
+            with self.subTest(value=value):
+                with patch.dict(os.environ, {
+                    **CONFIG, "ASTER_APPROVAL_PASSKEY_ACRS": value,
+                }, clear=True):
+                    with self.assertRaises(ValueError):
+                        create_app()
 
 
 if __name__ == "__main__":
