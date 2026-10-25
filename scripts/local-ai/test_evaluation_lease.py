@@ -11,12 +11,17 @@ from evaluation_lease import (
     QUIESCE_STATES,
     RESTORE_RESERVE_SECONDS,
     Admission,
+    ExerciseAdmission,
+    EXERCISE_HARD_DEADLINE_SECONDS,
+    EXERCISE_MARKER,
+    EXERCISE_RESTORE_DEADLINE_SECONDS,
     EvaluationLeaseError,
     ProductionBaseline,
     WorkloadOutcome,
     next_workload,
     plan,
     validate_admission,
+    validate_exercise_admission,
     validate_post_quiescence,
     validate_restoration,
     watchdog_decision,
@@ -41,6 +46,33 @@ class EvaluationLeaseTests(unittest.TestCase):
             ), watchdog_independent=True, hard_deadline_epoch=5500,
             restore_deadline_epoch=5500 + RESTORE_RESERVE_SECONDS,
         )
+
+    def exercise_admission(self):
+        value = self.admission()
+        return ExerciseAdmission(
+            lease_id="exercise-20261025-1", generation=1,
+            exercise_marker=EXERCISE_MARKER, model=value.model,
+            backend=value.backend, endpoint=value.endpoint,
+            backend_active=True, endpoint_authenticated=True, endpoint_idle=True,
+            gpu_holders=value.gpu_holders, registered_targets=value.registered_targets,
+            quiesced_targets=(), baseline=value.baseline, watchdog_independent=True,
+            hard_deadline_epoch=1000 + EXERCISE_HARD_DEADLINE_SECONDS,
+            restore_deadline_epoch=1000 + EXERCISE_RESTORE_DEADLINE_SECONDS,
+        )
+
+    def test_exercise_admission_is_receipt_free_short_and_explicit(self):
+        value = self.exercise_admission()
+        validate_exercise_admission(value, now_epoch=1000)
+        self.assertNotIn("receipt", " ".join(value.__dict__))
+        for change in (
+            {"exercise_marker": "production"},
+            {"lease_id": "eval-1"},
+            {"hard_deadline_epoch": 5500},
+            {"restore_deadline_epoch": 6400},
+        ):
+            bad = value.__class__(**{**value.__dict__, **change})
+            with self.assertRaises(EvaluationLeaseError):
+                validate_exercise_admission(bad, now_epoch=1000)
 
     def test_admission_retains_backend_and_requires_fresh_receipts(self):
         validate_admission(self.admission(), now_epoch=1000)

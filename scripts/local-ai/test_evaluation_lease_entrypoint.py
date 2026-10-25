@@ -12,6 +12,35 @@ from evaluation_lease_entrypoint import EntryPointError, main, validate_phase_in
 
 
 class EntryPointTests(unittest.TestCase):
+    def exercise_intent(self):
+        return {
+            "lease_id": "exercise-20261025-1", "generation": 1,
+            "exercise_marker": "PRE-EFFECT-EXERCISE-NOT-PRODUCTION-EVIDENCE",
+            "model": "Qwen3.5 9B Q4_K_M",
+            "backend": "llama.cpp b11429 SYCL/Level Zero",
+            "endpoint": "http://192.168.70.12:11435/v1/chat/completions",
+            "backend_active": True, "endpoint_authenticated": True,
+            "endpoint_idle": True, "gpu_holders": ["lxc110:aster-llama.service"],
+            "registered_targets": [
+                "lxc104:aster-agent.service", "lxc116:aster-speech.service",
+                "lxc114:news-aggregator-ingest.timer",
+                "lxc114:news-aggregator-digest.timer",
+            ], "quiesced_targets": [],
+            "baseline": {
+                "units": [["lxc104:aster-agent.service", "enabled+active"],
+                          ["lxc116:aster-speech.service", "enabled+active"]],
+                "timers": [["lxc114:news-aggregator-ingest.timer", "enabled+active"],
+                           ["lxc114:news-aggregator-digest.timer", "enabled+active"]],
+            }, "watchdog_independent": True, "hard_deadline_epoch": 1120,
+            "restore_deadline_epoch": 1300, "now_epoch": 1000,
+        }
+
+    def test_exercise_schema_has_no_receipts_and_is_exact(self):
+        value = self.exercise_intent()
+        validate_phase_intent("exercise-prepare", value)
+        self.assertFalse(any("receipt" in key for key in value))
+        with self.assertRaises(EntryPointError):
+            validate_phase_intent("exercise-prepare", {**value, "f2_receipt": "fake"})
     def test_default_entrypoint_is_inert_without_reading_intent(self):
         output = io.StringIO()
         with redirect_stdout(output):

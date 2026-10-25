@@ -8,6 +8,8 @@ from pathlib import Path
 from evaluation_lease import (
     ACCEPTED_BACKEND, ACCEPTED_ENDPOINT, ACCEPTED_MODEL, BACKEND_TARGET,
     QUIESCE_STATES, QUIESCE_TARGETS, ProductionBaseline, Admission,
+    ExerciseAdmission, EXERCISE_HARD_DEADLINE_SECONDS, EXERCISE_MARKER,
+    EXERCISE_MODE, EXERCISE_RESTORE_DEADLINE_SECONDS,
     D4_DIGEST, M3_STAGE_MANIFEST_DIGEST, WorkloadOutcome,
     EvaluationLeaseError,
 )
@@ -31,6 +33,82 @@ class AdapterTests(unittest.TestCase):
                  ("lxc114:news-aggregator-digest.timer", "enabled+active")),
             ), True, 5500, 6400,
         )
+
+    def exercise_admission(self):
+        value = self.admission()
+        return ExerciseAdmission(
+            "exercise-20261025-1", 1, EXERCISE_MARKER, ACCEPTED_MODEL,
+            ACCEPTED_BACKEND, ACCEPTED_ENDPOINT, True, True, True,
+            (BACKEND_TARGET,), QUIESCE_TARGETS, (), value.baseline, True,
+            1000 + EXERCISE_HARD_DEADLINE_SECONDS,
+            1000 + EXERCISE_RESTORE_DEADLINE_SECONDS,
+        )
+
+    def test_exercise_prepare_cannot_be_promoted_and_cleanup_is_exact(self):
+        calls = []
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / "lease.json"
+            adapter = EvaluationLeaseAdapter(path, calls.append, allow_effects=True)
+            result = adapter.prepare_exercise(self.exercise_admission(), now_epoch=1000)
+            self.assertEqual(result["effects"], "exercise-prepared")
+            state = read_state(path)
+            self.assertEqual(state.lease_mode, EXERCISE_MODE)
+            self.assertIsNone(state.next_workload)
+            self.assertEqual(state.completed_outcomes, ())
+            with self.assertRaisesRegex(AdapterError, "cannot enter consumer quiescence"):
+                adapter.quiesce(lease_id=state.lease_id, generation=state.generation,
+                                now_epoch=1001, heartbeat_timeout=30)
+            self.assertFalse(adapter.workload_allowed(
+                lease_id=state.lease_id, generation=state.generation,
+                workload_name="d4-candidate-g", now_epoch=1001,
+                heartbeat_timeout=30,
+            ))
+            with self.assertRaisesRegex(AdapterError, "not admitted"):
+                adapter.start_workload(
+                    lease_id=state.lease_id, generation=state.generation,
+                    workload_name="d4-candidate-g", now_epoch=1001,
+                    heartbeat_timeout=30,
+                )
+            production_shape = self.admission().__class__(**{
+                **self.admission().__dict__, "lease_id": state.lease_id,
+                "generation": state.generation,
+            })
+            with self.assertRaises(AdapterError):
+                adapter.post_quiescence(
+                    observed_states=QUIESCE_STATES, admission=production_shape,
+                    backend_active=True, endpoint_authenticated=True,
+                    endpoint_idle=True, gpu_holders=(BACKEND_TARGET,),
+                    now_epoch=1001, heartbeat_timeout=30,
+                )
+            result = adapter.restore(
+                lease_id=state.lease_id, generation=state.generation,
+                restored=state.baseline, backend_active=True,
+                endpoint_authenticated=True, endpoint_idle=True,
+                gpu_holders=(BACKEND_TARGET,), recovery=True,
+            )
+            self.assertEqual(result["effects"], "cancelled-prepared")
+            self.assertEqual(calls, [])
+            self.assertFalse(path.exists())
+            self.assertFalse(adapter.lock_path.exists())
+            self.assertFalse(adapter.operation_lock_path.exists())
+
+    def test_exercise_failure_retains_state_and_operation_lock(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / "lease.json"
+            adapter = EvaluationLeaseAdapter(path, lambda _command: None,
+                                              allow_effects=True)
+            value = self.exercise_admission()
+            adapter.prepare_exercise(value, now_epoch=1000)
+            with self.assertRaisesRegex(AdapterError, "prepared cancellation is uncertain"):
+                adapter.restore(
+                    lease_id=value.lease_id, generation=value.generation,
+                    restored=value.baseline, backend_active=False,
+                    endpoint_authenticated=True, endpoint_idle=True,
+                    gpu_holders=(BACKEND_TARGET,), recovery=True,
+                )
+            self.assertTrue(path.exists())
+            self.assertTrue(adapter.lock_path.exists())
+            self.assertTrue(adapter.operation_lock_path.exists())
 
     def test_disabled_acquire_makes_no_commands(self):
         calls = []

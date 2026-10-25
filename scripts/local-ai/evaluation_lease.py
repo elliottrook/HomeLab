@@ -20,6 +20,8 @@ ACCEPTED_MODEL = "Qwen3.5 9B Q4_K_M"
 ACCEPTED_BACKEND = "llama.cpp b11429 SYCL/Level Zero"
 ACCEPTED_ENDPOINT = "http://192.168.70.12:11435/v1/chat/completions"
 LEASE_MODE = "stream-a-endpoint-retaining-evaluation-v1"
+EXERCISE_MODE = "stream-a-prepare-only-exercise-v1"
+EXERCISE_MARKER = "PRE-EFFECT-EXERCISE-NOT-PRODUCTION-EVIDENCE"
 
 D4_DIGEST = "03b0ad74a862ee04de75e012f52f6662c61192b69b279ea4d1d66c80d9ff9153"
 M3_STAGE_MANIFEST_DIGEST = "69ffc58928ebd2f2f64e0600b8c4a7d73ce5f5356c485e1df8c2265741972165"
@@ -31,6 +33,8 @@ EFFECT_DEADLINE_SECONDS = WINDOW_SECONDS - RESTORE_RESERVE_SECONDS
 SETUP_BUDGET_SECONDS = 10 * 60
 D4_BUDGET_SECONDS = 36 * 60
 M3_BUDGET_SECONDS = 20 * 60
+EXERCISE_HARD_DEADLINE_SECONDS = 2 * 60
+EXERCISE_RESTORE_DEADLINE_SECONDS = 5 * 60
 
 QUIESCE_TARGETS = (
     "lxc104:aster-agent.service",
@@ -115,6 +119,28 @@ class Admission:
 
 
 @dataclass(frozen=True)
+class ExerciseAdmission:
+    """Receipt-free admission for the bounded, pre-effect recovery exercise."""
+
+    lease_id: str
+    generation: int
+    exercise_marker: str
+    model: str
+    backend: str
+    endpoint: str
+    backend_active: bool
+    endpoint_authenticated: bool
+    endpoint_idle: bool
+    gpu_holders: tuple[str, ...]
+    registered_targets: tuple[str, ...]
+    quiesced_targets: tuple[str, ...]
+    baseline: ProductionBaseline
+    watchdog_independent: bool
+    hard_deadline_epoch: int
+    restore_deadline_epoch: int
+
+
+@dataclass(frozen=True)
 class WorkloadOutcome:
     lease_id: str
     generation: int
@@ -182,6 +208,32 @@ def validate_admission(value: Admission, *, now_epoch: int) -> None:
         raise EvaluationLeaseError("independent watchdog is required")
     validate_window(now_epoch=now_epoch, hard_deadline_epoch=value.hard_deadline_epoch,
                     restore_deadline_epoch=value.restore_deadline_epoch)
+
+
+def validate_exercise_admission(value: ExerciseAdmission, *, now_epoch: int) -> None:
+    """Validate a short pre-effect exercise without claiming production receipts."""
+    if (not value.lease_id.startswith("exercise-") or value.generation < 1
+            or value.exercise_marker != EXERCISE_MARKER):
+        raise EvaluationLeaseError("exercise identity or marker is invalid")
+    if value.model != ACCEPTED_MODEL or value.backend != ACCEPTED_BACKEND:
+        raise EvaluationLeaseError("accepted model/backend identity does not match")
+    if value.endpoint != ACCEPTED_ENDPOINT:
+        raise EvaluationLeaseError("endpoint is not the accepted local endpoint")
+    if not (value.backend_active and value.endpoint_authenticated and value.endpoint_idle):
+        raise EvaluationLeaseError("backend must be active, authenticated and idle")
+    if tuple(value.gpu_holders) != (BACKEND_TARGET,):
+        raise EvaluationLeaseError("GPU inference slot has an unknown or missing holder")
+    if tuple(value.registered_targets) != QUIESCE_TARGETS:
+        raise EvaluationLeaseError("registered consumer set is not exact")
+    if value.quiesced_targets:
+        raise EvaluationLeaseError("exercise admission claims consumers are already stopped")
+    validate_baseline(value.baseline)
+    if not value.watchdog_independent:
+        raise EvaluationLeaseError("independent watchdog is required")
+    if value.hard_deadline_epoch != now_epoch + EXERCISE_HARD_DEADLINE_SECONDS:
+        raise EvaluationLeaseError("exercise hard deadline is not the fixed two minutes")
+    if value.restore_deadline_epoch != now_epoch + EXERCISE_RESTORE_DEADLINE_SECONDS:
+        raise EvaluationLeaseError("exercise restore deadline is not the fixed five minutes")
 
 
 def plan() -> tuple[str, ...]:

@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from evaluation_lease import PRODUCTION_BASELINE_STATES
+from evaluation_lease import LEASE_MODE, PRODUCTION_BASELINE_STATES
 from evaluation_lease import watchdog_decision
 from evaluation_lease_adapter import AdapterState
 from stream_a_evaluation_watchdog import (
@@ -32,7 +32,7 @@ class WatchdogBoundaryTests(unittest.TestCase):
         from evaluation_lease import ProductionBaseline
         baseline = ProductionBaseline(
             units=PRODUCTION_BASELINE_STATES[:2], timers=PRODUCTION_BASELINE_STATES[2:])
-        return AdapterState("eval-1", 1, "running", baseline, 1000, 1010,
+        return AdapterState("eval-1", 1, LEASE_MODE, "running", baseline, 1000, 1010,
                             5500, 6400, "d4-candidate-g", None, ())
 
     def write(self, path, value):

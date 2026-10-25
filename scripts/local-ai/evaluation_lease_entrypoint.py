@@ -15,7 +15,7 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-from evaluation_lease import Admission, ProductionBaseline, WorkloadOutcome
+from evaluation_lease import Admission, ExerciseAdmission, ProductionBaseline, WorkloadOutcome
 from evaluation_lease_adapter import EvaluationLeaseAdapter
 
 
@@ -80,6 +80,9 @@ def _bool(value: object, name: str) -> None:
 def validate_phase_intent(phase: str, value: dict[str, Any]) -> None:
     if phase == "acquire":
         _admission(value)
+        return
+    if phase == "exercise-prepare":
+        _exercise_admission(value)
         return
     if phase == "heartbeat":
         _exact(value, {"lease_id", "generation", "now_epoch"}, phase)
@@ -177,6 +180,35 @@ def _admission(value: dict[str, Any]) -> Admission:
     )
 
 
+def _exercise_admission(value: dict[str, Any]) -> ExerciseAdmission:
+    required = {
+        "lease_id", "generation", "exercise_marker", "model", "backend",
+        "endpoint", "backend_active", "endpoint_authenticated", "endpoint_idle",
+        "gpu_holders", "registered_targets", "quiesced_targets", "baseline",
+        "watchdog_independent", "hard_deadline_epoch", "restore_deadline_epoch",
+        "now_epoch",
+    }
+    _exact(value, required, "exercise-prepare")
+    for name in ("lease_id", "exercise_marker", "model", "backend", "endpoint"):
+        _str(value[name], name)
+    for name in ("generation", "hard_deadline_epoch", "restore_deadline_epoch", "now_epoch"):
+        _int(value[name], name)
+    for name in ("backend_active", "endpoint_authenticated", "endpoint_idle", "watchdog_independent"):
+        _bool(value[name], name)
+    for name in ("gpu_holders", "registered_targets", "quiesced_targets"):
+        if not isinstance(value[name], list) or any(not isinstance(item, str) for item in value[name]):
+            raise EntryPointError(f"{name} must be a string list")
+    return ExerciseAdmission(
+        value["lease_id"], value["generation"], value["exercise_marker"],
+        value["model"], value["backend"], value["endpoint"],
+        value["backend_active"], value["endpoint_authenticated"],
+        value["endpoint_idle"], tuple(value["gpu_holders"]),
+        tuple(value["registered_targets"]), tuple(value["quiesced_targets"]),
+        _baseline(value["baseline"]), value["watchdog_independent"],
+        value["hard_deadline_epoch"], value["restore_deadline_epoch"],
+    )
+
+
 def _runner(command):
     subprocess.run(tuple(command), check=True, capture_output=True, text=True, timeout=60)
 
@@ -192,6 +224,9 @@ def _main_effectful(args: argparse.Namespace, intent: dict[str, Any]) -> dict[st
     if phase == "acquire":
         admission = _admission(intent)
         return adapter.prepare(admission, now_epoch=intent["now_epoch"])
+    if phase == "exercise-prepare":
+        admission = _exercise_admission(intent)
+        return adapter.prepare_exercise(admission, now_epoch=intent["now_epoch"])
     if phase == "quiesce":
         return adapter.quiesce(lease_id=intent["lease_id"], generation=intent["generation"],
                                now_epoch=intent["now_epoch"],
@@ -243,7 +278,7 @@ def _main_effectful(args: argparse.Namespace, intent: dict[str, Any]) -> dict[st
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--phase", choices=("acquire", "quiesce", "post-quiescence", "heartbeat", "start", "outcome", "restore"), required=True)
+    parser.add_argument("--phase", choices=("acquire", "exercise-prepare", "quiesce", "post-quiescence", "heartbeat", "start", "outcome", "restore"), required=True)
     parser.add_argument("--state", type=Path, default=DEFAULT_STATE_PATH)
     parser.add_argument("--intent", type=Path, required=True)
     parser.add_argument("--effect-authorized", action="store_true")
