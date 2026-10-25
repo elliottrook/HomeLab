@@ -52,7 +52,7 @@ class FakeHost:
             (self.root / "lease.json").unlink(); (self.root / "lease.lock").rmdir()
             (self.root / "lease.operation.lock").unlink()
             (self.root / "restore-intent.json").write_text("restore")
-            return exercise.Result(0, '{"decision":"owner-absent","effects":"recovered","result":{"entrypoint":"restored"}}\n')
+            return exercise.Result(0, '{"decision":"owner-absent","effects":"recovered","result":{"entrypoint":"restored","stdout":"{\\"effects\\":\\"cancelled-prepared\\",\\"lease_id\\":\\"EXERCISE_ID\\",\\"generation\\":1}"}}\n'.replace("EXERCISE_ID", json.loads((self.root / "exercise-intent.json").read_text())["lease_id"]))
         if argv[:2] == ("systemctl", "stop"):
             return exercise.Result(0, "")
         if argv[:2] == ("systemctl", "reset-failed"):
@@ -87,7 +87,9 @@ class ExerciseTests(unittest.TestCase):
             with patch.object(exercise.os, "geteuid", return_value=0), \
                  patch.object(exercise, "_root_json", side_effect=test_json), \
                  patch.object(exercise, "_safe_unlink", side_effect=test_unlink), \
-                 patch.object(runner, "verify_static_custody", return_value=None):
+                 patch.object(runner, "verify_static_custody", return_value=None), \
+                 patch.object(runner, "validate_prepared_state", return_value=None), \
+                 patch.object(runner, "validate_owner_identity", return_value=None):
                 result = runner.execute()
             self.assertEqual(result["status"], "complete")
             self.assertEqual(result["consumer_commands"], 0)
@@ -109,7 +111,9 @@ class ExerciseTests(unittest.TestCase):
             with patch.object(exercise.os, "geteuid", return_value=0), \
                  patch.object(exercise, "_root_json", side_effect=test_json), \
                  patch.object(exercise, "_safe_unlink", side_effect=test_unlink), \
-                 patch.object(runner, "verify_static_custody", return_value=None):
+                 patch.object(runner, "verify_static_custody", return_value=None), \
+                 patch.object(runner, "validate_prepared_state", return_value=None), \
+                 patch.object(runner, "validate_owner_identity", return_value=None):
                 with self.assertRaises(exercise.ExerciseError): runner.execute()
             self.assertTrue((root / "lease.json").exists())
             self.assertTrue(identity.exists())

@@ -19,6 +19,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Sequence
 
+from evaluation_lease_adapter import read_state
+from stream_a_evaluation_owner import EXERCISE_OWNER_UNIT
+from stream_a_evaluation_watchdog import load_identity
+
 ROOT = Path("/var/lib/local-ai-lab/stream-a-evaluation")
 IDENTITY = Path("/etc/local-ai-lab/stream-a-evaluation/watchdog-identity.json")
 STATE = ROOT / "lease.json"
@@ -62,6 +66,8 @@ ENDPOINT = "http://192.168.70.12:11435/v1/chat/completions"
 MARKER = "PRE-EFFECT-EXERCISE-NOT-PRODUCTION-EVIDENCE"
 MODE = "stream-a-prepare-only-exercise-v1"
 HEARTBEAT_TIMEOUT = 5
+F2_PREPARE_EPOCH = 1793002500
+MINIMUM_F2_MARGIN_SECONDS = 30 * 60
 PINNED_FILES = {
     "/usr/local/libexec/local-ai-lease/stream-a-evaluation/evaluation_lease.py": "5c5aa6c7174d53edb775f9a2640a867634b04a9b098d0742a589a1c2dc692686",
     "/usr/local/libexec/local-ai-lease/stream-a-evaluation/evaluation_lease_adapter.py": "6876e6892cae0d81c584fee7d6f3c5b79874d9b4737d250987f451f28b6aa910",
@@ -220,11 +226,47 @@ class Exercise:
 
     def prestate(self, lease_id: str) -> dict[str, object]:
         self.require_absent(); self.verify_static_custody()
+        if self.clock() + MINIMUM_F2_MARGIN_SECONDS >= F2_PREPARE_EPOCH:
+            raise ExerciseError("exercise is too close to the October 26 F2 window")
         lease = _load_json(self.run((WHOLE_HOST_LEASE, "status")).stdout, {"state"})
         if lease != {"state": "ready"}: raise ExerciseError("whole-host lease is not ready")
         consumers = [self.unit_state(vmid, unit) for vmid, unit, _kind in CONSUMERS]
         return {"f6": self.f6_snapshot(), "f2": self.f2_snapshot(), "consumers": consumers,
                 "observation": self.observation(lease_id, 1)}
+
+    def validate_prepared_state(self, lease_id: str, generation: int, now: int,
+                                baseline: dict[str, list[list[str]]]) -> None:
+        state = read_state(self.paths["state"], expected_lease_id=lease_id,
+                           expected_generation=generation)
+        expected_units = tuple(tuple(row) for row in baseline["units"])
+        expected_timers = tuple(tuple(row) for row in baseline["timers"])
+        if (state.lease_mode != MODE or state.exercise_marker != MARKER
+                or state.phase != "prepared" or state.window_start_epoch != now
+                or state.heartbeat_epoch != now or state.hard_deadline_epoch != now + 120
+                or state.restore_deadline_epoch != now + 300
+                or state.baseline.units != expected_units or state.baseline.timers != expected_timers
+                or state.next_workload is not None or state.in_flight_workload is not None
+                or state.completed_outcomes):
+            raise ExerciseError("prepared exercise state is not exact")
+
+    def validate_owner_identity(self, lease_id: str, generation: int, owner_id: str) -> None:
+        value = load_identity(self.identity)
+        if (value.lease_id != lease_id or value.generation != generation
+                or value.owner_id != owner_id or value.heartbeat_timeout != HEARTBEAT_TIMEOUT
+                or value.unit != EXERCISE_OWNER_UNIT):
+            raise ExerciseError("exercise owner identity is not exact")
+
+    @staticmethod
+    def validate_recovery(value: dict[str, object], lease_id: str, generation: int) -> None:
+        if value.get("effects") != "recovered":
+            raise ExerciseError("owner-loss recovery did not complete")
+        result = value.get("result")
+        if not isinstance(result, dict) or set(result) != {"entrypoint", "stdout"} or result.get("entrypoint") != "restored":
+            raise ExerciseError("watchdog recovery result is not exact")
+        terminal = _load_json(str(result["stdout"]), {"effects", "lease_id", "generation"})
+        if terminal != {"effects": "cancelled-prepared", "lease_id": lease_id,
+                        "generation": generation}:
+            raise ExerciseError("prepared cancellation result is not exact")
 
     def execute(self) -> dict[str, object]:
         if os.geteuid() != 0: raise ExerciseError("root required")
@@ -251,11 +293,13 @@ class Exercise:
             if prepared != {"effects": "exercise-prepared", "state": "prepared", "mode": MODE,
                             "lease_id": lease_id, "generation": generation}:
                 raise ExerciseError("prepare result is not exact")
+            self.validate_prepared_state(lease_id, generation, now, baseline)
             self.run((OWNER_START, "--effect-authorized")); owner_started = True
             deadline = time.monotonic() + 15
             while not self.identity.exists():
                 if time.monotonic() >= deadline: raise ExerciseError("owner identity did not appear")
                 self.sleep(0.2)
+            self.validate_owner_identity(lease_id, generation, owner_id)
             self.run((HEARTBEAT_ENTRYPOINT, "--once", "--effect-authorized"))
             healthy = _load_json(self.run((WATCHDOG_ENTRYPOINT, "--once", "--effect-authorized"), timeout=60).stdout,
                                  {"decision", "effects"})
@@ -264,7 +308,7 @@ class Exercise:
             self.sleep(HEARTBEAT_TIMEOUT + 1)
             recovered = _load_json(self.run((WATCHDOG_ENTRYPOINT, "--once", "--effect-authorized"), timeout=60).stdout,
                                    {"decision", "effects", "result"})
-            if recovered.get("effects") != "recovered": raise ExerciseError("owner-loss recovery did not complete")
+            self.validate_recovery(recovered, lease_id, generation)
             if any(self.paths[name].exists() for name in ("state", "lease_lock", "operation_lock")):
                 raise ExerciseError("durable exercise state did not clear")
             post_f6 = self.f6_snapshot(); post_f2 = self.f2_snapshot()
@@ -276,9 +320,15 @@ class Exercise:
                 _safe_unlink(self.paths[name])
             _safe_unlink(self.identity); _safe_unlink(self.root / "exercise-intent.json")
             self.run(("systemctl", "reset-failed", EXERCISE_UNIT), allowed=(0, 1))
+            command_rows = tuple(self.commands)
+            snapshot_digest = hashlib.sha256(json.dumps(pre, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
             receipt = {"status": "complete", "lease_id": lease_id, "generation": generation,
-                       "healthy_effects": healthy["effects"], "recovery_effects": recovered["effects"],
+                       "healthy_effects": healthy["effects"], "healthy_decision": healthy["decision"],
+                       "recovery_effects": recovered["effects"], "recovery_decision": recovered["decision"],
                        "consumer_commands": 0, "f2_unchanged": True, "f6_unchanged": True,
+                       "installed_pins": dict(PINNED_FILES), "prestate_digest": snapshot_digest,
+                       "commands": list(command_rows),
+                       "commands_digest": hashlib.sha256("\n".join(command_rows).encode()).hexdigest(),
                        "completed_epoch": self.clock()}
             _root_json(self.receipt_root / f"{lease_id}.json", receipt)
             return receipt
