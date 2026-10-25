@@ -56,17 +56,22 @@ with the October 26 F2 window.
    resulting lease has the exact exercise identity/generation, fixed deadlines,
    root custody, `prepared` phase and baseline, while the runner observed zero
    consumer/systemd/model commands.
-4. Launch the owner only through the fixed transient exercise unit, using the
-   exact command shape:
-
-   `/usr/bin/systemd-run --unit=stream-a-evaluation-exercise-owner.service --collect --service-type=simple /usr/local/sbin/stream-a-evaluation-owner --exercise-transient`
-
-   The owner must pass PID, boot ID, start-time, command-line and exact cgroup
-   identity checks before writing its identity. Arbitrary unit names and direct
-   SSH launches fail closed. Run heartbeat and watchdog once through their
-   direct one-shot wrappers, not their recurring timers, using the exact lease
-   and generation. The transient owner is the only allowed systemd control;
-   no consumer systemd command is permitted.
+4. Launch the owner only through the fixed inert-by-default wrapper
+   `/usr/local/sbin/stream-a-evaluation-exercise-owner-start`. It pins
+   `systemd-run --unit=stream-a-evaluation-exercise-owner.service --collect
+   --service-type=simple --uid=0 --property=NoNewPrivileges=yes
+   --property=ProtectSystem=strict --property=ProtectHome=yes
+   --property=PrivateTmp=yes
+   --property=ReadWritePaths=/etc/local-ai-lab/stream-a-evaluation
+   --property=ReadWritePaths=/var/lib/local-ai-lab/stream-a-evaluation`
+   followed by `/usr/local/sbin/stream-a-evaluation-owner --run
+   --effect-authorized --exercise-transient`. The owner must pass PID, boot
+   ID, start-time, command-line and exact cgroup identity checks before writing
+   its identity. Arbitrary unit names and direct SSH launches fail closed. Run
+   heartbeat and watchdog once through their direct one-shot wrappers, not
+   their recurring timers, using the exact lease and generation. The transient
+   owner is the only allowed systemd control; no consumer systemd command is
+   permitted.
 5. Run the healthy watchdog observation using the exact lease/generation.
    Require `not-attempted`, no recovery callback, unchanged consumer baseline,
    unchanged F2 timers and no model/backend call.
