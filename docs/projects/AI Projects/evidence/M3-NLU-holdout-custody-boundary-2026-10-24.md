@@ -18,6 +18,11 @@ Eight focused tests pass. The template contains no cases or labels. No private
 artifact was created, read or backed up; no human label is claimed; no engine
 was run; no route, egress, tool or authority was enabled.
 
+The later [threshold-policy boundary](M3-NLU-threshold-policy-boundary-2026-10-24.md)
+closes a structural gap in this first contract: a sealed release must now be
+validated with the exact frozen policy bytes whose digest appears here. An
+empty policy template or a changed policy cannot satisfy that bundle check.
+
 ## Remaining gate
 
 Before a sealed holdout exists, an independent custodian must create the 36

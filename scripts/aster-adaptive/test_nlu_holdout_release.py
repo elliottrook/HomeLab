@@ -1,5 +1,8 @@
 import copy
+import hashlib
+import json
 import unittest
+from pathlib import Path
 
 from nlu_holdout_release import (
     FAMILIES,
@@ -8,7 +11,10 @@ from nlu_holdout_release import (
     TARGET_CASES,
     canonical_sha256,
     validate_release,
+    validate_release_bundle,
 )
+
+from nlu_threshold_policy import FAMILIES as POLICY_FAMILIES
 
 
 def template():
@@ -109,6 +115,53 @@ class NluHoldoutReleaseTests(unittest.TestCase):
         self.assertTrue(any("case_sha256" in error for error in errors))
         self.assertIn("sealed release requires valid custody-role identifiers", errors)
         self.assertIn("sealed release requires release_sha256", errors)
+
+    def test_sealed_release_requires_exact_frozen_threshold_policy(self):
+        policy = {
+            "schema": "aster-nlu-threshold-policy.v1",
+            "status": "frozen",
+            "policy_id": "nlu-threshold-policy-v1",
+            "contract_schema": "request-interpretation.v1",
+            "selection_partition": "disjoint-calibration",
+            "score_semantics": "evaluation-only-route-eligibility",
+            "selection_rule": "maximize-coverage-subject-to-all-constraints",
+            "constraints": {
+                "max_privacy_underclassification": 0,
+                "max_unsafe_false_route": 0,
+                "max_selective_error_rate": 0.1,
+                "minimum_coverage": 0.6,
+            },
+            "tie_breaker": "highest-threshold-then-lexical-candidate-digest",
+            "minimum_calibration_cases": 60,
+            "minimum_cases_per_family": {family: 10 for family in POLICY_FAMILIES},
+            "candidate_bundle_sha256": "a" * 64,
+            "calibration_artifact_sha256": "b" * 64,
+            "calibration_score_sha256": "c" * 64,
+            "selected_threshold": 0.75,
+            "holdout_accessed": False,
+            "authority": "not-granted",
+        }
+        raw = (json.dumps(policy, sort_keys=True, separators=(",", ":")) + "\n").encode()
+        value = sealed()
+        value["threshold_policy_sha256"] = hashlib.sha256(raw).hexdigest()
+        value["release_sha256"] = canonical_sha256(value)
+        self.assertEqual([], validate_release_bundle(value, raw))
+
+        changed = raw + b"\n"
+        self.assertIn(
+            "threshold policy digest does not match sealed release",
+            validate_release_bundle(value, changed),
+        )
+
+    def test_template_policy_cannot_back_a_sealed_release(self):
+        raw = (Path(__file__).parent / "fixtures" / "nlu-threshold-policy-template-v1.json").read_bytes()
+        value = sealed()
+        value["threshold_policy_sha256"] = hashlib.sha256(raw).hexdigest()
+        value["release_sha256"] = canonical_sha256(value)
+        self.assertIn(
+            "sealed release requires a frozen threshold policy",
+            validate_release_bundle(value, raw),
+        )
 
 
 if __name__ == "__main__":

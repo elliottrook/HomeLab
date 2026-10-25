@@ -96,6 +96,15 @@ and development-set non-overlap evidence. The empty template and validator do
 not create or claim the holdout. Independent case creation, human labels,
 calibration, sealing, evaluation and review remain open.
 
+The [threshold-policy boundary](evidence/M3-NLU-threshold-policy-boundary-2026-10-24.md)
+now also requires the sealed release to carry the exact frozen policy bytes.
+It preregisters disjoint calibration, deterministic selection, zero tolerance
+for privacy underclassification and unsafe false routing, and digest binding
+to one candidate and calibration result. Its committed template intentionally
+contains no numeric quality/coverage acceptance values, sample minima,
+evidence digest or selected threshold. Those values must be accepted before
+calibration; they cannot be inferred from the independent holdout.
+
 ## Validation checkpoint — 2026-10-24
 
 The focused interpretation, route, Decision and Outcome semantic suites pass

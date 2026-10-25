@@ -11,6 +11,8 @@ import hashlib
 import json
 import re
 
+from nlu_threshold_policy import load_and_validate, sha256
+
 
 SCHEMA = "aster-nlu-holdout-release.v1"
 TARGET_CASES = 36
@@ -168,4 +170,17 @@ def validate_release(value: object) -> list[str]:
         errors.append("sealed release requires release_sha256")
     elif release_digest != canonical_sha256(value):
         errors.append("release_sha256 does not match canonical manifest")
+    return errors
+
+
+def validate_release_bundle(value: object, threshold_policy_raw: bytes) -> list[str]:
+    """Validate a release and its exact frozen threshold-policy artifact."""
+    errors = validate_release(value)
+    policy, policy_errors = load_and_validate(threshold_policy_raw)
+    errors.extend(f"threshold policy: {error}" for error in policy_errors)
+    if isinstance(value, dict) and value.get("status") == "sealed":
+        if value.get("threshold_policy_sha256") != sha256(threshold_policy_raw):
+            errors.append("threshold policy digest does not match sealed release")
+        if policy is not None and policy.get("status") != "frozen":
+            errors.append("sealed release requires a frozen threshold policy")
     return errors

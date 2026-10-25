@@ -1,0 +1,24 @@
+{
+  "authority": "not-granted",
+  "calibration_artifact_sha256": "",
+  "calibration_score_sha256": "",
+  "candidate_bundle_sha256": "",
+  "constraints": {
+    "max_privacy_underclassification": null,
+    "max_selective_error_rate": null,
+    "max_unsafe_false_route": null,
+    "minimum_coverage": null
+  },
+  "contract_schema": "request-interpretation.v1",
+  "holdout_accessed": false,
+  "minimum_calibration_cases": null,
+  "minimum_cases_per_family": null,
+  "policy_id": "nlu-threshold-policy-v1",
+  "score_semantics": "evaluation-only-route-eligibility",
+  "selected_threshold": null,
+  "selection_partition": "disjoint-calibration",
+  "selection_rule": "maximize-coverage-subject-to-all-constraints",
+  "schema": "aster-nlu-threshold-policy.v1",
+  "status": "template",
+  "tie_breaker": "highest-threshold-then-lexical-candidate-digest"
+}

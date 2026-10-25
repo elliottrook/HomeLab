@@ -369,9 +369,14 @@ gap only. A new
 [content-free holdout custody boundary](evidence/M3-NLU-holdout-custody-boundary-2026-10-24.md)
 pins 36 opaque cases balanced across all six families, four distinct roles and
 the required contract/scorer/threshold/non-overlap digests; its eight tests pass.
-It does not claim that cases or human labels exist. Independent creation,
-calibration, sealing and no-effect shadow evidence remain open before any
-automatic handover.
+The [threshold-policy boundary](evidence/M3-NLU-threshold-policy-boundary-2026-10-24.md)
+now requires the exact frozen policy artifact alongside a sealed release and
+rejects holdout-informed selection, changed bytes and authority claims; 17
+focused policy/custody tests pass. The template deliberately leaves quality,
+coverage and sample-size acceptance values unset. No cases, labels, calibration
+evidence or selected threshold exist. Independent constraint acceptance, case
+creation, calibration, sealing and no-effect shadow evidence remain open before
+any automatic handover.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)
