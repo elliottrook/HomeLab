@@ -18,19 +18,22 @@ with the October 26 F2 window.
 - Run the healthy watchdog observation path and prove it is inert: no recovery,
   systemd command, consumer command, timer arm, backend call or model call.
 - Force one bounded owner-loss or explicit cancel/recovery path after the
-  healthy observation. Recovery must restore the exact four-consumer baseline,
-  remove only the exercise state and lock, and leave production unchanged.
+  healthy observation. Because the lease is still `prepared`, recovery must
+  validate the exact unchanged four-consumer baseline, issue zero consumer or
+  systemd commands, and remove only the exercise state and lock.
 - Do not invoke `quiesce`, `post-quiescence`, `start`, `outcome`, model code or
   any workload path. The exercise ends before consumer effects.
 
 ## Preconditions — all required, otherwise NO-GO
 
-1. Fresh same-cycle backup/F2/F3/F4/F5 evidence is complete, independently
-   reread and outside the exercise's bounded window. The October 26 F2 timers
-   and their next-run times are unchanged.
+1. The exercise is scheduled outside the October 26 F2 execution window. Read
+   the F2 timer identities and next-run times before and after the exercise;
+   no same-cycle F2/F3/F4/F5 evidence is required for this pre-effect proof.
+   Fresh backup evidence becomes mandatory before any later quiescence or
+   effectful evaluation phase.
 2. The inactive packet and two-phase source pins match the accepted cards:
    implementation commits `2f790b6310981d31358a60fb2a7a3f98f7a26633` and
-   `bdf745aa`; corrected card commit `dfeb1374` with card hash
+   `bdf745aa`, `2f59c2b0`; corrected card commit `dfeb1374` with card hash
    `5defe13576de09b0435265a99f4156a58c7acf8554a6c14d0af57d21379c1385`.
 3. All five F6 units and timers remain disabled/inactive; no runtime lease,
    lock, identity, owner intent, heartbeat or watchdog status is present.
@@ -58,9 +61,11 @@ with the October 26 F2 window.
 5. Force exactly one bounded recovery case: owner-loss is preferred; an
    explicitly bounded cancel is acceptable only if it exercises the same
    recovery contract. The exercise may not wait into the October 26 F2 window.
-6. Require recovery to restore the exact four-consumer baseline, clear only
-   the exercise lease/lock and temporary identity/intent, and report success
-   only after custody and absence checks pass.
+6. Require prepared-state recovery to validate the exact four-consumer
+   baseline/backend/auth/idle/GPU evidence, issue zero runner commands, clear
+   only the exercise lease/lock and temporary identity/intent, and report
+   success only after custody and absence checks pass. If validation fails,
+   retain `prepared` state and the lock for manual reconciliation.
 7. Recheck production health, GPU holder, all five F6 unit/timer states and F2
    timer identities/next runs. Write the receipt and stop; never auto-retry.
 
@@ -71,8 +76,9 @@ Pass requires all of the following:
 - prepare-only created exactly one bound `prepared` lease and no consumer or
   systemd commands;
 - healthy watchdog observation was inert;
-- owner-loss/cancel recovery restored the exact baseline and cleared the
-  exercise state, lock, identity and intent only after validation;
+- owner-loss/cancel recovery validated the exact baseline and cleared the
+  exercise state, lock, identity and intent with zero consumer/systemd
+  commands;
 - no consumer, backend, model, timer or schedule changed;
 - the October 26 F2 schedule and all F6 units/timers are byte-for-byte/state-
   for-state unchanged.
