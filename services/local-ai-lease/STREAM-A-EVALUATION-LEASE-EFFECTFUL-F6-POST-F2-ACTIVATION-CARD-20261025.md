@@ -29,6 +29,15 @@ quiescence or model workload.
   was denied, same-state `agent-hermes=operator` management passed, the exact
   four-row audit delta matched, and policy/service/grant state remained
   unchanged. This is synthetic-only and releases no generic authority.
+- Source-only M1/D4 single-run Doctor producer candidate commit `89f18172`
+  passed producer/scheduler `7/7` and downstream adapter/projection/capability
+  `16/16`. It binds a schema-2 `aster.agent_inference` sidecar to exact
+  schema-1 bytes and proposes content-free publication of
+  `/var/lib/aster/health/latest.json` plus
+  `/var/lib/aster/health/aster-inference.json`; mixed pairs abstain. Evidence:
+  `docs/projects/AI Projects/evidence/M1-D4-single-run-doctor-producer-candidate-2026-10-25.md`.
+  No deployment, schedule, caller, grant, route, model, F2 or F6 effect
+  occurred.
 
 ## LIVE BLOCKED preconditions
 
