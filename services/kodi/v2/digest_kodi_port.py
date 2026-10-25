@@ -19,10 +19,19 @@ class Events(xbmc.Player):
         super().__init__()
         self.starts = 0
         self.finished = False
+        self.natural = False
+        self.events = []
 
-    def onAVStarted(self): self.starts += 1
-    def onPlayBackStopped(self): self.finished = True
-    def onPlayBackEnded(self): self.finished = True
+    def onAVStarted(self):
+        self.starts += 1
+        self.events.append('start')
+    def onPlayBackStopped(self):
+        self.finished = True
+        self.events.append('stop')
+    def onPlayBackEnded(self):
+        self.natural = True
+        self.finished = True
+        self.events.append('end')
 
 
 def rpc(method, params=None):
@@ -56,6 +65,14 @@ class KodiPort:
         self.sequence = 0
         self.opened = False
         self.stopping = False
+        self.observed_duration = 0
+        self.last_target = 0
+
+    def elapsed(self):
+        value = self.player.getTime()
+        # Kodi's decoder can report a small negative preroll at the opening.
+        # Normalize only there, never invalid clocks at arbitrary story seeks.
+        return 0 if self.last_target == 0 and -.25 <= value < 0 else value
 
     def open(self):
         if self.opened or not idle(): raise ValueError('idle-single-open-required')
@@ -80,19 +97,39 @@ class KodiPort:
     def duration(self):
         if not self.owned(): raise ValueError('native-ownership-lost')
         row = rpc('Player.GetProperties', dict(playerid=0, properties=['totaltime']))['totaltime']
-        return ((row['hours']*60+row['minutes'])*60+row['seconds']) + row['milliseconds']/1000
+        self.observed_duration = ((row['hours']*60+row['minutes'])*60+row['seconds']) + row['milliseconds']/1000
+        return self.observed_duration
+
+    def lost_or_ended(self):
+        # Native flags, active-player list and Python callbacks can settle in
+        # either order at EOF. Require the real end callback AND no player;
+        # an explicit stop, second start or foreign player never counts as EOF.
+        deadline = time.monotonic()+.75
+        while self.player.starts == 1 and not self.stopping and time.monotonic() < deadline:
+            active = rpc('Player.GetActivePlayers')
+            if self.player.natural and not active:
+                return Observation(self.session, self.media, self.edition, self.sequence, self.observed_duration, ended=True)
+            if self.player.finished and not self.player.natural: break
+            if self.player.isPlayingAudio():
+                try:
+                    if self.player.getPlayingFile() != str(self.path): break
+                except RuntimeError: pass
+            if any(row.get('type') != 'audio' for row in active): break
+            xbmc.sleep(25)
+        return Observation('foreign', self.media, self.edition, self.sequence, 0)
 
     def sample(self):
         self.sequence += 1
         if not self.owned():
-            return Observation('foreign', self.media, self.edition, self.sequence, 0)
-        elapsed = self.player.getTime()
+            return self.lost_or_ended()
+        elapsed = self.elapsed()
         speed = rpc('Player.GetProperties', dict(playerid=0, properties=['speed']))['speed']
-        if not self.owned(): return Observation('foreign', self.media, self.edition, self.sequence, 0)
+        if not self.owned(): return self.lost_or_ended()
         return Observation(self.session, self.media, self.edition, self.sequence, elapsed, paused=speed == 0)
 
     def seek(self, seconds):
         if not self.owned(): raise ValueError('native-ownership-lost')
+        self.last_target = seconds
         self.player.seekTime(seconds)
         # Bounded readback settlement, never a repeated seek.
         until = time.monotonic() + 3
@@ -100,7 +137,7 @@ class KodiPort:
             if not self.owned(): raise ValueError('native-ownership-lost')
             # Decoder preroll can briefly report just before the marker; do not
             # publish the preceding story as successful seek readback.
-            if 0 <= self.player.getTime()-seconds <= 2: return
+            if 0 <= self.elapsed()-seconds <= 2: return
             xbmc.sleep(50)
         raise ValueError('seek-readback-timeout')
 
@@ -108,6 +145,26 @@ class KodiPort:
         if self.stopping or not self.owned(): raise ValueError('native-ownership-lost')
         self.stopping = True
         self.player.stop()
+
+    def set_paused(self, value):
+        if type(value) is not bool or not self.owned(): raise ValueError('native-ownership-lost')
+        current = rpc('Player.GetProperties', dict(playerid=0, properties=['speed']))['speed'] == 0
+        if current != value:
+            if not self.owned(): raise ValueError('native-ownership-lost')
+            self.player.pause()
+        end = time.monotonic()+3
+        last_clock = None
+        stable_since = None
+        while time.monotonic() < end:
+            if not self.owned(): raise ValueError('native-ownership-lost')
+            if (rpc('Player.GetProperties', dict(playerid=0, properties=['speed']))['speed'] == 0) == value:
+                if not value: return
+                elapsed = self.player.getTime()
+                if last_clock is None or abs(elapsed-last_clock) > .03:
+                    last_clock, stable_since = elapsed, time.monotonic()
+                elif time.monotonic()-stable_since >= .25: return
+            xbmc.sleep(50)
+        raise ValueError('pause-readback-timeout')
 
     def idle(self):
         until = time.monotonic() + 8

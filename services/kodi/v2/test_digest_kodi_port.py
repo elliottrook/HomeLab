@@ -8,13 +8,14 @@ from unittest.mock import patch
 
 
 class Player:
-    def __init__(self): self.path = ''; self.audio = False; self.clock = 15; self.calls = []
+    def __init__(self): self.path = ''; self.audio = False; self.clock = 15; self.calls = []; self.speed = 1
     def play(self, path): self.path = path; self.audio = True; self.onAVStarted(); self.calls.append('play')
     def isPlayingAudio(self): return self.audio
     def getPlayingFile(self): return self.path
     def getTime(self): return self.clock
     def seekTime(self, seconds): self.clock = seconds; self.calls.append('seek')
     def stop(self): self.audio = False; self.onPlayBackStopped(); self.calls.append('stop')
+    def pause(self): self.speed = 1 if self.speed == 0 else 0; self.calls.append('pause')
 
 
 class DigestKodiPortTests(unittest.TestCase):
@@ -31,7 +32,7 @@ class DigestKodiPortTests(unittest.TestCase):
         self.module.idle = lambda:True
         self.port = self.module.KodiPort(self.path, self.digest, 'edition')
         self.module.rpc = lambda method, params=None: ([dict(playerid=0, type='audio')] if method == 'Player.GetActivePlayers'
-            else dict(speed=1, totaltime=dict(hours=0, minutes=2, seconds=0, milliseconds=0)))
+            else dict(speed=self.port.player.speed, totaltime=dict(hours=0, minutes=2, seconds=0, milliseconds=0)))
 
     def test_single_open_and_exact_file_ownership(self):
         self.assertFalse(self.port.owned())
@@ -98,6 +99,53 @@ class DigestKodiPortTests(unittest.TestCase):
         self.assertFalse(self.port.owned())
         self.module.rpc = lambda *args:[dict(playerid=0, type='audio', unexpected=True)]
         self.assertFalse(self.port.owned())
+
+    def test_pause_is_idempotent_with_native_readback(self):
+        self.port.open()
+        self.port.set_paused(True)
+        self.port.set_paused(True)
+        self.assertTrue(self.port.sample().paused)
+        self.port.set_paused(False)
+        self.assertFalse(self.port.sample().paused)
+        self.assertEqual(self.port.player.calls.count('pause'), 2)
+
+    def test_natural_end_is_not_foreign_or_stop(self):
+        self.port.open()
+        self.port.duration()
+        self.port.player.onPlayBackEnded()
+        self.module.rpc = lambda *args:[]
+        observation = self.port.sample()
+        self.assertTrue(observation.ended)
+        self.assertEqual(observation.session, self.port.session)
+        self.assertEqual(observation.elapsed, 120)
+        self.assertNotIn('stop', self.port.player.calls)
+
+    def test_negative_preroll_is_normalized_only_at_opening(self):
+        self.port.open()
+        self.port.player.clock = -.175
+        self.assertEqual(self.port.sample().elapsed, 0)
+        self.port.last_target = 60
+        self.assertEqual(self.port.sample().elapsed, -.175)
+        self.port.last_target = 0
+        self.port.player.clock = -1
+        self.assertEqual(self.port.sample().elapsed, -1)
+
+    def test_disappearing_player_waits_for_real_end_callback(self):
+        self.port.open()
+        self.port.duration()
+        self.port.player.audio = False
+        self.module.rpc = lambda *args:[]
+        self.module.xbmc.sleep = lambda ms:self.port.player.onPlayBackEnded()
+        self.assertTrue(self.port.sample().ended)
+
+    def test_disappearing_player_with_stop_callback_is_not_completion(self):
+        self.port.open()
+        self.port.player.audio = False
+        self.module.rpc = lambda *args:[]
+        self.module.xbmc.sleep = lambda ms:self.port.player.onPlayBackStopped()
+        observation = self.port.sample()
+        self.assertEqual(observation.session, 'foreign')
+        self.assertFalse(observation.ended)
 
 
 if __name__ == '__main__': unittest.main()

@@ -45,19 +45,41 @@ class Adapter:
         if self.fenced or self.closed or self.pending is not None:
             raise ValueError('adapter-not-ready')
         self.poll()
-        intent = self.state.seek(chapter)
+        was_paused = self.state.view.paused
+        propose = lambda:self.state.opening() if chapter is None else self.state.seek(chapter)
+        intent = propose()
         try:
             immediate = self._sample()
             # A new sample can advance its sequence, but must preserve ownership.
             self.state.observe(immediate)
-            intent = self.state.seek(chapter)
+            intent = propose()
             if not self.state.current(intent, immediate): raise ValueError('ownership-not-current')
             self.pending = intent  # Set before calling the port: failures are uncertain.
             self.port.seek(intent.start)
+            # Kodi can resume audio as a side effect of seeking a paused MP3.
+            # Restore the user's paused state with guarded readback.
+            if was_paused: self.port.set_paused(True)
         except (OSError, RuntimeError, ValueError, KeyError, TypeError):
             self.fenced = True
             raise
         return intent
+
+    def paused(self, value):
+        if type(value) is not bool or self.fenced or self.closed or self.pending is not None:
+            raise ValueError('adapter-not-ready')
+        self.poll()
+        try:
+            immediate = self._sample()
+            self.state.observe(immediate)
+            intent = self.state.control('pause' if value else 'resume')
+            if not self.state.current(intent, immediate): raise ValueError('ownership-not-current')
+            self.port.set_paused(value)
+            view = self.poll()
+            if self.fenced or view.paused != value: raise ValueError('pause-readback-mismatch')
+            return view
+        except (OSError, RuntimeError, ValueError, KeyError, TypeError):
+            self.fenced = True
+            raise
 
     def close(self):
         if self.closed: return False

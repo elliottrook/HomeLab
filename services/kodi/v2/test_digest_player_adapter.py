@@ -29,7 +29,7 @@ class Port:
     def seek(self, seconds):
         self.actions.append(('seek', seconds))
         if self.failure: raise OSError('uncertain')
-        self.observation = replace(self.observation, elapsed=seconds)
+        self.observation = replace(self.observation, elapsed=seconds, paused=False)
 
     def stop(self):
         self.actions.append(('stop',))
@@ -37,6 +37,11 @@ class Port:
         self.stopped = True
 
     def idle(self): return self.stopped
+
+    def set_paused(self, value):
+        self.actions.append(('paused', value))
+        if self.failure: raise OSError('uncertain')
+        self.observation = replace(self.observation, paused=value)
 
 
 class DigestAdapterTests(unittest.TestCase):
@@ -125,6 +130,33 @@ class DigestAdapterTests(unittest.TestCase):
             self.assertEqual(manifest['kind'], 'hp-digest-adapter-trial.v1')
             self.assertNotIn('session-', ' '.join(row['path'] for row in manifest['files']))
             with self.assertRaisesRegex(ValueError, 'immutable'): build_trial(output)
+
+    def test_opening_seek_is_explicit_zero_not_first_story(self):
+        self.adapter.seek(None)
+        self.assertEqual(self.port.actions, [('seek', 0)])
+        self.assertEqual(self.adapter.poll().phase, 'opening')
+
+    def test_pause_resume_verified_and_uncertain_pause_fenced(self):
+        self.assertTrue(self.adapter.paused(True).paused)
+        self.assertFalse(self.adapter.paused(False).paused)
+        self.port.failure = True
+        with self.assertRaises(OSError): self.adapter.paused(True)
+        self.assertTrue(self.adapter.fenced)
+        with self.assertRaises(ValueError): self.adapter.paused(False)
+
+    def test_pause_never_touches_replaced_player(self):
+        self.port.replacement = True
+        with self.assertRaises(ValueError): self.adapter.paused(True)
+        self.assertEqual(self.port.actions, [])
+
+    def test_seek_restores_pause_after_native_auto_resume(self):
+        self.adapter.paused(True)
+        self.adapter.seek(1)
+        view = self.adapter.poll()
+        self.assertTrue(view.paused)
+        self.assertEqual(view.chapter, 1)
+        self.assertIsNone(self.adapter.pending)
+        self.assertEqual(self.port.actions, [('paused', True), ('seek', 60), ('paused', True)])
 
 
 if __name__ == '__main__': unittest.main()

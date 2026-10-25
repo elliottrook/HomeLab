@@ -32,10 +32,11 @@
   opening briefing, story art/synopsis, adjacent selection and bounded lists.
   Normal News entry and playback are unchanged. The pure owned-playback state
   model now passes synthetic checks, including replacement/stale-exit fences.
-  The isolated native adapter3 now passes two real HP opening/seek/owned-stop
-  trials with media binding. Next is joining it to the isolated visual preview,
-  not replacing normal News or changing the publisher/backend. Those two live
-  trials validate chapter state from audio, not rendered playback artwork.
+  The isolated joined Digest player7 now passes actual playback-driven artwork,
+  synopsis/active-row, opening/row seek, pause-preserving seek and Back/owned-stop
+  checks. Completion/Stop/Home edges also pass; final evidence is below. Normal
+  News is still unchanged. Next is paired normal-News integration preparation,
+  with exact installed-stage/recovery checks, not publisher/backend changes.
 - Previous resume point (2026-10-25): Search14 Stop-acknowledgement guard is on
   HP (`732a89c3e3e9189022a1ee7c4fdb9f596c88486d2f13fb53d3832d47c7a46df4`),
   layered on the owner-feedback bundle below. Two actual movie Play/Resume/Back
@@ -5428,3 +5429,152 @@ retained as bounded evidence. No installed News/player, service, profile,
 production, permissions, source metadata/history or canonical voice changed.
 No additional remote push is included in this continuation; new local work
 requires its own later push authorization.
+
+### 2026-10-25 — Joined Digest player pre-start
+
+Continue HP-only in a new immutable staged WindowXML pilot, leaving preview4,
+adapter3 and normal News files untouched. Join the edition-checked snapshot to
+media-observed timeline by exact ordered title/start mapping, not title-only IDs
+or publisher-duration identity. Browsing must not change the currently playing
+story image/synopsis. Track active-row green state independently from cursor
+focus; follow the row when audio advances naturally. Add bounded owned pause/
+resume, previous/next (including the opening), row seek and stop-on-exit. Treat
+natural completion distinctly from replacement. All native mutations stay in
+the existing unique-file/callback guarded port. UI callbacks enqueue actions;
+the script loop performs blocking readbacks. No cross-window getControl in
+tests. Before trials retain immutable stage, settings/navigation digest and
+private existing-audio copy; verify row/art/highlight readback, pause clock,
+opening, previous/next boundaries and Back/Home exit-stop. Normal News,
+production, publisher, source/history, downloads, identities and speech remain
+unchanged. Unknown playback never gets stopped; ambiguous writes fence controls
+and surface a status rather than retry. Recovery closes/retires only this pilot.
+
+### 2026-10-25 — Joined Digest visual/audio pilot7 acceptance
+
+The isolated player uses the approved Aster TV gold/green/neutral identity,
+existing icon assets, floating controls and story pills. The shared guide's
+privacy/accessibility/voice requirements still apply; no new speech is generated.
+`build_digest_player.py` produces an immutable16-member staged bundle, not an
+installed add-on or a normal News replacement. Accepted player7 manifest:
+`3536dad430b639c2e36cd638e55a6ba2c21873b6f35d41bb50d66faa9425615a`.
+The exact ordered title/start mapping joins published story metadata to the
+media-observed timeline despite duration-derived fingerprint differences;
+reordered/mismatched stories are refused, not guessed. Missing artwork uses
+the News logo, not another story's image.
+
+Playback drives the left image, synopsis, elapsed clock and active green row.
+Cursor movement remains separate and does not change the playing story. A
+natural story transition selects/follows its row; cursor browsing is permitted
+between transitions. UI callbacks enqueue actions and the script loop performs
+guarded playback/readbacks. No diagnostic cross-window getControl calls are
+used. Native session/file/callback ownership and uncertain-write fences remain.
+Explicit Back/Home exit can issue one distinct Stop for a fenced seek only when
+the native port independently still proves exact ownership; it never retries
+the seek or a Stop already sent. A failed Stop must not be labelled Stopped.
+
+The trial sequence found and retained failures rather than declaring them
+passed:
+
+- player1's pause clock was not yet stable after native speed became zero.
+  Pause now requires250ms of clock stability as well as speed readback.
+- player2 fenced while returning to the opening; its exact private audio was
+  stopped with the manifest-pinned one-off recovery helper. The specific cause
+  was not proven by that older harness. Bounded negative decoder preroll at
+  the opening (previously observed−0.175s) is now normalized to zero only for
+  an opening target; invalid negative clocks elsewhere remain rejected.
+- player4 passed the main path, but an added paused-seek check found that Kodi
+  resumed the MP3 on seek. The adapter restores the user's paused state through
+  the same guarded port; synthetic and native readbacks now verify it.
+- player5/6 completion checks exposed that native flags, active-player listing
+  and end callbacks settle in either order. The port now waits up to750ms for
+  the actual end callback plus no active player, including a race after reading
+  elapsed time. Empty players alone, a manual stop, a second start or a foreign
+  file never prove natural completion. Synthetic tests cover both end and stop
+  callback cases. Earlier immutable stages/checkpoints are retained; local-only
+  player3 was superseded before deployment.
+
+Final main UI proof:
+`/storage/.aster-checkpoints/aster-digest-player-test-1792969809253171328/native.json`.
+It passes no-autoplay entry; full opening; stable pause (0.000s clock drift);
+paused row seek; native OK dispatch; audio-driven title/summary/art and active
+vs cursor distinction; next/previous/opening; Back-owned-stop; exact Home focus;
+unchanged settings/navigation; and empty queues. Its3840x2160 story-art capture
+was visually inspected: correct first-story art and synopsis, green playing
+row, floating transport icons, no clipped synopsis and normal brightness.
+Earlier player4/5 main proofs also passed before their new edge cases were
+added, but are not substitutes for the final candidate's checks.
+
+First player7 completion/Stop/Home proof:
+`/storage/.aster-checkpoints/aster-digest-player-edges-1792969763981496570/native.json`.
+The helper independently verifies the unique private pilot file and manifest
+before one test-only tail seek, then waits for real natural completion; no EOF
+callback is fabricated. It verifies cleared active highlight, explicit restart,
+Stop, restart again and native Home exit with owned audio stopped, source focus
+restored, settings/navigation unchanged and empty queues. Repeat/preservation
+results are recorded below before milestone close-out.
+
+The full745-test suite passes normally and optimized. Local unit coverage
+includes exact mapping, immutable packaging, paused seek auto-resume, decoder
+preroll, EOF callback ordering, fenced-owned exit versus foreign audio and
+truthful Stop status. Existing News, installed skin/player files, backend,
+watch/listening history, credentials, downloads and production remain unchanged.
+Private MP3 copies are bounded32MiB and retained0600 inside0700 checkpoints.
+No new service, account, schedule, network path or monitoring/inventory object
+was added, so those integration registries need no change for this pilot.
+
+#### Operator handover — isolated HP Digest player7
+
+This is engineering acceptance; physical remote/sofa acceptance and normal News
+promotion are not claimed. It is not reachable by the existing News rail yet.
+An operator with the existing HP SSH key can launch it while Home is idle:
+
+`kodi-send --action="RunScript(/storage/.aster-staging/aster-digest-player7/default.py)"`
+
+No new login/API key is needed. Play starts the complete briefing, including
+the introduction; selecting a story starts/seeks that story. The green active
+row and left panel track audio, while the cursor may browse independently.
+Play/Pause toggles with readback; selecting a different story while paused keeps
+it paused. Previous can return to Opening briefing; lists do not wrap. Stop
+stops owned audio; Back or Home stops owned audio and leaves the page. Natural
+completion clears the active highlight and says Briefing complete. Play can
+explicitly restart. Other playback is never interrupted to enter the pilot.
+
+The pilot uses only the already cached current briefing. If the cache is absent,
+the publisher edition changed or ownership is uncertain, it shows an unavailable
+status and does not download, synthesize or automatically retry playback. Leave
+with Back; report the error rather than retrying an uncertain write repeatedly.
+Closing/retiring this staging directory is recovery; normal News files were not
+changed. Source-read actions, cross-briefing queues, uncached-edition acquisition
+and normal News integration still need their own bounded slices. No production
+promotion or remote Git push is included in this turn.
+
+#### Joined-pilot repeat, preservation and resume point
+
+Independent second completion/Stop/Home proof also passes:
+`/storage/.aster-checkpoints/aster-digest-player-edges-1792969857023682760/native.json`.
+Fresh final `postcheck-1792969935485443969.json` verifies existing exact installed
+stages, Music/video database integrity, all68 AV/language values (only the
+previously documented derived display-index remapping), closed lab windows,
+idle player and empty original queues. Fresh YouTube branding and Pause-to-OSD
+verification pass with unchanged settings/navigation. An earlier preservation
+invocation overlapped the edge test and produced no accepted fresh proof; only
+the final idle run is counted. No integrity guard was edited or relaxed.
+
+Intent/efficiency review: the joined pilot now actually displays the playing
+story rather than browse focus, handles both paused seeks and end-of-stream
+settlement, and stops on both Back and Home. Images/synopses update only on
+story changes; metadata/audio copies are bounded; the loop remains100ms for
+remote response, with no polling speech jobs or source writes. Readback waits
+are bounded and do not resend mutations. Large retained evidence is limited
+to private session MP3 copies and4K captures; no new recurring service was
+created. The cached-current-edition restriction is deliberate at this isolated
+gate, not a finished normal-News offline/acquisition policy.
+
+Milestone is engineering-accepted on HP, not project graduation or family/sofa
+acceptance. HP is left Home with playback stopped and empty queues. Next safe
+work: read-only mapping of the currently installed News/player routes and exact
+stage guards, then a separate paired normal-News integration candidate with
+verified rollback. Preserve the current News path until that bounded checkpoint
+and native integration checks are ready. Source-read/briefing-queue work needs
+real service identities and does not get inferred from headlines. This turn's
+local commit awaits a separate push request; production stays unchanged.

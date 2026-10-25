@@ -82,14 +82,25 @@ class PlaybackState:
         proposal = self.timeline.seek_proposal(chapter, self.timeline.identity)
         return Intent('seek', self.session, self.media, self.timeline.identity, self.sequence, proposal['start'])
 
+    def opening(self):
+        if self.view.phase not in ('opening', 'story'): raise ValueError('not-owned-active-playback')
+        return Intent('seek', self.session, self.media, self.timeline.identity, self.sequence, 0)
+
+    def control(self, kind):
+        if kind not in ('pause', 'resume') or self.view.phase not in ('opening', 'story'):
+            raise ValueError('not-owned-active-control')
+        return Intent(kind, self.session, self.media, self.timeline.identity, self.sequence)
+
     def current(self, intent, observation):
         """Final adapter-side check; an intent is not an executable command."""
         if not isinstance(intent, Intent) or not isinstance(observation, Observation): return False
         if self.view.phase not in ('opening', 'story') or not self._matches(observation): return False
         if observation.ended is not False or type(observation.sequence) is not int: return False
-        return (intent.kind == 'seek' and intent.session == self.session and intent.media == self.media
+        allowed = ((intent.kind == 'seek' and intent.start in (0,) + tuple(row.start for row in self.timeline.chapters))
+            or (intent.kind in ('pause', 'resume') and intent.start is None))
+        return (allowed and intent.session == self.session and intent.media == self.media
             and intent.edition == self.timeline.identity and intent.sequence == self.sequence
-            and observation.sequence == self.sequence and intent.start in tuple(row.start for row in self.timeline.chapters))
+            and observation.sequence == self.sequence)
 
     def close(self, observation):
         """One stop proposal on exit, only with a fresh matching observation.
