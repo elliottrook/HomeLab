@@ -60,7 +60,7 @@ if search_file.exists():
     _require(search_manifest.get('kind') in ('hp-search-details','hp-search-playerlinks')
         and len(search_manifest['files'])==((13 if search_manifest.get('movie_page')==11130 else 10 if search_manifest.get('artist_native_window')==11129 else 9 if search_manifest.get('artist_albums') is True else 8) if search_linked else 6),'search-details-kind')
     _require(search_manifest.get('dispatcher_before_sha256')=='466b69269e56d8699838aabbe72ae533a580909603855850a047bf02e76d1a0e','search-dispatch-predecessor')
-    search_stages=[stage/name for name in ('aster-global-search-ui3','aster-global-search-ui4','aster-global-search-ui5','aster-global-search-ui6','aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12','aster-global-search-ui13')
+    search_stages=[stage/name for name in ('aster-global-search-ui3','aster-global-search-ui4','aster-global-search-ui5','aster-global-search-ui6','aster-global-search-ui7','aster-global-search-ui8','aster-global-search-ui9','aster-global-search-ui10','aster-global-search-ui11','aster-global-search-ui12','aster-global-search-ui13','aster-global-search-ui14')
         if (stage/name/'manifest.json').exists() and hashlib.sha256((stage/name/'manifest.json').read_bytes()).hexdigest()==sys.argv[8]]
     _require(len(search_stages)==1,'search-stage-manifest');search_stage=search_stages[0]
     for member in search_manifest['files']:
@@ -198,8 +198,10 @@ _require((all(hashlib.sha256((addons/row['path']).read_bytes()).hexdigest()==row
 settings=ET.parse('/storage/.kodi/userdata/guisettings.xml')
 values=sorted((node.get('id'),node.text or '') for node in settings.findall('.//setting')
               if (node.get('id') or '').startswith(('audiooutput.','videoscreen.','locale.')))
-av={'count':len(values),'sha256':hashlib.sha256(json.dumps(values).encode()).hexdigest()}
-_require((av==json.loads(Path('/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/before-candidate14/av-baseline.json').read_text())), ('native-check-failed'))
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+from av_preservation import verify as verify_av
+av_details=verify_av(values,json.loads(Path('/storage/.aster-checkpoints/aster-music-expanded-trial-20261023/before-candidate14/av-baseline.json').read_text()),
+    rpc('XBMC.GetInfoLabels',{'labels':['System.ScreenWidth','System.ScreenHeight','System.ScreenResolution']}))
 connection=sqlite3.connect('file:/storage/.kodi/userdata/Database/MyMusic83.db?mode=ro',uri=True)
 try:
     _require((connection.execute('SELECT count(*) FROM song s WHERE NOT EXISTS(SELECT 1 FROM song_artist sa WHERE sa.idSong=s.idSong AND sa.idRole=1)').fetchone()[0]==0), ('native-check-failed'))
@@ -223,6 +225,7 @@ with output.open('x') as handle:
                'approved_search_details_files_verified':search_count,
                'approved_canonical_sound_files_verified':canonical_count,
                'av_language_settings_verified':len(values),
+               'av_preservation_details':av_details,
                'database_integrity':'ok','missing_primary_artist_links':0,
                'video_database_integrity':'ok',
                'no_player':True,'original_empty_queue':True,'capability_removed':True,

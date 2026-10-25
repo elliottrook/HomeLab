@@ -15,6 +15,7 @@ def text(value,limit):
 
 PROPERTIES=['title','year','plot','genre','runtime','resume','thumbnail','fanart','rating','mpaa','file']
 READS=frozenset(('VideoLibrary.GetMovieDetails','Player.GetActivePlayers','Playlist.GetItems','Player.GetItem'))
+STOP_CONFIRM_SECONDS=5
 MOVIE_STAGE='aster-global-search-ui12'
 PREVIOUS_SEARCH='01e499b94aa5f819900fa311515a95a58ead1207f9e3e272fb287590d63b282e'
 TARGETS={'overlay/Home.xml':'1080i/Home.xml','overlay/select_dispatch.py':'tools/select_dispatch.py',
@@ -98,6 +99,7 @@ class MovieSession:
     def __init__(self,rpc,movie_id,*,clock=time.monotonic):
         self.rpc=rpc;self.movie_id=identity(movie_id);self.clock=clock
         self.phase='idle';self.confirmed=False;self.cancelled=False;self.deadline=0;self.error=None;self.stops=0
+        self.stop_deadline=None
     def start(self,*,resume=False):
         require(type(resume) is bool and self.phase=='idle','movie-open-not-idle')
         require(idle(self.rpc),'another-player-or-queue-active')
@@ -105,7 +107,7 @@ class MovieSession:
         require(value.available,'movie-not-indexed-playable')
         require(not resume or value.has_resume,'movie-resume-unavailable')
         require(idle(self.rpc),'another-player-or-queue-active')
-        self.confirmed=False;self.cancelled=False;self.deadline=self.clock()+30;self.error=None;self.phase='opening'
+        self.confirmed=False;self.cancelled=False;self.deadline=self.clock()+30;self.stop_deadline=None;self.error=None;self.phase='opening'
         try:self.rpc('Player.Open',dict(item=dict(movieid=self.movie_id),options=dict(resume=resume)))
         except Exception:
             self.phase='recovery';self.error='movie-open-result-unknown'
@@ -152,13 +154,18 @@ class MovieSession:
             self.phase='conflict';self.error='external-player-active';return False
         item=self.rpc('Player.GetItem',dict(playerid=1,properties=[])).get('item',{})
         if item.get('type')!='movie' or type(item.get('id')) is not int:
-            if self.clock()>=self.deadline:self.phase='recovery';self.error='movie-identity-not-confirmed'
+            if self.phase=='stopping' and self.clock()>=self.stop_deadline:
+                self.phase='recovery';self.error='movie-stop-not-confirmed'
+            elif self.phase!='stopping' and self.clock()>=self.deadline:
+                self.phase='recovery';self.error='movie-identity-not-confirmed'
             return False
         if item['id']!=self.movie_id:
             self.phase='conflict';self.error='external-movie-active';return False
         self.confirmed=True
+        if self.phase=='stopping' and self.clock()>=self.stop_deadline:
+            self.phase='recovery';self.error='movie-stop-not-confirmed';return False
         if self.cancelled and self.phase!='stopping':
-            self.phase='stopping';self.stops+=1
+            self.phase='stopping';self.stops+=1;self.stop_deadline=self.clock()+STOP_CONFIRM_SECONDS
             try:self.rpc('Player.Stop',dict(playerid=1))
             except Exception:
                 self.phase='recovery';self.error='movie-stop-result-unknown'

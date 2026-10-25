@@ -16,7 +16,15 @@
   Items 01-26 and 31-32 were selected; all unticked items are deferred.
 - HP (`192.168.1.140`) is the v2 lab. BOSGAME (`192.168.1.157`) stays on its
   accepted family-beta release until a separately approved promotion.
-- Latest resume point (2026-10-25): the owner-feedback bundle `aster-feedback1`
+- Latest resume point (2026-10-25): Search14 Stop-acknowledgement guard is on
+  HP (`732a89c3e3e9189022a1ee7c4fdb9f596c88486d2f13fb53d3832d47c7a46df4`),
+  layered on the owner-feedback bundle below. Two actual movie Play/Resume/Back
+  regressions and native synthetic fault tests pass. Final preservation passes
+  with an explicitly evidenced derived display-index remapping, not a rewritten
+  baseline. Local M4 timeline/conflict planning has no live ABS integration;
+  household-shared versus individual progress ownership awaits Jason's choice.
+  Canonical sounds are on both boxes; all other new v2 work remains HP-only.
+- Previous resume point (2026-10-25): the owner-feedback bundle `aster-feedback1`
   is installed on HP only. It composes Music65, series17, floating rail4,
   normal Music/series integration7, scrub4 and Search13. Exact manifests,
   recovery and native acceptance evidence are in the owner-feedback entry
@@ -4004,3 +4012,122 @@ See [runtime encoding, packaging, evidence and recovery](../../services/kodi/rel
 Future deployment packages require `--runtime-sounds`; default source-reference
 archives intentionally retain immutable PCM24 masters, not runtime copies.
 497 v2 tests and 11 sound tests pass normally and optimized. No push requested.
+
+### 2026-10-25 — Publish canonical sounds; M2 bounded Stop acknowledgement
+
+Jason requested “Push and continue.” Forgejo accepted `19cce8fa`; read-only
+GitHub branch verification matches `19cce8fae9f509e75d50c1a38b08ec2a679b62f9`.
+No direct GitHub push. Existing unrelated working-tree changes remain excluded.
+
+Next safe action identified in the prior movie handover is the unconfirmed
+Stop fault gate. Within the existing HP testing authority, prepare Search14
+from exact Search13 (`fc69b8da...`), changing only movie controller/model and
+the Home search entry. The model allows five seconds after its single owned
+Stop request, then fences uncertainty instead of polling forever, retrying or
+clearing an uncertain queue. Native UI warns that playback may still be running.
+Foreign playback is never stopped. This is fault containment, not a promise
+that an unresponsive engine has actually stopped.
+
+Pre-start: HP only; idle/empty native preservation proof required. Expected
+one short Kodi restart to load the new Home entry. Capture/verify exact Home
+and active-manifest backups; retain immutable Search13 and Search14 stages.
+Paired recovery restores only those two targets while stopped and refuses
+drift. No profile, watch-state, server API, settings, identity, network or
+production change. Synthetic faults use fake RPC and no actual stuck player;
+normal real Play/Resume/Back regression may update progress through ordinary
+existing Jellyfin playback, already in the HP test envelope. No new speech,
+style-family change, service or monitoring/NetBox object. Stop on unexpected
+playback, failed recovery or unknown composition. Family/remote acceptance and
+M2 graduation remain separate gates.
+
+Delivered on HP: Search14 manifest
+`732a89c3e3e9189022a1ee7c4fdb9f596c88486d2f13fb53d3832d47c7a46df4`.
+Only Home's search launch and the active manifest are replaced; the immutable
+stage contains three changed members (Home, movie controller and model).
+Checkpoint `/storage/.aster-checkpoints/aster-global-search-20261024/aster-global-search-ui14`
+retains exact Search13 Home/manifest and the paired deployment/recovery helper.
+Private extra copies `/tmp/aster-stop-guard-3p1uNK/recovery` verify both originals
+against Search13. New stages are retained during rollback, never deleted.
+
+Native evidence:
+
+- `native-stop-faults-1792917270710267134.json`: all 19 controller tests pass
+  under Kodi optimization1 with entirely synthetic playback RPCs. Includes
+  successful-but-ineffective Stop, delayed success, missing identity, foreign
+  takeover, late disappearance, unknown results and no duplicate Stop/Clear.
+- `native-movie-1792917320001023696.json` and
+  `native-movie-1792917420914302864.json`: two independent actual normal Search
+  → movie Play/from-start → OSD → Back/stop → exact search-focus return,
+  existing-bookmark Resume and Home/no-hijack passes, ending idle/empty.
+- Planned restart completed, Kodi PID26967, restart counter0. This is the
+  post-start counter, not a claim that older crashes never occurred.
+- Strict final preservation initially failed at the AV fingerprint comparison.
+  Source-local comparison against the private pre-Music GUI archive (whose AV
+  projection matches the original baseline) isolated exactly one difference:
+  `videoscreen.resolution` selector index16→17; the other67 values match exactly.
+  Native `display-projection-1792917592517387145.json` reports desktop mode,
+  3840×2160@30Hz and index17's matching resolution option. No AV-setting write
+  was issued to hide this difference.
+- Kodi Omega's [display code](https://github.com/xbmc/xbmc/blob/Omega/xbmc/settings/DisplaySettings.cpp)
+  `SettingOptionsResolutionsFiller` derives this numeric selector from actual
+  enumerated modes; `GetDisplayResolution` resolves stored `screenmode`.
+  The read-only preservation checker now records **this exact** 16→17 desktop
+  remapping, verifies all other values against the unchanged baseline hash,
+  and requires native 3840×2160@30Hz proof. Other drift still fails. This is
+  an evidence-backed diagnostic correction, not a blanket display exclusion.
+- Final `postcheck-1792917698770094941.json`: current Music48,132 unchanged
+  baseline files plus7 canonical WAV overrides, all existing UI integrations,
+  67 exact AV/language values plus the separately reported derived selector,
+  both database-integrity checks, empty queues/players, closed windows and no
+  recovery fence pass. The earlier strict-hash failures remain recorded as
+  failures, not retrospectively counted as passes.
+
+Normal use remains unchanged. In the exceptional Stop-timeout case, the page
+or notification says playback may still be running and directs the user to
+native Stop. The controller does not retry or erase an uncertain queue; its
+private recovery fence requires inspection before another movie-page start.
+No claim that an unresponsive player has actually stopped. No production change
+or M2 graduation. This completed continuation is local pending another specific
+push request; the earlier requested push ended at `19cce8fa`.
+
+### 2026-10-25 — M4 offline progress foundation and identity decision
+
+Inspected the existing Books bridge: it resolves verified local audio
+capabilities and chapter/file offsets but has no progress adapter. Existing
+chapter selection does not supply a stable per-podcast episode progress key to
+a synchronization layer. Do not infer one from row position or capability URL.
+
+Prepared `books_progress.py`, an offline-only planning model with no API client,
+credential access, socket, persistent store, UI integration or server writes.
+It binds account/item/episode identities, maps book-global time to verified
+ordered file durations and back, and treats confirmed absent progress separately
+from errors. It refuses changed revisions, externally rewound/finished/removed
+progress, wrong accounts and changed/unknown timelines. Rewinds are not lost to
+a naive greater-position-wins rule; seeking to the end alone does not complete
+a book. Unknown-duration finished records are valid server facts but not a
+seekable timeline. Eleven synthetic tests cover these boundaries.
+
+Verified protocol reference: Audiobookshelf's
+[current-user progress API](https://api.audiobookshelf.org/#get-a-media-progress)
+identifies books by item and podcast progress by item plus episode. Its
+[update endpoint](https://api.audiobookshelf.org/#create-update-media-progress)
+documents ordinary PATCH, not conditional compare-and-swap. Equality before a
+draft is therefore only a preflight check: no atomic cross-client conflict
+guarantee is claimed. Avoid the deprecated local-progress-sync route. Live
+server version, actual identity, permissions and concurrency/session behavior
+still require a bounded integration assessment.
+
+Asked Jason whether TV listening progress should be one household position or
+separate per person. This is a wrong-user/privacy boundary, not a visual detail.
+No existing credential was read/exported, no account was provisioned and no
+progress was touched. Next: resolve that identity choice; prepare the narrow
+bridge adapter and a disposable progress/session test proposal before any
+server write. Production remains untouched. Reader/voice/camera/Seerr gates
+remain closed; no further infrastructure integration changes apply yet.
+
+Final local regression: 522 v2 tests pass in normal and optimized Python;
+new/changed native helpers compile and whitespace checks pass. Native fault
+testing is synthetic and did not create a real stuck player. The account
+decision above is required before choosing the live progress authority; no
+further server write is inferred from general HP test authority. Work is
+checkpointed/resumable while awaiting that choice.

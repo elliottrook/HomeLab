@@ -75,7 +75,13 @@ def main():
                 except MovieUnavailable:window.setProperty('Movie.Status','Progress is syncing. Reopen later to refresh it.')
             if session.phase in ('conflict','recovery'):
                 fence(session)
-                if current==11130:window.setProperty('Movie.Status','Playback could not be verified. No retry; Back leaves without interrupting another player.')
+                if session.error=='movie-stop-not-confirmed':
+                    message='Stop was not confirmed. Playback may still be running. Use the native Stop control; automatic retries are blocked.'
+                    if current==11130:window.setProperty('Movie.Status',message)
+                    else:
+                        xbmcgui.Dialog().notification('Aster playback needs attention',message)
+                        break
+                elif current==11130:window.setProperty('Movie.Status','Playback could not be verified. No retry; Back leaves without interrupting another player.')
                 else:break
             if session.phase=='idle' and current!=11130 and time.monotonic()>=return_until:break
             if monitor.waitForAbort(.1):break

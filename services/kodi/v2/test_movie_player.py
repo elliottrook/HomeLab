@@ -87,6 +87,35 @@ class MovieTests(unittest.TestCase):
         rpc.players=[dict(playerid=1,type='video')];rpc.stop_error=True
         with self.assertRaisesRegex(MovieUnavailable,'movie-stop-result-unknown'):session.poll()
         session.poll();self.assertEqual(session.stops,1)
+    def stopping(self):
+        rpc=Fake();now=[0];session=MovieSession(rpc,7,clock=lambda:now[0]);session.start()
+        rpc.players=[dict(playerid=1,type='video')];session.poll();session.cancel();session.poll()
+        return rpc,now,session
+    def test_acknowledged_but_ineffective_stop_has_bounded_fence(self):
+        rpc,now,session=self.stopping()
+        now[0]=4.999;session.poll();self.assertEqual(session.phase,'stopping')
+        now[0]=5;self.assertFalse(session.poll());self.assertEqual(session.phase,'recovery')
+        self.assertEqual(session.error,'movie-stop-not-confirmed')
+        for _ in range(10):session.poll()
+        self.assertEqual(session.stops,1);self.assertEqual(sum(m=='Player.Stop' for m,_ in rpc.calls),1)
+        self.assertFalse(any(m=='Playlist.Clear' for m,_ in rpc.calls))
+    def test_stop_observed_after_delay_cleans_only_owned_queue(self):
+        rpc,now,session=self.stopping();now[0]=4;rpc.video=[dict(id=7,type='movie')];rpc.players=[]
+        self.assertTrue(session.poll());self.assertEqual(session.phase,'idle');self.assertEqual(rpc.video,[])
+    def test_stop_timeout_missing_identity_does_not_use_open_deadline(self):
+        rpc,now,session=self.stopping();rpc.item={};now[0]=5;session.poll()
+        self.assertEqual(session.error,'movie-stop-not-confirmed');self.assertEqual(session.stops,1)
+    def test_external_player_after_stop_never_stopped_or_cleared(self):
+        for foreign in ('audio','movie'):
+            rpc,now,session=self.stopping();now[0]=5
+            if foreign=='audio':rpc.players=[dict(playerid=0,type='audio')]
+            else:rpc.item=dict(id=8,type='movie')
+            session.poll();self.assertEqual(session.phase,'conflict');self.assertEqual(session.stops,1)
+            self.assertFalse(any(m=='Playlist.Clear' for m,_ in rpc.calls))
+    def test_late_disappearance_after_timeout_does_not_clear_queue(self):
+        rpc,now,session=self.stopping();now[0]=5;session.poll();rpc.players=[];rpc.video=[dict(id=7,type='movie')]
+        self.assertFalse(session.poll());self.assertEqual(session.phase,'recovery')
+        self.assertFalse(any(m=='Playlist.Clear' for m,_ in rpc.calls))
     def test_native_owned_singleton_queue_cleared_after_confirmed_stop(self):
         rpc=Fake();session=MovieSession(rpc,7);session.start();rpc.players=[dict(playerid=1,type='video')];session.poll()
         rpc.video=[dict(id=7,type='movie')];rpc.players=[]

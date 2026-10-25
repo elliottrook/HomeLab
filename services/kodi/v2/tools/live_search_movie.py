@@ -7,7 +7,7 @@ def require(value,reason):
 require(os.uname().nodename=='AsterTV','hp-only')
 root=Path('/storage/.aster-checkpoints/aster-global-search-20261024')
 active=json.loads((root/'active-manifest.json').read_text())
-require(active.get('stage') in ('aster-global-search-ui12','aster-global-search-ui13'),'known-stage')
+require(active.get('stage') in ('aster-global-search-ui12','aster-global-search-ui13','aster-global-search-ui14'),'known-stage')
 stage=Path('/storage/.aster-staging')/active['stage']
 sys.path.insert(0,str(stage/'resources/lib'))
 from movie_player import read_movie
