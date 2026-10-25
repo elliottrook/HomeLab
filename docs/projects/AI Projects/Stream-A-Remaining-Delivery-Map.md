@@ -928,7 +928,11 @@ route, model call and F2/F6 effects are explicitly excluded. It is prepared but
 its first run failed on the absent `/etc/sysusers.d` directory and rolled back
 completely before identity creation. The corrected card uses the measured
 systemd 257 path `/usr/lib/sysusers.d`; exact target paths are now validator-
-enforced. A new approval is required before retry.
+enforced. The [corrected retry passed](evidence/M1-D4-fixed-doctor-inactive-additive-install-result-2026-10-25.md):
+all eight files are exact, UID/GID 978 and client GID 979 were created, both
+units remain disabled/inactive, sockets are absent, production is healthy and
+the broker has zero fixed-Doctor rows. No replacement, restart, enrollment,
+grant, read, route or model call occurred.
 
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)
 deployed caller binding and restrictive checks, while the
