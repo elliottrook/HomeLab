@@ -12,6 +12,13 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October 25 pin/acceptance receipt](B60-Inference-Engineering/recovery-pin-and-nlu-acceptance-receipt-20261025.md)
+receives `c21a8bda`: stale exclusion-helper pins caused the latest F2 refusal
+and are reportedly corrected, with October 26 timers approved/active. NLU
+now has owner-accepted calibration constraints and a sealed 9B evaluation
+candidate. B60 independently passes 54 current offline contract tests; these
+are not model results, a successful F2, or live recovery/A1 admission.
+
 The [October 25 NLU contract review](B60-Inference-Engineering/nlu-calibration-contract-review-20261025.md)
 receives `2caa1db2` and independently passes 26 exact-peer offline policy,
 threshold-selection and custody tests. This verifies regression tooling, not
