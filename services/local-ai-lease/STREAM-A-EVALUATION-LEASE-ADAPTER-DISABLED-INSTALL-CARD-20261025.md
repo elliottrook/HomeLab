@@ -69,7 +69,7 @@ Current source hashes:
 
 | Path | SHA-256 |
 |---|---|
-| `scripts/local-ai/evaluation_lease.py` | `38a986e9d868d04c7ee7814ae0fbd2f1a1709e7a464916195d594ca2bf286312` |
+| `scripts/local-ai/evaluation_lease.py` | `675ebb566de298334f7c612cae9af2637067930f40c0ad2c23a22e1b7e248f1b` |
 | `scripts/local-ai/evaluation_lease_adapter.py` | `8fac397f96b88be5ccb042a2e3b3da6cbbccdc89e91e4afeacf029a13769c6a1` |
 | `scripts/local-ai/evaluation_lease_watchdog.py` | `b6409e9f29d954033ebd2098fdbd983862d0d32eb5de04471f7b06f9aaf74725` |
 | `scripts/local-ai/host_exclusion.py` | `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61` |
