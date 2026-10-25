@@ -45,3 +45,19 @@ grant, service state, OpenBao action, model call or network change is included.
 Any timeout, stale assurance, payload drift, unexpected row delta or uncertain
 UI result is a no-retry stop with the live database preserved for
 reconciliation.
+
+## Fresh recheck after operator/verifier freeze
+
+After local commits `5fcaf547` and `6cae53d1`, Stream A repeated the bounded
+read-only production checks. SQLite integrity remains `ok`; active requests
+remain zero; audit maximum remains 121; `agent-hermes` remains `operator`; the
+global switch, exact synthetic service, exact Red capability and its single
+grant remain enabled. All four units remain active. Aster health remains HTTP
+200 and the unauthenticated exact ingress session route remains HTTP 401. Both
+installed passkey source hashes still match the accepted pins exactly.
+
+The fixed operator payload SHA-256 is
+`90b1d50533457baa73e6e99bd263198bfca6e08d8e7be0bf1abb179bba74ad06`.
+No request, checkpoint, file or audit row was created by this recheck. The one
+live ceremony is now the first remaining M1 action and still needs explicit
+approval.
