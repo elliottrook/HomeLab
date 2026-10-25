@@ -1,0 +1,45 @@
+{
+  "schema": "stream-a-evaluation-lease-inactive-install.v1",
+  "status": "candidate-only",
+  "effects_enabled": false,
+  "live_entry_points": [],
+  "systemd_units": [],
+  "systemd_timers": [],
+  "target_root": "/usr/local/libexec/local-ai-lease/stream-a-evaluation",
+  "files": [
+    {
+      "source": "scripts/local-ai/evaluation_lease.py",
+      "target": "evaluation_lease.py",
+      "sha256": "38a986e9d868d04c7ee7814ae0fbd2f1a1709e7a464916195d594ca2bf286312",
+      "mode": "0644"
+    },
+    {
+      "source": "scripts/local-ai/evaluation_lease_adapter.py",
+      "target": "evaluation_lease_adapter.py",
+      "sha256": "8fac397f96b88be5ccb042a2e3b3da6cbbccdc89e91e4afeacf029a13769c6a1",
+      "mode": "0644"
+    },
+    {
+      "source": "scripts/local-ai/evaluation_lease_watchdog.py",
+      "target": "evaluation_lease_watchdog.py",
+      "sha256": "b6409e9f29d954033ebd2098fdbd983862d0d32eb5de04471f7b06f9aaf74725",
+      "mode": "0644"
+    },
+    {
+      "source": "scripts/local-ai/host_exclusion.py",
+      "target": "host_exclusion.py",
+      "sha256": "b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61",
+      "mode": "0644"
+    }
+  ],
+  "prohibited": [
+    "service installation",
+    "timer installation or enablement",
+    "live entry-point creation",
+    "lease acquisition",
+    "consumer stop or start",
+    "model request",
+    "F2 state change",
+    "credential or key access"
+  ]
+}
