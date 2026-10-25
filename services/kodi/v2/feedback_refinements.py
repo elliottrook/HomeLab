@@ -55,7 +55,7 @@ def media_header(data):
     group.append(template)
     image=ET.SubElement(group,'control',dict(type='image'))
     for key,value in dict(left=1353,top=40,width=28,height=28,
-        texture='special://home/addons/plugin.video.youtube/resources/media/icon.png',aspectratio='keep').items():field(image,key,value)
+        texture='special://skin/media/33-aster-youtube-128.png',aspectratio='keep').items():field(image,key,value)
     search=group.find("control[@id='135']")
     field(search,'left',1540);field(search,'onleft',136);field(search,'onright',130)
     return ET.tostring(root,encoding='utf-8',xml_declaration=True)

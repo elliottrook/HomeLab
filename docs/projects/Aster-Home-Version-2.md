@@ -5157,3 +5157,67 @@ preview, preserve the currently playing story/image through selection and
 refresh, then test owned seek/exit behavior before connecting normal News entry.
 Keep source-link reading and cross-briefing queues behind explicit actions and
 real source IDs; do not infer queueable service objects from headline strings.
+
+### 2026-10-25 — Approved YouTube selector in the HP Media pill
+
+Jason requested a push and adoption of the approved SVG at source commit
+`73a8fe3bec1f38432ba8fd90e2c845ae81b34d25`, specifically in the front-page
+YouTube pill. Completed work through `270989e9e8cddd630e0dac32364ade2c6409a2de`
+was pushed to Forgejo and its automatic GitHub mirror verified at the same SHA.
+The subsequent asset adoption is a new local milestone, not an additional push.
+Production is unchanged.
+
+The exact tile-free master is retained at
+`docs/assets/aster-v2/SVG/33-aster-youtube.svg`, SHA-256
+`449f30b8ddff8b4fa3339bd58463064955a2215731766e2f724cd94ff611a3eb`.
+Its square1254px viewBox, purely vector content, unique local references and
+absence of external/raster/text/script content were checked. It is rendered
+directly with Sharp/librsvg at128px and512px, with transparent background and
+proportions preserved—not enlarged from a small PNG or redrawn. The supplied
+master's filters/materials remain intact. The source branch's deleted/unrelated
+brand-guide files were not resurrected when a full cherry-pick conflicted;
+only the authorized master was retrieved. The existing Aster v2 asset guide
+and its small-size/right-sized-raster direction informed this adoption.
+
+An initial Home-texture-URI candidate exposed that Search's exact stage guard
+also verifies Home.xml. That candidate was retired and **fully rolled back**
+through its paired checkpoint before further adoption; its marker/asset are
+retained under `aster-youtube-pill1`. Temporary harness edits were also fully
+reverted. Neither the immutable Search stage nor any integrity guard was
+modified or relaxed.
+
+The accepted `aster-youtube-pill2` is resource-only: it replaces the existing
+YouTube add-on icon used by the Media pill with a512px export and adds the128px
+skin export for future v2 builds. This also brands the YouTube add-on's icon,
+as disclosed before adoption. Home.xml remains byte-for-byte identical at
+`c62cdcc72a0e80631ee0ec67e7ef48dd123c6bd47bf8d56cc3f0eb84afd0dec7`.
+The pill's28px square, keep-aspect rendering, label, sizing, focus treatment,
+left/right/down routes and existing official YouTube destination are unchanged.
+No API credentials/setup, playback, subscriptions, server or account changes.
+The v2 header generator now references the skin-owned128px export so future
+normal packaging does not depend on a third-party add-on icon replacement.
+Until that normal v2 build, a YouTube add-on update may replace its branded
+resource; do not automatically overwrite an unknown newer icon.
+
+Accepted manifest SHA-256:
+`bbfe993cb4e09d78ba24c1043d2dab43e56070148399ed0403697258dd9e4603`.
+Runtime128px PNG:
+`b4ec6afc066fb44aae300f83b6a7e3ef9dbce8b0535695d08265fa3d03d60dda`;
+runtime512px PNG:
+`c4921febefe53c7cd7c90312d5d04add64db95d67f3c1916409c63ec6802d65f`.
+HP checkpoint `/storage/.aster-checkpoints/aster-youtube-pill2` retains the
+verified original add-on icon, manifest, settings/navigation digest and paired
+helpers. Idle rollback via its `deploy_youtube_branding.py,rollback` restores
+only the original icon and retains both new exports in the checkpoint. It does
+not restore profiles/history or change any playback configuration. Independent
+synthetic install/verify/recovery and drift/busy/HP-only checks pass.
+
+Nine focused tests and the full686-test suite pass normally and optimized.
+Native `native-1792966568537664555.json` verifies header focus/neighbours and
+idle queues without opening API-gated YouTube. The focused4K screenshot was
+inspected: the icon is proportionate and the white/green focus remains clear.
+Fresh `postcheck-1792966567562168744.json` passes existing Search/movie-stage,
+player, Books, database and68 AV/language checks, with the previously known
+resolution-index derivation only. Both native resource verification and settings
+preservation pass. HP is left Home, no player and empty queues. No Kodi restart,
+production deployment, new speech or further remote push.
