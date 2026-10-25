@@ -38,10 +38,10 @@ measure the candidate.
 - threshold selector SHA-256:
   `9edc0317fe655bfc49b888d755155393cdc468e11bccc27dbe4881b886922cbb`;
 - staging manifest SHA-256:
-  `357b4e3d5514fe32b1509ac27f9eac3940edb0635db3a5008b4f29fc4f124a00`;
+  `69ffc58928ebd2f2f64e0600b8c4a7d73ce5f5356c485e1df8c2265741972165`;
   and
 - staging validator SHA-256:
-  `8ea9daf47793aaeed0f2c475b4475cc1873173a9abc65089049e9c5bae86889e`.
+  `03153c58e91d389d5019e4778625a4a8c9e2cd64e640ec5ed889ff0ba94fdfd3`.
 
 ## Bounds and custody
 
@@ -80,8 +80,8 @@ pins the minimal source packet and uses one new root-owned mode-`0700`
 directory under `/var/lib/aster-nlu-calibration/`:
 
 - stage only the private cases and content-free release, the public development
-  fixture, runner and its seven pinned Python dependencies;
-- before use, supply all ten staged paths to the pinned validator and require
+  fixture, runner and its eight pinned Python dependencies;
+- before use, supply all eleven staged paths to the pinned validator and require
   exact names, root ownership, directory/file modes, regular non-symlink files,
   matching opened-file digests and absence of outputs or extra files;
 - do not stage private labels, the threshold selector or any cloud credential;
@@ -92,8 +92,11 @@ directory under `/var/lib/aster-nlu-calibration/`:
 - remove the LXC110 run directory only after custody verification. Retain it
   unchanged for reconciliation after an uncertain outcome.
 
-Staging, cleanup, lease acquisition and model execution are live effects. None
-is authorized by this card alone.
+The corrected eleven-file packet has completed inactive staging and custody
+validation; see
+`M3-NLU-calibration-inactive-staging-result-2026-10-25.md`. Cleanup, lease
+acquisition and model execution remain live effects. None is authorized by
+this card alone.
 
 ## Fresh preflight
 

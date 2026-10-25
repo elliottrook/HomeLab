@@ -542,6 +542,10 @@ packet subsequently [passed inactive staging](evidence/M3-NLU-calibration-inacti
 11/11 inputs, 98,414 bytes, exact root-only custody and target imports. No
 runner, output, lease or model request exists. Live calibration remains gated
 by an effectful compatible lease and its approved window.
+The [combined static readiness check](evidence/D4-M3-combined-evaluation-static-readiness-2026-10-25.md)
+also reconfirms candidate-G's exact 11-file package and the staged M3 packet.
+Both workloads are ready at the file/test boundary; F2/F3 and the platform's
+effect adapter/recovery card remain the live dependencies.
 The platform owner's first pure endpoint-retaining lease candidate at
 `44b26e16` passed its own 7/7 tests and names the correct live backend and News
 timers, but Stream A's

@@ -72,7 +72,7 @@ Immediately before acquisition, require:
 - the accepted llama runtime active, authenticated, idle and pinned;
 - D4 digest `03b0ad74a862ee04de75e012f52f6662c61192b69b279ea4d1d66c80d9ff9153`;
 - M3 stage-manifest digest
-  `357b4e3d5514fe32b1509ac27f9eac3940edb0635db3a5008b4f29fc4f124a00`;
+  `69ffc58928ebd2f2f64e0600b8c4a7d73ce5f5356c485e1df8c2265741972165`;
 - sufficient time for the fixed sequence plus the full restoration reserve;
   and
 - an independent operator/recovery path able to act if this task disappears.
