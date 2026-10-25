@@ -32,8 +32,10 @@
   opening briefing, story art/synopsis, adjacent selection and bounded lists.
   Normal News entry and playback are unchanged. The pure owned-playback state
   model now passes synthetic checks, including replacement/stale-exit fences.
-  Next safe slice is its isolated native adapter and media-identity binding;
-  do not wire the preview into normal News or change the publisher/backend.
+  The isolated native adapter3 now passes two real HP opening/seek/owned-stop
+  trials with media binding. Next is joining it to the isolated visual preview,
+  not replacing normal News or changing the publisher/backend. Those two live
+  trials validate chapter state from audio, not rendered playback artwork.
 - Previous resume point (2026-10-25): Search14 Stop-acknowledgement guard is on
   HP (`732a89c3e3e9189022a1ee7c4fdb9f596c88486d2f13fb53d3832d47c7a46df4`),
   layered on the owner-feedback bundle below. Two actual movie Play/Resume/Back
@@ -5335,3 +5337,94 @@ this slice. Next: assess and implement the isolated native adapter, including
 immutable edition/media binding, readback, timeout and owned stop-on-exit.
 Preview4 remains the last live accepted milestone. Remote synchronization of
 the local milestone commits is pending a fresh push request.
+
+### 2026-10-25 — Publish and bounded Digest adapter continuation
+
+At Jason's explicit “push ... then continue”, Forgejo accepted `bedd0164` and
+its automatic GitHub mirror was independently read back at the same full hash
+`bedd0164354182e5e1611f0e2e5276cd8e310460`. Unrelated dirty owner files were
+not included. Remaining scope was reported by workstream, without marking the
+old aggregate milestone checkboxes complete prematurely.
+
+Next local adapter slice uses a strict injected player port: fresh typed
+observation, immediately rechecked exact session/media/edition before seek/stop,
+observed readback rather than a command acknowledgement, and no retries after
+uncertain writes. A native port must establish session continuity independently
+of the file path (a replay of the same file is not proof of ownership). Synthetic
+fault tests precede any live wiring. No new native playback, normal News route,
+server identity/progress or production change in this slice. Current HP preview
+and its recovery evidence remain unchanged. No new speech is produced.
+
+#### Bounded HP native Digest adapter trial pre-start
+
+The local port now requires a uniquely named private local MP3 copy, exact file
+signature/hash and one uninterrupted AV-start callback generation; replaying
+even the same path invalidates ownership. Before live use, checkpoint the
+new immutable helper bundle and existing settings/navigation digest. On idle HP
+Home only, copy (do not redownload or regenerate) the already cached current
+briefing into that private session file, recheck the exact edition, open once,
+validate observed duration/opening, seek to two real published story markers,
+read back position/highlight and stop the same owned session on exit. Guard
+again immediately inside native seek/stop; never retry an uncertain mutation.
+Retain sanitized evidence and private local copy. No source URL/player token
+is logged. This may briefly play existing briefing audio on HP; no Jellyfin
+media item/history, ABS progress, publisher, normal News, profile, service or
+production change. A failed ownership/readback/preservation gate retires the
+candidate, not the current News player. Existing HP lab playback/test authority
+covers this bounded trial; firmware/voice/backend gates remain closed.
+
+#### Native Digest adapter trial outcome — 2026-10-25
+
+The first immutable trial (`8768092c0e6bd03de8630bb83e710993a58a178c7e6dda949ff450104ee5271d`)
+did not pass. Kodi adds `playertype` to the active-player response; strict full
+dictionary equality rejected ownership. The private trial audio was stopped
+using only its exact unique file path, and `recovery.json` verified zero active
+players. No unrelated audio was stopped. The schema correction accepts only
+the known playerid/type/optional internal playertype fields; external players,
+additional fields, callbacks and file identity remain fenced. No integrity
+guard or normal player setting was relaxed.
+
+Trial2 (`a14892959260b5af44b193df4126319f28d4f432eac079595af407a169040924`)
+also failed acceptance: decoder preroll could briefly land before the chapter
+boundary, causing a preceding-story state. Its bounded cleanup did not confirm
+idle within three seconds; independent recovery subsequently found no active
+player and no queue, so no stop/clear was sent. The candidate is retained as
+failed evidence, not counted as a successful trial. Native seek settlement now
+waits for the clock to cross the actual marker (not merely fall within +/-2s),
+without resending seek. Stop settlement waits up to eight seconds without
+resending stop. A synthetic preroll regression verifies this boundary.
+
+Accepted `aster-digest-adapter3` manifest:
+`5bc44d38dae7abb903a771a08505b2d6e5e515aadbf2968c6b11bb13a7d4c8fd`.
+It preserves six hashed source members and makes a private0600, uniquely named
+local copy of the existing current briefing in a0700 checkpoint. Exact feed
+bytes are rechecked before/after opening; one AV-start event, current internal
+audio player and unchanged local inode/size/mtime signature preserve ownership.
+A session replay loses callback continuity even at the same path. A small
+decoder-settlement poll is bounded and performs no repeated mutation. Existing
+cached media is not downloaded, regenerated or attributed to a Jellyfin item.
+
+Two independent native proofs pass:
+
+- `/storage/.aster-checkpoints/aster-digest-adapter-1792968768157900463/native.json`
+- `/storage/.aster-checkpoints/aster-digest-adapter-1792968792949240924/native.json`
+
+Each verifies opening under five seconds, real observed duration, two published
+story seeks/readbacks, derived active chapter, single-start callback continuity,
+confirmed owned exit-stop, unchanged settings/navigation and idle empty queues.
+Final marker offsets were+0.037s and+0.043s. This is native adapter acceptance,
+not a claim that the visual preview now plays or highlights from audio; joining
+the accepted visual and playback paths remains next. Pause, natural completion,
+rendered active-row tracking and remote/sofa acceptance remain explicit gates
+for that joined pilot. The native port currently relinquishes on playback end;
+the joined controller must distinguish natural completion from replacement.
+
+The full729-test suite passes normally and optimized (12 adapter tests including
+immutable packaging, eight native-port tests with synthetic Kodi, and prior
+model/preview tests). `postcheck-1792968815994874389.json` passes existing exact
+stages, Music/video database integrity, all68 AV/language checks, closed lab
+windows and idle/empty state. Private trial copies/checkpoints are intentionally
+retained as bounded evidence. No installed News/player, service, profile,
+production, permissions, source metadata/history or canonical voice changed.
+No additional remote push is included in this continuation; new local work
+requires its own later push authorization.
