@@ -80,3 +80,38 @@ The driver accepts the retained checkpoint only when its directory and file
 custody and old source hash match exactly. A new exact approval is required
 because the wrapper and transaction artifact hashes differ from the failed
 attempt.
+
+## Corrected inactive installation result
+
+Jason approved the corrected inactive installation. Two transaction-package
+checks failed closed before the final pass:
+
+1. the first corrected attempt found the prior failed candidate's two-file
+   `__pycache__` residue before changing any source; those two verified Python
+   bytecode files were removed to complete the prior rollback; and
+2. the next attempt installed the candidate, then its 33-test validation failed
+   because the validation archive had flattened the repository paths required
+   by the new wrapper regression. Its trap restored the exact old four-file
+   baseline and left no state or lock.
+
+The final validation packet preserved the clean commit hierarchy and passed
+33/33 tests locally before transfer. Its exact artifacts were:
+
+- install packet: `9ff50aff53b141714504dd947ade0a50df514db66ff349fcf0c540ca6c3c50c3`;
+- validation packet: `3c357a797dafe1482b77be79449614beae3eaf2581d6a4ad1eda757cb0791506`;
+- transaction driver: `a04069c279e3f93c3dccdd9b7732da36297f1bd755e190a8a6f58e8b69f5aa51`.
+
+The final target transaction passed 33/33 tests, installed imports, the real
+disabled wrapper invocation and exact no-bytecode postcondition. Independent
+postchecks confirmed the five root-owned mode-`0644` Python files, root-owned
+mode-`0755` wrapper and every pinned hash. The old contract checkpoint remains
+root-owned mode `0600` in a mode-`0700` directory. No lease state, operation
+lock, unit, timer, consumer change or model request exists. `local-ai-lease`
+is `ready`; LXC104/110/116, Aster Agent, accepted llama.cpp/SYCL, Speech,
+`pvescheduler` and `pvestatd` are healthy.
+
+The inactive entrypoint installation is **PASS**. Live effects remain disabled.
+The next platform dependency is the separately reviewed and activated
+independent watchdog/recovery boundary. Fresh F2/F3/F4 evidence and a separate
+live evaluation authorization remain mandatory before any consumer stop or
+model request.

@@ -566,8 +566,14 @@ regression requirement. Platform implementation `b18302f3` and card metadata
 `6bf5f252` now provide that correction: the wrapper uses Python `-B`, the card
 pins its new hash, and an independent clean archive passes 33/33 tests,
 including the real no-bytecode wrapper regression. The corrected transaction
-is ready for a new exact inactive installation decision; no effect phase is
-authorized.
+then [passed inactive installation](evidence/Stream-A-evaluation-lease-effect-entrypoint-install-no-go-2026-10-25.md)
+after two packaging checks failed closed and restored the original baseline.
+The final hierarchy-preserving packet passed 33/33 target tests, installed
+imports, disabled wrapper execution, exact hashes/custody and the no-bytecode
+postcondition. The old contract checkpoint is retained, the lease controller
+is `ready`, production is healthy, and no state, lock, effect or model request
+exists. The next live dependency is the independent watchdog/recovery
+activation boundary plus fresh F2/F3/F4 evidence and a separate run approval.
 The platform owner's first pure endpoint-retaining lease candidate at
 `44b26e16` passed its own 7/7 tests and names the correct live backend and News
 timers, but Stream A's
