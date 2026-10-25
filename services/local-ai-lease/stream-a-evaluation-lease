@@ -1,2 +1,2 @@
 #!/bin/sh
-exec /usr/bin/python3 /usr/local/libexec/local-ai-lease/stream-a-evaluation/evaluation_lease_entrypoint.py "$@"
+exec /usr/bin/python3 -B /usr/local/libexec/local-ai-lease/stream-a-evaluation/evaluation_lease_entrypoint.py "$@"
