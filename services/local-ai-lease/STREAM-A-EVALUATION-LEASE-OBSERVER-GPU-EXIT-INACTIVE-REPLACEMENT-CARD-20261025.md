@@ -1,6 +1,6 @@
 # Stream A restore observer GPU-exit correction — inactive replacement card
 
-Status: **SOURCE-ONLY; NOT INSTALLED OR AUTHORIZED**
+Status: **SOURCE-ONLY; ROLLED BACK AFTER INCOMPLETE TEST ARCHIVE; NOT AUTHORIZED**
 
 The latest prepare-only exercise failed closed when `/proc` churn made the
 restore observer intermittent. This exact two-file replacement tolerates only
@@ -9,7 +9,14 @@ surviving malformed, reused or unreadable entries still fail closed. It
 authorizes no install, live retry, consumer action, model call, timer change or
 push.
 
-## Exact two-file transaction
+The prior installation attempt matched both source prehashes and was rolled
+back automatically because the transport archive omitted the inert wrapper
+`services/local-ai-lease/stream-a-evaluation-lease` required by the clean
+wrapper test. No source assertion failed. Exact rollback restored observer
+`9ecf6476...` and runner `cdac8693...` as `root:root` `0644`; F6 remained
+inactive and the whole-host lease remained ready. No retry is authorized.
+
+## Exact two-file runtime transaction with complete test archive
 
 | Source | Target | Pre-upgrade SHA-256 | New SHA-256 | Mode |
 |---|---|---|---|---:|
@@ -18,15 +25,21 @@ push.
 
 Source commit: `c370cce4`. Observer test hash:
 `ca63b53302bd423e79d4d60459ef27967fd8d26fb21dd0f0fad1f4746b465460`.
+The clean test archive must also include the unchanged inert wrapper
+`services/local-ai-lease/stream-a-evaluation-lease`, SHA-256
+`15f3de1ebb5294878d5f0ce0c6a0b7c03a64b42a71c081fda6d036b0c1ef71af`.
 
 ## Required inactive sequence
 
-1. Capture root-owned checkpoints of both exact prehashes, modes, owners and
-   regular-file/no-symlink properties. Refuse on drift.
+1. Create fresh root-only checkpoint
+   `/root/stream-a-evaluation-observer-gpu-exit-replacement-20261025` and
+   capture both exact prehashes, modes, owners and regular-file/no-symlink
+   properties. Refuse on drift.
 2. Replace only the two files atomically, retaining root custody and mode
    `0644`. Do not alter wrappers, helper, owner, watchdog, units, timers,
    runtime state or receipt custody.
-3. Run the clean target-Linux suites: 46 evaluation-lease tests, 34 Stream A
+3. Use a complete clean commit archive containing the two replacements and
+   the unchanged wrapper dependency. Run the clean target-Linux suites: 46 evaluation-lease tests, 34 Stream A
    evaluation tests and 10 lease-watchdog tests; require 90/90. Run imports,
    static hash/mode checks and `git diff --check`.
 4. Verify the GPU observer regression: a fully vanished PID after fd
