@@ -15,7 +15,7 @@ commit here. Verify every file hash from that clean commit:
 
 | Source | Target | Mode | SHA-256 |
 |---|---|---:|---|
-| `scripts/local-ai/evaluation_lease.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/evaluation_lease.py` | 0644 | `38a986e9d868d04c7ee7814ae0fbd2f1a1709e7a464916195d594ca2bf286312` |
+| `scripts/local-ai/evaluation_lease.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/evaluation_lease.py` | 0644 | `675ebb566de298334f7c612cae9af2637067930f40c0ad2c23a22e1b7e248f1b` |
 | `scripts/local-ai/evaluation_lease_adapter.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/evaluation_lease_adapter.py` | 0644 | `8fac397f96b88be5ccb042a2e3b3da6cbbccdc89e91e4afeacf029a13769c6a1` |
 | `scripts/local-ai/evaluation_lease_watchdog.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/evaluation_lease_watchdog.py` | 0644 | `b6409e9f29d954033ebd2098fdbd983862d0d32eb5de04471f7b06f9aaf74725` |
 | `scripts/local-ai/evaluation_lease_entrypoint.py` | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/evaluation_lease_entrypoint.py` | 0644 | `932bd999c6e16ab646a406936b3dccac2773f6953bd69c0c6205e3ca7a3efcda` |
@@ -57,10 +57,14 @@ with exact per-phase keys, typed fields and literal booleans.
 1. Verify `SOURCE_COMMIT`, all hashes, clean source, and the prior inactive
    candidate's exact target state. The existing root must be `root:root 0755`
    and contain the four already-installed libraries with the pinned hashes
-   above, each `0644`.
+   above, each `0644`. The installed `evaluation_lease.py` is the one planned
+   replacement: checkpoint old hash
+   `38a986e9d868d04c7ee7814ae0fbd2f1a1709e7a464916195d594ca2bf286312`, then
+   replace it atomically with the new pinned hash above. Preserve the other
+   three libraries byte-for-byte.
 2. Require only the new entrypoint under that existing root and the wrapper
    `/usr/local/sbin/stream-a-evaluation-lease` to be absent. Add exactly those
-   two files; do not remove, replace or rewrite the existing root or four
+   two files; do not remove or rewrite the existing root or the other three
    libraries. The entrypoint is `root:root 0644`; the wrapper is `root:root 0755`.
 3. Recheck hashes, owner, mode, regular-file type and no symlinks. Run imports
    and the 28+ entry-point tests with bytecode disabled.
@@ -72,12 +76,13 @@ with exact per-phase keys, typed fields and literal booleans.
 ## Rollback
 
 The pre-install checkpoint is the exact existing-root/four-library manifest,
-plus absence of the new entrypoint and wrapper. If any copy or post-copy check
-fails, stop and remove only the newly added entrypoint and wrapper after
-confirming their identities. Preserve the existing root and four libraries. If
-state is uncertain, retain the new files for reconciliation and do not retry
-automatically. Never touch existing lease code, F2 timers, production
-services, credentials or the accepted backend.
+including the old `evaluation_lease.py` hash, plus absence of the new entrypoint
+and wrapper. If any copy or post-copy check fails, stop and restore only
+`evaluation_lease.py` from that checkpoint, remove only the newly added
+entrypoint and wrapper after confirming their identities, and recheck all four
+library hashes. Preserve the other three libraries. If state is uncertain,
+retain the new files for reconciliation and do not retry automatically. Never
+touch F2 timers, production services, credentials or the accepted backend.
 
 This card does not authorize installation, activation, lease acquisition,
 consumer stop/start, model calls, D4/M3 execution, F2 changes or Git push.

@@ -243,6 +243,8 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"effects": "disabled", "state": "source-only"}, sort_keys=True))
         return 0
     try:
+        if args.state != DEFAULT_STATE_PATH:
+            raise EntryPointError("state path is not the fixed watchdog-bound path")
         result = _main_effectful(args, load_intent(args.intent))
     except Exception as exc:
         print(json.dumps({"effects": "failed-closed", "error": type(exc).__name__}, sort_keys=True))

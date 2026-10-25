@@ -3,6 +3,7 @@ import json
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 from evaluation_lease_entrypoint import EntryPointError, main, validate_phase_intent
 
@@ -51,13 +52,15 @@ class EntryPointTests(unittest.TestCase):
 
     def test_effectful_path_rejects_arbitrary_state_path_without_reading(self):
         output = io.StringIO()
-        with redirect_stdout(output):
-            code = main([
-                "--phase", "heartbeat", "--state", "/tmp/arbitrary-state",
-                "--intent", "/absent/intent", "--effect-authorized",
-            ])
+        with patch("evaluation_lease_entrypoint.load_intent") as load_intent:
+            with redirect_stdout(output):
+                code = main([
+                    "--phase", "heartbeat", "--state", "/tmp/arbitrary-state",
+                    "--intent", "/absent/intent", "--effect-authorized",
+                ])
         self.assertEqual(code, 1)
         self.assertEqual(json.loads(output.getvalue())["effects"], "failed-closed")
+        load_intent.assert_not_called()
 
 
 if __name__ == "__main__":
