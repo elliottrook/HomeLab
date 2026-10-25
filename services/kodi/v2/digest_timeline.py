@@ -1,5 +1,5 @@
 """Offline published-edition timeline. No fetch, synthesis, playback or writes."""
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -25,6 +25,7 @@ class Timeline:
     identity: str
     duration: float
     chapters: tuple
+    duration_verified: bool = True
 
     def chapter_at(self, elapsed, observed_edition):
         if observed_edition != self.identity:
@@ -41,6 +42,8 @@ class Timeline:
         return target if 0 <= target < len(self.chapters) else None
 
     def seek_proposal(self, index, observed_edition):
+        if not self.duration_verified:
+            raise ValueError('audio-duration-not-verified')
         if observed_edition != self.identity:
             raise ValueError('edition-changed')
         if type(index) is not int or not 0 <= index < len(self.chapters):
@@ -97,3 +100,10 @@ def build(payload, observed_duration, now):
         cleaned[i+1][2] if i+1 < len(cleaned) else duration)
         for i, (index, title, start) in enumerate(cleaned))
     return Timeline(identity, duration, chapters)
+
+
+def build_preview(payload, now):
+    """Publisher-duration layout only: never produce a playable seek proposal."""
+    if not isinstance(payload, dict) or 'duration_seconds' not in payload:
+        raise ValueError('published-duration-required')
+    return replace(build(payload, payload['duration_seconds'], now), duration_verified=False)

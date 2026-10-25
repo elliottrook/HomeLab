@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+  <defaultcontrol always="true">300</defaultcontrol>
+  <backgroundcolor>ff171c19</backgroundcolor>
+  <controls>
+    <control type="image"><width>1920</width><height>1080</height><texture background="true">$INFO[Window.Property(Digest.Image)]</texture><aspectratio>scale</aspectratio><colordiffuse>60707070</colordiffuse><fadetime>250</fadetime></control>
+    <control type="image"><width>1920</width><height>1080</height><texture colordiffuse="ee171c19">special://skin/media/ui-hero-left-fade.png</texture></control>
+    <control type="image"><width>1920</width><height>1080</height><texture colordiffuse="ff171c19">special://skin/media/ui-hero-bottom-fade.png</texture></control>
+    <control type="image"><left>100</left><top>36</top><width>145</width><height>115</height><texture>special://skin/media/30-aster-news-logo.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>275</left><top>55</top><width>1350</width><height>44</height><label>Daily briefing</label><font>font40</font><textcolor>fff3eee5</textcolor></control>
+    <control type="label"><left>275</left><top>109</top><width>1350</width><height>32</height><label>$INFO[Window.Property(Digest.Mode)]</label><font>font20</font><textcolor>ffadccad</textcolor></control>
+    <control type="button" id="200"><left>1740</left><top>60</top><width>110</width><height>52</height><label>Back</label><font>font20</font><textcolor>fff3eee5</textcolor><focusedcolor>ffadccad</focusedcolor><align>center</align><aligny>center</aligny><texturefocus border="18" colordiffuse="ffd8b778">special://skin/media/ui-button-ring.png</texturefocus><texturenofocus/><onleft>300</onleft><onright>300</onright><ondown>300</ondown></control>
+    <control type="image"><left>110</left><top>220</top><width>670</width><height>340</height><texture background="true">$INFO[Window.Property(Digest.Image)]</texture><aspectratio>keep</aspectratio><fadetime>250</fadetime></control>
+    <control type="textbox"><left>110</left><top>586</top><width>690</width><height>110</height><label>$INFO[Window.Property(Digest.Title)]</label><font>font28</font><textcolor>fff3eee5</textcolor></control>
+    <control type="label"><left>110</left><top>711</top><width>690</width><height>34</height><label>$INFO[Window.Property(Digest.Source)]  ·  $INFO[Window.Property(Digest.Position)]</label><font>font20</font><textcolor>ffadccad</textcolor><truncate>true</truncate></control>
+    <control type="textbox"><left>110</left><top>759</top><width>690</width><height>184</height><label>$INFO[Window.Property(Digest.Summary)]</label><font>font20</font><textcolor>fff3eee5</textcolor></control>
+    <control type="button" id="201"><left>365</left><top>950</top><width>64</width><height>64</height><label>Preview previous story</label><textcolor>00000000</textcolor><focusedcolor>00000000</focusedcolor><texturefocus border="18" colordiffuse="ffd8b778">special://skin/media/ui-button-ring.png</texturefocus><texturenofocus/><enable>!String.IsEqual(Window.Property(Digest.First),true)</enable><onleft>300</onleft><onright>202</onright><onup>300</onup></control>
+    <control type="image"><left>373</left><top>958</top><width>48</width><height>48</height><texture>previous.png</texture><aspectratio>keep</aspectratio><colordiffuse>fff3eee5</colordiffuse></control>
+    <control type="button" id="202"><left>465</left><top>950</top><width>64</width><height>64</height><label>Preview next story</label><textcolor>00000000</textcolor><focusedcolor>00000000</focusedcolor><texturefocus border="18" colordiffuse="ffd8b778">special://skin/media/ui-button-ring.png</texturefocus><texturenofocus/><enable>!String.IsEqual(Window.Property(Digest.Last),true)</enable><onleft>201</onleft><onright>300</onright><onup>300</onup></control>
+    <control type="image"><left>473</left><top>958</top><width>48</width><height>48</height><texture>next.png</texture><aspectratio>keep</aspectratio><colordiffuse>fff3eee5</colordiffuse></control>
+    <control type="label"><left>110</left><top>1032</top><width>690</width><height>32</height><label>$INFO[Window.Property(Digest.Status)]</label><font>font20</font><textcolor>ffadccad</textcolor></control>
+    <control type="label"><left>885</left><top>190</top><width>950</width><height>48</height><label>Briefing timeline</label><font>font28</font><textcolor>fff3eee5</textcolor></control>
+    <control type="label"><left>885</left><top>245</top><width>950</width><height>32</height><label>$INFO[Window.Property(Digest.Counter)]  ·  $INFO[Window.Property(Digest.Duration)]</label><font>font20</font><textcolor>ffadccad</textcolor></control>
+    <control type="list" id="300"><left>885</left><top>295</top><width>960</width><height>660</height><onleft>201</onleft><onright>200</onright><onup>200</onup><ondown>noop</ondown><scrolltime>150</scrolltime>
+      <itemlayout width="960" height="110">
+        <control type="image"><left>2</left><top>3</top><width>940</width><height>100</height><texture border="20" colordiffuse="60000000">special://skin/media/ui-panel.png</texture></control>
+        <control type="label"><left>22</left><top>12</top><width>880</width><height>56</height><label>$INFO[ListItem.Label]</label><font>font24</font><textcolor>fff3eee5</textcolor><truncate>true</truncate><aligny>center</aligny></control>
+        <control type="label"><left>22</left><top>68</top><width>880</width><height>28</height><label>$INFO[ListItem.Property(Clock)]</label><font>font20</font><textcolor>ffadccad</textcolor></control>
+      </itemlayout>
+      <focusedlayout width="960" height="110">
+        <control type="image"><left>2</left><top>3</top><width>940</width><height>100</height><texture border="20" colordiffuse="dd005c46">special://skin/media/ui-panel.png</texture></control>
+        <control type="image"><left>2</left><top>3</top><width>940</width><height>100</height><texture border="20" colordiffuse="fff3eee5">special://skin/media/ui-compact-card-ring.png</texture></control>
+        <control type="label"><left>22</left><top>12</top><width>880</width><height>56</height><label>$INFO[ListItem.Label]</label><font>font24</font><textcolor>fff3eee5</textcolor><truncate>true</truncate><aligny>center</aligny></control>
+        <control type="label"><left>22</left><top>68</top><width>880</width><height>28</height><label>$INFO[ListItem.Property(Clock)]</label><font>font20</font><textcolor>ffadccad</textcolor></control>
+      </focusedlayout>
+    </control>
+    <control type="label"><left>885</left><top>984</top><width>950</width><height>56</height><label>Published $INFO[Window.Property(Digest.Published)]</label><font>font20</font><textcolor>ffbfc6bb</textcolor><truncate>true</truncate></control>
+  </controls>
+</window>

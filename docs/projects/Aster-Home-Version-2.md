@@ -28,9 +28,11 @@
   two-file player-UI service; native movie/episode/menu/exit and restart checks
   pass. Physical remote/sofa acceptance remains unclaimed. No automatic production UI or
   startup-sound promotion is authorized.
-  Digest has a new tested edition-aware offline timeline model and a clean HP
-  source/media assessment; normal News entry is unchanged. Next safe slice is
-  an isolated timeline preview, not a publisher/backend change.
+  Digest now also has an accepted isolated HP timeline preview (preview4):
+  opening briefing, story art/synopsis, adjacent selection and bounded lists.
+  Normal News entry and playback are unchanged. Next safe slice is an isolated
+  owned playback/timeline controller, with an explicit pre-start assessment;
+  do not wire the preview into normal News or change the publisher/backend.
 - Previous resume point (2026-10-25): Search14 Stop-acknowledgement guard is on
   HP (`732a89c3e3e9189022a1ee7c4fdb9f596c88486d2f13fb53d3832d47c7a46df4`),
   layered on the owner-feedback bundle below. Two actual movie Play/Resume/Back
@@ -5221,3 +5223,77 @@ player, Books, database and68 AV/language checks, with the previously known
 resolution-index derivation only. Both native resource verification and settings
 preservation pass. HP is left Home, no player and empty queues. No Kodi restart,
 production deployment, new speech or further remote push.
+
+### 2026-10-25 — Digest preview pre-start boundary
+
+Continue on HP only with an isolated, staged WindowXML preview; do not connect
+normal News entry or change the accepted player/publisher. Risks are mixed
+edition artwork, misleading seekability and focus loss. Require complete fresh
+metadata, exact edition recheck after optional cards, unambiguous headline/art
+matches, clear publisher-only timing labels, no playback RPCs or source links,
+no recording/synthesis, idle/empty entry, exact stage hashes and restored source
+focus on exit. Preserve the stage/manifest and preflight settings/navigation
+digest privately before native checks. Recovery simply closes/retires the
+unreachable preview; no installed add-on, skin, account, service or database is
+changed. Existing Aster gold/green identity, floating player composition and
+focus treatment are retained. No new speech output or production action.
+
+### 2026-10-25 — Isolated Digest timeline preview accepted on HP
+
+The read-only `aster-digest-preview4` is staged, not installed as the normal
+News destination. Its immutable seven-member manifest SHA-256 is
+`2d79902b9c7660e49392377bc625225bf724a57aeb0c06e089f64d1c9ee1ea76`.
+Runtime and paired native helper are under
+`/storage/.aster-staging/aster-digest-preview4`; preflight manifest,
+settings/navigation digest, screenshot and proof are retained privately under
+`/storage/.aster-checkpoints/aster-digest-preview4-20261025`.
+
+The model rechecks exact JSON edition bytes after fetching optional cards,
+refuses stale/incomplete/nonfinite/nonmonotonic timelines, and never guesses
+art for duplicate headlines. Existing card parsing rejects private/IP image
+URLs. Missing cards have explicit fallbacks. A separate Opening briefing row
+represents the introduction before the first story. Publisher duration is
+labelled as such and cannot authorize a seek proposal; media-observed duration
+remains mandatory for future playback. Synopsis excerpts are word-bounded to
+340 characters to fit the TV area, rather than silently clipping full text.
+
+The WindowXML controller owns its controls. Entry is HP/Home/idle/empty only,
+rechecked after fetching; foreign playback is never stopped. Preview previous/
+next and row selection browse only. Actual OK dispatch confirms this; there
+are no playback/settings writes. Focus restores to the exact source control
+on Back. Native checks use explicit requirements under optimized Kodi Python,
+not elided assertions or cross-window getControl calls.
+
+`native-1792968162164717512.json` passes 12-row loading, synced title/summary/
+image, adjacent navigation, end-of-list no wrap, both preview controls,
+nonplaying OK, exact focus restoration and settings/queue preservation. The
+3840x2160 selected-story screenshot was inspected at normal brightness; the
+headline and bounded synopsis fit, and selection is clear. This is engineering
+visual acceptance, not physical remote/sofa acceptance.
+
+Earlier preview2/3 captures and a separate Home capture were globally dimmed
+to RGB maximum51 (20%); native wake input did not clear it, despite Kodi's
+screensaver/modal flags being false. One idle, authorized HP Kodi restart
+restored normal capture brightness (maximum255). Root cause remains unknown;
+retain this as a v2 idle/screensaver regression observation, not a proved
+screensaver fix or preview colour change. Earlier stages/checkpoints are
+retained, not overwritten or removed. A first preview4 diagnostic invocation
+at the staging root lacked its paired guard import and made no checkpoint/UI
+change; rerunning from the correctly paired stage passed.
+
+The full697-test v2 suite passes normally and with `python3 -O`.
+`postcheck-1792968189319681881.json` verifies idle/empty/Home, closed lab windows,
+Music/video database integrity, existing exact installed stages and all68
+AV/language settings (only the previously documented display-index derivation).
+Fresh YouTube branding, startup chime and Pause-to-OSD verification also passes
+after the restart. Startup records one GUI sound request for the new Kodi
+process; no media was opened for this preview. HP is left Home with playback
+stopped and empty queues. No production, backend, account, permission, download,
+watch/listening-history, synthesis or remote Git change was made.
+
+Recovery is simply closing and retiring this unreachable staged preview;
+installed News/player files have not changed. Keep its manifest/checkpoint as
+evidence. Next work is an isolated owned playback controller that binds one
+edition and observed media duration, updates story/art/highlight from elapsed
+time, includes the opening and stops owned playback on exit. It is not yet
+implemented or promoted by this preview acceptance.
