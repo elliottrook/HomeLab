@@ -873,6 +873,16 @@ gate are unproven.
 
 ### What the next connected-tool gate actually lacks
 
+**Current reconciliation, October 25:** the paragraphs below preserve the
+historical M1 gaps and rejected shapes. They are superseded for the synthetic
+authority boundary by the permanent independent ingress, exact Aster WebAuthn
+mapping and the passing
+[Red/management ceremony](evidence/M1-red-management-ceremony-result-2026-10-25.md).
+The missing work is now capability-specific: choose one useful fixed read-only
+diagnostic, register a distinct least-privilege caller and projection, and
+prove its value and recovery before release. The completed synthetic ceremony
+does not itself authorize that registration or deployment.
+
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)
 deployed caller binding and restrictive checks, while the
 [Stage2 approver/assurance candidate](evidence/M1-stage2-candidate.md) is **not
@@ -1102,13 +1112,13 @@ passes 128/128. This is evidence hardening only; D4 qualification remains open.
 
 ## Immediate next action and stop rule
 
-No new live Codex question is needed now. The limited manual handoff decision
-is **HOLD** after the exact metadata-manifest mismatch. The currently installed
-Mac app was subsequently replaced by its owner; short-term ordinary-use and
-signature checks pass, while independent build proof and longer-term reliability
-remain open. Continue the independent offline M1/D4 authority and diagnostic
-work, M3 routing contracts and representative evidence, and the A1 answer
-qualification preparation. A later manual release requires a reviewed exact
-manifest, rebuilt signed candidate, live consent check and verified rollback;
-do not repin a fingerprint merely to unblock the button. No connected tool,
-automatic route or repair authority follows from this checkpoint.
+Do not spend another cloud question on the deferred manual-Codex button. M1's
+synthetic authority proof is complete; its next work is a separately designed
+fixed read-only capability, not broader broker access. D4 candidate-G and the
+M3 calibration packet remain static-ready and unspent. Their live execution is
+blocked on the October 26 F2 runtime result, subsequent F3/F4/F5 evidence and a
+corrected executable F6 effect transaction. The platform owner still owes
+full installed paths and payload schemas, real D4/M3 workload runners and
+credential boundaries, plus source-supported F4/F5 binding. Continue offline
+review when that source arrives. Do not activate F6, stop consumers, call a
+model, create a receipt or infer success from the scheduled F2 timers.
