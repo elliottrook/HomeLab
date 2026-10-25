@@ -60,3 +60,30 @@ Therefore the next possible live sequence is:
 
 Any failed F2/F3, adapter, fresh-health, endpoint-idle, schedule or recovery
 gate is a live-run NO-GO. Offline Stream A work continues independently.
+
+## Post-install readiness refresh
+
+After the independent watchdog/recovery packet completed inactive installation,
+Stream A rechecked both prepared workloads without opening private content or
+calling the model:
+
+- the local D4 candidate-G tar remains mode `0600`, contains exactly eleven
+  members and still matches SHA-256
+  `d5a36cd02be6fdd3d0935e6ca1b23c1d0cad1329d72b04bb4048505fec7e3d47`;
+- the LXC110 M3 directory still contains exactly 11 root-owned mode-`0600`
+  inputs totalling 98,414 bytes;
+- all eleven M3 file hashes match the sealed staging manifest, with canonical
+  content-free inventory digest
+  `92f61d789d497468708ca8af1a1ea8cd985a48be20abb955988e952d6451994e`;
+- `run.json`, `attempt-journal.jsonl`, bytecode and cache directories remain
+  absent; and
+- the watchdog/owner packet is installed but every candidate unit/timer remains
+  disabled and inactive with no runtime state.
+
+The newly identified platform blocker is phase separation. The current
+`EvaluationLeaseAdapter.acquire()` writes lease state and immediately
+masks/stops the four consumers. It therefore cannot produce a durable healthy
+lease for read-only inspection before effects. The platform owner is preparing
+a source-only acquire-only/start split. Until that split is reviewed and
+installed inactive, F6 activation and both live workloads remain NO-GO even if
+F2 passes.
