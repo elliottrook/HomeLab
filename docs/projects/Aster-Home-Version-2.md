@@ -37,8 +37,16 @@
   `659d6631fbf660aa549f8aa1e123178173d559d58e8f668a50b311566e10d48b`.
   Two independent real episode/resume runs (including native Next) and native
   TV/movie navigation before/after restart pass. Preview8 is retained separately
-  as the accepted read-only layout reference. Remote/listening and timed marker
-  walkthrough remain pending; no production promotion or M2 graduation.
+  as the accepted read-only layout reference. Jason accepted the HP flow with
+  “Looks good. Continue”; actual timed marker walkthrough remains a separate
+  unclaimed check. No production promotion or M2 graduation.
+  Native video scrub3 is now active on HP (two skin XML members, four staged
+  members), manifest
+  `74624ebe0def3bd38f2183a6658afa363146b64cfc73c5e0a6f3cf318f8fde02`.
+  Preview/cancel/apply and paused/playing behavior pass episode/movie tests;
+  repeated series-background tests and the post-restart normal entry pass.
+  The earlier scripted-dialog candidate was rolled back/retired after a hang.
+  HP is idle; new scrub remote/visual acceptance is next. Recovery/evidence below.
 - Up Next is urgent and extracted into the separate
   [v1.1 project](Aster-Home-Version-1.1-Up-Next.md); v2 consumes its accepted
   result, not another implementation or an excuse to delay it.
@@ -240,6 +248,25 @@ the exact next safe action before any pause; no reliance on chat memory.
 Push only after specific approval, then verify the Forgejo-owned GitHub mirror.
 
 ## 8. Acceptance and operating handover
+
+HP video seek pilot (2026-10-24; production unchanged): during a seekable film
+or episode, open the normal player controls. From Play/Pause (or another
+transport icon), press Up to focus the progress bar, then OK. Left/Right previews
+in5s steps with a gold position dot and target clock; it does not seek as you
+move. OK applies once; Back cancels with no seek and no stop. Both return to the
+existing OSD. A paused video stays paused when seeking. From the focused bar,
+another Up reaches Audio; Down returns to Play/Pause. The ten original actions
+retain their functions. Back from the OSD only closes controls; Back from
+fullscreen still stops playback through the existing owner policy.
+
+Only indexed, known-duration seekable video is supported. Live/file-only or
+unidentifiable media report unavailable rather than guessing. A media change
+invalidates the preview, even if the same episode is reopened. An uncertain seek
+is never retried automatically; its retained private fence requires inspection.
+No new login, remote mapping or setting is required. The existing Music scrubber
+is unchanged. Native pilot rollback restores the checkpointed VideoOSD member
+and quarantines only its known new native-dialog XML; it must not restore
+profiles/history or erase staged recovery artifacts.
 
 HP series pilot (2026-10-24; production remains unchanged): open **Media →
 TV Shows**, highlight a series poster and press OK. The floating episode page
@@ -2713,3 +2740,210 @@ human acceptance gates, not another request for HP test/deployment authority.
 M2 remains open for broader shell/search/scrub scope. Keep production unchanged,
 the pending server-playlist cleanup untouched, and reserve Forgejo pushes until
 separately requested. Save this bounded slice as a focused local commit only.
+
+### M2 continuation — interactive video scrubbing (2026-10-24)
+
+Jason accepts the HP series pilot and directs continuation. Next bounded slice
+is scope04-05: a remote scrub preview with explicit OK apply/Back cancel, retaining
+all ten OSD actions. HP-only staged dialog/model and one VideoOSD overlay; no
+production or v1 source edits, keymap/server/account/network/settings changes.
+Under standing lab test/deployment/restart authority, checkpoint/isolated restore
+and two enforced native runs precede normal OSD activation. Native watched
+episode fixture is used for short seek tests; normal playback reporting is
+permitted, but no manual history edits or invented bookmarks. No speech.
+
+Main risks: unintentional seek, stale player/duration, double confirmation,
+paused playback unexpectedly resuming, OSD/Back/focus regression. Preview changes
+only local arithmetic. Require one exact indexed video identity, bounded known
+duration and canseek; revalidate immediately before a single absolute seek.
+Reject file-only/live/unknown/changed items, timeouts and duplicate apply. Preserve
+paused state only on the same confirmed player; never stop or open media. Unknown
+seek outcome is fenced, never automatically retried. Back from preview cancels
+without seeking/stopping; existing fullscreen Back-stop remains unchanged.
+
+Installed OSD baseline SHA
+`7fe65ddc4e2e33931a771bd57de349ae7a1d47e4d1983534a83e02a5a6ed03c6`
+matches the deterministic accepted floating-controls builder. Recovery restores
+only that OSD member and retains staged artifacts. Existing Music/rail/series
+members,68 AV/language settings and idle queues remain preservation gates. No
+new Beszel/NetBox/service object or public link; native diagnostics/checkpoints
+and this project record cover the changed behavior. Production promotion, voice,
+ABS progress, Seerr and firmware gates stay closed; no Forgejo push.
+
+Scrub stage1 passed enforced native runs
+`native-scrub-1792891418920076853.json` and
+`native-scrub-1792891465882551186.json`: paused preview/cancel leaves the clock
+unchanged, single absolute apply reaches its target while retaining pause,
+playing apply keeps playback advancing, and fullscreen Back still stops. Native
+4K image review caught the copied fade's reversed direction/poor bright-video
+hint contrast; stage1 was not activated. No bitmap was edited: stage2 uses the
+existing fade in the correct direction and a larger feathered area, retaining
+floating text/bar and the supplied round timer-dot asset as the scrub handle.
+
+Stage2 manifest
+`ac96d5b2e0c059a035aabf65a16b1212b6cc89618201867064504c98e65e2184`
+has four verified members/isolated restore and native passes
+`native-scrub-1792891576530253883.json` and
+`native-scrub-1792891630395952182.json`. Image review confirms a smooth dark
+bottom fade and readable hints over a bright frame; target/actual seek positions
+differed by about30ms in the first run. Exact ID/show/duration/canseek checks and
+a playback-callback epoch reject even a stop/reopen of the same episode. A
+single apply is claimed before synchronous reads, with no retry on uncertainty;
+the only extra pause command allowed is `play=false` for the same positively
+confirmed player when a paused seek unexpectedly resumes. No open/stop writes
+exist in the dialog. Pure failure tests cover stale identity/duration/session,
+unseekable/unknown media, malformed clocks, cancel, duplicate OK, pause retention
+and an unknown seek result.
+
+Fresh `postcheck-1792891688455031329.json` preceded HP activation. One installed
+member, `skin.asterhome/1080i/VideoOSD.xml`, now has a transparent seek entry7200;
+existing labels/icons/onclick actions are retained. Up from a transport control
+reaches the bar, another Up reaches Audio, and Down returns to Play/Pause.
+Nonseekable media retain their original conditional Up routes. Activation
+checkpoint/isolated original OSD:
+`/storage/.aster-checkpoints/aster-video-scrub-20261024/aster-video-scrub2`.
+One idle-only Kodi restart loaded the XML; no keymap, credential or setting
+changed. Unit deployment tests prove two-native-pass gating, rejection of a
+damaged restore before stopping Kodi, and exact OSD rollback on activation
+failure. Active manifest is retained at the parent checkpoint directory.
+
+Post-restart `postcheck-1792891725316527480.json` verifies the active four-member
+scrub stage/one installed OSD plus Music64/48 members,140 v1 baseline files,
+approved overlays/Music integration/rail/series,68 AV/language settings and
+healthy database; no player/queues, open lab window or unresolved seek fence.
+Integrated episode/film Select-path tests and series regression follow before
+calling the normal-entry pilot ready. Production remains unchanged.
+
+**Recovery/hold correction:** integrated episode test
+`native-scrub-1792891778463015639.json` and full-length movie test
+`native-scrub-1792892085282477966.json` pass, but the subsequent combined
+series-background/scrub dialog test wedged the HP GUI/script dispatcher. No
+passing evidence was produced, so stage2 is **not accepted/active**. A suspected
+interaction between the two scripted GUI surfaces needs isolation; root cause
+is not yet proven. The first movie fixture1055 also had a nonrepresentative
+actual duration6656ms despite feature-length library metadata; it failed the
+120s fixture gate before any scrub. Movie1036 (actual8700627ms) passed. No
+catalogue edit was made. One failed test sampled queue cleanup too early;
+the corrected harness waits for native idle/queue cleanup without stopping
+unrelated media.
+
+Graceful HP Kodi stop completed, the recovery tool verified stage2 active
+manifest/OSD hashes and restored only VideoOSD from the proven checkpoint
+(`7fe65ddc4e2e33931a771bd57de349ae7a1d47e4d1983534a83e02a5a6ed03c6`).
+The disabled manifest/stages/evidence were retained privately, not deleted.
+Kodi restarted; `postcheck-1792892625239994894.json` verifies the complete
+accepted Music/rail/series/v1/overlay/AV/database baseline, idle/empty queues
+and no open lab windows. No unresolved seek fence was created. A fresh series
+regression without scrubbing is running. No production/profile/history restore.
+
+Next bounded correction may replace the scripted scrub GUI with a native skin
+dialog plus the same exact-ID/one-shot model, avoiding a second scripted-window
+callback surface. This needs one new, otherwise unreachable native dialog XML
+in addition to the OSD member. Checkpoint its prior absence and load/test it
+without an OSD entry first; do not reactivate the normal entry until independent
+native tests **and series-background composition** pass. Preserve/rollback only
+these two members, retain existing artwork/design and all service exclusions.
+
+Post-recovery baseline series run `native-player-1792892708120758395.json`
+passes real playback/resume, OSD stream-control reachability, Back-stop/exact
+return and idle cleanup. Stage3 keeps the same pure seek model, but uses a
+native registered dialog and bounded literal skin commands consumed by one
+controller; it creates no Python-owned GUI window/onInit callback surface.
+Dialog registration is separately prepared while the old OSD remains intact.
+Manifest `74624ebe0def3bd38f2183a6658afa363146b64cfc73c5e0a6f3cf318f8fde02`
+has four members; isolated original OSD, prior native-dialog absence and staged
+restore are checkpointed under the private stage3 recovery directory. Native
+prepare/load used one idle restart; no normal OSD entry is active.
+`postcheck-1792893088711448632.json` proves all accepted baseline members,
+one prepared native dialog, no player/queues/windows/fence, healthy database and
+unchanged AV/language settings. Tests follow. The activation gate now requires
+two native scrub passes **and** a passing series-background composition result
+for that exact scrub stage; unit tests verify that simple passes cannot bypass
+composition and that exact two-member rollback retains recovery artifacts.
+
+Native stage3 episode `native-scrub-1792893139160665396.json` and movie
+`native-scrub-1792893299832708058.json` pass paused preview/cancel, exact apply,
+pause/play retention, clock advance and fullscreen Back-stop. Series-background
+composition `native-player-1792893220891489569.json` also passes the previously
+hanging path, actual seek, same-episode return, stored resume and cleanup.
+Independent composition repeat is running before activation. Native image
+review confirms the same unboxed design/legible target hints; the round handle
+is centred on the progress line. The rejected scripted-dialog deployment path
+is now explicitly retired in both repository and HP staging: legacy activation
+refuses before stopping Kodi. The supported builder CLI requires `--native`;
+historical pure builds/checkpoints remain only for reproducibility/recovery.
+Native activation-failure tests retain the unreachable prepared dialog and
+restore the original OSD; no normal entry appears from a failed activation.
+
+Independent composition `native-player-1792893420601845106.json` passes the same
+native-stage3/series-background seek and exact-return gates. Fresh prepared
+`postcheck-1792893474768081860.json` precedes normal OSD activation. The native
+installer accepted two scrub passes and the exact-stage composition evidence,
+then changed only VideoOSD and restarted idle Kodi to reload it; the separately
+prepared native XML is the only other installed member. Active manifest is now
+native stage3, not the rejected scripted prototype. Normal-entry post-restart
+composition and final preservation checks are running. No production changes.
+
+#### Native scrub3 completed HP pilot gate (2026-10-24)
+
+Installed-path `native-player-1792893625037029158.json` passes the post-restart
+normal OSD entry from the series player, real seek, same-episode return,
+pause/resume/stored resume, Audio/Subtitles/Quality navigation, Back-stop and
+idle cleanup. Its `scrub_stage=null` records normal entry rather than the
+staged-test shortcut; the pinned active OSD/manifest select native stage3.
+Installed-path movie `native-scrub-1792893703597458451.json` independently passes
+preview/cancel without clock movement, paused absolute seek (target/actual
+16701ms), playing seek/clock advance, retained watched state and Back-stop.
+No recurrence of the scripted-dialog hang in the native composition repeats
+or normal-entry runs. This is mitigation evidence, not a proven Kodi root-cause
+claim or production graduation.
+
+Final `postcheck-1792893846948981538.json` verifies native scrub3's four staged
+members/two installed XMLs, Music64's48 members,140 unchanged v1 baseline files,
+approved player overlays/normal Music/rail/series,68 AV/language settings, healthy
+Music and Video databases (both readonly integrity checks), no missing primary
+artist links, no active player/queues/open lab windows, shuffle off and no
+unresolved seek fence. Kodi PID20466/NRestarts0; about732MiB after the normal
+media tests, with ample HP memory headroom. Production and all infrastructure,
+credentials, server playlists/settings and manual watch-history edits remain
+untouched. Native replay/seek tests naturally report progress through the
+existing client; the resume fixture's earlier position reflects the retained
+10-second replay rewind, not a manual reset.
+
+Local gates:382 v2 tests pass normally and with optimized Python, plus100
+original skin tests and25 original video-addon tests; syntax and diff checks
+pass. Tests cover pure one-shot/changed-session/cancel/uncertainty/pause guards,
+retired legacy activation, prepared-native/activation composition gating,
+activation failure and exact two-member rollback. No new speech/service/identity,
+network path, monitoring/Beszel or NetBox object. Existing health/backup authority
+and private verified checkpoints cover this client-only pilot. Operational
+handover is in section8; wider wiki/release publication waits for acceptance.
+
+Intent/efficiency: a bar that was passive is now remote-operable without seeking
+until OK; Back is a no-write cancel, and a paused seek stays paused. Twenty-ms
+command polling exists only while the native dialog is open; there is no new
+permanent poller or timer. The ten transport/specialist actions retain their
+functions and unboxed icons. The native UI intentionally has no live slider
+`seek` action: [Kodi's slider reference](https://kodi.wiki/view/Slider_Control)
+defines that action as changing seek position, while Aster keeps motion in the
+pure preview model until confirmation. Input-repeat feel/sofa readability still
+need the physical G20 walkthrough. The small playing/paused footer describes
+entry state; hardware Pause toggling mid-preview remains an untested polish
+case, though apply rechecks/preserves the actual current speed.
+
+Recovery: stop idle HP Kodi and use the exact-stage native deployment tool's
+rollback mode with stage3/its manifest SHA. It verifies the stopped process,
+known prepared/active/source hashes and original OSD, restores only VideoOSD,
+quarantines only the known new `custom_1126_videoscrub.xml`, and retires manifests
+inside the retained private stage3 checkpoint. Restart Kodi and run baseline
+preservation without a scrub override. Never restore profiles/history, delete
+recovery artifacts or re-enable the retired stage2 scripted dialog. Its earlier
+real rollback and the native isolated/failure/rollback tests are retained.
+
+Resume point: native scrub3 is ready via normal HP playback controls; Up to bar,
+OK, Left/Right preview, OK apply or Back cancel. HP is on Home, playback stopped.
+Next human gate is remote/visual acceptance; no additional general HP authority
+is requested. M2 global/shell search and the other frozen v2 milestones remain
+open. Keep production unchanged and the unrelated playlist-cleanup decision
+pending. Save this slice as a local commit; Forgejo synchronization stays held
+until explicitly requested.

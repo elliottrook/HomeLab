@@ -58,6 +58,8 @@ def clock(value):
 require(idle() and not label('Window(Home).Property(AsterSeries.PreviewWindow)'),'idle-empty-required')
 require(not (root/'unresolved-start.json').exists(),'no-series-recovery')
 passed=False;error_code=None;checks=[];results=[];current=None;diagnostic={};trace=[];started=time.monotonic()
+scrub_stage=next((arg[14:] for arg in sys.argv if arg.startswith('--scrub-stage=')),None)
+if scrub_stage:require(re.fullmatch(r'aster-video-scrub[1-9][0-9]*',scrub_stage),'valid-scrub-stage')
 try:
     cases=[fixtures['fixture']]
     if fixtures.get('resume_fixture'):cases.append(fixtures['resume_fixture'])
@@ -95,10 +97,28 @@ try:
         if number==0:
             if xbmc.getCondVisibility('Window.IsVisible(11125)'):xbmc.executebuiltin('Dialog.Close(11125)');xbmc.sleep(300)
             press('osd');until(lambda:xbmc.getCondVisibility('Window.IsVisible(videoosd)') and focus(602),'existing-osd')
-            press('up');until(lambda:focus(7100),'audio-reachable');press('right');until(lambda:focus(7101),'subtitles-reachable')
+            press('up')
+            if xbmc.getCondVisibility('Control.IsVisible(7200)'):
+                until(lambda:focus(7200),'seek-entry-reachable');press('up')
+            until(lambda:focus(7100),'audio-reachable');press('right');until(lambda:focus(7101),'subtitles-reachable')
             press('right');until(lambda:focus(7102),'quality-reachable');press('back')
             until(lambda:not xbmc.getCondVisibility('Window.IsVisible(videoosd)') and same(current),'osd-back-keeps-playback')
             checks.append('native-osd-audio-subtitles-quality-navigation')
+        if number==0 and ('--scrub' in sys.argv or scrub_stage):
+            if scrub_stage:
+                xbmc.executebuiltin('RunScript(/storage/.aster-staging/'+scrub_stage+'/default.py)')
+            else:
+                press('osd');until(lambda:xbmc.getCondVisibility('Window.IsVisible(videoosd)') and focus(602),'scrub-osd')
+                press('up');until(lambda:focus(7200),'scrub-bar-entry');select()
+            until(lambda:label('Window(Home).Property(AsterVideo.ScrubOpen)')=='true','series-scrub-open')
+            start=int(label('Window(Home).Property(AsterVideo.ScrubTarget)'))
+            press('right');xbmc.sleep(100);press('right');xbmc.sleep(100)
+            until(lambda:label('Window(Home).Property(AsterVideo.ScrubTarget)')==str(start+10000),'series-scrub-preview')
+            select();until(lambda:not label('Window(Home).Property(AsterVideo.ScrubOpen)')
+                and xbmc.getCondVisibility('Window.IsVisible(videoosd)') and same(current),'series-scrub-applied')
+            until(lambda:abs(clock(props()['time'])-(start+10000)/1000)<=5,'series-scrub-clock')
+            press('back');until(lambda:not xbmc.getCondVisibility('Window.IsVisible(videoosd)') and same(current),'series-scrub-osd-back')
+            checks.append('series-background-video-scrub-and-owned-return')
         if number==0 and '--next' in sys.argv:
             next_id=label('Window(Home).Property(AsterNextEpisode.NextId)')
             require(next_id.isdecimal() and label('Window(Home).Property(AsterNextEpisode.Ready)')=='true','real-next-episode-ready')
@@ -156,6 +176,6 @@ finally:
     if clean:xbmc.executebuiltin('ActivateWindow(Home)')
     path=root/('native-player-'+str(time.time_ns())+'.json')
     with path.open('x') as output:json.dump(dict(passed=passed,checks_enforced=True,python_optimization=sys.flags.optimize,
-        stage=name,checks=checks,results=results,error=error_code,diagnostic=diagnostic,trace=trace[:120],idle_empty=clean,
+        stage=name,scrub_stage=scrub_stage,checks=checks,results=results,error=error_code,diagnostic=diagnostic,trace=trace[:120],idle_empty=clean,
         natural_native_progress_only=True,no_manual_history_or_server_api_writes=True),output)
     path.chmod(0o600);require(clean,'series-recovery-required')

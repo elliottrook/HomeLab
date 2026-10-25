@@ -37,7 +37,9 @@ if (profile/'shared-playlist-pending.json').exists():
 keys=['Window(Home).Property(AsterV2Lab.'+name+')' for name in ('TrialRecovery','AlbumWindow','Window')]
 keys.append('Window(Home).Property(AsterSeries.PreviewWindow)')
 keys.append('Window(Home).Property(AsterSeries.Recovery)')
+keys.append('Window(Home).Property(AsterVideo.ScrubOpen)')
 _require(not Path('/storage/.aster-checkpoints/aster-series-playback-20261024/unresolved-start.json').exists(),'series-recovery-required')
+_require(not Path('/storage/.aster-checkpoints/aster-video-scrub-20261024/unresolved-seek.json').exists(),'scrub-recovery-required')
 _require((not any(rpc('XBMC.GetInfoLabels',{'labels':keys}).values())), ('live-or-recovery-window-retained'))
 stage=Path('/storage/.aster-staging');addons=Path('/storage/.kodi/addons')
 baseline=json.loads((stage/'aster-artist-repair-v1-baseline-20261023.json').read_text())
@@ -46,17 +48,44 @@ _require((len(rows)==153), ('native-check-failed'))
 base_paths={row['path'] for row in rows}
 overlay_file=Path('/storage/.aster-checkpoints/aster-floating-controls-20261024/overlay-manifest.json')
 overrides={}
+scrub_file=Path('/storage/.aster-checkpoints/aster-video-scrub-20261024/active-manifest.json')
+scrub_active=scrub_file.exists();prepared_scrub=0
+if not scrub_active:scrub_file=Path('/storage/.aster-checkpoints/aster-video-scrub-20261024/prepared-native-manifest.json')
+scrub_count=0;scrub_osd_sha=None
+if scrub_file.exists():
+    import re
+    _require(len(sys.argv)==8 and hashlib.sha256(scrub_file.read_bytes()).hexdigest()==sys.argv[7],'scrub-manifest-proof')
+    scrub=json.loads(scrub_file.read_text())
+    native_scrub=scrub.get('kind')=='hp-video-scrub-native'
+    _require(scrub.get('schema')==1 and scrub.get('kind') in ('hp-video-scrub','hp-video-scrub-native')
+        and re.fullmatch(r'aster-video-scrub[1-9][0-9]*',scrub.get('stage','')),'scrub-kind')
+    _require(scrub.get('before_sha256')=='7fe65ddc4e2e33931a771bd57de349ae7a1d47e4d1983534a83e02a5a6ed03c6','scrub-baseline')
+    scrub_members={'default.py','resources/lib/video_scrub.py','overlay/VideoOSD.xml',
+        'overlay/custom_1126_videoscrub.xml' if native_scrub else 'resources/skins/Default/1080i/VideoScrub.xml'}
+    _require(len(scrub['files'])==4 and {r['path'] for r in scrub['files']}==scrub_members,'scrub-members')
+    for row in scrub['files']:
+        _require(hashlib.sha256((stage/scrub['stage']/row['path']).read_bytes()).hexdigest()==row['sha256'],'scrub-stage-member')
+    _require(hashlib.sha256((stage/scrub['stage']/'manifest.json').read_bytes()).hexdigest()==sys.argv[7],'scrub-stage-manifest')
+    if native_scrub:
+        native_row=next(r for r in scrub['files'] if r['path']=='overlay/custom_1126_videoscrub.xml')
+        _require(hashlib.sha256((addons/'skin.asterhome/1080i/custom_1126_videoscrub.xml').read_bytes()).hexdigest()==native_row['sha256'],'prepared-native-dialog-member')
+        prepared_scrub=1
+    if scrub_active:
+        scrub_osd_sha=next(r['sha256'] for r in scrub['files'] if r['path']=='overlay/VideoOSD.xml')
+        scrub_count=2 if native_scrub else 1
 if overlay_file.exists():
     overlay=json.loads(overlay_file.read_text())
     _require((overlay['sha256']=='591cc32b4f9c3a621e395df744d3a8c3b5f7d178623ff8094fda072fa79a16d0'), ('native-check-failed'))
     overrides={'skin.asterhome/'+r['path']:r['sha256'] for r in overlay['files'] if r['path'].startswith('1080i/')}
     _require((len(overrides)==4), ('native-check-failed'))
-    _require((all(hashlib.sha256((addons/'skin.asterhome'/r['path']).read_bytes()).hexdigest()==r['sha256'] for r in overlay['files'])), ('native-check-failed'))
+    _require((all(hashlib.sha256((addons/'skin.asterhome'/r['path']).read_bytes()).hexdigest()==
+        (scrub_osd_sha if scrub_osd_sha and r['path']=='1080i/VideoOSD.xml' else r['sha256']) for r in overlay['files'])), ('native-check-failed'))
+    if scrub_osd_sha:overrides['skin.asterhome/1080i/VideoOSD.xml']=scrub_osd_sha
 overlay_count=len(overrides)
 integration_file=Path('/storage/.aster-checkpoints/aster-music-integration-20261024/active-manifest.json')
 integration_count=0
 if integration_file.exists():
-    _require(len(sys.argv) in (5,6,7),'integration-manifest-proof-required')
+    _require(len(sys.argv) in (5,6,7,8),'integration-manifest-proof-required')
     integration_sha=sys.argv[4]
     _require(len(integration_sha)==64 and all(c in '0123456789abcdef' for c in integration_sha),'integration-sha')
     _require(hashlib.sha256(integration_file.read_bytes()).hexdigest()==integration_sha,'integration-manifest-hash')
@@ -73,7 +102,7 @@ if integration_file.exists():
 rail_file=Path('/storage/.aster-checkpoints/aster-floating-rail-20261024/active-manifest.json')
 rail_count=0
 if rail_file.exists():
-    _require(len(sys.argv) in (6,7),'rail-manifest-proof-required')
+    _require(len(sys.argv) in (6,7,8),'rail-manifest-proof-required')
     _require(hashlib.sha256(rail_file.read_bytes()).hexdigest()==sys.argv[5],'rail-manifest-hash')
     rail=json.loads(rail_file.read_text())
     _require(rail.get('schema')==1 and rail.get('kind')=='hp-floating-rail' and rail.get('path')=='1080i/IncludesHub.xml','rail-target')
@@ -83,7 +112,7 @@ series_file=Path('/storage/.aster-checkpoints/aster-series-integration-20261024/
 series_count=0
 if series_file.exists():
     import re
-    _require(len(sys.argv)==7 and hashlib.sha256(series_file.read_bytes()).hexdigest()==sys.argv[6],'series-manifest-proof')
+    _require(len(sys.argv) in (7,8) and hashlib.sha256(series_file.read_bytes()).hexdigest()==sys.argv[6],'series-manifest-proof')
     series=json.loads(series_file.read_text())
     _require(series.get('schema')==1 and series.get('kind')=='hp-series-integration','series-kind')
     _require(len(series['files'])==2 and {r['path'] for r in series['files']}=={'tools/select_dispatch.py','tools/aster_v2_series.py'},'series-targets')
@@ -113,6 +142,9 @@ try:
     _require((connection.execute('SELECT count(*) FROM song s WHERE NOT EXISTS(SELECT 1 FROM song_artist sa WHERE sa.idSong=s.idSong AND sa.idRole=1)').fetchone()[0]==0), ('native-check-failed'))
     _require((connection.execute('PRAGMA integrity_check').fetchall()==[('ok',)]), ('native-check-failed'))
 finally:connection.close()
+video=sqlite3.connect('file:/storage/.kodi/userdata/Database/MyVideos131.db?mode=ro',uri=True)
+try:_require(video.execute('PRAGMA integrity_check').fetchall()==[('ok',)],'video-database-integrity')
+finally:video.close()
 root=Path('/storage/.aster-checkpoints/aster-music-progressive-20261024')
 output=root/('postcheck-'+str(time.time_ns())+'.json')
 with output.open('x') as handle:
@@ -123,8 +155,11 @@ with output.open('x') as handle:
                'approved_normal_music_files_verified':integration_count,
                'approved_floating_rail_files_verified':rail_count,
                'approved_series_integration_files_verified':series_count,
+               'approved_video_scrub_files_verified':scrub_count,
+               'prepared_video_scrub_dialog_verified':prepared_scrub,
                'av_language_settings_verified':len(values),
                'database_integrity':'ok','missing_primary_artist_links':0,
+               'video_database_integrity':'ok',
                'no_player':True,'original_empty_queue':True,'capability_removed':True,
                'all_lab_windows_closed':True,'approved_normal_playback':normal},handle)
 output.chmod(0o600)

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window type="dialog" id="1126">
+  <defaultcontrol always="true">10</defaultcontrol>
+  <onload>SetProperty(AsterVideo.ScrubOpen,true,home)</onload>
+  <onunload>ClearProperty(AsterVideo.ScrubOpen,home)</onunload>
+  <controls>
+    <control type="image"><left>0</left><top>400</top><width>1920</width><height>680</height><texture colordiffuse="f5000000">special://skin/media/ui-hero-bottom-fade.png</texture></control>
+    <control type="label"><left>70</left><top>704</top><width>1100</width><height>60</height><label>Seek position</label><font>font40</font><textcolor>asterRailText</textcolor></control>
+    <control type="label"><left>1370</left><top>720</top><width>480</width><height>40</height><label>$INFO[Window(Home).Property(AsterVideo.ScrubTime)]</label><font>font28</font><textcolor>asterSage</textcolor><align>right</align></control>
+    <control type="progress" id="20"><left>70</left><top>818</top><width>1780</width><height>8</height><texturebg border="4" colordiffuse="asterMuted">special://skin/media/ui-progress.png</texturebg><midtexture border="4" colordiffuse="asterSage">special://skin/media/ui-progress.png</midtexture><lefttexture/><righttexture/><overlaytexture/></control>
+    <control type="image" id="21"><left>70</left><top>813</top><width>18</width><height>18</height><texture colordiffuse="asterGold">special://skin/media/ui-timer-dot.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="button" id="10"><left>60</left><top>780</top><width>1800</width><height>90</height><label>Seek position</label><font>font20</font><textcolor>00000000</textcolor><focusedcolor>00000000</focusedcolor><texturefocus/><texturenofocus/><onleft>SetProperty(AsterVideo.ScrubCommand,left,home)</onleft><onright>SetProperty(AsterVideo.ScrubCommand,right,home)</onright><onup>10</onup><ondown>10</ondown><onclick>SetProperty(AsterVideo.ScrubCommand,apply,home)</onclick></control>
+    <control type="label"><left>70</left><top>880</top><width>1780</width><height>42</height><label>$INFO[Window(Home).Property(AsterVideo.ScrubHint)]</label><font>font24</font><textcolor>asterRailText</textcolor><align>center</align></control>
+    <control type="label"><left>70</left><top>938</top><width>1780</width><height>36</height><label>$INFO[Window(Home).Property(AsterVideo.ScrubPaused)]</label><font>font20</font><textcolor>asterGold</textcolor><align>center</align></control>
+  </controls>
+</window>
