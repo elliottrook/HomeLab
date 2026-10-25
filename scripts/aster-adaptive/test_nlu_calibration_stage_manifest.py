@@ -1,6 +1,10 @@
 import copy
+import hashlib
 import json
+import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
 import nlu_calibration_stage_manifest as stage
 
@@ -43,6 +47,35 @@ class NluCalibrationStageManifestTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "unique-key"):
             stage.load_and_validate(raw)
+
+    def test_exact_regular_packet_bytes_are_verified(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / "one.py"
+            path.write_bytes(b"one\n")
+            inputs = [("one.py", hashlib.sha256(b"one\n").hexdigest(), "source")]
+            with patch.object(stage, "INPUTS", inputs):
+                manifest = stage.expected_manifest()
+                result = stage.validate_packet_files(manifest, {"one.py": path})
+            self.assertEqual({"input_count": 1, "byte_total": 4}, result)
+
+    def test_missing_changed_or_symlink_packet_file_fails_closed(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / "one.py"
+            path.write_bytes(b"one\n")
+            inputs = [("one.py", hashlib.sha256(b"one\n").hexdigest(), "source")]
+            with patch.object(stage, "INPUTS", inputs):
+                manifest = stage.expected_manifest()
+                with self.assertRaisesRegex(ValueError, "exact"):
+                    stage.validate_packet_files(manifest, {})
+                path.write_bytes(b"changed\n")
+                with self.assertRaisesRegex(ValueError, "digest"):
+                    stage.validate_packet_files(manifest, {"one.py": path})
+                target = Path(root) / "target"
+                target.write_bytes(b"one\n")
+                link = Path(root) / "link"
+                link.symlink_to(target)
+                with self.assertRaisesRegex(ValueError, "non-symlink"):
+                    stage.validate_packet_files(manifest, {"one.py": link})
 
 
 if __name__ == "__main__":

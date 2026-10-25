@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import os
+import stat
 from pathlib import Path
 
 from nlu_threshold_policy import decode_unique_json, sha256
@@ -60,18 +63,69 @@ def load_and_validate(raw: bytes) -> dict:
     return value
 
 
+def validate_packet_files(manifest: dict, paths: dict[str, Path]) -> dict:
+    if manifest != expected_manifest():
+        raise ValueError("cannot validate files against an unfrozen stage manifest")
+    expected = {row["name"]: row["sha256"] for row in manifest["inputs"]}
+    if set(paths) != set(expected):
+        raise ValueError("packet paths must name the exact ten frozen inputs")
+    total = 0
+    for name, digest in expected.items():
+        path = paths[name]
+        descriptor = None
+        try:
+            descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+            metadata = os.fstat(descriptor)
+        except OSError as error:
+            raise ValueError(f"cannot open regular non-symlink packet input: {name}") from error
+        if not stat.S_ISREG(metadata.st_mode):
+            os.close(descriptor)
+            raise ValueError(f"packet input must be a regular non-symlink file: {name}")
+        hasher = hashlib.sha256()
+        try:
+            with os.fdopen(descriptor, "rb") as stream:
+                descriptor = None
+                for chunk in iter(lambda: stream.read(65_536), b""):
+                    hasher.update(chunk)
+        except OSError as error:
+            raise ValueError(f"cannot read packet input: {name}") from error
+        finally:
+            if descriptor is not None:
+                os.close(descriptor)
+        if hasher.hexdigest() != digest:
+            raise ValueError(f"packet input digest changed: {name}")
+        total += metadata.st_size
+    return {"input_count": len(expected), "byte_total": total}
+
+
+def _assignments(values: list[str]) -> dict[str, Path]:
+    result: dict[str, Path] = {}
+    for value in values:
+        name, separator, path = value.partition("=")
+        if not separator or not name or not path or name in result:
+            raise ValueError("each --input must be one unique NAME=PATH assignment")
+        result[name] = Path(path)
+    return result
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate the frozen NLU staging packet.")
     parser.add_argument("--manifest", type=Path, required=True)
+    parser.add_argument("--input", action="append", default=[])
     args = parser.parse_args(argv)
     try:
         raw = args.manifest.read_bytes()
         value = load_and_validate(raw)
+        verified = validate_packet_files(value, _assignments(args.input)) if args.input else {
+            "input_count": 0, "byte_total": 0,
+        }
     except (OSError, ValueError) as error:
         parser.error(str(error))
     print(json.dumps({
         "schema": value["schema"],
-        "input_count": len(value["inputs"]),
+        "declared_input_count": len(value["inputs"]),
+        "verified_input_count": verified["input_count"],
+        "verified_byte_total": verified["byte_total"],
         "manifest_sha256": sha256(raw),
         "authority": value["authority"],
     }, sort_keys=True))
