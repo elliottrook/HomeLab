@@ -40,3 +40,28 @@ The platform owner received these exact findings and regression requirements.
 No file was installed, no entrypoint was invoked on Proxmox, no lease or state
 was created, no consumer changed and no model request ran. The accepted inert
 four-file library installation remains unchanged.
+
+## Second candidate review
+
+Platform commits `e55e9eff52fe7cf4a171a290324ec4985f189a2f` and
+`5b48f86933463c8abcaf57b50fb7ae5b37b93d76` corrected the M3 digest, exact
+per-phase schemas, literal booleans, intent custody, fixed state path and
+add-only wording. Their clean archive passed 32/32 tests. Two follow-on gaps
+still prevent installation:
+
+1. Correcting the M3 digest necessarily changed `evaluation_lease.py` to
+   SHA-256
+   `675ebb566de298334f7c612cae9af2637067930f40c0ad2c23a22e1b7e248f1b`.
+   The card still pins the installed old hash `38a986e9…6312` and prohibits
+   replacing any existing library. That would leave the live contract bound to
+   the superseded M3 packet. The transaction must checkpoint and replace this
+   one file while preserving the other three installed libraries, then add the
+   entrypoint and wrapper.
+2. `main` evaluates `load_intent(args.intent)` before `_main_effectful` checks
+   the fixed state path. The test for an arbitrary state passes because its
+   absent intent raises first; it does not prove the intent was unread. The
+   state-path check must precede intent loading and a mock must prove the loader
+   was not called.
+
+The platform owner received these two exact corrections. The second candidate
+is also rejected before installation or effect.
