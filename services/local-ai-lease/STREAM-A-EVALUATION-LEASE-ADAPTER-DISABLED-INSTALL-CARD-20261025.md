@@ -34,7 +34,9 @@ not contact Proxmox, LXC110, systemd, the GPU, F2 timers or the model.
   services without pretending the evaluation completed.
 - The state reader accepts only the exact empty, D4-only, or D4-plus-M3
   progression shapes and checks 64-character journal/result digests. A
-  descriptor-adjacent operation guard serializes competing start attempts.
+  descriptor-adjacent advisory operation lock serializes every durable
+  read-modify-write transition, including heartbeat and terminal outcome
+  writes. Kernel lock release prevents an owner crash from stranding recovery.
 - The baseline is exactly four `enabled+active` service/timer records. Missing,
   duplicate, unexpected or differently enabled targets fail before effects.
 - `evaluation_lease_watchdog.py` reports disabled unless a future deployment
@@ -66,10 +68,10 @@ Current source hashes:
 | Path | SHA-256 |
 |---|---|
 | `scripts/local-ai/evaluation_lease.py` | `38a986e9d868d04c7ee7814ae0fbd2f1a1709e7a464916195d594ca2bf286312` |
-| `scripts/local-ai/evaluation_lease_adapter.py` | `fdc3c12383ecc80d53fd706fdeb8b51eac5c152444276539cd620e03a8ddb1f7` |
+| `scripts/local-ai/evaluation_lease_adapter.py` | `dd4a230e4eec532c1611729532abbf8eff4bd4a3334bdcae1c834f14cf28d878` |
 | `scripts/local-ai/evaluation_lease_watchdog.py` | `b6409e9f29d954033ebd2098fdbd983862d0d32eb5de04471f7b06f9aaf74725` |
 | `scripts/local-ai/host_exclusion.py` | `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61` |
-| `scripts/local-ai/test_evaluation_lease_adapter.py` | `dd0cef180bc1ff359e8bd1f7a799d9f08a5998e7ecc74b7cef62175facb3ba74` |
+| `scripts/local-ai/test_evaluation_lease_adapter.py` | `0d071ece8673d96170cb765c01ab8d08696a4a36c8ed7a4455d4b4609e1a4339` |
 
 No pin authorizes installation or live effects. Fresh F2/F3 evidence, target-
 Linux review, an independent recovery path, exact source verification, and a

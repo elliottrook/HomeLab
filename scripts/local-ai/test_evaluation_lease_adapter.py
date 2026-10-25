@@ -295,6 +295,93 @@ class AdapterTests(unittest.TestCase):
             self.assertEqual(len(successes), 1)
             self.assertEqual(len(failures), 1)
 
+    def test_heartbeat_and_outcome_cannot_lose_inflight_or_completion(self):
+        with tempfile.TemporaryDirectory() as root:
+            adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", lambda command: None,
+                                              allow_effects=True)
+            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.post_quiescence(
+                observed_states=QUIESCE_STATES, admission=self.admission(),
+                backend_active=True, endpoint_authenticated=True,
+                endpoint_idle=True, gpu_holders=(BACKEND_TARGET,),
+                now_epoch=1000, heartbeat_timeout=30,
+            )
+            adapter.start_workload(lease_id="eval-1", generation=1,
+                                   workload_name="d4-candidate-g",
+                                   now_epoch=1000, heartbeat_timeout=30)
+            outcome = WorkloadOutcome("eval-1", 1, "d4-candidate-g", D4_DIGEST,
+                                      "completed", "a" * 64, "b" * 64, 1, 1, True)
+            barrier = threading.Barrier(2)
+            failures = []
+            def heartbeat():
+                barrier.wait()
+                try:
+                    adapter.heartbeat(lease_id="eval-1", generation=1, now_epoch=1001)
+                except AdapterError as exc:
+                    failures.append(exc)
+            def outcome_writer():
+                barrier.wait()
+                try:
+                    adapter.record_outcome(outcome, now_epoch=1001, heartbeat_timeout=30)
+                except AdapterError as exc:
+                    failures.append(exc)
+            threads = [threading.Thread(target=heartbeat), threading.Thread(target=outcome_writer)]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join()
+            state = read_state(adapter.state_path)
+            self.assertEqual(tuple(row[0] for row in state.completed_outcomes), ("d4-candidate-g",))
+            self.assertIsNone(state.in_flight_workload)
+            self.assertLessEqual(len(failures), 1)
+
+    def test_concurrent_duplicate_outcomes_have_one_terminal_writer(self):
+        with tempfile.TemporaryDirectory() as root:
+            adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", lambda command: None,
+                                              allow_effects=True)
+            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.post_quiescence(
+                observed_states=QUIESCE_STATES, admission=self.admission(),
+                backend_active=True, endpoint_authenticated=True,
+                endpoint_idle=True, gpu_holders=(BACKEND_TARGET,),
+                now_epoch=1000, heartbeat_timeout=30,
+            )
+            adapter.start_workload(lease_id="eval-1", generation=1,
+                                   workload_name="d4-candidate-g",
+                                   now_epoch=1000, heartbeat_timeout=30)
+            outcome = WorkloadOutcome("eval-1", 1, "d4-candidate-g", D4_DIGEST,
+                                      "completed", "a" * 64, "b" * 64, 1, 1, True)
+            barrier = threading.Barrier(2)
+            successes, failures = [], []
+            def write_once():
+                barrier.wait()
+                try:
+                    adapter.record_outcome(outcome, now_epoch=1001, heartbeat_timeout=30)
+                    successes.append(True)
+                except AdapterError:
+                    failures.append(True)
+            threads = [threading.Thread(target=write_once) for _ in range(2)]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join()
+            self.assertEqual(len(successes), 1)
+            self.assertEqual(len(failures), 1)
+
+    def test_released_operation_guard_does_not_strand_recovery(self):
+        with tempfile.TemporaryDirectory() as root:
+            adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", lambda command: None,
+                                              allow_effects=True)
+            adapter.acquire(self.admission(), now_epoch=1000)
+            with adapter._operation_guard():
+                pass
+            adapter.post_quiescence(
+                observed_states=QUIESCE_STATES, admission=self.admission(),
+                backend_active=True, endpoint_authenticated=True,
+                endpoint_idle=True, gpu_holders=(BACKEND_TARGET,),
+                now_epoch=1000, heartbeat_timeout=30,
+            )
+
     def test_watchdog_is_inert_without_effect_authority(self):
         called = []
         result = run_once(now_epoch=6500, heartbeat_epoch=1000,

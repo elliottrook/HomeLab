@@ -9,6 +9,7 @@ target.  Recovery retains durable state and the lock on any uncertainty.
 from __future__ import annotations
 
 import hashlib
+import fcntl
 import json
 import os
 import stat
@@ -182,17 +183,17 @@ class EvaluationLeaseAdapter:
 
     @contextmanager
     def _operation_guard(self):
+        fd = os.open(self.operation_lock_path, os.O_RDWR | os.O_CREAT, 0o600)
         try:
-            self.operation_lock_path.mkdir(mode=0o700)
-        except FileExistsError as exc:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as exc:
+            os.close(fd)
             raise AdapterError("evaluation operation is already in progress") from exc
         try:
             yield
         finally:
-            try:
-                self.operation_lock_path.rmdir()
-            except FileNotFoundError:
-                pass
+            fcntl.flock(fd, fcntl.LOCK_UN)
+            os.close(fd)
 
     def _require_effects(self) -> None:
         if not self.allow_effects:
@@ -231,6 +232,19 @@ class EvaluationLeaseAdapter:
                 endpoint_idle: bool, gpu_holders: tuple[str, ...],
                 recovery: bool = False) -> dict[str, object]:
         self._require_effects()
+        with self._operation_guard():
+            return self._restore_locked(
+                lease_id=lease_id, generation=generation, restored=restored,
+                backend_active=backend_active,
+                endpoint_authenticated=endpoint_authenticated,
+                endpoint_idle=endpoint_idle, gpu_holders=gpu_holders,
+                recovery=recovery,
+            )
+
+    def _restore_locked(self, *, lease_id: str, generation: int,
+                        restored: ProductionBaseline, backend_active: bool,
+                        endpoint_authenticated: bool, endpoint_idle: bool,
+                        gpu_holders: tuple[str, ...], recovery: bool) -> dict[str, object]:
         if not self.state_path.exists() or not self.lock_path.exists():
             raise AdapterError("durable evaluation state and lock are required for restore")
         state = read_state(self.state_path, expected_lease_id=lease_id,
@@ -270,6 +284,20 @@ class EvaluationLeaseAdapter:
                         endpoint_authenticated: bool, endpoint_idle: bool,
                         gpu_holders: tuple[str, ...], now_epoch: int,
                         heartbeat_timeout: int) -> None:
+        with self._operation_guard():
+            self._post_quiescence_locked(
+                observed_states=observed_states, admission=admission,
+                backend_active=backend_active,
+                endpoint_authenticated=endpoint_authenticated,
+                endpoint_idle=endpoint_idle, gpu_holders=gpu_holders,
+                now_epoch=now_epoch, heartbeat_timeout=heartbeat_timeout,
+            )
+
+    def _post_quiescence_locked(self, *, observed_states: tuple[tuple[str, str], ...],
+                                admission: Admission, backend_active: bool,
+                                endpoint_authenticated: bool, endpoint_idle: bool,
+                                gpu_holders: tuple[str, ...], now_epoch: int,
+                                heartbeat_timeout: int) -> None:
         if not self.state_path.exists() or not self.lock_path.exists():
             raise AdapterError("durable evaluation state and lock are required")
         state = read_state(self.state_path, expected_lease_id=admission.lease_id,
@@ -295,6 +323,12 @@ class EvaluationLeaseAdapter:
         ))
 
     def heartbeat(self, *, lease_id: str, generation: int, now_epoch: int) -> None:
+        with self._operation_guard():
+            self._heartbeat_locked(lease_id=lease_id, generation=generation,
+                                   now_epoch=now_epoch)
+
+    def _heartbeat_locked(self, *, lease_id: str, generation: int,
+                          now_epoch: int) -> None:
         state = read_state(self.state_path, expected_lease_id=lease_id,
                            expected_generation=generation)
         if state.phase not in {LeaseState.QUIESCING.value, LeaseState.RUNNING.value,
@@ -342,6 +376,12 @@ class EvaluationLeaseAdapter:
 
     def record_outcome(self, outcome: WorkloadOutcome, *, now_epoch: int,
                        heartbeat_timeout: int) -> None:
+        with self._operation_guard():
+            self._record_outcome_locked(outcome, now_epoch=now_epoch,
+                                        heartbeat_timeout=heartbeat_timeout)
+
+    def _record_outcome_locked(self, outcome: WorkloadOutcome, *, now_epoch: int,
+                               heartbeat_timeout: int) -> None:
         state = read_state(self.state_path, expected_lease_id=outcome.lease_id,
                            expected_generation=outcome.generation)
         if state.phase != LeaseState.RUNNING.value or state.in_flight_workload != outcome.name:
