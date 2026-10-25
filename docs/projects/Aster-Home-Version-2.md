@@ -28,6 +28,9 @@
   two-file player-UI service; native movie/episode/menu/exit and restart checks
   pass. Physical remote/sofa acceptance remains unclaimed. No automatic production UI or
   startup-sound promotion is authorized.
+  Digest has a new tested edition-aware offline timeline model and a clean HP
+  source/media assessment; normal News entry is unchanged. Next safe slice is
+  an isolated timeline preview, not a publisher/backend change.
 - Previous resume point (2026-10-25): Search14 Stop-acknowledgement guard is on
   HP (`732a89c3e3e9189022a1ee7c4fdb9f596c88486d2f13fb53d3832d47c7a46df4`),
   layered on the owner-feedback bundle below. Two actual movie Play/Resume/Back
@@ -5110,3 +5113,47 @@ offline fixtures before any replacement of its accepted story/audio sync.
 Reader/voice, Seerr, cameras and firmware retain their separate live gates;
 this local UI service does not reopen those authorities. No further push is
 authorized by the completed earlier push operation.
+
+### 2026-10-25 — M4 Digest source assessment and offline timeline foundation
+
+Continuation assessed the existing published `latest.json` through the already
+used private News route. Only schema/count evidence was retained:11 chapters,
+generation/run metadata, published duration and narration metadata. Chapters
+have index/title/start, not a persistent service story ID. No backend, account,
+permission, publisher job, download/subscription or production changes.
+
+New pure `v2/digest_timeline.py` accepts one complete, fresh published edition
+and a real player-observed duration. It validates bounded strictly increasing
+chapter positions, unique source indices, count completeness, timezone/freshness,
+finite numbers and agreement with any published duration. A deterministic
+edition fingerprint binds run/generation/duration and ordered chapters; old
+editions cannot supply a seek proposal or current-row highlight. Proposals
+contain identity and real timestamps only, never a URL or playback command.
+Previous/Next have explicit end conditions, not wraparound. The opening before
+the first published story remains unselected rather than falsely highlighting
+the first story; the model does not invent an outro boundary or word timings.
+The final interval extends to the actual audio duration, which is not a claim
+that a separately timed outro marker exists.
+
+Fourteen synthetic tests pass normally and optimized. The full suite is677
+tests in both modes. A bounded HP assessment opened the accepted News page and
+used its existing **Play full digest** path, checked the canonical cached media
+identity and a starting clock under5seconds, then validated all11 chapter
+proposals against its observed MP3 duration. It submitted no seeks or narration
+jobs. An initial harness sample checked idle before asynchronous Stop finished;
+that non-idle result was not accepted as a clean run. The corrected harness
+waits for its exact owned audio to stop, never stops foreign playback, and
+confirms empty queues before returning Home. A stricter immediate opening-clock
+check in a second sample failed. The final bounded3second settlement check
+observed an initial native clock of−0.175s, then0.029s, and passed without seeking
+or reopening the media. Accepted clean proof:
+`/storage/.aster-staging/aster-digest-assessment1/native-1792964349769237469.json`.
+
+**Not installed as a News replacement.** This is a validated model and staged
+assessment helper, not a claim that the v2 timeline, Next/Previous or source-read
+UI is delivered. Existing story/audio sync and its appearance remain unchanged.
+Next safe slice: bind this edition-aware model to an isolated HP timeline
+preview, preserve the currently playing story/image through selection and
+refresh, then test owned seek/exit behavior before connecting normal News entry.
+Keep source-link reading and cross-briefing queues behind explicit actions and
+real source IDs; do not infer queueable service objects from headline strings.
