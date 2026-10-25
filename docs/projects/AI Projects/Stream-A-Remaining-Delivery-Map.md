@@ -44,6 +44,17 @@ checkpoint is retained, every F6 unit remains disabled/inactive and no runtime
 state exists. The next bounded gate is the prepare-only healthy-lease and
 recovery exercise; consumer quiescence and model calls remain closed.
 
+The approved prepare-only exercise subsequently reached healthy durable
+`PREPARED` state but [failed closed during recovery observation](evidence/Stream-A-prepare-only-exercise-live-result-2026-10-25.md).
+The exact lease was cancelled safely before deadline with no consumer command,
+model request, receipt or residual runtime state. Repetition isolated an
+intermittent `/proc` GPU-holder enumeration race: backend, metadata auth and
+idle checks passed 10/10, while GPU enumeration passed 9/10. Stream A's narrow
+source-only correction at `c370cce4` ignores only a fully vanished process,
+keeps all live, malformed, foreign and additional-holder cases fail-closed,
+and passes 90/90 clean tests. Platform integration, target-Linux proof and an
+approved inactive observer/runner replacement precede any new live attempt.
+
 **October 24 M1 approval-plane checkpoint:** the
 [permanent Yellow-only cutover](evidence/M1-permanent-yellow-cutover-result-2026-10-24.md)
 passed. Only the Companion approval route now uses the independent broker and
