@@ -297,6 +297,28 @@ class EvaluationLeaseAdapter:
                      or len(state.completed_outcomes) != 2)):
             raise AdapterError("normal restoration requires terminal D4 and M3 outcomes")
         expected = state.baseline
+        if state.phase == LeaseState.PREPARED.value:
+            if not recovery:
+                raise AdapterError("prepared lease cancellation requires recovery authority")
+            try:
+                # PREPARED is explicitly the pre-effect phase.  Validate the
+                # unchanged baseline, backend and GPU holder before clearing
+                # custody, but never issue a consumer command for work that
+                # did not begin.
+                validate_restoration(
+                    restored=restored, expected=expected,
+                    backend_active=backend_active,
+                    endpoint_authenticated=endpoint_authenticated,
+                    endpoint_idle=endpoint_idle, gpu_holders=gpu_holders,
+                )
+            except Exception as exc:
+                raise AdapterError(
+                    "prepared cancellation is uncertain; durable lock retained"
+                ) from exc
+            self.state_path.unlink()
+            self.lock_path.rmdir()
+            return {"effects": "cancelled-prepared", "lease_id": lease_id,
+                    "generation": generation}
         atomic_state(self.state_path, AdapterState(
             lease_id, generation, LeaseState.RESTORING.value, expected,
             state.window_start_epoch, state.heartbeat_epoch,

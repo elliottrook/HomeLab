@@ -102,7 +102,7 @@ class AdapterTests(unittest.TestCase):
             self.assertFalse(recovered.lock_path.exists())
             self.assertEqual(len(recovery_calls), 8)
 
-    def test_clean_prepared_lease_can_recover_without_stranding_state(self):
+    def test_clean_prepared_lease_can_cancel_without_consumer_commands(self):
         calls = []
         with tempfile.TemporaryDirectory() as root:
             path = Path(root) / "lease.json"
@@ -115,10 +115,44 @@ class AdapterTests(unittest.TestCase):
                 backend_active=True, endpoint_authenticated=True,
                 endpoint_idle=True, gpu_holders=(BACKEND_TARGET,), recovery=True,
             )
-            self.assertEqual(result["effects"], "restored")
+            self.assertEqual(result["effects"], "cancelled-prepared")
             self.assertFalse(path.exists())
             self.assertFalse(adapter.lock_path.exists())
-            self.assertEqual(len(calls), 8)
+            self.assertEqual(calls, [])
+
+    def test_prepared_cancel_validation_failure_retains_state_without_commands(self):
+        calls = []
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / "lease.json"
+            adapter = EvaluationLeaseAdapter(path, calls.append, allow_effects=True)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            with self.assertRaisesRegex(AdapterError, "prepared cancellation is uncertain"):
+                adapter.restore(
+                    lease_id="eval-1", generation=1,
+                    restored=self.admission().baseline,
+                    backend_active=False, endpoint_authenticated=True,
+                    endpoint_idle=True, gpu_holders=(BACKEND_TARGET,), recovery=True,
+                )
+            self.assertEqual(read_state(path).phase, "prepared")
+            self.assertTrue(adapter.lock_path.exists())
+            self.assertEqual(calls, [])
+
+    def test_prepared_cancel_requires_recovery_authority(self):
+        calls = []
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / "lease.json"
+            adapter = EvaluationLeaseAdapter(path, calls.append, allow_effects=True)
+            adapter.prepare(self.admission(), now_epoch=1000)
+            with self.assertRaisesRegex(AdapterError, "requires recovery authority"):
+                adapter.restore(
+                    lease_id="eval-1", generation=1,
+                    restored=self.admission().baseline,
+                    backend_active=True, endpoint_authenticated=True,
+                    endpoint_idle=True, gpu_holders=(BACKEND_TARGET,), recovery=False,
+                )
+            self.assertEqual(read_state(path).phase, "prepared")
+            self.assertTrue(adapter.lock_path.exists())
+            self.assertEqual(calls, [])
 
     def test_post_quiescence_rejects_unhealthy_backend_after_quiesce(self):
         calls = []
