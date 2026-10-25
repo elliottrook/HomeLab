@@ -19,7 +19,7 @@ def validate(manifest_path: Path = MANIFEST, root: Path = ROOT) -> dict[str, int
     data = json.loads(manifest_path.read_text())
     if set(data) != {
         "schema", "candidate", "created_at", "activation", "entries",
-        "database", "services", "excluded",
+        "database", "dependencies", "services", "excluded",
     }:
         raise ValueError("manifest fields changed")
     if data["schema"] != 1 or data["activation"] != "target-shape-only":
@@ -64,6 +64,23 @@ def validate(manifest_path: Path = MANIFEST, root: Path = ROOT) -> dict[str, int
         "checkpoint_before_enrollment": True, "enrollment_is_separate": True,
     }:
         raise ValueError("database boundary changed")
+    dependencies = data["dependencies"]
+    if (not isinstance(dependencies, list) or len(dependencies) != 3 or
+            any(not isinstance(item, dict) or set(item) != {"host", "target", "sha256"}
+                for item in dependencies)):
+        raise ValueError("dependency boundary changed")
+    dependency_targets = set()
+    for item in dependencies:
+        if (item["host"] != "lxc104" or not Path(item["target"]).is_absolute() or
+                not SHA256.fullmatch(item["sha256"]) or item["target"] in dependency_targets):
+            raise ValueError("invalid dependency pin")
+        dependency_targets.add(item["target"])
+    if dependency_targets != {
+        "/opt/aster-agent/doctor_incident_adapter.py",
+        "/opt/aster-agent/sysadmin_investigation.py",
+        "/opt/homelab-broker/broker_core.py",
+    }:
+        raise ValueError("dependency boundary changed")
     required_exclusions = {
         "launchagent-change", "service-start", "service-enable", "broker-restart",
         "database-enrollment", "capability-grant", "live-read", "model-route", "model-call",

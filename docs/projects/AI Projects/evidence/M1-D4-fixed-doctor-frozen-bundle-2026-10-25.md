@@ -48,44 +48,66 @@ The proposed Linux shape contains no replacement of the broker unit: the new
 broker source has the fixed gateway path as a default. A later activation still
 requires a separately reviewed broker restart and postcheck.
 
+The import audit also identified three installed dependencies and pins their
+observed hashes: `doctor_incident_adapter.py`, `sysadmin_investigation.py` and
+`broker_core.py`. The first and third match repository source. The installed
+`sysadmin_investigation.py` is an older revision, so it is retained as a pinned
+dependency rather than silently replaced. A local mixed-version import check
+passed against the exact observed bytes.
+
+## Isolated target-Linux staging result
+
+The first deterministic archive, 17,673 bytes at SHA-256
+`793c94d85346c9d7928c6089ed1d014608c6f818d2cbf0bdc280db2978a9671f`,
+was validated in a fresh root-only LXC104 staging directory. The transfer hash
+matched; every extracted file was `root:root` mode `0600`; the manifest
+validator passed; Python 3.13 compilation and imports passed for all candidate
+modules using the existing LXC104 dependency paths; and `systemd-analyze
+verify` returned zero for both units. The staging directory and transferred
+archive were then removed.
+
+No final path, identity, daemon state, service, database, grant, live read,
+route, model call, Mac file or F2 state changed. This proves target-Linux source
+and unit compatibility; it is not a final-path installation or activation.
+
 ## Validation
 
 `validate_fixed_doctor_bundle.py` recomputes all source hashes and rejects
 source drift, activation broadening, duplicate/non-absolute targets, a changed
 replacement/addition split, unsupported rollback, database-boundary changes or
-missing exclusions. A deterministic archive builder adds the manifest,
+missing exclusions. It now also rejects missing, changed or duplicate installed
+dependency pins. A deterministic archive builder adds the manifest,
 validator and all 12 source files to one root-owned, mode-0600 archive with
 normalized metadata; it refuses overwrite. The focused suite passes **5/5**.
 
-The current archive at
-`/private/tmp/aster-fixed-doctor-v1-staging.tar.gz` is 17,673 bytes with SHA-256
-`793c94d85346c9d7928c6089ed1d014608c6f818d2cbf0bdc280db2978a9671f`.
-It is a transfer candidate, not a deployed artifact.
+The focused suite passes **6/6** after the dependency addition. The current
+archive at `/private/tmp/aster-fixed-doctor-v1-staging-v2.tar.gz` is 18,032
+bytes with SHA-256
+`ef730c8290ce7e36812ac776311a926077e14ec1404dba481b558e3384dee5ec`.
+It contains the same 12 executable/config source files as the target-Linux
+validated archive plus the stricter manifest/validator metadata; it is a
+transfer candidate, not a deployed artifact.
 
 Pinned bundle tooling:
 
 | File | SHA-256 |
 |---|---|
-| `fixed-doctor-bundle-manifest.json` | `2d70860f4b83bd2b5fe214dfebba78fc7eae20f1e20eb5e995af4e8a192ea178` |
-| `validate_fixed_doctor_bundle.py` | `bcf63d912d06ff31a04e27ea1ba307a52950e4a2dbb7d7505627db6e15721966` |
-| `test_validate_fixed_doctor_bundle.py` | `137f1cefbca2eacc11f4294547cae5c077d3a0f6f8827d0634280825509de428` |
+| `fixed-doctor-bundle-manifest.json` | `ea56672fe1885508c015b0543d808e89559def45f9bbdb71108d1411d31fde0b` |
+| `validate_fixed_doctor_bundle.py` | `ff92ff3418fbdcbaf07c3784ad0bcfbaffdc09aadd4329fce92e4515c8af076c` |
+| `test_validate_fixed_doctor_bundle.py` | `fe3613346123ac9d6e3190087cfa7520b5276a87a22688309751ec828475929e` |
 | `build_fixed_doctor_staging_archive.py` | `09e0472027cd789f80cb4c7cc2cf1e2bd8cb63b2ed8b6746cb72dfb0965490bc` |
 | `test_build_fixed_doctor_staging_archive.py` | `416a8191ed76c1d6961b681eab9790bd139e8d78579e4ade74fff596ad77e156` |
 
 ## Next gates
 
-The next operational step is isolated validation only: copy the pinned Linux
-sources and units to a fresh root-only staging directory, verify every source
-hash, run target-Linux imports plus `systemd-analyze verify`, and remove the
-staging directory after retaining content-free results. It must not replace a
-live file, create a system identity, reload systemd or touch the Mac producer.
-That bounded remote write needs its own approval.
-
-Only after the staged validation passes should an inactive final-path install
-card be prepared. That later card must checkpoint the four replacements,
-require every predecessor/absence to match, copy the exact files, create the
-system identities, and prove both new units remain disabled/inactive. The Mac
-producer replacements remain part of their own activation card.
+The isolated staging gate has passed. The next operational step is an inactive
+**additive-only** final-path install card for the eight currently absent LXC104
+files. That card must require every absence to match, copy the exact files,
+create the system identities, run unit verification and prove both new units
+remain disabled/inactive. It must not replace either broker or Mac producer
+file. The Mac producer replacements remain part of their own activation card;
+the two broker source replacements, checkpoint and restart remain part of the
+later broker activation card.
 
 Producer activation, broker restart, caller/gateway activation, AI-PAM database
 enrollment, first live fixed read and model-route exposure remain separate

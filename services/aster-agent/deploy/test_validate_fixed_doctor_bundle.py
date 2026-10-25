@@ -41,6 +41,14 @@ class FrozenBundleTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "replacement needs"):
                 validate(path, ROOT)
 
+    def test_dependency_drift_is_rejected(self):
+        data = json.loads(MANIFEST.read_text())
+        data["dependencies"][0]["target"] = "/opt/aster-agent/other.py"
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "manifest.json"
+            path.write_text(json.dumps(data))
+            with self.assertRaisesRegex(ValueError, "dependency boundary changed"):
+                validate(path, ROOT)
 
 if __name__ == "__main__":
     unittest.main()
