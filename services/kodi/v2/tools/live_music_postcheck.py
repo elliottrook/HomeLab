@@ -38,6 +38,7 @@ keys=['Window(Home).Property(AsterV2Lab.'+name+')' for name in ('TrialRecovery',
 keys.append('Window(Home).Property(AsterSeries.PreviewWindow)')
 keys.append('Window(Home).Property(AsterSeries.Recovery)')
 keys.append('Window(Home).Property(AsterVideo.ScrubOpen)')
+keys.extend('Window(Home).Property(AsterSearch.'+name+')' for name in ('Open','DetailOpen'))
 _require(not Path('/storage/.aster-checkpoints/aster-series-playback-20261024/unresolved-start.json').exists(),'series-recovery-required')
 _require(not Path('/storage/.aster-checkpoints/aster-video-scrub-20261024/unresolved-seek.json').exists(),'scrub-recovery-required')
 _require((not any(rpc('XBMC.GetInfoLabels',{'labels':keys}).values())), ('live-or-recovery-window-retained'))
@@ -46,6 +47,25 @@ baseline=json.loads((stage/'aster-artist-repair-v1-baseline-20261023.json').read
 rows=[row for archive in baseline['archives'] for row in archive['files']]
 _require((len(rows)==153), ('native-check-failed'))
 base_paths={row['path'] for row in rows}
+search_file=Path('/storage/.aster-checkpoints/aster-global-search-20261024/active-manifest.json')
+search_dispatch_sha=None;search_count=0
+if search_file.exists():
+    _require(len(sys.argv)==9 and hashlib.sha256(search_file.read_bytes()).hexdigest()==sys.argv[8],'search-manifest-proof')
+    search_manifest=json.loads(search_file.read_text())
+    _require(search_manifest.get('kind')=='hp-search-details' and len(search_manifest['files'])==6,'search-details-kind')
+    _require(search_manifest.get('dispatcher_before_sha256')=='466b69269e56d8699838aabbe72ae533a580909603855850a047bf02e76d1a0e','search-dispatch-predecessor')
+    search_stages=[stage/name for name in ('aster-global-search-ui3','aster-global-search-ui4')
+        if (stage/name/'manifest.json').exists() and hashlib.sha256((stage/name/'manifest.json').read_bytes()).hexdigest()==sys.argv[8]]
+    _require(len(search_stages)==1,'search-stage-manifest');search_stage=search_stages[0]
+    for member in search_manifest['files']:
+        _require(hashlib.sha256((search_stage/member['path']).read_bytes()).hexdigest()==member['sha256'],'search-stage-member')
+    for member_name,target in (('custom_1127_search.xml','1080i/custom_1127_search.xml'),
+                               ('custom_1128_searchdetails.xml','1080i/custom_1128_searchdetails.xml'),
+                               ('select_dispatch.py','tools/select_dispatch.py')):
+        member=next(r for r in search_manifest['files'] if r['path']=='overlay/'+member_name)
+        _require(hashlib.sha256((addons/'skin.asterhome'/target).read_bytes()).hexdigest()==member['sha256'],'search-installed-member')
+        if member_name=='select_dispatch.py':search_dispatch_sha=member['sha256']
+    search_count=3
 overlay_file=Path('/storage/.aster-checkpoints/aster-floating-controls-20261024/overlay-manifest.json')
 overrides={}
 scrub_file=Path('/storage/.aster-checkpoints/aster-video-scrub-20261024/active-manifest.json')
@@ -54,7 +74,7 @@ if not scrub_active:scrub_file=Path('/storage/.aster-checkpoints/aster-video-scr
 scrub_count=0;scrub_osd_sha=None
 if scrub_file.exists():
     import re
-    _require(len(sys.argv)==8 and hashlib.sha256(scrub_file.read_bytes()).hexdigest()==sys.argv[7],'scrub-manifest-proof')
+    _require(len(sys.argv) in (8,9) and hashlib.sha256(scrub_file.read_bytes()).hexdigest()==sys.argv[7],'scrub-manifest-proof')
     scrub=json.loads(scrub_file.read_text())
     native_scrub=scrub.get('kind')=='hp-video-scrub-native'
     _require(scrub.get('schema')==1 and scrub.get('kind') in ('hp-video-scrub','hp-video-scrub-native')
@@ -85,7 +105,7 @@ overlay_count=len(overrides)
 integration_file=Path('/storage/.aster-checkpoints/aster-music-integration-20261024/active-manifest.json')
 integration_count=0
 if integration_file.exists():
-    _require(len(sys.argv) in (5,6,7,8),'integration-manifest-proof-required')
+    _require(len(sys.argv) in (5,6,7,8,9),'integration-manifest-proof-required')
     integration_sha=sys.argv[4]
     _require(len(integration_sha)==64 and all(c in '0123456789abcdef' for c in integration_sha),'integration-sha')
     _require(hashlib.sha256(integration_file.read_bytes()).hexdigest()==integration_sha,'integration-manifest-hash')
@@ -102,7 +122,7 @@ if integration_file.exists():
 rail_file=Path('/storage/.aster-checkpoints/aster-floating-rail-20261024/active-manifest.json')
 rail_count=0
 if rail_file.exists():
-    _require(len(sys.argv) in (6,7,8),'rail-manifest-proof-required')
+    _require(len(sys.argv) in (6,7,8,9),'rail-manifest-proof-required')
     _require(hashlib.sha256(rail_file.read_bytes()).hexdigest()==sys.argv[5],'rail-manifest-hash')
     rail=json.loads(rail_file.read_text())
     _require(rail.get('schema')==1 and rail.get('kind')=='hp-floating-rail' and rail.get('path')=='1080i/IncludesHub.xml','rail-target')
@@ -112,13 +132,17 @@ series_file=Path('/storage/.aster-checkpoints/aster-series-integration-20261024/
 series_count=0
 if series_file.exists():
     import re
-    _require(len(sys.argv) in (7,8) and hashlib.sha256(series_file.read_bytes()).hexdigest()==sys.argv[6],'series-manifest-proof')
+    _require(len(sys.argv) in (7,8,9) and hashlib.sha256(series_file.read_bytes()).hexdigest()==sys.argv[6],'series-manifest-proof')
     series=json.loads(series_file.read_text())
     _require(series.get('schema')==1 and series.get('kind')=='hp-series-integration','series-kind')
     _require(len(series['files'])==2 and {r['path'] for r in series['files']}=={'tools/select_dispatch.py','tools/aster_v2_series.py'},'series-targets')
     for row in series['files']:
-        _require(hashlib.sha256((addons/'skin.asterhome'/row['path']).read_bytes()).hexdigest()==row['sha256'],'series-member-hash')
-        overrides['skin.asterhome/'+row['path']]=row['sha256']
+        expected_member=row['sha256']
+        if row['path']=='tools/select_dispatch.py' and search_dispatch_sha:
+            _require(row['sha256']==search_manifest['dispatcher_before_sha256'],'search-series-predecessor')
+            expected_member=search_dispatch_sha
+        _require(hashlib.sha256((addons/'skin.asterhome'/row['path']).read_bytes()).hexdigest()==expected_member,'series-member-hash')
+        overrides['skin.asterhome/'+row['path']]=expected_member
     _require(re.fullmatch(r'aster-series-preview[1-9][0-9]*',series['series_stage']),'series-stage')
     player_stage=stage/series['series_stage']
     _require(hashlib.sha256((player_stage/'manifest.json').read_bytes()).hexdigest()==series['series_manifest_sha256'],'series-stage-hash')
@@ -157,6 +181,7 @@ with output.open('x') as handle:
                'approved_series_integration_files_verified':series_count,
                'approved_video_scrub_files_verified':scrub_count,
                'prepared_video_scrub_dialog_verified':prepared_scrub,
+               'approved_search_details_files_verified':search_count,
                'av_language_settings_verified':len(values),
                'database_integrity':'ok','missing_primary_artist_links':0,
                'video_database_integrity':'ok',

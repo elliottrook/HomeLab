@@ -100,6 +100,9 @@ def _snapshot(rpc, source, query, page_size, cap, cancelled):
         start = len(rows)
         filters = [dict(field=source.field, operator='contains', value=token)
                    for token in query.split()]
+        if source.kind=='artist':
+            # Kodi's uncredited-artist sentinel is not a real discoverable artist.
+            filters.append(dict(field='artist',operator='isnot',value='[Missing Tag]'))
         params = dict(properties=list(source.properties),
                       filter=filters[0] if len(filters) == 1 else {'and': filters},
                       sort=dict(method='label', order='ascending', ignorearticle=True),

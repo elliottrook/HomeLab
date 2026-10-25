@@ -11,6 +11,7 @@ name,sha,proof_name=sys.argv[1:]
 require(name in ('aster-global-search-ui1','aster-global-search-ui2'),'known-search-stage')
 require(re.fullmatch('[0-9a-f]{64}',sha) and re.fullmatch(r'postcheck-[0-9]+\.json',proof_name),'proof-arguments')
 root=Path('/storage/.aster-checkpoints/aster-global-search-20261024')
+require(not (root/'active-manifest.json').exists(),'newer-search-integration-active')
 stage=Path('/storage/.aster-staging')/name
 require(digest(root/'prepared-manifest.json')==sha and digest(stage/'manifest.json')==sha,'prepared-manifest')
 manifest=json.loads((stage/'manifest.json').read_text())

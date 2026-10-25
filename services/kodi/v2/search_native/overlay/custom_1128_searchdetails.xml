@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window type="dialog" id="1128">
+  <defaultcontrol always="true">10</defaultcontrol>
+  <onload>SetProperty(AsterSearch.DetailOpen,true,home)</onload>
+  <onunload>ClearProperty(AsterSearch.DetailOpen,home)</onunload>
+  <controls>
+    <control type="image"><width>1920</width><height>1080</height><texture colordiffuse="asterStone">special://skin/media/ui-solid.png</texture></control>
+    <control type="image"><left>95</left><top>10</top><width>240</width><height>160</height><texture>special://skin/media/aster-home-logo-512.png</texture><aspectratio>keep</aspectratio></control>
+    <control type="image"><left>150</left><top>215</top><width>510</width><height>660</height><texture background="true">$INFO[Window(Home).Property(AsterSearch.DetailArt)]</texture><aspectratio>keep</aspectratio></control>
+    <control type="label"><left>760</left><top>205</top><width>1000</width><height>105</height><label>$INFO[Window(Home).Property(AsterSearch.DetailTitle)]</label><font>font40</font><textcolor>asterCharcoal</textcolor><wrapmultiline>true</wrapmultiline></control>
+    <control type="label"><left>760</left><top>325</top><width>1000</width><height>60</height><label>$INFO[Window(Home).Property(AsterSearch.DetailMetadata)]</label><font>font24</font><textcolor>asterGreen</textcolor><truncate>true</truncate></control>
+    <control type="textbox" id="20"><left>760</left><top>410</top><width>1000</width><height>370</height><label>$INFO[Window(Home).Property(AsterSearch.DetailSynopsis)]</label><font>font28</font><textcolor>asterCharcoal</textcolor><pagecontrol>21</pagecontrol></control>
+    <control type="scrollbar" id="21"><left>1780</left><top>410</top><width>12</width><height>370</height><orientation>vertical</orientation><texturesliderbackground colordiffuse="asterMuted">special://skin/media/ui-progress.png</texturesliderbackground><texturesliderbar colordiffuse="asterGreen">special://skin/media/ui-progress.png</texturesliderbar><texturesliderbarfocus colordiffuse="asterGold">special://skin/media/ui-progress.png</texturesliderbarfocus><onup>10</onup><ondown>10</ondown><onleft>10</onleft><onright>10</onright></control>
+    <control type="label"><left>760</left><top>805</top><width>1000</width><height>44</height><label>$INFO[Window(Home).Property(AsterSearch.DetailSource)]</label><font>font20</font><textcolor>asterCharcoal</textcolor></control>
+    <control type="label"><left>760</left><top>860</top><width>1000</width><height>64</height><label>Details only · nothing has started playing[CR]Player links are the next integration step</label><font>font20</font><textcolor>asterCharcoal</textcolor></control>
+    <control type="button" id="10"><left>760</left><top>955</top><width>680</width><height>64</height><label>Back to search results</label><font>font28</font><textcolor>asterCharcoal</textcolor><focusedcolor>asterGreen</focusedcolor><texturefocus border="20" colordiffuse="asterGreen">special://skin/media/ui-compact-card-ring.png</texturefocus><texturenofocus/><align>center</align><aligny>center</aligny><onclick>Dialog.Close(11128)</onclick><onup>21</onup><ondown>21</ondown><onleft>21</onleft><onright>21</onright></control>
+  </controls>
+</window>

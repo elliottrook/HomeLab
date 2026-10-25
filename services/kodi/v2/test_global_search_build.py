@@ -35,6 +35,18 @@ class SearchBuildTests(unittest.TestCase):
         self.assertIn('Not connected to search yet',xml)
         self.assertIn('no autoplay',xml)
 
+    def test_details_stage_has_exact_members_and_native_back(self):
+        with tempfile.TemporaryDirectory() as folder:
+            output=Path(folder)/'details';build(output,details=True)
+            manifest=json.loads((output/'manifest.json').read_text())
+            self.assertEqual(manifest['kind'],'hp-search-details')
+            self.assertEqual(len(manifest['files']),6)
+            root=ET.parse(output/'overlay/custom_1128_searchdetails.xml').getroot()
+            self.assertEqual(root.get('id'),'1128')
+            self.assertEqual(root.find(".//control[@id='10']/onclick").text,'Dialog.Close(11128)')
+            self.assertEqual(root.find(".//control[@id='10']/align").text,'center')
+            self.assertIn('24-music-artist.png',(output/'default.py').read_text())
+
     def test_rejected_duplicate_cannot_clear_live_window_properties(self):
         home=Mock()
         path=Path(__file__).resolve().parent/'search_native/default.py'

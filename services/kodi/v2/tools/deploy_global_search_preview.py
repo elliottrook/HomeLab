@@ -35,6 +35,7 @@ def main(args):
         if path.suffix=='.py':ast.parse(path.read_bytes())
         if path.suffix=='.xml':require(ET.fromstring(path.read_bytes()).get('id')=='1127','native-id')
     checkpoint=ROOT/name;prepared=ROOT/'prepared-manifest.json'
+    require(not (ROOT/'active-manifest.json').exists(),'newer-search-integration-active')
     native_sha=next(r['sha256'] for r in manifest['files'] if r['path']=='overlay/'+NATIVE)
     if mode=='rollback':
         require(subprocess.run(['systemctl','show','kodi','-p','MainPID','--value'],check=True,capture_output=True,text=True).stdout.strip()=='0','stop-kodi-first')

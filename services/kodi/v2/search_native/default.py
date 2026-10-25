@@ -1,4 +1,4 @@
-"""HP-only isolated native search preview. Never opens media or child players."""
+"""HP-only native search/details. Never opens media or child players."""
 import fcntl,hashlib,json,os,sys,time
 from pathlib import Path
 import xbmc,xbmcgui
@@ -6,6 +6,8 @@ ROOT=Path(__file__).resolve().parent
 sys.path.insert(0,str(ROOT/'resources/lib'))
 from global_search import SOURCES,READS,SearchUnavailable,search_group,normalize_query
 PREFIX='AsterSearch.'
+DETAIL_READS=frozenset(('VideoLibrary.GetTVShowDetails','VideoLibrary.GetMovieDetails',
+    'AudioLibrary.GetAlbumDetails','AudioLibrary.GetArtistDetails','AudioLibrary.GetSongDetails'))
 NATIVE=Path('/storage/.kodi/addons/skin.asterhome/1080i/custom_1127_search.xml')
 DIRECTORY=Path('/storage/.aster-checkpoints/aster-global-search-20261024')
 
@@ -13,7 +15,7 @@ def require(value,reason):
     if not value:raise SearchUnavailable(reason)
 
 def rpc(method,params=None):
-    require(method in READS|{'Player.GetActivePlayers','Playlist.GetItems'},'read-only-search-boundary')
+    require(method in READS|DETAIL_READS|{'Player.GetActivePlayers','Playlist.GetItems'},'read-only-search-boundary')
     reply=json.loads(xbmc.executeJSONRPC(json.dumps(dict(jsonrpc='2.0',id=1,method=method,params=params or {}))))
     if 'error' in reply:raise SearchUnavailable('native-read-unavailable')
     return reply.get('result',{})
@@ -30,10 +32,17 @@ def main():
         require(xbmcgui.getCurrentWindowId()==10000 and not rpc('Player.GetActivePlayers'),'idle-home-required')
         require(all(rpc('Playlist.GetItems',dict(playlistid=i,limits=dict(start=0,end=1)))['limits']['total']==0 for i in (0,1)),'empty-queues-required')
         manifest=json.loads((ROOT/'manifest.json').read_text())
-        require(manifest.get('kind')=='hp-search-preview','search-preview-stage')
+        require(manifest.get('kind') in ('hp-search-preview','hp-search-details'),'search-stage')
+        details_enabled=manifest['kind']=='hp-search-details'
         require(all(hashlib.sha256((ROOT/r['path']).read_bytes()).hexdigest()==r['sha256'] for r in manifest['files']),'stage-integrity')
         native=next(r for r in manifest['files'] if r['path']=='overlay/custom_1127_search.xml')
         require(hashlib.sha256(NATIVE.read_bytes()).hexdigest()==native['sha256'],'native-search-not-verified')
+        if details_enabled:
+            from search_details import read_details
+            for member,target in (('overlay/custom_1128_searchdetails.xml',NATIVE.with_name('custom_1128_searchdetails.xml')),
+                                  ('overlay/select_dispatch.py',NATIVE.parent.parent/'tools/select_dispatch.py')):
+                row=next(r for r in manifest['files'] if r['path']==member)
+                require(hashlib.sha256(target.read_bytes()).hexdigest()==row['sha256'],'details-integration-not-verified')
         for key in ('Command','Query','Status','Detail','Ready'):home.clearProperty(PREFIX+key)
         home.setProperty(PREFIX+'Query','Search titles…')
         home.setProperty(PREFIX+'Status','Search this box’s synced TV, film and music index.')
@@ -90,16 +99,29 @@ def main():
                     index=results.getSelectedPosition();hits=groups[current].hits
                     if 0<=index<len(hits):
                         hit=hits[index]
-                        home.setProperty(PREFIX+'Detail',hit.title+'[CR]'+hit.detail+'[CR]Preview only · opening this result is not connected yet.')
+                        if details_enabled:
+                            try:
+                                detail=read_details(rpc,hit)
+                                for key,value in dict(DetailTitle=detail.hit.title,DetailMetadata=detail.hit.detail,
+                                    DetailSynopsis=detail.synopsis,DetailArt=detail.artwork or 'special://skin/media/'+
+                                    dict(tvshow='07-tv.png',movie='08-film.png',album='23-music-album.png',
+                                         artist='24-music-artist.png',song='25-music-song.png')[hit.kind],DetailSource=detail.source).items():
+                                    home.setProperty(PREFIX+key,value)
+                                xbmc.executebuiltin('ActivateWindow(1128)')
+                            except SearchUnavailable:
+                                home.setProperty(PREFIX+'Status','This result changed or is unavailable. Search again to refresh it.')
+                        else:home.setProperty(PREFIX+'Detail','Browse-only preview · details are not connected.')
             index=categories.getSelectedPosition()
             if 0<=index<len(groups) and index!=current:display(index)
             if monitor.waitForAbort(.05):break
     except (ValueError,OSError,KeyError,StopIteration):
         xbmcgui.Dialog().notification('Search unavailable','Return to Home and try again. Nothing was played.')
     finally:
-        if opened:xbmc.executebuiltin('Dialog.Close(11127)')
+        if opened:
+            xbmc.executebuiltin('Dialog.Close(11128)');xbmc.executebuiltin('Dialog.Close(11127)')
         if admitted:
-            for key in ('Open','Command','Query','Status','Detail','Ready'):home.clearProperty(PREFIX+key)
+            for key in ('Open','Command','Query','Status','Detail','Ready','DetailOpen','DetailTitle',
+                        'DetailMetadata','DetailSynopsis','DetailArt','DetailSource'):home.clearProperty(PREFIX+key)
         os.close(fd)
 
 if __name__=='__main__':main()

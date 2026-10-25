@@ -42,6 +42,11 @@ class SearchDeployTests(unittest.TestCase):
         self.assertEqual((deploy.SKIN/deploy.NATIVE).read_text(),'unknown-user-file')
         self.run.assert_not_called()
 
+    def test_legacy_tool_cannot_dismantle_newer_details_integration(self):
+        (deploy.ROOT/'active-manifest.json').write_text('{}')
+        with self.assertRaisesRegex(RuntimeError,'newer-search-integration-active'):self.prepare()
+        self.run.assert_not_called()
+
     def test_id_conflict_fails_before_stop(self):
         (deploy.SKIN/'other.xml').write_text('<window id="1127"/>')
         with self.assertRaisesRegex(RuntimeError,'native-id-conflict'):self.prepare()

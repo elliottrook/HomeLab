@@ -49,11 +49,13 @@
   HP is idle; new scrub remote/visual acceptance is pending Jason's availability,
   not a gate on independent work. Grouped local-index search is the next bounded
   M2 slice. Recovery/evidence below.
-  Search preview2 is prepared separately on HP, manifest
-  `97439284ffadb61a6375853569cabdc2f085c5f41b8d3a51fbdabdf66136b6bc`.
-  It is a browse-only native dialog, not a completed/global menu integration.
-  Existing TV/music result-opening handoffs remain next; no autoplay and no
-  production/credential changes. Exact evidence and limitations are below.
+  Search details4 is active separately on HP, manifest
+  `e754a024360a05a53ff3fb3d4c34b715e52076af9f4a51efa742aa6dcc8b2246`.
+  OK opens exact-ID artwork/synopsis details in a native dialog; Back preserves
+  query/group/selected result. Five groups pass two native runs, with native TV
+  navigation regression and full preservation. No normal-menu entry or external
+  player handoff yet. Next: connect the existing TV/Music pages with safe source
+  return, then the normal menu route. Production/credentials remain unchanged.
 - Up Next is urgent and extracted into the separate
   [v1.1 project](Aster-Home-Version-1.1-Up-Next.md); v2 consumes its accepted
   result, not another implementation or an excuse to delay it.
@@ -3090,3 +3092,140 @@ manifest SHA above and any unused fourth argument; verify retained quarantine,
 then start Kodi and run original preservation. Do not restore databases or
 profiles. Normal menu integration and result activation are the next work;
 the owner need not be present. Scrub physical review remains pending separately.
+
+### 2026-10-24 — Search result details pre-start
+
+Continue under the standing HP-only Stream A test authority. First activation
+slice opens read-only exact-ID details for all five result kinds in a second
+native static dialog, not a Python-owned window or a player. Two matching
+details reads must still match the searched ID/title/summary; changed/missing
+rows ask for a search refresh. Plot/description/comment and existing native
+thumbnail are transient only; no file/stream resolution, playback/queue APIs,
+credential reads, progress writes or service changes. Native artwork uses the
+same Kodi texture path as existing pages; no artwork export or new service.
+No speech is produced. Source authority remains the synced Kodi index.
+
+The required OK dispatch hook is restricted to dialog11127/control30 with
+Search.Ready true. Preserve the exact series-enabled dispatch predecessor
+`466b69269e56d8699838aabbe72ae533a580909603855850a047bf02e76d1a0e`;
+all other input paths fall through unchanged. Checkpoint both search XML and
+dispatcher, verify isolated restore, and install only a hash-pinned successor
+on idle HP with one brief Kodi restart. A new native dialog1128 must be absent
+and its ID unused. Rollback restores exact preview2/dispatcher predecessors
+and quarantines only the new details dialog; never restores profiles/history.
+Preservation must account explicitly for the superseding dispatcher hash.
+Risks are modal focus/Back regressions and wrong/stale details; tests cover
+all five groups, no autoplay, exact query/group/result return, missing synopsis,
+refresh failure, dispatch non-interference and recovery. Production, new server
+connections, voice, Books/Podcasts, external child players, normal menu entry
+and Forgejo pushes remain excluded from this slice.
+
+### 2026-10-24 — Search details4 HP pilot evidence
+
+Delivered: search OK now dispatches to a second **native static** dialog11128,
+displaying verified title/artist/year, native artwork and plot/description/comment
+when present. Missing synopsis is stated; missing art uses the owner's supplied
+per-kind TV/movie/album/artist/song square icon, with `keep` aspect ratio.
+Long synopses scroll through the native pagecontrol. The Back button is centred
+and remote Back returns directly to the same search query, group, selected ID
+and focus. Nothing starts playing. The selected search result is checked through
+two matching detail reads and must still match the exact displayed identity and
+summary; unavailable/changed rows ask to refresh rather than opening a guess.
+No raw file/stream read or new credential/service integration was added.
+
+Native schema discovery passed all5 kinds in
+`/storage/.aster-checkpoints/aster-global-search-20261024/native-details-1792900545804526238.json`.
+The first composed UI run passed TV/movie/album but rejected an artist result:
+Kodi's internal `[Missing Tag]` sentinel (artist1) appeared as an ordinary artist,
+and its details did not match. Corrected search at the native filter with an
+explicit artist `isnot [Missing Tag]` constraint; do not delete/rename that row
+or omit its uncredited songs from Songs/Albums. Pure tests verify this exclusion
+is artist-only and that IDs/titles still fail closed. Extended qualification
+for two real results in each group passed in
+`native-details-1792900815047374677.json` for details4. One artist has no image
+and songs have no comment; these are honest metadata gaps, not failed playback.
+
+Rejected details3 manifest
+`2bc6f37f75f5ff30f6db1b774a8ea33e8509d6ffb43b8c11b27c68f649e07b14`
+was **actually rolled back** with Kodi stopped. Exact search XML and the accepted
+series dispatcher were restored, only known details XML quarantined and active
+manifest retired inside its private checkpoint. Original preservation then
+passed before installing4. No profiles, caches or databases were restored or
+deleted. Local deployment tests also enforce unknown-predecessor refusal,
+window-ID collision refusal, isolated recovery, activation-failure restoration,
+running-Kodi rollback refusal and drift refusal. The legacy preview-only tools
+now refuse to operate while a newer details integration is active, preventing
+partial teardown of its parent dialog. Remote recovery helper copies updated.
+
+Current immutable stage: `/storage/.aster-staging/aster-global-search-ui4`,
+manifest SHA256
+`e754a024360a05a53ff3fb3d4c34b715e52076af9f4a51efa742aa6dcc8b2246`.
+Six staged members, six isolated-restore copies. Three installed members are
+verified: existing search1127 XML, new details1128 XML and the strictly bounded
+Select dispatcher hook. The search1127 XML is byte-identical to preview2;
+actual new mutations are details XML and dispatcher. No normal-menu change.
+The generated dispatcher is composed only on predecessor
+`466b69269e56d8699838aabbe72ae533a580909603855850a047bf02e76d1a0e`.
+Only dialog11127/focus30/Ready=true is intercepted; other routes retain the
+original Select behavior. This is not a new global remote keymap.
+
+Two full native installed-dispatch runs pass (all five kinds, non-first result,
+alternating actual Back button/remote Back, exact query/group/ID/focus return,
+idle player and empty queues):
+`native-details-ui-1792900881391902694.json` and
+`native-details-ui-1792900927868765599.json` in the search checkpoint root.
+These are automated native input tests, not a claim of physical G20 acceptance.
+The 4K screenshot `native-details-view-1792900925346096064.png` was inspected;
+transient Mac QA copy `/tmp/aster-search-details4.png`. Art is square/not
+stretched; long synopsis has an operable scrollbar and the Back label is centred.
+
+Independent unchanged TV/movie navigation regression passed:
+`/storage/.aster-checkpoints/aster-series-integration-20261024/native-navigation-1792900948679641288.json`.
+Original TV selection still opens the accepted episode page without autoplay,
+Back restores the exact show/focus, and movie navigation is not intercepted.
+Music/Books routing functions are also exhaustively compared before/after the
+hook locally; no new live Music playback or server playlist trials this slice.
+
+Final composition proof:
+`/storage/.aster-checkpoints/aster-music-progressive-20261024/postcheck-1792900999739208421.json`,
+SHA256 `8bfdb424e5ba8fddf507d9ac296712fa466101febeb4ecdeee34422d70e1b1f8`.
+Music48, original v1140, floating player overlay4, normal Music8, rail1, series2,
+scrub2/prepared dialog1, search3 and AV/language68 all verify. Music/video
+databases `ok`, missing primary artist links0, all lab windows closed, no active
+player, original empty queues and shuffle off. The source-local details check
+separately verifies all6 staged/restored members and three installed members,
+the exact accepted dispatcher recovery copy and two exact-stage native passes.
+Kodi PID21615/NRestarts0, about610MiB; HP left on Home. Production not contacted.
+
+Local gates:420 v2 tests pass normally and with optimized Python;100 original
+skin tests and25 original video-addon tests pass. Syntax/diff checks pass. No
+manual watch-history edits, server writes, permissions, AV/language, network,
+service identity, voice, NetBox/Beszel or backup retention change. Canonical
+voice is not applicable: no new speech. Existing private checkpoints and client
+health/recovery remain the authority; no new permanent polling service.
+Gold/green/neutral TV styling is the accepted shared-guide product exception.
+Wider wiki/release publication waits for actual M2 acceptance/graduation.
+
+Operator route remains engineering-only, from idle HP Home:
+`RunScript(/storage/.aster-staging/aster-global-search-ui4/default.py)`.
+Search field OK opens the native keyboard; choose a group then a title; OK opens
+read-only details and Back returns exactly where you were. Books/podcasts still
+explicitly unconnected. No player links yet: this slice is **details opening**,
+not actual playback handoff or complete global-search delivery. Existing player
+integration and normal-menu entry remain next autonomous work; no owner input
+is needed to prepare those. Scrub visual/remote review can wait separately.
+
+Recovery supersedes preview2's old recipe while details4 is active: stop Kodi,
+run `deploy_search_details.py rollback aster-global-search-ui4` with the exact
+manifest SHA above and an unused proof argument, then start Kodi and run the
+original composition proof **without** the search override. It restores only
+the two exact predecessor files and quarantines the known new details dialog,
+retaining all stage/checkpoint evidence. For current proof use
+`live_music_postcheck_search.py` and append details4's SHA after scrub3's SHA;
+the older postcheck intentionally refuses the superseded dispatcher. No push
+authorized; retain this slice as a focused local commit.
+
+Additional native run `native-details-ui-1792901059537534175.json` also passes
+all five kinds and explicitly exercises artist10's missing-art path, verifying
+the actual displayed property resolves to supplied `24-music-artist.png`.
+No additional installed code change or user action was needed for that check.

@@ -81,6 +81,14 @@ class GlobalSearchTests(unittest.TestCase):
         rpc = Fake(SOURCES[2]); rpc.mutate = lambda r: r['albums'][0].update(artist='Wrong shape')
         self.assertEqual(search_group(rpc, SOURCES[2], 'a').state, 'unavailable')
 
+    def test_missing_artist_sentinel_excluded_at_native_filter_not_songs(self):
+        for source in SOURCES:
+            rpc=Fake(source);search_group(rpc,source,'a')
+            filters=rpc.calls[0][1]['filter']
+            if source.kind=='artist':
+                self.assertIn(dict(field='artist',operator='isnot',value='[Missing Tag]'),filters['and'])
+            else:self.assertEqual(filters,dict(field=source.field,operator='contains',value='a'))
+
     def test_cancel_aborts_not_empty(self):
         with self.assertRaisesRegex(SearchUnavailable, 'cancelled'):
             search_group(Fake(), SOURCES[0], 'a', cancelled=lambda: True)
