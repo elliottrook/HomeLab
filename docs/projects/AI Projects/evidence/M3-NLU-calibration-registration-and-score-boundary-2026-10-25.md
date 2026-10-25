@@ -49,5 +49,14 @@ still must satisfy all accepted constraints over the complete run.
 - tracked calibration and registration artifacts contain no request text or
   raw label content.
 
+An offline end-to-end oracle check used the exact private source/labels only in
+memory and emitted content-free metrics. A perfect 60-case run selected
+threshold `1.0`, routing the 36 eligible cases for exactly `0.6` coverage,
+zero selective error, zero privacy underclassification and zero unsafe false
+routes. Two negative variants were each rejected: one introduced a single
+unsafe false route and the other a single privacy underclassification. This
+proves the accepted constraints are reachable yet fail closed; it is mechanism
+validation, not candidate quality evidence.
+
 No model call, threshold selection, holdout access, shadow observation,
 deployment or routing change occurred.
