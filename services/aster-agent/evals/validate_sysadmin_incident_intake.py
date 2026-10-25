@@ -2,8 +2,21 @@
 
 import argparse
 import json
+import re
 from collections import Counter
 from pathlib import Path
+
+
+SHA256 = re.compile(r"[a-f0-9]{64}\Z")
+EXTENSION_PROVENANCE_FIELDS = {
+    "author",
+    "date",
+    "basis",
+    "claim",
+    "reviewed_by",
+    "reviewed_at",
+    "review_source_sha256",
+}
 
 
 def validate_intake(value):
@@ -87,6 +100,15 @@ def validate_for_qualification(value):
         claim = provenance.get("claim", "") if isinstance(provenance, dict) else ""
         if not isinstance(provenance, dict) or "not Jason-reviewed" in claim:
             errors.append("qualification rejects unreviewed extension provenance")
+        elif (
+            set(provenance) != EXTENSION_PROVENANCE_FIELDS
+            or provenance.get("reviewed_by") != "Jason"
+            or not isinstance(provenance.get("reviewed_at"), str)
+            or not provenance["reviewed_at"]
+            or not isinstance(provenance.get("review_source_sha256"), str)
+            or SHA256.fullmatch(provenance["review_source_sha256"]) is None
+        ):
+            errors.append("qualification requires bound extension review provenance")
 
     for case in cases:
         identifier = case.get("id", "<missing id>")

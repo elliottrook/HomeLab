@@ -19,10 +19,13 @@ execution, model-call and tool-call authority.
 
 ## Verification
 
-The complete evaluation suite passes 130/130 under Python 3.12.14 and Pydantic
-2.14.1. The suite retains explicit negative tests for an unreviewed copy,
-non-Jason review, incomplete intake, changed corpus digest, malformed input,
-private journal boundaries and forbidden effects.
+The complete evaluation suite passes 131/131 under Python 3.12.14 and Pydantic
+2.14.1. Qualification now requires an exact structured extension-provenance
+record: Jason as reviewer, a nonempty review date, the frozen source SHA-256
+and no unrecognized fields. The suite retains explicit negative tests for an
+unreviewed copy, non-Jason review, missing or malformed review bindings,
+incomplete intake, changed corpus digest, malformed input, private journal
+boundaries and forbidden effects.
 
 ## Remaining boundary
 

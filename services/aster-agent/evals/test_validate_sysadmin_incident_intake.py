@@ -63,6 +63,40 @@ class ValidateIntakeTests(unittest.TestCase):
         self.complete_fixture_extension()
         self.assertEqual(validate_for_qualification(self.value), [])
 
+    def test_qualification_requires_bound_extension_review_provenance(self):
+        self.complete_fixture_extension()
+        self.value["extension_provenance"] = {
+            "author": "Codex offline synthesis",
+            "date": "2026-10-19",
+            "basis": "fixed development extension",
+            "claim": "Jason reviewed and accepted this fixed extension",
+            "reviewed_by": "Jason",
+            "reviewed_at": "2026-10-24",
+            "review_source_sha256": "a" * 64,
+        }
+        self.assertEqual(validate_for_qualification(self.value), [])
+
+        mutations = (
+            ("reviewed_by", "Codex"),
+            ("reviewed_at", ""),
+            ("review_source_sha256", "not-a-digest"),
+        )
+        for field, invalid in mutations:
+            with self.subTest(field=field):
+                original = self.value["extension_provenance"][field]
+                self.value["extension_provenance"][field] = invalid
+                self.assertIn(
+                    "qualification requires bound extension review provenance",
+                    validate_for_qualification(self.value),
+                )
+                self.value["extension_provenance"][field] = original
+
+        self.value["extension_provenance"]["unexpected"] = "field"
+        self.assertIn(
+            "qualification requires bound extension review provenance",
+            validate_for_qualification(self.value),
+        )
+
     def test_qualification_rejects_non_jason_review(self):
         self.complete_fixture_extension()
         self.value["cases"][0]["reviewer"] = "Codex"
