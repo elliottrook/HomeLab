@@ -59,7 +59,7 @@ with the October 26 F2 window.
 4. Launch the owner only through the fixed inert-by-default wrapper
    `/usr/local/sbin/stream-a-evaluation-exercise-owner-start`. It pins
    `systemd-run --unit=stream-a-evaluation-exercise-owner.service --collect
-   --service-type=simple --uid=0 --property=NoNewPrivileges=yes
+   --service-type=simple --property=User=root --property=NoNewPrivileges=yes
    --property=ProtectSystem=strict --property=ProtectHome=yes
    --property=PrivateTmp=yes
    --property=ReadWritePaths=/etc/local-ai-lab/stream-a-evaluation

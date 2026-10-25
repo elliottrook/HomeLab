@@ -8,7 +8,7 @@ without weakening the production owner
 identity checks. It authorizes no service start, identity creation, lease,
 timer, consumer, model, schedule or remote Git operation.
 
-## Exact one-file transaction
+## Exact two-file transaction
 
 | Source | Target | Pre-upgrade SHA-256 | New SHA-256 | Mode |
 |---|---|---|---|---:|
