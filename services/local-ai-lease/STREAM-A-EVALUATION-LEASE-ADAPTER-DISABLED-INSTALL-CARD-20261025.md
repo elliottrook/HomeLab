@@ -26,6 +26,12 @@ not contact Proxmox, LXC110, systemd, the GPU, F2 timers or the model.
 - The transition and every workload gate recheck the fixed hard deadline,
   heartbeat freshness and the remaining budget for that exact workload; late,
   future, stale or under-budget requests fail before a first model call.
+- Durable state starts with `next_workload=d4-candidate-g`; each workload must
+  be atomically marked in-flight before its first request and may write only
+  one lease/generation-bound terminal receipt. Only a valid terminal D4 receipt
+  enables M3, and only a valid terminal M3 receipt enables normal restoration.
+  In-flight or uncertain work remains non-replayable; recovery may restore
+  services without pretending the evaluation completed.
 - The baseline is exactly four `enabled+active` service/timer records. Missing,
   duplicate, unexpected or differently enabled targets fail before effects.
 - `evaluation_lease_watchdog.py` reports disabled unless a future deployment
@@ -57,10 +63,10 @@ Current source hashes:
 | Path | SHA-256 |
 |---|---|
 | `scripts/local-ai/evaluation_lease.py` | `38a986e9d868d04c7ee7814ae0fbd2f1a1709e7a464916195d594ca2bf286312` |
-| `scripts/local-ai/evaluation_lease_adapter.py` | `7f7ee568cb1154be0fcf68852d310af3227c92ce65935df62535efd5f3f37749` |
+| `scripts/local-ai/evaluation_lease_adapter.py` | `c5c48c19c867bfe51dc6399679f08cac5dcb38ee1abf918a0cf3f7ad8916a862` |
 | `scripts/local-ai/evaluation_lease_watchdog.py` | `b6409e9f29d954033ebd2098fdbd983862d0d32eb5de04471f7b06f9aaf74725` |
 | `scripts/local-ai/host_exclusion.py` | `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61` |
-| `scripts/local-ai/test_evaluation_lease_adapter.py` | `8588f069a4d4e517a62eeab0b0d0afc68ff6ef05867a2874eb594125e7661321` |
+| `scripts/local-ai/test_evaluation_lease_adapter.py` | `f1cddce7f13d2759de3b409bff4e798259f6f1b87c5184c81fbc4fb29a2c0a85` |
 
 No pin authorizes installation or live effects. Fresh F2/F3 evidence, target-
 Linux review, an independent recovery path, exact source verification, and a

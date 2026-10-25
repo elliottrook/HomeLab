@@ -29,6 +29,8 @@ from evaluation_lease import (
     validate_restoration,
     validate_baseline,
     workload,
+    WorkloadOutcome,
+    validate_outcome,
 )
 
 
@@ -46,6 +48,9 @@ class AdapterState:
     heartbeat_epoch: int
     hard_deadline_epoch: int
     restore_deadline_epoch: int
+    next_workload: str | None
+    in_flight_workload: str | None
+    completed_outcomes: tuple[tuple[str, str, str], ...]
 
 
 def source_hashes(root: Path, relative_paths: tuple[str, ...]) -> dict[str, str]:
@@ -116,7 +121,8 @@ def read_state(path: Path, *, expected_lease_id: str | None = None,
             os.close(fd)
     if not isinstance(value, dict) or set(value) != {
             "lease_id", "generation", "phase", "baseline", "window_start_epoch",
-            "heartbeat_epoch", "hard_deadline_epoch", "restore_deadline_epoch"}:
+            "heartbeat_epoch", "hard_deadline_epoch", "restore_deadline_epoch",
+            "next_workload", "in_flight_workload", "completed_outcomes"}:
         raise AdapterError("evaluation state key set is not exact")
     if (not isinstance(value["lease_id"], str) or type(value["generation"]) is not int
             or not isinstance(value["phase"], str)
@@ -132,10 +138,21 @@ def read_state(path: Path, *, expected_lease_id: str | None = None,
                 tuple(tuple(item) for item in value["baseline"]["timers"]),
             ), value["window_start_epoch"], value["heartbeat_epoch"],
             value["hard_deadline_epoch"], value["restore_deadline_epoch"],
+            value["next_workload"], value["in_flight_workload"],
+            tuple(tuple(item) for item in value["completed_outcomes"]),
         )
     except (KeyError, TypeError, ValueError) as exc:
         raise AdapterError("evaluation state schema is malformed") from exc
     validate_baseline(state.baseline)
+    if state.next_workload not in {None, "d4-candidate-g", "m3-nlu-calibration"}:
+        raise AdapterError("evaluation state next workload is invalid")
+    if state.in_flight_workload not in {None, "d4-candidate-g", "m3-nlu-calibration"}:
+        raise AdapterError("evaluation state in-flight workload is invalid")
+    if (len(state.completed_outcomes) > 2
+            or len({row[0] for row in state.completed_outcomes}) != len(state.completed_outcomes)
+            or any(len(row) != 3 or row[0] not in {"d4-candidate-g", "m3-nlu-calibration"}
+                   or not row[1] or not row[2] for row in state.completed_outcomes)):
+        raise AdapterError("evaluation state outcome progression is invalid")
     if (expected_lease_id is not None and state.lease_id != expected_lease_id) or (
             expected_generation is not None and state.generation != expected_generation):
         raise AdapterError("evaluation state identity does not match")
@@ -171,7 +188,7 @@ class EvaluationLeaseAdapter:
         atomic_state(self.state_path, AdapterState(
             admission.lease_id, admission.generation, LeaseState.QUIESCING.value,
             admission.baseline, now_epoch, now_epoch, admission.hard_deadline_epoch,
-            admission.restore_deadline_epoch,
+            admission.restore_deadline_epoch, "d4-candidate-g", None, (),
         ))
         try:
             for target in QUIESCE_TARGETS:
@@ -184,7 +201,8 @@ class EvaluationLeaseAdapter:
 
     def restore(self, *, lease_id: str, generation: int, restored: ProductionBaseline,
                 backend_active: bool, endpoint_authenticated: bool,
-                endpoint_idle: bool, gpu_holders: tuple[str, ...]) -> dict[str, object]:
+                endpoint_idle: bool, gpu_holders: tuple[str, ...],
+                recovery: bool = False) -> dict[str, object]:
         self._require_effects()
         if not self.state_path.exists() or not self.lock_path.exists():
             raise AdapterError("durable evaluation state and lock are required for restore")
@@ -193,11 +211,16 @@ class EvaluationLeaseAdapter:
         if state.phase not in {LeaseState.QUIESCING.value, LeaseState.RUNNING.value,
                                LeaseState.RESTORING.value}:
             raise AdapterError("restore phase is not recoverable")
+        if (state.phase == LeaseState.RUNNING.value and not recovery
+                and (state.next_workload is not None or state.in_flight_workload is not None
+                     or len(state.completed_outcomes) != 2)):
+            raise AdapterError("normal restoration requires terminal D4 and M3 outcomes")
         expected = state.baseline
         atomic_state(self.state_path, AdapterState(
             lease_id, generation, LeaseState.RESTORING.value, expected,
             state.window_start_epoch, state.heartbeat_epoch,
             state.hard_deadline_epoch, state.restore_deadline_epoch,
+            state.next_workload, state.in_flight_workload, state.completed_outcomes,
         ))
         try:
             for target, _state in expected.units + expected.timers:
@@ -241,6 +264,7 @@ class EvaluationLeaseAdapter:
             admission.lease_id, admission.generation, LeaseState.RUNNING.value,
             admission.baseline, state.window_start_epoch, now_epoch,
             state.hard_deadline_epoch, state.restore_deadline_epoch,
+            state.next_workload, state.in_flight_workload, state.completed_outcomes,
         ))
 
     def heartbeat(self, *, lease_id: str, generation: int, now_epoch: int) -> None:
@@ -252,7 +276,8 @@ class EvaluationLeaseAdapter:
         atomic_state(self.state_path, AdapterState(
             state.lease_id, state.generation, state.phase, state.baseline,
             state.window_start_epoch, now_epoch, state.hard_deadline_epoch,
-            state.restore_deadline_epoch,
+            state.restore_deadline_epoch, state.next_workload,
+            state.in_flight_workload, state.completed_outcomes,
         ))
 
     def workload_allowed(self, *, lease_id: str, generation: int, workload_name: str,
@@ -261,7 +286,9 @@ class EvaluationLeaseAdapter:
             return False
         state = read_state(self.state_path, expected_lease_id=lease_id,
                            expected_generation=generation)
-        if state.phase != LeaseState.RUNNING.value:
+        if state.phase != LeaseState.RUNNING.value or state.in_flight_workload is not None:
+            return False
+        if state.next_workload != workload_name:
             return False
         if (now_epoch < state.window_start_epoch
                 or now_epoch >= state.hard_deadline_epoch
@@ -269,4 +296,42 @@ class EvaluationLeaseAdapter:
                 or now_epoch - state.heartbeat_epoch > heartbeat_timeout):
             return False
         return state.hard_deadline_epoch - now_epoch >= workload(workload_name).max_seconds
+
+    def start_workload(self, *, lease_id: str, generation: int, workload_name: str,
+                       now_epoch: int, heartbeat_timeout: int) -> None:
+        if not self.workload_allowed(
+                lease_id=lease_id, generation=generation, workload_name=workload_name,
+                now_epoch=now_epoch, heartbeat_timeout=heartbeat_timeout):
+            raise AdapterError("workload start is not admitted by the durable sequence")
+        state = read_state(self.state_path, expected_lease_id=lease_id,
+                           expected_generation=generation)
+        atomic_state(self.state_path, AdapterState(
+            state.lease_id, state.generation, state.phase, state.baseline,
+            state.window_start_epoch, now_epoch, state.hard_deadline_epoch,
+            state.restore_deadline_epoch, state.next_workload, workload_name,
+            state.completed_outcomes,
+        ))
+
+    def record_outcome(self, outcome: WorkloadOutcome, *, now_epoch: int,
+                       heartbeat_timeout: int) -> None:
+        state = read_state(self.state_path, expected_lease_id=outcome.lease_id,
+                           expected_generation=outcome.generation)
+        if state.phase != LeaseState.RUNNING.value or state.in_flight_workload != outcome.name:
+            raise AdapterError("outcome does not match the one in-flight workload")
+        validate_outcome(outcome, expected=workload(outcome.name),
+                         lease_id=outcome.lease_id, generation=outcome.generation)
+        if now_epoch < state.window_start_epoch or now_epoch >= state.hard_deadline_epoch:
+            raise AdapterError("outcome arrived outside the effect window")
+        if state.heartbeat_epoch > now_epoch or now_epoch - state.heartbeat_epoch > heartbeat_timeout:
+            raise AdapterError("outcome heartbeat is stale or from the future")
+        names = tuple(row[0] for row in state.completed_outcomes)
+        if outcome.name != ("d4-candidate-g" if names == () else "m3-nlu-calibration"):
+            raise AdapterError("outcome is not the next frozen workload")
+        completed = state.completed_outcomes + ((outcome.name, outcome.journal_digest, outcome.result_digest),)
+        next_name = "m3-nlu-calibration" if outcome.name == "d4-candidate-g" else None
+        atomic_state(self.state_path, AdapterState(
+            state.lease_id, state.generation, state.phase, state.baseline,
+            state.window_start_epoch, now_epoch, state.hard_deadline_epoch,
+            state.restore_deadline_epoch, next_name, None, completed,
+        ))
 

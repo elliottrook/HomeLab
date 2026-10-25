@@ -7,6 +7,8 @@ from pathlib import Path
 from evaluation_lease import (
     ACCEPTED_BACKEND, ACCEPTED_ENDPOINT, ACCEPTED_MODEL, BACKEND_TARGET,
     QUIESCE_STATES, QUIESCE_TARGETS, ProductionBaseline, Admission,
+    D4_DIGEST, M3_STAGE_MANIFEST_DIGEST, WorkloadOutcome,
+    EvaluationLeaseError,
 )
 from evaluation_lease_adapter import AdapterError, EvaluationLeaseAdapter, consumer_command, read_state
 from evaluation_lease_watchdog import run_once
@@ -62,6 +64,24 @@ class AdapterTests(unittest.TestCase):
                 lease_id="eval-1", generation=1, workload_name="d4-candidate-g",
                 now_epoch=1100, heartbeat_timeout=30,
             ))
+            adapter.start_workload(lease_id="eval-1", generation=1,
+                                   workload_name="d4-candidate-g",
+                                   now_epoch=1100, heartbeat_timeout=200)
+            adapter.heartbeat(lease_id="eval-1", generation=1, now_epoch=1150)
+            adapter.record_outcome(
+                WorkloadOutcome("eval-1", 1, "d4-candidate-g", D4_DIGEST,
+                                "completed", "d4-journal", "d4-result", 12, 30, True),
+                now_epoch=1200, heartbeat_timeout=100,
+            )
+            adapter.start_workload(lease_id="eval-1", generation=1,
+                                   workload_name="m3-nlu-calibration",
+                                   now_epoch=1200, heartbeat_timeout=100)
+            adapter.heartbeat(lease_id="eval-1", generation=1, now_epoch=1250)
+            adapter.record_outcome(
+                WorkloadOutcome("eval-1", 1, "m3-nlu-calibration", M3_STAGE_MANIFEST_DIGEST,
+                                "completed", "m3-journal", "m3-result", 60, 30, True),
+                now_epoch=1300, heartbeat_timeout=100,
+            )
             result = adapter.restore(
                 lease_id="eval-1", generation=1,
                 restored=self.admission().baseline,
@@ -115,7 +135,7 @@ class AdapterTests(unittest.TestCase):
                 broken.restore(lease_id="eval-1", generation=1,
                                restored=self.admission().baseline,
                                backend_active=True, endpoint_authenticated=True,
-                               endpoint_idle=True, gpu_holders=(BACKEND_TARGET,))
+                               endpoint_idle=True, gpu_holders=(BACKEND_TARGET,), recovery=True)
             self.assertEqual(read_state(path).phase, "restoring")
             recovered = EvaluationLeaseAdapter(path, lambda command: None, allow_effects=True)
             recovered.restore(lease_id="eval-1", generation=1,
@@ -163,6 +183,47 @@ class AdapterTests(unittest.TestCase):
                 lease_id="eval-1", generation=1, workload_name="m3-nlu-calibration",
                 now_epoch=4301, heartbeat_timeout=30,
             ))
+
+    def test_workload_sequence_is_lease_bound_one_attempt_and_d4_then_m3(self):
+        with tempfile.TemporaryDirectory() as root:
+            adapter = EvaluationLeaseAdapter(Path(root) / "lease.json", lambda command: None,
+                                              allow_effects=True)
+            adapter.acquire(self.admission(), now_epoch=1000)
+            adapter.post_quiescence(
+                observed_states=QUIESCE_STATES, admission=self.admission(),
+                backend_active=True, endpoint_authenticated=True,
+                endpoint_idle=True, gpu_holders=(BACKEND_TARGET,),
+                now_epoch=1000, heartbeat_timeout=30,
+            )
+            with self.assertRaises(AdapterError):
+                adapter.start_workload(lease_id="eval-1", generation=1,
+                                       workload_name="m3-nlu-calibration",
+                                       now_epoch=1000, heartbeat_timeout=30)
+            adapter.start_workload(lease_id="eval-1", generation=1,
+                                   workload_name="d4-candidate-g",
+                                   now_epoch=1000, heartbeat_timeout=30)
+            with self.assertRaises(AdapterError):
+                adapter.start_workload(lease_id="eval-1", generation=1,
+                                       workload_name="d4-candidate-g",
+                                       now_epoch=1000, heartbeat_timeout=30)
+            foreign = WorkloadOutcome("other", 1, "d4-candidate-g", D4_DIGEST,
+                                      "completed", "j", "r", 1, 1, True)
+            with self.assertRaises(AdapterError):
+                adapter.record_outcome(foreign, now_epoch=1001, heartbeat_timeout=30)
+            uncertain = WorkloadOutcome("eval-1", 1, "d4-candidate-g", D4_DIGEST,
+                                        "completed", "j", "r", 1, 1, True, True)
+            with self.assertRaises(EvaluationLeaseError):
+                adapter.record_outcome(uncertain, now_epoch=1001, heartbeat_timeout=30)
+            d4 = WorkloadOutcome("eval-1", 1, "d4-candidate-g", D4_DIGEST,
+                                 "completed", "j", "r", 1, 1, True)
+            adapter.record_outcome(d4, now_epoch=1001, heartbeat_timeout=30)
+            with self.assertRaises(AdapterError):
+                adapter.record_outcome(d4, now_epoch=1002, heartbeat_timeout=30)
+            with self.assertRaises(AdapterError):
+                adapter.restore(lease_id="eval-1", generation=1,
+                                restored=self.admission().baseline,
+                                backend_active=True, endpoint_authenticated=True,
+                                endpoint_idle=True, gpu_holders=(BACKEND_TARGET,))
 
     def test_watchdog_is_inert_without_effect_authority(self):
         called = []
