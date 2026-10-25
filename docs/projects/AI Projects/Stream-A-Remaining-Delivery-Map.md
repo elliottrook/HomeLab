@@ -934,6 +934,17 @@ units remain disabled/inactive, sockets are absent, production is healthy and
 the broker has zero fixed-Doctor rows. No replacement, restart, enrollment,
 grant, read, route or model call occurred.
 
+The next producer gate is now frozen in the
+[two-file cutover and bounded-canary card](evidence/M1-D4-fixed-doctor-producer-cutover-card-2026-10-25.md).
+Its machine validator passes 3/3, the focused producer suite passes 7/7 and a
+live read-only preflight matches both predecessor hashes and the unchanged
+08:15 LaunchAgent. The canary deliberately invokes only the builder, not the
+full scheduled wrapper, so the existing Mail-alert timeout cannot be mistaken
+for a producer failure. Mac replacement, one Doctor invocation and publication
+of the report pair still require the exact live change decision; caller and
+gateway activation, broker replacement, enrollment and any model route remain
+later gates.
+
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)
 deployed caller binding and restrictive checks, while the
 [Stage2 approver/assurance candidate](evidence/M1-stage2-candidate.md) is **not
