@@ -24,3 +24,12 @@ acquisition, model requests, scoring, threshold selection, holdout access,
 shadowing and automatic routing remain unperformed and unauthorized by this
 evidence.
 
+## Repinned packet after response-envelope correction
+
+The bounded llama response-envelope compatibility correction changed only the
+runner and its manifest pin. The actual source packet was revalidated against
+manifest SHA-256 `357b4e3d5514fe32b1509ac27f9eac3940edb0635db3a5008b4f29fc4f124a00`:
+10/10 inputs and 93,612 aggregate bytes passed. The original measurement above
+is retained as superseded provenance; the repinned measurement is the current
+staging input.
+

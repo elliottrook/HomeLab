@@ -30,18 +30,18 @@ measure the candidate.
 - model-policy SHA-256:
   `57887883010ac682d50af9931b0dc80c71d2fe3b41309bf7b772fec70f4ed179`;
 - endpoint: accepted local `aster-llama` chat-completions endpoint only; and
-- runner source commit: `b5b235742ad120f9e40c795ab4352061da2218bb`, with runner SHA-256
-  `484a09d4d1655336808767ead76d7803f6eadf783bbda5bdf1eaec8726389833`;
+- runner source commit: `4a7adab5`, with runner SHA-256
+  `b8ada869ff939255ba62618180a720cf5f6ebe60e1ee7e2250ee00a1f34e5e11`;
 - scorer SHA-256:
   `ec4f4e44ff595617f1fe8e337b587bbab049204d001dd2ba050ee1fb146022fd`;
   and
 - threshold selector SHA-256:
   `9edc0317fe655bfc49b888d755155393cdc468e11bccc27dbe4881b886922cbb`;
 - staging manifest SHA-256:
-  `be1e554367cba081135db12723a0b54eb6dabfe92b2576d41423a354e4988463`;
+  `357b4e3d5514fe32b1509ac27f9eac3940edb0635db3a5008b4f29fc4f124a00`;
   and
 - staging validator SHA-256:
-  `044827f55bf41dd9df144b6de06be34801846168629a1f4a7b459ae346197df5`.
+  `eab93406dbde22849f5a884a588744656a6ac175b641032517672a3fb77d46f4`.
 
 ## Bounds and custody
 
@@ -53,6 +53,9 @@ measure the candidate.
   copied into arguments or written to evidence;
 - raw request text remains in the owner-only source; raw model envelopes are
   parsed in memory and discarded;
+- only the fixed known llama/OpenAI envelope and choice metadata fields are
+  accepted; they are stripped before the unchanged strict tool-free message
+  and classification parser runs;
 - the attempt journal, run, score and threshold artifacts are new owner-only
   mode-`0600` files;
   Git receives only content-free receipts and fixtures; and

@@ -517,8 +517,12 @@ requires the exact ten staged names and byte-verifies opened regular files
 without following symlinks; five focused tests and the full 111-test
 dependency-free NLU suite pass. The
 [actual Mac source packet](evidence/M3-NLU-calibration-source-packet-validation-2026-10-25.md)
-also passes 10/10 byte verification at 92,467 aggregate bytes. No staging
-effect followed.
+also passes 10/10 byte verification. A later
+[llama response-envelope compatibility correction](evidence/M3-NLU-llama-response-envelope-compatibility-2026-10-25.md)
+prevents ordinary accepted `usage`/`timings` metadata from invalidating every
+classification while still rejecting unknown metadata and retaining none of
+it. The repinned 93,612-byte packet passes, and the full NLU suite passes
+113/113. No staging effect followed.
 | **7. Operational graduation (M7/SA5)** | Jason can trust the *specific* demonstrated roles in normal use, with recovery and clear explanations. | Independent critical-path passes, degradation/restore checks, monitoring, documented limits and Jason's acceptance. This is role-specific, not a claim of universal autonomous administration. | Open. |
 
 The [M1 inactive installation](evidence/M1-independent-ingress-inactive-install-result-2026-10-24.md)

@@ -40,7 +40,7 @@ Stage these exact inputs:
 | private `cases.json` | `6ba07b680d8f49722559a7b2774e151f613428a106cc7f740b43cd972021726e` |
 | content-free `release.json` | `f13a795f5c3b1890d87e2b6417c972c47817ded027f607bc00ad05a6e4c894a1` |
 | `nlu-development-v1.json` | `1565a21c78875f64f4f25a190e977ae34dc01bdfcfd5e49c056e8365268b3785` |
-| `nlu_calibration_runner.py` | `484a09d4d1655336808767ead76d7803f6eadf783bbda5bdf1eaec8726389833` |
+| `nlu_calibration_runner.py` | `b8ada869ff939255ba62618180a720cf5f6ebe60e1ee7e2250ee00a1f34e5e11` |
 | `nlu_calibration_corpus.py` | `3b383dcc181cc5c6a41d3aa9a30bc72ee30896ff0375bbc270de9bd82ba4f983` |
 | `nlu_calibration_release.py` | `bdc93c7892eda067c0675c04259c996d6f43935ee84ba4ae6bbea6d1892488d9` |
 | `nlu_calibration_score.py` | `ec4f4e44ff595617f1fe8e337b587bbab049204d001dd2ba050ee1fb146022fd` |
@@ -50,15 +50,17 @@ Stage these exact inputs:
 
 The packet is also frozen in machine-readable fixture
 `scripts/aster-adaptive/fixtures/nlu-calibration-stage-manifest-v1.json` at
-SHA-256 `be1e554367cba081135db12723a0b54eb6dabfe92b2576d41423a354e4988463`.
+SHA-256 `357b4e3d5514fe32b1509ac27f9eac3940edb0635db3a5008b4f29fc4f124a00`.
 Validator `nlu_calibration_stage_manifest.py` at SHA-256
-`044827f55bf41dd9df144b6de06be34801846168629a1f4a7b459ae346197df5`
+`eab93406dbde22849f5a884a588744656a6ac175b641032517672a3fb77d46f4`
 requires the exact paths, modes, endpoint, key location, ten inputs, two
 outputs, exclusions and no-authority attestations. When invoked with all ten
 `NAME=PATH` bindings, it rejects missing, changed, extra and symlink inputs and
 hashes the opened regular-file descriptors. The packet was added at local
 commit `acaeeb079f3010ea3b3e0df21e3f63d9a906be24`; byte verification was added
-at local commit `531c07fc02d77b36f0f27b9166f9e1b6c831681e`.
+at local commit `531c07fc02d77b36f0f27b9166f9e1b6c831681e`. The later
+[llama response-envelope correction](M3-NLU-llama-response-envelope-compatibility-2026-10-25.md)
+repinned the runner and manifest at commit `4a7adab5`.
 
 Although the runner imports the score module for its fixed run schema, it does
 not score inside LXC110. Do not stage `labels.json`, the policy-registration
@@ -67,8 +69,8 @@ artifact, threshold selector, holdout files, cloud credentials or tools.
 ## Source-packet validation
 
 The [actual ten-file Mac source packet](M3-NLU-calibration-source-packet-validation-2026-10-25.md)
-now passes the pinned byte verifier: 10/10 regular non-symlink inputs and
-92,467 aggregate bytes matched the frozen manifest. This was read-only and did
+now passes the repinned byte verifier: 10/10 regular non-symlink inputs and
+93,612 aggregate bytes matched the frozen manifest. This was read-only and did
 not stage a file.
 
 ## Live sequence after separate approval
@@ -96,5 +98,5 @@ This plan does not authorize staging, deletion, a lease, service stop, model
 call, threshold selection, holdout access, shadow collection, routing, egress,
 tool use or production promotion. No live system changed while preparing it.
 
-The machine-readable packet tests pass 5/5, and the complete dependency-free
-NLU suite passes 111/111.
+The focused runner/staging tests pass 19/19, and the complete dependency-free
+NLU suite passes 113/113.
