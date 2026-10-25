@@ -10,7 +10,7 @@ path.
 ## Pinned source
 
 The complete source must be reviewed from the full local implementation commit
-`SOURCE_COMMIT_TO_BE_RECORDED` and the metadata follow-up that records that
+`c3b316ab27b770e3703cf6967e5b8665f489172c` and the metadata follow-up that records that
 commit here. Verify every file hash from that clean commit:
 
 | Source | Target | Mode | SHA-256 |
