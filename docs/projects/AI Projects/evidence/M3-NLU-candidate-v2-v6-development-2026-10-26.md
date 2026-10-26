@@ -20,10 +20,17 @@ Candidate v6 also has zero unnecessary non-routes. Its one invalid result is
 the deliberately ambiguous change request; strict parsing keeps that result
 non-routable. Output SHA-256 is
 `4608be907790e2b87621764b509c69f005184cffc9a975ef38f0654815048fcf`.
-The frozen development adapter SHA-256 is
-`c06e632a8c11bc93871a48e172cbcc54a74d83a77ce8a237996facd3176884d9`
+The tested prompt was then flattened into a standalone adapter without changing
+its 3,260 bytes or SHA-256
+`ed4031e1cfb6cd5d1670775e854552c4017da1d2829e1a4fa0e7608e30c0ad5c`.
+The frozen standalone adapter SHA-256 is
+`eb94d448e4c9a54a95df9660dfdf6bf875011def4c72767942182faccdd73655`
 and its bounded development runner SHA-256 is
 `35b198b1385a14dc5350f70a38dd0a52fb6b628cbcccd0c2c509551ab91790a4`.
+The content-free policy SHA-256 is
+`45eeba30077b2c2146f08196ce591ec9d89ce8a8465cfa654bd2d28913530bb0`;
+the sealed candidate artifact SHA-256 is
+`6a16f92527981d5048a4163b5c8de2ad146ec7901f459d221f628e663d06c236`.
 
 All requests were local, sequential, temperature zero and tool-free. The model,
 Aster Agent, Speech and News remained healthy and no service restart occurred.

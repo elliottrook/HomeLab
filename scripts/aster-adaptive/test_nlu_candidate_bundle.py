@@ -11,6 +11,7 @@ import nlu_threshold_policy as policy
 HERE = Path(__file__).parent
 TEMPLATE = HERE / "fixtures" / "nlu-candidate-bundle-template-v1.json"
 SEALED = HERE / "fixtures" / "nlu-candidate-bundle-qwen35-9b-sycl-v1.json"
+SEALED_V6 = HERE / "fixtures" / "nlu-candidate-bundle-qwen35-9b-sycl-v6.json"
 
 
 def sealed():
@@ -77,6 +78,16 @@ class NluCandidateBundleTests(unittest.TestCase):
 
     def test_empty_template_is_valid_without_claiming_candidate(self):
         self.assertEqual([], bundle.validate_bundle(json.loads(TEMPLATE.read_text())))
+
+    def test_v6_candidate_is_exact_and_valid(self):
+        raw = SEALED_V6.read_bytes()
+        value, errors = bundle.load_and_validate(raw)
+        self.assertEqual([], errors)
+        self.assertEqual("qwen3.5-9b-sycl-nlu-v6", value["candidate_id"])
+        self.assertEqual(
+            "6a16f92527981d5048a4163b5c8de2ad146ec7901f459d221f628e663d06c236",
+            hashlib.sha256(raw).hexdigest(),
+        )
 
     def test_sealed_bundle_pins_content_free_disabled_candidate(self):
         self.assertEqual([], bundle.validate_bundle(sealed()))
