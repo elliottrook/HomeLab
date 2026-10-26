@@ -16,20 +16,21 @@
   Items 01-26 and 31-32 were selected; all unticked items are deferred.
 - HP (`192.168.1.140`) is the v2 lab. BOSGAME (`192.168.1.157`) stays on its
   accepted family-beta release until a separately approved promotion.
-- Latest resume point (2026-10-26): HP Home has the Aster-palette floating
-  cards, centred top rail, automatic restricted five-minute HA delivery and
-  on-demand private Front of House images (two-second refresh, five-minute
-  cap). Source/Home data and original keys remain independent. Native idle
-  Black/Aster, wake, timer attention and three-minute entry have passed with
-  original Dim restored; post-fade pixel regression also passes. The isolated EPUB reader2 now has
-  verified synthetic-only pages, three sizes and source-location-preserving
-  reflow, no normal Books hookup or progress writes. The approved two-sentence
-  canonical narration trial now passes server-locally, with no credentials or
-  audio placed on HP. A separate sample-transfer/playback test awaits approval.
-  Work through
-  `bf307ae0` is pushed/mirrored; the subsequent `6378a563` milestone is local.
-  Production remains unchanged. See the final dated evidence for exact pins,
-  open gates and next safe action.
+- Latest resume point (2026-10-26): HP has the self-contained Version 2 family,
+  accepted Home/camera, Reader/read-along, Music, Books, News, Search, series,
+  Seerr catalogue/request and accessibility pilots. Seerr requests 160–162 are
+  pending human approval by design. Recovery7 now reconstructs the exact active
+  family and Jellyfin callback guard; a live rollback/reinstall passed. The
+  separate segment-checker guard is active with its own verified checkpoint.
+  Twelve single-invocation mixed video/audio cycles passed without a crash,
+  error or recovery marker; temperature stayed at or below 44°C. RSS settled
+  near 590 MiB after the first batch and 655 MiB after the second, so longer
+  household/overnight memory observation remains open. The full suite passes
+  1,127 tests normally and optimized. Work through `ababd38a` is pushed and
+  mirrored; local successors are `a7edc753`, `8f7d06cb` and `a3977cce`.
+  Production remains unchanged. Voice search still awaits the lab G20 mic;
+  physical remote/sofa acceptance, power/suspend policy and release handover
+  remain open. See the final dated evidence for exact pins and recovery paths.
 - Historical resume point (2026-10-25): HP Music72, series24, Search22, Books sync13,
   review9/review10 shared landing headers and the paired exact-file repairs are
   active. Household Audiobookshelf progress is enabled through the separately
@@ -365,6 +366,9 @@ the exact next safe action before any pause; no reliance on chat memory.
 Push only after specific approval, then verify the Forgejo-owned GitHub mirror.
 
 ## 8. Acceptance and operating handover
+
+The household-facing operating boundary and test checklist are maintained in
+the [Version 2 HP pilot guide](../runbooks/Aster-TV-Version-2-Pilot.md).
 
 HP video seek pilot (2026-10-24; production unchanged): during a seekable film
 or episode, open the normal player controls. From Play/Pause (or another
