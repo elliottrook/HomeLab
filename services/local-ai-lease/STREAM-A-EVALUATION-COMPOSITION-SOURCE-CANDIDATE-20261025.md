@@ -13,7 +13,7 @@ arming, a lease, consumer isolation, a model call, cleanup, or Git push.
 |---|---|
 | `scripts/local-ai/stream_a_evaluation_evidence_loader.py` | `836f627cd2702dffd59c77b77adab2aded01805ee43553a11471cfddfeb80a01` |
 | `scripts/local-ai/stream_a_evaluation_guest_outcome.py` | `027183c9f10923cc4aa3053934b5f090d8e01f86aa81c9730d93abc143e6dcb9` |
-| `scripts/local-ai/stream_a_evaluation_host_outcome.py` | `6b986fb71dca8657aa56b9fe8ef904223445e64b4122a827324adaf300c64321` |
+| `scripts/local-ai/stream_a_evaluation_host_outcome.py` | `a9584bf01fea83129b8efb9a4c315ab66a37369ee386319f5632222618742225` |
 | `scripts/local-ai/stream_a_evaluation_outcome_verifier.py` | `9408623489d52f7923c8dcca246159bb13a7926aa0a820c765fc8f3a339b58e1` |
 | `scripts/local-ai/stream_a_evaluation_restore_observer.py` | `20d977681452eb89cbda7b0417de02b4caed279f234e7b568a072638bb736fb2` |
 | `scripts/local-ai/stream_a_evaluation_restored_verifier.py` | `a83de6bcdf0b275b9f238acda1a35e7518eae12f47eb220faf8f822d9a5e0d93` |
@@ -88,6 +88,13 @@ the host-only `evaluation_lease.py` module. The verifier now carries only the
 two immutable release identities it needs, while a source test cross-checks
 them against the host lease contract. An isolated two-file run with an empty
 `PYTHONPATH` returns the canonical disabled result and writes no bytecode.
-The correction is committed at `37452660`; the clean-commit archive passed
+The guest correction is committed at `37452660`; the clean-commit archive passed
 95/95 tests on Proxmox and the isolated two-file check passed in both target
 guests before any installation was attempted.
+
+The first installation then exposed a separate host import-root omission and
+rolled back completely. Commit `b21a6227` removes the host verifier's
+guest-only import. The revised suite passes 96/96, and a clean temporary
+composition imports on Proxmox using only the exact installed composition and
+parent dependency roots pinned in the V3 card. Its host-outcome SHA-256 is
+`a9584bf01fea83129b8efb9a4c315ab66a37369ee386319f5632222618742225`.
