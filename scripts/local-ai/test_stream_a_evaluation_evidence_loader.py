@@ -10,7 +10,7 @@ from unittest.mock import patch
 import stream_a_evaluation_evidence_loader as subject
 from lease_contract import ACCEPTED_BACKEND, ACCEPTED_MODEL, LeaseReceipt
 from lease_watchdog import EXPECTED_SCHEDULES, Observation
-from pre_acquire_receipt import encode as encode_f4
+from pre_acquire_receipt import encode_stream_evidence as encode_f4
 from stream_a_evaluation_admission import (
     ADMISSION_PREFIX, ADMISSION_SCHEMA, EXPECTED_AUTH_IDENTITY,
     EXPECTED_BACKEND as ADMISSION_BACKEND, EXPECTED_BINARY_SHA256,
@@ -83,7 +83,7 @@ class EvidenceLoaderTests(unittest.TestCase):
         f4_raw = encode_f4(
             LeaseReceipt(lease_id, 1, self.now_minute, self.now_minute + 90,
                          self.backup, ACCEPTED_MODEL, ACCEPTED_BACKEND, False, False),
-            Observation(self.now_minute, True, True, True, True, True,
+            Observation(self.now_minute, False, True, True, True, True,
                         EXPECTED_SCHEDULES, True, True, True, True, True),
             captured_epoch=self.now - 30,
         )

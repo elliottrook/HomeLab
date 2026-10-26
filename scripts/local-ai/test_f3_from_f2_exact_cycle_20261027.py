@@ -28,7 +28,8 @@ class F3FromF2October27CardTests(unittest.TestCase):
         self.assertIn("Do not invoke the converter and do not retry", text)
         self.assertIn("does not rescan an archive", text)
         self.assertIn("Never delete or overwrite an uncertain receipt", prose)
-        self.assertIn("F4 must use a subsequent fresh backup cycle", prose)
+        self.assertIn("F4 must use the same local-date F2/F3 archive set", prose)
+        self.assertIn("A later calendar date would be rejected", prose)
         self.assertIn("EFFECT NOT AUTHORIZED", text)
 
     def test_card_pins_corrected_coordinator(self):

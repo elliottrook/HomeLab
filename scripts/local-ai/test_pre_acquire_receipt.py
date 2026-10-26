@@ -5,7 +5,13 @@ from datetime import datetime
 from admission_gate import EXPECTED_BACKUP_SOURCE
 from lease_contract import ACCEPTED_BACKEND, ACCEPTED_MODEL, LeaseReceipt
 from lease_watchdog import EXPECTED_SCHEDULES, Observation
-from pre_acquire_receipt import PreAcquireReceiptError, decode, encode
+from pre_acquire_receipt import (
+    PreAcquireReceiptError,
+    decode,
+    decode_stream_evidence,
+    encode,
+    encode_stream_evidence,
+)
 
 
 class PreAcquireReceiptTests(unittest.TestCase):
@@ -58,6 +64,19 @@ class PreAcquireReceiptTests(unittest.TestCase):
         payload["observation"]["auth_verified"] = False
         with self.assertRaisesRegex(PreAcquireReceiptError, "types|incomplete|watchdog"):
             decode(payload, now_minute=190, now_epoch=1100)
+
+    def test_stream_evidence_can_precede_watchdog_arming_only_when_explicit(self):
+        observation = self.observation(heartbeat_alive=False)
+        with self.assertRaisesRegex(ValueError, "watchdog"):
+            encode(self.receipt(), observation, captured_epoch=1000)
+        raw = encode_stream_evidence(
+            self.receipt(), observation, captured_epoch=1000)
+        receipt, decoded, _ = decode_stream_evidence(
+            json.loads(raw), now_minute=190, now_epoch=1100)
+        self.assertFalse(decoded.heartbeat_alive)
+        self.assertEqual(receipt.lease_id, "proposal-1")
+        with self.assertRaisesRegex(ValueError, "watchdog"):
+            decode(json.loads(raw), now_minute=190, now_epoch=1100)
 
     def test_schema_and_backup_binding_are_exact(self):
         payload = self.payload()

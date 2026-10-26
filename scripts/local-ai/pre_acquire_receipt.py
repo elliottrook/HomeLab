@@ -15,7 +15,11 @@ import tempfile
 from pathlib import Path
 import re
 
-from lease_contract import LeaseReceipt, validate_pre_acquire_receipt
+from lease_contract import (
+    LeaseReceipt,
+    validate_pre_acquire_receipt,
+    validate_stream_pre_acquire_evidence,
+)
 from lease_watchdog import EXPECTED_SCHEDULES, Observation
 
 
@@ -44,13 +48,16 @@ class PreAcquireReceiptError(ValueError):
 BACKUP_DIGEST = re.compile(r"retained-archive-integrity-sha256:[0-9a-f]{64}")
 
 
-def encode(receipt: LeaseReceipt, observation: Observation, *, captured_epoch: int) -> bytes:
+def _encode(receipt: LeaseReceipt, observation: Observation, *, captured_epoch: int,
+            stream_evidence: bool) -> bytes:
     """Validate and serialize a non-effect proposal without claiming isolation."""
     if captured_epoch < 1:
         raise PreAcquireReceiptError("capture time is invalid")
     if receipt.consumers_isolated or receipt.scheduled_work_quiesced:
         raise PreAcquireReceiptError("pre-acquire receipt cannot claim isolation")
-    validate_pre_acquire_receipt(
+    validator = (validate_stream_pre_acquire_evidence if stream_evidence
+                 else validate_pre_acquire_receipt)
+    validator(
         receipt,
         now_minute=observation.now_minute,
         expected_backup_receipt=receipt.backup_receipt,
@@ -105,7 +112,20 @@ def encode(receipt: LeaseReceipt, observation: Observation, *, captured_epoch: i
     return encoded
 
 
-def decode(payload: object, *, now_minute: int, now_epoch: int, max_age_seconds: int = MAX_AGE_SECONDS) -> tuple[LeaseReceipt, Observation, int]:
+def encode(receipt: LeaseReceipt, observation: Observation, *, captured_epoch: int) -> bytes:
+    return _encode(receipt, observation, captured_epoch=captured_epoch,
+                   stream_evidence=False)
+
+
+def encode_stream_evidence(receipt: LeaseReceipt, observation: Observation, *,
+                           captured_epoch: int) -> bytes:
+    """Encode non-effect Stream A evidence before the separate F6 gate."""
+    return _encode(receipt, observation, captured_epoch=captured_epoch,
+                   stream_evidence=True)
+
+
+def _decode(payload: object, *, now_minute: int, now_epoch: int,
+            max_age_seconds: int, stream_evidence: bool) -> tuple[LeaseReceipt, Observation, int]:
     """Decode and validate a fresh proposal before the controller is called."""
     if type(payload) is not dict or set(payload) != FIELDS or payload.get("schema") != SCHEMA:
         raise PreAcquireReceiptError("pre-acquire receipt schema differs")
@@ -164,7 +184,9 @@ def decode(payload: object, *, now_minute: int, now_epoch: int, max_age_seconds:
         raise PreAcquireReceiptError("pre-acquire receipt types differ") from exc
     if observation.now_minute != receipt.issued_minute:
         raise PreAcquireReceiptError("pre-acquire receipt and observation minute differ")
-    validate_pre_acquire_receipt(
+    validator = (validate_stream_pre_acquire_evidence if stream_evidence
+                 else validate_pre_acquire_receipt)
+    validator(
         receipt,
         now_minute=now_minute,
         expected_backup_receipt=receipt.backup_receipt,
@@ -185,6 +207,19 @@ def decode(payload: object, *, now_minute: int, now_epoch: int, max_age_seconds:
     )):
         raise PreAcquireReceiptError("pre-acquire runtime observation is incomplete")
     return receipt, observation, captured
+
+
+def decode(payload: object, *, now_minute: int, now_epoch: int,
+           max_age_seconds: int = MAX_AGE_SECONDS) -> tuple[LeaseReceipt, Observation, int]:
+    return _decode(payload, now_minute=now_minute, now_epoch=now_epoch,
+                   max_age_seconds=max_age_seconds, stream_evidence=False)
+
+
+def decode_stream_evidence(payload: object, *, now_minute: int, now_epoch: int,
+                           max_age_seconds: int = MAX_AGE_SECONDS) -> tuple[LeaseReceipt, Observation, int]:
+    """Decode non-effect Stream A evidence before the separate F6 gate."""
+    return _decode(payload, now_minute=now_minute, now_epoch=now_epoch,
+                   max_age_seconds=max_age_seconds, stream_evidence=True)
 
 
 def save_root_owned(path: Path, payload: bytes) -> None:

@@ -72,5 +72,9 @@ schedules and disabled recurring F2 timers. Preserve the receipt and F2 state
 on success, failure or uncertainty. Never delete or overwrite an uncertain
 receipt.
 
-F3 success closes only F3. F4 must use a subsequent fresh backup cycle and a
-separate approval; F5/F6, candidate H and all model calls remain blocked.
+F3 success closes only F3. F4 must use the same local-date F2/F3 archive set
+after that cycle's fixed 03:00 pull has completed, with a new fresh production
+observation, a separately fixed lease identity and separate approval. A later
+calendar date would be rejected by the installed F2/F3 evidence loader and
+retained-integrity verifier. F5/F6, candidate H and all model calls remain
+blocked.

@@ -70,6 +70,7 @@ def _validate_identity_and_backup(
     now_minute: int,
     expected_backup_receipt: str,
     watchdog_alive: bool,
+    require_watchdog: bool = True,
 ) -> None:
     if not receipt.lease_id or receipt.generation < 1:
         raise LeaseError("lease receipt identity is invalid")
@@ -85,7 +86,7 @@ def _validate_identity_and_backup(
         raise LeaseError("lease model identity is not the accepted 9B baseline")
     if receipt.backend_identity != ACCEPTED_BACKEND:
         raise LeaseError("lease backend identity is not the accepted SYCL baseline")
-    if not watchdog_alive:
+    if require_watchdog and not watchdog_alive:
         raise LeaseError("independent lease watchdog is not alive")
 
 
@@ -127,6 +128,29 @@ def validate_pre_acquire_receipt(
         receipt, now_minute=now_minute,
         expected_backup_receipt=expected_backup_receipt,
         watchdog_alive=watchdog_alive,
+    )
+
+
+def validate_stream_pre_acquire_evidence(
+    receipt: LeaseReceipt,
+    *,
+    now_minute: int,
+    expected_backup_receipt: str,
+    watchdog_alive: bool,
+) -> None:
+    """Validate Stream A evidence before its separate F6 watchdog gate.
+
+    This is not valid for acquisition.  The effectful controller continues to
+    use ``validate_pre_acquire_receipt`` and therefore requires a live
+    independent watchdog before any consumer effect.
+    """
+    if receipt.consumers_isolated or receipt.scheduled_work_quiesced:
+        raise LeaseError("pre-acquire receipt cannot claim completed isolation")
+    _validate_identity_and_backup(
+        receipt, now_minute=now_minute,
+        expected_backup_receipt=expected_backup_receipt,
+        watchdog_alive=watchdog_alive,
+        require_watchdog=False,
     )
 
 

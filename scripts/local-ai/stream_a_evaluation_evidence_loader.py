@@ -19,7 +19,10 @@ import stat
 from typing import Callable
 
 from f2_scheduled_release_candidate import LOCAL_ZONE, SCHEMA as F2_SCHEMA, _validate_projection
-from pre_acquire_receipt import decode as decode_f4, encode as encode_f4
+from pre_acquire_receipt import (
+    decode_stream_evidence as decode_f4,
+    encode_stream_evidence as encode_f4,
+)
 from retained_archive_integrity import (
     MAX_RECEIPT_BYTES as MAX_F3_BYTES,
     fixed_proxmox_inventory,
