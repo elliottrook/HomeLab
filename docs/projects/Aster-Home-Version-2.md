@@ -8184,3 +8184,33 @@ The self-contained builder, runtime verifier, strict scalar-timing correction
 and asset checks pass the full1,007-test Kodi v2 suite in normal and optimized
 Python. Repository commits remain local until a separately authorized Forgejo
 push.
+
+### M5 next timing path — duration-enabled canonical model assessment
+
+The preferred next experiment is not to weaken the Whisper result or add a
+second transcription pass. The official `kokoro-onnx` `model-files-v1.1`
+release re-exports the English `kokoro-v1.0.fp16.onnx` model with a duration
+output specifically consumed by `kokoro-onnx` 0.6.0+ `create_timed()`. The
+deployed engine is already0.6.1. A side-by-side copy of that official model may
+therefore provide timing during the same canonical synthesis operation while
+retaining `bm_daniel`, en-gb and speed0.95. Source:
+<https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.1>.
+
+This is a model-asset trial, not permission to replace the accepted model. Pin
+the release asset and SHA, keep the current model untouched, render only the
+repository synthetic text, and compare voice/audio plus returned timing against
+the exact source spans. Reject missing/zero/overlapping durations and require a
+human listening comparison before considering the re-export canonical. Store
+the large third-party binary in the backed-up speech guest, not Git; present
+capacity is ample.
+
+WhisperX remains a fallback because its documented word timing comes from a
+separate language-specific wav2vec2 forced-alignment stage rather than the ASR
+timestamps used above. It adds another model and dependency stack, and its own
+documentation warns that unsupported transcript characters may remain
+unaligned. Direct TorchAudio forced alignment is not a new foundation: its API
+was deprecated in2.8 and removed in2.9 as TorchAudio entered maintenance mode.
+Sources: <https://github.com/m-bain/whisperX> and
+<https://docs.pytorch.org/audio/2.9.0/tutorials/ctc_forced_alignment_api_tutorial.html>.
+No model download, service change or new live synthesis is authorized by this
+assessment.
