@@ -2,6 +2,22 @@
 
 **Owner-facing checkpoint, 2026-10-09.** This page translates the detailed [programme](Aster-Adaptive-Computing.md) and [Codex delegation gates](Codex-Delegation.md) into the next decisions. It does not authorize a deployment, additional cloud question, new tool grant or Git push. Evidence links control factual claims; an unchecked gate remains open even if a nearby experiment passed.
 
+## Current execution snapshot — 2026-10-25 23:15 PDT
+
+| Lane | What is complete now | Next dependency |
+|---|---|---|
+| F2 archive integrity | Corrected installed guard and exact October 26 one-shot timers passed static and late preflight. Preparation is due at 01:15, final/read-only scan at 01:20 and observation-only reconciliation at 01:42. | The 00:30 backup, 01:00 TrueNAS pull, exact archive identities, quiet host and absence gates must pass at runtime. Only three independently validated exit-zero rows complete F2. |
+| F3–F5 admission | F3 converter, F4 pre-acquire path and F5 metadata-auth checks are installed inactive and target-tested. | A complete F2 result permits a separately controlled F3 receipt. F4 and F5 then require fresh evidence from their own cycle. |
+| F6 recovery and execution | Prepare-only owner-loss recovery passed. The V3 candidate-H/M3 composition and corrected owner ordering are installed inactive and state-free. | The platform owner must publish a current-packet activation/recovery card that pins every installed path. No lease, consumer stop or model request is yet authorized. |
+| D4 investigation quality | Candidate-H and the independent fixed-Doctor usefulness packet are staged inactive with exact custody. The fixed read-only Doctor authority path itself is live and bounded. | Fresh F2–F5 evidence, executable F6 recovery and an exact workload/model-call gate precede either evaluation. |
+| M3 NLU and routing | Interpretation and route contracts, owner-accepted policy, 60 reviewed calibration cases and the corrected 11-file runner are complete and staged inactive; 116 dependency-free tests pass. | D4 completes first. Then run one lease-protected calibration, select a threshold, evaluate an independent holdout and perform no-effect shadow comparison. Automatic routing remains off. |
+| Companion | Ordinary signed-in Aster use, persisted recovery and read-only OpenBao status passed. | Continue ordinary reliability monitoring. The hidden manual-Codex fallback remains deferred unless Jason asks to release it. |
+
+Work outside the timed F2 chain continues in parallel. A failed F2 runtime gate
+blocks F3 and the live evaluations; it does not block offline D4/M3 hardening,
+documentation reconciliation, Companion monitoring or review of the new F6
+card.
+
 The [October 14 evening execution decision](evidence/Evening-execution-decision-2026-10-14.md)
 separates the actual backup/check schedule from the proposed live windows,
 records both measured full-stop blockers, and sets the October 15 deadline
