@@ -994,6 +994,12 @@ route remain intact; the root-only rollback checkpoint is retained. The next
 gate is a preregistered usefulness evaluation through this fixed path, with any
 model route and broader authority still separate.
 
+The immediate [post-authority candidate-G preflight](evidence/D4-candidate-G-post-authority-static-preflight-2026-10-25.md)
+is STATIC GO: its dry-run digest and all eleven source identities still match,
+the owner-only packet remains exact, and no key, lease or model request was
+used. This preserves the already-approved, unspent tool-free evaluation while
+the same-cycle F2–F5 and executable F6 recovery gates remain closed.
+
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)
 deployed caller binding and restrictive checks, while the
 [Stage2 approver/assurance candidate](evidence/M1-stage2-candidate.md) is **not
