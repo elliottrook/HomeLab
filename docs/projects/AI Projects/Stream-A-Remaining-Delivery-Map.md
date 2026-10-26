@@ -615,6 +615,13 @@ packet subsequently [passed inactive staging](evidence/M3-NLU-calibration-inacti
 11/11 inputs, 98,414 bytes, exact root-only custody and target imports. No
 runner, output, lease or model request exists. Live calibration remains gated
 by an effectful compatible lease and its approved window.
+The later [post-journal deadline correction](evidence/M3-NLU-post-journal-deadline-correction-2026-10-25.md)
+found that the runner's request timeout could become stale while the durable
+attempt-start row was flushed. Commit `682608d2` recomputes the budget
+immediately before transport open and starts no request after expiry; 116
+dependency-free tests pass. This intentionally supersedes the inert LXC110
+runner and manifest before use. A bounded inactive packet replacement and
+target-Linux revalidation are now required before live calibration.
 The [combined static readiness check](evidence/D4-M3-combined-evaluation-static-readiness-2026-10-25.md)
 also reconfirms candidate-G's exact 11-file package and the staged M3 packet.
 Both workloads are ready at the file/test boundary; F2/F3 and the platform's

@@ -30,18 +30,18 @@ measure the candidate.
 - model-policy SHA-256:
   `57887883010ac682d50af9931b0dc80c71d2fe3b41309bf7b772fec70f4ed179`;
 - endpoint: accepted local `aster-llama` chat-completions endpoint only; and
-- runner source commit: `4a7adab5`, with runner SHA-256
-  `b8ada869ff939255ba62618180a720cf5f6ebe60e1ee7e2250ee00a1f34e5e11`;
+- runner source commit: `682608d2`, with runner SHA-256
+  `a8cca4daa3a0504b07e9dc70bee4d8e04d3f181ac742c53954718c6918fc5a0f`;
 - scorer SHA-256:
   `ec4f4e44ff595617f1fe8e337b587bbab049204d001dd2ba050ee1fb146022fd`;
   and
 - threshold selector SHA-256:
   `9edc0317fe655bfc49b888d755155393cdc468e11bccc27dbe4881b886922cbb`;
 - staging manifest SHA-256:
-  `69ffc58928ebd2f2f64e0600b8c4a7d73ce5f5356c485e1df8c2265741972165`;
+  `05aa0f287795dacfa72c37d7b275a85f67e96f0cc253225dcf78908585970e19`;
   and
 - staging validator SHA-256:
-  `03153c58e91d389d5019e4778625a4a8c9e2cd64e640ec5ed889ff0ba94fdfd3`.
+  `487341d1d35fa7ee313aeb76816162048e2402a985a801f6053e3ea89a971e80`.
 
 ## Bounds and custody
 
@@ -92,11 +92,13 @@ directory under `/var/lib/aster-nlu-calibration/`:
 - remove the LXC110 run directory only after custody verification. Retain it
   unchanged for reconciliation after an uncertain outcome.
 
-The corrected eleven-file packet has completed inactive staging and custody
-validation; see
-`M3-NLU-calibration-inactive-staging-result-2026-10-25.md`. Cleanup, lease
-acquisition and model execution remain live effects. None is authorized by
-this card alone.
+The earlier eleven-file packet completed inactive staging and custody
+validation, but the
+[post-journal deadline correction](M3-NLU-post-journal-deadline-correction-2026-10-25.md)
+supersedes its runner and manifest before any model call. The corrected packet
+must replace it through a bounded inactive transaction and repeat target-Linux
+custody/import validation. Cleanup, lease acquisition and model execution
+remain live effects. None is authorized by this card alone.
 
 ## Fresh preflight
 
