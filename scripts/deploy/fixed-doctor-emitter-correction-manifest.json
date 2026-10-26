@@ -1,0 +1,14 @@
+{
+  "candidate": "m1-d4-fixed-doctor-emitter-correction-v1",
+  "entry": {
+    "candidate_sha256": "c3f4d961fe7ce2b25990c0e1317a326eeefd82a80bfc6a6e2d74461fcdfe8e09",
+    "current_sha256": "1f7f03d1033c0696d440e1d45d3e38f3691d7446a7596c120785275cd525e587",
+    "generator": "scripts/deploy/patch_live_doctor_structured_emitter.py",
+    "group": "staff",
+    "mode": "0755",
+    "owner": "jelliott",
+    "target": "/Users/jelliott/lab/homelab/scripts/doctor.sh"
+  },
+  "recheck": "scripts/deploy/fixed-doctor-producer-manifest.json",
+  "rollback": "restore the exact predecessor and pre-canary local/remote report states"
+}

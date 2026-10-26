@@ -945,6 +945,17 @@ of the report pair still require the exact live change decision; caller and
 gateway activation, broker replacement, enrollment and any model route remain
 later gates.
 
+The [first producer cutover and canary](evidence/M1-D4-fixed-doctor-producer-cutover-result-2026-10-25.md)
+passed publication, digest binding, custody, cleanup and recovery checks, but
+the fixed state safely abstained because the live Mac Doctor predates the
+structured emitter and still probes the retired Vulkan description. The
+[one-file correction card](evidence/M1-D4-fixed-doctor-emitter-correction-card-2026-10-25.md)
+now generates an exact candidate from the measured live predecessor, adds only
+the private-FD emitter and replaces only `check_aster` with the current
+service/`xe` contract. Its generator tests pass 3/3, the combined boundary
+suite passes 40/40 and `bash -n` passes. The correction and one new canary need
+their own exact live decision; no service, grant or model route is active.
+
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)
 deployed caller binding and restrictive checks, while the
 [Stage2 approver/assurance candidate](evidence/M1-stage2-candidate.md) is **not
