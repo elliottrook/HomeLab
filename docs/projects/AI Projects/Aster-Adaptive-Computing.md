@@ -33,14 +33,22 @@ Jason accepted the exact initial evaluation policy on 2026-10-25: zero privacy
 underclassification, zero unsafe false routes, at most 10% selective error, at
 least 60% coverage and at least 60 balanced calibration cases. The
 [hash-bound acceptance record](evidence/M3-NLU-owner-policy-acceptance-2026-10-25.md)
-grants no route, egress, tool or deployment authority. Candidate selection is
-complete; live calibration measurement, threshold selection and shadow
-qualification remain open, so automatic routing stays off.
-The existing local Qwen3.5-9B Q4_K_M model on the accepted SYCL profile is now
-[sealed as the first NLU evaluation candidate](evidence/M3-NLU-local-candidate-seal-2026-10-25.md)
-with a strict no-tool adapter. Its live model and runtime-profile hashes match
-the source manifest. This is candidate provenance, not a quality pass or
-deployment; measured calibration and independent qualification remain open.
+grants no route, egress, tool or deployment authority. Six separately
+constructed 60-case calibration sets have now rejected the initial candidate
+and prompt-only candidates v6 through v10. Candidate-v10 removed unsafe false
+routes but still reached only 41.7% coverage and produced one privacy
+underclassification. The repeated cross-calibration regressions reject the
+local Qwen3.5-9B model as the owner of the safety, privacy and capability
+boundary. The next challenger is deterministic-first: fixed policy owns
+denial, abstention, privacy floors and capability allowlisting, while a local
+model may propose semantics only inside that envelope. The six spent
+calibrations are development evidence for that architecture. A new independent
+calibration may be created only after it clears those development gates. The
+holdout remains sealed and automatic routing stays off.
+The existing local Qwen3.5-9B Q4_K_M model on the accepted SYCL profile remains
+the measured semantic-proposal engine with a strict no-tool adapter. Its live
+model and runtime-profile hashes match the source manifest, but its prior seal
+is candidate provenance rather than a quality pass or deployment.
 Three separate fresh contexts have now created and blindly reviewed the
 60-case balanced synthetic calibration set and derived its content-free sealed
 release. The accepted policy, candidate and release deterministically produce
