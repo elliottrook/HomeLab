@@ -86,7 +86,7 @@ PINNED_FILES = {
 }
 GUEST_PINNED_FILES = {
     ("110", "/usr/local/libexec/aster-a1/llama_auth_probe.py"):
-        ("0996e1b565ad24b740997bbfe598065267e20380135a5af41687d0562239cae6", "644"),
+        ("93e78f8a9c40bb9808ac71c5215404c8f10b3e5116383095d196281293682582", "644"),
     ("110", "/usr/local/sbin/aster-llama-production-auth-probe"):
         ("aac604de1f35c048791c5f1cfc21e25d9eb3e679fb7d799f74671307463313ac", "755"),
 }
