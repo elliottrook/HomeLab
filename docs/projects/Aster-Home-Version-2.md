@@ -16,7 +16,20 @@
   Items 01-26 and 31-32 were selected; all unticked items are deferred.
 - HP (`192.168.1.140`) is the v2 lab. BOSGAME (`192.168.1.157`) stays on its
   accepted family-beta release until a separately approved promotion.
-- Latest resume point (2026-10-25): HP Music72, series24, Search22, Books sync13,
+- Latest resume point (2026-10-26): HP Home has the Aster-palette floating
+  cards, centred top rail, automatic restricted five-minute HA delivery and
+  on-demand private Front of House images (two-second refresh, five-minute
+  cap). Source/Home data and original keys remain independent. Native idle
+  Black/Aster, wake, timer attention and three-minute entry have passed with
+  original Dim restored; post-fade pixel regression also passes. The isolated EPUB reader2 now has
+  verified synthetic-only pages, three sizes and source-location-preserving
+  reflow, no normal Books hookup/TTS/progress writes. Canonical speech health
+  is available; a two-sentence synthetic narration trial awaits its bounded
+  shared-service approval, with no credentials placed on the HP. Work through
+  `bf307ae0` is pushed/mirrored; the subsequent `6378a563` milestone is local.
+  Production remains unchanged. See the final dated evidence for exact pins,
+  open gates and next safe action.
+- Historical resume point (2026-10-25): HP Music72, series24, Search22, Books sync13,
   review9/review10 shared landing headers and the paired exact-file repairs are
   active. Household Audiobookshelf progress is enabled through the separately
   approved guarded pilot; the historical trial gates below are not current
@@ -7619,3 +7632,110 @@ integrity and closed/idle/empty state. No restore-pending journal remains.
 The next-work source/evidence is locally committed separately from the already
 pushed Home milestone; no second remote push is authorized by the consumed
 one-operation push approval.
+
+### M5 synthetic reading page — HP pre-start, 2026-10-26
+
+Continue the selected Reader proof with an isolated, pinned five-file native
+preview staged only under `.aster-staging/aster-epub-reader2`. The included
+EPUB is deterministic original sample text, clearly labelled synthetic; no
+actual library, network/TTS, saved location or add-on registration is involved.
+Warm stone/ink/forest-green/gold reading layout, Previous/Next, three existing
+skin font sizes, exact source-character page spans and resize anchor retention.
+Left/Right turns pages; Up/Down moves between footer actions; Back closes and
+restores the unchanged Home source focus. First/last pages clamp, never wrap.
+Escape ebook bracket markup rather than interpreting it as Kodi controls.
+
+HP tests may launch from verified idle/empty Home, turn pages and resize, then
+capture only synthetic content. A second launch must begin at the default
+first page/size because no resume is claimed. Verify pin/files before and after,
+all native settings/navigation digests, no player/queues and clean focus return.
+No normal Books route or installed baseline file changes; recovery closes only
+the owned preview and retains the immutable stage/private evidence. Never stop
+foreign playback or destroy a hidden WindowXML underneath it. Production and
+existing EPUB reader handoff remain unchanged. No new speech.
+
+### M5 synthetic reading page — native evidence, 2026-10-26
+
+Pinned `aster-epub-reader2` manifest
+`00d3abdfb837f98ca973d1f9089e363fb38e01764a9e6ee369ad155fa53e2273`
+has exactly five members, no normal route/registry install and only the
+synthetic original sample EPUB. `epub_pages.py` explicitly wraps/paginates
+without losing source characters, retains the anchor through size changes,
+clamps ends and escapes book bracket markup. ASCII advances were measured from
+the HP's installed font; runtime verifies font SHA
+`ff0670d8fb93da73cb7a875383e5bf660253e0548782c9b4324179cb234a4ae2`.
+The font itself is not copied into Git or the preview. Conservative bounds for
+unmeasured Unicode are a proof limitation, not full EPUB typography support.
+
+First native run correctly failed when the harness read new page metadata
+before the separately updated body property. The corrected harness waits for
+the complete expected page/body/span/anchor tuple; checks were not relaxed.
+Two later native proofs pass (`aster-epub-native-1792999125004894420` and
+`aster-epub-native-1792999299365303255`): two launches each, exact content/spans,
+24/30/40sizes, anchor retention, end clamping, source-focus restoration and
+unchanged settings/idle/empty state. No resume was written.
+
+Pixel QA found a separate stale dim layer after the idle trials: Home and the
+reader were dark despite native inactive/DPMS-false status. Native Dim cycling
+did not clear it; an idle-only ReloadSkin did. No renderer/settings workaround
+was persisted and Kodi was not restarted. Post-reload proof
+`aster-epub-native-1792999399197311475/native.json` passes again; inspected
+standard/large-text captures show unclipped readable ink on the exact warm
+stone background, RGB230/218/200at a blank sample pixel. Earlier dark captures
+are not accepted visual evidence. Baseline preservation
+`postcheck-1792999480221340114.json` passes68AV/language checks, databases and
+closed/idle/empty state, now also checking absence of `AsterEpub.Window`.
+
+Idle follow-up remains open: the test harness now waits1.3seconds for native
+closing before another activation/mode restore and captures Settings before/
+after for pixel comparison. Kodi Omega's
+[native Dim source](https://github.com/xbmc/xbmc/blob/Omega/xbmc/windows/GUIWindowScreensaverDim.cpp)
+defines a one-second closing fade; premature re-entry is a hypothesis under
+test, not a proven runtime fix. Do not promote the custom saver on logical
+wake flags alone. This gate is independent of the reader preview and production.
+
+Post-fade manual repeat `aster-idle-lifecycle-1792999603960117424/native.json`
+passes eight cycles plus synthetic timer attention and exact restore. Independent
+before/after Settings image samples match RGB230/218/200, including the median
+of a blank lower-right patch; no residual dimming occurred in this repeat.
+An automatic-entry repeat with the same fade waits is running next; its pixel
+result is still needed before closing the idle visual gate.
+
+### M5 next shared-service gate — 2026-10-26
+
+Read-only source inspection confirms the existing Books handoff exposes only
+validated Calibre IDs/browser destinations, not book-file access; do not treat
+catalogue access as permission to distribute a Calibre administrator credential.
+Read-only speech health at the actual bound address `.70.14` returns200on both
+9130and9131; candidate9131declares `aster-bm-daniel`. Initial loopback probes
+failed because those services bind the guest address, not because they were
+down. No TTS request or credential read was made. The current framed voice
+protocol carries ordered audio units, not word timestamps; character-span
+pagination is not sufficient to claim synchronized spoken-word highlighting.
+
+A separate bounded approval was requested for at most two synthetic sentences
+through the existing canonical voice, private test audio only, credentials
+remaining server-local, no service/configuration changes or real book text.
+Do not render until that approval arrives. Then validate canonical voice,
+audio format, measured duration, cleanup/cancellation and an honest alignment
+plan before connecting audio to the HP reading UI. No new speech backend,
+alternate voice, shared-book progress write or automatic production rollout.
+
+Final automatic idle repeat
+`aster-idle-lifecycle-1792999710641217671/native.json` passes entry at180.7s,
+first-OK wake consumption, timer attention, all eight manual cycles and exact
+restore. Independent before/after Settings background samples and blank-region
+medians both remain RGB230/218/200: the retained fade waits pass the visual
+regression as well as logical flags. This closes this test-sequencing issue;
+it is not an upstream Kodi patch or proof of physical/overnight recovery.
+Normal Dim remains selected. Full local suites pass970tests normal/optimized.
+The native synthetic reader remains isolated and its entry/rollback instructions
+are in the skin README. Narration waits for the bounded shared-service reply.
+
+Final reader walkthrough `aster-epub-native-1793000052191115883/native.json`
+passes again after adding restoration of the harness's original Home focus;
+the preview itself already restored its explicit launch focus. All970tests
+remain passing normal/optimized. No API key, rendered speech or actual book
+content was acquired. The next safe action is the separately requested bounded
+synthetic narration trial once approved; otherwise retain this isolated preview
+and the accepted production baseline without another push.

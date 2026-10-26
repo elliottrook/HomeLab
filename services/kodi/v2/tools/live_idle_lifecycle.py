@@ -81,6 +81,8 @@ def main():
         xbmc.executebuiltin('ActivateWindow(Settings)')
         until(lambda: xbmcgui.getCurrentWindowId() == 10004, 'idle-trial-settings-window')
         xbmc.executebuiltin('Control.SetFocus(206)'); until(source_focus, 'idle-trial-source-focus')
+        xbmc.sleep(1300)
+        xbmc.executebuiltin('TakeScreenshot('+str(cp/'before-settings.png')+')'); xbmc.sleep(650)
         cycles = []
         for presentation in ('black', 'aster'):
             addon.setSettingString('presentation', presentation); owned_choice = presentation
@@ -100,7 +102,9 @@ def main():
                         xbmc.executebuiltin('TakeScreenshot('+str(cp/(presentation+'.png'))+')'); xbmc.sleep(500)
                     rpc('Input.ExecuteAction', dict(action=action))
                     until(lambda: not active() and not own_window(), 'idle-trial-wake-cleanup')
-                    xbmc.sleep(350)
+                    # Kodi Omega's native Dim layer has a1s close animation.
+                    # Do not start another saver or change its mode mid-close.
+                    xbmc.sleep(1300)
                     require(source_focus() and guard.idle(), 'idle-trial-wake-reached-page')
                     cycles.append(dict(presentation=presentation, input=action, repeat=repeat+1, consumed=True, focus_preserved=True))
         result.update(cycles=cycles, rendered_both=True)
@@ -116,6 +120,7 @@ def main():
         xbmc.executebuiltin('ActivateScreensaver')
         until(lambda: events.activations > previous_events, 'idle-trial-timer-no-activation')
         until(lambda: not active() and not own_window(), 'idle-trial-timer-not-protected')
+        xbmc.sleep(1300)
         require(source_focus() and guard.idle(), 'idle-trial-timer-source-drift')
         if timer_original: timer_window.setProperty('AsterHub.HomeTimerActive', timer_original)
         else: timer_window.clearProperty('AsterHub.HomeTimerActive')
@@ -134,6 +139,7 @@ def main():
             require(170 <= elapsed <= 205, 'idle-trial-automatic-early-entry')
             rpc('Input.ExecuteAction', dict(action='select'))
             until(lambda: not active() and not own_window(), 'idle-trial-automatic-wake')
+            xbmc.sleep(1300)
             require(source_focus() and guard.idle(), 'idle-trial-automatic-focus')
             result.update(automatic_entry_tested=True, automatic_seconds=round(elapsed, 1),
                           automatic_wake_consumed=True)
@@ -155,6 +161,7 @@ def main():
                 if active():
                     rpc('Input.ExecuteAction', dict(action='noop'))
                     until(lambda: not active() and not own_window(), 'idle-trial-final-wake')
+                    xbmc.sleep(1300)
                 require(current_mode() in (IDENTITY, DIM), 'idle-trial-foreign-mode')
                 require(addon.getSettingString('presentation') in (owned_choice, original_choice), 'idle-trial-foreign-choice')
                 if current_mode() == IDENTITY:
@@ -162,6 +169,9 @@ def main():
                 addon.setSettingString('presentation', original_choice)
                 require(settings() == baseline and addon.getSettingString('presentation') == original_choice, 'idle-trial-restore-check')
                 require(guard.snapshot() == av, 'idle-trial-av-drift')
+                if source_focus():
+                    xbmc.sleep(1300)
+                    xbmc.executebuiltin('TakeScreenshot('+str(cp/'after-settings.png')+')'); xbmc.sleep(650)
                 if xbmcgui.getCurrentWindowId() == 10004 and not menu(): rpc('Input.Home', {})
                 until(lambda: xbmcgui.getCurrentWindowId() == 10000, 'idle-trial-home-return')
                 require(not active() and not own_window() and guard.idle(), 'idle-trial-final-state')

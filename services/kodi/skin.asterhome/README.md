@@ -1,5 +1,26 @@
 # Aster Home Kodi skin
 
+## HP-only synthetic ebook reading preview
+
+This is an isolated v2 layout proof, not yet the normal Books destination.
+It contains an original sample chapter, not an item from the household library.
+There is no narration or saved reading progress. Left/Right turns pages;
+Up/Down moves through Previous, Next, Text size and Back. Text size cycles
+30 → 40 → 24 and preserves the current source-character location in the new page.
+First/last pages stop rather than wrap. Back returns to the same Home focus.
+
+From idle Home on HP, with playback stopped and queues empty, the pinned
+preview can be opened using the existing owner's SSH access:
+
+```sh
+ssh root@192.168.1.140 'kodi-send --action="RunScript(/storage/.aster-staging/aster-epub-reader2/default.py,00d3abdfb837f98ca973d1f9089e363fb38e01764a9e6ee369ad155fa53e2273)"'
+```
+
+Nothing is installed in the add-on registry or connected to the Books selector.
+The immutable stage/private `aster-epub-native-*` checkpoints hold recovery and
+native walkthrough evidence. No library/bookmark/progress rollback is needed:
+close only the owned preview. Production BOSGAME is unchanged.
+
 ## HP-only v2 Home dashboard pilot
 
 Open **Home** from the floating side rail on the HP. The redesigned page has
