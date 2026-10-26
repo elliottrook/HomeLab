@@ -1526,3 +1526,13 @@ adds a bounded five-second socket wait and exact database custody restoration,
 and uses a fresh checkpoint. The original packet is spent. V2 requires fresh
 approval for the same one broker restart, single Green grant, two non-enabled
 unit starts and one read-only canary.
+
+That corrected v2 activation was approved and
+[completed](evidence/D4-fixed-speech-broker-activation-v2-result-2026-10-26.md).
+The one canary returned Speech state `ok` with `authority: not-granted`.
+Broker, Aster Agent, fixed inference and both fixed Speech units are active
+with zero restarts; the new units remain disabled for boot. Exactly one Green
+Speech observer grant and one consumed request exist, while the existing
+Forgejo and Lab Operations services remain enabled. The next D4 work is the
+offline answer/selection integration and usefulness evaluation for this second
+fixed observation class; its authority remains read-only and non-routing.

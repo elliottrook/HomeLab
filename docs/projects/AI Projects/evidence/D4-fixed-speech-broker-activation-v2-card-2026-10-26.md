@@ -1,7 +1,7 @@
 # D4 fixed Aster Speech — corrected broker activation v2
 
 **Date:** 2026-10-26  
-**State:** corrected candidate; requires fresh approval
+**State:** approved and completed; see linked result
 
 ## Corrections
 
@@ -41,3 +41,6 @@ fixed Speech observer capability, start the two dedicated units without
 enabling them, and make one read-only canary. No Aster restart, reboot, model
 call, repair, automatic routing, schedule change, other capability change or
 Git push is included.
+
+The approved v2 transaction subsequently
+[completed successfully](D4-fixed-speech-broker-activation-v2-result-2026-10-26.md).
