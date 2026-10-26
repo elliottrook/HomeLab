@@ -1490,3 +1490,12 @@ The shared [B60 health check is also corrected](evidence/Stream-A-SYCL-health-ch
 to validate the accepted Qwen3.5-9B Q4_K_M SYCL/Level Zero service rather than
 the retired Vulkan/27B path; its fixture test and a streamed read-only live run
 both pass.
+
+The second fixed observation class now has an
+[inactive fixed Speech installation](evidence/D4-fixed-speech-inactive-install-result-2026-10-26.md).
+All nine additive files match the frozen packet; its two units are disabled
+and inactive, both sockets are absent, the dedicated identities are present,
+and the broker still has zero fixed Speech capability rows or grants. Aster
+remained active with zero restarts. The next D4 work is source-only broker
+reconciliation and testing. Live enrollment, unit start and the required
+broker restart remain one later exact effect gate.

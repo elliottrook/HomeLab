@@ -338,6 +338,46 @@ class BrokerServiceTests(unittest.TestCase):
         self.assertEqual(count, len(self.lab_gateway.requests))
         self.assertEqual("approved", self.store.get_request(created["result"]["request_id"]).status)
 
+    def test_fixed_speech_capability_forwards_only_empty_payload(self):
+        self.store.set_agent_state("agent-test", "operator")
+        self.store.register_service("aster-fixed-speech")
+        self.store.register_capability(
+            "diagnostic.aster-speech.latest", "aster-fixed-speech", "green",
+        )
+        self.store.grant_capability("agent-test", "diagnostic.aster-speech.latest")
+        self.server.fixed_speech_socket = str(self.lab_gateway_path)
+        created = self.call({
+            "method": "request.create",
+            "capability": "diagnostic.aster-speech.latest", "payload": {},
+        })
+        self.assertEqual("approved", created["result"]["status"])
+        consumed = self.call({
+            "method": "request.consume",
+            "request_id": created["result"]["request_id"], "payload": {},
+        })
+        self.assertTrue(consumed["ok"])
+        self.assertEqual(
+            {
+                "method": "doctor.aster-speech.latest",
+                "request_id": created["result"]["request_id"], "arguments": {},
+            },
+            self.lab_gateway.requests[-1],
+        )
+
+        changed = {"target": "other"}
+        created = self.call({
+            "method": "request.create",
+            "capability": "diagnostic.aster-speech.latest", "payload": changed,
+        })
+        count = len(self.lab_gateway.requests)
+        denied = self.call({
+            "method": "request.consume",
+            "request_id": created["result"]["request_id"], "payload": changed,
+        })
+        self.assertFalse(denied["ok"])
+        self.assertEqual(count, len(self.lab_gateway.requests))
+        self.assertEqual("approved", self.store.get_request(created["result"]["request_id"]).status)
+
 
 if __name__ == "__main__":
     unittest.main()

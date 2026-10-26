@@ -157,6 +157,62 @@ class BrokerAdminM7Tests(unittest.TestCase):
             ).fetchone())
             store.close()
 
+    def test_fixed_speech_enrollment_is_single_grant_and_reversible(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "broker.db"
+            command = [
+                sys.executable, str(Path(__file__).with_name("broker_admin.py")),
+                "--database", str(database), "enable-fixed-speech", "--agent-uid", "1975",
+            ]
+            subprocess.run(command, check=True, capture_output=True, text=True)
+            subprocess.run(command, check=True, capture_output=True, text=True)
+            store = BrokerStore(database)
+            self.assertEqual((1975, "observer"), tuple(store.connection.execute(
+                "SELECT unix_uid,state FROM agents WHERE agent_id='agent-aster-fixed-speech'"
+            ).fetchone()))
+            self.assertEqual([("diagnostic.aster-speech.latest",)], [tuple(row) for row in
+                store.connection.execute(
+                    "SELECT capability FROM agent_capabilities WHERE agent_id='agent-aster-fixed-speech'"
+                ).fetchall()])
+            self.assertEqual(("aster-fixed-speech", "green", 0, 1), tuple(store.connection.execute(
+                "SELECT service_id,risk_class,probation_allowed,enabled FROM capabilities "
+                "WHERE capability='diagnostic.aster-speech.latest'"
+            ).fetchone()))
+            store.close()
+            subprocess.run(command[:4] + ["disable-fixed-speech"], check=True, capture_output=True, text=True)
+            store = BrokerStore(database)
+            self.assertEqual("suspended", store.connection.execute(
+                "SELECT state FROM agents WHERE agent_id='agent-aster-fixed-speech'"
+            ).fetchone()[0])
+            self.assertEqual(0, store.connection.execute(
+                "SELECT enabled FROM services WHERE service_id='aster-fixed-speech'"
+            ).fetchone()[0])
+            self.assertEqual(0, store.connection.execute(
+                "SELECT count(*) FROM agent_capabilities WHERE agent_id='agent-aster-fixed-speech'"
+            ).fetchone()[0])
+            store.close()
+
+    def test_fixed_speech_enrollment_refuses_other_grant(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "broker.db"
+            store = BrokerStore(database)
+            store.register_agent("agent-aster-fixed-speech", 1975)
+            store.set_agent_state("agent-aster-fixed-speech", "observer")
+            store.register_service("other")
+            store.register_capability("other.read", "other", "green")
+            store.grant_capability("agent-aster-fixed-speech", "other.read")
+            store.close()
+            completed = subprocess.run([
+                sys.executable, str(Path(__file__).with_name("broker_admin.py")),
+                "--database", str(database), "enable-fixed-speech", "--agent-uid", "1975",
+            ], capture_output=True, text=True)
+            self.assertNotEqual(0, completed.returncode)
+            store = BrokerStore(database)
+            self.assertIsNone(store.connection.execute(
+                "SELECT 1 FROM services WHERE service_id='aster-fixed-speech'"
+            ).fetchone())
+            store.close()
+
 
 if __name__ == "__main__":
     unittest.main()

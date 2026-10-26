@@ -84,6 +84,8 @@ class BrokerHandler(socketserver.StreamRequestHandler):
             pending = self.server.store.get_request(request_id)  # type: ignore[attr-defined]
             if pending.capability == "diagnostic.aster-inference.latest" and payload != {}:
                 raise BrokerDenied("fixed Doctor capability accepts no arguments")
+            if pending.capability == "diagnostic.aster-speech.latest" and payload != {}:
+                raise BrokerDenied("fixed Speech capability accepts no arguments")
             record = self.server.store.consume_request(request_id, payload, agent_id=agent_id)  # type: ignore[attr-defined]
             if record.capability in {
                 "forgejo.read.repository", "forgejo.write.safe-branch",
@@ -153,6 +155,23 @@ class BrokerHandler(socketserver.StreamRequestHandler):
                 if not isinstance(result, dict) or set(result) != {"ok", "result"} or result.get("ok") is not True:
                     raise BrokerDenied("Fixed Doctor gateway denied the request")
                 return {"request_id": record.request_id, "status": record.status, "result": result["result"]}
+            if record.capability == "diagnostic.aster-speech.latest":
+                rpc = {
+                    "method": "doctor.aster-speech.latest",
+                    "request_id": record.request_id,
+                    "arguments": {},
+                }
+                try:
+                    with socket.socket(socket.AF_UNIX) as gateway:
+                        gateway.settimeout(5)
+                        gateway.connect(self.server.fixed_speech_socket)  # type: ignore[attr-defined]
+                        gateway.sendall(json.dumps(rpc, separators=(",", ":")).encode() + b"\n")
+                        result = json.loads(gateway.makefile("rb").readline())
+                except (OSError, json.JSONDecodeError) as error:
+                    raise BrokerDenied("Fixed Speech gateway is unavailable") from error
+                if not isinstance(result, dict) or set(result) != {"ok", "result"} or result.get("ok") is not True:
+                    raise BrokerDenied("Fixed Speech gateway denied the request")
+                return {"request_id": record.request_id, "status": record.status, "result": result["result"]}
             return {"request_id": record.request_id, "status": record.status, "synthetic": True}
         raise BrokerDenied("method is not exposed")
 
@@ -167,6 +186,7 @@ class BrokerServer(socketserver.UnixStreamServer):
         lab_operations_socket: str = "/run/aster-lab-operations-broker/gateway.sock",
         forgejo_project_write_socket: str = "/run/homelab-forgejo-mcp-project-write/gateway.sock",
         fixed_doctor_socket: str = "/run/aster-fixed-doctor/gateway.sock",
+        fixed_speech_socket: str = "/run/aster-fixed-speech/gateway.sock",
         request_timeout: float = 5.0,
     ):
         self.store = store
@@ -175,6 +195,7 @@ class BrokerServer(socketserver.UnixStreamServer):
         self.forgejo_project_write_socket = forgejo_project_write_socket
         self.lab_operations_socket = lab_operations_socket
         self.fixed_doctor_socket = fixed_doctor_socket
+        self.fixed_speech_socket = fixed_speech_socket
         self.request_timeout = request_timeout
         super().__init__(socket_path, BrokerHandler)
 
@@ -189,6 +210,7 @@ def main() -> None:
     parser.add_argument("--forgejo-project-write-socket", default="/run/homelab-forgejo-mcp-project-write/gateway.sock")
     parser.add_argument("--lab-operations-socket", default="/run/aster-lab-operations-broker/gateway.sock")
     parser.add_argument("--fixed-doctor-socket", default="/run/aster-fixed-doctor/gateway.sock")
+    parser.add_argument("--fixed-speech-socket", default="/run/aster-fixed-speech/gateway.sock")
     args = parser.parse_args()
     socket_path = Path(args.socket)
     socket_path.parent.mkdir(parents=True, exist_ok=True)
@@ -202,6 +224,7 @@ def main() -> None:
         lab_operations_socket=args.lab_operations_socket,
         forgejo_project_write_socket=args.forgejo_project_write_socket,
         fixed_doctor_socket=args.fixed_doctor_socket,
+        fixed_speech_socket=args.fixed_speech_socket,
     )
     os.chmod(socket_path, 0o660)
     os.chown(socket_path, -1, grp.getgrnam(args.socket_group).gr_gid)

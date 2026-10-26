@@ -29,6 +29,9 @@ def main() -> None:
     fixed_doctor = subparsers.add_parser("enable-fixed-doctor")
     fixed_doctor.add_argument("--agent-uid", required=True, type=int)
     subparsers.add_parser("disable-fixed-doctor")
+    fixed_speech = subparsers.add_parser("enable-fixed-speech")
+    fixed_speech.add_argument("--agent-uid", required=True, type=int)
+    subparsers.add_parser("disable-fixed-speech")
     subparsers.add_parser("status")
     args = parser.parse_args()
     store = BrokerStore(args.database)
@@ -305,6 +308,76 @@ def main() -> None:
                 )
             store.set_agent_state("agent-aster-fixed-doctor", "suspended")
             print("FIXED_DOCTOR_DISABLED")
+        elif args.command == "enable-fixed-speech":
+            agent = store.connection.execute(
+                "SELECT unix_uid,state FROM agents WHERE agent_id='agent-aster-fixed-speech'"
+            ).fetchone()
+            if agent is not None and tuple(agent) != (args.agent_uid, "observer"):
+                raise SystemExit("existing fixed Speech agent does not match the dedicated observer")
+            other_grants = store.connection.execute(
+                "SELECT capability FROM agent_capabilities WHERE agent_id='agent-aster-fixed-speech' "
+                "AND capability!='diagnostic.aster-speech.latest'"
+            ).fetchall()
+            if other_grants:
+                raise SystemExit("fixed Speech agent has another capability grant")
+            service = store.connection.execute(
+                """SELECT execution_mode,credential_type,custody_identifier,credential_scope,
+                          rotation_due,revocation_method FROM services
+                     WHERE service_id='aster-fixed-speech'"""
+            ).fetchone()
+            expected_service = (
+                "proxy", "none", "none", "fixed aster.speech read only",
+                "not-applicable", "disable service and stop dedicated caller",
+            )
+            if service is not None and tuple(service) != expected_service:
+                raise SystemExit("existing fixed Speech service metadata conflicts")
+            capability = store.connection.execute(
+                "SELECT service_id,risk_class,probation_allowed FROM capabilities "
+                "WHERE capability='diagnostic.aster-speech.latest'"
+            ).fetchone()
+            if capability is not None and tuple(capability) != ("aster-fixed-speech", "green", 0):
+                raise SystemExit("existing fixed Speech capability metadata conflicts")
+            if agent is None:
+                store.register_agent("agent-aster-fixed-speech", args.agent_uid)
+                store.set_agent_state("agent-aster-fixed-speech", "observer")
+            with store.connection:
+                store.connection.execute(
+                    """INSERT OR IGNORE INTO services(
+                           service_id,execution_mode,enabled,created_at,credential_type,
+                           custody_identifier,credential_scope,rotation_due,revocation_method,health
+                       ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
+                    ("aster-fixed-speech", *expected_service[:1], 1, store._now(),
+                     *expected_service[1:], "candidate"),
+                )
+                store.connection.execute(
+                    "UPDATE services SET enabled=1 WHERE service_id='aster-fixed-speech'"
+                )
+                store.connection.execute(
+                    """INSERT OR IGNORE INTO capabilities(
+                           capability,service_id,risk_class,probation_allowed,enabled
+                       ) VALUES('diagnostic.aster-speech.latest','aster-fixed-speech','green',0,1)"""
+                )
+                store.connection.execute(
+                    "UPDATE capabilities SET enabled=1 WHERE capability='diagnostic.aster-speech.latest'"
+                )
+                store.connection.execute(
+                    """INSERT OR IGNORE INTO agent_capabilities(agent_id,capability)
+                       VALUES('agent-aster-fixed-speech','diagnostic.aster-speech.latest')"""
+                )
+            print("FIXED_SPEECH_ENABLED agent=agent-aster-fixed-speech state=observer risk=green")
+        elif args.command == "disable-fixed-speech":
+            store.set_service_enabled("aster-fixed-speech", False)
+            grant = store.connection.execute(
+                """SELECT 1 FROM agent_capabilities
+                     WHERE agent_id='agent-aster-fixed-speech'
+                       AND capability='diagnostic.aster-speech.latest'"""
+            ).fetchone()
+            if grant is not None:
+                store.revoke_capability(
+                    "agent-aster-fixed-speech", "diagnostic.aster-speech.latest",
+                )
+            store.set_agent_state("agent-aster-fixed-speech", "suspended")
+            print("FIXED_SPEECH_DISABLED")
         else:
             print(json.dumps({"global_enabled": store.global_enabled(), "audit_events": len(store.audit_rows())}, sort_keys=True))
     finally:
