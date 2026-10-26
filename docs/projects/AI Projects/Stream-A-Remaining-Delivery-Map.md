@@ -2,12 +2,12 @@
 
 **Owner-facing checkpoint, 2026-10-09.** This page translates the detailed [programme](Aster-Adaptive-Computing.md) and [Codex delegation gates](Codex-Delegation.md) into the next decisions. It does not authorize a deployment, additional cloud question, new tool grant or Git push. Evidence links control factual claims; an unchecked gate remains open even if a nearby experiment passed.
 
-## Current execution snapshot — 2026-10-25 23:15 PDT
+## Current execution snapshot — 2026-10-25 23:30 PDT
 
 | Lane | What is complete now | Next dependency |
 |---|---|---|
 | F2 archive integrity | Corrected installed guard and exact October 26 one-shot timers passed static and late preflight. Preparation is due at 01:15, final/read-only scan at 01:20 and observation-only reconciliation at 01:42. | The 00:30 backup, 01:00 TrueNAS pull, exact archive identities, quiet host and absence gates must pass at runtime. Only three independently validated exit-zero rows complete F2. |
-| F3–F5 admission | F3 converter, F4 pre-acquire path and F5 metadata-auth checks are installed inactive and target-tested. | A complete F2 result permits a separately controlled F3 receipt. F4 and F5 then require fresh evidence from their own cycle. |
+| F3–F5 admission | F3 converter, F4 pre-acquire path and F5 metadata-auth checks are installed inactive and target-tested. The approved one-shot F3 conversion is scheduled for 01:50 after the 01:42 F2 reconciliation. | F3 runs only if F2 has exactly three independently accepted exit-zero rows and clean postchecks. F4 and F5 then require fresh same-cycle evidence; an F2 NO-GO makes F3 skip without writing a receipt. |
 | F6 recovery and execution | Prepare-only owner-loss recovery passed. The V3 candidate-H/M3 composition and corrected owner ordering are installed inactive and state-free. | The platform owner must publish a current-packet activation/recovery card that pins every installed path. No lease, consumer stop or model request is yet authorized. |
 | D4 investigation quality | Candidate-H and the independent fixed-Doctor usefulness packet are staged inactive with exact custody. The fixed read-only Doctor authority path itself is live and bounded. | Fresh F2–F5 evidence, executable F6 recovery and an exact workload/model-call gate precede either evaluation. |
 | M3 NLU and routing | Interpretation and route contracts, owner-accepted policy and 60 reviewed calibration cases are complete. The final-attempt runner correction is installed inactive. A follow-up source correction also prevents the scorer and journal from accepting infrastructure failures as a fabricated complete run; 119/119 dependency-free tests pass. | Install the bounded inactive scorer/journal correction, then require D4 and the F2–F6 chain before calibration, threshold selection, independent holdout and no-effect shadow comparison. The platform F6 card must pin the final runner and packet-manifest digest. Automatic routing remains off. |
