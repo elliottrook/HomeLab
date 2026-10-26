@@ -253,13 +253,32 @@ Review IDs refer to the printable review, not a new priority ordering.
   or limited at each boundary. This is an assessment, not authorization to
   deploy to the deferred Lenovo or purchase hardware.
 - **V2-G Version 1 beta bug cleanup:** reserve the final implementation pass for
-  the small corrective changes accumulated during household use of Version 1.
-  Capture each item in a finite defect register with reproduction, severity,
-  affected client/page, expected behavior and regression test. Admit bug fixes,
-  polish needed to restore already accepted behavior, and compatibility repairs;
-  reject or separately defer new features and redesigns. Validate the combined
-  cleanup against both the retained v1 behavior and the v2 family candidate so
-  a late fix cannot silently regress either line.
+  a page-by-page owner walkthrough after the v2 feature work is complete. Any
+  Version 1 defect still present is recorded alongside the final v2 corrections,
+  with reproduction, severity, affected client/page, expected behavior and
+  regression test. Admit bug fixes, polish needed to restore already accepted
+  behavior, and compatibility repairs; reject or separately defer new features
+  and redesigns. Validate the combined cleanup against both the retained v1
+  behavior and the v2 family candidate so a late fix cannot silently regress
+  either line.
+- **V2-H Recently Added rails and recommendation heroes:** on Media, replace the
+  Recommended rail with a true combined Recently Added rail. When no Up Next or
+  Recently Added tile is focused, the hero rotates through real recommendations;
+  its Play and More Info actions always follow the visible recommendation.
+  Focusing a content tile immediately pauses rotation and makes that tile the
+  hero authority. Apply the same interaction pattern to Music and Books using
+  media-appropriate recent items, recommendation sources and primary actions.
+  Do not invent recommendations or let an automatic transition move focus.
+- **V2-I Unified Media Acquisition Hub integration:** reuse the completed Unified
+  Media Portal's authority split instead of creating another acquisition stack:
+  Seerr for film/TV, Lidarr for albums, LazyLibrarian for ebooks/audiobooks and
+  no direct AsterTV access to download clients. AsterTV may consume only a
+  sanitized catalogue/recommendation contract and must submit an unowned item
+  through a media-specific restricted broker with explicit in-page confirmation,
+  duplicate/pending handling and truthful offline state. No portal credential,
+  ARR key, downloader key or raw service response belongs on the television.
+  Live service drift described in the evidence log must be reconciled before
+  this integration is presented as available.
 
 ## 4. Exclusions and change control
 
@@ -382,14 +401,19 @@ outside this envelope requires Jason before further mutation.
 - [ ] M5: gated Reader/voice and explicit-request Seerr integration.
 - [ ] M6: authorized Home camera/timer/feed integration; network/idle/suspend.
 - [ ] M7: accessibility/performance/soak/recovery and family candidate.
+- [ ] M7a: complete and test the cross-media Recently Added/recommendation hero
+  pattern, then integrate the sanitized Unified Media Acquisition Hub catalogue
+  and explicitly confirmed action boundaries after its live-health drift is
+  resolved. Preserve ordinary local playback when the hub is unavailable.
 - [ ] Optional firmware gate: independent recovery/install/removal validation.
 - [ ] M8: end-of-project bedroom-client resource assessment, using the complete
   measured test corpus to publish an observed floor, recommended minimum,
   comfortable specification and explicit feature/format trade-offs. No hardware
   deployment is implied.
-- [ ] M9: final Version 1 beta defect cleanup: freeze and triage the owner's
-  finite bug list, reproduce each accepted defect, implement the bounded fixes,
-  run v1/v2 regression and recovery checks, and publish resolved/deferred items.
+- [ ] M9: final page-by-page Version 1/v2 acceptance walkthrough: record any
+  surviving v1 defect and final v2 correction in one finite register, reproduce
+  each accepted defect, implement the bounded fixes, run v1/v2 regression and
+  recovery checks, and publish resolved/deferred items.
 - [ ] M10: release/graduation review after M8 and M9, including household pilot,
   package/recovery evidence, known limitations and the separately approved
   production promotion decision.
@@ -400,10 +424,10 @@ the exact next safe action before any pause; no reliance on chat memory.
 Push only after specific approval, then verify the Forgejo-owned GitHub mirror.
 
 M8 and M9 are deliberately closing milestones. Resource sizing uses the final
-software shape rather than an early prototype, and the beta defect register is
-frozen before fixes begin so it cannot become an open-ended second feature
-backlog. Neither milestone blocks ongoing appliance packaging, household soak
-or other already-scoped engineering work.
+software shape rather than an early prototype, and the page-by-page walkthrough
+is completed once before its defect register is frozen so it cannot become an
+open-ended second feature backlog. Neither milestone blocks ongoing appliance
+packaging, household soak or other already-scoped engineering work.
 
 ## 8. Acceptance and operating handover
 
@@ -9171,11 +9195,47 @@ observed floor, a recommended minimum and a comfortable specification, including
 the media formats and v2 features each tier can realistically retain. The
 existing deferred Lenovo deployment remains outside v2; M8 is analysis only.
 
-M9 will accept a finite owner-supplied list of small defects found during
-Version 1 household use. Each item must be reproducible and classified as a bug,
-accepted-behavior repair or minor compatibility correction before implementation.
-The combined patch receives v1 and v2 regression, recovery and household-facing
-checks. Feature requests and broader redesigns remain deferred, preventing this
-cleanup stage from becoming another source of scope creep. These two stages run
-after the current feature, package and endurance work and before the final M10
-graduation review.
+M9 will use one final owner-led page-by-page walkthrough to capture small defects
+still present from Version 1 together with the final Version 2 corrections. Each
+item must be reproducible and classified as a bug, accepted-behavior repair or
+minor compatibility correction before implementation. The combined patch
+receives v1 and v2 regression, recovery and household-facing checks. Feature
+requests and broader redesigns remain deferred, preventing this cleanup stage
+from becoming another source of scope creep. These two stages run after the
+current feature, package and endurance work and before the final M10 graduation
+review.
+
+### Landing recommendations, final walkthrough and acquisition hub — 2026-10-26
+
+The owner replaced the advance Version 1 defect-list process with one final
+page-by-page walkthrough after v2 feature work. Any surviving v1 issue and any
+final v2 correction enter the same finite register at that point. The printable
+owner questionnaire was correspondingly revised to remove completed Seerr
+approvals and provide decisions plus Media, Music, Books, News, Home, Settings
+and acquisition walkthrough sheets.
+
+The owner also added one substantive landing-page change. Media's current
+Recommended rail becomes Recently Added; recommendations move into a rotating
+hero only while no Up Next or Recently Added tile owns focus. Hero Play and More
+Info always refer to the recommendation actually on screen. Music and Books use
+the same state contract with domain-appropriate recent items, recommendations
+and actions. Focus is never moved by the carousel, and focusing a real item
+immediately stops the automatic rotation.
+
+Repository review identifies the requested Media Acquisition Hub as the
+completed Unified Media Automation and Recommendations project. Its correct
+AsterTV boundary is reuse, not replacement: sanitized recommendations/catalogue,
+Seerr film/TV requests, Lidarr album requests and LazyLibrarian ebook/audiobook
+wanted actions, all explicit and duplicate-aware. AsterTV must not hold portal,
+ARR or downloader credentials.
+
+Read-only TrueNAS inspection found live drift that must be resolved before the
+new page can claim availability. `unified-recommendation-refresh-shadow` and
+`unified-aster-seerr-broker` are healthy, while
+`unified-recommendation-portal-shadow` has been stopped since 2026-10-18 with
+exit 137 and restart policy `no`; `unified-lazylibrarian-shadow` is also stopped
+with exit 255 and restart policy `no`. Docker reports neither as OOM-killed.
+Audiobookshelf and Calibre-Web Automated remain running. No container was
+started, recreated or changed during this inspection. Next: reconcile the
+portal's intended operating state and expose a new bounded television contract;
+ordinary local pages must remain usable when that contract is unavailable.
