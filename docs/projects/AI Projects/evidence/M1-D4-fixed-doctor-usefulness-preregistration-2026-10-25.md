@@ -18,8 +18,10 @@ The blind-review scorer SHA-256 is
 `f95232f17cdd1123d946d6fbbc4db3d2343d7e48397a322c18a7eba320222c96`.
 The tool-free accepted-9B adapter SHA-256 is
 `ca9ad314951e521327ca6561c13781c9f66c69a0137487e03b53be3d59edff3f`.
+The durable journal wrapper SHA-256 is
+`2f176dbacb2cd09801ab263724b228f99f4ffe7eefd81711f5acdd899fc96a17`.
 The proposed run profile SHA-256 is
-`962ef5f0680d82676f2df212e32837b0a09224b13eb0f6db1b8a00c2374f307f`.
+`5f3183e5a805f2f1a3ab9f1c9f8d5fa30d9006aaba0550cabb33aa6f51f0c003`.
 
 ## Acceptance boundary
 
@@ -49,14 +51,17 @@ The proposed transport profile pins the accepted 9B engine identity, local
 endpoint, adapter and downstream evidence components. It supplies no tools,
 uses temperature zero, a 60-second per-case timeout, a 600-second outer bound,
 one attempt with stop-on-first-failure, and descriptor-only credential
-delivery. Its status is `proposed-not-authorized`. Twenty-two focused tests
-pass across validation, transport construction, capture, packet construction
-and scoring.
+delivery. The journal durably records an attempt start before transport,
+recomputes the remaining wall budget after that write, records returned text
+before allowing another request, and makes interrupted attempts uncertain and
+non-retryable. Its status is `proposed-not-authorized`. Twenty-eight focused
+tests pass across validation, transport construction, durable capture, packet
+construction and scoring.
 
 The fixture declares `authority: not-granted` and `model_route: not-enabled`;
 the scorer emits `routing_promotion: not-authorized` even on a passing review.
 This work does not call a model, read a live Doctor report, enable a route,
 grant tools or establish diagnostic usefulness. A later effectful run card
-must bind the proposed profile to fresh lease/admission evidence and a durable
-attempt journal before the first request.
+must bind the proposed profile to fresh lease/admission evidence before the
+first request.
 

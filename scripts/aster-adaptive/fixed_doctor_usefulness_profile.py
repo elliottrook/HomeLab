@@ -18,6 +18,7 @@ EXPECTED = {
     "engine_sha256": "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13",
     "adapter_sha256": "ca9ad314951e521327ca6561c13781c9f66c69a0137487e03b53be3d59edff3f",
     "capture_sha256": "307f16808f9be0f196d3264c47ed713fc373bd6e318db860f79f941f7f9b3c58",
+    "journaled_capture_sha256": "2f176dbacb2cd09801ab263724b228f99f4ffe7eefd81711f5acdd899fc96a17",
     "review_packet_builder_sha256": "ef6c8dccdfaa92c31130be9a636f2f75241b57329e7cef69322a84763a09a54c",
     "scorer_sha256": "f95232f17cdd1123d946d6fbbc4db3d2343d7e48397a322c18a7eba320222c96",
     "temperature": 0,

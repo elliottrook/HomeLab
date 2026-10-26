@@ -1029,10 +1029,12 @@ Its private capture, candidate-blind packet builder and packet-bound scorer
 stop on first failure and prevent incomplete answers or mismatched packets from
 passing. A proposed tool-free accepted-9B profile now pins the local endpoint,
 engine and every evidence component with one attempt, 60-second per-case and
-600-second outer bounds; 22 focused boundary tests pass. The packet explicitly
+600-second outer bounds. Its durable journal records each start before
+transport, each returned answer before another request, and prevents retry of
+an interrupted attempt; 28 focused boundary tests pass. The packet explicitly
 grants no authority or routing promotion, and no model request or live Doctor
-read has occurred. A durable attempt journal and effectful live card remain to
-be frozen before an evaluation.
+read has occurred. An effectful live card remains to be frozen before an
+evaluation.
 
 The immediate [post-authority candidate-G preflight](evidence/D4-candidate-G-post-authority-static-preflight-2026-10-25.md)
 is STATIC GO: its dry-run digest and all eleven source identities still match,
