@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+import re
 
 
 class EvaluationLeaseError(ValueError):
@@ -23,7 +24,7 @@ LEASE_MODE = "stream-a-endpoint-retaining-evaluation-v1"
 EXERCISE_MODE = "stream-a-prepare-only-exercise-v1"
 EXERCISE_MARKER = "PRE-EFFECT-EXERCISE-NOT-PRODUCTION-EVIDENCE"
 
-D4_DIGEST = "03b0ad74a862ee04de75e012f52f6662c61192b69b279ea4d1d66c80d9ff9153"
+D4_DIGEST = "423656a2336502f3a70de463b3e844b0e85c4bb74a59127cc8f70a0905ec31f4"
 M3_STAGE_MANIFEST_DIGEST = "69ffc58928ebd2f2f64e0600b8c4a7d73ce5f5356c485e1df8c2265741972165"
 
 # The final fifteen minutes are never borrowable by either workload.
@@ -68,12 +69,12 @@ class WorkloadSpec:
 
 WORKLOADS = (
     WorkloadSpec(
-        name="d4-candidate-g",
+        name="d4-candidate-h",
         packet_digest=D4_DIGEST,
         max_calls=36,
         max_seconds=D4_BUDGET_SECONDS,
-        journal_name="d4-candidate-g.journal.jsonl",
-        result_name="d4-candidate-g.result.json",
+        journal_name="d4-candidate-h.journal.jsonl",
+        result_name="d4-candidate-h.result.json",
     ),
     WorkloadSpec(
         name="m3-nlu-calibration",
@@ -116,6 +117,7 @@ class Admission:
     watchdog_independent: bool
     hard_deadline_epoch: int
     restore_deadline_epoch: int
+    admission_receipt: str
 
 
 @dataclass(frozen=True)
@@ -191,6 +193,10 @@ def validate_admission(value: Admission, *, now_epoch: int) -> None:
         raise EvaluationLeaseError("lease identity is invalid")
     if not value.backup_receipt or not value.f2_receipt or not value.f3_receipt:
         raise EvaluationLeaseError("fresh F2, F3 and backup receipts are required")
+    if re.fullmatch(
+            r"stream-a-evaluation-admission-sha256:[0-9a-f]{64}",
+            value.admission_receipt) is None:
+        raise EvaluationLeaseError("fixed F4/F5 admission receipt is required")
     if value.model != ACCEPTED_MODEL or value.backend != ACCEPTED_BACKEND:
         raise EvaluationLeaseError("accepted model/backend identity does not match")
     if value.endpoint != ACCEPTED_ENDPOINT:
@@ -240,12 +246,12 @@ def plan() -> tuple[str, ...]:
     """Return the only permitted order for the effectful adapter."""
     return (
         "acquire-evaluation-lock",
-        "verify-fresh-f2-f3-backup-and-source-receipts",
+        "verify-fresh-backup-f2-f3-f4-f5-admission-and-source-receipts",
         "capture-exact-production-unit-and-timer-baseline",
         "verify-accepted-backend-active-authenticated-idle-and-exclusive",
         "quiesce-registered-aster-speech-and-news-consumers",
         "verify-consumer-quiescence-with-backend-still-active",
-        "run-d4-candidate-g-once-to-its-separate-journal-and-result",
+        "run-d4-candidate-h-once-to-its-separate-journal-and-result",
         "run-m3-nlu-calibration-once-to-its-separate-journal-and-result",
         "restore-exact-production-unit-and-timer-baseline",
         "verify-production-health-authentication-and-gpu-idleness",

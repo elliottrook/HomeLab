@@ -17,6 +17,9 @@ from typing import Any
 
 from evaluation_lease import Admission, ExerciseAdmission, ProductionBaseline, WorkloadOutcome
 from evaluation_lease_adapter import EvaluationLeaseAdapter
+from stream_a_evaluation_admission import (
+    ADMISSION_PATH, F5_OBSERVATION_PATH, load_bound_admission,
+)
 
 
 class EntryPointError(ValueError):
@@ -24,6 +27,10 @@ class EntryPointError(ValueError):
 
 
 DEFAULT_STATE_PATH = Path("/var/lib/local-ai-lab/stream-a-evaluation/lease.json")
+
+
+def _is_root() -> bool:
+    return os.geteuid() == 0
 
 
 def _unique_pairs(pairs):
@@ -156,10 +163,11 @@ def _admission(value: dict[str, Any]) -> Admission:
         "endpoint_authenticated", "endpoint_idle", "gpu_holders",
         "registered_targets", "quiesced_targets", "baseline",
         "watchdog_independent", "hard_deadline_epoch", "restore_deadline_epoch",
-        "now_epoch",
+        "now_epoch", "admission_receipt",
     }
     _exact(value, required, "acquire")
-    for name in ("lease_id", "backup_receipt", "f2_receipt", "f3_receipt", "model", "backend", "endpoint"):
+    for name in ("lease_id", "backup_receipt", "f2_receipt", "f3_receipt",
+                 "model", "backend", "endpoint", "admission_receipt"):
         _str(value[name], name)
     _int(value["generation"], "generation"); _int(value["hard_deadline_epoch"], "hard_deadline_epoch")
     _int(value["restore_deadline_epoch"], "restore_deadline_epoch"); _int(value["now_epoch"], "now_epoch")
@@ -176,7 +184,7 @@ def _admission(value: dict[str, Any]) -> Admission:
         tuple(value["gpu_holders"]), tuple(value["registered_targets"]),
         tuple(value["quiesced_targets"]), _baseline(value["baseline"]),
         value["watchdog_independent"], value["hard_deadline_epoch"],
-        value["restore_deadline_epoch"],
+        value["restore_deadline_epoch"], value["admission_receipt"],
     )
 
 
@@ -216,13 +224,21 @@ def _runner(command):
 def _main_effectful(args: argparse.Namespace, intent: dict[str, Any]) -> dict[str, object]:
     if args.state != DEFAULT_STATE_PATH:
         raise EntryPointError("state path is not the fixed watchdog-bound path")
-    if os.geteuid() != 0:
+    if not _is_root():
         raise EntryPointError("effectful evaluation entry point requires root")
     validate_phase_intent(args.phase, intent)
     adapter = EvaluationLeaseAdapter(args.state, _runner, allow_effects=True)
     phase = args.phase
     if phase == "acquire":
         admission = _admission(intent)
+        load_bound_admission(
+            ADMISSION_PATH, F5_OBSERVATION_PATH,
+            receipt=admission.admission_receipt, lease_id=admission.lease_id,
+            generation=admission.generation,
+            backup_receipt=admission.backup_receipt,
+            f2_receipt=admission.f2_receipt, f3_receipt=admission.f3_receipt,
+            now_epoch=intent["now_epoch"], require_fresh=True,
+        )
         return adapter.prepare(admission, now_epoch=intent["now_epoch"])
     if phase == "exercise-prepare":
         admission = _exercise_admission(intent)
@@ -237,6 +253,14 @@ def _main_effectful(args: argparse.Namespace, intent: dict[str, Any]) -> dict[st
         return {"effects": "heartbeat-recorded"}
     if phase == "post-quiescence":
         admission = _admission(intent["admission"])
+        load_bound_admission(
+            ADMISSION_PATH, F5_OBSERVATION_PATH,
+            receipt=admission.admission_receipt, lease_id=admission.lease_id,
+            generation=admission.generation,
+            backup_receipt=admission.backup_receipt,
+            f2_receipt=admission.f2_receipt, f3_receipt=admission.f3_receipt,
+            now_epoch=intent["now_epoch"], require_fresh=False,
+        )
         adapter.post_quiescence(
             observed_states=tuple(tuple(item) for item in intent["observed_states"]),
             admission=admission, backend_active=intent["backend_active"],

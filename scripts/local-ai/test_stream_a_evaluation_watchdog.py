@@ -33,7 +33,8 @@ class WatchdogBoundaryTests(unittest.TestCase):
         baseline = ProductionBaseline(
             units=PRODUCTION_BASELINE_STATES[:2], timers=PRODUCTION_BASELINE_STATES[2:])
         return AdapterState("eval-1", 1, LEASE_MODE, None, "running", baseline, 1000, 1010,
-                            5500, 6400, "d4-candidate-g", None, ())
+                            5500, 6400, "d4-candidate-h", None, (),
+                            "stream-a-evaluation-admission-sha256:" + "d" * 64)
 
     def write(self, path, value):
         path.write_text(json.dumps(value) + "\n")

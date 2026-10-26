@@ -23,7 +23,9 @@ from evaluation_lease_watchdog import (
 class AdapterTests(unittest.TestCase):
     def admission(self):
         return Admission(
-            "eval-1", 1, "backup", "f2", "f3", ACCEPTED_MODEL,
+            "eval-1", 1, "retained-archive-integrity-sha256:" + "a" * 64,
+            "f2-result-sha256:" + "b" * 64,
+            "f3-receipt-sha256:" + "c" * 64, ACCEPTED_MODEL,
             ACCEPTED_BACKEND, ACCEPTED_ENDPOINT, True, True, True,
             (BACKEND_TARGET,), QUIESCE_TARGETS, (),
             ProductionBaseline(
@@ -32,6 +34,7 @@ class AdapterTests(unittest.TestCase):
                 (("lxc114:news-aggregator-ingest.timer", "enabled+active"),
                  ("lxc114:news-aggregator-digest.timer", "enabled+active")),
             ), True, 5500, 6400,
+            "stream-a-evaluation-admission-sha256:" + "d" * 64,
         )
 
     def exercise_admission(self):
@@ -61,13 +64,13 @@ class AdapterTests(unittest.TestCase):
                                 now_epoch=1001, heartbeat_timeout=30)
             self.assertFalse(adapter.workload_allowed(
                 lease_id=state.lease_id, generation=state.generation,
-                workload_name="d4-candidate-g", now_epoch=1001,
+                workload_name="d4-candidate-h", now_epoch=1001,
                 heartbeat_timeout=30,
             ))
             with self.assertRaisesRegex(AdapterError, "not admitted"):
                 adapter.start_workload(
                     lease_id=state.lease_id, generation=state.generation,
-                    workload_name="d4-candidate-g", now_epoch=1001,
+                    workload_name="d4-candidate-h", now_epoch=1001,
                     heartbeat_timeout=30,
                 )
             production_shape = self.admission().__class__(**{
@@ -126,7 +129,10 @@ class AdapterTests(unittest.TestCase):
                                               allow_effects=True)
             result = adapter.prepare(self.admission(), now_epoch=1000)
             self.assertEqual(result["effects"], "prepared")
-            self.assertEqual(read_state(adapter.state_path).phase, "prepared")
+            state = read_state(adapter.state_path)
+            self.assertEqual(state.phase, "prepared")
+            self.assertEqual(state.admission_receipt,
+                             self.admission().admission_receipt)
             self.assertEqual(calls, [])
             with self.assertRaises(AdapterError):
                 adapter.acquire(self.admission(), now_epoch=1000)
@@ -261,7 +267,7 @@ class AdapterTests(unittest.TestCase):
             adapter.prepare(self.admission(), now_epoch=1000)
             adapter.quiesce(lease_id="eval-1", generation=1, now_epoch=1000, heartbeat_timeout=30)
             self.assertFalse(adapter.workload_allowed(
-                lease_id="eval-1", generation=1, workload_name="d4-candidate-g",
+                lease_id="eval-1", generation=1, workload_name="d4-candidate-h",
                 now_epoch=1100, heartbeat_timeout=30,
             ))
             adapter.post_quiescence(
@@ -271,15 +277,15 @@ class AdapterTests(unittest.TestCase):
                 heartbeat_timeout=200,
             )
             self.assertTrue(adapter.workload_allowed(
-                lease_id="eval-1", generation=1, workload_name="d4-candidate-g",
+                lease_id="eval-1", generation=1, workload_name="d4-candidate-h",
                 now_epoch=1100, heartbeat_timeout=30,
             ))
             adapter.start_workload(lease_id="eval-1", generation=1,
-                                   workload_name="d4-candidate-g",
+                                   workload_name="d4-candidate-h",
                                    now_epoch=1100, heartbeat_timeout=200)
             adapter.heartbeat(lease_id="eval-1", generation=1, now_epoch=1150)
             adapter.record_outcome(
-                WorkloadOutcome("eval-1", 1, "d4-candidate-g", D4_DIGEST,
+                WorkloadOutcome("eval-1", 1, "d4-candidate-h", D4_DIGEST,
                                 "completed", "a" * 64, "b" * 64, 12, 30, True),
                 now_epoch=1200, heartbeat_timeout=100,
             )
@@ -391,7 +397,7 @@ class AdapterTests(unittest.TestCase):
             )
             adapter.heartbeat(lease_id="eval-1", generation=1, now_epoch=3341)
             self.assertFalse(adapter.workload_allowed(
-                lease_id="eval-1", generation=1, workload_name="d4-candidate-g",
+                lease_id="eval-1", generation=1, workload_name="d4-candidate-h",
                 now_epoch=3341, heartbeat_timeout=30,
             ))
             self.assertFalse(adapter.workload_allowed(
@@ -416,21 +422,21 @@ class AdapterTests(unittest.TestCase):
                                        workload_name="m3-nlu-calibration",
                                        now_epoch=1000, heartbeat_timeout=30)
             adapter.start_workload(lease_id="eval-1", generation=1,
-                                   workload_name="d4-candidate-g",
+                                   workload_name="d4-candidate-h",
                                    now_epoch=1000, heartbeat_timeout=30)
             with self.assertRaises(AdapterError):
                 adapter.start_workload(lease_id="eval-1", generation=1,
-                                       workload_name="d4-candidate-g",
+                                       workload_name="d4-candidate-h",
                                        now_epoch=1000, heartbeat_timeout=30)
-            foreign = WorkloadOutcome("other", 1, "d4-candidate-g", D4_DIGEST,
+            foreign = WorkloadOutcome("other", 1, "d4-candidate-h", D4_DIGEST,
                                       "completed", "a" * 64, "b" * 64, 1, 1, True)
             with self.assertRaises(AdapterError):
                 adapter.record_outcome(foreign, now_epoch=1001, heartbeat_timeout=30)
-            uncertain = WorkloadOutcome("eval-1", 1, "d4-candidate-g", D4_DIGEST,
+            uncertain = WorkloadOutcome("eval-1", 1, "d4-candidate-h", D4_DIGEST,
                                         "completed", "a" * 64, "b" * 64, 1, 1, True, True)
             with self.assertRaises(EvaluationLeaseError):
                 adapter.record_outcome(uncertain, now_epoch=1001, heartbeat_timeout=30)
-            d4 = WorkloadOutcome("eval-1", 1, "d4-candidate-g", D4_DIGEST,
+            d4 = WorkloadOutcome("eval-1", 1, "d4-candidate-h", D4_DIGEST,
                                  "completed", "a" * 64, "b" * 64, 1, 1, True)
             adapter.record_outcome(d4, now_epoch=1001, heartbeat_timeout=30)
             with self.assertRaises(AdapterError):
@@ -443,12 +449,13 @@ class AdapterTests(unittest.TestCase):
 
     def test_state_mutations_and_valid_inflight_recovery_are_coherent(self):
         mutations = (
+            {"admission_receipt": "stream-a-evaluation-admission-sha256:" + "9" * 63},
             {"completed_outcomes": [("m3-nlu-calibration", "a" * 64, "b" * 64)],
              "next_workload": None, "in_flight_workload": None},
             {"completed_outcomes": [("m3-nlu-calibration", "a" * 64, "b" * 64),
-                                     ("d4-candidate-g", "c" * 64, "d" * 64)],
+                                     ("d4-candidate-h", "c" * 64, "d" * 64)],
              "next_workload": None, "in_flight_workload": None},
-            {"completed_outcomes": [], "next_workload": "d4-candidate-g",
+            {"completed_outcomes": [], "next_workload": "d4-candidate-h",
              "in_flight_workload": "m3-nlu-calibration"},
         )
         with tempfile.TemporaryDirectory() as root:
@@ -473,9 +480,9 @@ class AdapterTests(unittest.TestCase):
                 now_epoch=1000, heartbeat_timeout=30,
             )
             adapter.start_workload(lease_id="eval-1", generation=1,
-                                   workload_name="d4-candidate-g",
+                                   workload_name="d4-candidate-h",
                                    now_epoch=1000, heartbeat_timeout=30)
-            self.assertEqual(read_state(path).in_flight_workload, "d4-candidate-g")
+            self.assertEqual(read_state(path).in_flight_workload, "d4-candidate-h")
             adapter.restore(lease_id="eval-1", generation=1,
                             restored=self.admission().baseline,
                             backend_active=True, endpoint_authenticated=True,
@@ -499,7 +506,7 @@ class AdapterTests(unittest.TestCase):
                 barrier.wait()
                 try:
                     adapter.start_workload(lease_id="eval-1", generation=1,
-                                           workload_name="d4-candidate-g",
+                                           workload_name="d4-candidate-h",
                                            now_epoch=1000, heartbeat_timeout=30)
                     successes.append(True)
                 except AdapterError:
@@ -525,9 +532,9 @@ class AdapterTests(unittest.TestCase):
                 now_epoch=1000, heartbeat_timeout=30,
             )
             adapter.start_workload(lease_id="eval-1", generation=1,
-                                   workload_name="d4-candidate-g",
+                                   workload_name="d4-candidate-h",
                                    now_epoch=1000, heartbeat_timeout=30)
-            outcome = WorkloadOutcome("eval-1", 1, "d4-candidate-g", D4_DIGEST,
+            outcome = WorkloadOutcome("eval-1", 1, "d4-candidate-h", D4_DIGEST,
                                       "completed", "a" * 64, "b" * 64, 1, 1, True)
             barrier = threading.Barrier(2)
             failures = []
@@ -555,7 +562,7 @@ class AdapterTests(unittest.TestCase):
             if any(name == "outcome" for name, _exc in failures):
                 adapter.record_outcome(outcome, now_epoch=1001, heartbeat_timeout=30)
             state = read_state(adapter.state_path)
-            self.assertEqual(tuple(row[0] for row in state.completed_outcomes), ("d4-candidate-g",))
+            self.assertEqual(tuple(row[0] for row in state.completed_outcomes), ("d4-candidate-h",))
             self.assertIsNone(state.in_flight_workload)
             self.assertLessEqual(len(failures), 1)
 
@@ -572,9 +579,9 @@ class AdapterTests(unittest.TestCase):
                 now_epoch=1000, heartbeat_timeout=30,
             )
             adapter.start_workload(lease_id="eval-1", generation=1,
-                                   workload_name="d4-candidate-g",
+                                   workload_name="d4-candidate-h",
                                    now_epoch=1000, heartbeat_timeout=30)
-            outcome = WorkloadOutcome("eval-1", 1, "d4-candidate-g", D4_DIGEST,
+            outcome = WorkloadOutcome("eval-1", 1, "d4-candidate-h", D4_DIGEST,
                                       "completed", "a" * 64, "b" * 64, 1, 1, True)
             barrier = threading.Barrier(2)
             successes, failures = [], []

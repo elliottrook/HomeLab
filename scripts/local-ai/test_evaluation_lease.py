@@ -32,8 +32,10 @@ from evaluation_lease import (
 class EvaluationLeaseTests(unittest.TestCase):
     def admission(self):
         return Admission(
-            lease_id="eval-1", generation=1, backup_receipt="backup-1",
-            f2_receipt="f2-1", f3_receipt="f3-1", model=ACCEPTED_MODEL,
+            lease_id="eval-1", generation=1,
+            backup_receipt="retained-archive-integrity-sha256:" + "a" * 64,
+            f2_receipt="f2-result-sha256:" + "b" * 64,
+            f3_receipt="f3-receipt-sha256:" + "c" * 64, model=ACCEPTED_MODEL,
             backend=ACCEPTED_BACKEND, endpoint=ACCEPTED_ENDPOINT,
             backend_active=True, endpoint_authenticated=True, endpoint_idle=True,
             gpu_holders=(BACKEND_TARGET,), registered_targets=QUIESCE_TARGETS,
@@ -45,6 +47,7 @@ class EvaluationLeaseTests(unittest.TestCase):
                         ("lxc114:news-aggregator-digest.timer", "enabled+active")),
             ), watchdog_independent=True, hard_deadline_epoch=5500,
             restore_deadline_epoch=5500 + RESTORE_RESERVE_SECONDS,
+            admission_receipt="stream-a-evaluation-admission-sha256:" + "d" * 64,
         )
 
     def exercise_admission(self):
@@ -105,31 +108,31 @@ class EvaluationLeaseTests(unittest.TestCase):
 
     def test_sequence_is_d4_then_m3_and_separate_paths(self):
         self.assertEqual(next_workload(completed=(), expected_lease_id="eval-1",
-                                       expected_generation=1).name, "d4-candidate-g")
-        outcome = WorkloadOutcome("eval-1", 1, "d4-candidate-g", D4_DIGEST,
+                                       expected_generation=1).name, "d4-candidate-h")
+        outcome = WorkloadOutcome("eval-1", 1, "d4-candidate-h", D4_DIGEST,
                                   "completed", "j", "r", 1, 1, True)
-        self.assertEqual(next_workload(completed=("d4-candidate-g",),
+        self.assertEqual(next_workload(completed=("d4-candidate-h",),
                                        expected_lease_id="eval-1", expected_generation=1,
                                        outcome=outcome).name, "m3-nlu-calibration")
         m3_outcome = WorkloadOutcome("eval-1", 1, "m3-nlu-calibration",
                                      M3_STAGE_MANIFEST_DIGEST, "completed", "m3j", "m3r", 60, 10, True)
         self.assertIsNone(next_workload(
-            completed=("d4-candidate-g", "m3-nlu-calibration"),
+            completed=("d4-candidate-h", "m3-nlu-calibration"),
             expected_lease_id="eval-1", expected_generation=1, outcome=m3_outcome,
         ))
-        self.assertEqual(workload("d4-candidate-g").packet_digest, D4_DIGEST)
+        self.assertEqual(workload("d4-candidate-h").packet_digest, D4_DIGEST)
         self.assertEqual(workload("m3-nlu-calibration").packet_digest, M3_STAGE_MANIFEST_DIGEST)
-        self.assertNotEqual(workload("d4-candidate-g").journal_name, workload("m3-nlu-calibration").journal_name)
+        self.assertNotEqual(workload("d4-candidate-h").journal_name, workload("m3-nlu-calibration").journal_name)
 
     def test_uncertain_outcome_cannot_advance(self):
-        outcome = WorkloadOutcome("other-lease", 9, "d4-candidate-g", D4_DIGEST,
+        outcome = WorkloadOutcome("other-lease", 9, "d4-candidate-h", D4_DIGEST,
                                   "completed", "j", "r", 1, 1, True, True)
         with self.assertRaises(EvaluationLeaseError):
-            next_workload(completed=("d4-candidate-g",), expected_lease_id="eval-1",
+            next_workload(completed=("d4-candidate-h",), expected_lease_id="eval-1",
                           expected_generation=1, outcome=outcome)
 
     def test_m3_completion_requires_current_terminal_outcome(self):
-        completed = ("d4-candidate-g", "m3-nlu-calibration")
+        completed = ("d4-candidate-h", "m3-nlu-calibration")
         with self.assertRaises(EvaluationLeaseError):
             next_workload(completed=completed, expected_lease_id="eval-1", expected_generation=1)
         foreign = WorkloadOutcome("other-lease", 1, "m3-nlu-calibration",
@@ -183,7 +186,7 @@ class EvaluationLeaseTests(unittest.TestCase):
     def test_plan_is_effect_ordered(self):
         actions = plan()
         self.assertLess(actions.index("quiesce-registered-aster-speech-and-news-consumers"),
-                        actions.index("run-d4-candidate-g-once-to-its-separate-journal-and-result"))
+                        actions.index("run-d4-candidate-h-once-to-its-separate-journal-and-result"))
         self.assertLess(actions.index("run-m3-nlu-calibration-once-to-its-separate-journal-and-result"),
                         actions.index("restore-exact-production-unit-and-timer-baseline"))
 
