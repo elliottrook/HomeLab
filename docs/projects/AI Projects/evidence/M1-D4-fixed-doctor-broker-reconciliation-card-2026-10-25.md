@@ -43,7 +43,7 @@ custody and restarting only the broker. The complete bounded record is in
 [the rollback result](M1-D4-fixed-doctor-broker-first-attempt-rollback-2026-10-25.md).
 
 The corrected apply script is SHA-256
-`fa28aad58a21a694c932c8e9ce698b0ce26fa3eb5b51804db0f18f0a27804a99`.
+`3ec0b0f957405c99c9d25586913251b283acd7fe53e6a50d5c433c2a9e74dfcc`.
 It preflights health as registered client `hlabagent`, verifies database and
 socket custody before replacement, waits after restart for a bounded successful
 `hlabagent` health RPC rather than socket-path existence, repeats that RPC, and

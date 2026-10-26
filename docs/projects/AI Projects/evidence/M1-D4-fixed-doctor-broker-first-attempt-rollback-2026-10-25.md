@@ -58,5 +58,5 @@ successful `hlabagent` health-probe loop: up to 20 attempts at 0.5-second
 intervals, with a two-second RPC timeout. It requires one successful health
 response before continuing and repeats the same probe afterward. The script is
 pinned at SHA-256
-`fa28aad58a21a694c932c8e9ce698b0ce26fa3eb5b51804db0f18f0a27804a99`.
+`3ec0b0f957405c99c9d25586913251b283acd7fe53e6a50d5c433c2a9e74dfcc`.
 No enrollment, activation, fixed read or other excluded effect occurred.

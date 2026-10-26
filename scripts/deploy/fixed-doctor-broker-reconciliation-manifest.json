@@ -28,7 +28,7 @@
   "rollback": "restore both exact predecessors and the consistent SQLite checkpoint, then restart only homelab-broker.service",
   "apply": {
     "source": "scripts/deploy/apply_fixed_doctor_broker_reconciliation.sh",
-    "sha256": "fa28aad58a21a694c932c8e9ce698b0ce26fa3eb5b51804db0f18f0a27804a99",
-    "target": "/root/aster-fixed-doctor-broker-stage-20261025T1810PDT/apply.sh"
+    "sha256": "3ec0b0f957405c99c9d25586913251b283acd7fe53e6a50d5c433c2a9e74dfcc",
+    "target": "/root/aster-fixed-doctor-broker-stage-20261025T1825PDT/apply.sh"
   }
 }

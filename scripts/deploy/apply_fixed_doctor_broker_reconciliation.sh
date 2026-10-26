@@ -1,8 +1,8 @@
 #!/bin/sh
 set -eu
 
-stage=/root/aster-fixed-doctor-broker-stage-20261025T1810PDT
-checkpoint=/root/aster-fixed-doctor-broker-pre-20261025T1810PDT
+stage=/root/aster-fixed-doctor-broker-stage-20261025T1825PDT
+checkpoint=/root/aster-fixed-doctor-broker-pre-20261025T1825PDT
 admin=/opt/homelab-broker/broker_admin.py
 service=/opt/homelab-broker/broker_service.py
 database=/var/lib/homelab-broker/broker.db
@@ -19,6 +19,18 @@ broker_health() {
     runuser -u hlabagent -- python3 -c 'import json,socket; s=socket.socket(socket.AF_UNIX); s.settimeout(2); s.connect("/run/homelab-broker/mcp.sock"); s.sendall(b"{\"method\":\"health\"}\n"); r=json.loads(s.makefile("rb").readline()); assert r.get("ok") is True and r.get("result",{}).get("status")=="ok"'
 }
 
+wait_for_broker() {
+    attempt=0
+    while [ "$attempt" -lt 20 ]; do
+        if systemctl is-active --quiet homelab-broker.service && broker_health >/dev/null 2>&1; then
+            return 0
+        fi
+        attempt=$((attempt + 1))
+        sleep 0.5
+    done
+    return 1
+}
+
 rollback() {
     rc=$?
     trap - EXIT
@@ -27,8 +39,11 @@ rollback() {
         install -o root -g root -m 0644 "$checkpoint/broker_service.py" "$service"
         install -o hlabroker -g hlabroker -m 0600 "$checkpoint/broker.db" "$database"
         systemctl reset-failed homelab-broker.service || true
-        systemctl restart homelab-broker.service || true
-        echo "ROLLBACK_APPLIED checkpoint=$checkpoint" >&2
+        if systemctl restart homelab-broker.service && wait_for_broker; then
+            echo "ROLLBACK_APPLIED_AND_HEALTHY checkpoint=$checkpoint" >&2
+        else
+            echo "ROLLBACK_APPLIED_HEALTH_UNCONFIRMED checkpoint=$checkpoint" >&2
+        fi
     fi
     exit "$rc"
 }
@@ -74,15 +89,7 @@ mv -f "$admin.new" "$admin"
 mv -f "$service.new" "$service"
 systemctl restart homelab-broker.service
 
-i=0
-while [ "$i" -lt 20 ]; do
-    if systemctl is-active --quiet homelab-broker.service && broker_health >/dev/null 2>&1; then
-        break
-    fi
-    i=$((i + 1))
-    sleep 0.5
-done
-systemctl is-active --quiet homelab-broker.service
+wait_for_broker
 broker_health
 [ "$(systemctl show homelab-broker.service -p NRestarts --value)" = 0 ]
 [ "$(sha "$admin")" = "$candidate_admin" ]

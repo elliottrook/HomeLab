@@ -16,6 +16,7 @@ class BrokerApplyBoundaryTests(unittest.TestCase):
         self.assertIn("candidate_service=c6217f49", self.text)
         self.assertEqual(1, self.text.count("runuser -u hlabagent"))
         self.assertGreaterEqual(self.text.count("broker_health"), 5)
+        self.assertEqual(3, self.text.count("wait_for_broker"))
         self.assertNotIn("runuser -u aster --", self.text)
 
     def test_rollback_restores_database_custody_and_only_broker_restarts(self):
