@@ -24,8 +24,9 @@ the value in the child environment:
    files, each root:root mode 0600 with exact length and SHA-256;
 4. pin the interpreter target and hash;
 5. open the non-symlink credential file with O_NOFOLLOW and O_CLOEXEC, verify
-   its custody again after open, bound the file to 65,536 bytes and require
-   exactly one bounded printable ASTER_LLAMA_API_KEY value;
+   its custody and size again after open, read its exact measured length into
+   one mutable buffer, and require exactly one bounded printable
+   ASTER_LLAMA_API_KEY value;
 6. create a close-on-exec pipe, inherit only its read descriptor into the
    candidate process, remove the API key from the child environment, and pass
    only the descriptor number through --key-fd;
@@ -40,7 +41,7 @@ digest is accepted.
 Source identities:
 
 - launcher SHA-256:
-  95dc756a8038152aba3ed20d0f11338b1fc9d0f2b2eff064ac131f06e75b7be3
+  4c3bc8637aa529c88331bcb91c7523fa9975867d6c60aafe0fc9efaddb5169a4
 - launcher-test SHA-256:
   34e4314578195d22cd90e533f5ca59a0ce4704e53da5b56b9fccc2ded8224021
 - candidate-H run digest:

@@ -101,30 +101,45 @@ def read_key_bytes(
             != (uid, expected_gid, 0o640)
         ):
             raise ValueError("credential file custody changed during open")
-        raw = bytearray(os.read(descriptor, MAX_ENV_BYTES + 1))
+        if opened.st_size <= 0 or opened.st_size > MAX_ENV_BYTES:
+            raise ValueError("credential file has invalid bounded size")
+        raw = bytearray()
+        while len(raw) < opened.st_size:
+            chunk = os.read(descriptor, opened.st_size - len(raw))
+            if not chunk:
+                break
+            raw.extend(chunk)
+        if len(raw) != opened.st_size or os.read(descriptor, 1):
+            raise ValueError("credential file changed during bounded read")
     finally:
         os.close(descriptor)
     try:
-        if len(raw) > MAX_ENV_BYTES:
-            raise ValueError("credential file exceeds bounded size")
         prefix = b"ASTER_LLAMA_API_KEY="
-        matches = []
-        for line in bytes(raw).splitlines():
-            stripped = line.strip()
-            if stripped.startswith(prefix):
-                matches.append(stripped[len(prefix):])
+        matches: list[bytearray] = []
+        position = 0
+        while position < len(raw):
+            end = raw.find(b"\n", position)
+            if end < 0:
+                end = len(raw)
+            if raw[position:position + len(prefix)] == prefix:
+                matches.append(bytearray(raw[position + len(prefix):end]))
+            position = end + 1
         if len(matches) != 1:
+            for match in matches:
+                match[:] = b"\0" * len(match)
             raise ValueError("credential file must contain exactly one API key")
         value = matches[0]
         if len(value) >= 2 and value[:1] == value[-1:] and value[:1] in (b"'", b'"'):
-            value = value[1:-1]
+            value.pop()
+            del value[0]
         if (
             not value
             or len(value) > MAX_KEY_BYTES
             or any(byte <= 32 or byte >= 127 for byte in value)
         ):
+            value[:] = b"\0" * len(value)
             raise ValueError("credential value has invalid encoding")
-        return bytearray(value)
+        return value
     finally:
         for index in range(len(raw)):
             raw[index] = 0
