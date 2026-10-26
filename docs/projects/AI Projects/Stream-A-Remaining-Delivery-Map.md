@@ -1536,3 +1536,11 @@ Speech observer grant and one consumed request exist, while the existing
 Forgejo and Lab Operations services remain enabled. The next D4 work is the
 offline answer/selection integration and usefulness evaluation for this second
 fixed observation class; its authority remains read-only and non-routing.
+
+The source-only [fixed Speech selector boundary](evidence/D4-fixed-speech-offline-selector-boundary-2026-10-26.md)
+now composes that capability with `request-interpretation.v1`. It accepts only
+a clear public/internal read-only investigation with the sole fixed Speech
+capability need, emits a short-lived local proposal, and retains literal
+non-authority through the selected answer. Focused tests pass 7/7. The selector
+is not installed and automatic routing remains off. Next is the frozen
+synthetic answer-conformance and independent usefulness review.
