@@ -108,6 +108,14 @@ October 26 evidence match, timers remain disabled/inactive and production is
 healthy. A fresh exact-cycle card and separate activation approval are now the
 only prerequisites to schedule another F2 attempt.
 
+The fresh October 27 candidate is now independently reviewed at platform commit
+`9550e53a`. Its nonpersistent timers resolve to 01:15/01:20 PDT, all corrected
+installed pins match, the new-cycle state is absent, recurring timers are
+disabled/inactive, and its focused/broader suites pass. Explicit activation
+approval remains required. If approved, one 01:42 observation-only
+reconciliation will clean up the spent units; fresh runtime gates still decide
+whether the read-only scan starts.
+
 **October 20 F2 result:** the two exact-date timers fired and are now disabled,
 but preparation failed after five seconds and final failed immediately. No
 archive row or scan result was produced. The exact preparation sub-gate is

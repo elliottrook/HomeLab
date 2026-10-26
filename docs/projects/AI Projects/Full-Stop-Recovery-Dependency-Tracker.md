@@ -62,6 +62,14 @@ one-expected-skip target-Linux suites. Installed hash/custody and the October
 healthy. The next gate is a fresh date-specific card and separate activation
 approval; no timed test is currently scheduled.
 
+The fresh October 27 candidate is now committed at platform commit `9550e53a`.
+Stream A's [independent activation review](evidence/F2-exact-cycle-activation-review-2026-10-27.md)
+matched all source/timer pins, resolved the target calendars to 01:15/01:20
+PDT, confirmed the new-cycle state absent and recurring timers disabled, and
+passed 3/3 focused plus 53-pass/one-expected-skip broader tests. Exact activation
+approval is now the only static blocker; runtime backup, pull, identity,
+quiet-host and absence checks remain fresh fail-closed gates.
+
 The conditional [October 26 F3 conversion](evidence/F3-from-F2-no-go-2026-10-26.md)
 then failed closed at its first gate. Because F2 was not complete and contained
 no accepted archive rows, the converter was not invoked and no retained receipt
