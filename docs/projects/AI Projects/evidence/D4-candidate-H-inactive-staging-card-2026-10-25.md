@@ -1,6 +1,6 @@
 # D4 candidate-H inactive staging card — 2026-10-25
 
-**State:** exact local card; validation passes; platform review required before installation
+**State:** completed on second approved attempt; inactive target validation passed
 
 ## Purpose
 
@@ -98,3 +98,6 @@ active and `/etc/aster/aster.env` remained root:aster mode 0640. The corrected
 validator uses `SourceFileLoader`, has an explicit extensionless-path regression
 test, and has the replacement SHA-256 recorded above. A retry is a new exact
 host change and requires its own approval.
+
+The separately approved retry passed. Its measured result is recorded in
+[attempt 2](D4-candidate-H-inactive-staging-attempt-2-result-2026-10-25.md).

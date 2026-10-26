@@ -1255,6 +1255,9 @@ the child could reopen the protected file despite environment exclusion. The
 [dedicated-identity correction](evidence/D4-candidate-H-unprivileged-execution-correction-2026-10-25.md)
 uses fixed UID/GID 977 with no supplementary groups, separates immutable inputs
 from private outputs, and passes nine focused tests plus the complete 168-test
-suite. It is source-only. An independently reviewed inactive installation and
-target-Linux negative custody probes must pass before any live run can be
-considered.
+suite. Its first inactive install rolled back on an extensionless-loader defect;
+the corrected second attempt passed the target-Linux negative custody and
+fictional-descriptor probes with zero credential reads and zero model calls.
+The unit remains static and inactive. A live run still requires fresh
+F2/F3/F4/F5 evidence, executable F6 recovery, an exact run card and a separate
+model-call approval.

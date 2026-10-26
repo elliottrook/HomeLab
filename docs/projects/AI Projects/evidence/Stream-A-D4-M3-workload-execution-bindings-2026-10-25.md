@@ -19,10 +19,11 @@ The approved and unspent run digest is
 The runner in that frozen packet has SHA-256
 `10889d30becdb613debf034a2766fd1313cd25c51a2cea26a7511e0e70776936`.
 
-There is no installed or staged D4 production runner or journal. The platform
-owner's proposed boundary is `/var/lib/aster/d4-candidate-g/`, root-owned mode
-`0700`, with root-owned mode-`0600` files and future `run.json` and
-`attempt-journal.jsonl` outputs. That proposal is not installed or approved.
+There is no D4 journal and no production runner has executed. Candidate-G was
+never staged. Candidate-H is installed inactive under its validated dedicated
+identity: immutable inputs in `/var/lib/aster/d4-candidate-h`, an empty private
+output directory, and a static inactive oneshot unit. This staging does not
+authorize execution.
 
 The frozen runner reads `ASTER_LLAMA_API_KEY` from its environment. The
 platform-owned F6 boundary instead requires credential delivery by the
@@ -31,12 +32,11 @@ input, never through argv, environment, JSON, journal or logs. The first
 [source-only launcher proposal](D4-candidate-H-descriptor-launcher-proposal-2026-10-25.md)
 was rejected because its root child could reopen the credential file. The
 [corrected proposal](D4-candidate-H-unprivileged-execution-correction-2026-10-25.md)
-drops the child to a fixed unprivileged identity with no supplementary groups
-and passes its synthetic suite, but it is not independently accepted or
-installed. Therefore:
+drops the child to fixed UID/GID 977 with no supplementary groups. Its inactive
+target installation and fictional custody validation pass. Therefore:
 
 - do not source `/etc/aster/aster.env`;
-- do not stage or execute candidate-G;
+- do not stage or execute candidate-G and do not start candidate-H;
 - do not create either output file; and
 - retain the candidate as exact and unspent while this interface is resolved.
 
