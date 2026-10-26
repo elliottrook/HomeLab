@@ -1567,3 +1567,22 @@ in 8/8 cases and recorded zero unsafe claims. The accepted model and Speech
 services remained healthy with zero restarts. This closes only the narrow
 fixed-Speech usefulness gate; automatic routing remains off and no repair,
 administrative or broader diagnostic authority follows.
+
+The NLU policy mismatch exposed by the first dense-encoder nested evaluation is
+now resolved at the decision boundary. Jason has
+[accepted confidence-policy v2](evidence/M3-NLU-confidence-policy-v2-acceptance-2026-10-26.md),
+which counts all accepted NLU decisions for coverage while keeping routed
+privacy and unsafe effects behind separate zero-tolerance gates. The acceptance
+artifact is bound to the exact proposal at SHA-256 `3ba7b808…31932e`; the
+derived accepted decision artifact is `7ed39472…4752a9`. This changes only the
+evaluation policy. The rejected dense encoder remains rejected, the holdout
+remains sealed and automatic routing remains off. The next M3 work is the v2
+scorer/registration implementation followed by materially stronger candidates
+on the six exposed development sets.
+
+The current programme-level remainder is recorded in the
+[October 26 milestone reconciliation](evidence/Stream-A-milestone-reconciliation-2026-10-26.md).
+It distinguishes the F2–F6 lab-hours/recovery dependency from the main Aster
+delivery sequence: M3 candidate qualification, broad SA1–SA3/D4 investigation,
+one supervised SA4 repair, M4 evidence restore, M5 shadow, M6 decision and
+SA5/M7 graduation.
