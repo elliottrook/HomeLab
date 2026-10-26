@@ -8,7 +8,7 @@ from unittest.mock import Mock
 
 from portal.server import (Handler, _lazylibrarian_request, action_key,
                            load_recommendations, reject_item, render_html,
-                           render_transfer_log_html, save_transfer_upload,
+                           render_transfer_log_html, render_transfers_html, save_transfer_upload,
                            _transfer_records)
 from portal.refresh import (_prepare_candidates, _seerr_candidate,
                             _unique_exact_album, collect_tmdb_recommendations)
@@ -194,6 +194,13 @@ class PortalTests(unittest.TestCase):
                 "portal.server.TRANSFER_INBOX_PATH", Path(directory)):
             with self.assertRaises(RuntimeError):
                 save_transfer_upload("playlist.exe", b"not a playlist")
+
+    def test_transfer_page_accepts_and_uploads_multiple_files(self):
+        page = render_transfers_html()
+        self.assertIn("multiple required", page)
+        self.assertIn("const files=[...input.files]", page)
+        self.assertIn("for(const file of files)", page)
+        self.assertNotIn("input.files[0]", page)
 
     def test_transfer_log_reads_latest_report_and_inbox(self):
         with tempfile.TemporaryDirectory() as directory:

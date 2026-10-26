@@ -167,6 +167,8 @@ Later runs can improve the playlist as additional tracks arrive.
   the established integrity-tool pattern; update Cron Job 3 to process the inbox every six hours.
 - [x] Add the portal upload page and separate polling transfer log page locally, with bounded file
   types/size and no credential-bearing upload payloads.
+- [x] Allow one browser selection to upload multiple export files sequentially, retaining the
+  existing per-file format and 10 MB size checks and reporting any individual failures.
 - [x] Change the bridge default hold to 72 hours and persist per-run JSON reports.
 - [ ] Add JSON reports, backup coverage, and a `lab doctor` freshness/failure check.
 - [ ] Evaluate Cmdarr separately with one disposable live-source playlist before enabling its
