@@ -8678,3 +8678,35 @@ voice search: first exact remote/microphone capability discovery and an
 explicit press/listening/cancel state, then a bounded local-STT transport and
 handoff to the accepted grouped search. Ambient recording, hidden capture,
 cloud speech and production activation remain out of scope.
+
+### V2-A voice search — hardware/privacy foundation, 2026-10-26
+
+Read-only HP discovery found no G20 voice dongle or USB microphone. The present
+input inventory is a Logitech Bolt receiver plus ordinary platform controls;
+the only capture PCM is the PC's HDA analogue input. Neither is evidence for a
+remote microphone or microphone-button event, so no device was guessed or
+opened. A read-only production-box query was also refused because its SSH host
+key does not match the saved identity; the mismatch was not bypassed or
+accepted. Exact production hardware discovery therefore remains pending a
+trusted host-key reconciliation or a temporary move of the known remote to HP.
+
+`voice_search.py` establishes the no-I/O contract. It parses bounded Linux
+input and ALSA capture inventories, but reports `unconfigured` until one exact
+input name, event handler, empirically observed event code and capture PCM are
+recorded together. Both event and capture must remain present before a session
+can start. Its explicit state machine permits only press-to-listen → bounded
+capture → transcribing → the existing normalized grouped-search query. Cancel
+and ten-second expiry discard the session state; malformed inventories,
+transitions, audio size/duration or transcript fail closed. It cannot open a
+device, persist audio, contact speech or activate Kodi.
+
+The existing Aster Speech service already provides temporary-file-only
+`POST /v1/stt` with a 15 MiB limit, but it currently accepts the Companion
+recovery key or Companion JWT. Neither credential belongs on a television.
+Before a live HP trial, add a separately approved STT-only television identity
+and exact network/endpoint restriction, with private source-local custody,
+revocation and no TTS/agent authority. Capture feasibility must also be proven
+on the actual remote; LibreELEC currently exposes no `arecord` command. This is
+a genuine integration gate, not a reason to reuse a broader credential or
+silently fall back to cloud speech. Six focused tests pass in normal and
+optimized Python alongside the accepted grouped-search tests.
