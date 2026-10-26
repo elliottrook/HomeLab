@@ -54,11 +54,12 @@
   now have an isolated HP preview2 with two passing native runs and inspected
   stale-state pixels. It is not a replacement for normal Home. HA's sanitized
   source is current, but HP's delivered copy is expired; values stay hidden.
-  The bounded delivery validator now passes826 tests, normally and optimized;
-  its actual HA capture remains unverified because VM103's guest agent stopped
-  answering during read-only checks, although the VM reports running. No data
-  was published. Next: validate the full capture after guest-agent recovery;
-  do not restart HA or create delivery schedules to bypass that dependency.
+  The bounded delivery validator now passes826 tests, normally and optimized.
+  The approved guest-agent-only recovery is complete; the actual source capture
+  now passes twice after removing raw Unicode from command arguments. Agent,
+  VM boot, Core uptime and unchanged unit configuration are verified below.
+  No data was published. Next: prepare a separately checkpointed one-shot HP
+  feed publication; runtime delivery ownership/scheduling remains an open gate.
   Owner checks are deferred for a larger batch, not requested now. Forgejo/GitHub
   are synchronized through68b2285f; newer milestones are local only.
 - Previous resume point (2026-10-25): Search14 Stop-acknowledgement guard is on
@@ -6375,3 +6376,81 @@ committed as `e0605de4`; the next live capture is blocked on guest-agent recover
 A checkpointed guest-agent-only repair needs a distinct HA-side risk decision,
 not the HP lab deployment authorization. Keep Core/VM restarts out of that repair
 unless separately justified and approved. Production and HP data remain unchanged.
+
+### Approved VM103 guest-agent-only recovery — pre-start (2026-10-25)
+
+Jason approved a checkpointed guest-agent-only repair, with no Home Assistant
+Core/VM restart. Fresh checks still show running VM103, enabled agent, existing
+serial0 and QGA/QMP sockets, but agent ping times out. Scope: preserve private
+before/after selected metadata, attempt one documented QGA protocol resync, then
+inspect the existing local serial console if necessary. A confirmed inactive or
+failed agent may be started/restarted as that service only; no HA configuration,
+credentials, debug SSH, package installation, VM hardware or network change.
+Do not interrupt an unknown active console workflow or keep a host login open.
+Use the existing host-admin break-glass route, not a new AI credential. No speech.
+Recovery retains unchanged agent configuration and private evidence; stop if a
+service-only recovery fails or requires Core/VM restart. This temporary repair
+does not add a service or change inventory/monitoring identities. Validate HTTP
+health, guest ping and two bounded source captures, without publishing any feed.
+
+### VM103 guest-agent recovery — completed evidence (2026-10-25)
+
+Private host checkpoint:
+`/root/aster-home-qga-repair-20261026T022848Z` on Proxmox. The verified
+`before.json` SHA-256 is
+`833713591bab8711e7c79cc0304a94f28daa1b073ee74b2c24a4e823549d7d4c`.
+It contains selected public configuration and socket/process metadata, not
+credentials or full VM configuration. QEMU process6852 and sockets were present.
+
+One [QEMU-documented protocol resync](https://www.qemu.org/docs/master/interop/qemu-ga-ref.html#command-guest-sync-delimited)
+used the0xFF sentinel and a checked nonce. It restored a normal Proxmox ping,
+but the subsequent original capture command failed and ping became unavailable
+again. That was transient recovery, not a pass. We did not repeat that failing
+command after the targeted repair. The installed Proxmox client source was
+inspected read-only; no Proxmox package/client patch was made.
+
+The existing `serial0` console was at a login prompt. Its established local
+root-console route allowed read-only inspection without an SSH/debug account,
+API key or network exposure. The conventional `qemu-guest-agent.service` unit
+does not exist here; actual unit discovery found enabled `qemu-guest.service`.
+Its pre-repair state was active/running, PID407. The verified
+`actual-service-before.json` records boot ID
+`52a90866-9b11-4dac-ac70-2e8d09ed7815`, Core container start
+`2026-10-17T23:38:42.680425736Z` and unit-file SHA-256
+`889adce1ced34152bb927083037266a091e893beb59c2a393e1e1b1c13b175d1`.
+
+Requested exactly one `systemctl --no-block restart qemu-guest.service` through
+that console. The request marker prevents accidentally repeating it on resume.
+The service recovered active/running as PID989687. Console sessions were exited;
+no shell or network session was intentionally left available. Core start, guest
+boot ID, QEMU process and unit-file checksum are unchanged: no Core/VM restart,
+unit edit, package installation, hardware, firewall or credential change.
+
+The capture command contained raw degree characters in its jq program. Those
+arguments are now ASCII-only (`\u00b0` escapes interpreted by jq), avoiding
+implicit Unicode conversion in the CLI/Perl/socket path. A regression check
+enforces ASCII command transport while the actual jq expression still validates
+both exact temperature units. Encoding is a plausible contributor, not a proven
+exclusive root cause: recovery also restarted the agent, and deliberately
+breaking the live connection again with the old command was not justified.
+
+Two complete real-source checks pass through the normal `qm guest exec` path,
+not the serial console: fresh report mtime `2026-10-26T02:33:52+00:00`, counts
+one light/one temperature/one weather,480 candidate bytes, zero camera requests,
+no HP change and no publication. Normal ping also passes after both captures.
+HA HTTP remains200. All826 local tests pass normally and optimized after the
+transport correction. This validates live capture, not unattended delivery or
+owner acceptance of live Home values. No household reading values were printed
+or retained as test fixtures, and no existing feed was changed.
+The independently re-read private `final.json` is verified, SHA-256
+`dce7aa5da763f97d1df6a457aa6edee716d6de88f01637959a8155eba85b07c5`:
+active PID989687, unchanged QEMU PID/boot/Core/unit and successful final ping.
+
+Recovery/operations: retain the private checkpoint and unchanged enabled unit.
+For this HA OS use the discovered unit name, not a generic distribution's name.
+Do not re-run the consumed restart blindly. On a future fault, inspect/ping and
+check the documented sync protocol before considering another bounded repair;
+never replace a whole VM or Core restart for an agent-only fault. No service was
+added/removed/renamed, so existing NetBox/Beszel identities, backup retention and
+network records remain unchanged. Runtime publication/monitoring ownership is
+still required before delivery graduation. No Forgejo push is authorized here.

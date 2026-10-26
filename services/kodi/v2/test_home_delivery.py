@@ -134,6 +134,10 @@ class SourceCheckTests(unittest.TestCase):
         command=shlex.split(checker.source_command())
         self.assertEqual(command[:7],['qm','guest','exec','103','--','sh','-c'])
         self.assertIn(checker.SOURCE,command[7])
+        # QGA/Proxmox command arguments must not depend on implicit Perl/socket
+        # Unicode encoding. jq still interprets the exact Celsius/Fahrenheit units.
+        self.assertTrue(checker.source_command().isascii())
+        self.assertIn(r'\u00b0C', checker.source_filter())
         self.assertEqual(command[7].count('stat -c'),3)
         self.assertIn('head -c 262145',command[7])
         for banned in ('curl','frigate','scp','rsync','mktemp','chmod','mv ', 'sleep', 'tee ', '>>'):

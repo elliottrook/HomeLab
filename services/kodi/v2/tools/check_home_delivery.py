@@ -39,7 +39,7 @@ select((.weather|type == "array" and length <= 1) and
     .alias == "home weather" and (.condition as $c | WEATHER | index($c) != null) and
     ({unit:.unit,value:.temperature}|temperature) and
     ((has("humidity")|not) or (.humidity|type == "number" and . >= 0 and . <= 100))))
-'''.replace('KEYS', keys).replace('TEMPS', temps).replace('WEATHER', weather)
+'''.replace('KEYS', keys).replace('TEMPS', temps).replace('WEATHER', weather).replace('°', r'\u00b0')
 
 
 def source_command():
