@@ -8052,3 +8052,38 @@ restart then persisted that exact mode in `guisettings.xml` while retaining the
 three-minute timeout. Explicit activation after restart logged loading
 `screensaver.asterhome.v2lab/.../AsterIdle.xml`. The corrected Aster saver is
 now on screen for human visibility/motion review. Production remains unchanged.
+
+### M5 final AsterTV idle identity and movement correction — 2026-10-26
+
+Human review confirmed that the selected Aster saver was finally visible, but
+rejected the continuous path as resembling a logo crawling slowly across the
+screen. The final HP candidate therefore has no travelling animation. It uses
+a 14-second cycle: the mark fades into one display-safe pseudo-random position,
+remains stationary for roughly 9.5 seconds, fades away, remains absent briefly,
+and then reappears at a different position. Sixty-four-cycle testing produced
+at least 60 distinct positions, all inside an 84-pixel safe boundary. The
+screen remains an otherwise content-free black field; no clock, household data,
+camera image, media metadata, sound or network access was added.
+
+The generic legacy mark was replaced with the owner-approved AsterTV product
+lockup from private brand release `aster-brand-v2-tv-2026-10-22`, asset
+`32-aster-tv-logo`. The release ZIP SHA is
+`6a888ef158f9272f56e73c84494b20c7d7190a6e474deed403e6c72b474c95b0`;
+the exact installed 512-pixel PNG SHA is
+`147bed555587f8c932a860deab48ba64c2e5b6204f0840627d7669a29a34c4f7`;
+and its outlined SVG source SHA is
+`911175f5b63a703930def4aa959652a34d3b5f5b7eef178e63834689a29d2a2d`.
+The raster is copied without recreation or modification and rendered at
+320x206 with aspect ratio preserved and restrained 72% alpha.
+
+The final immutable candidate manifest is
+`8756238b796579dbff1cfc1ecb6e9fc976561235e579b00c5c258f1155fa92ba`.
+The bounded HP upgrade checkpointed only the runtime model, layout and mark at
+`/storage/.aster-checkpoints/aster-visible-idle-logo-1793028233637900198`,
+atomically replaced those three files and reverified their exact hashes. A
+clean Kodi restart retained `screensaver.asterhome.v2lab` and the existing
+three-minute timeout in `guisettings.xml`; explicit activation logged the
+expected `AsterIdle.xml`. All 997 Kodi v2 tests pass in both normal and
+optimized Python. Production remains unchanged. Final human review of the
+randomized fade cadence is pending; rollback is the exact private checkpoint,
+not a guessed native setting.

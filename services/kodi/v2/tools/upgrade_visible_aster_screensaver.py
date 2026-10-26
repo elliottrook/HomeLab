@@ -14,10 +14,11 @@ import xbmcgui
 ROOT=Path(__file__).resolve().parent
 TARGET=Path('/storage/.kodi/addons/screensaver.asterhome.v2lab')
 CHECKPOINTS=Path('/storage/.aster-checkpoints')
-CHANGED=('idle_presentation.py','resources/skins/Default/1080i/AsterIdle.xml')
+CHANGED=('idle_presentation.py','resources/skins/Default/1080i/AsterIdle.xml','resources/mark.png')
 OLD={
- 'idle_presentation.py':'c01c28dcd7d5a1d000e3c0dce33223563de43ba21fd6a6d6423b8b2828b6f96b',
- 'resources/skins/Default/1080i/AsterIdle.xml':'e5551d46847dd027a3ac1967cb6ccee9ecfb001ca2c996887c622aafd486ff23'}
+ 'idle_presentation.py':'278aefa8c1510629b4d87bbcdd88471878f4b81630ac435ef7fa7bf97f107fcc',
+ 'resources/skins/Default/1080i/AsterIdle.xml':'2b703d10cbc60fbc6ef2e7c726ab50c0abda92deb4d437100e566cc6342d4591',
+ 'resources/mark.png':'62f29492ac60b034df405d497817ac5e6ce7ce1ec536d946c63bed5659eb8ffd'}
 
 def require(ok,code):
     if not ok:raise RuntimeError(code)

@@ -6,7 +6,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 import zipfile
 IDENTITY='screensaver.asterhome.v2lab'
-MARK_SHA='62f29492ac60b034df405d497817ac5e6ce7ce1ec536d946c63bed5659eb8ffd'
+MARK_SHA='147bed555587f8c932a860deab48ba64c2e5b6204f0840627d7669a29a34c4f7'
 SOLID_SHA='60ffd2c283635d9875ee649d4dd294fb97af2443ff05508d968c858b011dbea0'
 
 def xml(node):return ET.tostring(node,encoding='utf-8',xml_declaration=True)+b'\n'
@@ -23,11 +23,12 @@ def layout():
     root=ET.Element('window',type='dialog');ET.SubElement(root,'backgroundcolor').text='ff000000'
     controls=ET.SubElement(root,'controls')
     for n,x,y,w,h,texture,tint in ((1,0,0,1920,1080,'resources/solid.png','ff000000'),
-        (10,100,90,320,208,'resources/mark.png','b8ffffff')):
+        (10,100,90,320,206,'resources/mark.png','b8ffffff')):
         c=ET.SubElement(controls,'control',type='image',id=str(n))
         for key,value in dict(left=x,top=y,width=w,height=h).items():ET.SubElement(c,key).text=str(value)
         ET.SubElement(c,'texture',colordiffuse=tint).text='special://home/addons/'+IDENTITY+'/'+texture
         ET.SubElement(c,'aspectratio').text='stretch' if n==1 else 'keep'
+        if n==10:ET.SubElement(c,'animation',effect='fade',start='0',end='100',time='900').text='VisibleChange'
     return xml(root)
 def settings():
     root=ET.Element('settings')
@@ -37,7 +38,7 @@ def settings():
 def build(output):
     here=Path(__file__).resolve().parent;root=Path(output);root.mkdir(mode=0o700)
     media=here.parent/'skin.asterhome/media'
-    mark=(media/'aster-home-logo-512.png').read_bytes();solid=(media/'ui-solid.png').read_bytes()
+    mark=(media/'32-aster-tv-logo.png').read_bytes();solid=(media/'ui-solid.png').read_bytes()
     if hashlib.sha256(mark).hexdigest()!=MARK_SHA or hashlib.sha256(solid).hexdigest()!=SOLID_SHA:
         raise ValueError('idle-approved-asset-drift')
     files={'addon.xml':addon(),'default.py':(here/'idle_screensaver/default.py').read_bytes(),

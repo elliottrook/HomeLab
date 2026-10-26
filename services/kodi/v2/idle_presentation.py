@@ -1,12 +1,12 @@
-"""Content-free Aster logo drift; no title, clock or household inputs."""
+"""Content-free Aster logo constellation; no title or household inputs."""
 from dataclasses import dataclass
 import math
 
-POSITIONS=((100,90),(800,90),(1500,90),(1500,423),(1500,755),
-    (800,755),(100,755),(100,423),(800,423))
 MARK_WIDTH=320
-MARK_HEIGHT=208
-PERIOD=30
+MARK_HEIGHT=206
+PERIOD=14
+VISIBLE_FROM=1
+VISIBLE_UNTIL=10.5
 
 @dataclass(frozen=True)
 class Frame:
@@ -17,12 +17,13 @@ class Frame:
 def frame(mode,elapsed):
     if mode!='aster' or type(elapsed) not in (int,float) or not math.isfinite(elapsed) or elapsed<0:
         return Frame()
-    index=int(elapsed//PERIOD)%len(POSITIONS)
-    following=(index+1)%len(POSITIONS)
-    phase=(elapsed%PERIOD)/PERIOD
-    # A cosine ease keeps the movement calm at each turn without ever leaving
-    # the screen blank. The mark remains in motion to protect the display.
-    eased=(1-math.cos(math.pi*phase))/2
-    x=round(POSITIONS[index][0]+(POSITIONS[following][0]-POSITIONS[index][0])*eased)
-    y=round(POSITIONS[index][1]+(POSITIONS[following][1]-POSITIONS[index][1])*eased)
-    return Frame(True,x,y)
+    cycle=int(elapsed//PERIOD)
+    def mix(value):
+        value=(value+0x9e3779b9)&0xffffffff
+        value=((value^(value>>16))*0x85ebca6b)&0xffffffff
+        value=((value^(value>>13))*0xc2b2ae35)&0xffffffff
+        return value^(value>>16)
+    x=84+mix(cycle*2)%(1920-168-MARK_WIDTH+1)
+    y=84+mix(cycle*2+1)%(1080-168-MARK_HEIGHT+1)
+    phase=elapsed%PERIOD
+    return Frame(VISIBLE_FROM<=phase<VISIBLE_UNTIL,x,y)
