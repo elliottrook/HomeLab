@@ -23,6 +23,7 @@ installed identities before producing any effect intent:
 | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_owner.py` | `74c8072793cbbcc68e40d0548065f55031c2b8e5bfeab3d9583069aa4c8a22a1` |
 | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_owner_heartbeat.py` | `4c45a07098eb8cca31bf95bb50b0824b65c6772e636627b23219761f359ed6cc` |
 | `/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_restore_observer.py` | `70748eb15c50ff7008cadd85fe9affaf62c9ad3eb388ef962270f9f9389fc1d3` |
+| `/usr/local/libexec/local-ai-lease/trusted_observer.py` | `6091b5572764abf3675d9140e760083a1482fee8abfef8fc763fb72853618f5f` |
 | `/usr/local/sbin/stream-a-evaluation-lease` | `15f3de1ebb5294878d5f0ce0c6a0b7c03a64b42a71c081fda6d036b0c1ef71af` |
 | `/usr/local/sbin/stream-a-evaluation-owner` | `4d4e848eeafffdfa3aa9a0ba84097d94487318235442b1a4e4b8edc04a043014` |
 | `/usr/local/sbin/stream-a-evaluation-owner-heartbeat` | `e0162f60983601192c5f0fdd6d8395604e6636c05c9653c643d3722872dce12a` |
@@ -48,6 +49,11 @@ LXC110 runner
 `/var/lib/aster-nlu-calibration/nlu-calibration-v1/nlu_calibration_runner.py`
 at `b8ada869…e11` and manifest
 `69ffc58928ebd2f2f64e0600b8c4a7d73ce5f5356c485e1df8c2265741972165`.
+The F4/F5 and recovery authentication boundary additionally fixes LXC110
+`/usr/local/libexec/aster-a1/llama_auth_probe.py` at
+`93e78f8a9c40bb9808ac71c5215404c8f10b3e5116383095d196281293682582`.
+It must require no-auth `401`, fixed-invalid-bearer `401`, then real-key `200`
+with the exact accepted model, using GET-only metadata and no inference body.
 
 ## Fixed runtime paths and identities
 
@@ -90,6 +96,13 @@ The timer dependency starts the fixed owner service; the operator must not
 manually start it because the unit has `RefuseManualStart=yes`. Continue only
 after the fixed identity and a matching unexpired heartbeat exist and both
 timers are enabled and active.
+
+Independent platform review confirmed this dependency order is structurally
+sound: the heartbeat timer invokes the heartbeat service, whose `Requires=`
+edge dependency-starts the owner service; the matching-heartbeat gate prevents
+progress before that owner has written its exact identity. The watchdog timer
+is then armed before acquisition and remains inert until durable lease state
+exists.
 
 Every lease phase has this command shape, with the phase and fixed intent file
 selected by the orchestrator:
