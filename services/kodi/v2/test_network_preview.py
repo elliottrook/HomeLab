@@ -18,8 +18,9 @@ class NetworkPreviewTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder).resolve()/'bundle';pin=build(root)
             manifest=json.loads((root/'manifest.json').read_text())
-            self.assertEqual(len(manifest['files']),3)
-            self.assertFalse(manifest['network_probes']);self.assertFalse(manifest['network_changes'])
+            self.assertEqual(len(manifest['files']),4)
+            self.assertTrue(manifest['network_probes']);self.assertTrue(manifest['explicit_service_checks'])
+            self.assertFalse(manifest['network_changes'])
             spec=importlib.util.spec_from_file_location('network_preview',root/'default.py')
             module=importlib.util.module_from_spec(spec)
             with patch.dict(sys.modules,xbmc=types.ModuleType('xbmc'),xbmcgui=types.ModuleType('xbmcgui')):
@@ -34,7 +35,7 @@ class NetworkPreviewTests(unittest.TestCase):
         root=ET.fromstring(layout())
         fonts={n.text for n in ET.parse(HERE.parent/'skin.asterhome/1080i/Font.xml').findall('.//name')}
         self.assertTrue(all(n.text in fonts for n in root.findall('.//font')))
-        for n,right in ((200,'201'),(201,'200')):
+        for n,right in ((200,'203'),(203,'201'),(201,'200')):
             control=root.find(".//control[@id='%d']" % n)
             self.assertEqual(control.findtext('onright'),right)
             self.assertEqual(control.findtext('onup'),'noop')
@@ -50,7 +51,8 @@ class NetworkPreviewTests(unittest.TestCase):
             self.assertNotIn(banned,script)
         self.assertIn('network settings were NOT changed',script)
         self.assertIn("sys.argv[2]!='offline-demo'",script)
-        self.assertIn('if self.finished or not self.refresh:return',script)
+        self.assertIn('elif self.check_services:self.render_services()',script)
+        self.assertIn('if demo:return',script)
 
     def test_entry_list_is_bounded_and_honest_about_truncation(self):
         spec=importlib.util.spec_from_file_location('network_entry',HERE/'network_preview/default.py')

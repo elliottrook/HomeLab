@@ -13,7 +13,8 @@ import xbmc
 import xbmcgui
 
 ROOT=Path(__file__).resolve().parent
-MEMBERS={'default.py','network_diagnostics.py','resources/skins/Default/1080i/NetworkPreview.xml'}
+MEMBERS={'default.py','network_diagnostics.py','network_service_checks.py',
+    'resources/skins/Default/1080i/NetworkPreview.xml'}
 BACK={9,10,92,216,247,257,275}
 
 
@@ -22,9 +23,10 @@ def verify(pin):
     raw=(ROOT/'manifest.json').read_bytes()
     if hashlib.sha256(raw).hexdigest()!=pin:raise ValueError('network-preview-manifest')
     value=json.loads(raw)
-    if (value.get('kind')!='hp-network-preview.v1' or len(value['files'])!=3
+    if (value.get('kind')!='hp-network-preview.v2' or len(value['files'])!=4
         or {r['path'] for r in value['files']}!=MEMBERS or
-        any(value.get(k) is not False for k in ('normal_entry','network_probes','network_changes'))):
+        any(value.get(k) is not False for k in ('normal_entry','network_changes')) or
+        value.get('network_probes') is not True or value.get('explicit_service_checks') is not True):
         raise ValueError('network-preview-contract')
     for row in value['files']:
         path=ROOT/row['path']
@@ -42,6 +44,7 @@ def run(pin,demo):
     verify(pin)
     sys.path.insert(0,str(ROOT))
     import network_diagnostics as network
+    import network_service_checks as services
     sys.path.insert(0,'/storage/.aster-staging/aster-digest-player8/resources/lib')
     import deploy_startup as guard
     if not guard.idle() or xbmcgui.getCurrentWindowId()!=10000:return
@@ -49,11 +52,14 @@ def run(pin,demo):
 
     class NetworkPreview(xbmcgui.WindowXML):
         def onInit(self):
-            self.identity=xbmcgui.getCurrentWindowId();self.revision=0
+            self.identity=xbmcgui.getCurrentWindowId();self.revision=0;self.service_revision=0
+            self.check_services=False
+            self.setProperty('NetworkPreview.ServiceRevision','0')
             self.getControl(504).setLabel('Offline demonstration · network settings were NOT changed' if demo
-                else 'Read-only local facts · no gateway, DNS, media-service or Internet probes')
+                else 'Local facts · optional checks of two named private media endpoints · no sign-in or playback test')
             self.getControl(501).setLabel('Reading local configuration…')
             self.setFocusId(200);self.refresh=True
+            self.getControl(203).setEnabled(False)
             home.setProperty('AsterNetwork.PreviewWindow',str(self.identity))
 
         def onClick(self,n):self.commands.put(('click',n))
@@ -66,8 +72,13 @@ def run(pin,demo):
                 except Empty:break
                 if kind=='back' or n==201:
                     if guard.idle():self.finished=True;self.close()
-                elif n==200:self.refresh=True
-            if self.finished or not self.refresh:return
+                elif n==200:self.refresh=True;self.check_services=False
+                elif n==203 and not demo:self.check_services=True
+            if self.finished:return
+            if self.refresh:self.render_facts()
+            elif self.check_services:self.render_services()
+
+        def render_facts(self):
             self.refresh=False;self.setProperty('NetworkPreview.Ready','false')
             self.getControl(501).setLabel('Reading local configuration…');self.repaint()
             facts=network.model('', 'Iface Destination Gateway Flags RefCnt Use Metric Mask MTU Window IRTT\n',
@@ -80,12 +91,47 @@ def run(pin,demo):
             self.getControl(512).setText(facts.gateway or 'No unambiguous gateway address is configured.')
             self.getControl(513).setText(display_lines(list(facts.dns),'No configured DNS server was found.'))
             self.getControl(514).setText('\n'.join(facts.notes))
+            self.facts_notes=facts.notes
             self.getControl(505).setLabel('Reachability: '+facts.reachability+' · Refreshed '+facts.observed_at)
+            self.getControl(516).setText('Disabled in offline demonstration.' if demo else
+                'Not tested · select Check media services to send two private HTTP requests.')
+            self.getControl(203).setEnabled(not demo)
+            self.setProperty('NetworkPreview.ServiceRequests','0')
+            self.setProperty('NetworkPreview.ServiceStatus','not-tested')
+            for i in range(2):self.setProperty('NetworkPreview.ServiceHTTP'+str(i),'none')
             self.revision+=1
             self.setProperty('NetworkPreview.State',facts.state)
             self.setProperty('NetworkPreview.Revision',str(self.revision))
             self.setProperty('NetworkPreview.Reachability',facts.reachability)
             self.setProperty('NetworkPreview.Ready','true');self.repaint()
+
+        def render_services(self):
+            self.check_services=False
+            if demo:return
+            self.getControl(516).setText('Checking two named private endpoints…');self.repaint()
+            results=services.check_all(lambda:xbmcgui.getCurrentWindowId()==self.identity
+                and guard.idle() and self.commands.empty())
+            if xbmcgui.getCurrentWindowId()!=self.identity:return
+            found={r.name:r for r in results};rows=[]
+            for name in services.ENDPOINTS:
+                value=found.get(name)
+                rows.append(name+' · '+(value.state+(' · HTTP '+str(value.status) if value.status is not None else '')
+                    +' · '+str(value.elapsed_ms)+' ms' if value else 'Not checked; cancelled'))
+            self.getControl(516).setText('\n'.join(rows))
+            self.getControl(514).setText('\n'.join(self.facts_notes[:-1]+(
+                'HTTP responses only; DNS, Internet, sign-in and playback remain untested.',)))
+            self.getControl(505).setLabel('Media endpoint responses only · DNS/gateway/Internet not tested · Checked '+
+                datetime.now(timezone.utc).strftime('%H:%M:%S UTC'))
+            self.service_revision+=1
+            self.setProperty('NetworkPreview.ServiceRevision',str(self.service_revision))
+            self.setProperty('NetworkPreview.ServiceRequests',str(len(results)))
+            for i,name in enumerate(services.ENDPOINTS):
+                value=found.get(name)
+                self.setProperty('NetworkPreview.ServiceHTTP'+str(i),
+                    str(value.status) if value and value.status is not None else 'none')
+            self.setProperty('NetworkPreview.ServiceStatus','complete' if len(results)==2 else 'cancelled')
+            self.setProperty('NetworkPreview.Reachability','Only media HTTP endpoints checked')
+            self.repaint()
 
         def repaint(self):
             self.setProperty('NetworkPreview.Paint','odd' if getattr(self,'paint',False) else 'even')

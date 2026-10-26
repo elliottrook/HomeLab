@@ -6797,3 +6797,49 @@ display-index exception, both databases and closed/idle/empty state. No active
 skin, Settings menu, network configuration, service, credential, HA or production
 change. Recovery is closing/omitting the new stage and restoring the backed-up
 test helper if needed. No push is authorized; local milestone only.
+
+### Stream A explicit media-endpoint checks — pre-start
+
+Extend the isolated Network pilot with an explicit Check media services button.
+Only named existing LAN endpoints are in scope: Jellyfin
+`192.168.20.40:8096/health` and Audiobookshelf `192.168.20.40:30067/ping`.
+The operational reference records the Jellyfin upstream; the accepted ABS guard
+already uses its ping route. Upstream primary source also declares
+[Jellyfin health](https://raw.githubusercontent.com/jellyfin/jellyfin/master/Jellyfin.Server/Startup.cs)
+and [ABS ping](https://raw.githubusercontent.com/advplyr/audiobookshelf/master/server/Server.js).
+Keep URLs compiled, no arguments/config/credential reads, no proxy/DNS discovery,
+no redirects, cookies, authentication or retries. Use one GET per endpoint,
+short socket timeouts, discard bodies and expose only status/category/timing.
+An HTTP response is not proof of playback, library permission, receiver audio,
+Internet or DNS health. No probing on open/local Refresh; offline-demo must send
+none. Clear previous service results after a local Refresh to avoid calling
+old results current. Test fake failures/redirect/auth/server errors locally,
+then bounded actual HP manual-button checks, cancellation/Back/Home and full
+preservation. No disconnect, route/firewall change, server change or production
+client contact. Existing pilot stages remain recoverable; no normal Settings
+entry, new service/schedule/credential, speech or monitoring object is created.
+
+#### Explicit media-endpoint checks — completed evidence
+
+Private Network preview2 has four pinned payload members at
+`/storage/.aster-staging/aster-network-preview2`, manifest SHA-256
+`52e8e80cf0b3b6382c9eeef08e9c548fd2d547163f0c5e5194ceecc7a78dbbb2`.
+Only Check media services issues requests: one direct unauthenticated GET per
+compiled LAN endpoint, no proxy, redirects, retries, response-body reads or
+credential access. Local Refresh clears results and does not probe. The offline
+demonstration disables checks. Socket connect/read timeouts are two seconds;
+this is not claimed as a hostile-stream absolute wall-clock deadline.
+
+Eight additional unit tests pass, full873-test suite normal/optimized. Two
+enforced native proofs pass, `aster-network-preview-1792986387542184277/native.json`
+and `aster-network-preview-1792986682437191180/native.json`. Both record HTTP200
+from both endpoints, no probes on open/local Refresh/offline-demo, correct
+Refresh/Back/Home context, unchanged network configuration and existing settings,
+idle/empty queues. The actual service-result screenshot was inspected: readable
+statuses/timings and explicit limits, no body/version/identity data. These are
+endpoint-response checks, not library sign-in, playback or Internet tests.
+Final `postcheck-1792986937058854090.json` passes48 Music/115 untouched v1 members,
+all exact approved overlays,68 AV/language checks with the previously evidenced
+derived display-index exception, both databases and closed/idle/empty state.
+No normal Settings entry or production change. Retain earlier stages for
+recovery. Local commit only; remote synchronization awaits a specific push.

@@ -52,9 +52,17 @@ try:
     until(lambda:opened() and prop('Ready')=='true' and focus(200) and
         xbmc.getInfoLabel('Control.GetLabel(501)')==baseline.state,'network-test-real-ready')
     require(prop('Reachability')=='Not tested' and prop('Revision')=='1','network-test-unproven-reachability')
+    require(prop('ServiceRequests')=='0','network-test-probed-on-open')
     xbmc.sleep(2500);require(prop('Revision')=='1','network-test-background-refresh')
     press('select');until(lambda:prop('Ready')=='true' and prop('Revision')=='2','network-test-manual-refresh')
     require(focus(200),'network-test-refresh-stole-focus')
+    require(prop('ServiceRequests')=='0','network-test-local-refresh-probed')
+    press('right');until(lambda:focus(203),'network-test-service-button-focus')
+    press('select')
+    until(lambda:prop('ServiceRevision')=='1' and prop('ServiceStatus')=='complete','network-test-explicit-check')
+    require(prop('ServiceRequests')=='2' and focus(203),'network-test-service-request-count')
+    result['observed_http_statuses']=[prop('ServiceHTTP0'),prop('ServiceHTTP1')]
+    require(prop('Reachability')=='Only media HTTP endpoints checked','network-test-media-only-claim')
     xbmc.sleep(1000);xbmc.executebuiltin('TakeScreenshot('+str(checkpoint/'local-network.png')+')');xbmc.sleep(700)
     press('right');until(lambda:focus(201),'network-test-back-button-focus')
     press('select');until(lambda:not opened() and xbmcgui.getCurrentWindowId()==10000 and focus(136),'network-test-back-context')
@@ -62,6 +70,8 @@ try:
     until(lambda:opened() and prop('Ready')=='true' and prop('State')=='No local IPv4 address' and
         'NOT changed' in xbmc.getInfoLabel('Control.GetLabel(504)'),'network-test-offline-demo')
     require(prop('Reachability')=='Not tested','network-test-offline-reachability')
+    require(prop('ServiceRequests')=='0' and prop('ServiceHTTP0')=='none' and prop('ServiceHTTP1')=='none',
+        'network-test-offline-probed')
     xbmc.sleep(1000);xbmc.executebuiltin('TakeScreenshot('+str(checkpoint/'offline-demo.png')+')');xbmc.sleep(700)
     reply=json.loads(xbmc.executeJSONRPC('{"jsonrpc":"2.0","id":1,"method":"Input.Home"}'))
     require('error' not in reply,'network-test-home-input')
@@ -71,6 +81,8 @@ try:
     result.update(passed=True,real_local_facts=True,no_background_collection=True,
         manual_refresh=True,focus_preserved=True,back_context=True,offline_demo=True,
         honest_reachability=True,home_exit=True,settings_unchanged=True,local_configuration_unchanged=True)
+    result.update(no_probes_on_open=True,no_probes_on_local_refresh=True,
+        explicit_media_checks=True,offline_demo_no_probes=True)
 except Exception as error:
     code=str(error);result['code']=code if re.fullmatch('[a-z0-9-]{1,100}',code) else type(error).__name__
 finally:
