@@ -1321,8 +1321,13 @@ That approved attempt then exposed a separate host import-root omission and
 rolled back completely; production and the October 26 F2 timers remained
 healthy. Platform V3 at `4d682e6f` pins both installed module roots, removes
 the last guest-only host import, passes 96/96 target-Linux tests and completes
-a temporary target import. V3 now needs a fresh exact inactive-install
-decision; the two consumed packets must not be retried.
+a temporary target import. Its subsequent
+[inactive installation](evidence/Stream-A-evaluation-composition-inactive-install-v3-2026-10-25.md)
+passed all 96 target tests, installed the exact 13 paths, imported through the
+two fixed module roots and returned the exact inert result in both guests. F6
+remains disabled and state-free. Fresh F3-F5 evidence, the activation/recovery
+card and live-effect approval remain open; the two consumed packets must not be
+retried.
 The
 [owner-before-heartbeat unit correction](evidence/Stream-A-F6-owner-heartbeat-ordering-inactive-install-2026-10-25.md)
 is installed inactive with a root-only rollback checkpoint, 4/4 focused tests
