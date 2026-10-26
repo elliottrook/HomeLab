@@ -8117,3 +8117,24 @@ runtime bundle, HP file or speech service was changed. The next meaningful gate
 is a bounded server-side measurement of the already-generated synthetic chapter
 audio; it must use the existing local recognizer without another TTS request and
 must keep any transcript/timing artifact private.
+
+#### Proposed bounded synthetic word-timing measurement
+
+The operational candidate is now prepared but not run. It targets only Aster
+Speech LXC116 and the existing immutable synthetic chapter WAV (SHA
+`d10997803ee99ae85f06545ab5b0bad71e91906735f4811c2119a632399de02b`).
+It loads the already-cached `base.en` model in a separate low-priority process
+with `local_files_only=True`, requests measured word timestamps, and applies
+the exact gate above. It makes zero TTS/API/network requests and does not change
+or restart either speech service. Full transcript and cue output, if any, stay
+mode0600 in a new mode0700 speech-server checkpoint; console output is counts,
+result code, elapsed time and unchanged-service status only.
+
+Read-only preflight finds LXC116 running with six cores, 4GiB RAM and 3.8GiB
+available; both speech units are active. The main availability risk is temporary
+CPU/memory pressure from loading a second Whisper instance. Run it only under a
+180-second outer timeout and low process priority; stop on missing cached model,
+changed source audio, service PID change or any non-exact transcription. A
+failed exact match is a useful negative result and must not be repaired by
+loosening the alignment gate or retrying silently. This one server-side compute
+and private-checkpoint operation requires a fresh bounded approval.
