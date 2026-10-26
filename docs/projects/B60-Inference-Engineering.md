@@ -12,6 +12,13 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October 26 launcher/feasibility receipt](B60-Inference-Engineering/launcher-fix-and-calibration-feasibility-receipt-20261026.md)
+receives `6b1ad3c4`: the launcher fix is reportedly installed/tested, with
+October 27 F2 and conditional F3 scheduled. Same-cycle F4/F5 sequencing now
+supersedes historical next-day advice. Eight pure offline tests verify the
+new calibration feasibility check; an impossible coverage corpus must not be
+treated as model-only failure. Live recovery/B60/A1 admission remains open.
+
 The [October 26 process-contract review](B60-Inference-Engineering/f2-process-contract-review-20261026.md)
 observes `OBSERVER_COMMUNICATION_FAILED` after successful preparation. The
 current CLI uses the previously reported wrong `subprocess.run` default;
