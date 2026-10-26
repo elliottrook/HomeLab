@@ -984,9 +984,15 @@ before postchecks and uses the same loop during rollback. Jason approved the
 final retry and the [live broker result](evidence/M1-D4-fixed-doctor-broker-reconciliation-result-2026-10-25.md)
 passes: both reconciled source hashes are live, registered-client health and
 database integrity pass, Forgejo project-document routing is preserved, fixed
-rows remain zero and the fixed services remain inactive. The next separate
-gate is dedicated gateway/caller activation, exactly one Green observer grant
-and one bounded live fixed read with a zero-row/disabled-service rollback.
+rows remain zero and the fixed services remain inactive. The separately
+approved [activation result](evidence/M1-D4-fixed-doctor-activation-result-2026-10-25.md)
+then passed after one pre-effect escaping correction: UID 978 is the sole fixed
+observer, one Green non-probationary grant exists, both dedicated units are
+active/enabled with zero restarts, and exactly one typed fixed request is
+consumed. Broker/Aster health, SQLite integrity and the Forgejo project-document
+route remain intact; the root-only rollback checkpoint is retained. The next
+gate is a preregistered usefulness evaluation through this fixed path, with any
+model route and broader authority still separate.
 
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)
 deployed caller binding and restrictive checks, while the
