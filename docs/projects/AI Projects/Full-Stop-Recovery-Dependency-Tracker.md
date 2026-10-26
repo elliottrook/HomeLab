@@ -54,6 +54,14 @@ accepts its predecessor/candidate/state pins, target-Linux default-entrypoint
 test, rollback and exclusions. One explicit host-change approval is now the
 only gate to this inactive installation; no timer or retry is included.
 
+Jason approved the card and the [inactive installation result](evidence/F2-observer-launcher-inactive-install-result-2026-10-26.md)
+passed. One incomplete test archive triggered and verified rollback; the
+corrected clean archive then passed the installed 15/15 and broader 50-pass,
+one-expected-skip target-Linux suites. Installed hash/custody and the October
+26 state digest match, timers remain disabled/inactive and production is
+healthy. The next gate is a fresh date-specific card and separate activation
+approval; no timed test is currently scheduled.
+
 The conditional [October 26 F3 conversion](evidence/F3-from-F2-no-go-2026-10-26.md)
 then failed closed at its first gate. Because F2 was not complete and contained
 no accepted archive rows, the converter was not invoked and no retained receipt

@@ -100,6 +100,14 @@ and 50 passed plus one expected skip out of 51. It remains source-only. A
 reviewed inactive installation and target-Linux installed-entrypoint proof are
 the next gates; no new timed cycle is scheduled.
 
+Jason approved that inactive installation. The first clean test package omitted
+historical fixtures and triggered a verified rollback; the rebuilt package then
+passed 15/15 installed coordinator tests and 50 passes plus one expected skip
+across the broader 51-test suite. Exact installed hash/custody and preserved
+October 26 evidence match, timers remain disabled/inactive and production is
+healthy. A fresh exact-cycle card and separate activation approval are now the
+only prerequisites to schedule another F2 attempt.
+
 **October 20 F2 result:** the two exact-date timers fired and are now disabled,
 but preparation failed after five seconds and final failed immediately. No
 archive row or scan result was produced. The exact preparation sub-gate is
