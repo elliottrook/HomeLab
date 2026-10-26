@@ -7879,3 +7879,88 @@ player, empty queues and no retained lab windows. No normal add-on registry,
 library selector or production runtime was changed. Local source checkpoint
 only; no Forgejo push. Next speech generation, real-book narration and shared
 service/model changes remain outside this consumed synthetic sample grant.
+
+### M5 bounded narrated EPUB chapter — pre-start, 2026-10-26
+
+Jason directed Stream A to continue the EPUB test and authorized HP lab tests
+and restarts without repeated conversational pauses. This milestone remains a
+separate synthetic proof: use the repository-owned, DRM-free *Lantern House*
+fixture only; do not read a household library book, modify the normal Books
+route, write Audiobookshelf/Calibre progress, expose a speech credential or
+touch production. The long pagination fixture repeats its prose three times
+and is unsuitable for synthesis. The narrated fixture is therefore bounded to
+the first three original paragraphs: 14 service sentence units and less than
+the existing 2,000-character request ceiling, sufficient to exercise page
+following without an 81-unit render.
+
+Before synthesis, pin the exact extracted chapter/spoken hashes and deployed
+canonical speech source/config/PID/health. Reserve one new private 0700 speech
+checkpoint and a 0600 attempt journal. Submit one request only, with no retry
+after either success or uncertainty. Decode a bounded dynamic AVS1 stream,
+requiring all ordered units, mono 24kHz/16-bit PCM, measured non-silent audio
+and unchanged service identity. Cancellation may target only the exact owned
+request after a failed/uncertain response. Never restart or reconfigure the
+shared speech service.
+
+The HP stage must be immutable and private. Align each measured sentence unit
+to exact EPUB source-character spans; do not infer word timings. While owned
+playback advances, follow the page containing the active sentence, with whole
+sentence emphasis. Save only an isolated synthetic reading-state file using
+atomic replacement and strict chapter/audio hashes. Reopening may resume that
+test state; it must not claim shared household book progress. Back/Home stop
+owned audio and save; natural end marks the synthetic chapter complete. An
+explicit cleanup removes only verified, stage-owned session WAV/cache/state
+paths and must refuse symlinks, altered hashes and foreign media. Preserve the
+private immutable source artifact as test evidence until project close-out.
+
+Native HP evidence must cover no autoplay, sentence and page transitions,
+pause, seek/restart, Back/Home stop, close/reopen resume, natural completion,
+cache cleanup, focus restoration and unchanged AV/settings/queues. Failed or
+superseded private stages remain evidence rather than normal entry points.
+Recovery closes only the owned preview and removes its exact verified session
+files. No deployment to production is authorized by this proof.
+
+### M5 bounded narrated EPUB chapter — speech artifact and local gate, 2026-10-26
+
+The preflight fixed the test source at 894 characters/14 sentence units from
+the first three original paragraphs. Extracted EPUB identity is book SHA
+`3e0202c6d7897761f560ea8b7b8d01674ed7a9ee2fe0d60965210157ab69f076`,
+chapter SHA
+`950aa1eabd25954a743e595f0f330157afb19c6a2e72cc7f9bcfaa39bd154ba5`
+and spoken-text SHA
+`70801db5b3f53de7badb7250fcc77664a7221af33f4b304d788b0c3f3b87bab9`.
+The first transferred harness stopped at import time before making a request,
+creating a checkpoint or consuming the speech grant. Its corrected immutable
+replacement passed the same absence/health/source checks and made the sole
+permitted POST. No retry occurred.
+
+Canonical `aster-bm-daniel`/Kokoro policy1 returned all14 ordered measured
+units. The private chapter WAV is3,080,396bytes, mono24kHz/16-bit,
+1,540,176frames/64.174seconds, SHA
+`d10997803ee99ae85f06545ab5b0bad71e91906735f4811c2119a632399de02b`.
+Checkpoint `/var/lib/aster-speech/aster-reader-epub-chapter-20261026` is0700;
+`attempt.json`, `before.json`, `proof.json` and `chapter.wav` are0600. The
+credential remained in server process memory. Post-render PID5655, reviewed
+source/config hashes and canonical health are unchanged. No service restart or
+configuration/network change occurred. The artifact contains sentence-unit
+boundaries only and cannot support honest word-level highlighting.
+
+The isolated HP candidate now combines the bounded EPUB parser/paginator with
+those exact measurements. It follows the page containing the current sentence,
+colours only that source span, uses floating Play/Pause/Stop/Restart controls,
+and retains manual page/three-size reading while idle. Its private state schema
+is bound to the exact book/chapter/audio hashes and written atomically outside
+the immutable stage. Back/Home save and stop only an owned session; reopening
+can seek once to that synthetic position. Natural end records completion. A
+dedicated control validates and removes only this test position. Each playback
+uses a unique verified cache WAV which is removed after closure; the immutable
+private source artifact remains evidence. No normal Books route or shared
+progress is involved.
+
+All997 Kodi v2 tests pass in normal and optimized Python. Candidate manifest
+`4756aa1619bcb44a2d7730dca87b88d64250d558daa31459820583ea6999a1c6`
+is locally prepared as `aster-epub-readalong4`; its audio is intentionally not
+in Git or the bundle and must be relayed privately from the speech checkpoint.
+Native HP playback/resume/page-follow/cleanup evidence remains pending until
+the current human visual walkthrough leaves the lab box idle. Production is
+unchanged.

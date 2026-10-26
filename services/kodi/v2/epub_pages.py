@@ -28,6 +28,7 @@ class Page:
     start: int
     end: int
     body: str
+    lines: tuple
 
 def paginate(text, size=30):
     if type(size) is not int or size not in SIZES or not isinstance(text, str) or not text:
@@ -55,8 +56,24 @@ def paginate(text, size=30):
     for index in range(0, len(lines), rows):
         group = lines[index:index+rows]
         body = '\n'.join(literal(text[a:b].rstrip('\n ')) for a,b in group)
-        pages.append(Page(group[0][0], group[-1][1], body))
+        pages.append(Page(group[0][0], group[-1][1], body, tuple(group)))
     return tuple(pages)
+
+def render(text, page, active=None):
+    """Render an exact sentence span without interpreting ebook markup."""
+    if active is not None and (not isinstance(active, tuple) or len(active)!=2
+            or not all(type(value) is int for value in active)
+            or not 0 <= active[0] < active[1] <= len(text)):
+        raise ValueError('epub-page-active-span')
+    result=[]
+    for start,end in page.lines:
+        raw=text[start:end].rstrip('\n ');actual_end=start+len(raw)
+        if active is None or active[1] <= start or active[0] >= actual_end:
+            result.append(literal(raw));continue
+        left=max(start,active[0]);right=min(actual_end,active[1])
+        result.append(literal(text[start:left])+'[COLOR ff1f513b]'+
+                      literal(text[left:right])+'[/COLOR]'+literal(text[right:actual_end]))
+    return '\n'.join(result)
 
 class Reader:
     def __init__(self, chapter):
@@ -67,6 +84,11 @@ class Reader:
     def move(self, delta):
         if type(delta) is not int or delta not in (-1, 1): raise ValueError('epub-page-move')
         self.page = max(0, min(len(self.pages)-1, self.page+delta)); self.anchor = self.current.start
+    def go(self, offset):
+        if type(offset) is not int or not 0 <= offset < len(self.chapter.text):
+            raise ValueError('epub-page-offset')
+        self.page=next(index for index,page in enumerate(self.pages) if page.start<=offset<page.end)
+        self.anchor=offset
     def resize(self):
         self.size = SIZES[(SIZES.index(self.size)+1) % len(SIZES)]
         self.pages = paginate(self.chapter.text, self.size)

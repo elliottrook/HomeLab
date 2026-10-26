@@ -10,7 +10,7 @@ import unittest
 import xml.etree.ElementTree as ET
 from epub_chapter import chapter
 from epub_fixture import build as fixture
-from epub_pages import paginate, Reader, literal, units, SIZES
+from epub_pages import paginate, Reader, literal, units, render, SIZES
 from build_epub_reader import build, layout
 
 class PagesTests(unittest.TestCase):
@@ -45,6 +45,16 @@ class PagesTests(unittest.TestCase):
         self.assertEqual(literal('[B]test[/B]'),'［B］test［/B］')
         for size in (True,0,25,'30'):
             with self.assertRaises(ValueError):paginate('text',size)
+    def test_exact_sentence_emphasis_and_page_following(self):
+        value=chapter(fixture());reader=Reader(value)
+        sentence='Somewhere inside, a clock was keeping patient time.'
+        start=value.text.index(sentence);reader.go(start)
+        body=render(value.text,reader.current,(start,start+len(sentence)))
+        self.assertIn('[COLOR ff1f513b]',body);self.assertIn('[/COLOR]',body)
+        self.assertEqual(body.replace('[COLOR ff1f513b]','').replace('[/COLOR]',''),reader.current.body)
+        self.assertTrue(reader.current.start<=start<reader.current.end)
+        for bad in (-1,len(value.text),True,'0'):
+            with self.assertRaises(ValueError):reader.go(bad)
     def test_archive_and_bundle_repeatable_and_immutable(self):
         self.assertEqual(fixture(),fixture())
         with tempfile.TemporaryDirectory() as folder:
