@@ -8457,3 +8457,78 @@ changed. All 105 skin/tool tests pass in normal and optimized Python. Remaining
 M7 gates are native focus/contrast review, cold/warm timing and memory capture,
 longer idle/playback soak, recovery rehearsal and family acceptance; this
 static gate does not claim those outcomes.
+
+### M7 HP baseline and crash-history gate — 2026-10-26
+
+Read-only HP measurement found Kodi idle with no active player, 383MiB RSS,
+14.7GiB available RAM, 31°C CPU temperature, 2% `/storage` use and load below
+0.3. The current lab display is 3840×2160 at 30Hz. From the current Kodi log,
+GUI/display initialization occurred at 08:24:07.173 and the application entered
+its run loop at 08:24:07.446, about 2.3seconds after process logging began. This
+is a useful warm software baseline, not a power-on-to-picture measurement.
+
+Crash history prevents an M7 graduation claim. Five retained crash reports span
+October23–26. Three older failures are `LanguageInvoker` faults and one is a
+JSON-RPC announcement fault. The newest crash at 08:10 on October26 terminated
+in `TiXmlAttribute::Next()` while Kodi's `CGUIIncludes::ResolveIncludes` was
+loading `custom_1110_books.xml`; it occurred after many experimental Reader and
+screensaver skin loads. The source Books XML and include tree pass the new
+static parser/reference gate, so evidence does not yet distinguish a Kodi
+reload-state race from an Aster include defect.
+
+A bounded idle Books↔Home activation check on the unchanged installed HP build
+completed five explicitly observed cycles with the same PID, no active player,
+31°C temperature and 386MiB RSS, then left Kodi on Home. An earlier longer loop
+hit the command time limit without producing a result; it is not counted as
+evidence, although the same PID remained alive. Do not delete the crash reports
+or label the family candidate stable. The next safe reliability test is a fresh
+restart followed by a no-reload navigation/idle soak with PID, RSS, temperature
+and crash-file monitoring; compare that with a separate reload-stress test only
+if the clean soak passes. Production remains unchanged.
+
+The active News pages are later generated successors, not the older tracked
+skin-source copies. Read-only comparison identified Digest SHA
+`602d6c5be247900ff1a55d96373d0754004a921d846255eb8c336e3422eb0fc9`
+as the accepted reading-News1 successor and Breaking News SHA
+`d55e4db24217966d34d110c037f9c100c9a2d3ab2b8325ae7b878dd65ed9395d`
+as the accepted review10 member. A provisional palette edit against the older
+copies was therefore withdrawn before deployment or commit. The active
+review9 stage was copied read-only to temporary local evidence; rebuilding
+review10 from it produced exact manifest SHA
+`3b2662f81d0b7202dda23b93c7ff50fbec6a8dbcb4d6a1e3c4106a7bbf8f595a`
+and a byte-identical directory. Rebuilding reading-News1 from that generated
+Digest produced exact manifest SHA
+`4ff7ce2002b03b78c51c59a5aa0d7498a6e71e472d73bb29a538fe6b180abd1f`;
+its manifest and payload are exact, with only live deployment evidence absent
+from the clean rebuild. A new isolated test now protects review10's constrained
+Search-handler transformation and reconciled integration manifest. All 1,037
+v2 tests pass normally and optimized; all 105 tracked-skin tests also pass in
+both modes.
+
+Accessibility review found that `asterMuted` on the light stone/paper palette
+is approximately 3.84:1, below the normal-size 4.5:1 contrast target. This is a
+real M7 issue, but correcting the stale base pages would not correct the family
+candidate and could silently regress their later controls. Apply and validate
+the contrast successor only after the generated candidate composition is
+locked; use the accepted generated pages as predecessors and retain the Aster
+palette rather than globally darkening unrelated large/decorative text.
+
+The clean restart test now passes. Kodi restarted from PID44940 to45928 and
+accepted JSON-RPC after two seconds. A ten-minute no-reload soak sampled it 20
+times at30-second intervals: PID and the five-file retained crash count never
+changed, no player appeared, RSS settled from301MiB to304MiB and temperature
+stayed30–34°C. Two separate ten-cycle Books↔Home runs then passed with the same
+process and crash count. A deliberately separate reload-stress phase also
+passed eight `ReloadSkin`→Books→Home cycles. A broader family-route run passed
+24 observed transitions across Home, Books, News, Home dashboard, Music and
+Settings before the command deadline; the same process remained alive, idle
+and without a new crash. Post-stress RSS was398MiB and temperature34°C, with no
+new ERROR/FATAL/TiXml/LanguageInvoker entry in the current log. HP is left on
+Home and production remains untouched.
+
+This narrows the retained October26 crash: the accepted current composition
+does not reproduce it under a clean restart, ordinary Books navigation or a
+short isolated reload stress. It does not erase the historical crash or replace
+the required longer mixed-playback/family soak. Treat repeated development-time
+reloads as a diagnostic operation, not normal household behavior, and continue
+to monitor PID/crash count during the remaining M7 work.
