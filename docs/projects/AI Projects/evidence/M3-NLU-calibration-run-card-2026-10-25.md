@@ -1,6 +1,6 @@
 # M3 NLU 60-case calibration run card — 2026-10-25
 
-> State: **READY FOR STATIC PREFLIGHT; LIVE RUN REQUIRES ONE EXACT APPROVAL**
+> State: **SOURCE READY; INACTIVE SCORE-BOUNDARY REPLACEMENT REQUIRED BEFORE STATIC PREFLIGHT**
 >
 > Effect: sixty synthetic, local, tool-free classification requests; no route
 > or production change
@@ -30,18 +30,20 @@ measure the candidate.
 - model-policy SHA-256:
   `57887883010ac682d50af9931b0dc80c71d2fe3b41309bf7b772fec70f4ed179`;
 - endpoint: accepted local `aster-llama` chat-completions endpoint only; and
-- runner source commit: `682608d2`, with runner SHA-256
-  `a8cca4daa3a0504b07e9dc70bee4d8e04d3f181ac742c53954718c6918fc5a0f`;
+- runner source commit: `0e4b7311`, with runner SHA-256
+  `88af8eb7f196c03563a31ed2c2fe513d054d491c4903ba4c29dfd765dba36ca0`;
 - scorer SHA-256:
-  `ec4f4e44ff595617f1fe8e337b587bbab049204d001dd2ba050ee1fb146022fd`;
+  `7bce041e47a7707fcf35d3c3787e1e12e6725fff4c5b80db81f92ad7e5492ccd`;
+- journal validator SHA-256:
+  `966786f8952aa990915044281b3ddc45241b05940102aad2c4ddfad19abf5beb`;
   and
 - threshold selector SHA-256:
   `9edc0317fe655bfc49b888d755155393cdc468e11bccc27dbe4881b886922cbb`;
 - staging manifest SHA-256:
-  `05aa0f287795dacfa72c37d7b275a85f67e96f0cc253225dcf78908585970e19`;
+  `7b547d9b38d3be1d951e2d8cbeee011a723f8582006c0885ad37d01f5388ee80`;
   and
 - staging validator SHA-256:
-  `487341d1d35fa7ee313aeb76816162048e2402a985a801f6053e3ea89a971e80`.
+  `83c7ed1135e444d832518e95bc7df51c59d5cb1c3cc7041177f31fc8cb84c3c9`.
 
 ## Bounds and custody
 
@@ -92,13 +94,15 @@ directory under `/var/lib/aster-nlu-calibration/`:
 - remove the LXC110 run directory only after custody verification. Retain it
   unchanged for reconciliation after an uncertain outcome.
 
-The earlier eleven-file packet completed inactive staging and custody
-validation, but the
-[post-journal deadline correction](M3-NLU-post-journal-deadline-correction-2026-10-25.md)
-supersedes its runner and manifest before any model call. The corrected packet
-must replace it through a bounded inactive transaction and repeat target-Linux
-custody/import validation. Cleanup, lease acquisition and model execution
-remain live effects. None is authorized by this card alone.
+The corrected runner is installed inactive and passed target-Linux validation.
+The later
+[complete-score failure correction](M3-NLU-complete-score-failure-boundary-2026-10-25.md)
+supersedes the installed scorer, journal validator and packet manifest: only a
+malformed model response may remain as a completed zero-score record;
+infrastructure failures make the calibration unscorable. The exact four-file
+inactive replacement must pass before any model call. Cleanup, lease
+acquisition and model execution remain live effects. None is authorized by
+this card alone.
 
 ## Fresh preflight
 
@@ -117,9 +121,11 @@ normal production health rechecked after every terminal outcome.
 
 ## Result path
 
-If all 60 records exist, independently verify the exact attempt journal against
-every final record, bind its digest into the content-free calibration score and
-run the exact registered threshold selector. A valid frozen threshold
+If all 60 records exist and the runner reports complete, independently verify
+that every invalid record is exactly `invalid_response`/`response_invalid`,
+verify the exact attempt journal against every final record, bind its digest
+into the content-free calibration score and run the exact registered threshold
+selector. A valid frozen threshold
 is calibration evidence only. A rejected threshold is a measured candidate
 rejection. Neither result opens the independent holdout, deploys the NLU,
 enables shadowing or automatic routing, or changes the accepted B60 runtime.
