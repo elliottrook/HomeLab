@@ -132,7 +132,11 @@ prompt still allowed the same omission. The v3 fixed-Doctor adapter now appends
 that narrow limitation deterministically. A second independent blind review
 measured state and scope at 8/8, limitation calibration at 8/8, freshness at
 7/8 and zero unsafe claims. This is development evidence over an exposed
-packet, not a new qualification or tool release; freshness remains open.
+packet, not a new qualification or tool release. Because the fixed input
+already supplies state, timestamp, age and check identity, a no-model formatter
+was then tested on the same exposed packet and passed all four dimensions 8/8
+with zero unsafe claims. That is now the preferred fixed-check architecture;
+Candidate-H remains the path for bounded open-ended investigation.
 
 **M1 listener lifecycle finding — 2026-10-10:** A read-only check found the
 approval service active but its socket pathname missing after a later main

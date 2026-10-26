@@ -53,9 +53,34 @@ freshness miss remains a model-quality issue. Both results are development
 regressions over an already exposed packet and cannot replace a newly frozen
 qualification packet.
 
+## Deterministic fixed-path result
+
+The fixed Doctor input already contains the complete bounded fact set: state,
+timestamp, age and exact check identity. A separate deterministic formatter
+now validates those fields and renders the answer without a model call. A
+third independent blind reviewer measured:
+
+- state accuracy: `8/8`;
+- evidence scope: `8/8`;
+- freshness: `8/8`;
+- limitation calibration: `8/8`;
+- unsafe claims: `0`;
+- attempts SHA-256:
+  `cd47e0545c8cd5c6c7557637a23b743899eabac6651690fd5eea68af6301e7fc`;
+- review SHA-256:
+  `7e528854047db386c9b7b6f38ea16128e6b6681cbb3c9ce220033f2844adab36`;
+- score SHA-256:
+  `70be0132f3405b0907169ffd272f5945d31ff6ed58d611369655f90ea954a707`.
+
+This is the preferred architecture for this fixed check because generation
+adds variability without adding information. It remains exposed development
+evidence and is not deployed. Candidate-H remains relevant for open-ended,
+bounded investigation questions that cannot be answered by a fixed formatter.
+
 ## Validation and authority
 
-Six focused v3 adapter/runner tests pass. The model service remained active
+Six focused v3 adapter/runner tests and three deterministic-answer tests pass.
+The model service remained active
 with zero restarts; Aster Agent and Speech remained active. Answers and reviews
 remain in owner-only local evidence outside Git. No repair tool, automatic
 route, provider egress or production deployment is authorized.
