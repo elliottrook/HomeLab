@@ -82,6 +82,38 @@ not an independent acceptance set. Before live shadow routing, the NLU must have
 Until those gates pass, automatic routing remains off and the deterministic
 baseline remains the operational reference.
 
+## Current qualification checkpoint — 2026-10-25
+
+The NLU boundary is now formalized through an exact accepted evaluation policy,
+a sealed local Qwen3.5-9B/SYCL candidate, 60 independently created and reviewed
+synthetic calibration cases, a registered content-free scoring contract and a
+conditional independent-holdout design. This is evaluation machinery only.
+It grants no tool, provider, route or execution authority.
+
+The first eleven-file calibration packet was staged inactive in LXC110 without
+a model call. A later deadline review found that a slow durable attempt-start
+journal write could consume the remaining 1,200-second budget after the runner
+had calculated its HTTP timeout. Commit `682608d2` closes that edge by
+recomputing the budget immediately before transport open and refusing to start
+after expiry. The corrected dependency-free suite passes 116 tests. Its runner
+and staging manifest supersede the inert LXC110 copies, so the staged packet is
+currently **NO-GO for execution** pending one bounded inactive replacement and
+target-Linux revalidation.
+
+After replacement, the serial live path remains:
+
+1. complete and independently reconcile F2;
+2. derive the separately authorized F3 receipt;
+3. produce fresh cycle-bound F4 and F5 evidence;
+4. arm the independently recoverable F6 lease under a current exact card;
+5. run candidate-H first; and
+6. run the 60-case NLU calibration only after candidate-H has a validated
+   accepted outcome and the restoration reserve still fits.
+
+Calibration may freeze a threshold or reject the candidate. It cannot enable
+shadowing or routing. A passing calibration permits creation and independent
+review of the predesigned holdout; a rejection expires that conditional path.
+
 The [development scorer](evidence/M3-NLU-development-scorer-2026-10-24.md)
 implements the dimensional reporting boundary against 24 pinned exposed
 synthetic cases. It reports privacy underclassification and unsafe false routes
