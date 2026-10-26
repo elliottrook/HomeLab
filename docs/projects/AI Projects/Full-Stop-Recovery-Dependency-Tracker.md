@@ -31,6 +31,14 @@ must skip and write no receipt. The platform owner must diagnose the observer
 communication path, preserve a more specific bounded failure, prove the
 correction offline and on target Linux, and present a fresh reviewed cycle.
 
+The subsequent [root-cause analysis](evidence/F2-observer-communication-root-cause-2026-10-26.md)
+found a deterministic launcher API mismatch: `final()` defaulted to
+`subprocess.run` but then called the Popen-only `communicate()` method on its
+`CompletedProcess`. The observer child launched, but its result could not be
+accepted. Synthetic success tests injected a Popen-like fake and therefore
+missed the installed entrypoint. The correction needs a default-launcher
+regression plus offline and target-Linux proof before a fresh cycle.
+
 The conditional [October 26 F3 conversion](evidence/F3-from-F2-no-go-2026-10-26.md)
 then failed closed at its first gate. Because F2 was not complete and contained
 no accepted archive rows, the converter was not invoked and no retained receipt
