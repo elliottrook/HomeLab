@@ -1421,6 +1421,13 @@ now controls: runner `88af8eb7…6ca0`, scorer `7bce041e…2ccd`, journal
 validator `966786f8…beb` and complete eleven-file manifest `7b547d9b…ee80`.
 The platform F6 card must pin that complete set; no intermediate M3 manifest
 is valid for activation.
+The offline
+[current-packet card validator](evidence/Stream-A-F6-current-packet-card-validator-2026-10-25.md)
+now enforces all nineteen V3 host path/hash pairs and the four final M3
+identities, while rejecting the known superseded hashes. Its five focused
+tests pass and it rejects the existing stale platform card for the same
+missing and superseded identities found by independent review. This makes the
+replacement card mechanically reviewable; it does not publish or activate it.
 The shared [B60 health check is also corrected](evidence/Stream-A-SYCL-health-check-source-correction-2026-10-25.md)
 to validate the accepted Qwen3.5-9B Q4_K_M SYCL/Level Zero service rather than
 the retired Vulkan/27B path; its fixture test and a streamed read-only live run
