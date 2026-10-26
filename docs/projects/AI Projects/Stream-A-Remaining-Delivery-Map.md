@@ -1231,11 +1231,14 @@ passes 128/128. This is evidence hardening only; D4 qualification remains open.
 
 Do not spend another cloud question on the deferred manual-Codex button. M1's
 synthetic authority proof is complete; its next work is a separately designed
-fixed read-only capability, not broader broker access. D4 candidate-G and the
-M3 calibration packet remain static-ready and unspent. Their live execution is
+fixed read-only capability, not broader broker access. D4 candidate-G remains
+exact and unspent, and the M3 calibration packet remains staged and
+static-ready. D4 is not executable: its frozen runner reads an environment
+variable while the platform-owned F6 boundary requires a reviewed secret-broker
+descriptor/stdin bridge, and no such bridge exists. Their live execution is
 blocked on the October 26 F2 runtime result, subsequent F3/F4/F5 evidence and a
 corrected executable F6 effect transaction. The platform owner still owes
-full installed paths and payload schemas, real D4/M3 workload runners and
-credential boundaries, plus source-supported F4/F5 binding. Continue offline
+the D4 credential bridge, absolute M3 interpreter/execution-identity pins and
+source-supported F4/F5 binding. Continue offline
 review when that source arrives. Do not activate F6, stop consumers, call a
 model, create a receipt or infer success from the scheduled F2 timers.
