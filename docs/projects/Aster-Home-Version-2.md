@@ -8414,3 +8414,15 @@ change or a Seerr request.
 The resulting repository gate passes all 1,031 Kodi v2 tests in both normal
 and optimized Python. This milestone is suitable for a focused local commit;
 it does not authorize a Forgejo push or HP/production deployment.
+
+The next local slice adds the credential-free client boundary without wiring a
+URL or enabling the feature. Search responses are exact-schema, query-bound,
+limited to 24 unique candidates and revalidated through the model above. A
+confirmed write is durably journalled with mode 0600 before transport is
+called. A valid correlated result is committed and returned on later repeats
+without another send; transport failure or any malformed/mismatched response
+becomes a sticky `uncertain` fence and is never automatically retried. The
+journal stores only candidate identity, payload hash, state and the sanitized
+result—not title, synopsis, credential or server URL. The transport remains
+injected and absent, so these tests cannot reach Seerr or the broker.
+All 1,035 Kodi v2 tests pass in normal and optimized Python at this gate.
