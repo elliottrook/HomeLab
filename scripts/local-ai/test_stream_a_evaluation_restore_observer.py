@@ -14,20 +14,41 @@ from stream_a_evaluation_restore_observer import (
 class RestoreObserverTests(unittest.TestCase):
     def test_exact_read_only_probe_set_produces_accepted_observation(self):
         commands = []
-        outputs = iter(("active\n", "", ""))
 
         def runner(command, **kwargs):
             commands.append(command)
-            return subprocess.CompletedProcess(command, 0, next(outputs), "")
+            command = tuple(command)
+            if command[-2:] == ("is-active", "aster-llama.service"):
+                return subprocess.CompletedProcess(command, 0, "active\n", "")
+            if (any("aster-llama-production-auth-probe" in item for item in command)
+                    or "ss" in command):
+                return subprocess.CompletedProcess(command, 0, "", "")
+            if command[0:2] == ("systemctl", "is-enabled"):
+                value = "disabled\n" if "20261027" not in command[-1] else "not-found\n"
+                return subprocess.CompletedProcess(command, 1, value, "")
+            if command[0:2] == ("systemctl", "is-active"):
+                return subprocess.CompletedProcess(command, 3, "inactive\n", "")
+            if "aster-d4-candidate-h.service" in command:
+                return subprocess.CompletedProcess(command, 3, "inactive\n", "")
+            if "pgrep" in command:
+                return subprocess.CompletedProcess(command, 1, "", "")
+            raise AssertionError(command)
 
         with patch("stream_a_evaluation_restore_observer.scan_gpu_holders", return_value=(GpuHolder(
                 42, 99, "/lxc/110/ns/system.slice/aster-llama.service",
                 "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"),)):
-            result = collect_restore_observation(runner, lease_id="eval-1", generation=1)
+            result = collect_restore_observation(
+                runner,
+                lease_id="stream-a-evaluation-2026-10-27-0123456789abcdef",
+                generation=1,
+            )
         self.assertTrue(result["backend_active"])
-        self.assertEqual(result["lease_id"], "eval-1")
+        self.assertEqual(result["lease_id"],
+                         "stream-a-evaluation-2026-10-27-0123456789abcdef")
         self.assertEqual(result["generation"], 1)
         self.assertEqual(result["gpu_holders"], ["lxc110:aster-llama.service"])
+        self.assertEqual(result["evaluation_children"], [])
+        self.assertEqual(len(result["f2_timers"]), 4)
         self.assertEqual(commands[0],
                          ("pct", "exec", "110", "--", "systemctl", "is-active", "aster-llama.service"))
 

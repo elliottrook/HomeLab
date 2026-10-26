@@ -83,7 +83,8 @@ class RestoredProductionVerifier:
             observation = _unique_json(result.stdout)
             if (set(observation) != {
                     "lease_id", "generation", "observed_at", "backend_active",
-                    "endpoint_authenticated", "endpoint_idle", "gpu_holders"}
+                    "endpoint_authenticated", "endpoint_idle", "gpu_holders",
+                    "f2_timers", "evaluation_children"}
                     or observation["lease_id"] != plan.lease_id
                     or observation["generation"] != 1
                     or type(observation["observed_at"]) is not int
@@ -91,7 +92,16 @@ class RestoredProductionVerifier:
                     or observation["backend_active"] is not True
                     or observation["endpoint_authenticated"] is not True
                     or observation["endpoint_idle"] is not True
-                    or observation["gpu_holders"] != [BACKEND_TARGET]):
+                    or observation["gpu_holders"] != [BACKEND_TARGET]
+                    or observation["evaluation_children"] != []):
+                return False
+            compact_cycle = plan.evidence.cycle_date.replace("-", "")
+            if observation["f2_timers"] != {
+                    "f2-preflight-prepare.timer": ["disabled", "inactive"],
+                    "f2-preflight-final.timer": ["disabled", "inactive"],
+                    f"f2-preflight-prepare-{compact_cycle}.timer": ["not-found", "inactive"],
+                    f"f2-preflight-final-{compact_cycle}.timer": ["not-found", "inactive"],
+                    }:
                 return False
             for target, expected in PRODUCTION_BASELINE_STATES:
                 if expected != "enabled+active" \

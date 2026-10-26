@@ -7,6 +7,7 @@ import json
 import subprocess
 import time
 import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Sequence
@@ -14,6 +15,10 @@ from typing import Callable, Sequence
 
 EXPECTED_EXECUTABLE = "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"
 EXPECTED_CGROUP = "/lxc/110/ns/system.slice/aster-llama.service"
+F2_RECURRING_TIMERS = (
+    "f2-preflight-prepare.timer", "f2-preflight-final.timer",
+)
+M3_PROCESS_PATTERN = r"^/usr/bin/python3 nlu_calibration_runner.py "
 
 
 @dataclass(frozen=True)
@@ -85,6 +90,33 @@ def collect_restore_observation(
     if backend_code != 0 or backend != "active" or auth_code != 0 or idle_code != 0 or idle:
         raise RuntimeError("accepted backend is not healthy and idle")
     require_exact_gpu_holder(holders)
+    match = re.fullmatch(
+        r"stream-a-evaluation-(20[0-9]{2}-[01][0-9]-[0-3][0-9])-[0-9a-f]{16}",
+        lease_id,
+    )
+    if match is None:
+        raise RuntimeError("evaluation lease identity is invalid")
+    compact_cycle = match.group(1).replace("-", "")
+    f2_timers = {}
+    for unit in (*F2_RECURRING_TIMERS,
+                 f"f2-preflight-prepare-{compact_cycle}.timer",
+                 f"f2-preflight-final-{compact_cycle}.timer"):
+        enabled_code, enabled = run(("systemctl", "is-enabled", unit))
+        active_code, active = run(("systemctl", "is-active", unit))
+        expected_enabled = "disabled" if unit in F2_RECURRING_TIMERS else "not-found"
+        if (enabled_code != 1 or enabled != expected_enabled
+                or active_code != 3 or active != "inactive"):
+            raise RuntimeError("F2 schedule did not restore exactly")
+        f2_timers[unit] = [enabled, active]
+    d4_code, d4_state = run((
+        "pct", "exec", "104", "--", "systemctl", "is-active",
+        "aster-d4-candidate-h.service",
+    ))
+    m3_code, m3_process = run((
+        "pct", "exec", "110", "--", "pgrep", "-f", M3_PROCESS_PATTERN,
+    ))
+    if d4_code != 3 or d4_state != "inactive" or m3_code != 1 or m3_process:
+        raise RuntimeError("evaluation child remains after restoration")
     return {
         "lease_id": lease_id,
         "generation": generation,
@@ -93,6 +125,8 @@ def collect_restore_observation(
         "endpoint_authenticated": True,
         "endpoint_idle": True,
         "gpu_holders": ["lxc110:aster-llama.service"],
+        "f2_timers": f2_timers,
+        "evaluation_children": [],
     }
 
 

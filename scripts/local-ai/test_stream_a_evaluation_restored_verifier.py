@@ -32,7 +32,13 @@ class FakeRun:
                      "observed_at": 99_900 if self.stale else 100_001,
                      "backend_active": True, "endpoint_authenticated": True,
                      "endpoint_idle": True,
-                     "gpu_holders": ["lxc110:aster-llama.service"]}
+                     "gpu_holders": ["lxc110:aster-llama.service"],
+                     "f2_timers": {
+                         "f2-preflight-prepare.timer": ["disabled", "inactive"],
+                         "f2-preflight-final.timer": ["disabled", "inactive"],
+                         "f2-preflight-prepare-20261027.timer": ["not-found", "inactive"],
+                         "f2-preflight-final-20261027.timer": ["not-found", "inactive"],
+                     }, "evaluation_children": []}
             return subprocess.CompletedProcess(command, 0, json.dumps(value), "")
         if command == (WHOLE_HOST_LEASE, "status"):
             return subprocess.CompletedProcess(command, 0,
@@ -79,6 +85,26 @@ class RestoredVerifierTests(unittest.TestCase):
                 return super().__call__(command, **kwargs)
         for runner in (Bad(), Bad(stale=True)):
             with tempfile.TemporaryDirectory() as tmp:
+                self.assertFalse(RestoredProductionVerifier(
+                    runner=runner, runtime_root=Path(tmp),
+                    clock=lambda: 100_001)(plan()))
+
+    def test_rejects_schedule_drift_and_remaining_child(self):
+        class Bad(FakeRun):
+            def __init__(self, child=False):
+                super().__init__(); self.child = child
+            def __call__(self, command, **kwargs):
+                result = super().__call__(command, **kwargs)
+                if command[0] == RESTORE_OBSERVER:
+                    value = json.loads(result.stdout)
+                    if self.child:
+                        value["evaluation_children"] = ["m3-nlu-calibration"]
+                    else:
+                        value["f2_timers"]["f2-preflight-final.timer"] = ["enabled", "active"]
+                    return subprocess.CompletedProcess(command, 0, json.dumps(value), "")
+                return result
+        for runner in (Bad(), Bad(child=True)):
+            with self.subTest(child=runner.child), tempfile.TemporaryDirectory() as tmp:
                 self.assertFalse(RestoredProductionVerifier(
                     runner=runner, runtime_root=Path(tmp),
                     clock=lambda: 100_001)(plan()))
