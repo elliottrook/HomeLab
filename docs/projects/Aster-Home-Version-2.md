@@ -6928,3 +6928,58 @@ shown explicitly; this page never reconnects or changes network settings. No
 new authentication is needed. Physical remote/sofa acceptance remains pending
 the owner's batched checks. Source and private checkpoints remain recoverable;
 remote push still requires a specific authorization.
+
+### Stream A idle policy and native wake groundwork — pre-start
+
+The HP's current native settings are Dim after3 minutes, dim-on-pause enabled,
+no automatic display-off or shutdown. Preserve them during this stage. Build a
+pure local policy for the selected Aster/Dim/Black/Disabled choices with Black
+as conservative fallback, privacy-first content and no embedded household/
+camera/book metadata. Block idle entry for media, alarms and uncertain state;
+consume the first wake input without dispatching it to the prior page. Source
+focus restoration must be ownership/context checked. No speech, new service,
+network path, credentials, schedule, suspend or production change.
+
+Before designing a custom saver, run bounded native Dim activation/wake cycles
+from HP Settings on its safe Diagnostics control. Test directional and OK wake
+without opening the underlying menu; retain settings/focus, no playback/queues,
+then full preservation. Only temporary private harness evidence may be written;
+no persistent idle setting is changed. Abort if wake or clean restoration fails.
+Actual power-button/suspend/USB wake and receiver recovery still require a
+separate recovery assessment and physical availability; don't strand the lab.
+
+#### Idle policy and native wake groundwork — evidence
+
+`idle_policy.py` is a pure model, not an installed idle service or changed Kodi
+setting. It provides the four selected modes, bounded1–60 minute thresholds,
+Black default/unsupported-Aster fallback, strict known-state checks, media/alarm/
+interaction exclusions and Black over private surfaces. Its one-shot session
+consumes only navigation/OK/Back/Home wake events for its own visible overlay;
+it never replays them, restores focus only to the unchanged original context
+without foreign media, and does not intercept system volume/power events.
+There are no network, filesystem, Kodi, TTS or playback effects in this model.
+Twelve tests pass, full891-test suite normal and optimized. It is not yet an
+automatic or custom screensaver implementation.
+
+Native helper `/storage/.aster-staging/live_idle_baseline.py` uses only the
+[documented native ActivateScreensaver action](https://kodi.wiki/index.php?title=List_of_built-in_functions)
+and bounded input/read-only setting queries. Two independent HP proofs pass:
+`aster-idle-baseline-1792987928760511203/native.json` and
+`aster-idle-baseline-1792987969131870370/native.json`. Each explicitly activates
+the existing Dim saver twice, then verifies Right and OK wake independently:
+first input consumed, Settings Diagnostics/control206 retained, no menu opened,
+no playback/queue, unchanged six native idle/power values and all AV values,
+Home return. Automatic elapsed entry, custom rendering, actual remote hardware,
+paused/audio/alarm interaction and suspend/USB wake remain unclaimed. Nothing
+was installed or scheduled and native Dim/3-minute configuration remains.
+
+Network preview5's final service-check runs also pass twice:
+`aster-network-preview-1792987737775610031/native.json` and
+`aster-network-preview-1792987820623906615/native.json`, both HTTP200/200 plus
+real/offline navigation and no background probes. An earlier supplemental run
+failed before page entry because its first navigation input woke the idle
+dimmer; the harness now explicitly wakes an active saver before moving focus.
+That failed run is retained and is not counted as a pass. No shipped Network
+code changed for this harness fix. Next safe step is an isolated privacy-first
+Aster idle presentation with a native screensaver lifecycle, not an operator
+root background job or a suspension test without a recovery operator.

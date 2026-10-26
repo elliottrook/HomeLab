@@ -46,6 +46,9 @@ try:
     baseline=network.collect();settings=guard.snapshot()
     checkpoint=Path('/storage/.aster-checkpoints')/('aster-network-preview-'+str(time.time_ns()))
     checkpoint.mkdir(mode=0o700)
+    if xbmc.getCondVisibility('System.ScreenSaverActive'):
+        press('right');until(lambda:not xbmc.getCondVisibility('System.ScreenSaverActive'),'network-test-wake')
+        xbmc.sleep(250)
     press('left');xbmc.executebuiltin('Control.SetFocus(136)')
     until(lambda:focus(136),'network-test-source-focus');xbmc.sleep(250)
     xbmc.executebuiltin('RunScript('+str(ROOT/'default.py')+','+sys.argv[1]+')')
