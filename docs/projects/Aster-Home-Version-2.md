@@ -8730,3 +8730,15 @@ as implementation evidence. Live activation remains gated on observing the
 actual dongle on HP and provisioning the separately approved STT-only identity;
 until then the interface must report voice search as unavailable and retain the
 keyboard path.
+
+HP also exposes `parec`, so a bounded PulseAudio capture adapter can be used
+without adding a recorder package. Its current PulseAudio inventory contains
+only the null output monitor, however; the internal analogue ALSA input is not
+an available PulseAudio source and no USB microphone exists. No audio was
+captured. `voice_search_ui.py` now fixes the presentation contract ahead of
+hardware activation: idle voice search is press-to-listen, Listening and
+Working states always expose Cancel, cancellation states that no audio was
+retained, and absent hardware leaves keyboard search available. It cannot start
+capture itself. This prevents a decorative microphone control from falsely
+claiming that the box is listening. The combined voice, speech-wire and grouped
+search contract has 27 passing tests in normal and optimized Python.
