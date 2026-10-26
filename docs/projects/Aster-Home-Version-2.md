@@ -28,7 +28,8 @@
   exploratory runs remain recorded as failures. Longer household/overnight
   memory observation remains open. The full suite passes
   1,127 tests normally and optimized. Work through `ababd38a` is pushed and
-  mirrored; local successors are `a7edc753`, `8f7d06cb` and `a3977cce`.
+  mirrored; later mixed-player, recovery, endurance and handover milestones
+  remain local through `bb9b233c`.
   Production remains unchanged. Voice search still awaits the lab G20 mic;
   physical remote/sofa acceptance, power/suspend policy and release handover
   remain open. See the final dated evidence for exact pins and recovery paths.
