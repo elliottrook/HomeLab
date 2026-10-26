@@ -8,6 +8,7 @@ def fixture(kind='movie'):
     return {'schema': 2, 'identity': 'seerr:'+kind+':123', 'media_type': kind,
             'media_id': 123, 'title': 'Example', 'year': '2026',
             'overview': 'A bounded synthetic result.', 'poster': '/poster.jpg',
+            'backdrop': '/backdrop.jpg',
             'owned': False, 'availability': 'unknown', 'request_id': None, 'request_state': 'none',
             'seasons': [1, 2, 3] if kind == 'tv' else []}
 

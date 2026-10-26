@@ -14,7 +14,8 @@ from aster_seerr_contract import ContractError, candidate, page, proposal, reque
 def search(kind="movie", media_id=123):
     return {"id": media_id, "mediaType": kind,
             "title": "Example", "releaseDate": "2026-04-01",
-            "overview": "A bounded synthetic result.", "posterPath": "/p.jpg"}
+            "overview": "A bounded synthetic result.", "posterPath": "/p.jpg",
+            "backdropPath": "/b.jpg"}
 
 
 def detail(status=1, request=None, kind="movie"):

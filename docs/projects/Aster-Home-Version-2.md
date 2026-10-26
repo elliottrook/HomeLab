@@ -8472,6 +8472,36 @@ separate broker token, exact HP-to-TrueNAS TCP/8788 allowance, broker
 deployment, revocation proof and one disposable request that the owner
 explicitly selects.
 
+The native television slice is now complete locally. `script.asterseerr`
+opens a purpose-built Aster Media Requests page rather than a web view: search
+and Film/Television filters sit in the current top-rail language, a horizontal
+poster rail drives a backdrop, synopsis and truthful availability state, and
+television requests expose only Seerr-advertised seasons. A request always has
+two explicit presses, with the second confirmation rendered in place rather
+than as a large modal. Errors relabel the action as unavailable and never
+silently retry. The controller knows only the proposed restricted broker at
+`192.168.20.40:8788`; it contains no Seerr address, password or general API
+route. The durable TV journal remains the uncertain-write fence.
+
+Media gains one compact `Requests` destination between Collections and
+YouTube. Its transformation replaces only the accepted top-rail group and
+preserves all media rows. The immutable HP package is built from the exact
+installed Home page, pins that predecessor and every add-on/skin file, records
+the previously absent custom window, requires Home-idle installation and has
+an isolated exact rollback. Install/verify/rollback, missing predecessor,
+tamper and optimized-Python tests pass. The current local candidate manifest is
+`c0fc41568298dc679a2f92255386156637817c9bb7b7598d732cfba9638849f1`.
+This hash is evidence for the local package only; no HP file, broker, token,
+firewall rule or Seerr request has changed.
+
+Live acceptance is intentionally split into two proofs. First activate and
+revoke the authenticated broker path while proving HP is the only television
+source and that direct Seerr remains unreachable. Then install the page on HP
+and prove search, movie state, season selection, cancel, explicit confirmation,
+duplicate handling, uncertain-write fencing, navigation and rollback. A real
+request is never selected on the owner's behalf; that final disposable request
+requires the owner to choose the title at the screen.
+
 ### M7 family-candidate static gate — 2026-10-26
 
 The first M7 slice is repository-only and cannot operate Kodi, the LAN or a

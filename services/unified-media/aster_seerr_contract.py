@@ -63,6 +63,10 @@ def candidate(item: Mapping[str, Any], detail: Mapping[str, Any]) -> dict[str, A
     require(len(poster) <= 300 and (not poster or poster.startswith("/")),
             "seerr-poster-invalid")
     poster = "https://image.tmdb.org/t/p/w500" + poster if poster else ""
+    backdrop = str(item.get("backdropPath") or item.get("backdrop_path") or "")
+    require(len(backdrop) <= 300 and (not backdrop or backdrop.startswith("/")),
+            "seerr-backdrop-invalid")
+    backdrop = "https://image.tmdb.org/t/p/w1280" + backdrop if backdrop else ""
     media = detail.get("mediaInfo") or item.get("mediaInfo") or {}
     require(isinstance(media, Mapping), "seerr-media-invalid")
     raw_status = media.get("status", 1)
@@ -89,6 +93,7 @@ def candidate(item: Mapping[str, Any], detail: Mapping[str, Any]) -> dict[str, A
         "schema": 2, "identity": f"seerr:{kind}:{media_id}",
         "media_type": kind, "media_id": media_id, "title": title,
         "year": year, "overview": overview, "poster": poster,
+        "backdrop": backdrop,
         "owned": availability in ("partial", "available"),
         "availability": availability, "request_id": request_id,
         "request_state": request_state, "seasons": seasons,

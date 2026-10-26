@@ -28,6 +28,7 @@ class Candidate:
     year: str
     overview: str
     poster: str
+    backdrop: str
     owned: bool
     availability: str
     request_id: object
@@ -44,7 +45,7 @@ class Proposal:
 
 def candidate(value):
     required = {'schema', 'identity', 'media_type', 'media_id', 'title', 'year',
-                'overview', 'poster', 'owned', 'availability', 'request_id', 'request_state',
+                'overview', 'poster', 'backdrop', 'owned', 'availability', 'request_id', 'request_state',
                 'seasons'}
     require(type(value) is dict and set(value) == required,
             'seerr-candidate-schema')
@@ -58,7 +59,8 @@ def candidate(value):
             and isinstance(value['year'], str)
             and (value['year'] == '' or re.fullmatch(r'[12][0-9]{3}', value['year']))
             and isinstance(value['overview'], str) and len(value['overview']) <= 3000
-            and isinstance(value['poster'], str) and len(value['poster']) <= 500,
+            and isinstance(value['poster'], str) and len(value['poster']) <= 500
+            and isinstance(value['backdrop'], str) and len(value['backdrop']) <= 500,
             'seerr-candidate-text')
     availability = value['availability']
     require(type(value['owned']) is bool and availability in AVAILABILITY
@@ -83,7 +85,7 @@ def candidate(value):
             'seerr-candidate-seasons')
     require((kind == 'tv') or not value['seasons'], 'seerr-candidate-movie-seasons')
     return Candidate(value['identity'], kind, media_id, value['title'], value['year'],
-                     value['overview'], value['poster'], value['owned'], availability, request_id,
+                     value['overview'], value['poster'], value['backdrop'], value['owned'], availability, request_id,
                      value['request_state'], tuple(value['seasons']))
 
 
