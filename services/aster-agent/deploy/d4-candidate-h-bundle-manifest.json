@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "candidate": "d4-candidate-h-unprivileged-v1",
+  "candidate_source_commit": "0966af2d",
+  "activation": "inactive-source-only",
+  "identity": {
+    "name": "aster-d4-eval",
+    "uid": 977,
+    "gid": 977,
+    "shell": "/usr/sbin/nologin",
+    "supplementary_groups": []
+  },
+  "packet": {
+    "source_directory": "services/aster-agent/evals",
+    "source_manifest": "services/aster-agent/evals/sa3-development-attempt-11-source-manifest.json",
+    "source_manifest_sha256": "5e8b1ca0314fb3deefc9a45f9755f92947b7f14ca53c590e21a14ee50cce0414",
+    "target_directory": "/var/lib/aster/d4-candidate-h",
+    "directory_owner": "root",
+    "directory_group": "aster-d4-eval",
+    "directory_mode": "0750",
+    "file_owner": "root",
+    "file_group": "aster-d4-eval",
+    "file_mode": "0640",
+    "predecessor": "absent"
+  },
+  "output": {
+    "target_directory": "/var/lib/aster/d4-candidate-h-output",
+    "owner": "aster-d4-eval",
+    "group": "aster-d4-eval",
+    "mode": "0700",
+    "must_be_empty": true,
+    "predecessor": "absent"
+  },
+  "control_files": [
+    {
+      "source": "scripts/deploy/launch_d4_candidate_h.py",
+      "source_sha256": "71c07060a59a81923803fdd21cc14f218fc3c1c1f7f1797e1b1e75acdf4240eb",
+      "target": "/usr/local/libexec/aster-d4-candidate-h-launcher",
+      "owner": "root",
+      "group": "root",
+      "mode": "0755",
+      "predecessor": "absent",
+      "rollback": "remove"
+    },
+    {
+      "source": "services/aster-agent/systemd/aster-d4-candidate-h.service",
+      "source_sha256": "76c0ba89b26124b1e0fb74e3ddc761a001d937195c4d14ce0c3b5ab0d6b62450",
+      "target": "/etc/systemd/system/aster-d4-candidate-h.service",
+      "owner": "root",
+      "group": "root",
+      "mode": "0644",
+      "predecessor": "absent",
+      "rollback": "remove"
+    },
+    {
+      "source": "services/aster-agent/systemd/aster-d4-eval.sysusers.conf",
+      "source_sha256": "c4bfc0aa4446d77c252f9cd233842ac101e849ddeddf4347ad30d80298410c64",
+      "target": "/usr/lib/sysusers.d/aster-d4-eval.conf",
+      "owner": "root",
+      "group": "root",
+      "mode": "0644",
+      "predecessor": "absent",
+      "rollback": "remove"
+    }
+  ],
+  "service": {
+    "name": "aster-d4-candidate-h.service",
+    "must_remain_disabled": true,
+    "must_remain_inactive": true
+  },
+  "excluded": [
+    "credential-open",
+    "journal-create",
+    "model-call",
+    "service-enable",
+    "service-start",
+    "supplementary-group-grant"
+  ]
+}
