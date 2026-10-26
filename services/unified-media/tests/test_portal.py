@@ -7,7 +7,8 @@ from unittest.mock import patch
 from unittest.mock import Mock
 
 from portal.server import (Handler, _lazylibrarian_request, action_key,
-                           load_recommendations, reject_item, render_html)
+                           load_recommendations, reject_item, render_html,
+                           submit_search_action)
 from portal.refresh import (_prepare_candidates, _seerr_candidate,
                             _unique_exact_album, collect_tmdb_recommendations)
 
@@ -217,6 +218,18 @@ class PortalTests(unittest.TestCase):
                                          "title": "Foundation", "seasons": [1, 2, 3]})
             self.assertEqual(result["request_id"], 123)
             self.assertEqual(request.call_args_list[2].kwargs["body"]["seasons"], [1, 2, 3])
+
+    def test_search_action_accepts_tv_only_with_explicit_seasons(self):
+        body = {"approve": True, "authority": "seerr", "authority_id": "93740",
+                "title": "Foundation", "media_type": "tv", "seasons": [1, 2]}
+        with patch("portal.server.ACTION_ENABLED", True), \
+                patch("portal.server._submit_item", return_value={"request_id": 123}) as submit:
+            self.assertEqual(submit_search_action(body)["request_id"], 123)
+        self.assertEqual(submit.call_args.args[0]["seasons"], [1, 2])
+        without_seasons = dict(body, seasons=[])
+        with patch("portal.server.ACTION_ENABLED", True), self.assertRaisesRegex(
+                RuntimeError, "select at least one"):
+            submit_search_action(without_seasons)
 
 
 if __name__ == "__main__":

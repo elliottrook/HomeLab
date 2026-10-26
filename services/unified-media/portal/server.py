@@ -846,7 +846,7 @@ def submit_search_action(body: Mapping[str, Any]) -> dict[str, Any]:
         "author": str(body.get("author", "")),
         "seasons": body.get("seasons", []),
     }
-    if not item["authority_id"] or not item["title"] or media_type not in {"movie", "album", "ebook", "audiobook"}:
+    if not item["authority_id"] or not item["title"] or media_type not in {"movie", "tv", "album", "ebook", "audiobook"}:
         raise RuntimeError("search result identity is incomplete")
     return _submit_item(item)
 

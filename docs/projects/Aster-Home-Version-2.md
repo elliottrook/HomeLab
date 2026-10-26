@@ -8411,6 +8411,17 @@ contract above; it must not expose a general proxy, admin credential or
 automatic approval. This is an integration gate, not authority for a server
 change or a Seerr request.
 
+The media-type mismatch is now corrected and regression-tested **locally**:
+the existing search action accepts `tv` only when explicit non-empty seasons
+are present, then preserves those seasons for the existing Seerr revalidation
+path. This does not add an Aster endpoint, authentication or deployment. While
+running that test, the suite exposed a pre-existing branch omission:
+`portal/server.py` imported the established read-only Spotify helper although
+the helper, its test and Dockerfile copy entry were absent. The exact known-good
+repository implementation was restored from commit `cd0c6ea1`; its scopes are
+playlist-read-only and it adds no write authority. All 61 unified-media tests
+now pass in normal and optimized Python.
+
 The resulting repository gate passes all 1,031 Kodi v2 tests in both normal
 and optimized Python. This milestone is suitable for a focused local commit;
 it does not authorize a Forgejo push or HP/production deployment.
