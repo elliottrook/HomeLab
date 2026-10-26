@@ -110,7 +110,7 @@ pct exec "$vmid" -- env PYTHONPATH="$target" PYTHONDONTWRITEBYTECODE=1 \
 pct exec "$vmid" -- sh -c \
   "cd '$test_root' && PYTHONPATH='$target:$test_root' PYTHONDONTWRITEBYTECODE=1 python3 -B test_nlu_calibration_score.py"
 pct exec "$vmid" -- env PYTHONPATH="$target" PYTHONDONTWRITEBYTECODE=1 python3 -B -c \
-  'import nlu_calibration_runner, nlu_calibration_score, nlu_calibration_journal, nlu_calibration_stage_manifest'
+  'import nlu_calibration_runner, nlu_calibration_score, nlu_calibration_journal'
 pct exec "$vmid" -- test ! -e "$target/__pycache__"
 pct exec "$vmid" -- test ! -e "$target/run.json"
 pct exec "$vmid" -- test ! -e "$target/attempt-journal.jsonl"

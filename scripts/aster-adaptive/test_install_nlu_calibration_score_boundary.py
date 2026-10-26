@@ -21,6 +21,13 @@ class ScoreBoundaryInstallTests(unittest.TestCase):
         self.assertIn("test_root=/tmp/nlu-score-tests-$source_commit", source)
         self.assertIn("$test_root/fixtures/nlu-development-v1.json", source)
         self.assertIn("cd '$test_root'", source)
+        self.assertIn(
+            "import nlu_calibration_runner, nlu_calibration_score, nlu_calibration_journal'",
+            source,
+        )
+        self.assertNotIn(
+            "nlu_calibration_journal, nlu_calibration_stage_manifest", source
+        )
         self.assertNotIn("check_installed nlu_calibration_stage_manifest.py", source)
         self.assertNotIn("check_installed nlu-calibration-stage-manifest-v1.json", source)
         self.assertIn("PYTHONDONTWRITEBYTECODE=1", source)

@@ -15,9 +15,9 @@ match the already corrected runner and approved no-retry run card.
 - transaction:
   `scripts/aster-adaptive/install_nlu_calibration_score_boundary.sh`;
 - transaction SHA-256:
-  `0f568980e24d35301c1348a8047b05d90bcaed30c8e1a21a5b1e06f6d8e33408`;
+  `bbb31643a35006912055f67253ab43663b9c8f1b90409dad9748ef88f381525c`;
 - transaction test SHA-256:
-  `029701da005aee081680818e7aa980b5d4f341e75bdf749465250fcaed2bd17e`;
+  `8c07d6176df958980e61657ffceaf1149cf0e43c6d223b59a7aef22b4051e430`;
 - local transaction tests: 2/2; and
 - dependency-free NLU tests: 119/119.
 
@@ -44,7 +44,7 @@ After replacement, require exact new hashes and root:root mode `0600`, validate
 all eleven staged packet files, run the nine scorer regressions on target
 Linux from a unique temporary test root containing the public development
 fixture in the layout expected by the unchanged tests, import the
-runner/scorer/journal/manifest without bytecode writes, and
+installed runner/scorer/journal without bytecode writes, and
 repeat absence, llama and lease checks. Any failure restores both files
 from the checkpoint and removes only bounded temporary transport files.
 
