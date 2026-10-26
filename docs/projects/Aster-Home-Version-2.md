@@ -61,8 +61,12 @@
   A separately approved one-shot HP publication now passes fresh native UI,
   actual elapsed expiry and exact rollback. The original HP feed is restored;
   nothing is scheduled and normal Home navigation is unchanged. All837 tests
-  pass normally and optimized. Next: bounded runtime delivery/client-refresh
-  design; publisher identity and scheduling remain explicit integration gates.
+  pass normally and optimized at that milestone. The foreground-only local
+  generation consumer now passes850 tests and two isolated HP native runs:
+  replacements, unchanged/duplicate caching, older-delivery rejection, loss/
+  malformed/recovery, manual local reload and focus/context preservation.
+  The real feed remains unchanged. Next: read-only network diagnostics while
+  runtime publisher identity and scheduling remain explicit integration gates.
   Owner checks are deferred for a larger batch, not requested now. Forgejo/GitHub
   are synchronized through68b2285f; newer milestones are local only.
 - Previous resume point (2026-10-25): Search14 Stop-acknowledgement guard is on
@@ -6612,3 +6616,81 @@ manifest, candidate pin and both checkpoints for resumption/audit. Next work may
 prepare local consumer-generation tests and the runtime identity design. Any
 unattended publisher/schedule, new trust/credential path, normal Home promotion
 or production deployment remains outside this consumed one-shot approval.
+
+### Stream A continuation — local Home generation consumer (2026-10-25)
+
+Jason directed continued Stream A rather than stopping after each local milestone.
+Implement/test a bounded local-file consumer and an isolated manual HP preview
+successor. Detect changed private regular-file generations while open, validate
+before showing values, preserve focus, expire unchanged payloads in memory and
+reject older accepted generations. Cache rejected/unchanged file stamps so no
+repeated whole-file reads occur. Manual Reload is local-only. Poll metadata at
+most every two seconds while the isolated preview is active; no background
+service, task, network client or unattended source publisher is created.
+
+Use clearly labelled synthetic files only inside the immutable HP test stage
+to exercise native replacement/malformed/missing/replay/recovery paths. Never
+put synthetic data in the actual household feed; independently verify its hash
+and the full existing preservation suite. No HA or production changes, publisher
+identity/credential/schedule, camera frame or timer command. Recovery is closing
+the unreferenced new preview; retain preview2, all real-feed trial checkpoints
+and normal Home unchanged. Existing Aster TV gold/green/neutral visual exception
+and shared guide govern the reused layout. No new speech. No topology/service
+object changes; native checks remain the pilot monitor. Owner checks stay batched.
+
+#### Home local generation consumer — completed isolated evidence
+
+Added `home_refresh.py` and an unreferenced refresh-preview successor; preview2
+and normal Home remain unchanged. The consumer probes only its fixed private
+local path at most every two seconds while its window is active. It reads a
+changed generation once, verifies the same regular-file identity before/after
+the bounded read and checks the current path again after closing. It rejects
+linked/public/hardlinked/oversized/nonregular files, malformed/duplicate JSON,
+unknown fields and unreviewed or out-of-range values. Rejected values are not
+displayed; rejected-file stamps are cached. Unchanged values expire in memory.
+Accepted source/publication clocks cannot regress within an open view. This is
+not persistent anti-replay across reopen or an adversarial root-writer boundary.
+Same-source-second reviewed changes are permitted because the exporter can
+change more than once in a second. Accepted-generation equality uses a hash,
+not a separate retained copy of previous household readings.
+
+The current private stage `/storage/.aster-staging/aster-home-refresh-preview1`
+has six pinned payload members, external manifest SHA-256
+`623ae73ba4657b219331561d1bf31d14392ee2128ab9b806033aa709ab8bcbec`.
+Its default entry reads only the existing real feed. The explicit `synthetic`
+test mode accepts no path argument and is confined to its stage's one fixed
+`synthetic-home.json`; its visible banner states NOT household readings.
+The local client writes no feed and contacts no network service. Its entry lock
+is process-local housekeeping, not a publisher. Reload only forces a local read.
+
+Thirteen additional tests pass; full850-test suite passes normally/optimized.
+Two checks-enforced native runs under HP's private checkpoint tree pass:
+`aster-home-refresh-1792984855706092162/native.json` and
+`aster-home-refresh-1792985013414458520/native.json`. Both exercise unchanged
+whole-file-read caching, automatic replacement while focus stays on Timers,
+duplicate delivery without a new accepted revision, manual Reload, malformed
+and missing file states, older valid delivery rejection, old-source hiding,
+recovery, exact Back/focus and independent default-source Home exit. Synthetic
+fixtures were removed only after ownership/hash checks; no test file was put
+in the real profile. The first synthetic screenshot was independently inspected:
+updated Comfort values, no reviewed lights, Timers selection, explicit unconnected
+camera/timer state and clear synthetic labelling are legible and unclipped.
+These are synthetic pixels, not live sensor or owner/sofa acceptance.
+
+Final preservation `postcheck-1792985064968830528.json` passes48 Music and115
+untouched v1 members plus each exact approved overlay,68 AV/language settings
+with the existing documented display-index exception, both databases,
+no players/queues and all pilot windows closed. The actual Home feed SHA-256
+remains `a975c8c68dc5cf5d70c12530fb0bba60b89b78eb06d081f95ea6d97331b5b6cd`;
+the synthetic fixture is absent. No HA, production, camera, timer, active-skin,
+credential, service/schedule or network change occurred. Recovery is omitting
+the unreferenced successor; all previous checkpoints remain intact.
+
+Runtime-path assessment: the consulted Aster `get_ha_report` reader is explicitly
+health/version/backup-only, with a strict schema; it is not a household-display
+report or an authority to add readings. The existing Lab Operations broker
+gateway permits Doctor only. Neither may be broadened or repurposed silently.
+Do not put operator/admin guest-execution keys on a TV or schedule that ad-hoc
+route. Continue other selected local/HP Stream A work while a least-privilege
+report publisher/transport is designed; its credentials, broker permissions and
+schedules retain their separate risk decision. No remote Git write is authorized.
