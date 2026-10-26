@@ -1413,10 +1413,14 @@ V3 host/guest paths. It also records that M3's stage-manifest identity is a
 packet digest rather than a nonexistent installed `stage-manifest.json` path,
 and keeps the fixed Doctor proposal outside the two-workload sequence.
 The later [NLU completion correction](evidence/M3-NLU-final-attempt-completion-boundary-2026-10-25.md)
-superseded that snapshot's M3 runner pin before any workload execution. Its
-[one-file inactive replacement](evidence/M3-NLU-final-attempt-completion-inactive-replacement-result-2026-10-25.md)
-passed; the platform F6 card must now use runner `88af8eb7…6ca0` and packet
-manifest `835bcb55…b114`.
+superseded that snapshot's M3 runner pin before any workload execution. The
+subsequent score-boundary replacement also superseded its scorer, journal
+validator and packet-manifest identity. The final
+[current-packet receipt](evidence/Stream-A-F6-current-M3-packet-coordination-2026-10-25.md)
+now controls: runner `88af8eb7…6ca0`, scorer `7bce041e…2ccd`, journal
+validator `966786f8…beb` and complete eleven-file manifest `7b547d9b…ee80`.
+The platform F6 card must pin that complete set; no intermediate M3 manifest
+is valid for activation.
 The shared [B60 health check is also corrected](evidence/Stream-A-SYCL-health-check-source-correction-2026-10-25.md)
 to validate the accepted Qwen3.5-9B Q4_K_M SYCL/Level Zero service rather than
 the retired Vulkan/27B path; its fixture test and a streamed read-only live run
