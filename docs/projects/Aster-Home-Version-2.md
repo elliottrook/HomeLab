@@ -6364,3 +6364,14 @@ expiry, and retain the original expired feed for rollback. Cameras, timers,
 runtime delivery ownership/least privilege and automatic refresh remain open
 integration work. No new network/service identity exists to register in NetBox,
 Doctor or Beszel; operator recovery remains the existing SSH administration path.
+
+Dependency follow-up: sanitized `qm config 103` confirms `agent: enabled=1`;
+the documented HA HTTP endpoint `http://192.168.20.11/` returns200. This rules
+out treating an unavailable guest-agent transport as evidence of a general HA
+outage. No established alternative read-only report transport was found in the
+consulted operational records. Do not introduce a debug SSH account, new API
+credential, file share or HTTP report endpoint. The foundation is locally
+committed as `e0605de4`; the next live capture is blocked on guest-agent recovery.
+A checkpointed guest-agent-only repair needs a distinct HA-side risk decision,
+not the HP lab deployment authorization. Keep Core/VM restarts out of that repair
+unless separately justified and approved. Production and HP data remain unchanged.
