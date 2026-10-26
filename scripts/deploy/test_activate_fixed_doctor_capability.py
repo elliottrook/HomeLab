@@ -1,0 +1,30 @@
+import unittest
+from pathlib import Path
+
+
+SCRIPT = Path(__file__).with_name("activate_fixed_doctor_capability.sh")
+
+
+class FixedDoctorActivationBoundaryTests(unittest.TestCase):
+    def setUp(self):
+        self.text = SCRIPT.read_text()
+
+    def test_exact_identity_capability_and_single_read_are_pinned(self):
+        self.assertIn("enable-fixed-doctor --agent-uid 978", self.text)
+        self.assertEqual(1, self.text.count('s.sendall(b\'{"method":"doctor.aster-inference.latest"'))
+        self.assertIn('assert rows == [("consumed",)]', self.text)
+        self.assertIn('observation["state"] == "ok"', self.text)
+
+    def test_rollback_removes_activation_and_restores_database_custody(self):
+        self.assertIn('systemctl disable --now "$caller" "$gateway"', self.text)
+        self.assertIn('install -o hlabroker -g hlabroker -m 0600', self.text)
+        self.assertIn('wait_for_broker', self.text)
+        self.assertNotIn('systemctl restart aster-agent', self.text)
+
+    def test_no_model_forgejo_schedule_or_other_effect_path(self):
+        for forbidden in ("llama", "model", "forgejo", "LaunchAgent", "timer", "cron"):
+            self.assertNotIn(forbidden, self.text)
+
+
+if __name__ == "__main__":
+    unittest.main()
