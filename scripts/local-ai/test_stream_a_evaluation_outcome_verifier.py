@@ -1,3 +1,4 @@
+import copy
 import hashlib
 import json
 import unittest
@@ -18,7 +19,7 @@ def digest(value):
 def d4_ledger():
     rows = []; previous = ""
     for index in range(12):
-        case_id = f"case-{index:02d}"
+        case_id = f"sa3-dev-{index + 1:02d}"
         for event in (
             {"type": "started", "case_id": case_id, "mode": "nonthinking"},
             {"type": "finished", "result": {
@@ -36,9 +37,9 @@ def d4_ledger():
 def interpretation(case_id):
     return {
         "schema_version": "request-interpretation.v1", "request_id": case_id,
-        "principal_ref": "nlu-calibration-v1", "request_family": "query",
-        "sensitivity": "internal", "capability_needs": [], "ambiguity": [],
-        "disposition": "clarify", "reason": "fixture",
+        "principal_ref": "nlu-calibration-v1", "request_family": "general-answer",
+        "sensitivity": "internal", "capability_needs": [], "ambiguity": "ambiguous",
+        "disposition": "clarify", "reason": "ambiguous",
         "engine_digest": "sha256:" + M3_ENGINE_SHA256,
         "policy_digest": "sha256:" + M3_POLICY_SHA256,
         "confidence": None, "authorization": "not-granted",
@@ -88,6 +89,21 @@ class OutcomeVerifierTests(unittest.TestCase):
         raw = ("\n".join(json.dumps(row) for row in rows) + "\n").encode()
         with self.assertRaises(OutcomeVerificationError): verify_d4_ledger(raw)
 
+    def test_d4_rejects_arbitrary_unique_case_set(self):
+        rows = [json.loads(line) for line in d4_ledger().splitlines()]
+        previous = ""
+        for index, row in enumerate(rows):
+            if index == 0:
+                row["event"]["case_id"] = "arbitrary-unique"
+            elif index == 1:
+                row["event"]["result"]["case_id"] = "arbitrary-unique"
+            row["previous"] = previous
+            sealed = dict(row); sealed.pop("digest", None)
+            row["digest"] = digest(sealed); previous = row["digest"]
+        raw = ("\n".join(json.dumps(row) for row in rows) + "\n").encode()
+        with self.assertRaisesRegex(OutcomeVerificationError, "incomplete"):
+            verify_d4_ledger(raw)
+
     def test_accepts_exact_m3_run_and_journal(self):
         run, journal = m3_artifacts(); result = verify_m3_artifacts(run, journal)
         self.assertEqual(result.calls, 60)
@@ -101,6 +117,20 @@ class OutcomeVerifierTests(unittest.TestCase):
             verify_m3_artifacts((json.dumps(run) + "\n").encode(), journal)
         with self.assertRaises(OutcomeVerificationError):
             verify_m3_artifacts(run_raw, journal.replace(b'"complete":true', b'"complete":false'))
+
+    def test_m3_rejects_malformed_interpretation_dimensions(self):
+        run_raw, journal = m3_artifacts(); run = json.loads(run_raw)
+        for field, value in (
+            ("request_family", "invented"), ("sensitivity", 7),
+            ("capability_needs", ["root.anything"]),
+            ("ambiguity", []), ("disposition", "route"),
+            ("reason", "unsupported"),
+        ):
+            with self.subTest(field=field):
+                changed = copy.deepcopy(run)
+                changed["records"][0]["interpretation"][field] = value
+                with self.assertRaises(OutcomeVerificationError):
+                    verify_m3_artifacts((json.dumps(changed) + "\n").encode(), journal)
 
     def test_duplicate_json_and_oversize_fail_closed(self):
         _run, journal = m3_artifacts()

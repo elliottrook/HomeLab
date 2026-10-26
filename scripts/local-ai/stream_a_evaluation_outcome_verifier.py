@@ -32,6 +32,16 @@ M3_ERROR_TYPES = {
     "deadline_exceeded", "engine_unavailable", "response_invalid",
     "transport_error",
 }
+D4_CASE_IDS = frozenset(f"sa3-dev-{index:02d}" for index in range(1, 13))
+M3_FAMILIES = {
+    "household-command", "general-answer", "read-only-investigation",
+    "change-request", "external-research", "unsupported",
+}
+M3_CAPABILITIES = {
+    "backup.delete", "calendar.read", "facts.answer", "home.control",
+    "lab.change", "lab.read", "local.join", "timer.control",
+    "web.publish", "web.read",
+}
 
 
 @dataclass(frozen=True)
@@ -145,7 +155,8 @@ def verify_d4_ledger(raw: bytes) -> OutcomeEvidence:
         accepted += 1
         completed.add(active)
         active = None
-    if active is not None or len(completed) != 12 or accepted != 12 or calls > 36:
+    if (active is not None or completed != D4_CASE_IDS
+            or accepted != 12 or calls > 36):
         raise OutcomeVerificationError("D4 completion boundary is incomplete")
     summary = {"status": "complete", "completed_sessions": 12,
                "accepted_terminal_sessions": 12, "calls": calls,
@@ -191,8 +202,34 @@ def verify_m3_artifacts(run_raw: bytes, journal_raw: bytes) -> OutcomeEvidence:
                     or interpretation.get("authorization") != "not-granted"
                     or interpretation.get("confidence") is not None
                     or interpretation.get("engine_digest") != "sha256:" + M3_ENGINE_SHA256
-                    or interpretation.get("policy_digest") != "sha256:" + M3_POLICY_SHA256):
+                    or interpretation.get("policy_digest") != "sha256:" + M3_POLICY_SHA256
+                    or interpretation.get("request_family") not in M3_FAMILIES
+                    or interpretation.get("sensitivity") not in {
+                        "public", "internal", "personal"}
+                    or not isinstance(interpretation.get("capability_needs"), list)
+                    or len(interpretation["capability_needs"]) > 8
+                    or len(interpretation["capability_needs"])
+                        != len(set(interpretation["capability_needs"]))
+                    or any(type(item) is not str or item not in M3_CAPABILITIES
+                           for item in interpretation["capability_needs"])
+                    or not isinstance(interpretation.get("ambiguity"), str)
+                    or not isinstance(interpretation.get("disposition"), str)
+                    or not isinstance(interpretation.get("reason"), str)):
                 raise OutcomeVerificationError("M3 interpretation boundary changed")
+            allowed = {
+                "route": {("clear", "understood")},
+                "clarify": {("ambiguous", "ambiguous")},
+                "abstain": {("ambiguous", "ambiguous"),
+                            ("clear", "unsupported")},
+                "deny": {("clear", "policy-denied")},
+            }
+            disposition = interpretation["disposition"]
+            if (disposition not in allowed
+                    or (interpretation["ambiguity"], interpretation["reason"])
+                        not in allowed[disposition]
+                    or (interpretation["request_family"] == "unsupported")
+                        != (interpretation["reason"] == "unsupported")):
+                raise OutcomeVerificationError("M3 interpretation semantics changed")
         elif record.get("valid") is False:
             if set(record) != {"id", "valid", "latency_seconds", "failure", "error_type"}:
                 raise OutcomeVerificationError("M3 failure record schema changed")
