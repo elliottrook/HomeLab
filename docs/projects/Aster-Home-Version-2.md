@@ -8087,3 +8087,33 @@ expected `AsterIdle.xml`. All 997 Kodi v2 tests pass in both normal and
 optimized Python. Production remains unchanged. Final human review of the
 randomized fade cadence is pending; rollback is the exact private checkpoint,
 not a guessed native setting.
+
+### M5 exact word-alignment foundation — local pre-start, 2026-10-26
+
+The accepted chapter proof still highlights whole sentences. The canonical
+voice stream supplies measured sentence-unit boundaries, while the existing
+local Whisper service can technically produce recognizer word timestamps but
+does not expose or validate them through the current API. Character count,
+audio duration and evenly divided sentence timing are not acceptable substitutes.
+
+The next safe slice is therefore a dependency-free, local-only alignment gate.
+It accepts exact EPUB source text plus independently measured recognizer words
+and times, maps them to source-character spans, and rejects the complete unit
+on any insertion, omission, substitution, ambiguous multiword token, overlap,
+non-monotonic time or out-of-duration boundary. It performs no speech request,
+audio decoding, service call, network access, EPUB write, progress write or HP/
+production deployment. Passing synthetic tests proves only refusal and mapping
+semantics; it does not claim that Whisper provides sufficient accuracy or that
+word highlighting is ready. A later bounded server-side trial must measure real
+canonical audio and prove exact coverage before any shared API or reader change.
+
+The local gate is implemented with explicit source and word-count bounds,
+Unicode normalization that preserves exact source offsets, monotonic finite
+timing checks and all-or-nothing output. It passes exact punctuation/case and
+curly-apostrophe fixtures while refusing substitutions, insertions, omissions,
+multiword recognizer tokens, overlaps and impossible timestamps. The complete
+Kodi v2 suite now passes 1,002 tests in both normal and optimized Python. No
+runtime bundle, HP file or speech service was changed. The next meaningful gate
+is a bounded server-side measurement of the already-generated synthetic chapter
+audio; it must use the existing local recognizer without another TTS request and
+must keep any transcript/timing artifact private.
