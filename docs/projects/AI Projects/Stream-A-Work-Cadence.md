@@ -77,6 +77,22 @@ diagnostic pins and an active observation-only reconciliation at 01:42. The
 timed test is GO — scheduled/conditional; fresh runtime gates still decide
 whether the scanner starts, and any failure means NO-GO without retry.
 
+**October 26 active chain:** Jason approved the corrected host-exclusion pins
+and the exact October 26 F2 activation. Read-only verification on October 25
+found both one-shot timers enabled and active: prepare at 01:15 and final at
+01:20 PDT. Recurring F2 timers remain disabled. The one-occurrence 01:42
+reconciliation automation is active and owns bounded readback plus timer
+cleanup. Fresh backup, TrueNAS, archive-identity, host-load, lease and
+no-competing-work gates remain mandatory at runtime; any failed or uncertain
+gate is NO-GO without retry.
+
+Jason also approved the exact conditional F3 conversion at 01:50. It may run
+only after the 01:42 reconciliation accepts exactly three F2 exit-zero rows
+and every postcheck. It writes at most one retained receipt, never repeats the
+archive scan, and is NO-GO on missing or uncertain evidence. F4 is deliberately
+deferred to a subsequent backup cycle, so tonight cannot advance into a lease,
+service stop, model request, candidate-H or M3 run.
+
 **October 20 F2 result:** the two exact-date timers fired and are now disabled,
 but preparation failed after five seconds and final failed immediately. No
 archive row or scan result was produced. The exact preparation sub-gate is
