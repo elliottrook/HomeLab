@@ -54,8 +54,11 @@
   now have an isolated HP preview2 with two passing native runs and inspected
   stale-state pixels. It is not a replacement for normal Home. HA's sanitized
   source is current, but HP's delivered copy is expired; values stay hidden.
-  Next: prepare bounded delivery validation without executing the old Mac pilot,
-  creating schedules, extending camera trust or inventing timer state.
+  The bounded delivery validator now passes826 tests, normally and optimized;
+  its actual HA capture remains unverified because VM103's guest agent stopped
+  answering during read-only checks, although the VM reports running. No data
+  was published. Next: validate the full capture after guest-agent recovery;
+  do not restart HA or create delivery schedules to bypass that dependency.
   Owner checks are deferred for a larger batch, not requested now. Forgejo/GitHub
   are synchronized through68b2285f; newer milestones are local only.
 - Previous resume point (2026-10-25): Search14 Stop-acknowledgement guard is on
@@ -6296,3 +6299,68 @@ obtain new credentials in the delivery foundation. A later live HP publication
 requires its own checkpoint, feed/UI compatibility check and no-data-loss
 rollback; production remains separately gated. Routine source-local metadata
 checks are read-only and do not authorize installing a new publisher.
+
+### Home delivery foundation — pre-start (2026-10-25)
+
+Continue locally and read-only under the existing project: build a fixed-source
+capture/validation tool, not a publisher. One read-only SSH request through the
+established Proxmox alias and VM103 guest agent may read only the existing
+sanitized report. Capture file identity/size/mtime before and after the bounded
+read; reject a changed source rather than mixing generations or retrying blindly.
+Source-local projection must reject unknown fields before transport. Validate
+the reviewed schema and both timestamps locally; output only counts, freshness
+and fixed diagnostic codes. Do not print/store the payload or exception output.
+No HP feed change, camera query, HA modification, credentials, schedules,
+services, ingress, inventory, production contact or speech. No new auth identity
+is created: this is an operator read-only diagnostic, not runtime TV access.
+Use synthetic fixtures for malformed data, capture races, source expiry and
+publication semantics. No live outage or remote rollback is expected; removing
+the unreferenced local tool is recovery. Doctor/monitoring/Beszel/NetBox/wiki and
+operational publication remain unchanged because no running service is added.
+Record real bounded source checks separately from any future publication test.
+
+### Home delivery foundation — implementation and dependency evidence (2026-10-25)
+
+Added `home_delivery.py` and the operator-only
+`services/kodi/v2/tools/check_home_delivery.py`. The pure validator requires one
+stable mode0600, single-link, bounded source generation and exact reviewed
+schema3 fields; it refuses stale/future or malformed captures. It preserves the
+source mtime separately from the candidate publication time and produces bytes
+only in memory. Candidate bytes are omitted from its repr. The read-only tool
+uses one fixed SSH alias, VM and source path, source-local `jq` validation and a
+bounded `head` read bracketed by stat identity/size/mtime/ctime checks. Unknown
+fields, raw attributes and camera records are rejected before transport. No
+arbitrary host/path arguments, publisher, credentials, retry loop or schedule.
+
+Eleven additional tests pass; the full826-test suite passes in both modes.
+The actual source-local jq expression is exercised with synthetic snapshots:
+allowed snapshots survive, while unknown fields/URLs, unreviewed aliases,
+invalid condition/temperature/humidity and oversized collections emit no payload.
+Other tests cover changed captures, file permission/link/size metadata, exact
+expiry, duplicate JSON fields after capture transport, Unicode, nesting and
+truncated/failed guest replies, private-error suppression and fixed SSH scope.
+Source-local jq is a parser/projection, not a claim to detect duplicate keys in
+the original JSON text; the trusted atomic HA exporter produces that document.
+Local capture parsing independently rejects duplicate fields in the transported
+envelope and snapshot.
+
+Read-only preflight found VM103's source regular,350bytes,mode0600, mtime1792980832;
+the guest had jq/head/stat but no Python3 command. The first complete capture
+attempt failed transport and published nothing. Bounded diagnosis identified
+`QEMU guest agent is not running`; direct read-only stat then confirmed the same
+failure while `qm status 103` still reported running. Do not infer that Home
+Assistant itself is down or restart Core/VM to cure an unproven cause. No HA,
+HP-feed, active-skin, camera, auth, service, schedule or production mutation.
+The complete shell/stat/guest transport path is **not live-validated**; local jq
+and fixture tests do not substitute for that acceptance. HP also lacks jq and
+its BusyBox stat lacks `-c`, so it is not a substitute source-runtime test host;
+the proposed capture command runs only inside the established HA guest.
+
+Resume: after the existing guest-agent path recovers, run the no-argument
+read-only check twice and record count/freshness-only results. A successful
+check still does not publish or enable a schedule. Prepare/checkpoint any later
+bounded HP publication separately, verify old Home compatibility and freshness
+expiry, and retain the original expired feed for rollback. Cameras, timers,
+runtime delivery ownership/least privilege and automatic refresh remain open
+integration work. No new network/service identity exists to register in NetBox,
+Doctor or Beszel; operator recovery remains the existing SSH administration path.
