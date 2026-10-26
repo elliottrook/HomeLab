@@ -71,6 +71,31 @@ class BrokerAdminM7Tests(unittest.TestCase):
             ).fetchone())
             store.close()
 
+    def test_project_document_admin_route_survives_fixed_doctor_reconciliation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "broker.db"
+            store = BrokerStore(database)
+            store.register_agent("agent-cloud-bundle", 1906)
+            store.set_agent_state("agent-cloud-bundle", "operator")
+            store.close()
+            command = [
+                sys.executable, str(Path(__file__).with_name("broker_admin.py")),
+                "--database", str(database), "enable-forgejo-project-documents",
+            ]
+            subprocess.run(command, check=True, capture_output=True, text=True)
+            store = BrokerStore(database)
+            self.assertEqual(("forgejo-mcp-project-write", "yellow", 0, 1), tuple(
+                store.connection.execute(
+                    "SELECT service_id,risk_class,probation_allowed,enabled FROM capabilities "
+                    "WHERE capability='forgejo.write.project-documents'"
+                ).fetchone()
+            ))
+            self.assertEqual(1, store.connection.execute(
+                "SELECT count(*) FROM agent_capabilities "
+                "WHERE agent_id='agent-cloud-bundle' AND capability='forgejo.write.project-documents'"
+            ).fetchone()[0])
+            store.close()
+
     def test_fixed_doctor_enrollment_is_single_grant_and_reversible(self):
         with tempfile.TemporaryDirectory() as directory:
             database = Path(directory) / "broker.db"

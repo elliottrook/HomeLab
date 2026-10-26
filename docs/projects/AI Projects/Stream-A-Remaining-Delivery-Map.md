@@ -956,6 +956,25 @@ service/`xe` contract. Its generator tests pass 3/3, the combined boundary
 suite passes 40/40 and `bash -n` passes. The correction and one new canary need
 their own exact live decision; no service, grant or model route is active.
 
+Jason approved that exact correction and re-canary. The
+[live result](evidence/M1-D4-fixed-doctor-emitter-correction-result-2026-10-25.md)
+passes: the production Doctor has the exact generated hash, the same-run fixed
+state is `pass`, local and LXC104 report bytes are digest/timestamp bound, both
+remote staging paths are absent and the fixed services remain inert. The
+overall Doctor still reports two unrelated operational failures; they do not
+alter the typed inference result. The producer/evidence gate is complete.
+
+The first broker replacement candidate was then rejected before deployment:
+its two source files predated live Forgejo project-document support and would
+have removed that capability, dedicated socket and batch-write route. The
+[reconciled replacement card](evidence/M1-D4-fixed-doctor-broker-reconciliation-card-2026-10-25.md)
+now starts from the exact deployed sources, preserves those newer routes and
+adds the fixed Doctor path. Its exact-source generator reproduces both
+candidate hashes, local compilation passes and 51 focused tests cover both
+feature families. The next bounded gate is target-Linux staging followed by
+replacement of exactly those two broker sources and one controlled normal-
+broker restart, still without enrollment, grant or service activation.
+
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)
 deployed caller binding and restrictive checks, while the
 [Stage2 approver/assurance candidate](evidence/M1-stage2-candidate.md) is **not

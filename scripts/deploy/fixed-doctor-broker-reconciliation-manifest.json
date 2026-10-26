@@ -1,0 +1,29 @@
+{
+  "candidate": "m1-d4-fixed-doctor-broker-reconciliation-v1",
+  "entries": [
+    {
+      "candidate_sha256": "e90acd24acfa13f959070f2c791d29ea28ebf1d4240edd5a9b39b54dfc7ef4aa",
+      "current_sha256": "00216b27e179d936e1b5fd9feb1ca17dc25bb6af3e34b044408ae21133924e8b",
+      "group": "root",
+      "mode": "0700",
+      "owner": "root",
+      "source": "ops/credential-broker/broker_admin.py",
+      "target": "/opt/homelab-broker/broker_admin.py"
+    },
+    {
+      "candidate_sha256": "c6217f4988510b4d38581829b4f6b333487b1cd35732a6ba5b3d82dcc69b627e",
+      "current_sha256": "05a555241b97ad7e6a9d268ad91426af0432fb0ae0785dabf46bf4081e713ccb",
+      "group": "root",
+      "mode": "0644",
+      "owner": "root",
+      "source": "ops/credential-broker/broker_service.py",
+      "target": "/opt/homelab-broker/broker_service.py"
+    }
+  ],
+  "generator": "scripts/deploy/patch_live_broker_fixed_doctor.py",
+  "invariant_sha256": {
+    "/opt/homelab-broker/broker_core.py": "2fdb80964984fed5cf539f12a62d0058ba9eb9088861425858109fabc7dabf99"
+  },
+  "restart": "homelab-broker.service",
+  "rollback": "restore both exact predecessors and the consistent SQLite checkpoint, then restart only homelab-broker.service"
+}

@@ -267,6 +267,37 @@ class BrokerServiceTests(unittest.TestCase):
             {"ok": False, "error": "Lab Operations gateway is unavailable"}, response,
         )
 
+    def test_project_document_write_route_survives_fixed_doctor_reconciliation(self):
+        self.store.set_agent_state("agent-test", "operator")
+        self.store.register_service("forgejo-mcp-project-write")
+        self.store.register_capability(
+            "forgejo.write.project-documents", "forgejo-mcp-project-write", "yellow",
+        )
+        self.store.grant_capability("agent-test", "forgejo.write.project-documents")
+        self.server.forgejo_project_write_socket = str(self.write_gateway_path)
+        payload = {
+            "owner": "jason", "repo": "homelab", "branch_name": "main",
+            "files": [{"filePath": "docs/projects/example.md", "content": "example\n"}],
+            "message": "Document project example",
+        }
+        created = self.call({
+            "method": "request.create",
+            "capability": "forgejo.write.project-documents",
+            "payload": payload,
+        })
+        self.assertEqual("pending", created["result"]["status"])
+        self.store.approve_request(
+            created["result"]["request_id"], created["result"]["payload_hash"],
+        )
+        consumed = self.call({
+            "method": "request.consume",
+            "request_id": created["result"]["request_id"],
+            "payload": payload,
+        })
+        self.assertTrue(consumed["ok"])
+        self.assertEqual("create_file_batch", self.write_gateway.requests[-1]["params"]["name"])
+        self.assertEqual(payload, self.write_gateway.requests[-1]["params"]["arguments"])
+
     def test_fixed_doctor_capability_forwards_only_empty_payload(self):
         self.store.set_agent_state("agent-test", "operator")
         self.store.register_service("aster-fixed-doctor")

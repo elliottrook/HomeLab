@@ -85,18 +85,26 @@ class BrokerHandler(socketserver.StreamRequestHandler):
             if pending.capability == "diagnostic.aster-inference.latest" and payload != {}:
                 raise BrokerDenied("fixed Doctor capability accepts no arguments")
             record = self.server.store.consume_request(request_id, payload, agent_id=agent_id)  # type: ignore[attr-defined]
-            if record.capability in {"forgejo.read.repository", "forgejo.write.safe-branch"}:
+            if record.capability in {
+                "forgejo.read.repository", "forgejo.write.safe-branch",
+                "forgejo.write.project-documents",
+            }:
                 if record.capability == "forgejo.read.repository":
                     tool = payload.get("tool", "get_repo")
                     arguments = payload.get("arguments", payload)
                     if tool not in FORGEJO_BOUNDED_READ_TOOLS or not isinstance(arguments, dict):
                         raise BrokerDenied("Forgejo read request is outside the bounded tool set")
-                else:
+                elif record.capability == "forgejo.write.safe-branch":
                     tool = "create_file"
+                    arguments = payload
+                else:
+                    tool = "create_file_batch"
                     arguments = payload
                 gateway_socket = (
                     self.server.forgejo_socket  # type: ignore[attr-defined]
                     if record.capability == "forgejo.read.repository"
+                    else self.server.forgejo_project_write_socket  # type: ignore[attr-defined]
+                    if record.capability == "forgejo.write.project-documents"
                     else self.server.forgejo_write_socket  # type: ignore[attr-defined]
                 )
                 rpc = {
@@ -157,12 +165,14 @@ class BrokerServer(socketserver.UnixStreamServer):
         forgejo_socket: str = "/run/homelab-forgejo-mcp/gateway.sock",
         forgejo_write_socket: str = "/run/homelab-forgejo-mcp-write/gateway.sock",
         lab_operations_socket: str = "/run/aster-lab-operations-broker/gateway.sock",
+        forgejo_project_write_socket: str = "/run/homelab-forgejo-mcp-project-write/gateway.sock",
         fixed_doctor_socket: str = "/run/aster-fixed-doctor/gateway.sock",
         request_timeout: float = 5.0,
     ):
         self.store = store
         self.forgejo_socket = forgejo_socket
         self.forgejo_write_socket = forgejo_write_socket
+        self.forgejo_project_write_socket = forgejo_project_write_socket
         self.lab_operations_socket = lab_operations_socket
         self.fixed_doctor_socket = fixed_doctor_socket
         self.request_timeout = request_timeout
@@ -176,6 +186,7 @@ def main() -> None:
     parser.add_argument("--socket-group", required=True)
     parser.add_argument("--forgejo-socket", default="/run/homelab-forgejo-mcp/gateway.sock")
     parser.add_argument("--forgejo-write-socket", default="/run/homelab-forgejo-mcp-write/gateway.sock")
+    parser.add_argument("--forgejo-project-write-socket", default="/run/homelab-forgejo-mcp-project-write/gateway.sock")
     parser.add_argument("--lab-operations-socket", default="/run/aster-lab-operations-broker/gateway.sock")
     parser.add_argument("--fixed-doctor-socket", default="/run/aster-fixed-doctor/gateway.sock")
     args = parser.parse_args()
@@ -185,8 +196,12 @@ def main() -> None:
         socket_path.unlink()
     store = BrokerStore(args.database)
     server = BrokerServer(
-        str(socket_path), store, args.forgejo_socket, args.forgejo_write_socket,
-        args.lab_operations_socket, args.fixed_doctor_socket,
+        str(socket_path), store,
+        forgejo_socket=args.forgejo_socket,
+        forgejo_write_socket=args.forgejo_write_socket,
+        lab_operations_socket=args.lab_operations_socket,
+        forgejo_project_write_socket=args.forgejo_project_write_socket,
+        fixed_doctor_socket=args.fixed_doctor_socket,
     )
     os.chmod(socket_path, 0o660)
     os.chown(socket_path, -1, grp.getgrnam(args.socket_group).gr_gid)
