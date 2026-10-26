@@ -55,8 +55,8 @@ class HandlerTests(unittest.TestCase):
         selected = plan(root)
         return selected, FixedHandlers(
             selected, runner=runner or FakeRun(),
-            outcome_verifier=lambda name: VerifiedOutcome(name, "e" * 64,
-                                                            "f" * 64, 1, 1),
+            outcome_verifier=lambda name, elapsed: VerifiedOutcome(
+                name, "e" * 64, "f" * 64, 1, elapsed),
             restored_verifier=lambda _plan: True,
             paths=HandlerPaths(runtime, identity, root), required_uid=os.geteuid(),
             clock=lambda: 100_001, monotonic=lambda: 1, sleep=lambda _s: None,

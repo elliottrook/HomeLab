@@ -11,6 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import stat
@@ -129,7 +130,7 @@ class FixedHandlers:
         plan: LivePlan,
         *,
         runner: Callable[..., subprocess.CompletedProcess] = subprocess.run,
-        outcome_verifier: Callable[[str], VerifiedOutcome],
+        outcome_verifier: Callable[[str, int], VerifiedOutcome],
         restored_verifier: Callable[[LivePlan], bool],
         paths: HandlerPaths = HandlerPaths(),
         clock: Callable[[], int] = lambda: int(time.time()),
@@ -228,9 +229,14 @@ class FixedHandlers:
         if name not in commands:
             raise HandlerError("workload is not fixed")
         command, timeout = commands[name]
+        started = self.monotonic()
         _run(self.runner, command, timeout=timeout)
-        outcome = self.outcome_verifier(name)
-        if not isinstance(outcome, VerifiedOutcome) or outcome.name != name:
+        elapsed = math.ceil(self.monotonic() - started)
+        if elapsed < 0 or elapsed > timeout:
+            raise HandlerError("workload elapsed time is outside the fixed bound")
+        outcome = self.outcome_verifier(name, elapsed)
+        if (not isinstance(outcome, VerifiedOutcome) or outcome.name != name
+                or outcome.elapsed_seconds != elapsed):
             raise HandlerError("workload verifier returned a foreign outcome")
         return outcome
 
