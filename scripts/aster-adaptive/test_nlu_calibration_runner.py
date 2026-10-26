@@ -57,6 +57,8 @@ class Opener:
         outcome = next(self.outcomes)
         if isinstance(outcome, BaseException):
             raise outcome
+        if isinstance(outcome, Response):
+            return outcome
         return Response(outcome)
 
 
@@ -98,6 +100,23 @@ class NluCalibrationRunnerTests(unittest.TestCase):
         self.assertEqual(2, len(result["records"]))
         self.assertEqual("response_invalid", result["records"][0]["error_type"])
         self.assertTrue(result["records"][1]["valid"])
+        self.assertTrue(runner.completed(result, 2))
+
+    def test_final_case_transport_failure_never_counts_as_complete(self):
+        opener = Opener([response_bytes(), URLError("offline")])
+        result = runner.run_cases(cases(), "s" * 32, opener=opener, clock=Clock())
+        self.assertEqual(2, len(result["records"]))
+        self.assertEqual("transport_error", result["records"][-1]["error_type"])
+        self.assertFalse(runner.completed(result, 2))
+
+    def test_final_case_engine_failure_never_counts_as_complete(self):
+        failed = Response(b"{}")
+        failed.status = 503
+        opener = Opener([response_bytes(), failed])
+        result = runner.run_cases(cases(), "s" * 32, opener=opener, clock=Clock())
+        self.assertEqual(2, len(result["records"]))
+        self.assertEqual("engine_unavailable", result["records"][-1]["error_type"])
+        self.assertFalse(runner.completed(result, 2))
 
     def test_known_llama_metadata_is_stripped_before_strict_adapter(self):
         raw = json.loads(response_bytes())

@@ -288,10 +288,25 @@ def completed(result: dict, expected_cases: int) -> bool:
     """Return whether the one-attempt run reached every frozen case.
 
     Invalid model responses still count as completed attempts and remain in the
-    scorer denominator. Transport uncertainty and deadline exhaustion leave a
-    shorter artifact and must make the command fail closed.
+    scorer denominator. Transport uncertainty, engine unavailability and
+    deadline exhaustion make the command fail closed even when the affected
+    attempt is the final frozen case and the record count is therefore full.
     """
-    return len(result["records"]) == expected_cases
+    records = result.get("records")
+    if not isinstance(records, list) or len(records) != expected_cases:
+        return False
+    for record in records:
+        if not isinstance(record, dict):
+            return False
+        if record.get("valid") is True:
+            continue
+        if not (
+            record.get("valid") is False
+            and record.get("failure") == "invalid_response"
+            and record.get("error_type") == "response_invalid"
+        ):
+            return False
+    return True
 
 
 def main(argv: list[str] | None = None) -> int:

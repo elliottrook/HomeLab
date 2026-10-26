@@ -17,7 +17,7 @@ INPUTS = [
     ("cases.json", "6ba07b680d8f49722559a7b2774e151f613428a106cc7f740b43cd972021726e", "private-synthetic"),
     ("release.json", "f13a795f5c3b1890d87e2b6417c972c47817ded027f607bc00ad05a6e4c894a1", "content-free"),
     ("nlu-development-v1.json", "1565a21c78875f64f4f25a190e977ae34dc01bdfcfd5e49c056e8365268b3785", "public-synthetic"),
-    ("nlu_calibration_runner.py", "a8cca4daa3a0504b07e9dc70bee4d8e04d3f181ac742c53954718c6918fc5a0f", "source"),
+    ("nlu_calibration_runner.py", "88af8eb7f196c03563a31ed2c2fe513d054d491c4903ba4c29dfd765dba36ca0", "source"),
     ("nlu_calibration_corpus.py", "3b383dcc181cc5c6a41d3aa9a30bc72ee30896ff0375bbc270de9bd82ba4f983", "source"),
     ("nlu_calibration_release.py", "bdc93c7892eda067c0675c04259c996d6f43935ee84ba4ae6bbea6d1892488d9", "source"),
     ("nlu_calibration_score.py", "ec4f4e44ff595617f1fe8e337b587bbab049204d001dd2ba050ee1fb146022fd", "source"),

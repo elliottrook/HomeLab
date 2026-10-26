@@ -46,10 +46,13 @@ Three separate fresh contexts have now created and blindly reviewed the
 release. The accepted policy, candidate and release deterministically produce
 a registered policy with no selected threshold. A preregistered binary route
 score and bounded [live run card](evidence/M3-NLU-calibration-run-card-2026-10-25.md)
-are staged in LXC110 for a separately approved, lease-protected local run. The
-corrected packet passes 116 dependency-free tests and has produced no output or
-model request. No holdout access, shadowing, deployment or routing change has
-occurred.
+are prepared for a separately approved, lease-protected local run. A
+[final-attempt completion correction](evidence/M3-NLU-final-attempt-completion-boundary-2026-10-25.md)
+now prevents a transport failure on case 60 from appearing complete and passes
+118 dependency-free tests. The prior staged runner is superseded and remains
+inert until its bounded one-file replacement passes target-Linux validation.
+No output or model request exists, and no holdout access, shadowing, deployment
+or routing change has occurred.
 The future holdout contract now separately binds semantic zero-overlap receipts
 against both the exposed development set and the sealed calibration set, and
 requires an independent non-overlap reviewer. Holdout content remains unopened
