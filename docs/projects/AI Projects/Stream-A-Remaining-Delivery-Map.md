@@ -1249,3 +1249,10 @@ replaces environment-key access with a bounded inherited descriptor and passes
 the complete 168-test evaluation suite. It is a new, unauthorized digest and
 has not been staged or run. The platform must still supply and pin the actual
 secret-broker descriptor opener; candidate-G's approval does not transfer.
+Stream A has also prepared a
+[root-only descriptor launcher proposal](evidence/D4-candidate-H-descriptor-launcher-proposal-2026-10-25.md)
+that validates every candidate byte before opening the existing root:aster
+mode-0640 service file, passes only one bounded value through a close-on-exec
+pipe and clears its buffers. Its four synthetic tests and all 168 evaluation
+tests pass. The platform owner must still accept or reject that custody
+conversion before any inactive staging request is valid.
