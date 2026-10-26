@@ -979,10 +979,14 @@ check. The corrected retry uses registered client `hlabagent` and restores the
 database as `hlabroker:hlabroker` mode `0600`. The first corrected retry then
 failed closed on a measured startup-readiness race: active state plus socket
 existence preceded an accepting listener. Rollback recovered production. The
-next pinned script requires a bounded successful `hlabagent` health-probe loop
-before postchecks. Its next gate is a fresh exact approval for the same two
-source replacements and one controlled normal-broker restart, still without
-enrollment, grant or service activation.
+final pinned script requires a bounded successful `hlabagent` health-probe loop
+before postchecks and uses the same loop during rollback. Jason approved the
+final retry and the [live broker result](evidence/M1-D4-fixed-doctor-broker-reconciliation-result-2026-10-25.md)
+passes: both reconciled source hashes are live, registered-client health and
+database integrity pass, Forgejo project-document routing is preserved, fixed
+rows remain zero and the fixed services remain inactive. The next separate
+gate is dedicated gateway/caller activation, exactly one Green observer grant
+and one bounded live fixed read with a zero-row/disabled-service rollback.
 
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)
 deployed caller binding and restrictive checks, while the
