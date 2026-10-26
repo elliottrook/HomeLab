@@ -1041,9 +1041,13 @@ read has occurred. An exact eight-file, 29,892-byte
 now passes exact-name, custody, opened-byte and no-extra-file validation; the
 deterministic archive and fail-closed transaction are frozen in an
 [approval-ready inactive install card](evidence/M1-D4-fixed-doctor-usefulness-inactive-install-card-2026-10-25.md),
-and the combined source suite passes 39/39. LXC104 remains unchanged. The
-inactive install and later effectful live card remain separate gates before an
-evaluation.
+and the combined source suite passes 39/39. The separately approved
+[inactive installation passed](evidence/M1-D4-fixed-doctor-usefulness-inactive-install-result-2026-10-25.md):
+LXC104 now holds exactly eight root-owned mode-`0600` files in a mode-`0700`
+directory, every hash and target import passed, and no output, journal, cache
+or runner process exists. Production and the October 26 F2 schedule remained
+healthy. A later admitted F6 workload and exact effectful live card remain
+separate gates before an evaluation.
 
 The future live run also has a
 [machine-readable F6 workload proposal](evidence/M1-D4-fixed-doctor-F6-workload-proposal-2026-10-25.md).

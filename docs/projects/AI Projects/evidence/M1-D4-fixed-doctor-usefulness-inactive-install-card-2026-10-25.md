@@ -1,6 +1,6 @@
 # M1/D4 fixed Doctor usefulness inactive install card — 2026-10-25
 
-Status: **APPROVAL READY; NOT INSTALLED**
+Status: **COMPLETED — PASS; INSTALLED INACTIVE**
 
 **Source commit:** `abcaa595`
 
@@ -47,4 +47,10 @@ receipt, route or model request. It does not read a credential, pass
 schedule, or grant authority. Installation proves inactive custody only. A
 separate platform admission implementation, exact effectful run card and model
 call approval remain mandatory.
+
+## Completion
+
+Jason approved this exact inactive installation. The transaction completed at
+22:41–22:43 PDT on 2026-10-25 and its independent postcheck passed. See the
+[installation result](M1-D4-fixed-doctor-usefulness-inactive-install-result-2026-10-25.md).
 
