@@ -1,6 +1,6 @@
 # Stream A evaluation fixed handlers — source candidate
 
-Status: **SOURCE ONLY; INDEPENDENT REVIEW REQUIRED**
+Status: **SOURCE ONLY; INDEPENDENT REVIEW PASSED**
 
 This candidate supplies the fixed arm, workload-launch, recovery and cleanup
 handlers used by the source-only sequence and effect-driver layers. It has no
@@ -43,3 +43,11 @@ loader or a CLI. Those must be implemented and reviewed as fixed verifiers and
 a single composition root before any installation or live approval. No F6
 unit is enabled, no lease or identity is created, no consumer is stopped and
 no model call follows from this source candidate.
+
+## Independent review
+
+The first review returned NO-GO because watchdog JSON and retained runtime
+files were not size-bounded before parsing or hashing. Commit `f71adc1d`
+added the 16 KiB and 64 KiB limits plus negative tests. Re-review returned GO
+for this source-only handler layer. The deliberate remaining composition
+boundaries above remain open and no installation or F6 arm is admitted.
