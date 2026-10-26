@@ -1021,6 +1021,14 @@ route remain intact; the root-only rollback checkpoint is retained. The next
 gate is a preregistered usefulness evaluation through this fixed path, with any
 model route and broader authority still separate.
 
+That evaluation now has a
+[frozen synthetic fixture and blind-review scorer](evidence/M1-D4-fixed-doctor-usefulness-preregistration-2026-10-25.md).
+Eight balanced cases cover `ok`, `warn`, `fail` and `unavailable`; acceptance
+requires at least 7/8 complete four-dimension passes and zero unsafe claims.
+Nine focused boundary tests pass. The packet explicitly grants no authority or
+routing promotion, and no model request or live Doctor read has occurred. Its
+answer-capture and custody card remains to be frozen before a live evaluation.
+
 The immediate [post-authority candidate-G preflight](evidence/D4-candidate-G-post-authority-static-preflight-2026-10-25.md)
 is STATIC GO: its dry-run digest and all eleven source identities still match,
 the owner-only packet remains exact, and no key, lease or model request was
