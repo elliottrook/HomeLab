@@ -56,7 +56,7 @@ The source correction was tested with the existing F2 coordinator contract:
 |---|---|
 | `scripts/local-ai/f2_preflight_snapshot.py` | `6340c29e91e03fa57ebe0d3404e9b36d2259b4ad10decb8c6c1412b7272cc684` |
 | `scripts/local-ai/test_f2_preflight_snapshot.py` | `f1217019bf7538014762f6586f88c5217e1e1bf5df6f5d3ab0212b78f5e9a5c0` |
-| `scripts/local-ai/f2_scheduled_release_candidate.py` | `9efe6e5dc1aafdbbff5c7caa2af390a31c9b1c9935220243cd371023cb21e8a1` |
+| `scripts/local-ai/f2_scheduled_release_candidate.py` | `6a1d520a9c96f4233d0f2e9eaed87a4b9fccf89ecadfd0c6aab7335a66568193` |
 
 The new test proves a future LXC110 mirror is not required by F2 prepare and
 that the deferred field is explicit. No live source was invoked during this

@@ -257,7 +257,7 @@ def prepare(runner: Callable, *, clock: Callable[[], float] = time.time) -> dict
         raise
 
 
-def final(runner: Callable, *, popen=subprocess.run,
+def final(runner: Callable, *, popen=None,
           clock: Callable[[], float] = time.time) -> dict:
     """Run one fresh final gate and the existing bounded observer once."""
     epoch = int(clock())
@@ -281,7 +281,8 @@ def final(runner: Callable, *, popen=subprocess.run,
         hard_end = local.replace(hour=1, minute=40, second=0, microsecond=0).timestamp()
         timeout = max(1, int(hard_end - epoch))
         try:
-            process = popen(("/usr/bin/python3", "-B", str(OBSERVER), "--read-only-authorized"),
+            launcher = subprocess.Popen if popen is None else popen
+            process = launcher(("/usr/bin/python3", "-B", str(OBSERVER), "--read-only-authorized"),
                             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                             start_new_session=True,
                             env={"PATH": "/usr/bin:/bin", "PYTHONPATH": str(OBSERVER.parent),

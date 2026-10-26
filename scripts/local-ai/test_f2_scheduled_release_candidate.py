@@ -82,6 +82,14 @@ class F2ScheduledReleaseTests(unittest.TestCase):
             self.assertEqual(saved["state"], "complete")
             self.assertEqual(saved["result"]["archives"][2]["test_exit"], 0)
 
+    def test_final_default_launcher_uses_popen_contract(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True), patch.object(candidate, "run_fixed_final_guard"), patch.object(candidate.subprocess, "Popen", return_value=Result()) as launch:
+            candidate._write_state("2026-10-19", "prepare", "prepared")
+            value = candidate.final(self.runner(self.epoch(1, 20)), clock=lambda: self.epoch(1, 20))
+            self.assertEqual(value["state"], "complete")
+            launch.assert_called_once()
+            self.assertTrue(launch.call_args.kwargs["start_new_session"])
+
     def test_final_failure_is_terminal_and_not_retried(self):
         with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True), patch.object(candidate, "run_fixed_final_guard", side_effect=candidate.ScheduledF2Error("drift")):
             candidate._write_state("2026-10-19", "prepare", "prepared")
