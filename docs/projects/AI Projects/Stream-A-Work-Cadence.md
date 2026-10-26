@@ -77,21 +77,21 @@ diagnostic pins and an active observation-only reconciliation at 01:42. The
 timed test is GO — scheduled/conditional; fresh runtime gates still decide
 whether the scanner starts, and any failure means NO-GO without retry.
 
-**October 26 active chain:** Jason approved the corrected host-exclusion pins
-and the exact October 26 F2 activation. Read-only verification on October 25
-found both one-shot timers enabled and active: prepare at 01:15 and final at
-01:20 PDT. Recurring F2 timers remain disabled. The one-occurrence 01:42
-reconciliation automation is active and owns bounded readback plus timer
-cleanup. Fresh backup, TrueNAS, archive-identity, host-load, lease and
-no-competing-work gates remain mandatory at runtime; any failed or uncertain
-gate is NO-GO without retry.
+**October 26 terminal chain:** the 01:15 preparation passed and the 01:20 final
+service ran, but F2 ended NO-GO with `OBSERVER_COMMUNICATION_FAILED` and no
+accepted archive rows. Root-cause analysis found that the coordinator launched
+the observer with `subprocess.run` and then called the Popen-only
+`communicate()` method on the resulting `CompletedProcess`. The success tests
+had injected a Popen-like fake and did not exercise the real systemd entrypoint.
+The observer child launched, but its output was discarded, so evidence cannot
+claim whether an archive check began. The date-specific timers were removed,
+recurring timers remain disabled and production is healthy.
 
-Jason also approved the exact conditional F3 conversion at 01:50. It may run
-only after the 01:42 reconciliation accepts exactly three F2 exit-zero rows
-and every postcheck. It writes at most one retained receipt, never repeats the
-archive scan, and is NO-GO on missing or uncertain evidence. F4 is deliberately
-deferred to a subsequent backup cycle, so tonight cannot advance into a lease,
-service stop, model request, candidate-H or M3 run.
+The 01:50 F3 decision therefore failed closed without invoking the converter
+or writing a receipt. F4 and later effects remain blocked. Before another
+cycle, the platform owner must correct the launcher contract, add a default-
+entrypoint regression, prove the installed path on target Linux and prepare a
+fresh reviewed card. The spent October 26 cycle cannot be retried.
 
 **October 20 F2 result:** the two exact-date timers fired and are now disabled,
 but preparation failed after five seconds and final failed immediately. No
