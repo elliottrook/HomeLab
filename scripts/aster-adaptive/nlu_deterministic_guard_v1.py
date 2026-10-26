@@ -34,13 +34,17 @@ def apply(request_text: str, proposal: dict) -> dict:
     personal = {
         "private", "personal", "journal", "medication", "appointment",
         "calendar", "inbox", "messages", "sleep", "bedtime", "unread",
+        "account", "health", "medical", "email", "mail", "location",
     }
     internal = {
         "homelab", "proxmox", "server", "service", "configuration", "log",
         "database", "backup", "snapshot", "rollback", "training", "sample",
         "demo", "device", "lamp", "fan", "door", "speaker", "timer",
     }
-    if words & personal:
+    # First-person ownership is conservatively personal. Overclassification is
+    # recoverable; underclassification could expose user-specific context.
+    possessive_private = bool(words & {"my", "mine"})
+    if words & personal or possessive_private:
         value["sensitivity"] = "personal"
     elif value["sensitivity"] == "public" and words & internal:
         value["sensitivity"] = "internal"
@@ -75,30 +79,46 @@ def apply(request_text: str, proposal: dict) -> dict:
         )
         return value
 
-    caps: set[str] = set(value["capability_needs"])
-    if value["request_family"] == "general-answer":
-        caps = {"facts.answer"}
-    if value["request_family"] == "household-command":
+    # Short external lookups frequently omit the subject or referent. They are
+    # never eligible to route until the missing object is supplied.
+    if value["request_family"] == "external-research" and len(words) <= 7:
+        value.update(
+            ambiguity="ambiguous", disposition="clarify", reason="ambiguous",
+        )
+
+    family = value["request_family"]
+    caps: set[str] = set()
+    if family == "general-answer":
+        caps.add("facts.answer")
+    elif family == "household-command":
         caps.add("home.control")
-        explicit_timer = "timer" in words and bool(words & {"start", "stop", "set", "cancel"})
+        explicit_timer = bool(words & {"timer", "countdown"}) and bool(
+            words & {"start", "stop", "set", "cancel", "create"}
+        )
         if explicit_timer:
             caps.add("timer.control")
+    elif family == "read-only-investigation":
+        caps.add("lab.read")
+    elif family == "change-request":
+        caps.add("lab.change")
+        if words & {"timer", "schedule", "scheduled", "delay"}:
+            caps.add("timer.control")
+    elif family == "external-research":
+        if words & publication:
+            caps.add("web.publish")
         else:
-            caps.discard("timer.control")
-    if value["request_family"] == "external-research":
-        if words & {"search", "research", "online", "website", "official", "web"}:
             caps.add("web.read")
-        if not words & publication:
-            caps.discard("web.publish")
     explicit_delete = bool(words & {"delete", "erase", "destroy", "remove"})
     recovery = bool(words & {"backup", "snapshot", "rollback", "recovery", "checkpoint"})
     if explicit_delete and recovery:
         caps.add("backup.delete")
     else:
         caps.discard("backup.delete")
-    if words & {"compare", "combine", "join"}:
+    if words & {"compare", "combine", "join", "crosscheck", "cross-check"}:
         caps.add("local.join")
-    if words & {"supplied", "provided", "included", "pasted"}:
+    if "calendar" in words and family in {"read-only-investigation", "external-research"}:
+        caps.add("calendar.read")
+    if words & {"supplied", "provided", "included", "pasted", "attached"}:
         caps.discard("lab.read")
         caps.discard("calendar.read")
     value["capability_needs"] = _ordered(caps)

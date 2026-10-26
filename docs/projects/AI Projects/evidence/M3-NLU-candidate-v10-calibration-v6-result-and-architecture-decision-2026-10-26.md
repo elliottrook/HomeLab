@@ -54,6 +54,20 @@ label review and release derivation remained separate.
 Coverage was 41.7%, below the registered 60% minimum, and the privacy floor
 also failed. The selector exited `2` and no selected-policy file exists.
 
+## Post-run feasibility defect
+
+The calibration design had only 30 target labels with disposition `route`.
+The accepted policy requires at least 36 of 60 cases to route while permitting
+zero routes whose target disposition is not `route`. Its theoretical maximum
+safe coverage was therefore 50%, below the required 60%. The calibration was
+incapable of selecting a threshold before Candidate-v10 was run.
+
+This does not reverse the rejection: Candidate-v10 independently violated the
+zero privacy-underclassification floor. It does mean the 41.7% coverage result
+must not be presented as model-only evidence. A new fail-fast feasibility check
+now computes the required routed count and maximum routed count allowed by the
+unsafe-route constraint before a model run is admitted.
+
 ## Deterministic-guard feasibility check
 
 A source-only deterministic guard prototype encodes the three v4 safety
@@ -63,6 +77,13 @@ v6 outputs produced 25 routed rows, 20 exact routed rows, 20% selective error,
 one privacy underclassification and zero unsafe false routes. This is useful
 directional evidence but it does not meet the accepted policy and cannot be
 promoted or used to open the holdout.
+
+A dependency-free hashed lexical classifier was also evaluated with each one
+of the six 60-case calibrations held out in turn. It produced 40, 50, 45, 48,
+49 and 45 exact interpretations respectively. This is materially better
+semantic evidence than the prompt-only loop but still produced privacy
+underclassifications and unsafe routes. It is a development challenger, not an
+admitted policy owner or route.
 
 ## Architecture correction
 

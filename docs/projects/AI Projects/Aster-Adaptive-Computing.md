@@ -45,6 +45,11 @@ model may propose semantics only inside that envelope. The six spent
 calibrations are development evidence for that architecture. A new independent
 calibration may be created only after it clears those development gates. The
 holdout remains sealed and automatic routing stays off.
+The latest review also found that calibration-v6 had only 30 safe-route targets
+while the accepted policy required at least 36 routed cases and allowed zero
+unsafe routes. That set was mathematically incapable of passing. A fail-fast
+feasibility check now blocks such a run before model use; the policy's coverage
+meaning or the next calibration balance needs an explicit owner decision.
 The existing local Qwen3.5-9B Q4_K_M model on the accepted SYCL profile remains
 the measured semantic-proposal engine with a strict no-tool adapter. Its live
 model and runtime-profile hashes match the source manifest, but its prior seal
