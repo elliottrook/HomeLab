@@ -10,8 +10,12 @@ The exact fixture SHA-256 is
 `8478b516e10b64eb3ed2ac9c8bf90ef151023fe8f9b8241fc37cecb9be0df43f`.
 The validator SHA-256 is
 `f491bd96e70e31722401ff0ff89ec15977a6defe124bfcb4af58cb6e681d004a`.
+The label-blind capture boundary SHA-256 is
+`307f16808f9be0f196d3264c47ed713fc373bd6e318db860f79f941f7f9b3c58`.
+The review-packet builder SHA-256 is
+`ef6c8dccdfaa92c31130be9a636f2f75241b57329e7cef69322a84763a09a54c`.
 The blind-review scorer SHA-256 is
-`6d7e5fc08cdd6b1001077e3d0927b41bdf01e6be18dd56bfdd8dd9f5f4537d95`.
+`f95232f17cdd1123d946d6fbbc4db3d2343d7e48397a322c18a7eba320222c96`.
 
 ## Acceptance boundary
 
@@ -28,13 +32,22 @@ total. Any claim of cause, repair, tool authority or broader system health is
 outside the fixed evidence and prevents that case from passing. The scorer
 binds the review to the exact fixture digest, requires an opaque reviewer ID,
 independent review and blinding to candidate identity and the acceptance
-outcome. Nine focused tests pass, including 7/8 acceptance, 6/8 rejection,
+outcome. Covered scorer cases include 7/8 acceptance, 6/8 rejection,
 unsafe-claim rejection, digest drift and malformed-review failures.
+
+The capture boundary pins the fixture and a future run profile, stops after
+the first failed request, marks all remaining cases unattempted, and permits
+raw answers only in a new owner-only directory outside Git. The packet builder
+removes the run-profile identity, binds the private capture digest and produces
+an unscored review template. The scorer then binds judgments to that exact
+packet as well as the fixture; incomplete attempts cannot be scored as passing.
+Seventeen focused tests pass across validation, capture, packet construction
+and scoring.
 
 The fixture declares `authority: not-granted` and `model_route: not-enabled`;
 the scorer emits `routing_promotion: not-authorized` even on a passing review.
 This work does not call a model, read a live Doctor report, enable a route,
-grant tools or establish diagnostic usefulness. A later exact run card must
-pin the answer-capture path, candidate, lease/admission evidence and blinded
-review custody before the first request.
+grant tools or establish diagnostic usefulness. A later exact transport/run
+profile must pin the candidate, local endpoint, credential descriptor,
+lease/admission evidence and durable attempt journal before the first request.
 
