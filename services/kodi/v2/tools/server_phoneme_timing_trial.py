@@ -25,7 +25,7 @@ TEXT = ('Mara reached the lantern house just before the rain. '
         'From the road it had looked small, almost an afterthought beside the hill, '
         'but the doorway was tall enough to hold the last light of the evening.')
 TEXT_SHA = '3e8099be742e6ffad165a3b8de53ee0ed59c4add60aed0c468cda767bfeb21c8'
-CHECKPOINT = Path('/var/lib/aster-speech/aster-reader-phoneme-timing-20261026')
+CHECKPOINT = Path('/var/lib/aster-speech/aster-reader-phoneme-timing-diagnostic2-20261026')
 SERVICE = 'aster-voice-candidate.service'
 
 
@@ -60,7 +60,8 @@ def main():
     CHECKPOINT.mkdir(mode=0o700, exist_ok=False)
     save('attempt.json', dict(synthetic=True, text_sha256=TEXT_SHA,
          voice='bm_daniel', language='en-gb', speed=.95, invocations=1,
-         real_book_access=False, service_change=False, network=False))
+         diagnostic=2, prior_attempt_retried=False, real_book_access=False,
+         service_change=False, network=False))
     result = dict(passed=False, synthetic=True, model_invocations=0,
                   network=False, service_changed=False, evidence_private=True)
     worker = None

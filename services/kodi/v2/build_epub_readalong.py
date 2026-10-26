@@ -4,14 +4,9 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 from epub_fixture import build_readalong
 
-AUDIO='40ba73dc4e86bc2d8f1dc05f3fa1d571cd04736de6ff401c400364794092478c'
-SOURCE_AUDIO='d10997803ee99ae85f06545ab5b0bad71e91906735f4811c2119a632399de02b'
-FRAMES=1404720
-MEASUREMENTS=[
- [0,0,77280],[1,77280,199920],[2,277200,69600],[3,346800,104640],
- [4,451440,105360],[5,556800,137040],[6,693840,58800],[7,752640,196560],
- [8,949200,55200],[9,1004400,130560],[10,1134960,76560],[11,1211520,47040],
- [12,1258560,59520],[13,1318080,86640]]
+AUDIO='1da10ad89f095d2c619cff92760564d701401c8a50261b40c98eda228d001466'
+FIXTURE='aa47b3d5891110ca18ba77cde167f181a9b91ccc8f2f16a1a1ad4874f779c8ec'
+FRAMES=252399
 
 def layout():
     root=ET.Element('window');ET.SubElement(root,'defaultcontrol',always='true').text='500';ET.SubElement(root,'backgroundcolor').text='ffe6dac8'
@@ -22,7 +17,7 @@ def layout():
         return node
     c('image',10,95,35,170,120,texture='special://skin/media/28-aster-books-logo.png',aspectratio='keep')
     c('label',11,340,60,1250,55,label='The Lantern House · Read along',font='font40',textcolor='ff1e241f')
-    c('label',12,340,125,1250,42,label='Original synthetic EPUB · Sentence-level Aster narration',font='font20',textcolor='ff65675d')
+    c('label',12,340,125,1250,42,label='Original synthetic EPUB · Native Aster word timing',font='font20',textcolor='ff65675d')
     c('label',13,340,190,1240,42,label='Chapter one',font='font24',textcolor='ff1f513b')
     for size,identity in ((24,501),(30,502),(40,503)):
         c('textbox',identity,340,245,1240,650,label='',font='font'+str(size),textcolor='ff1e241f',
@@ -44,32 +39,37 @@ def layout():
         b=c('button',identity,x,965,width,64,label=label,font='font20',textcolor='ff1e241f',focusedcolor='fff3eee5',align='center',aligny='center',
             texturenofocus='',onleft=left,onright=right,onup=500,ondown=500)
         ET.SubElement(b,'texturefocus',border='18',colordiffuse='ff1f513b').text='special://skin/media/ui-panel.png'
-    c('label',530,340,1045,1240,35,label='Back stops and saves this private test · Green marks the current sentence, not individual words',font='font20',textcolor='ff65675d')
+    c('label',530,340,1045,1240,35,label='Back stops and saves this private test · Green marks the current word or connected phrase',font='font20',textcolor='ff65675d')
     return ET.tostring(root,encoding='utf-8',xml_declaration=True)+b'\n'
 
 def build(output):
     root=Path(output);root.mkdir(mode=0o700,parents=True,exist_ok=False);here=Path(__file__).parent
     port=(here/'digest_kodi_port.py').read_text().replace("self.path.suffix != '.mp3'","self.path.suffix != '.wav'")
-    names=('epub_chapter.py','epub_fixture.py','epub_pages.py','chapter_narration.py','epub_readalong_state.py','digest_playback_state.py','digest_timeline.py')
+    if port.count('deadline = time.monotonic()+.75') != 1:
+        raise ValueError('epub-readalong-port-source-drift')
+    port=port.replace('deadline = time.monotonic()+.75','deadline = time.monotonic()+5')
+    names=('epub_chapter.py','epub_fixture.py','epub_pages.py','chapter_narration.py','word_alignment.py','word_group_narration.py','epub_readalong_state.py','digest_playback_state.py','digest_timeline.py')
     files={name:(here/name).read_bytes() for name in names}
     files.update({'default.py':(here/'epub_readalong/default.py').read_bytes(),'digest_kodi_port.py':port.encode(),
                   'sample.epub':build_readalong(),
-                  'chapter.wav':(here/'fixtures/aster-epub-readalong-synthetic.wav').read_bytes(),
+                  'chapter.wav':(here/'fixtures/aster-epub-word-groups-synthetic.wav').read_bytes(),
                   'resources/skins/Default/1080i/EpubReadAlong.xml':layout()})
-    if hashlib.sha256(files['chapter.wav']).hexdigest()!=AUDIO or len(files['chapter.wav'])!=2809484:
+    if hashlib.sha256(files['chapter.wav']).hexdigest()!=AUDIO or len(files['chapter.wav'])!=504842:
         raise ValueError('epub-readalong-versioned-audio-drift')
     for name in ('play','pause','stop','previous'):
         source=(here/'player-control-assets/previous.png' if name=='previous' else here/'script.astermusic.v2lab/resources/controls'/(name+'.png'))
         files['resources/skins/Default/media/'+name+'.png']=source.read_bytes()
-    config=dict(spoken_sha256='70801db5b3f53de7badb7250fcc77664a7221af33f4b304d788b0c3f3b87bab9',
-                measurements=[dict(index=i,start_sample=start,frames=frames,sample_rate=24000) for i,start,frames in MEASUREMENTS])
-    files['sample.json']=(json.dumps(config,sort_keys=True)+'\n').encode()
+    fixture=(here/'fixtures/aster-epub-word-groups-synthetic.json').read_bytes()
+    if hashlib.sha256(fixture).hexdigest()!=FIXTURE:
+        raise ValueError('epub-readalong-versioned-fixture-drift')
+    config=json.loads(fixture);files['sample.json']=fixture
     for name,raw in files.items():
         path=root/name;path.parent.mkdir(mode=0o700,parents=True,exist_ok=True);path.write_bytes(raw);path.chmod(0o600)
-    manifest=dict(kind='hp-epub-readalong.v1',synthetic=True,network=False,shared_progress=False,normal_entry=False,
-                  word_timestamps=False,audio_sha256=AUDIO,audio_bytes=2809484,audio_frames=FRAMES,
-                  source_audio_sha256=SOURCE_AUDIO,
-                  silence_compaction=dict(method='fixed-measured-silence-v1',leading_ms=120,trailing_ms=220),
+    manifest=dict(kind='hp-epub-readalong.v2',synthetic=True,network=False,shared_progress=False,normal_entry=False,
+                  word_timestamps=True,connected_phrase_cues=True,audio_sha256=AUDIO,audio_bytes=504842,audio_frames=FRAMES,
+                  source_timing=dict(method='kokoro-native-duration-v1',source_sha256=config['source_sha256'],
+                                     spoken_group_count=config['spoken_group_count']),
+                  eof_settlement=dict(active_player_seconds=5,queue_seconds=3),
                   files={name:hashlib.sha256(raw).hexdigest() for name,raw in files.items()})
     raw=(json.dumps(manifest,sort_keys=True,indent=2)+'\n').encode();(root/'manifest.json').write_bytes(raw);(root/'manifest.json').chmod(0o600)
     return hashlib.sha256(raw).hexdigest()

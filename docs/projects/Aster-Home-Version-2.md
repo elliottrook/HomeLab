@@ -8219,14 +8219,17 @@ Sources: <https://github.com/m-bain/whisperX> and
 No model download, service change or new live synthesis is authorized by this
 assessment.
 
-The pure mapper now accepts only an exact one-to-one sequence of timed phonemes,
-uses explicit spaces in the model's phoneme plan as word boundaries, binds those
-groups to the EPUB source's exact character spans and rejects expansions,
-missing words, punctuation-only groups, sequence drift, zero/overlapping times
-and non-finite or out-of-duration values. Punctuation without an explicit model
-word boundary is deliberately refused rather than guessed. Its ten focused tests
-pass in normal and optimized Python; the complete v2 suite passes1,017 tests in
-both modes.
+The pure mapper now accepts only the exact measured phoneme sequence, uses
+explicit spaces in the model's phoneme plan as spoken-group boundaries, and
+binds those groups to an explicit manifest of exact EPUB source-word spans. A
+spoken group may cover one word or a bounded connected phrase; the compiler,
+not Kodi, must supply and validate that mapping. The gate rejects expansions,
+missing words, punctuation-only groups, sequence drift, zero-duration spoken
+phonemes, overlaps and non-finite or out-of-duration values. A measured zero
+duration is accepted only for silent whitespace or punctuation. Punctuation
+without an explicit model boundary is deliberately refused rather than guessed.
+Its focused tests pass in normal and optimized Python; the complete v2 suite at
+that gate passed1,017 tests in both modes.
 
 Jason approved one bounded native timing render. A root-private, low-priority
 harness on LXC116 verified the pinned canonical model and `bm_daniel`/en-gb/
@@ -8245,6 +8248,69 @@ diagnostic must first write the already-returned synthetic timings privately,
 then apply the same gate, allowing the exact zero/overlap class to be inspected
 without a third synthesis. Both speech services remained active and production
 Aster was unchanged.
+
+Jason approved a second diagnostic that captured the returned native timings
+before applying the unchanged gate. It used the same unchanged model and
+canonical `bm_daniel`/en-gb/0.95 policy on the same two synthetic sentences,
+with one synthesis invocation, no network request and no service restart. The
+10.517-second result contained201 measured phonemes. Exactly one terminal full
+stop had zero measured duration; it is Unicode punctuation, not speech, and no
+timings overlap. The candidate service retained PID5655. Root-private evidence
+is retained at
+`/var/lib/aster-speech/aster-reader-phoneme-timing-diagnostic2-20261026`.
+
+Source-word coverage exposed a separate honest connected-speech property: the
+phonemizer produced34 spoken groups for36 exact source words, joining “From
+the” and “of the”. Reconfiguring the separator did not split those natural
+groups. The design therefore does not pretend that every acoustic group is one
+word. A source-group manifest covers all36 words exactly, permits only one to
+four source words per spoken group, and retains34 measured cues. Validation was
+then rerun over the captured evidence with **zero** further model invocations
+and passed. Kodi receives only a sanitized synthetic fixture containing the
+audio hash, source hash, PCM shape and exact source-character/sample cues; the
+private phoneme plan and timing trace remain off the TV and out of Git.
+
+### M5 native word/connected-phrase Reader proof — 2026-10-26
+
+The sanitized synthetic fixture is now versioned at
+`services/kodi/v2/fixtures/aster-epub-word-groups-synthetic.{wav,json}`.
+Its WAV SHA is
+`1da10ad89f095d2c619cff92760564d701401c8a50261b40c98eda228d001466`;
+the cue fixture SHA is
+`aa47b3d5891110ca18ba77cde167f181a9b91ccc8f2f16a1a1ad4874f779c8ec`.
+The artifact is original synthetic text/audio only. Real books, generated
+household narration, phoneme plans, credentials and listening positions remain
+private and out of Git.
+
+The HP-only Reader candidate keeps the accepted reading page, controls,
+navigation, private hash-bound progress, no-autoplay rule, stop-on-exit and
+screensaver activity. It replaces sentence emphasis with exact measured word
+or connected-phrase spans. The runtime refuses altered source/audio/cues,
+non-word boundaries, missing or reordered source coverage, impossible sample
+ranges and unknown fixture fields. It never estimates a missing time. Its
+normal entry remains disabled and production Aster is unchanged.
+
+Four fail-closed native iterations exposed only test/runtime lifecycle races:
+the expected leading silence means no word is active at sample zero; the test
+allow-list initially omitted its own Down action; the Reader initially
+published closure before releasing its entry lock; and Kodi/Jellyfin remove a
+finished local WAV's active player and queue entry asynchronously. The final
+Reader publishes closure only after cache cleanup and lock release, observes
+the started session through the bounded EOF transition, and allows five seconds
+for the active-player callback plus three seconds for queue settlement. It
+still requires a genuine natural-end callback and never clears or stops a
+foreign queue.
+
+Final immutable HP manifest
+`cbaf8e74462f3ad5066121245a40f047e476a4b409ca73a3430f6b8af8b7c4e1`
+passed at
+`/storage/.aster-checkpoints/aster-epub-readalong-native-1793030989783835393/native.json`
+with checks enforced: no autoplay, advancing word/phrase cues, connected-phrase
+progress, pause clock, Back stop-and-save, reopen/resume, genuine natural end,
+explicit test-state cleanup, session-cache removal, unchanged settings and
+idle empty queues. All1,026 Kodi v2 tests pass in normal and optimized Python.
+The already accepted page design is unchanged; human review of the finer cue
+cadence remains a later walkthrough gate before any normal Books integration.
 
 ### M5 pre-generated EPUB narration — capacity and architecture assessment
 

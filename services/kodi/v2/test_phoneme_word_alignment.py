@@ -1,6 +1,6 @@
 import unittest
 
-from phoneme_word_alignment import TimedPhoneme, align_phonemes
+from phoneme_word_alignment import TimedPhoneme, align_phoneme_groups, align_phonemes
 
 
 def timed(value, step=.1):
@@ -21,15 +21,26 @@ class PhonemeWordAlignmentTests(unittest.TestCase):
     def test_source_punctuation_without_phoneme_word_boundary_is_refused(self):
         source = "Wait—then go."
         plan = "wˈeɪt—ðˈɛn ɡˈoʊ."
-        with self.assertRaisesRegex(ValueError, "phoneme-alignment-word-count"):
+        with self.assertRaisesRegex(ValueError, "phoneme-alignment-source-groups"):
             align_phonemes(source, plan, timed(plan), 2)
 
     def test_unknown_expansion_or_missing_word_is_refused(self):
         for source, plan in (("Room 2026", "ɹˈuːm twˈɛnti twˈɛnti sˈɪks"),
                              ("one two", "wˈʌn")):
             with self.subTest(source=source), self.assertRaisesRegex(
-                    ValueError, "phoneme-alignment-word-count"):
+                    ValueError, "phoneme-alignment-source-groups"):
                 align_phonemes(source, plan, timed(plan), 4)
+
+    def test_explicit_connected_speech_group_spans_exact_source_words(self):
+        source = "From the road"
+        plan = "fɹʌmðə ɹˈəʊd"
+        cues = align_phoneme_groups(source, plan, timed(plan), 2, (2, 1))
+        self.assertEqual([source[cue.start_character:cue.end_character] for cue in cues],
+                         ["From the", "road"])
+        for invalid in ((1, 1), (3, 1), (0, 3), (5,), (True, 2)):
+            with self.subTest(invalid=invalid), self.assertRaisesRegex(
+                    ValueError, "phoneme-alignment-source-groups"):
+                align_phoneme_groups(source, plan, timed(plan), 2, invalid)
 
     def test_sequence_drift_and_punctuation_only_group_are_refused(self):
         plan = "wˈʌn tˈuː"
@@ -52,6 +63,25 @@ class PhonemeWordAlignmentTests(unittest.TestCase):
         for values in cases:
             with self.subTest(values=values), self.assertRaises(ValueError):
                 align_phonemes("one", plan, values, .9)
+
+    def test_zero_duration_is_allowed_only_for_silent_separators(self):
+        plan = "wˈʌn. tˈuː"
+        values = list(timed(plan))
+        period = plan.index('.')
+        at = values[period - 1].end
+        values[period] = TimedPhoneme('.', at, at)
+        shift = .1
+        for index in range(period + 1, len(values)):
+            value = values[index]
+            values[index] = TimedPhoneme(value.phoneme,
+                                         value.start - shift, value.end - shift)
+        cues = align_phonemes("one. two", plan, values, 2)
+        self.assertEqual(len(cues), 2)
+        self.assertEqual(cues[0].end_seconds, at)
+
+        spoken = list(timed("wˈʌn")); spoken[2] = TimedPhoneme('ʌ', .2, .2)
+        with self.assertRaisesRegex(ValueError, "phoneme-alignment-spoken-zero"):
+            align_phonemes("one", "wˈʌn", spoken, 1)
 
     def test_boundaries_types_and_counts_are_refused(self):
         for source, plan, values, duration in (

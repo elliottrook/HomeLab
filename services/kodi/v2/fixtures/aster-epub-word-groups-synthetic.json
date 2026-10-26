@@ -1,0 +1,216 @@
+{
+  "audio_frames": 252399,
+  "audio_sha256": "1da10ad89f095d2c619cff92760564d701401c8a50261b40c98eda228d001466",
+  "cues": [
+    {
+      "end_character": 4,
+      "end_sample": 9968,
+      "start_character": 0,
+      "start_sample": 2768
+    },
+    {
+      "end_character": 12,
+      "end_sample": 17168,
+      "start_character": 5,
+      "start_sample": 11168
+    },
+    {
+      "end_character": 16,
+      "end_sample": 18968,
+      "start_character": 13,
+      "start_sample": 17768
+    },
+    {
+      "end_character": 24,
+      "end_sample": 28568,
+      "start_character": 17,
+      "start_sample": 20168
+    },
+    {
+      "end_character": 30,
+      "end_sample": 35768,
+      "start_character": 25,
+      "start_sample": 29768
+    },
+    {
+      "end_character": 35,
+      "end_sample": 42968,
+      "start_character": 31,
+      "start_sample": 36968
+    },
+    {
+      "end_character": 42,
+      "end_sample": 50768,
+      "start_character": 36,
+      "start_sample": 44168
+    },
+    {
+      "end_character": 46,
+      "end_sample": 53768,
+      "start_character": 43,
+      "start_sample": 51968
+    },
+    {
+      "end_character": 51,
+      "end_sample": 72968,
+      "start_character": 47,
+      "start_sample": 54968
+    },
+    {
+      "end_character": 61,
+      "end_sample": 80168,
+      "start_character": 53,
+      "start_sample": 74768
+    },
+    {
+      "end_character": 66,
+      "end_sample": 89168,
+      "start_character": 62,
+      "start_sample": 81368
+    },
+    {
+      "end_character": 69,
+      "end_sample": 92168,
+      "start_character": 67,
+      "start_sample": 90368
+    },
+    {
+      "end_character": 73,
+      "end_sample": 95168,
+      "start_character": 70,
+      "start_sample": 92768
+    },
+    {
+      "end_character": 80,
+      "end_sample": 101168,
+      "start_character": 74,
+      "start_sample": 96368
+    },
+    {
+      "end_character": 86,
+      "end_sample": 117968,
+      "start_character": 81,
+      "start_sample": 102968
+    },
+    {
+      "end_character": 94,
+      "end_sample": 127568,
+      "start_character": 88,
+      "start_sample": 119168
+    },
+    {
+      "end_character": 97,
+      "end_sample": 129968,
+      "start_character": 95,
+      "start_sample": 128168
+    },
+    {
+      "end_character": 110,
+      "end_sample": 144368,
+      "start_character": 98,
+      "start_sample": 131768
+    },
+    {
+      "end_character": 117,
+      "end_sample": 154568,
+      "start_character": 111,
+      "start_sample": 145568
+    },
+    {
+      "end_character": 121,
+      "end_sample": 156368,
+      "start_character": 118,
+      "start_sample": 155168
+    },
+    {
+      "end_character": 126,
+      "end_sample": 170168,
+      "start_character": 122,
+      "start_sample": 157568
+    },
+    {
+      "end_character": 131,
+      "end_sample": 173768,
+      "start_character": 128,
+      "start_sample": 171368
+    },
+    {
+      "end_character": 135,
+      "end_sample": 176168,
+      "start_character": 132,
+      "start_sample": 174368
+    },
+    {
+      "end_character": 143,
+      "end_sample": 185768,
+      "start_character": 136,
+      "start_sample": 177368
+    },
+    {
+      "end_character": 147,
+      "end_sample": 189968,
+      "start_character": 144,
+      "start_sample": 186968
+    },
+    {
+      "end_character": 152,
+      "end_sample": 196568,
+      "start_character": 148,
+      "start_sample": 191768
+    },
+    {
+      "end_character": 159,
+      "end_sample": 203168,
+      "start_character": 153,
+      "start_sample": 197168
+    },
+    {
+      "end_character": 162,
+      "end_sample": 206168,
+      "start_character": 160,
+      "start_sample": 204368
+    },
+    {
+      "end_character": 167,
+      "end_sample": 213368,
+      "start_character": 163,
+      "start_sample": 207368
+    },
+    {
+      "end_character": 171,
+      "end_sample": 215168,
+      "start_character": 168,
+      "start_sample": 213968
+    },
+    {
+      "end_character": 176,
+      "end_sample": 223568,
+      "start_character": 172,
+      "start_sample": 216368
+    },
+    {
+      "end_character": 182,
+      "end_sample": 229568,
+      "start_character": 177,
+      "start_sample": 224768
+    },
+    {
+      "end_character": 189,
+      "end_sample": 234368,
+      "start_character": 183,
+      "start_sample": 230168
+    },
+    {
+      "end_character": 197,
+      "end_sample": 248320,
+      "start_character": 190,
+      "start_sample": 235568
+    }
+  ],
+  "sample_rate": 24000,
+  "schema": 1,
+  "source_sha256": "3e8099be742e6ffad165a3b8de53ee0ed59c4add60aed0c468cda767bfeb21c8",
+  "source_word_count": 36,
+  "spoken_group_count": 34,
+  "synthetic": true
+}

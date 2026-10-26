@@ -6,9 +6,9 @@ import xbmc,xbmcgui
 
 ROOT=Path(__file__).resolve().parent
 BACK={9,10,92,216,247,257,275}
-STATE=Path('/storage/.aster-state/aster-epub-readalong/compact-v1')
+STATE=Path('/storage/.aster-state/aster-epub-readalong/word-groups-v1')
 CACHE=Path('/storage/.aster-cache/aster-epub-readalong')
-MEMBERS={'default.py','epub_chapter.py','epub_fixture.py','epub_pages.py','chapter_narration.py',
+MEMBERS={'default.py','epub_chapter.py','epub_fixture.py','epub_pages.py','chapter_narration.py','word_alignment.py','word_group_narration.py',
  'epub_readalong_state.py','digest_kodi_port.py','digest_playback_state.py','digest_timeline.py',
  'sample.epub','sample.json','chapter.wav','resources/skins/Default/1080i/EpubReadAlong.xml'} | {
  'resources/skins/Default/media/'+name+'.png' for name in ('play','pause','stop','previous')}
@@ -18,8 +18,9 @@ def require(ok,code):
 def verify(pin):
     require(re.fullmatch('[a-f0-9]{64}',pin),'epub-readalong-pin');raw=(ROOT/'manifest.json').read_bytes()
     require(hashlib.sha256(raw).hexdigest()==pin,'epub-readalong-manifest');m=json.loads(raw)
-    require(m['kind']=='hp-epub-readalong.v1' and m['synthetic'] is True and m['network'] is False
-            and m['shared_progress'] is False and m['normal_entry'] is False and m['word_timestamps'] is False,
+    require(m['kind']=='hp-epub-readalong.v2' and m['synthetic'] is True and m['network'] is False
+            and m['shared_progress'] is False and m['normal_entry'] is False and m['word_timestamps'] is True
+            and m['connected_phrase_cues'] is True,
             'epub-readalong-boundary')
     require(set(m['files'])==MEMBERS,'epub-readalong-members')
     require(m['files']['chapter.wav']==m['audio_sha256'],'epub-readalong-audio-manifest')
@@ -94,7 +95,10 @@ class Reading(xbmcgui.WindowXML):
     def observe(self,observation):
         require(observation.session==self.port.session and observation.media==self.port.media,'epub-readalong-ownership')
         if observation.ended:
-            require(self.port.player.natural and self.port.idle(),'epub-readalong-end-unsettled')
+            require(self.port.player.natural,'epub-readalong-end-not-natural')
+            settled=time.monotonic()+3
+            while not self.idle() and time.monotonic()<settled:xbmc.sleep(50)
+            require(self.port.idle(),'epub-readalong-end-unsettled')
             self.save_point(self.plan.total_samples,True);self.status='Complete'
             self.publish(None,self.plan.total_samples/24000);return
         active=self.plan.active(round(max(0,observation.elapsed)*24000),self.port.media)
@@ -128,12 +132,8 @@ class Reading(xbmcgui.WindowXML):
                 if target>0:self.port.seek(target)
             self.observe(self.port.sample())
         elif self.status=='Starting' and time.monotonic()<self.deadline:return
-        elif self.port.player.natural:
-            settled=time.monotonic()+3
-            while not self.idle() and time.monotonic()<settled:xbmc.sleep(50)
-            require(self.idle(),'epub-readalong-end-unsettled')
-            self.save_point(self.plan.total_samples,True);self.status='Complete'
-            self.publish(None,self.plan.total_samples/24000)
+        elif self.port.player.starts==1 and not self.port.stopping:
+            self.observe(self.port.lost_or_ended())
         elif self.idle():self.status='Stopped';self.publish()
         else:raise ValueError('epub-readalong-foreign-player')
 
@@ -146,13 +146,13 @@ def main():
         from epub_chapter import chapter
         from epub_pages import Reader,render,FONT_SHA256
         import epub_readalong_state as state_api
-        from chapter_narration import build as timeline
+        from word_group_narration import build as timeline
         from digest_kodi_port import KodiPort,idle
         require(hashlib.sha256(Path('/usr/share/kodi/media/Fonts/arial.ttf').read_bytes()).hexdigest()==FONT_SHA256,'epub-readalong-font-drift')
         require(idle() and xbmcgui.getCurrentWindowId()==10000,'epub-readalong-idle-home');home=xbmcgui.Window(10000)
         require(not home.getProperty('AsterEpubReadAlong.Window'),'epub-readalong-already-open');previous=home.getFocusId()
         book=chapter((ROOT/'sample.epub').read_bytes());config=json.loads((ROOT/'sample.json').read_text())
-        plan=timeline(book,config['measurements'],manifest['audio_sha256'],config['spoken_sha256'])
+        plan=timeline(book,config,manifest['audio_sha256'])
         saved=state_api.load(STATE,book.book_sha256,book.chapter_sha256,manifest['audio_sha256'],plan.total_samples)
         window=Reading('EpubReadAlong.xml',str(ROOT),'Default','1080i');window.identity=None;window.commands=SimpleQueue();window.finished=False
         window.manifest=manifest;window.book=book;window.plan=plan;window.reader=Reader(book);window.reader.size=30
@@ -169,14 +169,16 @@ def main():
             if time.monotonic()>=activity_deadline:
                 reading_activity();activity_deadline=time.monotonic()+60
     except Exception as error:
-        xbmc.log('Aster EPUB read-along: '+type(error).__name__,xbmc.LOGERROR)
+        code=str(error);safe=code if re.fullmatch('[a-z0-9-]{1,100}',code) else type(error).__name__
+        xbmc.log('Aster EPUB read-along: '+safe,xbmc.LOGERROR)
         xbmcgui.Dialog().notification('Aster Books','Read-along preview unavailable. Nothing else was stopped.')
     finally:
         if window:
             while not window.stop_owned():xbmc.sleep(100)
-            window.close();xbmcgui.Window(10000).clearProperty('AsterEpubReadAlong.Window');xbmc.sleep(200)
+            window.close();xbmc.sleep(200)
             window.release_session()
+        if handle is not None:os.close(handle);handle=None
+        xbmcgui.Window(10000).clearProperty('AsterEpubReadAlong.Window')
         if previous and xbmcgui.getCurrentWindowId()==10000 and (not window or window.idle()):xbmc.executebuiltin('Control.SetFocus('+str(previous)+')')
-        if handle is not None:os.close(handle)
 
 if __name__=='__main__':main()

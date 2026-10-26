@@ -27,8 +27,8 @@ def _require(ok, code):
         raise ValueError(code)
 
 
-def align_phonemes(source, phonemes, measured, duration):
-    """Return exact source-word cues or reject the complete timing result."""
+def align_phoneme_groups(source, phonemes, measured, duration, source_group_sizes):
+    """Bind measured phoneme groups to explicit exact source-word groups."""
     _require(isinstance(source, str) and 0 < len(source) <= MAX_TEXT,
              "phoneme-alignment-source")
     _require(isinstance(phonemes, str) and 0 < len(phonemes) <= MAX_PHONEMES,
@@ -60,8 +60,12 @@ def align_phonemes(source, phonemes, measured, duration):
                  and math.isfinite(value.start) and math.isfinite(value.end),
                  "phoneme-alignment-time")
         start = float(value.start); end = float(value.end)
-        _require(start >= previous and end > start and end <= float(duration),
+        separator = expected.isspace() or unicodedata.category(expected).startswith("P")
+        _require(start >= previous and end >= start and end <= float(duration),
                  "phoneme-alignment-time-order")
+        # Kokoro can assign no acoustic frame to punctuation at an utterance
+        # edge.  That is an honest measured absence, not a missing spoken cue.
+        _require(end > start or separator, "phoneme-alignment-spoken-zero")
         previous = end
         if expected == " ":
             _require(bool(current), "phoneme-alignment-empty-group")
@@ -70,12 +74,31 @@ def align_phonemes(source, phonemes, measured, duration):
             current.append((expected, start, end))
     _require(bool(current), "phoneme-alignment-empty-group")
     groups.append(tuple(current))
-    _require(len(groups) == len(spans), "phoneme-alignment-word-count")
+    try:
+        widths = tuple(source_group_sizes)
+    except TypeError as exc:
+        raise ValueError("phoneme-alignment-source-groups") from exc
+    _require(len(widths) == len(groups)
+             and all(type(width) is int and 1 <= width <= 4 for width in widths)
+             and sum(widths) == len(spans), "phoneme-alignment-source-groups")
 
     cues = []
-    for span, group in zip(spans, groups):
+    cursor = 0
+    for width, group in zip(widths, groups):
         # A punctuation-only group cannot honestly represent a source word.
         _require(any(unicodedata.category(char).startswith("L")
                      for char, _, _ in group), "phoneme-alignment-unspoken-word")
-        cues.append(WordCue(span.start(), span.end(), group[0][1], group[-1][2]))
+        spoken = tuple(value for value in group if value[2] > value[1])
+        _require(bool(spoken), "phoneme-alignment-unspoken-word")
+        selected = spans[cursor:cursor + width]
+        cues.append(WordCue(selected[0].start(), selected[-1].end(),
+                            spoken[0][1], spoken[-1][2]))
+        cursor += width
     return tuple(cues)
+
+
+def align_phonemes(source, phonemes, measured, duration):
+    """Require one model phoneme group for every exact source word."""
+    spans = tuple(WORD.finditer(source)) if isinstance(source, str) else ()
+    return align_phoneme_groups(source, phonemes, measured, duration,
+                                (1,) * len(spans))

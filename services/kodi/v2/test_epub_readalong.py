@@ -4,10 +4,10 @@ import sys,tempfile,unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
-from build_epub_readalong import build,layout,AUDIO,SOURCE_AUDIO,FRAMES,MEASUREMENTS
+from build_epub_readalong import build,layout,AUDIO,FIXTURE,FRAMES
 from epub_chapter import chapter
 from epub_fixture import build_readalong
-from chapter_narration import build as timeline
+from word_group_narration import build as timeline
 import epub_readalong_state as state
 
 class EpubReadAlongTests(unittest.TestCase):
@@ -15,18 +15,21 @@ class EpubReadAlongTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             a,b=Path(folder)/'a',Path(folder)/'b';self.assertEqual(build(a),build(b))
             manifest=json.loads((a/'manifest.json').read_text());self.assertTrue((a/'chapter.wav').is_file())
-            self.assertFalse(manifest['network']);self.assertFalse(manifest['shared_progress']);self.assertFalse(manifest['word_timestamps'])
-            self.assertEqual(manifest['source_audio_sha256'],SOURCE_AUDIO)
+            self.assertFalse(manifest['network']);self.assertFalse(manifest['shared_progress']);self.assertTrue(manifest['word_timestamps'])
+            self.assertTrue(manifest['connected_phrase_cues'])
             self.assertEqual(manifest['files']['chapter.wav'],AUDIO)
-            self.assertEqual(manifest['silence_compaction'],
-                dict(method='fixed-measured-silence-v1',leading_ms=120,trailing_ms=220))
+            self.assertEqual(hashlib.sha256((a/'sample.json').read_bytes()).hexdigest(),FIXTURE)
+            self.assertEqual(manifest['source_timing']['method'],'kokoro-native-duration-v1')
+            self.assertEqual(manifest['eof_settlement'],dict(active_player_seconds=5,queue_seconds=3))
+            self.assertIn('deadline = time.monotonic()+5',(a/'digest_kodi_port.py').read_text())
+            self.assertNotIn('deadline = time.monotonic()+.75',(a/'digest_kodi_port.py').read_text())
             for name,wanted in manifest['files'].items():self.assertEqual(hashlib.sha256((a/name).read_bytes()).hexdigest(),wanted)
             book=chapter((a/'sample.epub').read_bytes());config=json.loads((a/'sample.json').read_text())
-            plan=timeline(book,config['measurements'],AUDIO,config['spoken_sha256'])
-            self.assertEqual(plan.total_samples,FRAMES);self.assertEqual(len(plan.units),14)
-            self.assertEqual(MEASUREMENTS[0][1],0)
-            self.assertTrue(all(MEASUREMENTS[i][1]+MEASUREMENTS[i][2]==MEASUREMENTS[i+1][1]
-                                for i in range(len(MEASUREMENTS)-1)))
+            plan=timeline(book,config,AUDIO)
+            self.assertEqual(plan.total_samples,FRAMES);self.assertEqual(len(plan.units),34)
+            labels=[book.text[unit.text_start:unit.text_end] for unit in plan.units]
+            self.assertEqual(labels[9],'From the');self.assertEqual(labels[32],'of the')
+            self.assertEqual(sum(len(label.split()) for label in labels),36)
     def test_private_state_round_trip_identity_and_cleanup(self):
         with tempfile.TemporaryDirectory() as folder:
             value=dict(schema=1,book='a'*64,chapter='b'*64,audio='c'*64,sample=24000,complete=False)
@@ -42,7 +45,7 @@ class EpubReadAlongTests(unittest.TestCase):
         for identity in (201,202,203):
             control=root.find('.//control[@id="'+str(identity)+'"]');self.assertEqual(control.findtext('texturenofocus'),'')
             self.assertEqual(control.findtext('onup'),'500')
-        self.assertIn('not individual words',ET.tostring(root).decode())
+        self.assertIn('current word or connected phrase',ET.tostring(root).decode())
     def test_runtime_has_checks_and_no_network_or_shared_progress(self):
         source=(Path(__file__).parent/'epub_readalong/default.py').read_text()
         self.assertFalse(any(isinstance(node,ast.Assert) for node in ast.walk(ast.parse(source))))
@@ -50,6 +53,12 @@ class EpubReadAlongTests(unittest.TestCase):
             self.assertNotIn(banned,source)
         self.assertIn('window.stop_owned()',source);self.assertIn('STATE=',source);self.assertIn('self.session.unlink()',source)
         self.assertIn('window.release_session()',source)
+        self.assertIn("require(self.port.player.natural,'epub-readalong-end-not-natural')",source)
+        self.assertIn("require(self.port.idle(),'epub-readalong-end-unsettled')",source)
+        self.assertIn('self.port.player.starts==1 and not self.port.stopping',source)
+        self.assertIn('self.observe(self.port.lost_or_ended())',source)
+        self.assertLess(source.index('if handle is not None:os.close(handle)'),
+                        source.index("clearProperty('AsterEpubReadAlong.Window')"))
         self.assertIn('Input.ExecuteAction',source);self.assertIn('activity_deadline',source)
         native=(Path(__file__).parent/'tools/live_epub_readalong.py').read_text()
         self.assertFalse(any(isinstance(node,ast.Assert) for node in ast.walk(ast.parse(native))))
@@ -59,7 +68,8 @@ class EpubReadAlongTests(unittest.TestCase):
             module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
         with tempfile.TemporaryDirectory() as folder:
             module.ROOT=Path(folder)/'stage';pin=build(module.ROOT)
-            self.assertEqual(module.verify(pin)['audio_sha256'],AUDIO)
+            manifest=module.verify(pin);self.assertEqual(manifest['audio_sha256'],AUDIO)
+            self.assertTrue(manifest['word_timestamps'])
             (module.ROOT/'chapter.wav').unlink()
             with self.assertRaises(ValueError):module.verify(pin)
 
