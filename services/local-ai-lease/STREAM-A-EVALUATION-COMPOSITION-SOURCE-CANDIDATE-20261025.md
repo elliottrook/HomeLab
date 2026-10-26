@@ -1,6 +1,6 @@
 # Stream A evaluation composition source candidate
 
-Status: **SOURCE-ONLY; WRAPPER-GATE RE-REVIEW REQUIRED**
+Status: **SOURCE-ONLY; INDEPENDENT REVIEW GO**
 
 This candidate closes the remaining source composition gaps for the future
 D4 candidate-H plus M3 evaluation. It is not installed, has no executable
@@ -76,3 +76,7 @@ The remaining gates are independent source review, target-Linux import/tests,
 an exact inactive installation packet with rollback, a fresh same-cycle
 F2/F3/F4/F5 admission preflight, and a separately approved supervised live
 run. No model or tool promotion follows automatically from an evaluation.
+
+Independent review accepted the corrected F2/F3 cross-binding and hard-wired
+composition root at `00c975eb`, then separately accepted the inert guest
+verification gate at `85c30e44`. No source-review defect remains open.
