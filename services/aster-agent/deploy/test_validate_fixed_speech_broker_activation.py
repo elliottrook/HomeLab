@@ -9,7 +9,7 @@ from validate_fixed_speech_broker_activation import MANIFEST, ROOT, validate
 class FixedSpeechBrokerActivationManifestTests(unittest.TestCase):
     def test_repository_packet_is_exact(self):
         self.assertEqual(validate(), {
-            "candidate": "d4-fixed-speech-broker-v1", "replacements": 2, "canary_calls": 1,
+            "candidate": "d4-fixed-speech-broker-v2", "replacements": 2, "canary_calls": 1,
         })
 
     def test_source_or_predecessor_drift_is_rejected(self):
@@ -28,6 +28,15 @@ class FixedSpeechBrokerActivationManifestTests(unittest.TestCase):
             path = Path(directory) / "manifest.json"
             path.write_text(json.dumps(data))
             with self.assertRaisesRegex(ValueError, "activation boundary changed"):
+                validate(path, ROOT)
+
+    def test_runner_drift_is_rejected(self):
+        data = json.loads(MANIFEST.read_text())
+        data["runner"]["socket_wait_seconds"] = 0
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "manifest.json"
+            path.write_text(json.dumps(data))
+            with self.assertRaisesRegex(ValueError, "runner boundary changed"):
                 validate(path, ROOT)
 
     def test_rollback_or_exclusion_drift_is_rejected(self):

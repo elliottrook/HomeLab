@@ -1509,3 +1509,20 @@ replace two broker files, one broker restart, enroll only the Green Speech
 observer capability, start the two dedicated units without enabling them, and
 make one bounded read-only canary. Failure restores the database and both
 predecessors and does not retry.
+
+The first approved fixed Speech activation attempt was
+[consumed and rolled back](evidence/D4-fixed-speech-broker-activation-card-2026-10-26.md).
+Both candidate units started cleanly, but the runner checked for their sockets
+in the same instant and entered rollback before the canary. Rollback restored
+the original data and files, then exposed a second runner defect: it restored
+the broker database as root-owned, so the original broker could not reopen it.
+Correcting the database to its required `hlabroker:hlabroker 0600` custody
+restored the original broker. Final checks show production active, existing
+routes intact, zero Speech rows, disabled/inactive candidate units and no
+candidate sockets.
+
+The [corrected v2 card](evidence/D4-fixed-speech-broker-activation-v2-card-2026-10-26.md)
+adds a bounded five-second socket wait and exact database custody restoration,
+and uses a fresh checkpoint. The original packet is spent. V2 requires fresh
+approval for the same one broker restart, single Green grant, two non-enabled
+unit starts and one read-only canary.

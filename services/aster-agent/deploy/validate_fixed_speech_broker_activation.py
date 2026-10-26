@@ -16,10 +16,18 @@ SHA = re.compile(r"^[a-f0-9]{64}$")
 
 def validate(path: Path = MANIFEST, root: Path = ROOT) -> dict[str, object]:
     data = json.loads(path.read_text())
-    if set(data) != {"schema", "candidate", "source_commit", "entries", "dependencies", "database", "activation", "rollback", "excluded"}:
+    if set(data) != {"schema", "candidate", "source_commit", "runner", "entries", "dependencies", "database", "activation", "rollback", "excluded"}:
         raise ValueError("manifest fields changed")
-    if data["schema"] != 1 or data["candidate"] != "d4-fixed-speech-broker-v1":
+    if data["schema"] != 1 or data["candidate"] != "d4-fixed-speech-broker-v2":
         raise ValueError("candidate identity changed")
+    runner = data["runner"]
+    runner_source = root / runner.get("source", "")
+    if (set(runner) != {"source", "sha256", "checkpoint", "socket_wait_seconds", "database_restore_owner", "database_restore_mode"} or
+            not runner_source.is_file() or hashlib.sha256(runner_source.read_bytes()).hexdigest() != runner.get("sha256") or
+            runner.get("checkpoint") != "/var/lib/homelab-broker/fixed-speech-pre-activation-20261026-r1" or
+            runner.get("socket_wait_seconds") != 5 or runner.get("database_restore_owner") != "hlabroker:hlabroker" or
+            runner.get("database_restore_mode") != "0600"):
+        raise ValueError("runner boundary changed")
     entries = data["entries"]
     if not isinstance(entries, list) or len(entries) != 2:
         raise ValueError("exactly two broker replacements are required")

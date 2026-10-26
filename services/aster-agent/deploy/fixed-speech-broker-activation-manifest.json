@@ -1,7 +1,15 @@
 {
   "schema": 1,
-  "candidate": "d4-fixed-speech-broker-v1",
+  "candidate": "d4-fixed-speech-broker-v2",
   "source_commit": "f9b60e3e77ad3843cd417dbf8d9fd2f448ae397f",
+  "runner": {
+    "source": "services/aster-agent/deploy/activate_fixed_speech_broker.sh",
+    "sha256": "7c8c6a99f2dd8e1ef1459bd984432a2396e440192b4b0155c510576ff3f6d861",
+    "checkpoint": "/var/lib/homelab-broker/fixed-speech-pre-activation-20261026-r1",
+    "socket_wait_seconds": 5,
+    "database_restore_owner": "hlabroker:hlabroker",
+    "database_restore_mode": "0600"
+  },
   "entries": [
     {
       "source": "ops/credential-broker/broker_admin.py",

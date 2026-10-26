@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-26  
 **Source route commit:** `f9b60e3e77ad3843cd417dbf8d9fd2f448ae397f`  
-**State:** approval-ready; no live effect performed
+**State:** consumed and rolled back; do not retry
 
 ## Purpose
 
@@ -60,6 +60,24 @@ Any failed or uncertain gate stops the transaction. Stop the two candidate
 units, restore the exact database checkpoint and both predecessor files,
 restart the broker at most once, and verify the original fixed inference,
 Forgejo and Lab Operations state. Preserve evidence and do not retry.
+
+## Consumed result
+
+The approved transaction was attempted once. Both candidate units entered
+`active` and were then stopped by the failure trap before the canary. The
+same-second journal ordering and absence of a unit error narrow the first
+failure to the immediate socket-readiness section; the script had no bounded
+wait between starting Type=simple units and asserting both socket paths.
+
+Rollback restored the exact predecessor file hashes and database content. Its
+first broker recovery start then failed because the script restored the
+database as `root:root 0600` rather than its required
+`hlabroker:hlabroker 0600`. Recovery corrected that ownership, reset the failed
+unit state and started the original broker. Final postchecks show the broker,
+Aster Agent and fixed inference gateway active; original fixed inference,
+Forgejo and Lab Operations rows intact; zero fixed Speech rows; candidate
+units disabled/inactive; and both candidate sockets absent. This packet is
+spent and must not be retried.
 
 ## Explicit exclusions
 
