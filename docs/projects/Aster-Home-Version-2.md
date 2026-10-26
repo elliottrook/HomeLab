@@ -8751,3 +8751,16 @@ It never invokes a shell or chooses the first/default source. The policy,
 speech-wire, UI and grouped-search contracts now have 30 passing tests in both
 Python modes. A later runtime adapter must still enforce the ten-second process
 deadline and byte bound while joining these already tested pieces.
+
+`voice_search_runtime.py` now joins those pieces without performing I/O. It
+admits only a ready hardware capability and exact non-monitor source, returns
+the fixed recorder argument vector, derives and validates captured duration,
+creates the bounded speech request only while transcribing, and accepts no late
+response after Cancel. Credentials and request bodies are never stored in its
+state. The complete pure path reaches the existing normalized search query in
+tests; absent hardware, wrong source, malformed audio, invalid state and late
+response all fail closed. The voice/search contract now has 34 passing tests in
+normal and optimized Python. What remains for live voice search is the small
+process/HTTP/Kodi adapter, but that adapter cannot be truthfully activated or
+hardware-tested until the G20 microphone dongle is present and its event/source
+identity is observed.
