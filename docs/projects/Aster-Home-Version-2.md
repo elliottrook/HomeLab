@@ -22,7 +22,7 @@
   approved guarded pilot; the historical trial gates below are not current
   blockers. Seven balanced navigation cues are accepted on both boxes. The
   separate startup chime is HP-only, once per Kodi process, with production
-  adoption explicitly deferred to Version 2. Work through `bb3eed88` was pushed
+  adoption explicitly deferred to Version 2. Work through `68b2285f` was pushed
   to Forgejo and verified at its automatic GitHub mirror at Jason's latest
   “Push and continue”. Pause-to-OSD is now active on HP through its separate
   two-file player-UI service; native movie/episode/menu/exit and restart checks
@@ -50,10 +50,14 @@
   overlay. Normal navigation, return context and actual rollback/reinstallation
   pass; audio/Search/Breaking/refresh remain intact. The reading page remains
   explicitly separate from the audio timeline; cross-briefing queues remain
-  publisher-ID gated. Next: Home freshness/source-contract foundation and then
-  read-only intent groups, without reviving stale camera/household values.
+  publisher-ID gated. Home freshness/source-contract and read-only intent groups
+  now have an isolated HP preview2 with two passing native runs and inspected
+  stale-state pixels. It is not a replacement for normal Home. HA's sanitized
+  source is current, but HP's delivered copy is expired; values stay hidden.
+  Next: prepare bounded delivery validation without executing the old Mac pilot,
+  creating schedules, extending camera trust or inventing timer state.
   Owner checks are deferred for a larger batch, not requested now. Forgejo/GitHub
-  are synchronized throughbb3eed88; newer milestones are local only.
+  are synchronized through68b2285f; newer milestones are local only.
 - Previous resume point (2026-10-25): Search14 Stop-acknowledgement guard is on
   HP (`732a89c3e3e9189022a1ee7c4fdb9f596c88486d2f13fb53d3832d47c7a46df4`),
   layered on the owner-feedback bundle below. Two actual movie Play/Resume/Back
@@ -6194,3 +6198,101 @@ obtain credentials, register a publisher/schedule or fetch camera frames as an
 implicit part of this pure-model slice. News integration is locally committed
 as37776d8d; this foundation is a separate local milestone. Remote synchronization
 still stops at the specifically approved bb3eed88 push/mirror.
+
+### Home intent-group preview — assessment and pre-start (2026-10-25)
+
+Jason requested push/continuation. Forgejo and its automatic GitHub mirror agree
+at `68b2285fcb70af4bd45c74b72b29d37bf0c896e8`, including both prior milestones.
+The specifically approved push is consumed; later work remains local.
+
+Read-only source-local inspection through the established Proxmox guest agent
+found HA VM103's fixed sanitized report present,351bytes,mode0600, schema3 and
+recognized pilot identity. Counts: one light, one temperature, one weather and
+empty compatibility alias arrays. Only counts/schema/file metadata were emitted;
+no household values or aliases were exported. Report mtime1792974232 was about
+151seconds old at00:26:23UTC. Both deployed exporter Python hashes exactly match
+the repository: contract `b6ba6d09f4d07864f005d134604ff9866f7ff982b6abdf9cc9f7d638132c1f3a`,
+integration `078ed576b4898765d61560644eca39137691f7f37ead942430c0a045fdf3f1e6`.
+The reviewed code refreshes at startup, approved state changes and every five
+minutes. The HP copy's age therefore points to the separate delivery step, not
+proof of a stopped HA exporter. No publisher was executed or changed.
+
+Continue under HP Stream A with a pure bounded projection and isolated manual
+Home-only WindowXML preview. Four intent groups: Lighting, Comfort/weather,
+Cameras and Timers. Use only the existing HP local file; Refresh reloads it,
+never fetches/re-dates source data. Recheck expiry while open without repeated
+I/O. Hide all values on missing/invalid/future/expired feeds. For fresh data,
+validate exact reviewed aliases/fields, finite ranges and collection bounds
+before displaying exported facts, not a claim of individual-sensor liveness.
+Camera transport and structured HA timers stay explicitly unconnected: no
+frames, streams, device calls, timer commands or fabricated countdowns.
+
+Use the shared Aster guide with the approved TV gold/green/neutral exception,
+existing Home mark and restrained floating focus treatment. No speech. Bound
+the fixed regular local feed to256KiB, reject linked/unknown paths, and use an
+externally pinned new immutable bundle. HP/Home/idle and empty queues required
+before/after loading. No active skin, normal Home entry, HA service, credential,
+network, schedule, inventory, monitoring or production change; no fresh feed
+delivery is silently introduced. Recovery is closing/omitting the unreferenced
+preview, retaining prior checkpoints. Test fresh/stale/malformed synthetic data,
+freshness expiry, privacy/no-action boundaries, then actual HP navigation,
+Refresh, Back/Home, captured layout and full preservation. Save non-secret
+evidence; owner checks remain batched. Stop on unexpected scope or recovery drift.
+
+### Home preview2 — isolated HP evidence and delivery handover (2026-10-25)
+
+Implemented the bounded four-group projection, fixed local-file reader and manual
+WindowXML preview. The current accepted immutable stage is
+`/storage/.aster-staging/aster-home-preview2`, external manifest SHA-256
+`f3e4cdbb3e391bd2380d1f84217a9d9f882ff9dbabcc2d0625c3af0518be0a4e`,
+five payload members. It is unreferenced by the active skin and normal Home.
+Refresh rereads only the fixed regular file; the one-second in-memory freshness
+check expires displayed values without recurring file/network reads. Fresh
+payloads must satisfy both timestamps and the exact reviewed alias/value contract.
+Camera metadata never implies a live camera; structured timers remain unconnected.
+
+All815 local tests pass normally and with optimization enabled, including twelve
+new Home model/source/layout/pin checks. Synthetic fixtures cover fresh values,
+expiry while open, unknown fields/aliases, malformed and oversized data, linked
+files/parents and nonblocking FIFO rejection. No actual fresh household values
+were captured, printed or substituted into the HP feed.
+
+First native preview1 run failed `home-preview-back-context`: the harness launched
+immediately after focus movement. It is retained as failed evidence, not a pass.
+A250ms settling interval plus recorded actual Home launch focus fixed the harness;
+the unmodified candidate then passed. Independent screenshot inspection also
+found white header-button fills with weak text contrast. Preview2 uses an explicit
+nonzero translucent-black no-focus fill; actual pixels confirm readable labels.
+Two preview2 native runs pass with checks enforced:
+`aster-home-preview-1792975078488883900/native.json` and
+`aster-home-preview-1792975096358617730/native.json` under HP's private
+`/storage/.aster-checkpoints`. Both prove adjacent grid navigation, bottom no-wrap,
+no-action card selection, unchanged local feed, Reload, exact Back focus136, Home
+exit, empty queues and unchanged settings snapshot. The first preview2 screenshot
+was inspected independently; it displays expired-feed notices, not live readings.
+Owner/sofa acceptance remains deferred.
+
+Recovery: close or omit this unreferenced preview. There are no active skin files,
+HA services, schedules, credentials, device states or listening records to roll
+back. Retain preview1 and private before/proof records. The preservation harness
+now also checks that `AsterHome.PreviewWindow` is absent at completion.
+Final full preservation proof is
+`aster-music-progressive-20261024/postcheck-1792975118881222865.json`:
+all48 Music members,115 untouched v1 members and each exact approved overlay
+pass;68 AV/language settings retain the earlier evidenced derived display-index
+exception, both databases are intact, no players/queues or preview windows remain.
+No baseline was rewritten. The final815-test normal/optimized reruns also pass.
+
+Delivery follow-up assessment: the existing
+`services/kodi/skin.asterhome/tools/pilot_home_feed.py` is a manual Mac-only writer,
+not an HP publisher. It additionally queries Frigate status and writes into the
+Mac Kodi profile; do not execute or retarget it implicitly. It is not evidence
+that an HP refresh service exists. Any replacement must be a distinct bounded
+HA-export-only path: one fixed source, reviewed projection, consistent source
+mtime/content capture, bounded output, no raw attributes/URLs/tokens, source-time
+preservation, validation before atomic publication, and failure that leaves an
+honest stale state. Do not add Frigate or camera images, register schedules or
+obtain new credentials in the delivery foundation. A later live HP publication
+requires its own checkpoint, feed/UI compatibility check and no-data-loss
+rollback; production remains separately gated. Routine source-local metadata
+checks are read-only and do not authorize installing a new publisher.
