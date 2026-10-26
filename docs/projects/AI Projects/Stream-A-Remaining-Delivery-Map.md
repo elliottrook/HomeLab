@@ -1045,6 +1045,14 @@ and the combined source suite passes 39/39. LXC104 remains unchanged. The
 inactive install and later effectful live card remain separate gates before an
 evaluation.
 
+The future live run also has a
+[machine-readable F6 workload proposal](evidence/M1-D4-fixed-doctor-F6-workload-proposal-2026-10-25.md).
+It is explicitly `not-admitted` and cannot reuse or widen the candidate-H/M3
+sequence. It pins eight calls, 600 seconds, a 900-second recovery reserve,
+fresh F2–F5 evidence and exact SYCL/schedule restoration while granting no
+tools, authority or routing. The combined source suite passes 41/41; platform
+implementation and independent review remain open.
+
 The immediate [post-authority candidate-G preflight](evidence/D4-candidate-G-post-authority-static-preflight-2026-10-25.md)
 is STATIC GO: its dry-run digest and all eleven source identities still match,
 the owner-only packet remains exact, and no key, lease or model request was
