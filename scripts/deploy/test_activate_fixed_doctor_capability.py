@@ -14,6 +14,14 @@ class FixedDoctorActivationBoundaryTests(unittest.TestCase):
             '[ "$(sha "$core")" = 2fdb80964984fed5cf539f12a62d0058ba9eb9088861425858109fabc7dabf99 ]',
             self.text,
         )
+        self.assertIn(
+            '[ "$(sha "$doctor_adapter")" = c88c4e642426afff9718da79e89db5b8405f1a5c00fbcc0fa09c3ae5956272db ]',
+            self.text,
+        )
+        self.assertIn(
+            '[ "$(sha "$investigation")" = bfd5e9675b4a7ef06aa0ddb28e7c9b5fda2076a86957cd5474a75ccbd50ee6fe ]',
+            self.text,
+        )
         self.assertIn("enable-fixed-doctor --agent-uid 978", self.text)
         self.assertEqual(1, self.text.count('s.sendall(b\'{"method":"doctor.aster-inference.latest"'))
         self.assertIn('assert rows == [("consumed",)]', self.text)

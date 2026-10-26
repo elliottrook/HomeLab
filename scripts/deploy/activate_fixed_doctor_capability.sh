@@ -6,6 +6,8 @@ database=/var/lib/homelab-broker/broker.db
 admin=/opt/homelab-broker/broker_admin.py
 service=/opt/homelab-broker/broker_service.py
 core=/opt/homelab-broker/broker_core.py
+doctor_adapter=/opt/aster-agent/doctor_incident_adapter.py
+investigation=/opt/aster-agent/sysadmin_investigation.py
 caller=aster-fixed-doctor-caller.service
 gateway=aster-fixed-doctor-gateway.service
 rollback_needed=0
@@ -50,6 +52,8 @@ trap rollback EXIT
 [ "$(sha "$admin")" = e90acd24acfa13f959070f2c791d29ea28ebf1d4240edd5a9b39b54dfc7ef4aa ]
 [ "$(sha "$service")" = c6217f4988510b4d38581829b4f6b333487b1cd35732a6ba5b3d82dcc69b627e ]
 [ "$(sha "$core")" = 2fdb80964984fed5cf539f12a62d0058ba9eb9088861425858109fabc7dabf99 ]
+[ "$(sha "$doctor_adapter")" = c88c4e642426afff9718da79e89db5b8405f1a5c00fbcc0fa09c3ae5956272db ]
+[ "$(sha "$investigation")" = bfd5e9675b4a7ef06aa0ddb28e7c9b5fda2076a86957cd5474a75ccbd50ee6fe ]
 [ "$(sha /opt/aster-agent/fixed_doctor_caller.py)" = aba9b11adda00e51d555aff5ec1af8d4fb94a2fa547f9435aa696121ebb9628a ]
 [ "$(sha /opt/aster-agent/fixed_doctor_gateway.py)" = 852e609ef278acee1b4343ea8627d2c01f8f1a2cc42556aeb9acfa184b4bd495 ]
 [ "$(sha /opt/aster-agent/fixed_doctor_capability.py)" = 7c0fd1bcc3404661052627ec7d2fa04e811149f43fb3ea23bc27edf57bb5fb3b ]
