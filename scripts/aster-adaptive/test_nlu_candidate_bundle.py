@@ -12,6 +12,7 @@ HERE = Path(__file__).parent
 TEMPLATE = HERE / "fixtures" / "nlu-candidate-bundle-template-v1.json"
 SEALED = HERE / "fixtures" / "nlu-candidate-bundle-qwen35-9b-sycl-v1.json"
 SEALED_V6 = HERE / "fixtures" / "nlu-candidate-bundle-qwen35-9b-sycl-v6.json"
+SEALED_V8 = HERE / "fixtures" / "nlu-candidate-bundle-qwen35-9b-sycl-v8.json"
 
 
 def sealed():
@@ -86,6 +87,16 @@ class NluCandidateBundleTests(unittest.TestCase):
         self.assertEqual("qwen3.5-9b-sycl-nlu-v6", value["candidate_id"])
         self.assertEqual(
             "6a16f92527981d5048a4163b5c8de2ad146ec7901f459d221f628e663d06c236",
+            hashlib.sha256(raw).hexdigest(),
+        )
+
+    def test_v8_candidate_is_exact_and_valid(self):
+        raw = SEALED_V8.read_bytes()
+        value, errors = bundle.load_and_validate(raw)
+        self.assertEqual([], errors)
+        self.assertEqual("qwen3.5-9b-sycl-nlu-v8", value["candidate_id"])
+        self.assertEqual(
+            "033aa138e9995034d0ea19237f929e4dccab1c9341f0ff531e03ced84ac6d6a1",
             hashlib.sha256(raw).hexdigest(),
         )
 
