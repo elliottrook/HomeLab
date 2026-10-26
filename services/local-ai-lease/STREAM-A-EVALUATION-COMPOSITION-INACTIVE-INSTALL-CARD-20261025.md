@@ -1,10 +1,10 @@
 # Stream A evaluation composition — inactive install card
 
-Status: **REVISED SOURCE; INACTIVE INSTALL REQUIRES FRESH EXPLICIT APPROVAL**
+Status: **REVISED SOURCE AND TARGET PREFLIGHT PASS; INACTIVE INSTALL REQUIRES FRESH EXPLICIT APPROVAL**
 
 Source identity: independently reviewed platform branch through `85c30e44`,
-with the dependency-closure correction committed after target inventory proved
-that neither guest carries `evaluation_lease.py`.
+with the dependency-closure correction at `37452660` after target inventory
+proved that neither guest carries `evaluation_lease.py`.
 This card stages code only. It does not
 produce F3/F4/F5/admission evidence, enable or start a unit, arm F6, acquire a
 lease, stop a consumer, start D4 or M3, read a completed private result, call a
@@ -81,3 +81,13 @@ stop condition; do not delete or infer recovery.
 Successful inactive installation closes code placement and target-Linux
 compatibility only. Fresh F2/F3/F4/F5/admission production, F6 arming, the
 effectful 90-minute run and model calls remain separate gates.
+
+## Revised target preflight
+
+A clean archive from `37452660` (SHA-256
+`f7bb5e658cdb2504c4b896fdf53fd187e7e35dacd05cdf82f5a078f6d006ae5c`)
+passed 95/95 tests on Proxmox. The two-file guest packet was then copied only
+to a fresh temporary directory in each of LXC104 and LXC110. With an empty
+`PYTHONPATH`, both returned the exact canonical disabled result and created no
+bytecode. Those temporary directories and the archive were removed. No target
+installation, runtime state, lease, service action or model call occurred.

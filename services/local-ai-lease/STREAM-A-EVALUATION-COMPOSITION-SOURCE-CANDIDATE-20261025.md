@@ -88,3 +88,6 @@ the host-only `evaluation_lease.py` module. The verifier now carries only the
 two immutable release identities it needs, while a source test cross-checks
 them against the host lease contract. An isolated two-file run with an empty
 `PYTHONPATH` returns the canonical disabled result and writes no bytecode.
+The correction is committed at `37452660`; the clean-commit archive passed
+95/95 tests on Proxmox and the isolated two-file check passed in both target
+guests before any installation was attempted.
