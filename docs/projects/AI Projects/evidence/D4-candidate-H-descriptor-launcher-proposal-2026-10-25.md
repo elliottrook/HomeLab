@@ -1,6 +1,13 @@
 # D4 candidate-H descriptor launcher proposal — 2026-10-25
 
-**State:** source-only proposal; not reviewed, installed or authorized
+**State:** NO-GO; superseded before installation by the dedicated-identity correction
+
+The initial proposal is rejected. Although it removed the API key from the
+child environment, it launched the candidate process as root. That child could
+therefore reopen `/etc/aster/aster.env`; the inherited descriptor did not form
+a meaningful custody boundary. No file from this proposal was installed and no
+credential or model was used. The replacement is recorded in
+[D4 candidate-H unprivileged execution correction](D4-candidate-H-unprivileged-execution-correction-2026-10-25.md).
 
 Read-only LXC104 inspection found the existing service authentication custody:
 
@@ -38,7 +45,7 @@ inherit ASTER_LLAMA_API_KEY. The candidate packet, digest, fixtures, model-call
 limits and journal path are fully fixed in source; no operator-selected path or
 digest is accepted.
 
-Source identities:
+Superseded source identities:
 
 - launcher SHA-256:
   4c3bc8637aa529c88331bcb91c7523fa9975867d6c60aafe0fc9efaddb5169a4
@@ -47,13 +54,12 @@ Source identities:
 - candidate-H run digest:
   423656a2336502f3a70de463b3e844b0e85c4bb74a59127cc8f70a0905ec31f4
 
-Four synthetic launcher tests and all 168 evaluation tests pass. Tests prove
+Four synthetic launcher tests and all 168 evaluation tests passed, but those
+tests did not detect the root-child reopening path. They proved
 exact manifest binding, packet custody failure, unique fictional-key parsing,
 descriptor delivery, child-environment exclusion and buffer clearing. They use
 only fictional bytes.
 
-This proposal does not claim that reading the existing file is the platform's
-accepted secret-broker primitive. The platform owner must independently decide
-whether this root-only conversion is acceptable or replace it with a named
-broker opener. No file has been copied to LXC104, no credential was opened, no
-journal was created and no model request ran.
+This root-child proposal must not be staged or run. No file was copied to
+LXC104, no credential was opened, no journal was created and no model request
+ran.

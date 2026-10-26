@@ -1,0 +1,30 @@
+[Unit]
+Description=Aster D4 candidate-H bounded evaluation
+ConditionPathExists=/var/lib/aster/d4-candidate-h
+ConditionPathExists=/var/lib/aster/d4-candidate-h-output
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+UMask=0077
+ExecStart=/usr/local/libexec/aster-d4-candidate-h-launcher
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+CapabilityBoundingSet=CAP_SETUID CAP_SETGID
+ReadOnlyPaths=/etc/aster/aster.env /var/lib/aster/d4-candidate-h
+ReadWritePaths=/var/lib/aster/d4-candidate-h-output
+RuntimeMaxSec=2250
+TimeoutStopSec=15
+KillMode=control-group
+

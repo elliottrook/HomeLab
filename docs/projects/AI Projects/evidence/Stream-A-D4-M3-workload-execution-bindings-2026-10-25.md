@@ -27,10 +27,12 @@ owner's proposed boundary is `/var/lib/aster/d4-candidate-g/`, root-owned mode
 The frozen runner reads `ASTER_LLAMA_API_KEY` from its environment. The
 platform-owned F6 boundary instead requires credential delivery by the
 approved secret broker as a protected inherited file descriptor or standard
-input, never through argv, environment, JSON, journal or logs. A
-[source-only root launcher proposal](D4-candidate-H-descriptor-launcher-proposal-2026-10-25.md)
-now connects the existing credential-file custody to candidate-H's inherited
-descriptor and passes synthetic tests, but it is not independently accepted or
+input, never through argv, environment, JSON, journal or logs. The first
+[source-only launcher proposal](D4-candidate-H-descriptor-launcher-proposal-2026-10-25.md)
+was rejected because its root child could reopen the credential file. The
+[corrected proposal](D4-candidate-H-unprivileged-execution-correction-2026-10-25.md)
+drops the child to a fixed unprivileged identity with no supplementary groups
+and passes its synthetic suite, but it is not independently accepted or
 installed. Therefore:
 
 - do not source `/etc/aster/aster.env`;

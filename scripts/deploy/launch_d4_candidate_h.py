@@ -7,18 +7,24 @@ import grp
 import hashlib
 import os
 from pathlib import Path
+import pwd
+import signal
 import stat
 import subprocess
 import sys
 
 
 PACKET_DIR = Path("/var/lib/aster/d4-candidate-h")
+OUTPUT_DIR = Path("/var/lib/aster/d4-candidate-h-output")
 ENV_FILE = Path("/etc/aster/aster.env")
+EVAL_USER = "aster-d4-eval"
+EVAL_UID = 977
+EVAL_GID = 977
 INTERPRETER = Path("/opt/aster-agent/venv/bin/python")
 INTERPRETER_TARGET = Path("/usr/bin/python3.13")
 INTERPRETER_SHA256 = "889c603f0d17cb54060951bcf4c4f9b8c9ebd9e52b392c70209bbb9755d797d9"
 RUN_DIGEST = "423656a2336502f3a70de463b3e844b0e85c4bb74a59127cc8f70a0905ec31f4"
-LEDGER = PACKET_DIR / "attempt-journal.jsonl"
+LEDGER = OUTPUT_DIR / "attempt-journal.jsonl"
 MAX_ENV_BYTES = 65536
 MAX_KEY_BYTES = 4096
 TIMEOUT_SECONDS = 2200
@@ -57,23 +63,52 @@ def require_file(path: Path, *, uid: int, gid: int, mode: int) -> os.stat_result
     return metadata
 
 
+def validate_eval_identity() -> tuple[int, int]:
+    account = pwd.getpwnam(EVAL_USER)
+    group = grp.getgrnam(EVAL_USER)
+    if (account.pw_uid, account.pw_gid, group.gr_gid) != (
+        EVAL_UID, EVAL_GID, EVAL_GID
+    ):
+        raise ValueError("candidate evaluation identity mismatch")
+    if account.pw_shell not in ("/usr/sbin/nologin", "/sbin/nologin"):
+        raise ValueError("candidate evaluation identity must be non-login")
+    if set(os.getgrouplist(EVAL_USER, EVAL_GID)) != {EVAL_GID}:
+        raise ValueError("candidate evaluation identity has supplementary groups")
+    return account.pw_uid, account.pw_gid
+
+
 def validate_packet(
-    root: Path = PACKET_DIR, *, uid: int = 0, gid: int = 0
+    root: Path = PACKET_DIR, *, uid: int = 0, gid: int = EVAL_GID
 ) -> None:
     metadata = root.lstat()
     if not stat.S_ISDIR(metadata.st_mode) or root.is_symlink():
         raise ValueError("candidate packet must be a non-symlink directory")
     if (metadata.st_uid, metadata.st_gid, stat.S_IMODE(metadata.st_mode)) != (
-        uid, gid, 0o700
+        uid, gid, 0o750
     ):
         raise ValueError("candidate packet custody mismatch")
     if {entry.name for entry in os.scandir(root)} != set(FILES):
         raise ValueError("candidate packet file set mismatch")
     for name, (expected_size, expected_digest) in FILES.items():
         path = root / name
-        metadata = require_file(path, uid=uid, gid=gid, mode=0o600)
+        metadata = require_file(path, uid=uid, gid=gid, mode=0o640)
         if metadata.st_size != expected_size or sha256_file(path) != expected_digest:
             raise ValueError(f"{name}: identity mismatch")
+
+
+def validate_output_directory(
+    root: Path = OUTPUT_DIR, *, uid: int = EVAL_UID, gid: int = EVAL_GID
+) -> None:
+    metadata = root.lstat()
+    if not stat.S_ISDIR(metadata.st_mode) or root.is_symlink():
+        raise ValueError("candidate output must be a non-symlink directory")
+    if (metadata.st_uid, metadata.st_gid, stat.S_IMODE(metadata.st_mode)) != (
+        uid, gid, 0o700
+    ):
+        raise ValueError("candidate output custody mismatch")
+    with os.scandir(root) as entries:
+        if next(entries, None) is not None:
+            raise ValueError("candidate output directory must be empty")
 
 
 def validate_interpreter() -> None:
@@ -145,7 +180,10 @@ def read_key_bytes(
             raw[index] = 0
 
 
-def run_with_key_fd(argv: list[str], secret: bytearray, *, timeout: int) -> int:
+def run_with_key_fd(
+    argv: list[str], secret: bytearray, *, timeout: int,
+    child_uid: int | None = EVAL_UID, child_gid: int | None = EVAL_GID,
+) -> int:
     read_fd, write_fd = os.pipe()
     os.set_inheritable(read_fd, False)
     os.set_inheritable(write_fd, False)
@@ -164,20 +202,28 @@ def run_with_key_fd(argv: list[str], secret: bytearray, *, timeout: int) -> int:
             if name in os.environ
         }
         environment["PYTHONDONTWRITEBYTECODE"] = "1"
+        identity = {}
+        if child_uid is not None or child_gid is not None:
+            if child_uid is None or child_gid is None:
+                raise ValueError("complete child identity required")
+            identity = {
+                "user": child_uid,
+                "group": child_gid,
+                "extra_groups": (),
+                "umask": 0o077,
+            }
         process = subprocess.Popen(
-            command,
-            cwd=PACKET_DIR,
-            env=environment,
-            pass_fds=(read_fd,),
+            command, cwd=PACKET_DIR, env=environment, pass_fds=(read_fd,),
+            start_new_session=True, **identity,
         )
         try:
             return process.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
-            process.terminate()
+            os.killpg(process.pid, signal.SIGTERM)
             try:
                 process.wait(timeout=10)
             except subprocess.TimeoutExpired:
-                process.kill()
+                os.killpg(process.pid, signal.SIGKILL)
                 process.wait()
             return 124
     finally:
@@ -194,9 +240,9 @@ def run_with_key_fd(argv: list[str], secret: bytearray, *, timeout: int) -> int:
 def main() -> int:
     if os.geteuid() != 0:
         raise SystemExit("root execution identity required")
-    if LEDGER.exists() or (PACKET_DIR / "run.json").exists():
-        raise SystemExit("candidate output already exists")
-    validate_packet()
+    eval_uid, eval_gid = validate_eval_identity()
+    validate_packet(gid=eval_gid)
+    validate_output_directory(uid=eval_uid, gid=eval_gid)
     validate_interpreter()
     secret = read_key_bytes()
     command = [
@@ -209,7 +255,10 @@ def main() -> int:
         "--ledger", str(LEDGER),
         "--execute",
     ]
-    return run_with_key_fd(command, secret, timeout=TIMEOUT_SECONDS)
+    return run_with_key_fd(
+        command, secret, timeout=TIMEOUT_SECONDS,
+        child_uid=eval_uid, child_gid=eval_gid,
+    )
 
 
 if __name__ == "__main__":
