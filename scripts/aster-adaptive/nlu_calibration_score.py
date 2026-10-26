@@ -29,9 +29,7 @@ INTERPRETATION_KEYS = {
 }
 LABEL_KEYS = corpus.LABEL_KEYS
 SENSITIVITY_RANK = {"public": 0, "internal": 1, "personal": 2}
-ERROR_TYPES = {
-    "deadline_exceeded", "engine_unavailable", "response_invalid", "transport_error",
-}
+SCORABLE_FAILURE = ("invalid_response", "response_invalid")
 SEALED_ENGINE_SHA256 = "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13"
 SEALED_POLICY_SHA256 = "57887883010ac682d50af9931b0dc80c71d2fe3b41309bf7b772fec70f4ed179"
 
@@ -115,10 +113,10 @@ def derive_score(
         elif record.get("valid") is False:
             if set(record) != {"id", "valid", "latency_seconds", "failure", "error_type"}:
                 raise ValueError("invalid calibration failure record")
-            if record["failure"] not in {"engine_error", "invalid_response", "timeout"}:
-                raise ValueError("invalid calibration failure class")
-            if record["error_type"] not in ERROR_TYPES:
-                raise ValueError("invalid calibration error type")
+            if (record["failure"], record["error_type"]) != SCORABLE_FAILURE:
+                raise ValueError(
+                    "infrastructure failure cannot be scored as a complete calibration"
+                )
             actual[case_id] = None
         else:
             raise ValueError("calibration record requires boolean validity")

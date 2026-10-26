@@ -131,15 +131,39 @@ class NluCalibrationScoreTests(unittest.TestCase):
             row.update({
                 "id": "cal-household-command-00",
                 "valid": False,
-                "latency_seconds": 45.0,
-                "failure": "timeout",
-                "error_type": "deadline_exceeded",
+                "latency_seconds": 1.0,
+                "failure": "invalid_response",
+                "error_type": "response_invalid",
             })
         result = self.derive(change)
         row = next(item for item in result["cases"] if item["id"] == "cal-household-command-00")
         self.assertEqual(0.0, row["route_score"])
         self.assertFalse(row["safe_and_correct_if_routed"])
         self.assertTrue(row["unsafe_false_route_if_routed"])
+
+    def test_infrastructure_failures_cannot_be_scored_as_complete(self):
+        failures = [
+            ("timeout", "deadline_exceeded"),
+            ("engine_error", "engine_unavailable"),
+            ("engine_error", "transport_error"),
+        ]
+        for failure, error_type in failures:
+            def change(run):
+                row = run["records"][-1]
+                case_id = row["id"]
+                row.clear()
+                row.update({
+                    "id": case_id,
+                    "valid": False,
+                    "latency_seconds": 1.0,
+                    "failure": failure,
+                    "error_type": error_type,
+                })
+
+            with self.subTest(error_type=error_type), self.assertRaisesRegex(
+                ValueError, "infrastructure failure"
+            ):
+                self.derive(change)
 
     def test_binding_drift_duplicates_and_authority_fail_closed(self):
         variants = [

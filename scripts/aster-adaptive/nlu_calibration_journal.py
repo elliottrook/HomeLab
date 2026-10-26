@@ -60,6 +60,12 @@ def validate_journal(raw: bytes, run: dict) -> None:
             "valid": record["valid"],
         }
         if not record["valid"]:
+            if (
+                record.get("failure"), record.get("error_type")
+            ) != ("invalid_response", "response_invalid"):
+                raise ValueError(
+                    "infrastructure failure cannot have a complete calibration journal"
+                )
             expected["error_type"] = record["error_type"]
         if recorded != expected:
             raise ValueError("calibration journal attempt result mismatch")
