@@ -74,14 +74,15 @@ try:
     rpc('Player.PlayPause', dict(playerid=video, play=True)); phase(video, 1)
     wait_idle(18)
 
-    xbmc.executebuiltin('ActivateWindow(Home)'); xbmc.sleep(500)
+    # Let asynchronous add-on stop callbacks drain before changing player type.
+    xbmc.executebuiltin('ActivateWindow(Home)'); xbmc.sleep(2000)
     rpc('Player.Open', dict(item=dict(file=str(AUDIO))))
     audio = wait_player('audio')
     xbmc.sleep(800); phase(audio, 1)
     rpc('Player.PlayPause', dict(playerid=audio, play=False)); phase(audio, 0)
     rpc('Player.PlayPause', dict(playerid=audio, play=True)); phase(audio, 1)
     rpc('Player.Stop', dict(playerid=audio)); wait_idle(4)
-    xbmc.executebuiltin('ActivateWindow(Home)'); xbmc.sleep(500)
+    xbmc.executebuiltin('ActivateWindow(Home)'); xbmc.sleep(2000)
     require(xbmcgui.getCurrentWindowId() == 10000 and not players(), 'mixed-soak-home-return')
     result = dict(passed=True, private_video=True, private_audio=True,
         video_natural_end=True, pause_resume=True, explicit_audio_stop=True,

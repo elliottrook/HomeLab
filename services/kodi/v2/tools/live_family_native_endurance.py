@@ -41,10 +41,10 @@ try:
     for index in range(cycles):
         rpc('Player.Open',dict(item=dict(file=str(VIDEO)))); video=wait_player('video'); xbmc.sleep(500)
         rpc('Player.PlayPause',dict(playerid=video,play=False)); rpc('Player.PlayPause',dict(playerid=video,play=True)); wait_idle(18)
-        xbmc.executebuiltin('ActivateWindow(Home)'); xbmc.sleep(300)
+        xbmc.executebuiltin('ActivateWindow(Home)'); xbmc.sleep(2000)
         rpc('Player.Open',dict(item=dict(file=str(AUDIO)))); audio=wait_player('audio'); xbmc.sleep(500)
         rpc('Player.PlayPause',dict(playerid=audio,play=False)); rpc('Player.PlayPause',dict(playerid=audio,play=True)); rpc('Player.Stop',dict(playerid=audio)); wait_idle(4)
-        xbmc.executebuiltin('ActivateWindow(Home)'); xbmc.sleep(300); runs.append(metric())
+        xbmc.executebuiltin('ActivateWindow(Home)'); xbmc.sleep(2000); runs.append(metric())
     require(xbmcgui.getCurrentWindowId()==10000 and not players(),'native-endurance-home-return')
     result=dict(passed=True,cycles=cycles,start=start,end=metric(),runs=runs,timestamp_ns=time.time_ns())
 except (OSError,RuntimeError,ValueError,KeyError) as error:

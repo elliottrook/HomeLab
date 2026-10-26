@@ -22,10 +22,11 @@
   pending human approval by design. Recovery7 now reconstructs the exact active
   family and Jellyfin callback guard; a live rollback/reinstall passed. The
   separate segment-checker guard is active with its own verified checkpoint.
-  Twelve single-invocation mixed video/audio cycles passed without a crash,
-  error or recovery marker; temperature stayed at or below 44°C. RSS settled
-  near 590 MiB after the first batch and 655 MiB after the second, so longer
-  household/overnight memory observation remains open. The full suite passes
+  The corrected single-invocation mixed video/audio soak passed six cycles
+  without a crash, error or recovery marker; temperature stayed at or below
+  41°C and RSS plateaued at 525–526 MiB from cycle three. Earlier over-fast
+  exploratory runs remain recorded as failures. Longer household/overnight
+  memory observation remains open. The full suite passes
   1,127 tests normally and optimized. Work through `ababd38a` is pushed and
   mirrored; local successors are `a7edc753`, `8f7d06cb` and `a3977cce`.
   Production remains unchanged. Voice search still awaits the lab G20 mic;
@@ -9104,13 +9105,19 @@ with checkpoint
 After its one-file restart, the repeated loose-harness six-cycle run passed
 with no error, crash or recovery event. Because repeated loose `RunScript`
 invocations make Kodi add every installed add-on to a fallback Python path,
-their memory growth is test-harness overhead rather than a clean player
-measurement. A single-invocation successor therefore ran two independent
-six-cycle batches on one Kodi process. All 12 video natural ends, pause/resume,
-audio stops and Home returns passed with no new ERROR/FATAL/exception. CPU
-temperature remained at or below 44°C. RSS began at 306 MiB after restart,
-settled near 590 MiB after the first batch and near 655 MiB after the second;
-the second settled increase is approximately 65 MiB. That is ample headroom on
-the 16 GiB HP, but it is not proof of a plateau. Retain longer household/overnight
-memory observation as an M7 gate rather than calling this bounded stress test
-an endurance graduation. Production remains unchanged.
+their memory growth was not accepted as a clean player measurement. Two early
+single-invocation batches also moved between stopped audio and the next video
+after only 300ms. Their playback assertions passed, but a delayed callback
+produced one no-current-file event in the second batch; their roughly 590/655
+MiB settled measurements are retained as exploratory failures, not accepted
+endurance evidence.
+
+The corrected harness waits two seconds at idle Home between media types and
+cycles so Jellyfin's asynchronous stop callback has drained. After a fresh
+restart, six video natural ends, pause/resume, audio stops and Home returns then
+passed with no ERROR, FATAL, exception, crash or recovery marker, including a
+five-second post-run callback window. RSS began at 309 MiB, reached 526 MiB by
+cycle three and then held at 525–526 MiB through cycles four to six. CPU
+temperature remained 34–41°C and finished at35°C. This is a clean bounded
+player soak and a credible short plateau, but longer household/overnight memory
+observation remains an M7 gate. Production remains unchanged.
