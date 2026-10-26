@@ -1,6 +1,6 @@
 # EPUB Narration Compiler and New-Title Monitor
 
-> Status: Active — Stream A; M0–M1 complete, private M2 benchmark running
+> Status: Active — Stream A; M0–M2 complete, M3 dataset/worker pilot next
 >
 > Owner: Jason
 >
@@ -83,6 +83,22 @@ last-known-good generation visible.
   bound to its separately rendered PCM sample range and validated encoded
   chapter offset. Word highlighting remains disabled unless a later exact
   method passes the existing strict contract.
+- The private 20-book quantile benchmark completed successfully. Its 0.8898
+  hours of encoded audio occupied 17.635 MiB at a measured 46.181 kbit/s. Mean,
+  median and worst-sample render factors were 0.9672, 0.9633 and 1.0644 times
+  audio duration. The report is SHA-256 `7692ef8d…88979b`; all reported audio
+  and timing hashes, Opus format/duration checks and timing bounds passed.
+- Quantile integration projects about **1,976.5 narrated hours** and **38.25
+  GiB** of Opus for the 166 currently accepted EPUBs. This is a planning
+  estimate, not an inventory promise. M3 should begin with a **128 GiB quota**,
+  no reservation and a 75% warning threshold. That is about 3.3 times the
+  estimated ready corpus, leaving room for an old ready generation, its
+  replacement, bounded work data, timing/state and estimation error.
+- At the measured mean render factor, the current accepted backlog represents
+  about 1,912 worker-hours: roughly 80 days continuously or 239 days in an
+  eight-hour daily window. M3 must therefore prove load/lease admission and
+  pause behavior before scheduling the backlog; increasing concurrency is not
+  implied by the benchmark.
 
 ## Scope and exclusions
 
@@ -166,9 +182,10 @@ Calibre metadata.db + EPUBs (authoritative, read-only mount)
 ```
 
 Proposed dataset root: `/mnt/Media/AsterReader`, as a new child dataset rather
-than a directory in the Calibre or audiobook datasets. The exact dataset name,
-recordsize, compression, reservation and quota are decided after the benchmark.
-The logical hierarchy is:
+than a directory in the Calibre or audiobook datasets. M2 supports an initial
+128 GiB quota, no reservation and a 75% warning threshold. M3 still owns the
+final dataset name, recordsize and compression decision after a recoverable
+checkpoint. The logical hierarchy is:
 
 ```text
 state/queue.db
@@ -277,17 +294,19 @@ new DRM question, public exposure, or materially different deployment target.
   queue schema, worker lock, voice hash and Aster health; then continue the
   current milestone from its first unchecked gate.
 
-Current resume state (2026-10-26): M2 plan `plan-500.json` is private on
-TrueNAS and LXC 116 at SHA-256
-`08ee0f4b2d6935a806e7d1ec718d3477530fc14b755e719f1339e10ad6d51928`.
-Transient unit `epub-narration-benchmark-20261026.service`, invocation
-`a464d4a5f03644efb8785ff61847da6a`, is running in LXC 116. It is capped at
-300% CPU and 3 GiB memory, runs at nice 15 with idle I/O, and writes only to
-root-private `/root/epub-narration-benchmark-20261026/output`. Resume by reading
-the unit properties and content-silent journal, verifying both speech services,
-then summarizing `report.json` source-locally after successful completion. If
-the unit fails or affects either speech service, stop/leave it failed, preserve
-the private checkpoint, and diagnose without an automatic rerun.
+Current resume state (2026-10-26): M2 completed successfully. The private plan
+remains at SHA-256
+`08ee0f4b2d6935a806e7d1ec718d3477530fc14b755e719f1339e10ad6d51928` and the
+private report is SHA-256
+`7692ef8dc516024b4464d9fa3131de3fcf0f9ae7e7189931db9bb8e2bb88979b`.
+Preserve the root-private LXC 116 checkpoint; do not rerun or publish its real
+content. The transient unit completed with result `success`. Live polling
+verified the 300% CPU and 3 GiB memory limits, nice 15 and idle I/O; maximum
+observed memory was 1,025,048,576 bytes. Both speech-service PIDs were unchanged
+through the run and both services remain active. Resume at M3 by revalidating
+Calibre/CWA and speech health, then create a recoverable quota-bounded dataset
+checkpoint and a disabled-by-default one-worker pilot. Do not start the full
+backlog until admission and pause behavior pass.
 
 ## Milestones
 
@@ -298,7 +317,7 @@ the private checkpoint, and diagnose without an automatic rerun.
 - [x] **M1 — Synthetic compiler foundation.** Implement read-only catalogue
   discovery, state machine, bounded synthetic EPUB extraction, immutable
   manifests and atomic publication. Pass local tests with no real content.
-- [ ] **M2 — Private 20-book benchmark.** Select a representative sample from
+- [x] **M2 — Private 20-book benchmark.** Select a representative sample from
   the 167 eligible EPUBs by size/structure only; checkpoint; measure extraction,
   real-time factor, CPU/memory, Opus size, cue validity and failures. Keep all
   text/audio/timing private. Revise dataset capacity and schedule.
@@ -447,6 +466,10 @@ the private checkpoint, and diagnose without an automatic rerun.
 | 2026-10-26 | The live planner accepted 166/167 EPUBs and failed one closed at `epub-member-count`; the 20-book sample spans 2–419 chapters and 12–579,057 words. The bounded 500-word-per-book plan is 60,064 bytes at SHA-256 `08ee0f4b…d51928`. | Preserve the failure for later compatibility review; do not loosen the archive limit during the benchmark. |
 | 2026-10-26 | Verified LXC 116 has 8.4 GiB root free, 3.7 GiB memory available, ffmpeg 7.1.5 with libopus, the pinned Kokoro model/voice pack and required Python libraries. Copied the plan, renderer and current canonical `digest_text.py` snapshot through root-private paths and verified end-to-end hashes/modes. | No model, package, service configuration or production consumer changed. |
 | 2026-10-26 | Started transient benchmark invocation `a464d4a5f03644efb8785ff61847da6a` with one worker, nice 15, idle I/O, 300% CPU and 3 GiB memory limits. Initial memory was about 528 MiB; both existing speech services remained active. | M2 is running. Read the sanitized journal and source-local report; do not rerun silently on failure. |
+| 2026-10-26 | The private 20-book run completed successfully. Source-local verification found 20/20 reported artifacts, zero audio/timing hash mismatches, zero Opus codec/channel/rate/duration mismatches, zero timing-order/bounds mismatches and owner-only modes. The plan hash matched, the report is `7692ef8d…88979b`, and service PIDs were unchanged across the run. | Private checkpoint retained. No source text, titles, paths, audio, timing data, progress or private identifiers entered Git. |
+| 2026-10-26 | The sample produced 0.8898 audio hours and 17.635 MiB at 46.181 kbit/s. Mean/median/worst render factors were 0.9672/0.9633/1.0644. Quantile integration estimates 1,976.5 hours and 38.25 GiB for the 166 accepted EPUBs, or about 1,912 single-worker hours. | Use an initial 128 GiB quota with no reservation and a 75% warning; prove admission/pause behavior in M3 before starting the roughly 80-day continuous-equivalent backlog. |
+| 2026-10-26 | Live unit checks retained the 300% CPU, 3 GiB memory, nice 15 and idle-I/O controls; maximum observed memory was 1,025,048,576 bytes. Both speech services remained active with valid PIDs. TrueNAS still reported 505 books and 167 EPUB rows through an immutable read-only query, and CWA remained running/healthy. | M2 regressions passed without a Calibre write, service restart, production consumer change or new dataset. |
+| 2026-10-26 | Sixteen synthetic tests passed in normal and optimized Python after the benchmark; compile-only validation also passed with a sandbox-local bytecode cache. | M2 complete. Next safe milestone is the recoverable, disabled-by-default M3 dataset/worker pilot; the one archive-limit failure remains preserved for compatibility review. |
 
 ## Close-out
 
