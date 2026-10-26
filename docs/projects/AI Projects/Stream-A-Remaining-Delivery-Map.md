@@ -25,6 +25,11 @@ records the final 119/119 NLU and 43/43 fixed-Doctor passes, exact
 38-unique-path F6 packet validation with both guest bindings, and rejection of
 the stale platform card before the backup
 window, with no live evaluation effect.
+The [post-activation continuation](evidence/Stream-A-post-F2-activation-offline-continuation-2026-10-26.md)
+revalidates the complete current NLU selection under the dependency-capable
+workspace runtime at 130/130 and the F6/fixed-Doctor boundary at 15/15. The
+existing platform F6 card still fails the current-packet validator, so its
+replacement remains offline work while the October 27 timed F2 chain waits.
 
 The [October 14 evening execution decision](evidence/Evening-execution-decision-2026-10-14.md)
 separates the actual backup/check schedule from the proposed live windows,
