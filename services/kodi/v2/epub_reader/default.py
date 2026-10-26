@@ -36,9 +36,13 @@ def idle():
         return reply['result']
     return not rpc('Player.GetActivePlayers', {}) and all(rpc('Playlist.GetItems', dict(playlistid=i,limits=dict(start=0,end=1)))['limits']['total']==0 for i in (0,1))
 
+def reading_activity():
+    reply=json.loads(xbmc.executeJSONRPC('{"jsonrpc":"2.0","id":1,"method":"Input.ExecuteAction","params":{"action":"noop"}}'))
+    if 'error' in reply:raise ValueError('epub-reader-activity')
+
 class Book(xbmcgui.WindowXML):
     def onInit(self):
-        self.identity = xbmcgui.getCurrentWindowId(); self.setFocusId(202)
+        self.identity = xbmcgui.getCurrentWindowId(); self.setFocusId(500)
         xbmcgui.Window(10000).setProperty('AsterEpub.Window', str(self.identity))
         self.publish()
     def publish(self):
@@ -57,7 +61,7 @@ class Book(xbmcgui.WindowXML):
     def onAction(self, action):
         identity = action.getId()
         if identity in BACK: self.commands.put(('close',0))
-        elif identity in (1,2): self.commands.put(('page',-1 if identity==1 else 1))
+        elif identity in (1,2) and self.getFocusId()==500: self.commands.put(('page',-1 if identity==1 else 1))
     def onClick(self, identity): self.commands.put(('click',identity))
     def process(self):
         for _ in range(16):
@@ -90,13 +94,15 @@ def main():
         window=Book('EpubReader.xml',str(ROOT),'Default','1080i')
         window.reader=Reader(book);window.identity=None;window.finished=False
         window.commands=SimpleQueue();window.revision=0;window.show()
-        monitor=xbmc.Monitor();ready_deadline=time.monotonic()+5
+        monitor=xbmc.Monitor();ready_deadline=time.monotonic()+5;activity_deadline=time.monotonic()+60
         while not monitor.waitForAbort(.1) and not window.finished:
             if window.identity is not None:
                 # Do not destroy a hidden WindowXML under unrelated playback.
                 if idle():
                     if xbmcgui.getCurrentWindowId()!=window.identity: break
                     window.process()
+                    if time.monotonic()>=activity_deadline:
+                        reading_activity();activity_deadline=time.monotonic()+60
             elif time.monotonic()>ready_deadline: raise ValueError('epub-reader-not-ready')
     except (OSError,ValueError,KeyError,RuntimeError):
         xbmcgui.Dialog().notification('Aster Books', 'Reading preview unavailable. Nothing was played.')

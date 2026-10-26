@@ -8,7 +8,7 @@ import sys
 import time
 import xbmc
 import xbmcgui
-ROOT=Path('/storage/.aster-staging/aster-epub-reader2')
+ROOT=Path('/storage/.aster-staging/aster-epub-reader4')
 sys.path.insert(0,'/storage/.aster-staging/aster-digest-player8/resources/lib')
 import deploy_startup as guard
 
@@ -62,18 +62,19 @@ try:
         reader=Reader(sample)
         xbmc.executebuiltin('RunScript('+str(ROOT/'default.py')+','+pin+')')
         until(lambda:bool(opened()) and prop('Ready')=='true','epub-native-ready')
-        require(focus(202),'epub-native-first-focus');check(reader)
+        require(focus(500),'epub-native-text-focus');check(reader)
         if repeat==0:
             capture('reading-30')
             press('left');reader.move(-1);xbmc.sleep(200);check(reader)
             press('right');reader.move(1);check(reader)
-            press('down');until(lambda:focus(203),'epub-native-size-focus')
+            press('down');until(lambda:focus(201),'epub-native-footer-focus')
+            press('right');press('right');until(lambda:focus(203),'epub-native-size-focus')
             anchor=reader.anchor
             for size in (40,24,30):
                 press('select');reader.resize();check(reader)
                 require(reader.size==size and reader.anchor==anchor,'epub-native-anchor-reflow')
                 if size==40:capture('reading-40')
-            xbmc.executebuiltin('Control.SetFocus(202)');until(lambda:focus(202),'epub-native-page-focus')
+            xbmc.executebuiltin('Control.SetFocus(500)');until(lambda:focus(500),'epub-native-page-focus')
             for _ in range(len(reader.pages)+1):
                 press('right');reader.move(1);check(reader)
             require(reader.page==len(reader.pages)-1,'epub-native-end-clamp')

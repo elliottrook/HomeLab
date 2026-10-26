@@ -72,6 +72,10 @@ class PagesTests(unittest.TestCase):
         for identity,size in ((501,24),(502,30),(503,40)):
             control=root.find('.//control[@id="'+str(identity)+'"]')
             self.assertEqual(control.findtext('font'),'font'+str(size));self.assertEqual(control.findtext('width'),'1240')
+        text=root.find('.//control[@id="500"]');self.assertEqual(text.findtext('ondown'),'201')
+        for identity,left,right in ((201,'200','202'),(202,'201','203'),(203,'202','200'),(200,'203','201')):
+            button=root.find('.//control[@id="'+str(identity)+'"]')
+            self.assertEqual((button.findtext('onleft'),button.findtext('onright'),button.findtext('onup')), (left,right,'500'))
         source=(Path(__file__).parent/'epub_reader/default.py').read_text()
         self.assertFalse(any(isinstance(n,ast.Assert) for n in ast.walk(ast.parse(source))))
         for banned in ('urllib','http://','https://','Player.Open','Player.Stop','Settings.SetSettingValue','PlayMedia','open('):
@@ -79,6 +83,7 @@ class PagesTests(unittest.TestCase):
             # book output. File content is read via fixed manifest members.
             if banned!='open(':self.assertNotIn(banned,source)
         self.assertIn('sample.epub',source)
+        self.assertIn('Input.ExecuteAction',source);self.assertIn('activity_deadline',source)
     def test_native_verifier_rejects_tampering_and_non_synthetic_bundle(self):
         source=Path(__file__).parent/'epub_reader/default.py'
         with patch.dict(sys.modules,{'xbmc':SimpleNamespace(),'xbmcgui':SimpleNamespace(WindowXML=object)}):

@@ -23,7 +23,7 @@ def layout():
     root=ET.Element('window',type='dialog');ET.SubElement(root,'backgroundcolor').text='ff000000'
     controls=ET.SubElement(root,'controls')
     for n,x,y,w,h,texture,tint in ((1,0,0,1920,1080,'resources/solid.png','ff000000'),
-        (10,120,110,160,160,'resources/mark.png','40303030')):
+        (10,100,90,320,208,'resources/mark.png','b8ffffff')):
         c=ET.SubElement(controls,'control',type='image',id=str(n))
         for key,value in dict(left=x,top=y,width=w,height=h).items():ET.SubElement(c,key).text=str(value)
         ET.SubElement(c,'texture',colordiffuse=tint).text='special://home/addons/'+IDENTITY+'/'+texture

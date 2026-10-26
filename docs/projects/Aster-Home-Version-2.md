@@ -7958,9 +7958,97 @@ private source artifact remains evidence. No normal Books route or shared
 progress is involved.
 
 All997 Kodi v2 tests pass in normal and optimized Python. Candidate manifest
-`4756aa1619bcb44a2d7730dca87b88d64250d558daa31459820583ea6999a1c6`
-is locally prepared as `aster-epub-readalong4`; its audio is intentionally not
+`51e72558303b4e075c3b160a4ecc2974dda7ed7456ef166f2f7ee85179e20adc`
+is locally prepared as `aster-epub-readalong6`; its audio is intentionally not
 in Git or the bundle and must be relayed privately from the speech checkpoint.
 Native HP playback/resume/page-follow/cleanup evidence remains pending until
 the current human visual walkthrough leaves the lab box idle. Production is
 unchanged.
+
+### M5 reader navigation and recurrent native Dim correction — 2026-10-26
+
+Human review accepted the reading-page visual design but rejected its mixed
+navigation model: Left/Right turned pages globally while the horizontal footer
+required Up/Down. Both static and narrated previews now give the text surface a
+real focus target. Left/Right turn pages only there; Down enters the footer;
+Left/Right then moves across Previous, Next, controls and Back; Up returns to
+the text. Corrected static reader `aster-epub-reader4` has manifest
+`bb72e46927ee176f49c7fedb79bb46274b82cc0a25341d7de986fc8960f99e65`.
+Both readers also issue one bounded NoOp activity event each minute while their
+owned reading window is visible. This resets Kodi's idle timer without opening
+a page or media, so silent reading cannot be interrupted by a screensaver.
+
+The same walkthrough reproduced the stale native Dim surface. Kodi reported
+screensaver inactive, DPMS inactive and no screensaver window while the pixels
+remained dark. An idle-only wake/1.3-second close wait/skin reload restored full
+brightness; the first recovery result was false only because it expected Home
+but correctly returned to the still-open reader window13001. A subsequent
+private screenshot confirms the normal bright stone page. This is the same
+native Dim closing-surface defect seen in the earlier reader sequence, now
+reproduced during ordinary human use, so retaining native Dim is no longer an
+acceptable HP pilot configuration.
+
+The already-installed `screensaver.asterhome.v2lab` files were re-verified at
+their accepted hashes. Its earlier lifecycle proof covered repeated black/Aster
+presentations, Right/Select wake, automatic entry, timer attention and exact
+focus/settings restoration. The HP setting is now checkpointed and changed only
+from `screensaver.xbmc.builtin.dim` to that Aster saver, presentation `aster`;
+the existing three-minute timeout is unchanged. Production remains unchanged.
+Human wake confirmation and corrected reader navigation remain pending; if
+either fails, use the recorded prior mode in the private activation checkpoint
+rather than guessing at another setting.
+
+### M5 human cadence and Aster idle visibility correction — 2026-10-26
+
+The corrected reader navigation passed human review. The first explicit Aster
+screensaver walkthrough appeared blank on the television: its full logo asset
+was constrained to160px and multiplied by a near-black 25% tint, making the
+mark effectively invisible at viewing distance. The local correction retains
+the same approved full-colour AsterTV asset and content-free black field, but
+renders it at320x208 with a restrained 72% alpha. It is visible from the first
+frame and follows a slow cosine-eased path through nine display-safe positions
+instead of being hidden at either side of each45-second jump. No clock, media,
+camera, household data, network or sound is added. Twenty-four focused idle
+presentation/install/policy tests pass. HP candidate manifest
+`b3f8dfb4aae665ea9787ca3a100e452f233e6a461fc361eecbf86adcdb1be408`
+is staged as `aster-idle-presentation3`; its two-file update is not installed
+until the active EPUB walkthrough returns the HP to idle Home. Production is
+unchanged.
+
+Human narration review found the canonical voice natural but the accumulated
+leading/trailing silence made each sentence feel stalled. The original private
+64.174-second artifact remains immutable. A deterministic derived test copy
+removes silence only, retaining120ms before and220ms after each measured speech
+unit. Spoken samples, wording, voice and sentence order are unchanged. The
+derived mono24kHz/16-bit sample is2,809,484bytes,1,404,720frames/58.53seconds,
+SHA `40ba73dc4e86bc2d8f1dc05f3fa1d571cd04736de6ff401c400364794092478c`;
+its manifest records the source-audio SHA and exact compaction policy. Sentence
+measurements and displayed total time were retimed, and the new sample uses a
+separate hash-bound synthetic state directory so the accepted earlier test
+position is preserved rather than overwritten. Five focused tests pass.
+Candidate manifest
+`52349fed30e3e274bd572f757ab33e35d052740c7a3ec0291631894b00b9b2ce`
+is staged as `aster-epub-readalong8`. Human review accepted its cadence as
+natural. The compact sample's test state remains separate from the original;
+the reader was closed cleanly after playback. No new speech request, real book,
+shared progress or production change occurred.
+
+After the accepted reader test returned HP to idle Home, the two-file saver
+correction was installed without a Kodi restart. It verified the exact prior
+and candidate hashes, checkpointed only those files at
+`/storage/.aster-checkpoints/aster-visible-idle-logo-1793027683627519220`,
+atomically replaced them and reverified the result. No setting, add-on identity,
+playback, queue or production file changed. The corrected saver was then
+explicitly activated for human visual review. Both full997-test suites pass in
+normal and optimized Python.
+
+That first post-update activation still displayed native Dim. Read-only state
+proved the visual files and `presentation=aster` were correct, but Kodi's
+selected `screensaver.mode` had reverted to `screensaver.xbmc.builtin.dim`;
+this was a selection-persistence failure, not another blank renderer. From
+idle Home, the bounded selector was rerun and verified
+`screensaver.asterhome.v2lab` at the JSON-RPC layer. A clean authorized HP Kodi
+restart then persisted that exact mode in `guisettings.xml` while retaining the
+three-minute timeout. Explicit activation after restart logged loading
+`screensaver.asterhome.v2lab/.../AsterIdle.xml`. The corrected Aster saver is
+now on screen for human visibility/motion review. Production remains unchanged.

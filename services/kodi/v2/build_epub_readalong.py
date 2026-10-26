@@ -4,16 +4,17 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 from epub_fixture import build_readalong
 
-AUDIO='d10997803ee99ae85f06545ab5b0bad71e91906735f4811c2119a632399de02b'
-FRAMES=1540176
+AUDIO='40ba73dc4e86bc2d8f1dc05f3fa1d571cd04736de6ff401c400364794092478c'
+SOURCE_AUDIO='d10997803ee99ae85f06545ab5b0bad71e91906735f4811c2119a632399de02b'
+FRAMES=1404720
 MEASUREMENTS=[
- [0,0,87360],[1,87360,211320],[2,298680,80160],[3,378840,113520],
- [4,492360,111696],[5,604056,148320],[6,752376,68160],[7,820536,207120],
- [8,1027656,63960],[9,1091616,141120],[10,1232736,87360],[11,1320096,54360],
- [12,1374456,68760],[13,1443216,96960]]
+ [0,0,77280],[1,77280,199920],[2,277200,69600],[3,346800,104640],
+ [4,451440,105360],[5,556800,137040],[6,693840,58800],[7,752640,196560],
+ [8,949200,55200],[9,1004400,130560],[10,1134960,76560],[11,1211520,47040],
+ [12,1258560,59520],[13,1318080,86640]]
 
 def layout():
-    root=ET.Element('window');ET.SubElement(root,'defaultcontrol',always='true').text='201';ET.SubElement(root,'backgroundcolor').text='ffe6dac8'
+    root=ET.Element('window');ET.SubElement(root,'defaultcontrol',always='true').text='500';ET.SubElement(root,'backgroundcolor').text='ffe6dac8'
     controls=ET.SubElement(root,'controls')
     def c(kind,i,x,y,w,h,**fields):
         node=ET.SubElement(controls,'control',type=kind,id=str(i))
@@ -26,11 +27,13 @@ def layout():
     for size,identity in ((24,501),(30,502),(40,503)):
         c('textbox',identity,340,245,1240,650,label='',font='font'+str(size),textcolor='ff1e241f',
           visible='String.IsEqual(Window.Property(EpubRead.Size'+str(size)+'),true)')
+    c('button',500,340,245,1240,650,label='',textcolor='00000000',focusedcolor='00000000',
+      texturefocus='',texturenofocus='',onleft='noop',onright='noop',onup=201,ondown=201)
     c('label',520,340,900,1240,42,label='$INFO[Window.Property(EpubRead.Status)]',font='font24',textcolor='ff1f513b')
     items=((201,680,80,'play','Play or pause'),(202,790,80,'stop','Stop'),(203,900,80,'previous','Restart'))
     for identity,x,width,icon,label in items:
         button=c('button',identity,x,960,width,78,label=label,font='font20',textcolor='00000000',focusedcolor='00000000',texturenofocus='',
-                 onleft=205 if identity==201 else identity-1,onright=204 if identity==203 else identity+1,onup='noop',ondown='noop')
+                 onleft=205 if identity==201 else identity-1,onright=204 if identity==203 else identity+1,onup=500,ondown=500)
         ET.SubElement(button,'texturefocus',border='18',colordiffuse='ffc2a06b').text='special://skin/media/ui-button-ring.png'
         names=('play','pause') if icon=='play' else (icon,)
         for name in names:
@@ -39,7 +42,7 @@ def layout():
             c('image',identity+100+(10 if name=='pause' else 0),x+16,975,48,48,**fields)
     for identity,x,width,label,left,right in ((204,1010,250,'Clear test progress',203,205),(205,1290,180,'Text 30',204,201)):
         b=c('button',identity,x,965,width,64,label=label,font='font20',textcolor='ff1e241f',focusedcolor='fff3eee5',align='center',aligny='center',
-            texturenofocus='',onleft=left,onright=right,onup='noop',ondown='noop')
+            texturenofocus='',onleft=left,onright=right,onup=500,ondown=500)
         ET.SubElement(b,'texturefocus',border='18',colordiffuse='ff1f513b').text='special://skin/media/ui-panel.png'
     c('label',530,340,1045,1240,35,label='Back stops and saves this private test · Green marks the current sentence, not individual words',font='font20',textcolor='ff65675d')
     return ET.tostring(root,encoding='utf-8',xml_declaration=True)+b'\n'
@@ -60,7 +63,9 @@ def build(output):
     for name,raw in files.items():
         path=root/name;path.parent.mkdir(mode=0o700,parents=True,exist_ok=True);path.write_bytes(raw);path.chmod(0o600)
     manifest=dict(kind='hp-epub-readalong.v1',synthetic=True,network=False,shared_progress=False,normal_entry=False,
-                  word_timestamps=False,audio_sha256=AUDIO,audio_bytes=3080396,audio_frames=FRAMES,
+                  word_timestamps=False,audio_sha256=AUDIO,audio_bytes=2809484,audio_frames=FRAMES,
+                  source_audio_sha256=SOURCE_AUDIO,
+                  silence_compaction=dict(method='fixed-measured-silence-v1',leading_ms=120,trailing_ms=220),
                   files={name:hashlib.sha256(raw).hexdigest() for name,raw in files.items()})
     raw=(json.dumps(manifest,sort_keys=True,indent=2)+'\n').encode();(root/'manifest.json').write_bytes(raw);(root/'manifest.json').chmod(0o600)
     return hashlib.sha256(raw).hexdigest()

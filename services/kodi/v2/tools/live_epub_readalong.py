@@ -3,7 +3,7 @@ import hashlib,json,os,re,sys,time
 from pathlib import Path
 import xbmc,xbmcgui
 
-ROOT=Path('/storage/.aster-staging/aster-epub-readalong4')
+ROOT=Path('/storage/.aster-staging/aster-epub-readalong6')
 STATE=Path('/storage/.aster-state/aster-epub-readalong/position.json')
 sys.path.insert(0,'/storage/.aster-staging/aster-digest-player8/resources/lib')
 import deploy_startup as guard
@@ -26,7 +26,7 @@ def focus(identity):return xbmc.getCondVisibility('Control.HasFocus('+str(identi
 def launch(pin):
     xbmc.executebuiltin('RunScript('+str(ROOT/'default.py')+','+pin+')')
     until(lambda:bool(opened()) and prop('State') in ('Ready','Resume ready','Complete','Progress cleared'),'epub-readalong-native-ready')
-    require(focus(201),'epub-readalong-native-play-focus')
+    require(focus(500),'epub-readalong-native-text-focus')
 def close():
     press('back');until(lambda:not opened() and xbmcgui.getCurrentWindowId()==10000,'epub-readalong-native-close',20)
 
@@ -39,12 +39,14 @@ try:
     before=guard.snapshot();original=xbmcgui.Window(10000).getFocusId();cp=Path('/storage/.aster-checkpoints')/('aster-epub-readalong-native-'+str(time.time_ns()));cp.mkdir(mode=0o700)
     require(not STATE.exists(),'epub-readalong-native-state-preexists')
     launch(pin);require(guard.idle() and prop('Active')=='0' and prop('Sample')=='0','epub-readalong-native-no-autoplay')
+    press('down');until(lambda:focus(201),'epub-readalong-native-play-focus')
     press('select');until(lambda:prop('State')=='Reading' and int(prop('Sample'))>120000,'epub-readalong-native-start',20)
     first=int(prop('Sample'));press('select');until(lambda:prop('State')=='Paused','epub-readalong-native-pause')
     paused=int(prop('Sample'));xbmc.sleep(600);require(abs(int(prop('Sample'))-paused)<2400,'epub-readalong-native-pause-clock')
     press('back');until(lambda:not opened() and guard.idle(),'epub-readalong-native-back-stop',20)
     saved=json.loads(STATE.read_text());require(saved['sample']>=first and not saved['complete'],'epub-readalong-native-saved-position')
     launch(pin);require(prop('State')=='Resume ready' and abs(int(prop('Sample'))-saved['sample'])<2,'epub-readalong-native-resume-ready')
+    press('down');until(lambda:focus(201),'epub-readalong-native-resume-play-focus')
     press('select');until(lambda:prop('State')=='Reading' and int(prop('Sample'))>=saved['sample'],'epub-readalong-native-resume-play',20)
     until(lambda:int(prop('Page'))>1 and int(prop('Active'))>=7,'epub-readalong-native-page-follow',50)
     until(lambda:prop('State')=='Complete' and guard.idle(),'epub-readalong-native-natural-end',50)

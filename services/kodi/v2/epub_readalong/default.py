@@ -6,7 +6,7 @@ import xbmc,xbmcgui
 
 ROOT=Path(__file__).resolve().parent
 BACK={9,10,92,216,247,257,275}
-STATE=Path('/storage/.aster-state/aster-epub-readalong')
+STATE=Path('/storage/.aster-state/aster-epub-readalong/compact-v1')
 CACHE=Path('/storage/.aster-cache/aster-epub-readalong')
 MEMBERS={'default.py','epub_chapter.py','epub_fixture.py','epub_pages.py','chapter_narration.py',
  'epub_readalong_state.py','digest_kodi_port.py','digest_playback_state.py','digest_timeline.py',
@@ -30,16 +30,20 @@ def verify(pin):
                 (1,24000,2,m['audio_frames']),'epub-readalong-audio-shape')
     return m
 
+def reading_activity():
+    reply=json.loads(xbmc.executeJSONRPC('{"jsonrpc":"2.0","id":1,"method":"Input.ExecuteAction","params":{"action":"noop"}}'))
+    require('error' not in reply,'epub-readalong-activity')
+
 class Reading(xbmcgui.WindowXML):
     def onInit(self):
-        self.identity=xbmcgui.getCurrentWindowId();self.setFocusId(201)
+        self.identity=xbmcgui.getCurrentWindowId();self.setFocusId(500)
         xbmcgui.Window(10000).setProperty('AsterEpubReadAlong.Window',str(self.identity))
         self.publish()
     def onClick(self,identity):self.commands.put(identity)
     def onAction(self,action):
         identity=action.getId()
         if identity in BACK:self.commands.put('close')
-        elif identity in (1,2) and (not self.port or not self.port.owned()):self.commands.put('previous-page' if identity==1 else 'next-page')
+        elif identity in (1,2) and self.getFocusId()==500 and (not self.port or not self.port.owned()):self.commands.put('previous-page' if identity==1 else 'next-page')
     def save_point(self,sample,complete=False):
         value=dict(schema=1,book=self.book.book_sha256,chapter=self.book.chapter_sha256,
                    audio=self.manifest['audio_sha256'],sample=max(0,min(self.plan.total_samples,int(sample))),complete=bool(complete))
@@ -55,10 +59,12 @@ class Reading(xbmcgui.WindowXML):
         for size in (24,30,40):self.setProperty('EpubRead.Size'+str(size),'true' if self.reader.size==size else 'false')
         self.setProperty('EpubRead.State',self.status);self.setProperty('EpubRead.Page',str(self.reader.page+1))
         seconds=(self.saved['sample']/24000 if elapsed is None else elapsed)
+        total=self.plan.total_samples/24000
         self.setProperty('EpubRead.Active',str(self.plan.units.index(active) if active is not None else -1))
         self.setProperty('EpubRead.Sample',str(round(max(0,seconds)*24000)))
         self.setProperty('EpubRead.Status',self.status+' · '+str(self.reader.page+1)+' / '+str(len(self.reader.pages))+
-                         ' · '+time.strftime('%M:%S',time.gmtime(max(0,seconds)))+' / 01:04')
+                         ' · '+time.strftime('%M:%S',time.gmtime(max(0,seconds)))+' / '+
+                         time.strftime('%M:%S',time.gmtime(total)))
         self.getControl(205).setLabel('Text '+str(self.reader.size))
     def stop_owned(self,save=True):
         if self.port and self.port.owned():
@@ -88,7 +94,8 @@ class Reading(xbmcgui.WindowXML):
         require(observation.session==self.port.session and observation.media==self.port.media,'epub-readalong-ownership')
         if observation.ended:
             require(self.port.player.natural and self.port.idle(),'epub-readalong-end-unsettled')
-            self.save_point(self.plan.total_samples,True);self.status='Complete';self.publish(None,64.174);return
+            self.save_point(self.plan.total_samples,True);self.status='Complete'
+            self.publish(None,self.plan.total_samples/24000);return
         active=self.plan.active(round(max(0,observation.elapsed)*24000),self.port.media)
         self.status='Paused' if observation.paused else 'Reading';self.publish(active,observation.elapsed)
     def tick(self):
@@ -124,7 +131,8 @@ class Reading(xbmcgui.WindowXML):
             settled=time.monotonic()+3
             while not self.idle() and time.monotonic()<settled:xbmc.sleep(50)
             require(self.idle(),'epub-readalong-end-unsettled')
-            self.save_point(self.plan.total_samples,True);self.status='Complete';self.publish(None,64.174)
+            self.save_point(self.plan.total_samples,True);self.status='Complete'
+            self.publish(None,self.plan.total_samples/24000)
         elif self.idle():self.status='Stopped';self.publish()
         else:raise ValueError('epub-readalong-foreign-player')
 
@@ -149,7 +157,7 @@ def main():
         window.manifest=manifest;window.book=book;window.plan=plan;window.reader=Reader(book);window.reader.size=30
         window.saved=saved;window.state_api=state_api;window.render=render;window.KodiPort=KodiPort;window.idle=idle
         window.port=None;window.session=None;window.pending_seek=None;window.status='Complete' if saved['complete'] else ('Resume ready' if saved['sample'] else 'Ready')
-        window.show();monitor=xbmc.Monitor();ready=time.monotonic()+5
+        window.show();monitor=xbmc.Monitor();ready=time.monotonic()+5;activity_deadline=time.monotonic()+60
         while not monitor.waitForAbort(.05) and not window.finished:
             if window.identity is None:
                 require(time.monotonic()<ready,'epub-readalong-ready-timeout');continue
@@ -157,6 +165,8 @@ def main():
                 if window.stop_owned():break
                 continue
             window.tick()
+            if time.monotonic()>=activity_deadline:
+                reading_activity();activity_deadline=time.monotonic()+60
     except Exception as error:
         xbmc.log('Aster EPUB read-along: '+type(error).__name__,xbmc.LOGERROR)
         xbmcgui.Dialog().notification('Aster Books','Read-along preview unavailable. Nothing else was stopped.')
