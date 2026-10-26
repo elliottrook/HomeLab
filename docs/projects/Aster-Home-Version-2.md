@@ -242,19 +242,41 @@ Review IDs refer to the printable review, not a new priority ordering.
   unrelated music just because a title contains a seasonal word. Define the
   canonical exclusion tags at metadata discovery. Do not mutate library tags,
   overwrite saved playlists or silently truncate to the first 500 songs.
+- **V2-F Bedroom-client resource assessment:** at the end of implementation,
+  consolidate the HP, BOSGAME and v2 test evidence into a conservative estimate
+  of the minimum hardware needed for a pared-back bedroom client. Analyse idle,
+  navigation, artwork/cache loading, 1080p and 4K playback, audio passthrough,
+  mixed-player and long-soak memory, CPU/temperature, storage, network and
+  recovery-package overhead. Separate the measured facts from inference and
+  publish three useful boundaries: observed floor, recommended minimum and
+  comfortable specification. State which features or formats must be removed
+  or limited at each boundary. This is an assessment, not authorization to
+  deploy to the deferred Lenovo or purchase hardware.
+- **V2-G Version 1 beta bug cleanup:** reserve the final implementation pass for
+  the small corrective changes accumulated during household use of Version 1.
+  Capture each item in a finite defect register with reproduction, severity,
+  affected client/page, expected behavior and regression test. Admit bug fixes,
+  polish needed to restore already accepted behavior, and compatibility repairs;
+  reject or separately defer new features and redesigns. Validate the combined
+  cleanup against both the retained v1 behavior and the v2 family candidate so
+  a late fix cannot silently regress either line.
 
 ## 4. Exclusions and change control
 
 - 27 external CEC accessory trial, 28 mobile Jellyfin branding, 29 lower-spec
   Lenovo deployment and 30 Blu-ray assessment are **deferred to v3**, not v2.
+  The v2 bedroom-client assessment estimates a viable floor but does not change
+  the deferred status of an actual Lenovo deployment.
 - No YouTube subscription downloader is scheduled for v2 or v3.
 - No renewed VNC/Apple Screen Sharing experiment, DRM removal, PDF/OCR or
   fixed-layout Reader expansion, public ingress or automatic production rollout.
 - No unrelated firmware/OS updates, automatic purchases/subscriptions or media
   acquisition. Seerr requests retain existing household approval policy.
-- Once this scope is set, only obvious corrective fixes from v1.0.5 beta may
-  enter automatically. Record reproduction and regression evidence. New features
-  are parked for a later release unless the owner explicitly changes scope.
+- Once this scope is set, only corrective Version 1 beta defects admitted to the
+  V2-G register may enter automatically. Record reproduction, classification and
+  regression evidence. New features are parked for a later release unless the
+  owner explicitly changes scope; calling a request a bug does not bypass that
+  boundary.
 - The owner's later unified Intro skip / credits-triggered Play next request is recorded in v1.1,
   not silently added to this v2 scope. This specific chat addition is explicit.
 
@@ -361,11 +383,27 @@ outside this envelope requires Jason before further mutation.
 - [ ] M6: authorized Home camera/timer/feed integration; network/idle/suspend.
 - [ ] M7: accessibility/performance/soak/recovery and family candidate.
 - [ ] Optional firmware gate: independent recovery/install/removal validation.
+- [ ] M8: end-of-project bedroom-client resource assessment, using the complete
+  measured test corpus to publish an observed floor, recommended minimum,
+  comfortable specification and explicit feature/format trade-offs. No hardware
+  deployment is implied.
+- [ ] M9: final Version 1 beta defect cleanup: freeze and triage the owner's
+  finite bug list, reproduce each accepted defect, implement the bounded fixes,
+  run v1/v2 regression and recovery checks, and publish resolved/deferred items.
+- [ ] M10: release/graduation review after M8 and M9, including household pilot,
+  package/recovery evidence, known limitations and the separately approved
+  production promotion decision.
 
 Each gate ends with dated evidence, tests, limitations and focused local commit.
 Preserve immutable accepted artifacts and private profile checkpoints. Record
 the exact next safe action before any pause; no reliance on chat memory.
 Push only after specific approval, then verify the Forgejo-owned GitHub mirror.
+
+M8 and M9 are deliberately closing milestones. Resource sizing uses the final
+software shape rather than an early prototype, and the beta defect register is
+frozen before fixes begin so it cannot become an open-ended second feature
+backlog. Neither milestone blocks ongoing appliance packaging, household soak
+or other already-scoped engineering work.
 
 ## 8. Acceptance and operating handover
 
@@ -9122,3 +9160,22 @@ cycle three and then held at 525–526 MiB through cycles four to six. CPU
 temperature remained 34–41°C and finished at35°C. This is a clean bounded
 player soak and a credible short plateau, but longer household/overnight memory
 observation remains an M7 gate. Production remains unchanged.
+
+### Closing-scope additions — bedroom sizing and Version 1 cleanup, 2026-10-26
+
+The owner requested two final project stages rather than allowing them to be
+lost in release close-out. M8 will analyse the complete resource-test record and
+produce a clearly qualified hardware estimate for a pared-back bedroom client.
+It will distinguish observed measurements from extrapolation and report an
+observed floor, a recommended minimum and a comfortable specification, including
+the media formats and v2 features each tier can realistically retain. The
+existing deferred Lenovo deployment remains outside v2; M8 is analysis only.
+
+M9 will accept a finite owner-supplied list of small defects found during
+Version 1 household use. Each item must be reproducible and classified as a bug,
+accepted-behavior repair or minor compatibility correction before implementation.
+The combined patch receives v1 and v2 regression, recovery and household-facing
+checks. Feature requests and broader redesigns remain deferred, preventing this
+cleanup stage from becoming another source of scope creep. These two stages run
+after the current feature, package and endurance work and before the final M10
+graduation review.
