@@ -510,11 +510,14 @@ while VM 105 is running.
 After a Proxmox or kernel update, or after any VM 105 use, run the read-only
 `scripts/check-aster-b60.sh` command from the Proxmox host before treating
 Aster as ready. It verifies the `xe` binding, stopped rollback VM, absence of a
-persistent B60 mapping, both Aster services, BMG G21 Vulkan visibility and the
-active inference endpoint's health response; it makes no changes. The Vulkan
-probe is an independent device check, not a claim that SYCL generation was
-tested. HomeLab Doctor enforces the host/service invariants; verify its current
-backend-specific coverage separately before relying on it for SYCL health.
+persistent B60 mapping, both Aster services, the accepted b11429 SYCL binary,
+Level Zero device selection, Qwen3.5-9B Q4_K_M model and API-key-file boundary,
+zero service restarts, and the inference endpoint's health response; it makes
+no changes. This is a runtime identity and health check. Use an authenticated
+bounded generation test when the change being validated must also prove model
+generation and template compatibility. HomeLab Doctor enforces the separate
+host/service invariants; verify its current backend-specific coverage before
+relying on it for SYCL health.
 
 The accepted production server uses Q4_0 K/V cache (`-ctk q4_0 -ctv q4_0`).
 Matched authenticated Aster workflows on 2026-10-10 measured 10.72–10.99

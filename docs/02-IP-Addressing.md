@@ -95,7 +95,7 @@ Both Pi-hole resolvers publish `truenas.internal` as an A record for
 |---|---|---:|---|
 | Aster Agent API/UI | `http://192.168.70.10:9120` | 9120/TCP | Active; bearer authentication required for chat API |
 | Ollama VM 105 API | `http://192.168.70.11:11434/v1` | 11434/TCP | Stopped rollback guest |
-| Aster llama.cpp API | `http://192.168.70.12:11435/v1` | 11435/TCP | Active; bearer-authenticated B60 Vulkan backend; Lab VLAN only |
+| Aster llama.cpp API | `http://192.168.70.12:11435/v1` | 11435/TCP | Active; bearer-authenticated B60 SYCL/Level Zero backend; Lab VLAN only |
 
 ## Authorization endpoints
 

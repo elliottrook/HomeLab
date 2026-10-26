@@ -115,12 +115,12 @@ design and validation detail: `docs/handovers/UPS-Power-Resilience-Claude-Handov
 ## Local AI Lab architecture
 
 Aster's lightweight authenticated API and browser UI run in unprivileged LXC
-104 at `192.168.70.10:9120`. A persistent llama.cpp b10507 service runs in
+104 at `192.168.70.10:9120`. A persistent llama.cpp b11429 service runs in
 unprivileged LXC 110 at `192.168.70.12:11435`, with the host `xe` DRM devices
-mapped into the container. It serves Qwen 3.8 27B `UD-IQ4_XS` through Vulkan
-with one 8,192-token slot, flash attention and Q8 KV cache. Both workloads are
-confined to Lab VLAN 70 and both APIs require bearer authentication except the
-minimal Aster health endpoint.
+mapped into the container. Its self-contained SYCL/Level Zero runtime serves
+Qwen3.5-9B `Q4_K_M` with one 8,192-token slot, flash attention and Q4 K/V
+cache. Both workloads are confined to Lab VLAN 70 and both APIs require bearer
+authentication except the minimal Aster health endpoint.
 
 The Aster harness selects and pre-executes only allowlisted bounded functions:
 local time; Aster/inference and sanitized HomeLab health; scoped search over a
