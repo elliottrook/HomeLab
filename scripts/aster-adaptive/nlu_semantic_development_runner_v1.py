@@ -30,7 +30,7 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
-def run(fixture_raw: bytes, token: str) -> dict:
+def run(fixture_raw: bytes, token: str, *, model: str = candidate.MODEL) -> dict:
     if sha256(fixture_raw) != FIXTURE_SHA256:
         raise ValueError("development fixture changed")
     fixture = decode_unique_json(fixture_raw)
@@ -47,7 +47,7 @@ def run(fixture_raw: bytes, token: str) -> dict:
         if remaining <= 0:
             break
         request = urllib.request.Request(
-            ENDPOINT, data=candidate.build_payload(case["text"]), method="POST",
+            ENDPOINT, data=candidate.build_payload(case["text"], model=model), method="POST",
             headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"},
         )
         one_started = time.monotonic()
@@ -84,7 +84,7 @@ def run(fixture_raw: bytes, token: str) -> dict:
             break
     return {
         "schema": "aster-nlu-semantic-development-run.v1",
-        "candidate": "semantic-proposal-v1",
+        "candidate": "semantic-proposal-v1", "model": model,
         "fixture_sha256": FIXTURE_SHA256,
         "policy_sha256": sha256(candidate.SYSTEM_POLICY.encode()),
         "attempted": len(records), "valid": sum(row["valid"] for row in records),
@@ -127,10 +127,11 @@ def main() -> int:
     parser.add_argument("--fixture", type=Path, required=True)
     parser.add_argument("--key-file", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--model", choices=[candidate.MODEL, "aster-qwen3.8-27b"], default=candidate.MODEL)
     args = parser.parse_args()
     fixture_raw = args.fixture.read_bytes()
     token = args.key_file.read_text().splitlines()[0].strip()
-    result = run(fixture_raw, token)
+    result = run(fixture_raw, token, model=args.model)
     fd = os.open(args.output, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(fd, "w") as stream:
         json.dump(result, stream, sort_keys=True, separators=(",", ":"))

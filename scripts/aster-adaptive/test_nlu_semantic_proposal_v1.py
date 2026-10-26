@@ -23,6 +23,12 @@ class SemanticProposalTests(unittest.TestCase):
         self.assertNotIn("disposition", properties)
         self.assertNotIn("capability_needs", properties)
         self.assertNotIn("authorization", properties)
+        self.assertEqual(
+            json.loads(candidate.build_payload("Read the lab status", model="aster-qwen3.8-27b"))["model"],
+            "aster-qwen3.8-27b",
+        )
+        with self.assertRaises(ValueError):
+            candidate.build_payload("Read the lab status", model="unreviewed")
 
     def test_deterministic_policy_owns_private_read(self):
         result = candidate.interpret(

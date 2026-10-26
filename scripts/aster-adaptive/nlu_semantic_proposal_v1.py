@@ -41,11 +41,13 @@ RESPONSE_SCHEMA = {
 }
 
 
-def build_payload(request_text: str) -> bytes:
+def build_payload(request_text: str, *, model: str = MODEL) -> bytes:
     if not isinstance(request_text, str) or not request_text.strip():
         raise ValueError("request text must be nonempty")
+    if model not in {MODEL, "aster-qwen3.8-27b"}:
+        raise ValueError("model identity differs")
     return json.dumps({
-        "model": MODEL, "temperature": 0, "stream": False, "max_tokens": 128,
+        "model": model, "temperature": 0, "stream": False, "max_tokens": 128,
         "messages": [
             {"role": "system", "content": SYSTEM_POLICY},
             {"role": "user", "content": request_text},
