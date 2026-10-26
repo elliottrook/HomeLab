@@ -70,6 +70,9 @@ class FixedDoctorCallerTests(unittest.TestCase):
         response = self.call({"method": METHOD, "arguments": {}})
         self.assertTrue(response["ok"])
         self.assertEqual(CAPABILITY, response["result"]["capability"])
+        self.assertEqual(2, response["result"]["schema"])
+        self.assertIn("reports OK", response["result"]["answer"])
+        self.assertEqual("not-granted", response["result"]["authority"])
         self.assertEqual([
             {"method": "request.create", "capability": CAPABILITY,
              "payload": {}, "ttl_seconds": 30},
@@ -109,7 +112,11 @@ class FixedDoctorCallerTests(unittest.TestCase):
                 "facts": {"check_id": "aster.agent_inference"},
             },
         }
-        self.assertEqual(valid, validate_result(valid))
+        projected = validate_result(valid)
+        self.assertEqual(2, projected["schema"])
+        self.assertEqual(valid["observation"], projected["observation"])
+        self.assertIn("reports OK", projected["answer"])
+        self.assertEqual("not-granted", projected["authority"])
         for invalid in (
             valid | {"private": PRIVATE},
             valid | {"observation": valid["observation"] | {"summary": PRIVATE}},

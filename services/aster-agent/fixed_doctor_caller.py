@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from fixed_doctor_capability import CAPABILITY, METHOD
+from fixed_doctor_response import FixedDoctorResponseDenied, render_observation
 from doctor_structured_incident_adapter import SOURCE
 
 
@@ -68,7 +69,17 @@ def validate_result(result: Any) -> dict[str, Any]:
     expected_facts = {} if observation["state"] == "unavailable" else {"check_id": "aster.agent_inference"}
     if observation["facts"] != expected_facts:
         raise CallerDenied("broker returned an unexpected capability result")
-    return result
+    try:
+        answer = render_observation(observation)
+    except FixedDoctorResponseDenied as error:
+        raise CallerDenied("broker returned an unsafe fixed Doctor observation") from error
+    return {
+        "schema": 2,
+        "capability": CAPABILITY,
+        "observation": observation,
+        "answer": answer,
+        "authority": "not-granted",
+    }
 
 
 class FixedCallerHandler(socketserver.StreamRequestHandler):
