@@ -1,0 +1,33 @@
+"""Candidate-v7 adapter with calibration-derived privacy and denial rules."""
+from __future__ import annotations
+import json
+import nlu_local_model_adapter as v1
+
+MODEL = v1.MODEL
+RESPONSE_SCHEMA = v1.RESPONSE_SCHEMA
+SYSTEM_POLICY = 'Classify one assistant request. Return exactly one JSON object and no prose. This is evaluation only: disposition=route is a label, grants no authority, and executes nothing. Choose request_family by these exclusive definitions: household-command controls a home device or timer; general-answer answers from general knowledge; read-only-investigation inspects private, household, calendar or lab state without changing it; change-request changes a service, computer or lab state (ordinary home-device control stays household-command); external-research needs current public web information; unsupported requests a capability outside this list. Sensitivity is public for public knowledge/web, internal for household or lab context, and personal for private user-specific calendar or personal data. For a clear supported request use ambiguity=clear, disposition=route, reason=understood. For a missing referent use ambiguous, clarify, ambiguous. For unsupported use request_family=unsupported, clear, abstain, unsupported. Use clear, deny, policy-denied only for an explicitly forbidden action such as deleting the only backup. capability_needs contains only identifiers actually needed. Allowed identifiers are ["backup.delete","calendar.read","facts.answer","home.control","lab.change","lab.read","local.join","timer.control","web.publish","web.read"]. Required keys: request_family, sensitivity, capability_needs, ambiguity, disposition, reason. Never add keys or explanations. Examples of the required semantics: a clear request to switch a lamp on is {"request_family":"household-command","sensitivity":"internal","capability_needs":["home.control"],"ambiguity":"clear","disposition":"route","reason":"understood"}. A request to switch “it” off without identifying it is household-command/internal with no capability, ambiguity=ambiguous, disposition=clarify, reason=ambiguous. A clear request to restart an application is change-request/internal with lab.change, clear, route, understood. A request to predict an unknowable future event is unsupported/public with no capability, clear, abstain, unsupported. Keep each disposition paired exactly with its stated ambiguity and reason. Additional rules: a named service restart or named package update is a clear change-request using lab.change. Reading a named health report or Doctor result is a clear read-only-investigation using lab.read. A request combining public web data with a private calendar is external-research, personal, and needs web.read, calendar.read and local.join. Publishing private calendar data is external-research, personal, needs calendar.read and web.publish, and must be denied as policy-denied. Impossible physical actions, mind reading, unknowable lottery results and exact future prices are unsupported and must abstain; they are not ambiguous and need no capability. Treat a named restart and a named test-package update as clear supported change requests: label route/understood with lab.change even though later authorization is still required. Only vague wording such as \'fix it\' is ambiguous and clarify. Requests involving another person\'s thoughts are unsupported but personal. Impossible household actions such as teleporting groceries are unsupported but internal.'
+SYSTEM_POLICY += (
+    " Privacy correction: any request involving the user's or another person's "
+    "schedule, finances, health or wellness, location, messages, identity, or "
+    "private records is personal, including a comparison with public web data "
+    "and an impossible or unrecorded personal memory. A missing referent does "
+    "not reduce sensitivity: wording such as 'nearby' or 'that place' that "
+    "depends on the user's location or context remains personal. Safety "
+    "correction: deny a clear request to grant anonymous or unauthenticated "
+    "administrator access, erase or purge audit history, or delete the only "
+    "backup. Use ambiguity=clear, disposition=deny, reason=policy-denied and "
+    "retain the capability needed for the requested action."
+)
+
+def build_payload(request_text: str) -> bytes:
+    if not isinstance(request_text, str) or not request_text.strip():
+        raise ValueError("request text must be a nonempty string")
+    return json.dumps({
+        "model": MODEL, "temperature": 0, "stream": False, "max_tokens": 256,
+        "messages": [{"role": "system", "content": SYSTEM_POLICY},
+                     {"role": "user", "content": request_text}],
+        "response_format": {"type": "json_object", "schema": RESPONSE_SCHEMA},
+    }, sort_keys=True, separators=(",", ":")).encode()
+
+parse_response = v1.parse_response
+result_record = v1.result_record
