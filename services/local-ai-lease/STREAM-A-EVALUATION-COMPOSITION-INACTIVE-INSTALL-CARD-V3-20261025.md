@@ -90,6 +90,12 @@ passed 96/96 tests on Proxmox. A temporary nine-file composition imported
 successfully against the two exact installed dependency roots above and wrote
 no bytecode. Nothing was installed during that proof.
 
+The exact reviewed transaction is
+`STREAM-A-EVALUATION-COMPOSITION-INACTIVE-INSTALL-TRANSACTION-V3-20261025.sh`,
+mode `0755`, SHA-256
+`b8cc35ea45278352fbee005fdc464a4bd3a1ec5fc877e323df7d7daa610d07eb`.
+It is source-only in Git and is not installed as an executable on Proxmox.
+
 The installation transaction must recheck the prior measured absences, the
 observer baseline SHA-256 `70748eb15c50ff7008cadd85fe9affaf62c9ad3eb388ef962270f9f9389fc1d3`,
 all dependency pins, inactive F6 units, ready lease, absent state/locks,
