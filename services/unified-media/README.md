@@ -16,6 +16,18 @@ project's protected checkpoint and single-writer gates are recorded.
 - `calibre-web` — proposed shadow ebook presentation and reading service.
   Calibre remains the metadata/conversion authority; Calibre-Web is not
   permitted to use the production database in this validation.
+- `aster-seerr-broker` — optional `aster-tv` profile providing only an
+  authenticated, sanitized film/TV search and explicit request boundary for
+  AsterTV. It uses the existing request-only Seerr identity, has no media or
+  ARR mounts, and cannot approve, manage or delete requests. Its bearer token
+  is separate from the Seerr credential and must be mounted read-only from
+  `secrets/aster-seerr-tv-token`.
+
+The Aster broker listens on `192.168.20.40:8788` only when its profile is
+explicitly enabled. Network policy must limit that port to the current lab or
+production Aster address as appropriate. The existing recommendations portal
+on 8787 remains NPM-only and is not an Aster API; do not broaden its firewall
+rule or store its Seerr credential on a television.
 
 ## Storage contract
 

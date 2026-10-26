@@ -9,6 +9,8 @@ import re
 KINDS = frozenset(('movie', 'tv'))
 STATES = frozenset(('none', 'pending', 'approved', 'processing', 'available',
                     'declined', 'failed'))
+AVAILABILITY = frozenset(('unknown', 'pending', 'processing', 'partial',
+                          'available', 'blocklisted', 'deleted'))
 ID = re.compile(r'seerr:(movie|tv):([1-9][0-9]{0,9})')
 
 
@@ -27,6 +29,7 @@ class Candidate:
     overview: str
     poster: str
     owned: bool
+    availability: str
     request_id: object
     request_state: str
     seasons: tuple
@@ -41,13 +44,13 @@ class Proposal:
 
 def candidate(value):
     required = {'schema', 'identity', 'media_type', 'media_id', 'title', 'year',
-                'overview', 'poster', 'owned', 'request_id', 'request_state',
+                'overview', 'poster', 'owned', 'availability', 'request_id', 'request_state',
                 'seasons'}
     require(type(value) is dict and set(value) == required,
             'seerr-candidate-schema')
     match = ID.fullmatch(value['identity']) if isinstance(value['identity'], str) else None
     kind = value['media_type']; media_id = value['media_id']
-    require(value['schema'] == 1 and kind in KINDS and type(media_id) is int
+    require(value['schema'] == 2 and kind in KINDS and type(media_id) is int
             and 0 < media_id <= 9_999_999_999 and match is not None
             and match.group(1) == kind and int(match.group(2)) == media_id,
             'seerr-candidate-identity')
@@ -57,25 +60,39 @@ def candidate(value):
             and isinstance(value['overview'], str) and len(value['overview']) <= 3000
             and isinstance(value['poster'], str) and len(value['poster']) <= 500,
             'seerr-candidate-text')
-    require(type(value['owned']) is bool and value['request_state'] in STATES,
+    availability = value['availability']
+    require(type(value['owned']) is bool and availability in AVAILABILITY
+            and value['owned'] == (availability in ('partial', 'available'))
+            and value['request_state'] in STATES,
             'seerr-candidate-state')
     request_id = value['request_id']
     require(request_id is None or (type(request_id) is int and request_id > 0),
             'seerr-candidate-request')
-    require((value['request_state'] == 'none') == (request_id is None),
-            'seerr-candidate-request-state')
+    # Library ownership may pre-date Seerr and therefore have no request ID.
+    # Every other non-idle request state must correlate to a concrete request.
+    if request_id is None:
+        require(value['request_state'] == 'none'
+                or (value['owned'] and value['request_state'] == 'available'),
+                'seerr-candidate-request-state')
+    else:
+        require(value['request_state'] != 'none',
+                'seerr-candidate-request-state')
     require(type(value['seasons']) is list
             and all(type(item) is int and 1 <= item <= 999 for item in value['seasons'])
             and value['seasons'] == sorted(set(value['seasons'])),
             'seerr-candidate-seasons')
     require((kind == 'tv') or not value['seasons'], 'seerr-candidate-movie-seasons')
     return Candidate(value['identity'], kind, media_id, value['title'], value['year'],
-                     value['overview'], value['poster'], value['owned'], request_id,
+                     value['overview'], value['poster'], value['owned'], availability, request_id,
                      value['request_state'], tuple(value['seasons']))
 
 
 def propose(item, selected_seasons=(), confirmed=False):
     require(isinstance(item, Candidate), 'seerr-proposal-candidate')
+    if item.availability == 'blocklisted':
+        return Proposal('unavailable', 'Blocked in Seerr')
+    if item.availability == 'partial':
+        return Proposal('unavailable', 'Partly in your library · manage seasons in Seerr')
     if item.owned or item.request_state == 'available':
         return Proposal('unavailable', 'Already in your library')
     if item.request_state != 'none':

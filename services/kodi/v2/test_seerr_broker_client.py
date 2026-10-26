@@ -8,10 +8,11 @@ from seerr_request_model import candidate, propose
 
 
 def raw(kind='movie', media_id=123):
-    return {'schema': 1, 'identity': f'seerr:{kind}:{media_id}',
+    return {'schema': 2, 'identity': f'seerr:{kind}:{media_id}',
             'media_type': kind, 'media_id': media_id, 'title': 'Example',
             'year': '2026', 'overview': 'Synthetic.', 'poster': '/p.jpg',
-            'owned': False, 'request_id': None, 'request_state': 'none',
+            'owned': False, 'availability': 'unknown', 'request_id': None,
+            'request_state': 'none',
             'seasons': [1, 2] if kind == 'tv' else []}
 
 

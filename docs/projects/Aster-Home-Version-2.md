@@ -8438,6 +8438,40 @@ result—not title, synopsis, credential or server URL. The transport remains
 injected and absent, so these tests cannot reach Seerr or the broker.
 All 1,035 Kodi v2 tests pass in normal and optimized Python at this gate.
 
+The resumed milestone found Seerr itself healthy at `192.168.20.40:5055`, but
+the former unified recommendations portal had been stopped since 2026-10-18
+with exit 137 and `restart: no`. Its existing NPM-only firewall correctly blocks
+HP from port 8787. Nothing was restarted or reconfigured. Aster will not depend
+on that stopped process and will not broaden its unauthenticated internal API.
+
+The local successor adds an independent `aster-tv` broker profile on proposed
+port 8788. It mounts only the existing request-only Seerr password and a new,
+separate Aster bearer-token file; it has no media, ARR, Docker or portal-state
+mount. Its only application routes are unauthenticated health, authenticated
+sanitized search and authenticated explicit request. Search is capped at twelve
+results, every result is re-read from Seerr, TV seasons are revalidated, and
+Seerr user/session/upstream response data is removed. Request submission accepts
+only the exact confirmed TV-side payload, returns an existing request without a
+second write, refuses owned/partial/blocklisted or changed candidates, and
+performs no retry after an uncertain write.
+
+The wire contract now distinguishes unknown, pending, processing, partially
+available, available, blocklisted and deleted media. This fixes the previous
+model's inability to represent library media that pre-dated Seerr and therefore
+has no request ID. Status mappings follow Seerr's current API and source enums:
+<https://docs.seerr.dev/api/get-media-request/> and
+<https://github.com/seerr-team/seerr/blob/develop/server/constants/media.ts>.
+Ten broker/contract tests, 71 complete unified-media tests and 1,078 Kodi v2
+tests pass in normal and optimized Python. Compose parses structurally on the
+workstation; final `docker compose config` remains a source-host deployment
+gate because Docker is not installed locally.
+
+No service, token, firewall or Aster box changed in this slice. Live HP
+activation still requires a protected Compose checkpoint, creation of the
+separate broker token, exact HP-to-TrueNAS TCP/8788 allowance, broker
+deployment, revocation proof and one disposable request that the owner
+explicitly selects.
+
 ### M7 family-candidate static gate — 2026-10-26
 
 The first M7 slice is repository-only and cannot operate Kodi, the LAN or a

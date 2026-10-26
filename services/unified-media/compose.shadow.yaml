@@ -121,6 +121,32 @@ services:
       - "192.168.20.40:8787:8787"
     restart: "no"
 
+  aster-seerr-broker:
+    profiles: ["aster-tv"]
+    build:
+      context: .
+      dockerfile: portal/Dockerfile
+    container_name: unified-aster-seerr-broker
+    environment:
+      - ASTER_SEERR_HOST=0.0.0.0
+      - ASTER_SEERR_PORT=8788
+      - ASTER_SEERR_TOKEN_PATH=/run/unified-secrets/aster-seerr-tv-token
+      - SEERR_URL=${SEERR_URL:-http://192.168.20.40:5055}
+      - SEERR_EMAIL=${SEERR_EMAIL:-unified-media-requester@local.invalid}
+      - SEERR_PASSWORD_PATH=/run/unified-secrets/seerr-requester-password
+    volumes:
+      - ${UNIFIED_CONFIG_PATH}/secrets/aster-seerr-tv-token:/run/unified-secrets/aster-seerr-tv-token:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/seerr-requester-password:/run/unified-secrets/seerr-requester-password:ro
+    ports:
+      - "192.168.20.40:8788:8788"
+    command: ["python", "/app/aster_seerr_broker.py"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8788/health', timeout=2).read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
   lazylibrarian:
     image: lscr.io/linuxserver/lazylibrarian:streama-new
     container_name: unified-lazylibrarian-shadow
