@@ -18,6 +18,8 @@ class ScoreBoundaryInstallTests(unittest.TestCase):
         self.assertIn("trap rollback ERR", source)
         self.assertIn("$checkpoint/$name", source)
         self.assertIn("--staged-directory \"$target\"", source)
+        self.assertNotIn("check_installed nlu_calibration_stage_manifest.py", source)
+        self.assertNotIn("check_installed nlu-calibration-stage-manifest-v1.json", source)
         self.assertIn("PYTHONDONTWRITEBYTECODE=1", source)
         self.assertNotIn("systemctl start", source)
         self.assertNotIn("systemctl stop", source)

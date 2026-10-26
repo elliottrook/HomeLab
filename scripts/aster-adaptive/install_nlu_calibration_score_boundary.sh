@@ -15,8 +15,6 @@ checkpoint=/var/lib/aster-nlu-calibration/checkpoints/score-boundary-$source_com
 
 old_score=ec4f4e44ff595617f1fe8e337b587bbab049204d001dd2ba050ee1fb146022fd
 old_journal=992960fe76540941fe9adf7b75ddaf82541c55039782bf4cf360ad6c5279a744
-old_validator=215e221165fafcacb43ccae7230c0cad13a6e19ca9e41ccab9e019f815dc42e5
-old_manifest=835bcb55ba93d25427b322c6cf93aee06cba1b5e7221af7fb63dbd41d1aab114
 new_score=7bce041e47a7707fcf35d3c3787e1e12e6725fff4c5b80db81f92ad7e5492ccd
 new_journal=966786f8952aa990915044281b3ddc45241b05940102aad2c4ddfad19abf5beb
 new_validator=83c7ed1135e444d832518e95bc7df51c59d5cb1c3cc7041177f31fc8cb84c3c9
@@ -37,17 +35,11 @@ rollback() {
   trap - ERR
   set +e
   if test "$started" = 1; then
-    for name in nlu_calibration_score.py nlu_calibration_journal.py nlu_calibration_stage_manifest.py; do
+    for name in nlu_calibration_score.py nlu_calibration_journal.py; do
       pct exec "$vmid" -- install -o root -g root -m 0600 \
         "$checkpoint/$name" "$target/.$name.rollback.$$"
       pct exec "$vmid" -- mv -T "$target/.$name.rollback.$$" "$target/$name"
     done
-    pct exec "$vmid" -- install -o root -g root -m 0600 \
-      "$checkpoint/nlu-calibration-stage-manifest-v1.json" \
-      "$target/.nlu-calibration-stage-manifest-v1.json.rollback.$$"
-    pct exec "$vmid" -- mv -T \
-      "$target/.nlu-calibration-stage-manifest-v1.json.rollback.$$" \
-      "$target/nlu-calibration-stage-manifest-v1.json"
   fi
   cleanup_transport
   printf '{"state":"rolled_back","exit":%d,"checkpoint":"%s"}\n' "$rc" "$checkpoint" >&2
@@ -73,8 +65,6 @@ check_installed() {
 }
 check_installed nlu_calibration_score.py "$old_score"
 check_installed nlu_calibration_journal.py "$old_journal"
-check_installed nlu_calibration_stage_manifest.py "$old_validator"
-check_installed nlu-calibration-stage-manifest-v1.json "$old_manifest"
 pct exec "$vmid" -- test ! -e "$target/run.json"
 pct exec "$vmid" -- test ! -e "$target/attempt-journal.jsonl"
 pct exec "$vmid" -- test ! -e "$target/__pycache__"
@@ -82,7 +72,7 @@ test -z "$(pct exec "$vmid" -- pgrep -af '[n]lu_calibration_runner' || true)"
 
 pct exec "$vmid" -- install -d -o root -g root -m 0700 \
   /var/lib/aster-nlu-calibration/checkpoints "$checkpoint"
-for name in nlu_calibration_score.py nlu_calibration_journal.py nlu_calibration_stage_manifest.py nlu-calibration-stage-manifest-v1.json; do
+for name in nlu_calibration_score.py nlu_calibration_journal.py; do
   pct exec "$vmid" -- install -o root -g root -m 0600 "$target/$name" "$checkpoint/$name"
 done
 started=1
@@ -95,14 +85,10 @@ install_one() {
 }
 install_one "$score" nlu_calibration_score.py
 install_one "$journal" nlu_calibration_journal.py
-install_one "$validator" nlu_calibration_stage_manifest.py
-install_one "$manifest" nlu-calibration-stage-manifest-v1.json
 
 check_installed nlu_calibration_score.py "$new_score"
 check_installed nlu_calibration_journal.py "$new_journal"
-check_installed nlu_calibration_stage_manifest.py "$new_validator"
-check_installed nlu-calibration-stage-manifest-v1.json "$new_manifest"
-for name in nlu_calibration_score.py nlu_calibration_journal.py nlu_calibration_stage_manifest.py nlu-calibration-stage-manifest-v1.json; do
+for name in nlu_calibration_score.py nlu_calibration_journal.py; do
   test "$(pct exec "$vmid" -- stat -c '%U:%G:%a:%h:%F' "$target/$name")" = 'root:root:600:1:regular file'
 done
 pct exec "$vmid" -- env PYTHONPATH="$target" PYTHONDONTWRITEBYTECODE=1 \

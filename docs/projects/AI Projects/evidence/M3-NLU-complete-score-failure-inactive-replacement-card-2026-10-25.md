@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Replace four inactive files in the staged LXC110 NLU calibration packet so a
+Replace two inactive files in the staged LXC110 NLU calibration packet so a
 timeout, endpoint error or transport uncertainty can never be certified and
 scored as a complete calibration. This makes the downstream evidence boundary
 match the already corrected runner and approved no-retry run card.
@@ -15,31 +15,35 @@ match the already corrected runner and approved no-retry run card.
 - transaction:
   `scripts/aster-adaptive/install_nlu_calibration_score_boundary.sh`;
 - transaction SHA-256:
-  `9e2f59fed5432d91988489d511132c35ac26ba964c1f50d03e1371004e868818`;
+  `6e1f9d288a9b0d42f25385a7431f44576fe4e6ee8d7b70e7a27b9ebee12d6479`;
 - transaction test SHA-256:
-  `38d042826f86686262e05601d550865c1ed946d1f04e5893f13efb2857238758`;
+  `9251d2f180cf76ec06781ff39fb203c4d976d1cd643f0898aedf4fb9dd51d480`;
 - local transaction tests: 2/2; and
 - dependency-free NLU tests: 119/119.
 
-The transaction replaces exactly:
+The transaction replaces exactly these two files:
 
 | Path under `/var/lib/aster-nlu-calibration/nlu-calibration-v1/` | Installed SHA-256 | Replacement SHA-256 |
 |---|---|---|
 | `nlu_calibration_score.py` | `ec4f4e44ff595617f1fe8e337b587bbab049204d001dd2ba050ee1fb146022fd` | `7bce041e47a7707fcf35d3c3787e1e12e6725fff4c5b80db81f92ad7e5492ccd` |
 | `nlu_calibration_journal.py` | `992960fe76540941fe9adf7b75ddaf82541c55039782bf4cf360ad6c5279a744` | `966786f8952aa990915044281b3ddc45241b05940102aad2c4ddfad19abf5beb` |
-| `nlu_calibration_stage_manifest.py` | `215e221165fafcacb43ccae7230c0cad13a6e19ca9e41ccab9e019f815dc42e5` | `83c7ed1135e444d832518e95bc7df51c59d5cb1c3cc7041177f31fc8cb84c3c9` |
-| `nlu-calibration-stage-manifest-v1.json` | `835bcb55ba93d25427b322c6cf93aee06cba1b5e7221af7fb63dbd41d1aab114` | `7b547d9b38d3be1d951e2d8cbeee011a723f8582006c0885ad37d01f5388ee80` |
+
+The stage validator and manifest are not members of the installed eleven-file
+packet. They are hash-pinned temporary validation inputs only:
+
+- validator `83c7ed1135e444d832518e95bc7df51c59d5cb1c3cc7041177f31fc8cb84c3c9`;
+- manifest `7b547d9b38d3be1d951e2d8cbeee011a723f8582006c0885ad37d01f5388ee80`.
 
 ## Preconditions and validation
 
 Before replacement, require lease state `ready`, accepted llama active, exact
 old hashes, root-only packet custody, no output, journal, bytecode cache or NLU
-runner process. Preserve all four old files in a new root-only checkpoint.
+runner process. Preserve both old files in a new root-only checkpoint.
 
 After replacement, require exact new hashes and root:root mode `0600`, validate
 all eleven staged packet files, run the nine scorer regressions on target
 Linux, import the runner/scorer/journal/manifest without bytecode writes, and
-repeat absence, llama and lease checks. Any failure restores all four files
+repeat absence, llama and lease checks. Any failure restores both files
 from the checkpoint and removes only bounded temporary transport files.
 
 ## Explicit exclusions
