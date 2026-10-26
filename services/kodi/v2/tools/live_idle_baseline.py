@@ -24,7 +24,7 @@ def until(check,code,seconds=15):
 def rpc(method,params):
     require(method in ('Settings.GetSettingValue','Input.ExecuteAction','Input.Home'),'idle-baseline-rpc-boundary')
     if method=='Settings.GetSettingValue':require(params.get('setting') in KEYS,'idle-baseline-setting-boundary')
-    if method=='Input.ExecuteAction':require(params.get('action') in ('right','select'),'idle-baseline-input-boundary')
+    if method=='Input.ExecuteAction':require(params.get('action') in ('right','select','noop'),'idle-baseline-input-boundary')
     r=json.loads(xbmc.executeJSONRPC(json.dumps(dict(jsonrpc='2.0',id=1,method=method,params=params))))
     require('error' not in r,'idle-baseline-rpc');return r.get('result',{})
 def settings():return {k:rpc('Settings.GetSettingValue',dict(setting=k))['value'] for k in KEYS}
@@ -45,7 +45,7 @@ try:
     until(lambda:xbmcgui.getCurrentWindowId()==10004,'idle-baseline-settings-window')
     xbmc.executebuiltin('Control.SetFocus(206)');until(focus,'idle-baseline-settings-focus')
     cycles=[]
-    for action in ('right','select'):
+    for action in ('right','select','noop'):
         require(guard.idle() and not menu() and focus(),'idle-baseline-cycle-context')
         xbmc.executebuiltin('ActivateScreensaver');until(active,'idle-baseline-not-active')
         xbmc.sleep(350)

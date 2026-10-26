@@ -6983,3 +6983,46 @@ That failed run is retained and is not counted as a pass. No shipped Network
 code changed for this harness fix. Next safe step is an isolated privacy-first
 Aster idle presentation with a native screensaver lifecycle, not an operator
 root background job or a suspension test without a recovery operator.
+
+### Stream A isolated Aster idle presentation — pre-start
+
+Prepare a native Python screensaver add-on locally for HP only. Black remains
+the privacy-first default; optional Aster presentation reuses the approved
+master-brand mark at low brightness, periodically hidden/repositioned, with no
+clock, metadata, cameras, household readings or sound. Use Kodi's native saver
+activation/deactivation lifecycle and first-input consumption rather than an
+independent input dispatcher. Verify native no-op wake before relying on it for
+media/alarm rejection; don't alter playback or settings to dismiss a saver.
+Local model/bundle tests precede registration/activation. A future bounded HP
+activation must checkpoint the selected idle settings, add-on inventory/database
+and exact new files; refuse an existing/conflicting ID, register only the new
+pilot, verify native wake/context twice and restore the prior Dim mode. Do not
+install a background service, change shutdown/display-off/AV settings, broaden
+permissions/network access, enable automatic normal pilot use or touch production
+in this preparation step. Keep the previous source/known-good path. Core source
+confirms Python savers are invoked by their registered library, not a new job.
+Paused-video native Dim override and alarm interaction remain explicit test
+gates; no source-text model test substitutes for those native behaviors.
+
+#### Isolated idle presentation — local preparation evidence
+
+Prepared a seven-member native add-on bundle with an exact approved master-brand
+PNG and solid texture, black default, no service extension, no audio/network/
+metadata access, and native Monitor deactivation. Optional mark presentation
+uses nine bounded160px positions,45 seconds per position, hidden for two seconds
+at either edge of each period; an unchanged frame performs no image-control
+writes. The native runtime polls only saver/media/local-timer state, and its
+only input request is NoOp to relinquish foreground for media/timers/activity.
+It never stops playback or dispatches a navigation/OK key. Actual rendering and
+registration remain untested at this local-preparation boundary.
+
+Local immutable `/tmp/aster-idle-presentation1` manifest is
+`04cefa9ccc398b0228ad8ef4ffebe3d5fb8986553d06a3cb7fea51ec4f51e235`.
+Seven added tests prove frame bounds/hide/move/constant states, privacy-default
+XML, native extension, deterministic archive/member hashes and source mutation/
+metadata bans. Full898-test suite passes normally and optimized. Native extended
+baseline `aster-idle-baseline-1792988501699912374/native.json` additionally
+proves NoOp wakes the existing Dim saver without activating or moving Settings;
+Right/OK also still pass. This does not yet prove the custom saver lifecycle.
+No add-on or setting was installed/changed in preparation. HP has one current
+add-on database, `/storage/.kodi/userdata/Database/Addons33.db`.

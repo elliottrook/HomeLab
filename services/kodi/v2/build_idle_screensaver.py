@@ -1,0 +1,63 @@
+"""Prepare an immutable native HP idle add-on. Does not install or select it."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import xml.etree.ElementTree as ET
+import zipfile
+IDENTITY='screensaver.asterhome.v2lab'
+MARK_SHA='62f29492ac60b034df405d497817ac5e6ce7ce1ec536d946c63bed5659eb8ffd'
+SOLID_SHA='60ffd2c283635d9875ee649d4dd294fb97af2443ff05508d968c858b011dbea0'
+
+def xml(node):return ET.tostring(node,encoding='utf-8',xml_declaration=True)+b'\n'
+def addon():
+    root=ET.Element('addon',id=IDENTITY,name='Aster TV idle lab',version='0.1.0',**{'provider-name':'Aster'})
+    requires=ET.SubElement(root,'requires');ET.SubElement(requires,'import',addon='xbmc.python',version='3.0.0')
+    ET.SubElement(root,'extension',point='xbmc.ui.screensaver',library='default.py')
+    metadata=ET.SubElement(root,'extension',point='xbmc.addon.metadata')
+    ET.SubElement(metadata,'summary',lang='en_GB').text='Private black or restrained Aster idle presentation'
+    ET.SubElement(metadata,'description',lang='en_GB').text='HP lab only. No media, cameras, clock, household content, network or sound.'
+    ET.SubElement(metadata,'platform').text='all'
+    return xml(root)
+def layout():
+    root=ET.Element('window',type='dialog');ET.SubElement(root,'backgroundcolor').text='ff000000'
+    controls=ET.SubElement(root,'controls')
+    for n,x,y,w,h,texture,tint in ((1,0,0,1920,1080,'resources/solid.png','ff000000'),
+        (10,120,110,160,160,'resources/mark.png','40303030')):
+        c=ET.SubElement(controls,'control',type='image',id=str(n))
+        for key,value in dict(left=x,top=y,width=w,height=h).items():ET.SubElement(c,key).text=str(value)
+        ET.SubElement(c,'texture',colordiffuse=tint).text='special://home/addons/'+IDENTITY+'/'+texture
+        ET.SubElement(c,'aspectratio').text='stretch' if n==1 else 'keep'
+    return xml(root)
+def settings():
+    root=ET.Element('settings')
+    ET.SubElement(root,'setting',id='presentation',type='labelenum',label='Idle presentation',
+        values='black|aster',default='black')
+    return xml(root)
+def build(output):
+    here=Path(__file__).resolve().parent;root=Path(output);root.mkdir(mode=0o700)
+    media=here.parent/'skin.asterhome/media'
+    mark=(media/'aster-home-logo-512.png').read_bytes();solid=(media/'ui-solid.png').read_bytes()
+    if hashlib.sha256(mark).hexdigest()!=MARK_SHA or hashlib.sha256(solid).hexdigest()!=SOLID_SHA:
+        raise ValueError('idle-approved-asset-drift')
+    files={'addon.xml':addon(),'default.py':(here/'idle_screensaver/default.py').read_bytes(),
+        'idle_presentation.py':(here/'idle_presentation.py').read_bytes(),
+        'resources/settings.xml':settings(),'resources/skins/Default/1080i/AsterIdle.xml':layout(),
+        'resources/mark.png':mark,'resources/solid.png':solid}
+    rows=[];archive=root/(IDENTITY+'-0.1.0.zip')
+    with zipfile.ZipFile(archive,'x',compression=zipfile.ZIP_DEFLATED) as package:
+        for name,raw in sorted(files.items()):
+            path=root/'payload'/IDENTITY/name;path.parent.mkdir(parents=True,mode=0o700,exist_ok=True)
+            path.write_bytes(raw);path.chmod(0o600)
+            rows.append(dict(path=name,bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest()))
+            info=zipfile.ZipInfo(IDENTITY+'/'+name,(1980,1,1,0,0,0));info.compress_type=zipfile.ZIP_DEFLATED
+            info.external_attr=0o100600<<16;package.writestr(info,raw)
+    archive.chmod(0o600)
+    m=dict(kind='hp-idle-presentation.v1',addon_id=IDENTITY,normal_entry=False,default_mode='black',
+        network=False,speech=False,settings_changes=False,files=rows,
+        archive=archive.name,archive_sha256=hashlib.sha256(archive.read_bytes()).hexdigest())
+    path=root/'manifest.json';path.write_text(json.dumps(m,indent=2)+'\n');path.chmod(0o600)
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+if __name__=='__main__':
+    p=argparse.ArgumentParser();p.add_argument('--output',required=True);print(build(p.parse_args().output))
