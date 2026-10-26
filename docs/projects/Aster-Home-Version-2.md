@@ -8742,3 +8742,12 @@ retained, and absent hardware leaves keyboard search available. It cannot start
 capture itself. This prevents a decorative microphone control from falsely
 claiming that the box is listening. The combined voice, speech-wire and grouped
 search contract has 27 passing tests in normal and optimized Python.
+
+`voice_capture.py` adds the remaining credential-free appliance boundary. It
+strictly parses PulseAudio's tabular source inventory, refuses monitor,
+default, missing, duplicate and malformed sources, and produces a fixed
+argument-vector invocation of `/usr/bin/parec` for one exact observed source.
+It never invokes a shell or chooses the first/default source. The policy,
+speech-wire, UI and grouped-search contracts now have 30 passing tests in both
+Python modes. A later runtime adapter must still enforce the ten-second process
+deadline and byte bound while joining these already tested pieces.
