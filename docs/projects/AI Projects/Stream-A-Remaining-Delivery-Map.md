@@ -1031,7 +1031,10 @@ passing. A proposed tool-free accepted-9B profile now pins the local endpoint,
 engine and every evidence component with one attempt, 60-second per-case and
 600-second outer bounds. Its durable journal records each start before
 transport, each returned answer before another request, and prevents retry of
-an interrupted attempt; 28 focused boundary tests pass. The packet explicitly
+an interrupted attempt. A descriptor-only explicit entrypoint validates the
+profile before reading its key, and the
+[source run card](evidence/M1-D4-fixed-doctor-usefulness-source-run-card-2026-10-25.md)
+pins all ten source files; 32 focused boundary tests pass. The packet explicitly
 grants no authority or routing promotion, and no model request or live Doctor
 read has occurred. An effectful live card remains to be frozen before an
 evaluation.

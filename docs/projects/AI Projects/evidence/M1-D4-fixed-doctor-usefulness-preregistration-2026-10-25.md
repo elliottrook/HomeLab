@@ -22,6 +22,8 @@ The durable journal wrapper SHA-256 is
 `2f176dbacb2cd09801ab263724b228f99f4ffe7eefd81711f5acdd899fc96a17`.
 The proposed run profile SHA-256 is
 `5f3183e5a805f2f1a3ab9f1c9f8d5fa30d9006aaba0550cabb33aa6f51f0c003`.
+The explicit descriptor-only entrypoint SHA-256 is
+`a014d0b52ed410b7edffa931c8ad7c90212ef4a382ececd621e49431a0bed981`.
 
 ## Acceptance boundary
 
@@ -57,6 +59,12 @@ before allowing another request, and makes interrupted attempts uncertain and
 non-retryable. Its status is `proposed-not-authorized`. Twenty-eight focused
 tests pass across validation, transport construction, durable capture, packet
 construction and scoring.
+
+The explicit entrypoint validates the profile before reading the inherited
+credential descriptor, requires an `--execute` gate, supplies the fixed
+timeouts to durable capture and returns only a content-free summary. The full
+source boundary now passes 32 focused tests and is frozen in the
+[source run card](M1-D4-fixed-doctor-usefulness-source-run-card-2026-10-25.md).
 
 The fixture declares `authority: not-granted` and `model_route: not-enabled`;
 the scorer emits `routing_promotion: not-authorized` even on a passing review.
