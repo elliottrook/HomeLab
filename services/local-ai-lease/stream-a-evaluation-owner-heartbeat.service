@@ -1,6 +1,6 @@
 [Unit]
 Description=Stream A evaluation owner heartbeat (inactive candidate)
-After=local-fs.target
+After=local-fs.target stream-a-evaluation-owner.service
 Requires=stream-a-evaluation-owner.service
 ConditionPathExists=/etc/local-ai-lab/stream-a-evaluation/watchdog-identity.json
 RefuseManualStart=yes
