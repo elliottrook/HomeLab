@@ -1299,5 +1299,10 @@ The static candidate-H/M3 F6 card now passes independent review, and the
 freezes exact payload schemas, identities, commands, paths and bounds without
 effects. It is deliberately not an admission gate: the later orchestrator must
 submit each phase through the durable adapter so M3 cannot precede an accepted
-candidate-H outcome. That orchestrator and synthetic recovery proof remain the
-next offline F6 work.
+candidate-H outcome. The source-only sequence and fixed intent/effect driver
+now enforce that order and retain separate D4/M3 start/outcome records. The
+[owner-before-heartbeat unit correction](evidence/Stream-A-F6-owner-heartbeat-ordering-inactive-install-2026-10-25.md)
+is installed inactive with a root-only rollback checkpoint, 4/4 focused tests
+and unchanged October 26 F2 timers. The next offline F6 work is to implement
+and prove the injected arm, workload-verification, recovery and cleanup
+handlers; no live arming or model call follows from the inactive correction.
