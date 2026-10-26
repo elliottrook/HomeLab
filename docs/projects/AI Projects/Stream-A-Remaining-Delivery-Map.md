@@ -1293,3 +1293,11 @@ unproduced. The downstream F6 helper pin is now
 the complete target suite passed 94/94, inert invocation remained disabled and
 no lease or service effect occurred. F6 arming still requires fresh F3–F5
 evidence, a corrected exact live card and separate approval.
+
+The static candidate-H/M3 F6 card now passes independent review, and the
+[pure live-plan layer](evidence/Stream-A-candidate-H-F6-pure-plan-review-2026-10-25.md)
+freezes exact payload schemas, identities, commands, paths and bounds without
+effects. It is deliberately not an admission gate: the later orchestrator must
+submit each phase through the durable adapter so M3 cannot precede an accepted
+candidate-H outcome. That orchestrator and synthetic recovery proof remain the
+next offline F6 work.
