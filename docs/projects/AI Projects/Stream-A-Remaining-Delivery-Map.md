@@ -1317,6 +1317,12 @@ two-file packet returns the exact disabled result in both target guests with
 an empty `PYTHONPATH`. Nothing was installed during that proof. The revised
 13-path inactive card is recorded at platform commit `8e6ed141` and needs a
 fresh exact installation approval because one pinned hash changed.
+That approved attempt then exposed a separate host import-root omission and
+rolled back completely; production and the October 26 F2 timers remained
+healthy. Platform V3 at `4d682e6f` pins both installed module roots, removes
+the last guest-only host import, passes 96/96 target-Linux tests and completes
+a temporary target import. V3 now needs a fresh exact inactive-install
+decision; the two consumed packets must not be retried.
 The
 [owner-before-heartbeat unit correction](evidence/Stream-A-F6-owner-heartbeat-ordering-inactive-install-2026-10-25.md)
 is installed inactive with a root-only rollback checkpoint, 4/4 focused tests

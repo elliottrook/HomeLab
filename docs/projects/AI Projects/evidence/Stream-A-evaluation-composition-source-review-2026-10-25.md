@@ -66,10 +66,24 @@ canonical disabled result and created no bytecode. All temporary files were
 removed; no target installation or runtime effect occurred. Platform commit
 `8e6ed141` records the revised card and successful target preflight.
 
+Jason approved that revised installation, but the mandatory installed import
+found a second dependency-boundary defect: the check exposed only the
+composition directory, while the evidence loader reuses pinned modules in the
+installed parent directory. The transaction rolled back. Platform record
+`770af438` preserves the failure, checkpoint and successful production/F2
+postchecks. No live evaluation effect occurred.
+
+Platform commit `b21a6227` removes the remaining guest-only import from the
+host outcome verifier. The V3 card at `4d682e6f` pins both exact installed
+module roots and every unchanged support-module hash. Its clean archive passed
+96/96 tests on Proxmox, and the temporary nine-file composition imported
+successfully against those two roots without installation or bytecode.
+
 ## Remaining gates
 
-1. Jason's fresh exact approval for the revised reversible 13-path inactive
-   placement; the prior approval was bound to the superseded verifier hash.
+1. Jason's fresh exact approval for the V3 reversible 13-path inactive
+   placement; both earlier approvals are consumed and their packets may not be
+   retried.
 2. Installed hashes/custody, rollback checkpoint and unchanged-live-state
    proof; target-Linux source and isolated guest tests already pass.
 3. Fresh successful F2, then F3/F4/F5/admission evidence.
