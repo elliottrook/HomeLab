@@ -1388,3 +1388,8 @@ and cleanup handlers. The remaining platform work is a current-packet
 activation/recovery card that pins all installed V3 paths and the corrected
 owner ordering; no live arming or model call follows from either inactive
 installation.
+The [current installed-packet snapshot](evidence/Stream-A-F6-current-installed-packet-snapshot-2026-10-25.md)
+now freezes the live review inputs, including the corrected owner unit and all
+V3 host/guest paths. It also records that M3's stage-manifest identity is a
+packet digest rather than a nonexistent installed `stage-manifest.json` path,
+and keeps the fixed Doctor proposal outside the two-workload sequence.
