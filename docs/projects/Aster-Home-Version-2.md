@@ -9011,3 +9011,15 @@ rollback logic; it changes no page, component, setting or content state.
 After the reconciliation tests were added, the complete Kodi v2 suite passes
 1,110 tests in normal and optimized Python, with the same one Mac-only Pillow
 skip. The broker suite remains 79/79 in both modes.
+
+A subsequent idle-Home soak sampled the reconciled candidate 20 times at
+30-second intervals from 14:13:56 through 14:23:26 local time. Kodi retained
+PID `50490` throughout. RSS rose once during cache settling, returned, and then
+held effectively flat at `447412`–`447496` KiB for the final fifteen samples;
+temperature remained 32–37°C and finished at 32°C. The historical crash-file
+count remained five, the trailing log contained no `ERROR` or `FATAL`, the
+active family manifest remained
+`91051d3efe27ac26e7ef4a25ec3bab380bb6a0e78d85f5d78c89a8507a1bb811`,
+the reconciliation checkpoint remained `installed`, and series playback
+recovery remained clear. This closes the immediate post-composition idle soak;
+mixed media and physical-remote family walkthroughs remain separate M7 gates.
