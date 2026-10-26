@@ -28,6 +28,9 @@
    calibration only after that pass; freeze thresholds; then open the sealed
    holdout and run the no-effect shadow comparison. Automatic routing remains
    off until those steps pass.
+   Token-confidence candidate v7 has passed its 24-case public gate at 23/24
+   exact with zero unsafe/privacy failures; its six-set nested exposed run is
+   the immediate candidate-quality gate.
 3. **SA1–SA3 / broad D4 investigation.** Candidate-H is installed inactive. It
    still needs a fresh admitted live run, actual read-only evidence access,
    representative incident scoring and independent technical review. The

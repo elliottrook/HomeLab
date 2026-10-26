@@ -1629,3 +1629,11 @@ directory using only hash-pinned current sources and runtime versions. The
 ledger head matches exactly and 31/31 focused tests pass. This completes the
 technical restore/reconciliation item; independent checkpoint custody, human
 review and any operational real-data retention design remain open.
+
+The next materially distinct M3 candidate now has a passing
+[token-confidence public gate](evidence/M3-NLU-token-confidence-v7-public-gate-2026-10-26.md).
+It keeps the accepted 9B model and frozen ensemble semantics but binds
+agreement to the endpoint's per-token log probabilities. The 24-case result
+was 23/24 exact with zero unsafe or privacy failures, and production had zero
+restarts. Its next gate is the six-set nested exposed development run; no new
+calibration or holdout access is allowed before that passes.
