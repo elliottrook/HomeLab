@@ -9,7 +9,8 @@ import xbmc
 import xbmcgui
 import xbmcplugin
 
-from library import canonical_genre, combined_items, watching_items
+from library import (canonical_genre, combined_items, recent_items,
+                     recommended_items, watching_items)
 
 
 PROPERTIES = ['title', 'plot', 'year', 'genre', 'rating', 'mpaa', 'art', 'file']
@@ -19,6 +20,11 @@ CONTINUE_PROPERTIES = PROPERTIES + [
 EPISODE_PROPERTIES = [
     'title', 'plot', 'rating', 'art', 'file', 'lastplayed', 'resume',
     'runtime', 'playcount', 'showtitle', 'season', 'episode', 'tvshowid', 'firstaired',
+]
+RECENT_PROPERTIES = PROPERTIES + ['dateadded']
+MOVIE_RECOMMEND_PROPERTIES = RECENT_PROPERTIES + ['playcount']
+SHOW_RECOMMEND_PROPERTIES = RECENT_PROPERTIES + [
+    'watchedepisodes', 'unwatchedepisodes',
 ]
 
 
@@ -109,6 +115,37 @@ def add_continue_watching(handle):
     xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
 
 
+def add_recently_added(handle):
+    latest = {'method': 'dateadded', 'order': 'descending'}
+    limits = {'start': 0, 'end': 100}
+    movie_result = rpc('VideoLibrary.GetMovies', RECENT_PROPERTIES,
+                       latest, limits=limits)
+    show_result = rpc('VideoLibrary.GetTVShows', RECENT_PROPERTIES,
+                      latest, limits=limits)
+    rows = recent_items(movie_result.get('movies', []),
+                        show_result.get('tvshows', []))
+    xbmcplugin.setPluginCategory(handle, 'Recently Added')
+    xbmcplugin.setContent(handle, 'videos')
+    for row in rows:
+        add_item(handle, row)
+    xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
+
+
+def add_recommended(handle):
+    limits = {'start': 0, 'end': 2000}
+    movie_result = rpc('VideoLibrary.GetMovies', MOVIE_RECOMMEND_PROPERTIES,
+                       limits=limits)
+    show_result = rpc('VideoLibrary.GetTVShows', SHOW_RECOMMEND_PROPERTIES,
+                      limits=limits)
+    rows = recommended_items(movie_result.get('movies', []),
+                             show_result.get('tvshows', []))
+    xbmcplugin.setPluginCategory(handle, 'Recommended for You')
+    xbmcplugin.setContent(handle, 'videos')
+    for row in rows:
+        add_item(handle, row)
+    xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
+
+
 def main():
     handle = int(sys.argv[1])
     query = parse_qs(sys.argv[2].lstrip('?'))
@@ -120,6 +157,24 @@ def main():
                      xbmc.LOGERROR)
             xbmcgui.Dialog().notification('Aster Media',
                                           'Continue Watching could not be refreshed.')
+            xbmcplugin.endOfDirectory(handle, succeeded=False, cacheToDisc=False)
+        return
+    if query.get('mode', [''])[0] == 'recent':
+        try:
+            add_recently_added(handle)
+        except Exception as error:
+            xbmc.log(f'Aster Media Recently Added: {error}\n{traceback.format_exc()}',
+                     xbmc.LOGERROR)
+            xbmcgui.Dialog().notification('Aster Media',
+                                          'Recently Added could not be refreshed.')
+            xbmcplugin.endOfDirectory(handle, succeeded=False, cacheToDisc=False)
+        return
+    if query.get('mode', [''])[0] == 'recommended':
+        try:
+            add_recommended(handle)
+        except Exception as error:
+            xbmc.log(f'Aster Media Recommendations: {error}\n{traceback.format_exc()}',
+                     xbmc.LOGERROR)
             xbmcplugin.endOfDirectory(handle, succeeded=False, cacheToDisc=False)
         return
     genre = canonical_genre(query.get('genre', [''])[0])

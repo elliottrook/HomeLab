@@ -24,7 +24,8 @@
     </variable>
     <variable name="AsterHeroRating">
         <value condition="Control.HasFocus(110) + !String.IsEmpty(Container(110).ListItem.Rating)">$INFO[Container(110).ListItem.Rating,Score: , / 10]  $INFO[Container(110).ListItem.Mpaa]</value>
-        <value condition="!Control.HasFocus(110) + !String.IsEmpty(Container(100).ListItem.Rating)">$INFO[Container(100).ListItem.Rating,Score: , / 10]  $INFO[Container(100).ListItem.Mpaa]</value>
+        <value condition="Control.HasFocus(100) + !String.IsEmpty(Container(100).ListItem.Rating)">$INFO[Container(100).ListItem.Rating,Score: , / 10]  $INFO[Container(100).ListItem.Mpaa]</value>
+        <value condition="!String.IsEmpty(Container(101).ListItem.Rating)">$INFO[Container(101).ListItem.Rating,Score: , / 10]  $INFO[Container(101).ListItem.Mpaa]</value>
         <value>Score unavailable</value>
     </variable>
     <variable name="AsterBrowseHeading">
@@ -62,7 +63,9 @@
         <value>$INFO[ListItem.Label]</value>
     </variable>
     <variable name="AsterHeroActionLabel">
-        <value condition="String.IsEqual(Container(100).ListItem.Property(AsterMediaKind),tvshow)">Browse series</value>
+        <value condition="Control.HasFocus(110) + String.IsEqual(Container(110).ListItem.Property(AsterMediaKind),tvshow)">Browse series</value>
+        <value condition="Control.HasFocus(100) + String.IsEqual(Container(100).ListItem.Property(AsterMediaKind),tvshow)">Browse series</value>
+        <value condition="!Control.HasFocus(100) + !Control.HasFocus(110) + String.IsEqual(Container(101).ListItem.Property(AsterMediaKind),tvshow)">Browse series</value>
         <value>▶  Play</value>
     </variable>
     <variable name="AsterCardArt">
@@ -72,38 +75,52 @@
     </variable>
     <variable name="AsterHeroLabel">
         <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Label]</value>
-        <value condition="!String.IsEmpty(Container(100).ListItem.TVShowTitle)">$INFO[Container(100).ListItem.TVShowTitle]</value>
-        <value>$INFO[Container(100).ListItem.Label]</value>
+        <value condition="Control.HasFocus(100) + !String.IsEmpty(Container(100).ListItem.TVShowTitle)">$INFO[Container(100).ListItem.TVShowTitle]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.Label]</value>
+        <value>$INFO[Container(101).ListItem.Label]</value>
     </variable>
     <variable name="AsterHeroPlot">
         <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Plot]</value>
-        <value>$INFO[Container(100).ListItem.Plot]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.Plot]</value>
+        <value>$INFO[Container(101).ListItem.Plot]</value>
     </variable>
     <variable name="AsterHeroYear">
         <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Year]</value>
-        <value>$INFO[Container(100).ListItem.Year]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.Year]</value>
+        <value>$INFO[Container(101).ListItem.Year]</value>
     </variable>
     <variable name="AsterHeroDuration">
         <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Duration(hh:mm)]</value>
-        <value>$INFO[Container(100).ListItem.Duration(hh:mm)]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.Duration(hh:mm)]</value>
+        <value>$INFO[Container(101).ListItem.Duration(hh:mm)]</value>
     </variable>
     <variable name="AsterHeroGenre">
         <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Genre]</value>
-        <value>$INFO[Container(100).ListItem.Genre]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.Genre]</value>
+        <value>$INFO[Container(101).ListItem.Genre]</value>
     </variable>
     <variable name="AsterHeroResolution">
         <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.VideoResolution]</value>
-        <value>$INFO[Container(100).ListItem.VideoResolution]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.VideoResolution]</value>
+        <value>$INFO[Container(101).ListItem.VideoResolution]</value>
     </variable>
     <variable name="AsterHeroFanart">
         <value condition="Control.HasFocus(110) + !String.IsEmpty(Container(110).ListItem.Art(fanart))">$INFO[Container(110).ListItem.Art(fanart)]</value>
         <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Art(tvshow.fanart)]</value>
-        <value condition="!String.IsEmpty(Container(100).ListItem.Art(fanart))">$INFO[Container(100).ListItem.Art(fanart)]</value>
-        <value>$INFO[Container(100).ListItem.Art(tvshow.fanart)]</value>
+        <value condition="Control.HasFocus(100) + !String.IsEmpty(Container(100).ListItem.Art(fanart))">$INFO[Container(100).ListItem.Art(fanart)]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.Art(tvshow.fanart)]</value>
+        <value condition="!String.IsEmpty(Container(101).ListItem.Art(fanart))">$INFO[Container(101).ListItem.Art(fanart)]</value>
+        <value>$INFO[Container(101).ListItem.Art(tvshow.fanart)]</value>
     </variable>
     <variable name="AsterHeroPath">
         <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.FileNameAndPath]</value>
-        <value>$INFO[Container(100).ListItem.FileNameAndPath]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.FileNameAndPath]</value>
+        <value>$INFO[Container(101).ListItem.FileNameAndPath]</value>
+    </variable>
+    <variable name="AsterHeroKind">
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Property(AsterMediaKind)]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.Property(AsterMediaKind)]</value>
+        <value>$INFO[Container(101).ListItem.Property(AsterMediaKind)]</value>
     </variable>
 
     <!-- Media-state badges use Kodi's library metadata directly. TV shows and

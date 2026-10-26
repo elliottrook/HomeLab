@@ -3,7 +3,7 @@
 import unittest
 
 from library import (canonical_genre, combined_items, continue_items, matches_genre,
-                     next_up_item, watching_items)
+                     next_up_item, recent_items, recommended_items, watching_items)
 
 
 class LibraryTests(unittest.TestCase):
@@ -34,6 +34,69 @@ class LibraryTests(unittest.TestCase):
     def test_malformed_rows_fail_closed(self):
         self.assertEqual(combined_items('bad', [{'label': 'No id', 'genre': ['Drama']}],
                                         'Drama'), [])
+
+    def test_recent_movies_and_series_share_one_date_ordered_rail(self):
+        movies = [
+            {'movieid': 1, 'label': 'Older movie',
+             'dateadded': '2026-10-20 10:00:00'},
+            {'movieid': 2, 'label': 'Newest movie',
+             'dateadded': '2026-10-22 10:00:00'},
+        ]
+        shows = [{'tvshowid': 7, 'label': 'New series',
+                  'dateadded': '2026-10-21 10:00:00'}]
+        rows = recent_items(movies, shows, limit=2)
+        self.assertEqual([(row['label'], row['kind']) for row in rows],
+                         [('Newest movie', 'movie'), ('New series', 'tvshow')])
+        self.assertNotIn('kind', shows[0])
+
+    def test_recent_items_require_a_real_identity_and_added_date(self):
+        self.assertEqual(recent_items(
+            [{'movieid': True, 'label': 'Boolean id', 'dateadded': '2026-10-20'},
+             {'movieid': 1, 'label': 'No date'}],
+            [{'tvshowid': 2, 'label': 'Valid', 'dateadded': '2026-10-21'}]),
+            [{'tvshowid': 2, 'label': 'Valid', 'dateadded': '2026-10-21',
+              'kind': 'tvshow', 'id': 2}])
+
+    def test_recommendations_are_owned_local_and_preference_ranked(self):
+        movies = [
+            {'movieid': 1, 'label': 'Watched Comedy', 'genre': ['Comedy'],
+             'playcount': 1, 'file': '/owned/one.mkv', 'dateadded': '2026-01-01',
+             'art': {'fanart': 'one.jpg'}},
+            {'movieid': 2, 'label': 'Comedy Candidate', 'genre': ['Comedy'],
+             'playcount': 0, 'file': '/owned/two.mkv', 'dateadded': '2026-01-02',
+             'rating': 7, 'art': {'fanart': 'two.jpg'}},
+            {'movieid': 3, 'label': 'Drama Candidate', 'genre': ['Drama'],
+             'playcount': 0, 'file': '/owned/three.mkv', 'dateadded': '2026-01-03',
+             'rating': 10, 'art': {'fanart': 'three.jpg'}},
+        ]
+        rows = recommended_items(movies, [], recent_exclusion=0)
+        self.assertEqual([row['label'] for row in rows],
+                         ['Comedy Candidate', 'Drama Candidate'])
+        self.assertTrue(all(row['file'].startswith('/owned/') for row in rows))
+
+    def test_recommendations_exclude_recent_watched_unavailable_and_artless(self):
+        movies = [
+            {'movieid': 1, 'label': 'Newest', 'dateadded': '2026-10-02',
+             'file': '/owned/new.mkv', 'art': {'fanart': 'new.jpg'}},
+            {'movieid': 2, 'label': 'No file', 'dateadded': '2026-09-01',
+             'file': '', 'art': {'fanart': 'missing.jpg'}},
+            {'movieid': 3, 'label': 'Watched', 'dateadded': '2026-08-01',
+             'file': '/owned/watched.mkv', 'playcount': 1,
+             'art': {'fanart': 'watched.jpg'}},
+            {'movieid': 4, 'label': 'No art', 'dateadded': '2026-07-01',
+             'file': '/owned/no-art.mkv'},
+            {'movieid': 5, 'label': 'Eligible', 'dateadded': '2026-06-01',
+             'file': '/owned/eligible.mkv', 'art': {'fanart': 'eligible.jpg'}},
+        ]
+        shows = [
+            {'tvshowid': 8, 'label': 'Caught Up', 'unwatchedepisodes': 0,
+             'art': {'fanart': 'caught-up.jpg'}},
+            {'tvshowid': 9, 'label': 'Series', 'unwatchedepisodes': 2,
+             'art': {'fanart': 'series.jpg'}},
+        ]
+        rows = recommended_items(movies, shows, recent_exclusion=1)
+        self.assertEqual({row['label'] for row in rows}, {'Eligible', 'Series'})
+        self.assertTrue(all(row['kind'] in ('movie', 'tvshow') for row in rows))
 
     def test_continue_watching_merges_movies_and_episodes_by_last_played(self):
         movies = [{

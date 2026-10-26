@@ -35,17 +35,16 @@
                 <aspectratio>stretch</aspectratio>
             </control>
 
-        <!-- Hidden metadata source. The installed Jellyfin add-on populates
-             Kodi's local video library; the presentation stays independent
-             of Jellyfin's server URL and credentials. -->
+        <!-- Off-canvas recommendation source. It contains only titles already
+             indexed in Kodi and rotates without taking remote focus. -->
         <control type="panel" id="101">
-            <left>0</left>
-            <top>0</top>
+            <left>-5</left>
+            <top>-5</top>
             <width>1</width>
             <height>1</height>
-            <visible>false</visible>
             <orientation>horizontal</orientation>
-            <content target="videos">videodb://recentlyaddedmovies/</content>
+            <autoscroll>true</autoscroll>
+            <content target="videos">plugin://plugin.video.asterhome/?mode=recommended</content>
             <itemlayout width="1" height="1">
                 <control type="image">
                     <width>1</width>
@@ -132,8 +131,8 @@
             <top>411</top>
             <width>280</width>
             <label>$VAR[AsterHeroActionLabel]</label>
-            <onclick condition="String.IsEqual(Container(100).ListItem.Property(AsterMediaKind),tvshow)">ActivateWindow(videos,$VAR[AsterHeroPath],return)</onclick>
-            <onclick condition="!String.IsEqual(Container(100).ListItem.Property(AsterMediaKind),tvshow)">PlayMedia($VAR[AsterHeroPath])</onclick>
+            <onclick condition="String.IsEqual($VAR[AsterHeroKind],tvshow)">ActivateWindow(videos,$VAR[AsterHeroPath],return)</onclick>
+            <onclick condition="!String.IsEqual($VAR[AsterHeroKind],tvshow)">PlayMedia($VAR[AsterHeroPath])</onclick>
             <onleft>8999</onleft>
             <onup>130</onup>
             <ondown>100</ondown>
@@ -152,8 +151,9 @@
             <top>411</top>
             <width>280</width>
             <label>ⓘ  More Info</label>
-            <onclick>SetFocus(100)</onclick>
+            <onclick>SetFocus(101)</onclick>
             <onclick>Action(Info)</onclick>
+            <onclick>SetFocus(121)</onclick>
             <onleft>120</onleft>
             <onup>131</onup>
             <ondown>100</ondown>
@@ -336,7 +336,7 @@
             <top>770</top>
             <width>650</width>
             <height>48</height>
-            <label>Recommended for You</label>
+            <label>Recently Added</label>
             <font>font28</font><textcolor>asterInk</textcolor>
         </control>
         <control type="panel" id="110">
@@ -390,7 +390,7 @@
                     <textcolor>asterInk</textcolor><truncate>true</truncate>
                 </control>
             </focusedlayout>
-            <content target="videos">videodb://recentlyaddedmovies/</content>
+            <content target="videos">plugin://plugin.video.asterhome/?mode=recent</content>
         </control>
 
         <!-- The next lane is announced by its heading at the lower edge.

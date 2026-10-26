@@ -18,6 +18,7 @@ from aster_seerr_episode_contract import (catalogue as episode_catalogue,
                                           season as episode_season,
                                           season_proposal,
                                           season_request_result)
+from aster_tv_discovery import DiscoveryFeedError, read_feed
 
 
 class BrokerError(RuntimeError):
@@ -275,6 +276,12 @@ class Handler(BaseHTTPRequestHandler):
                 media_type = (params.get("type") or ["all"])[0]
                 self._send(200, self._client().search(query, media_type))
                 return
+            discovery = re.fullmatch(r"/v1/discovery/(media|music|books)",
+                                     parsed.path)
+            if discovery and not parsed.query:
+                root = Path(os.environ.get("ASTER_TV_DISCOVERY_DIR", "/data"))
+                self._send(200, read_feed(root, discovery.group(1)))
+                return
             if parsed.path == "/v1/tv/resolve":
                 params = urllib.parse.parse_qs(parsed.query, strict_parsing=True)
                 raw_tvdb = (params.get("tvdb") or [""])[0]
@@ -294,7 +301,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, value)
                 return
             self._send(404, {"error": "not found"})
-        except (BrokerError, ContractError, KeyError, OSError, ValueError) as error:
+        except (BrokerError, ContractError, DiscoveryFeedError, KeyError, OSError,
+                ValueError) as error:
             code = 401 if str(error) == "aster-seerr-unauthorized" else 409
             self._send(code, {"error": str(error)})
 

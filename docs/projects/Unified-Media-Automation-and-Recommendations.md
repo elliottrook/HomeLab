@@ -904,3 +904,25 @@ disabled, stale, ambiguous or already owned.
   produced 20 real film/TV candidates. Book, audiobook and music candidate
   population remains a separate follow-up because the live snapshot is not yet
   claiming those sources are populated.
+- 2026-10-26: AsterTV v2 integration review found that the October 18 Docker
+  shutdown had left the Portal and LazyLibrarian stopped because both retained
+  `restart: no`; neither container was OOM-killed. With the owner's explicit
+  request, the live Compose file was checkpointed and only those two policies
+  changed to `unless-stopped`. Their existing containers were updated and
+  started without recreating the stack. Portal root/health return HTTP 200,
+  LazyLibrarian returns its expected HTTP 303 login redirect, and both report
+  the persistent policy. No request, download, credential, media or library
+  state was changed.
+- 2026-10-26: The local AsterTV successor adds three strict
+  acquisition-discovery feed contracts generated from the already sanitized
+  recommendation snapshot and
+  served read-only through the authenticated Aster broker. Producer and
+  consumer checks reject wrong authorities, malformed identities, stale or
+  oversized documents, unsafe artwork and schema additions. Current live
+  sanitized data transforms to 12 Media, 12 Books and zero Music suggestions,
+  with two duplicates and three beyond the display cap omitted and no unsafe
+  source row. These requestable items are kept separate from AsterTV's playable
+  owned-library hero. All 86 Unified Media tests and 1,137 Kodi v2 tests pass in normal
+  and optimized modes (one existing Mac-only Pillow skip). This feed candidate
+  is not yet deployed; existing acquisition actions and credentials remain
+  unchanged.

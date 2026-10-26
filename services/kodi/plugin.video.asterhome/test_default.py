@@ -84,6 +84,46 @@ class AdapterTests(unittest.TestCase):
         self.assertEqual(add.call_count,1)
         self.assertEqual(add.call_args.args[1]['kind'],'movie')
 
+    def test_recent_directory_queries_movies_and_series_and_finishes_uncached(self):
+        calls = []
+        def rpc(method, *args, **kwargs):
+            calls.append((method, args, kwargs))
+            if method.endswith('GetMovies'):
+                return {'movies':[{'movieid':1, 'label':'Movie',
+                                   'dateadded':'2026-10-22'}]}
+            return {'tvshows':[{'tvshowid':2, 'label':'Series',
+                                'dateadded':'2026-10-23'}]}
+        with patch.object(self.module, 'rpc', side_effect=rpc), \
+                patch.object(self.module, 'add_item') as add:
+            self.module.add_recently_added(1)
+        self.assertEqual([call.args[1]['kind'] for call in add.call_args_list],
+                         ['tvshow', 'movie'])
+        self.assertEqual([call[1][0] for call in calls],
+                         [self.module.RECENT_PROPERTIES,
+                          self.module.RECENT_PROPERTIES])
+        self.module.xbmcplugin.endOfDirectory.assert_called_once_with(
+            1, cacheToDisc=False)
+
+    def test_recommendation_directory_uses_only_local_kodi_queries(self):
+        calls = []
+        def rpc(method, *args, **kwargs):
+            calls.append((method, args, kwargs))
+            if method.endswith('GetMovies'):
+                return {'movies':[{'movieid':1, 'label':'Movie',
+                                   'file':'/owned/movie.mkv',
+                                   'art':{'fanart':'fanart.jpg'}}]}
+            return {'tvshows':[]}
+        with patch.object(self.module, 'rpc', side_effect=rpc), \
+                patch.object(self.module, 'add_item') as add:
+            self.module.add_recommended(1)
+        self.assertEqual([call[0] for call in calls],
+                         ['VideoLibrary.GetMovies', 'VideoLibrary.GetTVShows'])
+        self.assertTrue(all(call[2]['limits'] == {'start':0, 'end':2000}
+                            for call in calls))
+        self.assertEqual(add.call_args.args[1]['file'], '/owned/movie.mkv')
+        self.module.xbmcplugin.endOfDirectory.assert_called_once_with(
+            1, cacheToDisc=False)
+
 
 if __name__ == '__main__':
     unittest.main()

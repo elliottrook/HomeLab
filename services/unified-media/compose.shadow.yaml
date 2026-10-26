@@ -14,6 +14,7 @@ services:
       - PORTAL_LIBRARY_SNAPSHOT_PATH=/data/library.json
       - PORTAL_HISTORY_SNAPSHOT_PATH=/data/history.json
       - PORTAL_REFRESH_TRIGGER_PATH=/data/refresh-now
+      - ASTER_TV_DISCOVERY_DIR=/data
       - SEERR_URL=${SEERR_URL:-http://192.168.20.40:5055}
       - SEERR_EMAIL=${SEERR_EMAIL:-unified-media-requester@local.invalid}
       - SEERR_PASSWORD_PATH=/run/unified-secrets/seerr-requester-password
@@ -119,7 +120,7 @@ services:
     ports:
       - "127.0.0.1:8787:8787"
       - "192.168.20.40:8787:8787"
-    restart: "no"
+    restart: unless-stopped
 
   aster-seerr-broker:
     profiles: ["aster-tv"]
@@ -131,10 +132,12 @@ services:
       - ASTER_SEERR_HOST=0.0.0.0
       - ASTER_SEERR_PORT=8788
       - ASTER_SEERR_TOKEN_PATH=/run/unified-secrets/aster-seerr-tv-token
+      - ASTER_TV_DISCOVERY_DIR=/data
       - SEERR_URL=${SEERR_URL:-http://192.168.20.40:5055}
       - SEERR_EMAIL=${SEERR_EMAIL:-unified-media-requester@local.invalid}
       - SEERR_PASSWORD_PATH=/run/unified-secrets/seerr-requester-password
     volumes:
+      - ${UNIFIED_CONFIG_PATH}/portal-refresh:/data:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/aster-seerr-tv-token:/run/unified-secrets/aster-seerr-tv-token:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/seerr-requester-password:/run/unified-secrets/seerr-requester-password:ro
     ports:
@@ -167,8 +170,10 @@ services:
       # NEWBOOK_AUDIO setting; this is shadow-only and read-only at runtime.
       - ${UNIFIED_CONFIG_PATH}/lazylibrarian-patches/api.py:/app/lazylibrarian/lazylibrarian/api.py:ro
     ports:
-      - "127.0.0.1:5299:5299"
-    restart: "no"
+      # Preserve the existing private-LAN binding used by the refresher and
+      # operator UI; firewall policy remains the exposure boundary.
+      - "192.168.20.40:5299:5299"
+    restart: unless-stopped
 
   audiobookshelf:
     image: ghcr.io/advplyr/audiobookshelf:2.36.0

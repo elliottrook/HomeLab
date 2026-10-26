@@ -19,20 +19,36 @@ class LayoutTests(unittest.TestCase):
             '$INFO[Container(110).ListItem.Art(fanart)]',
             '$INFO[Container(110).ListItem.Art(tvshow.fanart)]',
             '$INFO[Container(100).ListItem.Art(fanart)]',
-            '$INFO[Container(100).ListItem.Art(tvshow.fanart)]'])
+            '$INFO[Container(100).ListItem.Art(tvshow.fanart)]',
+            '$INFO[Container(101).ListItem.Art(fanart)]',
+            '$INFO[Container(101).ListItem.Art(tvshow.fanart)]'])
         self.assertEqual(values[0].get('condition'),
                          'Control.HasFocus(110) + !String.IsEmpty(Container(110).ListItem.Art(fanart))')
         self.assertEqual(values[1].get('condition'), 'Control.HasFocus(110)')
         self.assertEqual(values[2].get('condition'),
-                         '!String.IsEmpty(Container(100).ListItem.Art(fanart))')
-        self.assertIsNone(values[3].get('condition'))
+                         'Control.HasFocus(100) + !String.IsEmpty(Container(100).ListItem.Art(fanart))')
+        self.assertEqual(values[3].get('condition'), 'Control.HasFocus(100)')
+        self.assertEqual(values[4].get('condition'),
+                         '!String.IsEmpty(Container(101).ListItem.Art(fanart))')
+        self.assertIsNone(values[5].get('condition'))
 
     def test_caught_up_hero_browses_series_instead_of_queuing_episodes(self):
         hero = self.home.find('.//control[@id="120"]')
         self.assertEqual(hero.findtext('label'), '$VAR[AsterHeroActionLabel]')
         actions = {node.get('condition'):node.text for node in hero.findall('onclick')}
-        self.assertEqual(actions['String.IsEqual(Container(100).ListItem.Property(AsterMediaKind),tvshow)'],
+        self.assertEqual(actions['String.IsEqual($VAR[AsterHeroKind],tvshow)'],
                          'ActivateWindow(videos,$VAR[AsterHeroPath],return)')
+
+    def test_idle_hero_rotates_only_owned_local_recommendations(self):
+        source = self.home.find('.//control[@id="101"]')
+        self.assertEqual(source.findtext('content'),
+                         'plugin://plugin.video.asterhome/?mode=recommended')
+        self.assertEqual(source.findtext('autoscroll'), 'true')
+        self.assertLess(int(source.findtext('left')), 0)
+        self.assertIsNone(source.find('visible'))
+        more = self.home.find('.//control[@id="121"]')
+        self.assertEqual([node.text for node in more.findall('onclick')],
+                         ['SetFocus(101)', 'Action(Info)', 'SetFocus(121)'])
 
     def test_top_category_lane(self):
         previous_right = 0
@@ -64,6 +80,8 @@ class LayoutTests(unittest.TestCase):
 
         self.assertEqual(watching.findtext('content'),
                          'plugin://plugin.video.asterhome/?mode=continue')
+        self.assertEqual(recommended.findtext('content'),
+                         'plugin://plugin.video.asterhome/?mode=recent')
 
     def test_collapsed_rail_enters_the_current_section(self):
         rail = ET.parse(ROOT / '1080i/IncludesHub.xml')
@@ -242,7 +260,7 @@ class LayoutTests(unittest.TestCase):
         home_info = self.home.find('.//control[@id="121"]')
         self.assertIsNotNone(home_info)
         self.assertEqual([node.text for node in home_info.findall('onclick')],
-                         ['SetFocus(100)', 'Action(Info)'])
+                         ['SetFocus(101)', 'Action(Info)', 'SetFocus(121)'])
         ET.parse(ROOT / '1080i/VideoFullScreen.xml')
 
         settings = ET.parse(ROOT / '1080i/DialogSettings.xml')
@@ -454,7 +472,7 @@ class LayoutTests(unittest.TestCase):
 
     def test_rail_headings_remain_black(self):
         media_group = self.home.find('.//control[@id="22"]')
-        for label in ('Continue Watching', 'Recommended for You', 'Genre'):
+        for label in ('Continue Watching', 'Recently Added', 'Genre'):
             headings = [control for control in media_group.findall('control')
                         if control.get('type') == 'label' and
                         control.findtext('label') == label]

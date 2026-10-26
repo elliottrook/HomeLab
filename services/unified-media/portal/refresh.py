@@ -22,6 +22,7 @@ from service_collectors import (
 )
 from recommendation_engine import rank_candidates
 from candidate_sources import collect_musicbrainz, collect_openlibrary
+from aster_tv_discovery import build_feeds, write_feeds
 from trakt_oauth import refresh_access_token, write_secret
 from trakt_sources import collect_trakt_recommendations
 
@@ -31,6 +32,7 @@ HISTORY_SNAPSHOT_PATH = os.environ.get("PORTAL_HISTORY_SNAPSHOT_PATH")
 REFRESH_TRIGGER_PATH = Path(os.environ.get("PORTAL_REFRESH_TRIGGER_PATH", "/data/refresh-now"))
 SOURCE_STATUS_PATH = Path(os.environ.get("PORTAL_SOURCE_STATUS_PATH", "/data/source-status.json"))
 REJECTED_PATH = Path(os.environ.get("PORTAL_REJECTED_PATH", "/data/rejected.json"))
+ASTER_TV_DISCOVERY_DIR = Path(os.environ.get("ASTER_TV_DISCOVERY_DIR", "/data"))
 
 
 def _narrate(candidates):
@@ -312,8 +314,10 @@ def refresh_once():
         if os.path.exists(temporary):
             os.unlink(temporary)
     labels = [str(item.get("source_label", "")) for item in candidates if isinstance(item, dict)]
+    refreshed_at = datetime_now()
+    feeds, feed_stats = build_feeds(output, refreshed_at)
     status = {
-        "last_refresh": datetime_now(),
+        "last_refresh": refreshed_at,
         "sources": {
             "Trakt": {"configured": bool(token_path and client_id_path),
                        "candidates": sum("Trakt" in label for label in labels)},
@@ -326,9 +330,14 @@ def refresh_once():
             "Lidarr": {"configured": bool(os.environ.get("LIDARR_API_KEY_PATH")),
                        "candidates": sum("Lidarr" in label for label in labels)},
         },
+        "aster_tv_discovery": {
+            "items": {domain: len(feed["items"]) for domain, feed in feeds.items()},
+            "omitted": feed_stats,
+        },
     }
     SOURCE_STATUS_PATH.write_text(json.dumps(status, indent=2), encoding="utf-8")
     os.chmod(SOURCE_STATUS_PATH, 0o644)
+    write_feeds(ASTER_TV_DISCOVERY_DIR, feeds)
     return output
 
 

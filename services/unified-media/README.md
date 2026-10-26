@@ -29,6 +29,16 @@ production Aster address as appropriate. The existing recommendations portal
 on 8787 remains NPM-only and is not an Aster API; do not broaden its firewall
 rule or store its Seerr credential on a television.
 
+The same authenticated broker can expose sanitized requestable discovery at
+`/v1/discovery/media`, `/v1/discovery/music` and `/v1/discovery/books`. The
+scheduled refresher writes those files atomically beside its existing snapshot;
+the broker mounts that directory read-only. Each response contains at most
+twelve credential-free recommendations and no raw provider response, household
+history, requester identity or service key. AsterTV must validate freshness and
+schema again and show no acquisition suggestion rather than inventing one when
+a domain feed is empty or stale. These unowned items never populate the
+playable landing-page recommendation hero.
+
 ## Storage contract
 
 The production media dataset remains authoritative. The shadow stack uses a

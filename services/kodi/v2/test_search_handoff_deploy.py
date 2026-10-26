@@ -17,6 +17,8 @@ class HandoffDeployTests(unittest.TestCase):
         previous_stage=deploy.STAGING/'aster-global-search-ui4';build(previous_stage,True)
         previous=deploy.digest(previous_stage/'manifest.json')
         p=patch.object(deploy,'PREVIOUS',previous);p.start();self.addCleanup(p.stop)
+        home=deploy.digest(Path(__file__).parent.parent/'skin.asterhome/1080i/Home.xml')
+        p=patch.object(deploy,'HOME',home);p.start();self.addCleanup(p.stop)
         manifest=json.loads((stage/'manifest.json').read_text());manifest['previous_manifest_sha256']=previous
         (stage/'manifest.json').write_text(json.dumps(manifest));self.sha=deploy.digest(stage/'manifest.json')
         (deploy.ROOT/'active-manifest.json').write_bytes((previous_stage/'manifest.json').read_bytes())

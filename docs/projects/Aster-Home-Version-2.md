@@ -9239,3 +9239,56 @@ Audiobookshelf and Calibre-Web Automated remain running. No container was
 started, recreated or changed during this inspection. Next: reconcile the
 portal's intended operating state and expose a new bounded television contract;
 ordinary local pages must remain usable when that contract is unavailable.
+
+The owner then requested the restart-policy correction. The live Compose file
+was checkpointed at
+`/mnt/Media/appdata/dockge/unified-media-shadow/.aster-checkpoints/restart-policy-20261026/compose.yaml`.
+Only the Portal and LazyLibrarian policies changed from `no` to
+`unless-stopped`; the existing containers received the same policy without a
+stack recreation and were started individually. The Portal root and health
+endpoint return HTTP 200, while LazyLibrarian's LAN endpoint returns its
+expected HTTP 303 login redirect. Both containers remain running with
+`unless-stopped`, and the Compose checkpoint is retained. This restores the
+existing acquisition services; it does not yet expose the new bounded AsterTV
+feed or authorize automatic requests.
+
+The local successor now defines that bounded Acquisition Hub feed before any
+TV deployment.
+The refresher converts sanitized recommendations into separate credential-free
+Media, Music and Books documents, each capped at twelve items with strict
+authority identities, HTTPS artwork, atomic writes and explicit invalid,
+duplicate and display-limit counters. The authenticated Aster broker gains a
+read-only discovery endpoint for each document; the television independently
+enforces a six-hour freshness window, exact schema and domain/authority match.
+These items are explicitly requestable and are not substituted for playable
+library recommendations.
+
+Normal and optimized regression pass 86/86 Unified Media tests and 1,137 Kodi
+v2 tests with the same one Mac-only Pillow skip. Applying the producer and TV
+consumer to the current sanitized live snapshot accepted twelve Media and
+twelve Books suggestions, omitted two duplicates and three results beyond the
+per-domain display cap, and rejected zero unsafe rows. Music truthfully
+produced an empty feed because the current snapshot contains no MusicBrainz
+album recommendations. Music Recently Added and the playable recommendation
+hero remain local-library concerns; the acquisition surface truthfully shows
+no music discovery candidates until the Hub produces them. AsterTV will not
+fabricate substitutes. The new discovery feed and broker endpoint are tested
+local candidates only and have not yet been deployed to TrueNAS or HP.
+
+The playable landing hero is deliberately separate. It uses owned local Kodi
+library identities and must offer Play/Resume plus More Info; Acquisition Hub
+items use Request plus More Info. Both may reuse the same strict item and focus
+state validator, but an unowned discovery item can never masquerade as a
+playable hero recommendation.
+
+The local Media implementation now enforces that boundary. Its visible second
+rail is a combined Movies/TV Recently Added feed. A separate off-canvas Kodi
+container rotates up to twelve owned recommendations only while neither visible
+content rail has focus; focusing Continue Watching or Recently Added immediately
+makes that tile authoritative without moving focus. The deterministic ranker
+uses watched-genre affinity, rating and recency, and excludes the twelve newest
+items, watched films, unavailable files, caught-up series and candidates without
+hero artwork. It reads Kodi's local index only and has no Acquisition Hub,
+Seerr, ARR or portal input. Normal and optimized checks pass 31 plugin tests,
+108 skin-layout tests and the complete 1,137-test Kodi v2 suite (one existing
+Mac-only Pillow skip). This is a local candidate, not an HP deployment.
