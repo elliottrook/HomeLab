@@ -1,5 +1,48 @@
 # Aster Home isolated display exporter
 
+## Expanded household display — HP v2 lab, 2026-10-25
+
+Jason approved the relevant HA lab data and a bounded exporter checkpoint,
+update and Core restart. The same opted-in integration now also writes
+`/share/aster-home-registry/dashboard.json` (schema4,
+`ha-home-dashboard-v4`). The original schema3 `latest.json`, its allowlist and
+the separate schema1 `aster_registry` report are preserved. No new service,
+account, credential, HTTP listener, device action or scheduled transport was
+introduced. A proposed source-local Supervisor API read returned HTTP401 and
+was abandoned; the implementation instead uses the existing in-process state
+access, not another authentication path.
+
+`dashboard_contract.py` projects useful lighting, temperature, humidity,
+battery, illuminance, leak/motion/opening/safety, weather, camera status and
+structured timer fields only. Raw attributes, token/stream URLs, coordinates,
+people, phone activity and system-maintenance data are not exported. Camera
+status is not a stream authorization. Unknown/unavailable readings retain
+their status, not a fabricated numeric value. Maximum256 display entities,
+262144bytes, atomic0600 output and an explicit source observation timestamp.
+Relevant state events are coalesced into a one-second refresh without
+continually postponing it; the existing five-minute refresh remains. A lock
+serializes writes. Collection failure preserves the last report and its old
+timestamp, allowing the consumer to mark it stale.
+
+Checkpoint: HA `/config/aster-checkpoints/home-dashboard-20261026`.
+`deploy_dashboard.py prepare` verified five private backups, including an
+isolated restore of code/config/old reports, then changed only `__init__.py`
+and the added pure projection module. `ha core check` passed before and after
+the Core-only restart. Verification found fresh63 entities:33 lights,
+10battery,5illuminance,6moisture,5motion,3temperature and1weather;24 were
+unknown/unavailable. Both original reports retain their contracts/modes,
+configuration and old contract code remain byte-identical. Eighteen local
+contract/runtime tests pass normally and with optimized Python.
+
+Code rollback uses `deploy_dashboard.py rollback`, then `ha core check` and
+a Core-only restart. It restores only the pinned predecessor `__init__.py`;
+the unreferenced new module/report are retained for recovery. Never restore
+old report values, configuration or listening/household state as a code rollback.
+The normal TV runtime delivery is still a separate integration milestone;
+this source-side report alone is not an automatically connected dashboard.
+
+## Original compatibility pilot
+
 This is a deployed, explicitly enabled Home Assistant custom integration
 pilot. It uses the separate `aster_home_registry` domain and fixed
 `/share/aster-home-registry/latest.json` path. It does not modify the deployed

@@ -210,6 +210,29 @@ if scrub_file.exists():
         scrub_osd_sha=next(r['sha256'] for r in scrub['files'] if r['path']=='overlay/VideoOSD.xml')
         scrub_count=2 if native_scrub else 1
 review10_expected={}
+home_design_count=0
+home_design_cp=Path('/storage/.aster-checkpoints/aster-home-design4')
+if (home_design_cp/'manifest.json').exists():
+    home_design_stage=stage/'aster-home-design4'
+    home_design_pin='d2f89439854039fe4e0c10200e452d5bdbb936498e90571e38e2204547a42ef5'
+    raw=(home_design_stage/'manifest.json').read_bytes()
+    _require(hashlib.sha256(raw).hexdigest()==home_design_pin and
+             (home_design_cp/'manifest.json').read_bytes()==raw,'home-design-manifest-pin')
+    design=json.loads(raw);members=design['files']
+    exact={'custom_1112_home.xml','aster-home-timer-v2/stop.png'}|{f'aster-home-timer-v2/arc-{i}.png' for i in range(61)}
+    _require(set(members)==exact and design['predecessor']=='242b0592bd72482195b21af839c15c0f4e677a9598d695d7ae8408bc7cc60a1e','home-design-contract')
+    _require(hashlib.sha256((home_design_cp/'custom_1112_home.xml').read_bytes()).hexdigest()==design['predecessor'],'home-design-recovery-pin')
+    for name,digest in members.items():
+        _require(hashlib.sha256((home_design_stage/name).read_bytes()).hexdigest()==digest,'home-design-stage-member')
+        if '/' in name:
+            _require(hashlib.sha256((addons/'skin.asterhome/media'/name).read_bytes()).hexdigest()==digest,'home-design-installed-asset')
+    path='.kodi/addons/skin.asterhome/1080i/custom_1112_home.xml'
+    current=hashlib.sha256((Path('/storage')/path).read_bytes()).hexdigest()
+    _require(current in (design['predecessor'],members['custom_1112_home.xml']),'home-design-xml-drift')
+    if current==members['custom_1112_home.xml']:
+        review10_expected[path]=current;home_design_count=63
+    _require(hashlib.sha256(Path('/storage/.kodi/userdata/addon_data/skin.asterhome/feeds/home.json').read_bytes()).hexdigest()==
+             'a975c8c68dc5cf5d70c12530fb0bba60b89b78eb06d081f95ea6d97331b5b6cd','home-design-original-feed-drift')
 reading_news_count=0
 if Path('/storage/.aster-checkpoints/aster-digest-read-news1/state.json').exists():
     import importlib.util
@@ -476,6 +499,7 @@ with output.open('x') as handle:
                'approved_digest_news_files_verified':digest_news_count,
                'approved_reading_news_files_verified':reading_news_count,
                'approved_idle_pilot_files_verified':idle_pilot_count,
+               'approved_home_design_files_verified':home_design_count,
                'av_language_settings_verified':len(values),
                'av_preservation_details':av_details,
                'database_integrity':'ok','missing_primary_artist_links':0,

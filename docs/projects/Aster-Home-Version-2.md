@@ -7132,3 +7132,114 @@ platform, broaden the unrelated health-only agent tool or use an administrator
 guest-execution key as the TV's scheduled runtime identity. Prioritize inspection
 of current relevant entity coverage next; retain the safe unselected idle pilot
 and return to its prepared native lifecycle tests afterward.
+
+### Stream A Home population and professional timer — pre-start
+
+Jason directs current-standard Home styling and a professional timer, replacing
+the childlike dot graphics. Reuse the existing dashboard, shared floating rails,
+local timer/countdown/completion logic and source interfaces. Prefer a thin
+progress arc, dominant centred digital countdown/name, quiet compact presets
+and transport icons, minimal panels and existing gold/green focus language.
+Do not create another HA/dashboard platform or silently turn read-only status
+into device controls. Existing local timer actions are in scope; new HA device
+control remains outside this data/design change.
+
+Read-only discovery first queried Recorder schema/type counts and a projected
+entity registry. Recorder is inventory evidence, not authoritative current
+state. It records33 light entities,3 temperatures, battery/illuminance sensors,
+motion/moisture states, switches and weather; unavailable entries must not be
+made to look working. Phone activity/location and system/maintenance entities
+are not useful dashboard content and are excluded from the display projection.
+
+An operator-only current-state read may execute a fixed GET inside HA Core via
+the existing Supervisor proxy and existing source-local native authentication.
+The credential remains inside Core: never print/read it into model context,
+persist it elsewhere, create a token/account or place an administrator key on
+the TV. Project only useful bounded IDs/names/readings, availability, current
+weather, camera status (not URLs/tokens/images) and structured timers before
+transport; no raw attributes, coordinates, person/device-tracker data, service
+calls, configuration change or HA restart. Bound response/rows/time and use
+synthetic tests for redaction/malformed data first. This operator diagnostic is
+not authorization to schedule root guest-execution as a runtime publisher.
+Runtime delivery remains a separately assessed integration. HP layout/data
+candidates require exact-file checkpoints, preview/native navigation and timer
+tests plus full preservation before activation. Production remains unchanged.
+
+### Home professional design and expanded source — 2026-10-25 evidence
+
+**HP Home design is installed; expanded HA source is active; normal expanded
+TV data delivery remains the next milestone.** No Forgejo push authorized this
+turn. Production BOSGAME remains unchanged.
+
+Home uses the existing Aster TV gold/green/stone identity exception, shared
+floating search/top/side rails, existing fonts and source logo. Its body now
+has restrained status cards and three aligned household/camera/timer columns.
+The timer has an SVG-derived thin mint seconds sweep, large centred digital
+countdown, adjacent timer name, compact1/5/30minute presets and floating stop
+glyph. Idle and completed states stay inside the ring. No60dot/cylinder
+graphics, giant flashing app mark or stone button textures. This step adds no
+speech; existing completion audio is retained.
+
+`home_design.py` builds only Home XML and62 new image assets, preserving the
+existing camera/timer/helper actions and unload cleanup. It labels the arc
+“Seconds sweep”: existing HomeTimerSecond is seconds within a minute, not the
+fraction of a whole thirty-minute timer. The display retains the full time.
+Source SVG geometry is retained in the deterministic builder; no stretched
+bitmap artwork. Seven new layout/geometry/focus tests pass. Full Kodi suite
+passes910 tests normally and with `-O`.
+
+HP final stage `/storage/.aster-staging/aster-home-design4`, manifest
+`d2f89439854039fe4e0c10200e452d5bdbb936498e90571e38e2204547a42ef5`.
+Same-name private checkpoint retains original Home XML and pinned manifest.
+Exact predecessor XML SHA
+`242b0592bd72482195b21af839c15c0f4e677a9598d695d7ae8408bc7cc60a1e`.
+Candidate3 completed install/actual rollback/reinstall before the small visual
+correction in candidate4. Native proofs
+`aster-home-design-native-1792990976076546984/native.json` and
+`aster-home-design-native-1792991169188262123/native.json` both pass twelve
+focus targets,1/5minute preset selection, stop, a real one-minute countdown,
+seconds sweep, completion/alert cleanup and unchanged AV/idle/empty state.
+Screenshots inspected at full-screen overview, running timer and completion.
+The first screenshot's opaque stop backplate and empty weather card were
+corrected and the final running screenshot inspected. Human aesthetic
+acceptance is still pending; no claim of a working fresh camera is made.
+
+Preservation helper successor `live_music_postcheck-home-design.py` accepts
+only this externally pinned63-member Home overlay with exact original
+checkpoint and unchanged original Home feed. Proof
+`postcheck-1792991406956935402.json` passes48Music,115untouched v1, all prior
+approved overlays,7idle pilot files,63Home files, both media DBs,68AV/language
+checks (the already documented derived resolution-index exception), and closed
+idle/empty state. The earlier helper is retained; its failure to accept the
+new Home XML was not treated as a passing check or silently skipped.
+
+The attempted fixed Supervisor proxy GET returned401. No auth bypass/new
+credential was attempted; the disposable diagnostic was removed. Jason then
+explicitly approved a bounded update of the **existing** HA exporter and Core
+restart. `dashboard_contract.py` writes a separate schema4 `dashboard.json`
+while preserving old schema3 and unrelated schema1 outputs. Source-local
+projection excludes secrets, connection URLs, coordinates, people/mobile and
+maintenance data; no actions, credential, listener, configuration or schedule
+change. Coalesced1second refresh, existing5minute heartbeat, serialized atomic
+0600 writes, max256entities/262144bytes, explicit observation time.
+
+HA checkpoint `/config/aster-checkpoints/home-dashboard-20261026` contains
+code/config/legacy reports and verified isolated restores. Pinned predecessor
+init `078ed576b4898765d61560644eca39137691f7f37ead942430c0a045fdf3f1e6`;
+old contract stays
+`b6ba6d09f4d07864f005d134604ff9866f7ff982b6abdf9cc9f7d638132c1f3a`.
+`ha core check` passed before/after Core restart; source verification passes
+fresh63entity report (33lights,10battery,5illuminance,6moisture,5motion,
+3temperature,1weather),24unknown/unavailable. NoHA camera/timer entity is
+invented. Eighteen source contract/runtime tests pass normally/optimized.
+Rollback restores code only, not old household values/configuration.
+
+Integration impact: no host/IP/VLAN/storage/service identity changes; no new
+NetBox/diagram/Homepage entry required. Existing HA monitoring/Beszel ownership
+unchanged; final project graduation still requires the existing reconciliation
+gate. No new AI administration interface: existing approved operator SSH/QGA is
+not a TV runtime identity. Private file checkpoints are the recovery authority;
+project/source README hold operator instructions. No scheduled root guest-exec
+publisher authorized or installed. Next: fresh schema4 consumer/local HP
+publication with explicit staleness and read-only navigation, then assess
+least-privilege recurring delivery before calling Home populated/complete.
