@@ -14,6 +14,7 @@ arming, a lease, consumer isolation, a model call, cleanup, or Git push.
 | `scripts/local-ai/stream_a_evaluation_evidence_loader.py` | `836f627cd2702dffd59c77b77adab2aded01805ee43553a11471cfddfeb80a01` |
 | `scripts/local-ai/stream_a_evaluation_guest_outcome.py` | `027183c9f10923cc4aa3053934b5f090d8e01f86aa81c9730d93abc143e6dcb9` |
 | `scripts/local-ai/stream_a_evaluation_host_outcome.py` | `6b986fb71dca8657aa56b9fe8ef904223445e64b4122a827324adaf300c64321` |
+| `scripts/local-ai/stream_a_evaluation_outcome_verifier.py` | `9408623489d52f7923c8dcca246159bb13a7926aa0a820c765fc8f3a339b58e1` |
 | `scripts/local-ai/stream_a_evaluation_restore_observer.py` | `20d977681452eb89cbda7b0417de02b4caed279f234e7b568a072638bb736fb2` |
 | `scripts/local-ai/stream_a_evaluation_restored_verifier.py` | `a83de6bcdf0b275b9f238acda1a35e7518eae12f47eb220faf8f822d9a5e0d93` |
 | `scripts/local-ai/stream_a_evaluation_runtime.py` | `7cda2842afa25bfca9cb47e30f433474c440ccf18123c80e7c55b54c66eb7210` |
@@ -64,7 +65,8 @@ wrapper capable of invoking it in this source candidate.
 
 ## Validation
 
-On macOS, the complete focused pattern passed **94/94**:
+On macOS, the complete focused pattern passed **95/95** after the guest
+dependency-closure correction:
 
 ```text
 PYTHONPATH=scripts/local-ai PYTHONPYCACHEPREFIX=/private/tmp/pycache-stream-a \
@@ -80,3 +82,9 @@ run. No model or tool promotion follows automatically from an evaluation.
 Independent review accepted the corrected F2/F3 cross-binding and hard-wired
 composition root at `00c975eb`, then separately accepted the inert guest
 verification gate at `85c30e44`. No source-review defect remains open.
+
+The later target inventory found that the two-file guest packet still imported
+the host-only `evaluation_lease.py` module. The verifier now carries only the
+two immutable release identities it needs, while a source test cross-checks
+them against the host lease contract. An isolated two-file run with an empty
+`PYTHONPATH` returns the canonical disabled result and writes no bytecode.

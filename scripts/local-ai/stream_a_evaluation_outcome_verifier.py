@@ -7,7 +7,12 @@ import hashlib
 import json
 import math
 
-from evaluation_lease import D4_DIGEST, M3_STAGE_MANIFEST_DIGEST
+# Keep the guest verifier dependency-closed.  These immutable release
+# identities are cross-checked against the host lease contract by the source
+# suite, but the verifier must remain runnable in a guest that deliberately
+# does not carry the effectful lease package.
+D4_DIGEST = "423656a2336502f3a70de463b3e844b0e85c4bb74a59127cc8f70a0905ec31f4"
+M3_STAGE_MANIFEST_DIGEST = "69ffc58928ebd2f2f64e0600b8c4a7d73ce5f5356c485e1df8c2265741972165"
 
 
 class OutcomeVerificationError(ValueError):

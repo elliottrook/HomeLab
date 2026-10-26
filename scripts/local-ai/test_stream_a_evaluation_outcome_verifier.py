@@ -3,10 +3,14 @@ import hashlib
 import json
 import unittest
 
-from evaluation_lease import D4_DIGEST
+from evaluation_lease import (
+    D4_DIGEST as LEASE_D4_DIGEST,
+    M3_STAGE_MANIFEST_DIGEST as LEASE_M3_STAGE_MANIFEST_DIGEST,
+)
 from stream_a_evaluation_outcome_verifier import (
-    M3_CANDIDATE_SHA256, M3_ENGINE_SHA256, M3_JOURNAL_SCHEMA,
+    D4_DIGEST, M3_CANDIDATE_SHA256, M3_ENGINE_SHA256, M3_JOURNAL_SCHEMA,
     M3_POLICY_SHA256, M3_RELEASE_SHA256, M3_RUN_SCHEMA,
+    M3_STAGE_MANIFEST_DIGEST,
     OutcomeVerificationError, verify_d4_ledger, verify_m3_artifacts,
 )
 
@@ -75,6 +79,11 @@ def m3_artifacts():
 
 
 class OutcomeVerifierTests(unittest.TestCase):
+    def test_guest_release_identities_match_host_lease_contract(self):
+        self.assertEqual(D4_DIGEST, LEASE_D4_DIGEST)
+        self.assertEqual(M3_STAGE_MANIFEST_DIGEST,
+                         LEASE_M3_STAGE_MANIFEST_DIGEST)
+
     def test_accepts_exact_d4_chain_and_returns_content_free_evidence(self):
         raw = d4_ledger(); result = verify_d4_ledger(raw)
         self.assertEqual(result.calls, 12)
