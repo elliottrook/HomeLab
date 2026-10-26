@@ -3,10 +3,10 @@
 ## Exact candidate
 
 - source commit: `add484b0`;
-- archive: `/private/tmp/fixed-doctor-response-v2-add484b0.tar.gz`;
-- archive bytes: `9,391`;
+- archive: `/private/tmp/fixed-doctor-response-v2-add484b0-clean.tar.gz`;
+- archive bytes: `8,405`;
 - archive SHA-256:
-  `093ccf868c9db6797fd12de4f6d3aaa5d16b27f721ce8bff174b056c9b99bf72`;
+  `22a3fa0d6b779e1f5f24f7c54155f1ae3cb93e92728ec5a4b4ca7a9f857399f5`;
 - manifest SHA-256:
   `f2bc5744041fe17b0937f32247c2fc30618090348103fb6195825b341466859b`;
 - new target:
@@ -38,3 +38,12 @@ This card does not replace `/opt/aster-agent/fixed_doctor_caller.py`, restart or
 reload a service, change the broker, call a model, enable routing, grant a tool
 or alter any systemd unit. A live cutover requires a separate explicit restart
 approval.
+
+## Packaging correction
+
+The first archive was rejected before installation because macOS added
+unlisted AppleDouble metadata members. Its temporary extraction and copied
+archive were removed, and no target directory or live change remained. The
+replacement above was built with Python `tarfile`, fixed root identity and
+mtime zero. Its member listing contains exactly the eight manifest-declared
+files and no extended metadata members.
