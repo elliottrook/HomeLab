@@ -15,7 +15,7 @@ rollback_needed=0
 sha() { sha256sum "$1" | cut -d ' ' -f 1; }
 
 broker_health() {
-    runuser -u hlabagent -- python3 -c 'import json,socket; s=socket.socket(socket.AF_UNIX); s.settimeout(2); s.connect("/run/homelab-broker/mcp.sock"); s.sendall(b"{\\"method\\":\\"health\\"}\\n"); r=json.loads(s.makefile("rb").readline()); assert r.get("ok") is True and r.get("result",{}).get("status")=="ok"'
+    runuser -u hlabagent -- python3 -c 'import json,socket; s=socket.socket(socket.AF_UNIX); s.settimeout(2); s.connect("/run/homelab-broker/mcp.sock"); s.sendall(b"{\"method\":\"health\"}\n"); r=json.loads(s.makefile("rb").readline()); assert r.get("ok") is True and r.get("result",{}).get("status")=="ok"'
 }
 
 wait_for_broker() {

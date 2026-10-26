@@ -1,4 +1,5 @@
 import unittest
+import re
 from pathlib import Path
 
 
@@ -28,6 +29,13 @@ class FixedDoctorActivationBoundaryTests(unittest.TestCase):
         self.assertIn('observation["state"] == "ok"', self.text)
 
     def test_rollback_removes_activation_and_restores_database_custody(self):
+        self.assertIn('s.sendall(b"{\\"method\\":\\"health\\"}\\n")', self.text)
+        self.assertNotIn('s.sendall(b"{\\\\"method', self.text)
+        health_source = re.search(
+            r"broker_health\(\) \{\n\s+runuser -u hlabagent -- python3 -c '([^']+)'",
+            self.text,
+        ).group(1)
+        compile(health_source, "<broker-health>", "exec")
         self.assertIn('systemctl disable --now "$caller" "$gateway"', self.text)
         self.assertIn('install -o hlabroker -g hlabroker -m 0600', self.text)
         self.assertIn('wait_for_broker', self.text)

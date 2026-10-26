@@ -3,7 +3,7 @@
 **Date:** 2026-10-25
 **Status:** review candidate; no live effect authorized
 
-**Script:** `scripts/deploy/activate_fixed_doctor_capability.sh`, SHA-256 `14300deb52a44ea718fda842ff387785bc264dcf198f0d4b743fe62c277408e8`
+**Script:** `scripts/deploy/activate_fixed_doctor_capability.sh`, SHA-256 `1dbfadd48df75565851df0d620f10e80f4c9805eea44df037afad3b2c93df440`
 
 ## Purpose
 
