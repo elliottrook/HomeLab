@@ -12,7 +12,8 @@ Completed work:
 - replaced the delivery map's intermediate M3 identity with the final runner,
   scorer, journal and eleven-file packet-manifest identities;
 - created a fail-closed F6 activation-card validator and a machine-readable
-  38-path installed requirements fixture;
+  38-unique-path installed requirements fixture with explicit bindings for
+  both shared guest targets;
 - re-read the small Proxmox/LXC104/LXC110 F6 files before the backup window,
   expanded every abbreviated installed identity to a full path and SHA-256,
   and proved the exact snapshot plus final M3 receipt passes the validator;

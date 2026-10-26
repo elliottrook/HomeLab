@@ -21,8 +21,9 @@ records the current documentation reconciliation and fresh 168/168 D4, 13/13
 candidate-H boundary and pre-correction 116/116 NLU passes; the later completion
 fix expanded the dependency-free NLU result to 118/118.
 The subsequent [midnight continuation](evidence/Stream-A-midnight-offline-continuation-2026-10-26.md)
-records the final 119/119 NLU and 43/43 fixed-Doctor passes, exact 38-path F6
-packet validation and rejection of the stale platform card before the backup
+records the final 119/119 NLU and 43/43 fixed-Doctor passes, exact
+38-unique-path F6 packet validation with both guest bindings, and rejection of
+the stale platform card before the backup
 window, with no live evaluation effect.
 
 The [October 14 evening execution decision](evidence/Evening-execution-decision-2026-10-14.md)
