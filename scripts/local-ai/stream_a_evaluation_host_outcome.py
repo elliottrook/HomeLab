@@ -7,7 +7,6 @@ import re
 import subprocess
 from typing import Callable
 
-from stream_a_evaluation_guest_outcome import SCHEMA
 from stream_a_evaluation_sequence import VerifiedOutcome
 
 
@@ -16,6 +15,7 @@ class HostOutcomeError(RuntimeError):
 
 
 MAX_RESULT_BYTES = 8 * 1024
+SCHEMA = "stream-a-evaluation-content-free-outcome-v1"
 GUEST_WRAPPER = "/usr/local/libexec/stream-a-evaluation-guest-outcome"
 COMMANDS = {
     "d4-candidate-h": (

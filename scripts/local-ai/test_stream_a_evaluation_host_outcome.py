@@ -2,9 +2,9 @@ import json
 import subprocess
 import unittest
 
-from stream_a_evaluation_guest_outcome import SCHEMA
+from stream_a_evaluation_guest_outcome import SCHEMA as GUEST_SCHEMA
 from stream_a_evaluation_host_outcome import (
-    COMMANDS, HostOutcomeError, HostOutcomeVerifier,
+    COMMANDS, SCHEMA, HostOutcomeError, HostOutcomeVerifier,
 )
 
 
@@ -13,6 +13,9 @@ def completed(value, code=0, stderr=""):
 
 
 class HostOutcomeTests(unittest.TestCase):
+    def test_host_projection_schema_matches_guest_projection(self):
+        self.assertEqual(SCHEMA, GUEST_SCHEMA)
+
     def value(self, name="d4-candidate-h"):
         return {"schema": SCHEMA, "name": name, "journal_digest": "a" * 64,
                 "result_digest": "b" * 64,
