@@ -1249,12 +1249,13 @@ blocked on the October 26 F2 runtime result, subsequent F3/F4/F5 evidence and a
 corrected executable F6 effect transaction. The
 [exact admission-binding proposal](evidence/Stream-A-candidate-H-F4-F5-admission-binding-proposal-2026-10-25.md)
 freezes the missing composite artifact, controller field, durable-state
-binding, candidate-H invocation and recovery proof. The platform owner still
-owes that source implementation, tests and a reviewed inactive install. M3's absolute
-interpreter, root execution identity and key-file custody are now pinned; the
-live card must recheck them for drift. Continue offline
-review when that source arrives. Do not activate F6, stop consumers, call a
-model, create a receipt or infer success from the scheduled F2 timers.
+binding, candidate-H invocation and recovery proof. The platform owner has now
+supplied that source implementation and its tests; the four-file inactive
+install passed 69/69 target tests and an isolated real-wrapper regression.
+M3's absolute interpreter, root execution identity and key-file custody are
+pinned; the live card must recheck them for drift. Do not activate F6, stop
+consumers, call a model, create a receipt or infer success from the scheduled
+F2 timers.
 
 The source-only [candidate-H credential correction](evidence/D4-candidate-H-descriptor-credential-boundary-2026-10-25.md)
 replaces environment-key access with a bounded inherited descriptor and passes
