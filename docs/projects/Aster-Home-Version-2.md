@@ -8586,3 +8586,66 @@ tests and107 tracked-skin tests pass normally and optimized. Production remains
 unchanged. This closes the bounded accessibility-overlay implementation, but
 does not erase the historical crash or complete the longer family soak needed
 for M7 graduation.
+
+### M7 self-contained HP family release candidate — 2026-10-26
+
+The accepted HP runtime had accumulated seven independently installed staging
+components. A read-only composition audit found 30 deploy-time debris members,
+eight live launcher references to `.aster-staging` and seven runtime imports
+from those recovery trees. Those files were valid evidence and rollback
+material, but they were not a supportable household release layout.
+
+The new family composer packages only the manifest-approved runtime members
+into the installed `script.asterruntime` add-on and rewrites the eight live skin
+launchers to use `RunScript(script.asterruntime,...)`. Deployment helpers,
+private data, locks, snapshots, Python caches and AppleDouble debris are
+excluded. The accepted `.aster-staging` trees remain untouched as recovery
+evidence. A signed top-level family manifest covers all 63 add-on files and all
+eight skin launchers; the release also replaces its former deployment-helper
+dependency with a small read-only runtime guard. Search verification is bound
+to the final composed skin hashes, rather than an older pre-accessibility
+snapshot.
+
+Two independent builds were byte-identical. The active HP candidate has
+manifest SHA-256
+`c130f9f8b24687923665af875522da2f50aebfcd3418c770ca5e11ad501acc46`
+and checkpoint `/storage/.aster-checkpoints/aster-family-runtime4`. Local
+install/verify/rollback/reinstall simulations passed. HP deployment also proved
+rollback and reinstallation while retaining previously retired runtime
+evidence. The installer now explicitly enables the side-loaded add-on only
+after Kodi discovers it, and disables it before rollback.
+
+The final installed verification reports `active: true`, 63 exact add-on files,
+eight exact skin files and a verified recovery checkpoint. Kodi remained PID
+45928, the retained crash count stayed five and no new ERROR, FATAL, TiXml or
+LanguageInvoker event appeared. Installed Search, a real TV-series preview,
+Network status, populated Home status, Read briefing and full Digest were each
+opened through their normal controls and returned safely. Captured pixels were
+inspected for the series, network, Home and reader routes. The pre-existing
+camera helper still emits script-context warnings and once reported a stale
+feed while Home itself displayed current populated data; that helper remains
+an M6 hardening item and is not silently absorbed into this release claim.
+
+This is the first stable, self-contained Version 2 **release candidate active
+on HP**. It is not a production promotion or project graduation. Production
+remains unchanged. The exact remaining milestone work is:
+
+1. Reconcile and commit this candidate and its evidence, then retain the exact
+   package/checkpoint as the recovery reference.
+2. Complete the remaining M2/M7 cross-player remote, focus, OSD, accessibility,
+   warm/cold timing, mixed-playback soak and recovery/family walkthroughs.
+3. Complete M4 listening-tool acceptance and conflict/bookmark safeguards;
+   current shared Audiobookshelf progress remains the authority.
+4. Continue M5 from the accepted EPUB Reader/narration proof. Seerr remains a
+   credential-free local client contract until its separately bounded broker
+   endpoint exists.
+5. Harden M6 Home camera freshness/script lifecycle and finish the unsupported
+   suspend/power-event decision without blocking the software release.
+6. Prepare the production package and operating/recovery handover, but do not
+   deploy it without the separately required production approval.
+
+The next implementation slice is the observed M6 camera-helper lifecycle and
+freshness warning, followed by the remaining family soak/recovery evidence.
+The separate EPUB Narration Compiler project owns bulk pre-generation capacity,
+worker and monitor work; this project consumes only its future atomic ready
+artifacts and does not duplicate that pipeline.
