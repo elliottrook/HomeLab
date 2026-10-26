@@ -2,7 +2,11 @@ import json
 import unittest
 
 from lease_watchdog import EXPECTED_SCHEDULES
-from trusted_observer import FIXED_PROBES, CONTROL_UNITS, MODEL_HASH_TIMEOUT, PRODUCTION, RuntimeManifest, TrustedHostObserver, collect, collect_light
+from trusted_observer import (
+    AUTH_PROBE_PATH, AUTH_PROBE_SHA256, CONTROL_UNITS, EXPECTED_AUTH_MARKER,
+    FIXED_PROBES, MODEL_HASH_TIMEOUT, PRODUCTION, RuntimeManifest,
+    TrustedHostObserver, collect, collect_light,
+)
 
 
 class TrustedObserverTests(unittest.TestCase):
@@ -13,7 +17,7 @@ class TrustedObserverTests(unittest.TestCase):
             if argv == FIXED_PROBES["model"]: return 0, "model-hash  /model"
             if argv == FIXED_PROBES["binary"]: return 0, "binary-hash  /binary"
             if argv == FIXED_PROBES["unit"]: return 0, "unit-hash  /unit"
-            if argv == FIXED_PROBES["auth"]: return 0, "auth-generation-ok"
+            if argv == FIXED_PROBES["auth"]: return 0, EXPECTED_AUTH_MARKER
             if argv == FIXED_PROBES["heartbeat"]: return 0, "1000"
             if argv == FIXED_PROBES["proxmox_schedule"]: return 0, json.dumps([{"enabled": True, "schedule": "00:30"}])
             if argv == FIXED_PROBES["truenas_schedule"]: return 0, json.dumps([{"id": 1, "enabled": True, "schedule": {"minute": "0", "hour": "1", "dom": "*", "month": "*", "dow": "*"}}, {"id": 3, "enabled": True, "schedule": {"minute": "0", "hour": "2", "dom": "*", "month": "*", "dow": "*"}}, {"id": 2, "enabled": True, "schedule": {"minute": "0", "hour": "3", "dom": "*", "month": "*", "dow": "*"}}])
@@ -24,7 +28,7 @@ class TrustedObserverTests(unittest.TestCase):
 
         observation = collect(
             runner, lease_expires_minute=255,
-            manifest=RuntimeManifest("model-hash", "binary-hash", "unit-hash", "auth-generation-ok"),
+            manifest=RuntimeManifest("model-hash", "binary-hash", "unit-hash", EXPECTED_AUTH_MARKER),
             clock=lambda: 221, epoch_clock=lambda: 1050,
         )
         self.assertTrue(observation.control_plane_healthy)
@@ -51,7 +55,7 @@ class TrustedObserverTests(unittest.TestCase):
             return 0, ""
         observation = collect(
             runner, lease_expires_minute=255,
-            manifest=RuntimeManifest("m", "b", "u", "auth-generation-ok"),
+            manifest=RuntimeManifest("m", "b", "u", EXPECTED_AUTH_MARKER),
             clock=lambda: 221, epoch_clock=lambda: 1000,
         )
         self.assertFalse(observation.schedule_restored)
@@ -78,14 +82,14 @@ class TrustedObserverTests(unittest.TestCase):
             if argv == FIXED_PROBES["binary"]: return 0, "b /binary"
             if argv == FIXED_PROBES["unit"]: return 0, "u /unit"
             if argv == FIXED_PROBES["gpu"]: return 0, "renderD128"
-            if argv == FIXED_PROBES["auth"]: return 0, "auth-generation-ok"
+            if argv == FIXED_PROBES["auth"]: return 0, EXPECTED_AUTH_MARKER
             if argv == FIXED_PROBES["proxmox_schedule"]: return 0, json.dumps([{"enabled": True, "schedule": "00:30"}])
             if argv == FIXED_PROBES["truenas_schedule"]: return 0, json.dumps([])
             if argv == FIXED_PROBES["news_schedule"]: return 0, ""
             return 0, "active"
 
         collect(runner, lease_expires_minute=255,
-                manifest=RuntimeManifest("m", "b", "u", "auth-generation-ok"),
+                manifest=RuntimeManifest("m", "b", "u", EXPECTED_AUTH_MARKER),
                 clock=lambda: 221, epoch_clock=lambda: 1050)
         self.assertEqual(timeouts[FIXED_PROBES["model"]], MODEL_HASH_TIMEOUT)
         self.assertEqual(timeouts[FIXED_PROBES["binary"]], 5.0)
@@ -117,7 +121,7 @@ class TrustedObserverTests(unittest.TestCase):
             if "news-aggregator-digest.service" in argv:
                 return 3, "inactive\n"
             return 3, "inactive\n"
-        observer = TrustedHostObserver(runner, RuntimeManifest("m", "b", "u", "auth-generation-ok"))
+        observer = TrustedHostObserver(runner, RuntimeManifest("m", "b", "u", EXPECTED_AUTH_MARKER))
         self.assertTrue(observer.news_quiesced())
         self.assertTrue(observer.consumers_quiesced())
 
@@ -130,8 +134,16 @@ class TrustedObserverTests(unittest.TestCase):
             if "news-aggregator-digest.service" in argv:
                 return 0, "active\n"
             return 3, "inactive\n"
-        observer = TrustedHostObserver(runner, RuntimeManifest("m", "b", "u", "auth-generation-ok"))
+        observer = TrustedHostObserver(runner, RuntimeManifest("m", "b", "u", EXPECTED_AUTH_MARKER))
         self.assertFalse(observer.news_quiesced())
+
+    def test_auth_probe_is_hash_pinned_metadata_only(self):
+        flat = " ".join(FIXED_PROBES["auth"])
+        self.assertIn(AUTH_PROBE_PATH, flat)
+        self.assertIn(AUTH_PROBE_SHA256, flat)
+        self.assertIn(EXPECTED_AUTH_MARKER, flat)
+        self.assertNotIn("chat/completions", flat)
+        self.assertNotIn("max_tokens", flat)
 
 
 if __name__ == "__main__":

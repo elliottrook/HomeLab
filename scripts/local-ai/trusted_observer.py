@@ -11,7 +11,9 @@ from typing import Callable, Sequence
 from lease_watchdog import EXPECTED_SCHEDULES, Observation
 
 Probe = Callable[[Sequence[str], float], tuple[int, str]]
-EXPECTED_AUTH_MARKER = "auth-generation-ok"
+EXPECTED_AUTH_MARKER = "auth-metadata-ok"
+AUTH_PROBE_PATH = "/usr/local/libexec/aster-a1/llama_auth_probe.py"
+AUTH_PROBE_SHA256 = "0996e1b565ad24b740997bbfe598065267e20380135a5af41687d0562239cae6"
 MODEL_HASH_TIMEOUT = 30.0
 
 
@@ -30,7 +32,11 @@ FIXED_PROBES = {
     "model": ("pct", "exec", "110", "--", "sha256sum", "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf"),
     "binary": ("pct", "exec", "110", "--", "sha256sum", "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"),
     "unit": ("pct", "exec", "110", "--", "sha256sum", "/etc/systemd/system/aster-llama.service"),
-    "auth": ("pct", "exec", "110", "--", "sh", "-c", "key=$(cat /etc/aster-llama-api-keys); curl --fail --max-time 5 -sS -H \"Authorization: Bearer $key\" -H 'Content-Type: application/json' --data '{\"model\":\"aster-qwen3.5-9b\",\"messages\":[{\"role\":\"user\",\"content\":\"health\"}],\"max_tokens\":1}' http://192.168.70.12:11435/v1/chat/completions | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d.get(\"model\")==\"aster-qwen3.5-9b\" and isinstance(d.get(\"choices\"),list) and d[\"choices\"]; print(\"auth-generation-ok\")'"),
+    "auth": (
+        "pct", "exec", "110", "--", "sh", "-c",
+        f"test \"$(sha256sum {AUTH_PROBE_PATH} | cut -d' ' -f1)\" = {AUTH_PROBE_SHA256} "
+        f"&& /usr/bin/python3 -B {AUTH_PROBE_PATH} && printf {EXPECTED_AUTH_MARKER}",
+    ),
     "heartbeat": ("stat", "-c", "%Y", "/var/lib/local-ai-lab/owner-heartbeat"),
     "proxmox_schedule": ("pvesh", "get", "/cluster/backup", "--output-format", "json"),
     "truenas_schedule": ("ssh", "-o", "BatchMode=yes", "-o", "IdentitiesOnly=yes", "-o", "StrictHostKeyChecking=yes", "-o", "UserKnownHostsFile=/etc/local-ai-lab/truenas_known_hosts", "-i", "/etc/local-ai-lab/truenas_schedule_observer", "aster-schedule-observer@192.168.20.40", "midclt", "call", "rsynctask.query"),
