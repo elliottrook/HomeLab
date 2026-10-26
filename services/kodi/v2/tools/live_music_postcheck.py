@@ -52,6 +52,25 @@ _require(not Path('/storage/.aster-checkpoints/aster-series-playback-20261024/un
 _require(not Path('/storage/.aster-checkpoints/aster-video-scrub-20261024/unresolved-seek.json').exists(),'scrub-recovery-required')
 _require((not any(rpc('XBMC.GetInfoLabels',{'labels':keys}).values())), ('live-or-recovery-window-retained'))
 stage=Path('/storage/.aster-staging');addons=Path('/storage/.kodi/addons')
+home_delivery_count=0
+delivery_cp=Path('/storage/.aster-checkpoints/aster-home-delivery1')
+if (delivery_cp/'state.json').exists():
+    delivery_stage=stage/'aster-home-delivery1'
+    delivery_pin='626d480479967f37feb85d815589012e0abe9de9ea232bdf79a0e8febeb1abf0'
+    raw=(delivery_stage/'manifest.json').read_bytes()
+    _require(hashlib.sha256(raw).hexdigest()==delivery_pin and (delivery_cp/'manifest.json').read_bytes()==raw,'home-delivery-manifest-pin')
+    delivery=json.loads(raw)
+    _require(delivery.get('kind')=='hp-home-delivery-v1' and set(delivery['files'])=={'receive.py','home_status_model.py'},'home-delivery-members')
+    for name,digest in delivery['files'].items():
+        _require(hashlib.sha256((delivery_stage/name).read_bytes()).hexdigest()==digest and
+                 hashlib.sha256((Path('/storage/.aster-home-delivery')/name).read_bytes()).hexdigest()==digest,'home-delivery-member-drift')
+    before=(delivery_cp/'authorized_keys.before').read_bytes()
+    _require(hashlib.sha256(before).hexdigest()=='63fe0f9e709419fc801b3effdb5dfd94cdcd6665d7b0547c0b46a8e4c0c1f1b2','home-delivery-owner-checkpoint')
+    line=(delivery_cp/'restricted-key.line').read_bytes();keys=Path('/storage/.ssh/authorized_keys').read_bytes()
+    _require(line.startswith(b'restrict,from="192.168.20.11",command="/usr/bin/python3 /storage/.aster-home-delivery/receive.py" ssh-ed25519 ')
+             and line.endswith(b' aster-home-feed-v1\n') and keys.count(line)==1 and keys.replace(line,b'')==before,'home-delivery-restricted-key')
+    _require(json.loads((delivery_cp/'state.json').read_text()).get('restricted_key_enabled') is True,'home-delivery-not-enabled')
+    home_delivery_count=2
 idle_pilot_count=0
 if Path('/storage/.aster-checkpoints/aster-idle-presentation2/state.json').exists():
     import importlib.util
@@ -521,6 +540,7 @@ with output.open('x') as handle:
                'approved_idle_pilot_files_verified':idle_pilot_count,
                'approved_home_design_files_verified':home_design_count,
                'approved_home_status_files_verified':home_status_count,
+               'approved_home_delivery_files_verified':home_delivery_count,
                'av_language_settings_verified':len(values),
                'av_preservation_details':av_details,
                'database_integrity':'ok','missing_primary_artist_links':0,

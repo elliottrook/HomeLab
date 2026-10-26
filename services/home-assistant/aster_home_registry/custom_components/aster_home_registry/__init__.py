@@ -15,6 +15,7 @@ from homeassistant.helpers.typing import ConfigType
 
 from .contract import ENTITY_IDS, HALL, OUTSIDE, CLOSET, WEATHER, build_snapshot, write_atomic
 from .dashboard_contract import relevant, project, write_dashboard
+from .delivery import publish
 
 
 DOMAIN = "aster_home_registry"
@@ -60,12 +61,16 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         pending = None
         await refresh()
 
+    async def periodic_refresh(*_args):
+        await refresh()
+        await publish()
+
     def changed(event):
         nonlocal pending
         if relevant(event.data.get('entity_id')) and pending is None:
             pending = async_call_later(hass, 1, scheduled_refresh)
 
-    await refresh()
+    await periodic_refresh()
     hass.bus.async_listen(EVENT_STATE_CHANGED, changed)
-    async_track_time_interval(hass, refresh, timedelta(minutes=5))
+    async_track_time_interval(hass, periodic_refresh, timedelta(minutes=5))
     return True

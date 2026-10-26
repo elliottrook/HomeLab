@@ -7311,3 +7311,155 @@ change. Jason has been asked for this **new credential/network/schedule scope**;
 do not treat the earlier exporter-only approval as granting it. Prepare safe
 local candidates while awaiting that specific decision. UI/source work is
 otherwise checkpointed and independently usable as a truthful one-shot pilot.
+
+### Restricted HP feed delivery — approved pre-start, 2026-10-25
+
+Jason explicitly approves the new HA-held, single-file publishing identity,
+five-minute read-only delivery and, only if needed, the single HA
+`192.168.20.11`→HP`192.168.1.140` TCP22 LAN permit. This supersedes only the
+pending delivery gate above, not production/other credentials/firewall scope.
+No Forgejo push is included. Stream A continues without routine HP questions.
+
+Preflight confirms HP Python3.11.13/OpenSSH support, a private existing
+two-line0600 authorized_keys file and absent new receiver directory. HA Core
+already has SSH and asyncssh; no new dependency/platform is needed. Both
+three-second HA→HP connection checks time out. OPNsense's HA trusted-media
+alias excludes HP and the Server-VLAN RFC1918 block at sequence1996 applies;
+the new permit can be a distinct host/port-only rule before that block, without
+expanding the trusted-media alias or opening other ports. Native owner SSH
+access is retained as recovery, not reused as the publishing credential.
+
+Planned bounded changes: private source-local key generation (private value
+never exported), pinned HP public host key, source-IP-constrained forced-command
+key with no shell/PTY/agent/X11/port forwarding; HP receiver can validate and
+atomically replace **only** the schema4 display file plus its own private
+bounded recovery/status journals. It uses the existing strict consumer model,
+locks, size/time limits, observation-age/replay checks and recoverable pending
+generation state; no playback/UI controls/settings/media writes or network
+client. Source publishes the fixed report at startup/every five minutes via
+the existing integration, with bounded failure/no overlapping retries and
+non-secret last-success health. A brief Core-only reload/restart may be needed
+to activate that integration code; no household service/control commands.
+
+Risks: private key custody, mistaken SSH restriction, cross-VLAN privilege,
+partial publication, stale state and HA availability during code reload.
+Controls: verified private code/config/authorized-keys/firewall checkpoints,
+isolated restore, pinned exact predecessors/member manifests, source-local
+credential generation, private0700/0600 paths, negative shell/malformed/replay/
+wrong-source tests and real key revocation/re-enable. Preserve prior owner
+keys byte-for-byte; never whole-file rollback over new unrelated keys. Restore
+only this rule/key/code, not household state or old readings. Keep failures
+truthful/stale; do not renew timestamps or use scheduled privileged Proxmox
+guest exec as runtime delivery.
+
+Runtime identity is a machine file-publishing capability, not a new AI admin
+surface. Its narrowly approved HA-held private key is a documented source-local
+custody exception: keeping it beside the owning HA integration is necessary for
+unattended operation; it never enters prompts/Git/TV/logs. Record protected HA
+backup coverage, key path/fingerprint only, receiver revocation and human
+operator recovery. Existing HA/HP monitoring ownership remains; add useful
+non-secret delivery freshness/last-success evidence and reconcile applicable
+firewall/service facts/runbooks. No host/IP/DNS/certificate/public listener
+change, no speech, no production change. Success gate is two independent
+end-to-end native publications, negative authorization/revocation/rollback,
+unchanged dependent services/AV/history and actual five-minute schedule proof.
+
+### Restricted Home delivery — operational evidence, 2026-10-25/26
+
+The approved HA→HP delivery is active. OPNsense's effective trusted-media
+alias excluded HP; two source connections timed out. Added only IPv4/TCP22
+`192.168.20.11`→`192.168.1.140`, opt3/in, sequence1850, logged quick permit
+UUID`d0584fb0-b226-52a6-9fc9-e9983fcb48d4`. No alias expansion, WAN rule,
+other destination/port or DNS change. Original configuration checkpoint
+`/conf/backup/config-aster-home-feed-apply-20261026.xml` was byte-verified and
+restored/parsed in isolation. Rule-only removal/reapply is unit-tested;
+remaining configuration is structurally identical. Filter reload passed and
+the same source TCP check then succeeded.
+
+HA generated the Ed25519 identity entirely inside Core, persisted0600 under
+`/config/.aster-home-delivery/id_ed25519`; its private value never left HA.
+Public fingerprint `SHA256:TN1l8tAqFNSMIYiBQkkF1uNKNovaxmzdbEsh2qQd9Sg`.
+HP's new public entry is restricted/from`.20.11`/forced-command only, no shell,
+forwarding, PTY, X11, agent or user RC. HP owns no HA/admin private key.
+The host public key is pinned; no trust-on-first-use or auth fallback. Runtime
+identity is machine file delivery, not an AI administration interface. The
+source-local custody exception requires the owning HA protected config backup;
+its restore/retention review remains a broader project graduation item.
+
+HP receiver stage `/storage/.aster-staging/aster-home-delivery1` has manifest
+`626d480479967f37feb85d815589012e0abe9de9ea232bdf79a0e8febeb1abf0`, exactly
+two files installed in private`/storage/.aster-home-delivery`. It uses the same
+pinned strict display model, exact SSH source/command checks,20second input
+budget,262144byte cap, exclusive publication lock, source-age/anti-replay checks
+and atomic0600 writes to only the existing display file and its own metadata.
+One bounded previous generation and a recoverable pending/accepted journal
+cover interrupted writes. No Kodi/player API, arbitrary path, network client,
+image transport or credential read is available to that command.
+
+Private checkpoints: HP`/storage/.aster-checkpoints/aster-home-delivery1` and
+HA`/config/aster-checkpoints/home-delivery-20261026`. Both verified isolated
+code/key/config restores before activation. Actual new-key disable made
+publication fail; HP's original two owner-key bytes exactly matched baseline
+SHA`63fe0f9e709419fc801b3effdb5dfd94cdcd6665d7b0547c0b46a8e4c0c1f1b2`.
+Re-enable preserved those keys. Actual shell-command, malformed-data and TCP
+forward requests were denied; a deliberately incorrect host-key pin was
+rejected. An early malformed-data test overlapped key revocation and therefore
+got authentication denial; it was rerun after re-enable and then confirmed the
+receiver's data denial. Actual HA init rollback/reapply preserved configuration;
+no household state/history rollback. All private keys stayed source-local.
+
+The existing integration's five-minute callback now refreshes its original
+reports and invokes the optional publisher. State-change callbacks remain local
+exports, not rapid network sends. Publisher has explicit opt-in, no overlapping
+connections/retries, pinned identity/host, public-key-only/no agent/config
+fallback, bounded22second envelope and fixed-code non-secret last-success
+health. Core check passed before/after its brief restart. Startup publication
+at05:57:14UTC carried13 initial readings while HA integrations loaded; the
+automatic scheduled **06:02:15UTC** publication carried all63.
+The ordinary later state events had populated the source before this scheduled
+send. This is truthful startup loading, not invented missing sensors.
+Both native transport receipts verified matching source timestamp/hash.
+`check_home_transport.py` reports read-only end-to-end freshness without
+publishing or reading keys. It passed source06:02:15.781399/HP receipt
+06:02:15.934880UTC with63readings. The feed no longer depends on an operator
+Mac or scheduled Proxmox guest execution.
+
+Full Kodi suite938 tests passes normal/optimized. Source suite26 tests passes
+normal/optimized using bundled Python3.12 (HA requires modern asyncio; the Mac
+system Python3.9 lacks asyncio.timeout and is not the source runtime). Tests
+cover unknown/stale/future/replayed/malformed data, partial-write recovery,
+symlink/drift refusal, exact key restrictions, owner-key preservation,
+revocation, source-disabled/no-network, host-key pin failure and health status.
+No production change or Forgejo push. HA/HP remain their existing hosts/SSH
+service; no NetBox host/IP/listener is added. Existing HA/HP monitoring ownership
+remains; the source/receiver last-success diagnostics cover this file workflow,
+with operator/backup/monitoring reconciliation retained for project graduation.
+
+### Next Home visual/camera increment — approved scope, 2026-10-25
+
+Jason requests Live view plus a less monochrome, more layered page with
+separate floating pills/cards and a brush-stroke-like green timer arc. Keep
+the working timer digital/actions and the established top/side navigation;
+prepare vector/code-native layered assets rather than stretching raster icons.
+Apply Aster's cool-ink/teal/gold contrast within the TV identity exception.
+
+Frigate VM102 `.20.10`, SSH normal user`jelliott`, serves the existing
+Front of House feed at5.1fps; loopback latest JPEG validates200/image/jpeg,
+78414bytes. HP's old localhost15102 camera tunnel is absent. HP→Frigate TCP22
+already connects, so **no new firewall rule is required**. Existing Frigate
+authorized_keys has two private0600 single-link lines, baselineSHA
+`b6fcf8ceba62720f6be6092e49c6b38211b5564e70bb15be0172c4432533b1fa`.
+No Docker access is needed; normal-user loopback read suffices.
+
+Jason explicitly approves a **separate** HP-held, one-camera read key and
+HP-localhost-only viewer, preserving existing keys and testing revocation.
+Images are fetched only while viewing, at two-second refresh, stop on exit or
+after five minutes. It is an in-page refreshed view, not full-motion video.
+Do not broaden the HA household-data key or its single-file receiver to carry
+camera images. New source forced command reads only the one loopback camera,
+not arbitrary URLs/streams; HP proxy binds127.0.0.1 only. No camera/private
+key/image enters Git/logs, no public image endpoint, and production stays
+unchanged. Checkpoint source/HP code and authorized keys; verify exact actor,
+route, source freshness, denied commands/forwarding, revocation and teardown.
+The prior Home feed remains independent. No new speech. Stop on unexpected
+exposure, credential release, source change or failed recovery evidence.
