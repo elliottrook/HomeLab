@@ -65,7 +65,10 @@
   generation consumer now passes850 tests and two isolated HP native runs:
   replacements, unchanged/duplicate caching, older-delivery rejection, loss/
   malformed/recovery, manual local reload and focus/context preservation.
-  The real feed remains unchanged. Next: read-only network diagnostics while
+  The real feed remains unchanged. The isolated read-only Network page now
+  passes865 tests plus two native real/offline-demo runs, with manual Refresh,
+  preserved focus/context and unclaimed reachability. Next: bounded explicit
+  media-service checks, not automatic probes, while
   runtime publisher identity and scheduling remain explicit integration gates.
   Owner checks are deferred for a larger batch, not requested now. Forgejo/GitHub
   are synchronized through68b2285f; newer milestones are local only.
@@ -6742,3 +6745,55 @@ No network packets, probes, reconnects or configuration changes were requested.
 No GUI or Settings route is added yet. Existing service/host identities and
 monitoring inventory are unchanged. Next: isolated remote-friendly native view,
 manual Refresh and honest offline/error presentation, with preservation proof.
+
+### Stream A isolated Network view — pre-start
+
+Extend the tested local collector into an unreferenced HP WindowXML page, with
+manual Refresh/Back, readable IP/link/gateway/configured-DNS facts and explicit
+Not tested reachability. Reuse established Aster TV visual tokens/assets; no new
+branding or speech. Collection occurs once on open and only on explicit Refresh,
+not a background poll. A separately labelled static offline demonstration may
+exercise the actual empty-state UI without disabling any interface or route.
+Use externally pinned immutable files, idle Home/empty queues, two native
+navigation/Refresh/Back/Home runs, captured layout and exact preservation.
+Only the pilot's files/private evidence and its existing test-harness window
+check may change. No active Settings entry, service probes, DNS queries,
+reconnect, service/config/credential/inventory change or production contact.
+Recovery is closing/omitting the unreferenced page; retain earlier stages.
+
+#### Isolated Network view — completed evidence
+
+Private stage `/storage/.aster-staging/aster-network-preview1`, three payload
+members, external manifest SHA-256
+`ff281d691edee81822e542e939ea33fb2dd27694a46e96d6f860c1a4dd46a4af`.
+It is not linked from normal Settings and does not replace an accepted page.
+Collection occurs once on open, then only through Refresh local status. It
+shows observed link/interface, IPv4 addresses, unambiguous default gateway,
+configured DNS, safe partial-state notes and explicit Not tested reachability.
+An `offline-demo` launch uses a labelled in-memory empty model, not a network
+disconnect. No raw route/resolver content, MAC addresses, Wi-Fi profile or
+credentials are retained or displayed. Long entry lists are capped in the
+view with a truthful omitted-entry count, not silently truncated.
+
+Four additional view/bundle tests pass, full865-test suite normal/optimized.
+Native checks with explicit enforced conditions pass twice:
+`aster-network-preview-1792985803217802208/native.json` and
+`aster-network-preview-1792985884729006642/native.json` under HP's private
+checkpoint tree. Both prove actual local facts, no background refresh, manual
+Refresh/focus, Back/context, clear offline demonstration, Home exit, unchanged
+local network facts and existing settings/empty-queue preservation. The first
+run's actual local and synthetic-offline captures were independently inspected:
+readable unclipped addresses/gateway/DNS and notes, reused Settings mark,
+restrained floating controls and no unproven online/service claims. These images
+contain local diagnostic information only; no household readings or credentials.
+Physical remote/sofa and a genuinely disconnected cable are not claimed tested.
+
+Preservation now additionally checks `AsterNetwork.PreviewWindow` is absent.
+Its previous helper is retained as
+`/storage/.aster-staging/live_music_postcheck-before-network-preview.py`.
+Final `postcheck-1792985996835543977.json` passes48 Music/115 untouched v1
+members, every approved overlay,68 AV/language checks with the earlier derived
+display-index exception, both databases and closed/idle/empty state. No active
+skin, Settings menu, network configuration, service, credential, HA or production
+change. Recovery is closing/omitting the new stage and restoring the backed-up
+test helper if needed. No push is authorized; local milestone only.
