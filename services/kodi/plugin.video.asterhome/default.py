@@ -10,7 +10,7 @@ import xbmcgui
 import xbmcplugin
 
 from library import (canonical_genre, combined_items, recent_items,
-                     recommended_items, watching_items)
+                     recommendation_exclusions, recommended_items, watching_items)
 
 
 PROPERTIES = ['title', 'plot', 'year', 'genre', 'rating', 'mpaa', 'art', 'file']
@@ -22,10 +22,11 @@ EPISODE_PROPERTIES = [
     'runtime', 'playcount', 'showtitle', 'season', 'episode', 'tvshowid', 'firstaired',
 ]
 RECENT_PROPERTIES = PROPERTIES + ['dateadded']
-MOVIE_RECOMMEND_PROPERTIES = RECENT_PROPERTIES + ['playcount']
+MOVIE_RECOMMEND_PROPERTIES = RECENT_PROPERTIES + ['playcount', 'resume']
 SHOW_RECOMMEND_PROPERTIES = RECENT_PROPERTIES + [
     'episode', 'watchedepisodes',
 ]
+RECOMMEND_EPISODE_PROPERTIES = ['tvshowid', 'resume']
 
 
 def rpc(method, properties=PROPERTIES, sort=None, filter_value=None, limits=None, **extra):
@@ -43,6 +44,24 @@ def rpc(method, properties=PROPERTIES, sort=None, filter_value=None, limits=None
     if 'error' in response:
         raise ValueError(response['error'].get('message', 'Kodi library query failed'))
     return response.get('result', {})
+
+
+def all_episodes(properties, page_size=2000, maximum=20000):
+    """Read a complete bounded episode projection without trusting truncation."""
+    rows = []
+    while True:
+        result = rpc('VideoLibrary.GetEpisodes', properties,
+                     limits={'start': len(rows), 'end': len(rows) + page_size})
+        batch = result.get('episodes', [])
+        total = result.get('limits', {}).get('total', len(rows) + len(batch))
+        if (not isinstance(batch, list) or type(total) is not int or total < 0
+                or total > maximum or len(rows) + len(batch) > maximum):
+            raise ValueError('Episode catalogue exceeds recommendation exclusion bound')
+        rows.extend(batch)
+        if len(rows) >= total:
+            return rows
+        if not batch:
+            raise ValueError('Episode catalogue pagination stalled')
 
 
 def add_item(handle, row):
@@ -137,8 +156,14 @@ def add_recommended(handle):
                        limits=limits)
     show_result = rpc('VideoLibrary.GetTVShows', SHOW_RECOMMEND_PROPERTIES,
                       limits=limits)
+    episodes = all_episodes(RECOMMEND_EPISODE_PROPERTIES)
+    excluded_movies, excluded_shows = recommendation_exclusions(
+        movie_result.get('movies', []), episodes,
+        show_result.get('tvshows', []))
     rows = recommended_items(movie_result.get('movies', []),
-                             show_result.get('tvshows', []))
+                             show_result.get('tvshows', []),
+                             excluded_movies=excluded_movies,
+                             excluded_shows=excluded_shows)
     xbmcplugin.setPluginCategory(handle, 'Recommended for You')
     xbmcplugin.setContent(handle, 'videos')
     for row in rows:

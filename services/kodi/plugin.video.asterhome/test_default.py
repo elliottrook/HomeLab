@@ -112,17 +112,45 @@ class AdapterTests(unittest.TestCase):
                 return {'movies':[{'movieid':1, 'label':'Movie',
                                    'file':'/owned/movie.mkv',
                                    'art':{'fanart':'fanart.jpg'}}]}
+            if method.endswith('GetEpisodes'):
+                return {'episodes':[]}
             return {'tvshows':[]}
         with patch.object(self.module, 'rpc', side_effect=rpc), \
                 patch.object(self.module, 'add_item') as add:
             self.module.add_recommended(1)
         self.assertEqual([call[0] for call in calls],
-                         ['VideoLibrary.GetMovies', 'VideoLibrary.GetTVShows'])
+                         ['VideoLibrary.GetMovies', 'VideoLibrary.GetTVShows',
+                          'VideoLibrary.GetEpisodes'])
         self.assertTrue(all(call[2]['limits'] == {'start':0, 'end':2000}
                             for call in calls))
         self.assertEqual(add.call_args.args[1]['file'], '/owned/movie.mkv')
         self.module.xbmcplugin.endOfDirectory.assert_called_once_with(
             1, cacheToDisc=False)
+
+    def test_recommendation_refuses_incomplete_continue_exclusion_catalogue(self):
+        def rpc(method, *args, **kwargs):
+            if method.endswith('GetMovies'):
+                return {'movies': []}
+            if method.endswith('GetTVShows'):
+                return {'tvshows': []}
+            return {'episodes': [], 'limits': {'total': 2001}}
+        with patch.object(self.module, 'rpc', side_effect=rpc):
+            with self.assertRaisesRegex(ValueError, 'pagination stalled'):
+                self.module.add_recommended(1)
+
+    def test_episode_projection_is_paginated_to_completion(self):
+        calls = []
+        def rpc(method, properties, limits):
+            calls.append(limits)
+            start = limits['start']
+            rows = [{'episodeid': value} for value in range(start, min(start + 2, 5))]
+            return {'episodes': rows, 'limits': {'total': 5}}
+        with patch.object(self.module, 'rpc', side_effect=rpc):
+            rows = self.module.all_episodes(['episodeid'], page_size=2)
+        self.assertEqual([row['episodeid'] for row in rows], list(range(5)))
+        self.assertEqual(calls, [
+            {'start': 0, 'end': 2}, {'start': 2, 'end': 4},
+            {'start': 4, 'end': 6}])
 
     def test_idle_hero_tick_advances_without_moving_remote_focus(self):
         self.module.xbmcgui.getCurrentWindowId.return_value = 10000

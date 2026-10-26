@@ -13,16 +13,20 @@ import tempfile
 import xml.etree.ElementTree as ET
 
 
-STAGE_NAME = "aster-media-hero3"
+STAGE_NAME = "aster-media-hero9"
 STAGING = Path("/storage/.aster-staging")
 CHECKPOINTS = Path("/storage/.aster-checkpoints")
 RECOVERY = Path("/storage/.aster-recovery-required")
-CANDIDATE_MANIFEST = "28655c667c5b7d5c55e14b3ace32bcae1c791fa3d43d5a742e39537d5cf4588f"
+CANDIDATE_MANIFEST = "be423e3405f77ad432d00d48d6193ddf2368d3570913199798a250899a86a8c7"
 EXPECTED_TARGETS = {
     "plugin/default.py": "/storage/.kodi/addons/plugin.video.asterhome/default.py",
     "plugin/library.py": "/storage/.kodi/addons/plugin.video.asterhome/library.py",
     "skin/1080i/Home.xml": "/storage/.kodi/addons/skin.asterhome/1080i/Home.xml",
     "skin/1080i/Includes.xml": "/storage/.kodi/addons/skin.asterhome/1080i/Includes.xml",
+    "skin/1080i/custom_1127_search.xml": "/storage/.kodi/addons/skin.asterhome/1080i/custom_1127_search.xml",
+    "runtime/custom_1127_search.xml": "/storage/.kodi/addons/script.asterruntime/aster-global-search-ui22/overlay/custom_1127_search.xml",
+    "runtime/search-manifest.json": "/storage/.kodi/addons/script.asterruntime/aster-global-search-ui22/manifest.json",
+    "runtime/family-manifest.json": "/storage/.kodi/addons/script.asterruntime/family-manifest.json",
 }
 
 
@@ -84,6 +88,8 @@ def load_stage(stage):
                 "candidate-member")
         if name.endswith(".py"):
             ast.parse((stage / name).read_bytes())
+        elif name.endswith(".json"):
+            json.loads((stage / name).read_text())
         else:
             ET.fromstring((stage / name).read_bytes())
     return rows

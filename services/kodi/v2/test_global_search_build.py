@@ -27,13 +27,16 @@ class SearchBuildTests(unittest.TestCase):
         root=ET.parse(here/'search_native/overlay/custom_1127_search.xml').getroot()
         self.assertEqual(root.get('id'),'1127')
         controls={c.get('id'):c for c in root.findall('.//control') if c.get('id')}
-        self.assertEqual(set(controls),{'10','20','30','40'})
+        self.assertEqual(set(controls),{'10','20','30','40','50','51'})
         for control in controls.values():
             for direction in ('onleft','onright','onup','ondown'):
                 self.assertIn(control.findtext(direction),controls)
         xml=ET.tostring(root).decode()
         self.assertIn('Not connected to search yet',xml)
         self.assertIn('no autoplay',xml)
+        self.assertEqual(controls['50'].findtext('label'),'Search library')
+        self.assertEqual(controls['51'].findtext('label'),'Search catalogue')
+        self.assertEqual(controls['51'].findtext('onclick'),'RunScript(script.asterseerr)')
 
     def test_details_stage_has_exact_members_and_native_back(self):
         with tempfile.TemporaryDirectory() as folder:

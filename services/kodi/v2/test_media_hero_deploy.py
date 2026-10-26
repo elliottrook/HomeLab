@@ -26,10 +26,15 @@ class MediaHeroDeployTests(unittest.TestCase):
         for index, name in enumerate(deploy.EXPECTED_TARGETS):
             target = root / "installed" / name
             target.parent.mkdir(parents=True, exist_ok=True)
-            before = (("before_%d = True\n" % index).encode() if name.endswith(".py")
-                      else ("<window id=\"%d\"/>\n" % index).encode())
-            after = (("after_%d = True\n" % index).encode() if name.endswith(".py")
-                     else ("<window id=\"%d\"><controls/></window>\n" % index).encode())
+            if name.endswith(".py"):
+                before = ("before_%d = True\n" % index).encode()
+                after = ("after_%d = True\n" % index).encode()
+            elif name.endswith(".json"):
+                before = json.dumps({"before": index}).encode()
+                after = json.dumps({"after": index}).encode()
+            else:
+                before = ("<window id=\"%d\"/>\n" % index).encode()
+                after = ("<window id=\"%d\"><controls/></window>\n" % index).encode()
             target.write_bytes(before)
             source = stage / name; source.parent.mkdir(parents=True, exist_ok=True)
             source.write_bytes(after)

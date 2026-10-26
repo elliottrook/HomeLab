@@ -1,0 +1,31 @@
+{
+  "artist_albums": true,
+  "artist_native_window": 11129,
+  "automatic_stop_retries": 0,
+  "component": "aster-global-search-ui22",
+  "details_dispatcher_before_sha256": "d07fe2205153e862ddcfe419ff494ea7f2115fd3d6fdeaf683a91e55468f9d73",
+  "dispatcher_before_sha256": "466b69269e56d8699838aabbe72ae533a580909603855850a047bf02e76d1a0e",
+  "files": [
+    {"bytes": 20094, "path": "default.py", "sha256": "f5de435f74c67ce42dbe063323dba9e8930a78663ad193419e9d6fb5ab14764d"},
+    {"bytes": 6570, "path": "movie.py", "sha256": "bd320b80556d5958c2e915f7f69412163c7b026519d6704c107c76c9766f98f9"},
+    {"bytes": 32476, "path": "overlay/Home.xml", "sha256": "b60ced0a913739d0829d2a76d3ebd1e6f9ee24839c90993b457051484966065d"},
+    {"bytes": 5855, "path": "overlay/custom_1127_search.xml", "sha256": "6f1fbe60d9d1ef9187ad0524602268145c9412c5d2c886c104243103b692e55e"},
+    {"bytes": 4434, "path": "overlay/custom_1128_searchdetails.xml", "sha256": "6768ad95c2c506043021a053cb9538248cf4431c561d29a0933debfa516731e3"},
+    {"bytes": 5743, "path": "overlay/custom_1129_artistalbums.xml", "sha256": "1e3111efe511d1f0a55a2eeafd1ba6d09bddeaaf2c304c02148a6b0020c90de4"},
+    {"bytes": 6053, "path": "overlay/custom_1130_movie.xml", "sha256": "ee68011d165469c94b665005337384901b64452946cbbde1f6d7efa175b0d7c8"},
+    {"bytes": 2858, "path": "overlay/select_dispatch.py", "sha256": "87df1f8111065ea568b0e26ee78470f8ff3bd86d896b4933d1e7b860f8beaa73"},
+    {"bytes": 6568, "path": "resources/lib/global_search.py", "sha256": "272974a1e3be6f95de8da7b1c7e95f11ddf3d97265df399e1ae9513c6989292e"},
+    {"bytes": 10367, "path": "resources/lib/movie_player.py", "sha256": "355274cab4188f7b4addc9bdd43ddbf5d3f37b50c79cf2d59ef7761c5a00013f"},
+    {"bytes": 2283, "path": "resources/lib/search_details.py", "sha256": "d61db2695a6972d0976c3619c41b8ee0de88427bf3b783ea55a125ddb129fe6b"},
+    {"bytes": 3404, "path": "resources/lib/search_extensions.py", "sha256": "9145fcda0e100ee7656571dd573c524a1467114877b668c7098194358892112c"},
+    {"bytes": 4634, "path": "resources/lib/search_handoff.py", "sha256": "ee02ed2ad2c272331f34b4b05312361fafd14e98f9eaf95719cdf5ccabd250de"}
+  ],
+  "home_before_sha256": "ca2866a0b306844f8a71534ceaecc77ee1e5946d1f4b6b37c9694d7dda94bb44",
+  "kind": "hp-search-playerlinks",
+  "movie_page": 11130,
+  "previous_manifest_sha256": "d798961e64038a3a8ad3a955292a63356506a2fa36218f3e8801f0d64e1ae146",
+  "schema": 1,
+  "source_manifest_sha256": "721363f8ccc334116c452bb727fc152546ba95399fb31eb6406127f722698c65",
+  "stage": "aster-global-search-ui22",
+  "stop_acknowledgement_seconds": 5
+}

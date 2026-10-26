@@ -3,7 +3,8 @@
 import unittest
 
 from library import (canonical_genre, combined_items, continue_items, matches_genre,
-                     next_up_item, recent_items, recommended_items, watching_items)
+                     next_up_item, recent_items, recommendation_exclusions,
+                     recommended_items, watching_items)
 
 
 class LibraryTests(unittest.TestCase):
@@ -99,6 +100,32 @@ class LibraryTests(unittest.TestCase):
         rows = recommended_items(movies, shows, recent_exclusion=1)
         self.assertEqual({row['label'] for row in rows}, {'Eligible', 'Series'})
         self.assertTrue(all(row['kind'] in ('movie', 'tvshow') for row in rows))
+
+    def test_recommendations_exclude_every_continue_watching_identity(self):
+        movies = [
+            {'movieid': 1, 'label': 'Resuming movie', 'file': '/one.mkv',
+             'resume': {'position': 10, 'total': 100},
+             'art': {'fanart': 'one.jpg'}},
+            {'movieid': 2, 'label': 'Eligible movie', 'file': '/two.mkv',
+             'art': {'fanart': 'two.jpg'}},
+        ]
+        shows = [
+            {'tvshowid': 3, 'label': 'Started series', 'episode': 10,
+             'watchedepisodes': 2, 'art': {'fanart': 'three.jpg'}},
+            {'tvshowid': 4, 'label': 'Resuming first episode', 'episode': 10,
+             'watchedepisodes': 0, 'art': {'fanart': 'four.jpg'}},
+            {'tvshowid': 5, 'label': 'Eligible series', 'episode': 10,
+             'watchedepisodes': 0, 'art': {'fanart': 'five.jpg'}},
+        ]
+        episodes = [{'episodeid': 40, 'tvshowid': 4,
+                     'resume': {'position': 20, 'total': 100}}]
+        excluded_movies, excluded_shows = recommendation_exclusions(
+            movies, episodes, shows)
+        rows = recommended_items(
+            movies, shows, recent_exclusion=0,
+            excluded_movies=excluded_movies, excluded_shows=excluded_shows)
+        self.assertEqual({row['label'] for row in rows},
+                         {'Eligible movie', 'Eligible series'})
 
     def test_continue_watching_merges_movies_and_episodes_by_last_played(self):
         movies = [{

@@ -70,7 +70,27 @@ def recent_items(movies, shows, limit=24):
     return result[:max(0, int(limit))]
 
 
-def recommended_items(movies, shows, limit=12, recent_exclusion=12):
+def recommendation_exclusions(movies, episodes, shows):
+    """Return library identities already represented by Continue Watching."""
+    movie_ids, show_ids = set(), set()
+    for row in continue_items(movies, episodes, limit=100000):
+        if row['kind'] == 'movie' and type(row.get('movieid')) is int:
+            movie_ids.add(row['movieid'])
+        elif row['kind'] == 'episode' and type(row.get('tvshowid')) is int:
+            show_ids.add(row['tvshowid'])
+    if isinstance(shows, list):
+        for show in shows:
+            if (isinstance(show, dict) and type(show.get('tvshowid')) is int
+                    and type(show.get('watchedepisodes')) is int
+                    and show['watchedepisodes'] > 0):
+                # Any started series can produce a resume or local Up Next row.
+                # Excluding it is safer than allowing hero/Continue overlap.
+                show_ids.add(show['tvshowid'])
+    return frozenset(movie_ids), frozenset(show_ids)
+
+
+def recommended_items(movies, shows, limit=12, recent_exclusion=12,
+                      excluded_movies=frozenset(), excluded_shows=frozenset()):
     """Rank only playable/browsable local titles for the idle media hero.
 
     Recommendations are derived from Kodi's local library metadata.  The
@@ -108,6 +128,9 @@ def recommended_items(movies, shows, limit=12, recent_exclusion=12):
 
     candidates = []
     for row in sources:
+        if ((row['kind'] == 'movie' and row['id'] in excluded_movies)
+                or (row['kind'] == 'tvshow' and row['id'] in excluded_shows)):
+            continue
         if (row['kind'], row['id']) in excluded:
             continue
         art = row.get('art') if isinstance(row.get('art'), dict) else {}
