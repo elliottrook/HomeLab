@@ -1,7 +1,7 @@
 # M1/D4 fixed Doctor broker reconciliation — replacement and restart card
 
 **Date:** 2026-10-25
-**Status:** source-complete; live replacement requires exact approval
+**Status:** corrected retry candidate; first attempt rolled back; new exact approval required
 **Manifest:** `scripts/deploy/fixed-doctor-broker-reconciliation-manifest.json`
 
 ## Why the earlier candidate is superseded
@@ -32,6 +32,21 @@ The systemd unit is unchanged. Its existing command does not pass the new
 fixed-Doctor socket flag, so the reviewed default
 `/run/aster-fixed-doctor/gateway.sock` applies while all existing explicit
 Forgejo and lab-operation sockets remain unchanged.
+
+## First attempt correction
+
+The first approved attempt rolled back after its postcheck used Unix user
+`aster`, which does not have broker-socket access. Recovery initially exposed a
+second script defect: the SQLite backup was restored as root:root. Production
+was recovered by restoring its measured `hlabroker:hlabroker` mode `0600`
+custody and restarting only the broker. The complete bounded record is in
+[the rollback result](M1-D4-fixed-doctor-broker-first-attempt-rollback-2026-10-25.md).
+
+The corrected apply script is SHA-256
+`d69a6c42bfc13b9f66f568077e5856783a4bf0f337264f1d877434be9408c28f`.
+It preflights and postchecks health as registered client `hlabagent`, verifies
+database and socket custody before replacement, and restores SQLite as
+`hlabroker:hlabroker` mode `0600` during rollback.
 
 ## Bounded live procedure
 

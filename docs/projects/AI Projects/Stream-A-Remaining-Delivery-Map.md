@@ -971,8 +971,13 @@ have removed that capability, dedicated socket and batch-write route. The
 now starts from the exact deployed sources, preserves those newer routes and
 adds the fixed Doctor path. Its exact-source generator reproduces both
 candidate hashes, local compilation passes and 51 focused tests cover both
-feature families. The next bounded gate is target-Linux staging followed by
-replacement of exactly those two broker sources and one controlled normal-
+feature families. The first approved replacement attempt rolled back: its
+postcheck used the non-client `aster` identity, and rollback then exposed an
+incorrect SQLite ownership restore. Production is recovered at both original
+source hashes, healthy broker/Aster services and an `ok` database integrity
+check. The corrected retry uses registered client `hlabagent` and restores the
+database as `hlabroker:hlabroker` mode `0600`. Its next bounded gate is a fresh
+exact approval for the same two source replacements and one controlled normal-
 broker restart, still without enrollment, grant or service activation.
 
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)

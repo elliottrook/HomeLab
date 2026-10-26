@@ -25,5 +25,10 @@
     "/opt/homelab-broker/broker_core.py": "2fdb80964984fed5cf539f12a62d0058ba9eb9088861425858109fabc7dabf99"
   },
   "restart": "homelab-broker.service",
-  "rollback": "restore both exact predecessors and the consistent SQLite checkpoint, then restart only homelab-broker.service"
+  "rollback": "restore both exact predecessors and the consistent SQLite checkpoint, then restart only homelab-broker.service",
+  "apply": {
+    "source": "scripts/deploy/apply_fixed_doctor_broker_reconciliation.sh",
+    "sha256": "d69a6c42bfc13b9f66f568077e5856783a4bf0f337264f1d877434be9408c28f",
+    "target": "/root/aster-fixed-doctor-broker-stage-20261025T1750PDT/apply.sh"
+  }
 }
