@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -7,7 +8,12 @@ import sys
 import tempfile
 import unittest
 
-from sa3_development_execute import journal_status_counts, main, run_spec
+from sa3_development_execute import (
+    journal_status_counts,
+    main,
+    read_api_key_from_fd,
+    run_spec,
+)
 
 
 class DevelopmentExecuteTests(unittest.TestCase):
@@ -48,9 +54,9 @@ class DevelopmentExecuteTests(unittest.TestCase):
 
     def test_current_candidate_source_manifest_matches_exact_dry_run(self):
         manifest = json.loads((
-            self.here / "sa3-development-attempt-10-source-manifest.json"
+            self.here / "sa3-development-attempt-11-source-manifest.json"
         ).read_text())
-        self.assertEqual("candidate-G", manifest["candidate_alias"])
+        self.assertEqual("candidate-H", manifest["candidate_alias"])
         self.assertEqual("not-granted", manifest["authority"])
         spec = run_spec(self.fixtures, self.source, self.plan)
         from sa3_fresh_package import digest
@@ -86,6 +92,38 @@ class DevelopmentExecuteTests(unittest.TestCase):
     def test_execute_requires_exact_digest_before_authentication(self):
         with self.assertRaisesRegex(SystemExit, "approved digest"):
             main(["--execute", "--expected-run-digest", "0" * 64])
+
+    def test_dry_run_does_not_touch_key_descriptor(self):
+        result = subprocess.run(
+            [sys.executable, str(self.here / "sa3_development_execute.py"),
+             "--key-fd", "9999"],
+            env={"ASTER_LLAMA_API_KEY": "must-not-be-used"},
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        self.assertFalse(json.loads(result.stdout)["keys_accessed"])
+
+    def test_descriptor_key_is_bounded_and_closed(self):
+        read_fd, write_fd = os.pipe()
+        os.write(write_fd, b"fictional-local-key\n")
+        os.close(write_fd)
+        self.assertEqual("fictional-local-key", read_api_key_from_fd(read_fd))
+        with self.assertRaises(OSError):
+            os.fstat(read_fd)
+
+    def test_descriptor_rejects_stdio_and_oversized_or_invalid_keys(self):
+        with self.assertRaisesRegex(SystemExit, "descriptor required"):
+            read_api_key_from_fd(0)
+        for value, message in (
+                (b"x" * 4097, "bounded size"),
+                (b"contains space", "invalid encoding"),
+                (b"", "invalid encoding")):
+            read_fd, write_fd = os.pipe()
+            os.write(write_fd, value)
+            os.close(write_fd)
+            with self.assertRaisesRegex(SystemExit, message):
+                read_api_key_from_fd(read_fd)
 
     def test_journal_status_projection_is_content_free(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -102,6 +102,27 @@ def journal_status_counts(path):
     return dict(sorted(counts.items()))
 
 
+def read_api_key_from_fd(fd):
+    if not isinstance(fd, int) or isinstance(fd, bool) or fd < 3:
+        raise SystemExit("Protected API-key descriptor required")
+    try:
+        raw = os.read(fd, 4097)
+    except OSError as exc:
+        raise SystemExit("Protected API-key descriptor unavailable") from exc
+    finally:
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+    if len(raw) > 4096:
+        raise SystemExit("Protected API key exceeds bounded size")
+    if raw.endswith(b"\n"):
+        raw = raw[:-1]
+    if not raw or any(byte <= 32 or byte >= 127 for byte in raw):
+        raise SystemExit("Protected API key has invalid encoding")
+    return raw.decode("ascii")
+
+
 def main(argv=None):
     here = Path(__file__).parent
     parser = argparse.ArgumentParser()
@@ -110,6 +131,7 @@ def main(argv=None):
     parser.add_argument("--source-plan", type=Path, default=here / "sysadmin-incident-development-plan-v1.json")
     parser.add_argument("--expected-run-digest")
     parser.add_argument("--ledger", type=Path)
+    parser.add_argument("--key-fd", type=int)
     parser.add_argument("--execute", action="store_true")
     args = parser.parse_args(argv)
 
@@ -135,9 +157,7 @@ def main(argv=None):
         raise SystemExit("Run does not match explicitly approved digest")
     if args.ledger is None:
         raise SystemExit("Explicit durable ledger path required")
-    key = os.environ.get("ASTER_LLAMA_API_KEY")
-    if not key:
-        raise SystemExit("Existing local service authentication required")
+    key = read_api_key_from_fd(args.key_fd)
     headers = {"Authorization": "Bearer " + key, "Content-Type": "application/json"}
     opener = build_local_opener()
 

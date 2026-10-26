@@ -1242,3 +1242,9 @@ the D4 credential bridge, absolute M3 interpreter/execution-identity pins and
 source-supported F4/F5 binding. Continue offline
 review when that source arrives. Do not activate F6, stop consumers, call a
 model, create a receipt or infer success from the scheduled F2 timers.
+
+The source-only [candidate-H credential correction](evidence/D4-candidate-H-descriptor-credential-boundary-2026-10-25.md)
+replaces environment-key access with a bounded inherited descriptor and passes
+the complete 168-test evaluation suite. It is a new, unauthorized digest and
+has not been staged or run. The platform must still supply and pin the actual
+secret-broker descriptor opener; candidate-G's approval does not transfer.
