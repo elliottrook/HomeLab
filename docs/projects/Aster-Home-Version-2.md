@@ -58,8 +58,11 @@
   The approved guest-agent-only recovery is complete; the actual source capture
   now passes twice after removing raw Unicode from command arguments. Agent,
   VM boot, Core uptime and unchanged unit configuration are verified below.
-  No data was published. Next: prepare a separately checkpointed one-shot HP
-  feed publication; runtime delivery ownership/scheduling remains an open gate.
+  A separately approved one-shot HP publication now passes fresh native UI,
+  actual elapsed expiry and exact rollback. The original HP feed is restored;
+  nothing is scheduled and normal Home navigation is unchanged. All837 tests
+  pass normally and optimized. Next: bounded runtime delivery/client-refresh
+  design; publisher identity and scheduling remain explicit integration gates.
   Owner checks are deferred for a larger batch, not requested now. Forgejo/GitHub
   are synchronized through68b2285f; newer milestones are local only.
 - Previous resume point (2026-10-25): Search14 Stop-acknowledgement guard is on
@@ -6454,3 +6457,158 @@ never replace a whole VM or Core restart for an agent-only fault. No service was
 added/removed/renamed, so existing NetBox/Beszel identities, backup retention and
 network records remain unchanged. Runtime publication/monitoring ownership is
 still required before delivery graduation. No Forgejo push is authorized here.
+
+### Approved one-shot HP Home feed trial — pre-start (2026-10-25)
+
+Jason approved the checkpointed HP feed-delivery trial. Capture only the reviewed
+HA report over the now-validated existing operator SSH/guest-agent route; stage
+the candidate privately on HP, then revalidate schema/freshness before one atomic
+replacement of the fixed `feeds/home.json`. Require HP Home idle/empty queues,
+an exact before hash, protected regular files and no concurrent publisher. Save
+and verify the original bytes/mode/timestamps and an isolated restore first.
+Use a separately pinned one-shot native harness, never normal-startup hooks.
+Exercise current-reader compatibility, fresh preview bindings, navigation and
+real elapsed expiry while open, then restore the exact original feed. Preserve
+an interrupted-operation marker and refuse rollback over foreign feed changes.
+No source timestamp edits, synthetic data in the real feed, new schedule, camera
+query, HA change, active skin edit, Core/Kodi restart, speech or production write.
+No new credentials/network paths/service/inventory objects; existing native
+preservation remains the monitor for this trial. Operator SSH remains break-glass
+only, not a proposed runtime publisher identity. Store private live values only
+in mode0600 HP trial/backup files; print counts/hashes/status, not readings.
+End with original feed restored and immutable evidence retained. Stop on stale
+capture, occupied Home, drift, failed checkpoint or failed safe rollback.
+
+#### One-shot trial in progress — resumable state
+
+Baseline preflight `postcheck-1792983220507618215.json` passes the full existing
+HP preservation suite. Before feed:526bytes,mode0600,single regular link,
+SHA-256 `a975c8c68dc5cf5d70c12530fb0bba60b89b78eb06d081f95ea6d97331b5b6cd`.
+Only the fixed local feed is permitted to change, with original modification
+time restored; access time may be updated by subsequent verification reads.
+
+Added the pure one-use `home_publication.py`, private immutable trial builder
+and native test harness. Eleven synthetic publication tests pass, including
+isolated byte/time restore, expired/future/unreviewed payload rejection,
+protected-file rules, idle recheck, expiry during preparation, foreign-write
+fences, interrupted apply-state recovery, corrupt-backup refusal and current
+reader compatibility. The full837-test suite passes normal/optimized. Synthetic
+data is never written to the actual feed. The root-owned trial assumes no
+concurrent privileged publisher; hash checks fence observed changes but are not
+a cross-process compare-and-swap primitive.
+
+Trial1 stage `/storage/.aster-staging/aster-home-feed-trial1`, manifest
+`98c53e39f748b8b92101eb7d8bea36024403fceb999ceca6bcfe36ea343c758a`,
+candidate `e205052c22d230716b8b1e6f04eb3dce1c7a2b1a7a89dfc0735340625dfbab0e`,
+stopped at `home-trial-visible-summary`. It is failed evidence, not a pass.
+The exact original feed was automatically restored and checkpoint state says
+`restored`. Do not replay the consumed checkpoint. Corrected harness waits for
+visible-label readiness after the property readiness signal; rollback is also
+kept independent of any UI-cleanup failure.
+
+The one corrected attempt is trial2, external manifest
+`7b5674f94d1644bafb98f21443ef09de8d21b3a604d80f4c23e6e29b6486f710`,
+stage `/storage/.aster-staging/aster-home-feed-trial2`, private checkpoint
+`/storage/.aster-checkpoints/aster-home-feed-trial2`.
+Candidate SHA-256 `34a21e0aa5cae8022e25dec6975d7a9897f9e392f3132137d593c6c6afdf34ee`,
+480bytes, one light/one temperature/one weather, actual source timestamp
+`2026-10-26T02:58:52+00:00`. Current legacy reader accepts it; fresh preview2
+group/visible-summary bindings and adjacent navigation pass. No screenshot of
+private live readings was exported. The native harness is waiting for genuine
+expiry while open, not altering source/publication timestamps or applying a
+clock override. It must hide all values just after03:08:52UTC and then restore
+the original feed automatically. Check only the counts/status-only
+`progress.json` in its immutable stage; do not relaunch a consumed trial.
+
+If interrupted, inspect that progress and checkpoint `state.json` first. An
+`apply-pending`/`applied` marker is not permission to retry. Close only an owned
+preview when idle and use the pinned publication module's restore for that exact
+checkpoint, which refuses a foreign current hash or corrupt backup. Do not
+delete any checkpoint/candidate to bypass a fence. Finish with exact original
+feed hash/modification time/mode and full HP preservation; no service, schedule,
+normal Home navigation or production change is authorized by this trial.
+
+#### Runtime-delivery gate and operator handover (not deployed)
+
+This trial is not an unattended Home service and adds no user-facing entry or
+button. The current Home page/navigation, local timer and camera controls remain
+as before. The isolated preview is explicitly an exported-status view: Reload
+only rereads the local file; it cannot refresh Home Assistant. The trial harness
+opens it on an idle HP and restores Home/focus plus the original feed at the end.
+Do not ask the family to maintain this with manual SSH commands or to treat the
+one-shot values as an automatic live dashboard. Owner visual acceptance and
+normal Home integration remain separate gates.
+
+For the eventual runtime pilot, first select a protected publisher host and
+least-privilege fixed-report capability. Never copy Proxmox/admin SSH credentials
+onto a TV or turn operator-root guest execution into an undocumented scheduled
+service. Reuse a broker only if it can expose that exact report projection
+without arbitrary commands, paths, raw HA attributes or household control;
+otherwise present a bounded identity/transport design for approval. No such
+identity, credential, broker permission, service or schedule is created here.
+
+HA currently publishes its sanitized report at startup, reviewed changes and
+every five minutes. A proposed two-minute delivery interval would leave margin
+inside the existing ten-minute source TTL, but is a design candidate, not an
+enabled timer. Preserve both source and publication timestamps; an unavailable
+source must not become fresh because an old payload was copied again. Bound
+timeouts, missed-run behavior and concurrent attempts; retain last-success
+metadata without logging readings. A failed delivery should become an honest
+stale client, not delete the last usable file or mask failure by re-dating it.
+
+Client integration is also required. Preview2 intentionally holds one loaded
+generation in memory and expires it; it does not poll for new files. A scheduler
+alone would therefore leave an open dashboard using an old generation. A later
+bounded local-file change detector must load only a new verified generation,
+preserve focus, handle a replacement while open, avoid repeated reads of an
+unchanged file and never require direct HA access from Kodi. Evaluate delivery
+and already-open-client latency together, then test source/publisher loss,
+expiry, recovery, repeated generations, reboot and exact rollback before normal
+Home activation. Cameras and structured timers are outside that report path.
+
+Before runtime graduation: define Doctor/monitoring owner and quiet stale/failure
+signals; preserve restore order and private configuration backup; assess any
+actual NetBox/Beszel/service-identity changes; update operational/wiki guidance
+and the derived Aster mirror only after the real architecture is accepted.
+
+#### One-shot HP publication trial2 — completed evidence
+
+Trial2 finished `passed:true`, checks enforced, phase `expiry-verified` in
+`/storage/.aster-staging/aster-home-feed-trial2/progress.json`, proof SHA-256
+`2a80fe362d21052f6f9643b87f6375fc2e9822b0eae1625a7db595301f05ac2e`.
+The current reader accepted the source; preview2 fresh group/summary bindings,
+adjacent navigation, source-time preservation, real elapsed expiry, stale
+summaries and exact Back focus all pass. No screenshot of private live values
+was exported, so fresh pixel/sofa acceptance remains unclaimed. One bounded
+Right input woke the display during the wait so final Back would not merely
+dismiss the idle screensaver. No settings were changed to suppress idle behavior.
+
+Expiry used real UTC time against the original source timestamp, not synthetic
+source data, a shorter TTL, re-dating or a clock override. The four groups became
+stale/Values unavailable with no reload of the feed. The candidate stayed
+unchanged throughout. The harness then closed its owned preview and restored
+the original feed, leaving no publisher/service or periodic task enabled.
+
+Independent verification confirms checkpoint state `restored`, original and
+backup SHA-256 both
+`a975c8c68dc5cf5d70c12530fb0bba60b89b78eb06d081f95ea6d97331b5b6cd`,
+exact original bytes, mode0600 and matching original modification nanoseconds.
+The checkpoint directory is mode0700. The one-use fence prevents reapplying
+either consumed trial. Private candidate/backup files remain only on HP as
+recovery evidence; they are not Git assets or a normal refresh path.
+
+Final preservation `postcheck-1792984178752787587.json` under HP's existing
+`aster-music-progressive-20261024` checkpoint passes48 Music members,115 untouched
+v1 members, all exact approved overlays,68 AV/language settings with the earlier
+documented derived display-index exception, both database integrity checks,
+empty queues/no players and closed pilot windows. No baseline rewrite. All837
+local tests pass normal/optimized after the corrected harness. This proves one
+corrected native publication/expiry/rollback pass; trial1 remains a failed pass
+with successful rollback, not a second successful run.
+
+No production, HA, camera, structured timer, credential, network, inventory,
+monitoring-service, speech or automatic-refresh change. Keep the trial2 bundle,
+manifest, candidate pin and both checkpoints for resumption/audit. Next work may
+prepare local consumer-generation tests and the runtime identity design. Any
+unattended publisher/schedule, new trust/credential path, normal Home promotion
+or production deployment remains outside this consumed one-shot approval.
