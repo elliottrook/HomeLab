@@ -1,7 +1,7 @@
 # Stream A evaluation composition — source review
 
 Date: 2026-10-25 America/Vancouver  
-Decision: **GO for source-only composition; inactive installation pending**
+Decision: **GO after dependency-closure correction; revised inactive installation pending**
 
 ## Scope
 
@@ -12,8 +12,8 @@ loading, guest-local D4 and M3 structural verification, a content-free host
 adapter, restored F2 schedule and evaluation-child checks, and one no-CLI
 fixed-dependency composition root.
 
-Implementation commits are `d738488c`, `00c975eb` and `85c30e44`; the reviewed
-inactive install card is platform commit `62e1eb6f` at
+Implementation commits are `d738488c`, `00c975eb` and `85c30e44`; the original
+inactive install card was platform commit `62e1eb6f` at
 `services/local-ai-lease/STREAM-A-EVALUATION-COMPOSITION-INACTIVE-INSTALL-CARD-20261025.md`.
 
 ## Findings and corrections
@@ -31,8 +31,8 @@ the fixed host command supplies both one allowlisted workload and
 journal digest, result digest and call count; the host supplies the separately
 measured elapsed time.
 
-Independent review accepted both corrected boundaries. The complete focused
-macOS suite passes 94/94. No receipt, lease, timer arm, service stop, private
+Independent review accepted both corrected boundaries. The original complete
+focused macOS suite passed 94/94. No receipt, lease, timer arm, service stop, private
 artifact read or model request occurred.
 
 ## Live target preflight
@@ -43,17 +43,35 @@ guest files absent in LXC104 and LXC110. All five F6 units are disabled and
 inactive, the whole-host lease is exactly ready, and evaluation state and locks
 are absent.
 
-Independent review accepted the exact 13-path inactive card: nine Proxmox
+Independent review initially accepted the exact 13-path inactive card: nine Proxmox
 paths (eight additions and one replacement) plus two additions in each guest.
 It checkpoints the replaced observer, records all twelve absent paths, runs
-the 94-test Linux suite, checks both guest wrappers inert, and rolls back only
+the then 94-test Linux suite, checks both guest wrappers inert, and rolls back only
 measured paths.
+
+## Pre-install dependency-closure correction
+
+The final target inventory prevented an invalid installation: neither LXC104
+nor LXC110 contains the host-only `evaluation_lease.py` module, but the guest
+outcome verifier imported two constants from it before reaching its inert
+gate. Installing `62e1eb6f` exactly would therefore have failed the mandatory
+guest check and rolled back.
+
+Platform commit `37452660` makes the two-file guest packet dependency-closed by
+pinning those two immutable release identities in the pure verifier. A source
+test requires them to remain equal to the host lease contract. The revised
+suite passes 95/95 locally and from a clean commit archive on Proxmox. Temporary
+two-file copies in each guest, with an empty `PYTHONPATH`, returned the exact
+canonical disabled result and created no bytecode. All temporary files were
+removed; no target installation or runtime effect occurred. Platform commit
+`8e6ed141` records the revised card and successful target preflight.
 
 ## Remaining gates
 
-1. Jason's exact approval for the reversible inactive placement.
-2. Target-Linux tests, installed hashes/custody, rollback and unchanged-live-
-   state proof.
+1. Jason's fresh exact approval for the revised reversible 13-path inactive
+   placement; the prior approval was bound to the superseded verifier hash.
+2. Installed hashes/custody, rollback checkpoint and unchanged-live-state
+   proof; target-Linux source and isolated guest tests already pass.
 3. Fresh successful F2, then F3/F4/F5/admission evidence.
 4. A separate F6 arm/live-run card and approval before any consumer stop or
    model request.

@@ -1309,6 +1309,15 @@ effects. It is deliberately not an admission gate: the later orchestrator must
 submit each phase through the durable adapter so M3 cannot precede an accepted
 candidate-H outcome. The source-only sequence and fixed intent/effect driver
 now enforce that order and retain separate D4/M3 start/outcome records. The
+[composition review](evidence/Stream-A-evaluation-composition-source-review-2026-10-25.md)
+found and corrected a pre-install guest dependency gap: both guests lack the
+host-only lease module that the original verifier imported. Platform commit
+`37452660` is dependency-closed, passes 95/95 locally and on Proxmox, and its
+two-file packet returns the exact disabled result in both target guests with
+an empty `PYTHONPATH`. Nothing was installed during that proof. The revised
+13-path inactive card is recorded at platform commit `8e6ed141` and needs a
+fresh exact installation approval because one pinned hash changed.
+The
 [owner-before-heartbeat unit correction](evidence/Stream-A-F6-owner-heartbeat-ordering-inactive-install-2026-10-25.md)
 is installed inactive with a root-only rollback checkpoint, 4/4 focused tests
 and unchanged October 26 F2 timers. The next offline F6 work is to implement
