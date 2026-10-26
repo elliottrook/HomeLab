@@ -1282,3 +1282,11 @@ tests. It can derive the durable F3 receipt from an unchanged, complete F2
 terminal result without repeating the archive scan. Receipt production remains
 a separate effect approval after F2 reconciliation; failed or uncertain F2
 evidence writes nothing.
+
+Future F4/F5 authentication now uses the
+[installed negative-control metadata probe](evidence/F4-F5-metadata-auth-inactive-upgrade-result-2026-10-25.md):
+no authorization and a fixed invalid bearer must both return `401` before the
+real key can return `200` with the exact model. This removes the former hidden
+one-token completion from the no-model-call evidence path. F4/F5 remain
+unproduced; the inactive F6 exercise runner still needs its downstream helper
+pin updated from local platform commit `d4473311`.
