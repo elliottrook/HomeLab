@@ -35,7 +35,7 @@ def _unavailable(incident_id: str, now: datetime) -> Observation:
     return Observation(
         evidence_id="speech-check-unavailable-" + marker,
         incident_id=incident_id,
-        target="aster-speech",
+        target="homelab-doctor",
         kind="status",
         observed_at=now.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
         source=SOURCE,
@@ -110,7 +110,7 @@ def read_speech_catalogue_observation(
         return Observation(
             evidence_id="speech-check-" + catalogue_digest,
             incident_id=incident_id,
-            target="aster-speech",
+            target="homelab-doctor",
             kind="status",
             observed_at=observed.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
             source=SOURCE,

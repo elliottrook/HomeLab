@@ -29,7 +29,6 @@ REGISTERED_OBSERVATIONS: dict[str, frozenset[str]] = {
     "inference-server": frozenset({"status", "log", "config"}),
     "forgejo-main": frozenset({"git"}),
     "homelab-doctor": frozenset({"status", "network"}),
-    "aster-speech": frozenset({"status"}),
     "backup-catalog": frozenset({"backup"}),
 }
 

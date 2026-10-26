@@ -27,9 +27,10 @@ timestamp and bounded age. Its deterministic answer states the named status,
 freshness and scope, and explicitly says the result cannot identify a failing
 speech component, authorize repair or establish wider system health.
 
-The offline investigation policy now registers only `status` observations for
-the exact `aster-speech` target. This is a type-level boundary, not a caller,
-credential, grant or route.
+The adapter reuses the already registered `homelab-doctor` status target while
+the fixed check ID and capability distinguish Speech. This avoids replacing
+the installed shared investigation policy. It is a type-level boundary, not a
+caller, credential, grant or route.
 
 ## Validation
 

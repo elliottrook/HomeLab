@@ -56,7 +56,7 @@ class SpeechCatalogueIncidentAdapterTests(unittest.TestCase):
         value = self.read().validate(NOW)
         self.assertEqual("fail", value["state"])
         self.assertEqual("homelab-doctor-catalogue/v3", value["source"])
-        self.assertEqual("aster-speech", value["target"])
+        self.assertEqual("homelab-doctor", value["target"])
         self.assertEqual("aster.speech", value["facts"]["check_id"])
         self.assertNotIn("private words", json.dumps(value))
 
