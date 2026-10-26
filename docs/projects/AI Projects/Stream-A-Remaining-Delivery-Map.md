@@ -25,6 +25,15 @@ bounded inactive installation, which now passes with 51/51 target-Linux tests,
 exact installed hashes, disabled/inactive units and no runtime state. The next
 F6 step is a source-only activation card and read-only healthy-lease preflight;
 identity creation, timer arming and recovery remain unapproved.
+The platform-owned candidate-H admission implementation at `f109c1f0` has now
+passed independent source review and the exact approved inactive installation.
+All four installed hashes and root custody match, the target-Linux suites
+passed 69/69 plus the isolated real-wrapper test, rollback is retained, and no
+lease, F4/F5 artifact, timer, process or workload was created. This closes the
+inactive source-compatibility step only. Tonight's independently scheduled F2
+cycle must still succeed before F3, F4 and the fresh F5/admission production
+sequence can run; F6 recovery remains disabled and candidate H/M3 remain
+unspent.
 The first acquire-only/start split at platform commit `2f790b63` passes 36/36
 clean-archive tests and closes the legacy acquire→post shortcut, but its
 [independent review](evidence/Stream-A-two-phase-evaluation-adapter-review-2026-10-25.md)
