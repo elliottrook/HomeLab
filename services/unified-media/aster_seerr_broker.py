@@ -4,6 +4,7 @@ from __future__ import annotations
 import hmac
 import json
 import os
+import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Mapping, Optional
@@ -13,6 +14,10 @@ import urllib.request
 
 from aster_seerr_contract import (ContractError, candidate, page, proposal,
                                   request_result, text)
+from aster_seerr_episode_contract import (catalogue as episode_catalogue,
+                                          season as episode_season,
+                                          season_proposal,
+                                          season_request_result)
 
 
 class BrokerError(RuntimeError):
@@ -149,6 +154,100 @@ class SeerrClient:
         except ContractError as error:
             raise BrokerError(str(error)) from error
 
+    def catalogue(self, media_id: int) -> dict[str, Any]:
+        if type(media_id) is not int or not 0 < media_id <= 9_999_999_999:
+            raise BrokerError("seerr-episode-catalogue-identity")
+        cookie = self._login()
+        try:
+            return episode_catalogue(media_id, self._detail("tv", media_id, cookie))
+        except ContractError as error:
+            raise BrokerError(str(error)) from error
+
+    def resolve_tv(self, tvdb_id: int, title: str) -> dict[str, Any]:
+        if type(tvdb_id) is not int or not 0 < tvdb_id <= 9_999_999_999:
+            raise BrokerError("seerr-tvdb-identity")
+        title = text(title, 200, required=True)
+        cookie = self._login()
+        encoded = urllib.parse.urlencode({"query": title, "page": 1},
+                                         quote_via=urllib.parse.quote)
+        payload = self._get("/search?" + encoded, cookie)
+        results = payload.get("results")
+        if not isinstance(results, list):
+            raise BrokerError("seerr-tvdb-search-invalid")
+        matches = []
+        for item in results[:12]:
+            if (not isinstance(item, Mapping) or item.get("mediaType") != "tv"
+                    or type(item.get("id")) is not int or item["id"] <= 0):
+                continue
+            detail = self._detail("tv", item["id"], cookie)
+            external = detail.get("externalIds") or {}
+            if isinstance(external, Mapping) and external.get("tvdbId") == tvdb_id:
+                matches.append((item["id"], detail))
+        if len(matches) != 1:
+            raise BrokerError("seerr-tvdb-match-unavailable")
+        try:
+            return episode_catalogue(matches[0][0], matches[0][1])
+        except ContractError as error:
+            raise BrokerError(str(error)) from error
+
+    def season(self, media_id: int, season_number: int) -> dict[str, Any]:
+        if (type(media_id) is not int or not 0 < media_id <= 9_999_999_999
+                or type(season_number) is not int
+                or not 0 <= season_number <= 999):
+            raise BrokerError("seerr-episode-season-identity")
+        cookie = self._login()
+        detail = self._detail("tv", media_id, cookie)
+        raw = self._get(f"/tv/{media_id}/season/{season_number}", cookie)
+        try:
+            return episode_season(media_id, season_number, detail, raw)
+        except ContractError as error:
+            raise BrokerError(str(error)) from error
+
+    def submit_season(self, value: Any) -> dict[str, Any]:
+        try:
+            accepted = season_proposal(value)
+        except ContractError as error:
+            raise BrokerError(str(error)) from error
+        cookie = self._login()
+        media_id, number = accepted["media_id"], accepted["season"]
+        detail = self._detail("tv", media_id, cookie)
+        try:
+            current = episode_catalogue(media_id, detail)
+        except ContractError as error:
+            raise BrokerError(str(error)) from error
+        if current["candidate_id"] != accepted["candidate_id"]:
+            raise BrokerError("seerr-season-candidate-changed")
+        selected = next((row for row in current["seasons"]
+                         if row["number"] == number), None)
+        if selected is None:
+            raise BrokerError("seerr-season-changed")
+        if not selected["requestable"]:
+            if selected["request_id"] is None:
+                raise BrokerError("seerr-season-unavailable")
+            statuses = {"pending": 1, "approved": 2, "declined": 3,
+                        "failed": 4, "available": 5}
+            status = statuses.get(selected["request_state"])
+            if status is None:
+                raise BrokerError("seerr-season-unavailable")
+            try:
+                return season_request_result(
+                    {"id": selected["request_id"], "status": status},
+                    current["candidate_id"], number, duplicate=True)
+            except ContractError as error:
+                raise BrokerError(str(error)) from error
+        status, raw, _ = self.transport(
+            self.base + "/request", method="POST",
+            body={"mediaType": "tv", "mediaId": media_id,
+                  "seasons": [number]},
+            headers={"Content-Type": "application/json", "Cookie": cookie})
+        if status not in (200, 201):
+            raise BrokerError("seerr-season-request-rejected")
+        try:
+            return season_request_result(raw, current["candidate_id"], number,
+                                         duplicate=False)
+        except ContractError as error:
+            raise BrokerError(str(error)) from error
+
 
 class Handler(BaseHTTPRequestHandler):
     server_version = "AsterSeerr/1"
@@ -170,13 +269,31 @@ class Handler(BaseHTTPRequestHandler):
             return
         try:
             self._auth()
-            if parsed.path != "/v1/search":
-                self._send(404, {"error": "not found"})
+            if parsed.path == "/v1/search":
+                params = urllib.parse.parse_qs(parsed.query, strict_parsing=True)
+                query = (params.get("q") or [""])[0]
+                media_type = (params.get("type") or ["all"])[0]
+                self._send(200, self._client().search(query, media_type))
                 return
-            params = urllib.parse.parse_qs(parsed.query, strict_parsing=True)
-            query = (params.get("q") or [""])[0]
-            media_type = (params.get("type") or ["all"])[0]
-            self._send(200, self._client().search(query, media_type))
+            if parsed.path == "/v1/tv/resolve":
+                params = urllib.parse.parse_qs(parsed.query, strict_parsing=True)
+                raw_tvdb = (params.get("tvdb") or [""])[0]
+                title = (params.get("title") or [""])[0]
+                if not raw_tvdb.isdecimal():
+                    raise BrokerError("seerr-tvdb-identity")
+                self._send(200, self._client().resolve_tv(int(raw_tvdb), title))
+                return
+            match = re.fullmatch(
+                r"/v1/tv/([1-9][0-9]{0,9})/(catalogue|season/([0-9]{1,3}))",
+                parsed.path)
+            if match and not parsed.query:
+                media_id = int(match.group(1))
+                value = (self._client().catalogue(media_id)
+                         if match.group(2) == "catalogue" else
+                         self._client().season(media_id, int(match.group(3))))
+                self._send(200, value)
+                return
+            self._send(404, {"error": "not found"})
         except (BrokerError, ContractError, KeyError, OSError, ValueError) as error:
             code = 401 if str(error) == "aster-seerr-unauthorized" else 409
             self._send(code, {"error": str(error)})
@@ -184,14 +301,17 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:  # noqa: N802
         try:
             self._auth()
-            if urllib.parse.urlparse(self.path).path != "/v1/request":
+            path = urllib.parse.urlparse(self.path).path
+            if path not in ("/v1/request", "/v1/season-request"):
                 self._send(404, {"error": "not found"})
                 return
             length = int(self.headers.get("Content-Length", "0"))
             if not 1 <= length <= 8192:
                 raise BrokerError("aster-seerr-body-invalid")
             value = json.loads(self.rfile.read(length))
-            self._send(200, self._client().submit(value))
+            result = (self._client().submit(value) if path == "/v1/request"
+                      else self._client().submit_season(value))
+            self._send(200, result)
         except (BrokerError, ContractError, KeyError, OSError, ValueError,
                 json.JSONDecodeError) as error:
             code = 401 if str(error) == "aster-seerr-unauthorized" else 409

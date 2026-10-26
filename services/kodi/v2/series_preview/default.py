@@ -1,5 +1,6 @@
 """HP series page: read-only by default, explicit ID-only native playback mode."""
 import importlib.util,json,os,sys,time
+from dataclasses import replace
 from pathlib import Path
 import xbmc,xbmcgui
 
@@ -9,6 +10,9 @@ from series_adapter import read_series,READS
 from series_model import SeriesUnavailable
 from series_view import SeriesSelection,episode_metadata
 from series_playback import EpisodeSession,PLAYER_READS,entry_lock
+from series_catalogue import merge_page,season_proposal
+from series_seerr_client import (CatalogueClient,CatalogueUnavailable,
+    GrayscaleCache,SeasonRequestWriter)
 BACK={9,10,92,216,247,257,275}
 
 def rpc(method,params=None):
@@ -42,6 +46,8 @@ class SeriesPreview(xbmcgui.WindowXML):
         self.ready=False;self.finished=False;self.identity=None;self.updating=False;self.pending_index=None
         self.playback_enabled=False;self.session=None;self.close_requested=False;self.refresh_due=0;self.next_poll=0
         self.fullscreen_requested=False;self.return_deadline=0;self.restore_due=0
+        self.catalogue=None;self.catalogue_client=None;self.catalogue_loaded={};self.catalogue_base=None
+        self.catalogue_cache=None;self.season_writer=None;self.request_arm=None
 
     def onInit(self):
         if not self.ready:
@@ -85,13 +91,19 @@ class SeriesPreview(xbmcgui.WindowXML):
         for index,row in enumerate(group.episodes if group else ()):
             item=xbmcgui.ListItem(label=row.title)
             item.setProperty('Selected','true' if index==self.selection.index else 'false')
-            item.setProperty('EpisodeId',str(row.episode_id));item.setProperty('Synopsis',row.synopsis or 'Synopsis unavailable')
+            item.setProperty('EpisodeId',str(row.episode_id) if row.episode_id else '');item.setProperty('Synopsis',row.synopsis or 'Synopsis unavailable')
             item.setProperty('Metadata',episode_metadata(row))
             item.setProperty('Still',row.thumbnail);item.setProperty('HasStill','true' if row.thumbnail else 'false')
             item.setProperty('Progress',str(row.progress_percent or 0))
             item.setProperty('HasProgress','true' if row.progress_percent is not None else 'false')
-            item.setProperty('State','Watched' if row.watched else 'In progress' if row.progress_percent is not None else '')
-            item.setProperty('Unavailable','' if row.available else 'Not available')
+            item.setProperty('State',('Catalogue · not in your library' if row.catalogue else
+                'Watched' if row.watched else 'In progress' if row.progress_percent is not None else ''))
+            item.setProperty('Missing','true' if row.catalogue else 'false')
+            if row.catalogue:
+                request=('Request Season '+str(row.season) if row.requestable else
+                    'Season request '+row.request_state if row.request_state!='none' else 'Not in your library')
+            else:request='' if row.available else 'Not available'
+            item.setProperty('Unavailable',request)
             rows.append(item)
         self.pending_index=self.selection.index if rows else None
         self.marked_index=self.pending_index
@@ -104,11 +116,12 @@ class SeriesPreview(xbmcgui.WindowXML):
             position=self.getControl(300).getSelectedPosition()
             if self.pending_index is not None and position!=self.pending_index:return
             if position!=self.marked_index and 0<=position<len(self.selection.group.episodes):
+                self.request_arm=None
                 if self.marked_index is not None:self.getControl(300).getListItem(self.marked_index).setProperty('Selected','false')
                 self.getControl(300).getListItem(position).setProperty('Selected','true');self.marked_index=position
             self.pending_index=None;self.selection.select(position)
         row=self.selection.episode
-        self.setProperty('Series.SelectedId',str(row.episode_id) if row else '')
+        self.setProperty('Series.SelectedId',str(row.episode_id) if row and row.episode_id else '')
         self.setProperty('Series.Ready','true')
 
     def onClick(self,identity):
@@ -127,9 +140,15 @@ class SeriesPreview(xbmcgui.WindowXML):
             self.season_menu=False;self.setProperty('Series.SeasonMenu','false')
             self.updating=True
             try:
+                number=self.snapshot.page.seasons[index].number
+                self.load_catalogue_season(number)
+                index=next(i for i,row in enumerate(self.snapshot.page.seasons) if row.number==number)
                 changed=self.selection.change_season(index)
                 if changed:self.populate();self.setFocusId(300)
                 else:self.setFocusId(201)
+            except (CatalogueUnavailable,ValueError,OSError):
+                self.setProperty('Series.Status','The complete season catalogue is temporarily unavailable.')
+                self.setFocusId(201)
             finally:self.updating=False
             self.publish()
         elif identity in (200,300):
@@ -142,6 +161,8 @@ class SeriesPreview(xbmcgui.WindowXML):
                 if self.playback_enabled and primary is None:self.setFocusId(300);return
                 row=primary or row
             if row:
+                if row.catalogue:
+                    self.request_missing(row);self.setFocusId(300);return
                 if self.playback_enabled:
                     if self.session.phase not in ('idle',):return
                     self.setProperty('Series.Status','Opening '+row.numbering+'…')
@@ -152,6 +173,39 @@ class SeriesPreview(xbmcgui.WindowXML):
                         if self.session.phase=='idle':self.dialog('ok','Episode unavailable','The episode or idle player could not be verified. Nothing was started.')
                 else:self.details(row)
             if not self.playback_enabled:self.setFocusId(identity)
+
+    def load_catalogue_season(self,number):
+        if (self.catalogue is None or number is None or number in self.catalogue_loaded
+                or not any(row.number==number for row in self.catalogue.seasons)):
+            return
+        self.setProperty('Series.Status','Loading complete episode catalogue…')
+        detail=self.catalogue_client.season(self.catalogue,number)
+        detail=self.catalogue_cache.localize(detail)
+        old_key=self.selection.episode.selection_key if self.selection.episode else None
+        remembered=dict(self.selection.remembered)
+        self.catalogue_loaded[number]=detail
+        page=merge_page(self.catalogue_base,self.catalogue,self.catalogue_loaded.values())
+        self.snapshot=replace(self.snapshot,page=page)
+        self.selection=SeriesSelection(page,old_key);self.selection.remembered=remembered
+
+    def request_missing(self,row):
+        if not row.requestable:
+            state=row.request_state.replace('_',' ')
+            self.setProperty('Series.Status',('Season request '+state if state!='none'
+                else 'This season is not currently requestable.'))
+            return
+        key=(self.catalogue.candidate_id,row.season)
+        if self.request_arm!=key:
+            self.request_arm=key
+            self.setProperty('Series.Status','Press OK again to request Season '+str(row.season)+' in Seerr')
+            return
+        self.request_arm=None
+        try:
+            payload=season_proposal(self.catalogue,row.season,True)
+            result=self.season_writer.submit(payload,self.catalogue)
+            self.setProperty('Series.Status','Season '+str(row.season)+' request '+result['state'])
+        except (CatalogueUnavailable,ValueError):
+            self.setProperty('Series.Status','Request result uncertain or unavailable · nothing was retried')
 
     def draw_seasons(self):
         # A fixed slice avoids native list overscroll leaving empty rows at
@@ -174,7 +228,7 @@ class SeriesPreview(xbmcgui.WindowXML):
         module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
         rows=[dict(episodeid=e.episode_id,season=e.season or 0,episode=e.number or 0,
                    firstaired=e.first_aired,file='indexed' if e.available else '')
-              for s in self.snapshot.page.seasons for e in s.episodes]
+              for s in self.snapshot.page.seasons for e in s.episodes if e.episode_id is not None]
         current=next((r for r in rows if r['episodeid']==identity),None)
         result=module.following_episode(current,rows)
         return result.get('episodeid') if result else None
@@ -210,10 +264,14 @@ class SeriesPreview(xbmcgui.WindowXML):
             self.refresh_due=0;old=self.selection
             try:
                 snapshot=read_series(rpc,self.snapshot.page.show_id,accepted_next())
-                selection=SeriesSelection(snapshot.page,old.episode.episode_id if old.episode else None)
+                self.catalogue_base=snapshot.page
+                if self.catalogue is not None:
+                    snapshot=replace(snapshot,page=merge_page(snapshot.page,self.catalogue,
+                        self.catalogue_loaded.values()))
+                selection=SeriesSelection(snapshot.page,old.episode.selection_key if old.episode else None)
                 selection.remembered=dict(old.remembered)
                 if old.group:
-                    restored=snapshot.page.restore(old.episode.episode_id,season=old.group.number)
+                    restored=snapshot.page.restore(old.episode.selection_key,season=old.group.number)
                     if restored:selection.season,selection.index=restored
                 self.updating=True;self.snapshot=snapshot;self.selection=selection;self.populate()
                 row=next((e for s in snapshot.page.seasons for e in s.episodes if e.episode_id==snapshot.page.primary_episode_id),None)
@@ -289,7 +347,27 @@ def run_entry():
         xbmcgui.Dialog().ok('Series unavailable','The complete idle series snapshot could not be verified, or an earlier start needs review. Nothing was started.');return
     home=xbmcgui.Window(10000)
     if home.getProperty('AsterSeries.PreviewWindow'):return
-    window=SeriesPreview('SeriesPreview.xml',str(ROOT),'Default','1080i');window.snapshot=snapshot;window.playback_enabled=playback
+    window=SeriesPreview('SeriesPreview.xml',str(ROOT),'Default','1080i')
+    window.catalogue_base=snapshot.page
+    try:
+        if snapshot.tvdb_id:
+            client=CatalogueClient('http://192.168.20.40:8788',Path('/storage/.aster-private/seerr-token'))
+            catalogue=client.resolve(snapshot.tvdb_id,snapshot.title)
+            page=merge_page(snapshot.page,catalogue)
+            position=page.restore(page.primary_episode_id) or (0,0)
+            number=page.seasons[position[0]].number if page.seasons else None
+            loaded={}
+            cache=GrayscaleCache('/storage/.kodi/userdata/addon_data/script.asterseries/catalogue-stills')
+            if number is not None and any(row.number==number for row in catalogue.seasons):
+                loaded[number]=cache.localize(client.season(catalogue,number))
+                page=merge_page(snapshot.page,catalogue,loaded.values())
+            snapshot=replace(snapshot,page=page)
+            window.catalogue=catalogue;window.catalogue_client=client
+            window.catalogue_loaded=loaded;window.catalogue_cache=cache
+            window.season_writer=SeasonRequestWriter('/storage/.aster-private/seerr-season-journal',client.request_season)
+    except (CatalogueUnavailable,ValueError,OSError):
+        pass
+    window.snapshot=snapshot;window.playback_enabled=playback
     source=xbmcgui.getCurrentWindowId();previous=0
     try:
         previous=xbmcgui.Window(source).getFocusId()

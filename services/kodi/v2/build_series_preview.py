@@ -8,7 +8,8 @@ def build(output):
     if output.exists() and any(output.iterdir()):raise ValueError('nonempty-preview-stage')
     files={p.relative_to(HERE/'series_preview').as_posix():p.read_bytes()
            for p in sorted((HERE/'series_preview').rglob('*')) if p.is_file() and '__pycache__' not in p.parts}
-    for name in ('series_adapter.py','series_model.py','series_view.py','series_playback.py'):
+    for name in ('series_adapter.py','series_model.py','series_view.py','series_playback.py',
+                 'series_catalogue.py','series_seerr_client.py'):
         files['resources/lib/'+name]=(HERE/name).read_bytes()
     records=[]
     for name,data in sorted(files.items()):

@@ -12,11 +12,11 @@ class SeriesSelection:
 
     def select(self,index):
         if self.group and type(index) is int and 0<=index<len(self.group.episodes):
-            self.index=index;self.remembered[self.group.number]=self.episode.episode_id
+            self.index=index;self.remembered[self.group.number]=self.episode.selection_key
 
     def change_season(self,index):
         if type(index) is not int or not 0<=index<len(self.page.seasons):return False
-        if self.group:self.remembered[self.group.number]=self.episode.episode_id
+        if self.group:self.remembered[self.group.number]=self.episode.selection_key
         group=self.page.seasons[index];identity=self.remembered.get(group.number)
         self.season,self.index=self.page.restore(identity,season=group.number)
         return True
@@ -28,7 +28,7 @@ class SeriesSelection:
         if position is None:return False
         season,index=position
         if self.page.seasons[season].episodes[index].episode_id!=identity:return False
-        if self.group:self.remembered[self.group.number]=self.episode.episode_id
+        if self.group:self.remembered[self.group.number]=self.episode.selection_key
         self.season,self.index=position
         self.remembered[self.group.number]=identity
         return True

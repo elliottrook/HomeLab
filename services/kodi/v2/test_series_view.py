@@ -3,6 +3,7 @@ from unittest.mock import Mock,patch
 from pathlib import Path
 import xml.etree.ElementTree as ET
 from series_model import build_series
+from series_catalogue import merge_page,parse_catalogue,parse_season
 from series_view import SeriesSelection,episode_metadata
 from test_series_model import episode
 from build_series_preview import build
@@ -109,7 +110,7 @@ class SeriesViewTests(unittest.TestCase):
             first=Path(parent)/'one';second=Path(parent)/'two'
             self.assertEqual(build(first),build(second))
             manifest=json.loads((first/'manifest.json').read_text())
-            self.assertEqual(len(manifest['files']),6)
+            self.assertEqual(len(manifest['files']),8)
             for row in manifest['files']:
                 data=(first/row['path']).read_bytes()
                 self.assertEqual(hashlib.sha256(data).hexdigest(),row['sha256'])
@@ -158,5 +159,29 @@ class SeriesViewTests(unittest.TestCase):
                 window.finish_close.assert_not_called();self.assertTrue(window.close_requested)
                 with patch.object(module,'rpc',return_value=[]):window.close()
                 window.finish_close.assert_called_once()
+
+    def test_catalogue_episode_uses_two_step_season_request_not_player(self):
+        from types import SimpleNamespace
+        gui=Mock();gui.WindowXML=type('Window',(),{'__init__':lambda self,*a:None})
+        with patch.dict(sys.modules,{'xbmc':Mock(),'xbmcgui':gui}):
+            spec=importlib.util.spec_from_file_location('aster_series_request_runtime',HERE/'series_preview/default.py')
+            module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+            raw={'schema':1,'candidate_id':'seerr:tv:456','title':'Series','seasons':[
+                {'number':2,'name':'Season 2','episode_count':1,'state':'unknown',
+                 'request_id':None,'request_state':'none','requestable':True}]}
+            catalogue=parse_catalogue(raw)
+            detail=parse_season({'schema':1,'candidate_id':'seerr:tv:456','title':'Series',
+                'season':raw['seasons'][0],'episodes':[{'number':1,'title':'Missing',
+                'overview':'','air_date':'2026-01-01','still':''}]},catalogue,2)
+            page=merge_page(build_series(12,[episode()],expected_total=1),catalogue,[detail])
+            row=page.seasons[1].episodes[0]
+            window=module.SeriesPreview();window.catalogue=catalogue
+            window.setProperty=Mock();window.session=Mock();window.season_writer=Mock()
+            window.season_writer.submit.return_value={'state':'pending'}
+            window.request_missing(row)
+            window.season_writer.submit.assert_not_called()
+            window.request_missing(row)
+            window.season_writer.submit.assert_called_once()
+            window.session.start.assert_not_called()
 
 if __name__=='__main__':unittest.main()

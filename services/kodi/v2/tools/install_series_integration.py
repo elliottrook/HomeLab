@@ -34,8 +34,9 @@ def main(arguments):
     require(digest(player_stage/'manifest.json')==manifest['series_manifest_sha256'],'player-manifest-hash')
     player=json.loads((player_stage/'manifest.json').read_text())
     members={'default.py','resources/lib/series_adapter.py','resources/lib/series_model.py','resources/lib/series_view.py',
-             'resources/lib/series_playback.py','resources/skins/Default/1080i/SeriesPreview.xml'}
-    require(player.get('kind')=='hp-series-player' and len(player['files'])==6
+             'resources/lib/series_playback.py','resources/lib/series_catalogue.py',
+             'resources/lib/series_seerr_client.py','resources/skins/Default/1080i/SeriesPreview.xml'}
+    require(player.get('kind')=='hp-series-player' and len(player['files'])==8
         and {r['path'] for r in player['files']}==members,'player-members')
     for row in player['files']:
         require(not (player_stage/row['path']).is_symlink() and digest(player_stage/row['path'])==row['sha256'],'player-member-hash')
@@ -55,7 +56,7 @@ def main(arguments):
     for key in ('checks_enforced','no_player','original_empty_queue','all_lab_windows_closed','music_shuffle_off'):
         require(proof.get(key) is True,'proof-'+key)
     # A successful native player test is an activation prerequisite, not just a
-    # unit-test claim. It must name this exact immutable six-member stage.
+    # unit-test claim. It must name this exact immutable eight-member stage.
     runs=Path('/storage/.aster-checkpoints/aster-series-playback-20261024').glob('native-player-*.json')
     passed=[json.loads(p.read_text()) for p in runs]
     require(sum(p.get('passed') is True and p.get('checks_enforced') is True and p.get('stage')==manifest['series_stage']

@@ -8911,3 +8911,49 @@ normal and optimized Python. What remains for live voice search is the small
 process/HTTP/Kodi adapter, but that adapter cannot be truthfully activated or
 hardware-tested until the G20 microphone dongle is present and its event/source
 identity is observed.
+
+### M2/M4 complete-series catalogue and Seerr shortcut — prepared locally, 2026-10-26
+
+The owner requested the episode-page pattern used by some Jellyfin clients:
+show every known episode, retain colour artwork and playback for episodes in
+the Jellyfin/Kodi library, render catalogue-only episode stills in true
+grayscale, and let an explicit selection request the containing season through
+Seerr. The owner also authorized choosing disposable acceptance titles. The
+already completed Seerr write acceptance used *Hundreds of Beavers* for film
+request `160` and *The Pitt* Season 1 for television request `161`; both remain
+pending by design and duplicate submissions were prevented.
+
+Read-only HP discovery established that Kodi's Jellyfin library exposes TVDB,
+not TMDB, identities. The proposed restricted broker successor therefore
+resolves a show by an exact TVDB external ID after a bounded title search; it
+never accepts title similarity as identity. Its new authenticated catalogue
+routes expose only sanitized season summaries and episode metadata, while the
+new POST route accepts exactly one revalidated season. The television still
+receives no Seerr URL, password or general proxy. The official Seerr TV detail
+and season route shapes were checked against
+<https://docs.seerr.dev/api/get-tv-details/> and the upstream route at
+<https://github.com/seerr-team/seerr/blob/develop/server/routes/tv.ts>.
+
+The Kodi-side merge is fail-closed. Local episodes always win by season and
+episode number and retain their exact playable Kodi ID. Catalogue-only rows
+never receive a Kodi ID, so they cannot cross the native playback boundary.
+Their exact `image.tmdb.org` stills are size/dimension bounded, decoded with
+Pillow, converted to actual grayscale and atomically cached in private local
+storage. Selecting one uses a small in-page shortcut: the first OK arms
+`Request Season N`; a second OK submits through a season-specific durable
+journal. Uncertain writes are fenced and never automatically retried. Specials
+remain visible but are not requestable. Broker or image failure leaves the
+ordinary local episode page usable.
+
+The Morning Show is the chosen visual/merge fixture because HP indexes only
+its ten Season 4 episodes while Seerr reports Seasons 1–5. This demonstrates
+both colour local episodes and monochrome catalogue-only seasons without
+inventing content or altering Jellyfin. The pure broker/contract suite passes
+79 tests in normal and optimized Python. The Kodi v2 suite passes 1,104 tests
+in both modes (one local Pillow rendering test is skipped on the Mac because
+Pillow is appliance-supplied); the HP has Pillow 10.2.0 for the live rendering
+gate. A deterministic eight-member series component and a reversible
+four-reference family-runtime upgrade are prepared. No broker, HP or
+production mutation from this slice has yet occurred. Activation requires a
+bounded shared-broker rebuild/restart approval, followed by autonomous HP-only
+deployment and native visual/write tests. Production remains unchanged.

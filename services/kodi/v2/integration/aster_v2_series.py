@@ -26,7 +26,7 @@ def launch_selected_show():
         source=STAGE/'manifest.json'
         if hashlib.sha256(source.read_bytes()).hexdigest()!=MANIFEST_SHA:return False
         manifest=json.loads(source.read_text())
-        if manifest.get('kind')!='hp-series-player' or len(manifest.get('files',[]))!=6:return False
+        if manifest.get('kind')!='hp-series-player' or len(manifest.get('files',[]))!=8:return False
         for row in manifest['files']:
             if hashlib.sha256((STAGE/row['path']).read_bytes()).hexdigest()!=row['sha256']:return False
     except (OSError,ValueError,KeyError,TypeError):return False

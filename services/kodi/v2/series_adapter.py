@@ -5,7 +5,7 @@ from series_model import build_series,SeriesUnavailable
 
 EPISODE_PROPERTIES=['title','plot','art','file','lastplayed','resume','runtime',
                     'playcount','showtitle','season','episode','tvshowid','firstaired']
-SHOW_PROPERTIES=['title','plot','genre','year','rating','mpaa','art']
+SHOW_PROPERTIES=['title','plot','genre','year','rating','mpaa','art','uniqueid']
 READS=frozenset(('VideoLibrary.GetTVShowDetails','VideoLibrary.GetEpisodes'))
 
 @dataclass(frozen=True)
@@ -18,6 +18,7 @@ class SeriesSnapshot:
     rating: object
     certificate: str
     fanart: str
+    tvdb_id: object
 
 def _read(rpc,method,params):
     if method not in READS:raise SeriesUnavailable('read-only-series-preview')
@@ -68,8 +69,12 @@ def read_series(rpc,show_id,next_up,*,today=None,page_size=200,cap=5000):
     genres=show.get('genre');art=show.get('art')
     year=show.get('year');rating=show.get('rating')
     import math
+    unique=show.get('uniqueid') if isinstance(show.get('uniqueid'),dict) else {}
+    tvdb=unique.get('tvdb')
+    tvdb_id=int(tvdb) if isinstance(tvdb,str) and tvdb.isdecimal() and int(tvdb)>0 else None
     return SeriesSnapshot(page,text('title',text('label','Series')),text('plot'),
         tuple(g for g in genres if isinstance(g,str)) if isinstance(genres,list) else (),
         year if type(year) is int and year>0 else None,
         rating if type(rating) in (int,float) and math.isfinite(rating) and 0<rating<=10 else None,
-        text('mpaa'),art.get('fanart','') if isinstance(art,dict) and isinstance(art.get('fanart',''),str) else '')
+        text('mpaa'),art.get('fanart','') if isinstance(art,dict) and isinstance(art.get('fanart',''),str) else '',
+        tvdb_id)

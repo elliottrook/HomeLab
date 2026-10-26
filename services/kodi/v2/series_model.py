@@ -34,7 +34,7 @@ def _seconds(value):
 
 @dataclass(frozen=True)
 class Episode:
-    episode_id: int
+    episode_id: object
     season: object
     number: object
     title: str
@@ -47,12 +47,20 @@ class Episode:
     resume_seconds: object
     progress_percent: object
     last_played: str
+    catalogue: bool = False
+    requestable: bool = False
+    request_state: str = 'none'
 
     @property
     def numbering(self):
         if self.season is None or self.number is None:
             return 'Episode number unavailable'
         return f'S{self.season} E{self.number}'
+
+    @property
+    def selection_key(self):
+        return (('local', self.episode_id) if _id(self.episode_id) else
+                ('catalogue', self.season, self.number))
 
 
 @dataclass(frozen=True)
@@ -83,6 +91,11 @@ class SeriesPage:
             for s, group in enumerate(self.seasons):
                 for e, row in enumerate(group.episodes):
                     if row.episode_id == episode_id:
+                        return s, e
+        if (isinstance(episode_id, tuple) and len(episode_id) in (2, 3)):
+            for s, group in enumerate(self.seasons):
+                for e, row in enumerate(group.episodes):
+                    if row.selection_key == episode_id:
                         return s, e
         for s, group in enumerate(self.seasons):
             if group.number == season:
