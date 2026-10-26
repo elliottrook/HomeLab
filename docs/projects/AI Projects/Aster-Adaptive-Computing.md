@@ -1,6 +1,10 @@
 # Aster Adaptive Computing — Foundation and Operational Sysadmin Capability
 
-**Status:** Active — Stream A. Subscription-backed Codex delegation (D0–D4) is the next priority, adopted by Jason on 2026-10-06. The finite local-Qwen trial is closed without sysadmin promotion. Existing foundation and operational security gates remain; adopting a new engine does not complete them.
+**Status:** Active — Stream A. The bounded M1 authority plane is proven and its
+first fixed read-only Doctor capability is live. D4 investigation usefulness
+and M3 NLU calibration are the next qualification priorities. Both candidates
+are staged inactive and wait on the same fresh F2–F6 recovery/admission chain;
+automatic routing and general connected-tool authority remain off.
 
 **Owner:** Jason.
 
@@ -9,17 +13,13 @@ bounded sysadmin investigation and later automatic routing, use the
 [Stream A remaining delivery map](Stream-A-Remaining-Delivery-Map.md). Its
 summary does not replace the detailed gates or their required evidence.
 
-**Current D3 checkpoint, 2026-10-13:** A stable-signed Mac-mini
-[composite](evidence/D3-composite-offline-candidate-2026-10-12.md) preserved
-native OpenBao and ordinary Aster during its bounded check. The app owner
-subsequently replaced that bundle; an intermediate build crashed and a later
-signed build was observed working in ordinary use. Its source is pinned in the
-app owner's release record; independent build reproduction and long-duration
-reliability remain open. The browser OpenBao interface was
-not changed. The Mac manual Codex pilot remains hidden in normal use and its
-routine release is **DEFERRED / HOLD** after an exact metadata-manifest mismatch blocked
-the consent screen. [Natural refresh is monitored](evidence/D3-refresh-gate-reassessment-2026-10-12.md),
-not an indefinite blocker. Automatic routing and connected tools remain off.
+**Current D3 checkpoint, 2026-10-25:** The signed Mac Companion passed ordinary
+Aster use, two persisted-session relaunches, read-only OpenBao status and
+fail-closed recorded-request recovery. The browser OpenBao interface remains
+unchanged. The hidden manual-Codex pilot is **DEFERRED / HOLD** because NLU-based
+automatic directing is now the preferred product path; resume the manual
+fallback only if Jason asks to support it. Natural session and Keychain behavior
+remain ordinary reliability monitoring rather than a release blocker.
 
 **NLU boundary — 2026-10-24:** Jason approved formalizing the natural-language
 understanding function that had previously been implicit in the selector work.
@@ -33,9 +33,9 @@ Jason accepted the exact initial evaluation policy on 2026-10-25: zero privacy
 underclassification, zero unsafe false routes, at most 10% selective error, at
 least 60% coverage and at least 60 balanced calibration cases. The
 [hash-bound acceptance record](evidence/M3-NLU-owner-policy-acceptance-2026-10-25.md)
-grants no route, egress, tool or deployment authority. Candidate selection,
-live calibration measurement, threshold selection and shadow qualification
-remain open, so automatic routing stays off.
+grants no route, egress, tool or deployment authority. Candidate selection is
+complete; live calibration measurement, threshold selection and shadow
+qualification remain open, so automatic routing stays off.
 The existing local Qwen3.5-9B Q4_K_M model on the accepted SYCL profile is now
 [sealed as the first NLU evaluation candidate](evidence/M3-NLU-local-candidate-seal-2026-10-25.md)
 with a strict no-tool adapter. Its live model and runtime-profile hashes match
@@ -46,8 +46,10 @@ Three separate fresh contexts have now created and blindly reviewed the
 release. The accepted policy, candidate and release deterministically produce
 a registered policy with no selected threshold. A preregistered binary route
 score and bounded [live run card](evidence/M3-NLU-calibration-run-card-2026-10-25.md)
-are ready for a separately approved, lease-protected local run. No inference,
-holdout access, shadowing, deployment or routing change has occurred.
+are staged in LXC110 for a separately approved, lease-protected local run. The
+corrected packet passes 116 dependency-free tests and has produced no output or
+model request. No holdout access, shadowing, deployment or routing change has
+occurred.
 The future holdout contract now separately binds semantic zero-overlap receipts
 against both the exposed development set and the sealed calibration set, and
 requires an independent non-overlap reviewer. Holdout content remains unopened
@@ -61,9 +63,10 @@ human holdout, measured calibration and no-effect shadow gates remain open.
 The [Stream A work cadence](Stream-A-Work-Cadence.md) keeps offline/shared work
 moving. The lab-hours recovery lane has one exact, conditional F2 archive scan
 scheduled for the October 26 cycle; that scan is evidence toward a qualified
-lease, not general lab-hours availability. Candidate-G and the new NLU
-calibration run still require a verified compatible `ai-lab` lease. The old
-01:00–02:00 Aster slot remains retired.
+lease, not general lab-hours availability. Candidate-H and the new NLU
+calibration run still require a verified compatible `ai-lab` lease. Candidate-G
+is retained only as an unspent predecessor. The old 01:00–02:00 Aster slot
+remains retired.
 
 **Offline boundary checkpoint — 2026-10-09:** The fixed Doctor incident
 adapter and the existing ARR aggregate reader now have local candidates that
