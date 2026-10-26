@@ -8,8 +8,8 @@ CLI, is not installed, and cannot be invoked by a systemd unit or operator.
 
 | Source | SHA-256 |
 |---|---|
-| `scripts/local-ai/stream_a_evaluation_handlers.py` | `f7af38caa20c28f10d24e6ac67d2ded14b8a2437af0aa9073ae8e940edcc0d88` |
-| `scripts/local-ai/test_stream_a_evaluation_handlers.py` | `88c8a85b1a1b113afb78bed137ed5e4e1bf07063dad5731c69e3dadb62dc9d03` |
+| `scripts/local-ai/stream_a_evaluation_handlers.py` | `f8255bbe044cb970171ae972f6b55b9c1a85b74c51ef2cf7988b6e5c8ba7fae2` |
+| `scripts/local-ai/test_stream_a_evaluation_handlers.py` | `e38e6e528dfdd79a7d0590d3661b9acc3286c323d681d6d5b01d477fb52f999e` |
 
 ## Fixed behavior
 
@@ -21,17 +21,19 @@ CLI, is not installed, and cannot be invoked by a systemd unit or operator.
 - Workload launch accepts only candidate H followed by the fixed M3 command;
   each command is followed by a caller-supplied outcome verifier that must
   return the matching typed outcome.
-- Recovery stops the owner and either disarms a failed pre-lease arm or invokes
+- Recovery bounds watchdog output to 16 KiB before parsing, stops the owner and
+  either disarms a failed pre-lease arm or invokes
   the fixed watchdog until an exact bounded restored result is observed.
   Malformed or uncertain recovery retains state.
 - Cleanup requires an independent restoration verifier, retains hashes of
-  root-owned runtime evidence in the checkpoint, disables the watchdog and
+  root-owned runtime evidence no larger than 64 KiB in the checkpoint, disables the watchdog and
   heartbeat timers, stops the owner, rechecks restoration, removes only the
   fixed runtime identity files and rejects residual lease/lock state.
 
-The focused Stream A evaluation suite passes 65/65. Tests cover exact timer
+The focused Stream A evaluation suite passes 67/67. Tests cover exact timer
 order, fixed workload commands, foreign-plan rejection, pre-lease disarm,
-malformed recovery retention and cleanup-after-restoration only.
+malformed and oversized recovery-result rejection, oversized retained-file
+rejection, recovery retention and cleanup-after-restoration only.
 
 ## Remaining composition boundary
 

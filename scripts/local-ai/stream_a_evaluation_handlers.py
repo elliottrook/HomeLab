@@ -31,6 +31,8 @@ class HandlerError(RuntimeError):
     pass
 
 
+MAX_COMMAND_RESULT_BYTES = 16 * 1024
+MAX_RUNTIME_EVIDENCE_BYTES = 64 * 1024
 OWNER_UNIT = "stream-a-evaluation-owner.service"
 HEARTBEAT_UNIT = "stream-a-evaluation-owner-heartbeat.service"
 HEARTBEAT_TIMER = "stream-a-evaluation-owner-heartbeat.timer"
@@ -64,6 +66,12 @@ def _run(runner: Callable[..., subprocess.CompletedProcess], command: tuple[str,
 
 
 def _single_json(raw: str, *, key_sets: tuple[frozenset[str], ...]) -> dict[str, object]:
+    try:
+        encoded = raw.encode("utf-8")
+    except UnicodeError as error:
+        raise HandlerError("command result is not UTF-8") from error
+    if not 0 < len(encoded) <= MAX_COMMAND_RESULT_BYTES:
+        raise HandlerError("command result size is invalid")
     def pairs(items):
         value = {}
         for key, item in items:
@@ -100,9 +108,14 @@ def _file_digest(path: Path, *, required_uid: int) -> str:
         if (not stat.S_ISREG(info.st_mode) or info.st_uid != required_uid
                 or stat.S_IMODE(info.st_mode) != 0o600 or info.st_nlink != 1):
             raise HandlerError("retained runtime file custody is weak")
+        if not 0 < info.st_size <= MAX_RUNTIME_EVIDENCE_BYTES:
+            raise HandlerError("retained runtime file size is invalid")
         with os.fdopen(descriptor, "rb") as stream:
             descriptor = -1
-            return hashlib.sha256(stream.read()).hexdigest()
+            raw = stream.read(info.st_size + 1)
+            if len(raw) != info.st_size:
+                raise HandlerError("retained runtime file changed while reading")
+            return hashlib.sha256(raw).hexdigest()
     finally:
         if descriptor != -1:
             os.close(descriptor)

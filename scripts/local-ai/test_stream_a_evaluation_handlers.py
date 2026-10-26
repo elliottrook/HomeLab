@@ -8,7 +8,8 @@ from unittest.mock import patch
 
 from stream_a_evaluation_handlers import (
     HEARTBEAT_TIMER, OWNER_UNIT, WATCHDOG_COMMAND, WATCHDOG_TIMER,
-    FixedHandlers, HandlerError, HandlerPaths,
+    MAX_COMMAND_RESULT_BYTES, MAX_RUNTIME_EVIDENCE_BYTES,
+    FixedHandlers, HandlerError, HandlerPaths, _file_digest, _single_json,
 )
 from stream_a_evaluation_live_plan import AcceptedEvidence, D4_COMMAND, M3_COMMAND, LivePlan
 from stream_a_evaluation_sequence import VerifiedOutcome
@@ -152,6 +153,19 @@ class HandlerTests(unittest.TestCase):
             with self.assertRaises(HandlerError): handlers.arm(other)
             handlers.restored_verifier = lambda _plan: False
             with self.assertRaises(HandlerError): handlers.cleanup(selected)
+
+    def test_watchdog_result_is_byte_bounded_before_json_parse(self):
+        with self.assertRaisesRegex(HandlerError, "size"):
+            _single_json(" " * (MAX_COMMAND_RESULT_BYTES + 1),
+                         key_sets=(frozenset(("effects",)),))
+
+    def test_retained_runtime_file_is_byte_bounded_before_hash(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "oversized.json"
+            path.write_bytes(b"x" * (MAX_RUNTIME_EVIDENCE_BYTES + 1))
+            path.chmod(0o600)
+            with self.assertRaisesRegex(HandlerError, "size"):
+                _file_digest(path, required_uid=os.geteuid())
 
 
 if __name__ == "__main__":
