@@ -12,6 +12,12 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October 26 pre-effect recovery receipt](B60-Inference-Engineering/pre-effect-recovery-receipt-20261026.md)
+receives Adaptive `99efcf2e`: owner-loss cancellation of a prepared lease
+passed without consumer effects. Production F6 and model admission remain
+closed. D4-H/M3 bindings and the F4/F5 admission proposal are reviewed as
+specific 9B evaluation paths, not a general B60 challenger or A1 release.
+
 Latest [October 25 compatibility follow-up](B60-Inference-Engineering/recovery-pin-and-nlu-acceptance-receipt-20261025.md)
 receives `bd377b4e` and independently passes 19 fake-transport runner/staging
 tests of the corrected llama metadata envelope. No guest staging, private case,
