@@ -1,13 +1,13 @@
 # Stream A D4/M3 workload execution bindings
 
 **Date:** 2026-10-25  
-**State:** M3 execution binding frozen; D4 candidate frozen but execution binding **NO-GO**
+**State:** D4 candidate-H and M3 execution bindings frozen; live transaction **NO-GO**
 
 This correction distinguishes an exact candidate from an executable workload.
 It does not supply same-cycle F2–F5 evidence, arm recovery, acquire a lease,
 stop a consumer, read a credential or call the model.
 
-## D4 candidate-G: exact and unspent, execution boundary open
+## D4 candidate-H: inactive binding frozen; live authority absent
 
 The Mac packet is `/private/tmp/aster-d4-candidate-g-packet.tar`, owner-only
 mode `0600`, exactly 11 members, SHA-256
@@ -20,38 +20,45 @@ The runner in that frozen packet has SHA-256
 `10889d30becdb613debf034a2766fd1313cd25c51a2cea26a7511e0e70776936`.
 
 There is no D4 journal and no production runner has executed. Candidate-G was
-never staged. Candidate-H is installed inactive under its validated dedicated
-identity: immutable inputs in `/var/lib/aster/d4-candidate-h`, an empty private
-output directory, and a static inactive oneshot unit. This staging does not
-authorize execution.
+never staged and remains exact and unspent, but its authorization does not
+transfer to candidate-H. Candidate-H is installed inactive under its validated
+dedicated identity: immutable inputs in `/var/lib/aster/d4-candidate-h`, an
+empty private output directory, and a static inactive oneshot unit. Its fixed
+run digest is
+`423656a2336502f3a70de463b3e844b0e85c4bb74a59127cc8f70a0905ec31f4`.
+This staging does not authorize execution.
 
 The frozen runner reads `ASTER_LLAMA_API_KEY` from its environment. The
-platform-owned F6 boundary instead requires credential delivery by the
-approved secret broker as a protected inherited file descriptor or standard
-input, never through argv, environment, JSON, journal or logs. The first
+platform-owned F6 boundary instead requires credential delivery through a
+protected inherited file descriptor, never through argv, environment, JSON,
+journal or logs. The first
 [source-only launcher proposal](D4-candidate-H-descriptor-launcher-proposal-2026-10-25.md)
 was rejected because its root child could reopen the credential file. The
 [corrected proposal](D4-candidate-H-unprivileged-execution-correction-2026-10-25.md)
-drops the child to fixed UID/GID 977 with no supplementary groups. Its inactive
-target installation and fictional custody validation pass. Therefore:
+drops the child to fixed UID/GID 977 with no supplementary groups. Its launcher
+is installed at `/usr/local/libexec/aster-d4-candidate-h-launcher`, SHA-256
+`71c07060a59a81923803fdd21cc14f218fc3c1c1f7f1797e1b1e75acdf4240eb`.
+The launcher opens the root-protected environment file, extracts only the
+bounded key, transfers it through a pipe descriptor, clears its buffers and
+executes the unprivileged child. The child cannot reopen the credential file.
+Its inactive target installation and fictional custody validation pass.
+Therefore:
 
 - do not source `/etc/aster/aster.env`;
 - do not stage or execute candidate-G and do not start candidate-H;
 - do not create either output file; and
-- retain the candidate as exact and unspent while this interface is resolved.
+- retain candidate-G as historical, exact and unspent while treating
+  candidate-H as the only proposed future D4 runner.
 
-Changing the frozen runner to accept a descriptor or standard input would
-change its manifest and run digest. That would be a new candidate and would
-need fresh candidate authorization after independent review. If the existing
-environment interface is instead retained, the platform owner must first name
-and review the exact secret-broker population command, execution identity,
-custody and clearing behavior without exposing the key.
+Candidate-H is that new descriptor candidate. Its independent review and
+inactive installation are complete, but it still needs a fresh exact live
+model-call approval because candidate-G's authorization cannot be reused.
 
 The already approved workload limits remain descriptive only: at most 12
 sessions, 36 calls, 60 seconds per request and 180 seconds per session, with a
 strict 12/12 terminal structural requirement and a valid owner-only
-hash-chained journal. They grant no execution authority while the credential
-bridge is absent.
+hash-chained journal. They grant no execution authority merely because the
+credential bridge is installed inactive.
 
 ## M3 NLU calibration: executable binding frozen
 
@@ -99,23 +106,26 @@ under their frozen custody rules.
 
 ## Shared ordering and remaining platform gates
 
-D4 remains first, so its credential bridge blocks both live workloads even
-though M3's runner packet is ready. M3 can start only after D4 reaches a
+D4 remains first. Its candidate-H bridge is static-ready, while its fresh live
+authority and the shared F6 admission are still absent. M3 can start only after D4 reaches a
 reconciled terminal state and the lease/restoration reserve still covers M3
 plus recovery. Neither command is a lease phase: the F6 owner must record a
 `start` phase before invoking it and an `outcome` phase only after validating
 terminal evidence.
 
-The controller acquire schema accepts only backup, F2 and F3 receipts. There
-is no accepted durable F4 artifact/schema/digest and no durable F5 observation
-artifact/digest. These must be created and reviewed in the required fresh
-cycle; no extra acquire fields or substitute receipts may be invented.
+The controller acquire schema accepts only backup, F2 and F3 receipts. The
+[admission-binding proposal](Stream-A-candidate-H-F4-F5-admission-binding-proposal-2026-10-25.md)
+now freezes a fixed composite artifact, exact acquire field and durable-state
+binding for F4/F5, but the platform owner has not yet implemented or installed
+that source. No extra acquire fields or substitute receipts may be invented by
+the live operator.
 
 Consequently the effectful F6 transaction remains **NO-GO** pending all of:
 
-1. independent acceptance and later inactive staging of the proposed D4
-   descriptor launcher, or another reviewed secret-delivery bridge;
+1. platform implementation, testing, independent review and inactive install
+   of the frozen F4/F5 admission binding;
 2. a fresh preflight confirming the frozen M3 interpreter, identity and
    key-file custody have not drifted;
 3. fresh same-cycle F2, F3, F4 and F5 evidence; and
-4. an exact platform transaction/recovery card and its separate live approval.
+4. an exact candidate-H platform transaction/recovery card and its separate
+   live approvals.
