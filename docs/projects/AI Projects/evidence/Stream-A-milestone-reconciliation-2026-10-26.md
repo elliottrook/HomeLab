@@ -37,10 +37,13 @@
    checkpoint, exact approval, effect, independent postcheck, rollback and
    uncertain-outcome handling. This has not been authorized or started and
    depends on diagnostic acceptance and F6 recovery proof.
-5. **M4 evidence-loop completion.** The manifests, custody, scoring and review
-   separation are substantially implemented. Completion still requires an
-   isolated reconstruction/restore test for the accepted evidence state and
-   reconciliation of the final datasets and experiment record.
+5. **M4 evidence-loop completion.** The current toolchain now has a hash-pinned
+   isolated reconstruction of the immutable 164-event synthetic export, with
+   exact ledger-head recovery and final source/evidence reconciliation. The
+   remaining M4 gate is trust and operational acceptance: independent
+   checkpoint custody, human review of the synthetic-only design, and a
+   separately specified retention/recovery design before any real-data
+   collection.
 6. **M5 read-only shadow pilot.** Run the finite, no-effect observation window
    only after M3/M4 and the applicable authority gates pass; measure usefulness,
    latency, privacy, cost and shared-service impact.

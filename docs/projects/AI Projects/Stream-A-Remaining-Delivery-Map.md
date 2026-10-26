@@ -1614,3 +1614,18 @@ positive; zero-confidence fallbacks can no longer be selected. No calibration
 or holdout was created. Further 9B prompt/ensemble iteration has stopped; the
 next candidate needs a materially different semantic representation or an
 independent confidence source.
+
+The subsequent [supervised sparse-logistic
+trial](evidence/M3-NLU-sparse-logistic-crossset-rejection-2026-10-26.md) is
+also rejected. Its nested inner predictions could preserve zero unsafe/privacy
+effects over only 6.3–15.7% of cases, far below the accepted 60% decision
+coverage. No new calibration or holdout access followed; sparse lexical tuning
+against the six exposed sets is closed.
+
+M4's [current isolated reconstruction
+result](evidence/M4-current-isolated-reconstruction-result-2026-10-26.md)
+now replays the immutable 164-event synthetic export from a fresh temporary
+directory using only hash-pinned current sources and runtime versions. The
+ledger head matches exactly and 31/31 focused tests pass. This completes the
+technical restore/reconciliation item; independent checkpoint custody, human
+review and any operational real-data retention design remain open.

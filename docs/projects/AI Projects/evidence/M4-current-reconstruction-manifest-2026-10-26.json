@@ -1,0 +1,23 @@
+{
+  "authority": "not-granted",
+  "data_class": "synthetic",
+  "evidence_path": "docs/projects/AI Projects/evidence/M4-paired/measurement-001.json",
+  "expected": {
+    "event_count": 164,
+    "measurement_authenticity": "not-established",
+    "review_approval": "not-granted"
+  },
+  "expected_head": "sha256:59fa02fe1a196ba123c447d4e773bd9404290970f4446113c8dd61b1b12cc7c9",
+  "files": {
+    "docs/projects/AI Projects/evidence/M4-paired/measurement-001.json": "sha256:9a3e0447adbf27f24bf5d9ab777ebbd5565bbce7873f554034304a4ce88fea38",
+    "scripts/aster-adaptive/contracts.py": "sha256:49f442d73bfa77ea9a2dc55263dc9c91aaca9c88003fd9b60b68e9d63aee00c3",
+    "scripts/aster-adaptive/evidence_store.py": "sha256:79122dd0f6026ece37afce30475b5ffcaa3c8f6ba1e15185b437a4574c4e169e",
+    "scripts/aster-adaptive/paired_evidence.py": "sha256:9befaa636e3d182db07bb65c1adf201e36d8d5baa7e368c33e8c19c11139a09c",
+    "scripts/aster-adaptive/verify_evidence.py": "sha256:9b04d938a79c6c2c61a2b4328b77d2f3b4292fee066cca1b5c7500071f8b8af7"
+  },
+  "runtime": {
+    "pydantic": "2.14.1",
+    "python": "3.12.14"
+  },
+  "schema": "aster-m4-reconstruction-manifest.v1"
+}
