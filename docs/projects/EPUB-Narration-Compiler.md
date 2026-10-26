@@ -1,6 +1,6 @@
 # EPUB Narration Compiler and New-Title Monitor
 
-> Status: Active — Stream A; M0–M1 complete, private benchmark next
+> Status: Active — Stream A; M0–M1 complete, private M2 benchmark running
 >
 > Owner: Jason
 >
@@ -277,6 +277,18 @@ new DRM question, public exposure, or materially different deployment target.
   queue schema, worker lock, voice hash and Aster health; then continue the
   current milestone from its first unchecked gate.
 
+Current resume state (2026-10-26): M2 plan `plan-500.json` is private on
+TrueNAS and LXC 116 at SHA-256
+`08ee0f4b2d6935a806e7d1ec718d3477530fc14b755e719f1339e10ad6d51928`.
+Transient unit `epub-narration-benchmark-20261026.service`, invocation
+`a464d4a5f03644efb8785ff61847da6a`, is running in LXC 116. It is capped at
+300% CPU and 3 GiB memory, runs at nice 15 with idle I/O, and writes only to
+root-private `/root/epub-narration-benchmark-20261026/output`. Resume by reading
+the unit properties and content-silent journal, verifying both speech services,
+then summarizing `report.json` source-locally after successful completion. If
+the unit fails or affects either speech service, stop/leave it failed, preserve
+the private checkpoint, and diagnose without an automatic rerun.
+
 ## Milestones
 
 - [x] **M0 — Read-only discovery and accepted envelope.** Read repository
@@ -430,7 +442,11 @@ new DRM question, public exposure, or materially different deployment target.
 | 2026-10-26 | Sanitized speech checks found both services active, Kokoro ONNX 0.6.1 `create_timed()`, and the unchanged 163,527,961-byte canonical model at the pinned hash. | No model download/replacement; continue with synthetic M1. |
 | 2026-10-26 | Added repository-only compiler foundations for read-only Calibre EPUB discovery and stable hashing, bounded spine extraction, the six-state durable queue, exact PCM-sample sentence cues, immutable manifest validation and atomic ready-pointer publication. Fixtures contain only synthetic prose/media bytes. | Implementation remains disconnected from production and writes nowhere outside disposable test directories. |
 | 2026-10-26 | Fourteen synthetic tests passed in normal and optimized Python. They cover missing/read-only catalogues, path escape, unsafe EPUB members, spine order/failure, idempotent and changed-source queueing, invalid transitions, bounded failure codes, sample-exact cues, manifest integrity, immutable generations and last-known-good preservation. Compile-only validation also passed with a sandbox-local bytecode cache. | M1 complete. Next safe action is a private, checkpointed 20-book benchmark harness; no dataset or runtime service has been created. |
-| 2026-10-26 | The shared worktree advanced concurrently while the M1 files were staged; repository snapshot `d67fd678` contains the complete M1 project/code/test set as well as the other task's already-staged work. The unrelated work was not rewritten. | This scoped follow-up records the milestone and portfolio state; future project commits must recheck the shared index immediately before commit. |
+| 2026-10-26 | M1 implementation/project evidence was committed locally as `4497558f`; the portfolio registration followed as `a7fdfd31`. A concurrent task had briefly advanced/amended the shared branch during staging, so path-scoped commits and immediate index checks were used; its unrelated work was preserved. | M1 has a focused durable checkpoint. Neither commit was pushed. |
+| 2026-10-26 | Added and synthetically tested the private benchmark planner. It parsed/hashes sources on TrueNAS, selected deterministic word-count quantiles and wrote mode-0600 real samples under a mode-0700 root checkpoint. Sixteen tests pass in normal and optimized Python. | M2 preparation is reproducible without printing titles, paths or text. |
+| 2026-10-26 | The live planner accepted 166/167 EPUBs and failed one closed at `epub-member-count`; the 20-book sample spans 2–419 chapters and 12–579,057 words. The bounded 500-word-per-book plan is 60,064 bytes at SHA-256 `08ee0f4b…d51928`. | Preserve the failure for later compatibility review; do not loosen the archive limit during the benchmark. |
+| 2026-10-26 | Verified LXC 116 has 8.4 GiB root free, 3.7 GiB memory available, ffmpeg 7.1.5 with libopus, the pinned Kokoro model/voice pack and required Python libraries. Copied the plan, renderer and current canonical `digest_text.py` snapshot through root-private paths and verified end-to-end hashes/modes. | No model, package, service configuration or production consumer changed. |
+| 2026-10-26 | Started transient benchmark invocation `a464d4a5f03644efb8785ff61847da6a` with one worker, nice 15, idle I/O, 300% CPU and 3 GiB memory limits. Initial memory was about 528 MiB; both existing speech services remained active. | M2 is running. Read the sanitized journal and source-local report; do not rerun silently on failure. |
 
 ## Close-out
 
