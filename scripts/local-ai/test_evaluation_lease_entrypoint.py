@@ -12,8 +12,10 @@ from unittest.mock import patch
 
 from evaluation_lease_entrypoint import EntryPointError, _main_effectful, main, validate_phase_intent
 from stream_a_evaluation_admission import (
-    ADMISSION_PREFIX, ADMISSION_SCHEMA, EXPECTED_BACKEND, EXPECTED_D4_DIGEST,
-    EXPECTED_M3_DIGEST, EXPECTED_MODEL, F5_SCHEMA, canonical_bytes,
+    ADMISSION_PREFIX, ADMISSION_SCHEMA, EXPECTED_AUTH_IDENTITY,
+    EXPECTED_BACKEND, EXPECTED_BINARY_SHA256, EXPECTED_D4_DIGEST,
+    EXPECTED_M3_DIGEST, EXPECTED_MODEL, EXPECTED_UNIT_SHA256, F5_SCHEMA,
+    canonical_bytes,
     load_bound_admission as real_load_bound_admission,
 )
 
@@ -145,8 +147,9 @@ class EntryPointTests(unittest.TestCase):
                 "f4_receipt_sha256": "d" * 64,
                 "lxc110_mirror_identity": "task2:success",
                 "schedule_set_sha256": "e" * 64, "model": EXPECTED_MODEL,
-                "binary_sha256": "f" * 64, "unit_sha256": "1" * 64,
-                "auth_identity": "aster-llama-key-file-v1",
+                "binary_sha256": EXPECTED_BINARY_SHA256,
+                "unit_sha256": EXPECTED_UNIT_SHA256,
+                "auth_identity": EXPECTED_AUTH_IDENTITY,
                 "consumer_baseline_sha256": "2" * 64,
                 "conflicting_lease": False, "conflicting_job": False,
             }

@@ -6,8 +6,9 @@ import unittest
 from pathlib import Path
 
 from stream_a_evaluation_admission import (
-    ADMISSION_PREFIX, ADMISSION_SCHEMA, EXPECTED_BACKEND,
-    EXPECTED_D4_DIGEST, EXPECTED_M3_DIGEST, EXPECTED_MODEL, F2_PREFIX,
+    ADMISSION_PREFIX, ADMISSION_SCHEMA, EXPECTED_AUTH_IDENTITY,
+    EXPECTED_BACKEND, EXPECTED_BINARY_SHA256, EXPECTED_D4_DIGEST,
+    EXPECTED_M3_DIGEST, EXPECTED_MODEL, EXPECTED_UNIT_SHA256, F2_PREFIX,
     F3_PREFIX, F5_SCHEMA, AdmissionArtifactError, canonical_bytes,
     build_admission, load_bound_admission, validate_admission, validate_f5,
 )
@@ -22,8 +23,9 @@ class AdmissionArtifactTests(unittest.TestCase):
             "f4_receipt_sha256": "d" * 64,
             "lxc110_mirror_identity": "task2:2026-10-26T02:00:00-07:00:success",
             "schedule_set_sha256": "e" * 64, "model": EXPECTED_MODEL,
-            "binary_sha256": "f" * 64, "unit_sha256": "1" * 64,
-            "auth_identity": "aster-llama-key-file-v1",
+            "binary_sha256": EXPECTED_BINARY_SHA256,
+            "unit_sha256": EXPECTED_UNIT_SHA256,
+            "auth_identity": EXPECTED_AUTH_IDENTITY,
             "consumer_baseline_sha256": "2" * 64,
             "conflicting_lease": False, "conflicting_job": False,
         }
@@ -149,6 +151,14 @@ class AdmissionArtifactTests(unittest.TestCase):
             with self.assertRaises(AdmissionArtifactError):
                 self.load(admission_path, f5_path, raw)
 
+    def test_oversized_artifact_is_rejected(self):
+        temporary, admission_path, f5_path, _value, _raw = self.files()
+        with temporary:
+            admission_path.write_bytes(b"{" + b" " * (16 * 1024) + b"}")
+            admission_path.chmod(0o600)
+            with self.assertRaisesRegex(AdmissionArtifactError, "size"):
+                self.load(admission_path, f5_path, admission_path.read_bytes())
+
     def test_stale_future_and_overlong_windows_fail(self):
         f5 = self.f5()
         admission = self.admission("a" * 64)
@@ -160,6 +170,14 @@ class AdmissionArtifactTests(unittest.TestCase):
             f5["observed_epoch"], f5["expires_epoch"] = created, expires
             with self.assertRaises(AdmissionArtifactError):
                 validate_f5(f5, now_epoch=now)
+
+    def test_f5_rejects_binary_unit_and_auth_identity_substitution(self):
+        for field, value in (("binary_sha256", "9" * 64),
+                             ("unit_sha256", "9" * 64),
+                             ("auth_identity", "file:/tmp/substitute:root:root:0600")):
+            changed = self.f5(); changed[field] = value
+            with self.subTest(field=field), self.assertRaises(AdmissionArtifactError):
+                validate_f5(changed, now_epoch=1100)
 
     def test_model_backend_and_workload_drift_fail(self):
         admission = self.admission("a" * 64)

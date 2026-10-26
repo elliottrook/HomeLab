@@ -36,6 +36,9 @@ EXPECTED_D4_DIGEST = "423656a2336502f3a70de463b3e844b0e85c4bb74a59127cc8f70a0905
 EXPECTED_M3_DIGEST = "69ffc58928ebd2f2f64e0600b8c4a7d73ce5f5356c485e1df8c2265741972165"
 EXPECTED_MODEL = "Qwen3.5-9B-Q4_K_M"
 EXPECTED_BACKEND = "llama.cpp-b11429-SYCL-Level-Zero"
+EXPECTED_BINARY_SHA256 = "0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5"
+EXPECTED_UNIT_SHA256 = "a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3"
+EXPECTED_AUTH_IDENTITY = "file:/etc/aster-llama-api-keys:ollama:ollama:0600"
 _HEX = re.compile(r"^[0-9a-f]{64}$")
 _DATE = re.compile(r"^20[0-9]{2}-[01][0-9]-[0-3][0-9]$")
 
@@ -104,6 +107,8 @@ def _secure_read(path: Path, *, required_uid: int = 0) -> tuple[dict[str, Any], 
         raw = b"".join(chunks)
     finally:
         os.close(fd)
+    if len(raw) > MAX_BYTES:
+        raise AdmissionArtifactError("artifact exceeds size bound")
     try:
         value = json.loads(raw, object_pairs_hook=_unique_pairs)
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
@@ -136,11 +141,15 @@ def validate_f5(value: dict[str, Any], *, now_epoch: int | None = None) -> None:
                   "schedule_set_sha256", "binary_sha256", "unit_sha256",
                   "consumer_baseline_sha256"):
         _hex(value[field], field)
-    for field in ("lxc110_mirror_identity", "auth_identity"):
-        if not isinstance(value[field], str) or not value[field] or len(value[field]) > 512:
-            raise AdmissionArtifactError(f"{field} is invalid")
-    if value["model"] != EXPECTED_MODEL:
-        raise AdmissionArtifactError("F5 model identity is not accepted")
+    if (not isinstance(value["lxc110_mirror_identity"], str)
+            or not value["lxc110_mirror_identity"]
+            or len(value["lxc110_mirror_identity"]) > 512):
+        raise AdmissionArtifactError("lxc110_mirror_identity is invalid")
+    if (value["model"] != EXPECTED_MODEL
+            or value["binary_sha256"] != EXPECTED_BINARY_SHA256
+            or value["unit_sha256"] != EXPECTED_UNIT_SHA256
+            or value["auth_identity"] != EXPECTED_AUTH_IDENTITY):
+        raise AdmissionArtifactError("F5 accepted runtime identity does not match")
     if value["conflicting_lease"] is not False or value["conflicting_job"] is not False:
         raise AdmissionArtifactError("F5 observed conflicting work")
     if now_epoch is not None:
