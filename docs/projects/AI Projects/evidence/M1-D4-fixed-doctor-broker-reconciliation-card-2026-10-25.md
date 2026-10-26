@@ -43,10 +43,11 @@ custody and restarting only the broker. The complete bounded record is in
 [the rollback result](M1-D4-fixed-doctor-broker-first-attempt-rollback-2026-10-25.md).
 
 The corrected apply script is SHA-256
-`d69a6c42bfc13b9f66f568077e5856783a4bf0f337264f1d877434be9408c28f`.
-It preflights and postchecks health as registered client `hlabagent`, verifies
-database and socket custody before replacement, and restores SQLite as
-`hlabroker:hlabroker` mode `0600` during rollback.
+`fa28aad58a21a694c932c8e9ce698b0ce26fa3eb5b51804db0f18f0a27804a99`.
+It preflights health as registered client `hlabagent`, verifies database and
+socket custody before replacement, waits after restart for a bounded successful
+`hlabagent` health RPC rather than socket-path existence, repeats that RPC, and
+restores SQLite as `hlabroker:hlabroker` mode `0600` during rollback.
 
 ## Bounded live procedure
 

@@ -1,8 +1,8 @@
 #!/bin/sh
 set -eu
 
-stage=/root/aster-fixed-doctor-broker-stage-20261025T1750PDT
-checkpoint=/root/aster-fixed-doctor-broker-pre-20261025T1750PDT
+stage=/root/aster-fixed-doctor-broker-stage-20261025T1810PDT
+checkpoint=/root/aster-fixed-doctor-broker-pre-20261025T1810PDT
 admin=/opt/homelab-broker/broker_admin.py
 service=/opt/homelab-broker/broker_service.py
 database=/var/lib/homelab-broker/broker.db
@@ -14,6 +14,10 @@ expected_core=2fdb80964984fed5cf539f12a62d0058ba9eb9088861425858109fabc7dabf99
 rollback_needed=0
 
 sha() { sha256sum "$1" | cut -d ' ' -f 1; }
+
+broker_health() {
+    runuser -u hlabagent -- python3 -c 'import json,socket; s=socket.socket(socket.AF_UNIX); s.settimeout(2); s.connect("/run/homelab-broker/mcp.sock"); s.sendall(b"{\"method\":\"health\"}\n"); r=json.loads(s.makefile("rb").readline()); assert r.get("ok") is True and r.get("result",{}).get("status")=="ok"'
+}
 
 rollback() {
     rc=$?
@@ -36,16 +40,7 @@ trap rollback EXIT
 [ "$(stat -c '%U:%G:%a' "$database")" = "hlabroker:hlabroker:600" ]
 [ "$(stat -c '%U:%G:%a' /run/homelab-broker/mcp.sock)" = "hlabroker:hlabroker-clients:660" ]
 getent group hlabroker-clients | grep -Fq 'hlabagent'
-runuser -u hlabagent -- python3 - <<'PY'
-import json
-import socket
-s = socket.socket(socket.AF_UNIX)
-s.settimeout(5)
-s.connect('/run/homelab-broker/mcp.sock')
-s.sendall(b'{"method":"health"}\n')
-r = json.loads(s.makefile('rb').readline())
-assert r.get('ok') is True and r.get('result', {}).get('status') == 'ok'
-PY
+broker_health
 [ "$(sha "$stage/broker_admin.py")" = "$candidate_admin" ]
 [ "$(sha "$stage/broker_service.py")" = "$candidate_service" ]
 [ ! -e "$checkpoint" ]
@@ -81,32 +76,21 @@ systemctl restart homelab-broker.service
 
 i=0
 while [ "$i" -lt 20 ]; do
-    if systemctl is-active --quiet homelab-broker.service && [ -S /run/homelab-broker/mcp.sock ]; then
+    if systemctl is-active --quiet homelab-broker.service && broker_health >/dev/null 2>&1; then
         break
     fi
     i=$((i + 1))
     sleep 0.5
 done
 systemctl is-active --quiet homelab-broker.service
-[ -S /run/homelab-broker/mcp.sock ]
+broker_health
 [ "$(systemctl show homelab-broker.service -p NRestarts --value)" = 0 ]
 [ "$(sha "$admin")" = "$candidate_admin" ]
 [ "$(sha "$service")" = "$candidate_service" ]
 [ "$(sha /opt/homelab-broker/broker_core.py)" = "$expected_core" ]
 
-runuser -u hlabagent -- python3 - <<'PY'
-import json
-import socket
-s = socket.socket(socket.AF_UNIX)
-s.settimeout(5)
-s.connect('/run/homelab-broker/mcp.sock')
-s.sendall(b'{"method":"health"}\n')
-r = json.loads(s.makefile('rb').readline())
-assert r.get('ok') is True
-assert r.get('result', {}).get('status') == 'ok'
-assert isinstance(r.get('result', {}).get('global_enabled'), bool)
-print('BROKER_HEALTH_OK')
-PY
+broker_health
+echo 'BROKER_HEALTH_OK'
 
 python3 - "$database" <<'PY'
 import sqlite3

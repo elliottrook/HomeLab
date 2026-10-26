@@ -976,9 +976,13 @@ postcheck used the non-client `aster` identity, and rollback then exposed an
 incorrect SQLite ownership restore. Production is recovered at both original
 source hashes, healthy broker/Aster services and an `ok` database integrity
 check. The corrected retry uses registered client `hlabagent` and restores the
-database as `hlabroker:hlabroker` mode `0600`. Its next bounded gate is a fresh
-exact approval for the same two source replacements and one controlled normal-
-broker restart, still without enrollment, grant or service activation.
+database as `hlabroker:hlabroker` mode `0600`. The first corrected retry then
+failed closed on a measured startup-readiness race: active state plus socket
+existence preceded an accepting listener. Rollback recovered production. The
+next pinned script requires a bounded successful `hlabagent` health-probe loop
+before postchecks. Its next gate is a fresh exact approval for the same two
+source replacements and one controlled normal-broker restart, still without
+enrollment, grant or service activation.
 
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)
 deployed caller binding and restrictive checks, while the

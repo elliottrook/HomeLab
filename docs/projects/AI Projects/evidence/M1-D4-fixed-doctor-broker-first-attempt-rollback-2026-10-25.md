@@ -41,3 +41,22 @@ database/socket custody and `hlabagent` health call before replacement, repeats
 that health check afterward, and restores SQLite as `hlabroker:hlabroker` mode
 `0600` on any rollback. A new exact approval is required before retrying the
 live replacement.
+
+## Corrected retry result
+
+The first corrected retry fixed the client identity and database rollback
+custody, but returned NO-GO at the immediate post-restart health request. The
+broker service was active and its socket path existed, yet the new listener had
+not begun accepting connections; `hlabagent` received `ConnectionRefused`.
+The corrected rollback restored the original two sources and database custody
+without intervention. Subsequent read-only checks proved both services active,
+broker `NRestarts=0`, the original source hashes, `hlabagent` health, SQLite
+integrity `ok`, zero fixed rows and absent fixed sockets.
+
+The next script replaces the socket-path readiness test with a bounded
+successful `hlabagent` health-probe loop: up to 20 attempts at 0.5-second
+intervals, with a two-second RPC timeout. It requires one successful health
+response before continuing and repeats the same probe afterward. The script is
+pinned at SHA-256
+`fa28aad58a21a694c932c8e9ce698b0ce26fa3eb5b51804db0f18f0a27804a99`.
+No enrollment, activation, fixed read or other excluded effect occurred.
