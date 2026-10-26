@@ -1039,8 +1039,10 @@ grants no authority or routing promotion, and no model request or live Doctor
 read has occurred. An exact eight-file, 29,892-byte
 [inactive staging boundary](evidence/M1-D4-fixed-doctor-usefulness-staging-boundary-2026-10-25.md)
 now passes exact-name, custody, opened-byte and no-extra-file validation; the
-combined source suite passes 35/35. LXC104 remains unchanged. An inactive
-install card and later effectful live card remain to be frozen before an
+deterministic archive and fail-closed transaction are frozen in an
+[approval-ready inactive install card](evidence/M1-D4-fixed-doctor-usefulness-inactive-install-card-2026-10-25.md),
+and the combined source suite passes 39/39. LXC104 remains unchanged. The
+inactive install and later effectful live card remain separate gates before an
 evaluation.
 
 The immediate [post-authority candidate-G preflight](evidence/D4-candidate-G-post-authority-static-preflight-2026-10-25.md)
