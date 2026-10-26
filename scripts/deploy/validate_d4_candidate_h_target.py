@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import importlib.machinery
 import importlib.util
 import json
 import os
@@ -30,7 +31,10 @@ def service_state() -> tuple[str, str]:
 
 
 def load_launcher():
-    spec = importlib.util.spec_from_file_location("d4_candidate_h_launcher", LAUNCHER)
+    loader = importlib.machinery.SourceFileLoader(
+        "d4_candidate_h_launcher", str(LAUNCHER)
+    )
+    spec = importlib.util.spec_from_loader(loader.name, loader)
     if spec is None or spec.loader is None:
         raise RuntimeError("candidate launcher import unavailable")
     module = importlib.util.module_from_spec(spec)

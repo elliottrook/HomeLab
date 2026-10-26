@@ -1,6 +1,7 @@
 import importlib.util
 from pathlib import Path
 import subprocess
+import tempfile
 import unittest
 from unittest import mock
 
@@ -8,6 +9,17 @@ import validate_d4_candidate_h_target as target
 
 
 class TargetValidationTests(unittest.TestCase):
+    def test_loads_extensionless_installed_launcher(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "launcher"
+            path.write_text("MARKER = 'loaded'\n")
+            old = target.LAUNCHER
+            try:
+                target.LAUNCHER = path
+                self.assertEqual(target.load_launcher().MARKER, "loaded")
+            finally:
+                target.LAUNCHER = old
+
     def test_child_probe_contains_fixed_nonsecret_boundary(self):
         source = target.child_probe_source()
         for required in (

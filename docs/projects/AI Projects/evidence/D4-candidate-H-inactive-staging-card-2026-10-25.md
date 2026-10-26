@@ -52,7 +52,7 @@ existing target.
 
 Run the pinned temporary validator
 `/run/aster-d4-candidate-h-target-validation`, SHA-256
-`0bd9fe0b7b2c2462c7ba348123bfbb0f10dbff5b0f5234cfb8ec58ca4e2be4fb`.
+`e38952b4495326b12e37b0b23f17bc8c061d03ccefda1af71ad390d34186e7a5`.
 It runs only synthetic, fictional probes that cannot reach the model endpoint:
 
 - import and compile the launcher and candidate Python files with bytecode
@@ -88,3 +88,13 @@ This card does not authorize opening the real credential, starting or enabling
 the candidate service, creating a journal, calling a model, stopping a B60
 consumer, acquiring a lab lease, changing a schedule, granting a supplementary
 group, activating F6 or promoting candidate-H. Those remain separate gates.
+
+## First attempt correction
+
+The first approved inactive attempt rolled back before any fictional probe
+because `spec_from_file_location` did not recognize the extensionless installed
+launcher. All created targets and UID/GID 977 were removed; Aster Agent stayed
+active and `/etc/aster/aster.env` remained root:aster mode 0640. The corrected
+validator uses `SourceFileLoader`, has an explicit extensionless-path regression
+test, and has the replacement SHA-256 recorded above. A retry is a new exact
+host change and requires its own approval.

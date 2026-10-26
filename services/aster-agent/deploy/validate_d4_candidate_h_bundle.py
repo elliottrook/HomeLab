@@ -92,7 +92,7 @@ def validate(manifest_path: Path = MANIFEST, root: Path = ROOT) -> dict:
     target_validator = data["target_validator"]
     if target_validator != {
         "source": "scripts/deploy/validate_d4_candidate_h_target.py",
-        "source_sha256": "0bd9fe0b7b2c2462c7ba348123bfbb0f10dbff5b0f5234cfb8ec58ca4e2be4fb",
+        "source_sha256": "e38952b4495326b12e37b0b23f17bc8c061d03ccefda1af71ad390d34186e7a5",
         "temporary_target": "/run/aster-d4-candidate-h-target-validation",
         "owner": "root", "group": "root", "mode": "0700",
         "predecessor": "absent", "rollback": "remove",
