@@ -130,6 +130,25 @@ def _json(raw: bytes, *, canonical_newline: bool) -> dict[str, object]:
     return value
 
 
+def _cross_bind_archives(f2: dict[str, object], f3: dict[str, object]) -> None:
+    fields = (
+        "vmid", "volid", "size", "ctime", "test_started_epoch",
+        "test_finished_epoch", "test_elapsed_ms", "test_exit",
+    )
+    f2_rows = f2.get("result", {}).get("archives", [])
+    f3_rows = f3.get("archives", [])
+    if (not isinstance(f2_rows, list) or not isinstance(f3_rows, list)
+            or len(f2_rows) != 3 or len(f3_rows) != 3):
+        raise EvidenceLoadError("F2/F3 archive sets are incomplete")
+    try:
+        left = tuple(tuple(row[field] for field in fields) for row in f2_rows)
+        right = tuple(tuple(row[field] for field in fields) for row in f3_rows)
+    except (KeyError, TypeError) as error:
+        raise EvidenceLoadError("F2/F3 archive row schema is invalid") from error
+    if left != right:
+        raise EvidenceLoadError("F2 and F3 archive rows do not match exactly")
+
+
 def load_accepted_evidence(
     expectation: EvidenceExpectation,
     *,
@@ -167,6 +186,7 @@ def load_accepted_evidence(
 
     f3_raw = _read(paths.f3, maximum=MAX_F3_BYTES, required_uid=required_uid)
     f3 = _json(f3_raw, canonical_newline=False)
+    _cross_bind_archives(f2, f3)
     try:
         backup_receipt = verify_f3(
             f3, inventory(), date=expectation.cycle_date.replace("-", "_"),

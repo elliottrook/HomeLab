@@ -155,6 +155,13 @@ class EvidenceLoaderTests(unittest.TestCase):
                     self.load()
                 path.write_bytes(original)
 
+    def test_f2_f3_archive_rows_must_match_directly(self):
+        f2 = json.loads(self.f2_raw)
+        f3 = json.loads(self.f3_raw)
+        f2["result"]["archives"][1]["test_elapsed_ms"] += 1
+        with self.assertRaisesRegex(subject.EvidenceLoadError, "do not match"):
+            subject._cross_bind_archives(f2, f3)
+
     def test_foreign_lease_stale_cycle_and_admission_digest_fail(self):
         foreign = subject.EvidenceExpectation(self.cycle, "f" * 16,
                                               self.expectation.admission_receipt)

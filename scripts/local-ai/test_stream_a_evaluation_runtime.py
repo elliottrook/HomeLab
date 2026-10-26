@@ -36,14 +36,13 @@ class RuntimeCompositionTests(unittest.TestCase):
         outcome = outcome_type.return_value
         handlers = handlers_type.return_value
         driver = driver_type.return_value
-        runner = Mock(); clock = Mock(return_value=100_000)
-        runtime = subject.build_runtime(
-            self.expectation(), now_minute=100, runner=runner, clock=clock,
-            required_uid=501,
-        )
+        runner = Mock()
+        with patch.object(subject.subprocess, "run", runner), \
+                patch.object(subject, "_clock", return_value=100_000):
+            runtime = subject.build_runtime(self.expectation(), now_minute=100)
         load.assert_called_once()
         self.assertEqual(load.call_args.kwargs["now_epoch"], 100_000)
-        self.assertEqual(load.call_args.kwargs["required_uid"], 501)
+        self.assertEqual(load.call_args.kwargs["required_uid"], 0)
         restored_type.assert_called_once()
         outcome_type.assert_called_once_with(runner=runner)
         self.assertIs(handlers_type.call_args.kwargs["outcome_verifier"], outcome)
@@ -72,7 +71,7 @@ class RuntimeCompositionTests(unittest.TestCase):
         with patch.object(subject, "FixedHandlers") as handlers, \
                 self.assertRaises(ValueError):
             subject.build_runtime(self.expectation(), now_minute=100,
-                                  clock=lambda: 100_000)
+                                  )
         handlers.assert_not_called()
 
 
