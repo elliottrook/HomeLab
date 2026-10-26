@@ -50,6 +50,12 @@ verifier `94086234…58e1`. Candidate-H's LXC104 launcher is
 `71c07060…0eb` and its unit is `76c0ba89…2450`. The staged M3 runner is
 `a8cca4da…5a0f`; the LXC110 metadata-auth helper is `93e78f8a…2582`.
 
+The M3 identity above is historical. The later
+[current M3 coordination receipt](Stream-A-F6-current-M3-packet-coordination-2026-10-25.md)
+supersedes it with the installed final runner, scorer, journal and packet
+manifest identities. The host/V3 identities in this snapshot remain the
+current review input.
+
 ## Review consequence
 
 The replacement activation/recovery card must pin this complete installed
