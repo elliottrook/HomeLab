@@ -10,8 +10,9 @@ model. It is a replacement for the rejected root-child launcher. The source
 boundary is commit `0966af2d`; the machine-readable bundle is
 `services/aster-agent/deploy/d4-candidate-h-bundle-manifest.json`.
 
-The bundle validator reports one inactive candidate, eleven packet files and
-three control files. It binds the candidate-H run digest
+The bundle validator reports one inactive candidate, eleven packet files,
+three persistent control files and one temporary target validator. It binds the
+candidate-H run digest
 `423656a2336502f3a70de463b3e844b0e85c4bb74a59127cc8f70a0905ec31f4`.
 
 ## Preconditions
@@ -21,7 +22,7 @@ three control files. It binds the candidate-H run digest
    all three control targets and the candidate service are absent.
 3. `/etc/aster/aster.env` remains root:aster mode 0640. Its contents are not
    read, hashed, copied or printed during staging.
-4. The source commit, bundle manifest, source manifest and all fourteen source
+4. The source commit, bundle manifest, source manifest and all fifteen source
    hashes match the validator.
 5. A root-only rollback directory is created before the first target mutation,
    containing the preflight identities and the exact rollback sequence. There
@@ -32,7 +33,7 @@ existing target.
 
 ## Bounded inactive installation
 
-1. Copy the fourteen hash-pinned source files to a root-only temporary staging
+1. Copy the fifteen hash-pinned source files to a root-only temporary staging
    directory in LXC104 and revalidate every byte there.
 2. Install only `/usr/lib/sysusers.d/aster-d4-eval.conf`, then invoke
    `systemd-sysusers` for that exact fragment.
@@ -49,7 +50,10 @@ existing target.
 
 ## Content-free target-Linux validation
 
-Run only synthetic, fictional probes that cannot reach the model endpoint:
+Run the pinned temporary validator
+`/run/aster-d4-candidate-h-target-validation`, SHA-256
+`0bd9fe0b7b2c2462c7ba348123bfbb0f10dbff5b0f5234cfb8ec58ca4e2be4fb`.
+It runs only synthetic, fictional probes that cannot reach the model endpoint:
 
 - import and compile the launcher and candidate Python files with bytecode
   writes disabled;
@@ -66,7 +70,8 @@ Run only synthetic, fictional probes that cannot reach the model endpoint:
 
 The target probe must report UID/GID 977, zero supplementary groups beyond the
 primary group, no environment key and successful fictional descriptor delivery.
-Any other result is NO-GO and triggers rollback.
+Any other result is NO-GO and triggers rollback. Remove the temporary validator
+after capturing its content-free result.
 
 ## Rollback
 

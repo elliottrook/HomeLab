@@ -15,6 +15,7 @@ class D4CandidateHBundleTests(unittest.TestCase):
                 "candidate": "d4-candidate-h-unprivileged-v1",
                 "packet_files": 11,
                 "control_files": 3,
+                "validation_files": 1,
                 "activation": "inactive-source-only",
             },
         )

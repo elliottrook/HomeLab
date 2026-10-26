@@ -23,7 +23,8 @@ def validate(manifest_path: Path = MANIFEST, root: Path = ROOT) -> dict:
     data = json.loads(manifest_path.read_text())
     if set(data) != {
         "schema", "candidate", "candidate_source_commit", "activation",
-        "identity", "packet", "output", "control_files", "service", "excluded",
+        "identity", "packet", "output", "target_validator", "control_files",
+        "service", "excluded",
     }:
         raise ValueError("manifest fields changed")
     if (
@@ -88,6 +89,23 @@ def validate(manifest_path: Path = MANIFEST, root: Path = ROOT) -> dict:
     }:
         raise ValueError("output custody boundary changed")
 
+    target_validator = data["target_validator"]
+    if target_validator != {
+        "source": "scripts/deploy/validate_d4_candidate_h_target.py",
+        "source_sha256": "0bd9fe0b7b2c2462c7ba348123bfbb0f10dbff5b0f5234cfb8ec58ca4e2be4fb",
+        "temporary_target": "/run/aster-d4-candidate-h-target-validation",
+        "owner": "root", "group": "root", "mode": "0700",
+        "predecessor": "absent", "rollback": "remove",
+    }:
+        raise ValueError("target validator boundary changed")
+    target_validator_source = root / target_validator["source"]
+    if (
+        not target_validator_source.is_file()
+        or target_validator_source.is_symlink()
+        or digest(target_validator_source) != target_validator["source_sha256"]
+    ):
+        raise ValueError("target validator source mismatch")
+
     controls = data["control_files"]
     if not isinstance(controls, list) or len(controls) != 3:
         raise ValueError("exactly three control files required")
@@ -132,7 +150,8 @@ def validate(manifest_path: Path = MANIFEST, root: Path = ROOT) -> dict:
         raise ValueError("staging exclusions changed")
     return {
         "candidate": data["candidate"], "packet_files": len(names),
-        "control_files": len(controls), "activation": data["activation"],
+        "control_files": len(controls), "validation_files": 1,
+        "activation": data["activation"],
     }
 
 

@@ -31,6 +31,16 @@
     "must_be_empty": true,
     "predecessor": "absent"
   },
+  "target_validator": {
+    "source": "scripts/deploy/validate_d4_candidate_h_target.py",
+    "source_sha256": "0bd9fe0b7b2c2462c7ba348123bfbb0f10dbff5b0f5234cfb8ec58ca4e2be4fb",
+    "temporary_target": "/run/aster-d4-candidate-h-target-validation",
+    "owner": "root",
+    "group": "root",
+    "mode": "0700",
+    "predecessor": "absent",
+    "rollback": "remove"
+  },
   "control_files": [
     {
       "source": "scripts/deploy/launch_d4_candidate_h.py",
