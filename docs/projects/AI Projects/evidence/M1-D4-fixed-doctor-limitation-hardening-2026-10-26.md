@@ -11,7 +11,14 @@ unavailable path to say it cannot determine health, cause or repair. It keeps
 the same local endpoint, tool-free request, temperature zero, 256-token bound,
 60-second maximum call and label-blind payload. Five adapter tests pass.
 
-This is offline hardening only. It is not installed, does not replace the
-accepted result, does not call a model and grants no tool or routing authority.
-A future evaluation must use a newly frozen packet or a clearly labelled
-development regression; the original blind result must not be rewritten.
+The exact source was then exercised as one clearly labelled, non-qualifying
+development regression against case `fd-use-04` on the already-running local
+model. All five bounded checks passed: warning state, freshness, named-check
+scope, explicit cause limitation and explicit repair limitation. The owner-only
+result SHA-256 is
+`fb48100cd30c36abbb6ff7b09cc323590598e3f3659cfeee2b4fc83ec43916bf`.
+No service was restarted and the answer remains outside Git.
+
+This does not replace the accepted blind result and grants no tool or routing
+authority. Any new qualification claim still requires a newly frozen packet;
+the original blind result must not be rewritten.
