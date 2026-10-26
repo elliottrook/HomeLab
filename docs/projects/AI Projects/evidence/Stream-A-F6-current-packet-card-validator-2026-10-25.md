@@ -33,6 +33,11 @@ final M3 identities and retains the superseded restore-observer and original
 M3 manifest. This agrees with the independent prose review and provides a
 repeatable acceptance check for the replacement card.
 
+After expanding the installed snapshot to use every full path and digest, the
+validator accepts the snapshot plus the final M3 coordination receipt as one
+composite requirements source. This proves that the frozen review inputs are
+internally complete under the same check that rejects the stale live card.
+
 This is an offline review tool. It does not attest that the installed host is
 unchanged after the inventory, publish the requirements to the platform owner,
 arm F6, create a lease, stop a consumer or call a model. A replacement card
