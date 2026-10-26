@@ -10,6 +10,7 @@ validator=/tmp/nlu_calibration_stage_manifest.$source_commit.py
 manifest=/tmp/nlu-calibration-stage-manifest.$source_commit.json
 score_tests=/tmp/test_nlu_calibration_score.$source_commit.py
 corpus_tests=/tmp/test_nlu_calibration_corpus.py
+test_root=/tmp/nlu-score-tests-$source_commit
 stamp=$(date -u +%Y%m%dT%H%M%SZ)
 checkpoint=/var/lib/aster-nlu-calibration/checkpoints/score-boundary-$source_commit-$stamp
 
@@ -26,7 +27,12 @@ started=0
 transport_files=("$score" "$journal" "$validator" "$manifest" "$score_tests" "$corpus_tests")
 
 cleanup_transport() {
-  pct exec "$vmid" -- rm -f "${transport_files[@]}"
+  pct exec "$vmid" -- rm -f "$score" "$journal" "$validator" "$manifest"
+  pct exec "$vmid" -- rm -f \
+    "$test_root/test_nlu_calibration_score.py" \
+    "$test_root/test_nlu_calibration_corpus.py" \
+    "$test_root/fixtures/nlu-development-v1.json"
+  pct exec "$vmid" -- rmdir "$test_root/fixtures" "$test_root" 2>/dev/null || true
   rm -f "${transport_files[@]}"
 }
 
@@ -54,7 +60,15 @@ check_sha "$validator" "$new_validator"
 check_sha "$manifest" "$new_manifest"
 check_sha "$score_tests" "$score_tests_sha"
 check_sha "$corpus_tests" "$corpus_tests_sha"
-for path in "${transport_files[@]}"; do pct push "$vmid" "$path" "$path"; done
+for path in "$score" "$journal" "$validator" "$manifest"; do
+  pct push "$vmid" "$path" "$path"
+done
+pct exec "$vmid" -- test ! -e "$test_root"
+pct exec "$vmid" -- install -d -o root -g root -m 0700 "$test_root" "$test_root/fixtures"
+pct push "$vmid" "$score_tests" "$test_root/test_nlu_calibration_score.py"
+pct push "$vmid" "$corpus_tests" "$test_root/test_nlu_calibration_corpus.py"
+pct exec "$vmid" -- install -o root -g root -m 0600 \
+  "$target/nlu-development-v1.json" "$test_root/fixtures/nlu-development-v1.json"
 
 /usr/local/sbin/local-ai-lease status | python3 -c \
   'import json,sys; assert json.load(sys.stdin) == {"state":"ready"}'
@@ -94,7 +108,7 @@ done
 pct exec "$vmid" -- env PYTHONPATH="$target" PYTHONDONTWRITEBYTECODE=1 \
   python3 -B "$validator" --manifest "$manifest" --staged-directory "$target"
 pct exec "$vmid" -- sh -c \
-  "cd /tmp && PYTHONPATH='$target:/tmp' PYTHONDONTWRITEBYTECODE=1 python3 -B '$score_tests'"
+  "cd '$test_root' && PYTHONPATH='$target:$test_root' PYTHONDONTWRITEBYTECODE=1 python3 -B test_nlu_calibration_score.py"
 pct exec "$vmid" -- env PYTHONPATH="$target" PYTHONDONTWRITEBYTECODE=1 python3 -B -c \
   'import nlu_calibration_runner, nlu_calibration_score, nlu_calibration_journal, nlu_calibration_stage_manifest'
 pct exec "$vmid" -- test ! -e "$target/__pycache__"

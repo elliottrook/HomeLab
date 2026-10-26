@@ -15,9 +15,9 @@ match the already corrected runner and approved no-retry run card.
 - transaction:
   `scripts/aster-adaptive/install_nlu_calibration_score_boundary.sh`;
 - transaction SHA-256:
-  `6e1f9d288a9b0d42f25385a7431f44576fe4e6ee8d7b70e7a27b9ebee12d6479`;
+  `0f568980e24d35301c1348a8047b05d90bcaed30c8e1a21a5b1e06f6d8e33408`;
 - transaction test SHA-256:
-  `9251d2f180cf76ec06781ff39fb203c4d976d1cd643f0898aedf4fb9dd51d480`;
+  `029701da005aee081680818e7aa980b5d4f341e75bdf749465250fcaed2bd17e`;
 - local transaction tests: 2/2; and
 - dependency-free NLU tests: 119/119.
 
@@ -42,7 +42,9 @@ runner process. Preserve both old files in a new root-only checkpoint.
 
 After replacement, require exact new hashes and root:root mode `0600`, validate
 all eleven staged packet files, run the nine scorer regressions on target
-Linux, import the runner/scorer/journal/manifest without bytecode writes, and
+Linux from a unique temporary test root containing the public development
+fixture in the layout expected by the unchanged tests, import the
+runner/scorer/journal/manifest without bytecode writes, and
 repeat absence, llama and lease checks. Any failure restores both files
 from the checkpoint and removes only bounded temporary transport files.
 
