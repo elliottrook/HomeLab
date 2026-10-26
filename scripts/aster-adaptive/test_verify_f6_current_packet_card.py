@@ -14,7 +14,7 @@ class CurrentPacketCardTests(unittest.TestCase):
     def setUp(self):
         self.requirements = load_requirements(REQUIREMENTS)
         parts = []
-        for path, digest in self.requirements["host_paths"].items():
+        for path, digest in self.requirements["installed_paths"].items():
             parts.append(f"{path} {digest}")
         parts.extend(self.requirements["m3_identities"].values())
         self.complete_card = "\n".join(parts)
@@ -23,9 +23,9 @@ class CurrentPacketCardTests(unittest.TestCase):
         self.assertEqual([], verify_card(self.complete_card, self.requirements))
 
     def test_missing_v3_path_fails(self):
-        path = next(iter(self.requirements["host_paths"]))
+        path = next(iter(self.requirements["installed_paths"]))
         failures = verify_card(self.complete_card.replace(path, ""), self.requirements)
-        self.assertIn(f"missing host path: {path}", failures)
+        self.assertIn(f"missing installed path: {path}", failures)
 
     def test_missing_final_m3_identity_fails(self):
         digest = self.requirements["m3_identities"]["packet_manifest"]

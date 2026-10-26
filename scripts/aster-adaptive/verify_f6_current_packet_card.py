@@ -18,11 +18,11 @@ def load_requirements(path: Path) -> dict[str, Any]:
 
 def verify_card(card: str, requirements: dict[str, Any]) -> list[str]:
     failures: list[str] = []
-    for path, digest in requirements["host_paths"].items():
+    for path, digest in requirements["installed_paths"].items():
         if path not in card:
-            failures.append(f"missing host path: {path}")
+            failures.append(f"missing installed path: {path}")
         if digest not in card:
-            failures.append(f"missing host digest: {path}")
+            failures.append(f"missing installed digest: {path}")
     for name, digest in requirements["m3_identities"].items():
         if digest not in card:
             failures.append(f"missing M3 identity: {name}")
