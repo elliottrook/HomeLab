@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "candidate": "d4-fixed-speech-v1",
+  "source_commit": "de7256dc4cfbcf5a668a9e1f2c5bb3182a26402b",
+  "activation": "inactive-additive-only",
+  "entries": [
+    {
+      "source": "services/aster-agent/diagnostic_catalogue_v3.py",
+      "target": "/opt/aster-agent/diagnostic_catalogue_v3.py",
+      "sha256": "a8e813542dfc3941892c60dbc7d830c63acd88d2459de3ac8d21c1ff632588dc",
+      "predecessor": "absent",
+      "owner": "root",
+      "group": "root",
+      "mode": "0644",
+      "rollback": "remove"
+    },
+    {
+      "source": "services/aster-agent/speech_catalogue_incident_adapter.py",
+      "target": "/opt/aster-agent/speech_catalogue_incident_adapter.py",
+      "sha256": "f9e67602144b7e80a49a2b1f19746b2e5f35f9afd6c5109e7aaa9d2b8f3538c5",
+      "predecessor": "absent",
+      "owner": "root",
+      "group": "root",
+      "mode": "0644",
+      "rollback": "remove"
+    },
+    {
+      "source": "services/aster-agent/fixed_speech_response.py",
+      "target": "/opt/aster-agent/fixed_speech_response.py",
+      "sha256": "0c9a391eaa79804417c4f7a67eaa522f8d1e65dd9bbafc84c38013b5ed5834b3",
+      "predecessor": "absent",
+      "owner": "root",
+      "group": "root",
+      "mode": "0644",
+      "rollback": "remove"
+    },
+    {
+      "source": "services/aster-agent/fixed_speech_capability.py",
+      "target": "/opt/aster-agent/fixed_speech_capability.py",
+      "sha256": "395b391ec22f2cca0d507f0ed75f0ae9204778217451be705c217bfb3bca3b28",
+      "predecessor": "absent",
+      "owner": "root",
+      "group": "root",
+      "mode": "0644",
+      "rollback": "remove"
+    },
+    {
+      "source": "services/aster-agent/fixed_speech_gateway.py",
+      "target": "/opt/aster-agent/fixed_speech_gateway.py",
+      "sha256": "38150cb7f4bbf094a2200c2bd0965df662103ce8133c311ad91044920c18119f",
+      "predecessor": "absent",
+      "owner": "root",
+      "group": "root",
+      "mode": "0644",
+      "rollback": "remove"
+    },
+    {
+      "source": "services/aster-agent/fixed_speech_caller.py",
+      "target": "/opt/aster-agent/fixed_speech_caller.py",
+      "sha256": "3f5c3a9c332ce7b1e3100452d0697bed5824e895b82259e703ba358b059bb302",
+      "predecessor": "absent",
+      "owner": "root",
+      "group": "root",
+      "mode": "0644",
+      "rollback": "remove"
+    },
+    {
+      "source": "services/aster-agent/systemd/aster-fixed-speech-caller.service",
+      "target": "/etc/systemd/system/aster-fixed-speech-caller.service",
+      "sha256": "948da16b9db04ce1c5d7921f9f1d2fd4229e4b83cf29238fa4e3d8704a368409",
+      "predecessor": "absent",
+      "owner": "root",
+      "group": "root",
+      "mode": "0644",
+      "rollback": "remove"
+    },
+    {
+      "source": "services/aster-agent/systemd/aster-fixed-speech-gateway.service",
+      "target": "/etc/systemd/system/aster-fixed-speech-gateway.service",
+      "sha256": "9d42c6ff409d325281a61cee77d5279de71f9981caa75901aa1271527aab18f7",
+      "predecessor": "absent",
+      "owner": "root",
+      "group": "root",
+      "mode": "0644",
+      "rollback": "remove"
+    },
+    {
+      "source": "services/aster-agent/systemd/aster-fixed-speech.sysusers.conf",
+      "target": "/usr/lib/sysusers.d/aster-fixed-speech.conf",
+      "sha256": "480f9ed3b462877e9f22ed910880bee56bacde70f35149f992a085bebe57fc1b",
+      "predecessor": "absent",
+      "owner": "root",
+      "group": "root",
+      "mode": "0644",
+      "rollback": "remove"
+    }
+  ],
+  "dependencies": [
+    {
+      "target": "/opt/aster-agent/sysadmin_investigation.py",
+      "sha256": "bfd5e9675b4a7ef06aa0ddb28e7c9b5fda2076a86957cd5474a75ccbd50ee6fe"
+    }
+  ],
+  "units": {
+    "must_remain_disabled_inactive": [
+      "aster-fixed-speech-caller.service",
+      "aster-fixed-speech-gateway.service"
+    ]
+  },
+  "excluded": [
+    "service-start",
+    "service-enable",
+    "broker-restart",
+    "database-enrollment",
+    "capability-grant",
+    "live-read",
+    "model-route",
+    "model-call",
+    "automatic-routing",
+    "repair",
+    "git-push"
+  ]
+}
