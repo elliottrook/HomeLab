@@ -1499,3 +1499,13 @@ and the broker still has zero fixed Speech capability rows or grants. Aster
 remained active with zero restarts. The next D4 work is source-only broker
 reconciliation and testing. Live enrollment, unit start and the required
 broker restart remain one later exact effect gate.
+
+That broker reconciliation is now complete and frozen in the
+[fixed Speech activation card](evidence/D4-fixed-speech-broker-activation-card-2026-10-26.md).
+The complete local suite passes 128/128, the isolated LXC104 subset passes
+20/20 and the exact two-replacement manifest passes 4/4. The live broker is
+still unchanged. The next step is the single reviewed transaction: checkpoint,
+replace two broker files, one broker restart, enroll only the Green Speech
+observer capability, start the two dedicated units without enabling them, and
+make one bounded read-only canary. Failure restores the database and both
+predecessors and does not retry.

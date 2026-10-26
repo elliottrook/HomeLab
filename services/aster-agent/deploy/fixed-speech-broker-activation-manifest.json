@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "candidate": "d4-fixed-speech-broker-v1",
+  "source_commit": "f9b60e3e77ad3843cd417dbf8d9fd2f448ae397f",
+  "entries": [
+    {
+      "source": "ops/credential-broker/broker_admin.py",
+      "target": "/opt/homelab-broker/broker_admin.py",
+      "source_sha256": "c04add38be09c98ccecefd9d548e26222b08e642fa59a1e4ec2ec62d0ccbd765",
+      "predecessor_sha256": "e90acd24acfa13f959070f2c791d29ea28ebf1d4240edd5a9b39b54dfc7ef4aa",
+      "owner": "root",
+      "group": "root",
+      "mode": "0700"
+    },
+    {
+      "source": "ops/credential-broker/broker_service.py",
+      "target": "/opt/homelab-broker/broker_service.py",
+      "source_sha256": "b51df2bdffa3e0117c2cb986335b14ed2ef1d787790dea1f8834eb98fc10a5a3",
+      "predecessor_sha256": "c6217f4988510b4d38581829b4f6b333487b1cd35732a6ba5b3d82dcc69b627e",
+      "owner": "root",
+      "group": "root",
+      "mode": "0644"
+    }
+  ],
+  "dependencies": [
+    {
+      "target": "/opt/homelab-broker/broker_core.py",
+      "sha256": "2fdb80964984fed5cf539f12a62d0058ba9eb9088861425858109fabc7dabf99"
+    },
+    {
+      "target": "/etc/systemd/system/homelab-broker.service",
+      "sha256": "8a65bb18cba169df4ab9a0b72c0f5fa04cbd9b6ddc75ade66ca3bef4c80aa1f3"
+    }
+  ],
+  "database": {
+    "path": "/var/lib/homelab-broker/broker.db",
+    "checkpoint_before_change": true,
+    "required_absent_capability": "diagnostic.aster-speech.latest",
+    "required_existing_capability": "diagnostic.aster-inference.latest"
+  },
+  "activation": {
+    "agent": "agent-aster-fixed-speech",
+    "agent_uid": 975,
+    "service": "aster-fixed-speech",
+    "capability": "diagnostic.aster-speech.latest",
+    "risk": "green",
+    "probation_allowed": false,
+    "units": [
+      "aster-fixed-speech-gateway.service",
+      "aster-fixed-speech-caller.service"
+    ],
+    "broker_restart_limit": 1,
+    "canary_calls": 1
+  },
+  "rollback": {
+    "stop_candidate_units": true,
+    "restore_database_checkpoint": true,
+    "restore_predecessor_files": true,
+    "broker_restart_limit": 1
+  },
+  "excluded": [
+    "aster-agent-restart",
+    "host-reboot",
+    "model-call",
+    "repair",
+    "automatic-routing",
+    "other-capability-change",
+    "schedule-change",
+    "git-push"
+  ]
+}
