@@ -12,6 +12,17 @@ validator also requires the final M3 runner, scorer, journal-validator and
 eleven-file packet-manifest identities, and rejects the known superseded
 restore-observer and intermediate M3 manifest hashes.
 
+The follow-up inventory ran from 00:03 to 00:04 PDT on October 26, before the
+00:30 backup window. It used content-free `sha256sum` reads on Proxmox and in
+LXC104/LXC110 only. The full wrapper and unit hashes matched the abbreviated
+snapshot values, including corrected owner-heartbeat service
+`7bbb32a6…4f1e`; both guests matched outcome wrapper `027183c9…dcb9` and
+verifier `94086234…58e1`; candidate-H, the three final M3 files and the
+metadata-auth helper matched their accepted hashes. The first LXC104 query
+used two incorrect guessed outcome filenames and returned only file-not-found;
+the fixed paths from the V3 installation card were then read successfully.
+No file was changed and no service was started.
+
 Five focused tests pass: a complete synthetic card is accepted; a missing V3
 path, missing final M3 manifest, superseded digest and unknown requirements
 schema are rejected.
