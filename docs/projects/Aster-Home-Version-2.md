@@ -23,9 +23,10 @@
   Black/Aster, wake, timer attention and three-minute entry have passed with
   original Dim restored; post-fade pixel regression also passes. The isolated EPUB reader2 now has
   verified synthetic-only pages, three sizes and source-location-preserving
-  reflow, no normal Books hookup/TTS/progress writes. Canonical speech health
-  is available; a two-sentence synthetic narration trial awaits its bounded
-  shared-service approval, with no credentials placed on the HP. Work through
+  reflow, no normal Books hookup or progress writes. The approved two-sentence
+  canonical narration trial now passes server-locally, with no credentials or
+  audio placed on HP. A separate sample-transfer/playback test awaits approval.
+  Work through
   `bf307ae0` is pushed/mirrored; the subsequent `6378a563` milestone is local.
   Production remains unchanged. See the final dated evidence for exact pins,
   open gates and next safe action.
@@ -7739,3 +7740,73 @@ remain passing normal/optimized. No API key, rendered speech or actual book
 content was acquired. The next safe action is the separately requested bounded
 synthetic narration trial once approved; otherwise retain this isolated preview
 and the accepted production baseline without another push.
+
+### Approved bounded synthetic narration — pre-start, 2026-10-26
+
+Jason explicitly approved at most two synthetic sentences through the existing
+canonical service, private test audio only, all credentials server-local, no
+service/configuration changes or real book text, production Aster unchanged.
+Use one POST to the running candidate `.70.14:9131/v2/tts/stream`; do not use
+legacy9130's Piper path or repurpose the separate News batch credential.
+Observed candidate code differs from this older worktree (metrics/Wyoming and
+caller-aware cancellation); inspected deployed code/pins are recorded in the
+bounded harness, not overwritten with repository code. Kokoro/client policies
+match and runtime selects the existing Vulkan renderer; health reports the
+canonical `aster-bm-daniel` identity. Fixed voice/language/speed policy must pass.
+
+One new private server checkpoint
+`/var/lib/aster-speech/aster-reader-narration-20261026` consumes this grant. Read
+the existing speech caller credential only within that server process; never
+print/copy it, place it on HP, change a unit/env/key, or expose an audio URL.
+Reserve an attempt journal before submission. No automatic retries, including
+uncertain responses. On failure, cancel only this exact owned request where
+possible and fence uncertainty; never restart a shared renderer or roll back
+another project's files. Source/config/PID hashes and health before/after prove
+preservation. Validate exactly two ordered AVS1 PCM units and terminal end,
+24kHz/mono/16-bit format, non-silence/clipping bounds and measured sample counts.
+Keep the WAV0600 on the speech server and emit only content-free measurements.
+Measured unit boundaries may support sentence highlighting; they do not supply
+word timestamps or authorize guessed per-word timing. No playback is requested.
+
+### Bounded narration trial — completed, 2026-10-26
+
+The single approved POST completed successfully; this grant is consumed and
+must not be repeated by deleting/reusing its checkpoint. Candidate health:
+`aster-bm-daniel`, `kokoro-v1.0`, policy1. Exactly two ordered AVS1 units plus
+end yielded220080samples, mono24kHz/16-bit PCM, duration9.17s. Sentence units
+are87360samples/3.64s and132720samples/5.53s. First complete unit arrived after
+3.025s; complete render4.266s. This is one warm-path sample, not a general
+latency benchmark or a listening acceptance. Peak19951and RMS1896.49confirm
+non-silence with no clipped sample in this artifact. No extra pause was invented.
+
+Private server artifact `sample.wav` is440204bytes, SHA
+`99ae9edd408aa2fc6258d300c9d655cd4d81b88114f90fd609089a2541a5e039`.
+Independent WAV inspection verifies mono/24kHz/2-byte samples and220080frames,
+hash match, checkpoint0700and all four files0600 (`sample.wav`, `before.json`,
+`attempt.json`, `proof.json`). The key was consumed only in server memory;
+no credentials, raw stream/audio, user text or private environment values
+were exported to the Mac/HP/Git. The example sentences are original synthetic
+text stored in the versioned trial harness. Normal request metrics may advance,
+but service PID, source/config hashes and health remained unchanged. No service
+restart, setting, firewall, reader route or saved-progress change occurred.
+
+`narration_frames.py` validates bounded headers/payloads, exact request identity,
+unit order/count/format and terminal end. `narration_timeline.py` maps the exact
+submitted text hash and artifact hash to measured sentence/sample spans; seek,
+pause/repeated-position and foreign-audio cases pass. It refuses altered text
+or discontinuous/missing measurements and never produces word timings. This
+synthetic spoken text is not assumed to match a different book/chapter merely
+because the opening words resemble it. Word-level alignment remains unbuilt.
+
+The next requested gate is private transfer of this existing9-second sample to
+HP for sentence-highlight/stop-on-exit playback, with no further render and no
+real books/progress/production change. Until that approval arrives, retain the
+audio server-only. No actual cancellation trial was added after successful end:
+that would not validate a live cancellation; failure-only cleanup is bounded
+to the owned request ID and retry remains fenced. Shared-service or model
+changes, new credentials and further synthesis need their own authority.
+
+Final validation:978Kodi tests pass in normal and optimized Python. The WAV
+remains only in the private speech-server checkpoint; no HP playback, extra
+render, production change or Forgejo push was performed. This milestone is
+locally checkpointed pending the next bounded playback decision.
