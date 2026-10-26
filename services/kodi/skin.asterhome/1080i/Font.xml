@@ -12,6 +12,11 @@
             <size>16</size>
         </font>
         <font>
+            <name>font18</name>
+            <filename>arial.ttf</filename>
+            <size>18</size>
+        </font>
+        <font>
             <name>font20</name>
             <filename>arial.ttf</filename>
             <size>20</size>
@@ -30,6 +35,11 @@
             <name>font30</name>
             <filename>arial.ttf</filename>
             <size>30</size>
+        </font>
+        <font>
+            <name>font36</name>
+            <filename>arial.ttf</filename>
+            <size>36</size>
         </font>
         <font>
             <name>font40</name>

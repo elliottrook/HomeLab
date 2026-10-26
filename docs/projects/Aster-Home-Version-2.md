@@ -8437,3 +8437,23 @@ journal stores only candidate identity, payload hash, state and the sanitized
 result—not title, synopsis, credential or server URL. The transport remains
 injected and absent, so these tests cannot reach Seerr or the broker.
 All 1,035 Kodi v2 tests pass in normal and optimized Python at this gate.
+
+### M7 family-candidate static gate — 2026-10-26
+
+The first M7 slice is repository-only and cannot operate Kodi, the LAN or a
+service. A new skin audit parses all 44 window/include XML files, verifies
+explicit control IDs are unique within each source document, resolves included
+control groups when checking every default focus target, and verifies every
+literal `special://skin/media/` reference exists. It also checks all custom
+Aster colours and named fonts, validates each PNG header/dimensions and caps
+the complete tracked skin at 8MiB. The current skin is approximately 5.5MiB;
+no PNG exceeds the 1920×1080 design canvas and all 587 literal media references
+resolve.
+
+The audit found that the Home dashboard used `font18` and `font36` without
+declaring them. Both exact Arial sizes are now defined in `Font.xml`, avoiding
+hardware-dependent fallback. No layout, navigation or production profile was
+changed. All 105 skin/tool tests pass in normal and optimized Python. Remaining
+M7 gates are native focus/contrast review, cold/warm timing and memory capture,
+longer idle/playback soak, recovery rehearsal and family acceptance; this
+static gate does not claim those outcomes.
