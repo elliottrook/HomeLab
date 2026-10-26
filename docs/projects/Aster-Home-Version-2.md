@@ -7441,7 +7441,8 @@ Jason requests Live view plus a less monochrome, more layered page with
 separate floating pills/cards and a brush-stroke-like green timer arc. Keep
 the working timer digital/actions and the established top/side navigation;
 prepare vector/code-native layered assets rather than stretching raster icons.
-Apply Aster's cool-ink/teal/gold contrast within the TV identity exception.
+The initial cool-ink/multicolour interpretation was superseded by Jason's
+explicit correction below; do not promote that palette.
 
 Frigate VM102 `.20.10`, SSH normal user`jelliott`, serves the existing
 Front of House feed at5.1fps; loopback latest JPEG validates200/image/jpeg,
@@ -7463,3 +7464,55 @@ unchanged. Checkpoint source/HP code and authorized keys; verify exact actor,
 route, source freshness, denied commands/forwarding, revocation and teardown.
 The prior Home feed remains independent. No new speech. Stop on unexpected
 exposure, credential release, source change or failed recovery evidence.
+
+### Home palette correction — 2026-10-25
+
+Jason clarified that contrast meant depth, not additional/different colours.
+Restore the AsterTV warm stone (`#e6dac8`), forest green (`#1f513b`), ink
+(`#1e241f`) and restrained gold (`#c2a06b`) identity. Keep independent floating
+cards, directional shading, fine gold edges, shadows and the vector-derived
+brushed green timer arc. No navy, plum or blue summary cards. This is a
+presentation-only HP successor; preserve camera lifecycle, timer actions,
+focus/navigation, household feed and production unchanged.
+
+Seventy new assets plus one XML are staged separately as
+`aster-home-palette2`, manifest
+`c964e4276bce65b63e8ba85a0a413b808b6477a307aea6c3d64d2978c4bdbab0`.
+The private checkpoint retains the exact camera-page predecessor, with its
+working restricted viewer; no credentials or progress are rewritten. Native
+install and actual XML rollback both passed 71-file/settings/idle guards.
+Retain the superseded assets for recovery, not as the accepted design.
+
+Reinstall passed; native proof
+`/storage/.aster-checkpoints/aster-camera-native-1792996780090815217/native.json`
+verifies actual image fetching in two sessions, toggle stop, stop on exit,
+timer operating alongside the camera, no media player opened, unchanged AV
+settings and idle/empty return. The private screenshot shows the corrected
+palette with real Front of House images and the brushed countdown. No camera
+images or private keys are committed. Full Kodi suites pass 952 tests in both
+normal and optimized Python. The read-only preservation harness needed its
+new manifest-member variable renamed so it did not shadow the original archive
+hash argument; checks were not relaxed.
+
+Camera activation evidence: `aster-camera2` manifest
+`aa57484ecd6a7ca3d7bb2667fa6d5f8fcad226b864be8b9401c89808f52d3be8`;
+HP localhost viewer enabled and service restart returns inactive without
+fetching. Remote LAN access to port15102 is refused. Actual source-key
+revocation makes image requests fail closed while preserving the original
+Frigate owner-key bytes; shell, forwarding and wrong-host-pin trials were
+denied. Five-minute expiry has deterministic fake-clock test coverage, not
+yet a recorded five-minute wall-clock/cold-boot test. The viewer refreshes
+images every two seconds only while open, not full-motion video. No additional
+camera firewall change, HA control, speech or production deployment.
+
+### Home header centring — 2026-10-26
+
+Jason requested more breathing room beside the logo. The Search outline and
+navigation rail move together93logical pixels right: visible combined bounds
+441..1479, centred on960in the1920-wide canvas. Logo, clock, button dimensions,
+relative spacing, focus routes, camera lifecycle and timer remain unchanged.
+One-XML HP stage/checkpoint `aster-home-header1`, manifest
+`15a5e306e0943a5d40c79a50754bdf5bfe62cb7b18d5c7fb373c72000499ee85`.
+Native install passed idle/settings preservation. All101Home tests pass under
+optimized Python, including exact centring and unchanged actions/clock/logo.
+Production unchanged; no push performed.

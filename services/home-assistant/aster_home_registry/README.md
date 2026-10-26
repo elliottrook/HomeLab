@@ -1,5 +1,22 @@
 # Aster Home isolated display exporter
 
+## Automatic restricted HP delivery — 2026-10-26
+
+The expanded report below is now automatically delivered to the HP every five
+minutes. The source-local identity in `/config/.aster-home-delivery` can invoke
+only the HP's bounded display-file receiver; it cannot obtain a shell or
+forward ports. The private key stays on HA, never on the TV or in Git. Existing
+reports, configuration and source observation timestamps remain authoritative.
+The HP rejects stale/replayed/malformed data and hides observations older than
+ten minutes. `services/kodi/v2/tools/check_home_transport.py` verifies freshness
+read-only; it neither publishes data nor reads private keys.
+
+The exact HA-to-HP SSH firewall exception, key revocation, source code rollback
+and independent restore evidence are recorded in the Version2 project under
+Restricted Home delivery. Camera delivery uses a separate HP-held identity and
+does not use this report or receiver. Production BOSGAME is unchanged. Review
+protected HA backup custody for the source-local key before graduation.
+
 ## Expanded household display — HP v2 lab, 2026-10-25
 
 Jason approved the relevant HA lab data and a bounded exporter checkpoint,
@@ -38,8 +55,8 @@ Code rollback uses `deploy_dashboard.py rollback`, then `ha core check` and
 a Core-only restart. It restores only the pinned predecessor `__init__.py`;
 the unreferenced new module/report are retained for recovery. Never restore
 old report values, configuration or listening/household state as a code rollback.
-The normal TV runtime delivery is still a separate integration milestone;
-this source-side report alone is not an automatically connected dashboard.
+This report initially had only a one-shot consumer; the separately approved
+automatic HP delivery described above is now active.
 
 ## Original compatibility pilot
 

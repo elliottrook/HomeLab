@@ -231,6 +231,9 @@ if scrub_file.exists():
 review10_expected={}
 home_design_count=0
 home_status_count=0
+home_layered_count=0
+home_camera_count=0
+home_palette_count=0
 home_design_cp=Path('/storage/.aster-checkpoints/aster-home-design4')
 if (home_design_cp/'manifest.json').exists():
     home_design_stage=stage/'aster-home-design4'
@@ -267,6 +270,65 @@ if (home_design_cp/'manifest.json').exists():
                  hashlib.sha256(feed.read_bytes()).hexdigest()==publication['feed_sha256'],'home-status-publication-drift')
         successors.add(status['files']['custom_1112_home.xml'])
         if current==status['files']['custom_1112_home.xml']:home_status_count=3
+        layered_cp=Path('/storage/.aster-checkpoints/aster-home-layered1')
+        if (layered_cp/'manifest.json').exists():
+            layered_stage=stage/'aster-home-layered1'
+            layered_pin='45298821afaa1c34d3ababc6f1b222e2b30b5a5aa57d0009f8b4ecfa6c005065'
+            layered_raw=(layered_stage/'manifest.json').read_bytes()
+            _require(hashlib.sha256(layered_raw).hexdigest()==layered_pin and (layered_cp/'manifest.json').read_bytes()==layered_raw,'home-layered-manifest-pin')
+            layered=json.loads(layered_raw)
+            layered_names={'custom_1112_home.xml'}|{'aster-home-layered-v1/'+n+'.png' for n in ['background','camera-panel','timer-panel','row','row-focus']+[f'metric-{i}' for i in range(4)]+[f'arc-{i}' for i in range(61)]}
+            _require(layered['kind']=='home-layered-1' and set(layered['files'])==layered_names and layered['predecessor']==status['files']['custom_1112_home.xml'],'home-layered-contract')
+            _require(hashlib.sha256((layered_cp/'custom_1112_home.xml').read_bytes()).hexdigest()==layered['predecessor'],'home-layered-checkpoint')
+            for name,digest in layered['files'].items():
+                _require(hashlib.sha256((layered_stage/name).read_bytes()).hexdigest()==digest,'home-layered-stage-member')
+                if '/' in name:_require(hashlib.sha256((addons/'skin.asterhome/media'/name).read_bytes()).hexdigest()==digest,'home-layered-installed-asset')
+            successors.add(layered['files']['custom_1112_home.xml'])
+            if current==layered['files']['custom_1112_home.xml']:home_status_count=3;home_layered_count=71
+            camera_cp=Path('/storage/.aster-checkpoints/aster-camera2')
+            if (camera_cp/'manifest.json').exists():
+                camera_stage=stage/'aster-camera2'
+                camera_pin='aa57484ecd6a7ca3d7bb2667fa6d5f8fcad226b864be8b9401c89808f52d3be8'
+                camera_raw=(camera_stage/'manifest.json').read_bytes()
+                _require(hashlib.sha256(camera_raw).hexdigest()==camera_pin and (camera_cp/'manifest.json').read_bytes()==camera_raw,'home-camera-manifest-pin')
+                camera=json.loads(camera_raw)
+                _require(camera['kind']=='hp-one-camera-v1' and set(camera['files'])=={'frame.py','proxy.py','view.py','aster-camera.service','camera-idle.png','custom_1112_home.xml'} and camera['predecessor']==layered['files']['custom_1112_home.xml'],'home-camera-contract')
+                _require(hashlib.sha256((camera_cp/'custom_1112_home.xml').read_bytes()).hexdigest()==camera['predecessor'],'home-camera-checkpoint')
+                for name,digest in camera['files'].items():_require(hashlib.sha256((camera_stage/name).read_bytes()).hexdigest()==digest,'home-camera-stage-member')
+                for name in ('proxy.py','view.py','camera-idle.png'):
+                    _require(hashlib.sha256((Path('/storage/.aster-camera')/name).read_bytes()).hexdigest()==camera['files'][name],'home-camera-runtime-member')
+                _require(hashlib.sha256(Path('/storage/.config/system.d/aster-camera.service').read_bytes()).hexdigest()==camera['files']['aster-camera.service'],'home-camera-unit-member')
+                from urllib.request import urlopen
+                with urlopen('http://127.0.0.1:15102/status',timeout=2) as reply:camera_status=json.loads(reply.read(4097))
+                _require(camera_status.get('ready') is True and camera_status.get('active') is False,'home-camera-not-idle')
+                successors.add(camera['files']['custom_1112_home.xml'])
+                if current==camera['files']['custom_1112_home.xml']:home_status_count=3;home_layered_count=71;home_camera_count=6
+                palette_cp=Path('/storage/.aster-checkpoints/aster-home-palette2')
+                if (palette_cp/'manifest.json').exists():
+                    palette_stage=stage/'aster-home-palette2'
+                    palette_pin='c964e4276bce65b63e8ba85a0a413b808b6477a307aea6c3d64d2978c4bdbab0'
+                    palette_raw=(palette_stage/'manifest.json').read_bytes()
+                    _require(hashlib.sha256(palette_raw).hexdigest()==palette_pin and (palette_cp/'manifest.json').read_bytes()==palette_raw,'home-palette-manifest-pin')
+                    palette=json.loads(palette_raw)
+                    palette_names={'custom_1112_home.xml'}|{'aster-home-palette-v1/'+n+'.png' for n in ['background','camera-panel','timer-panel','row','row-focus']+[f'metric-{i}' for i in range(4)]+[f'arc-{i}' for i in range(61)]}
+                    _require(palette['kind']=='home-palette-1' and set(palette['files'])==palette_names and palette['predecessor']==camera['files']['custom_1112_home.xml'],'home-palette-contract')
+                    _require(hashlib.sha256((palette_cp/'custom_1112_home.xml').read_bytes()).hexdigest()==palette['predecessor'],'home-palette-checkpoint')
+                    for name,digest in palette['files'].items():
+                        _require(hashlib.sha256((palette_stage/name).read_bytes()).hexdigest()==digest,'home-palette-stage-member')
+                        if '/' in name:_require(hashlib.sha256((addons/'skin.asterhome/media'/name).read_bytes()).hexdigest()==digest,'home-palette-installed-member')
+                    successors.add(palette['files']['custom_1112_home.xml'])
+                    if current==palette['files']['custom_1112_home.xml']:home_status_count=3;home_layered_count=71;home_camera_count=6;home_palette_count=71
+                    header_cp=Path('/storage/.aster-checkpoints/aster-home-header1')
+                    if (header_cp/'manifest.json').exists():
+                        header_stage=stage/'aster-home-header1'
+                        header_raw=(header_stage/'manifest.json').read_bytes()
+                        _require(hashlib.sha256(header_raw).hexdigest()=='15a5e306e0943a5d40c79a50754bdf5bfe62cb7b18d5c7fb373c72000499ee85' and (header_cp/'manifest.json').read_bytes()==header_raw,'home-header-pin')
+                        header=json.loads(header_raw)
+                        _require(header['kind']=='home-header-1' and set(header['files'])=={'custom_1112_home.xml'} and header['predecessor']==palette['files']['custom_1112_home.xml'],'home-header-contract')
+                        _require(hashlib.sha256((header_cp/'custom_1112_home.xml').read_bytes()).hexdigest()==header['predecessor'],'home-header-checkpoint')
+                        _require(hashlib.sha256((header_stage/'custom_1112_home.xml').read_bytes()).hexdigest()==header['files']['custom_1112_home.xml'],'home-header-stage')
+                        successors.add(header['files']['custom_1112_home.xml'])
+                        if current==header['files']['custom_1112_home.xml']:home_status_count=3;home_layered_count=71;home_camera_count=6;home_palette_count=71
     _require(current in successors,'home-design-xml-drift')
     if current!=design['predecessor']:
         review10_expected[path]=current;home_design_count=63
@@ -541,6 +603,9 @@ with output.open('x') as handle:
                'approved_home_design_files_verified':home_design_count,
                'approved_home_status_files_verified':home_status_count,
                'approved_home_delivery_files_verified':home_delivery_count,
+               'approved_home_layered_files_verified':home_layered_count,
+               'approved_home_camera_files_verified':home_camera_count,
+               'approved_home_palette_files_verified':home_palette_count,
                'av_language_settings_verified':len(values),
                'av_preservation_details':av_details,
                'database_integrity':'ok','missing_primary_artist_links':0,

@@ -3,8 +3,11 @@
 ## HP-only v2 Home dashboard pilot
 
 Open **Home** from the floating side rail on the HP. The redesigned page has
-compact status cards, household readings, the retained camera area and a quiet
-timer with a thin seconds sweep. Select1/5/30minutes to start the local timer;
+floating status cards, household readings, a private camera area and a quiet
+timer with a layered brushed-green seconds sweep. Warm stone, forest green
+and restrained gold remain the Aster palette. Search and the navigation rail
+are centred independently of the logo and clock.
+Select1/5/30minutes to start the local timer;
 the small square at its upper right stops it. The large digits show the total
 time remaining. Leaving Home ends this existing local visual timer; it is not
 a Home Assistant household timer or a cross-device alarm.
@@ -18,11 +21,17 @@ shows the source time and unavailable/unknown count; an available report is
 not proof every sensor has recently transmitted. An unavailable camera is not
 a live preview. Household rows are read-only, not lighting/device commands.
 
-The HA exporter publishes its new report every five minutes, but automatic
-HA-to-TV delivery is a separate, not-yet-activated milestone. The HP currently
-has a verified **one-shot** report and deliberately expires it. No passwords or
+The HA exporter now delivers its bounded display report automatically every
+five minutes through a separate file-publishing-only key. No passwords or
 new login are needed to view it, and no administrator credential is on the TV.
 Production BOSGAME retains its existing page.
+
+**Live view** requests Front of House images through a separate one-camera
+key and an HP-localhost-only viewer. Images refresh every two seconds, not
+full-motion video. **Stop view**, leaving Home, or the five-minute cap ends
+viewing. Starting the service does not fetch images. Unavailable/revoked access
+fails closed rather than presenting an old image as live. Never expose the
+localhost viewer or reuse either restricted key for general SSH access.
 
 Recovery: private checkpoints are
 `/storage/.aster-checkpoints/aster-home-design4` and
@@ -33,6 +42,13 @@ settings or original feed. Source schema4 data is separate
 old household readings as a code rollback. See the v2 project's dated evidence
 and `services/home-assistant/aster_home_registry/README.md` for source recovery.
 User aesthetic/household acceptance remains pending.
+
+Later private checkpoints are `aster-home-delivery1`, `aster-home-layered1`,
+`aster-camera2`, `aster-home-palette2` and `aster-home-header1`. Use the pinned
+installer for the currently owned successor in reverse order; do not overwrite
+its XML with an older checkpoint while a newer overlay is installed. Camera
+key revocation is independent of the HA feed and leaves owner keys intact.
+The v2 project records the exact manifests and recovery evidence.
 
 Version 1.1.1 is deployed to HP and BOSGAME with owner-approved promotion.
 Continue Watching includes available Up Next episodes, not caught-up/future
