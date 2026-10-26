@@ -8555,9 +8555,34 @@ and control actions remain present. Kodi documents persistent skin booleans via
 `Skin.ToggleSetting` and conditional animation attributes. No permanent worker,
 timer or polling loop is added.
 
-This is repository-only groundwork, not an HP installation: the active HP XML
-contains later generated successors and must receive one hash-pinned overlay
-composed from that exact candidate, not stale base files. All1,040 v2 tests and
-107 tracked-skin tests pass normally and optimized. Next safe step is an
-immutable accessibility overlay built from the accepted active composition,
-followed by HP selection/rollback, remote focus and sofa-readability checks.
+The active HP XML contains later generated successors, so the live variant was
+not made from stale tracked base pages. The exact accepted active composition
+was captured read-only and used as the four hash-pinned predecessors. The
+builder adds only `SkinSettings.xml` and `Aster High Contrast.xml`, transforms
+only the ten active animations and packages its installer, deployment wrapper
+and shared atomic-write helper into one immutable candidate. Two independent
+builds were byte-identical. The accepted replacement manifest SHA-256 is
+`90aeb9640897b72f681e6d950e4ca0d7adf67a813d85a5ae60fdf26d1b4fb229`.
+
+The first HP pilot proved selection, default restoration and an exact
+rollback/reinstall, but a whole-suite optimized-Python meta-test found that its
+native wrapper used the wrong denial exception. No live denial was bypassed.
+That candidate was preserved as evidence, rolled back through its own verified
+checkpoint, and replaced rather than edited in place. The corrected candidate
+has a separate checkpoint and assertion-style native denials that survive
+Kodi's optimized Python. Its local installer tests exercise install, verify,
+rollback, reinstall, busy/predecessor/new-file refusal, payload/helper/link
+checks, recovery drift, unknown installed drift and deterministic construction.
+
+On HP, the first candidate restored all four predecessors and removed both new
+files before the replacement installed. The replacement then installed six
+files, verified its recovery checkpoint and passed a separate live verify with
+`active: true`. Kodi remained PID45928 on Home, the retained crash count stayed
+five and the current log contained no ERROR, FATAL, TiXml or LanguageInvoker
+entry. The default palette and motion preference were restored after the
+visual checks; the selectable high-contrast Home and Accessibility settings
+pages retained the accepted Aster identity and readable focus. All1,045 v2
+tests and107 tracked-skin tests pass normally and optimized. Production remains
+unchanged. This closes the bounded accessibility-overlay implementation, but
+does not erase the historical crash or complete the longer family soak needed
+for M7 graduation.
