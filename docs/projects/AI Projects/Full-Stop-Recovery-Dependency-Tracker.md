@@ -39,6 +39,14 @@ accepted. Synthetic success tests injected a Popen-like fake and therefore
 missed the installed entrypoint. The correction needs a default-launcher
 regression plus offline and target-Linux proof before a fresh cycle.
 
+The platform owner has now committed the source-only correction as `d00073e5`.
+Stream A's [independent review](evidence/F2-observer-launcher-source-fix-review-2026-10-26.md)
+confirmed the real default `subprocess.Popen` path, retained deadline/process-
+group behavior, the missing installed-entrypoint regression, 15/15 focused
+tests and 50 passes with one expected skip across the 51-test broader F2 suite.
+The source gap is closed; inactive installation and target-Linux proof remain
+required before a fresh cycle.
+
 The conditional [October 26 F3 conversion](evidence/F3-from-F2-no-go-2026-10-26.md)
 then failed closed at its first gate. Because F2 was not complete and contained
 no accepted archive rows, the converter was not invoked and no retained receipt

@@ -93,6 +93,13 @@ cycle, the platform owner must correct the launcher contract, add a default-
 entrypoint regression, prove the installed path on target Linux and prepare a
 fresh reviewed card. The spent October 26 cycle cannot be retried.
 
+The source correction is now committed on the platform branch as `d00073e5`
+and independently reviewed: the default path uses `subprocess.Popen`, its
+systemd-contract regression passes, and the focused/broader results are 15/15
+and 50 passed plus one expected skip out of 51. It remains source-only. A
+reviewed inactive installation and target-Linux installed-entrypoint proof are
+the next gates; no new timed cycle is scheduled.
+
 **October 20 F2 result:** the two exact-date timers fired and are now disabled,
 but preparation failed after five seconds and final failed immediately. No
 archive row or scan result was produced. The exact preparation sub-gate is
