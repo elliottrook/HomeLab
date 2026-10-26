@@ -1232,13 +1232,16 @@ passes 128/128. This is evidence hardening only; D4 qualification remains open.
 Do not spend another cloud question on the deferred manual-Codex button. M1's
 synthetic authority proof is complete; its next work is a separately designed
 fixed read-only capability, not broader broker access. D4 candidate-G remains
-exact and unspent, and the M3 calibration packet remains staged and
-static-ready. D4 is not executable: its frozen runner reads an environment
-variable while the platform-owned F6 boundary requires a reviewed secret-broker
-descriptor/stdin bridge, and no such bridge exists. Their live execution is
+exact and unspent but is superseded as the proposed workload by the separately
+installed, inactive candidate-H. Candidate-H's dedicated UID/GID 977
+descriptor bridge passed target-Linux custody and fictional-credential
+validation with zero model calls and credential reads. Its live execution is
 blocked on the October 26 F2 runtime result, subsequent F3/F4/F5 evidence and a
-corrected executable F6 effect transaction. The platform owner still owes
-the D4 credential bridge and source-supported F4/F5 binding. M3's absolute
+corrected executable F6 effect transaction. The
+[exact admission-binding proposal](evidence/Stream-A-candidate-H-F4-F5-admission-binding-proposal-2026-10-25.md)
+freezes the missing composite artifact, controller field, durable-state
+binding, candidate-H invocation and recovery proof. The platform owner still
+owes that source implementation, tests and a reviewed inactive install. M3's absolute
 interpreter, root execution identity and key-file custody are now pinned; the
 live card must recheck them for drift. Continue offline
 review when that source arrives. Do not activate F6, stop consumers, call a
@@ -1246,9 +1249,10 @@ model, create a receipt or infer success from the scheduled F2 timers.
 
 The source-only [candidate-H credential correction](evidence/D4-candidate-H-descriptor-credential-boundary-2026-10-25.md)
 replaces environment-key access with a bounded inherited descriptor and passes
-the complete 168-test evaluation suite. It is a new, unauthorized digest and
-has not been staged or run. The platform must still supply and pin the actual
-secret-broker descriptor opener; candidate-G's approval does not transfer.
+the complete 168-test evaluation suite. It is a new, unauthorized digest; its
+inactive target custody is installed and validated, but it has not run. The
+actual descriptor opener is pinned and installed inactive; candidate-G's
+approval does not transfer.
 Stream A rejected its initial
 [root-child descriptor launcher](evidence/D4-candidate-H-descriptor-launcher-proposal-2026-10-25.md):
 the child could reopen the protected file despite environment exclusion. The
