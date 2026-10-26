@@ -100,8 +100,9 @@ target-Linux tests. A later downstream review found that a separately supplied
 scorer with a fabricated complete journal. The scorer and journal validator
 now reject that claim while retaining only malformed model output as a
 completed zero-score result. The dependency-free suite passes 119 tests. The
-staged packet is **NO-GO for execution** until the exact four-file inactive
-scorer/journal/manifest replacement passes target-Linux validation.
+corrected two-file inactive scorer/journal replacement now passes full packet
+validation and 9/9 target-Linux scorer tests. The staged packet is static-ready
+but **NO-GO for execution** until fresh F2–F6 admission and candidate-H pass.
 
 After replacement, the serial live path remains:
 

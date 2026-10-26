@@ -1,6 +1,6 @@
 # M3 NLU 60-case calibration run card — 2026-10-25
 
-> State: **SOURCE READY; INACTIVE SCORE-BOUNDARY REPLACEMENT REQUIRED BEFORE STATIC PREFLIGHT**
+> State: **STATIC PACKET READY; LIVE RUN REQUIRES FRESH F2–F6 ADMISSION AND EXACT APPROVAL**
 >
 > Effect: sixty synthetic, local, tool-free classification requests; no route
 > or production change
@@ -97,12 +97,12 @@ directory under `/var/lib/aster-nlu-calibration/`:
 The corrected runner is installed inactive and passed target-Linux validation.
 The later
 [complete-score failure correction](M3-NLU-complete-score-failure-boundary-2026-10-25.md)
-supersedes the installed scorer, journal validator and packet manifest: only a
+supersedes the earlier scorer, journal validator and packet manifest: only a
 malformed model response may remain as a completed zero-score record;
-infrastructure failures make the calibration unscorable. The exact four-file
-inactive replacement must pass before any model call. Cleanup, lease
-acquisition and model execution remain live effects. None is authorized by
-this card alone.
+infrastructure failures make the calibration unscorable. The exact two-file
+inactive replacement now passes full packet validation and 9/9 target-Linux
+scorer tests. Cleanup, lease acquisition and model execution remain live
+effects. None is authorized by this card alone.
 
 ## Fresh preflight
 

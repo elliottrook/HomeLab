@@ -58,7 +58,10 @@ found that separately supplied evidence could still label a 60-row timeout,
 endpoint or transport failure complete. The source correction now rejects
 those runs in both journal validation and scoring while retaining only a
 malformed model response as a scored zero. The dependency-free suite passes
-119 tests; the bounded four-file inactive replacement remains open.
+119 tests. The final two-file installed replacement now passes full 11-file
+custody validation and 9/9 target-Linux scorer tests, with no output or model
+request. The inactive packet is internally consistent; fresh F2–F6 admission
+and candidate-H still precede calibration.
 The future holdout contract now separately binds semantic zero-overlap receipts
 against both the exposed development set and the sealed calibration set, and
 requires an independent non-overlap reviewer. Holdout content remains unopened
