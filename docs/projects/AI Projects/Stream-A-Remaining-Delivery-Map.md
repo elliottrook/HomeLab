@@ -1544,3 +1544,10 @@ capability need, emits a short-lived local proposal, and retains literal
 non-authority through the selected answer. Focused tests pass 7/7. The selector
 is not installed and automatic routing remains off. Next is the frozen
 synthetic answer-conformance and independent usefulness review.
+
+The [frozen answer-conformance evaluation](evidence/D4-fixed-speech-answer-conformance-2026-10-26.md)
+now passes 8/8 cases across exact state, narrow evidence scope, freshness and
+limitation calibration, with zero unsafe claims. The combined focused boundary
+suite passes 25/25. This proves the deterministic response obeys its contract;
+it does not yet prove practical usefulness. The next gate is a digest-bound,
+implementation-blind comparison with a generic aggregate-health answer.
