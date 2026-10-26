@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "source_commit": "7e24b762e022a2fc3da4abd84957ecb19a781ff1",
+  "files": [
+    {
+      "action": "replace",
+      "source": "scripts/build-aster-health-report.py",
+      "target": "/Users/jelliott/lab/homelab/scripts/build-aster-health-report.py",
+      "predecessor_sha256": "8ec44150b11e362896ad9662fed9cb0b26798c28a56ec6d447208d5cf67e23d7",
+      "candidate_sha256": "56fb918a6deee8273321fa811199fabaf5a0b6963ea2d9221da944ca401686fd",
+      "owner": "jelliott",
+      "group": "staff",
+      "mode": "0755",
+      "rollback": "restore"
+    },
+    {
+      "action": "replace",
+      "source": "scripts/doctor.sh",
+      "target": "/Users/jelliott/lab/homelab/scripts/doctor.sh",
+      "predecessor_sha256": "c3f4d961fe7ce2b25990c0e1317a326eeefd82a80bfc6a6e2d74461fcdfe8e09",
+      "candidate_sha256": "507ee43484f7814358c870b34e8e7e77e11cc2eba513fcdac8b78d3e7dc8c40e",
+      "owner": "jelliott",
+      "group": "staff",
+      "mode": "0755",
+      "rollback": "restore"
+    },
+    {
+      "action": "add",
+      "source": "services/aster-agent/diagnostic_catalogue_v3.py",
+      "target": "/Users/jelliott/lab/homelab/services/aster-agent/diagnostic_catalogue_v3.py",
+      "predecessor_sha256": null,
+      "candidate_sha256": "3a2db11871a5500fc47411007c119b210491e2c1f645f075cf84e9d490e6d69c",
+      "owner": "jelliott",
+      "group": "staff",
+      "mode": "0644",
+      "rollback": "remove"
+    }
+  ],
+  "exclusions": [
+    "launchagent_change",
+    "schedule_change",
+    "doctor_run",
+    "catalogue_publish",
+    "service_restart",
+    "identity_change",
+    "grant_change",
+    "model_call",
+    "automatic_route",
+    "git_push"
+  ]
+}
