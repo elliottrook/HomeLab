@@ -42,10 +42,14 @@
   now has a separately tested pure parsing/selection model, including full
   summaries, source attribution and stale/ambiguous-card rejection. It is not
   connected to audio or normal navigation: the reading HTML exposes no edition
-  ID and currently has10 cards versus11 audio chapters. Next: independently
-  staged reading UI, clearly labelled as the current published reading page,
-  without inferred chapter links; cross-briefing queues remain publisher-ID
-  gated. Owner checks are deferred for a larger batch, not requested now.
+  ID and currently has10 cards versus11 audio chapters. An isolated reading UI
+  (reader5) now has passing HP navigation/control and independently inspected
+  selected-story capture evidence; candidate-local repaint resolves stale text
+  pixels without global renderer changes. It is operator-launched only, not a
+  new normal News action. Next: bounded normal-News reading handoff with the same
+  clearly separate current-reading-page contract; cross-briefing queues remain
+  publisher-ID gated. Owner checks are deferred for a larger batch, not requested
+  now. Forgejo/GitHub are synchronized through65481ff4; newer work is local only.
 - Previous resume point (2026-10-25): Search14 Stop-acknowledgement guard is on
   HP (`732a89c3e3e9189022a1ee7c4fdb9f596c88486d2f13fb53d3832d47c7a46df4`),
   layered on the owner-feedback bundle below. Two actual movie Play/Resume/Back
@@ -5850,3 +5854,130 @@ derivation remains unchanged), no active player, empty queue and closed lab
 windows. No restart, active-stage change or remote Git synchronization was
 performed. Local milestone commit only; the next push still needs a specific
 request. This slice introduces no operator setup or new background process.
+
+### Digest reading UI — isolated HP pre-start (2026-10-25)
+
+Jason approved pushing the two local milestones and continuation. Forgejo and
+its automatic GitHub mirror now agree at
+`65481ff4750612198750cf20af40762253f02e8e`. This approval is consumed by that
+push; subsequent milestones remain local until another specific push request.
+
+Extend the existing reading-model envelope to an isolated, manually launched
+HP WindowXML preview: current published summaries, comparison notes, source
+names/hosts, deterministic text pages and bounded no-wrap story selection.
+Use the shared Aster guide with this project's existing TV gold/green/neutral
+exception and supplied News mark. No speech is produced. Text is labelled as
+Aster's generated summary, not a full original article or verified audio match.
+Fetch only the existing fixed LAN `/digest` route, once on explicit launch;
+no external artwork/article requests or background refresh. No normal News
+navigation, audio, active stage, settings, account or publisher changes.
+
+Risks are remote focus/close behavior, clipping and stale content. Stage a new
+immutable bundle, externally pin its manifest and hash every member before
+entry; require HP/Home/idle with empty queues and unchanged source focus before
+and after loading. Test bounded pure pagination first, then owned-window-only
+native navigation, paging, no-wrap, Back/Home and settings/queue preservation.
+Do not access controls owned by another WindowXML. Do not interrupt a foreign
+player or destroy a hidden page beneath it. No restart is needed; recovery is
+closing/omitting this unreferenced preview, retaining accepted player8 and all
+checkpoints. Save non-secret evidence privately. All inventory/authentication,
+DNS/firewall, backup schedules, monitoring, Doctor and production impacts remain
+not applicable because no service or active consumer is changed. Owner visual
+acceptance remains batched, not inferred from scripted checks.
+
+#### Reading preview implementation — HP only
+
+The immutable reader5 bundle is staged at
+`/storage/.aster-staging/aster-digest-reader5`. Four members, manifest SHA-256
+`77e939b45a59cbca6f819a0e81a51d64aa2bb357da9ad628c20873176f694713`.
+`build_digest_reader.py` refuses an existing destination. Launch requires that
+external pin and verifies the exact four source/XML members and non-linked paths
+before importing the staged reading libraries. The active skin/News integration
+is unchanged. No launcher was added to normal News navigation.
+
+`digest_read_pages.py` preserves the published words in bounded68-column,
+12-line pages. Summary, comparison notes and source names/hosts are distinct
+sections; source URL paths are never rendered as clickable actions. Explicit
+text truncation gets its own incomplete-reading notice. Story selection resets
+the page; revisiting the same story preserves it. Story/page ends clamp rather
+than wrap. The page uses the supplied News mark, restrained floating story pills
+and accepted green/ivory selection border, readable neutral body text, small gold
+button focus rings and no stone texture or external artwork.
+
+Reader1 failed a real Previous-page focus check after that control transitioned
+from disabled to enabled. The test's initial failure was made more specific
+before retrying; enabled/visible readbacks did not establish focus. The corrected
+UI keeps both paging controls reachable and clamps in the pure model. A missing
+font32 reference was also corrected to the installed font28; font membership is
+now tested. Long list headlines use an ellipsis; the reading pane retains the
+full headline.
+
+Reader2/3/4 returned passing model/control-state results but screenshots still
+showed the prior story in the text pane. They are **not visually accepted**.
+Reader3 introduced explicit owned-control updates; reader4 serializes callback
+events through the script loop. Neither alone resolved the captured-frame
+discrepancy. Reader5 adds a visually neutral100→100,50ms group repaint on each
+content revision, with no loop or global renderer changes. Its settled4K capture
+now shows story2 selected, story2 headline/summary and counter2/10 together, with
+no clipped list text. This is a candidate-local workaround; no equivalent defect
+or global rendering fix is inferred for other players.
+
+Reader5 native proof
+`/storage/.aster-checkpoints/aster-digest-reader-1792972784493280875/native.json`
+passes ten current cards, exact forward/back pages, adjacent story/reset, no-wrap,
+Back restoring Home control136, independent reopen/Home exit, no autoplay and
+unchanged settings/navigation with idle/empty queues. Control-label readback also
+matches the expected headline and counter; the screenshot was inspected
+independently rather than treating that readback as pixel evidence. Earlier
+reader1 failure checkpoints and unaccepted candidates remain for diagnosis; no
+accepted checkpoint was deleted. Owner sofa/remote acceptance is still pending.
+
+Operator preview: with HP idle on Home, run
+`RunScript(/storage/.aster-staging/aster-digest-reader5/default.py,77e939b45a59cbca6f819a0e81a51d64aa2bb357da9ad628c20873176f694713)`.
+Existing SSH/operator access is unchanged; no sign-in/API key is added. Up/Down
+browses current published summaries; Right or OK reaches paging controls.
+Previous/Next page includes comparison notes and reporting-source attribution.
+Back returns to the same Home launch focus; Home stays Home. Nothing plays or
+opens an original article. The loaded timestamp is the fetch time, not a claim
+about the publisher's generation time. Close/reopen explicitly refreshes. Empty,
+changed, oversize or inaccessible data declines with “Published reading page
+unavailable. Nothing was played.” A new edition is never spliced into an open
+snapshot. Recovery is closing/omitting this unreferenced preview, not rolling
+back history or an active service.
+
+The independent expanded reader5 walkthrough at
+`/storage/.aster-checkpoints/aster-digest-reader-1792972847787005730/native.json`
+also passes every summary/comparison/source section, exact content, final-page
+clamping and enforced visible-control title/counter readback, followed by
+Back/reopen/Home and idle/empty preservation. The final source-attribution4K
+capture was inspected: correct story title, Reporting sources heading, publisher
+label/host, page4/4 and a visible gold paging-control focus ring; no original
+article path is exposed. These two reader5 passes are technical/visual evidence,
+not household acceptance. English story typography is checked; unusual wide-
+glyph typography remains part of later accessibility acceptance.
+
+Ten new reader tests cover word preservation and page bounds, section ordering,
+source-path exclusion, visible truncation, stable selection/reset, immutable
+bundle/pin/file/symlink rejection, installed fonts, no playback/external art,
+explicit owned visible-control updates, queued event ordering and neutral,
+non-looping repaint. Full781-test v2 suite passes normally and optimized after
+the final source changes. No new background request or animation loop exists:
+one bounded LAN read on explicit opening, no per-tick network, and a50ms neutral
+repaint only when content changes. The source parser remains independent of the
+audio edition; no new service object, schedule, credentials, publisher write or
+production change was introduced. Intent review: full published text is now
+actually readable beyond the short playback excerpt, attributed and navigable,
+without fetching outside articles or conflating the briefing/reading editions.
+
+Before/final full preservation proofs
+`postcheck-1792972112137908858.json` and
+`postcheck-1792972939314861707.json` in the existing Music checkpoint both pass
+approved installed stages, the exact two News members, Music/video DB integrity,
+all68 AV/language checks and idle/empty/closed-window state. Reader teardown is
+also independently checked by its cleared ReaderWindow marker in both native
+walkthroughs. HP is left Home with playback stopped. No restart was required.
+Only unreferenced staged candidates and private evidence were added on HP.
+The next bounded step is a normal-News current-reading-page handoff with exact
+checkpoint/rollback and explicit separation from the audio timeline; the reader
+is not yet a family-visible menu action. This milestone is a local commit only,
+after the earlier specifically approved push through65481ff4.
