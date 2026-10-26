@@ -16,16 +16,24 @@ import os
 import re
 import shlex
 import subprocess
+import sys
 import tempfile
 import uuid
+from contextlib import ExitStack
 from datetime import datetime, timezone
 from pathlib import Path
+
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "services" / "aster-agent"))
+from diagnostic_catalogue_v3 import build_catalogue
 
 
 LINE = re.compile(r"^([🟢🟡🔴])\s+(.+)$")
 STATUS = {"🟢": "pass", "🟡": "warn", "🔴": "fail"}
 STRUCTURED_CHECK_ID = "aster.agent_inference"
+CATALOGUE_CHECK_IDS = ("aster.agent_inference", "aster.speech")
 MAX_STRUCTURED_BYTES = 4096
+MAX_CATALOGUE_BYTES = 16_384
 
 
 def _atomic_write(path: Path, payload: str, mode: int = 0o600) -> None:
@@ -78,36 +86,53 @@ def main() -> int:
     parser.add_argument("--exit-code", type=int, default=0, help="Exit code of the captured Doctor run")
     parser.add_argument("--publish", action="store_true", help="Publish to the existing Aster health path via Proxmox")
     parser.add_argument("--structured-output", type=Path, help="Local schema-2 fixed-check sidecar")
+    parser.add_argument("--catalogue-output", type=Path, help="Local schema-3 named-check catalogue")
     parser.add_argument("--capture-output", type=Path, help="Private transcript from the fresh Doctor run")
     parser.add_argument("--result-output", type=Path, help="Content-free collector result for the scheduler")
     args = parser.parse_args()
 
-    if args.input and (args.structured_output or args.capture_output):
-        parser.error("structured or captured output requires one fresh Doctor run")
+    if args.input and (args.structured_output or args.catalogue_output or args.capture_output):
+        parser.error("structured, catalogue or captured output requires one fresh Doctor run")
     destinations = [path.resolve() for path in (
-        args.output, args.structured_output, args.capture_output, args.result_output,
+        args.output, args.structured_output, args.catalogue_output,
+        args.capture_output, args.result_output,
     ) if path]
     if len(destinations) != len(set(destinations)):
         parser.error("output, structured output and capture output must be separate files")
 
-    run_id = uuid.uuid4().hex if args.structured_output else ""
+    run_id = uuid.uuid4().hex if (args.structured_output or args.catalogue_output) else ""
     structured_raw = b""
+    catalogue_raw = b""
 
     if args.input:
         completed = subprocess.CompletedProcess([], args.exit_code, args.input.read_text(), "")
     else:
         try:
-            if args.structured_output:
-                with tempfile.TemporaryFile(mode="w+b") as evidence:
+            if args.structured_output or args.catalogue_output:
+                with ExitStack() as stack:
                     environment = os.environ.copy()
-                    environment["DOCTOR_STRUCTURED_FD"] = str(evidence.fileno())
                     environment["DOCTOR_RUN_ID"] = run_id
+                    pass_fds = []
+                    structured_evidence = None
+                    catalogue_evidence = None
+                    if args.structured_output:
+                        structured_evidence = stack.enter_context(tempfile.TemporaryFile(mode="w+b"))
+                        environment["DOCTOR_STRUCTURED_FD"] = str(structured_evidence.fileno())
+                        pass_fds.append(structured_evidence.fileno())
+                    if args.catalogue_output:
+                        catalogue_evidence = stack.enter_context(tempfile.TemporaryFile(mode="w+b"))
+                        environment["DOCTOR_CATALOGUE_FD"] = str(catalogue_evidence.fileno())
+                        pass_fds.append(catalogue_evidence.fileno())
                     completed = subprocess.run(
                         [str(args.doctor)], text=True, capture_output=True, check=False,
-                        timeout=900, env=environment, pass_fds=(evidence.fileno(),),
+                        timeout=900, env=environment, pass_fds=tuple(pass_fds),
                     )
-                    evidence.seek(0)
-                    structured_raw = evidence.read(MAX_STRUCTURED_BYTES + 1)
+                    if structured_evidence:
+                        structured_evidence.seek(0)
+                        structured_raw = structured_evidence.read(MAX_STRUCTURED_BYTES + 1)
+                    if catalogue_evidence:
+                        catalogue_evidence.seek(0)
+                        catalogue_raw = catalogue_evidence.read(MAX_CATALOGUE_BYTES + 1)
             else:
                 environment = os.environ.copy()
                 environment.pop("DOCTOR_STRUCTURED_FD", None)
@@ -155,13 +180,25 @@ def main() -> int:
         }
         structured_payload = json.dumps(candidate, sort_keys=True, separators=(",", ":")) + "\n"
         _atomic_write(args.structured_output, structured_payload)
+    catalogue_payload = ""
+    if args.catalogue_output:
+        catalogue = build_catalogue(
+            catalogue_raw,
+            run_id=run_id,
+            generated_at=report["generated_at"],
+            aggregate_payload=payload.encode("utf-8"),
+            aggregate_status=report["status"],
+            allowed_check_ids=CATALOGUE_CHECK_IDS,
+        )
+        catalogue_payload = json.dumps(catalogue, sort_keys=True, separators=(",", ":")) + "\n"
+        _atomic_write(args.catalogue_output, catalogue_payload)
     if args.publish:
         # Fixed destinations and commands; an encoded envelope goes over stdin,
         # never shell interpolation. The sidecar is written last. A reader that
         # races either replace sees a digest mismatch and safely abstains.
         writer = """import base64,grp,hashlib,json,os,pathlib,sys
 envelope=json.load(sys.stdin)
-assert set(envelope)=={'aggregate','structured'}
+assert set(envelope)=={'aggregate','structured','catalogue'}
 aggregate=base64.b64decode(envelope['aggregate'],validate=True)
 value=json.loads(aggregate)
 assert value['schema']==1 and value['status'] in ('healthy','warning','failed')
@@ -186,12 +223,28 @@ if envelope['structured'] is not None:
     side_temp.write_bytes(structured)
     os.chmod(side_temp,0o640); os.chown(side_temp,0,grp.getgrnam('aster').gr_gid)
     os.replace(side_temp,side_target)
+if envelope['catalogue'] is not None:
+    catalogue=base64.b64decode(envelope['catalogue'],validate=True)
+    typed=json.loads(catalogue)
+    assert set(typed)=={'schema','generated_at','run_id','source_report_digest','checks'}
+    assert typed['schema']==3 and typed['generated_at']==value['generated_at']
+    assert typed['source_report_digest']==hashlib.sha256(aggregate).hexdigest()
+    assert isinstance(typed['run_id'],str) and len(typed['run_id'])==32
+    assert isinstance(typed['checks'],list) and len(typed['checks'])==2
+    assert [item.get('check_id') for item in typed['checks']]==['aster.agent_inference','aster.speech']
+    assert all(set(item)=={'check_id','state'} and item['state'] in ('pass','warn','fail','unavailable') for item in typed['checks'])
+    catalogue_target=root/'diagnostic-catalogue.json'; catalogue_temp=root/'diagnostic-catalogue.json.new'
+    catalogue_temp.write_bytes(catalogue)
+    os.chmod(catalogue_temp,0o640); os.chown(catalogue_temp,0,grp.getgrnam('aster').gr_gid)
+    os.replace(catalogue_temp,catalogue_target)
 """
         remote = "pct exec 104 -- python3 -c " + shlex.quote(writer)
         envelope = json.dumps({
             "aggregate": base64.b64encode(payload.encode("utf-8")).decode("ascii"),
             "structured": (base64.b64encode(structured_payload.encode("utf-8")).decode("ascii")
                            if structured_payload else None),
+            "catalogue": (base64.b64encode(catalogue_payload.encode("utf-8")).decode("ascii")
+                          if catalogue_payload else None),
         }, separators=(",", ":"))
         subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=10",
                         "root@192.168.50.10", remote], input=envelope, text=True, check=True, timeout=30)

@@ -25,6 +25,24 @@ doctor_emit_aster_state() {
         "$run_id" "$state" >&"$fd"
 }
 
+# Optional multi-check evidence for the separately versioned schema-3
+# catalogue. Ordinary Doctor and schema-2 fixed-Doctor runs do not inherit this
+# descriptor, so this path is inert unless its builder explicitly requests it.
+doctor_emit_catalogue_state() {
+    local check_id="${1:-}"
+    local state="${2:-}"
+    local fd="${DOCTOR_CATALOGUE_FD:-}"
+    local run_id="${DOCTOR_RUN_ID:-}"
+    case "$check_id" in aster.agent_inference|aster.speech) ;; *) return 2 ;; esac
+    case "$state" in pass|warn|fail|unavailable) ;; *) return 2 ;; esac
+    [[ "$fd" =~ ^[1-9][0-9]*$ ]] || return 0
+    (( fd >= 3 )) || return 2
+    [[ "$run_id" =~ ^[0-9a-f]{32}$ ]] || return 2
+    [[ -e "/dev/fd/$fd" ]] || return 3
+    printf '{"run_id":"%s","check_id":"%s","state":"%s"}\n' \
+        "$run_id" "$check_id" "$state" >&"$fd"
+}
+
 PASS_COUNT=0
 WARN_COUNT=0
 FAIL_COUNT=0
@@ -530,6 +548,7 @@ check_aster() {
         '
     )"; then
         doctor_emit_aster_state unavailable
+        doctor_emit_catalogue_state aster.agent_inference unavailable
         warn "Unable to check Aster services"
         return
     fi
@@ -541,9 +560,11 @@ check_aster() {
        grep -qx 'rollback_vm=stopped' <<< "$state" &&
        grep -qx 'persistent_b60=no' <<< "$state"; then
         doctor_emit_aster_state pass
+        doctor_emit_catalogue_state aster.agent_inference pass
         pass "Aster agent API healthy; llama.cpp service active; B60 xe bound; GPU offload not verified"
     else
         doctor_emit_aster_state fail
+        doctor_emit_catalogue_state aster.agent_inference fail
         fail "Aster service unhealthy: $(tr '\n' ' ' <<< "$state" | sed 's/[[:space:]]*$//')"
     fi
 }
@@ -610,8 +631,10 @@ check_aster_speech() {
     local state
     if state="$(ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox \
         'pct exec 116 -- python3 /opt/aster-speech/health_check.py' 2>/dev/null)"; then
+        doctor_emit_catalogue_state aster.speech pass
         pass "Aster legacy/canonical speech, approved voice identity, synthesis canary, HA Wyoming, HTTPS ingress and Companion identity discovery healthy"
     else
+        doctor_emit_catalogue_state aster.speech fail
         fail "Aster speech/authentication dependency unhealthy: ${state:-probe unavailable}"
     fi
 }

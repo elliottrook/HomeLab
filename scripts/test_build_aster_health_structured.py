@@ -23,6 +23,11 @@ HELPER_CODE = (
     + DOCTOR.read_text(encoding="utf-8").split("doctor_emit_aster_state() {", 1)[1].split("\n}", 1)[0]
     + "\n}\n"
 )
+CATALOGUE_HELPER_CODE = (
+    "doctor_emit_catalogue_state() {"
+    + DOCTOR.read_text(encoding="utf-8").split("doctor_emit_catalogue_state() {", 1)[1].split("\n}", 1)[0]
+    + "\n}\n"
+)
 
 
 class StructuredDoctorReportTests(unittest.TestCase):
@@ -32,6 +37,7 @@ class StructuredDoctorReportTests(unittest.TestCase):
         self.directory = Path(self.tmp.name)
         self.aggregate = self.directory / "aggregate.json"
         self.structured = self.directory / "structured.json"
+        self.catalogue = self.directory / "catalogue.json"
 
     def run_fixture(self, body: str):
         doctor = self.directory / "fixture-doctor.sh"
@@ -44,6 +50,19 @@ class StructuredDoctorReportTests(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         return json.loads(self.aggregate.read_text()), json.loads(self.structured.read_text())
+
+    def run_catalogue_fixture(self, body: str):
+        doctor = self.directory / "fixture-catalogue-doctor.sh"
+        doctor.write_text("#!/bin/bash\n" + body, encoding="utf-8")
+        doctor.chmod(0o700)
+        result = subprocess.run(
+            [sys.executable, str(BUILDER), "--doctor", str(doctor),
+             "--output", str(self.aggregate), "--structured-output", str(self.structured),
+             "--catalogue-output", str(self.catalogue)],
+            capture_output=True, text=True, check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return json.loads(self.aggregate.read_text()), json.loads(self.catalogue.read_text())
 
     def test_producer_owned_failure_and_private_summary_exclusion(self):
         body = (
@@ -95,6 +114,25 @@ class StructuredDoctorReportTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(legacy.read_text())["schema"], 1)
 
+    def test_catalogue_collects_two_named_states_without_summary(self):
+        aggregate, catalogue = self.run_catalogue_fixture(
+            HELPER_CODE + CATALOGUE_HELPER_CODE +
+            "printf '🔴 private fixture words\n'\n"
+            "doctor_emit_aster_state fail\n"
+            "doctor_emit_catalogue_state aster.agent_inference fail\n"
+            "doctor_emit_catalogue_state aster.speech pass\n"
+        )
+        self.assertEqual(3, catalogue["schema"])
+        self.assertEqual(aggregate["generated_at"], catalogue["generated_at"])
+        self.assertEqual(hashlib.sha256(self.aggregate.read_bytes()).hexdigest(),
+                         catalogue["source_report_digest"])
+        self.assertEqual([
+            {"check_id": "aster.agent_inference", "state": "fail"},
+            {"check_id": "aster.speech", "state": "pass"},
+        ], catalogue["checks"])
+        self.assertNotIn("private fixture words", self.catalogue.read_text())
+        self.assertEqual(self.catalogue.stat().st_mode & 0o777, 0o600)
+
     def test_publishes_digest_bound_pair_without_private_summary(self):
         doctor = self.directory / "fixture-doctor.sh"
         doctor.write_text(
@@ -125,6 +163,7 @@ class StructuredDoctorReportTests(unittest.TestCase):
         envelope = json.loads(published.read_text())
         self.assertEqual(base64.b64decode(envelope["aggregate"]), self.aggregate.read_bytes())
         self.assertEqual(base64.b64decode(envelope["structured"]), self.structured.read_bytes())
+        self.assertIsNone(envelope["catalogue"])
         self.assertNotIn("FIXTURE_NOT_A_SECRET", self.structured.read_text())
         self.assertIn("FIXTURE_NOT_A_SECRET", capture.read_text())
         self.assertEqual(capture.stat().st_mode & 0o777, 0o600)
