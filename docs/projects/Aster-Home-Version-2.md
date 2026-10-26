@@ -7516,3 +7516,106 @@ One-XML HP stage/checkpoint `aster-home-header1`, manifest
 Native install passed idle/settings preservation. All101Home tests pass under
 optimized Python, including exact centring and unchanged actions/clock/logo.
 Production unchanged; no push performed.
+
+### Next M6 acceptance checks — 2026-10-26
+
+Home/camera/header source committed as `bf307ae0` and pushed to Forgejo;
+GitHub's branch ref independently matches that full commit. Unrelated dirty
+release/recommendation/feasibility files and generated output were excluded.
+Full Kodi normal/optimized suites passed954tests before publication.
+
+Continue the previously approved bounded idle-lifecycle envelope (above), not
+normal-use saver promotion: temporarily select only the registered/pinned HP
+pilot, journal original native Dim and pilot presentation, test Black/Aster
+rendering and directional/OK wake twice each, then restore settings and Home.
+No AV/power/timeout changes, library playback, foreign-window control access,
+new service or production changes. Failed restoration leaves the private
+`trial-restore-pending.json` fence for recovery; never overwrite a foreign mode
+or presentation change. Underlying target remains Settings/Diagnostics206.
+Home/physical-remote wake, timer/media attention and elapsed auto-entry remain
+separate gates, not claimed by this trial.
+
+In parallel, a metadata-only camera session tests actual five-minute expiry
+without requesting a single image. Only status/start are used; another caller's
+session is not stopped or reset. This validates the cap independently of GUI
+refresh. The existing five-minute household delivery remains untouched.
+
+Camera wall-clock proof completed in
+`aster-camera-expiry-1792997779137248911/proof.json`: inactive after301.2seconds,
+zero image fetches throughout. The cap is now verified in real time, not just
+with an injected clock. This does not claim cold-boot or physical wake testing.
+
+Idle harness correction: the first run's full-settings comparison was made
+while the temporary saver was still selected; it also incorrectly retained a
+premature passed flag after that comparison failed. Do not accept
+`aster-idle-lifecycle-1792997871730759438/native.json` as a pass. Settings were
+restored. The harness now compares the complete settings digest only after
+restoration and sets passed only at the end; exception paths reset it. A
+subsequent attempt safely restored after no custom-window activation. Explicit
+NoOp/reset plus a foreign-dialog gate before each activation gave a clean
+eight-cycle repeat in `aster-idle-lifecycle-1792998058569023504/native.json`:
+Black/Aster rendered, Right/OK consumed twice each, source focus retained,
+all settings/navigation digests restored, Home idle/empty. Custom saver remains
+unselected for normal use.
+
+Next bounded follow-up uses the same journal/recovery: exercise the already
+approved synthetic Home timer-active flag and restore its exact original value;
+then allow native automatic entry with the **unchanged three-minute timeout**.
+No shortened timeout, suspend, HDMI/DPMS or device controls. Hold only the
+registered pilot temporarily; verify Black entry after170–205seconds, consume
+OK without opening Diagnostics, restore Dim and all original settings. A
+failure retains the recovery fence where restoration cannot be proven.
+
+### M5 Reader preparation — local-only pre-start, 2026-10-26
+
+While native idle timing runs, prepare the selected one-chapter DRM-free EPUB
+proof's pure extraction/location contract. Use synthetic books only: no
+library acquisition, shared progress, TTS, server changes or HP installation.
+Read only the declared linear XHTML spine, with bounded archive/member/XML
+sizes; reject unsafe paths, duplicate/ambiguous resources, protected resources,
+external references in the spine and XML declarations capable of entity
+expansion. Scripts/styles/navigation are not reading text. Preserve paragraph
+and word offsets against the exact normalized chapter text and a content hash
+for a later resume/highlight adapter. This produces no speech and no invented
+timing. Actual book access, native layout, canonical Kokoro/bm_daniel narration
+and alignment measurement remain separate gates. Recover by discarding only
+new synthetic/local outputs; no existing book or bookmark is modified.
+
+### M6 idle lifecycle and camera cap — verified 2026-10-26
+
+Corrected native trial
+`aster-idle-lifecycle-1792998172828646951/native.json` passes all eight explicit
+Black/Aster Right/OK cycles, restores underlying Diagnostics206focus, and
+verifies synthetic timer attention dismisses the saver without a device action.
+With the original three-minute timeout unchanged, Black entered automatically
+after180.4seconds; the first OK woke it without opening Diagnostics. The full
+settings/navigation digest, six idle/power values, original pilot presentation
+and Home idle/empty state were restored, and the restore-pending fence removed.
+No pre-existing add-on/runtime files changed. The prior Dim remains selected
+for normal use; this is acceptance evidence, not automatic pilot promotion.
+Physical G20/Home/Back wake, actual audio/paused-media/alarm matrix, suspend/USB
+wake and receiver/overnight recovery remain unclaimed. Camera wall-clock cap
+passed separately as recorded above. Production unchanged.
+
+### M5 EPUB extraction/location foundation — local evidence, 2026-10-26
+
+`epub_chapter.py` reads one linear reflowable XHTML chapter from bounded
+DRM-free input bytes. Eight synthetic tests cover exact paragraph/Unicode word
+offsets and stable chapter identity, script/style/nav exclusion, wrong media/
+fixed layout/empty input, external/traversal references, protected/encrypted
+resources, entity declarations/wide XML, excessive nesting, duplicate ZIP names
+and symlink entries. Stored/deflated members only; caps are32MiB input,
+64MiB declared total,2MiB per member and512KiB chapter with bounded XML depth/
+node count. Unsupported protected resources are refused, not decrypted. Simple
+HTML5 doctype is accepted. Word offsets are character spans, **not measured
+speech timings**. No archive extraction to disk, network, TTS or progress writes.
+No real book or HP deployment yet. Native reading layout and canonical narration
+remain next bounded M5 work, not a completed read-along feature.
+
+Final local suites:964tests pass in normal and optimized Python. Native HP
+preservation `postcheck-1792998442360961229.json` passes all retained baseline
+and approved overlays, seven idle files,68AV/language checks, media database
+integrity and closed/idle/empty state. No restore-pending journal remains.
+The next-work source/evidence is locally committed separately from the already
+pushed Home milestone; no second remote push is authorized by the consumed
+one-operation push approval.
