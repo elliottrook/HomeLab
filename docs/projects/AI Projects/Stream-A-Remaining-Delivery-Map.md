@@ -1324,6 +1324,25 @@ passes 128/128. This is evidence hardening only; D4 qualification remains open.
 
 ## Immediate next action and stop rule
 
+### October 26 shared-stack NLU progress
+
+Jason authorized bounded Stream A use of the shared AI stack without waiting
+for exclusive lab hours; only a required system restart remains a separate
+approval gate. The exact Candidate v1 calibration consequently ran once and
+was [rejected](evidence/M3-NLU-calibration-v1-result-2026-10-26.md): all 60
+attempts completed, but no output was route-eligible and no registered
+threshold could satisfy the accepted policy. No threshold or route was
+created, and the independent holdout stayed sealed.
+
+Public-development iterations v2 through v6 then corrected the prompt defect
+without using the private calibration for tuning. Candidate v6 reached 23/24
+exact classifications with zero unsafe false routes, zero privacy
+underclassification and zero unnecessary non-routes. The
+[development record](evidence/M3-NLU-candidate-v2-v6-development-2026-10-26.md)
+is a candidate-selection result only. The next M3 gate is to seal v6 and create
+a fresh, independently labelled calibration release bound to that exact
+candidate before another private model run can be considered.
+
 Do not spend another cloud question on the deferred manual-Codex button. M1's
 synthetic authority proof is complete; its next work is a separately designed
 fixed read-only capability, not broader broker access. D4 candidate-G remains
