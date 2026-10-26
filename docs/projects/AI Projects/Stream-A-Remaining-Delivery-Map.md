@@ -1328,6 +1328,11 @@ two fixed module roots and returned the exact inert result in both guests. F6
 remains disabled and state-free. Fresh F3-F5 evidence, the activation/recovery
 card and live-effect approval remain open; the two consumed packets must not be
 retried.
+The immediate [post-V3 activation-card reconciliation](evidence/Stream-A-F6-post-V3-activation-card-reconciliation-2026-10-25.md)
+then found that the candidate-H card still pins the pre-V3 restore observer and
+omits the twelve other installed V3 paths. It is therefore NO-GO as live
+authority. The platform owner must issue one current-packet card before F6 can
+be considered for arming; the installed code remains inert and accepted.
 The
 [owner-before-heartbeat unit correction](evidence/Stream-A-F6-owner-heartbeat-ordering-inactive-install-2026-10-25.md)
 is installed inactive with a root-only rollback checkpoint, 4/4 focused tests
