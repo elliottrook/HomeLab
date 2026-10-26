@@ -1551,3 +1551,11 @@ limitation calibration, with zero unsafe claims. The combined focused boundary
 suite passes 25/25. This proves the deterministic response obeys its contract;
 it does not yet prove practical usefulness. The next gate is a digest-bound,
 implementation-blind comparison with a generic aggregate-health answer.
+
+That [comparison packet is now frozen](evidence/D4-fixed-speech-blind-comparison-card-2026-10-26.md).
+It balances eight synthetic states, hides the fixed and aggregate
+implementations behind A/B labels, and fails closed on incomplete or non-blind
+review. Its harness passes 4/4 tests, while the existing response,
+conformance and selector suites pass 14/14. Independent review of the exact
+packet is the remaining usefulness gate; no route or authority changes follow
+automatically from its result.
