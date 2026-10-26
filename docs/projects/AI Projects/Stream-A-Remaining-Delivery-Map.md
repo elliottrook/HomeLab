@@ -16,7 +16,9 @@
 Work outside the timed F2 chain continues in parallel. A failed F2 runtime gate
 blocks F3 and the live evaluations; it does not block offline D4/M3 hardening,
 documentation reconciliation, Companion monitoring or review of the new F6
-card.
+card. The [pre-F2 continuous-work check](evidence/Stream-A-pre-F2-continuous-work-check-2026-10-25.md)
+records the current documentation reconciliation and fresh 168/168 D4, 13/13
+candidate-H boundary and 116/116 dependency-free NLU passes.
 
 The [October 14 evening execution decision](evidence/Evening-execution-decision-2026-10-14.md)
 separates the actual backup/check schedule from the proposed live windows,
