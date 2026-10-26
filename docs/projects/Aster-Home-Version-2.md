@@ -8992,3 +8992,22 @@ on HP). Historical deployment tests were advanced to the exact current
 dispatcher predecessor hashes, preserving their drift and rollback gates.
 This closes the HP engineering slice. Production promotion remains a later
 explicit release decision and is not implied by the HP acceptance.
+
+The post-activation family audit then found one metadata mismatch: the accepted
+Home shell had advanced after family candidate6, while
+`family-manifest.json` still named the candidate6 `Home.xml` hash. All eight
+component manifests and the other eleven guarded skin files remained exact.
+Because grouped Search verifies this family record before opening, the mismatch
+was repaired rather than bypassed. The hash-pinned one-file successor
+`daa08415c0133138e64b6820c88f690a380c79c038feeb93ff0544d67aa32d6c`
+is active on HP with checkpoint
+`/storage/.aster-checkpoints/aster-family-manifest1`. Install and independent
+verify both passed on idle Home; the resulting audit reports eight components,
+twelve skin references and zero mismatches. Grouped Search then opened through
+its ordinary runtime entry, rendered correctly, returned to Home and produced
+no new Kodi error. The reconciliation has an exact predecessor copy and tested
+rollback logic; it changes no page, component, setting or content state.
+
+After the reconciliation tests were added, the complete Kodi v2 suite passes
+1,110 tests in normal and optimized Python, with the same one Mac-only Pillow
+skip. The broker suite remains 79/79 in both modes.
