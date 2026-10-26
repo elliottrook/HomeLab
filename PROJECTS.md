@@ -435,10 +435,11 @@ The pilot is isolated, reproducible, backed up according to its recovery priorit
 **Pilot completion gate passed — 2026-08-24.** The CPU-only implementation is
 isolated, reproducible, archive/restore tested and optional to production.
 
-**Production successor deployed — 2026-08-31.** The lightweight Aster service
-in LXC 104 now uses llama.cpp Vulkan inference in LXC 110 with Qwen3.8 27B
-`UD-IQ4_XS` on the Intel Arc Pro B60. Authenticated simple conversations complete
-in roughly 3.6–4.7 seconds after automatic warm-up. The deployment includes a
+**Production successor deployed — 2026-08-31; runtime updated 2026-10-11.**
+The lightweight Aster service in LXC 104 now uses llama.cpp b11429 SYCL/Level
+Zero inference in LXC 110 with Qwen3.5-9B `Q4_K_M` on the Intel Arc Pro B60.
+Current latency and quality are tracked in versioned evaluation evidence rather
+than inferred from the former Vulkan/27B measurements. The deployment includes a
 browser UI, three allowlisted read-only functions, curated source-attributed
 HomeLab retrieval, systemd boot persistence and named local rollback snapshots.
 Hermes and Ollama remain disabled but installed for rollback; VM 105 remains

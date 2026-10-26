@@ -51,7 +51,8 @@ Other confirmed facts this proposal relies on:
   association with the existing one.
 - A shared local LLM inference endpoint already exists:
   `aster-llama.service` on LXC 110 (`192.168.70.12:11435`, OpenAI-compatible
-  `/v1`, Qwen3.8 27B `UD-IQ4_XS`, bearer-authenticated, Lab VLAN 70 only). It
+  `/v1`, Qwen3.5-9B `Q4_K_M` through SYCL/Level Zero, bearer-authenticated,
+  Lab VLAN 70 only). It
   already serves Aster Agent and MuckScraper's summarizer/digest narration on
   dedicated per-consumer keys.
 - "Recommendarr" is also the name of an existing open-source self-hosted

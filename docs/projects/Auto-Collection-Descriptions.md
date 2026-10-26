@@ -45,8 +45,8 @@ membership, artwork, or anything Lidarr/Radarr/Sonarr manage.
   only real recovery path for that incident. Collections in this specific
   Jellyfin instance are a proven fragile asset, not a theoretical concern.
 - Shared local inference already exists: `aster-llama.service` on LXC 110
-  (`192.168.70.12:11435`, OpenAI-compatible `/v1`, Qwen3.8 27B `UD-IQ4_XS` on
-  the Arc Pro B60 via Vulkan), bearer-authenticated, Lab VLAN 70 only. Other
+  (`192.168.70.12:11435`, OpenAI-compatible `/v1`, Qwen3.5-9B `Q4_K_M` on
+  the Arc Pro B60 via SYCL/Level Zero), bearer-authenticated, Lab VLAN 70 only. Other
   projects (Aster itself, MuckScraper's summarization and digest narration)
   already call this same endpoint — it is a **shared, contended resource**,
   not dedicated capacity, which this project must plan around rather than

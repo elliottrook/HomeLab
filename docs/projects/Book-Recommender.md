@@ -54,7 +54,8 @@ anything about this project's feasibility.
   to build against **today**, with no new service to deploy — a
   fundamentally different risk profile from the e-book side.
 - Shared local inference (`aster-llama.service`, LXC 110,
-  `192.168.70.12:11435/v1`, Qwen3.8 27B, Lab VLAN 70, bearer-authenticated)
+  `192.168.70.12:11435/v1`, Qwen3.5-9B `Q4_K_M` through SYCL/Level Zero,
+  Lab VLAN 70, bearer-authenticated)
   is available for narrative recommendation write-ups, noted as a resource
   contended by other AI projects (Aster, MuckScraper, and the proposed
   Auto-Collection-Descriptions and Music Recommender projects) — an open

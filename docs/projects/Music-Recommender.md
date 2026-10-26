@@ -57,7 +57,8 @@ request, or a candidate future integration explicitly scoped later.
   computes, only in the fact that both can produce Lidarr-request-shaped
   output.
 - Shared local inference (`aster-llama.service`, LXC 110,
-  `192.168.70.12:11435/v1`, Qwen3.8 27B, Lab VLAN 70, bearer-authenticated)
+  `192.168.70.12:11435/v1`, Qwen3.5-9B `Q4_K_M` through SYCL/Level Zero,
+  Lab VLAN 70, bearer-authenticated)
   is available and is the established reuse target for any generative or
   reasoning step — noted here as a resource contended by other projects
   (Aster itself, MuckScraper, and the proposed Auto-Collection-Descriptions
