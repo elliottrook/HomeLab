@@ -10,11 +10,15 @@ The M3 paragraph in that snapshot is superseded by this receipt.
 
 ## Current LXC110 packet
 
-- runner SHA-256:
+- runner `/var/lib/aster-nlu-calibration/nlu-calibration-v1/nlu_calibration_runner.py`
+  SHA-256:
   `88af8eb7f196c03563a31ed2c2fe513d054d491c4903ba4c29dfd765dba36ca0`;
-- scorer SHA-256:
+- scorer `/var/lib/aster-nlu-calibration/nlu-calibration-v1/nlu_calibration_score.py`
+  SHA-256:
   `7bce041e47a7707fcf35d3c3787e1e12e6725fff4c5b80db81f92ad7e5492ccd`;
-- journal validator SHA-256:
+- journal validator
+  `/var/lib/aster-nlu-calibration/nlu-calibration-v1/nlu_calibration_journal.py`
+  SHA-256:
   `966786f8952aa990915044281b3ddc45241b05940102aad2c4ddfad19abf5beb`;
 - complete eleven-file packet-manifest SHA-256:
   `7b547d9b38d3be1d951e2d8cbeee011a723f8582006c0885ad37d01f5388ee80`;
