@@ -29,3 +29,15 @@ The static release has not drifted. F2 is still conditional on the future
 and absence gates at execution time. A failed or uncertain fresh gate must
 produce NO-GO without retry. Only three independently reconciled exit-zero
 archive rows can complete F2 and open the later F3 decision.
+
+## Late preflight
+
+A second read-only check at 22:46 PDT found the same two timer and five source
+hashes exact. The date-specific timers were enabled, active and waiting for
+01:15/01:20; recurring timers were disabled and inactive. The October 26 state,
+archive receipt, cooperative lease and lock remained absent, and the general
+lease reported `ready`. LXC104/110/116 were running; Aster Agent, accepted
+llama.cpp/SYCL, Speech, `pvescheduler` and `pvestatd` were active. No archive
+scanner or F2 runner was active. The result remains **TIMED TEST: GO —
+SCHEDULED / CONDITIONAL**; only the runtime backup, TrueNAS, archive identity,
+load and exclusion checks remain fresh gates.
