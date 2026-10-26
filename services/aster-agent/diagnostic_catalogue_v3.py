@@ -143,7 +143,9 @@ def select_check(
         if not isinstance(item, dict) or set(item) != {"check_id", "state"}:
             raise CatalogueError("invalid catalogue check")
         item_id, state = item["check_id"], item["state"]
-        if (not isinstance(item_id, str) or item_id in seen or
+        if (not isinstance(item_id, str) or
+                not re.fullmatch(r"[a-z0-9]+(?:[._-][a-z0-9]+)+", item_id) or
+                item_id in seen or
                 not isinstance(state, str) or state not in STATES):
             raise CatalogueError("invalid or duplicate catalogue check")
         seen.add(item_id)
