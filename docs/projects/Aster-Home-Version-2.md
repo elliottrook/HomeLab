@@ -9082,3 +9082,31 @@ ERROR, FATAL, exception or no-current-file event. Kodi retained its process,
 returned to idle Home and left recovery clear. This closes the consolidated
 family rollback/reinstall gate. Production remains unchanged; physical G20 and
 sofa-distance household acceptance are still deliberately unclaimed.
+
+The first repeated six-cycle endurance attempt did not pass its log gate even
+though all six video/audio cycles, PID and recovery checks passed. Jellyfin's
+separate segment-checker thread called Kodi's current-file method while an
+unmanaged private audio fixture was ending, producing one core
+`Kodi is not playing any file` event. The existing player callback guard could
+not prevent that independent probe. The correction is deliberately narrow:
+segment scanning now requires a non-empty positively owned Jellyfin item map in
+addition to the existing playing/setting checks. Normal owned intro/outro work
+retains the same path; unrelated local media no longer enters it. Exact source
+SHA-256 `303fec23128ad58163aca117901cb2f05d30b30eeb608220e3749634765e5203`
+became `62155fc145c20c0032ad63eaa94cafbdcca0a315c0ac42da9d162dad6edea780`,
+with checkpoint
+`/storage/.aster-checkpoints/aster-jellyfin-segments-guard-20261026`.
+
+After its one-file restart, the repeated loose-harness six-cycle run passed
+with no error, crash or recovery event. Because repeated loose `RunScript`
+invocations make Kodi add every installed add-on to a fallback Python path,
+their memory growth is test-harness overhead rather than a clean player
+measurement. A single-invocation successor therefore ran two independent
+six-cycle batches on one Kodi process. All 12 video natural ends, pause/resume,
+audio stops and Home returns passed with no new ERROR/FATAL/exception. CPU
+temperature remained at or below 44°C. RSS began at 306 MiB after restart,
+settled near 590 MiB after the first batch and near 655 MiB after the second;
+the second settled increase is approximately 65 MiB. That is ample headroom on
+the 16 GiB HP, but it is not proof of a plateau. Retain longer household/overnight
+memory observation as an M7 gate rather than calling this bounded stress test
+an endurance graduation. Production remains unchanged.
