@@ -70,8 +70,14 @@
   Refresh, preserved focus/context, no background probes and bounded HTTP200
   observations from Jellyfin/ABS. The compact HP Settings Diagnostics entry now
   offers Network status and retains the existing optional Log viewer action;
-  installed-route Back/Home and rollback/reinstall tests pass. Next: idle-mode
-  policy and native wake/focus groundwork, while
+  installed-route Back/Home and rollback/reinstall tests pass. Native Dim wake
+  and pure idle policy/presentation tests now pass; the new idle add-on is
+  registered but unselected, retaining Dim/3 minutes. Native custom-renderer
+  trials are prepared, not run. Jason clarified that HA is unfinished lab work
+  and authorizes the relevant data needed to populate Home. Reuse the existing
+  Kodi dashboard/exporter/reader; inspect and extend only missing data coverage,
+  not a replacement HA/dashboard platform. Runtime delivery identity/scheduling
+  remains a distinct operational boundary, while
   runtime publisher identity and scheduling remain explicit integration gates.
   Owner checks are deferred for a larger batch, not requested now. Forgejo/GitHub
   are synchronized through68b2285f; newer milestones are local only.
@@ -7026,3 +7032,103 @@ proves NoOp wakes the existing Dim saver without activating or moving Settings;
 Right/OK also still pass. This does not yet prove the custom saver lifecycle.
 No add-on or setting was installed/changed in preparation. HP has one current
 add-on database, `/storage/.kodi/userdata/Database/Addons33.db`.
+
+### Stream A bounded native idle pilot registration — pre-start
+
+On idle HP only, checkpoint the six selected idle/power values, sanitized add-on
+ID/version/enabled inventory and a consistent online read-only Addons33 backup;
+validate its integrity before copying any new add-on files. Register only the
+new `screensaver.asterhome.v2lab` namespace after externally pinned source/archive/
+helper checks. Refuse an existing namespace or any foreign inventory drift.
+Keep the pilot unselected and leave native Dim/3 minutes unchanged. Registration
+uses the standard local add-on scan and enable API; no repository downloads,
+service extension, new credential/permission, network trust, speech, shutdown,
+display-off, AV or production change. No Kodi restart is planned.
+
+Recovery disables only this new unselected add-on, retaining its verified files
+and checkpoint rather than deleting them. Verify every pre-existing add-on's
+enabled/version state and all original idle/AV settings. Do not restore the
+whole live Addons database or overwrite another actor's changes. Its private
+backup is an integrity-checked emergency recovery artifact, not an automatic
+rollback action. If registration fails or introduces unexpected drift, fence
+activation and review before further changes. A later bounded selection trial
+must separately journal/restore just the original saver mode and this pilot's
+own presentation choice; no automatic normal-use promotion is implied.
+
+### Stream A bounded idle lifecycle trial — pre-start
+
+After registration/disable/re-enable verification, test only on idle HP with an
+empty queue, stopped player and Settings/control206 as the harmless underlying
+target. Journal the original Dim mode and the new pilot's own presentation
+choice before temporarily selecting it. Test Black and Aster explicit native
+activation, Right/OK/Home wake consumption, focus and clean lifecycle twice;
+capture only content-free idle pixels. Restore the original mode/choice, fence
+unexpected third-party settings changes, and leave a pending-restore journal
+on uncertainty rather than repeating an unconfirmed write. No shutdown/DPMS/
+display, AV/language, credentials, new network path, production or normal-use
+promotion. Native elapsed automatic entry remains a later bounded test.
+
+Exercise the attention guard with a clearly synthetic local Home timer-active
+property while Settings is open, retaining/restoring its original non-active
+value without starting a real timer/alarm. A media guard check may play only a
+short newly generated all-zero PCM WAV in the private trial directory, after
+verifying idle/empty state. It is not a library item and creates no deliberate
+Jellyfin/ABS progress write. Never stop an unrelated player: allow that exact
+silent fixture to end, or stop only after exact playing-file ownership proof
+if cleanup is required. Preserve all pre-existing add-on inventory and idle/AV
+settings, verify the source files and all databases afterward. A restore/ownership
+failure fences further trials; no whole-profile/database rollback.
+
+#### Native idle pilot registration — completed evidence
+
+The seven-file pilot is registered and enabled but **not selected** on HP;
+native Dim/3 minutes and all other settings remain unchanged. Immutable stage
+`/storage/.aster-staging/aster-idle-presentation2` has manifest
+`f6af15135f9321eb7fc602696051a22b4a07ff8a2b057fd2eef359e1c420dc83`.
+The same-name private checkpoint retains the pinned manifest, a consistent
+integrity-checked Addons33 backup, original six idle/power values, original
+sanitized add-on ID/version/enabled inventory and state journal. The backup was
+opened and validated in isolation, not restored over the live database.
+
+Five added installer tests pass; full903-test suite passes normally/optimized.
+Native install proof `deploy-1792989102013500473.json` passes. Disable recovery
+`deploy-1792989184398564660.json` passes without deleting any files or restoring
+the whole database. Re-enable proof `deploy-1792989334021287856.json` also passes.
+All retain every pre-existing add-on's enabled/version state, the exact seven
+new files, native idle/AV values and idle/empty state. Native extended NoOp/Right/
+OK baseline additionally passes a second time in
+`aster-idle-baseline-1792988851640096795/native.json`. Custom saver selection,
+rendering, elapsed entry, timer/media rejection and physical remote acceptance
+are still unclaimed; do not mistake registration for those gates passing.
+
+Preservation now verifies the externally pinned idle bundle/helpers/files,
+original idle values, exact pre-existing inventory and new pilot enable state,
+Addons33 integrity and absent idle window/pending trial restore marker. Its
+pre-change helper is retained as `live_music_postcheck-before-idle-pilot.py`.
+Final `postcheck-1792989415164466794.json` passes7 new pilot files,48 Music/115
+untouched v1 members, exact approved overlays,68 AV/language checks with the
+previously documented derived display-index exception, both media databases
+and closed/idle/empty state. Production and Home feed remain unchanged.
+
+### Home data scope clarification — 2026-10-25
+
+Jason confirms all HA implementations are unfinished lab work, not currently
+used in production, and authorizes the data needed to fill Home. Treat the
+earlier individual-reading approval boundary as superseded for relevant lab
+entity/state display discovery and population. Continue to exclude credentials,
+access tokens, private connection URLs and unnecessary raw attributes from
+model output, Git and the visible dashboard. Data access does not itself
+authorize device-control effects, public exposure, new runtime credentials or
+infrastructure/schedule changes. HP remains the UI lab; BOSGAME promotion stays
+separate.
+
+Jason asks whether this already exists as a bespoke HA dashboard. It does:
+the Kodi Home layout, isolated read-only HA exporter and local feed reader
+already exist. The current exported display contract is deliberately narrow,
+with one light/available temperature/current weather in recent captures;
+delivery is manual and freshness-gated. Reuse and extend those components to
+populate the dashboard and finish refresh. Do not create a second dashboard
+platform, broaden the unrelated health-only agent tool or use an administrator
+guest-execution key as the TV's scheduled runtime identity. Prioritize inspection
+of current relevant entity coverage next; retain the safe unselected idle pilot
+and return to its prepared native lifecycle tests afterward.

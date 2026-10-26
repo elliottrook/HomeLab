@@ -53,9 +53,13 @@ def build(output):
             info=zipfile.ZipInfo(IDENTITY+'/'+name,(1980,1,1,0,0,0));info.compress_type=zipfile.ZIP_DEFLATED
             info.external_attr=0o100600<<16;package.writestr(info,raw)
     archive.chmod(0o600)
-    m=dict(kind='hp-idle-presentation.v1',addon_id=IDENTITY,normal_entry=False,default_mode='black',
+    helpers={}
+    for name in ('idle_screensaver_install.py','deploy_idle_screensaver.py'):
+        data=(here/name if name=='idle_screensaver_install.py' else here/'tools'/name).read_bytes()
+        (root/name).write_bytes(data);(root/name).chmod(0o600);helpers[name]=hashlib.sha256(data).hexdigest()
+    m=dict(kind='hp-idle-presentation.v2',addon_id=IDENTITY,normal_entry=False,default_mode='black',
         network=False,speech=False,settings_changes=False,files=rows,
-        archive=archive.name,archive_sha256=hashlib.sha256(archive.read_bytes()).hexdigest())
+        archive=archive.name,archive_sha256=hashlib.sha256(archive.read_bytes()).hexdigest(),helpers=helpers)
     path=root/'manifest.json';path.write_text(json.dumps(m,indent=2)+'\n');path.chmod(0o600)
     return hashlib.sha256(path.read_bytes()).hexdigest()
 

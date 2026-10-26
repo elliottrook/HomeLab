@@ -42,6 +42,7 @@ keys.extend('Window(Home).Property(AsterDigest.'+name+')' for name in ('PlayerWi
 keys.append('Window(Home).Property(AsterHome.PreviewWindow)')
 keys.append('Window(Home).Property(AsterNetwork.PreviewWindow)')
 keys.append('Window(Home).Property(AsterNetwork.MenuOpen)')
+keys.append('Window(Home).Property(AsterIdle.Window)')
 keys.extend('Window(Home).Property(AsterSearch.'+name+')' for name in ('Open','DetailOpen','Ready'))
 keys.append('Window(Home).Property(AsterSearch.Handoff)')
 keys.extend('Window(Home).Property(AsterMovie.'+name+')' for name in ('Window','Ready','Phase'))
@@ -51,6 +52,33 @@ _require(not Path('/storage/.aster-checkpoints/aster-series-playback-20261024/un
 _require(not Path('/storage/.aster-checkpoints/aster-video-scrub-20261024/unresolved-seek.json').exists(),'scrub-recovery-required')
 _require((not any(rpc('XBMC.GetInfoLabels',{'labels':keys}).values())), ('live-or-recovery-window-retained'))
 stage=Path('/storage/.aster-staging');addons=Path('/storage/.kodi/addons')
+idle_pilot_count=0
+if Path('/storage/.aster-checkpoints/aster-idle-presentation2/state.json').exists():
+    import importlib.util
+    idle_stage=stage/'aster-idle-presentation2'
+    idle_pin='f6af15135f9321eb7fc602696051a22b4a07ff8a2b057fd2eef359e1c420dc83'
+    raw=(idle_stage/'manifest.json').read_bytes()
+    _require(hashlib.sha256(raw).hexdigest()==idle_pin,'idle-pilot-manifest-pin')
+    for name,digest in json.loads(raw)['helpers'].items():
+        _require(hashlib.sha256((idle_stage/name).read_bytes()).hexdigest()==digest,'idle-pilot-helper-pin')
+    spec=importlib.util.spec_from_file_location('accepted_idle_pilot',idle_stage/'idle_screensaver_install.py')
+    sys.path.insert(0,str(idle_stage));validator=importlib.util.module_from_spec(spec);spec.loader.exec_module(validator)
+    _,idle_baseline,idle_state=validator.verify_files(idle_stage,Path('/storage'),idle_pin)
+    _require(idle_state in ('registered','disabled'),'idle-pilot-incomplete-registration')
+    _require(not (Path('/storage/.aster-checkpoints/aster-idle-presentation2')/'trial-restore-pending.json').exists(),
+        'idle-pilot-trial-restoration-required')
+    idle_settings={k:rpc('Settings.GetSettingValue',{'setting':k})['value'] for k in idle_baseline['settings']}
+    _require(idle_settings==idle_baseline['settings'],'idle-pilot-original-settings')
+    inventory={r['addonid']:{'enabled':r['enabled'],'version':r['version']} for r in
+        rpc('Addons.GetAddons',{'enabled':'all','properties':['enabled','version']})['addons']}
+    _require({k:v for k,v in inventory.items() if k!='screensaver.asterhome.v2lab'}==idle_baseline['inventory'],
+        'idle-pilot-other-addons-changed')
+    _require(inventory.get('screensaver.asterhome.v2lab')=={'enabled':idle_state=='registered','version':'0.1.0'},
+        'idle-pilot-enabled-state')
+    connection=sqlite3.connect('file:/storage/.kodi/userdata/Database/Addons33.db?mode=ro',uri=True)
+    try:_require(connection.execute('PRAGMA integrity_check').fetchall()==[('ok',)],'addon-database-integrity')
+    finally:connection.close()
+    idle_pilot_count=7
 baseline=json.loads((stage/'aster-artist-repair-v1-baseline-20261023.json').read_text())
 rows=[row for archive in baseline['archives'] for row in archive['files']]
 _require((len(rows)==153), ('native-check-failed'))
@@ -447,6 +475,7 @@ with output.open('x') as handle:
                'approved_books_sync_files_verified':books_count,
                'approved_digest_news_files_verified':digest_news_count,
                'approved_reading_news_files_verified':reading_news_count,
+               'approved_idle_pilot_files_verified':idle_pilot_count,
                'av_language_settings_verified':len(values),
                'av_preservation_details':av_details,
                'database_integrity':'ok','missing_primary_artist_links':0,
