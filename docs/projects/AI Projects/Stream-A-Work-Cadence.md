@@ -111,10 +111,19 @@ only prerequisites to schedule another F2 attempt.
 The fresh October 27 candidate is now independently reviewed at platform commit
 `9550e53a`. Its nonpersistent timers resolve to 01:15/01:20 PDT, all corrected
 installed pins match, the new-cycle state is absent, recurring timers are
-disabled/inactive, and its focused/broader suites pass. Explicit activation
-approval remains required. If approved, one 01:42 observation-only
-reconciliation will clean up the spent units; fresh runtime gates still decide
-whether the read-only scan starts.
+disabled/inactive, and its focused/broader suites pass. At review time explicit
+activation approval remained required; the design assigned spent-unit cleanup
+to a one-occurrence 01:42 observation and kept all runtime gates fail-closed.
+
+Jason subsequently approved the exact activation. The
+[October 27 activation result](evidence/F2-exact-cycle-activation-result-2026-10-27.md)
+records both hash-pinned one-shot timers enabled, active and waiting for
+01:15/01:20 PDT, with the one-occurrence 01:42 reconciliation active. The
+installed real-launcher assertion, 15/15 focused suite and 50-pass/one-
+expected-skip broader suite pass; production remains healthy. The timed test is
+GO — scheduled/conditional. Fresh backup, task-1, archive identity, load and
+quiet-host gates still fail closed at runtime, and no F3 effect follows without
+its own fresh card, review and approval.
 
 **October 20 F2 result:** the two exact-date timers fired and are now disabled,
 but preparation failed after five seconds and final failed immediately. No
