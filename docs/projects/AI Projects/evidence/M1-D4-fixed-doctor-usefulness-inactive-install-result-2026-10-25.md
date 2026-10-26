@@ -40,3 +40,8 @@ This closes inactive custody only. The usefulness run remains blocked on fresh
 F2–F5 evidence, an admitted and independently recoverable F6 workload, and a
 separate exact effectful run approval. The staged files do not authorize a
 model call or routing promotion.
+
+An exact [source-only removal card](M1-D4-fixed-doctor-usefulness-inactive-removal-card-2026-10-25.md)
+pins all eight installed hashes and refuses recursive deletion or removal after
+any output, journal, cache, process or extra object appears. It has not been
+executed and grants no removal authority.
