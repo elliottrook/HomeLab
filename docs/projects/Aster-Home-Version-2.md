@@ -8489,10 +8489,12 @@ preserves all media rows. The immutable HP package is built from the exact
 installed Home page, pins that predecessor and every add-on/skin file, records
 the previously absent custom window, requires Home-idle installation and has
 an isolated exact rollback. Install/verify/rollback, missing predecessor,
-tamper and optimized-Python tests pass. The current local candidate manifest is
-`c0fc41568298dc679a2f92255386156637817c9bb7b7598d732cfba9638849f1`.
-This hash is evidence for the local package only; no HP file, broker, token,
-firewall rule or Seerr request has changed.
+tamper and optimized-Python tests pass. The corrected HP candidate manifest is
+`b5d717883c5bbd156bf157430c1448527714adc00bd65edb5133e9d6eec50436`.
+Two rejected lab candidates are retained with their checkpoints: the first used
+the declared custom-window ID rather than Kodi's runtime ID and the second used
+an undefined title font. The accepted candidate uses runtime window `11132`
+and the declared `font28` title. These corrections are regression-tested.
 
 Live acceptance is intentionally split into two proofs. First activate and
 revoke the authenticated broker path while proving HP is the only television
@@ -8501,6 +8503,51 @@ and prove search, movie state, season selection, cancel, explicit confirmation,
 duplicate handling, uncertain-write fencing, navigation and rollback. A real
 request is never selected on the owner's behalf; that final disposable request
 requires the owner to choose the title at the screen.
+
+### M5 Seerr HP activation and read-only acceptance — 2026-10-26
+
+Jason approved the bounded HP pilot. The independent
+`unified-aster-seerr-broker` is active and healthy on TrueNAS at
+`192.168.20.40:8788`. Its container has only two read-only mounts: the separate
+Aster bearer token and the existing request-only Seerr password. It has no
+media, Docker, portal-state or administrator mount. The host port is bound only
+to `192.168.20.40`, restart policy is `unless-stopped`, and the stopped legacy
+portal remains stopped. The protected source checkpoint is
+`/mnt/Media/appdata/dockge/unified-media-shadow/.aster-checkpoints/seerr-broker-20261026`;
+it contains the prior Compose and Dockerfile plus explicit absence records for
+the two new broker modules.
+
+The HP token is separate, root-owned and mode `0600` beneath a mode `0700`
+private directory. Unauthenticated broker search returns HTTP 401. HP reaches
+the health endpoint while a client elsewhere on Trusted LAN times out. OPNsense
+rule `4ca6be03-8a6d-4df2-8867-e522bbf24e03` compiles to a quick inverse-source
+block for TCP/8788, so only `192.168.1.140` can reach the broker. Removal and
+reapplication proved revocation. The current rule remains active.
+
+The accepted page is installed on HP with checkpoint
+`/storage/.aster-checkpoints/aster-seerr-page1`; active and checkpoint
+manifests both hash to the accepted candidate above. Post-restart verification
+reports `active: true`, `passed: true`, Home idle and the recovery checkpoint
+valid. A clean native search for `Arrival` returned twelve candidates, selected
+the expected 2016 film, and rendered its poster, synopsis and request action.
+The Media top rail also renders its compact Requests launcher. The read harness
+explicitly records `write_action_invoked: false`; the HP request journal remains
+absent and no Seerr request was submitted. The final owner-selected disposable
+request, two-step confirmation, duplicate/status result and uncertain-write
+recovery remain the write acceptance gate.
+
+Regression evidence is 1,092 Kodi v2 tests and 71 unified-media tests in both
+normal and optimized Python. Broker health, HTTP 401 denial, candidate pin,
+checkpoint integrity, exact mounts and container health were rechecked after
+the visual proof.
+
+One network-boundary discrepancy remains open: HP can reach Seerr's
+unauthenticated status endpoint directly on TCP/5055 because the pre-existing
+Trusted-LAN pass precedes no HP-specific denial for that port. Aster contains no
+Seerr URL or credential and cannot use that path to request media, but this is
+weaker than the documented “direct Seerr unreachable” target. The narrow repair
+is one HP-source block for TrueNAS TCP/5055, followed by direct-denial, broker
+allow and revocation regression. It has not been applied silently.
 
 ### M7 family-candidate static gate — 2026-10-26
 

@@ -12,6 +12,8 @@ class SeerrPageUITests(unittest.TestCase):
         raw = (ROOT / 'default.py').read_text()
         ast.parse(raw)
         self.assertIn('http://192.168.20.40:8788', raw)
+        self.assertIn('xbmcgui.Window(11132)', raw)
+        self.assertIn('getCurrentWindowId() == 11132', raw)
         self.assertNotIn(':5055', raw)
         self.assertNotIn('SEERR_PASSWORD', raw)
         self.assertNotIn('/api/v1/', raw)
@@ -37,6 +39,7 @@ class SeerrPageUITests(unittest.TestCase):
         raw = (ROOT / 'overlay/custom_1132_requests.xml').read_text()
         self.assertIn('ui-compact-card-ring.png', raw)
         self.assertIn('ui-hero-bottom-fade.png', raw)
+        self.assertNotIn('<font>font32</font>', raw)
         self.assertNotIn('ui-limestone-panel.png', raw)
         self.assertNotIn('Dialog().yesno', (ROOT / 'default.py').read_text())
 

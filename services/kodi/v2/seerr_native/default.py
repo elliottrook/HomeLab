@@ -124,15 +124,15 @@ def main():
         xbmc.executebuiltin('ActivateWindow(1132)')
         opened = True
         deadline = time.monotonic() + 5
-        while xbmcgui.getCurrentWindowId() != 1132:
+        while xbmcgui.getCurrentWindowId() != 11132:
             if time.monotonic() >= deadline or monitor.waitForAbort(.05):
                 raise BrokerUnavailable('seerr-window-unavailable')
-        window = xbmcgui.Window(1132)
+        window = xbmcgui.Window(11132)
         results = window.getControl(30)
         render()
         selected = -1
         writer = RequestWriter(JOURNAL, lambda payload: broker('POST', '/v1/request', payload))
-        while xbmcgui.getCurrentWindowId() == 1132 and not monitor.abortRequested():
+        while xbmcgui.getCurrentWindowId() == 11132 and not monitor.abortRequested():
             command = home.getProperty(PREFIX + 'Command')
             if command:
                 home.clearProperty(PREFIX + 'Command')
@@ -185,7 +185,7 @@ def main():
                     'Synopsis', 'Backdrop', 'Poster', 'RequestLabel',
                     'SeasonHint', 'SeasonsVisible'):
             home.clearProperty(PREFIX + key)
-        if opened and xbmcgui.getCurrentWindowId() == 1132:
+        if opened and xbmcgui.getCurrentWindowId() == 11132:
             xbmc.executebuiltin('ActivateWindow(Home)')
 
 
