@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<colors>
+    <color name="asterIvory">fffaf7f0</color>
+    <color name="asterStone">ffe8dfd0</color>
+    <color name="asterPaper">ffffffff</color>
+    <color name="asterCharcoal">ff171612</color>
+    <color name="asterInk">ff101410</color>
+    <color name="asterGreen">ff123f2d</color>
+    <color name="asterSage">ffb5e1bf</color>
+    <color name="asterGold">ffe1bd79</color>
+    <color name="asterMuted">ff59554e</color>
+    <color name="asterRailText">ffffffff</color>
+</colors>

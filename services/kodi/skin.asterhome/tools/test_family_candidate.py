@@ -94,6 +94,41 @@ class FamilyCandidateStaticTests(unittest.TestCase):
         self.assertEqual(missing_colours, [])
         self.assertEqual(missing_fonts, [])
 
+    def test_colour_schemes_share_one_complete_palette(self):
+        schemes = sorted((ROOT/'colors').glob('*.xml'))
+        self.assertGreaterEqual(len(schemes), 2)
+        expected = {node.get('name') for node in ET.parse(schemes[0]).findall('.//color')}
+        self.assertEqual(len(expected), 10)
+        for path in schemes[1:]:
+            with self.subTest(path=path.name):
+                self.assertEqual({node.get('name') for node in
+                                  ET.parse(path).findall('.//color')}, expected)
+
+    def test_high_contrast_scheme_meets_normal_text_pairs(self):
+        path = ROOT/'colors'/'Aster High Contrast.xml'
+        colours = {node.get('name'): (node.text or '').strip()[-6:] for node in
+                   ET.parse(path).findall('.//color')}
+
+        def luminance(name):
+            value = colours[name]
+            channels = [int(value[index:index+2], 16)/255 for index in (0, 2, 4)]
+            channels = [channel/12.92 if channel <= 0.04045 else
+                        ((channel+0.055)/1.055)**2.4 for channel in channels]
+            return 0.2126*channels[0]+0.7152*channels[1]+0.0722*channels[2]
+
+        def contrast(first, second):
+            high, low = sorted((luminance(first), luminance(second)), reverse=True)
+            return (high+0.05)/(low+0.05)
+
+        pairs = (('asterInk', 'asterStone'), ('asterMuted', 'asterStone'),
+                 ('asterMuted', 'asterPaper'), ('asterRailText', 'asterCharcoal'),
+                 ('asterSage', 'asterCharcoal'), ('asterGold', 'asterCharcoal'),
+                 ('asterRailText', 'asterGreen'), ('asterInk', 'asterSage'),
+                 ('asterInk', 'asterGold'))
+        for foreground, background in pairs:
+            with self.subTest(foreground=foreground, background=background):
+                self.assertGreaterEqual(contrast(foreground, background), 4.5)
+
 
 if __name__ == '__main__':
     unittest.main()

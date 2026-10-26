@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="10035">
+  <defaultcontrol always="true">200</defaultcontrol>
+  <backgroundcolor>asterStone</backgroundcolor>
+  <controls>
+    <include content="AsterNavigationRail">
+      <param name="content" value="200" />
+      <param name="railfocus" value="9005" />
+    </include>
+    <control type="group">
+      <control type="image">
+        <left>145</left><top>120</top><width>1630</width><height>820</height>
+        <texture border="28" colordiffuse="dff8f5ef">special://skin/media/ui-panel.png</texture>
+      </control>
+      <control type="label">
+        <left>210</left><top>175</top><width>1430</width><height>64</height>
+        <label>Accessibility</label><font>font40</font><textcolor>asterInk</textcolor>
+      </control>
+      <control type="label">
+        <left>210</left><top>245</top><width>1430</width><height>44</height>
+        <label>Display options for comfortable viewing</label><font>font20</font><textcolor>asterMuted</textcolor>
+      </control>
+      <control type="radiobutton" id="200">
+        <left>210</left><top>350</top><width>920</width><height>76</height>
+        <label>Reduce interface motion</label><font>font24</font>
+        <textcolor>asterInk</textcolor><focusedcolor>asterRailText</focusedcolor>
+        <texturefocus border="24" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus border="24" colordiffuse="55ffffff">special://skin/media/ui-panel.png</texturenofocus>
+        <textoffsetx>26</textoffsetx><aligny>center</aligny>
+        <selected>Skin.HasSetting(AsterReducedMotion)</selected>
+        <onclick>Skin.ToggleSetting(AsterReducedMotion)</onclick>
+        <onleft>8999</onleft><onright>200</onright><onup>200</onup><ondown>201</ondown>
+      </control>
+      <control type="label">
+        <left>250</left><top>438</top><width>1180</width><height>70</height>
+        <label>Removes decorative slides, fades and pulsing while keeping focus changes immediate.</label>
+        <font>font20</font><textcolor>asterMuted</textcolor><wrapmultiline>true</wrapmultiline>
+      </control>
+      <control type="button" id="201">
+        <left>210</left><top>590</top><width>920</width><height>76</height>
+        <label>High contrast colours</label><font>font24</font>
+        <textcolor>asterInk</textcolor><focusedcolor>asterRailText</focusedcolor>
+        <texturefocus border="24" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus border="24" colordiffuse="55ffffff">special://skin/media/ui-panel.png</texturenofocus>
+        <textoffsetx>26</textoffsetx><aligny>center</aligny>
+        <onclick>ActivateWindow(InterfaceSettings)</onclick>
+        <onleft>8999</onleft><onright>201</onright><onup>200</onup><ondown>201</ondown>
+      </control>
+      <control type="label">
+        <left>250</left><top>678</top><width>1180</width><height>96</height>
+        <label>In Interface → Skin, set Colours to Aster High Contrast. The standard Aster palette remains the default.</label>
+        <font>font20</font><textcolor>asterMuted</textcolor><wrapmultiline>true</wrapmultiline>
+      </control>
+      <control type="label">
+        <left>210</left><top>850</top><width>1430</width><height>40</height>
+        <label>Back returns to Interface settings · Left opens the Aster navigation rail</label>
+        <font>font20</font><textcolor>asterMuted</textcolor>
+      </control>
+    </control>
+  </controls>
+</window>

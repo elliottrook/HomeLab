@@ -8532,3 +8532,32 @@ short isolated reload stress. It does not erase the historical crash or replace
 the required longer mixed-playback/family soak. Treat repeated development-time
 reloads as a diagnostic operation, not normal household behavior, and continue
 to monitor PID/crash count during the remaining M7 work.
+
+### M7 accessibility variants — local foundation, 2026-10-26
+
+Kodi's documented colour-theme mechanism can provide a real selectable variant
+without recolouring the accepted default. `Aster High Contrast.xml` therefore
+retains the Aster ivory/stone/green/sage/gold identity while strengthening its
+light and dark text pairs. The nine tested normal-text combinations range from
+5.61:1 to18.1:1 and meet the4.5:1 target. Every scheme must define the same ten
+named colours, so selecting the variant cannot fall back unpredictably. The
+default palette remains unchanged. See
+<https://kodi.wiki/view/Colour_themes> and
+<https://kodi.wiki/view/Settings/Interface/Skin>.
+
+A new Aster `SkinSettings.xml` provides an explicit **Reduce interface motion**
+toggle plus a direct route to Interface settings for the colour choice. The
+pure reduced-motion transform retains each animation's type/effect/timing and
+existing condition, but additionally requires
+`!Skin.HasSetting(AsterReducedMotion)`. Thus all11 tracked decorative slides,
+fades and the timer-complete pulse become immediate/static when selected; focus
+and control actions remain present. Kodi documents persistent skin booleans via
+`Skin.ToggleSetting` and conditional animation attributes. No permanent worker,
+timer or polling loop is added.
+
+This is repository-only groundwork, not an HP installation: the active HP XML
+contains later generated successors and must receive one hash-pinned overlay
+composed from that exact candidate, not stale base files. All1,040 v2 tests and
+107 tracked-skin tests pass normally and optimized. Next safe step is an
+immutable accessibility overlay built from the accepted active composition,
+followed by HP selection/rollback, remote focus and sofa-readability checks.
