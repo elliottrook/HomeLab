@@ -16,6 +16,10 @@ The review-packet builder SHA-256 is
 `ef6c8dccdfaa92c31130be9a636f2f75241b57329e7cef69322a84763a09a54c`.
 The blind-review scorer SHA-256 is
 `f95232f17cdd1123d946d6fbbc4db3d2343d7e48397a322c18a7eba320222c96`.
+The tool-free accepted-9B adapter SHA-256 is
+`ca9ad314951e521327ca6561c13781c9f66c69a0137487e03b53be3d59edff3f`.
+The proposed run profile SHA-256 is
+`962ef5f0680d82676f2df212e32837b0a09224b13eb0f6db1b8a00c2374f307f`.
 
 ## Acceptance boundary
 
@@ -41,13 +45,18 @@ raw answers only in a new owner-only directory outside Git. The packet builder
 removes the run-profile identity, binds the private capture digest and produces
 an unscored review template. The scorer then binds judgments to that exact
 packet as well as the fixture; incomplete attempts cannot be scored as passing.
-Seventeen focused tests pass across validation, capture, packet construction
+The proposed transport profile pins the accepted 9B engine identity, local
+endpoint, adapter and downstream evidence components. It supplies no tools,
+uses temperature zero, a 60-second per-case timeout, a 600-second outer bound,
+one attempt with stop-on-first-failure, and descriptor-only credential
+delivery. Its status is `proposed-not-authorized`. Twenty-two focused tests
+pass across validation, transport construction, capture, packet construction
 and scoring.
 
 The fixture declares `authority: not-granted` and `model_route: not-enabled`;
 the scorer emits `routing_promotion: not-authorized` even on a passing review.
 This work does not call a model, read a live Doctor report, enable a route,
-grant tools or establish diagnostic usefulness. A later exact transport/run
-profile must pin the candidate, local endpoint, credential descriptor,
-lease/admission evidence and durable attempt journal before the first request.
+grant tools or establish diagnostic usefulness. A later effectful run card
+must bind the proposed profile to fresh lease/admission evidence and a durable
+attempt journal before the first request.
 
