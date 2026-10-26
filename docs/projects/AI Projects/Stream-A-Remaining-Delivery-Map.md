@@ -1586,3 +1586,13 @@ It distinguishes the F2–F6 lab-hours/recovery dependency from the main Aster
 delivery sequence: M3 candidate qualification, broad SA1–SA3/D4 investigation,
 one supervised SA4 repair, M4 evidence restore, M5 shadow, M6 decision and
 SA5/M7 graduation.
+
+The accepted policy now also has a
+[separate v2 registration and threshold-selection boundary](evidence/M3-NLU-v2-threshold-registration-boundary-2026-10-26.md).
+It binds exact accepted policy, candidate and calibration artifacts, counts all
+accepted dispositions toward decision coverage, and applies separate
+zero-tolerance safety gates only to routed effects. Focused v2 tests pass 15/15
+and the complete dependency-free NLU suite passes 324/324. This is offline
+machinery only. A real v2 score producer and a materially stronger candidate
+must still pass nested exposed-set evaluation before any fresh calibration;
+the holdout remains sealed and automatic routing remains off.
