@@ -1,7 +1,7 @@
 # Full-stop recovery drill — dependency tracker
 
 **Owner:** Stream A for evidence and coordination; Local AI platform owner for
-host release, lease and recovery. **Last reconciled:** 2026-10-25
+host release, lease and recovery. **Last reconciled:** 2026-10-26
 America/Vancouver. **Overall decision: NO-GO.** This tracker is the human
 status page. The platform-owned
 `services/local-ai-lease/FULL-STOP-RECOVERY-DRILL-RUN-CARD.md` is the executable
@@ -21,6 +21,15 @@ integrated the missed-window record and the uninstalled read-only observer
 source in local commits `11764480` and `b254bd02`.
 
 ## Current next action and historical sequence
+
+The [October 26 terminal result](evidence/F2-exact-cycle-no-go-2026-10-26.md)
+is NO-GO. The bounded state reached phase `final` with failure class
+`OBSERVER_COMMUNICATION_FAILED` and no archive rows. Both date-specific timers
+were removed after observation, recurring F2 timers remain disabled, no
+scanner, lease, lock or receipt exists, and production postchecks passed. F3
+must skip and write no receipt. The platform owner must diagnose the observer
+communication path, preserve a more specific bounded failure, prove the
+correction offline and on target Linux, and present a fresh reviewed cycle.
 
 The [October 22 exact-cycle attempt](evidence/F2-exact-cycle-no-go-2026-10-22.md)
 passed preparation at 01:15 but the final service exited `1` after one second
@@ -410,8 +419,8 @@ the end of that backup cycle.
 |---|---|---|---|
 | F0 | **Pinned inactive compatibility source** | Source pins, seven-file rollback checkpoint, 12 installed modules and two heartbeat units match reviewed bytes; no lease/lock or production change. | [x] DONE — `services/local-ai-lease/FULL-STOP-COMPATIBILITY-DISABLED-INSTALL-RESULT-20261015.md` on platform branch; separate local `codex/aster-lease-compat` branch. |
 | F1 | **Target-Linux synthetic compatibility**, after F0 | Installed-path imports, admission-record round-trip, old-dependency compatibility, watchdog/recovery and archive tests; timers stay inactive. | [x] DONE — same result; synthetic tests only. |
-| F2 | **New-cycle read-only archive timing**, after successful 00:30 Proxmox job and 01:00 TrueNAS task 1 | Exact current-cycle 104/110/116 identities; three bounded `zstd -t` exit-0 results before the deadline, without competing work. Failure/unknown/partial is NO-GO. | [ ] **TIMED TEST GO — SCHEDULED / CONDITIONAL FOR OCTOBER 26**. The stale-pin correction is installed, 17/17 target tests pass, both exact-date timers are enabled/active for 01:15/01:20 PDT, recurring timers remain disabled, and 01:42 reconciliation is active. Runtime backup, pull, identity, quiet-host and absence gates remain fresh conditions. |
-| F3 | **Trusted retained-receipt release**, after F0/F1 and timing review | A separately reviewed, hash-pinned producer can write a root-owned mode-0600 receipt in a mode-0700 directory only after all fixed source, whole-job, task-1, archive identity/integrity and deadline checks pass. Partial/late scans leave no success receipt. Test the actual installed path and rollback; obtain bounded host-change approval. | [ ] **CONVERTER INSTALLED INACTIVE / BLOCKED BY F2** — the [F3-from-F2 converter](evidence/F3-from-F2-inactive-install-result-2026-10-25.md) is installed at its reviewed hash, imports on target Linux and passes 27/27 target tests. It can revalidate and atomically retain an unchanged successful F2 result without repeating the archive scan. No receipt exists and the converter remains uncalled. Effect use requires independently reconciled complete October 26 F2 evidence and a separate exact-cycle approval; failed or uncertain F2 writes nothing. |
+| F2 | **New-cycle read-only archive timing**, after successful 00:30 Proxmox job and 01:00 TrueNAS task 1 | Exact current-cycle 104/110/116 identities; three bounded `zstd -t` exit-0 results before the deadline, without competing work. Failure/unknown/partial is NO-GO. | [ ] **FAILED / NO-GO OCTOBER 26** — terminal phase `final`, class `OBSERVER_COMMUNICATION_FAILED`, with no archive rows. Exact-date timers were removed, recurring timers remain disabled and production postchecks passed. No retry is permitted for this cycle. |
+| F3 | **Trusted retained-receipt release**, after F0/F1 and timing review | A separately reviewed, hash-pinned producer can write a root-owned mode-0600 receipt in a mode-0700 directory only after all fixed source, whole-job, task-1, archive identity/integrity and deadline checks pass. Partial/late scans leave no success receipt. Test the actual installed path and rollback; obtain bounded host-change approval. | [ ] **CONVERTER INSTALLED INACTIVE / BLOCKED BY F2** — the [F3-from-F2 converter](evidence/F3-from-F2-inactive-install-result-2026-10-25.md) is installed at its reviewed hash, imports on target Linux and passes 27/27 target tests. October 26 F2 failed before producing rows, so the 01:50 conversion must skip and write nothing. A future effect requires a newly reconciled complete F2 result and separate exact-cycle approval. |
 | F4 | **Fresh trusted pre-acquire receipt for the drill cycle**, after F3 and that cycle's backup/task 1 | Complete current-cycle pre-acquire envelope exists, is independently re-read and bound to the same archive identities, backup digest, proposed lease identity and still-running production observation; stale, replaced or incomplete files fail closed. It grants no authority to stop services. | [ ] **INACTIVE PATH STAGED / BLOCKED** — the new pre-acquire boundary and corrected controller consumer are installed inactive from clean commit `6309e5f7`; target-Linux focused tests passed 13/13 and the dependency suite passed 83/83. No receipt, lease or lock exists. F4 still requires F3 release plus a later fresh backup cycle; F5–F7 must pass before F8 can consume it. See the platform [stage result](../../../services/local-ai-lease/F3-F4-INACTIVE-STAGE-RESULT-20261019.md). |
 | F5 | **03:05 full preflight**, after F4 and 02:00/03:00 TrueNAS tasks | Fixed schedules and same-cycle job completions; exact LXC110 mirror; three consumers still running; no conflicting lease/job; pinned Qwen3.5-9B Q4_K_M, llama.cpp b11429 SYCL/Level Zero, GPU, unit and authentication state; News timer active/enabled and job idle. Save non-secret baseline for restoration. | [ ] **AUTH PATH CORRECTED / BLOCKED BY F4** — the [metadata-only authentication upgrade](evidence/F4-F5-metadata-auth-inactive-upgrade-result-2026-10-25.md) now requires no-auth and invalid-key rejection before accepting the real key and exact model; 13/13 target tests passed without inference. F5 must still be observed afresh in the chosen cycle after F4. |
 | F6 | **Independent recovery armed**, after F5 and approved live card | Compatible watchdog and owner-liveness paths are verified active/enabled before any stop; exact state schema and constrained recovery executor match pins; the manual `acquire --light` remains legacy-schema and cannot be used with this watchdog even after its F2 lock update. Loss of watchdog/owner closes acquisition. | [ ] **PRE-EFFECT EXERCISE PASSED / V3 COMPOSITION AND FINAL M3 PACKET INSTALLED INACTIVE / ACTIVATION CARD STALE** — the exact receipt-free exercise reached healthy durable `PREPARED`, proved the healthy watchdog path inert, detected owner loss and recovered with nested `cancelled-prepared`. It issued zero consumer commands, left F2/F6 unchanged and passed independent cleanup/production checks. Receipt SHA-256 is `d5cad1d3…be13`. The inactive auth-pin upgrade and [owner-before-heartbeat correction](evidence/Stream-A-F6-owner-heartbeat-ordering-inactive-install-2026-10-25.md) are installed inactive. The first two [composition](evidence/Stream-A-evaluation-composition-source-review-2026-10-25.md) packets were prevented or rolled back on dependency-boundary defects. The corrected [V3 installation](evidence/Stream-A-evaluation-composition-inactive-install-v3-2026-10-25.md) passed 96/96 target-Linux tests, installed all 13 pinned paths, imported through the two fixed module roots and returned the exact inert guest result in both guests. The final [M3 packet receipt](evidence/Stream-A-F6-current-M3-packet-coordination-2026-10-25.md) pins runner `88af8eb7…`, scorer `7bce041e…`, journal validator `966786f8…` and complete eleven-file manifest `7b547d9b…`; its dependency-free suite passes 119/119 and target scorer tests pass 9/9. The [post-V3 card reconciliation](evidence/Stream-A-F6-post-V3-activation-card-reconciliation-2026-10-25.md) found the candidate-H card's restore-observer pin stale and all V3 composition pins absent. F6 remains disabled/inactive with no state or lock. Production arming still requires fresh F3–F5 evidence, a corrected exact activation/recovery card that includes these final M3 identities, and later approval. |
@@ -425,21 +434,22 @@ the end of that backup cycle.
 
 F2 can be measured while the later gates are engineered, but a successful
 read-only F2 result is not itself a trusted F4 pre-acquire envelope. The
-installed F3 converter may retain the unchanged October 26 F2 result only
-after the 01:42 independent reconciliation accepts exactly three bounded
-exit-zero rows and the separate effect gate remains valid. It is scheduled
-once at 01:50 and must skip without writing on failed, incomplete or uncertain
-F2 evidence. F4 and F5 then require fresh same-cycle observations; F5–F9 are
+installed F3 converter could retain a future unchanged F2 result only after
+independent reconciliation accepts exactly three bounded exit-zero rows and
+the separate effect gate remains valid. October 26 F2 failed with no rows, so
+its 01:50 conversion must skip without writing. F4 and F5 then require fresh
+same-cycle observations; F5–F9 are
 serial and cannot be inferred from the clock.
 
-The current conditional sequence is therefore: October 26 preparation at
-01:15, read-only F2 at 01:20, independent reconciliation at 01:42 and F3
-conversion at 01:50 only on accepted F2 evidence. A successful F3 result does
-not arm recovery or stop a consumer. F4/F5 must be produced and independently
-accepted, the platform owner must replace the stale F6 card with one pinning
-the installed V3 and final M3 packet, and Jason must approve the exact live
-drill before F6–F9. A failed runtime gate ends this cycle without retry and
-leaves production running; it does not block offline Stream A work.
+The October 26 sequence ended at F2 without a scan result. The next conditional
+sequence starts only after the observer communication defect is diagnosed,
+corrected, proven offline and on target Linux, and represented by a fresh
+reviewed exact-cycle card. A later successful F3 result would not arm recovery
+or stop a consumer. F4/F5 must be produced and independently accepted, the
+platform owner must replace the stale F6 card with one pinning the installed V3
+and final M3 packet, and Jason must approve the exact live drill before F6–F9.
+This failed cycle cannot be retried and leaves production running; it does not
+block offline Stream A work.
 
 For any failed or uncertain dependency, the observing Stream A or platform
 agent must promptly tell Jason in this chat, in ordinary language:
