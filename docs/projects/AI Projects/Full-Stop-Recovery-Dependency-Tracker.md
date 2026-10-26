@@ -47,6 +47,13 @@ tests and 50 passes with one expected skip across the 51-test broader F2 suite.
 The source gap is closed; inactive installation and target-Linux proof remain
 required before a fresh cycle.
 
+The exact one-file inactive-install card is now committed at full platform
+commit `a46b004f94fc7d4a3fd4038125615266b8c8b564`. Stream A's
+[independent review](evidence/F2-observer-launcher-inactive-install-review-2026-10-26.md)
+accepts its predecessor/candidate/state pins, target-Linux default-entrypoint
+test, rollback and exclusions. One explicit host-change approval is now the
+only gate to this inactive installation; no timer or retry is included.
+
 The conditional [October 26 F3 conversion](evidence/F3-from-F2-no-go-2026-10-26.md)
 then failed closed at its first gate. Because F2 was not complete and contained
 no accepted archive rows, the converter was not invoked and no retained receipt
