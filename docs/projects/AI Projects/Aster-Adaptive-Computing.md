@@ -52,7 +52,13 @@ now prevents a transport failure on case 60 from appearing complete and passes
 118 dependency-free tests. The previous staged runner was superseded before
 use; its bounded one-file replacement has now passed 17/17 target-Linux tests
 with exact eleven-file custody and no output or model request. No holdout
-access, shadowing, deployment or routing change has occurred.
+access, shadowing, deployment or routing change has occurred. A subsequent
+[score-boundary review](evidence/M3-NLU-complete-score-failure-boundary-2026-10-25.md)
+found that separately supplied evidence could still label a 60-row timeout,
+endpoint or transport failure complete. The source correction now rejects
+those runs in both journal validation and scoring while retaining only a
+malformed model response as a scored zero. The dependency-free suite passes
+119 tests; the bounded four-file inactive replacement remains open.
 The future holdout contract now separately binds semantic zero-overlap receipts
 against both the exposed development set and the sealed calibration set, and
 requires an independent non-overlap reviewer. Holdout content remains unopened

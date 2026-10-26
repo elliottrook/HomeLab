@@ -90,15 +90,18 @@ synthetic calibration cases, a registered content-free scoring contract and a
 conditional independent-holdout design. This is evaluation machinery only.
 It grants no tool, provider, route or execution authority.
 
-The first eleven-file calibration packet was staged inactive in LXC110 without
-a model call. A later deadline review found that a slow durable attempt-start
-journal write could consume the remaining 1,200-second budget after the runner
-had calculated its HTTP timeout. Commit `682608d2` closes that edge by
-recomputing the budget immediately before transport open and refusing to start
-after expiry. The corrected dependency-free suite passes 116 tests. Its runner
-and staging manifest supersede the inert LXC110 copies, so the staged packet is
-currently **NO-GO for execution** pending one bounded inactive replacement and
-target-Linux revalidation.
+The eleven-file calibration packet is staged inactive in LXC110 without a
+model call. Its corrected runner recomputes the remaining 1,200-second budget
+immediately before transport and refuses to start after expiry. It also rejects
+a timeout, endpoint or transport failure on case 60 instead of relying on the
+record count. Both runner corrections are installed inactive and passed 17/17
+target-Linux tests. A later downstream review found that a separately supplied
+60-row run could still present one of those infrastructure failures to the
+scorer with a fabricated complete journal. The scorer and journal validator
+now reject that claim while retaining only malformed model output as a
+completed zero-score result. The dependency-free suite passes 119 tests. The
+staged packet is **NO-GO for execution** until the exact four-file inactive
+scorer/journal/manifest replacement passes target-Linux validation.
 
 After replacement, the serial live path remains:
 
