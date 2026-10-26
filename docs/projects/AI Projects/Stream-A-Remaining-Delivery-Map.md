@@ -1274,3 +1274,10 @@ fictional-descriptor probes with zero credential reads and zero model calls.
 The unit remains static and inactive. A live run still requires fresh
 F2/F3/F4/F5 evidence, executable F6 recovery, an exact run card and a separate
 model-call approval.
+
+The [F3-from-F2 converter](evidence/F3-from-F2-inactive-install-result-2026-10-25.md)
+is now installed inactive at its reviewed hash and passed 27/27 target-Linux
+tests. It can derive the durable F3 receipt from an unchanged, complete F2
+terminal result without repeating the archive scan. Receipt production remains
+a separate effect approval after F2 reconciliation; failed or uncertain F2
+evidence writes nothing.
