@@ -15,6 +15,7 @@ class ServerWordAlignmentTrialTests(unittest.TestCase):
         self.assertIn('aster-reader-word-alignment-20261026', self.raw)
         self.assertIn('0o700', self.raw); self.assertIn('0o600', self.raw)
         self.assertIn('O_EXCL', self.raw); self.assertIn('O_NOFOLLOW', self.raw)
+        self.assertIn('os.geteuid() == 0', self.raw)
 
     def test_trial_cannot_render_speech_or_download_a_model(self):
         self.assertNotIn('urllib', self.raw)

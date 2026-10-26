@@ -6,6 +6,7 @@ ambiguity makes the whole unit unusable for word highlighting.
 """
 from dataclasses import dataclass
 import math
+import numbers
 import re
 import unicodedata
 
@@ -51,7 +52,8 @@ def align_exact(source, measured, duration):
     """
     if not isinstance(source, str) or not source or len(source) > MAX_TEXT:
         raise ValueError("alignment-source")
-    if type(duration) not in (int, float) or not math.isfinite(duration) or duration <= 0:
+    if isinstance(duration, bool) or not isinstance(duration, numbers.Real) \
+            or not math.isfinite(duration) or duration <= 0:
         raise ValueError("alignment-duration")
     spans = tuple(WORD.finditer(source))
     if not spans or len(spans) > MAX_WORDS:
@@ -70,7 +72,8 @@ def align_exact(source, measured, duration):
             raise ValueError("alignment-measurement-type")
         if _canonical(span.group()) != _measured_token(word.text):
             raise ValueError("alignment-text-mismatch")
-        if (type(word.start) not in (int, float) or type(word.end) not in (int, float)
+        if (isinstance(word.start, bool) or isinstance(word.end, bool)
+                or not isinstance(word.start, numbers.Real) or not isinstance(word.end, numbers.Real)
                 or not math.isfinite(word.start) or not math.isfinite(word.end)):
             raise ValueError("alignment-time")
         start = float(word.start); end = float(word.end)

@@ -8138,3 +8138,48 @@ changed source audio, service PID change or any non-exact transcription. A
 failed exact match is a useful negative result and must not be repaired by
 loosening the alignment gate or retrying silently. This one server-side compute
 and private-checkpoint operation requires a fresh bounded approval.
+
+Jason approved the bounded measurement. The first invocation stopped before
+model load or checkpoint creation because the service account correctly could
+not traverse the root-private source checkpoint. Both services remained active
+and no test attempt was consumed. The corrected harness ran as root while
+retaining umask077, low priority, local-files-only model loading and root-private
+output. It completed in5.729seconds, produced161 measured entries and retained
+both original service PIDs. No TTS/API/network request or service restart
+occurred.
+
+The transcript exactly matches all161 submitted source words in order, with no
+insertions, omissions or substitutions. One high-confidence entry at index150,
+however, has identical start and end times (60.54seconds); the other160 have
+finite ordered timings and the final word ends at63.46seconds within the
+64.174-second source. The strict gate therefore correctly rejects this result
+as `alignment-time-order`. Do not invent duration from the adjacent1.18-second
+gap, loosen the gate, or silently rerun inference. This establishes that base.en
+word timestamps are promising but not sufficient by themselves for complete,
+honest word highlighting. Sentence highlighting remains the accepted reader
+behavior while a true forced-alignment or timing-enabled voice path is assessed.
+
+### M5 asset custody consolidation — 2026-10-26
+
+The approved AsterTV logo is now tracked directly in the repository at
+`services/kodi/skin.asterhome/media/32-aster-tv-logo.png`; its authoritative
+private Forgejo brand release remains the provenance source. The synthetic EPUB
+source is deterministic repository code. The owner asked to bring suitable
+remaining assets into Forgejo, so the accepted compact narration for that
+fictional fixture is now tracked as
+`services/kodi/v2/fixtures/aster-epub-readalong-synthetic.wav`, exact SHA
+`40ba73dc4e86bc2d8f1dc05f3fa1d571cd04736de6ff401c400364794092478c`,
+2,809,484bytes, mono24kHz/16-bit. The stage builder now includes and verifies
+that file itself; future rebuilds no longer depend on a private HP relay.
+
+This exception is synthetic test media only. Generated narration from real
+books, user positions, transcripts, credentials and caches remain private and
+must never enter Git. Third-party Kokoro/Whisper model binaries also remain out
+of Git: they are hash-pinned operational dependencies already stored locally in
+the fully backed-up speech guest. LXC116 currently has a16GiB root disk, uses
+6.5GiB and has8.4GiB free; `/opt/aster-voice/models` is183MiB and the existing
+Whisper/cache area is about1.5GiB. No container expansion is justified now.
+The self-contained builder, runtime verifier, strict scalar-timing correction
+and asset checks pass the full1,007-test Kodi v2 suite in normal and optimized
+Python. Repository commits remain local until a separately authorized Forgejo
+push.

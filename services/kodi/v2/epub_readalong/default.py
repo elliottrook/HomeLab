@@ -10,7 +10,7 @@ STATE=Path('/storage/.aster-state/aster-epub-readalong/compact-v1')
 CACHE=Path('/storage/.aster-cache/aster-epub-readalong')
 MEMBERS={'default.py','epub_chapter.py','epub_fixture.py','epub_pages.py','chapter_narration.py',
  'epub_readalong_state.py','digest_kodi_port.py','digest_playback_state.py','digest_timeline.py',
- 'sample.epub','sample.json','resources/skins/Default/1080i/EpubReadAlong.xml'} | {
+ 'sample.epub','sample.json','chapter.wav','resources/skins/Default/1080i/EpubReadAlong.xml'} | {
  'resources/skins/Default/media/'+name+'.png' for name in ('play','pause','stop','previous')}
 
 def require(ok,code):
@@ -22,7 +22,8 @@ def verify(pin):
             and m['shared_progress'] is False and m['normal_entry'] is False and m['word_timestamps'] is False,
             'epub-readalong-boundary')
     require(set(m['files'])==MEMBERS,'epub-readalong-members')
-    for name,wanted in dict(m['files'],**{'chapter.wav':m['audio_sha256']}).items():
+    require(m['files']['chapter.wav']==m['audio_sha256'],'epub-readalong-audio-manifest')
+    for name,wanted in m['files'].items():
         path=ROOT/name;require(path.is_file() and not path.is_symlink() and path.stat().st_size<=32*1024*1024,'epub-readalong-file')
         require(hashlib.sha256(path.read_bytes()).hexdigest()==wanted,'epub-readalong-drift')
     with wave.open(str(ROOT/'chapter.wav'),'rb') as item:

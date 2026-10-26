@@ -64,7 +64,7 @@ def allowed_environment(pid):
 def main():
     os.umask(0o077)
     os.nice(10)
-    require(os.uname().nodename == 'aster-speech' and len(sys.argv) == 1,
+    require(os.uname().nodename == 'aster-speech' and os.geteuid() == 0 and len(sys.argv) == 1,
             'word-alignment-speech-host-only')
     require(SOURCE.is_file() and not SOURCE.is_symlink(), 'word-alignment-source-audio')
     raw = SOURCE.read_bytes()

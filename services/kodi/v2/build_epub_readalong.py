@@ -1,4 +1,4 @@
-"""Build the private HP narrated-EPUB stage; audio is relayed separately."""
+"""Build the private HP narrated-EPUB stage from versioned synthetic fixtures."""
 import argparse,hashlib,json
 from pathlib import Path
 import xml.etree.ElementTree as ET
@@ -53,7 +53,11 @@ def build(output):
     names=('epub_chapter.py','epub_fixture.py','epub_pages.py','chapter_narration.py','epub_readalong_state.py','digest_playback_state.py','digest_timeline.py')
     files={name:(here/name).read_bytes() for name in names}
     files.update({'default.py':(here/'epub_readalong/default.py').read_bytes(),'digest_kodi_port.py':port.encode(),
-                  'sample.epub':build_readalong(),'resources/skins/Default/1080i/EpubReadAlong.xml':layout()})
+                  'sample.epub':build_readalong(),
+                  'chapter.wav':(here/'fixtures/aster-epub-readalong-synthetic.wav').read_bytes(),
+                  'resources/skins/Default/1080i/EpubReadAlong.xml':layout()})
+    if hashlib.sha256(files['chapter.wav']).hexdigest()!=AUDIO or len(files['chapter.wav'])!=2809484:
+        raise ValueError('epub-readalong-versioned-audio-drift')
     for name in ('play','pause','stop','previous'):
         source=(here/'player-control-assets/previous.png' if name=='previous' else here/'script.astermusic.v2lab/resources/controls'/(name+'.png'))
         files['resources/skins/Default/media/'+name+'.png']=source.read_bytes()

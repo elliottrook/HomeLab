@@ -14,9 +14,10 @@ class EpubReadAlongTests(unittest.TestCase):
     def test_repeatable_bundle_and_exact_timeline(self):
         with tempfile.TemporaryDirectory() as folder:
             a,b=Path(folder)/'a',Path(folder)/'b';self.assertEqual(build(a),build(b))
-            manifest=json.loads((a/'manifest.json').read_text());self.assertFalse((a/'chapter.wav').exists())
+            manifest=json.loads((a/'manifest.json').read_text());self.assertTrue((a/'chapter.wav').is_file())
             self.assertFalse(manifest['network']);self.assertFalse(manifest['shared_progress']);self.assertFalse(manifest['word_timestamps'])
             self.assertEqual(manifest['source_audio_sha256'],SOURCE_AUDIO)
+            self.assertEqual(manifest['files']['chapter.wav'],AUDIO)
             self.assertEqual(manifest['silence_compaction'],
                 dict(method='fixed-measured-silence-v1',leading_ms=120,trailing_ms=220))
             for name,wanted in manifest['files'].items():self.assertEqual(hashlib.sha256((a/name).read_bytes()).hexdigest(),wanted)
@@ -52,12 +53,14 @@ class EpubReadAlongTests(unittest.TestCase):
         self.assertIn('Input.ExecuteAction',source);self.assertIn('activity_deadline',source)
         native=(Path(__file__).parent/'tools/live_epub_readalong.py').read_text()
         self.assertFalse(any(isinstance(node,ast.Assert) for node in ast.walk(ast.parse(native))))
-    def test_verifier_requires_private_audio(self):
+    def test_verifier_accepts_versioned_synthetic_audio_and_refuses_drift(self):
         with patch.dict(sys.modules,{'xbmc':SimpleNamespace(),'xbmcgui':SimpleNamespace(WindowXML=object)}):
             spec=importlib.util.spec_from_file_location('epub_readalong_verify',Path(__file__).parent/'epub_readalong/default.py')
             module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
         with tempfile.TemporaryDirectory() as folder:
             module.ROOT=Path(folder)/'stage';pin=build(module.ROOT)
+            self.assertEqual(module.verify(pin)['audio_sha256'],AUDIO)
+            (module.ROOT/'chapter.wav').unlink()
             with self.assertRaises(ValueError):module.verify(pin)
 
 if __name__=='__main__':unittest.main()
