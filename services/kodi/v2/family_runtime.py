@@ -7,6 +7,7 @@ from pathlib import Path
 ADDON = 'script.asterruntime'
 INSTALL = '/storage/.kodi/addons/'+ADDON
 COMPONENTS = (
+    'aster-camera2',
     'aster-digest-player8', 'aster-digest-reader6',
     'aster-global-search-ui22', 'aster-home-status1',
     'aster-network-preview5', 'aster-series-preview24',

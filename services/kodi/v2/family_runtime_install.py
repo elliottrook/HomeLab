@@ -10,7 +10,7 @@ from digest_news_install import atomic
 
 ADDON = Path('.kodi/addons/script.asterruntime')
 SKIN = Path('.kodi/addons/skin.asterhome')
-CHECKPOINT = Path('.aster-checkpoints/aster-family-runtime4')
+CHECKPOINT = Path('.aster-checkpoints/aster-family-runtime6')
 
 
 def require(value, code):

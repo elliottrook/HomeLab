@@ -22,7 +22,8 @@ if __name__ == '__main__':
         mode, stage, pin, checkpoint = sys.argv[1:]
         if (mode != 'rollback' or not re.fullmatch('[0-9a-f]{64}', pin)
                 or checkpoint not in ('aster-family-runtime1', 'aster-family-runtime2',
-                                      'aster-family-runtime3', 'aster-family-runtime4')):
+                                      'aster-family-runtime3', 'aster-family-runtime4',
+                                      'aster-family-runtime5', 'aster-family-runtime6')):
             raise ValueError('family-recovery-bounded-mode')
         installer.CHECKPOINT = Path('.aster-checkpoints')/checkpoint
         def idle():

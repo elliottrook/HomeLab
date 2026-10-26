@@ -25,10 +25,14 @@ def replace_exact(raw, old, new, code):
 
 def addon_launches(raw):
     pattern = re.compile(rb'RunScript\(/storage/\.aster-staging/([A-Za-z0-9._-]+)/([A-Za-z0-9._-]+)\.py')
-    return pattern.sub(lambda match: b'RunScript(script.asterruntime,'+match.group(1)+b','+match.group(2), raw)
+    raw = pattern.sub(lambda match: b'RunScript(script.asterruntime,'+match.group(1)+b','+match.group(2), raw)
+    return raw.replace(b'RunScript(/storage/.aster-camera/view.py,',
+                       b'RunScript(script.asterruntime,aster-camera2,view,')
 
 
 def rewrite_component(name, files, pins):
+    if name == 'aster-camera2':
+        files = {'view.py': files['view.py']}
     result = {}
     for path, raw in files.items():
         if path.endswith(('.py', '.xml', '.json')):
@@ -56,6 +60,18 @@ def rewrite_component(name, files, pins):
         result['default.py'] = result['default.py'].replace(
             b"'AlarmClock(AsterHomeStatus,RunScript('+SCRIPT+',tick)",
             b"'AlarmClock(AsterHomeStatus,RunScript('+SCRIPT+',tick)")
+        result['default.py'] = replace_exact(
+            result['default.py'], b"        hub_data.main('home')\n",
+            (b"        for key,value in (('TimerDigital','--:--'),('TimerSecond','0'),\n"
+             b"                          ('TimerActive','false'),('TimerExpired','false'),\n"
+             b"                          ('TimerName','No active timer'),('TimerLabel','Not connected')):\n"
+             b"            if not window.getProperty('AsterHub.Home'+key):\n"
+             b"                window.setProperty('AsterHub.Home'+key,value)\n"),
+            'family-runtime-home-legacy-feed-call')
+    if name == 'aster-camera2':
+        result['view.py'] = result['view.py'].replace(
+            b"SCRIPT='/storage/.aster-camera/view.py'",
+            b"SCRIPT='script.asterruntime,aster-camera2,view'")
     if name == 'aster-global-search-ui22':
         handoff = result['resources/lib/search_handoff.py']
         handoff = handoff.replace(
@@ -135,7 +151,7 @@ def build(skin, runtime, output):
         '  <extension point="xbmc.addon.metadata"><summary lang="en_GB">Private Aster page runtime</summary><description lang="en_GB">Verified local page controllers for the Aster television interface.</description><platform>all</platform><license>Private HomeLab</license></extension>\n'
         '</addon>\n').encode()
     (addon/'addon.xml').write_bytes(addon_xml)
-    dispatcher = b'''"""Strict dispatcher for Aster's installed page runtime."""\nimport runpy\nfrom pathlib import Path\nimport sys\n\nROOT=Path(__file__).resolve().parent\nCOMPONENTS={"aster-digest-player8","aster-digest-reader6","aster-global-search-ui22",\n "aster-home-status1","aster-network-preview5","aster-series-preview24","aster-video-scrub5"}\nENTRIES={"default":"default.py","movie":"movie.py"}\nif len(sys.argv)>=3 and sys.argv[1] in COMPONENTS and sys.argv[2] in ENTRIES:\n path=ROOT/sys.argv[1]/ENTRIES[sys.argv[2]]\n if path.is_file() and not path.is_symlink():\n  sys.argv=[str(path)]+sys.argv[3:]\n  runpy.run_path(str(path),run_name="__main__")\n'''
+    dispatcher = b'''"""Strict dispatcher for Aster's installed page runtime."""\nimport runpy\nfrom pathlib import Path\nimport sys\n\nROOT=Path(__file__).resolve().parent\nCOMPONENTS={"aster-camera2","aster-digest-player8","aster-digest-reader6","aster-global-search-ui22",\n "aster-home-status1","aster-network-preview5","aster-series-preview24","aster-video-scrub5"}\nENTRIES={"default":"default.py","movie":"movie.py","view":"view.py"}\nif len(sys.argv)>=3 and sys.argv[1] in COMPONENTS and sys.argv[2] in ENTRIES:\n path=ROOT/sys.argv[1]/ENTRIES[sys.argv[2]]\n if path.is_file() and not path.is_symlink():\n  sys.argv=[str(path)]+sys.argv[3:]\n  runpy.run_path(str(path),run_name="__main__")\n'''
     (addon/'default.py').write_bytes(dispatcher)
     old_to_new = {source[name]['manifest_sha']: components[name]['manifest_sha256']
                   for name in COMPONENTS}

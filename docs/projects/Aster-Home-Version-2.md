@@ -8649,3 +8649,32 @@ freshness warning, followed by the remaining family soak/recovery evidence.
 The separate EPUB Narration Compiler project owns bulk pre-generation capacity,
 worker and monitor work; this project consumes only its future atomic ready
 artifacts and does not duplicate that pipeline.
+
+The first successor removes the remaining loose-file camera launch boundary.
+Only the already manifest-approved `aster-camera2/view.py` controller is added
+to `script.asterruntime`; the localhost proxy, source-side reader, service,
+private key and idle image remain in their existing restricted camera custody.
+Home's entry, exit and Live view actions now dispatch through the installed
+add-on. The controller's 30-second Home-status refresh also dispatches through
+that add-on and no longer opens the retired legacy `home.json` feed before the
+current schema4 consumer. Timer fallbacks are initialized locally without
+overwriting an active timer.
+
+Two builds were byte-identical at manifest SHA-256
+`1a9418b9dce74bcf6d55471e383834d9ce82d7f284c0841987b99cfdb7ad5ccf`.
+The active HP candidate contains 65 exact add-on files and eight skin launchers,
+with checkpoint `/storage/.aster-checkpoints/aster-family-runtime6`. Candidate5
+proved the camera-controller migration first and was then rolled back through
+its own checkpoint; candidate6 adds the retired-feed correction and is the
+accepted successor. A native two-session camera run passed real image fetch,
+toggle stop, exit stop, timer coexistence, no media-player use, unchanged
+settings and idle return. A separate ordinary Home enter/leave produced no new
+camera, loose-script or stale-legacy-feed log entry. Kodi remained PID45928,
+the crash count stayed five and production remained unchanged. The complete
+v2 and skin suites pass normally and optimized after this successor.
+
+With that observed M6 warning closed, the next active product slice is V2-A
+voice search: first exact remote/microphone capability discovery and an
+explicit press/listening/cancel state, then a bounded local-STT transport and
+handoff to the accepted grouped search. Ambient recording, hidden capture,
+cloud speech and production activation remain out of scope.

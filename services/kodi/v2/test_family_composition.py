@@ -3,6 +3,7 @@ import tempfile
 import unittest
 
 from family_composition import audit_tree, clean_manifest, report
+from build_family_runtime import addon_launches, rewrite_component
 
 
 class FamilyCompositionTests(unittest.TestCase):
@@ -54,6 +55,44 @@ class FamilyCompositionTests(unittest.TestCase):
         root = self.tree()
         (root/'image.png').write_bytes(b'/storage/.aster-staging/not-code')
         self.assertEqual(audit_tree(root), ())
+
+    def test_camera_launchers_use_installed_addon(self):
+        source = (b'<onload>RunScript(/storage/.aster-camera/view.py,entry)</onload>'
+                  b'<onclick>RunScript(/storage/.aster-camera/view.py,toggle)</onclick>'
+                  b'<onunload>RunScript(/storage/.aster-camera/view.py,leave)</onunload>')
+        result = addon_launches(source)
+        self.assertNotIn(b'/storage/.aster-camera/view.py', result)
+        self.assertEqual(result.count(
+            b'RunScript(script.asterruntime,aster-camera2,view,'), 3)
+
+    def test_camera_component_keeps_only_view_controller(self):
+        files = {
+            'view.py': (b"SCRIPT='/storage/.aster-camera/view.py'\n"
+                        b"PATH='/storage/.aster-staging/aster-home-status1/default.py'\n"),
+            'proxy.py': b'private-local-service\n',
+            'frame.py': b'remote-source\n',
+            'aster-camera.service': b'unit\n',
+            'camera-idle.png': b'pixels',
+            'custom_1112_home.xml': b'<window/>',
+        }
+        result = rewrite_component('aster-camera2', files, {})
+        self.assertEqual(set(result), {'view.py'})
+        self.assertIn(b"SCRIPT='script.asterruntime,aster-camera2,view'",
+                      result['view.py'])
+        self.assertIn(b'/storage/.kodi/addons/script.asterruntime/aster-home-status1/default.py',
+                      result['view.py'])
+
+    def test_home_component_does_not_open_retired_legacy_feed(self):
+        files = {'default.py': (
+            b"SCRIPT='/storage/.aster-staging/aster-home-status1/default.py'\n"
+            b"def main(action):\n"
+            b"    if action=='entry':\n"
+            b"        hub_data.main('home')\n"
+            b"        xbmc.executebuiltin('AlarmClock(AsterHomeStatus,RunScript('+SCRIPT+',tick)')\n")}
+        result = rewrite_component('aster-home-status1', files, {})['default.py']
+        self.assertNotIn(b"hub_data.main('home')", result)
+        self.assertIn(b"('TimerDigital','--:--')", result)
+        self.assertIn(b"SCRIPT='script.asterruntime,aster-home-status1,default'", result)
 
 
 if __name__ == '__main__':
