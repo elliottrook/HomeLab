@@ -8084,9 +8084,10 @@ atomically replaced those three files and reverified their exact hashes. A
 clean Kodi restart retained `screensaver.asterhome.v2lab` and the existing
 three-minute timeout in `guisettings.xml`; explicit activation logged the
 expected `AsterIdle.xml`. All 997 Kodi v2 tests pass in both normal and
-optimized Python. Production remains unchanged. Final human review of the
-randomized fade cadence is pending; rollback is the exact private checkpoint,
-not a guessed native setting.
+optimized Python. Jason confirmed “Screensaver works” on 2026-10-26, accepting
+the randomized stationary fade cadence and revised AsterTV identity on the HP.
+This closes the human visual gate; production remains unchanged. Rollback is
+the exact private checkpoint, not a guessed native setting.
 
 ### M5 exact word-alignment foundation — local pre-start, 2026-10-26
 
