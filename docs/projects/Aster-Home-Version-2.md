@@ -9053,3 +9053,32 @@ the recovery marker remained clear. This closes the automated synthetic
 mixed-player portion of M7. Physical-remote family playback, accessibility and
 the full recovery walkthrough remain separate acceptance gates; production is
 unchanged.
+
+The recovery walkthrough first exposed a packaging defect rather than hiding
+it: retained family6 predates the accepted Seerr-series successor, current
+Home launcher and reconciled family manifest. Reinstalling that older package
+would therefore not reconstruct the active HP candidate. No rollback was
+attempted through the incomplete chain. A new immutable recovery7 bundle was
+built from the independently verified active family, the exact eight pre-family
+skin backups and the Jellyfin idle-guard predecessor. It excludes profiles,
+databases, credentials, caches, playback state and staging references.
+
+Recovery7 manifest SHA-256 is
+`08299ef534f54499d2d69c60c95e32087f622a0f3c6d89bbc87f9c4293e2e17d`.
+It contains 67 clean runtime files, eight current/previous skin pairs and the
+one current/previous Jellyfin player pair. An off-box rehearsal reconstructed
+both the baseline and active trees and verified 85 files. HP then adopted the
+bundle only after matching all 76 active targets; checkpoint
+`/storage/.aster-checkpoints/aster-family-runtime7` records that exact pin.
+
+The live HP recovery rehearsal subsequently rolled back to the verified
+pre-family skin/Jellyfin state, confirmed the consolidated runtime absent,
+then reinstalled and verified all 76 targets. The family manifest returned to
+`91051d3efe27ac26e7ef4a25ec3bab380bb6a0e78d85f5d78c89a8507a1bb811`
+and the Jellyfin guard to
+`3f3478185c87cce9ff6e8c7bbe16e11de5a1d3d1eac89c51fe914d47b2121661`.
+After reinstall, the synthetic mixed-player soak passed again with no new
+ERROR, FATAL, exception or no-current-file event. Kodi retained its process,
+returned to idle Home and left recovery clear. This closes the consolidated
+family rollback/reinstall gate. Production remains unchanged; physical G20 and
+sofa-distance household acceptance are still deliberately unclaimed.
