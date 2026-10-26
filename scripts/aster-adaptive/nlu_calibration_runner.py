@@ -205,6 +205,21 @@ def run_cases(
             },
         )
         one_started = clock()
+        # The durable attempt-start write happens before this point. Recompute
+        # the wall budget after that write so a delayed fsync can never leave a
+        # stale positive timeout that starts inference after the run deadline.
+        remaining = RUN_DEADLINE_SECONDS - (one_started - started)
+        if remaining <= 0:
+            records.append(_failure(
+                case["id"], 0.0, "timeout", "deadline_exceeded"
+            ))
+            emit({
+                "event": "attempt_recorded",
+                "case_id": case["id"],
+                "valid": False,
+                "error_type": "deadline_exceeded",
+            })
+            break
         stop_run = False
         try:
             with transport.open(

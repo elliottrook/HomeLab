@@ -159,7 +159,7 @@ class NluCalibrationRunnerTests(unittest.TestCase):
             clock=ScriptedClock([0.0, 1_150.0, 1_151.0, 1_152.0]),
         )
         self.assertTrue(runner.completed(result, 1))
-        self.assertEqual(50.0, opener.requests[0][1])
+        self.assertEqual(49.0, opener.requests[0][1])
 
     def test_expired_wall_budget_starts_no_request_and_fails_closed(self):
         opener = Opener([])
@@ -169,6 +169,21 @@ class NluCalibrationRunnerTests(unittest.TestCase):
         )
         self.assertEqual([], opener.requests)
         self.assertFalse(runner.completed(result, 1))
+
+    def test_attempt_journal_delay_cannot_start_request_after_deadline(self):
+        opener = Opener([response_bytes()])
+        events = []
+        result = runner.run_cases(
+            cases(2), "s" * 32, opener=opener,
+            clock=ScriptedClock([0.0, 10.0, 1_200.0]),
+            observer=events.append,
+        )
+        self.assertEqual([], opener.requests)
+        self.assertEqual(1, len(result["records"]))
+        self.assertEqual("deadline_exceeded", result["records"][0]["error_type"])
+        self.assertEqual("attempt_started", events[0]["event"])
+        self.assertEqual("attempt_recorded", events[1]["event"])
+        self.assertFalse(runner.completed(result, 2))
 
     def test_partial_transport_result_has_nonzero_cli_status(self):
         opener = Opener([URLError("offline")])
