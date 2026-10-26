@@ -12,6 +12,13 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October 26 process-contract review](B60-Inference-Engineering/f2-process-contract-review-20261026.md)
+observes `OBSERVER_COMMUNICATION_FAILED` after successful preparation. The
+current CLI uses the previously reported wrong `subprocess.run` default;
+two isolated tests reproduce the failure and the minimum logical correction.
+No host fix/retry ran. The release must close all dependent hash pins before
+another reviewed attempt; no archive success or model admission is claimed.
+
 The [October 26 pre-effect recovery receipt](B60-Inference-Engineering/pre-effect-recovery-receipt-20261026.md)
 receives Adaptive `99efcf2e`: owner-loss cancellation of a prepared lease
 passed without consumer effects. Production F6 and model admission remain
