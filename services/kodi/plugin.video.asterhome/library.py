@@ -116,8 +116,15 @@ def recommended_items(movies, shows, limit=12, recent_exclusion=12):
         if row['kind'] == 'movie':
             if row.get('playcount', 0) > 0 or not str(row.get('file') or '').strip():
                 continue
-        elif row.get('unwatchedepisodes', 0) <= 0:
-            continue
+        else:
+            unwatched = row.get('unwatchedepisodes')
+            if type(unwatched) is not int:
+                episodes = row.get('episode', 0)
+                watched = row.get('watchedepisodes', 0)
+                unwatched = (episodes - watched if type(episodes) is int
+                             and type(watched) is int else 0)
+            if unwatched <= 0:
+                continue
         genres = row.get('genre', [])
         genres = genres if isinstance(genres, list) else []
         genre_score = sum(affinity.get(str(genre).strip().casefold(), 0)

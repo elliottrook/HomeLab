@@ -24,7 +24,7 @@ EPISODE_PROPERTIES = [
 RECENT_PROPERTIES = PROPERTIES + ['dateadded']
 MOVIE_RECOMMEND_PROPERTIES = RECENT_PROPERTIES + ['playcount']
 SHOW_RECOMMEND_PROPERTIES = RECENT_PROPERTIES + [
-    'watchedepisodes', 'unwatchedepisodes',
+    'episode', 'watchedepisodes',
 ]
 
 
@@ -146,6 +146,15 @@ def add_recommended(handle):
     xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
 
 
+def rotate_hero():
+    """Advance the idle recommendation without taking remote focus."""
+    if xbmcgui.getCurrentWindowId() != 10000:
+        return
+    focus = xbmcgui.Window(10000).getFocusId()
+    if focus not in (100, 110):
+        xbmc.executebuiltin('Control.Move(101,1)')
+
+
 def main():
     handle = int(sys.argv[1])
     query = parse_qs(sys.argv[2].lstrip('?'))
@@ -202,4 +211,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) > 1 and sys.argv[1] == 'hero-tick':
+        rotate_hero()
+    else:
+        main()

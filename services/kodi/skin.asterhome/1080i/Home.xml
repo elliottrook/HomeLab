@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window id="0">
     <defaultcontrol always="true">100</defaultcontrol>
+    <onload>AlarmClock(AsterMediaHero,RunScript(special://home/addons/plugin.video.asterhome/default.py,hero-tick),00:12,silent,loop)</onload>
+    <onunload>CancelAlarm(AsterMediaHero,silent)</onunload>
     <backgroundcolor>asterStone</backgroundcolor>
     <controls>
         <!-- Full-screen artwork with continuous readability and row fades. -->
@@ -43,7 +45,6 @@
             <width>1</width>
             <height>1</height>
             <orientation>horizontal</orientation>
-            <autoscroll>true</autoscroll>
             <content target="videos">plugin://plugin.video.asterhome/?mode=recommended</content>
             <itemlayout width="1" height="1">
                 <control type="image">

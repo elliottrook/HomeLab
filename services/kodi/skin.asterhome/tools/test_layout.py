@@ -43,9 +43,14 @@ class LayoutTests(unittest.TestCase):
         source = self.home.find('.//control[@id="101"]')
         self.assertEqual(source.findtext('content'),
                          'plugin://plugin.video.asterhome/?mode=recommended')
-        self.assertEqual(source.findtext('autoscroll'), 'true')
+        self.assertIsNone(source.find('autoscroll'))
         self.assertLess(int(source.findtext('left')), 0)
         self.assertIsNone(source.find('visible'))
+        self.assertEqual(
+            self.home.findtext('./onload'),
+            'AlarmClock(AsterMediaHero,RunScript(special://home/addons/plugin.video.asterhome/default.py,hero-tick),00:12,silent,loop)')
+        self.assertEqual(self.home.findtext('./onunload'),
+                         'CancelAlarm(AsterMediaHero,silent)')
         more = self.home.find('.//control[@id="121"]')
         self.assertEqual([node.text for node in more.findall('onclick')],
                          ['SetFocus(101)', 'Action(Info)', 'SetFocus(121)'])
@@ -481,7 +486,7 @@ class LayoutTests(unittest.TestCase):
             self.assertIsNone(headings[0].find('visible'))
 
     def test_genre_rail_uses_read_only_previews_and_combined_browser(self):
-        self.assertIsNone(self.home.find('onload'))
+        self.assertNotIn('genre_data.py', self.home.findtext('onload', ''))
         self.assertNotIn('genre_data.py', (ROOT / '1080i/Home.xml').read_text())
         files = list((ROOT / 'playlists' / 'genre-previews').glob('*.xsp'))
         self.assertEqual(len(files), 7)

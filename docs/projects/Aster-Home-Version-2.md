@@ -9292,3 +9292,30 @@ hero artwork. It reads Kodi's local index only and has no Acquisition Hub,
 Seerr, ARR or portal input. Normal and optimized checks pass 31 plugin tests,
 108 skin-layout tests and the complete 1,137-test Kodi v2 suite (one existing
 Mac-only Pillow skip). This is a local candidate, not an HP deployment.
+
+### Media recommendation hero — HP candidate, 2026-10-26
+
+The first HP stage was rolled back after Kodi 21 rejected an unsupported TV
+property. Corrected candidate2 proved twelve valid owned items, but Kodi did
+not advance an off-canvas panel's XML autoscroll. Immutable candidate3 replaces
+that unreliable behavior with one Home-scoped twelve-second alarm tick and a
+guarded `Control.Move(101,1)`. It advances only on Home and pauses while
+Continue Watching or Recently Added owns focus; it never moves remote focus.
+Its pinned manifest is
+`28655c667c5b7d5c55e14b3ace32bcae1c791fa3d43d5a742e39537d5cf4588f`
+with recovery checkpoint `/storage/.aster-checkpoints/aster-media-hero3`.
+
+Live HP evidence shows the recommendation changed from *The Tunnel* to
+*Penny Dreadful* across one interval while the current control remained
+`Browse series`. With Continue Watching focused, *Nurse Betty* remained fixed
+across the next interval. Kodi is active with zero service restarts and no new
+recommendation/XML errors. The complete Kodi v2 suite passes 1,140 tests in
+normal and optimized Python (one existing Mac-only Pillow skip), alongside 34
+plugin and 29 skin-layout tests in both modes. Human sofa/visual and action
+review is pending; production remains unchanged.
+
+The connected G20 receiver is now identified on HP as USB `4842:0001` HAOBO
+Technology Composite Device. Linux exposes its keyboard input as `event17` and
+its microphone as ALSA capture `hw:1,0`. PulseAudio has not yet published that
+capture source and the microphone-button event has not yet been empirically
+observed, so no hardware policy is recorded and no audio has been captured.

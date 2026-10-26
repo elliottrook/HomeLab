@@ -89,9 +89,11 @@ class LibraryTests(unittest.TestCase):
              'file': '/owned/eligible.mkv', 'art': {'fanart': 'eligible.jpg'}},
         ]
         shows = [
-            {'tvshowid': 8, 'label': 'Caught Up', 'unwatchedepisodes': 0,
+            {'tvshowid': 8, 'label': 'Caught Up', 'episode': 10,
+             'watchedepisodes': 10,
              'art': {'fanart': 'caught-up.jpg'}},
-            {'tvshowid': 9, 'label': 'Series', 'unwatchedepisodes': 2,
+            {'tvshowid': 9, 'label': 'Series', 'episode': 10,
+             'watchedepisodes': 8,
              'art': {'fanart': 'series.jpg'}},
         ]
         rows = recommended_items(movies, shows, recent_exclusion=1)

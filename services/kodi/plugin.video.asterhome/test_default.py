@@ -124,6 +124,29 @@ class AdapterTests(unittest.TestCase):
         self.module.xbmcplugin.endOfDirectory.assert_called_once_with(
             1, cacheToDisc=False)
 
+    def test_idle_hero_tick_advances_without_moving_remote_focus(self):
+        self.module.xbmcgui.getCurrentWindowId.return_value = 10000
+        window = self.module.xbmcgui.Window.return_value
+        window.getFocusId.return_value = 121
+        self.module.rotate_hero()
+        self.module.xbmc.executebuiltin.assert_called_once_with(
+            'Control.Move(101,1)')
+
+    def test_hero_tick_pauses_for_visible_media_rows(self):
+        self.module.xbmcgui.getCurrentWindowId.return_value = 10000
+        window = self.module.xbmcgui.Window.return_value
+        for focus in (100, 110):
+            with self.subTest(focus=focus):
+                self.module.xbmc.executebuiltin.reset_mock()
+                window.getFocusId.return_value = focus
+                self.module.rotate_hero()
+                self.module.xbmc.executebuiltin.assert_not_called()
+
+    def test_hero_tick_is_inert_outside_home(self):
+        self.module.xbmcgui.getCurrentWindowId.return_value = 10025
+        self.module.rotate_hero()
+        self.module.xbmc.executebuiltin.assert_not_called()
+
 
 if __name__ == '__main__':
     unittest.main()
