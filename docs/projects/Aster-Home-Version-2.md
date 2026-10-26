@@ -8185,24 +8185,28 @@ and asset checks pass the full1,007-test Kodi v2 suite in normal and optimized
 Python. Repository commits remain local until a separately authorized Forgejo
 push.
 
-### M5 next timing path — duration-enabled canonical model assessment
+### M5 next timing path — existing canonical model assessment
 
 The preferred next experiment is not to weaken the Whisper result or add a
-second transcription pass. The official `kokoro-onnx` `model-files-v1.1`
-release re-exports the English `kokoro-v1.0.fp16.onnx` model with a duration
-output specifically consumed by `kokoro-onnx` 0.6.0+ `create_timed()`. The
-deployed engine is already0.6.1. A side-by-side copy of that official model may
-therefore provide timing during the same canonical synthesis operation while
-retaining `bm_daniel`, en-gb and speed0.95. Source:
+second transcription pass. Read-only inspection corrected the initial model-
+download assumption: the installed `kokoro-onnx` library already exposes
+`create_timed()`, and the currently deployed canonical
+`kokoro-v1.0.fp16.onnx` graph already reports both `waveform` and `duration`.
+The method returns measured `phoneme`, `start` and `end` values from the same
+synthesis operation. No replacement model, download, guest expansion or new
+dependency is needed. The upstream release documents this duration output and
+`create_timed()` contract:
 <https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.1>.
 
-This is a model-asset trial, not permission to replace the accepted model. Pin
-the release asset and SHA, keep the current model untouched, render only the
-repository synthetic text, and compare voice/audio plus returned timing against
-the exact source spans. Reject missing/zero/overlapping durations and require a
-human listening comparison before considering the re-export canonical. Store
-the large third-party binary in the backed-up speech guest, not Git; present
-capacity is ample.
+The next bounded candidate must use the unchanged canonical model, `bm_daniel`,
+en-gb and speed0.95 on repository-only synthetic text. Native phoneme timing is
+not automatically word timing: a local mapper must first prove that the exact
+phoneme sequence can be related deterministically to EPUB source-word spans.
+Any unknown token, ambiguous boundary, omission, zero/overlapping duration or
+source mismatch rejects the complete unit. It must not divide time by character
+count, infer a missing boundary from neighbours or substitute recognizer output.
+Only after that pure mapping layer passes is one synthetic `create_timed()` run
+worth making. The current model and services remain untouched until then.
 
 WhisperX remains a fallback because its documented word timing comes from a
 separate language-specific wav2vec2 forced-alignment stage rather than the ASR
@@ -8214,3 +8218,91 @@ Sources: <https://github.com/m-bain/whisperX> and
 <https://docs.pytorch.org/audio/2.9.0/tutorials/ctc_forced_alignment_api_tutorial.html>.
 No model download, service change or new live synthesis is authorized by this
 assessment.
+
+The pure mapper now accepts only an exact one-to-one sequence of timed phonemes,
+uses explicit spaces in the model's phoneme plan as word boundaries, binds those
+groups to the EPUB source's exact character spans and rejects expansions,
+missing words, punctuation-only groups, sequence drift, zero/overlapping times
+and non-finite or out-of-duration values. Punctuation without an explicit model
+word boundary is deliberately refused rather than guessed. Its ten focused tests
+pass in normal and optimized Python; the complete v2 suite passes1,017 tests in
+both modes.
+
+Jason approved one bounded native timing render. A root-private, low-priority
+harness on LXC116 verified the pinned canonical model and `bm_daniel`/en-gb/
+0.95 policy, rendered only two repository-authored synthetic sentences once,
+and made no network request or service/configuration change. The run completed
+in8.711seconds and retained the original candidate-service PID5655, but the
+strict mapper rejected the returned phoneme sequence as
+`phoneme-alignment-time-order`. The test is therefore a safe negative result,
+not proof of word highlighting.
+
+The first harness version wrote detailed timing only after the gate passed, so
+its root-private checkpoint contains the attempt and failure proof but not the
+individual rejected durations. Do not rerun silently or infer whether the
+invalid span belonged to speech, space or punctuation. Any later approved
+diagnostic must first write the already-returned synthetic timings privately,
+then apply the same gate, allowing the exact zero/overlap class to be inspected
+without a third synthesis. Both speech services remained active and production
+Aster was unchanged.
+
+### M5 pre-generated EPUB narration — capacity and architecture assessment
+
+The preferred household design is a **narration compiler**, not routine live
+TTS. Calibre remains authoritative for owned EPUB files and metadata. A separate
+single-worker queue periodically reconciles a read-only view of that library,
+copies one stable source into private working storage, hashes it, extracts and
+normalizes chapter text, generates canonical Aster narration and exact timing,
+then atomically publishes a complete immutable result. It must never edit
+Calibre's `metadata.db` or write generated files into the live Calibre library.
+Official Calibre tooling can convert supported sources, but the first release
+should accept EPUB only; DRM-protected or structurally invalid inputs fail
+closed rather than invoking a circumvention path. Sources:
+<https://manual.calibre-ebook.com/generated/en/ebook-convert.html> and
+<https://manual.calibre-ebook.com/calibre.pdf>.
+
+Use a separate TrueNAS dataset such as `AsterReader`, with one stable book ID
+and one source-hash generation per title. Each ready generation should contain
+chapter audio, a compact exact-word timing index, cover/metadata copies and a
+manifest recording the source hash, parser/speech-cleanup versions, canonical
+model/voice/speed, output hashes and validation result. States are `queued`,
+`extracting`, `narrating`, `aligning`, `ready` or `failed`; Aster sees only
+`ready`. Publish by rename after verification, retain the last known-good
+generation until its replacement is valid, and garbage-collect superseded
+replaceable audio only after a grace period. Real EPUB text, generated audio,
+timings and listening positions remain private and out of Git.
+
+For sizing, mono speech at 32/48/64kbit/s consumes approximately
+14.4/21.6/28.8MB per narrated hour. At an illustrative ten narrated hours per
+book, the owner's original 505-title estimate is about 73/109/145GB; the
+documented 723-title Calibre inventory would be about 104/156/208GB. Twelve-hour
+averages increase those figures by 20%. Compact word-span timing and manifests
+should normally add only a few gigabytes library-wide if stored as compressed
+records, while uncompressed 24kHz 16-bit mono WAV would approach 173MB per hour
+and is unsuitable as the retained format. The recommended planning allowance
+is therefore **150GB for 505 titles** or **220GB for all 723 documented titles**
+using 48kbit/s Opus, including timing, temporary-work and reasonable headroom.
+A measured 20-book sample must replace these estimates before reserving a
+dataset or setting a quota.
+
+Opus is the preferred Aster-native storage codec because Audiobookshelf notes
+its substantially lower bitrate for comparable quality and current broad
+client support. If generated books are also exposed through Audiobookshelf,
+publish them as a separate generated library using one folder per book; do not
+mix them into the existing purchased-audiobook tree or assume listening progress
+moves between libraries. Sources:
+<https://audiobookshelf.org/docs/faq/server/> and
+<https://audiobookshelf.org/docs/documentation/libraries/book-library/directory-structure/>.
+
+The network effect is modest: even several concurrent 48kbit/s streams are
+negligible on the LAN. Compute, integrity and lifecycle are the material risks.
+Run one low-priority synthesis job at a time, pause under high load, cap working
+space, expose queue/failed/stale counts to monitoring, and benchmark canonical
+voice throughput before bulk conversion. Live narration may fill only a missing
+chapter while a book is not ready; it must use the same parser, voice contract
+and exact timing gate, cache a validated result when practical, and never race a
+background job for the same source hash. Legal scope is local household use of
+lawfully accessible, DRM-free source text; generated narration is not shared or
+published. Generated media is reproducible and should use snapshots/local
+recovery rather than consuming scarce encrypted off-site backup capacity; the
+source EPUB library and service manifests retain their existing protection.
