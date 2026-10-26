@@ -38,7 +38,7 @@ keys=['Window(Home).Property(AsterV2Lab.'+name+')' for name in ('TrialRecovery',
 keys.append('Window(Home).Property(AsterSeries.PreviewWindow)')
 keys.append('Window(Home).Property(AsterSeries.Recovery)')
 keys.append('Window(Home).Property(AsterVideo.ScrubOpen)')
-keys.extend('Window(Home).Property(AsterDigest.'+name+')' for name in ('PlayerWindow','PreviewWindow'))
+keys.extend('Window(Home).Property(AsterDigest.'+name+')' for name in ('PlayerWindow','PreviewWindow','ReaderWindow'))
 keys.extend('Window(Home).Property(AsterSearch.'+name+')' for name in ('Open','DetailOpen','Ready'))
 keys.append('Window(Home).Property(AsterSearch.Handoff)')
 keys.extend('Window(Home).Property(AsterMovie.'+name+')' for name in ('Window','Ready','Phase'))
@@ -55,7 +55,7 @@ base_paths={row['path'] for row in rows}
 search_file=Path('/storage/.aster-checkpoints/aster-global-search-20261024/active-manifest.json')
 search_dispatch_sha=None;search_count=0;search_home_sha=None
 if search_file.exists():
-    _require(len(sys.argv) in (9,10) and hashlib.sha256(search_file.read_bytes()).hexdigest()==sys.argv[8],'search-manifest-proof')
+    _require(len(sys.argv) in (9,10,11) and hashlib.sha256(search_file.read_bytes()).hexdigest()==sys.argv[8],'search-manifest-proof')
     search_manifest=json.loads(search_file.read_text())
     search_linked=search_manifest.get('kind')=='hp-search-playerlinks'
     _require(search_manifest.get('kind') in ('hp-search-details','hp-search-playerlinks')
@@ -159,7 +159,7 @@ if not scrub_active:scrub_file=Path('/storage/.aster-checkpoints/aster-video-scr
 scrub_count=0;scrub_osd_sha=None
 if scrub_file.exists():
     import re
-    _require(len(sys.argv) in (8,9,10) and hashlib.sha256(scrub_file.read_bytes()).hexdigest()==sys.argv[7],'scrub-manifest-proof')
+    _require(len(sys.argv) in (8,9,10,11) and hashlib.sha256(scrub_file.read_bytes()).hexdigest()==sys.argv[7],'scrub-manifest-proof')
     scrub=json.loads(scrub_file.read_text())
     native_scrub=scrub.get('kind')=='hp-video-scrub-native'
     _require(scrub.get('schema')==1 and scrub.get('kind') in ('hp-video-scrub','hp-video-scrub-native')
@@ -179,6 +179,22 @@ if scrub_file.exists():
         scrub_osd_sha=next(r['sha256'] for r in scrub['files'] if r['path']=='overlay/VideoOSD.xml')
         scrub_count=2 if native_scrub else 1
 review10_expected={}
+reading_news_count=0
+if Path('/storage/.aster-checkpoints/aster-digest-read-news1/state.json').exists():
+    import importlib.util
+    _require(len(sys.argv)==11 and re.fullmatch('[0-9a-f]{64}',sys.argv[10]),'reading-news-proof-required')
+    reading_stage=stage/'aster-digest-read-news1'
+    reading_raw=(reading_stage/'manifest.json').read_bytes()
+    _require(hashlib.sha256(reading_raw).hexdigest()==sys.argv[10],'reading-news-manifest-pin')
+    reading_manifest=json.loads(reading_raw)
+    for name,digest in reading_manifest['helpers'].items():
+        _require(hashlib.sha256((reading_stage/name).read_bytes()).hexdigest()==digest,'reading-news-helper-pin')
+    spec=importlib.util.spec_from_file_location('accepted_reading_news',reading_stage/'digest_read_news_install.py')
+    sys.path.insert(0,str(reading_stage))
+    validator=importlib.util.module_from_spec(spec);spec.loader.exec_module(validator)
+    reading_overrides=validator.accepted_overrides(reading_stage,Path('/storage'),sys.argv[10])
+    _require(not reading_overrides or set(reading_overrides)=={'.kodi/addons/skin.asterhome/1080i/custom_1111_digest.xml'},'reading-news-exact-target')
+    review10_expected.update(reading_overrides);reading_news_count=len(reading_overrides)
 review10_marker=Path('/storage/.aster-checkpoints/aster-review10-20261025/installed.json')
 if review10_marker.exists():
     review10_sha='3b2662f81d0b7202dda23b93c7ff50fbec6a8dbcb4d6a1e3c4106a7bbf8f595a'
@@ -313,7 +329,7 @@ if search_home_sha:overrides['skin.asterhome/1080i/Home.xml']=search_home_sha
 integration_file=Path('/storage/.aster-checkpoints/aster-music-integration-20261024/active-manifest.json')
 integration_count=0
 if integration_file.exists():
-    _require(len(sys.argv) in (5,6,7,8,9,10),'integration-manifest-proof-required')
+    _require(len(sys.argv) in (5,6,7,8,9,10,11),'integration-manifest-proof-required')
     integration_sha=sys.argv[4]
     _require(len(integration_sha)==64 and all(c in '0123456789abcdef' for c in integration_sha),'integration-sha')
     _require(hashlib.sha256(integration_file.read_bytes()).hexdigest()==integration_sha,'integration-manifest-hash')
@@ -330,7 +346,7 @@ if integration_file.exists():
 rail_file=Path('/storage/.aster-checkpoints/aster-floating-rail-20261024/active-manifest.json')
 rail_count=0
 if rail_file.exists():
-    _require(len(sys.argv) in (6,7,8,9,10),'rail-manifest-proof-required')
+    _require(len(sys.argv) in (6,7,8,9,10,11),'rail-manifest-proof-required')
     _require(hashlib.sha256(rail_file.read_bytes()).hexdigest()==sys.argv[5],'rail-manifest-hash')
     rail=json.loads(rail_file.read_text())
     _require(rail.get('schema')==1 and rail.get('kind')=='hp-floating-rail' and rail.get('path')=='1080i/IncludesHub.xml','rail-target')
@@ -340,7 +356,7 @@ series_file=Path('/storage/.aster-checkpoints/aster-series-integration-20261024/
 series_count=0
 if series_file.exists():
     import re
-    _require(len(sys.argv) in (7,8,9,10) and hashlib.sha256(series_file.read_bytes()).hexdigest()==sys.argv[6],'series-manifest-proof')
+    _require(len(sys.argv) in (7,8,9,10,11) and hashlib.sha256(series_file.read_bytes()).hexdigest()==sys.argv[6],'series-manifest-proof')
     series=json.loads(series_file.read_text())
     _require(series.get('schema')==1 and series.get('kind')=='hp-series-integration','series-kind')
     _require(len(series['files'])==2 and {r['path'] for r in series['files']}=={'tools/select_dispatch.py','tools/aster_v2_series.py'},'series-targets')
@@ -364,7 +380,7 @@ if digest_state.exists():
     # Exact successor, not a skipped baseline member: external manifest pin,
     # known two targets, exact predecessor/private backup, full player payload.
     import importlib.util
-    _require(len(sys.argv)==10 and re.fullmatch('[0-9a-f]{64}',sys.argv[9]),'digest-news-proof-required')
+    _require(len(sys.argv) in (10,11) and re.fullmatch('[0-9a-f]{64}',sys.argv[9]),'digest-news-proof-required')
     digest_stage=stage/'aster-digest-news1'
     digest_raw=(digest_stage/'manifest.json').read_bytes()
     _require(hashlib.sha256(digest_raw).hexdigest()==sys.argv[9],'digest-news-manifest-pin')
@@ -413,6 +429,7 @@ with output.open('x') as handle:
                'approved_canonical_sound_files_verified':canonical_count,
                'approved_books_sync_files_verified':books_count,
                'approved_digest_news_files_verified':digest_news_count,
+               'approved_reading_news_files_verified':reading_news_count,
                'av_language_settings_verified':len(values),
                'av_preservation_details':av_details,
                'database_integrity':'ok','missing_primary_artist_links':0,

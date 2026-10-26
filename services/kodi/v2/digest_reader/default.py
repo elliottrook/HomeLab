@@ -61,6 +61,14 @@ def read():
     return raw
 
 
+def context(args, window, focus, ready):
+    if not args and window == 10000:
+        return 10000
+    if args == ['news'] and window == 11111 and focus == 312 and ready == 'true':
+        return 11111
+    raise ValueError('reader-explicit-source-required')
+
+
 class DigestReader(xbmcgui.WindowXML):
     def onInit(self):
         from digest_read_pages import Reader
@@ -142,19 +150,24 @@ def main():
     if os.uname().nodename != 'AsterTV': return
     handle = None
     try:
-        if len(sys.argv) != 2: raise ValueError('reader-pin-required')
+        if len(sys.argv) not in (2, 3): raise ValueError('reader-pin-required')
         verify(sys.argv[1])
         handle = os.open(str(ROOT/'entry.lock'), os.O_CREAT|os.O_RDWR|os.O_NOFOLLOW, 0o600)
         fcntl.flock(handle, fcntl.LOCK_EX|fcntl.LOCK_NB)
-        if not idle() or xbmcgui.getCurrentWindowId() != 10000: return
+        if not idle(): return
         home = xbmcgui.Window(10000)
-        source_focus = home.getFocusId()
+        source_id = xbmcgui.getCurrentWindowId()
+        if source_id not in (10000, 11111): raise ValueError('reader-source-window')
+        source = xbmcgui.Window(source_id)
+        source_focus = source.getFocusId()
+        context(sys.argv[2:], source_id, source_focus, source.getProperty('AsterHub.Ready'))
         sys.path.insert(0, str(ROOT/'resources/lib'))
         from digest_read_model import read_page
         snapshot = read_page(read())
         fetched = 'Loaded ' + datetime.now().astimezone().strftime('%d %b · %H:%M %Z')
         if not snapshot.cards: raise ValueError('reader-empty')
-        if not idle() or xbmcgui.getCurrentWindowId() != 10000 or home.getFocusId() != source_focus: return
+        if not idle() or xbmcgui.getCurrentWindowId() != source_id or source.getFocusId() != source_focus: return
+        context(sys.argv[2:], source_id, source_focus, source.getProperty('AsterHub.Ready'))
         window = DigestReader('DigestReader.xml', str(ROOT), 'Default', '1080i')
         window.snapshot, window.identity, window.finished = snapshot, None, False
         window.fetched = fetched
@@ -173,12 +186,21 @@ def main():
                 elif idle(): break
                 # Do not destroy a hidden WindowXML under foreign playback.
         finally:
+            return_to_news = (source_id == 11111 and window.finished and idle()
+                              and xbmcgui.getCurrentWindowId() in (window.identity, source_id, 10000))
             window.close()
             home.clearProperty('AsterDigest.ReaderWindow')
+            if return_to_news:
+                xbmc.executebuiltin('ActivateWindow(1111)')
+                for _ in range(100):
+                    if (xbmcgui.getCurrentWindowId() == 11111 and
+                            source.getProperty('AsterHub.Ready') == 'true' and
+                            source.getProperty('AsterHub.RowsReady') == 'true'): break
+                    if monitor.waitForAbort(.05): break
             for _ in range(20):
-                if xbmcgui.getCurrentWindowId() == 10000: break
+                if xbmcgui.getCurrentWindowId() in (source_id, 10000): break
                 xbmc.sleep(50)
-            if idle() and xbmcgui.getCurrentWindowId() == 10000 and source_focus:
+            if idle() and xbmcgui.getCurrentWindowId() == source_id and source_focus:
                 xbmc.executebuiltin('Control.SetFocus('+str(source_focus)+')')
             del window
     except (OSError, ValueError, KeyError, RuntimeError):

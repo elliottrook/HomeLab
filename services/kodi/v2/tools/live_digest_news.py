@@ -44,6 +44,11 @@ def news():
     xbmc.sleep(500)
 
 
+def selected_position():
+    try: return float(xbmc.getInfoLabel('Container(500).ListItem.Property(AsterStart)'))
+    except ValueError: return None
+
+
 def search_return_settled():
     lock = os.open('/storage/.aster-checkpoints/aster-global-search-20261024/header-entry.lock', os.O_RDONLY)
     try:
@@ -78,10 +83,14 @@ try:
     until(lambda:not opened() and xbmcgui.getCurrentWindowId() == 11111 and guard.idle() and focus(305), 'news-full-back-focus')
     xbmc.sleep(700)
     require(focus(305), 'news-return-focus-reset')
+    stories = [row for row in snapshot.entries if row.identity != snapshot.identity+':opening']
+    require(len(stories)>1, 'news-second-story-required')
+    entry = stories[1]
+    position = entry.start
     xbmc.executebuiltin('Control.SetFocus(500,1,absolute)')
-    until(lambda:focus(500) and xbmc.getInfoLabel('Container(500).ListItem.Property(AsterStart)') != '', 'news-story-focus')
-    position = float(xbmc.getInfoLabel('Container(500).ListItem.Property(AsterStart)'))
-    entry = next(row for row in snapshot.entries if row.start == position)
+    # Focus can change before Kodi applies the absolute item selection. Do not
+    # capture the old first row's nonempty start while Select targets row two.
+    until(lambda:focus(500) and selected_position() == position, 'news-story-focus')
     select()
     until(lambda:opened() and prop('Playing') == 'true' and prop('ActiveId') == entry.identity
         and prop('Title') == entry.title and prop('Summary') == entry.summary, 'news-story-player')
@@ -121,6 +130,10 @@ except Exception as error:
     code = str(error)
     result.update(code=code if re.fullmatch('[a-z0-9-]{1,100}',code) else type(error).__name__,
         window=xbmcgui.getCurrentWindowId(), status=prop('Status')[:100], error_code=prop('ErrorCode')[:100])
+    if 'entry' in locals():
+        result['story_diagnostics'] = dict(target_position=entry.start,
+            selected_position=selected_position(), active_matches=prop('ActiveId')==entry.identity,
+            title_matches=prop('Title')==entry.title, summary_matches=prop('Summary')==entry.summary)
 finally:
     if opened():
         back(); until(lambda:not opened(), 'news-pilot-cleanup', 15)

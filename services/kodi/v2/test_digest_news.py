@@ -1,4 +1,5 @@
 from dataclasses import replace
+import ast
 from datetime import datetime, timezone
 import hashlib
 import importlib.util
@@ -46,6 +47,17 @@ class DigestNewsTests(unittest.TestCase):
         self.assertEqual(row_for(story, self.snapshot), 2)
         with self.assertRaises(ValueError): row_for(dict(story, generation='other'), self.snapshot)
         with self.assertRaises(ValueError): row_for(dict(story, position=15), self.snapshot)
+
+    def test_native_row_selection_waits_for_exact_target_not_just_focus(self):
+        source=(Path(__file__).parent/'tools/live_digest_news.py').read_text()
+        node=next(n for n in ast.parse(source).body if isinstance(n,ast.FunctionDef) and n.name=='selected_position')
+        values=iter(('', '4.0', '50.0'))
+        scope={'xbmc':types.SimpleNamespace(getInfoLabel=lambda _:next(values))}
+        exec(compile(ast.Module(body=[node],type_ignores=[]),'<native-selection-test>','exec'),scope)
+        self.assertIsNone(scope['selected_position']())
+        self.assertNotEqual(scope['selected_position'](),50.0)
+        self.assertEqual(scope['selected_position'](),50.0)
+        self.assertIn('focus(500) and selected_position() == position',source)
 
     def test_invalid_handoff_never_becomes_a_command(self):
         for args, source in (([], 11111), (['news','full','0',self.stamp],10000),

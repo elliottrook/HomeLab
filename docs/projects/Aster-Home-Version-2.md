@@ -22,7 +22,7 @@
   approved guarded pilot; the historical trial gates below are not current
   blockers. Seven balanced navigation cues are accepted on both boxes. The
   separate startup chime is HP-only, once per Kodi process, with production
-  adoption explicitly deferred to Version 2. Work through `f5d6644f` was pushed
+  adoption explicitly deferred to Version 2. Work through `bb3eed88` was pushed
   to Forgejo and verified at its automatic GitHub mirror at Jason's latest
   “Push and continue”. Pause-to-OSD is now active on HP through its separate
   two-file player-UI service; native movie/episode/menu/exit and restart checks
@@ -30,7 +30,7 @@
   startup-sound promotion is authorized.
   Digest now also has an accepted isolated HP timeline preview (preview4):
   opening briefing, story art/synopsis, adjacent selection and bounded lists.
-  Normal News entry and playback are unchanged. The pure owned-playback state
+  At that preview milestone normal News entry/playback were unchanged. The pure owned-playback state
   model now passes synthetic checks, including replacement/stale-exit fences.
   The isolated joined Digest player7 now passes actual playback-driven artwork,
   synopsis/active-row, opening/row seek, pause-preserving seek and Back/owned-stop
@@ -41,15 +41,19 @@
   full preservation pass. Production is unchanged. The published-summary reader
   now has a separately tested pure parsing/selection model, including full
   summaries, source attribution and stale/ambiguous-card rejection. It is not
-  connected to audio or normal navigation: the reading HTML exposes no edition
+  connected to audio: the reading HTML exposes no edition
   ID and currently has10 cards versus11 audio chapters. An isolated reading UI
   (reader5) now has passing HP navigation/control and independently inspected
   selected-story capture evidence; candidate-local repaint resolves stale text
-  pixels without global renderer changes. It is operator-launched only, not a
-  new normal News action. Next: bounded normal-News reading handoff with the same
-  clearly separate current-reading-page contract; cross-briefing queues remain
-  publisher-ID gated. Owner checks are deferred for a larger batch, not requested
-  now. Forgejo/GitHub are synchronized through65481ff4; newer work is local only.
+  pixels without global renderer changes. Its immutable reader6 successor is now
+  connected through News → Read briefing on HP via the one-file reading-News1
+  overlay. Normal navigation, return context and actual rollback/reinstallation
+  pass; audio/Search/Breaking/refresh remain intact. The reading page remains
+  explicitly separate from the audio timeline; cross-briefing queues remain
+  publisher-ID gated. Next: Home freshness/source-contract foundation and then
+  read-only intent groups, without reviving stale camera/household values.
+  Owner checks are deferred for a larger batch, not requested now. Forgejo/GitHub
+  are synchronized throughbb3eed88; newer milestones are local only.
 - Previous resume point (2026-10-25): Search14 Stop-acknowledgement guard is on
   HP (`732a89c3e3e9189022a1ee7c4fdb9f596c88486d2f13fb53d3832d47c7a46df4`),
   layered on the owner-feedback bundle below. Two actual movie Play/Resume/Back
@@ -5981,3 +5985,180 @@ The next bounded step is a normal-News current-reading-page handoff with exact
 checkpoint/rollback and explicit separation from the audio timeline; the reader
 is not yet a family-visible menu action. This milestone is a local commit only,
 after the earlier specifically approved push through65481ff4.
+
+### Normal News reading handoff — pre-start envelope (2026-10-25)
+
+Jason requested push and continuation; Forgejo and its GitHub mirror now agree
+at `bb3eed8881dcfa516eba50bd86de799908acb607`. Continue the approved HP Stream A
+slice with one exact News XML successor, adding Read briefing between Breaking
+News and Refresh and widening only their shared rail backing. Preserve all
+existing actions, body controls, side rail, Search and clock. The new action
+opens a new immutable reader6 with an explicit News-only context, still the
+separate current reading page, never an inferred audio story. Manual Home
+preview entry remains supported. Back restores News/Read focus; Home stays Home.
+
+Risks: XML/focus cache reload, wrong source return and drift in shared branding
+checks. Checkpoint and hash the exact current XML (predecessor
+`fca45b9ef09cbca624f05c5ac5c569a5b66363d2f94759137c80f10dbf1b547b`),
+new reader members and both installer helpers. Reject unknown predecessors,
+linked targets, altered payload/recovery/state, busy/non-Home deployment or old
+preflight proof. Use atomic one-file replacement and exact rollback; retain the
+prior file and all accepted stages. A brief idle skin reload is expected, not
+a Kodi restart. Validate actual normal entry/paging/Back/Home, existing News
+playback/Search/Breaking/refresh, two normal-route passes and real rollback.
+
+Extend the full preservation harness with one externally pinned exact override,
+not a skipped branding/baseline check. No account, credential, database/history,
+audio/display, source publisher, outside article, service, speech, network rule,
+schedule or production change. Existing Doctor/monitoring/NetBox/wiki topology
+facts remain unchanged; checkpoint/operator evidence and Git are the affected
+records. Stop on failed recovery/preflight or unexpected mutation. Owner checks
+remain batched. No new push is implied by finishing this slice.
+
+#### Normal News reading implementation and first validation
+
+The new stage is `/storage/.aster-staging/aster-digest-read-news1`, manifest
+`4ff7ce2002b03b78c51c59a5aa0d7498a6e71e472d73bb29a538fe6b180abd1f`.
+It changes only `.kodi/addons/skin.asterhome/1080i/custom_1111_digest.xml` from
+the pre-start SHA above to
+`602d6c5be247900ff1a55d96373d0754004a921d846255eb8c336e3422eb0fc9`.
+Three helper members are pinned too, including the unchanged atomic-write helper.
+The active News playback handler/shim and17-member player8 remain untouched.
+
+Read briefing launches `/storage/.aster-staging/aster-digest-reader6`, four-member
+manifest `ffab164e7dccc950abf4020c238fd0381883d89579dc98f2daeb7cc628b3c9c2`.
+Reader6 retains reader5's accepted layout/ordered controls/neutral repaint. It
+adds only an explicit News context: source11111, focus312 and Ready=true before
+and after the bounded fetch. Unadorned manual entry is still Home-only. Back
+restores News/Read after readiness; a Home exit does not return to News. Other
+source windows, wrong focus/readiness and extra arguments are refused. No
+currently playing audio item is used to select a reading card.
+
+Native preflight `postcheck-1792973395292862778.json` passed before activation;
+`result-1792973421569081711.json` records a verified private original/checkpoint,
+one installed XML and unchanged settings/idle state. The current UI is reached
+through News → Read briefing, after Breaking News and before Refresh. The shared
+backing and Refresh position/ring were extended together; Search/clock/body/
+existing actions are semantically unchanged. A real4K normal-News rail capture
+was inspected: readable labels, correct grouping/spacing and green/ivory focus.
+
+The first normal reading walkthrough passes at
+`/storage/.aster-checkpoints/aster-digest-read-news1/native-1792973450492374381/native.json`:
+actual adjacent remote rail navigation, OK dispatch, full summary, story/page
+selection, no autoplay, stable Back/Read focus, Home staying Home and unchanged
+settings/navigation. The existing audio News suite also passes at
+`/storage/.aster-checkpoints/aster-digest-news1/native-1792973489926210851/native.json`:
+full opening, selected-story playback/synopsis, focus/context return, refresh,
+Breaking News, Search/return and Home/owned Stop. Both finish idle/empty.
+
+Full preservation `postcheck-1792973555071046613.json` verifies the exact new XML,
+all four reader members and original backup through the externally pinned
+validator, in addition to all existing stages,153 baseline rows, both News
+playback files, DB integrity and68 AV/language checks. No baseline row is skipped.
+The harness now requires the reading-stage pin as its final argument whenever
+the new checkpoint exists, including after rollback; the previous ten-argument
+form is no longer sufficient. Its pre-reading version is retained at
+`/storage/.aster-staging/live_music_postcheck-before-read-news.py` for diagnosis,
+not for use against the modified active layout.
+
+Real rollback `result-1792973574570955333.json` restored the exact pre-start XML
+SHA, retained the unreferenced reader and passed unchanged settings/idle state.
+`postcheck-1792973592945245061.json` confirms full preservation with zero reading
+overrides. Reinstallation used that fresh proof, reverified the private original
+and activated the same payload (`result-1792973613294722652.json`). A second
+normal reading walkthrough passes at
+`/storage/.aster-checkpoints/aster-digest-read-news1/native-1792973634374897764/native.json`.
+No Kodi restart, history edit or production mutation occurred.
+
+Eight new synthetic installer tests cover reversible one-file semantics,
+install/verify/rollback/reinstall, busy/exact-predecessor checks, immutable output,
+external pins, payload/helper/reader drift, linked targets, altered recovery or
+installed files, and explicit prepared/unknown-state recovery. Reader context
+tests also cover normal and refused entry. Full790-test v2 suite passes in
+ordinary and optimized Python. Unknown files or checkpoint state are fenced,
+not silently overwritten. No new service identity, network, inventory, schedule,
+Doctor or monitoring object is introduced by this exact client-side action.
+
+An additional post-reinstallation audio run at
+`aster-digest-news1/native-1792973764640145514/native.json` failed the selected-
+story assertion while the player reported Playing/no error; cleanup returned
+Home idle. That run is not counted as a pass. Inspection found a harness race:
+after requesting absolute row1 it waited only for focus and any nonempty start,
+so it could capture row0's start before the selection arrived, then press OK on
+row1. The harness now waits for the exact published second-story start, keeping
+all active-ID/title/synopsis assertions. It also records bounded mismatch
+diagnostics before cleanup. A synthetic delayed-selection regression covers
+empty → old start → exact target. No player/seek/metadata guard was relaxed and
+no application patch was inferred from that failure. Corrected native run
+`aster-digest-news1/native-1792973929448509481/native.json` passes the full suite.
+
+Independent corrected audio run
+`aster-digest-news1/native-1792973975519719976/native.json` also passes all entry,
+opening/story/synopsis, Back, refresh, Breaking News, Search and Home/owned-stop
+checks. Full791-test v2 suite passes normally and optimized, including the
+delayed-row harness regression, before the separately staged Home policy work.
+Final `postcheck-1792974099953557650.json` verifies all approved stages, the exact
+one-file reading override/private original/reader6, both News playback members,
+database integrity and all68 AV/language checks; queues are empty and all lab
+windows closed. Paired `result-1792974099661169897.json` confirms one active XML
+and four reader members intact, with unchanged settings/idle state. HP is left
+Home. No production promotion, extra remote push or history edit is included.
+
+#### Household handover and recovery — News reading
+
+On HP, open **News → Read briefing**. Up/Down browses the current published
+reading stories; Right or OK reaches Previous/Next page. The pages include the
+full bounded Aster summary, comparison notes and source names/hosts. This is
+not a full original article, does not open third-party sites and does not play
+or narrate anything. Reading stories are not assumed to be the current audio
+briefing's edition. Back returns to News with Read briefing selected; Home
+stays Home. Existing full-digest/story playback, Search, Breaking News and
+Refresh work as before. Authentication is unchanged and no setup is required.
+The loaded time is the fetch time; close/reopen to refresh. Missing/changed/
+unsupported content declines rather than guessing a story. Owner remote/sofa
+acceptance remains pending, not a technical blocker on independent local work.
+
+Operator: while HP is idle on Home, use staged `deploy_digest_read_news.py`
+with `verify` or `rollback` and manifest pin
+`4ff7ce2002b03b78c51c59a5aa0d7498a6e71e472d73bb29a538fe6b180abd1f`.
+Rollback restores only the original News XML and reloads the skin; reader6 and
+the private checkpoint remain unreferenced. Reinstall requires the same exact
+known predecessor/backup and a fresh full preservation proof. A `prepared` state
+requires explicit rollback/recovery, never a manually edited marker. Unknown
+drift is refused. The full preservation invocation retains all prior pins and
+appends the reading pin as its eleventh argv item (tenth script argument).
+
+Intent/efficiency review: the useful reader is now accessible from normal
+household navigation rather than an engineering launch, with measured return
+context and recovery. One bounded LAN read occurs on explicit opening only;
+no duplicate publisher, periodic refresh, outside article download or continuous
+repaint was introduced. The installed change is one XML file and reuses existing
+News styling and accepted reader behavior. Owner visual review remains batched.
+
+### Home freshness foundation — read-only assessment/pre-start (2026-10-25)
+
+Continue locally while native News regression finishes; no concurrent foreground
+Home test. The HP's bounded credential-free Home feed is present (526bytes),
+wrapper schema1/snapshot schema3, with one light, temperature, weather record
+and camera-status record; all room/entity/timer/media-provider alias lists are
+empty. At inspection, publication/source ages were320633/320760 seconds. The
+stored camera “online” value is historical, not a current live-view or device
+health proof. No alias, room reading, camera frame, token or URL was exported.
+
+Repository inspection shows the old Home projection expires its wrapper after
+ten minutes, but does not independently gate `source_updated_at`. Its Mac pilot
+publisher is a manual script; the old camera route is explicitly a disposable
+loopback tunnel. Do not execute it, re-date stale snapshots, infer a production
+camera transport or assume a scheduled publisher exists. Current source freshness
+and a real HA timer state contract need assessment before any live integration.
+
+This slice adds only a deterministic pure freshness gate with caller-supplied
+time: both wrapper and source must be recent, zoned and plausible. It emits only
+status/ages, never household values. “Fresh” permits subsequent existing value
+validation; it does not certify those values or authorize controls. Test stale
+source/fresh wrapper, missing/invalid/future data, skew/boundary cases and no
+payload mutation with synthetic fixtures. No HP activation, service/request,
+device action, speech, credential, network, schedule or production change is
+planned. Recovery is omitting this unactivated module. Doctor/monitoring/NetBox/
+wiki topology updates are not applicable to pure local code; record the stale
+feed finding and next integration gate here, retaining existing privacy limits.

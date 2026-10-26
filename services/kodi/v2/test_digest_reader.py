@@ -89,8 +89,10 @@ class ReaderTests(unittest.TestCase):
         for node in xml.findall('.//font'):
             self.assertIn(node.text, fonts)
         script = (HERE/'digest_reader/default.py').read_text()
-        for banned in ('Player.Open', 'Player.Stop', 'PlayMedia(', 'System.Exec(', 'ActivateWindow('):
+        for banned in ('Player.Open', 'Player.Stop', 'PlayMedia(', 'System.Exec('):
             self.assertNotIn(banned, script)
+        self.assertEqual(script.count('ActivateWindow('), 1)
+        self.assertIn('ActivateWindow(1111)', script)
 
     def test_external_pin_member_drift_and_symlinks_refused(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -164,6 +166,19 @@ class ReaderTests(unittest.TestCase):
         self.assertEqual(animation.attrib['start'], '100')
         self.assertEqual(animation.attrib['end'], '100')
         self.assertNotIn('loop', animation.attrib)
+
+    def test_explicit_news_context_refuses_wrong_source_or_focus(self):
+        spec = importlib.util.spec_from_file_location('test_reader_context', HERE/'digest_reader/default.py')
+        module = importlib.util.module_from_spec(spec)
+        with patch.dict(sys.modules, xbmc=types.ModuleType('xbmc'),
+                        xbmcgui=types.SimpleNamespace(WindowXML=object)):
+            spec.loader.exec_module(module)
+        self.assertEqual(module.context([], 10000, 136, ''), 10000)
+        self.assertEqual(module.context(['news'], 11111, 312, 'true'), 11111)
+        for args, window, focus, ready in (([],11111,312,'true'), (['news'],10000,312,'true'),
+                (['news'],11111,305,'true'), (['news'],11111,312,'false'),
+                (['news','extra'],11111,312,'true'), ([],13001,300,'true')):
+            with self.assertRaises(ValueError): module.context(args,window,focus,ready)
 
 
 if __name__ == '__main__': unittest.main()
