@@ -1036,7 +1036,11 @@ profile before reading its key, and the
 [source run card](evidence/M1-D4-fixed-doctor-usefulness-source-run-card-2026-10-25.md)
 pins all ten source files; 32 focused boundary tests pass. The packet explicitly
 grants no authority or routing promotion, and no model request or live Doctor
-read has occurred. An effectful live card remains to be frozen before an
+read has occurred. An exact eight-file, 29,892-byte
+[inactive staging boundary](evidence/M1-D4-fixed-doctor-usefulness-staging-boundary-2026-10-25.md)
+now passes exact-name, custody, opened-byte and no-extra-file validation; the
+combined source suite passes 35/35. LXC104 remains unchanged. An inactive
+install card and later effectful live card remain to be frozen before an
 evaluation.
 
 The immediate [post-authority candidate-G preflight](evidence/D4-candidate-G-post-authority-static-preflight-2026-10-25.md)
