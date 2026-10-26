@@ -8572,13 +8572,18 @@ normal and optimized Python. Broker health, candidate hashes and modes, exact
 read-only mounts, container health and the absent HP journal were rechecked
 after all three visual proofs.
 
-One network-boundary discrepancy remains open: HP can reach Seerr's
-unauthenticated status endpoint directly on TCP/5055 because the pre-existing
-Trusted-LAN pass precedes no HP-specific denial for that port. Aster contains no
-Seerr URL or credential and cannot use that path to request media, but this is
-weaker than the documented “direct Seerr unreachable” target. The narrow repair
-is one HP-source block for TrueNAS TCP/5055, followed by direct-denial, broker
-allow and revocation regression. It has not been applied silently.
+The owner separately approved the narrow direct-access repair. OPNsense rule
+`2f8d12e3-6158-4ab8-9d52-ec42054d8049`, LAN sequence `3094`, is a logged quick
+block for HP `192.168.1.140` to TrueNAS `192.168.20.40` TCP/5055. Its protected
+pre-change configuration is
+`/conf/backup/config-aster-seerr-direct-apply-before-20261026-200133.xml`.
+The compiled filter is the exact source/destination/port block; HP's former
+HTTP 200 status request now times out, while restricted broker health on 8788
+still returns HTTP 200. After dismissing the active screensaver modal, the
+native `Arrival` harness again completed an authenticated twelve-result search
+through the broker, recorded no write action, returned Home idle and left the
+request journal absent. This closes the documented direct-Seerr reachability
+gap without granting the television a Seerr URL, credential or request bypass.
 
 ### M7 family-candidate static gate — 2026-10-26
 
