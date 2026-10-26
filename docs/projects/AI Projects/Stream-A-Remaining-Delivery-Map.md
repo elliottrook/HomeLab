@@ -8,9 +8,9 @@
 |---|---|---|
 | F2 archive integrity | The launcher correction is installed and the fresh October 27 [activation result](evidence/F2-exact-cycle-activation-result-2026-10-27.md) passes. One-shot timers are enabled for 01:15/01:20 PDT, the 01:42 reconciliation is active, installed-path tests pass and production is healthy. | Fresh runtime backup, task-1, archive identity, load and quiet-host gates must pass. Any failure is terminal NO-GO without retry. |
 | F3–F5 admission | F3 converter, F4 pre-acquire path and F5 metadata-auth checks are installed inactive and target-tested. The fresh [October 27 F3 effect review](evidence/F3-from-F2-exact-cycle-effect-review-2026-10-27.md) accepts the corrected exact-cycle card with 14/14 tests and matching target custody. | Obtain the conditional F3 effect approval. It must skip unless 01:42 reconciliation accepts exactly three complete F2 rows; F4/F5 remain later fresh-cycle gates. |
-| F6 recovery and execution | Prepare-only owner-loss recovery passed. The V3 candidate-H/M3 composition and corrected owner ordering are installed inactive and state-free. | The platform owner must publish a current-packet activation/recovery card that pins every installed path. No lease, consumer stop or model request is yet authorized. |
+| F6 recovery and execution | Prepare-only owner-loss recovery passed. The V3 candidate-H/M3 composition and corrected owner ordering are installed inactive and state-free. The source-only current-packet card now passes independent validation against every required host/guest path and final M3 identity. | Fresh same-cycle F2–F5 evidence, a cycle-specific effect transaction/rollback and separate approval for the exact outage and workloads are still required. No lease, consumer stop or model request is authorized. |
 | D4 investigation quality | Candidate-H and the independent fixed-Doctor usefulness packet are staged inactive with exact custody. The fixed read-only Doctor authority path itself is live and bounded. | Fresh F2–F5 evidence, executable F6 recovery and an exact workload/model-call gate precede either evaluation. |
-| M3 NLU and routing | Interpretation and route contracts, owner-accepted policy and 60 reviewed calibration cases are complete. The final runner, scorer and journal corrections are installed inactive: the exact 11-file, 99,805-byte packet validates, target scorer tests pass 9/9 and the dependency-free suite passes 119/119. No output or model request exists. | D4 and the F2–F6 chain still precede calibration, threshold selection, independent holdout and no-effect shadow comparison. The platform F6 card must pin runner `88af8eb7…` and packet manifest `7b547d9b…`. Automatic routing remains off. |
+| M3 NLU and routing | Interpretation and route contracts, owner-accepted policy and 60 reviewed calibration cases are complete. The final runner, scorer and journal corrections are installed inactive: the exact 11-file, 99,805-byte packet validates, target scorer tests pass 9/9 and the dependency-free suite passes 119/119. No output or model request exists. | D4 and the F2–F6 chain still precede calibration, threshold selection, independent holdout and no-effect shadow comparison. The validated source-only F6 card now pins runner `88af8eb7…` and packet manifest `7b547d9b…`; fresh F2–F5 evidence and a separately approved cycle-specific effect transaction still precede execution. Automatic routing remains off. |
 | Companion | Ordinary signed-in Aster use, persisted recovery and read-only OpenBao status passed. | Continue ordinary reliability monitoring. The hidden manual-Codex fallback remains deferred unless Jason asks to release it. |
 
 Work outside the timed F2 chain continues in parallel. A failed F2 runtime gate
@@ -28,8 +28,11 @@ window, with no live evaluation effect.
 The [post-activation continuation](evidence/Stream-A-post-F2-activation-offline-continuation-2026-10-26.md)
 revalidates the complete current NLU selection under the dependency-capable
 workspace runtime at 130/130 and the F6/fixed-Doctor boundary at 15/15. The
-existing platform F6 card still fails the current-packet validator, so its
-replacement remains offline work while the October 27 timed F2 chain waits.
+then-existing platform F6 card failed the current-packet validator. Its later
+[current-packet replacement](evidence/Stream-A-F6-current-packet-card-review-2026-10-26.md)
+passes the platform 5/5 contract suite and Stream A independent validator;
+cycle-specific effect construction remains later work while the October 27
+timed F2 chain waits.
 
 The [October 14 evening execution decision](evidence/Evening-execution-decision-2026-10-14.md)
 separates the actual backup/check schedule from the proposed live windows,
