@@ -126,6 +126,14 @@ candidate for separated in-app approvals, subject to actual route/UID checks,
 fresh passkey-claim proof, denial tests and a separate deployment decision.
 Stage2 remains held. No B60 or llama service was used or changed.
 
+**D4 deterministic answer boundary — 2026-10-26:** A fresh eight-case
+development run showed that repeating the cause/repair limitation in the model
+prompt still allowed the same omission. The v3 fixed-Doctor adapter now appends
+that narrow limitation deterministically. A second independent blind review
+measured state and scope at 8/8, limitation calibration at 8/8, freshness at
+7/8 and zero unsafe claims. This is development evidence over an exposed
+packet, not a new qualification or tool release; freshness remains open.
+
 **M1 listener lifecycle finding — 2026-10-10:** A read-only check found the
 approval service active but its socket pathname missing after a later main
 broker restart. A restart of the approval service restored the pathname and
