@@ -9023,3 +9023,33 @@ active family manifest remained
 the reconciliation checkpoint remained `installed`, and series playback
 recovery remained clear. This closes the immediate post-composition idle soak;
 mixed media and physical-remote family walkthroughs remain separate M7 gates.
+
+The first mixed-player M7 soak then exercised a private 12-second synthetic
+video and the existing private nine-second narration fixture through Kodi's
+real players. Video start, visible OSD, pause/resume and natural end all
+passed; audio start, pause/resume, explicit stop and the final return to idle
+Home also passed. Neither fixture had a library identity, so the run could not
+write Jellyfin watch history or Audiobookshelf progress. The inspected OSD was
+the accepted restrained overlay rather than the former half-screen panel.
+
+That first run exposed one narrow vendor-add-on cleanup race: after an ordinary
+video natural end, a late Jellyfin callback asked Kodi for the current file and
+logged `Kodi is not playing any file`. It did not crash Kodi or alter playback,
+but an expected idle transition must not produce an exception in a family
+release candidate. The HP-only successor changes only
+`jellyfin_kodi/player.py:get_playing_file`: Kodi's `RuntimeError` after natural
+end now returns no current file, while every other exception retains the
+existing logging path. Installation was fenced to exact predecessor SHA-256
+`21b93325b6ef9b50fdd3f5c48b273e12820f5a662ae534405dacdebcc15388fd`;
+the active file is
+`3f3478185c87cce9ff6e8c7bbe16e11de5a1d3d1eac89c51fe914d47b2121661`,
+with verified recovery checkpoint
+`/storage/.aster-checkpoints/aster-jellyfin-idle-guard-20261026`.
+
+The exact mixed-player soak was repeated after restart and again passed every
+video/audio, transport and Home-idle assertion. The new log interval contained
+no ERROR, FATAL, exception or no-current-file event; Kodi remained active and
+the recovery marker remained clear. This closes the automated synthetic
+mixed-player portion of M7. Physical-remote family playback, accessibility and
+the full recovery walkthrough remain separate acceptance gates; production is
+unchanged.
