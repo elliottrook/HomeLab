@@ -6694,3 +6694,51 @@ Do not put operator/admin guest-execution keys on a TV or schedule that ad-hoc
 route. Continue other selected local/HP Stream A work while a least-privilege
 report publisher/transport is designed; its credentials, broker permissions and
 schedules retain their separate risk decision. No remote Git write is authorized.
+
+### Stream A network diagnostics foundation — pre-start
+
+Continue selected ID22 with a pure bounded parser/model and read-only HP local
+collector first. Use only local IPv4-address output, kernel route metadata,
+selected-interface link state and configured DNS server addresses. Do not read
+connection profiles, Wi-Fi SSIDs/passwords, MAC inventory, service credentials,
+browser state or raw environment. Distinguish configured from tested: having
+an IP/gateway/DNS server is not proof that media services or Internet work.
+No DNS lookup, ping, HTTP probe, reconnect, interface toggle or routing/config
+change is part of this foundation. It should remain useful with no network.
+Bound local subprocess time/output and file sizes; validate interface names and
+address formats before rendering. Use synthetic offline/malformed/multiple-route
+fixtures, then count/status-only real HP collection. No new speech, service,
+schedule, account, trust path, inventory object or production mutation. A later
+native diagnostics view and explicit safe service checks remain separate
+incremental work; normal Settings/side rails stay unchanged for this step.
+
+#### Network diagnostics foundation — evidence
+
+Added `network_diagnostics.py` with bounded local configuration parsers and an
+operator read-only collector. It handles offline/no-address, missing/default/
+multiple-route ambiguity, interface mismatch, link-local addresses, explicit
+on-link defaults, unknown/down links, configured IPv4/IPv6 DNS and partial
+unavailable inputs. It ignores search-domain names, excludes loopback addresses,
+validates interface/path tokens and does not retain raw input. Address/gateway/
+DNS fields are excluded from the dataclass repr. A configured local network
+never becomes a claim of service/Internet connectivity; reachability says
+Not tested. No Wi-Fi profile, password, MAC inventory or credential is read.
+
+Eleven additional tests pass; full861-test suite passes normally/optimized.
+The initial Python3.9 annotation import failure was fixed with deferred
+annotations before deployment. Local collection uses only the fixed kernel
+`ip -o -4 addr show` command, a three-second timeout, validated returned-output
+cap, fixed route/resolver files and selected-interface operstate. The trusted
+OS tool is not an arbitrary-command interface; its output cap is checked after
+collection, not claimed as a hostile-process memory sandbox.
+
+On HP the unchanged module is staged, not installed, at
+`/storage/.aster-staging/aster-network-diagnostics1/network_diagnostics.py`,
+SHA-256 `7ee9981c3ae612042c8cf4cd490cd0cf3a85ffabcfcbb8859d99e66b965ec112`.
+Normal and optimized real local collection both pass: link up, one non-loopback
+IPv4 address, gateway configured and two DNS servers; state Local configuration
+available, reachability Not tested. Only these counts/status were printed.
+No network packets, probes, reconnects or configuration changes were requested.
+No GUI or Settings route is added yet. Existing service/host identities and
+monitoring inventory are unchanged. Next: isolated remote-friendly native view,
+manual Refresh and honest offline/error presentation, with preservation proof.
