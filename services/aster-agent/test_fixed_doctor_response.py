@@ -29,11 +29,21 @@ class FixedDoctorResponseTests(unittest.TestCase):
         changes = (
             {"source": "other"}, {"state": "unknown"}, {"observed_at": "not-time"},
             {"observed_at": "2026-10-26T12:00:00"}, {"age_seconds": True},
-            {"age_seconds": 601}, {"facts": {"check_id": "other"}},
+            {"age_seconds": 129601}, {"facts": {"check_id": "other"}},
         )
         for change in changes:
             with self.subTest(change=change), self.assertRaises(FixedDoctorResponseDenied):
                 render_observation(observation(**change))
+
+    def test_accepts_source_valid_age_including_live_failure_range(self):
+        self.assertIn(
+            "13622 seconds old",
+            render_observation(observation("ok", age_seconds=13_622)),
+        )
+        self.assertIn(
+            "129600 seconds old",
+            render_observation(observation("warn", age_seconds=129_600)),
+        )
 
     def test_unavailable_rejects_claimed_facts(self):
         with self.assertRaises(FixedDoctorResponseDenied):

@@ -4,6 +4,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
+from doctor_structured_incident_adapter import MAX_AGE
+
 
 SOURCE = "homelab-doctor-structured/v2"
 STATES = {"ok": "OK", "warn": "WARNING", "fail": "FAILED"}
@@ -29,7 +31,9 @@ def render_observation(observation: Any) -> str:
     if state not in {*STATES, "unavailable"}:
         raise FixedDoctorResponseDenied("fixed Doctor state differs")
     age = observation["age_seconds"]
-    if type(age) is not int or not 0 <= age <= 600:
+    # Match the source adapter's freshness contract. A narrower presentation
+    # limit can reject an observation that the source still validly serves.
+    if type(age) is not int or not 0 <= age <= int(MAX_AGE.total_seconds()):
         raise FixedDoctorResponseDenied("fixed Doctor age differs")
     observed_at = observation["observed_at"]
     if not isinstance(observed_at, str):
