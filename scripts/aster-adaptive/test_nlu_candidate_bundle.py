@@ -14,6 +14,7 @@ SEALED = HERE / "fixtures" / "nlu-candidate-bundle-qwen35-9b-sycl-v1.json"
 SEALED_V6 = HERE / "fixtures" / "nlu-candidate-bundle-qwen35-9b-sycl-v6.json"
 SEALED_V8 = HERE / "fixtures" / "nlu-candidate-bundle-qwen35-9b-sycl-v8.json"
 SEALED_V9 = HERE / "fixtures" / "nlu-candidate-bundle-qwen35-9b-sycl-v9.json"
+SEALED_V10 = HERE / "fixtures" / "nlu-candidate-bundle-qwen35-9b-sycl-v10.json"
 
 
 def sealed():
@@ -108,6 +109,16 @@ class NluCandidateBundleTests(unittest.TestCase):
         self.assertEqual("qwen3.5-9b-sycl-nlu-v9", value["candidate_id"])
         self.assertEqual(
             "1941b4754c5195e11b623479f63cb368cacfea64a7adc3223bf22794e3b825f5",
+            hashlib.sha256(raw).hexdigest(),
+        )
+
+    def test_v10_candidate_is_exact_and_valid(self):
+        raw = SEALED_V10.read_bytes()
+        value, errors = bundle.load_and_validate(raw)
+        self.assertEqual([], errors)
+        self.assertEqual("qwen3.5-9b-sycl-nlu-v10", value["candidate_id"])
+        self.assertEqual(
+            "ad01b3883a65125b1e37335b66d62a65d65103b98c8577ecd2a337833a2bcb39",
             hashlib.sha256(raw).hexdigest(),
         )
 
