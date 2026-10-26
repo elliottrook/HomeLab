@@ -1596,3 +1596,11 @@ and the complete dependency-free NLU suite passes 324/324. This is offline
 machinery only. A real v2 score producer and a materially stronger candidate
 must still pass nested exposed-set evaluation before any fresh calibration;
 the holdout remains sealed and automatic routing remains off.
+
+The missing [v2 confidence-score producer](evidence/M3-NLU-v2-confidence-score-boundary-2026-10-26.md)
+is now implemented. It accepts no request text, binds the exact candidate,
+calibration and attempt journal, and emits separate decision-correctness and
+routed-effect fields for the v2 selector. Its focused path passes 12/12 and the
+dependency-free NLU suite passes 329/329. The remaining pre-calibration gate is
+therefore candidate quality rather than policy machinery: a materially stronger
+semantic representation must pass nested selection over all six exposed sets.
