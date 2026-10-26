@@ -10,6 +10,10 @@ class FixedDoctorActivationBoundaryTests(unittest.TestCase):
         self.text = SCRIPT.read_text()
 
     def test_exact_identity_capability_and_single_read_are_pinned(self):
+        self.assertIn(
+            '[ "$(sha "$core")" = 2fdb80964984fed5cf539f12a62d0058ba9eb9088861425858109fabc7dabf99 ]',
+            self.text,
+        )
         self.assertIn("enable-fixed-doctor --agent-uid 978", self.text)
         self.assertEqual(1, self.text.count('s.sendall(b\'{"method":"doctor.aster-inference.latest"'))
         self.assertIn('assert rows == [("consumed",)]', self.text)

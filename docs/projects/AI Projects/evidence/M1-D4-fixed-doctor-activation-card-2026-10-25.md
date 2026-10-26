@@ -3,7 +3,7 @@
 **Date:** 2026-10-25
 **Status:** review candidate; no live effect authorized
 
-**Script:** `scripts/deploy/activate_fixed_doctor_capability.sh`, SHA-256 `a040e0eeb5674664183f2c81a376b1883eb68620fbedc4f99f9ab9c788592533`
+**Script:** `scripts/deploy/activate_fixed_doctor_capability.sh`, SHA-256 `2328f7e410c4635782e9882100baa36537bbb3fb7d44ca91abb1f2ee4041afea`
 
 ## Purpose
 
@@ -14,7 +14,8 @@ typed read of the fixed `aster.agent_inference` evidence.
 
 ## Exact live action
 
-The pinned activation script requires the accepted broker, caller, gateway,
+The pinned activation script requires the accepted broker admin, service and
+core, caller, gateway,
 capability and unit hashes; UID 978; the dedicated group memberships; active
 broker/Aster services; disabled/inactive fixed services; absent fixed sockets;
 safe report custody; SQLite integrity; and zero pre-existing fixed rows.
