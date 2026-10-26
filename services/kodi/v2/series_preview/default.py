@@ -48,6 +48,7 @@ class SeriesPreview(xbmcgui.WindowXML):
         self.fullscreen_requested=False;self.return_deadline=0;self.restore_due=0
         self.catalogue=None;self.catalogue_client=None;self.catalogue_loaded={};self.catalogue_base=None
         self.catalogue_cache=None;self.season_writer=None;self.request_arm=None
+        self.last_playback_phase=None
 
     def onInit(self):
         if not self.ready:
@@ -116,13 +117,24 @@ class SeriesPreview(xbmcgui.WindowXML):
             position=self.getControl(300).getSelectedPosition()
             if self.pending_index is not None and position!=self.pending_index:return
             if position!=self.marked_index and 0<=position<len(self.selection.group.episodes):
+                armed=self.request_arm is not None
                 self.request_arm=None
+                if armed:self.setProperty('Series.Status','OK plays the selected episode · Back returns to library')
                 if self.marked_index is not None:self.getControl(300).getListItem(self.marked_index).setProperty('Selected','false')
                 self.getControl(300).getListItem(position).setProperty('Selected','true');self.marked_index=position
             self.pending_index=None;self.selection.select(position)
         row=self.selection.episode
         self.setProperty('Series.SelectedId',str(row.episode_id) if row and row.episode_id else '')
         self.setProperty('Series.Ready','true')
+
+    def consume_command(self):
+        command=self.getProperty('Series.Command')
+        if not command:return
+        self.clearProperty('Series.Command')
+        if command=='select':
+            try:identity=self.getFocusId()
+            except RuntimeError:return
+            if identity in (200,201,202,300,311,312,313,314,315):self.onClick(identity)
 
     def onClick(self,identity):
         if not self.ready or self.finished:return
@@ -180,13 +192,19 @@ class SeriesPreview(xbmcgui.WindowXML):
             return
         self.setProperty('Series.Status','Loading complete episode catalogue…')
         detail=self.catalogue_client.season(self.catalogue,number)
-        detail=self.catalogue_cache.localize(detail)
+        # Local episode art always wins during merge. Do not hold the page
+        # while downloading catalogue duplicates for episodes already owned.
+        local_numbers={row.number for group in self.catalogue_base.seasons
+            if group.number==number for row in group.episodes
+            if type(row.number) is int}
+        detail=self.catalogue_cache.localize(detail,local_numbers)
         old_key=self.selection.episode.selection_key if self.selection.episode else None
         remembered=dict(self.selection.remembered)
         self.catalogue_loaded[number]=detail
         page=merge_page(self.catalogue_base,self.catalogue,self.catalogue_loaded.values())
         self.snapshot=replace(self.snapshot,page=page)
         self.selection=SeriesSelection(page,old_key);self.selection.remembered=remembered
+        self.setProperty('Series.Status','')
 
     def request_missing(self,row):
         if not row.requestable:
@@ -256,10 +274,12 @@ class SeriesPreview(xbmcgui.WindowXML):
             self.fullscreen_requested=True
             if xbmcgui.getCurrentWindowId()==self.identity:xbmc.executebuiltin('ActivateWindow(fullscreenvideo)')
         self.setProperty('Series.Playback',self.session.phase)
-        if self.session.phase=='playing':self.setProperty('Series.Status','Playing · Back from video stops and returns here')
-        elif self.session.phase=='idle':self.setProperty('Series.Status','OK plays the selected episode · Back returns to library')
-        elif self.session.phase=='conflict':self.setProperty('Series.Status','Another player is active; it has not been interrupted.')
-        elif self.session.phase=='recovery':self.setProperty('Series.Status','Playback result uncertain. No retry; close and check the player.')
+        if self.session.phase!=self.last_playback_phase:
+            self.last_playback_phase=self.session.phase
+            if self.session.phase=='playing':self.setProperty('Series.Status','Playing · Back from video stops and returns here')
+            elif self.session.phase=='idle':self.setProperty('Series.Status','OK plays the selected episode · Back returns to library')
+            elif self.session.phase=='conflict':self.setProperty('Series.Status','Another player is active; it has not been interrupted.')
+            elif self.session.phase=='recovery':self.setProperty('Series.Status','Playback result uncertain. No retry; close and check the player.')
         if self.refresh_due and time.monotonic()>=self.refresh_due and idle() and not self.dialog_open:
             self.refresh_due=0;old=self.selection
             try:
@@ -376,6 +396,7 @@ def run_entry():
             if not window.ready:
                 if time.monotonic()>deadline:raise SeriesUnavailable('preview-initialization-timeout')
             else:
+                window.consume_command()
                 window.refresh_playback()
                 if window.finished:break
                 visible=xbmc.getCondVisibility('Window.IsVisible('+str(window.identity)+')')

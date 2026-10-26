@@ -8912,7 +8912,7 @@ process/HTTP/Kodi adapter, but that adapter cannot be truthfully activated or
 hardware-tested until the G20 microphone dongle is present and its event/source
 identity is observed.
 
-### M2/M4 complete-series catalogue and Seerr shortcut — prepared locally, 2026-10-26
+### M2/M4 complete-series catalogue and Seerr shortcut — active on HP, 2026-10-26
 
 The owner requested the episode-page pattern used by some Jellyfin clients:
 show every known episode, retain colour artwork and playback for episodes in
@@ -8948,12 +8948,47 @@ ordinary local episode page usable.
 The Morning Show is the chosen visual/merge fixture because HP indexes only
 its ten Season 4 episodes while Seerr reports Seasons 1–5. This demonstrates
 both colour local episodes and monochrome catalogue-only seasons without
-inventing content or altering Jellyfin. The pure broker/contract suite passes
-79 tests in normal and optimized Python. The Kodi v2 suite passes 1,104 tests
-in both modes (one local Pillow rendering test is skipped on the Mac because
-Pillow is appliance-supplied); the HP has Pillow 10.2.0 for the live rendering
-gate. A deterministic eight-member series component and a reversible
-four-reference family-runtime upgrade are prepared. No broker, HP or
-production mutation from this slice has yet occurred. Activation requires a
-bounded shared-broker rebuild/restart approval, followed by autonomous HP-only
-deployment and native visual/write tests. Production remains unchanged.
+inventing content or altering Jellyfin. The restricted broker successor is now
+healthy on TrueNAS in `unified-aster-seerr-broker`; its prior Compose/code state
+is retained at `.aster-checkpoints/seerr-episode-catalogue-20261026`. The HP
+candidate is active with its base and three immutable hotfix checkpoints under
+`/storage/.aster-checkpoints/aster-series-catalogue*`. Production remains
+unchanged.
+
+Native acceptance established all of the following:
+
+- the season selector exposes Seasons 1–5 and switches from catalogue-only
+  Season 1 to locally owned Season 4 in under three seconds;
+- local Season 4 rows retain colour Jellyfin art, watched state, exact Kodi
+  episode IDs and ordinary playback;
+- catalogue-only rows have no Kodi ID, cannot play, and use 20 cached PNG
+  stills whose RGB channels were independently verified as true grayscale;
+- four-worker bounded art rendering avoids serial network delay, and art for
+  already-local episodes is not fetched from Seerr/TMDB;
+- G20 OK selection reaches the scripted page through a page-specific command
+  bridge without affecting the ordinary native selection routes;
+- the first request press leaves a persistent `Request Season N` confirmation,
+  the second press uses the durable write journal, and a pending season is
+  subsequently non-requestable; and
+- a local episode opened full-screen, was explicitly stopped, returned to the
+  series page, left no active player and left no unresolved playback recovery
+  record.
+
+During acceptance, the initial implementation allowed a background playback
+status refresh to erase the first-click confirmation almost immediately.
+Repeated OK attempts then produced one real *The Morning Show* Season 1 request,
+Seerr request `162`, before the defect was identified. Its HP journal is
+committed and Seerr now reports the season `pending`, so Aster cannot submit it
+again. The defect is fixed by updating playback text only when playback phase
+actually changes. Request `162`, together with the earlier deliberate
+*Hundreds of Beavers* request `160` and *The Pitt* Season 1 request `161`, remains
+pending for the owner to approve or decline in Seerr; Aster has not approved,
+deleted or otherwise altered any of them.
+
+The broker/contract suite passes 79 tests in normal and optimized Python. The
+complete Kodi v2 suite passes 1,107 tests in both modes (one local Pillow test
+is skipped on the Mac because Pillow is appliance-supplied and was exercised
+on HP). Historical deployment tests were advanced to the exact current
+dispatcher predecessor hashes, preserving their drift and rollback gates.
+This closes the HP engineering slice. Production promotion remains a later
+explicit release decision and is not implied by the HP acceptance.

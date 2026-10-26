@@ -9,7 +9,7 @@ try:
 except ImportError:
     Image = None
 
-from series_catalogue import parse_catalogue, season_proposal
+from series_catalogue import parse_catalogue, parse_season, season_proposal
 from series_seerr_client import (CatalogueClient, CatalogueUnavailable,
                                  GrayscaleCache, SeasonRequestWriter)
 
@@ -73,6 +73,27 @@ class SeriesSeerrClientTests(unittest.TestCase):
                 writer.submit(payload, catalogue)
             with self.assertRaisesRegex(CatalogueUnavailable, 'recovery-required'):
                 writer.submit(payload, catalogue)
+
+    def test_local_episode_numbers_skip_redundant_catalogue_art(self):
+        catalogue = parse_catalogue(CATALOGUE)
+        detail = parse_season({'schema': 1, 'candidate_id': 'seerr:tv:456',
+            'title': 'Series', 'season': CATALOGUE['seasons'][0],
+            'episodes': [
+                {'number': 1, 'title': 'Owned', 'overview': '',
+                 'air_date': '2026-01-01',
+                 'still': 'https://image.tmdb.org/t/p/w500/owned.png'},
+                {'number': 2, 'title': 'Missing', 'overview': '',
+                 'air_date': '2026-01-08',
+                 'still': 'https://image.tmdb.org/t/p/w500/missing.png'}]},
+            catalogue, 2)
+        calls = []
+        with tempfile.TemporaryDirectory() as root:
+            cache = GrayscaleCache(root)
+            cache.fetch = lambda url: calls.append(url) or '/private/grayscale.png'
+            localized = cache.localize(detail, {1})
+        self.assertEqual(calls, ['https://image.tmdb.org/t/p/w500/missing.png'])
+        self.assertEqual(localized.episodes[0].still, '')
+        self.assertEqual(localized.episodes[1].still, '/private/grayscale.png')
 
     @unittest.skipUnless(Image is not None, 'Pillow is supplied by the Kodi appliance')
     def test_cache_outputs_real_grayscale_and_refuses_redirect(self):

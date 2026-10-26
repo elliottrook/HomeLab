@@ -80,4 +80,5 @@ def run(stage,storage,pin,*,idle):
             atomic(target(storage,row['path']),(checkpoint/'original'/row['path']).read_bytes())
         atomic(checkpoint/'state.json',b'{"state":"rolled_back"}\n')
         raise
-    return dict(installed=True,component_files=8,replacements=4,checkpoint_verified=True)
+    return dict(installed=True,component_files=8,
+                replacements=len(manifest['replacements']),checkpoint_verified=True)

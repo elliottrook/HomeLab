@@ -21,6 +21,16 @@ BOOK_WINDOWS = {
     11119: ('audiobooks', {500}),
     11120: ('podcasts', {500}),
 }
+SERIES_CONTROLS = frozenset((200, 201, 202, 300, 311, 312, 313, 314, 315))
+
+
+def series_command_target(identity, visible, focus_id):
+    """Return the verified scripted-window identity for an OK command."""
+    if (not isinstance(identity, str) or not identity.isdecimal()
+            or not visible or focus_id not in SERIES_CONTROLS):
+        return None
+    value = int(identity)
+    return value if 12000 <= value <= 13999 else None
 
 
 def dispatched_action(window_id, focus_id):
@@ -43,6 +53,20 @@ def dispatched_action(window_id, focus_id):
 def main():
     import xbmc
     import xbmcgui
+
+    home = xbmcgui.Window(10000)
+    series_identity = home.getProperty('AsterSeries.PreviewWindow')
+    if series_identity.isdecimal():
+        value = int(series_identity)
+        visible = xbmc.getCondVisibility('Window.IsVisible(' + series_identity + ')')
+        try:
+            series_focus = xbmcgui.Window(value).getFocusId()
+        except RuntimeError:
+            series_focus = 0
+        target = series_command_target(series_identity, visible, series_focus)
+        if target is not None:
+            xbmcgui.Window(target).setProperty('Series.Command', 'select')
+            return
 
     window_id = xbmcgui.getCurrentWindowId()
     try:

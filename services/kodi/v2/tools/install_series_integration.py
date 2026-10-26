@@ -48,7 +48,7 @@ def main(arguments):
         require(not target.exists() if row['before_sha256'] is None else digest(target)==row['before_sha256'],'live-source-drift')
     require(next(r for r in rows if r['path']=='tools/aster_v2_series.py')['before_sha256'] is None,'helper-must-be-new')
     require(next(r for r in rows if r['path']=='tools/select_dispatch.py')['before_sha256']==
-        '9d3334a1d8b15f465c43139ce038de0b82d0a2b129568cb3e7f7270704419796','accepted-dispatcher')
+        '8b5d70a18c03f775c775115717b4096ad2615941985cfb5ba57f45dc1663a162','accepted-dispatcher')
     require(not Path('/storage/.aster-checkpoints/aster-series-playback-20261024/unresolved-start.json').exists(),'series-recovery-required')
     evidence=Path('/storage/.aster-checkpoints/aster-music-progressive-20261024')/proof_name
     proof=json.loads(evidence.read_text());age=time.time()-int(proof_name[10:-5])/1e9

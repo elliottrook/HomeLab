@@ -1,5 +1,6 @@
 """Restricted Seerr episode transport, private grayscale cache and write fence."""
 from dataclasses import replace
+from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
 import hashlib
 import json
@@ -160,16 +161,27 @@ class GrayscaleCache:
         except Exception as error:
             raise CatalogueUnavailable('series-still-unavailable') from error
 
-    def localize(self, detail):
+    def localize(self, detail, skip_numbers=()):
         require(isinstance(detail, CatalogueSeasonDetail),
                 'series-still-detail-invalid')
+        skipped = frozenset(skip_numbers)
+        require(all(type(number) is int and 1 <= number <= 9999
+                    for number in skipped), 'series-still-skip-invalid')
+        wanted = tuple(dict.fromkeys(row.still for row in detail.episodes
+            if row.still and row.number not in skipped))
+        def render(url):
+            try:
+                return self.fetch(url)
+            except CatalogueUnavailable:
+                return ''
+        if wanted:
+            with ThreadPoolExecutor(max_workers=min(4, len(wanted)),
+                                    thread_name_prefix='aster-series-art') as pool:
+                rendered = dict(zip(wanted, pool.map(render, wanted)))
+        else:
+            rendered = {}
         rows = []
         for row in detail.episodes:
-            still = ''
-            if row.still:
-                try:
-                    still = self.fetch(row.still)
-                except CatalogueUnavailable:
-                    still = ''
+            still = rendered.get(row.still, '')
             rows.append(replace(row, still=still))
         return replace(detail, episodes=tuple(rows))

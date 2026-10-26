@@ -28,7 +28,9 @@ class SearchDetailsDeployTests(unittest.TestCase):
         (deploy.SKIN/'1080i').mkdir();(deploy.SKIN/'tools').mkdir()
         (deploy.SKIN/'1080i/custom_1127_search.xml').write_bytes(native)
         original=(Path(__file__).parent.parent/'skin.asterhome/tools/select_dispatch.py').read_text()
-        (deploy.SKIN/'tools/select_dispatch.py').write_text(series_dispatcher(original))
+        predecessor=series_dispatcher(original)
+        (deploy.SKIN/'tools/select_dispatch.py').write_text(predecessor)
+        p=patch.object(deploy,'BEFORE',hashlib.sha256(predecessor.encode()).hexdigest());p.start();self.addCleanup(p.stop)
         detail=next(r['sha256'] for r in manifest['files'] if r['path']=='resources/lib/search_details.py')
         (deploy.ROOT/'native-details-1.json').write_text(json.dumps(dict(passed=True,checks_enforced=True,source_sha256=detail)))
         self.proof='postcheck-'+str(time.time_ns())+'.json'
