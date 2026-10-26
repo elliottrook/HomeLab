@@ -131,6 +131,15 @@ class NluThresholdV2Tests(unittest.TestCase):
             policy.validate_policy(value),
         )
 
+    def test_zero_confidence_can_never_be_selected(self):
+        value = score()
+        for row in value["cases"]:
+            row["decision_score"] = 0.0
+            row["route_score"] = 0.0
+            row["proposes_route"] = False
+        with self.assertRaisesRegex(ValueError, "no decision/route threshold"):
+            selection.select_thresholds(registered(), encoded(value))
+
 
 if __name__ == "__main__":
     unittest.main()

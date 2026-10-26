@@ -1576,9 +1576,8 @@ privacy and unsafe effects behind separate zero-tolerance gates. The acceptance
 artifact is bound to the exact proposal at SHA-256 `3ba7b808…31932e`; the
 derived accepted decision artifact is `7ed39472…4752a9`. This changes only the
 evaluation policy. The rejected dense encoder remains rejected, the holdout
-remains sealed and automatic routing remains off. The next M3 work is the v2
-scorer/registration implementation followed by materially stronger candidates
-on the six exposed development sets.
+remains sealed and automatic routing remains off. The v2 scorer and
+registration boundary described below are now complete.
 
 The current programme-level remainder is recorded in the
 [October 26 milestone reconciliation](evidence/Stream-A-milestone-reconciliation-2026-10-26.md).
@@ -1604,3 +1603,14 @@ routed-effect fields for the v2 selector. Its focused path passes 12/12 and the
 dependency-free NLU suite passes 329/329. The remaining pre-calibration gate is
 therefore candidate quality rather than policy machinery: a materially stronger
 semantic representation must pass nested selection over all six exposed sets.
+
+The first confidence-bearing generative challenger is now also
+[rejected](evidence/M3-NLU-ensemble-v6-crossset-rejection-2026-10-26.md).
+Its deterministic-envelope version passed the 24-case public gate at 23/24
+with zero unsafe or privacy failures, but all six nested exposed folds found no
+eligible inner threshold. Invalid perspective votes ranged from 3 to 10 per
+set. The run also closed a safety gap by making both frozen thresholds strictly
+positive; zero-confidence fallbacks can no longer be selected. No calibration
+or holdout was created. Further 9B prompt/ensemble iteration has stopped; the
+next candidate needs a materially different semantic representation or an
+independent confidence source.

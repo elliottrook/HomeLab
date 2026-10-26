@@ -22,8 +22,8 @@
    prerequisite for repeated whole-stack model work by Adaptive and for the
    broader Candidate-H run. It is not a prerequisite for ordinary offline
    Stream A development.
-2. **M3 automatic handover.** Implement the accepted v2 scorer and registration
-   path; find a semantic candidate that passes nested validation over all six
+2. **M3 automatic handover.** The accepted v2 scorer and registration path are
+   complete. Find a semantic candidate that passes nested validation over all six
    exposed development sets; create and independently review a fresh balanced
    calibration only after that pass; freeze thresholds; then open the sealed
    holdout and run the no-effect shadow comparison. Automatic routing remains

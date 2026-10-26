@@ -105,8 +105,8 @@ def validate_policy(value: object) -> list[str]:
         thresholds = value.get("selected_thresholds")
         if not isinstance(thresholds, dict) or set(thresholds) != THRESHOLD_KEYS:
             errors.append("frozen policy requires decision and route thresholds")
-        elif not all(_fraction(thresholds[key]) for key in THRESHOLD_KEYS):
-            errors.append("frozen thresholds must be in [0, 1]")
+        elif not all(_fraction(thresholds[key]) and thresholds[key] > 0 for key in THRESHOLD_KEYS):
+            errors.append("frozen thresholds must be in (0, 1]")
     return errors
 
 

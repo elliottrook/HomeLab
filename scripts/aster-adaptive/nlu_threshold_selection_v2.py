@@ -85,8 +85,8 @@ def select_thresholds(registered_policy: dict, score_raw: bytes) -> dict:
         raise ValueError("; ".join(errors))
     rows = score["cases"]
     constraints = registered_policy["constraints"]
-    decision_candidates = sorted({0.0, 1.0, *(float(row["decision_score"]) for row in rows)})
-    route_candidates = sorted({0.0, 1.0, *(float(row["route_score"]) for row in rows)})
+    decision_candidates = sorted({1.0, *(float(row["decision_score"]) for row in rows if row["decision_score"] > 0)})
+    route_candidates = sorted({1.0, *(float(row["route_score"]) for row in rows if row["route_score"] > 0)})
     eligible: list[tuple[float, float, float, dict]] = []
     for decision_threshold in decision_candidates:
         for route_threshold in route_candidates:
