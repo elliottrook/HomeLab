@@ -40,18 +40,38 @@ def layout():
     return ET.tostring(root,encoding='utf-8',xml_declaration=True)+b'\n'
 
 
+def menu_layout():
+    root=ET.Element('window',type='dialog')
+    ET.SubElement(root,'defaultcontrol',always='true').text='1421'
+    controls=ET.SubElement(root,'controls')
+    def node(kind,n,x,y,w,h,**values):
+        c=ET.SubElement(controls,'control',dict(type=kind,**({'id':str(n)} if n else {})))
+        for k,v in dict(left=x,top=y,width=w,height=h,**values).items():ET.SubElement(c,k).text=str(v)
+        return c
+    panel=node('image',None,1300,91,330,146)
+    ET.SubElement(panel,'texture',border='18',colordiffuse='b0000000').text='special://skin/media/ui-panel.png'
+    for n,y,label,other in ((1421,101,'Network status',1422),(1422,163,'View Kodi log',1421)):
+        c=node('button',n,1312,y,306,62,label=label,font='font24',textcolor='fff3eee5',
+            focusedcolor='fff3eee5',disabledcolor='ff96988f',align='left',aligny='center',
+            textoffsetx='20',onup=other,ondown=other,onleft='noop',onright='noop')
+        ET.SubElement(c,'texturefocus',border='18',colordiffuse='ff005c46').text='special://skin/media/ui-panel.png'
+        ET.SubElement(c,'texturenofocus',border='18',colordiffuse='40000000').text='special://skin/media/ui-panel.png'
+    return ET.tostring(root,encoding='utf-8',xml_declaration=True)+b'\n'
+
+
 def build(output):
     here=Path(__file__).resolve().parent;root=Path(output);root.mkdir(mode=0o700)
     files={'default.py':(here/'network_preview/default.py').read_bytes(),
         'network_diagnostics.py':(here/'network_diagnostics.py').read_bytes(),
         'network_service_checks.py':(here/'network_service_checks.py').read_bytes(),
-        'resources/skins/Default/1080i/NetworkPreview.xml':layout()}
+        'resources/skins/Default/1080i/NetworkPreview.xml':layout(),
+        'resources/skins/Default/1080i/DiagnosticsMenu.xml':menu_layout()}
     rows=[]
     for name,raw in sorted(files.items()):
         path=root/name;path.parent.mkdir(mode=0o700,parents=True,exist_ok=True);path.write_bytes(raw);path.chmod(0o600)
         rows.append(dict(path=name,bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest()))
-    value=dict(kind='hp-network-preview.v2',normal_entry=False,network_probes=True,
-        explicit_service_checks=True,network_changes=False,files=rows)
+    value=dict(kind='hp-network-preview.v5',normal_entry=False,network_probes=True,
+        explicit_service_checks=True,diagnostics_menu=True,network_changes=False,files=rows)
     path=root/'manifest.json';path.write_text(json.dumps(value,indent=2)+'\n');path.chmod(0o600)
     return hashlib.sha256(path.read_bytes()).hexdigest()
 

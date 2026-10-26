@@ -66,9 +66,12 @@
   replacements, unchanged/duplicate caching, older-delivery rejection, loss/
   malformed/recovery, manual local reload and focus/context preservation.
   The real feed remains unchanged. The isolated read-only Network page now
-  passes865 tests plus two native real/offline-demo runs, with manual Refresh,
-  preserved focus/context and unclaimed reachability. Next: bounded explicit
-  media-service checks, not automatic probes, while
+  passes873 tests plus two native explicit-service-check runs, with manual
+  Refresh, preserved focus/context, no background probes and bounded HTTP200
+  observations from Jellyfin/ABS. The compact HP Settings Diagnostics entry now
+  offers Network status and retains the existing optional Log viewer action;
+  installed-route Back/Home and rollback/reinstall tests pass. Next: idle-mode
+  policy and native wake/focus groundwork, while
   runtime publisher identity and scheduling remain explicit integration gates.
   Owner checks are deferred for a larger batch, not requested now. Forgejo/GitHub
   are synchronized through68b2285f; newer milestones are local only.
@@ -6843,3 +6846,85 @@ all exact approved overlays,68 AV/language checks with the previously evidenced
 derived display-index exception, both databases and closed/idle/empty state.
 No normal Settings entry or production change. Retain earlier stages for
 recovery. Local commit only; remote synchronization awaits a specific push.
+
+### Stream A HP Settings Diagnostics entry — pre-start
+
+Connect only Settings' existing Diagnostics pill to a compact in-place menu
+offering Network status and the existing View Kodi log action. Use the already
+validated read-only Network view; HTTP checks remain explicit. Preserve all
+other Settings actions/layout and AV/authentication/network settings. This is
+HP-only, idle, with no production contact, speech, service/account/schedule or
+inventory change. The current Settings XML must match its exact accepted hash;
+retain a private verified original, prove isolated restore and actual rollback/
+reinstallation before accepting the overlay. Keep immutable pinned bundles,
+single-entry locking, Settings focus/Back/Home checks and full preservation.
+Disable Log viewer only when its existing add-on is absent; don't read logs in
+automated checks. No global dimmed modal or settings-reload service restart is
+planned. Close/omit the new route and restore just the exact original XML on
+failure; unknown file drift or playback starts fence mutation. Applicable TV
+gold/green/neutral design exception remains; no new spoken output. Native
+captures may contain only local Settings/network facts. Owner sofa acceptance
+remains batched, not claimed by automated tests.
+
+#### HP Settings Diagnostics entry — completed evidence
+
+Only `Settings.xml` changes: Diagnostics launches a pinned compact menu and is
+enabled when idle instead of depending on the optional Log viewer add-on. All
+other actions, layout and captions remain semantically identical. View Kodi log
+retains its original explicit add-on action; HP currently lacks that add-on, so
+the disabled row truthfully says Log not installed. No add-on was installed and
+no logs were opened. No global dialog dimmer or stone-button texture is added.
+The inspected actual installed capture has unclipped text and a small dark
+in-place menu directly beneath Diagnostics, with the parent's focus retained.
+
+Network preview5's five-member manifest is
+`04fe8bf7d4ac047957ebf89f84be42cb195ccae41a63fde88a820f659cb987d6`,
+at `/storage/.aster-staging/aster-network-preview5`. The one-file route bundle is
+`/storage/.aster-staging/aster-network-settings3`, manifest
+`10a4d833a12b30995f963d95859943085a2492e9bad148f5496420a95343a3f8`.
+Installed Settings SHA-256 is
+`96f3db252aba120d4f8dfadbf9d59f54ef3e2013972be1f27a49474ebf6d6ef1`.
+Recovery directory `/storage/.aster-checkpoints/aster-network-settings3` retains
+the manifest, state and exact original XML, SHA-256
+`09a98be3b9ecddf185f61fdfb561bf9e68c4be123816e4f78ecc34210e136ab4`.
+An isolated restored copy has that same hash. Actual rollback restored that exact
+predecessor, passed full preservation, then reinstallation passed. Recovery uses
+the staged `deploy_network_settings.py` with `rollback` and the route manifest
+pin; run only while idle on Home. Do not restore a whole profile.
+
+The initial staged test correctly refused to focus disabled Diagnostics; the
+preactivation test now uses the enabled Interface focus without opening it.
+Next it exposed native WindowXML closing to Home: explicit Back now restores
+Settings, while a genuine Home exit from Network remains Home. Preview3's
+failed Back-context run is retained, not counted as a pass. Preview4 also
+revealed native modal Home blocking. As confirmed against
+[Kodi's Input.Home implementation](https://raw.githubusercontent.com/xbmc/xbmc/Omega/xbmc/interfaces/json-rpc/InputOperations.cpp),
+Home requests window activation; the open modal keeps it from switching.
+The menu deliberately preserves standard Back-to-dismiss semantics, then Home
+works. No claim is made that Home directly dismisses the menu. The final short
+disabled caption also removes the earlier truncation/white inactive texture.
+Neither superseded route bundle was activated.
+
+Six additional unit tests pass, full879-test suite normal/optimized. Enforced
+staged proof `aster-network-settings-native-1792987436785307389/native.json`
+passes. Two normal installed-route proofs pass:
+`aster-network-settings-native-1792987503249559425/native.json` and
+`aster-network-settings-native-1792987589160852560/native.json`.
+They exercise real Diagnostics selection, compact-menu focus/Back, Network
+opening without probes, return to Settings/control206, modal Home boundary,
+Home after Back and direct Home from Network, unchanged settings and idle/empty
+state. `postcheck-1792987622433441154.json` passes48 Music/115 untouched v1
+members, all exact overlays (now including this externally pinned one-file
+successor),68 AV/language checks with the previously documented derived display
+index exception, both databases and all windows closed. No production change.
+
+Operator note: HP side rail → Settings → Diagnostics → Network status. Opening
+the page or Refresh local status reads local configuration only. Check media
+services sends one unauthenticated GET each to the existing private Jellyfin and
+Audiobookshelf health routes; a response does not prove sign-in, playback or
+Internet access. Back returns to Diagnostics; Home exits Network to Home. On
+the compact menu, use Back first to dismiss it. Missing/offline configuration is
+shown explicitly; this page never reconnects or changes network settings. No
+new authentication is needed. Physical remote/sofa acceptance remains pending
+the owner's batched checks. Source and private checkpoints remain recoverable;
+remote push still requires a specific authorization.

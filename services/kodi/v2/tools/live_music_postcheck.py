@@ -41,6 +41,7 @@ keys.append('Window(Home).Property(AsterVideo.ScrubOpen)')
 keys.extend('Window(Home).Property(AsterDigest.'+name+')' for name in ('PlayerWindow','PreviewWindow','ReaderWindow'))
 keys.append('Window(Home).Property(AsterHome.PreviewWindow)')
 keys.append('Window(Home).Property(AsterNetwork.PreviewWindow)')
+keys.append('Window(Home).Property(AsterNetwork.MenuOpen)')
 keys.extend('Window(Home).Property(AsterSearch.'+name+')' for name in ('Open','DetailOpen','Ready'))
 keys.append('Window(Home).Property(AsterSearch.Handoff)')
 keys.extend('Window(Home).Property(AsterMovie.'+name+')' for name in ('Window','Ready','Phase'))
@@ -213,6 +214,20 @@ if review10_marker.exists():
         repair=json.loads(disabled_repair.read_text());digest='09a98be3b9ecddf185f61fdfb561bf9e68c4be123816e4f78ecc34210e136ab4'
         _require(repair.get('passed') is True and repair.get('sha256')==digest and repair.get('member')=='Settings.xml','settings-disabled-captions')
         review10_expected['.kodi/addons/skin.asterhome/1080i/Settings.xml']=digest
+    if Path('/storage/.aster-checkpoints/aster-network-settings3/state.json').exists():
+        import importlib.util
+        network_settings_stage=stage/'aster-network-settings3'
+        network_settings_pin='10a4d833a12b30995f963d95859943085a2492e9bad148f5496420a95343a3f8'
+        raw=(network_settings_stage/'manifest.json').read_bytes()
+        _require(hashlib.sha256(raw).hexdigest()==network_settings_pin,'network-settings-manifest-pin')
+        for name,digest in json.loads(raw)['helpers'].items():
+            _require(hashlib.sha256((network_settings_stage/name).read_bytes()).hexdigest()==digest,'network-settings-helper-pin')
+        spec=importlib.util.spec_from_file_location('accepted_network_settings',network_settings_stage/'network_settings_install.py')
+        sys.path.insert(0,str(network_settings_stage))
+        validator=importlib.util.module_from_spec(spec);spec.loader.exec_module(validator)
+        overrides=validator.accepted_overrides(network_settings_stage,Path('/storage'),network_settings_pin)
+        _require(not overrides or set(overrides)=={'.kodi/addons/skin.asterhome/1080i/Settings.xml'},'network-settings-exact-overlay')
+        review10_expected.update(overrides)
     for r in json.loads(review10_raw)['files']:
         review10_member_sha=review10_expected.get(r['path'],r['sha256'])
         _require(hashlib.sha256((Path('/storage')/r['path']).read_bytes()).hexdigest()==review10_member_sha,'review10-installed-member')

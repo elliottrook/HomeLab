@@ -8,7 +8,7 @@ import types
 import unittest
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
-from build_network_preview import build,layout
+from build_network_preview import build,layout,menu_layout
 
 HERE=Path(__file__).parent
 
@@ -18,7 +18,7 @@ class NetworkPreviewTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder).resolve()/'bundle';pin=build(root)
             manifest=json.loads((root/'manifest.json').read_text())
-            self.assertEqual(len(manifest['files']),4)
+            self.assertEqual(len(manifest['files']),5)
             self.assertTrue(manifest['network_probes']);self.assertTrue(manifest['explicit_service_checks'])
             self.assertFalse(manifest['network_changes'])
             spec=importlib.util.spec_from_file_location('network_preview',root/'default.py')
@@ -46,13 +46,29 @@ class NetworkPreviewTests(unittest.TestCase):
 
     def test_runtime_is_manual_read_only_and_offline_demo_is_explicit(self):
         script=(HERE/'network_preview/default.py').read_text()
-        for banned in ('Player.Open','Player.Stop','PlayMedia','ActivateWindow(',
+        for banned in ('Player.Open','Player.Stop','PlayMedia',
             'socket.connect','urlopen','call_service','nmcli','ifconfig','systemctl','assert '):
             self.assertNotIn(banned,script)
         self.assertIn('network settings were NOT changed',script)
-        self.assertIn("sys.argv[2]!='offline-demo'",script)
+        self.assertIn("sys.argv[2] not in ('offline-demo','diagnostics')",script)
         self.assertIn('elif self.check_services:self.render_services()',script)
         self.assertIn('if demo:return',script)
+        self.assertEqual(script.count('ActivateWindow('),1)
+        self.assertIn('window.return_source and source==10004 and guard.idle()',script)
+
+    def test_compact_menu_keeps_logviewer_and_has_no_dimmer_or_network_action(self):
+        root=ET.fromstring(menu_layout())
+        self.assertEqual(root.get('type'),'dialog')
+        self.assertEqual(root.findtext('defaultcontrol'),'1421')
+        self.assertEqual(len(root.findall('.//control')),3)
+        panel=root.find(".//control[@type='image']")
+        self.assertEqual((panel.findtext('width'),panel.findtext('height')),('330','146'))
+        self.assertEqual(root.findtext(".//control[@id='1422']/label"),'View Kodi log')
+        self.assertFalse(root.findall('.//onclick'))
+        script=(HERE/'network_preview/default.py').read_text()
+        self.assertIn("xbmc.executebuiltin('RunAddon(script.logviewer)')",script)
+        self.assertIn('source not in (10000,10004)',script)
+        self.assertIn("Control.SetFocus(206)",script)
 
     def test_entry_list_is_bounded_and_honest_about_truncation(self):
         spec=importlib.util.spec_from_file_location('network_entry',HERE/'network_preview/default.py')
