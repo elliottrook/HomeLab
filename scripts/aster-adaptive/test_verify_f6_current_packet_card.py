@@ -17,6 +17,10 @@ class CurrentPacketCardTests(unittest.TestCase):
         for path, digest in self.requirements["installed_paths"].items():
             parts.append(f"{path} {digest}")
         parts.extend(self.requirements["m3_identities"].values())
+        for binding in self.requirements["target_bindings"]:
+            parts.append(
+                f"{binding['target']} {binding['path']} {binding['sha256']}"
+            )
         self.complete_card = "\n".join(parts)
 
     def test_complete_card_passes(self):
@@ -36,6 +40,15 @@ class CurrentPacketCardTests(unittest.TestCase):
         stale = self.requirements["forbidden_superseded_hashes"][0]
         failures = verify_card(self.complete_card + "\n" + stale, self.requirements)
         self.assertIn(f"superseded digest present: {stale}", failures)
+
+    def test_missing_guest_target_binding_fails(self):
+        binding = self.requirements["target_bindings"][-1]
+        line = f"{binding['target']} {binding['path']} {binding['sha256']}"
+        failures = verify_card(self.complete_card.replace(line, ""), self.requirements)
+        self.assertIn(
+            f"missing target binding: {binding['target']} {binding['path']}",
+            failures,
+        )
 
     def test_unknown_schema_fails(self):
         data = json.loads(REQUIREMENTS.read_text())

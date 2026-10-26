@@ -60,11 +60,15 @@ The five owner/watchdog units are:
 The owner-heartbeat service is the accepted owner-before-heartbeat correction
 and supersedes the earlier card's `6c777750…2ad5` pin.
 
-LXC104 and LXC110 both have `/usr/local/libexec/stream-a-evaluation-guest-outcome`
-at
-`027183c9f10923cc4aa3053934b5f090d8e01f86aa81c9730d93abc143e6dcb9`
-and `/usr/local/libexec/stream_a_evaluation_outcome_verifier.py` at
-`9408623489d52f7923c8dcca246159bb13a7926aa0a820c765fc8f3a339b58e1`.
+The shared guest files are explicitly bound to both targets:
+
+| Target | Installed path | SHA-256 |
+|---|---|---|
+| LXC104 | `/usr/local/libexec/stream-a-evaluation-guest-outcome` | `027183c9f10923cc4aa3053934b5f090d8e01f86aa81c9730d93abc143e6dcb9` |
+| LXC104 | `/usr/local/libexec/stream_a_evaluation_outcome_verifier.py` | `9408623489d52f7923c8dcca246159bb13a7926aa0a820c765fc8f3a339b58e1` |
+| LXC110 | `/usr/local/libexec/stream-a-evaluation-guest-outcome` | `027183c9f10923cc4aa3053934b5f090d8e01f86aa81c9730d93abc143e6dcb9` |
+| LXC110 | `/usr/local/libexec/stream_a_evaluation_outcome_verifier.py` | `9408623489d52f7923c8dcca246159bb13a7926aa0a820c765fc8f3a339b58e1` |
+
 Candidate-H's LXC104 launcher `/usr/local/libexec/aster-d4-candidate-h-launcher`
 is
 `71c07060a59a81923803fdd21cc14f218fc3c1c1f7f1797e1b1e75acdf4240eb`

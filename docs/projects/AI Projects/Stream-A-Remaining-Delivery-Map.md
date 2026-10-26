@@ -1427,8 +1427,9 @@ The platform F6 card must pin that complete set; no intermediate M3 manifest
 is valid for activation.
 The offline
 [current-packet card validator](evidence/Stream-A-F6-current-packet-card-validator-2026-10-25.md)
-now enforces the complete 38-path installed boundary and the four final M3
-identities, while rejecting the known superseded hashes. Its five focused
+now enforces the complete 38-unique-path installed boundary, both guest target
+bindings and the four final M3 identities, while rejecting the known
+superseded hashes. Its six focused
 tests pass and it rejects the existing stale platform card for the same
 missing and superseded identities found by independent review. This makes the
 replacement card mechanically reviewable; it does not publish or activate it.

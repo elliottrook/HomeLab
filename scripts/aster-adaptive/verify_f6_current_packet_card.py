@@ -26,6 +26,18 @@ def verify_card(card: str, requirements: dict[str, Any]) -> list[str]:
     for name, digest in requirements["m3_identities"].items():
         if digest not in card:
             failures.append(f"missing M3 identity: {name}")
+    lines = card.splitlines()
+    for binding in requirements["target_bindings"]:
+        if not any(
+            binding["target"] in line
+            and binding["path"] in line
+            and binding["sha256"] in line
+            for line in lines
+        ):
+            failures.append(
+                "missing target binding: "
+                f"{binding['target']} {binding['path']}"
+            )
     for digest in requirements["forbidden_superseded_hashes"]:
         if digest in card:
             failures.append(f"superseded digest present: {digest}")
