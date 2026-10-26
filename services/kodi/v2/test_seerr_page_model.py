@@ -1,7 +1,7 @@
 import unittest
 
-from seerr_page_model import (PageUnavailable, complete, load, request, select,
-                              toggle_season)
+from seerr_page_model import (PageUnavailable, action_label, complete, load,
+                              request, requestable, select, toggle_season)
 
 
 def raw(kind='movie', media_id=123, **changes):
@@ -45,6 +45,23 @@ class SeerrPageModelTests(unittest.TestCase):
             page = load({'schema': 1, 'query': 'Example', 'candidates': [item]}, 'Example')
             page, proposal = request(page, True)
             self.assertEqual((page.phase, proposal.state), (expected, expected))
+
+    def test_action_label_and_seasons_are_truthful_before_press(self):
+        partial = load({'schema': 1, 'query': 'Example', 'candidates': [
+            raw('tv', owned=True, availability='partial')]}, 'Example')
+        self.assertFalse(requestable(partial.item))
+        self.assertEqual(action_label(partial), 'Partly in your library')
+        with self.assertRaisesRegex(PageUnavailable, 'seerr-season-invalid'):
+            toggle_season(partial, 1)
+        pending = load({'schema': 1, 'query': 'Example', 'candidates': [
+            raw('tv', request_id=9, request_state='pending')]}, 'Example')
+        self.assertEqual(action_label(pending), 'View request status')
+        fresh = load({'schema': 1, 'query': 'Example', 'candidates': [raw('tv')]},
+                     'Example')
+        self.assertTrue(requestable(fresh.item))
+        self.assertEqual(action_label(fresh), 'Choose seasons')
+        fresh = toggle_season(fresh, 1)
+        self.assertEqual(action_label(fresh), 'Request selected seasons')
 
     def test_correlated_result_is_visible_and_mismatch_fails(self):
         page = load({'schema': 1, 'query': 'Example', 'candidates': [raw()]}, 'Example')

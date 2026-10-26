@@ -8530,16 +8530,47 @@ manifests both hash to the accepted candidate above. Post-restart verification
 reports `active: true`, `passed: true`, Home idle and the recovery checkpoint
 valid. A clean native search for `Arrival` returned twelve candidates, selected
 the expected 2016 film, and rendered its poster, synopsis and request action.
-The Media top rail also renders its compact Requests launcher. The read harness
-explicitly records `write_action_invoked: false`; the HP request journal remains
-absent and no Seerr request was submitted. The final owner-selected disposable
-request, two-step confirmation, duplicate/status result and uncertain-write
-recovery remain the write acceptance gate.
+The Media top rail also renders its compact Requests launcher.
 
-Regression evidence is 1,092 Kodi v2 tests and 71 unified-media tests in both
-normal and optimized Python. Broker health, HTTP 401 denial, candidate pin,
-checkpoint integrity, exact mounts and container health were rechecked after
-the visual proof.
+Live multiword television acceptance then exposed an upstream-encoding
+compatibility defect: Seerr 3.5 rejected form-style `+` spaces in the query but
+accepted percent-encoded `%20`. The broker now explicitly uses URL percent
+encoding and regression-tests the exact request path. The corrected source and
+retained candidate both hash to
+`6c61db05942e37a433aba8c503d0ce92a311f0cd4c821674951acd85163cea1b`
+and are mode `0644`. The rebuilt container is `running:healthy`; its only mounts
+remain the two exact read-only secret files described above. During deployment,
+one candidate briefly had source mode `0600`, which the non-root container
+correctly refused, and one recreate supplied an empty config-path placeholder,
+which mounted empty secret directories and caused authenticated work to fail
+closed. Both were corrected immediately without a request, secret disclosure
+or state write; the final exact mounts and health were reverified.
+
+The first native TV proof also showed that a partly owned series could still
+display selectable seasons even though the broker would refuse the request.
+The hash-pinned truthfulness patch has manifest
+`605206cedf35700ee581f4498649920b434ba9f7806add221b9549b6438fef6f`
+and checkpoint `/storage/.aster-checkpoints/aster-seerr-page2`. It changes only
+the controller and pure page model, refuses season selection for non-requestable
+items and gives owned, partial, blocklisted and existing-request states truthful
+in-place labels. Install, verify and isolated rollback simulations pass; the HP
+install and separate live verify both report active.
+
+Three native, remote-style read proofs now pass without focusing or invoking a
+write action. `Arrival` still renders the expected film. Fresh television title
+`The Pitt` renders its hero and three advertised seasons, permits one local
+season selection and labels the action `Request selected seasons`. Partly owned
+`The Morning Show` labels itself `Partly in your library` and exposes no season
+controls. Every harness records `write_action_invoked: false`, returns to Home
+idle and starts no player. The HP request journal remains absent and no Seerr
+request was submitted. The final owner-selected disposable request, two-step
+confirmation, duplicate/status result and uncertain-write recovery remain the
+write acceptance gate.
+
+Regression evidence is 1,095 Kodi v2 tests and 71 unified-media tests in both
+normal and optimized Python. Broker health, candidate hashes and modes, exact
+read-only mounts, container health and the absent HP journal were rechecked
+after all three visual proofs.
 
 One network-boundary discrepancy remains open: HP can reach Seerr's
 unauthenticated status endpoint directly on TCP/5055 because the pre-existing

@@ -24,6 +24,34 @@ class Page:
         return self.candidates[self.selected] if 0 <= self.selected < len(self.candidates) else None
 
 
+def requestable(item):
+    return (isinstance(item, Candidate) and not item.owned
+            and item.availability != 'blocklisted'
+            and item.request_state == 'none')
+
+
+def action_label(page):
+    item = page.item if isinstance(page, Page) else None
+    if not isinstance(item, Candidate):
+        return ''
+    phase = {'confirm': 'Confirm request', 'submitting': 'Sending…',
+             'complete': 'Request sent', 'status': 'View request status',
+             'error': 'Unavailable'}
+    if page.phase in phase:
+        return phase[page.phase]
+    if item.availability == 'partial':
+        return 'Partly in your library'
+    if item.owned or item.request_state == 'available':
+        return 'Already in your library'
+    if item.availability == 'blocklisted':
+        return 'Unavailable'
+    if item.request_state != 'none':
+        return 'View request status'
+    if item.media_type == 'tv':
+        return 'Request selected seasons' if page.seasons else 'Choose seasons'
+    return 'Request title'
+
+
 def load(value, query):
     try:
         candidates = candidate_page(value, query)
@@ -44,7 +72,8 @@ def select(page, index):
 
 def toggle_season(page, season):
     item = page.item if isinstance(page, Page) else None
-    if not isinstance(item, Candidate) or item.media_type != 'tv' or season not in item.seasons:
+    if (not requestable(item) or item.media_type != 'tv'
+            or season not in item.seasons):
         raise PageUnavailable('seerr-season-invalid')
     selected = set(page.seasons)
     selected.remove(season) if season in selected else selected.add(season)

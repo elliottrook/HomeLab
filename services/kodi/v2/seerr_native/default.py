@@ -14,8 +14,9 @@ import xbmcgui
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / 'resources/lib'))
 from seerr_broker_client import BrokerUnavailable, RequestWriter
-from seerr_page_model import (Page, PageUnavailable, complete, load, request,
-                              select, toggle_season)
+from seerr_page_model import (Page, PageUnavailable, action_label, complete,
+                              load, request, requestable, select,
+                              toggle_season)
 
 PREFIX = 'AsterSeerr.'
 BROKER = 'http://192.168.20.40:8788'
@@ -77,16 +78,11 @@ def main():
         prop('Synopsis', item.overview or 'No synopsis is available.')
         prop('Backdrop', item.backdrop)
         prop('Poster', item.poster)
-        label = {'confirm': 'Confirm request', 'submitting': 'Sending…',
-                 'complete': 'Request sent', 'status': 'View request status',
-                 'unavailable': 'Unavailable',
-                 'error': 'Unavailable'}.get(page.phase, 'Request title')
-        if item.media_type == 'tv' and page.phase == 'results':
-            label = 'Request selected seasons'
-        prop('RequestLabel', label)
-        prop('SeasonsVisible', 'true' if item.media_type == 'tv' else 'false')
+        prop('RequestLabel', action_label(page))
+        seasons_visible = item.media_type == 'tv' and requestable(item)
+        prop('SeasonsVisible', 'true' if seasons_visible else 'false')
         prop('SeasonHint', (str(len(page.seasons)) + ' selected' if page.seasons
-                           else 'Choose one or more seasons') if item.media_type == 'tv' else '')
+                           else 'Choose one or more seasons') if seasons_visible else '')
 
     def fill_results():
         control = window.getControl(30)

@@ -62,11 +62,14 @@ class AsterSeerrBrokerTests(unittest.TestCase):
 
     def test_search_returns_only_sanitized_exact_schema(self):
         transport = Transport()
-        value = self.client(transport).search("Example", "all")
+        value = self.client(transport).search("Example title", "all")
         self.assertEqual([row["identity"] for row in value["candidates"]],
                          ["seerr:movie:123", "seerr:tv:456"])
         self.assertEqual(value["candidates"][1]["seasons"], [1, 2])
         self.assertNotIn("requestedBy", json.dumps(value))
+        search_url = next(url for url, _ in transport.calls if "/search?" in url)
+        self.assertIn("query=Example%20title", search_url)
+        self.assertNotIn("Example+title", search_url)
 
     def test_movie_request_is_revalidated_and_sanitized(self):
         transport = Transport()

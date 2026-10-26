@@ -88,7 +88,8 @@ class SeerrClient:
         if media_type not in ("all", "movie", "tv"):
             raise BrokerError("seerr-search-type-invalid")
         cookie = self._login()
-        encoded = urllib.parse.urlencode({"query": query, "page": 1})
+        encoded = urllib.parse.urlencode({"query": query, "page": 1},
+                                         quote_via=urllib.parse.quote)
         payload = self._get("/search?" + encoded, cookie)
         results = payload.get("results")
         if not isinstance(results, list):
