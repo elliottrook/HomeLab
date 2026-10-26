@@ -6162,3 +6162,35 @@ device action, speech, credential, network, schedule or production change is
 planned. Recovery is omitting this unactivated module. Doctor/monitoring/NetBox/
 wiki topology updates are not applicable to pure local code; record the stale
 feed finding and next integration gate here, retaining existing privacy limits.
+
+#### Home timestamp policy — local foundation gate passed
+
+`services/kodi/v2/home_freshness.py` now returns only `fresh`, `stale`, `future`,
+`invalid` or `missing`, with publication/source ages where valid. The wrapper
+must be schema1 and the currently reviewed snapshot schema3. Both timestamps
+must be zoned, no older than600seconds, no more than300seconds in the future and
+not implausibly ordered. A fresh wrapper cannot revive an old source. Its
+`permits_value_validation` property deliberately means only that a separate
+bounded household-value validator may proceed; this policy does not validate or
+retain those values, expose a control or claim a live camera.
+
+Twelve synthetic tests pass normally and optimized: both ages, fresh-copy/stale-
+source, old-wrapper, exact/subsecond expiry, future/skew/order, missing or naive/
+malformed stamps, equivalent timezone offsets, strict schema types, caller clock
+validation and no household-data retention/mutation. The full803-test v2 suite
+passes in both modes after the final News/harness and Home policy changes. This
+module is not deployed or imported by an active client; the current stale HP
+feed was not edited, re-dated or copied elsewhere. No HA/device/camera request,
+new speech, credential or service change occurred. Home remains an unfinished
+v2 milestone rather than a falsely populated dashboard.
+
+Next safe work: read-only identification of the existing sanitized Home source
+and its real publication/refresh path, followed by a staged intent-group view
+with explicit offline/stale states. Validate actual freshness and reviewed alias
+contracts before showing values. Structured timer state/resume and an approved
+production camera delivery path remain separate integration gates; empty alias
+lists and a historical “online” record do not satisfy them. Do not extend trust,
+obtain credentials, register a publisher/schedule or fetch camera frames as an
+implicit part of this pure-model slice. News integration is locally committed
+as37776d8d; this foundation is a separate local milestone. Remote synchronization
+still stops at the specifically approved bb3eed88 push/mirror.
