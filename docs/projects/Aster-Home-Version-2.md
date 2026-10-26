@@ -8372,3 +8372,45 @@ lawfully accessible, DRM-free source text; generated narration is not shared or
 published. Generated media is reproducible and should use snapshots/local
 recovery rather than consuming scarce encrypted off-site backup capacity; the
 source EPUB library and service manifests retain their existing protection.
+
+### M5 Seerr request integration — read-only discovery and local contract
+
+The first Seerr slice is intentionally local and read-only. From the HP lab,
+`http://192.168.20.40:5055/api/v1/status` returned HTTP 200 and identified the
+existing service as Seerr 3.5.0. No search, request, login, credential read or
+server mutation was made. Production Aster was not contacted.
+
+The repository already contains the correct authority boundary in
+`services/unified-media`: its portal owns revalidation, idempotency and the
+dedicated `unified-media-requester` Seerr identity. That identity has request
+permission only (32), without automatic approval or management authority, and
+its secret remains outside Git. Aster must therefore integrate through a new
+restricted broker surface rather than storing a Seerr password/API key or
+calling Seerr directly. The TV should receive only sanitized candidate/status
+records and submit an explicit, positively confirmed candidate identity.
+
+`services/kodi/v2/seerr_request_model.py` establishes the pure TV-side
+contract. It performs no I/O and cannot hold a credential. It accepts only an
+exact schema, movie/TV identity, bounded display fields, coherent owned/request
+state and sorted available TV seasons. Owned or available media is blocked;
+an existing request returns status rather than creating a duplicate. Movies
+cannot carry seasons, TV requires a unique non-empty subset of advertised
+seasons, and every new request requires explicit confirmation. Responses must
+correlate to the exact candidate identity and a valid nonzero request ID.
+Focused tests pass normally and with optimized Python.
+
+Read-only code inspection found one existing broker defect that prevents a
+safe live TV pilot: the search page exposes TV season selection, but
+`submit_search_action` currently excludes `tv` from its final supported-media
+allow-list. Do not bypass that check or point Aster at Seerr. Before any live
+pilot, the separately owned broker layer needs a bounded change that corrects
+that mismatch, adds a dedicated Aster endpoint and capability-bounded client
+identity, returns exact request status, and proves revocation, duplicate
+handling and uncertain-write recovery. The endpoint must accept only the
+contract above; it must not expose a general proxy, admin credential or
+automatic approval. This is an integration gate, not authority for a server
+change or a Seerr request.
+
+The resulting repository gate passes all 1,031 Kodi v2 tests in both normal
+and optimized Python. This milestone is suitable for a focused local commit;
+it does not authorize a Forgejo push or HP/production deployment.
