@@ -13,7 +13,7 @@ from lease_watchdog import EXPECTED_SCHEDULES, Observation
 Probe = Callable[[Sequence[str], float], tuple[int, str]]
 EXPECTED_AUTH_MARKER = "auth-metadata-ok"
 AUTH_PROBE_PATH = "/usr/local/libexec/aster-a1/llama_auth_probe.py"
-AUTH_PROBE_SHA256 = "0996e1b565ad24b740997bbfe598065267e20380135a5af41687d0562239cae6"
+AUTH_PROBE_SHA256 = "93e78f8a9c40bb9808ac71c5215404c8f10b3e5116383095d196281293682582"
 MODEL_HASH_TIMEOUT = 30.0
 
 

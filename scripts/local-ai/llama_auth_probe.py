@@ -17,22 +17,39 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         raise urllib.error.HTTPError(request.full_url, code, msg, headers, fp)
 
 
+def _request(opener, authorization=None):
+    headers = {} if authorization is None else {"Authorization": authorization}
+    request = urllib.request.Request(URL, headers=headers)
+    try:
+        with opener.open(request, timeout=5) as response:
+            return response.status, json.loads(response.read(65536)), request
+    except urllib.error.HTTPError as exc:
+        return exc.code, None, request
+
+
 def probe() -> bool:
     with open(KEY_PATH, encoding="ascii") as stream:
         keys = [line.strip() for line in stream if line.strip()]
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
+    try:
+        unauthenticated, _payload, _request_value = _request(opener)
+        invalid, _payload, _request_value = _request(
+            opener, "Bearer aster-fixed-invalid-probe"
+        )
+    except (urllib.error.URLError, TimeoutError, ValueError):
+        return False
+    if unauthenticated != 401 or invalid != 401:
+        return False
     for key in keys:
-        request = urllib.request.Request(URL, headers={"Authorization": "Bearer " + key})
         try:
-            with opener.open(request, timeout=5) as response:
-                payload = json.loads(response.read(65536))
+            status, payload, _request_value = _request(opener, "Bearer " + key)
             models = payload.get("data")
-            if isinstance(models, list) and any(
+            if status == 200 and isinstance(models, list) and any(
                 isinstance(model, dict) and model.get("id") == EXPECTED_MODEL
                 for model in models
             ):
                 return True
-        except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError):
+        except (urllib.error.URLError, TimeoutError, ValueError, AttributeError):
             continue
     return False
 
