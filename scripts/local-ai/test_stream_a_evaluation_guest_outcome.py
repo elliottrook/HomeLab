@@ -1,6 +1,9 @@
+import io
+import json
 import os
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
@@ -51,6 +54,17 @@ class GuestOutcomeTests(unittest.TestCase):
                 subject.verify_local("d4-candidate-h")
         with self.assertRaises(subject.GuestOutcomeError):
             subject.verify_local("other")
+
+    def test_cli_is_inert_without_explicit_verification_gate(self):
+        output = io.StringIO()
+        with redirect_stdout(output):
+            self.assertEqual(subject.main([]), 0)
+        self.assertEqual(json.loads(output.getvalue()),
+                         {"schema": subject.SCHEMA, "state": "disabled"})
+        output = io.StringIO()
+        with redirect_stdout(output):
+            self.assertEqual(subject.main(["--verify-authorized"]), 1)
+        self.assertEqual(json.loads(output.getvalue())["state"], "no_go")
 
 
 if __name__ == "__main__":

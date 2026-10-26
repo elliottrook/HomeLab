@@ -91,9 +91,16 @@ def canonical(value: dict[str, object]) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--workload", required=True,
+    parser.add_argument("--workload",
                         choices=("d4-candidate-h", "m3-nlu-calibration"))
+    parser.add_argument("--verify-authorized", action="store_true")
     arguments = parser.parse_args(argv)
+    if not arguments.verify_authorized:
+        print(canonical({"schema": SCHEMA, "state": "disabled"}), end="")
+        return 0
+    if arguments.workload is None:
+        print(canonical({"schema": SCHEMA, "state": "no_go"}), end="")
+        return 1
     try:
         value = verify_local(arguments.workload)
     except (GuestOutcomeError, OSError, ValueError):

@@ -20,11 +20,11 @@ GUEST_WRAPPER = "/usr/local/libexec/stream-a-evaluation-guest-outcome"
 COMMANDS = {
     "d4-candidate-h": (
         "pct", "exec", "104", "--", GUEST_WRAPPER,
-        "--workload", "d4-candidate-h",
+        "--workload", "d4-candidate-h", "--verify-authorized",
     ),
     "m3-nlu-calibration": (
         "pct", "exec", "110", "--", GUEST_WRAPPER,
-        "--workload", "m3-nlu-calibration",
+        "--workload", "m3-nlu-calibration", "--verify-authorized",
     ),
 }
 _HEX = re.compile(r"^[0-9a-f]{64}$")

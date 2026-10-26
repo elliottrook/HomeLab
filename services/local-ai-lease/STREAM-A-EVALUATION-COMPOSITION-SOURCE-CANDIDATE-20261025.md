@@ -1,6 +1,6 @@
 # Stream A evaluation composition source candidate
 
-Status: **SOURCE-ONLY; CORRECTED INDEPENDENT RE-REVIEW REQUIRED**
+Status: **SOURCE-ONLY; WRAPPER-GATE RE-REVIEW REQUIRED**
 
 This candidate closes the remaining source composition gaps for the future
 D4 candidate-H plus M3 evaluation. It is not installed, has no executable
@@ -12,8 +12,8 @@ arming, a lease, consumer isolation, a model call, cleanup, or Git push.
 | File | SHA-256 |
 |---|---|
 | `scripts/local-ai/stream_a_evaluation_evidence_loader.py` | `836f627cd2702dffd59c77b77adab2aded01805ee43553a11471cfddfeb80a01` |
-| `scripts/local-ai/stream_a_evaluation_guest_outcome.py` | `bc00a8997e5d6f0ad8355ee0cc580c91d14ef3bf65cff007bdc6ca50ebb0e1e9` |
-| `scripts/local-ai/stream_a_evaluation_host_outcome.py` | `81e90c4c038f0d8f134cb19b83d1e7ccdf371ba2d5f2ff9bd2a08d7371007ff2` |
+| `scripts/local-ai/stream_a_evaluation_guest_outcome.py` | `027183c9f10923cc4aa3053934b5f090d8e01f86aa81c9730d93abc143e6dcb9` |
+| `scripts/local-ai/stream_a_evaluation_host_outcome.py` | `6b986fb71dca8657aa56b9fe8ef904223445e64b4122a827324adaf300c64321` |
 | `scripts/local-ai/stream_a_evaluation_restore_observer.py` | `20d977681452eb89cbda7b0417de02b4caed279f234e7b568a072638bb736fb2` |
 | `scripts/local-ai/stream_a_evaluation_restored_verifier.py` | `a83de6bcdf0b275b9f238acda1a35e7518eae12f47eb220faf8f822d9a5e0d93` |
 | `scripts/local-ai/stream_a_evaluation_runtime.py` | `7cda2842afa25bfca9cb47e30f433474c440ccf18123c80e7c55b54c66eb7210` |
@@ -37,7 +37,9 @@ under their fixed owners and modes. Successful output contains only schema,
 workload name, journal digest, result digest and call count. The host boundary
 uses fixed `pct exec` commands, rejects stderr, foreign names, duplicate keys,
 oversized output and call-count drift, and adds only the host-measured elapsed
-time.
+time. Direct guest invocation is inert unless the fixed host command supplies
+`--verify-authorized`; the gate permits verification only and cannot start a
+workload or model request.
 
 The restored observer now additionally requires:
 
@@ -62,7 +64,7 @@ wrapper capable of invoking it in this source candidate.
 
 ## Validation
 
-On macOS, the complete focused pattern passed **93/93**:
+On macOS, the complete focused pattern passed **94/94**:
 
 ```text
 PYTHONPATH=scripts/local-ai PYTHONPYCACHEPREFIX=/private/tmp/pycache-stream-a \
