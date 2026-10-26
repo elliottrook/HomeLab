@@ -1411,6 +1411,11 @@ now freezes the live review inputs, including the corrected owner unit and all
 V3 host/guest paths. It also records that M3's stage-manifest identity is a
 packet digest rather than a nonexistent installed `stage-manifest.json` path,
 and keeps the fixed Doctor proposal outside the two-workload sequence.
+The later [NLU completion correction](evidence/M3-NLU-final-attempt-completion-boundary-2026-10-25.md)
+supersedes that snapshot's M3 runner pin before any workload execution. Its
+[one-file inactive replacement card](evidence/M3-NLU-final-attempt-completion-inactive-replacement-card-2026-10-25.md)
+is ready for an exact installation decision; after a pass, the platform F6 card
+must use the new runner and packet-manifest digests.
 The shared [B60 health check is also corrected](evidence/Stream-A-SYCL-health-check-source-correction-2026-10-25.md)
 to validate the accepted Qwen3.5-9B Q4_K_M SYCL/Level Zero service rather than
 the retired Vulkan/27B path; its fixture test and a streamed read-only live run
