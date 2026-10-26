@@ -211,6 +211,7 @@ if scrub_file.exists():
         scrub_count=2 if native_scrub else 1
 review10_expected={}
 home_design_count=0
+home_status_count=0
 home_design_cp=Path('/storage/.aster-checkpoints/aster-home-design4')
 if (home_design_cp/'manifest.json').exists():
     home_design_stage=stage/'aster-home-design4'
@@ -228,8 +229,27 @@ if (home_design_cp/'manifest.json').exists():
             _require(hashlib.sha256((addons/'skin.asterhome/media'/name).read_bytes()).hexdigest()==digest,'home-design-installed-asset')
     path='.kodi/addons/skin.asterhome/1080i/custom_1112_home.xml'
     current=hashlib.sha256((Path('/storage')/path).read_bytes()).hexdigest()
-    _require(current in (design['predecessor'],members['custom_1112_home.xml']),'home-design-xml-drift')
-    if current==members['custom_1112_home.xml']:
+    successors={design['predecessor'],members['custom_1112_home.xml']}
+    status_cp=Path('/storage/.aster-checkpoints/aster-home-status1')
+    if (status_cp/'publication.json').exists():
+        status_stage=stage/'aster-home-status1'
+        status_pin='4d125fe1ca9ad5d1fba34116a817766823dc98b4db97579a61a2016ce6a85be1'
+        status_raw=(status_stage/'manifest.json').read_bytes()
+        _require(hashlib.sha256(status_raw).hexdigest()==status_pin and (status_cp/'manifest.json').read_bytes()==status_raw,'home-status-manifest-pin')
+        status=json.loads(status_raw)
+        _require(status['predecessor']==members['custom_1112_home.xml'] and set(status['files'])=={'custom_1112_home.xml','default.py','home_status_model.py'},'home-status-contract')
+        _require(hashlib.sha256((status_cp/'custom_1112_home.xml').read_bytes()).hexdigest()==status['predecessor'],'home-status-recovery-pin')
+        for name,digest in status['files'].items():
+            _require(hashlib.sha256((status_stage/name).read_bytes()).hexdigest()==digest,'home-status-member')
+        publication=json.loads((status_cp/'publication.json').read_text())
+        _require(publication.get('manifest_sha256')==status_pin and re.fullmatch('[0-9a-f]{64}',publication.get('feed_sha256','')),'home-status-publication-shape')
+        feed=Path('/storage/.kodi/userdata/addon_data/skin.asterhome/feeds/home-dashboard.json')
+        _require(not feed.is_symlink() and feed.stat().st_nlink==1 and feed.stat().st_mode&0o777==0o600 and
+                 hashlib.sha256(feed.read_bytes()).hexdigest()==publication['feed_sha256'],'home-status-publication-drift')
+        successors.add(status['files']['custom_1112_home.xml'])
+        if current==status['files']['custom_1112_home.xml']:home_status_count=3
+    _require(current in successors,'home-design-xml-drift')
+    if current!=design['predecessor']:
         review10_expected[path]=current;home_design_count=63
     _require(hashlib.sha256(Path('/storage/.kodi/userdata/addon_data/skin.asterhome/feeds/home.json').read_bytes()).hexdigest()==
              'a975c8c68dc5cf5d70c12530fb0bba60b89b78eb06d081f95ea6d97331b5b6cd','home-design-original-feed-drift')
@@ -500,6 +520,7 @@ with output.open('x') as handle:
                'approved_reading_news_files_verified':reading_news_count,
                'approved_idle_pilot_files_verified':idle_pilot_count,
                'approved_home_design_files_verified':home_design_count,
+               'approved_home_status_files_verified':home_status_count,
                'av_language_settings_verified':len(values),
                'av_preservation_details':av_details,
                'database_integrity':'ok','missing_primary_artist_links':0,

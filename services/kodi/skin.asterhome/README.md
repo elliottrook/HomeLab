@@ -1,5 +1,39 @@
 # Aster Home Kodi skin
 
+## HP-only v2 Home dashboard pilot
+
+Open **Home** from the floating side rail on the HP. The redesigned page has
+compact status cards, household readings, the retained camera area and a quiet
+timer with a thin seconds sweep. Select1/5/30minutes to start the local timer;
+the small square at its upper right stops it. The large digits show the total
+time remaining. Leaving Home ends this existing local visual timer; it is not
+a Home Assistant household timer or a cross-device alarm.
+
+**Overview** lists the display readings; **Lighting** filters that list.
+**Cameras** and **Timers** move focus to the corresponding controls. **Refresh**
+reloads the private local display export without resetting a running timer.
+It does not itself contact Home Assistant. A local thirty-second check hides
+readings once their source observation is over ten minutes old. The footer
+shows the source time and unavailable/unknown count; an available report is
+not proof every sensor has recently transmitted. An unavailable camera is not
+a live preview. Household rows are read-only, not lighting/device commands.
+
+The HA exporter publishes its new report every five minutes, but automatic
+HA-to-TV delivery is a separate, not-yet-activated milestone. The HP currently
+has a verified **one-shot** report and deliberately expires it. No passwords or
+new login are needed to view it, and no administrator credential is on the TV.
+Production BOSGAME retains its existing page.
+
+Recovery: private checkpoints are
+`/storage/.aster-checkpoints/aster-home-design4` and
+`/storage/.aster-checkpoints/aster-home-status1`. The pinned status installer
+can restore its preceding Home XML without touching shared helpers, media,
+settings or original feed. Source schema4 data is separate
+`feeds/home-dashboard.json`; do not replace the legacy `home.json` or restore
+old household readings as a code rollback. See the v2 project's dated evidence
+and `services/home-assistant/aster_home_registry/README.md` for source recovery.
+User aesthetic/household acceptance remains pending.
+
 Version 1.1.1 is deployed to HP and BOSGAME with owner-approved promotion.
 Continue Watching includes available Up Next episodes, not caught-up/future
 series placeholders; real Intro/Outro

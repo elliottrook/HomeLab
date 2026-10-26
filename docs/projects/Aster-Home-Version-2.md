@@ -7243,3 +7243,71 @@ project/source README hold operator instructions. No scheduled root guest-exec
 publisher authorized or installed. Next: fresh schema4 consumer/local HP
 publication with explicit staleness and read-only navigation, then assess
 least-privilege recurring delivery before calling Home populated/complete.
+
+### Normal HP Home population — 2026-10-25 continuation
+
+The new schema4 consumer now runs on **normal Home**, not another dashboard
+platform. Stage `/storage/.aster-staging/aster-home-status1` manifest
+`4d125fe1ca9ad5d1fba34116a817766823dc98b4db97579a61a2016ce6a85be1`
+contains exactly the Home XML successor, local display adapter and pure model.
+Shared `hub_data.py`, Digest integration, existing camera/timer helpers and the
+original `home.json` remain unchanged. On entry the adapter reuses the existing
+initializer; on unload it reuses cleanup. Normal Refresh/30second local checks
+do not reinitialize timer/camera state. Only the current11112 Home page may
+access its list control; harnesses still cannot access another window's native
+controls. Unit tests verify that boundary, missing/symlink refusal, section
+filtering, idle/media state preservation and malformed/stale/future payloads.
+
+The strict consumer accepts only schema4 named display fields, max256rows and
+262144bytes, finite bounded measurements, typed availability, distinct source
+IDs and a timezone-aware observation timestamp. Unknown fields/URLs/markup and
+duplicate JSON keys/IDs fail closed. Ten-minute source expiry and future-clock
+rejection hide values; a30second local tick never renews their source time.
+Lighting summarizes on/available/total; Overview lists readings with meaningful
+leak/motion states. Source room names are not invented: multiple unnamed Aqara
+leak devices still share their HA labels. Distinct display labels/room metadata
+remain a polish follow-up, not evidence those devices are assigned rooms.
+
+Native proofs `aster-home-status-native-1792991815733027115/native.json` and
+`aster-home-status-native-1792991941519561062/native.json` both pass63readings,
+33light filter, Overview return, start/stop and **Refresh preserving the exact
+running timer deadline**, unchanged AV/idle/empty state. Actual adapter
+rollback/reinstall also passed. Populated Home and populated running timer
+screenshots were visually inspected. The camera remains unavailable; no
+camera connectivity or household-control acceptance is claimed.
+
+One-shot source capture stays inside the existing operator SSH/QGA path, reads
+only the fixed new report and strips any unexpected fields **before**
+transport. It adds no TV key, publisher schedule, configuration or network
+rule. Stable inode/size/mtime/ctime/mode/link metadata is checked across reads;
+atime is deliberately excluded because the read itself can update it. Three
+capture tests cover that distinction and raw-field removal. A first capture
+refused the changed atime, was corrected and succeeded; no invalid capture was
+published. The native file publisher uses exact generation SHA, fresh schema,
+exclusive locking, private prior-generation recovery and a publication journal.
+It changes only `home-dashboard.json` and does not reload the skin for a data
+refresh. A second fresh one-shot publication also passed.
+
+Final preservation proof `postcheck-1792992149481942899.json` passes the prior
+full baseline plus the exact63Home design and3status overlay members, private
+recovery predecessors, current publication hash/mode and unchanged original
+feed. Both media DBs and68AV/language checks retain their earlier results.
+Fourteen new status model/controller/capture tests pass normally/optimized;
+full Kodi suite now passes924 tests in both modes. No production change or
+Forgejo push. Operator instructions are in the skin README.
+
+**Remaining integration gate:** the displayed HP report is one-shot, not a
+continuous live feed. HA owns/refreshes the source normally, but TV delivery
+must not depend on an operator Mac or scheduled privileged Proxmox root guest
+execution. A read-only route/client preflight found Core has SSH/asyncssh
+available, source `192.168.20.11`; a bounded TCP22 connect to HP returned11
+(timeout/non-success), not a proven firewall diagnosis. Proposed next envelope:
+source-local newly generated HA-held key, forced-command single-file receiver
+on HP, host-key pin, source-IP restriction/no shell/forwarding/PTY, five-minute
+publication with retained source timestamp; only if confirmed necessary, the
+single HA `.20.11`→HP`.1.140` TCP22 LAN rule. Checkpoint/auth revocation and code
+rollback must be tested; no admin key on TV, no device controls or production
+change. Jason has been asked for this **new credential/network/schedule scope**;
+do not treat the earlier exporter-only approval as granting it. Prepare safe
+local candidates while awaiting that specific decision. UI/source work is
+otherwise checkpointed and independently usable as a truthful one-shot pilot.
