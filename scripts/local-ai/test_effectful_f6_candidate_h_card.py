@@ -44,6 +44,9 @@ class EffectfulF6CandidateHCardTests(unittest.TestCase):
             "nlu_calibration_runner.py --source cases.json",
             "--key-file /etc/aster-llama-api-keys",
             "The first command may run once only",
+            "d4-start.json",
+            "m3-outcome.json",
+            "must never overwrite the other workload's phase evidence",
             "Uncertain cleanup retains state and locks for reconciliation",
         ):
             self.assertIn(phrase, text)

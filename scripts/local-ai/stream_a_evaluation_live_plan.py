@@ -224,15 +224,27 @@ class LivePlan:
             "gpu_holders": [BACKEND_TARGET], "recovery": recovery,
         }
 
-    def command(self, phase: str) -> tuple[str, ...]:
+    def command(self, phase: str, *, workload_name: str | None = None) -> tuple[str, ...]:
         if phase not in (
             "acquire", "quiesce", "post-quiescence", "heartbeat", "start",
             "outcome", "restore",
         ):
             raise LivePlanError("phase is not fixed")
+        if phase in {"start", "outcome"}:
+            prefixes = {
+                "d4-candidate-h": "d4",
+                "m3-nlu-calibration": "m3",
+            }
+            if workload_name not in prefixes:
+                raise LivePlanError("workload-specific phase needs a fixed workload")
+            intent_name = f"{prefixes[workload_name]}-{phase}.json"
+        else:
+            if workload_name is not None:
+                raise LivePlanError("non-workload phase cannot select a workload")
+            intent_name = f"{phase}.json"
         return (
             ENTRYPOINT, "--phase", phase, "--intent",
-            f"{INTENT_ROOT}/{phase}.json", "--effect-authorized",
+            f"{INTENT_ROOT}/{intent_name}", "--effect-authorized",
         )
 
     def _heartbeat_bound(self, now_epoch: int) -> dict[str, object]:

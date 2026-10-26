@@ -71,7 +71,10 @@ with the exact accepted model, using GET-only metadata and no inference body.
 - F5 and admission: sibling `f5-observation.json` and `admission.json`;
 - effect intents: `/var/lib/local-ai-lab/stream-a-evaluation/intents/`, a new
   root-owned mode-`0700` directory containing fixed-name root-owned mode-`0600`
-  JSON files for each phase;
+  JSON files for each phase: `acquire.json`, `quiesce.json`,
+  `post-quiescence.json`, `d4-start.json`, `d4-outcome.json`,
+  `m3-start.json`, `m3-outcome.json` and `restore.json`; recurring heartbeat
+  may atomically replace only `heartbeat.json`;
 - rollback checkpoint: `/var/lib/local-ai-lab/checkpoints/stream-a-evaluation-live-<cycle>-<same 16 lowercase hex>`,
   root-owned mode `0700` and created before arming.
 
@@ -124,6 +127,9 @@ elapsed seconds, `tool_free=true` and `transport_uncertain=false`. Restore
 binds the captured baseline, accepted backend/auth/idle observation, sole GPU
 holder and explicit recovery boolean. Any schema, digest or state mismatch is
 fail-closed.
+
+The two start intents and two outcome intents have distinct fixed filenames;
+one workload must never overwrite the other workload's phase evidence.
 
 The actual workload commands, surrounded by their corresponding start/outcome
 phases, are fixed as:

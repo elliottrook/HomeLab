@@ -62,6 +62,12 @@ class LivePlanTests(unittest.TestCase):
             "--intent", "/var/lib/local-ai-lab/stream-a-evaluation/intents/acquire.json",
             "--effect-authorized",
         ))
+        self.assertEqual(plan.command(
+            "start", workload_name="d4-candidate-h"
+        )[4], "/var/lib/local-ai-lab/stream-a-evaluation/intents/d4-start.json")
+        self.assertEqual(plan.command(
+            "outcome", workload_name="m3-nlu-calibration"
+        )[4], "/var/lib/local-ai-lab/stream-a-evaluation/intents/m3-outcome.json")
         self.assertEqual(restoration_reserve_seconds(), 900)
 
     def test_rejects_operator_choice_and_bad_bounds(self):
@@ -80,6 +86,10 @@ class LivePlanTests(unittest.TestCase):
                          elapsed_seconds=1, now_epoch=100_001)
         with self.assertRaises(LivePlanError):
             plan.command("operator-phase")
+        with self.assertRaises(LivePlanError):
+            plan.command("start")
+        with self.assertRaises(LivePlanError):
+            plan.command("restore", workload_name="d4-candidate-h")
         with self.assertRaises(LivePlanError):
             plan.outcome(name="d4-candidate-h", journal_digest="e" * 64,
                          result_digest="f" * 64, calls=1,
