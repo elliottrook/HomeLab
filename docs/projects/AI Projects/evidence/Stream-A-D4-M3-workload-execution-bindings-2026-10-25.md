@@ -61,11 +61,14 @@ SHA-256
 The source, release and development inputs match their frozen hashes;
 `run.json` and `attempt-journal.jsonl` are absent.
 
-The F6 card must pin the absolute Python interpreter path and its target,
-version and hash before execution. It must also bind the invoking identity to
-root in LXC110 and preflight that `/etc/aster-llama-api-keys` has the reviewed
-owner/group/mode and is readable only by that executor. Subject to those live
-pins, the invocation shape is:
+The absolute interpreter and execution identity are pinned by the
+[target inspection](M3-target-interpreter-and-key-custody-pins-2026-10-25.md):
+`/usr/bin/python3` resolves to `/usr/bin/python3.13`, Python 3.13.5,
+SHA-256
+`889c603f0d17cb54060951bcf4c4f9b8c9ebd9e52b392c70209bbb9755d797d9`.
+The invoking identity is root in LXC110; `/etc/aster-llama-api-keys` is
+`ollama:ollama` mode `0600` and is readable through the existing root
+boundary. The fixed invocation shape is:
 
 ```sh
 cd /var/lib/aster-nlu-calibration/nlu-calibration-v1
@@ -107,6 +110,7 @@ Consequently the effectful F6 transaction remains **NO-GO** pending all of:
 
 1. a reviewed D4 secret-delivery bridge compatible with the frozen candidate,
    or a separately authorized replacement candidate;
-2. absolute M3 interpreter and execution-identity/custody pins;
+2. a fresh preflight confirming the frozen M3 interpreter, identity and
+   key-file custody have not drifted;
 3. fresh same-cycle F2, F3, F4 and F5 evidence; and
 4. an exact platform transaction/recovery card and its separate live approval.
