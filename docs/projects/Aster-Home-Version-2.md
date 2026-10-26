@@ -8710,3 +8710,23 @@ on the actual remote; LibreELEC currently exposes no `arecord` command. This is
 a genuine integration gate, not a reason to reuse a broader credential or
 silently fall back to cloud speech. Six focused tests pass in normal and
 optimized Python alongside the accepted grouped-search tests.
+
+`voice_search_stt.py` now defines the credential-free television side of that
+speech boundary. It accepts only bounded mono signed-16-bit PCM, constructs the
+WAV entirely in memory and produces a deterministic multipart request for the
+exact `/v1/stt` path. The transport, endpoint and short-lived authorization are
+injected by a later restricted adapter; this layer cannot discover a URL, read
+or persist a credential, open a microphone, write audio, or make a network
+request. Responses must be successful JSON with the one expected `text` field,
+and the transcript is normalized by the same contract as typed grouped search.
+Unexpected status, content type, schema, size, duration or audio fails closed.
+The focused voice/STT and grouped-search tests pass in normal and optimized
+Python.
+
+Public G20-family product manuals support only the broad expectation that the
+remote has a microphone button. They do not establish its Linux input event,
+USB capture endpoint or LibreELEC compatibility, and therefore are not treated
+as implementation evidence. Live activation remains gated on observing the
+actual dongle on HP and provisioning the separately approved STT-only identity;
+until then the interface must report voice search as unavailable and retain the
+keyboard path.
