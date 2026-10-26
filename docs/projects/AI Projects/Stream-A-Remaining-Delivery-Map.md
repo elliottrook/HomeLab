@@ -1393,3 +1393,7 @@ now freezes the live review inputs, including the corrected owner unit and all
 V3 host/guest paths. It also records that M3's stage-manifest identity is a
 packet digest rather than a nonexistent installed `stage-manifest.json` path,
 and keeps the fixed Doctor proposal outside the two-workload sequence.
+The shared [B60 health check is also corrected](evidence/Stream-A-SYCL-health-check-source-correction-2026-10-25.md)
+to validate the accepted Qwen3.5-9B Q4_K_M SYCL/Level Zero service rather than
+the retired Vulkan/27B path; its fixture test and a streamed read-only live run
+both pass.
