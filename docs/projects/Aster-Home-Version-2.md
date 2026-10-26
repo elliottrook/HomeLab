@@ -7810,3 +7810,72 @@ Final validation:978Kodi tests pass in normal and optimized Python. The WAV
 remains only in the private speech-server checkpoint; no HP playback, extra
 render, production change or Forgejo push was performed. This milestone is
 locally checkpointed pending the next bounded playback decision.
+
+### HP synthetic read-along playback — pre-start, 2026-10-26
+
+Jason approved privately copying the existing 9.17-second sample to HP and
+testing measured sentence highlighting and stop-on-exit. No further synthesis,
+real book content, listening-position writes, production change or Git push.
+Install only a separate immutable private staging preview; transfer only the
+WAV through existing SSH authentication, not server keys/environment/proofs.
+Validate exact audio hash/PCM shape and source sentences before play. Each
+session uses a new private WAV identity and the accepted Digest ownership guard
+with only its local-container extension changed to WAV. Start only from idle
+Home with empty queues; no autoplay. Bounded native tests cover the 3.64-second
+sentence transition, pause/restart, natural end, Back and external Home. Never
+stop foreign playback or destroy a hidden native window beneath foreign media.
+Preserve AV/navigation/settings baselines and verify idle empty queues afterward.
+The warm stone/forest/gold Books preview follows the AsterTV style exception;
+its synthetic existing audio uses canonical Aster bm_daniel/Kokoro policy1.
+Recovery is closure of the owned preview; the normal Books route is untouched.
+
+### HP synthetic read-along playback — accepted, 2026-10-26
+
+Privately relayed only the existing WAV through the Mac's existing SSH
+connections; no local WAV retained and no server credentials/config transferred.
+Original SHA `99ae9edd408aa2fc6258d300c9d655cd4d81b88114f90fd609089a2541a5e039`
+and 440204-byte/mono24kHz/16-bit/220080-frame shape verified. Private staging
+directories0700 and sample/session files0600. No further synthesis occurred.
+The exact two original submitted sentences are displayed, not the longer
+similarly opening EPUB fixture. Forest-green emphasis switches at sample87360
+(3.64s); no per-word timing is claimed. Native screenshots were inspected for
+bright stone/forest/gold rendering, legibility, non-stretched floating icons and
+sentence emphasis; recovered the pre-existing stale Dim surface with one idle
+skin reload, without saving settings or restarting Kodi.
+
+Accepted isolated stage `aster-readalong5`, manifest
+`fcf83657dc2d3565f08f3e3f39421664cc5f718490dea410188127914a967489`.
+The accepted Digest ownership port is bundled unchanged except `.wav` in place
+of its MP3-only extension; its normal installed source/runtime is untouched.
+Each explicit Play gets a new private session WAV and callback/file-signature
+identity. No library ID or listening-progress route is attached. One playback
+per opening, with pause, stop and restart while owned; close/reopen after end.
+
+Initial tests found asynchronous EOF races: player state, Ended callback and
+the transient queue entry settle separately. The proof now waits read-only
+for a bounded callback/queue settlement and genuine natural-end evidence,
+never clearing a queue or inferring end from duration. A subsequent test
+exposed premature closure publication before the entry lock released; the
+marker now clears only after journal/focus/lock settlement. Earlier immutable
+stages and failed proof journals are retained privately as evidence, not normal
+entry points. No accepted player code was loosened to accommodate these races.
+
+Final native proof
+`/storage/.aster-checkpoints/aster-readalong-native-1793023863451610818/native.json`
+passes with checks enforced in optimized Kodi Python: no autoplay, both exact
+sentences, genuine natural end, pause freezes clock, restart updates sentence,
+Back stops, external Home stops, idle empty queues, native settings unchanged.
+Three final sessions completed, including immediate reopen after natural end.
+No real book, saved progress, shared speech service or production change.
+The synthetic native preview does not yet constitute human listening acceptance,
+full EPUB narration, automatic pagination, saved reading position or word timing.
+
+Final validation:986 tests pass in both normal and optimized Python. The
+read-only HP preservation helper now also fences `AsterReadAlong.Window`;
+post-playback audit passes the accepted Music/series/search/Books/News/Home,
+canonical sounds and camera/feed pins, database integrity, all68 AV/language
+settings (the existing documented resolution-index derivation remains), no
+player, empty queues and no retained lab windows. No normal add-on registry,
+library selector or production runtime was changed. Local source checkpoint
+only; no Forgejo push. Next speech generation, real-book narration and shared
+service/model changes remain outside this consumed synthetic sample grant.

@@ -1,5 +1,26 @@
 # Aster Home Kodi skin
 
+## HP-only synthetic read-along playback proof
+
+An independent two-sentence preview now plays the existing private 9.17-second
+canonical Aster sample. The current **sentence**, not individual words, turns
+forest green from measured audio-unit boundaries. Play/pause, Stop and Restart
+are floating icons; Back or external Home stops the owned sample. There is no
+autoplay, normal Books connection, server credential, synthesis request or
+saved reading/listening progress. Each opening permits one playback session;
+close/reopen to play the completed/stopped sample again.
+
+From idle Home on HP with both queues empty:
+
+```sh
+ssh root@192.168.1.140 'kodi-send --action="RunScript(/storage/.aster-staging/aster-readalong5/default.py,fcf83657dc2d3565f08f3e3f39421664cc5f718490dea410188127914a967489)"'
+```
+
+The sample/stage and session evidence remain private on HP. Natural end,
+sentence transition, pause/restart and Back/Home stop have native acceptance.
+This is not yet full-book narration, word alignment or a listening-quality
+acceptance. Production is unchanged.
+
 ## HP-only synthetic ebook reading preview
 
 This is an isolated v2 layout proof, not yet the normal Books destination.
