@@ -1288,5 +1288,8 @@ Future F4/F5 authentication now uses the
 no authorization and a fixed invalid bearer must both return `401` before the
 real key can return `200` with the exact model. This removes the former hidden
 one-token completion from the no-model-call evidence path. F4/F5 remain
-unproduced; the inactive F6 exercise runner still needs its downstream helper
-pin updated from local platform commit `d4473311`.
+unproduced. The downstream F6 helper pin is now
+[installed and validated inactive](evidence/F6-exercise-auth-pin-inactive-upgrade-result-2026-10-25.md):
+the complete target suite passed 94/94, inert invocation remained disabled and
+no lease or service effect occurred. F6 arming still requires fresh F3–F5
+evidence, a corrected exact live card and separate approval.
