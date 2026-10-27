@@ -58,6 +58,9 @@ FAILURE_CLASSES = frozenset({
     "OBSERVER_LAUNCH_FAILED",
     "OBSERVER_COMMUNICATION_FAILED",
     "OBSERVER_EXIT_NONZERO",
+    "OBSERVER_CHILD_PREFLIGHT_DENIED",
+    "OBSERVER_CHILD_SCAN_FAILED",
+    "OBSERVER_CHILD_RESULT_INVALID",
     "FINAL_FAILED",
     "UNKNOWN",
 })
@@ -75,6 +78,27 @@ class FinalSubcheckError(ScheduledF2Error):
             raise ValueError("final subcheck code is not bounded")
         super().__init__(message)
         self.code = code
+
+
+def _observer_failure_class(output: bytes) -> str:
+    """Project a failed child's bounded phase without retaining its detail."""
+    if len(output) > 8_192:
+        return "OBSERVER_EXIT_NONZERO"
+    try:
+        value = json.loads(output.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return "OBSERVER_EXIT_NONZERO"
+    if (not isinstance(value, dict)
+            or set(value) != {"state", "error_class", "phase"}
+            or value.get("state") != "no_go"
+            or not isinstance(value.get("error_class"), str)
+            or re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,63}", value["error_class"]) is None):
+        return "OBSERVER_EXIT_NONZERO"
+    return {
+        "preflight": "OBSERVER_CHILD_PREFLIGHT_DENIED",
+        "observer": "OBSERVER_CHILD_SCAN_FAILED",
+        "result": "OBSERVER_CHILD_RESULT_INVALID",
+    }.get(value.get("phase"), "OBSERVER_EXIT_NONZERO")
 
 
 def _root_custody(meta) -> bool:
@@ -303,7 +327,7 @@ def final(runner: Callable, *, popen=None,
             raise FinalSubcheckError("OBSERVER_COMMUNICATION_FAILED",
                                      "bounded observer communication failed") from exc
         if process.returncode != 0:
-            raise FinalSubcheckError("OBSERVER_EXIT_NONZERO",
+            raise FinalSubcheckError(_observer_failure_class(output),
                                      "bounded observer returned no-go")
         if len(output) > 8_192:
             raise ScheduledF2Error("bounded observer projection is oversized")

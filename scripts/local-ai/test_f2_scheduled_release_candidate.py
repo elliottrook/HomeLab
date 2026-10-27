@@ -42,6 +42,15 @@ class NonzeroResult(Result):
     returncode = 1
 
 
+class BoundedNonzeroResult(NonzeroResult):
+    def __init__(self, phase):
+        self.phase = phase
+
+    def communicate(self, timeout=None):
+        return ('{"state":"no_go","error_class":"F2NoGo","phase":"%s"}'
+                % self.phase).encode(), None
+
+
 class CommunicationFailureResult(Result):
     def communicate(self, timeout=None):
         raise RuntimeError("synthetic communication failure")
@@ -111,6 +120,26 @@ class F2ScheduledReleaseTests(unittest.TestCase):
             candidate._write_state("2026-10-19", "prepare", "prepared")
             with self.assertRaisesRegex(candidate.ScheduledF2Error, "no-go"):
                 candidate.final(self.runner(self.epoch(1, 20)), popen=lambda *a, **k: NonzeroResult(), clock=lambda: self.epoch(1, 20))
+            self.assertEqual(candidate._existing_state("2026-10-19")["failure_class"], "OBSERVER_EXIT_NONZERO")
+
+    def test_final_projects_bounded_observer_failure_phase(self):
+        expected = {
+            "preflight": "OBSERVER_CHILD_PREFLIGHT_DENIED",
+            "observer": "OBSERVER_CHILD_SCAN_FAILED",
+            "result": "OBSERVER_CHILD_RESULT_INVALID",
+        }
+        for phase, failure_class in expected.items():
+            with self.subTest(phase=phase), tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True), patch.object(candidate, "run_fixed_final_guard"):
+                candidate._write_state("2026-10-19", "prepare", "prepared")
+                with self.assertRaisesRegex(candidate.ScheduledF2Error, "no-go"):
+                    candidate.final(self.runner(self.epoch(1, 20)), popen=lambda *a, **k: BoundedNonzeroResult(phase), clock=lambda: self.epoch(1, 20))
+                self.assertEqual(candidate._existing_state("2026-10-19")["failure_class"], failure_class)
+
+    def test_final_rejects_unrecognized_observer_failure_projection(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(candidate, "STATE_ROOT", Path(tmp)), patch.object(candidate, "_state_root", return_value=Path(tmp)), patch.object(candidate, "_root_custody", return_value=True), patch.object(candidate, "run_fixed_final_guard"):
+            candidate._write_state("2026-10-19", "prepare", "prepared")
+            with self.assertRaisesRegex(candidate.ScheduledF2Error, "no-go"):
+                candidate.final(self.runner(self.epoch(1, 20)), popen=lambda *a, **k: BoundedNonzeroResult("unexpected"), clock=lambda: self.epoch(1, 20))
             self.assertEqual(candidate._existing_state("2026-10-19")["failure_class"], "OBSERVER_EXIT_NONZERO")
 
     def test_final_observer_launch_records_bounded_code(self):
