@@ -22,8 +22,12 @@ class EpubReaderMountTests(unittest.TestCase):
             if name.endswith('.mount'):
                 self.assertIn(b'Options=ro,nosuid,nodev,noexec', raw)
                 self.assertIn(b'TimeoutSec=15', raw)
+                self.assertIn(b'After=network-online.target', raw)
+                self.assertIn(b'Wants=network-online.target', raw)
             else:
                 self.assertIn(b'TimeoutIdleSec=300', raw)
+                self.assertNotIn(b'After=network-online.target', raw)
+                self.assertNotIn(b'Wants=network-online.target', raw)
 
 
 if __name__ == '__main__':

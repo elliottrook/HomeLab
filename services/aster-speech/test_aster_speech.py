@@ -157,6 +157,13 @@ class SpeechToTextTests(unittest.IsolatedAsyncioTestCase):
             result = await speech_to_text(upload)
         self.assertEqual(result, {"text": "hello world"})
         fake_model.transcribe.assert_called_once()
+        self.assertEqual(fake_model.transcribe.call_args.kwargs, {
+            "language": "en",
+            "beam_size": 1,
+            "condition_on_previous_text": False,
+            "vad_filter": True,
+            "initial_prompt": "A media title search request.",
+        })
 
     async def test_empty_audio_is_rejected(self):
         upload = UploadFile(io.BytesIO(b""), filename="clip.wav")

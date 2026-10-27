@@ -5,9 +5,11 @@ from voice_search import (HardwarePolicy, VoiceUnavailable, capability,
 
 
 INPUT_NAME = 'HAOBO Technology USB Composite Device Keyboard'
-VOICE_CODE = 0x246
+# Consumer.00cf is remapped by the HP hwdb to Linux KEY_SEARCH.
+VOICE_CODE = 217
 CAPTURE_PCM = 'hw:1,0'
-PULSE_SOURCE = 'aster_g20_mic'
+PULSE_SOURCE = ('alsa_input.usb-HAOBO_Technology_USB_Composite_Device_'
+                '8545124150354735-00.mono-fallback')
 
 
 def resolve(raw_inputs, raw_pcms, raw_sources):

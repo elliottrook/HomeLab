@@ -2,7 +2,7 @@ import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from voice_keymap import (SELECT_ACTION, SELECT_CODE, VOICE_ACTION, VOICE_CODE,
+from voice_keymap import (SELECT_ACTION, SELECT_CODE, VOICE_ACTION, VOICE_KEY,
                           build)
 
 
@@ -16,14 +16,14 @@ class VoiceKeymapTests(unittest.TestCase):
         keyboard = root.find('./global/keyboard')
         self.assertEqual(keyboard.find("key[@id='" + SELECT_CODE + "']").text,
                          SELECT_ACTION)
-        self.assertEqual(keyboard.find("key[@id='" + VOICE_CODE + "']").text,
+        self.assertEqual(keyboard.find(VOICE_KEY).text,
                          VOICE_ACTION)
         self.assertIsNone(keyboard.find('select'))
         for name in ('FullscreenVideo', 'FullscreenGame', 'Visualisation'):
             section = root.find('./' + name + '/keyboard')
             self.assertIsNone(section.find('select'))
             self.assertEqual(section.find("key[@id='353']").text, 'OSD')
-            self.assertEqual(section.find("key[@id='" + VOICE_CODE + "']").text,
+            self.assertEqual(section.find(VOICE_KEY).text,
                              'noop')
 
     def test_refuses_reapplication_or_changed_predecessor(self):

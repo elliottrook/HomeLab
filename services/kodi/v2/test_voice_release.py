@@ -8,13 +8,13 @@ from voice_search import VoiceUnavailable
 
 class ReleaseSignalTests(unittest.TestCase):
     def signal(self):
-        return ReleaseSignal('event17', 0x246, _open=lambda *args: 41)
+        return ReleaseSignal('event17', 217, _open=lambda *args: 41)
 
     def test_only_exact_voice_release_completes(self):
         signal = self.signal()
         packets = (PACKET.pack(0, 0, 1, 353, 0)
-                   + PACKET.pack(0, 0, 1, 0x246, 1)
-                   + PACKET.pack(0, 0, 1, 0x246, 0))
+                   + PACKET.pack(0, 0, 1, 217, 1)
+                   + PACKET.pack(0, 0, 1, 217, 0))
         with patch('voice_release.os.read', return_value=packets):
             self.assertTrue(signal.released())
         with patch('voice_release.os.close') as close:
@@ -27,7 +27,7 @@ class ReleaseSignalTests(unittest.TestCase):
             self.assertFalse(signal.released())
         with patch('voice_release.os.close'):
             signal.close()
-        for handler, code in (('../event17', 0x246), ('event17', 353)):
+        for handler, code in (('../event17', 217), ('event17', 353)):
             with self.assertRaises(VoiceUnavailable):
                 ReleaseSignal(handler, code, _open=lambda *args: 1)
 

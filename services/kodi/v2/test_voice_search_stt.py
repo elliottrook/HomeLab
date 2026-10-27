@@ -34,6 +34,12 @@ class VoiceSearchSTTTests(unittest.TestCase):
         raw = json.dumps({'text': '  the   morning show '}).encode()
         self.assertEqual(response(200, 'application/json; charset=utf-8', raw),
                          'the morning show')
+        self.assertEqual(response(200, 'application/json',
+                                  json.dumps({'text': ' Search for Dune '}).encode()),
+                         'Dune')
+        self.assertEqual(response(200, 'application/json',
+                                  json.dumps({'text': 'Search Party'}).encode()),
+                         'Search Party')
         for status, kind, body in ((401, 'application/json', raw),
                                    (200, 'text/plain', raw),
                                    (200, 'application/json', b'{}'),

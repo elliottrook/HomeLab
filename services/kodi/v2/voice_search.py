@@ -65,6 +65,15 @@ PCM = re.compile(r'^(\d{2})-(\d{2}):\s+(.{1,160}?)\s+:.*\bcapture\b')
 PCM_ID = re.compile(r'^hw:(\d{1,2}),(\d{1,2})$')
 STATES = frozenset(('idle', 'listening', 'transcribing', 'results',
                     'cancelled', 'error'))
+VOICE_COMMAND = re.compile(r'^search\s+for\s+', re.IGNORECASE)
+
+
+def normalize_spoken_query(value):
+    """Normalize an explicit voice-search command without damaging titles."""
+    query = normalize_query(value)
+    query = query.rstrip(' .?!,;:')
+    stripped = VOICE_COMMAND.sub('', query, count=1)
+    return normalize_query(stripped) if stripped else query
 
 
 def parse_inputs(raw):
@@ -149,7 +158,7 @@ def transcript(session, text):
     if session.state != 'transcribing':
         raise VoiceUnavailable('voice-transcript-denied')
     try:
-        query = normalize_query(text)
+        query = normalize_spoken_query(text)
     except SearchUnavailable:
         raise VoiceUnavailable('voice-transcript-invalid') from None
     if not query:

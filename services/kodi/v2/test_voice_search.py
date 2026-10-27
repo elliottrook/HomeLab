@@ -2,7 +2,7 @@ import unittest
 
 from voice_search import (HardwarePolicy, Session, VoiceUnavailable, begin,
                           cancel, capability, captured, expire, parse_capture_pcms,
-                          parse_inputs, transcript)
+                          normalize_spoken_query, parse_inputs, transcript)
 
 
 INPUTS = '''I: Bus=0003 Vendor=1234 Product=5678 Version=0001
@@ -18,7 +18,7 @@ B: EV=17
 PCMS = '''00-00: Aster USB Audio : Aster USB Audio : playback 1 : capture 1
 00-01: HDMI : HDMI : playback 1
 '''
-POLICY = HardwarePolicy('Aster Test Remote', 'event7', 0x246, 'hw:0,0')
+POLICY = HardwarePolicy('Aster Test Remote', 'event7', 217, 'hw:0,0')
 
 
 class VoiceSearchTests(unittest.TestCase):
@@ -44,6 +44,13 @@ class VoiceSearchTests(unittest.TestCase):
         working = captured(listening, 4096, 1250, 103)
         result = transcript(working, '  Science   Fiction  ')
         self.assertEqual((result.state, result.query), ('results', 'Science Fiction'))
+
+    def test_spoken_command_prefix_is_bounded(self):
+        self.assertEqual(normalize_spoken_query('Search for Dune'), 'Dune')
+        self.assertEqual(normalize_spoken_query('Search Party'), 'Search Party')
+        self.assertEqual(normalize_spoken_query('search for Search Party'),
+                         'Search Party')
+        self.assertEqual(normalize_spoken_query('Search for Dune.'), 'Dune')
 
     def test_cancel_and_timeout_discard_session_state(self):
         ready = capability(parse_inputs(INPUTS), parse_capture_pcms(PCMS), POLICY)

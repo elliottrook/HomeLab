@@ -8,11 +8,12 @@ from voice_capture import capture_source, parec_argv
 from voice_search import VoiceUnavailable
 
 
-MAX_BYTES = 320000
+MAX_BYTES = 160000
 MIN_BYTES = 8000
+MAXIMUM_SECONDS = 4
 
 
-def record(source, *, cancelled, released, maximum_seconds=10,
+def record(source, *, cancelled, released, maximum_seconds=MAXIMUM_SECONDS,
            _spawn=subprocess.Popen):
     """Record until release or deadline; cancellation discards the result.
 
@@ -22,7 +23,7 @@ def record(source, *, cancelled, released, maximum_seconds=10,
     """
     if (not callable(cancelled) or not callable(released)
             or type(maximum_seconds) not in (int, float)
-            or not .1 <= maximum_seconds <= 10):
+            or not .1 <= maximum_seconds <= MAXIMUM_SECONDS):
         raise VoiceUnavailable('voice-recorder-policy')
     argv = parec_argv(source)
     capture_source((source,), source.name)

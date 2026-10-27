@@ -11,7 +11,8 @@ import json
 import re
 import wave
 
-from global_search import SearchUnavailable, normalize_query
+from global_search import SearchUnavailable
+from voice_search import normalize_spoken_query
 
 
 class STTUnavailable(ValueError):
@@ -72,7 +73,7 @@ def response(status, content_type, raw):
         value = json.loads(raw)
         if not isinstance(value, dict) or set(value) != {'text'}:
             raise ValueError
-        query = normalize_query(value['text'])
+        query = normalize_spoken_query(value['text'])
     except (ValueError, TypeError, UnicodeError, SearchUnavailable):
         raise STTUnavailable('voice-response-invalid') from None
     if not query:

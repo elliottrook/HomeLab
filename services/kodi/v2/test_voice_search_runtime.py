@@ -7,7 +7,7 @@ from voice_search_runtime import VoiceRuntime
 
 
 TOKEN = 'v' * 48
-POLICY = HardwarePolicy('Aster Remote', 'event7', 0x246, 'hw:1,0')
+POLICY = HardwarePolicy('Aster Remote', 'event7', 217, 'hw:1,0')
 READY = Capability('ready', 'Explicit press-to-listen hardware is present', POLICY)
 ABSENT = Capability('unavailable', 'Configured remote microphone is absent', POLICY)
 SOURCES = parse_sources('4\talsa_input.usb-Aster_G20-00.mono-fallback\t'

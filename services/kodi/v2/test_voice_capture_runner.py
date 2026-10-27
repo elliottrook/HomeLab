@@ -4,7 +4,7 @@ import time
 import unittest
 
 from voice_capture import PulseSource
-from voice_capture_runner import record
+from voice_capture_runner import MAXIMUM_SECONDS, record
 from voice_search import VoiceUnavailable
 
 
@@ -44,6 +44,13 @@ class VoiceCaptureRunnerTests(unittest.TestCase):
         self.assertEqual(len(pcm), 16000)
         self.assertLess(time.monotonic()-started, 2)
         self.assert_reaped()
+
+    def test_default_single_press_window_is_four_seconds(self):
+        self.assertEqual(MAXIMUM_SECONDS, 4)
+        with self.assertRaisesRegex(VoiceUnavailable, 'recorder-policy'):
+            record(SOURCE, cancelled=lambda: False, released=lambda: False,
+                   maximum_seconds=4.01,
+                   _spawn=self.launcher('raise SystemExit(1)'))
 
     def test_cancel_discards_already_recorded_audio_and_reaps_recorder(self):
         started = time.monotonic()

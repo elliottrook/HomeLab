@@ -3,8 +3,8 @@ import xml.etree.ElementTree as ET
 
 
 SELECT_CODE = '353'       # Linux KEY_SELECT
-# Kodi translates Linux KEY_VOICECOMMAND scancode 0x246 to 0xF200.
-VOICE_CODE = '61952'
+# The HP hwdb remaps this remote's Consumer.00cf voice usage to KEY_SEARCH.
+VOICE_KEY = 'browser_search'
 SELECT_ACTION = 'RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)'
 VOICE_ACTION = 'RunScript(script.astervoice.v2lab)'
 
@@ -19,9 +19,9 @@ def build(raw):
         raise ValueError('voice-keymap-select-predecessor')
     symbolic[0].tag = 'key'
     symbolic[0].set('id', SELECT_CODE)
-    if keyboard.findall("key[@id='" + VOICE_CODE + "']"):
+    if keyboard.findall(VOICE_KEY):
         raise ValueError('voice-keymap-existing-voice')
-    voice = ET.SubElement(keyboard, 'key', {'id': VOICE_CODE})
+    voice = ET.SubElement(keyboard, VOICE_KEY)
     voice.text = VOICE_ACTION
     for name in ('FullscreenVideo', 'FullscreenGame', 'Visualisation'):
         section = root.find('./' + name + '/keyboard')
@@ -32,6 +32,6 @@ def build(raw):
             raise ValueError('voice-keymap-context-select')
         context_select[0].tag = 'key'
         context_select[0].set('id', SELECT_CODE)
-        blocked = ET.SubElement(section, 'key', {'id': VOICE_CODE})
+        blocked = ET.SubElement(section, VOICE_KEY)
         blocked.text = 'noop'
     return ET.tostring(root, encoding='utf-8', xml_declaration=True)

@@ -158,7 +158,19 @@ async def health() -> dict[str, str]:
 
 def _run_transcription(path: str) -> str:
     """Materialize Whisper's lazy result on a worker, keeping the event loop free."""
-    segments, _info = _whisper_model.transcribe(path, beam_size=1)
+    # Voice search is short, English and rich in proper nouns. Keep the context
+    # generic (never send or retain a household catalogue), disable carry-over
+    # between requests and use VAD. A wider beam added latency without fixing
+    # the observed title error, so model quality—not speculative retries—owns
+    # accuracy while the bounded single-beam path preserves responsiveness.
+    segments, _info = _whisper_model.transcribe(
+        path,
+        language="en",
+        beam_size=1,
+        condition_on_previous_text=False,
+        vad_filter=True,
+        initial_prompt="A media title search request.",
+    )
     return "".join(segment.text for segment in segments).strip()
 
 

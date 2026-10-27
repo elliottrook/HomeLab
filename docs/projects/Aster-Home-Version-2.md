@@ -9446,3 +9446,65 @@ active player. This was a probe-harness return-context defect, not a stream
 freeze, but native playback-from-listing and Back/return remain a human sofa
 acceptance item. Future automated probes must establish a valid source window
 or explicitly restore Home in cleanup. BOSGAME production remains unchanged.
+
+### V2-A voice activation, boot recovery and latency successor — HP, 2026-10-27
+
+Physical G20 evidence resolved the two remaining hardware unknowns. USB
+`4842:0001` exposes the admitted keyboard dynamically (observed as `event17`
+before reboot and `event4` afterward) and ALSA capture `hw:1,0`. The consumer
+microphone usage `Consumer.00cf` is remapped by a device-specific hwdb rule to
+Linux `KEY_SEARCH` 217; Kodi receives `browser_search` and launches only
+`script.astervoice.v2lab`. No global OK/Select binding remains. The runtime
+discovers the one current event handler by exact device identity instead of
+pinning its boot-dependent number.
+
+The first post-install reboot exposed two independent startup defects. The EPUB
+reader generator had incorrectly attached `network-online.target` to `.automount`
+units, creating a local-fs/network ordering cycle that also prevented normal
+login/network startup. Live-USB recovery removed those dependencies only from
+the automount units while retaining them on the corresponding mounts. Both
+automounts now boot active/waiting, `systemd-analyze verify` is clean and focused
+regression coverage forbids restoring the cycle. Recovery is retained under
+`/var/media/Storage/.aster-checkpoints/aster-epub-automount-cycle-20261027`.
+
+PulseAudio then proved that direct `module-alsa-source` and an early remap race
+LibreELEC's own udev source creation. Both rejected forms were rolled back. The
+accepted configuration extends `/etc/pulse/default.pa` without opening the PCM
+a second time; the voice policy admits LibreELEC's one exact stable HAOBO source
+name. No default/monitor/first-source fallback is permitted. A separate
+`eventlircd` boot race is contained by an HP-only `Restart=on-failure`, two-second
+retry drop-in with a five-attempt start limit. After activation, Kodi,
+PulseAudio and eventlircd are active, system state is `running`, the native
+16-kHz mono source exists exactly once and no service is failed.
+
+Human trials proved end-to-end capture and private STT but also showed that the
+mic action is delivered after button release. Waiting for a second release
+therefore produced almost exactly ten seconds of audio per short phrase. The
+successor records a single explicit press for at most four seconds, strips only
+the bounded command prefix `search for` and terminal dictation punctuation, and
+preserves valid titles such as *Search Party*. Audio and transcript remain
+memory-only and are not logged or retained. A local-library phonetic correction
+trial was rejected and fully rolled back after source-local evidence showed that
+“doom” could be incorrectly changed to an artist rather than the requested
+catalogue title. No guessed alias remains active.
+
+Aster Speech retains the scoped STT-only television identity and temporary-file
+deletion boundary. Greedy `beam_size=1`, explicit English, VAD and generic media
+context are active; the failed five-beam trial added latency without correcting
+the owner's title. The already-cached `small.en` model is now selected in the
+source-local protected environment, using about 1.19 GB at startup within the
+4-GB LXC allocation. Its checkpoint is
+`/var/lib/aster-speech/checkpoints/small-en-title-search-20261027`. A synthetic
+*Search for Dune* comparison passed both models, but real G20/accent acceptance
+of the small-model/four-second combination remains the next human gate. No
+recording was retained for replay.
+
+The active HP files exactly match immutable candidate manifest
+`a340538d93b30f24590d493401a012e1a4e638f79531e070b90a692b730918c7`:
+13 add-on files, five integrated search/family replacements and four bounded
+boot/config installs. Search and family integrity manifests are updated as part
+of the candidate rather than by an undocumented post-install repair. Fifty-seven
+focused voice/build/EPUB tests pass, deploy helpers compile, Kodi debug logging
+is off and BOSGAME production remains untouched. Remaining acceptance is one
+physical trial for latency/title accuracy, explicit no-speech/error feedback,
+and a cold-boot remote/microphone smoke before V2-A graduation.

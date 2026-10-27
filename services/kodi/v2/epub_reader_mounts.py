@@ -28,8 +28,6 @@ TimeoutSec=15
 '''.encode()
         automount = f'''[Unit]
 Description=Automount Aster Books published {leaf}
-After=network-online.target
-Wants=network-online.target
 
 [Automount]
 Where={where}

@@ -1,0 +1,5 @@
+# HAOBO/G20S Pro Plus: keep every existing mapping except the voice control.
+# Consumer.00cf normally becomes KEY_VOICECOMMAND (582), which Kodi cannot
+# distinguish because its Linux keyboard path truncates keycodes above 255.
+evdev:input:b0003v4842p0001*
+ KEYBOARD_KEY_c00cf=search

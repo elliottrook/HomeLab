@@ -13,7 +13,7 @@ EV_KEY = 1
 class ReleaseSignal:
     def __init__(self, handler, code, *, _open=os.open):
         if (not isinstance(handler, str) or not handler.startswith('event')
-                or not handler[5:].isdigit() or type(code) is not int or code != 0x246):
+                or not handler[5:].isdigit() or type(code) is not int or code != 217):
             raise VoiceUnavailable('voice-release-policy')
         try:
             self.descriptor = _open(Path('/dev/input') / handler,

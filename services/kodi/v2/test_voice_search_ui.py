@@ -4,7 +4,7 @@ from voice_search import Capability, HardwarePolicy, Session, VoiceUnavailable
 from voice_search_ui import present
 
 
-POLICY = HardwarePolicy('Aster Remote', 'event7', 0x246, 'hw:1,0')
+POLICY = HardwarePolicy('Aster Remote', 'event7', 217, 'hw:1,0')
 READY = Capability('ready', 'Explicit press-to-listen hardware is present', POLICY)
 ABSENT = Capability('unavailable', 'Configured remote microphone is absent', POLICY)
 
