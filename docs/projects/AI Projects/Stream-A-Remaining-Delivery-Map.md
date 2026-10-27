@@ -70,7 +70,7 @@ storage/presentation drift. SA1/SA2 remain open for a bounded adaptive loop and
 connected read-only evidence; no new adapter, authority or automatic route was
 enabled.
 
-The next SA1 layer now has a source-only
+The next SA1 layer now has a deployed
 [follow-up selection boundary](evidence/SA1-follow-up-selection-boundary-2026-10-26.md).
 It binds a hypothesis to the exact incident-state digest and permits only an
 unfilled check from the preregistered read-only plan. It emits literal
@@ -82,8 +82,12 @@ bounded journal counts and a hashed pending selection, never the hypothesis or
 internal incident ID; malformed presentation fails closed. An additive gateway
 route now accepts a state-bound proposal only from the existing authenticated
 owner, denies the legacy key and stale state, and merely journals the decision.
-The complete target suite passes 50/50. This source remains undeployed;
-connected SA2 producers remain separately gated.
+The complete target suite passes 50/50. The exact four-file candidate was
+[deployed and independently checked](evidence/SA1-follow-up-gateway-deployment-result-2026-10-26.md):
+Aster Agent is healthy after its one approved restart, authentication remains
+closed by default, the accepted llama process was not restarted and the three
+predecessors are retained in a root-only checkpoint. Connected SA2 producers
+remain separately gated.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
