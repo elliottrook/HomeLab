@@ -1688,6 +1688,14 @@ private/model copies were removed. No calibration, holdout access or routing
 follows. E5 neighbour/prefix/threshold tuning against these spent sets is
 closed; another attempt requires a materially different training/data method.
 
+The first such attempt, an
+[E5 augmented whole-label linear head](evidence/M3-NLU-E5-augmented-linear-v1-public-rejection-2026-10-26.md),
+changed both the supervised method and public counterfactual support. It failed
+the public gate at 18/24 exact while retaining zero unsafe routes and zero
+privacy underclassification. No private set or holdout was opened. A successor
+may correct public counterfactual coverage, but it must pass the same fixed
+22/24 zero-safety-failure gate before any private cross-set proposal.
+
 The [B60 interface reconciliation](evidence/B60-full-Aster-baseline-interface-reconciliation-2026-10-26.md)
 also separates this NLU work from the missing matched full-Aster 9B baseline.
 A 27B-plus reasoning challenger still needs an owner-frozen complete-useful-
