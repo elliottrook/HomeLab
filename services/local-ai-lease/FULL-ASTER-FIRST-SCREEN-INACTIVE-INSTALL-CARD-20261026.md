@@ -1,6 +1,6 @@
 # Full-Aster first-screen transaction — inactive install card
 
-Status: **APPROVAL-READY INACTIVE INSTALL / LIVE EFFECT EXCLUDED**
+Status: **COMPLETED AND VALIDATED / LIVE EFFECT EXCLUDED**
 
 Source implementation: `codex/f4-f5-root-writer` at full commit
 `b6dc186eef865924294b4e5cb1ef72d73c149733`. The exact eleven-file inventory
@@ -42,7 +42,9 @@ stop condition.
 4. Run `sh -n` on the wrapper. Run target-Linux imports with bytecode disabled,
    then the focused first-screen, F4/F5 and full-inference test suites from a
    clean source archive. Invoke the wrapper only without `--effect-authorized`;
-   require the exact disabled response and no state or model request.
+   require its argument gate to refuse before Python starts. Invoke the guest
+   helper without `--run-authorized` and require its exact disabled response.
+   Require no state or model request.
 5. Recheck all eleven installed hashes/custody, unchanged dependency pins,
    ready lease, absent state/locks/evidence, disabled Stream A evaluation
    timers, and healthy LXC104/110/116, Aster Agent, accepted llama.cpp/SYCL,
@@ -63,3 +65,6 @@ restart. The independent guardian must be armed first. The live transaction
 is limited to two sequential synthetic requests and restores the accepted
 9B/SYCL baseline, model custody, mount configuration, consumers and lease on
 every accepted exit.
+
+Completion is recorded in
+`FULL-ASTER-FIRST-SCREEN-INACTIVE-INSTALL-RESULT-20261026.md`.
