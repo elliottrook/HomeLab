@@ -12,6 +12,15 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The local-only [October 27 nightly receipt](B60-Inference-Engineering/research-watch-20261012.md#october-27-nightly-receipt)
+receives Adaptive `1cb4aed1`: all four public preflight findings are corrected,
+and a separate absolute-window launcher correction is reportedly installed
+for the conditionally scheduled 03:10 two-request screen. Five independent
+correction tests, 43 peer contract/transaction tests, five freeze tests and
+81 B60 tests pass separately. No live success or model result is claimed.
+Use the newly recovered independent checkout named in the receipt; the older
+disposable checkout is incomplete and remains untouched. No nightly push.
+
 The [late October 26 interface review](B60-Inference-Engineering/research-watch-20261012.md#october-26-late-preparation-interface-review)
 passes 36 exact-peer offline tests and four pinned synthetic characterization
 tests. The new preflight's non-authoritative `admitted` output does not prove

@@ -1,5 +1,99 @@
 # Fixed-hardware capability research watch — 2026-10-12
 
+## October 27 nightly receipt
+
+The 00:30 heartbeat arrived at 00:34 PDT; the execution clock was 00:50 PDT
+when checked. Backup/mirror completion cannot be inferred at either time.
+B60 performed no production probe, scan, lease acquisition, model request or
+schedule mutation and did not duplicate the scheduled platform runner.
+
+The old disposable checkout
+`/private/tmp/b60-preparation-20261022.Q5eaCq/verified-repo` no longer has
+Git's required HEAD/config metadata and its AGENTS.md is absent. It remains
+untouched. A new independent clone at
+`/private/tmp/b60-nightly-20261027.6EZfDN/repo` recovered published B60
+`457ffa1a00bdd2066178ee942ae40d32f64b716f`; `git fsck --no-dangling` passes.
+The full implementation checkout remains intact at `a6b84df9` and read-only.
+The cause of the disposable-file loss is not established; do not diagnose it
+as production damage or silently reuse the incomplete Git directory.
+
+Fresh authoritative owner reads received Adaptive
+`1e2246b855e36843aadbf479452e96c2b464d1a2`, then the independently mirrored
+advance `1cb4aed1f88b77842be048ecb41b4c6a6acd9db8`. The latter changes
+SA2/SA3 release preparation, not the reviewed full-Aster sources below.
+Platform remains `6fb0207fec5190e0c34ed3bc72ea38e128f06127`; its Local AI
+split, release-placement and service-registry records were read. GitHub
+read-only refs match those final Adaptive/platform and published B60 tips.
+
+At both Adaptive commits, exact Git-file SHA-256 under
+`docs/projects/AI Projects/evidence/`:
+
+- `B60-first-screen-enforcement-source-reconciliation-2026-10-26.md`:
+  `9c47499ffa6fb283f92f4c45aaa2d81212544b6b121b4e32e00948225fa6e45f`;
+- `Full-Aster-first-screen-exact-cycle-effect-review-2026-10-27.md`:
+  `8903fa2417f233e49e1fd9ec566df57f9134a005fc438558d673d9d922cbe13c`.
+
+The platform `docs/projects/Local-AI-Platform-Split.md` digest remains
+`6bd3106078315a80046a6f917646410698df6a73f6e34c219b32272ce9f935d7`.
+
+### Owner response and corrected public interface
+
+Adaptive explicitly receives B60 `457ffa1a` and agrees with the four pure
+preflight limitations. It identifies platform `b6dc186e` as the separate live
+fixed-source producer/controller, not that public module. The owner reports
+source-bound F2/F3 reads, produced F4/F5, generated lease/generation admission,
+and a guardian started before effects. This closes the missing explanation;
+the newer platform implementation is still not on the fetched platform ref,
+so B60 has not independently audited its complete effect path.
+
+The corrected public module has SHA-256
+`33408d610e107814fd92103e0ba2f11c6eb12b8c7d33a30fae9780ec8b580ab0`.
+It now takes explicit current time, parses contract semantics, validates the
+Vancouver cycle date, connects reserve to deadline spacing and pins the day's
+04:15 boundary. Five new independent, pinned synthetic tests in
+`scripts/b60-inference/review-fixtures/test_full_aster_peer_correction.py`
+verify rejection of all four old counterexamples and preserve no-effect
+authority on a valid synthetic profile. All **5/5** pass. Historical tests
+remain pinned to the old source; do not claim their accepted-counterexample
+results against this new module.
+
+Exact public full-Aster modules/tests and their three public JSON dependencies
+were exported from `1e2246b8` to
+`/private/tmp/b60-peer-20261027.mfVOVi`. The selected `test_full_aster_*v1.py`
+suites pass **43/43** and the separate freeze suite **5/5**. Broad discovery
+also selected `test_full_aster.py`, which requires unavailable `httpx`;
+that integration test remains unrun, not a passing live gateway test. B60's
+standard suite separately passes **81/81**. No package installation or private
+packet/label read occurred. These counts are tooling evidence, not model
+quality, authentic human review or restoration proof.
+
+### Actual launcher correction and conditional schedule
+
+The owner reviewed the effectful launcher and found a distinct relative-clock
+gap: a delayed start could move recovery beyond 04:15. Platform `6dbdea2c`
+reportedly fixes it before effects: only October 27 starts from 03:10 to 03:30
+Vancouver, a 30-minute effect limit, actual 15-minute recovery reserve and an
+absolute 04:15 cap. The owner records Jason's exact approval and installed
+launcher SHA-256
+`11568103c134b98821aad4154e79645375f15f3021fdaf9ce232340d8ef24d66`,
+with 9/9 focused launcher/controller/guardian tests and unchanged 03:10 timer.
+This is an owner installation receipt, not B60 target observation.
+
+Current owner state is **GO — SCHEDULED / CONDITIONAL**, superseding the
+earlier unscheduled/unapproved wording for this exact two-request transaction.
+Fresh F2/F3 acceptance, the 03:00 pull, produced F4/F5, exact source/artifact
+pins, idle exclusive host, independent recovery and healthy production remain
+runtime gates. No overnight success exists in these pre-run receipts. The
+screen tests architecture/residency/structure only; it does not run the
+private 24-case pair, promote a model or satisfy useful-answer p50/p95.
+
+Next safe action: receive the October 27 runner's sanitized terminal status
+and restoration proof after its conditional invocation, without replay or
+parallel execution. Stop on NO-GO/uncertainty; do not auto-retry. Receive the
+fetchable current platform composition before claiming independent source
+qualification. Retain the staged single candidate and accepted SYCL/model
+recovery identities. This nightly change is local-only; no Git push occurs.
+
 ## October 26 late preparation interface review
 
 Fresh Forgejo fetch at the 22:30 preparation check-in returned the same
