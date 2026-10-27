@@ -33,15 +33,24 @@ do not imply household acceptance or production promotion.
   [acquisition evidence](Aster-TV-Version-2-Acquisition-Evidence.md).
 - Voice capture-to-query assembly now passes synthetic Mac/HP checks, including
   cancellation and late-result refusal. It remains unbound to live hardware.
+- The EPUB compiler project is complete at `fc91fcd4`. Its exact service source
+  is now present in this branch, and the dormant normal Books handoff plus
+  pinned offline reader pass ordinary and optimized local tests. HP activation
+  is waiting on the explicit read-only publication-path decision recorded in
+  [EPUB consumer evidence](Aster-TV-Version-2-EPUB-Consumer-Evidence.md).
+- The apparent Music/Books landing-navigation regression was isolated to the
+  combined test driver. Fresh separate Media, Music and Books runs passed with
+  no skin change; evidence is recorded in
+  [integrity evidence](Aster-TV-Version-2-Integrity-Evidence.md).
 
 ## Next work and gates
 
 | Work | Next action | Dependency |
 |---|---|---|
-| Cross-media native check | Search/keyboard, catalogue entry and Media passed; finish Music/Books focus checks with actual item targets for script-filled panels | Correct the harness assumptions without relabelling incomplete checks as passed |
+| Cross-media native check | Media, Music and Books now pass separate exact-ID remote-equivalent checks; retain the corrected isolated driver | No product navigation defect was demonstrated |
 | Acquisition requests | HP saved-outcome activation and duplicate-only review passed, including matching rendered Books hero | No additional provider write is authorized by the two-title trial |
 | Voice search | Join the tested single-attempt assembly to foreground listening controls and restricted STT transport | Physical remote capability and scoped speech identity remain live integration gates |
-| EPUB pre-generation | Consume the compiler's eventual complete ready artifacts | Separate **EPUB Narration Compiler** task owns worker/dataset/new-title monitoring; its benchmark is complete, M3 onward remains |
+| EPUB pre-generation | Activate the tested normal Books consumer on HP, then walk through one ready and one not-ready title | Compiler is complete; new HP→TrueNAS read-only publication path needs its explicit bounded risk decision |
 | YouTube | Official add-on credentials, device authorization, playback and Aster presentation | Separate **Finish Aster YouTube integration** task; main stream must avoid competing foreground tests |
 | Endurance and accessibility | Continue evidence against the final composed client, then owner sofa/remote review | Short automated soaks do not substitute for household use |
 | Bedroom sizing | Revise the existing measured/inferred assessment after final client shape | See [client sizing](../reference/Aster-TV-Bedroom-Client-Sizing.md); lower-memory deployment remains deferred |

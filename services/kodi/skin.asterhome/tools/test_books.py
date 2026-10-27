@@ -8,7 +8,8 @@ import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 
-from books_data import PAGES, activate_row, cached_cover, cover_filename, handoff_target, page_records, selected_row
+from books_data import (PAGES, activate_row, cached_cover, compiled_reader_target,
+                        cover_filename, handoff_target, page_records, selected_row)
 from hub_feeds import book_catalogue, item_timestamp, plain_synopsis
 from pilot_books_feed import (audiobook_metadata, calibre_items,
                               epoch_milliseconds, feed_payload, podcast_items)
@@ -211,6 +212,75 @@ class BooksTests(unittest.TestCase):
         self.assertEqual(xbmc.commands,
                          ['ActivateWindow(Music,plugin://plugin.audio.asterbooks/?action=book&item_id=li_book,return)',
                           'ActivateWindow(Music,plugin://plugin.audio.asterbooks/?action=episodes&item_id=li_show,return)'])
+
+    def test_compiled_reader_requires_pinned_activation_and_atomic_ready_pointer(self):
+        digest = 'a' * 64
+        source = 'b' * 64
+        manifest = 'c' * 64
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            reader, state, output = root / 'reader', root / 'state', root / 'output'
+            reader.mkdir()
+            state.mkdir()
+            (output / 'ready').mkdir(parents=True)
+            (reader / 'default.py').write_text('reader')
+            (state / 'activation.json').write_text(json.dumps({
+                'schema': 1, 'active': True, 'bundle': str(reader),
+                'bundle_sha256': digest, 'output': str(output),
+            }))
+            (output / 'ready/505.json').write_text(json.dumps({
+                'schema': 1, 'book_id': 505, 'source_sha256': source,
+                'generation': 'generations/505/' + source,
+                'manifest_sha256': manifest,
+            }))
+            self.assertEqual(
+                compiled_reader_target({'kind': 'ebook', 'id': '505'}, reader, state, output),
+                'RunScript(' + str(reader / 'default.py') + ',' + digest + ',505)')
+
+    def test_compiled_reader_fails_closed_without_complete_exact_records(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            reader, state, output = root / 'reader', root / 'state', root / 'output'
+            reader.mkdir()
+            state.mkdir()
+            (output / 'ready').mkdir(parents=True)
+            (reader / 'default.py').write_text('reader')
+            row = {'kind': 'ebook', 'id': '505'}
+            self.assertIsNone(compiled_reader_target(row, reader, state, output))
+            (state / 'activation.json').write_text('{}')
+            self.assertIsNone(compiled_reader_target(row, reader, state, output))
+            (state / 'activation.json').unlink()
+            (state / 'activation.json').symlink_to(reader / 'default.py')
+            self.assertIsNone(compiled_reader_target(row, reader, state, output))
+            self.assertIsNone(compiled_reader_target(
+                {'kind': 'ebook', 'id': '../../505'}, reader, state, output))
+
+    def test_ebook_activation_prefers_compiled_reader_then_preserves_fallback(self):
+        class Xbmc:
+            commands = []
+
+            def executebuiltin(self, command):
+                self.commands.append(command)
+
+        class Dialog:
+            texts = []
+
+            def textviewer(self, heading, body):
+                self.texts.append((heading, body))
+
+        class Gui:
+            @staticmethod
+            def Dialog():
+                return Dialog()
+
+        xbmc = Xbmc()
+        activate_row({'kind': 'ebook', 'id': '505'}, xbmc, Gui,
+                     lambda row: 'RunScript(/verified/reader.py,pin,505)')
+        self.assertEqual(xbmc.commands, ['RunScript(/verified/reader.py,pin,505)'])
+        with patch('books_data.sys.platform', 'linux'):
+            activate_row({'kind': 'ebook', 'id': '505'}, xbmc, Gui,
+                         lambda row: None)
+        self.assertIn('https://books.elliottrook.com/book/505', Dialog.texts[-1][1])
 
     def test_cover_cache_uses_opaque_key_and_rejects_symlink(self):
         row = {'kind': 'audiobook', 'id': 'li_example', 'title': 'Private title'}

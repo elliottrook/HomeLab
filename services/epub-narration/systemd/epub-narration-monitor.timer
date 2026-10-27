@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily EPUB narration catalogue reconciliation
+
+[Timer]
+OnCalendar=*-*-* 03:30:00 America/Vancouver
+RandomizedDelaySec=30m
+Persistent=true
+Unit=epub-narration-monitor.service
+
+[Install]
+WantedBy=timers.target

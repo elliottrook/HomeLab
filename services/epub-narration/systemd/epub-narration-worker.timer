@@ -1,0 +1,12 @@
+[Unit]
+Description=Bounded recurring EPUB narration compiler worker
+
+[Timer]
+OnBootSec=10m
+OnUnitInactiveSec=5m
+RandomizedDelaySec=1m
+AccuracySec=1m
+Unit=epub-narration-worker.service
+
+[Install]
+WantedBy=timers.target

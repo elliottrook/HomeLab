@@ -1,0 +1,28 @@
+[Unit]
+Description=EPUB narration catalogue monitor
+After=network-online.target
+Wants=network-online.target
+ConditionPathIsMountPoint=/mnt/calibre-books
+ConditionPathIsMountPoint=/mnt/aster-reader
+
+[Service]
+Type=oneshot
+User=epub-narration
+Group=epub-narration
+UMask=0077
+WorkingDirectory=/opt/epub-narration
+Environment=PYTHONPATH=/opt/epub-narration
+ExecStart=/usr/bin/python3 /opt/epub-narration/tools/run_monitor.py --database /mnt/calibre-books/metadata.db --library-root /mnt/calibre-books --state-root /mnt/aster-reader/state
+Nice=15
+IOSchedulingClass=idle
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/epub-narration /mnt/calibre-books
+ReadWritePaths=/mnt/aster-reader
+RestrictAddressFamilies=AF_UNIX
+LockPersonality=true
+MemoryMax=512M
+CPUQuota=100%
