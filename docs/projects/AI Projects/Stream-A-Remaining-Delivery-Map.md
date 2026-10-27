@@ -198,9 +198,19 @@ now pins the exact live predecessor, candidate source and independent PASS
 receipt. Its validator tests pass 4/4 and reject receipt or authority drift.
 The temporary target-Python packet passed all 31/31
 proposal and HTTP gateway tests, was removed from Mac/Proxmox/LXC104, and left
-Aster Agent and the accepted llama service unchanged. This is preparation only:
-no installer exists, and the later deployment would require one separately
-approved Aster Agent restart. F2/F3 and the full-Aster schedule are unchanged.
+Aster Agent and the accepted llama service unchanged. This is preparation only;
+the later deployment requires one separately approved Aster Agent restart.
+F2/F3 and the full-Aster schedule are unchanged.
+
+The exact [candidate-E gateway install card](evidence/SA3-candidate-E-gateway-install-card-2026-10-27.md)
+now adds a rollback-capable four-file installer. Its focused manifest/installer
+suite passes 9/9, shell syntax passes and independent source re-review passes
+against the exact pinned bytes. It checkpoints the sole live
+predecessor before change, removes only the three additions on rollback,
+restarts only Aster Agent and keeps every model/routing/producer/repair effect
+out of scope. The installer has not run. Immediate approval for the exact
+installation and Aster Agent restart remains the next live gate, after the
+protected nightly window.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
