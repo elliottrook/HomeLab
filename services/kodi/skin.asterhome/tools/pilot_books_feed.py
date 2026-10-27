@@ -64,11 +64,11 @@ def calibre_items():
     return items
 
 
-def audiobook_descriptions():
-    """Read only matching Audiobookshelf book IDs and descriptions."""
+def audiobook_metadata():
+    """Read only matching Audiobookshelf book descriptions and added times."""
     script = ('const sqlite=require("sqlite3");'
               'const db=new sqlite.Database("/config/absdatabase.sqlite",sqlite.OPEN_READONLY);'
-              'db.all("SELECT li.id,b.description FROM libraryItems li JOIN books b '
+              'db.all("SELECT li.id,b.description,li.createdAt FROM libraryItems li JOIN books b '
               'ON li.mediaId=b.id WHERE li.mediaType=?",["book"],(error,rows)=>{'
               'if(error){console.error("Audiobook description query failed");process.exitCode=1;'
               'db.close();return}console.log(JSON.stringify(rows));db.close()})')
@@ -76,7 +76,9 @@ def audiobook_descriptions():
                              'node', '-e', script))
     if not isinstance(rows, list) or len(rows) > 1000:
         raise ValueError('Invalid audiobook descriptions')
-    return {row['id']: plain_synopsis(row.get('description')) for row in rows
+    return {row['id']: {'description': plain_synopsis(row.get('description')),
+                        'added_at': row.get('createdAt')}
+            for row in rows
             if isinstance(row, dict) and isinstance(row.get('id'), str)
             and len(row['id']) <= 128}
 
@@ -89,7 +91,7 @@ def podcast_items():
     """
     script = ('const sqlite=require("sqlite3");'
               'const db=new sqlite.Database("/config/absdatabase.sqlite",sqlite.OPEN_READONLY);'
-              'db.all("SELECT li.id,p.title,p.description,li.addedAt FROM libraryItems li JOIN podcasts p '
+              'db.all("SELECT li.id,p.title,p.description,li.createdAt FROM libraryItems li JOIN podcasts p '
               'ON li.mediaId=p.id WHERE li.mediaType=?",["podcast"],(error,rows)=>{'
               'if(error){console.error("Podcast catalogue query failed");process.exitCode=1;'
               'db.close();return}console.log(JSON.stringify(rows));db.close()})')
@@ -109,7 +111,7 @@ def podcast_items():
         items.append({'authority': 'audiobookshelf', 'media_type': 'podcast',
                       'authority_id': row['id'], 'title': title,
                       'description': plain_synopsis(row.get('description')),
-                      'added_at': epoch_milliseconds(row.get('addedAt'))})
+                      'added_at': row.get('createdAt')})
     return items
 
 
@@ -133,10 +135,12 @@ def main():
     items = json.loads(remote('jq', '-c', jq_filter, SOURCE))
     if not isinstance(items, list):
         raise ValueError('Invalid unified-media library snapshot')
-    descriptions = audiobook_descriptions()
+    audio_metadata = audiobook_metadata()
     for item in items:
         if item.get('authority') == 'audiobookshelf' and item.get('media_type') == 'audiobook':
-            item['description'] = descriptions.get(item.get('authority_id'), '')
+            metadata = audio_metadata.get(item.get('authority_id'), {})
+            item['description'] = metadata.get('description', '')
+            item['added_at'] = metadata.get('added_at')
     items.extend(calibre_items())
     items.extend(podcast_items())
     feed = feed_payload(items, modified)

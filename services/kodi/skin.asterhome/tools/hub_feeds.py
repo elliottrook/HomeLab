@@ -79,8 +79,10 @@ def item_timestamp(value):
         return None
     if not isinstance(value, str) or len(value) > 40:
         raise ValueError('Invalid item timestamp')
+    normalized = re.sub(r' (?=[+-][0-9]{2}:[0-9]{2}$)', '', value.strip())
+    normalized = normalized.replace(' ', 'T', 1)
     try:
-        parsed = datetime.fromisoformat(value.replace('Z', '+00:00'))
+        parsed = datetime.fromisoformat(normalized.replace('Z', '+00:00'))
     except ValueError as error:
         raise ValueError('Invalid item timestamp') from error
     if parsed.tzinfo is None:

@@ -10,8 +10,8 @@ import xml.etree.ElementTree as ET
 
 from books_data import PAGES, activate_row, cached_cover, cover_filename, handoff_target, page_records, selected_row
 from hub_feeds import book_catalogue, item_timestamp, plain_synopsis
-from pilot_books_feed import (calibre_items, epoch_milliseconds, feed_payload,
-                              podcast_items)
+from pilot_books_feed import (audiobook_metadata, calibre_items,
+                              epoch_milliseconds, feed_payload, podcast_items)
 from pilot_books_covers import QUERY, validated_covers
 from pilot_podcast_covers import QUERY as PODCAST_COVER_QUERY, validated_covers as validated_podcast_covers
 from pilot_ebook_covers import SOURCE as CALIBRE_COVER_SOURCE, validated_covers as validated_ebook_covers
@@ -82,7 +82,8 @@ class BooksTests(unittest.TestCase):
 
     def test_podcast_projection_excludes_feed_urls_and_unsubscribed_results(self):
         source = json.dumps([{'id': 'pod_1', 'title': 'Example Show',
-                              'feedURL': 'https://private.example/rss'}]).encode()
+                              'feedURL': 'https://private.example/rss',
+                              'createdAt': None}]).encode()
         with patch('pilot_books_feed.remote', return_value=source):
             items = podcast_items()
         self.assertEqual(items, [{'authority': 'audiobookshelf',
@@ -90,6 +91,17 @@ class BooksTests(unittest.TestCase):
                                   'title': 'Example Show', 'description': '',
                                   'added_at': None}])
         self.assertNotIn('feedURL', items[0])
+
+    def test_audiobook_projection_keeps_only_description_and_added_time(self):
+        source = json.dumps([{'id': 'book_1', 'description': '<p>Synopsis</p>',
+                              'createdAt': '2026-01-01 00:00:00.000 +00:00',
+                              'path': '/private/audio'}]).encode()
+        with patch('pilot_books_feed.remote', return_value=source):
+            items = audiobook_metadata()
+        self.assertEqual(items, {'book_1': {
+            'description': 'Synopsis',
+            'added_at': '2026-01-01 00:00:00.000 +00:00'}})
+        self.assertNotIn('path', items['book_1'])
 
     def test_feed_freshness_records_capture_time_not_source_mtime(self):
         captured = datetime(2026, 10, 17, 16, 0, tzinfo=timezone.utc)
@@ -106,6 +118,8 @@ class BooksTests(unittest.TestCase):
         value['items'][0]['added_at'] = '2026-01-02T03:04:05-08:00'
         self.assertEqual(book_catalogue(value)[0]['added_at'],
                          '2026-01-02T11:04:05+00:00')
+        self.assertEqual(item_timestamp('2026-01-01 00:00:00.000 +00:00'),
+                         '2026-01-01T00:00:00+00:00')
         self.assertIsNone(item_timestamp(None))
         with self.assertRaisesRegex(ValueError, 'time zone'):
             item_timestamp('2026-01-02T03:04:05')
