@@ -120,6 +120,31 @@ class AcquisitionBrokerClientTests(unittest.TestCase):
             self.assertRegex(name, r"^[0-9a-f]{64}\.json$")
             self.assertNotIn("openlibrary", name)
 
+    def test_journal_root_is_private_and_linked_state_is_refused(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "journal"
+            root.mkdir(mode=0o755)
+            writer = RequestWriter(root, {"music": lambda _body: {}})
+            self.assertEqual(root.stat().st_mode & 0o777, 0o700)
+            proposal = self.proposal()
+            target = Path(temporary) / "outside.json"
+            target.write_text("{}")
+            writer._path(proposal).symlink_to(target)
+            with self.assertRaisesRegex(AcquisitionUnavailable,
+                                        "acquisition-journal-invalid"):
+                writer.submit(proposal)
+            self.assertEqual(target.read_text(), "{}")
+
+    def test_linked_journal_root_is_refused(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary) / "real"
+            target.mkdir()
+            linked = Path(temporary) / "linked"
+            linked.symlink_to(target, target_is_directory=True)
+            with self.assertRaisesRegex(AcquisitionUnavailable,
+                                        "acquisition-journal-root-invalid"):
+                RequestWriter(linked, {})
+
 
 if __name__ == "__main__":
     unittest.main()

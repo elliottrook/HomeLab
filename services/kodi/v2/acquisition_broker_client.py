@@ -44,6 +44,20 @@ def _atomic(path, value):
             temporary.unlink()
 
 
+def _private_root(path):
+    path = Path(path)
+    require(not path.is_symlink(), "acquisition-journal-root-invalid")
+    try:
+        path.mkdir(parents=True, exist_ok=True, mode=0o700)
+        require(path.is_dir() and not path.is_symlink(),
+                "acquisition-journal-root-invalid")
+        os.chmod(path, 0o700)
+    except OSError as error:
+        raise AcquisitionUnavailable(
+            "acquisition-journal-root-invalid") from error
+    return path
+
+
 def result(value, proposal):
     require(type(value) is dict
             and set(value) == {"schema", "identity", "status", "request_id"}
@@ -63,7 +77,7 @@ def result(value, proposal):
 
 class RequestWriter:
     def __init__(self, journal_root, transports):
-        self.root = Path(journal_root)
+        self.root = _private_root(journal_root)
         self.transports = dict(transports)
         # Film/TV stays on the established season-aware Seerr workflow.  A
         # generic candidate-id write cannot safely express television seasons.
@@ -87,6 +101,8 @@ class RequestWriter:
                    "media_type": proposal.media_type, "confirm": True}
         payload_hash = hashlib.sha256(_encoded(payload)).hexdigest()
         if path.exists():
+            require(not path.is_symlink() and path.is_file(),
+                    "acquisition-journal-invalid")
             try:
                 prior = json.loads(path.read_text(encoding="utf-8"))
             except (OSError, UnicodeError, json.JSONDecodeError) as error:
