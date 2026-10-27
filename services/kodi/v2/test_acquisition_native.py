@@ -8,17 +8,17 @@ ROOT = Path(__file__).with_name("acquisition_native")
 
 
 class AcquisitionNativeTests(unittest.TestCase):
-    def test_controller_is_discovery_only_and_compiles(self):
+    def test_controller_uses_only_the_restricted_acquisition_writer(self):
         raw = (ROOT / "default.py").read_text()
         ast.parse(raw)
         self.assertIn("DiscoveryFeedClient", raw)
         self.assertIn("RunScript(script.asterseerr)", raw)
-        self.assertNotIn("RequestWriter", raw)
-        self.assertNotIn("/v1/request", raw)
+        self.assertIn("RequestWriter", raw)
+        self.assertIn("acquisition-token", raw)
         self.assertNotIn(":5055", raw)
         self.assertNotIn("API_KEY", raw)
 
-    def test_page_has_remote_complete_focus_and_no_music_books_write(self):
+    def test_page_has_remote_complete_focus(self):
         root = ET.parse(ROOT / "overlay/custom_1133_acquisition.xml").getroot()
         controls = {node.get("id"): node for node in root.findall(".//control[@id]")}
         for identity in ("10", "11", "12", "30", "50", "51"):

@@ -21,15 +21,19 @@ class ComposeContractTests(unittest.TestCase):
             with self.subTest(service=name):
                 self.assertIn("    restart: unless-stopped\n", service(text, name))
 
-    def test_aster_broker_reads_only_the_sanitized_feed_mount(self):
+    def test_aster_broker_has_only_bounded_acquisition_credentials(self):
         text = (ROOT / "compose.shadow.yaml").read_text(encoding="utf-8")
         refresher = service(text, "snapshot-refresh")
         broker = service(text, "aster-seerr-broker")
         self.assertIn("      - ASTER_TV_DISCOVERY_DIR=/data\n", refresher)
         self.assertIn("      - ASTER_TV_DISCOVERY_DIR=/data\n", broker)
         self.assertIn("portal-refresh:/data:ro\n", broker)
-        self.assertNotIn("lazylibrarian-api-key", broker)
-        self.assertNotIn("lidarr-api-key", broker)
+        self.assertIn("aster-acquisition-tv-token", broker)
+        self.assertIn("lazylibrarian-api-key:/run/unified-secrets/lazylibrarian-api-key:ro", broker)
+        self.assertIn("lidarr-api-key:/run/unified-secrets/lidarr-api-key:ro", broker)
+        self.assertNotIn("sonarr-api-key", broker)
+        self.assertNotIn("radarr-api-key", broker)
+        self.assertNotIn("jellyfin-api-key", broker)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-"""Native Aster Acquisition Hub page; discovery-only until a broker is active."""
+"""Native Aster Acquisition Hub with fenced Music and Books requests."""
 
 from dataclasses import replace
 from datetime import datetime, timezone
@@ -14,7 +14,10 @@ import xbmcgui
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "resources/lib"))
 
-from acquisition_hub_model import activate, build, domain_state, select
+from acquisition_broker_client import AcquisitionUnavailable, RequestWriter
+from acquisition_http_transport import post
+from acquisition_hub_model import (activate, build, complete, domain_state,
+                                   request, select)
 from acquisition_page_model import render
 from discovery_feed_client import DiscoveryFeedClient, DiscoveryUnavailable
 
@@ -22,7 +25,9 @@ from discovery_feed_client import DiscoveryFeedClient, DiscoveryUnavailable
 PREFIX = "AsterAcquisition."
 BROKER = "http://192.168.20.40:8788"
 TOKEN = Path("/storage/.aster-private/seerr-token")
+ACQUISITION_TOKEN = Path("/storage/.aster-private/acquisition-token")
 CACHE = Path("/storage/.aster-private/acquisition-cache")
+JOURNAL = Path("/storage/.aster-private/acquisition-journal")
 DOMAINS = ("media", "music", "books")
 
 
@@ -47,6 +52,11 @@ def main():
         DiscoveryFeedClient(BROKER, TOKEN, CACHE),
         datetime.now(timezone.utc),
     )
+    writer = RequestWriter(
+        JOURNAL,
+        {route: (lambda payload: post(BROKER, ACQUISITION_TOKEN, payload))
+         for route in ("music", "books")},
+    )
 
     def prop(name, value=""):
         key = PREFIX + name
@@ -62,12 +72,16 @@ def main():
         prop("Explanation", view.explanation)
         prop("Poster", view.poster)
         prop("Backdrop", view.backdrop)
-        # Media keeps its existing season-aware Seerr workflow. Music and Books
-        # remain visibly read-only until their restricted writer is deployed.
-        prop("Action", view.action if view.domain == "media" else "")
-        prop("ActionHint", ("Open the private film and television request page"
-                            if view.domain == "media" and view.action
-                            else "Requests are not active for this category yet"))
+        prop("Action", view.action if view.action_enabled else "")
+        if view.domain == "media" and view.action:
+            hint = "Open the private film and television request page"
+        elif view.confirmation:
+            hint = "Press once more to send this exact request"
+        elif view.action:
+            hint = "Requests are checked again before they are accepted"
+        else:
+            hint = ""
+        prop("ActionHint", hint)
         for domain in DOMAINS:
             prop("Tab" + domain.title(), "active" if domain == view.domain else "")
 
@@ -110,10 +124,21 @@ def main():
                         fill()
                         selected = state.page.selected
                         publish()
-                elif command == "action" and state.page.domain == "media" and state.item:
-                    xbmc.executebuiltin("ActivateWindow(Home)")
-                    xbmc.executebuiltin("RunScript(script.asterseerr)")
-                    break
+                elif command == "action" and state.item:
+                    if state.page.domain == "media":
+                        xbmc.executebuiltin("ActivateWindow(Home)")
+                        xbmc.executebuiltin("RunScript(script.asterseerr)")
+                        break
+                    try:
+                        confirming = state.phase == "confirm"
+                        state, proposal = request(state, confirming)
+                        if proposal.state == "ready":
+                            state = complete(state, proposal,
+                                             writer.submit(proposal))
+                    except (AcquisitionUnavailable, OSError, ValueError):
+                        state = replace(state, phase="browse",
+                                        status="Request unavailable · nothing was retried")
+                    publish()
             position = window.getControl(30).getSelectedPosition()
             if 0 <= position < len(state.page.items) and position != selected:
                 state = select(state, position)

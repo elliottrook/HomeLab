@@ -10,11 +10,13 @@ import tempfile
 
 ADDON = Path(".kodi/addons/script.asteracquisition")
 SKIN = Path(".kodi/addons/skin.asterhome")
-CHECKPOINT = Path(".aster-checkpoints/aster-acquisition-page1")
+CHECKPOINT = Path(".aster-checkpoints/aster-acquisition-page2")
 ADDON_MEMBERS = {
     "addon.xml", "default.py",
     "resources/lib/acquisition_hub_model.py",
     "resources/lib/acquisition_page_model.py",
+    "resources/lib/acquisition_broker_client.py",
+    "resources/lib/acquisition_http_transport.py",
     "resources/lib/discovery_feed_client.py",
     "resources/lib/landing_recommendations.py",
 }
@@ -76,9 +78,9 @@ def inspect(stage, pin):
             "acquisition-install-manifest-pin")
     manifest = json.loads((stage / "manifest.json").read_text())
     require(manifest.get("schema") == 1
-            and manifest.get("kind") == "hp-acquisition-page.v1"
+            and manifest.get("kind") == "hp-acquisition-page.v2"
             and manifest.get("addon") == "script.asteracquisition"
-            and manifest.get("writes_enabled") is False,
+            and manifest.get("writes_enabled") is True,
             "acquisition-install-contract")
     require(manifest.get("activation") == "RunScript(script.asteracquisition)"
             and set(manifest.get("helpers", {})) == {"acquisition_install.py"}

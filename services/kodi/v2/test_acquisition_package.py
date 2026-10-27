@@ -27,16 +27,16 @@ class AcquisitionPackageTests(unittest.TestCase):
         target.write_bytes(self.home.read_bytes())
         return storage
 
-    def test_candidate_is_pinned_discovery_only_and_contains_no_secret(self):
+    def test_candidate_is_pinned_bounded_write_and_contains_no_secret(self):
         manifest = json.loads((self.stage / "manifest.json").read_text())
-        self.assertEqual(manifest["kind"], "hp-acquisition-page.v1")
-        self.assertFalse(manifest["writes_enabled"])
+        self.assertEqual(manifest["kind"], "hp-acquisition-page.v2")
+        self.assertTrue(manifest["writes_enabled"])
         self.assertEqual(manifest["activation"],
                          "RunScript(script.asteracquisition)")
         combined = b"".join(path.read_bytes() for path in self.stage.rglob("*")
                             if path.is_file())
         self.assertIn(b"/v1/discovery/", combined)
-        self.assertNotIn(b"/v1/request", combined)
+        self.assertIn(b"/v1/acquisition", combined)
         self.assertNotIn(b":5055", combined)
         self.assertNotIn(b"API_KEY", combined)
         self.assertIn(b"RunScript(script.asteracquisition)",

@@ -7,7 +7,8 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from aster_seerr_broker import BrokerError, SeerrClient, authorize
+from aster_seerr_broker import (BrokerError, SeerrClient, authorize,
+                                provider_transport)
 
 
 class Transport:
@@ -84,6 +85,34 @@ class AsterSeerrBrokerTests(unittest.TestCase):
         for value in ("", token, "Bearer short", "bearer " + token):
             with self.assertRaises(BrokerError):
                 authorize(value, token)
+
+    def test_provider_transport_keeps_keys_out_of_lidarr_query_and_lazy_headers(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            key = Path(temporary) / "key"
+            key.write_text("private-key")
+            calls = []
+            def transport(url, **kwargs):
+                calls.append((url, kwargs))
+                return 200, {}, {}
+            lidarr = provider_transport("http://lidarr:8686", key, "lidarr",
+                                        transport)
+            lidarr("GET", "/api/v1/album", {"term": "Blue"}, None)
+            self.assertNotIn("private-key", calls[0][0])
+            self.assertEqual(calls[0][1]["headers"]["X-Api-Key"],
+                             "private-key")
+            lazy = provider_transport("http://lazylibrarian:5299", key,
+                                      "lazylibrarian", transport)
+            lazy("GET", "/api", {"cmd": "getAllBooks"}, None)
+            self.assertIn("apikey=private-key", calls[1][0])
+            self.assertNotIn("X-Api-Key", calls[1][1]["headers"])
+
+    def test_provider_transport_rejects_https_userinfo_and_paths(self):
+        for value in ("https://lidarr:8686", "http://user@lidarr:8686",
+                      "http://lidarr:8686/api"):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(BrokerError,
+                                            "provider-url-invalid"):
+                    provider_transport(value, Path("/unused"), "lidarr")
 
     def test_search_returns_only_sanitized_exact_schema(self):
         transport = Transport()

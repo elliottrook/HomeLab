@@ -18,6 +18,9 @@ from aster_seerr_episode_contract import (catalogue as episode_catalogue,
                                           season as episode_season,
                                           season_proposal,
                                           season_request_result)
+from aster_acquisition_broker import AcquisitionBroker
+from aster_acquisition_providers import (LazyLibrarianProvider,
+                                         LidarrProvider)
 from aster_tv_discovery import DiscoveryFeedError, read_feed
 
 
@@ -54,6 +57,42 @@ def authorize(header: str, token: str) -> None:
     if (not isinstance(header, str) or not isinstance(token, str)
             or not 32 <= len(token) <= 512 or not hmac.compare_digest(header, expected)):
         raise BrokerError("aster-seerr-unauthorized")
+
+
+def provider_transport(base_url: str, key_path: Path, provider: str,
+                       transport=request_json):
+    """Build one credential-holding transport for a private ARR service."""
+    parsed = urllib.parse.urlparse(base_url)
+    if (provider not in ("lidarr", "lazylibrarian")
+            or parsed.scheme != "http" or not parsed.netloc
+            or parsed.username or parsed.password
+            or parsed.path.rstrip("/") or parsed.query or parsed.fragment):
+        raise BrokerError("acquisition-provider-url-invalid")
+    base = base_url.rstrip("/")
+    key_path = Path(key_path)
+
+    def call(method: str, path: str, query: Optional[Mapping[str, Any]],
+             body: Optional[Mapping[str, Any]]) -> tuple[int, Any]:
+        if method not in ("GET", "POST") or not path.startswith("/"):
+            raise BrokerError("acquisition-provider-request-invalid")
+        key = key_path.read_text(encoding="utf-8").strip()
+        if not 8 <= len(key) <= 512 or "\n" in key:
+            raise BrokerError("acquisition-provider-key-invalid")
+        params = dict(query or {})
+        headers = {"Accept": "application/json"}
+        if provider == "lidarr":
+            headers["X-Api-Key"] = key
+        else:
+            params["apikey"] = key
+        url = base + path
+        if params:
+            url += "?" + urllib.parse.urlencode(params)
+        if body is not None:
+            headers["Content-Type"] = "application/json"
+        status, value, _ = transport(url, method=method, body=body,
+                                     headers=headers)
+        return status, value
+    return call
 
 
 class SeerrClient:
@@ -263,6 +302,38 @@ class Handler(BaseHTTPRequestHandler):
     def _auth(self) -> None:
         authorize(self.headers.get("Authorization", ""), self._token())
 
+    def _acquisition_auth(self) -> None:
+        token = Path(os.environ["ASTER_ACQUISITION_TOKEN_PATH"]).read_text(
+            encoding="utf-8").strip()
+        try:
+            authorize(self.headers.get("Authorization", ""), token)
+        except BrokerError as error:
+            if str(error) == "aster-seerr-unauthorized":
+                raise BrokerError("aster-acquisition-unauthorized") from error
+            raise
+
+    def _acquisition(self) -> AcquisitionBroker:
+        lidarr = LidarrProvider(
+            provider_transport(os.environ["LIDARR_URL"],
+                               Path(os.environ["LIDARR_API_KEY_PATH"]),
+                               "lidarr"),
+            root=os.environ["LIDARR_ROOT"],
+            quality_profile_id=int(os.environ["LIDARR_QUALITY_PROFILE_ID"]),
+            metadata_profile_id=int(os.environ["LIDARR_METADATA_PROFILE_ID"]),
+        )
+        lazy = LazyLibrarianProvider(provider_transport(
+            os.environ["LAZYLIBRARIAN_URL"],
+            Path(os.environ["LAZYLIBRARIAN_API_KEY_PATH"]),
+            "lazylibrarian"))
+        root = Path(os.environ.get("ASTER_TV_DISCOVERY_DIR", "/data"))
+        return AcquisitionBroker(
+            root,
+            {"album": lidarr.revalidate, "ebook": lazy.revalidate,
+             "audiobook": lazy.revalidate},
+            {"album": lidarr.write, "ebook": lazy.write,
+             "audiobook": lazy.write},
+        )
+
     def do_GET(self) -> None:  # noqa: N802
         parsed = urllib.parse.urlparse(self.path)
         if parsed.path == "/health":
@@ -308,21 +379,28 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:  # noqa: N802
         try:
-            self._auth()
-            path = urllib.parse.urlparse(self.path).path
-            if path not in ("/v1/request", "/v1/season-request"):
+            parsed = urllib.parse.urlparse(self.path)
+            path = parsed.path
+            if parsed.query or path not in ("/v1/request", "/v1/season-request",
+                                             "/v1/acquisition"):
                 self._send(404, {"error": "not found"})
                 return
+            self._acquisition_auth() if path == "/v1/acquisition" else self._auth()
             length = int(self.headers.get("Content-Length", "0"))
             if not 1 <= length <= 8192:
                 raise BrokerError("aster-seerr-body-invalid")
             value = json.loads(self.rfile.read(length))
-            result = (self._client().submit(value) if path == "/v1/request"
-                      else self._client().submit_season(value))
+            if path == "/v1/acquisition":
+                result = self._acquisition().submit(value)
+            else:
+                result = (self._client().submit(value) if path == "/v1/request"
+                          else self._client().submit_season(value))
             self._send(200, result)
         except (BrokerError, ContractError, KeyError, OSError, ValueError,
                 json.JSONDecodeError) as error:
-            code = 401 if str(error) == "aster-seerr-unauthorized" else 409
+            code = (401 if str(error) in ("aster-seerr-unauthorized",
+                                          "aster-acquisition-unauthorized")
+                    else 409)
             self._send(code, {"error": str(error)})
 
     def _send(self, status: int, value: Mapping[str, Any]) -> None:

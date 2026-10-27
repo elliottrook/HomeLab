@@ -1,4 +1,4 @@
-"""Build an immutable, discovery-only Aster Acquisition Hub candidate."""
+"""Build an immutable, bounded-write Aster Acquisition Hub candidate."""
 
 import argparse
 import hashlib
@@ -30,6 +30,8 @@ def build(home, output):
         "default.py": here / "acquisition_native/default.py",
         "resources/lib/acquisition_hub_model.py": here / "acquisition_hub_model.py",
         "resources/lib/acquisition_page_model.py": here / "acquisition_page_model.py",
+        "resources/lib/acquisition_broker_client.py": here / "acquisition_broker_client.py",
+        "resources/lib/acquisition_http_transport.py": here / "acquisition_http_transport.py",
         "resources/lib/discovery_feed_client.py": here / "discovery_feed_client.py",
         "resources/lib/landing_recommendations.py": here / "landing_recommendations.py",
     }
@@ -43,7 +45,7 @@ def build(home, output):
 <addon id="script.asteracquisition" name="Aster Acquisition Hub" version="2.0.0" provider-name="Aster Home">
   <requires><import addon="xbmc.python" version="3.0.0"/></requires>
   <extension point="xbmc.python.script" library="default.py"><provides>executable</provides></extension>
-  <extension point="xbmc.addon.metadata"><summary lang="en_GB">Private cross-media discovery page</summary><description lang="en_GB">Credential-free Aster discovery for Media, Music and Books.</description><platform>all</platform><license>Private HomeLab</license></extension>
+  <extension point="xbmc.addon.metadata"><summary lang="en_GB">Private cross-media discovery page</summary><description lang="en_GB">Restricted Aster discovery and confirmed requests for Media, Music and Books.</description><platform>all</platform><license>Private HomeLab</license></extension>
 </addon>
 ''')
     original = home.read_bytes()
@@ -71,13 +73,13 @@ def build(home, output):
     (output / "acquisition_install.py").write_bytes(helper_raw)
     manifest = {
         "schema": 1,
-        "kind": "hp-acquisition-page.v1",
+        "kind": "hp-acquisition-page.v2",
         "addon": ADDON,
         "addon_files": addon_rows,
         "skin": skin_rows,
         "helpers": {"acquisition_install.py": digest(helper_raw)},
         "activation": "RunScript(script.asteracquisition)",
-        "writes_enabled": False,
+        "writes_enabled": True,
     }
     (output / "manifest.json").write_bytes(encoded(manifest))
     return digest((output / "manifest.json").read_bytes())
