@@ -114,8 +114,15 @@ broader investigation evidence remains separately gated. The installed
 passes 7/7 against LXC104's production dependencies: Doctor intake, gateway
 status, inference health and reconnect compose into three observations and two
 consumed decisions without hypothesis egress. The next main-project boundary
-is SA3's bounded proposal generation over this sanitized state; producer
-execution and repair authority remain outside it.
+is now implemented as the source-only
+[SA3 sanitized proposal boundary](evidence/SA3-sanitized-proposal-boundary-2026-10-26.md).
+Its 54/54 sysadmin regression passes prove that a future injected proposal
+transport sees only opaque references, sanitized observations and remaining
+registered choices. Trusted code restores the private identity and exact state
+binding, revalidates the selection through SA1, and emits no authority or
+effect. No model was called and no live service changed. The next SA3 step is a
+fixed, bounded model-transport adapter and representative no-effect evaluation;
+producer execution and repair authority remain outside it.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
