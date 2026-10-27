@@ -12,6 +12,14 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October27 morning receipt](B60-Inference-Engineering/research-watch-20261012.md#october-27-morning-preparation-receipt)
+receives Adaptive `8c7c7355`: the overnight screen stopped before model effects,
+then owner-approved daytime work passed real archive probes and two complete
+lab isolation/restoration transactions. This is meaningful recovery progress,
+not a 35B capability result or retained overnight F2/F3. Exact final source,
+candidate identity, recovery timings and conflicting F4 cycle wording are
+requested before B60 integration. Fresh October28 F2/F3 remains conditional.
+
 The local-only [October 27 nightly receipt](B60-Inference-Engineering/research-watch-20261012.md#october-27-nightly-receipt)
 receives Adaptive `1cb4aed1`: all four public preflight findings are corrected,
 and a separate absolute-window launcher correction is reportedly installed

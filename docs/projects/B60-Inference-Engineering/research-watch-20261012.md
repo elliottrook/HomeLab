@@ -1,5 +1,87 @@
 # Fixed-hardware capability research watch — 2026-10-12
 
+## October 27 morning preparation receipt
+
+Fetched and read authoritative Adaptive
+`8c7c7355574c62a4915d5cd75e29099356986912`, published B60
+`457ffa1a00bdd2066178ee942ae40d32f64b716f` and platform
+`6fb0207fec5190e0c34ed3bc72ea38e128f06127`. The platform's published split
+record still lacks the newer effect-source ancestry. This is not a claim that
+its old manual-only snapshot describes today's installed host.
+
+Exact receipts at Adaptive's commit above, under
+`docs/projects/AI Projects/evidence/`, SHA-256 over Git file bytes:
+
+- `Full-Aster-first-screen-no-go-2026-10-27.md`:
+  `5bd69c6a371634134aa65e4378a74c20b447d550e2d46042de278e1fd71d2d37`;
+- `F2-Proxmox-path-install-and-daytime-real-scan-2026-10-27.md`:
+  `ea3bdefd6e397be11c0e725cf158198295f54a0e40fc8c4b0b949d4879f86807`;
+- `Full-inference-daytime-two-pass-qualification-2026-10-27.md`:
+  `631fa9df8cd33a1da63d52abf0beceb125389e6882ae023161bd5090a5426072`;
+- `F2-exact-cycle-activation-result-2026-10-28.md`:
+  `38483dc2f1a838a0966e5b1fe943f8f834cdd0ac59714fce84f9b67276bb1448`.
+
+### Overnight refusal and daytime progress
+
+October 27 F2 reached `OBSERVER_EXIT_NONZERO`, no accepted rows; F3 skipped.
+The 03:10 first-screen wrapper exited after about one second before lease,
+mount, guest restart or candidate request. Owner postchecks report accepted
+9B/SYCL continuously active with zero restarts at that reconciliation. The
+35B model was not tested, rejected for capability or promoted by this NO-GO.
+
+The subsequent real-process rehearsal exposed an exact sanitized-environment
+fault: `pvesm` lives at `/usr/sbin/pvesm`, absent from the observer's supplied
+`/usr/bin:/bin` path. Platform `18c7198e` reportedly installs the corrected
+fixed path, passes 60 target tests and two identical no-scan rehearsals. A
+corrected installation packet was needed after its first test invocation used
+filenames rather than module names; predecessor rollback was verified.
+
+Under separate owner daytime approval, actual low-priority archive checks
+then passed VMIDs104/110/116 in 19.312/337.578/42.015 seconds, all exit zero.
+The rehearsal used a synthetic 01:20 clock and no-op receipt writer. It is
+real archive integrity/timing evidence, **not** a retained F2/F3 admission
+receipt or proof of the next night's backup. Narration/relay work was paused
+and restored by the owner; B60 did not repeat those effects.
+
+The owner also reports two unchanged full-inference daytime passes at
+08:47:31–08:49:20 and 08:50:39–08:52:28 PDT. Each armed a guardian, acquired
+shared exclusion, stopped/masked the registered inference/Aster/Speech/News
+consumers, ran three authenticated tool-free loopback requests, cleaned the
+lab scope and restored production. Final postchecks report exact accepted
+model/binary/unit identities, healthy authenticated production, enabled News
+timers and no lab/guardian/lock leftovers. These are substantial owner-reported
+transaction/recovery results, not merely the historical manual light drain.
+They do not establish a 35B reasoning-on useful-answer baseline. The packet
+summary does not identify the lab model or isolate recovery-stage duration;
+109 seconds of total transaction time is not a validated 35B restoration
+budget. Do not replace the independent 15-minute reserve with that aggregate.
+
+October28 F2 is separately approved/scheduled for01:15/01:20 with01:42
+reconciliation and conditional01:50 F3. It still needs fresh exact-clock
+evidence and no retry. No new 35B timed screen is currently GO in the owner
+snapshot. Do not replay October27 or acquire an ad hoc lease from preparation.
+
+### Focused remaining integration requests
+
+A scoped direct message to Adaptive requests the fetchable final platform
+source/ref and installed manifest, exact lab candidate identity and sanitized
+per-stage recovery timings for the two unchanged passes. It also requests
+reconciliation of conflicting F4 wording: the October26 correction requires
+same-local-date F2/F3/F4 unchanged archives, but the current October28 F3 review
+says F4 needs a subsequent fresh cycle. Preserve exact cycle/source binding;
+do not choose an execution interpretation from prose alone. Message delivery
+is not an acknowledgment or authorization for operational work.
+
+The first morning read-only mirror query did not return within the bounded
+review and was cancelled; no mirror mismatch or failed publication is inferred.
+Authoritative fetch succeeded. Reverify protection refs before/after any later
+authorized liaison publication. B60's unchanged81-test suite passes. The
+nightly local commit `7dd37e8a` remains intact in the recovered checkout.
+No production probe, model/GPU request, download, mount, lease, timer/service,
+package or credential operation ran here. Next action is to integrate and test
+the exact returned source and receive the fresh October28 terminal chain;
+the programme remains active, not complete or executing in the background.
+
 ## October 27 nightly receipt
 
 The 00:30 heartbeat arrived at 00:34 PDT; the execution clock was 00:50 PDT
