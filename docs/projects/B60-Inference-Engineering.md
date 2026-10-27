@@ -12,6 +12,15 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The local-only [October 26 research update](B60-Inference-Engineering/research-watch-20261012.md#october-26-monday-review)
+receives Adaptive `38b366e8`: exact B60 acknowledgment, owner-reported frozen
+full-Aster contract and verified staging of the 35B MoE artifact. This closes
+the earlier missing-reply/contract-publication statement, not live baseline,
+recovery or model admission. The 24-case paired screen cannot substitute for
+final per-class p95 qualification or demonstrated capability improvement.
+New SYCL reorder-memory and F16 correctness leads are queued separately;
+accepted b11429 remains unchanged. This research run does not push its receipt.
+
 Direct access to the two Mini coordination chats was verified on October 26.
 B60 sent scoped liaison messages requesting exact read acknowledgments of
 `11febf11386982cba001ae3e08d6b5df5b67c794`, fetchable current platform

@@ -1,5 +1,165 @@
 # Fixed-hardware capability research watch — 2026-10-12
 
+## October 26 Monday review
+
+Research execution receipt: 2026-10-27 UTC, Monday evening America/Vancouver.
+Current ranking remains the staged Qwen3.6-35B-A3B ordinary-inference screen
+on accepted b11429/SYCL, not an unqualified runtime upgrade. New upstream
+memory and correctness changes warrant a later isolated comparison. A new
+cross-family Muse Glimmer candidate enters behind the existing queue.
+This review changes documentation only; no push, download or live effect.
+
+### New runtime leads and hazards
+
+- [SYCL reorder memory PR 31062](https://github.com/ggml-org/llama.cpp/pull/31062)
+  merged October 26 at
+  `5320c87ff0d994845b44ce7976f10055ec697447`. It bounds the per-operation
+  temporary reorder buffer to 32 MiB. The motivating test used four B70s and
+  a much larger MoE, not a single B60 or our Qwen candidate. This is a credible
+  residency/OOM-risk lead, not a throughput gain: the contributor reports no
+  same-layout speed effect. Aggregate peak allocations are not capped to
+  32 MiB. [b11901](https://github.com/ggml-org/llama.cpp/releases/tag/b11901)
+  includes the change but is labelled **pre-release** on its release page.
+  Do not replace accepted recovery or trust auto-fit to budget every workspace.
+- [SYCL F16 corruption issue 30892](https://github.com/ggml-org/llama.cpp/issues/30892),
+  opened October 20 and still open, reports Qwen3.8-27B Q4_K_M garbage from
+  short prompts on B70/Linux, with a reported first bad b11636 / `529ac89`
+  after b11635. The reporter's backend-op tests passed despite bad model
+  output. A second B70 configuration reproduces it. Reported fused-GEMM
+  masking/F32 workarounds are diagnostic leads, not accepted production fixes.
+  This is particularly relevant to a newer FP16 SYCL challenger, but does not
+  establish a fault in accepted b11429, B60 G21 or Qwen3.6 MoE. Require model
+  correctness gates before interpreting speed; never upgrade for memory alone.
+- [Sparse-FA report 30624](https://github.com/ggml-org/llama.cpp/issues/30624)
+  concerns B70/Windows with sparse FA enabled and roughly 40–60K-plus context,
+  not the current one-slot 8K B60 profile. Its [ordering fix PR 30812](https://github.com/ggml-org/llama.cpp/pull/30812)
+  merged October 20 at
+  `8115b4c31faeab22954383202e0c26c4e55944e4`. Preserve the distinction between
+  an open issue label, a merged source fix and tested artifact behavior. Keep
+  sparse FA out of the first screen; the fix is not a reason to expand context.
+- [Intel Vulkan FA-prefill PR 29357](https://github.com/ggml-org/llama.cpp/pull/29357)
+  remains **open**, originating September 24. It includes B70 Linux prefill
+  reports, including Qwen 27B/MoE. Intel Xe2 makes it relevant as a later
+  hypothesis; G31 results do not validate G21, decode or useful-answer p95.
+  Shader/compiler compatibility and correctness remain gates. No preview
+  patch or Vulkan engine switch is proposed for the first challenger.
+
+### Models and resource implications
+
+Qwen3.8-27B, Qwen3.6-35B-A3B and GLM-4.7-Flash remain existing released
+candidates, not new discoveries. Retain their prior pinned source/license
+records below; smaller active-parameter counts do not remove resident weights.
+The exact Qwen3.6 artifact is now owner-reported staged at 20,419,565,568 bytes,
+SHA-256 `671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7`.
+Guest mounting, loading and residency remain untested, separately gated effects.
+
+[Muse Glimmer 30B official GGUF card](https://huggingface.co/meta-models/Muse-Glimmer-30B-GGUF)
+adds a cross-family lead absent from the October 12 queue: Apache-2.0,
+released August 2026; repository revision
+`b44f1072cf75e918a1b82a3a17b45c4389b076e7`. The text Q4_K_M is listed as
+16.8 GB, optional DFlash draft 1.63 GB and vision encoder 1.4 GB. Text artifact
+[published SHA-256](https://huggingface.co/meta-models/Muse-Glimmer-30B-GGUF/blob/main/Muse-Glimmer-30B-KQuant-17GB-Q4_K_M.gguf)
+is `4cc57c0f51040a226e5a72cc47b7613f7772950e460a665f7083de89f183f60e`;
+exact byte count must be pinned before acquisition. The card reports about
+29.6B including a roughly 1.8B vision encoder; a text-only eligibility audit
+must confirm actual retained parameters. Thinking is template-enabled with
+effort controls; early templates had effort-normalization issues and wrong
+end-of-message stops can truncate turns. Card support starts at b10353,
+but exact B60 kernels, quant quality and draft verification are unproved.
+Vendor Apple/NVIDIA draft speedups are not Intel results. Budget weights,
+KV, workspace and draft residency separately; no second candidate download
+while Qwen remains staged. No example installer or agent tool grant is adopted.
+
+### Engines drivers and harness review
+
+[OpenVINO 2026.4 notes](https://docs.openvino.ai/2026/about-openvino/release-notes-openvino.html)
+(September 16) remain the prior stable lead: CPU/GPU Qwen/Gemma MTP and
+MoE support, DFlash preview, Gemma GPU accuracy/template caveats. No newly
+verified stable backend change replaces the existing pinned trial. GenAI
+support is not an exact B60 conversion or correctness result; Model Server
+deployment adds no inherent capability or tool authority.
+
+[vLLM XPU instructions](https://docs.vllm.ai/en/latest/getting_started/installation/gpu/)
+still list Arc generically, Python 3.12 and XPU-specific kernels. Current
+mutable guidance includes PyTorch 2.14 graph dependencies/oneAPI 2026.1.1
+and a Triton XPU shim. These need one coherent isolated dependency pin, not
+mixed CUDA wheels. Exact B60/model/quant validation remains open. No verified
+SGLang/B60 combination was established in this search; keep it below supported
+engine paths rather than assuming CUDA instructions apply.
+
+[Compute runtime 26.35.39758.10](https://github.com/intel/compute-runtime/releases/tag/26.35.39758.10)
+is the same September 17 release already recorded, not a new fix. The
+[SYCL build guide](https://github.com/ggml-org/llama.cpp/blob/master/docs/backend/SYCL.md)
+has a September oneAPI 2026.1 build-performance note measured on B570, not a
+B60 result; check accepted build metadata before treating it as an upgrade.
+No new source-pinned Linux DRM xe/BMG fix was established by this review.
+Do not infer safety from a newer kernel/compiler or alter the global stack.
+
+MTP and quantized-KV PR ancestry already in b11429 remains deduplicated below.
+Agent/retrieval optimization should use the frozen retrieval snapshot and
+identical typed no-effect boundary, measuring total calls and wall time.
+Additional agent calls, hidden-thought retention, shared draft caches or
+external search can change privacy and latency, not just answer quality.
+
+### Authoritative owner receipt and next experiment
+
+Fetched all three named Forgejo branches; read their current records, not just
+main. Read-only GitHub protection refs matched:
+
+- Adaptive `38b366e80987e0adeb57501034895d2e8cb70864`;
+- B60 `64d909bb494473a068b61a49e1e3a493251feb48`;
+- platform `6fb0207fec5190e0c34ed3bc72ea38e128f06127`.
+
+Adaptive now explicitly acknowledges B60 commit `11febf1` and exact document
+hash `106ab591f4a855f515d7c9bfbebaade4dc6ad7c9406d35e9444664f616b554ae`.
+At Adaptive's full commit above, SHA-256 over Git file bytes under
+`docs/projects/AI Projects/`:
+
+- `evidence/B60-full-Aster-baseline-interface-reconciliation-2026-10-26.md`:
+  `60be6a3686f07ed232c1e5d0ee4564780ea6890f7d9ced51614d3fa59fc03d69`;
+- `evidence/Full-Aster-owner-freeze-result-2026-10-26.md`:
+  `34274bdbf01dbc4b0c9a7274a3b201a4418b0988f607e0e4d491a988beea14b6`;
+- `benchmarks/full-aster-benchmark-contract-v1.json`:
+  `023939fd25e61e47af9418387ee6fe82163fac394511472a8bf64eaaab40382c`;
+- `evidence/Full-Aster-challenger-artifact-staging-result-2026-10-26.md`:
+  `c9804eac4a9d68b5314839ce17cf008c0032ab841a21e626a1b6ed16e87507df`.
+
+The platform `docs/projects/Local-AI-Platform-Split.md` at its commit above is
+`6bd3106078315a80046a6f917646410698df6a73f6e34c219b32272ce9f935d7`.
+Its published ancestry still does not supply the newer recovery composition.
+Native chat access is working as recorded October 26; older unavailability
+claims are historical. This research run sends no new coordination message.
+
+The frozen fictional packet has 24 cases across six families, two reviewers,
+overall quality floor 87.5%, each family 75%, zero specified safety violations,
+zero retries/timeouts, absolute p50/p95 ceilings 5/15 seconds and challenger
+minus fresh baseline p50/p95 at most zero. These are **owner-reported accepted
+screening constraints**, not measured latency or qualification. Forty-eight
+calls provide one paired screen, not the programme's two independent sessions
+and at least 100 observations per acceptance class. The absolute ceilings do
+not relax the zero-delta requirement; minimum quality floors alone also do
+not demonstrate improvement on harder cases. No private cases/labels were read.
+
+Rank 1 remains exactly two sequential synthetic Qwen3.6 requests on unchanged
+b11429/SYCL, genuine reasoning on, speculation off, one 8K slot, 60 seconds
+per request, only after approved same-cycle F2–F5/F6 and independent recovery.
+Measure actual weights/KV/workspace, no spill, health and complete output;
+abort without retry on any device, OOM, truncation or custody failure. Keep
+the B60 30-minute ceiling and restore before 04:15 even if the platform's
+outer transaction budget is longer. This run card is still LIVE BLOCKED.
+If ordinary fit fails from reorder memory, rank the exact newer-SYCL memory
+fix as a separate diagnostic, with the F16 corruption gate first; do not mix
+driver, quant, draft and runtime changes. Muse Glimmer is a later alternative,
+not permission to acquire every release or claim the target feasible.
+
+All changes remain local in the independent disposable liaison checkout;
+the full implementation checkout is read-only in this execution environment.
+Next preparation continuation should integrate these exact owner formats and
+source/test dependencies, reconcile screening versus final qualification,
+and receive fetchable recovery source before proposing effects.
+
+## October 12 retained review
+
 Research-only Monday review, America/Vancouver. No model/runtime download,
 execution, GPU load, host/service/schedule change or Git push. Full checkout
 currently read-only; this local record is in the focused writable checkout.
