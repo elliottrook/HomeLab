@@ -75,6 +75,37 @@ The final exact-file verification reports seven active members with checkpoint
 recovery intact. Kodi logged no matching Music/XML error. Production was not
 changed.
 
+## HP Books recommendation hero activation
+
+Books now uses the same focus-safe landing contract on the HP lab. The existing
+six-hour refresh reads only the limited Audiobookshelf account's own progress
+endpoints and source-owned author/genre metadata. Confirmed, visible household
+listening records establish affinity separately for audiobooks and podcasts;
+unstarted owned titles may then receive a finite score and a plain reason such
+as `Because you listen to YA Fantasy`. Raw progress, account identity, paths,
+URLs and credentials are removed before publication. Ebooks and podcasts do
+not receive recommendations until equally defensible history exists.
+
+The accepted live refresh inspected 53 audio titles and four existing progress
+records, published eleven audiobook recommendations and retained all 558 owned
+Books records. The resulting feed is 224,464 bytes, below its 262,144-byte
+limit, and contains no transient/private fields. The landing presents three
+Recently Added lanes. While no lane owns focus, the hero rotates every twelve
+seconds and provides compact About, Listen and Next actions. Manual Next changed
+the recommendation without moving focus. Listen opened the existing chapter
+page without starting playback. A focused title immediately hid the
+recommendation actions and restored that title's real cover, title and synopsis.
+
+The first candidate was rolled back after visual inspection found that selected
+titles still showed the old generic Books emblem. The accepted successor is the
+immutable stage `/storage/.aster-staging/aster-owned-books-landing2`, manifest
+`8648fd13702aa2744b7cc498ed4667f76eb617fd7c099b37c1a2aa5beea8cbda`,
+with recovery checkpoint
+`/storage/.aster-checkpoints/aster-books-landing2-20261026`. Final verification
+reports all six owned files exact, Home active, the refresh timer active and no
+new Kodi error, fatal, traceback or XML-parser event. Production remains
+unchanged.
+
 ## HP Books source-date activation
 
 The Books producer/consumer date enrichment is now active on the HP lab only.
@@ -97,9 +128,10 @@ credentials and production Aster were unchanged.
 
 ## Verification
 
-Twenty-one focused tests cover real-date ordering, timezone normalization,
+Thirty focused tests cover real-date ordering, timezone normalization,
 Kodi's bounded inaccessible sentinel, undated omission, signal-required
-recommendations, recent-item exclusion, action/authority separation, duplicate
-rejection, focus-safe rotation, exact installation, rollback and
-optimized-Python time checks. The complete Kodi v2 suite passes 1,206 tests in
-normal and optimized Python; the one existing Mac-only skip is unchanged.
+recommendations, progress privacy, media-type separation, recent-item exclusion,
+action/authority separation, duplicate rejection, focus-safe rotation, exact
+installation, rollback and optimized-Python checks. The complete Kodi v2 suite
+passes 1,214 tests normally and optimized; all 113 skin-tool tests also pass in
+both modes. The one existing Mac-only skip is unchanged.

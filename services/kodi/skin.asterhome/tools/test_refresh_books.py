@@ -32,10 +32,30 @@ class RefreshTests(unittest.TestCase):
             return {'total': 1, 'results': [{'id': BOOK, 'path': '/private/source',
                     'addedAt': 1_767_225_600_000,
                     'media': {'metadata': {'title': 'Title', 'description': '<p>Synopsis</p>'}}}]}
-        rows = collect_audio(api)
+        progress = {'duration': 100, 'currentTime': 20, 'isFinished': False,
+                    'hideFromContinueListening': False}
+        rows = collect_audio(api, lambda _identity: progress)
         self.assertEqual(rows[0]['description'], 'Synopsis')
         self.assertEqual(rows[0]['added_at'], '2026-01-01T00:00:00+00:00')
         self.assertNotIn('path', rows[0])
+        self.assertNotIn('_progress', rows[0])
+
+    def test_household_affinity_is_projected_without_progress_details(self):
+        second = 'bda9a4a3-ce8e-46ad-85f5-b45dd3286eb3'
+        def api(path):
+            if path == '/api/libraries':
+                return {'libraries': [{'id': LIBRARY, 'mediaType': 'book'}]}
+            return {'total': 2, 'results': [
+                {'id': BOOK, 'addedAt': 1_767_225_600_000,
+                 'media': {'metadata': {'title': 'Listened', 'genres': ['Mystery']}}},
+                {'id': second, 'addedAt': 1_767_225_600_000,
+                 'media': {'metadata': {'title': 'Candidate', 'genres': ['Mystery']}}}]}
+        progress = {'duration': 100, 'currentTime': 20, 'isFinished': False,
+                    'hideFromContinueListening': False}
+        rows = collect_audio(api, lambda identity: progress if identity == BOOK else None)
+        self.assertNotIn('recommendation_score', rows[0])
+        self.assertEqual(rows[1]['recommendation_reason'], 'Because you listen to Mystery')
+        self.assertNotIn('_genres', rows[1])
 
     def test_incomplete_page_is_rejected(self):
         def api(path):

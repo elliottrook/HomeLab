@@ -385,6 +385,15 @@ be copied by `pilot_podcast_covers.py`. These are manual Mac test-profile
 operations, not a continuous publisher. The podcast browse page shows
 subscribed shows; its action delegates episode browsing to the audio add-on.
 
+The Version 2 HP pilot additionally derives a bounded recommendation projection
+during the existing six-hour audio refresh. It uses only confirmed progress for
+the limited shared-household Audiobookshelf account plus source-owned author and
+genre metadata. Recommendations remain separated by media type, omit items with
+existing progress, carry a visible reason and never publish raw progress,
+account identity, paths, URLs or credentials. The Books landing labels all
+three lanes Recently Added; its idle hero rotates only these evidence-backed
+owned recommendations and yields immediately when a real tile receives focus.
+
 ## Kodi and LibreELEC startup branding
 
 Kodi's startup image is separate from the skin. The 1920 × 1080

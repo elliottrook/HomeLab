@@ -157,10 +157,23 @@ def book_catalogue(payload):
         detail = {('audiobookshelf', 'audiobook'): 'Audiobook · Audiobookshelf',
                   ('calibre', 'ebook'): 'Ebook · Calibre',
                   ('audiobookshelf', 'podcast'): 'Podcast · Audiobookshelf'}[kind]
+        score = record.get('recommendation_score')
+        reason = record.get('recommendation_reason', '')
+        if score is not None:
+            if (type(score) not in (int, float) or type(score) is bool
+                    or not math.isfinite(score) or not 0 <= score <= 100
+                    or not isinstance(reason, str) or not 0 < len(reason.strip()) <= 240):
+                raise ValueError('Invalid recommendation signal')
+            score = float(score)
+            reason = _label(reason)
+        elif reason not in ('', None):
+            raise ValueError('Invalid recommendation signal')
         rows.append({'title': title, 'detail': detail,
                      'kind': kind[1], 'id': identity,
                      'synopsis': plain_synopsis(record.get('description')),
-                     'added_at': item_timestamp(record.get('added_at'))})
+                     'added_at': item_timestamp(record.get('added_at')),
+                     'recommendation_score': score,
+                     'recommendation_reason': reason or ''})
         if len(rows) == 1000:
             break
     return rows

@@ -44,6 +44,16 @@ class BooksTests(unittest.TestCase):
                          ['Example Ebook'])
         self.assertEqual(page_records(rows, 'podcasts', 'absent'), [])
 
+    def test_catalogue_accepts_only_paired_bounded_recommendation_signals(self):
+        sample = self.sample()
+        sample['items'][0].update(recommendation_score=72,
+                                  recommendation_reason='Because you listen to Mystery')
+        row = book_catalogue(sample)[0]
+        self.assertEqual(row['recommendation_score'], 72.0)
+        sample['items'][0].pop('recommendation_reason')
+        with self.assertRaises(ValueError):
+            book_catalogue(sample)
+
     def test_full_calibre_library_is_not_cut_off_at_200(self):
         sample = self.sample()
         sample['items'] = [

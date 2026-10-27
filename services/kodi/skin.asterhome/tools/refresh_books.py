@@ -14,10 +14,12 @@ import re
 import stat
 import tempfile
 import urllib.request
+import urllib.error
 from urllib.parse import urlsplit
 
 from books_data import cached_cover, cover_filename
 from hub_feeds import MAX_BYTES, book_catalogue, epoch_milliseconds, plain_synopsis
+from books_landing import recommend_audio
 
 ID = re.compile(r'^[0-9a-f-]{36}$')
 MAX_RESPONSE = 4 * 1024 * 1024
@@ -61,7 +63,7 @@ def encode_feed(previous, audio, now):
     return payload, encoded
 
 
-def collect_audio(get_json):
+def collect_audio(get_json, get_progress=None):
     libraries = get_json('/api/libraries').get('libraries')
     if not isinstance(libraries, list) or len(libraries) > 50:
         raise ValueError('Invalid library list')
@@ -89,15 +91,22 @@ def collect_audio(get_json):
                         or any(ord(c) < 32 for c in title)):
                     raise ValueError('Invalid catalogue item')
                 seen.add(item_id)
+                authors = metadata.get('authors', [])
+                genres = metadata.get('genres', [])
+                if not isinstance(authors, list) or not isinstance(genres, list):
+                    raise ValueError('Invalid recommendation metadata')
+                progress = get_progress(item_id) if get_progress and kind == 'audiobook' else None
                 rows.append({'authority': 'audiobookshelf', 'media_type': kind,
                              'authority_id': item_id, 'title': title.strip()[:160],
                              'description': plain_synopsis(metadata.get('description')),
-                             'added_at': epoch_milliseconds(item.get('addedAt'))})
+                             'added_at': epoch_milliseconds(item.get('addedAt')),
+                             '_authors': authors, '_genres': genres,
+                             '_progress': progress})
             if (page + 1) * 100 >= total:
                 break
         else:
             raise ValueError('Catalogue pagination limit')
-    return rows
+    return recommend_audio(rows)
 
 
 def refresh(profile):
@@ -127,11 +136,19 @@ def refresh(profile):
     def get_json(path):
         return json.loads(get(path))
 
+    def get_progress(identity):
+        try:
+            return get_json('/api/me/progress/' + identity)
+        except urllib.error.HTTPError as error:
+            if error.code == 404:
+                return None
+            raise
+
     raw = (root/'books.json').read_bytes()
     if len(raw) > MAX_BYTES:
         raise ValueError('Existing feed exceeds limit')
     previous = json.loads(raw)
-    audio = collect_audio(get_json)
+    audio = collect_audio(get_json, get_progress)
     now = datetime.now(timezone.utc).isoformat()
     payload, encoded = encode_feed(previous, audio, now)
     cover_root = root/'covers'
