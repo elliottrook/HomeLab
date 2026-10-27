@@ -1,0 +1,168 @@
+{
+  "candidate": "AsterTV v2 HP lab candidate 2026-10-27",
+  "components": [
+    {
+      "kind": "aster-family-runtime.v1",
+      "name": "active-family-runtime",
+      "path": "/storage/.kodi/addons/script.asterruntime/family-manifest.json",
+      "schema": 1,
+      "sha256": "11d4e7ab45f0123aa5135e1fdd7924fcf14010cb7ba12add1828c9f3fc139a58"
+    },
+    {
+      "kind": "aster-family-recovery.v1",
+      "name": "base-family-recovery",
+      "path": "/storage/.aster-staging/aster-family-recovery7b/manifest.json",
+      "schema": 1,
+      "sha256": "08299ef534f54499d2d69c60c95e32087f622a0f3c6d89bbc87f9c4293e2e17d"
+    },
+    {
+      "kind": "aster-epub-doctor-family.v1",
+      "name": "compiled-books-doctor",
+      "path": "/storage/.aster-staging/aster-epub-doctor2-candidate/manifest.json",
+      "schema": 1,
+      "sha256": "05662c68d173a8770ad06ce3ef7073e082601bd9c54919551891519b03484e0f"
+    },
+    {
+      "kind": "aster-books-compiler-reader-v1",
+      "name": "compiled-books-reader",
+      "path": "/storage/.aster-staging/aster-books-compiler-reader-v1/bundle.json",
+      "schema": 1,
+      "sha256": "d41eddcd7fe754eba6d00677e17aa0a69c2dd10991b434586fc6aa4578bc6f89"
+    },
+    {
+      "name": "compiled-books-reader-activation",
+      "path": "/storage/.aster-state/aster-books-compiler-reader-v1/activation.json",
+      "schema": 1,
+      "sha256": "8c7d8441617c67986fe0593010645e5b48fbe7df1406d97cc4b57e10cc7806b7"
+    },
+    {
+      "kind": "hp-acquisition-page.v2",
+      "name": "acquisition-hub",
+      "path": "/storage/.aster-staging/acquisition-page3-188b5923/manifest.json",
+      "schema": 1,
+      "sha256": "188b5923527f62adb42a02c65c3d3848a73550fda0202eb94fdf1ccedd68815c"
+    },
+    {
+      "kind": "hp-acquisition-label-patch.v2",
+      "name": "acquisition-label-successor",
+      "path": "/storage/.aster-staging/aster-acquisition-label9/manifest.json",
+      "schema": 1,
+      "sha256": "3edb117155442a8d9a035478c019fd6eaf9ae2ad63971bac7d09c2905d8b8930"
+    },
+    {
+      "kind": "hp-acquisition-repaint.v1",
+      "name": "acquisition-saved-state",
+      "path": "/storage/.aster-staging/aster-acquisition-repaint1/manifest.json",
+      "schema": 1,
+      "sha256": "299c4db6825f1f5ba406f5dc149821e5ebd2f1a5a37b1fb803f94b62ea3c08d9"
+    },
+    {
+      "name": "official-youtube-integration",
+      "path": "/storage/.aster-staging/aster-youtube-integration3/manifest.json",
+      "schema": "aster.youtube.integration.v3",
+      "sha256": "f3657fdce7b95284719180db653b12dc7b92729e268b221a15784160d675b6c0"
+    },
+    {
+      "kind": "hp-aster-youtube-landing.v1",
+      "name": "youtube-landing",
+      "path": "/storage/.aster-staging/aster-youtube-landing6-candidate1/manifest.json",
+      "schema": 1,
+      "sha256": "27d59549d5b547f2781663a8a560ea06e320e52167b97ef4e81a02e3283bffb0"
+    },
+    {
+      "kind": "hp-aster-youtube-landing.v2",
+      "name": "youtube-search",
+      "path": "/storage/.aster-staging/aster-youtube-search6-candidate1/manifest.json",
+      "schema": 1,
+      "sha256": "68a58edb68559fe3ce109aaf061ca5603bb227a844ba47b68cad0ed0cf8b0d22"
+    },
+    {
+      "kind": "hp-voice-search-pilot.v1",
+      "name": "voice-search-pilot",
+      "path": "/storage/.aster-staging/aster-voice-search4/manifest.json",
+      "schema": 1,
+      "sha256": "6a9c3fe8fcbc5d588b255d8c01989459c4ce3ebe108742dd786116fdde928520"
+    },
+    {
+      "name": "music-player-candidate",
+      "path": "/storage/.aster-staging/aster-music-v2lab-0.1.0-candidate72/manifest.json",
+      "sha256": "dd0fa8df8b469df913ae7b7bb1364a5c9cfc027c31c30fa78d3a54d3a07b506d"
+    },
+    {
+      "kind": "hp-owned-music-landing",
+      "name": "music-landing",
+      "path": "/storage/.aster-staging/aster-owned-music-landing3/manifest.json",
+      "schema": 1,
+      "sha256": "e12b1b447dee1132976fb829c81ef475e81ee6cc6d1aecd7296f7da66f4a649d"
+    },
+    {
+      "kind": "hp-owned-books-landing",
+      "name": "books-landing",
+      "path": "/storage/.aster-staging/aster-owned-books-landing2/manifest.json",
+      "schema": 1,
+      "sha256": "8648fd13702aa2744b7cc498ed4667f76eb617fd7c099b37c1a2aa5beea8cbda"
+    },
+    {
+      "kind": "hp-media-top-rail.v2",
+      "name": "media-top-rail",
+      "path": "/storage/.aster-staging/aster-media-top-rail1/manifest.json",
+      "schema": 1,
+      "sha256": "151c240abc66555d86bdb7a018b50bef774f29029be111fbb1a87ebed2abc771"
+    },
+    {
+      "name": "hp-startup-sound",
+      "path": "/storage/.aster-staging/aster-startup-20261025/manifest.json",
+      "sha256": "781e8b9b5f1203160a14b77daf4bb809d1f6df4bd9f60ff5708926c87ccb00f2"
+    },
+    {
+      "format": "opaque",
+      "name": "active-ui-sound-theme",
+      "path": "/storage/.kodi/addons/resource.uisounds.asterhome/addon.xml",
+      "sha256": "0be140972a684f95f70aaa48e542ecad965bf4b63700b1d473e2ee29518f6def"
+    },
+    {
+      "format": "opaque",
+      "name": "active-screensaver",
+      "path": "/storage/.kodi/addons/screensaver.asterhome.v2lab/addon.xml",
+      "sha256": "bfa94e07111821636b863ca048767b73a0fa028bf69dc1669391b90589ade1b9"
+    },
+    {
+      "format": "opaque",
+      "name": "active-startup-service",
+      "path": "/storage/.kodi/addons/service.aster.startup/addon.xml",
+      "sha256": "9397de8a8f22643f5fd66c56e474835fe5a77df6bb22c717266daaf0215fe31b"
+    },
+    {
+      "format": "opaque",
+      "name": "active-camera-service",
+      "path": "/storage/.config/system.d/aster-camera.service",
+      "sha256": "140dea35be1c09dbac14a74d9cfa9f10f41b1a23c294e150a35b3f07eadb8b9e"
+    }
+  ],
+  "kind": "aster-release-inventory-spec.v1",
+  "relations": [
+    {
+      "field": "family_manifest_sha256",
+      "name": "base-recovery-covers-active-family",
+      "recovery": true,
+      "required": false,
+      "source": "base-family-recovery",
+      "target": "active-family-runtime"
+    },
+    {
+      "field": "after.family_manifest",
+      "name": "compiled-books-doctor-is-active-family",
+      "required": true,
+      "source": "compiled-books-doctor",
+      "target": "active-family-runtime"
+    },
+    {
+      "field": "bundle_sha256",
+      "name": "compiled-books-reader-is-active",
+      "required": true,
+      "source": "compiled-books-reader-activation",
+      "target": "compiled-books-reader"
+    }
+  ],
+  "schema": 1
+}

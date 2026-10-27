@@ -1,6 +1,6 @@
 # AsterTV Version 2 — Current Stream A resume
 
-Updated: 2026-10-26. Owner: Jason. Lab: HP `192.168.1.140`.
+Updated: 2026-10-27. Owner: Jason. Lab: HP `192.168.1.140`.
 
 This is a compact continuation index for the main Version 2 work. The charter
 and dated historical decisions remain in
@@ -43,6 +43,11 @@ do not imply household acceptance or production promotion.
   every ready generation manifest without repairing anything. Native HP review
   reports two valid publications. See
   [Doctor evidence](Aster-TV-Version-2-EPUB-Doctor-Evidence.md).
+- A bounded release inventory verifies 21/21 active HP anchors without reading
+  credentials, profiles, history, listening progress or media databases. It
+  deliberately reports recovery incomplete because Recovery7 predates the
+  active EPUB Doctor family. See
+  [release inventory evidence](Aster-TV-Version-2-Release-Inventory-Evidence.md).
 - The official YouTube add-on reports the HP user fully signed in. Version 2
   now explicitly owns the Aster presentation milestone: replace the add-on's
   generic entrance with a Media-home-style YouTube landing page and preserve
@@ -65,7 +70,7 @@ do not imply household acceptance or production promotion.
 | Endurance and accessibility | Continue evidence against the final composed client, then owner sofa/remote review | Short automated soaks do not substitute for household use |
 | Bedroom sizing | Revise the existing measured/inferred assessment after final client shape | See [client sizing](../reference/Aster-TV-Bedroom-Client-Sizing.md); lower-memory deployment remains deferred |
 | Final cleanup | One finite owner-led page-by-page v1/v2 walkthrough and bounded repairs | Feature work first; avoid creating an open-ended new backlog |
-| Release | Assemble all component checkpoints into a complete deployment/recovery package and operational handover | Family-only capture is one component; production promotion requires its separate owner decision |
+| Release | Build the consolidated recovery successor from the verified 21-anchor inventory, then complete the operational handover | Inventory is exact; Recovery7 is truthfully marked partial; production promotion requires its separate owner decision |
 
 ## Continuation controls
 
