@@ -1,9 +1,10 @@
-"""Execute one exact, registered incident observation without target discovery.
+"""Execute one exact, registered read-only observation without target discovery.
 
-The caller cannot supply a producer, target or evidence kind.  The pending
-SA1 journal decision is the sole selector, and this first SA2 registry contains
-only the gateway's in-process self-status observation.  It performs no network,
-filesystem, subprocess, credential, model or repair operation.
+The caller cannot supply a producer, target, evidence kind or source path. The
+pending SA1 journal decision is the sole selector. The small explicit registry
+contains gateway self-status, one fixed inference-health request and one fixed
+sanitized Doctor-report read. It performs no subprocess, credential, model,
+report refresh or repair operation.
 """
 from __future__ import annotations
 
@@ -11,7 +12,9 @@ import hashlib
 import http.client
 import json
 from datetime import datetime, timezone
+from pathlib import Path
 
+from doctor_incident_adapter import read_doctor_observation
 from sysadmin_incident_store import IncidentStore
 from sysadmin_investigation import InvestigationError
 
@@ -20,6 +23,9 @@ PRODUCER = "aster-gateway-self-status/v1"
 REGISTERED_PAIR = ("aster-gateway", "status")
 INFERENCE_PRODUCER = "inference-server-health/v1"
 INFERENCE_PAIR = ("inference-server", "status")
+DOCTOR_PRODUCER = "homelab-doctor-report/v1"
+DOCTOR_PAIR = ("homelab-doctor", "status")
+DOCTOR_REPORT = Path("/var/lib/aster/health/latest.json")
 MAX_HEALTH_BYTES = 1024
 
 
@@ -106,23 +112,49 @@ def _inference_status_envelope(
     }
 
 
+def _doctor_status_envelope(
+    incident_id: str, now: datetime, report_path: Path = DOCTOR_REPORT,
+) -> dict:
+    """Read the existing fixed sanitized Doctor report without refreshing it."""
+    observation = read_doctor_observation(incident_id, report_path, now)
+    if observation.source != DOCTOR_PRODUCER:
+        raise InvestigationError("unexpected Doctor producer identity")
+    return {
+        "schema_version": 1,
+        "producer": DOCTOR_PRODUCER,
+        "produced_at": now.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "observation": {
+            "evidence_id": observation.evidence_id,
+            "incident_id": observation.incident_id,
+            "target": observation.target,
+            "kind": observation.kind,
+            "observed_at": observation.observed_at,
+            "state": observation.state,
+            "summary": observation.summary,
+            "facts": observation.facts,
+            "truncated": observation.truncated,
+        },
+    }
+
+
 def execute_registered_pending_observation(
-    store: IncidentStore, incident_id: str, now: datetime,
+    store: IncidentStore,
+    incident_id: str,
+    now: datetime,
 ) -> dict:
     """Run only the exact source registered for the pending journal decision."""
     if not isinstance(store, IncidentStore):
         raise InvestigationError("invalid incident store")
-    pending = store.pending_follow_up(incident_id, now)
-    if pending is None or pending.get("disposition") != "observe":
+    claim = store.pending_follow_up_claim(incident_id, now)
+    if claim is None or claim.get("disposition") != "observe":
         raise InvestigationError("incident has no pending observation")
-    request = pending.get("request")
-    if not isinstance(request, dict):
-        raise InvestigationError("pending observation request is invalid")
-    pair = (request.get("target"), request.get("kind"))
+    pair = (claim.get("target"), claim.get("kind"))
     if pair == REGISTERED_PAIR:
         envelope = _gateway_status_envelope(incident_id, now)
     elif pair == INFERENCE_PAIR:
         envelope = _inference_status_envelope(incident_id, now)
+    elif pair == DOCTOR_PAIR:
+        envelope = _doctor_status_envelope(incident_id, now, DOCTOR_REPORT)
     else:
         raise InvestigationError("pending observation has no registered producer")
-    return store.ingest(envelope, now)
+    return store.ingest(envelope, now, expected_decision_ref=claim["decision_ref"])

@@ -216,6 +216,29 @@ class IncidentStore:
             pending = self._pending_decision(db, incident)
             return None if pending is None else pending[1]
 
+    def pending_follow_up_claim(
+        self, incident_id: str, now: datetime | None = None,
+    ) -> dict[str, Any] | None:
+        """Return a bounded identity that can atomically bind producer output."""
+        now = now or datetime.now(timezone.utc)
+        self.prune(now)
+        with self._db() as db:
+            row = db.execute("SELECT record FROM incidents WHERE incident_id=?", (incident_id,)).fetchone()
+            incident = self._incident_from_row(row, now)
+            pending = self._pending_decision(db, incident)
+            if pending is None:
+                return None
+            decision_id, decision = pending
+            request = decision.get("request")
+            return {
+                "decision_ref": hashlib.sha256(
+                    (incident.incident_id + "\0" + str(decision_id)).encode()
+                ).hexdigest()[:16],
+                "disposition": decision["disposition"],
+                "target": None if request is None else request["target"],
+                "kind": None if request is None else request["kind"],
+            }
+
     def followup_journal_snapshot(self, incident_id: str, now: datetime | None = None) -> dict[str, Any]:
         """Return a content-minimized reconnect view of the decision journal."""
         now = now or datetime.now(timezone.utc)
@@ -260,7 +283,9 @@ class IncidentStore:
             "pending": pending_view,
         }
 
-    def ingest(self, envelope: Any, now: datetime) -> dict[str, Any]:
+    def ingest(
+        self, envelope: Any, now: datetime, *, expected_decision_ref: str | None = None,
+    ) -> dict[str, Any]:
         observation = parse_producer_envelope(envelope, now)
         self.prune(now)
         with self._db() as db:
@@ -269,6 +294,14 @@ class IncidentStore:
             ).fetchone()
             incident = self._incident_from_row(row, now)
             pending = self._pending_decision(db, incident)
+            if expected_decision_ref is not None:
+                if pending is None or not isinstance(expected_decision_ref, str):
+                    raise InvestigationError("pending follow-up changed before producer result")
+                current_ref = hashlib.sha256(
+                    (incident.incident_id + "\0" + str(pending[0])).encode()
+                ).hexdigest()[:16]
+                if current_ref != expected_decision_ref:
+                    raise InvestigationError("pending follow-up changed before producer result")
             if pending is not None:
                 decision_id, decision = pending
                 request = decision.get("request")

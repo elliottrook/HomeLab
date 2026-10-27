@@ -47,6 +47,15 @@ class DoctorAdapterTests(unittest.TestCase):
     def test_never_accepts_raw_or_oversized_input(self):
         self.path.write_text("not-json")
         self.assertEqual(read_doctor_observation("inc-1", self.path, NOW).validate(NOW)["state"], "unavailable")
+
+    def test_duplicate_json_fields_fail_closed(self):
+        self.path.write_text(
+            '{"schema":1,"generated_at":"2026-09-28T17:58:00Z",'
+            '"status":"healthy","status":"failed","checks":[]}'
+        )
+        record = read_doctor_observation("inc-1", self.path, NOW).validate(NOW)
+        self.assertEqual("unavailable", record["state"])
+        self.assertEqual("unreadable", record["facts"]["reason"])
         self.path.write_bytes(b"x" * 65_537)
         self.assertEqual(read_doctor_observation("inc-1", self.path, NOW).validate(NOW)["state"], "unavailable")
 

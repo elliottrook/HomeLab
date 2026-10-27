@@ -1,12 +1,15 @@
 import tempfile
 import unittest
+import json
 from datetime import datetime, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 from sysadmin_followup_selector import incident_state_digest
 from sysadmin_incident_store import IncidentStore
 from sysadmin_investigation import EvidenceRequest, InvestigationError, create_incident
 from sysadmin_registered_producer import (
+    _doctor_status_envelope,
     _inference_status_envelope,
     execute_registered_pending_observation,
 )
@@ -83,6 +86,80 @@ class RegisteredIncidentProducerTests(unittest.TestCase):
         self.assertEqual(
             0, self.store.followup_journal_snapshot(incident.incident_id, NOW)["consumed_count"]
         )
+
+    def test_exact_pending_doctor_status_reads_fixed_report_and_is_consumed(self):
+        report = Path(self.temporary.name) / "latest.json"
+        report.write_text(json.dumps({
+            "schema": 1,
+            "generated_at": "2026-10-27T06:58:00Z",
+            "status": "warning",
+            "checks": [{"name": "Fixture", "status": "warn", "summary": "Bounded warning."}],
+        }))
+        incident = self.create("homelab-doctor", "status")
+        self.bind(incident, target="homelab-doctor", kind="status")
+        with patch("sysadmin_registered_producer.DOCTOR_REPORT", report):
+            record = execute_registered_pending_observation(self.store, incident.incident_id, NOW)
+        self.assertEqual(("homelab-doctor", "status", "warn"), (
+            record["target"], record["kind"], record["state"],
+        ))
+        self.assertEqual(1, record["facts"]["check_count"])
+        self.assertEqual(24, len(record["facts"]["report_digest"]))
+        self.assertNotIn("Bounded warning", json.dumps(record))
+        journal = self.store.followup_journal_snapshot(incident.incident_id, NOW)
+        self.assertEqual(1, journal["consumed_count"])
+        self.assertIsNone(journal["pending"])
+
+    def test_unavailable_doctor_report_is_bounded_evidence(self):
+        report = Path(self.temporary.name) / "missing.json"
+        envelope = _doctor_status_envelope("incident-doctor-001", NOW, report)
+        self.assertEqual("homelab-doctor-report/v1", envelope["producer"])
+        observation = envelope["observation"]
+        self.assertEqual("unavailable", observation["state"])
+        self.assertEqual({"reason": "unreadable"}, observation["facts"])
+
+    def test_changed_pending_decision_cannot_be_consumed_by_stale_result(self):
+        incident = create_incident(
+            "incident-producer-race",
+            "Registered producer race fixture",
+            [
+                EvidenceRequest("aster-gateway", "status", "First fixed observation."),
+                EvidenceRequest("aster-gateway", "status", "Second fixed observation."),
+            ],
+        )
+        self.store.save(incident, NOW)
+        self.bind(incident)
+        from sysadmin_registered_producer import _gateway_status_envelope as real_gateway_envelope
+
+        def replace_pending(incident_id, now):
+            first = self.store.pending_follow_up_claim(incident_id, now)
+            envelope = {
+                "schema_version": 1,
+                "producer": "aster-gateway-self-status/v1",
+                "produced_at": "2026-10-27T07:00:00Z",
+                "observation": {
+                    "evidence_id": "race-first",
+                    "incident_id": incident_id,
+                    "target": "aster-gateway",
+                    "kind": "status",
+                    "observed_at": "2026-10-27T07:00:00Z",
+                    "state": "ok",
+                    "summary": "First result.",
+                    "facts": {},
+                    "truncated": False,
+                },
+            }
+            self.store.ingest(envelope, now, expected_decision_ref=first["decision_ref"])
+            current = self.store.load(incident_id, now)
+            self.bind(current)
+            return real_gateway_envelope(incident_id, now)
+
+        with patch("sysadmin_registered_producer._gateway_status_envelope", side_effect=replace_pending):
+            with self.assertRaisesRegex(InvestigationError, "changed"):
+                execute_registered_pending_observation(self.store, incident.incident_id, NOW)
+        journal = self.store.followup_journal_snapshot(incident.incident_id, NOW)
+        self.assertEqual(2, journal["decision_count"])
+        self.assertEqual(1, journal["consumed_count"])
+        self.assertEqual("status", journal["pending"]["kind"])
 
 
 class FakeResponse:

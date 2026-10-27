@@ -22,6 +22,15 @@ STATUS_MAP = {"healthy": "ok", "warning": "warn", "failed": "fail"}
 SOURCE = "homelab-doctor-report/v1"
 
 
+def _unique_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate Doctor report field")
+        result[key] = value
+    return result
+
+
 def _unavailable(incident_id: str, now: datetime, reason: str) -> Observation:
     marker = hashlib.sha256((incident_id + "\0" + reason).encode()).hexdigest()[:24]
     return Observation(
@@ -53,7 +62,7 @@ def read_doctor_observation(incident_id: str, report_path: Path, now: datetime) 
             raw_bytes = report.read(MAX_REPORT_BYTES + 1)
         if len(raw_bytes) > MAX_REPORT_BYTES:
             return _unavailable(incident_id, now, "oversized")
-        value = json.loads(raw_bytes.decode("utf-8"))
+        value = json.loads(raw_bytes.decode("utf-8"), object_pairs_hook=_unique_object)
         if not isinstance(value, dict) or frozenset(value) != REPORT_FIELDS:
             return _unavailable(incident_id, now, "invalid_schema")
         if type(value.get("schema")) is not int or value["schema"] != 1:

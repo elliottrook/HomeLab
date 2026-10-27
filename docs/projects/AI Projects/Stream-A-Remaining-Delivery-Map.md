@@ -189,9 +189,10 @@ now composes the sanitized proposal boundary, fixed one-shot transport and
 atomic incident journal without granting observation or repair authority. It
 refuses an existing pending decision before calling the model and rejects a
 proposal if incident state changes during the call. The dependency-free
-sysadmin suite passes 69/69. The HTTP route still needs target-runtime testing,
-and candidate E still needs independent packet review before an exact release
-candidate can be accepted or deployed. Automatic routing remains closed.
+sysadmin suite passes 69/69. Subsequent target-runtime testing and independent
+packet review passed as recorded below, so the remaining release gate is the
+reviewed installation and its separately approved Aster Agent restart.
+Automatic routing remains closed.
 
 A four-file [reviewed release packet](evidence/SA3-candidate-E-release-packet-pending-review-2026-10-27.md)
 now pins the exact live predecessor, candidate source and independent PASS
@@ -211,6 +212,16 @@ restarts only Aster Agent and keeps every model/routing/producer/repair effect
 out of scope. The installer has not run. Immediate approval for the exact
 installation and Aster Agent restart remains the next live gate, after the
 protected nightly window.
+
+Independent offline SA2 work also adds a third
+[fixed Doctor-status producer boundary](evidence/SA2-doctor-status-registered-producer-boundary-2026-10-27.md).
+It can consume only a pending `homelab-doctor/status` decision and reuses the
+single-open, bounded sanitized Doctor report reader. The complete
+dependency-free sysadmin suite passes 72/72. The producer result is now
+atomically bound to the exact pending decision identity, so it cannot consume
+a replacement decision after a concurrent state change. It is source-only and deliberately
+excluded from the candidate-E installer; target-runtime review and a later
+exact release remain separate gates.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
