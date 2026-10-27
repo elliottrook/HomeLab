@@ -33,12 +33,6 @@ from retained_archive_integrity import (
     verify as verify_f3,
 )
 from stream_a_evaluation_admission import ADMISSION_PATH, F5_OBSERVATION_PATH
-from stream_a_evaluation_evidence_loader import (
-    EvidenceLoadError,
-    _cross_bind_archives,
-    _json,
-    _read,
-)
 from stream_a_evaluation_f4_f5_transaction import (
     TransactionArtifacts,
     build_transaction,
@@ -58,6 +52,71 @@ WHOLE_HOST_STATUS = ("/usr/local/sbin/local-ai-lease", "status")
 MODEL_SHA256 = "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13"
 MAX_F2_BYTES = 16 * 1024
 MINIMUM_MINUTE = 3 * 60 + 5
+
+
+def _pairs(items):
+    value = {}
+    for key, item in items:
+        if key in value:
+            raise RootTransactionError("evidence contains duplicate JSON keys")
+        value[key] = item
+    return value
+
+
+def _read(path: Path, *, maximum: int, required_uid: int) -> bytes:
+    parent = path.parent.stat()
+    if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid != required_uid
+            or stat.S_IMODE(parent.st_mode) != 0o700):
+        raise RootTransactionError("evidence parent custody is weak")
+    descriptor = os.open(
+        path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+        | getattr(os, "O_CLOEXEC", 0))
+    try:
+        info = os.fstat(descriptor)
+        if (not stat.S_ISREG(info.st_mode) or info.st_uid != required_uid
+                or stat.S_IMODE(info.st_mode) != 0o600 or info.st_nlink != 1
+                or not 0 < info.st_size <= maximum):
+            raise RootTransactionError("evidence custody or size is invalid")
+        raw = os.read(descriptor, maximum + 1)
+        if len(raw) != info.st_size:
+            raise RootTransactionError("evidence changed while being read")
+        return raw
+    finally:
+        os.close(descriptor)
+
+
+def _json(raw: bytes, *, canonical_newline: bool) -> dict:
+    try:
+        value = json.loads(raw.decode("utf-8"), object_pairs_hook=_pairs)
+    except (UnicodeError, json.JSONDecodeError) as error:
+        raise RootTransactionError("evidence JSON is invalid") from error
+    if not isinstance(value, dict):
+        raise RootTransactionError("evidence is not an object")
+    encoded = json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+    if canonical_newline:
+        encoded += b"\n"
+    if encoded != raw:
+        raise RootTransactionError("evidence is not canonical JSON")
+    return value
+
+
+def _cross_bind_archives(f2: dict, f3: dict) -> None:
+    fields = (
+        "vmid", "volid", "size", "ctime", "test_started_epoch",
+        "test_finished_epoch", "test_elapsed_ms", "test_exit",
+    )
+    left_rows = f2.get("result", {}).get("archives", [])
+    right_rows = f3.get("archives", [])
+    if (not isinstance(left_rows, list) or not isinstance(right_rows, list)
+            or len(left_rows) != 3 or len(right_rows) != 3):
+        raise RootTransactionError("F2/F3 archive sets are incomplete")
+    try:
+        left = tuple(tuple(row[field] for field in fields) for row in left_rows)
+        right = tuple(tuple(row[field] for field in fields) for row in right_rows)
+    except (KeyError, TypeError) as error:
+        raise RootTransactionError("F2/F3 archive schema is invalid") from error
+    if left != right:
+        raise RootTransactionError("F2/F3 archive rows do not match")
 
 
 @dataclass(frozen=True)
@@ -283,7 +342,7 @@ def produce(
 def main() -> int:
     try:
         result = produce()
-    except (EvidenceLoadError, RootTransactionError, OSError, ValueError):
+    except (RootTransactionError, OSError, ValueError):
         print(json.dumps({"state": "no_go", "artifacts_written": False}, sort_keys=True))
         return 1
     print(json.dumps({

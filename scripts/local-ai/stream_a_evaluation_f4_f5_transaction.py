@@ -13,9 +13,7 @@ import hashlib
 import json
 import re
 
-from lease_contract import ACCEPTED_BACKEND, ACCEPTED_MODEL, LeaseReceipt
 from lease_watchdog import EXPECTED_SCHEDULES, Observation
-from pre_acquire_receipt import encode_stream_evidence
 from stream_a_evaluation_admission import (
     ADMISSION_PREFIX,
     EXPECTED_AUTH_IDENTITY,
@@ -34,6 +32,9 @@ class TransactionError(ValueError):
 _CYCLE = re.compile(r"^20[0-9]{2}-[01][0-9]-[0-3][0-9]$")
 _NONCE = re.compile(r"^[0-9a-f]{16}$")
 MAX_FRESH_SECONDS = 15 * 60
+ACCEPTED_MODEL = "Qwen3.5 9B Q4_K_M"
+ACCEPTED_BACKEND = "llama.cpp b11429 SYCL/Level Zero"
+F4_SCHEMA = "aster-pre-acquire-receipt-v1"
 
 
 @dataclass(frozen=True)
@@ -44,6 +45,54 @@ class TransactionArtifacts:
     f5_bytes: bytes
     admission_bytes: bytes
     admission_receipt: str
+
+
+def _encode_f4(*, lease_id: str, observed_epoch: int,
+               observed_minute: int, expires_minute: int,
+               backup_receipt: str, observation: Observation) -> bytes:
+    if (observation.now_minute != observed_minute
+            or observation.schedule_points != EXPECTED_SCHEDULES
+            or observation.heartbeat_alive is not False
+            or not all((
+                observation.control_plane_healthy,
+                observation.production_services_healthy,
+                observation.accepted_gpu_visible,
+                observation.schedule_restored,
+                observation.schedules_enabled,
+                observation.exact_binary_verified,
+                observation.model_verified,
+                observation.unit_verified,
+                observation.auth_verified,
+            ))):
+        raise TransactionError("F4 production observation is incomplete")
+    return canonical_bytes({
+        "schema": F4_SCHEMA,
+        "captured_epoch": observed_epoch,
+        "receipt": {
+            "lease_id": lease_id, "generation": 1,
+            "issued_minute": observed_minute,
+            "expires_minute": expires_minute,
+            "backup_receipt": backup_receipt,
+            "model_identity": ACCEPTED_MODEL,
+            "backend_identity": ACCEPTED_BACKEND,
+            "consumers_isolated": False,
+            "scheduled_work_quiesced": False,
+        },
+        "observation": {
+            "now_minute": observation.now_minute,
+            "heartbeat_alive": False,
+            "control_plane_healthy": observation.control_plane_healthy,
+            "production_services_healthy": observation.production_services_healthy,
+            "accepted_gpu_visible": observation.accepted_gpu_visible,
+            "schedule_restored": observation.schedule_restored,
+            "schedule_points": list(observation.schedule_points),
+            "schedules_enabled": observation.schedules_enabled,
+            "exact_binary_verified": observation.exact_binary_verified,
+            "model_verified": observation.model_verified,
+            "unit_verified": observation.unit_verified,
+            "auth_verified": observation.auth_verified,
+        },
+    })
 
 
 def _digest(value: object) -> str:
@@ -79,19 +128,10 @@ def build_transaction(
     lease_id = f"stream-a-evaluation-{cycle_date}-{nonce}"
     expires_epoch = observed_epoch + MAX_FRESH_SECONDS
     expires_minute = observed_minute + MAX_FRESH_SECONDS // 60
-    receipt = LeaseReceipt(
-        lease_id=lease_id,
-        generation=1,
-        issued_minute=observed_minute,
-        expires_minute=expires_minute,
-        backup_receipt=backup_receipt,
-        model_identity=ACCEPTED_MODEL,
-        backend_identity=ACCEPTED_BACKEND,
-        consumers_isolated=False,
-        scheduled_work_quiesced=False,
-    )
-    f4_bytes = encode_stream_evidence(
-        receipt, observation, captured_epoch=observed_epoch)
+    f4_bytes = _encode_f4(
+        lease_id=lease_id, observed_epoch=observed_epoch,
+        observed_minute=observed_minute, expires_minute=expires_minute,
+        backup_receipt=backup_receipt, observation=observation)
     schedule_digest = _digest(list(EXPECTED_SCHEDULES))
     baseline_digest = _digest({
         "control_plane_healthy": observation.control_plane_healthy,
