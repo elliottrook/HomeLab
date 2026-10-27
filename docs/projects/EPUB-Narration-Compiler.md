@@ -1,6 +1,6 @@
 # EPUB Narration Compiler and New-Title Monitor
 
-> Status: Active — Stream A; M0–M5 complete, M6 graduation gates in progress
+> Status: Complete — Stream A; HP Lab deployment accepted, BOSGAME unchanged
 >
 > Owner: Jason
 >
@@ -13,21 +13,19 @@
 >
 > Service release: `V1`
 >
-> Current environment: Lab; repository-only synthetic fixtures and tests
+> Current environment: Lab; compiler/monitor and HP direct-launch beta deployed
 >
-> Target environment: Production application/storage workflow on TrueNAS,
-> consuming the stable Aster voice contract through a separately validated
-> batch-render path
+> Target environment: Accepted HP Lab workflow backed by TrueNAS; any BOSGAME
+> promotion is a separate optional project
 >
 > Build/model reference: repository commit pending; Kokoro ONNX
 > `kokoro-v1.0.fp16.onnx`, SHA-256
 > `f3a290d384fbb27966d462905c71a46cef9e5fd00516b40df32a0b4afe77ac96`
 >
-> Configuration revision: `epub-narration-v1-draft-2026-10-26`
+> Configuration revision: `epub-narration-v1-hp-lab-2026-10-26`
 >
-> Rollback reference: no production deployment yet; later milestones must keep
-> the existing Aster Books release and the last ready generation independently
-> usable
+> Rollback reference: LXC snapshot `epub-narration-m3-pre-20261026`, exact-file
+> compiler checkpoints and HP absent-state checkpoint
 
 ## Purpose and desired outcome
 
@@ -294,7 +292,7 @@ new DRM question, public exposure, or materially different deployment target.
   queue schema, worker lock, voice hash and Aster health; then continue the
   current milestone from its first unchecked gate.
 
-Current resume state (2026-10-26): M4 completed successfully. The private plan
+Current resume state (2026-10-26): M6 completed successfully. The private plan
 remains at SHA-256
 `08ee0f4b2d6935a806e7d1ec718d3477530fc14b755e719f1339e10ad6d51928` and the
 private report is SHA-256
@@ -310,10 +308,12 @@ M5 then added an inactive HP Aster Books beta at
 `/storage/.aster-staging/aster-books-compiler-beta1`. It has no production
 entry, service, network access or shared progress. Its dedicated checkpoint is
 `/storage/.aster-checkpoints/aster-books-compiler-beta1-20261026`; the active
-Kodi process was not restarted. Resume at M6 after revalidating mounts,
-sanitized status, backup age, CWA, both speech services and the inactive bundle
-boundary. Do not promote it into a normal AsterTV route without the separate
-production gate.
+Kodi process was not restarted. M6 added the separate HP-only direct-launch
+bundle at `/storage/.aster-staging/aster-books-compiler-hp-beta1`, compiled one
+private two-chapter pilot in an isolated queue, passed two final native
+playback/progress runs and extended protected backup coverage for pilot
+state/pointers/manifests. The full backlog and normal HP/BOSGAME routes remain
+unchanged. Optional BOSGAME promotion and M7 fallback require separate scope.
 
 ## Milestones
 
@@ -338,10 +338,10 @@ production gate.
   in a non-production or inactive staged bundle; keep sentence highlighting;
   validate playback, seek, chapter change, progress privacy and rollback. Do
   not modify production AsterTV without this gate and checkpoint.
-- [ ] **M6 — Recovery, integrations and graduation.** Restore state/manifests
+- [x] **M6 — Recovery, integrations and HP Lab graduation.** Restore state/manifests
   and regenerate a sample in isolation; reconcile Doctor, monitoring, Beszel,
   NetBox, wiki/mirror, registry, runbook and user handover; run two independent
-  production-path passes and the intent/efficiency review.
+  HP production-shaped passes and the intent/efficiency review.
 - [ ] **M7 — Optional live missing-chapter fallback.** Separate later decision;
   absent by default and unable to race the background generation key.
 
@@ -470,8 +470,8 @@ production gate.
   behavior are measured, not assumed.
 - Doctor/monitoring, recovery, NetBox/Beszel decisions, wiki/runbook, registry
   and user handover are complete and consistent.
-- Production Aster Books passes two independent playback/progress runs and a
-  rollback without weakening AsterTV timing exactness.
+- HP Lab Aster Books passes two independent playback/progress runs and retains
+  an absent-state rollback without weakening AsterTV timing exactness.
 - Post-deployment intent and efficiency review confirms useful narration,
   reasonable throughput/storage, minimal permissions and supportable operation.
 
@@ -511,6 +511,10 @@ production gate.
 | 2026-10-26 | Added a private human-wiki operator page and a provenance-declared Aster operational reference. The wiki change is retained in local commit `20d9a86`; no remote was modified. Verified the existing LXC 116 Beszel agent remains active, so Doctor owns compiler semantics while Beszel continues host-resource history without a duplicate agent or alert. | Wiki and Beszel reconciliation complete. Build/validate the sanitized Aster snapshot and finish the production-path gate before graduation. |
 | 2026-10-26 | Final M5/M6 regression passed 31 compiler/consumer/recovery tests in normal and optimized Python, 20 backup/Doctor tests, configuration coverage, compile-only validation and diff checks. Full HomeLab Doctor reported 85 passes and passed the compiler plus both backup checks; five warnings and ten failure lines were unrelated existing whole-lab findings, with zero EPUB/narration/backup failure lines. | The inactive beta and recovery integrations are regression-clean. Unrelated Doctor findings remain outside project scope. |
 | 2026-10-26 | Rebuilt the Aster knowledge snapshot from the clean M5 commit plus a clean local clone of the committed reference repository and the accepted source-side derived mirror. The 1,841-source archive is `2e5a7562…bd5b1`; all provenance entries were clean and the EPUB operational reference was present. Checkpointed the prior LXC 104 corpus, validated the candidate before an atomic directory swap, restarted only `aster-agent.service`, and received healthy API status with PID 15982 and zero restarts. | Sanitized Aster publication passed without private book data or mirror loss. The retained prior directory and root-only checkpoint provide immediate rollback. |
+| 2026-10-26 | Jason selected HP Lab Aster for the remaining reader deployment. Created an isolated one-item pilot queue from the previously accepted private benchmark set; the real compiler produced one two-chapter ready generation with verified hashes, owner-only modes and native Opus duration. The live 167-item queue remained queued and the static worker remained inactive. | Real-path compiler proof passed without starting the backlog or exposing book identity/content. |
+| 2026-10-26 | Deployed the separate HP-only direct-launch bundle `7f770e8c…dcd8` after an absent-state checkpoint. Retained preflight results exposed and drove fixes for short-chapter end-callback replay, chapter-change settlement and private bytecode modes. Two final independent native passes then verified no autoplay, sentence highlighting, pause stability, chapter change, Back/save, reopen/resume, explicit cleanup and empty queues. | HP Lab beta accepted. Kodi retained PID 66637 with zero restarts; normal HP routes and BOSGAME were unchanged. |
+| 2026-10-26 | Extended the protected exporter to cover the HP pilot queue, ready pointer, manifest and reconstruction marker while still excluding Opus, timing and content. A live 1.46 GB export verified 20 application scopes, 24 SQLite databases and zero pilot media/content files; an isolated restore verified both queue databases, 168 records, one pointer and one manifest. File Browser resumed healthy. Added immediate snapshot `Media/AsterReader@hp-beta1-accepted-20261026`. | Backup regime covers recovery-critical compiler and pilot state; generated bulk remains local/reproducible by design. |
+| 2026-10-26 | Final regression passed 34 compiler/reader tests in normal and optimized Python, 12 backup/Doctor tests, compilation checks and two live HP passes. HomeLab Doctor passed the EPUB monitor and fresh configuration backup with 84 passes, two warnings and four unrelated existing failures. | M6 and the HP Lab objective are complete. No remote Git push was performed. |
 
 ## Post-deployment intent and efficiency review
 
@@ -521,35 +525,34 @@ production gate.
 - The worker has one-attempt execution, one lock, low CPU/I/O priority, a 3 GiB
   memory ceiling and no schedule. The 128 GiB quota is about 3.3 times the
   measured ready-corpus estimate. No concurrency increase is justified.
-- The inactive HP beta proves exact ready-pointer consumption, sentence
+- The active direct-launch HP beta proves exact ready-pointer consumption, sentence
   highlighting, seek, chapter change, private progress/resume, Opus duration
   and rollback boundaries without changing a production route.
 - Permissions remain minimal: Calibre read-only, output-only writes, no
   listener/credential/public ingress. Configuration backup excludes
   source-derived content/audio/timing while local snapshots protect bulk data.
-- Operational friction is intentional at the remaining gate: starting a real
-  attempt and promoting Aster Books require a deliberate production decision.
-  This prevents an estimated multi-month workload or UI change from beginning
-  merely because the monitor found a backlog.
+- Operational friction is intentional: the one-item HP pilot is available only
+  by direct launch, and the 167-item worker backlog still requires a deliberate
+  operator start. This prevents a multi-month workload or normal-menu change
+  from beginning merely because the monitor found a backlog.
 - The implementation is supportable through Doctor, Beszel host history, the
   runbook, human wiki, protected state restore and source-driven regeneration.
-  The only open graduation item is the separately excluded production AsterTV
-  promotion followed by two independent real-path passes.
+  BOSGAME promotion is no longer a graduation dependency; it remains an
+  optional separately checkpointed project.
 
 ## Close-out
 
-M0–M5 are handed over in
-[the M5 handover](../handovers/EPUB-Narration-Compiler-M5-Handover.md). The
-compiler/monitor, backup regime, inactive consumer beta and recovery paths are
-deployed. Project graduation remains open only for the separately excluded
-production AsterTV promotion and two independent production-path passes. Live
-missing-chapter fallback remains deliberately deferred to optional M7.
+M0–M6 are complete and handed over in
+[the HP Lab handover](../handovers/EPUB-Narration-Compiler-HP-Lab-Handover.md).
+The compiler/monitor, backup regime, isolated real pilot, direct-launch HP
+consumer and recovery paths are deployed. BOSGAME remains unchanged and is not
+a completion dependency. Live missing-chapter fallback remains deliberately
+deferred to optional M7.
 
 ## Documentation adequacy reflection
 
 The repository now documents the Calibre authority, canonical voice, negative
 AsterTV timing evidence, benchmark, deployed dataset/mount contract, compiler
-identity, backup regime, inactive Aster Books beta, operator runbook, wiki and
-Beszel ownership. It deliberately does not yet claim production Aster Books
-promotion or the two independent production-path passes; those remain M6
-gates under the project's production exclusion.
+identity, backup regime, HP direct-launch Aster Books beta, operator runbook,
+wiki and Beszel ownership. It records two independent HP real-path passes and
+does not imply a BOSGAME menu or production promotion.

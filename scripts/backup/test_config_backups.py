@@ -31,4 +31,15 @@ class BackupTests(unittest.TestCase):
    copied=[];self.assertEqual(1,backup.backup_epub_narration(src,p/'out',copied))
    self.assertTrue((p/'out'/'state'/'queue.db').is_file());self.assertTrue((p/'out'/'ready'/'1.json').is_file());self.assertTrue((p/'out'/'generations'/'1'/('a'*64)/'manifest.json').is_file())
    self.assertFalse((p/'out'/'generations'/'1'/('a'*64)/'chapters').exists());self.assertFalse((p/'out'/'generations'/'1'/('a'*64)/'timing').exists())
+ def test_epub_narration_backup_covers_hp_pilot_state_not_media(self):
+  with tempfile.TemporaryDirectory() as root:
+   p=pathlib.Path(root);src=p/'reader';(src/'state').mkdir(parents=True);db=sqlite3.connect(src/'state'/'queue.db');db.execute('create table item(n)');db.commit();db.close()
+   pilot=src/'pilots'/'hp-beta1';output=pilot/'output';(output/'state').mkdir(parents=True);db=sqlite3.connect(output/'state'/'queue.db');db.execute('create table item(n)');db.commit();db.close()
+   (pilot/'pilot.json').write_text('{}');(output/'ready').mkdir();(output/'ready'/'opaque.json').write_text('{}')
+   generation=output/'generations'/'opaque'/('b'*64);(generation/'chapters').mkdir(parents=True);(generation/'content').mkdir()
+   (generation/'manifest.json').write_text('{}');(generation/'chapters'/'0001.opus').write_bytes(b'audio');(generation/'content'/'0001.json').write_text('private')
+   copied=[];self.assertEqual(1,backup.backup_epub_narration(src,p/'out',copied))
+   self.assertTrue((p/'out'/'pilots'/'hp-beta1'/'output'/'state'/'queue.db').is_file());self.assertTrue((p/'out'/'pilots'/'hp-beta1'/'pilot.json').is_file())
+   self.assertTrue((p/'out'/'pilots'/'hp-beta1'/'output'/'ready'/'opaque.json').is_file());self.assertTrue((p/'out'/'pilots'/'hp-beta1'/'output'/'generations'/'opaque'/('b'*64)/'manifest.json').is_file())
+   self.assertFalse((p/'out'/'pilots'/'hp-beta1'/'output'/'generations'/'opaque'/('b'*64)/'chapters').exists());self.assertFalse((p/'out'/'pilots'/'hp-beta1'/'output'/'generations'/'opaque'/('b'*64)/'content').exists())
 if __name__=='__main__':unittest.main()

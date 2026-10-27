@@ -25,8 +25,11 @@ paths, text, audio, timing data, listening progress and source hashes.
 - A generation becomes visible only after all file hashes, timing bounds and
   codec properties pass and an atomic ready pointer is replaced. A failed
   replacement leaves the previous ready generation selected.
-- The inactive Aster Books beta consumes only those ready pointers. It has no
-  production entry point, network listener or shared progress store.
+- HP Lab has a direct-launch Aster Books beta consuming one isolated real
+  ready generation. Two native passes verified no autoplay, exact sentence
+  highlighting, pause, chapter change, save/resume and cleanup. It has no
+  normal entry point, network listener or shared progress store. BOSGAME is
+  unchanged.
 
 ## Status and failure meaning
 
@@ -48,17 +51,18 @@ There is no public route, application credential or Calibre write authority.
 Listening progress belongs only to Aster Books' private generation-bound state
 and is neither written to Calibre nor mixed with Audiobookshelf.
 
-Daily dataset snapshots retain local generated payloads. The protected
-configuration export stores an online backup of queue state plus sanitized
-status, ready pointers and immutable manifests while excluding generated
-content, audio and timing. Restore queue/manifests into an isolated location
-and verify integrity before changing live state. Calibre EPUBs remain the
-authoritative regeneration source.
+Daily dataset snapshots and the accepted HP snapshot retain local generated
+payloads. The protected configuration export stores online backups of the
+main and HP pilot queues plus status, ready pointers, immutable manifests and
+the pilot reconstruction marker while excluding generated content, audio and
+timing. Restore queue/manifests into an isolated location and verify integrity
+before changing live state. Calibre EPUBs remain the authoritative
+regeneration source.
 
-Rollback stops the monitor and worker, removes any inactive Aster Books bundle
-reference and preserves the AsterReader dataset, snapshots, queue and last
-known-good generations. It never writes to Calibre or deletes the only ready
-copy.
+Rollback stops the monitor and worker, removes only the HP direct-launch
+bundle and its dedicated state after checking the absent-state checkpoint,
+and preserves the AsterReader dataset, snapshots, queue and last-known-good
+generations. It never writes to Calibre or deletes the only ready copy.
 
 Exact operator commands are maintained in
 `docs/runbooks/EPUB-Narration-Compiler.md` in the HomeLab repository.

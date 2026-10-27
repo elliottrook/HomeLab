@@ -77,11 +77,11 @@ def backup_abs(dst, name='unified-audiobookshelf-shadow'):
  finally:
   run('docker','exec','--user','0',name,'node','-e',"require('fs').rmSync(process.argv[1],{force:true})",tmp)
 
-def backup_epub_narration(src,dst,dbs):
+def backup_epub_output(src,dst,dbs,require_queue=True):
  src=P(src);dst=P(dst)
  queue=src/'state/queue.db'
- assert queue.is_file(),'EPUB narration queue missing; review deployment'
- copy_config(queue,dst/'state/queue.db',dbs)
+ if require_queue:assert queue.is_file(),'EPUB narration queue missing; review deployment'
+ if queue.is_file():copy_config(queue,dst/'state/queue.db',dbs)
  for name in ('monitor-status.json','worker-status.json'):
   if (src/'state'/name).is_file():copy_config(src/'state'/name,dst/'state'/name,dbs)
  ready=src/'ready'
@@ -92,6 +92,19 @@ def backup_epub_narration(src,dst,dbs):
   for manifest in generations.glob('*/*/manifest.json'):
    relative=manifest.relative_to(generations)
    copy_config(manifest,dst/'generations'/relative,dbs);manifests+=1
+ return manifests
+
+def backup_epub_narration(src,dst,dbs):
+ src=P(src);dst=P(dst)
+ manifests=backup_epub_output(src,dst,dbs)
+ pilots=src/'pilots'
+ if pilots.is_dir():
+  for pilot in pilots.iterdir():
+   if not pilot.is_dir() or pilot.is_symlink():continue
+   output=pilot/'output'
+   if not output.is_dir():continue
+   manifests+=backup_epub_output(output,dst/'pilots'/pilot.name/'output',dbs)
+   if (pilot/'pilot.json').is_file():copy_config(pilot/'pilot.json',dst/'pilots'/pilot.name/'pilot.json',dbs)
  return manifests
 
 def main():

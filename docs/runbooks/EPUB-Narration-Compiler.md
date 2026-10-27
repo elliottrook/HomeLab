@@ -1,6 +1,6 @@
 # EPUB Narration Compiler Operations
 
-> Status: M5 pilot deployed; worker intentionally inactive; Aster Books beta inactive
+> Status: M6 HP Lab deployment accepted; worker intentionally inactive
 >
 > Owner: Jason
 >
@@ -27,20 +27,44 @@ Books can highlight the exact sentence being spoken. Treat it as source text:
 it is covered by local dataset snapshots and deliberately excluded from the
 configuration archive, ordinary diagnostics and Aster's knowledge corpus.
 
-## Inactive Aster Books beta
+## HP Lab Aster Books beta
 
-The HP lab appliance has an immutable synthetic beta at
+The HP lab appliance retains the immutable synthetic beta at
 `/storage/.aster-staging/aster-books-compiler-beta1`. Its bundle manifest must
 say `active=false`, `production_entry=false`, `network=false` and
 `shared_progress=false`. It is not linked from the skin, add-on registry or a
 service. It validates only complete atomic ready generations and stores
 generation-bound progress in a private owner-only directory.
 
+The accepted real-path beta is separate at
+`/storage/.aster-staging/aster-books-compiler-hp-beta1`. It contains one
+private, isolated two-chapter compiler generation and bundle manifest
+`7f770e8c…dcd8`. It is HP-only, networkless, not linked from a normal route and
+does not share progress. Start it only while HP is idle on Home:
+
+```sh
+ssh -o BatchMode=yes root@192.168.1.140 "kodi-send --action='RunScript(/storage/.aster-staging/aster-books-compiler-hp-beta1/default.py,7f770e8cc2dd2564c23c71700fa575275fe4b33d30f31d4ac3c8242930b0dcd8)'"
+```
+
+The reader never autoplays. Use Play/Pause, Stop, Previous/Next chapter,
+Restart chapter, Clear beta progress and Text size. Gold text is the exact
+sentence cue. Back stops only the owned beta playback and saves its private
+generation-bound position. A notification saying the private beta is
+unavailable means a hash, idle-player, data or ownership gate failed closed;
+it does not authorize stopping other playback or loosening validation.
+
 The beta's recovery checkpoint is
 `/storage/.aster-checkpoints/aster-books-compiler-beta1-20261026`. Removing the
 single staged bundle directory returns to the exact pre-M5 state; do not touch
 the existing historical EPUB preview or its separate progress. Production
 BOSGAME remains unchanged and needs its own explicit promotion checkpoint.
+
+The direct-launch beta's absent-state checkpoint is
+`/storage/.aster-checkpoints/aster-books-compiler-hp-beta1-20261026`. It also
+retains sanitized failed preflights, prior candidate code and the two accepted
+native pass receipts. Rollback removes only the direct-launch bundle and its
+dedicated state/cache after confirming Kodi is idle; it leaves the inactive
+synthetic beta and historical preview untouched.
 
 ## Normal status
 
@@ -123,11 +147,13 @@ ssh -o BatchMode=yes proxmox "pct exec 116 -- runuser -u epub-narration -- env P
 
 The full `Media/AsterReader` dataset has a daily 04:45 snapshot task with
 14-day retention and no empty snapshots. The protected configuration exporter
-also captures an online SQLite backup of `state/queue.db`, status files, ready
-pointers and immutable manifests. It deliberately excludes reproducible Opus
-and timing payloads. The encrypted/off-site configuration path therefore
-preserves orchestration and identity while local ZFS snapshots cover bulk
-generated data.
+captures online SQLite backups of the main and isolated HP pilot queues,
+status files, ready pointers, immutable manifests and the pilot reconstruction
+marker. It deliberately excludes reproducible Opus, timing and normalized
+content payloads. The encrypted/off-site path therefore preserves
+orchestration and identity while local ZFS snapshots cover bulk generated
+data. Immediate snapshot `Media/AsterReader@hp-beta1-accepted-20261026`
+supplements the daily schedule.
 
 Validate backup coverage with:
 
@@ -142,9 +168,9 @@ private records:
 python3 scripts/backup/verify-epub-narration-restore.py /path/to/configs.tar.gz
 ```
 
-The result contains only the queue-record, ready-pointer and generation-
-manifest counts plus the media-exclusion decision. A zero ready/manifest count
-is expected while the real worker remains inactive.
+The result contains only queue-record, ready-pointer and generation-manifest
+counts plus the media-exclusion decision. The main queue has zero ready
+generations while its worker remains inactive; the isolated HP pilot has one.
 
 Restore into an isolated dataset or directory first. Verify the SQLite
 integrity check, manifest hashes and ready pointers there; never overwrite the
@@ -157,9 +183,12 @@ passes.
 1. Disable the monitor timer and stop the worker.
 2. Confirm both speech services remain active.
 3. Retain the AsterReader dataset, snapshots and queue; do not delete output.
-4. Remove any future staged Aster Books ready-root reference. M3/M4 added none.
-5. Remove the inactive HP beta directory only after verifying its dedicated
-   absent-state checkpoint. It has no normal-route reference to remove.
+4. Confirm HP Kodi is idle, then remove only
+   `/storage/.aster-staging/aster-books-compiler-hp-beta1` and its dedicated
+   state/cache after verifying the HP absent-state checkpoint. There is no
+   normal-route reference to remove.
+5. Remove the older inactive synthetic HP beta only if reverting M5 as well;
+   verify its separate absent-state checkpoint first.
 6. Restore the pre-M5 renderer from
    `/opt/epub-narration/rollback-m5-20261026/renderer.py` and remove only the
    added `aster_books.py` consumer if the M5 compiler interface must be
