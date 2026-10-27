@@ -1,10 +1,10 @@
 # EPUB narration compiler
 
-Repository-only M1 foundation for the
+Deployed M3/M4 implementation for the
 [EPUB Narration Compiler project](../../docs/projects/EPUB-Narration-Compiler.md).
-It contains no real book text, audio, timing or progress.
+The repository contains no real book text, audio, timing or progress.
 
-The current modules establish four fail-closed contracts:
+The modules establish these fail-closed contracts:
 
 - `catalog.py` discovers Calibre EPUB rows through a SQLite read-only URI and
   rejects any source path outside the configured library root;
@@ -13,12 +13,23 @@ The current modules establish four fail-closed contracts:
 - `state.py` persists the six-state generation lifecycle independently of
   Calibre; and
 - `publication.py` validates an immutable manifest and atomically replaces a
-  small ready pointer only after a complete generation is present.
+  small ready pointer only after a complete generation is present;
+- `monitor.py` performs idempotent new/changed-source reconciliation and emits
+  only aggregate status; and
+- `worker.py` claims one attempt under a file lock, validates the canonical
+  voice contract, renders sentence units, verifies Opus/timing output and
+  preserves the previous ready pointer on failure.
 
 `timing.py` records sentence cues as integer PCM sample indexes. It does not
-invent word timing. Rendering and Opus encoding are intentionally absent until
-the private 20-book benchmark milestone can use the pinned canonical Aster
-voice and measure the real resource/storage envelope.
+invent word timing. `renderer.py` uses the pinned Kokoro model, voice and
+cleanup hashes and verifies 48 kbit/s mono Opus duration before publication.
+
+The deployed monitor is a daily persistent systemd timer in LXC 116. The
+single-attempt worker is intentionally static/inactive: it is invoked manually
+only after the remaining admission gate, never scheduled across the backlog by
+this milestone. Proxmox mounts the two narrow NFS exports and bind-mounts the
+Calibre source read-only and the AsterReader output read-write into the
+unprivileged guest.
 
 Run the synthetic suite:
 
@@ -35,4 +46,7 @@ Production invariants:
 - publish only validated immutable generations;
 - keep the prior ready pointer until a replacement is complete; and
 - never log source text or store real generated artifacts in Git.
+
+Operational procedures and rollback are in
+[the compiler runbook](../../docs/runbooks/EPUB-Narration-Compiler.md).
 

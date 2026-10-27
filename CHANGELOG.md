@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-10-26 — EPUB narration compiler M3/M4 pilot
+
+- Deployed a content-silent daily EPUB monitor and disabled-by-default
+  single-attempt Kokoro worker in unprivileged Aster Speech LXC 116, using
+  read-only Calibre and read-write private AsterReader bind mounts.
+- Created a 128 GiB quota-bounded TrueNAS dataset with daily 14-day snapshots;
+  the measured 38.25 GiB corpus estimate retains about 3.3× capacity headroom.
+- Added queue/status/ready/manifest coverage to the verified protected
+  configuration export while deliberately excluding reproducible Opus and
+  timing payloads.
+- Added content-silent HomeLab Doctor coverage, target-side synthetic
+  regressions and an operator runbook. The live monitor reconciled twice
+  idempotently; the full narration backlog and Aster Books consumer remain
+  paused behind later project gates.
+
 ## 2026-10-19 — Canon MF644Cdw AirPrint sleep workaround
 
 - Confirmed that the printer's one-minute normal sleep suppresses fresh mDNS

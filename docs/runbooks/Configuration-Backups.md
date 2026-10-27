@@ -15,6 +15,7 @@
 | Proxmox-hosted apps | **Implemented 2026-10-12:** Proxmox all-guest archive 00:30; TrueNAS guest pull 01:00; LXC 110 same-site mirror 02:00; Mac configuration pull 03:00, all before the 04:15–06:15 local-AI analysis reservation | Guests 100–109, 111–117 in the normal pull; 110 retains its dedicated same-site mirror |
 | OPNsense, Arista, Proxmox host, NUT, monitoring | Existing Sunday 06:00 Mac job; TrueNAS daily 04:15 pull | `~/lab/private-backups/<service>/` |
 | Media automation configuration | Same weekly job plus TrueNAS daily tool export | Video archiver, Jellyfin integrity reference manifests and `/mnt/Media/data/tools` |
+| EPUB narration compiler | Daily TrueNAS configuration export plus 14-day local dataset snapshots | Queue database, sanitized status, ready pointers and immutable manifests in the encrypted configuration archive; generated audio/timing retained in local ZFS snapshots |
 | Operator lab configuration | Added to existing weekly Mac job | SSH configuration/keys, HomeLab `configs/`, lab LaunchAgents, AsterLab worker identity/custody; `private-backups/operator-configs/` |
 
 Proxmox guest archives cover Docker LXC 100's Homepage, Homarr, code-server,
@@ -37,6 +38,11 @@ Audiobookshelf's database is selected separately from the adjacent audiobook
 folders. Library files, downloads, recordings, transcoding/cache payloads and
 Pi-hole DNS-query history are excluded. User/account/library catalogue state,
 watch progress, playlists and custom configuration are retained.
+The EPUB narration entry deliberately excludes generated Opus and timing files
+from the encrypted configuration archive. Its queue database is copied with the
+SQLite online-backup API, while ready pointers and immutable manifests provide
+the regeneration index. The complete quota-bounded dataset retains local daily
+snapshots for fast rollback; Calibre EPUBs remain the authoritative source.
 
 Existing family-file protection continues. Paperless whole-guest archives and
 LXC 110 model archives retain their prior off-site exclusions; the reviewed

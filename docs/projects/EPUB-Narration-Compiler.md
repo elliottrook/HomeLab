@@ -1,6 +1,6 @@
 # EPUB Narration Compiler and New-Title Monitor
 
-> Status: Active — Stream A; M0–M2 complete, M3 dataset/worker pilot next
+> Status: Active — Stream A; M0–M4 complete, M5 Aster Books beta next
 >
 > Owner: Jason
 >
@@ -294,19 +294,21 @@ new DRM question, public exposure, or materially different deployment target.
   queue schema, worker lock, voice hash and Aster health; then continue the
   current milestone from its first unchecked gate.
 
-Current resume state (2026-10-26): M2 completed successfully. The private plan
+Current resume state (2026-10-26): M4 completed successfully. The private plan
 remains at SHA-256
 `08ee0f4b2d6935a806e7d1ec718d3477530fc14b755e719f1339e10ad6d51928` and the
 private report is SHA-256
 `7692ef8dc516024b4464d9fa3131de3fcf0f9ae7e7189931db9bb8e2bb88979b`.
-Preserve the root-private LXC 116 checkpoint; do not rerun or publish its real
-content. The transient unit completed with result `success`. Live polling
-verified the 300% CPU and 3 GiB memory limits, nice 15 and idle I/O; maximum
-observed memory was 1,025,048,576 bytes. Both speech-service PIDs were unchanged
-through the run and both services remain active. Resume at M3 by revalidating
-Calibre/CWA and speech health, then create a recoverable quota-bounded dataset
-checkpoint and a disabled-by-default one-worker pilot. Do not start the full
-backlog until admission and pause behavior pass.
+Preserve the root-private M2 checkpoint; do not rerun or publish its real
+content. M3/M4 deployed the 128 GiB `Media/AsterReader` dataset, Proxmox-hosted
+least-privilege NFS mounts, unprivileged LXC 116 bind mounts, daily monitor and
+static single-attempt worker. The monitor is active and idempotent; the worker
+is intentionally inactive and the full backlog has not started. Daily 14-day
+dataset snapshots and the protected configuration export now cover queue,
+status, ready pointers and manifests while excluding generated audio/timing.
+Resume at M5 only after revalidating mounts, sanitized status, backup age,
+voice contract, CWA and both speech services. M5 must use a non-production or
+inactive Aster Books bundle and its own rollback checkpoint.
 
 ## Milestones
 
@@ -321,10 +323,10 @@ backlog until admission and pause behavior pass.
   the 167 eligible EPUBs by size/structure only; checkpoint; measure extraction,
   real-time factor, CPU/memory, Opus size, cue validity and failures. Keep all
   text/audio/timing private. Revise dataset capacity and schedule.
-- [ ] **M3 — Dataset and worker pilot.** Create the bounded TrueNAS dataset and
+- [x] **M3 — Dataset and worker pilot.** Create the bounded TrueNAS dataset and
   least-privilege mounts; deploy one low-priority worker disabled by default;
   prove restart, interruption, quota, source-change and LKG behavior.
-- [ ] **M4 — Monitor and incremental reconciliation.** Enable the new/changed
+- [x] **M4 — Monitor and incremental reconciliation.** Enable the new/changed
   EPUB scan with missed-run recovery, finite retry, failure quarantine and
   useful non-secret status. Prove a synthetic new-title and changed-title run.
 - [ ] **M5 — Aster Books beta integration.** Consume only atomic ready pointers
@@ -400,19 +402,24 @@ backlog until admission and pause behavior pass.
 
 ## Documentation and systems-of-record updates
 
-- [ ] **HomeLab Doctor** — add and failure-test bounded workflow checks in M4/M6.
+- [x] **HomeLab Doctor** — added and failure-tested bounded mount, timer,
+  status-age, queue and worker-resource checks; live full-suite regression is
+  retained for M6 alongside the other infrastructure checks.
 - [ ] **Monitoring/alerting** — add non-secret queue/worker/capacity signals;
   confirm existing TrueNAS Beszel coverage and no duplicate alerting.
-- [ ] **Backup and recovery** — add state/manifest coverage, snapshot retention
-  and isolated regeneration/restore evidence.
-- [ ] **NetBox** — at deployment, register/reconcile the compiler service on
-  existing TrueNAS and any narrow speech dependency; no new IP is expected.
+- [ ] **Backup and recovery** — daily 14-day dataset snapshots and protected
+  state/status/ready/manifest export are live and verified; isolated restore
+  and regeneration evidence remains for M6.
+- [x] **NetBox** — reconciled the offline compiler workload on the existing
+  `aster-speech` VM and validated it through the read-only API. The canonical
+  speech service already records batch synthesis. No fake port-bearing Service
+  object was created because the compiler has no listener; no IP changed.
 - [ ] **Human wiki** — add normal operation, statuses, failure meaning, privacy
   boundaries and recovery after the pilot stabilizes.
 - [ ] **Aster mirror/snapshot** — publish only a sanitized operational summary
   with provenance; no title, text, timing, progress or source hash.
-- [ ] **Operational reference/runbook** — add exact status, retry, disable,
-  checkpoint, restore and LKG procedures.
+- [x] **Operational reference/runbook** — exact status, disable, checkpoint,
+  restore, failure and LKG procedures are documented.
 - [x] **Environment/release lifecycle** — registered as V1 Lab foundation with
   a production target and explicit promotion gates.
 - [x] **Repository documentation** — project and portfolio entry created; M0
@@ -420,14 +427,18 @@ backlog until admission and pause behavior pass.
 - [x] **Diagrams/rack** — not applicable: no physical topology change.
 - [ ] **Homepage/service discovery** — not expected; document not applicable if
   no human web UI is introduced.
-- [ ] **Authentication/authorization** — define least-privilege service and
-  renderer identities before deployment; no shared human/root credential.
+- [x] **Authentication/authorization** — UID/GID 568 compiler identity, source
+  read-only bind, output-only write path and execute-only renderer/model parent
+  ACLs deployed; no application credential or shared human identity exists.
 - [x] **DNS/certificates/firewall** — no change planned; stop if a new ingress
   path is proposed.
-- [ ] **Automation/schedules** — define systemd ownership, lock, missed-run and
-  last-success behavior before enabling.
-- [ ] **Security inventory** — record file ownership/modes, model hash, secret
-  custody identifiers and temporary-data retention.
+- [x] **Automation/schedules** — daily randomized persistent monitor timer,
+  single-instance locks and atomic private status are deployed; worker has no
+  enable target or recurring schedule.
+- [x] **Security inventory** — owner-only state/status, read-only source,
+  no public listener/credential, pinned model/cleanup hashes and bounded
+  temporary work are recorded. The NFS exports are restricted to the trusted
+  Proxmox host because unprivileged LXC cannot mount NFS directly.
 - [x] **AI administration** — not currently supported; private human/systemd
   administration is safer than adding an admin API.
 
@@ -470,6 +481,14 @@ backlog until admission and pause behavior pass.
 | 2026-10-26 | The sample produced 0.8898 audio hours and 17.635 MiB at 46.181 kbit/s. Mean/median/worst render factors were 0.9672/0.9633/1.0644. Quantile integration estimates 1,976.5 hours and 38.25 GiB for the 166 accepted EPUBs, or about 1,912 single-worker hours. | Use an initial 128 GiB quota with no reservation and a 75% warning; prove admission/pause behavior in M3 before starting the roughly 80-day continuous-equivalent backlog. |
 | 2026-10-26 | Live unit checks retained the 300% CPU, 3 GiB memory, nice 15 and idle-I/O controls; maximum observed memory was 1,025,048,576 bytes. Both speech services remained active with valid PIDs. TrueNAS still reported 505 books and 167 EPUB rows through an immutable read-only query, and CWA remained running/healthy. | M2 regressions passed without a Calibre write, service restart, production consumer change or new dataset. |
 | 2026-10-26 | Sixteen synthetic tests passed in normal and optimized Python after the benchmark; compile-only validation also passed with a sandbox-local bytecode cache. | M2 complete. Next safe milestone is the recoverable, disabled-by-default M3 dataset/worker pilot; the one archive-limit failure remains preserved for compatibility review. |
+| 2026-10-26 | Created `Media/AsterReader` with a 128 GiB quota, no reservation, LZ4, 128K records, atime/exec off and 75%/90% warning properties. Preserved empty and populated checkpoints and enabled a daily 04:45 snapshot task with 14-day retention. | Capacity now reflects the measured 38.25 GiB estimate with about 3.3× headroom. No Calibre or audiobook dataset changed. |
+| 2026-10-26 | The first in-guest NFS attempt failed closed under unprivileged-LXC mount restrictions. Retained the unprivileged guest and switched to standard Proxmox-host NFS mounts plus narrow `mp0` read-only and `mp1` read-write bind mounts. Source writes were denied; the compiler identity created and removed an owner-only output sentinel. Queue journalling was changed from WAL to SQLite's NFS-safe rollback journal. | Least privilege passed without privileged-container conversion or broader network access. Guest NFS packages were removed after validation; only the small ACL utility remains for execute-only renderer/model traversal. |
+| 2026-10-26 | Deployed the daily persistent monitor and static one-attempt worker in LXC 116. Twenty-four synthetic tests passed there in normal and optimized Python, including NFS-safe queue journalling, restart/interruption, bounded retry, quota, changed source, LKG, unsafe EPUB, timing and publication gates. The optimized target pass also treated resource warnings as errors. Canonical model/voice/cleanup preflight passed. | M3 gate passed. Worker remains inactive with 3 GiB memory, 300% CPU, nice 15 and idle-I/O controls; no real generation was started. |
+| 2026-10-26 | Two live monitor passes found 167 sources: the first queued 167 and the second queued zero. Queue/status files are mode 0600; output contains no ready or failed generation. CWA remained healthy with 505 books/167 EPUB rows and both speech services recovered active after the bounded guest restart. | M4 reconciliation is idempotent and active on its daily randomized timer. Full backlog remains intentionally paused. |
+| 2026-10-26 | Added the compiler to the protected configuration exporter after an appdata checkpoint. A live export verified 20 application scopes and 23 SQLite databases; queue/status were present and compiler Opus/timing were absent. File Browser resumed unpaused. | Backup regime is live: full local dataset snapshots plus encrypted/off-site orchestration state and manifests. Isolated restore remains an M6 graduation gate. |
+| 2026-10-26 | Added a content-silent HomeLab Doctor check with four failure-mode tests, the operational runbook and the deployed service-registry record. | M3/M4 documentation and observability complete; Beszel/wiki/mirror reconciliation and full recovery graduation remain M6 work. |
+| 2026-10-26 | Recorded the offline compiler workload on NetBox's existing `aster-speech` VM and verified the updated object through `GET /api/virtualization/virtual-machines/16/`; the existing canonical speech service already declares batch synthesis. | NetBox reconciled without inventing a listener, port or new IP. Beszel/wiki/mirror and full recovery graduation remain M6 work. |
+| 2026-10-26 | Full HomeLab Doctor regression passed the new compiler check with 167 queued, zero ready/failed and the worker inactive. Overall Doctor reported 84 passes, two warnings and four failures in unrelated existing Aster assurance/AI-PAM, surveillance freshness and subtitle automation checks; sandbox-denied local state-cache writes did not affect remote checks. | Compiler monitoring and backup checks passed. Unrelated Doctor findings were not changed under this project. |
 
 ## Close-out
 
@@ -478,8 +497,8 @@ and deliberately deferred live fallback will be recorded after graduation.
 
 ## Documentation adequacy reflection
 
-At M0 the repository documents Calibre authority, the canonical voice and the
-negative AsterTV timing evidence well enough to design safely. It does not yet
-contain a compiler runbook, deployed dataset contract, renderer service
-identity, benchmark evidence or Aster Books handover. Those are explicit
-milestone deliverables rather than assumed knowledge.
+The repository now documents the Calibre authority, canonical voice, negative
+AsterTV timing evidence, benchmark, deployed dataset/mount contract, compiler
+identity, backup regime and operator runbook. It deliberately does not yet
+claim an Aster Books handover, isolated restore proof, NetBox/Beszel/wiki
+reconciliation or graduated production path; those remain M5/M6 deliverables.

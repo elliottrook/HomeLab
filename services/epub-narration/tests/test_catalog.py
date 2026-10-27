@@ -1,3 +1,4 @@
+from contextlib import closing
 from pathlib import Path
 import sqlite3
 import sys
@@ -12,7 +13,7 @@ from epub_narration.catalog import fingerprint, read_epub_sources
 class CatalogueTests(unittest.TestCase):
     def make_catalogue(self, root: Path, relative: str = "Synthetic/Book") -> Path:
         database = root / "metadata.db"
-        with sqlite3.connect(database) as connection:
+        with closing(sqlite3.connect(database)) as connection, connection:
             connection.executescript(
                 "CREATE TABLE books (id INTEGER PRIMARY KEY, path TEXT NOT NULL);"
                 "CREATE TABLE data (id INTEGER PRIMARY KEY, book INTEGER, format TEXT, name TEXT);"

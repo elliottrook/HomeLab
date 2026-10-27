@@ -1,0 +1,14 @@
+[Unit]
+Description=Read-only Calibre library for EPUB narration
+After=network-online.target
+Wants=network-online.target
+Before=pve-guests.service
+
+[Mount]
+What=192.168.20.40:/mnt/Media/media/books
+Where=/mnt/epub-calibre-books
+Type=nfs4
+Options=ro,nosuid,nodev,noexec,_netdev,vers=4.2,hard,timeo=600,retrans=2
+
+[Install]
+WantedBy=multi-user.target

@@ -1,4 +1,5 @@
 from pathlib import Path
+from contextlib import closing
 import json
 import sqlite3
 import sys
@@ -33,7 +34,7 @@ class BenchmarkPlanTests(unittest.TestCase):
             root = Path(tmp) / "library"
             root.mkdir()
             database = root / "metadata.db"
-            with sqlite3.connect(database) as connection:
+            with closing(sqlite3.connect(database)) as connection, connection:
                 connection.executescript(
                     "CREATE TABLE books (id INTEGER PRIMARY KEY, path TEXT NOT NULL);"
                     "CREATE TABLE data (id INTEGER PRIMARY KEY, book INTEGER, format TEXT, name TEXT);"
@@ -60,7 +61,7 @@ class BenchmarkPlanTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             database = root / "metadata.db"
-            with sqlite3.connect(database) as connection:
+            with closing(sqlite3.connect(database)) as connection, connection:
                 connection.executescript(
                     "CREATE TABLE books (id INTEGER PRIMARY KEY, path TEXT NOT NULL);"
                     "CREATE TABLE data (id INTEGER PRIMARY KEY, book INTEGER, format TEXT, name TEXT);"

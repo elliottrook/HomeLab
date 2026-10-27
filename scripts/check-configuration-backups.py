@@ -6,7 +6,7 @@ r=pathlib.Path('/mnt/Recovery/configuration/exports/truenas');s=json.loads((r/'s
 print(json.dumps({'created_utc':s['created_utc'],'apps':len(s['apps']),'sqlite_verified':s['sqlite_verified'],'media_included':s['media_included'],'size_matches':p.stat().st_size==s['archive_bytes'],'failure':(r/'failure.json').exists()}))'''
 def assess(s,now):
  age=(now-datetime.datetime.fromisoformat(s['created_utc'])).total_seconds()/3600
- return age>=0 and age<30 and s['apps']>=17 and s['sqlite_verified']>=18 and s['size_matches'] and not s['media_included'] and not s['failure'],age
+ return age>=0 and age<30 and s['apps']>=20 and s['sqlite_verified']>=19 and s['size_matches'] and not s['media_included'] and not s['failure'],age
 
 def synology_status(now):
  code="""import json,pathlib

@@ -77,6 +77,23 @@ def backup_abs(dst, name='unified-audiobookshelf-shadow'):
  finally:
   run('docker','exec','--user','0',name,'node','-e',"require('fs').rmSync(process.argv[1],{force:true})",tmp)
 
+def backup_epub_narration(src,dst,dbs):
+ src=P(src);dst=P(dst)
+ queue=src/'state/queue.db'
+ assert queue.is_file(),'EPUB narration queue missing; review deployment'
+ copy_config(queue,dst/'state/queue.db',dbs)
+ for name in ('monitor-status.json','worker-status.json'):
+  if (src/'state'/name).is_file():copy_config(src/'state'/name,dst/'state'/name,dbs)
+ ready=src/'ready'
+ if ready.is_dir():copy_config(ready,dst/'ready',dbs)
+ manifests=0
+ generations=src/'generations'
+ if generations.is_dir():
+  for manifest in generations.glob('*/*/manifest.json'):
+   relative=manifest.relative_to(generations)
+   copy_config(manifest,dst/'generations'/relative,dbs);manifests+=1
+ return manifests
+
 def main():
  signal.signal(signal.SIGTERM,lambda signum,frame:sys.exit(143))
  os.umask(0o077);ROOT.mkdir(parents=True,exist_ok=True);ROOT.chmod(0o700)
@@ -120,6 +137,8 @@ def main():
   catalogue=P('/mnt/Media/media/books/metadata.db')
   assert catalogue.is_file(),'Calibre catalogue missing; review library mapping'
   copy_config(catalogue,payload/'calibre-library-catalogue/metadata.db',dbs)
+  backup_epub_narration('/mnt/Media/AsterReader',payload/'epub-narration',dbs)
+  covered.append('epub-narration-compiler')
   # The large Jellyfin artwork tree is disposable; library/collection XML is retained.
   # Guard definitions, managed app settings and exact network reconstruction are config.
   for source,label in [('/mnt/Media/appdata/authentik-browser-ingress','browser-guards'),('/mnt/.ix-apps/app_configs','managed-apps'),('/mnt/Media/data/tools','automation-tools'),('/root/.ssh','host-ssh'),('/etc/ssh','ssh-service'),('/mnt/Media/appdata/config-backup-tools','backup-tools'),('/mnt/Media/appdata/unified-media-shadow/portal/state','unified-portal-state'),('/mnt/Media/appdata/unified-media-shadow/secrets','unified-service-credentials'),('/mnt/Media/appdata/unified-media-shadow/audiobookshelf-legacy-paths','audiobookshelf-legacy-paths')]:
@@ -138,7 +157,7 @@ def main():
      check=work/'truenas-check.db';check.write_bytes(tf.extractfile(m).read())
      with sqlite3.connect(check) as con:assert con.execute('PRAGMA integrity_check').fetchone()[0]=='ok'
   hashes={str(p.relative_to(payload)):digest(p) for p in payload.rglob('*') if p.is_file() and not p.is_symlink()}
-  assert len(dbs)>=18,'Expected database inventory changed; review before publication'
+  assert len(dbs)>=19,'Expected database inventory changed; review before publication'
   manifest={'created_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'apps':covered,'files':hashes,'sqlite_databases':len(dbs),'media_included':False,'scope':'configuration and restoration-critical account state; excludes media, caches, DNS query history'}
   (payload/'manifest.json').write_text(json.dumps(manifest,indent=2))
   archive=work/'configs.tar.gz'
