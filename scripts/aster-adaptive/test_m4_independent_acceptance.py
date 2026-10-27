@@ -8,7 +8,7 @@ import m4_independent_acceptance as acceptance
 
 def record():
     return {"schema":acceptance.SCHEMA,"reviewer":"independent-owner",
-        "decision":"retain","accepted_commit":"a"*40,
+        "decision":"retain","accepted_commit":acceptance.ACCEPTED_COMMIT,
         "artifact_sha256":acceptance.ARTIFACT_SHA256,
         "ledger_head":acceptance.LEDGER_HEAD,
         "custody_method":"human-controlled-offline-record",
@@ -28,9 +28,10 @@ class AcceptanceTests(unittest.TestCase):
         self.assertEqual(value["status"],"valid")
         self.assertEqual(value["authority"],"not-granted")
 
-    def test_rejects_self_grant_wrong_artifact_and_missing_custody(self):
+    def test_rejects_self_grant_wrong_commit_artifact_and_missing_custody(self):
         changes=({"authority":"granted"},{"artifact_sha256":"c"*64},
-                 {"custody_method":"repository"},{"private_collection_authorized":True})
+                 {"accepted_commit":"a"*40},{"custody_method":"repository"},
+                 {"private_collection_authorized":True})
         for change in changes:
             value=record();value.update(change)
             with self.subTest(change=change),self.assertRaises(ValueError):

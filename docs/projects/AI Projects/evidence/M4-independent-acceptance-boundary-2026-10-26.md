@@ -7,6 +7,12 @@ gate is now machine-checkable without letting the experiment writer manufacture
 the decision. `m4_independent_acceptance.py` validates a separately supplied
 human record against the exact 164-event artifact and ledger head.
 
+The follow-on lineage correction also requires the exact reviewed candidate
+commit `af2cc4f988ca9ed1a69e0d425c2bb7991ffa7f71`. The initial validator accepted
+any syntactically valid 40-character commit, which could bind the correct
+artifact and ledger to an unrelated revision. That shape-only check is now
+closed and covered by a negative test.
+
 The record must name a reviewer, an accepted commit, retain/reject/request-more-
 evidence, a UTC review time, explicit limits and one independently controlled
 custody method. It stores only a digest of the custody reference. It fixes the

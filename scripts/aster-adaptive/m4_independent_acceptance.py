@@ -10,11 +10,11 @@ import re
 SCHEMA = "aster-m4-independent-acceptance.v1"
 ARTIFACT_SHA256 = "9a3e0447adbf27f24bf5d9ab777ebbd5565bbce7873f554034304a4ce88fea38"
 LEDGER_HEAD = "sha256:59fa02fe1a196ba123c447d4e773bd9404290970f4446113c8dd61b1b12cc7c9"
+ACCEPTED_COMMIT = "af2cc4f988ca9ed1a69e0d425c2bb7991ffa7f71"
 DECISIONS = {"retain", "reject", "request-more-evidence"}
 CUSTODY = {"human-controlled-offline-record", "independently-controlled-device",
            "independently-controlled-account"}
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
-HEX40 = re.compile(r"^[0-9a-f]{40}$")
 
 
 def _unique(pairs):
@@ -37,8 +37,8 @@ def validate(path: Path) -> dict[str, object]:
     if (value["schema"] != SCHEMA or value["decision"] not in DECISIONS
             or value["artifact_sha256"] != ARTIFACT_SHA256
             or value["ledger_head"] != LEDGER_HEAD
+            or value["accepted_commit"] != ACCEPTED_COMMIT
             or value["custody_method"] not in CUSTODY
-            or not HEX40.fullmatch(value["accepted_commit"])
             or not HEX64.fullmatch(value["custody_reference_sha256"])
             or value["data_scope"] != "synthetic-only"
             or value["private_collection_authorized"] is not False
