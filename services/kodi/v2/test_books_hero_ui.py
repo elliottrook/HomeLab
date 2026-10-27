@@ -3,7 +3,7 @@ from pathlib import Path
 import unittest
 import xml.etree.ElementTree as ET
 
-from books_hero_ui import extend_books_data, extend_home, extend_includes
+from books_hero_ui import append_visibility, extend_books_data, extend_home, extend_includes
 
 
 class BooksHeroUiTests(unittest.TestCase):
@@ -27,6 +27,13 @@ class BooksHeroUiTests(unittest.TestCase):
         if not self.snapshot.exists():self.skipTest('live snapshot unavailable')
         first = extend_books_data((self.snapshot/'books_data.py').read_bytes())
         with self.assertRaises(ValueError):extend_books_data(first)
+
+    def test_mixed_visibility_is_split_into_native_and_nodes(self):
+        control = ET.Element('control')
+        ET.SubElement(control, 'visible').text = '!A | !B'
+        append_visibility(control, 'C | D')
+        self.assertEqual([node.text for node in control.findall('visible')],
+                         ['!A | !B', 'C | D'])
 
 
 if __name__ == '__main__':unittest.main()

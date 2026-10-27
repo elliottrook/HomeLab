@@ -6,6 +6,11 @@ def field(parent, name, value):
     node = ET.SubElement(parent, name); node.text = str(value); return node
 
 
+def append_visibility(control, condition):
+    """Kodi ANDs repeated visibility nodes without fragile expression nesting."""
+    return field(control, 'visible', condition)
+
+
 def extend_books_data(source):
     text = source.decode()
     anchor = "from hub_feeds import book_catalogue, read_feed\n"
@@ -190,7 +195,8 @@ def extend_includes(source):
         field(art, name, value)
     group.insert(list(group).index(generic) + 1, art)
 
-    selected = ('!Window.IsActive(1110) | Control.HasFocus(501) | '
+    selected = ('Window.IsActive(1118) | Window.IsActive(1119) | '
+                'Window.IsActive(1120) | Control.HasFocus(501) | '
                 'Control.HasFocus(502) | Control.HasFocus(503)')
     labels = [(160, '$PARAM[heading]', 'Recommended for You', 'font24', 38, 'asterGold'),
               (214, '$VAR[AsterBooksHeroTitle]', '$INFO[Window.Property(AsterBooks.HeroTitle)]', 'font30', 110, 'asterRailText'),
@@ -213,7 +219,7 @@ def extend_includes(source):
         existing = group.find("control[@id='%s']" % identity)
         if existing is None:raise ValueError('books-hero-existing-action')
         visible = existing.find('visible')
-        visible.text = '(' + visible.text + ') + ' + selected
+        append_visibility(existing, selected)
     for node in (button(305, 1050, 150, 'About', 'hero-open', 307, 306),
                  button(306, 1212, 180, '$INFO[Window.Property(AsterBooks.HeroAction)]',
                         'hero-activate', 305, 307),
