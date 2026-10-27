@@ -223,6 +223,14 @@ a replacement decision after a concurrent state change. It is source-only and de
 excluded from the candidate-E installer; target-runtime review and a later
 exact release remain separate gates.
 
+Its exact three-file [release packet](evidence/SA2-doctor-status-producer-release-packet-2026-10-27.md)
+is now source-complete and independently reviewed. The manifest binds each
+candidate to its target and recorded predecessor, and its validator rejects
+mapping, predecessor, content and authority drift. The remaining work is a
+fresh post-window live-predecessor check, target-Python validation and a
+rollback installer; deployment still requires a separately approved Aster
+Agent restart.
+
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the

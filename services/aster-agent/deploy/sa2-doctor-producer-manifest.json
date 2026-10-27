@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "release_id": "sa2-fixed-doctor-status-producer-20261027",
+  "source_commit": "c8346ed7ecaa4100ea819a89084608db4a8dc64d",
+  "independent_source_review": "passed",
+  "files": [
+    {
+      "source": "services/aster-agent/doctor_incident_adapter.py",
+      "target": "/opt/aster-agent/doctor_incident_adapter.py",
+      "sha256": "0baece59b29dcee47395dbc42bab742ba33fa0d3ad708ffedc41c22a2ae23968",
+      "predecessor_sha256": "c88c4e642426afff9718da79e89db5b8405f1a5c00fbcc0fa09c3ae5956272db"
+    },
+    {
+      "source": "services/aster-agent/sysadmin_incident_store.py",
+      "target": "/opt/aster-agent/sysadmin_incident_store.py",
+      "sha256": "5676b4b865b5ff9100802967dbce1a455aa6a4d8815ac0e489dc09e368978328",
+      "predecessor_sha256": "c1594faccb5eb86b557cdb07461b7b404754da628e4fb170103a1025a6678aeb"
+    },
+    {
+      "source": "services/aster-agent/sysadmin_registered_producer.py",
+      "target": "/opt/aster-agent/sysadmin_registered_producer.py",
+      "sha256": "3291feaaace83a42f98f578f29e0b2831a82c8b1cae31793a0cdb0b4a622353a",
+      "predecessor_sha256": "b4c7eb1e450795bfd43a1bf7f1c64a89cfb202260278926e74ebb9454dac6ecd"
+    }
+  ],
+  "runtime": {
+    "target": "LXC104",
+    "service": "aster-agent.service",
+    "restart_required": true,
+    "model_restart": false,
+    "model_change": false,
+    "automatic_routing": false,
+    "observation_authority": "fixed-doctor-status-only",
+    "repair_authority": false
+  }
+}
