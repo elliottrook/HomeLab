@@ -1,0 +1,12 @@
+scope	action	source	target	mode	sha256
+proxmox	new	scripts/local-ai/full_aster_first_screen_candidate.py	/usr/local/libexec/local-ai-lease/full-inference-pilot/full_aster_first_screen_candidate.py	0644	9fd4e5746363e7cbdcac0d121d15cdac4ce990c24a1e988bc8b98faad8bcf260
+proxmox	new	scripts/local-ai/full_aster_first_screen_recovery.py	/usr/local/libexec/local-ai-lease/full-inference-pilot/full_aster_first_screen_recovery.py	0644	0a6d9cf8701540a6d93cd508def90165cec5575294c1704d75dca267a4fb7105
+proxmox	new	scripts/local-ai/full_aster_first_screen_observer.py	/usr/local/libexec/local-ai-lease/full-inference-pilot/full_aster_first_screen_observer.py	0644	d0342b69bc313bf30279493e05b591c99f8dc445017823d48dc5ea2ffce77ecb
+proxmox	new	scripts/local-ai/full_aster_first_screen_guardian.py	/usr/local/libexec/local-ai-lease/full-inference-pilot/full_aster_first_screen_guardian.py	0644	e7c05cd679a77e5f6fd70d14272ab531fdbfc84b89118e06c695df0a306ba854
+proxmox	new	scripts/local-ai/full_aster_first_screen_controller.py	/usr/local/libexec/local-ai-lease/full-inference-pilot/full_aster_first_screen_controller.py	0644	fc825a64f0152f17696ea0d4c019f41dc2ee8825516440e6bf2b51f9c3ef1afb
+proxmox	new	scripts/local-ai/full_aster_first_screen_launch.py	/usr/local/libexec/local-ai-lease/full-inference-pilot/full_aster_first_screen_launch.py	0644	328b41538451a47cf8ae3355c4a3f978c2cdc47cff848b856c1671178f0bca47
+proxmox	new	scripts/local-ai/full_aster_first_screen_admission.py	/usr/local/libexec/local-ai-lease/full-inference-pilot/full_aster_first_screen_admission.py	0644	2f774d15af0072615d0c4fe9c6d4cffb6b7cb36dd7cb8c032bb9f50defdaa523
+proxmox	replace	scripts/local-ai/stream_a_evaluation_f4_f5_transaction.py	/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_f4_f5_transaction.py	0644	c14347b9ffab228f314bec34f9f78cd6c4d032c2d36b6d828ea1d4ce1ae95f83
+proxmox	replace	scripts/local-ai/stream_a_evaluation_f4_f5_root.py	/usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_f4_f5_root.py	0644	3095d78689fa3e3621f6893952ef9f903f41e0a7877c5080200906b70ae1b159
+proxmox	new	services/local-ai-lease/full-aster-first-screen	/usr/local/sbin/full-aster-first-screen	0755	683063308fdd58f3cea6c2cfcb6057cce787a1a285c6acfbe03cf3a2ec8052cb
+lxc110	new	scripts/local-ai/full_aster_first_screen_requests.py	/usr/local/libexec/full-aster-first-screen-requests	0755	bc112c790e262c23e4d00e2b36751a58d989c7d2de458fe6a7b419c6341005c4
