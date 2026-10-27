@@ -130,8 +130,8 @@ def accept_model_proposal(incident: Incident, response: Any) -> dict[str, Any]:
     }
     if not set(refs) <= allowed_refs:
         raise InvestigationError("model proposal cites unavailable evidence")
-    if incident.observations and not refs:
-        raise InvestigationError("model proposal must cite available evidence")
+    if set(refs) != allowed_refs:
+        raise InvestigationError("model proposal must cite all available evidence")
 
     target = response.get("target")
     kind = response.get("kind")

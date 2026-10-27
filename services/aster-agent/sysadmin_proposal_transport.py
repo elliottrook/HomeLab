@@ -101,6 +101,7 @@ def build_model_payload(request: dict[str, Any]) -> dict[str, Any]:
                 "type": "array",
                 "items": reference_items,
                 "uniqueItems": True,
+                "minItems": len(evidence_refs),
                 "maxItems": len(evidence_refs),
             },
         },

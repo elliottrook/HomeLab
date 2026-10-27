@@ -102,6 +102,34 @@ class ProposalBoundaryTests(unittest.TestCase):
             with self.subTest(changes=changes), self.assertRaises(InvestigationError):
                 accept_model_proposal(self.incident, self.response(**changes))
 
+    def test_every_exposed_observation_must_be_cited(self):
+        incident = copy.deepcopy(self.incident)
+        incident.add_observation(Observation(
+            evidence_id="private-inference-evidence",
+            incident_id=incident.incident_id,
+            target="inference-server",
+            kind="status",
+            observed_at="2026-10-27T07:59:10Z",
+            source="private-source-name",
+            state="ok",
+            summary="The inference endpoint is healthy.",
+            facts={"service": "aster-llama"},
+        ), NOW)
+        request = build_proposal_request(incident)
+        response = {
+            "schema_version": 1,
+            "request_ref": request["request_ref"],
+            "disposition": "complete",
+            "hypothesis_summary": "The bounded status evidence supports a conclusion.",
+            "target": None,
+            "kind": None,
+            "evidence_refs": [request["observations"][1]["evidence_ref"]],
+        }
+        with self.assertRaisesRegex(InvestigationError, "all available"):
+            accept_model_proposal(incident, response)
+        response["evidence_refs"] = [item["evidence_ref"] for item in request["observations"]]
+        self.assertEqual("complete", accept_model_proposal(incident, response)["disposition"])
+
     def test_unplanned_or_terminal_target_fails_closed(self):
         cases = (
             {"target": "aster-gateway", "kind": "log"},

@@ -80,6 +80,7 @@ class ProposalTransportTests(unittest.TestCase):
             ["evidence-1234567890abcdef"],
             schema["properties"]["evidence_refs"]["items"]["enum"],
         )
+        self.assertEqual(1, schema["properties"]["evidence_refs"]["minItems"])
 
     def test_one_request_uses_fixed_endpoint_timeout_and_secret_only_in_header(self):
         seen = []
@@ -158,6 +159,7 @@ class ProposalTransportTests(unittest.TestCase):
         request["observations"] = []
         schema = build_model_payload(request)["response_format"]["schema"]
         evidence = schema["properties"]["evidence_refs"]
+        self.assertEqual(0, evidence["minItems"])
         self.assertEqual(0, evidence["maxItems"])
         self.assertNotIn("enum", evidence["items"])
 
