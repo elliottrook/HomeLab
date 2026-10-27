@@ -174,6 +174,13 @@ fresh model/contract validation. Independent technical review of the frozen
 candidate, packet and bounded result remains open before representative SA3
 acceptance; deployment, automatic routing and repair authority remain closed.
 
+The exact candidate-E [independent review packet](evidence/SA3-candidate-E-independent-review-packet-2026-10-27.md)
+is now ready. Its offline validator recomputes four pinned file digests and
+matches all eight content-minimized rows to the fresh packet; validator tests
+pass 2/2 including semantic tamper detection. A separate reviewer still needs
+to run and record that review. No deployment or runtime authority follows from
+the packet itself.
+
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the
