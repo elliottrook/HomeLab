@@ -12,12 +12,13 @@ from sysadmin_proposal_boundary import accept_model_proposal, build_proposal_req
 
 NOW = datetime(2026, 10, 27, 7, 0, tzinfo=timezone.utc)
 PACKET = Path(__file__).with_name("sa3-current-proposal-packet.json")
+PACKET_IDS = frozenset({"sa3-current-proposal-v1", "sa3-current-proposal-fresh-v1"})
 
 
 def load_packet(path: Path = PACKET) -> dict[str, Any]:
     value = json.loads(path.read_text(), object_pairs_hook=_unique_object)
     if (not isinstance(value, dict) or set(value) != {"schema_version", "packet_id", "cases"}
-            or value["schema_version"] != 1 or value["packet_id"] != "sa3-current-proposal-v1"
+            or value["schema_version"] != 1 or value["packet_id"] not in PACKET_IDS
             or not isinstance(value["cases"], list) or len(value["cases"]) != 8):
         raise ValueError("invalid SA3 proposal packet")
     ids = [case.get("id") for case in value["cases"] if isinstance(case, dict)]
