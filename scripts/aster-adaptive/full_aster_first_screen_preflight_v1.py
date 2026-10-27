@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+from datetime import datetime, time as wall_time
+from zoneinfo import ZoneInfo
 
 SCHEMA = "aster-full-path-first-screen-preflight.v1"
 EXPECTED_ARTIFACT = {
@@ -12,13 +14,50 @@ EXPECTED_ARTIFACT = {
     "owner": "root:root", "mode": "0400", "guest_mount_absent": True}
 BASELINE_MODEL = "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13"
 RUNTIME = "0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5"
+ZONE = ZoneInfo("America/Vancouver")
+PROTECTED_TIME = wall_time(4, 15)
+MIN_RECOVERY_SECONDS = 900
+
+
+def _validate_contract(raw):
+    try:
+        value = json.loads(raw)
+    except (UnicodeError, json.JSONDecodeError, TypeError) as error:
+        raise ValueError("benchmark contract is not valid JSON") from error
+    try:
+        exact = (
+            value["schema"] == "aster-full-path-benchmark-contract.v1"
+            and value["status"] == "owner-frozen"
+            and value["authority"] == "not-granted"
+            and value["case_packet"]["cases"] == 24
+            and set(value["case_packet"]["families"].values()) == {4}
+            and len(value["case_packet"]["families"]) == 6
+            and value["models"]["baseline"] == {
+                "identity_sha256": BASELINE_MODEL,
+                "mode": "reasoning-off", "runtime_sha256": RUNTIME}
+            and value["models"]["challenger"] == {
+                "identity_sha256": EXPECTED_ARTIFACT["sha256"],
+                "mode": "reasoning-on-27b-plus", "runtime_sha256": RUNTIME}
+            and value["resources"]["model_calls_max"] == 48
+            and value["resources"]["retries_max"] == 0
+            and value["recovery"] == {
+                "exact_baseline_restore": True, "f6_required": True,
+                "independent_observer_required": True,
+                "uncertain_recovery_rejects_result": True})
+    except (KeyError, TypeError):
+        exact = False
+    if not exact:
+        raise ValueError("benchmark contract semantics differ")
 
 
 def _sha(value):
     return isinstance(value, str) and len(value) == 64 and set(value) <= set("0123456789abcdef")
 
 
-def validate(document, contract_raw):
+def validate(document, contract_raw, *, now_epoch):
+    if type(now_epoch) is not int or now_epoch <= 0:
+        raise ValueError("current time is invalid")
+    _validate_contract(contract_raw)
     contract_sha = hashlib.sha256(contract_raw).hexdigest()
     required = {"schema", "cycle_date", "contract_sha256", "artifact",
                 "evidence", "lease", "watchdog", "baseline", "production",
@@ -31,7 +70,12 @@ def validate(document, contract_raw):
         raise ValueError("first-screen preflight boundary differs")
     cycle = document["cycle_date"]
     evidence = document["evidence"]
-    if (not isinstance(cycle, str) or len(cycle) != 10
+    try:
+        local = datetime.fromtimestamp(now_epoch, ZONE)
+        cycle_value = datetime.strptime(cycle, "%Y-%m-%d").date()
+    except (TypeError, ValueError, OSError) as error:
+        raise ValueError("same-cycle date is invalid") from error
+    if (cycle_value != local.date()
             or set(evidence) != {"f2", "f3", "f4", "f5"}
             or any(not _sha(value) for value in evidence.values())):
         raise ValueError("same-cycle evidence differs")
@@ -45,7 +89,9 @@ def validate(document, contract_raw):
             or watchdog["owner_alive"] is not True
             or type(watchdog["recovery_deadline_epoch"]) is not int
             or type(watchdog["controller_deadline_epoch"]) is not int
-            or watchdog["recovery_deadline_epoch"] <= watchdog["controller_deadline_epoch"]):
+            or watchdog["controller_deadline_epoch"] <= now_epoch
+            or watchdog["recovery_deadline_epoch"] - watchdog["controller_deadline_epoch"]
+               < MIN_RECOVERY_SECONDS):
         raise ValueError("watchdog boundary differs")
     if document["baseline"] != {"model_sha256": BASELINE_MODEL,
                                 "runtime_sha256": RUNTIME,
@@ -65,9 +111,16 @@ def validate(document, contract_raw):
             or type(window["outage_budget_seconds"]) is not int
             or not 0 < window["outage_budget_seconds"] <= 5400
             or type(window["restore_reserve_seconds"]) is not int
-            or window["restore_reserve_seconds"] < 900
+            or window["restore_reserve_seconds"] < MIN_RECOVERY_SECONDS
             or type(window["protected_deadline_epoch"]) is not int
-            or watchdog["recovery_deadline_epoch"] > window["protected_deadline_epoch"]):
+            or watchdog["recovery_deadline_epoch"] > window["protected_deadline_epoch"]
+            or watchdog["recovery_deadline_epoch"] - watchdog["controller_deadline_epoch"]
+               < window["restore_reserve_seconds"]
+            or datetime.fromtimestamp(window["protected_deadline_epoch"], ZONE)
+               != datetime.combine(cycle_value, PROTECTED_TIME, tzinfo=ZONE)
+            or local.time() < wall_time(3, 0)
+            or watchdog["controller_deadline_epoch"] - now_epoch
+               > window["outage_budget_seconds"]):
         raise ValueError("screen window differs")
     return {"schema": "aster-full-path-first-screen-admission.v1",
             "cycle_date": cycle, "contract_sha256": contract_sha,
