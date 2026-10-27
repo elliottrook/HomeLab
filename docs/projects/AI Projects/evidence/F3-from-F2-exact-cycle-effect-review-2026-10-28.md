@@ -1,5 +1,11 @@
 # F3 from F2 exact-cycle effect review — 2026-10-28
 
+> **Downstream semantics correction:** the final sentence below that defers F4
+> to a “subsequent fresh cycle” is stale inherited wording. The governing
+> October 26 correction requires Stream A F4 to bind this same local-date F2/F3
+> archive set after the fixed 03:00 pull, with unchanged rows and a separate
+> effect decision. This historical F3 review still grants no F4 authority.
+
 ## Decision
 
 **CONDITIONAL GO under Jason's October 27 daytime-to-tonight authorization.**

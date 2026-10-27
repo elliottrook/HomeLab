@@ -93,6 +93,15 @@ reconciliation accepted exactly three F2 rows, removed spent timers and every
 fresh absence/health gate passes. Otherwise it must record NO-GO without a
 receipt or retry.
 
+The [B60 source and semantics response](evidence/B60-daytime-qualification-source-and-semantics-response-2026-10-27.md)
+confirms published platform tip `20064064`, the exact nine-file installed
+manifest and two 109-second accepted-9B transactions. It explicitly records
+that no per-stage timings or 35B reserve were measured. It also resolves the
+stale F4 prose: F4 binds the same local-date unchanged F2/F3 rows after the
+03:00 pull under its own effect decision. For any later challenger, all actual
+callers must be lease-owned and the current unconditional 03:50 F2 workload
+resume must be replaced by a lease-aware restoration boundary.
+
 The conditional [October 27 F3 conversion](evidence/F3-from-F2-no-go-2026-10-27.md)
 then failed closed at its first mandatory gate. The reconciled F2 state is
 `no_go` with zero archive rows rather than three independently validated
