@@ -1797,3 +1797,11 @@ now makes that live boundary executable without granting the effect. It binds
 same-cycle F2–F5, the frozen contract and staged artifact, live lease/watchdog,
 exact baseline health, production/schedule checks and restoration reserve.
 Even a passing preflight leaves the restart transaction separately gated.
+
+The follow-on [transaction boundary](evidence/Full-Aster-first-screen-transaction-boundary-2026-10-26.md)
+now fixes the complete single-attempt effect and recovery order. It uses one
+read-only backup-excluded mount, a transient reasoning-on 35B unit, exactly two
+requests and exact 9B/SYCL restoration; any failure enters recovery and an
+uncertain recovery retains state. The old candidate-H/M3 F6 allowlist is not
+widened. The remaining source dependency before a concrete restart approval
+is the installed root composition plus an independent mount-aware guardian.
