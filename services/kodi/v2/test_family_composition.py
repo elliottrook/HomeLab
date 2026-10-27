@@ -94,6 +94,19 @@ class FamilyCompositionTests(unittest.TestCase):
         self.assertIn(b"('TimerDigital','--:--')", result)
         self.assertIn(b"SCRIPT='script.asterruntime,aster-home-status1,default'", result)
 
+    def test_books_doctor_keeps_separately_pinned_reader_boundary(self):
+        installed=b'/storage/.kodi/addons/script.asterruntime/aster-books-compiler-reader-v1'
+        files={'default.py':(
+            b'import deploy_startup as guard\n'
+            b"sys.path.insert(0,'/storage/.aster-staging/aster-digest-player8/resources/lib')\n"),
+            'epub_reader_doctor.py':(
+                b"READER = Path('/storage/.aster-staging/aster-books-compiler-reader-v1')\n")}
+        result=rewrite_component('aster-network-preview6',files,{})
+        self.assertNotIn(installed,result['epub_reader_doctor.py'])
+        self.assertIn(b'/storage/.aster-staging/aster-books-compiler-reader-v1',
+                      result['epub_reader_doctor.py'])
+        self.assertIn(b'import runtime_guard as guard',result['default.py'])
+
 
 if __name__ == '__main__':
     unittest.main()

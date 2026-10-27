@@ -38,6 +38,11 @@ do not imply household acceptance or production promotion.
   Native narration, sentence highlighting, saved progress, stop-on-Back and
   unchanged Calibre fallback all passed. Production remains unchanged. See
   [EPUB consumer evidence](Aster-TV-Version-2-EPUB-Consumer-Evidence.md).
+- Settings Diagnostics now includes a read-only Books narration Doctor. It
+  verifies the pinned reader, automount policy, fixed NFS sources/options and
+  every ready generation manifest without repairing anything. Native HP review
+  reports two valid publications. See
+  [Doctor evidence](Aster-TV-Version-2-EPUB-Doctor-Evidence.md).
 - The official YouTube add-on reports the HP user fully signed in. Version 2
   now explicitly owns the Aster presentation milestone: replace the add-on's
   generic entrance with a Media-home-style YouTube landing page and preserve
@@ -55,8 +60,8 @@ do not imply household acceptance or production promotion.
 | Cross-media native check | Media, Music and Books now pass separate exact-ID remote-equivalent checks; retain the corrected isolated driver | No product navigation defect was demonstrated |
 | Acquisition requests | HP saved-outcome activation and duplicate-only review passed, including matching rendered Books hero | No additional provider write is authorized by the two-title trial |
 | Voice search | Join the tested single-attempt assembly to foreground listening controls and restricted STT transport | Physical remote capability and scoped speech identity remain live integration gates |
-| EPUB pre-generation | Add stale-mount/Doctor reporting and fold the verified HP layer into final recovery packaging | HP consumer is active; production promotion remains separately gated |
-| YouTube | Build an Aster Media-home-style landing page over the signed-in official add-on, then validate search, subscriptions, channel entry, playback and Back/stop behavior | Account authorization is complete; retain the official add-on as the data/playback owner |
+| EPUB pre-generation | Fold the verified consumer and Doctor layers into final release/recovery assembly | HP consumer and read-only Doctor are active; production promotion remains separately gated |
+| YouTube | Complete owner sofa-distance review of the active Aster landing/search successor, including playback and Back/stop behavior | Official add-on remains the data/playback owner; production unchanged |
 | Endurance and accessibility | Continue evidence against the final composed client, then owner sofa/remote review | Short automated soaks do not substitute for household use |
 | Bedroom sizing | Revise the existing measured/inferred assessment after final client shape | See [client sizing](../reference/Aster-TV-Bedroom-Client-Sizing.md); lower-memory deployment remains deferred |
 | Final cleanup | One finite owner-led page-by-page v1/v2 walkthrough and bounded repairs | Feature work first; avoid creating an open-ended new backlog |

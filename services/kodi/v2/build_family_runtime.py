@@ -45,12 +45,17 @@ def rewrite_component(name, files, pins):
             b'import deploy_startup as guard',
             ("sys.path.insert(0,'"+INSTALL+"/shared')\nimport runtime_guard as guard").encode())
         result['resources/lib/runtime_guard.py'] = pins['runtime_guard']
-    if name == 'aster-network-preview5':
+    if name == 'aster-network-preview6':
         result['default.py'] = result['default.py'].replace(
             b'import deploy_startup as guard', b'import runtime_guard as guard')
         result['default.py'] = result['default.py'].replace(
             (INSTALL+'/aster-digest-player8/resources/lib').encode(),
             (INSTALL+'/shared').encode())
+        # The Doctor validates the separately pinned normal-entry reader.  It
+        # is deliberately not another family-runtime component.
+        result['epub_reader_doctor.py'] = result['epub_reader_doctor.py'].replace(
+            (INSTALL+'/aster-books-compiler-reader-v1').encode(),
+            b'/storage/.aster-staging/aster-books-compiler-reader-v1')
     if name == 'aster-home-status1':
         # Only manifest-approved display files are present. Deployment helpers,
         # source snapshots and private feed material never enter this package.
@@ -151,7 +156,7 @@ def build(skin, runtime, output):
         '  <extension point="xbmc.addon.metadata"><summary lang="en_GB">Private Aster page runtime</summary><description lang="en_GB">Verified local page controllers for the Aster television interface.</description><platform>all</platform><license>Private HomeLab</license></extension>\n'
         '</addon>\n').encode()
     (addon/'addon.xml').write_bytes(addon_xml)
-    dispatcher = b'''"""Strict dispatcher for Aster's installed page runtime."""\nimport runpy\nfrom pathlib import Path\nimport sys\n\nROOT=Path(__file__).resolve().parent\nCOMPONENTS={"aster-camera2","aster-digest-player8","aster-digest-reader6","aster-global-search-ui22",\n "aster-home-status1","aster-network-preview5","aster-series-preview24","aster-video-scrub5"}\nENTRIES={"default":"default.py","movie":"movie.py","view":"view.py"}\nif len(sys.argv)>=3 and sys.argv[1] in COMPONENTS and sys.argv[2] in ENTRIES:\n path=ROOT/sys.argv[1]/ENTRIES[sys.argv[2]]\n if path.is_file() and not path.is_symlink():\n  sys.argv=[str(path)]+sys.argv[3:]\n  runpy.run_path(str(path),run_name="__main__")\n'''
+    dispatcher = b'''"""Strict dispatcher for Aster's installed page runtime."""\nimport runpy\nfrom pathlib import Path\nimport sys\n\nROOT=Path(__file__).resolve().parent\nCOMPONENTS={"aster-camera2","aster-digest-player8","aster-digest-reader6","aster-global-search-ui22",\n "aster-home-status1","aster-network-preview6","aster-series-preview24","aster-video-scrub5"}\nENTRIES={"default":"default.py","movie":"movie.py","view":"view.py"}\nif len(sys.argv)>=3 and sys.argv[1] in COMPONENTS and sys.argv[2] in ENTRIES:\n path=ROOT/sys.argv[1]/ENTRIES[sys.argv[2]]\n if path.is_file() and not path.is_symlink():\n  sys.argv=[str(path)]+sys.argv[3:]\n  runpy.run_path(str(path),run_name="__main__")\n'''
     (addon/'default.py').write_bytes(dispatcher)
     old_to_new = {source[name]['manifest_sha']: components[name]['manifest_sha256']
                   for name in COMPONENTS}
