@@ -262,8 +262,15 @@ def _prepare_candidates(candidates, limit=20, *, library=(), history=()):
 
 
 def refresh_once():
-    _refresh_library_snapshot()
-    _refresh_history_snapshot()
+    # Auxiliary history/library credentials age independently. A stale reader
+    # token must not suppress discovery publication; preserve the last good
+    # snapshots and continue with bounded public/provider candidates.
+    for refresh_auxiliary in (_refresh_library_snapshot,
+                              _refresh_history_snapshot):
+        try:
+            refresh_auxiliary()
+        except (OSError, TimeoutError, ValueError, urllib.error.URLError):
+            pass
     library = _read_snapshot_items(LIBRARY_SNAPSHOT_PATH)
     history = _read_snapshot_items(HISTORY_SNAPSHOT_PATH)
     candidates = (collect_tmdb_recommendations(library) + collect_lidarr() +

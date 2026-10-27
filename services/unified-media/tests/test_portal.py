@@ -10,10 +10,40 @@ from portal.server import (Handler, _lazylibrarian_request, action_key,
                            load_recommendations, reject_item, render_html,
                            submit_search_action)
 from portal.refresh import (_prepare_candidates, _seerr_candidate,
-                            _unique_exact_album, collect_tmdb_recommendations)
+                            _unique_exact_album, collect_tmdb_recommendations,
+                            refresh_once)
 
 
 class PortalTests(unittest.TestCase):
+    def test_refresh_preserves_stale_auxiliary_snapshots_when_reader_expires(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            library = root / "library.json"
+            history = root / "history.json"
+            library.write_text("[]")
+            history.write_text("[]")
+            expired = urllib.error.HTTPError("http://abs", 401, "expired",
+                                             {}, None)
+            with patch("portal.refresh.LIBRARY_SNAPSHOT_PATH", str(library)), \
+                    patch("portal.refresh.HISTORY_SNAPSHOT_PATH", str(history)), \
+                    patch("portal.refresh.SNAPSHOT_PATH", root / "recommendations.json"), \
+                    patch("portal.refresh.SOURCE_STATUS_PATH", root / "status.json"), \
+                    patch("portal.refresh.ASTER_TV_DISCOVERY_DIR", root), \
+                    patch("portal.refresh._refresh_library_snapshot",
+                          side_effect=expired), \
+                    patch("portal.refresh._refresh_history_snapshot") as history_refresh, \
+                    patch("portal.refresh.collect_tmdb_recommendations",
+                          return_value=[]), \
+                    patch("portal.refresh.collect_lidarr", return_value=[]), \
+                    patch("portal.refresh.collect_book_and_music_candidates",
+                          return_value=[]), \
+                    patch("portal.refresh._narrate", side_effect=lambda rows: rows), \
+                    patch.dict("os.environ", {}, clear=True):
+                self.assertEqual(refresh_once(), [])
+            history_refresh.assert_called_once_with()
+            self.assertTrue((root / "aster-tv-discovery-media.json").is_file())
+            self.assertEqual(library.read_text(), "[]")
+
     def test_render_escapes_snapshot_text(self):
         html = render_html([{"title": "<Dune>", "media_type": "movie", "explanation": "safe"}])
         self.assertIn("&lt;Dune&gt;", html)
