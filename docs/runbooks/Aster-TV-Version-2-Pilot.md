@@ -159,6 +159,14 @@ It corrects only the native page action caption/composition; it adds no request
 authority. The intermediate `aster-acquisition-label1` through `label8`
 checkpoints are retained as an auditable chain and must not be selected as the
 active endpoint.
+The subsequent skin-hygiene layers are checkpointed separately at
+`/storage/.aster-checkpoints/aster-appledouble-quarantine-20261026` and
+`/storage/.aster-checkpoints/aster-font-contract-20261026`. The former retains
+all 15 quarantined AppleDouble sidecars for inspection or exact recovery; the
+latter retains the preceding `Font.xml` while the active file is the canonical
+repository catalogue. Do not copy the quarantined `._*` files back into a live
+skin. A complete reconstruction of the current HP candidate must retain the
+canonical font catalogue and a sidecar-free skin tree.
 Restoring Recovery7 alone would remove the Hub launcher/window and is therefore
 not a reconstruction of the complete current candidate. Apply or roll back the
 Acquisition layer only through its pinned helper and checkpoint until a later

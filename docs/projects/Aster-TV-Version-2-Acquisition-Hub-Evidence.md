@@ -27,6 +27,10 @@ during deployment validation.
   `/storage/.aster-checkpoints/aster-acquisition-page3`
 - HP accepted action-label successor checkpoint:
   `/storage/.aster-checkpoints/aster-acquisition-label9`
+- HP AppleDouble quarantine checkpoint:
+  `/storage/.aster-checkpoints/aster-appledouble-quarantine-20261026`
+- HP font-catalogue correction checkpoint:
+  `/storage/.aster-checkpoints/aster-font-contract-20261026`
 - Accepted HP Home predecessor SHA-256:
   `39b10fcac446626d3decd89e22cd8dda95b5ee50f9b5de489cb5f67f579a0834`
 - Active HP Home SHA-256:
@@ -37,6 +41,10 @@ during deployment validation.
   `3edb117155442a8d9a035478c019fd6eaf9ae2ad63971bac7d09c2905d8b8930`
 - Active action-window XML SHA-256:
   `7bbb55de4cf066de99cb8bff32bd9e0e8958ba3b7ee19446d08f616fa10541df`
+- Replaced HP `Font.xml` SHA-256:
+  `9376413b60acaf76fb393df248bbdc7827154acd899a4535c094c3d6565adff4`
+- Active canonical HP `Font.xml` SHA-256:
+  `dc5e66a3f760692c39bcf0987b3023435d3b4f2f5e156dc4757791129d232d95`
 
 The isolated candidate install/verify/rollback test restored the Home
 predecessor byte-for-byte. The first HP activation was also rolled back
@@ -45,7 +53,7 @@ byte-for-byte before the Kodi-native add-on activation candidate was installed.
 ## Verification
 
 - Unified Media: 109 tests passed in normal Python and 109 with `-O`.
-- Kodi v2: 1,179 tests passed in normal Python and 1,179 with `-O`; the one
+- Kodi v2: 1,185 tests passed in normal Python and 1,185 with `-O`; the one
   existing Mac-only skip remained unchanged.
 - Broker and refresher containers are healthy after bounded recreation.
 - Legacy `/health` remains HTTP 200.
@@ -70,6 +78,9 @@ byte-for-byte before the Kodi-native add-on activation candidate was installed.
 - After that tab-switch pass Kodi used 396,472 KiB RSS with a 593,960 KiB
   process high-water mark and 44 threads. Load was 0.47/0.26/0.20 and both CPU
   thermal zones reported 34°C.
+- A whole-skin post-gate audit parses all 52 XML files, finds zero undefined
+  font references and finds zero AppleDouble sidecars. Kodi restarted cleanly
+  and logged no XML parse error, ERROR, FATAL or Python traceback.
 
 ## Findings resolved during the gate
 
@@ -87,6 +98,14 @@ byte-for-byte before the Kodi-native add-on activation candidate was installed.
    `font24` and separates its focus imagery, caption and transparent focus
    target. Earlier visual-only label trials remain recoverable checkpoints;
    none submitted a request and the final request journal count is zero.
+6. Fifteen macOS AppleDouble sidecars had reached the live HP skin. They were
+   moved intact into the dated quarantine checkpoint rather than deleted. The
+   live tree now contains none, and the repository contract rejects any future
+   `._*` payload before attempting XML parsing.
+7. The live HP `Font.xml` predated the canonical skin and omitted `font18` and
+   `font36`. Installing the exact repository catalogue restored every declared
+   font. The Acquisition page now shows **Request**, **Suggestions ready** and
+   its explanatory hint together; the request journal remains empty.
 
 ## Remaining acceptance work
 
