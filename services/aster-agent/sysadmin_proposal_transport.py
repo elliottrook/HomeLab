@@ -51,7 +51,10 @@ def _validate_request(request: Any) -> None:
         raise InvestigationError("invalid sanitized proposal request reference")
     if not isinstance(request.get("observations"), list) or not isinstance(request.get("remaining_checks"), list):
         raise InvestigationError("invalid sanitized proposal request lists")
-    if request.get("allowed_dispositions") != ["observe", "complete", "escalate"]:
+    dispositions = request.get("allowed_dispositions")
+    if (not isinstance(dispositions, list) or not dispositions
+            or len(dispositions) != len(set(dispositions))
+            or not set(dispositions) <= {"observe", "complete", "escalate"}):
         raise InvestigationError("invalid sanitized proposal dispositions")
     constraints = request.get("constraints")
     if (not isinstance(constraints, dict) or constraints.get("authority") != "none"

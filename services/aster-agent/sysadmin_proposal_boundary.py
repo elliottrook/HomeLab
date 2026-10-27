@@ -58,6 +58,15 @@ def _remaining_checks(incident: Incident) -> list[dict[str, str]]:
     return remaining
 
 
+def _allowed_dispositions(incident: Incident) -> list[str]:
+    remaining = _remaining_checks(incident)
+    if remaining:
+        return list(ALLOWED_DISPOSITIONS)
+    if any(item["state"] == "unavailable" for item in incident.observations):
+        return ["escalate"]
+    return ["complete", "escalate"]
+
+
 def build_proposal_request(incident: Incident) -> dict[str, Any]:
     """Build the complete sanitized input for an injected proposal transport."""
     if not isinstance(incident, Incident):
@@ -79,7 +88,7 @@ def build_proposal_request(incident: Incident) -> dict[str, Any]:
         "request_ref": _request_ref(incident),
         "observations": observations,
         "remaining_checks": _remaining_checks(incident),
-        "allowed_dispositions": list(ALLOWED_DISPOSITIONS),
+        "allowed_dispositions": _allowed_dispositions(incident),
         "constraints": {
             "authority": "none",
             "effect": "none",
@@ -105,7 +114,7 @@ def accept_model_proposal(incident: Incident, response: Any) -> dict[str, Any]:
         raise InvestigationError("stale model proposal request")
 
     disposition = response.get("disposition")
-    if disposition not in ALLOWED_DISPOSITIONS:
+    if disposition not in _allowed_dispositions(incident):
         raise InvestigationError("invalid model proposal disposition")
     hypothesis = response.get("hypothesis_summary")
     if (not isinstance(hypothesis, str) or not hypothesis.strip()

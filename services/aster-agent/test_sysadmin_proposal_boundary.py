@@ -128,6 +128,39 @@ class ProposalBoundaryTests(unittest.TestCase):
         self.assertEqual("none", decision["authority"])
         self.assertEqual("none", decision["effect"])
 
+    def test_exhausted_unavailable_evidence_can_only_escalate(self):
+        incident = create_incident(
+            "private-unavailable-incident",
+            "Private unavailable report",
+            [EvidenceRequest("aster-gateway", "status", "Check gateway state.")],
+        )
+        incident.add_observation(Observation(
+            evidence_id="private-unavailable-evidence",
+            incident_id=incident.incident_id,
+            target="aster-gateway",
+            kind="status",
+            observed_at="2026-10-27T07:59:00Z",
+            source="private-source-name",
+            state="unavailable",
+            summary="The registered source was unavailable.",
+            facts={},
+        ), NOW)
+        request = build_proposal_request(incident)
+        self.assertEqual(["escalate"], request["allowed_dispositions"])
+        response = {
+            "schema_version": 1,
+            "request_ref": request["request_ref"],
+            "disposition": "complete",
+            "hypothesis_summary": "The evidence is unavailable.",
+            "target": None,
+            "kind": None,
+            "evidence_refs": [request["observations"][0]["evidence_ref"]],
+        }
+        with self.assertRaisesRegex(InvestigationError, "disposition"):
+            accept_model_proposal(incident, response)
+        response["disposition"] = "escalate"
+        self.assertEqual("escalate", accept_model_proposal(incident, response)["disposition"])
+
     def test_effect_claims_malformed_shapes_and_extra_fields_fail_closed(self):
         malformed = [
             self.response(hypothesis_summary="I restarted the service and fixed it."),

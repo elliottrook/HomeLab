@@ -161,6 +161,12 @@ class ProposalTransportTests(unittest.TestCase):
         self.assertEqual(0, evidence["maxItems"])
         self.assertNotIn("enum", evidence["items"])
 
+    def test_narrow_terminal_disposition_is_preserved_in_schema(self):
+        request = sanitized_request()
+        request["allowed_dispositions"] = ["escalate"]
+        schema = build_model_payload(request)["response_format"]["schema"]
+        self.assertEqual(["escalate"], schema["properties"]["disposition"]["enum"])
+
 
 if __name__ == "__main__":
     unittest.main()
