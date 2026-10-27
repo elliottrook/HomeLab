@@ -126,9 +126,16 @@ The source-only
 [fixed local proposal transport](evidence/SA3-fixed-local-proposal-transport-2026-10-26.md)
 now passes the complete 60/60 sysadmin suite with one-call/no-retry behavior,
 no tool schema, disabled thinking, a 45-second timeout, a 512-token cap and a
-16 KiB response cap. It has not yet made a connected call. Its next gate is a
-small synthetic no-effect live check after independent lease, health and load
-checks; producer execution and repair authority remain outside it.
+16 KiB response cap. Its first
+[connected check](evidence/SA3-current-proposal-connected-check-2026-10-26.md)
+now passes all three progressive states: the model selected gateway status,
+then inference status, then stopped after the plan was exhausted. All three
+trusted decisions retained no authority and no effect; pre/post service PIDs
+and restart counts were unchanged, the model was idle afterward and all
+temporary files were removed. This proves contract adherence, not real-incident
+diagnostic quality. The next SA3 gate is a preregistered representative
+no-effect packet with explicit scoring and independent review; producer
+execution and repair authority remain outside it.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
