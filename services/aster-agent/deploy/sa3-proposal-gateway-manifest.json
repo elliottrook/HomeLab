@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "release_id": "sa3-candidate-e-journal-gateway-20261027",
+  "source_commit": "5607040e92ab35ba568cbe6780526a7318c6c51a",
+  "candidate_review": {
+    "candidate_source_commit": "73901010",
+    "packet_freeze_commit": "8d1cfb2a",
+    "independent_review": "pending"
+  },
+  "files": [
+    {
+      "source": "services/aster-agent/aster_agent.py",
+      "target": "/opt/aster-agent/aster_agent.py",
+      "sha256": "02a2001caee5204b6229f7f576dcc945227471ac531b852f0ab0f60ecb032f9b",
+      "predecessor_sha256": "43af11c953fb63fdbc37cd7465fe69fb7b6d0c3cd64cff206d484e0398284613"
+    },
+    {
+      "source": "services/aster-agent/sysadmin_proposal_boundary.py",
+      "target": "/opt/aster-agent/sysadmin_proposal_boundary.py",
+      "sha256": "121d61c12c2f33368176ec35bcc0047f075c1d21d4640749658bf509fce813ff",
+      "predecessor_sha256": null
+    },
+    {
+      "source": "services/aster-agent/sysadmin_proposal_transport.py",
+      "target": "/opt/aster-agent/sysadmin_proposal_transport.py",
+      "sha256": "9b4d98df78c69e360e2f59544a47152c7eefc58bcad7f33e74e917158c24e4fa",
+      "predecessor_sha256": null
+    },
+    {
+      "source": "services/aster-agent/sysadmin_proposal_gateway.py",
+      "target": "/opt/aster-agent/sysadmin_proposal_gateway.py",
+      "sha256": "4a4d112e8dcb805f5cdead1cedbfca9229b57eb7066ce7b7a5164138c9a5bd9c",
+      "predecessor_sha256": null
+    }
+  ],
+  "runtime": {
+    "target": "LXC104",
+    "service": "aster-agent.service",
+    "restart_required": true,
+    "model_restart": false,
+    "model_change": false,
+    "automatic_routing": false,
+    "observation_authority": false,
+    "repair_authority": false
+  }
+}
