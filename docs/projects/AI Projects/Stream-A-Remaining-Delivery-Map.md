@@ -94,8 +94,11 @@ an owner-authenticated request can consume only a pending
 producer. The caller supplies no target or command, every other pair fails
 closed, and target-Python route tests pass 10/10. Its exact
 [two-file release candidate](evidence/SA2-first-registered-producer-release-candidate-2026-10-26.md)
-now has a rollback-capable installer and passing 4/4 contract tests. It is not
-deployed and requires one Aster Agent restart.
+has now been [deployed and independently checked](evidence/SA2-first-registered-producer-deployment-result-2026-10-26.md).
+Aster Agent is healthy after the one approved restart, authentication remains
+closed by default, the accepted llama process was untouched and the exact
+gateway predecessor is retained in a root-only checkpoint. Broader fixed
+producers remain separate SA2 gates.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
