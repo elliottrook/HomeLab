@@ -1,5 +1,68 @@
 # Fixed-hardware capability research watch — 2026-10-12
 
+## October 27 afternoon published response and source tests
+
+Received authoritative Adaptive
+`76190385d915e274b222765097bc977860bf877d`, B60
+`ca3349183e778585d49eb0d58e5b43ebfec1f5dd` and platform registry
+`6fb0207fec5190e0c34ed3bc72ea38e128f06127`. Read both liaison branches and
+the platform split record. The actual owning unmerged platform branch is now
+identified as `codex/f2-observer-exit-diagnostics`, verified on Forgejo and
+GitHub at `200640648eca0d3485eae8e2cbfd2707a0e3c296`. All four protection
+refs match. Consult that actual owner branch in addition to the registry
+branch on subsequent preparation; do not report a source wait from registry
+staleness alone.
+
+Read Adaptive's
+`docs/projects/AI Projects/evidence/B60-daytime-qualification-source-and-semantics-response-2026-10-27.md`,
+SHA-256 `ac6299ea646bdc59659c21dc5ed24b72605a0b21e14cfaab1b266fcb40d16ed4`.
+This is now an exact published receipt, superseding the previous app-only
+local-response status. It confirms accepted 9B, no retained per-stage timings,
+same-date unchanged-row F2/F3/F4 after that date's03:00 pull, and all-consumer
+lease-aware resumption for any future challenger. The subsequent-cycle F4
+sentence is explicitly stale and must not control admission. These semantic
+questions are answered; do not keep sending the same requests.
+
+Exported public `scripts/local-ai` from exact platform `20064064` to
+`/private/tmp/b60-platform-review-20261027.sO61ag`. Inspected the selected
+fake-runner tests and source boundaries, then ran:
+
+`python3 -m unittest test_full_inference_lab_session test_full_inference_lab_deadline_guardian test_full_inference_lab_runtime`
+
+**36/36 pass** on existing Python3.9.6. The tests exercise temporary local
+state, injected runners, owner fencing, deadline/rescue paths, restore replay,
+identity drift and no-workload-on-preflight failure. Their printed
+`rescue-restored`/`pilot-complete` JSON is synthetic test output, not a host
+observation or new trial. No CLI, SSH, GPU workload or production controller
+was executed. This selected subset does not independently reproduce the
+owner's71 host plus5 guest target suite or prove every effect boundary.
+
+### Next instrumented challenger preparation
+
+The next candidate card must add monotonic start/end observations for drain,
+candidate mount/load/readiness, workload, accepted-model restoration and final
+verification. Bind the content-free phase rows to exact run, lease ID and
+generation, model/runtime/config identities, recovery checkpoint and journal
+sequence. Check ordered finite elapsed intervals; retain partial/error phases
+as uncertain, never reconstruct durations from untimed historical events or
+persist private reasoning. Time the same full Aster boundary for control and
+challenger; direct loopback smoke timing remains separate.
+
+Measure model-switch recovery separately before treating any budget as proven.
+The existing advisory resume helper does not supply measured timing or an
+operational lease-aware resume path. Its current source SHA-256 is
+`37925c245309c048b1ee9d5c8c415a7999a6449f1e0b1bcfcb570b92839a832f`.
+The exact candidate controller must own Paperless/EPUB/News callers through
+verified restoration, reject a03:50 independent resume during an active lease,
+keep the B60 trial at30 minutes and complete restoration before04:15. This
+is the next focused source/instrumentation integration, not an approved run.
+
+No new live status is inferred from the published response. October28 F2/F3
+still awaits fresh runtime evidence and the35B screen has no new admission.
+The programme is incomplete; continue preparation at the next check-in rather
+than claiming a background experiment. No package, credential, host/service,
+timer, lease, download, mount or model action occurred in this continuation.
+
 ## October 27 midday source and resume review
 
 Fresh authoritative refs remain Adaptive

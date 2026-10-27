@@ -12,6 +12,14 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October27 afternoon receipt](B60-Inference-Engineering/research-watch-20261012.md#october-27-afternoon-published-response-and-source-tests)
+receives Adaptive `76190385` and verifies actual platform owner branch
+`codex/f2-observer-exit-diagnostics` at `20064064`. Same-date F4 and consumer
+resume semantics are now answered in a published exact-hash response.
+Thirty-six selected exact-platform fake-runner tests pass; this is not a
+new live recovery or35B result. Next work is instrumented, all-consumer,
+mount-aware challenger integration, retaining the separate live admission gate.
+
 The [October27 midday review](B60-Inference-Engineering/research-watch-20261012.md#october-27-midday-source-and-resume-review)
 successfully fetches exact platform `20064064` and verifies all nine source
 hashes against its daytime9B installed manifest. This particular source gap is
