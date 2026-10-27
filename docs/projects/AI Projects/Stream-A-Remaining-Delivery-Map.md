@@ -1783,3 +1783,11 @@ It names the 24-case composition, quality/safety/latency/resource floors and
 both exact model/runtime identities. Acceptance authorizes only private
 fictional packet authoring and final contract freeze; it cannot authorize the
 first screen or matched benchmark effects.
+
+Jason accepted that card and the resulting
+[owner freeze](evidence/Full-Aster-owner-freeze-result-2026-10-26.md) passed.
+The owner-only fictional packet has 24 cases with four per family and packet
+SHA-256 `7545d1a5…bdce2f9`; only content-free counts and hashes are shared. The
+final committed contract SHA-256 is `023939fd…0382c` and remains
+`authority: not-granted`. The next live dependency is still the two-request
+challenger screen after fresh F2–F6 admission and a separate restart approval.
