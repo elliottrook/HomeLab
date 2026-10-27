@@ -48,9 +48,9 @@ do not imply household acceptance or production promotion.
   deliberately reports recovery incomplete because Recovery7 predates the
   active EPUB Doctor family. See
   [release inventory evidence](Aster-TV-Version-2-Release-Inventory-Evidence.md).
-- The corrected recovery source plan covers all 24 anchors. Bundle5 independently
-  verifies after an isolated copy: 21 source stages, 283 files, 8,872,922 bytes,
-  manifest `7748fc8c0841f8a91ec80c0c48aaef5d000367f76ddf570b28b68733d4bbe6d5`.
+- The corrected recovery source plan covers all 24 anchors. Bundle6 independently
+  verifies after an isolated copy: 21 source stages, 280 files, 8,866,055 bytes,
+  manifest `ca12e217bc0017762e5f3a07ed3d20319f92a60fdeebfb1f8d17d9749662475f`.
   Its thirteen-step recipe covers every source and eight explicit prerequisites
   with two bounded Kodi restart points. Full ordered apply/rollback rehearsal remains open.
   The base archives → Recovery7 → Music → EPUB Doctor core has now passed an
@@ -60,6 +60,11 @@ do not imply household acceptance or production promotion.
   provisioning. The remaining release
   gate is one full clean-client replay with Kodi/systemd activation and
   separately provisioned restricted identities.
+- Accessibility semantic verification found and repaired one unguarded page
+  fade introduced by a later `Includes.xml` successor. Home, Hub and Video OSD
+  animations now retain reduced-motion guards; the consolidated final six-file
+  layer is the Bundle6 recovery source, so older overlay files cannot overwrite
+  newer UI work.
 - The official YouTube add-on reports the HP user fully signed in. Version 2
   now explicitly owns the Aster presentation milestone: replace the add-on's
   generic entrance with a Media-home-style YouTube landing page and preserve

@@ -124,14 +124,21 @@ The subsequent endurance/accessibility audit found one more active successor:
 the installed high-contrast/reduced-motion overlay. Bundle4 is therefore
 retained as superseded evidence and must not be used for a clean install.
 
-Corrected Bundle5 adds that exact accessibility stage and independently
-verifies after copying with:
+Bundle5 added the historical accessibility stage, but live semantic
+verification found that three of its files had since been legitimately
+superseded and one new `Includes.xml` page fade had lost its reduced-motion
+guard. The one-file regression was repaired through a checkpointed successor.
+Bundle5 is retained as superseded evidence because replaying the historical
+overlay at the end would overwrite newer Home and Video OSD work.
+
+Corrected Bundle6 instead carries a consolidated six-file final accessibility
+layer captured after that repair. It independently verifies after copying with:
 
 - 24 declared active/release anchors;
 - 21 exact source stages;
-- 283 regular files and 8,872,922 payload bytes; and
+- 280 regular files and 8,866,055 payload bytes; and
 - manifest SHA-256
-  `7748fc8c0841f8a91ec80c0c48aaef5d000367f76ddf570b28b68733d4bbe6d5`.
+  `ca12e217bc0017762e5f3a07ed3d20319f92a60fdeebfb1f8d17d9749662475f`.
 
 The declarative replay recipe now validates thirteen ordered phases, all
 twenty-one sources, eight non-secret prerequisites and only two planned Kodi
@@ -159,20 +166,20 @@ that rehearsal so the accepted artifact can be tested without rebuilding it.
 ### Late service and add-on rehearsal
 
 The non-secret late recovery stages have also passed a real isolated
-apply/verify/rollback against Bundle5. A disposable HP `/tmp` root reconstructed
+apply/verify/rollback against Bundle6. A disposable HP `/tmp` root reconstructed
 the compiled Books reader (13 files), verified the consumer (20 files) and its
 four fixed read-only NFS/automount units, reconstructed the loopback-only camera
 service payload, validated seven canonical 48 kHz/24-bit stereo sound assets,
 installed the three-file startup add-on, securely extracted all seven
 screensaver files from its prefixed Kodi archive, and reconstructed all six
-accessibility overlay files with their three pinned recovery helpers.
+consolidated final accessibility files.
 
 The rehearsal required the camera service's systemd hardening and localhost
 binding, rejected archive traversal and unexpected members, provisioned no
 identity or credential, and removed the complete disposable root afterward.
 The live release inventory then remained 24/24 verified with all three required
 relations matched. Its historical Recovery7-to-active-family relation remains
-truthfully stale because the EPUB Doctor is a later delta; Bundle5 and the
+truthfully stale because the EPUB Doctor is a later delta; Bundle6 and the
 ordered recipe are the corrected recovery path.
 
 Together with the earlier core rehearsal, every non-secret source-material
