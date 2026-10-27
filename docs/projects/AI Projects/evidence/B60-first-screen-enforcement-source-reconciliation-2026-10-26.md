@@ -44,9 +44,11 @@ This remains source-only and grants no live authority.
 Review of the actual live launcher found a separate issue: its 30/45-minute
 deadlines were relative to process start, so a delayed timer start could exceed
 04:15. Platform source candidate `6dbdea2c` closes that gap before any effect
-and passes 9/9 focused tests. It is not installed. The October 27 effect is
-therefore NO-GO until the new exact launcher is installed and accepted, or the
-existing timer is disabled before 03:10.
+and passes 9/9 focused tests. Jason approved it and the platform owner installed
+exact SHA-256 `11568103…24d66` while preserving the predecessor root-only.
+The installed contract passed, the 03:10 timer remained active and no effect
+state or service restart occurred. The October 27 effect is therefore
+GO — SCHEDULED / CONDITIONAL on every fresh runtime gate.
 
 ## Claim boundaries
 

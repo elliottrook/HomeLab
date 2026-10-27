@@ -2,7 +2,7 @@
 
 ## Decision
 
-**STATIC NO-GO PENDING ABSOLUTE-WINDOW CORRECTION.** Platform commit
+**GO — SCHEDULED / CONDITIONAL AFTER ABSOLUTE-WINDOW CORRECTION.** Platform commit
 `972c1d24` binds the already installed `b6dc186e` transaction to one October 27
 invocation between 03:10 and 03:30 Vancouver. It permits no retry.
 
@@ -19,10 +19,12 @@ Platform candidate `6dbdea2c` rejects every start outside October 27 03:10–03:
 America/Vancouver before any guardian, lease or effect, retains the 30-minute
 effect limit, requires a real 15-minute recovery interval and caps hard recovery
 at 04:15. Its focused launcher/controller/guardian suite passes 9/9. The
-installed launcher and timer are unchanged. Tonight's effect is NO-GO unless
-the corrected exact launcher is separately installed and the approved timer is
-revalidated against that hash; otherwise the timer must be disabled before it
-fires.
+corrected launcher was subsequently approved and installed at exact SHA-256
+`11568103c134b98821aad4154e79645375f15f3021fdaf9ce232340d8ef24d66`.
+The rollback predecessor is root-only, the installed date/window contract
+passed and the unchanged timer remains active for 03:10 PDT. Lease and effect
+state remained clear and production stayed healthy with zero Aster/llama
+restarts.
 
 The card correctly requires an accepted three-row F2 result, independently
 verified F3 receipt, completed 03:00 pull, exact installed/source/artifact
@@ -41,7 +43,6 @@ root artifact custody, accepted 9B/SYCL/auth baseline, consumers and lease.
 The original source passed 22 first-screen, 11 F4/F5 and 62 full-inference target-Linux
 tests at inactive installation. The card changes no model, persistent unit,
 timer, schedule, routing, authority or tool grant. A live invocation still
-already has Jason's effect approval because it restarts LXC110 and makes two
-model requests, but that approval names the original installed source. It does
-not silently authorize the newly corrected launcher hash. If the correction is
-not installed and accepted, do not invoke and do not retry this cycle.
+has Jason's effect approval because it restarts LXC110 and makes two model
+requests; Jason separately accepted the corrected launcher hash. Fresh runtime
+gates still control the invocation. Any failure remains NO-GO without retry.
