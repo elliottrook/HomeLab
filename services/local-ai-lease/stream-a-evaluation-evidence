@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+test "$#" -eq 0
+
+PYTHONPATH=/usr/local/libexec/local-ai-lease/stream-a-evaluation:/usr/local/libexec/local-ai-lease \
+  exec /usr/bin/python3 -B \
+  /usr/local/libexec/local-ai-lease/stream-a-evaluation/stream_a_evaluation_f4_f5_root.py
