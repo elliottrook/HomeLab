@@ -18,7 +18,7 @@
 > Target environment: Accepted HP Lab workflow backed by TrueNAS; any BOSGAME
 > promotion is a separate optional project
 >
-> Build/model reference: repository commit pending; Kokoro ONNX
+> Build/model reference: repository commit `18633fde`; Kokoro ONNX
 > `kokoro-v1.0.fp16.onnx`, SHA-256
 > `f3a290d384fbb27966d462905c71a46cef9e5fd00516b40df32a0b4afe77ac96`
 >
@@ -515,6 +515,7 @@ unchanged. Optional BOSGAME promotion and M7 fallback require separate scope.
 | 2026-10-26 | Deployed the separate HP-only direct-launch bundle `7f770e8c…dcd8` after an absent-state checkpoint. Retained preflight results exposed and drove fixes for short-chapter end-callback replay, chapter-change settlement and private bytecode modes. Two final independent native passes then verified no autoplay, sentence highlighting, pause stability, chapter change, Back/save, reopen/resume, explicit cleanup and empty queues. | HP Lab beta accepted. Kodi retained PID 66637 with zero restarts; normal HP routes and BOSGAME were unchanged. |
 | 2026-10-26 | Extended the protected exporter to cover the HP pilot queue, ready pointer, manifest and reconstruction marker while still excluding Opus, timing and content. A live 1.46 GB export verified 20 application scopes, 24 SQLite databases and zero pilot media/content files; an isolated restore verified both queue databases, 168 records, one pointer and one manifest. File Browser resumed healthy. Added immediate snapshot `Media/AsterReader@hp-beta1-accepted-20261026`. | Backup regime covers recovery-critical compiler and pilot state; generated bulk remains local/reproducible by design. |
 | 2026-10-26 | Final regression passed 34 compiler/reader tests in normal and optimized Python, 12 backup/Doctor tests, compilation checks and two live HP passes. HomeLab Doctor passed the EPUB monitor and fresh configuration backup with 84 passes, two warnings and four unrelated existing failures. | M6 and the HP Lab objective are complete. No remote Git push was performed. |
+| 2026-10-26 | Rebuilt the sanitized Aster knowledge archive from clean HomeLab commit `18633fde`, a clean reference clone and the accepted 1,811-entry derived mirror. The 1,841-source archive is `3a039170…747`; provenance was clean and the HP/BOSGAME boundary was present. Checkpointed the prior LXC 104 corpus, atomically activated the candidate and restarted only `aster-agent.service`; health returned OK with PID 16137 and zero restarts. | Aster's derived operational answer corpus matches the accepted HP state; prior corpus and root-only checkpoint remain available for rollback. |
 
 ## Post-deployment intent and efficiency review
 
