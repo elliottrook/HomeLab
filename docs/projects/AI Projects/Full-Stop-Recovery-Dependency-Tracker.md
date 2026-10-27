@@ -85,6 +85,14 @@ disabled, the new-cycle state and all effect state are absent, and a one-time
 01:42 observation/cleanup automation is active. This is conditional GO:
 backup, task-1, identity, load and quiet-host gates must still pass at runtime.
 
+The conditional [October 28 F3 review](evidence/F3-from-F2-exact-cycle-effect-review-2026-10-28.md)
+accepts platform commit `d9ae516f` under Jason's daytime-to-tonight test
+authorization. Local and target suites pass 10/10 and the installed call graph
+matches. At 01:50 it may invoke the converter once only if the 01:42
+reconciliation accepted exactly three F2 rows, removed spent timers and every
+fresh absence/health gate passes. Otherwise it must record NO-GO without a
+receipt or retry.
+
 The conditional [October 27 F3 conversion](evidence/F3-from-F2-no-go-2026-10-27.md)
 then failed closed at its first mandatory gate. The reconciled F2 state is
 `no_go` with zero archive rows rather than three independently validated
