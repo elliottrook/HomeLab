@@ -21,7 +21,9 @@ hash_of() {
 wait_for_health() {
   local attempts=0
   while [ "$attempts" -lt 50 ]; do
-    if [ "$(curl -fsS --max-time 2 http://192.168.70.10:9120/health 2>/dev/null || true)" = '{"status":"ok"}' ]; then
+    if curl -fsS --max-time 2 http://192.168.70.10:9120/health 2>/dev/null \
+      | /opt/aster-agent/venv/bin/python -c \
+        'import json,sys; assert json.load(sys.stdin) == {"status":"ok","service":"aster-agent"}'; then
       return 0
     fi
     sleep 0.2

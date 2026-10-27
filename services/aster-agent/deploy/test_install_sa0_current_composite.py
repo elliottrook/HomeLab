@@ -38,6 +38,7 @@ class Sa0CompositeInstallerTests(unittest.TestCase):
     def test_requires_health_and_zero_restart_loop_after_restart(self):
         self.assertIn("wait_for_health", self.source)
         self.assertIn("http://192.168.70.10:9120/health", self.source)
+        self.assertIn('{"status":"ok","service":"aster-agent"}', self.source)
         self.assertGreaterEqual(
             self.source.count('test "$(systemctl show aster-agent.service -p NRestarts --value)" = 0'),
             2,
