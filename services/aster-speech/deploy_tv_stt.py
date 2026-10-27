@@ -9,6 +9,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.error
 import urllib.request
 import wave
@@ -68,14 +69,28 @@ def silent_wav():
     output.seek(0); return output.read()
 
 
+def wait_for_health(timeout=30):
+    deadline = time.monotonic() + timeout
+    last_error = None
+    while time.monotonic() < deadline:
+        try:
+            status, _, raw = request('/health')
+            if status == 200 and json.loads(raw).get('status') == 'ok':
+                return
+        except (OSError, urllib.error.URLError, json.JSONDecodeError) as error:
+            last_error = error
+        time.sleep(0.5)
+    raise RuntimeError('speech-health-timeout') from last_error
+
+
 def main(stage):
     stage = Path(stage).resolve()
     candidate = stage / 'aster_speech.py'
     tests = stage / 'test_aster_speech.py'
     staged_key = stage / 'tv-stt.key'
     require(os.geteuid() == 0 and SOURCE.is_file() and ENV.is_file(), 'speech-host-policy')
-    require(digest(SOURCE) == EXPECTED_BEFORE and not KEY.exists()
-            and not CHECKPOINT.exists(), 'speech-predecessor-drift')
+    require(digest(SOURCE) == EXPECTED_BEFORE and not KEY.exists(),
+            'speech-predecessor-drift')
     require(candidate.is_file() and tests.is_file() and staged_key.is_file()
             and not any(path.is_symlink() for path in (candidate, tests, staged_key)),
             'speech-stage-members')
@@ -83,10 +98,17 @@ def main(stage):
     require(metadata.st_uid == 0 and stat.S_IMODE(metadata.st_mode) == 0o600
             and 32 <= metadata.st_size <= 513, 'speech-key-custody')
     run('/opt/aster-speech/venv/bin/python', str(tests), '-q')
-    CHECKPOINT.mkdir(mode=0o700, parents=True)
-    shutil.copy2(SOURCE, CHECKPOINT / 'aster_speech.py')
-    shutil.copy2(ENV, CHECKPOINT / 'speech.env')
-    os.chmod(CHECKPOINT / 'speech.env', 0o600)
+    if CHECKPOINT.exists():
+        require((CHECKPOINT / 'aster_speech.py').is_file()
+                and digest(CHECKPOINT / 'aster_speech.py') == EXPECTED_BEFORE
+                and (CHECKPOINT / 'speech.env').is_file()
+                and (CHECKPOINT / 'speech.env').read_bytes() == ENV.read_bytes(),
+                'speech-checkpoint-drift')
+    else:
+        CHECKPOINT.mkdir(mode=0o700, parents=True)
+        shutil.copy2(SOURCE, CHECKPOINT / 'aster_speech.py')
+        shutil.copy2(ENV, CHECKPOINT / 'speech.env')
+        os.chmod(CHECKPOINT / 'speech.env', 0o600)
     try:
         atomic(SOURCE, candidate.read_bytes(), 0o644)
         shutil.copy2(staged_key, KEY)
@@ -98,8 +120,7 @@ def main(stage):
         run('/usr/bin/systemctl', 'restart', 'aster-speech.service')
         require(run('/usr/bin/systemctl', 'is-active', 'aster-speech.service').stdout.strip() == 'active',
                 'speech-service-inactive')
-        status, _, raw = request('/health')
-        require(status == 200 and json.loads(raw).get('status') == 'ok', 'speech-health')
+        wait_for_health()
         token = KEY.read_text(encoding='ascii').strip()
         audio = silent_wav(); boundary = 'aster-tv-stt-validation'
         body = (('--' + boundary + '\r\nContent-Disposition: form-data; name="audio"; filename="test.wav"\r\n'

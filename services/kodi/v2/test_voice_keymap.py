@@ -20,7 +20,10 @@ class VoiceKeymapTests(unittest.TestCase):
                          VOICE_ACTION)
         self.assertIsNone(keyboard.find('select'))
         for name in ('FullscreenVideo', 'FullscreenGame', 'Visualisation'):
-            self.assertEqual(root.find('./' + name + "/keyboard/key[@id='582']").text,
+            section = root.find('./' + name + '/keyboard')
+            self.assertIsNone(section.find('select'))
+            self.assertEqual(section.find("key[@id='353']").text, 'OSD')
+            self.assertEqual(section.find("key[@id='" + VOICE_CODE + "']").text,
                              'noop')
 
     def test_refuses_reapplication_or_changed_predecessor(self):

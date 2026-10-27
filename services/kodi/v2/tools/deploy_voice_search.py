@@ -36,6 +36,17 @@ def target(row):
     return Path(row['target'])
 
 
+def rpc(method, params=None):
+    request = {'jsonrpc': '2.0', 'id': 1, 'method': method}
+    if params is not None:
+        request['params'] = params
+    with socket.create_connection(('127.0.0.1', 9090), timeout=3) as client:
+        client.sendall((json.dumps(request) + '\n').encode())
+        reply = json.loads(client.recv(8192))
+    require('error' not in reply and 'result' in reply, 'kodi-rpc-' + method)
+    return reply['result']
+
+
 def main():
     require(os.uname().nodename == 'AsterTV', 'hp-only')
     manifest = json.loads(MANIFEST.read_text())
@@ -45,10 +56,7 @@ def main():
             'deploy-helper-drift')
     require(not ADDON.exists() and not CHECKPOINT.exists(), 'existing-voice-state')
     # Playback must be idle. The query is read-only and does not alter queues.
-    with socket.create_connection(('127.0.0.1', 9090), timeout=3) as client:
-        client.sendall(b'{"jsonrpc":"2.0","id":1,"method":"Player.GetActivePlayers"}\n')
-        reply = json.loads(client.recv(4096))
-    require(reply.get('result') == [], 'active-playback')
+    require(rpc('Player.GetActivePlayers') == [], 'active-playback')
     replacements = manifest['replacements']
     for row in replacements:
         path = target(row)
@@ -79,6 +87,26 @@ def main():
             time.sleep(.25)
         require(run('/usr/bin/systemctl', 'is-active', 'kodi').stdout.strip() == 'active',
                 'kodi-not-active')
+        end = time.monotonic() + 30
+        while True:
+            try:
+                details = rpc('Addons.GetAddonDetails', {
+                    'addonid': manifest['addon']['id'],
+                    'properties': ['enabled'],
+                })
+                break
+            except (OSError, RuntimeError, ValueError, json.JSONDecodeError):
+                if time.monotonic() >= end:
+                    raise RuntimeError('voice-addon-not-discovered')
+                time.sleep(.25)
+        if not details['addon']['enabled']:
+            rpc('Addons.SetAddonEnabled', {
+                'addonid': manifest['addon']['id'], 'enabled': True,
+            })
+        details = rpc('Addons.GetAddonDetails', {
+            'addonid': manifest['addon']['id'], 'properties': ['enabled'],
+        })
+        require(details['addon']['enabled'], 'voice-addon-disabled')
         require(all(digest(target(row)) == row['sha256'] for row in replacements),
                 'installed-replacement-drift')
         require(all(digest(ADDON / row['path']) == row['sha256']

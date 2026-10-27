@@ -103,3 +103,33 @@ a new independently generated key copied without disclosure to speech and HP,
 and one idle HP Kodi restart for the add-on/Search/keymap candidate. A live
 utterance is a separate immediate-consent step; neither prepared deployment
 records microphone audio.
+
+## 2026-10-27 — Restricted identity and HP client active
+
+The bounded activation is complete on the HP lab Aster. A newly generated
+65-byte credential is held as `root:aster-speech` mode 0640 on Aster Speech and
+as root-only mode 0600 on HP. The server accepted that identity for a generated
+half-second silent-WAV `/v1/stt` request and rejected it from `/v1/tts` with
+HTTP 401. Existing Companion authorization remains unchanged. The first
+transaction encountered the service's model-load interval, failed its immediate
+health check and restored the exact source and environment checkpoint. The
+installer now waits up to 30 seconds for health and safely reuses only an exact
+matching recovery checkpoint; the corrected transaction passed.
+
+The corrected deterministic client has manifest SHA-256
+`c0722268e247147dc778c4927b4ab805fb9cd800b55d7d52cf4d7fcfa63cc782`.
+It is active on HP with add-on `script.astervoice.v2lab` enabled. Linux
+`KEY_SELECT` 353 remains Aster Select. A physical diagnostic press then proved
+that Kodi translates Linux `KEY_VOICECOMMAND` scancode `0x246` to Kodi key ID
+`0xF200` (decimal 61952), rather than the raw Linux value 582; 61952 launches
+the voice controller and is numeric in every relevant keymap context. The
+earlier symbolic-select warning is gone. Voice remains a no-op during video,
+games and visualization. HP reports the exact admitted `event17`, ALSA
+`hw:1,0` and suspended `aster_g20_mic` source, Kodi is active on Home with no
+player, and all installed replacement hashes match the manifest. The previous
+failed candidate and its checkpoint were preserved rather than deleted.
+
+No household utterance has yet been recorded or transmitted. Production
+BOSGAME was not contacted or changed. The remaining acceptance gate is one
+immediate-consent physical G20 press-and-hold phrase confirming release-to-send,
+foreground Search results, Back cancellation and unchanged OK/select behavior.
