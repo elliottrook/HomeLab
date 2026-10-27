@@ -78,7 +78,7 @@ def transformed():
                 onright='500',ondown='500').items():ET.SubElement(control,field).text=value
         icon=ET.SubElement(group,'control',dict(type='image'))
         for field,value in dict(left=str(positions[identity]+10),top='35',width='36',height='36',
-                texture='special://skin/media/20-music-app.png' if identity==114 else
+                texture='special://skin/media/aster-compass-128.png' if identity==114 else
                     'special://home/addons/script.astermusic.v2lab/resources/controls/shuffle.png',aspectratio='keep').items():ET.SubElement(icon,field).text=value
     hero=ET.SubElement(group,'control',dict(type='button',id='115'))
     for field,value in dict(left='1050',top='455',width='320',height='56',label='Shuffle all',font='font24',align='center',aligny='center',

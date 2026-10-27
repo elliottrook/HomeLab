@@ -335,6 +335,9 @@ class LayoutTests(unittest.TestCase):
             self.assertIn(f'{mark}.png', (ROOT / '1080i' / page).read_text(), page)
         music = (ROOT / '1080i/IncludesMusic.xml').read_text()
         self.assertIn('23-music-album.png', music)
+        books = (ROOT / 'media' / '11-books.png').read_bytes()[:24]
+        self.assertEqual(books[:8], b'\x89PNG\r\n\x1a\n')
+        self.assertEqual(struct.unpack('!II', books[16:24]), (128, 128))
 
     def test_poster_masks_are_native_size(self):
         for name in ('ui-poster-mask.png', 'ui-poster-ring.png'):

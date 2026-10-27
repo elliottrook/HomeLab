@@ -16,7 +16,7 @@
         </control>
         <control type="image">
             <left>72</left><top>232</top><width>88</width><height>88</height>
-            <texture>special://skin/media/31-settings-app.png</texture>
+            <texture>special://skin/media/aster-compass-128.png</texture>
             <aspectratio>keep</aspectratio>
         </control>
         <control type="label">
@@ -46,14 +46,14 @@
             <orientation>horizontal</orientation><scrolltime>180</scrolltime>
             <itemlayout width="680" height="330">
                 <control type="image"><left>10</left><top>10</top><width>650</width><height>290</height><texture border="36">special://skin/media/ui-limestone-panel.png</texture></control>
-                <control type="image"><left>44</left><top>54</top><width>68</width><height>68</height><texture>special://skin/media/31-settings-app.png</texture><aspectratio>keep</aspectratio></control>
+                <control type="image"><left>44</left><top>54</top><width>68</width><height>68</height><texture>special://skin/media/aster-compass-128.png</texture><aspectratio>keep</aspectratio></control>
                 <control type="label"><left>44</left><top>150</top><width>570</width><height>50</height><label>$INFO[ListItem.Label]</label><font>font30</font><textcolor>asterInk</textcolor></control>
                 <control type="textbox"><left>44</left><top>207</top><width>570</width><height>56</height><label>$INFO[ListItem.Property(Description)]</label><font>font20</font><textcolor>asterMuted</textcolor></control>
             </itemlayout>
             <focusedlayout width="680" height="330">
                 <control type="image"><left>10</left><top>10</top><width>650</width><height>290</height><texture border="36" colordiffuse="asterSage">special://skin/media/ui-panel.png</texture></control>
                 <control type="image"><left>15</left><top>15</top><width>640</width><height>280</height><texture border="34" colordiffuse="asterPaper">special://skin/media/ui-panel.png</texture></control>
-                <control type="image"><left>44</left><top>54</top><width>68</width><height>68</height><texture>special://skin/media/31-settings-app.png</texture><aspectratio>keep</aspectratio></control>
+                <control type="image"><left>44</left><top>54</top><width>68</width><height>68</height><texture>special://skin/media/aster-compass-128.png</texture><aspectratio>keep</aspectratio></control>
                 <control type="label"><left>44</left><top>150</top><width>570</width><height>50</height><label>$INFO[ListItem.Label]</label><font>font30</font><textcolor>asterGreen</textcolor></control>
                 <control type="textbox"><left>44</left><top>207</top><width>570</width><height>56</height><label>$INFO[ListItem.Property(Description)]</label><font>font20</font><textcolor>asterMuted</textcolor></control>
             </focusedlayout>

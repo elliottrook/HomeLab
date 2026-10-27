@@ -340,7 +340,7 @@ class BooksTests(unittest.TestCase):
         self.assertIsNotNone(shared.find('.//param[@name="id"][@value="502"]'))
         self.assertIsNotNone(shared.find('.//param[@name="id"][@value="503"]'))
         text = (ROOT / '1080i/IncludesBooks.xml').read_text()
-        for icon in ('21-books-app.png', '12-audiobooks.png', '22-podcasts-app.png'):
+        for icon in ('11-books.png', 'audiobooks-128.png', 'aster-compass-128.png'):
             self.assertIn(icon, text)
         self.assertIn('ui-hero-bottom-fade.png', text)
         self.assertIn('No subscribed shows yet. Discover podcasts in Audiobookshelf.', text)

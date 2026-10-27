@@ -23,8 +23,8 @@ PAGES = {'home': 11110, 'ebooks': 11118, 'audiobooks': 11119,
          'podcasts': 11120}
 KINDS = {'ebooks': 'ebook', 'audiobooks': 'audiobook',
          'podcasts': 'podcast'}
-ICONS = {'ebook': '21-books-app.png', 'audiobook': '12-audiobooks.png',
-         'podcast': '22-podcasts-app.png'}
+ICONS = {'ebook': '11-books.png', 'audiobook': 'audiobooks-128.png',
+         'podcast': 'aster-compass-128.png'}
 HOME_CONTROLS = {'ebook': 501, 'audiobook': 502, 'podcast': 503}
 AUDIO_ADDON = 'plugin.audio.asterbooks'
 READER_BASE = 'https://books.elliottrook.com'

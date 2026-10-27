@@ -15,7 +15,7 @@
     </variable>
     <variable name="AsterBrowseIcon">
         <value condition="String.Contains(Container.FolderPath,plugin.video.youtube)">special://skin/media/33-aster-youtube-128.png</value>
-        <value condition="String.Contains(Container.FolderPath,plugin.video.asterhome)">special://skin/media/media-128.png</value>
+        <value condition="String.Contains(Container.FolderPath,plugin.video.asterhome)">special://skin/media/aster-compass-128.png</value>
         <value condition="String.Contains(Container.FolderPath,archive-tv.xsp)">special://skin/media/09-archive-tv.png</value>
         <value condition="String.Contains(Container.FolderPath,archive-film.xsp)">special://skin/media/10-archive-film.png</value>
         <value condition="Container.Content(sets)">special://skin/media/19-movie-collections-128.png</value>

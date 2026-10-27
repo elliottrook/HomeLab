@@ -57,7 +57,7 @@ def settings(data):
     group=ET.SubElement(controls,'control',dict(type='group'))
     field(group,'visible','!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)')
     logo=ET.SubElement(group,'control',dict(type='image'))
-    for k,v in dict(left=110,top=0,width=240,height=160,texture='special://skin/media/31-settings-app.png',aspectratio='keep').items():field(logo,k,v)
+    for k,v in dict(left=110,top=0,width=240,height=160,texture='special://skin/media/aster-compass-128.png',aspectratio='keep').items():field(logo,k,v)
     for index,item in enumerate(items):
         button=ET.SubElement(group,'control',dict(type='button',id=str(200+index)))
         for k,v in dict(left=550+index*125,top=31,label=item.findtext('label'),onclick=item.findtext('onclick')).items():field(button,k,v)

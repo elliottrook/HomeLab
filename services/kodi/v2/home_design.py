@@ -111,7 +111,7 @@ def build(data):
     label(group, 145, 946, 480, 36, 'Read-only Home Assistant status', 'font20', 'asterMuted')
     image(group, 655, 490, 560, 510, 'ff1a211e')
     control(group, 'image', 680, 515, 510, 287,
-            texture='special://skin/media/02-home-hub.png', aspectratio='keep', colordiffuse='55ffffff',
+            texture='special://skin/media/aster-compass-128.png', aspectratio='keep', colordiffuse='55ffffff',
             visible='!String.IsEqual(Window.Property(AsterHub.CameraPlaying),true)')
     control(group, 'image', 680, 515, 510, 287,
             texture='$INFO[Window.Property(AsterHub.CameraImage)]', aspectratio='keep',

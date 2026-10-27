@@ -43,7 +43,7 @@ def main() -> None:
     for name in EXPECTED_SHA256:
         validate_master(RESOURCES / name)
     shutil.copyfile(
-        ROOT.parent / "skin.asterhome" / "media" / "aster-icon-128.png",
+        ROOT.parent / "skin.asterhome" / "media" / "aster-compass-128.png",
         ROOT / "icon.png",
     )
     print("Aster canonical UI sounds verified: startup plus seven click cues")

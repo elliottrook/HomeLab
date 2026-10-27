@@ -6,7 +6,8 @@
     "07-tv.png": "e0b0937372fd09daf8cb6a39910e6f84f8651e6297bf8c950b80defba5de90a2",
     "08-film.png": "edc27523426d94f4079926dbae872f4793d31b9b9db4ea9f37e141bb664faac9",
     "09-archive-tv.png": "ba636f672835f826ce0c8040632cd4dd7c9af5b44360d2b6a12c6180ba67af8c",
-    "10-archive-film.png": "dec22c2d8c14800a35c418157154d1067722f8a5a085e23fb9162d5a650f851b"
+    "10-archive-film.png": "dec22c2d8c14800a35c418157154d1067722f8a5a085e23fb9162d5a650f851b",
+    "11-books.png": "b5cc8d0c2879a5bc6340ddd97e1336bd6d6aee5ff2c815c683909cf64b89c931"
   },
   "export_source_directory": "PNG/128/",
   "hub_exports": {
@@ -14,6 +15,7 @@
     "02-home-hub.png": "d98f33b1aa1c279f51c7aad7108ea9dfdf685033a31cc4719cfc1ed6cf7281a1",
     "04-news-digest.png": "7188785a0225c0a3e0c2fbe19d5c397b28547320bf5b8b62f03e804b2f05fba4",
     "12-audiobooks.png": "6506150b16216a9e961b03767ed4137508cfdb59417ffde3ee73c2efbe929256",
+    "audiobooks-128.png": "e2c155dc8dedddabf9f91dd7e760d606c6b970c8f7215abe9502cb135925c6d6",
     "13-music.png": "7687628c861d4cd6fcfea8918df42b8af9b067ada3b41c4a8b222a1751d4ba11",
     "music-128.png": "a55a09154e19e8085d034f4083f9814840b1ffeca10249830bc826afff033b37"
   },
@@ -27,5 +29,5 @@
     "runtime_sha256": "397ef61365aca95e786ae226a1cf0f09991c08ad6a4c5533d413f302e15a46e4",
     "safety": "XML parsed; no scripts, image embeds, external references or entity declarations found."
   },
-  "usage": "Private Aster Home Kodi test skin; labels accompany all small navigation motifs."
+  "usage": "Private Aster Home Kodi test skin. Limestone launcher exports are reserved for the side rail; tile-free navigation exports accompany labels elsewhere. The approved Podcasts master is a launcher, so the plain compass is the temporary non-rail podcast motif until a tile-free podcast asset is approved."
 }

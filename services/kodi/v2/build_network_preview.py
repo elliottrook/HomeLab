@@ -18,7 +18,7 @@ def layout():
         return node
     def label(n,x,y,w,h,text,font='font24',colour='fff3eee5'):
         return control('label',n,x,y,w,h,label=text,font=font,textcolor=colour,truncate='true')
-    control('image',None,80,30,180,150,texture='special://skin/media/31-settings-app.png',aspectratio='keep')
+    control('image',None,80,30,180,150,texture='special://skin/media/aster-compass-128.png',aspectratio='keep')
     label(None,310,52,1100,60,'Network status','font40')
     label(504,310,122,1110,38,'Read-only local configuration','font20','ffadccad')
     for n,x,w,text,left,right in ((200,1190,250,'Refresh local status',201,203),

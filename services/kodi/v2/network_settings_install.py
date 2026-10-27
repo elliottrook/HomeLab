@@ -8,7 +8,7 @@ from digest_news_install import atomic
 TARGET='.kodi/addons/skin.asterhome/1080i/Settings.xml'
 BEFORE='09a98be3b9ecddf185f61fdfb561bf9e68c4be123816e4f78ecc34210e136ab4'
 NETWORK='aster-network-preview5'
-NETWORK_PIN='04fe8bf7d4ac047957ebf89f84be42cb195ccae41a63fde88a820f659cb987d6'
+NETWORK_PIN='73fd1e24fbb3b8f051c250beff1bcbaa018f88b265dabcc163a822bd367aa9d1'
 CHECKPOINT='.aster-checkpoints/aster-network-settings3'
 MEMBERS={'default.py','network_diagnostics.py','network_service_checks.py',
     'resources/skins/Default/1080i/NetworkPreview.xml','resources/skins/Default/1080i/DiagnosticsMenu.xml'}

@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 
 
 NAV_SHA = "d1dc27ccde4eeed3e29f0a2ed935a1668d9757f527cb36fd1234ab28630c6c32"
-INCLUDES_SHA = "3050e3ebb4c55f5f82ad0e2fcd1f20b8a025157c1da2ca6e722baf0d4b08be31"
+INCLUDES_SHA = "bc018758834542aa1d4a2b6872c467e09ff93135f06b9c6aca080fb7f2d8758e"
 ROOT = "String.IsEqual(Container.FolderPath,plugin://plugin.video.youtube/)"
 SEARCH = ("String.StartsWith(Container.FolderPath,"
           "plugin://plugin.video.youtube/kodion/search/)")

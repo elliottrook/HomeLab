@@ -55,8 +55,8 @@ def main():
     summary = row.get('synopsis', '') if row else ''
     if len(summary) > 195:
         summary = summary[:192].rsplit(' ', 1)[0] + '…'
-    art = cover or ('special://skin/media/12-audiobooks.png' if kind == 'audiobook'
-                    else 'special://skin/media/22-podcasts-app.png')
+    art = cover or ('special://skin/media/audiobooks-128.png' if kind == 'audiobook'
+                    else 'special://skin/media/aster-compass-128.png')
     for entry in entries:
         item = xbmcgui.ListItem(label=entry['title'], path=entry['url'])
         item.setProperty('IsPlayable', 'true')

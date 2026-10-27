@@ -54,7 +54,7 @@ def main():
     button=root.find('.//control[@id="302"]');field(button,'onclick','RunScript(/storage/.aster-camera/view.py,toggle)')
     field(button,'label','$INFO[Window.Property(AsterHub.CameraButtonLabel)]')
     for image in root.findall('.//control[@type="image"]'):
-        if image.findtext('texture')=='special://skin/media/02-home-hub.png':
+        if image.findtext('texture')=='special://skin/media/aster-compass-128.png':
             for key,value in dict(left=875,top=598,width=120,height=120,texture='/storage/.aster-camera/camera-idle.png',colordiffuse='b0ffffff').items():field(image,key,value)
     (destination/'custom_1112_home.xml').write_bytes(encoded(root))
     members={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in destination.iterdir() if p.suffix!='.svg'}

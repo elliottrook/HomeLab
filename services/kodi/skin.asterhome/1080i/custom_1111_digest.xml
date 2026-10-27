@@ -22,7 +22,7 @@
 
       <control type="image"><left>0</left><top>180</top><width>1920</width><height>900</height><texture>special://skin/media/ui-hero-left-fade.png</texture><colordiffuse>d9292721</colordiffuse><aspectratio>stretch</aspectratio></control>
       <control type="image"><left>150</left><top>242</top><width>720</width><height>310</height><texture background="true">$INFO[Window.Property(AsterHub.ActiveImage)]</texture><aspectratio>keep</aspectratio><visible>!String.IsEmpty(Window.Property(AsterHub.ActiveImage))</visible></control>
-      <control type="image"><left>375</left><top>270</top><width>270</width><height>255</height><texture>special://skin/media/04-news-digest.png</texture><aspectratio>keep</aspectratio><visible>String.IsEmpty(Window.Property(AsterHub.ActiveImage))</visible></control>
+      <control type="image"><left>375</left><top>270</top><width>270</width><height>255</height><texture>special://skin/media/30-aster-news-logo.png</texture><aspectratio>keep</aspectratio><visible>String.IsEmpty(Window.Property(AsterHub.ActiveImage))</visible></control>
       <control type="label"><left>150</left><top>565</top><width>710</width><height>32</height><label>ASTER NEWS  /  NOW IN THE BRIEFING</label><font>font20</font><textcolor>asterGold</textcolor></control>
       <control type="textbox"><left>150</left><top>605</top><width>710</width><height>90</height><label>$INFO[Window.Property(AsterHub.ActiveTitle)]</label><font>font28</font><textcolor>asterInk</textcolor></control>
       <control type="textbox"><left>150</left><top>702</top><width>710</width><height>110</height><label>$INFO[Window.Property(AsterHub.ActiveSummary)]</label><font>font20</font><textcolor>asterInk</textcolor></control>

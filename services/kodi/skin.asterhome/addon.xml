@@ -16,7 +16,7 @@
         <platform>all</platform>
         <license>Creative Commons Attribution-ShareAlike 4.0 International</license>
         <assets>
-            <icon>media/aster-icon-512.png</icon>
+            <icon>media/aster-compass-128.png</icon>
         </assets>
     </extension>
 </addon>

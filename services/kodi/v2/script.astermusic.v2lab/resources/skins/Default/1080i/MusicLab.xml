@@ -150,11 +150,11 @@
 <control type="image"><left>22</left><top>230</top><width>72</width><height>620</height><texture border="24" colordiffuse="ffad8a4d">special://home/addons/skin.asterhome/media/ui-panel.png</texture></control>
 <control type="image"><left>23</left><top>231</top><width>70</width><height>618</height><texture border="24" colordiffuse="f23b3a32">special://home/addons/skin.asterhome/media/ui-panel.png</texture></control>
 <control type="image"><left>36</left><top>254</top><width>44</width><height>44</height><texture>special://home/addons/skin.asterhome/media/aster-compass-128.png</texture><aspectratio>keep</aspectratio></control>
-<control type="image"><left>36</left><top>373</top><width>44</width><height>44</height><texture>special://home/addons/skin.asterhome/media/07-tv.png</texture><aspectratio>keep</aspectratio></control>
+<control type="image"><left>36</left><top>373</top><width>44</width><height>44</height><texture>special://home/addons/skin.asterhome/media/media-128.png</texture><aspectratio>keep</aspectratio></control>
 <control type="image"><left>36</left><top>453</top><width>44</width><height>44</height><texture>special://home/addons/skin.asterhome/media/21-books-app.png</texture><aspectratio>keep</aspectratio></control>
 <control type="image"><left>36</left><top>533</top><width>44</width><height>44</height><texture>special://home/addons/skin.asterhome/media/20-music-app.png</texture><aspectratio>keep</aspectratio></control>
-<control type="image"><left>36</left><top>613</top><width>44</width><height>44</height><texture>special://home/addons/skin.asterhome/media/04-news-digest.png</texture><aspectratio>keep</aspectratio></control>
-<control type="image"><left>36</left><top>693</top><width>44</width><height>44</height><texture>special://home/addons/skin.asterhome/media/02-home-hub.png</texture><aspectratio>keep</aspectratio></control>
+<control type="image"><left>36</left><top>613</top><width>44</width><height>44</height><texture>special://home/addons/skin.asterhome/media/news-digest-128.png</texture><aspectratio>keep</aspectratio></control>
+<control type="image"><left>36</left><top>693</top><width>44</width><height>44</height><texture>special://home/addons/skin.asterhome/media/home-hub-128.png</texture><aspectratio>keep</aspectratio></control>
 <control type="group"><left>22</left><top>230</top><width>310</width><height>620</height><visible>String.IsEqual(Window.Property(Lab.Rail),true)</visible>
 <control type="image"><left>0</left><top>0</top><width>310</width><height>620</height><texture border="24" colordiffuse="ffad8a4d">special://home/addons/skin.asterhome/media/ui-panel.png</texture></control>
 <control type="image"><left>1</left><top>1</top><width>308</width><height>618</height><texture border="24" colordiffuse="f23b3a32">special://home/addons/skin.asterhome/media/ui-panel.png</texture></control>
