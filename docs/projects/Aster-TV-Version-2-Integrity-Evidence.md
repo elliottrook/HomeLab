@@ -89,9 +89,42 @@ the common landing focus/rotation contract against this captured family.
 
 The bounded native driver is prepared as
 `services/kodi/v2/tools/live_landing_family_smoke.py`. It admits only idle HP
-Home with empty queues, opens ordinary Search and its keyboard, checks the
-catalogue route, then checks manual Next and tile-focus authority on Media,
-Music and Books. It issues no Play or Request action and records only check
-names and outcomes. Compile validation passed. Native execution is deferred
-while the separate YouTube task awaits the owner's Google device authorization
-on HP; this prepared script is not acceptance evidence.
+Home with empty queues and checks one explicitly requested Search, Media, Music
+or Books phase. It issues no Play or Request action and records only bounded
+navigation evidence. Compile validation passed; current native evidence is
+recorded below.
+
+### 2026-10-26 phase-isolated landing result
+
+The original combined-driver workflow was not a valid acceptance instrument
+for the Music/Books result. It kept one Python invoker alive across Search,
+catalogue, Media and custom-window transitions, while timestamp-only output
+made an external caller vulnerable to reading a prior run. In that sequence
+Music repeatedly failed to move from hero Next `118` to populated panel `500`,
+even though the panel reported 25 items and was visible and enabled. A fresh
+focused probe twice followed the same G20-equivalent `select_dispatch.py` then
+JSON-RPC Down route to panel `500`; this contradicted a skin-navigation defect.
+
+The maintained driver now runs exactly one explicit `search`, `media`, `music`
+or `books` phase per invocation. A validated caller run ID is present in both
+the result body and exact completion filename, and a 120-second bounded lock
+rejects overlapping invocations. Landing readiness is page-specific: Music
+requires `AsterMusic.LoadReady`, while Books (which has no shared LoadReady
+property) requires its hero plus populated target row. Media retains its
+required Home-header entry before focusing hero Next. This removes the stale
+result, overlap and cross-window sequencing assumptions without relaxing any
+focus, timer, idle, queue or manifest assertion.
+
+Fresh HP runs passed independently:
+
+- `smoke-result-navfix2-media.json`: Media manual Next and tile authority;
+- `smoke-result-navfix3-music.json`: Music `118` → Down → panel `500`; and
+- `smoke-result-navfix4-books.json`: Books `307` → Down → eBook row `501`.
+
+Each run held the tile/control focus for 13 seconds without an idle hero tick
+changing the recommendation, preserved family manifest SHA-256
+`c865df1863d8511a6685f491588746cfd255854ccc96ada4d2fbcf7b6dd66247`,
+left both player queues empty, and returned HP to Home. The active Home hash
+remained `4c118dd42c3d97c1899a0dcbdce8e6ab42b22d3f309c09802f1a861fac9f830d`.
+No skin or runtime-family file was changed. The prior staged driver is retained
+as `live_landing_family_smoke.py.pre-phase-isolation-20261026` for recovery.
