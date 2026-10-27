@@ -52,7 +52,7 @@ class MediaHeroHomeTests(unittest.TestCase):
         synopsis = next(node for node in hero.findall('control')
                         if node.get('type') == 'textbox')
         self.assertEqual((synopsis.findtext('font'), synopsis.findtext('height')),
-                         ('font20', '86'))
+                         ('font18', '86'))
         self.assertEqual(synopsis.findtext('top'), '318')
         rating = next(node for node in hero.findall('control')
                       if node.findtext('label', '').endswith('[AsterHeroRating]'))

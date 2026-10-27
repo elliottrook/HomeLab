@@ -70,9 +70,9 @@ def transform(raw):
                     None)
     require(synopsis is not None, 'media-hero-synopsis')
     # Keep a deliberate gap below the 70px title.  The former 313px origin
-    # touched the title as soon as the synopsis moved up to font20.
+    # touched the title as soon as the synopsis moved up to the larger face.
     field(synopsis, 'top', '318'); field(synopsis, 'height', '86')
-    field(synopsis, 'font', 'font20')
+    field(synopsis, 'font', 'font18')
     rating = next((node for node in hero.findall('control')
                    if node.get('type') == 'label'
                    and node.findtext('label', '').endswith('[AsterHeroRating]')),

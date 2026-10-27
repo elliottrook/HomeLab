@@ -55,7 +55,7 @@ def settings(data):
     rail=ET.SubElement(controls,'include',dict(content='AsterNavigationRail'))
     ET.SubElement(rail,'param',dict(name='content',value='200'));ET.SubElement(rail,'param',dict(name='railfocus',value='9005'))
     group=ET.SubElement(controls,'control',dict(type='group'))
-    field(group,'visible','!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)')
+    field(group,'visible','!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007) + !Control.HasFocus(9009)')
     logo=ET.SubElement(group,'control',dict(type='image'))
     for k,v in dict(left=110,top=0,width=240,height=160,texture='special://skin/media/aster-compass-128.png',aspectratio='keep').items():field(logo,k,v)
     for index,item in enumerate(items):
@@ -76,7 +76,9 @@ def settings(data):
         x=145+(i%2)*830;y=390+(i//2)*175
         label(x,y,750,36,title,'font20','asterMuted');label(x,y+43,750,65,value,'font28')
     label(145,990,1650,34,'Choose a settings area above · Left opens the navigation rail','font20','asterMuted')
-    return header(encoded(root),list(range(200,208)),[110,100,110,110,160,180,130,100],200,compact=True)
+    result=ET.fromstring(header(encoded(root),list(range(200,208)),[110,100,110,110,160,180,130,100],200,compact=True))
+    field(result.find(".//control[@id='200']"),'onleft',8999)
+    return encoded(result)
 
 def extend_search(data):
     source=data.decode()

@@ -159,7 +159,7 @@ def extend_includes(source):
     # Hero image layers sit above the base surfaces but below page controls.
     first_group = next(node for node in definition.findall('control') if node.get('type') == 'group')
     backdrop = ET.Element('control', {'type': 'image'})
-    for name, value in (('left', 0), ('top', 0), ('width', 1920), ('height', 1080),
+    for name, value in (('left', 0), ('top', 0), ('width', 1920), ('height', 620),
                         ('texture', '$INFO[Window.Property(AsterBooks.HeroBackdrop)]'),
                         ('aspectratio', 'scale'), ('fadetime', 250),
                         ('colordiffuse', '88FFFFFF'),

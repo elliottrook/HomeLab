@@ -24,6 +24,9 @@ ALLOWED = {
     # This bounded migration only reads the Settings launcher while inserting
     # the Requests entry into the same side-rail definition.
     'v2/review_corrections.py',
+    # This exact HP successor replaces one side-rail launcher and removes the
+    # legacy stone Genres icon; the names occur only in guarded migrations.
+    'v2/owner_review_followup.py',
     'v2/prototype/index.html',
     'v2/script.astermusic.v2lab/resources/skins/Default/1080i/MusicLab.xml',
 }

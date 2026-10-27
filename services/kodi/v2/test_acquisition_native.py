@@ -48,7 +48,7 @@ class AcquisitionNativeTests(unittest.TestCase):
                          if node.get("type") == "label"
                          and node.findtext("label") == "Request"]
         self.assertEqual(len(action_labels), 1)
-        self.assertEqual(action_labels[0].findtext("font"), "font24")
+        self.assertEqual(action_labels[0].findtext("font"), "font20")
         self.assertIn("AsterAcquisition.PrimaryAction",
                       action_labels[0].findtext("visible"))
         action_images = [node for node in root.findall(".//control")

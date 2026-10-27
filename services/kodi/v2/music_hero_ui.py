@@ -161,7 +161,7 @@ def extend_includes(source):
         raise ValueError('music-hero-fanart')
     _field(fanart, 'visible', '!Window.IsActive(11113) | Control.HasFocus(500)')
     recommendation = ET.Element('control', {'type': 'image'})
-    for name, value in (('left', 0), ('top', 0), ('width', 1920), ('height', 1080),
+    for name, value in (('left', 0), ('top', 0), ('width', 1920), ('height', 620),
                         ('texture', '$INFO[Window.Property(AsterMusic.HeroBackdrop)]'),
                         ('aspectratio', 'scale'), ('fadetime', 250),
                         ('visible', 'Window.IsActive(11113) + !Control.HasFocus(500)')):
