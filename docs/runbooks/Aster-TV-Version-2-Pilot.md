@@ -93,6 +93,25 @@ is separated by its gold band.
 - Settings includes Network status and the optional log viewer. Diagnostics are
   explicit/manual and do not run hidden background probes.
 
+## Acquisition Hub
+
+- **Requests** opens the native Acquisition Hub. Media, Music and Books are
+  separate tabs and retain their own selected item.
+- Every displayed candidate is a sanitized, currently unowned suggestion from
+  the private acquisition services. An unavailable or stale feed must remain
+  visibly unavailable; it must not block ordinary local libraries.
+- Film and television continue through the existing season-aware Seerr page.
+  Jason still approves or declines those requests in Seerr.
+- Album, ebook and audiobook actions require two explicit presses. The first
+  arms the exact request and the second submits it through the restricted
+  broker. A pending, processing or already-available result cannot be submitted
+  again.
+- If a request reports an uncertain result, do not press OK repeatedly. The
+  private request journal deliberately prevents a blind retry.
+- The deployment test did not send a request. Until an intentional provider-
+  write trial is chosen, use the page for browse, tab, focus, artwork and Back
+  testing only.
+
 ## Accessibility and screensaver
 
 In Aster skin settings, **Reduce interface motion** removes decorative fades,
@@ -126,6 +145,17 @@ at `/storage/.aster-staging/aster-family-recovery7b`. Its checkpoint is
 `/storage/.aster-checkpoints/aster-family-runtime7`. The Jellyfin segment guard
 has its separate checkpoint at
 `/storage/.aster-checkpoints/aster-jellyfin-segments-guard-20261026`.
+
+The later Acquisition Hub is a verified layered successor, not a member of
+Recovery7. Its accepted checkpoint is
+`/storage/.aster-checkpoints/aster-acquisition-page3`; the first activation
+checkpoint at `/storage/.aster-checkpoints/aster-acquisition-page2` is retained
+as additional recovery evidence. Its active manifest SHA-256 is
+`188b5923527f62adb42a02c65c3d3848a73550fda0202eb94fdf1ccedd68815c`.
+Restoring Recovery7 alone would remove the Hub launcher/window and is therefore
+not a reconstruction of the complete current candidate. Apply or roll back the
+Acquisition layer only through its pinned helper and checkpoint until a later
+graduation package deliberately consolidates the layers.
 
 Recovery7 has passed one real rollback and reinstall. Never restore profiles,
 watch history or listening progress as part of a UI rollback. Stop if a pinned
