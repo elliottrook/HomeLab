@@ -154,3 +154,34 @@ All 110 Unified Media tests pass in normal and optimized Python. Native
 UI acceptance remains a duplicate-only check: revisit these same journalled
 titles, confirm the saved accepted outcome and verify no new provider request.
 No further acquisition title or automatic retry is authorized by this trial.
+
+## Saved outcomes on reopening — prepared local successor
+
+The approved trial exposed a presentation gap: the provider result and durable
+journal prevented duplicate writes, but reopening a suggestion still offered
+Request until the user confirmed it again. The local successor now reads the
+selected item's verified journal record before rendering or handling an action.
+An accepted request immediately shows its saved status with the action disabled.
+An uncertain, malformed or mismatched record instead shows
+`Request needs review · no retry will be sent` and remains blocked. An ebook
+result cannot be reused for an audiobook sharing the same work identity.
+
+The saved-result reader invokes no transport and changes no journal record.
+Missing records leave ordinary first/second-press confirmation intact. A
+dangling journal symlink is refused before reading or creating its target.
+When a completed action disappears, focus returns to the suggestion list if
+it would otherwise remain on the hidden button.
+
+Thirty-eight acquisition checks and the complete 1,238-test Kodi v2 suite pass
+in normal and optimized Python, with the existing single Mac-only Pillow skip
+in the full suite. The candidate was built against two read-only captures of
+the exact active HP controller and journal helper, including predecessor copies.
+Its manifest pin is
+`9a17a633847b8edd060be5e0c925886234d54a4b9b846e148321aa84acfb2d75`,
+at `services/kodi/v2/dist/aster-acquisition-saved-status1`.
+
+This is prepared-only: no installed HP file, foreground window, playback or
+request journal was changed while the EPUB project tests on HP. Once that test
+releases the client, continue under the existing HP authorization with a
+checkpointed two-file activation and native duplicate-only review of the two
+already approved requests. This does not authorize another acquisition.

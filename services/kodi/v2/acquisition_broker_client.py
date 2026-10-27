@@ -8,9 +8,10 @@ an uncertain write.
 import hashlib
 import json
 import os
+from dataclasses import replace
 from pathlib import Path
 
-from acquisition_hub_model import RequestProposal
+from acquisition_hub_model import RequestProposal, ROUTES
 
 
 class AcquisitionUnavailable(RuntimeError):
@@ -93,13 +94,13 @@ class RequestWriter:
         name = hashlib.sha256(proposal.identity.encode("utf-8")).hexdigest()
         return self.root / (name + ".json")
 
-    def submit(self, proposal):
+    def saved(self, proposal):
+        """Read a verified saved result without invoking any transport."""
         path = self._path(proposal)
-        require(proposal.route in self.transports,
-                "acquisition-route-unavailable")
         payload = {"schema": 1, "candidate_id": proposal.identity,
                    "media_type": proposal.media_type, "confirm": True}
         payload_hash = hashlib.sha256(_encoded(payload)).hexdigest()
+        require(not path.is_symlink(), "acquisition-journal-invalid")
         if path.exists():
             require(not path.is_symlink() and path.is_file(),
                     "acquisition-journal-invalid")
@@ -116,6 +117,18 @@ class RequestWriter:
             if prior.get("status") == "committed":
                 return result(prior.get("result"), proposal)
             raise AcquisitionUnavailable("acquisition-recovery-required")
+        return None
+
+    def submit(self, proposal):
+        path = self._path(proposal)
+        require(proposal.route in self.transports,
+                "acquisition-route-unavailable")
+        prior = self.saved(proposal)
+        if prior is not None:
+            return prior
+        payload = {"schema": 1, "candidate_id": proposal.identity,
+                   "media_type": proposal.media_type, "confirm": True}
+        payload_hash = hashlib.sha256(_encoded(payload)).hexdigest()
         record = {"schema": 1, "candidate_id": proposal.identity,
                   "route": proposal.route, "payload_sha256": payload_hash,
                   "status": "prepared", "result": None}
@@ -131,4 +144,23 @@ class RequestWriter:
         record.update(status="committed", result=accepted)
         _atomic(path, record)
         return dict(accepted)
+
+
+def restore_saved_state(state, writer):
+    """Project the selected item's durable outcome without sending a request."""
+    if state.item is None or ROUTES.get(state.item.media_type) not in ("music", "books"):
+        return state
+    proposal = RequestProposal(state.item.identity, state.item.media_type,
+                               ROUTES[state.item.media_type], "ready")
+    try:
+        accepted = writer.saved(proposal)
+    except (AcquisitionUnavailable, OSError, ValueError):
+        return replace(state, phase="blocked",
+                       status="Request needs review · no retry will be sent")
+    if accepted is None:
+        return state
+    status = {"pending": "Request awaiting approval",
+              "processing": "Request accepted · waiting for library import",
+              "available": "Already tracked by acquisition service"}[accepted["status"]]
+    return replace(state, phase="complete", status=status)
 

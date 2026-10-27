@@ -14,7 +14,8 @@ import xbmcgui
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "resources/lib"))
 
-from acquisition_broker_client import AcquisitionUnavailable, RequestWriter
+from acquisition_broker_client import (AcquisitionUnavailable, RequestWriter,
+                                       restore_saved_state)
 from acquisition_http_transport import post
 from acquisition_hub_model import (activate, build, complete, domain_state,
                                    request, select)
@@ -63,6 +64,8 @@ def main():
         home.setProperty(key, str(value)) if value != "" else home.clearProperty(key)
 
     def publish():
+        nonlocal state
+        state = restore_saved_state(state, writer)
         view = render(state)
         prop("Domain", view.domain)
         prop("Status", view.status)
@@ -77,6 +80,8 @@ def main():
             hint = "Open the private film and television request page"
         elif view.confirmation:
             hint = "Press once more to send this exact request"
+        elif state.phase in ("complete", "blocked"):
+            hint = ""
         elif view.action:
             hint = "Requests are checked again before they are accepted"
         else:
@@ -84,6 +89,8 @@ def main():
         prop("ActionHint", hint)
         for domain in DOMAINS:
             prop("Tab" + domain.title(), "active" if domain == view.domain else "")
+        if not view.action_enabled and window.getFocusId() == 50:
+            xbmc.executebuiltin("SetFocus(30)")
 
     def fill():
         control = window.getControl(30)
@@ -129,6 +136,10 @@ def main():
                         xbmc.executebuiltin("ActivateWindow(Home)")
                         xbmc.executebuiltin("RunScript(script.asterseerr)")
                         break
+                    state = restore_saved_state(state, writer)
+                    if state.phase in ("complete", "blocked"):
+                        publish()
+                        continue
                     try:
                         confirming = state.phase == "confirm"
                         state, proposal = request(state, confirming)

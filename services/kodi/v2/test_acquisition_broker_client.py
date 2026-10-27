@@ -4,8 +4,11 @@ import tempfile
 import unittest
 
 from acquisition_broker_client import (AcquisitionUnavailable, RequestWriter,
-                                       result)
-from acquisition_hub_model import RequestProposal
+                                       result, restore_saved_state)
+from acquisition_hub_model import (RequestProposal, activate, build, domain_state,
+                                   request)
+from acquisition_page_model import render
+from test_acquisition_page_model import source
 
 
 class AcquisitionBrokerClientTests(unittest.TestCase):
@@ -144,6 +147,70 @@ class AcquisitionBrokerClientTests(unittest.TestCase):
             with self.assertRaisesRegex(AcquisitionUnavailable,
                                         "acquisition-journal-root-invalid"):
                 RequestWriter(linked, {})
+
+    def state(self, domain='music', kind='album', identity=None):
+        identity = identity or self.proposal().identity
+        return activate(build(domain_state(d, source(d, kind, identity), 'live')
+                              if d == domain else domain_state(d)
+                              for d in ('media', 'music', 'books')), domain)
+
+    def test_reopen_restores_accepted_status_without_a_transport(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            proposal = self.proposal()
+            value = {'schema': 1, 'identity': proposal.identity,
+                     'status': 'processing', 'request_id': 41}
+            RequestWriter(temporary, {'music': lambda _: value}).submit(proposal)
+            path = next(Path(temporary).glob('*.json'))
+            before = path.read_bytes()
+            view = render(restore_saved_state(self.state(), RequestWriter(temporary, {})))
+            self.assertEqual(view.status, 'Request accepted · waiting for library import')
+            self.assertFalse(view.action_enabled)
+            self.assertEqual(before, path.read_bytes())
+
+    def test_uncertain_reopen_blocks_action_without_retry(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            calls = []
+            def fail(_):
+                calls.append(True)
+                raise OSError('synthetic failure')
+            writer = RequestWriter(temporary, {'music': fail})
+            with self.assertRaises(AcquisitionUnavailable):
+                writer.submit(self.proposal())
+            state = restore_saved_state(self.state(), writer)
+            self.assertEqual(state.phase, 'blocked')
+            self.assertIn('no retry', render(state).status)
+            self.assertFalse(render(state).action_enabled)
+            self.assertEqual(calls, [True])
+
+    def test_unrequested_confirmation_is_preserved_without_creating_a_record(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            state, _ = request(self.state())
+            writer = RequestWriter(temporary, {})
+            self.assertEqual(restore_saved_state(state, writer), state)
+            self.assertIsNone(writer.saved(self.proposal()))
+            self.assertEqual(list(Path(temporary).iterdir()), [])
+
+    def test_saved_ebook_outcome_cannot_be_used_for_audiobook(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            identity = 'openlibrary:/works/OL123W'
+            ebook = self.proposal('books', identity, 'ebook')
+            value = {'schema': 1, 'identity': identity,
+                     'status': 'processing', 'request_id': 'OL123W'}
+            writer = RequestWriter(temporary, {'books': lambda _: value})
+            writer.submit(ebook)
+            state = restore_saved_state(self.state('books', 'audiobook', identity), writer)
+            self.assertEqual(state.phase, 'blocked')
+            self.assertFalse(render(state).action_enabled)
+
+    def test_dangling_journal_link_is_refused_without_creating_target(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)/'journal'
+            writer = RequestWriter(root, {})
+            target = Path(temporary)/'absent.json'
+            writer._path(self.proposal()).symlink_to(target)
+            with self.assertRaisesRegex(AcquisitionUnavailable, 'journal-invalid'):
+                writer.saved(self.proposal())
+            self.assertFalse(target.exists())
 
 
 if __name__ == "__main__":
