@@ -43,7 +43,10 @@ Require absence of only the new cycle file
 `/var/lib/local-ai-lab/f2-scheduled/2026-10-28.json`, every lease/lock and the
 trusted receipt. Preserve October 19–27 evidence byte-for-byte, including the
 October 27 terminal-state digest `cf72cfbd…5d2a`. Recurring F2 timers must
-remain disabled/inactive and no earlier date-specific unit may exist.
+remain disabled/inactive. The two retained October 20 historical timer files
+may remain only when they match `01c819c2…5449` and `cd8ac10f…768d`,
+respectively, with root:root mode `0644` one-link custody and disabled/inactive
+state. Every other earlier date-specific F2 timer must be absent.
 
 ## Activation and rollback boundary
 

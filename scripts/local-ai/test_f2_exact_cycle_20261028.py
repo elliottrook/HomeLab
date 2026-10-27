@@ -39,6 +39,9 @@ class F2ExactCycle20261028Tests(unittest.TestCase):
         self.assertIn("2026-10-28.json", text)
         self.assertIn("Preserve October 19–27 evidence byte-for-byte", text)
         self.assertIn("cf72cfbd…5d2a", text)
+        self.assertIn("01c819c2…5449", text)
+        self.assertIn("cd8ac10f…768d", text)
+        self.assertIn("Every other earlier date-specific F2 timer must be absent", " ".join(text.split()))
         self.assertIn("no retry", text.lower())
 
     def test_card_keeps_later_backup_gates_outside_f2(self):
