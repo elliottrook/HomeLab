@@ -1,5 +1,72 @@
 # Fixed-hardware capability research watch — 2026-10-12
 
+## October 26 late preparation interface review
+
+Fresh Forgejo fetch at the 22:30 preparation check-in returned the same
+Adaptive `38b366e80987e0adeb57501034895d2e8cb70864`, B60
+`64d909bb494473a068b61a49e1e3a493251feb48` and platform
+`6fb0207fec5190e0c34ed3bc72ea38e128f06127` recorded below. B60 local
+research commit `430d85bc` had not been pushed by the research run. This
+preparation continuation may publish the necessary sanitized review under
+the standing liaison authority; it does not reauthorize a research-run push.
+
+Exported only eight public full-Aster modules, their eight test files and
+three public contract/proposal/profile JSON fixtures from exact Adaptive
+`38b366e8` to `/private/tmp/b60-full-aster-review-20261026.1yzJ8h`.
+The selected peer suites pass **36/36** on existing Python 3.9.6. The first
+export omitted the public proposal fixture, causing four file-not-found
+errors; adding its exact same-commit dependency resolves them. No dependency
+installation or private packet/label read was needed. B60's standard 81-test
+suite also passes; counts are separate, not model observations.
+
+Exact source SHA-256 under `scripts/aster-adaptive/`:
+
+- `full_aster_first_screen_preflight_v1.py`:
+  `47be100792bba6c16cf7d354e85cc3ff56b3dce106e5a768064e7baa979eb608`;
+- `full_aster_score_v1.py`:
+  `cee0ff3b8572727c1afedaf62ef93d27b44cfbe909e8512a7deb42300dd485bb`;
+- `full_aster_benchmark_contract_v1.py`:
+  `757dd3631f68555773446c23eea25d288a8d47e55ac916d08714097f87aa47f5`.
+
+### Concrete preflight integration boundary
+
+Four pinned, synthetic characterization tests in
+`scripts/b60-inference/review-fixtures/test_full_aster_peer_contract.py`
+pass by reproducing current non-authoritative acceptance of:
+
+1. deadlines at Unix epochs 1/2/3, with no current-time/freshness comparison;
+2. the ten-character cycle string `not-a-date`;
+3. a claimed 900-second reserve with only one second between controller and
+   recovery deadlines and one more before the protected deadline; and
+4. arbitrary non-JSON contract bytes when their supplied hash matches.
+
+Each result retains `live_effect_authorized: false` and `authority: not-granted`.
+These are pure-validator limitations, not observed exploitation or a claim
+that the unseen effectful runner has those faults. B60 must not consume
+`admitted: true` as authenticated live admission. Before integration the
+owning producer/controller must demonstrate actual same-cycle receipt bytes
+and status, parse/pin the accepted contract, compare fresh UTC instants with
+the Vancouver cycle and 04:15 completion boundary, connect measured recovery
+reserve to deadlines, and bind lease/watchdog generation and source custody.
+Four hex-shaped F2–F5 strings and caller-supplied booleans do not establish it.
+Keep the 30-minute B60 trial bound separate from a 90-minute outage budget.
+
+The scorer currently accepts synthetic equal-quality baseline/challenger
+reviews and computes latency across completed transport rows, including
+answers reviewers may reject. That is a screen result, not proof of improved
+grounded capability or useful-answer latency. Preserve all failures while
+separating terminal completion from useful completion, and require the
+programme's per-class repeated-session qualification before milestone claims.
+Distinct reviewer IDs check a binding, not actual human independence.
+
+Next safe action: Adaptive/platform should identify the exact enforcing
+controller and return source-bound closure or adopt equivalent offline
+regressions before a live screen. B60 will test that pinned source; do not
+duplicate or patch deployed recovery from this characterization. The current
+source publication gap remains, with no new human-access request justified.
+No model/GPU call, LAN production probe, lease, mount, timer/service or
+credential operation ran in this preparation continuation.
+
 ## October 26 Monday review
 
 Research execution receipt: 2026-10-27 UTC, Monday evening America/Vancouver.

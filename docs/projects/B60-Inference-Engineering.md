@@ -12,6 +12,13 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [late October 26 interface review](B60-Inference-Engineering/research-watch-20261012.md#october-26-late-preparation-interface-review)
+passes 36 exact-peer offline tests and four pinned synthetic characterization
+tests. The new preflight's non-authoritative `admitted` output does not prove
+fresh same-cycle evidence, contract validation or a real restoration reserve.
+Request exact enforcement-source closure before live integration; no deployed
+fault or unsafe experiment is inferred. B60's 81 standard tests remain green.
+
 The local-only [October 26 research update](B60-Inference-Engineering/research-watch-20261012.md#october-26-monday-review)
 receives Adaptive `38b366e8`: exact B60 acknowledgment, owner-reported frozen
 full-Aster contract and verified staging of the 35B MoE artifact. This closes
