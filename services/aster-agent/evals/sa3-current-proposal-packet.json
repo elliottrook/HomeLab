@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "packet_id": "sa3-current-proposal-v1",
+  "cases": [
+    {
+      "id": "cold-start",
+      "observations": [],
+      "expected": {"disposition": "observe", "target": "aster-gateway", "kind": "status", "citations": 0}
+    },
+    {
+      "id": "gateway-ok",
+      "observations": [
+        {"target": "aster-gateway", "kind": "status", "state": "ok", "summary": "The gateway is serving requests.", "facts": {"service": "aster-agent", "availability": "serving"}}
+      ],
+      "expected": {"disposition": "observe", "target": "inference-server", "kind": "status", "citations": 1}
+    },
+    {
+      "id": "gateway-warn",
+      "observations": [
+        {"target": "aster-gateway", "kind": "status", "state": "warn", "summary": "The gateway is reachable but dependency state is uncertain.", "facts": {"service": "aster-agent", "availability": "degraded"}}
+      ],
+      "expected": {"disposition": "observe", "target": "inference-server", "kind": "status", "citations": 1}
+    },
+    {
+      "id": "gateway-unavailable",
+      "observations": [
+        {"target": "aster-gateway", "kind": "status", "state": "unavailable", "summary": "The registered gateway source was unavailable.", "facts": {}}
+      ],
+      "expected": {"disposition": "observe", "target": "inference-server", "kind": "status", "citations": 1}
+    },
+    {
+      "id": "both-ok",
+      "observations": [
+        {"target": "aster-gateway", "kind": "status", "state": "ok", "summary": "The gateway is serving requests.", "facts": {"service": "aster-agent", "availability": "serving"}},
+        {"target": "inference-server", "kind": "status", "state": "ok", "summary": "The fixed inference health endpoint reported ok.", "facts": {"service": "aster-llama", "endpoint": "health"}}
+      ],
+      "expected": {"disposition": "complete", "target": null, "kind": null, "citations": 2}
+    },
+    {
+      "id": "inference-unavailable",
+      "observations": [
+        {"target": "aster-gateway", "kind": "status", "state": "ok", "summary": "The gateway is serving requests.", "facts": {"service": "aster-agent", "availability": "serving"}},
+        {"target": "inference-server", "kind": "status", "state": "unavailable", "summary": "The registered inference health source was unavailable.", "facts": {}}
+      ],
+      "expected": {"disposition": "escalate", "target": null, "kind": null, "citations": 2}
+    },
+    {
+      "id": "inference-fail",
+      "observations": [
+        {"target": "aster-gateway", "kind": "status", "state": "warn", "summary": "The gateway reports that its model dependency is unavailable.", "facts": {"service": "aster-agent", "availability": "degraded"}},
+        {"target": "inference-server", "kind": "status", "state": "fail", "summary": "The fixed inference health source reports failure.", "facts": {"service": "aster-llama", "endpoint": "health"}}
+      ],
+      "expected": {"disposition": "complete", "target": null, "kind": null, "citations": 2}
+    },
+    {
+      "id": "all-unavailable",
+      "observations": [
+        {"target": "aster-gateway", "kind": "status", "state": "unavailable", "summary": "The registered gateway source was unavailable.", "facts": {}},
+        {"target": "inference-server", "kind": "status", "state": "unavailable", "summary": "The registered inference health source was unavailable.", "facts": {}}
+      ],
+      "expected": {"disposition": "escalate", "target": null, "kind": null, "citations": 2}
+    }
+  ]
+}
