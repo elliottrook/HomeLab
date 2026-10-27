@@ -1,6 +1,8 @@
 import asyncio
 import io
+import os
 import subprocess
+import tempfile
 import time
 import threading
 import unittest
@@ -12,7 +14,8 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import HTTPException, UploadFile
 
 import aster_speech
-from aster_speech import health, require_api_key, speech_to_text, text_to_speech, TTSRequest
+from aster_speech import (TTSRequest, health, require_api_key, require_stt_key,
+                          speech_to_text, text_to_speech)
 
 
 class RequireApiKeyTests(unittest.TestCase):
@@ -37,6 +40,39 @@ class RequireApiKeyTests(unittest.TestCase):
     def test_correct_key_is_accepted(self):
         with patch("aster_speech.ASTER_SPEECH_API_KEY", "the-real-key"):
             require_api_key(authorization="Bearer the-real-key")  # does not raise
+
+
+class ScopedTelevisionSttKeyTests(unittest.TestCase):
+    def test_scoped_key_is_accepted_only_by_stt_dependency(self):
+        with patch("aster_speech._tv_stt_key", return_value="t" * 48), \
+                patch("aster_speech.ASTER_SPEECH_API_KEY", "speech-key"):
+            require_stt_key(authorization="Bearer " + "t" * 48)
+            with self.assertRaises(HTTPException) as raised:
+                require_api_key(authorization="Bearer " + "t" * 48)
+        self.assertEqual(raised.exception.status_code, 401)
+
+    def test_existing_speech_identity_still_works_for_stt(self):
+        with patch("aster_speech.TV_STT_KEY_FILE", ""), \
+                patch("aster_speech.ASTER_SPEECH_API_KEY", "speech-key"):
+            require_stt_key(authorization="Bearer speech-key")
+
+    def test_secure_source_local_file_is_validated_without_retaining_key(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "tv-stt.key"
+            path.write_text("t" * 48 + "\n")
+            path.chmod(0o400)
+            with patch("aster_speech.TV_STT_KEY_FILE", str(path)):
+                self.assertEqual(aster_speech._tv_stt_key(expected_uid=os.getuid()), "t" * 48)
+            path.chmod(0o644)
+            with patch("aster_speech.TV_STT_KEY_FILE", str(path)):
+                self.assertIsNone(aster_speech._tv_stt_key(expected_uid=os.getuid()))
+
+    def test_missing_or_malformed_scoped_file_falls_back_and_fails_closed(self):
+        with patch("aster_speech._tv_stt_key", return_value=None), \
+                patch("aster_speech.ASTER_SPEECH_API_KEY", "speech-key"):
+            with self.assertRaises(HTTPException) as raised:
+                require_stt_key(authorization="Bearer short")
+        self.assertEqual(raised.exception.status_code, 401)
 
 
 class AuthentikTokenTests(unittest.TestCase):

@@ -9,7 +9,9 @@ See [operator guide](../../docs/runbooks/Aster-Companion.md) for recovery and
 - `/v1/stt`: multipart `audio`, at most 15 MiB, temporary file only.
 - `/v1/tts`: JSON `text`, at most 2,000 Python code points, WAV output.
 - Both speech routes require the existing dedicated key or a valid Companion
-  JWT with matching signature, issuer, audience and expiry.
+  JWT with matching signature, issuer, audience and expiry. `/v1/stt` may also
+  accept one separate source-local television key. That key is deliberately
+  rejected by `/v1/tts`; it never authorizes Aster Agent or another service.
 
 `health_check.py` is a read-only, credential-free probe for liveness, HTTPS
 routing, OIDC application discovery and JWKS reachability. Doctor invokes it
@@ -21,6 +23,12 @@ contains settings only. Back up the entire guest: Python venv, cached Whisper
 model, Piper binary and voice files, unit and protected environment are all
 needed for recovery. No audio history is needed. Do not activate the example
 with an empty key as an unreviewed deployment change.
+
+The optional television key lives at `/etc/aster-speech/tv-stt.key`, owned by
+`root:aster-speech` with mode 0640. Its environment entry contains only that
+path. The matching LibreELEC copy is root-owned mode 0600 outside every add-on,
+skin, release archive and Git checkout. Rotate or revoke the pair together;
+never reuse the Companion recovery key on a television.
 
 Tests: `python -m unittest discover -s services/aster-speech -q` from the repo
 with the service's Python dependencies installed. Tests substitute synthesis and

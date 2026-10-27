@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="script.astervoice.v2lab" name="Aster Voice Search Lab" version="0.1.0" provider-name="Aster Home">
+  <requires><import addon="xbmc.python" version="3.0.0"/></requires>
+  <extension point="xbmc.python.script" library="default.py"><provides>executable</provides></extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Private press-to-talk search pilot</summary>
+    <description lang="en_GB">Bounded local microphone capture and Aster STT handoff to grouped Search.</description>
+    <platform>linux</platform><license>Private HomeLab</license>
+  </extension>
+</addon>

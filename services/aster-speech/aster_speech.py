@@ -16,6 +16,8 @@ from __future__ import annotations
 import asyncio
 import hmac
 import os
+import re
+import stat
 import subprocess
 import sys
 import tempfile
@@ -29,6 +31,7 @@ from fastapi.responses import Response
 from pydantic import BaseModel, ConfigDict
 
 ASTER_SPEECH_API_KEY = os.environ.get("ASTER_SPEECH_API_KEY", "")
+TV_STT_KEY_FILE = os.environ.get("ASTER_SPEECH_TV_STT_KEY_FILE", "")
 WHISPER_MODEL_SIZE = os.environ.get("ASTER_SPEECH_STT_MODEL", "base.en")
 PIPER_BINARY = Path(os.environ.get("ASTER_SPEECH_PIPER_BIN", "/opt/piper/piper/piper"))
 PIPER_VOICE = Path(
@@ -49,6 +52,7 @@ _authentik_jwks_client = jwt.PyJWKClient(AUTHENTIK_JWKS_URL, cache_keys=True, li
 PIPER_LENGTH_SCALE = os.environ.get("ASTER_SPEECH_PIPER_LENGTH_SCALE", "1.15")
 MAX_AUDIO_BYTES = 15 * 1024 * 1024
 MAX_TEXT_CHARS = 2000
+SCOPED_KEY = re.compile(r"^[A-Za-z0-9._~-]{32,512}$")
 
 app = FastAPI(title="Aster Speech", version="1.0.0")
 
@@ -110,6 +114,37 @@ def require_api_key(authorization: str | None = Header(default=None)) -> None:
     raise HTTPException(status_code=401, detail="Invalid or missing credentials")
 
 
+def _tv_stt_key(*, expected_uid: int = 0) -> str | None:
+    """Read the optional television STT key without exposing it to app state.
+
+    The key remains in a root-owned, group-readable file beside the service.
+    Reading it per request permits source-local revocation without putting the
+    credential in an environment dump or retaining it in a module global.
+    """
+    if not TV_STT_KEY_FILE:
+        return None
+    try:
+        path = Path(TV_STT_KEY_FILE)
+        metadata = path.lstat()
+        if (not path.is_absolute() or path.is_symlink() or not stat.S_ISREG(metadata.st_mode)
+                or metadata.st_uid != expected_uid
+                or stat.S_IMODE(metadata.st_mode) not in (0o400, 0o440, 0o640)
+                or metadata.st_size > 513):
+            return None
+        value = path.read_text(encoding="ascii").strip()
+    except (OSError, UnicodeError):
+        return None
+    return value if SCOPED_KEY.fullmatch(value) else None
+
+
+def require_stt_key(authorization: str | None = Header(default=None)) -> None:
+    """Accept the STT-only television identity or an existing speech identity."""
+    scoped = _tv_stt_key()
+    if scoped and authorization and hmac.compare_digest(authorization, f"Bearer {scoped}"):
+        return
+    require_api_key(authorization)
+
+
 class TTSRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -127,7 +162,7 @@ def _run_transcription(path: str) -> str:
     return "".join(segment.text for segment in segments).strip()
 
 
-@app.post("/v1/stt", dependencies=[Depends(require_api_key)])
+@app.post("/v1/stt", dependencies=[Depends(require_stt_key)])
 async def speech_to_text(audio: UploadFile) -> dict[str, str]:
     data = await audio.read(MAX_AUDIO_BYTES + 1)
     if len(data) > MAX_AUDIO_BYTES:
