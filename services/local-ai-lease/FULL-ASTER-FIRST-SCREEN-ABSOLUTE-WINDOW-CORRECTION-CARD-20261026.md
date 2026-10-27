@@ -1,6 +1,6 @@
 # Full-Aster first-screen absolute-window correction — October 26
 
-Status: **SOURCE CANDIDATE / LIVE INSTALL AND SCHEDULED EFFECT NOT AUTHORIZED BY THIS CARD**
+Status: **INSTALLED AND VALIDATED / SCHEDULED EFFECT REMAINS CONDITIONAL**
 
 ## Finding
 
@@ -30,7 +30,5 @@ check on Proxmox passes the six launcher/guardian cases against the installed
 dependency directories. The first deliberately incomplete packet stopped at
 import because it omitted guardian dependencies; it ran no test or effect.
 
-This changes only the launcher source. The installed launcher and transient
-03:10 timer remain unchanged until a separate reviewed installation replaces
-the exact file. The already approved effect must not run with a different
-source hash unless that replacement is explicitly accepted.
+Jason approved the exact one-file replacement. Completion is recorded in
+`FULL-ASTER-FIRST-SCREEN-ABSOLUTE-WINDOW-INSTALL-RESULT-20261026.md`.
