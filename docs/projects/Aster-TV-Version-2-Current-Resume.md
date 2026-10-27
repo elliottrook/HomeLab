@@ -65,6 +65,11 @@ do not imply household acceptance or production promotion.
   combined test driver. Fresh separate Media, Music and Books runs passed with
   no skin change; evidence is recorded in
   [integrity evidence](Aster-TV-Version-2-Integrity-Evidence.md).
+- A fresh read-only HP resource capture supports the current conservative
+  bedroom target: N95/N100-class x86-64, 8 GiB RAM, 64 GB minimum storage
+  (128 GB preferred), gigabit Ethernet and a proven HDMI chain. This remains a
+  qualified estimate until the final composed client is measured on the N95.
+  See [resource evidence](Aster-TV-Version-2-Resource-Evidence.md).
 
 ## Next work and gates
 
@@ -76,7 +81,7 @@ do not imply household acceptance or production promotion.
 | EPUB pre-generation | Fold the verified consumer and Doctor layers into final release/recovery assembly | HP consumer and read-only Doctor are active; production promotion remains separately gated |
 | YouTube | Complete owner sofa-distance review of the active Aster landing/search successor, including playback and Back/stop behavior | Official add-on remains the data/playback owner; production unchanged |
 | Endurance and accessibility | Continue evidence against the final composed client, then owner sofa/remote review | Short automated soaks do not substitute for household use |
-| Bedroom sizing | Revise the existing measured/inferred assessment after final client shape | See [client sizing](../reference/Aster-TV-Bedroom-Client-Sizing.md); lower-memory deployment remains deferred |
+| Bedroom sizing | Reconcile the N95 host identity, then capture the final composed client idle and under representative 4K playback | Current qualified target and evidence are in [resource evidence](Aster-TV-Version-2-Resource-Evidence.md); lower-memory deployment remains deferred |
 | Final cleanup | One finite owner-led page-by-page v1/v2 walkthrough and bounded repairs | Feature work first; avoid creating an open-ended new backlog |
 | Release | Encode dependency order and run an isolated install/verify/rollback rehearsal from the consolidated bundle, then complete the operational handover | Source recovery is exact; clean-client replay and production promotion remain separate gates |
 
