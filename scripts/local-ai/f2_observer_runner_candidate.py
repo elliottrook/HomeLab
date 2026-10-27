@@ -201,7 +201,10 @@ def observe_once(*, runner, popen=subprocess.Popen, clock=time.time,
     process = popen(("/usr/bin/python3", "-B", str(OBSERVER)),
                     stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                     start_new_session=True,
-                    env={"PATH": "/usr/bin:/bin", "PYTHONPATH": str(OBSERVER.parent),
+                    # pvesm is installed in /usr/sbin on Proxmox. Keep the
+                    # child environment fixed, but include the system sbin
+                    # paths required by the fixed archive resolver.
+                    env={"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "PYTHONPATH": str(OBSERVER.parent),
                          "PYTHONDONTWRITEBYTECODE": "1", "LANG": "C"})
     try:
         output, _ = process.communicate(timeout=seconds)

@@ -9,7 +9,7 @@ class F2FinalMinuteConsistencyTests(unittest.TestCase):
         observer_path = "/usr/local/libexec/local-ai-lease/f2_observer_runner_candidate.py"
         producer_path = "/usr/local/libexec/local-ai-lease/retained_archive_producer_candidate.py"
         self.assertEqual(wrapper.EXPECTED_PINS[observer_path],
-                         "3011c419fbe3392a1d0d74d8deabf9c891985459890622aa968ab9714376c858")
+                         "ce2332a1136b0176bd576a1c5c7f8f4a5374c45ef6d470dcbf78ffd594d4157f")
         self.assertEqual(wrapper.EXPECTED_PINS[producer_path],
                          "5d98f6d9dde9797a92802060b151e9929a4d24849555679f76d65f32ed7caaaf")
         self.assertEqual(observer.PRODUCER_SHA256,

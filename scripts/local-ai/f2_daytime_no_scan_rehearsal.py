@@ -129,7 +129,7 @@ def parent(*, now_epoch: int, popen=subprocess.Popen) -> dict:
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
         start_new_session=True,
-        env={"PATH": "/usr/bin:/bin", "PYTHONPATH": str(LIBEXEC),
+        env={"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "PYTHONPATH": str(LIBEXEC),
              "PYTHONDONTWRITEBYTECODE": "1", "LANG": "C"},
     )
     try:

@@ -97,6 +97,8 @@ class DaytimeNoScanRehearsalTests(unittest.TestCase):
             helper = Path(directory) / "helper.py"
             helper.write_text("import json; print(json.dumps(" + repr(complete_result()) + "))")
             def real_popen(_argv, **kwargs):
+                self.assertEqual(kwargs["env"]["PATH"],
+                                 "/usr/sbin:/usr/bin:/sbin:/bin")
                 return subprocess.Popen((sys.executable, str(helper)), **kwargs)
             result = rehearsal.parent(now_epoch=NOW, popen=real_popen)
         self.assertEqual(result, complete_result())

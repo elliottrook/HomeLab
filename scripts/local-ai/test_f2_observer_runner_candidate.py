@@ -204,6 +204,8 @@ class F2ObserverRunnerTests(unittest.TestCase):
         self.assertEqual(len(created), 1)
         self.assertTrue(created[0][1]["start_new_session"])
         self.assertEqual(created[0][1]["stderr"], subprocess.DEVNULL)
+        self.assertEqual(created[0][1]["env"]["PATH"],
+                         "/usr/sbin:/usr/bin:/sbin:/bin")
 
     def test_timeout_kills_child_group_and_returns_no_go(self):
         class FakeProcess:
