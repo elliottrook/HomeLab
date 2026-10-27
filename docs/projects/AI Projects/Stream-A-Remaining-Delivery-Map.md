@@ -231,6 +231,12 @@ fresh post-window live-predecessor check, target-Python validation and a
 rollback installer; deployment still requires a separately approved Aster
 Agent restart.
 
+The rollback [installer card](evidence/SA2-doctor-status-producer-install-card-2026-10-27.md)
+is now also source-complete and independently reviewed. Shell syntax and all
+7/7 manifest/installer tests pass. It has not run; the remaining pre-release
+work is limited to post-window live-predecessor and target-Python checks,
+followed by the separately approved Aster Agent restart.
+
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the
