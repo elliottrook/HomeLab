@@ -138,6 +138,62 @@ class DoctorIncidentGatewayTests(unittest.TestCase):
                 )
                 self.assertEqual(summary["decision_count"], 0)
 
+    def test_owner_can_run_only_the_pending_registered_gateway_observation(self):
+        claims = lambda value: {"sub": "jason-sub"} if value == "Bearer jwt-jason" else None
+        with patch.object(agent, "lab_operations", self.operations), \
+             patch.object(agent, "_authentik_claims", side_effect=claims), \
+             patch.object(agent, "ASTER_API_KEY", "legacy"), \
+             patch.object(agent, "SYSADMIN_DOCTOR_EVIDENCE", True), \
+             patch.object(agent, "SYSADMIN_INCIDENT_STATE", Path(self.tmp.name) / "incidents.sqlite3"), \
+             patch.object(agent, "HEALTH_REPORT_PATH", self.report), \
+             patch.object(agent, "_sysadmin_incident_store", None):
+            with TestClient(agent.app) as client:
+                created = client.post(
+                    "/v1/sysadmin/incidents/doctor", json={},
+                    headers={"Authorization": "Bearer jwt-jason"},
+                ).json()
+                incident_id = created["incident"]["incident_id"]
+                current = agent._doctor_incident_store().load(
+                    incident_id, datetime.now(timezone.utc)
+                )
+                selected = client.post(
+                    f"/v1/sysadmin/incidents/{incident_id}/follow-up",
+                    json={
+                        "schema_version": 1,
+                        "state_digest": incident_state_digest(current),
+                        "hypothesis_summary": "Gateway availability is the next bounded check.",
+                        "disposition": "observe",
+                        "target": "aster-gateway",
+                        "kind": "status",
+                    },
+                    headers={"Authorization": "Bearer jwt-jason"},
+                )
+                self.assertEqual(200, selected.status_code, selected.text)
+                denied = client.post(
+                    f"/v1/sysadmin/incidents/{incident_id}/observe",
+                    headers={"Authorization": "Bearer legacy"},
+                )
+                self.assertEqual(403, denied.status_code)
+                observed = client.post(
+                    f"/v1/sysadmin/incidents/{incident_id}/observe",
+                    headers={"Authorization": "Bearer jwt-jason"},
+                )
+                self.assertEqual(200, observed.status_code, observed.text)
+                result = observed.json()["incident"]
+                self.assertEqual(2, result["observation_count"])
+                self.assertEqual("aster-gateway", result["observations"][-1]["target"])
+                self.assertEqual("ok", result["observations"][-1]["state"])
+                journal = agent._doctor_incident_store().followup_journal_snapshot(
+                    incident_id, datetime.now(timezone.utc)
+                )
+                self.assertEqual(1, journal["consumed_count"])
+                self.assertIsNone(journal["pending"])
+                repeated = client.post(
+                    f"/v1/sysadmin/incidents/{incident_id}/observe",
+                    headers={"Authorization": "Bearer jwt-jason"},
+                )
+                self.assertEqual(409, repeated.status_code)
+
     def test_followup_rejects_boolean_schema_version(self):
         claims = lambda value: {"sub": "jason-sub"} if value == "Bearer jwt-jason" else None
         with patch.object(agent, "lab_operations", self.operations), \

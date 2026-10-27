@@ -36,6 +36,7 @@ from doctor_incident_adapter import read_doctor_observation
 from sysadmin_incident_store import IncidentStore
 from sysadmin_incident_stream import reconnect_frames
 from sysadmin_investigation import EvidenceRequest, InvestigationError, create_incident
+from sysadmin_registered_producer import execute_registered_pending_observation
 from knowledge_usage import record_knowledge_search
 
 
@@ -1442,7 +1443,10 @@ def start_doctor_incident(title: str, now: datetime | None = None) -> dict[str, 
     incident = create_incident(
         incident_id,
         title,
-        [EvidenceRequest("homelab-doctor", "status", "Read the existing sanitized Doctor status report.")],
+        [
+            EvidenceRequest("homelab-doctor", "status", "Read the existing sanitized Doctor status report."),
+            EvidenceRequest("aster-gateway", "status", "Confirm that the Aster gateway is serving."),
+        ],
     )
     observation = read_doctor_observation(incident_id, HEALTH_REPORT_PATH, now)
     incident.add_observation(observation, now)
@@ -1566,6 +1570,19 @@ async def doctor_incident_follow_up(incident_id: str, request: SysadminFollowUpR
         return store.followup_journal_snapshot(incident_id, datetime.now(timezone.utc))
     except InvestigationError as exc:
         raise HTTPException(status_code=409, detail="Follow-up proposal was not accepted") from exc
+
+
+@app.post("/v1/sysadmin/incidents/{incident_id}/observe", dependencies=[Depends(require_api_key)])
+async def doctor_incident_observe(incident_id: str) -> dict[str, Any]:
+    """Execute only the fixed producer selected by a pending SA1 decision."""
+    _require_doctor_incident_owner()
+    now = datetime.now(timezone.utc)
+    try:
+        store = _doctor_incident_store()
+        execute_registered_pending_observation(store, incident_id, now)
+        return store.reconnect_snapshot(incident_id, now)
+    except InvestigationError as exc:
+        raise HTTPException(status_code=409, detail="Pending observation was not executed") from exc
 
 
 @app.get("/v1/personas", dependencies=[Depends(require_api_key)])

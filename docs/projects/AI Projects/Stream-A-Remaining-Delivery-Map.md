@@ -87,7 +87,12 @@ The complete target suite passes 50/50. The exact four-file candidate was
 Aster Agent is healthy after its one approved restart, authentication remains
 closed by default, the accepted llama process was not restarted and the three
 predecessors are retained in a root-only checkpoint. Connected SA2 producers
-remain separately gated.
+remain separately gated. The first such source now has a
+[source-only registered-producer boundary](evidence/SA2-first-registered-producer-boundary-2026-10-26.md):
+an owner-authenticated request can consume only a pending
+`aster-gateway/status` decision through an in-process, effect-free self-status
+producer. The caller supplies no target or command, every other pair fails
+closed, and target-Python route tests pass 10/10. It is not deployed.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
