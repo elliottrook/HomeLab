@@ -86,6 +86,9 @@ def add_item(handle, row):
     if row['kind'] == 'episode' and type(row.get('episodeid')) is int:
         item.getVideoInfoTag().setDbId(row['episodeid'])
     if row['kind'] == 'tvshow':
+        if type(row.get('id')) is int:
+            item.getVideoInfoTag().setDbId(row['id'])
+            item.setProperty('AsterDbId', str(row['id']))
         url = f"videodb://tvshows/titles/{row['id']}/"
         xbmcplugin.addDirectoryItem(handle, url, item, isFolder=True)
         return

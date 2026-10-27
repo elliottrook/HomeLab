@@ -1,5 +1,5 @@
 """HP series page: read-only by default, explicit ID-only native playback mode."""
-import importlib.util,json,os,sys,time
+import importlib.util,json,os,queue,sys,threading,time
 from dataclasses import replace
 from pathlib import Path
 import xbmc,xbmcgui
@@ -47,7 +47,7 @@ class SeriesPreview(xbmcgui.WindowXML):
         self.playback_enabled=False;self.session=None;self.close_requested=False;self.refresh_due=0;self.next_poll=0
         self.fullscreen_requested=False;self.return_deadline=0;self.restore_due=0
         self.catalogue=None;self.catalogue_client=None;self.catalogue_loaded={};self.catalogue_base=None
-        self.catalogue_cache=None;self.season_writer=None;self.request_arm=None
+        self.catalogue_cache=None;self.catalogue_art_jobs={};self.season_writer=None;self.request_arm=None
         self.last_playback_phase=None
 
     def onInit(self):
@@ -197,7 +197,8 @@ class SeriesPreview(xbmcgui.WindowXML):
         local_numbers={row.number for group in self.catalogue_base.seasons
             if group.number==number for row in group.episodes
             if type(row.number) is int}
-        detail=self.catalogue_cache.localize(detail,local_numbers)
+        self.queue_catalogue_art(number,detail,local_numbers)
+        detail=replace(detail,episodes=tuple(replace(row,still='') for row in detail.episodes))
         old_key=self.selection.episode.selection_key if self.selection.episode else None
         remembered=dict(self.selection.remembered)
         self.catalogue_loaded[number]=detail
@@ -205,6 +206,40 @@ class SeriesPreview(xbmcgui.WindowXML):
         self.snapshot=replace(self.snapshot,page=page)
         self.selection=SeriesSelection(page,old_key);self.selection.remembered=remembered
         self.setProperty('Series.Status','')
+
+    def queue_catalogue_art(self,number,detail,local_numbers):
+        """Render remote catalogue stills without blocking remote navigation."""
+        if number in self.catalogue_art_jobs:return
+        completed=queue.SimpleQueue();self.catalogue_art_jobs[number]=completed
+        def render():
+            try:completed.put(self.catalogue_cache.localize(detail,local_numbers))
+            except Exception:completed.put(None)
+        threading.Thread(target=render,name='aster-series-art-'+str(number),daemon=True).start()
+
+    def consume_catalogue_art(self):
+        completed={}
+        for number,results in tuple(self.catalogue_art_jobs.items()):
+            try:detail=results.get_nowait()
+            except queue.Empty:continue
+            del self.catalogue_art_jobs[number]
+            if detail is not None:completed[number]=detail
+        if not completed:return
+        self.catalogue_loaded.update(completed)
+        old_key=self.selection.episode.selection_key if self.selection.episode else None
+        old_season=self.selection.group.number if self.selection.group else None
+        remembered=dict(self.selection.remembered)
+        page=merge_page(self.catalogue_base,self.catalogue,self.catalogue_loaded.values())
+        self.snapshot=replace(self.snapshot,page=page)
+        self.selection=SeriesSelection(page,old_key);self.selection.remembered=remembered
+        restored=page.restore(old_key,season=old_season) if old_key is not None else None
+        if restored:self.selection.season,self.selection.index=restored
+        try:focus=self.getFocusId()
+        except RuntimeError:focus=300
+        self.updating=True
+        try:self.populate()
+        finally:self.updating=False
+        if focus in (200,201,202,300):self.setFocusId(focus)
+        self.publish()
 
     def request_missing(self,row):
         if not row.requestable:
@@ -379,11 +414,18 @@ def run_entry():
             loaded={}
             cache=GrayscaleCache('/storage/.kodi/userdata/addon_data/script.asterseries/catalogue-stills')
             if number is not None and any(row.number==number for row in catalogue.seasons):
-                loaded[number]=cache.localize(client.season(catalogue,number))
+                detail=client.season(catalogue,number)
+                local_numbers={row.number for group in snapshot.page.seasons
+                    if group.number==number for row in group.episodes
+                    if type(row.number) is int}
+                loaded[number]=replace(detail,episodes=tuple(
+                    replace(row,still='') for row in detail.episodes))
                 page=merge_page(snapshot.page,catalogue,loaded.values())
             snapshot=replace(snapshot,page=page)
             window.catalogue=catalogue;window.catalogue_client=client
             window.catalogue_loaded=loaded;window.catalogue_cache=cache
+            if number is not None and number in loaded:
+                window.queue_catalogue_art(number,detail,local_numbers)
             window.season_writer=SeasonRequestWriter('/storage/.aster-private/seerr-season-journal',client.request_season)
     except (CatalogueUnavailable,ValueError,OSError):
         pass
@@ -396,6 +438,7 @@ def run_entry():
             if not window.ready:
                 if time.monotonic()>deadline:raise SeriesUnavailable('preview-initialization-timeout')
             else:
+                window.consume_catalogue_art()
                 window.consume_command()
                 window.refresh_playback()
                 if window.finished:break

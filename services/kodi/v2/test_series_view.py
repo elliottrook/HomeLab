@@ -184,4 +184,31 @@ class SeriesViewTests(unittest.TestCase):
             window.season_writer.submit.assert_called_once()
             window.session.start.assert_not_called()
 
+    def test_catalogue_art_is_deferred_until_after_navigation_is_ready(self):
+        from types import SimpleNamespace
+        gui=Mock();gui.WindowXML=type('Window',(),{'__init__':lambda self,*a:None})
+        with patch.dict(sys.modules,{'xbmc':Mock(),'xbmcgui':gui}):
+            spec=importlib.util.spec_from_file_location('aster_series_async_art_runtime',HERE/'series_preview/default.py')
+            module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+            raw={'schema':1,'candidate_id':'seerr:tv:456','title':'Series','seasons':[
+                {'number':2,'name':'Season 2','episode_count':1,'state':'unknown',
+                 'request_id':None,'request_state':'none','requestable':True}]}
+            catalogue=parse_catalogue(raw)
+            detail=parse_season({'schema':1,'candidate_id':'seerr:tv:456','title':'Series',
+                'season':raw['seasons'][0],'episodes':[{'number':1,'title':'Missing',
+                'overview':'','air_date':'2026-01-01',
+                'still':'https://image.tmdb.org/t/p/original/example.jpg'}]},catalogue,2)
+            local=build_series(12,[episode()],expected_total=1)
+            window=module.SeriesPreview();window.catalogue=catalogue
+            window.catalogue_client=Mock();window.catalogue_client.season.return_value=detail
+            window.catalogue_cache=Mock();window.catalogue_loaded={};window.catalogue_base=local
+            from series_adapter import SeriesSnapshot
+            window.snapshot=SeriesSnapshot(local,'Series','',(),None,None,'','',456)
+            window.selection=SeriesSelection(local)
+            window.setProperty=Mock();window.queue_catalogue_art=Mock()
+            window.load_catalogue_season(2)
+            window.queue_catalogue_art.assert_called_once()
+            window.catalogue_cache.localize.assert_not_called()
+            self.assertEqual(window.catalogue_loaded[2].episodes[0].still,'')
+
 if __name__=='__main__':unittest.main()

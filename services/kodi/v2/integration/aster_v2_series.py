@@ -6,7 +6,7 @@ STAGE=Path('/storage/.aster-staging/@SERIES_STAGE@')
 MANIFEST_SHA='@SERIES_SHA@'
 
 def selected_show(window,control,kind,identity,parent=False):
-    if window!=10025 or control!=50 or parent or kind!='tvshow':return None
+    if (window,control) not in ((10025,50),(10000,110)) or parent or kind!='tvshow':return None
     if not isinstance(identity,str) or re.fullmatch('[0-9]{1,10}',identity) is None:return None
     number=int(identity)
     return number if 0<number<=2147483647 else None
@@ -17,8 +17,13 @@ def launch_selected_show():
     window=xbmcgui.getCurrentWindowId()
     try:control=xbmcgui.Window(window).getFocusId()
     except RuntimeError:return False
-    identity=selected_show(window,control,xbmc.getInfoLabel('Container(50).ListItem.DBTYPE'),
-        xbmc.getInfoLabel('Container(50).ListItem.DBID'),xbmc.getCondVisibility('Container(50).ListItem.IsParentFolder'))
+    container=110 if (window,control)==(10000,110) else 50
+    identity_label=xbmc.getInfoLabel('Container('+str(container)+').ListItem.DBID')
+    if not identity_label:
+        identity_label=xbmc.getInfoLabel('Container('+str(container)+').ListItem.Property(AsterDbId)')
+    identity=selected_show(window,control,xbmc.getInfoLabel('Container('+str(container)+').ListItem.DBTYPE'),
+        identity_label,
+        xbmc.getCondVisibility('Container('+str(container)+').ListItem.IsParentFolder'))
     if identity is None:return False
     if xbmc.getInfoLabel('Window(Home).Property(AsterSeries.PreviewWindow)'):
         return True

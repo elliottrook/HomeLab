@@ -9,16 +9,30 @@ class SeriesIntegrationTests(unittest.TestCase):
 
     def test_only_verified_native_video_show_identity_can_route(self):
         route=self.helper().selected_show
+        # Native TV Shows and Archive TV share the standard library window;
+        # Recently Added is the Home panel. All must reach one series page.
         self.assertEqual(route(10025,50,'tvshow','12'),12)
-        for values in ((10502,50,'tvshow','12'),(10025,19,'tvshow','12'),(10025,50,'movie','12'),
+        self.assertEqual(route(10000,110,'tvshow','12'),12)
+        for values in ((10000,100,'tvshow','12'),(10502,50,'tvshow','12'),(10025,19,'tvshow','12'),(10025,50,'movie','12'),
                        (10025,50,'season','12'),(10025,50,'episode','12'),(10025,50,'tvshow','12',True),
                        (10025,50,'tvshow','0'),(10025,50,'tvshow','12),PlayMedia(x)'),(10025,50,'tvshow','2147483648')):
             self.assertIsNone(route(*values))
+
+    def test_tv_and_archive_tv_pills_share_the_native_series_route(self):
+        import xml.etree.ElementTree as ET
+        home=ET.parse(HERE.parent/'skin.asterhome/1080i/Home.xml').getroot()
+        actions={control.findtext('label'):control.findtext('onclick')
+                 for control in home.findall('.//control[@type="button"]')}
+        self.assertEqual(actions['TV Shows'],
+            'ActivateWindow(Videos,special://skin/playlists/tv-shows.xsp,return)')
+        self.assertEqual(actions['Archive TV'],
+            'ActivateWindow(Videos,special://skin/playlists/archive-tv.xsp,return)')
 
     def test_existing_dispatch_actions_are_byte_for_byte_unchanged(self):
         old=ast.parse(SOURCE.read_text());new=ast.parse(dispatcher(SOURCE.read_text()))
         get=lambda root:next(n for n in root.body if isinstance(n,ast.FunctionDef) and n.name=='dispatched_action')
         self.assertEqual(ast.dump(get(old)),ast.dump(get(new)))
+        self.assertIn('(window_id, focus_id) in ((10025, 50), (10000, 110))',dispatcher(SOURCE.read_text()))
         self.assertIn('if window_id == 10502 and focus_id == 50:',dispatcher(SOURCE.read_text()))
         self.assertTrue(dispatcher(SOURCE.read_text()).endswith("if __name__ == '__main__':\n    main()\n"))
 

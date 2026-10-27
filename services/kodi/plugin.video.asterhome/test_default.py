@@ -48,6 +48,9 @@ class AdapterTests(unittest.TestCase):
         self.module.add_item(1, {'kind':'tvshow', 'id':42, 'label':'Caught up', 'next_up':True})
         item = self.module.xbmcgui.ListItem.return_value
         item.setProperty.assert_any_call('AsterUpNext', 'true')
+        item.setProperty.assert_any_call('AsterMediaKind', 'tvshow')
+        item.setProperty.assert_any_call('AsterDbId', '42')
+        item.getVideoInfoTag.return_value.setDbId.assert_called_once_with(42)
         self.module.xbmcplugin.addDirectoryItem.assert_called_once_with(
             1, 'videodb://tvshows/titles/42/', item, isFolder=True)
 

@@ -7,7 +7,7 @@ SOURCE=HERE.parent/'skin.asterhome/tools/select_dispatch.py'
 def dispatcher(source):
     needle='    if window_id == 10502 and focus_id == 50:\n'
     if source.count(needle)!=1:raise ValueError('unexpected-select-source')
-    hook=('    if window_id == 10025 and focus_id == 50:\n'
+    hook=('    if (window_id, focus_id) in ((10025, 50), (10000, 110)):\n'
           '        try:\n'
           '            from aster_v2_series import launch_selected_show\n'
           '        except ImportError:\n'
