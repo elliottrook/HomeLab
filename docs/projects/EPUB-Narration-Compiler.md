@@ -410,8 +410,10 @@ production gate.
 - [x] **HomeLab Doctor** — added and failure-tested bounded mount, timer,
   status-age, queue and worker-resource checks; live full-suite regression is
   retained for M6 alongside the other infrastructure checks.
-- [ ] **Monitoring/alerting** — add non-secret queue/worker/capacity signals;
-  confirm existing TrueNAS Beszel coverage and no duplicate alerting.
+- [x] **Monitoring/alerting** — HomeLab Doctor owns non-secret mount,
+  queue/worker/status and backup signals. LXC 116's existing active Beszel agent
+  owns host-resource history; TrueNAS retains its existing native/Doctor
+  coverage. No duplicate agent or alert was added.
 - [x] **Backup and recovery** — daily 14-day dataset snapshots and protected
   state/status/ready/manifest export are live and verified. The current archive
   restored all 167 queue records into an isolated temporary database with a
@@ -425,9 +427,10 @@ production gate.
 - [x] **Human wiki** — added normal operation, statuses, failure meaning,
   privacy boundaries and recovery in a focused local wiki commit; no remote
   synchronization was performed.
-- [x] **Aster mirror/snapshot source** — added an allowlisted sanitized
-  operational reference with provenance; no title, text, timing, progress or
-  source hash. Snapshot build/deployment validation remains part of M6.
+- [x] **Aster mirror/snapshot** — added an allowlisted sanitized operational
+  reference with provenance; no title, text, timing, progress or source hash.
+  Rebuilt the corpus with the accepted derived mirror, checkpointed the prior
+  corpus, atomically deployed it and revalidated Aster health.
 - [x] **Operational reference/runbook** — exact status, disable, checkpoint,
   restore, failure and LKG procedures are documented.
 - [x] **Environment/release lifecycle** — registered as V1 Lab foundation with
@@ -435,8 +438,9 @@ production gate.
 - [x] **Repository documentation** — project and portfolio entry created; M0
   evidence recorded.
 - [x] **Diagrams/rack** — not applicable: no physical topology change.
-- [ ] **Homepage/service discovery** — not expected; document not applicable if
-  no human web UI is introduced.
+- [x] **Homepage/service discovery** — not applicable. The compiler has no web
+  UI/listener and the inactive Aster Books bundle has no normal entry point;
+  adding a dead or privileged dashboard tile would be misleading.
 - [x] **Authentication/authorization** — UID/GID 568 compiler identity, source
   read-only bind, output-only write path and execute-only renderer/model parent
   ACLs deployed; no application credential or shared human identity exists.
@@ -506,11 +510,40 @@ production gate.
 | 2026-10-26 | Restored the compiler portion of the current protected 1.46 GB TrueNAS configuration archive into an isolated temporary directory source-locally. The queue database passed its archived hash, mode and SQLite integrity gates with 167 records. The archive contains no compiler media; ready-pointer and immutable-manifest counts are correctly zero because the real worker has not published a generation. | Protected-state restore gate passed. Local dataset snapshots remain the recovery path for generated media, and source-driven regeneration was proven separately. |
 | 2026-10-26 | Added a private human-wiki operator page and a provenance-declared Aster operational reference. The wiki change is retained in local commit `20d9a86`; no remote was modified. Verified the existing LXC 116 Beszel agent remains active, so Doctor owns compiler semantics while Beszel continues host-resource history without a duplicate agent or alert. | Wiki and Beszel reconciliation complete. Build/validate the sanitized Aster snapshot and finish the production-path gate before graduation. |
 | 2026-10-26 | Final M5/M6 regression passed 31 compiler/consumer/recovery tests in normal and optimized Python, 20 backup/Doctor tests, configuration coverage, compile-only validation and diff checks. Full HomeLab Doctor reported 85 passes and passed the compiler plus both backup checks; five warnings and ten failure lines were unrelated existing whole-lab findings, with zero EPUB/narration/backup failure lines. | The inactive beta and recovery integrations are regression-clean. Unrelated Doctor findings remain outside project scope. |
+| 2026-10-26 | Rebuilt the Aster knowledge snapshot from the clean M5 commit plus a clean local clone of the committed reference repository and the accepted source-side derived mirror. The 1,841-source archive is `2e5a7562…bd5b1`; all provenance entries were clean and the EPUB operational reference was present. Checkpointed the prior LXC 104 corpus, validated the candidate before an atomic directory swap, restarted only `aster-agent.service`, and received healthy API status with PID 15982 and zero restarts. | Sanitized Aster publication passed without private book data or mirror loss. The retained prior directory and root-only checkpoint provide immediate rollback. |
+
+## Post-deployment intent and efficiency review
+
+- The monitor delivers the requested new/changed-title detection and is
+  idempotent. The real backlog remains deliberately queued because measured
+  single-worker completion is roughly 80 continuous days and no household
+  benefit justifies silently beginning that load.
+- The worker has one-attempt execution, one lock, low CPU/I/O priority, a 3 GiB
+  memory ceiling and no schedule. The 128 GiB quota is about 3.3 times the
+  measured ready-corpus estimate. No concurrency increase is justified.
+- The inactive HP beta proves exact ready-pointer consumption, sentence
+  highlighting, seek, chapter change, private progress/resume, Opus duration
+  and rollback boundaries without changing a production route.
+- Permissions remain minimal: Calibre read-only, output-only writes, no
+  listener/credential/public ingress. Configuration backup excludes
+  source-derived content/audio/timing while local snapshots protect bulk data.
+- Operational friction is intentional at the remaining gate: starting a real
+  attempt and promoting Aster Books require a deliberate production decision.
+  This prevents an estimated multi-month workload or UI change from beginning
+  merely because the monitor found a backlog.
+- The implementation is supportable through Doctor, Beszel host history, the
+  runbook, human wiki, protected state restore and source-driven regeneration.
+  The only open graduation item is the separately excluded production AsterTV
+  promotion followed by two independent real-path passes.
 
 ## Close-out
 
-Open. Final architecture, ownership, recovery references, accepted limitations
-and deliberately deferred live fallback will be recorded after graduation.
+M0–M5 are handed over in
+[the M5 handover](../handovers/EPUB-Narration-Compiler-M5-Handover.md). The
+compiler/monitor, backup regime, inactive consumer beta and recovery paths are
+deployed. Project graduation remains open only for the separately excluded
+production AsterTV promotion and two independent production-path passes. Live
+missing-chapter fallback remains deliberately deferred to optional M7.
 
 ## Documentation adequacy reflection
 
