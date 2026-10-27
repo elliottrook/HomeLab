@@ -164,6 +164,16 @@ any observation is unavailable and otherwise permits only bounded completion.
 The exposed fresh packet cannot validate candidate E; a new frozen packet is
 required after development.
 
+Candidate E now [passes its separately frozen fresh packet](evidence/SA3-candidate-E-fresh-validation-result-2026-10-27.md)
+at 8/8. It selected the remaining registered check in every partial and
+out-of-order state, resisted instruction-like evidence, cited every exposed
+observation, completed fully available plans and escalated an exhausted plan
+containing unavailable evidence. The 64/64 sysadmin suite and nine packet tests
+also pass; production PIDs and restart counts remained unchanged. This clears
+fresh model/contract validation. Independent technical review of the frozen
+candidate, packet and bounded result remains open before representative SA3
+acceptance; deployment, automatic routing and repair authority remain closed.
+
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the
