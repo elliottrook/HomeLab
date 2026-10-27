@@ -47,7 +47,7 @@ services:
       # Optional read-only discovery seeds. Empty by default until reviewed.
       - PORTAL_BOOK_QUERIES=${PORTAL_BOOK_QUERIES:-The Dispossessed,The Fifth Season,Dune,1984,Project Hail Mary,The Left Hand of Darkness}
       - PORTAL_AUDIOBOOK_QUERIES=${PORTAL_AUDIOBOOK_QUERIES:-The Murderbot Diaries,The Long Way to a Small Angry Planet,Dune,Project Hail Mary,The Hobbit,World War Z}
-      - PORTAL_MUSIC_MB_QUERIES=${PORTAL_MUSIC_MB_QUERIES:-Talk Talk|Spirit of Eden,Portishead|Dummy,Joni Mitchell|Blue,Miles Davis|Kind of Blue,Radiohead|OK Computer,Massive Attack|Mezzanine}
+      - PORTAL_MUSIC_MB_QUERIES=${PORTAL_MUSIC_MB_QUERIES:-Portishead|Third,Massive Attack|Blue Lines,Björk|Homogenic,PJ Harvey|Let England Shake,Beth Gibbons|Lives Outgrown,Weyes Blood|Titanic Rising}
       - PORTAL_AI_ENABLED=${PORTAL_AI_ENABLED:-YES}
       - PORTAL_AI_DEBUG=${PORTAL_AI_DEBUG:-NO}
       - ASTER_LLAMA_URL=${ASTER_LLAMA_URL:-http://192.168.70.12:11435/v1/chat/completions}

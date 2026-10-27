@@ -35,6 +35,17 @@ class ComposeContractTests(unittest.TestCase):
         self.assertNotIn("radarr-api-key", broker)
         self.assertNotIn("jellyfin-api-key", broker)
 
+    def test_music_discovery_defaults_are_exact_unowned_album_seeds(self):
+        text = (ROOT / "compose.shadow.yaml").read_text(encoding="utf-8")
+        refresher = service(text, "snapshot-refresh")
+        line = next(row for row in refresher.splitlines()
+                    if "PORTAL_MUSIC_MB_QUERIES=" in row)
+        seeds = line.split(":-", 1)[1].rsplit("}", 1)[0].split(",")
+        self.assertEqual(len(seeds), 6)
+        self.assertTrue(all(seed.count("|") == 1 for seed in seeds))
+        self.assertIn("Portishead|Third", seeds)
+        self.assertNotIn("Miles Davis|Kind of Blue", seeds)
+
 
 if __name__ == "__main__":
     unittest.main()
