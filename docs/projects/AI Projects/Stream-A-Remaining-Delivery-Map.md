@@ -1743,3 +1743,9 @@ The lease remained ready, production stayed active with zero restarts, the 9B
 path remained exact and no guest mount was added. The next boundary is an
 inactive, exact mount/load/screen/restore transaction; no model request is yet
 authorized.
+
+The [owner-packet custody boundary](evidence/Full-Aster-owner-packet-custody-boundary-2026-10-26.md)
+is also source-complete. It validates the 24 private fictional cases and emits
+only packet digest/bytes plus family/outcome counts; request, context and rubric
+content never enters shared evidence. The combined full-Aster source suite
+passes 25/25. Actual owner-only case authoring and acceptance remain open.
