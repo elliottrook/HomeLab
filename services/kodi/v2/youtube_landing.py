@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 
 
 NAV_SHA = "d1dc27ccde4eeed3e29f0a2ed935a1668d9757f527cb36fd1234ab28630c6c32"
-INCLUDES_SHA = "bc018758834542aa1d4a2b6872c467e09ff93135f06b9c6aca080fb7f2d8758e"
+INCLUDES_SHA = "fca53b5ee0f8e9f0fa25142bc993fbf902b3d213ec7b0bfc9a866f12d20d6ee2"
 ROOT = "String.IsEqual(Container.FolderPath,plugin://plugin.video.youtube/)"
 SEARCH = ("String.StartsWith(Container.FolderPath,"
           "plugin://plugin.video.youtube/kodion/search/)")
@@ -25,14 +25,14 @@ ROUTES = (
     (9304, "Channels", "plugin://plugin.video.youtube/subscriptions/list/?category_label=Subscribed+Channels", 1260, 175),
 )
 
+LANDING_ROWS = (
+    (9530, "New from subscriptions", ROUTES[1][2], 405, 438, 9531, 9301),
+    (9531, "Recommended", ROUTES[2][2], 627, 660, 9532, 9530),
+    (9532, "Watch later", ROUTES[3][2], 849, 882, 9532, 9531),
+)
 ROWS = (
     (50, "New from subscriptions", ROUTES[1][2], 405, 438, 51, 9301),
     (51, "Recommended", ROUTES[2][2], 627, 660, 52, 50),
-    (52, "Watch later", ROUTES[3][2], 849, 882, 52, 51),
-)
-SEARCH_ROWS = (
-    (53, "New from subscriptions", ROUTES[1][2], 405, 438, 51, 9301),
-    (51, "Recommended", ROUTES[2][2], 627, 660, 52, 53),
     (52, "Watch later", ROUTES[3][2], 849, 882, 52, 51),
 )
 
@@ -82,37 +82,39 @@ def extend_includes(raw, include_search=True):
             "youtube-landing-includes-predecessor")
     root = ET.fromstring(raw)
     names = {node.get("name") for node in root.findall("variable")}
-    fallback = 53 if include_search else 50
+    fallback = 9530 if include_search else 50
+    second = 9531 if include_search else 51
+    third = 9532 if include_search else 52
     additions = (
         variable("AsterYouTubeHeroTitle", ((
             (SEARCH + " + Container(50).ListItem.IsParentFolder",
              "Choose a video"),
             (SEARCH, "$INFO[Container(50).ListItem.Label]"),)
               if include_search else ()) + (
-            ("Control.HasFocus(51)", "$INFO[Container(51).ListItem.Label]"),
-            ("Control.HasFocus(52)", "$INFO[Container(52).ListItem.Label]"),
+            (f"Control.HasFocus({second})", f"$INFO[Container({second}).ListItem.Label]"),
+            (f"Control.HasFocus({third})", f"$INFO[Container({third}).ListItem.Label]"),
             (None, f"$INFO[Container({fallback}).ListItem.Label]"))),
         variable("AsterYouTubeHeroPlot", ((
             (SEARCH + " + Container(50).ListItem.IsParentFolder",
              "Search results for $INFO[Container.PluginCategory]"),
             (SEARCH, "$INFO[Container(50).ListItem.Plot]"),)
               if include_search else ()) + (
-            ("Control.HasFocus(51)", "$INFO[Container(51).ListItem.Plot]"),
-            ("Control.HasFocus(52)", "$INFO[Container(52).ListItem.Plot]"),
+            (f"Control.HasFocus({second})", f"$INFO[Container({second}).ListItem.Plot]"),
+            (f"Control.HasFocus({third})", f"$INFO[Container({third}).ListItem.Plot]"),
             (None, f"$INFO[Container({fallback}).ListItem.Plot]"))),
         variable("AsterYouTubeHeroMeta", ((
             (SEARCH + " + Container(50).ListItem.IsParentFolder", ""),
             (SEARCH, "$INFO[Container(50).ListItem.Artist]  $INFO[Container(50).ListItem.Duration]"),)
               if include_search else ()) + (
-            ("Control.HasFocus(51)", "$INFO[Container(51).ListItem.Artist]  $INFO[Container(51).ListItem.Duration]"),
-            ("Control.HasFocus(52)", "$INFO[Container(52).ListItem.Artist]  $INFO[Container(52).ListItem.Duration]"),
+            (f"Control.HasFocus({second})", f"$INFO[Container({second}).ListItem.Artist]  $INFO[Container({second}).ListItem.Duration]"),
+            (f"Control.HasFocus({third})", f"$INFO[Container({third}).ListItem.Artist]  $INFO[Container({third}).ListItem.Duration]"),
             (None, f"$INFO[Container({fallback}).ListItem.Artist]  $INFO[Container({fallback}).ListItem.Duration]"))),
         variable("AsterYouTubeHeroArt", ((
             (SEARCH + " + Container(50).ListItem.IsParentFolder", ""),
             (SEARCH, "$INFO[Container(50).ListItem.Art(thumb)]"),)
               if include_search else ()) + (
-            ("Control.HasFocus(51)", "$INFO[Container(51).ListItem.Art(thumb)]"),
-            ("Control.HasFocus(52)", "$INFO[Container(52).ListItem.Art(thumb)]"),
+            (f"Control.HasFocus({second})", f"$INFO[Container({second}).ListItem.Art(thumb)]"),
+            (f"Control.HasFocus({third})", f"$INFO[Container({third}).ListItem.Art(thumb)]"),
             (None, f"$INFO[Container({fallback}).ListItem.Art(thumb)]"))),
     )
     require(not names.intersection({node.get("name") for node in additions}),
@@ -271,18 +273,23 @@ def extend_navigation(raw, include_search=True):
         controls.remove(node)
     if include_search:
         onload = ET.Element("onload", {"condition": ROOT})
-        onload.text = "SetFocus(53)"
+        onload.text = ("AlarmClock(AsterYouTubeLandingFocus,SetFocus(9530),"
+                       "00:01,silent)")
         root.insert(1, onload)
     landing = ET.Element("control", {"type": "group", "id": "9891"})
     field(landing, "visible", ROOT)
-    hero = image(landing, 0, 0, 1920, 1080, "$VAR[AsterYouTubeHeroArt]",
+    base = image(landing, 0, 0, 1920, 1080,
+                 "special://skin/media/ui-panel.png")
+    field(base, "colordiffuse", "ff292721")
+    field(base, "aspectratio", "stretch")
+    hero = image(landing, 0, 0, 1920, 620, "$VAR[AsterYouTubeHeroArt]",
                  background="true")
     field(hero, "aspectratio", "scale")
     field(hero, "fadetime", 250)
-    fade = image(landing, 0, 0, 1920, 1080,
+    fade = image(landing, 0, 0, 1920, 620,
                  "special://skin/media/ui-hero-left-fade.png")
     field(fade, "colordiffuse", "ee101412"); field(fade, "aspectratio", "stretch")
-    bottom = image(landing, 0, 250, 1920, 830,
+    bottom = image(landing, 0, 250, 1920, 370,
                    "special://skin/media/ui-hero-bottom-fade.png")
     field(bottom, "colordiffuse", "ee292721"); field(bottom, "aspectratio", "stretch")
 
@@ -301,7 +308,7 @@ def extend_navigation(raw, include_search=True):
         left_id = ROUTES[index - 1][0] if index else 9305
         right_id = ROUTES[index + 1][0] if index + 1 < len(ROUTES) else 9305
         top_button(landing, identity, text, route, left, width, left_id,
-                   right_id, 53 if include_search else 50)
+                   right_id, 9530 if include_search else 50)
     back = ET.SubElement(landing, "control", {"type": "button", "id": "9305"})
     for name, value in (("left", 1445), ("top", 30), ("width", 190),
                         ("height", 48), ("label", "Back"), ("font", "font20"),
@@ -309,7 +316,7 @@ def extend_navigation(raw, include_search=True):
                         ("textcolor", "asterIvory"),
                         ("focusedcolor", "asterIvory"), ("onleft", 9304),
                         ("onright", 9300), ("onup", 9305),
-                        ("ondown", 53 if include_search else 50),
+                        ("ondown", 9530 if include_search else 50),
                         ("onclick", "Action(Back)")):
         field(back, name, value)
     field(back, "texturefocus", "special://skin/media/ui-panel.png",
@@ -329,7 +336,7 @@ def extend_navigation(raw, include_search=True):
     label(landing, 125, 326, 980, 30, "$VAR[AsterYouTubeHeroMeta]",
           "font20", "asterSage")
 
-    for row in (SEARCH_ROWS if include_search else ROWS):
+    for row in (LANDING_ROWS if include_search else ROWS):
         landing_panel(landing, *row)
 
     # Keep the landing first. Kodi resolves the shared default container ID to
@@ -373,7 +380,7 @@ def extend_navigation(raw, include_search=True):
             == (1 if include_search else 2),
             "youtube-landing-context-container")
     require(check.find(".//control[@id='9300']") is not None
-            and check.find(".//control[@id='52']") is not None
+            and check.find(f".//control[@id='{'9532' if include_search else '52'}']") is not None
             and (not include_search
                  or check.find(".//control[@id='9400']") is not None),
             "youtube-landing-controls-missing")

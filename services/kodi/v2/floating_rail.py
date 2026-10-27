@@ -22,7 +22,7 @@ def transform(data):
     for group,width in ((expanded,250),(collapsed,72)):
         background=next(c for c in group.findall('control') if (c.findtext('texture') or '').endswith('/rail-background.png'))
         for key,value in dict(left=0,top=0,width=width,height=620).items():field(background,key,value)
-        texture=background.find('texture');texture.text='special://skin/media/ui-panel.png';texture.set('border','24');texture.set('colordiffuse','ffad8a4d')
+        texture=background.find('texture');texture.text='special://skin/media/ui-panel.png';texture.set('border','24');texture.set('colordiffuse','75cbb991')
         inner=ET.Element('control',dict(type='image'))
         if background.find('visible') is not None:field(inner,'visible',background.findtext('visible'))
         for key,value in dict(left=1,top=1,width=width-2,height=618).items():field(inner,key,value)

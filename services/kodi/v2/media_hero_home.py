@@ -71,21 +71,21 @@ def transform(raw):
     require(synopsis is not None, 'media-hero-synopsis')
     # Keep a deliberate gap below the 70px title.  The former 313px origin
     # touched the title as soon as the synopsis moved up to font20.
-    field(synopsis, 'top', '322'); field(synopsis, 'height', '62')
+    field(synopsis, 'top', '318'); field(synopsis, 'height', '86')
     field(synopsis, 'font', 'font20')
     rating = next((node for node in hero.findall('control')
                    if node.get('type') == 'label'
                    and node.findtext('label', '').endswith('[AsterHeroRating]')),
                   None)
     require(rating is not None, 'media-hero-rating')
-    field(rating, 'top', '390')
+    field(rating, 'top', '408')
 
     play = hero.find("control[@id='120']")
     info = hero.find("control[@id='121']")
     require(play is not None and info is not None, 'media-hero-actions')
     for control, left, width in ((play, 145, 180), (info, 340, 165)):
         field(control, 'visible', IDLE)
-        field(control, 'left', left); field(control, 'top', 425)
+        field(control, 'left', left); field(control, 'top', 442)
         field(control, 'width', width); field(control, 'height', 44)
         field(control, 'font', 'font20')
         field(control, 'texturefocus', 'special://skin/media/ui-panel.png',
@@ -111,7 +111,7 @@ def transform(raw):
 
     next_button = ET.Element('control', {'type': 'button', 'id': '122'})
     for name, value in (
-            ('visible', IDLE), ('left', 520), ('top', 411), ('width', 120),
+            ('visible', IDLE), ('left', 520), ('top', 442), ('width', 120),
             ('height', 44), ('label', 'Next  ›'), ('font', 'font20'),
             ('align', 'center'), ('aligny', 'center'), ('textcolor', 'asterIvory'),
             ('focusedcolor', 'asterIvory'), ('onleft', 121), ('onright', 120),
@@ -130,11 +130,11 @@ def transform(raw):
     for ring, identity, left, width in ((rings[0], 120, 145, 180),
                                         (rings[1], 121, 340, 165)):
         field(ring, 'visible', f'{IDLE} + Control.HasFocus({identity})')
-        field(ring, 'left', left); field(ring, 'top', 425)
+        field(ring, 'left', left); field(ring, 'top', 442)
         field(ring, 'width', width); field(ring, 'height', 44)
     ring = ET.Element('control', {'type': 'image'})
     for name, value in (('visible', IDLE + ' + Control.HasFocus(122)'),
-                        ('left', 520), ('top', 425), ('width', 120),
+                        ('left', 520), ('top', 442), ('width', 120),
                         ('height', 44),
                         ('texture', 'special://skin/media/ui-button-ring.png')):
         field(ring, name, value)

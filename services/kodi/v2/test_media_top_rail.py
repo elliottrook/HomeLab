@@ -21,11 +21,11 @@ class MediaTopRailTests(unittest.TestCase):
     def test_semantics_are_preserved_and_labels_fit_before_clock(self):
         raw = self.source(); result = media_top_rail.transform(raw)
         root = ET.fromstring(result); rail = root.find(".//control[@id='23']")
-        self.assertEqual(rail.find("control[@id='137']/onclick").text,
-                         "RunScript(script.asteracquisition)")
+        self.assertIsNone(rail.find("control[@id='137']"))
         youtube = rail.find("control[@id='136']")
         self.assertEqual(int(youtube.findtext("left"))
-                         + int(youtube.findtext("width")), 1738)
+                         + int(youtube.findtext("width")), 1573)
+        self.assertEqual(rail.find("control[@id='134']/onright").text, "136")
         self.assertNotEqual(hashlib.sha256(result).hexdigest(),
                             media_top_rail.ACCEPTED_HOME)
 

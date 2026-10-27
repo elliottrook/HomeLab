@@ -16,9 +16,9 @@ TARGETS = {
 }
 PREDECESSORS = {
     TARGETS["1080i/Includes.xml"]:
-        "59fdd7793e1bbeaa9c2821c51be9cb7afdf2aaedf467fc1c7f678b8fb770eb2c",
+        "f7a045f562918159607164106f3613c35ed787adb1a8913a542e9692970241d8",
     TARGETS["1080i/MyVideoNav.xml"]:
-        "536b542cb611bb740f63d446fe9f1f673d1505afdb056d8dd298dcf552e0c742",
+        "c5bfb3da5ef44a1fd21658ff3ebfd58e13e5973474dbdbff6d6774f10753bff5",
 }
 
 

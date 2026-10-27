@@ -38,7 +38,7 @@ class ThirdReviewTests(unittest.TestCase):
         for i in (135,130,131,132,133,134,136):
             ring=[c for c in root.findall('.//control') if c.findtext('visible')==f'Control.HasFocus({i})' and (c.findtext('texture') or '').endswith('ui-compact-card-ring.png')]
             self.assertEqual(len(ring),1);self.assertEqual(ring[0].find('texture').get('colordiffuse'),'fff3eee5')
-        gold=[c for c in root.findall('.//control') if c.findtext('left')=='348' and c.find('texture') is not None and c.find('texture').get('colordiffuse')=='ffad8a4d']
+        gold=[c for c in root.findall('.//control') if c.findtext('left')=='348' and c.find('texture') is not None and c.find('texture').get('colordiffuse')=='75cbb991']
         self.assertEqual(len(gold),1)
     def test_shared_music_template_cannot_override_icon_caption(self):
         root=ET.fromstring(top_pills(b'<includes><include name="AsterMusicPillButton"><width>200</width><height>50</height><font>font20</font><textcolor>asterIvory</textcolor></include><include name="Page"><definition><control type="button" id="110"><left>385</left><top>28</top><label>Albums</label><include>AsterMusicPillButton</include></control><control type="image"><left>395</left><top>35</top><width>36</width></control></definition></include></includes>'))

@@ -27,13 +27,10 @@ ROWS = (
      132, 134, 120, "special://skin/media/10-archive-film.png"),
     (134, 1235, 163, "Collections",
      "ActivateWindow(Videos,videodb://movies/sets/,return)",
-     133, 137, 120, "special://skin/media/19-movie-collections-128.png"),
-    (137, 1408, 155, "Requests",
-     "RunScript(script.asteracquisition)",
-     134, 136, 121, "special://skin/media/aster-compass-128.png"),
-    (136, 1573, 165, "YouTube",
+     133, 136, 120, "special://skin/media/19-movie-collections-128.png"),
+    (136, 1408, 165, "YouTube",
      "ActivateWindow(Videos,&quot;plugin://plugin.video.youtube/&quot;,return)",
-     137, 135, 121, "special://skin/media/33-aster-youtube-128.png"),
+     134, 135, 121, "special://skin/media/33-aster-youtube-128.png"),
 )
 
 
@@ -53,8 +50,8 @@ def group():
     # sofa distance this reads as one rail and prevents ellipses without moving
     # the clock or reducing the Search affordance.
     return f'''<control type="group" id="23">
-            <control type="image"><left>532</left><top>23</top><width>1210</width><height>62</height><texture border="18" colordiffuse="52000000">special://skin/media/ui-panel.png</texture></control>
-            <control type="image"><left>348</left><top>29</top><width>174</width><height>50</height><texture border="18" colordiffuse="ffad8a4d">special://skin/media/ui-compact-card-ring.png</texture></control>
+            <control type="image"><left>532</left><top>23</top><width>1050</width><height>62</height><texture border="18" colordiffuse="52000000">special://skin/media/ui-panel.png</texture></control>
+            <control type="image"><left>348</left><top>29</top><width>174</width><height>50</height><texture border="18" colordiffuse="75cbb991">special://skin/media/ui-compact-card-ring.png</texture></control>
             <animation effect="fade" start="100" end="0" time="0" condition="[Control.HasFocus(8999) | Control.HasFocus(9001) | Control.HasFocus(9002) | Control.HasFocus(9003) | Control.HasFocus(9004) | Control.HasFocus(9005) | Control.HasFocus(9007)] + !Skin.HasSetting(AsterReducedMotion)">Conditional</animation>
 {buttons}
             {labels}
@@ -73,8 +70,6 @@ def _contract(raw):
         found[int(identity)] = {
             "label": control.findtext("label"),
             "onclick": control.findtext("onclick"),
-            "left": control.findtext("onleft"),
-            "right": control.findtext("onright"),
             "down": control.findtext("ondown"),
         }
     return found
@@ -91,7 +86,7 @@ def transform(raw):
     after = _contract(result)
     require(before == after, "media-top-rail-semantic-drift")
     require(result.count(b"<label>Archive Movies</label>") == 2
-            and result.count(b"<label>Requests</label>") == 2,
+            and b"<label>Requests</label>" not in result,
             "media-top-rail-label-regression")
     root = ET.fromstring(result)
     rail = root.find(".//control[@id='23']")

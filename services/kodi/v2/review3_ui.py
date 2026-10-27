@@ -67,7 +67,8 @@ def top_pills(data):
 def media_header(data):
     root=ET.fromstring(data);group=next(g for g in root.iter('control') if g.find('control[@id="136"]') is not None)
     # Replace the shared slab with a correctly fitted navigation capsule;
-    # Search has its own gold-edged capsule and a deliberate 30px separation.
+    # Search has the clock's restrained gold-edged capsule and a deliberate
+    # 30px separation from the category rail.
     buttons={i:group.find(f'control[@id="{i}"]') for i in (135,130,131,132,133,134,136)}
     for c in list(group.findall('control[@type="image"]')):
         texture=c.findtext('texture') or ''
@@ -90,7 +91,7 @@ def media_header(data):
     # Insert backplates before controls so they never overlay text/icons.
     wrapper=ET.Element('holder')
     image(wrapper,542,23,left-12-542+8,62,'52000000')
-    image(wrapper,348,29,174,50,'ffad8a4d',ring=True)
+    image(wrapper,348,29,174,50,'75cbb991',ring=True)
     for n in reversed(list(wrapper)):group.insert(0,n)
     return top_pills(encoded(root))
 

@@ -21,6 +21,9 @@ ALLOWED = {
     'skin.asterhome/1080i/IncludesHub.xml',
     'skin.asterhome/tools/install_macos_dock_icon.sh',
     'v2/feedback_refinements.py',
+    # This bounded migration only reads the Settings launcher while inserting
+    # the Requests entry into the same side-rail definition.
+    'v2/review_corrections.py',
     'v2/prototype/index.html',
     'v2/script.astermusic.v2lab/resources/skins/Default/1080i/MusicLab.xml',
 }
