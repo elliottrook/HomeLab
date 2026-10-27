@@ -73,6 +73,10 @@ do not imply household acceptance or production promotion.
   (128 GB preferred), gigabit Ethernet and a proven HDMI chain. This remains a
   qualified estimate until the final composed client is measured on the N95.
   See [resource evidence](Aster-TV-Version-2-Resource-Evidence.md).
+- The final composed HP client passed a six-cycle native mixed video/audio
+  soak, returned Home idle, produced no crash or inspected error line, and
+  stabilized below 665 MiB Kodi RSS. See
+  [endurance evidence](Aster-TV-Version-2-Endurance-Evidence.md).
 
 ## Next work and gates
 
@@ -83,7 +87,7 @@ do not imply household acceptance or production promotion.
 | Voice search | Join the tested single-attempt assembly to foreground listening controls and restricted STT transport | Physical remote capability and scoped speech identity remain live integration gates |
 | EPUB pre-generation | Fold the verified consumer and Doctor layers into final release/recovery assembly | HP consumer and read-only Doctor are active; production promotion remains separately gated |
 | YouTube | Complete owner sofa-distance review of the active Aster landing/search successor, including playback and Back/stop behavior | Official add-on remains the data/playback owner; production unchanged |
-| Endurance and accessibility | Continue evidence against the final composed client, then owner sofa/remote review | Short automated soaks do not substitute for household use |
+| Endurance and accessibility | Complete owner sofa/remote and multi-day household review of the final composed client | Six-cycle native mixed-player soak passes; short automation does not substitute for household use |
 | Bedroom sizing | Reconcile the N95 host identity, then capture the final composed client idle and under representative 4K playback | Current qualified target and evidence are in [resource evidence](Aster-TV-Version-2-Resource-Evidence.md); lower-memory deployment remains deferred |
 | Final cleanup | One finite owner-led page-by-page v1/v2 walkthrough and bounded repairs | Feature work first; avoid creating an open-ended new backlog |
 | Release | Run one full disposable clean-client install/verify/rollback with Kodi discovery, systemd activation and separately provisioned restricted identities, then complete the operational handover | Core and late-stage source-material rehearsals pass; destructive HP reset is not implied, and production promotion remains a separate gate |
