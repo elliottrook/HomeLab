@@ -147,9 +147,18 @@ dimming the interface indefinitely. Any normal remote action should wake it.
 - The Media **YouTube** pill opens Aster's presentation of the maintained
   official Kodi YouTube add-on. Aster does not scrape YouTube or provide a
   downloader, browser, alternate client or proxy.
-- The landing tiles and selected-item hero use the supplied Aster YouTube mark.
-  Search, subscriptions, channels, account state and playback remain owned by the
+- The landing uses the supplied Aster YouTube mark, a focused-item hero and the
+  same compact top-rail language as Aster's other media pages. Its three rows
+  are **New from subscriptions**, **Recommended** and **Watch later**. Up/Down
+  moves between rows; Up from the first row reaches the rail. Search,
+  subscriptions, channels, account state and playback remain owned by the
   official add-on.
+- **Search** opens the Aster keyboard and returns to a dedicated YouTube result
+  window with a query heading, focused-result hero and tiled results. Right
+  leaves the Back tile for the first video; Up from the result grid reaches
+  **Search again**. Search again, Subscriptions, Recommended, Watch Later and
+  Back are available in the result rail. Category shortcut folders are hidden;
+  the official add-on still owns every query and result.
 - Google API/OAuth values are private per-client state. Never paste them into a
   chat, ticket, screenshot, shell command, skin file or repository. Use only the
   retained hidden-input handoff helper and keep central custody at
@@ -242,6 +251,8 @@ layers have separate HP-only checkpoints:
 - `/storage/.aster-checkpoints/aster-youtube-api-20261026`
 - `/storage/.aster-checkpoints/aster-dialog-focus-20261026`
 - `/storage/.aster-checkpoints/aster-youtube-progressive-20261026`
+- `/storage/.aster-checkpoints/aster-youtube-landing6-20261027`
+- `/storage/.aster-checkpoints/aster-youtube-search6-20261027`
 
 Credential rollback must use the retained helper with Kodi stopped so the
 pre-authorization state is restored without displaying or exporting tokens.

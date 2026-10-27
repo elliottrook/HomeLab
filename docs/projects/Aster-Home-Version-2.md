@@ -9521,3 +9521,87 @@ focused voice/build/EPUB tests pass, deploy helpers compile, Kodi debug logging
 is off and BOSGAME production remains untouched. Remaining acceptance is one
 physical trial for latency/title accuracy and a cold-boot remote/microphone
 smoke before V2-A graduation.
+
+### M6 Aster YouTube landing — active on HP, 2026-10-27
+
+The official signed-in YouTube add-on now has a dedicated Aster landing on the
+HP rather than the generic single directory grid. Its hero is driven by the
+focused official add-on item and shows that item's thumbnail, title, channel,
+duration and published synopsis. The compact top rail exposes Search,
+Subscriptions, Recommended, Watch Later, Channels and Back. Three landscape
+rows expose New from subscriptions, Recommended and Watch Later. All content,
+account state, requests and playback remain owned by `plugin.video.youtube`;
+the skin contains no Google credential, alternate API client, scraper,
+downloader or `youtube.com` route.
+
+Read-only native discovery verified 53 subscription entries, 51 recommendations
+and 51 Watch Later entries before composition. The subscription row uses the
+official `hide_folders=true` option, which removed the Shorts and Live shortcut
+folders while retaining fifty videos and the normal next-page directory. A
+first candidate was rolled back because its shared container ID let the hidden
+generic browser supply the hero. A second was rolled back because unique row
+IDs left Kodi's default focus on the hidden generic parent. The accepted
+successor orders the landing before the conditionally hidden generic browser,
+so Kodi's established container 50 resolves to the first visible page without
+changing any ordinary video-directory behavior.
+
+The accepted immutable manifest is
+`27d59549d5b547f2781663a8a560ea06e320e52167b97ef4e81a02e3283bffb0`.
+Its verified checkpoint is
+`/storage/.aster-checkpoints/aster-youtube-landing6-20261027`; the two rejected,
+rolled-back predecessors remain at `aster-youtube-landing4-20261027` and
+`aster-youtube-landing5-20261027` as recovery evidence, not selectable active
+states. Exact live hashes are
+`ada71357c9add0d30e9849b9914cefad2da3803ac59e1f8dff820d4cde3f17bc`
+for `Includes.xml` and
+`536b542cb611bb740f63d446fe9f1f673d1505afdb056d8dd298dcf552e0c742`
+for `MyVideoNav.xml`.
+
+Native checks passed focused hero identity, Down through all three rows, Up to
+Subscriptions, Left/Right across the top rail, Recommended directory handoff,
+Back to the landing, no active player, a Kodi restart, exact post-restart
+verification and normal root re-entry. The credential-free 4K capture was
+inspected privately and showed the intended hero, rail, three rows and visible
+selected-tile border. Twelve focused tests and the complete 1,294-test Kodi v2
+suite pass normally and optimized with the one existing Mac-only skip. Owner
+sofa-distance review remains open; production is unchanged.
+
+#### M6 YouTube search successor — active on HP, 2026-10-27
+
+The landing now opens a YouTube-specific Aster search flow rather than handing
+the viewer to the generic add-on browser. The existing Aster keyboard collects
+the query; the official add-on performs the search with its private per-client
+API/OAuth state; and the results return to an Aster window with the YouTube top
+rail, query heading, focused-result hero and a tiled result area. Search again,
+Subscriptions, Recommended, Watch Later and Back remain directly reachable.
+The official `hide_folders=true` option removes the Channels, Playlists and
+Live-broadcast shortcut tiles from search results without filtering videos.
+
+Five intermediate candidates were installed only long enough to expose and
+correct Kodi's container-routing and presentation behavior, then rolled back to
+the exact accepted landing predecessor. The accepted successor keeps Kodi's
+established result container as the sole directory recipient and moves the
+landing's first explicit row to container 53. This preserves normal video
+browsing while allowing the official result set to populate the Aster view.
+The final parent-directory state reads `Choose a video` rather than leaking the
+raw `..` label into the hero.
+
+The active immutable manifest is
+`68a58edb68559fe3ce109aaf061ca5603bb227a844ba47b68cad0ed0cf8b0d22`.
+Its exact checkpoint is
+`/storage/.aster-checkpoints/aster-youtube-search6-20261027`. Active hashes are
+`1bc4dac6ef5aee481b5bb20c1ae3872aec56117aa15351ac8bdb945815d099de`
+for `Includes.xml` and
+`2c5770babbc59879cebb0cf2d66bd6b2b4155b2197110a9548328836593eff`
+for `MyVideoNav.xml`.
+
+A native top-rail selection opened window 10103, the Aster virtual keyboard;
+submitting a test query returned 45 official video results. Right moved from
+Back to the first video and updated the focused item, while Up returned to
+Search again. Private 4K visual inspection passed the corrected hero, bounded
+paper result field, green selection treatment and visible second result row.
+The API key itself also returned a successful one-item Google API probe without
+being displayed. Exact verify passed before and after a Kodi restart, no player
+was active, no new Kodi error was logged, and the complete 1,294-test suite
+passes normally and optimized with the existing Mac-only skip. Production is
+unchanged; owner sofa-distance review remains open.
