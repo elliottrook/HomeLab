@@ -60,6 +60,21 @@ Post-Acquisition Hub measurement on the same complete HP candidate:
   request journal remained empty and Kodi logged no error. This supports the
   earlier conclusion that the Hub is not a new client-sizing driver.
 
+Post-Books source-date activation measurement on the same HP candidate:
+
+- With the complete 558-title Books catalogue active (505 ebooks, 46
+  audiobooks and 7 podcasts), Kodi used 413 MiB RSS with a 599 MiB process
+  high-water mark and 39 threads.
+- 14.3 GiB of RAM remained available; load averages were 0.07/0.08/0.09 and
+  the two reported thermal zones were 35°C and 33°C.
+- `/storage/.kodi` remained about 496 MiB. The separately retained 1.33 GiB of
+  checkpoints and 372 MiB of staging are lab recovery history, not runtime
+  requirements.
+- Populating every Books item with an authoritative source timestamp therefore
+  made no meaningful change to the client-capacity estimate. The remaining
+  sizing uncertainty is the complete v2 candidate on constrained hardware,
+  not the catalogue shape on the HP lab system.
+
 ## Three useful boundaries
 
 ### Observed floor
