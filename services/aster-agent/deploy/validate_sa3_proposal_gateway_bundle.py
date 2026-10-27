@@ -56,9 +56,13 @@ def validate(root: Path = ROOT, manifest_path: Path = MANIFEST) -> dict[str, Any
     if review != {
         "candidate_source_commit": "73901010",
         "packet_freeze_commit": "8d1cfb2a",
-        "independent_review": "pending",
+        "independent_review": "passed",
+        "receipt": "services/aster-agent/evals/sa3-candidate-e-independent-review-receipt.json",
+        "receipt_sha256": "09b19ca26a254279625f541dfa72e2b92b788083c520a1283964ee9f5765a9c6",
     }:
         raise ValueError("candidate review boundary changed")
+    if _digest(root / review["receipt"]) != review["receipt_sha256"]:
+        raise ValueError("independent review receipt hash mismatch")
     if manifest["runtime"] != EXPECTED_RUNTIME:
         raise ValueError("runtime authority boundary changed")
     files = manifest["files"]

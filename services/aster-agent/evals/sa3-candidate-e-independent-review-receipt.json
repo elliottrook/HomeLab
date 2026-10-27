@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "candidate_id": "sa3-current-proposal-candidate-e",
+  "review_packet_commit": "7d3d35083334132dc4d3d6a00dfe097a264ea2a8",
+  "candidate_source_commit": "73901010075db4b0f441284ba319364bf53af80e",
+  "packet_freeze_commit": "8d1cfb2aa0c89ffb608bdf20fdf655cd00cbfeb8",
+  "reviewer": "/root/sa3_candidate_e_review",
+  "outcome": "pass",
+  "verified_files": 4,
+  "verified_cases": 8,
+  "tamper_test_cases": 2,
+  "privacy_minimized": true,
+  "authority": "none",
+  "effect": "none",
+  "runtime_actions": false,
+  "limitations": [
+    "The packet validator does not independently resolve its recorded commit fields.",
+    "Recorded postcheck booleans are bounded evidence rather than cryptographic execution provenance."
+  ]
+}

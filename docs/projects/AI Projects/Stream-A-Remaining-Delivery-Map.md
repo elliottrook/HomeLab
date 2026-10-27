@@ -177,9 +177,12 @@ acceptance; deployment, automatic routing and repair authority remain closed.
 The exact candidate-E [independent review packet](evidence/SA3-candidate-E-independent-review-packet-2026-10-27.md)
 is now ready. Its offline validator recomputes four pinned file digests and
 matches all eight content-minimized rows to the fresh packet; validator tests
-pass 2/2 including semantic tamper detection. A separate reviewer still needs
-to run and record that review. No deployment or runtime authority follows from
-the packet itself.
+pass 2/2 including semantic tamper detection. A separate reviewer has now
+[accepted the exact packet](evidence/SA3-candidate-E-independent-review-result-2026-10-27.md):
+four file hashes and eight semantic rows matched, commit ancestry and unchanged
+blobs were checked directly, privacy/no-authority/no-effect boundaries passed,
+and no runtime action occurred. This clears representative candidate-E review;
+it grants no deployment or runtime authority.
 
 The source-only [candidate-E journal gateway](evidence/SA3-candidate-E-journal-gateway-2026-10-27.md)
 now composes the sanitized proposal boundary, fixed one-shot transport and
@@ -190,15 +193,14 @@ sysadmin suite passes 69/69. The HTTP route still needs target-runtime testing,
 and candidate E still needs independent packet review before an exact release
 candidate can be accepted or deployed. Automatic routing remains closed.
 
-A four-file [release packet pending review](evidence/SA3-candidate-E-release-packet-pending-review-2026-10-27.md)
-now pins the exact live predecessor and candidate source while encoding
-independent review as `pending`. Its validator tests pass 4/4 and reject review
-or authority inflation. The temporary target-Python packet passed all 31/31
+A four-file [reviewed release packet](evidence/SA3-candidate-E-release-packet-pending-review-2026-10-27.md)
+now pins the exact live predecessor, candidate source and independent PASS
+receipt. Its validator tests pass 4/4 and reject receipt or authority drift.
+The temporary target-Python packet passed all 31/31
 proposal and HTTP gateway tests, was removed from Mac/Proxmox/LXC104, and left
 Aster Agent and the accepted llama service unchanged. This is preparation only:
-no installer exists, independent review remains pending, and the later
-deployment would require one separately approved Aster Agent restart. F2/F3
-and the full-Aster schedule are unchanged.
+no installer exists, and the later deployment would require one separately
+approved Aster Agent restart. F2/F3 and the full-Aster schedule are unchanged.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and

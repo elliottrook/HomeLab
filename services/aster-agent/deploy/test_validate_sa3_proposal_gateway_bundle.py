@@ -7,10 +7,10 @@ from validate_sa3_proposal_gateway_bundle import MANIFEST, ROOT, validate
 
 
 class ProposalGatewayBundleTests(unittest.TestCase):
-    def test_current_packet_is_exact_and_pending_review(self):
+    def test_current_packet_is_exact_and_independently_reviewed(self):
         result = validate()
         self.assertEqual(4, result["files"])
-        self.assertEqual("pending", result["independent_review"])
+        self.assertEqual("passed", result["independent_review"])
         self.assertFalse(result["automatic_routing"])
         self.assertFalse(result["repair_authority"])
 
@@ -27,7 +27,7 @@ class ProposalGatewayBundleTests(unittest.TestCase):
         for mutate in (
             lambda value: value["runtime"].__setitem__("automatic_routing", True),
             lambda value: value["runtime"].__setitem__("repair_authority", True),
-            lambda value: value["candidate_review"].__setitem__("independent_review", "passed"),
+            lambda value: value["candidate_review"].__setitem__("independent_review", "pending"),
         ):
             manifest = json.loads(MANIFEST.read_text())
             mutate(manifest)
