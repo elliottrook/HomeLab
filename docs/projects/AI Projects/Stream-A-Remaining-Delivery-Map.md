@@ -1749,3 +1749,10 @@ is also source-complete. It validates the 24 private fictional cases and emits
 only packet digest/bytes plus family/outcome counts; request, context and rubric
 content never enters shared evidence. The combined full-Aster source suite
 passes 25/25. Actual owner-only case authoring and acceptance remain open.
+
+The [first-screen effect card](evidence/Full-Aster-challenger-first-screen-effect-card-2026-10-26.md)
+now freezes the remaining live sequence: same-cycle F2–F5, whole-host lease,
+independent watchdog, one read-only mount, LXC110 restart, exact transient
+reasoning-on candidate, two bounded fictional requests, mount removal, second
+restart and independent exact 9B/SYCL restoration. It remains LIVE BLOCKED
+until same-cycle evidence exists and Jason approves the restart transaction.
