@@ -73,6 +73,38 @@ def _label(value):
     return label
 
 
+def item_timestamp(value):
+    """Canonicalize an optional source-owned item timestamp for presentation."""
+    if value in (None, ''):
+        return None
+    if not isinstance(value, str) or len(value) > 40:
+        raise ValueError('Invalid item timestamp')
+    try:
+        parsed = datetime.fromisoformat(value.replace('Z', '+00:00'))
+    except ValueError as error:
+        raise ValueError('Invalid item timestamp') from error
+    if parsed.tzinfo is None:
+        raise ValueError('Item timestamp has no time zone')
+    parsed = parsed.astimezone(timezone.utc)
+    if parsed > datetime.now(timezone.utc).replace(microsecond=0):
+        raise ValueError('Item timestamp is in the future')
+    return parsed.isoformat()
+
+
+def epoch_milliseconds(value):
+    """Convert an optional bounded millisecond epoch to canonical UTC."""
+    if value in (None, ''):
+        return None
+    if type(value) not in (int, float) or type(value) is bool:
+        raise ValueError('Invalid item added time')
+    seconds = float(value) / 1000.0
+    lower = datetime(2000, 1, 1, tzinfo=timezone.utc).timestamp()
+    upper = datetime.now(timezone.utc).timestamp()
+    if not lower <= seconds <= upper:
+        raise ValueError('Invalid item added time')
+    return datetime.fromtimestamp(seconds, timezone.utc).isoformat()
+
+
 def read_feed(path):
     """Read only a regular, bounded local file; never follow a directory or URL."""
     source = Path(path)
@@ -125,7 +157,8 @@ def book_catalogue(payload):
                   ('audiobookshelf', 'podcast'): 'Podcast · Audiobookshelf'}[kind]
         rows.append({'title': title, 'detail': detail,
                      'kind': kind[1], 'id': identity,
-                     'synopsis': plain_synopsis(record.get('description'))})
+                     'synopsis': plain_synopsis(record.get('description')),
+                     'added_at': item_timestamp(record.get('added_at'))})
         if len(rows) == 1000:
             break
     return rows

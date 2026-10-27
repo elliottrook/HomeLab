@@ -9,8 +9,9 @@ import unittest
 import xml.etree.ElementTree as ET
 
 from books_data import PAGES, activate_row, cached_cover, cover_filename, handoff_target, page_records, selected_row
-from hub_feeds import book_catalogue, plain_synopsis
-from pilot_books_feed import calibre_items, feed_payload, podcast_items
+from hub_feeds import book_catalogue, item_timestamp, plain_synopsis
+from pilot_books_feed import (calibre_items, epoch_milliseconds, feed_payload,
+                              podcast_items)
 from pilot_books_covers import QUERY, validated_covers
 from pilot_podcast_covers import QUERY as PODCAST_COVER_QUERY, validated_covers as validated_podcast_covers
 from pilot_ebook_covers import SOURCE as CALIBRE_COVER_SOURCE, validated_covers as validated_ebook_covers
@@ -51,15 +52,33 @@ class BooksTests(unittest.TestCase):
             for index in range(1, 506)]
         self.assertEqual(len(page_records(book_catalogue(sample), 'ebooks')), 505)
 
+    def test_books_sections_sort_real_dates_before_undated_titles(self):
+        sample = self.sample()
+        sample['items'] = [
+            {'authority': 'calibre', 'media_type': 'ebook',
+             'authority_id': '1', 'title': 'Undated'},
+            {'authority': 'calibre', 'media_type': 'ebook',
+             'authority_id': '2', 'title': 'Older',
+             'added_at': '2025-01-01T00:00:00Z'},
+            {'authority': 'calibre', 'media_type': 'ebook',
+             'authority_id': '3', 'title': 'Newest',
+             'added_at': '2026-01-01T00:00:00Z'},
+        ]
+        self.assertEqual([row['title'] for row in
+                          page_records(book_catalogue(sample), 'ebooks')],
+                         ['Newest', 'Older', 'Undated'])
+
     def test_calibre_projection_bounds_titles_and_fields(self):
-        source = json.dumps([{'id': 1, 'title': 'A' * 196, 'path': '/private'},
-                             {'id': 2, 'title': 'Example'}]).encode()
+        source = json.dumps([{'id': 1, 'title': 'A' * 196, 'path': '/private',
+                              'added_at': '2026-01-01T00:00:00Z'},
+                             {'id': 2, 'title': 'Example', 'added_at': None}]).encode()
         with patch('pilot_books_feed.remote', return_value=source):
             items = calibre_items()
         self.assertEqual(len(items), 2)
         self.assertEqual(len(items[0]['title']), 160)
         self.assertTrue(items[0]['title'].endswith('…'))
         self.assertNotIn('path', items[0])
+        self.assertEqual(items[0]['added_at'], '2026-01-01T00:00:00Z')
 
     def test_podcast_projection_excludes_feed_urls_and_unsubscribed_results(self):
         source = json.dumps([{'id': 'pod_1', 'title': 'Example Show',
@@ -68,7 +87,8 @@ class BooksTests(unittest.TestCase):
             items = podcast_items()
         self.assertEqual(items, [{'authority': 'audiobookshelf',
                                   'media_type': 'podcast', 'authority_id': 'pod_1',
-                                  'title': 'Example Show', 'description': ''}])
+                                  'title': 'Example Show', 'description': '',
+                                  'added_at': None}])
         self.assertNotIn('feedURL', items[0])
 
     def test_feed_freshness_records_capture_time_not_source_mtime(self):
@@ -80,6 +100,18 @@ class BooksTests(unittest.TestCase):
         self.assertNotEqual(feed['generated_at'], feed['source_updated_at'])
         with self.assertRaises(ValueError):
             feed_payload([], 1_600_000_000, captured.replace(tzinfo=None))
+
+    def test_item_dates_are_source_owned_timezone_aware_values(self):
+        value = self.sample()
+        value['items'][0]['added_at'] = '2026-01-02T03:04:05-08:00'
+        self.assertEqual(book_catalogue(value)[0]['added_at'],
+                         '2026-01-02T11:04:05+00:00')
+        self.assertIsNone(item_timestamp(None))
+        with self.assertRaisesRegex(ValueError, 'time zone'):
+            item_timestamp('2026-01-02T03:04:05')
+        epoch = datetime(2026, 1, 2, 3, 4, 5, tzinfo=timezone.utc)
+        self.assertEqual(epoch_milliseconds(epoch.timestamp() * 1000),
+                         epoch.isoformat())
 
     def test_synopsis_is_plain_bounded_and_not_markup(self):
         sample = self.sample()

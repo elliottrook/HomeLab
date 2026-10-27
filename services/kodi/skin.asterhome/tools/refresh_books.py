@@ -17,7 +17,7 @@ import urllib.request
 from urllib.parse import urlsplit
 
 from books_data import cached_cover, cover_filename
-from hub_feeds import MAX_BYTES, book_catalogue, plain_synopsis
+from hub_feeds import MAX_BYTES, book_catalogue, epoch_milliseconds, plain_synopsis
 
 ID = re.compile(r'^[0-9a-f-]{36}$')
 MAX_RESPONSE = 4 * 1024 * 1024
@@ -91,7 +91,8 @@ def collect_audio(get_json):
                 seen.add(item_id)
                 rows.append({'authority': 'audiobookshelf', 'media_type': kind,
                              'authority_id': item_id, 'title': title.strip()[:160],
-                             'description': plain_synopsis(metadata.get('description'))})
+                             'description': plain_synopsis(metadata.get('description')),
+                             'added_at': epoch_milliseconds(item.get('addedAt'))})
             if (page + 1) * 100 >= total:
                 break
         else:

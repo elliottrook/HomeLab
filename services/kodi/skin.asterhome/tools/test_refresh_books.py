@@ -30,9 +30,11 @@ class RefreshTests(unittest.TestCase):
             if path == '/api/libraries':
                 return {'libraries': [{'id': LIBRARY, 'mediaType': 'book'}]}
             return {'total': 1, 'results': [{'id': BOOK, 'path': '/private/source',
+                    'addedAt': 1_767_225_600_000,
                     'media': {'metadata': {'title': 'Title', 'description': '<p>Synopsis</p>'}}}]}
         rows = collect_audio(api)
         self.assertEqual(rows[0]['description'], 'Synopsis')
+        self.assertEqual(rows[0]['added_at'], '2026-01-01T00:00:00+00:00')
         self.assertNotIn('path', rows[0])
 
     def test_incomplete_page_is_rejected(self):

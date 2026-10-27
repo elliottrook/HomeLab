@@ -30,12 +30,17 @@ READER_BASE = 'https://books.elliottrook.com'
 
 
 def page_records(records, page, query=''):
-    """Return real catalogue rows only; home rows preserve source order."""
+    """Return real rows, ordering only from source-owned item timestamps."""
     kind = KINDS.get(page)
     selected = [row for row in records if kind is None or row['kind'] == kind]
     if query:
         term = query.casefold()
         selected = [row for row in selected if term in row['title'].casefold()]
+    if page == 'home' or kind is not None:
+        selected = sorted(selected,
+                          key=lambda row: (row.get('added_at') or '',
+                                           row['title'].casefold()),
+                          reverse=True)
     return selected[:1000]
 
 
@@ -172,7 +177,10 @@ def main(page, action='load'):
                               page_records(records, {'ebook': 'ebooks',
                                                      'audiobook': 'audiobooks',
                                                      'podcast': 'podcasts'}[kind])[:12]])
-        status = ('Read-only catalogue snapshot · no per-title added dates'
+        dated = sum(bool(row.get('added_at')) for row in records)
+        status = (f'Read-only catalogue · {dated} source-dated titles'
+                  if available and dated else
+                  'Read-only catalogue · source dates not yet available'
                   if available else 'Books feed unavailable or stale')
         if action == 'load':
             first_row = next((HOME_CONTROLS[kind] for kind in

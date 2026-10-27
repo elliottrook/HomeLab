@@ -363,11 +363,13 @@ uses approved Aster icons. Search filters the local catalogue and never
 contacts a source service.
 
 The feed includes plain-text, bounded source synopses for 141 eBooks, 41
-audiobooks and all seven podcasts. Missing descriptions are not invented. It
-contains no per-title added dates, cover binaries, file paths, playback URLs or
+audiobooks and all seven podcasts. Missing descriptions are not invented. The
+enriched producer may include source-owned Calibre and Audiobookshelf per-title
+added times; missing dates remain missing and are never replaced by the feed's
+generation time. It contains no cover binaries, file paths, playback URLs or
 credentials. The cover cache is a separate local file set keyed by source ID.
-Accordingly the audiobook row remains a **catalogue snapshot**, not "Latest
-Added". The selected synopsis appears in the hero and the About button opens
+Sections place genuinely dated titles first and retain undated catalogue titles
+after them. The selected synopsis appears in the hero and the About button opens
 the full text in a branded Kodi dialog. The eBook action hands off a validated
 Calibre ID to the existing Calibre-Web reader: on the Mac it opens the title in
 the default browser; on LibreELEC it displays a URL to open on another device.
@@ -528,7 +530,9 @@ is shipped as household data. The contracts are:
 - `books.json`: `schema_version: 1`, a timezone-aware `generated_at`, and
   `items` from a sanitized unified-media library snapshot. Only
   `audiobookshelf/audiobook` and `calibre/ebook` records with an
-  `authority_id` and `title` render, at most 80. The currently deployed
+  `authority_id` and `title` render, at most 1,000. An optional timezone-aware
+  per-item `added_at` may order real recent titles; malformed or future values
+  invalidate the feed instead of being guessed. The currently deployed
   library snapshot has Audiobookshelf records; a Calibre source is not yet
   confirmed there. The raw snapshot is **not** exposed by the portal API.
 - `home.json`: the same version/timestamp envelope and a `snapshot` containing

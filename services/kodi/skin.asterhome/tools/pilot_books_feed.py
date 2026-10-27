@@ -13,7 +13,7 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from hub_feeds import MAX_BYTES, books_view, plain_synopsis
+from hub_feeds import MAX_BYTES, books_view, epoch_milliseconds, plain_synopsis
 
 
 SOURCE = '/mnt/Media/appdata/unified-media-shadow/portal-refresh/library.json'
@@ -40,7 +40,8 @@ def calibre_items():
     """
     output = remote('sqlite3', '-json',
                     f'file:{CALIBRE_DB}?mode=ro&immutable=1',
-                    'SELECT books.id, books.title, comments.text AS description '
+                    "SELECT books.id, books.title, comments.text AS description, "
+                    "strftime('%Y-%m-%dT%H:%M:%SZ', books.timestamp) AS added_at "
                     'FROM books LEFT JOIN comments ON comments.book=books.id '
                     'ORDER BY books.id')
     rows = json.loads(output)
@@ -58,7 +59,8 @@ def calibre_items():
             title = title[:159] + '…'
         items.append({'authority': 'calibre', 'media_type': 'ebook',
                       'authority_id': str(row['id']), 'title': title,
-                      'description': plain_synopsis(row.get('description'))})
+                      'description': plain_synopsis(row.get('description')),
+                      'added_at': row.get('added_at')})
     return items
 
 
@@ -87,7 +89,7 @@ def podcast_items():
     """
     script = ('const sqlite=require("sqlite3");'
               'const db=new sqlite.Database("/config/absdatabase.sqlite",sqlite.OPEN_READONLY);'
-              'db.all("SELECT li.id,p.title,p.description FROM libraryItems li JOIN podcasts p '
+              'db.all("SELECT li.id,p.title,p.description,li.addedAt FROM libraryItems li JOIN podcasts p '
               'ON li.mediaId=p.id WHERE li.mediaType=?",["podcast"],(error,rows)=>{'
               'if(error){console.error("Podcast catalogue query failed");process.exitCode=1;'
               'db.close();return}console.log(JSON.stringify(rows));db.close()})')
@@ -106,7 +108,8 @@ def podcast_items():
             raise ValueError('Invalid Audiobookshelf podcast title')
         items.append({'authority': 'audiobookshelf', 'media_type': 'podcast',
                       'authority_id': row['id'], 'title': title,
-                      'description': plain_synopsis(row.get('description'))})
+                      'description': plain_synopsis(row.get('description')),
+                      'added_at': epoch_milliseconds(row.get('addedAt'))})
     return items
 
 
