@@ -69,6 +69,15 @@ and target proof are the next gate before another exact-date activation.
 Runtime backup, pull, identity, load and quiet-host gates remain fresh and fail
 closed.
 
+The [installed correction and daytime real scan](evidence/F2-Proxmox-path-install-and-daytime-real-scan-2026-10-27.md)
+now close the reproduced defect and expensive-probe uncertainty. The corrected
+three-file baseline passed 60/60 target tests and two identical no-scan
+rehearsals. A supervised real scan then verified VMIDs 104/110/116 at
+19.312/337.578/42.015 seconds, all exit zero, with no receipt written. The
+relay and narration workload were restored afterward and Aster Speech remained
+active. The remaining F2 proof is only the actual 01:15/01:20 clock/timer path
+against a fresh cycle; runtime gates remain fail closed.
+
 The conditional [October 27 F3 conversion](evidence/F3-from-F2-no-go-2026-10-27.md)
 then failed closed at its first mandatory gate. The reconciled F2 state is
 `no_go` with zero archive rows rather than three independently validated
