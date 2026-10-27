@@ -232,8 +232,9 @@ rollback installer; deployment still requires a separately approved Aster
 Agent restart.
 
 The rollback [installer card](evidence/SA2-doctor-status-producer-install-card-2026-10-27.md)
-is now also source-complete and independently reviewed. Shell syntax and all
-7/7 manifest/installer tests pass. It has not run; the remaining pre-release
+is now also source-complete and independently reviewed. Its deterministic
+packet builder closes validation-to-build replacement races and the complete
+packet/manifest/installer suite passes 11/11. It has not run; the remaining pre-release
 work is limited to post-window live-predecessor and target-Python checks,
 followed by the separately approved Aster Agent restart.
 
