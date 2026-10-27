@@ -25,12 +25,18 @@ during deployment validation.
   `/storage/.aster-checkpoints/aster-acquisition-page2`
 - HP accepted release-candidate checkpoint:
   `/storage/.aster-checkpoints/aster-acquisition-page3`
+- HP accepted action-label successor checkpoint:
+  `/storage/.aster-checkpoints/aster-acquisition-label9`
 - Accepted HP Home predecessor SHA-256:
   `39b10fcac446626d3decd89e22cd8dda95b5ee50f9b5de489cb5f67f579a0834`
 - Active HP Home SHA-256:
   `8b3867e46ec38e8e43b0fb8177a63ca3f4efbdcbd502f6121cc489a857d4d83b`
 - Accepted HP candidate manifest SHA-256:
   `188b5923527f62adb42a02c65c3d3848a73550fda0202eb94fdf1ccedd68815c`
+- Accepted action-label successor manifest SHA-256:
+  `3edb117155442a8d9a035478c019fd6eaf9ae2ad63971bac7d09c2905d8b8930`
+- Active action-window XML SHA-256:
+  `7bbb55de4cf066de99cb8bff32bd9e0e8958ba3b7ee19446d08f616fa10541df`
 
 The isolated candidate install/verify/rollback test restored the Home
 predecessor byte-for-byte. The first HP activation was also rolled back
@@ -39,7 +45,7 @@ byte-for-byte before the Kodi-native add-on activation candidate was installed.
 ## Verification
 
 - Unified Media: 109 tests passed in normal Python and 109 with `-O`.
-- Kodi v2: 1,177 tests passed in normal Python and 1,177 with `-O`; the one
+- Kodi v2: 1,179 tests passed in normal Python and 1,179 with `-O`; the one
   existing Mac-only skip remained unchanged.
 - Broker and refresher containers are healthy after bounded recreation.
 - Legacy `/health` remains HTTP 200.
@@ -54,6 +60,9 @@ byte-for-byte before the Kodi-native add-on activation candidate was installed.
 - Kodi discovered and enabled only `script.asteracquisition`; the native window
   loaded without a Python or skin error, and exact active verification passed.
 - The request journal remained empty during deployment validation.
+- A native 4K screenshot confirms the focused action reads **Request**, with
+  artwork, synopsis, recommendation explanation and candidate rail intact. The
+  page returned to Home and Kodi logged no ERROR, FATAL or Python traceback.
 
 ## Findings resolved during the gate
 
@@ -66,10 +75,15 @@ byte-for-byte before the Kodi-native add-on activation candidate was installed.
    groups; owned seed albums no longer produce an empty Music page.
 4. New add-ons are enabled through Kodi's restricted JSON-RPC boundary rather
    than by modifying its database.
+5. The action was functional but its caption was invisible because the page
+   referenced undefined `font22`. The accepted successor uses the defined
+   `font24` and separates its focus imagery, caption and transparent focus
+   target. Earlier visual-only label trials remain recoverable checkpoints;
+   none submitted a request and the final request journal count is zero.
 
 ## Remaining acceptance work
 
-- Visual and remote-control review of the three Hub tabs on the HP.
+- Household remote-control review of the three Hub tabs on the HP.
 - One explicitly chosen disposable Music or Books request, only if an
   end-to-end provider-write trial is still desired. The deployment itself did
   not create, delete or retry any provider request.

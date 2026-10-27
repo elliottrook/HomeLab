@@ -26,6 +26,26 @@ class AcquisitionNativeTests(unittest.TestCase):
         self.assertEqual(root.findtext("defaultcontrol"), "10")
         self.assertEqual(controls["50"].findtext("onclick"),
                          "SetProperty(AsterAcquisition.Command,action,home)")
+        self.assertEqual(controls["50"].findtext("label"), "")
+        self.assertEqual(controls["50"].findtext("texturefocus"), "")
+        self.assertEqual(controls["50"].findtext("texturenofocus"), "")
+        self.assertIn("AsterAcquisition.PrimaryAction",
+                      controls["50"].findtext("visible"))
+        self.assertIn('prop("PrimaryAction",', (ROOT / "default.py").read_text())
+        action_labels = [node for node in root.findall(".//control")
+                         if node.get("type") == "label"
+                         and node.findtext("label") == "Request"]
+        self.assertEqual(len(action_labels), 1)
+        self.assertEqual(action_labels[0].findtext("font"), "font24")
+        self.assertIn("AsterAcquisition.PrimaryAction",
+                      action_labels[0].findtext("visible"))
+        action_images = [node for node in root.findall(".//control")
+                         if node.get("type") == "image"
+                         and node.findtext("left") == "455"
+                         and node.findtext("top") == "640"]
+        self.assertEqual(len(action_images), 2)
+        self.assertTrue(any("Control.HasFocus(50)" in node.findtext("visible")
+                            for node in action_images))
         for identity, control in controls.items():
             if control.get("type") in ("button", "list"):
                 for direction in ("onup", "ondown", "onleft", "onright"):

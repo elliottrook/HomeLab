@@ -72,7 +72,7 @@ def main():
         prop("Explanation", view.explanation)
         prop("Poster", view.poster)
         prop("Backdrop", view.backdrop)
-        prop("Action", view.action if view.action_enabled else "")
+        prop("PrimaryAction", view.action if view.action_enabled else "")
         if view.domain == "media" and view.action:
             hint = "Open the private film and television request page"
         elif view.confirmation:
@@ -154,7 +154,7 @@ def main():
     finally:
         for key in (
             "Command", "Domain", "Status", "Title", "Metadata", "Synopsis",
-            "Explanation", "Poster", "Backdrop", "Action", "ActionHint",
+            "Explanation", "Poster", "Backdrop", "PrimaryAction", "ActionHint",
             "TabMedia", "TabMusic", "TabBooks",
         ):
             home.clearProperty(PREFIX + key)

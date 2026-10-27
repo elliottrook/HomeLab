@@ -152,6 +152,13 @@ Recovery7. Its accepted checkpoint is
 checkpoint at `/storage/.aster-checkpoints/aster-acquisition-page2` is retained
 as additional recovery evidence. Its active manifest SHA-256 is
 `188b5923527f62adb42a02c65c3d3848a73550fda0202eb94fdf1ccedd68815c`.
+The accepted visual-label successor is checkpointed at
+`/storage/.aster-checkpoints/aster-acquisition-label9`, with manifest SHA-256
+`3edb117155442a8d9a035478c019fd6eaf9ae2ad63971bac7d09c2905d8b8930`.
+It corrects only the native page action caption/composition; it adds no request
+authority. The intermediate `aster-acquisition-label1` through `label8`
+checkpoints are retained as an auditable chain and must not be selected as the
+active endpoint.
 Restoring Recovery7 alone would remove the Hub launcher/window and is therefore
 not a reconstruction of the complete current candidate. Apply or roll back the
 Acquisition layer only through its pinned helper and checkpoint until a later
