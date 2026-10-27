@@ -1719,3 +1719,12 @@ challenger pins and a bound owner-acceptance record. It cannot inspect case
 text or grant authority. The combined proposal/contract/freeze suite passes
 15/15. The practical open decision is now narrow: owner acceptance of the
 proposed bar plus one exact 27B-plus stack and owner-held packet digest.
+
+The exact [first challenger profile](evidence/Full-Aster-first-challenger-profile-2026-10-26.md)
+now selects Qwen3.6-35B-A3B Q4_K_M on the accepted b11429/SYCL binary for a
+two-request reasoning-on, speculation-off compatibility screen. Its model,
+runtime, storage and recovery boundaries are machine-validated; the combined
+full-Aster source suite passes 20/20. The 20.4 GB artifact is not downloaded or
+staged and fit is not inferred. Artifact acquisition, read-only host-backed
+staging, measured residency, owner packet/acceptance and an exact F6 effect
+transaction remain required before any model request.

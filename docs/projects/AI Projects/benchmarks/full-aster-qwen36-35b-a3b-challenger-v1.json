@@ -1,0 +1,43 @@
+{
+  "schema": "aster-full-path-challenger-profile.v1",
+  "status": "proposed-not-staged",
+  "model": {
+    "name": "Qwen3.6-35B-A3B-Q4_K_M",
+    "source_revision": "995ad96eacd98c81ed38be0c5b274b04031597b0",
+    "gguf_repository": "ggml-org/Qwen3.6-35B-A3B-GGUF",
+    "gguf_revision": "baec3ebee244827cda0f4557eafa8b28f7545fa6",
+    "file": "Qwen3.6-35B-A3B-Q4_K_M.gguf",
+    "bytes": 20419565568,
+    "sha256": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7",
+    "license": "Apache-2.0"
+  },
+  "runtime": {
+    "stack": "llama.cpp b11429 / SYCL FP16",
+    "binary_sha256": "0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5",
+    "reasoning": "on",
+    "speculation": "off",
+    "slots": 1,
+    "context_tokens_max": 8192
+  },
+  "first_screen": {
+    "synthetic_requests": 2,
+    "timeout_seconds_each": 60,
+    "stop_on_first_failure": true,
+    "required_checks": ["artifact_integrity","architecture_load","gpu_residency","first_request_structure","second_request_structure","no_truncation","no_restart","no_device_error"]
+  },
+  "resource_gates": {
+    "gpu_memory_mib_max": 24576,
+    "host_memory_mib_max": 16384,
+    "host_free_bytes_min_after_staging": 21474836480,
+    "guest_root_copy": false,
+    "host_backed_read_only_staging_required": true
+  },
+  "recovery": {
+    "f6_required": true,
+    "accepted_9b_restore_required": true,
+    "independent_observer_required": true,
+    "uncertain_outcome_rejects": true
+  },
+  "unresolved": ["artifact_acquisition","target_runtime_architecture_compatibility","measured_residency","owner_frozen_packet","owner_acceptance","effect_transaction"],
+  "authority": "not-granted"
+}
