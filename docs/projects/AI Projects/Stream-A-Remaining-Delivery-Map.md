@@ -1695,3 +1695,10 @@ answer, safety and p50/p95 contract, identical Aster-path inputs, and explicit
 D4/M3 workload mapping into an F6 lease/recovery transaction. NLU thresholds,
 fixed Doctor formatting and CPU encoder trials cannot substitute for that
 baseline.
+
+That requirement now has a [source-enforced contract boundary](evidence/Full-Aster-benchmark-contract-source-boundary-2026-10-26.md).
+Drafts, component-only packets, nonzero safety allowances and optional recovery
+fail closed; five focused tests pass. The remaining work is to propose and
+owner-freeze the exact complete-Aster packet, numeric quality/latency floors,
+accepted 9B identity and one 27B-plus challenger identity. No model run or F6
+effect follows from the source validator.
