@@ -37,6 +37,24 @@ Current HP read-only baseline after the v2 endurance work:
   about 1.33 GiB and staging about 301 MiB; a normal bedroom client should not
   carry the entire lab history.
 
+Post-Acquisition Hub measurement on the same complete HP candidate:
+
+- LibreELEC 12.2.1/Kodi remained active after more than three days of uptime,
+  with no player open, load averages of 0.06/0.13/0.17 and both reported CPU
+  thermal zones at 33°C.
+- Kodi used 465 MiB RSS with a 631 MiB process high-water mark and 39 threads;
+  14.3 GiB of 15.3 GiB RAM remained available without swap.
+- The native Acquisition add-on itself occupies only 124 KiB. Adding the
+  populated Media, Music and Books discovery surface therefore did not create
+  a meaningful new client-capacity requirement.
+- The current 495 MiB Kodi tree consists primarily of 168 MiB add-on data,
+  163 MiB thumbnails, 68 MiB databases and 56 MiB installed add-ons. The Aster
+  skin is about 13 MiB.
+- Total `/storage` use was 4.1 GiB of 232.7 GiB. About 1.33 GiB of checkpoints
+  and 301 MiB of staging are retained engineering evidence, not a deployable
+  bedroom-client requirement. A release image should use bounded recovery
+  retention rather than copying that history.
+
 ## Three useful boundaries
 
 ### Observed floor
@@ -117,6 +135,12 @@ cable or missing CEC adapter.
   recovery matrix before calling it a bedroom option.
 - Record wall power and fan/noise for any actual bedroom candidate.
 - Revisit this estimate after M9's final page cleanup fixes the software shape.
+
+The complete HP candidate now includes the credential-free Acquisition Hub
+client, its populated discovery feeds and the bounded request journal. That
+addition has passed the idle resource check above. It does not close M8 because
+the requested low-end conclusion still needs evidence from the N95 production
+class or another constrained endpoint, plus the final M9 software shape.
 
 Until those checks are complete, **N95/N100 + 8 GB + 64/128 GB + gigabit
 Ethernet** is a conservative engineering estimate, not a guaranteed shopping
