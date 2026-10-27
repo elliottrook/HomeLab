@@ -86,3 +86,12 @@ suggestions and explicit request actions. The existing routes are retained;
 replacing typed catalogue search with a suggestion feed would remove accepted
 functionality. The next safe work is checking ordinary search/navigation and
 the common landing focus/rotation contract against this captured family.
+
+The bounded native driver is prepared as
+`services/kodi/v2/tools/live_landing_family_smoke.py`. It admits only idle HP
+Home with empty queues, opens ordinary Search and its keyboard, checks the
+catalogue route, then checks manual Next and tile-focus authority on Media,
+Music and Books. It issues no Play or Request action and records only check
+names and outcomes. Compile validation passed. Native execution is deferred
+while the separate YouTube task awaits the owner's Google device authorization
+on HP; this prepared script is not acceptance evidence.
