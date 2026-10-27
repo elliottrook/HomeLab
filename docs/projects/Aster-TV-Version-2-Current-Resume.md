@@ -52,7 +52,10 @@ do not imply household acceptance or production promotion.
   verifies after an isolated copy: 20 source stages, 273 files, 8,764,273 bytes,
   manifest `e614d1c85716f9c3fef73e02ae57a88ac142b28138ef8025933cfb7f0664eeda`.
   Its twelve-step recipe covers every source and eight explicit prerequisites
-  with two bounded Kodi restart points. Ordered apply/rollback rehearsal remains open.
+  with two bounded Kodi restart points. Full ordered apply/rollback rehearsal remains open.
+  The base archives → Recovery7 → Music → EPUB Doctor core has now passed an
+  isolated apply/verify/rollback. Remaining rehearsal work is the system-service,
+  restricted-identity and later page-successor phases.
 - The official YouTube add-on reports the HP user fully signed in. Version 2
   now explicitly owns the Aster presentation milestone: replace the add-on's
   generic entrance with a Media-home-style YouTube landing page and preserve

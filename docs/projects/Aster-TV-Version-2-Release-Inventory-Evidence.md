@@ -127,6 +127,17 @@ boundaries. It explicitly requires LibreELEC 12.2.1/Kodi 21.3, official YouTube
 least-privilege identity provisioning. Credentials and account state are never
 recovered by copying another client's profile.
 
+The core material chain then passed a real isolated apply/verify/rollback on
+the HP without touching live Kodi paths. A disposable `/tmp` root extracted and
+verified all four v1.1.1 archives, applied Recovery7, installed the Music
+package, applied the EPUB Doctor delta, verified the resulting active family
+SHA `11d4e7ab45f0123aa5135e1fdd7924fcf14010cb7ba12add1828c9f3fc139a58`
+and Jellyfin guard SHA
+`3f3478185c87cce9ff6e8c7bbe16e11de5a1d3d1eac89c51fe914d47b2121661`,
+then removed the disposable tree and proved it absent. Secure archive handling
+rejects duplicate, unexpected, absolute and traversal members; source copying
+rejects symlinks. Live settings, profiles, players and services were unchanged.
+
 This is successful source-material recovery, not yet a clean-client install
 rehearsal. Graduation still requires an ordered installer contract and an
 isolated apply/verify/rollback test. The temporary HP copies are retained until
