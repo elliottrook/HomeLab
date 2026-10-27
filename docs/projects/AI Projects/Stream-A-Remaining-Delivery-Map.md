@@ -247,8 +247,10 @@ shell syntax pass. A deterministic 16-member candidate-and-test packet now
 makes the post-window Python 3.13 check reproducible without touching live
 files. This reduces the later live change from two Aster Agent
 restarts to one without widening either component's authority. Post-window
-live-predecessor and target-Python checks still precede one exact restart
-approval; nothing was deployed while the protected timed chain was active.
+live-predecessor and target-Python checks are now frozen in an exact
+[read-only preflight card](evidence/SA2-SA3-composite-target-preflight-card-2026-10-27.md)
+and still precede one exact restart approval; nothing was deployed while the
+protected timed chain was active.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
