@@ -25,6 +25,11 @@ limit, requires a real 15-minute recovery interval, and caps the guardian hard
 deadline at 04:15. An invocation outside the date/window exits before the
 guardian, owner, lease, service stop, mount or model request.
 
+The focused platform suite passes 9/9 locally. A source-only target-Python
+check on Proxmox passes the six launcher/guardian cases against the installed
+dependency directories. The first deliberately incomplete packet stopped at
+import because it omitted guardian dependencies; it ran no test or effect.
+
 This changes only the launcher source. The installed launcher and transient
 03:10 timer remain unchanged until a separate reviewed installation replaces
 the exact file. The already approved effect must not run with a different
