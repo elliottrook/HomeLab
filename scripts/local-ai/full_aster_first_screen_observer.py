@@ -1,11 +1,14 @@
 """Fixed live observer for full-Aster first-screen recovery."""
 from __future__ import annotations
 
+import os
+from pathlib import Path
 import subprocess
 from typing import Callable, Sequence
 
 from full_aster_first_screen_candidate import UNIT
 from full_aster_first_screen_recovery import MOUNT_VALUE
+from full_aster_first_screen_recovery import HOST_MODEL, HOST_ROOT
 
 
 MODEL_SHA256 = "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13"
@@ -57,6 +60,42 @@ class FixedObserver:
     def _hash(self, path: str, expected: str) -> bool:
         code, output = self.runner(("pct", "exec", "110", "--", "sha256sum", path), 60.0)
         return code == 0 and output.split()[:1] == [expected]
+
+    def artifact_root_custody(self) -> bool:
+        code, output = self.runner(("stat", "-c", "%u:%g:%a:%s:%h:%n",
+                                   HOST_ROOT, HOST_MODEL), 15.0)
+        rows = output.strip().splitlines()
+        return code == 0 and rows == [
+            f"0:0:700:4096:2:{HOST_ROOT}",
+            f"0:0:400:20419565568:1:{HOST_MODEL}",
+        ]
+
+    def candidate_resident(self) -> bool:
+        holders = []
+        for proc in Path("/proc").glob("[0-9]*"):
+            try:
+                if not any(os.readlink(fd) == "/dev/dri/renderD128"
+                           for fd in (proc / "fd").iterdir()):
+                    continue
+                holders.append((os.readlink(proc / "exe"),
+                                (proc / "cgroup").read_text().strip()))
+            except FileNotFoundError:
+                if proc.exists(): return False
+            except (OSError, PermissionError, UnicodeError):
+                return False
+        if len(holders) != 1:
+            return False
+        executable, cgroup = holders[0]
+        if (executable != "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"
+                or not cgroup.endswith("/lxc/110/ns/system.slice/aster-full-screen-qwen36.service")):
+            return False
+        code, pid = self.runner(("pct", "exec", "110", "--", "systemctl", "show",
+            "aster-full-screen-qwen36.service", "--property=MainPID", "--value"), 15.0)
+        if code != 0 or not pid.strip().isdigit() or int(pid) <= 0:
+            return False
+        code, rss = self.runner(("pct", "exec", "110", "--", "ps", "-o", "rss=",
+                                 "-p", pid.strip()), 15.0)
+        return code == 0 and rss.strip().isdigit() and int(rss) <= 16 * 1024 * 1024
 
     def exact_baseline_restored(self) -> bool:
         if not self.guest_running() or self.mount_state() != "absent" \

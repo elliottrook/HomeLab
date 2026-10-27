@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+test "$#" -eq 1
+test "$1" = "--effect-authorized"
+
+PYTHONPATH=/usr/local/libexec/local-ai-lease/full-inference-pilot:/usr/local/libexec/local-ai-lease/stream-a-evaluation:/usr/local/libexec/local-ai-lease \
+  exec /usr/bin/python3 -B \
+  /usr/local/libexec/local-ai-lease/full-inference-pilot/full_aster_first_screen_launch.py \
+  --effect-authorized

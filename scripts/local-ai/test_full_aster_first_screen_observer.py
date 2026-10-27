@@ -2,7 +2,7 @@ import unittest
 
 from full_aster_first_screen_candidate import UNIT
 from full_aster_first_screen_observer import FixedObserver
-from full_aster_first_screen_recovery import MOUNT_VALUE
+from full_aster_first_screen_recovery import HOST_MODEL, HOST_ROOT, MOUNT_VALUE
 
 
 class Runner:
@@ -22,6 +22,8 @@ class Runner:
             return 0, values[path.rsplit("/",1)[-1]]+"  "+path
         if command[-2:] == ("is-active", "aster-llama.service"): return 0, "active"
         if command[-1] == "/usr/local/sbin/aster-llama-production-auth-probe": return 0, ""
+        if command[:3] == ("stat", "-c", "%u:%g:%a:%s:%h:%n"):
+            return 0, f"0:0:700:4096:2:{HOST_ROOT}\n0:0:400:20419565568:1:{HOST_MODEL}"
         raise AssertionError(command)
 
 
@@ -35,6 +37,7 @@ class ObserverTests(unittest.TestCase):
         self.assertTrue(FixedObserver(Runner()).exact_baseline_restored())
         self.assertFalse(FixedObserver(Runner("mp0: "+MOUNT_VALUE)).exact_baseline_restored())
         self.assertFalse(FixedObserver(Runner(pids="42")).exact_baseline_restored())
+        self.assertTrue(FixedObserver(Runner()).artifact_root_custody())
 
 
 if __name__ == "__main__": unittest.main()

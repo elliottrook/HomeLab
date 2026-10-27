@@ -44,12 +44,12 @@ class RootF4F5Tests(unittest.TestCase):
             unchanged=lambda: unchanged,
         )
 
-    def run_produce(self, source=None):
+    def run_produce(self, source=None, **kwargs):
         source = source or self.sources()
         return produce(
             paths=self.paths, clock=lambda: source.observed_epoch,
             nonce_factory=lambda: "0123456789abcdef",
-            collector=lambda **_kwargs: source, required_uid=self.uid)
+            collector=lambda **_kwargs: source, required_uid=self.uid, **kwargs)
 
     def test_success_publishes_exact_write_once_set(self):
         result = self.run_produce()
@@ -69,6 +69,14 @@ class RootF4F5Tests(unittest.TestCase):
         self.assertFalse(self.paths.f4.exists())
         self.assertFalse(self.paths.admission.exists())
         self.assertEqual(self.paths.f5.read_text(), "foreign")
+
+    def test_screen_composition_can_publish_f4_f5_without_wrong_workload_admission(self):
+        result=self.run_produce(
+            lease_id="aster-full-screen-owner-0123456789abcdef:123",
+            publish_admission=False)
+        self.assertEqual(self.paths.f4.read_bytes(),result.f4_bytes)
+        self.assertEqual(self.paths.f5.read_bytes(),result.f5_bytes)
+        self.assertFalse(self.paths.admission.exists())
 
     def test_source_drift_rejects_before_publication(self):
         with self.assertRaisesRegex(RootTransactionError, "changed"):

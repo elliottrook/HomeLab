@@ -25,8 +25,8 @@ class RequestError(RuntimeError):
 def _key(path: Path = KEY_FILE) -> str:
     values = [line.strip() for line in path.read_text(encoding="utf-8").splitlines()
               if line.strip()]
-    if len(values) != 1 or len(values[0]) < 16:
-        raise RequestError("API key file is not the fixed one-key form")
+    if not 1 <= len(values) <= 16 or any(len(value) < 16 for value in values):
+        raise RequestError("API key file is not the bounded line-key form")
     return values[0]
 
 

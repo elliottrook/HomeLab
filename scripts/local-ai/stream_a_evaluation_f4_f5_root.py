@@ -264,12 +264,13 @@ def _check_parent(path: Path, required_uid: int) -> None:
 
 
 def publish(artifacts: TransactionArtifacts, *, paths: EvidencePaths,
-            required_uid: int = 0) -> None:
-    targets = (
+            required_uid: int = 0, publish_admission: bool = True) -> None:
+    targets = [
         (paths.f4, artifacts.f4_bytes),
         (paths.f5, artifacts.f5_bytes),
-        (paths.admission, artifacts.admission_bytes),
-    )
+    ]
+    if publish_admission:
+        targets.append((paths.admission, artifacts.admission_bytes))
     for path, raw in targets:
         _check_parent(path, required_uid)
         if os.path.lexists(path):
@@ -320,6 +321,8 @@ def produce(
     nonce_factory: Callable[[], str] = lambda: secrets.token_hex(8),
     collector: Callable[..., CollectedSources] = collect_fixed_sources,
     required_uid: int = 0,
+    lease_id: str | None = None,
+    publish_admission: bool = True,
 ) -> TransactionArtifacts:
     if os.geteuid() != required_uid:
         raise RootTransactionError("root identity is required")
@@ -332,10 +335,12 @@ def produce(
         backup_receipt=sources.backup_receipt,
         observation=sources.observation,
         lxc110_mirror_identity=sources.lxc110_mirror_identity,
+        lease_id=lease_id,
     )
     if not sources.unchanged():
         raise RootTransactionError("predecessor evidence changed during collection")
-    publish(artifacts, paths=paths, required_uid=required_uid)
+    publish(artifacts, paths=paths, required_uid=required_uid,
+            publish_admission=publish_admission)
     return artifacts
 
 

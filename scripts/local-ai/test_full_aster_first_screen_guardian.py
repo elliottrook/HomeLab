@@ -11,7 +11,8 @@ def screen_state():
             "owner_id":"aster-full-screen-owner-0123456789abcdef",
             "owner_unit":"aster-full-screen-owner-0123456789abcdef.scope",
             "cycle":"2026-10-27", "model_sha256":"c"*64,
-            "binary_sha256":"b"*64, "unit_sha256":"d"*64}
+            "binary_sha256":"b"*64, "unit_sha256":"d"*64,
+            "admission_sha256":"a"*64}
 
 
 def drain_state():

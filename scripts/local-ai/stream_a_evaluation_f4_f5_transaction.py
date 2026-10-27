@@ -31,6 +31,7 @@ class TransactionError(ValueError):
 
 _CYCLE = re.compile(r"^20[0-9]{2}-[01][0-9]-[0-3][0-9]$")
 _NONCE = re.compile(r"^[0-9a-f]{16}$")
+_LEASE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9:._-]{0,159}$")
 MAX_FRESH_SECONDS = 15 * 60
 ACCEPTED_MODEL = "Qwen3.5 9B Q4_K_M"
 ACCEPTED_BACKEND = "llama.cpp b11429 SYCL/Level Zero"
@@ -112,6 +113,7 @@ def build_transaction(
     backup_receipt: str,
     observation: Observation,
     lxc110_mirror_identity: str,
+    lease_id: str | None = None,
 ) -> TransactionArtifacts:
     """Build exact canonical bytes without writing or performing an effect."""
     if _CYCLE.fullmatch(cycle_date) is None or _NONCE.fullmatch(nonce) is None:
@@ -125,7 +127,9 @@ def build_transaction(
     if not isinstance(lxc110_mirror_identity, str) or not lxc110_mirror_identity:
         raise TransactionError("LXC110 mirror identity is missing")
 
-    lease_id = f"stream-a-evaluation-{cycle_date}-{nonce}"
+    lease_id = f"stream-a-evaluation-{cycle_date}-{nonce}" if lease_id is None else lease_id
+    if not isinstance(lease_id, str) or _LEASE_ID.fullmatch(lease_id) is None:
+        raise TransactionError("lease identity is invalid")
     expires_epoch = observed_epoch + MAX_FRESH_SECONDS
     expires_minute = observed_minute + MAX_FRESH_SECONDS // 60
     f4_bytes = _encode_f4(

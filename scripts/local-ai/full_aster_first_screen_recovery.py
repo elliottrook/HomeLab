@@ -14,10 +14,13 @@ from full_aster_first_screen_candidate import (
 )
 
 
-HOST_MODEL = "/var/lib/vz/aster-model-staging/qwen36-35b-a3b-v1/Qwen3.6-35B-A3B-Q4_K_M.gguf"
+HOST_ROOT = "/var/lib/vz/aster-model-staging/qwen36-35b-a3b-v1"
+HOST_MODEL = f"{HOST_ROOT}/Qwen3.6-35B-A3B-Q4_K_M.gguf"
 GUEST_MOUNT = "/opt/models/aster-first-screen"
-MOUNT_VALUE = f"{HOST_MODEL},mp={GUEST_MOUNT},ro=1,backup=0"
+MOUNT_VALUE = f"{HOST_ROOT},mp={GUEST_MOUNT},ro=1,backup=0"
 MOUNT_KEY = "mp0"
+MAPPED_UID = 100999
+MAPPED_GID = 100991
 
 
 class RecoveryError(RuntimeError):
@@ -29,6 +32,7 @@ class Observer(Protocol):
     def mount_state(self) -> str: ...
     def guest_running(self) -> bool: ...
     def exact_baseline_restored(self) -> bool: ...
+    def artifact_root_custody(self) -> bool: ...
 
 
 @dataclass(frozen=True)
@@ -64,6 +68,11 @@ def delete_mount_command() -> tuple[str, ...]:
     return ("pct", "set", "110", "--delete", MOUNT_KEY)
 
 
+def restore_artifact_custody_commands() -> tuple[tuple[str, ...], ...]:
+    return (("chown", "0:0", HOST_MODEL), ("chmod", "0400", HOST_MODEL),
+            ("chown", "0:0", HOST_ROOT), ("chmod", "0700", HOST_ROOT))
+
+
 def full_drain_rescue_command(identity: RecoveryIdentity) -> tuple[str, ...]:
     identity.validate()
     return (
@@ -79,12 +88,14 @@ def full_drain_rescue_command(identity: RecoveryIdentity) -> tuple[str, ...]:
 
 
 def recover(*, identity: RecoveryIdentity, observer: Observer,
-            runner: Callable[[Sequence[str], float], None]) -> None:
+            runner: Callable[[Sequence[str], float], None],
+            lease_restorer: Callable[[], None] | None = None) -> None:
     """Recover once; ambiguity retains state and prevents lease release."""
     identity.validate()
     if observer.guest_running():
-        runner(stop_command(), 30.0)
-        runner(reset_failed_command(), 15.0)
+        if not observer.candidate_absent():
+            runner(stop_command(), 30.0)
+            runner(reset_failed_command(), 15.0)
         if not observer.candidate_absent():
             raise RecoveryError("candidate process or unit remains")
 
@@ -99,19 +110,27 @@ def recover(*, identity: RecoveryIdentity, observer: Observer,
         runner(delete_mount_command(), 30.0)
         if observer.mount_state() != "absent":
             raise RecoveryError("owned candidate mount was not removed")
+    for command in restore_artifact_custody_commands():
+        runner(command, 30.0)
+    if not observer.artifact_root_custody():
+        raise RecoveryError("staged artifact root custody was not restored")
     if not observer.guest_running():
         runner(start_guest_command(), 90.0)
         if not observer.guest_running():
             raise RecoveryError("LXC110 did not restart")
 
-    runner(stop_command(), 30.0)
-    runner(reset_failed_command(), 15.0)
+    if not observer.candidate_absent():
+        runner(stop_command(), 30.0)
+        runner(reset_failed_command(), 15.0)
     if not observer.candidate_absent():
         raise RecoveryError("candidate process or unit remains after guest recovery")
 
     runner(baseline_start_command(), 360.0)
     if not observer.exact_baseline_restored():
         raise RecoveryError("accepted 9B/SYCL baseline is not exact")
-    runner(full_drain_rescue_command(identity), 180.0)
+    if lease_restorer is None:
+        runner(full_drain_rescue_command(identity), 180.0)
+    else:
+        lease_restorer()
     if not observer.exact_baseline_restored():
         raise RecoveryError("production restoration drifted after lease rescue")

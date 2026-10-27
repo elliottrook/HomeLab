@@ -15,13 +15,14 @@ def identity(**changes):
 
 class Observer:
     def __init__(self, mount="exact", running=True, baseline=True,
-                 candidate_absent=True):
+                 candidate_absent=False):
         self.mount = mount; self.running = running; self.baseline = baseline
         self.absent = candidate_absent
     def candidate_absent(self): return self.absent
     def mount_state(self): return self.mount
     def guest_running(self): return self.running
     def exact_baseline_restored(self): return self.baseline
+    def artifact_root_custody(self): return True
 
 
 class RecoveryTests(unittest.TestCase):
@@ -30,6 +31,7 @@ class RecoveryTests(unittest.TestCase):
         commands = []
         def run(command, _timeout):
             commands.append(tuple(command))
+            if tuple(command) == recovery.stop_command(): observer.absent = True
             if tuple(command) == recovery.shutdown_command(): observer.running = False
             if tuple(command) == recovery.delete_mount_command(): observer.mount = "absent"
             if tuple(command) == recovery.start_guest_command(): observer.running = True
@@ -38,11 +40,12 @@ class RecoveryTests(unittest.TestCase):
         self.assertIn(recovery.delete_mount_command(), commands)
         self.assertLess(commands.index(recovery.delete_mount_command()),
                         commands.index(recovery.start_guest_command()))
+        self.assertIn(("chown", "0:0", recovery.HOST_MODEL), commands)
         self.assertEqual(commands[-1][3:5], ("--phase", "rescue"))
 
     def test_absent_mount_and_running_guest_do_not_restart_container(self):
         commands = []
-        recovery.recover(identity=identity(), observer=Observer(mount="absent"),
+        recovery.recover(identity=identity(), observer=Observer(mount="absent", candidate_absent=True),
                          runner=lambda command, timeout: commands.append(tuple(command)))
         self.assertNotIn(recovery.shutdown_command(), commands)
         self.assertNotIn(recovery.delete_mount_command(), commands)
@@ -54,13 +57,16 @@ class RecoveryTests(unittest.TestCase):
         def run(command, _timeout):
             commands.append(tuple(command))
             if tuple(command) == recovery.start_guest_command(): observer.running = True
+            if tuple(command) == recovery.stop_command(): observer.absent = True
         recovery.recover(identity=identity(), observer=observer, runner=run)
-        self.assertEqual(commands[0], recovery.start_guest_command())
-        self.assertIn(recovery.stop_command(), commands[1:])
+        self.assertIn(recovery.start_guest_command(), commands)
+        self.assertNotIn(recovery.shutdown_command(), commands)
+        self.assertIn(recovery.stop_command(), commands[commands.index(recovery.start_guest_command())+1:])
 
     def test_foreign_mount_candidate_or_bad_baseline_fail_closed(self):
-        for observer in (Observer(mount="foreign"), Observer(candidate_absent=False),
-                         Observer(mount="absent", baseline=False)):
+        for observer in (Observer(mount="foreign", candidate_absent=True),
+                         Observer(candidate_absent=False),
+                         Observer(mount="absent", baseline=False, candidate_absent=True)):
             with self.subTest(observer=observer), self.assertRaises(recovery.RecoveryError):
                 recovery.recover(identity=identity(), observer=observer,
                                  runner=lambda command, timeout: None)

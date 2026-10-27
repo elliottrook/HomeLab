@@ -82,6 +82,16 @@ class F4F5TransactionTests(unittest.TestCase):
         self.assertNotEqual(first.admission_bytes, second.admission_bytes)
         self.assertNotEqual(first.admission_receipt, second.admission_receipt)
 
+    def test_reviewed_composition_can_bind_one_exact_external_lease_identity(self):
+        lease_id = "aster-full-screen-owner-0123456789abcdef:1793095500"
+        result = self.build(lease_id=lease_id)
+        self.assertEqual(result.lease_id, lease_id)
+        self.assertEqual(json.loads(result.f4_bytes)["receipt"]["lease_id"], lease_id)
+        self.assertEqual(json.loads(result.admission_bytes)["lease_id"], lease_id)
+        for value in ("", "operator choice", "/path", "x" * 161):
+            with self.subTest(value=value), self.assertRaises(TransactionError):
+                self.build(lease_id=value)
+
 
 if __name__ == "__main__":
     unittest.main()
