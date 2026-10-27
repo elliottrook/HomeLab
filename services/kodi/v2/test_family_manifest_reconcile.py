@@ -4,8 +4,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from family_manifest_reconcile import build, digest, encoded
-from family_manifest_reconcile_install import run
+from family_manifest_reconcile import build, build_successor, digest, encoded
+from family_manifest_reconcile_install import CHECKPOINT2, run
 
 
 def write(path, raw):
@@ -54,6 +54,41 @@ class FamilyManifestReconcileTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'predecessor-drift'):
                 run('install', stage, storage, pin, idle=lambda: True)
             self.assertFalse((storage/'.aster-checkpoints/aster-family-manifest1').exists())
+
+    def test_snapshot_successor_uses_second_checkpoint(self):
+        with tempfile.TemporaryDirectory() as parent:
+            root = Path(parent); storage, addon, skin = fixture(root); stage = root/'stage'
+            pin = build_successor(addon/'family-manifest.json', skin/'1080i/Home.xml', stage)
+            result = run('install', stage, storage, pin, idle=lambda: True,
+                checkpoint_path=CHECKPOINT2,
+                contract_kind='hp-family-manifest-reconcile.v2')
+            self.assertTrue(result['references_verified'])
+            self.assertTrue((storage/CHECKPOINT2/'predecessor.json').is_file())
+            self.assertTrue(run('verify', stage, storage, pin, idle=lambda: True,
+                checkpoint_path=CHECKPOINT2,
+                contract_kind='hp-family-manifest-reconcile.v2')['active'])
+
+    def test_second_reconcile_refuses_any_additional_drift_before_checkpoint(self):
+        with tempfile.TemporaryDirectory() as parent:
+            root = Path(parent); storage, addon, skin = fixture(root); stage = root/'stage'
+            pin = build_successor(addon/'family-manifest.json', skin/'1080i/Home.xml', stage)
+            (skin/'1080i/Other.xml').write_text('changed')
+            with self.assertRaisesRegex(ValueError, 'unexpected-drift'):
+                run('install', stage, storage, pin, idle=lambda: True,
+                    checkpoint_path=CHECKPOINT2,
+                    contract_kind='hp-family-manifest-reconcile.v2')
+            self.assertFalse((storage/CHECKPOINT2).exists())
+
+    def test_second_reconcile_pins_its_execution_tools(self):
+        with tempfile.TemporaryDirectory() as parent:
+            root = Path(parent); storage, addon, skin = fixture(root); stage = root/'stage'
+            pin = build_successor(addon/'family-manifest.json', skin/'1080i/Home.xml', stage)
+            (stage/'deploy_family_manifest_reconcile2.py').write_text('changed')
+            with self.assertRaisesRegex(ValueError, 'family-reconcile-tools'):
+                run('install', stage, storage, pin, idle=lambda: True,
+                    checkpoint_path=CHECKPOINT2,
+                    contract_kind='hp-family-manifest-reconcile.v2')
+            self.assertFalse((storage/CHECKPOINT2).exists())
 
 
 if __name__ == '__main__': unittest.main()

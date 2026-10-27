@@ -52,3 +52,50 @@ def build(addon, skin, output):
         sha256=digest(replacement), bytes=len(replacement))
     (output/'manifest.json').write_bytes(encoded(manifest))
     return digest((output/'manifest.json').read_bytes())
+
+
+def build_successor(source, home, output, helper=None, deploy=None):
+    """Build a successor from two exact, separately captured live files.
+
+    The installer independently proves that Home is the only drift from the
+    predecessor before it creates a checkpoint or changes the live manifest.
+    This smaller input surface avoids copying an entire active add-on tree into
+    the build workspace merely to advance one integrity hash.
+    """
+    source, home, output = Path(source), Path(home), Path(output)
+    helper = Path(helper) if helper else Path(__file__).with_name(
+        'family_manifest_reconcile_install.py')
+    deploy = Path(deploy) if deploy else Path(__file__).with_name(
+        'tools')/'deploy_family_manifest_reconcile2.py'
+    if output.exists():
+        raise ValueError('family-reconcile-output-exists')
+    if source.is_symlink() or not source.is_file():
+        raise ValueError('family-reconcile-source')
+    if home.is_symlink() or not home.is_file():
+        raise ValueError('family-reconcile-home')
+    if (helper.is_symlink() or not helper.is_file()
+            or deploy.is_symlink() or not deploy.is_file()):
+        raise ValueError('family-reconcile-tools')
+    source_raw, home_raw = source.read_bytes(), home.read_bytes()
+    family = json.loads(source_raw)
+    if (family.get('kind') != 'aster-family-runtime.v1'
+            or HOME not in family.get('skin', {})):
+        raise ValueError('family-reconcile-kind')
+    ET.fromstring(home_raw)
+    home_sha = digest(home_raw)
+    if family['skin'][HOME] == home_sha:
+        raise ValueError('family-reconcile-home-not-drifted')
+    family['skin'][HOME] = home_sha
+    replacement = encoded(family)
+    output.mkdir(parents=True)
+    (output/'family-manifest.json').write_bytes(replacement)
+    helper_raw, deploy_raw = helper.read_bytes(), deploy.read_bytes()
+    (output/'family_manifest_reconcile_install.py').write_bytes(helper_raw)
+    (output/'deploy_family_manifest_reconcile2.py').write_bytes(deploy_raw)
+    manifest = dict(schema=1, kind='hp-family-manifest-reconcile.v2',
+        target='script.asterruntime/family-manifest.json',
+        before_sha256=digest(source_raw), home_sha256=home_sha,
+        sha256=digest(replacement), bytes=len(replacement),
+        helper_sha256=digest(helper_raw), deploy_sha256=digest(deploy_raw))
+    (output/'manifest.json').write_bytes(encoded(manifest))
+    return digest((output/'manifest.json').read_bytes())
