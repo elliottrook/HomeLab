@@ -56,6 +56,44 @@ class DoctorIncidentGatewayTests(unittest.TestCase):
                 agent.start_doctor_incident("test", NOW)
         self.assertIn("disabled", str(error.exception))
 
+    def test_owner_can_request_content_minimized_model_proposal(self):
+        claims = lambda value: {"sub": "jason-sub"} if value == "Bearer jwt-jason" else None
+        with patch.object(agent, "lab_operations", self.operations), \
+             patch.object(agent, "_authentik_claims", side_effect=claims), \
+             patch.object(agent, "ASTER_API_KEY", "legacy"), \
+             patch.object(agent, "LLAMA_API_KEY", "fixture-llama-key"), \
+             patch.object(agent, "SYSADMIN_DOCTOR_EVIDENCE", True), \
+             patch.object(agent, "SYSADMIN_INCIDENT_STATE", Path(self.tmp.name) / "incidents.sqlite3"), \
+             patch.object(agent, "HEALTH_REPORT_PATH", self.report), \
+             patch.object(agent, "_sysadmin_incident_store", None), \
+             patch.object(agent, "propose_and_bind_follow_up", return_value={
+                 "state_digest": "a" * 64,
+                 "decision_count": 1,
+                 "consumed_count": 0,
+                 "pending": {"decision_ref": "b" * 16, "disposition": "observe",
+                             "target": "aster-gateway", "kind": "status"},
+             }) as propose:
+            with TestClient(agent.app) as client:
+                created = client.post(
+                    "/v1/sysadmin/incidents/doctor", json={},
+                    headers={"Authorization": "Bearer jwt-jason"},
+                ).json()
+                incident_id = created["incident"]["incident_id"]
+                denied = client.post(
+                    f"/v1/sysadmin/incidents/{incident_id}/propose",
+                    headers={"Authorization": "Bearer legacy"},
+                )
+                self.assertEqual(denied.status_code, 403)
+                accepted = client.post(
+                    f"/v1/sysadmin/incidents/{incident_id}/propose",
+                    headers={"Authorization": "Bearer jwt-jason"},
+                )
+                self.assertEqual(accepted.status_code, 200, accepted.text)
+                self.assertNotIn("hypothesis", accepted.text)
+                propose.assert_called_once_with(
+                    agent._doctor_incident_store(), incident_id, "fixture-llama-key"
+                )
+
     def test_owner_can_journal_no_effect_followup_and_legacy_key_cannot(self):
         claims = lambda value: {"sub": "jason-sub"} if value == "Bearer jwt-jason" else None
         with patch.object(agent, "lab_operations", self.operations), \

@@ -181,6 +181,15 @@ pass 2/2 including semantic tamper detection. A separate reviewer still needs
 to run and record that review. No deployment or runtime authority follows from
 the packet itself.
 
+The source-only [candidate-E journal gateway](evidence/SA3-candidate-E-journal-gateway-2026-10-27.md)
+now composes the sanitized proposal boundary, fixed one-shot transport and
+atomic incident journal without granting observation or repair authority. It
+refuses an existing pending decision before calling the model and rejects a
+proposal if incident state changes during the call. The dependency-free
+sysadmin suite passes 69/69. The HTTP route still needs target-runtime testing,
+and candidate E still needs independent packet review before an exact release
+candidate can be accepted or deployed. Automatic routing remains closed.
+
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the

@@ -37,6 +37,7 @@ from sysadmin_incident_store import IncidentStore
 from sysadmin_incident_stream import reconnect_frames
 from sysadmin_investigation import EvidenceRequest, InvestigationError, create_incident
 from sysadmin_registered_producer import execute_registered_pending_observation
+from sysadmin_proposal_gateway import propose_and_bind_follow_up
 from knowledge_usage import record_knowledge_search
 
 
@@ -1571,6 +1572,21 @@ async def doctor_incident_follow_up(incident_id: str, request: SysadminFollowUpR
         return store.followup_journal_snapshot(incident_id, datetime.now(timezone.utc))
     except InvestigationError as exc:
         raise HTTPException(status_code=409, detail="Follow-up proposal was not accepted") from exc
+
+
+@app.post("/v1/sysadmin/incidents/{incident_id}/propose", dependencies=[Depends(require_api_key)])
+async def doctor_incident_propose(incident_id: str) -> dict[str, Any]:
+    """Request and journal one bounded local proposal; execute nothing."""
+    _require_doctor_incident_owner()
+    try:
+        return await asyncio.to_thread(
+            propose_and_bind_follow_up,
+            _doctor_incident_store(),
+            incident_id,
+            LLAMA_API_KEY,
+        )
+    except InvestigationError as exc:
+        raise HTTPException(status_code=409, detail="Model proposal was not accepted") from exc
 
 
 @app.post("/v1/sysadmin/incidents/{incident_id}/observe", dependencies=[Depends(require_api_key)])
