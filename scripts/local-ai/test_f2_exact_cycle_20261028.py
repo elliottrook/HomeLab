@@ -36,6 +36,10 @@ class F2ExactCycle20261028Tests(unittest.TestCase):
     def test_card_pins_installed_diagnostic_and_preserves_spent_cycle(self):
         text = CARD.read_text(encoding="utf-8")
         self.assertIn("efe8bc99efd95ce85d2dbe3c8218419fdb187ceaa065cf59a906e7c0323987ec", text)
+        self.assertIn("ce2332a1136b0176bd576a1c5c7f8f4a5374c45ef6d470dcbf78ffd594d4157f", text)
+        self.assertIn("e072e90770c145c1a5f9cc3d589eb0d70d91230290cd70f0f82820efe5e109d0", text)
+        self.assertIn("20f3526735788cd25326c014ab855be1610be46164565c98243f195d1e94ff32", text)
+        self.assertIn("two identical three-archive no-scan rehearsals", text)
         self.assertIn("2026-10-28.json", text)
         self.assertIn("Preserve October 19–27 evidence byte-for-byte", text)
         self.assertIn("cf72cfbd…5d2a", text)

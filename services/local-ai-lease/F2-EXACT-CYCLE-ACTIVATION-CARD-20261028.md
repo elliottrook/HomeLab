@@ -2,9 +2,11 @@
 
 Status: **INACTIVE CANDIDATE; HOLD PENDING SEPARATE EXPLICIT ACTIVATION APPROVAL**
 
-This is the first fresh cycle after the bounded observer-child phase diagnostic
-was installed and target-tested. It does not reuse or alter the spent October
-27 state. This card by itself authorizes no timer installation, enablement,
+This is the first fresh cycle after the isolated-child Proxmox PATH correction
+was installed and target-tested. The root cause was reproduced under the exact
+sanitized environment, then the corrected installed chain passed 60/60 target
+tests and two identical three-archive no-scan rehearsals. It does not reuse or
+alter the spent October 27 state. This card by itself authorizes no timer installation, enablement,
 service start, scan, receipt, lease, retry, reschedule, production stop, model
 call or F3 conversion.
 
@@ -30,14 +32,16 @@ belong to F4/F5 and remain outside this F2 card.
 
 Require these exact `root:root 0644`, regular, one-link files before activation:
 
-- `f2_preflight_fixed_wrapper.py`: `e61b7de53a277b3af747693485f398f293853314e6ad49172c9e5cc43a1a5c34`
-- `f2_observer_runner_candidate.py`: `3011c419fbe3392a1d0d74d8deabf9c891985459890622aa968ab9714376c858`
+- `f2_preflight_fixed_wrapper.py`: `e072e90770c145c1a5f9cc3d589eb0d70d91230290cd70f0f82820efe5e109d0`
+- `f2_observer_runner_candidate.py`: `ce2332a1136b0176bd576a1c5c7f8f4a5374c45ef6d470dcbf78ffd594d4157f`
+- `f2_daytime_no_scan_rehearsal.py`: `20f3526735788cd25326c014ab855be1610be46164565c98243f195d1e94ff32`
 - `host_exclusion.py`: `b39680d55d7203fe4e4a5f0ccbb7a3a708cc01616b02fd93d665585e467e3b61`
 - `f2_preflight_snapshot.py`: `6340c29e91e03fa57ebe0d3404e9b36d2259b4ad10decb8c6c1412b7272cc684`
 - `f2_scheduled_release_candidate.py`: `efe8bc99efd95ce85d2dbe3c8218419fdb187ceaa065cf59a906e7c0323987ec`
 
-Before activation, repeat the installed projection assertions and focused
-coordinator/observer suite. Require the complete target-Linux F2 suite to pass.
+Before activation, repeat the installed projection assertions, focused
+coordinator/observer suite and no-scan rehearsal. Require the complete
+target-Linux F2 suite to pass.
 
 Require absence of only the new cycle file
 `/var/lib/local-ai-lab/f2-scheduled/2026-10-28.json`, every lease/lock and the
