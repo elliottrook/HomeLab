@@ -54,8 +54,11 @@ do not imply household acceptance or production promotion.
   Its twelve-step recipe covers every source and eight explicit prerequisites
   with two bounded Kodi restart points. Full ordered apply/rollback rehearsal remains open.
   The base archives → Recovery7 → Music → EPUB Doctor core has now passed an
-  isolated apply/verify/rollback. Remaining rehearsal work is the system-service,
-  restricted-identity and later page-successor phases.
+  isolated apply/verify/rollback. Compiled Books, its read-only mount units,
+  camera, sounds, startup and screensaver have now passed a second isolated
+  apply/verify/rollback with no identity provisioning. The remaining release
+  gate is one full clean-client replay with Kodi/systemd activation and
+  separately provisioned restricted identities.
 - The official YouTube add-on reports the HP user fully signed in. Version 2
   now explicitly owns the Aster presentation milestone: replace the add-on's
   generic entrance with a Media-home-style YouTube landing page and preserve
@@ -83,7 +86,7 @@ do not imply household acceptance or production promotion.
 | Endurance and accessibility | Continue evidence against the final composed client, then owner sofa/remote review | Short automated soaks do not substitute for household use |
 | Bedroom sizing | Reconcile the N95 host identity, then capture the final composed client idle and under representative 4K playback | Current qualified target and evidence are in [resource evidence](Aster-TV-Version-2-Resource-Evidence.md); lower-memory deployment remains deferred |
 | Final cleanup | One finite owner-led page-by-page v1/v2 walkthrough and bounded repairs | Feature work first; avoid creating an open-ended new backlog |
-| Release | Encode dependency order and run an isolated install/verify/rollback rehearsal from the consolidated bundle, then complete the operational handover | Source recovery is exact; clean-client replay and production promotion remain separate gates |
+| Release | Run one full disposable clean-client install/verify/rollback with Kodi discovery, systemd activation and separately provisioned restricted identities, then complete the operational handover | Core and late-stage source-material rehearsals pass; destructive HP reset is not implied, and production promotion remains a separate gate |
 
 ## Continuation controls
 

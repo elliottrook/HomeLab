@@ -142,3 +142,28 @@ This is successful source-material recovery, not yet a clean-client install
 rehearsal. Graduation still requires an ordered installer contract and an
 isolated apply/verify/rollback test. The temporary HP copies are retained until
 that rehearsal so the accepted artifact can be tested without rebuilding it.
+
+### Late service and add-on rehearsal
+
+The non-secret late recovery stages have also passed a real isolated
+apply/verify/rollback against Bundle4. A disposable HP `/tmp` root reconstructed
+the compiled Books reader (13 files), verified the consumer (20 files) and its
+four fixed read-only NFS/automount units, reconstructed the loopback-only camera
+service payload, validated seven canonical 48 kHz/24-bit stereo sound assets,
+installed the three-file startup add-on, and securely extracted all seven
+screensaver files from its prefixed Kodi archive.
+
+The rehearsal required the camera service's systemd hardening and localhost
+binding, rejected archive traversal and unexpected members, provisioned no
+identity or credential, and removed the complete disposable root afterward.
+The live release inventory then remained 23/23 verified with all three required
+relations matched. Its historical Recovery7-to-active-family relation remains
+truthfully stale because the EPUB Doctor is a later delta; Bundle4 and the
+ordered recipe are the corrected recovery path.
+
+Together with the earlier core rehearsal, every non-secret source-material
+class has now been reconstructed and rolled back in isolation. The remaining
+release gate is a full clean-client replay that also exercises Kodi discovery,
+systemd enablement and separately provisioned restricted identities. That test
+requires a disposable LibreELEC installation or an explicitly authorized
+destructive reset; it is not inferred from Stream A lab authority.
