@@ -1763,3 +1763,9 @@ future matched baseline and challenger runs. It rejects hidden-reasoning
 retention, retries, malformed timing and any call after a terminal failure;
 its shared manifest contains no answers. Owner packet freeze, the two-request
 challenger screen and separate live-run approval remain open.
+
+The [blind review packet boundary](evidence/Full-Aster-blind-review-packet-boundary-2026-10-26.md)
+now prepares two independently shuffled `A`/`B` packets and explicit
+quality/safety forms while holding model roles and capture identities in a
+separate private key. No review or score is claimed; an exact scorer remains
+the next source-only benchmark task.
