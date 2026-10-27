@@ -1791,3 +1791,9 @@ SHA-256 `7545d1a5…bdce2f9`; only content-free counts and hashes are shared. Th
 final committed contract SHA-256 is `023939fd…0382c` and remains
 `authority: not-granted`. The next live dependency is still the two-request
 challenger screen after fresh F2–F6 admission and a separate restart approval.
+
+The [first-screen machine preflight](evidence/Full-Aster-first-screen-machine-preflight-2026-10-26.md)
+now makes that live boundary executable without granting the effect. It binds
+same-cycle F2–F5, the frozen contract and staged artifact, live lease/watchdog,
+exact baseline health, production/schedule checks and restoration reserve.
+Even a passing preflight leaves the restart transaction separately gated.
