@@ -1660,3 +1660,10 @@ produced one unsafe false route. The 206.230-second temporary CPU evaluation
 left production healthy and all private/model copies were removed. Neighbour
 hyperparameter tuning is closed; the next distinct candidate is a regularized
 supervised head over the fixed dense representation with fold-local training.
+
+That [supervised-head run card](evidence/M3-NLU-dense-supervised-head-v1-run-card-2026-10-26.md)
+is now source-complete. The head learns regularized field-value kernel means
+inside each training partition, scores only complete reviewed interpretation
+labels and preserves the separate route-safety envelope. Hyperparameters and
+thresholds remain inner-fold-only; the full dependency-free NLU suite passes
+375/375. No private evaluation or holdout access follows from source completion.
