@@ -12,15 +12,16 @@ automatic routing and general connected-tool authority remain off.
 complete. SA1 now persists bounded incidents and exact pending follow-up
 decisions across reconnect. SA2 has two deployed fixed producers (gateway
 self-status and accepted inference health); a third fixed Doctor-status
-producer is source-complete, independently reviewed and packaged behind a
-separate restart gate. SA3 candidate E passed a fresh 8/8 representative
+producer is source-complete and independently reviewed. SA3 candidate E passed a fresh 8/8 representative
 packet and independent review, and its owner-authenticated, no-effect journal
-gateway has a reviewed rollback installer. It is not deployed. These advances
+gateway has a reviewed rollback installer. The two releases are now bound into
+one atomic seven-file packet with one Aster Agent restart, complete rollback
+and a deterministic target-Python validation packet. Neither is deployed. These advances
 support bounded iterative diagnosis; they do not enable automatic routing,
 general discovery, repair authority or model promotion. After the protected
-F2/F3/full-Aster window, the next live step is a separately approved
-candidate-E Aster Agent deployment, followed by the Doctor producer's target
-validation and distinct deployment decision.
+F2/F3/full-Aster window, the next live step is a content-free predecessor and
+Python 3.13 validation. A passing result leads to one separately approved
+composite Aster Agent deployment and restart.
 
 For the owner-facing sequence from the current pilot to routine handoff,
 bounded sysadmin investigation and later automatic routing, use the
