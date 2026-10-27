@@ -121,8 +121,14 @@ transport sees only opaque references, sanitized observations and remaining
 registered choices. Trusted code restores the private identity and exact state
 binding, revalidates the selection through SA1, and emits no authority or
 effect. No model was called and no live service changed. The next SA3 step is a
-fixed, bounded model-transport adapter and representative no-effect evaluation;
-producer execution and repair authority remain outside it.
+fixed, bounded model-transport adapter and representative no-effect evaluation.
+The source-only
+[fixed local proposal transport](evidence/SA3-fixed-local-proposal-transport-2026-10-26.md)
+now passes the complete 60/60 sysadmin suite with one-call/no-retry behavior,
+no tool schema, disabled thinking, a 45-second timeout, a 512-token cap and a
+16 KiB response cap. It has not yet made a connected call. Its next gate is a
+small synthetic no-effect live check after independent lease, health and load
+checks; producer execution and repair authority remain outside it.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
