@@ -52,6 +52,12 @@ changed.
 A live parity closeout requires a separately authorized one-file deployment and
 restart because the user requires approval for system restarts:
 
+- installer: `services/aster-agent/deploy/install_sa0_current_composite.sh`,
+  SHA-256 `1287f06c41e5bdd55a14f162f5310a0ed4c6204d72ea949dcc5690d36d0089f1`;
+- installer contract test: SHA-256
+  `738818278ae7805544ccfd37609b6c88dcf0080b94efa96c771c2a2674d7d381`;
+- source-only installer checks: shell syntax plus **4/4** contract tests pass.
+
 1. require the current live source hash above, root ownership/mode, healthy
    service and unchanged model service;
 2. preserve that exact live file in a fresh root-only checkpoint;
