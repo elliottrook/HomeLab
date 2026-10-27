@@ -1681,9 +1681,12 @@ The materially different [E5 encoder v1 public gate](evidence/M3-NLU-E5-encoder-
 now passes 22/24 exact with zero unsafe routes and zero routed privacy
 underclassification. Its asymmetric query/passage nested evaluator is frozen,
 the dependency-free NLU suite passes 381/381 and production remained unchanged.
-The next gate is one separately approved private transfer and nested run over
-the six already-spent development sets. No calibration, holdout access or
-routing follows from the public result.
+Its subsequent [nested run](evidence/M3-NLU-E5-encoder-v1-crossset-rejection-2026-10-26.md)
+is rejected: all six folds failed to select an eligible inner threshold. The
+202.512-second run left production healthy with zero restarts and all temporary
+private/model copies were removed. No calibration, holdout access or routing
+follows. E5 neighbour/prefix/threshold tuning against these spent sets is
+closed; another attempt requires a materially different training/data method.
 
 The [B60 interface reconciliation](evidence/B60-full-Aster-baseline-interface-reconciliation-2026-10-26.md)
 also separates this NLU work from the missing matched full-Aster 9B baseline.

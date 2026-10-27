@@ -38,10 +38,12 @@
    iteration against these spent sets is closed. The subsequent regularized
    supervised dense head also failed: no outer fold could select an eligible
    inner threshold. BGE-head development against these spent sets is now
-   closed. The next distinct E5 encoder family has now passed its public gate
-   at 22/24 exact with zero unsafe/privacy failures. Its next gate is a
-   separately approved nested evaluation over the six already-spent
-   development sets; no fresh calibration or holdout access is yet permitted.
+   closed. The next distinct E5 encoder family passed its public gate at 22/24
+   exact with zero unsafe/privacy failures, but its honest nested run then
+   found no eligible inner threshold in all six folds. E5 neighbour/prefix
+   tuning against these sets is closed. Any further attempt needs a materially
+   different training/data method; no fresh calibration or holdout access is
+   permitted.
 3. **SA1–SA3 / broad D4 investigation.** Candidate-H is installed inactive. It
    still needs a fresh admitted live run, actual read-only evidence access,
    representative incident scoring and independent technical review. The
