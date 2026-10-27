@@ -1684,3 +1684,11 @@ the dependency-free NLU suite passes 381/381 and production remained unchanged.
 The next gate is one separately approved private transfer and nested run over
 the six already-spent development sets. No calibration, holdout access or
 routing follows from the public result.
+
+The [B60 interface reconciliation](evidence/B60-full-Aster-baseline-interface-reconciliation-2026-10-26.md)
+also separates this NLU work from the missing matched full-Aster 9B baseline.
+A 27B-plus reasoning challenger still needs an owner-frozen complete-useful-
+answer, safety and p50/p95 contract, identical Aster-path inputs, and explicit
+D4/M3 workload mapping into an F6 lease/recovery transaction. NLU thresholds,
+fixed Doctor formatting and CPU encoder trials cannot substitute for that
+baseline.
