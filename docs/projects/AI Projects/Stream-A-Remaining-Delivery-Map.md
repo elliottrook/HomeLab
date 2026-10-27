@@ -1711,3 +1711,11 @@ ceilings, no paired challenger slowdown, bounded memory, 48 calls and no
 retries. Ten focused tests pass. Owner-held case text/digest, owner acceptance
 and one exact 27B-plus challenger remain unresolved; the proposal cannot grant
 authority or admit a run.
+
+The [contract freeze boundary](evidence/Full-Aster-benchmark-freeze-boundary-2026-10-26.md)
+now converts those later decisions into a final validated contract using only
+the proposal digest, content-free owner packet identity/counts, exact
+challenger pins and a bound owner-acceptance record. It cannot inspect case
+text or grant authority. The combined proposal/contract/freeze suite passes
+15/15. The practical open decision is now narrow: owner acceptance of the
+proposed bar plus one exact 27B-plus stack and owner-held packet digest.
