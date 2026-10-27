@@ -12,6 +12,14 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October27 midday review](B60-Inference-Engineering/research-watch-20261012.md#october-27-midday-source-and-resume-review)
+successfully fetches exact platform `20064064` and verifies all nine source
+hashes against its daytime9B installed manifest. This particular source gap is
+closed despite the stale named platform branch. A local owner reply resolves
+same-date F4 and9B-vs35B boundaries but is still awaiting owner publication.
+Five new advisory resume-timing tests pass within the86-test B60 suite;
+actual all-consumer/mount-aware challenger recovery remains separately gated.
+
 The [October27 morning receipt](B60-Inference-Engineering/research-watch-20261012.md#october-27-morning-preparation-receipt)
 receives Adaptive `8c7c7355`: the overnight screen stopped before model effects,
 then owner-approved daytime work passed real archive probes and two complete

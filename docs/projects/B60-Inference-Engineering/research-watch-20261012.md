@@ -1,5 +1,73 @@
 # Fixed-hardware capability research watch — 2026-10-12
 
+## October 27 midday source and resume review
+
+Fresh authoritative refs remain Adaptive
+`e900153940c9615e6e5a4af7049263b01dd5d456`, B60
+`cbdd17434aa6b93db4be55da0dc1b4f1a100812e` and platform branch
+`6fb0207fec5190e0c34ed3bc72ea38e128f06127`; the read-only GitHub refs match.
+Read both liaison records, the current exclusion evidence and platform split
+record. No new published owner reply was inferred from these unchanged refs.
+
+The direct Adaptive status now reports a completed local response at
+`76190385`, pending that owner's push approval. Its stated answers are:
+daytime runs used accepted9B, per-stage timing was not retained, F4 binds
+same-date F2/F3 after03:00, and later challenger recovery must prevent the
+03:50 consumer resume from overlapping an active lease. This is a native
+status receipt, not yet a read/hash receipt for that unpublished document.
+No repeated message or approval request is sent from B60 for that owner's
+publication; B60's standing push authority does not transfer to other branches.
+
+### Exact platform source is now fetchable
+
+The owner named full platform source commit
+`200640648eca0d3485eae8e2cbfd2707a0e3c296`. A direct authoritative Git fetch
+of that exact commit **succeeded**. This closes the prior inability to retrieve
+this particular corrected full-inference pilot, even though the old named
+platform branch has not advanced. Do not keep describing these bytes as
+unfetchable, and do not merge unrelated platform history into B60.
+
+At that commit, read
+`services/local-ai-lease/FULL-INFERENCE-DAYTIME-TWO-PASS-QUALIFICATION-RESULT-20261027.md`,
+SHA-256 `1ca68589e9576bc8e43402cf38915b3b3b666d99ec4f818fe6ec886fb19fcae3`.
+Independently recomputed all nine source-file hashes in its installed manifest;
+each agrees, including source wrapper `aster_llama_lab_smoke_wrapper.py` as
+the installed LXC110 smoke command. This verifies source/receipt consistency,
+not fresh target custody or measured recovery. The full session source and
+selected tests were inspected; a complete effect-path audit is still pending.
+
+The source confirms `--alias aster-qwen3.5-9b` and exactly three accepted-model
+requests. It also confirms the generic five-consumer drain covers104Aster,
+116Speech,110llama and two114News timers. It does not by itself incorporate
+the newly identified Paperless/EPUB callers or their resume controller. The
+generic maximum drain duration can be45 minutes; B60's narrower30-minute
+trial and absolute04:15 completion still govern its future challenger card.
+The9B pilot is not the35B artifact-mount/model-switch transaction.
+
+### Independent offline consumer-resume proposal
+
+Extended the existing advisory `recovery_margin_candidate.py` with
+`review_consumer_resume`. It compares aware UTC instants, includes supplied
+recovery plus trigger-lag budgets, and refuses a consumer resume at/before
+assumed restoration or at/after04:15. It explicitly reports unmeasured budgets,
+unverified isolation and no live-admission authority. No controller, timer or
+peer source is changed by this local helper.
+
+Five new synthetic tests cover03:50 colliding with a03:40 recovery trigger
+plus900+70 assumed seconds, a sufficiently earlier trigger, strict endpoint
+equality, UTC conversion and naive timestamps. **86/86 B60 tests pass**.
+These are arithmetic regressions, not new recovery measurements or a proposed
+operational budget. Real resumption must be owned by the shared lease/recovery
+controller with exact consumer inventory and no missed-job replay.
+
+Next safe action: receive the published owner response and review/test the
+fetchable platform dependency closure offline; then prepare a separate exact
+challenger mapping only after actual all-consumer isolation, guardian/reentry,
+mount-aware recovery and source-bound checkpoint gates are satisfied.
+No model/GPU call, production probe, acquisition, mount, lease, service/timer,
+driver/package or credential operation occurred. October28 runtime gates
+remain owned by the independent runner, not this preparation heartbeat.
+
 ## October 27 morning preparation receipt
 
 Fetched and read authoritative Adaptive

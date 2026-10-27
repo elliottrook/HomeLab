@@ -2,7 +2,7 @@
 import unittest
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
-from recovery_margin_candidate import review
+from recovery_margin_candidate import review, review_consumer_resume
 
 TZ = ZoneInfo('America/Vancouver')
 
@@ -47,6 +47,44 @@ class RecoveryMarginCandidateTests(unittest.TestCase):
                               (900, True), (900, 0), (900, -1), (86400, 1)):
             with self.subTest(recovery=recovery, lag=lag), self.assertRaises(ValueError):
                 review(self.trigger(3, 50), recovery_seconds=recovery, trigger_lag_seconds=lag)
+
+    def test_0350_resume_conflicts_with_late_screen_recovery(self):
+        # Fictional 03:10 start + 30min trial -> 03:40 recovery trigger.
+        with self.assertRaises(ValueError):
+            review_consumer_resume(self.trigger(3, 40), recovery_seconds=900,
+                                   trigger_lag_seconds=70,
+                                   resume_at=self.trigger(3, 50))
+
+    def test_earlier_recovery_may_fit_resume_but_proves_no_isolation(self):
+        result = review_consumer_resume(self.trigger(3, 25), recovery_seconds=900,
+                                       trigger_lag_seconds=70,
+                                       resume_at=self.trigger(3, 50))
+        self.assertEqual(result['assumed_latest_completion_at'],
+                         '2026-10-16T03:41:10-07:00')
+        self.assertFalse(result['budgets_measured'])
+        self.assertFalse(result['consumer_isolation_verified'])
+        self.assertFalse(result['live_admission_authorized'])
+
+    def test_resume_at_completion_or_protected_cutoff_rejected(self):
+        for resume in (self.trigger(3, 41).replace(second=10), self.trigger(4, 15)):
+            with self.subTest(resume=resume), self.assertRaises(ValueError):
+                review_consumer_resume(self.trigger(3, 25), recovery_seconds=900,
+                                       trigger_lag_seconds=70, resume_at=resume)
+
+    def test_resume_utc_conversion_is_equivalent(self):
+        kwargs = dict(recovery_seconds=900, trigger_lag_seconds=70)
+        self.assertEqual(
+            review_consumer_resume(self.trigger(3, 25),
+                                   resume_at=self.trigger(3, 50), **kwargs),
+            review_consumer_resume(self.trigger(3, 25).astimezone(timezone.utc),
+                                   resume_at=self.trigger(3, 50).astimezone(timezone.utc),
+                                   **kwargs))
+
+    def test_naive_resume_rejected(self):
+        with self.assertRaises(ValueError):
+            review_consumer_resume(self.trigger(3, 25), recovery_seconds=900,
+                                   trigger_lag_seconds=70,
+                                   resume_at=datetime(2026, 10, 16, 3, 50))
 
 
 if __name__ == '__main__':
