@@ -1776,3 +1776,10 @@ quality, safety, latency, resource and recovery gates, and cannot grant
 authority or enable routing. The source-side matched benchmark chain is now
 complete through capture, blind review and scoring; live work still begins
 with the separately approved two-request challenger screen.
+
+The remaining owner decision is now expressed in one exact
+[freeze decision card](evidence/Full-Aster-owner-freeze-decision-card-2026-10-26.md).
+It names the 24-case composition, quality/safety/latency/resource floors and
+both exact model/runtime identities. Acceptance authorizes only private
+fictional packet authoring and final contract freeze; it cannot authorize the
+first screen or matched benchmark effects.
