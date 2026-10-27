@@ -68,6 +68,14 @@ class VoiceAttemptTests(unittest.TestCase):
         self.assertNotIn(TOKEN, repr(result)+repr(self.views))
         self.assertTrue(self.views[-1].keyboard_visible)
 
+    def test_empty_transcript_has_clear_retry_feedback(self):
+        result = self.run_attempt(
+            transport=lambda *args, **kwargs:
+            (200, 'application/json', b'{"text":""}'))
+        self.assertEqual(result.state, 'error')
+        self.assertEqual(result.reason, 'I could not hear a search · try again')
+        self.assertEqual(self.views[-1].status, result.reason)
+
     def test_absent_hardware_does_not_capture(self):
         calls = []
         result = attempt(ABSENT, SOURCES, NAME, cancelled=lambda: False,

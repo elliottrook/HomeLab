@@ -66,9 +66,13 @@ def attempt(capability, sources, source_name, *, cancelled, released,
         runtime = runtime.complete(status, content_type, raw)
         raw = None
         publish()
-    except (VoiceUnavailable, STTUnavailable, OSError, TimeoutError):
+    except (VoiceUnavailable, STTUnavailable, OSError, TimeoutError) as error:
         if not cancel_if_needed():
+            reason = ('I could not hear a search · try again'
+                      if str(error) in ('voice-response-empty',
+                                        'voice-recorder-audio')
+                      else 'Voice search unavailable · use the keyboard or try again')
             runtime = replace(runtime, session=Session(
-                'error', reason='Voice search unavailable · use the keyboard or try again'))
+                'error', reason=reason))
             publish()
     return runtime.session

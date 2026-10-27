@@ -9483,7 +9483,9 @@ therefore produced almost exactly ten seconds of audio per short phrase. The
 successor records a single explicit press for at most four seconds, strips only
 the bounded command prefix `search for` and terminal dictation punctuation, and
 preserves valid titles such as *Search Party*. Audio and transcript remain
-memory-only and are not logged or retained. A local-library phonetic correction
+memory-only and are not logged or retained. Empty/no-speech attempts now retain
+the in-page status and add a short visible retry notification instead of merely
+leaving the Search window open. A local-library phonetic correction
 trial was rejected and fully rolled back after source-local evidence showed that
 “doom” could be incorrectly changed to an artist rather than the requested
 catalogue title. No guessed alias remains active.
@@ -9500,11 +9502,11 @@ of the small-model/four-second combination remains the next human gate. No
 recording was retained for replay.
 
 The active HP files exactly match immutable candidate manifest
-`a340538d93b30f24590d493401a012e1a4e638f79531e070b90a692b730918c7`:
+`094455c6574df87b10b4033532d3faecc9928d62aa26ca48a4fac66e72e4db6e`:
 13 add-on files, five integrated search/family replacements and four bounded
 boot/config installs. Search and family integrity manifests are updated as part
-of the candidate rather than by an undocumented post-install repair. Fifty-seven
+of the candidate rather than by an undocumented post-install repair. Eighty-three
 focused voice/build/EPUB tests pass, deploy helpers compile, Kodi debug logging
 is off and BOSGAME production remains untouched. Remaining acceptance is one
-physical trial for latency/title accuracy, explicit no-speech/error feedback,
-and a cold-boot remote/microphone smoke before V2-A graduation.
+physical trial for latency/title accuracy and a cold-boot remote/microphone
+smoke before V2-A graduation.

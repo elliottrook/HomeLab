@@ -47,9 +47,20 @@ class VoiceBuildTests(unittest.TestCase):
             self.assertEqual({row['path'] for row in manifest['installs']},
                              {build.HWDB_NAME, *build.PULSE_FILES,
                               build.EVENTLIRCD_NAME})
+            self.assertEqual(manifest['privacy']['capture'],
+                             'explicit-single-press')
+            self.assertEqual(manifest['privacy']['maximum_seconds'], 4)
+            self.assertFalse(manifest['privacy']['audio_retained'])
+            self.assertFalse(manifest['privacy']['transcript_retained'])
             for row in manifest['installs']:
                 self.assertEqual(row['sha256'], hashlib.sha256(
                     (root / 'out/payload' / row['path']).read_bytes()).hexdigest())
+            retry = (root / 'out/payload' / build.EVENTLIRCD_NAME).read_text()
+            self.assertIn('Restart=on-failure', retry)
+            self.assertIn('RestartSec=2s', retry)
+            pulse = (root / 'out/payload/aster-g20-mic.pa').read_text()
+            self.assertIn('.include /etc/pulse/default.pa', pulse)
+            self.assertNotIn('load-module', pulse)
             self.assertEqual(manifest['helper']['path'], 'deploy_voice_search.py')
             xml = ET.parse(root / 'out/payload/g20s-pro-plus.xml')
             self.assertEqual(xml.find('./global/keyboard/browser_search').text,

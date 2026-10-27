@@ -92,6 +92,9 @@ def main():
         if result.state == 'results' and not cancelled():
             home.setProperty(PREFIX + 'VoiceQuery', result.query)
             home.setProperty(PREFIX + 'Command', 'voice')
+        elif result.state == 'error' and not cancelled():
+            xbmcgui.Dialog().notification('Voice search', result.reason,
+                                          xbmcgui.NOTIFICATION_INFO, 3500)
     except (VoiceUnavailable, OSError, subprocess.SubprocessError,
             ValueError, KeyError, json.JSONDecodeError):
         if xbmcgui.getCurrentWindowId() == SEARCH_WINDOW:
