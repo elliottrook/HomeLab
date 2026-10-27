@@ -54,6 +54,11 @@ Post-Acquisition Hub measurement on the same complete HP candidate:
   and 301 MiB of staging are retained engineering evidence, not a deployable
   bedroom-client requirement. A release image should use bounded recovery
   retention rather than copying that history.
+- After the corrected native action label was installed, five complete
+  Media/Music/Books tab-switch cycles finished at 387 MiB Kodi RSS, a 580 MiB
+  process high-water mark, 44 threads, 34°C and load 0.47/0.26/0.20. The
+  request journal remained empty and Kodi logged no error. This supports the
+  earlier conclusion that the Hub is not a new client-sizing driver.
 
 ## Three useful boundaries
 

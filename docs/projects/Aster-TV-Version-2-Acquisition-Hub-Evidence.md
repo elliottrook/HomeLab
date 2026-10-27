@@ -63,6 +63,13 @@ byte-for-byte before the Kodi-native add-on activation candidate was installed.
 - A native 4K screenshot confirms the focused action reads **Request**, with
   artwork, synopsis, recommendation explanation and candidate rail intact. The
   page returned to Home and Kodi logged no ERROR, FATAL or Python traceback.
+- Native 4K Music and Books captures confirm each selected tab replaces the
+  Media content with its own catalogue, artwork, metadata and request action.
+  Five complete Media → Music → Books → Music → Media switch cycles completed
+  without a journal entry or Kodi error; Back restored Home.
+- After that tab-switch pass Kodi used 396,472 KiB RSS with a 593,960 KiB
+  process high-water mark and 44 threads. Load was 0.47/0.26/0.20 and both CPU
+  thermal zones reported 34°C.
 
 ## Findings resolved during the gate
 
@@ -83,7 +90,7 @@ byte-for-byte before the Kodi-native add-on activation candidate was installed.
 
 ## Remaining acceptance work
 
-- Household remote-control review of the three Hub tabs on the HP.
+- Household physical-remote review of the three Hub tabs on the HP.
 - One explicitly chosen disposable Music or Books request, only if an
   end-to-end provider-write trial is still desired. The deployment itself did
   not create, delete or retry any provider request.
