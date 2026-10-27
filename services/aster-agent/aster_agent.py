@@ -1446,6 +1446,7 @@ def start_doctor_incident(title: str, now: datetime | None = None) -> dict[str, 
         [
             EvidenceRequest("homelab-doctor", "status", "Read the existing sanitized Doctor status report."),
             EvidenceRequest("aster-gateway", "status", "Confirm that the Aster gateway is serving."),
+            EvidenceRequest("inference-server", "status", "Read the fixed inference health endpoint."),
         ],
     )
     observation = read_doctor_observation(incident_id, HEALTH_REPORT_PATH, now)

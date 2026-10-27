@@ -98,7 +98,12 @@ has now been [deployed and independently checked](evidence/SA2-first-registered-
 Aster Agent is healthy after the one approved restart, authentication remains
 closed by default, the accepted llama process was untouched and the exact
 gateway predecessor is retained in a root-only checkpoint. Broader fixed
-producers remain separate SA2 gates.
+producers remain separate SA2 gates. A second
+[source-only producer](evidence/SA2-inference-health-producer-boundary-2026-10-26.md)
+now binds `inference-server/status` to the accepted llama service's fixed
+`/health` endpoint. Its exact response contract and 1024-byte bound pass 37
+dependency-free and 12 target-Python tests, and one live health observation
+returned only bounded `ok` metadata without a model request. It is not deployed.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and

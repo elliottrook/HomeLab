@@ -6,7 +6,10 @@ from pathlib import Path
 from sysadmin_followup_selector import incident_state_digest
 from sysadmin_incident_store import IncidentStore
 from sysadmin_investigation import EvidenceRequest, InvestigationError, create_incident
-from sysadmin_registered_producer import execute_registered_pending_observation
+from sysadmin_registered_producer import (
+    _inference_status_envelope,
+    execute_registered_pending_observation,
+)
 
 
 NOW = datetime(2026, 10, 27, 7, 0, tzinfo=timezone.utc)
@@ -61,14 +64,14 @@ class RegisteredIncidentProducerTests(unittest.TestCase):
         with self.assertRaisesRegex(InvestigationError, "no pending observation"):
             execute_registered_pending_observation(self.store, incident.incident_id, NOW)
 
-    def test_other_registered_target_has_no_implicit_producer(self):
-        incident = self.create("inference-server", "status")
-        self.bind(incident, target="inference-server", kind="status")
+    def test_registered_pair_without_a_producer_remains_pending(self):
+        incident = self.create("aster-gateway", "log")
+        self.bind(incident, target="aster-gateway", kind="log")
         with self.assertRaisesRegex(InvestigationError, "no registered producer"):
             execute_registered_pending_observation(self.store, incident.incident_id, NOW)
         journal = self.store.followup_journal_snapshot(incident.incident_id, NOW)
         self.assertEqual(0, journal["consumed_count"])
-        self.assertEqual("inference-server", journal["pending"]["target"])
+        self.assertEqual("log", journal["pending"]["kind"])
 
     def test_rejects_naive_clock_without_consuming_decision(self):
         incident = self.create()
@@ -80,6 +83,77 @@ class RegisteredIncidentProducerTests(unittest.TestCase):
         self.assertEqual(
             0, self.store.followup_journal_snapshot(incident.incident_id, NOW)["consumed_count"]
         )
+
+
+class FakeResponse:
+    def __init__(self, status=200, body=b'{"status":"ok"}'):
+        self.status = status
+        self.body = body
+
+    def read(self, limit):
+        return self.body[:limit]
+
+
+class FakeConnection:
+    def __init__(self, host, port, timeout, *, response=None, error=None):
+        self.host = host
+        self.port = port
+        self.timeout = timeout
+        self.response = response or FakeResponse()
+        self.error = error
+        self.request_value = None
+        self.closed = False
+
+    def request(self, method, path, headers):
+        self.request_value = (method, path, headers)
+        if self.error:
+            raise self.error
+
+    def getresponse(self):
+        return self.response
+
+    def close(self):
+        self.closed = True
+
+
+class InferenceHealthProducerTests(unittest.TestCase):
+    def envelope(self, *, response=None, error=None):
+        connections = []
+
+        def factory(host, port, timeout):
+            connection = FakeConnection(host, port, timeout, response=response, error=error)
+            connections.append(connection)
+            return connection
+
+        envelope = _inference_status_envelope("incident-inference-001", NOW, factory)
+        return envelope, connections[0]
+
+    def test_exact_fixed_health_request_maps_to_bounded_ok(self):
+        envelope, connection = self.envelope()
+        self.assertEqual(("192.168.70.12", 11435, 3), (connection.host, connection.port, connection.timeout))
+        self.assertEqual(("GET", "/health", {"Accept": "application/json"}), connection.request_value)
+        self.assertTrue(connection.closed)
+        observation = envelope["observation"]
+        self.assertEqual("inference-server", observation["target"])
+        self.assertEqual("status", observation["kind"])
+        self.assertEqual("ok", observation["state"])
+        self.assertEqual({"service": "aster-llama", "endpoint": "health"}, observation["facts"])
+
+    def test_failure_wrong_status_shape_duplicate_and_oversize_abstain(self):
+        cases = (
+            {"error": OSError("fixture")},
+            {"response": FakeResponse(status=503)},
+            {"response": FakeResponse(body=b'{"status":"warming"}')},
+            {"response": FakeResponse(body=b'{"status":"ok","status":"ok"}')},
+            {"response": FakeResponse(body=b"x" * 1025)},
+        )
+        for values in cases:
+            with self.subTest(values=values):
+                envelope, connection = self.envelope(**values)
+                self.assertTrue(connection.closed)
+                observation = envelope["observation"]
+                self.assertEqual("unavailable", observation["state"])
+                self.assertEqual({}, observation["facts"])
 
 
 if __name__ == "__main__":
