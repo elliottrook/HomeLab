@@ -105,8 +105,11 @@ now binds `inference-server/status` to the accepted llama service's fixed
 dependency-free and 12 target-Python tests, and one live health observation
 returned only bounded `ok` metadata without a model request. Its exact
 [two-replacement release candidate](evidence/SA2-inference-health-producer-release-candidate-2026-10-26.md)
-now checkpoints both deployed predecessors and passes 4/4 installer contract
-tests. It is not deployed and requires one Aster Agent restart.
+has now been [deployed and independently checked](evidence/SA2-inference-health-producer-deployment-result-2026-10-26.md).
+Both predecessors are retained, Aster Agent is healthy after the approved
+restart, authentication remains closed by default and the accepted llama PID
+and restart count are unchanged. SA2 now has two connected fixed producers;
+broader investigation evidence remains separately gated.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
