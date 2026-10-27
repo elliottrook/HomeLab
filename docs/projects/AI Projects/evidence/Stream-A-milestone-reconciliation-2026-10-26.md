@@ -31,9 +31,13 @@
    Token-confidence candidate v7 passed its 24-case public gate at 23/24 exact
    with zero unsafe/privacy failures, but its six-set nested exposed run found
    no eligible inner threshold in any fold. It is rejected. The next distinct
-   path is the dedicated dense encoder plus deterministic envelope under the
-   accepted v2 decision-coverage semantics; prompt and confidence-transform
-   iteration against the same spent sets is closed.
+   path tested the dedicated dense encoder plus deterministic envelope under
+   the accepted v2 decision-coverage semantics. It too failed: three folds had
+   no inner threshold and the three selected folds exceeded the outer error
+   limit, with one unsafe false route. Nearest-neighbour and prompt/confidence
+   iteration against these spent sets is closed. The next distinct hypothesis
+   is a regularized supervised head over fixed dense embeddings, trained only
+   inside each nested partition.
 3. **SA1–SA3 / broad D4 investigation.** Candidate-H is installed inactive. It
    still needs a fresh admitted live run, actual read-only evidence access,
    representative incident scoring and independent technical review. The
