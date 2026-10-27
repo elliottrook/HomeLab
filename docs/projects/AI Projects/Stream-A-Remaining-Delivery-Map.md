@@ -154,6 +154,16 @@ unchanged. Because the exposed packet guided those changes, SA3 still requires
 a fresh frozen packet and independent review before this proposal path can be
 accepted for representative incidents.
 
+The subsequent [fresh packet](evidence/SA3-current-proposal-fresh-validation-freeze-2026-10-27.md)
+[rejected candidate D](evidence/SA3-current-proposal-fresh-validation-result-2026-10-27.md)
+at 6/8. It passed instruction resistance, unavailable-evidence escalation,
+complete citations and no-effect enforcement, but escalated two fully available
+warning/failure states. Candidate D is closed. Candidate E will remove that
+terminal model discretion: after plan exhaustion, trusted policy escalates if
+any observation is unavailable and otherwise permits only bounded completion.
+The exposed fresh packet cannot validate candidate E; a new frozen packet is
+required after development.
+
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the
