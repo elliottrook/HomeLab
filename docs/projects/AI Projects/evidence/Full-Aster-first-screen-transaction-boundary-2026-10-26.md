@@ -46,3 +46,13 @@ F4/F5 predecessors exact, all imported full-drain dependencies exact and the
 whole-host lease ready. This is **approval-ready for inactive installation**;
 it creates no service or timer and authorizes no restart, mount, lease, model
 request or live effect.
+
+Jason approved that exact inactive install. Platform result commit `16a6cd27`
+records a pass: all eleven installed hashes/custody match, and target Linux
+passed 22 first-screen, 11 F4/F5 and 62 full-inference tests. The wrapper and
+guest helper both refused live work without their effect flags. The lease
+remained ready; runtime evidence, locks and mounts remained absent; the
+evaluation timers remained disabled/inactive; and the three guests, Aster
+Agent, accepted 9B/SYCL, Speech and Proxmox daemons remained healthy. No model
+call or restart occurred. The next dependency is the already scheduled fresh
+F2/F3 cycle, followed by same-cycle F4/F5 and a distinct live-restart approval.
