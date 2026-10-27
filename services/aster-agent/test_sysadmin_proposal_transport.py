@@ -8,6 +8,7 @@ from sysadmin_proposal_transport import (
     MAX_RESPONSE_BYTES,
     MODEL,
     TIMEOUT_SECONDS,
+    SYSTEM_PROMPT,
     build_model_payload,
     request_model_proposal,
 )
@@ -67,6 +68,9 @@ class ProposalTransportTests(unittest.TestCase):
         self.assertFalse(payload["chat_template_kwargs"]["enable_thinking"])
         self.assertNotIn("tools", payload)
         self.assertNotIn("tool_choice", payload)
+        self.assertIn("Complete means", SYSTEM_PROMPT)
+        self.assertIn("Escalate when", SYSTEM_PROMPT)
+        self.assertIn("never means repaired", SYSTEM_PROMPT)
         schema = payload["response_format"]["schema"]
         self.assertFalse(schema["additionalProperties"])
         self.assertEqual(
