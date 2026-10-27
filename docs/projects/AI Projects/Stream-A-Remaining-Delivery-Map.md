@@ -1728,3 +1728,10 @@ full-Aster source suite passes 20/20. The 20.4 GB artifact is not downloaded or
 staged and fit is not inferred. Artifact acquisition, read-only host-backed
 staging, measured residency, owner packet/acceptance and an exact F6 effect
 transaction remain required before any model request.
+
+The resulting [artifact staging card](evidence/Full-Aster-challenger-artifact-staging-card-2026-10-26.md)
+uses a fresh read-only capacity and production check. Host staging fits the
+20.4 GB file while retaining the 20 GiB floor; a guest-root copy does not. The
+approval-ready effect downloads and hash-verifies only the exact revision into
+a new root-only host directory, with no mount, model load, service change,
+lease or request. It must finish before the 00:30 backup quiet period.
