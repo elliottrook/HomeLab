@@ -1,13 +1,8 @@
 import json
 import unittest
 
-from lease_contract import ACCEPTED_BACKEND, ACCEPTED_MODEL
 from lease_watchdog import EXPECTED_SCHEDULES, Observation
-from pre_acquire_receipt import decode_stream_evidence
-from stream_a_evaluation_admission import (
-    ADMISSION_PREFIX,
-    load_bound_admission,
-)
+from stream_a_evaluation_admission import ADMISSION_PREFIX
 from stream_a_evaluation_f4_f5_transaction import (
     TransactionError,
     build_transaction,
@@ -46,12 +41,12 @@ class F4F5TransactionTests(unittest.TestCase):
             result.lease_id,
             "stream-a-evaluation-2026-10-27-0123456789abcdef",
         )
-        receipt, observation, _ = decode_stream_evidence(
-            json.loads(result.f4_bytes), now_minute=190,
-            now_epoch=1793095500,
-        )
-        self.assertEqual(receipt.lease_id, result.lease_id)
-        self.assertFalse(observation.heartbeat_alive)
+        f4 = json.loads(result.f4_bytes)
+        self.assertEqual(f4["schema"], "aster-pre-acquire-receipt-v1")
+        self.assertEqual(f4["receipt"]["lease_id"], result.lease_id)
+        self.assertFalse(f4["observation"]["heartbeat_alive"])
+        self.assertFalse(f4["receipt"]["consumers_isolated"])
+        self.assertFalse(f4["receipt"]["scheduled_work_quiesced"])
         admission = json.loads(result.admission_bytes)
         f5 = json.loads(result.f5_bytes)
         self.assertEqual(admission["f5_observation_sha256"],
