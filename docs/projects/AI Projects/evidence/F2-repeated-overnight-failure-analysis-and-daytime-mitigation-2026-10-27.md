@@ -37,9 +37,12 @@ October 27 evidence. It does not claim an archive integrity result and does
 not reproduce the exact historical load/process state.
 
 The October 27 final child exited nonzero in about four seconds with zero
-archive rows, which is consistent with a failure at or immediately below the
-observer/probe boundary. The preserved evidence is insufficient to name a
-more specific cause without speculation.
+archive rows. The first target rehearsal reproduced that failure under the
+exact sanitized child environment. Proxmox installs `pvesm` at
+`/usr/sbin/pvesm`, while the observer supplied `PATH=/usr/bin:/bin`; archive
+resolution therefore raised `FileNotFoundError` before the first `zstd`
+invocation. A direct child under root's ordinary path resolved all three
+archives, confirming the path difference as the cause.
 
 ## Mitigation candidate
 
@@ -54,10 +57,18 @@ its bounded inactive-install/run card. The rehearsal:
 - cannot be accepted as F2/F3 evidence; and
 - reports explicitly that no archive scan or receipt occurred.
 
-The new real-process transport test and existing F2 suites pass 57/57 locally.
-The next action is one reviewed inactive installation followed by two daytime
-target runs. A mismatch is corrected during the day. Only two matching passes
-make a later exact-date activation approval-ready.
+The initial real-process transport test and existing F2 suites passed 57/57
+locally and exposed the sanitized-path fault on target. Platform commit
+`18c7198e` corrects the fixed child path to
+`/usr/sbin:/usr/bin:/sbin:/bin`, updates the observer pin and adds exact path
+assertions. Sixty focused tests pass. The corrected staged rehearsal then
+passed twice on target with identical current-cycle identities for VMIDs 104,
+110 and 116, while retaining `archive_scan=not-attempted` and
+`receipt_written=false`.
+
+Platform card `07cedd0a` freezes the three-file inactive correction and
+rollback. Its installed replacement and target proof are the next gate. Only
+that success makes a fresh exact-date activation approval-ready.
 
 No timer, scan, receipt, lease, service stop, restart or model call is approved
 by this analysis.

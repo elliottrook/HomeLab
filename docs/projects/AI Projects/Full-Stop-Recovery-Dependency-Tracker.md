@@ -58,10 +58,16 @@ expected non-root custody skip. Activation is now **HOLD**, rather than the
 next action. The [repeated-failure analysis](evidence/F2-repeated-overnight-failure-analysis-and-daytime-mitigation-2026-10-27.md)
 shows that successive overnight cycles have been exposing deterministic
 installed-path integration defects one layer at a time. The new platform
-daytime no-scan rehearsal at source `28edce6d` passes 57/57 local tests and is
-frozen by card `2d167ca0`. It must be installed inactive and pass twice on the
-target before another exact-date activation is presented. Runtime backup,
-pull, identity, load and quiet-host gates remain fresh and fail closed.
+daytime no-scan rehearsal initially passed 57/57 local tests, then reproduced
+the real failure on target: the isolated child omitted `/usr/sbin` from PATH,
+so Proxmox's `/usr/sbin/pvesm` could not resolve the first archive. Platform
+commit `18c7198e` corrects that fixed path, updates the observer pin and passes
+60 focused tests. The corrected staged rehearsal passed twice against all three
+current archives without scanning them or writing a receipt. Card `07cedd0a`
+freezes the three-file inactive replacement and rollback; successful install
+and target proof are the next gate before another exact-date activation.
+Runtime backup, pull, identity, load and quiet-host gates remain fresh and fail
+closed.
 
 The conditional [October 27 F3 conversion](evidence/F3-from-F2-no-go-2026-10-27.md)
 then failed closed at its first mandatory gate. The reconciled F2 state is
