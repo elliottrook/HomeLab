@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from sysadmin_incident_store import IncidentStore, parse_producer_envelope
+from sysadmin_followup_selector import incident_state_digest
 from sysadmin_investigation import EvidenceRequest, InvestigationError, create_incident
 
 
@@ -115,6 +116,54 @@ class ProducerAndStoreTests(unittest.TestCase):
             self.assertEqual(db.execute("SELECT 1").fetchone()[0], 1)
         with self.assertRaises(sqlite3.ProgrammingError):
             db.execute("SELECT 1")
+
+    def followup(self, **changes):
+        proposal = {
+            "schema_version": 1,
+            "incident_id": self.incident.incident_id,
+            "state_digest": incident_state_digest(self.store.load(self.incident.incident_id, NOW)),
+            "hypothesis_summary": "The dependency state should discriminate the failure.",
+            "disposition": "observe",
+            "target": "aster-gateway",
+            "kind": "status",
+        }
+        proposal.update(changes)
+        return proposal
+
+    def test_bound_followup_survives_reconnect_and_matching_ingest_consumes_it(self):
+        decision = self.store.bind_follow_up(self.followup(), NOW)
+        reopened = IncidentStore(Path(self.tmp.name) / "incidents.sqlite3")
+        self.assertEqual(reopened.pending_follow_up(self.incident.incident_id, NOW), decision)
+        reopened.ingest(self.fixture, NOW)
+        self.assertIsNone(reopened.pending_follow_up(self.incident.incident_id, NOW))
+        with reopened._db() as db:
+            row = db.execute(
+                "SELECT consumed_at FROM followup_decisions WHERE incident_id=?",
+                (self.incident.incident_id,),
+            ).fetchone()
+        self.assertIsNotNone(row["consumed_at"])
+
+    def test_pending_followup_blocks_second_decision_and_mismatched_result(self):
+        self.store.bind_follow_up(self.followup(), NOW)
+        with self.assertRaisesRegex(InvestigationError, "pending follow-up"):
+            self.store.bind_follow_up(self.followup(), NOW)
+        mismatched = json.loads(json.dumps(self.fixture))
+        mismatched["producer"] = "inference-server-status/v1"
+        mismatched["observation"].update(
+            target="inference-server",
+            evidence_id="evidence-inference-status",
+        )
+        with self.assertRaisesRegex(InvestigationError, "does not match pending"):
+            self.store.ingest(mismatched, NOW)
+        self.assertIsNotNone(self.store.pending_follow_up(self.incident.incident_id, NOW))
+
+    def test_changed_incident_state_makes_pending_decision_stale(self):
+        self.store.bind_follow_up(self.followup(), NOW)
+        changed = self.store.load(self.incident.incident_id, NOW)
+        changed.add_hypothesis("A separately persisted revision.")
+        self.store.save(changed, NOW)
+        with self.assertRaisesRegex(InvestigationError, "stale persisted"):
+            self.store.pending_follow_up(self.incident.incident_id, NOW)
 
 
 if __name__ == "__main__":

@@ -70,6 +70,17 @@ storage/presentation drift. SA1/SA2 remain open for a bounded adaptive loop and
 connected read-only evidence; no new adapter, authority or automatic route was
 enabled.
 
+The next SA1 layer now has a source-only
+[follow-up selection boundary](evidence/SA1-follow-up-selection-boundary-2026-10-26.md).
+It binds a hypothesis to the exact incident-state digest and permits only an
+unfilled check from the preregistered read-only plan. It emits literal
+no-authority/no-effect output and cannot contact a target. The atomic journal
+now retains pending and consumed decisions across reconnect and consumes only a
+producer envelope matching the selected target/kind. A two-step target fixture
+ends in explicit escalation and the complete target suite passes 44/44. The
+remaining source gap is a content-minimized presentation of the journal;
+connected SA2 producers remain separately gated.
+
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the

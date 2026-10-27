@@ -16,6 +16,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+from sysadmin_followup_selector import incident_state_digest, select_follow_up
 from sysadmin_investigation import Incident, InvestigationError, Observation, _parse_utc
 
 
@@ -70,6 +71,15 @@ class IncidentStore:
             db.execute(
                 "CREATE TABLE IF NOT EXISTS incidents (incident_id TEXT PRIMARY KEY, record TEXT NOT NULL, updated_at TEXT NOT NULL)"
             )
+            db.execute(
+                "CREATE TABLE IF NOT EXISTS followup_decisions ("
+                "decision_id INTEGER PRIMARY KEY AUTOINCREMENT, incident_id TEXT NOT NULL, "
+                "state_digest TEXT NOT NULL, decision TEXT NOT NULL, created_at TEXT NOT NULL, consumed_at TEXT)"
+            )
+            db.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS one_pending_followup_per_incident "
+                "ON followup_decisions(incident_id) WHERE consumed_at IS NULL"
+            )
 
     @contextmanager
     def _db(self):
@@ -102,7 +112,43 @@ class IncidentStore:
         cutoff = (now.astimezone(timezone.utc) - self.retention).isoformat()
         with self._db() as db:
             cursor = db.execute("DELETE FROM incidents WHERE updated_at < ?", (cutoff,))
+            db.execute(
+                "DELETE FROM followup_decisions WHERE incident_id NOT IN (SELECT incident_id FROM incidents)"
+            )
             return cursor.rowcount
+
+    @staticmethod
+    def _incident_from_row(row: sqlite3.Row | None, now: datetime) -> Incident:
+        if row is None:
+            raise InvestigationError("incident not found")
+        try:
+            return Incident.from_record(json.loads(row["record"]), now)
+        except (TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise InvestigationError("invalid persisted incident record") from exc
+
+    @staticmethod
+    def _pending_decision(db: sqlite3.Connection, incident: Incident) -> tuple[int, dict[str, Any]] | None:
+        row = db.execute(
+            "SELECT decision_id,state_digest,decision FROM followup_decisions "
+            "WHERE incident_id=? AND consumed_at IS NULL",
+            (incident.incident_id,),
+        ).fetchone()
+        if row is None:
+            return None
+        try:
+            decision = json.loads(row["decision"])
+        except (TypeError, json.JSONDecodeError) as exc:
+            raise InvestigationError("invalid persisted follow-up decision") from exc
+        expected_fields = {
+            "schema_version", "incident_ref", "bound_state_digest", "disposition",
+            "hypothesis_summary", "request", "authority", "effect",
+        }
+        if (not isinstance(decision, dict) or set(decision) != expected_fields
+                or row["state_digest"] != decision.get("bound_state_digest")
+                or row["state_digest"] != incident_state_digest(incident)
+                or decision.get("authority") != "none" or decision.get("effect") != "none"):
+            raise InvestigationError("invalid or stale persisted follow-up decision")
+        return row["decision_id"], decision
 
     def _check_quota(self, db: sqlite3.Connection, incident: Incident, record: str) -> None:
         existing = db.execute("SELECT 1 FROM incidents WHERE incident_id=?", (incident.incident_id,)).fetchone()
@@ -132,19 +178,72 @@ class IncidentStore:
         self.prune(now)
         with self._db() as db:
             row = db.execute("SELECT record FROM incidents WHERE incident_id=?", (incident_id,)).fetchone()
-        if row is None:
-            raise InvestigationError("incident not found")
-        try:
-            return Incident.from_record(json.loads(row["record"]), now)
-        except (TypeError, ValueError, json.JSONDecodeError) as exc:
-            raise InvestigationError("invalid persisted incident record") from exc
+        return self._incident_from_row(row, now)
+
+    def bind_follow_up(self, proposal: Any, now: datetime) -> dict[str, Any]:
+        """Atomically journal one no-effect decision against current state."""
+        if not isinstance(proposal, dict) or not isinstance(proposal.get("incident_id"), str):
+            raise InvestigationError("invalid follow-up proposal")
+        self.prune(now)
+        with self._db() as db:
+            row = db.execute(
+                "SELECT record FROM incidents WHERE incident_id=?", (proposal["incident_id"],)
+            ).fetchone()
+            incident = self._incident_from_row(row, now)
+            if self._pending_decision(db, incident) is not None:
+                raise InvestigationError("incident already has a pending follow-up")
+            decision = select_follow_up(incident, proposal)
+            db.execute(
+                "INSERT INTO followup_decisions(incident_id,state_digest,decision,created_at,consumed_at) "
+                "VALUES (?,?,?,?,NULL)",
+                (
+                    incident.incident_id,
+                    decision["bound_state_digest"],
+                    json.dumps(decision, sort_keys=True, separators=(",", ":")),
+                    now.astimezone(timezone.utc).isoformat(),
+                ),
+            )
+        return decision
+
+    def pending_follow_up(self, incident_id: str, now: datetime | None = None) -> dict[str, Any] | None:
+        """Return a revalidated pending decision after a process reconnect."""
+        now = now or datetime.now(timezone.utc)
+        self.prune(now)
+        with self._db() as db:
+            row = db.execute("SELECT record FROM incidents WHERE incident_id=?", (incident_id,)).fetchone()
+            incident = self._incident_from_row(row, now)
+            pending = self._pending_decision(db, incident)
+            return None if pending is None else pending[1]
 
     def ingest(self, envelope: Any, now: datetime) -> dict[str, Any]:
         observation = parse_producer_envelope(envelope, now)
-        incident = self.load(observation.incident_id, now)
-        record = incident.add_observation(observation, now)
-        self.save(incident, now)
-        return record
+        self.prune(now)
+        with self._db() as db:
+            row = db.execute(
+                "SELECT record FROM incidents WHERE incident_id=?", (observation.incident_id,)
+            ).fetchone()
+            incident = self._incident_from_row(row, now)
+            pending = self._pending_decision(db, incident)
+            if pending is not None:
+                decision_id, decision = pending
+                request = decision.get("request")
+                if (decision.get("disposition") != "observe" or not isinstance(request, dict)
+                        or request.get("target") != observation.target
+                        or request.get("kind") != observation.kind):
+                    raise InvestigationError("producer result does not match pending follow-up")
+            record = incident.add_observation(observation, now)
+            encoded = json.dumps(incident.to_record(), sort_keys=True, separators=(",", ":"))
+            self._check_quota(db, incident, encoded)
+            db.execute(
+                "UPDATE incidents SET record=?,updated_at=? WHERE incident_id=?",
+                (encoded, now.astimezone(timezone.utc).isoformat(), incident.incident_id),
+            )
+            if pending is not None:
+                db.execute(
+                    "UPDATE followup_decisions SET consumed_at=? WHERE decision_id=?",
+                    (now.astimezone(timezone.utc).isoformat(), decision_id),
+                )
+            return record
 
     def reconnect_snapshot(self, incident_id: str, now: datetime | None = None) -> dict[str, Any]:
         """A bounded state snapshot suitable for a later stream reconnect."""
