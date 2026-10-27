@@ -194,6 +194,90 @@ class DoctorIncidentGatewayTests(unittest.TestCase):
                 )
                 self.assertEqual(409, repeated.status_code)
 
+    def test_two_registered_followups_complete_adaptive_loop_without_hypothesis_egress(self):
+        claims = lambda value: {"sub": "jason-sub"} if value == "Bearer jwt-jason" else None
+        with patch.object(agent, "lab_operations", self.operations), \
+             patch.object(agent, "_authentik_claims", side_effect=claims), \
+             patch.object(agent, "SYSADMIN_DOCTOR_EVIDENCE", True), \
+             patch.object(agent, "SYSADMIN_INCIDENT_STATE", Path(self.tmp.name) / "incidents.sqlite3"), \
+             patch.object(agent, "HEALTH_REPORT_PATH", self.report), \
+             patch.object(agent, "_sysadmin_incident_store", None):
+            with TestClient(agent.app) as client:
+                created = client.post(
+                    "/v1/sysadmin/incidents/doctor", json={},
+                    headers={"Authorization": "Bearer jwt-jason"},
+                ).json()
+                incident_id = created["incident"]["incident_id"]
+
+                def select(target, hypothesis):
+                    current = agent._doctor_incident_store().load(
+                        incident_id, datetime.now(timezone.utc)
+                    )
+                    response = client.post(
+                        f"/v1/sysadmin/incidents/{incident_id}/follow-up",
+                        json={
+                            "schema_version": 1,
+                            "state_digest": incident_state_digest(current),
+                            "hypothesis_summary": hypothesis,
+                            "disposition": "observe",
+                            "target": target,
+                            "kind": "status",
+                        },
+                        headers={"Authorization": "Bearer jwt-jason"},
+                    )
+                    self.assertEqual(200, response.status_code, response.text)
+
+                select("aster-gateway", "private-gateway-hypothesis-marker")
+                first = client.post(
+                    f"/v1/sysadmin/incidents/{incident_id}/observe",
+                    headers={"Authorization": "Bearer jwt-jason"},
+                )
+                self.assertEqual(200, first.status_code, first.text)
+
+                select("inference-server", "private-inference-hypothesis-marker")
+                observed = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+                inference_envelope = {
+                    "schema_version": 1,
+                    "producer": "inference-server-health/v1",
+                    "produced_at": observed,
+                    "observation": {
+                        "evidence_id": "inference-health-route-fixture",
+                        "incident_id": incident_id,
+                        "target": "inference-server",
+                        "kind": "status",
+                        "observed_at": observed,
+                        "state": "ok",
+                        "summary": "The registered inference health endpoint reported ok.",
+                        "facts": {"service": "aster-llama", "endpoint": "health"},
+                        "truncated": False,
+                    },
+                }
+                with patch(
+                    "sysadmin_registered_producer._inference_status_envelope",
+                    return_value=inference_envelope,
+                ):
+                    second = client.post(
+                        f"/v1/sysadmin/incidents/{incident_id}/observe",
+                        headers={"Authorization": "Bearer jwt-jason"},
+                    )
+                self.assertEqual(200, second.status_code, second.text)
+                incident = second.json()["incident"]
+                self.assertEqual(3, incident["observation_count"])
+                self.assertEqual("inference-server", incident["observations"][-1]["target"])
+                self.assertEqual("sufficient_or_escalate", incident["next"]["state"])
+                journal = agent._doctor_incident_store().followup_journal_snapshot(
+                    incident_id, datetime.now(timezone.utc)
+                )
+                self.assertEqual(2, journal["decision_count"])
+                self.assertEqual(2, journal["consumed_count"])
+                self.assertIsNone(journal["pending"])
+                stream = client.get(
+                    f"/v1/sysadmin/incidents/{incident_id}/stream",
+                    headers={"Authorization": "Bearer jwt-jason"},
+                )
+                self.assertNotIn("private-gateway-hypothesis-marker", stream.text)
+                self.assertNotIn("private-inference-hypothesis-marker", stream.text)
+
     def test_followup_rejects_boolean_schema_version(self):
         claims = lambda value: {"sub": "jason-sub"} if value == "Bearer jwt-jason" else None
         with patch.object(agent, "lab_operations", self.operations), \

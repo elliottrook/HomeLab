@@ -109,7 +109,13 @@ has now been [deployed and independently checked](evidence/SA2-inference-health-
 Both predecessors are retained, Aster Agent is healthy after the approved
 restart, authentication remains closed by default and the accepted llama PID
 and restart count are unchanged. SA2 now has two connected fixed producers;
-broader investigation evidence remains separately gated.
+broader investigation evidence remains separately gated. The installed
+[SA1/SA2 adaptive-loop regression](evidence/SA1-SA2-adaptive-loop-regression-2026-10-26.md)
+passes 7/7 against LXC104's production dependencies: Doctor intake, gateway
+status, inference health and reconnect compose into three observations and two
+consumed decisions without hypothesis egress. The next main-project boundary
+is SA3's bounded proposal generation over this sanitized state; producer
+execution and repair authority remain outside it.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
