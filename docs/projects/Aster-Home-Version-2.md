@@ -16,7 +16,18 @@
   Items 01-26 and 31-32 were selected; all unticked items are deferred.
 - HP (`192.168.1.140`) is the v2 lab. BOSGAME (`192.168.1.157`) stays on its
   accepted family-beta release until a separately approved promotion.
-- Latest resume point (2026-10-26): HP has the self-contained Version 2 family,
+- Latest resume point (2026-10-27): HP recovered from the voice-search reboot
+  fault and is stable with Kodi, PulseAudio and eventlircd active and no failed
+  unit. The active private G20 pilot uses one explicit microphone press, a
+  four-second memory-only capture, local `small.en` STT and visible no-speech
+  feedback. Its 13 add-on files, five integrated replacements and four bounded
+  boot/config installs exactly match manifest
+  `094455c6574df87b10b4033532d3faecc9928d62aa26ca48a4fac66e72e4db6e`.
+  Eighty-three focused voice/build/EPUB checks pass normally and optimized.
+  Physical title/latency acceptance and one cold-boot microphone smoke remain;
+  do not create phonetic title aliases. Local commits `c55ed4bb`, `08b3077b`
+  and `a77d158a` are not pushed. Production remains unchanged.
+- Previous resume point (2026-10-26): HP has the self-contained Version 2 family,
   accepted Home/camera, Reader/read-along, Music, Books, News, Search, series,
   Seerr catalogue/request and accessibility pilots. Seerr requests 160–162 are
   pending human approval by design. Recovery7 now reconstructs the exact active
