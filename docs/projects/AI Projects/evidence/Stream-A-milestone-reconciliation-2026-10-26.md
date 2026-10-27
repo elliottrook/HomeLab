@@ -59,7 +59,11 @@
    remaining M4 gate is trust and operational acceptance: independent
    checkpoint custody, human review of the synthetic-only design, and a
    separately specified retention/recovery design before any real-data
-   collection.
+   collection. The human-record validator is now source-complete and passes the
+   34-test M4 suite; it binds the exact 164-event artifact/head and rejects any
+   authority or private-collection grant. It deliberately cannot create or
+   prove the separately held human record, so independent custody and Jason's
+   review remain the actual open gate.
 6. **M5 read-only shadow pilot.** Run the finite, no-effect observation window
    only after M3/M4 and the applicable authority gates pass; measure usefulness,
    latency, privacy, cost and shared-service impact.
