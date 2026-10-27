@@ -5,6 +5,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from acquisition_home_launcher import add_hub
+
 
 ADDON = "script.asteracquisition"
 
@@ -17,9 +19,9 @@ def encoded(value):
     return json.dumps(value, indent=2, sort_keys=True).encode() + b"\n"
 
 
-def build(output):
-    output = Path(output)
-    if output.exists():
+def build(home, output):
+    home, output = Path(home), Path(output)
+    if output.exists() or not home.is_file() or home.is_symlink():
         raise ValueError("acquisition-build-path")
     output.mkdir(parents=True)
     here = Path(__file__).resolve().parent
@@ -44,24 +46,36 @@ def build(output):
   <extension point="xbmc.addon.metadata"><summary lang="en_GB">Private cross-media discovery page</summary><description lang="en_GB">Credential-free Aster discovery for Media, Music and Books.</description><platform>all</platform><license>Private HomeLab</license></extension>
 </addon>
 ''')
-    overlay = here / "acquisition_native/overlay/custom_1133_acquisition.xml"
-    target = output / "skin/1080i/custom_1133_acquisition.xml"
-    target.parent.mkdir(parents=True)
-    target.write_bytes(overlay.read_bytes())
+    original = home.read_bytes()
+    transformed = add_hub(original.decode("utf-8")).encode()
+    overlay = (here / "acquisition_native/overlay/custom_1133_acquisition.xml").read_bytes()
+    skin_files = {
+        "1080i/Home.xml": (transformed, digest(original)),
+        "1080i/custom_1133_acquisition.xml": (overlay, None),
+    }
+    skin_rows = []
+    for relative, (raw, before) in skin_files.items():
+        target = output / "skin" / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(raw)
+        skin_rows.append({"path": relative, "bytes": len(raw),
+                          "sha256": digest(raw), "before_sha256": before})
     addon_rows = []
     for path in sorted(addon.rglob("*")):
         if path.is_file():
             raw = path.read_bytes()
             addon_rows.append({"path": path.relative_to(addon).as_posix(),
                                "bytes": len(raw), "sha256": digest(raw)})
-    skin_raw = target.read_bytes()
+    helper = here / "acquisition_install.py"
+    helper_raw = helper.read_bytes()
+    (output / "acquisition_install.py").write_bytes(helper_raw)
     manifest = {
         "schema": 1,
         "kind": "hp-acquisition-page.v1",
         "addon": ADDON,
         "addon_files": addon_rows,
-        "skin": [{"path": "1080i/custom_1133_acquisition.xml",
-                  "bytes": len(skin_raw), "sha256": digest(skin_raw)}],
+        "skin": skin_rows,
+        "helpers": {"acquisition_install.py": digest(helper_raw)},
         "activation": "RunScript(script.asteracquisition)",
         "writes_enabled": False,
     }
@@ -71,6 +85,7 @@ def build(output):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--home", required=True)
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
-    print(build(args.output))
+    print(build(args.home, args.output))
