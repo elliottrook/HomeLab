@@ -1,5 +1,30 @@
 # Launcher correction and calibration feasibility receipt — 2026-10-26
 
+## Direct liaison follow-up
+
+The app accepted scoped messages to Mini chats
+`01a0da33-48a7-7130-b567-5e0eb698139f` (Adaptive) and
+`01a1312d-7b6c-7f20-840e-389266cbff3b` (platform coordination) on October 26.
+Each message requests a read acknowledgment of this document at B60 commit
+`11febf11386982cba001ae3e08d6b5df5b67c794`, whose document SHA-256 is
+`106ab591f4a855f515d7c9bfbebaade4dc6ad7c9406d35e9444664f616b554ae`.
+These are message-delivery receipts, not proof of peer reading or adoption.
+Historical native-unavailable claims no longer describe current app access.
+
+The platform request asks for fetchable current recovery/F4/F5 composition
+source and the actual owning publication path, without authorizing a push or
+new live effects. The Adaptive request asks for the full-Aster fresh 9B
+complete-useful-answer baseline, frozen capability/safety and p50/p95 contract,
+and a source-bound 27B+ challenger admission/recovery mapping. It explicitly
+excludes private case text, labels, vectors and credentials. Existing owner
+work and cleanup remain independent; no duplicate runner was launched.
+
+Next action: read exact acknowledgments and newly published source, test the
+pinned public interfaces offline, then integrate only the accepted formats.
+Until then the source-publication and full-path challenger gates remain open.
+The harness README now marks its old timing/Vulkan guard as historical and
+unsafe for production use; this is a documentation correction, not deployment.
+
 Received Adaptive `6b1ad3c431883afb0e8422e344566111664dd8ee` after fetching
 all known owner refs. Platform remains
 `6fb0207fec5190e0c34ed3bc72ea38e128f06127`; published B60 before this

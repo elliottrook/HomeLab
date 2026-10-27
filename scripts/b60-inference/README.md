@@ -1,5 +1,22 @@
 # B60 inference benchmark harness
 
+## Current safety status — 2026-10-26
+
+This is retained offline development tooling, not the current shared lab
+controller or an approved execution recipe. Do not execute its legacy guard,
+finalizer or endpoint switches against production. The old 00:20 preflight,
+01:40 experiment limit, 02:00 restoration deadline and Vulkan recovery checks
+below describe historical code, not the accepted SYCL/shared-lease contract.
+The old hard-coded nightly coordinator must remain undeployed.
+
+Current admission requires the owning platform's source-bound backup chain,
+independent recovery and single runner, with restoration completed before
+04:15 America/Vancouver and each B60 trial bounded to 30 minutes. An admitted
+D4/M3 9B workload does not admit a B60 model/runtime replacement or full-Aster
+answer baseline. The exact challenger and full-path contract remain open;
+see the current project coordination status and its pinned owner receipts.
+Offline tests and explicit command-line interlocks never grant live authority.
+
 This directory contains the offline, synthetic-only Phase 1 harness. It does
 not connect to the inference endpoint, execute SSH, spawn processes or authorize
 a production run. A separately reviewed runner can consume the generated plan
@@ -58,7 +75,7 @@ evidence. It calculates measured-only median/MAD, refuses incomplete sample
 sets, validates the complete ledger schema and writes the resulting record with
 the same create-once mode-0600 evidence semantics.
 
-`guard.py` accepts only a five-minute-fresh preflight collected from 00:20–00:29
+Historical implementation only: `guard.py` accepts a five-minute-fresh preflight collected from 00:20–00:29
 America/Vancouver. It requires fresh successful local backup and TrueNAS mirror,
 accepted hashes, healthy xe/Vulkan service and fixed disk/RAM/VRAM headroom. No
 experiment may start before 00:30 or continue past 01:40; 20 minutes are reserved
