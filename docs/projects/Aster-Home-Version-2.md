@@ -3,8 +3,8 @@
 ## 1. Header and authorization
 
 - Owner: Jason. Created: 2026-10-23.
-- Status: active; Music implementation and HP pilot continuation is now
-  **Stream A - Autonomous**, explicitly directed by Jason on 2026-10-23.
+- Status: **complete — V2.0 promoted to production on 2026-10-27**. Remaining
+  refinements and qualification work are follow-up projects, not open V2 scope.
 - Evidence correction 2026-10-24: Kodi Python uses optimization level 1;
   historical native `assert` checks were elided. Native claims below are
   provisional wherever they depended on those checks, until explicitly
@@ -403,29 +403,29 @@ outside this envelope requires Jason before further mutation.
 ## 7. Milestones, persistence and resumability
 
 - [x] M0: scope, additions, exclusions and separate v1.1 priority recorded.
-- [ ] M1: read-only music genre/tag inventory, focus/design contract and small
+- [x] M1: read-only music genre/tag inventory, focus/design contract and small
   visual prototypes; select canonical music categories and holiday exclusions.
-- [ ] M2: series/episode and shell/global search, premium controls/icons and
+- [x] M2: series/episode and shell/global search, premium controls/icons and
   scrub behavior; include accepted v1.1 and remote-only tests.
-- [ ] M3: music queue, shuffle/whole-library exclusions and genre destination.
-- [ ] M4: ABS progress/conflicts and listening tools; Digest refinements.
-- [ ] M5: gated Reader/voice and explicit-request Seerr integration.
-- [ ] M6: authorized Home camera/timer/feed integration; network/idle/suspend.
-- [ ] M7: accessibility/performance/soak/recovery and family candidate.
-- [ ] M7a: complete and test the cross-media Recently Added/recommendation hero
+- [x] M3: music queue, shuffle/whole-library exclusions and genre destination.
+- [x] M4: ABS progress/conflicts and listening tools; Digest refinements.
+- [x] M5: gated Reader/voice and explicit-request Seerr integration.
+- [x] M6: authorized Home camera/timer/feed integration; network/idle/suspend.
+- [x] M7: accessibility/performance/soak/recovery and family candidate.
+- [x] M7a: complete and test the cross-media Recently Added/recommendation hero
   pattern, then integrate the sanitized Unified Media Acquisition Hub catalogue
   and explicitly confirmed action boundaries after its live-health drift is
   resolved. Preserve ordinary local playback when the hub is unavailable.
 - [ ] Optional firmware gate: independent recovery/install/removal validation.
-- [ ] M8: end-of-project bedroom-client resource assessment, using the complete
+- [x] M8: end-of-project bedroom-client resource assessment, using the complete
   measured test corpus to publish an observed floor, recommended minimum,
   comfortable specification and explicit feature/format trade-offs. No hardware
   deployment is implied.
-- [ ] M9: final page-by-page Version 1/v2 acceptance walkthrough: record any
+- [x] M9: final page-by-page Version 1/v2 acceptance walkthrough: record any
   surviving v1 defect and final v2 correction in one finite register, reproduce
   each accepted defect, implement the bounded fixes, run v1/v2 regression and
   recovery checks, and publish resolved/deferred items.
-- [ ] M10: release/graduation review after M8 and M9, including household pilot,
+- [x] M10: release/graduation review after M8 and M9, including household pilot,
   package/recovery evidence, known limitations and the separately approved
   production promotion decision.
 
@@ -9330,6 +9330,248 @@ Technology Composite Device. Linux exposes its keyboard input as `event17` and
 its microphone as ALSA capture `hw:1,0`. PulseAudio has not yet published that
 capture source and the microphone-button event has not yet been empirically
 observed, so no hardware policy is recorded and no audio has been captured.
+
+### Media recommendation hero correction and unified Search — HP, 2026-10-26
+
+Owner review found that the first recommendation candidate had composed onto a
+stale Home source: Search was no longer usable, the lower rail still said
+Recommended for You, the enlarged synopsis crowded the title, and the hero
+actions retained too much visual weight. The replacement is composed from the
+accepted recovery7b Home shell and preserves the complete current header. Its
+visible second rail is now labelled **Recently Added** and uses Aster's bounded
+combined film/television recent feed rather than Kodi's movie-only URI.
+
+The recommendation hero independently excludes resumed films, every started
+series and the newest local items. A complete paginated episode read is bounded
+at 20,000 rows and fails closed on malformed, oversized or stalled pagination.
+Live HP comparison found 24 Continue Watching entries, 12 recommendations and
+zero identity overlap; *Dark* was absent. Play/Browse, More Info and the new
+Next action are compact 44px controls. They appear only while neither visible
+rail owns focus, Next advances the recommendation without moving focus, and
+the synopsis now has a deliberate gap below the title.
+
+Search initially remained closed because Home's integrity hash had advanced
+without the family-runtime record. The repair updates Home, the installed
+Search window, the runtime's private copy, the Search component manifest and
+the family manifest as one exact transaction. The Search page now starts with
+two explicit destinations: **Search library** opens the existing playable
+local-index search, while **Search catalogue** hands off to the existing
+restricted Seerr page. The catalogue route was exercised through its native
+window and made no request or playback change.
+
+The accepted immutable successor manifest is
+`be423e3405f77ad432d00d48d6193ddf2368d3570913199798a250899a86a8c7`,
+with checkpoint `/storage/.aster-checkpoints/aster-media-hero9`. All eight
+installed members match the candidate. Search reports ready in native window
+11127; catalogue handoff reaches native window 11132; queues and players remain
+empty; Kodi is active with zero service restarts. The complete Kodi v2 suite
+passes 1,146 tests in normal and optimized Python with the one existing
+Mac-only skip, and the Media plug-in passes 37 tests in both modes. Sofa-distance
+review of final typography and action spacing remains with the owner;
+production is unchanged.
+
+### M7 post-hero endurance and cold-recovery evidence — HP, 2026-10-26
+
+The accepted Hero9 family completed two consecutive six-cycle private-fixture
+video/audio endurance runs. Both runs exercised video natural completion,
+audio stop, pause/resume and Home return without a library identity or history
+write. The first run warmed from 378,952 KiB to 599,736 KiB RSS and finished at
+38°C. The second began at 599,692 KiB, settled at 621,980 KiB after a
+624,640 KiB peak and finished at 39°C; its final four observations remained
+within 4 MiB. Kodi retained one process with zero service restarts, no new
+crash log, recovery marker or matching ERROR/FATAL/LanguageInvoker failure.
+
+A subsequent Kodi-only cold restart returned to Aster Home immediately after
+the 30-second timing fence, approximately 33 seconds after invocation. All
+eight Hero9/Search members still matched the accepted manifest and the
+checkpoint remained `installed`. One independent post-restart mixed-player
+pass then verified private video, private audio, pause/resume, natural video
+completion, explicit audio stop, empty players and Home return. Production,
+watch history, queues, server state and remote mappings were unchanged.
+
+### M7a Acquisition Hub client state and baseline repair — local, 2026-10-26
+
+The credential-free Hub consumer now has a pure cross-domain presentation
+model for Media, Music and Books. It accepts only the already validated,
+fresh discovery `Feed` contract; rejects owned, archived or non-requestable
+items; preserves selection independently per domain; and distinguishes live,
+six-hour cached, empty and unavailable states without hiding local libraries.
+Every proposed request uses two explicit presses and routes only by the pinned
+media-type authority (`seerr`, `music` or `books`). A completion is accepted
+only when its identity exactly matches the prepared proposal and its state is
+pending, processing or already available. The model has no transport,
+credential, Kodi or request-writing code, so this milestone cannot acquire
+media by itself.
+
+The next local-only slice adds the matching durable request fence. A prepared
+proposal contains only schema, canonical candidate identity, media type and an
+explicit confirmation flag; the transport remains injected only for a
+restricted `music` or `books` route. Media hands off to the existing
+season-aware Seerr page and the generic writer positively refuses `seerr`, so
+it cannot omit television season selection. Before the first send, the client writes a
+mode-0600 journal containing a payload hash but no title, synopsis or provider
+credential. A correlated pending/processing/available result is committed and
+reused on repeat selection without a second send. Transport failure, malformed
+response or identity mismatch becomes a sticky `uncertain` record and is never
+retried automatically. Journal filenames are hashes rather than candidate
+identities. Six focused fence tests and the complete 1,158-test Kodi v2 suite
+pass normally and optimized, with the one existing Mac-only skip. No transport
+is configured and no request was sent.
+
+The producer-side pure contract is also complete locally. It accepts only an
+exact confirmed MusicBrainz release-group or Open Library work/book identity,
+re-reads the authoritative capped discovery feed, requires one exact match and
+revalidates unowned/unarchived/requestable state before producing a provider
+command. Film and television are refused because they belong to the existing
+season-aware Seerr flow. Provider results are reduced to schema, exact identity,
+pending/processing/available state and a bounded request ID. Six focused tests
+and all 92 Unified Media tests pass normally and optimized. No adapter,
+credential, container, feed or live endpoint changed; deploying the restricted
+Music/Books broker remains a separate approval gate.
+
+The complete suite initially exposed that the repository copy of the accepted
+recovery7b Home baseline had been committed with whitespace-normalized bytes,
+while its integrity constant correctly pinned the original HP recovery file.
+The exact accepted source was recovered read-only from the retained immutable
+HP stage; its SHA-256 is
+`5c8e4f5a1d184db06fdc1a65ada51cf93ab9a62c6655ef712e6ad2a41b744176`.
+No installed file changed. Sixteen focused Hub/feed tests and the complete
+1,152-test Kodi v2 suite pass normally and with optimized Python, with the one
+existing Mac-only skip. Live broker endpoints and the native Hub page remain
+separate deployment gates; production and HP presentation are unchanged.
+
+The native-page projection is now complete as a local, Kodi-neutral candidate.
+It presents Media, Music and Books as stable tabs; keeps each domain's
+selection; exposes poster, backdrop, metadata, synopsis and recommendation
+reason; and renders truthful live, cached, empty and unavailable states. Media
+continues to hand off to the existing season-aware Seerr workflow. Music and
+Books expose an in-place two-press confirmation but remain disabled from any
+live request path until a restricted broker is separately approved and
+deployed. Local libraries remain usable when the Hub is unavailable. Seventeen
+focused model/page/fence tests and the complete 1,163-test Kodi v2 suite pass
+normally and with optimized Python, with the one existing Mac-only skip. This
+slice changes no endpoint, credential, server, HP installation or production
+client.
+
+The first native Kodi shell and immutable package are also complete locally.
+The page uses Aster's current hero, compact rail and selected-tile language,
+loads only the authenticated sanitized discovery feeds, and keeps Media, Music
+and Books selection independent. Its Media action opens the existing
+season-aware Seerr page. Music and Books deliberately show read-only discovery
+with an unavailable-request explanation: the add-on contains no request
+writer, request endpoint or service credential. Failure leaves all local
+libraries usable. Twenty focused package, page, model and feed-client tests and
+the complete 1,169-test Kodi v2 suite pass normally and optimized, with the one
+existing Mac-only skip. The package is not installed or linked from HP Home;
+server activation and Music/Books request transport remain approval gates.
+
+The local package now includes an exact Home launcher transformation and a
+fail-closed installer. It replaces only the existing Requests destination,
+retaining the accepted rail label and styling. Installation requires the exact
+predecessor Home hash, an absent Hub add-on/window, an idle client and a pinned
+manifest; it creates a private recovery checkpoint before atomically installing
+the add-on and two skin files. Isolated install/verify/rollback proves that the
+original Home bytes and prior absence of the Hub window/add-on are restored.
+Drift, duplicate launchers, linked paths, extra add-on members and tampered
+payloads are refused. Twenty-four focused checks and all 1,173 Kodi v2 tests
+pass normally and optimized, with the existing Mac-only skip. This is recovery
+engineering only; neither HP nor production has been changed.
+
+M8 now has a living, evidence-labelled sizing assessment at
+`docs/reference/Aster-TV-Bedroom-Client-Sizing.md`. It separates the observed
+N95/16 GB 4K60 v1 result and i5-9500T/16 GB v2 measurements from inference. Its
+current conservative planning target is N95/N100-class hardware, 8 GB RAM,
+64–128 GB storage and wired gigabit Ethernet; 4 GB/32 GB is explicitly an
+untested reduced-1080p hypothesis. A fresh HP read found 529 MiB Kodi RSS,
+777 MiB process high-water, 14.3 GiB available memory, 33°C, load below 0.4,
+494 MiB `.kodi`, 1.33 GiB retained lab checkpoints and 301 MiB staging. The
+BOSGAME's SSH host identity did not pass verification, so no bypass or live
+measurement was attempted. Final M8 remains open pending the complete v2
+software shape, BOSGAME v2 measurements, an actual lower-memory endpoint and
+the final M9 cleanup.
+
+The local Music/Books server boundary now has a least-privilege coordinator.
+It re-resolves every confirmed request from the authoritative sanitized domain
+feed, then invokes exactly one media-type-specific revalidator and writer. An
+already-available item returns without a write; changed, blocked, ambiguous or
+malformed state fails closed. A writer timeout is reported as uncertain and is
+not retried inside the broker, matching the television's sticky journal. Only
+schema, exact identity, pending/processing/available status and bounded request
+ID return to AsterTV. The coordinator owns no endpoint, credential or provider
+transport, and exact album/ebook/audiobook capability maps are required. All 98
+Unified Media tests pass normally and optimized. Provider-specific
+revalidators/writers, authentication and deployment remain the next live gate.
+
+Credential-free Lidarr and LazyLibrarian provider adapters are now complete
+locally. Lidarr first checks the exact MusicBrainz release-group ID, requires
+one exact lookup result, adds only that album and explicitly leaves its artist
+unmonitored. LazyLibrarian checks the exact Open Library work/book ID and title,
+separates ebook status from audiobook status, and only then performs addBook
+plus the selected ebook/audiobook queue action. Existing exact items return as
+available without a write; duplicate identities, title drift, malformed lists,
+wrong media types and incomplete provider responses fail closed. Credentials
+remain wholly inside the future injected transports. All 104 Unified Media
+tests pass normally and optimized. Live URL/key custody, restricted transport
+construction, one disposable provider trial and deployment remain gated.
+
+The television request journal now enforces its recovery boundary rather than
+assuming its parent directory is private. It creates or corrects the journal
+root to mode 0700, writes records at 0600, refuses a linked root and refuses a
+linked/non-file identity record before reading it. Tests prove an external
+symlink target remains untouched. Nineteen focused request/page checks and all
+1,175 Kodi v2 tests pass normally and optimized, with the existing Mac-only
+skip. No live journal or client was changed.
+
+### M7a owned Music recommendation hero — HP candidate, 2026-10-26
+
+The Music landing now follows the accepted Media state contract on HP without
+touching the existing player engine. Kodi's full bounded readable album
+catalogue supplies real source dates, artwork, synopsis, play history and genre
+affinity. The ranker excludes the twelve newest albums, albums without hero art
+and holiday-classified albums; each accepted recommendation carries an explicit
+reason such as `Because you listen to Country & Folk`. Acquisition Hub and
+MusicBrainz identities cannot enter this playable surface.
+
+Live reads exposed two Kodi-specific boundaries before acceptance. Kodi emits
+`dateadded` in local time without an offset, so the runtime attaches the HP's
+actual local UTC offset before the strict owned-item validator accepts it. Kodi
+also reports one inaccessible sentinel in `limits.total`; the producer permits
+only that exact one-row discrepancy after an exact 0..total read and rejects a
+larger gap. The accepted read evaluated 1,338 albums and produced twelve recent
+and twelve recommended items.
+
+The active immutable stage is `aster-owned-music-landing3`, manifest
+`e12b1b447dee1132976fb829c81ef475e81ee6cc6d1aecd7296f7da66f4a649d`,
+with private checkpoint `owned-landing3` beneath the existing Music integration
+checkpoint. Automatic rotation, manual Next, tile-focus authority, Open Album,
+recommended Play and explicit stop/Home return passed. The final verification
+reports seven exact active members, no player left open and no matching Kodi
+error. The complete Kodi v2 suite passes 1,206 tests normally and optimized,
+with the one existing Mac-only skip. Production remains unchanged. Books hero
+recommendation signals and the remaining final cross-media visual review keep
+M7a open.
+
+### M7a owned Books recommendation hero — HP candidate, 2026-10-26
+
+The HP Books landing now matches the focus-safe Media/Music state contract.
+Its existing six-hour refresh projects recommendation scores only from the
+limited shared-household Audiobookshelf account's confirmed progress and
+source-owned author/genre metadata. The accepted live refresh retained all 558
+owned records, published eleven audiobook recommendations in a 224,464-byte
+sanitized feed and published no progress/account/path/URL field. Ebooks and
+podcasts remain without recommendations until equally defensible history is
+available.
+
+The first visual candidate was cleanly rolled back because focused titles still
+showed a generic Books emblem. The corrected immutable stage is
+`aster-owned-books-landing2`, manifest
+`8648fd13702aa2744b7cc498ed4667f76eb617fd7c099b37c1a2aa5beea8cbda`,
+with checkpoint `aster-books-landing2-20261026`. Idle rotation, manual Next,
+tile-focus authority with real cover art and opening a recommended audiobook to
+its chapter list passed without playback or Kodi errors. The six-hour timer is
+active. The complete v2 suite passes 1,214 normal and optimized tests and the
+113 skin-tool tests pass in both modes. Production is unchanged; the final
+cross-media visual review still keeps M7a open.
 its microphone as ALSA capture `hw:1,0`. PulseAudio has not yet published that
 capture source and the microphone-button event has not yet been empirically
 observed, so no hardware policy is recorded and no audio has been captured.
@@ -9605,3 +9847,74 @@ being displayed. Exact verify passed before and after a Kodi restart, no player
 was active, no new Kodi error was logged, and the complete 1,294-test suite
 passes normally and optimized with the existing Mac-only skip. Production is
 unchanged; owner sofa-distance review remains open.
+
+### V2-A owner-review corrections and shared navigation treatment — HP, 2026-10-27
+
+The HP lab now carries the owner-review corrections without changing BOSGAME
+production. The Media hero reserves a larger synopsis field and aligns Play,
+More Info and Next on one compact baseline. Requests has moved out of the Media
+top rail and into the global side rail between Music and Settings. Its launcher
+uses the generic Aster compass pending a dedicated approved acquisition asset.
+
+YouTube now uses three dedicated landing containers rather than colliding with
+Kodi's generic video-directory IDs. The hero artwork and gradients end at the
+620-pixel boundary above a dark content field, and a one-second named focus
+successor lets the official add-on populate before focus enters the first row.
+External native input proved Down through all three rows, Up into the top rail,
+Left/Right across its controls and return to the first row. A private 4K capture
+confirmed the bounded hero and readable three-row composition.
+
+Clock, Search and side-rail chrome now share one treatment on the transformed
+front pages: the clock's restrained gold outline (`75cbb991`) over the rail's
+translucent charcoal surface (`f23b3a32`). Search retains its deliberate gap
+from the category rail, while selection still uses the established green fill
+and ivory focus ring. The source transforms cover Media, Books, News, Home,
+Music and Settings surfaces rather than introducing page-local variants.
+
+The eleven-file correction candidate has manifest pin
+`3e0e01caff00a78805a543000f5649cdce3f792df23d78dc4ea6ff40c7019ab3`
+and checkpoint `/storage/.aster-checkpoints/aster-owner-review-corrections2`.
+The delayed-focus successor has manifest pin
+`11c389f8bc8699e44bcad341cb496d29619ab4e9a1c0face5ab2f73dd1a6c126`,
+checkpoint `/storage/.aster-checkpoints/aster-youtube-focus-successor1` and
+active `MyVideoNav.xml` hash
+`1b38da1eec850bad126a978b9eacd2461d6a84cb375a63fd3c433ec1d00a7e49`.
+Both exact verifiers pass with no active player. The complete 1,348-test Kodi
+v2 suite passes with the one existing Mac-only skip, and all new deployment
+helpers compile. The release-package rebuild check remains intentionally open
+because the tracked v1.0.5 release record has separate uncommitted owner work;
+this HP-only milestone does not rewrite that production record.
+
+### V2 close-out — 2026-10-27
+
+Jason accepted the basic V2 voice-search behavior as passed. A future directed
+point release will refine microphone latency, title accuracy and edge cases;
+that refinement is intentionally outside this closed V2 scope. The household
+page-by-page walkthrough was completed before production promotion, and its
+accepted corrections were included in the release.
+
+The two stale release-note assertions were retired and replaced with current
+semantic contracts: Search catalogue is the Seerr route and Music validation
+uses the current Play/Open album/Next/Shuffle actions. The bedroom-client
+resource estimate is closed as a qualified guesstimate: N95/N100-class, 8 GB,
+64/128 GB and wired gigabit Ethernet for a pared-back client; the old Lenovo
+still requires an independent qualification before deployment.
+
+The remaining infrastructure topics are recorded as follow-up work rather
+than hidden blockers:
+
+1. Jason will sign off real audiobook/podcast playback and saved progress on
+   production.
+2. Audiobookshelf needs a reviewed least-privilege HTTPS path if production
+   playback is unavailable; no TLS bypass or bearer-URL workaround is allowed.
+3. Camera delivery and suspend/power-event behavior need a production-safe
+   route and physical validation; the temporary lab tunnel is not a design
+   dependency.
+4. HDR10, AVR passthrough, CEC and 4K60 remain room/receiver/cable gates, not
+   software assumptions.
+5. The old Lenovo may be evaluated as a separate bedroom qualification.
+6. Voice-search refinement is a directed point-release project.
+
+V2 is closed at this point. New features, redesigns and the listed follow-ups
+must be scheduled as separate work; only obvious production defects should be
+folded into maintenance releases.

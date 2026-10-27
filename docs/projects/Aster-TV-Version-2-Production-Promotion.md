@@ -55,9 +55,10 @@ passed. No writable reader export was granted to either TV client.
 - Music reported ready with 12 hero recommendations and 25 tile items.
 - YouTube reported `User is fully logged in` after the bounded migration.
 
-Two old automation assertions are not release failures: Search expects a retired
-intermediate catalogue window, and Music targets retired control ID 118. Their
-current V2 landing/feed checks passed. A single subscription-specific YouTube
+The old Search intermediate-window and Music control-118 assertions were
+retired during close-out. Current contract checks follow the semantic Seerr
+catalogue route (native window 11132) and the Music hero actions instead of
+obsolete pilot focus assumptions. A single subscription-specific YouTube
 RSS request returned HTTP 404; this did not invalidate API credentials or login.
 
 ## Operator handover

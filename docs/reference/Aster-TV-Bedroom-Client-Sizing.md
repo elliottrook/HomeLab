@@ -1,7 +1,7 @@
 # AsterTV Bedroom Client Sizing
 
-> Status: Version 2 working assessment; not a purchase recommendation  
-> Updated: 2026-10-26  
+> Status: Version 2 closing estimate; not a purchase recommendation
+> Updated: 2026-10-27
 > Scope: a pared-back bedroom client using the same AsterTV/LibreELEC family
 
 ## Executive estimate
@@ -92,6 +92,14 @@ Post-owned-landing and Acquisition live-feed measurement:
 
 ## Three useful boundaries
 
+Latest HP check after saved-acquisition activation and native navigation work
+(2026-10-26): Kodi RSS 488 MiB, process high-water mark 659 MiB and 41 threads;
+14,816,548 KiB remained available out of 16,053,952 KiB total RAM. Load averages
+were 0.21/0.17/0.17. The latest 500 Kodi log lines contained no ERROR or FATAL
+entry. This is an idle/navigation observation, not a new constrained-hardware
+qualification or proof of long-term memory stability. The synthetic voice
+assembly tests do not add an active recorder or speech service to the client.
+
 ### Observed floor
 
 The lowest fully identified physical client that has actually rendered Aster
@@ -158,7 +166,7 @@ Audio passthrough, HDR indication and CEC are path capabilities, not meaningful
 CPU-sizing signals. A more powerful processor does not repair a receiver, EDID,
 cable or missing CEC adapter.
 
-## Final evidence still required
+## Final evidence and limits
 
 - Run the complete v2 candidate on BOSGAME and repeat idle, navigation,
   artwork, mixed-player and overnight memory measurements.
@@ -169,7 +177,9 @@ cable or missing CEC adapter.
 - Qualify the old Lenovo with the same 1080p/4K, remote, network, restart and
   recovery matrix before calling it a bedroom option.
 - Record wall power and fan/noise for any actual bedroom candidate.
-- Revisit this estimate after M9's final page cleanup fixes the software shape.
+- The owner has completed the final page walkthrough and accepted V2 for
+  production. The remaining items below are qualification work, not blockers
+  for the V2 release.
 
 The complete HP candidate now includes the credential-free Acquisition Hub
 client, its populated discovery feeds and the bounded request journal. That
@@ -177,6 +187,9 @@ addition has passed the idle resource check above. It does not close M8 because
 the requested low-end conclusion still needs evidence from the N95 production
 class or another constrained endpoint, plus the final M9 software shape.
 
-Until those checks are complete, **N95/N100 + 8 GB + 64/128 GB + gigabit
-Ethernet** is a conservative engineering estimate, not a guaranteed shopping
+The closing guesstimate is therefore **N95/N100-class + 8 GB + 64/128 GB +
+gigabit Ethernet** for a pared-back bedroom client, with 16 GB preferred when
+the price difference is small. The fully featured V2 appliance should use the
+HP/BOSGAME class or better until the final V2 build is measured on an 8 GB
+client. This remains an engineering estimate, not a guaranteed shopping
 specification.
