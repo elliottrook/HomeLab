@@ -1735,3 +1735,11 @@ uses a fresh read-only capacity and production check. Host staging fits the
 approval-ready effect downloads and hash-verifies only the exact revision into
 a new root-only host directory, with no mount, model load, service change,
 lease or request. It must finish before the 00:30 backup quiet period.
+
+That [staging effect passed](evidence/Full-Aster-challenger-artifact-staging-result-2026-10-26.md):
+the exact 20,419,565,568-byte artifact matches SHA-256 `671e47e0…40c7`, is
+root:root mode 0400 on the Proxmox host and leaves 39,051,284,480 bytes free.
+The lease remained ready, production stayed active with zero restarts, the 9B
+path remained exact and no guest mount was added. The next boundary is an
+inactive, exact mount/load/screen/restore transaction; no model request is yet
+authorized.
