@@ -33,7 +33,7 @@ do not imply household acceptance or production promotion.
 | Work | Next action | Dependency |
 |---|---|---|
 | Cross-media native check | Run the prepared `live_landing_family_smoke.py` on idle Home; inspect results, focus and logs | Let the separate YouTube task finish its foreground Google device-authorization step first |
-| Acquisition requests | One album and one ebook trial, verify confirmation/result/journal/duplicate suppression | Exact title trial approval requested: *Homogenic* and *Heretics of Dune*; no write until answered |
+| Acquisition requests | Approved *Homogenic* and *Heretics of Dune* requests completed and duplicate checks passed; review the saved outcomes in the native UI | Both journals are committed; use only these existing records for UI validation, with no new provider write |
 | Voice search | Join the process adapter to admitted listening UI and restricted STT transport; observe actual remote event and capture source | Physical remote capability and scoped speech identity remain live integration gates |
 | EPUB pre-generation | Consume the compiler's eventual complete ready artifacts | Separate **EPUB Narration Compiler** task owns worker/dataset/new-title monitoring; its benchmark is complete, M3 onward remains |
 | YouTube | Official add-on credentials, device authorization, playback and Aster presentation | Separate **Finish Aster YouTube integration** task; main stream must avoid competing foreground tests |

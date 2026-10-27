@@ -3,7 +3,7 @@ import tempfile
 import threading
 import unittest
 from unittest import mock
-from http.server import ThreadingHTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 import sys
 import urllib.error
@@ -14,7 +14,7 @@ sys.path.insert(0, str(ROOT))
 
 from aster_acquisition_broker import BrokerError as AcquisitionBrokerError
 from aster_seerr_broker import (BrokerError, Handler, SeerrClient, authorize,
-                                provider_transport)
+                                provider_transport, request_json)
 
 
 class Transport:
@@ -78,6 +78,34 @@ def season_proposal():
 
 
 class AsterSeerrBrokerTests(unittest.TestCase):
+    def test_only_explicit_lazy_queue_accepts_plain_ok(self):
+        class Reply(BaseHTTPRequestHandler):
+            def do_GET(self):
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(b'OK')
+            def log_message(self, *_):
+                pass
+        server = ThreadingHTTPServer(('127.0.0.1', 0), Reply)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with tempfile.TemporaryDirectory() as temporary:
+                key = Path(temporary)/'key'
+                key.write_text('synthetic-key')
+                base = 'http://127.0.0.1:%d' % server.server_port
+                lazy = provider_transport(base, key, 'lazylibrarian')
+                self.assertEqual(lazy('GET', '/api', {'cmd': 'queueBook', 'id': 'OL1W'}, None),
+                                 (200, 'OK'))
+                with self.assertRaises(BrokerError):
+                    lazy('GET', '/api', {'cmd': 'getAllBooks'}, None)
+                with self.assertRaises(BrokerError):
+                    request_json(base)
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+
     def client(self, transport):
         temporary = tempfile.NamedTemporaryFile(mode="w", delete=False)
         temporary.write("password"); temporary.close()

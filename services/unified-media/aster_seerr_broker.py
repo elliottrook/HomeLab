@@ -30,7 +30,8 @@ class BrokerError(RuntimeError):
 
 
 def request_json(url: str, *, method: str = "GET", body: Any = None,
-                 headers: Optional[Mapping[str, str]] = None) -> tuple[int, Any, Mapping[str, str]]:
+                 headers: Optional[Mapping[str, str]] = None,
+                 plain_ok: bool = False) -> tuple[int, Any, Mapping[str, str]]:
     encoded = None if body is None else json.dumps(body, separators=(",", ":")).encode()
     request = urllib.request.Request(url, data=encoded, method=method,
                                      headers=dict(headers or {}))
@@ -39,7 +40,9 @@ def request_json(url: str, *, method: str = "GET", body: Any = None,
             raw = response.read(2 * 1024 * 1024 + 1)
             if len(raw) > 2 * 1024 * 1024:
                 raise BrokerError("seerr-response-too-large")
-            return response.status, json.loads(raw or b"{}"), dict(response.headers)
+            value = ("OK" if plain_ok and response.status == 200
+                     and raw.strip() == b"OK" else json.loads(raw or b"{}"))
+            return response.status, value, dict(response.headers)
     except urllib.error.HTTPError as error:
         raw = error.read(65537)
         payload = {}
@@ -90,8 +93,11 @@ def provider_transport(base_url: str, key_path: Path, provider: str,
             url += "?" + urllib.parse.urlencode(params)
         if body is not None:
             headers["Content-Type"] = "application/json"
-        status, value, _ = transport(url, method=method, body=body,
-                                     headers=headers)
+        options = dict(method=method, body=body, headers=headers)
+        if (provider == "lazylibrarian" and params.get("cmd") == "queueBook"
+                and transport is request_json):
+            options['plain_ok'] = True
+        status, value, _ = transport(url, **options)
         return status, value
     return call
 
