@@ -3,7 +3,7 @@
     <defaultcontrol always="true">100</defaultcontrol>
     <backgroundcolor>asterStone</backgroundcolor>
     <controls>
-
+        
         <control type="image" id="12">
             <left>0</left><top>0</top><width>1920</width><height>1080</height>
             <texture background="true">$VAR[AsterHeroFanart]</texture>
@@ -17,7 +17,7 @@
             <colordiffuse>asterStone</colordiffuse>
             <aspectratio>stretch</aspectratio>
         </control>
-
+        
         <control type="image">
             <visible>Control.HasFocus(8999) | Control.HasFocus(9001) | Control.HasFocus(9002) | Control.HasFocus(9003) | Control.HasFocus(9004) | Control.HasFocus(9005) | Control.HasFocus(9007)</visible>
             <left>0</left><top>0</top><width>1920</width><height>1080</height>
@@ -34,7 +34,7 @@
                 <aspectratio>stretch</aspectratio>
             </control>
 
-
+        
         <control type="panel" id="101">
             <left>0</left>
             <top>0</top>
@@ -66,7 +66,7 @@
             <animation effect="fade" start="100" end="0" time="0" condition="[Control.HasFocus(8999) | Control.HasFocus(9001) | Control.HasFocus(9002) | Control.HasFocus(9003) | Control.HasFocus(9004) | Control.HasFocus(9005) | Control.HasFocus(9007)] + !Skin.HasSetting(AsterReducedMotion)">Conditional</animation>
             <animation effect="fade" start="100" end="0" time="120" reversible="true" condition="[Control.HasFocus(140) | Control.HasFocus(141) | Control.HasFocus(142) | Control.HasFocus(143) | Control.HasFocus(144) | Control.HasFocus(145) | Control.HasFocus(146)] + !Skin.HasSetting(AsterReducedMotion)">Conditional</animation>
 
-
+        
         <control type="image">
             <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
             <left>110</left>
@@ -78,7 +78,7 @@
         </control>
         <include content="AsterClockPill" />
 
-
+        
         <control type="label">
             <left>145</left>
             <top>177</top>
@@ -177,7 +177,7 @@
         </control>
         </control>
 
-
+        
         <control type="group" id="23">
             <control type="image"><left>532</left><top>23</top><width>1126</width><height>62</height><texture border="18" colordiffuse="52000000">special://skin/media/ui-panel.png</texture></control>
             <control type="image"><left>348</left><top>29</top><width>174</width><height>50</height><texture border="18" colordiffuse="ffad8a4d">special://skin/media/ui-compact-card-ring.png</texture></control>
@@ -419,7 +419,7 @@
             <content target="videos">videodb://recentlyaddedmovies/</content>
         </control>
 
-
+        
         <control type="label"><left>125</left><top>1048</top><width>650</width><height>32</height><label>Genre</label><font>font28</font><textcolor>asterInk</textcolor></control>
         <include content="AsterGenreTile"><param name="id" value="140" /><param name="left" value="125" /><param name="label" value="Comedy" /><param name="preview" value="special://skin/playlists/genre-previews/comedy-tv.xsp" /><param name="browse" value="plugin://plugin.video.asterhome/?genre=Comedy" /><param name="lefttarget" value="8999" /><param name="righttarget" value="141" /><param name="uptarget" value="SetFocus(110,0,absolute)" /></include>
         <include content="AsterGenreTile"><param name="id" value="141" /><param name="left" value="365" /><param name="label" value="Drama" /><param name="preview" value="special://skin/playlists/genre-previews/drama-film.xsp" /><param name="browse" value="plugin://plugin.video.asterhome/?genre=Drama" /><param name="lefttarget" value="140" /><param name="righttarget" value="142" /><param name="uptarget" value="SetFocus(110,1,absolute)" /></include>
