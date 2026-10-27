@@ -123,6 +123,17 @@ def move(state, offset):
                    status=_status(pages[state.active]))
 
 
+def select(state, index):
+    require(isinstance(state, HubState) and type(index) is int,
+            "acquisition-select")
+    page = state.page
+    require(0 <= index < len(page.items), "acquisition-select")
+    pages = list(state.domains)
+    pages[state.active] = replace(page, selected=index)
+    return replace(state, domains=tuple(pages), phase="browse",
+                   status=_status(pages[state.active]))
+
+
 def request(state, confirm=False):
     require(isinstance(state, HubState) and type(confirm) is bool,
             "acquisition-request")

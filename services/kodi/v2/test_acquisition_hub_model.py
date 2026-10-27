@@ -3,7 +3,7 @@ import unittest
 from datetime import datetime, timezone
 
 from acquisition_hub_model import (HubUnavailable, activate, build, complete,
-                                   domain_state, move, request)
+                                   domain_state, move, request, select)
 from landing_recommendations import parse_feed
 
 
@@ -79,6 +79,8 @@ class AcquisitionHubModelTests(unittest.TestCase):
         first, _ = request(self.state)
         moved = move(first, 1)
         self.assertEqual((moved.page.selected, moved.phase), (0, "browse"))
+        with self.assertRaisesRegex(HubUnavailable, "acquisition-select"):
+            select(self.state, 1)
 
     def test_mixed_or_owned_feed_is_rejected(self):
         owned = list(self.media.items)
