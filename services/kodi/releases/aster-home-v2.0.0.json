@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "release": "AsterTV 2.0.0",
+  "skin_version": "2.0.0",
+  "candidate_host": "AsterTV",
+  "production_host": "AsterTVProd",
+  "production_address": "192.168.1.157",
+  "promoted_at": "2026-10-27",
+  "production_payload": {
+    "sha256": "b8dbb3bff39e6705459e737b638f5dca4147157a72cbe482621656bf4a3fa34d",
+    "members": 852,
+    "builder": "services/kodi/v2/tools/build_production_successor.py"
+  },
+  "recovery": {
+    "full_checkpoint": "/storage/backup/astertv-v2-preproduction-20261027/profile-config-v1.1.1.tar.gz",
+    "compatibility_checkpoint": "/storage/backup/astertv-v2-preproduction-20261027/production-compat-before/runtime.tar.gz",
+    "youtube_checkpoint": "/storage/backup/astertv-v2-preproduction-20261027/youtube-profile-before-hp-transfer"
+  },
+  "preserved": [
+    "Kodi media databases and watch state",
+    "audio, passthrough and display settings",
+    "production network identity",
+    "existing media and playlists"
+  ],
+  "credential_migration": {
+    "youtube": "HP API configuration, OAuth account state and add-on settings only; cache and history excluded",
+    "audiobooks": "existing production client retained; shared-household progress capability enabled for AsterTVProd",
+    "secrets_in_git": false
+  },
+  "integration_changes": {
+    "reader_nfs_share_ids": [10, 11],
+    "reader_clients": ["192.168.1.140", "192.168.1.157"],
+    "access": "read-only"
+  },
+  "validation": {
+    "local_tests": "1362 passed, 1 skipped",
+    "media_smoke": "passed; no playback or queue residue",
+    "books_smoke": "passed after read-only NFS client admission and feed refresh",
+    "music": "landing ready with 12 hero items and 25 tile items",
+    "youtube": "official add-on reported fully logged in after profile migration",
+    "runtime_manifests": "eight component manifests, music manifest and skin pins verified",
+    "reader_manifests": "bundle, consumer and activation pins verified",
+    "failed_units": 0
+  },
+  "known_non_blocking_observations": [
+    "The legacy search smoke still expects a retired intermediate catalogue window.",
+    "The legacy Music smoke still targets retired control 118; the landing readiness and populated feed checks pass.",
+    "One YouTube subscription RSS request returned HTTP 404 while the account itself reported fully logged in."
+  ]
+}

@@ -1,4 +1,4 @@
-"""HP-only, phase-isolated landing navigation check; never starts media."""
+"""Aster-client, phase-isolated landing navigation check; never starts media."""
 import hashlib
 import json
 import os
@@ -188,8 +188,8 @@ try:
             'smoke-run-id-invalid')
     acquire_lock(run_id)
     locked = True
-    require(os.uname().nodename == 'AsterTV' and idle(),
-            'smoke-hp-idle-required')
+    require(os.uname().nodename in ('AsterTV','AsterTVProd') and idle(),
+            'smoke-aster-client-idle-required')
     require(xbmcgui.getCurrentWindowId() == 10000, 'smoke-home-required')
     admitted = True
     family_hash = hashlib.sha256(family_path.read_bytes()).hexdigest()
