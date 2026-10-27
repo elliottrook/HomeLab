@@ -12,7 +12,11 @@ from sysadmin_proposal_boundary import accept_model_proposal, build_proposal_req
 
 NOW = datetime(2026, 10, 27, 7, 0, tzinfo=timezone.utc)
 PACKET = Path(__file__).with_name("sa3-current-proposal-packet.json")
-PACKET_IDS = frozenset({"sa3-current-proposal-v1", "sa3-current-proposal-fresh-v1"})
+PACKET_IDS = frozenset({
+    "sa3-current-proposal-v1",
+    "sa3-current-proposal-fresh-v1",
+    "sa3-current-proposal-fresh-v2",
+})
 
 
 def load_packet(path: Path = PACKET) -> dict[str, Any]:

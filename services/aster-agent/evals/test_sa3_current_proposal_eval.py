@@ -23,6 +23,12 @@ class CurrentProposalEvalTests(unittest.TestCase):
         self.assertEqual("sa3-current-proposal-fresh-v1", packet["packet_id"])
         self.assertEqual(8, len(packet["cases"]))
 
+    def test_second_fresh_packet_is_supported(self):
+        path = Path(__file__).with_name("sa3-current-proposal-fresh-v2.json")
+        packet = load_packet(path)
+        self.assertEqual("sa3-current-proposal-fresh-v2", packet["packet_id"])
+        self.assertEqual(8, len(packet["cases"]))
+
     def test_exact_scripted_answers_pass_without_retaining_text(self):
         packet = load_packet()
         expected = {case["id"]: case["expected"] for case in packet["cases"]}
