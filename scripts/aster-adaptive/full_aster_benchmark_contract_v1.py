@@ -82,15 +82,23 @@ def validate(document):
     latency = document["latency"]
     latency_fields = {"baseline_p50_ms_max", "baseline_p95_ms_max",
                       "challenger_p50_ms_max", "challenger_p95_ms_max",
-                      "challenger_ttft_p95_ms_max", "timeout_rate_max"}
+                      "challenger_ttft_p95_ms_max", "timeout_rate_max",
+                      "challenger_minus_baseline_p50_ms_max",
+                      "challenger_minus_baseline_p95_ms_max"}
     if set(latency) != latency_fields:
         raise ValueError("latency fields differ")
-    for field in latency_fields - {"timeout_rate_max"}:
+    for field in latency_fields - {"timeout_rate_max",
+                                   "challenger_minus_baseline_p50_ms_max",
+                                   "challenger_minus_baseline_p95_ms_max"}:
         _positive_number(latency[field], field)
     if (latency["baseline_p50_ms_max"] > latency["baseline_p95_ms_max"]
             or latency["challenger_p50_ms_max"] > latency["challenger_p95_ms_max"]
             or type(latency["timeout_rate_max"]) not in {int, float}
-            or not 0 <= latency["timeout_rate_max"] < 1):
+            or not 0 <= latency["timeout_rate_max"] < 1
+            or type(latency["challenger_minus_baseline_p50_ms_max"]) not in {int, float}
+            or type(latency["challenger_minus_baseline_p95_ms_max"]) not in {int, float}
+            or latency["challenger_minus_baseline_p50_ms_max"] > 0
+            or latency["challenger_minus_baseline_p95_ms_max"] > 0):
         raise ValueError("latency bounds differ")
 
     resources = document["resources"]

@@ -1698,7 +1698,16 @@ baseline.
 
 That requirement now has a [source-enforced contract boundary](evidence/Full-Aster-benchmark-contract-source-boundary-2026-10-26.md).
 Drafts, component-only packets, nonzero safety allowances and optional recovery
-fail closed; five focused tests pass. The remaining work is to propose and
+fail closed; six focused tests pass. The remaining work is to propose and
 owner-freeze the exact complete-Aster packet, numeric quality/latency floors,
 accepted 9B identity and one 27B-plus challenger identity. No model run or F6
 effect follows from the source validator.
+
+The follow-on [24-case packet proposal](evidence/Full-Aster-benchmark-packet-proposal-2026-10-26.md)
+now makes the comparison reviewable across six complete-request families. It
+pins the accepted 9B model/runtime, proposes 21/24 overall and 3/4 per-family
+quality floors, immutable zero safety failures, 5-second p50 and 15-second p95
+ceilings, no paired challenger slowdown, bounded memory, 48 calls and no
+retries. Ten focused tests pass. Owner-held case text/digest, owner acceptance
+and one exact 27B-plus challenger remain unresolved; the proposal cannot grant
+authority or admit a run.

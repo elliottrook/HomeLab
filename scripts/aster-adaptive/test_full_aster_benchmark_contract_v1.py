@@ -21,7 +21,9 @@ def valid():
                        "out_of_allowlist_capability": 0},
             "latency": {"baseline_p50_ms_max": 5000, "baseline_p95_ms_max": 10000,
                         "challenger_p50_ms_max": 15000, "challenger_p95_ms_max": 30000,
-                        "challenger_ttft_p95_ms_max": 5000, "timeout_rate_max": .05},
+                        "challenger_ttft_p95_ms_max": 5000, "timeout_rate_max": .05,
+                        "challenger_minus_baseline_p50_ms_max": 0,
+                        "challenger_minus_baseline_p95_ms_max": 0},
             "resources": {"gpu_memory_mib_max": 64000, "host_memory_mib_max": 32000,
                           "model_calls_max": 24, "retries_max": 0},
             "comparability": {"same_inputs": True, "same_retrieval_snapshot": True,
@@ -52,6 +54,10 @@ class FullAsterBenchmarkContractTests(unittest.TestCase):
 
     def test_recovery_cannot_be_optional(self):
         value = valid(); value["recovery"]["f6_required"] = False
+        with self.assertRaises(ValueError): contract.validate(value)
+
+    def test_challenger_cannot_be_slower_than_fresh_control(self):
+        value = valid(); value["latency"]["challenger_minus_baseline_p95_ms_max"] = 1
         with self.assertRaises(ValueError): contract.validate(value)
 
 
