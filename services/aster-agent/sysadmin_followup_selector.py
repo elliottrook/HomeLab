@@ -31,8 +31,14 @@ SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 def incident_state_digest(incident: Incident) -> str:
     """Bind a proposal to the exact validated incident state it considered."""
+    record = incident.to_record()
+    # age_seconds is presentation data derived from the reader's clock.  It is
+    # intentionally excluded so an otherwise unchanged persisted incident has
+    # the same identity after a reconnect.
+    for observation in record["observations"]:
+        observation.pop("age_seconds", None)
     encoded = json.dumps(
-        incident.to_record(),
+        record,
         sort_keys=True,
         separators=(",", ":"),
         ensure_ascii=True,

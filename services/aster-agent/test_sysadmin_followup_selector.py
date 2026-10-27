@@ -125,6 +125,12 @@ class FollowUpSelectorTests(unittest.TestCase):
         changed.add_hypothesis("A bounded revised hypothesis.")
         self.assertNotEqual(before, incident_state_digest(changed))
 
+    def test_digest_is_stable_when_only_derived_observation_age_changes(self):
+        before = incident_state_digest(self.incident)
+        changed = copy.deepcopy(self.incident)
+        changed.observations[0]["age_seconds"] += 3600
+        self.assertEqual(before, incident_state_digest(changed))
+
 
 if __name__ == "__main__":
     unittest.main()

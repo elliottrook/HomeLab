@@ -77,8 +77,12 @@ unfilled check from the preregistered read-only plan. It emits literal
 no-authority/no-effect output and cannot contact a target. The atomic journal
 now retains pending and consumed decisions across reconnect and consumes only a
 producer envelope matching the selected target/kind. A two-step target fixture
-ends in explicit escalation and the complete target suite passes 44/44. The
-remaining source gap is a content-minimized presentation of the journal;
+ends in explicit escalation. Schema-v3 reconnect presentation now exposes only
+bounded journal counts and a hashed pending selection, never the hypothesis or
+internal incident ID; malformed presentation fails closed. An additive gateway
+route now accepts a state-bound proposal only from the existing authenticated
+owner, denies the legacy key and stale state, and merely journals the decision.
+The complete target suite passes 50/50. This source remains undeployed;
 connected SA2 producers remain separately gated.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)

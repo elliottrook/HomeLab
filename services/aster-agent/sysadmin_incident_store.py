@@ -6,6 +6,7 @@ decision. This module never opens a socket or starts an observation itself.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -214,6 +215,50 @@ class IncidentStore:
             incident = self._incident_from_row(row, now)
             pending = self._pending_decision(db, incident)
             return None if pending is None else pending[1]
+
+    def followup_journal_snapshot(self, incident_id: str, now: datetime | None = None) -> dict[str, Any]:
+        """Return a content-minimized reconnect view of the decision journal."""
+        now = now or datetime.now(timezone.utc)
+        self.prune(now)
+        with self._db() as db:
+            row = db.execute("SELECT record FROM incidents WHERE incident_id=?", (incident_id,)).fetchone()
+            incident = self._incident_from_row(row, now)
+            rows = db.execute(
+                "SELECT decision_id,state_digest,decision,consumed_at FROM followup_decisions "
+                "WHERE incident_id=? ORDER BY decision_id",
+                (incident_id,),
+            ).fetchall()
+            pending = self._pending_decision(db, incident)
+        consumed_count = 0
+        for item in rows:
+            try:
+                decision = json.loads(item["decision"])
+            except (TypeError, json.JSONDecodeError) as exc:
+                raise InvestigationError("invalid persisted follow-up decision") from exc
+            if (not isinstance(decision, dict) or decision.get("authority") != "none"
+                    or decision.get("effect") != "none"
+                    or decision.get("bound_state_digest") != item["state_digest"]):
+                raise InvestigationError("invalid persisted follow-up decision")
+            if item["consumed_at"] is not None:
+                consumed_count += 1
+        pending_view = None
+        if pending is not None:
+            decision_id, decision = pending
+            pending_view = {
+                "decision_ref": hashlib.sha256(
+                    (incident.incident_id + "\0" + str(decision_id)).encode()
+                ).hexdigest()[:16],
+                "disposition": decision["disposition"],
+            }
+            if decision["disposition"] == "observe":
+                request = decision["request"]
+                pending_view.update({"target": request["target"], "kind": request["kind"]})
+        return {
+            "state_digest": incident_state_digest(incident),
+            "decision_count": len(rows),
+            "consumed_count": consumed_count,
+            "pending": pending_view,
+        }
 
     def ingest(self, envelope: Any, now: datetime) -> dict[str, Any]:
         observation = parse_producer_envelope(envelope, now)

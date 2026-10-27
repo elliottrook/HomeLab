@@ -37,8 +37,11 @@ bounded incident database until that incident expires, preserving the concise
 hypothesis and selection history without a transcript.
 
 Three store integration regressions cover reconnect/consume, duplicate and
-mismatched denial, and stale-state denial. The next SA1 source step is a
-content-minimized reconnect presentation of pending/consumed decisions.
+mismatched denial, and stale-state denial. The reconnect presentation is now
+schema v3 and exposes only decision/consumed counts plus a hashed pending
+decision reference, disposition and registered target/kind. It excludes the
+hypothesis summary, internal incident identifier and raw journal record;
+malformed or unregistered presentation state fails closed.
 
 A complete source-only flow fixture now selects a later gateway-log check,
 survives a process reconnect, consumes only its matching envelope, revises the
@@ -46,5 +49,10 @@ hypothesis, selects an inference-status check, records its unavailable result,
 and finishes with an explicit escalation. Two consumed decisions and one
 terminal pending decision remain in the bounded journal, while the incident
 snapshot retains exactly two observations. The combined target-environment
-suite passes **44/44** with `ResourceWarning` promoted to an error. A later SA2
-effect gate must still register and deploy each actual observation source.
+suite passes **50/50** with `ResourceWarning` promoted to an error. The
+source-only gateway route now accepts the opaque state digest and proposal only
+through the existing authenticated owner boundary. The legacy API key is
+denied, stale state returns a fixed conflict without adding a journal row, and
+the response/stream never echo the private hypothesis. The route only journals
+the proposal; it cannot run the selected observation. A later SA2 effect gate
+must still register and deploy each actual observation source.

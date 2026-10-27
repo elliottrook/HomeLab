@@ -23,7 +23,7 @@ import httpx
 import jwt
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictInt
 
 from lab_operations import LabOperations, OWNER as LAB_OWNER
 
@@ -264,6 +264,19 @@ class DoctorIncidentRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     title: str = Field(default="Doctor status investigation", min_length=1, max_length=300)
+
+
+class SysadminFollowUpRequest(BaseModel):
+    """No-effect hypothesis and selection bound to an opaque incident state."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: StrictInt = Field(default=1, ge=1, le=1)
+    state_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    hypothesis_summary: str = Field(min_length=1, max_length=500)
+    disposition: str = Field(pattern=r"^(observe|complete|escalate)$")
+    target: str | None = Field(default=None, min_length=1, max_length=80)
+    kind: str | None = Field(default=None, min_length=1, max_length=40)
 
 
 class OpenBaoUnsealRequest(BaseModel):
@@ -1539,6 +1552,20 @@ async def doctor_incident_stream(incident_id: str) -> StreamingResponse:
     except InvestigationError as exc:
         raise HTTPException(status_code=404, detail="Doctor incident not found") from exc
     return StreamingResponse(iter(frames), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
+
+
+@app.post("/v1/sysadmin/incidents/{incident_id}/follow-up", dependencies=[Depends(require_api_key)])
+async def doctor_incident_follow_up(incident_id: str, request: SysadminFollowUpRequest) -> dict[str, Any]:
+    """Journal one owner-authenticated proposal; never execute its observation."""
+    _require_doctor_incident_owner()
+    proposal = request.model_dump()
+    proposal["incident_id"] = incident_id
+    try:
+        store = _doctor_incident_store()
+        store.bind_follow_up(proposal, datetime.now(timezone.utc))
+        return store.followup_journal_snapshot(incident_id, datetime.now(timezone.utc))
+    except InvestigationError as exc:
+        raise HTTPException(status_code=409, detail="Follow-up proposal was not accepted") from exc
 
 
 @app.get("/v1/personas", dependencies=[Depends(require_api_key)])

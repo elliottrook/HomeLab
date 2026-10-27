@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from sysadmin_incident_store import IncidentStore
+from sysadmin_followup_selector import incident_state_digest
 from sysadmin_incident_stream import incident_presentation, reconnect_frames
 from sysadmin_investigation import EvidenceRequest, InvestigationError, create_incident
 
@@ -58,7 +59,7 @@ class StreamTests(unittest.TestCase):
                        "private-source-marker", "private-evidence-marker",
                        "private-reason-marker"):
             self.assertNotIn(marker, encoded)
-        self.assertEqual(presentation["schema_version"], 2)
+        self.assertEqual(presentation["schema_version"], 3)
         self.assertEqual(presentation["evidence"][0]["target"], "aster-gateway")
 
     def test_reconnect_frames_do_not_expose_arbitrary_incident_id(self):
@@ -90,6 +91,36 @@ class StreamTests(unittest.TestCase):
             self.assertNotIn("private-reason-marker", rendered)
             self.assertNotIn("private-extra-marker", rendered)
             self.assertNotIn("target", json.dumps(incident_presentation(snapshot)["next"]))
+
+    def test_pending_followup_is_presented_without_hypothesis_or_internal_id(self):
+        incident = self.store.load("fixture-incident-001", NOW)
+        self.store.bind_follow_up({
+            "schema_version": 1,
+            "incident_id": incident.incident_id,
+            "state_digest": incident_state_digest(incident),
+            "hypothesis_summary": "private-hypothesis-marker",
+            "disposition": "observe",
+            "target": "inference-server",
+            "kind": "status",
+        }, NOW)
+        frames = reconnect_frames(self.store, incident.incident_id, NOW)
+        rendered = "".join(frames)
+        self.assertNotIn("private-hypothesis-marker", rendered)
+        self.assertNotIn(incident.incident_id, rendered)
+        event = json.loads(frames[1].split("data: ", 1)[1])
+        self.assertEqual(event["follow_up"]["decision_count"], 1)
+        self.assertEqual(event["follow_up"]["consumed_count"], 0)
+        self.assertEqual(event["follow_up"]["pending"]["target"], "inference-server")
+
+    def test_malformed_followup_presentation_fails_closed(self):
+        snapshot = self.store.reconnect_snapshot("fixture-incident-001", NOW)
+        with self.assertRaises(InvestigationError):
+            incident_presentation(snapshot, {
+                "state_digest": "0" * 64,
+                "decision_count": 1,
+                "consumed_count": 0,
+                "pending": {"decision_ref": "safe", "disposition": "observe", "target": "private", "kind": "status"},
+            })
 
 
 if __name__ == "__main__":
