@@ -33,11 +33,16 @@ do not imply household acceptance or production promotion.
   [acquisition evidence](Aster-TV-Version-2-Acquisition-Evidence.md).
 - Voice capture-to-query assembly now passes synthetic Mac/HP checks, including
   cancellation and late-result refusal. It remains unbound to live hardware.
-- The EPUB compiler project is complete at `fc91fcd4`. Its exact service source
-  is now present in this branch, and the dormant normal Books handoff plus
-  pinned offline reader pass ordinary and optimized local tests. HP activation
-  is waiting on the explicit read-only publication-path decision recorded in
+- The EPUB compiler project is complete at `fc91fcd4`. Its pinned Books
+  consumer is active on HP through two HP-only read-only NFS publications.
+  Native narration, sentence highlighting, saved progress, stop-on-Back and
+  unchanged Calibre fallback all passed. Production remains unchanged. See
   [EPUB consumer evidence](Aster-TV-Version-2-EPUB-Consumer-Evidence.md).
+- The official YouTube add-on reports the HP user fully signed in. Version 2
+  now explicitly owns the Aster presentation milestone: replace the add-on's
+  generic entrance with a Media-home-style YouTube landing page and preserve
+  official add-on search, subscriptions, account and playback behavior. No
+  credential is stored in the skin or repository.
 - The apparent Music/Books landing-navigation regression was isolated to the
   combined test driver. Fresh separate Media, Music and Books runs passed with
   no skin change; evidence is recorded in
@@ -50,8 +55,8 @@ do not imply household acceptance or production promotion.
 | Cross-media native check | Media, Music and Books now pass separate exact-ID remote-equivalent checks; retain the corrected isolated driver | No product navigation defect was demonstrated |
 | Acquisition requests | HP saved-outcome activation and duplicate-only review passed, including matching rendered Books hero | No additional provider write is authorized by the two-title trial |
 | Voice search | Join the tested single-attempt assembly to foreground listening controls and restricted STT transport | Physical remote capability and scoped speech identity remain live integration gates |
-| EPUB pre-generation | Activate the tested normal Books consumer on HP, then walk through one ready and one not-ready title | Compiler is complete; new HP→TrueNAS read-only publication path needs its explicit bounded risk decision |
-| YouTube | Official add-on credentials, device authorization, playback and Aster presentation | Separate **Finish Aster YouTube integration** task; main stream must avoid competing foreground tests |
+| EPUB pre-generation | Add stale-mount/Doctor reporting and fold the verified HP layer into final recovery packaging | HP consumer is active; production promotion remains separately gated |
+| YouTube | Build an Aster Media-home-style landing page over the signed-in official add-on, then validate search, subscriptions, channel entry, playback and Back/stop behavior | Account authorization is complete; retain the official add-on as the data/playback owner |
 | Endurance and accessibility | Continue evidence against the final composed client, then owner sofa/remote review | Short automated soaks do not substitute for household use |
 | Bedroom sizing | Revise the existing measured/inferred assessment after final client shape | See [client sizing](../reference/Aster-TV-Bedroom-Client-Sizing.md); lower-memory deployment remains deferred |
 | Final cleanup | One finite owner-led page-by-page v1/v2 walkthrough and bounded repairs | Feature work first; avoid creating an open-ended new backlog |

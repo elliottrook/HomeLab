@@ -1,6 +1,6 @@
 # AsterTV v2 — compiled EPUB consumer evidence
 
-Updated: 2026-10-26. Status: local gate passed; HP storage gate pending.
+Updated: 2026-10-26. Status: HP release candidate active and verified.
 
 ## Outcome being built
 
@@ -45,40 +45,61 @@ private generation-bound progress and contains no network client or URL.
 - Passed 36 compiler tests, 24 Books tests and two normal-reader tests under
   ordinary and optimized Python. The bundle is byte-repeatable and offline.
 
-## Storage boundary and pending risk decision
+## Active storage boundary
 
 Live discovery found the existing TrueNAS AsterReader NFS share is writable
 and restricted to Proxmox `192.168.50.10`. Mounting it on HP would expose
 private queue/work state and grant an unnecessary write path, so that design
 is rejected.
 
-The narrow candidate is two new read-only exports, restricted to HP
+The active implementation uses two read-only exports, restricted to HP
 `192.168.1.140`:
 
 - `/mnt/Media/AsterReader/ready`;
 - `/mnt/Media/AsterReader/generations`.
 
-HP would mount them at `/storage/aster-reader/ready` and
+HP mounts them at `/storage/aster-reader/ready` and
 `/storage/aster-reader/generations` over NFSv4.2. A firewall permit would allow
-only HP to TrueNAS `192.168.20.40` TCP 2049. The compiler remains the only
+only HP to TrueNAS `192.168.20.40` TCP 2049. The permit is the deterministic
+rule `73937312-5b75-59b7-861a-b65ebe641620`. The compiler remains the only
 writer; `state`, `work` and `pilots` are not exported to the client. There is no
 Internet exposure, credential, Calibre write, source EPUB mount or production
 BOSGAME change.
 
-This is a new LAN trust path and therefore remains inactive until Jason accepts
-that exact risk boundary. Before activation, checkpoint the two absent exports,
-firewall state, HP mount-unit absence, reader absence and Books helper. Validate
-read-only behaviour by attempting a disposable write, validate that unpublished
-paths cannot be reached, run one ready-title reader test, then verify stop,
-resume, no autoplay and rollback. A failed checkpoint, unexpected broader
-export, writable mount or foreign playback is an abort condition.
+TrueNAS maps the root process from this one read-only HP export to server root
+because the compiler deliberately publishes its output under private `0700`
+directories. The first mount attempt retained normal root squashing, was denied
+at traversal, and triggered the installer's clean rollback. The corrected
+exports remain `ro`, host-restricted and path-restricted; no write permission
+was added.
 
-## Remaining steps
+## Activation and live evidence
 
-1. Obtain the bounded storage/firewall decision.
-2. Build and verify the reversible HP installer and mount units locally.
-3. Add the two read-only exports and one narrow firewall permit.
-4. Deploy the pinned reader and Books helper to HP only, with checkpoints.
-5. Run one compiled-title native walkthrough and a not-ready fallback check.
-6. Add Doctor/mount staleness and recovery evidence before considering
-   production promotion.
+- Jason approved the bounded HP activation. TrueNAS checkpointed the absent
+  exports at `/root/.aster-checkpoints/aster-epub-reader-consumer-20261026`.
+  OPNsense checkpointed its prior configuration at
+  `/conf/backup/config-aster-epub-nfs-apply-20261026.xml` and proved that copy
+  parseable and byte-identical before replacing the live file.
+- The installed package manifest is
+  `33a8ef7c087f2437bf03eb35c2101c38b48bf652b6094bc4119ff20cef807a87`.
+  Its reader pin is
+  `d41eddcd7fe754eba6d00677e17aa0a69c2dd10991b434586fc6aa4578bc6f89`.
+  The prior Books helper is retained under
+  `/storage/.aster-checkpoints/aster-epub-consumer1-20261026`.
+- Both NFSv4.2 mounts independently reported `ro,nosuid,nodev,noexec`; a
+  disposable write failed with `Read-only file system`. The unpublished
+  `state`, `work` and `pilots` trees were absent from the HP view.
+- The live routing check retained all 505 catalogue ebooks. Its one ready
+  title resolved to the pinned local reader; a separate unready title resolved
+  to the unchanged Calibre-Web fallback.
+- The native reader opened from Home while Kodi was idle, played canonical
+  narration, observed sentence highlighting, advanced naturally to the next
+  chapter, saved a private HP progress record and returned to Home through Back
+  with no active player. Post-test package and active Books hashes still
+  verified.
+
+## Remaining gate
+
+Add stale-mount/Doctor reporting and include this layer in the final composed
+recovery package. Production promotion remains a separate owner decision; the
+current candidate is intentionally HP-only.
