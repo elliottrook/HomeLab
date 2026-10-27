@@ -18,6 +18,7 @@
     {"component": "music-landing", "disposition": "source", "source": "/storage/.aster-staging/aster-owned-music-landing3"},
     {"component": "books-landing", "disposition": "source", "source": "/storage/.aster-staging/aster-owned-books-landing2"},
     {"component": "media-top-rail", "disposition": "source", "source": "/storage/.aster-staging/aster-media-top-rail1"},
+    {"component": "active-accessibility-overlay", "disposition": "source", "source": "/storage/.aster-staging/aster-accessibility2"},
     {"component": "hp-startup-sound", "disposition": "source", "source": "/storage/.aster-staging/aster-startup-20261025"},
     {"component": "active-ui-sound-theme", "disposition": "source", "source": "/storage/.aster-staging/aster-canonical-sounds-20261025"},
     {"component": "active-screensaver", "disposition": "source", "source": "/storage/.aster-staging/aster-idle-presentation5"},
@@ -28,6 +29,7 @@
   "schema": 1,
   "sources": [
     {"path": "/storage/.aster-staging/acquisition-page3-188b5923", "tree_sha256": "51f7433992fb0e29459b67c539c96fe6d23fc27c448a6793c5e8743c893eb559"},
+    {"path": "/storage/.aster-staging/aster-accessibility2", "tree_sha256": "bb0e7369e3a7d962a6c0500d65269673681a1561e0e449667d97e3f707327f2f"},
     {"path": "/storage/.aster-staging/aster-home-v1.1.1-candidate1", "tree_sha256": "7a7665c5bc5d03806719886e588c26caec4da9ed0be7dfdc75d2b27343efd12d"},
     {"path": "/storage/.aster-staging/aster-acquisition-label9", "tree_sha256": "d4854be116f717e6bd5b688d30bb809a1ad670e877c1baa1243592568c7d9ade"},
     {"path": "/storage/.aster-staging/aster-acquisition-repaint1", "tree_sha256": "8a20464ff12f3e65e3ee8708b9538a7a08d16f3e3ec7daeaafd9b93b64a1b42e"},

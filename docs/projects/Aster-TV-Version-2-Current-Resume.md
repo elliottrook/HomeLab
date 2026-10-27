@@ -43,20 +43,21 @@ do not imply household acceptance or production promotion.
   every ready generation manifest without repairing anything. Native HP review
   reports two valid publications. See
   [Doctor evidence](Aster-TV-Version-2-EPUB-Doctor-Evidence.md).
-- A bounded release inventory verifies 23/23 active and base-release HP anchors without reading
+- A bounded release inventory verifies 24/24 active and base-release HP anchors without reading
   credentials, profiles, history, listening progress or media databases. It
   deliberately reports recovery incomplete because Recovery7 predates the
   active EPUB Doctor family. See
   [release inventory evidence](Aster-TV-Version-2-Release-Inventory-Evidence.md).
-- The corrected recovery source plan covers all 23 anchors. Bundle4 independently
-  verifies after an isolated copy: 20 source stages, 273 files, 8,764,273 bytes,
-  manifest `e614d1c85716f9c3fef73e02ae57a88ac142b28138ef8025933cfb7f0664eeda`.
-  Its twelve-step recipe covers every source and eight explicit prerequisites
+- The corrected recovery source plan covers all 24 anchors. Bundle5 independently
+  verifies after an isolated copy: 21 source stages, 283 files, 8,872,922 bytes,
+  manifest `7748fc8c0841f8a91ec80c0c48aaef5d000367f76ddf570b28b68733d4bbe6d5`.
+  Its thirteen-step recipe covers every source and eight explicit prerequisites
   with two bounded Kodi restart points. Full ordered apply/rollback rehearsal remains open.
   The base archives → Recovery7 → Music → EPUB Doctor core has now passed an
   isolated apply/verify/rollback. Compiled Books, its read-only mount units,
-  camera, sounds, startup and screensaver have now passed a second isolated
-  apply/verify/rollback with no identity provisioning. The remaining release
+  camera, sounds, startup, screensaver and the active accessibility overlay
+  have now passed a second isolated apply/verify/rollback with no identity
+  provisioning. The remaining release
   gate is one full clean-client replay with Kodi/systemd activation and
   separately provisioned restricted identities.
 - The official YouTube add-on reports the HP user fully signed in. Version 2

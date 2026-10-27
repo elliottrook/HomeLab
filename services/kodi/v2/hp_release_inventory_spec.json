@@ -123,6 +123,12 @@
       "sha256": "151c240abc66555d86bdb7a018b50bef774f29029be111fbb1a87ebed2abc771"
     },
     {
+      "kind": "hp-accessibility.v2",
+      "name": "active-accessibility-overlay",
+      "path": "/storage/.aster-staging/aster-accessibility2/manifest.json",
+      "sha256": "90aeb9640897b72f681e6d950e4ca0d7adf67a813d85a5ae60fdf26d1b4fb229"
+    },
+    {
       "name": "hp-startup-sound",
       "path": "/storage/.aster-staging/aster-startup-20261025/manifest.json",
       "sha256": "781e8b9b5f1203160a14b77daf4bb809d1f6df4bd9f60ff5708926c87ccb00f2"

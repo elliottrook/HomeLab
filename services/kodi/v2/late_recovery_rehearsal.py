@@ -165,6 +165,25 @@ def run(bundle: Path, pin: str, output: Path) -> dict:
         extract(archive, output / "storage/.kodi/addons/screensaver.asterhome.v2lab",
                 idle_manifest["files"], "screensaver.asterhome.v2lab/")
 
+        accessibility = sources / "aster-accessibility2"
+        accessibility_manifest = json.loads((accessibility / "manifest.json").read_bytes())
+        require(accessibility_manifest.get("kind") == "hp-accessibility.v2"
+                and len(accessibility_manifest.get("files", [])) == 6,
+                "late-stage-accessibility-contract")
+        accessibility_rows = {row["path"]: row["sha256"]
+                              for row in accessibility_manifest["files"]}
+        require(len(accessibility_rows) == 6
+                and all(path.startswith(".kodi/addons/skin.asterhome/")
+                        for path in accessibility_rows),
+                "late-stage-accessibility-paths")
+        copy_files(accessibility / "payload", accessibility_rows,
+                   output / "storage")
+        helpers = accessibility_manifest.get("helpers", {})
+        require(set(helpers) == {"accessibility_install.py", "deploy_accessibility.py",
+                                 "digest_news_install.py"},
+                "late-stage-accessibility-helpers")
+        verified_files(accessibility, helpers)
+
         result = {
             "applied": True,
             "books_files": len(book_manifest["files"]),
@@ -175,6 +194,7 @@ def run(bundle: Path, pin: str, output: Path) -> dict:
             "sound_files": len(sound_hashes),
             "startup_files": len(startup_manifest["files"]),
             "screensaver_files": len(idle_manifest["files"]),
+            "accessibility_files": len(accessibility_rows),
             "identities_provisioned": False,
         }
     finally:

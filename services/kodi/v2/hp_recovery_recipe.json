@@ -22,7 +22,8 @@
     {"action": "install-system-integration", "id": "compiled-books", "order": 8, "sources": ["/storage/.aster-staging/aster-books-compiler-reader-v1", "/storage/.aster-staging/aster-epub-consumer1"]},
     {"action": "apply-successor", "id": "compiled-books-doctor", "order": 9, "sources": ["/storage/.aster-staging/aster-epub-doctor2-candidate"]},
     {"action": "install-system-integration", "id": "home-camera", "order": 10, "sources": ["/storage/.aster-staging/aster-camera2"]},
-    {"action": "apply-successor", "id": "sound-and-idle", "order": 11, "sources": ["/storage/.aster-staging/aster-canonical-sounds-20261025", "/storage/.aster-staging/aster-startup-20261025", "/storage/.aster-staging/aster-idle-presentation5"]},
-    {"action": "verify-release", "id": "cold-verification", "kodi_restart": true, "order": 12, "sources": []}
+    {"action": "apply-successor", "id": "accessibility", "order": 11, "sources": ["/storage/.aster-staging/aster-accessibility2"]},
+    {"action": "apply-successor", "id": "sound-and-idle", "order": 12, "sources": ["/storage/.aster-staging/aster-canonical-sounds-20261025", "/storage/.aster-staging/aster-startup-20261025", "/storage/.aster-staging/aster-idle-presentation5"]},
+    {"action": "verify-release", "id": "cold-verification", "kodi_restart": true, "order": 13, "sources": []}
   ]
 }

@@ -109,10 +109,10 @@ alone remains stale relative to the active family. Its complete source tree is
 now pinned in the recovery plan; the earlier evidence-only disposition is
 superseded.
 
-The corrected Bundle4 is the first source-material candidate that includes all
-three discovered clean-install foundations: the v1.1.1 base client, Recovery7
-family base and compiled-reader consumer integration. It independently verifies
-after copying with:
+Bundle4 was the first source-material candidate that included the three then
+known clean-install foundations: the v1.1.1 base client, Recovery7 family base
+and compiled-reader consumer integration. It independently verified after
+copying with:
 
 - 23 declared active/release anchors;
 - 20 exact source stages;
@@ -120,12 +120,25 @@ after copying with:
 - manifest SHA-256
   `e614d1c85716f9c3fef73e02ae57a88ac142b28138ef8025933cfb7f0664eeda`.
 
-The declarative replay recipe validates twelve ordered phases, all twenty
-sources, eight non-secret prerequisites and only two planned Kodi restart
-boundaries. It explicitly requires LibreELEC 12.2.1/Kodi 21.3, official YouTube
-7.4.4, Jellyfin 2.2.0+py3, the existing private services and separate
-least-privilege identity provisioning. Credentials and account state are never
-recovered by copying another client's profile.
+The subsequent endurance/accessibility audit found one more active successor:
+the installed high-contrast/reduced-motion overlay. Bundle4 is therefore
+retained as superseded evidence and must not be used for a clean install.
+
+Corrected Bundle5 adds that exact accessibility stage and independently
+verifies after copying with:
+
+- 24 declared active/release anchors;
+- 21 exact source stages;
+- 283 regular files and 8,872,922 payload bytes; and
+- manifest SHA-256
+  `7748fc8c0841f8a91ec80c0c48aaef5d000367f76ddf570b28b68733d4bbe6d5`.
+
+The declarative replay recipe now validates thirteen ordered phases, all
+twenty-one sources, eight non-secret prerequisites and only two planned Kodi
+restart boundaries. It explicitly requires LibreELEC 12.2.1/Kodi 21.3,
+official YouTube 7.4.4, Jellyfin 2.2.0+py3, the existing private services and
+separate least-privilege identity provisioning. Credentials and account state
+are never recovered by copying another client's profile.
 
 The core material chain then passed a real isolated apply/verify/rollback on
 the HP without touching live Kodi paths. A disposable `/tmp` root extracted and
@@ -146,19 +159,20 @@ that rehearsal so the accepted artifact can be tested without rebuilding it.
 ### Late service and add-on rehearsal
 
 The non-secret late recovery stages have also passed a real isolated
-apply/verify/rollback against Bundle4. A disposable HP `/tmp` root reconstructed
+apply/verify/rollback against Bundle5. A disposable HP `/tmp` root reconstructed
 the compiled Books reader (13 files), verified the consumer (20 files) and its
 four fixed read-only NFS/automount units, reconstructed the loopback-only camera
 service payload, validated seven canonical 48 kHz/24-bit stereo sound assets,
-installed the three-file startup add-on, and securely extracted all seven
-screensaver files from its prefixed Kodi archive.
+installed the three-file startup add-on, securely extracted all seven
+screensaver files from its prefixed Kodi archive, and reconstructed all six
+accessibility overlay files with their three pinned recovery helpers.
 
 The rehearsal required the camera service's systemd hardening and localhost
 binding, rejected archive traversal and unexpected members, provisioned no
 identity or credential, and removed the complete disposable root afterward.
-The live release inventory then remained 23/23 verified with all three required
+The live release inventory then remained 24/24 verified with all three required
 relations matched. Its historical Recovery7-to-active-family relation remains
-truthfully stale because the EPUB Doctor is a later delta; Bundle4 and the
+truthfully stale because the EPUB Doctor is a later delta; Bundle5 and the
 ordered recipe are the corrected recovery path.
 
 Together with the earlier core rehearsal, every non-secret source-material
