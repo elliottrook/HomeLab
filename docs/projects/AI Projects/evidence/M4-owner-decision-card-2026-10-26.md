@@ -1,7 +1,14 @@
 # M4 owner decision card — synthetic evidence loop
 
 **Prepared:** 2026-10-26  
-**Status:** reviewable; owner decision and external custody not yet recorded
+**Status:** retained by owner on 2026-10-27; external human-controlled custody confirmed
+
+Jason selected `retain` and confirmed that the three fixed identifiers below
+were copied to a human-controlled offline record. The repository
+[acceptance transcription](M4-review/owner-acceptance-2026-10-27.json) binds
+that decision to the reviewed commit, artifact and ledger head. The external
+record remains the independently controlled custody object; this JSON is its
+bounded validation copy, not a replacement for it.
 
 ## Exact decision
 
@@ -51,6 +58,6 @@ external record itself outside Git.
   retention, backup and deletion rules;
 - authority remains `not-granted` and promotion remains a separate decision.
 
-If the external copy is not made, M4 stays open even if the design is otherwise
-acceptable. Additional synthetic runs cannot substitute for owner judgment or
-independent custody.
+The required external copy and owner judgment are now complete for this exact
+synthetic-only baseline. Additional synthetic runs are not required to close
+M4, and none can expand the limits above.

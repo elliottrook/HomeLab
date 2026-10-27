@@ -419,7 +419,7 @@ Checkboxes are milestone evidence claims. M0 is complete for baseline/start scop
 | **M1 — authority regression boundary** | Design/fix caller binding and demotion revocation; review approver role, atomic consume and policy-change handling | [x] Synthetic wrong-caller, demoted/revoked, expired, stale-policy, duplicate/concurrent-consume and restart tests; independent review; live Red/management ceremony complete. Each real connected capability still requires its own narrow registration and effect gate — see [Stream A milestone reconciliation](evidence/Stream-A-milestone-reconciliation-2026-10-26.md) | Retain restrictive disable/revoke path; do not roll back to unsafe broader grants. Offline experiments can proceed independently; integration cannot |
 | **M2 — contracts and baseline adapters** | Decision/run/outcome/experiment schemas; minimal catalogue; current Aster adapter | [x] Offline synthetic contract fixtures; unknown-capability denial; no leaked secret fields; no production behavior/authority expansion; baseline overhead measured — see evidence/M2-integration-checkpoint.md | Remove adapter/config and retain current runtime; schema/version/evidence manifest |
 | **M3 — harness and routing decisions** | M2; existing Aster vs minimal Pydantic AI; LangGraph only on a demonstrated graph-shaped need; rules vs routing challengers | [ ] Harness subdecision complete: retain Aster, keep Hermes optional and PydanticAI probationary. Overall gate remains open for representative independently reviewed routing evidence; a live harness challenger is required only after a concrete benefit hypothesis. See evidence/M3-harness-decision.md | No live migration required. Discard challengers; evidence must support the choice rather than framework preference |
-| **M4 — minimal evidence loop** | M2; privacy-approved schema and storage design | [ ] Reproducible dataset manifests, label provenance, calibration where supported, paired evaluation, experiment record and proposal/review separation; storage restore test | Stop collector/runner; restore last-known-good manifests; no opaque data dependency |
+| **M4 — minimal evidence loop** | M2; privacy-approved schema and storage design | [x] Synthetic-only baseline accepted 2026-10-27: reproducible manifests and lineage, paired evaluation, experiment/review separation, 164-event restore, owner `retain` decision and confirmed external custody — see [owner decision](evidence/M4-owner-decision-card-2026-10-26.md) and [acceptance transcription](evidence/M4-review/owner-acceptance-2026-10-27.json) | Stop collector/runner; restore last-known-good manifests; no opaque data dependency; private collection and operational use remain separately gated |
 | **M5 — read-only shadow pilot** | M1 for any connected broker path; M3/M4; explicit collection/deployment approval | [ ] Finite observation window, proposed 14 days plus sufficient labeled independent examples; no effectful calls; audited egress/retention; measured overhead and shared-service impact | Disable shadow switch, remove candidate traffic and disallowed data; extend window or declare inconclusive if sample inadequate |
 | **M6 — one complete change decision** | M5 identifies a justified candidate or evidence to reject it | [ ] Preregistered benefit/guardrails; held-out result; human review; rejection recorded or approved reversible canary; proposed 14-day continued observation if promoted | Atomic versioned revert; invalidate incompatible pending plans; no evaluator/permission modifications |
 | **M7 — operational graduation** | Applicable foundation gates, SA0–SA5 and open risks reconciled | [ ] Operator explanation, monitoring/Doctor integration, restore and degradation tests, documentation, reproducible rerun and Jason acceptance of demonstrated sysadmin operation; pending publication stated | Current stable path and documented uninstall/disable remain available; final manifest and evidence index |
@@ -619,7 +619,11 @@ The [storage and review design](M4-Storage-and-Review-Design.md) now records pro
 ownership, retention, checkpoint custody and recovery boundaries. A separate offline
 verification command reconstructs 164 saved events and rejects a forged summary;
 **56 adaptive tests pass**. See [review-preparation evidence](evidence/M4-review-checkpoint.md).
-M4 remains open for actual independent review/custody and accepted operational design.
+Jason subsequently selected `retain` on 2026-10-27 and confirmed independent
+human-controlled offline custody of the pinned identifiers. The bounded acceptance
+transcription validates, completing M4 for the exact synthetic-only baseline. This
+does not establish measurement authenticity or authorize private collection,
+deployment, routing, model promotion or authority.
 Read-only reconciliation now confirms AI-PAM's integrated Stage1/M6 baseline at
 `f25df1812b7ef339acb9cb59339c704a4032ea26`. Live core/transport/approval hashes match
 the deployment record. The merged checkout passes 76 broker, 10 approval-bridge and
@@ -739,13 +743,17 @@ all newer M2/M3/M4 evidence.56 harness/evidence +29 selector-probe tests pass; t
 164-event paired export replays offline with unchanged historical hashes.
 [Review packet](evidence/M4-review/REVIEW-PACKET.md) identifies the exact artifact,
 verifier, checkpoint, decision and limitations. Independent human judgment and
-checkpoint custody are not established. M4 is not graduated; no real collection,
-new identity, Stage2 deployment or further push is authorized.
+checkpoint custody were not established at this historical checkpoint. Jason's
+2026-10-27 retained decision and confirmed external custody later completed M4 for
+the exact synthetic-only baseline; no real collection, new identity, Stage2
+deployment or further push is authorized by that decision.
 
 
 ### Current M3 checkpoint — human-label design, no collection
 
-M4 acceptance and independent custody remain pending. Existing M3 fixture sets
+At this historical checkpoint, M4 acceptance and independent custody remained
+pending; both were completed for the synthetic-only baseline on 2026-10-27.
+Existing M3 fixture sets
 were inventoried, not rerun or relabeled as human gold. A proposed S0-only
 30-family pilot and later separately approved 300-family screening design now
 have taxonomy, adjudication/privacy/retention rules, protected splits and frozen
@@ -853,7 +861,8 @@ from independent annotation and forbid router-accuracy/calibration claims.
 All artifact/case hashes and counts verified. No unresolved review decisions;
 no actual median or independent correctness evidence. Collection cap reached.
 Next: separately reviewed offline descriptive experiment plan, not execution.
-No evaluation, new cases, deployment or push authorized; M4 remains open.
+No evaluation, new cases, deployment or push was authorized at this historical
+checkpoint. M4 later completed for its synthetic-only baseline on 2026-10-27.
 
 
 ### Current checkpoint — descriptive offline comparison plan
@@ -1383,8 +1392,9 @@ LangGraph and Pi remain conditional research options. No live challenger run is
 justified until a concrete benefit hypothesis exists.
 
 The harness subdecision is complete without a migration. M3 overall remains open
-for representative independently reviewed routing evidence. M4 and all production
-or shadow gates remain open.
+for representative independently reviewed routing evidence. M4 later completed
+for its synthetic-only baseline on 2026-10-27; all production and shadow gates
+remain open.
 
 The proposed [S1 holdout plan](experiments/s1-routing-holdout-v1/PLAN.md) defines
 that remaining evidence as 50 new human-authored, no-suggestion families across ten
@@ -1408,8 +1418,10 @@ This supersedes earlier notes calling the selector continuation unpublished or
 AI-PAM an unfinished M6 candidate. No production or collection change occurred here.
 Jason requested publication; verify the accepted commit and automatic mirror.
 
-Next gates are the separately authorized S0 collection/retention step, actual M4
-human review/independent custody, and Stage2 real-session assurance/process trust.
+At this historical checkpoint, the next gates included S0 collection/retention,
+M4 human review/independent custody, and Stage2 real-session assurance/process trust.
+M4 human review and custody later completed for the synthetic-only baseline on
+2026-10-27; the other gates remain controlled by newer records.
 Implementation-only labeling approval does not cover collection. Consult newer
 approval records before proceeding; do not manufacture human evidence or repeat
 synthetic benchmarks in place of these gates. This checkpoint is retained as

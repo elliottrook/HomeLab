@@ -1,9 +1,14 @@
 # M4 storage lifecycle and independent review design
 
-Status: proposed operational design, 2026-09-25. Owner: Jason. Implemented scope is
-local synthetic evidence and offline verification only. This document does not
-approve a deployment, private-data collection, new identity or promotion. It
-supports the [canonical programme](Aster-Adaptive-Computing.md); it is not a new queue.
+Status: accepted synthetic-only baseline, 2026-10-27. Owner: Jason. Implemented
+scope is local synthetic evidence and offline verification only. Jason selected
+`retain` and confirmed an external human-controlled record of the exact reviewed
+commit, artifact digest and ledger head; the bounded repository
+[acceptance transcription](evidence/M4-review/owner-acceptance-2026-10-27.json)
+passes the source-only validator. The external record remains the custody object.
+This document does not approve a deployment, private-data collection, new identity
+or promotion. It supports the [canonical programme](Aster-Adaptive-Computing.md);
+it is not a new queue.
 
 ## Data boundary and retention
 
@@ -11,7 +16,7 @@ supports the [canonical programme](Aster-Adaptive-Computing.md); it is not a new
 |---|---|---|
 | Authored synthetic fixtures, code, sanitized manifests and results | Repository history; retained as reproducibility evidence, including negative results | Continue reviewed publication through Forgejo and its GitHub mirror; never treat either as private-data storage |
 | Disposable SQLite ledger and restore copy | Per-run temporary directory; normal exit and handled failures remove it | No scheduled collector or long-lived database exists; unexpected process/host termination may leave temporary files for explicit inspection and cleanup |
-| Human decision and accepted checkpoint | No independent decision/custody established yet | Reviewer-controlled decision record identifying exact artifact commit, input digest, ledger head, evaluator version, decision and unresolved limits; writer cannot update or delete it |
+| Human decision and accepted checkpoint | Jason retained the synthetic baseline and confirmed a human-controlled offline record on 2026-10-27 | Preserve the external record independently; the repository transcription identifies the exact artifact commit, digest, ledger head, decision and unresolved limits |
 | Real prompts, private source output, identifiers, embeddings, credentials or approval material | Prohibited from current datasets and Git | No collection until separate fields/purpose/consent/access/retention/backup/deletion design is approved; no default retention period is silently assigned |
 
 Only bounded synthetic references and approved metadata belong in the current store.
@@ -97,12 +102,12 @@ No inventory, firewall, DNS, wiki or derived-mirror facts change for this local 
 
 ## Acceptance state and next gate
 
-The local verifier and synthetic reconstruction test are implemented. Operational
-role separation, independent checkpoint custody, real human review and acceptance of
-storage/retention remain unfulfilled; M4 is not graduated. No consent is inferred
-from approval to push code. The exact pending decision is whether this design and its
-privacy boundaries are acceptable for a later bounded deployment proposal; target,
-identities, numeric retention and recovery coverage must still be specified there.
+The local verifier and synthetic reconstruction test are implemented. Jason's
+2026-10-27 `retain` decision and confirmed external custody complete M4 for the
+exact synthetic-only baseline. This does not establish measurement authenticity
+or operational role separation, and no consent is inferred for private collection,
+deployment or a push. Any later bounded deployment proposal must still specify its
+target, identities, numeric retention and recovery coverage and obtain its own gate.
 
 Next independent technical work is M1's review packet and integration reconciliation
 with AI-PAM, using read-only inspection and local tests. M3 still needs reviewed

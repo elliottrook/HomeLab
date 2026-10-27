@@ -39,13 +39,15 @@ separates the actual backup/check schedule from the proposed live windows,
 records both measured full-stop blockers, and sets the October 15 deadline
 expectation. It supersedes any statement that lab time alone remains.
 
-**M4 owner-decision checkpoint:** the exact 164-event artifact and pinned
-ledger head replay successfully, and the acceptance validator binds the exact
-reviewed commit. The remaining nontechnical gate is now a single
-[owner decision card](evidence/M4-owner-decision-card-2026-10-26.md): Jason must
-choose retain/reject/request-more-evidence and keep the three fixed identifiers
-in a human-controlled record outside the repository. Until that happens, M4 is
-open; no extra synthetic throughput can establish independent custody.
+**M4 accepted checkpoint:** Jason selected `retain` on 2026-10-27 and confirmed
+that the reviewed commit, exact 164-event artifact digest and pinned ledger head
+were copied to a human-controlled offline record. The source-only validator
+accepts the [bounded repository transcription](evidence/M4-review/owner-acceptance-2026-10-27.json),
+and the [owner decision card](evidence/M4-owner-decision-card-2026-10-26.md)
+records the completed gate. M4 is complete for this synthetic-only evidence
+baseline. Measurement authenticity remains unestablished, and this decision
+does not authorize private collection, a collector, deployment, routing, model
+promotion or authority.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and

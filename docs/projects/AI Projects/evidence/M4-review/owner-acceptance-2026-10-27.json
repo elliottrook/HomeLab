@@ -1,0 +1,20 @@
+{
+  "schema": "aster-m4-independent-acceptance.v1",
+  "reviewer": "Jason",
+  "decision": "retain",
+  "accepted_commit": "af2cc4f988ca9ed1a69e0d425c2bb7991ffa7f71",
+  "artifact_sha256": "9a3e0447adbf27f24bf5d9ab777ebbd5565bbce7873f554034304a4ce88fea38",
+  "ledger_head": "sha256:59fa02fe1a196ba123c447d4e773bd9404290970f4446113c8dd61b1b12cc7c9",
+  "custody_method": "human-controlled-offline-record",
+  "custody_reference_sha256": "644486ffc098e5fb527b28d357e3347e23d7dec7e7254907b00a7638a2adb86d",
+  "reviewed_at": "2026-10-27T05:28:51Z",
+  "data_scope": "synthetic-only",
+  "private_collection_authorized": false,
+  "authority": "not-granted",
+  "limits": [
+    "synthetic provenance only",
+    "measurement authenticity remains unestablished",
+    "no private-data collection",
+    "no deployment, model promotion, routing or authority"
+  ]
+}
