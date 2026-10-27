@@ -83,12 +83,16 @@ def inspect(stage, pin):
             and manifest.get("writes_enabled") is True,
             "acquisition-install-contract")
     require(manifest.get("activation") == "RunScript(script.asteracquisition)"
-            and set(manifest.get("helpers", {})) == {"acquisition_install.py"}
+            and set(manifest.get("helpers", {})) == {
+                "acquisition_install.py", "deploy_acquisition.py"}
             and isinstance(manifest.get("addon_files"), list)
             and isinstance(manifest.get("skin"), list),
             "acquisition-install-shape")
     require(sha(stage / "acquisition_install.py")
             == manifest["helpers"]["acquisition_install.py"],
+            "acquisition-install-helper-drift")
+    require(sha(stage / "deploy_acquisition.py")
+            == manifest["helpers"]["deploy_acquisition.py"],
             "acquisition-install-helper-drift")
     seen = set()
     for row in manifest["addon_files"]:

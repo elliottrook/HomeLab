@@ -41,6 +41,9 @@ class AcquisitionPackageTests(unittest.TestCase):
         self.assertNotIn(b"API_KEY", combined)
         self.assertIn(b"RunScript(script.asteracquisition)",
                       (self.stage / "skin/1080i/Home.xml").read_bytes())
+        deploy = (self.stage / "deploy_acquisition.py").read_text()
+        self.assertIn("Addons.SetAddonEnabled", deploy)
+        self.assertIn('ADDON = "script.asteracquisition"', deploy)
         self.assertEqual(hashlib.sha256(
             (self.stage / "manifest.json").read_bytes()).hexdigest(), self.pin)
 

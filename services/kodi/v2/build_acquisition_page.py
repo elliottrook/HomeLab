@@ -71,13 +71,17 @@ def build(home, output):
     helper = here / "acquisition_install.py"
     helper_raw = helper.read_bytes()
     (output / "acquisition_install.py").write_bytes(helper_raw)
+    deploy = here / "tools/deploy_acquisition.py"
+    deploy_raw = deploy.read_bytes()
+    (output / "deploy_acquisition.py").write_bytes(deploy_raw)
     manifest = {
         "schema": 1,
         "kind": "hp-acquisition-page.v2",
         "addon": ADDON,
         "addon_files": addon_rows,
         "skin": skin_rows,
-        "helpers": {"acquisition_install.py": digest(helper_raw)},
+        "helpers": {"acquisition_install.py": digest(helper_raw),
+                    "deploy_acquisition.py": digest(deploy_raw)},
         "activation": "RunScript(script.asteracquisition)",
         "writes_enabled": True,
     }
