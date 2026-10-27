@@ -10,9 +10,12 @@ class CooperativeLabHostAdapterTests(unittest.TestCase):
         self.probes = 0
 
     def runner(self, argv, timeout):
+        if "readlink" in argv:
+            self.probes += 1
+            return 0, "/dev/null\n"
         if "--property=UnitFileState" in argv:
             self.probes += 1
-            return 0, ("masked\n" if self.probes == 1 else "enabled\n")
+            return 0, "enabled\n"
         if "--property=ActiveState" in argv:
             self.probes += 1
             return 0, ("inactive\n" if self.probes == 2 else "active\n")
@@ -37,6 +40,8 @@ class CooperativeLabHostAdapterTests(unittest.TestCase):
 
     def test_observer_accepts_full_drain_stop_and_timer_mask_phases(self):
         def full_runner(argv, timeout):
+            if "readlink" in argv:
+                return 0, "/dev/null\n"
             if "--property=UnitFileState" in argv:
                 return 0, "masked-runtime\n"
             if "--property=ActiveState" in argv:

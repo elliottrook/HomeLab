@@ -62,6 +62,15 @@ class FakeSupervisorFactory:
 
 
 class FullInferenceRuntimePilotTests(unittest.TestCase):
+    def test_production_mask_uses_the_runtime_symlink_boundary(self):
+        def runner(command, timeout):
+            if "is-active" in command:
+                return 3, "inactive\n"
+            if "readlink" in command:
+                return 0, "/dev/null\n"
+            return 1, ""
+        self.assertTrue(runtime._production_masked(runner))
+
     def args(self):
         return runtime._parser().parse_args([
             "--phase", "pilot", "--state-root", "/tmp/pilot-test-state",

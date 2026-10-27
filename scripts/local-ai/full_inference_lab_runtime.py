@@ -88,9 +88,10 @@ def _gpu_users() -> frozenset[GpuUser]:
 def _production_masked(runner: Callable[..., tuple[int, str]]) -> bool:
     active = runner(("pct", "exec", "110", "--", "systemctl", "is-active",
                      "aster-llama.service"), 5.0)
-    enabled = runner(("pct", "exec", "110", "--", "systemctl", "is-enabled",
-                      "aster-llama.service"), 5.0)
-    return active[0] != 0 and enabled[1].strip() in {"masked", "masked-runtime"}
+    runtime_mask = runner(("pct", "exec", "110", "--", "readlink",
+                           "/run/systemd/system/aster-llama.service"), 5.0)
+    return (active[0] != 0 and runtime_mask[0] == 0
+            and runtime_mask[1].strip() == "/dev/null")
 
 
 def _accepted_gpu_baseline(users: frozenset[GpuUser]) -> frozenset[GpuUser]:
@@ -125,7 +126,8 @@ def _run_pilot(args: argparse.Namespace, paths: FullDrainPaths, *,
     controller = FullInferenceDrainController(
         paths, lambda command: runner(command, 30.0), observer=CooperativeHostObserver(runner),
         validator=LocalProxmoxFullDrainValidator(runner, baseline, cycle=args.cycle),
-        owner_id=args.owner_id, allow_effects=True)
+        owner_id=args.owner_id, allow_effects=True,
+        allow_news_overlap=args.news_overlap_authorized)
     allowed_gpu_users = _accepted_gpu_baseline(gpu_users())
     current_plan: dict[str, object] = {}
 
@@ -199,6 +201,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--binary-sha256")
     parser.add_argument("--unit-sha256")
     parser.add_argument("--effect-authorized", action="store_true")
+    parser.add_argument("--news-overlap-authorized", action="store_true")
     return parser
 
 

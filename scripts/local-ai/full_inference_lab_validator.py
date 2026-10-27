@@ -9,7 +9,7 @@ from typing import Callable, Sequence
 
 from full_inference_lab_sources import (
     AcceptedBaseline, FIXED, LOCAL_PROXMOX_FIXED, _current_proxmox_artifacts,
-    _pvescheduler_journal_command,
+    _legacy_lease_ready, _pvescheduler_journal_command,
     _local_proxmox_job_complete, validate_backup_sources,
 )
 
@@ -95,7 +95,7 @@ class LocalProxmoxFullDrainValidator(FullDrainValidator):
                     journal, date=self.cycle.replace("-", "_"),
                     latest_artifact=max(artifacts), now_epoch=int(self.wall_clock()), job=job):
                 return False
-            if self._run(FIXED["legacy_status"]) != "ready":
+            if not _legacy_lease_ready(self._run(FIXED["legacy_status"])):
                 return False
             self._hash("110", "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf", self.baseline.model_sha256)
             self._hash("110", "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server", self.baseline.binary_sha256)

@@ -100,7 +100,8 @@ def canonical_commands() -> tuple[tuple[tuple[str, ...], ...], tuple[tuple[str, 
     return drain, restore
 
 
-def plan(preflight: FullDrainPreflight, *, lab_seconds: int = DEFAULT_PILOT_SECONDS) -> FullDrainPlan:
+def plan(preflight: FullDrainPreflight, *, lab_seconds: int = DEFAULT_PILOT_SECONDS,
+         allow_news_overlap: bool = False) -> FullDrainPlan:
     if (preflight.mode != "full-inference-drain-v1" or not preflight.lease_id
             or type(preflight.generation) is not int or preflight.generation < 1
             or not preflight.backup_receipt):
@@ -121,7 +122,8 @@ def plan(preflight: FullDrainPreflight, *, lab_seconds: int = DEFAULT_PILOT_SECO
         raise FullDrainError("full-drain duration does not match its window")
     if preflight.restore_deadline_epoch - preflight.lab_end_epoch < MIN_RESTORE_RESERVE_SECONDS:
         raise FullDrainError("full-drain restoration reserve is insufficient")
-    if preflight.restore_deadline_epoch + MIN_NEWS_MARGIN_SECONDS > preflight.next_news_ingest_epoch:
+    if (not allow_news_overlap and
+            preflight.restore_deadline_epoch + MIN_NEWS_MARGIN_SECONDS > preflight.next_news_ingest_epoch):
         raise FullDrainError("full-drain window overlaps the next News ingest")
     drain, restore = canonical_commands()
     return FullDrainPlan("full-inference-drain-v1", preflight.lease_id, preflight.generation,
@@ -134,9 +136,11 @@ class FullInferenceDrainController:
     def __init__(self, paths: FullDrainPaths, runner: Callable[[Sequence[str]], None], *,
                  observer: Callable[[str, Sequence[str]], bool] | None = None,
                  validator: Callable[[], bool] | None = None,
-                 owner_id: str = "", allow_effects: bool = False):
+                 owner_id: str = "", allow_effects: bool = False,
+                 allow_news_overlap: bool = False):
         self.paths, self.runner, self.observer, self.validator = paths, runner, observer, validator
         self.owner_id, self.allow_effects = owner_id, allow_effects
+        self.allow_news_overlap = allow_news_overlap
         self._exclusion = None
         self._active = False
 
@@ -148,9 +152,10 @@ class FullInferenceDrainController:
         self._require_effects()
         if not self.owner_id:
             raise FullDrainError("full-drain owner identity is required")
-        value = plan(preflight, lab_seconds=lab_seconds)
+        value = plan(preflight, lab_seconds=lab_seconds,
+                     allow_news_overlap=self.allow_news_overlap)
         self.paths.root.mkdir(mode=0o700, parents=True, exist_ok=True)
-        self._exclusion = host_exclusion(self.paths.root.parent)
+        self._exclusion = host_exclusion(self.paths.root)
         self._exclusion.__enter__()
         try:
             if self.paths.state.exists() or self.paths.lock.exists():
@@ -214,7 +219,7 @@ class FullInferenceDrainController:
         self._require_effects()
         if not self.owner_id or not self.paths.lock.exists() or not self.paths.state.exists():
             raise FullDrainError("durable full-drain state is unavailable")
-        self._exclusion = host_exclusion(self.paths.root.parent)
+        self._exclusion = host_exclusion(self.paths.root)
         self._exclusion.__enter__()
         try:
             state = json.loads(self.paths.state.read_text(encoding="utf-8"))
@@ -254,12 +259,14 @@ class FullInferenceDrainController:
             phase = ("warmup" if tuple(command) == FULL_WARMUP_COMMAND else
                      ("unmask" if "unmask" in command else "start"))
             if tuple(command) in observed:
-                if self.observer is None or not self.observer(phase, command):
-                    raise FullDrainError("prior restore observation is no longer valid")
-                _journal(self.paths.journal, {"event": "restore-skipped-verified",
+                if self.observer is not None and self.observer(phase, command):
+                    _journal(self.paths.journal, {"event": "restore-skipped-verified",
+                                                  "lease_id": value.lease_id, "unit": command[-1],
+                                                  "command": list(command)})
+                    continue
+                _journal(self.paths.journal, {"event": "restore-replay-required",
                                               "lease_id": value.lease_id, "unit": command[-1],
                                               "command": list(command)})
-                continue
             self._effect("restore", command, value.lease_id)
         if self.validator is None or not self.validator():
             _journal(self.paths.journal, {"event": "restore-uncertain", "lease_id": value.lease_id})

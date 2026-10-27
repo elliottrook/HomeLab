@@ -25,6 +25,7 @@ SERVER = "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"
 RUNUSER = "/usr/sbin/runuser"
 LD_LIBRARY_PATH = "/opt/aster-sycl-b11429/loader/usr/lib/x86_64-linux-gnu:/opt/aster-sycl-b11429/driver/usr/local/lib:/opt/aster-sycl-b11429/driver/usr/lib/x86_64-linux-gnu:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/compiler/2026.1/lib:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/compiler/2026.1/lib/clang/22/lib/x86_64-unknown-linux-gnu:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/dnnl/2026.0/lib:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/mkl/2026.1/lib:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/tbb/2023.1/lib:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/umf/1.1/lib:/opt/aster-sycl-b11429/oneapi/usr/lib/x86_64-linux-gnu"
 PORT = 11436
+SMOKE_TIMEOUT_SECONDS = 600
 PROFILE = "accepted-9b-direct-control-smoke-v1"
 PROMPTS = ("Reply with the word ready.", "Count from one to three.", "Name the current model.")
 
@@ -45,9 +46,10 @@ def _stop_scope(unit: str, runner: Callable[..., subprocess.CompletedProcess] = 
 def production_is_masked(runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> bool:
     active = runner(("systemctl", "is-active", "aster-llama.service"),
                     capture_output=True, text=True, check=False)
-    enabled = runner(("systemctl", "is-enabled", "aster-llama.service"),
-                     capture_output=True, text=True, check=False)
-    return active.returncode != 0 and enabled.stdout.strip() in {"masked", "masked-runtime"}
+    runtime_mask = runner(("readlink", "/run/systemd/system/aster-llama.service"),
+                          capture_output=True, text=True, check=False)
+    return (active.returncode != 0 and runtime_mask.returncode == 0
+            and runtime_mask.stdout.strip() == "/dev/null")
 
 
 def scope_unit(lease_id: str, generation: int) -> str:
@@ -58,7 +60,7 @@ def scope_unit(lease_id: str, generation: int) -> str:
 def server_command(key_path: str, *, lease_id: str, generation: int) -> tuple[str, ...]:
     return ("/usr/bin/systemd-run", "--quiet", "--collect", "--scope",
             f"--unit={scope_unit(lease_id, generation)}", RUNUSER, "--user", "ollama", "--", SERVER, "-m", MODEL_PATH, "--host", "127.0.0.1", "--port", str(PORT),
-            "--api-key-file", key_path, "-ngl", "999", "-c", "8192", "-np", "1",
+            "--alias", MODEL, "--api-key-file", key_path, "-ngl", "999", "-c", "8192", "-np", "1",
             "-t", "4", "-tb", "4", "-b", "256", "-ub", "128", "-fa", "on",
             "-ctk", "q4_0", "-ctv", "q4_0", "--jinja", "--reasoning", "off",
             "--reasoning-budget", "0")
@@ -119,7 +121,7 @@ def run(*, lease_id: str, generation: int, clock: Callable[[], float] = time.mon
                         env={**os.environ, "LD_LIBRARY_PATH": LD_LIBRARY_PATH,
                              "ONEAPI_DEVICE_SELECTOR": "level_zero:gpu",
                              "GGML_SYCL_ENABLE_FUSION": "1"})
-        deadline = clock() + 300
+        deadline = clock() + SMOKE_TIMEOUT_SECONDS
         _wait_ready(key, deadline=deadline, clock=clock)
         for prompt in PROMPTS:
             if clock() >= deadline:

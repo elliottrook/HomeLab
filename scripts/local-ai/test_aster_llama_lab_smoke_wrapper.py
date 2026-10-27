@@ -2,10 +2,18 @@ import unittest
 from pathlib import Path
 
 from aster_llama_lab_smoke_wrapper import (MODEL, MODEL_PATH, PORT, PROFILE,
-    SERVER, _stop_scope, scope_unit, server_command)
+    SERVER, _stop_scope, production_is_masked, scope_unit, server_command)
 
 
 class LabSmokeWrapperTests(unittest.TestCase):
+    def test_production_mask_uses_runtime_symlink(self):
+        import subprocess
+        def runner(command, **kwargs):
+            if command[0] == "readlink":
+                return subprocess.CompletedProcess(command, 0, "/dev/null\n", "")
+            return subprocess.CompletedProcess(command, 3, "inactive\n", "")
+        self.assertTrue(production_is_masked(runner))
+
     def test_server_is_distinct_loopback_process(self):
         command = server_command("/run/lab/api-key", lease_id="lease-1", generation=2)
         self.assertEqual(command[0], "/usr/bin/systemd-run")
@@ -15,6 +23,7 @@ class LabSmokeWrapperTests(unittest.TestCase):
         self.assertIn("127.0.0.1", command)
         self.assertIn(str(PORT), command)
         self.assertIn(MODEL_PATH, command)
+        self.assertEqual(command[command.index("--alias") + 1], MODEL)
         self.assertEqual(PROFILE, "accepted-9b-direct-control-smoke-v1")
         self.assertEqual(MODEL, "aster-qwen3.5-9b")
         self.assertNotIn("aster-llama.service", command)

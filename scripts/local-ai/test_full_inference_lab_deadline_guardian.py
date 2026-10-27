@@ -149,6 +149,21 @@ class DeadlineGuardianTests(unittest.TestCase):
             return Result(0, "0\n")
         self.assertTrue(fence_owner_unit("aster-local-ai-pilot-owner-x.scope", 20, runner=empty))
 
+    def test_owner_fence_accepts_a_collected_not_found_scope(self):
+        class Result:
+            def __init__(self, code, stdout="", stderr=""):
+                self.returncode, self.stdout, self.stderr = code, stdout, stderr
+        def collected(command, **kwargs):
+            if command[1] == "is-active":
+                return Result(4, "inactive\n")
+            if any("LoadState" in part for part in command):
+                return Result(0, "not-found\n")
+            if any("TasksCurrent" in part for part in command):
+                return Result(0, "[not set]\n")
+            return Result(0, "\n")
+        self.assertTrue(fence_owner_unit(
+            "aster-local-ai-pilot-owner-x.scope", 20, runner=collected))
+
     def test_owner_fence_checks_share_one_cumulative_budget(self):
         now = [0.0]
         timeouts = []

@@ -7,7 +7,7 @@ from zoneinfo import ZoneInfo
 from application_b60_lease import ACCEPTED_BACKEND
 from full_inference_lab_sources import (AcceptedBaseline, FIXED, LOCAL_PROXMOX_FIXED,
     FullDrainSourceError, FullDrainSourceProducer, LocalProxmoxFullDrainSourceProducer,
-    TrustedOwnerAttestation, _pvescheduler_journal_command)
+    TrustedOwnerAttestation, _legacy_lease_ready, _pvescheduler_journal_command)
 
 
 def scheduler_journal(started: int, finished: int, *, start_message: Optional[str] = None,
@@ -21,6 +21,12 @@ def scheduler_journal(started: int, finished: int, *, start_message: Optional[st
 
 
 class FullInferenceLabSourcesTests(unittest.TestCase):
+    def test_legacy_lease_ready_accepts_deployed_json_and_old_scalar_only(self):
+        self.assertTrue(_legacy_lease_ready('{"state":"ready"}\n'))
+        self.assertTrue(_legacy_lease_ready("ready\n"))
+        self.assertFalse(_legacy_lease_ready('{"state":"active"}\n'))
+        self.assertFalse(_legacy_lease_ready('{"state":"ready","lease_id":"x"}\n'))
+
     def test_rejects_unattested_owner_before_host_probes(self):
         calls = []
         producer = FullDrainSourceProducer(lambda command, timeout: calls.append(command) or (0, ""),
@@ -60,7 +66,7 @@ class FullInferenceLabSourcesTests(unittest.TestCase):
             if command in (FIXED["news_ingest_enabled"], FIXED["news_digest_enabled"]): return 0, "enabled\n"
             if command == FIXED["gpu"]: return 0, ""
             if command == FIXED["auth"]: return 0, ""
-            if command == FIXED["legacy_status"]: return 0, "ready\n"
+            if command == FIXED["legacy_status"]: return 0, '{"state":"ready"}\n'
             if command[-3:] in (("systemctl", "is-active", "aster-agent.service"),
                                 ("systemctl", "is-active", "aster-llama.service"),
                                 ("systemctl", "is-active", "aster-speech.service")): return 0, "active\n"

@@ -9,7 +9,7 @@ from typing import Callable, FrozenSet, Sequence
 from full_inference_lab_session import (FullDrainError, FullDrainPlan,
     FullDrainPreflight, FullInferenceDrainController)
 from full_inference_lab_workload import (lab_cleanup_command, lab_is_absent,
-    run_fixed_smoke, run_fixed_smoke_bounded)
+    LAB_TIMEOUT_SECONDS, run_fixed_smoke, run_fixed_smoke_bounded)
 
 
 class SupervisorError(FullDrainError):
@@ -126,6 +126,9 @@ class PersistentFullDrainSupervisor:
                 raise SupervisorError("lab process or listener remains after workload")
             return receipt
         except BaseException:
+            self.workload_runner(
+                lab_cleanup_command(lease_id=self.plan.lease_id,
+                                    generation=self.plan.generation), 30.0)
             self.restore(now_epoch=self.wall_clock(), owner_present=True)
             raise
 
@@ -138,7 +141,7 @@ class PersistentFullDrainSupervisor:
                 raise SupervisorError("production llama service is not masked and inactive")
             require_known_gpu_users(self.gpu_users(), self.allowed_gpu_users)
             remaining = max(0.0, float(self.preflight.lab_end_epoch - self.wall_clock()))
-            monotonic_deadline = monotonic() + min(300.0, remaining)
+            monotonic_deadline = monotonic() + min(LAB_TIMEOUT_SECONDS, remaining)
             def guarded_heartbeat() -> None:
                 if self.wall_clock() >= self.preflight.lab_end_epoch:
                     raise SupervisorError("hard lab cutoff has passed")
@@ -152,6 +155,9 @@ class PersistentFullDrainSupervisor:
                 raise SupervisorError("lab process or listener remains after workload")
             return receipt
         except BaseException:
+            self.workload_runner(
+                lab_cleanup_command(lease_id=self.plan.lease_id,
+                                    generation=self.plan.generation), 30.0)
             self.restore(now_epoch=self.wall_clock(), owner_present=True)
             raise
 

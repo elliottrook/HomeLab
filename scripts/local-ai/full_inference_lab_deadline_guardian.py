@@ -48,6 +48,11 @@ def fence_owner_unit(unit: str, budget: float,
     if (tasks.returncode == 0 and tasks.stdout.strip() == "0"
             and main_pid.returncode == 0 and main_pid.stdout.strip() == "0"):
         return True
+    load_state = call(("systemctl", "show", unit, "--property=LoadState", "--value"), 10.0)
+    if (load_state is not None and load_state.returncode == 0
+            and load_state.stdout.strip() == "not-found"
+            and state.returncode != 0):
+        return True
     return (any(marker in detail for marker in ("unknown", "not found", "not-found"))
             and tasks.returncode != 0 and main_pid.returncode != 0)
 

@@ -48,7 +48,10 @@ class CooperativeHostObserver:
             raise LabSessionError("observer command is outside canonical restore inventory")
         vmid, unit = command[2], command[-1]
         if phase == "mask":
-            return (self._state(vmid, unit, "UnitFileState") in {"masked", "masked-runtime"}
+            runtime_mask = self._run(
+                ("pct", "exec", vmid, "--", "readlink",
+                 f"/run/systemd/system/{unit}"))
+            return (runtime_mask == "/dev/null"
                     and self._state(vmid, unit, "ActiveState") == "inactive")
         if phase == "stop":
             return self._state(vmid, unit, "ActiveState") == "inactive"

@@ -1,8 +1,12 @@
 import tempfile
 import unittest
+import json
+from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
+
+import full_inference_lab_session as session
 
 from application_b60_lease import ACCEPTED_BACKEND
 from full_inference_lab_session import (FULL_DRAIN_CONSUMERS, FullDrainError,
@@ -24,6 +28,14 @@ class FullInferenceLabSessionTests(unittest.TestCase):
         self.assertEqual(value.lab_seconds, 1800)
         self.assertEqual(value.restore_reserve_seconds, 900)
         self.assertIn("aster-llama.service", value.drain_commands[2])
+
+    def test_news_overlap_requires_the_explicit_narrow_override(self):
+        value = self.preflight()
+        overlapping = FullDrainPreflight(**{
+            **value.__dict__, "next_news_ingest_epoch": self.epoch(10, 40)})
+        with self.assertRaisesRegex(FullDrainError, "overlaps"):
+            plan(overlapping)
+        self.assertEqual(plan(overlapping, allow_news_overlap=True).lease_id, "drain-1")
 
     def test_advisory_mode_does_not_run_commands(self):
         calls = []
@@ -53,6 +65,52 @@ class FullInferenceLabSessionTests(unittest.TestCase):
             self.assertEqual(len(observations), 16)
             self.assertFalse(paths.lock.exists())
             self.assertIn("restore-overdue", paths.journal.read_text())
+
+    def test_controller_locks_the_exact_state_root(self):
+        seen = []
+        @contextmanager
+        def exact_root(path):
+            seen.append(path)
+            yield
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = FullDrainPaths(Path(tmp) / "state")
+            original = session.host_exclusion
+            session.host_exclusion = exact_root
+            try:
+                controller = FullInferenceDrainController(
+                    paths, lambda _: None, observer=lambda *_: True,
+                    validator=lambda: True, owner_id="owner-1", allow_effects=True)
+                value = controller.begin(self.preflight())
+                controller.restore(value, now_epoch=self.epoch(10, 20), owner_present=True)
+            finally:
+                session.host_exclusion = original
+        self.assertEqual(seen, [paths.root])
+
+    def test_restore_replays_a_safe_command_when_prior_observation_drifted(self):
+        calls = []
+        checks = 0
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = FullDrainPaths(Path(tmp) / "state")
+            controller = FullInferenceDrainController(
+                paths, calls.append, observer=lambda *_: True,
+                validator=lambda: True, owner_id="owner-1", allow_effects=True)
+            value = controller.begin(self.preflight())
+            first = value.restore_commands[0]
+            with paths.journal.open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps({"event": "restore-observed",
+                                         "lease_id": value.lease_id,
+                                         "unit": first[-1],
+                                         "command": list(first)}) + "\n")
+            def observe(phase, command):
+                nonlocal checks
+                if tuple(command) == first:
+                    checks += 1
+                    return checks > 1
+                return True
+            controller.observer = observe
+            controller.restore(value, now_epoch=self.epoch(10, 20), owner_present=True)
+            self.assertEqual(calls.count(first), 1)
+            self.assertIn("restore-replay-required", paths.journal.read_text())
 
     def test_failed_drain_retains_lock(self):
         calls = []

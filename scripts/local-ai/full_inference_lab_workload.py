@@ -13,6 +13,7 @@ from typing import Callable, Sequence
 
 LAB_PROFILE = "accepted-9b-direct-control-smoke-v1"
 LAB_PORT = "11436"
+LAB_TIMEOUT_SECONDS = 600.0
 LAB_COMMAND = (
     "pct", "exec", "110", "--",
     "/usr/local/sbin/aster-llama-lab-smoke",

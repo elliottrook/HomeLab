@@ -79,6 +79,15 @@ def _service(vmid: str, unit: str) -> tuple[str, ...]:
     return ("pct", "exec", vmid, "--", "systemctl", "is-active", unit)
 
 
+def _legacy_lease_ready(raw: str) -> bool:
+    """Accept the two deployed status encodings, and no broader object."""
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError:
+        value = raw.strip()
+    return value == "ready" or (isinstance(value, dict) and value == {"state": "ready"})
+
+
 def validate_backup_sources(pve: object, truenas: object, *, cycle: str, now_epoch: int) -> bool:
     """Validate current-cycle artifact/task ordering without requiring F2 integrity."""
     if not isinstance(pve, list) or not isinstance(truenas, list):
@@ -234,7 +243,7 @@ class FullDrainSourceProducer:
         self._hash("110", "/etc/systemd/system/aster-llama.service", self.baseline.unit_sha256, "unit")
         if not self._backup_current(cycle):
             raise FullDrainSourceError("current backup schedule/status is not verified")
-        if self._run("legacy_status") != "ready":
+        if not _legacy_lease_ready(self._run("legacy_status")):
             raise FullDrainSourceError("legacy local-ai-lease is not ready")
         if (self._run("news_ingest_active") != "active" or self._run("news_digest_active") != "active"
                 or self._run("news_ingest_enabled") != "enabled" or self._run("news_digest_enabled") != "enabled"):
