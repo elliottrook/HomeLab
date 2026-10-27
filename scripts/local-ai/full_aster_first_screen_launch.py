@@ -2,17 +2,41 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, time as wall_time
 import json
 import os
 from pathlib import Path
 import secrets
 import subprocess
 import time
+from zoneinfo import ZoneInfo
 
 from full_aster_first_screen_guardian import ARMED, FULL_DRAIN_STATE, STATE
 
 
 ROOT = "/usr/local/libexec/local-ai-lease/full-inference-pilot"
+ZONE = ZoneInfo("America/Vancouver")
+RUN_DATE = "2026-10-27"
+EARLIEST = wall_time(3, 10)
+LATEST = wall_time(3, 30)
+PROTECTED = wall_time(4, 15)
+EFFECT_SECONDS = 30 * 60
+RECOVERY_SECONDS = 15 * 60
+
+
+def window_deadlines(started: int) -> tuple[int, int]:
+    """Bind relative guardian deadlines to the approved Vancouver window."""
+    if type(started) is not int or started <= 0:
+        raise ValueError("first-screen start time is invalid")
+    local = datetime.fromtimestamp(started, ZONE)
+    if local.strftime("%Y-%m-%d") != RUN_DATE or not EARLIEST <= local.time() <= LATEST:
+        raise ValueError("first-screen start is outside the approved window")
+    protected = int(datetime.combine(local.date(), PROTECTED, tzinfo=ZONE).timestamp())
+    rescue_at = started + EFFECT_SECONDS
+    hard_deadline = min(started + EFFECT_SECONDS + RECOVERY_SECONDS, protected)
+    if hard_deadline - rescue_at < RECOVERY_SECONDS:
+        raise ValueError("first-screen recovery reserve is unavailable")
+    return rescue_at, hard_deadline
 
 
 def guardian_command(token: str, owner_unit: str, rescue_at: int, hard_deadline: int):
@@ -41,7 +65,8 @@ def main(argv=None):
         raise SystemExit("first-screen launcher prestate is not clear")
     token=secrets.token_hex(8); owner_id=f"aster-full-screen-owner-{token}"
     owner_unit=owner_id+".scope"; started=int(time.time())
-    rescue_at=started+30*60; hard_deadline=started+45*60
+    try: rescue_at, hard_deadline = window_deadlines(started)
+    except ValueError as error: raise SystemExit(str(error)) from error
     guardian=subprocess.run(guardian_command(token,owner_unit,rescue_at,hard_deadline),
         capture_output=True,text=True,timeout=30,check=False)
     if guardian.returncode!=0 or guardian.stderr: raise SystemExit("guardian unit did not start")
