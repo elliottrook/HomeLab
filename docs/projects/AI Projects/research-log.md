@@ -3281,3 +3281,16 @@ or global-switch drift. All four services and ordinary Aster health remained
 normal. Temporary helpers were removed and the verified checkpoint retained.
 This closes synthetic freshness and exact-once authority evidence; it grants no
 generic Red, management or connected-tool authority.
+
+## 2026-10-26 — Constrained whole-label NLU family rejected publicly
+
+Changed the NLU task from six independently generated fields to one selection
+from 16 coherent, digest-identified public labels. The strict schema and local
+mapping removed field invention and retained a deterministic safety boundary.
+Two repeat runs per revision were stable. A general public rubric improved the
+accepted 9B result from 16/24 to 20/24 while eliminating unsafe and privacy
+failures, but stayed below the 23/24 admission floor. A final bounded rubric
+revision reached 21/24 and reintroduced one unsafe route. Closed the prompt
+family without opening private cross-sets or the holdout. The full NLU suite
+passes 416/416 and automatic routing remains off. See the
+[dated gate](evidence/M3-NLU-whole-label-public-gate-2026-10-26.md).
