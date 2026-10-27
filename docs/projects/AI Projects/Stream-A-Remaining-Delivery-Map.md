@@ -1676,3 +1676,11 @@ ready and all temporary private/model copies were removed. BGE neighbour and
 learned-head iteration against these spent sets is closed. The next candidate
 must change encoder family and pass a public gate before another private
 six-set evaluation can be proposed.
+
+The materially different [E5 encoder v1 public gate](evidence/M3-NLU-E5-encoder-v1-public-gate-and-crossset-card-2026-10-26.md)
+now passes 22/24 exact with zero unsafe routes and zero routed privacy
+underclassification. Its asymmetric query/passage nested evaluator is frozen,
+the dependency-free NLU suite passes 381/381 and production remained unchanged.
+The next gate is one separately approved private transfer and nested run over
+the six already-spent development sets. No calibration, holdout access or
+routing follows from the public result.
