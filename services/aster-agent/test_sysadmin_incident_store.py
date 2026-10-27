@@ -1,5 +1,6 @@
 import json
 import os
+import sqlite3
 import stat
 import tempfile
 import unittest
@@ -108,6 +109,12 @@ class ProducerAndStoreTests(unittest.TestCase):
         link.symlink_to(target)
         with self.assertRaisesRegex(InvestigationError, "database custody"):
             IncidentStore(link)
+
+    def test_database_context_closes_connection(self):
+        with self.store._db() as db:
+            self.assertEqual(db.execute("SELECT 1").fetchone()[0], 1)
+        with self.assertRaises(sqlite3.ProgrammingError):
+            db.execute("SELECT 1")
 
 
 if __name__ == "__main__":

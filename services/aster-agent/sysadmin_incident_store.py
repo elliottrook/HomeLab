@@ -11,6 +11,7 @@ import os
 import re
 import sqlite3
 import stat
+from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -70,6 +71,7 @@ class IncidentStore:
                 "CREATE TABLE IF NOT EXISTS incidents (incident_id TEXT PRIMARY KEY, record TEXT NOT NULL, updated_at TEXT NOT NULL)"
             )
 
+    @contextmanager
     def _db(self):
         parent = self.path.parent.lstat()
         if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid()
@@ -89,7 +91,11 @@ class IncidentStore:
             os.close(fd)
         db = sqlite3.connect(self.path, timeout=5)
         db.row_factory = sqlite3.Row
-        return db
+        try:
+            with db:
+                yield db
+        finally:
+            db.close()
 
     def prune(self, now: datetime) -> int:
         """Delete expired incident state before any new write or reconnect."""
