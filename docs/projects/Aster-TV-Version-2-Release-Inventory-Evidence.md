@@ -1,21 +1,22 @@
 # AsterTV Version 2 release inventory evidence
 
-> Status: HP inventory complete; consolidated recovery remains open  
+> Status: HP inventory and consolidated source recovery complete; clean-client replay remains open
 > Date: 2026-10-27  
 > Scope: HP lab only; production unchanged
 
 ## Outcome
 
 The active HP candidate now has a bounded, read-only release inventory. It
-verifies 21 exact anchors spanning the active family runtime, compiled Books
+verifies 24 exact anchors spanning the active family runtime, compiled Books
 reader and Doctor, Acquisition Hub, official YouTube presentation, voice-search
 pilot, Music player and owned landings, Media rail, startup sound, UI sounds,
 screensaver and camera service.
 
-The inventory is complete, but recovery is correctly reported as incomplete.
-Recovery7 records the older family manifest and cannot reconstruct the current
-EPUB Doctor successor. It remains valid predecessor evidence and must not be
-presented as a complete v2 recovery package.
+The inventory is complete. Its historical Recovery7 relation is correctly
+reported as stale because Recovery7 records the older family manifest and
+cannot reconstruct the current EPUB Doctor successor by itself. Bundle6 and
+the ordered recipe are the consolidated recovery path; the still-open gate is
+a full disposable clean-client replay, not missing source coverage.
 
 ## Privacy and safety boundary
 
@@ -36,7 +37,7 @@ media databases and cached media.
 - Eight unit tests pass for exact anchors, optional missing anchors, required
   relation failure, digest drift, malformed JSON, non-object JSON, symlinks,
   oversized files, denied paths, duplicate identities and opaque anchors.
-- The live HP run verified all 21 declared anchors.
+- The live HP run verified all 24 declared anchors.
 - The compiled Books Doctor's `after.family_manifest` matches the active family.
 - The reader activation's `bundle_sha256` matches the compiled reader bundle.
 - Recovery7's family reference is stale relative to the active family, so the

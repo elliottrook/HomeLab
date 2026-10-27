@@ -83,6 +83,11 @@ do not imply household acceptance or production promotion.
   soak, returned Home idle, produced no crash or inspected error line, and
   stabilized below 665 MiB Kodi RSS. See
   [endurance evidence](Aster-TV-Version-2-Endurance-Evidence.md).
+- A finite release-readiness record now distinguishes completed unattended
+  engineering checks from owner, hardware, destructive clean-install and
+  production-promotion gates. The live HP prerequisite audit is clean, but the
+  candidate is deliberately not labelled release-ready or production-authorized.
+  See [release-readiness evidence](Aster-TV-Version-2-Release-Readiness.md).
 
 ## Next work and gates
 

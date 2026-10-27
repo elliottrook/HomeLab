@@ -1,0 +1,92 @@
+{
+  "candidate": "AsterTV v2 HP lab candidate 2026-10-27",
+  "gates": [
+    {
+      "category": "automated",
+      "evidence": ["24/24 pinned release anchors verified", "all required anchor relations matched"],
+      "id": "release-inventory",
+      "status": "passed"
+    },
+    {
+      "category": "automated",
+      "evidence": ["Bundle6 has 21 exact source stages and 280 files", "independent copy verified against ca12e217bc0017762e5f3a07ed3d20319f92a60fdeebfb1f8d17d9749662475f"],
+      "id": "recovery-source-coverage",
+      "status": "passed"
+    },
+    {
+      "category": "automated",
+      "evidence": ["core source chain isolated apply, verify and rollback passed", "late service and add-on isolated apply, verify and rollback passed"],
+      "id": "isolated-recovery-rehearsals",
+      "status": "passed"
+    },
+    {
+      "category": "automated",
+      "evidence": ["final six-file accessibility layer active", "Home, Hub and Video OSD animations retain reduced-motion guards"],
+      "id": "accessibility",
+      "status": "passed"
+    },
+    {
+      "category": "automated",
+      "evidence": ["six-cycle mixed video and audio soak passed", "Kodi returned Home idle with no crash or inspected error line"],
+      "id": "endurance",
+      "status": "passed"
+    },
+    {
+      "category": "automated",
+      "evidence": ["1,338 Kodi v2 tests pass under normal Python", "the same 1,338 tests pass under optimized Python", "the one expected environment-dependent test is skipped in both runs"],
+      "id": "regression-suite",
+      "status": "passed"
+    },
+    {
+      "category": "automated",
+      "evidence": ["LibreELEC 12.2.1 x86_64 and Kodi service active with zero restarts", "official YouTube 7.4.4 and Jellyfin 2.2.0+py3 present", "camera loopback proxy and both read-only Books automounts active", "no failed systemd units"],
+      "id": "live-prerequisites",
+      "status": "passed"
+    },
+    {
+      "blockers": ["physical lab voice remote is not yet available", "restricted live speech identity and transport remain unprovisioned"],
+      "category": "hardware",
+      "id": "voice-remote-integration",
+      "status": "input-required"
+    },
+    {
+      "blockers": ["owner sofa-distance playback, Back and stop review remains outstanding"],
+      "category": "owner",
+      "id": "youtube-owner-review",
+      "status": "input-required"
+    },
+    {
+      "blockers": ["multi-day household use cannot be replaced by synthetic automation"],
+      "category": "owner",
+      "id": "household-beta",
+      "status": "input-required"
+    },
+    {
+      "blockers": ["N95 SSH host identity must be reconciled at its console before final composed-client capture"],
+      "category": "hardware",
+      "id": "bedroom-client-final-capture",
+      "status": "input-required"
+    },
+    {
+      "blockers": ["requires a disposable LibreELEC target or separately approved destructive reset", "restricted identities must be provisioned separately rather than copied"],
+      "category": "destructive",
+      "destructive": true,
+      "id": "full-clean-client-replay",
+      "status": "environment-required"
+    },
+    {
+      "blockers": ["finite owner-led page-by-page v1/v2 walkthrough remains outstanding"],
+      "category": "owner",
+      "id": "final-owner-walkthrough",
+      "status": "input-required"
+    },
+    {
+      "blockers": ["production promotion is a separate owner decision after remaining gates"],
+      "category": "promotion",
+      "id": "production-promotion",
+      "status": "approval-required"
+    }
+  ],
+  "kind": "aster-release-readiness-spec.v1",
+  "schema": 1
+}
