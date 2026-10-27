@@ -1,6 +1,6 @@
 # EPUB Narration Compiler Operations
 
-> Status: M3/M4 pilot deployed; worker intentionally inactive
+> Status: M5 pilot deployed; worker intentionally inactive; Aster Books beta inactive
 >
 > Owner: Jason
 >
@@ -20,6 +20,27 @@ Never print or copy book titles, source paths, source text, generated audio,
 timing cues, listening progress or source hashes into tickets, Git, Doctor
 output or ordinary logs. Use only aggregate state counts and bounded failure
 codes.
+
+Ready generations also contain a private normalized chapter document under
+`content/`. It is hash-bound to both the manifest and timing document so Aster
+Books can highlight the exact sentence being spoken. Treat it as source text:
+it is covered by local dataset snapshots and deliberately excluded from the
+configuration archive, ordinary diagnostics and Aster's knowledge corpus.
+
+## Inactive Aster Books beta
+
+The HP lab appliance has an immutable synthetic beta at
+`/storage/.aster-staging/aster-books-compiler-beta1`. Its bundle manifest must
+say `active=false`, `production_entry=false`, `network=false` and
+`shared_progress=false`. It is not linked from the skin, add-on registry or a
+service. It validates only complete atomic ready generations and stores
+generation-bound progress in a private owner-only directory.
+
+The beta's recovery checkpoint is
+`/storage/.aster-checkpoints/aster-books-compiler-beta1-20261026`. Removing the
+single staged bundle directory returns to the exact pre-M5 state; do not touch
+the existing historical EPUB preview or its separate progress. Production
+BOSGAME remains unchanged and needs its own explicit promotion checkpoint.
 
 ## Normal status
 
@@ -114,6 +135,17 @@ Validate backup coverage with:
 python3 scripts/check-configuration-backups.py
 ```
 
+Validate an archive through an isolated temporary restore without emitting
+private records:
+
+```sh
+python3 scripts/backup/verify-epub-narration-restore.py /path/to/configs.tar.gz
+```
+
+The result contains only the queue-record, ready-pointer and generation-
+manifest counts plus the media-exclusion decision. A zero ready/manifest count
+is expected while the real worker remains inactive.
+
 Restore into an isolated dataset or directory first. Verify the SQLite
 integrity check, manifest hashes and ready pointers there; never overwrite the
 live dataset as the first restore step. Source EPUBs remain authoritative, so
@@ -126,10 +158,16 @@ passes.
 2. Confirm both speech services remain active.
 3. Retain the AsterReader dataset, snapshots and queue; do not delete output.
 4. Remove any future staged Aster Books ready-root reference. M3/M4 added none.
-5. If guest deployment itself must be reverted, use LXC snapshot
+5. Remove the inactive HP beta directory only after verifying its dedicated
+   absent-state checkpoint. It has no normal-route reference to remove.
+6. Restore the pre-M5 renderer from
+   `/opt/epub-narration/rollback-m5-20261026/renderer.py` and remove only the
+   added `aster_books.py` consumer if the M5 compiler interface must be
+   reverted. Keep the worker inactive during comparison.
+7. If the broader guest deployment must be reverted, use LXC snapshot
    `epub-narration-m3-pre-20261026`; separately disable the two Proxmox mount
    units and remove `mp0`/`mp1` only after the guest is stopped.
-6. If backup-export code must be reverted, restore the protected appdata
+8. If backup-export code must be reverted, restore the protected appdata
    snapshot `Media/appdata@epub-backup-pre-20261026` to an isolated location
    and replace only the exporter after comparison.
 

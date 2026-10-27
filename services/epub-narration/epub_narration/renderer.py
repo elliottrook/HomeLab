@@ -90,8 +90,10 @@ class KokoroChapterRenderer:
 
         chapter_root = staging / "chapters"
         timing_root = staging / "timing"
+        content_root = staging / "content"
         chapter_root.mkdir(parents=True, mode=0o700)
         timing_root.mkdir(parents=True, mode=0o700)
+        content_root.mkdir(parents=True, mode=0o700)
         files: list[dict] = []
         for chapter in chapters:
             cleaned = self.cleanup.speech_text(chapter.text)
@@ -163,7 +165,22 @@ class KokoroChapterRenderer:
                 ),
                 encoding="utf-8",
             )
-            for path in (opus_path, timing_path):
+            content_path = content_root / f"{stem}.json"
+            content_path.write_text(
+                json.dumps(
+                    {
+                        "schema": 1,
+                        "chapter": chapter.index,
+                        "text": cleaned,
+                        "text_sha256": hashlib.sha256(cleaned.encode("utf-8")).hexdigest(),
+                    },
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ),
+                encoding="utf-8",
+            )
+            for path in (opus_path, timing_path, content_path):
                 os.chmod(path, 0o600)
                 files.append({
                     "path": str(path.relative_to(staging)),

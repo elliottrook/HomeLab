@@ -19,10 +19,16 @@ The modules establish these fail-closed contracts:
 - `worker.py` claims one attempt under a file lock, validates the canonical
   voice contract, renders sentence units, verifies Opus/timing output and
   preserves the previous ready pointer on failure.
+- `aster_books.py` is the inactive beta consumer contract. It loads only an
+  atomic ready pointer, revalidates every generation member, pairs private
+  normalized content with exact sentence cues, validates Ogg/Opus duration and
+  keeps generation-bound progress in an owner-only atomic store.
 
 `timing.py` records sentence cues as integer PCM sample indexes. It does not
 invent word timing. `renderer.py` uses the pinned Kokoro model, voice and
 cleanup hashes and verifies 48 kbit/s mono Opus duration before publication.
+It retains a private hash-bound normalized chapter document for exact display
+and highlighting; configuration backup excludes that source-derived content.
 
 The deployed monitor is a daily persistent systemd timer in LXC 116. The
 single-attempt worker is intentionally static/inactive: it is invoked manually

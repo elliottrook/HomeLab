@@ -22,6 +22,12 @@ class RendererContractTests(unittest.TestCase):
         self.assertTrue(units)
         self.assertEqual(0.0, units[-1][1])
 
+    def test_renderer_publishes_private_hash_bound_content(self):
+        source = (Path(__file__).parents[1] / "epub_narration" / "renderer.py").read_text()
+        self.assertIn('content_root = staging / "content"', source)
+        self.assertIn('"text_sha256": hashlib.sha256(cleaned.encode("utf-8")).hexdigest()', source)
+        self.assertIn('for path in (opus_path, timing_path, content_path)', source)
+
 
 if __name__ == "__main__":
     unittest.main()

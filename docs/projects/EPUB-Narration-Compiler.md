@@ -1,6 +1,6 @@
 # EPUB Narration Compiler and New-Title Monitor
 
-> Status: Active — Stream A; M0–M4 complete, M5 Aster Books beta next
+> Status: Active — Stream A; M0–M5 complete, M6 graduation gates in progress
 >
 > Owner: Jason
 >
@@ -306,9 +306,14 @@ static single-attempt worker. The monitor is active and idempotent; the worker
 is intentionally inactive and the full backlog has not started. Daily 14-day
 dataset snapshots and the protected configuration export now cover queue,
 status, ready pointers and manifests while excluding generated audio/timing.
-Resume at M5 only after revalidating mounts, sanitized status, backup age,
-voice contract, CWA and both speech services. M5 must use a non-production or
-inactive Aster Books bundle and its own rollback checkpoint.
+M5 then added an inactive HP Aster Books beta at
+`/storage/.aster-staging/aster-books-compiler-beta1`. It has no production
+entry, service, network access or shared progress. Its dedicated checkpoint is
+`/storage/.aster-checkpoints/aster-books-compiler-beta1-20261026`; the active
+Kodi process was not restarted. Resume at M6 after revalidating mounts,
+sanitized status, backup age, CWA, both speech services and the inactive bundle
+boundary. Do not promote it into a normal AsterTV route without the separate
+production gate.
 
 ## Milestones
 
@@ -329,7 +334,7 @@ inactive Aster Books bundle and its own rollback checkpoint.
 - [x] **M4 — Monitor and incremental reconciliation.** Enable the new/changed
   EPUB scan with missed-run recovery, finite retry, failure quarantine and
   useful non-secret status. Prove a synthetic new-title and changed-title run.
-- [ ] **M5 — Aster Books beta integration.** Consume only atomic ready pointers
+- [x] **M5 — Aster Books beta integration.** Consume only atomic ready pointers
   in a non-production or inactive staged bundle; keep sentence highlighting;
   validate playback, seek, chapter change, progress privacy and rollback. Do
   not modify production AsterTV without this gate and checkpoint.
@@ -407,17 +412,22 @@ inactive Aster Books bundle and its own rollback checkpoint.
   retained for M6 alongside the other infrastructure checks.
 - [ ] **Monitoring/alerting** — add non-secret queue/worker/capacity signals;
   confirm existing TrueNAS Beszel coverage and no duplicate alerting.
-- [ ] **Backup and recovery** — daily 14-day dataset snapshots and protected
-  state/status/ready/manifest export are live and verified; isolated restore
-  and regeneration evidence remains for M6.
+- [x] **Backup and recovery** — daily 14-day dataset snapshots and protected
+  state/status/ready/manifest export are live and verified. The current archive
+  restored all 167 queue records into an isolated temporary database with a
+  clean integrity check and no media; isolated synthetic regeneration also
+  passed. No ready pointer/manifest exists yet because the real worker remains
+  inactive.
 - [x] **NetBox** — reconciled the offline compiler workload on the existing
   `aster-speech` VM and validated it through the read-only API. The canonical
   speech service already records batch synthesis. No fake port-bearing Service
   object was created because the compiler has no listener; no IP changed.
-- [ ] **Human wiki** — add normal operation, statuses, failure meaning, privacy
-  boundaries and recovery after the pilot stabilizes.
-- [ ] **Aster mirror/snapshot** — publish only a sanitized operational summary
-  with provenance; no title, text, timing, progress or source hash.
+- [x] **Human wiki** — added normal operation, statuses, failure meaning,
+  privacy boundaries and recovery in a focused local wiki commit; no remote
+  synchronization was performed.
+- [x] **Aster mirror/snapshot source** — added an allowlisted sanitized
+  operational reference with provenance; no title, text, timing, progress or
+  source hash. Snapshot build/deployment validation remains part of M6.
 - [x] **Operational reference/runbook** — exact status, disable, checkpoint,
   restore, failure and LKG procedures are documented.
 - [x] **Environment/release lifecycle** — registered as V1 Lab foundation with
@@ -489,6 +499,13 @@ inactive Aster Books bundle and its own rollback checkpoint.
 | 2026-10-26 | Added a content-silent HomeLab Doctor check with four failure-mode tests, the operational runbook and the deployed service-registry record. | M3/M4 documentation and observability complete; Beszel/wiki/mirror reconciliation and full recovery graduation remain M6 work. |
 | 2026-10-26 | Recorded the offline compiler workload on NetBox's existing `aster-speech` VM and verified the updated object through `GET /api/virtualization/virtual-machines/16/`; the existing canonical speech service already declares batch synthesis. | NetBox reconciled without inventing a listener, port or new IP. Beszel/wiki/mirror and full recovery graduation remain M6 work. |
 | 2026-10-26 | Full HomeLab Doctor regression passed the new compiler check with 167 queued, zero ready/failed and the worker inactive. Overall Doctor reported 84 passes, two warnings and four failures in unrelated existing Aster assurance/AI-PAM, surveillance freshness and subtitle automation checks; sandbox-denied local state-cache writes did not affect remote checks. | Compiler monitoring and backup checks passed. Unrelated Doctor findings were not changed under this project. |
+| 2026-10-26 | Added a fail-closed Aster Books consumer for exact atomic ready pointers. It validates generation containment, manifest/file hashes, paired content/audio/timing chapter sets, normalized-text hashes, sentence source spans, PCM sample order, native Ogg/Opus format/duration and generation-bound private progress. The compiler now retains a private hash-bound normalized chapter document so sentence highlighting has an exact display source; configuration backup still excludes that content. | The consumer cannot inspect queue/work data or infer timing. Synthetic seek, chapter change, pause/save, resume, tamper and LKG rollback tests passed. |
+| 2026-10-26 | Created a dedicated HP checkpoint and staged bundle manifest `76dd46c4…98bb4` at `/storage/.aster-staging/aster-books-compiler-beta1`. The first candidate failed closed before activation because LibreELEC lacks `ffprobe`; it is preserved under the checkpoint. A bounded native Ogg/Opus parser replaced that host dependency and verified two synthetic chapters. Bundle flags remain inactive, no production entry/network/shared progress exists, test progress was removed, Kodi retained PID 66637 with zero restarts, and BOSGAME production was untouched. | M5 passed without a menu/skin/service change. The bundle can be removed as one directory; its checkpoint records the absent pre-state. Production promotion remains outside this gate. |
+| 2026-10-26 | Updated the installed inactive worker code after preserving the previous renderer at `/opt/epub-narration/rollback-m5-20261026`. The platform could not create another LXC snapshot, so deployment stopped before overwrite until that exact-file checkpoint and the retained M3 full snapshot were verified. Both speech services and the monitor stayed active; the worker remained static/inactive. | Future generations include the hash-bound content required by the beta without starting the real backlog. |
+| 2026-10-26 | Ran isolated synthetic regeneration through catalogue reconciliation, queue state, worker publication and Aster Books ready-pointer loading in LXC 116. The one generated fixture reached ready and the restored SQLite integrity check passed; the temporary root was removed automatically. | M6 regeneration proof passed without real content or live queue mutation. Protected-archive restore verification is separate. |
+| 2026-10-26 | Restored the compiler portion of the current protected 1.46 GB TrueNAS configuration archive into an isolated temporary directory source-locally. The queue database passed its archived hash, mode and SQLite integrity gates with 167 records. The archive contains no compiler media; ready-pointer and immutable-manifest counts are correctly zero because the real worker has not published a generation. | Protected-state restore gate passed. Local dataset snapshots remain the recovery path for generated media, and source-driven regeneration was proven separately. |
+| 2026-10-26 | Added a private human-wiki operator page and a provenance-declared Aster operational reference. The wiki change is retained in local commit `20d9a86`; no remote was modified. Verified the existing LXC 116 Beszel agent remains active, so Doctor owns compiler semantics while Beszel continues host-resource history without a duplicate agent or alert. | Wiki and Beszel reconciliation complete. Build/validate the sanitized Aster snapshot and finish the production-path gate before graduation. |
+| 2026-10-26 | Final M5/M6 regression passed 31 compiler/consumer/recovery tests in normal and optimized Python, 20 backup/Doctor tests, configuration coverage, compile-only validation and diff checks. Full HomeLab Doctor reported 85 passes and passed the compiler plus both backup checks; five warnings and ten failure lines were unrelated existing whole-lab findings, with zero EPUB/narration/backup failure lines. | The inactive beta and recovery integrations are regression-clean. Unrelated Doctor findings remain outside project scope. |
 
 ## Close-out
 
@@ -499,6 +516,7 @@ and deliberately deferred live fallback will be recorded after graduation.
 
 The repository now documents the Calibre authority, canonical voice, negative
 AsterTV timing evidence, benchmark, deployed dataset/mount contract, compiler
-identity, backup regime and operator runbook. It deliberately does not yet
-claim an Aster Books handover, isolated restore proof, NetBox/Beszel/wiki
-reconciliation or graduated production path; those remain M5/M6 deliverables.
+identity, backup regime, inactive Aster Books beta, operator runbook, wiki and
+Beszel ownership. It deliberately does not yet claim production Aster Books
+promotion or the two independent production-path passes; those remain M6
+gates under the project's production exclusion.
