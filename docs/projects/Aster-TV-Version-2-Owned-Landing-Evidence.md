@@ -1,7 +1,7 @@
 # Aster TV Version 2 — owned Music and Books landing contract
 
 Date: 2026-10-26
-Status: owned Music hero and Books date feed active on HP; production unchanged
+Status: cross-media landing review complete on HP; production unchanged
 
 ## Decision
 
@@ -135,3 +135,26 @@ action/authority separation, duplicate rejection, focus-safe rotation, exact
 installation, rollback and optimized-Python checks. The complete Kodi v2 suite
 passes 1,214 tests normally and optimized; all 113 skin-tool tests also pass in
 both modes. The one existing Mac-only skip is unchanged.
+
+## Cross-media visual close-out
+
+The final native 3840×2160 comparison found the accepted Music and Books
+landings visually coherent, but Media's seven destinations after Search were
+still using the narrower pre-Acquisition geometry. Kodi therefore truncated
+most captions even though all routes were correct. The correction preserves
+every control ID, action and focus edge; keeps Search and the 24-hour clock in
+their accepted positions; uses the complete safe span between them; and moves
+only the destination captions one optical type step smaller.
+
+The active immutable HP layer is
+`/storage/.aster-staging/aster-media-top-rail1`, manifest
+`151c240abc66555d86bdb7a018b50bef774f29029be111fbb1a87ebed2abc771`,
+with recovery checkpoint
+`/storage/.aster-checkpoints/aster-media-top-rail1`. Native 4K evidence shows
+TV Shows, Movies, Archive TV, Archive Movies, Collections, Requests and YouTube
+in full with no clock collision. The exact active member and parent Acquisition
+layer verify, no player remains open, and Kodi's trailing log has no error or
+fatal event. Five focused tests pass normally and optimized; the full 1,219-test
+v2 suite passes with the one existing skip. This closes the landing-page visual
+comparison while leaving Acquisition Hub service activation as M7a's remaining
+work.
