@@ -1756,3 +1756,10 @@ independent watchdog, one read-only mount, LXC110 restart, exact transient
 reasoning-on candidate, two bounded fictional requests, mount removal, second
 restart and independent exact 9B/SYCL restoration. It remains LIVE BLOCKED
 until same-cycle evidence exists and Jason approves the restart transaction.
+
+The [private capture boundary](evidence/Full-Aster-private-capture-boundary-2026-10-26.md)
+now fixes the role/model/packet bindings and per-case observation shape for the
+future matched baseline and challenger runs. It rejects hidden-reasoning
+retention, retries, malformed timing and any call after a terminal failure;
+its shared manifest contains no answers. Owner packet freeze, the two-request
+challenger screen and separate live-run approval remain open.
