@@ -1769,3 +1769,10 @@ now prepares two independently shuffled `A`/`B` packets and explicit
 quality/safety forms while holding model roles and capture identities in a
 separate private key. No review or score is claimed; an exact scorer remains
 the next source-only benchmark task.
+
+That [deterministic scorer](evidence/Full-Aster-deterministic-score-boundary-2026-10-26.md)
+is now source-complete. It requires both independent reviewers, applies all
+quality, safety, latency, resource and recovery gates, and cannot grant
+authority or enable routing. The source-side matched benchmark chain is now
+complete through capture, blind review and scoring; live work still begins
+with the separately approved two-request challenger screen.
