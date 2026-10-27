@@ -2,7 +2,7 @@
 
 > Status: HP lab release candidate; production BOSGAME is unchanged  
 > Audience: household testers and operator  
-> Updated: 2026-10-26
+> Updated: 2026-10-27
 
 ## What this pilot is
 
@@ -35,6 +35,26 @@ is separated by its gold band.
   and returns to its source page, preserving the normal Continue Watching path.
 - The progress bar supports preview then commit: focus it, press OK, move with
   Left/Right, then OK to seek or Back to cancel.
+
+## Voice search
+
+- Voice search is an HP-only pilot. From Aster's Media Home, press the G20
+  microphone button once, speak a short title or person, and stop speaking. Do
+  not hold the button and do not press OK afterward. Aster listens for at most
+  four seconds and opens the normal grouped Search results.
+- Natural requests such as “Search for Dune” are accepted; Aster removes only
+  that command prefix and terminal dictation punctuation. It does not silently
+  substitute a different local title when recognition is uncertain.
+- If no useful speech is heard, the Search page remains open and shows a short
+  retry notification. Repeatedly pressing the microphone is not a recovery
+  action; wait for the current attempt to finish before trying once more.
+- Captured audio and transcripts remain in memory only and are not retained in
+  Kodi logs or on the speech server. The HP uses the restricted local
+  Aster-Speech STT path; it does not send household speech to Google or another
+  cloud transcription service.
+- The physical title/latency trial and one cold-boot microphone smoke are still
+  acceptance items. Until they pass, use the ordinary Search pill whenever
+  recognition is slow or inaccurate rather than inventing title aliases.
 
 ## Music
 
@@ -228,4 +248,15 @@ pre-authorization state is restored without displaying or exporting tokens.
 Dialog recovery restores only `DialogConfirm.xml`. Playback-setting recovery
 restores only the saved YouTube `settings.xml`, also with Kodi stopped, followed
 by one normal Kodi start. Never copy account-state files into project evidence.
+
+The HP voice-search successor is pinned by candidate manifest
+`094455c6574df87b10b4033532d3faecc9928d62aa26ca48a4fac66e72e4db6e`.
+Its retained checkpoints include the speech-model predecessor at
+`/var/lib/aster-speech/checkpoints/small-en-title-search-20261027`, the HP
+event-input retry predecessor at
+`/storage/.aster-checkpoints/aster-eventlircd-retry-20261027`, and the visible
+failure-feedback predecessor at
+`/storage/.aster-checkpoints/aster-voice-feedback-20261027`. Recovery must keep
+audio/transcript retention disabled and must not replace the microphone action
+with a global OK/Select binding. Production has no voice-search installation.
 
