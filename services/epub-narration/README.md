@@ -30,12 +30,13 @@ cleanup hashes and verifies 48 kbit/s mono Opus duration before publication.
 It retains a private hash-bound normalized chapter document for exact display
 and highlighting; configuration backup excludes that source-derived content.
 
-The deployed monitor is a daily persistent systemd timer in LXC 116. The
-single-attempt worker is intentionally static/inactive: it is invoked manually
-only after the remaining admission gate, never scheduled across the backlog by
-this milestone. Proxmox mounts the two narrow NFS exports and bind-mounts the
-Calibre source read-only and the AsterReader output read-write into the
-unprivileged guest.
+The deployed monitor is a daily persistent systemd timer in LXC 116. A separate
+recurring timer invokes the single-attempt worker no sooner than five minutes
+after the previous invocation becomes inactive. The worker also requires both
+speech services to be active before it starts, retains its single-instance lock
+and remains inside its low-priority resource envelope. Proxmox mounts the two
+narrow NFS exports and bind-mounts the Calibre source read-only and the
+AsterReader output read-write into the unprivileged guest.
 
 Run the synthetic suite:
 

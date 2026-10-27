@@ -575,27 +575,31 @@ check_epub_narration() {
         output_mount="$(findmnt -no SOURCE /mnt/epub-aster-reader 2>/dev/null || true)"
         output_options="$(findmnt -no OPTIONS /mnt/epub-aster-reader 2>/dev/null || true)"
         timer="$(pct exec 116 -- systemctl is-active epub-narration-monitor.timer 2>/dev/null || true)"
+        worker_timer="$(pct exec 116 -- systemctl is-active epub-narration-worker.timer 2>/dev/null || true)"
+        worker_timer_enabled="$(pct exec 116 -- systemctl is-enabled epub-narration-worker.timer 2>/dev/null || true)"
         worker="$(pct exec 116 -- systemctl is-active epub-narration-worker.service 2>/dev/null || true)"
         limits="$(pct exec 116 -- systemctl show epub-narration-worker.service -p MemoryMax -p CPUQuotaPerSecUSec -p Nice -p IOSchedulingClass --value 2>/dev/null | tr "\n" ",")"
-        status="$(pct exec 116 -- python3 -c '\''import json,pathlib,time
+        status="$(pct exec 116 -- python3 -c '\''import json,pathlib,sqlite3,time
 p=pathlib.Path("/mnt/aster-reader/state/monitor-status.json")
 d=json.loads(p.read_text())
-c=d.get("counts",{})
+c=dict(sqlite3.connect("file:/mnt/aster-reader/state/queue.db?mode=ro",uri=True).execute("SELECT state,COUNT(*) FROM generations GROUP BY state"))
 print("monitor_state="+str(d.get("state","invalid")))
 print("source_count="+str(d.get("source_count","invalid")))
-print("queued="+str(c.get("queued","invalid")))
-print("ready="+str(c.get("ready","invalid")))
-print("failed="+str(c.get("failed","invalid")))
+print("queued="+str(c.get("queued",0)))
+print("active="+str(sum(c.get(k,0) for k in ("extracting","narrating","aligning"))))
+print("ready="+str(c.get("ready",0)))
+print("failed="+str(c.get("failed",0)))
 print("status_age="+str(max(0,int(time.time()-p.stat().st_mtime))))'\'' 2>/dev/null || true)"
-        printf "source_mount=%s\nsource_options=%s\noutput_mount=%s\noutput_options=%s\ntimer=%s\nworker=%s\nlimits=%s\n%s\n" "$source_mount" "$source_options" "$output_mount" "$output_options" "$timer" "$worker" "$limits" "$status"
+        printf "source_mount=%s\nsource_options=%s\noutput_mount=%s\noutput_options=%s\ntimer=%s\nworker_timer=%s\nworker_timer_enabled=%s\nworker=%s\nlimits=%s\n%s\n" "$source_mount" "$source_options" "$output_mount" "$output_options" "$timer" "$worker_timer" "$worker_timer_enabled" "$worker" "$limits" "$status"
     ')"; then
         warn "Unable to check EPUB narration compiler"
         return
     fi
 
-    local source_count queued ready failed status_age worker
+    local source_count queued active ready failed status_age worker
     source_count="$(sed -n 's/^source_count=//p' <<< "$state")"
     queued="$(sed -n 's/^queued=//p' <<< "$state")"
+    active="$(sed -n 's/^active=//p' <<< "$state")"
     ready="$(sed -n 's/^ready=//p' <<< "$state")"
     failed="$(sed -n 's/^failed=//p' <<< "$state")"
     status_age="$(sed -n 's/^status_age=//p' <<< "$state")"
@@ -611,14 +615,17 @@ print("status_age="+str(max(0,int(time.time()-p.stat().st_mtime))))'\'' 2>/dev/n
          [[ ! "$source_count" =~ ^[1-9][0-9]*$ ]] ||
          [[ ! "$status_age" =~ ^[0-9]+$ ]] || (( status_age > 172800 )); then
         fail "EPUB narration monitor is disabled, stale or invalid"
+    elif ! grep -qx 'worker_timer=active' <<< "$state" ||
+         ! grep -qx 'worker_timer_enabled=enabled' <<< "$state"; then
+        fail "EPUB narration worker automation is disabled"
     elif ! grep -qx 'limits=3s,3221225472,15,3,' <<< "$state"; then
         fail "EPUB narration worker resource controls drifted"
-    elif [[ ! "$queued" =~ ^[0-9]+$ || ! "$ready" =~ ^[0-9]+$ || ! "$failed" =~ ^[0-9]+$ ]]; then
+    elif [[ ! "$queued" =~ ^[0-9]+$ || ! "$active" =~ ^[0-9]+$ || ! "$ready" =~ ^[0-9]+$ || ! "$failed" =~ ^[0-9]+$ ]]; then
         fail "EPUB narration queue status is invalid"
     elif (( failed > 0 )); then
-        warn "EPUB narration monitor healthy; queued=$queued ready=$ready failed=$failed"
+        warn "EPUB narration monitor healthy; queued=$queued active=$active ready=$ready failed=$failed"
     else
-        pass "EPUB narration monitor healthy; queued=$queued ready=$ready failed=0, worker ${worker:-unknown}"
+        pass "EPUB narration monitor healthy; queued=$queued active=$active ready=$ready failed=0, worker ${worker:-unknown}"
     fi
 }
 

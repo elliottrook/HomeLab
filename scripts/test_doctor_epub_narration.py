@@ -37,11 +37,14 @@ fail() { printf 'FAIL %s\n' "$1"; }
             "output_mount": "192.168.20.40:/mnt/Media/AsterReader",
             "output_options": "rw,nosuid,nodev,noexec",
             "timer": "active",
+            "worker_timer": "active",
+            "worker_timer_enabled": "enabled",
             "worker": "inactive",
             "limits": "3s,3221225472,15,3,",
             "monitor_state": "healthy",
             "source_count": "167",
             "queued": "167",
+            "active": "0",
             "ready": "0",
             "failed": "0",
             "status_age": "60",
@@ -49,8 +52,14 @@ fail() { printf 'FAIL %s\n' "$1"; }
         values.update(changes)
         return "\n".join(f"{key}={value}" for key, value in values.items())
 
-    def test_accepts_healthy_monitor_with_intentionally_inactive_worker(self):
+    def test_accepts_healthy_monitor_with_scheduled_worker(self):
         self.assertIn("PASS EPUB narration monitor healthy", self.run_check(self.fixture()))
+
+    def test_rejects_disabled_worker_automation(self):
+        self.assertIn(
+            "FAIL EPUB narration worker automation is disabled",
+            self.run_check(self.fixture(worker_timer="inactive", worker_timer_enabled="disabled")),
+        )
 
     def test_rejects_stale_status(self):
         self.assertIn("FAIL EPUB narration monitor is disabled, stale or invalid", self.run_check(self.fixture(status_age="172801")))
@@ -60,7 +69,7 @@ fail() { printf 'FAIL %s\n' "$1"; }
 
     def test_warns_on_bounded_failures_without_exposing_identifiers(self):
         output = self.run_check(self.fixture(queued="160", failed="7"))
-        self.assertIn("WARN EPUB narration monitor healthy; queued=160 ready=0 failed=7", output)
+        self.assertIn("WARN EPUB narration monitor healthy; queued=160 active=0 ready=0 failed=7", output)
         self.assertNotIn("title", output.lower())
 
 

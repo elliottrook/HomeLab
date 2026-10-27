@@ -12,6 +12,8 @@ Group=epub-narration
 UMask=0077
 WorkingDirectory=/opt/epub-narration
 Environment=PYTHONPATH=/opt/epub-narration
+ExecCondition=/usr/bin/systemctl is-active --quiet aster-speech.service
+ExecCondition=/usr/bin/systemctl is-active --quiet aster-voice-candidate.service
 ExecStart=/opt/aster-voice-candidate/venv/bin/python /opt/epub-narration/tools/run_worker.py --database /mnt/calibre-books/metadata.db --library-root /mnt/calibre-books --data-root /mnt/aster-reader --model /opt/aster-voice/models/kokoro-v1.0.fp16.onnx --voices /opt/aster-voice/models/voices-v1.0.bin --cleanup /opt/epub-narration/vendor/digest_text.py
 Nice=15
 IOSchedulingClass=idle

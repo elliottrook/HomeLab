@@ -11,8 +11,9 @@
 - A daily persistent monitor in unprivileged Aster Speech LXC 116 reads the
   Calibre library through a read-only mount and maintains a private queue.
 - A low-priority, single-attempt canonical Aster worker is installed with a
-  3 GiB ceiling, 300% CPU quota, one lock and no timer. It remains inactive, so
-  the 167-item backlog has not started.
+  3 GiB ceiling, 300% CPU quota, one lock and a recurring timer. The backlog is
+  active, with at least five minutes between attempts and a pre-start gate that
+  requires both speech services to remain active.
 - TrueNAS `Media/AsterReader` has a 128 GiB quota, daily 14-day snapshots and
   an accepted-state snapshot. The protected exporter covers main and HP pilot
   queues, status, ready pointers, manifests and the reconstruction marker while
@@ -59,6 +60,5 @@ path, text, audio, timing, progress or source hashes into ordinary reports.
 
 ## Deliberately deferred
 
-- Starting the full real backlog remains a deliberate operator action.
 - A normal HP menu route and any BOSGAME promotion are not part of this close.
 - Live missing-chapter synthesis remains optional M7 and is absent.

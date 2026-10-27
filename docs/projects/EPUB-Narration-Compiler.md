@@ -1,6 +1,7 @@
 # EPUB Narration Compiler and New-Title Monitor
 
-> Status: Complete — Stream A; HP Lab deployment accepted, BOSGAME unchanged
+> Status: Complete — Stream A; HP Lab accepted, automatic backlog active,
+> BOSGAME unchanged
 >
 > Owner: Jason
 >
@@ -300,8 +301,10 @@ private report is SHA-256
 Preserve the root-private M2 checkpoint; do not rerun or publish its real
 content. M3/M4 deployed the 128 GiB `Media/AsterReader` dataset, Proxmox-hosted
 least-privilege NFS mounts, unprivileged LXC 116 bind mounts, daily monitor and
-static single-attempt worker. The monitor is active and idempotent; the worker
-is intentionally inactive and the full backlog has not started. Daily 14-day
+static single-attempt worker. The monitor is active and idempotent. On Jason's
+2026-10-26 instruction, a recurring worker timer and speech-service pre-start
+gate were added and the full backlog was started with exactly one attempt in
+flight. Daily 14-day
 dataset snapshots and the protected configuration export now cover queue,
 status, ready pointers and manifests while excluding generated audio/timing.
 M5 then added an inactive HP Aster Books beta at
@@ -312,8 +315,8 @@ Kodi process was not restarted. M6 added the separate HP-only direct-launch
 bundle at `/storage/.aster-staging/aster-books-compiler-hp-beta1`, compiled one
 private two-chapter pilot in an isolated queue, passed two final native
 playback/progress runs and extended protected backup coverage for pilot
-state/pointers/manifests. The full backlog and normal HP/BOSGAME routes remain
-unchanged. Optional BOSGAME promotion and M7 fallback require separate scope.
+state/pointers/manifests. The normal HP/BOSGAME routes remain unchanged.
+Optional BOSGAME promotion and M7 fallback require separate scope.
 
 ## Milestones
 
@@ -447,8 +450,10 @@ unchanged. Optional BOSGAME promotion and M7 fallback require separate scope.
 - [x] **DNS/certificates/firewall** — no change planned; stop if a new ingress
   path is proposed.
 - [x] **Automation/schedules** — daily randomized persistent monitor timer,
-  single-instance locks and atomic private status are deployed; worker has no
-  enable target or recurring schedule.
+  single-instance locks and atomic private status are deployed. The recurring
+  worker timer starts one attempt at a time, waits at least five minutes after
+  an invocation becomes inactive and skips starts unless both speech services
+  are active.
 - [x] **Security inventory** — owner-only state/status, read-only source,
   no public listener/credential, pinned model/cleanup hashes and bounded
   temporary work are recorded. The NFS exports are restricted to the trusted
@@ -516,26 +521,28 @@ unchanged. Optional BOSGAME promotion and M7 fallback require separate scope.
 | 2026-10-26 | Extended the protected exporter to cover the HP pilot queue, ready pointer, manifest and reconstruction marker while still excluding Opus, timing and content. A live 1.46 GB export verified 20 application scopes, 24 SQLite databases and zero pilot media/content files; an isolated restore verified both queue databases, 168 records, one pointer and one manifest. File Browser resumed healthy. Added immediate snapshot `Media/AsterReader@hp-beta1-accepted-20261026`. | Backup regime covers recovery-critical compiler and pilot state; generated bulk remains local/reproducible by design. |
 | 2026-10-26 | Final regression passed 34 compiler/reader tests in normal and optimized Python, 12 backup/Doctor tests, compilation checks and two live HP passes. HomeLab Doctor passed the EPUB monitor and fresh configuration backup with 84 passes, two warnings and four unrelated existing failures. | M6 and the HP Lab objective are complete. No remote Git push was performed. |
 | 2026-10-26 | Rebuilt the sanitized Aster knowledge archive from clean HomeLab commit `18633fde`, a clean reference clone and the accepted 1,811-entry derived mirror. The 1,841-source archive is `3a039170…747`; provenance was clean and the HP/BOSGAME boundary was present. Checkpointed the prior LXC 104 corpus, atomically activated the candidate and restarted only `aster-agent.service`; health returned OK with PID 16137 and zero restarts. | Aster's derived operational answer corpus matches the accepted HP state; prior corpus and root-only checkpoint remain available for rollback. |
+| 2026-10-26 | Jason explicitly directed that the full narration backlog start and that future LazyLibrarian arrivals be handled automatically. Added an enabled recurring worker timer with a five-minute minimum inter-attempt gap and pre-start conditions for both speech services. Preserved an exact-file unit checkpoint and `Media/AsterReader@backlog-start-20261026T215130` before activation. The first attempt entered narration with one worker; both speech services retained their PIDs, zero restarts and active state, and the 3 GiB/300%/nice 15/idle-I/O envelope remained intact. | Backlog processing is active and bounded. The daily read-only Calibre reconciliation queues new/changed EPUBs after LazyLibrarian imports them into Calibre; the recurring worker processes those entries without a second operator start. |
+| 2026-10-26 | Post-start regression passed 36 compiler/reader/unit tests in normal and optimized Python plus 12 backup/Doctor tests. HomeLab Doctor passed the active worker automation, speech health, current configuration archive and LXC 116 guest/mirror backups with 84 passes, two warnings and four unrelated existing failures. TrueNAS task 14 remains enabled for daily 04:45 AsterReader snapshots with 14-day retention; configuration-export cron 7 remains enabled daily at 05:00. | Automation and backup integration are regression-clean. The protected exporter will include new ready pointers/manifests on its next scheduled run while local ZFS snapshots retain generated bulk data. |
 
 ## Post-deployment intent and efficiency review
 
 - The monitor delivers the requested new/changed-title detection and is
-  idempotent. The real backlog remains deliberately queued because measured
-  single-worker completion is roughly 80 continuous days and no household
-  benefit justifies silently beginning that load.
+  idempotent. Jason deliberately opened the backlog gate after reviewing the
+  roughly 80-day continuous-equivalent estimate; the recurring worker remains
+  single-concurrency and continues after the initial queue drains.
 - The worker has one-attempt execution, one lock, low CPU/I/O priority, a 3 GiB
-  memory ceiling and no schedule. The 128 GiB quota is about 3.3 times the
-  measured ready-corpus estimate. No concurrency increase is justified.
+  memory ceiling, a speech-service pre-start gate and at least five minutes
+  between invocations. The 128 GiB quota is about 3.3 times the measured
+  ready-corpus estimate. No concurrency increase is justified.
 - The active direct-launch HP beta proves exact ready-pointer consumption, sentence
   highlighting, seek, chapter change, private progress/resume, Opus duration
   and rollback boundaries without changing a production route.
 - Permissions remain minimal: Calibre read-only, output-only writes, no
   listener/credential/public ingress. Configuration backup excludes
   source-derived content/audio/timing while local snapshots protect bulk data.
-- Operational friction is intentional: the one-item HP pilot is available only
-  by direct launch, and the 167-item worker backlog still requires a deliberate
-  operator start. This prevents a multi-month workload or normal-menu change
-  from beginning merely because the monitor found a backlog.
+- The one-item HP pilot remains available only by direct launch. Backlog
+  automation changes compilation only; it does not add a normal-menu route or
+  change BOSGAME.
 - The implementation is supportable through Doctor, Beszel host history, the
   runbook, human wiki, protected state restore and source-driven regeneration.
   BOSGAME promotion is no longer a graduation dependency; it remains an

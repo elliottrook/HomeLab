@@ -68,18 +68,18 @@ synthetic beta and historical preview untouched.
 
 ## Normal status
 
-From the operator Mac, verify the host mounts, monitor timer, worker state and
+From the operator Mac, verify the host mounts, both timers, worker state and
 existing speech services:
 
 ```sh
 ssh -o BatchMode=yes proxmox "systemctl is-active 'mnt-epub\\x2dcalibre\\x2dbooks.mount' 'mnt-epub\\x2daster\\x2dreader.mount'"
-ssh -o BatchMode=yes proxmox "pct exec 116 -- systemctl is-active epub-narration-monitor.timer aster-speech.service aster-voice-candidate.service"
+ssh -o BatchMode=yes proxmox "pct exec 116 -- systemctl is-active epub-narration-monitor.timer epub-narration-worker.timer aster-speech.service aster-voice-candidate.service"
 ssh -o BatchMode=yes proxmox "pct exec 116 -- systemctl is-active epub-narration-worker.service 2>/dev/null || true"
 ```
 
-Healthy pilot state is two active host mounts, an active monitor timer, both
-speech services active, and an inactive worker. Read sanitized monitor status
-source-locally:
+Healthy state is two active host mounts, active monitor and worker timers, both
+speech services active, and either an active worker or an inactive worker
+between attempts. Read sanitized monitor status source-locally:
 
 ```sh
 ssh -o BatchMode=yes proxmox "pct exec 116 -- runuser -u epub-narration -- python3 -c 'import json; d=json.load(open(\"/mnt/aster-reader/state/monitor-status.json\")); print(d[\"state\"],d[\"source_count\"],d[\"queued_new_count\"],d[\"counts\"])'"
@@ -103,16 +103,20 @@ Disable automatic discovery without changing queue or output state:
 ssh -o BatchMode=yes proxmox "pct exec 116 -- systemctl disable --now epub-narration-monitor.timer"
 ```
 
-The worker is not enabled by a timer. Do not start it across the real backlog
-until the project records the remaining admission/pause gate. When that gate
-is explicitly opened, one manual invocation processes at most one queued
-generation:
+The worker timer starts one generation at a time and waits at least five
+minutes after an invocation becomes inactive before starting another. It skips
+an invocation unless both speech services are active. Pause backlog processing
+without changing queue or output state:
 
 ```sh
-ssh -o BatchMode=yes proxmox "pct exec 116 -- systemctl start epub-narration-worker.service"
+ssh -o BatchMode=yes proxmox "pct exec 116 -- systemctl disable --now epub-narration-worker.timer"
+ssh -o BatchMode=yes proxmox "pct exec 116 -- systemctl stop epub-narration-worker.service"
 ```
 
-Stop an active attempt with `systemctl stop epub-narration-worker.service`.
+Resume automatic processing with `systemctl enable --now
+epub-narration-worker.timer`; start an immediate attempt with `systemctl start
+--no-block epub-narration-worker.service`. Stop an active attempt with
+`systemctl stop epub-narration-worker.service`.
 Startup recovery records the interrupted bounded failure and requeues it only
 while its attempt count remains below the limit. The previous ready generation
 is never removed by this operation.
@@ -152,8 +156,9 @@ status files, ready pointers, immutable manifests and the pilot reconstruction
 marker. It deliberately excludes reproducible Opus, timing and normalized
 content payloads. The encrypted/off-site path therefore preserves
 orchestration and identity while local ZFS snapshots cover bulk generated
-data. Immediate snapshot `Media/AsterReader@hp-beta1-accepted-20261026`
-supplements the daily schedule.
+data. Immediate snapshots `Media/AsterReader@hp-beta1-accepted-20261026` and
+`Media/AsterReader@backlog-start-20261026T215130` supplement the daily
+schedule.
 
 Validate backup coverage with:
 
@@ -169,8 +174,9 @@ python3 scripts/backup/verify-epub-narration-restore.py /path/to/configs.tar.gz
 ```
 
 The result contains only queue-record, ready-pointer and generation-manifest
-counts plus the media-exclusion decision. The main queue has zero ready
-generations while its worker remains inactive; the isolated HP pilot has one.
+counts plus the media-exclusion decision. The protected exporter picks up new
+main ready pointers and manifests on its next run while the isolated HP pilot
+retains its accepted pointer and manifest.
 
 Restore into an isolated dataset or directory first. Verify the SQLite
 integrity check, manifest hashes and ready pointers there; never overwrite the
@@ -180,7 +186,7 @@ passes.
 
 ## Rollback
 
-1. Disable the monitor timer and stop the worker.
+1. Disable both the monitor and worker timers, then stop the worker.
 2. Confirm both speech services remain active.
 3. Retain the AsterReader dataset, snapshots and queue; do not delete output.
 4. Confirm HP Kodi is idle, then remove only

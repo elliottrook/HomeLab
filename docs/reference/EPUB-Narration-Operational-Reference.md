@@ -17,9 +17,10 @@ paths, text, audio, timing data, listening progress and source hashes.
 
 - The daily persistent monitor is active and reconciles new or changed EPUBs
   idempotently.
-- The low-priority single-attempt worker is installed but intentionally
-  inactive. It has no recurring schedule and the queued backlog has not been
-  started.
+- The low-priority single-attempt worker is active under a recurring timer. It
+  processes exactly one queue item per invocation, waits at least five minutes
+  after becoming inactive and starts only while both speech services are
+  active.
 - The worker uses Aster's canonical local voice contract and publishes 48
   kbit/s mono Opus with exact sentence-level sample cues.
 - A generation becomes visible only after all file hashes, timing bounds and
@@ -39,8 +40,9 @@ failure classes. A queued item means work is known, not that narration is
 available. A failed item must be investigated by its bounded class without
 printing or exporting the affected source identity.
 
-HomeLab Doctor owns functional checks for mount direction, monitor freshness,
-queue state and worker resource controls. Beszel already monitors the Aster
+HomeLab Doctor owns functional checks for mount direction, both timers,
+monitor freshness, live aggregate queue state and worker resource controls.
+Beszel already monitors the Aster
 Speech guest's host resources; no duplicate service or agent is needed for the
 offline compiler. TrueNAS remains under its existing infrastructure and native
 monitoring.
@@ -51,15 +53,15 @@ There is no public route, application credential or Calibre write authority.
 Listening progress belongs only to Aster Books' private generation-bound state
 and is neither written to Calibre nor mixed with Audiobookshelf.
 
-Daily dataset snapshots and the accepted HP snapshot retain local generated
-payloads. The protected configuration export stores online backups of the
-main and HP pilot queues plus status, ready pointers, immutable manifests and
-the pilot reconstruction marker while excluding generated content, audio and
-timing. Restore queue/manifests into an isolated location and verify integrity
-before changing live state. Calibre EPUBs remain the authoritative
-regeneration source.
+Daily dataset snapshots plus accepted HP and backlog-start snapshots retain
+local generated payloads. The protected configuration export stores online
+backups of the main and HP pilot queues plus status, ready pointers, immutable
+manifests and the pilot reconstruction marker while excluding generated
+content, audio and timing. Restore queue/manifests into an isolated location
+and verify integrity before changing live state. Calibre EPUBs remain the
+authoritative regeneration source.
 
-Rollback stops the monitor and worker, removes only the HP direct-launch
+Rollback stops both timers and the worker, removes only the HP direct-launch
 bundle and its dedicated state after checking the absent-state checkpoint,
 and preserves the AsterReader dataset, snapshots, queue and last-known-good
 generations. It never writes to Calibre or deletes the only ready copy.
