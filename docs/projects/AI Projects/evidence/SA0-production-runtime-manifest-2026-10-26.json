@@ -1,0 +1,47 @@
+{
+  "schema": "aster.sa0.production-runtime-manifest.v1",
+  "observed_at": "2026-10-26T22:41:26-07:00",
+  "repository_commit": "f3e479a159bfc6a2a721eb01b752ae9fa69b199d",
+  "target": "LXC104:/opt/aster-agent",
+  "service": {
+    "name": "aster-agent.service",
+    "active_state": "active",
+    "sub_state": "running",
+    "main_pid": 16480,
+    "n_restarts": 0,
+    "health_endpoint": "http://192.168.70.10:9120/health",
+    "health_result": {
+      "service": "aster-agent",
+      "status": "ok"
+    },
+    "unauthenticated_models_http_status": 401
+  },
+  "accepted_model_service": {
+    "name": "aster-llama.service",
+    "main_pid": 48161,
+    "n_restarts": 0,
+    "state": "active/running",
+    "restart_or_change": false
+  },
+  "rollback": {
+    "path": "/var/lib/aster/sa0-pre-current-composite-20261027/aster_agent.py",
+    "sha256": "7edc7ff9776357d62f6eff45de2093aab5749bb38317251b404df88012c6b50c",
+    "parent_owner_mode": "root:root 0700",
+    "file_owner_mode": "root:root 0644"
+  },
+  "files": [
+    {"path": "/opt/aster-agent/aster_agent.py", "sha256": "e29e9cd3d50bc117f63698cebca60f2f9c2a3ae788430c7bb6ae31890cc18116", "repository_equal": true},
+    {"path": "/opt/aster-agent/aster_with_delegation.py", "sha256": "43e1d9c439e7adf9529f45fae8482cfdf7379822c440a979db08418a585eb28c", "repository_equal": true},
+    {"path": "/opt/aster-agent/knowledge_usage.py", "sha256": "900a7fccad9c6e665297e3655e01844ca976705f69b45fac689858a00ccbfb55", "repository_equal": true},
+    {"path": "/opt/aster-agent/arr_report.py", "sha256": "adacab07f40b1218be43fd5d4119efc87571ffba06b41151d40f3cc099c231d9", "repository_equal": true},
+    {"path": "/opt/aster-agent/ha_report.py", "sha256": "9d99e511a123fb5a73c93aceb17af7ea7ebbeb442e437798b2c5cfadbdeece81", "repository_equal": true},
+    {"path": "/opt/aster-agent/source_reports.py", "sha256": "7a85c52a5b350f3dde81b52fdd118f9a37f9a45feaca50db4f86092a297eadd2", "repository_equal": true},
+    {"path": "/opt/aster-agent/broker_approvals.py", "sha256": "cf37fb1782c875622155b50d7b69f31b7c9acc2c30f7881f5da9b4a6538dd324", "repository_equal": true},
+    {"path": "/opt/aster-agent/doctor_incident_adapter.py", "sha256": "c88c4e642426afff9718da79e89db5b8405f1a5c00fbcc0fa09c3ae5956272db", "repository_equal": true},
+    {"path": "/opt/aster-agent/sysadmin_incident_store.py", "sha256": "4e8a36a803c3d8e5eac362e4c17a0cadc1f4ae2accca05cc73283b646b8e5c4b", "repository_equal": false, "classification": "deployed predecessor at 04cd0914; later repository validation and custody hardening remains an uninstalled SA1 candidate"},
+    {"path": "/opt/aster-agent/sysadmin_incident_stream.py", "sha256": "8aa8c572cbe3208b9b8c1a0ce34dfdab893a064ba79e7e5a87c7d8decca8d683", "repository_equal": false, "classification": "deployed predecessor at f7c6b09a; later repository bounded-presentation hardening remains an uninstalled SA1 candidate"},
+    {"path": "/opt/aster-agent/sysadmin_investigation.py", "sha256": "bfd5e9675b4a7ef06aa0ddb28e7c9b5fda2076a86957cd5474a75ccbd50ee6fe", "repository_equal": false, "classification": "deployed predecessor at 3676a7cc; later repository investigation and fixed-Speech additions remain uninstalled D4/SA1 candidates"},
+    {"path": "/opt/aster-agent/lab_operations.py", "sha256": "9a3d7f9c0a35952693bc39c4fc7b36d85f1b7d10060856859bbaf3ad7e7203af", "repository_equal": false, "classification": "repository adds only the operator-only interrupted-Doctor reconciliation method; it remains outside HTTP and model paths and is not released"},
+    {"path": "/etc/systemd/system/aster-agent.service", "sha256": "530b3918e08e8a9e27ce2f651b18fd4967bdba8c453eecc40b37788b4c9b1a15", "repository_equal": true}
+  ]
+}

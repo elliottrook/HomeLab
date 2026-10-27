@@ -49,15 +49,16 @@ baseline. Measurement authenticity remains unestablished, and this decision
 does not authorize private collection, a collector, deployment, routing, model
 promotion or authority.
 
-**SA0 current parity checkpoint:** a fresh read-only LXC104 comparison found
-the narrow Lab Operations, Doctor and Speech files exact, but the running core
-gateway remains a production composition rather than the current branch file.
-The [reconciled source candidate](evidence/SA0-current-production-source-reconciliation-2026-10-26.md)
-preserves production's privacy-minimized knowledge counter and the branch's
-later safety/Companion fixes; 99/99 tests pass in the target environment. Live
-parity now needs only one exact `aster_agent.py` replacement and an Aster Agent
-restart. The model, broker policy, OpenBao, Companion bundle and schedules are
-outside that effect.
+**SA0 complete:** the reviewed one-file gateway composition was
+[deployed and independently checked](evidence/SA0-current-production-source-deployment-result-2026-10-26.md).
+The live gateway now matches commit `f3e479a1`, Aster Agent is healthy with no
+restart loop, unauthenticated model discovery remains denied and the accepted
+llama.cpp/SYCL service was not restarted. The exact previous gateway is retained
+in a root-only rollback checkpoint. The
+[runtime manifest](evidence/SA0-production-runtime-manifest-2026-10-26.json)
+records every checked hash and explains four intentional forward-candidate
+module differences. This closes reconciliation; it does not release those
+candidates, automatic routing, connected repair or broader authority.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
