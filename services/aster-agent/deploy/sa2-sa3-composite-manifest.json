@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "release_id": "sa2-doctor-sa3-candidate-e-composite-20261027",
+  "components": {
+    "sa2_manifest": "services/aster-agent/deploy/sa2-doctor-producer-manifest.json",
+    "sa2_manifest_sha256": "d65cab046facf2dde8c985d15401362b8333ea98c35a058114622f488672c641",
+    "sa3_manifest": "services/aster-agent/deploy/sa3-proposal-gateway-manifest.json",
+    "sa3_manifest_sha256": "15bc75939c9659de104516930c1ac201d0ff423f8232953acb1f68655583fa82"
+  },
+  "runtime": {
+    "target": "LXC104",
+    "service": "aster-agent.service",
+    "restart_count": 1,
+    "model_restart": false,
+    "model_change": false,
+    "automatic_routing": false,
+    "observation_authority": "fixed-doctor-status-only",
+    "repair_authority": false
+  }
+}

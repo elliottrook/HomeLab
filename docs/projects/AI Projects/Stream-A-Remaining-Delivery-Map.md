@@ -238,6 +238,18 @@ packet/manifest/installer suite passes 11/11. It has not run; the remaining pre-
 work is limited to post-window live-predecessor and target-Python checks,
 followed by the separately approved Aster Agent restart.
 
+The two ready releases now also have a source-only
+[single-restart composite](evidence/SA2-SA3-single-restart-composite-boundary-2026-10-27.md).
+It binds both reviewed manifests, builds an exact seven-file packet, checkpoints
+all four replacements, treats the three proposal modules as additions and
+rolls the complete transaction back as one unit. The combined 30-test suite and
+shell syntax pass. A deterministic 16-member candidate-and-test packet now
+makes the post-window Python 3.13 check reproducible without touching live
+files. This reduces the later live change from two Aster Agent
+restarts to one without widening either component's authority. Post-window
+live-predecessor and target-Python checks still precede one exact restart
+approval; nothing was deployed while the protected timed chain was active.
+
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the
