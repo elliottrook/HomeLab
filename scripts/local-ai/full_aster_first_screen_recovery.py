@@ -82,10 +82,11 @@ def recover(*, identity: RecoveryIdentity, observer: Observer,
             runner: Callable[[Sequence[str], float], None]) -> None:
     """Recover once; ambiguity retains state and prevents lease release."""
     identity.validate()
-    runner(stop_command(), 30.0)
-    runner(reset_failed_command(), 15.0)
-    if not observer.candidate_absent():
-        raise RecoveryError("candidate process or unit remains")
+    if observer.guest_running():
+        runner(stop_command(), 30.0)
+        runner(reset_failed_command(), 15.0)
+        if not observer.candidate_absent():
+            raise RecoveryError("candidate process or unit remains")
 
     mount = observer.mount_state()
     if mount not in {"exact", "absent"}:
@@ -102,6 +103,11 @@ def recover(*, identity: RecoveryIdentity, observer: Observer,
         runner(start_guest_command(), 90.0)
         if not observer.guest_running():
             raise RecoveryError("LXC110 did not restart")
+
+    runner(stop_command(), 30.0)
+    runner(reset_failed_command(), 15.0)
+    if not observer.candidate_absent():
+        raise RecoveryError("candidate process or unit remains after guest recovery")
 
     runner(baseline_start_command(), 360.0)
     if not observer.exact_baseline_restored():

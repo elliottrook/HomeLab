@@ -48,6 +48,16 @@ class RecoveryTests(unittest.TestCase):
         self.assertNotIn(recovery.delete_mount_command(), commands)
         self.assertNotIn(recovery.start_guest_command(), commands)
 
+    def test_stopped_guest_is_started_before_candidate_absence_and_baseline_checks(self):
+        observer = Observer(mount="absent", running=False)
+        commands = []
+        def run(command, _timeout):
+            commands.append(tuple(command))
+            if tuple(command) == recovery.start_guest_command(): observer.running = True
+        recovery.recover(identity=identity(), observer=observer, runner=run)
+        self.assertEqual(commands[0], recovery.start_guest_command())
+        self.assertIn(recovery.stop_command(), commands[1:])
+
     def test_foreign_mount_candidate_or_bad_baseline_fail_closed(self):
         for observer in (Observer(mount="foreign"), Observer(candidate_absent=False),
                          Observer(mount="absent", baseline=False)):
