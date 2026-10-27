@@ -125,6 +125,19 @@ GO — scheduled/conditional. Fresh backup, task-1, archive identity, load and
 quiet-host gates still fail closed at runtime, and no F3 effect follows without
 its own fresh card, review and approval.
 
+**October 27 terminal chain:** preparation passed, but the observer child
+exited nonzero and the coordinator retained only `OBSERVER_EXIT_NONZERO`; zero
+archive rows were accepted. The exact-date timers were removed, recurring F2
+timers remain disabled and production is healthy. F3 therefore failed closed
+without invoking its converter or writing a receipt. Investigation found that
+the child had already emitted a content-free bounded phase, but the coordinator
+discarded it when checking the nonzero exit first. Platform commit `be6cafa4`
+now maps only exact `preflight`, `observer` and `result` failure projections to
+bounded classes and retains the conservative generic class for malformed or
+unknown output. The clean F2 suite passes 55 tests with one expected custody
+skip. This cannot recover the October 27 phase; a separately approved inactive
+one-file installation and target-Linux proof precede any fresh cycle.
+
 **October 20 F2 result:** the two exact-date timers fired and are now disabled,
 but preparation failed after five seconds and final failed immediately. No
 archive row or scan result was produced. The exact preparation sub-gate is
