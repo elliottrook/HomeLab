@@ -49,6 +49,7 @@ def main():
     home = xbmcgui.Window(10000)
     monitor = xbmc.Monitor()
     opened = False
+    revision = False
     state = load_state(
         DiscoveryFeedClient(BROKER, TOKEN, CACHE),
         datetime.now(timezone.utc),
@@ -64,7 +65,7 @@ def main():
         home.setProperty(key, str(value)) if value != "" else home.clearProperty(key)
 
     def publish():
-        nonlocal state
+        nonlocal state, revision
         state = restore_saved_state(state, writer)
         view = render(state)
         prop("Domain", view.domain)
@@ -91,6 +92,10 @@ def main():
             prop("Tab" + domain.title(), "active" if domain == view.domain else "")
         if not view.action_enabled and window.getFocusId() == 50:
             xbmc.executebuiltin("SetFocus(30)")
+        # A bounded neutral animation invalidates this page's cached property
+        # labels/images together. Do not change the global dirty-region policy.
+        revision = not revision
+        prop("Revision", "odd" if revision else "even")
 
     def fill():
         control = window.getControl(30)
@@ -166,7 +171,7 @@ def main():
         for key in (
             "Command", "Domain", "Status", "Title", "Metadata", "Synopsis",
             "Explanation", "Poster", "Backdrop", "PrimaryAction", "ActionHint",
-            "TabMedia", "TabMusic", "TabBooks",
+            "TabMedia", "TabMusic", "TabBooks", "Revision",
         ):
             home.clearProperty(PREFIX + key)
         if opened and xbmcgui.getCurrentWindowId() == 11133:

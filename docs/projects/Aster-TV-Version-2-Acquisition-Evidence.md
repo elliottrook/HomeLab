@@ -185,3 +185,33 @@ request journal was changed while the EPUB project tests on HP. Once that test
 releases the client, continue under the existing HP authorization with a
 checkpointed two-file activation and native duplicate-only review of the two
 already approved requests. This does not authorize another acquisition.
+
+## 2026-10-26 — HP activation and pixel-level correction
+
+After Jason released the HP from EPUB testing, the saved-status candidate was
+installed with both predecessor files verified and privately checkpointed at
+`/storage/.aster-checkpoints/aster-acquisition-saved-status1`. Kodi was idle
+before the bounded restart. Both existing request journals remained unchanged.
+
+The native duplicate-only check confirmed the two saved outcomes and refused
+two injected repeat actions per title without changing either journal. Initial
+harness attempts incorrectly relied on cross-window list objects; the corrected
+driver reads renderer item identities. Failed results remain alongside the
+successful results, not overwritten or reclassified.
+
+Screenshot inspection then caught a real defect the property assertions missed:
+selecting Heretics could leave the previous book's hero and Request button
+painted on screen. A two-file successor adds a bounded, visually neutral 50 ms
+page-local repaint on property publication. It does not change Kodi's global
+renderer policy or reload the skin on selection. The successor manifest pin is
+`299c4db6825f1f5ba406f5dc149821e5ebd2f1a5a37b1fb803f94b62ea3c08d9`;
+checkpoint `/storage/.aster-checkpoints/aster-acquisition-repaint1` retains both
+originals and supports verified rollback. Its active file hashes were verified
+independently after the idle restart.
+
+The repeated native test passed, and the new Books screenshot visibly shows
+Heretics of Dune, its matching artwork and saved accepted status with no Request
+button. Music likewise passed. These checks create no further acquisition and
+do not imply either title has finished downloading or importing. Native results
+and screenshots are under
+`/storage/.aster-staging/aster-acquisition-saved-status1`.

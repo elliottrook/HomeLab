@@ -41,3 +41,25 @@ independent release work while HP's foreground is in use. When the physical
 remote is available, verify its actual event/source identity before activating
 capture. Never infer a microphone event from a generic product manual. Keep
 the existing keyboard search route usable.
+
+## 2026-10-26 — Single-attempt assembly
+
+`voice_search_attempt.py` now joins explicit admission, the bounded recorder,
+listening/transcribing presentation, scoped credential supply, speech wire
+contract and normalized query return. Cancellation is checked before recording,
+before credentials, before transport and before accepting a late transcript.
+One attempt never retries. Recorder/transport failures show safe keyboard
+fallback copy without exposing raw exception text. Audio, request and credential
+objects are not retained in the returned session.
+
+Six synthetic assembly tests cover success, pre-cancel, cancel after capture,
+late speech response, one-shot transport failure and absent hardware. The full
+local voice selection passes 36 tests in normal and optimized Python. The 18
+assembly/coordinator/process tests also pass in both modes on HP Linux, under
+the existing `/storage/.aster-staging/aster-voice-recorder1` staging directory.
+These tests use only synthetic PCM and injected transports: no microphone,
+real speech request, new identity, input binding or production change.
+
+This closes the recorder-to-query assembly gap, not the live-device gate.
+Actual remote event/source observation, restricted live STT transport and
+Search's foreground listening controls are still required before activation.

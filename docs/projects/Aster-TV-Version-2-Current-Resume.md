@@ -27,14 +27,20 @@ do not imply household acceptance or production promotion.
   release, deadline, bounded memory, cancellation and forced child cleanup.
   It is prepared code, with no remote-button/microphone activation. See
   [voice evidence](Aster-TV-Version-2-Voice-Evidence.md).
+- Saved Acquisition Hub outcomes are active on HP. The native duplicate-only
+  checks and Books screenshot passed after a page-local cached-render fix;
+  both approved request journals stayed unchanged. See
+  [acquisition evidence](Aster-TV-Version-2-Acquisition-Evidence.md).
+- Voice capture-to-query assembly now passes synthetic Mac/HP checks, including
+  cancellation and late-result refusal. It remains unbound to live hardware.
 
 ## Next work and gates
 
 | Work | Next action | Dependency |
 |---|---|---|
-| Cross-media native check | Run the prepared `live_landing_family_smoke.py` on idle Home; inspect results, focus and logs | Let the separate YouTube task finish its foreground Google device-authorization step first |
-| Acquisition requests | Approved requests and duplicate checks passed; saved-outcome UI successor is prepared and tested locally | Activate the two-file candidate after the EPUB test releases HP; review only the existing two records, with no new provider write |
-| Voice search | Join the process adapter to admitted listening UI and restricted STT transport; observe actual remote event and capture source | Physical remote capability and scoped speech identity remain live integration gates |
+| Cross-media native check | Search/keyboard, catalogue entry and Media passed; finish Music/Books focus checks with actual item targets for script-filled panels | Correct the harness assumptions without relabelling incomplete checks as passed |
+| Acquisition requests | HP saved-outcome activation and duplicate-only review passed, including matching rendered Books hero | No additional provider write is authorized by the two-title trial |
+| Voice search | Join the tested single-attempt assembly to foreground listening controls and restricted STT transport | Physical remote capability and scoped speech identity remain live integration gates |
 | EPUB pre-generation | Consume the compiler's eventual complete ready artifacts | Separate **EPUB Narration Compiler** task owns worker/dataset/new-title monitoring; its benchmark is complete, M3 onward remains |
 | YouTube | Official add-on credentials, device authorization, playback and Aster presentation | Separate **Finish Aster YouTube integration** task; main stream must avoid competing foreground tests |
 | Endurance and accessibility | Continue evidence against the final composed client, then owner sofa/remote review | Short automated soaks do not substitute for household use |

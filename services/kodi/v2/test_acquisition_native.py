@@ -8,6 +8,18 @@ ROOT = Path(__file__).with_name("acquisition_native")
 
 
 class AcquisitionNativeTests(unittest.TestCase):
+    def test_property_updates_repaint_only_this_page_without_looping(self):
+        root = ET.parse(ROOT / "overlay/custom_1133_acquisition.xml").getroot()
+        animation = root.find("controls/control[@id='600']/animation")
+        self.assertEqual(animation.attrib, {
+            'effect': 'fade', 'start': '100', 'end': '100', 'time': '50',
+            'condition': 'String.IsEqual(Window(Home).Property(AsterAcquisition.Revision),odd)'})
+        self.assertEqual(animation.text, 'Conditional')
+        raw = (ROOT / 'default.py').read_text()
+        self.assertIn('revision = not revision', raw)
+        self.assertIn('prop("Revision", "odd" if revision else "even")', raw)
+        self.assertNotIn('ReloadSkin', raw)
+
     def test_controller_uses_only_the_restricted_acquisition_writer(self):
         raw = (ROOT / "default.py").read_text()
         ast.parse(raw)
