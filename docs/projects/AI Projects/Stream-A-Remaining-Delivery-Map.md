@@ -103,7 +103,10 @@ producers remain separate SA2 gates. A second
 now binds `inference-server/status` to the accepted llama service's fixed
 `/health` endpoint. Its exact response contract and 1024-byte bound pass 37
 dependency-free and 12 target-Python tests, and one live health observation
-returned only bounded `ok` metadata without a model request. It is not deployed.
+returned only bounded `ok` metadata without a model request. Its exact
+[two-replacement release candidate](evidence/SA2-inference-health-producer-release-candidate-2026-10-26.md)
+now checkpoints both deployed predecessors and passes 4/4 installer contract
+tests. It is not deployed and requires one Aster Agent restart.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
