@@ -60,15 +60,15 @@ records every checked hash and explains four intentional forward-candidate
 module differences. This closes reconciliation; it does not release those
 candidates, automatic routing, connected repair or broader authority.
 
-**SA1/SA2 current candidate:** the three forward incident modules now form a
-[hash-pinned release candidate](evidence/SA1-SA2-current-incident-modules-release-candidate-2026-10-26.md).
-Target Python 3.13 exposed an unclosed SQLite-connection defect; the candidate
-now closes every connection and its warning-as-error regression passes. The
-complete disposable target suite passes 33/33, and the packet is removed. A
-three-file deployment and Aster Agent restart remain the next exact effect.
-That release adds no observation adapter, model change, repair authority or
-automatic route; SA1/SA2 remain open for the bounded loop and connected
-read-only evidence gates after installation.
+**SA1/SA2 current incident foundation:** the three forward incident modules are
+now [deployed and independently checked](evidence/SA1-SA2-current-incident-modules-deployment-result-2026-10-26.md).
+Target Python 3.13 exposed an unclosed SQLite-connection defect before release;
+the installed candidate closes every connection and its warning-as-error
+regression passes. Aster Agent is healthy, the model service was not restarted,
+and the exact three-file rollback is retained. This closes current incident
+storage/presentation drift. SA1/SA2 remain open for a bounded adaptive loop and
+connected read-only evidence; no new adapter, authority or automatic route was
+enabled.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and

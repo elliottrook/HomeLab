@@ -16,6 +16,9 @@
   2026-10-27 and confirmed human-controlled offline custody of its reviewed
   commit, artifact digest and ledger head. The acceptance transcription passes
   the source-only validator. This grants no private collection or authority.
+- **SA0:** the reviewed gateway composition is deployed, the exact predecessor
+  is retained, and the machine-readable runtime manifest explains every
+  checked source/live difference.
 
 ## Outstanding milestone work
 
@@ -57,19 +60,13 @@
    checkpoint, exact approval, effect, independent postcheck, rollback and
    uncertain-outcome handling. This has not been authorized or started and
    depends on diagnostic acceptance and F6 recovery proof.
-5. **SA0 current live/source parity.** The narrow Lab Operations, Doctor and
-   Speech files checked still match. The core gateway differs because production
-   has the knowledge-usage counter while this branch has later safety and
-   Companion fixes. A composed candidate preserves both and passes 99/99 tests
-   in the target environment. One one-file deployment plus Aster Agent restart
-   remains separately gated; see the [current reconciliation](SA0-current-production-source-reconciliation-2026-10-26.md).
-6. **M5 read-only shadow pilot.** Run the finite, no-effect observation window
+5. **M5 read-only shadow pilot.** Run the finite, no-effect observation window
    only after M3/M4 and the applicable authority gates pass; measure usefulness,
    latency, privacy, cost and shared-service impact.
-7. **M6 change decision.** Use preregistered held-out evidence to reject the
+6. **M6 change decision.** Use preregistered held-out evidence to reject the
    candidate or approve one reversible canary, followed by its finite
    observation period.
-8. **SA5 / M7 operational graduation.** Demonstrate the normal operator flow,
+7. **SA5 / M7 operational graduation.** Demonstrate the normal operator flow,
    two independent critical production-path passes, monitoring, restore and
    degradation behavior; document the retained narrower fallback; obtain
    Jason's final acceptance.
