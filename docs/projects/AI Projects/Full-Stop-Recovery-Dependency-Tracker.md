@@ -1,7 +1,7 @@
 # Full-stop recovery drill — dependency tracker
 
 **Owner:** Stream A for evidence and coordination; Local AI platform owner for
-host release, lease and recovery. **Last reconciled:** 2026-10-26
+host release, lease and recovery. **Last reconciled:** 2026-10-27
 America/Vancouver. **Overall decision: NO-GO.** This tracker is the human
 status page. The platform-owned
 `services/local-ai-lease/FULL-STOP-RECOVERY-DRILL-RUN-CARD.md` is the executable
@@ -21,6 +21,18 @@ integrated the missed-window record and the uninstalled read-only observer
 source in local commits `11764480` and `b254bd02`.
 
 ## Current next action and historical sequence
+
+The [October 27 terminal result](evidence/F2-exact-cycle-no-go-2026-10-27.md)
+is NO-GO. Preparation completed successfully, but the final observer exited
+nonzero with bounded class `OBSERVER_EXIT_NONZERO`; the terminal state contains
+zero archive rows. No F2 result can be accepted and F3 must skip without
+writing a receipt. Both spent exact-date timers were removed after observation,
+recurring F2 timers remain disabled, no scanner, lease, lock or receipt exists,
+and production postchecks passed. The platform owner must diagnose the
+observer's nonzero exit from the preserved content-free state and bounded
+logs, add a more specific failure subphase if the existing evidence cannot
+distinguish the cause, prove the correction offline and on target Linux, and
+present a fresh reviewed cycle. October 27 must not be retried.
 
 The [October 26 terminal result](evidence/F2-exact-cycle-no-go-2026-10-26.md)
 is NO-GO. The bounded state reached phase `final` with failure class
