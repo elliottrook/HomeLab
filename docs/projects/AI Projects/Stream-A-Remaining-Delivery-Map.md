@@ -92,7 +92,10 @@ remain separately gated. The first such source now has a
 an owner-authenticated request can consume only a pending
 `aster-gateway/status` decision through an in-process, effect-free self-status
 producer. The caller supplies no target or command, every other pair fails
-closed, and target-Python route tests pass 10/10. It is not deployed.
+closed, and target-Python route tests pass 10/10. Its exact
+[two-file release candidate](evidence/SA2-first-registered-producer-release-candidate-2026-10-26.md)
+now has a rollback-capable installer and passing 4/4 contract tests. It is not
+deployed and requires one Aster Agent restart.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
