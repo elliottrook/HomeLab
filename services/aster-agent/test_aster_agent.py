@@ -778,10 +778,16 @@ class AsterPreloadTests(unittest.IsolatedAsyncioTestCase):
     async def test_search_tool_uses_explicit_directory_feature_flag(self):
         with (
             patch("aster_agent.DIRECTORY_FIRST", True),
-            patch("aster_agent.search_knowledge", return_value={"results": []}) as search,
+            patch(
+                "aster_agent.search_knowledge",
+                return_value={"query": "private query", "results": []},
+            ) as search,
+            patch("aster_agent.record_knowledge_search") as record,
         ):
             await execute_tool("search_knowledge", {"query": "Sonarr notifications", "max_results": 2})
         self.assertEqual(search.call_args.kwargs["directory_first"], True)
+        self.assertNotIn("query", record.call_args.args[1])
+        self.assertEqual(record.call_args.kwargs["directory_first"], True)
 
     async def test_arr_report_is_preloaded_without_model_round_trip(self):
         result = await preload_read_only_context(

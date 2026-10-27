@@ -10,6 +10,7 @@ import hashlib
 import logging
 import os
 import re
+import sqlite3
 import stat
 import time
 import uuid
@@ -35,6 +36,7 @@ from doctor_incident_adapter import read_doctor_observation
 from sysadmin_incident_store import IncidentStore
 from sysadmin_incident_stream import reconnect_frames
 from sysadmin_investigation import EvidenceRequest, InvestigationError, create_incident
+from knowledge_usage import record_knowledge_search
 
 
 ASTER_API_KEY = os.environ.get("ASTER_API_KEY", "")
@@ -56,6 +58,9 @@ LLAMA_API_KEY = os.environ.get("ASTER_LLAMA_API_KEY", "")
 LLAMA_BASE_URL = os.environ.get("ASTER_LLAMA_BASE_URL", "http://192.168.70.12:11435/v1").rstrip("/")
 UPSTREAM_MODEL = os.environ.get("ASTER_LLAMA_MODEL", "qwen3.5-9b")
 KNOWLEDGE_DIR = Path(os.environ.get("ASTER_KNOWLEDGE_DIR", "/var/lib/aster/knowledge"))
+KNOWLEDGE_USAGE_DB = Path(
+    os.environ.get("ASTER_KNOWLEDGE_USAGE_DB", "/var/lib/aster/knowledge-usage/events.sqlite3")
+)
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 DIRECTORY_FIRST = os.environ.get("ASTER_DIRECTORY_FIRST", "").strip().lower() in {"1", "true", "yes"}
 HEALTH_REPORT_PATH = Path(os.environ.get("ASTER_HEALTH_REPORT", "/var/lib/aster/health/latest.json"))
@@ -1084,11 +1089,22 @@ async def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         return await get_arr_repair_dry_run_proposal()
 
     if name == "search_knowledge":
-        return search_knowledge(
+        result = search_knowledge(
             str(arguments.get("query", "")),
             int(arguments.get("max_results", 3)),
             directory_first=DIRECTORY_FIRST,
         )
+        try:
+            record_knowledge_search(
+                KNOWLEDGE_USAGE_DB,
+                {"results": result.get("results", [])},
+                directory_first=DIRECTORY_FIRST,
+            )
+        except (OSError, sqlite3.Error, ValueError, TypeError):
+            logging.getLogger(__name__).warning(
+                "Knowledge usage counter could not be updated", exc_info=False
+            )
+        return result
 
     return {"error": f"Tool is not allowlisted: {name}"}
 

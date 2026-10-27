@@ -109,8 +109,7 @@ or operational role separation, and no consent is inferred for private collectio
 deployment or a push. Any later bounded deployment proposal must still specify its
 target, identities, numeric retention and recovery coverage and obtain its own gate.
 
-Next independent technical work is M1's review packet and integration reconciliation
-with AI-PAM, using read-only inspection and local tests. M3 still needs reviewed
-representative labels and bounded local-model/resource evidence. M5 cannot start
-before its dependency, collection and deployment gates pass. Do not replace these
-remaining gates with more synthetic throughput runs.
+M3 still needs a qualifying semantic candidate and bounded local-model/resource
+evidence. M5 cannot start before M3 and its own collection/deployment gates pass;
+M4 is no longer the blocker. Do not replace these remaining gates with more
+synthetic throughput runs.

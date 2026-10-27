@@ -12,6 +12,10 @@
   8/8 in independent blind review, with zero unsafe claims.
 - **M3 policy subgate:** NLU confidence-policy v2 is now exactly accepted. It
   grants no runtime authority.
+- **M4:** Jason retained the exact synthetic-only evidence baseline on
+  2026-10-27 and confirmed human-controlled offline custody of its reviewed
+  commit, artifact digest and ledger head. The acceptance transcription passes
+  the source-only validator. This grants no private collection or authority.
 
 ## Outstanding milestone work
 
@@ -53,17 +57,12 @@
    checkpoint, exact approval, effect, independent postcheck, rollback and
    uncertain-outcome handling. This has not been authorized or started and
    depends on diagnostic acceptance and F6 recovery proof.
-5. **M4 evidence-loop completion.** The current toolchain now has a hash-pinned
-   isolated reconstruction of the immutable 164-event synthetic export, with
-   exact ledger-head recovery and final source/evidence reconciliation. The
-   remaining M4 gate is trust and operational acceptance: independent
-   checkpoint custody, human review of the synthetic-only design, and a
-   separately specified retention/recovery design before any real-data
-   collection. The human-record validator is now source-complete and passes the
-   34-test M4 suite; it binds the exact 164-event artifact/head and rejects any
-   authority or private-collection grant. It deliberately cannot create or
-   prove the separately held human record, so independent custody and Jason's
-   review remain the actual open gate.
+5. **SA0 current live/source parity.** The narrow Lab Operations, Doctor and
+   Speech files checked still match. The core gateway differs because production
+   has the knowledge-usage counter while this branch has later safety and
+   Companion fixes. A composed candidate preserves both and passes 99/99 tests
+   in the target environment. One one-file deployment plus Aster Agent restart
+   remains separately gated; see the [current reconciliation](SA0-current-production-source-reconciliation-2026-10-26.md).
 6. **M5 read-only shadow pilot.** Run the finite, no-effect observation window
    only after M3/M4 and the applicable authority gates pass; measure usefulness,
    latency, privacy, cost and shared-service impact.
