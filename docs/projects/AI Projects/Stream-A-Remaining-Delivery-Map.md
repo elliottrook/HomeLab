@@ -1644,3 +1644,11 @@ holdout access follows. Further prompt or confidence-transform tuning against
 these spent sets is closed; the next distinct M3 path is to improve and retest
 the dedicated dense encoder plus deterministic envelope under the accepted v2
 decision-coverage semantics.
+
+That [dense-encoder v2 run card](evidence/M3-NLU-dense-encoder-v2-crossset-run-card-2026-10-26.md)
+is now source-complete. Whole-label voting prevents incoherent field mixtures,
+route confidence is bounded by its weakest safety-relevant support, and
+configuration plus policy thresholds are selected only inside each nested
+training partition. The dependency-free NLU suite passes 368/368. Its runtime
+uses the same hash-pinned BGE Q4_K_M encoder in a temporary CPU-only loopback
+process and leaves the accepted 9B/SYCL service unchanged.
