@@ -64,7 +64,7 @@ def _allowed_dispositions(incident: Incident) -> list[str]:
         return list(ALLOWED_DISPOSITIONS)
     if any(item["state"] == "unavailable" for item in incident.observations):
         return ["escalate"]
-    return ["complete", "escalate"]
+    return ["complete"]
 
 
 def build_proposal_request(incident: Incident) -> dict[str, Any]:
