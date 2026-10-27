@@ -78,6 +78,13 @@ relay and narration workload were restored afterward and Aster Speech remained
 active. The remaining F2 proof is only the actual 01:15/01:20 clock/timer path
 against a fresh cycle; runtime gates remain fail closed.
 
+Jason then authorized tonight's fresh-cycle test. The [October 28 activation](evidence/F2-exact-cycle-activation-result-2026-10-28.md)
+passed 63/63 target checks and installed/enabled only the exact 01:15/01:20
+one-shot timers. Both are active and waiting; recurring F2 timers remain
+disabled, the new-cycle state and all effect state are absent, and a one-time
+01:42 observation/cleanup automation is active. This is conditional GO:
+backup, task-1, identity, load and quiet-host gates must still pass at runtime.
+
 The conditional [October 27 F3 conversion](evidence/F3-from-F2-no-go-2026-10-27.md)
 then failed closed at its first mandatory gate. The reconciled F2 state is
 `no_go` with zero archive rows rather than three independently validated
