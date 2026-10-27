@@ -9319,3 +9319,130 @@ Technology Composite Device. Linux exposes its keyboard input as `event17` and
 its microphone as ALSA capture `hw:1,0`. PulseAudio has not yet published that
 capture source and the microphone-button event has not yet been empirically
 observed, so no hardware policy is recorded and no audio has been captured.
+its microphone as ALSA capture `hw:1,0`. PulseAudio has not yet published that
+capture source and the microphone-button event has not yet been empirically
+observed, so no hardware policy is recorded and no audio has been captured.
+
+### M6 YouTube official-integration continuation — pre-start boundary, 2026-10-26
+
+Jason now has the owner-created Google API key and TV/Limited Input OAuth client
+required by the maintained official Kodi YouTube add-on. This continuation stays
+inside frozen item 25 and the existing Stream A HP envelope. It may configure and
+test only HP `192.168.1.140`, official `plugin.video.youtube` 7.4.4 and the two
+existing Aster skin files that present Kodi video directories. BOSGAME production,
+downloaders, browsers, unofficial clients, cloud playback proxies, firewall/DNS,
+public ingress and remote Git writes are excluded.
+
+Read-only reconciliation found LibreELEC 12.2.1, Kodi 21.3 and enabled official
+YouTube 7.4.4 plus InputStream Adaptive. The accepted 128/512-pixel Aster YouTube
+exports and current Home file match their recorded hashes. API key, OAuth client
+ID and client secret are unconfigured. The add-on retains one unnamed legacy
+access/refresh-token record and reports it as only partially logged in; the Sign
+In tile remains visible and API-backed requests fail closed as an invalid client.
+No value was read out of the client. Kodi was idle with no active player. The
+active `MyVideoNav.xml` includes the later
+font/focus correction absent from its older repository source; that live successor,
+not the stale source copy, is the exact predecessor for this milestone.
+
+The confidentiality risk is high if Google values enter chat, Git, shell arguments,
+logs, screenshots or skin XML. The control is a hidden-prompt helper executed by
+Jason over an interactive SSH terminal. It writes only the official add-on's
+mode-0600 per-client `api_keys.json` via an atomic replace, never prints values and
+retains a mode-0700 pre-credential checkpoint. The central custody identifier is
+`secret/household/astertv/youtube`; the HP file is a required runtime copy, not a
+new authority. Central-store entry remains a human secret-custody action unless an
+existing approved non-disclosing handoff is available. OAuth device authorization
+is the only Google account action and remains explicitly human.
+
+Availability/integrity risk is limited to a Kodi restart for credentials and a
+skin reload for the landing presentation. The UI candidate changes only
+`Includes.xml` and `MyVideoNav.xml`; it keeps official plugin routes authoritative,
+uses the supplied immutable asset and adds no network client. Exact predecessor
+hashes and checkpoint `/storage/.aster-checkpoints/aster-youtube-integration3`
+provide rollback. Credential recovery is separate at
+`/storage/.aster-checkpoints/aster-youtube-api-20261026`; rollback must run with
+Kodi stopped and must not expose or export post-authorization token state.
+
+Validation covers sign-in, subscriptions/browse, a fresh search, ordinary playback,
+Pause/Resume/Stop/Back, remote focus/return, no-player residue, unavailable-network
+behavior and restart persistence. 1080p60, 2160p/4K and HDR are capability probes,
+not promises: the official 7.4.4 release has current reports of GoogleVideo range
+403 failures on one player-client path, and Kodi/YouTube HDR availability depends
+on the selected stream and endpoint. Do not patch vendor player code or weaken TLS
+to force a pass. Abort on credential output, unexpected file/hash drift, missing
+checkpoint, Kodi instability, loss of existing Aster navigation or any production
+effect. This milestone produces no speech, so the canonical Aster voice standard
+is not applicable.
+
+Integration impact before execution: no new host/service, NetBox, Beszel, Doctor,
+backup schedule, Homepage, authentication service, DNS, certificate or firewall
+object. The protected per-client checkpoint and this project/runbook are the
+recovery and operator records. Existing host backups already cover the HP profile;
+the Google account remains externally authoritative for OAuth revocation. AI
+administration is not supported because the add-on exposes no safe administrative
+API; human Google account recovery and add-on sign-out are the break-glass paths.
+
+The first visual candidate installed and rolled back cleanly but left four empty
+filter backplates on the YouTube-only sidebar. The second removed those controls
+and also rolled back cleanly, but its explanatory note wrapped below the panel at
+4K. Both rejected checkpoints are retained. Accepted candidate 3 uses shorter
+copy, keeps the page filter and official add-on tiles, suppresses media-library-
+only filters, uses landscape/keep-aspect artwork and leaves the supplied mark
+unchanged. Manifest SHA-256 is
+`f3657fdce7b95284719180db653b12dc7b92729e268b221a15784160d675b6c0`;
+checkpoint `/storage/.aster-checkpoints/aster-youtube-integration3` has passed an
+exact live rollback and reinstall. Native Right navigation reached **Sign In**
+then **My Subscriptions**, and Back returned to the same Aster Home context with
+no active player. The pre-credential 4K capture was inspected and contains no
+credential or authorization code. Production remains unchanged.
+
+### M6 YouTube authorization and playback evidence — 2026-10-26
+
+Jason completed the human Google test-user and device-authorization steps for
+the official add-on. The protected runtime file remains owner-only and no API
+key, OAuth client value, device code, access token or refresh token was printed,
+committed or placed in the project evidence. Sanitized verification showed all
+three account records with access and refresh tokens and a future expiry, and
+the add-on reported a complete login. **My Subscriptions** then returned 51
+items. Titles and account identity are intentionally absent from this record.
+
+The first credential handoff exposed a compatibility edge in YouTube 7.4.4.
+Its documented `personal` key is migrated only when an established `user` key
+does not already exist; this HP profile already contained an empty `user` key,
+so Kodi continued to read empty credentials. The helper now writes the canonical
+`user` key directly, removes the redundant `personal` copy, retains developer
+state and offers an idempotent non-interactive migration. Local regression
+coverage includes this exact established-profile case. The active helper/module
+SHA-256 values are respectively
+`5266029538a309827018176952e4225d79980cf48f9debfaa3a8859e0d471016`
+and `45507d6c4c710ba1a2ba74d92e10488ad8383f74a6fe64c2c955721ed40c1e3f`.
+The immutable candidate-3 UI manifest remains the presentation record; these
+later hashes identify the approved credential-helper successor.
+
+The authorization information dialog also revealed a skin focus defect: its
+forced control 10 does not exist in the one-button variant, so OK returned to
+the tile grid without activating the visible button. `DialogConfirm.xml` now
+lets Kodi choose the active one-button or yes/no control. Runtime focus on OK
+was verified after the change. Its exact predecessor is retained at
+`/storage/.aster-checkpoints/aster-dialog-focus-20261026/DialogConfirm.xml.before`.
+
+The first adaptive playback probe opened the official Big Buck Bunny test item
+at 1080p60, but stalled near 35 seconds. Sanitized logs showed repeated
+GoogleVideo HTTP 403 responses on the add-on's `ANDROID_VR` adaptive path for
+itag 399. No vendor patch, TLS weakening or unofficial client was introduced.
+Jason approved the narrower supported-path control: the add-on setting
+`kodion.mpd.videos` is persistently `false`, with its exact predecessor at
+`/storage/.aster-checkpoints/aster-youtube-progressive-20261026/settings.xml.before`.
+After restart, the same item passed the previous failure point, paused at 55
+seconds, sought forward to 1:56, resumed through 2:01, logged zero 403 responses
+and closed with no active player. This accepts ordinary 1080p playback through
+the stable path; 2160p/4K and HDR remain an upstream capability limitation.
+
+The direct JSON-RPC probe had no listing window beneath the player. After Stop,
+Kodi therefore exposed its blank invalid window rather than a browsable page;
+the host, Kodi process and input loop remained healthy. A non-destructive
+`GUI.ActivateWindow(home)` returned immediately to Aster Home with focus and no
+active player. This was a probe-harness return-context defect, not a stream
+freeze, but native playback-from-listing and Back/return remain a human sofa
+acceptance item. Future automated probes must establish a valid source window
+or explicitly restore Home in cleanup. BOSGAME production remains unchanged.

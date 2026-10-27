@@ -178,7 +178,7 @@ class LayoutTests(unittest.TestCase):
         icon = includes.find('.//variable[@name="AsterBrowseIcon"]/value[1]')
         self.assertIn('plugin.video.youtube', icon.get('condition'))
         self.assertEqual(icon.text,
-                         'special://home/addons/plugin.video.youtube/resources/media/icon.png')
+                         'special://skin/media/33-aster-youtube-128.png')
         heading = includes.find('.//variable[@name="AsterBrowseHeading"]/value[1]')
         self.assertIn('plugin.video.youtube', heading.get('condition'))
         self.assertEqual(heading.text, 'YouTube')
@@ -205,7 +205,9 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(select.find('.//control[@id="3"]').get('type'), 'list')
         self.assertEqual(select.find('.//control[@id="1"]').get('type'), 'label')
         confirm = ET.parse(ROOT / '1080i/DialogConfirm.xml')
-        self.assertEqual(confirm.findtext('./defaultcontrol'), '10')
+        # Kodi chooses the active button for OK/yes-no variants at runtime.
+        # Forcing id 10 leaves one-button dialogs with no focused control.
+        self.assertIsNone(confirm.find('./defaultcontrol'))
         for identifier in ('1', '9', '10', '11', '12'):
             self.assertIsNotNone(confirm.find(f'.//control[@id="{identifier}"]'))
 

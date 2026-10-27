@@ -122,6 +122,44 @@ meeting the normal-text contrast target. The default palette remains available.
 The Aster screensaver places the player logo at changing positions rather than
 dimming the interface indefinitely. Any normal remote action should wake it.
 
+## YouTube
+
+- The Media **YouTube** pill opens Aster's presentation of the maintained
+  official Kodi YouTube add-on. Aster does not scrape YouTube or provide a
+  downloader, browser, alternate client or proxy.
+- The landing tiles and selected-item hero use the supplied Aster YouTube mark.
+  Search, subscriptions, channels, account state and playback remain owned by the
+  official add-on.
+- Google API/OAuth values are private per-client state. Never paste them into a
+  chat, ticket, screenshot, shell command, skin file or repository. Use only the
+  retained hidden-input handoff helper and keep central custody at
+  `secret/household/astertv/youtube`.
+- Account authorization is completed by Jason on Google's device page when Kodi
+  displays a one-time code. Do not photograph or record that screen. If Google
+  reports an unexpected project, scope or account, cancel rather than continuing.
+- While the Google app remains in testing, the signing-in Google account must be
+  listed under **APIs & Services → OAuth consent screen → Audience → Test users**.
+  An `Error 403: access_denied` page means the account is not an eligible test
+  user; it does not mean the API key or TV OAuth client should be recreated.
+- On an established add-on profile, credentials belong in the runtime `user`
+  key. Use the retained helper's `verify` or `migrate` mode; do not hand-edit or
+  display `api_keys.json`. A stale documented `personal` key can be ignored when
+  an empty `user` key already exists.
+- The HP stable-playback setting is **MPEG-DASH videos disabled**
+  (`kodion.mpd.videos=false`). It avoids the observed GoogleVideo 403 failure on
+  the adaptive `ANDROID_VR` path. Do not re-enable it merely to force 4K/HDR;
+  that capability remains best-effort until the upstream path is reliable.
+- Back from a listing returns to the previous Aster context. Back from full-screen
+  playback must stop that YouTube item and return to its listing; report any audio
+  or video left playing.
+- Engineering playback probes must first establish a real listing/source window.
+  Opening a plugin play URL directly and then stopping it can reveal Kodi's blank
+  invalid window because no page exists underneath. Confirm there is no active
+  player, then return to Home; do not reboot the HP for this condition.
+- 4K/HDR is best-effort and separately tested. A title playing normally at 1080p
+  is not proof of 2160p or HDR, and a vendor-stream limitation is not repaired by
+  changing to an unofficial client.
+
 ## What to report during household testing
 
 Record the page, selected title and last remote button when reporting:
@@ -176,4 +214,18 @@ Recovery7 has passed one real rollback and reinstall. Never restore profiles,
 watch history or listening progress as part of a UI rollback. Stop if a pinned
 hash, checkpoint state or recovery marker differs. Production promotion needs a
 separate approval and a new production checkpoint.
+
+The YouTube presentation, credential, dialog-focus and progressive-playback
+layers have separate HP-only checkpoints:
+
+- `/storage/.aster-checkpoints/aster-youtube-integration3`
+- `/storage/.aster-checkpoints/aster-youtube-api-20261026`
+- `/storage/.aster-checkpoints/aster-dialog-focus-20261026`
+- `/storage/.aster-checkpoints/aster-youtube-progressive-20261026`
+
+Credential rollback must use the retained helper with Kodi stopped so the
+pre-authorization state is restored without displaying or exporting tokens.
+Dialog recovery restores only `DialogConfirm.xml`. Playback-setting recovery
+restores only the saved YouTube `settings.xml`, also with Kodi stopped, followed
+by one normal Kodi start. Never copy account-state files into project evidence.
 

@@ -1,0 +1,29 @@
+{
+  "schema": "aster.youtube.integration.v3",
+  "target": "HP AsterTV lab only",
+  "official_addon": {
+    "id": "plugin.video.youtube",
+    "version": "7.4.4",
+    "inputstream_adaptive_required": true
+  },
+  "targets": [
+    "Includes.xml",
+    "MyVideoNav.xml"
+  ],
+  "predecessors": {
+    "Includes.xml": "fa1eb7f7c52e5e78a83d63ec19719b7fae9ce953cffdfbd89366cc625a9860fa",
+    "MyVideoNav.xml": "fefcb84281ad81fdbbc0db1fc5bc7e116da7383e8700aa40d4222e69eed46841"
+  },
+  "files": {
+    "Includes.xml": "3050e3ebb4c55f5f82ad0e2fcd1f20b8a025157c1da2ca6e722baf0d4b08be31",
+    "MyVideoNav.xml": "d1dc27ccde4eeed3e29f0a2ed935a1668d9757f527cb36fd1234ab28630c6c32"
+  },
+  "credential_handoff": {
+    "runtime_module_sha256": "67fd62d23b738efa3c00a6689e0c36b7a2eb8c76dd8f01cbb2183d6fac2f72cc",
+    "interactive_helper_sha256": "b098c144ca042985c04c3bdb5e42039a21cadbc643fada28deb0d688e5031c64",
+    "values_in_manifest": false,
+    "values_in_skin": false
+  },
+  "approved_asset_sha256": "449f30b8ddff8b4fa3339bd58463064955a2215731766e2f724cd94ff611a3eb",
+  "production_changed": false
+}

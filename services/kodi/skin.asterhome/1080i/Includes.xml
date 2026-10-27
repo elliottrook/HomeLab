@@ -14,7 +14,7 @@
         <value>Minimum score…</value>
     </variable>
     <variable name="AsterBrowseIcon">
-        <value condition="String.Contains(Container.FolderPath,plugin.video.youtube)">special://home/addons/plugin.video.youtube/resources/media/icon.png</value>
+        <value condition="String.Contains(Container.FolderPath,plugin.video.youtube)">special://skin/media/33-aster-youtube-128.png</value>
         <value condition="String.Contains(Container.FolderPath,plugin.video.asterhome)">special://skin/media/media-128.png</value>
         <value condition="String.Contains(Container.FolderPath,archive-tv.xsp)">special://skin/media/09-archive-tv.png</value>
         <value condition="String.Contains(Container.FolderPath,archive-film.xsp)">special://skin/media/10-archive-film.png</value>
@@ -44,8 +44,25 @@
         <value>$INFO[Container(50).ListItem.Art(tvshow.fanart)]</value>
     </variable>
     <variable name="AsterBrowseTitle">
+        <value condition="String.Contains(Container.FolderPath,plugin.video.youtube) + Container(50).ListItem.IsParentFolder">Your YouTube</value>
         <value condition="Container(50).ListItem.IsParentFolder">Choose a title</value>
         <value>$INFO[Container(50).ListItem.Label]</value>
+    </variable>
+    <variable name="AsterBrowsePlot">
+        <value condition="String.Contains(Container.FolderPath,plugin.video.youtube) + String.IsEmpty(Container(50).ListItem.Plot)">Your subscriptions, searches and channels stay in the maintained official Kodi add-on. Choose a tile to browse, then press Back to return here.</value>
+        <value>$INFO[Container(50).ListItem.Plot]</value>
+    </variable>
+    <variable name="AsterBrowseSidebarHeading">
+        <value condition="String.Contains(Container.FolderPath,plugin.video.youtube)">Official YouTube</value>
+        <value>Search &amp; filter</value>
+    </variable>
+    <variable name="AsterBrowseFilterHint">
+        <value condition="String.Contains(Container.FolderPath,plugin.video.youtube)">Filter this page…</value>
+        <value>Search titles…</value>
+    </variable>
+    <variable name="AsterBrowseSidebarNote">
+        <value condition="String.Contains(Container.FolderPath,plugin.video.youtube)">Maintained Kodi add-on[CR]Account state is local[CR]Search starts a new query</value>
+        <value>$INFO[Container(50).NumItems] titles[CR]Filters stay in this category[CR]Score is out of 10</value>
     </variable>
     <variable name="AsterPosterLabel">
         <value condition="ListItem.IsParentFolder">Back</value>

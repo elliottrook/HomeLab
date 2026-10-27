@@ -56,6 +56,13 @@
       <width>280</width>
       <onclick>Action(Back)</onclick>
       <ondown>50</ondown>
+      <textcolor>fff3eee5</textcolor>
+      <focusedcolor>fff3eee5</focusedcolor>
+      <aligny>center</aligny>
+      <texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus>
+      <texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus>
+      <textoffsetx>0</textoffsetx>
+      <align>center</align>
     </control>
     <control type="label">
       <left>145</left>
@@ -81,7 +88,7 @@
       <top>256</top>
       <width>940</width>
       <height>44</height>
-      <label>$INFO[Container(50).ListItem.Plot]</label>
+      <label>$VAR[AsterBrowsePlot]</label>
       <font>font20</font>
       <textcolor>asterRailText</textcolor>
       <wrapmultiline>true</wrapmultiline>
@@ -111,6 +118,7 @@
       <onleft>19</onleft>
       <onup>9000</onup>
       <ondown>50</ondown>
+      <visible>![String.Contains(Container.FolderPath,plugin.video.youtube) + Container(50).ListItem.IsParentFolder]</visible>
     </control>
     <control type="button" id="9101">
       <left>445</left>
@@ -124,6 +132,7 @@
       <onright>50</onright>
       <onup>9000</onup>
       <ondown>50</ondown>
+      <visible>![String.Contains(Container.FolderPath,plugin.video.youtube) + Container(50).ListItem.IsParentFolder]</visible>
     </control>
     <control type="image">
       <left>145</left>
@@ -155,7 +164,7 @@
       <top>512</top>
       <width>260</width>
       <height>40</height>
-      <label>Search &amp; filter</label>
+      <label>$VAR[AsterBrowseSidebarHeading]</label>
       <font>font24</font>
       <textcolor>asterMuted</textcolor>
     </control>
@@ -165,7 +174,7 @@
       <top>564</top>
       <width>260</width>
       <height>56</height>
-      <hinttext>Search titles…</hinttext>
+      <hinttext>$VAR[AsterBrowseFilterHint]</hinttext>
       <font>font20</font>
       <textcolor>asterIvory</textcolor>
       <focusedcolor>asterInk</focusedcolor>
@@ -178,10 +187,10 @@
       <onup>9100</onup>
       <ondown>9200</ondown>
     </control>
-    <include content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="636" /><param name="innerleft" value="87" /><param name="innertop" value="638" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
-    <include content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="708" /><param name="innerleft" value="87" /><param name="innertop" value="710" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
-    <include content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="780" /><param name="innerleft" value="87" /><param name="innertop" value="782" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
-    <include content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="852" /><param name="innerleft" value="87" /><param name="innertop" value="854" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+    <include condition="!String.Contains(Container.FolderPath,plugin.video.youtube)" content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="636" /><param name="innerleft" value="87" /><param name="innertop" value="638" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+    <include condition="!String.Contains(Container.FolderPath,plugin.video.youtube)" content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="708" /><param name="innerleft" value="87" /><param name="innertop" value="710" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+    <include condition="!String.Contains(Container.FolderPath,plugin.video.youtube)" content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="780" /><param name="innerleft" value="87" /><param name="innertop" value="782" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+    <include condition="!String.Contains(Container.FolderPath,plugin.video.youtube)" content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="852" /><param name="innerleft" value="87" /><param name="innertop" value="854" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
     <control type="button" id="9001">
       <left>85</left>
       <top>780</top>
@@ -192,6 +201,7 @@
       <onup>9201</onup>
       <ondown>4</ondown>
       <onright>50</onright>
+      <visible>!String.Contains(Container.FolderPath,plugin.video.youtube)</visible>
     </control>
     <control type="button" id="4">
       <left>85</left>
@@ -201,13 +211,14 @@
       <onup>9001</onup>
       <ondown>9000</ondown>
       <onright>50</onright>
+      <visible>!String.Contains(Container.FolderPath,plugin.video.youtube)</visible>
     </control>
     <control type="label">
       <left>85</left>
       <top>924</top>
       <width>260</width>
       <height>100</height>
-      <label>$INFO[Container(50).NumItems] titles[CR]Filters stay in this category[CR]Score is out of 10</label>
+      <label>$VAR[AsterBrowseSidebarNote]</label>
       <font>font20</font>
       <textcolor>asterMuted</textcolor>
       <wrapmultiline>true</wrapmultiline>
@@ -218,6 +229,7 @@
       <onclick>RunScript(special://skin/tools/filter_library.py,genre)</onclick>
       <enable>String.Contains(Container.FolderPath,.xsp)</enable>
       <onup>19</onup><ondown>9201</ondown><onright>50</onright>
+      <visible>!String.Contains(Container.FolderPath,plugin.video.youtube)</visible>
     </control>
     <control type="button" id="9201">
       <left>85</left><top>708</top><label>$VAR[AsterScoreFilterLabel]</label>
@@ -225,6 +237,7 @@
       <onclick>RunScript(special://skin/tools/filter_library.py,rating)</onclick>
       <enable>String.Contains(Container.FolderPath,.xsp)</enable>
       <onup>9200</onup><ondown>9001</ondown><onright>50</onright>
+      <visible>!String.Contains(Container.FolderPath,plugin.video.youtube)</visible>
     </control>
     <control type="panel" id="50">
       <left>400</left>
@@ -266,6 +279,13 @@
           <height>330</height>
           <texture background="true" diffuse="special://skin/media/ui-poster-mask.png">$VAR[AsterPosterArt]</texture>
           <aspectratio scalediffuse="false">scale</aspectratio>
+          <visible>!String.Contains(Container.FolderPath,plugin.video.youtube)</visible>
+        </control>
+        <control type="image">
+          <left>12</left><top>42</top><width>220</width><height>240</height>
+          <texture background="true">$VAR[AsterPosterArt]</texture>
+          <aspectratio>keep</aspectratio>
+          <visible>String.Contains(Container.FolderPath,plugin.video.youtube)</visible>
         </control>
         <include content="AsterWatchBadges"><param name="left" value="184"/><param name="top" value="20"/></include>
         <control type="textbox">
@@ -313,6 +333,13 @@
           <height>348</height>
           <texture background="true" diffuse="special://skin/media/ui-poster-mask.png">$VAR[AsterPosterArt]</texture>
           <aspectratio scalediffuse="false">scale</aspectratio>
+          <visible>!String.Contains(Container.FolderPath,plugin.video.youtube)</visible>
+        </control>
+        <control type="image">
+          <left>12</left><top>42</top><width>220</width><height>240</height>
+          <texture background="true">$VAR[AsterPosterArt]</texture>
+          <aspectratio>keep</aspectratio>
+          <visible>String.Contains(Container.FolderPath,plugin.video.youtube)</visible>
         </control>
         <control type="image">
           <left>6</left>
@@ -334,6 +361,11 @@
           <wrapmultiline>true</wrapmultiline>
         </control>
       </focusedlayout>
+    </control>
+    <control type="image">
+      <left>1539</left><top>33</top><width>282</width><height>48</height>
+      <texture border="18" colordiffuse="fff3eee5">special://skin/media/ui-compact-card-ring.png</texture>
+      <visible>Control.HasFocus(9000)</visible>
     </control>
   </controls>
 </window>
