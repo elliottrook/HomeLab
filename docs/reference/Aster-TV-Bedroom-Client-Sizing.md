@@ -75,6 +75,21 @@ Post-Books source-date activation measurement on the same HP candidate:
   sizing uncertainty is the complete v2 candidate on constrained hardware,
   not the catalogue shape on the HP lab system.
 
+Post-owned-landing and Acquisition live-feed measurement:
+
+- With all three owned recommendation heroes, the expanded Media header and
+  fresh Acquisition Hub feeds active, Kodi used 474 MiB RSS with a 640 MiB
+  process high-water mark and 39 threads.
+- 14.3 GiB remained available and load averages were below 0.4. The complete
+  `.kodi` tree remained approximately 496 MiB.
+- The broker and refresher themselves are server-side processes, not client
+  requirements; their live container footprints were approximately 30 MiB and
+  26 MiB respectively. Their presence therefore does not alter the bedroom
+  television's RAM estimate.
+- Lab recovery history has grown to about 1.43 GiB of checkpoints and 373 MiB
+  of staging. This reinforces the release requirement to retain one bounded
+  recovery chain rather than cloning the development history to small clients.
+
 ## Three useful boundaries
 
 ### Observed floor
