@@ -25,7 +25,7 @@ class MusicLandingTests(unittest.TestCase):
 
         self.assertEqual(len(fetch_albums(rpc, page_size=2, maximum=4)), 3)
         self.assertEqual([call[1]['limits'] for call in calls],
-                         [{'start': 0, 'end': 2}, {'start': 2, 'end': 4}])
+                         [{'start': 0, 'end': 2}, {'start': 0, 'end': 3}])
 
     def test_incomplete_or_changing_pagination_fails_closed(self):
         with self.assertRaisesRegex(ValueError, 'pagination'):
@@ -39,6 +39,13 @@ class MusicLandingTests(unittest.TestCase):
                          {'albums': [album(params['limits']['start'] + 1, 'A')],
                           'limits': {'total': next(totals)}},
                          page_size=2, maximum=4)
+
+    def test_one_kodi_inaccessible_sentinel_is_bounded(self):
+        rows = [album(1, 'One'), album(2, 'Two')]
+        self.assertEqual(fetch_albums(
+            lambda _method, params: {
+                'albums': rows[params['limits']['start']:params['limits']['end']],
+                'limits': {'total': 3}}, page_size=2, maximum=4), rows)
 
     def test_real_recent_albums_and_affinity_recommendations_are_separate(self):
         rows = landing_rows([
@@ -71,6 +78,13 @@ class MusicLandingTests(unittest.TestCase):
         self.assertNotIn('file', rows[0])
         self.assertNotIn('musicbrainzreleasegroupid', rows[0])
         self.assertEqual(rows[0]['identity'], 'kodi:album-7')
+
+    def test_naive_kodi_source_date_requires_explicit_local_offset(self):
+        source = album(1, 'Local date', dateadded='2026-10-26 09:30:00')
+        with self.assertRaisesRegex(ValueError, 'timezone'):
+            landing_rows([source])
+        rows = landing_rows([source], source_offset='-07:00')
+        self.assertEqual(rows[0]['added_at'], '2026-10-26T09:30:00-07:00')
 
     def test_invalid_playcount_and_duplicate_ids_are_rejected(self):
         with self.assertRaisesRegex(ValueError, 'playcount'):

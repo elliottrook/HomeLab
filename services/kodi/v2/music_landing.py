@@ -1,5 +1,6 @@
 """Build truthful owned Music landing records from Kodi album metadata."""
 import math
+import re
 
 from music_policy import is_holiday
 
@@ -10,6 +11,8 @@ PROPERTIES = [
     'lastplayed',
 ]
 MAX_ALBUMS = 20000
+NAIVE_DATE = re.compile(r'\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}')
+OFFSET = re.compile(r'[+-]\d{2}:\d{2}')
 
 
 def require(value, code):
@@ -30,35 +33,55 @@ def _genres(value):
 
 
 def fetch_albums(rpc, page_size=1000, maximum=MAX_ALBUMS):
-    """Read a complete bounded Kodi album catalogue or fail closed."""
+    """Read the complete bounded Kodi-readable album catalogue or fail closed.
+
+    Kodi album pagination can omit a row when adjacent pages contain equal
+    sort labels. Probe the total, then request one exact 0..total snapshot.
+    """
     require(callable(rpc) and type(page_size) is int and 1 <= page_size <= 2000
             and type(maximum) is int and page_size <= maximum <= MAX_ALBUMS,
             'music-landing-fetch')
-    rows = []
-    total = None
-    for start in range(0, maximum, page_size):
-        result = rpc('AudioLibrary.GetAlbums', {
+    def read(start, end):
+        return rpc('AudioLibrary.GetAlbums', {
             'properties': PROPERTIES,
-            'limits': {'start': start, 'end': min(start + page_size, maximum)},
+            'limits': {'start': start, 'end': end},
             'sort': {'method': 'album', 'order': 'ascending'},
         })
-        page = result.get('albums', []) if isinstance(result, dict) else None
-        limits = result.get('limits', {}) if isinstance(result, dict) else {}
-        page_total = limits.get('total')
-        require(isinstance(page, list) and type(page_total) is int
-                and 0 <= page_total <= maximum, 'music-landing-page')
-        if total is None:
-            total = page_total
-        require(page_total == total and len(rows) + len(page) <= total,
-                'music-landing-page')
-        rows.extend(page)
-        if len(rows) == total:
-            return rows
-        require(page, 'music-landing-pagination')
-    raise ValueError('music-landing-cap')
+
+    result = read(0, page_size)
+    page = result.get('albums', []) if isinstance(result, dict) else None
+    limits = result.get('limits', {}) if isinstance(result, dict) else {}
+    total = limits.get('total')
+    require(isinstance(page, list) and type(total) is int
+            and 0 <= total <= maximum and len(page) <= total,
+            'music-landing-page')
+    if len(page) == total:
+        return page
+    require(total > 0, 'music-landing-pagination')
+    result = read(0, total)
+    rows = result.get('albums', []) if isinstance(result, dict) else None
+    limits = result.get('limits', {}) if isinstance(result, dict) else {}
+    require(isinstance(rows, list) and limits.get('total') == total,
+            'music-landing-page')
+    # Kodi 22 can include one inaccessible sentinel in limits.total while its
+    # exact 0..total response advances to the end without returning that row.
+    # Permit only that observed one-row discrepancy; larger gaps still fail.
+    require(total - len(rows) in (0, 1), 'music-landing-pagination')
+    return rows
 
 
-def landing_rows(albums, recent_limit=12):
+def _source_date(value, source_offset):
+    if not isinstance(value, str) or not value.strip():
+        return None
+    value = value.strip()
+    if NAIVE_DATE.fullmatch(value):
+        require(isinstance(source_offset, str) and OFFSET.fullmatch(source_offset),
+                'music-landing-timezone')
+        return value.replace(' ', 'T') + source_offset
+    return value
+
+
+def landing_rows(albums, recent_limit=12, source_offset=None):
     """Project local albums with source dates and evidence-based suggestions."""
     require(isinstance(albums, list) and len(albums) <= MAX_ALBUMS
             and type(recent_limit) is int and 1 <= recent_limit <= 50,
@@ -112,7 +135,7 @@ def landing_rows(albums, recent_limit=12):
             'synopsis': str(source.get('description') or '')[:3000],
             'artwork': str(artwork),
             'backdrop': str(backdrop),
-            'added_at': source.get('dateadded') or None,
+            'added_at': _source_date(source.get('dateadded'), source_offset),
             'recommendation_score': None,
             'recommendation_reason': '',
         }

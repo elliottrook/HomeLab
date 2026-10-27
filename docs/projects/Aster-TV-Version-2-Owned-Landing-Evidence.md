@@ -1,7 +1,7 @@
 # Aster TV Version 2 — owned Music and Books landing contract
 
 Date: 2026-10-26
-Status: owned contract and Books date feed active on HP; production unchanged
+Status: owned Music hero and Books date feed active on HP; production unchanged
 
 ## Decision
 
@@ -38,15 +38,42 @@ HP snapshot remains unchanged; publishing the enriched feed and adding
 domain-appropriate recommendation signals remain separate recovery-tested
 steps.
 
-The Music producer candidate has now been added against the exact album fields
-advertised by the HP's Kodi JSON-RPC 13.5.0 schema. It paginates the complete
-album catalogue up to the existing 20,000-item safety bound, fails on changing
-or incomplete pagination, and emits only Kodi-local album identities. Recent
+The Music producer has now been added against the exact album fields advertised
+by the HP's Kodi JSON-RPC 13.5.0 schema. It probes the reported total, then reads
+one exact bounded 0..total snapshot to avoid Kodi's unstable equal-label page
+boundary. Kodi reports one inaccessible sentinel in the current total, so the
+producer permits that one observed discrepancy and fails on any larger gap.
+It emits only Kodi-local album identities. Recent
 albums use Kodi's real `dateadded`. Hero candidates exclude that recent set and
 require either affinity with genres the household has actually played or a
 high local user rating; their displayed reason states which signal was used.
 Candidates without hero art and holiday-classified albums are omitted. No file
 path or MusicBrainz/acquisition identity enters the presentation record.
+
+## HP Music landing activation
+
+The owned Music hero is active on the HP lab through immutable stage
+`/storage/.aster-staging/aster-owned-music-landing3`, pinned by manifest
+`e12b1b447dee1132976fb829c81ef475e81ee6cc6d1aecd7296f7da66f4a649d`.
+Its private recovery checkpoint is
+`/storage/.aster-checkpoints/aster-music-integration-20261024/owned-landing3`.
+Two earlier candidates were cleanly rolled back after live reads exposed Kodi's
+timezone-less source dates and one inaccessible catalogue sentinel; both
+failures left the exact predecessor active before the successor was installed.
+
+The accepted HP read evaluated 1,338 readable owned albums, identified twelve
+real Recently Added albums and twelve recommendation candidates. The hero
+rotates every twelve seconds while the top rail or hero actions own focus;
+focusing the album grid immediately makes the selected tile authoritative and
+hides the hero actions. Manual Next changed the visible recommendation without
+moving to the grid. Open Album reached the existing v2 album player, and Play
+started the displayed recommended album. The test playback was explicitly
+stopped and HP returned to Home with an empty active-player list. Shuffle still
+routes to the existing bounded, holiday-excluding implementation.
+
+The final exact-file verification reports seven active members with checkpoint
+recovery intact. Kodi logged no matching Music/XML error. Production was not
+changed.
 
 ## HP Books source-date activation
 
@@ -70,9 +97,9 @@ credentials and production Aster were unchanged.
 
 ## Verification
 
-Seven focused tests cover real-date ordering, undated omission, signal-required
+Twenty-one focused tests cover real-date ordering, timezone normalization,
+Kodi's bounded inaccessible sentinel, undated omission, signal-required
 recommendations, recent-item exclusion, action/authority separation, duplicate
-rejection, focus-safe rotation and optimized-Python time checks. The complete
-skin-tool suite passes 111 tests and the complete Kodi v2 suite passes 1,198
-tests, each in normal and optimized Python; the one existing Mac-only skip is
-unchanged.
+rejection, focus-safe rotation, exact installation, rollback and
+optimized-Python time checks. The complete Kodi v2 suite passes 1,206 tests in
+normal and optimized Python; the one existing Mac-only skip is unchanged.
