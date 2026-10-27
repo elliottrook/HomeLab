@@ -1,13 +1,19 @@
 import json
 import tempfile
+import threading
 import unittest
+from unittest import mock
+from http.server import ThreadingHTTPServer
 from pathlib import Path
 import sys
+import urllib.error
+import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from aster_seerr_broker import (BrokerError, SeerrClient, authorize,
+from aster_acquisition_broker import BrokerError as AcquisitionBrokerError
+from aster_seerr_broker import (BrokerError, Handler, SeerrClient, authorize,
                                 provider_transport)
 
 
@@ -113,6 +119,37 @@ class AsterSeerrBrokerTests(unittest.TestCase):
                 with self.assertRaisesRegex(BrokerError,
                                             "provider-url-invalid"):
                     provider_transport(value, Path("/unused"), "lidarr")
+
+    def test_acquisition_coordinator_error_is_a_bounded_conflict(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            token = Path(temporary) / "token"
+            token.write_text("a" * 48)
+            class Reject:
+                def submit(self, _value):
+                    raise AcquisitionBrokerError("candidate-unavailable")
+            with mock.patch.dict("os.environ", {
+                    "ASTER_ACQUISITION_TOKEN_PATH": str(token)}), \
+                    mock.patch.object(Handler, "_acquisition",
+                                      return_value=Reject()):
+                server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+                thread = threading.Thread(target=server.serve_forever,
+                                          daemon=True)
+                thread.start()
+                try:
+                    request = urllib.request.Request(
+                        "http://127.0.0.1:%d/v1/acquisition" % server.server_port,
+                        data=b'{"schema":1}', method="POST",
+                        headers={"Authorization": "Bearer " + "a" * 48,
+                                 "Content-Type": "application/json"})
+                    with self.assertRaises(urllib.error.HTTPError) as raised:
+                        urllib.request.urlopen(request, timeout=2)
+                    self.assertEqual(raised.exception.code, 409)
+                    self.assertIn(b"candidate-unavailable",
+                                  raised.exception.read())
+                finally:
+                    server.shutdown()
+                    server.server_close()
+                    thread.join(timeout=2)
 
     def test_search_returns_only_sanitized_exact_schema(self):
         transport = Transport()

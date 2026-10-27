@@ -18,7 +18,8 @@ from aster_seerr_episode_contract import (catalogue as episode_catalogue,
                                           season as episode_season,
                                           season_proposal,
                                           season_request_result)
-from aster_acquisition_broker import AcquisitionBroker
+from aster_acquisition_broker import (AcquisitionBroker,
+                                      BrokerError as AcquisitionBrokerError)
 from aster_acquisition_providers import (LazyLibrarianProvider,
                                          LidarrProvider)
 from aster_tv_discovery import DiscoveryFeedError, read_feed
@@ -396,8 +397,8 @@ class Handler(BaseHTTPRequestHandler):
                 result = (self._client().submit(value) if path == "/v1/request"
                           else self._client().submit_season(value))
             self._send(200, result)
-        except (BrokerError, ContractError, KeyError, OSError, ValueError,
-                json.JSONDecodeError) as error:
+        except (BrokerError, AcquisitionBrokerError, ContractError, KeyError,
+                OSError, ValueError, json.JSONDecodeError) as error:
             code = (401 if str(error) in ("aster-seerr-unauthorized",
                                           "aster-acquisition-unauthorized")
                     else 409)
