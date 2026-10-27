@@ -22,6 +22,7 @@ def request(identity=ALBUM_ID, media_type="album"):
 def feed(domain, identity=ALBUM_ID, media_type="album"):
     return {"schema": 1, "generated_at": "2026-10-26T18:00:00Z",
             "items": [{"identity": identity, "media_type": media_type,
+                       "title": "Candidate",
                        "owned": False, "archived": False,
                        "request_state": "none", "primary_action": "request"}]}
 

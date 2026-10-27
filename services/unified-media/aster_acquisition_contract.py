@@ -37,6 +37,7 @@ class Command:
     domain: str
     authority: str
     authority_id: str
+    title: str
 
 
 def proposal(value: Any) -> dict[str, Any]:
@@ -69,6 +70,8 @@ def resolve(feed: Mapping[str, Any], value: Any) -> Command:
     media_type = accepted["media_type"]
     domain, authority = TYPES[media_type]
     require(item.get("media_type") == media_type
+            and isinstance(item.get("title"), str)
+            and 1 <= len(item["title"].strip()) <= 200
             and item.get("owned") is False and item.get("archived") is False
             and item.get("request_state") == "none"
             and item.get("primary_action") == "request",
@@ -77,7 +80,7 @@ def resolve(feed: Mapping[str, Any], value: Any) -> Command:
     require(match is not None, "acquisition-candidate-changed")
     return Command(identity, media_type, domain, authority,
                    match.group(1).lower() if authority == "musicbrainz"
-                   else match.group(1))
+                   else match.group(1), item["title"].strip())
 
 
 def response(command: Command, status: str, request_id: Any) -> dict[str, Any]:

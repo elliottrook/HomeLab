@@ -33,6 +33,7 @@ class AsterAcquisitionContractTests(unittest.TestCase):
         self.assertEqual((album.domain, album.authority, album.authority_id),
                          ("music", "musicbrainz",
                           "12345678-1234-1234-1234-123456789abc"))
+        self.assertEqual(album.title, "Candidate")
         book = resolve(feed(item(BOOK, "ebook")), body(BOOK, "ebook"))
         self.assertEqual((book.domain, book.authority, book.authority_id),
                          ("books", "openlibrary", "/works/OL123W"))
@@ -54,6 +55,7 @@ class AsterAcquisitionContractTests(unittest.TestCase):
                     dict(base, archived=True),
                     dict(base, request_state="pending", primary_action="none"),
                     dict(base, media_type="ebook")]
+        variants.append(dict(base, title=""))
         for value in variants:
             with self.subTest(value=value):
                 with self.assertRaises(ContractError):
