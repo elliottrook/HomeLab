@@ -34,6 +34,13 @@ logs, add a more specific failure subphase if the existing evidence cannot
 distinguish the cause, prove the correction offline and on target Linux, and
 present a fresh reviewed cycle. October 27 must not be retried.
 
+The conditional [October 27 F3 conversion](evidence/F3-from-F2-no-go-2026-10-27.md)
+then failed closed at its first mandatory gate. The reconciled F2 state is
+`no_go` with zero archive rows rather than three independently validated
+exit-zero rows, so the converter was not invoked and no retained receipt was
+written. F3 and every later effect gate remain closed until a fresh F2 cycle
+completes successfully.
+
 The [October 26 terminal result](evidence/F2-exact-cycle-no-go-2026-10-26.md)
 is NO-GO. The bounded state reached phase `final` with failure class
 `OBSERVER_COMMUNICATION_FAILED` and no archive rows. Both date-specific timers
