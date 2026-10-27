@@ -148,14 +148,17 @@ state digest is unchanged, all F2 timers remain disabled/inactive and production
 is healthy. A fresh date-specific card and review are next; no timed test is
 scheduled.
 
-The fresh October 28 candidate at platform tip `581c5ba9` is now independently
-reviewed. Its timer hashes resolve to 01:15/01:20 PDT, the installed five-file
-baseline matches, the new-cycle state and all effect locks/receipts are absent,
-and the only retained date-specific units are the exact disabled/inactive
-October 20 historical pair bound by the card. Card tests pass 3/3; the complete
-F2 suite passes 58 tests with one expected custody skip. Activation remains a
-separate host change and is the only static blocker. Runtime backup, task-1,
-archive identity, load and quiet-host checks remain fresh fail-closed gates.
+The fresh October 28 candidate at platform tip `581c5ba9` is independently
+reviewed, but activation is now on HOLD. The October 20–27 cross-cycle analysis
+found that mocked or partial tests did not exercise the complete installed
+child/producer path and bounded failures hid the next layer, making the
+overnight window the next integration test. Platform source `28edce6d` adds a
+diagnostic-only daytime rehearsal with a real subprocess boundary, production
+fixed-source checks and all three archive identities, while substituting the
+archive probe and receipt writer. It passes 57/57 locally. Install and run it
+twice on target before presenting another overnight activation; diagnose any
+mismatch during the day. Runtime backup, task-1, archive identity, load and
+quiet-host checks remain fresh fail-closed gates for the eventual live cycle.
 
 The separate 03:10 full-Aster first-screen timer did fire overnight. Its wrapper
 returned bounded `state=failed` after one second and the transient units were

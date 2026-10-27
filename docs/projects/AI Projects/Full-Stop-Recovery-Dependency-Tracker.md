@@ -47,16 +47,21 @@ checks. This improves the next failure evidence but cannot recover the discarded
 October 27 child phase. A fresh date-specific card and independent review are
 the next gates; no timed cycle is scheduled.
 
-The fresh October 28 candidate is now committed at platform tip
+The fresh October 28 candidate is committed at platform tip
 `581c5ba93d65c4af3a143e845485ded44f6b654d`. Stream A's
 [independent activation review](evidence/F2-exact-cycle-activation-review-2026-10-28.md)
 matched both timer hashes and the installed diagnostic baseline, resolved the
 calendars to 01:15/01:20 PDT, accepted only the two exact disabled historical
 October 20 timer files, and found the new-cycle state, lease, locks and receipt
 absent. Card tests passed 3/3 and the complete F2 suite passed 58 tests with one
-expected non-root custody skip. Exact timer activation is now the only static
-gate; runtime backup, pull, identity, load and quiet-host gates remain fresh and
-fail closed.
+expected non-root custody skip. Activation is now **HOLD**, rather than the
+next action. The [repeated-failure analysis](evidence/F2-repeated-overnight-failure-analysis-and-daytime-mitigation-2026-10-27.md)
+shows that successive overnight cycles have been exposing deterministic
+installed-path integration defects one layer at a time. The new platform
+daytime no-scan rehearsal at source `28edce6d` passes 57/57 local tests and is
+frozen by card `2d167ca0`. It must be installed inactive and pass twice on the
+target before another exact-date activation is presented. Runtime backup,
+pull, identity, load and quiet-host gates remain fresh and fail closed.
 
 The conditional [October 27 F3 conversion](evidence/F3-from-F2-no-go-2026-10-27.md)
 then failed closed at its first mandatory gate. The reconciled F2 state is
