@@ -10,7 +10,7 @@ import tempfile
 
 ADDON = Path(".kodi/addons/script.asteracquisition")
 SKIN = Path(".kodi/addons/skin.asterhome")
-CHECKPOINT = Path(".aster-checkpoints/aster-acquisition-page2")
+CHECKPOINT = Path(".aster-checkpoints/aster-acquisition-page3")
 ADDON_MEMBERS = {
     "addon.xml", "default.py",
     "resources/lib/acquisition_hub_model.py",
