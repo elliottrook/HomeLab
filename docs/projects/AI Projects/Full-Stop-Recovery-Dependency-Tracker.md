@@ -553,13 +553,20 @@ and hash checks, and released all state and locks. See the
 This closes the separate daytime lab-hours process qualification; it does not
 manufacture F2/F3 evidence or mark the stricter same-cycle F8/F9 drill complete.
 
-The ongoing EPUB narration compiler in LXC116 is now an explicit competing
-workload for backup, F2 and later lab-window admission. For the October 28
-cycle, its recurring timer was disabled while the active atomic attempt was
-allowed to finish; exact-date Proxmox timers quiesce any remainder at 00:15 PDT
-and restore the recurring worker at 03:50 PDT. See the
-[bounded exclusion record](evidence/EPUB-narration-F2-exclusion-2026-10-28.md).
-F2 must fail closed if that exclusion or the existing load gate does not pass.
+The October 27 network-wide collision audit identified the long-running EPUB
+narration compiler plus scheduled News ingestion and Paperless summaries as the
+three workloads able to contend for B60 or the fixed guest set. For the October
+28 cycle, the EPUB recurring timer is disabled while the current atomic attempt
+finishes. Exact-date Proxmox timers runtime-mask the News and Paperless service
+units and stop any remaining EPUB worker at 00:15 PDT, then remove those masks
+and restore the EPUB timer at 03:50 PDT. Installed hashes match the reviewed
+files and both exclusion timers are active/enabled. The audit found no active
+Proxmox or TrueNAS job, lease or inference-port client. Required TrueNAS pulls
+remain unchanged; the separate-pool 01:30 media archiver and post-chain 03:00
+Jellyfin job do not overlap the measured F2/F3 resource path. A later drill
+crossing 03:00 must freshly exclude Jellyfin. See the
+[bounded network exclusion record](evidence/EPUB-narration-F2-exclusion-2026-10-28.md).
+F2 still fails closed on incomplete exclusion, competing work or excess load.
 
 ## Dependency chain and live status
 
