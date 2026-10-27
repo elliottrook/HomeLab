@@ -1,0 +1,27 @@
+{
+  "coverage": [
+    {"component": "active-family-runtime", "disposition": "source", "source": "/storage/.aster-staging/aster-epub-doctor2-candidate"},
+    {"component": "base-family-recovery", "disposition": "evidence-only"},
+    {"component": "compiled-books-doctor", "disposition": "source", "source": "/storage/.aster-staging/aster-epub-doctor2-candidate"},
+    {"component": "compiled-books-reader", "disposition": "source", "source": "/storage/.aster-staging/aster-books-compiler-reader-v1"},
+    {"component": "compiled-books-reader-activation", "disposition": "source", "source": "/storage/.aster-staging/aster-books-compiler-reader-v1"},
+    {"component": "acquisition-hub", "disposition": "source", "source": "/storage/.aster-staging/acquisition-page3-188b5923"},
+    {"component": "acquisition-label-successor", "disposition": "source", "source": "/storage/.aster-staging/aster-acquisition-label9"},
+    {"component": "acquisition-saved-state", "disposition": "source", "source": "/storage/.aster-staging/aster-acquisition-repaint1"},
+    {"component": "official-youtube-integration", "disposition": "source", "source": "/storage/.aster-staging/aster-youtube-integration3"},
+    {"component": "youtube-landing", "disposition": "source", "source": "/storage/.aster-staging/aster-youtube-landing6-candidate1"},
+    {"component": "youtube-search", "disposition": "source", "source": "/storage/.aster-staging/aster-youtube-search6-candidate1"},
+    {"component": "voice-search-pilot", "disposition": "source", "source": "/storage/.aster-staging/aster-voice-search4"},
+    {"component": "music-player-candidate", "disposition": "source", "source": "/storage/.aster-staging/aster-music-v2lab-0.1.0-candidate72"},
+    {"component": "music-landing", "disposition": "source", "source": "/storage/.aster-staging/aster-owned-music-landing3"},
+    {"component": "books-landing", "disposition": "source", "source": "/storage/.aster-staging/aster-owned-books-landing2"},
+    {"component": "media-top-rail", "disposition": "source", "source": "/storage/.aster-staging/aster-media-top-rail1"},
+    {"component": "hp-startup-sound", "disposition": "source", "source": "/storage/.aster-staging/aster-startup-20261025"},
+    {"component": "active-ui-sound-theme", "disposition": "source", "source": "/storage/.aster-staging/aster-canonical-sounds-20261025"},
+    {"component": "active-screensaver", "disposition": "source", "source": "/storage/.aster-staging/aster-idle-presentation5"},
+    {"component": "active-startup-service", "disposition": "source", "source": "/storage/.aster-staging/aster-startup-20261025"},
+    {"component": "active-camera-service", "disposition": "source", "source": "/storage/.aster-staging/aster-camera2"}
+  ],
+  "kind": "aster-recovery-plan.v1",
+  "schema": 1
+}

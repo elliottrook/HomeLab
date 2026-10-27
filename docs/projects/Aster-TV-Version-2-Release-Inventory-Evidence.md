@@ -59,3 +59,11 @@ Any required missing anchor, changed digest, unsafe path or malformed relation
 fails closed. A successful component inventory is not production promotion.
 The next release gate is a new consolidated recovery package whose manifest
 covers the active family and every separately pinned successor.
+
+The subsequent recovery-source audit mapped every one of the 21 anchors to an
+exact retained source or predecessor-evidence disposition. The apparent final
+gap—the active screensaver identity—was resolved to immutable stage
+`/storage/.aster-staging/aster-idle-presentation5`, manifest SHA-256
+`8756238b796579dbff1cfc1ecb6e9fc976561235e579b00c5c258f1155fa92ba`.
+Recovery coverage therefore reports ready for assembly; no live add-on bytes
+need to be adopted as an undocumented source.
