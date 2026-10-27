@@ -35,9 +35,11 @@
    the accepted v2 decision-coverage semantics. It too failed: three folds had
    no inner threshold and the three selected folds exceeded the outer error
    limit, with one unsafe false route. Nearest-neighbour and prompt/confidence
-   iteration against these spent sets is closed. The next distinct hypothesis
-   is a regularized supervised head over fixed dense embeddings, trained only
-   inside each nested partition.
+   iteration against these spent sets is closed. The subsequent regularized
+   supervised dense head also failed: no outer fold could select an eligible
+   inner threshold. BGE-head development against these spent sets is now
+   closed. The next distinct hypothesis must change encoder family and pass a
+   public gate before another private six-set evaluation is proposed.
 3. **SA1–SA3 / broad D4 investigation.** Candidate-H is installed inactive. It
    still needs a fresh admitted live run, actual read-only evidence access,
    representative incident scoring and independent technical review. The

@@ -1667,3 +1667,12 @@ inside each training partition, scores only complete reviewed interpretation
 labels and preserves the separate route-safety envelope. Hyperparameters and
 thresholds remain inner-fold-only; the full dependency-free NLU suite passes
 375/375. No private evaluation or holdout access follows from source completion.
+
+The [completed supervised-head run](evidence/M3-NLU-dense-supervised-head-v1-crossset-rejection-2026-10-26.md)
+is rejected. All six outer folds failed to select an eligible threshold in
+their untouched inner partitions. The one bounded run completed in 63.819
+seconds; production remained healthy with zero restarts, the lease returned
+ready and all temporary private/model copies were removed. BGE neighbour and
+learned-head iteration against these spent sets is closed. The next candidate
+must change encoder family and pass a public gate before another private
+six-set evaluation can be proposed.
