@@ -553,6 +553,14 @@ and hash checks, and released all state and locks. See the
 This closes the separate daytime lab-hours process qualification; it does not
 manufacture F2/F3 evidence or mark the stricter same-cycle F8/F9 drill complete.
 
+The ongoing EPUB narration compiler in LXC116 is now an explicit competing
+workload for backup, F2 and later lab-window admission. For the October 28
+cycle, its recurring timer was disabled while the active atomic attempt was
+allowed to finish; exact-date Proxmox timers quiesce any remainder at 00:15 PDT
+and restore the recurring worker at 03:50 PDT. See the
+[bounded exclusion record](evidence/EPUB-narration-F2-exclusion-2026-10-28.md).
+F2 must fail closed if that exclusion or the existing load gate does not pass.
+
 ## Dependency chain and live status
 
 `[x]` means the named evidence was observed. `[ ]` means open. If an attempted
