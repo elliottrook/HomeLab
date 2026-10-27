@@ -1649,6 +1649,6 @@ That [dense-encoder v2 run card](evidence/M3-NLU-dense-encoder-v2-crossset-run-c
 is now source-complete. Whole-label voting prevents incoherent field mixtures,
 route confidence is bounded by its weakest safety-relevant support, and
 configuration plus policy thresholds are selected only inside each nested
-training partition. The dependency-free NLU suite passes 368/368. Its runtime
+training partition. The dependency-free NLU suite passes 369/369. Its runtime
 uses the same hash-pinned BGE Q4_K_M encoder in a temporary CPU-only loopback
 process and leaves the accepted 9B/SYCL service unchanged.

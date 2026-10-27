@@ -94,10 +94,47 @@ def score_set(
     return scored
 
 
+def _prepare_cache(sets: dict[str, list[dict[str, Any]]]):
+    indexed = []
+    for name in sorted(sets):
+        for index, row in enumerate(sets[name]):
+            indexed.append(((name, index), row))
+    similarities = {}
+    for query_key, query in indexed:
+        similarities[query_key] = {
+            training_key: candidate._dot(query["vector"], training["vector"])
+            for training_key, training in indexed if training_key != query_key
+        }
+    return dict(indexed), similarities
+
+
+def _score_cached(rows_by_key, similarities, query_keys, training_keys, config):
+    scored_rows = []
+    for query_key in query_keys:
+        neighbours = [
+            (
+                similarities[query_key][training_key],
+                order,
+                candidate._label_key(rows_by_key[training_key]["expected"]),
+            )
+            for order, training_key in enumerate(training_keys)
+        ]
+        result = candidate.propose_scored(neighbours, **config)
+        scored_rows.append(candidate.score_row(
+            result, rows_by_key[query_key]["expected"]
+        ))
+    return scored_rows
+
+
 def evaluate_nested(sets: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
     names = sorted(sets)
     if len(names) < 3 or any(not sets[name] for name in names):
         raise ValueError("nested evaluation requires nonempty disjoint sets")
+    rows_by_key, similarities = _prepare_cache(sets)
+    keys = {
+        name: [(name, index) for index in range(len(sets[name]))]
+        for name in names
+    }
     folds = []
     for outer in names:
         inner_names = [name for name in names if name != outer]
@@ -106,8 +143,9 @@ def evaluate_nested(sets: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
             inner_rows = []
             for validation in inner_names:
                 train_names = [name for name in inner_names if name != validation]
-                inner_rows.extend(score_set(
-                    sets[validation], _training(sets, train_names), config
+                training_keys = [key for name in train_names for key in keys[name]]
+                inner_rows.extend(_score_cached(
+                    rows_by_key, similarities, keys[validation], training_keys, config
                 ))
             try:
                 selected = select_thresholds(inner_rows)
@@ -122,7 +160,10 @@ def evaluate_nested(sets: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
             folds.append({"outer": outer, "status": "no_inner_threshold"})
             continue
         *_, config, selected = max(choices, key=lambda item: item[:5])
-        outer_rows = score_set(sets[outer], _training(sets, inner_names), config)
+        outer_training_keys = [key for name in inner_names for key in keys[name]]
+        outer_rows = _score_cached(
+            rows_by_key, similarities, keys[outer], outer_training_keys, config
+        )
         metrics = _metrics(outer_rows, selected["decision"], selected["route"])
         folds.append({
             "outer": outer,

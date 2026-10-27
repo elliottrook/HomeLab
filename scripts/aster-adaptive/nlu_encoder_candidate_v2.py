@@ -66,6 +66,19 @@ def propose(
     scored = []
     for index, (candidate, label) in enumerate(training):
         scored.append((_dot(vector, candidate), index, _label_key(label)))
+    return propose_scored(scored, k=k, power=power)
+
+
+def propose_scored(
+    scored: list[tuple[float, int, tuple[Any, ...]]], *, k: int, power: int,
+) -> dict[str, Any]:
+    """Apply the candidate to precomputed similarities.
+
+    The nested evaluator uses this entry point so each vector pair is compared
+    once rather than once per hyperparameter and fold.
+    """
+    if not scored or not 1 <= k <= len(scored) or power < 1:
+        raise ValueError("encoder candidate bounds differ")
     neighbours = sorted(scored, key=lambda row: (-row[0], row[1]))[:k]
     weights = [max(score, 0.0) ** power for score, _, _ in neighbours]
     total = sum(weights)

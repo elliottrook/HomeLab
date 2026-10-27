@@ -11,23 +11,25 @@ enable automatic routing.
 
 - coherent complete-label candidate:
   `nlu_encoder_candidate_v2.py`, SHA-256
-  `54c090e9aa34d94c67fc18744a3cb6ba25a7ce3db974f856ebcbbbb0c5fea9f1`;
+  `56bce07f4b967d9ab91047d85e86d6b87b7b51ba2b54dfc7ed4b5c74611102e3`;
 - honest nested selector:
   `nlu_encoder_crossset_v2.py`, SHA-256
-  `45c9dcbc7f099a10d5319d03eb2ecef6ed377e7b7976cd798748062f91ba7d6e`;
+  `ca5be09626b145ec07263ec58f47e5c403087a930171b8efa39d265cccff42f5`;
 - owner-only vectorization wrapper:
   `nlu_encoder_runtime_v2.py`, SHA-256
   `f1532fcbab4d9c5b4388509a146f22c0b5da31d166b9b9a1278b5afdbdd22789`;
 - accepted policy artifact:
   `nlu-policy-decision-accepted-v2.json`, SHA-256
   `7ed394720af72169d6bff49603ffdd788e417acbae60751b5893c3f8494752a9`;
-- dependency-free NLU suite: **368/368**.
+- dependency-free NLU suite: **369/369**.
 
 Candidate v2 votes over whole reviewed interpretation labels, so it cannot
 synthesize an unreviewed combination of independent field majorities. Its
 route score is the weakest weighted support among route disposition,
 sensitivity and capability set. Candidate configuration and decision/route
 thresholds are selected only from each outer fold's five-set nested partition.
+The evaluator precomputes each vector pair exactly once before selection; this
+does not change candidate semantics or expose vectors in its retained result.
 
 ## Encoder runtime
 

@@ -72,6 +72,17 @@ class EncoderCandidateV2Tests(unittest.TestCase):
         with self.assertRaises(ValueError):
             candidate.propose([1.0], [([1.0], label())], k=0, power=1)
 
+    def test_precomputed_similarity_matches_direct_proposal(self):
+        training = [([1.0, 0.0], label(reason="alpha"))] * 3 + [
+            ([0.5, 0.5], label(disposition="abstain", reason="beta"))
+        ] * 2
+        direct = candidate.propose([1.0, 0.0], training, k=5, power=2)
+        scored = [
+            (candidate._dot([1.0, 0.0], vector), index, candidate._label_key(value))
+            for index, (vector, value) in enumerate(training)
+        ]
+        self.assertEqual(direct, candidate.propose_scored(scored, k=5, power=2))
+
 
 if __name__ == "__main__":
     unittest.main()
