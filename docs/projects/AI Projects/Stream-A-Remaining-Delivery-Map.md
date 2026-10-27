@@ -193,10 +193,12 @@ candidate can be accepted or deployed. Automatic routing remains closed.
 A four-file [release packet pending review](evidence/SA3-candidate-E-release-packet-pending-review-2026-10-27.md)
 now pins the exact live predecessor and candidate source while encoding
 independent review as `pending`. Its validator tests pass 4/4 and reject review
-or authority inflation. This is preparation only: no installer exists, the
-target HTTP route has not yet passed in LXC104's dependency environment, and
-the later deployment would require one separately approved Aster Agent
-restart. F2/F3 and the full-Aster schedule are unchanged.
+or authority inflation. The temporary target-Python packet passed all 31/31
+proposal and HTTP gateway tests, was removed from Mac/Proxmox/LXC104, and left
+Aster Agent and the accepted llama service unchanged. This is preparation only:
+no installer exists, independent review remains pending, and the later
+deployment would require one separately approved Aster Agent restart. F2/F3
+and the full-Aster schedule are unchanged.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and

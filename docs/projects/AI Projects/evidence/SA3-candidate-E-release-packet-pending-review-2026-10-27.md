@@ -28,12 +28,19 @@ was staged on the target.
 - dependency-free sysadmin regression: **69/69 passed**;
 - current manifest validation reports four files, review `pending`, automatic
   routing false and repair authority false.
+- an eight-file temporary test bundle (SHA-256
+  `fb161d6071b5110b3cfc185e16b39285f758b6999ae8fa1ee3233305e1b0e95a`)
+  passed **31/31** proposal and FastAPI gateway tests under LXC104's installed
+  Python 3.13 dependencies. This includes owner-versus-legacy authentication,
+  content-minimized output and the no-effect journal boundary;
+- the temporary Mac, Proxmox and LXC104 copies were removed. Aster Agent stayed
+  active with zero restarts. The accepted LXC110 llama service stayed active at
+  PID `48161` with zero restarts. No model request ran.
 
 ## Remaining gates
 
 The packet cannot be installed in its current state. A separate reviewer must
 accept the exact candidate-E review packet. The resulting accepted review must
-then be incorporated into a new exact manifest, the HTTP route must pass in the
-target Python dependency environment, and a rollback-capable installer must be
-reviewed. Installation and the required Aster Agent restart need their own
-immediate approval. Tonight's F2/F3/full-Aster schedules remain untouched.
+then be incorporated into a new exact manifest and a rollback-capable installer
+must be reviewed. Installation and the required Aster Agent restart need their
+own immediate approval. Tonight's F2/F3/full-Aster schedules remain untouched.
