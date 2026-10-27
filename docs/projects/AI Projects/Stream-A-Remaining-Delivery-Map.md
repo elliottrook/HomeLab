@@ -145,6 +145,15 @@ held. The next candidate must define `complete` versus `escalate` explicitly;
 the exposed packet may guide development but cannot provide independent
 acceptance.
 
+The resulting [development correction](evidence/SA3-current-proposal-development-correction-2026-10-27.md)
+progressed from 5/8 to 6/8, 7/8 and finally 8/8. The accepted development shape
+moves the two weak semantics into trusted policy: exhausted unavailable
+evidence can only escalate, and every exposed observation must be cited.
+Candidate D stayed no-authority/no-effect and left both production services
+unchanged. Because the exposed packet guided those changes, SA3 still requires
+a fresh frozen packet and independent review before this proposal path can be
+accepted for representative incidents.
+
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the
