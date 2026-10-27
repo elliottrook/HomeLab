@@ -1,0 +1,28 @@
+{
+  "kind": "aster-recovery-recipe.v1",
+  "prerequisites": [
+    {"id": "platform", "kind": "platform", "requirement": "x86_64 LibreELEC 12.2.1 with Kodi 21.3 and systemd; clean AsterTV hostname"},
+    {"id": "youtube-addon", "kind": "kodi-addon", "requirement": "Official Kodi plugin.video.youtube 7.4.4 installed from the Kodi Omega repository"},
+    {"id": "jellyfin-addon", "kind": "kodi-addon", "requirement": "plugin.video.jellyfin 2.2.0+py3 installed before its guarded player successor"},
+    {"id": "media-services", "kind": "private-service", "requirement": "Existing private Jellyfin, Audiobookshelf, Seerr and Acquisition Hub endpoints reachable under their current restricted policies"},
+    {"id": "home-services", "kind": "private-service", "requirement": "Existing restricted Home status publisher and Front of House camera path reachable; no direct Home Assistant control authority"},
+    {"id": "speech-service", "kind": "private-service", "requirement": "Existing Aster Speech restricted STT service reachable; audio and transcripts remain non-retained"},
+    {"id": "compiled-books", "kind": "private-service", "requirement": "TrueNAS AsterReader ready and generations exports reachable read-only at their fixed sources"},
+    {"id": "restricted-identities", "kind": "restricted-provisioning", "requirement": "Provision YouTube account state and restricted voice, Home, camera, Books and request identities separately; never copy them from another client or bundle"}
+  ],
+  "schema": 1,
+  "steps": [
+    {"action": "install-base-archives", "id": "base-client", "kodi_restart": true, "order": 1, "sources": ["/storage/.aster-staging/aster-home-v1.1.1-candidate1"]},
+    {"action": "install-family-base", "id": "family-base", "order": 2, "sources": ["/storage/.aster-staging/aster-family-recovery7b"]},
+    {"action": "install-kodi-package", "id": "music-player", "order": 3, "sources": ["/storage/.aster-staging/aster-music-v2lab-0.1.0-candidate72"]},
+    {"action": "apply-successor", "id": "owned-landings", "order": 4, "sources": ["/storage/.aster-staging/aster-owned-music-landing3", "/storage/.aster-staging/aster-owned-books-landing2", "/storage/.aster-staging/aster-media-top-rail1"]},
+    {"action": "apply-successor", "id": "acquisition", "order": 5, "sources": ["/storage/.aster-staging/acquisition-page3-188b5923", "/storage/.aster-staging/aster-acquisition-label9", "/storage/.aster-staging/aster-acquisition-repaint1"]},
+    {"action": "apply-successor", "id": "youtube", "order": 6, "sources": ["/storage/.aster-staging/aster-youtube-integration3", "/storage/.aster-staging/aster-youtube-landing6-candidate1", "/storage/.aster-staging/aster-youtube-search6-candidate1"]},
+    {"action": "apply-successor", "id": "voice", "order": 7, "sources": ["/storage/.aster-staging/aster-voice-search4"]},
+    {"action": "install-system-integration", "id": "compiled-books", "order": 8, "sources": ["/storage/.aster-staging/aster-books-compiler-reader-v1", "/storage/.aster-staging/aster-epub-consumer1"]},
+    {"action": "apply-successor", "id": "compiled-books-doctor", "order": 9, "sources": ["/storage/.aster-staging/aster-epub-doctor2-candidate"]},
+    {"action": "install-system-integration", "id": "home-camera", "order": 10, "sources": ["/storage/.aster-staging/aster-camera2"]},
+    {"action": "apply-successor", "id": "sound-and-idle", "order": 11, "sources": ["/storage/.aster-staging/aster-canonical-sounds-20261025", "/storage/.aster-staging/aster-startup-20261025", "/storage/.aster-staging/aster-idle-presentation5"]},
+    {"action": "verify-release", "id": "cold-verification", "kodi_restart": true, "order": 12, "sources": []}
+  ]
+}

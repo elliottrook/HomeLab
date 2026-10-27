@@ -2,6 +2,12 @@
   "candidate": "AsterTV v2 HP lab candidate 2026-10-27",
   "components": [
     {
+      "name": "base-client-release",
+      "path": "/storage/.aster-staging/aster-home-v1.1.1-candidate1/aster-home-v1.1.1-manifest.json",
+      "schema": "aster-home-kodi-release.v1",
+      "sha256": "228b32975c9a3fa099414b65f47c32d3d9aee5f4bc64a5aad154af8f95ab703a"
+    },
+    {
       "kind": "aster-family-runtime.v1",
       "name": "active-family-runtime",
       "path": "/storage/.kodi/addons/script.asterruntime/family-manifest.json",
@@ -28,6 +34,13 @@
       "path": "/storage/.aster-staging/aster-books-compiler-reader-v1/bundle.json",
       "schema": 1,
       "sha256": "d41eddcd7fe754eba6d00677e17aa0a69c2dd10991b434586fc6aa4578bc6f89"
+    },
+    {
+      "kind": "aster-hp-compiled-epub-consumer-v1",
+      "name": "compiled-books-consumer",
+      "path": "/storage/.aster-staging/aster-epub-consumer1/manifest.json",
+      "schema": 1,
+      "sha256": "33a8ef7c087f2437bf03eb35c2101c38b48bf652b6094bc4119ff20cef807a87"
     },
     {
       "name": "compiled-books-reader-activation",
@@ -161,6 +174,13 @@
       "name": "compiled-books-reader-is-active",
       "required": true,
       "source": "compiled-books-reader-activation",
+      "target": "compiled-books-reader"
+    },
+    {
+      "field": "reader_pin",
+      "name": "compiled-books-consumer-pins-reader",
+      "required": true,
+      "source": "compiled-books-consumer",
       "target": "compiled-books-reader"
     }
   ],

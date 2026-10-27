@@ -86,6 +86,47 @@ is not followed or copied. All other symlinks are rejected. The bundle verifier
 recomputes every file hash and each source-tree digest and refuses missing,
 changed or extra files.
 
+This first bundle exposed one omitted clean-install dependency during the next
+gate: the reader's separate consumer stage owns the read-only automount units
+and Books handoff. The first bundle is therefore retained as audit evidence but
+superseded, not promoted. The corrected inventory adds
+`aster-epub-consumer1`, pins its reader relationship and requires its complete
+source tree in the next bundle.
+
+The ordered-install review then identified the second distinction: all v2
+successors require the complete v1.1.1 client baseline. Its four exact archives
+and release manifest are now a required recovery source, not an undocumented
+assumption. The baseline declares and the HP confirms official YouTube add-on
+7.4.4; the current HP also reports Jellyfin add-on 2.2.0+py3. External services,
+network endpoints and restricted credentials remain prerequisites and are not
+copied into the bundle.
+
+Replay inspection also confirmed that the EPUB Doctor stage is deliberately a
+delta: it contains the updated Doctor component, family manifest and Settings
+file, not the other seven family runtime components. Recovery7 is therefore a
+required source baseline followed by the Doctor delta, even though Recovery7
+alone remains stale relative to the active family. Its complete source tree is
+now pinned in the recovery plan; the earlier evidence-only disposition is
+superseded.
+
+The corrected Bundle4 is the first source-material candidate that includes all
+three discovered clean-install foundations: the v1.1.1 base client, Recovery7
+family base and compiled-reader consumer integration. It independently verifies
+after copying with:
+
+- 23 declared active/release anchors;
+- 20 exact source stages;
+- 273 regular files and 8,764,273 payload bytes; and
+- manifest SHA-256
+  `e614d1c85716f9c3fef73e02ae57a88ac142b28138ef8025933cfb7f0664eeda`.
+
+The declarative replay recipe validates twelve ordered phases, all twenty
+sources, eight non-secret prerequisites and only two planned Kodi restart
+boundaries. It explicitly requires LibreELEC 12.2.1/Kodi 21.3, official YouTube
+7.4.4, Jellyfin 2.2.0+py3, the existing private services and separate
+least-privilege identity provisioning. Credentials and account state are never
+recovered by copying another client's profile.
+
 This is successful source-material recovery, not yet a clean-client install
 rehearsal. Graduation still requires an ordered installer contract and an
 isolated apply/verify/rollback test. The temporary HP copies are retained until

@@ -43,15 +43,16 @@ do not imply household acceptance or production promotion.
   every ready generation manifest without repairing anything. Native HP review
   reports two valid publications. See
   [Doctor evidence](Aster-TV-Version-2-EPUB-Doctor-Evidence.md).
-- A bounded release inventory verifies 21/21 active HP anchors without reading
+- A bounded release inventory verifies 23/23 active and base-release HP anchors without reading
   credentials, profiles, history, listening progress or media databases. It
   deliberately reports recovery incomplete because Recovery7 predates the
   active EPUB Doctor family. See
   [release inventory evidence](Aster-TV-Version-2-Release-Inventory-Evidence.md).
-- The recovery source plan now covers all 21 anchors, and a consolidated bundle
-  independently verifies after an isolated copy: 17 source stages, 159 files,
-  3,261,620 bytes, manifest `b5856b6c3ce7d18c2a6b1e3f65f4e3060dbb08be592f7fa80f8af4b1a893463f`.
-  Ordered install/rollback rehearsal remains open.
+- The corrected recovery source plan covers all 23 anchors. Bundle4 independently
+  verifies after an isolated copy: 20 source stages, 273 files, 8,764,273 bytes,
+  manifest `e614d1c85716f9c3fef73e02ae57a88ac142b28138ef8025933cfb7f0664eeda`.
+  Its twelve-step recipe covers every source and eight explicit prerequisites
+  with two bounded Kodi restart points. Ordered apply/rollback rehearsal remains open.
 - The official YouTube add-on reports the HP user fully signed in. Version 2
   now explicitly owns the Aster presentation milestone: replace the add-on's
   generic entrance with a Media-home-style YouTube landing page and preserve
