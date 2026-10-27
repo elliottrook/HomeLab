@@ -74,8 +74,18 @@ is not an acknowledgment or authorization for operational work.
 
 The first morning read-only mirror query did not return within the bounded
 review and was cancelled; no mirror mismatch or failed publication is inferred.
-Authoritative fetch succeeded. Reverify protection refs before/after any later
-authorized liaison publication. B60's unchanged81-test suite passes. The
+The retry succeeded: B60/platform matched and Adaptive had advanced to
+`e900153940c9615e6e5a4af7049263b01dd5d456`, then fetched and read. Its
+`docs/projects/AI Projects/evidence/EPUB-narration-F2-exclusion-2026-10-28.md`
+has SHA-256 `13c42fe4e05ddbb9161eb277062677d609ee0cd45cb42107373c6c646aeef040`.
+The owner records a one-cycle00:15 exclusion/03:50 resumption for EPUB,
+News ingestion and Paperless summaries, preserving recurring schedules.
+These newly identified B60 consumers must enter any later challenger drain
+manifest. A future03:10 challenger/restoration transaction must reconcile
+03:50 resumption with active lease/recovery ownership rather than assuming
+these callers stay isolated until04:15. No such new challenger is scheduled
+by this receipt. Reverify refs after authorized liaison publication.
+B60's unchanged81-test suite passes. The
 nightly local commit `7dd37e8a` remains intact in the recovered checkout.
 No production probe, model/GPU request, download, mount, lease, timer/service,
 package or credential operation ran here. Next action is to integrate and test
