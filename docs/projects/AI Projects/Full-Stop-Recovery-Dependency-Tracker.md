@@ -38,11 +38,14 @@ The platform source candidate at `be6cafa47d77668a69181a80018a755d6f740840`
 now preserves the observer child's already bounded `preflight`, `observer` or
 `result` phase instead of collapsing every nonzero child exit. Stream A's
 [source review](evidence/F2-observer-exit-diagnostic-source-review-2026-10-27.md)
-accepts the one-file correction and its conservative malformed-output fallback;
-the clean committed-tree F2 suite passed 55 tests with one expected non-root
-custody skip. This improves the next failure evidence but cannot recover the
-discarded October 27 child phase. A separately approved inactive installation
-and target-Linux proof remain the next gate; no fresh timed cycle is scheduled.
+accepts the one-file correction and its conservative malformed-output fallback.
+Jason approved the [inactive installation](evidence/F2-observer-exit-diagnostic-inactive-install-result-2026-10-27.md),
+which now matches candidate `efe8bc99…87ec` under exact root custody. The first
+incomplete test packet triggered verified rollback; the corrected packet then
+passed 31/31 focused, 56/56 broader target-Linux and 4/4 direct installed-path
+checks. This improves the next failure evidence but cannot recover the discarded
+October 27 child phase. A fresh date-specific card and independent review are
+the next gates; no timed cycle is scheduled.
 
 The conditional [October 27 F3 conversion](evidence/F3-from-F2-no-go-2026-10-27.md)
 then failed closed at its first mandatory gate. The reconciled F2 state is

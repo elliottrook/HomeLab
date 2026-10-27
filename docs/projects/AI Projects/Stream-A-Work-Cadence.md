@@ -138,6 +138,23 @@ unknown output. The clean F2 suite passes 55 tests with one expected custody
 skip. This cannot recover the October 27 phase; a separately approved inactive
 one-file installation and target-Linux proof precede any fresh cycle.
 
+Jason approved that inactive installation. The first target package omitted
+repository card and unit fixtures; its 31 focused tests passed, the broader
+suite stopped only on missing files, and automatic rollback restored the exact
+predecessor. The corrected complete packet then passed 31/31 focused, 56/56
+broader target-Linux and 4/4 direct installed-path checks. The coordinator now
+matches `efe8bc99…87ec`, its predecessor is retained root-only, the October 27
+state digest is unchanged, all F2 timers remain disabled/inactive and production
+is healthy. A fresh date-specific card and review are next; no timed test is
+scheduled.
+
+The separate 03:10 full-Aster first-screen timer did fire overnight. Its wrapper
+returned bounded `state=failed` after one second and the transient units were
+later removed. The required F2/F3 admission chain was unavailable, no lease,
+lock, mount or first-screen evidence exists, and the accepted LXC110 9B/SYCL
+service remained continuously running with zero restarts. This was the expected
+fail-closed outcome; no candidate request or system restart occurred.
+
 **October 20 F2 result:** the two exact-date timers fired and are now disabled,
 but preparation failed after five seconds and final failed immediately. No
 archive row or scan result was produced. The exact preparation sub-gate is
