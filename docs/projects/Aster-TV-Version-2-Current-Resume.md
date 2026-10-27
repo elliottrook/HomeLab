@@ -48,6 +48,10 @@ do not imply household acceptance or production promotion.
   deliberately reports recovery incomplete because Recovery7 predates the
   active EPUB Doctor family. See
   [release inventory evidence](Aster-TV-Version-2-Release-Inventory-Evidence.md).
+- The recovery source plan now covers all 21 anchors, and a consolidated bundle
+  independently verifies after an isolated copy: 17 source stages, 159 files,
+  3,261,620 bytes, manifest `b5856b6c3ce7d18c2a6b1e3f65f4e3060dbb08be592f7fa80f8af4b1a893463f`.
+  Ordered install/rollback rehearsal remains open.
 - The official YouTube add-on reports the HP user fully signed in. Version 2
   now explicitly owns the Aster presentation milestone: replace the add-on's
   generic entrance with a Media-home-style YouTube landing page and preserve
@@ -70,7 +74,7 @@ do not imply household acceptance or production promotion.
 | Endurance and accessibility | Continue evidence against the final composed client, then owner sofa/remote review | Short automated soaks do not substitute for household use |
 | Bedroom sizing | Revise the existing measured/inferred assessment after final client shape | See [client sizing](../reference/Aster-TV-Bedroom-Client-Sizing.md); lower-memory deployment remains deferred |
 | Final cleanup | One finite owner-led page-by-page v1/v2 walkthrough and bounded repairs | Feature work first; avoid creating an open-ended new backlog |
-| Release | Build the consolidated recovery successor from the verified 21-anchor inventory, then complete the operational handover | Inventory is exact; Recovery7 is truthfully marked partial; production promotion requires its separate owner decision |
+| Release | Encode dependency order and run an isolated install/verify/rollback rehearsal from the consolidated bundle, then complete the operational handover | Source recovery is exact; clean-client replay and production promotion remain separate gates |
 
 ## Continuation controls
 

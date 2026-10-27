@@ -16,6 +16,8 @@ class RecoveryCoverageTests(unittest.TestCase):
         }
         self.plan = {
             "schema": 1, "kind": "aster-recovery-plan.v1",
+            "sources": [{"path": "/storage/.aster-staging/family",
+                         "tree_sha256": "0" * 64}],
             "coverage": [
                 {"component": "family", "disposition": "source",
                  "source": "/storage/.aster-staging/family"},
@@ -32,7 +34,7 @@ class RecoveryCoverageTests(unittest.TestCase):
     def test_every_component_with_source_or_evidence_is_ready(self):
         self.plan["coverage"][2] = {
             "component": "screensaver", "disposition": "source",
-            "source": "/storage/.aster-staging/screensaver",
+            "source": "/storage/.aster-staging/family",
         }
         self.assertTrue(assess(self.inventory, self.plan)["ready"])
 

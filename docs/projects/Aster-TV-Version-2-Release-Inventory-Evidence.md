@@ -67,3 +67,26 @@ gap—the active screensaver identity—was resolved to immutable stage
 `8756238b796579dbff1cfc1ecb6e9fc976561235e579b00c5c258f1155fa92ba`.
 Recovery coverage therefore reports ready for assembly; no live add-on bytes
 need to be adopted as an undocumented source.
+
+## Consolidated source bundle
+
+The first consolidated HP bundle was assembled at
+`/tmp/aster-v2-recovery-bundle1` and copied independently to
+`/tmp/aster-v2-recovery-restore1`. Both verify against manifest SHA-256
+`b5856b6c3ce7d18c2a6b1e3f65f4e3060dbb08be592f7fa80f8af4b1a893463f`:
+
+- 17 exact source stages;
+- 159 regular files;
+- 3,261,620 payload bytes; and
+- no credential, profile, history, listening-progress, database, result-log,
+  lock, proof-screenshot, bytecode or generated-publication content.
+
+The compiled reader's `data` symlink is an exact forbidden mount boundary and
+is not followed or copied. All other symlinks are rejected. The bundle verifier
+recomputes every file hash and each source-tree digest and refuses missing,
+changed or extra files.
+
+This is successful source-material recovery, not yet a clean-client install
+rehearsal. Graduation still requires an ordered installer contract and an
+isolated apply/verify/rollback test. The temporary HP copies are retained until
+that rehearsal so the accepted artifact can be tested without rebuilding it.

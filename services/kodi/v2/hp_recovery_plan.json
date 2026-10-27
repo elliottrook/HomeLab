@@ -23,5 +23,24 @@
     {"component": "active-camera-service", "disposition": "source", "source": "/storage/.aster-staging/aster-camera2"}
   ],
   "kind": "aster-recovery-plan.v1",
-  "schema": 1
+  "schema": 1,
+  "sources": [
+    {"path": "/storage/.aster-staging/acquisition-page3-188b5923", "tree_sha256": "51f7433992fb0e29459b67c539c96fe6d23fc27c448a6793c5e8743c893eb559"},
+    {"path": "/storage/.aster-staging/aster-acquisition-label9", "tree_sha256": "d4854be116f717e6bd5b688d30bb809a1ad670e877c1baa1243592568c7d9ade"},
+    {"path": "/storage/.aster-staging/aster-acquisition-repaint1", "tree_sha256": "8a20464ff12f3e65e3ee8708b9538a7a08d16f3e3ec7daeaafd9b93b64a1b42e"},
+    {"path": "/storage/.aster-staging/aster-books-compiler-reader-v1", "tree_sha256": "1f7d443557afc251c54add861b6d304eb34702c567a82dfe337da19256ee981f"},
+    {"path": "/storage/.aster-staging/aster-camera2", "tree_sha256": "0d4f8e9ada128c37a32b81319235c6182c21e7713ccf087faafc9a927b14b733"},
+    {"path": "/storage/.aster-staging/aster-canonical-sounds-20261025", "tree_sha256": "6817b7bb301306b1ed65e1a6cf7ef592f3e1b9e29123443a11f4883481c9f62f"},
+    {"path": "/storage/.aster-staging/aster-epub-doctor2-candidate", "tree_sha256": "86a0c3c748b47c39d343107adc7cdfe0ef5f27b5cb3a5f2afa20c0e4321242b3"},
+    {"path": "/storage/.aster-staging/aster-idle-presentation5", "tree_sha256": "bfeab40efa9fc045b094c521aaf920faab55a7631b06174d2714ba128f6b8a4d"},
+    {"path": "/storage/.aster-staging/aster-media-top-rail1", "tree_sha256": "fb4df81593bcbae432cfe967dcb1585fe16892dcb83cbb80b4de8dd351ab2f5b"},
+    {"path": "/storage/.aster-staging/aster-music-v2lab-0.1.0-candidate72", "tree_sha256": "d4431261eb52561ca22a1e385c51ca7cbf491f5ff612650d80883607b9856654"},
+    {"path": "/storage/.aster-staging/aster-owned-books-landing2", "tree_sha256": "07b949267c6c83a02c0472f0857db5735b05a117ff26aa3bfc059f276e5a72c0"},
+    {"path": "/storage/.aster-staging/aster-owned-music-landing3", "tree_sha256": "c182180f39416002dbe0681d6025f80d0ee29f82120ceedab0a249a84802adb4"},
+    {"path": "/storage/.aster-staging/aster-startup-20261025", "tree_sha256": "5946d4be00aa1d33476d5660fd07a4bb8914d4f49efe6f0efd16b766d227b140"},
+    {"path": "/storage/.aster-staging/aster-voice-search4", "tree_sha256": "777e3ee95aab8ec7ac2ab7daa6135898ad88e9985fa930975af070b4e13d13f3"},
+    {"path": "/storage/.aster-staging/aster-youtube-integration3", "tree_sha256": "d81cc577839c6c7784ff59cec5cb00653aef19fe6f69faab9772e6b0398f2643"},
+    {"path": "/storage/.aster-staging/aster-youtube-landing6-candidate1", "tree_sha256": "cdba26409d0ceaad69a7801ec248b94fe981fce4bd4f0af87faec3fbf572dac6"},
+    {"path": "/storage/.aster-staging/aster-youtube-search6-candidate1", "tree_sha256": "9320abe7525457b1926783ab468470aba3343cf1273c253195334d91ebc7eb99"}
+  ]
 }
