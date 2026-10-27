@@ -135,7 +135,15 @@ and restart counts were unchanged, the model was idle afterward and all
 temporary files were removed. This proves contract adherence, not real-incident
 diagnostic quality. The next SA3 gate is a preregistered representative
 no-effect packet with explicit scoring and independent review; producer
-execution and repair authority remain outside it.
+execution and repair authority remain outside it. The first frozen eight-case
+[representative packet](evidence/SA3-current-proposal-packet-freeze-2026-10-26.md)
+then [rejected the initial prompt](evidence/SA3-current-proposal-packet-result-2026-10-26.md)
+at 5/8. Check selection passed 4/4 and both-healthy completion passed, but the
+model confused a supported bounded diagnosis with exhausted unavailable
+evidence in three terminal cases. All authority/effect and citation checks
+held. The next candidate must define `complete` versus `escalate` explicitly;
+the exposed packet may guide development but cannot provide independent
+acceptance.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
