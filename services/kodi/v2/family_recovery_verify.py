@@ -58,7 +58,31 @@ def rehearse(bundle, output, pin):
                 'family-rehearsal-addon-drift')
     require(sha(active/'addon/script.asterruntime/family-manifest.json') ==
             manifest['family_manifest_sha256'], 'family-rehearsal-family-manifest')
+    verified_skin = manifest.get('verified_skin', [])
+    if verified_skin:
+        family = json.loads((active/'addon/script.asterruntime/family-manifest.json').read_text())
+        require(len(verified_skin) == len(family['skin'])
+                and {row['path']: row['sha256'] for row in verified_skin}
+                == family['skin'], 'family-rehearsal-reference-set')
+        for row in verified_skin:
+            relative = Path(row['path'])
+            require(not relative.is_absolute() and '..' not in relative.parts,
+                    'family-rehearsal-reference-path')
+            destination = active/'verified-skin'/relative
+            copy(bundle/'verified-skin'/relative, destination)
+            require(destination.stat().st_size == row['bytes']
+                    and sha(destination) == row['sha256'],
+                    'family-rehearsal-reference-drift')
+        addon = active/'addon/script.asterruntime'
+        for name, row in family['components'].items():
+            require(sha(addon/name/'manifest.json') == row['manifest_sha256'],
+                    'family-rehearsal-component-manifest')
+        require(sha(addon/'music72-manifest.json') == family['music_manifest_sha256']
+                and sha(addon/'shared/runtime_guard.py') ==
+                family['shared']['runtime_guard_sha256'],
+                'family-rehearsal-shared')
     return dict(passed=True, baseline_skin=len(manifest['skin']),
                 active_skin=len(manifest['skin']), addon_files=len(manifest['addon_files']),
+                verified_skin=len(verified_skin),
                 external_files=len(external), manifest_sha256=pin)
 

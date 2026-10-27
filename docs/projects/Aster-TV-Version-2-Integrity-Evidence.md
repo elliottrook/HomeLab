@@ -45,3 +45,44 @@ This evidence also identifies a release-composition rule: any future package
 that changes `Home.xml` must derive and install a matching successor family
 manifest from the exact active predecessor. Historical candidate manifests
 must never be restored as payload alongside a later Home composition.
+
+## 2026-10-26 — Current family recovery capture
+
+The family recovery builder now includes a separate verified copy of every
+skin file named by the active family manifest. Previously it validated all
+twelve references but copied only the eight launcher files owned by its
+rollback installer. The four Search dependencies now travel with the recovery
+capture and are reconstructed and checked in the isolated rehearsal. Existing
+rollback ownership remains eight launcher files; this change does not enlarge
+the installer's write targets.
+
+The current HP capture contains 67 runtime files, eight current/predecessor
+launcher pairs, all twelve guarded skin dependencies and the current/predecessor
+Jellyfin idle-callback guard. The runtime/component/shared hashes and all
+guarded skin references match. No profile, credential, catalogue database,
+listening progress, camera image or cache enters the capture.
+
+- HP build and rehearsal root:
+  `/storage/.aster-staging/aster-family-recovery-current1`;
+- bundle manifest SHA-256:
+  `dc77517df6e91cb4b0697593c7f0b5354f0bfa13327e7857a9cf1d81a2c3a1b6`;
+- retained private archive on HP: `family-recovery-current1.tar.gz` (156 KiB);
+- archive SHA-256:
+  `d64ca7f6d5e51f3372c24e2c1925aed8d958610fa19b62aece815a9150ebcb9f`;
+- Mac copy: `/private/tmp/aster-family-recovery-current1.tar.gz`;
+- separate Mac rehearsal:
+  `/private/tmp/aster-family-recovery-current1-verify/rehearsal`.
+
+Both HP and Mac independently reconstructed the bundle and passed verification.
+Thirteen focused recovery tests pass normally and with optimized Python,
+including rejection of a changed Search dependency. This is a verified family
+runtime recovery capture, not the whole-appliance production package: Music,
+Books, acquisition, sound, idle, Reader, external services and hardware settings
+retain their existing separate checkpoints. Kodi was not restarted or modified.
+
+Search routing review confirmed that the existing **Search catalogue** route
+provides typed Seerr title search, while the Acquisition Hub provides discovery
+suggestions and explicit request actions. The existing routes are retained;
+replacing typed catalogue search with a suggestion feed would remove accepted
+functionality. The next safe work is checking ordinary search/navigation and
+the common landing focus/rotation contract against this captured family.

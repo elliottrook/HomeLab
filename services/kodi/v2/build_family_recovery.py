@@ -70,8 +70,12 @@ def build(addon, skin, family_checkpoint, player, guard_checkpoint, output):
 
     # Every skin identity declared by the active family must be exact, including
     # the four Search files that are verified but not owned by family rollback.
+    verified_skin = []
     for relative, expected in family['skin'].items():
         require(sha(skin/relative) == expected, 'family-recovery-skin-drift')
+        write(output/'verified-skin'/relative, (skin/relative).read_bytes())
+        verified_skin.append(dict(path=relative, sha256=expected,
+                                  bytes=(skin/relative).stat().st_size))
 
     old_manifest = json.loads((family_checkpoint/'manifest.json').read_text())
     require(old_manifest.get('kind') == 'hp-family-release-candidate.v1'
@@ -104,6 +108,7 @@ def build(addon, skin, family_checkpoint, player, guard_checkpoint, output):
     manifest = dict(schema=1, kind='aster-family-recovery.v1',
                     family_manifest_sha256=sha(payload/'family-manifest.json'),
                     addon_files=addon_rows, skin=skin_rows,
+                    verified_skin=verified_skin,
                     external=[dict(path='.kodi/addons/plugin.video.jellyfin/jellyfin_kodi/player.py',
                                    before_sha256=guard['before_sha256'],
                                    sha256=guard['sha256'], bytes=player.stat().st_size)])

@@ -6,6 +6,7 @@ from pathlib import Path
 
 from build_family_recovery import build
 from family_runtime import COMPONENTS, SKIN_LAUNCHERS
+from family_recovery_verify import rehearse
 
 
 def digest(raw): return hashlib.sha256(raw).hexdigest()
@@ -58,8 +59,19 @@ class FamilyRecoveryTests(unittest.TestCase):
             manifest=json.loads((one/'manifest.json').read_text())
             self.assertEqual(manifest['kind'],'aster-family-recovery.v1')
             self.assertEqual(len(manifest['skin']),8)
+            self.assertEqual(len(manifest['verified_skin']),12)
             self.assertEqual(len(manifest['external']),1)
             self.assertFalse(any('__pycache__' in row['path'] for row in manifest['addon_files']))
+            result = rehearse(one, root/'restored', digest((one/'manifest.json').read_bytes()))
+            self.assertEqual(result['verified_skin'], 12)
+
+    def test_search_dependency_tamper_is_rejected_by_rehearsal(self):
+        with tempfile.TemporaryDirectory() as parent:
+            root=Path(parent); args=self.fixture(root); bundle=root/'bundle'
+            pin=build(*args,bundle)
+            (bundle/'verified-skin/1080i/custom_1127_search.xml').write_bytes(b'changed')
+            with self.assertRaisesRegex(ValueError, 'reference-drift'):
+                rehearse(bundle, root/'restored', pin)
 
     def test_drift_and_existing_output_are_refused(self):
         with tempfile.TemporaryDirectory() as parent:
