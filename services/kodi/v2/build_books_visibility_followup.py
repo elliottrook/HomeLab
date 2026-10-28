@@ -15,14 +15,15 @@ def build(source, output):
     source, output = Path(source), Path(output)
     if output.exists():
         raise ValueError("books-visibility-output")
-    candidate = subject.render((source / 'IncludesBooks.xml').read_bytes())
+    source_raw = (source / 'IncludesBooks.xml').read_bytes()
+    candidate = subject.render(source_raw)
     target = output / 'payload' / TARGET
     target.parent.mkdir(parents=True); target.write_bytes(candidate)
     helper = Path(__file__).parent / 'tools/deploy_books_visibility_followup.py'
     shutil.copyfile(helper, output / helper.name)
-    manifest = {'schema': 1, 'kind': 'hp-books-visibility.v3',
+    manifest = {'schema': 1, 'kind': 'hp-books-visibility.v4',
                 'production_changed': False,
-                'files': [{'path': TARGET, 'before_sha256': subject.PREDECESSOR,
+                'files': [{'path': TARGET, 'before_sha256': subject.sha(source_raw),
                            'sha256': subject.sha(candidate), 'bytes': len(candidate)}],
                 'helper_sha256': subject.sha(helper.read_bytes())}
     rendered = json.dumps(manifest, indent=2, sort_keys=True).encode() + b'\n'

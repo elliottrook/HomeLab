@@ -1,0 +1,20 @@
+{
+  "files": [
+    {
+      "before_sha256": "b72adca26238e1e510705ca93990a83396a6c0235ac3fbe5652c2e7fe71e0541",
+      "bytes": 7230,
+      "path": ".kodi/addons/script.asteracquisition/default.py",
+      "sha256": "f5ad906bd550a29027382985e841135fe4b0f46e9695d48b0b7b45e47f0e39eb"
+    },
+    {
+      "before_sha256": "7bbb55de4cf066de99cb8bff32bd9e0e8958ba3b7ee19446d08f616fa10541df",
+      "bytes": 8927,
+      "path": ".kodi/addons/skin.asterhome/1080i/custom_1133_acquisition.xml",
+      "sha256": "c74dfe624bf033b5b8213f1e27e242a80c01443cd6fcab1572af41734a89f644"
+    }
+  ],
+  "journal_changes": false,
+  "kind": "hp-acquisition-repaint.v1",
+  "provider_writes": false,
+  "schema": 1
+}

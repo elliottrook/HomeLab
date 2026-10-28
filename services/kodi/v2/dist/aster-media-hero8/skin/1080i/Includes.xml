@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<includes>
+    <include file="IncludesHub.xml" />
+    <include file="IncludesMusic.xml" />
+    <include file="IncludesBooks.xml" />
+    <include file="IncludesTimer.xml" />
+    <include file="IncludesPlayer.xml" />
+    <variable name="AsterGenreFilterLabel">
+        <value condition="String.Contains(Container.FolderPath,skin.asterhome/filters/) + !String.IsEmpty(Window(10025).Property(AsterFilterGenre))">$INFO[Window(10025).Property(AsterFilterGenre),Genre: ]</value>
+        <value>Genre…</value>
+    </variable>
+    <variable name="AsterScoreFilterLabel">
+        <value condition="String.Contains(Container.FolderPath,skin.asterhome/filters/) + !String.IsEmpty(Window(10025).Property(AsterFilterScore))">$INFO[Window(10025).Property(AsterFilterScore),Score: ]</value>
+        <value>Minimum score…</value>
+    </variable>
+    <variable name="AsterBrowseIcon">
+        <value condition="String.Contains(Container.FolderPath,plugin.video.youtube)">special://home/addons/plugin.video.youtube/resources/media/icon.png</value>
+        <value condition="String.Contains(Container.FolderPath,plugin.video.asterhome)">special://skin/media/media-128.png</value>
+        <value condition="String.Contains(Container.FolderPath,archive-tv.xsp)">special://skin/media/09-archive-tv.png</value>
+        <value condition="String.Contains(Container.FolderPath,archive-film.xsp)">special://skin/media/10-archive-film.png</value>
+        <value condition="Container.Content(sets)">special://skin/media/19-movie-collections-128.png</value>
+        <value condition="Container.Content(tvshows) | Container.Content(seasons) | Container.Content(episodes)">special://skin/media/07-tv.png</value>
+        <value>special://skin/media/08-film.png</value>
+    </variable>
+    <variable name="AsterHeroRating">
+        <value condition="Control.HasFocus(110) + !String.IsEmpty(Container(110).ListItem.Rating)">$INFO[Container(110).ListItem.Rating,Score: , / 10]  $INFO[Container(110).ListItem.Mpaa]</value>
+        <value condition="Control.HasFocus(100) + !String.IsEmpty(Container(100).ListItem.Rating)">$INFO[Container(100).ListItem.Rating,Score: , / 10]  $INFO[Container(100).ListItem.Mpaa]</value>
+        <value condition="!String.IsEmpty(Container(101).ListItem.Rating)">$INFO[Container(101).ListItem.Rating,Score: , / 10]  $INFO[Container(101).ListItem.Mpaa]</value>
+        <value>Score unavailable</value>
+    </variable>
+    <variable name="AsterBrowseHeading">
+        <value condition="String.Contains(Container.FolderPath,plugin.video.youtube)">YouTube</value>
+        <value condition="Container.Content(sets)">Collections</value>
+        <value condition="String.Contains(Container.FolderPath,plugin.video.asterhome)">$INFO[Container.PluginCategory]</value>
+        <value>$INFO[Container.FolderName]</value>
+    </variable>
+    <variable name="AsterPosterArt">
+        <value condition="!String.IsEmpty(ListItem.Art(poster))">$INFO[ListItem.Art(poster)]</value>
+        <value condition="!String.IsEmpty(ListItem.Art(tvshow.poster))">$INFO[ListItem.Art(tvshow.poster)]</value>
+        <value>$INFO[ListItem.Art(thumb)]</value>
+    </variable>
+    <variable name="AsterBrowseFanart">
+        <value condition="!String.IsEmpty(Container(50).ListItem.Art(fanart))">$INFO[Container(50).ListItem.Art(fanart)]</value>
+        <value>$INFO[Container(50).ListItem.Art(tvshow.fanart)]</value>
+    </variable>
+    <variable name="AsterBrowseTitle">
+        <value condition="Container(50).ListItem.IsParentFolder">Choose a title</value>
+        <value>$INFO[Container(50).ListItem.Label]</value>
+    </variable>
+    <variable name="AsterPosterLabel">
+        <value condition="ListItem.IsParentFolder">Back</value>
+        <value>$INFO[ListItem.Label]</value>
+    </variable>
+    <variable name="AsterBrowseAction">
+        <value condition="Container(50).ListItem.IsFolder">▶  Browse</value>
+        <value condition="String.IsEqual(Container(50).ListItem.Property(AsterMediaKind),tvshow)">▶  Browse</value>
+        <value condition="Container.Content(tvshows) | Container.Content(sets) | Container.Content(seasons)">▶  Browse</value>
+        <value>▶  Play</value>
+    </variable>
+    <variable name="AsterContinueLabel">
+        <value condition="String.IsEqual(ListItem.Property(AsterUpNext),true)">$INFO[ListItem.Label]</value>
+        <value condition="!String.IsEmpty(ListItem.Episode)">$INFO[ListItem.TVShowTitle] — S$INFO[ListItem.Season] E$INFO[ListItem.Episode]</value>
+        <value>$INFO[ListItem.Label]</value>
+    </variable>
+    <variable name="AsterHeroActionLabel">
+        <value condition="Control.HasFocus(110) + String.IsEqual(Container(110).ListItem.Property(AsterMediaKind),tvshow)">Browse series</value>
+        <value condition="Control.HasFocus(100) + String.IsEqual(Container(100).ListItem.Property(AsterMediaKind),tvshow)">Browse series</value>
+        <value condition="!Control.HasFocus(100) + !Control.HasFocus(110) + String.IsEqual(Container(101).ListItem.Property(AsterMediaKind),tvshow)">Browse series</value>
+        <value>▶  Play</value>
+    </variable>
+    <variable name="AsterCardArt">
+        <value condition="!String.IsEmpty(ListItem.Art(landscape))">$INFO[ListItem.Art(landscape)]</value>
+        <value condition="!String.IsEmpty(ListItem.Art(fanart))">$INFO[ListItem.Art(fanart)]</value>
+        <value>$INFO[ListItem.Art(thumb)]</value>
+    </variable>
+    <variable name="AsterHeroLabel">
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Label]</value>
+        <value condition="Control.HasFocus(100) + !String.IsEmpty(Container(100).ListItem.TVShowTitle)">$INFO[Container(100).ListItem.TVShowTitle]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.Label]</value>
+        <value>$INFO[Container(101).ListItem.Label]</value>
+    </variable>
+    <variable name="AsterHeroPlot">
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Plot]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.Plot]</value>
+        <value>$INFO[Container(101).ListItem.Plot]</value>
+    </variable>
+    <variable name="AsterHeroYear">
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Year]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.Year]</value>
+        <value>$INFO[Container(101).ListItem.Year]</value>
+    </variable>
+    <variable name="AsterHeroDuration">
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Duration(hh:mm)]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.Duration(hh:mm)]</value>
+        <value>$INFO[Container(101).ListItem.Duration(hh:mm)]</value>
+    </variable>
+    <variable name="AsterHeroGenre">
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Genre]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.Genre]</value>
+        <value>$INFO[Container(101).ListItem.Genre]</value>
+    </variable>
+    <variable name="AsterHeroResolution">
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.VideoResolution]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.VideoResolution]</value>
+        <value>$INFO[Container(101).ListItem.VideoResolution]</value>
+    </variable>
+    <variable name="AsterHeroFanart">
+        <value condition="Control.HasFocus(110) + !String.IsEmpty(Container(110).ListItem.Art(fanart))">$INFO[Container(110).ListItem.Art(fanart)]</value>
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Art(tvshow.fanart)]</value>
+        <value condition="Control.HasFocus(100) + !String.IsEmpty(Container(100).ListItem.Art(fanart))">$INFO[Container(100).ListItem.Art(fanart)]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.Art(tvshow.fanart)]</value>
+        <value condition="!String.IsEmpty(Container(101).ListItem.Art(fanart))">$INFO[Container(101).ListItem.Art(fanart)]</value>
+        <value>$INFO[Container(101).ListItem.Art(tvshow.fanart)]</value>
+    </variable>
+    <variable name="AsterHeroPath">
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.FileNameAndPath]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.FileNameAndPath]</value>
+        <value>$INFO[Container(101).ListItem.FileNameAndPath]</value>
+    </variable>
+    <variable name="AsterHeroKind">
+        <value condition="Control.HasFocus(110)">$INFO[Container(110).ListItem.Property(AsterMediaKind)]</value>
+        <value condition="Control.HasFocus(100)">$INFO[Container(100).ListItem.Property(AsterMediaKind)]</value>
+        <value>$INFO[Container(101).ListItem.Property(AsterMediaKind)]</value>
+    </variable>
+
+    <!-- Media-state badges use Kodi's library metadata directly. TV shows and
+         seasons expose their remaining episode count; playable titles use a
+         check or dot without adding another artwork dependency. -->
+    <include name="AsterWatchBadges">
+        <control type="image">
+            <left>$PARAM[left]</left><top>$PARAM[top]</top><width>56</width><height>42</height>
+            <texture border="18" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texture>
+            <visible>!ListItem.IsParentFolder + Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + [String.IsEqual(ListItem.DBType,tvshow) | String.IsEqual(ListItem.DBType,season)]</visible>
+        </control>
+        <control type="label">
+            <left>$PARAM[left]</left><top>$PARAM[top]</top><width>56</width><height>42</height>
+            <label>$INFO[ListItem.Property(UnWatchedEpisodes)]</label><font>font20</font>
+            <textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny>
+            <visible>!ListItem.IsParentFolder + Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + [String.IsEqual(ListItem.DBType,tvshow) | String.IsEqual(ListItem.DBType,season)]</visible>
+        </control>
+        <control type="image">
+            <left>$PARAM[left]</left><top>$PARAM[top]</top><width>32</width><height>32</height>
+            <texture colordiffuse="asterSage">special://skin/media/ui-timer-dot.png</texture>
+            <visible>!ListItem.IsParentFolder + !ListItem.IsResumable + !Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + [String.IsEqual(ListItem.Overlay,OverlayWatched.png) | Integer.IsGreater(ListItem.PlayCount,0)]</visible>
+        </control>
+        <control type="label">
+            <left>$PARAM[left]</left><top>$PARAM[top]</top><width>32</width><height>32</height>
+            <label>✓</label><font>font16</font><textcolor>asterInk</textcolor>
+            <align>center</align><aligny>center</aligny>
+            <visible>!ListItem.IsParentFolder + !ListItem.IsResumable + !Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + [String.IsEqual(ListItem.Overlay,OverlayWatched.png) | Integer.IsGreater(ListItem.PlayCount,0)]</visible>
+        </control>
+        <control type="label">
+            <left>$PARAM[left]</left><top>$PARAM[top]</top><width>42</width><height>42</height>
+            <label>●</label><font>font16</font><textcolor>asterSage</textcolor>
+            <align>center</align><aligny>center</aligny>
+            <visible>!ListItem.IsParentFolder + !ListItem.IsResumable + !Integer.IsGreater(ListItem.PlayCount,0) + !Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + [String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,episode)]</visible>
+        </control>
+    </include>
+
+    <include name="AsterPageBackground">
+        <texture>none</texture>
+        <animation effect="fade" start="0" end="100" time="180">WindowOpen</animation>
+    </include>
+
+    <include name="AsterTitle">
+        <font>font40</font>
+        <textcolor>asterInk</textcolor>
+        <shadowcolor>33000000</shadowcolor>
+        <shadowoffset>2</shadowoffset>
+    </include>
+
+    <include name="AsterHeroTitle">
+        <font>font40</font>
+        <textcolor>ffece8df</textcolor>
+        <shadowcolor>66000000</shadowcolor>
+        <shadowoffset>2</shadowoffset>
+    </include>
+
+    <include name="AsterBody">
+        <font>font24</font>
+        <textcolor>asterInk</textcolor>
+    </include>
+
+    <include name="AsterRailButton">
+        <width>178</width>
+        <height>62</height>
+        <font>font24</font>
+        <textcolor>asterRailText</textcolor>
+        <focusedcolor>asterSage</focusedcolor>
+        <align>left</align>
+        <aligny>center</aligny>
+        <texturefocus>special://skin/media/rail-focus.png</texturefocus>
+        <texturenofocus>none</texturenofocus>
+    </include>
+
+    <include name="AsterCategoryButton">
+        <width>280</width><height>56</height>
+        <font>font24</font><align>center</align><aligny>center</aligny>
+        <textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor>
+        <texturefocus border="20" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus border="20" colordiffuse="c929302b">special://skin/media/ui-panel.png</texturenofocus>
+    </include>
+    <include name="AsterGenreTile">
+        <definition>
+            <control type="panel" id="$PARAM[id]">
+                <left>$PARAM[left]</left><top>1100</top><width>240</width><height>360</height>
+                <orientation>horizontal</orientation><scrolltime>180</scrolltime>
+                <onleft>$PARAM[lefttarget]</onleft><onright>$PARAM[righttarget]</onright>
+                <onup>$PARAM[uptarget]</onup><ondown>$PARAM[id]</ondown>
+                <onclick>ActivateWindow(Videos,$PARAM[browse],return)</onclick>
+                <itemlayout width="240" height="360">
+                    <control type="image"><left>15</left><top>8</top><width>210</width><height>315</height><texture background="true" diffuse="special://skin/media/ui-poster-mask.png">$VAR[AsterPosterArt]</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
+                    <control type="image"><left>15</left><top>8</top><width>210</width><height>315</height><texture border="28" colordiffuse="48f2ede4">special://skin/media/ui-panel.png</texture></control>
+                    <control type="label"><left>15</left><top>330</top><width>210</width><height>30</height><label>$PARAM[label]</label><font>font20</font><textcolor>asterInk</textcolor><align>center</align><aligny>center</aligny></control>
+                </itemlayout>
+                <focusedlayout width="240" height="360">
+                    <control type="image"><left>15</left><top>8</top><width>210</width><height>315</height><texture background="true" diffuse="special://skin/media/ui-poster-mask.png">$VAR[AsterPosterArt]</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
+                    <control type="image"><left>15</left><top>8</top><width>210</width><height>315</height><texture colordiffuse="asterSage">special://skin/media/ui-poster-ring.png</texture></control>
+                    <control type="label"><left>15</left><top>330</top><width>210</width><height>30</height><label>$PARAM[label]</label><font>font20</font><textcolor>asterInk</textcolor><align>center</align><aligny>center</aligny></control>
+                </focusedlayout>
+                <content target="videos">$PARAM[preview]</content>
+            </control>
+        </definition>
+    </include>
+    <include name="AsterTopCategoryButton">
+        <width>210</width><height>46</height>
+        <font>font20</font><align>center</align><aligny>center</aligny>
+        <textoffsetx>0</textoffsetx>
+        <textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor>
+        <texturefocus border="20" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus border="20" colordiffuse="c929302b">special://skin/media/ui-panel.png</texturenofocus>
+        <ondown>120</ondown>
+    </include>
+    <include name="AsterClockPill">
+        <param name="top" default="32" />
+        <param name="innertop" default="34" />
+        <definition>
+            <control type="image"><left>1750</left><top>$PARAM[top]</top><width>146</width><height>44</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>75cbb991</colordiffuse></control>
+            <control type="image"><left>1752</left><top>$PARAM[innertop]</top><width>142</width><height>40</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>e029302b</colordiffuse></control>
+            <control type="label"><left>1750</left><top>$PARAM[top]</top><width>146</width><height>44</height><label>$INFO[System.Time(HH:mm)]</label><font>font20</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny></control>
+        </definition>
+    </include>
+    <include name="AsterQuietFieldBackplate">
+        <param name="left" default="0" />
+        <param name="top" default="0" />
+        <param name="width" default="260" />
+        <param name="height" default="56" />
+        <param name="innerleft" default="2" />
+        <param name="innertop" default="2" />
+        <param name="innerwidth" default="256" />
+        <param name="innerheight" default="52" />
+        <definition>
+            <control type="image"><left>$PARAM[left]</left><top>$PARAM[top]</top><width>$PARAM[width]</width><height>$PARAM[height]</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>b0c2a06b</colordiffuse></control>
+            <control type="image"><left>$PARAM[innerleft]</left><top>$PARAM[innertop]</top><width>$PARAM[innerwidth]</width><height>$PARAM[innerheight]</height><texture border="20">special://skin/media/ui-panel.png</texture><colordiffuse>e029302b</colordiffuse></control>
+        </definition>
+    </include>
+    <include name="AsterFilterButton">
+        <width>260</width><height>56</height><font>font24</font>
+        <align>center</align><aligny>center</aligny>
+        <textcolor>asterIvory</textcolor><focusedcolor>asterInk</focusedcolor>
+        <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus>none</texturenofocus>
+    </include>
+    <include name="AsterKeyboardActionButton">
+        <width>190</width><height>56</height><font>font24</font>
+        <align>center</align><aligny>center</aligny>
+        <textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor>
+        <texturefocus border="20" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus>special://skin/media/ui-limestone-panel.png</texturenofocus>
+    </include>
+
+    <include name="AsterActionButton">
+        <height>70</height>
+        <font>font28</font>
+        <align>center</align>
+        <aligny>center</aligny>
+        <textcolor>asterInk</textcolor>
+        <focusedcolor>asterGreen</focusedcolor>
+        <texturefocus>none</texturefocus>
+        <texturenofocus>none</texturenofocus>
+    </include>
+
+    <include name="AsterHeroActionButton">
+        <height>70</height>
+        <font>font28</font>
+        <align>center</align>
+        <aligny>center</aligny>
+        <textcolor>ffece8df</textcolor>
+        <focusedcolor>ffb9f2d0</focusedcolor>
+        <texturefocus>none</texturefocus>
+        <texturenofocus>none</texturenofocus>
+    </include>
+</includes>

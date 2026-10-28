@@ -14,6 +14,7 @@ class SeerrPageUITests(unittest.TestCase):
         self.assertIn('http://192.168.20.40:8788', raw)
         self.assertIn('xbmcgui.Window(11132)', raw)
         self.assertIn('getCurrentWindowId() == 11132', raw)
+        self.assertIn("Dialog.Close(11127)", raw)
         self.assertNotIn(':5055', raw)
         self.assertNotIn('SEERR_PASSWORD', raw)
         self.assertNotIn('/api/v1/', raw)
@@ -21,13 +22,18 @@ class SeerrPageUITests(unittest.TestCase):
     def test_page_has_remote_complete_focus_and_explicit_request(self):
         root = ET.parse(ROOT / 'overlay/custom_1132_requests.xml').getroot()
         controls = {node.get('id'): node for node in root.findall('.//control[@id]')}
-        for identity in ('10', '11', '12', '13', '30', '40', '50', '51'):
+        for identity in ('10', '11', '12', '13', '30', '40', '41', '50', '51'):
             self.assertIn(identity, controls)
         self.assertEqual(root.findtext('defaultcontrol'), '10')
         self.assertEqual(controls['50'].findtext('onclick'),
                          'SetProperty(AsterSeerr.Command,request,home)')
         self.assertEqual(controls['40'].findtext('onclick'),
                          'SetProperty(AsterSeerr.Command,season,home)')
+        self.assertEqual(controls['40'].findtext('ondown'), '41')
+        self.assertEqual(controls['41'].findtext('onclick'),
+                         'SetProperty(AsterSeerr.Command,season,home)')
+        self.assertEqual(controls['30'].findtext('onup'), '40')
+        self.assertEqual(controls['30'].findtext('onright'), '30')
         for identity, control in controls.items():
             if control.get('type') in ('button', 'list'):
                 self.assertIsNotNone(control.find('onup'), identity)

@@ -172,6 +172,17 @@ def build(skin, runtime, output):
         if relative == 'tools/aster_v2_series.py':
             raw = raw.replace(b"'RunScript('+str(STAGE/'default.py')+','+str(identity)+',play)'",
                               b"'RunScript(script.asterruntime,aster-series-preview24,default,'+str(identity)+',play)'")
+            # The launcher validates the transformed installed component, not
+            # the predecessor/source manifest.  Older builds only replaced
+            # hashes found in the source bundle, leaving MANIFEST_SHA pinned
+            # to a stale release and silently falling back to Kodi's native
+            # TV landing page.
+            raw = re.sub(
+                rb"MANIFEST_SHA='[0-9a-f]{64}'",
+                b"MANIFEST_SHA='" + components['aster-series-preview24']['manifest_sha256'].encode() + b"'",
+                raw,
+                count=1,
+            )
         for old, new in old_to_new.items():
             raw = raw.replace(old.encode(), new.encode())
         if raw == original:

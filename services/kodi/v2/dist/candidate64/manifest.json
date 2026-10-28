@@ -1,0 +1,249 @@
+{
+  "addon_id": "script.astermusic.v2lab",
+  "version": "0.1.0",
+  "archive": "script.astermusic.v2lab-0.1.0.zip",
+  "sha256": "3b796b1feaa6e5914161b76a726d77e20e2a35d308b1e0f29bd1b8ba32adfcd7",
+  "files": [
+    {
+      "path": "script.astermusic.v2lab/addon.xml",
+      "bytes": 915,
+      "sha256": "e098c0c807163e6f595ce509c11f39bd3f709f30b576fad0220171df1d62edc5"
+    },
+    {
+      "path": "script.astermusic.v2lab/default.py",
+      "bytes": 78159,
+      "sha256": "4b08712872183403d63f13a1528c10a43e14635ca7577ab80992218462200c7d"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/add.png",
+      "bytes": 1069,
+      "sha256": "79e17025cd7ebeca3c3f3be27d200699fd4d84e8bc392bd0166d4d30701a824d"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/add.svg",
+      "bytes": 258,
+      "sha256": "453c16369bcd03c365acb297e5d5450aef2a0eb4f469929e86696c3604fa35e2"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/back.png",
+      "bytes": 1105,
+      "sha256": "695340687d7c0f1612298e7768a839cb8ee89d5b64a5f32d08652e08991a0c6e"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/back.svg",
+      "bytes": 245,
+      "sha256": "40867f301da0def4069ce7350a8be593a96773a1b34dfea4500c85bd53e4fe06"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/current.png",
+      "bytes": 1069,
+      "sha256": "e21aa7f550b2d2a97118a6fd0866a8bcb77cbb0015ecf79bf91a91ada118b0d7"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/current.svg",
+      "bytes": 297,
+      "sha256": "d2d4dc043e4b1822798cb1353068d6d1c7653c0e80c1906001f48416d6c94411"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/forward.png",
+      "bytes": 1106,
+      "sha256": "fd7d9c828b454f269f2b5ee88b4b6d236e0060facc6abc342510f800c266f257"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/forward.svg",
+      "bytes": 245,
+      "sha256": "77e231262cbb873d40382fc1be8a14f7dcbd9f3654c27530844ac32b4cfed5f4"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/page-back.png",
+      "bytes": 1750,
+      "sha256": "bdaa27fdc23d9915fab19e1aec77fdcf9dd3098731ab3301b40a6160e0102ad0"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/page-back.svg",
+      "bytes": 257,
+      "sha256": "ae0970b5199b1e0abac39ad36f353c7534cbc57ca019309022645f27079d63d1"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/page-next.png",
+      "bytes": 1757,
+      "sha256": "8d309a40e545c477e1b6011840a5bf16f8e9923e844f4cc7ca0675d7fafce4db"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/page-next.svg",
+      "bytes": 257,
+      "sha256": "ca2ad4ca4079fd1eb25e176933eadbd0b8df305be2ba855fd8c530fd2e21437b"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/pause.png",
+      "bytes": 1095,
+      "sha256": "bb0ed9c213d5cb199e202c5c0e57b2cc9376db1be415f5f75678458dd5e0afbe"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/pause.svg",
+      "bytes": 242,
+      "sha256": "3d892726f65013ff77194c89d2556eb42061637e826672a0b7c9d47c0999d7a1"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/play-next.png",
+      "bytes": 1489,
+      "sha256": "7530137da9453f8be3169e087d4892bc69aa4c84b882342226b65d680189bdf0"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/play-next.svg",
+      "bytes": 275,
+      "sha256": "4a83592ac798a2772fd72117517a1644f4b3012a0a71ec5bb29ad67e533aee30"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/play.png",
+      "bytes": 1281,
+      "sha256": "ad05015e12412c1cbcdb1b21728c61a3cf866a6684f865d322ab8ab6f1007c7d"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/play.svg",
+      "bytes": 253,
+      "sha256": "d85204b497301e09ffe24d666c1f604060e7b1419d42fce2bf546d7169094e47"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/replace.png",
+      "bytes": 923,
+      "sha256": "7cd1eda8230c37092d7e6559f88b9c35483544bc0fd186c5c09749df133cb601"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/replace.svg",
+      "bytes": 239,
+      "sha256": "d6eb3dbf0bef5f7d745e4e11e7ffc2a7ce9b17cde0f71d9d119cf7b3ffdfcadf"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/shuffle.png",
+      "bytes": 3560,
+      "sha256": "1a06e19e93c8e7d768ad722e31f40bd6b5f7d55ebcf679bbf121ac4cf325f86f"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/shuffle.svg",
+      "bytes": 335,
+      "sha256": "ab2514e065aec5db3fb7db0691002d502479083cea8ab28aa99fe38601937d9d"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/stop.png",
+      "bytes": 987,
+      "sha256": "d081250967b6a2e1c43312a2b5a11a269bcbd28a9da2959a51afd87396379494"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/controls/stop.svg",
+      "bytes": 270,
+      "sha256": "4c5e96fea33d5e35d3c08a160dc807adcab22ab8b45f1b709e4d7119cd760c65"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/icon.png",
+      "bytes": 45348,
+      "sha256": "f1b50c435d799f04f24357e9da4965397bcbb8cef6e6ece24b98250547c8c8b8"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/lab_model.py",
+      "bytes": 5305,
+      "sha256": "643d74c00a93b2e4c0cb7ac1181cfe0e84952f7221cbf8a18e6bb1ea4d159f64"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_album.py",
+      "bytes": 5728,
+      "sha256": "c7d42ad56c94da751329d72825627edd3a231bfac6f71e9a38597c0394d009be"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_art.py",
+      "bytes": 1075,
+      "sha256": "c2d1d2d6cda1fab13242cd0c84b6aa89343541a2d40bf92a5e61b8f8bd923e0c"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_atmosphere.py",
+      "bytes": 3442,
+      "sha256": "88246b56ccec30d722aa08d306c8905edf49c6180c34372c93c4ba71dec4e7cb"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_audio.py",
+      "bytes": 2550,
+      "sha256": "179b818969e29967a7fd6a97ed64601238dd1150df837e0ab2aac8220d7a34de"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_catalogue.py",
+      "bytes": 10519,
+      "sha256": "89d844bfff4d659ca408a712e871df52245767ea0495450edc25e1baa282b31c"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_entry.py",
+      "bytes": 1300,
+      "sha256": "5c3df5d521dc45f2e531ce1f8b6a81e85ad8475d22bed4175a9abed3e90dafb8"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_expanded_trial.py",
+      "bytes": 18145,
+      "sha256": "1436eb62012269560be9324749f960a16ae285e87bdabb0e1ddb11e70c1ef3d3"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_jellyfin.py",
+      "bytes": 4833,
+      "sha256": "ecdcb7ae9d13ad0fd56f5e56db25ee4fbc6ed29d6d90d74b1d8282c78a936ba5"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_playlist_save.py",
+      "bytes": 5060,
+      "sha256": "b434f8e00ed15014081bfbc8cb2d309b78bfb14e1b5ea5f70c736a54831fe38d"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_playlists.py",
+      "bytes": 5047,
+      "sha256": "4209ad516040a4b19338e86dd8c9ec6d880eefe35fd8de2a93429ec7bbf6e82c"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_policy.py",
+      "bytes": 4358,
+      "sha256": "f6818e1add1c4f5bfc989c002e1975460bb969c29d42b70ad1307779525071e6"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_progressive.py",
+      "bytes": 13952,
+      "sha256": "39b8e222e913d525dc2665fdcee8588b3ae40a9692bacdb86f51845349bd49ca"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_queue.py",
+      "bytes": 4990,
+      "sha256": "b0b058dfa50ac668c39b3bb574bcf07d0cd419a35f5efb0858cea7ca57cb2ec9"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_scrub.py",
+      "bytes": 2236,
+      "sha256": "32761d81ffbab74b467ab080f685a2aa27cd7677bb7229526ba2f5d84ba4f804"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_selection.py",
+      "bytes": 1735,
+      "sha256": "c800e47aa1e90577b9f50360ba4efe3de304cc80cc4d037a6482c514fc0c79ae"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_shared_save.py",
+      "bytes": 2797,
+      "sha256": "900d0f00df69f7caab6a1502cdca3979a04ac06bec2b3a7b725fe06d2988cc7f"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/music_trial.py",
+      "bytes": 13247,
+      "sha256": "5815b2d1a17b2fe5525e8ded8c2ee367c171c21741cffa44d475a8128a675be7"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/lib/queue_reader.py",
+      "bytes": 3252,
+      "sha256": "68204fedbdb37c53f2bef9eae6941a0d0ca8d9f64bc624af24878edfe1869443"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/skins/Default/1080i/AlbumLab.xml",
+      "bytes": 17047,
+      "sha256": "22ae2eea57349271195a2e07f56c2c3dad376e5280856f639f513d4016002d65"
+    },
+    {
+      "path": "script.astermusic.v2lab/resources/skins/Default/1080i/MusicLab.xml",
+      "bytes": 48205,
+      "sha256": "52493d705c3da4cd0d9f52a17b20bc0f54d829951b72f428ae09563be9d0cd12"
+    }
+  ],
+  "boundary": "HP only; read-only without approved normal profile or expiring song-ID grant; owned playback capped at 20000 queue items/200 per write; confirmed private create-only shared saves; no v1 source or production changes"
+}

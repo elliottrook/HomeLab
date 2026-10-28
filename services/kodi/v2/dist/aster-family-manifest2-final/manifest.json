@@ -1,0 +1,11 @@
+{
+  "before_sha256": "de5a22f20d6f4be2da5cdde22a7eb0159bb284feb33b315d8b9080518c8424c0",
+  "bytes": 2684,
+  "deploy_sha256": "45efe980b55208df5b0ce485446c06706bbf393235cd5ca81a78d48186ac3a68",
+  "helper_sha256": "85427c7bf840b5796c20efbaa154b084b63934b17826705775a8daa000f46f0c",
+  "home_sha256": "4c118dd42c3d97c1899a0dcbdce8e6ab42b22d3f309c09802f1a861fac9f830d",
+  "kind": "hp-family-manifest-reconcile.v2",
+  "schema": 1,
+  "sha256": "c865df1863d8511a6685f491588746cfd255854ccc96ada4d2fbcf7b6dd66247",
+  "target": "script.asterruntime/family-manifest.json"
+}

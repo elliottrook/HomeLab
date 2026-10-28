@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "kind": "hp-media-recommendation-hero",
+  "stage": "aster-media-hero8",
+  "files": [
+    {
+      "path": "plugin/default.py",
+      "target": "/storage/.kodi/addons/plugin.video.asterhome/default.py",
+      "sha256": "50c5ecb4d676bdff544d47cfadd8f984a5f79b7d57a2af42682dbc3c7012dfb2",
+      "previous_sha256": "50c5ecb4d676bdff544d47cfadd8f984a5f79b7d57a2af42682dbc3c7012dfb2"
+    },
+    {
+      "path": "plugin/library.py",
+      "target": "/storage/.kodi/addons/plugin.video.asterhome/library.py",
+      "sha256": "088c8acb4d5050e7cfe89db7d6bab3a5be9534b1f8b68663d6fb822c8bd08d99",
+      "previous_sha256": "088c8acb4d5050e7cfe89db7d6bab3a5be9534b1f8b68663d6fb822c8bd08d99"
+    },
+    {
+      "path": "skin/1080i/Home.xml",
+      "target": "/storage/.kodi/addons/skin.asterhome/1080i/Home.xml",
+      "sha256": "39b10fcac446626d3decd89e22cd8dda95b5ee50f9b5de489cb5f67f579a0834",
+      "previous_sha256": "5b201a12963f461ebc78bc2c528ba3cb8258a36ac77cee450f1da143d16a0ea5"
+    },
+    {
+      "path": "skin/1080i/Includes.xml",
+      "target": "/storage/.kodi/addons/skin.asterhome/1080i/Includes.xml",
+      "sha256": "fa1eb7f7c52e5e78a83d63ec19719b7fae9ce953cffdfbd89366cc625a9860fa",
+      "previous_sha256": "fa1eb7f7c52e5e78a83d63ec19719b7fae9ce953cffdfbd89366cc625a9860fa"
+    },
+    {
+      "path": "skin/1080i/custom_1127_search.xml",
+      "target": "/storage/.kodi/addons/skin.asterhome/1080i/custom_1127_search.xml",
+      "sha256": "c7f85dc09859db9b4bf7aa3b971564e696e45c021b1880dc4c72913e202b043d",
+      "previous_sha256": "6f1fbe60d9d1ef9187ad0524602268145c9412c5d2c886c104243103b692e55e"
+    },
+    {
+      "path": "runtime/search-manifest.json",
+      "target": "/storage/.kodi/addons/script.asterruntime/aster-global-search-ui22/manifest.json",
+      "sha256": "bc4b0938ad96a6e0c5f89a991389edc1d46f9b927f2f87735981ad4b483309ca",
+      "previous_sha256": "3637230db1859df2d9dabdda487b08666f49a85eff7813ce2cd049c108227e1d"
+    },
+    {
+      "path": "runtime/family-manifest.json",
+      "target": "/storage/.kodi/addons/script.asterruntime/family-manifest.json",
+      "sha256": "de5a22f20d6f4be2da5cdde22a7eb0159bb284feb33b315d8b9080518c8424c0",
+      "previous_sha256": "91051d3efe27ac26e7ef4a25ec3bab380bb6a0e78d85f5d78c89a8507a1bb811"
+    }
+  ]
+}

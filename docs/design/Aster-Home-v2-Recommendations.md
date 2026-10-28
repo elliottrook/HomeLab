@@ -1,10 +1,25 @@
 # Aster Home 2.0 — design and feature recommendations
 
-> **Status:** Research-backed programme with its first visual milestone in
-> implementation, 2026-10-22. The shared lightweight player language and
-> reduced page chrome are deployed as a reversible physical-client candidate;
-> the remaining recommendations are not yet implemented. Aster Home 1.0.3 is
-> the packaged deployment candidate while the remaining appliance gates run.
+> **Status, 2026-10-23: scope reviewed; v2 implementation not started.** See the
+> governing [v2 project](../projects/Aster-Home-Version-2.md) and separate
+> urgent [v1.1 Up Next project](../projects/Aster-Home-Version-1.1-Up-Next.md).
+> The owner selected items 01-26 and 31-32, added music Genres (not video),
+> all-music shuffle excluding Holiday/Christmas, Seerr, voice search, scrub bar,
+> premium texture-free controls and icon cleanup. Unticked 27-30 are deferred
+> to v3. Historical optional recommendations below do not override that scope.
+> Before v1.1 testing, BOSGAME and HP had the
+> same Aster v1.0.5 release files. Their LibreELEC/Kodi versions remain
+> hardware-specific. The shared lightweight player treatment and stop-on-exit
+> have already shipped in v1; they are not an unstarted v2 rewrite. The marked
+> printable inventory and chat clarifications now feed the formal v2 charter.
+> This research list itself does not authorize remote implementation.
+>
+> After scope approval, only obvious corrective defects from the v1.0.5 family
+> beta may be added automatically. New feature ideas are parked for a later
+> release unless the owner explicitly approves a scope change. HP is the
+> future lab target; BOSGAME is not an automatic v2 deployment target.
+> Historical findings and priorities below are research evidence, not a claim
+> that every proposal is selected or that already delivered work is outstanding.
 
 ## 1. Direction
 
@@ -176,6 +191,29 @@ This is the highest-value v2 interface change.
   level, then expose the rail. Never strand focus in decorative controls.
 - Standardize empty, loading, stale, offline and permission-denied states.
 
+### P1 — appliance network status and diagnostics
+
+- Add a remote-friendly **Network** panel to Aster Settings so basic
+  connectivity does not depend on switching back to the stock LibreELEC skin.
+- Show the active interface, connection state, IPv4 address, hostname, wired
+  link speed or Wi-Fi signal, default gateway and DNS availability. Present
+  sensitive identifiers such as the full MAC address only in an optional
+  details view.
+- Distinguish the failure layers in plain language: cable/link down, no DHCP
+  lease, local network only, DNS unavailable, media services unreachable and
+  fully online. Do not label an interface online merely because it has an IP
+  address.
+- Include **Refresh network**, **Reconnect** and **Copy/show diagnostics**
+  actions where LibreELEC exposes safe APIs. Keep reboot as an explicit final
+  troubleshooting action rather than the default remedy.
+- Display the last successful Jellyfin and Audiobookshelf connection alongside
+  current reachability, without exposing service credentials or token-bearing
+  URLs. Network failure must produce a clear offline state instead of a generic
+  playback error.
+- Keep the summary readable at ten feet and available when media services are
+  down. The panel must never require Internet access to report local link,
+  address and gateway state.
+
 ### P1 — remote power, sleep and wake
 
 - Capture the G20 power button's real Linux/Kodi event on every target client;
@@ -240,6 +278,14 @@ rollback checkpoint and included in the v1.0.3 deployment candidate.
 - Auto-hide after inactivity, restore the programme without a residual panel,
   and retain a reduced-motion option. Opening a selector pauses the hide timer
   and Back first closes the selector, then the OSD.
+- Standardize player exit semantics across Video, Music, Audiobooks, Podcasts
+  and Daily Digest. Back may close an OSD, selector, queue or chapter panel
+  without affecting playback, but leaving the full Aster player screen for its
+  parent page must stop playback and release the active player. Do not allow
+  hidden background playback merely because navigation changed windows.
+- Keep an explicit **Keep playing** action available only if background
+  playback is deliberately added later; never make it the implicit result of
+  pressing Back.
 
 The mockup below is a hierarchy and spacing target, not copied product trade
 dress. The fictional programme still and generated layout are disposable;
@@ -253,6 +299,10 @@ assets already in the private brand package.
 **Music**
 
 - Add an Up Next queue to the right of the stripped-back player.
+- Add a visible **Shuffle** control to albums, playlists and the active queue.
+  It must use Kodi's real playlist state, preserve the currently playing track
+  when enabled mid-session, visibly indicate its active state and remain
+  distinct from Repeat.
 - Support Play Next, Play Later, remove from queue, save queue as playlist and
   clear queue with confirmation.
 - Add album/artist radio or “more like this” only when backed by real Jellyfin
@@ -265,6 +315,15 @@ assets already in the private brand package.
 **Audiobooks**
 
 - Keep cover/player left and unboxed chapter list right.
+- **Confirmed v2 requirement — listening resume (2026-10-23):** save the current
+  book position during playback and on pause, Stop and Back/exit; restore it
+  when the book is reopened. Use Audiobookshelf as the progress authority so
+  listening can continue across Aster boxes and other Audiobookshelf clients.
+  Preserve whole-book position across chapters and multi-file books. Explicit
+  chapter selection should still start the chosen chapter. Test restart,
+  network outage/retry and conflicting updates without overwriting a newer
+  saved position with zero. Current v1 audio playback and stop-on-exit work,
+  but listening-progress save/restore is not implemented.
 - Add current chapter, book progress, ±30 seconds, narration speed and sleep
   timer presets including end of chapter.
 - Add bookmarks only after Audiobookshelf progress/bookmark authority and
@@ -272,6 +331,9 @@ assets already in the private brand package.
 
 **Podcasts**
 
+- Apply the same Audiobookshelf-backed resume behavior per episode: reopen at
+  the saved timestamp, persist progress on Back/exit, and synchronize completed
+  state across clients. Verify audiobook and podcast resume independently.
 - Give each show a detail page with square art, synopsis and a newest/oldest
   order toggle.
 - List episodes vertically with publish date, duration, two-line summary,
@@ -339,6 +401,26 @@ assets already in the private brand package.
   fallback rather than silently conflating them.
 - Camera cards should show freshness, privacy state and failure reason. Never
   leave a stale frame looking live.
+
+### P2 — Aster screensaver and idle presentation
+
+- Add an Aster-branded screensaver that activates after a configurable idle
+  interval only when no video, audio, Digest narration or timer alarm requires
+  the foreground. Audio playback may use a dedicated now-playing idle view;
+  it must not be mistaken for a stopped session.
+- Use approved Aster artwork, restrained motion and an OLED-safe layout that
+  slowly moves or changes composition. Avoid permanent bright logos, static
+  clocks, fixed metadata and heavy continuous animation.
+- Offer a minimal clock/date option and, where appropriate, quiet now-playing
+  art and progress. Never expose private household, camera, notification or
+  book information on the screensaver by default.
+- Wake on the first remote input without also activating the control beneath
+  it. Preserve the previously focused item and restore the correct page.
+- Coordinate Kodi dim/blank behavior with the television's power-saving
+  settings. Provide explicit **Aster**, **Dim**, **Black** and **Disabled**
+  choices, with Black as the conservative fallback for unsupported displays.
+- Verify entry, wake, focus restoration, audio behavior and display mode after
+  repeated idle cycles at both 1080p and scaled 4K.
 
 ### P2 — appliance startup branding
 
@@ -446,6 +528,11 @@ not overwrite the last accepted v1 artifact or its rollback checkpoint.
   fewer and can browse another season without losing their place.
 - Every player exposes the controls appropriate to its media type and returns
   to the previously focused item.
+- Leaving any full Aster player screen stops its active media unless the user
+  has explicitly selected a future Keep playing action; closing a temporary
+  player overlay does not stop it.
+- Music albums, playlists and queues expose a working, visibly stateful
+  Shuffle control backed by Kodi's actual playlist order.
 - The video OSD exposes all ten accepted v1 functions without persistent
   button boxes; remote centre/left/right/up/down behaviour remains predictable,
   and focus is visible without obscuring programme content.
@@ -456,6 +543,11 @@ not overwrite the last accepted v1 artifact or its rollback checkpoint.
   drift, turns pages at the right boundary and resumes the same EPUB location
   after restart; no book text or generated narration leaves the HomeLab.
 - Empty, stale, offline and forbidden states are truthful and visually calm.
+- The screensaver enters only under the documented idle conditions, wakes on
+  one remote action without accidental activation and restores focus and
+  display mode correctly.
+- A user can identify link, DHCP, gateway, DNS and media-service reachability
+  from Aster Settings using only the remote, even while the client is offline.
 - No credential, token URL, private source path or household entity ID appears
   in skin XML, logs, screenshots or release archives.
 - 1080p canvas scaling, 4K output, memory, temperature and artwork loading meet

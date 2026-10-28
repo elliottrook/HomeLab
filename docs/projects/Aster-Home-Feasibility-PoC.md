@@ -2612,6 +2612,92 @@ currently handed to systemd plus `refresh-status.json`, with no new centralized
 Doctor/Beszel alert claimed. NetBox/addressing, rack and Homepage facts are
 unchanged. No push was performed.
 
+### HP baseline alignment and v2 scope hold - 2026-10-23
+
+The owner requested HP alignment to Aster v1.0.5, then a feature-development
+hold while reviewing a printable v2 list. No formal v2 project was started.
+The six-page review inventory is `../../output/pdf/aster-v2-scope-review.pdf`.
+After the owner selects the scope, only obvious corrective defects from the
+v1.0.5 family beta may be automatically added; new ideas require a later list
+or explicit scope-change approval. The HP is the future lab endpoint, not a
+reason to begin v2 before review. No push was requested or performed.
+
+HP `192.168.1.140` (`AsterTV`) was reachable on LibreELEC 12.2.1 / Kodi 21.3.
+Its prior Aster versions were mixed: skin, Books audio and sound pack 1.0.2,
+media plugin 1.0.3. Staged the unchanged accepted v1.0.5 artifacts; validated
+archive integrity, all manifest hashes and paths before mutation. Stopped Kodi
+for a private profile/config/SSH/boot-branding checkpoint and verified all
+3,506 regular archive members against the stopped source. Checkpoint:
+`/storage/.aster-checkpoints/aster-v1.0.5-prepromotion-20261023/kodi-profile-config-and-boot.tar.gz`,
+SHA-256 `0cf823e3960509eaca5cc4012d795903da835ec3bbb2341b76f31e0d53ccb302`.
+It contains credentials and is not a release artifact or Git content. No
+destructive restore drill is claimed.
+
+An off-device copy is retained outside Git under the private Mac directory
+`/Users/jelliott/lab/private-backups/aster-tv/hp/2026-10-23-v1.0.5/`; its
+SHA-256 matches the device checkpoint. Archive and checksum permissions are
+0600 and the destination directory is 0700.
+
+Installed all four add-ons and the packaged keymap/refresh units without
+altering the OS, firmware, Jellyfin identity or audio settings. All 151
+packaged files match and all four add-on descriptors report 1.0.5. Kodi is
+active; logs show Jellyfin authentication and the private Books loopback
+bridge ready. Kodi 21 logs an unsupported keyboard `select` key name in the
+shared keymap (the map also has Enter/mouse handling); physical remote parity
+is not claimed from file verification alone. Retain this compatibility finding
+as a beta follow-up rather than silently changing the immutable package.
+
+HP HTTPS to `audiobooks.elliottrook.com` / `192.168.50.23:443` times out.
+The BOSGAME allow rule is source-specific and does not authorize the HP.
+Requested a separate bounded source `192.168.1.140` TCP/443 permission; no
+firewall mutation was performed at this checkpoint. Refresh units are staged
+but activation is pending access approval/validation. The existing last-good
+catalogue is preserved. Thus release-file parity is verified; functional
+Audiobookshelf/network parity is not yet claimed.
+
+### HP audiobook/podcast access parity approved and validated - 2026-10-23
+
+The owner explicitly approved bringing HP audiobook/podcast access to the
+production unit's level. Rechecked the existing BOSGAME source-specific rule
+and created only HP LAN IPv4 TCP `192.168.1.140` to `192.168.50.23:443`, sequence
+3092, UUID `d8c1a44e-e726-4442-99e2-2093f209799e`. This permits the private HTTPS
+gateway, not only one hostname at layer 3; application authorization remains
+the existing restricted Audiobookshelf identity. No subnet-wide access,
+direct non-TLS service path, camera permission or new identity was added.
+
+OPNsense private configuration checkpoint was byte-verified before mutation:
+`/conf/backup/config-before-aster-hp-books-20261023-220349.xml` (host timestamp).
+Filter reload returned OK; the effective pf rules contain the exact source,
+destination, TCP/443 and UUID. HP HTTPS now returns HTTP 200 with certificate
+verification enabled. Rollback is to remove only this UUID and reload filters,
+not overwrite unrelated subsequent firewall changes from the full checkpoint.
+
+Started the already-packaged `aster-books-refresh.service`, then enabled its
+timer. Two service executions succeeded, with 53 audio items (46 audiobooks,
+seven podcasts), 505 retained eBooks and zero missing audio covers. Last
+success was `2026-10-23T22:04:04+00:00`; the active/enabled timer schedules its
+next six-hour run around 21:04 Pacific on 23 October. The existing private
+client configuration remained unchanged; no secrets were printed or copied.
+
+Exercised the running Kodi loopback audio bridge, resolving an actual
+audiobook to 36 chapter entries and a podcast to seven episode entries.
+Fetched the first and last entry of each using bounded 4,096-byte range
+requests: all four returned HTTP 206 with matching Content-Range and actual
+audio/mp4 or audio/mpeg bytes. No capability URLs were logged, no source media
+was retained, and no Kodi navigation or active playback state was changed.
+This proves metadata and range-stream delivery, not an owner-observed audible
+listening test. The first diagnostic used the normalized catalogue field names
+against the raw feed and selected no items; correcting the diagnostic to use
+`media_type`/`authority_id` passed without changing production code.
+
+HP Aster v1.0.5 now has the same configured Audiobookshelf access/refresh path
+as BOSGAME. Listening progress synchronization is still the accepted v2 gap,
+not a v1 claim. Unit result/status files and journal remain the bounded local
+health handoff; no new central Beszel agent, service host, addressing, DNS,
+certificate, Homepage link, public exposure or speech implementation was
+introduced. Existing profile backups and the OPNsense checkpoint cover the
+affected configuration. All v2 feature work remains on hold for scope review.
+
 ## 15. References
 
 - `../Project-Creation-Standard.md`

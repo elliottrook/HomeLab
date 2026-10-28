@@ -1,0 +1,56 @@
+{
+  "components": {
+    "aster-camera2": {
+      "files": 1,
+      "manifest_sha256": "98ab2ba16418a081e999fa435aa076ea80bc38bfa25d06ea6c25b4a95c1614a1"
+    },
+    "aster-digest-player8": {
+      "files": 16,
+      "manifest_sha256": "d37a8bce323d673710b35fe4d9b13b2f9b5e6b35741627e9f643378b0b893f2b"
+    },
+    "aster-digest-reader6": {
+      "files": 4,
+      "manifest_sha256": "a8474501c9141bb220726c118b58e0941d9de2c3c42e2280410dbf3b1e5b3c86"
+    },
+    "aster-global-search-ui22": {
+      "files": 13,
+      "manifest_sha256": "bc4b0938ad96a6e0c5f89a991389edc1d46f9b927f2f87735981ad4b483309ca"
+    },
+    "aster-home-status1": {
+      "files": 3,
+      "manifest_sha256": "1a5f9b01a7832ed6b7beec106e637c4c60c980b731022408b2f2fec3cfb17bad"
+    },
+    "aster-network-preview5": {
+      "files": 5,
+      "manifest_sha256": "3d2b0fe0be16d2310f3c0687ab5a71f3b1df5f671d09d99d7a1119001eda8ec8"
+    },
+    "aster-series-preview24": {
+      "files": 8,
+      "manifest_sha256": "c89cea23ac882257838a8ee5d44c3b319a821c63b3a381c8847155f45986b9b5"
+    },
+    "aster-video-scrub5": {
+      "files": 4,
+      "manifest_sha256": "6126e4024e8b0bb1ecbe43c07fc2efd7bf73b9140ab8e357c9adfca94a861622"
+    }
+  },
+  "kind": "aster-family-runtime.v1",
+  "music_manifest_sha256": "dd0fa8df8b469df913ae7b7bb1364a5c9cfc027c31c30fa78d3a54d3a07b506d",
+  "schema": 1,
+  "shared": {
+    "runtime_guard_sha256": "7335de4bdaf42dd6c03fd0e35cf8b15d390b9d50b39dfa081ea9895e7a5fb5fc"
+  },
+  "skin": {
+    "1080i/Home.xml": "4c118dd42c3d97c1899a0dcbdce8e6ab42b22d3f309c09802f1a861fac9f830d",
+    "1080i/Settings.xml": "b6b60907059696e31544729f77ddc96230651d2e747e8cb032743ddb4a77108f",
+    "1080i/VideoOSD.xml": "19df16c15b7bee68384b2666067772371490e1a1bb8f44f1f3d2b4e685a5955c",
+    "1080i/custom_1111_digest.xml": "8d39956f2c437ead3451910b61f3d07223cd078dfa1d7b070d9a6ca023b9be35",
+    "1080i/custom_1112_home.xml": "bd0c380922214b22b117205419b1fcf575a2394f72267ab7e23416be13551c88",
+    "1080i/custom_1127_search.xml": "c7f85dc09859db9b4bf7aa3b971564e696e45c021b1880dc4c72913e202b043d",
+    "1080i/custom_1128_searchdetails.xml": "6768ad95c2c506043021a053cb9538248cf4431c561d29a0933debfa516731e3",
+    "1080i/custom_1129_artistalbums.xml": "1e3111efe511d1f0a55a2eeafd1ba6d09bddeaaf2c304c02148a6b0020c90de4",
+    "tools/aster_v2_digest.py": "968ed5a17abbae82ebbdc08551a75ce84482d027b8764f17df687bbef28f9711",
+    "tools/aster_v2_series.py": "c54b62d472dd276c09d0c6e6ce3134119e7a828c171b18aeb4f9ec5128142cab",
+    "tools/header_search.py": "6dc09f868f4183e082f46c4a4210f415fad9c3f3f0aa2f60c978a6162cd3d1c5",
+    "tools/select_dispatch.py": "3ebd10d3cb447467fc4c66fd82386860e503221655e8ac4fe6905f656db7313d"
+  }
+}

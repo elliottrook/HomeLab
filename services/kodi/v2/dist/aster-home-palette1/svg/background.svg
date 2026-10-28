@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080"><defs>
+    <linearGradient id="stone" x1="0" y1="0" x2="0.8" y2="1"><stop stop-color="#f0e9dd"/><stop offset=".55" stop-color="#e6dac8"/><stop offset="1" stop-color="#d5c5ad"/></linearGradient>
+    <radialGradient id="light"><stop stop-color="#fffaf0" stop-opacity=".5"/><stop offset="1" stop-color="#fffaf0" stop-opacity="0"/></radialGradient>
+    </defs><rect width="1920" height="1080" fill="url(#stone)"/><ellipse cx="450" cy="210" rx="1100" ry="800" fill="url(#light)"/></svg>

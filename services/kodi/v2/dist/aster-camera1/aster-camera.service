@@ -1,0 +1,26 @@
+[Unit]
+Description=Aster HP private on-demand camera viewer
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=3
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 -B /storage/.aster-camera/proxy.py
+WorkingDirectory=/storage/.aster-camera
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=3
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_INET AF_UNIX
+MemoryMax=96M
+TasksMax=16
+CPUQuota=25%
+Nice=5
+[Install]
+WantedBy=multi-user.target

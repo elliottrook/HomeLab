@@ -4,8 +4,8 @@ import hashlib, json, os, re, shutil, sys, tempfile, time
 from pathlib import Path
 import xbmc, xbmcgui
 
-STAGE = Path('/storage/.aster-staging/aster-books-visibility3')
-CHECKPOINT = Path('/storage/.aster-checkpoints/aster-books-visibility3')
+STAGE = Path('/storage/.aster-staging/aster-books-visibility4')
+CHECKPOINT = Path('/storage/.aster-checkpoints/aster-books-visibility4')
 
 
 def require(value, code):
@@ -40,7 +40,7 @@ def contract(pin):
     require(re.fullmatch('[0-9a-f]{64}', pin or ''), 'books-visibility-pin')
     require(sha(STAGE / 'manifest.json') == pin, 'books-visibility-manifest-pin')
     value = json.loads((STAGE / 'manifest.json').read_bytes())
-    require(value.get('schema') == 1 and value.get('kind') == 'hp-books-visibility.v3'
+    require(value.get('schema') == 1 and value.get('kind') == 'hp-books-visibility.v4'
             and value.get('production_changed') is False and len(value.get('files', [])) == 1,
             'books-visibility-contract')
     row = value['files'][0]

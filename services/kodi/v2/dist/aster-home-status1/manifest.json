@@ -1,0 +1,9 @@
+{
+  "files": {
+    "custom_1112_home.xml": "42d9b7987eda3e5c7203b9fee6c2c9c4aae9ee59105fd44db129642e2ecb4000",
+    "default.py": "f11679b52393253eb7727e40e3f346a458c62f51a44f9e5111251f9011df8f6e",
+    "home_status_model.py": "9b7122fc9271485b51ad16d0ccab042947926bbf9ffa20b9c1f184c6c0042c62"
+  },
+  "kind": "home-status-1",
+  "predecessor": "af0a70b5075a06e2ee6667cc1d1bb03b644ed0c9180404dd7b538ce0c6bf4e4f"
+}

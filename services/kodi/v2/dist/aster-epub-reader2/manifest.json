@@ -1,0 +1,15 @@
+{
+  "files": {
+    "default.py": "2102fce3bffe5b8dae9f28b4dd490513096c897141c01ea8f685d9f20196fe22",
+    "epub_chapter.py": "f4d8d334a8d04d89b54be3b5a4d631245cbaca14a92b42e7972dafad3be4fc60",
+    "epub_pages.py": "0e2d19800e1e1846dd4fb40a11e5442bf99d486c2adbb98af7f352f025f5aa35",
+    "resources/skins/Default/1080i/EpubReader.xml": "e5cb9967e06b8635ba8f1004cda0d304e20a2882ec24f15e0100760159689838",
+    "sample.epub": "85768ddfa4a8d9866c8323389cde35c8c82253b377f24e768fce8639e25c736a"
+  },
+  "kind": "hp-epub-reader.v1",
+  "network": false,
+  "normal_entry": false,
+  "playback": false,
+  "progress": false,
+  "synthetic": true
+}

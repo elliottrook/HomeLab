@@ -16,9 +16,33 @@ class BooksVisibilityFollowupTests(unittest.TestCase):
                + control.format(identity=304) + '</window>').encode()
         with patch.object(subject, 'PREDECESSOR', subject.sha(raw)):
             candidate = subject.render(raw)
-        self.assertEqual(candidate.count(b'<visible>Window.IsActive(1118)'), 2)
+        self.assertEqual(candidate.count(b'Window.IsActive(1118)'), 2)
         self.assertNotIn(b'!Window.IsActive', candidate)
-        self.assertNotIn(b') + (', candidate)
+        self.assertEqual(candidate.count(b'<visible>'), 2)
+
+    def test_current_source_keeps_one_grouped_visible_expression(self):
+        control = (b'<control type="button" id="%s"><visible>'
+               b'!String.IsEmpty(Container(500).ListItem.Label) | '
+               b'!String.IsEmpty(Container(501).ListItem.Label)'
+               b'</visible></control>')
+        raw = (b'<window>' + control % b'300' + control % b'304' + b'</window>')
+        with patch.object(subject, 'CURRENT_SOURCE', subject.sha(raw)):
+            candidate = subject.render(raw)
+        root = subject.ET.fromstring(candidate)
+        visible = root.find(".//control[@id='300']").findall('visible')
+        self.assertEqual(len(visible), 1)
+        self.assertEqual(visible[0].text.count('Window.IsActive(1118)'), 1)
+        self.assertIn(') + (', visible[0].text)
+
+    def test_deployed_two_nodes_are_collapsed(self):
+        raw = (b'<window><control type="button" id="300"><visible>A</visible>'
+               b'<visible>B</visible></control><control type="button" id="304">'
+               b'<visible>A</visible><visible>B</visible></control></window>')
+        with patch.object(subject, 'DEPLOYED_SOURCE', subject.sha(raw)):
+            candidate = subject.render(raw)
+        root = subject.ET.fromstring(candidate)
+        for identity in ('300', '304'):
+            self.assertEqual(len(root.find(".//control[@id='%s']" % identity).findall('visible')), 1)
 
 
 if __name__ == '__main__':

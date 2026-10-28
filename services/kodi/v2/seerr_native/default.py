@@ -117,6 +117,14 @@ def main():
     try:
         if not TOKEN.is_file() or TOKEN.is_symlink():
             raise BrokerUnavailable('seerr-broker-not-configured')
+        # Search is a modal window on this Kodi build.  Close it from inside
+        # the addon before opening Requests; chaining two builtins in the XML
+        # onclick is parsed as one malformed window command.
+        xbmc.executebuiltin('Dialog.Close(11127)')
+        deadline = time.monotonic() + 2
+        while xbmcgui.getCurrentWindowDialogId() == 11127:
+            if time.monotonic() >= deadline or monitor.waitForAbort(.05):
+                raise BrokerUnavailable('search-window-will-not-close')
         xbmc.executebuiltin('ActivateWindow(1132)')
         opened = True
         deadline = time.monotonic() + 5

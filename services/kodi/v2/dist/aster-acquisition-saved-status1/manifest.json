@@ -1,0 +1,21 @@
+{
+  "activation": "prepared-only",
+  "files": [
+    {
+      "before_sha256": "01897d9ad327e432bc55683da05b92e7648220e4f8f56fb7fa77747c18cfdafd",
+      "bytes": 6941,
+      "path": ".kodi/addons/script.asteracquisition/default.py",
+      "sha256": "b72adca26238e1e510705ca93990a83396a6c0235ac3fbe5652c2e7fe71e0541"
+    },
+    {
+      "before_sha256": "fa5a5ab45da3f8279d80b760b023becabd9d6d807edc63a8117ef541f817ba43",
+      "bytes": 6677,
+      "path": ".kodi/addons/script.asteracquisition/resources/lib/acquisition_broker_client.py",
+      "sha256": "c97ab539f7ddde6732d2870b7a705038c4fd837087f3abfa74d15b6abc06de24"
+    }
+  ],
+  "journal_changes": false,
+  "kind": "hp-acquisition-saved-status-candidate.v1",
+  "provider_writes": false,
+  "schema": 1
+}

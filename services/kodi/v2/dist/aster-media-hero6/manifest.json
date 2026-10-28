@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "kind": "hp-media-recommendation-hero",
+  "stage": "aster-media-hero6",
+  "files": [
+    {
+      "path": "plugin/default.py",
+      "target": "/storage/.kodi/addons/plugin.video.asterhome/default.py",
+      "sha256": "50c5ecb4d676bdff544d47cfadd8f984a5f79b7d57a2af42682dbc3c7012dfb2",
+      "previous_sha256": "5a1041503d2e64b7c8f68ef43a2eca5d1fd66f91b83f0ba5372307cba331655d"
+    },
+    {
+      "path": "plugin/library.py",
+      "target": "/storage/.kodi/addons/plugin.video.asterhome/library.py",
+      "sha256": "088c8acb4d5050e7cfe89db7d6bab3a5be9534b1f8b68663d6fb822c8bd08d99",
+      "previous_sha256": "088c8acb4d5050e7cfe89db7d6bab3a5be9534b1f8b68663d6fb822c8bd08d99"
+    },
+    {
+      "path": "skin/1080i/Home.xml",
+      "target": "/storage/.kodi/addons/skin.asterhome/1080i/Home.xml",
+      "sha256": "5b201a12963f461ebc78bc2c528ba3cb8258a36ac77cee450f1da143d16a0ea5",
+      "previous_sha256": "5b201a12963f461ebc78bc2c528ba3cb8258a36ac77cee450f1da143d16a0ea5"
+    },
+    {
+      "path": "skin/1080i/Includes.xml",
+      "target": "/storage/.kodi/addons/skin.asterhome/1080i/Includes.xml",
+      "sha256": "fa1eb7f7c52e5e78a83d63ec19719b7fae9ce953cffdfbd89366cc625a9860fa",
+      "previous_sha256": "fa1eb7f7c52e5e78a83d63ec19719b7fae9ce953cffdfbd89366cc625a9860fa"
+    }
+  ]
+}

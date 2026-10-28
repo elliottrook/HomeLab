@@ -1,0 +1,12 @@
+{
+  "files": {
+    "aster-camera.service": "140dea35be1c09dbac14a74d9cfa9f10f41b1a23c294e150a35b3f07eadb8b9e",
+    "camera-idle.png": "a4c915ddb56f7120874884e0de856a27f9a44641fc490329610a0b7ea3cf8e43",
+    "custom_1112_home.xml": "ddb6e43487d80249954d25ceb3be4e3500b158e577b3a916b5b167b569fb811a",
+    "frame.py": "b86e047b3720ae241e3605acb2f287ee8a891b158a453609df7aef86c75eaf55",
+    "proxy.py": "326005ef4424e985c250cddcab9e8d55ea7c315f996e8640e598a1642fe45eee",
+    "view.py": "855068d93b86ef27a08e77dfe05bb8f542f7a2bdd4fb06d4b716b0cc6e9d935e"
+  },
+  "kind": "hp-one-camera-v1",
+  "predecessor": "8bcbfd5b4ee24b03602fc7fd095e644e94d971419f6d8c1fdbf922694f718b21"
+}
