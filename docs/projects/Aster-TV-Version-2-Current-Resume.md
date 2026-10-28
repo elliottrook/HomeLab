@@ -50,6 +50,41 @@ client. The next lab install should reuse the existing restricted service
 design with fresh lab-only client provisioning, while YouTube waits for
 Jason's separate sign-in. No production account state should be copied.
 
+### Fresh Kodi 22 lab candidate installation — 2026-10-28
+
+The lab now has Kodi's official YouTube 7.4.4 and InputStream Adaptive
+22.3.23.1 packages, plus their repository-installed dependencies. Jellyfin's
+published repository ZIP still points at a metadata URL returning HTTP 404;
+the matching official Python 3 Jellyfin 2.2.0 package and its Kodi modules
+were fetched from the live upstream package indexes, path-validated and
+installed without importing any production profile or token. Jellyfin account
+setup is not complete. Its lab route at `192.168.20.40:8096` is reachable.
+
+The 12-addon, code-only Aster v2 archive with SHA-256
+`13d586ae3a30ba03ccc9ea3f2f291e337b814d38dc1805dbbc998d690c4b8f7d`
+was installed on the fresh HP lab after verifying that all targets were
+absent and playback idle. Its pre-install Kodi userdata is retained at
+`/storage/.aster-checkpoints/astertv-v2-fresh-lab-install-20261028`.
+Kodi registered all 12 add-ons, they were enabled, and the Aster v2.0.0
+skin rendered on the lab. This is a **test installation**, not release
+acceptance. The archive did not preserve the empty `skin.asterhome/fonts`
+directory, so the lab installer now recreates it.
+
+Jellyfin's own setup dialogs initially rendered without text because they
+reference standard Kodi `font12` and `font13` aliases absent from Aster's
+`Font.xml`. Those aliases were added to the tracked skin and installed on
+the lab with the predecessor retained at
+`/storage/.aster-checkpoints/astertv-v2-jellyfin-fonts-20261028`.
+After idle Kodi restart, the server-selection text and manual server address
+were visibly correct. The installed Jellyfin 2.2.0 client then offered a
+one-time Quick Connect sign-in. Jason can authorize it from either Mac's
+already signed-in Jellyfin web session; no password is needed in chat.
+Do not store the ephemeral code in project records. TV library sync,
+season navigation, playback and marker-controlled skip remain unverified.
+The official YouTube add-on is installed but not signed in, and its Aster
+search page still needs live acceptance. News Digest and audio also remain
+release gates. Production remains on owner-confirmed v1.1.1.
+
 Jason reported the v2 player had lost skip recap/intro/outro and directed that
 v2 be pulled from production. This is a release-blocking regression; the v2
 candidate is **not production-ready**, even where individual pages passed

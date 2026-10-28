@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="script.asterbootstrap" name="Aster Lab Bootstrap" version="0.1.0" provider-name="HomeLab">
+  <requires><import addon="xbmc.python" version="3.0.0" /></requires>
+  <extension point="xbmc.python.script" library="default.py"><provides>executable</provides></extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Temporary, bounded lab repository installer</summary>
+    <description lang="en_GB">Installs only declared official Kodi add-ons on AsterTV; no account state or service.</description>
+    <platform>all</platform><license>Private HomeLab</license>
+  </extension>
+</addon>

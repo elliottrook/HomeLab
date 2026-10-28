@@ -6,6 +6,17 @@
 -->
 <fonts>
     <fontset id="Default" unicode="true">
+        <!-- Common names used by third-party Kodi dialogs, including Jellyfin. -->
+        <font>
+            <name>font12</name>
+            <filename>arial.ttf</filename>
+            <size>20</size>
+        </font>
+        <font>
+            <name>font13</name>
+            <filename>arial.ttf</filename>
+            <size>24</size>
+        </font>
         <font>
             <name>font16</name>
             <filename>arial.ttf</filename>
