@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "release_id": "sa1-sa3-forgejo-expansion-20261028",
+  "files": [
+    {
+      "source": "services/aster-agent/aster_agent.py",
+      "target": "/opt/aster-agent/aster_agent.py",
+      "before_sha256": "02a2001caee5204b6229f7f576dcc945227471ac531b852f0ab0f60ecb032f9b",
+      "after_sha256": "75d49b81ce7e277ff67dfe0f929536f94835dc93c710c6206aa558259208261d"
+    },
+    {
+      "source": "services/aster-agent/forgejo_incident_adapter.py",
+      "target": "/opt/aster-agent/forgejo_incident_adapter.py",
+      "before_sha256": null,
+      "after_sha256": "e0944352e8304d25e5f55b74d88df700cd1b64ad3fdedc784aa7c66486f25809"
+    },
+    {
+      "source": "services/aster-agent/sysadmin_registered_producer.py",
+      "target": "/opt/aster-agent/sysadmin_registered_producer.py",
+      "before_sha256": "3291feaaace83a42f98f578f29e0b2831a82c8b1cae31793a0cdb0b4a622353a",
+      "after_sha256": "27175ab0d1a0cbcfc1fbc3201859417e2818b22d1738f1d2d2dc3a48f8191c96"
+    },
+    {
+      "source": "services/aster-agent/sysadmin_proposal_boundary.py",
+      "target": "/opt/aster-agent/sysadmin_proposal_boundary.py",
+      "before_sha256": "121d61c12c2f33368176ec35bcc0047f075c1d21d4640749658bf509fce813ff",
+      "after_sha256": "2050cd7e12b5207dce21c5087d4e643ffa85965376d415c0ed7ee673d9894515"
+    },
+    {
+      "source": "services/aster-agent/sysadmin_proposal_transport.py",
+      "target": "/opt/aster-agent/sysadmin_proposal_transport.py",
+      "before_sha256": "9b4d98df78c69e360e2f59544a47152c7eefc58bcad7f33e74e917158c24e4fa",
+      "after_sha256": "dca6a28c3096fc398f49cbdc33ddb1f26ff09b559870566281d7bec42be1c6be"
+    }
+  ],
+  "runtime": {
+    "target": "LXC104",
+    "service": "aster-agent.service",
+    "restart_count": 1,
+    "model_restart": false,
+    "model_change": false,
+    "automatic_routing": false,
+    "observation_authority": "fixed-registered-reports-and-status-only",
+    "repair_authority": false
+  }
+}

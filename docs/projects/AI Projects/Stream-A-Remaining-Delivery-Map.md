@@ -286,6 +286,16 @@ candidate now exposes only the next registered pair and retains the model's
 observe/complete/escalate choice. Exact review, rollback release packet and one
 separately approved Aster Agent restart remain; production is unchanged.
 
+The exact
+[release and disabled target preflight](evidence/SA1-SA3-forgejo-expansion-release-preflight-2026-10-28.md)
+now pass. The deterministic five-file packet replaces four pinned predecessors,
+adds one adapter and has a root-only rollback checkpoint. The component suite
+passes 4/4, the target application suite passes 80/80, and the disabled import
+preflight matched current live hashes without changing the Aster Agent PID.
+The sole remaining live gate is Jason's approval for the exact installation
+and one Aster Agent restart; no model restart/change, automatic route or repair
+is included.
+
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the
