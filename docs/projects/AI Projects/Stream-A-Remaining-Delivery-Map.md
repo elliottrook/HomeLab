@@ -347,6 +347,14 @@ temporary files were removed. Network, configuration, backup and log source
 designs are now complete; their combined reviewed release and representative
 investigation remain open.
 
+Publisher cadence is now explicit in a source-only
+[breadth publisher schedule boundary](evidence/SA2-breadth-publisher-schedule-boundary-2026-10-28.md).
+The existing daily report command requests the digest-bound typed catalogue,
+while an inactive hardened five-minute root one-shot is defined for the
+content-free journal count. No schedule or unit changed live. Shell syntax and
+the complete focused suite pass 84/84. Exact packaging and disabled target unit
+validation remain before one combined approval request.
+
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the

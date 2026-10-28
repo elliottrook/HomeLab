@@ -1,0 +1,18 @@
+[Unit]
+Description=Publish sanitized Aster Agent journal aggregate
+After=aster-agent.service
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+UMask=0027
+ExecStart=/usr/bin/python3 -B /usr/local/libexec/produce-aster-agent-log-report.py
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/aster/source-reports
+RestrictAddressFamilies=AF_UNIX
+LockPersonality=true
+MemoryDenyWriteExecute=true

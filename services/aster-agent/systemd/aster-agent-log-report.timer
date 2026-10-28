@@ -1,0 +1,12 @@
+[Unit]
+Description=Refresh sanitized Aster Agent journal aggregate
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+AccuracySec=30s
+Persistent=false
+Unit=aster-agent-log-report.service
+
+[Install]
+WantedBy=timers.target

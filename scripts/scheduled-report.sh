@@ -25,6 +25,7 @@ rm -f "$doctor_collector_result"
     --capture-output "$doctor_capture" \
     --output "$state_dir/aster-health.json" \
     --structured-output "$state_dir/aster-inference.json" \
+    --catalogue-output "$state_dir/diagnostic-catalogue.json" \
     --result-output "$doctor_collector_result" \
     --publish
 health_publish_result=$?
