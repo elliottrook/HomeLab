@@ -28,6 +28,7 @@ REGISTERED_OBSERVATIONS: dict[str, frozenset[str]] = {
     "aster-gateway": frozenset({"status", "log", "config"}),
     "inference-server": frozenset({"status", "log", "config"}),
     "forgejo-main": frozenset({"git"}),
+    "netbox-main": frozenset({"network"}),
     "homelab-doctor": frozenset({"status", "network"}),
     "backup-catalog": frozenset({"backup"}),
 }

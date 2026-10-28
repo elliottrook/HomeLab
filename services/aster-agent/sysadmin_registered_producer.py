@@ -2,9 +2,9 @@
 
 The caller cannot supply a producer, target, evidence kind or source path. The
 pending SA1 journal decision is the sole selector. The small explicit registry
-contains gateway self-status, one fixed inference-health request and one fixed
-sanitized Doctor-report read. It performs no subprocess, credential, model,
-report refresh or repair operation.
+contains gateway self-status, one fixed inference-health request and fixed
+sanitized Doctor, Forgejo and NetBox report reads. It performs no subprocess,
+credential, model, report refresh or repair operation.
 """
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ from pathlib import Path
 
 from doctor_incident_adapter import read_doctor_observation
 from forgejo_incident_adapter import read_forgejo_observation
+from netbox_incident_adapter import read_netbox_observation
 from sysadmin_incident_store import IncidentStore
 from sysadmin_investigation import InvestigationError
 
@@ -30,6 +31,9 @@ DOCTOR_REPORT = Path("/var/lib/aster/health/latest.json")
 FORGEJO_PRODUCER = "forgejo-main-report/v1"
 FORGEJO_PAIR = ("forgejo-main", "git")
 FORGEJO_REPORT = Path("/var/lib/aster/source-reports/forgejo.json")
+NETBOX_PRODUCER = "netbox-main-report/v1"
+NETBOX_PAIR = ("netbox-main", "network")
+NETBOX_REPORT = Path("/var/lib/aster/source-reports/netbox.json")
 MAX_HEALTH_BYTES = 1024
 
 
@@ -166,6 +170,31 @@ def _forgejo_status_envelope(
     }
 
 
+def _netbox_network_envelope(
+    incident_id: str, now: datetime, report_path: Path = NETBOX_REPORT,
+) -> dict:
+    """Aggregate the existing fixed NetBox report without opening a remote."""
+    observation = read_netbox_observation(incident_id, report_path, now)
+    if observation.source != NETBOX_PRODUCER:
+        raise InvestigationError("unexpected NetBox producer identity")
+    return {
+        "schema_version": 1,
+        "producer": NETBOX_PRODUCER,
+        "produced_at": now.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "observation": {
+            "evidence_id": observation.evidence_id,
+            "incident_id": observation.incident_id,
+            "target": observation.target,
+            "kind": observation.kind,
+            "observed_at": observation.observed_at,
+            "state": observation.state,
+            "summary": observation.summary,
+            "facts": observation.facts,
+            "truncated": observation.truncated,
+        },
+    }
+
+
 def execute_registered_pending_observation(
     store: IncidentStore,
     incident_id: str,
@@ -186,6 +215,8 @@ def execute_registered_pending_observation(
         envelope = _doctor_status_envelope(incident_id, now, DOCTOR_REPORT)
     elif pair == FORGEJO_PAIR:
         envelope = _forgejo_status_envelope(incident_id, now, FORGEJO_REPORT)
+    elif pair == NETBOX_PAIR:
+        envelope = _netbox_network_envelope(incident_id, now, NETBOX_REPORT)
     else:
         raise InvestigationError("pending observation has no registered producer")
     return store.ingest(envelope, now, expected_decision_ref=claim["decision_ref"])

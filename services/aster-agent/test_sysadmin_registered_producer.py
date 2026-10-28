@@ -12,6 +12,7 @@ from sysadmin_registered_producer import (
     _doctor_status_envelope,
     _forgejo_status_envelope,
     _inference_status_envelope,
+    _netbox_network_envelope,
     execute_registered_pending_observation,
 )
 
@@ -145,6 +146,39 @@ class RegisteredIncidentProducerTests(unittest.TestCase):
         self.assertEqual(1, self.store.followup_journal_snapshot(
             incident.incident_id, NOW
         )["consumed_count"])
+
+    def test_exact_pending_netbox_network_uses_fixed_report_and_is_consumed(self):
+        incident = self.create("netbox-main", "network")
+        self.bind(incident, target="netbox-main", kind="network")
+        fixture = {
+            "schema_version": 1, "source": "netbox", "generated_at": "2026-10-27T07:00:00Z",
+            "instance": {"version": "fixture"},
+            "inventory": {
+                "counts": {"devices": 2, "virtual_machines": 3, "sites": 1, "racks": 1, "vlans": 4, "prefixes": 5},
+                "devices": [], "virtual_machines": [], "vlans": [], "prefixes": [],
+            },
+        }
+        with patch("sysadmin_registered_producer.read_netbox_observation") as reader:
+            from netbox_incident_adapter import read_netbox_observation
+            reader.side_effect = lambda incident_id, path, now: read_netbox_observation(
+                incident_id, path, now, reader=lambda path, now: fixture
+            )
+            record = execute_registered_pending_observation(self.store, incident.incident_id, NOW)
+        self.assertEqual(("netbox-main", "network", "ok"), (
+            record["target"], record["kind"], record["state"],
+        ))
+        self.assertEqual(2, record["facts"]["device_count"])
+        self.assertEqual(1, self.store.followup_journal_snapshot(
+            incident.incident_id, NOW
+        )["consumed_count"])
+
+    def test_unavailable_netbox_report_is_bounded_evidence(self):
+        envelope = _netbox_network_envelope(
+            "incident-netbox-001", NOW, Path(self.temporary.name) / "missing.json"
+        )
+        self.assertEqual("netbox-main-report/v1", envelope["producer"])
+        self.assertEqual("unavailable", envelope["observation"]["state"])
+        self.assertEqual({"reason": "source_unavailable"}, envelope["observation"]["facts"])
 
     def test_changed_pending_decision_cannot_be_consumed_by_stale_result(self):
         incident = create_incident(
