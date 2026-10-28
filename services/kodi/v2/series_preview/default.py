@@ -9,7 +9,7 @@ sys.path.insert(0,str(ROOT/'resources/lib'))
 from series_adapter import read_series,READS
 from series_model import SeriesUnavailable
 from series_view import SeriesSelection,episode_metadata
-from series_playback import EpisodeSession,PLAYER_READS,entry_lock
+from series_playback import EpisodeSession,PLAYER_READS,entry_lock,release_parked_video_queue
 from series_catalogue import merge_page,season_proposal
 from series_seerr_client import (CatalogueClient,CatalogueUnavailable,
     GrayscaleCache,SeasonRequestWriter)
@@ -26,7 +26,7 @@ def execute(method,params=None):
     return result.get('result',{})
 
 def playback_rpc(method,params):
-    if method not in READS|PLAYER_READS|{'Player.Open','Player.Stop'}:raise SeriesUnavailable('series-player-boundary')
+    if method not in READS|PLAYER_READS|{'Player.Open','Player.Stop','Playlist.Clear'}:raise SeriesUnavailable('series-player-boundary')
     return execute(method,params)
 
 def recovery_path():return Path('/storage/.aster-checkpoints/aster-series-playback-20261024/unresolved-start.json')
@@ -177,6 +177,17 @@ class SeriesPreview(xbmcgui.WindowXML):
                     self.request_missing(row);self.setFocusId(300);return
                 if self.playback_enabled:
                     if self.session.phase not in ('idle',):return
+                    try:
+                        confirmed=release_parked_video_queue(
+                            rpc,playback_rpc,
+                            lambda:self.dialog('yesno','Replace queued video?',
+                                'One video is parked in Kodi. Replace it to play this episode?'))
+                    except SeriesUnavailable:
+                        self.setProperty('Series.Status','Video queue changed; nothing was started.')
+                        return
+                    if not confirmed:
+                        self.setProperty('Series.Status','Existing video queue preserved.')
+                        return
                     self.setProperty('Series.Status','Opening '+row.numbering+'…')
                     self.fullscreen_requested=False
                     try:self.session.start(row.episode_id)
@@ -396,7 +407,9 @@ def run_entry():
             raise SeriesUnavailable('invalid-show-link')
         playback=len(sys.argv)==3
         if playback and recovery_path().exists():raise SeriesUnavailable('unresolved-series-start')
-        if not idle():raise SeriesUnavailable('idle-player-required')
+        # A parked playlist item cannot alter a read-only season page. Playback
+        # checks it again and asks before replacing it for an explicit episode.
+        if rpc('Player.GetActivePlayers'):raise SeriesUnavailable('active-player-required')
         show_id=int(sys.argv[1]);snapshot=read_series(rpc,show_id,accepted_next())
     except Exception:
         xbmcgui.Dialog().ok('Series unavailable','The complete idle series snapshot could not be verified, or an earlier start needs review. Nothing was started.');return

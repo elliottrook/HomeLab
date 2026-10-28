@@ -263,6 +263,22 @@ def build(root, host):
         row["files"] = len(rows["files"])
         row["manifest_sha256"] = digest(manifest)
 
+    # TV's launcher and Search handoff both pin the series component. Retarget
+    # those consumers after the production host edit, then reseal Search.
+    series_pin = family["components"]["aster-series-preview24"]["manifest_sha256"]
+    rewrite_embedded_pin(
+        addons / "skin.asterhome/tools/aster_v2_series.py",
+        predecessor_pins["aster-series-preview24"], series_pin,
+    )
+    rewrite_embedded_pin(
+        runtime / "aster-global-search-ui22/resources/lib/search_handoff.py",
+        predecessor_pins["aster-series-preview24"], series_pin,
+    )
+    search = runtime / "aster-global-search-ui22"
+    search_rows = refresh_file_rows(search / "manifest.json", search)
+    family["components"]["aster-global-search-ui22"]["files"] = len(search_rows["files"])
+    family["components"]["aster-global-search-ui22"]["manifest_sha256"] = digest(search / "manifest.json")
+
     # The family builder pins the Digest component from its skin launcher.
     # Production host admission edits change that component manifest, so the
     # launcher must follow the new installed pin before skin hashes are sealed.

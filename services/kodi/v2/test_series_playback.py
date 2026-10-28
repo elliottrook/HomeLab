@@ -1,6 +1,6 @@
 import copy,tempfile,unittest
 from pathlib import Path
-from series_playback import EpisodeSession,prepare_episode,entry_lock
+from series_playback import EpisodeSession,prepare_episode,entry_lock,release_parked_video_queue
 from series_model import SeriesUnavailable
 from test_series_model import episode
 
@@ -9,19 +9,40 @@ class Player:
         self.row=episode(playcount=1);self.active=[];self.item={};self.queue={0:0,1:0};self.writes=[];self.open_unknown=False
     def __call__(self,method,params):
         if method=='Player.GetActivePlayers':return copy.deepcopy(self.active)
-        if method=='Playlist.GetItems':return dict(limits=dict(total=self.queue[params['playlistid']]))
+        if method=='Playlist.GetItems':
+            total=self.queue[params['playlistid']]
+            return dict(limits=dict(total=total),items=[dict(type='unknown',id=None)]*min(total,2))
         if method=='VideoLibrary.GetEpisodeDetails':return dict(episodedetails=copy.deepcopy(self.row))
         if method=='Player.GetItem':return dict(item=copy.deepcopy(self.item))
-        if method in ('Player.Open','Player.Stop'):
+        if method in ('Player.Open','Player.Stop','Playlist.Clear'):
             self.writes.append((method,copy.deepcopy(params)))
             if self.open_unknown:raise ValueError('private-rpc-error')
             if method=='Player.Stop':self.active=[]
+            if method=='Playlist.Clear':self.queue[params['playlistid']]=0
             return 'OK'
         raise AssertionError('unexpected-method')
     def start(self,identity=1,show_id=12):
         self.active=[dict(playerid=1,type='video')];self.item=dict(type='episode',id=identity,tvshowid=show_id)
 
 class SeriesPlaybackTests(unittest.TestCase):
+    def test_parked_video_is_preserved_until_explicit_confirmation(self):
+        player=Player();player.queue[1]=1
+        self.assertFalse(release_parked_video_queue(player,player,lambda:False))
+        self.assertEqual(player.queue[1],1);self.assertEqual(player.writes,[])
+        self.assertTrue(release_parked_video_queue(player,player,lambda:True))
+        self.assertEqual(player.queue[1],0)
+        self.assertEqual(player.writes,[('Playlist.Clear',dict(playlistid=1))])
+
+    def test_other_player_or_multiple_video_items_are_never_cleared(self):
+        for kind in ('player','audio','multiple'):
+            player=Player();player.queue[1]=1
+            if kind=='player':player.start()
+            if kind=='audio':player.queue[0]=1
+            if kind=='multiple':player.queue[1]=2
+            with self.subTest(kind=kind),self.assertRaises(SeriesUnavailable):
+                release_parked_video_queue(player,player,lambda:True)
+            self.assertEqual(player.writes,[])
+
     def test_native_open_uses_exact_identity_and_boolean_stored_resume(self):
         player=Player();player.row['resume']=dict(position=30,total=100)
         session=EpisodeSession(player,12,lambda identity:2);session.start(1)

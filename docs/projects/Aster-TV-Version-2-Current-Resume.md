@@ -52,6 +52,26 @@ Takeover and repair evidence on 2026-10-28:
   returned through root to Home. A private 4K capture confirmed that the
   synopsis and all three rows, including Watch Later captions, fit the screen.
   No player started and Kodi stayed active without a new crash.
+- A later real TV entry failed even though the show-200 library snapshot was
+  complete (one season, six episodes): Kodi had no active player but retained
+  one parked video playlist item. The old global `idle()` gate incorrectly
+  prevented even read-only season browsing. A targeted production successor
+  now permits browsing when no player is active and asks before replacing an
+  exact singleton parked queue for episode playback. Unit tests cover decline,
+  confirmation and refusal of active/audio/multiple-item states. The seven
+  changed runtime/pin files have an exact rollback checkpoint at
+  `/storage/.aster-checkpoints/astertv-series-parked-queue-20261028`.
+  The new series manifest pin is
+  `1f1142545750c8bde616b698a7ea663006e818b31be9c75c67c589bc36d9d0db`;
+  family hash is
+  `5acbc0ea9843421d4efbb55cfef4b845dfb9e3844e5b23705612d5bb6e2a6271`.
+  A fresh native screenshot confirmed the VisionQuest season/episode page
+  opened. Playback of VisionQuest S1E5 was subsequently observed in Kodi's
+  player log and then returned idle with both playlists empty. The separately
+  approved queue checkpoint/clear test was not run: the live queue changed
+  during its two-snapshot guard, so it safely refused to act. The empty queue
+  now makes that specific clearance unnecessary. Do not treat the earlier
+  preview-only smoke check as season or playback coverage.
 
 The YouTube investigation included unsuccessful focus experiments. A combined
 Home route-reset and Back-adapter candidate crashed Kodi while the video window
@@ -62,8 +82,9 @@ recovered intact and the released YouTube files were restored from
 `aster-youtube-production-release-restore1`. These checkpoints are retained as
 incident and recovery evidence. Do not replay superseded experimental scripts.
 
-The remaining acceptance is Jason's physical sofa/remote review, representative
-YouTube video playback/stop, and production audiobook/podcast progress sign-off.
+The remaining acceptance is Jason's physical sofa/remote review, including the
+TV episode prompt and a multi-season selection, representative YouTube video
+playback/stop, and production audiobook/podcast progress sign-off.
 Kodi 22 and the lab's Kodi 21 should not be treated as interchangeable test
 runtimes. No Forgejo or GitHub push was made; remote synchronization awaits the
 required immediate push approval.

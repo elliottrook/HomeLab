@@ -8,6 +8,27 @@ from series_model import build_series,SeriesUnavailable
 
 PLAYER_READS=frozenset(('Player.GetActivePlayers','Playlist.GetItems','Player.GetItem','VideoLibrary.GetEpisodeDetails'))
 
+def release_parked_video_queue(rpc,write,confirm):
+    """Replace one parked item only after a fresh, explicit viewer decision."""
+    def snapshot():
+        require(not rpc('Player.GetActivePlayers',{}),'another-player-or-queue-active')
+        audio=rpc('Playlist.GetItems',dict(playlistid=0,limits=dict(start=0,end=1)))
+        require(audio.get('limits',{}).get('total')==0,'another-player-or-queue-active')
+        video=rpc('Playlist.GetItems',dict(playlistid=1,limits=dict(start=0,end=2)))
+        total=video.get('limits',{}).get('total')
+        require(type(total) is int and 0<=total<=1,'video-queue-not-singleton')
+        if total==1:require(isinstance(video.get('items'),list) and len(video['items'])==1,
+                            'video-queue-not-singleton')
+        return video
+    first=snapshot();second=snapshot()
+    require(first==second,'video-queue-changed')
+    if first['limits']['total']==0:return True
+    if not confirm():return False
+    require(snapshot()==first,'video-queue-changed')
+    write('Playlist.Clear',dict(playlistid=1))
+    require(idle(rpc),'video-queue-clear-not-verified')
+    return True
+
 @contextmanager
 def entry_lock(directory):
     directory.mkdir(mode=0o700,parents=True,exist_ok=True)
