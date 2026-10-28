@@ -1,5 +1,58 @@
 # Fixed-hardware capability research watch — 2026-10-12
 
+## October 28 morning missed-window status receipt
+
+Fetched and read authoritative B60
+`d9bc51bba13c9634a0ecf71bb6632d23e3141824`, Adaptive
+`76190385d915e274b222765097bc977860bf877d`, registry
+`6fb0207fec5190e0c34ed3bc72ea38e128f06127` and actual owning platform
+`200640648eca0d3485eae8e2cbfd2707a0e3c296`. All four read-only GitHub refs
+match. The current published owner-response path/hash and platform result
+path/hash, recorded in the afternoon receipt below, were recomputed unchanged:
+`ac6299ea646bdc59659c21dc5ed24b72605a0b21e14cfaab1b266fcb40d16ed4`
+and `1ca68589e9576bc8e43402cf38915b3b3b666d99ec4f818fe6ec886fb19fcae3`.
+
+Read-only native status for Adaptive turn
+`01a18267-c466-7640-8101-ea9ccafab7d7` now reports local commit `398c9ded`:
+October28 F2/F3 and02:00/03:00 pulls passed, but no one-shot executor owned
+the post03:00 F4/F5 window. The next heartbeat arrived after04:15 and F3
+freshness expiry, so F4/F5 was not run and the overall timed test is NO-GO.
+The published branch has not advanced; B60 has **not** read exact new terminal
+evidence bytes or independently verified their hashes/target custody. Preserve
+this as an app-status report, not a new Git receipt or admission proof.
+
+This reported failure is missing end-to-end execution coverage, not evidence
+that the earlier archive path fix regressed or that35B inference failed. No
+candidate request is reported, and no missed effect may be replayed during
+daytime preparation. Do not reconstruct a fresh F4 from expired F3, backdate
+an observation or use chat availability as a persistent runner.
+
+### Next-cycle orchestration review before activation
+
+The owner must review one complete exact-date chain before arming another
+cycle:01:15 F2 prepare,01:20 bounded final,01:42 terminal reconciliation and
+spent-timer removal,01:50 conditional F3, then an independently owned F4/F5
+invocation after actual completion of that date's03:00 pull and before the
+source-bound predecessor expiry. Each stage needs an exact executable source,
+one-shot owner, accepted effect card, durable terminal state and a fail-closed
+missed-start/dependency rule. A scheduled heartbeat is not a replacement for
+the post03:00 executor; the old hard-coded evening controller is excluded.
+
+An F4/F5 evidence executor is not permission for a35B model-switch transaction.
+Any later challenger additionally needs all-consumer isolation and lease-aware
+03:50 resume ownership, independent guardian/reentry, measured mount/switch
+restoration and the exact frozen contract. Validate the whole graph against
+actual pull completion, receipt freshness, trigger lag,30-minute trial bound
+and restoration strictly before04:15. If it cannot fit, do not arm effects or
+relax the bound after results. The existing offline timing helpers remain
+proposals, not measured reserves or accepted scheduling authority.
+
+All95 B60 tests pass. No live LAN probe, GPU/model call, download, mount,
+lease, service/timer, package/driver, credential or direct-message action ran.
+Messaging approval remains pending and was not retried. Next preparation
+receives the published terminal evidence and source-bound complete-chain
+packet; no duplicate request or background execution claim is made.
+
 ## October 28 nightly pre-admission checkpoint
 
 Heartbeat arrived00:34:56 PDT; execution clock00:35:16 PDT. Re-read repository

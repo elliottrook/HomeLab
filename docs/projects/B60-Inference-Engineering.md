@@ -12,6 +12,13 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October28 morning status receipt](B60-Inference-Engineering/research-watch-20261012.md#october-28-morning-missed-window-status-receipt)
+records Adaptive's local-only report that F2/F3 and the pulls passed, but F4/F5
+missed its window because no executor owned it. Overall NO-GO; no35B result.
+Exact new terminal evidence is not yet published. Next is a reviewed complete
+one-shot F2–F5 chain and its source/freshness/resume boundaries, not a daytime
+retry. Published owner refs remain unchanged and95 offline tests pass.
+
 The [October27 evening prototype](B60-Inference-Engineering/research-watch-20261012.md#october-27-evening-instrumentation-prototype)
 adds a pure content-free phase-timing proposal with nine synthetic tests;
 95 B60 tests pass. Interrupted phases remain explicitly incomplete. This is
