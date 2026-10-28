@@ -1,5 +1,35 @@
 # Fixed-hardware capability research watch — 2026-10-12
 
+## October 28 nightly pre-admission checkpoint
+
+Heartbeat arrived00:34:56 PDT; execution clock00:35:16 PDT. Re-read repository
+instructions, standard, project, expanded programme, ranked queue, current
+Adaptive delivery map, platform split/release registry and actual owner
+qualification record. Fresh Forgejo and read-only GitHub refs agree unchanged:
+Adaptive `76190385d915e274b222765097bc977860bf877d`, published B60
+`d9bc51bba13c9634a0ecf71bb6632d23e3141824`, registry
+`6fb0207fec5190e0c34ed3bc72ea38e128f06127` and actual platform
+`200640648eca0d3485eae8e2cbfd2707a0e3c296`.
+
+Recomputed Adaptive evidence paths under `docs/projects/AI Projects/evidence/`:
+`F2-exact-cycle-activation-result-2026-10-28.md` retains SHA-256
+`38483dc2f1a838a0966e5b1fe943f8f834cdd0ac59714fce84f9b67276bb1448`,
+and `B60-daytime-qualification-source-and-semantics-response-2026-10-27.md`
+retains `ac6299ea646bdc59659c21dc5ed24b72605a0b21e14cfaab1b266fcb40d16ed4`.
+These are scheduled/pre-run receipts, not October28 terminal archive evidence.
+The clock precedes01:15/01:20 F2 and01:42 reconciliation; do not label the
+not-yet-observed cycle passed or failed or preempt its owner. Backup/pull
+completion and current lease state were not probed during this checkpoint.
+
+All95 B60 offline tests pass. Keep the timing prototype unconnected pending
+owner review. The next independent-owner evidence is same-cycle F2 terminal
+rows and conditional F3 verification; even success would not authorize a35B
+screen or establish fresh full-Aster useful-answer latency. Persist this
+checkpoint locally only, with no push, message retry, GPU/model request,
+download/mount, lease, service/timer or credential action. Resume evidence
+reconciliation at the next scheduled check-in, not by claiming background
+execution. The programme remains active and incomplete.
+
 ## October 27 evening instrumentation prototype
 
 At the later22:30 preparation check-in, fresh Forgejo and GitHub reads still
