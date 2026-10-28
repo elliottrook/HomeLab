@@ -2,6 +2,24 @@
 
 ## October 27 evening instrumentation prototype
 
+At the later22:30 preparation check-in, fresh Forgejo and GitHub reads still
+agree at Adaptive `76190385`, published B60 `d9bc51bba`, registry `6fb0207f`
+and actual platform `20064064`. The exact owner-response hash below was
+recomputed unchanged and95 B60 tests pass. No acceptance of the timing
+proposal is inferred. Direct messaging approval remains unanswered and was
+not retried; no duplicate publication or peer-wait message is sent.
+
+Reviewed the actual platform `_journal` implementation at
+`scripts/local-ai/cooperative_lab_session.py`, SHA-256
+`1a1c1f11219c0ec4a89671b7acb552e40d005a8e7fe056b8eab8225cc374e260`.
+It flushes/fsyncs the caller's event JSON, but the current drain/restore events
+carry no monotonic timestamps. Existing event order cannot be converted into
+measured stage durations. Thus the next integration depends on owner-reviewed
+new timestamp/journal bindings, not reconstruction of the two historical
+passes. Keep the pure prototype unconnected and receive the independent
+October28 terminal backup/admission receipts at the next check-in. This
+unchanged-status checkpoint is local-only; no background execution is claimed.
+
 Fetched all four authoritative refs and read the current B60/Adaptive records
 plus the registry split and actual platform qualification source. No owner
 change since the afternoon receipt: Adaptive
