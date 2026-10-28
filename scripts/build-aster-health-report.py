@@ -31,7 +31,7 @@ from diagnostic_catalogue_v3 import build_catalogue
 LINE = re.compile(r"^([🟢🟡🔴])\s+(.+)$")
 STATUS = {"🟢": "pass", "🟡": "warn", "🔴": "fail"}
 STRUCTURED_CHECK_ID = "aster.agent_inference"
-CATALOGUE_CHECK_IDS = ("aster.agent_inference", "aster.speech")
+CATALOGUE_CHECK_IDS = ("aster.agent_inference", "aster.speech", "backup.protection")
 MAX_STRUCTURED_BYTES = 4096
 MAX_CATALOGUE_BYTES = 16_384
 
@@ -230,8 +230,8 @@ if envelope['catalogue'] is not None:
     assert typed['schema']==3 and typed['generated_at']==value['generated_at']
     assert typed['source_report_digest']==hashlib.sha256(aggregate).hexdigest()
     assert isinstance(typed['run_id'],str) and len(typed['run_id'])==32
-    assert isinstance(typed['checks'],list) and len(typed['checks'])==2
-    assert [item.get('check_id') for item in typed['checks']]==['aster.agent_inference','aster.speech']
+    assert isinstance(typed['checks'],list) and len(typed['checks'])==3
+    assert [item.get('check_id') for item in typed['checks']]==['aster.agent_inference','aster.speech','backup.protection']
     assert all(set(item)=={'check_id','state'} and item['state'] in ('pass','warn','fail','unavailable') for item in typed['checks'])
     catalogue_target=root/'diagnostic-catalogue.json'; catalogue_temp=root/'diagnostic-catalogue.json.new'
     catalogue_temp.write_bytes(catalogue)

@@ -9,6 +9,7 @@ from sysadmin_followup_selector import incident_state_digest
 from sysadmin_incident_store import IncidentStore
 from sysadmin_investigation import EvidenceRequest, InvestigationError, create_incident
 from sysadmin_registered_producer import (
+    _backup_catalogue_envelope,
     _doctor_status_envelope,
     _forgejo_status_envelope,
     _gateway_config_envelope,
@@ -222,6 +223,41 @@ class RegisteredIncidentProducerTests(unittest.TestCase):
             )
             envelope = _gateway_config_envelope("incident-config-001", NOW)
         self.assertEqual("aster-gateway-config-identity/v1", envelope["producer"])
+        self.assertEqual("unavailable", envelope["observation"]["state"])
+        self.assertEqual({"reason": "source_unavailable"}, envelope["observation"]["facts"])
+
+    def test_exact_pending_backup_catalogue_uses_fixed_check_and_is_consumed(self):
+        incident = self.create("backup-catalog", "backup")
+        self.bind(incident, target="backup-catalog", kind="backup")
+        with patch("sysadmin_registered_producer.read_backup_catalogue_observation") as reader:
+            from sysadmin_investigation import Observation
+            reader.return_value = Observation(
+                evidence_id="backup-check-" + "c" * 24,
+                incident_id=incident.incident_id,
+                target="backup-catalog",
+                kind="backup",
+                observed_at=NOW.isoformat(),
+                source="homelab-doctor-catalogue/v3",
+                state="ok",
+                summary="Registered Doctor check backup.protection reported pass.",
+                facts={"check_id": "backup.protection", "report_digest": "d" * 24},
+            )
+            record = execute_registered_pending_observation(self.store, incident.incident_id, NOW)
+        self.assertEqual(("backup-catalog", "backup", "ok"), (
+            record["target"], record["kind"], record["state"],
+        ))
+        self.assertEqual("backup.protection", record["facts"]["check_id"])
+        self.assertEqual(1, self.store.followup_journal_snapshot(
+            incident.incident_id, NOW
+        )["consumed_count"])
+
+    def test_unavailable_backup_catalogue_is_bounded_evidence(self):
+        envelope = _backup_catalogue_envelope(
+            "incident-backup-001", NOW,
+            Path(self.temporary.name) / "missing-aggregate.json",
+            Path(self.temporary.name) / "missing-catalogue.json",
+        )
+        self.assertEqual("backup-protection-catalogue/v1", envelope["producer"])
         self.assertEqual("unavailable", envelope["observation"]["state"])
         self.assertEqual({"reason": "source_unavailable"}, envelope["observation"]["facts"])
 

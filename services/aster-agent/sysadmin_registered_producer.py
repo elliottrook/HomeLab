@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from doctor_incident_adapter import read_doctor_observation
+from backup_catalogue_incident_adapter import read_backup_catalogue_observation
 from forgejo_incident_adapter import read_forgejo_observation
 from gateway_config_incident_adapter import read_gateway_config_observation
 from netbox_incident_adapter import read_netbox_observation
@@ -37,6 +38,10 @@ NETBOX_PAIR = ("netbox-main", "network")
 NETBOX_REPORT = Path("/var/lib/aster/source-reports/netbox.json")
 GATEWAY_CONFIG_PRODUCER = "aster-gateway-config-identity/v1"
 GATEWAY_CONFIG_PAIR = ("aster-gateway", "config")
+BACKUP_PRODUCER = "backup-protection-catalogue/v1"
+BACKUP_SOURCE = "homelab-doctor-catalogue/v3"
+BACKUP_PAIR = ("backup-catalog", "backup")
+BACKUP_CATALOGUE = Path("/var/lib/aster/health/diagnostic-catalogue.json")
 MAX_HEALTH_BYTES = 1024
 
 
@@ -221,6 +226,36 @@ def _gateway_config_envelope(incident_id: str, now: datetime) -> dict:
     }
 
 
+def _backup_catalogue_envelope(
+    incident_id: str,
+    now: datetime,
+    aggregate_path: Path = DOCTOR_REPORT,
+    catalogue_path: Path = BACKUP_CATALOGUE,
+) -> dict:
+    """Read only the fixed digest-bound backup-protection check."""
+    observation = read_backup_catalogue_observation(
+        incident_id, aggregate_path, catalogue_path, now, required_uid=0
+    )
+    if observation.source != BACKUP_SOURCE:
+        raise InvestigationError("unexpected backup producer identity")
+    return {
+        "schema_version": 1,
+        "producer": BACKUP_PRODUCER,
+        "produced_at": now.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "observation": {
+            "evidence_id": observation.evidence_id,
+            "incident_id": observation.incident_id,
+            "target": observation.target,
+            "kind": observation.kind,
+            "observed_at": observation.observed_at,
+            "state": observation.state,
+            "summary": observation.summary,
+            "facts": observation.facts,
+            "truncated": observation.truncated,
+        },
+    }
+
+
 def execute_registered_pending_observation(
     store: IncidentStore,
     incident_id: str,
@@ -245,6 +280,8 @@ def execute_registered_pending_observation(
         envelope = _netbox_network_envelope(incident_id, now, NETBOX_REPORT)
     elif pair == GATEWAY_CONFIG_PAIR:
         envelope = _gateway_config_envelope(incident_id, now)
+    elif pair == BACKUP_PAIR:
+        envelope = _backup_catalogue_envelope(incident_id, now, DOCTOR_REPORT, BACKUP_CATALOGUE)
     else:
         raise InvestigationError("pending observation has no registered producer")
     return store.ingest(envelope, now, expected_decision_ref=claim["decision_ref"])

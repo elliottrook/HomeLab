@@ -33,7 +33,7 @@ doctor_emit_catalogue_state() {
     local state="${2:-}"
     local fd="${DOCTOR_CATALOGUE_FD:-}"
     local run_id="${DOCTOR_RUN_ID:-}"
-    case "$check_id" in aster.agent_inference|aster.speech) ;; *) return 2 ;; esac
+    case "$check_id" in aster.agent_inference|aster.speech|backup.protection) ;; *) return 2 ;; esac
     case "$state" in pass|warn|fail|unavailable) ;; *) return 2 ;; esac
     [[ "$fd" =~ ^[1-9][0-9]*$ ]] || return 0
     (( fd >= 3 )) || return 2
@@ -2222,6 +2222,9 @@ fi
 
 category "Backups"
 
+BACKUP_WARN_START=$WARN_COUNT
+BACKUP_FAIL_START=$FAIL_COUNT
+
 check_backup_age "OPNsense" "$BACKUP_ROOT/opnsense" 48
 check_backup_age "Arista" "$BACKUP_ROOT/arista" 48
 check_backup_age "Proxmox" "$BACKUP_ROOT/proxmox" 48
@@ -2258,6 +2261,14 @@ else
     warn "$idrive_usage_result"
 fi
 check_home_assistant_backup_truenas
+
+if (( FAIL_COUNT > BACKUP_FAIL_START )); then
+    doctor_emit_catalogue_state backup.protection fail
+elif (( WARN_COUNT > BACKUP_WARN_START )); then
+    doctor_emit_catalogue_state backup.protection warn
+else
+    doctor_emit_catalogue_state backup.protection pass
+fi
 
 category "Local Environment"
 

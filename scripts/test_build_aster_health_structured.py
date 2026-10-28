@@ -114,13 +114,14 @@ class StructuredDoctorReportTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(legacy.read_text())["schema"], 1)
 
-    def test_catalogue_collects_two_named_states_without_summary(self):
+    def test_catalogue_collects_three_named_states_without_summary(self):
         aggregate, catalogue = self.run_catalogue_fixture(
             HELPER_CODE + CATALOGUE_HELPER_CODE +
             "printf '🔴 private fixture words\n'\n"
             "doctor_emit_aster_state fail\n"
             "doctor_emit_catalogue_state aster.agent_inference fail\n"
             "doctor_emit_catalogue_state aster.speech pass\n"
+            "doctor_emit_catalogue_state backup.protection warn\n"
         )
         self.assertEqual(3, catalogue["schema"])
         self.assertEqual(aggregate["generated_at"], catalogue["generated_at"])
@@ -129,6 +130,7 @@ class StructuredDoctorReportTests(unittest.TestCase):
         self.assertEqual([
             {"check_id": "aster.agent_inference", "state": "fail"},
             {"check_id": "aster.speech", "state": "pass"},
+            {"check_id": "backup.protection", "state": "warn"},
         ], catalogue["checks"])
         self.assertNotIn("private fixture words", self.catalogue.read_text())
         self.assertEqual(self.catalogue.stat().st_mode & 0o777, 0o600)
