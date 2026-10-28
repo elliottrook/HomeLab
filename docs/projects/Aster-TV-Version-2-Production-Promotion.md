@@ -5,6 +5,11 @@
 - Lab client retained: `AsterTV` (`192.168.1.140`)
 - Result: AsterTV 2.0.0 promoted to production
 
+> Superseded 2026-10-28: Jason reported a player skip recap/intro/outro
+> regression and requested v2 withdrawal. Production was rolled back to the
+> v1.1.1 add-ons and remote keymap with user databases and account state
+> preserved. See [current resume](Aster-TV-Version-2-Current-Resume.md).
+
 ## Outcome
 
 The accepted HP V2 candidate is active on the BOSGAME production client. The

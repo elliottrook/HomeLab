@@ -2,7 +2,40 @@
 
 Updated: 2026-10-28. Owner: Jason. Lab: HP `192.168.1.140`.
 
-## Production regression recovery — deployed and awaiting owner review
+## Production rollback and v2 lab hold — 2026-10-28
+
+Jason reported the v2 player had lost skip recap/intro/outro and directed that
+v2 be pulled from production. This is a release-blocking regression; the v2
+candidate is **not production-ready**, even where individual pages passed
+earlier checks. The production pre-v2 checkpoint was confirmed to contain the
+four v1.1.1 add-ons and remote keymap. Its SHA-256 was
+`d077c42505824856be88d9b65c78fcbb5f0d7bffc7203fe64164465da7d9aa5d`.
+Jason confirmed playback stopped, and the Kodi TCP JSON-RPC reported no active
+player immediately before the bounded rollback.
+
+`rollback_prod_to_v111.py` restored only those four v1.1.1 add-ons and the
+v1.1.1 remote keymap. It parked all 12 currently installed Aster add-on
+directories in the private on-box checkpoint
+`/storage/.aster-checkpoints/astertv-v2-pull-20261028`. It did **not** restore
+old Kodi databases, watch history, add-on account state, YouTube credentials,
+playlists, display or audio settings. The checkpoint state is
+`v1.1.1-active`; Kodi restarted and is active, the skin reports 1.1.1, the
+v1 skip helper exists, and the player is idle. The last 200 Kodi log lines
+contained no errors. Kodi's startup enumeration again reset its audio selector
+to the system default; with playback idle, the known connected HDMI 0 selector
+was set live and read back. Physical sound and player-control confirmation
+remain pending from Jason. Do not restart Kodi blindly until the HDMI 0
+enumeration problem is understood.
+
+The v2 code fixes through commit `76540e91` are retained on
+`codex/astertv-v2-recovery` for a lab-only candidate. The remaining gate is to
+bring the HP lab client to the production LibreELEC 13 nightly / Kodi 22
+versions, install the candidate there, and repair/retest recap, intro and
+outro controls together with TV seasons/playback, News Digest, YouTube search,
+audio output persistence and the rest of the release acceptance. No v2
+re-promotion is authorized by this rollback. No Forgejo/GitHub push was made.
+
+## Historical production regression recovery — superseded by rollback
 
 Jason reported Books, News Digest, Cameras and Requests unavailable; old TV
 landing pages; misaligned Search pills; broken YouTube navigation; clipped
