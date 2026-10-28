@@ -28,6 +28,11 @@ remain pending from Jason. Do not restart Kodi blindly until the HDMI 0
 enumeration problem is understood. Jason subsequently confirmed that the
 v1.1.1 interface looks right and sound works. A physical skip-control playback
 check was not performed during the rollback.
+The v2-only `aster-camera.service` was found active and enabled after the UI
+rollback; the pre-v2 archive contains neither its unit nor its proxy. It was
+stopped and disabled, then verified inactive/disabled while Kodi stayed
+active. Its unit and proxy files were retained for recovery; no camera
+credentials were read or changed.
 
 The v2 code fixes through commit `76540e91` are retained on
 `codex/astertv-v2-recovery` for a lab-only candidate. The remaining gate is to
