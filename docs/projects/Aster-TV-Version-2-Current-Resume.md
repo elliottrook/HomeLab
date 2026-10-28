@@ -4,6 +4,41 @@ Updated: 2026-10-28. Owner: Jason. Lab: HP `192.168.1.140`.
 
 ## Production rollback and v2 lab hold — 2026-10-28
 
+### Reinstalled lab discovery — 2026-10-28
+
+Jason updated the HP lab. Its SSH host key changed; Jason explicitly approved
+the new ED25519 fingerprint
+`SHA256:CFJcdaUaL72BX/yg6wsxksJs6UXSSDpnXQuWVTco61c`, which was checked
+against a fresh key scan before login. Both HP lab and BOSGAME production now
+report LibreELEC `nightly-20261021-440640e` and Kodi 22 RC1 revision
+`01d4146d5d251a0118b99a1de0d713395c93bd46`.
+
+The lab is a clean install: no Aster, official YouTube, or Jellyfin add-ons,
+no Aster staging tree, and no old lab backup under `/storage/backup`. The
+default `LibreELEC` hostname was restored to the established `AsterTV` name
+with its original file retained at
+`/storage/.aster-checkpoints/astertv-lab-hostname-20261028/hostname.before`.
+The read-only `/etc` filesystem refused `hostnamectl set-hostname`, so the
+guarded successor updated LibreELEC's persistent cache hostname and the
+runtime hostname; both verified as `AsterTV`. No reboot was needed.
+
+Jason supplied the temporary default LibreELEC SSH login after the clean
+install. An existing Mac public key was installed and key-only access
+verified. The SSH service's password authentication and keyboard-interactive
+authentication were disabled in the LibreELEC service override, with exact
+on-box checkpoint at
+`/storage/.aster-checkpoints/astertv-lab-ssh-key-only-20261028`.
+After sshd restarted, key login succeeded, password-only login was refused,
+and the checkpoint state was finalized as `password-disabled`. This removes
+default-password *SSH access*; it does not rotate the local root password.
+
+V2 was **not** installed during discovery. The existing recovery recipe still
+declares LibreELEC 12/Kodi 21 and assumes a preconfigured v1.1.1 baseline,
+Jellyfin, YouTube and separately provisioned restricted lab identities. The
+source package is not a clean-client installer. Reconcile this fresh-client
+boundary and obtain separate lab account provisioning before live v2 install;
+do not import production tokens or profile databases.
+
 Jason reported the v2 player had lost skip recap/intro/outro and directed that
 v2 be pulled from production. This is a release-blocking regression; the v2
 candidate is **not production-ready**, even where individual pages passed
