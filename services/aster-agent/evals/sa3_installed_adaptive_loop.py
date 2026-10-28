@@ -1,7 +1,7 @@
 """Bounded connected SA1-SA3 investigation using only registered observations.
 
 The runner owns a temporary incident store, seeds it from the fixed sanitized
-Doctor report, permits at most two registered read-only observations, and
+Doctor report, permits at most three registered read-only observations, and
 requires a final no-authority completion. It has no repair or discovery path.
 """
 from __future__ import annotations
