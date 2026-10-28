@@ -1,0 +1,25 @@
+{
+  "schema": "aster-home-kodi-lab-source-candidate.v1",
+  "release": "2.0.1-lab-candidate",
+  "status": "lab-only-not-install-ready",
+  "fixes_through_commit": "76540e91",
+  "source_branch": "codex/astertv-v2-recovery",
+  "target_runtime": "LibreELEC 13 nightly / Kodi 22, matched to AsterTVProd before lab deployment",
+  "included_recovery_work": [
+    "Books, Requests, Search, News Digest and Cameras production compatibility",
+    "YouTube landing, search, focus, compact layout and Back navigation",
+    "TV season access with a parked video queue and guarded episode start",
+    "production HDMI 0 stereo recovery and failed passthrough/startup-gate evidence",
+    "v1.1.1 production rollback and recovery procedure"
+  ],
+  "known_release_blockers": [
+    "Recap, intro and outro skip controls regressed on the v2 player and require Kodi 22 live repair",
+    "Kodi 22 startup omits the connected HDMI 0 device and resets the output selector",
+    "Dolby passthrough has not been validated",
+    "Full lab release assembly, install, rollback and physical sofa acceptance remain open"
+  ],
+  "package_kind": "tracked-source-and-recovery-records",
+  "credentials_included": false,
+  "production_deployment_authorized": false,
+  "lab_deployment_prerequisite": "Owner first upgrades the HP lab to the same LibreELEC and Kodi versions as production"
+}
