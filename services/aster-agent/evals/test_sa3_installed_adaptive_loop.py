@@ -66,10 +66,10 @@ class InstalledAdaptiveLoopTests(unittest.TestCase):
             )
         self.assertEqual("complete", result["status"])
         self.assertEqual("complete", result["terminal_disposition"])
-        self.assertEqual(3, result["decision_count"])
-        self.assertEqual(2, result["consumed_count"])
+        self.assertEqual(4, result["decision_count"])
+        self.assertEqual(3, result["consumed_count"])
         self.assertEqual(
-            ["homelab-doctor", "aster-gateway", "inference-server"],
+            ["homelab-doctor", "forgejo-main", "aster-gateway", "inference-server"],
             result["observation_targets"],
         )
         self.assertTrue(all(step["authority"] == "none" for step in result["steps"]))

@@ -264,6 +264,20 @@ class ProposalBoundaryTests(unittest.TestCase):
         decision = accept_model_proposal(incident, response)
         self.assertEqual("aster-gateway", decision["request"]["target"])
 
+    def test_only_next_registered_pair_is_exposed(self):
+        incident = create_incident(
+            "private-sequential-incident",
+            "Private sequential report",
+            [
+                EvidenceRequest("forgejo-main", "git", "Read source report."),
+                EvidenceRequest("aster-gateway", "status", "Read gateway status."),
+            ],
+        )
+        self.assertEqual(
+            [{"target": "forgejo-main", "kind": "git", "reason": "Read source report."}],
+            build_proposal_request(incident)["remaining_checks"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

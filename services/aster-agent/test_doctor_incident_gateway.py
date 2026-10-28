@@ -232,7 +232,7 @@ class DoctorIncidentGatewayTests(unittest.TestCase):
                 )
                 self.assertEqual(409, repeated.status_code)
 
-    def test_two_registered_followups_complete_adaptive_loop_without_hypothesis_egress(self):
+    def test_three_registered_followups_complete_adaptive_loop_without_hypothesis_egress(self):
         claims = lambda value: {"sub": "jason-sub"} if value == "Bearer jwt-jason" else None
         with patch.object(agent, "lab_operations", self.operations), \
              patch.object(agent, "_authentik_claims", side_effect=claims), \
@@ -247,7 +247,7 @@ class DoctorIncidentGatewayTests(unittest.TestCase):
                 ).json()
                 incident_id = created["incident"]["incident_id"]
 
-                def select(target, hypothesis):
+                def select(target, hypothesis, kind="status"):
                     current = agent._doctor_incident_store().load(
                         incident_id, datetime.now(timezone.utc)
                     )
@@ -259,7 +259,7 @@ class DoctorIncidentGatewayTests(unittest.TestCase):
                             "hypothesis_summary": hypothesis,
                             "disposition": "observe",
                             "target": target,
-                            "kind": "status",
+                            "kind": kind,
                         },
                         headers={"Authorization": "Bearer jwt-jason"},
                     )
@@ -271,6 +271,34 @@ class DoctorIncidentGatewayTests(unittest.TestCase):
                     headers={"Authorization": "Bearer jwt-jason"},
                 )
                 self.assertEqual(200, first.status_code, first.text)
+
+                select("forgejo-main", "private-forgejo-hypothesis-marker", "git")
+                forgejo_observed = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+                forgejo_envelope = {
+                    "schema_version": 1,
+                    "producer": "forgejo-main-report/v1",
+                    "produced_at": forgejo_observed,
+                    "observation": {
+                        "evidence_id": "forgejo-route-fixture",
+                        "incident_id": incident_id,
+                        "target": "forgejo-main",
+                        "kind": "git",
+                        "observed_at": forgejo_observed,
+                        "state": "ok",
+                        "summary": "The sanitized Forgejo report is healthy.",
+                        "facts": {"repository_count": 1},
+                        "truncated": False,
+                    },
+                }
+                with patch(
+                    "sysadmin_registered_producer._forgejo_status_envelope",
+                    return_value=forgejo_envelope,
+                ):
+                    forgejo = client.post(
+                        f"/v1/sysadmin/incidents/{incident_id}/observe",
+                        headers={"Authorization": "Bearer jwt-jason"},
+                    )
+                self.assertEqual(200, forgejo.status_code, forgejo.text)
 
                 select("inference-server", "private-inference-hypothesis-marker")
                 observed = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
@@ -300,14 +328,14 @@ class DoctorIncidentGatewayTests(unittest.TestCase):
                     )
                 self.assertEqual(200, second.status_code, second.text)
                 incident = second.json()["incident"]
-                self.assertEqual(3, incident["observation_count"])
+                self.assertEqual(4, incident["observation_count"])
                 self.assertEqual("inference-server", incident["observations"][-1]["target"])
-                self.assertEqual("sufficient_or_escalate", incident["next"]["state"])
+                self.assertEqual("bounded", incident["next"]["state"])
                 journal = agent._doctor_incident_store().followup_journal_snapshot(
                     incident_id, datetime.now(timezone.utc)
                 )
-                self.assertEqual(2, journal["decision_count"])
-                self.assertEqual(2, journal["consumed_count"])
+                self.assertEqual(3, journal["decision_count"])
+                self.assertEqual(3, journal["consumed_count"])
                 self.assertIsNone(journal["pending"])
                 stream = client.get(
                     f"/v1/sysadmin/incidents/{incident_id}/stream",
@@ -315,6 +343,7 @@ class DoctorIncidentGatewayTests(unittest.TestCase):
                 )
                 self.assertNotIn("private-gateway-hypothesis-marker", stream.text)
                 self.assertNotIn("private-inference-hypothesis-marker", stream.text)
+                self.assertNotIn("private-forgejo-hypothesis-marker", stream.text)
 
     def test_followup_rejects_boolean_schema_version(self):
         claims = lambda value: {"sub": "jason-sub"} if value == "Bearer jwt-jason" else None

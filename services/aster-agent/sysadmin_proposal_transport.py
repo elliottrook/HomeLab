@@ -29,7 +29,9 @@ SYSTEM_PROMPT = (
     "when the registered plan is exhausted but unavailable, missing or conflicting "
     "evidence prevents a supported diagnosis. A reported failure can support a "
     "complete diagnosis even though repair remains separate. Describe uncertainty "
-    "as a hypothesis; never claim an action was performed. Return only the required JSON."
+    "as a hypothesis; hypothesis_summary must be one non-empty evidence-based plain "
+    "sentence of at most 500 characters. Never claim an action was performed. "
+    "Return only the required JSON."
 )
 
 
@@ -51,6 +53,8 @@ def _validate_request(request: Any) -> None:
         raise InvestigationError("invalid sanitized proposal request reference")
     if not isinstance(request.get("observations"), list) or not isinstance(request.get("remaining_checks"), list):
         raise InvestigationError("invalid sanitized proposal request lists")
+    if len(request["remaining_checks"]) > 1:
+        raise InvestigationError("sanitized proposal requires at most one remaining check")
     dispositions = request.get("allowed_dispositions")
     if (not isinstance(dispositions, list) or not dispositions
             or len(dispositions) != len(set(dispositions))
@@ -94,7 +98,9 @@ def build_model_payload(request: dict[str, Any]) -> dict[str, Any]:
             "schema_version": {"type": "integer", "const": 1},
             "request_ref": {"type": "string", "const": request["request_ref"]},
             "disposition": {"type": "string", "enum": request["allowed_dispositions"]},
-            "hypothesis_summary": {"type": "string", "minLength": 1, "maxLength": 500},
+            "hypothesis_summary": {
+                "type": "string", "minLength": 1, "maxLength": 500, "pattern": "\\S",
+            },
             "target": target_schema,
             "kind": kind_schema,
             "evidence_refs": {
@@ -154,4 +160,11 @@ def request_model_proposal(
         raise InvestigationError("invalid model proposal response") from exc
     if not isinstance(proposal, dict):
         raise InvestigationError("model proposal response was not an object")
+    hypothesis = proposal.get("hypothesis_summary")
+    if not isinstance(hypothesis, str):
+        raise InvestigationError("model proposal hypothesis type was invalid")
+    if not hypothesis.strip():
+        raise InvestigationError("model proposal hypothesis was blank")
+    if len(hypothesis) > 500:
+        raise InvestigationError("model proposal hypothesis exceeded size limit")
     return proposal

@@ -19,7 +19,7 @@ if str(ROOT) not in sys.path:
 
 from doctor_incident_adapter import read_doctor_observation
 from sysadmin_incident_store import IncidentStore
-from sysadmin_investigation import EvidenceRequest, create_incident
+from sysadmin_investigation import EvidenceRequest, InvestigationError, create_incident
 from sysadmin_proposal_gateway import propose_and_bind_follow_up
 from sysadmin_proposal_transport import request_model_proposal
 from sysadmin_registered_producer import DOCTOR_REPORT, execute_registered_pending_observation
@@ -43,7 +43,8 @@ def run(
         "synthetic-installed-adaptive-loop",
         "Synthetic installed adaptive investigation",
         [
-            EvidenceRequest("homelab-doctor", "status", "Read the fixed sanitized Doctor report."),
+            EvidenceRequest("homelab-doctor", "status", "Read the registered sanitized Doctor report."),
+            EvidenceRequest("forgejo-main", "git", "Read the registered sanitized Forgejo report."),
             EvidenceRequest("aster-gateway", "status", "Check gateway state."),
             EvidenceRequest("inference-server", "status", "Check inference state."),
         ],
@@ -53,7 +54,7 @@ def run(
 
     steps = []
     terminal = None
-    for _ in range(3):
+    for _ in range(4):
         propose_and_bind_follow_up(store, incident.incident_id, key, transport=transport, now=now)
         pending = store.pending_follow_up(incident.incident_id, now)
         if pending is None:
@@ -77,11 +78,11 @@ def run(
     journal = store.followup_journal_snapshot(incident.incident_id, now)
     complete = (
         terminal == "complete"
-        and len(current.observations) == 3
-        and journal["decision_count"] == 3
-        and journal["consumed_count"] == 2
+        and len(current.observations) == 4
+        and journal["decision_count"] == 4
+        and journal["consumed_count"] == 3
         and [item["target"] for item in current.observations]
-        == ["homelab-doctor", "aster-gateway", "inference-server"]
+        == ["homelab-doctor", "forgejo-main", "aster-gateway", "inference-server"]
     )
     return {
         "status": "complete" if complete else "no_go",
@@ -108,6 +109,9 @@ def main() -> int:
         return 1
     try:
         result = run(Path(sys.argv[1]), key)
+    except InvestigationError as exc:
+        print(json.dumps({"status": "no_go", "reason": "investigation_boundary", "detail": str(exc)}))
+        return 1
     except Exception as exc:
         print(json.dumps({"status": "no_go", "reason": type(exc).__name__}))
         return 1

@@ -1446,6 +1446,7 @@ def start_doctor_incident(title: str, now: datetime | None = None) -> dict[str, 
         title,
         [
             EvidenceRequest("homelab-doctor", "status", "Read the existing sanitized Doctor status report."),
+            EvidenceRequest("forgejo-main", "git", "Read the existing sanitized Forgejo source report."),
             EvidenceRequest("aster-gateway", "status", "Confirm that the Aster gateway is serving."),
             EvidenceRequest("inference-server", "status", "Read the fixed inference health endpoint."),
         ],

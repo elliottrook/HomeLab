@@ -265,6 +265,27 @@ and a final evidence-backed completion. Services did not restart and isolated
 state was removed. Representative breadth remains open; the next useful
 source-only addition is another fixed sanitized evidence source.
 
+That next source now exists as the
+[fixed Forgejo registered-producer boundary](evidence/SA2-forgejo-registered-producer-boundary-2026-10-28.md).
+It exposes only aggregate repository/action/issue/pull counts and a report
+digest from the already validated source report; private repository identity,
+commit identity, paths and validation details do not enter model evidence. The
+focused suite passes 44/44 locally and under LXC104 Python 3.13 after correcting
+an initially omitted synthetic fixture. It is source-only. An exact release
+packet, rollback installer, live-predecessor preflight and separately approved
+Aster Agent restart remain before deployment.
+
+The resulting
+[Forgejo-expanded adaptive candidate](evidence/SA1-SA3-forgejo-expanded-candidate-result-2026-10-28.md)
+now passes 80/80 under the target application environment and completes one
+isolated live-data loop: bounded Doctor `fail`, Forgejo/gateway/inference `ok`,
+three registered observations and a terminal no-authority completion. Daytime
+fail-closed runs exposed and corrected packet-fixture omission, exact-kind test
+drift, ambiguous effect wording and target/kind cross-product output. The
+candidate now exposes only the next registered pair and retains the model's
+observe/complete/escalate choice. Exact review, rollback release packet and one
+separately approved Aster Agent restart remain; production is unchanged.
+
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the

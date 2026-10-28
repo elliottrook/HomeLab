@@ -71,6 +71,7 @@ class ProposalTransportTests(unittest.TestCase):
         self.assertIn("Complete means", SYSTEM_PROMPT)
         self.assertIn("Escalate when", SYSTEM_PROMPT)
         self.assertIn("never means repaired", SYSTEM_PROMPT)
+        self.assertIn("must be one non-empty", SYSTEM_PROMPT)
         schema = payload["response_format"]["schema"]
         self.assertFalse(schema["additionalProperties"])
         self.assertEqual(
@@ -81,6 +82,7 @@ class ProposalTransportTests(unittest.TestCase):
             schema["properties"]["evidence_refs"]["items"]["enum"],
         )
         self.assertEqual(1, schema["properties"]["evidence_refs"]["minItems"])
+        self.assertEqual("\\S", schema["properties"]["hypothesis_summary"]["pattern"])
 
     def test_one_request_uses_fixed_endpoint_timeout_and_secret_only_in_header(self):
         seen = []
@@ -154,6 +156,24 @@ class ProposalTransportTests(unittest.TestCase):
         with self.assertRaisesRegex(InvestigationError, "invalid sanitized"):
             build_model_payload(malformed)
 
+    def test_blank_or_oversize_hypothesis_fails_before_trusted_boundary(self):
+        for summary, message in (("   ", "blank"), ("x" * 501, "size")):
+            proposal = {
+                "schema_version": 1,
+                "request_ref": "proposal-1234567890abcdef",
+                "disposition": "complete",
+                "hypothesis_summary": summary,
+                "target": None,
+                "kind": None,
+                "evidence_refs": ["evidence-1234567890abcdef"],
+            }
+            body = json.dumps({"choices": [{"message": {"content": json.dumps(proposal)}}]}).encode()
+            with self.subTest(message=message), self.assertRaisesRegex(InvestigationError, message):
+                request_model_proposal(
+                    sanitized_request(), "fixture-secret",
+                    lambda *_args, **_kwargs: FakeResponse(body),
+                )
+
     def test_no_evidence_schema_permits_no_citations_only(self):
         request = sanitized_request()
         request["observations"] = []
@@ -168,6 +188,15 @@ class ProposalTransportTests(unittest.TestCase):
         request["allowed_dispositions"] = ["escalate"]
         schema = build_model_payload(request)["response_format"]["schema"]
         self.assertEqual(["escalate"], schema["properties"]["disposition"]["enum"])
+
+    def test_transport_rejects_more_than_one_remaining_pair(self):
+        request = sanitized_request()
+        request["remaining_checks"] = [
+            {"target": "forgejo-main", "kind": "git", "reason": "Read report."},
+            {"target": "inference-server", "kind": "status", "reason": "Read health."},
+        ]
+        with self.assertRaisesRegex(InvestigationError, "at most one"):
+            build_model_payload(request)
 
 
 if __name__ == "__main__":

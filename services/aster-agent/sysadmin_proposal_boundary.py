@@ -55,7 +55,10 @@ def _remaining_checks(incident: Incident) -> list[dict[str, str]]:
                 "kind": item.kind,
                 "reason": item.reason,
             })
-    return remaining
+    # Expose only the next registered step. This keeps target/kind coupled for
+    # structured-output runtimes that cannot reliably enforce cross-field JSON
+    # Schema conditions, while terminal complete/escalate remain model choices.
+    return remaining[:1]
 
 
 def _allowed_dispositions(incident: Incident) -> list[str]:
@@ -118,8 +121,10 @@ def accept_model_proposal(incident: Incident, response: Any) -> dict[str, Any]:
         raise InvestigationError("invalid model proposal disposition")
     hypothesis = response.get("hypothesis_summary")
     if (not isinstance(hypothesis, str) or not hypothesis.strip()
-            or len(hypothesis) > 500 or COMPLETED_EFFECT.search(hypothesis)):
+            or len(hypothesis) > 500):
         raise InvestigationError("invalid model hypothesis summary")
+    if COMPLETED_EFFECT.search(hypothesis):
+        raise InvestigationError("model hypothesis claimed a completed effect")
 
     refs = response.get("evidence_refs")
     if (not isinstance(refs, list) or len(refs) > len(incident.observations)

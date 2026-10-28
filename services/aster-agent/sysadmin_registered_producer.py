@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from doctor_incident_adapter import read_doctor_observation
+from forgejo_incident_adapter import read_forgejo_observation
 from sysadmin_incident_store import IncidentStore
 from sysadmin_investigation import InvestigationError
 
@@ -26,6 +27,9 @@ INFERENCE_PAIR = ("inference-server", "status")
 DOCTOR_PRODUCER = "homelab-doctor-report/v1"
 DOCTOR_PAIR = ("homelab-doctor", "status")
 DOCTOR_REPORT = Path("/var/lib/aster/health/latest.json")
+FORGEJO_PRODUCER = "forgejo-main-report/v1"
+FORGEJO_PAIR = ("forgejo-main", "git")
+FORGEJO_REPORT = Path("/var/lib/aster/source-reports/forgejo.json")
 MAX_HEALTH_BYTES = 1024
 
 
@@ -137,6 +141,31 @@ def _doctor_status_envelope(
     }
 
 
+def _forgejo_status_envelope(
+    incident_id: str, now: datetime, report_path: Path = FORGEJO_REPORT,
+) -> dict:
+    """Aggregate the existing fixed Forgejo report without opening a remote."""
+    observation = read_forgejo_observation(incident_id, report_path, now)
+    if observation.source != FORGEJO_PRODUCER:
+        raise InvestigationError("unexpected Forgejo producer identity")
+    return {
+        "schema_version": 1,
+        "producer": FORGEJO_PRODUCER,
+        "produced_at": now.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "observation": {
+            "evidence_id": observation.evidence_id,
+            "incident_id": observation.incident_id,
+            "target": observation.target,
+            "kind": observation.kind,
+            "observed_at": observation.observed_at,
+            "state": observation.state,
+            "summary": observation.summary,
+            "facts": observation.facts,
+            "truncated": observation.truncated,
+        },
+    }
+
+
 def execute_registered_pending_observation(
     store: IncidentStore,
     incident_id: str,
@@ -155,6 +184,8 @@ def execute_registered_pending_observation(
         envelope = _inference_status_envelope(incident_id, now)
     elif pair == DOCTOR_PAIR:
         envelope = _doctor_status_envelope(incident_id, now, DOCTOR_REPORT)
+    elif pair == FORGEJO_PAIR:
+        envelope = _forgejo_status_envelope(incident_id, now, FORGEJO_REPORT)
     else:
         raise InvestigationError("pending observation has no registered producer")
     return store.ingest(envelope, now, expected_decision_ref=claim["decision_ref"])

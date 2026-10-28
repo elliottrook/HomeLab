@@ -10,6 +10,7 @@ from sysadmin_incident_store import IncidentStore
 from sysadmin_investigation import EvidenceRequest, InvestigationError, create_incident
 from sysadmin_registered_producer import (
     _doctor_status_envelope,
+    _forgejo_status_envelope,
     _inference_status_envelope,
     execute_registered_pending_observation,
 )
@@ -116,6 +117,34 @@ class RegisteredIncidentProducerTests(unittest.TestCase):
         observation = envelope["observation"]
         self.assertEqual("unavailable", observation["state"])
         self.assertEqual({"reason": "unreadable"}, observation["facts"])
+
+    def test_exact_pending_forgejo_git_uses_fixed_report_and_is_consumed(self):
+        incident = self.create("forgejo-main", "git")
+        self.bind(incident, target="forgejo-main", kind="git")
+        fixture = {
+            "schema_version": 1, "source": "forgejo", "generated_at": "2026-10-27T07:00:00Z",
+            "instance": {"version": "fixture"},
+            "repositories": [{
+                "owner": "private", "name": "private", "visibility": "private",
+                "archived": False, "default_branch": "main", "updated_at": "2026-10-27T07:00:00Z",
+                "counts": {"branches": 1, "tags": 0, "releases": 0, "open_issues": 0, "open_pulls": 0},
+                "latest_commit": None, "latest_action": None,
+            }],
+        }
+        with patch("forgejo_incident_adapter.get_forgejo_report", return_value=fixture), \
+                patch("sysadmin_registered_producer.read_forgejo_observation") as reader:
+            from forgejo_incident_adapter import read_forgejo_observation
+            reader.side_effect = lambda incident_id, path, now: read_forgejo_observation(
+                incident_id, path, now, reader=lambda path, now: fixture
+            )
+            record = execute_registered_pending_observation(self.store, incident.incident_id, NOW)
+        self.assertEqual(("forgejo-main", "git", "ok"), (
+            record["target"], record["kind"], record["state"],
+        ))
+        self.assertEqual(1, record["facts"]["repository_count"])
+        self.assertEqual(1, self.store.followup_journal_snapshot(
+            incident.incident_id, NOW
+        )["consumed_count"])
 
     def test_changed_pending_decision_cannot_be_consumed_by_stale_result(self):
         incident = create_incident(
