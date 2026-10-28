@@ -30,8 +30,11 @@ a no-effect proposal, while the Doctor producer can only execute the fixed
   `1e5bcac28a7f58398b2510375f060dcb6dd42bbdf17edaaa6a92dc85c8fb9bf1`;
 - target-validation packet test SHA-256:
   `66472c04cb7abe9dafa4a2a14a424886543804cac111fe416146c9b7c5fdb436`;
-- deterministic 16-member target-validation packet SHA-256:
-  `3a7137e07239b6f81b8d997ac054a9627d0955d9117ec182893b29d6d30c0279`.
+- the original 16-member target packet omitted the shared synthetic fixture
+  required by two test modules and is rejected by the October 28 live
+  preflight. The corrected deterministic 17-member packet includes only that
+  pinned fixture in addition to the original candidate and test members; its
+  replacement digest is recorded in the target-preflight result.
 
 The manifest pins the exact reviewed component manifests at SHA-256
 `d65cab04…c641` and `15bc7593…a82`. The builder validates both components,

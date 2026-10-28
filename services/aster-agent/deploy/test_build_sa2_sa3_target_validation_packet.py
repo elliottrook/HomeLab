@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from build_sa2_sa3_target_validation_packet import ROOT, TESTS, entries, packet_bytes, write_exclusive
+from build_sa2_sa3_target_validation_packet import ROOT, SUPPORT, TESTS, entries, packet_bytes, write_exclusive
 
 
 class Sa2Sa3TargetValidationPacketTests(unittest.TestCase):
@@ -14,14 +14,20 @@ class Sa2Sa3TargetValidationPacketTests(unittest.TestCase):
         with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as archive:
             members = archive.getmembers()
             self.assertEqual([name for name, _ in entries()], [item.name for item in members])
-            self.assertEqual(16, len(members))
-            self.assertTrue(all(item.isfile() and "/" not in item.name for item in members))
+            self.assertEqual(17, len(members))
+            self.assertEqual(["evals/sysadmin-producer-fixture.json"],
+                             [item.name for item in members if "/" in item.name])
+            self.assertTrue(all(item.isfile() for item in members))
             self.assertTrue(all(item.mode == 0o600 and item.uid == item.gid == 0 for item in members))
 
     def test_changed_or_linked_test_fails_closed(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             for source in TESTS:
+                path = root / source
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes((ROOT / source).read_bytes())
+            for source, _expected in SUPPORT.values():
                 path = root / source
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes((ROOT / source).read_bytes())

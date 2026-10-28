@@ -26,6 +26,13 @@ TESTS = {
     "services/aster-agent/test_sysadmin_registered_producer.py": "cf63686d23edb5b898630f4adaba7d271ff9f6b13d2ebc710121fb99546b8147",
 }
 
+SUPPORT = {
+    "evals/sysadmin-producer-fixture.json": (
+        "services/aster-agent/evals/sysadmin-producer-fixture.json",
+        "aec7e2f140898d54c4d7ec8b9010a8faeb3e4191b90c3661f7e040dcc3207233",
+    ),
+}
+
 
 def _read_exact(path: Path, expected: str) -> bytes:
     descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
@@ -47,7 +54,9 @@ def entries(root: Path = ROOT) -> tuple[tuple[str, bytes], ...]:
     for source, expected in TESTS.items():
         path = root / source
         values.append((path.name, _read_exact(path, expected)))
-    if len(values) != 16 or len({name for name, _ in values}) != 16:
+    for archive_name, (source, expected) in SUPPORT.items():
+        values.append((archive_name, _read_exact(root / source, expected)))
+    if len(values) != 17 or len({name for name, _ in values}) != 17:
         raise ValueError("invalid target-validation member set")
     return tuple(sorted(values))
 

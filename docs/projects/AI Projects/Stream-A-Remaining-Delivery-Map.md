@@ -257,6 +257,14 @@ live-predecessor and target-Python checks are now frozen in an exact
 and still precede one exact restart approval; nothing was deployed while the
 protected timed chain was active.
 
+The October 28 live preflight rejected the original validation packet because
+it omitted the pinned synthetic fixture used by two frozen test modules. The
+corrected 17-member packet passed 72/72 under LXC104 Python 3.13, imported both
+authenticated routes, cleaned every temporary file and left Aster Agent and
+the accepted llama service on their original PIDs with zero restarts. The
+single-restart composite is now technically ready; its installation and one
+Aster Agent restart remain the explicit live effect gate.
+
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the

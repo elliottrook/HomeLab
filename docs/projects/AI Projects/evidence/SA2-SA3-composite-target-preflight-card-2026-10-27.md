@@ -14,8 +14,11 @@ a service, call a model, write an incident or install a candidate.
 
 - source commit: `cb2fb608aaaeb17e6fc1cd06f2f82dd8e7269bf1`;
 - release packet SHA-256: `b03586e9ee9bf59de0c94aa6e78afa832dc10a28169d718f4a85dc024d63bfcb`;
-- target-validation packet SHA-256:
-  `3a7137e07239b6f81b8d997ac054a9627d0955d9117ec182893b29d6d30c0279`;
+- original target-validation packet SHA-256:
+  `3a7137e07239b6f81b8d997ac054a9627d0955d9117ec182893b29d6d30c0279`
+  (**rejected on October 28 because it omitted the pinned synthetic fixture**);
+- corrected target-validation packet SHA-256:
+  `ff07c5086ee3e5c2dde04a152927fa8ef68417b0d9814faf1261b2ec56c5f322`;
 - target: Proxmox LXC104 `/opt/aster-agent`;
 - target interpreter: `/opt/aster-agent/venv/bin/python`;
 - expected test count: **72**.
@@ -47,7 +50,9 @@ drift means stop and reconcile source; do not reinterpret the old installer.
 2. Copy only the validation archive to a new root-owned mode-`0600` Proxmox
    temporary path, push it into a new root-only LXC104 temporary directory and
    recheck its hash before extraction.
-3. Extract the flat 16-member archive without overwriting any existing path.
+3. Extract the corrected 17-member archive without overwriting any existing
+   path. Sixteen members remain flat; the sole nested member is the exact
+   `evals/sysadmin-producer-fixture.json` required by the frozen tests.
 4. Run the nine `test_sysadmin_*.py` modules with bytecode disabled and
    `PYTHONPATH` ordered as the temporary directory followed by
    `/opt/aster-agent`. Require exactly 72 passes under the target interpreter.
