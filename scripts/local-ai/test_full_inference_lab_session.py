@@ -22,12 +22,14 @@ class FullInferenceLabSessionTests(unittest.TestCase):
             ACCEPTED_BACKEND, True, True, True, True, True, True, True, True, True,
             self.epoch(10, 0), self.epoch(10, 0), self.epoch(10, 30), self.epoch(10, 45), self.epoch(11, 30))
 
-    def test_plan_contains_five_effect_inventory_and_backend_baseline(self):
+    def test_plan_contains_complete_consumer_inventory_and_backend_baseline(self):
         value = plan(self.preflight())
         self.assertEqual(len(value.drain_commands), len(FULL_DRAIN_CONSUMERS))
         self.assertEqual(value.lab_seconds, 1800)
         self.assertEqual(value.restore_reserve_seconds, 900)
         self.assertIn("aster-llama.service", value.drain_commands[2])
+        self.assertIn("epub-narration-worker.timer", value.drain_commands[5])
+        self.assertIn("epub-narration-worker.service", value.drain_commands[6])
 
     def test_news_overlap_requires_the_explicit_narrow_override(self):
         value = self.preflight()
@@ -56,13 +58,13 @@ class FullInferenceLabSessionTests(unittest.TestCase):
                                                        validator=lambda: True,
                                                        owner_id="owner-1", allow_effects=True)
             value = controller.begin(self.preflight())
-            self.assertEqual(len(calls), 5)
+            self.assertEqual(len(calls), 7)
             controller.require_work_window(self.epoch(10, 29))
             with self.assertRaisesRegex(FullDrainError, "window has ended"):
                 controller.require_work_window(self.epoch(10, 30))
             controller.restore(value, now_epoch=self.epoch(10, 50), owner_present=True)
-            self.assertEqual(len(calls), 16)
-            self.assertEqual(len(observations), 16)
+            self.assertEqual(len(calls), 21)
+            self.assertEqual(len(observations), 21)
             self.assertFalse(paths.lock.exists())
             self.assertIn("restore-overdue", paths.journal.read_text())
 
@@ -148,7 +150,7 @@ class FullInferenceLabSessionTests(unittest.TestCase):
                 owner_id="owner-1", allow_effects=True)
             value = resumed.resume_existing(lease_id="drain-1", generation=1)
             resumed.restore(value, now_epoch=self.epoch(10, 20), owner_present=True)
-            self.assertEqual(len(resumed_calls), 11)
+            self.assertEqual(len(resumed_calls), 14)
             self.assertFalse(paths.lock.exists())
 
     def test_resume_rejects_wrong_owner_or_identity(self):

@@ -54,10 +54,18 @@ class CooperativeHostObserver:
             return (runtime_mask == "/dev/null"
                     and self._state(vmid, unit, "ActiveState") == "inactive")
         if phase == "stop":
-            return self._state(vmid, unit, "ActiveState") == "inactive"
+            active = self._state(vmid, unit, "ActiveState")
+            if unit == "epub-narration-worker.service":
+                return (active in {"inactive", "failed"}
+                        and self._state(vmid, unit, "MainPID") == "0"
+                        and self._state(vmid, unit, "TasksCurrent") in {"", "0", "[not set]"})
+            return active == "inactive"
         if phase == "unmask":
-            return self._state(vmid, unit, "UnitFileState") in {"enabled", "disabled"}
-        return self._state(vmid, unit, "ActiveState") == "active"
+            return self._state(vmid, unit, "UnitFileState") in {"enabled", "disabled", "static"}
+        active = self._state(vmid, unit, "ActiveState")
+        if unit == "epub-narration-worker.service":
+            return active in {"active", "activating", "inactive"}
+        return active == "active"
 
     def backend_client_exclusive(self) -> bool:
         """Return only an instant observation; this is never admission enforcement."""

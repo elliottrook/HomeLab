@@ -257,6 +257,14 @@ class FullDrainSourceProducer:
         for vmid, unit in (("104", "aster-agent.service"), ("110", "aster-llama.service"), ("116", "aster-speech.service")):
             if self._run_command(_service(vmid, unit), timeout=5.0) != "active":
                 raise FullDrainSourceError(f"{unit} is not active")
+        if (self._run_command(_service("116", "epub-narration-worker.timer"), timeout=5.0) != "active"
+                or self._run_command(("pct", "exec", "116", "--", "systemctl", "is-enabled",
+                                      "epub-narration-worker.timer"), timeout=5.0) != "enabled"):
+            raise FullDrainSourceError("EPUB narration worker timer is not active and enabled")
+        if self._run_command(("pct", "exec", "116", "--", "systemctl", "show",
+                              "epub-narration-worker.service", "--property=ActiveState", "--value"),
+                             timeout=5.0) == "failed":
+            raise FullDrainSourceError("EPUB narration worker is failed")
         if self._run("gpu") != "":
             raise FullDrainSourceError("GPU probe returned unexpected output")
         self._run("auth")

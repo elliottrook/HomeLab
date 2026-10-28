@@ -22,7 +22,7 @@ def validate_imports() -> dict[str, object]:
     for name in REQUIRED_MODULES:
         importlib.import_module(name)
     drain, restore = canonical_commands()
-    if len(drain) != 5 or len(FULL_DRAIN_CONSUMERS) != 5 or len(restore) != 11:
+    if len(drain) != 7 or len(FULL_DRAIN_CONSUMERS) != 7 or len(restore) != 14:
         raise ValueError("full-drain command inventory is incomplete")
     if any(command[:2] != ("pct", "exec") for command in (*drain, *restore)):
         raise ValueError("full-drain command boundary is invalid")

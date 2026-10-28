@@ -60,6 +60,15 @@ class FullDrainValidator:
             for key in ("news_ingest_enabled", "news_digest_enabled"):
                 if self._run(FIXED[key]) != "enabled":
                     return False
+            if (self._run(("pct", "exec", "116", "--", "systemctl", "is-active",
+                           "epub-narration-worker.timer"), 5.0) != "active"
+                    or self._run(("pct", "exec", "116", "--", "systemctl", "is-enabled",
+                                  "epub-narration-worker.timer"), 5.0) != "enabled"):
+                return False
+            if self._run(("pct", "exec", "116", "--", "systemctl", "show",
+                          "epub-narration-worker.service", "--property=ActiveState", "--value"),
+                         5.0) == "failed":
+                return False
             self._run(FIXED["auth"], 15.0)
             return True
         except (OSError, ValueError, json.JSONDecodeError):
@@ -109,6 +118,15 @@ class LocalProxmoxFullDrainValidator(FullDrainValidator):
             for key in ("news_ingest_enabled", "news_digest_enabled"):
                 if self._run(FIXED[key]) != "enabled":
                     return False
+            if (self._run(("pct", "exec", "116", "--", "systemctl", "is-active",
+                           "epub-narration-worker.timer"), 5.0) != "active"
+                    or self._run(("pct", "exec", "116", "--", "systemctl", "is-enabled",
+                                  "epub-narration-worker.timer"), 5.0) != "enabled"):
+                return False
+            if self._run(("pct", "exec", "116", "--", "systemctl", "show",
+                          "epub-narration-worker.service", "--property=ActiveState", "--value"),
+                         5.0) == "failed":
+                return False
             self._run(FIXED["auth"], 15.0)
             return True
         except (OSError, ValueError, json.JSONDecodeError):

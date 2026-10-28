@@ -70,6 +70,9 @@ class FullInferenceLabSourcesTests(unittest.TestCase):
             if command[-3:] in (("systemctl", "is-active", "aster-agent.service"),
                                 ("systemctl", "is-active", "aster-llama.service"),
                                 ("systemctl", "is-active", "aster-speech.service")): return 0, "active\n"
+            if command[-3:] == ("systemctl", "is-active", "epub-narration-worker.timer"): return 0, "active\n"
+            if command[-3:] == ("systemctl", "is-enabled", "epub-narration-worker.timer"): return 0, "enabled\n"
+            if command[-5:] == ("systemctl", "show", "epub-narration-worker.service", "--property=ActiveState", "--value"): return 0, "activating\n"
             if command[-2:] == ("sha256sum", "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf"): return 0, "a" * 64 + " model\n"
             if command[-2:] == ("sha256sum", "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"): return 0, "b" * 64 + " binary\n"
             if command[-2:] == ("sha256sum", "/etc/systemd/system/aster-llama.service"): return 0, "c" * 64 + " unit\n"

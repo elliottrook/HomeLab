@@ -52,6 +52,31 @@ class CooperativeLabHostAdapterTests(unittest.TestCase):
         self.assertTrue(observer("stop", drain[0]))
         self.assertTrue(observer("mask", drain[3]))
 
+    def test_observer_accepts_epub_static_unit_and_nonblocking_restart(self):
+        def runner(argv, timeout):
+            if "--property=UnitFileState" in argv:
+                return 0, "static\n"
+            if "--property=ActiveState" in argv:
+                return 0, "activating\n"
+            return 1, ""
+        observer = CooperativeHostObserver(runner)
+        _, restore = canonical_commands()
+        self.assertTrue(observer("unmask", restore[-3]))
+        self.assertTrue(observer("start", restore[-1]))
+
+    def test_observer_accepts_interrupted_epub_only_after_processes_are_gone(self):
+        def runner(argv, timeout):
+            if "--property=ActiveState" in argv:
+                return 0, "failed\n"
+            if "--property=MainPID" in argv:
+                return 0, "0\n"
+            if "--property=TasksCurrent" in argv:
+                return 0, "[not set]\n"
+            return 1, ""
+        observer = CooperativeHostObserver(runner)
+        drain, _ = canonical_commands()
+        self.assertTrue(observer("stop", drain[-1]))
+
 
 if __name__ == "__main__":
     unittest.main()

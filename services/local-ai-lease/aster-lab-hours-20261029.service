@@ -1,0 +1,13 @@
+[Unit]
+Description=Aster Lab Hours exact-cycle release-candidate transaction for October 29
+After=pvescheduler.service pvestatd.service
+ConditionPathExists=/usr/local/libexec/local-ai-lease/full-inference-pilot/lab_hours_exact_cycle_runner_20261029.py
+
+[Service]
+Type=oneshot
+User=root
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/usr/bin/python3 -B /usr/local/libexec/local-ai-lease/full-inference-pilot/lab_hours_exact_cycle_runner_20261029.py
+TimeoutStartSec=50min
+Nice=10
+IOSchedulingClass=idle

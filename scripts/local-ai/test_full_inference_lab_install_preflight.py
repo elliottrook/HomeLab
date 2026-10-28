@@ -8,8 +8,8 @@ class FullInferenceInstallPreflightTests(unittest.TestCase):
     def test_import_and_command_contract_is_no_effect(self):
         value = validate_imports()
         self.assertEqual(value["modules"], 10)
-        self.assertEqual(value["drain_effects"], 5)
-        self.assertEqual(value["restore_effects"], 11)
+        self.assertEqual(value["drain_effects"], 7)
+        self.assertEqual(value["restore_effects"], 14)
         self.assertEqual(value["effects"], "not-attempted")
 
     def test_pinned_runtime_entrypoint_is_default_deny(self):
