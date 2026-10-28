@@ -4,7 +4,7 @@
 >
 > Owner: Jason
 >
-> State: Release candidate qualified twice; exact-cycle night test pending approval
+> State: Release candidate qualified twice; hardened exact-cycle night test scheduled
 >
 > Opened: 2026-10-28
 
@@ -67,7 +67,7 @@ and evidence on uncertainty.
 |---|---|---|
 | LH1 — direct transaction | Known production consumers isolate, fixed lab work runs, exact production restores. | Done twice, 2026-10-27. |
 | LH2 — complete inventory | EPUB joins the drain and resumes without losing its durable queue. | Done twice with unchanged RC1c, 2026-10-28. |
-| LH3 — host-owned night test | Date-specific runner completes independently of F2–F5 and retains actionable failure evidence. | Approval-ready for 04:05 PDT, 2026-10-29. |
+| LH3 — host-owned night test | Date-specific runner completes independently of F2–F5 and retains actionable failure evidence. | Scheduled for 04:05 PDT, 2026-10-29. |
 | LH4 — recurring service | Reviewed schedule grants an actual reservation to the lab worker and restores production. | Open after LH3. |
 | LH5 — graduation | Doctor/monitoring, runbook, owner-loss exercise and two scheduled passes. | Open. |
 
@@ -112,7 +112,6 @@ reuse a spent exact-cycle evidence directory or retry a failed scheduled run.
 
 ## Immediate next action
 
-After explicit approval, install and enable only the reviewed October 29
-date-specific runner/service/timer for 04:05 PDT. Reconcile its terminal record
-once. On failure, preserve evidence and derive the next candidate from the
-recorded first failure phase instead of repeating the same packet.
+Observe and reconcile the October 29 date-specific run once. On failure,
+preserve evidence and derive the next candidate from the recorded first
+failure phase and specific failure code instead of repeating the same packet.
