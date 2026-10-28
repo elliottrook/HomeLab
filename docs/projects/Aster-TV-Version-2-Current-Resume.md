@@ -76,14 +76,34 @@ reference standard Kodi `font12` and `font13` aliases absent from Aster's
 the lab with the predecessor retained at
 `/storage/.aster-checkpoints/astertv-v2-jellyfin-fonts-20261028`.
 After idle Kodi restart, the server-selection text and manual server address
-were visibly correct. The installed Jellyfin 2.2.0 client then offered a
-one-time Quick Connect sign-in. Jason can authorize it from either Mac's
-already signed-in Jellyfin web session; no password is needed in chat.
-Do not store the ephemeral code in project records. TV library sync,
-season navigation, playback and marker-controlled skip remain unverified.
-The official YouTube add-on is installed but not signed in, and its Aster
-search page still needs live acceptance. News Digest and audio also remain
-release gates. Production remains on owner-confirmed v1.1.1.
+were visibly correct. Jason authorized Jellyfin 2.2.0 Quick Connect from his
+MacBook without a password in chat; no code or credential is recorded here.
+The lab uses the add-on playback mode. Initial sync completed in 6:28 and
+populated the v2 smart playlists: 134 Archive TV series and 76 Shows series.
+Archive TV series, season and episode grids were navigated visibly. A short
+episode played in Kodi and was then stopped. Jellyfin's own Skip Intro button
+appeared, and Aster's marker reader returned real Intro and Outro windows for
+that episode without printing token or item ID. This does **not** yet prove
+recap, credits/next-episode activation, or the absence of conflicting prompts.
+The fresh Jellyfin profile had intro and credits buttons enabled but recap off;
+the lab-only recap setting was changed to button mode through Kodi after
+checkpointing settings at
+`/storage/.aster-checkpoints/astertv-v2-jellyfin-skip-settings-20261028.xml`.
+The change read back correctly and survived one idle Kodi restart; the synced
+210-series library remained available through Kodi JSON-RPC. A live
+recap/credits test remains open; do not seek near credits in the owner's
+account merely to test a prompt because that could alter watched state.
+
+The main TV page now visibly lists 76 shows. The YouTube landing and search
+keyboard render, and a public query reaches the official add-on, but results
+show its `key.requirement` message because this clean lab has no YouTube API
+credentials. Do not import production credentials; Jason will provision the
+lab from his MacBook. Unauthenticated subscriptions/recommendation widgets
+also produce add-on errors and stay empty. The News Digest page loaded a
+current 20-story briefing; its dedicated audio player started, displayed
+story progress, and was stopped after a short test. Physical lab audio and
+YouTube result/playback acceptance remain open. Production remains on
+owner-confirmed v1.1.1.
 
 Jason reported the v2 player had lost skip recap/intro/outro and directed that
 v2 be pulled from production. This is a release-blocking regression; the v2
