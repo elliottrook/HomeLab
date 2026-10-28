@@ -13,6 +13,7 @@ from sysadmin_registered_producer import (
     _doctor_status_envelope,
     _forgejo_status_envelope,
     _gateway_config_envelope,
+    _gateway_log_envelope,
     _inference_status_envelope,
     _netbox_network_envelope,
     execute_registered_pending_observation,
@@ -72,13 +73,13 @@ class RegisteredIncidentProducerTests(unittest.TestCase):
             execute_registered_pending_observation(self.store, incident.incident_id, NOW)
 
     def test_registered_pair_without_a_producer_remains_pending(self):
-        incident = self.create("aster-gateway", "log")
-        self.bind(incident, target="aster-gateway", kind="log")
+        incident = self.create("inference-server", "config")
+        self.bind(incident, target="inference-server", kind="config")
         with self.assertRaisesRegex(InvestigationError, "no registered producer"):
             execute_registered_pending_observation(self.store, incident.incident_id, NOW)
         journal = self.store.followup_journal_snapshot(incident.incident_id, NOW)
         self.assertEqual(0, journal["consumed_count"])
-        self.assertEqual("log", journal["pending"]["kind"])
+        self.assertEqual("config", journal["pending"]["kind"])
 
     def test_rejects_naive_clock_without_consuming_decision(self):
         incident = self.create()
@@ -258,6 +259,50 @@ class RegisteredIncidentProducerTests(unittest.TestCase):
             Path(self.temporary.name) / "missing-catalogue.json",
         )
         self.assertEqual("backup-protection-catalogue/v1", envelope["producer"])
+        self.assertEqual("unavailable", envelope["observation"]["state"])
+        self.assertEqual({"reason": "source_unavailable"}, envelope["observation"]["facts"])
+
+    def test_exact_pending_gateway_log_uses_fixed_aggregate_and_is_consumed(self):
+        incident = self.create("aster-gateway", "log")
+        self.bind(incident, target="aster-gateway", kind="log")
+        with patch("sysadmin_registered_producer.read_gateway_log_observation") as reader:
+            from sysadmin_investigation import Observation
+            reader.return_value = Observation(
+                evidence_id="gateway-log-" + "e" * 24,
+                incident_id=incident.incident_id,
+                target="aster-gateway",
+                kind="log",
+                observed_at=NOW.isoformat(),
+                source="aster-gateway-journal-aggregate/v1",
+                state="ok",
+                summary="Registered Aster Agent journal window contains 0 priority 0-3 events.",
+                facts={"service": "aster-agent", "window_seconds": 900, "high_priority_event_count": 0},
+            )
+            record = execute_registered_pending_observation(self.store, incident.incident_id, NOW)
+        self.assertEqual(("aster-gateway", "log", "ok"), (
+            record["target"], record["kind"], record["state"],
+        ))
+        self.assertEqual(0, record["facts"]["high_priority_event_count"])
+        self.assertEqual(1, self.store.followup_journal_snapshot(
+            incident.incident_id, NOW
+        )["consumed_count"])
+
+    def test_unavailable_gateway_log_is_bounded_evidence(self):
+        with patch("sysadmin_registered_producer.read_gateway_log_observation") as reader:
+            from sysadmin_investigation import Observation
+            reader.return_value = Observation(
+                evidence_id="gateway-log-unavailable-" + "f" * 24,
+                incident_id="incident-log-001",
+                target="aster-gateway",
+                kind="log",
+                observed_at=NOW.isoformat(),
+                source="aster-gateway-journal-aggregate/v1",
+                state="unavailable",
+                summary="Registered Aster gateway journal aggregate is unavailable.",
+                facts={"reason": "source_unavailable"},
+            )
+            envelope = _gateway_log_envelope("incident-log-001", NOW)
+        self.assertEqual("aster-gateway-journal-aggregate/v1", envelope["producer"])
         self.assertEqual("unavailable", envelope["observation"]["state"])
         self.assertEqual({"reason": "source_unavailable"}, envelope["observation"]["facts"])
 

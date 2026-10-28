@@ -3,8 +3,9 @@
 The caller cannot supply a producer, target, evidence kind or source path. The
 pending SA1 journal decision is the sole selector. The small explicit registry
 contains gateway self-status, one fixed inference-health request and fixed
-sanitized Doctor, Forgejo and NetBox report reads. It performs no subprocess,
-credential, model, report refresh or repair operation.
+sanitized Doctor, Forgejo, NetBox, backup, configuration-identity and journal
+aggregate reads. It performs no caller-directed subprocess, credential, model,
+report refresh or repair operation.
 """
 from __future__ import annotations
 
@@ -18,6 +19,7 @@ from doctor_incident_adapter import read_doctor_observation
 from backup_catalogue_incident_adapter import read_backup_catalogue_observation
 from forgejo_incident_adapter import read_forgejo_observation
 from gateway_config_incident_adapter import read_gateway_config_observation
+from gateway_log_incident_adapter import read_gateway_log_observation
 from netbox_incident_adapter import read_netbox_observation
 from sysadmin_incident_store import IncidentStore
 from sysadmin_investigation import InvestigationError
@@ -38,6 +40,9 @@ NETBOX_PAIR = ("netbox-main", "network")
 NETBOX_REPORT = Path("/var/lib/aster/source-reports/netbox.json")
 GATEWAY_CONFIG_PRODUCER = "aster-gateway-config-identity/v1"
 GATEWAY_CONFIG_PAIR = ("aster-gateway", "config")
+GATEWAY_LOG_PRODUCER = "aster-gateway-journal-aggregate/v1"
+GATEWAY_LOG_PAIR = ("aster-gateway", "log")
+GATEWAY_LOG_REPORT = Path("/var/lib/aster/source-reports/aster-agent-log.json")
 BACKUP_PRODUCER = "backup-protection-catalogue/v1"
 BACKUP_SOURCE = "homelab-doctor-catalogue/v3"
 BACKUP_PAIR = ("backup-catalog", "backup")
@@ -256,6 +261,31 @@ def _backup_catalogue_envelope(
     }
 
 
+def _gateway_log_envelope(
+    incident_id: str, now: datetime, report_path: Path = GATEWAY_LOG_REPORT,
+) -> dict:
+    """Read only a fixed sanitized high-priority journal count."""
+    observation = read_gateway_log_observation(incident_id, report_path, now)
+    if observation.source != GATEWAY_LOG_PRODUCER:
+        raise InvestigationError("unexpected gateway log producer identity")
+    return {
+        "schema_version": 1,
+        "producer": GATEWAY_LOG_PRODUCER,
+        "produced_at": now.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "observation": {
+            "evidence_id": observation.evidence_id,
+            "incident_id": observation.incident_id,
+            "target": observation.target,
+            "kind": observation.kind,
+            "observed_at": observation.observed_at,
+            "state": observation.state,
+            "summary": observation.summary,
+            "facts": observation.facts,
+            "truncated": observation.truncated,
+        },
+    }
+
+
 def execute_registered_pending_observation(
     store: IncidentStore,
     incident_id: str,
@@ -282,6 +312,8 @@ def execute_registered_pending_observation(
         envelope = _gateway_config_envelope(incident_id, now)
     elif pair == BACKUP_PAIR:
         envelope = _backup_catalogue_envelope(incident_id, now, DOCTOR_REPORT, BACKUP_CATALOGUE)
+    elif pair == GATEWAY_LOG_PAIR:
+        envelope = _gateway_log_envelope(incident_id, now, GATEWAY_LOG_REPORT)
     else:
         raise InvestigationError("pending observation has no registered producer")
     return store.ingest(envelope, now, expected_decision_ref=claim["decision_ref"])
