@@ -26,9 +26,9 @@ ROUTES = (
 )
 
 LANDING_ROWS = (
-    (9530, "New from subscriptions", ROUTES[1][2], 405, 438, 9531, 9301),
-    (9531, "Recommended", ROUTES[2][2], 627, 660, 9532, 9530),
-    (9532, "Watch later", ROUTES[3][2], 849, 882, 9532, 9531),
+    (9530, "New from subscriptions", ROUTES[1][2], 390, 425, 9531, 9301),
+    (9531, "Recommended", ROUTES[2][2], 590, 625, 9532, 9530),
+    (9532, "Watch later", ROUTES[3][2], 790, 825, 9532, 9531),
 )
 ROWS = (
     (50, "New from subscriptions", ROUTES[1][2], 405, 438, 51, 9301),
@@ -143,38 +143,42 @@ def top_button(parent, identity, text, route, left, width, left_id, right_id,
     return node
 
 
-def card_layout(parent, focused=False):
+def card_layout(parent, focused=False, compact=True):
+    layout_height = 160 if compact else 182
     node = ET.SubElement(parent, "focusedlayout" if focused else "itemlayout",
-                         {"width": "300", "height": "182"})
+                         {"width": "300", "height": str(layout_height)})
     if focused:
-        ring = image(node, 0, 0, 292, 164,
+        ring = image(node, 0, 0, 292, 136 if compact else 164,
                      "special://skin/media/ui-compact-card-ring.png")
         field(ring, "colordiffuse", "asterIvory")
     art = image(node, 6 if focused else 10, 4 if focused else 8,
-                280 if focused else 272, 154 if focused else 146,
+                280 if focused else 272,
+                (124 if focused else 116) if compact else (154 if focused else 146),
                 "$INFO[ListItem.Art(thumb)]", background="true",
                 diffuse="special://skin/media/ui-compact-card-mask.png")
     field(art, "aspectratio", "scale", scalediffuse="false")
     if focused:
-        accent = image(node, 2, 2, 288, 160,
+        accent = image(node, 2, 2, 288, 132 if compact else 160,
                        "special://skin/media/ui-compact-card-ring.png")
         field(accent, "colordiffuse", "asterGreen")
-    title = label(node, 6 if focused else 10, 160, 280, 24,
+    title = label(node, 6 if focused else 10, 126 if compact else 160,
+                  280, 30 if compact else 24,
                   "$INFO[ListItem.Label]", "font20",
                   "asterGreen" if focused else "asterIvory")
     field(title, "truncate", "true")
 
 
 def landing_panel(parent, identity, heading, route, heading_top, panel_top,
-                  down, up):
+                  down, up, compact=True):
     label(parent, 125, heading_top, 700, 32, heading, "font24", "asterIvory")
     node = ET.SubElement(parent, "control", {"type": "panel", "id": str(identity)})
     for name, value in (("left", 125), ("top", panel_top), ("width", 1700),
-                        ("height", 182), ("orientation", "horizontal"),
+                        ("height", 160 if compact else 182),
+                        ("orientation", "horizontal"),
                         ("scrolltime", 180), ("preloaditems", 2),
                         ("onup", up), ("ondown", down)):
         field(node, name, value)
-    card_layout(node, False); card_layout(node, True)
+    card_layout(node, False, compact); card_layout(node, True, compact)
     field(node, "content", route, target="videos")
     return node
 
@@ -329,15 +333,17 @@ def extend_navigation(raw, include_search=True):
     field(title, "shadowcolor", "aa000000"); field(title, "truncate", "true")
     plot = ET.SubElement(landing, "control", {"type": "textbox"})
     for name, value in (("left", 125), ("top", 210), ("width", 980),
-                        ("height", 105), ("label", "$VAR[AsterYouTubeHeroPlot]"),
+                        ("height", 120 if include_search else 105),
+                        ("label", "$VAR[AsterYouTubeHeroPlot]"),
                         ("font", "font20"), ("textcolor", "asterIvory"),
                         ("shadowcolor", "aa000000"), ("wrapmultiline", "true")):
         field(plot, name, value)
-    label(landing, 125, 326, 980, 30, "$VAR[AsterYouTubeHeroMeta]",
+    label(landing, 125, 345 if include_search else 326, 980, 30,
+          "$VAR[AsterYouTubeHeroMeta]",
           "font20", "asterSage")
 
     for row in (LANDING_ROWS if include_search else ROWS):
-        landing_panel(landing, *row)
+        landing_panel(landing, *row, compact=include_search)
 
     # Keep the landing first. Kodi resolves the shared default container ID to
     # its explicit content while the established browser container continues

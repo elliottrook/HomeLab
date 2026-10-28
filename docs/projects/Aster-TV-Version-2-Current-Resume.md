@@ -1,6 +1,76 @@
 # AsterTV Version 2 — Current Stream A resume
 
-Updated: 2026-10-27. Owner: Jason. Lab: HP `192.168.1.140`.
+Updated: 2026-10-28. Owner: Jason. Lab: HP `192.168.1.140`.
+
+## Production regression recovery — deployed and awaiting owner review
+
+Jason reported Books, News Digest, Cameras and Requests unavailable; old TV
+landing pages; misaligned Search pills; broken YouTube navigation; clipped
+YouTube text and rows; and an unreachable catalogue-search selection path after
+the 2026-10-27 promotion. The repair target is `AsterTVProd` (`192.168.1.157`),
+running LibreELEC 13 nightly and Kodi 22. The HP lab at `192.168.1.140` is on
+LibreELEC 12.2.1/Kodi 21 and was left unchanged.
+
+Takeover and repair evidence on 2026-10-28:
+
+- the stalled task was archived after two output-limit failures and an empty
+  in-progress turn; its complete dirty checkout was retained by snapshot
+  `31f5620344bf90ada2d12e52bb5cfdd15dd49d94` and restored into the managed
+  `astertv-v2-recovery` worktree;
+- Books visibility is installed through the production-safe
+  `aster-books-visibility-prod2` checkpoint; its installed
+  `IncludesBooks.xml` hash is `7f1d5168da31b8b834e07756d4df15c44d7e9752de56d4171eedc26cae051549`.
+  The HP-only installer correctly refused production before this dedicated
+  successor was built.
+- Requests uses the production Seerr host guard. Search's two pill labels are
+  centred, and the Select dispatcher can activate the catalogue path. The
+  series launcher, runtime manifest and Search handoff share the repaired
+  `66b6303f2dab9162e0f1fe305dcd173aae90fa7c1c6be395ba6b8f4a7e6ed9ae`
+  pin. A production Home TV selection opened the ready v2 preview in 1,015 ms
+  and returned idle.
+- News Digest's production launcher/import/pin chain was repaired. A fresh
+  native check showed 20 ready stories, started the opening briefing with
+  `Playing=true`, then returned Home with empty playback and playlists.
+- The production camera viewer uses the restricted on-demand Frigate client.
+  `aster-camera.service` is active; a native test fetched images in two sessions,
+  stopped on toggle and exit, and left playback idle.
+- Git history on `codex/aster-home-eh001-m0` and the retained
+  `codex/astertv-youtube` worktree supplied the lab-proven YouTube design:
+  dedicated landing controls `9530`–`9532`, generic result container `50`, and
+  a named delayed focus action. Production Kodi 22 needed a three-second root
+  focus delay and a one-shot Back handler scoped to `MyVideoNav`. Checkpoints
+  `aster-youtube-production-navigation2`,
+  `aster-youtube-production-entry-timing1` and
+  `aster-youtube-production-compact1` are installed. The active navigation
+  hash is `2c3f04be5d4a52a2cbc5d51ee298a7c637481a1360152030076f1a961b04339b`;
+  family manifest hash is
+  `ebb5e65b87990b3343e59bb6cd0669a9d03882ab107c3cb3ec77c76876f8a53c`.
+- Two fresh production runs passed YouTube root focus, all three rows, top
+  rail, ordinary browse, Back to root and Back to Home with no manual focus.
+  The Aster search keyboard submitted `OpenAI`, the official add-on returned
+  49 result entries, the result grid and rail responded, and both Back buttons
+  returned through root to Home. A private 4K capture confirmed that the
+  synopsis and all three rows, including Watch Later captions, fit the screen.
+  No player started and Kodi stayed active without a new crash.
+
+The YouTube investigation included unsuccessful focus experiments. A combined
+Home route-reset and Back-adapter candidate crashed Kodi while the video window
+opened; it was rolled back from `aster-youtube-production-navigation1` to the
+exact released hashes before the narrower successful changes. Earlier
+experiments triggered LibreELEC safe mode once; the original profile was
+recovered intact and the released YouTube files were restored from
+`aster-youtube-production-release-restore1`. These checkpoints are retained as
+incident and recovery evidence. Do not replay superseded experimental scripts.
+
+The remaining acceptance is Jason's physical sofa/remote review, representative
+YouTube video playback/stop, and production audiobook/podcast progress sign-off.
+Kodi 22 and the lab's Kodi 21 should not be treated as interchangeable test
+runtimes. No Forgejo or GitHub push was made; remote synchronization awaits the
+required immediate push approval.
+
+The sections below record the earlier HP engineering baseline and historical
+release gates. The production state above supersedes their older
+"production unchanged" assertions.
 
 This is a compact continuation index for the main Version 2 work. The charter
 and dated historical decisions remain in

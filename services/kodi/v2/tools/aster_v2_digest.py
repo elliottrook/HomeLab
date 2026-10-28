@@ -41,6 +41,7 @@ def main(action):
         if data['generated_at'] != generation: raise ValueError('news-edition-changed')
         # Preserve only the existing explicit-click, bounded briefing cache path.
         # This import defines functions; hub_data's __main__ block is not run.
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
         from hub_data import cached_digest_audio
         cached_digest_audio(xbmcvfs, generation)
         if (read('/static/digest-audio/latest.json', 262144) != feed or not idle()

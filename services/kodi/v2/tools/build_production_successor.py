@@ -5,10 +5,15 @@ import hashlib
 import json
 import shutil
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
 SUPPORTED = ("AsterTV", "AsterTVProd")
+YOUTUBE_ROOT = "plugin://plugin.video.youtube/"
+YOUTUBE_BACK_ACTION = (
+    "RunScript(special://home/addons/skin.asterhome/tools/youtube_back.py)"
+)
 
 
 def digest(path):
@@ -37,6 +42,72 @@ def refresh_file_rows(manifest, base):
         row["sha256"] = digest(path)
     write_json(manifest, data)
     return data
+
+
+def rewrite_embedded_pin(path, old_pin, new_pin):
+    """Retarget a launcher after production host edits change its component manifest."""
+    path = Path(path)
+    raw = path.read_bytes()
+    old = old_pin.encode()
+    new = new_pin.encode()
+    if len(old_pin) != 64 or len(new_pin) != 64 or raw.count(old) != 1 or new in raw:
+        raise RuntimeError(f"unexpected-embedded-pin:{path}")
+    path.write_bytes(raw.replace(old, new, 1))
+
+
+def adapt_youtube_entry_timing(path):
+    """Wait for Kodi 22 to populate the official root before row focus."""
+    path = Path(path)
+    raw = path.read_bytes()
+    old = b'AlarmClock(AsterYouTubeLandingFocus,SetFocus(9530),00:01,silent)'
+    new = b'AlarmClock(AsterYouTubeLandingFocus,SetFocus(9530),00:03,silent)'
+    if raw.count(old) != 1 or new in raw:
+        raise RuntimeError('unexpected-youtube-entry-timing')
+    path.write_bytes(raw.replace(old, new, 1))
+
+
+def add_youtube_back_navigation(root):
+    """Install a bounded Kodi 22 Back handler without a resident monitor."""
+    root = Path(root)
+    skin = root / ".kodi/addons/skin.asterhome"
+    source = Path(__file__).resolve().parents[2] / "skin.asterhome/tools/youtube_back.py"
+    target = skin / "tools/youtube_back.py"
+    if not source.is_file():
+        raise RuntimeError("unexpected-youtube-back-helper")
+    if target.exists():
+        if target.read_bytes() != source.read_bytes():
+            raise RuntimeError("unexpected-youtube-back-helper")
+    else:
+        shutil.copy2(source, target)
+
+    nav = skin / "1080i/MyVideoNav.xml"
+    xml = ET.fromstring(nav.read_bytes())
+    for identity in (9305, 9404):
+        button = xml.find(f".//control[@id='{identity}']")
+        action = button.find("onclick") if button is not None else None
+        if action is None or action.text not in ("Action(Back)", YOUTUBE_BACK_ACTION):
+            raise RuntimeError(f"unexpected-youtube-back-button:{identity}")
+        action.text = YOUTUBE_BACK_ACTION
+    nav.write_bytes(ET.tostring(xml, encoding="utf-8", xml_declaration=True))
+
+    keymap = root / ".kodi/userdata/keymaps/g20s-pro-plus.xml"
+    xml = ET.fromstring(keymap.read_bytes())
+    window = xml.find("MyVideoNav")
+    if window is None:
+        window = ET.SubElement(xml, "MyVideoNav")
+        keyboard = ET.SubElement(window, "keyboard")
+        for name in ("escape", "backspace", "browser_back"):
+            ET.SubElement(keyboard, name).text = YOUTUBE_BACK_ACTION
+        mouse = ET.SubElement(window, "mouse")
+        ET.SubElement(mouse, "rightclick").text = YOUTUBE_BACK_ACTION
+    else:
+        expected = ('./keyboard/escape', './keyboard/backspace',
+                    './keyboard/browser_back', './mouse/rightclick')
+        if (len(list(window.iter())) != 7 or
+                any(window.findtext(name) != YOUTUBE_BACK_ACTION for name in expected)):
+            raise RuntimeError("unexpected-youtube-keymap")
+    keymap.write_bytes(ET.tostring(xml, encoding="utf-8", xml_declaration=True))
+    return target
 
 
 def build(root, host):
@@ -182,6 +253,9 @@ def build(root, host):
     runtime = addons / "script.asterruntime"
     family_path = runtime / "family-manifest.json"
     family = json.loads(family_path.read_text())
+    predecessor_pins = {
+        name: row["manifest_sha256"] for name, row in family["components"].items()
+    }
     for name, row in family["components"].items():
         component = runtime / name
         manifest = component / "manifest.json"
@@ -189,12 +263,24 @@ def build(root, host):
         row["files"] = len(rows["files"])
         row["manifest_sha256"] = digest(manifest)
 
+    # The family builder pins the Digest component from its skin launcher.
+    # Production host admission edits change that component manifest, so the
+    # launcher must follow the new installed pin before skin hashes are sealed.
+    rewrite_embedded_pin(
+        addons / "skin.asterhome/tools/aster_v2_digest.py",
+        predecessor_pins["aster-digest-player8"],
+        family["components"]["aster-digest-player8"]["manifest_sha256"],
+    )
+    adapt_youtube_entry_timing(addons / "skin.asterhome/1080i/MyVideoNav.xml")
+    youtube_back = add_youtube_back_navigation(root)
+
     music_manifest = runtime / "music72-manifest.json"
     music = refresh_file_rows(music_manifest, addons)
     music["boundary"] = "Aster clients only; explicit per-client normal profile; owned playback capped at 20000 queue items/200 per write; confirmed private create-only shared saves"
     write_json(music_manifest, music)
     family["music_manifest_sha256"] = digest(music_manifest)
     skin = addons / "skin.asterhome"
+    family["skin"]["tools/youtube_back.py"] = digest(youtube_back)
     for relative in tuple(family["skin"]):
         family["skin"][relative] = digest(skin / relative)
     write_json(family_path, family)

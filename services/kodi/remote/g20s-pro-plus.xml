@@ -22,6 +22,16 @@
       <rightclick>Back</rightclick>
     </mouse>
   </global>
+  <MyVideoNav>
+    <keyboard>
+      <escape>RunScript(special://home/addons/skin.asterhome/tools/youtube_back.py)</escape>
+      <backspace>RunScript(special://home/addons/skin.asterhome/tools/youtube_back.py)</backspace>
+      <browser_back>RunScript(special://home/addons/skin.asterhome/tools/youtube_back.py)</browser_back>
+    </keyboard>
+    <mouse>
+      <rightclick>RunScript(special://home/addons/skin.asterhome/tools/youtube_back.py)</rightclick>
+    </mouse>
+  </MyVideoNav>
   <FullscreenVideo>
     <keyboard>
       <escape>Stop</escape>

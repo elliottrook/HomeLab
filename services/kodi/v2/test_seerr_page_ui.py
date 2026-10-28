@@ -15,6 +15,7 @@ class SeerrPageUITests(unittest.TestCase):
         self.assertIn('xbmcgui.Window(11132)', raw)
         self.assertIn('getCurrentWindowId() == 11132', raw)
         self.assertIn("Dialog.Close(11127)", raw)
+        self.assertIn("not in ('AsterTV', 'AsterTVProd')", raw)
         self.assertNotIn(':5055', raw)
         self.assertNotIn('SEERR_PASSWORD', raw)
         self.assertNotIn('/api/v1/', raw)

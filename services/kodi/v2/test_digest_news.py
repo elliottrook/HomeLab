@@ -139,9 +139,12 @@ class DigestNewsTests(unittest.TestCase):
         return env
 
     def test_handoff_caches_only_on_explicit_play(self):
+        source = (Path(__file__).parent/'tools/aster_v2_digest.py').read_text()
+        self.assertIn("sys.path.insert(0, str(Path(__file__).resolve().parent))", source)
         env = self.shim_trial('play')
         self.assertEqual(len(env['caches']), 1)
         self.assertEqual(len(env['commands']), 1)
+        self.assertIn('/default.py,news,full,0,', env['commands'][0])
         self.assertIn(',news,full,0,', env['commands'][0])
         self.assertEqual(env['notices'], [])
         passive = self.shim_trial('refresh')

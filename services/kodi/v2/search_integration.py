@@ -1,8 +1,8 @@
 """Compose a dialog/control-only search OK hook on accepted series dispatch."""
 import ast,hashlib
 import xml.etree.ElementTree as ET
-BEFORE='1e7c09c56ac82fc6005294973251c1b32fff1c2655da71faf890235a51fdb9c3'
-DETAILS_BEFORE='0208edab7d25627b59f726a9ecfc2f21a40a99593be7468f773a9c511c62c752'
+BEFORE='0f44246aea2c0f7fbc716af3cdd8a591c766b356c4d257125175be48a7ab4548'
+DETAILS_BEFORE='bdeed45b4fca9118f8bda98b75a6e6923d5ca5446a0940668b926f124441097d'
 HOME_BEFORE='a45d2cea4d14e644d5211d2908ecd6f53aebff8a6467260fbb07539476a9f923'
 
 def dispatcher(data):

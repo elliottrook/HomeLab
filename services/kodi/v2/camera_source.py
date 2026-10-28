@@ -25,7 +25,7 @@ def read_camera(opener=None):
 def main():
     try:
         connection=os.environ.get('SSH_CONNECTION','').split()
-        if len(sys.argv)!=1 or os.environ.get('SSH_ORIGINAL_COMMAND')!='aster-camera-front-v1' or len(connection)!=4 or connection[0]!='192.168.1.140' or connection[2]!='192.168.20.10' or connection[3]!='22':return 1
+        if len(sys.argv)!=1 or os.environ.get('SSH_ORIGINAL_COMMAND')!='aster-camera-front-v1' or len(connection)!=4 or connection[0] not in ('192.168.1.140','192.168.1.157') or connection[2]!='192.168.20.10' or connection[3]!='22':return 1
         signal.signal(signal.SIGALRM,lambda *_:(_ for _ in ()).throw(RuntimeError('camera-timeout')));signal.alarm(6)
         raw=read_camera();sys.stdout.buffer.write(raw);sys.stdout.buffer.flush();return 0
     except Exception:return 1

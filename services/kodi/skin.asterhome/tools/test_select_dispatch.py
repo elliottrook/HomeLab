@@ -20,6 +20,12 @@ class SelectDispatchTests(unittest.TestCase):
         self.assertIsNone(dispatched_action(11114, 110))
         self.assertIsNone(dispatched_action(10025, 50))
 
+    def test_search_catalogue_uses_explicit_script_route(self):
+        self.assertEqual(
+            dispatched_action(11127, 51),
+            'RunScript(script.asterseerr)',
+        )
+
     def test_digest_story_and_player_track_activate(self):
         self.assertEqual(
             dispatched_action(11111, 500),

@@ -166,9 +166,6 @@ def build(skin, runtime, output):
         original = (skin/relative).read_bytes()
         raw = addon_launches(original)
         raw = raw.replace(OLD_PREFIX, NEW_PREFIX)
-        if relative == 'tools/aster_v2_digest.py':
-            raw = raw.replace(b"'RunScript('+str(PLAYER/'default.py')+','+','.join(args)+')'",
-                              b"'RunScript(script.asterruntime,aster-digest-player8,default,'+','.join(args)+')'")
         if relative == 'tools/aster_v2_series.py':
             raw = raw.replace(b"'RunScript('+str(STAGE/'default.py')+','+str(identity)+',play)'",
                               b"'RunScript(script.asterruntime,aster-series-preview24,default,'+str(identity)+',play)'")

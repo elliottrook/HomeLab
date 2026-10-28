@@ -49,7 +49,7 @@ def broker(method, path, body=None):
 
 
 def main():
-    if os.uname().nodename != 'AsterTV':
+    if os.uname().nodename not in ('AsterTV', 'AsterTVProd'):
         return
     home = xbmcgui.Window(10000)
     page = Page()

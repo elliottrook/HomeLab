@@ -35,6 +35,8 @@ def series_command_target(identity, visible, focus_id):
 
 def dispatched_action(window_id, focus_id):
     """Return a trusted built-in for an Aster dynamic list, or ``None``."""
+    if window_id == 11127 and focus_id == 51:
+        return 'RunScript(script.asterseerr)'
     if window_id in MUSIC_WINDOWS and focus_id == 500:
         return ('RunScript(special://skin/tools/music_data.py,'
                 + MUSIC_WINDOWS[window_id] + ',open)')

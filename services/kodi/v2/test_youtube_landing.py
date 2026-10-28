@@ -31,24 +31,39 @@ class YouTubeLandingCompositionTests(unittest.TestCase):
         self.assertEqual(landing.findtext("visible"), ROOT)
         self.assertEqual(search.findtext("visible"), SEARCH)
         self.assertEqual(len(root.findall(".//control[@id='50']")), 1)
+        self.assertIsNotNone(root.find(".//control[@id='9530']"))
         self.assertIsNotNone(root.find(".//control[@id='9531']"))
         self.assertIsNotNone(root.find(".//control[@id='9532']"))
         groups = root.find("controls").findall("control")
         self.assertEqual(groups[0].get("id"), "9890")
         self.assertEqual(groups[1].get("id"), "9891")
         self.assertEqual(search.get("id"), "9892")
-        self.assertIsNotNone(root.find(".//control[@id='9530']"))
-        self.assertEqual([node.text for node in root.findall("onload")],
-                         ["AlarmClock(AsterYouTubeLandingFocus,SetFocus(9530),00:01,silent)"])
+        self.assertEqual(
+            root.findtext("onload"),
+            "AlarmClock(AsterYouTubeLandingFocus,SetFocus(9530),00:01,silent)")
+        self.assertEqual(root.findtext('defaultcontrol'), '50')
         self.assertEqual(root.find(".//control[@id='9300']/ondown").text,
                          "9530")
         hero = landing.find("control[@type='image'][2]")
         self.assertTrue(any(node.findtext('height') == '620'
                             for node in landing.findall("control[@type='image']")))
+        panels = [landing.find(f".//control[@id='{identity}']")
+                  for identity in (9530, 9531, 9532)]
+        self.assertEqual([panel.findtext('top') for panel in panels],
+                         ['425', '625', '825'])
+        self.assertTrue(all(panel.findtext('height') == '160' for panel in panels))
+        self.assertTrue(all(panel.find('itemlayout').get('height') == '160'
+                            for panel in panels))
+        titles = [panel.find("itemlayout/control[@type='label']")
+                  for panel in panels]
+        self.assertTrue(all(title.findtext('top') == '126'
+                            and title.findtext('height') == '30'
+                            for title in titles))
         for identity in range(9300, 9306):
             self.assertIsNotNone(root.find(f".//control[@id='{identity}']"))
         for identity in range(9400, 9405):
             self.assertIsNotNone(root.find(f".//control[@id='{identity}']"))
+        self.assertEqual(root.findall(".//control[@id='50']/onback"), [])
         raw = result.decode()
         self.assertIn("AsterYouTubeHeroTitle", raw)
         self.assertIn("special/my_subscriptions", raw)

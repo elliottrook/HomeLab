@@ -63,8 +63,11 @@ class SourceTests(unittest.TestCase):
         for frame in (b'not-jpeg',b'\xff\xd8'+b'x'*2097152+b'\xff\xd9'):
             with self.assertRaises(ValueError):source.read_camera(self.opener(frame=frame))
     def test_wrong_source_or_shell_command_has_no_http_effect(self):
-        for address,command in (('192.168.1.157','aster-camera-front-v1'),('192.168.1.140','id')):
+        for address,command in (('192.168.1.158','aster-camera-front-v1'),('192.168.1.140','id')):
             with patch.dict('os.environ',dict(SSH_CONNECTION=address+' 1234 192.168.20.10 22',SSH_ORIGINAL_COMMAND=command),clear=True),patch('sys.argv',['frame.py']),patch.object(source,'read_camera') as read:
                 self.assertEqual(source.main(),1);read.assert_not_called()
+        output = type('Output', (), {'buffer': io.BytesIO()})()
+        with patch.dict('os.environ',dict(SSH_CONNECTION='192.168.1.157 1234 192.168.20.10 22',SSH_ORIGINAL_COMMAND='aster-camera-front-v1'),clear=True),patch('sys.argv',['frame.py']),patch.object(source.sys,'stdout',output),patch.object(source,'read_camera',return_value=JPEG) as read:
+            self.assertEqual(source.main(),0);read.assert_called_once()
 
 if __name__=='__main__':unittest.main()

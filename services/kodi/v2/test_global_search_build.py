@@ -37,6 +37,9 @@ class SearchBuildTests(unittest.TestCase):
         self.assertEqual(controls['50'].findtext('label'),'Search library')
         self.assertEqual(controls['51'].findtext('label'),'Search catalogue')
         self.assertEqual(controls['51'].findtext('onclick'),'RunScript(script.asterseerr)')
+        for identity in ('50', '51'):
+            self.assertEqual(controls[identity].findtext('align'), 'center')
+            self.assertEqual(controls[identity].findtext('aligny'), 'center')
 
     def test_details_stage_has_exact_members_and_native_back(self):
         with tempfile.TemporaryDirectory() as folder:
