@@ -39,6 +39,17 @@ source package is not a clean-client installer. Reconcile this fresh-client
 boundary and obtain separate lab account provisioning before live v2 install;
 do not import production tokens or profile databases.
 
+Follow-up clarification: Jason intended a fresh OS/Kodi slate and expected
+HomeLab service access except YouTube to remain available. Key-based SSH works.
+Read-only lab probes returned HTTP 200 for Jellyfin `/health` and Audiobookshelf
+`/ping`; the restricted request broker answered HTTP 401 without credentials,
+confirming its route but not a signed-in session. Direct Seerr timed out,
+consistent with its documented broker-only isolation. These network results
+do not restore Kodi's removed add-ons or authenticate a new Jellyfin/Books
+client. The next lab install should reuse the existing restricted service
+design with fresh lab-only client provisioning, while YouTube waits for
+Jason's separate sign-in. No production account state should be copied.
+
 Jason reported the v2 player had lost skip recap/intro/outro and directed that
 v2 be pulled from production. This is a release-blocking regression; the v2
 candidate is **not production-ready**, even where individual pages passed
