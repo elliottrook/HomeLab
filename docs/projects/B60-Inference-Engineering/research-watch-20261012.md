@@ -45,6 +45,13 @@ actual platform journal/custody format, then instrument the exact isolated
 challenger controller without changing its effect order or policy. No live
 adapter is wired here. Retain all-consumer lease-aware resumption, measured
 model-switch restoration,30-minute B60 trial and04:15 completion gates.
+Publication `d9bc51bba13c9634a0ecf71bb6632d23e3141824` is verified on
+Forgejo and its GitHub mirror, but does not prove peer reading. The subsequent
+cross-host review-message attempt was rejected by the approval check because
+its messaging authority was unclear. No workaround or retry was attempted.
+Direct messaging now awaits explicit human approval; branch-only liaison
+publication remains the scoped authorized path. This does not block offline
+work or grant permission to change the peer's branch or production.
 No model/GPU request, host probe, download, mount, lease, timer/service,
 package/driver or credential action ran. The single overnight runner and
 fresh October28 F2/F3 chain remain independent; no background work is claimed.
