@@ -1,6 +1,7 @@
 [Unit]
 Description=Aster Lab Hours exact-cycle release-candidate transaction for October 29
 After=pvescheduler.service pvestatd.service
+After=epub-narration-resume-20261029.service f4-f5-evidence-20261029.service
 ConditionPathExists=/usr/local/libexec/local-ai-lease/full-inference-pilot/lab_hours_exact_cycle_runner_20261029.py
 
 [Service]

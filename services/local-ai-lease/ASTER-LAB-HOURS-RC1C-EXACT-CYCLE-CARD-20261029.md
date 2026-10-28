@@ -43,8 +43,31 @@ evidence beneath
 `/var/lib/local-ai-lab/lab-hours-attempts/night-rc1c-20261029/`. On owner
 failure with durable state, it leaves the guardian active and waits for its
 bounded recovery. A terminal record contains the first failure phase and
-class, candidate hashes and whether production was restored. It never retries
+class, a bounded specific failure code, candidate hashes and whether production was restored. It never retries
 the transaction.
+
+## Historical failure closure
+
+The exact runner was audited against every missed or failed October 19–28
+cycle before activation. Lab Hours does not consume F2, F3, F4 or F5
+artifacts, so the former mirror-ordering, scanner PATH, coordinator/child API,
+installed-pin, observer-exit, receipt-freshness and handoff-window defects
+cannot block or partially promote this run. It still rejects any of those
+processes or exact-cycle units if they overlap.
+
+The wrapper closes the operational failures directly: a date-specific timer
+is installed and verified in advance; starts outside 04:00–04:15 PDT fail
+closed; installed files are hash-pinned; an existing attempt, lease, lock,
+backup, archive scan, evidence process or workload-transition process blocks
+effects; and the current-cycle Proxmox backup/job proof is checked by the
+owner before isolation and again by the production validator. The EPUB timer
+and static worker are part of the fixed drain and restoration inventory.
+
+Every failure retains a bounded `first_failure_phase`, `failure_class` and
+specific `failure_code`. If an owner transaction fails, disappearance of its
+state file is not recovery proof: the wrapper runs the full production
+validator after guardian recovery and records `production_restored=true` only
+when that validator passes. The transaction has no automatic retry.
 
 ## Effect and exclusions
 

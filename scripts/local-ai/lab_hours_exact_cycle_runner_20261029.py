@@ -14,6 +14,8 @@ from pathlib import Path
 import subprocess
 import sys
 import time
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
 CYCLE = "2026_10_29"
@@ -44,11 +46,21 @@ COMPETING_UNITS = (
     "epub-narration-resume-20261029.service",
 )
 PROCESS_MARKERS = ("vzdump", "zstd -t", "f2_preflight", "f3_from_f2",
-                   "stream_a_evaluation_evidence", "full_aster_first_screen")
+                   "stream_a_evaluation_evidence", "full_aster_first_screen",
+                   "epub_narration_quiesce", "epub_narration_resume")
+LOCAL_ZONE = ZoneInfo("America/Vancouver")
+WINDOW_START = (4, 0)
+WINDOW_END = (4, 15)
 
 
 class NightRunError(RuntimeError):
-    pass
+    def __init__(self, code: str):
+        super().__init__(code)
+        self.code = code
+
+
+def fail(code: str) -> None:
+    raise NightRunError(code)
 
 
 def call(command: tuple[str, ...], timeout: float = 30.0) -> subprocess.CompletedProcess[str]:
@@ -64,27 +76,34 @@ def atomic_json(path: Path, value: dict[str, object]) -> None:
 
 def require_static() -> None:
     if os.geteuid() != 0:
-        raise NightRunError("runner is not root")
+        fail("NOT_ROOT")
+    local_now = datetime.now(LOCAL_ZONE)
+    if local_now.date().isoformat() != "2026-10-29":
+        fail("OUTSIDE_EXACT_DATE")
+    minute = local_now.hour * 60 + local_now.minute
+    if not (WINDOW_START[0] * 60 + WINDOW_START[1] <= minute
+            <= WINDOW_END[0] * 60 + WINDOW_END[1]):
+        fail("OUTSIDE_START_WINDOW")
     for name, expected in PINNED.items():
         path = PILOT / name
         if not path.is_file() or path.is_symlink():
-            raise NightRunError(f"installed pin is not a regular file: {name}")
+            fail(f"INSTALLED_PIN_TYPE:{name}")
         if hashlib.sha256(path.read_bytes()).hexdigest() != expected:
-            raise NightRunError(f"installed pin drifted: {name}")
+            fail(f"INSTALLED_PIN_DRIFT:{name}")
     if EVIDENCE.exists():
-        raise NightRunError("exact-cycle attempt already exists")
+        fail("ATTEMPT_ALREADY_EXISTS")
     for path in (STATE_ROOT / "full-inference-drain.json",
                  STATE_ROOT / "full-inference-drain.lock",
                  Path("/run/local-ai-lab-operation.lock")):
         if path.exists():
-            raise NightRunError("shared lab state or lock already exists")
+            fail("SHARED_STATE_OR_LOCK_PRESENT")
     lease = call(("/usr/local/sbin/local-ai-lease", "status"), 10.0)
     if lease.returncode != 0 or lease.stdout.strip() != '{\n  "state": "ready"\n}':
-        raise NightRunError("manual lease is not exactly ready")
+        fail("LEASE_NOT_READY")
     for unit in COMPETING_UNITS:
         result = call(("systemctl", "is-active", unit), 10.0)
         if result.returncode == 0:
-            raise NightRunError(f"competing exact-cycle unit is active: {unit}")
+            fail(f"COMPETING_EXACT_CYCLE_UNIT:{unit}")
     for proc in Path("/proc").glob("[0-9]*"):
         if proc.name == str(os.getpid()):
             continue
@@ -92,8 +111,9 @@ def require_static() -> None:
             command = proc.joinpath("cmdline").read_bytes().replace(b"\0", b" ").decode("utf-8")
         except (OSError, UnicodeDecodeError):
             continue
-        if any(marker in command for marker in PROCESS_MARKERS):
-            raise NightRunError("competing backup or evidence process is active")
+        marker = next((item for item in PROCESS_MARKERS if item in command), None)
+        if marker is not None:
+            fail(f"COMPETING_PROCESS:{marker}")
 
 
 def guardian_command(start: int) -> tuple[str, ...]:
@@ -125,22 +145,24 @@ def postcheck() -> None:
                  STATE_ROOT / "full-inference-drain.lock",
                  Path("/run/local-ai-lab-operation.lock")):
         if path.exists():
-            raise NightRunError("postcheck found retained state or lock")
+            fail("POSTCHECK_STATE_OR_LOCK")
     def runner(command, timeout):
         result = call(tuple(command), timeout)
         return result.returncode, result.stdout
     validator = LocalProxmoxFullDrainValidator(
         runner, AcceptedBaseline(MODEL_SHA, BINARY_SHA, UNIT_SHA), cycle=CYCLE)
     if not validator():
-        raise NightRunError("production restoration validator failed")
+        fail("PRODUCTION_RESTORATION_INVALID")
     owner = call(("systemctl", "is-active", OWNER_UNIT), 10.0)
     if owner.returncode == 0:
-        raise NightRunError("owner scope remains active")
+        fail("OWNER_SCOPE_REMAINS_ACTIVE")
 
 
 def main() -> int:
     started = int(time.time())
     phase = "static-preflight"
+    effects_may_have_started = False
+    production_restored = True
     try:
         require_static()
         EVIDENCE.mkdir(mode=0o700, parents=True)
@@ -154,8 +176,10 @@ def main() -> int:
         phase = "guardian-arm"
         guardian = call(guardian_command(start), 30.0)
         if guardian.returncode != 0:
-            raise NightRunError("guardian did not arm")
+            fail("GUARDIAN_DID_NOT_ARM")
         phase = "owner-transaction"
+        effects_may_have_started = True
+        production_restored = False
         owner = call(owner_command(start), 45 * 60.0)
         (EVIDENCE / "owner.stdout").write_text(owner.stdout, encoding="utf-8")
         (EVIDENCE / "owner.stderr").write_text(owner.stderr, encoding="utf-8")
@@ -167,18 +191,22 @@ def main() -> int:
                 deadline = start + 2700
                 while time.time() <= deadline and (STATE_ROOT / "full-inference-drain.json").exists():
                     time.sleep(5.0)
-            raise NightRunError("owner transaction failed")
+            phase = "failed-owner-postcheck"
+            postcheck()
+            production_restored = True
+            fail("OWNER_TRANSACTION_FAILED_RESTORED")
         try:
             receipt = json.loads(owner.stdout)
         except json.JSONDecodeError as exc:
-            raise NightRunError("owner output is not bounded JSON") from exc
+            raise NightRunError("OWNER_OUTPUT_INVALID") from exc
         if (receipt.get("effects") != "pilot-complete"
                 or receipt.get("receipt") != {"exit_status": 0,
                                                "profile": "accepted-9b-direct-control-smoke-v1",
                                                "request_count": 3}):
-            raise NightRunError("owner receipt is incomplete")
+            fail("OWNER_RECEIPT_INCOMPLETE")
         phase = "production-postcheck"
         postcheck()
+        production_restored = True
         call(("systemctl", "stop", GUARDIAN_UNIT), 30.0)
         call(("systemctl", "reset-failed", GUARDIAN_UNIT), 10.0)
         atomic_json(EVIDENCE / "terminal.json", {
@@ -189,13 +217,21 @@ def main() -> int:
         })
         return 0
     except BaseException as exc:
+        if effects_may_have_started and not production_restored:
+            try:
+                if not (STATE_ROOT / "full-inference-drain.json").exists():
+                    postcheck()
+                    production_restored = True
+            except BaseException:
+                production_restored = False
         EVIDENCE.mkdir(mode=0o700, parents=True, exist_ok=True)
+        failure_code = exc.code if isinstance(exc, NightRunError) else type(exc).__name__
         atomic_json(EVIDENCE / "terminal.json", {
             "schema": "aster-lab-hours-exact-cycle-result.v1", "state": "no_go",
             "cycle": CYCLE, "owner_id": TOKEN, "started_epoch": started,
             "finished_epoch": int(time.time()), "first_failure_phase": phase,
-            "failure_class": type(exc).__name__, "production_restored": not (
-                STATE_ROOT / "full-inference-drain.json").exists(),
+            "failure_class": type(exc).__name__, "failure_code": failure_code,
+            "production_restored": production_restored,
             "candidate_pins": PINNED,
         })
         return 1
