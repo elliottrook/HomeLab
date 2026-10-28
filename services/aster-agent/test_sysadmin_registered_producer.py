@@ -11,6 +11,7 @@ from sysadmin_investigation import EvidenceRequest, InvestigationError, create_i
 from sysadmin_registered_producer import (
     _doctor_status_envelope,
     _forgejo_status_envelope,
+    _gateway_config_envelope,
     _inference_status_envelope,
     _netbox_network_envelope,
     execute_registered_pending_observation,
@@ -177,6 +178,50 @@ class RegisteredIncidentProducerTests(unittest.TestCase):
             "incident-netbox-001", NOW, Path(self.temporary.name) / "missing.json"
         )
         self.assertEqual("netbox-main-report/v1", envelope["producer"])
+        self.assertEqual("unavailable", envelope["observation"]["state"])
+        self.assertEqual({"reason": "source_unavailable"}, envelope["observation"]["facts"])
+
+    def test_exact_pending_gateway_config_uses_fixed_identity_and_is_consumed(self):
+        incident = self.create("aster-gateway", "config")
+        self.bind(incident, target="aster-gateway", kind="config")
+        with patch("sysadmin_registered_producer.read_gateway_config_observation") as reader:
+            from sysadmin_investigation import Observation
+            reader.return_value = Observation(
+                evidence_id="gateway-config-" + "a" * 24,
+                incident_id=incident.incident_id,
+                target="aster-gateway",
+                kind="config",
+                observed_at=NOW.isoformat(),
+                source="aster-gateway-config-identity/v1",
+                state="ok",
+                summary="Registered Aster gateway configuration identity is available.",
+                facts={"service": "aster-agent", "file_count": 2, "configuration_digest": "a" * 24},
+            )
+            record = execute_registered_pending_observation(self.store, incident.incident_id, NOW)
+        self.assertEqual(("aster-gateway", "config", "ok"), (
+            record["target"], record["kind"], record["state"],
+        ))
+        self.assertEqual(2, record["facts"]["file_count"])
+        self.assertEqual(1, self.store.followup_journal_snapshot(
+            incident.incident_id, NOW
+        )["consumed_count"])
+
+    def test_unavailable_gateway_config_is_bounded_evidence(self):
+        with patch("sysadmin_registered_producer.read_gateway_config_observation") as reader:
+            from sysadmin_investigation import Observation
+            reader.return_value = Observation(
+                evidence_id="gateway-config-unavailable-" + "b" * 24,
+                incident_id="incident-config-001",
+                target="aster-gateway",
+                kind="config",
+                observed_at=NOW.isoformat(),
+                source="aster-gateway-config-identity/v1",
+                state="unavailable",
+                summary="Registered Aster gateway configuration identity is unavailable.",
+                facts={"reason": "source_unavailable"},
+            )
+            envelope = _gateway_config_envelope("incident-config-001", NOW)
+        self.assertEqual("aster-gateway-config-identity/v1", envelope["producer"])
         self.assertEqual("unavailable", envelope["observation"]["state"])
         self.assertEqual({"reason": "source_unavailable"}, envelope["observation"]["facts"])
 

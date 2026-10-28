@@ -16,6 +16,7 @@ from pathlib import Path
 
 from doctor_incident_adapter import read_doctor_observation
 from forgejo_incident_adapter import read_forgejo_observation
+from gateway_config_incident_adapter import read_gateway_config_observation
 from netbox_incident_adapter import read_netbox_observation
 from sysadmin_incident_store import IncidentStore
 from sysadmin_investigation import InvestigationError
@@ -34,6 +35,8 @@ FORGEJO_REPORT = Path("/var/lib/aster/source-reports/forgejo.json")
 NETBOX_PRODUCER = "netbox-main-report/v1"
 NETBOX_PAIR = ("netbox-main", "network")
 NETBOX_REPORT = Path("/var/lib/aster/source-reports/netbox.json")
+GATEWAY_CONFIG_PRODUCER = "aster-gateway-config-identity/v1"
+GATEWAY_CONFIG_PAIR = ("aster-gateway", "config")
 MAX_HEALTH_BYTES = 1024
 
 
@@ -195,6 +198,29 @@ def _netbox_network_envelope(
     }
 
 
+def _gateway_config_envelope(incident_id: str, now: datetime) -> dict:
+    """Read only fixed non-secret Aster runtime identities."""
+    observation = read_gateway_config_observation(incident_id, now)
+    if observation.source != GATEWAY_CONFIG_PRODUCER:
+        raise InvestigationError("unexpected gateway configuration producer identity")
+    return {
+        "schema_version": 1,
+        "producer": GATEWAY_CONFIG_PRODUCER,
+        "produced_at": now.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "observation": {
+            "evidence_id": observation.evidence_id,
+            "incident_id": observation.incident_id,
+            "target": observation.target,
+            "kind": observation.kind,
+            "observed_at": observation.observed_at,
+            "state": observation.state,
+            "summary": observation.summary,
+            "facts": observation.facts,
+            "truncated": observation.truncated,
+        },
+    }
+
+
 def execute_registered_pending_observation(
     store: IncidentStore,
     incident_id: str,
@@ -217,6 +243,8 @@ def execute_registered_pending_observation(
         envelope = _forgejo_status_envelope(incident_id, now, FORGEJO_REPORT)
     elif pair == NETBOX_PAIR:
         envelope = _netbox_network_envelope(incident_id, now, NETBOX_REPORT)
+    elif pair == GATEWAY_CONFIG_PAIR:
+        envelope = _gateway_config_envelope(incident_id, now)
     else:
         raise InvestigationError("pending observation has no registered producer")
     return store.ingest(envelope, now, expected_decision_ref=claim["decision_ref"])
