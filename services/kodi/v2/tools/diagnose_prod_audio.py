@@ -9,7 +9,10 @@ def rpc(method,params=None):
     return result.get('result')
 
 settings=('audiooutput.audiodevice','audiooutput.passthroughdevice','audiooutput.passthrough',
-          'audiooutput.channels','audiooutput.config','audiooutput.streamsilence')
+          'audiooutput.channels','audiooutput.config','audiooutput.streamsilence',
+          'audiooutput.ac3passthrough','audiooutput.eac3passthrough',
+          'audiooutput.truehdpassthrough','audiooutput.dtspassthrough',
+          'audiooutput.dtshdpassthrough','audiooutput.ac3transcode')
 data=dict(application=rpc('Application.GetProperties',{'properties':['volume','muted']}),
           players=rpc('Player.GetActivePlayers'),
           settings={key:rpc('Settings.GetSettingValue',{'setting':key}) for key in settings})

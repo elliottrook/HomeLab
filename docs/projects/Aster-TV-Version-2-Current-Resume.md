@@ -24,6 +24,35 @@ Takeover and repair evidence on 2026-10-28:
   Runtime values verified and Kodi reopened `hdmi:CARD=PCH,DEV=0` without
   fallback. Jason confirmed sound is back. Surround passthrough remains
   deliberately disabled until separately validated.
+- Jason then requested receiver passthrough. The connected `Beyond TV` HDMI 0
+  ELD advertises AC-3, E-AC-3, TrueHD and multichannel LPCM, but the earlier
+  DTS-HD test silenced the eARC chain until the receiver was rebooted. Two
+  guarded live attempts to set codec controls refused and restored stereo;
+  their checkpoints are marked rolled back. With Kodi stopped, an exact
+  five-setting XML edit installed the documented 7.1 PCM/Dolby-only profile
+  at checkpoint `astertv-dolby-passthrough-offline-20261028`: AC-3, E-AC-3
+  and TrueHD enabled; DTS/DTS-HD disabled; AC-3 transcoding off. Kodi's
+  restart reselected analogue and disconnected HDMI 1 despite the saved
+  HDMI 0 entries. A subsequent idle, two-selector correction set both normal
+  and passthrough output to HDMI 0; checkpoint
+  `astertv-dolby-route-20261028-v3` is installed. Kodi's engine reopened
+  HDMI 0, but a physical E-AC-3 test had audible sound without a Dolby
+  indication; Kodi logged an E-AC-3 decoder and PCM HDMI channel status.
+  A filtered `Settings.GetSettings` query then exposed the underlying
+  incompatibility: Kodi 22's current device options omit HDMI 0, and the
+  settings framework fell back to analogue/default plus HDMI 1 even though
+  direct `GetSettingValue` had temporarily shown HDMI 0. This is not proven
+  passthrough. The idle profile was restored to the owner-confirmed HDMI 0
+  stereo route with passthrough off; checkpoint
+  `astertv-audio-post-pass-rollback-20261028` is installed, and Jason
+  reconfirmed audible sound. ALSA independently lists `hdmi:CARD=PCH,DEV=0`
+  as `Beyond TV`, but Kodi's startup log records `Unable to open device` for
+  that exact PCM at 13:45:15, followed immediately by its device-validation
+  fallback; the same PCM opened successfully from 13:46 onward. The leading
+  hypothesis is a Kodi-startup/HDMI-audio readiness race, not an absent TV
+  ELD or permanently unavailable ALSA device. Do not restart Kodi
+  blindly: HDMI 0 selector enumeration/persistence is unresolved and a
+  restart may revert to silent analogue/HDMI 1.
 
 - the stalled task was archived after two output-limit failures and an empty
   in-progress turn; its complete dirty checkout was retained by snapshot
