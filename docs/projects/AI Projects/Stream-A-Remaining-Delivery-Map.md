@@ -209,14 +209,9 @@ the later deployment requires one separately approved Aster Agent restart.
 F2/F3 and the full-Aster schedule are unchanged.
 
 The exact [candidate-E gateway install card](evidence/SA3-candidate-E-gateway-install-card-2026-10-27.md)
-now adds a rollback-capable four-file installer. Its focused manifest/installer
-suite passes 9/9, shell syntax passes and independent source re-review passes
-against the exact pinned bytes. It checkpoints the sole live
-predecessor before change, removes only the three additions on rollback,
-restarts only Aster Agent and keeps every model/routing/producer/repair effect
-out of scope. The installer has not run. Immediate approval for the exact
-installation and Aster Agent restart remains the next live gate, after the
-protected nightly window.
+was superseded by the reviewed single-restart composite below. Candidate E is
+now installed with its exact pinned bytes; automatic routing and repair remain
+closed.
 
 Independent offline SA2 work also adds a third
 [fixed Doctor-status producer boundary](evidence/SA2-doctor-status-registered-producer-boundary-2026-10-27.md).
@@ -229,19 +224,13 @@ excluded from the candidate-E installer; target-runtime review and a later
 exact release remain separate gates.
 
 Its exact three-file [release packet](evidence/SA2-doctor-status-producer-release-packet-2026-10-27.md)
-is now source-complete and independently reviewed. The manifest binds each
-candidate to its target and recorded predecessor, and its validator rejects
-mapping, predecessor, content and authority drift. The remaining work is a
-fresh post-window live-predecessor check, target-Python validation and a
-rollback installer; deployment still requires a separately approved Aster
-Agent restart.
+was independently reviewed and then included in the single-restart composite.
+The fixed Doctor producer is now installed; executing it remains a separate
+bounded read-only investigation step.
 
 The rollback [installer card](evidence/SA2-doctor-status-producer-install-card-2026-10-27.md)
-is now also source-complete and independently reviewed. Its deterministic
-packet builder closes validation-to-build replacement races and the complete
-packet/manifest/installer suite passes 11/11. It has not run; the remaining pre-release
-work is limited to post-window live-predecessor and target-Python checks,
-followed by the separately approved Aster Agent restart.
+remains the component-level recovery design; the actual installation used the
+reviewed composite transaction and its four-predecessor checkpoint.
 
 The two ready releases now also have a source-only
 [single-restart composite](evidence/SA2-SA3-single-restart-composite-boundary-2026-10-27.md).
@@ -261,9 +250,14 @@ The October 28 live preflight rejected the original validation packet because
 it omitted the pinned synthetic fixture used by two frozen test modules. The
 corrected 17-member packet passed 72/72 under LXC104 Python 3.13, imported both
 authenticated routes, cleaned every temporary file and left Aster Agent and
-the accepted llama service on their original PIDs with zero restarts. The
-single-restart composite is now technically ready; its installation and one
-Aster Agent restart remain the explicit live effect gate.
+the accepted llama service on their original PIDs with zero restarts. Jason
+then approved the exact composite and one Aster Agent restart. The
+[installation and connected smoke result](evidence/SA2-SA3-composite-install-and-connected-smoke-result-2026-10-28.md)
+is **PASS**: exact installed hashes, retained checkpoint, healthy services and
+one isolated model-backed proposal journaled with `authority=none`,
+`effect=none`, and zero observation consumption. The next main-project step is
+a bounded registered read-only adaptive investigation; no repair or automatic
+routing follows from this pass.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
