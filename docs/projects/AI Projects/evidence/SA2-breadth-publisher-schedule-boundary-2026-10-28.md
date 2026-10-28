@@ -36,7 +36,9 @@ Agent. Neither unit is installed or enabled.
 
 ## Validation
 
-Shell syntax and the complete focused publisher/evidence suite pass **84/84**.
+Shell syntax and the complete focused publisher/evidence suite pass. The later
+combined-release preflight also passes the seven builder tests and the isolated
+scheduler integration with the catalogue dependency present.
 The fixed report producer and unprivileged consumer already passed a temporary
 target compatibility check; the remaining gate is exact release packaging,
 disabled target unit validation and approval for installation/enablement.

@@ -352,8 +352,16 @@ Publisher cadence is now explicit in a source-only
 The existing daily report command requests the digest-bound typed catalogue,
 while an inactive hardened five-minute root one-shot is defined for the
 content-free journal count. No schedule or unit changed live. Shell syntax and
-the complete focused suite pass 84/84. Exact packaging and disabled target unit
-validation remain before one combined approval request.
+the complete focused suite pass. Exact packaging and disabled target unit
+validation were then completed for the combined release below.
+
+The exact four-Mac-file/nine-LXC-file
+[combined breadth release card](evidence/SA2-breadth-combined-release-card-2026-10-28.md)
+is now ready. Its disabled target unit verification passes, and its manifest
+preflight found and corrected the previously missing Mac catalogue dependency.
+The remaining gate is approval for the bounded live installation, one new
+publisher timer, one fresh catalogue publication, one Aster Agent restart and
+one representative no-effect connected check.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and

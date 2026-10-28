@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "release_id": "sa2-breadth-evidence-20261028",
+  "mac_files": [
+    {
+      "source": "services/aster-agent/diagnostic_catalogue_v3.py",
+      "target": "/Users/jelliott/lab/homelab/services/aster-agent/diagnostic_catalogue_v3.py",
+      "before_sha256": null,
+      "after_sha256": "a8e813542dfc3941892c60dbc7d830c63acd88d2459de3ac8d21c1ff632588dc",
+      "mode": "0644"
+    },
+    {
+      "source": "scripts/doctor.sh",
+      "target": "/Users/jelliott/lab/homelab/scripts/doctor.sh",
+      "before_sha256": "f501dfca6d4a437a9af9a0e5173a57386ccfb690ccccb9d96813992899a4bc96",
+      "after_sha256": "6dee983de639400bb9321f2b1feb98d6a49fcfe197a294cf347530b40621f0be",
+      "mode": "0755"
+    },
+    {
+      "source": "scripts/build-aster-health-report.py",
+      "target": "/Users/jelliott/lab/homelab/scripts/build-aster-health-report.py",
+      "before_sha256": "2ba813496d46606f42b8e74925f587396428646ceb31bb802e854dab3cc9f0b5",
+      "after_sha256": "cbfd54152a31701b08698b2397262c66aa937a462368146d6c34aa1baf394947",
+      "mode": "0755"
+    },
+    {
+      "source": "scripts/scheduled-report.sh",
+      "target": "/Users/jelliott/lab/homelab/scripts/scheduled-report.sh",
+      "before_sha256": "f5e87254859e375d7393273df42197eb9052b66c146554b0053ea32b44e47bf6",
+      "after_sha256": "6595bd5e8e390afb903ecd030565249bb10f2cc72157d81af0112c7a4cb61fb7",
+      "mode": "0755"
+    }
+  ],
+  "lxc_files": [
+    {
+      "source": "services/aster-agent/netbox_incident_adapter.py",
+      "target": "/opt/aster-agent/netbox_incident_adapter.py",
+      "before_sha256": null,
+      "after_sha256": "0b9b7be0c52e5546cdeb6d95651a223ab85f88f3654f3cd281da959a44f4fc99",
+      "mode": "0644"
+    },
+    {
+      "source": "services/aster-agent/gateway_config_incident_adapter.py",
+      "target": "/opt/aster-agent/gateway_config_incident_adapter.py",
+      "before_sha256": null,
+      "after_sha256": "ebeeccafa166e6e1c6f22a6db2b5cc0c3f670682e2b93179d21dabfda17ba6a3",
+      "mode": "0644"
+    },
+    {
+      "source": "services/aster-agent/backup_catalogue_incident_adapter.py",
+      "target": "/opt/aster-agent/backup_catalogue_incident_adapter.py",
+      "before_sha256": null,
+      "after_sha256": "64bbda06d7781bfad148884f232ae0d966b9eabd8d8e49dcac994b7b0114bb28",
+      "mode": "0644"
+    },
+    {
+      "source": "services/aster-agent/gateway_log_incident_adapter.py",
+      "target": "/opt/aster-agent/gateway_log_incident_adapter.py",
+      "before_sha256": null,
+      "after_sha256": "cde0b92822768b959d4f2cf0f9090b754711809ee5fea31b82d90ef10cba56c1",
+      "mode": "0644"
+    },
+    {
+      "source": "services/aster-agent/sysadmin_investigation.py",
+      "target": "/opt/aster-agent/sysadmin_investigation.py",
+      "before_sha256": "1f903f4a702d1548783990c38954d4e21a3688f83a062e42416183c7949481ed",
+      "after_sha256": "0720d6b2978cd849b7093633bc1b3b630b1d1bfacf8da9b219f7e4a9be1c1182",
+      "mode": "0644"
+    },
+    {
+      "source": "services/aster-agent/sysadmin_registered_producer.py",
+      "target": "/opt/aster-agent/sysadmin_registered_producer.py",
+      "before_sha256": "27175ab0d1a0cbcfc1fbc3201859417e2818b22d1738f1d2d2dc3a48f8191c96",
+      "after_sha256": "dd89e1d56446675f1a8df2c8fb0b66489f3cf3cafe2b23cd9bbba66cc651342a",
+      "mode": "0644"
+    },
+    {
+      "source": "scripts/produce_aster_agent_log_report.py",
+      "target": "/usr/local/libexec/produce-aster-agent-log-report.py",
+      "before_sha256": null,
+      "after_sha256": "ebc8221b37048866a8da9b06bb78487c3b33575d20d9208e6e5ea9f860a9e9cf",
+      "mode": "0755"
+    },
+    {
+      "source": "services/aster-agent/systemd/aster-agent-log-report.service",
+      "target": "/etc/systemd/system/aster-agent-log-report.service",
+      "before_sha256": null,
+      "after_sha256": "ce21f1418b27531beeeee4b6a8b0bf55d2ea615b5f064633bfb3ef91761d3e01",
+      "mode": "0644"
+    },
+    {
+      "source": "services/aster-agent/systemd/aster-agent-log-report.timer",
+      "target": "/etc/systemd/system/aster-agent-log-report.timer",
+      "before_sha256": null,
+      "after_sha256": "057e99fd1324ed0b310f9aedc47d55ca124a9c1d8481e4b10ccadf8a11aad3cb",
+      "mode": "0644"
+    }
+  ],
+  "runtime": {
+    "target": "macOS publisher and LXC104",
+    "aster_restart_count": 1,
+    "enable_log_timer": true,
+    "publish_fresh_doctor_catalogue": true,
+    "model_restart": false,
+    "model_change": false,
+    "automatic_routing": false,
+    "repair_authority": false
+  }
+}

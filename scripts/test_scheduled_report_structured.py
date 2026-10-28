@@ -12,6 +12,7 @@ from pathlib import Path
 
 
 SOURCE = Path(__file__).resolve().parent
+AGENT_SOURCE = SOURCE.parent / "services" / "aster-agent"
 PRIVATE = "token=FIXTURE_NOT_A_SECRET private operator detail"
 
 
@@ -21,8 +22,11 @@ class ScheduledReportStructuredTests(unittest.TestCase):
             root = Path(temporary)
             scripts = root / "lab" / "homelab" / "scripts"
             scripts.mkdir(parents=True)
+            agent = root / "lab" / "homelab" / "services" / "aster-agent"
+            agent.mkdir(parents=True)
             shutil.copy2(SOURCE / "build-aster-health-report.py", scripts)
             shutil.copy2(SOURCE / "scheduled-report.sh", scripts)
+            shutil.copy2(AGENT_SOURCE / "diagnostic_catalogue_v3.py", agent)
 
             for name, body in (
                 ("drift-check.sh", "#!/bin/bash\nprintf 'no drift\\n'\n"),
@@ -71,12 +75,22 @@ class ScheduledReportStructuredTests(unittest.TestCase):
             sidecar = json.loads((state / "aster-inference.json").read_text())
             self.assertEqual(sidecar["source_report_digest"], hashlib.sha256(aggregate_raw).hexdigest())
             self.assertEqual(sidecar["checks"], [{"check_id": "aster.agent_inference", "state": "pass"}])
+            catalogue = json.loads((state / "diagnostic-catalogue.json").read_text())
+            self.assertEqual(
+                [item["check_id"] for item in catalogue["checks"]],
+                ["aster.agent_inference", "aster.speech", "backup.protection"],
+            )
+            self.assertEqual(catalogue["source_report_digest"], hashlib.sha256(aggregate_raw).hexdigest())
             self.assertIn(PRIVATE, (state / "doctor-output.txt").read_text())
             self.assertNotIn(PRIVATE, json.dumps(sidecar))
 
             envelope = json.loads(published.read_text())
             self.assertEqual(base64.b64decode(envelope["aggregate"]), aggregate_raw)
             self.assertEqual(base64.b64decode(envelope["structured"]), (state / "aster-inference.json").read_bytes())
+            self.assertEqual(
+                base64.b64decode(envelope["catalogue"]),
+                (state / "diagnostic-catalogue.json").read_bytes(),
+            )
 
 
 if __name__ == "__main__":
