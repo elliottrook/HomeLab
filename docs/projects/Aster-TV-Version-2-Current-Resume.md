@@ -53,6 +53,23 @@ Takeover and repair evidence on 2026-10-28:
   ELD or permanently unavailable ALSA device. Do not restart Kodi
   blindly: HDMI 0 selector enumeration/persistence is unresolved and a
   restart may revert to silent analogue/HDMI 1.
+- Jason approved a bounded Kodi startup readiness fix. A new systemd
+  `ExecStartPre` probe checked the TV ELD and silently opened HDMI 0 with
+  ALSA, with a 45-second fail-open bound and exact checkpoint
+  `astertv-hdmi-ready-20261028`. The first restart probe succeeded, but Kodi's
+  immediate ALSA enumeration still logged `Unable to open device
+  "hdmi:CARD=PCH,DEV=0"` and reset the selectors. A three-second settle
+  successor also succeeded as a standalone ALSA probe but failed to prevent
+  the same Kodi rejection. Both startup-gate generations were rolled back;
+  the service drop-in and probe file were removed, and systemd reloaded.
+  Kodi's normal HDMI 0 stereo selectors were restored live with passthrough
+  off at checkpoint `astertv-audio-after-gate-20261028`; physical sound
+  reconfirmation is pending. The delay hypothesis is therefore disproven.
+  PulseAudio is simultaneously enabled (`--audio-backend=alsa+pulseaudio`)
+  and advertises HDMI stereo; contention is only a hypothesis, not an
+  established cause. Do not disable PulseAudio or change Kodi's backend
+  without a separate risk decision, because that could affect other audio
+  routes including Bluetooth.
 
 - the stalled task was archived after two output-limit failures and an empty
   in-progress turn; its complete dirty checkout was retained by snapshot
