@@ -17,6 +17,12 @@ answer baseline. The exact challenger and full-path contract remain open;
 see the current project coordination status and its pinned owner receipts.
 Offline tests and explicit command-line interlocks never grant live authority.
 
+`phase_timing_proposal.py` validates caller-supplied, content-free phase rows
+for offline review only. It neither samples clocks nor writes a durable journal.
+Its proposal schema is not an accepted platform adapter: source custody,
+monotonic collection and journal-sequence wiring still need owner review.
+Incomplete/failed phases never become recovery or model qualification proof.
+
 This directory contains the offline, synthetic-only Phase 1 harness. It does
 not connect to the inference endpoint, execute SSH, spawn processes or authorize
 a production run. A separately reviewed runner can consume the generated plan

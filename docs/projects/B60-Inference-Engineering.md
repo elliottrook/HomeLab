@@ -12,6 +12,13 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October27 evening prototype](B60-Inference-Engineering/research-watch-20261012.md#october-27-evening-instrumentation-prototype)
+adds a pure content-free phase-timing proposal with nine synthetic tests;
+95 B60 tests pass. Interrupted phases remain explicitly incomplete. This is
+not yet an accepted owner format, installed collector or real measurement.
+Owner refs are unchanged; next is source/journal mapping and review, with
+all live challenger and recovery gates intact.
+
 The [October27 afternoon receipt](B60-Inference-Engineering/research-watch-20261012.md#october-27-afternoon-published-response-and-source-tests)
 receives Adaptive `76190385` and verifies actual platform owner branch
 `codex/f2-observer-exit-diagnostics` at `20064064`. Same-date F4 and consumer

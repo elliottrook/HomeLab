@@ -1,5 +1,54 @@
 # Fixed-hardware capability research watch — 2026-10-12
 
+## October 27 evening instrumentation prototype
+
+Fetched all four authoritative refs and read the current B60/Adaptive records
+plus the registry split and actual platform qualification source. No owner
+change since the afternoon receipt: Adaptive
+`76190385d915e274b222765097bc977860bf877d`, published B60
+`4000318d228f31d64588a4cc0719ae2090e995d7`, registry
+`6fb0207fec5190e0c34ed3bc72ea38e128f06127` and actual platform
+`200640648eca0d3485eae8e2cbfd2707a0e3c296`. Read-only GitHub refs agree.
+The owner response path/hash remains
+`docs/projects/AI Projects/evidence/B60-daytime-qualification-source-and-semantics-response-2026-10-27.md`
+at Adaptive, `ac6299ea646bdc59659c21dc5ed24b72605a0b21e14cfaab1b266fcb40d16ed4`;
+the exact platform qualification result remains
+`1ca68589e9576bc8e43402cf38915b3b3b666d99ec4f818fe6ec886fb19fcae3`.
+No duplicate peer wait/question or new overnight admission is inferred.
+
+Implemented an isolated pure proposal in
+`scripts/b60-inference/phase_timing_proposal.py`, SHA-256
+`3b12ddd1f87b7ec2512e38dc7a9c1bb28f710f53f307c0b1579ed7da5d0509b0`.
+Its schema `b60-phase-timing-proposal.v0` is **not an accepted peer format**
+or an installed collector. It validates content-free rows for drain,
+candidate setup, workload, accepted restoration and final verification, with
+exact run/lease/generation/model/runtime/checkpoint/source bindings. Fixed
+phase order supplies local ordinals; the future runner adapter still needs
+durable journal-sequence and source-custody bindings.
+
+The proposal refuses extra free-text fields, invalid/overlapping monotonic
+intervals, missing phases and continued candidate work after failure. It
+retains recovery observations after failure and explicit not-attempted rows.
+An interrupted uncertain interval retains a null end/duration and null total
+span rather than inventing completion. Copied output cannot mutate input
+bindings. Caller-supplied ticks and hashes remain unauthenticated and cannot
+establish actual recovery, useful-answer timing or eligibility.
+
+Nine synthetic tests in `test_phase_timing_proposal.py` (SHA-256
+`e9efe4367499173b4b4d055c2aab1d9f1da325ea3b3d7f9bf66d84941bfb9ea9`)
+pass; the full B60 suite is **95/95**, not95 model observations. All outputs
+retain `qualification_eligible:false` and `live_admission_authorized:false`.
+There is no CLI, process runner, network client, clock sampler or file writer.
+
+Next safe step: owner review and explicit mapping of this proposal to the
+actual platform journal/custody format, then instrument the exact isolated
+challenger controller without changing its effect order or policy. No live
+adapter is wired here. Retain all-consumer lease-aware resumption, measured
+model-switch restoration,30-minute B60 trial and04:15 completion gates.
+No model/GPU request, host probe, download, mount, lease, timer/service,
+package/driver or credential action ran. The single overnight runner and
+fresh October28 F2/F3 chain remain independent; no background work is claimed.
+
 ## October 27 afternoon published response and source tests
 
 Received authoritative Adaptive
