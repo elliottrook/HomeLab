@@ -25,7 +25,9 @@ contained no errors. Kodi's startup enumeration again reset its audio selector
 to the system default; with playback idle, the known connected HDMI 0 selector
 was set live and read back. Physical sound and player-control confirmation
 remain pending from Jason. Do not restart Kodi blindly until the HDMI 0
-enumeration problem is understood.
+enumeration problem is understood. Jason subsequently confirmed that the
+v1.1.1 interface looks right and sound works. A physical skip-control playback
+check was not performed during the rollback.
 
 The v2 code fixes through commit `76540e91` are retained on
 `codex/astertv-v2-recovery` for a lab-only candidate. The remaining gate is to
@@ -34,6 +36,14 @@ versions, install the candidate there, and repair/retest recap, intro and
 outro controls together with TV seasons/playback, News Digest, YouTube search,
 audio output persistence and the rest of the release acceptance. No v2
 re-promotion is authorized by this rollback. No Forgejo/GitHub push was made.
+The tracked, credential-free source and recovery-record package is
+`services/kodi/dist/aster-home-v2.0.1-lab-candidate-source.tar.gz` (1,946
+archive entries, 23 MiB), SHA-256
+`97c312324b3f220bf0c46ef99edea54b7438d3a5f1d5e0c595189541c84e9e51`.
+It is **not** a clean-client install image or production deployment bundle;
+see `services/kodi/releases/aster-home-v2.0.1-lab-candidate.json`. Focused
+offline checks passed: 24 season/YouTube/production-builder tests and 8
+next-episode tests. The actual Kodi 22 skip regression remains unresolved.
 
 ## Historical production regression recovery — superseded by rollback
 
