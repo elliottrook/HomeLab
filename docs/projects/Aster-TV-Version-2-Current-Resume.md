@@ -13,6 +13,18 @@ LibreELEC 12.2.1/Kodi 21 and was left unchanged.
 
 Takeover and repair evidence on 2026-10-28:
 
+- After the TV playback check, Jason reported system-wide silence. Kodi was
+  unmuted at 100%, but the active normal sink was the PC's analogue output;
+  passthrough targeted HDMI 1. ALSA/ELD showed only `Beyond TV` on HDMI 0 as
+  connected and valid. The earlier `audio-before-receiver-20261023-0825`
+  checkpoint recorded a working TV stereo profile. With no active player, an
+  exact-predecessor script saved Kodi's prior settings privately at
+  `/storage/.aster-checkpoints/astertv-tv-audio-20261028`, restored normal and
+  passthrough selectors to HDMI 0, disabled passthrough, and selected stereo.
+  Runtime values verified and Kodi reopened `hdmi:CARD=PCH,DEV=0` without
+  fallback. Jason confirmed sound is back. Surround passthrough remains
+  deliberately disabled until separately validated.
+
 - the stalled task was archived after two output-limit failures and an empty
   in-progress turn; its complete dirty checkout was retained by snapshot
   `31f5620344bf90ada2d12e52bb5cfdd15dd49d94` and restored into the managed
