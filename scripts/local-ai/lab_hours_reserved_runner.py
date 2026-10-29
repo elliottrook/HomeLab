@@ -27,7 +27,8 @@ MODEL_SHA = "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13"
 BINARY_SHA = "0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5"
 UNIT_SHA = "a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3"
 PROCESS_MARKERS = ("vzdump", "zstd -t", "f2_preflight", "f3_from_f2",
-                   "stream_a_evaluation_evidence", "full_aster_first_screen")
+                   "stream_a_evaluation_evidence", "full_aster_first_screen",
+                   "m3_joint_semantic_35b")
 
 
 class RunError(RuntimeError): pass
@@ -90,13 +91,21 @@ def commands(booking: dict[str, object], claimant: str, start: int):
     end = int(booking["end_epoch"])
     rescue = min(start + spec.rescue_after_seconds, end)
     hard = end + 900
-    guardian = ("systemd-run", "--quiet", "--collect", f"--unit={guardian_unit}",
-        "--property=User=root", "--property=Restart=no", "/usr/bin/python3", "-B",
-        str(PILOT / "full_inference_lab_deadline_guardian.py"), "--state-root", str(STATE_ROOT),
-        "--owner-id", claimant, "--owner-unit", owner_unit, "--cycle", cycle,
-        "--model-sha256", MODEL_SHA, "--binary-sha256", BINARY_SHA,
-        "--unit-sha256", UNIT_SHA, "--rescue-at", str(rescue),
-        "--hard-deadline", str(hard), "--effect-authorized")
+    if spec.runner_kind == "m3-joint-semantic-35b":
+        guardian_script = PILOT / "m3_joint_semantic_35b_guardian.py"
+        guardian = ("systemd-run", "--quiet", "--collect", f"--unit={guardian_unit}",
+            "--property=User=root", "--property=Restart=no", "/usr/bin/python3", "-B",
+            str(guardian_script), "--owner-id", claimant, "--owner-unit", owner_unit,
+            "--cycle", cycle, "--rescue-at", str(rescue),
+            "--hard-deadline", str(hard), "--effect-authorized")
+    else:
+        guardian = ("systemd-run", "--quiet", "--collect", f"--unit={guardian_unit}",
+            "--property=User=root", "--property=Restart=no", "/usr/bin/python3", "-B",
+            str(PILOT / "full_inference_lab_deadline_guardian.py"), "--state-root", str(STATE_ROOT),
+            "--owner-id", claimant, "--owner-unit", owner_unit, "--cycle", cycle,
+            "--model-sha256", MODEL_SHA, "--binary-sha256", BINARY_SHA,
+            "--unit-sha256", UNIT_SHA, "--rescue-at", str(rescue),
+            "--hard-deadline", str(hard), "--effect-authorized")
     owner = ("systemd-run", "--quiet", "--collect", "--scope", f"--unit={owner_unit}",
         "/usr/bin/python3", "-B", str(PILOT / "full_inference_lab_runtime.py"),
         "--phase", "pilot", "--owner-id", claimant, "--owner-unit", owner_unit,
@@ -185,7 +194,9 @@ def run(booking_id: str) -> int:
         expected_requests=spec.request_count
         expected_effect=("guardian-rescued" if expected_requests==0 else
                          ("sa3-expanded-quality-complete"
-                          if spec.runner_kind=="sa3-expanded-quality" else "pilot-complete"))
+                          if spec.runner_kind=="sa3-expanded-quality" else
+                          ("m3-joint-semantic-public-complete"
+                           if spec.runner_kind=="m3-joint-semantic-35b" else "pilot-complete")))
         receipt_body=receipt.get("receipt")
         receipt_valid=(isinstance(receipt_body,dict)
             and receipt_body.get("exit_status")==0
@@ -202,6 +213,18 @@ def run(booking_id: str) -> int:
                 and len(receipt_body["prediction_sha256"])==64
                 and all(c in "0123456789abcdef"
                         for c in receipt_body["prediction_sha256"]))
+        elif spec.runner_kind=="m3-joint-semantic-35b":
+            receipt_valid=(receipt_valid
+                and set(receipt)=={"effects","production_restored","receipt"}
+                and set(receipt_body)=={"exit_status","profile","request_count",
+                                        "result_sha256","exact","public_pass"}
+                and receipt.get("production_restored") is True
+                and isinstance(receipt_body.get("result_sha256"),str)
+                and len(receipt_body["result_sha256"])==64
+                and all(c in "0123456789abcdef" for c in receipt_body["result_sha256"])
+                and type(receipt_body.get("exact")) is int
+                and 0 <= receipt_body["exact"] <= 24
+                and type(receipt_body.get("public_pass")) is bool)
         elif set(receipt_body or {}) != {"exit_status","profile","request_count"}:
             receipt_valid=False
         if receipt.get("effects")!=expected_effect or not receipt_valid:

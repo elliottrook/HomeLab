@@ -23,6 +23,17 @@ class WorkloadRegistryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "not registered"):
             workload("operator-command")
 
+    def test_m3_registration_is_distinct_fixed_and_booked_for_recovery(self):
+        self.assertIn("m3-joint-semantic-35b-public-v1", REGISTERED_WORKLOADS)
+        spec = workload("m3-joint-semantic-35b-public-v1")
+        self.assertEqual("aster-stream-a", spec.owner)
+        self.assertEqual(24, spec.request_count)
+        self.assertEqual(3600, spec.deadline_seconds)
+        self.assertEqual(4500, spec.minimum_booking_seconds)
+        self.assertEqual(900, spec.recovery_reserve_seconds)
+        self.assertEqual("m3-joint-semantic-35b", spec.runner_kind)
+        self.assertEqual(14, len(spec.runtime_pins))
+
     def test_inactive_validation_fails_closed_when_target_is_not_installed(self):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaisesRegex(ValueError, "target file missing"):

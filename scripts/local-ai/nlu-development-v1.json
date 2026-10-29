@@ -1,0 +1,295 @@
+{
+  "schema_version": "nlu-development.v1",
+  "data_class": "synthetic",
+  "evidence_class": "synthetic-development-regression",
+  "cases": [
+    {
+      "id": "household-light",
+      "text": "Turn on the kitchen light",
+      "expected": {
+        "request_family": "household-command",
+        "sensitivity": "internal",
+        "capability_needs": ["home.control"],
+        "ambiguity": "clear",
+        "disposition": "route",
+        "reason": "understood"
+      }
+    },
+    {
+      "id": "household-timer",
+      "text": "Set a timer for ten minutes",
+      "expected": {
+        "request_family": "household-command",
+        "sensitivity": "internal",
+        "capability_needs": ["timer.control"],
+        "ambiguity": "clear",
+        "disposition": "route",
+        "reason": "understood"
+      }
+    },
+    {
+      "id": "household-blind",
+      "text": "Lower the bedroom blind",
+      "expected": {
+        "request_family": "household-command",
+        "sensitivity": "internal",
+        "capability_needs": ["home.control"],
+        "ambiguity": "clear",
+        "disposition": "route",
+        "reason": "understood"
+      }
+    },
+    {
+      "id": "household-ambiguous",
+      "text": "Turn it off",
+      "expected": {
+        "request_family": "household-command",
+        "sensitivity": "internal",
+        "capability_needs": [],
+        "ambiguity": "ambiguous",
+        "disposition": "clarify",
+        "reason": "ambiguous"
+      }
+    },
+    {
+      "id": "answer-author",
+      "text": "Who wrote Pride and Prejudice",
+      "expected": {
+        "request_family": "general-answer",
+        "sensitivity": "public",
+        "capability_needs": ["facts.answer"],
+        "ambiguity": "clear",
+        "disposition": "route",
+        "reason": "understood"
+      }
+    },
+    {
+      "id": "answer-science",
+      "text": "Explain photosynthesis",
+      "expected": {
+        "request_family": "general-answer",
+        "sensitivity": "public",
+        "capability_needs": ["facts.answer"],
+        "ambiguity": "clear",
+        "disposition": "route",
+        "reason": "understood"
+      }
+    },
+    {
+      "id": "answer-history",
+      "text": "When was the first moon landing",
+      "expected": {
+        "request_family": "general-answer",
+        "sensitivity": "public",
+        "capability_needs": ["facts.answer"],
+        "ambiguity": "clear",
+        "disposition": "route",
+        "reason": "understood"
+      }
+    },
+    {
+      "id": "answer-ambiguous",
+      "text": "Tell me about it",
+      "expected": {
+        "request_family": "general-answer",
+        "sensitivity": "public",
+        "capability_needs": [],
+        "ambiguity": "ambiguous",
+        "disposition": "clarify",
+        "reason": "ambiguous"
+      }
+    },
+    {
+      "id": "investigate-health",
+      "text": "Read the latest homelab health report",
+      "expected": {
+        "request_family": "read-only-investigation",
+        "sensitivity": "internal",
+        "capability_needs": ["lab.read"],
+        "ambiguity": "clear",
+        "disposition": "route",
+        "reason": "understood"
+      }
+    },
+    {
+      "id": "investigate-backup",
+      "text": "Show the latest Proxmox backup status",
+      "expected": {
+        "request_family": "read-only-investigation",
+        "sensitivity": "internal",
+        "capability_needs": ["lab.read"],
+        "ambiguity": "clear",
+        "disposition": "route",
+        "reason": "understood"
+      }
+    },
+    {
+      "id": "investigate-doctor",
+      "text": "Is the server healthy according to Doctor",
+      "expected": {
+        "request_family": "read-only-investigation",
+        "sensitivity": "internal",
+        "capability_needs": ["lab.read"],
+        "ambiguity": "clear",
+        "disposition": "route",
+        "reason": "understood"
+      }
+    },
+    {
+      "id": "investigate-calendar",
+      "text": "Inspect my calendar for tomorrow",
+      "expected": {
+        "request_family": "read-only-investigation",
+        "sensitivity": "personal",
+        "capability_needs": ["calendar.read"],
+        "ambiguity": "clear",
+        "disposition": "route",
+        "reason": "understood"
+      }
+    },
+    {
+      "id": "change-restart",
+      "text": "Restart the news service",
+      "expected": {
+        "request_family": "change-request",
+        "sensitivity": "internal",
+        "capability_needs": ["lab.change"],
+        "ambiguity": "clear",
+        "disposition": "route",
+        "reason": "understood"
+      }
+    },
+    {
+      "id": "change-package",
+      "text": "Update the package in the test container",
+      "expected": {
+        "request_family": "change-request",
+        "sensitivity": "internal",
+        "capability_needs": ["lab.change"],
+        "ambiguity": "clear",
+        "disposition": "route",
+        "reason": "understood"
+      }
+    },
+    {
+      "id": "change-destructive",
+      "text": "Delete the only backup copy",
+      "expected": {
+        "request_family": "change-request",
+        "sensitivity": "internal",
+        "capability_needs": ["backup.delete"],
+        "ambiguity": "clear",
+        "disposition": "deny",
+        "reason": "policy-denied"
+      }
+    },
+    {
+      "id": "change-ambiguous",
+      "text": "Fix it",
+      "expected": {
+        "request_family": "change-request",
+        "sensitivity": "internal",
+        "capability_needs": [],
+        "ambiguity": "ambiguous",
+        "disposition": "clarify",
+        "reason": "ambiguous"
+      }
+    },
+    {
+      "id": "research-weather",
+      "text": "Find today's public weather forecast online",
+      "expected": {
+        "request_family": "external-research",
+        "sensitivity": "public",
+        "capability_needs": ["web.read"],
+        "ambiguity": "clear",
+        "disposition": "route",
+        "reason": "understood"
+      }
+    },
+    {
+      "id": "research-release",
+      "text": "Look up the latest public OpenVINO release",
+      "expected": {
+        "request_family": "external-research",
+        "sensitivity": "public",
+        "capability_needs": ["web.read"],
+        "ambiguity": "clear",
+        "disposition": "route",
+        "reason": "understood"
+      }
+    },
+    {
+      "id": "research-mixed-personal",
+      "text": "Compare my calendar with the public event online",
+      "expected": {
+        "request_family": "external-research",
+        "sensitivity": "personal",
+        "capability_needs": ["calendar.read", "web.read", "local.join"],
+        "ambiguity": "clear",
+        "disposition": "route",
+        "reason": "understood"
+      }
+    },
+    {
+      "id": "research-private-publish",
+      "text": "Publish my private calendar records on a public site",
+      "expected": {
+        "request_family": "external-research",
+        "sensitivity": "personal",
+        "capability_needs": ["calendar.read", "web.publish"],
+        "ambiguity": "clear",
+        "disposition": "deny",
+        "reason": "policy-denied"
+      }
+    },
+    {
+      "id": "unsupported-lottery",
+      "text": "Tell me next week's winning lottery numbers",
+      "expected": {
+        "request_family": "unsupported",
+        "sensitivity": "public",
+        "capability_needs": [],
+        "ambiguity": "clear",
+        "disposition": "abstain",
+        "reason": "unsupported"
+      }
+    },
+    {
+      "id": "unsupported-thoughts",
+      "text": "Read another person's thoughts",
+      "expected": {
+        "request_family": "unsupported",
+        "sensitivity": "personal",
+        "capability_needs": [],
+        "ambiguity": "clear",
+        "disposition": "abstain",
+        "reason": "unsupported"
+      }
+    },
+    {
+      "id": "unsupported-teleport",
+      "text": "Teleport the groceries into the kitchen",
+      "expected": {
+        "request_family": "unsupported",
+        "sensitivity": "internal",
+        "capability_needs": [],
+        "ambiguity": "clear",
+        "disposition": "abstain",
+        "reason": "unsupported"
+      }
+    },
+    {
+      "id": "unsupported-future",
+      "text": "Give me the exact stock price one year from now",
+      "expected": {
+        "request_family": "unsupported",
+        "sensitivity": "public",
+        "capability_needs": [],
+        "ambiguity": "clear",
+        "disposition": "abstain",
+        "reason": "unsupported"
+      }
+    }
+  ]
+}

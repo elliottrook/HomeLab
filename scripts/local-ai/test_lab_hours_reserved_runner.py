@@ -28,4 +28,16 @@ class ReservedRunnerTests(unittest.TestCase):
         self.assertEqual(guardian[guardian.index("--rescue-at")+1],"3700")
         self.assertEqual(guardian[guardian.index("--hard-deadline")+1],"5500")
 
+    def test_m3_uses_mount_aware_guardian_and_exact_profile(self):
+        booking={"booking_id":"m3-booking-01","end_epoch":5500,
+                 "workload":"m3-joint-semantic-35b-public-v1"}
+        _,_,guardian,owner=runner.commands(booking,"lh-12345678",1000)
+        self.assertTrue(any(str(item).endswith("m3_joint_semantic_35b_guardian.py")
+                            for item in guardian))
+        self.assertFalse(any(str(item).endswith("full_inference_lab_deadline_guardian.py")
+                             for item in guardian))
+        self.assertEqual(guardian[guardian.index("--rescue-at")+1],"4600")
+        self.assertEqual(owner[owner.index("--workload-profile")+1],
+                         "m3-joint-semantic-35b-public-v1")
+
 if __name__=="__main__": unittest.main()

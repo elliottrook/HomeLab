@@ -71,6 +71,29 @@ WORKLOADS = {
         packet_sha256="d8c7945924a98bfae45522fd4ac9f377871db3243136b4a00617263cf44e9066",
         result_max_bytes=262144,
     ),
+    "m3-joint-semantic-35b-public-v1": WorkloadSpec(
+        workload_id="m3-joint-semantic-35b-public-v1", owner="aster-stream-a",
+        request_count=24, per_request_timeout_seconds=90, deadline_seconds=3600,
+        minimum_booking_seconds=4500, recovery_reserve_seconds=900,
+        runner_kind="m3-joint-semantic-35b", runtime_pins=(
+            ("nlu_joint_semantic_35b_v1.py", "b2682aa294e5d29b36c961c0b6b5b1593312781026c4f1e3424836ee44f63309"),
+            ("nlu_joint_semantic_35b_public_runner_v1.py", "b91e2dc3c2b6c8fbb89d912d8789ea2ac49d6ac412d9e77f854f66c259ac18d3"),
+            ("nlu_whole_label_public_runner_v1.py", "724f95a6fdb2df69d4e50673c0c3df65a17d41e472b3c6088cf0fe04480769c2"),
+            ("nlu_whole_label_choice_v1.py", "6e7ee332ce74a44a5bb19877f9f8f0c90f814687279b3c4993fbb93fbd58948a"),
+            ("nlu_deterministic_guard_v1.py", "d7d62d19008519ae50aa9b46799ab1f277a51904f2e80e65c30517abca8a7135"),
+            ("nlu_local_model_adapter.py", "3a3b09f12bcd2088f0d604363a5bc0e69190c177eced50dc5a14eb582749aed0"),
+            ("nlu_threshold_policy.py", "984932d8716531858972e22723fe962701077f9a15991c58384c6ee6661ebb5d"),
+            ("nlu-development-v1.json", "1565a21c78875f64f4f25a190e977ae34dc01bdfcfd5e49c056e8365268b3785"),
+            ("m3_joint_semantic_35b_guest_workload.py", "4a40fccf5ba05893b5c3d106ba53c8e29b9d9cf5b7689321c3101da4c0772232"),
+            ("m3_joint_semantic_35b_transaction.py", "6989c37fc4fb774617ed56e2f185a8f92389776497e56b4dbffbcd2efa666e6e"),
+            ("m3_joint_semantic_35b_guardian.py", "a485c2cde71447a8a4feda0c25f7e22d26fe0e9ace2da7b524e698a96275113b"),
+            ("full_aster_first_screen_candidate.py", "eb07b46c1f592ef35c9e0bcb7f0f6aaa0d484775e18ab991b6c29dbe1dc2af6b"),
+            ("full_aster_first_screen_observer.py", "d0342b69bc313bf30279493e05b591c99f8dc445017823d48dc5ea2ffce77ecb"),
+            ("full_aster_first_screen_recovery.py", "2e571b7a4e972f0f13f95eaef094b388d2703aa94f0721156bc29d97ecb97b81"),
+        ),
+        packet_sha256="1565a21c78875f64f4f25a190e977ae34dc01bdfcfd5e49c056e8365268b3785",
+        result_max_bytes=262144,
+    ),
 }
 
 
@@ -97,6 +120,14 @@ def validate_registry() -> None:
     if any(name.endswith("keys-v1.json") or "review" in name
            for name, _ in sa3.runtime_pins):
         raise ValueError("SA3 excluded material entered runtime registration")
+    m3 = workload("m3-joint-semantic-35b-public-v1")
+    if (m3.request_count != 24 or m3.deadline_seconds != 3600
+            or m3.minimum_booking_seconds != 4500
+            or m3.recovery_reserve_seconds != 900
+            or m3.runner_kind != "m3-joint-semantic-35b"
+            or len(m3.runtime_pins) != 14
+            or m3.packet_sha256 != "1565a21c78875f64f4f25a190e977ae34dc01bdfcfd5e49c056e8365268b3785"):
+        raise ValueError("M3 workload registration drift")
 
 
 def _local_imports(path: Path) -> set[str]:

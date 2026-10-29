@@ -260,6 +260,38 @@ class FullInferenceRuntimePilotTests(unittest.TestCase):
         self.assertIn(("listener","lease-1",2,2800),events)
         self.assertIn("restore",events)
 
+    def test_m3_profile_uses_3600_second_preflight_and_fixed_transaction(self):
+        events=[]
+        class Producer:
+            def __init__(self,*a,**k): pass
+            def collect(self,*,cycle,session_start_epoch,lab_seconds):
+                events.append(("collect",lab_seconds))
+                return SimpleNamespace(lab_end_epoch=3700)
+        class Controller:
+            def __init__(self,*a,**k): pass
+            def heartbeat(self,now): events.append("heartbeat")
+        def execute(**kwargs):
+            events.append(("execute",kwargs["owner_id"],kwargs["cycle"],
+                           str(kwargs["retain_root"])))
+            kwargs["heartbeat"]()
+            return {"effects":"m3-joint-semantic-public-complete",
+                    "production_restored":True,"receipt":{"exit_status":0,
+                    "profile":"m3-joint-semantic-35b-public-v1",
+                    "request_count":24,"result_sha256":"a"*64,
+                    "exact":23,"public_pass":True}}
+        with TemporaryDirectory() as tmp:
+            args=self.args();args.state_root=Path(tmp)/"state";args.retain_root=tmp
+            args.workload_profile="m3-joint-semantic-35b-public-v1"
+            with patch.object(runtime,"LocalProxmoxFullDrainSourceProducer",Producer), \
+                 patch.object(runtime,"LocalProxmoxFullDrainValidator",lambda *a,**k:object()), \
+                 patch.object(runtime,"FullInferenceDrainController",Controller), \
+                 patch("m3_joint_semantic_35b_transaction.execute",execute):
+                self.assertEqual(runtime._run_m3(args,runtime.FullDrainPaths(args.state_root),
+                    runner=lambda *a:(0,""),gpu_users=lambda:frozenset(),wall_clock=lambda:100),0)
+        self.assertIn(("collect",3600),events)
+        self.assertTrue(any(event[0]=="execute" for event in events if isinstance(event,tuple)))
+        self.assertIn("heartbeat",events)
+
     def test_rescue_accepts_only_the_restored_production_gpu_holder(self):
         with TemporaryDirectory() as tmp:
             args=self.args(); args.state_root=Path(tmp)/"state"
