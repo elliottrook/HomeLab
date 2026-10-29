@@ -187,6 +187,20 @@ none were present. This is a source and recovery-record package, **not** a
 clean-client installer or production deployment bundle. The tracked release
 boundary is `services/kodi/releases/aster-home-v2.0.2-lab-candidate.json`.
 
+A separate lab-only code update archive is
+`services/kodi/dist/astertv-v2.0.2-code-only-lab.tar.gz` (13,196,100 bytes,
+657 unique members; SHA-256
+`9c89d3e95a6deb35377bf5b3a042e80e73c3657b0ed6c80eb46396046f8debb1`).
+It overlays seven pinned live lab files, including the new YouTube Search focus
+helper, on the preceding 12-add-on code-only archive (SHA-256
+`13d586ae3a30ba03ccc9ea3f2f291e337b814d38dc1805dbbc998d690c4b8f7d`).
+The result was checked for duplicate members, unsafe paths and account/profile
+files; none were found. This is an update payload for the already-provisioned
+lab, **not** a fresh-install recipe: it does not carry the HP HDMI kernel
+setting, Kodi audio selection, Jellyfin's native popup modes, or YouTube and
+Jellyfin credentials. It has not been installed from this archive, rehearsed
+for rollback, or authorized for production.
+
 Jason reported the v2 player had lost skip recap/intro/outro and directed that
 v2 be pulled from production. This is a release-blocking regression; the v2
 candidate is **not production-ready**, even where individual pages passed

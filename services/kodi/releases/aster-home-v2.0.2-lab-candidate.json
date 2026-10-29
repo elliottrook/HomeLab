@@ -22,6 +22,16 @@
     "Production Jellyfin code pin and final host-specific package require separate verification"
   ],
   "package_kind": "tracked-source-and-recovery-records",
+  "lab_code_only_update": {
+    "path": "services/kodi/dist/astertv-v2.0.2-code-only-lab.tar.gz",
+    "sha256": "9c89d3e95a6deb35377bf5b3a042e80e73c3657b0ed6c80eb46396046f8debb1",
+    "bytes": 13196100,
+    "members": 657,
+    "basis_sha256": "13d586ae3a30ba03ccc9ea3f2f291e337b814d38dc1805dbbc998d690c4b8f7d",
+    "status": "lab-only-code-overlay-not-clean-client-installer",
+    "runtime_settings_included": false,
+    "credentials_included": false
+  },
   "credentials_included": false,
   "production_deployment_authorized": false,
   "production_state": "v1.1.1 active; not modified by this candidate"
