@@ -12,6 +12,15 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The latest [entry/restore adapter implementation](B60-Inference-Engineering/research-watch-20261012.md#october29-concrete-entryrestore-adapter-implementation-and-target-checks)
+adds protected file recovery, bounded Proxmox unit-state restoration and an
+independent guardian loop.67 local Lab Hours tests,70 existing inference tests
+and48 selected target-Linux tests pass. A corrected read-only probe captures
+the seven actual AI unit states. The combined booking/lease/mount/timer/guardian
+host transaction still needs wiring and booked-window qualification; these
+components are not deployed as a live experiment controller. No new approval
+is requested or implied.
+
 The October29 exclusive-capacity correction is installed:30 root-custodied
 `b60-exclusive-YYYYMMDD` bookings now reserve October30–November28,
 03:10–03:55 America/Vancouver, recovery protection through04:10. Doctor is

@@ -1,5 +1,57 @@
 # Fixed-hardware capability research watch — 2026-10-12
 
+## October29 concrete entry/restore adapter implementation and target checks
+
+Continued implementation after Jason challenged another status-only stop.
+Source commit `24e65ed6faf18bde2bfe90243f44e19885f360b9` follows
+`95eae3e67`; replay `scripts/b60-inference/lab-hours-entry-adapters-v1.patch`
+after the two previously published patches on platform base `e28dfc24`.
+
+Implemented source-local file checkpoints with immutable protected copies,
+content-free manifest hashes, exact bytes/owner/group/mode restoration,
+original-file-absence restoration, all-copy validation before effects and
+reentry from a fresh process. Declared scopes reject symlink targets/parents,
+hardlinks, oversized files, changed sources and recovery-copy corruption.
+Files are not model-weight copies and this is not arbitrary root filesystem
+access. All file tests operate on synthetic disposable files, not live configs.
+
+Implemented the bounded Proxmox/systemd adapter for the declared AI consumer
+scope: it observes enable/active/mask state, isolates callers before backend,
+restores files before services, restores backend before callers and preserves
+originally inactive/disabled/masked states. It refuses to restart active timers
+without a no-replay proof. It does not yet supply that proof itself.
+
+The first real read-only target capture failed closed: actual systemd timers
+omit process properties and the valid ongoing EPUB static oneshot reports
+activating. Corrected those exact cases and added regression tests. The next
+show-only probe captured all seven current Aster/llama/Speech/News/EPUB units
+successfully, including the running static EPUB worker. No model request,
+service stop/start/reload or production checkpoint/restore was invoked.
+
+Implemented an independently runnable guardian loop over durable session state,
+with exact-owner checks, owner fencing before recovery and cutoff recovery.
+Added actual separate-child-process exit/termination tests with simulated stack
+effects. A missed deadline now permits bounded emergency cleanup but persists
+released-late/deadline-missed and reports failure, never a late successful trial.
+The real systemd guardian service/composite host session remains unwired.
+
+Validation:67 local Lab Hours tests and70 existing full-inference tests pass.
+On Proxmox,48 controller/guardian/file/unit/process tests pass in protected
+staging `/root/b60-exclusive-adapter-20261029.03Vfyh`, using disposable files
+and synthetic processes/fake effects. The seven-unit read-only capture is
+actual target observation; these tests are not live model-switch or recovery
+qualification. The shared lease was read as ready before target validation.
+
+Inspected the installed manual lease controller source read-only to preserve
+the existing shared directory-flock boundary rather than invent another lease.
+Remaining integration: durable booking/shared-lease and operation-lock binding,
+private per-guest checkpoint transport, model/mount inventory and restoration,
+no-replay timer-resume producer, exact guardian/owner systemd wiring, and an
+end-to-end qualification during a valid booked window. These are engineering
+tasks, not new per-model approval requests. Keep the new modules source/staging
+only until that combined transaction passes. Thirty capacity bookings and the
+live production stack remain unchanged. No unattended-ready claim is made.
+
 ## October29 exclusive-session controller implementation started
 
 After Jason asked why no implementation was visible, B60 explicitly corrected

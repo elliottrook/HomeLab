@@ -1,0 +1,762 @@
+From 24e65ed6faf18bde2bfe90243f44e19885f360b9 Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Thu, 29 Oct 2026 13:23:40 -0700
+Subject: [PATCH] Implement file and Proxmox unit recovery adapters with
+ independent guardian tests
+
+---
+ .../local-ai/lab_hours_exclusive_guardian.py  |  35 ++++
+ .../local-ai/lab_hours_exclusive_session.py   |  22 ++-
+ scripts/local-ai/lab_hours_file_checkpoint.py | 149 ++++++++++++++++++
+ scripts/local-ai/lab_hours_unit_adapter.py    | 131 +++++++++++++++
+ .../test_lab_hours_exclusive_guardian.py      |  49 ++++++
+ .../test_lab_hours_exclusive_session.py       |  15 +-
+ .../test_lab_hours_file_checkpoint.py         |  80 ++++++++++
+ .../test_lab_hours_process_recovery.py        |  59 +++++++
+ .../local-ai/test_lab_hours_unit_adapter.py   | 108 +++++++++++++
+ 9 files changed, 637 insertions(+), 11 deletions(-)
+ create mode 100644 scripts/local-ai/lab_hours_exclusive_guardian.py
+ create mode 100644 scripts/local-ai/lab_hours_file_checkpoint.py
+ create mode 100644 scripts/local-ai/lab_hours_unit_adapter.py
+ create mode 100644 scripts/local-ai/test_lab_hours_exclusive_guardian.py
+ create mode 100644 scripts/local-ai/test_lab_hours_file_checkpoint.py
+ create mode 100644 scripts/local-ai/test_lab_hours_process_recovery.py
+ create mode 100644 scripts/local-ai/test_lab_hours_unit_adapter.py
+
+diff --git a/scripts/local-ai/lab_hours_exclusive_guardian.py b/scripts/local-ai/lab_hours_exclusive_guardian.py
+new file mode 100644
+index 000000000..c8cc416b3
+--- /dev/null
++++ b/scripts/local-ai/lab_hours_exclusive_guardian.py
+@@ -0,0 +1,35 @@
++"""Independent-process guardian loop for durable exclusive sessions.
++
++No arbitrary command or model is accepted. The enclosing host adapter binds
++the exact owner scope and constructs recovery from root-custodied state.
++"""
++from __future__ import annotations
++
++import time
++
++from lab_hours_exclusive_session import ExclusiveSession, SessionError
++
++
++def guard(store, adapter, *, owner, owner_alive, fence_owner,
++          clock=time.time, sleep=time.sleep):
++    """A standalone guardian process needs no connection to chat or the mini.
++
++    Owner fencing must stop the entire exact scope, prove zero tasks, and be
++    idempotent. Failure retains state and refuses restoration over live work.
++    """
++    while True:
++        state=store.read('session.json')
++        if state.get('schema')!='aster-exclusive-session.v1' or state.get('owner')!=owner:
++            raise SessionError('GUARDIAN_IDENTITY_MISMATCH')
++        if state['phase']=='released':
++            return {'state':'complete','recovery_attempted':False}
++        if state['phase']=='released-late':
++            raise SessionError('RESTORED_AFTER_DEADLINE')
++        now=clock()
++        if now>=state['trial_deadline'] or owner_alive(state) is not True:
++            if fence_owner(state) is not True:
++                raise SessionError('OWNER_SCOPE_NOT_FENCED')
++            result=ExclusiveSession(store,adapter,clock=clock).recover(owner=owner)
++            return {'state':'rescued','recovery_attempted':True,
++                    'production_restored':result['production_restored']}
++        sleep(min(5.,max(0.1,state['trial_deadline']-now)))
+diff --git a/scripts/local-ai/lab_hours_exclusive_session.py b/scripts/local-ai/lab_hours_exclusive_session.py
+index f5923dd02..b93682739 100644
+--- a/scripts/local-ai/lab_hours_exclusive_session.py
++++ b/scripts/local-ai/lab_hours_exclusive_session.py
+@@ -209,29 +209,35 @@ class ExclusiveSession:
+                 raise SessionError('RECOVERY_OWNER_MISMATCH')
+             if state.get('phase') not in {'checkpointed', 'guardian-armed', 'isolated',
+                     'trial-expired', 'trial-started', 'trial-failed', 'trial-complete',
+-                    'restoring', 'restored', 'released'}:
++                    'restoring', 'restored', 'released', 'restored-late', 'released-late'}:
+                 raise SessionError('RECOVERY_PHASE_INVALID')
+             entry = validate_snapshot(self.store.read('entry.json'))
+             if hashlib.sha256(canonical(entry)).hexdigest() != state.get('entry_sha256'):
+                 raise SessionError('CHECKPOINT_IDENTITY_CHANGED')
+             if state.get('phase') == 'released':
+                 return state
+-            if int(self.clock()) >= state['restore_deadline']:
+-                raise SessionError('RECOVERY_DEADLINE_EXCEEDED')
++            if state.get('phase') == 'released-late':
++                raise SessionError('RESTORED_AFTER_DEADLINE')
++            # A missed SLA must not prohibit emergency restoration. This reserve
++            # permits cleanup only, never another trial or silent deadline reset.
++            cleanup_deadline=max(state['restore_deadline'],int(self.clock())+300)
+             # Never restart production while an experiment process might survive.
+             if self.adapter.fence_experiments(state) is not True:
+                 raise SessionError('EXPERIMENT_FENCE_UNCERTAIN')
+             self._phase(state, 'restoring')
+-            if self.adapter.restore(entry, state['restore_deadline']) is not True:
++            if self.adapter.restore(entry, cleanup_deadline) is not True:
+                 raise SessionError('RESTORATION_INCOMPLETE')
+-            if (self.adapter.verify_entry(entry) is not True
+-                    or int(self.clock()) >= state['restore_deadline']):
++            if self.adapter.verify_entry(entry) is not True:
+                 raise SessionError('RESTORATION_NOT_VERIFIED')
+             state['production_restored'] = True
+-            self._phase(state, 'restored')
++            late=int(self.clock())>=state['restore_deadline']
++            state['deadline_missed']=late
++            self._phase(state, 'restored-late' if late else 'restored')
+             if self.adapter.release(state) is not True:
+                 raise SessionError('RELEASE_UNCERTAIN')
+-            self._phase(state, 'released')
++            self._phase(state, 'released-late' if late else 'released')
++            if late:
++                raise SessionError('RESTORED_AFTER_DEADLINE')
+             return state
+         finally:
+             os.close(fd)
+diff --git a/scripts/local-ai/lab_hours_file_checkpoint.py b/scripts/local-ai/lab_hours_file_checkpoint.py
+new file mode 100644
+index 000000000..3a35fb55a
+--- /dev/null
++++ b/scripts/local-ai/lab_hours_file_checkpoint.py
+@@ -0,0 +1,149 @@
++"""Source-local configuration checkpoint/restore; never emits file contents.
++
++Used for a declared mutation inventory, not model-weight copies or arbitrary
++root access. The host session must hold the booking, lease and recovery guard.
++"""
++from __future__ import annotations
++
++import hashlib
++import json
++import os
++from pathlib import Path
++import shutil
++import stat
++
++
++class CheckpointError(RuntimeError):
++    pass
++
++
++def sha(path):
++    value=hashlib.sha256()
++    with path.open('rb') as stream:
++        for chunk in iter(lambda:stream.read(1024*1024), b''):
++            value.update(chunk)
++    return value.hexdigest()
++
++
++class FileCheckpoint:
++    def __init__(self, root, *, allowed_roots, expected_uid=None):
++        self.root=Path(root)
++        self.allowed=tuple(Path(p) for p in allowed_roots)
++        self.uid=os.geteuid() if expected_uid is None else expected_uid
++
++    def _target(self, raw):
++        path=Path(raw)
++        if (not path.is_absolute() or '..' in path.parts
++                or not any(path != parent and parent in path.parents for parent in self.allowed)):
++            raise CheckpointError('TARGET_OUTSIDE_DECLARED_SCOPE')
++        for component in (path, *path.parents):
++            if component.is_symlink():
++                raise CheckpointError('SYMLINK_TARGET_OR_PARENT')
++        return path
++
++    def _custody(self):
++        st=self.root.lstat()
++        if (not stat.S_ISDIR(st.st_mode) or st.st_uid!=self.uid or st.st_mode&0o077):
++            raise CheckpointError('CHECKPOINT_ROOT_CUSTODY')
++
++    def capture(self, targets):
++        if not isinstance(targets,list) or not 1<=len(targets)<=64 or len(set(targets))!=len(targets):
++            raise CheckpointError('MUTATION_INVENTORY_INVALID')
++        # Never replace a prior recovery checkpoint or follow a staging symlink.
++        self.root.mkdir(mode=0o700,parents=True,exist_ok=False)
++        self._custody()
++        entries=[]
++        for index, raw in enumerate(targets):
++            target=self._target(raw)
++            if not target.parent.is_dir():
++                raise CheckpointError('TARGET_PARENT_ABSENT')
++            row={'path':str(target),'present':target.exists()}
++            if row['present']:
++                fd=os.open(target,os.O_RDONLY|os.O_NOFOLLOW)
++                try:
++                    st=os.fstat(fd)
++                    if not stat.S_ISREG(st.st_mode) or st.st_nlink!=1 or st.st_size>16*1024*1024:
++                        raise CheckpointError('TARGET_NOT_BOUNDED_REGULAR_FILE')
++                    backup=self.root/f'file-{index:03d}'
++                    out=os.open(backup,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
++                    with os.fdopen(out,'wb') as destination, os.fdopen(os.dup(fd),'rb') as source:
++                        shutil.copyfileobj(source,destination)
++                        destination.flush(); os.fsync(destination.fileno())
++                    before=sha(backup)
++                    after=os.stat(target,follow_symlinks=False)
++                    if ((after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns,after.st_ctime_ns)
++                            != (st.st_dev,st.st_ino,st.st_size,st.st_mtime_ns,st.st_ctime_ns)
++                            or before!=sha(target)):
++                        raise CheckpointError('SOURCE_CHANGED_DURING_CAPTURE')
++                    row.update(backup=backup.name,sha256=before,uid=st.st_uid,gid=st.st_gid,
++                               mode=stat.S_IMODE(st.st_mode))
++                finally:
++                    os.close(fd)
++            entries.append(row)
++        manifest={'schema':'aster-private-file-checkpoint.v1','entries':entries}
++        data=json.dumps(manifest,sort_keys=True,separators=(',',':')).encode()
++        fd=os.open(self.root/'manifest.json',os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
++        with os.fdopen(fd,'wb') as handle:
++            handle.write(data); handle.flush(); os.fsync(handle.fileno())
++        directory=os.open(self.root,os.O_RDONLY)
++        try: os.fsync(directory)
++        finally: os.close(directory)
++        return hashlib.sha256(data).hexdigest()
++
++    def manifest(self, expected_sha):
++        self._custody()
++        path=self.root/'manifest.json'
++        st=path.lstat()
++        if (not stat.S_ISREG(st.st_mode) or st.st_uid!=self.uid or st.st_nlink!=1
++                or stat.S_IMODE(st.st_mode)!=0o600 or st.st_size>65536 or sha(path)!=expected_sha):
++            raise CheckpointError('MANIFEST_IDENTITY_OR_CUSTODY')
++        value=json.loads(path.read_bytes())
++        if value.get('schema')!='aster-private-file-checkpoint.v1':
++            raise CheckpointError('MANIFEST_SCHEMA')
++        for row in value['entries']:
++            self._target(row['path'])
++            if row['present']:
++                if Path(row['backup']).name!=row['backup']:
++                    raise CheckpointError('BACKUP_PATH')
++                backup=self.root/row['backup']; st=backup.lstat()
++                if (not stat.S_ISREG(st.st_mode) or st.st_uid!=self.uid or st.st_nlink!=1
++                        or stat.S_IMODE(st.st_mode)!=0o600 or sha(backup)!=row['sha256']):
++                    raise CheckpointError('RECOVERY_COPY_INVALID')
++        return value
++
++    def restore(self, expected_sha):
++        # Verify every recovery copy before the first target mutation.
++        value=self.manifest(expected_sha)
++        for row in value['entries']:
++            target=self._target(row['path'])
++            if not row['present']:
++                if target.exists():
++                    st=target.lstat()
++                    if not stat.S_ISREG(st.st_mode) or st.st_nlink!=1 or st.st_uid!=self.uid:
++                        raise CheckpointError('NEW_TARGET_NOT_OWNED_REGULAR_FILE')
++                    target.unlink()
++            else:
++                temporary=target.with_name(target.name+'.lab-hours-restore')
++                fd=os.open(temporary,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
++                with os.fdopen(fd,'wb') as destination, (self.root/row['backup']).open('rb') as source:
++                    shutil.copyfileobj(source,destination)
++                    os.fchmod(destination.fileno(),row['mode'])
++                    if os.geteuid()==0: os.fchown(destination.fileno(),row['uid'],row['gid'])
++                    destination.flush(); os.fsync(destination.fileno())
++                os.replace(temporary,target)
++            directory=os.open(target.parent,os.O_RDONLY)
++            try: os.fsync(directory)
++            finally: os.close(directory)
++        return self.verify(expected_sha)
++
++    def verify(self, expected_sha):
++        for row in self.manifest(expected_sha)['entries']:
++            target=self._target(row['path'])
++            if target.exists()!=row['present']: return False
++            if row['present']:
++                st=target.lstat()
++                if (not stat.S_ISREG(st.st_mode) or st.st_nlink!=1
++                        or st.st_uid!=row['uid'] or st.st_gid!=row['gid']
++                        or stat.S_IMODE(st.st_mode)!=row['mode'] or sha(target)!=row['sha256']):
++                    return False
++        return True
+diff --git a/scripts/local-ai/lab_hours_unit_adapter.py b/scripts/local-ai/lab_hours_unit_adapter.py
+new file mode 100644
+index 000000000..622d23e28
+--- /dev/null
++++ b/scripts/local-ai/lab_hours_unit_adapter.py
+@@ -0,0 +1,131 @@
++"""Bounded Proxmox/systemd state adapter; no automatic execution or default runner."""
++from __future__ import annotations
++
++import time
++
++SCOPE = {
++    ('104','aster-agent.service'), ('110','aster-llama.service'),
++    ('116','aster-speech.service'), ('114','news-aggregator-ingest.timer'),
++    ('114','news-aggregator-digest.timer'), ('116','epub-narration-worker.timer'),
++    ('116','epub-narration-worker.service'), ('115','paperless-summary.timer'),
++    ('115','paperless-summary.service'), ('115','paperless-summary-broker.service'),
++}
++ENABLEMENT={'enabled','disabled','static','indirect','masked','masked-runtime','enabled-runtime'}
++
++
++class UnitStateError(RuntimeError): pass
++
++
++class ProxmoxUnitAdapter:
++    def __init__(self, runner, *, clock=time.time):
++        self.runner,self.clock=runner,clock
++
++    def call(self, guest, unit, args, deadline):
++        if (guest,unit) not in SCOPE:
++            raise UnitStateError('UNIT_OUTSIDE_AI_STACK')
++        remaining=deadline-self.clock()
++        if remaining<=0: raise UnitStateError('UNIT_OPERATION_DEADLINE')
++        suffix=() if args==('daemon-reload',) else (unit,)
++        return self.runner(('pct','exec',guest,'--','systemctl',*args,*suffix),min(30.,remaining))
++
++    def observe(self, guest, unit, deadline):
++        code,output=self.call(guest,unit,('show','--no-pager',
++            '--property=LoadState,ActiveState,UnitFileState,MainPID,TasksCurrent'),deadline)
++        if code or len(output)>4096: raise UnitStateError('UNIT_OBSERVATION_FAILED')
++        fields={}
++        for line in output.splitlines():
++            key,sep,value=line.partition('=')
++            if not sep or key in fields: raise UnitStateError('UNIT_OBSERVATION_MALFORMED')
++            fields[key]=value
++        if unit.endswith('.timer'):
++            # Timers have no processes. Their triggered service must separately
++            # appear in the validated caller inventory; never infer its absence.
++            fields.setdefault('MainPID','0')
++            fields.setdefault('TasksCurrent','0')
++        if (set(fields)!={'LoadState','ActiveState','UnitFileState','MainPID','TasksCurrent'}
++                or fields['LoadState'] not in {'loaded','masked'}
++                or fields['ActiveState'] not in {'active','inactive','failed','activating'}
++                or fields['UnitFileState'] not in ENABLEMENT):
++            raise UnitStateError('UNIT_OBSERVATION_UNSUPPORTED')
++        return fields
++
++    def capture(self, inventory, deadline):
++        if (not isinstance(inventory,list) or not inventory
++                or len(inventory)!=len(set(inventory))):
++            raise UnitStateError('UNIT_INVENTORY_INVALID')
++        rows=[]
++        for guest,unit in inventory:
++            fields=self.observe(guest,unit,deadline)
++            running_oneshot=(fields['UnitFileState']=='static'
++                and fields['ActiveState']=='activating'
++                and fields['MainPID'].isdigit() and int(fields['MainPID'])>0
++                and fields['TasksCurrent'].isdigit() and int(fields['TasksCurrent'])>0)
++            if fields['ActiveState'] not in {'active','inactive'} and not running_oneshot:
++                raise UnitStateError('ENTRY_UNIT_NOT_STABLE')
++            # A masked state is kept verbatim, including runtime-vs-persistent.
++            rows.append({'guest':guest,'unit':unit,'active':fields['ActiveState'],
++                         'enablement':fields['UnitFileState']})
++        return rows
++
++    def effect(self, row, args, deadline):
++        code,_=self.call(row['guest'],row['unit'],args,deadline)
++        if code: raise UnitStateError('UNIT_EFFECT_FAILED')
++
++    def isolate(self, entry, deadline):
++        # All callers/timers before the inference backend. Static workers are
++        # stopped, not runtime-masked (systemd oneshot masking is not portable).
++        order=sorted(entry,key=lambda r:r['unit']=='aster-llama.service')
++        for row in order:
++            current=self.observe(row['guest'],row['unit'],deadline)
++            if current['UnitFileState'] in {'static','indirect'}:
++                self.effect(row,('stop',),deadline)
++            elif current['UnitFileState'] in {'masked','masked-runtime'}:
++                self.effect(row,('stop',),deadline)
++            else:
++                self.effect(row,('mask','--runtime','--now'),deadline)
++            after=self.observe(row['guest'],row['unit'],deadline)
++            if (after['ActiveState'] not in {'inactive','failed'} or after['MainPID']!='0'
++                    or after['TasksCurrent'] not in {'0','','[not set]'}):
++                raise UnitStateError('UNIT_NOT_QUIESCENT')
++        return True
++
++    def restore(self, entry, deadline, *, configuration_restored,
++                timer_resume_safe):
++        if configuration_restored is not True:
++            raise UnitStateError('RESTORE_FILES_BEFORE_SERVICES')
++        if any(r['unit'].endswith('.timer') and r['active']=='active' for r in entry) and timer_resume_safe is not True:
++            raise UnitStateError('NO_REPLAY_TIMER_PROOF_REQUIRED')
++        # Explicitly reload recovered unit files before evaluating enablement.
++        for guest in sorted({r['guest'] for r in entry}):
++            unit=next(r['unit'] for r in entry if r['guest']==guest)
++            code,_=self.call(guest,unit,('daemon-reload',),deadline)
++            if code: raise UnitStateError('UNIT_RELOAD_FAILED')
++        # Restore backend and health before callers/timers. Health authentication
++        # is independently required by the enclosing session host adapter.
++        order=sorted(entry,key=lambda r:(r['unit']!='aster-llama.service',r['unit'].endswith('.timer')))
++        for row in order:
++            state=row['enablement']
++            current=self.observe(row['guest'],row['unit'],deadline)
++            if current['UnitFileState']=='masked-runtime' and state!='masked-runtime':
++                self.effect(row,('unmask','--runtime'),deadline)
++            if state=='masked-runtime':
++                self.effect(row,('mask','--runtime'),deadline)
++            elif state in {'enabled','disabled','enabled-runtime'}:
++                # Static/indirect/persistent masks are recovered from files;
++                # never convert them into enabled services by assumption.
++                args=('enable',) if state=='enabled' else (('disable',) if state=='disabled' else ('enable','--runtime'))
++                self.effect(row,args,deadline)
++            self.effect(row,('start','--no-block') if row['active']=='activating'
++                        else (('start',) if row['active']=='active' else ('stop',)),deadline)
++        return self.verify(entry,deadline)
++
++    def verify(self, entry, deadline):
++        for row in entry:
++            current=self.observe(row['guest'],row['unit'],deadline)
++            active_matches=(current['ActiveState']==row['active'] or
++                (row['enablement']=='static' and row['active']=='activating'
++                 and current['ActiveState'] in {'active','activating'}
++                 and current['MainPID'].isdigit() and int(current['MainPID'])>0))
++            if not active_matches or current['UnitFileState']!=row['enablement']:
++                return False
++        return True
+diff --git a/scripts/local-ai/test_lab_hours_exclusive_guardian.py b/scripts/local-ai/test_lab_hours_exclusive_guardian.py
+new file mode 100644
+index 000000000..25a7b1cf6
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_exclusive_guardian.py
+@@ -0,0 +1,49 @@
++import unittest
++
++from lab_hours_exclusive_guardian import guard
++from lab_hours_exclusive_session import SessionError
++import test_lab_hours_exclusive_session as fixtures
++
++
++class GuardianTests(unittest.TestCase):
++    # Reuse only the real temporary durable-store fixture, not its test methods.
++    setUp=fixtures.SessionTests.setUp
++    begin=fixtures.SessionTests.begin
++
++    def test_independent_guardian_fences_lost_owner_then_restores(self):
++        self.begin(); fenced=[]
++        result=guard(self.store,self.adapter,owner='b60-stream-a',
++            owner_alive=lambda state:False,fence_owner=lambda state:fenced.append(state['owner']) or True,
++            clock=lambda:self.now,sleep=lambda seconds:None)
++        self.assertEqual(fenced,['b60-stream-a'])
++        self.assertEqual(result['state'],'rescued')
++
++    def test_alive_owner_still_fenced_at_trial_cutoff(self):
++        self.begin()
++        def advance(seconds): self.now+=seconds
++        result=guard(self.store,self.adapter,owner='b60-stream-a',owner_alive=lambda state:True,
++            fence_owner=lambda state:True,clock=lambda:self.now,sleep=advance)
++        self.assertEqual(self.now,2800)
++        self.assertTrue(result['production_restored'])
++
++    def test_uncertain_owner_fence_prevents_recovery(self):
++        self.begin()
++        with self.assertRaisesRegex(SessionError,'OWNER_SCOPE_NOT_FENCED'):
++            guard(self.store,self.adapter,owner='b60-stream-a',owner_alive=lambda state:False,
++                fence_owner=lambda state:False,clock=lambda:self.now)
++        self.assertNotIn('restore',self.adapter.events)
++
++    def test_wrong_guardian_owner_cannot_touch_stack(self):
++        self.begin()
++        with self.assertRaisesRegex(SessionError,'GUARDIAN_IDENTITY_MISMATCH'):
++            guard(self.store,self.adapter,owner='other-owner',owner_alive=lambda state:False,
++                fence_owner=lambda state:True,clock=lambda:self.now)
++        self.assertNotIn('fence',self.adapter.events)
++
++    def test_already_released_session_is_not_replayed(self):
++        self.begin(); self.session.recover(owner='b60-stream-a')
++        count=len(self.adapter.events)
++        self.assertEqual(guard(self.store,self.adapter,owner='b60-stream-a',
++            owner_alive=lambda state:False,fence_owner=lambda state:True,
++            clock=lambda:self.now)['state'],'complete')
++        self.assertEqual(len(self.adapter.events),count)
+diff --git a/scripts/local-ai/test_lab_hours_exclusive_session.py b/scripts/local-ai/test_lab_hours_exclusive_session.py
+index e9c030702..cb3c5e46d 100644
+--- a/scripts/local-ai/test_lab_hours_exclusive_session.py
++++ b/scripts/local-ai/test_lab_hours_exclusive_session.py
+@@ -184,15 +184,24 @@ class SessionTests(unittest.TestCase):
+         with self.assertRaisesRegex(SessionError,'CONSUMED_TRIAL_WINDOW'): self.begin()
+         self.assertNotIn('isolate',self.adapter.events)
+ 
+-    def test_verification_overrun_never_releases(self):
++    def test_verification_overrun_restores_but_never_reports_success(self):
+         self.begin()
+         def verify(entry):
+             self.now=3700
+             return True
+         self.adapter.verify_entry=verify
+-        with self.assertRaisesRegex(SessionError,'RESTORATION_NOT_VERIFIED'):
++        with self.assertRaisesRegex(SessionError,'RESTORED_AFTER_DEADLINE'):
+             self.session.recover(owner='b60-stream-a')
+-        self.assertNotIn('release',self.adapter.events)
++        self.assertEqual(self.store.read('session.json')['phase'],'released-late')
++        self.assertTrue(self.store.read('session.json')['deadline_missed'])
++
++    def test_expired_window_still_performs_bounded_emergency_restoration(self):
++        self.begin(); self.now=4000
++        with self.assertRaisesRegex(SessionError,'RESTORED_AFTER_DEADLINE'):
++            self.session.recover(owner='b60-stream-a')
++        self.assertIn('restore',self.adapter.events)
++        self.assertTrue(self.store.read('session.json')['production_restored'])
++        self.assertNotIn('execute',self.adapter.events)
+ 
+     def test_checkpoint_and_state_are_durable_when_guardian_arms(self):
+         def arm(state):
+diff --git a/scripts/local-ai/test_lab_hours_file_checkpoint.py b/scripts/local-ai/test_lab_hours_file_checkpoint.py
+new file mode 100644
+index 000000000..945eb188e
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_file_checkpoint.py
+@@ -0,0 +1,80 @@
++import os
++from pathlib import Path
++import tempfile
++import unittest
++
++from lab_hours_file_checkpoint import FileCheckpoint, CheckpointError
++
++
++class FileCheckpointTests(unittest.TestCase):
++    def setUp(self):
++        self.temp=tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
++        self.base=Path(self.temp.name).resolve(); self.config=self.base/'configuration'
++        self.config.mkdir(); self.original=self.config/'service.conf'
++        self.original.write_bytes(b'private-bytes-stay-source-local')
++        self.original.chmod(0o640)
++        self.new=self.config/'candidate.conf'
++        self.check=FileCheckpoint(self.base/'checkpoint',allowed_roots=[self.config])
++
++    def capture(self): return self.check.capture([str(self.original),str(self.new)])
++
++    def test_real_files_round_trip_bytes_mode_and_original_absence(self):
++        identity=self.capture()
++        self.original.write_bytes(b'candidate'); self.original.chmod(0o600)
++        self.new.write_text('temporary candidate')
++        self.assertFalse(self.check.verify(identity))
++        self.assertTrue(self.check.restore(identity))
++        self.assertEqual(self.original.read_bytes(),b'private-bytes-stay-source-local')
++        self.assertEqual(self.original.stat().st_mode&0o777,0o640)
++        self.assertFalse(self.new.exists())
++
++    def test_recovery_reentry_from_fresh_object_is_idempotent(self):
++        identity=self.capture(); self.original.unlink()
++        recovery=FileCheckpoint(self.check.root,allowed_roots=[self.config])
++        self.assertTrue(recovery.restore(identity))
++        self.assertTrue(recovery.restore(identity))
++
++    def test_recovery_copy_corruption_prevents_any_target_mutation(self):
++        identity=self.capture(); self.original.write_text('candidate')
++        (self.check.root/'file-000').write_text('bad recovery copy')
++        with self.assertRaisesRegex(CheckpointError,'RECOVERY_COPY_INVALID'):
++            self.check.restore(identity)
++        self.assertEqual(self.original.read_text(),'candidate')
++
++    def test_checkpoint_is_not_overwritten(self):
++        self.capture()
++        with self.assertRaises(FileExistsError): self.capture()
++
++    def test_symlink_and_out_of_scope_targets_rejected(self):
++        self.original.unlink(); self.original.symlink_to(self.base/'elsewhere')
++        with self.assertRaisesRegex(CheckpointError,'SYMLINK'): self.capture()
++        with tempfile.TemporaryDirectory() as other:
++            check=FileCheckpoint(Path(other)/'checkpoint',allowed_roots=[self.config])
++            with self.assertRaisesRegex(CheckpointError,'OUTSIDE'):
++                check.capture([str(self.base/'not-declared')])
++
++    def test_manifest_is_content_free_and_custodied(self):
++        identity=self.capture()
++        manifest=self.check.root/'manifest.json'
++        self.assertNotIn('private-bytes',manifest.read_text())
++        self.assertEqual(manifest.stat().st_mode&0o777,0o600)
++        manifest.chmod(0o644)
++        with self.assertRaisesRegex(CheckpointError,'CUSTODY'): self.check.verify(identity)
++
++    def test_hardlinked_files_rejected(self):
++        os.link(self.original,self.config/'alias')
++        with self.assertRaisesRegex(CheckpointError,'BOUNDED_REGULAR'): self.capture()
++
++    def test_manifest_drift_rejected_before_restore(self):
++        identity=self.capture(); (self.check.root/'manifest.json').write_text('{}')
++        with self.assertRaisesRegex(CheckpointError,'IDENTITY'): self.check.restore(identity)
++
++    def test_preexisting_restore_temporary_is_never_overwritten(self):
++        identity=self.capture()
++        temporary=self.original.with_name(self.original.name+'.lab-hours-restore')
++        temporary.write_text('retained uncertainty')
++        with self.assertRaises(FileExistsError): self.check.restore(identity)
++        self.assertEqual(temporary.read_text(),'retained uncertainty')
++
++
++if __name__=='__main__': unittest.main()
+diff --git a/scripts/local-ai/test_lab_hours_process_recovery.py b/scripts/local-ai/test_lab_hours_process_recovery.py
+new file mode 100644
+index 000000000..6c7d81ce5
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_process_recovery.py
+@@ -0,0 +1,59 @@
++"""Real process-loss/durable-file tests, with simulated stack effects only."""
++import multiprocessing
++import os
++from pathlib import Path
++import tempfile
++import time
++import unittest
++
++from lab_hours_exclusive_guardian import guard
++from lab_hours_exclusive_session import ExclusiveSession, SessionStore
++from test_lab_hours_exclusive_session import Adapter
++
++
++def owner_process(root, ready, stay_alive):
++    booking={'kind':'exclusive-stack','state':'reserved','owner':'b60-stream-a',
++        'booking_id':'b60-process-fixture','start_epoch':1000,'end_epoch':3700}
++    ExclusiveSession(SessionStore(root),Adapter(),clock=lambda:1000).begin(
++        booking,owner='b60-stream-a')
++    ready.set()
++    if not stay_alive:
++        # Deliberately skip Python finalizers to exercise the durable boundary.
++        os._exit(0)
++    while True:
++        time.sleep(0.1)
++
++
++class ProcessRecoveryTests(unittest.TestCase):
++    def exercise(self, stay_alive):
++        with tempfile.TemporaryDirectory() as temporary:
++            root=Path(temporary)/'session'
++            context=multiprocessing.get_context('spawn')
++            ready=context.Event()
++            process=context.Process(target=owner_process,args=(root,ready,stay_alive))
++            process.start()
++            try:
++                self.assertTrue(ready.wait(8),'owner never persisted its checkpoint')
++                if not stay_alive: process.join(8)
++                adapter=Adapter()
++                def fence(state):
++                    if process.is_alive(): process.terminate()
++                    process.join(8)
++                    return not process.is_alive()
++                result=guard(SessionStore(root),adapter,owner='b60-stream-a',
++                    owner_alive=lambda state:False,fence_owner=fence,clock=lambda:1100)
++                self.assertEqual(result['state'],'rescued')
++                self.assertTrue(SessionStore(root).read('session.json')['production_restored'])
++                self.assertEqual(adapter.events,['fence','restore','verify','release'])
++            finally:
++                if process.is_alive(): process.terminate()
++                process.join(8)
++
++    def test_abrupt_owner_exit_recovers_from_durable_state(self):
++        self.exercise(False)
++
++    def test_independent_guardian_fences_a_separate_live_owner(self):
++        self.exercise(True)
++
++
++if __name__=='__main__': unittest.main()
+diff --git a/scripts/local-ai/test_lab_hours_unit_adapter.py b/scripts/local-ai/test_lab_hours_unit_adapter.py
+new file mode 100644
+index 000000000..a0ae8295f
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_unit_adapter.py
+@@ -0,0 +1,108 @@
++import unittest
++from lab_hours_unit_adapter import ProxmoxUnitAdapter, UnitStateError
++
++
++class Systemd:
++    def __init__(self):
++        self.calls=[]
++        self.units={('110','aster-llama.service'):['active','enabled'],
++                    ('114','news-aggregator-ingest.timer'):['inactive','disabled'],
++                    ('116','epub-narration-worker.service'):['active','static']}
++
++    def __call__(self,command,timeout):
++        self.calls.append((command,timeout)); guest=command[2]; unit=command[-1]
++        if command[-1]=='daemon-reload': return 0,''
++        args=command[5:-1]; state=self.units[(guest,unit)]
++        if args[0]=='show':
++            active,enabled=state
++            base=f'LoadState=loaded\nActiveState={active}\nUnitFileState={enabled}\n'
++            if unit.endswith('.timer'): return 0,base
++            return 0,base+f'MainPID={123 if active in {"active","activating"} else 0}\nTasksCurrent={1 if active in {"active","activating"} else 0}\n'
++        if args[0]=='mask':
++            state[1]='masked-runtime'
++            if '--now' in args: state[0]='inactive'
++        elif args[0]=='unmask': state[1]='disabled'
++        elif args[0]=='enable': state[1]='enabled-runtime' if '--runtime' in args else 'enabled'
++        elif args[0]=='disable': state[1]='disabled'
++        elif args[0]=='start': state[0]='active'
++        elif args[0]=='stop': state[0]='inactive'
++        return 0,''
++
++
++class UnitAdapterTests(unittest.TestCase):
++    def setUp(self):
++        self.runner=Systemd(); self.now=1000
++        self.adapter=ProxmoxUnitAdapter(self.runner,clock=lambda:self.now)
++        self.inventory=list(self.runner.units)
++
++    def test_round_trip_original_inactive_timer_and_static_worker(self):
++        entry=self.adapter.capture(self.inventory,1100)
++        self.assertTrue(self.adapter.isolate(entry,1100))
++        self.assertTrue(self.adapter.restore(entry,1100,configuration_restored=True,timer_resume_safe=True))
++        self.assertEqual(self.runner.units[('114','news-aggregator-ingest.timer')],['inactive','disabled'])
++        self.assertEqual(self.runner.units[('116','epub-narration-worker.service')],['active','static'])
++
++    def test_static_worker_is_never_runtime_masked(self):
++        entry=self.adapter.capture(self.inventory,1100); self.adapter.isolate(entry,1100)
++        self.assertFalse(any(c[-1]=='epub-narration-worker.service' and 'mask' in c for c,_ in self.runner.calls))
++
++    def test_original_runtime_mask_is_preserved(self):
++        self.runner.units[('114','news-aggregator-ingest.timer')]=['inactive','masked-runtime']
++        entry=self.adapter.capture(self.inventory,1100)
++        self.adapter.isolate(entry,1100)
++        self.assertTrue(self.adapter.restore(entry,1100,configuration_restored=True,timer_resume_safe=True))
++
++    def test_requires_file_recovery_before_service_restart(self):
++        entry=self.adapter.capture(self.inventory,1100)
++        with self.assertRaisesRegex(UnitStateError,'FILES_BEFORE'):
++            self.adapter.restore(entry,1100,configuration_restored=False,timer_resume_safe=True)
++
++    def test_active_timer_requires_no_replay_proof(self):
++        self.runner.units[('114','news-aggregator-ingest.timer')]=['active','enabled']
++        entry=self.adapter.capture(self.inventory,1100)
++        with self.assertRaisesRegex(UnitStateError,'NO_REPLAY'):
++            self.adapter.restore(entry,1100,configuration_restored=True,timer_resume_safe=False)
++
++    def test_deadline_and_scope_fail_before_command(self):
++        with self.assertRaisesRegex(UnitStateError,'DEADLINE'):
++            self.adapter.observe('110','aster-llama.service',999)
++        with self.assertRaisesRegex(UnitStateError,'OUTSIDE'):
++            self.adapter.observe('103','home-assistant.service',1100)
++        self.assertEqual(self.runner.calls,[])
++
++    def test_backend_is_isolated_last_and_restored_first(self):
++        entry=self.adapter.capture(self.inventory,1100); self.runner.calls=[]
++        self.adapter.isolate(entry,1100)
++        effects=[c for c,_ in self.runner.calls if c[5]!='show']
++        self.assertEqual(effects[-1][-1],'aster-llama.service')
++        self.runner.calls=[]
++        self.adapter.restore(entry,1100,configuration_restored=True,timer_resume_safe=True)
++        starts=[c for c,_ in self.runner.calls if c[5]=='start']
++        self.assertEqual(starts[0][-1],'aster-llama.service')
++
++    def test_each_command_receives_remaining_timeout(self):
++        self.adapter.capture(self.inventory,1004)
++        self.assertTrue(all(timeout==4 for _,timeout in self.runner.calls))
++
++    def test_daemon_reload_has_no_unit_argument(self):
++        entry=self.adapter.capture(self.inventory,1100)
++        self.adapter.isolate(entry,1100)
++        self.adapter.restore(entry,1100,configuration_restored=True,timer_resume_safe=True)
++        reloads=[c for c,_ in self.runner.calls if 'daemon-reload' in c]
++        self.assertTrue(reloads)
++        self.assertTrue(all(c[-1]=='daemon-reload' for c in reloads))
++
++    def test_real_timer_missing_process_fields_are_valid_only_for_timers(self):
++        value=self.adapter.observe('114','news-aggregator-ingest.timer',1100)
++        self.assertEqual(value['MainPID'],'0')
++
++    def test_running_static_oneshot_is_restored_without_blocking(self):
++        self.runner.units[('116','epub-narration-worker.service')]=['activating','static']
++        entry=self.adapter.capture(self.inventory,1100)
++        self.adapter.isolate(entry,1100)
++        self.assertTrue(self.adapter.restore(entry,1100,configuration_restored=True,timer_resume_safe=True))
++        self.assertTrue(any(c[-1]=='epub-narration-worker.service' and '--no-block' in c
++                            for c,_ in self.runner.calls))
++
++
++if __name__=='__main__': unittest.main()
+-- 
+2.50.1 (Apple Git-155)
+
+
