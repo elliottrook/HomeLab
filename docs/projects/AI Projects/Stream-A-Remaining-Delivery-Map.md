@@ -431,6 +431,16 @@ reserved runner deliberately remains unavailable until a separate inactive
 installation and target validation pass. No authoritative window check or
 booking is appropriate before that gate.
 
+The first inactive-install packet then failed its
+[read-only target preflight](evidence/SA3-expanded-source-quality-inactive-install-preflight-2026-10-29.md)
+before any write. It assumed a newer sixteen-file Lab Hours core than the
+working Proxmox baseline, including two absent modules, several different live
+hashes and executable-mode drift. Treating those prerequisites as replacements
+would have turned a dormant SA3 stage into an unreviewed platform upgrade. The
+replacement packet must therefore add only the absent SA3 host/guest files,
+prove target imports against the measured live baseline and defer runner/
+manifest registration to its own later effect gate.
+
 The downstream
 [model-blind review boundary](evidence/SA3-expanded-source-quality-blind-review-boundary-2026-10-29.md)
 is also source-complete before predictions exist. It accepts only a complete,
