@@ -837,8 +837,8 @@ check_news_aggregator() {
             timer_enabled="$(pct exec 114 -- systemctl is-enabled news-aggregator-ingest.timer 2>/dev/null || true)"
             digest_timer_enabled="$(pct exec 114 -- systemctl is-enabled news-aggregator-digest.timer 2>/dev/null || true)"
             health="$(pct exec 114 -- curl -s --max-time 3 http://192.168.70.13:8080/healthz 2>/dev/null || true)"
-            recent_ok="$(pct exec 114 -- sqlite3 /opt/news-aggregator/news.db "SELECT COUNT(*) FROM fetch_log WHERE status='"'"'ok'"'"' AND run_at > datetime('"'"'now'"'"', '"'"'-2 hours'"'"');" 2>/dev/null || true)"
-            recent_fail="$(pct exec 114 -- sqlite3 /opt/news-aggregator/news.db "SELECT COUNT(*) FROM fetch_log WHERE status='"'"'error'"'"' AND run_at > datetime('"'"'now'"'"', '"'"'-2 hours'"'"');" 2>/dev/null || true)"
+            recent_ok="$(pct exec 114 -- sqlite3 /opt/news-aggregator/news.db "SELECT COUNT(*) FROM fetch_log WHERE status='"'"'ok'"'"' AND julianday(run_at) > julianday('"'"'now'"'"', '"'"'-2 hours'"'"');" 2>/dev/null || true)"
+            recent_fail="$(pct exec 114 -- sqlite3 /opt/news-aggregator/news.db "SELECT COUNT(*) FROM fetch_log WHERE status='"'"'error'"'"' AND julianday(run_at) > julianday('"'"'now'"'"', '"'"'-2 hours'"'"');" 2>/dev/null || true)"
             audio_age_min="$(pct exec 114 -- bash -c "test -f /opt/news-aggregator/static/digest-audio/latest.mp3 && echo \$(( (\$(date +%s) - \$(stat -c %Y /opt/news-aggregator/static/digest-audio/latest.mp3)) / 60 ))" 2>/dev/null || true)"
             printf "ui=%s\ntimer_enabled=%s\ndigest_timer_enabled=%s\nhealth=%s\nrecent_ok=%s\nrecent_fail=%s\naudio_age_min=%s\n" "$ui" "$timer_enabled" "$digest_timer_enabled" "$health" "$recent_ok" "$recent_fail" "$audio_age_min"
         '
