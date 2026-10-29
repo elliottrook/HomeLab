@@ -4,7 +4,7 @@ import unittest
 
 from tools.build_production_successor import (YOUTUBE_BACK_ACTION,
                                               add_youtube_back_navigation,
-                                              adapt_youtube_entry_timing,
+                                              adapt_youtube_entry_focus,
                                               rewrite_embedded_pin)
 
 
@@ -20,15 +20,18 @@ class ProductionSuccessorTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, 'unexpected-embedded-pin'):
                 rewrite_embedded_pin(target, old, new)
 
-    def test_youtube_root_focus_waits_for_kodi_22_directory(self):
+    def test_youtube_root_focus_waits_for_kodi_22_native_restore(self):
         with tempfile.TemporaryDirectory() as temporary:
-            target = Path(temporary) / 'MyVideoNav.xml'
-            target.write_text('<window><onload>AlarmClock(AsterYouTubeLandingFocus,SetFocus(9530),00:01,silent)</onload></window>')
-            adapt_youtube_entry_timing(target)
+            skin = Path(temporary)
+            (skin / '1080i').mkdir()
+            (skin / 'tools').mkdir()
+            target = skin / '1080i/MyVideoNav.xml'
+            target.write_text('<window><onload condition="String.IsEqual(Container.FolderPath,plugin://plugin.video.youtube/)">AlarmClock(AsterYouTubeLandingFocus,SetFocus(9530),00:01,silent)</onload></window>')
+            helper = adapt_youtube_entry_focus(skin)
             raw = target.read_text()
-            self.assertIn('00:03,silent)', raw)
-            self.assertIn('SetFocus(9530)', raw)
-            self.assertNotIn('00:01,silent)', raw)
+            self.assertIn('<onload>RunScript(special://skin/tools/youtube_root_focus.py)</onload>', raw)
+            self.assertNotIn('SetFocus(9530)', raw)
+            self.assertIn('if focused == 50:', helper.read_text())
 
     def test_youtube_back_navigation_is_window_scoped(self):
         with tempfile.TemporaryDirectory() as temporary:

@@ -1,6 +1,6 @@
 # AsterTV Version 2 — Current Stream A resume
 
-Updated: 2026-10-28. Owner: Jason. Lab: HP `192.168.1.140`.
+Updated: 2026-10-29. Owner: Jason. Lab: HP `192.168.1.140`.
 
 ## Production rollback and v2 lab hold — 2026-10-28
 
@@ -98,7 +98,28 @@ The main TV page now visibly lists 76 shows. The YouTube landing and search
 keyboard render, and a public query reaches the official add-on, but results
 show its `key.requirement` message because this clean lab has no YouTube API
 credentials. Do not import production credentials; Jason will provision the
-lab from his MacBook. Unauthenticated subscriptions/recommendation widgets
+lab from his MacBook. A separate v2 navigation defect was reproduced: the
+landing visually highlighted Search while Kodi retained focus on hidden view
+50, so Select opened Archive Movies. The lab skin's YouTube-root onload now
+runs `youtube_root_focus.py`, waits for Kodi's native view 50 to become focused
+(bounded to 10 seconds), then focuses the real Search button. An initial fixed
+1.2-second wait failed once after the credential-install Kodi restart; the
+event-based revision handled that race. The lab log showed native focus 50 and
+a subsequent Select visibly opened the YouTube search keyboard. The predecessor
+skin XML is checkpointed at
+`/storage/.aster-checkpoints/astertv-v2-youtube-root-focus-20261028.xml`.
+The production-payload builder and its unit test now include this helper;
+this does not authorize production promotion. The clean OS removed the old
+YouTube credential installer stage, so its tracked, secret-free installer and
+parser were restaged on the lab for hidden MacBook SSH entry. Jason's MacBook
+public SSH key was added to the lab allowlist with the prior entry preserved;
+the exact prior file is checkpointed at
+`/storage/.aster-checkpoints/astertv-lab-macbook-ssh-20261029.authorized_keys.before`.
+Jason ran the hidden-prompt installer. Its non-secret verification returned
+`configured: true`, owner-only file mode, and Kodi active. A fresh visible
+Search-button test submitted `Kodi` and displayed real YouTube video results
+with thumbnails. No credential value was read or transferred by this task.
+Unauthenticated subscriptions/recommendation widgets
 also produce add-on errors and stay empty. The News Digest page loaded a
 current 20-story briefing; its dedicated audio player started, displayed
 story progress, and was stopped after a short test. Physical lab audio and

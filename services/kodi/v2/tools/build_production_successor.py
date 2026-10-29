@@ -55,15 +55,23 @@ def rewrite_embedded_pin(path, old_pin, new_pin):
     path.write_bytes(raw.replace(old, new, 1))
 
 
-def adapt_youtube_entry_timing(path):
-    """Wait for Kodi 22 to populate the official root before row focus."""
-    path = Path(path)
+def adapt_youtube_entry_focus(skin):
+    """Focus the actual Search button after Kodi 22 restores native view 50."""
+    skin = Path(skin)
+    path = skin / "1080i/MyVideoNav.xml"
     raw = path.read_bytes()
-    old = b'AlarmClock(AsterYouTubeLandingFocus,SetFocus(9530),00:01,silent)'
-    new = b'AlarmClock(AsterYouTubeLandingFocus,SetFocus(9530),00:03,silent)'
+    old = (b'<onload condition="String.IsEqual(Container.FolderPath,plugin://plugin.video.youtube/)">'
+           b'AlarmClock(AsterYouTubeLandingFocus,SetFocus(9530),00:01,silent)</onload>')
+    new = b'<onload>RunScript(special://skin/tools/youtube_root_focus.py)</onload>'
     if raw.count(old) != 1 or new in raw:
-        raise RuntimeError('unexpected-youtube-entry-timing')
+        raise RuntimeError('unexpected-youtube-entry-focus')
     path.write_bytes(raw.replace(old, new, 1))
+    source = Path(__file__).resolve().parents[2] / "skin.asterhome/tools/youtube_root_focus.py"
+    target = skin / "tools/youtube_root_focus.py"
+    if target.exists() and target.read_bytes() != source.read_bytes():
+        raise RuntimeError("unexpected-youtube-root-focus-helper")
+    shutil.copy2(source, target)
+    return target
 
 
 def add_youtube_back_navigation(root):
@@ -287,7 +295,7 @@ def build(root, host):
         predecessor_pins["aster-digest-player8"],
         family["components"]["aster-digest-player8"]["manifest_sha256"],
     )
-    adapt_youtube_entry_timing(addons / "skin.asterhome/1080i/MyVideoNav.xml")
+    youtube_focus = adapt_youtube_entry_focus(addons / "skin.asterhome")
     youtube_back = add_youtube_back_navigation(root)
 
     music_manifest = runtime / "music72-manifest.json"
@@ -297,6 +305,7 @@ def build(root, host):
     family["music_manifest_sha256"] = digest(music_manifest)
     skin = addons / "skin.asterhome"
     family["skin"]["tools/youtube_back.py"] = digest(youtube_back)
+    family["skin"]["tools/youtube_root_focus.py"] = digest(youtube_focus)
     for relative in tuple(family["skin"]):
         family["skin"][relative] = digest(skin / relative)
     write_json(family_path, family)
