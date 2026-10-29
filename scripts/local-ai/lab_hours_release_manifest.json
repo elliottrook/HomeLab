@@ -12,7 +12,7 @@
     "lab_hours_booking_cli.py": "d035803e65e9384f671e625f266bab5a13e408eeb065e9007d82743f4c6eb793",
     "lab_hours_dispatcher.py": "d05a18c497c62455e977d214e591129093674fdc0a3da542a92e6fa306ac807b",
     "lab_hours_doctor.py": "28999eb78f0f93c6b463944df5bb63251c014e47aa8bc697caccf53357580397",
-    "lab_hours_inactive_target.py": "f670077ec2be3001058c8a7f18b8da55e5f717422305c400afd97350bc7cefab",
+    "lab_hours_inactive_target.py": "fd467544649cc877ca06f831d8f84aaca495416c19072256bd228fc11601ae33",
     "lab_hours_reservations.py": "f61c6b496fd6e378b6e144a2b13170c85392274e86127a29b03d0cf8f16415d2",
     "lab_hours_reserved_runner.py": "79b3fb92ced17712f7f5dd8bd40517fbec27ef2b2494c47454fb8fdcd44bf27e",
     "lab_hours_workloads.py": "2780fcc7f7638a8d9987c79f2438d92fbc31c106ca67da81c994ca8ccb0402f1",
