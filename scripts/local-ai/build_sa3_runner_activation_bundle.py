@@ -2,7 +2,7 @@
 from __future__ import annotations
 import gzip,hashlib,io,json,os,tarfile
 from pathlib import Path
-REPO=Path(__file__).resolve().parents[2];NAME="aster-sa3-runner-activation-v1.tar.gz";BUNDLE_SHA256="be99bfbfaf34e3a9b741b23d081edd302cf5c8b942fa9b93299910135909aef2"
+REPO=Path(__file__).resolve().parents[2];NAME="aster-sa3-runner-activation-v2.tar.gz";BUNDLE_SHA256="5f4a50d4cbae3021775756b3754ec7226047775df9e5e02cccc106fb30b0fc12"
 FILES=("scripts/local-ai/sa3_runner_activation_install.py","scripts/local-ai/full_inference_lab_runtime.py","scripts/local-ai/lab_hours_reserved_runner.py","scripts/local-ai/lab_hours_release_manifest.json")
 def build(out):
  out=Path(out)

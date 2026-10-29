@@ -4,7 +4,7 @@ import base64,hashlib,json,os,stat,subprocess,sys
 from pathlib import Path
 
 TARGET=Path("/usr/local/libexec/local-ai-lease/full-inference-pilot")
-CHECKPOINT=Path("/var/lib/local-ai-lab/checkpoints/sa3-runner-activation-v1")
+CHECKPOINT=Path("/var/lib/local-ai-lab/checkpoints/sa3-runner-activation-v2")
 RESERVATIONS=Path("/var/lib/local-ai-lab/reservations")
 FILES={
  "full_inference_lab_runtime.py":("5fa48df16c4db8d2eedcd4a8ab9d615cc07519b713a0028c20019d84ae06ac3d","3026a792bcc1375b98d537680f4f2ff2ee00aeb0e8590498337f8e680d6d8279",0o755),
@@ -15,7 +15,9 @@ class ActivationError(RuntimeError): pass
 def sha(data): return hashlib.sha256(data).hexdigest()
 def regular(path,expected,mode,uid):
  s=path.lstat();data=path.read_bytes()
- if not stat.S_ISREG(s.st_mode) or s.st_uid!=uid or s.st_nlink!=1 or stat.S_IMODE(s.st_mode)!=mode or sha(data)!=expected: raise ActivationError("FILE_INVALID:"+path.name)
+ if (not stat.S_ISREG(s.st_mode) or s.st_uid!=uid or s.st_nlink!=1
+     or (mode is not None and stat.S_IMODE(s.st_mode)!=mode)
+     or sha(data)!=expected): raise ActivationError("FILE_INVALID:"+path.name)
  return data
 def atomic(path,data,mode,uid):
  tmp=path.parent/("."+path.name+".sa3-activation-"+str(os.getpid()));fd=os.open(tmp,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
@@ -34,7 +36,7 @@ def install(source_root,*,target=TARGET,checkpoint=CHECKPOINT,reservations=RESER
  if os.path.lexists(checkpoint):raise ActivationError("CHECKPOINT_EXISTS")
  require_no_sa3_booking(reservations);old={};new={}
  for name,(before,after,mode) in FILES.items():
-  old[name]=regular(target/name,before,mode,uid);new[name]=regular(source_root/"scripts/local-ai"/name,after,mode,uid)
+  old[name]=regular(target/name,before,mode,uid);new[name]=regular(source_root/"scripts/local-ai"/name,after,None,uid)
  checkpoint.mkdir(parents=True,mode=0o700);os.chmod(checkpoint,0o700)
  if uid==0:os.chown(checkpoint,0,0)
  for name,data in old.items():atomic(checkpoint/(hashlib.sha256(name.encode()).hexdigest()+".json"),(json.dumps({"name":name,"data":base64.b64encode(data).decode()},sort_keys=True)+"\n").encode(),0o600,uid)

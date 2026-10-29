@@ -16,6 +16,12 @@ timer, service, lease, model request, drain or restart. Actual execution still
 requires the authoritative Lab Hours window check and reservation, then the
 existing whole-host lease and shared operation lock gates.
 
-The focused transaction, adapter, runtime, runner, reservation, registry and
-installer suite passes 53/53. Two independent deterministic builds match
-SHA-256 `be99bfbfaf34e3a9b741b23d081edd302cf5c8b942fa9b93299910135909aef2`.
+The first `v1` installation stopped before checkpoint or target write because
+the installer required repository source files to carry their eventual target
+executable mode. The corrected `v2` installer verifies source identity and
+custody independently, then applies the pinned target modes atomically under a
+fresh checkpoint identity. The failed `v1` stage is retained and must not be
+retried.
+
+The corrected focused suite passes 53/53. Two independent `v2` bundle builds
+match SHA-256 `5f4a50d4cbae3021775756b3754ec7226047775df9e5e02cccc106fb30b0fc12`.
