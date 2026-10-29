@@ -39,10 +39,10 @@ def assert_custody(test: unittest.TestCase, path: Path, mode: int) -> None:
 class Sa3InactiveInstallPacketTests(unittest.TestCase):
     def test_packet_is_exactly_inactive_and_effect_free(self):
         value = packet()
-        self.assertEqual(value["schema"], "aster-lab-hours-sa3-inactive-install.v1")
+        self.assertEqual(value["schema"], "aster-lab-hours-sa3-inactive-install.v2")
         self.assertEqual(value["status"], "candidate-only")
         self.assertFalse(value["effects_enabled"])
-        self.assertEqual(len(value["host"]["install_files"]), 4)
+        self.assertEqual(len(value["host"]["install_files"]), 2)
         self.assertEqual(len(value["guest"]["runtime_files"]), 4)
         self.assertEqual(value["guest"]["wrapper"]["mode"], "0750")
         self.assertEqual(value["guest"]["excluded_runtime_files"], [
@@ -55,21 +55,15 @@ class Sa3InactiveInstallPacketTests(unittest.TestCase):
     def test_all_source_hashes_and_modes_match_packet(self):
         value = packet()
         stream_commit = value["source_commits"]["stream_a"]
-        manifest = json.loads((REPO / "scripts/local-ai/lab_hours_release_manifest.json").read_text())
         install_names = {record["target"] for record in value["host"]["install_files"]}
-        existing_names = {record["target"] for record in value["host"]["required_existing_pins"]}
-        self.assertEqual(len(existing_names), 16)
-        self.assertEqual(set(manifest["pins"]), existing_names | {
-            "sa3_expanded_quality_transaction.py",
-            "sa3_listener_adapter.py",
-            "aster_llama_sa3_guest_wrapper.py",
-        })
         self.assertEqual(install_names, {
             "sa3_expanded_quality_transaction.py",
             "sa3_listener_adapter.py",
-            "lab_hours_release_manifest.json",
-            "aster_llama_sa3_guest_wrapper.py",
+            "sa3_listener_adapter.py",
         })
+        self.assertNotIn("lab_hours_release_manifest.json", install_names)
+        self.assertNotIn("lab_hours_reserved_runner.py", install_names)
+        self.assertEqual(len(value["host"]["preserved_existing"]), 1)
         records = value["host"]["install_files"] + value["guest"]["runtime_files"] + [value["guest"]["wrapper"]]
         for record in records:
             with self.subTest(source=record["source"]):

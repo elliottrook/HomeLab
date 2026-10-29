@@ -45,10 +45,12 @@ def seed_targets(root: Path, value: dict, host_root: Path, guest_root: Path) -> 
     guest_target_root = guest_root / value["guest"]["target_root"].lstrip("/")
     host_target_root.mkdir(parents=True, mode=0o755)
     guest_target_root.mkdir(parents=True, mode=0o755)
-    for record in value["host"]["required_existing_pins"]:
-        source = REPO / "scripts/local-ai" / record["target"]
+    for record in value["host"]["preserved_existing"]:
+        source = subprocess.run(
+            ("git", "show", "336df57de7929dd0a3e612494ff769d3cb0ba225:scripts/local-ai/" + record["target"]),
+            cwd=REPO, capture_output=True, check=True).stdout
         target = host_target_root / record["target"]
-        target.write_bytes(source.read_bytes())
+        target.write_bytes(source)
         target.chmod(int(record["mode"], 8))
     (guest_root / "usr/local/sbin").mkdir(parents=True, mode=0o755)
     assert host_root.stat().st_uid == uid
@@ -73,6 +75,11 @@ class FailingTarget(installer.LocalTarget):
 class PostcheckFailureTarget(installer.LocalTarget):
     def postcheck(self, *args, **kwargs):
         raise installer.InstallError("INJECTED_POSTCHECK_FAILURE")
+
+
+class ImportFailureTarget(installer.LocalTarget):
+    def import_only(self, *args, **kwargs):
+        raise installer.InstallError("INJECTED_TARGET_IMPORT_FAILURE")
 
 
 class RollbackUncertainTarget(FailingTarget):
@@ -153,6 +160,30 @@ class Sa3InactiveInstallTests(unittest.TestCase):
                     guest=installer.LocalTarget(guest_root, expected_uid=os.geteuid()),
                     expected_uid=os.geteuid())
             self.assertFalse((host_root / installer.HOST_ROOT.lstrip("/") / "sa3_expanded_quality_transaction.py").exists())
+        finally:
+            tmp.cleanup()
+
+    def test_host_import_failure_rolls_back(self):
+        tmp, stage, host_root, guest_root, _ = self._fixture()
+        try:
+            with self.assertRaisesRegex(installer.InstallError, "TARGET_IMPORT_FAILURE"):
+                installer.install(stage,
+                    host=ImportFailureTarget(host_root, expected_uid=os.geteuid()),
+                    guest=installer.LocalTarget(guest_root, expected_uid=os.geteuid()),
+                    expected_uid=os.geteuid())
+            self.assertFalse((host_root / installer.HOST_ROOT.lstrip("/") / "sa3_listener_adapter.py").exists())
+        finally:
+            tmp.cleanup()
+
+    def test_guest_import_failure_rolls_back(self):
+        tmp, stage, host_root, guest_root, _ = self._fixture()
+        try:
+            with self.assertRaisesRegex(installer.InstallError, "TARGET_IMPORT_FAILURE"):
+                installer.install(stage,
+                    host=installer.LocalTarget(host_root, expected_uid=os.geteuid()),
+                    guest=ImportFailureTarget(guest_root, expected_uid=os.geteuid()),
+                    expected_uid=os.geteuid())
+            self.assertFalse((guest_root / "usr/local/sbin/aster-llama-lab-sa3").exists())
         finally:
             tmp.cleanup()
 

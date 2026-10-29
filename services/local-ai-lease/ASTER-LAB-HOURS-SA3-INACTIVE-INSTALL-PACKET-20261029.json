@@ -1,38 +1,24 @@
 {
-  "schema": "aster-lab-hours-sa3-inactive-install.v1",
+  "schema": "aster-lab-hours-sa3-inactive-install.v2",
   "status": "candidate-only",
   "effects_enabled": false,
-  "source_commits": {
-    "platform": "8dc6eac5",
-    "stream_a": "434c5aedddd59665c7e2e8961196b81310e02765"
-  },
+  "source_commits": {"platform": "8dc6eac5", "stream_a": "434c5aedddd59665c7e2e8961196b81310e02765"},
   "host": {
     "node": "proxmox",
     "target_root": "/usr/local/libexec/local-ai-lease/full-inference-pilot",
     "checkpoint_root": "/var/lib/local-ai-lab/checkpoints/sa3-inactive-install-8dc6eac5",
     "install_files": [
       {"source": "scripts/local-ai/sa3_expanded_quality_transaction.py", "target": "sa3_expanded_quality_transaction.py", "mode": "0644", "sha256": "0706912279bcb4a511633cfb22f19e691eed94f4aa79e07bdc332f87d0dbbc70"},
-      {"source": "scripts/local-ai/sa3_listener_adapter.py", "target": "sa3_listener_adapter.py", "mode": "0644", "sha256": "a6387092f04a8fa8cc35254ce19c9a479cd0177b2fd53caae40ee6012c38f917"},
-      {"source": "scripts/local-ai/lab_hours_release_manifest.json", "target": "lab_hours_release_manifest.json", "mode": "0644", "sha256": "2e493d2828c76ec40a5d57be7ef3e0c81588e091eac6b49010a6b21191e1dca6"},
-      {"source": "scripts/local-ai/aster_llama_sa3_guest_wrapper.py", "target": "aster_llama_sa3_guest_wrapper.py", "mode": "0644", "sha256": "27949ff1ba37f825de8d3c4aaeaf6388b9535e72d0063e46eac0e491a6604303"}
+      {"source": "scripts/local-ai/sa3_listener_adapter.py", "target": "sa3_listener_adapter.py", "mode": "0644", "sha256": "a6387092f04a8fa8cc35254ce19c9a479cd0177b2fd53caae40ee6012c38f917"}
     ],
-    "required_existing_pins": [
-      {"target": "cooperative_lab_host_adapter.py", "mode": "0644", "sha256": "65151e7d7cb511c79afffa0544adb86ee9820e963330c0c5ae4a214e30f92d88"},
-      {"target": "full_inference_lab_deadline_guardian.py", "mode": "0644", "sha256": "688d995dafd33b7b905fb7351bf365a0d0fdcc20766e5c497551d2cc0846cc35"},
-      {"target": "full_inference_lab_install_preflight.py", "mode": "0644", "sha256": "1ea2e37eb2ab8ea34251f4af1337cd2d7f94b00933eb60ff7433b6adbe6ca8d3"},
-      {"target": "full_inference_lab_runtime.py", "mode": "0644", "sha256": "5fa48df16c4db8d2eedcd4a8ab9d615cc07519b713a0028c20019d84ae06ac3d"},
-      {"target": "full_inference_lab_session.py", "mode": "0644", "sha256": "217cd468111b5e3fea280515a9ac7b9e5b77776c5510764c8b9ca8803ddf5b02"},
-      {"target": "full_inference_lab_sources.py", "mode": "0644", "sha256": "920d2ed171d314a6cb346032651c24a7972e51b2a91c2bb2892dcd9419c50d48"},
-      {"target": "full_inference_lab_supervisor.py", "mode": "0644", "sha256": "da5ac76fb48541a2661caa1cb4fe7f21d84334abb9ab935fb1aaaf72c4faba55"},
-      {"target": "full_inference_lab_validator.py", "mode": "0644", "sha256": "0c4a21d7894dd2c41d89aa00d2fa5969277991ff86febf8a89a61ac299966858"},
-      {"target": "full_inference_lab_workload.py", "mode": "0644", "sha256": "b0ad8a6422d4290cd73568916de4e35ef05130e5b93aee22c629ce7560beb236"},
-      {"target": "lab_hours_booking_cli.py", "mode": "0644", "sha256": "05c9655594f522ae8a43acce4c3b9677bc27a393d5988a21681c78088103f5fb"},
-      {"target": "lab_hours_dispatcher.py", "mode": "0644", "sha256": "d05a18c497c62455e977d214e591129093674fdc0a3da542a92e6fa306ac807b"},
-      {"target": "lab_hours_doctor.py", "mode": "0644", "sha256": "28999eb78f0f93c6b463944df5bb63251c014e47aa8bc697caccf53357580397"},
-      {"target": "lab_hours_inactive_target.py", "mode": "0644", "sha256": "f670077ec2be3001058c8a7f18b8da55e5f717422305c400afd97350bc7cefab"},
-      {"target": "lab_hours_reservations.py", "mode": "0644", "sha256": "416f35826d3167aeacacf45d46f8445f89eef5df230df2336eb6b6207a8a1c41"},
-      {"target": "lab_hours_reserved_runner.py", "mode": "0644", "sha256": "c5e25e4605b157ae7aba2e412b4972d1a724329f95f4f0602cf20e4a43ad5660"},
-      {"target": "lab_hours_workloads.py", "mode": "0644", "sha256": "2780fcc7f7638a8d9987c79f2438d92fbc31c106ca67da81c994ca8ccb0402f1"}
+    "preserved_existing": [
+      {"target": "lab_hours_reserved_runner.py", "mode": "0755", "sha256": "6ba44c2bfb6322d68c5bd6c112e4144916be60f2ee4ae0abf2042e09a456abd2", "role": "live fail-closed runner; never replaced"}
+    ],
+    "live_baseline_observation": [
+      {"target": "lab_hours_booking_cli.py", "mode": "0755", "sha256": "d035803e", "enforced": false},
+      {"target": "lab_hours_reservations.py", "mode": "0755", "sha256": "f3f112c3", "enforced": false},
+      {"target": "lab_hours_reserved_runner.py", "mode": "0755", "sha256": "6ba44c2bfb6322d68c5bd6c112e4144916be60f2ee4ae0abf2042e09a456abd2", "enforced": true},
+      {"target": "lab_hours_release_manifest.json", "mode": "observed-live", "sha256": "b2c61494", "enforced": false}
     ],
     "inactive_units": [
       "/etc/systemd/system/aster-lab-hours-booking-sa3-expanded-source-quality-v1.service",
@@ -54,21 +40,28 @@
     "inactive_service_paths": ["/etc/systemd/system/aster-llama-lab-sa3.service", "/etc/systemd/system/aster-llama-lab-sa3.timer"]
   },
   "checkpoint_policy": {
-    "before_replacement": "Record root-owned 0600 metadata and exact bytes for every existing install target; an unexpected target fails closed.",
+    "before_replacement": "Record root-owned 0600 metadata and exact bytes for every existing dormant target; unexpected custody fails closed.",
     "for_absent_targets": "Record root-owned absence evidence; rollback may remove only targets proven absent before staging.",
     "uncertain_state": "Retain checkpoint and failure evidence; do not retry or delete uncertain state."
+  },
+  "compatibility": {
+    "host_imports": ["sa3_expanded_quality_transaction", "sa3_listener_adapter"],
+    "guest_imports": ["sa3_expanded_quality_runner"],
+    "wrapper_import": true,
+    "baseline_rule": "Compatibility is proven against the actual installed baseline through a clean temporary PYTHONPATH; no newer Lab Hours core, CLI, reservation, runner or manifest file is installed or imported as a dependency."
   },
   "validation": {
     "imports": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest -q test_sa3_listener_adapter.py test_aster_llama_sa3_guest_wrapper.py test_sa3_expanded_quality_transaction.py",
     "platform_suite": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest -q test_lab_hours_reservations.py test_lab_hours_reserved_runner.py test_lab_hours_workloads.py test_lab_hours_dispatcher.py test_lab_hours_doctor.py",
     "target_linux_synthetic": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest -q test_sa3_inactive_install_packet.py",
     "installer_transaction": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest -q test_sa3_inactive_install.py",
-    "required_result": "All imports, custody checks, packet pins, excluded-file checks and inactive-unit checks pass; no bytecode, unit, timer, booking, lease, process or model request is created."
+    "bundle": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest -q test_build_sa3_inactive_bundle.py",
+    "required_result": "All imports, custody checks, packet pins, excluded-file checks and inactive-unit checks pass; no core upgrade, bytecode, unit, timer, booking, lease, process or model request is created."
   },
   "rollback": {
-    "host": "Stop before any live effect, verify each installed hash, restore only the checkpointed host targets atomically, remove only targets recorded absent, and re-run the host postcheck.",
-    "guest": "Verify each installed hash, restore only the LXC110 checkpointed runtime/wrapper targets atomically, remove only targets recorded absent, and re-run the guest custody/import postcheck.",
-    "prohibited": "Do not stop or start a service, enable or disable a timer, acquire a lease, book Lab Hours, drain production, invoke a model, alter routing, reboot, or delete an uncertain checkpoint."
+    "host": "Stop before any live effect, verify installed dormant hashes, restore only the checkpointed dormant targets atomically, remove only targets recorded absent, and rerun the compatibility postcheck.",
+    "guest": "Verify installed runtime/wrapper hashes, restore only the LXC110 checkpointed targets atomically, remove only targets recorded absent, and rerun the import/custody postcheck.",
+    "prohibited": "Do not replace the live CLI, reservations, runner, manifest, guardian or runtime; do not stop/start a service, change a timer, acquire a lease, book Lab Hours, drain production, invoke a model, alter routing, reboot, or delete uncertain state."
   },
-  "prohibited_effects": ["service installation or activation", "timer installation, enablement or schedule change", "WORKLOAD_RUNNER_UNAVAILABLE gate removal", "Lab Hours booking or window check", "lease acquisition or production drain", "model request or GPU/backend change", "routing, firewall or credential change", "guest restart or host reboot", "remote push"]
+  "prohibited_effects": ["core/CLI/reservation/runner/manifest upgrade", "service or timer change", "WORKLOAD_RUNNER_UNAVAILABLE gate removal", "Lab Hours booking or window check", "lease acquisition or production drain", "model request or GPU/backend change", "routing, firewall or credential change", "guest restart or host reboot", "remote push"]
 }

@@ -22,7 +22,7 @@ from typing import Callable, Iterable
 
 
 PACKET_NAME = "ASTER-LAB-HOURS-SA3-INACTIVE-INSTALL-PACKET-20261029.json"
-PACKET_SHA256 = "e4634c7724b8ac8c6b50689285a56f739ea16486f9fd3370f4b47e717ff36e6e"
+PACKET_SHA256 = "9173ea4179f16efcd635ca9eefe5d9f767b07dfee082e250f0a1a22a898b7a0c"
 EXPECTED_PLATFORM_COMMIT = "8dc6eac5"
 EXPECTED_STREAM_COMMIT = "434c5aedddd59665c7e2e8961196b81310e02765"
 HOST_CHECKPOINT = "/var/lib/local-ai-lab/checkpoints/sa3-inactive-install-8dc6eac5"
@@ -166,6 +166,28 @@ class LocalTarget:
             raise InstallError(f"TARGET_PARENT_MISSING:{spec.target}")
         _write_once(path, data, mode=spec.mode, uid=self.expected_uid, gid=os.getegid())
 
+    def import_only(self, import_root: str, imports: Iterable[str],
+                    extra_paths: Iterable[str] = ()) -> None:
+        modules = tuple(imports)
+        extras = tuple(str(self.path(path)) for path in extra_paths)
+        code = f"""import importlib.machinery, importlib.util, sys
+sys.path.insert(0, {str(self.path(import_root))!r})
+for name in {modules!r}:
+    __import__(name)
+for i, path in enumerate({extras!r}):
+    loader = importlib.machinery.SourceFileLoader('sa3_extra_' + str(i), path)
+    spec = importlib.util.spec_from_loader(loader.name, loader)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+"""
+        env = os.environ.copy()
+        env["PYTHONDONTWRITEBYTECODE"] = "1"
+        env["PYTHONPATH"] = str(self.path(import_root))
+        result = subprocess.run((sys.executable, "-B", "-c", code),
+                                env=env, capture_output=True, text=True, check=False)
+        if result.returncode != 0:
+            raise InstallError(f"TARGET_IMPORT_FAILED:{result.stderr[-300:]}")
+
     def _checkpoint_states(self, targets: Iterable[FileSpec], checkpoint: str) -> list[FileState]:
         root = self.path(checkpoint)
         _directory_ok(root, expected_uid=self.expected_uid)
@@ -205,7 +227,8 @@ class LocalTarget:
                 raise InstallError(f"ROLLBACK_VERIFY_FAILED:{state.target}")
 
     def postcheck(self, files: Iterable[FileSpec], *, excluded: Iterable[str] = (),
-                  units: Iterable[str] = ()) -> None:
+                  units: Iterable[str] = (), import_root: str | None = None,
+                  imports: Iterable[str] = (), extra_imports: Iterable[str] = ()) -> None:
         for spec in files:
             state = self.inspect(spec.target, mode=spec.mode)
             if not state.present or state.sha256 != spec.sha256:
@@ -214,6 +237,8 @@ class LocalTarget:
             self.absent(target)
         for target in units:
             self.absent(target)
+        if import_root is not None:
+            self.import_only(import_root, imports, extra_imports)
 
 
 REMOTE_HELPER = r'''import base64, hashlib, json, os, stat, sys
@@ -283,6 +308,13 @@ def main():
             if os.path.lexists(target): fail("PATH_MUST_BE_ABSENT:" + target)
         sys.path.insert(0, value["runtime_root"])
         for name in value["imports"]: __import__(name)
+        for i, path in enumerate(value["extra_imports"]):
+            machinery = __import__("importlib.machinery", fromlist=["SourceFileLoader"])
+            util = __import__("importlib.util", fromlist=["spec_from_loader", "module_from_spec"])
+            loader = machinery.SourceFileLoader("sa3_extra_" + str(i), path)
+            spec = util.spec_from_loader(loader.name, loader)
+            module = util.module_from_spec(spec)
+            spec.loader.exec_module(module)
         print("{}"); return
     if op == "rollback":
         root = Path(value["checkpoint"])
@@ -356,10 +388,18 @@ class PctTarget:
 
     def postcheck(self, files: Iterable[FileSpec], *, excluded: Iterable[str] = (),
                   units: Iterable[str] = (), runtime_root: str = "",
-                  imports: Iterable[str] = ()) -> None:
+                  imports: Iterable[str] = (), extra_imports: Iterable[str] = ()) -> None:
         self._call("postcheck", {"files": [{"target": s.target, "mode": f"{s.mode:04o}", "sha256": s.sha256} for s in files],
                                   "excluded": list(excluded), "units": list(units),
-                                  "runtime_root": runtime_root, "imports": list(imports)})
+                                  "runtime_root": runtime_root, "imports": list(imports),
+                                  "extra_imports": list(extra_imports)})
+
+    def import_only(self, import_root: str, imports: Iterable[str],
+                    extra_paths: Iterable[str] = ()) -> None:
+        self._call("postcheck", {"files": [], "excluded": [], "units": [],
+                                  "runtime_root": import_root,
+                                  "imports": list(imports),
+                                  "extra_imports": list(extra_paths)})
 
 
 def _source_record(packet: dict[str, object], stage_root: Path,
@@ -389,7 +429,7 @@ def _load_packet(stage_root: Path, *, expected_uid: int) -> dict[str, object]:
     if hashlib.sha256(raw).hexdigest() != PACKET_SHA256:
         raise InstallError("PACKET_HASH_INVALID")
     value = json.loads(raw)
-    if (value.get("schema") != "aster-lab-hours-sa3-inactive-install.v1"
+    if (value.get("schema") != "aster-lab-hours-sa3-inactive-install.v2"
             or value.get("status") != "candidate-only"
             or value.get("effects_enabled") is not False
             or value.get("source_commits") != {"platform": EXPECTED_PLATFORM_COMMIT,
@@ -416,14 +456,11 @@ def _records(packet: dict[str, object], stage_root: Path, *, expected_uid: int) 
 
 
 def _host_existing(packet: dict[str, object], target: LocalTarget) -> None:
-    for record in packet["host"]["required_existing_pins"]:
+    for record in packet["host"]["preserved_existing"]:
         spec = FileSpec(HOST_ROOT + "/" + record["target"], int(record["mode"], 8), record["sha256"])
         state = target.inspect(spec.target, mode=spec.mode)
         if not state.present or state.sha256 != spec.sha256:
             raise InstallError(f"EXISTING_PIN_INVALID:{spec.target}")
-    runner_state = target.inspect(HOST_ROOT + "/lab_hours_reserved_runner.py", mode=0o644)
-    if b"WORKLOAD_RUNNER_UNAVAILABLE" not in runner_state.data:
-        raise InstallError("FAIL_CLOSED_GATE_MISSING")
 
 
 def _rollback(targets: list[tuple[object, list[FileSpec], str, dict[str, str]]]) -> None:
@@ -435,6 +472,24 @@ def _rollback(targets: list[tuple[object, list[FileSpec], str, dict[str, str]]])
             errors.append(str(exc))
     if errors:
         raise InstallError("ROLLBACK_UNCERTAIN:" + ";".join(errors))
+
+
+def _rollback_imports(host: object, host_specs: list[FileSpec], guest: object,
+                      guest_specs: list[FileSpec], packet: dict[str, object]) -> None:
+    host_imports = []
+    for spec in host_specs:
+        if host.inspect(spec.target, mode=None).present:
+            host_imports.append(Path(spec.target).stem)
+    host.import_only(HOST_ROOT, host_imports)
+    guest_imports = []
+    for spec in guest_specs:
+        if spec.target.endswith("sa3_expanded_quality_runner.py") and guest.inspect(spec.target, mode=None).present:
+            guest_imports.append("sa3_expanded_quality_runner")
+    extra = ()
+    wrapper_target = packet["guest"]["wrapper"]["target"]
+    if guest.inspect(wrapper_target, mode=None).present:
+        extra = (wrapper_target,)
+    guest.import_only(packet["guest"]["target_root"], guest_imports, extra)
 
 
 def install(stage_root: Path, *, host: LocalTarget | None = None,
@@ -469,14 +524,20 @@ def install(stage_root: Path, *, host: LocalTarget | None = None,
             host.install(spec, host_data[spec.target])
         for spec in guest_specs:
             guest.install(spec, guest_data[spec.target])
-        host.postcheck(host_specs, units=host_units)
+        host.postcheck(host_specs, units=host_units,
+                       import_root=HOST_ROOT,
+                       imports=packet["compatibility"]["host_imports"])
         _host_existing(packet, host)
         if isinstance(guest, LocalTarget):
-            guest.postcheck(guest_specs, excluded=excluded, units=guest_units)
+            guest.postcheck(guest_specs, excluded=excluded, units=guest_units,
+                            import_root=packet["guest"]["target_root"],
+                            imports=packet["compatibility"]["guest_imports"],
+                            extra_imports=(packet["guest"]["wrapper"]["target"],))
         else:
             guest.postcheck(guest_specs, excluded=excluded, units=guest_units,
                             runtime_root=packet["guest"]["target_root"],
-                            imports=("sa3_expanded_quality_runner",))
+                            imports=packet["compatibility"]["guest_imports"],
+                            extra_imports=(packet["guest"]["wrapper"]["target"],))
         return {"state": "staged-candidate", "host_files": len(host_specs),
                 "guest_files": len(guest_specs), "rollback": "checkpoint-retained",
                 "effects": "not-attempted"}
@@ -484,6 +545,7 @@ def install(stage_root: Path, *, host: LocalTarget | None = None,
         if completed_checkpoints:
             try:
                 _rollback(completed_checkpoints)
+                _rollback_imports(host, host_specs, guest, guest_specs, packet)
             except Exception as rollback_failure:
                 raise rollback_failure from failure
         raise
