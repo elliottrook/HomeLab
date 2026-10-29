@@ -433,6 +433,15 @@ identity, latency and answer keys; and binds all six semantic judgments for all
 design pause without prejudging the result. It performs no model call and
 cannot qualify, route or repair anything by itself.
 
+The final offline
+[quality-decision boundary](evidence/SA3-expanded-source-quality-decision-boundary-2026-10-29.md)
+now binds the retained result, rebuilt blind-review packet, independent response
+and separate answer key to canonical digests before applying the existing fair
+scorer. It fails closed on runtime, retry, effect, identity, key or review drift
+and explicitly leaves routing, repair and model-promotion authority false even
+on a quality pass. The post-run source path is therefore complete; it still has
+no predictions or review outcome.
+
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the
