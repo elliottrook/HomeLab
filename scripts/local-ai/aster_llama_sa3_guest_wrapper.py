@@ -24,6 +24,7 @@ import re
 PROFILE = "sa3-expanded-source-quality-v1"
 MODEL = "aster-qwen3.5-9b"
 MODEL_PATH = "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf"
+MODEL_LINK_TARGET = "/usr/share/ollama/.ollama/models/blobs/sha256-" + "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13"
 SERVER = "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"
 PORT = 11436
 REQUESTS = 20
@@ -76,6 +77,20 @@ def _pinned_file(path: Path, expected: str, mode: int) -> bool:
             and hashlib.sha256(path.read_bytes()).hexdigest() == expected)
 
 
+def _pinned_model() -> bool:
+    link = Path(MODEL_PATH)
+    target = Path(MODEL_LINK_TARGET)
+    try:
+        link_info = link.lstat(); target_info = target.lstat()
+    except FileNotFoundError:
+        return False
+    return (stat.S_ISLNK(link_info.st_mode) and link_info.st_uid == 0
+            and os.readlink(link) == MODEL_LINK_TARGET
+            and stat.S_ISREG(target_info.st_mode) and target_info.st_uid == 0
+            and target_info.st_nlink == 1 and stat.S_IMODE(target_info.st_mode) == 0o644
+            and hashlib.sha256(target.read_bytes()).hexdigest() == MODEL_SHA)
+
+
 def _check_pins() -> None:
     for name, expected in PINS.items():
         path = RUNTIME_ROOT / name
@@ -84,7 +99,7 @@ def _check_pins() -> None:
     for name in EXCLUDED:
         if (RUNTIME_ROOT / name).exists():
             raise GuestError("excluded answer or review material is present")
-    if (not _pinned_file(Path(MODEL_PATH), MODEL_SHA, 0o644)
+    if (not _pinned_model()
             or not _pinned_file(Path(SERVER), BINARY_SHA, 0o755)):
         raise GuestError("accepted model or binary pin drift")
 
@@ -303,7 +318,9 @@ def main(argv=None) -> int:
         result = run(**vars(parser.parse_args(argv)))
         print(json.dumps(result, sort_keys=True, separators=(",", ":")))
         return 0
-    except (GuestError, OSError, ValueError, urllib.error.URLError):
+    except (GuestError, OSError, ValueError, urllib.error.URLError) as exc:
+        print(json.dumps({"state": "no_go", "code": str(exc)}, sort_keys=True),
+              file=sys.stderr)
         return 1
 
 

@@ -204,7 +204,14 @@ def run(*, lease_id: str, generation: int, deadline_epoch: int,
                 with open(stderr_path, "rb") as stream:
                     stderr = stream.read(RESULT_MAX_BYTES + 1)
                 if status != 0:
-                    raise AdapterError("SA3 listener exited nonzero")
+                    try:
+                        detail_value = json.loads(stderr.decode("utf-8"))
+                        detail = detail_value.get("code") if isinstance(detail_value, dict) else None
+                    except (UnicodeDecodeError, json.JSONDecodeError):
+                        detail = None
+                    if not isinstance(detail, str) or not detail or len(detail) > 160:
+                        detail = "unclassified guest failure"
+                    raise AdapterError("SA3 listener exited nonzero: " + detail)
                 if len(stdout) > RESULT_MAX_BYTES:
                     raise AdapterError("SA3 listener output exceeded bound")
                 if len(stderr) > RESULT_MAX_BYTES:

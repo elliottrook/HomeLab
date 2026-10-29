@@ -74,11 +74,13 @@ class GuestWrapperTests(unittest.TestCase):
                 wrapper.SERVER = str(server)
                 wrapper.MODEL_SHA = hashlib.sha256(b"model").hexdigest()
                 wrapper.BINARY_SHA = hashlib.sha256(b"server").hexdigest()
-                with mock.patch.object(wrapper, "_pinned_file", return_value=True):
+                with mock.patch.object(wrapper, "_pinned_file", return_value=True), \
+                     mock.patch.object(wrapper, "_pinned_model", return_value=True):
                     wrapper._check_pins()
                 (root / wrapper.EXCLUDED[0]).write_text("forbidden")
                 with self.assertRaisesRegex(wrapper.GuestError, "excluded"):
-                    with mock.patch.object(wrapper, "_pinned_file", return_value=True):
+                    with mock.patch.object(wrapper, "_pinned_file", return_value=True), \
+                         mock.patch.object(wrapper, "_pinned_model", return_value=True):
                         wrapper._check_pins()
             finally:
                 wrapper.PINS = old_pins

@@ -129,6 +129,7 @@ def run(booking_id: str) -> int:
     claimant = f"lh-{hashlib.sha256(booking_id.encode()).hexdigest()[:20]}"
     store = ReservationStore(RESERVATIONS); phase = "claim"; restored = True
     evidence = ATTEMPTS / f"reservation-{booking_id}"
+    guardian_unit = None
     try:
         if os.geteuid() != 0: raise RunError("ROOT_REQUIRED")
         booking = store.claim(booking_id, claimant=claimant)
@@ -196,6 +197,11 @@ def run(booking_id: str) -> int:
         store.finish(booking_id,claimant=claimant,success=True,result_code="COMPLETE")
         return 0
     except BaseException as exc:
+        if (restored and guardian_unit
+                and not (STATE_ROOT / "full-inference-drain.json").exists()
+                and not (STATE_ROOT / "full-inference-drain.lock").exists()):
+            call(("systemctl", "stop", guardian_unit), 30)
+            call(("systemctl", "reset-failed", guardian_unit), 10)
         evidence.mkdir(mode=0o700,parents=True,exist_ok=True)
         code=str(exc) if isinstance(exc,(RunError,ReservationError)) else type(exc).__name__
         atomic_json(evidence/"terminal.json",{"schema":"aster-lab-hours-booked-result.v1",
