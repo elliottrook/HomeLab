@@ -40,6 +40,33 @@ the remote-write approval rule below.
 Codex may create and modify Forgejo workflow configuration locally and include
 those changes in local commits.
 
+## Local AI Lab Hours scheduling
+
+Tasks must never be scheduled in a way that interferes with a protected Aster
+Lab Hours window. Before creating, updating, enabling or proposing any
+scheduled task, Codex automation, systemd timer or cron job that could use or
+compete for the local AI stack, query the authoritative Proxmox reservation
+ledger for the complete proposed execution and recovery window:
+
+`/usr/local/sbin/aster-lab-hours check-window --start <offset-qualified-ISO-8601> --end <offset-qualified-ISO-8601>`
+
+A conflict, unavailable ledger or uncertain result is a fail-closed scheduling
+decision: do not create or activate the task. Move it outside the protected
+window or create an approved booking first. Calendar time alone is never proof
+that the window is clear.
+
+Every local AI lab workload that needs exclusive use of the local AI stack must
+have its own Lab Hours booking before it is scheduled or started. Bookings may
+name only registered, hash-pinned workloads and may not contain arbitrary
+commands. The booking is additional to the live whole-host lease and shared
+operation lock; all three controls must pass. A task created before a later
+booking must recheck immediately before effects and fail closed if the booking,
+lease or lock boundary is no longer clear.
+
+The operating contract and recovery procedure are in
+`services/local-ai-lease/ASTER-LAB-HOURS-RESERVATION-RUNBOOK.md` and
+`docs/projects/AI Projects/Aster-Lab-Hours.md`.
+
 Forgejo `origin` is the single authoritative push target. Forgejo automatically
 mirrors accepted commits to the GitHub protection remote; Codex must verify the
 GitHub ref read-only after the mirror runs and must not push the same commit

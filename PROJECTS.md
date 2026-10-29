@@ -32,6 +32,8 @@ record; elective work belongs to the enhancement portfolio.
 - Record urgent unplanned work in the change log, including why it could not wait.
 - Add cameras only within the defined surveillance milestone and after capacity has been validated.
 - Review the scope lock only after all completion gates at the end of this document pass.
+- Never create or activate a scheduled task that overlaps or interferes with a protected Aster Lab Hours reservation. Check the authoritative reservation ledger for the complete execution and recovery window before scheduling and again before effects; an unavailable, conflicting or uncertain result fails closed.
+- Every local AI lab workload that needs exclusive use of the local AI stack must first book Lab Hours with a registered, hash-pinned workload. The booking does not replace the required whole-host lease or shared operation lock.
 
 ---
 
