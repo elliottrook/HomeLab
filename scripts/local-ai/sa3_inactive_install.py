@@ -22,14 +22,14 @@ from typing import Callable, Iterable
 
 
 PACKET_NAME = "ASTER-LAB-HOURS-SA3-INACTIVE-INSTALL-PACKET-20261029.json"
-PACKET_SHA256 = "4ed0d34706107e006d3ca53e971f17b7dabb68a3bbb59d751d6a61e1393b8bc7"
+PACKET_SHA256 = "b32c1b2a2dcb5f0e8673cb204d997710c034c8c1ec4dba762109b67b4fdb7255"
 EXPECTED_PLATFORM_COMMIT = "8dc6eac5"
 EXPECTED_STREAM_COMMIT = "434c5aedddd59665c7e2e8961196b81310e02765"
-HOST_CHECKPOINT = "/var/lib/local-ai-lab/checkpoints/sa3-inactive-install-8dc6eac5"
-GUEST_CHECKPOINT = "/var/lib/local-ai-lab/checkpoints/sa3-inactive-install-8dc6eac5"
+HOST_CHECKPOINT = "/var/lib/local-ai-lab/checkpoints/sa3-inactive-install-root-v2"
+GUEST_CHECKPOINT = "/var/lib/local-ai-lab/checkpoints/sa3-inactive-install-root-v2"
 HOST_ROOT = "/usr/local/libexec/local-ai-lease/full-inference-pilot"
 GUEST_ID = 110
-STAGE_DEFAULT = "/var/lib/local-ai-lab/staging/sa3-inactive-install-8dc6eac5"
+STAGE_DEFAULT = "/var/lib/local-ai-lab/staging/sa3-inactive-install-root-v2"
 
 
 class InstallError(RuntimeError):
@@ -135,6 +135,35 @@ class LocalTarget:
         path = self.path(target)
         if os.path.lexists(path):
             raise InstallError(f"PATH_MUST_BE_ABSENT:{target}")
+
+    def ensure_directory(self, target: str, *, mode: int) -> bool:
+        path = self.path(target)
+        if os.path.lexists(path):
+            info = path.lstat()
+            if (not stat.S_ISDIR(info.st_mode) or info.st_uid != self.expected_uid
+                    or stat.S_IMODE(info.st_mode) != mode):
+                raise InstallError(f"TARGET_DIRECTORY_CUSTODY_INVALID:{target}")
+            return False
+        parent = path.parent
+        info = parent.lstat()
+        if not stat.S_ISDIR(info.st_mode) or info.st_uid != self.expected_uid:
+            raise InstallError(f"TARGET_DIRECTORY_PARENT_INVALID:{target}")
+        path.mkdir(mode=mode)
+        os.chmod(path, mode)
+        if self.expected_uid == 0:
+            os.chown(path, 0, 0)
+        _directory_ok(path, expected_uid=self.expected_uid, mode=mode)
+        return True
+
+    def rollback_directory(self, target: str, *, mode: int, created: bool) -> None:
+        if not created:
+            return
+        path = self.path(target)
+        _directory_ok(path, expected_uid=self.expected_uid, mode=mode)
+        try:
+            path.rmdir()
+        except OSError as exc:
+            raise InstallError(f"ROLLBACK_DIRECTORY_NOT_EMPTY:{target}") from exc
 
     def checkpoint(self, targets: Iterable[FileSpec], checkpoint: str) -> None:
         root = self.path(checkpoint)
@@ -282,6 +311,23 @@ def main():
     if op == "absent":
         if os.path.lexists(value["target"]): fail("PATH_MUST_BE_ABSENT:" + value["target"])
         print("{}"); return
+    if op == "directory":
+        path = Path(value["target"]); mode = int(value["mode"], 8)
+        if os.path.lexists(path):
+            info = path.lstat()
+            if not stat.S_ISDIR(info.st_mode) or info.st_uid != 0 or stat.S_IMODE(info.st_mode) != mode: fail("TARGET_DIRECTORY_CUSTODY_INVALID:" + str(path))
+            print(json.dumps({"created": False})); return
+        info = path.parent.lstat()
+        if not stat.S_ISDIR(info.st_mode) or info.st_uid != 0: fail("TARGET_DIRECTORY_PARENT_INVALID:" + str(path))
+        path.mkdir(mode=mode); os.chmod(path, mode); os.chown(path, 0, 0)
+        print(json.dumps({"created": True})); return
+    if op == "remove_directory":
+        if not value["created"]: print("{}"); return
+        path = Path(value["target"]); info = path.lstat()
+        if not stat.S_ISDIR(info.st_mode) or info.st_uid != 0 or stat.S_IMODE(info.st_mode) != int(value["mode"], 8): fail("ROLLBACK_DIRECTORY_CUSTODY_INVALID:" + str(path))
+        try: path.rmdir()
+        except OSError: fail("ROLLBACK_DIRECTORY_NOT_EMPTY:" + str(path))
+        print("{}"); return
     if op == "install":
         atomic(value["target"], base64.b64decode(value["data"]), int(value["mode"], 8))
         print(json.dumps(state(value["target"]), sort_keys=True)); return
@@ -371,6 +417,14 @@ class PctTarget:
 
     def absent(self, target: str) -> None:
         self._call("absent", {"target": target})
+
+    def ensure_directory(self, target: str, *, mode: int) -> bool:
+        value = self._call("directory", {"target": target, "mode": f"{mode:04o}"})
+        return bool(value.get("created"))
+
+    def rollback_directory(self, target: str, *, mode: int, created: bool) -> None:
+        self._call("remove_directory", {"target": target, "mode": f"{mode:04o}",
+                                         "created": created})
 
     def checkpoint(self, targets: Iterable[FileSpec], checkpoint: str) -> None:
         self._call("checkpoint", {"checkpoint": checkpoint,
@@ -525,6 +579,8 @@ def install(stage_root: Path, *, host: LocalTarget | None = None,
         guest.absent(path)
     _host_existing(packet, host)
     completed_checkpoints: list[tuple[object, list[FileSpec], str, dict[str, str]]] = []
+    guest_root_created = False
+    guest_root_mode = int(packet["guest"]["target_root_policy"]["mode"], 8)
     try:
         host.checkpoint(host_specs, HOST_CHECKPOINT)
         completed_checkpoints.append((host, host_specs, HOST_CHECKPOINT,
@@ -532,6 +588,8 @@ def install(stage_root: Path, *, host: LocalTarget | None = None,
         guest.checkpoint(guest_specs, GUEST_CHECKPOINT)
         completed_checkpoints.append((guest, guest_specs, GUEST_CHECKPOINT,
                                       {s.target: s.sha256 for s in guest_specs}))
+        guest_root_created = guest.ensure_directory(packet["guest"]["target_root"],
+                                                    mode=guest_root_mode)
         for spec in host_specs:
             host.install(spec, host_data[spec.target])
         for spec in guest_specs:
@@ -557,6 +615,9 @@ def install(stage_root: Path, *, host: LocalTarget | None = None,
         if completed_checkpoints:
             try:
                 _rollback(completed_checkpoints)
+                guest.rollback_directory(packet["guest"]["target_root"],
+                                         mode=guest_root_mode,
+                                         created=guest_root_created)
                 _rollback_imports(host, host_specs, guest, guest_specs, packet)
             except Exception as rollback_failure:
                 raise rollback_failure from failure

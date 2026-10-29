@@ -6,7 +6,7 @@
   "host": {
     "node": "proxmox",
     "target_root": "/usr/local/libexec/local-ai-lease/full-inference-pilot",
-    "checkpoint_root": "/var/lib/local-ai-lab/checkpoints/sa3-inactive-install-8dc6eac5",
+    "checkpoint_root": "/var/lib/local-ai-lab/checkpoints/sa3-inactive-install-root-v2",
     "install_files": [
       {"source": "scripts/local-ai/sa3_expanded_quality_transaction.py", "target": "sa3_expanded_quality_transaction.py", "mode": "0644", "sha256": "0706912279bcb4a511633cfb22f19e691eed94f4aa79e07bdc332f87d0dbbc70"},
       {"source": "scripts/local-ai/sa3_listener_adapter.py", "target": "sa3_listener_adapter.py", "mode": "0644", "sha256": "a6387092f04a8fa8cc35254ce19c9a479cd0177b2fd53caae40ee6012c38f917"}
@@ -37,7 +37,12 @@
   "guest": {
     "container": 110,
     "target_root": "/usr/local/libexec/local-ai-lease/full-inference-pilot",
-    "checkpoint_root": "/var/lib/local-ai-lab/checkpoints/sa3-inactive-install-8dc6eac5",
+    "target_root_policy": {
+      "mode": "0755",
+      "preinstall": "absent-or-exact-root-owned-directory",
+      "rollback": "remove-only-if-created-by-this-transaction-and-empty"
+    },
+    "checkpoint_root": "/var/lib/local-ai-lab/checkpoints/sa3-inactive-install-root-v2",
     "runtime_files": [
       {"source": "services/aster-agent/evals/sa3-expanded-source-quality-v1.json", "target": "sa3-expanded-source-quality-v1.json", "mode": "0644", "sha256": "ed75836af74401709a74333a96d0a22629b23e389e5262bbc365ab6aed018d23"},
       {"source": "services/aster-agent/evals/sa3_expanded_quality_packet.py", "target": "sa3_expanded_quality_packet.py", "mode": "0644", "sha256": "b9011bef592421b6e6c28ec830b17f1296409daa30fd4f508d913ba35c104657"},

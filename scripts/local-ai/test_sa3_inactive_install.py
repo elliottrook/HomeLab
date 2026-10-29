@@ -126,6 +126,37 @@ class Sa3InactiveInstallTests(unittest.TestCase):
         finally:
             tmp.cleanup()
 
+    def test_absent_guest_target_root_is_created(self):
+        tmp, stage, host_root, guest_root, value = self._fixture()
+        try:
+            target_root = guest_root / value["guest"]["target_root"].lstrip("/")
+            target_root.rmdir()
+            result = installer.install(stage,
+                host=installer.LocalTarget(host_root, expected_uid=os.geteuid()),
+                guest=installer.LocalTarget(guest_root, expected_uid=os.geteuid()),
+                expected_uid=os.geteuid())
+            self.assertEqual(result["state"], "staged-candidate")
+            self.assertTrue(target_root.is_dir())
+            self.assertEqual(target_root.stat().st_mode & 0o777, 0o755)
+        finally:
+            tmp.cleanup()
+
+    def test_failure_removes_guest_target_root_created_by_transaction(self):
+        tmp, stage, host_root, guest_root, value = self._fixture()
+        try:
+            target_root = guest_root / value["guest"]["target_root"].lstrip("/")
+            target_root.rmdir()
+            with self.assertRaisesRegex(installer.InstallError, "INJECTED_WRITE_FAILURE"):
+                installer.install(stage,
+                    host=installer.LocalTarget(host_root, expected_uid=os.geteuid()),
+                    guest=FailingTarget(guest_root, expected_uid=os.geteuid(),
+                                        fail_at=value["guest"]["target_root"] + "/sa3_expanded_quality_runner.py",
+                                        after_write=True),
+                    expected_uid=os.geteuid())
+            self.assertFalse(target_root.exists())
+        finally:
+            tmp.cleanup()
+
     def test_host_write_failure_rolls_back_both_targets(self):
         tmp, stage, host_root, guest_root, _ = self._fixture()
         try:
