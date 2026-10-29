@@ -39,3 +39,33 @@ Runner registration and any manifest/core update remain a later, distinct
 reviewed effect gate. An exact fixed bundle, target import proof, reversible
 installer and separate live installation approval are still required before
 the dormant files may be staged.
+
+## Corrected dormant candidate
+
+Platform commits `5a9c3471`, `a8551a18`, `95549522` and `b6a9f08e` implement
+the reduced candidate and close the follow-up review findings. The candidate:
+
+- installs only two absent Proxmox modules and four absent LXC110 runtime files
+  plus one absent fixed wrapper;
+- pins the actual live runner at SHA-256
+  `6ba44c2bfb6322d68c5bd6c112e4144916be60f2ee4ae0abf2042e09a456abd2`,
+  verifies `WORKLOAD_NOT_REGISTERED`, and requires the SA3 identity to remain
+  absent from both runner and live manifest;
+- leaves the working CLI, reservation ledger, runner, manifest, guardian and
+  runtime unchanged;
+- builds one deterministic archive at SHA-256
+  `224647fe1815e30b8d74b3a1cceccf39ba3fa9712c3f561fdf9e5b0ceba5aaf7`;
+- uploads only into a freshly absent root-only Proxmox incoming directory,
+  requires a freshly absent stage and checkpoint, and verifies exact custody
+  and digest before extraction;
+- checkpoints all seven dormant target paths, installs atomically, runs target
+  imports and rolls both Proxmox and LXC110 back on any write, postcheck or
+  import failure; and
+- retains uncertain checkpoint/failure evidence rather than retrying.
+
+The complete platform source suite passes 62/62. A final read-only preflight
+found the incoming, stage and checkpoint paths absent. The packet remains
+source-only; no bundle was uploaded and no target file was installed. The next
+gate is one explicit approval for the exact dormant staging transaction. It
+will not register the workload, acquire a lease, book Lab Hours, invoke a model,
+change a service/timer or restart production.

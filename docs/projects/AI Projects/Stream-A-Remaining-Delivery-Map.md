@@ -441,6 +441,15 @@ replacement packet must therefore add only the absent SA3 host/guest files,
 prove target imports against the measured live baseline and defer runner/
 manifest registration to its own later effect gate.
 
+That reduced candidate is now complete at platform tip `b6a9f08e`. Its
+deterministic bundle, root-only incoming/stage custody, seven-target dual
+checkpoint, atomic installer, target imports, rollback injection and absent-
+registration guard pass 62/62 focused tests. The actual live runner hash and
+`WORKLOAD_NOT_REGISTERED` path are pinned while its SA3 identity remains
+absent. The next gate is the exact dormant installation and target validation;
+registration, booking, lease, model execution and service effects remain
+separate and unavailable.
+
 The downstream
 [model-blind review boundary](evidence/SA3-expanded-source-quality-blind-review-boundary-2026-10-29.md)
 is also source-complete before predictions exist. It accepts only a complete,
