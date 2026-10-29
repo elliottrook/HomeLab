@@ -12,6 +12,17 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October29 published Lab Hours receipt](B60-Inference-Engineering/research-watch-20261012.md#october-29-preparation--published-lab-hours-graduation-received)
+receives Adaptive `8397bff05` and actual booking source `e28dfc24f`.
+The owner reports a completed host-owned night transaction, two booked passes
+and corrected owner-loss recovery, all on accepted9B. F2/F3 terminal evidence
+is now published; F4/F5 still did not run. Lab Hours is now a separate
+reservation service, not the F2–F5 promotion chain. Next is a separately reviewed
+35B registered workload and measured all-consumer/mount-aware recovery card,
+retaining B60's stricter backup/mirror,30-minute and before04:15 gates.
+No35B capability or latency result is claimed. Ten selected exact-owner-source
+offline tests and95 B60 tests pass.
+
 The [October28 morning status receipt](B60-Inference-Engineering/research-watch-20261012.md#october-28-morning-missed-window-status-receipt)
 records Adaptive's local-only report that F2/F3 and the pulls passed, but F4/F5
 missed its window because no executor owned it. Overall NO-GO; no35B result.

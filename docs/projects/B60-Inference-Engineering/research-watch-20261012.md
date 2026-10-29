@@ -1,5 +1,67 @@
 # Fixed-hardware capability research watch — 2026-10-12
 
+## October 29 preparation — published Lab Hours graduation received
+
+Forgejo Adaptive `8397bff05f0e448c0d122adb0c76b0ab03ebb54c` now publishes
+the previously local October28 terminal records and a separate graduated
+reservation-driven Lab Hours track. Read-only HTTPS mirror matches. B60's
+published ref remains `1a1b9f0ef9099651cad5cc0055bde855e3db0a18`; registry
+`6fb0207fec5190e0c34ed3bc72ea38e128f06127` and older platform
+`200640648eca0d3485eae8e2cbfd2707a0e3c296` remain unchanged.
+
+Exact receipt paths under `docs/projects/AI Projects/evidence/` at Adaptive
+commit above, with recomputed SHA-256:
+
+| Path | SHA-256 |
+|---|---|
+| `F2-exact-cycle-complete-2026-10-28.md` | `207fcec16d6afd13e33eb20875685409866279db768d9bb608def130c5792ec2` |
+| `F3-from-F2-complete-2026-10-28.md` | `ef21c65ed65d133d5898fe9f800b12aa1e8cf7e97a748023d67292b25b4907b8` |
+| `F4-F5-october-28-missed-window-no-go.md` | `d591c2cce5662e63d7a9da6f405514a64ce97de59b63e6d169fdbe9daf7e8e78` |
+| `Lab-Hours-RC1c-exact-cycle-result-2026-10-29.md` | `2c556bf38299b446f0a6a8067d7727cc0c0b0a78d05b7459fbd54a50f5a4db4c` |
+| `Lab-Hours-reservation-and-recovery-qualification-2026-10-29.md` | `a03651f0b99411f1c603d0e1f8d095e49419b9332af106e3f5018122b299c48e` |
+
+These are independently read published reports, not B60's live inspection of
+root terminal custody. October28 F2/F3 passed; F4/F5 remained uninvoked.
+Lab Hours is operationally separate: it directly verifies current-cycle
+Proxmox backup and does not create or consume F2–F5. The published LH3 run
+completed04:05–04:08:40 with three accepted9B requests; two subsequent booked
+passes completed08:52–08:55:45 and09:11–09:14:37. The first owner-loss exercise
+restored production but retained state/lock and failed. After a300-second rescue
+budget and exact accepted-holder correction, retained-state rescue succeeded;
+the next exercise completed10:11–10:16:13, zero requests, production restored.
+Do not erase the initial failure or treat313 seconds as measured35B recovery.
+
+The documented `codex/aster-lab-hours-release-candidate` ref was unavailable.
+Read-only ref discovery resolved the actual source to
+`codex/aster-lab-hours-booking` at
+`e28dfc24fcaaedbfb8c3480ba63da43069b55b53`, also matching its HTTPS mirror.
+At `scripts/local-ai/`, runtime SHA-256 is
+`5fa48df16c4db8d2eedcd4a8ab9d615cc07519b713a0028c20019d84ae06ac3d`
+and guardian is `688d995dafd33b7b905fb7351bf365a0d0fdcc20766e5c497551d2cc0846cc35`,
+matching the published corrected installed pins. Reviewed reservation and
+reserved-runner source plus the release manifest. Only accepted9B smoke and
+accepted9B owner-loss workloads are registered. The ledger/dispatcher is not
+an arbitrary-command or35B admission mechanism. Ten selected exact-source
+offline reservation/dispatch/command-construction tests pass from an isolated
+archive export; this does not reproduce the owner's123 target tests or live
+qualification. All95 B60 tests also pass.
+
+### B60 integration next action and non-transferable gates
+
+Receive a reviewed, hash-pinned35B workload registration and all-consumer,
+mount/load/restore instrumented effect card, using the actual booking source.
+Reconcile the new independent Lab Hours boundary with B60's stricter shared
+backup/TrueNAS exact-LXC110 mirror,30-minute trial and restoration-before04:15
+requirements; the generic90-minute reservation plus15-minute post-end buffer
+does not relax them. Check News, EPUB and Paperless/current gateway callers
+against a fresh admission inventory and lease-aware resume ownership. Preserve
+accepted SYCL recovery and full-Aster baseline/held-out quality/latency gates.
+The new operating service closes the blanket missing-runner/recovery claim;
+it does not establish35B model switching, fresh useful-answer p50/p95 or final
+programme success. No booking, lease, host probe, service change, model/GPU
+call or direct message was performed by B60. The older timing proposal remains
+unaccepted; no peer read or approval is inferred from publication.
+
 ## October 29 nightly source checkpoint
 
 Re-read repository instructions, project standard, B60 programme, ranked queue,
