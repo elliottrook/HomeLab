@@ -16,7 +16,7 @@
   ],
   "known_release_blockers": [
     "Physical lab audio audibility awaits owner confirmation",
-    "Dolby passthrough is not validated and remains disabled",
+    "Lab E-AC-3 test selected a PCM sink, not raw passthrough; Dolby remains disabled and requires a capable sink or HDMI analyzer",
     "YouTube result playback and account-only widgets remain unaccepted",
     "Full clean-client assembly, rollback rehearsal and owner sofa acceptance remain open",
     "Production Jellyfin code pin and final host-specific package require separate verification"

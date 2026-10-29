@@ -191,6 +191,26 @@ to advertise the intended codec, followed by a checkpointed known-format
 playback test and receiver-display confirmation. The stereo profile remains
 unchanged while Jason's physical audibility check is pending.
 
+Jason clarified that the goal is to isolate the HP/Kodi output stage before
+retesting on the Dolby-capable production chain. Kodi's startup enumeration
+advertises generic raw stream types even for the LG HDMI 0 device, so two
+six-second, checkpointed live probes used an already-watched six-channel
+E-AC-3 episode. With passthrough temporarily true, both Kodi's existing
+Optimized output mode and a temporary Best Match mode played the E-AC-3
+source but opened ALSA HDMI 0 with `AES0=0x04` (PCM). Kodi's ALSA source uses
+`AES0=0x06` for the non-audio/raw path. The corrected second and third probe
+results reported `sink_mode: pcm`, `passed: false`, `restored: true`. Their
+checkpoints are `/storage/.aster-checkpoints/astertv-lab-eac3-path-20261029-v2`
+and `-v3`; the first probe's source-codec-only success criterion was explicitly
+rejected as a false positive. The corrected guarded probe source is
+`services/kodi/v2/tools/test_lab_eac3_passthrough_path.py`. Playback is
+stopped, and an independent saved
+settings read confirms HDMI 0, passthrough off and Optimized mode restored.
+This test therefore does **not** exonerate the AsterTV/Kodi output stage or
+prove that encoded frames left the HP. Physical wire-level proof still needs
+a Dolby-capable sink or compatible HDMI audio analyzer/capture device; then
+the same raw-sink check, receiver indication and rollback should be repeated.
+
 The credential-free v2.0.2 lab source archive was built from committed tree
 `37a1eecb` at
 `services/kodi/dist/aster-home-v2.0.2-lab-candidate-source.tar.gz`.

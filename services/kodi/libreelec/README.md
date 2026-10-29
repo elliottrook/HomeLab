@@ -50,6 +50,18 @@ receiver/TV route that advertises the intended codecs, recheck the live ELD,
 then use one known-format clip with a rollback checkpoint and physical receiver
 indication. Preserve the audible stereo profile until that test succeeds.
 
+A bounded Kodi 22 RC1 lab probe on 2026-10-29 played an already-watched
+six-channel E-AC-3 episode with passthrough temporarily enabled, first in
+Optimized and then Best Match output mode. Both times Kodi's ALSA sink opened
+`hdmi:CARD=PCH,DEV=0` with `AES0=0x04` (PCM), not the `AES0=0x06` non-audio
+status Kodi's ALSA source uses for raw passthrough. Kodi enumerated generic
+raw stream types for the HDMI device, but that enumeration did not translate
+to an actual raw sink on this LG path. Both tests stopped playback and restored
+HDMI 0 stereo, passthrough off, and Optimized mode. This is a **negative
+software-path result**, not a transmitted-Dolby capture or an end-to-end
+receiver test. The connected sink's ELD remains the immediate missing
+prerequisite for a production-like test.
+
 Kodi's preferred audio language is `English` with "prefer default audio
 streams" enabled. This selects an English stream when the source metadata
 correctly tags one; content with missing or incorrect language tags still
