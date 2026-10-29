@@ -504,6 +504,19 @@ production. The immediate ready item is one bounded execution after an
 authoritative Lab Hours conflict check and fixed reservation; the runtime must
 still obtain the whole-host lease and shared lock and fail closed on drift.
 
+The first booked SA3 execution claimed once but stopped before listener
+readiness because the accepted model path is a content-addressed symlink and the
+wrapper incorrectly rejected all symlinks. Production restored fully and no
+model result was accepted. The underlying blob has the accepted hash; its
+custody is now hardened from runtime-writable to root:`ollama` mode 0644.
+Platform correction `12266c7a` binds the exact symlink target, preserves the
+guest failure class and cleans a spent guardian only after verified
+restoration. Its 64/64 suite and live host/guest install pass. After the failed
+booking's restoration buffer, the ledger is clear and a distinct 13:55–14:55
+booking is scheduled. The immediate ready item is reconciliation of that
+once-only result, followed by the already frozen blind review and decision
+boundaries if and only if a complete 20-row result is retained.
+
 The downstream
 [model-blind review boundary](evidence/SA3-expanded-source-quality-blind-review-boundary-2026-10-29.md)
 is also source-complete before predictions exist. It accepts only a complete,

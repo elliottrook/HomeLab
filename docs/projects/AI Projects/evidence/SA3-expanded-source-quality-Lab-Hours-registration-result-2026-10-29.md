@@ -134,3 +134,21 @@ result root, all eighteen manifest pins and healthy production. No SA3 booking
 or attempt exists and the lease remains ready. The runner implementation gate
 is complete; the immediate next item is an authoritative conflict check and
 fixed reservation for one bounded evaluation.
+
+## First booked execution and correction
+
+Booking `aster-stream-a-sa3-20261029-1335` claimed once and entered the durable
+full drain, but the guest listener exited before readiness. No model result was
+accepted. Production restoration completed; retained terminal evidence records
+`OWNER_TRANSACTION_FAILED_RESTORED`, all consumers and timers returned healthy,
+the lease is ready and Doctor is healthy.
+
+The exact cause was not a model-content mismatch: the accepted model path is a
+root-owned symlink to the correct content-addressed blob, while the old wrapper
+rejected every symlink. The blob was also writable by its `ollama` owner.
+Custody is now root:`ollama` mode 0644 with bytes and model identity unchanged.
+Platform correction `12266c7a` validates only the exact link/target/hash,
+retains a bounded guest failure class and cleans a spent guardian after verified
+restoration. The 64/64 suite and live host/guest install pass. A new ledger
+check was clear and distinct booking `aster-stream-a-sa3-20261029-1355` is
+scheduled for 13:55–14:55 PDT after the required restoration buffer.
