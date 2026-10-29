@@ -38,11 +38,20 @@ Pinned identities:
 
 ## Validation
 
-The focused packet and fair-scorer suite passes **16/16**. It proves exact
+The focused packet, runner and fair-scorer suite passes **19/19**. It proves exact
 20-case membership, duplicate-key rejection, packet/key identity binding,
 coverage of every source at least twice, four abstention cases, fixed
 no-authority/no-effect/no-tools constraints, malformed-key rejection and the
 rule that missing independent reviews cannot qualify a result.
+
+The inactive runner is pinned at
+`39f01d80d5c2a4a43bd9af24ca0060c5323cdb3011a7f9b3d14a19bfcaaaf351`.
+It gives the model only the synthetic prompt, sanitized observations, visible
+capability catalogue and fixed no-authority/no-effect/no-tools constraints. It
+never loads the answer key, performs exactly one request per case with no retry,
+uses strict structured output and records runtime/schema failures as `invalid`
+rather than converting them into a safe-looking clarification. The runner is
+source only and has not been registered, installed or invoked.
 
 ## Next gate
 

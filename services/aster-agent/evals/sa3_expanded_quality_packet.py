@@ -45,7 +45,7 @@ def _unique_object(pairs):
     return value
 
 
-def validate_packet(packet: dict, keys: dict) -> dict:
+def validate_visible_packet(packet: dict) -> dict:
     if not isinstance(packet, dict) or set(packet) != {
         "schema_version", "packet_id", "data_class", "constraints", "cases"
     }:
@@ -102,6 +102,18 @@ def validate_packet(packet: dict, keys: dict) -> dict:
 
     if set(source_counts) != SOURCE_IDS or min(source_counts.values()) < 2:
         raise ValueError("packet does not cover every expanded source twice")
+    return {
+        "packet_id": packet["packet_id"],
+        "case_count": len(cases),
+        "source_counts": dict(sorted(source_counts.items())),
+        "packet_sha256": hashlib.sha256(_canonical(packet)).hexdigest(),
+        "visible_cases": visible,
+    }
+
+
+def validate_packet(packet: dict, keys: dict) -> dict:
+    visible_result = validate_visible_packet(packet)
+    ids = [case["id"] for case in packet["cases"]]
     if not isinstance(keys, dict) or set(keys) != {"schema_version", "packet_id", "case_answer_keys"}:
         raise ValueError("invalid key envelope")
     if keys["schema_version"] != 1 or keys["packet_id"] != packet["packet_id"]:
@@ -135,17 +147,17 @@ def validate_packet(packet: dict, keys: dict) -> dict:
 
     return {
         "schema": "aster-sa3-expanded-quality-freeze.v1",
-        "packet_id": packet["packet_id"],
-        "case_count": len(cases),
-        "source_counts": dict(sorted(source_counts.items())),
+        "packet_id": visible_result["packet_id"],
+        "case_count": visible_result["case_count"],
+        "source_counts": visible_result["source_counts"],
         "abstention_cases": sum(item.get("must_abstain") is True for item in answer_keys),
-        "packet_sha256": hashlib.sha256(_canonical(packet)).hexdigest(),
+        "packet_sha256": visible_result["packet_sha256"],
         "keys_sha256": hashlib.sha256(_canonical(keys)).hexdigest(),
         "model_calls_authorized": False,
         "tool_calls_authorized": False,
         "routing_authorized": False,
         "repair_authorized": False,
-        "visible_cases": visible,
+        "visible_cases": visible_result["visible_cases"],
     }
 
 

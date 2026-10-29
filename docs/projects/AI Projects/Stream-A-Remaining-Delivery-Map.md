@@ -381,7 +381,9 @@ That next gate now has a source-only
 Its 20 synthetic sanitized cases cover all eight installed evidence classes at
 least twice and include four mandatory abstentions. A fail-closed validator
 binds the separate answer key, fixed no-authority/no-effect/no-tools constraints
-and the existing 20-case/18-pass fair scorer; the focused suite passes 16/16.
+and the existing 20-case/18-pass fair scorer. An inactive one-call/no-retry
+runner keeps the answer key out of model-visible input and fails runtime/schema
+errors as invalid; the focused suite passes 19/19.
 No model or production evidence was used. Independent packet/key review is the
 next gate. Only after that review may a hash-pinned evaluation workload be
 registered and considered for a Lab Hours booking; predictions and model-blind
