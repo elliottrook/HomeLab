@@ -413,6 +413,15 @@ and owner-loss registrations, so the platform owner must implement and review
 this third fixed registration before any booking. No schedule, registration,
 model call or live effect has been created.
 
+The downstream
+[model-blind review boundary](evidence/SA3-expanded-source-quality-blind-review-boundary-2026-10-29.md)
+is also source-complete before predictions exist. It accepts only a complete,
+error-free, no-retry 20-case result bound to the frozen packet; strips model
+identity, latency and answer keys; and binds all six semantic judgments for all
+20 cases to the canonical review-packet digest. This removes another post-run
+design pause without prejudging the result. It performs no model call and
+cannot qualify, route or repair anything by itself.
+
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the
