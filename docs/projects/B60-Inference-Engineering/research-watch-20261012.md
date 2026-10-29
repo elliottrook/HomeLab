@@ -1,5 +1,37 @@
 # Fixed-hardware capability research watch — 2026-10-12
 
+## October 29 nightly source checkpoint
+
+Re-read repository instructions, project standard, B60 programme, ranked queue,
+release/platform records and the published owner response. Fresh Forgejo refs
+and read-only HTTPS protection refs still agree: B60
+`1a1b9f0ef9099651cad5cc0055bde855e3db0a18`, Adaptive
+`76190385d915e274b222765097bc977860bf877d`, registry
+`6fb0207fec5190e0c34ed3bc72ea38e128f06127`, actual platform
+`200640648eca0d3485eae8e2cbfd2707a0e3c296`.
+
+At the Adaptive commit, `docs/projects/AI Projects/evidence/B60-daytime-qualification-source-and-semantics-response-2026-10-27.md`
+recomputes to SHA-256
+`ac6299ea646bdc59659c21dc5ed24b72605a0b21e14cfaab1b266fcb40d16ed4`.
+At the actual platform commit,
+`services/local-ai-lease/FULL-INFERENCE-DAYTIME-TWO-PASS-QUALIFICATION-RESULT-20261027.md`
+recomputes to `1ca68589e9576bc8e43402cf38915b3b3b666d99ec4f818fe6ec886fb19fcae3`.
+These remain October27 two-pass 9B recovery evidence, not fresh October29
+backup admission, installed schedule observations or a35B result. No new
+published terminal evidence or complete-chain executor acceptance was found.
+
+The historical programme's blanket undeployed-lease sentence is superseded
+by the installed manual adapter and qualified9B transactions recorded below;
+the all-consumer, mount-aware35B controller and timed chain remain separately
+unproven. Retain the staged35B ordinary-inference screen as the ranked next
+candidate, without activating it or the old hard-coded controller.
+
+All95 offline B60 tests pass. This checkpoint stays local, with no push,
+direct message, host probe, lease, model/GPU call or operational effect.
+Next action remains receipt of source-bound terminal evidence and the reviewed
+complete F2–F5 execution/resume plan before any independent runner admission.
+The heartbeat is not that runner and will not replay missed windows.
+
 ## October 28 morning missed-window status receipt
 
 Fetched and read authoritative B60
