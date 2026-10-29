@@ -15,7 +15,7 @@ class ExpandedQualityWorkloadProposalTests(unittest.TestCase):
     def test_exact_non_admitted_proposal_passes(self):
         self.assertEqual(load_and_validate(self.path), {
             "workload_id": "sa3-expanded-source-quality-v1",
-            "runtime_file_count": 3,
+            "runtime_file_count": 4,
             "request_count": 20,
             "status": "not-admitted",
         })

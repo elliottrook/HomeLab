@@ -12,10 +12,10 @@ RUNTIME_FILES = {
     "sa3-expanded-source-quality-v1.json",
     "sa3_expanded_quality_packet.py",
     "sa3_expanded_quality_runner.py",
+    "sa3_fair_scorer.py",
 }
 EXCLUDED = {
     "sa3-expanded-source-quality-keys-v1.json",
-    "sa3_fair_scorer.py",
     "sa3-expanded-source-quality-independent-review-v1.json",
 }
 
@@ -36,7 +36,7 @@ def validate(proposal: object, root: Path) -> dict[str, object]:
         if not isinstance(expected, str) or len(expected) != 64 or _sha(root / name) != expected:
             raise ValueError(f"runtime pin mismatch: {name}")
     if set(proposal.get("excluded_runtime_files", [])) != EXCLUDED:
-        raise ValueError("answer keys, scorer or review receipt could enter runtime")
+        raise ValueError("answer keys or review receipt could enter runtime")
 
     execution = proposal.get("execution")
     if not isinstance(execution, dict) or execution != {

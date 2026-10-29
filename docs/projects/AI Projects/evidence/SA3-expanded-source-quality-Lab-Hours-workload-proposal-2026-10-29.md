@@ -2,11 +2,11 @@
 
 Status: **SOURCE CONTRACT PASS; NOT ADMITTED OR SCHEDULED**
 
-The machine-readable proposal SHA-256 is
-`19bd2cbd42d39de1730d8feeda701b3a3e62391db5f21dbbe18c51c8629f9927`.
+The dependency-closed machine-readable proposal SHA-256 is
+`c268c718df86e7d627537d4047c6b0fc0bef7bc5129ab280e4c8d340f57b9a53`.
 Its fail-closed validator SHA-256 is
-`6a295574b00d8b0c59d432c2707fa758bd8dc1f7cfc6330dad9aa1af3f9b20c5`.
-The complete focused packet, review and workload-proposal suite passes **27/27**.
+`64fa3069c34bae41684411a9c3deac9741b02b22b5eba08daab7df95f20b3bb7`.
+The complete expanded-quality source suite passes **31/31**.
 
 The accepted source-only quality packet now has a distinct proposed Lab Hours
 identity, `sa3-expanded-source-quality-v1`. It must not reuse either existing
@@ -17,9 +17,11 @@ implement this evaluation.
 
 ## Exact workload boundary
 
-The machine-readable proposal pins only the visible packet, packet validator
-and one-call/no-retry runner. The answer key, fair scorer and independent-review
-receipt are explicitly excluded from runtime. The workload:
+The machine-readable proposal pins the visible packet, packet validator,
+one-call/no-retry runner and the fair scorer required by the validator's module
+import. The scorer was already included in the accepted independent review and
+has no answer-key content; the runtime never invokes it. The answer key and
+independent-review receipt are explicitly excluded from runtime. The workload:
 
 - uses the accepted 9B model and binary already pinned by Lab Hours;
 - makes exactly 20 sequential requests with no retry, tools, credentials,
@@ -41,7 +43,7 @@ Lab Hours runtime boundary. No automatic routing, repair or promotion follows.
 ## Required platform implementation
 
 The platform owner must implement and independently review a third fixed
-registration. It must bind the proposed workload ID to the three pinned runtime
+registration. It must bind the proposed workload ID to the four pinned runtime
 files, run the exact packet through the accepted Lab Hours listener, preserve
 the predictions in the root-owned attempt record, and project only a bounded
 content-free receipt to the reservation result. The guardian deadline must be

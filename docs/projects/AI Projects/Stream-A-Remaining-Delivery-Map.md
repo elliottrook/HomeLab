@@ -404,8 +404,9 @@ repair authority is released.
 The follow-on
 [Lab Hours workload proposal](evidence/SA3-expanded-source-quality-Lab-Hours-workload-proposal-2026-10-29.md)
 now gives the evaluation its own non-admitted identity and exact runtime
-boundary. It pins only the visible packet, validator and one-call/no-retry
-runner; excludes the answer key, scorer and review receipt; bounds 20 requests
+boundary. It pins the visible packet, validator, one-call/no-retry runner and
+the scorer needed by the validator's import closure; excludes the answer key
+and review receipt; bounds 20 requests
 inside a 2,700-second workload deadline; reserves 900 seconds for recovery;
 and requires root-only result custody plus unconditional production
 restoration. The existing Lab Hours runner admits only its three-request smoke

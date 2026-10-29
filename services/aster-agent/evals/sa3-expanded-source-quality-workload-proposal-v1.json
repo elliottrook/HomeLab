@@ -8,11 +8,11 @@
   "runtime_files": {
     "sa3-expanded-source-quality-v1.json": "ed75836af74401709a74333a96d0a22629b23e389e5262bbc365ab6aed018d23",
     "sa3_expanded_quality_packet.py": "b9011bef592421b6e6c28ec830b17f1296409daa30fd4f508d913ba35c104657",
-    "sa3_expanded_quality_runner.py": "39f01d80d5c2a4a43bd9af24ca0060c5323cdb3011a7f9b3d14a19bfcaaaf351"
+    "sa3_expanded_quality_runner.py": "39f01d80d5c2a4a43bd9af24ca0060c5323cdb3011a7f9b3d14a19bfcaaaf351",
+    "sa3_fair_scorer.py": "92a4526886b21492995b73c834844a570b7718415abcadce848bcd1da6860bda"
   },
   "excluded_runtime_files": [
     "sa3-expanded-source-quality-keys-v1.json",
-    "sa3_fair_scorer.py",
     "sa3-expanded-source-quality-independent-review-v1.json"
   ],
   "accepted_baseline": {
