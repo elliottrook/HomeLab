@@ -10,6 +10,24 @@ struct ChatMessage: Identifiable, Equatable {
     var summary: ReplySummary? = nil
 }
 
+struct OpenBaoStatus: Codable, Equatable {
+    let initialized: Bool?
+    let sealed: Bool?
+    let threshold: Int?
+    let shares: Int?
+    let progress: Int?
+    let version: String?
+    let buildDate: String?
+    let message: String?
+
+    enum CodingKeys: String, CodingKey {
+        case initialized, sealed, progress, version, message
+        case threshold = "t"
+        case shares = "n"
+        case buildDate = "build_date"
+    }
+}
+
 enum AsterClientError: Error, LocalizedError {
     case notAuthenticated
     case server(status: Int, body: String)
@@ -35,6 +53,46 @@ enum AsterClientError: Error, LocalizedError {
 /// Authentik access token instead of the legacy static bearer key.
 struct AsterClient {
     let authManager: AuthManager
+
+    private func delegationPath(_ id: String) throws -> String {
+        guard id.range(of: "^[A-Za-z0-9_-]{1,128}$", options: .regularExpression) != nil else {
+            throw AsterClientError.malformedResponse
+        }
+        return "v1/companion/delegation/jobs/" + id
+    }
+
+    func fetchDelegationJobs() async throws -> [DelegationJob] {
+        try await companionRequest(path: "v1/companion/delegation/jobs")
+    }
+
+    func fetchCodexCapabilities() async throws -> CodexCapabilities {
+        try await companionRequest(path: "v1/companion/delegation/capabilities")
+    }
+
+    func submitCodexRequest(_ request: ReviewedCodexRequest) async throws -> CodexRequestReceipt {
+        try await companionRequest(path: "v1/companion/delegation/requests", method: "POST",
+                                   body: AIPAMCoding.encoder.encode(request))
+    }
+
+    func fetchDelegationJob(_ id: String) async throws -> DelegationSnapshot {
+        try await companionRequest(path: delegationPath(id))
+    }
+
+    func stopDelegationJob(_ id: String) async throws -> DelegationStopResult {
+        try await companionRequest(path: delegationPath(id) + "/cancel", method: "POST")
+    }
+
+    func requestAnswerRecovery(_ id: String) async throws -> DelegationRecoveryReceipt {
+        _ = try delegationPath(id)
+        return try await companionRequest(path: "v1/companion/delegation/recovery/" + id, method: "POST")
+    }
+
+    func fetchAnswerRecovery(_ ticket: String) async throws -> DelegationRecoveryStatus {
+        guard ticket.range(of: "^[a-f0-9]{32}$", options: .regularExpression) != nil else {
+            throw AsterClientError.malformedResponse
+        }
+        return try await companionRequest(path: "v1/companion/delegation/recovery/tickets/" + ticket)
+    }
 
     private func companionRequest<T: Decodable>(
         path: String, method: String = "GET", body: Data? = nil, as type: T.Type = T.self
@@ -64,6 +122,19 @@ struct AsterClient {
 
     func fetchAIPAMPending() async throws -> [AIPAMPendingApproval] {
         try await companionRequest(path: "v1/companion/approvals")
+    }
+
+    func fetchOpenBaoStatus() async throws -> OpenBaoStatus {
+        try await companionRequest(path: "v1/openbao/unseal/status")
+    }
+
+    func submitOpenBaoToken(_ token: String) async throws -> OpenBaoStatus {
+        let body = try AIPAMCoding.encoder.encode(["key": token])
+        return try await companionRequest(path: "v1/openbao/unseal", method: "POST", body: body)
+    }
+
+    func sealOpenBao() async throws -> OpenBaoStatus {
+        try await companionRequest(path: "v1/openbao/seal", method: "POST")
     }
 
     func actOnAIPAMApproval(_ item: AIPAMPendingApproval, approve: Bool) async throws -> AIPAMActionResult {
@@ -298,25 +369,54 @@ struct AsterClient {
         return text
     }
 
-    /// M6: text-to-speech, returning raw WAV bytes ready for AVAudioPlayer.
-    func synthesize(text: String) async throws -> Data {
+    /// Canonical AVS1 speech stream. Each yielded WAV is one immediately
+    /// playable semantic unit; cancellation also cancels server-side work.
+    func synthesizeStream(text: String) async throws -> AsyncThrowingStream<Data, Error> {
         guard let token = await authManager.validAccessToken() else {
             throw AsterClientError.notAuthenticated
         }
 
-        var request = URLRequest(url: AsterConfig.asterBaseURL.appendingPathComponent("voice/v1/tts"))
+        let requestID = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
+        var request = URLRequest(url: AsterConfig.asterBaseURL.appendingPathComponent("voice/v2/tts/stream"))
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.httpBody = try JSONSerialization.data(withJSONObject: ["text": text])
+        request.httpBody = try JSONSerialization.data(withJSONObject: ["text": text, "request_id": requestID])
 
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let http = response as? HTTPURLResponse else {
-            throw AsterClientError.malformedResponse
+        return AsyncThrowingStream { continuation in
+            let task = Task {
+                do {
+                    let (bytes, response) = try await URLSession.shared.bytes(for: request)
+                    guard let http = response as? HTTPURLResponse else { throw AsterClientError.malformedResponse }
+                    guard http.statusCode == 200 else { throw AsterClientError.server(status: http.statusCode, body: "") }
+                    var decoder = AVS1Decoder()
+                    var pending = Data()
+                    for try await byte in bytes {
+                        try Task.checkCancellation()
+                        pending.append(byte)
+                        if pending.count >= 4096 {
+                            for wav in try decoder.append(pending) { continuation.yield(wav) }
+                            pending.removeAll(keepingCapacity: true)
+                        }
+                    }
+                    for wav in try decoder.append(pending) { continuation.yield(wav) }
+                    try decoder.finish()
+                    continuation.finish()
+                } catch is CancellationError {
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+            continuation.onTermination = { @Sendable _ in
+                task.cancel()
+                Task {
+                    var cancel = URLRequest(url: AsterConfig.asterBaseURL.appendingPathComponent("voice/v2/tts/\(requestID)"))
+                    cancel.httpMethod = "DELETE"
+                    cancel.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+                    _ = try? await URLSession.shared.data(for: cancel)
+                }
+            }
         }
-        guard http.statusCode == 200 else {
-            throw AsterClientError.server(status: http.statusCode, body: String(data: data, encoding: .utf8) ?? "")
-        }
-        return data
     }
 }
