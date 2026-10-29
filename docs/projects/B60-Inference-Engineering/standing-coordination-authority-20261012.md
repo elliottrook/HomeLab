@@ -30,6 +30,14 @@ for the next30 nights; project authority continues until completion or revocatio
 
 ### Booking implementation status
 
+Current October29 continuation: the separate controller is installed and the
+first October30 restore-only qualification is scheduled on Proxmox at03:10,
+with fresh integrity preparation at01:15. All30 capacity bookings remain; this
+does not activate30 repeated tests or qualify arbitrary model changes. See
+[the installed-source and schedule receipt](exclusive-controller-wiring-20261029.md).
+The remaining model-testing gates are technical/live evidence, not missing
+general or per-model human authorization.
+
 Superseded by the subsequent October29 implementation: all30 capacity bookings
 are now installed and verified. See the exclusive-capacity receipt in the
 rolling evidence log. The following describes the original blocker, not the

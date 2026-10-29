@@ -12,14 +12,17 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
-The latest [entry/restore adapter implementation](B60-Inference-Engineering/research-watch-20261012.md#october29-concrete-entryrestore-adapter-implementation-and-target-checks)
-adds protected file recovery, bounded Proxmox unit-state restoration and an
-independent guardian loop.67 local Lab Hours tests,70 existing inference tests
-and48 selected target-Linux tests pass. A corrected read-only probe captures
-the seven actual AI unit states. The combined booking/lease/mount/timer/guardian
-host transaction still needs wiring and booked-window qualification; these
-components are not deployed as a live experiment controller. No new approval
-is requested or implied.
+The [combined entry controller and first qualification](B60-Inference-Engineering/exclusive-controller-wiring-20261029.md)
+are now installed/scheduled, not merely planned. Proxmox independently reports
+two new enabled future one-shots: October30 at01:15 for fresh backup-integrity
+preparation and03:10 for the booked restore-only stack transaction. Both jobs
+were inactive with no previous trigger; the shared lease remained ready.
+The owner/guardian execute on Proxmox independently of chat/Mini connectivity.
+No candidate model or35B benchmark is scheduled, and live restoration has not
+yet been qualified.123 local Lab Hours tests,5 installer tests,70 existing
+inference tests and109 focused target-Linux tests pass. The installed30-file
+pin set matches the exact reproducible source bundle. A harmless actual
+systemd sleep-service fencing fixture also passed.
 
 The October29 exclusive-capacity correction is installed:30 root-custodied
 `b60-exclusive-YYYYMMDD` bookings now reserve October30–November28,
@@ -28,10 +31,14 @@ healthy with30 reservations. Capacity bookings block competing work and never
 dispatch a fixed9B test. The contract grants the named owner the local AI stack
 within project scope and requires verified restoration of its captured entry
 configuration before release. No repeated model approval is required.
-General entry-checkpoint session execution is still unqualified; the old
-fixed9B runner rejects these capacity records. Next implement and qualify that
-handoff/recovery controller, not new permission or new bookings. The source
-patch and exact deployment receipt are recorded in the rolling evidence log.
+The old fixed9B runner still rejects these capacity records; its files/manifest
+were not overwritten. Only the first booking has a separate protected
+restore-only activation. Next inspect the actual scheduled receipts, then
+qualify owner loss and reviewed candidate/mount/resource restoration before
+35B testing—not new permission or new bookings. The
+[operator note](B60-Inference-Engineering/exclusive-lab-operator-20261029.md)
+states what runs, what remains gated and how to inspect/recover without
+starting duplicate work.
 
 Jason's [October29 standing execution amendment](B60-Inference-Engineering/standing-coordination-authority-20261012.md#october-29-owner-amendment--programme-execution-and-model-changes)
 authorizes Stream A to completion, in-scope model changes only during booked

@@ -1,0 +1,1062 @@
+From 1f9af79b4c08b0881ab334b7a72ef7efe8f41ad8 Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Thu, 29 Oct 2026 15:21:34 -0700
+Subject: [PATCH 2/2] Install separate entry controller and schedule
+ backup-gated October 30 restoration qualification
+
+---
+ .../exclusive-controller-wiring-20261029.md   | 129 ++++++++++----
+ .../exclusive-lab-operator-20261029.md        |  86 ++++++++++
+ ...orrect_lab_hours_static_status_20261029.py |  78 +++++++++
+ .../install_lab_hours_exclusive_dormant.py    | 151 +++++++++++++++++
+ ...nstall_lab_hours_qualification_schedule.py | 108 ++++++++++++
+ scripts/local-ai/lab_hours_exclusive_cli.py   |   3 +-
+ .../lab_hours_exclusive_integrity_prepare.py  | 157 ++++++++++++++++++
+ .../local-ai/lab_hours_prepare_entry_plan.py  |  10 +-
+ .../local-ai/qualify_lab_hours_owner_scope.py |  40 +++++
+ ...est_install_lab_hours_exclusive_dormant.py |  80 +++++++++
+ .../local-ai/test_lab_hours_exclusive_cli.py  |  16 ++
+ .../test_lab_hours_qualification_schedule.py  |  62 +++++++
+ 12 files changed, 885 insertions(+), 35 deletions(-)
+ create mode 100644 docs/projects/B60-Inference-Engineering/exclusive-lab-operator-20261029.md
+ create mode 100644 scripts/local-ai/correct_lab_hours_static_status_20261029.py
+ create mode 100644 scripts/local-ai/install_lab_hours_exclusive_dormant.py
+ create mode 100644 scripts/local-ai/install_lab_hours_qualification_schedule.py
+ create mode 100644 scripts/local-ai/lab_hours_exclusive_integrity_prepare.py
+ create mode 100644 scripts/local-ai/qualify_lab_hours_owner_scope.py
+ create mode 100644 scripts/local-ai/test_install_lab_hours_exclusive_dormant.py
+ create mode 100644 scripts/local-ai/test_lab_hours_exclusive_cli.py
+ create mode 100644 scripts/local-ai/test_lab_hours_qualification_schedule.py
+
+diff --git a/docs/projects/B60-Inference-Engineering/exclusive-controller-wiring-20261029.md b/docs/projects/B60-Inference-Engineering/exclusive-controller-wiring-20261029.md
+index 0f0bf73ca..da41791c0 100644
+--- a/docs/projects/B60-Inference-Engineering/exclusive-controller-wiring-20261029.md
++++ b/docs/projects/B60-Inference-Engineering/exclusive-controller-wiring-20261029.md
+@@ -1,7 +1,9 @@
+ # Exclusive entry-controller wiring — 2026-10-29
+ 
+-Status: implemented source candidate, not deployed or armed. This is not an
+-unattended AI-stack recovery qualification and not a model result.
++Status: separate controller installed; first restore-only qualification
++scheduled and independently verified for October30 at03:10 America/Vancouver.
++The live qualification has not happened. This is not an accepted unattended
++AI-stack recovery proof and not a model result.
+ 
+ Jason's current Stream A authorization covers the project through completion,
+ in-scope model changes during actual bookings, and non-exclusive work outside
+@@ -43,17 +45,32 @@ gate remains a stop; it is not a request for another general approval.
+ 
+ ## Validation and actual source receipts
+ 
+-Local: 116 Lab Hours tests plus 70 existing full-inference regression tests.
+-Proxmox staged v2: 96 focused synthetic tests passed. That target packet
+-predates the final trial-outcome status regression; rerun the final packet
+-before installation. Tests use fake stack effects and real disposable files /
+-processes. They do not qualify live AI restoration.
++Local:123 Lab Hours tests,5 dormant-installer tests and70 existing full-inference
++regression tests. Proxmox:109 final focused tests passed against the installed
++dependency set plus the standalone preparation/scheduler sources. Tests use
++fake stack effects and real disposable files/processes. They do not qualify
++live AI restoration. A separate real systemd sleep-service fixture also passed
++actual owner observation, exact cgroup fencing and fixture cleanup; no AI unit
++was involved.
+ 
+ Dormant host staging: `/root/b60-exclusive-wiring-20261029.WsPURv`.
+-Dormant guest helpers: `/root/b60-exclusive-probe-20261029.WsPURv` in guests
+-104/110/114/115/116. These are not installed runtime paths, enabled services,
+-active profiles or experiment schedules. No AI service, model, GPU workload,
+-lease, production configuration or application timer was changed.
++Dormant probe helpers: `/root/b60-exclusive-probe-20261029.WsPURv` in guests
++104/110/114/115/116. The installed controller is separately at
++`/usr/local/libexec/local-ai-lease/exclusive-session`; four root-only helper
++files are installed at `/usr/local/libexec/local-ai-lease/entry-checkpoint` in
++the five guests. Private metadata-only plans and the first protected activation
++profile were prepared. No running AI service, model, GPU workload, lease,
++existing production stack configuration or application timer was changed.
++
++Installation initially refused Mac UID501 and AppleDouble archive entries.
++Both were transport metadata defects, not a reason to weaken custody checks.
++The preserved failed candidates remain under the staging root; clean extraction
++used `COPYFILE_DISABLE=1` at packaging and `tar --no-same-owner` on Linux.
++Only the task-created top staging directory's owner was corrected explicitly.
++No old platform file was overwritten. Static validation's formerly hard-coded
++`armed:false` was corrected to `activation_not_inspected:true`, with exact
++old/new hashes and rollback copies at
++`/var/lib/local-ai-lab/exclusive-status-correction-20261029`.
+ 
+ The first real inventory probe failed closed with `ARTIFACT_SCOPE` on guest110.
+ Its accepted GGUF resolves to
+@@ -77,33 +94,83 @@ paths, not their contents. The root-level `/etc/aster-llama.env` is an exact
+ file exception, not a grant to checkpoint arbitrary `/etc`. Extended metadata
+ such as ACL/xattrs is currently refused rather than silently lost.
+ 
++## Installed receipts and actual first schedule
++
++All30 installed controller dependency pins match the reproducible v4 source
++bundle. SHA-256 of canonical sorted compact JSON over the pin dictionary is
++`f5085fbb7b7e8e456be6ac6157867a1af8e808a2e139fb64c03caeb991d25e85`.
++The v4 build descriptor SHA-256 is
++`ce2ed7f7165160277eb627e496077adfd8c8fe6d476b62a2d888429f76d10ab4`.
++That descriptor describes a generated artifact, not live arming state.
++
++| Installed path | SHA-256 |
++|---|---|
++|`exclusive-activations/b60-exclusive-20261030.json` under `/var/lib/local-ai-lab`|`a69b57d3a3764aa67819571b702622d5b238166db40622f1a9cca0d4bd3955af`|
++|`/usr/local/libexec/local-ai-lease/b60-exclusive-integrity/lab_hours_exclusive_integrity_prepare.py`|`af8e054b2032c80f3d27f95bee0e603ef34aefa9cb05ce2f0c60c4460fd85c01`|
++|`/etc/systemd/system/b60-exclusive-integrity-20261030.service`|`6313e65ebcde2196ce83df215be053dbb6a4dc5cad11b6b36a7ea504d89c334a`|
++|`/etc/systemd/system/b60-exclusive-integrity-20261030.timer`|`8ef8ef39f456bbad338d9cfd9ff73439f45bb06ccca00c6409204cd145766f2b`|
++|`/etc/systemd/system/b60-exclusive-qualification-20261030.service`|`4c3fd7de312ac1adc6548adc0ca09b12051244678328f6882fc78535b94c9f9b`|
++|`/etc/systemd/system/b60-exclusive-qualification-20261030.timer`|`3b9d4d33c033d95a8d7b7296f421b7b55f505866c9d725916e12a12117d05cc9`|
++
++Both timers were independently observed `active`/`enabled`, with empty
++LastTriggerUSec and the exact next times October30 at01:15 and03:10 PDT
++(08:15/10:10UTC). Both corresponding services were inactive,MainPID0.
++The shared lease remained `ready`; no experiment or current claim existed.
++These are future non-persistent one-shots, not30 repeated9B smoke tests.
++
++The01:15 preparation checks the completed whole Proxmox backup and the first
++same-night TrueNAS pull, then performs/reuses bounded low-priority retained
++archive integrity. It yields to known maintenance, competing backup IO and
++source drift. It preserves a valid peer receipt and keeps previous metadata
++when refreshing a prior-day receipt. It must finish by01:40 and never changes
++the AI stack. The later03:10 admission independently rechecks all three fresh
++TrueNAS pulls and the exact LXC110 mirror; a preparation success alone grants
++no lease. The previously observed F2/F3 clocks were October29-only, so this
++new exact-night producer closes that scheduling gap without reusing stale proof.
++
++The03:10 transaction captures the actual entry, arms the independent Proxmox
++guardian, claims the existing booking, drains the declared stack, executes no
++model candidate, then restores/verifies the entry and releases. Trial cutoff
++is03:15; restoration deadline is03:55, with the existing reservation buffer
++through04:10 and the strict04:15 external boundary unchanged. No35B or full-path
++benchmark is scheduled. This qualification is necessary implementation work,
++not the expanded programme's deliverable.
++
+ ## Remaining work and exact next action
+ 
+-Do not call this ready or say experiments will launch tonight. The 30 capacity
+-reservations remain separate from activation. No experiment has been armed by
+-this source work.
+-
+-1. Rebuild and rerun the final exact dependency packet on target Linux; compare
+-   every source pin, retaining the failed-closed v1/v2 receipts.
+-2. Complete/review a dormant-only installer for the separate versioned host
+-   package and four guest helper files, preserving all legacy/platform files.
+-   Prepare source-local private plans and protected activation profiles; static
+-   validation must prove custody and complete dependency/helper pins.
+-3. Bind an actual fresh integrity producer to the booked night. The observed
+-   F2/F3 timers are one-shots dated October29, not proof of a recurring fresh
+-   receipt on October30. Do not use yesterday's receipt or silently weaken the
+-   B60 backup/mirror gate to make an activation run.
+-4. Qualify normal and owner-loss restoration in actual booked Lab Hours, with
+-   independent host watchdog, source-bound checkpoints and preserved entry
+-   schedules. Restoration strictly before04:15 remains mandatory.
+-5. Only after that proof, extend the activation schema from restore-only to a
++The next live dependency is the actual booked window, not human authorization.
++Do not invoke the stack transaction early or start a duplicate experiment.
++
++1. After the scheduled times, read sanitized terminal/status receipts under
++   `/var/lib/local-ai-lab/exclusive-integrity/b60-exclusive-20261030/` and
++   `/var/lib/local-ai-lab/exclusive-sessions/b60-exclusive-20261030/`, plus the
++   authoritative booking and guardian/owner unit state. Never export the raw
++   guest-local configuration checkpoints.
++2. Verify fresh archive/mirror admission, exact entry restoration, terminal
++   booking state, all previously active schedules, no missed-job replay and
++   absence of the exact candidate/owner. A passed fixture or launch is not this
++   receipt. On failure retain custody/state, record the exact cause and recover
++   safely; never automatically retry a GPU/device failure or clear locks to
++   make health green.
++3. If normal qualification passes, prepare a separately bounded actual
++   owner-loss qualification in a later existing booking. No model approval is
++   needed, but do not claim that exercise has already run or is scheduled.
++4. Only after independent restoration proof, extend the activation schema to a
+    reviewed candidate workload and declared mount/resource recovery. The first
+    candidate screen remains the staged35B reasoning-on model, not another9B
+    diagnostic relabelled as the deliverable.
++5. Continue source preparation safely outside exclusive use. Keep Adaptive's
++   task/scorer/quality/latency decisions separate from hardware measurement;
++   no numeric release bar, held-out review or complete-answer result is created
++   by these tests. Integrate the new receipt namespace into monitoring before
++   graduation; existing Lab Hours Doctor still detects stale claims/service
++   downtime but does not yet report this namespace as its latest success.
+ 
+ The first activation profile intentionally permits only restore qualification.
+ It is a technical release gate, not a new human approval requirement. Arbitrary
+ mount/device changes, other runtime identity adapters, inactive-backend entry,
+ new undeclared mutation paths and extended metadata are not yet supported.
+-This limitation means the general controller is still unfinished; safe source,
+-installer and synthetic qualification work should continue, not wait for Jason.
++This limitation means the general model-testing controller is not yet qualified
++for arbitrary changes. Do not mark the programme complete or pause its existing
++continuation automations. The first scheduled qualification now has an actual
++independent host executor; results still depend on that host and all fresh gates.
+diff --git a/docs/projects/B60-Inference-Engineering/exclusive-lab-operator-20261029.md b/docs/projects/B60-Inference-Engineering/exclusive-lab-operator-20261029.md
+new file mode 100644
+index 000000000..c1e876f11
+--- /dev/null
++++ b/docs/projects/B60-Inference-Engineering/exclusive-lab-operator-20261029.md
+@@ -0,0 +1,86 @@
++# B60 exclusive Lab Hours — first qualification operator note
++
++The30 capacity bookings October30–November28 are real,03:10–03:55 local,
++with the existing15-minute reservation buffer. They do not mean30 automatic
++experiments. Only the first restore-only qualification is currently activated.
++
++## What is scheduled tonight
++
++October30 America/Vancouver:
++
++- 01:15: low-priority, bounded verification of existing same-night backup
++archives. It changes no AI service and must finish by01:40. Known maintenance,
++busy backup IO, failed source checks or stale/unexpected receipts stop it.
++- 03:10: inside `b60-exclusive-20261030`, the Proxmox owner verifies fresh
++admission, captures the actual entry configuration in protected local custody,
++arms a separate Proxmox guardian, claims the booking, drains the declared AI
++stack, then restores/verifies/releases. No candidate model is loaded or scored.
++- 03:15: trial cutoff; the independent guardian fences an unfinished/lost owner
++and attempts recovery. The restoration deadline is03:55, earlier than the
++external04:15 protection boundary.
++
++Both clocks are non-persistent future one-shots, not missed-job replay. They
++run on Proxmox independently of chat/Mini connectivity, but still require the
++actual host and all source gates. For example, a failed fresh Mac backup pull
++keeps admission closed; a clock firing is not a passing experiment.
++
++## Read-only status
++
++On Proxmox, inspect only the new job identities and bounded metadata:
++
++```text
++systemctl show b60-exclusive-integrity-20261030.timer b60-exclusive-qualification-20261030.timer --property=Id,ActiveState,UnitFileState,NextElapseUSecRealtime,LastTriggerUSec
++systemctl show b60-exclusive-owner-b60-exclusive-20261030.service b60-exclusive-guardian-b60-exclusive-20261030.service --property=Id,ActiveState,MainPID,TasksCurrent
++python3 -B /usr/local/libexec/local-ai-lease/exclusive-session/lab_hours_exclusive_cli.py validate --booking-id b60-exclusive-20261030
++/usr/local/sbin/local-ai-lease status
++```
++
++`static-profile-valid` verifies protected profile/source custody and pins. It
++explicitly does **not** report arming state; the timer observations above own
++that fact. `ready` is lease availability, not successful stack qualification.
++
++The preparation result is
++`/var/lib/local-ai-lab/exclusive-integrity/b60-exclusive-20261030/terminal.json`.
++The stack session state is
++`/var/lib/local-ai-lab/exclusive-sessions/b60-exclusive-20261030/session.json`.
++Also reconcile the root-owned authoritative reservation record. Success needs
++the exact source/entry identities, restored schedules, released ownership and
++honest trial outcome—not merely an exit code, inactive process or old success.
++
++Do not export the guest directories
++`/var/lib/local-ai-lab-entry/b60-exclusive-20261030/files`. They can contain
++source-local protected configuration recovery bytes. Only approved sanitized
++metadata/hashes leave their guest.
++
++## Failure and recovery boundaries
++
++Do not delete lease/state/operation markers, reuse a booking ID or launch a
++second experiment. Before a claim, failure must have no AI effects. After a
++claim, the existing independent guardian is the first recovery owner. Inspect
++its exact identity and durable state, not another project or wildcard unit.
++
++The explicit recovery entrypoint is:
++
++```text
++python3 -B /usr/local/libexec/local-ai-lease/exclusive-session/lab_hours_exclusive_cli.py recover --booking-id b60-exclusive-20261030
++```
++
++This is an **effectful administrative recovery**, not a status command: it
++fences the exact owner, validates binding/custody, stops only the declared
++stack, and restores entry. The agent must first reconcile actual ownership
++and the failed phase; do not race a healthy guardian. Unknown ownership,
++source/mount drift or an unverifiable checkpoint remains fail-closed. Never
++automatically retry a GPU/device failure. Restoration after a missed deadline
++is emergency cleanup, never a passing qualification.
++
++## What Jason needs to do
++
++No additional general or per-model approval is required. No manual launch is
++needed for these verified clocks. Separate exact risk authority remains needed
++for excluded global driver/kernel/boot, credential, destructive or exposure
++changes. The current model stays unchanged outside booked exclusive work.
++
++After this qualification, actual owner-loss proof and the reviewed candidate /
++mount/resource adapter still precede35B testing. The first35B milestone remains
++reasoning-on grounded improvement at fresh9B p50 ANDp95 useful-answer latency;
++none of tonight's controller work is a result against that bar.
+diff --git a/scripts/local-ai/correct_lab_hours_static_status_20261029.py b/scripts/local-ai/correct_lab_hours_static_status_20261029.py
+new file mode 100644
+index 000000000..8bb193a1a
+--- /dev/null
++++ b/scripts/local-ai/correct_lab_hours_static_status_20261029.py
+@@ -0,0 +1,78 @@
++"""Exact own-package status-only correction; no AI or schedule effects."""
++import argparse
++import hashlib
++import json
++import os
++from pathlib import Path
++import subprocess
++import time
++
++from host_exclusion import host_exclusion
++from lab_hours_exclusive_profile import protected_bytes,load_profile
++from lab_hours_exclusive_session import SessionError,canonical
++from lab_hours_reservations import ReservationStore
++
++ROOT=Path('/var/lib/local-ai-lab')
++PACKAGE=Path('/usr/local/libexec/local-ai-lease/exclusive-session')
++OLD='c0891184454234be85f287d50d8e18deae81675cb92bcb524a819ab5ad8196e1'
++NEW='9f48ed0b828d6a1001f0b9122b9fcc5b192afcf9e70353699a617c8f01f30469'
++BOOKING='b60-exclusive-20261030'
++
++
++def atomic(path,raw):
++    temporary=path.with_name(path.name+'.status-correction')
++    fd=os.open(temporary,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
++    with os.fdopen(fd,'wb') as stream:
++        stream.write(raw); stream.flush(); os.fsync(stream.fileno())
++    os.replace(temporary,path)
++    fd=os.open(path.parent,os.O_RDONLY)
++    try: os.fsync(fd)
++    finally: os.close(fd)
++
++
++def correct(source):
++    if os.geteuid()!=0 or os.uname().nodename!='proxmox': raise SessionError('PROXMOX_ROOT_REQUIRED')
++    raw=protected_bytes(source,executable=True,maximum=262144)
++    if hashlib.sha256(raw).hexdigest()!=NEW: raise SessionError('STATUS_CORRECTION_SOURCE_DRIFT')
++    target=PACKAGE/'lab_hours_exclusive_cli.py'
++    profile_path=ROOT/'exclusive-activations'/(BOOKING+'.json')
++    with host_exclusion(ROOT):
++        if any(p.exists() for p in (ROOT/'lease.json',ROOT/'lease.lock',
++                ROOT/'full-inference-drain.json',ROOT/'full-inference-drain.lock',
++                Path('/run/local-ai-lab-operation.lock'))):
++            raise SessionError('SHARED_HOST_NOT_READY')
++        status=subprocess.run(('/usr/local/sbin/local-ai-lease','status'),capture_output=True,
++                              text=True,timeout=10,check=False)
++        if status.returncode or json.loads(status.stdout) not in ('ready',{'state':'ready'}):
++            raise SessionError('SHARED_HOST_NOT_READY')
++        row=ReservationStore(ROOT/'reservations',expected_uid=0).get(BOOKING)
++        if row.get('state')!='reserved' or row['start_epoch']<time.time()+7200:
++            raise SessionError('FUTURE_UNCLAIMED_BOOKING_REQUIRED')
++        profile=load_profile(profile_path,PACKAGE)
++        previous=protected_bytes(target,executable=True,maximum=262144)
++        if hashlib.sha256(previous).hexdigest()!=OLD or profile['source_sha256'][target.name]!=OLD:
++            raise SessionError('STATUS_CORRECTION_OLD_SOURCE_DRIFT')
++        old_profile=protected_bytes(profile_path)
++        checkpoint=ROOT/'exclusive-status-correction-20261029'; checkpoint.mkdir(mode=0o700)
++        for name,data in (('cli.before.py',previous),('profile.before.json',old_profile)):
++            fd=os.open(checkpoint/name,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
++            with os.fdopen(fd,'wb') as stream:
++                stream.write(data); stream.flush(); os.fsync(stream.fileno())
++        try:
++            atomic(target,raw)
++            profile['source_sha256'][target.name]=NEW
++            atomic(profile_path,canonical(profile))
++            load_profile(profile_path,PACKAGE)
++        except Exception:
++            atomic(target,previous); atomic(profile_path,old_profile); raise
++        return {'state':'status-corrected','ai_stack_effects':False,
++                'schedule_effects':False,'old_sha256':OLD,'new_sha256':NEW}
++
++
++if __name__=='__main__':
++    parser=argparse.ArgumentParser(description=__doc__); parser.add_argument('--source',type=Path,required=True)
++    args=parser.parse_args()
++    try: print(json.dumps(correct(args.source),sort_keys=True))
++    except Exception as error:
++        code=str(error) if isinstance(error,SessionError) else type(error).__name__
++        print(json.dumps({'state':'no_go','failure_code':code})); raise SystemExit(1)
+diff --git a/scripts/local-ai/install_lab_hours_exclusive_dormant.py b/scripts/local-ai/install_lab_hours_exclusive_dormant.py
+new file mode 100644
+index 000000000..ef021726d
+--- /dev/null
++++ b/scripts/local-ai/install_lab_hours_exclusive_dormant.py
+@@ -0,0 +1,151 @@
++"""Install new dormant code and one protected plan/profile, never arm a run.
++
++No existing runtime file is overwritten. No service/timer command, model call,
++checkpoint of secret-bearing bytes, mount or lease claim exists in this file.
++Partial installation is retained and may resume only with identical pins.
++"""
++from __future__ import annotations
++import argparse
++import hashlib
++import json
++import os
++from pathlib import Path
++import stat
++import subprocess
++import time
++
++from host_exclusion import host_exclusion
++from lab_hours_exclusive_session import IDENTITY,SessionError,canonical
++from lab_hours_exclusive_profile import protected_bytes,validate_profile,load_profile
++from lab_hours_reservations import ReservationStore
++from lab_hours_unit_adapter import SCOPE
++
++ROOT=Path('/var/lib/local-ai-lab')
++TARGET=Path('/usr/local/libexec/local-ai-lease/exclusive-session')
++GUEST_TARGET='/usr/local/libexec/local-ai-lease/entry-checkpoint'
++HELPERS=('lab_hours_guest_checkpoint.py','lab_hours_file_checkpoint.py',
++         'lab_hours_unit_adapter.py','lab_hours_prepare_entry_plan.py')
++
++
++def put_new(path,data):
++    if path.exists():
++        if protected_bytes(path,executable=True,maximum=262144)!=data:
++            raise SessionError('EXISTING_DORMANT_SOURCE_DRIFT')
++        return
++    fd=os.open(path,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
++    with os.fdopen(fd,'wb') as stream:
++        stream.write(data); stream.flush(); os.fsync(stream.fileno())
++    fd=os.open(path.parent,os.O_RDONLY)
++    try: os.fsync(fd)
++    finally: os.close(fd)
++
++
++def directory(path):
++    path.mkdir(mode=0o700,parents=True,exist_ok=True)
++    for parent in (path,*path.parents):
++        info=parent.lstat()
++        if not stat.S_ISDIR(info.st_mode) or info.st_uid!=0 or info.st_mode&0o022:
++            raise SessionError('DORMANT_INSTALL_DIRECTORY_CUSTODY')
++
++
++def run(command,timeout=30):
++    result=subprocess.run(command,capture_output=True,text=True,timeout=timeout,check=False)
++    if result.returncode or len(result.stdout)>65536:
++        raise SessionError('DORMANT_INSTALL_COMMAND_FAILED')
++    return result.stdout
++
++
++def source_bundle(source,expected):
++    raw=protected_bytes(source/'source-manifest.json')
++    if hashlib.sha256(raw).hexdigest()!=expected: raise SessionError('BUNDLE_MANIFEST_DRIFT')
++    manifest=json.loads(raw)
++    if (set(manifest)!={'schema','pins','installed','armed'}
++            or manifest['schema']!='aster-exclusive-source-bundle.v1'
++            or manifest['installed'] is not False or manifest['armed'] is not False
++            or not isinstance(manifest['pins'],dict)):
++        raise SessionError('DORMANT_BUNDLE_SCHEMA')
++    pins=manifest['pins']
++    if set(p.name for p in (source/'exclusive-session').iterdir())!=set(pins):
++        raise SessionError('DORMANT_BUNDLE_FILE_SET_DRIFT')
++    for name,digest in pins.items():
++        if '/' in name or not name.endswith('.py'): raise SessionError('DORMANT_SOURCE_NAME')
++        raw=protected_bytes(source/'exclusive-session'/name,executable=True,maximum=262144)
++        if hashlib.sha256(raw).hexdigest()!=digest: raise SessionError('DORMANT_SOURCE_DRIFT')
++    return pins
++
++
++def install(source,expected,booking_id):
++    if os.geteuid()!=0 or os.uname().nodename!='proxmox': raise SessionError('PROXMOX_ROOT_REQUIRED')
++    if not IDENTITY.fullmatch(booking_id): raise SessionError('INSTALL_BOOKING_IDENTITY')
++    pins=source_bundle(source,expected)
++    # Fail before any write if the helper packet or profile cannot be complete.
++    if not set(HELPERS)<=set(pins): raise SessionError('HELPER_DEPENDENCIES_MISSING')
++    with host_exclusion(ROOT):
++        if any(p.exists() for p in (ROOT/'lease.json',ROOT/'lease.lock',
++                ROOT/'full-inference-drain.json',ROOT/'full-inference-drain.lock',
++                Path('/run/local-ai-lab-operation.lock'))):
++            raise SessionError('SHARED_HOST_NOT_READY')
++        status=json.loads(run(('/usr/local/sbin/local-ai-lease','status'),10))
++        if status not in ('ready',{'state':'ready'}): raise SessionError('SHARED_HOST_NOT_READY')
++        booking=ReservationStore(ROOT/'reservations',expected_uid=0).get(booking_id)
++        if (booking.get('owner')!='b60-stream-a' or booking.get('kind')!='exclusive-stack'
++                or booking.get('state')!='reserved' or booking['start_epoch']<time.time()+300):
++            raise SessionError('FUTURE_CAPACITY_BOOKING_REQUIRED')
++        directory(TARGET)
++        if set(p.name for p in TARGET.iterdir())-set(pins):
++            raise SessionError('EXISTING_PACKAGE_FILE_SET_DRIFT')
++        for name in sorted(pins):
++            put_new(TARGET/name,protected_bytes(source/'exclusive-session'/name,
++                                               executable=True,maximum=262144))
++        plans={}
++        # These small source packets remain in each guest; no private bytes are
++        # transported out. An existing helper is accepted only byte-for-byte.
++        inspect='''import hashlib,json,os,pathlib,stat,sys
++p=pathlib.Path(sys.argv[1]);p.mkdir(mode=0o700,parents=True,exist_ok=True)
++for d in (p,*p.parents):
++ s=d.lstat()
++ if not stat.S_ISDIR(s.st_mode) or s.st_uid!=0 or s.st_mode&0o022: raise SystemExit(1)
++f=p/sys.argv[2]
++if f.exists() or f.is_symlink():
++ s=f.lstat()
++ if not stat.S_ISREG(s.st_mode) or s.st_uid!=0 or s.st_nlink!=1 or stat.S_IMODE(s.st_mode)!=0o600: raise SystemExit(1)
++ if hashlib.sha256(f.read_bytes()).hexdigest()!=sys.argv[3]: raise SystemExit(1)
++ print("present")
++else: print("absent")
++'''
++        for guest in ('104','110','114','115','116'):
++            for name in HELPERS:
++                present=run(('pct','exec',guest,'--','python3','-B','-c',inspect,
++                             GUEST_TARGET,name,pins[name])).strip()
++                if present=='absent':
++                    run(('pct','push',guest,str(TARGET/name),GUEST_TARGET+'/'+name,'--perms','0600'))
++                elif present!='present': raise SessionError('GUEST_HELPER_CUSTODY_UNCERTAIN')
++            output=json.loads(run(('pct','exec',guest,'--','python3','-B',
++                GUEST_TARGET+'/lab_hours_prepare_entry_plan.py','--guest-id',guest,
++                '--booking-id',booking_id)))
++            if output.get('state')!='prepared' or output.get('configuration_contents_copied') is not False:
++                raise SessionError('SOURCE_LOCAL_PLAN_NOT_PREPARED')
++            plans[guest]=output['plan_sha256']
++        profile=validate_profile({'schema':'aster-exclusive-activation.v1',
++            'owner':'b60-stream-a','booking_id':booking_id,'trial_seconds':300,
++            'units':[list(row) for row in sorted(SCOPE)],'guest_plans':plans,
++            'experiment':None,'qualification_only':True,'source_sha256':pins})
++        profiles=ROOT/'exclusive-activations'; directory(profiles)
++        put_new(profiles/(booking_id+'.json'),canonical(profile))
++        load_profile(profiles/(booking_id+'.json'),TARGET)
++        return {'state':'dormant-installed','booking_id':booking_id,'source_count':len(pins),
++                'guest_plan_count':len(plans),'armed':False,'ai_stack_effects':False}
++
++
++if __name__=='__main__':
++    parser=argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--source',type=Path,required=True)
++    parser.add_argument('--manifest-sha256',required=True)
++    parser.add_argument('--booking-id',required=True)
++    parser.add_argument('--install-dormant',action='store_true',required=True)
++    args=parser.parse_args()
++    try:
++        print(json.dumps(install(args.source,args.manifest_sha256,args.booking_id),sort_keys=True))
++    except Exception as error:
++        code=str(error) if isinstance(error,SessionError) else type(error).__name__
++        print(json.dumps({'state':'no_go','failure_code':code,'armed':False})); raise SystemExit(1)
+diff --git a/scripts/local-ai/install_lab_hours_qualification_schedule.py b/scripts/local-ai/install_lab_hours_qualification_schedule.py
+new file mode 100644
+index 000000000..56267cb24
+--- /dev/null
++++ b/scripts/local-ai/install_lab_hours_qualification_schedule.py
+@@ -0,0 +1,108 @@
++"""Install exactly one future restore-only qualification and its integrity prep.
++
++No model experiment is scheduled. Never edits an existing platform unit. Only
++the two new future one-shot timers are started; no existing service is stopped.
++"""
++from __future__ import annotations
++import argparse
++from datetime import datetime
++import hashlib
++import json
++import os
++from pathlib import Path
++import subprocess
++import time
++from zoneinfo import ZoneInfo
++
++from host_exclusion import host_exclusion
++from lab_hours_exclusive_profile import load_profile,protected_bytes
++from lab_hours_exclusive_session import IDENTITY,SessionError
++from lab_hours_reservations import ReservationStore
++
++ROOT=Path('/var/lib/local-ai-lab')
++PACKAGE=Path('/usr/local/libexec/local-ai-lease/exclusive-session')
++PREP=Path('/usr/local/libexec/local-ai-lease/b60-exclusive-integrity')
++UNITS=Path('/etc/systemd/system')
++
++
++def unit_files(booking,preparation_sha):
++    day=datetime.fromtimestamp(booking['start_epoch'],ZoneInfo('America/Vancouver'))
++    date=day.strftime('%Y%m%d'); calendar=day.strftime('%Y-%m-%d')
++    preparation='b60-exclusive-integrity-'+date
++    qualification='b60-exclusive-qualification-'+date
++    service_prefix='[Unit]\nDescription=B60 booked entry-restore qualification\n\n[Service]\nType=oneshot\nUser=root\nRestart=no\nKillMode=control-group\n'
++    prep_service=(service_prefix+'Nice=19\nIOSchedulingClass=idle\nTimeoutStartSec=1500\n'
++        +'ExecStart=/usr/bin/python3 -B '+str(PREP/'lab_hours_exclusive_integrity_prepare.py')
++        +' --booking-id '+booking['booking_id']+' --self-sha256 '+preparation_sha+'\n')
++    owner_service=(service_prefix+'TimeoutStartSec=30\nExecStart=/usr/bin/python3 -B '
++        +str(PACKAGE/'lab_hours_exclusive_cli.py')+' launch --booking-id '+booking['booking_id']+'\n')
++    def timer(name,clock):
++        return ('[Unit]\nDescription=B60 single booked qualification clock\n\n[Timer]\n'
++            +'OnCalendar='+calendar+' '+clock+' America/Vancouver\n'
++            +'Persistent=false\nAccuracySec=1s\nRandomizedDelaySec=0\nUnit='+name+'.service\n'
++            +'\n[Install]\nWantedBy=timers.target\n')
++    return {preparation+'.service':prep_service,preparation+'.timer':timer(preparation,'01:15:00'),
++            qualification+'.service':owner_service,
++            qualification+'.timer':timer(qualification,day.strftime('%H:%M:%S'))}
++
++
++def call(command):
++    result=subprocess.run(command,capture_output=True,text=True,timeout=30,check=False)
++    if result.returncode: raise SessionError('QUALIFICATION_SCHEDULE_COMMAND_FAILED')
++    return result.stdout
++
++
++def install(booking_id,source,source_sha):
++    if os.geteuid()!=0 or os.uname().nodename!='proxmox' or not IDENTITY.fullmatch(booking_id):
++        raise SessionError('QUALIFICATION_SCHEDULE_IDENTITY')
++    raw=protected_bytes(source,executable=True,maximum=262144)
++    if hashlib.sha256(raw).hexdigest()!=source_sha: raise SessionError('INTEGRITY_SOURCE_DRIFT')
++    with host_exclusion(ROOT):
++        if any(p.exists() for p in (ROOT/'lease.json',ROOT/'lease.lock',
++                ROOT/'full-inference-drain.json',ROOT/'full-inference-drain.lock',
++                Path('/run/local-ai-lab-operation.lock'))):
++            raise SessionError('SHARED_HOST_NOT_READY')
++        status=json.loads(call(('/usr/local/sbin/local-ai-lease','status')))
++        if status not in ('ready',{'state':'ready'}): raise SessionError('SHARED_HOST_NOT_READY')
++        profile=load_profile(ROOT/'exclusive-activations'/(booking_id+'.json'),PACKAGE)
++        booking=ReservationStore(ROOT/'reservations',expected_uid=0).get(booking_id)
++        if (profile['qualification_only'] is not True or profile['experiment'] is not None
++                or profile['booking_id']!=booking_id or booking.get('booking_id')!=booking_id
++                or booking.get('owner')!=profile['owner'] or booking.get('kind')!='exclusive-stack'
++                or booking.get('state')!='reserved' or booking['start_epoch']<time.time()+7200):
++            raise SessionError('FUTURE_RESTORE_ONLY_BOOKING_REQUIRED')
++        files=unit_files(booking,source_sha)
++        # Never replace existing units or code, even after a partial install.
++        if any((UNITS/name).exists() or (UNITS/name).is_symlink() for name in files):
++            raise SessionError('QUALIFICATION_UNIT_ALREADY_EXISTS')
++        if PREP.exists(): raise SessionError('INTEGRITY_PACKAGE_ALREADY_EXISTS')
++        PREP.mkdir(mode=0o700)
++        target=PREP/'lab_hours_exclusive_integrity_prepare.py'
++        fd=os.open(target,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
++        with os.fdopen(fd,'wb') as stream:
++            stream.write(raw); stream.flush(); os.fsync(stream.fileno())
++        for name,body in files.items():
++            fd=os.open(UNITS/name,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o644)
++            with os.fdopen(fd,'w') as stream:
++                stream.write(body); stream.flush(); os.fsync(stream.fileno())
++        call(('systemd-analyze','verify',*(str(UNITS/name) for name in files)))
++        call(('systemctl','daemon-reload'))
++        timers=sorted(name for name in files if name.endswith('.timer'))
++        call(('systemctl','enable','--now',*timers))
++        return {'state':'qualification-scheduled','booking_id':booking_id,
++                'timers':timers,'model_experiment_scheduled':False,
++                'expected_stack_effects_only_during_booking':True}
++
++
++if __name__=='__main__':
++    parser=argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--booking-id',required=True)
++    parser.add_argument('--preparation-source',type=Path,required=True)
++    parser.add_argument('--preparation-sha256',required=True)
++    parser.add_argument('--schedule-qualification',action='store_true',required=True)
++    args=parser.parse_args()
++    try:
++        print(json.dumps(install(args.booking_id,args.preparation_source,args.preparation_sha256),sort_keys=True))
++    except Exception as error:
++        code=str(error) if isinstance(error,SessionError) else type(error).__name__
++        print(json.dumps({'state':'no_go','failure_code':code})); raise SystemExit(1)
+diff --git a/scripts/local-ai/lab_hours_exclusive_cli.py b/scripts/local-ai/lab_hours_exclusive_cli.py
+index bb7b1756d..3b16297fb 100644
+--- a/scripts/local-ai/lab_hours_exclusive_cli.py
++++ b/scripts/local-ai/lab_hours_exclusive_cli.py
+@@ -48,7 +48,8 @@ def operate(action,booking_id):
+     session=ExclusiveSession(store,adapter)
+     try:
+         if action=='validate':
+-            return {'state':'static-profile-valid','armed':False,'qualification_only':True}
++            return {'state':'static-profile-valid','activation_not_inspected':True,
++                    'qualification_only':True}
+         if action=='launch':
+             booking=bookings.get(booking_id); now=int(time.time())
+             if (booking.get('owner')!=profile['owner'] or booking.get('kind')!='exclusive-stack'
+diff --git a/scripts/local-ai/lab_hours_exclusive_integrity_prepare.py b/scripts/local-ai/lab_hours_exclusive_integrity_prepare.py
+new file mode 100644
+index 000000000..d6c8c259d
+--- /dev/null
++++ b/scripts/local-ai/lab_hours_exclusive_integrity_prepare.py
+@@ -0,0 +1,157 @@
++"""One booked-night low-priority archive-integrity preparation, not a lease.
++
++This does not call a model, stop AI units, mount anything, or change backups.
++It verifies existing same-night archives and publishes the platform's standard
++root-local integrity receipt. The later owner independently rebinds all sources.
++"""
++from __future__ import annotations
++import argparse
++from datetime import datetime
++import hashlib
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++import time
++from zoneinfo import ZoneInfo
++
++PACKAGE=Path('/usr/local/libexec/local-ai-lease/exclusive-session')
++ROOT=Path('/var/lib/local-ai-lab')
++ZONE=ZoneInfo('America/Vancouver')
++
++
++def validate_window(booking,now):
++    local=datetime.fromtimestamp(now,ZONE)
++    day=datetime.fromtimestamp(booking['start_epoch'],ZONE)
++    begin=day.replace(hour=1,minute=15,second=0,microsecond=0).timestamp()
++    deadline=int(day.replace(hour=1,minute=40,second=0,microsecond=0).timestamp())
++    if (booking.get('owner')!='b60-stream-a' or booking.get('kind')!='exclusive-stack'
++            or booking.get('state')!='reserved' or local.date()!=day.date()
++            or not begin<=now<=begin+120 or deadline+900>=booking['start_epoch']):
++        raise ValueError('INTEGRITY_PREPARATION_WINDOW')
++    return day.strftime('%Y_%m_%d'),deadline
++
++
++def validate_first_pull(rows,cycle,now,latest_archive):
++    matches=[row for row in rows if row.get('id')==1]
++    if len(matches)!=1: return False
++    row=matches[0]; schedule=row.get('schedule',{}); job=row.get('job',{})
++    started=job.get('time_started',{}).get('$date')
++    finished=job.get('time_finished',{}).get('$date')
++    hour,minute=str(schedule.get('hour','')),str(schedule.get('minute',''))
++    return (row.get('enabled') is True and hour.isdigit() and int(hour)==1
++        and minute.isdigit() and int(minute)==0 and job.get('state')=='SUCCESS'
++        and job.get('arguments')==[1] and type(started) is int and type(finished) is int
++        and latest_archive<=started/1000<=finished/1000<=now
++        and datetime.fromtimestamp(started/1000,ZONE).strftime('%Y_%m_%d')==cycle
++        and datetime.fromtimestamp(finished/1000,ZONE).strftime('%Y_%m_%d')==cycle
++        and datetime.fromtimestamp(started/1000,ZONE).hour>=1)
++
++
++def runner(command,timeout):
++    result=subprocess.run(command,capture_output=True,text=True,timeout=timeout,check=False)
++    return result.returncode,result.stdout
++
++
++def prepare(booking_id):
++    sys.path.insert(0,str(PACKAGE))
++    from lab_hours_exclusive_profile import load_profile
++    from lab_hours_reservations import ReservationStore
++    from lab_hours_exclusive_session import SessionStore,SessionError,IDENTITY
++    from host_exclusion import host_exclusion
++    from full_inference_lab_sources import (AcceptedBaseline,TrustedOwnerAttestation,
++        LocalProxmoxFullDrainSourceProducer,FIXED)
++    from retained_archive_integrity import (fixed_proxmox_inventory,fixed_resolve,
++        fixed_probe,capture,verify,save_root_owned,load_root_owned,SCHEMA,FIELDS)
++    from backup_receipt_adapter import verify_proxmox_artifacts
++    if os.geteuid()!=0 or os.uname().nodename!='proxmox': raise ValueError('PROXMOX_ROOT_REQUIRED')
++    if not IDENTITY.fullmatch(booking_id): raise ValueError('PREPARATION_BOOKING_IDENTITY')
++    load_profile(ROOT/'exclusive-activations'/(booking_id+'.json'),PACKAGE)
++    bookings=ReservationStore(ROOT/'reservations',expected_uid=0)
++    cycle,deadline=validate_window(bookings.get(booking_id),int(time.time()))
++    with host_exclusion(ROOT):
++        if any(p.exists() for p in (ROOT/'lease.json',ROOT/'lease.lock',
++                ROOT/'full-inference-drain.json',ROOT/'full-inference-drain.lock',
++                Path('/run/local-ai-lab-operation.lock'))):
++            raise ValueError('KNOWN_MAINTENANCE_OR_LAB_ACTIVE')
++        code,raw=runner(('/usr/local/sbin/local-ai-lease','status'),10)
++        if code or json.loads(raw) not in ('ready',{'state':'ready'}):
++            raise ValueError('SHARED_HOST_NOT_READY')
++        # Process comm only, never raw command lines that might contain keys.
++        for proc in Path('/proc').glob('[0-9]*'):
++            try: name=(proc/'comm').read_text().strip()
++            except FileNotFoundError: continue
++            if name in {'vzdump','zstd','rsync','pbs-client','proxmox-backup'}:
++                raise ValueError('COMPETING_BACKUP_IO')
++        state=SessionStore(ROOT/'exclusive-integrity'/booking_id,expected_uid=0)
++        fd=state.lock()
++        phase='attempt'
++        try:
++            state.write('attempt.json',{'schema':'aster-exclusive-integrity-attempt.v1',
++                'booking_id':booking_id,'started_epoch':int(time.time()),
++                'deadline_epoch':deadline},immutable=True)
++            phase='whole-backup-job'
++            producer=LocalProxmoxFullDrainSourceProducer(runner,AcceptedBaseline('','',''),
++                TrustedOwnerAttestation('b60-stream-a','booked-night-integrity'))
++            if producer._backup_current(cycle) is not True:
++                raise ValueError('WHOLE_BACKUP_JOB_UNPROVEN')
++            phase='current-archive-inventory'
++            inventory=fixed_proxmox_inventory()
++            artifacts=verify_proxmox_artifacts(inventory,date_prefix=cycle)
++            phase='first-truenas-pull'
++            code,raw=runner(FIXED['truenas'],10)
++            if code or not validate_first_pull(json.loads(raw),cycle,int(time.time()),
++                                               max(row.ctime for row in artifacts)):
++                raise ValueError('FIRST_TRUENAS_PULL_UNPROVEN')
++            phase='existing-integrity-receipt'
++            previous=load_root_owned() if (ROOT/'archive-integrity.json').exists() else None
++            if previous is not None and (set(previous)!=FIELDS or previous.get('schema')!=SCHEMA):
++                raise ValueError('EXISTING_INTEGRITY_RECEIPT_UNEXPECTED')
++            before=hashlib.sha256(json.dumps(previous,sort_keys=True).encode()).hexdigest()
++            if previous is not None: state.write('previous-receipt.json',previous,immutable=True)
++            # Preserve a peer producer's valid same-cycle receipt; do not scan
++            # or replace it merely to claim this preparation produced it.
++            reused=False
++            if previous is not None and previous.get('date')==cycle:
++                proof=verify(previous,inventory,date=cycle,now_epoch=int(time.time()),
++                             resolve=fixed_resolve,lstat=os.lstat)
++                receipt=previous; reused=True
++            else:
++                phase='archive-integrity-scan'
++                receipt=capture(inventory,date=cycle,resolve=fixed_resolve,lstat=os.lstat,
++                                probe=fixed_probe,deadline_epoch=deadline)
++                proof=verify(receipt,fixed_proxmox_inventory(),date=cycle,now_epoch=int(time.time()),
++                             resolve=fixed_resolve,lstat=os.lstat)
++            phase='receipt-publication'
++            state.write('receipt.json',receipt,immutable=True)
++            current=load_root_owned() if (ROOT/'archive-integrity.json').exists() else None
++            if hashlib.sha256(json.dumps(current,sort_keys=True).encode()).hexdigest()!=before:
++                raise ValueError('PEER_INTEGRITY_RECEIPT_CHANGED')
++            if not reused: save_root_owned(receipt)
++            state.write('terminal.json',{'schema':'aster-exclusive-integrity-result.v1',
++                'state':'complete','booking_id':booking_id,'archive_receipt':proof,
++                'finished_epoch':int(time.time()),'peer_receipt_reused':reused,
++                'ai_stack_effects':False},immutable=True)
++            return {'state':'complete','booking_id':booking_id,'ai_stack_effects':False}
++        except Exception:
++            if not (state.root/'terminal.json').exists():
++                state.write('terminal.json',{'schema':'aster-exclusive-integrity-result.v1',
++                    'state':'no_go','booking_id':booking_id,'first_failure_phase':phase,
++                    'ai_stack_effects':False},immutable=True)
++            raise
++        finally: os.close(fd)
++
++
++if __name__=='__main__':
++    parser=argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--booking-id',required=True); parser.add_argument('--self-sha256',required=True)
++    args=parser.parse_args()
++    try:
++        if hashlib.sha256(Path(__file__).read_bytes()).hexdigest()!=args.self_sha256:
++            raise ValueError('PREPARATION_SOURCE_DRIFT')
++        print(json.dumps(prepare(args.booking_id),sort_keys=True))
++    except Exception as error:
++        # Fixed types only: no source-local command output or private paths.
++        print(json.dumps({'state':'no_go','failure_type':type(error).__name__,
++                          'ai_stack_effects':False})); raise SystemExit(1)
+diff --git a/scripts/local-ai/lab_hours_prepare_entry_plan.py b/scripts/local-ai/lab_hours_prepare_entry_plan.py
+index 9ac0134b6..7d14c8e48 100644
+--- a/scripts/local-ai/lab_hours_prepare_entry_plan.py
++++ b/scripts/local-ai/lab_hours_prepare_entry_plan.py
+@@ -84,9 +84,13 @@ def main():
+             if directory.is_symlink() or info.st_uid!=0 or info.st_mode&0o077:
+                 raise CheckpointError('PLAN_DIRECTORY_CUSTODY')
+         target=parent/'plan.json'
+-        fd=os.open(target,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
+-        with os.fdopen(fd,'wb') as stream:
+-            stream.write(data); stream.flush(); os.fsync(stream.fileno())
++        if target.exists():
++            from lab_hours_guest_checkpoint import private_json
++            if private_json(target)!=plan: raise CheckpointError('EXISTING_PLAN_DRIFT')
++        else:
++            fd=os.open(target,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
++            with os.fdopen(fd,'wb') as stream:
++                stream.write(data); stream.flush(); os.fsync(stream.fileno())
+         fd=os.open(parent,os.O_RDONLY)
+         try: os.fsync(fd)
+         finally: os.close(fd)
+diff --git a/scripts/local-ai/qualify_lab_hours_owner_scope.py b/scripts/local-ai/qualify_lab_hours_owner_scope.py
+new file mode 100644
+index 000000000..48f260f75
+--- /dev/null
++++ b/scripts/local-ai/qualify_lab_hours_owner_scope.py
+@@ -0,0 +1,40 @@
++"""Harmless actual host-systemd owner fencing fixture, not AI recovery proof."""
++import argparse
++import json
++import os
++import subprocess
++import time
++from lab_hours_owner_scope import OwnerScopes
++
++
++def runner(command,timeout):
++    result=subprocess.run(command,capture_output=True,text=True,timeout=timeout,check=False)
++    return result.returncode,result.stdout
++
++
++def main():
++    parser=argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--run-fixture',action='store_true',required=True)
++    parser.parse_args()
++    if os.geteuid()!=0: raise SystemExit('ROOT_REQUIRED')
++    booking='b60-fixture-'+str(os.getpid())+'-'+str(int(time.time()))
++    scope=OwnerScopes(runner,booking)
++    try:
++        command=('systemd-run','--quiet','--unit='+scope.owner,
++            '--property=Type=exec','--property=KillMode=control-group',
++            '--property=Restart=no','--property=RuntimeMaxSec=30',
++            '/usr/bin/sleep','25')
++        if runner(command,10)[0]: raise RuntimeError('FIXTURE_OWNER_START')
++        alive=scope.alive({}); fenced=scope.fence({})
++        if not alive or not fenced: raise RuntimeError('FIXTURE_FENCE_NOT_PROVEN')
++        print(json.dumps({'state':'passed','actual_systemd_owner_observed':alive,
++            'owner_fenced':fenced,'ai_stack_effects':False},sort_keys=True)); return 0
++    except Exception as error:
++        print(json.dumps({'state':'no_go','failure_type':type(error).__name__,
++                          'ai_stack_effects':False})); return 1
++    finally:
++        runner(('systemctl','stop',scope.owner),10)
++        runner(('systemctl','reset-failed',scope.owner),10)
++
++
++if __name__=='__main__': raise SystemExit(main())
+diff --git a/scripts/local-ai/test_install_lab_hours_exclusive_dormant.py b/scripts/local-ai/test_install_lab_hours_exclusive_dormant.py
+new file mode 100644
+index 000000000..d835bf465
+--- /dev/null
++++ b/scripts/local-ai/test_install_lab_hours_exclusive_dormant.py
+@@ -0,0 +1,80 @@
++"""Installer fixtures: real disposable files, fake host/guest transport only."""
++import contextlib
++import hashlib
++import json
++from pathlib import Path
++import tempfile
++from types import SimpleNamespace
++import unittest
++from unittest.mock import patch
++
++import install_lab_hours_exclusive_dormant as install
++from lab_hours_exclusive_session import SessionError
++
++
++class InstallerTests(unittest.TestCase):
++    def setUp(self):
++        self.temporary=tempfile.TemporaryDirectory(); self.addCleanup(self.temporary.cleanup)
++        self.root=Path(self.temporary.name).resolve()
++        self.bundle=self.root/'bundle'; self.bundle.mkdir(); (self.bundle/'exclusive-session').mkdir()
++        self.pins={}
++        for name in install.HELPERS:
++            raw=b'# synthetic source\n'; (self.bundle/'exclusive-session'/name).write_bytes(raw)
++            self.pins[name]=hashlib.sha256(raw).hexdigest()
++        raw=json.dumps({'schema':'aster-exclusive-source-bundle.v1','pins':self.pins,
++            'installed':False,'armed':False},sort_keys=True).encode()
++        (self.bundle/'source-manifest.json').write_bytes(raw)
++        self.expected=hashlib.sha256(raw).hexdigest()
++        self.reader=patch.object(install,'protected_bytes',side_effect=lambda path,**kwargs:Path(path).read_bytes())
++        self.reader.start(); self.addCleanup(self.reader.stop)
++
++    def test_exact_bundle_hashes_are_checked_before_install(self):
++        self.assertEqual(install.source_bundle(self.bundle,self.expected),self.pins)
++        (self.bundle/'exclusive-session'/install.HELPERS[0]).write_bytes(b'changed')
++        with self.assertRaisesRegex(SessionError,'SOURCE_DRIFT'):
++            install.source_bundle(self.bundle,self.expected)
++
++    def test_extra_dependency_cannot_hide_outside_manifest(self):
++        (self.bundle/'exclusive-session'/'extra.py').write_bytes(b'')
++        with self.assertRaisesRegex(SessionError,'FILE_SET'):
++            install.source_bundle(self.bundle,self.expected)
++
++    def test_existing_different_code_is_not_overwritten(self):
++        target=self.root/'existing.py'; target.write_bytes(b'peer-owned')
++        with self.assertRaisesRegex(SessionError,'SOURCE_DRIFT'):
++            install.put_new(target,b'ours')
++        self.assertEqual(target.read_bytes(),b'peer-owned')
++
++    def test_new_code_file_is_private_and_same_source_is_idempotent(self):
++        target=self.root/'new.py'; install.put_new(target,b'ours')
++        install.put_new(target,b'ours')
++        self.assertEqual(target.stat().st_mode&0o777,0o600)
++
++    def test_fake_full_install_never_has_service_lease_or_timer_effect_commands(self):
++        host=self.root/'host'; host.mkdir()
++        target=self.root/'installed'; commands=[]
++        def runner(command,timeout=30):
++            commands.append(command)
++            if command[0]=='/usr/local/sbin/local-ai-lease': return '{"state":"ready"}'
++            if command[0]=='pct' and command[1]=='push': return ''
++            if '-c' in command: return 'absent'
++            return json.dumps({'state':'prepared','plan_sha256':'a'*64,
++                               'configuration_contents_copied':False})
++        row={'owner':'b60-stream-a','kind':'exclusive-stack','state':'reserved',
++             'start_epoch':install.time.time()+10000}
++        with patch.object(install.os,'geteuid',return_value=0), \
++             patch.object(install.os,'uname',return_value=SimpleNamespace(nodename='proxmox')), \
++             patch.object(install,'ROOT',host),patch.object(install,'TARGET',target), \
++             patch.object(install,'host_exclusion',side_effect=lambda root:contextlib.nullcontext()), \
++             patch.object(install,'directory',side_effect=lambda path:path.mkdir(parents=True,exist_ok=True)), \
++             patch.object(install,'run',side_effect=runner),patch.object(install,'load_profile'), \
++             patch.object(install.ReservationStore,'get',return_value=row):
++            result=install.install(self.bundle,self.expected,'b60-exclusive-20261030')
++        self.assertEqual(result['state'],'dormant-installed')
++        self.assertFalse(result['armed']); self.assertFalse(result['ai_stack_effects'])
++        self.assertFalse(any('systemctl' in c or 'systemd-run' in c for c in commands))
++        self.assertEqual([c for c in commands if c[0]=='/usr/local/sbin/local-ai-lease'],
++                         [('/usr/local/sbin/local-ai-lease','status')])
++
++
++if __name__=='__main__': unittest.main()
+diff --git a/scripts/local-ai/test_lab_hours_exclusive_cli.py b/scripts/local-ai/test_lab_hours_exclusive_cli.py
+new file mode 100644
+index 000000000..8a4f650f1
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_exclusive_cli.py
+@@ -0,0 +1,16 @@
++from unittest.mock import Mock,patch
++import unittest
++import lab_hours_exclusive_cli as cli
++
++
++class CliTests(unittest.TestCase):
++    def test_static_validation_does_not_claim_to_inspect_arming(self):
++        adapter=Mock()
++        with patch.object(cli,'context',return_value=({},None,None,None,adapter)):
++            result=cli.operate('validate','b60-exclusive-20261030')
++        self.assertTrue(result['activation_not_inspected'])
++        self.assertNotIn('armed',result)
++        adapter.boundary.close.assert_called_once()
++
++
++if __name__=='__main__': unittest.main()
+diff --git a/scripts/local-ai/test_lab_hours_qualification_schedule.py b/scripts/local-ai/test_lab_hours_qualification_schedule.py
+new file mode 100644
+index 000000000..e109d4430
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_qualification_schedule.py
+@@ -0,0 +1,62 @@
++from datetime import datetime
++import unittest
++from zoneinfo import ZoneInfo
++from lab_hours_exclusive_integrity_prepare import validate_window,validate_first_pull
++from install_lab_hours_qualification_schedule import unit_files
++
++
++class QualificationScheduleTests(unittest.TestCase):
++    def setUp(self):
++        self.start=int(datetime(2026,10,30,3,10,tzinfo=ZoneInfo('America/Vancouver')).timestamp())
++        self.booking={'booking_id':'b60-exclusive-20261030','owner':'b60-stream-a',
++            'kind':'exclusive-stack','state':'reserved','start_epoch':self.start,'end_epoch':self.start+2700}
++        self.preparation=self.start-115*60
++
++    def test_integrity_work_is_bounded_before_booking(self):
++        cycle,deadline=validate_window(self.booking,self.preparation)
++        self.assertEqual(cycle,'2026_10_30'); self.assertEqual(deadline,self.start-90*60)
++
++    def test_daytime_or_late_integrity_scan_cannot_start(self):
++        for now in (self.preparation-1,self.preparation+121,self.start):
++            with self.assertRaisesRegex(ValueError,'WINDOW'): validate_window(self.booking,now)
++
++    def test_foreign_or_already_claimed_booking_cannot_use_this_preparation(self):
++        self.booking['state']='claimed'
++        with self.assertRaisesRegex(ValueError,'WINDOW'): validate_window(self.booking,self.preparation)
++
++    def task(self):
++        return {'id':1,'enabled':True,'schedule':{'hour':'01','minute':'00'},'job':{
++            'state':'SUCCESS','arguments':[1],
++            'time_started':{'$date':(self.preparation-15*60)*1000},
++            'time_finished':{'$date':(self.preparation-10*60)*1000}}}
++
++    def test_first_pull_must_be_exact_same_night_after_archives(self):
++        self.assertTrue(validate_first_pull([self.task()],'2026_10_30',self.preparation,
++                                            self.preparation-30*60))
++        task=self.task(); task['job']['arguments']=[3]
++        self.assertFalse(validate_first_pull([task],'2026_10_30',self.preparation,
++                                             self.preparation-30*60))
++
++    def test_previous_night_and_duplicate_pull_receipts_fail(self):
++        task=self.task()
++        self.assertFalse(validate_first_pull([task],'2026_10_31',self.preparation,
++                                             self.preparation-30*60))
++        self.assertFalse(validate_first_pull([task,task],'2026_10_30',self.preparation,
++                                             self.preparation-30*60))
++
++    def test_two_future_nonpersistent_clocks_do_not_schedule_model_work(self):
++        files=unit_files(self.booking,'a'*64)
++        timers=[body for name,body in files.items() if name.endswith('.timer')]
++        self.assertEqual(len(timers),2)
++        for body in timers:
++            self.assertIn('Persistent=false',body)
++            self.assertIn('2026-10-30',body)
++            self.assertIn('America/Vancouver',body)
++        owner=files['b60-exclusive-qualification-20261030.service']
++        self.assertIn(' launch --booking-id b60-exclusive-20261030',owner)
++        self.assertNotIn('stop',owner); self.assertNotIn('model',owner)
++        self.assertTrue(any('03:10:00' in body for body in timers))
++        self.assertTrue(any('01:15:00' in body for body in timers))
++
++
++if __name__=='__main__': unittest.main()
+-- 
+2.50.1 (Apple Git-155)
+

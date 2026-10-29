@@ -1,0 +1,2187 @@
+From 8a6d0ffb61915424c387c61023eeaeee24d9b3b1 Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Thu, 29 Oct 2026 14:53:34 -0700
+Subject: [PATCH 1/2] Wire exclusive booking, entry checkpoint, admission and
+ independent recovery candidate
+
+---
+ .../exclusive-controller-wiring-20261029.md   | 109 +++++++++
+ .../build_lab_hours_exclusive_bundle.py       |  49 ++++
+ .../local-ai/lab_hours_exclusive_admission.py |  90 ++++++++
+ .../local-ai/lab_hours_exclusive_boundary.py  | 180 +++++++++++++++
+ scripts/local-ai/lab_hours_exclusive_cli.py   | 106 +++++++++
+ .../local-ai/lab_hours_exclusive_guardian.py  |   4 +
+ .../local-ai/lab_hours_exclusive_profile.py   |  78 +++++++
+ .../local-ai/lab_hours_exclusive_session.py   |  13 ++
+ scripts/local-ai/lab_hours_file_checkpoint.py |  11 +-
+ .../local-ai/lab_hours_guest_checkpoint.py    | 178 +++++++++++++++
+ scripts/local-ai/lab_hours_owner_scope.py     |  56 +++++
+ .../local-ai/lab_hours_prepare_entry_plan.py  | 100 +++++++++
+ scripts/local-ai/lab_hours_proxmox_adapter.py | 211 ++++++++++++++++++
+ scripts/local-ai/lab_hours_reservations.py    |  17 ++
+ scripts/local-ai/lab_hours_timer_resume.py    |  34 +++
+ scripts/local-ai/lab_hours_unit_adapter.py    |  11 +-
+ .../probe_lab_hours_entry_inventory.py        |  43 ++++
+ .../qualify_lab_hours_timer_resume.py         |  68 ++++++
+ .../test_lab_hours_exclusive_admission.py     |  64 ++++++
+ .../test_lab_hours_exclusive_boundary.py      |  92 ++++++++
+ .../test_lab_hours_exclusive_profile.py       |  41 ++++
+ .../test_lab_hours_guest_checkpoint.py        |  72 ++++++
+ .../local-ai/test_lab_hours_owner_scope.py    |  36 +++
+ .../test_lab_hours_prepare_entry_plan.py      |  41 ++++
+ .../test_lab_hours_proxmox_adapter.py         | 138 ++++++++++++
+ .../local-ai/test_lab_hours_timer_resume.py   |  35 +++
+ .../local-ai/test_lab_hours_unit_adapter.py   |   9 +
+ 27 files changed, 1882 insertions(+), 4 deletions(-)
+ create mode 100644 docs/projects/B60-Inference-Engineering/exclusive-controller-wiring-20261029.md
+ create mode 100644 scripts/local-ai/build_lab_hours_exclusive_bundle.py
+ create mode 100644 scripts/local-ai/lab_hours_exclusive_admission.py
+ create mode 100644 scripts/local-ai/lab_hours_exclusive_boundary.py
+ create mode 100644 scripts/local-ai/lab_hours_exclusive_cli.py
+ create mode 100644 scripts/local-ai/lab_hours_exclusive_profile.py
+ create mode 100644 scripts/local-ai/lab_hours_guest_checkpoint.py
+ create mode 100644 scripts/local-ai/lab_hours_owner_scope.py
+ create mode 100644 scripts/local-ai/lab_hours_prepare_entry_plan.py
+ create mode 100644 scripts/local-ai/lab_hours_proxmox_adapter.py
+ create mode 100644 scripts/local-ai/lab_hours_timer_resume.py
+ create mode 100644 scripts/local-ai/probe_lab_hours_entry_inventory.py
+ create mode 100644 scripts/local-ai/qualify_lab_hours_timer_resume.py
+ create mode 100644 scripts/local-ai/test_lab_hours_exclusive_admission.py
+ create mode 100644 scripts/local-ai/test_lab_hours_exclusive_boundary.py
+ create mode 100644 scripts/local-ai/test_lab_hours_exclusive_profile.py
+ create mode 100644 scripts/local-ai/test_lab_hours_guest_checkpoint.py
+ create mode 100644 scripts/local-ai/test_lab_hours_owner_scope.py
+ create mode 100644 scripts/local-ai/test_lab_hours_prepare_entry_plan.py
+ create mode 100644 scripts/local-ai/test_lab_hours_proxmox_adapter.py
+ create mode 100644 scripts/local-ai/test_lab_hours_timer_resume.py
+
+diff --git a/docs/projects/B60-Inference-Engineering/exclusive-controller-wiring-20261029.md b/docs/projects/B60-Inference-Engineering/exclusive-controller-wiring-20261029.md
+new file mode 100644
+index 000000000..0f0bf73ca
+--- /dev/null
++++ b/docs/projects/B60-Inference-Engineering/exclusive-controller-wiring-20261029.md
+@@ -0,0 +1,109 @@
++# Exclusive entry-controller wiring — 2026-10-29
++
++Status: implemented source candidate, not deployed or armed. This is not an
++unattended AI-stack recovery qualification and not a model result.
++
++Jason's current Stream A authorization covers the project through completion,
++in-scope model changes during actual bookings, and non-exclusive work outside
++bookings. No repeated model-by-model conversational approval is needed. The
++controller must restore the verified actual entry stack, not assume that every
++entry is the historical accepted 9B configuration. Failure of an engineering
++gate remains a stop; it is not a request for another general approval.
++
++## Implemented candidate
++
++- Combined booking claim, existing shared host exclusion, canonical durable
++  lease/operation markers, private guest-local file checkpoints and unit state.
++- Exact source-pinned CLI: launch/run/watch/recover plus static validation.
++  The independent host watchdog has a separate systemd service, exact owner
++  cgroup fencing, no restart, and a bounded lifetime. No chat/Mini connection
++  is required by that design; live integration is not yet proven.
++- Owner loss before a claim aborts without restoring a snapshot over another
++  owner. Partial durable claim/binding writes are reconciled against the real
++  ledger and both canonical markers. Unknown ownership is never deleted.
++- Admission reuses the platform's current-cycle retained archive integrity
++  verifier, exact TrueNAS task/mirror metadata, and whole Proxmox backup-job
++  proof. It also checks booking timing, xe/e211/render-node identity, resource
++  headroom, plan pins, actual timer triggers, control plane and source-local
++  authentication. No task-success flag substitutes for archive integrity.
++- Actual source-local process projection binds the model and executable to
++  the active llama unit. Raw argv/environment and configuration contents are
++  never returned to the agent or coordination branch.
++- News ingest/digest services and the News UI now join the two News timers in
++  the declared drain, alongside Aster, Speech, EPUB and Paperless. Timers stop
++  before triggered workers; backend stops last. All callers are quiesced again
++  on recovery re-entry before configuration restoration.
++- Calendar timers clear persistent missed-run timestamps before rearm. This
++  deliberately skips missed events, not claims successful application work.
++  A separate harmless real systemd fixture proved both positive catch-up and
++  no replay after `systemctl clean --what=state`; no application timer was
++  changed in that fixture. Monotonic/boot timers remain unsupported.
++- Trial failure and restoration success are separate. A failed/uncertain trial
++  finishes the booking as failed-restored, never green merely for recovery.
++
++## Validation and actual source receipts
++
++Local: 116 Lab Hours tests plus 70 existing full-inference regression tests.
++Proxmox staged v2: 96 focused synthetic tests passed. That target packet
++predates the final trial-outcome status regression; rerun the final packet
++before installation. Tests use fake stack effects and real disposable files /
++processes. They do not qualify live AI restoration.
++
++Dormant host staging: `/root/b60-exclusive-wiring-20261029.WsPURv`.
++Dormant guest helpers: `/root/b60-exclusive-probe-20261029.WsPURv` in guests
++104/110/114/115/116. These are not installed runtime paths, enabled services,
++active profiles or experiment schedules. No AI service, model, GPU workload,
++lease, production configuration or application timer was changed.
++
++The first real inventory probe failed closed with `ARTIFACT_SCOPE` on guest110.
++Its accepted GGUF resolves to
++`/usr/share/ollama/.ollama/models/blobs/sha256-cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`.
++The fix permits that narrow blob directory, not all `/usr`; an offline
++regression rejects unrelated `/usr/share` artifacts. The runtime projection is
++`/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server`.
++
++All five subsequent probes passed, reading metadata only:
++
++| Guest | Declared configuration files | Plan SHA-256 |
++|---|---:|---|
++|104|12|`69c8408bd0191a8ab3c85882a81378a2224d00391029cc15f489f17849c4aa08`|
++|110|2|`71aa5f835b90f6ce2e506882e14837ad583b7c905e10ef3b2e78f5424ca0f122`|
++|114|7|`a96363f469cdf25ed50067cd90e4ab37722f83f19d04a56e6fa5d7178a157413`|
++|115|3|`8b1aed9f7feba2d537fb48253a508f2004950c03258b2b0db9e69cfeea303a86`|
++|116|4|`6c53f7b2e4f36838e1e7d2597270056bc05d62b229de121442a27d80945e8075`|
++
++This includes unit fragments, drop-ins and all repeated EnvironmentFiles
++paths, not their contents. The root-level `/etc/aster-llama.env` is an exact
++file exception, not a grant to checkpoint arbitrary `/etc`. Extended metadata
++such as ACL/xattrs is currently refused rather than silently lost.
++
++## Remaining work and exact next action
++
++Do not call this ready or say experiments will launch tonight. The 30 capacity
++reservations remain separate from activation. No experiment has been armed by
++this source work.
++
++1. Rebuild and rerun the final exact dependency packet on target Linux; compare
++   every source pin, retaining the failed-closed v1/v2 receipts.
++2. Complete/review a dormant-only installer for the separate versioned host
++   package and four guest helper files, preserving all legacy/platform files.
++   Prepare source-local private plans and protected activation profiles; static
++   validation must prove custody and complete dependency/helper pins.
++3. Bind an actual fresh integrity producer to the booked night. The observed
++   F2/F3 timers are one-shots dated October29, not proof of a recurring fresh
++   receipt on October30. Do not use yesterday's receipt or silently weaken the
++   B60 backup/mirror gate to make an activation run.
++4. Qualify normal and owner-loss restoration in actual booked Lab Hours, with
++   independent host watchdog, source-bound checkpoints and preserved entry
++   schedules. Restoration strictly before04:15 remains mandatory.
++5. Only after that proof, extend the activation schema from restore-only to a
++   reviewed candidate workload and declared mount/resource recovery. The first
++   candidate screen remains the staged35B reasoning-on model, not another9B
++   diagnostic relabelled as the deliverable.
++
++The first activation profile intentionally permits only restore qualification.
++It is a technical release gate, not a new human approval requirement. Arbitrary
++mount/device changes, other runtime identity adapters, inactive-backend entry,
++new undeclared mutation paths and extended metadata are not yet supported.
++This limitation means the general controller is still unfinished; safe source,
++installer and synthetic qualification work should continue, not wait for Jason.
+diff --git a/scripts/local-ai/build_lab_hours_exclusive_bundle.py b/scripts/local-ai/build_lab_hours_exclusive_bundle.py
+new file mode 100644
+index 000000000..0e5a64aaf
+--- /dev/null
++++ b/scripts/local-ai/build_lab_hours_exclusive_bundle.py
+@@ -0,0 +1,49 @@
++"""Build an exact local-import closure, without installing or arming anything."""
++from __future__ import annotations
++import argparse
++import ast
++import hashlib
++import json
++from pathlib import Path
++import shutil
++
++ENTRYPOINTS=('lab_hours_exclusive_cli.py','lab_hours_prepare_entry_plan.py')
++
++
++def closure(source,entrypoints=ENTRYPOINTS):
++    found=set(); pending=list(entrypoints)
++    while pending:
++        name=pending.pop()
++        if name in found: continue
++        path=source/name
++        if path.is_symlink() or not path.is_file(): raise ValueError('SOURCE_NOT_REGULAR')
++        tree=ast.parse(path.read_bytes(),filename=name); found.add(name)
++        for node in ast.walk(tree):
++            modules=[]
++            if isinstance(node,ast.Import): modules=[alias.name for alias in node.names]
++            elif isinstance(node,ast.ImportFrom) and node.module: modules=[node.module]
++            for module in modules:
++                candidate=module.split('.')[0]+'.py'
++                if (source/candidate).is_file(): pending.append(candidate)
++    return sorted(found)
++
++
++def build(source,destination):
++    names=closure(source)
++    destination.mkdir(mode=0o700,parents=False,exist_ok=False)
++    package=destination/'exclusive-session'; package.mkdir(mode=0o700)
++    pins={}
++    for name in names:
++        target=package/name; shutil.copyfile(source/name,target); target.chmod(0o600)
++        pins[name]=hashlib.sha256(target.read_bytes()).hexdigest()
++    (destination/'source-manifest.json').write_text(json.dumps({
++        'schema':'aster-exclusive-source-bundle.v1','pins':pins,
++        'installed':False,'armed':False},sort_keys=True,separators=(',',':')))
++    (destination/'source-manifest.json').chmod(0o600)
++    return {'source_count':len(pins),'installed':False,'armed':False}
++
++
++if __name__=='__main__':
++    parser=argparse.ArgumentParser(description=__doc__); parser.add_argument('destination',type=Path)
++    args=parser.parse_args()
++    print(json.dumps(build(Path(__file__).resolve().parent,args.destination),sort_keys=True))
+diff --git a/scripts/local-ai/lab_hours_exclusive_admission.py b/scripts/local-ai/lab_hours_exclusive_admission.py
+new file mode 100644
+index 000000000..73ef48ded
+--- /dev/null
++++ b/scripts/local-ai/lab_hours_exclusive_admission.py
+@@ -0,0 +1,90 @@
++"""Fresh fixed-source admission for the entry-restore qualification only.
++
++Reuses the platform's retained archive verifier; does not scan archives, acquire
++an alternate lease, call a model, or treat task SUCCESS as content integrity.
++"""
++from __future__ import annotations
++from datetime import datetime
++import hashlib
++import time
++from zoneinfo import ZoneInfo
++from lab_hours_exclusive_session import SessionError
++
++ZONE=ZoneInfo('America/Vancouver')
++TRIGGERS={'114':{'news-aggregator-ingest.timer':'news-aggregator-ingest.service',
++                 'news-aggregator-digest.timer':'news-aggregator-digest.service'},
++          '115':{'paperless-summary.timer':'paperless-summary.service'},
++          '116':{'epub-narration-worker.timer':'epub-narration-worker.service'}}
++
++
++class FreshAdmission:
++    def __init__(self,runner,store,*,clock=time.time,backup=None,whole_job=None,gpu_users=None):
++        self.runner,self.store,self.clock=runner,store,clock
++        self.backup,self.whole_job,self.gpu_users=backup,whole_job,gpu_users
++
++    def _call(self,command,timeout=10):
++        code,raw=self.runner(command,timeout)
++        if code or len(raw)>1024*1024: raise SessionError('FRESH_SOURCE_PROBE_FAILED')
++        return raw.strip()
++
++    def __call__(self,booking,profile):
++        now=int(self.clock()); start=booking['start_epoch']; end=booking['end_epoch']
++        if (not start<=now<=start+120 or now+profile['trial_seconds']+900>end
++                or datetime.fromtimestamp(end,ZONE).date()!=datetime.fromtimestamp(start,ZONE).date()
++                or datetime.fromtimestamp(end,ZONE).strftime('%H:%M')>='04:15'):
++            raise SessionError('FRESH_BOOKING_WINDOW_FAILED')
++        cycle=datetime.fromtimestamp(now,ZONE).strftime('%Y_%m_%d')
++        if self.backup is None:
++            from fixed_source_adapters import FixedSourceAdapters
++            self.backup=FixedSourceAdapters(self.runner,
++                clock=lambda:datetime.fromtimestamp(self.clock(),ZONE)).backup_from_retained
++        proof=self.backup(date_prefix=cycle,lease_issued_epoch=now)
++        if (proof.source_observed is not True or proof.integrity_verified is not True
++                or not proof.integrity_receipt.startswith('retained-archive-integrity-sha256:')):
++            raise SessionError('FRESH_ARCHIVE_PROOF_FAILED')
++        if self.whole_job is None:
++            from full_inference_lab_sources import (LocalProxmoxFullDrainSourceProducer,
++                AcceptedBaseline,TrustedOwnerAttestation)
++            # Only the whole-job/backup-source method is reused. No old fixed
++            # 9B consumer/model assumptions enter this generic entry capture.
++            producer=LocalProxmoxFullDrainSourceProducer(self.runner,
++                AcceptedBaseline('','',''),TrustedOwnerAttestation(profile['owner'],'booked-exclusive'),
++                wall_clock=self.clock)
++            self.whole_job=producer._backup_current
++        if self.whole_job(cycle) is not True: raise SessionError('WHOLE_BACKUP_JOB_UNPROVEN')
++        if self._call(('readlink','/sys/bus/pci/devices/0000:04:00.0/driver')).rsplit('/',1)[-1]!='xe':
++            raise SessionError('B60_DRIVER_DRIFT')
++        if self._call(('cat','/sys/bus/pci/devices/0000:04:00.0/device'))!='0xe211':
++            raise SessionError('B60_DEVICE_DRIFT')
++        if not self._call(('readlink','-f','/sys/class/drm/renderD128/device')).endswith('/0000:04:00.0'):
++            raise SessionError('B60_RENDER_NODE_DRIFT')
++        memory=self._call(('awk','/MemAvailable:/ {print $2}','/proc/meminfo'))
++        disk=self._call(('df','--output=avail','-B1','/var/lib/local-ai-lab'))
++        if (not memory.isdigit() or int(memory)<4*1024*1024
++                or not disk.split()[-1].isdigit() or int(disk.split()[-1])<20*1024**3):
++            raise SessionError('QUALIFICATION_RESOURCE_HEADROOM')
++        for guest,pin in profile['guest_plans'].items():
++            path='/var/lib/local-ai-lab-entry/'+booking['booking_id']+'/plan.json'
++            if self._call(('pct','exec',guest,'--','sha256sum',path)).split()[0]!=pin:
++                raise SessionError('GUEST_PLAN_SOURCE_DRIFT')
++        for guest,rows in TRIGGERS.items():
++            for timer,service in rows.items():
++                raw=self._call(('pct','exec',guest,'--','systemctl','show',timer,
++                                '--property=Triggers','--value'))
++                if raw!=service: raise SessionError('TIMER_CONSUMER_INVENTORY_DRIFT')
++        self._call(('pvesh','get','/version','--output-format','json'))
++        self._call(('pct','exec','110','--','/usr/local/sbin/aster-llama-production-auth-probe'),30)
++        if self.gpu_users is None:
++            from full_inference_lab_runtime import _gpu_users
++            self.gpu_users=_gpu_users
++        users=self.gpu_users()
++        if len(users)>1 or any(not u.cgroup.endswith('/lxc/110/ns/system.slice/aster-llama.service')
++                               for u in users):
++            raise SessionError('UNDECLARED_B60_CONSUMER')
++        # Receipt contains identities only. Raw command output, credentials,
++        # journal contents and process command lines never enter durable logs.
++        self.store.write('admission.json',{'schema':'aster-exclusive-admission.v1',
++            'booking_id':booking['booking_id'],'observed_epoch':now,
++            'archive_receipt':proof.integrity_receipt,'whole_backup_job_verified':True,
++            'entry_gpu_holder_count':len(users),'qualification_only':True},immutable=True)
++        return True
+diff --git a/scripts/local-ai/lab_hours_exclusive_boundary.py b/scripts/local-ai/lab_hours_exclusive_boundary.py
+new file mode 100644
+index 000000000..e043d1cc3
+--- /dev/null
++++ b/scripts/local-ai/lab_hours_exclusive_boundary.py
+@@ -0,0 +1,180 @@
++"""Bind exclusive capacity to the existing host exclusion and durable locks.
++
++No model, service, timer, network or backup effect is performed here. The
++legacy lease.lock and shared operation marker survive owner loss and prevent
++supported entrypoints from admitting competing work during guardian recovery.
++"""
++from __future__ import annotations
++
++import hashlib
++import json
++import os
++from pathlib import Path
++import stat
++
++from host_exclusion import host_exclusion
++from lab_hours_reservations import ID_RE
++
++
++class BoundaryError(RuntimeError): pass
++
++
++class ExclusiveHostBoundary:
++    def __init__(self, root, operation, bookings, *, ready):
++        self.root=Path(root); self.operation=Path(operation)
++        self.bookings=bookings; self.ready=ready; self.exclusion=None
++
++    def prepare(self):
++        self.exclusion=host_exclusion(self.root)
++        self.exclusion.__enter__()
++        try:
++            if (self.ready() is not True or (self.root/'lease.json').exists()
++                    or (self.root/'lease.lock').exists() or self.operation.exists()
++                    or (self.root/'full-inference-drain.json').exists()
++                    or (self.root/'full-inference-drain.lock').exists()):
++                raise BoundaryError('SHARED_HOST_NOT_READY')
++        except BaseException:
++            self.close(); raise
++
++    def claim(self, booking_id, *, owner, claimant, entry_sha256):
++        if self.exclusion is None: raise BoundaryError('EXCLUSION_NOT_HELD')
++        if (not ID_RE.fullmatch(booking_id) or not ID_RE.fullmatch(owner)
++                or not ID_RE.fullmatch(claimant)
++                or len(entry_sha256)!=64 or any(c not in '0123456789abcdef' for c in entry_sha256)):
++            raise BoundaryError('CLAIM_BINDING_INVALID')
++        binding={'schema':'aster-exclusive-host-binding.v1','booking_id':booking_id,
++                 'owner':owner,'claimant':claimant,'entry_sha256':entry_sha256}
++        row=self.bookings.get(booking_id)
++        now=int(self.bookings.clock())
++        if (row.get('kind')!='exclusive-stack' or row.get('state')!='reserved'
++                or row.get('owner')!=owner or not row['start_epoch']<=now<=row['start_epoch']+120):
++            raise BoundaryError('BOOKING_NOT_CLAIMABLE')
++        lock=self.root/'lease.lock'
++        lock.mkdir(mode=0o700)
++        # Durable intent precedes the booking mutation. Never erase uncertainty
++        # on a partial claim; guardian reconciliation uses this exact binding.
++        self._create(lock/'exclusive.json',binding)
++        self._create(self.operation,binding)
++        try:
++            self.bookings.claim_exclusive(booking_id,owner=owner,claimant=claimant,
++                                          entry_sha256=entry_sha256)
++        except BaseException:
++            raise BoundaryError('CLAIM_UNCERTAIN_LOCKS_RETAINED') from None
++        return binding
++
++    def _create(self,path,binding):
++        fd=os.open(path,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
++        with os.fdopen(fd,'w') as stream:
++            json.dump(binding,stream,sort_keys=True); stream.flush(); os.fsync(stream.fileno())
++        fd=os.open(path.parent,os.O_RDONLY)
++        try: os.fsync(fd)
++        finally: os.close(fd)
++
++    def _read(self,path):
++        fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
++        try:
++            st=os.fstat(fd)
++            if (not stat.S_ISREG(st.st_mode) or st.st_uid!=os.geteuid()
++                    or st.st_nlink!=1 or stat.S_IMODE(st.st_mode)!=0o600 or st.st_size>4096):
++                raise BoundaryError('HOST_BINDING_CUSTODY')
++            return json.loads(os.read(fd,4097))
++        finally: os.close(fd)
++
++    def resume(self,binding):
++        self.exclusion=host_exclusion(self.root)
++        self.exclusion.__enter__()
++        try:
++            row=self.bookings.get(binding['booking_id'])
++            if (row.get('owner')!=binding['owner'] or row.get('claimant')!=binding['claimant']
++                    or row.get('entry_sha256')!=binding['entry_sha256']
++                    or row.get('state') not in {'claimed','complete','failed'}):
++                raise BoundaryError('BOOKING_BINDING_MISMATCH')
++            if (self.root/'lease.json').exists():
++                raise BoundaryError('OTHER_MANUAL_LEASE_PRESENT')
++            self._require_binding(binding,row)
++        except BaseException:
++            self.close(); raise
++
++    def reconcile_checkpointed(self,binding):
++        """Resolve owner loss before the durable 'guardian-armed' phase.
++
++        No stack effect can have occurred in this phase. A complete claim is
++        recovered normally; an unclaimed intent is cleaned only under the
++        shared exclusion and only if every extant marker belongs to us.
++        """
++        if self.exclusion is None:
++            self.exclusion=host_exclusion(self.root)
++            self.exclusion.__enter__()
++        row=self.bookings.get(binding['booking_id'])
++        if row.get('state')=='claimed':
++            self._require_binding(binding,row)
++            return 'claimed'
++        if row.get('state')!='reserved' or row.get('owner')!=binding['owner']:
++            raise BoundaryError('PRE_EFFECT_BOOKING_DRIFT')
++        paths=(self.operation,self.root/'lease.lock'/'exclusive.json')
++        present=[p for p in paths if p.exists()]
++        if present:
++            if (self.root/'lease.json').exists() or any(self._read(p)!=binding for p in present):
++                raise BoundaryError('PRE_EFFECT_OTHER_OWNER')
++            # Validate all markers before deleting any. Unknown lock-directory
++            # contents are deliberately retained rather than recursively erased.
++            lock=self.root/'lease.lock'
++            if lock.exists() and set(p.name for p in lock.iterdir())-{'exclusive.json'}:
++                raise BoundaryError('PRE_EFFECT_LOCK_CONTENT_DRIFT')
++            for path in present: path.unlink()
++            if lock.exists(): lock.rmdir()
++            for directory in {self.root,self.operation.parent}:
++                fd=os.open(directory,os.O_RDONLY)
++                try: os.fsync(fd)
++                finally: os.close(fd)
++        self.close()
++        return 'unclaimed'
++
++    def release(self,binding,*,verify_restored,success=True):
++        if self.exclusion is None: raise BoundaryError('EXCLUSION_NOT_HELD')
++        row=self.bookings.get(binding['booking_id'])
++        self._require_binding(binding,row)
++        if verify_restored() is not True:
++            raise BoundaryError('RESTORATION_NOT_VERIFIED_LOCKS_RETAINED')
++        receipts=self.root/'exclusive-releases'
++        receipts.mkdir(mode=0o700,exist_ok=True)
++        st=receipts.lstat()
++        if not stat.S_ISDIR(st.st_mode) or st.st_uid!=os.geteuid() or stat.S_IMODE(st.st_mode)!=0o700:
++            raise BoundaryError('RELEASE_RECEIPT_CUSTODY')
++        receipt=receipts/(binding['booking_id']+'.json')
++        if not receipt.exists(): self._create(receipt,binding)
++        elif self._read(receipt)!=binding: raise BoundaryError('RELEASE_RECEIPT_MISMATCH')
++        if row['state']=='claimed':
++            self.bookings.finish(binding['booking_id'],claimant=binding['claimant'],
++                success=success,result_code='RESTORED' if success else 'FAILED_RESTORED')
++        # The retained receipt and terminal booking bind partially removed locks
++        # after a crash; every resumed release still verifies restoration again.
++        if self.operation.exists(): self.operation.unlink()
++        lock=self.root/'lease.lock'; identity=lock/'exclusive.json'
++        if identity.exists(): identity.unlink()
++        if lock.exists(): lock.rmdir()
++        for directory in {self.root,self.operation.parent}:
++            fd=os.open(directory,os.O_RDONLY)
++            try: os.fsync(fd)
++            finally: os.close(fd)
++        self.close()
++        return True
++
++    def _require_binding(self,binding,row):
++        terminal=(row.get('state') in {'complete','failed'} and
++            row.get('result_code') in {'RESTORED','FAILED_RESTORED'})
++        receipt=self.root/'exclusive-releases'/(binding['booking_id']+'.json')
++        can_resume_cleanup=terminal and receipt.exists() and self._read(receipt)==binding
++        for path in (self.operation,self.root/'lease.lock'/'exclusive.json'):
++            if path.exists():
++                if self._read(path)!=binding: raise BoundaryError('HOST_BINDING_MISMATCH')
++            elif not can_resume_cleanup:
++                raise BoundaryError('HOST_BINDING_MISSING')
++        if (row.get('entry_sha256')!=binding['entry_sha256']
++                or row.get('owner')!=binding['owner'] or row.get('claimant')!=binding['claimant']):
++            raise BoundaryError('BOOKING_BINDING_MISMATCH')
++
++    def close(self):
++        if self.exclusion is not None:
++            self.exclusion.__exit__(None,None,None)
++            self.exclusion=None
+diff --git a/scripts/local-ai/lab_hours_exclusive_cli.py b/scripts/local-ai/lab_hours_exclusive_cli.py
+new file mode 100644
+index 000000000..bb7b1756d
+--- /dev/null
++++ b/scripts/local-ai/lab_hours_exclusive_cli.py
+@@ -0,0 +1,106 @@
++"""Host-local exclusive entry-restore qualification. Dormant until installed.
++
++run/watch/recover accept only the named private activation profile, never a
++command, model or path supplied through the reservation ledger.
++"""
++from __future__ import annotations
++import argparse
++import json
++import os
++from pathlib import Path
++import subprocess
++import time
++
++from lab_hours_exclusive_session import ExclusiveSession,SessionStore,SessionError,IDENTITY
++from lab_hours_exclusive_profile import load_profile
++from lab_hours_exclusive_admission import FreshAdmission
++from lab_hours_exclusive_guardian import guard
++from lab_hours_proxmox_adapter import ProxmoxEntryAdapter
++from lab_hours_owner_scope import OwnerScopes
++from lab_hours_reservations import ReservationStore
++
++ROOT=Path('/var/lib/local-ai-lab')
++PACKAGE=Path('/usr/local/libexec/local-ai-lease/exclusive-session')
++
++
++def runner(command,timeout):
++    # Never print/return stderr; errors can contain source-local configuration.
++    result=subprocess.run(command,capture_output=True,text=True,timeout=timeout,check=False)
++    return result.returncode,result.stdout
++
++
++def context(booking_id):
++    if not IDENTITY.fullmatch(booking_id): raise SessionError('CLI_BOOKING_IDENTITY')
++    if os.geteuid()!=0 or os.uname().sysname!='Linux' or os.uname().nodename!='proxmox':
++        raise SessionError('PROXMOX_ROOT_REQUIRED')
++    profile=load_profile(ROOT/'exclusive-activations'/(booking_id+'.json'),PACKAGE)
++    if profile['booking_id']!=booking_id: raise SessionError('ACTIVATION_BOOKING_MISMATCH')
++    store=SessionStore(ROOT/'exclusive-sessions'/booking_id,expected_uid=0)
++    bookings=ReservationStore(ROOT/'reservations',expected_uid=0)
++    scopes=OwnerScopes(runner,booking_id)
++    adapter=ProxmoxEntryAdapter(store,bookings,profile,runner=runner,
++        admission=FreshAdmission(runner,store),arm_guardian=scopes.arm)
++    return profile,store,bookings,scopes,adapter
++
++
++def operate(action,booking_id):
++    profile,store,bookings,scopes,adapter=context(booking_id)
++    session=ExclusiveSession(store,adapter)
++    try:
++        if action=='validate':
++            return {'state':'static-profile-valid','armed':False,'qualification_only':True}
++        if action=='launch':
++            booking=bookings.get(booking_id); now=int(time.time())
++            if (booking.get('owner')!=profile['owner'] or booking.get('kind')!='exclusive-stack'
++                    or booking.get('state')!='reserved'
++                    or not booking['start_epoch']<=now<=booking['start_epoch']+120):
++                raise SessionError('LAUNCH_BOOKING_WINDOW')
++            command=('systemd-run','--quiet','--unit='+scopes.owner,
++                '--property=Type=exec','--property=User=root',
++                '--property=KillMode=control-group','--property=Restart=no',
++                '--property=TimeoutStopSec=30',
++                '--property=RuntimeMaxSec='+str(booking['end_epoch']-now+300),
++                '/usr/bin/python3','-B',str(PACKAGE/'lab_hours_exclusive_cli.py'),
++                'run','--booking-id',booking_id)
++            if runner(command,15)[0]: raise SessionError('OWNER_LAUNCH_FAILED')
++            return {'state':'owner-launched','booking_id':booking_id,'qualification_only':True}
++        if action=='watch':
++            return guard(store,adapter,owner=profile['owner'],
++                         owner_alive=scopes.alive,fence_owner=scopes.fence)
++        if action=='recover':
++            if not scopes.fence({}): raise SessionError('OWNER_SCOPE_NOT_FENCED')
++            return session.recover(owner=profile['owner'])
++        if action!='run': raise SessionError('CLI_ACTION_INVALID')
++        fields=scopes._show()
++        if fields.get('MainPID')!=str(os.getpid()) or not scopes.alive({}):
++            raise SessionError('RUN_NOT_IN_EXACT_OWNER_SCOPE')
++        try:
++            session.begin(bookings.get(booking_id),owner=profile['owner'],
++                          trial_seconds=profile['trial_seconds'])
++            return session.run_trial(owner=profile['owner'])
++        except Exception:
++            # The guardian independently survives this owner. Best-effort local
++            # recovery is attempted once too, but failure is never a retry of
++            # admission or a model experiment.
++            if (store.root/'session.json').exists():
++                session.recover(owner=profile['owner'])
++            raise
++    finally: adapter.boundary.close()
++
++
++def main():
++    parser=argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('action',choices=('validate','launch','run','watch','recover'))
++    parser.add_argument('--booking-id',required=True)
++    args=parser.parse_args()
++    try:
++        result=operate(args.action,args.booking_id)
++        print(json.dumps(result,sort_keys=True)); return 0
++    except Exception as error:
++        # Fixed codes only; no exception string from subprocess, JSON, OS or
++        # configuration handling may leak into an AI-visible journal.
++        code=str(error) if isinstance(error,SessionError) else type(error).__name__
++        print(json.dumps({'state':'no_go','failure_code':code},sort_keys=True)); return 1
++
++
++if __name__=='__main__': raise SystemExit(main())
+diff --git a/scripts/local-ai/lab_hours_exclusive_guardian.py b/scripts/local-ai/lab_hours_exclusive_guardian.py
+index c8cc416b3..970a04d3a 100644
+--- a/scripts/local-ai/lab_hours_exclusive_guardian.py
++++ b/scripts/local-ai/lab_hours_exclusive_guardian.py
+@@ -23,6 +23,8 @@ def guard(store, adapter, *, owner, owner_alive, fence_owner,
+             raise SessionError('GUARDIAN_IDENTITY_MISMATCH')
+         if state['phase']=='released':
+             return {'state':'complete','recovery_attempted':False}
++        if state['phase']=='aborted-before-claim':
++            return {'state':'aborted-before-claim','recovery_attempted':False}
+         if state['phase']=='released-late':
+             raise SessionError('RESTORED_AFTER_DEADLINE')
+         now=clock()
+@@ -30,6 +32,8 @@ def guard(store, adapter, *, owner, owner_alive, fence_owner,
+             if fence_owner(state) is not True:
+                 raise SessionError('OWNER_SCOPE_NOT_FENCED')
+             result=ExclusiveSession(store,adapter,clock=clock).recover(owner=owner)
++            if result['phase']=='aborted-before-claim':
++                return {'state':'aborted-before-claim','recovery_attempted':False}
+             return {'state':'rescued','recovery_attempted':True,
+                     'production_restored':result['production_restored']}
+         sleep(min(5.,max(0.1,state['trial_deadline']-now)))
+diff --git a/scripts/local-ai/lab_hours_exclusive_profile.py b/scripts/local-ai/lab_hours_exclusive_profile.py
+new file mode 100644
+index 000000000..cbe233ba8
+--- /dev/null
++++ b/scripts/local-ai/lab_hours_exclusive_profile.py
+@@ -0,0 +1,78 @@
++"""Strict protected activation profile. No live probes or effects at import."""
++from __future__ import annotations
++import hashlib
++import json
++import os
++from pathlib import Path
++import re
++import stat
++
++from lab_hours_exclusive_session import IDENTITY, SHA, SessionError
++from lab_hours_unit_adapter import SCOPE
++
++
++def protected_bytes(path, *, uid=0, maximum=65536, executable=False):
++    path=Path(path)
++    # Root custody must extend to the complete parent chain, not just a file
++    # that could be exchanged through a writable or symlinked directory.
++    for parent in (path.parent,*path.parents[1:]):
++        info=parent.lstat()
++        if (not stat.S_ISDIR(info.st_mode) or info.st_uid!=uid
++                or info.st_mode & 0o022):
++            raise SessionError('PROFILE_PARENT_CUSTODY')
++    fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
++    try:
++        info=os.fstat(fd)
++        if (not stat.S_ISREG(info.st_mode) or info.st_uid!=uid or info.st_nlink!=1
++                or info.st_mode & 0o022 or info.st_size>maximum
++                or (not executable and stat.S_IMODE(info.st_mode)!=0o600)):
++            raise SessionError('PROFILE_FILE_CUSTODY')
++        return os.read(fd,maximum+1)
++    finally: os.close(fd)
++
++
++def validate_profile(value):
++    fields={'schema','owner','booking_id','trial_seconds','units','guest_plans',
++            'experiment','source_sha256','qualification_only'}
++    if not isinstance(value,dict) or set(value)!=fields:
++        raise SessionError('ACTIVATION_PROFILE_SCHEMA')
++    if (value['schema']!='aster-exclusive-activation.v1'
++            or value['owner']!='b60-stream-a'
++            or not isinstance(value['booking_id'],str)
++            or not IDENTITY.fullmatch(value['booking_id'])
++            or type(value['trial_seconds']) is not int
++            or not 1<=value['trial_seconds']<=1800):
++        raise SessionError('ACTIVATION_PROFILE_IDENTITY')
++    units=value['units']
++    if (not isinstance(units,list) or any(not isinstance(r,list) or len(r)!=2 for r in units)
++            or len(units)!=len(SCOPE) or set(map(tuple,units))!=SCOPE):
++        raise SessionError('COMPLETE_CONSUMER_INVENTORY_REQUIRED')
++    guests=value['guest_plans']
++    if (not isinstance(guests,dict) or set(guests)!={'104','110','114','115','116'}
++            or any(not isinstance(v,str) or not SHA.fullmatch(v) for v in guests.values())):
++        raise SessionError('GUEST_PLAN_PINS_REQUIRED')
++    sources=value['source_sha256']
++    if (not isinstance(sources,dict) or not sources
++            or any(not isinstance(k,str) or not re.fullmatch(r'[a-z][a-z0-9_]*\.py',k)
++                   or not isinstance(v,str) or not SHA.fullmatch(v) for k,v in sources.items())):
++        raise SessionError('CONTROLLER_SOURCE_PINS_REQUIRED')
++    # Initial activation is deliberately recovery qualification only. Supporting
++    # arbitrary model stacks requires a reviewed trial and mount recovery plan;
++    # a profile cannot smuggle an arbitrary script into this release.
++    if value['qualification_only'] is not True or value['experiment'] is not None:
++        raise SessionError('MODEL_TRIAL_NOT_YET_QUALIFIED')
++    return value
++
++
++def load_profile(path, source_root, *, uid=0):
++    value=validate_profile(json.loads(protected_bytes(path,uid=uid)))
++    for name,digest in value['source_sha256'].items():
++        raw=protected_bytes(Path(source_root)/name,uid=uid,maximum=262144,executable=True)
++        if hashlib.sha256(raw).hexdigest()!=digest:
++            raise SessionError('CONTROLLER_SOURCE_DRIFT')
++    # Pin every local Python dependency in the deployment directory. Otherwise
++    # hashing the entrypoint alone can silently select an unreviewed import.
++    actual={p.name for p in Path(source_root).glob('*.py')}
++    if actual!=set(value['source_sha256']):
++        raise SessionError('CONTROLLER_DEPENDENCY_SET_DRIFT')
++    return value
+diff --git a/scripts/local-ai/lab_hours_exclusive_session.py b/scripts/local-ai/lab_hours_exclusive_session.py
+index b93682739..110dd13c6 100644
+--- a/scripts/local-ai/lab_hours_exclusive_session.py
++++ b/scripts/local-ai/lab_hours_exclusive_session.py
+@@ -207,6 +207,7 @@ class ExclusiveSession:
+             state = self.store.read('session.json')
+             if state.get('schema') != 'aster-exclusive-session.v1' or state.get('owner') != owner:
+                 raise SessionError('RECOVERY_OWNER_MISMATCH')
++            if state.get('phase')=='aborted-before-claim': return state
+             if state.get('phase') not in {'checkpointed', 'guardian-armed', 'isolated',
+                     'trial-expired', 'trial-started', 'trial-failed', 'trial-complete',
+                     'restoring', 'restored', 'released', 'restored-late', 'released-late'}:
+@@ -218,6 +219,18 @@ class ExclusiveSession:
+                 return state
+             if state.get('phase') == 'released-late':
+                 raise SessionError('RESTORED_AFTER_DEADLINE')
++            if state.get('phase')=='checkpointed' and hasattr(self.adapter,'prepare_recovery'):
++                if self.adapter.prepare_recovery(state)=='unclaimed':
++                    # No unit/file/model effects preceded a successful claim.
++                    # Do not restart an entry snapshot over a later owner.
++                    state['production_restored']=False
++                    self._phase(state,'aborted-before-claim')
++                    return state
++            if 'trial_failed' not in state:
++                # Restoration success is not experiment success. Owner loss,
++                # partial admission, timeout or an uncertain attempt must not
++                # turn a booking green merely because recovery succeeded.
++                state['trial_failed']=state.get('phase')!='trial-complete'
+             # A missed SLA must not prohibit emergency restoration. This reserve
+             # permits cleanup only, never another trial or silent deadline reset.
+             cleanup_deadline=max(state['restore_deadline'],int(self.clock())+300)
+diff --git a/scripts/local-ai/lab_hours_file_checkpoint.py b/scripts/local-ai/lab_hours_file_checkpoint.py
+index 3a35fb55a..a388e42e9 100644
+--- a/scripts/local-ai/lab_hours_file_checkpoint.py
++++ b/scripts/local-ai/lab_hours_file_checkpoint.py
+@@ -26,15 +26,17 @@ def sha(path):
+ 
+ 
+ class FileCheckpoint:
+-    def __init__(self, root, *, allowed_roots, expected_uid=None):
++    def __init__(self, root, *, allowed_roots, allowed_files=(), expected_uid=None):
+         self.root=Path(root)
+         self.allowed=tuple(Path(p) for p in allowed_roots)
++        self.allowed_files=frozenset(Path(p) for p in allowed_files)
+         self.uid=os.geteuid() if expected_uid is None else expected_uid
+ 
+     def _target(self, raw):
+         path=Path(raw)
+         if (not path.is_absolute() or '..' in path.parts
+-                or not any(path != parent and parent in path.parents for parent in self.allowed)):
++                or (path not in self.allowed_files
++                    and not any(path != parent and parent in path.parents for parent in self.allowed))):
+             raise CheckpointError('TARGET_OUTSIDE_DECLARED_SCOPE')
+         for component in (path, *path.parents):
+             if component.is_symlink():
+@@ -64,6 +66,11 @@ class FileCheckpoint:
+                     st=os.fstat(fd)
+                     if not stat.S_ISREG(st.st_mode) or st.st_nlink!=1 or st.st_size>16*1024*1024:
+                         raise CheckpointError('TARGET_NOT_BOUNDED_REGULAR_FILE')
++                    if hasattr(os,'listxattr') and os.listxattr(fd):
++                        # This adapter restores uid/gid/mode/bytes, not ACLs or
++                        # security labels. Refuse unsupported metadata rather
++                        # than silently destroying it during atomic replace.
++                        raise CheckpointError('TARGET_EXTENDED_METADATA_UNSUPPORTED')
+                     backup=self.root/f'file-{index:03d}'
+                     out=os.open(backup,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
+                     with os.fdopen(out,'wb') as destination, os.fdopen(os.dup(fd),'rb') as source:
+diff --git a/scripts/local-ai/lab_hours_guest_checkpoint.py b/scripts/local-ai/lab_hours_guest_checkpoint.py
+new file mode 100644
+index 000000000..deda1783e
+--- /dev/null
++++ b/scripts/local-ai/lab_hours_guest_checkpoint.py
+@@ -0,0 +1,178 @@
++"""Root-local checkpoint endpoint; contents and credentials never leave guest.
++
++The plan is a protected declared mutation inventory, not a command supplied by
++a reservation. Only hashes and bounded result codes are emitted.
++"""
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++import os
++from pathlib import Path
++import stat
++import subprocess
++import time
++
++from lab_hours_file_checkpoint import FileCheckpoint, CheckpointError, sha
++
++ALLOWED_ROOTS=(Path('/etc/systemd/system'),Path('/opt/aster-agent'),
++               Path('/opt/aster-speech'),Path('/etc/local-ai'),Path('/etc/aster'),
++               Path('/etc/aster-speech'),Path('/etc/news-aggregator'))
++EXACT_CONFIG_FILES=frozenset({Path('/etc/aster-llama.env')})
++ARTIFACT_ROOTS=(Path('/opt'),Path('/var/lib'),Path('/mnt'),
++                Path('/usr/share/ollama/.ollama/models/blobs'))
++
++
++def private_json(path, *, uid=0):
++    fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
++    try:
++        st=os.fstat(fd)
++        if (not stat.S_ISREG(st.st_mode) or st.st_uid!=uid or st.st_nlink!=1
++                or stat.S_IMODE(st.st_mode)!=0o600 or st.st_size>65536):
++            raise CheckpointError('PRIVATE_PLAN_CUSTODY')
++        return json.loads(os.read(fd,65537))
++    finally: os.close(fd)
++
++
++def validate_plan(plan, *, artifact_roots=ARTIFACT_ROOTS):
++    if (not isinstance(plan,dict) or set(plan)!={'schema','files','immutable_artifacts'}
++            or plan['schema']!='aster-guest-entry-plan.v1'
++            or not isinstance(plan['files'],list)
++            or not isinstance(plan['immutable_artifacts'],dict)
++            or set(plan['immutable_artifacts']) not in (set(),{'model','runtime'})):
++        raise CheckpointError('GUEST_ENTRY_PLAN_SCHEMA')
++    for value in plan['immutable_artifacts'].values():
++        path=Path(value)
++        if (not path.is_absolute() or '..' in path.parts
++                or not any(root in path.parents for root in artifact_roots)
++                or any(component.is_symlink() for component in (path,*path.parents))):
++            raise CheckpointError('ARTIFACT_SCOPE')
++
++
++def artifact_identities(plan):
++    result={}
++    for role,raw in plan['immutable_artifacts'].items():
++        path=Path(raw)
++        st=path.lstat()
++        if not stat.S_ISREG(st.st_mode) or st.st_nlink!=1:
++            raise CheckpointError('IMMUTABLE_ARTIFACT_CUSTODY')
++        before=(st.st_dev,st.st_ino,st.st_size,st.st_mtime_ns,st.st_ctime_ns)
++        result[role]=sha(path)
++        after=path.stat()
++        if before!=(after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns,after.st_ctime_ns):
++            raise CheckpointError('IMMUTABLE_ARTIFACT_CHANGED')
++    return result
++
++
++def active_llama_artifacts():
++    """Project only model/executable identity from the live source-local PID.
++
++    Raw command-line arguments (which may include credentials) are never logged,
++    persisted or returned. Other runtime types need their own identity adapter.
++    """
++    result=subprocess.run(['systemctl','show','aster-llama.service','--property=MainPID','--value'],
++        capture_output=True,text=True,timeout=10,check=False)
++    if result.returncode or not result.stdout.strip().isdigit() or int(result.stdout.strip())<1:
++        raise CheckpointError('ACTIVE_ENTRY_PROCESS_UNAVAILABLE')
++    proc=Path('/proc')/result.stdout.strip()
++    before=(proc/'stat').read_text().rsplit(')',1)[1].split()[19]
++    if not any(line.endswith('/system.slice/aster-llama.service')
++               for line in (proc/'cgroup').read_text().splitlines()):
++        raise CheckpointError('ENTRY_PROCESS_SCOPE')
++    arguments=(proc/'cmdline').read_bytes().split(b'\0')
++    model=None
++    for index,argument in enumerate(arguments):
++        if argument in (b'--model',b'-m') and index+1<len(arguments): model=os.fsdecode(arguments[index+1])
++        elif argument.startswith(b'--model='): model=os.fsdecode(argument.partition(b'=')[2])
++    if not model: raise CheckpointError('ENTRY_MODEL_ARGUMENT_UNSUPPORTED')
++    result={'model':str(Path(model).resolve()),'runtime':str((proc/'exe').resolve())}
++    if before!=(proc/'stat').read_text().rsplit(')',1)[1].split()[19]:
++        raise CheckpointError('ENTRY_PROCESS_IDENTITY_CHANGED')
++    return result
++
++
++def bind_active_llama_entry(plan):
++    if active_llama_artifacts()!={role:str(Path(path).resolve())
++                                  for role,path in plan['immutable_artifacts'].items()}:
++        raise CheckpointError('ACTIVE_ENTRY_ARTIFACT_PLAN_MISMATCH')
++    return True
++
++
++def capture(plan, root, *, allowed_roots=ALLOWED_ROOTS, artifact_roots=ARTIFACT_ROOTS,
++            active_binding=None):
++    validate_plan(plan,artifact_roots=artifact_roots)
++    artifacts=artifact_identities(plan)
++    checkpoint=FileCheckpoint(root,allowed_roots=allowed_roots,
++                              allowed_files=EXACT_CONFIG_FILES if allowed_roots==ALLOWED_ROOTS else ())
++    identity=checkpoint.capture(plan['files'])
++    result={'schema':'aster-guest-entry-checkpoint.v1','checkpoint_sha256':identity,
++            'configuration_sha256':identity}
++    if plan['immutable_artifacts']:
++        result['active_process_verified']=active_binding is not None and active_binding(plan) is True
++    result.update({role+'_sha256':identity for role,identity in artifacts.items()})
++    return result
++
++
++def recover(plan, root, receipt, *, deadline, apply=False, clock=time.time,
++            allowed_roots=ALLOWED_ROOTS, artifact_roots=ARTIFACT_ROOTS):
++    validate_plan(plan,artifact_roots=artifact_roots)
++    if deadline<=clock(): raise CheckpointError('GUEST_RESTORE_DEADLINE')
++    actual=artifact_identities(plan)
++    if actual!={role:receipt[role+'_sha256'] for role in plan['immutable_artifacts']}:
++        raise CheckpointError('ENTRY_ARTIFACT_CHANGED_RECOVERY_COPY_REQUIRED')
++    checkpoint=FileCheckpoint(root,allowed_roots=allowed_roots,
++                              allowed_files=EXACT_CONFIG_FILES if allowed_roots==ALLOWED_ROOTS else ())
++    ok=checkpoint.restore(receipt['checkpoint_sha256']) if apply else checkpoint.verify(receipt['checkpoint_sha256'])
++    if deadline<=clock(): raise CheckpointError('GUEST_RESTORE_DEADLINE')
++    return {'verified':ok,'files_restored':apply,'artifact_identities_verified':True}
++
++
++def main():
++    parser=argparse.ArgumentParser()
++    parser.add_argument('action',choices=['capture','verify','restore'])
++    parser.add_argument('--plan',type=Path,required=True)
++    parser.add_argument('--checkpoint',type=Path,required=True)
++    parser.add_argument('--receipt',type=Path,required=True)
++    parser.add_argument('--deadline',type=int,required=True)
++    parser.add_argument('--effect-authorized',action='store_true')
++    parser.add_argument('--guest-id',choices=('104','110','114','115','116'),required=True)
++    args=parser.parse_args()
++    try:
++        if os.geteuid()!=0: raise CheckpointError('ROOT_REQUIRED')
++        parent=args.checkpoint.parent
++        if (parent.parent!=Path('/var/lib/local-ai-lab-entry')
++                or args.plan.parent!=parent or args.receipt.parent!=parent):
++            raise CheckpointError('CHECKPOINT_PATH_SCOPE')
++        for directory in (parent,parent.parent):
++            st=directory.lstat()
++            if not stat.S_ISDIR(st.st_mode) or st.st_uid!=0 or st.st_mode&0o077:
++                raise CheckpointError('CHECKPOINT_DIRECTORY_CUSTODY')
++        if args.action in {'capture','restore'} and not args.effect_authorized:
++            raise CheckpointError('CHECKPOINT_EFFECT_NOT_AUTHORIZED')
++        if time.time()>=args.deadline: raise CheckpointError('GUEST_RESTORE_DEADLINE')
++        plan=private_json(args.plan)
++        if args.action=='capture':
++            from lab_hours_prepare_entry_plan import current_plan
++            if plan!=current_plan(args.guest_id):
++                raise CheckpointError('LIVE_CONFIGURATION_INVENTORY_DRIFT')
++            result=capture(plan,args.checkpoint,active_binding=bind_active_llama_entry)
++            if plan['immutable_artifacts'] and result.get('active_process_verified') is not True:
++                raise CheckpointError('ACTIVE_ENTRY_IDENTITY_NOT_VERIFIED')
++            fd=os.open(args.receipt,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
++            with os.fdopen(fd,'w') as stream:
++                json.dump(result,stream,sort_keys=True); stream.flush(); os.fsync(stream.fileno())
++        else:
++            result=recover(plan,args.checkpoint,private_json(args.receipt),
++                deadline=args.deadline,apply=args.action=='restore')
++            if args.action=='verify' and plan['immutable_artifacts']:
++                if bind_active_llama_entry(plan) is not True:
++                    raise CheckpointError('RESTORED_PROCESS_IDENTITY_NOT_VERIFIED')
++        print(json.dumps(result,sort_keys=True)); return 0
++    except Exception as exc:
++        # Never log paths, command-line material or file contents on failure.
++        code=str(exc) if isinstance(exc,CheckpointError) else type(exc).__name__
++        print(json.dumps({'state':'no_go','code':code},sort_keys=True)); return 1
++
++
++if __name__=='__main__': raise SystemExit(main())
+diff --git a/scripts/local-ai/lab_hours_owner_scope.py b/scripts/local-ai/lab_hours_owner_scope.py
+new file mode 100644
+index 000000000..4937e7a4b
+--- /dev/null
++++ b/scripts/local-ai/lab_hours_owner_scope.py
+@@ -0,0 +1,56 @@
++"""Independent host-local owner/watchdog systemd scopes with exact names."""
++from __future__ import annotations
++import time
++from lab_hours_exclusive_session import IDENTITY,SessionError
++
++
++class OwnerScopes:
++    def __init__(self,runner,booking_id,*,clock=time.time):
++        if not IDENTITY.fullmatch(booking_id): raise SessionError('OWNER_SCOPE_IDENTITY')
++        self.runner,self.booking_id,self.clock=runner,booking_id,clock
++        self.owner='b60-exclusive-owner-'+booking_id+'.service'
++        self.guardian='b60-exclusive-guardian-'+booking_id+'.service'
++
++    def _show(self):
++        code,raw=self.runner(('systemctl','show',self.owner,'--no-pager',
++            '--property=LoadState,ActiveState,MainPID,TasksCurrent'),10)
++        if len(raw)>4096: raise SessionError('OWNER_SCOPE_OBSERVATION')
++        fields=dict(line.split('=',1) for line in raw.splitlines() if '=' in line)
++        if code or set(fields)!={'LoadState','ActiveState','MainPID','TasksCurrent'}:
++            raise SessionError('OWNER_SCOPE_OBSERVATION')
++        return fields
++
++    def alive(self,state):
++        fields=self._show()
++        return (fields['LoadState']=='loaded' and fields['ActiveState'] in {'active','activating'}
++            and fields['MainPID'].isdigit() and int(fields['MainPID'])>0
++            and fields['TasksCurrent'].isdigit() and int(fields['TasksCurrent'])>0)
++
++    def fence(self,state):
++        # No restart and no wildcard kill. systemd owns the exact cgroup and
++        # KillMode=control-group is required by the launcher.
++        code,_=self.runner(('systemctl','stop',self.owner),30)
++        if code: return False
++        fields=self._show()
++        return (fields['ActiveState'] in {'inactive','failed'} and fields['MainPID']=='0'
++                and fields['TasksCurrent'] in {'0','','[not set]'})
++
++    def arm(self,state,profile):
++        remaining=int(state['restore_deadline']-self.clock())
++        if remaining<=900: raise SessionError('GUARDIAN_RECOVERY_WINDOW')
++        # A fixed installed entry point, never a command from the reservation.
++        command=('systemd-run','--quiet','--unit='+self.guardian,
++            '--property=Type=exec','--property=KillMode=control-group',
++            '--property=Restart=no','--property=TimeoutStopSec=30',
++            '--property=RuntimeMaxSec='+str(remaining+600),
++            '/usr/bin/python3','-B',
++            '/usr/local/libexec/local-ai-lease/exclusive-session/lab_hours_exclusive_cli.py',
++            'watch','--booking-id',self.booking_id)
++        code,_=self.runner(command,15)
++        if code: return False
++        code,raw=self.runner(('systemctl','show',self.guardian,'--no-pager',
++            '--property=ActiveState,MainPID,KillMode,Restart'),10)
++        fields=dict(line.split('=',1) for line in raw.splitlines() if '=' in line)
++        return (code==0 and fields.get('ActiveState')=='active'
++            and fields.get('MainPID','').isdigit() and int(fields['MainPID'])>0
++            and fields.get('KillMode')=='control-group' and fields.get('Restart')=='no')
+diff --git a/scripts/local-ai/lab_hours_prepare_entry_plan.py b/scripts/local-ai/lab_hours_prepare_entry_plan.py
+new file mode 100644
+index 000000000..9ac0134b6
+--- /dev/null
++++ b/scripts/local-ai/lab_hours_prepare_entry_plan.py
+@@ -0,0 +1,100 @@
++"""Prepare content-free guest-local plans; no configuration bytes are copied.
++
++The executable endpoint is metadata-only. Actual recovery copies are created
++later, after booked admission; secrets remain in the same protected guest.
++"""
++from __future__ import annotations
++import argparse
++import hashlib
++import json
++import os
++from pathlib import Path
++import re
++import subprocess
++
++from lab_hours_unit_adapter import SCOPE
++from lab_hours_guest_checkpoint import (active_llama_artifacts,ALLOWED_ROOTS,
++    EXACT_CONFIG_FILES,validate_plan)
++from lab_hours_file_checkpoint import FileCheckpoint,CheckpointError
++
++
++def configuration_files(raw):
++    files=set(); fragments=0
++    for line in raw.splitlines():
++        key,sep,value=line.partition('=')
++        if not sep: raise CheckpointError('CONFIGURATION_METADATA_MALFORMED')
++        if key=='FragmentPath':
++            if not value: raise CheckpointError('CONFIGURATION_FRAGMENT_MISSING')
++            fragments+=1; files.add(value)
++        elif key=='DropInPaths': files.update(value.split())
++        elif key=='EnvironmentFiles':
++            if value:
++                match=re.fullmatch(r'(/[^\s]+) \(ignore_errors=(?:yes|no)\)',value)
++                if not match: raise CheckpointError('ENVIRONMENT_PATH_METADATA_UNSUPPORTED')
++                files.add(match[1])
++        else: raise CheckpointError('CONFIGURATION_METADATA_UNSUPPORTED')
++    if fragments!=1: raise CheckpointError('CONFIGURATION_FRAGMENT_AMBIGUOUS')
++    # Pure lexical scope validation here permits offline cross-platform tests.
++    # The guest-local checkpoint independently rejects symlink targets/parents
++    # using its actual Linux filesystem immediately before copying anything.
++    for raw_path in files:
++        path=Path(raw_path)
++        if (not path.is_absolute() or '..' in path.parts
++                or (path not in EXACT_CONFIG_FILES
++                    and not any(root in path.parents for root in ALLOWED_ROOTS))):
++            raise CheckpointError('TARGET_OUTSIDE_DECLARED_SCOPE')
++    return files
++
++
++def current_plan(guest,*,runner=None,artifacts=None):
++    if runner is None:
++        def runner(command):
++            result=subprocess.run(command,capture_output=True,text=True,timeout=10,check=False)
++            if result.returncode: raise CheckpointError('CONFIGURATION_METADATA_FAILED')
++            return result.stdout
++    units=sorted(unit for owner,unit in SCOPE if owner==guest)
++    if not units: raise CheckpointError('GUEST_PLAN_SCOPE')
++    files=set()
++    for unit in units:
++        raw=runner(('systemctl','show',unit,'--no-pager',
++                    '--property=FragmentPath,DropInPaths,EnvironmentFiles'))
++        if len(raw)>32768: raise CheckpointError('CONFIGURATION_METADATA_OVERSIZED')
++        files.update(configuration_files(raw))
++    plan={'schema':'aster-guest-entry-plan.v1','files':sorted(files),
++          'immutable_artifacts':(active_llama_artifacts() if artifacts is None else artifacts)
++                                if guest=='110' else {}}
++    validate_plan(plan)
++    return plan
++
++
++def main():
++    parser=argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--guest-id',choices=('104','110','114','115','116'),required=True)
++    parser.add_argument('--booking-id',required=True)
++    args=parser.parse_args()
++    try:
++        if os.geteuid()!=0 or not re.fullmatch(r'b60-exclusive-\d{8}',args.booking_id):
++            raise CheckpointError('PREPARATION_IDENTITY')
++        plan=current_plan(args.guest_id)
++        data=json.dumps(plan,sort_keys=True,separators=(',',':')).encode()
++        root=Path('/var/lib/local-ai-lab-entry'); root.mkdir(mode=0o700,exist_ok=True)
++        parent=root/args.booking_id; parent.mkdir(mode=0o700,exist_ok=True)
++        for directory in (root,parent):
++            info=directory.lstat()
++            if directory.is_symlink() or info.st_uid!=0 or info.st_mode&0o077:
++                raise CheckpointError('PLAN_DIRECTORY_CUSTODY')
++        target=parent/'plan.json'
++        fd=os.open(target,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
++        with os.fdopen(fd,'wb') as stream:
++            stream.write(data); stream.flush(); os.fsync(stream.fileno())
++        fd=os.open(parent,os.O_RDONLY)
++        try: os.fsync(fd)
++        finally: os.close(fd)
++        print(json.dumps({'state':'prepared','plan_sha256':hashlib.sha256(data).hexdigest(),
++                          'configuration_contents_copied':False})); return 0
++    except Exception as error:
++        code=str(error) if isinstance(error,CheckpointError) else type(error).__name__
++        print(json.dumps({'state':'no_go','code':code})); return 1
++
++
++if __name__=='__main__': raise SystemExit(main())
+diff --git a/scripts/local-ai/lab_hours_proxmox_adapter.py b/scripts/local-ai/lab_hours_proxmox_adapter.py
+new file mode 100644
+index 000000000..f8146c43d
+--- /dev/null
++++ b/scripts/local-ai/lab_hours_proxmox_adapter.py
+@@ -0,0 +1,211 @@
++"""Combined Proxmox adapter for a protected, source-pinned session profile.
++
++No code runs at import. Session.begin enforces the booked interval before
++calling admission. Guest checkpoint contents stay guest-local.
++"""
++from __future__ import annotations
++import hashlib
++import json
++from pathlib import Path
++import subprocess
++import time
++
++from lab_hours_exclusive_session import canonical,SessionError
++from lab_hours_exclusive_boundary import ExclusiveHostBoundary
++from lab_hours_unit_adapter import ProxmoxUnitAdapter
++from lab_hours_timer_resume import CalendarTimerResume
++
++
++class ProxmoxEntryAdapter:
++    def __init__(self,store,bookings,profile,*,runner,admission,arm_guardian,
++                 clock=time.time,root=Path('/var/lib/local-ai-lab'),
++                 operation=Path('/run/local-ai-lab-operation.lock'),gpu_users=None):
++        self.store,self.bookings,self.profile=store,bookings,profile
++        self.runner,self.admission,self.arm=runner,admission,arm_guardian
++        self.clock=clock
++        self.units=ProxmoxUnitAdapter(runner,clock=clock)
++        self.timers=CalendarTimerResume(self.units)
++        self.boundary=ExclusiveHostBoundary(root,operation,bookings,ready=self._ready)
++        self.private=None
++        self.gpu_users=gpu_users
++
++    def _call(self,command,deadline,maximum=120):
++        remaining=deadline-self.clock()
++        if remaining<=0: raise SessionError('HOST_ADAPTER_DEADLINE')
++        code,output=self.runner(tuple(command),min(maximum,remaining))
++        if code: raise SessionError('HOST_ADAPTER_COMMAND_FAILED')
++        return output
++
++    def _ready(self):
++        code,output=self.runner(('/usr/local/sbin/local-ai-lease','status'),10)
++        try: value=json.loads(output)
++        except (TypeError,ValueError): return False
++        return code==0 and value in ('ready',{'state':'ready'})
++
++    def _guest(self,guest,action,deadline):
++        booking=self.private['booking_id']
++        parent='/var/lib/local-ai-lab-entry/'+booking
++        for name in ('lab_hours_guest_checkpoint.py','lab_hours_file_checkpoint.py',
++                     'lab_hours_unit_adapter.py','lab_hours_prepare_entry_plan.py'):
++            path='/usr/local/libexec/local-ai-lease/entry-checkpoint/'+name
++            raw=self._call(('pct','exec',guest,'--','sha256sum',path),deadline,10)
++            if raw.split()[:1]!=[self.profile['source_sha256'][name]]:
++                raise SessionError('GUEST_CHECKPOINT_SOURCE_DRIFT')
++        command=('pct','exec',guest,'--','/usr/bin/python3','-B',
++            '/usr/local/libexec/local-ai-lease/entry-checkpoint/lab_hours_guest_checkpoint.py',
++            action,'--guest-id',guest,'--plan',parent+'/plan.json','--checkpoint',parent+'/files',
++            '--receipt',parent+'/receipt.json','--deadline',str(int(deadline)))
++        if action in {'capture','restore'}: command+=('--effect-authorized',)
++        try: value=json.loads(self._call(command,deadline))
++        except ValueError: raise SessionError('GUEST_RECEIPT_MALFORMED') from None
++        if not isinstance(value,dict) or value.get('state')=='no_go':
++            raise SessionError('GUEST_CHECKPOINT_FAILED')
++        return value
++
++    def _mount_identity(self,deadline):
++        raw=self._call(('pct','config','110','--current'),deadline,10)
++        # Raw configuration never leaves the root-local adapter. A workload in
++        # this release may add no mount/device changes; drift blocks release.
++        rows=[line for line in raw.splitlines() if
++              line.startswith(('mp','rootfs:','dev','lxc.mount','lxc.cgroup'))]
++        return hashlib.sha256('\n'.join(sorted(rows)).encode()).hexdigest()
++
++    def admit(self,booking):
++        self.boundary.prepare()
++        try:
++            if self.admission(booking,self.profile) is not True:
++                raise SessionError('SOURCE_ADMISSION_FAILED')
++            self.private={'schema':'aster-proxmox-entry.v1','booking_id':booking['booking_id'],
++                'owner':booking['owner'],'end_epoch':booking['end_epoch'],
++                'claimant':'b60-'+hashlib.sha256(booking['booking_id'].encode()).hexdigest()[:20]}
++            return True
++        except BaseException:
++            self.boundary.close(); raise
++
++    def capture(self):
++        deadline=self.private['end_epoch']-900
++        rows=self.units.capture([tuple(row) for row in self.profile['units']],deadline)
++        receipts={guest:self._guest(guest,'capture',deadline) for guest in self.profile['guest_plans']}
++        main=receipts['110']
++        if main.get('active_process_verified') is not True:
++            raise SessionError('ENTRY_MODEL_PROCESS_NOT_BOUND')
++        self.private.update(units=rows,guest_receipts=receipts,
++                            mount_identity=self._mount_identity(deadline),profile=self.profile)
++        self.store.write('adapter.json',self.private,immutable=True)
++        configuration=hashlib.sha256(canonical({'units':rows,'receipts':receipts})).hexdigest()
++        return {'schema':'aster-entry-snapshot.v1','model_sha256':main['model_sha256'],
++            'runtime_sha256':main['runtime_sha256'],'configuration_sha256':configuration,
++            'checkpoint_sha256':hashlib.sha256(canonical(self.private)).hexdigest(),
++            'units':[{'guest':r['guest'],'unit':r['unit'],'active':r['active']!='inactive',
++                      'enabled':r['enablement'] in {'enabled','enabled-runtime'},
++                      'runtime_masked':r['enablement']=='masked-runtime'} for r in rows],
++            'mounts':[{'identity_sha256':self.private['mount_identity'],'present':True,'readonly':False}]}
++
++    def verify_checkpoint(self,entry):
++        if self.private is None: self.private=self.store.read('adapter.json')
++        if hashlib.sha256(canonical(self.private)).hexdigest()!=entry['checkpoint_sha256']:
++            return False
++        return all(self._guest(g,'verify',self.private['end_epoch']-900).get('verified') is True
++                   for g in self.profile['guest_plans'])
++
++    def arm_guardian(self,state):
++        # The independent watchdog is started before the durable claim. Its
++        # entry point must distinguish unclaimed/no-effects from claimed work.
++        if self.arm(state,self.profile) is not True: return False
++        binding=self.boundary.claim(state['booking_id'],owner=state['owner'],
++            claimant=self.private['claimant'],entry_sha256=state['entry_sha256'])
++        self.private['binding']=binding
++        self.store.write('adapter.json',self.private)
++        return True
++
++    def isolate(self,state):
++        if self.units.isolate(self.private['units'],state['trial_deadline']) is not True:
++            return False
++        if self.gpu_users is not None: return not self.gpu_users()
++        from full_inference_lab_runtime import _gpu_users
++        return not _gpu_users()
++
++    def execute(self,state,deadline):
++        experiment=self.profile.get('experiment')
++        if experiment is None:
++            return True  # Explicit restore-only qualification, not a model result.
++        path=experiment['guest_script']; expected=experiment['sha256']
++        raw=self._call(('pct','exec','110','--','sha256sum',path),deadline,30)
++        if raw.split()[0]!=expected: raise SessionError('TRIAL_SOURCE_DRIFT')
++        unit='b60-exclusive-trial-'+state['booking_id']+'.service'
++        command=('pct','exec','110','--','systemd-run','--quiet','--wait','--collect',
++            '--unit='+unit,'--property=KillMode=control-group',
++            '--property=RuntimeMaxSec='+str(max(1,int(deadline-self.clock()))),
++            '/usr/bin/python3','-B',path,'--booking-id',state['booking_id'],
++            '--deadline',str(int(deadline)))
++        # Do not echo model output. Synthetic/private captures remain guest-local.
++        self._call(command,deadline,maximum=1800)
++        return True
++
++    def _load(self):
++        if self.private is None: self.private=self.store.read('adapter.json')
++        self.profile=self.private['profile']
++        if self.boundary.exclusion is None:
++            self.boundary.resume(self.private['binding'])
++
++    def prepare_recovery(self,state):
++        if state['phase']!='checkpointed': return 'claimed'
++        if self.private is None: self.private=self.store.read('adapter.json')
++        binding={'schema':'aster-exclusive-host-binding.v1',
++            'booking_id':state['booking_id'],'owner':state['owner'],
++            'claimant':self.private['claimant'],'entry_sha256':state['entry_sha256']}
++        result=self.boundary.reconcile_checkpointed(binding)
++        if result=='claimed' and self.private.get('binding')!=binding:
++            # Covers a crash after the ledger claim but before adapter.json was
++            # updated. Both canonical markers and the ledger were just checked.
++            self.private['binding']=binding
++            self.store.write('adapter.json',self.private)
++        return result
++
++    def fence_experiments(self,state):
++        self._load()
++        deadline=max(state['restore_deadline'],self.clock()+300)
++        unit='b60-exclusive-trial-'+state['booking_id']+'.service'
++        self.runner(('pct','exec','110','--','systemctl','stop',unit),min(30,deadline-self.clock()))
++        code,raw=self.runner(('pct','exec','110','--','systemctl','show',unit,
++                       '--property=LoadState,MainPID,TasksCurrent'),min(10,deadline-self.clock()))
++        if len(raw)>4096: return False
++        fields=dict(line.split('=',1) for line in raw.splitlines() if '=' in line)
++        absent=code in {0,1} and fields.get('LoadState')=='not-found'
++        empty=code==0 and fields.get('MainPID')=='0' and fields.get('TasksCurrent') in {'','0','[not set]'}
++        if not absent and not empty: return False
++        # Re-entry may interrupt a partial restoration. Quiesce every declared
++        # caller/timer again before recovering configuration bytes, not just
++        # the backend. This also leaves calendar timers stopped for safe
++        # no-catch-up rearm after an interrupted previous start sequence.
++        if self.units.isolate(self.private['units'],deadline) is not True: return False
++        if self.gpu_users is None:
++            from full_inference_lab_runtime import _gpu_users
++            return not _gpu_users()
++        return not self.gpu_users()
++
++    def restore(self,entry,deadline):
++        self._load()
++        if self._mount_identity(deadline)!=self.private['mount_identity']:
++            raise SessionError('MOUNT_DRIFT_REQUIRES_DECLARED_RECOVERY')
++        for guest in self.profile['guest_plans']:
++            if self._guest(guest,'restore',deadline).get('verified') is not True: return False
++        return self.units.restore(self.private['units'],deadline,
++            configuration_restored=True,timer_resume_safe=self.timers)
++
++    def verify_entry(self,entry):
++        self._load(); deadline=max(self.private['end_epoch'],self.clock()+120)
++        if self._mount_identity(deadline)!=self.private['mount_identity']: return False
++        if not self.units.verify(self.private['units'],deadline): return False
++        for guest in self.profile['guest_plans']:
++            if self._guest(guest,'verify',deadline).get('verified') is not True: return False
++        if any(r['guest']=='110' and r['unit']=='aster-llama.service' and r['active']=='active'
++               for r in self.private['units']):
++            self._call(('pct','exec','110','--','/usr/local/sbin/aster-llama-production-auth-probe'),deadline,30)
++        return True
++
++    def release(self,state):
++        entry=self.store.read('entry.json')
++        return self.boundary.release(self.private['binding'],
++            verify_restored=lambda:self.verify_entry(entry),
++            success=not state.get('deadline_missed',False) and not state.get('trial_failed',True))
+diff --git a/scripts/local-ai/lab_hours_reservations.py b/scripts/local-ai/lab_hours_reservations.py
+index a3be86474..cbb72b91f 100644
+--- a/scripts/local-ai/lab_hours_reservations.py
++++ b/scripts/local-ai/lab_hours_reservations.py
+@@ -186,6 +186,23 @@ class ReservationStore:
+             self._write_unlocked(value)
+             return value
+ 
++    def claim_exclusive(self, booking_id, *, owner, claimant, entry_sha256):
++        """Claim capacity only through the entry-checkpoint controller."""
++        if not ID_RE.fullmatch(claimant) or not re.fullmatch('[0-9a-f]{64}',entry_sha256):
++            raise ReservationError('exclusive claim identity is invalid')
++        with self.locked():
++            value=self._read_unlocked(self._path(booking_id))
++            now=int(self.clock())
++            if (value.get('kind')!='exclusive-stack' or value.get('state')!='reserved'
++                    or value.get('owner')!=owner):
++                raise ReservationError('exclusive booking owner or state mismatch')
++            if not value['start_epoch']<=now<=value['start_epoch']+120:
++                raise ReservationError('exclusive booking is outside its claim window')
++            value.update(state='claimed',claimant=claimant,claimed_epoch=now,
++                         entry_sha256=entry_sha256)
++            self._write_unlocked(value)
++            return value
++
+     def cancel(self, booking_id: str) -> dict[str, object]:
+         with self.locked():
+             value = self._read_unlocked(self._path(booking_id))
+diff --git a/scripts/local-ai/lab_hours_timer_resume.py b/scripts/local-ai/lab_hours_timer_resume.py
+new file mode 100644
+index 000000000..dddc717b4
+--- /dev/null
++++ b/scripts/local-ai/lab_hours_timer_resume.py
+@@ -0,0 +1,34 @@
++"""Explicit no-catch-up rearm for declared calendar timers only.
++
++systemd.timer documents clean --what=state for its persistent timestamp cache.
++This records a deliberately skipped interval, never a successful application job.
++Monotonic/boot-triggered timers require a separate reviewed resume policy.
++"""
++from __future__ import annotations
++
++from lab_hours_unit_adapter import UnitStateError
++
++
++class CalendarTimerResume:
++    def __init__(self, units): self.units=units; self.skipped=[]
++
++    def __call__(self,row,deadline):
++        if not row['unit'].endswith('.timer') or row['active']!='active':
++            raise UnitStateError('TIMER_RESUME_IDENTITY')
++        observed=self.units.observe(row['guest'],row['unit'],deadline)
++        if observed['ActiveState']!='inactive':
++            raise UnitStateError('TIMER_MUST_BE_STOPPED_BEFORE_REARM')
++        code,output=self.units.call(row['guest'],row['unit'],('show','--no-pager',
++            '--property=Persistent,TimersCalendar,TimersMonotonic'),deadline)
++        if code: raise UnitStateError('TIMER_RESUME_OBSERVATION')
++        fields={line.partition('=')[0]:line.partition('=')[2] for line in output.splitlines()}
++        if (set(fields)!={'Persistent','TimersCalendar','TimersMonotonic'}
++                or fields['Persistent'] not in {'yes','no'}
++                or not fields['TimersCalendar']
++                or fields['TimersMonotonic'] not in {'','[]'}):
++            raise UnitStateError('TIMER_RESUME_PROFILE_UNSUPPORTED')
++        if fields['Persistent']=='yes':
++            self.units.effect(row,('clean','--what=state'),deadline)
++            self.skipped.append({'guest':row['guest'],'unit':row['unit'],
++                'policy':'skip-missed-calendar-events','job_success_claimed':False})
++        return True
+diff --git a/scripts/local-ai/lab_hours_unit_adapter.py b/scripts/local-ai/lab_hours_unit_adapter.py
+index 622d23e28..52e1be7df 100644
+--- a/scripts/local-ai/lab_hours_unit_adapter.py
++++ b/scripts/local-ai/lab_hours_unit_adapter.py
+@@ -7,6 +7,8 @@ SCOPE = {
+     ('104','aster-agent.service'), ('110','aster-llama.service'),
+     ('116','aster-speech.service'), ('114','news-aggregator-ingest.timer'),
+     ('114','news-aggregator-digest.timer'), ('116','epub-narration-worker.timer'),
++    ('114','news-aggregator-ingest.service'), ('114','news-aggregator-digest.service'),
++    ('114','news-aggregator-ui.service'),
+     ('116','epub-narration-worker.service'), ('115','paperless-summary.timer'),
+     ('115','paperless-summary.service'), ('115','paperless-summary-broker.service'),
+ }
+@@ -74,7 +76,8 @@ class ProxmoxUnitAdapter:
+     def isolate(self, entry, deadline):
+         # All callers/timers before the inference backend. Static workers are
+         # stopped, not runtime-masked (systemd oneshot masking is not portable).
+-        order=sorted(entry,key=lambda r:r['unit']=='aster-llama.service')
++        order=sorted(entry,key=lambda r:(r['unit']=='aster-llama.service',
++                                        not r['unit'].endswith('.timer')))
+         for row in order:
+             current=self.observe(row['guest'],row['unit'],deadline)
+             if current['UnitFileState'] in {'static','indirect'}:
+@@ -93,7 +96,8 @@ class ProxmoxUnitAdapter:
+                 timer_resume_safe):
+         if configuration_restored is not True:
+             raise UnitStateError('RESTORE_FILES_BEFORE_SERVICES')
+-        if any(r['unit'].endswith('.timer') and r['active']=='active' for r in entry) and timer_resume_safe is not True:
++        if (any(r['unit'].endswith('.timer') and r['active']=='active' for r in entry)
++                and timer_resume_safe is not True and not callable(timer_resume_safe)):
+             raise UnitStateError('NO_REPLAY_TIMER_PROOF_REQUIRED')
+         # Explicitly reload recovered unit files before evaluating enablement.
+         for guest in sorted({r['guest'] for r in entry}):
+@@ -115,6 +119,9 @@ class ProxmoxUnitAdapter:
+                 # never convert them into enabled services by assumption.
+                 args=('enable',) if state=='enabled' else (('disable',) if state=='disabled' else ('enable','--runtime'))
+                 self.effect(row,args,deadline)
++            if row['unit'].endswith('.timer') and row['active']=='active' and callable(timer_resume_safe):
++                if timer_resume_safe(row,deadline) is not True:
++                    raise UnitStateError('NO_REPLAY_TIMER_REARM_FAILED')
+             self.effect(row,('start','--no-block') if row['active']=='activating'
+                         else (('start',) if row['active']=='active' else ('stop',)),deadline)
+         return self.verify(entry,deadline)
+diff --git a/scripts/local-ai/probe_lab_hours_entry_inventory.py b/scripts/local-ai/probe_lab_hours_entry_inventory.py
+new file mode 100644
+index 000000000..3e202b34c
+--- /dev/null
++++ b/scripts/local-ai/probe_lab_hours_entry_inventory.py
+@@ -0,0 +1,43 @@
++"""Read only current guest metadata using an explicitly staged source directory.
++
++Requires the helper packet already staged in each named guest. No checkpoint,
++activation, service operation, model request, or secret-bearing file read.
++"""
++import argparse
++import json
++import re
++import subprocess
++
++
++def main():
++    parser=argparse.ArgumentParser(description=__doc__); parser.add_argument('--staging',required=True)
++    args=parser.parse_args()
++    if not re.fullmatch(r'/root/b60-exclusive-probe-20261029\.[a-zA-Z0-9]+',args.staging):
++        raise SystemExit('STAGING_IDENTITY')
++    script='''import hashlib,json,sys
++sys.path.insert(0,sys.argv[1])
++from lab_hours_prepare_entry_plan import current_plan
++from lab_hours_file_checkpoint import CheckpointError
++try:
++    p=current_plan(sys.argv[2])
++    print(json.dumps({"guest":sys.argv[2],"configuration_file_count":len(p["files"]),
++        "plan_sha256":hashlib.sha256(json.dumps(p,sort_keys=True,separators=(",",":")).encode()).hexdigest(),
++        "model_runtime_bound":bool(p["immutable_artifacts"]),"configuration_contents_read":False}))
++except Exception as error:
++    print(json.dumps({"state":"no_go","failure_code":str(error) if isinstance(error,CheckpointError) else type(error).__name__}))
++    raise SystemExit(1)
++'''
++    for guest in ('104','110','114','115','116'):
++        result=subprocess.run(('pct','exec',guest,'--','python3','-B','-c',script,args.staging,guest),
++            capture_output=True,text=True,timeout=30,check=False)
++        if result.returncode:
++            try: code=json.loads(result.stdout).get('failure_code','INVENTORY_PROBE_FAILED')
++            except (ValueError,AttributeError): code='INVENTORY_PROBE_FAILED'
++            print(json.dumps({'guest':guest,'state':'no_go','failure_code':code}))
++            return 1
++        value=json.loads(result.stdout)
++        print(json.dumps(value,sort_keys=True))
++    return 0
++
++
++if __name__=='__main__': raise SystemExit(main())
+diff --git a/scripts/local-ai/qualify_lab_hours_timer_resume.py b/scripts/local-ai/qualify_lab_hours_timer_resume.py
+new file mode 100644
+index 000000000..749af48d0
+--- /dev/null
++++ b/scripts/local-ai/qualify_lab_hours_timer_resume.py
+@@ -0,0 +1,68 @@
++"""Opt-in harmless systemd fixture: prove clean state skips old calendar runs.
++
++Creates only uniquely named /run timer/service fixtures and empty timestamp
++files for those names. Never references an existing application unit.
++"""
++from __future__ import annotations
++import argparse
++from datetime import datetime,timedelta,timezone
++import json
++import os
++from pathlib import Path
++import subprocess
++import tempfile
++import time
++
++
++def main():
++    parser=argparse.ArgumentParser(); parser.add_argument('--run-fixture',action='store_true')
++    if not parser.parse_args().run_fixture or os.geteuid()!=0:
++        raise RuntimeError('ROOT_AND_EXPLICIT_FIXTURE_FLAG_REQUIRED')
++    token=f'b60-no-replay-{os.getpid()}-{int(time.time())}'
++    units=Path('/run/systemd/system'); stamps=Path('/var/lib/systemd/timers')
++    names=[token+'-control',token+'-cleaned']
++    installed=[]; created_stamps=[]
++    def call(*args,check=True):
++        result=subprocess.run(['systemctl',*args],capture_output=True,text=True,timeout=15)
++        if check and result.returncode: raise RuntimeError('FIXTURE_SYSTEMD_COMMAND_FAILED')
++        return result
++    def write(path,text):
++        fd=os.open(path,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o644)
++        with os.fdopen(fd,'w') as stream: stream.write(text)
++        installed.append(path)
++    with tempfile.TemporaryDirectory(prefix=token+'-',dir='/run') as temporary:
++        root=Path(temporary); markers=[root/'control-fired',root/'cleaned-fired']
++        future=(datetime.now(timezone.utc)+timedelta(hours=1)).strftime('%H:%M:%S')
++        try:
++            for name,marker in zip(names,markers):
++                write(units/(name+'.service'),f'[Service]\nType=oneshot\nExecStart=/usr/bin/touch {marker}\n')
++                write(units/(name+'.timer'),f'[Timer]\nOnCalendar=*-*-* {future} UTC\nPersistent=true\nAccuracySec=1us\n')
++                stamp=stamps/('stamp-'+name+'.timer')
++                fd=os.open(stamp,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o644)
++                os.close(fd); created_stamps.append(stamp)
++                old=time.time()-3*86400; os.utime(stamp,(old,old))
++            call('daemon-reload')
++            call('start',names[0]+'.timer')
++            until=time.monotonic()+5
++            while not markers[0].exists() and time.monotonic()<until: time.sleep(.1)
++            if not markers[0].exists(): raise RuntimeError('POSITIVE_CATCHUP_CONTROL_DID_NOT_FIRE')
++            call('show',names[1]+'.timer','--property=LoadState','--value')
++            call('clean','--what=state',names[1]+'.timer')
++            call('start',names[1]+'.timer')
++            time.sleep(1)
++            if markers[1].exists(): raise RuntimeError('CLEANED_TIMER_REPLAYED_MISSED_EVENT')
++            if call('is-active',names[1]+'.timer').stdout.strip()!='active':
++                raise RuntimeError('CLEANED_TIMER_NOT_REARMED')
++            print(json.dumps({'state':'passed','positive_catchup_control':True,
++                'cleaned_timer_replayed':False,'cleaned_timer_active':True,
++                'ai_stack_effects':False},sort_keys=True))
++        finally:
++            for name in names:
++                call('stop',name+'.timer',name+'.service',check=False)
++                call('reset-failed',name+'.timer',name+'.service',check=False)
++            for path in installed+created_stamps:
++                if path.exists(): path.unlink()
++            call('daemon-reload')
++
++
++if __name__=='__main__': main()
+diff --git a/scripts/local-ai/test_lab_hours_exclusive_admission.py b/scripts/local-ai/test_lab_hours_exclusive_admission.py
+new file mode 100644
+index 000000000..ac331e6ab
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_exclusive_admission.py
+@@ -0,0 +1,64 @@
++from datetime import datetime
++from types import SimpleNamespace
++from zoneinfo import ZoneInfo
++import unittest
++from lab_hours_exclusive_admission import FreshAdmission,TRIGGERS
++from lab_hours_exclusive_session import SessionError
++
++
++class Store:
++    def __init__(self): self.rows={}
++    def write(self,name,value,**kwargs): self.rows[name]=value
++
++
++class AdmissionTests(unittest.TestCase):
++    def setUp(self):
++        self.now=int(datetime(2026,10,30,3,10,tzinfo=ZoneInfo('America/Vancouver')).timestamp())
++        self.booking={'booking_id':'b60-exclusive-20261030','start_epoch':self.now,
++                      'end_epoch':self.now+2700}
++        self.profile={'owner':'b60-stream-a','trial_seconds':300,
++                      'guest_plans':{g:'a'*64 for g in ('104','110','114','115','116')}}
++        self.commands=[]; self.store=Store(); self.whole=True; self.proof=True
++        def runner(command,timeout):
++            self.commands.append(command)
++            if command[0]=='readlink':
++                return 0,'/sys/x/xe' if command[-1].endswith('/driver') else '/sys/x/0000:04:00.0'
++            if command[0]=='cat': return 0,'0xe211'
++            if command[0]=='awk': return 0,str(8*1024*1024)
++            if command[0]=='df': return 0,'Avail\n'+str(30*1024**3)
++            if 'sha256sum' in command: return 0,'a'*64+'  plan.json'
++            if '--property=Triggers' in command:
++                return 0,TRIGGERS[command[2]][command[6]]
++            return 0,'{}'
++        self.admission=FreshAdmission(runner,self.store,clock=lambda:self.now,
++            backup=lambda **kwargs:SimpleNamespace(source_observed=True,
++                integrity_verified=self.proof,integrity_receipt='retained-archive-integrity-sha256:'+'b'*64),
++            whole_job=lambda cycle:self.whole,gpu_users=lambda:())
++
++    def test_observed_backup_and_actual_fixed_sources_create_hash_only_receipt(self):
++        self.assertTrue(self.admission(self.booking,self.profile))
++        self.assertTrue(self.store.rows['admission.json']['qualification_only'])
++        self.assertFalse(any('zstd' in command for command in self.commands))
++
++    def test_archive_integrity_cannot_be_substituted_with_success_flag(self):
++        self.proof=False
++        with self.assertRaisesRegex(SessionError,'ARCHIVE'): self.admission(self.booking,self.profile)
++        self.assertFalse(self.store.rows)
++
++    def test_whole_job_failure_is_not_masked_by_three_artifacts(self):
++        self.whole=False
++        with self.assertRaisesRegex(SessionError,'WHOLE_BACKUP'): self.admission(self.booking,self.profile)
++        self.assertFalse(self.store.rows)
++
++    def test_late_invocation_never_probes_or_claims(self):
++        self.now+=121
++        with self.assertRaisesRegex(SessionError,'WINDOW'): self.admission(self.booking,self.profile)
++        self.assertEqual(self.commands,[])
++
++    def test_surprise_gpu_holder_cannot_admit(self):
++        self.admission.gpu_users=lambda:(SimpleNamespace(cgroup='/unrelated/user'),)
++        with self.assertRaisesRegex(SessionError,'UNDECLARED'): self.admission(self.booking,self.profile)
++        self.assertFalse(self.store.rows)
++
++
++if __name__=='__main__': unittest.main()
+diff --git a/scripts/local-ai/test_lab_hours_exclusive_boundary.py b/scripts/local-ai/test_lab_hours_exclusive_boundary.py
+new file mode 100644
+index 000000000..f188030bf
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_exclusive_boundary.py
+@@ -0,0 +1,92 @@
++import json
++from pathlib import Path
++import tempfile
++import unittest
++
++from lab_hours_exclusive_boundary import ExclusiveHostBoundary,BoundaryError
++from lab_hours_reservations import ReservationStore,ReservationError
++
++
++class BoundaryTests(unittest.TestCase):
++    def setUp(self):
++        self.temp=tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
++        self.root=Path(self.temp.name).resolve()/'host'; self.root.mkdir(mode=0o700)
++        self.operation=self.root.parent/'operation.lock'
++        self.store=ReservationStore(self.root/'reservations',clock=lambda:1000)
++        self.store.reserve(booking_id='b60-exclusive-20261030',owner='b60-stream-a',
++            start_epoch=1000,end_epoch=3700,exclusive=True)
++        self.boundary=self.new(); self.addCleanup(self.boundary.close)
++
++    def new(self): return ExclusiveHostBoundary(self.root,self.operation,self.store,ready=lambda:True)
++    def claim(self):
++        self.boundary.prepare()
++        return self.boundary.claim('b60-exclusive-20261030',owner='b60-stream-a',
++            claimant='b60-session-owner',entry_sha256='a'*64)
++
++    def test_claim_binds_booking_checkpoint_and_shared_durable_locks(self):
++        binding=self.claim()
++        self.assertEqual(self.store.get(binding['booking_id'])['state'],'claimed')
++        self.assertEqual(json.loads(self.operation.read_text()),binding)
++        self.assertEqual(self.operation.stat().st_mode&0o777,0o600)
++
++    def test_owner_loss_retains_locks_and_guardian_can_resume(self):
++        binding=self.claim(); self.boundary.close()
++        recovery=self.new(); self.addCleanup(recovery.close)
++        recovery.resume(binding)
++        self.assertTrue(recovery.release(binding,verify_restored=lambda:True))
++        self.assertFalse(self.operation.exists())
++        self.assertFalse((self.root/'lease.lock').exists())
++
++    def test_restore_failure_never_releases_booking_or_locks(self):
++        binding=self.claim()
++        with self.assertRaisesRegex(BoundaryError,'LOCKS_RETAINED'):
++            self.boundary.release(binding,verify_restored=lambda:False)
++        self.assertEqual(self.store.get(binding['booking_id'])['state'],'claimed')
++        self.assertTrue(self.operation.exists())
++
++    def test_drifted_entry_identity_cannot_release(self):
++        binding=self.claim(); wrong={**binding,'entry_sha256':'b'*64}
++        with self.assertRaisesRegex(BoundaryError,'MISMATCH'):
++            self.boundary.release(wrong,verify_restored=lambda:True)
++
++    def test_preexisting_manual_lease_blocks_entry(self):
++        (self.root/'lease.lock').mkdir(mode=0o700)
++        with self.assertRaisesRegex(BoundaryError,'NOT_READY'): self.boundary.prepare()
++
++    def test_wrong_owner_claim_fails_before_any_lock_mutation(self):
++        self.boundary.prepare()
++        with self.assertRaisesRegex(BoundaryError,'BOOKING_NOT_CLAIMABLE'):
++            self.boundary.claim('b60-exclusive-20261030',owner='other-owner',
++                claimant='b60-session-owner',entry_sha256='a'*64)
++        self.assertFalse(self.operation.exists())
++
++    def test_unclaimed_exclusive_booking_cannot_use_old_fixed_runner(self):
++        with self.assertRaisesRegex(ReservationError,'entry-checkpoint'):
++            self.store.claim('b60-exclusive-20261030',claimant='b60-session-owner')
++
++    def test_terminal_booking_and_partial_cleanup_can_be_reconciled(self):
++        binding=self.claim()
++        receipts=self.root/'exclusive-releases'; receipts.mkdir(mode=0o700)
++        self.boundary._create(receipts/(binding['booking_id']+'.json'),binding)
++        self.store.finish(binding['booking_id'],claimant=binding['claimant'],success=True,result_code='RESTORED')
++        self.operation.unlink(); self.boundary.close()
++        recovery=self.new(); self.addCleanup(recovery.close)
++        recovery.resume(binding)
++        self.assertTrue(recovery.release(binding,verify_restored=lambda:True))
++
++    def test_post_release_reentry_does_not_erase_a_new_manual_lease(self):
++        binding=self.claim(); self.boundary.release(binding,verify_restored=lambda:True)
++        (self.root/'lease.json').write_text('new manual lease')
++        recovery=self.new(); self.addCleanup(recovery.close)
++        with self.assertRaisesRegex(BoundaryError,'OTHER_MANUAL_LEASE'):
++            recovery.resume(binding)
++
++    def test_partial_release_still_requires_fresh_restore_verification(self):
++        binding=self.claim()
++        self.boundary.release(binding,verify_restored=lambda:True)
++        recovery=self.new(); self.addCleanup(recovery.close); recovery.resume(binding)
++        with self.assertRaisesRegex(BoundaryError,'RESTORATION_NOT_VERIFIED'):
++            recovery.release(binding,verify_restored=lambda:False)
++
++
++if __name__=='__main__': unittest.main()
+diff --git a/scripts/local-ai/test_lab_hours_exclusive_profile.py b/scripts/local-ai/test_lab_hours_exclusive_profile.py
+new file mode 100644
+index 000000000..f595b0f9e
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_exclusive_profile.py
+@@ -0,0 +1,41 @@
++import copy
++import unittest
++from lab_hours_exclusive_profile import validate_profile
++from lab_hours_exclusive_session import SessionError
++from lab_hours_unit_adapter import SCOPE
++
++
++class ProfileTests(unittest.TestCase):
++    def setUp(self):
++        self.profile={'schema':'aster-exclusive-activation.v1','owner':'b60-stream-a',
++            'booking_id':'b60-exclusive-20261030','trial_seconds':300,
++            'units':[list(row) for row in sorted(SCOPE)],
++            'guest_plans':{guest:'a'*64 for guest in ('104','110','114','115','116')},
++            'experiment':None,'qualification_only':True,
++            'source_sha256':{'lab_hours_exclusive_cli.py':'b'*64}}
++
++    def test_restore_qualification_is_accepted(self):
++        self.assertEqual(validate_profile(self.profile),self.profile)
++
++    def test_missing_news_worker_is_not_complete_inventory(self):
++        self.profile['units'].remove(['114','news-aggregator-digest.service'])
++        with self.assertRaisesRegex(SessionError,'CONSUMER'): validate_profile(self.profile)
++
++    def test_duplicate_does_not_replace_missing_consumer(self):
++        self.profile['units'][0]=copy.copy(self.profile['units'][1])
++        with self.assertRaisesRegex(SessionError,'CONSUMER'): validate_profile(self.profile)
++
++    def test_arbitrary_script_cannot_activate_through_qualification(self):
++        self.profile['experiment']={'guest_script':'/tmp/unsafe.py','sha256':'c'*64}
++        with self.assertRaisesRegex(SessionError,'MODEL_TRIAL'): validate_profile(self.profile)
++
++    def test_missing_guest_and_unpinned_source_fail(self):
++        self.profile['guest_plans'].pop('114')
++        with self.assertRaisesRegex(SessionError,'GUEST_PLAN'): validate_profile(self.profile)
++
++    def test_trial_must_leave_bounded_runtime(self):
++        self.profile['trial_seconds']=1801
++        with self.assertRaisesRegex(SessionError,'IDENTITY'): validate_profile(self.profile)
++
++
++if __name__=='__main__': unittest.main()
+diff --git a/scripts/local-ai/test_lab_hours_guest_checkpoint.py b/scripts/local-ai/test_lab_hours_guest_checkpoint.py
+new file mode 100644
+index 000000000..3080362d5
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_guest_checkpoint.py
+@@ -0,0 +1,72 @@
++import os
++from pathlib import Path
++import tempfile
++import unittest
++
++from lab_hours_guest_checkpoint import capture,recover,private_json,validate_plan
++from lab_hours_file_checkpoint import CheckpointError
++
++
++class GuestCheckpointTests(unittest.TestCase):
++    def setUp(self):
++        self.temp=tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
++        self.root=Path(self.temp.name).resolve()
++        self.config=self.root/'service.conf'; self.config.write_text('entry-config')
++        self.model=self.root/'model.gguf'; self.model.write_bytes(b'synthetic weights')
++        self.runtime=self.root/'llama-server'; self.runtime.write_bytes(b'synthetic executable')
++        self.plan={'schema':'aster-guest-entry-plan.v1','files':[str(self.config)],
++            'immutable_artifacts':{'model':str(self.model),'runtime':str(self.runtime)}}
++        self.options={'allowed_roots':(self.root,),'artifact_roots':(self.root,)}
++
++    def test_guest_local_round_trip_never_returns_configuration(self):
++        receipt=capture(self.plan,self.root/'files',**self.options)
++        self.assertNotIn('entry-config',str(receipt))
++        self.config.write_text('candidate-config')
++        result=recover(self.plan,self.root/'files',receipt,deadline=200,clock=lambda:100,
++            apply=True,**self.options)
++        self.assertTrue(result['verified'])
++        self.assertEqual(self.config.read_text(),'entry-config')
++
++    def test_changed_original_weights_refuse_restore_instead_of_claiming_recovery(self):
++        receipt=capture(self.plan,self.root/'files',**self.options)
++        self.model.write_bytes(b'changed original')
++        with self.assertRaisesRegex(CheckpointError,'ENTRY_ARTIFACT_CHANGED'):
++            recover(self.plan,self.root/'files',receipt,deadline=200,clock=lambda:100,
++                apply=True,**self.options)
++
++    def test_verification_only_never_restores(self):
++        receipt=capture(self.plan,self.root/'files',**self.options)
++        self.config.write_text('candidate-config')
++        result=recover(self.plan,self.root/'files',receipt,deadline=200,clock=lambda:100,**self.options)
++        self.assertFalse(result['verified'])
++        self.assertEqual(self.config.read_text(),'candidate-config')
++
++    def test_expired_guest_operation_never_mutates(self):
++        receipt=capture(self.plan,self.root/'files',**self.options)
++        self.config.write_text('candidate-config')
++        with self.assertRaisesRegex(CheckpointError,'DEADLINE'):
++            recover(self.plan,self.root/'files',receipt,deadline=100,clock=lambda:100,
++                apply=True,**self.options)
++        self.assertEqual(self.config.read_text(),'candidate-config')
++
++    def test_private_plan_custody_and_artifact_scope(self):
++        plan=self.root/'plan.json'; plan.write_text('{}'); plan.chmod(0o644)
++        with self.assertRaisesRegex(CheckpointError,'CUSTODY'):
++            private_json(plan,uid=os.geteuid())
++        with self.assertRaisesRegex(CheckpointError,'ARTIFACT_SCOPE'): validate_plan(self.plan)
++
++    def test_extra_raw_data_not_accepted_in_plan(self):
++        self.plan['credential']='must-not-be-in-plan'
++        with self.assertRaisesRegex(CheckpointError,'PLAN_SCHEMA'):
++            capture(self.plan,self.root/'files',**self.options)
++
++    def test_actual_dereferenced_ollama_blob_is_scoped_without_allowing_all_usr(self):
++        self.plan['immutable_artifacts']={
++            'model':'/usr/share/ollama/.ollama/models/blobs/sha256-'+'c'*64,
++            'runtime':'/opt/aster-sycl-b11429/llama-server'}
++        validate_plan(self.plan)
++        self.plan['immutable_artifacts']['model']='/usr/share/unrelated/model.gguf'
++        with self.assertRaisesRegex(CheckpointError,'ARTIFACT_SCOPE'): validate_plan(self.plan)
++
++
++if __name__=='__main__': unittest.main()
+diff --git a/scripts/local-ai/test_lab_hours_owner_scope.py b/scripts/local-ai/test_lab_hours_owner_scope.py
+new file mode 100644
+index 000000000..40b48f2f7
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_owner_scope.py
+@@ -0,0 +1,36 @@
++import unittest
++from lab_hours_owner_scope import OwnerScopes
++
++
++class ScopeTests(unittest.TestCase):
++    def setUp(self):
++        self.calls=[]; self.live=True
++        def runner(command,timeout):
++            self.calls.append((command,timeout))
++            if command[:2]==('systemctl','stop'): self.live=False; return 0,''
++            if command[0]=='systemd-run': return 0,''
++            if 'guardian' in command[2]:
++                return 0,'ActiveState=active\nMainPID=101\nKillMode=control-group\nRestart=no\n'
++            return 0,('LoadState=loaded\nActiveState=active\nMainPID=100\nTasksCurrent=2\n'
++                if self.live else 'LoadState=loaded\nActiveState=inactive\nMainPID=0\nTasksCurrent=0\n')
++        self.scope=OwnerScopes(runner,'b60-exclusive-20261030',clock=lambda:1000)
++
++    def test_fence_stops_only_exact_owner_and_proves_no_tasks(self):
++        self.assertTrue(self.scope.alive({})); self.assertTrue(self.scope.fence({}))
++        self.assertFalse(self.scope.alive({}))
++        self.assertEqual(self.calls[1][0],('systemctl','stop',self.scope.owner))
++
++    def test_guardian_is_independent_no_restart_and_has_bounded_lifetime(self):
++        self.assertTrue(self.scope.arm({'restore_deadline':3700},{}))
++        command=self.calls[0][0]
++        self.assertIn('--property=KillMode=control-group',command)
++        self.assertIn('--property=RuntimeMaxSec=3300',command)
++        self.assertIn('--property=Restart=no',command)
++        self.assertNotIn('PartOf=',str(command))
++
++    def test_failed_guardian_start_never_reports_armed(self):
++        self.scope.runner=lambda command,timeout:(1,'')
++        self.assertFalse(self.scope.arm({'restore_deadline':3700},{}))
++
++
++if __name__=='__main__': unittest.main()
+diff --git a/scripts/local-ai/test_lab_hours_prepare_entry_plan.py b/scripts/local-ai/test_lab_hours_prepare_entry_plan.py
+new file mode 100644
+index 000000000..8f53f33c5
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_prepare_entry_plan.py
+@@ -0,0 +1,41 @@
++import unittest
++from lab_hours_prepare_entry_plan import configuration_files,current_plan
++from lab_hours_file_checkpoint import CheckpointError
++
++
++class PlanTests(unittest.TestCase):
++    def test_repeated_environment_paths_and_dropins_not_values_are_preserved(self):
++        raw=('EnvironmentFiles=/etc/aster/aster.env (ignore_errors=no)\n'
++             'EnvironmentFiles=/etc/aster/arr-broker.env (ignore_errors=no)\n'
++             'FragmentPath=/etc/systemd/system/aster-agent.service\n'
++             'DropInPaths=/etc/systemd/system/aster-agent.service.d/test.conf\n')
++        files=configuration_files(raw)
++        self.assertEqual(len(files),4)
++        self.assertIn('/etc/aster/arr-broker.env',files)
++
++    def test_root_level_llama_env_is_an_exact_exception_not_all_etc(self):
++        files=configuration_files('FragmentPath=/etc/systemd/system/aster-llama.service\n'
++                                 'EnvironmentFiles=/etc/aster-llama.env (ignore_errors=no)\n')
++        self.assertIn('/etc/aster-llama.env',files)
++        with self.assertRaisesRegex(CheckpointError,'OUTSIDE'):
++            configuration_files('FragmentPath=/etc/systemd/system/aster-llama.service\n'
++                                'EnvironmentFiles=/etc/shadow (ignore_errors=no)\n')
++
++    def test_raw_configuration_or_unknown_metadata_never_becomes_a_plan(self):
++        with self.assertRaisesRegex(CheckpointError,'UNSUPPORTED'):
++            configuration_files('FragmentPath=/etc/systemd/system/aster-agent.service\nSecret=value\n')
++
++    def test_news_inventory_includes_all_three_services_and_two_timers(self):
++        seen=[]
++        def runner(command):
++            seen.append(command[2]); return 'FragmentPath=/etc/systemd/system/'+command[2]+'\n'
++        plan=current_plan('114',runner=runner)
++        self.assertEqual(len(seen),5)
++        self.assertIn('news-aggregator-digest.service',seen)
++        self.assertEqual(plan['immutable_artifacts'],{})
++
++    def test_unknown_guest_cannot_choose_arbitrary_units(self):
++        with self.assertRaisesRegex(CheckpointError,'SCOPE'): current_plan('103')
++
++
++if __name__=='__main__': unittest.main()
+diff --git a/scripts/local-ai/test_lab_hours_proxmox_adapter.py b/scripts/local-ai/test_lab_hours_proxmox_adapter.py
+new file mode 100644
+index 000000000..1f90cbfed
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_proxmox_adapter.py
+@@ -0,0 +1,138 @@
++"""Combined durable booking/lease/file/unit/controller integration fixtures."""
++import json
++from pathlib import Path
++import tempfile
++import unittest
++
++from lab_hours_proxmox_adapter import ProxmoxEntryAdapter
++from lab_hours_exclusive_session import ExclusiveSession,SessionStore,SessionError
++from lab_hours_reservations import ReservationStore
++from lab_hours_guest_checkpoint import capture,recover
++from test_lab_hours_unit_adapter import Systemd
++
++
++class HostRunner(Systemd):
++    def __call__(self,command,timeout):
++        if command==('/usr/local/sbin/local-ai-lease','status'): return 0,'{"state":"ready"}'
++        if command[-1]=='/usr/local/sbin/aster-llama-production-auth-probe': return 0,''
++        if any('b60-exclusive-trial-' in word for word in command):
++            return (1,'LoadState=not-found\n') if 'show' in command else (0,'')
++        if any('Persistent,TimersCalendar' in word for word in command):
++            return 0,'Persistent=yes\nTimersCalendar={ calendar }\nTimersMonotonic=\n'
++        return super().__call__(command,timeout)
++
++
++class Adapter(ProxmoxEntryAdapter):
++    def _mount_identity(self,deadline): return 'a'*64
++    def _guest(self,guest,action,deadline):
++        options={'allowed_roots':(self.fixture,),'artifact_roots':(self.fixture,)}
++        if action=='capture':
++            self.receipt=capture(self.plan,self.fixture/'checkpoint',active_binding=lambda plan:True,**options)
++            return self.receipt
++        return recover(self.plan,self.fixture/'checkpoint',self.receipt,
++            deadline=deadline,clock=self.clock,apply=action=='restore',**options)
++
++
++class CombinedAdapterTests(unittest.TestCase):
++    def setUp(self):
++        self.temp=tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
++        self.root=Path(self.temp.name).resolve(); self.host=self.root/'host'; self.host.mkdir(mode=0o700)
++        self.store=SessionStore(self.root/'session')
++        self.bookings=ReservationStore(self.host/'reservations',clock=lambda:1000)
++        self.booking=self.bookings.reserve(booking_id='b60-exclusive-20261030',owner='b60-stream-a',
++            exclusive=True,start_epoch=1000,end_epoch=3700)
++        self.runner=HostRunner()
++        self.profile={'units':list(self.runner.units),'guest_plans':{'110':{}},'experiment':None}
++        self.adapter=Adapter(self.store,self.bookings,self.profile,runner=self.runner,
++            admission=lambda booking,profile:True,arm_guardian=lambda state,profile:True,
++            clock=lambda:1000,root=self.host,operation=self.root/'operation.lock',gpu_users=lambda:())
++        self.addCleanup(self.adapter.boundary.close)
++        self.adapter.fixture=self.root/'guest'; self.adapter.fixture.mkdir()
++        model=self.adapter.fixture/'model.gguf'; model.write_bytes(b'entry weights')
++        binary=self.adapter.fixture/'llama-server'; binary.write_bytes(b'entry runtime')
++        self.config=self.adapter.fixture/'service.conf'; self.config.write_bytes(b'entry configuration')
++        self.adapter.plan={'schema':'aster-guest-entry-plan.v1','files':[str(self.config)],
++            'immutable_artifacts':{'model':str(model),'runtime':str(binary)}}
++        self.session=ExclusiveSession(self.store,self.adapter,clock=lambda:1000)
++
++    def test_full_transaction_combines_booking_claim_checkpoint_drain_restore_release(self):
++        self.session.begin(self.booking,owner='b60-stream-a')
++        self.assertEqual(self.bookings.get(self.booking['booking_id'])['state'],'claimed')
++        self.config.write_bytes(b'changed during lab')
++        result=self.session.run_trial(owner='b60-stream-a')
++        self.assertEqual(result['outcome'],'complete-restored')
++        self.assertEqual(self.config.read_bytes(),b'entry configuration')
++        self.assertEqual(self.bookings.get(self.booking['booking_id'])['state'],'complete')
++        self.assertFalse((self.root/'operation.lock').exists())
++
++    def test_unknown_gpu_holder_prevents_restore_and_retains_claim(self):
++        self.session.begin(self.booking,owner='b60-stream-a')
++        self.adapter.gpu_users=lambda:('unknown-holder',)
++        with self.assertRaisesRegex(SessionError,'FENCE_UNCERTAIN'):
++            self.session.recover(owner='b60-stream-a')
++        self.assertEqual(self.bookings.get(self.booking['booking_id'])['state'],'claimed')
++
++    def test_guardian_failure_does_not_claim_booking_or_drain(self):
++        self.adapter.arm=lambda state,profile:False
++        with self.assertRaisesRegex(SessionError,'GUARDIAN_NOT_ARMED'):
++            self.session.begin(self.booking,owner='b60-stream-a')
++        self.assertEqual(self.bookings.get(self.booking['booking_id'])['state'],'reserved')
++        self.assertFalse((self.root/'operation.lock').exists())
++
++    def test_admission_failure_leaves_no_checkpoint_or_shared_lock(self):
++        self.adapter.admission=lambda booking,profile:False
++        with self.assertRaisesRegex(SessionError,'SOURCE_ADMISSION_FAILED'):
++            self.session.begin(self.booking,owner='b60-stream-a')
++        self.assertFalse((self.store.root/'entry.json').exists())
++        self.assertFalse((self.root/'operation.lock').exists())
++
++    def test_guardian_failure_recovery_does_not_restart_unclaimed_stack(self):
++        self.adapter.arm=lambda state,profile:False
++        with self.assertRaises(SessionError): self.session.begin(self.booking,owner='b60-stream-a')
++        before=list(self.runner.calls)
++        result=self.session.recover(owner='b60-stream-a')
++        self.assertEqual(result['phase'],'aborted-before-claim')
++        self.assertFalse(result['production_restored'])
++        self.assertEqual(before,self.runner.calls)
++        self.assertEqual(self.bookings.get(self.booking['booking_id'])['state'],'reserved')
++
++    def test_crash_between_claim_and_adapter_binding_is_reconciled(self):
++        original=self.store.write
++        def crash(name,value,**options):
++            if name=='adapter.json' and 'binding' in value: raise RuntimeError('simulated loss')
++            original(name,value,**options)
++        self.store.write=crash
++        with self.assertRaises(RuntimeError): self.session.begin(self.booking,owner='b60-stream-a')
++        self.store.write=original
++        self.adapter.boundary.close(); self.adapter.private=None
++        result=self.session.recover(owner='b60-stream-a')
++        self.assertEqual(result['phase'],'released')
++        self.assertEqual(self.bookings.get(self.booking['booking_id'])['state'],'failed')
++        self.assertTrue(result['trial_failed'])
++
++    def test_failed_trial_restores_but_booking_does_not_report_success(self):
++        self.session.begin(self.booking,owner='b60-stream-a')
++        self.adapter.execute=lambda state,deadline:False
++        result=self.session.run_trial(owner='b60-stream-a')
++        self.assertEqual(result['outcome'],'failed-restored')
++        self.assertTrue(result['session']['production_restored'])
++        self.assertEqual(self.bookings.get(self.booking['booking_id'])['state'],'failed')
++
++    def test_partial_unclaimed_intent_is_removed_without_stack_effects(self):
++        self.adapter.arm=lambda state,profile:False
++        with self.assertRaises(SessionError): self.session.begin(self.booking,owner='b60-stream-a')
++        state=self.store.read('session.json')
++        binding={'schema':'aster-exclusive-host-binding.v1','booking_id':state['booking_id'],
++            'owner':state['owner'],'claimant':self.adapter.private['claimant'],
++            'entry_sha256':state['entry_sha256']}
++        lock=self.host/'lease.lock'; lock.mkdir(mode=0o700)
++        self.adapter.boundary._create(lock/'exclusive.json',binding)
++        self.adapter.boundary._create(self.root/'operation.lock',binding)
++        before=list(self.runner.calls)
++        self.assertEqual(self.session.recover(owner='b60-stream-a')['phase'],'aborted-before-claim')
++        self.assertEqual(before,self.runner.calls)
++        self.assertFalse(lock.exists())
++        self.assertFalse((self.root/'operation.lock').exists())
++
++
++if __name__=='__main__': unittest.main()
+diff --git a/scripts/local-ai/test_lab_hours_timer_resume.py b/scripts/local-ai/test_lab_hours_timer_resume.py
+new file mode 100644
+index 000000000..448a74005
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_timer_resume.py
+@@ -0,0 +1,35 @@
++import unittest
++from lab_hours_timer_resume import CalendarTimerResume
++from lab_hours_unit_adapter import UnitStateError
++
++
++class Units:
++    def __init__(self):
++        self.active='inactive'; self.persistent='yes'; self.monotonic=''; self.effects=[]
++    def observe(self,*args): return {'ActiveState':self.active}
++    def call(self,*args):
++        return 0,f'Persistent={self.persistent}\nTimersCalendar={{ calendar }}\nTimersMonotonic={self.monotonic}\n'
++    def effect(self,row,args,deadline): self.effects.append(args)
++
++
++class TimerResumeTests(unittest.TestCase):
++    def setUp(self):
++        self.units=Units(); self.policy=CalendarTimerResume(self.units)
++        self.row={'guest':'114','unit':'news-aggregator-ingest.timer','active':'active'}
++    def test_persistent_calendar_state_reset_is_explicitly_not_job_success(self):
++        self.assertTrue(self.policy(self.row,100))
++        self.assertEqual(self.units.effects,[('clean','--what=state')])
++        self.assertFalse(self.policy.skipped[0]['job_success_claimed'])
++    def test_nonpersistent_calendar_needs_no_cache_mutation(self):
++        self.units.persistent='no'; self.policy(self.row,100)
++        self.assertEqual(self.units.effects,[])
++    def test_active_timer_cannot_be_cleaned(self):
++        self.units.active='active'
++        with self.assertRaisesRegex(UnitStateError,'MUST_BE_STOPPED'): self.policy(self.row,100)
++        self.assertEqual(self.units.effects,[])
++    def test_monotonic_timer_is_not_silently_reinterpreted(self):
++        self.units.monotonic='{ OnBootUSec=1min }'
++        with self.assertRaisesRegex(UnitStateError,'UNSUPPORTED'): self.policy(self.row,100)
++
++
++if __name__=='__main__': unittest.main()
+diff --git a/scripts/local-ai/test_lab_hours_unit_adapter.py b/scripts/local-ai/test_lab_hours_unit_adapter.py
+index a0ae8295f..f5d112d3b 100644
+--- a/scripts/local-ai/test_lab_hours_unit_adapter.py
++++ b/scripts/local-ai/test_lab_hours_unit_adapter.py
+@@ -80,6 +80,15 @@ class UnitAdapterTests(unittest.TestCase):
+         starts=[c for c,_ in self.runner.calls if c[5]=='start']
+         self.assertEqual(starts[0][-1],'aster-llama.service')
+ 
++    def test_news_timers_stop_before_their_triggered_workers(self):
++        self.runner.units[('114','news-aggregator-digest.service')]=['activating','static']
++        self.runner.units[('114','news-aggregator-digest.timer')]=['active','enabled']
++        entry=self.adapter.capture(list(self.runner.units),1100)
++        self.runner.calls=[]; self.adapter.isolate(entry,1100)
++        effects=[c[-1] for c,_ in self.runner.calls if c[5] in {'mask','stop'}]
++        self.assertLess(effects.index('news-aggregator-digest.timer'),
++                        effects.index('news-aggregator-digest.service'))
++
+     def test_each_command_receives_remaining_timeout(self):
+         self.adapter.capture(self.inventory,1004)
+         self.assertTrue(all(timeout==4 for _,timeout in self.runner.calls))
+-- 
+2.50.1 (Apple Git-155)
+

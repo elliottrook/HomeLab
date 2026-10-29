@@ -1,5 +1,92 @@
 # Fixed-hardware capability research watch — 2026-10-12
 
+## October29 combined controller installed and first actual qualification scheduled
+
+Continued implementation instead of treating another component milestone as a
+project stop. Source commits `8a6d0ffb61915424c387c61023eeaeee24d9b3b1` and
+`1f9af79b4c08b0881ab334b7a72ef7efe8f41ad8` implement the combined protected
+profile/booking/common lease boundary, guest-local checkpoint transport,
+complete13-unit caller scope, calendar no-replay policy, actual model/runtime
+process binding, independent owner/watchdog CLI, fresh source admission,
+dormant installer and exact-night preparation/qualification scheduling.
+
+The separate controller and helpers are installed. No legacy platform file,
+runner, manifest or existing schedule was overwritten. At final verification
+both new future clocks were enabled/active with empty previous-trigger fields:
+October30 at01:15 and03:10 PDT. Both jobs were inactive,MainPID0, and the shared
+lease was ready. The first is bounded read-only archive integrity preparation;
+the second is a restore-only transaction within `b60-exclusive-20261030`, not a
+model experiment. It must independently pass the current whole backup and all
+three TrueNAS pulls/exact LXC110 mirror before any stack effect. Trial cutoff
+03:15, restoration03:55, reservation buffer through04:10; strict04:15 remains.
+
+The30 capacity bookings remain intact; only this first one is activated.
+The entry configuration is captured when admitted, not inferred from chat.
+No new per-model approval is required. The actual live restore and separate
+owner-loss qualifications remain future evidence, and arbitrary candidate /
+mount/resource mutations remain unqualified. No35B, quality floor or useful-
+answer p50/p95 result follows. No old hard-coded runner was activated.
+
+Validation:123 local Lab Hours tests,5 installer tests and70 existing inference
+tests.109 final focused tests passed on Proxmox using the installed dependency
+set and standalone scheduling sources. Real harmless systemd timer catch-up /
+no-replay and exact sleep-service owner fencing fixtures passed and were cleaned
+up. Five real guest metadata probes passed; no private configuration contents
+were read/exported by those probes. The live model resolves to the protected
+Ollama blob, not merely its old symlink. Initial staging ownership/AppleDouble
+and artifact-scope failures remained closed and were corrected without
+weakening custody checks. Full details, exact installed hashes and rollback
+paths are in [the source/deployment receipt](exclusive-controller-wiring-20261029.md)
+and [operator note](exclusive-lab-operator-20261029.md).
+
+Source publication is reproducible: apply the three existing capacity/core /
+entry-adapter patches to exact platform base
+`e28dfc24fcaaedbfb8c3480ba63da43069b55b53`, then the two patches in
+`scripts/b60-inference/exclusive-controller-20261029/` in numbered order.
+A clean independent checkout replayed all five, produced an identical tree
+to source `1f9af79b4`, and passed the same123+5+70 tests. Exact new patch hashes:
+
+- `0001-Wire-exclusive-booking-entry-checkpoint-admission-an.patch`:
+  `e3269449546e9fd15aee0214ba6474ba4d88261a7b2fc6289f71c2194a68dcb3`.
+- `0002-Install-separate-entry-controller-and-schedule-backu.patch`:
+  `08f581886e9efea1aff1f030ead64ed016db7c44c182dc75b871dc51886f42a5`.
+
+Final canonical30-source pin dictionary SHA-256:
+`f5085fbb7b7e8e456be6ac6157867a1af8e808a2e139fb64c03caeb991d25e85`,
+independently identical on target and local v4 bundle. The first private
+activation profile hash is
+`a69b57d3a3764aa67819571b702622d5b238166db40622f1a9cca0d4bd3955af`.
+This is source/custody proof, not live qualification.
+
+Authoritative peer refs were fetched/read again before publication. Exact
+commit/path/file-SHA receipts, not inferred cross-chat delivery:
+
+- Adaptive `d88f8239b6771836c3e56c59229db81a8c18ddd6`,
+  `docs/projects/AI Projects/evidence/SA3-expanded-source-quality-inactive-install-preflight-2026-10-29.md`,
+  `f4f72df5d792f17ce11ec87aae69e856f83865cac5b31b08146c65c32e8ac94a`.
+  Received its failed-closed dormant SA3 install and corrected-candidate report;
+  that separate project is not this controller or a B60 capability result.
+- Platform booking owner `5a9c3471398cfeecc0c6db35bfb264f87d8318f9`,
+  `services/local-ai-lease/ASTER-LAB-HOURS-RESERVATION-RUNBOOK.md`,
+  `ed990e68fe04e4c238c192ff94fc81b275cf6cf622c0004e55afb26edda047ba`.
+  Its fixed runner/SA3 registration is preserved; the B60 qualification has
+  its own protected fixed profile, common exclusion and real capacity claim.
+- Platform registry `6fb0207fec5190e0c34ed3bc72ea38e128f06127`,
+  `docs/projects/Local-AI-Platform-Split.md`,
+  `6bd3106078315a80046a6f917646410698df6a73f6e34c219b32272ce9f935d7`.
+- B60 received prior return branch
+  `f08244e42b350cfd8ead77e832171604cff668fd`,
+  `docs/projects/B60-Inference-Engineering.md`,
+  `6c7a64a7ab0be219ce2477d4265ecc57fe548335a0e669274fb7d2dc3afa14a0`.
+
+Next live dependency is the actual booked window. Inspect sanitized preparation,
+session, reservation and exact owner/guardian receipts afterward; do not launch
+duplicate GPU work or assume a timer firing means success. Normal and owner-
+loss restoration proofs precede the reviewed35B workload. Existing continuation
+automations are not paused and no completion or background-result claim is made.
+Forgejo publication/mirror receipt is recorded by the actual subsequent ref
+verification, not inferred from this document's existence.
+
 ## October29 concrete entry/restore adapter implementation and target checks
 
 Continued implementation after Jason challenged another status-only stop.
