@@ -232,8 +232,17 @@ The result was checked for duplicate members, unsafe paths and account/profile
 files; none were found. This is an update payload for the already-provisioned
 lab, **not** a fresh-install recipe: it does not carry the HP HDMI kernel
 setting, Kodi audio selection, Jellyfin's native popup modes, or YouTube and
-Jellyfin credentials. It has not been installed from this archive, rehearsed
-for rollback, or authorized for production.
+Jellyfin credentials. On 2026-10-29, the exact SHA-pinned archive passed an
+isolated install/file-integrity/rollback rehearsal on macOS and on the HP's
+LibreELEC 13/Python 3.14 runtime. Both normal and interrupted installs left
+the disposable Kodi userdata sentinel intact. See
+`services/kodi/v2/tools/rehearse_code_only_archive.py`. This did not install
+the archive into live Kodi, activate add-ons/services or prove full clean-client
+provisioning; those release gates and production authorization remain open.
+The 19 historical untracked diagnostic and repair scripts are triaged in
+`docs/projects/Aster-TV-Version-2-Untracked-Triage.md` and excluded from the
+archive. The production stereo and Dolby findings are in
+`docs/projects/Aster-TV-Version-2-Audio-Passthrough-Research.md`.
 
 Jason reported the v2 player had lost skip recap/intro/outro and directed that
 v2 be pulled from production. This is a release-blocking regression; the v2

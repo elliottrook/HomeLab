@@ -1,5 +1,13 @@
 # AsterTV Version 2 release-readiness evidence
 
+> Historical snapshot from 2026-10-27. The HP was subsequently reinstalled
+> with LibreELEC 13/Kodi 22, v2 was pulled from production and v1.1.1 restored.
+> Use [Current Resume](Aster-TV-Version-2-Current-Resume.md) and the current
+> `services/kodi/releases/aster-home-v2.0.2-lab-candidate.json` for active gates.
+> On 2026-10-29 the pinned code-only archive passed an isolated filesystem
+> install and rollback rehearsal on macOS and the HP lab, including interrupted
+> install recovery. Full clean-client Kodi/systemd activation remains open.
+
 > Status: unattended engineering checks pass; owner, hardware and clean-install gates remain
 > Date: 2026-10-27
 > Scope: HP lab only; production unchanged

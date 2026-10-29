@@ -1,5 +1,10 @@
 # Aster TV Version 2 HP pilot guide
 
+> Historical pilot guide from 2026-10-27. The current lab runs LibreELEC 13
+> and Kodi 22 with v2; production was rolled back to v1.1.1 on 2026-10-28.
+> Consult [Current Resume](../projects/Aster-TV-Version-2-Current-Resume.md)
+> before using any operational instruction below.
+
 > Status: HP lab release candidate; production BOSGAME is unchanged  
 > Audience: household testers and operator  
 > Updated: 2026-10-27
