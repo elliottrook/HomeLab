@@ -21,7 +21,7 @@ listener is not signalled again. The transaction retains the validated result
 and performs the existing production restore path.
 
 The source hash is
-`eb3b304ffc7315c7f8c3deaa06900f2c52a3af256834c701f0fa59c0fe52bc3b`.
+`a6387092f04a8fa8cc35254ce19c9a479cd0177b2fd53caae40ee6012c38f917`.
 
 The fixed guest wrapper source is
 `scripts/local-ai/aster_llama_sa3_guest_wrapper.py`, hash
@@ -30,7 +30,7 @@ the accepted `aster-qwen3.5-9b` model and SYCL server, imports only the four
 reviewed runtime files, rejects answer keys and review material, uses an
 ephemeral private API key, binds the listener to the lease/generation scope,
 and removes the scope and private runtime directory on every exit path. The
-adapter, wrapper and transaction boundary tests pass **43/43**.
+adapter, wrapper and transaction boundary tests pass **46/46**.
 
 This card does not install the LXC110 target, create a service, book or check a
 Lab Hours window, schedule execution, invoke a model, change the backend,

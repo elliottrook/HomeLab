@@ -7,6 +7,7 @@ import json
 import os
 import re
 import signal
+import stat
 import subprocess
 import tempfile
 import time
@@ -26,6 +27,87 @@ LEASE_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{1,127}")
 
 class AdapterError(RuntimeError):
     pass
+
+
+CAPTURE_ROOT_MODE = 0o700
+CAPTURE_FILE_MODE = 0o600
+
+
+def _verify_capture_directory(path: str, *, expected_uid: int, label: str) -> None:
+    try:
+        info = os.lstat(path)
+    except OSError as exc:
+        raise AdapterError(f"SA3 {label} custody is unavailable") from exc
+    if (not stat.S_ISDIR(info.st_mode) or info.st_uid != expected_uid
+            or stat.S_IMODE(info.st_mode) != CAPTURE_ROOT_MODE):
+        raise AdapterError(f"SA3 {label} custody is invalid")
+
+
+def _verify_capture_file(path: str, *, expected_uid: int) -> None:
+    try:
+        info = os.lstat(path)
+    except OSError as exc:
+        raise AdapterError("SA3 capture file custody is unavailable") from exc
+    if (not stat.S_ISREG(info.st_mode) or info.st_uid != expected_uid
+            or info.st_nlink != 1 or stat.S_IMODE(info.st_mode) != CAPTURE_FILE_MODE):
+        raise AdapterError("SA3 capture file custody is invalid")
+
+
+def _prepare_capture_root(path: str, *, expected_uid: int) -> None:
+    try:
+        os.lstat(path)
+    except FileNotFoundError:
+        try:
+            os.mkdir(path, CAPTURE_ROOT_MODE)
+        except OSError as exc:
+            raise AdapterError("SA3 capture root cannot be created") from exc
+    except OSError as exc:
+        raise AdapterError("SA3 capture root cannot be inspected") from exc
+    _verify_capture_directory(path, expected_uid=expected_uid, label="capture root")
+
+
+def _open_capture_file(path: str, *, expected_uid: int):
+    flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW
+    try:
+        descriptor = os.open(path, flags, CAPTURE_FILE_MODE)
+        stream = os.fdopen(descriptor, "wb", buffering=0)
+    except OSError as exc:
+        raise AdapterError("SA3 capture file cannot be created") from exc
+    try:
+        _verify_capture_file(path, expected_uid=expected_uid)
+    except Exception:
+        stream.close()
+        try:
+            os.unlink(path)
+        except OSError:
+            pass
+        raise
+    stream.capture_path = path
+    return stream
+
+
+def _cleanup_capture(capture_dir: str, paths: tuple[str, ...], *, expected_uid: int) -> None:
+    failures = []
+    for path in paths:
+        try:
+            if os.path.lexists(path):
+                try:
+                    _verify_capture_file(path, expected_uid=expected_uid)
+                except AdapterError:
+                    failures.append("capture file custody drifted")
+                os.unlink(path)
+        except OSError:
+            failures.append("capture file removal failed")
+        if os.path.lexists(path):
+            failures.append("capture file remains")
+    try:
+        os.rmdir(capture_dir)
+    except OSError:
+        failures.append("capture directory removal failed")
+    if os.path.lexists(capture_dir):
+        failures.append("capture directory remains")
+    if failures:
+        raise AdapterError("SA3 capture cleanup failed: " + "; ".join(dict.fromkeys(failures)))
 
 
 def scope_unit(lease_id: str, generation: int) -> str:
@@ -73,7 +155,8 @@ def run(*, lease_id: str, generation: int, deadline_epoch: int,
         clock: Callable[[], float] = time.time,
         sleep: Callable[[float], None] = time.sleep,
         killpg: Callable[[int, int], None] = os.killpg,
-        capture_root: str = "/run/local-ai-lab") -> dict[str, object]:
+        capture_root: str = "/run/local-ai-lab",
+        expected_uid: int = 0) -> dict[str, object]:
     """Run only the fixed listener and return its validated result.
 
     This function is not wired into the installed reservation runner.  Its
@@ -90,16 +173,14 @@ def run(*, lease_id: str, generation: int, deadline_epoch: int,
     stderr_file = None
     try:
         root = os.path.abspath(capture_root)
-        os.makedirs(root, mode=0o700, exist_ok=True)
-        os.chmod(root, 0o700)
+        _prepare_capture_root(root, expected_uid=expected_uid)
         capture_dir = tempfile.mkdtemp(prefix="sa3-listener-", dir=root)
-        os.chmod(capture_dir, 0o700)
+        _verify_capture_directory(capture_dir, expected_uid=expected_uid,
+                                  label="capture directory")
         stdout_path = os.path.join(capture_dir, "stdout.json")
         stderr_path = os.path.join(capture_dir, "stderr.log")
-        stdout_file = open(stdout_path, "wb", buffering=0)
-        stderr_file = open(stderr_path, "wb", buffering=0)
-        os.chmod(stdout_path, 0o600)
-        os.chmod(stderr_path, 0o600)
+        stdout_file = _open_capture_file(stdout_path, expected_uid=expected_uid)
+        stderr_file = _open_capture_file(stderr_path, expected_uid=expected_uid)
         process = process_factory(listener_command(lease_id=lease_id, generation=generation),
                                   stdout=stdout_file, stderr=stderr_file,
                                   start_new_session=True)
@@ -113,6 +194,8 @@ def run(*, lease_id: str, generation: int, deadline_epoch: int,
                 raise AdapterError("SA3 listener diagnostics exceeded bound")
             status = process.poll()
             if status is not None:
+                _verify_capture_file(stdout_path, expected_uid=expected_uid)
+                _verify_capture_file(stderr_path, expected_uid=expected_uid)
                 stdout_file.flush(); stderr_file.flush()
                 stdout_file.close(); stderr_file.close()
                 stdout_file = stderr_file = None
@@ -137,22 +220,33 @@ def run(*, lease_id: str, generation: int, deadline_epoch: int,
                 return result
             sleep(min(1.0, max(0.0, deadline_epoch - clock())))
     finally:
+        cleanup_error = None
         if stdout_file is not None:
-            stdout_file.close()
-        if stderr_file is not None:
-            stderr_file.close()
-        if process is not None:
-            _stop_process(process, killpg=killpg)
-        if capture_dir is not None:
-            for name in ("stdout.json", "stderr.log"):
-                try:
-                    os.unlink(os.path.join(capture_dir, name))
-                except FileNotFoundError:
-                    pass
             try:
-                os.rmdir(capture_dir)
-            except OSError:
-                pass
+                stdout_file.close()
+            except OSError as exc:
+                cleanup_error = AdapterError("SA3 capture cleanup failed")
+        if stderr_file is not None:
+            try:
+                stderr_file.close()
+            except OSError as exc:
+                cleanup_error = cleanup_error or AdapterError("SA3 capture cleanup failed")
+        if process is not None:
+            try:
+                _stop_process(process, killpg=killpg)
+            except Exception as exc:
+                cleanup_error = cleanup_error or exc
+        if capture_dir is not None:
+            try:
+                _cleanup_capture(
+                    capture_dir,
+                    (os.path.join(capture_dir, "stdout.json"),
+                     os.path.join(capture_dir, "stderr.log")),
+                    expected_uid=expected_uid)
+            except Exception as exc:
+                cleanup_error = cleanup_error or exc
+        if cleanup_error is not None:
+            raise cleanup_error
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@ import json
 import os
 import tempfile
 import unittest
+from unittest import mock
 
 import sa3_listener_adapter as adapter
 from sa3_expanded_quality_transaction import PACKET_CASE_IDS, PACKET_SHA256, MODEL_ID
@@ -50,7 +51,7 @@ class AdapterTests(unittest.TestCase):
                                         json.dumps(result()), stdout=kwargs["stdout"]),
                                     clock=lambda: 1, sleep=lambda seconds: sleeps.append(seconds),
                                     killpg=lambda pid, sig: calls.append((pid, sig)),
-                                    capture_root=tmp)
+                                    capture_root=tmp, expected_uid=os.geteuid())
         self.assertEqual(value["request_count"], 20)
         self.assertEqual(calls, ["heartbeat"])
         self.assertFalse(process.stopped)
@@ -65,7 +66,7 @@ class AdapterTests(unittest.TestCase):
                             process_factory=lambda *args, **kwargs: process,
                             clock=lambda: next(now), sleep=lambda seconds: None,
                             killpg=lambda pid, sig: calls.append((pid, sig)),
-                            capture_root=tmp)
+                            capture_root=tmp, expected_uid=os.geteuid())
         self.assertIn("heartbeat", calls)
         self.assertTrue(process.stopped)
 
@@ -88,7 +89,7 @@ class AdapterTests(unittest.TestCase):
                 heartbeat=lambda: None,
                 process_factory=lambda *args, **kwargs: Process(
                     payload, stdout=kwargs["stdout"]),
-                clock=lambda: 1, capture_root=tmp)
+                clock=lambda: 1, capture_root=tmp, expected_uid=os.geteuid())
         self.assertEqual(actual["request_count"], 20)
 
     def test_nonzero_malformed_and_oversized_output_fail_closed(self):
@@ -103,7 +104,7 @@ class AdapterTests(unittest.TestCase):
                                     process_factory=lambda *args, p=process, **kwargs: Process(
                                         p.output, p.status, stdout=kwargs["stdout"]),
                                     clock=lambda: 1, killpg=lambda *_: None,
-                                    capture_root=tmp)
+                                    capture_root=tmp, expected_uid=os.geteuid())
 
     def test_no_arbitrary_command_or_invalid_identity(self):
         with self.assertRaisesRegex(adapter.AdapterError, "identity"):
@@ -111,6 +112,68 @@ class AdapterTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             adapter.run(lease_id="lease-1", generation=1, deadline_epoch=100,
                         heartbeat=lambda: None, command=("sh", "-c", "false"))
+
+    def test_capture_root_drift_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = os.path.join(tmp, "capture")
+            target = os.path.join(tmp, "target")
+            os.mkdir(target)
+            os.symlink(target, base)
+            with self.assertRaisesRegex(adapter.AdapterError, "capture root"):
+                adapter.run(lease_id="lease-1", generation=2, deadline_epoch=100,
+                            heartbeat=lambda: None, clock=lambda: 1,
+                            capture_root=base, expected_uid=os.geteuid())
+
+            os.unlink(base)
+            with open(base, "w"):
+                pass
+            with self.assertRaisesRegex(adapter.AdapterError, "capture root"):
+                adapter.run(lease_id="lease-1", generation=2, deadline_epoch=100,
+                            heartbeat=lambda: None, clock=lambda: 1,
+                            capture_root=base, expected_uid=os.geteuid())
+
+            os.unlink(base)
+            os.mkdir(base, 0o755)
+            with self.assertRaisesRegex(adapter.AdapterError, "capture root"):
+                adapter.run(lease_id="lease-1", generation=2, deadline_epoch=100,
+                            heartbeat=lambda: None, clock=lambda: 1,
+                            capture_root=base, expected_uid=os.geteuid())
+
+            os.chmod(base, 0o700)
+            with self.assertRaisesRegex(adapter.AdapterError, "capture root"):
+                adapter.run(lease_id="lease-1", generation=2, deadline_epoch=100,
+                            heartbeat=lambda: None, clock=lambda: 1,
+                            capture_root=base, expected_uid=os.geteuid() + 1)
+
+    def test_capture_file_custody_drift_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            def replace_capture(path):
+                os.unlink(path)
+                os.symlink(os.devnull, path)
+
+            with self.assertRaisesRegex(adapter.AdapterError, "capture file"):
+                adapter.run(
+                    lease_id="lease-1", generation=2, deadline_epoch=100,
+                    heartbeat=lambda: None,
+                    process_factory=lambda *args, **kwargs: (
+                        replace_capture(kwargs["stdout"].capture_path),
+                        Process(json.dumps(result()), stdout=kwargs["stderr"])
+                    )[1],
+                    clock=lambda: 1, capture_root=tmp,
+                    expected_uid=os.geteuid())
+
+    def test_capture_cleanup_failure_is_not_ignored(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with mock.patch.object(adapter.os, "rmdir",
+                                   side_effect=OSError("busy")):
+                with self.assertRaisesRegex(adapter.AdapterError, "cleanup failed"):
+                    adapter.run(
+                        lease_id="lease-1", generation=2, deadline_epoch=100,
+                        heartbeat=lambda: None,
+                        process_factory=lambda *args, **kwargs: Process(
+                            json.dumps(result()), stdout=kwargs["stdout"]),
+                        clock=lambda: 1, capture_root=tmp,
+                        expected_uid=os.geteuid())
 
 
 if __name__ == "__main__": unittest.main()
