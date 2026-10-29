@@ -22,7 +22,7 @@ from typing import Callable, Iterable
 
 
 PACKET_NAME = "ASTER-LAB-HOURS-SA3-INACTIVE-INSTALL-PACKET-20261029.json"
-PACKET_SHA256 = "9173ea4179f16efcd635ca9eefe5d9f767b07dfee082e250f0a1a22a898b7a0c"
+PACKET_SHA256 = "114186c44ec59a92768e04eb963a8a4e8d4705fa8b3eff6201913782f4af500a"
 EXPECTED_PLATFORM_COMMIT = "8dc6eac5"
 EXPECTED_STREAM_COMMIT = "434c5aedddd59665c7e2e8961196b81310e02765"
 HOST_CHECKPOINT = "/var/lib/local-ai-lab/checkpoints/sa3-inactive-install-8dc6eac5"
@@ -461,6 +461,18 @@ def _host_existing(packet: dict[str, object], target: LocalTarget) -> None:
         state = target.inspect(spec.target, mode=spec.mode)
         if not state.present or state.sha256 != spec.sha256:
             raise InstallError(f"EXISTING_PIN_INVALID:{spec.target}")
+    guard = packet["host"]["registration_guard"]
+    workload_id = guard["workload_id"].encode()
+    runner_target = HOST_ROOT + "/" + guard["runner_target"]
+    runner = target.inspect(runner_target, mode=None)
+    if (not runner.present or runner.sha256 != guard["runner_sha256"]
+            or workload_id in runner.data
+            or guard["runner_expected_failure"].encode() not in runner.data):
+        raise InstallError("REGISTRATION_GUARD_RUNNER_INVALID")
+    manifest_target = HOST_ROOT + "/" + guard["manifest_target"]
+    manifest = target.inspect(manifest_target, mode=None)
+    if not manifest.present or (guard["manifest_workload_absent"] and workload_id in manifest.data):
+        raise InstallError("REGISTRATION_GUARD_MANIFEST_INVALID")
 
 
 def _rollback(targets: list[tuple[object, list[FileSpec], str, dict[str, str]]]) -> None:

@@ -15,9 +15,10 @@ from typing import Iterable
 
 REPO = Path(__file__).resolve().parents[2]
 PACKET_REL = Path("services/local-ai-lease/ASTER-LAB-HOURS-SA3-INACTIVE-INSTALL-PACKET-20261029.json")
-PACKET_SHA256 = "9173ea4179f16efcd635ca9eefe5d9f767b07dfee082e250f0a1a22a898b7a0c"
+PACKET_SHA256 = "114186c44ec59a92768e04eb963a8a4e8d4705fa8b3eff6201913782f4af500a"
 INSTALLER_REL = Path("scripts/local-ai/sa3_inactive_install.py")
 BUNDLE_NAME = "aster-sa3-inactive-install-8dc6eac5.tar.gz"
+BUNDLE_SHA256 = "6e54c4dac9acf050061ed707638d921bfbb756bffd567b985fc2855f801ed709"
 STREAM_COMMIT = "434c5aedddd59665c7e2e8961196b81310e02765"
 
 
@@ -139,6 +140,8 @@ def build(output_dir: Path, *, repo: Path = REPO, expected_uid: int | None = Non
         archive_path = output_dir / BUNDLE_NAME
         _write_file(archive_path, archive_data, 0o600)
         digest = hashlib.sha256(archive_data).hexdigest()
+        if digest != BUNDLE_SHA256:
+            raise BundleError(f"BUNDLE_HASH_INVALID:{digest}")
         sidecar = output_dir / (BUNDLE_NAME + ".sha256")
         _write_file(sidecar, f"{digest}  {BUNDLE_NAME}\n".encode(), 0o600)
         return {"archive": str(archive_path), "archive_sha256": digest,

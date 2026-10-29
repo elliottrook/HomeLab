@@ -20,6 +20,15 @@
       {"target": "lab_hours_reserved_runner.py", "mode": "0755", "sha256": "6ba44c2bfb6322d68c5bd6c112e4144916be60f2ee4ae0abf2042e09a456abd2", "enforced": true},
       {"target": "lab_hours_release_manifest.json", "mode": "observed-live", "sha256": "b2c61494", "enforced": false}
     ],
+    "registration_guard": {
+      "workload_id": "sa3-expanded-source-quality-v1",
+      "runner_target": "lab_hours_reserved_runner.py",
+      "runner_sha256": "6ba44c2bfb6322d68c5bd6c112e4144916be60f2ee4ae0abf2042e09a456abd2",
+      "runner_expected_failure": "WORKLOAD_NOT_REGISTERED",
+      "manifest_target": "lab_hours_release_manifest.json",
+      "manifest_workload_absent": true,
+      "registration_effect": "not-installed"
+    },
     "inactive_units": [
       "/etc/systemd/system/aster-lab-hours-booking-sa3-expanded-source-quality-v1.service",
       "/etc/systemd/system/aster-lab-hours-booking-sa3-expanded-source-quality-v1.timer"
@@ -63,5 +72,5 @@
     "guest": "Verify installed runtime/wrapper hashes, restore only the LXC110 checkpointed targets atomically, remove only targets recorded absent, and rerun the import/custody postcheck.",
     "prohibited": "Do not replace the live CLI, reservations, runner, manifest, guardian or runtime; do not stop/start a service, change a timer, acquire a lease, book Lab Hours, drain production, invoke a model, alter routing, reboot, or delete uncertain state."
   },
-  "prohibited_effects": ["core/CLI/reservation/runner/manifest upgrade", "service or timer change", "WORKLOAD_RUNNER_UNAVAILABLE gate removal", "Lab Hours booking or window check", "lease acquisition or production drain", "model request or GPU/backend change", "routing, firewall or credential change", "guest restart or host reboot", "remote push"]
+  "prohibited_effects": ["core/CLI/reservation/runner/manifest upgrade", "SA3 registration or activation", "service or timer change", "Lab Hours booking or window check", "lease acquisition or production drain", "model request or GPU/backend change", "routing, firewall or credential change", "guest restart or host reboot", "remote push"]
 }

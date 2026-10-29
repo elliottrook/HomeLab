@@ -23,6 +23,12 @@ class BundleTests(unittest.TestCase):
             self.assertEqual(output.stat().st_mode & 0o777, 0o700)
             self.assertEqual(archive.stat().st_mode & 0o777, 0o600)
             self.assertEqual(sidecar.stat().st_mode & 0o777, 0o600)
+            self.assertEqual(result["archive_sha256"], builder.BUNDLE_SHA256)
+            output_two = Path(tmp) / "bundles-two"
+            result_two = builder.build(output_two, expected_uid=os.geteuid())
+            self.assertEqual(result_two["archive_sha256"], builder.BUNDLE_SHA256)
+            self.assertEqual(archive.read_bytes(), Path(result_two["archive"]).read_bytes())
+            self.assertEqual(sidecar.read_bytes(), Path(result_two["sidecar"]).read_bytes())
             with tarfile.open(archive, "r:gz") as tar:
                 names = sorted(tar.getnames())
                 self.assertEqual(names, sorted([

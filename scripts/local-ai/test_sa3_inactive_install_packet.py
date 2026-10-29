@@ -49,8 +49,21 @@ class Sa3InactiveInstallPacketTests(unittest.TestCase):
             "sa3-expanded-source-quality-keys-v1.json",
             "sa3-expanded-source-quality-independent-review-v1.json",
         ])
-        self.assertIn("WORKLOAD_RUNNER_UNAVAILABLE gate removal", value["prohibited_effects"])
+        self.assertIn("SA3 registration or activation", value["prohibited_effects"])
         self.assertIn("remote push", value["prohibited_effects"])
+
+    def test_live_baseline_registration_guard_matches_observation(self):
+        value = packet()
+        guard = value["host"]["registration_guard"]
+        self.assertEqual(guard["workload_id"], "sa3-expanded-source-quality-v1")
+        self.assertEqual(guard["runner_expected_failure"], "WORKLOAD_NOT_REGISTERED")
+        baseline_commit = "336df57de7929dd0a3e612494ff769d3cb0ba225"
+        runner = subprocess.run(("git", "show", f"{baseline_commit}:scripts/local-ai/lab_hours_reserved_runner.py"), cwd=REPO, capture_output=True, check=True).stdout
+        manifest = subprocess.run(("git", "show", f"{baseline_commit}:scripts/local-ai/lab_hours_release_manifest.json"), cwd=REPO, capture_output=True, check=True).stdout
+        self.assertEqual(hashlib.sha256(runner).hexdigest(), guard["runner_sha256"])
+        self.assertIn(b"WORKLOAD_NOT_REGISTERED", runner)
+        self.assertNotIn(guard["workload_id"].encode(), runner)
+        self.assertNotIn(guard["workload_id"].encode(), manifest)
 
     def test_all_source_hashes_and_modes_match_packet(self):
         value = packet()

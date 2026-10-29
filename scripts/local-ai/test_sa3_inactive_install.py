@@ -52,6 +52,12 @@ def seed_targets(root: Path, value: dict, host_root: Path, guest_root: Path) -> 
         target = host_target_root / record["target"]
         target.write_bytes(source)
         target.chmod(int(record["mode"], 8))
+    manifest = subprocess.run(
+        ("git", "show", "336df57de7929dd0a3e612494ff769d3cb0ba225:scripts/local-ai/lab_hours_release_manifest.json"),
+        cwd=REPO, capture_output=True, check=True).stdout
+    manifest_target = host_target_root / value["host"]["registration_guard"]["manifest_target"]
+    manifest_target.write_bytes(manifest)
+    manifest_target.chmod(0o644)
     (guest_root / "usr/local/sbin").mkdir(parents=True, mode=0o755)
     assert host_root.stat().st_uid == uid
 
