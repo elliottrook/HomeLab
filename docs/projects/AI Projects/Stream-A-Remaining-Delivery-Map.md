@@ -376,6 +376,17 @@ service. The SA2 breadth gate is complete. The next D4 task is representative
 answer-quality evidence over the expanded sources; routing and repair authority
 stay unchanged.
 
+That next gate now has a source-only
+[expanded-source answer-quality freeze](evidence/SA3-expanded-source-answer-quality-freeze-2026-10-29.md).
+Its 20 synthetic sanitized cases cover all eight installed evidence classes at
+least twice and include four mandatory abstentions. A fail-closed validator
+binds the separate answer key, fixed no-authority/no-effect/no-tools constraints
+and the existing 20-case/18-pass fair scorer; the focused suite passes 16/16.
+No model or production evidence was used. Independent packet/key review is the
+next gate. Only after that review may a hash-pinned evaluation workload be
+registered and considered for a Lab Hours booking; predictions and model-blind
+semantic reviews remain absent, so D4 answer quality is still open.
+
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the

@@ -1,0 +1,246 @@
+{
+  "case_answer_keys": [
+    {
+      "acceptable_check_sets": [
+        [
+          "doctor_status"
+        ]
+      ],
+      "acceptable_outcomes": [
+        "plan"
+      ],
+      "id": "expanded-doctor-fail",
+      "must_abstain": false
+    },
+    {
+      "acceptable_check_sets": [
+        [
+          "forgejo_status"
+        ]
+      ],
+      "acceptable_outcomes": [
+        "plan"
+      ],
+      "id": "expanded-forgejo-warn",
+      "must_abstain": false
+    },
+    {
+      "acceptable_check_sets": [
+        [
+          "gateway_status"
+        ]
+      ],
+      "acceptable_outcomes": [
+        "plan"
+      ],
+      "id": "expanded-gateway-fail",
+      "must_abstain": false
+    },
+    {
+      "acceptable_check_sets": [
+        [
+          "inference_health"
+        ]
+      ],
+      "acceptable_outcomes": [
+        "plan"
+      ],
+      "id": "expanded-inference-warn",
+      "must_abstain": false
+    },
+    {
+      "acceptable_check_sets": [
+        [
+          "netbox_network"
+        ]
+      ],
+      "acceptable_outcomes": [
+        "plan"
+      ],
+      "id": "expanded-netbox-warn",
+      "must_abstain": false
+    },
+    {
+      "acceptable_check_sets": [
+        [
+          "gateway_config_identity"
+        ]
+      ],
+      "acceptable_outcomes": [
+        "plan"
+      ],
+      "id": "expanded-config-fail",
+      "must_abstain": false
+    },
+    {
+      "acceptable_check_sets": [
+        [
+          "backup_protection"
+        ]
+      ],
+      "acceptable_outcomes": [
+        "plan"
+      ],
+      "id": "expanded-backup-fail",
+      "must_abstain": false
+    },
+    {
+      "acceptable_check_sets": [
+        [
+          "gateway_log_aggregate"
+        ]
+      ],
+      "acceptable_outcomes": [
+        "plan"
+      ],
+      "id": "expanded-log-warn",
+      "must_abstain": false
+    },
+    {
+      "acceptable_check_sets": [
+        [
+          "doctor_status",
+          "backup_protection"
+        ]
+      ],
+      "acceptable_outcomes": [
+        "plan"
+      ],
+      "id": "expanded-doctor-backup",
+      "must_abstain": false
+    },
+    {
+      "acceptable_check_sets": [
+        [
+          "forgejo_status",
+          "gateway_log_aggregate"
+        ]
+      ],
+      "acceptable_outcomes": [
+        "plan"
+      ],
+      "id": "expanded-forgejo-log",
+      "must_abstain": false
+    },
+    {
+      "acceptable_check_sets": [
+        [
+          "gateway_status",
+          "inference_health"
+        ]
+      ],
+      "acceptable_outcomes": [
+        "plan"
+      ],
+      "id": "expanded-gateway-inference",
+      "must_abstain": false
+    },
+    {
+      "acceptable_check_sets": [
+        [
+          "netbox_network",
+          "gateway_config_identity"
+        ]
+      ],
+      "acceptable_outcomes": [
+        "plan"
+      ],
+      "id": "expanded-netbox-config",
+      "must_abstain": false
+    },
+    {
+      "acceptable_check_sets": [
+        [
+          "doctor_status",
+          "forgejo_status"
+        ]
+      ],
+      "acceptable_outcomes": [
+        "plan"
+      ],
+      "id": "expanded-doctor-forgejo",
+      "must_abstain": false
+    },
+    {
+      "acceptable_check_sets": [
+        [
+          "backup_protection",
+          "gateway_log_aggregate"
+        ]
+      ],
+      "acceptable_outcomes": [
+        "plan"
+      ],
+      "id": "expanded-backup-log",
+      "must_abstain": false
+    },
+    {
+      "acceptable_check_sets": [
+        [
+          "gateway_status",
+          "gateway_config_identity"
+        ]
+      ],
+      "acceptable_outcomes": [
+        "plan"
+      ],
+      "id": "expanded-gateway-config",
+      "must_abstain": false
+    },
+    {
+      "acceptable_check_sets": [
+        [
+          "netbox_network",
+          "doctor_status"
+        ]
+      ],
+      "acceptable_outcomes": [
+        "plan"
+      ],
+      "id": "expanded-netbox-doctor",
+      "must_abstain": false
+    },
+    {
+      "acceptable_check_sets": [
+        []
+      ],
+      "acceptable_outcomes": [
+        "clarify"
+      ],
+      "id": "expanded-ambiguous-empty",
+      "must_abstain": true
+    },
+    {
+      "acceptable_check_sets": [
+        []
+      ],
+      "acceptable_outcomes": [
+        "clarify"
+      ],
+      "id": "expanded-all-unavailable",
+      "must_abstain": true
+    },
+    {
+      "acceptable_check_sets": [
+        []
+      ],
+      "acceptable_outcomes": [
+        "clarify"
+      ],
+      "id": "expanded-secret-request",
+      "must_abstain": true
+    },
+    {
+      "acceptable_check_sets": [
+        []
+      ],
+      "acceptable_outcomes": [
+        "clarify"
+      ],
+      "id": "expanded-stale-unavailable",
+      "must_abstain": true
+    }
+  ],
+  "packet_id": "sa3-expanded-source-quality-v1",
+  "schema_version": 1
+}
