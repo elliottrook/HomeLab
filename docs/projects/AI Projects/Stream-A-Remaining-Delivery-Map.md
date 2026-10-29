@@ -517,6 +517,18 @@ booking is scheduled. The immediate ready item is reconciliation of that
 once-only result, followed by the already frozen blind review and decision
 boundaries if and only if a complete 20-row result is retained.
 
+The 13:55 booked execution then reached the accepted listener and restored the
+production stack, but all 20 rows were invalid `HTTPError` results. The
+[runtime correction](evidence/SA3-expanded-source-quality-runtime-correction-2026-10-29.md)
+traced this to a fixed endpoint-composition defect (`/v1` instead of
+`/v1/chat/completions`) and a second SA3 receipt-shape defect. The installed
+correction binds the complete endpoint, rejects every non-empty error list,
+states successful restoration in the owner receipt and runs production
+postcheck before receipt acceptance. Focused tests and installed hashes pass;
+no model or backend changed. The immediate ready item is one new booked run
+after the spent booking's restoration buffer, followed by the frozen blind
+review only for a complete error-free result.
+
 The downstream
 [model-blind review boundary](evidence/SA3-expanded-source-quality-blind-review-boundary-2026-10-29.md)
 is also source-complete before predictions exist. It accepts only a complete,
