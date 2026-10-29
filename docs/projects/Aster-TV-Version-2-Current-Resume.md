@@ -123,8 +123,59 @@ Unauthenticated subscriptions/recommendation widgets
 also produce add-on errors and stay empty. The News Digest page loaded a
 current 20-story briefing; its dedicated audio player started, displayed
 story progress, and was stopped after a short test. Physical lab audio and
-YouTube result/playback acceptance remain open. Production remains on
+YouTube playback acceptance remain open. Production remains on
 owner-confirmed v1.1.1.
+
+### Kodi 22 lab skip and digital-audio recovery — 2026-10-29
+
+Jason corrected the fresh-install assumption: the established v1.1 lab
+disabled Jellyfin's own intro/credits popups while leaving media segments
+enabled, so Aster's marker-owned prompt retained focus. The fresh Jellyfin
+2.2.0 profile had native intro, recap and credits buttons enabled by a
+temporary setup script; a live Intro marker showed native dialog 12901 and
+suppressed Aster dialog 11125. After stopping playback, the lab add-on
+settings were checkpointed at
+`/storage/.aster-checkpoints/astertv-v2-jellyfin-native-popups-20261029.xml`.
+Only those three native skip modes were set to Off; media-segment reading
+remained enabled. The temporary enable script was removed from source.
+
+The Aster `next_episode.py` helper now reads typed Recap markers and offers
+an explicit Skip recap button alongside its existing Intro and Outro behavior.
+The predecessor helper is checkpointed at
+`/storage/.aster-checkpoints/astertv-v2-next-episode-20261029.py`.
+Live Kodi 22 tests: on a previously played episode, Aster Skip intro appeared
+without Jellyfin's overlay and Select sought from 2:30 to the true 2:59.579
+marker end. On an already-watched episode, Aster Skip recap appeared for a
+0:00–1:20.08 marker and Select sought to its end. A real credits marker at
+47:05.254 displayed Play next episode; Select opened the indexed following
+episode, which was stopped after verification. All three tests used actual
+Jellyfin segment data, not estimated timestamps. Ten skip-helper tests and
+nineteen movie-player tests pass locally. The lab Search/movie component guard
+was resealed with both the new helper hash and the fresh official Jellyfin
+player hash; its native `verify_stage` passes. The exact prior files are at
+`/storage/.aster-checkpoints/astertv-v2-skip-runtime-20261029`.
+
+The short initial Intro probe created a resume bookmark on an unwatched test
+episode. Its Kodi bookmark was cleared with `VideoLibrary.SetEpisodeDetails`
+and read back as unwatched/no-resume. The Jellyfin server still held 179
+seconds, so the local OpenAPI `UpdateItemUserData` route was used for that one
+mapped item, changing only position/percentage to zero while preserving
+Played, PlayCount and Favorite. A fresh server read returned zero ticks;
+Kodi's local database has no resume bookmark. Normal test play count and
+last-played timestamps were not rewritten.
+
+The HP's clean OS install also removed the tracked
+`snd_hda_codec_hdmi enable_all_pins=1` setting. Before repair, ALSA listed
+only analog despite a connected LG HDR 4K display, and the module parameter
+was `N`. The absent predecessor is recorded at
+`/storage/.aster-checkpoints/astertv-lab-hdmi-pins-20261029.json`.
+After restoring the exact tracked HP config and rebooting the idle lab,
+the parameter became `Y` and ALSA exposed HDMI 0/1/2. Kodi's newly enumerated
+HDMI 0 option matched the connected LG display; the prior analog selector
+was checkpointed at `/storage/.aster-checkpoints/astertv-lab-hdmi-audio-20261029`
+and normal stereo output switched to HDMI 0 with passthrough off. Kodi opened
+`hdmi:CARD=PCH,DEV=0` and retained it across an idle Kodi restart. Physical
+audibility awaits Jason's check; Dolby passthrough remains unvalidated.
 
 Jason reported the v2 player had lost skip recap/intro/outro and directed that
 v2 be pulled from production. This is a release-blocking regression; the v2

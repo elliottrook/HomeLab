@@ -91,7 +91,8 @@ def read_segments(profile, jellyfin_id):
             return {}
     payload = json.loads(raw)
     return {'credits': credits_windows(payload),
-            'intro': segment_windows(payload, ('Intro', 'Introduction'))}
+            'intro': segment_windows(payload, ('Intro', 'Introduction')),
+            'recap': segment_windows(payload, ('Recap',))}
 
 
 def main():
@@ -116,7 +117,7 @@ def main():
         identifier = home.getProperty(prefix+'NextId')
         valid = (current.get('type') == 'episode'
                  and str(current.get('id')) == home.getProperty(prefix+'CurrentId'))
-        if valid and sys.argv[1] == 'activate' and home.getProperty(prefix+'Mode') == 'intro':
+        if valid and sys.argv[1] == 'activate' and home.getProperty(prefix+'Mode') in ('intro', 'recap'):
             end = float(home.getProperty(prefix+'SeekTo') or '-1')
             if math.isfinite(end) and 0 <= end <= 86400:
                 milliseconds = round(end*1000)
@@ -196,6 +197,7 @@ def main():
                         xbmc.log('Aster Up Next: segment metadata unavailable; manual Next remains available.', xbmc.LOGWARNING)
             position = player.getTime()
             available = [('intro',start,end) for start,end in markers.get('intro',[])]
+            available += [('recap',start,end) for start,end in markers.get('recap',[])]
             if home.getProperty(prefix+'Ready') == 'true':
                 available += [('credits',start,end) for start,end in markers.get('credits',[])]
             here = next((segment for segment in available if segment[1] <= position < segment[2]), None)
@@ -204,10 +206,13 @@ def main():
                 if xbmcgui.getCurrentWindowDialogId() in (0, 9999):
                     mode,start,end = here
                     home.setProperty(prefix+'Mode', mode)
-                    home.setProperty(prefix+'Label', home.getProperty(prefix+('CurrentLabel' if mode == 'intro' else 'NextLabel')))
+                    home.setProperty(prefix+'Label',
+                                     (('Recap - S' + str(current.get('season',0)) + ' E' + str(current.get('episode',0)))
+                                      if mode == 'recap' else
+                                      home.getProperty(prefix+('CurrentLabel' if mode == 'intro' else 'NextLabel'))))
                     home.setProperty(prefix+'SeekTo', str(end))
-                    home.setProperty(prefix+'ButtonLabel', 'Skip intro' if mode == 'intro' else 'Play next episode')
-                    home.setProperty(prefix+'Description', 'Introduction - skips only when selected' if mode == 'intro' else 'Credits - starts only when selected')
+                    home.setProperty(prefix+'ButtonLabel', 'Skip intro' if mode == 'intro' else 'Skip recap' if mode == 'recap' else 'Play next episode')
+                    home.setProperty(prefix+'Description', 'Introduction - skips only when selected' if mode == 'intro' else 'Recap - skips only when selected' if mode == 'recap' else 'Credits - starts only when selected')
                     prompted.add(here)
                     active_marker = here
                     xbmc.executebuiltin('ActivateWindow(11125)')

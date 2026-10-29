@@ -26,8 +26,8 @@ TARGETS={'overlay/Home.xml':'1080i/Home.xml','overlay/select_dispatch.py':'tools
 MEMBERS={'default.py','movie.py','resources/lib/global_search.py','resources/lib/search_details.py',
     'resources/lib/search_handoff.py','resources/lib/search_extensions.py','resources/lib/movie_player.py',*TARGETS}
 GUARDS={'skin.asterhome/1080i/VideoFullScreen.xml':'07e723b884f8a25271819fbe59e6162770661a58d24edba983b233645cca5d6a',
-    'skin.asterhome/tools/next_episode.py':'8fe18880de923443734fde26dd0c47815e93c68c531e9a34103630054e22c102',
-    'plugin.video.jellyfin/jellyfin_kodi/player.py':'21b93325b6ef9b50fdd3f5c48b273e12820f5a662ae534405dacdebcc15388fd'}
+    'skin.asterhome/tools/next_episode.py':'909a321aee7e6e68121e7149c26086c56faa314c303d4843510d11e05ed7e3ba',
+    'plugin.video.jellyfin/jellyfin_kodi/player.py':'a4532bcc3b7a3508b67b9a00cadb6523e763d9510db12dc8f1f53c74c5459112'}
 
 def verify_stage(storage=Path('/storage')):
     root=storage/'.aster-staging'/MOVIE_STAGE;skin=storage/'.kodi/addons/skin.asterhome'

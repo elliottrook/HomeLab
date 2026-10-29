@@ -26,6 +26,11 @@ class NextEpisodeTests(unittest.TestCase):
         self.assertEqual(segment_windows(payload, ('Intro','Introduction')), [(1,2)])
         self.assertEqual(credits_windows(payload), [])
 
+    def test_recap_marker_is_bounded_and_separate_from_intro(self):
+        payload = {'Items':[{'Type':'Recap','StartTicks':30000000,'EndTicks':60000000}]}
+        self.assertEqual(segment_windows(payload, ('Recap',)), [(3,6)])
+        self.assertEqual(segment_windows(payload, ('Intro','Introduction')), [])
+
     def test_following_episode_is_sequential_not_watch_state_dependent(self):
         rows = [{'season':2,'episode':1,'episodeid':3,'file':'existing', 'playcount':1},
                 {'season':0,'episode':1,'episodeid':2,'file':'extra'}]
@@ -78,3 +83,20 @@ class NextEpisodeTests(unittest.TestCase):
         self.assertEqual([row['method'] for row in calls],['Player.GetItem','Player.Seek'])
         self.assertEqual(calls[-1]['params']['value']['time'],
                          {'hours':0,'minutes':5,'seconds':10,'milliseconds':310})
+
+    def test_recap_click_seeks_to_exact_marker_end_without_opening_media(self):
+        xbmc,gui,vfs=Mock(),Mock(),Mock()
+        props={'AsterNextEpisode.Mode':'recap','AsterNextEpisode.CurrentId':'1',
+               'AsterNextEpisode.SeekTo':'64.125'}
+        gui.Window.return_value.getProperty.side_effect=lambda key:props.get(key,'')
+        calls=[]
+        def execute(raw):
+            request=json.loads(raw);calls.append(request)
+            return json.dumps({'result':{'item':{'type':'episode','id':1}} if request['method']=='Player.GetItem' else 'OK'})
+        xbmc.executeJSONRPC.side_effect=execute
+        with patch.dict(sys.modules, {'xbmc':xbmc,'xbmcgui':gui,'xbmcvfs':vfs}), \
+                patch.object(sys,'argv',['next_episode.py','activate']):
+            next_episode.main()
+        self.assertEqual([row['method'] for row in calls],['Player.GetItem','Player.Seek'])
+        self.assertEqual(calls[-1]['params']['value']['time'],
+                         {'hours':0,'minutes':1,'seconds':4,'milliseconds':125})
