@@ -243,6 +243,8 @@ class ProposalBoundaryTests(unittest.TestCase):
             "The registered configuration check was never executed.",
             "The fixed public configuration identity remains to be observed.",
             "The fixed configuration report is registered evidence.",
+            "The fixed sanitized journal aggregate remains unavailable.",
+            "The installed service identity is evidence, not an action.",
         ):
             with self.subTest(summary=summary):
                 decision = accept_model_proposal(
@@ -255,6 +257,11 @@ class ProposalBoundaryTests(unittest.TestCase):
         for summary in (
             "The check was not executed, but the service was restarted.",
             "The service was not only restarted but also fixed.",
+            "The service was restarted successfully.",
+            "The service is now fixed.",
+            "Restarted the service after the check.",
+            "We have deployed the correction.",
+            "The repair applied cleanly.",
         ):
             with self.subTest(summary=summary), self.assertRaisesRegex(
                     InvestigationError, "completed effect"):

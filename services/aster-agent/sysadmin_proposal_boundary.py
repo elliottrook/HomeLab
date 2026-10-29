@@ -35,19 +35,25 @@ NEGATED_EFFECT = re.compile(
     r"\b(?:not|never)\b(?:\s+(?!only\b)[a-z]+){0,3}\s*$",
     re.IGNORECASE,
 )
-FIXED_DESCRIPTOR = re.compile(
-    r"\s+(?:public\s+)?(?:configuration|identity|inventory|source|target|plan|check|report|path|endpoint)\b",
+EFFECT_CLAIM_PREFIX = re.compile(
+    r"(?:"
+    r"(?:^|[.!?]\s+)(?:successfully\s+)?|"
+    r"\b(?:not\s+only|but\s+also)\s+|"
+    r"\b(?:i|we)\s+(?:have\s+)?(?:successfully\s+)?|"
+    r"\b(?:it|this|that)\s+(?:was|has\s+been|is\s+now|has)\s+(?:successfully\s+)?|"
+    r"\b(?:was|were|has\s+been|have\s+been|had\s+been|is\s+now|are\s+now)\s+(?:successfully\s+)?|"
+    r"\b(?:service|system|agent|target|issue|problem|repair|change|deployment|installation|command|action)\s+"
+    r"(?:(?:was|were|has\s+been|is|are|has|had)\s+)?(?:successfully\s+)?"
+    r")$",
     re.IGNORECASE,
 )
 
 
 def _claims_completed_effect(text: str) -> bool:
-    """Reject positive effect claims without rejecting an explicit non-action."""
+    """Reject grammatical action claims, not evidence-label adjectives."""
     for match in COMPLETED_EFFECT.finditer(text):
-        if not NEGATED_EFFECT.search(text[:match.start()]):
-            if (match.group(0).lower() == "fixed"
-                    and FIXED_DESCRIPTOR.match(text[match.end():])):
-                continue
+        prefix = text[:match.start()]
+        if not NEGATED_EFFECT.search(prefix) and EFFECT_CLAIM_PREFIX.search(prefix):
             return True
     return False
 
