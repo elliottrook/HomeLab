@@ -130,14 +130,18 @@ class Sa3InactiveInstallTests(unittest.TestCase):
         tmp, stage, host_root, guest_root, value = self._fixture()
         try:
             target_root = guest_root / value["guest"]["target_root"].lstrip("/")
+            target_parent = target_root.parent
             target_root.rmdir()
+            target_parent.rmdir()
             result = installer.install(stage,
                 host=installer.LocalTarget(host_root, expected_uid=os.geteuid()),
                 guest=installer.LocalTarget(guest_root, expected_uid=os.geteuid()),
                 expected_uid=os.geteuid())
             self.assertEqual(result["state"], "staged-candidate")
             self.assertTrue(target_root.is_dir())
+            self.assertTrue(target_parent.is_dir())
             self.assertEqual(target_root.stat().st_mode & 0o777, 0o755)
+            self.assertEqual(target_parent.stat().st_mode & 0o777, 0o755)
         finally:
             tmp.cleanup()
 
@@ -145,7 +149,9 @@ class Sa3InactiveInstallTests(unittest.TestCase):
         tmp, stage, host_root, guest_root, value = self._fixture()
         try:
             target_root = guest_root / value["guest"]["target_root"].lstrip("/")
+            target_parent = target_root.parent
             target_root.rmdir()
+            target_parent.rmdir()
             with self.assertRaisesRegex(installer.InstallError, "INJECTED_WRITE_FAILURE"):
                 installer.install(stage,
                     host=installer.LocalTarget(host_root, expected_uid=os.geteuid()),
@@ -154,6 +160,7 @@ class Sa3InactiveInstallTests(unittest.TestCase):
                                         after_write=True),
                     expected_uid=os.geteuid())
             self.assertFalse(target_root.exists())
+            self.assertFalse(target_parent.exists())
         finally:
             tmp.cleanup()
 

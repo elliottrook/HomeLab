@@ -15,7 +15,7 @@ class Sa3InactiveInstallCardTests(unittest.TestCase):
         self.assertIn('stat -c \"%u:%g:%a\" \"$incoming\"', text)
         self.assertIn('test ! -e \"$archive\" && test ! -L \"$archive\"', text)
         self.assertIn('test ! -e \"$sidecar\" && test ! -L \"$sidecar\"', text)
-        self.assertIn("proxmox:/var/lib/local-ai-lab/incoming/sa3-inactive-install-root-v2/", text)
+        self.assertIn("proxmox:/var/lib/local-ai-lab/incoming/sa3-inactive-install-root-v3/", text)
         self.assertIn('chown root:root \"$archive\" \"$sidecar\"', text)
         self.assertIn('test ! -L \"$archive\" && test ! -L \"$sidecar\"', text)
         self.assertIn('test ! -e \"$stage\" && test ! -L \"$stage\"', text)

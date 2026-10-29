@@ -22,14 +22,14 @@ from typing import Callable, Iterable
 
 
 PACKET_NAME = "ASTER-LAB-HOURS-SA3-INACTIVE-INSTALL-PACKET-20261029.json"
-PACKET_SHA256 = "b32c1b2a2dcb5f0e8673cb204d997710c034c8c1ec4dba762109b67b4fdb7255"
+PACKET_SHA256 = "27cbdf5dde3e9b451e33fc29ce575de0cc320dbcd6ebe3089742818627c2ed14"
 EXPECTED_PLATFORM_COMMIT = "8dc6eac5"
 EXPECTED_STREAM_COMMIT = "434c5aedddd59665c7e2e8961196b81310e02765"
-HOST_CHECKPOINT = "/var/lib/local-ai-lab/checkpoints/sa3-inactive-install-root-v2"
-GUEST_CHECKPOINT = "/var/lib/local-ai-lab/checkpoints/sa3-inactive-install-root-v2"
+HOST_CHECKPOINT = "/var/lib/local-ai-lab/checkpoints/sa3-inactive-install-root-v3"
+GUEST_CHECKPOINT = "/var/lib/local-ai-lab/checkpoints/sa3-inactive-install-root-v3"
 HOST_ROOT = "/usr/local/libexec/local-ai-lease/full-inference-pilot"
 GUEST_ID = 110
-STAGE_DEFAULT = "/var/lib/local-ai-lab/staging/sa3-inactive-install-root-v2"
+STAGE_DEFAULT = "/var/lib/local-ai-lab/staging/sa3-inactive-install-root-v3"
 
 
 class InstallError(RuntimeError):
@@ -579,8 +579,9 @@ def install(stage_root: Path, *, host: LocalTarget | None = None,
         guest.absent(path)
     _host_existing(packet, host)
     completed_checkpoints: list[tuple[object, list[FileSpec], str, dict[str, str]]] = []
-    guest_root_created = False
-    guest_root_mode = int(packet["guest"]["target_root_policy"]["mode"], 8)
+    guest_directories = [(record["target"], int(record["mode"], 8))
+                         for record in packet["guest"]["target_directories"]]
+    guest_directories_created: list[tuple[str, int, bool]] = []
     try:
         host.checkpoint(host_specs, HOST_CHECKPOINT)
         completed_checkpoints.append((host, host_specs, HOST_CHECKPOINT,
@@ -588,8 +589,9 @@ def install(stage_root: Path, *, host: LocalTarget | None = None,
         guest.checkpoint(guest_specs, GUEST_CHECKPOINT)
         completed_checkpoints.append((guest, guest_specs, GUEST_CHECKPOINT,
                                       {s.target: s.sha256 for s in guest_specs}))
-        guest_root_created = guest.ensure_directory(packet["guest"]["target_root"],
-                                                    mode=guest_root_mode)
+        for target, mode in guest_directories:
+            created = guest.ensure_directory(target, mode=mode)
+            guest_directories_created.append((target, mode, created))
         for spec in host_specs:
             host.install(spec, host_data[spec.target])
         for spec in guest_specs:
@@ -615,9 +617,8 @@ def install(stage_root: Path, *, host: LocalTarget | None = None,
         if completed_checkpoints:
             try:
                 _rollback(completed_checkpoints)
-                guest.rollback_directory(packet["guest"]["target_root"],
-                                         mode=guest_root_mode,
-                                         created=guest_root_created)
+                for target, mode, created in reversed(guest_directories_created):
+                    guest.rollback_directory(target, mode=mode, created=created)
                 _rollback_imports(host, host_specs, guest, guest_specs, packet)
             except Exception as rollback_failure:
                 raise rollback_failure from failure

@@ -3,15 +3,16 @@
 Status: **source-only candidate; installation and activation are not authorized**
 
 Packet: `ASTER-LAB-HOURS-SA3-INACTIVE-INSTALL-PACKET-20261029.json`
-Packet SHA-256: `b32c1b2a2dcb5f0e8673cb204d997710c034c8c1ec4dba762109b67b4fdb7255`
+Packet SHA-256: `27cbdf5dde3e9b451e33fc29ce575de0cc320dbcd6ebe3089742818627c2ed14`
 
-The first authorized candidate failed closed before guest installation because
-LXC110 did not contain the assumed runtime target directory. Independent
-postcheck proved all seven file targets absent and retained both checkpoints.
-This revised candidate treats the exact root-owned `0755` guest runtime
-directory as transaction state: it accepts an existing exact directory or
-creates it, and rollback removes it only when this transaction created it and
-all installed files have first been removed.
+The first authorized candidate failed closed because LXC110 lacked the runtime
+target directory. The `root-v2` correction then failed closed because the
+directory's parent, `/usr/local/libexec/local-ai-lease`, was also absent.
+Independent postchecks after both attempts proved all seven file targets
+absent and retained both checkpoints. This revised candidate treats both exact
+root-owned `0755` guest directories as ordered transaction state: it accepts
+each existing exact directory or creates it, and rollback removes created
+directories in reverse order only after all installed files are removed.
 
 This redesign follows the read-only Proxmox preflight. It does not upgrade the
 working Lab Hours core. The live CLI, reservations, runner, manifest, guardian
@@ -62,7 +63,7 @@ It emits a deterministic archive, sidecar digest and generated bundle
 manifest, rejects answer/review material, makes the packet `0600`, makes all
 other source files `0644`, and removes its transient build stage by default.
 The archive digest is pinned to
-`72057cfff49abd2b2ecaa85e3d9e9ed7bf79905b93d678f8f11a5b858568885a`; the
+`601cbddf6edf6d52d5f2fa4b822e1f705c2d7747b2925a0ff0f2aa05c3f7eac7`; the
 builder rejects any different output.
 
 The fixed installer is `scripts/local-ai/sa3_inactive_install.py`. Its default
@@ -85,8 +86,8 @@ BUNDLE_DIR="$(mktemp -d -t aster-sa3-bundle.XXXXXX)"
 PYTHONDONTWRITEBYTECODE=1 python3 -B scripts/local-ai/build_sa3_inactive_bundle.py \
   --output-dir "$BUNDLE_DIR"
 ssh -o BatchMode=yes proxmox 'set -eu
-  incoming=/var/lib/local-ai-lab/incoming/sa3-inactive-install-root-v2
-  archive="$incoming/aster-sa3-inactive-install-root-v2.tar.gz"
+  incoming=/var/lib/local-ai-lab/incoming/sa3-inactive-install-root-v3
+  archive="$incoming/aster-sa3-inactive-install-root-v3.tar.gz"
   sidecar="$archive.sha256"
   test ! -e "$incoming" && test ! -L "$incoming"
   install -d -o root -g root -m 0700 "$incoming"
@@ -94,12 +95,12 @@ ssh -o BatchMode=yes proxmox 'set -eu
   test ! -e "$archive" && test ! -L "$archive"
   test ! -e "$sidecar" && test ! -L "$sidecar"'
 scp -q -o BatchMode=yes \
-  "$BUNDLE_DIR/aster-sa3-inactive-install-root-v2.tar.gz" \
-  "$BUNDLE_DIR/aster-sa3-inactive-install-root-v2.tar.gz.sha256" \
-  proxmox:/var/lib/local-ai-lab/incoming/sa3-inactive-install-root-v2/
+  "$BUNDLE_DIR/aster-sa3-inactive-install-root-v3.tar.gz" \
+  "$BUNDLE_DIR/aster-sa3-inactive-install-root-v3.tar.gz.sha256" \
+  proxmox:/var/lib/local-ai-lab/incoming/sa3-inactive-install-root-v3/
 ssh -o BatchMode=yes proxmox 'set -eu
-  incoming=/var/lib/local-ai-lab/incoming/sa3-inactive-install-root-v2
-  archive="$incoming/aster-sa3-inactive-install-root-v2.tar.gz"
+  incoming=/var/lib/local-ai-lab/incoming/sa3-inactive-install-root-v3
+  archive="$incoming/aster-sa3-inactive-install-root-v3.tar.gz"
   sidecar="$archive.sha256"
   chmod 0600 "$archive" "$sidecar"
   chown root:root "$archive" "$sidecar"
@@ -107,11 +108,11 @@ ssh -o BatchMode=yes proxmox 'set -eu
   test "$(stat -c "%u:%g:%a" "$sidecar")" = "0:0:600"
   test ! -L "$archive" && test ! -L "$sidecar"
   read expected_name expected_file < "$sidecar"
-  test "$expected_file" = "aster-sa3-inactive-install-root-v2.tar.gz"
+  test "$expected_file" = "aster-sa3-inactive-install-root-v3.tar.gz"
   actual="$(sha256sum "$archive" | awk "{print \\$1}")"
   test "$actual" = "$expected_name"
-  test "$actual" = "72057cfff49abd2b2ecaa85e3d9e9ed7bf79905b93d678f8f11a5b858568885a"
-  stage=/var/lib/local-ai-lab/staging/sa3-inactive-install-root-v2
+  test "$actual" = "601cbddf6edf6d52d5f2fa4b822e1f705c2d7747b2925a0ff0f2aa05c3f7eac7"
+  stage=/var/lib/local-ai-lab/staging/sa3-inactive-install-root-v3
   test ! -e "$stage" && test ! -L "$stage"
   install -d -o root -g root -m 0700 "$stage"
   tar --no-same-owner --no-same-permissions --no-overwrite-dir -xzf "$archive" -C "$stage"
@@ -125,8 +126,8 @@ After the separately authorized staging boundary, the fixed transaction is:
 
 ```text
 PYTHONDONTWRITEBYTECODE=1 python3 -B \
-  /var/lib/local-ai-lab/staging/sa3-inactive-install-root-v2/scripts/local-ai/sa3_inactive_install.py \
-  --stage-root /var/lib/local-ai-lab/staging/sa3-inactive-install-root-v2 --apply
+  /var/lib/local-ai-lab/staging/sa3-inactive-install-root-v3/scripts/local-ai/sa3_inactive_install.py \
+  --stage-root /var/lib/local-ai-lab/staging/sa3-inactive-install-root-v3 --apply
 ```
 
 These commands are documentation only and were not run. The archive, sidecar
@@ -145,12 +146,12 @@ archive digest. The combined focused suite passes **64/64**.
 Recorded source hashes for this candidate are:
 
 ```text
-41ce1ae3704aab58cd754e479768ea227b685a6a933b0d2d37c488b69a0de856  scripts/local-ai/sa3_inactive_install.py
-d4bd66b49820af6eec1f8d14d386aaabfd54b988d959172cfbee9b69e25699b0  scripts/local-ai/build_sa3_inactive_bundle.py
-3d8413c2a14f321d4374ac818b065c53d731514bd5805925700796e8c99c7b61  scripts/local-ai/test_sa3_inactive_install.py
+3cfb079963f5a4ecb09ea91fcb4264cc8e8858ad3b663e33d74ca5861400d1fd  scripts/local-ai/sa3_inactive_install.py
+141d76a350e004436286b0fcbb72c6b60155b16e7676efb30a2ed2ca1e9371b0  scripts/local-ai/build_sa3_inactive_bundle.py
+8c4f716cedaa7c6082b8ed733f167b8f5b645db130fa96e842b7b97a428a5337  scripts/local-ai/test_sa3_inactive_install.py
 13523d94c008ed49f3a37565058a8ad99451194814666ddd7ee734591db8755a  scripts/local-ai/test_sa3_inactive_install_packet.py
 45c34d90f3eb438385cb279ea1dd20413760ded32b742ca77d0b152425901c50  scripts/local-ai/test_build_sa3_inactive_bundle.py
-bd3c7b4e239f34a262c6d904dee7aa1ddbb28a246a813f8d6b48a00fa5e1caa3  scripts/local-ai/test_sa3_inactive_install_card.py
+b96cac07f0679b41b298135be7ef16d2b6ee754f8dc17d2b949e2f69ec144981  scripts/local-ai/test_sa3_inactive_install_card.py
 ```
 
 This lane performs no booking or Lab Hours window check, lease acquisition,
