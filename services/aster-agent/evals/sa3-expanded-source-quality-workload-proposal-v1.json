@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "status": "not-admitted",
+  "workload_id": "sa3-expanded-source-quality-v1",
+  "owner": "aster-stream-a",
+  "reviewed_material_commit": "7717fc6fd10e257f3c58b2ca07eb18c1203cb72e",
+  "accepted_review_commit": "0827e0891fd20a9056eff9b77aedaa9add0a16d4",
+  "runtime_files": {
+    "sa3-expanded-source-quality-v1.json": "ed75836af74401709a74333a96d0a22629b23e389e5262bbc365ab6aed018d23",
+    "sa3_expanded_quality_packet.py": "b9011bef592421b6e6c28ec830b17f1296409daa30fd4f508d913ba35c104657",
+    "sa3_expanded_quality_runner.py": "39f01d80d5c2a4a43bd9af24ca0060c5323cdb3011a7f9b3d14a19bfcaaaf351"
+  },
+  "excluded_runtime_files": [
+    "sa3-expanded-source-quality-keys-v1.json",
+    "sa3_fair_scorer.py",
+    "sa3-expanded-source-quality-independent-review-v1.json"
+  ],
+  "accepted_baseline": {
+    "model_sha256": "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13",
+    "binary_sha256": "0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5",
+    "production_unit_sha256": "a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3"
+  },
+  "execution": {
+    "request_count": 20,
+    "retry_count": 0,
+    "per_request_timeout_seconds": 120,
+    "workload_deadline_seconds": 2700,
+    "minimum_booking_seconds": 3600,
+    "recovery_reserve_seconds": 900,
+    "temperature": 0,
+    "max_tokens": 512,
+    "tools": "none",
+    "authority": "none",
+    "effect": "none"
+  },
+  "admission": {
+    "authoritative_window_check_required": true,
+    "exact_booking_required": true,
+    "whole_host_lease_required": true,
+    "shared_operation_lock_required": true,
+    "immediate_pre_effect_recheck_required": true,
+    "guardian_required": true,
+    "production_restore_required": true
+  },
+  "result": {
+    "schema_version": 1,
+    "packet_id": "sa3-expanded-source-quality-v1",
+    "packet_sha256": "d8c7945924a98bfae45522fd4ac9f377871db3243136b4a00617263cf44e9066",
+    "root_custody_mode": "0600",
+    "maximum_bytes": 262144,
+    "retain_predictions": true,
+    "retain_error_classes": true,
+    "model_blind_review_required_later": true,
+    "automatic_qualification": false
+  },
+  "routing_authorized": false,
+  "repair_authorized": false,
+  "model_change_authorized": false,
+  "restart_authorized": false,
+  "schedule_authorized": false
+}
