@@ -1,27 +1,28 @@
 # Aster Adaptive Computing — Foundation and Operational Sysadmin Capability
 
 **Status:** Active — Stream A. The bounded M1 authority plane is proven and its
-first fixed read-only Doctor capability is live. D4 investigation usefulness
-and M3 NLU calibration are the next qualification priorities. Both candidates
-are staged inactive and wait on the same fresh F2–F6 recovery/admission chain;
-automatic routing and general connected-tool authority remain off.
+fixed read-only investigation capabilities are live. D4 expanded-source answer
+quality and M3 NLU representation remain the next qualification priorities.
+The D4 synthetic packet and independent source review pass; its distinct
+Lab Hours workload is proposed but not yet registered or booked. Automatic
+routing and general connected-tool authority remain off.
 
 **Owner:** Jason.
 
-**Current SA checkpoint, 2026-10-27:** SA0 source/runtime reconciliation is
-complete. SA1 now persists bounded incidents and exact pending follow-up
-decisions across reconnect. SA2 has two deployed fixed producers (gateway
-self-status and accepted inference health); a third fixed Doctor-status
-producer is source-complete and independently reviewed. SA3 candidate E passed a fresh 8/8 representative
-packet and independent review, and its owner-authenticated, no-effect journal
-gateway has a reviewed rollback installer. The two releases are now bound into
-one atomic seven-file packet with one Aster Agent restart, complete rollback
-and a deterministic target-Python validation packet. Neither is deployed. These advances
-support bounded iterative diagnosis; they do not enable automatic routing,
-general discovery, repair authority or model promotion. After the protected
-F2/F3/full-Aster window, the next live step is a content-free predecessor and
-Python 3.13 validation. A passing result leads to one separately approved
-composite Aster Agent deployment and restart.
+**Current SA checkpoint, 2026-10-29:** SA0 source/runtime reconciliation is
+complete. SA1 persists bounded incidents and exact pending follow-up decisions
+across reconnect. SA2 now publishes and consumes the installed sanitized
+Doctor, Forgejo, gateway, inference, NetBox, gateway-configuration, backup and
+critical-log evidence classes; its final connected breadth transaction passed
+with four no-authority decisions and unchanged model service. SA3 candidate E
+and the no-effect journal gateway are installed, and the expanded-source
+quality packet now passes independent source review. A distinct non-admitted
+Lab Hours workload proposal binds the 20-request evaluation and restoration
+contract, while the post-run model-blind review path is source-complete. These
+advances support bounded iterative diagnosis; they do not enable automatic
+routing, general discovery, repair authority or model promotion. The next D4
+live dependency is platform registration and inactive validation of that exact
+workload before any authoritative window check and booking.
 
 For the owner-facing sequence from the current pilot to routine handoff,
 bounded sysadmin investigation and later automatic routing, use the
