@@ -16,7 +16,13 @@ def healthy():
         "now": module.RESTORE_TESTED_AT + 60,
         "services": [[name, 1, "not-applicable"] for name in sorted(module.EXPECTED_SERVICES)],
         "capabilities": [[name, service, risk, 1] for name, (service, risk) in sorted(module.EXPECTED_CAPABILITIES.items())],
-        "agents": [["agent-hermes", "operator"], ["agent-replacement-m5", "retired"]],
+        "agents": [
+            ["agent-hermes", "operator"],
+            ["agent-cloud-bundle", "operator"],
+            ["agent-aster-fixed-doctor", "observer"],
+            ["agent-aster-fixed-speech", "observer"],
+            ["agent-replacement-m5", "retired"],
+        ],
         "active_requests": 0, "expired_active": 0,
         "audit": [module.RESTORE_TESTED_AT, 1], "outcomes": [["consumed", 1]],
         "services_active": {"unit": True},
@@ -52,6 +58,10 @@ class CheckAIPAMTests(unittest.TestCase):
     def test_expired_active_request_fails(self):
         data = healthy(); data["expired_active"] = 1
         self.assertIn("expired active requests", module.classify(data)[1])
+
+    def test_unreviewed_observer_fails(self):
+        data = healthy(); data["agents"].append(["agent-unreviewed", "observer"])
+        self.assertIn("unexpected active agent state", module.classify(data)[1])
 
     def test_stale_backup_and_authentik_outage_fail(self):
         data = healthy(); data["backups"]["117"] = 0; data["authentik"]["reachable"] = False

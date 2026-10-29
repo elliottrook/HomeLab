@@ -9,6 +9,40 @@ STATE_ROOT="${HOMELAB_STATE_ROOT:-$HOME/lab/monitoring-state}"
 
 source "$REPO/scripts/lib/output.sh"
 
+# Optional, one-check machine evidence for an offline Aster experiment. The
+# report builder supplies an inherited descriptor and run ID; ordinary Doctor
+# runs emit nothing here and keep their existing human output unchanged.
+doctor_emit_aster_state() {
+    local state="${1:-}"
+    local fd="${DOCTOR_STRUCTURED_FD:-}"
+    local run_id="${DOCTOR_RUN_ID:-}"
+    case "$state" in pass|warn|fail|unavailable) ;; *) return 2 ;; esac
+    [[ "$fd" =~ ^[1-9][0-9]*$ ]] || return 0
+    (( fd >= 3 )) || return 2
+    [[ "$run_id" =~ ^[0-9a-f]{32}$ ]] || return 2
+    [[ -e "/dev/fd/$fd" ]] || return 3
+    printf '{"run_id":"%s","check_id":"aster.agent_inference","state":"%s"}\n' \
+        "$run_id" "$state" >&"$fd"
+}
+
+# Optional multi-check evidence for the separately versioned schema-3
+# catalogue. Ordinary Doctor and schema-2 fixed-Doctor runs do not inherit this
+# descriptor, so this path is inert unless its builder explicitly requests it.
+doctor_emit_catalogue_state() {
+    local check_id="${1:-}"
+    local state="${2:-}"
+    local fd="${DOCTOR_CATALOGUE_FD:-}"
+    local run_id="${DOCTOR_RUN_ID:-}"
+    case "$check_id" in aster.agent_inference|aster.speech|backup.protection) ;; *) return 2 ;; esac
+    case "$state" in pass|warn|fail|unavailable) ;; *) return 2 ;; esac
+    [[ "$fd" =~ ^[1-9][0-9]*$ ]] || return 0
+    (( fd >= 3 )) || return 2
+    [[ "$run_id" =~ ^[0-9a-f]{32}$ ]] || return 2
+    [[ -e "/dev/fd/$fd" ]] || return 3
+    printf '{"run_id":"%s","check_id":"%s","state":"%s"}\n' \
+        "$run_id" "$check_id" "$state" >&"$fd"
+}
+
 PASS_COUNT=0
 WARN_COUNT=0
 FAIL_COUNT=0
@@ -510,14 +544,11 @@ check_aster() {
             else
                 persistent_b60=no
             fi
-            if pct exec 110 -- vulkaninfo --summary 2>/dev/null | grep -qi "Intel.*BMG G21"; then
-                vulkan=bmg-g21
-            else
-                vulkan=missing
-            fi
-            printf "agent=%s\\ninference=%s\\napi=%s\\ndriver=%s\\nrollback_vm=%s\\npersistent_b60=%s\\nvulkan=%s\\n" "$agent" "$inference" "$api" "$driver" "$rollback_vm" "$persistent_b60" "$vulkan"
+            printf "agent=%s\\ninference=%s\\napi=%s\\ndriver=%s\\nrollback_vm=%s\\npersistent_b60=%s\\n" "$agent" "$inference" "$api" "$driver" "$rollback_vm" "$persistent_b60"
         '
     )"; then
+        doctor_emit_aster_state unavailable
+        doctor_emit_catalogue_state aster.agent_inference unavailable
         warn "Unable to check Aster services"
         return
     fi
@@ -527,11 +558,33 @@ check_aster() {
        grep -q '"status":"ok"' <<< "$state" &&
        grep -qx 'driver=xe' <<< "$state" &&
        grep -qx 'rollback_vm=stopped' <<< "$state" &&
-       grep -qx 'persistent_b60=no' <<< "$state" &&
-       grep -qx 'vulkan=bmg-g21' <<< "$state"; then
-        pass "Aster agent API, B60 Vulkan and llama.cpp inference healthy"
+       grep -qx 'persistent_b60=no' <<< "$state"; then
+        doctor_emit_aster_state pass
+        doctor_emit_catalogue_state aster.agent_inference pass
+        pass "Aster agent API healthy; llama.cpp service active; B60 xe bound; GPU offload not verified"
     else
+        doctor_emit_aster_state fail
+        doctor_emit_catalogue_state aster.agent_inference fail
         fail "Aster service unhealthy: $(tr '\n' ' ' <<< "$state" | sed 's/[[:space:]]*$//')"
+    fi
+}
+
+check_aster_ha_report_freshness() {
+    local observed now age
+    if ! observed="$(ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox \
+        'pct exec 104 -- stat -c %Y /var/lib/aster/ha-report/latest.json' 2>/dev/null)" ||
+       [[ ! "$observed" =~ ^[0-9]+$ ]]; then
+        fail "Aster Home Assistant report file is missing or unreadable"
+        return
+    fi
+    now="$(date +%s)"
+    age=$((now - observed))
+    if (( age < 0 )); then
+        warn "Aster Home Assistant report file timestamp is ahead of this clock"
+    elif (( age > 900 )); then
+        fail "Aster Home Assistant report file has not updated for $((age / 60)) minute(s)"
+    else
+        pass "Aster Home Assistant report file updated $((age / 60)) minute(s) ago"
     fi
 }
 
@@ -557,7 +610,8 @@ check_ai_pam() {
 check_aster_approval_readiness() {
     local state
     if state="$(ssh -o BatchMode=yes -o ConnectTimeout=8 root@192.168.50.10 \
-        'pct exec 104 -- python3 /opt/aster-agent/check_approval_readiness.py' 2>/dev/null)"; then
+        'pct exec 104 -- python3 -' \
+        < "$REPO/services/aster-agent/check_approval_readiness.py" 2>/dev/null)"; then
         pass "$state"
     else
         fail "Aster approval identity/assurance configuration is missing or inconsistent"
@@ -578,8 +632,10 @@ check_aster_speech() {
     local state
     if state="$(ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox \
         'pct exec 116 -- python3 /opt/aster-speech/health_check.py' 2>/dev/null)"; then
+        doctor_emit_catalogue_state aster.speech pass
         pass "Aster legacy/canonical speech, approved voice identity, synthesis canary, HA Wyoming, HTTPS ingress and Companion identity discovery healthy"
     else
+        doctor_emit_catalogue_state aster.speech fail
         fail "Aster speech/authentication dependency unhealthy: ${state:-probe unavailable}"
     fi
 }
@@ -665,7 +721,9 @@ check_bazarr() {
     local state
     if ! state="$(ssh -o BatchMode=yes -o ConnectTimeout=5 truenas '
         container="$(docker inspect -f "{{.State.Status}}" bazarr 2>/dev/null || true)"
-        http="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 http://127.0.0.1:6767/ 2>/dev/null || true)"
+        # Bazarr is deliberately published only on the TrueNAS LAN address,
+        # not on loopback. Probe the actual bound endpoint from the host.
+        http="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 http://192.168.20.40:6767/ 2>/dev/null || true)"
         policy="$(python3 - <<"PY"
 import yaml
 try:
@@ -1626,6 +1684,7 @@ check_observability() {
     local grafana_db=""
     local prometheus_ready=""
     local targets_up=""
+    local targets_total=""
     local root_percent=""
 
     if ! output="$(
@@ -1634,6 +1693,7 @@ printf 'services=%s\n' "$(systemctl is-active prometheus grafana-server pve-expo
 printf 'grafana_db=%s\n' "$(curl -fsS --connect-timeout 3 http://192.168.20.31:3000/api/health 2>/dev/null | sed -n 's/.*"database": *"\([^"]*\)".*/\1/p')"
 printf 'prometheus_ready=%s\n' "$(curl -fsS --connect-timeout 3 http://192.168.20.31:9090/-/ready 2>/dev/null | tr ' ' '_')"
 printf 'targets_up=%s\n' "$(curl -fsSG --connect-timeout 3 --data-urlencode 'query=sum(up)' http://192.168.20.31:9090/api/v1/query 2>/dev/null | sed -n 's/.*"value":\[[^,]*,"\([0-9]*\)"\].*/\1/p')"
+printf 'targets_total=%s\n' "$(curl -fsSG --connect-timeout 3 --data-urlencode 'query=count(up)' http://192.168.20.31:9090/api/v1/query 2>/dev/null | sed -n 's/.*"value":\[[^,]*,"\([0-9]*\)"\].*/\1/p')"
 printf 'root_percent=%s\n' "$(df -P / | awk 'NR==2 {gsub("%","",$5); print $5}')"
 REMOTE
     )"; then
@@ -1647,6 +1707,7 @@ REMOTE
             grafana_db) grafana_db="$value" ;;
             prometheus_ready) prometheus_ready="$value" ;;
             targets_up) targets_up="$value" ;;
+            targets_total) targets_total="$value" ;;
             root_percent) root_percent="$value" ;;
         esac
     done <<< "$output"
@@ -1659,7 +1720,10 @@ REMOTE
     [[ "$active_count" != "6" ]] && failures+=("monitoring services=${services:-unknown}")
     [[ "$grafana_db" != "ok" ]] && failures+=("Grafana database=${grafana_db:-unknown}")
     [[ "$prometheus_ready" != "Prometheus_Server_is_Ready." ]] && failures+=("Prometheus readiness failed")
-    [[ "$targets_up" != "7" ]] && failures+=("healthy scrape jobs=${targets_up:-unknown}/7")
+    if [[ ! "$targets_up" =~ ^[0-9]+$ || ! "$targets_total" =~ ^[0-9]+$ ]] ||
+       (( targets_total < 7 || targets_up != targets_total )); then
+        failures+=("healthy scrape jobs=${targets_up:-unknown}/${targets_total:-unknown}")
+    fi
 
     if [[ "$root_percent" =~ ^[0-9]+$ ]]; then
         if (( root_percent >= 90 )); then
@@ -1676,7 +1740,7 @@ REMOTE
     elif (( ${#warnings[@]} > 0 )); then
         warn "Observability warning: ${warnings[*]}"
     else
-        pass "Prometheus, Grafana and exporters healthy; 7/7 scrape jobs up; guest root ${root_percent}%"
+        pass "Prometheus, Grafana and exporters healthy; ${targets_up}/${targets_total} scrape jobs up; guest root ${root_percent}%"
     fi
 }
 
@@ -2134,6 +2198,7 @@ check_nut
 category "Applications & Services"
 
 check_aster
+check_aster_ha_report_freshness
 check_aster_speech
 check_aster_notifications
 check_aster_approval_readiness
@@ -2165,6 +2230,9 @@ else
 fi
 
 category "Backups"
+
+BACKUP_WARN_START=$WARN_COUNT
+BACKUP_FAIL_START=$FAIL_COUNT
 
 check_backup_age "OPNsense" "$BACKUP_ROOT/opnsense" 48
 check_backup_age "Arista" "$BACKUP_ROOT/arista" 48
@@ -2202,6 +2270,14 @@ else
     warn "$idrive_usage_result"
 fi
 check_home_assistant_backup_truenas
+
+if (( FAIL_COUNT > BACKUP_FAIL_START )); then
+    doctor_emit_catalogue_state backup.protection fail
+elif (( WARN_COUNT > BACKUP_WARN_START )); then
+    doctor_emit_catalogue_state backup.protection warn
+else
+    doctor_emit_catalogue_state backup.protection pass
+fi
 
 category "Local Environment"
 

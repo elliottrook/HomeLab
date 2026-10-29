@@ -9,16 +9,73 @@ credentials, or a way for Aster to execute Doctor itself.
 from __future__ import annotations
 
 import argparse
+import base64
+import hashlib
 import json
+import os
 import re
 import shlex
 import subprocess
+import sys
+import tempfile
+import uuid
+from contextlib import ExitStack
 from datetime import datetime, timezone
 from pathlib import Path
 
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "services" / "aster-agent"))
+from diagnostic_catalogue_v3 import build_catalogue
+
+
 LINE = re.compile(r"^([🟢🟡🔴])\s+(.+)$")
 STATUS = {"🟢": "pass", "🟡": "warn", "🔴": "fail"}
+STRUCTURED_CHECK_ID = "aster.agent_inference"
+CATALOGUE_CHECK_IDS = ("aster.agent_inference", "aster.speech", "backup.protection")
+MAX_STRUCTURED_BYTES = 4096
+MAX_CATALOGUE_BYTES = 16_384
+
+
+def _atomic_write(path: Path, payload: str, mode: int = 0o600) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, temporary_name = tempfile.mkstemp(prefix=f".{path.name}-", dir=path.parent)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as temporary:
+            temporary.write(payload)
+        os.chmod(temporary_name, mode)
+        os.replace(temporary_name, path)
+    finally:
+        if os.path.exists(temporary_name):
+            os.unlink(temporary_name)
+
+
+def _unique_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate structured event field")
+        result[key] = value
+    return result
+
+
+def _structured_state(raw: bytes, run_id: str) -> str:
+    """Accept one exact, same-invocation producer event or abstain."""
+    if len(raw) > MAX_STRUCTURED_BYTES:
+        return "unavailable"
+    try:
+        lines = raw.decode("utf-8").splitlines()
+        if len(lines) != 1:
+            return "unavailable"
+        event = json.loads(lines[0], object_pairs_hook=_unique_object)
+        if not isinstance(event, dict) or set(event) != {"run_id", "check_id", "state"}:
+            return "unavailable"
+        if event["run_id"] != run_id or event["check_id"] != STRUCTURED_CHECK_ID:
+            return "unavailable"
+        if event["state"] not in {"pass", "warn", "fail", "unavailable"}:
+            return "unavailable"
+        return event["state"]
+    except (UnicodeError, ValueError, TypeError):
+        return "unavailable"
 
 
 def main() -> int:
@@ -28,15 +85,69 @@ def main() -> int:
     parser.add_argument("--input", type=Path, help="Reuse a captured Doctor output file instead of running Doctor")
     parser.add_argument("--exit-code", type=int, default=0, help="Exit code of the captured Doctor run")
     parser.add_argument("--publish", action="store_true", help="Publish to the existing Aster health path via Proxmox")
+    parser.add_argument("--structured-output", type=Path, help="Local schema-2 fixed-check sidecar")
+    parser.add_argument("--catalogue-output", type=Path, help="Local schema-3 named-check catalogue")
+    parser.add_argument("--capture-output", type=Path, help="Private transcript from the fresh Doctor run")
+    parser.add_argument("--result-output", type=Path, help="Content-free collector result for the scheduler")
     args = parser.parse_args()
+
+    if args.input and (args.structured_output or args.catalogue_output or args.capture_output):
+        parser.error("structured, catalogue or captured output requires one fresh Doctor run")
+    destinations = [path.resolve() for path in (
+        args.output, args.structured_output, args.catalogue_output,
+        args.capture_output, args.result_output,
+    ) if path]
+    if len(destinations) != len(set(destinations)):
+        parser.error("output, structured output and capture output must be separate files")
+
+    run_id = uuid.uuid4().hex if (args.structured_output or args.catalogue_output) else ""
+    structured_raw = b""
+    catalogue_raw = b""
 
     if args.input:
         completed = subprocess.CompletedProcess([], args.exit_code, args.input.read_text(), "")
     else:
         try:
-            completed = subprocess.run([str(args.doctor)], text=True, capture_output=True, check=False, timeout=900)
+            if args.structured_output or args.catalogue_output:
+                with ExitStack() as stack:
+                    environment = os.environ.copy()
+                    environment["DOCTOR_RUN_ID"] = run_id
+                    pass_fds = []
+                    structured_evidence = None
+                    catalogue_evidence = None
+                    if args.structured_output:
+                        structured_evidence = stack.enter_context(tempfile.TemporaryFile(mode="w+b"))
+                        environment["DOCTOR_STRUCTURED_FD"] = str(structured_evidence.fileno())
+                        pass_fds.append(structured_evidence.fileno())
+                    if args.catalogue_output:
+                        catalogue_evidence = stack.enter_context(tempfile.TemporaryFile(mode="w+b"))
+                        environment["DOCTOR_CATALOGUE_FD"] = str(catalogue_evidence.fileno())
+                        pass_fds.append(catalogue_evidence.fileno())
+                    completed = subprocess.run(
+                        [str(args.doctor)], text=True, capture_output=True, check=False,
+                        timeout=900, env=environment, pass_fds=tuple(pass_fds),
+                    )
+                    if structured_evidence:
+                        structured_evidence.seek(0)
+                        structured_raw = structured_evidence.read(MAX_STRUCTURED_BYTES + 1)
+                    if catalogue_evidence:
+                        catalogue_evidence.seek(0)
+                        catalogue_raw = catalogue_evidence.read(MAX_CATALOGUE_BYTES + 1)
+            else:
+                environment = os.environ.copy()
+                environment.pop("DOCTOR_STRUCTURED_FD", None)
+                environment.pop("DOCTOR_RUN_ID", None)
+                completed = subprocess.run(
+                    [str(args.doctor)], text=True, capture_output=True, check=False,
+                    timeout=900, env=environment,
+                )
         except subprocess.TimeoutExpired:
             completed = subprocess.CompletedProcess([], 1, "🔴 Doctor timed out; health collection is incomplete.", "")
+    if args.capture_output:
+        capture_payload = completed.stdout + ("\n" if completed.stdout and completed.stderr else "") + completed.stderr
+        if capture_payload and not capture_payload.endswith("\n"):
+            capture_payload += "\n"
+        _atomic_write(args.capture_output, capture_payload)
     checks: list[dict[str, str]] = []
     for line in (completed.stdout + "\n" + completed.stderr).splitlines():
         match = LINE.match(line)
@@ -56,27 +167,100 @@ def main() -> int:
         "status": overall,
         "checks": selected_checks[:32],
     }
-    args.output.parent.mkdir(parents=True, exist_ok=True)
     payload = json.dumps(report, sort_keys=True, separators=(",", ":")) + "\n"
-    temporary = args.output.with_suffix(args.output.suffix + ".tmp")
-    temporary.write_text(payload, encoding="utf-8")
-    temporary.chmod(0o600)
-    temporary.replace(args.output)
+    _atomic_write(args.output, payload)
+    structured_payload = ""
+    if args.structured_output:
+        candidate = {
+            "schema": 2,
+            "generated_at": report["generated_at"],
+            "run_id": run_id,
+            "source_report_digest": hashlib.sha256(payload.encode("utf-8")).hexdigest(),
+            "checks": [{"check_id": STRUCTURED_CHECK_ID, "state": _structured_state(structured_raw, run_id)}],
+        }
+        structured_payload = json.dumps(candidate, sort_keys=True, separators=(",", ":")) + "\n"
+        _atomic_write(args.structured_output, structured_payload)
+    catalogue_payload = ""
+    if args.catalogue_output:
+        catalogue = build_catalogue(
+            catalogue_raw,
+            run_id=run_id,
+            generated_at=report["generated_at"],
+            aggregate_payload=payload.encode("utf-8"),
+            aggregate_status=report["status"],
+            allowed_check_ids=CATALOGUE_CHECK_IDS,
+        )
+        catalogue_payload = json.dumps(catalogue, sort_keys=True, separators=(",", ":")) + "\n"
+        _atomic_write(args.catalogue_output, catalogue_payload)
     if args.publish:
-        # Fixed destination and commands; the JSON goes over stdin, never shell interpolation.
-        writer = """import grp,json,os,pathlib,sys
-value=json.load(sys.stdin)
+        # Fixed destinations and commands; an encoded envelope goes over stdin,
+        # never shell interpolation. One owner-only lock serializes the whole
+        # remote publication. A reader that races a replace sees a digest
+        # mismatch and safely abstains; the aggregate is committed last.
+        writer = """import base64,fcntl,grp,hashlib,json,os,pathlib,stat,sys,tempfile
+envelope=json.load(sys.stdin)
+assert set(envelope)=={'aggregate','structured','catalogue'}
+aggregate=base64.b64decode(envelope['aggregate'],validate=True)
+value=json.loads(aggregate)
 assert value['schema']==1 and value['status'] in ('healthy','warning','failed')
 assert isinstance(value['checks'],list) and len(value['checks'])<=32
+structured=None
+if envelope['structured'] is not None:
+    structured=base64.b64decode(envelope['structured'],validate=True)
+    sidecar=json.loads(structured)
+    assert set(sidecar)=={'schema','generated_at','run_id','source_report_digest','checks'}
+    assert sidecar['schema']==2 and sidecar['generated_at']==value['generated_at']
+    assert sidecar['source_report_digest']==hashlib.sha256(aggregate).hexdigest()
+    assert isinstance(sidecar['run_id'],str) and len(sidecar['run_id'])==32
+    assert isinstance(sidecar['checks'],list) and len(sidecar['checks'])==1
+    check=sidecar['checks'][0]
+    assert set(check)=={'check_id','state'} and check['check_id']=='aster.agent_inference'
+    assert check['state'] in ('pass','warn','fail','unavailable')
+catalogue=None
+if envelope['catalogue'] is not None:
+    catalogue=base64.b64decode(envelope['catalogue'],validate=True)
+    typed=json.loads(catalogue)
+    assert set(typed)=={'schema','generated_at','run_id','source_report_digest','checks'}
+    assert typed['schema']==3 and typed['generated_at']==value['generated_at']
+    assert typed['source_report_digest']==hashlib.sha256(aggregate).hexdigest()
+    assert isinstance(typed['run_id'],str) and len(typed['run_id'])==32
+    assert isinstance(typed['checks'],list) and len(typed['checks'])==3
+    assert [item.get('check_id') for item in typed['checks']]==['aster.agent_inference','aster.speech','backup.protection']
+    assert all(set(item)=={'check_id','state'} and item['state'] in ('pass','warn','fail','unavailable') for item in typed['checks'])
 root=pathlib.Path('/var/lib/aster/health'); root.mkdir(exist_ok=True)
-target=root/'latest.json'; temp=root/'latest.json.new'
-with temp.open('w') as stream: json.dump(value,stream,separators=(',',':'))
-os.chmod(temp,0o640); os.chown(temp,0,grp.getgrnam('aster').gr_gid)
-os.replace(temp,target)
+gid=grp.getgrnam('aster').gr_gid
+lock_fd=os.open(root/'.publisher.lock',os.O_RDWR|os.O_CREAT|os.O_NOFOLLOW,0o640)
+lock_stat=os.fstat(lock_fd)
+assert stat.S_ISREG(lock_stat.st_mode) and lock_stat.st_nlink==1 and lock_stat.st_uid==0
+os.fchmod(lock_fd,0o640); os.fchown(lock_fd,0,gid)
+fcntl.flock(lock_fd,fcntl.LOCK_EX)
+def replace_owned(name,payload):
+    descriptor,temporary=tempfile.mkstemp(prefix='.'+name+'.',dir=root)
+    try:
+        with os.fdopen(descriptor,'wb') as stream:
+            stream.write(payload); stream.flush(); os.fsync(stream.fileno())
+        os.chmod(temporary,0o640); os.chown(temporary,0,gid)
+        os.replace(temporary,root/name)
+    finally:
+        if os.path.exists(temporary): os.unlink(temporary)
+if structured is not None: replace_owned('aster-inference.json',structured)
+if catalogue is not None: replace_owned('diagnostic-catalogue.json',catalogue)
+replace_owned('latest.json',aggregate)
 """
         remote = "pct exec 104 -- python3 -c " + shlex.quote(writer)
+        envelope = json.dumps({
+            "aggregate": base64.b64encode(payload.encode("utf-8")).decode("ascii"),
+            "structured": (base64.b64encode(structured_payload.encode("utf-8")).decode("ascii")
+                           if structured_payload else None),
+            "catalogue": (base64.b64encode(catalogue_payload.encode("utf-8")).decode("ascii")
+                          if catalogue_payload else None),
+        }, separators=(",", ":"))
         subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=10",
-                        "root@192.168.50.10", remote], input=payload, text=True, check=True, timeout=30)
+                        "root@192.168.50.10", remote], input=envelope, text=True, check=True, timeout=30)
+    if args.result_output:
+        result_payload = json.dumps({"doctor_exit": completed.returncode}, separators=(",", ":")) + "\n"
+        _atomic_write(args.result_output, result_payload)
+        return 0
     return 0 if args.input else completed.returncode
 
 

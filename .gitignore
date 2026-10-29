@@ -8,3 +8,6 @@ __pycache__/
 # Editors
 .vscode/
 .idea/
+
+# Local Aster recovery checkpoints and resumability state
+.aster-local-state/

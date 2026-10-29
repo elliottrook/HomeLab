@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Read-only, non-secret readiness check for the two AI-PAM identity boundaries."""
-import json
+"""Read-only, non-secret readiness check for the independent approval plane."""
 from pathlib import Path
 import subprocess
 import sys
 
+SOCKET = '/run/homelab-broker-approval/approval.sock'
 ACR = 'urn:homelab:aster:webauthn:1'
 
 
@@ -20,19 +20,26 @@ def service_process(name):
 
 def main():
     try:
-        gateway, _ = service_process('aster-agent.service')
-        approval, argv = service_process('homelab-broker-approval.service')
-        owner = gateway.get('ASTER_BROKER_APPROVER_SUBJECT_HASHES', '')
+        approval, argv = service_process('homelab-broker-approval-independent.service')
+        ingress, ingress_argv = service_process('aster-approval-ingress.service')
+        owner = approval.get('ASTER_APPROVAL_SUBJECT_HASHES', '')
         assert len(owner) == 64 and all(c in '0123456789abcdef' for c in owner)
-        assert owner == gateway.get('ASTER_LAB_OWNER') == approval.get('ASTER_BROKER_APPROVER_SUBJECT_HASHES')
-        assert gateway.get('ASTER_BROKER_PASSKEY_ACRS') == ACR
+        assert owner == ingress.get('ASTER_APPROVAL_SUBJECT_HASHES')
+        assert approval.get('ASTER_APPROVAL_BROKER_SOCKET') == SOCKET
+        assert ingress.get('ASTER_APPROVAL_BROKER_SOCKET') == SOCKET
+        assert ingress.get('ASTER_APPROVAL_PASSKEY_ACRS') == ACR
         index = argv.index('--approver-subject-hash')
         assert argv[index + 1] == owner
-        assert Path('/run/homelab-broker/approval.sock').is_socket()
+        assert '--host' in ingress_argv and ingress_argv[ingress_argv.index('--host') + 1] == '192.168.70.10'
+        assert '--port' in ingress_argv and ingress_argv[ingress_argv.index('--port') + 1] == '9121'
+        assert Path(SOCKET).is_socket()
+        assert subprocess.run(
+            ['systemctl', 'is-active', '--quiet', 'homelab-broker-approval.service']
+        ).returncode != 0
     except Exception:
         print('Aster approval identity/assurance configuration is missing or inconsistent')
         return 1
-    print('Aster approval owner and passkey configuration match at both entrypoints')
+    print('Aster independent approval owner and passkey configuration match at both entrypoints')
     return 0
 
 

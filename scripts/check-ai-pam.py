@@ -16,13 +16,19 @@ EXPECTED_CAPABILITIES = {
     "broker.root-material": ("synthetic", "black"),
     "broker.synthetic.network-change": ("synthetic", "red"),
     "broker.synthetic.restart": ("synthetic", "yellow"),
+    "diagnostic.aster-inference.latest": ("aster-fixed-doctor", "green"),
+    "diagnostic.aster-speech.latest": ("aster-fixed-speech", "green"),
     "forgejo.read.repository": ("forgejo-mcp", "green"),
+    "forgejo.write.project-documents": ("forgejo-mcp-project-write", "yellow"),
     "forgejo.write.safe-branch": ("forgejo-mcp-safe-write", "yellow"),
     "lab.doctor.latest": ("lab-operations", "green"),
     "lab.doctor.run": ("lab-operations", "yellow"),
 }
 EXPECTED_SERVICES = {
+    "aster-fixed-doctor",
+    "aster-fixed-speech",
     "forgejo-mcp",
+    "forgejo-mcp-project-write",
     "forgejo-mcp-safe-write",
     "lab-operations",
     "synthetic",
@@ -57,11 +63,18 @@ data={
  "expired_active":db.execute("SELECT count(*) FROM requests WHERE status IN ('pending','approved') AND expires_at<=?",(now,)).fetchone()[0],
  "audit":db.execute("SELECT COALESCE(MAX(occurred_at),0),COUNT(*) FROM audit").fetchone(),
  "outcomes":db.execute("SELECT status,COUNT(*) FROM requests GROUP BY status ORDER BY status").fetchall(),
- "services_active":{u:active(u) for u in ["homelab-broker.service","homelab-broker-approval.service",
-   "forgejo-mcp-gateway.service","forgejo-mcp-write-gateway.service","aster-lab-operations-broker.service"]},
- "sockets":{p:socket_shape(p) for p in ["/run/homelab-broker/mcp.sock","/run/homelab-broker/approval.sock",
-   "/run/homelab-forgejo-mcp/gateway.sock","/run/homelab-forgejo-mcp-write/gateway.sock",
-   "/run/aster-lab-operations-broker/gateway.sock"]},
+ "services_active":{u:active(u) for u in ["homelab-broker.service",
+   "homelab-broker-approval-independent.service","aster-approval-ingress.service",
+   "forgejo-mcp-gateway.service","forgejo-mcp-project-write-gateway.service",
+   "forgejo-mcp-write-gateway.service","aster-lab-operations-broker.service",
+   "aster-fixed-doctor-gateway.service","aster-fixed-doctor-caller.service",
+   "aster-fixed-speech-gateway.service","aster-fixed-speech-caller.service"]},
+ "sockets":{p:socket_shape(p) for p in ["/run/homelab-broker/mcp.sock",
+   "/run/homelab-broker-approval/approval.sock",
+   "/run/homelab-forgejo-mcp/gateway.sock","/run/homelab-forgejo-mcp-project-write/gateway.sock",
+   "/run/homelab-forgejo-mcp-write/gateway.sock","/run/aster-lab-operations-broker/gateway.sock",
+   "/run/aster-fixed-doctor/gateway.sock","/run/aster-fixed-doctor-caller/caller.sock",
+   "/run/aster-fixed-speech/gateway.sock","/run/aster-fixed-speech-caller/caller.sock"]},
 }
 db.close()
 try:
@@ -125,9 +138,19 @@ def classify(data: dict) -> tuple[int, str]:
         failures.append("capability catalogue drift")
 
     agents = dict(data.get("agents", []))
-    if agents.get("agent-hermes") != "operator":
-        failures.append("agent-hermes lifecycle drift")
-    if any(state not in {"operator", "retired"} for state in agents.values()):
+    required_agents = {
+        "agent-hermes": "operator",
+        "agent-cloud-bundle": "operator",
+        "agent-aster-fixed-doctor": "observer",
+        "agent-aster-fixed-speech": "observer",
+    }
+    if any(agents.get(agent) != state for agent, state in required_agents.items()):
+        failures.append("required agent lifecycle drift")
+    if any(
+        state not in {"operator", "retired"}
+        and not (state == "observer" and agent in required_agents)
+        for agent, state in agents.items()
+    ):
         failures.append("unexpected active agent state")
     if data.get("expired_active"):
         failures.append("expired active requests")
