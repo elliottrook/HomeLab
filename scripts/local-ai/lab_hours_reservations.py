@@ -11,12 +11,12 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterator
 
+from lab_hours_workloads import REGISTERED_WORKLOADS
+
 
 ID_RE = re.compile(r"[a-z0-9][a-z0-9-]{7,63}")
 ACTIVE = {"scheduled", "claimed"}
 TERMINAL = {"complete", "failed", "cancelled"}
-REGISTERED_WORKLOADS = {"accepted-9b-direct-control-smoke-v1",
-                        "accepted-9b-owner-loss-exercise-v1"}
 MAX_SECONDS = 90 * 60
 MIN_SECONDS = 5 * 60
 RESTORE_BUFFER_SECONDS = 15 * 60

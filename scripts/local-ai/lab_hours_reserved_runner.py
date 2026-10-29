@@ -14,6 +14,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from lab_hours_reservations import ReservationError, ReservationStore
+from lab_hours_workloads import validate_inactive_target, workload
 
 
 PILOT = Path("/usr/local/libexec/local-ai-lease/full-inference-pilot")
@@ -82,11 +83,12 @@ def require_quiet() -> None:
 
 
 def commands(booking: dict[str, object], claimant: str, start: int):
+    spec = workload(str(booking["workload"]))
     cycle = datetime.fromtimestamp(start, LOCAL_ZONE).strftime("%Y_%m_%d")
     owner_unit = f"aster-local-ai-pilot-owner-{claimant}.scope"
     guardian_unit = f"aster-local-ai-pilot-guardian-{claimant}.service"
     end = int(booking["end_epoch"])
-    rescue = min(start + (120 if booking["workload"] == "accepted-9b-owner-loss-exercise-v1" else 1800), end)
+    rescue = min(start + spec.rescue_after_seconds, end)
     hard = end + 900
     guardian = ("systemd-run", "--quiet", "--collect", f"--unit={guardian_unit}",
         "--property=User=root", "--property=Restart=no", "/usr/bin/python3", "-B",
@@ -129,9 +131,15 @@ def run(booking_id: str) -> int:
         if os.geteuid() != 0: raise RunError("ROOT_REQUIRED")
         booking = store.claim(booking_id, claimant=claimant)
         pins = load_manifest()
-        if booking.get("workload") not in {"accepted-9b-direct-control-smoke-v1",
-                                           "accepted-9b-owner-loss-exercise-v1"}:
-            raise RunError("WORKLOAD_NOT_REGISTERED")
+        spec = workload(str(booking.get("workload")))
+        if spec.runner_kind == "sa3-expanded-quality":
+            # This is deliberately a no-effect gate.  Until the separate
+            # runner transaction is installed and independently validated,
+            # a booked SA3 record must fail before any production drain.
+            validate_inactive_target(PILOT)
+            raise RunError("WORKLOAD_RUNNER_UNAVAILABLE")
+        if spec.runner_kind not in {"full-inference-pilot", "owner-loss-exercise"}:
+            raise RunError("WORKLOAD_RUNNER_NOT_REGISTERED")
         if evidence.exists(): raise RunError("ATTEMPT_ALREADY_EXISTS")
         evidence.mkdir(mode=0o700, parents=True)
         phase = "static-preflight"; require_quiet()
@@ -175,7 +183,7 @@ def run(booking_id: str) -> int:
                 time.sleep(5)
             postcheck(owner_unit); restored=True
             raise RunError("OWNER_TRANSACTION_FAILED_RESTORED")
-        expected_requests=0 if booking["workload"]=="accepted-9b-owner-loss-exercise-v1" else 3
+        expected_requests=spec.request_count
         expected_effect="guardian-rescued" if expected_requests==0 else "pilot-complete"
         if receipt.get("effects")!=expected_effect or receipt.get("receipt")!={
             "exit_status":0,"profile":booking["workload"],"request_count":expected_requests}:

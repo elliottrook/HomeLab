@@ -21,4 +21,11 @@ class ReservedRunnerTests(unittest.TestCase):
         _,_,guardian,_=runner.commands(booking,"lh-12345678",1000)
         self.assertEqual(guardian[guardian.index("--rescue-at")+1],"1120")
 
+    def test_sa3_guardian_deadline_uses_registered_2700_second_budget(self):
+        booking={"booking_id":"sa3-booking-01","end_epoch":4600,
+                 "workload":"sa3-expanded-source-quality-v1"}
+        _,_,guardian,_=runner.commands(booking,"lh-12345678",1000)
+        self.assertEqual(guardian[guardian.index("--rescue-at")+1],"3700")
+        self.assertEqual(guardian[guardian.index("--hard-deadline")+1],"5500")
+
 if __name__=="__main__": unittest.main()

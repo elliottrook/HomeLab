@@ -30,9 +30,11 @@ claim before any effect.
 
 The initial registered workload is the accepted three-request 9B control
 smoke. A second fixed registration exists only for the LH5 owner-loss recovery
-exercise; it cannot run a user workload. Adding a model-test workload requires a separate root-owned,
-hash-pinned registration. Arbitrary commands are never taken from booking
-records.
+exercise; it cannot run a user workload. The third source registration,
+`sa3-expanded-source-quality-v1`, is a distinct root-owned, hash-pinned
+proposal and remains inactive until its runner dependency closure and full
+drain transaction independently validate. Arbitrary commands are never taken
+from booking records.
 
 ## Runtime enforcement
 
