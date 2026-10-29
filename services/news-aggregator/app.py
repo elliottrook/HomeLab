@@ -51,14 +51,15 @@ def get_audio_meta():
     return meta
 
 # AsterTV v2's News surface supplies the Aster News lockup and warm stone UI.
-# The installed-app icons use the opaque, full-size News Digest source artwork.
+# Installed-app icons are rendered at 180/512 px from Aster Home v2's
+# SVG/04-news-digest.svg master, cropped to its limestone tile silhouette.
 SITE_TITLE = "Aster News"
 
 HEAD_ICONS = """
 <link rel="icon" type="image/png" sizes="32x32" href="/static/icon-32.png?v=aster-v2">
-<link rel="apple-touch-icon" sizes="180x180" href="/static/app-icon-180.png?v=aster-v2-fullbleed">
-<link rel="icon" type="image/png" sizes="512x512" href="/static/app-icon-512.png?v=aster-v2-fullbleed">
-<link rel="manifest" href="/static/site.webmanifest?v=aster-v2-fullbleed">
+<link rel="apple-touch-icon" sizes="180x180" href="/static/app-icon-180.png?v=aster-v2-svg">
+<link rel="icon" type="image/png" sizes="512x512" href="/static/app-icon-512.png?v=aster-v2-svg">
+<link rel="manifest" href="/static/site.webmanifest?v=aster-v2-svg">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Aster News Digest">
