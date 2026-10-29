@@ -5,7 +5,7 @@ Status: **source-only candidate; installation and activation are not authorized*
 Packet:
 `ASTER-LAB-HOURS-SA3-INACTIVE-INSTALL-PACKET-20261029.json`
 
-Packet SHA-256: `242a8913d32c76cd37fbe7fb10a18883fe30d9ae734bf0efb5ac99dd69ec3043`.
+Packet SHA-256: `e4634c7724b8ac8c6b50689285a56f739ea16486f9fd3370f4b47e717ff36e6e`.
 
 The packet is bound to platform commit `8dc6eac5` and Stream A source commit
 `434c5aedddd59665c7e2e8961196b81310e02765`. It stages the reviewed SA3
@@ -25,7 +25,7 @@ On Proxmox, the packet replaces only these four root-owned `0644` files under
 | `lab_hours_release_manifest.json` | `2e493d2828c76ec40a5d57be7ef3e0c81588e091eac6b49010a6b21191e1dca6` |
 | `aster_llama_sa3_guest_wrapper.py` | `27949ff1ba37f825de8d3c4aaeaf6388b9535e72d0063e46eac0e491a6604303` |
 
-The other fifteen manifest entries are required existing root-owned `0644`,
+The other sixteen manifest entries are required existing root-owned `0644`,
 one-link pins and are re-read before and after staging; they are not replaced
 by this packet. The exact prerequisite hashes are in the JSON packet.
 
@@ -64,12 +64,20 @@ point beyond the named wrapper.
 ## Synthetic validation and rollback
 
 The packet’s import, custody and target-Linux synthetic checks must pass from a
-clean source archive with bytecode disabled. The local source proof for this
-card is `scripts/local-ai/test_sa3_inactive_install_packet.py`, SHA-256
-`5f270e0f916494b156da4daee8c1bb8539ab968d5dd83862c31c4833c56b7a90`; it
-verifies all nine staged payload hashes, target modes/link counts, isolated host
-and guest imports and absence of all four service/timer paths. The combined
-focused suite passes **49/49** (the prior platform suite was 46/46).
+clean source archive with bytecode disabled. The fixed transaction is
+`scripts/local-ai/sa3_inactive_install.py`; it is the only installer described
+by this card, has a source-only default, and accepts no caller command or
+target. Its SHA-256 is
+`7356dff11013ec344186871eece8d040871e39e90e872f3da05e7fd50d691299`.
+The local source proof is
+`scripts/local-ai/test_sa3_inactive_install_packet.py`, SHA-256
+`39c5403b0712279e00918b7b1fca1687af585b2a503d2dd6708407c896923e08`, plus
+`scripts/local-ai/test_sa3_inactive_install.py` (SHA-256
+`13a1c0aaa7354abcbaeef4639b2cf1c501236833dd6e486f9e5a8e892aff9db1`); together they verify all nine
+staged payload hashes, target modes/link counts, isolated host and guest
+imports, automatic dual rollback, rollback-uncertainty retention and absence
+of all four service/timer paths. The combined focused suite passes **56/56**
+(the prior platform suite was 46/46).
 
 If staging or postcheck fails, restore only the corresponding checkpointed
 targets, remove only paths proven absent before staging, and rerun the custody

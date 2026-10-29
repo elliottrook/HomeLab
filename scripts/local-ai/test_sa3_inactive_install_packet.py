@@ -55,6 +55,21 @@ class Sa3InactiveInstallPacketTests(unittest.TestCase):
     def test_all_source_hashes_and_modes_match_packet(self):
         value = packet()
         stream_commit = value["source_commits"]["stream_a"]
+        manifest = json.loads((REPO / "scripts/local-ai/lab_hours_release_manifest.json").read_text())
+        install_names = {record["target"] for record in value["host"]["install_files"]}
+        existing_names = {record["target"] for record in value["host"]["required_existing_pins"]}
+        self.assertEqual(len(existing_names), 16)
+        self.assertEqual(set(manifest["pins"]), existing_names | {
+            "sa3_expanded_quality_transaction.py",
+            "sa3_listener_adapter.py",
+            "aster_llama_sa3_guest_wrapper.py",
+        })
+        self.assertEqual(install_names, {
+            "sa3_expanded_quality_transaction.py",
+            "sa3_listener_adapter.py",
+            "lab_hours_release_manifest.json",
+            "aster_llama_sa3_guest_wrapper.py",
+        })
         records = value["host"]["install_files"] + value["guest"]["runtime_files"] + [value["guest"]["wrapper"]]
         for record in records:
             with self.subTest(source=record["source"]):

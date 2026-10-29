@@ -62,6 +62,7 @@
     "imports": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest -q test_sa3_listener_adapter.py test_aster_llama_sa3_guest_wrapper.py test_sa3_expanded_quality_transaction.py",
     "platform_suite": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest -q test_lab_hours_reservations.py test_lab_hours_reserved_runner.py test_lab_hours_workloads.py test_lab_hours_dispatcher.py test_lab_hours_doctor.py",
     "target_linux_synthetic": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest -q test_sa3_inactive_install_packet.py",
+    "installer_transaction": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest -q test_sa3_inactive_install.py",
     "required_result": "All imports, custody checks, packet pins, excluded-file checks and inactive-unit checks pass; no bytecode, unit, timer, booking, lease, process or model request is created."
   },
   "rollback": {
