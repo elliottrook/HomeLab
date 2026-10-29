@@ -69,3 +69,32 @@ source-only; no bundle was uploaded and no target file was installed. The next
 gate is one explicit approval for the exact dormant staging transaction. It
 will not register the workload, acquire a lease, book Lab Hours, invoke a model,
 change a service/timer or restart production.
+
+## First authorized installation result and corrected candidate
+
+The exact reduced archive was subsequently staged under root custody and the
+fixed installer was invoked once. It stopped during the first LXC110 file
+write because `/usr/local/libexec/local-ai-lease/full-inference-pilot` did not
+exist in that guest. The bounded result was `LXC110_INSTALL_FAILED` with
+`FileNotFoundError` for that exact parent. No retry was attempted.
+
+Independent postcheck found both Proxmox file targets, all four LXC110 runtime
+targets and the LXC110 wrapper absent. LXC110 remained running. The root-owned
+host and guest checkpoints, incoming archive and extracted stage were retained
+as failure evidence. No registration, booking, lease, model request, service,
+timer or restart occurred.
+
+Platform commit `3c2896b1` corrects the demonstrated defect. Its revised
+transaction treats the exact root-owned mode-0755 guest runtime directory as
+managed state: it accepts an existing exact directory or creates it, records
+whether this transaction created it, and removes it on rollback only after the
+installed files have been removed and the directory is empty. It uses fresh
+`root-v2` stage and checkpoint identities, packet SHA-256
+`b32c1b2a2dcb5f0e8673cb204d997710c034c8c1ec4dba762109b67b4fdb7255`
+and deterministic archive SHA-256
+`72057cfff49abd2b2ecaa85e3d9e9ed7bf79905b93d678f8f11a5b858568885a`.
+The corrected suite passes 64/64, including absent-directory success and
+failure rollback, and two independent builds are byte-identical.
+
+The corrected live installation is a new exact host change and has not been
+run. It requires a fresh approval; the failed candidate must not be retried.

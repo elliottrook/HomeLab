@@ -441,14 +441,18 @@ replacement packet must therefore add only the absent SA3 host/guest files,
 prove target imports against the measured live baseline and defer runner/
 manifest registration to its own later effect gate.
 
-That reduced candidate is now complete at platform tip `b6a9f08e`. Its
-deterministic bundle, root-only incoming/stage custody, seven-target dual
-checkpoint, atomic installer, target imports, rollback injection and absent-
-registration guard pass 62/62 focused tests. The actual live runner hash and
-`WORKLOAD_NOT_REGISTERED` path are pinned while its SA3 identity remains
-absent. The next gate is the exact dormant installation and target validation;
-registration, booking, lease, model execution and service effects remain
-separate and unavailable.
+The first reduced candidate at platform tip `b6a9f08e` passed 62/62 source
+tests, but its first authorized installation stopped during the initial LXC110
+write because the assumed guest runtime parent directory was absent. Automatic
+rollback and independent postcheck left all seven targets absent and retained
+both checkpoints; no registration, booking, lease, model request, service,
+timer or restart occurred. Platform commit `3c2896b1` now manages that exact
+root-owned directory as reversible transaction state, uses fresh stage and
+checkpoint identities, passes 64/64 including absent-directory rollback, and
+produces the same pinned archive in two independent builds. The failed
+candidate must not be retried. The next gate is fresh approval for the corrected
+dormant installation and target validation; registration, booking, lease,
+model execution and service effects remain separate and unavailable.
 
 The downstream
 [model-blind review boundary](evidence/SA3-expanded-source-quality-blind-review-boundary-2026-10-29.md)
