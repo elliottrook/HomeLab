@@ -177,6 +177,16 @@ and normal stereo output switched to HDMI 0 with passthrough off. Kodi opened
 `hdmi:CARD=PCH,DEV=0` and retained it across an idle Kodi restart. Physical
 audibility awaits Jason's check; Dolby passthrough remains unvalidated.
 
+The credential-free v2.0.2 lab source archive was built from committed tree
+`37a1eecb` at
+`services/kodi/dist/aster-home-v2.0.2-lab-candidate-source.tar.gz`.
+It has 1,960 entries and SHA-256
+`5874ca91c1bc775fd6b1528bf491a1d374c746122d1f7d3d6a76d3fa38a936c7`.
+Archive members were checked for credential/profile files and path traversal;
+none were present. This is a source and recovery-record package, **not** a
+clean-client installer or production deployment bundle. The tracked release
+boundary is `services/kodi/releases/aster-home-v2.0.2-lab-candidate.json`.
+
 Jason reported the v2 player had lost skip recap/intro/outro and directed that
 v2 be pulled from production. This is a release-blocking regression; the v2
 candidate is **not production-ready**, even where individual pages passed
@@ -214,7 +224,7 @@ versions, install the candidate there, and repair/retest recap, intro and
 outro controls together with TV seasons/playback, News Digest, YouTube search,
 audio output persistence and the rest of the release acceptance. No v2
 re-promotion is authorized by this rollback. No Forgejo/GitHub push was made.
-The tracked, credential-free source and recovery-record package is
+The original, now-superseded credential-free source and recovery-record package was
 `services/kodi/dist/aster-home-v2.0.1-lab-candidate-source.tar.gz` (1,946
 archive entries, 23 MiB), SHA-256
 `97c312324b3f220bf0c46ef99edea54b7438d3a5f1d5e0c595189541c84e9e51`.
