@@ -12,6 +12,15 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+Jason's [October29 standing execution amendment](B60-Inference-Engineering/standing-coordination-authority-20261012.md#october-29-owner-amendment--programme-execution-and-model-changes)
+authorizes Stream A to completion, in-scope model changes only during booked
+Lab Hours, and non-exclusive work outside them. Do not ask again per model.
+All30 requested overnight windows October30–November28 checked clear in the
+authoritative ledger; none is booked yet because the current service supports
+only9B smoke/owner-loss jobs, not a B60 research allocation or35B workload.
+Next is the bounded registration/reservation integration, not renewed user
+permission and not thirty mislabeled9B runs. Existing safety gates remain.
+
 The [October29 published Lab Hours receipt](B60-Inference-Engineering/research-watch-20261012.md#october-29-preparation--published-lab-hours-graduation-received)
 receives Adaptive `8397bff05` and actual booking source `e28dfc24f`.
 The owner reports a completed host-owned night transaction, two booked passes
