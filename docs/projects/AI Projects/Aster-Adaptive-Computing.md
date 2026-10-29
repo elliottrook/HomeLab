@@ -1,12 +1,10 @@
 # Aster Adaptive Computing — Foundation and Operational Sysadmin Capability
 
 **Status:** Active — Stream A. The bounded M1 authority plane is proven and its
-fixed read-only investigation capabilities are live. D4 expanded-source answer
-quality and M3 NLU representation remain the next qualification priorities.
-The D4 synthetic packet and independent source review pass; its distinct
-Lab Hours identity is registered in source but the full-drain transaction is
-not implemented, installed or booked. Automatic routing and general
-connected-tool authority remain off.
+fixed read-only investigation capabilities are live. The D4 expanded-source
+runtime evaluation is complete and awaits its independent model-blind semantic
+review; M3 joint NLU representation remains a separate qualification priority.
+Automatic routing and general connected-tool authority remain off.
 
 **Owner:** Jason.
 
@@ -17,16 +15,15 @@ Doctor, Forgejo, gateway, inference, NetBox, gateway-configuration, backup and
 critical-log evidence classes; its final connected breadth transaction passed
 with four no-authority decisions and unchanged model service. SA3 candidate E
 and the no-effect journal gateway are installed, and the expanded-source
-quality packet now passes independent source review. A distinct non-admitted
-Lab Hours workload proposal binds the 20-request evaluation and restoration
-contract, while the post-run model-blind review path is source-complete. The
-platform now has the third fixed source registration and fails closed before
-effects until its distinct full-drain transaction exists. These
-advances support bounded iterative diagnosis; they do not enable automatic
-routing, general discovery, repair authority or model promotion. The next D4
-live dependency is inactive installation and target validation of the reviewed
-fixed listener adapter and complete transaction before any authoritative window
-check and booking.
+quality packet now passes independent source review. Its third fixed Lab Hours
+identity, listener and full-drain transaction are installed. After two
+failed-closed attempts exposed custody and endpoint/receipt defects, the
+corrected booked run retained 20 complete predictions with zero errors or
+retries and restored production. The model-blind review packet is frozen under
+neutral alias `candidate-f`; an independent digest-bound semantic response is
+the next D4 gate. These advances support bounded iterative diagnosis; they do
+not enable automatic routing, general discovery, repair authority or model
+promotion.
 
 For the owner-facing sequence from the current pilot to routine handoff,
 bounded sysadmin investigation and later automatic routing, use the
