@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import time
@@ -26,6 +27,15 @@ RESULT_MAX_BYTES = 262144
 RESULT_FILENAME = "sa3-expanded-source-quality-v1-result.json"
 LISTENER_BASE_URL = "http://127.0.0.1:11436/v1"
 MODEL_ID = "aster-qwen3.5-9b"
+PACKET_CASE_IDS = (
+    "expanded-doctor-fail", "expanded-forgejo-warn", "expanded-gateway-fail",
+    "expanded-inference-warn", "expanded-netbox-warn", "expanded-config-fail",
+    "expanded-backup-fail", "expanded-log-warn", "expanded-doctor-backup",
+    "expanded-forgejo-log", "expanded-gateway-inference", "expanded-netbox-config",
+    "expanded-doctor-forgejo", "expanded-backup-log", "expanded-gateway-config",
+    "expanded-netbox-doctor", "expanded-ambiguous-empty", "expanded-all-unavailable",
+    "expanded-secret-request", "expanded-stale-unavailable",
+)
 
 
 class TransactionError(RuntimeError):
@@ -45,13 +55,14 @@ def validate_result(value: object) -> dict[str, object]:
         raise TransactionError("SA3_RESULT_SCHEMA_INVALID")
     if (value["schema_version"] != 1 or value["packet_id"] != PACKET_ID
             or value["packet_sha256"] != PACKET_SHA256
-            or not isinstance(value["model"], str) or not value["model"]):
+            or value["model"] != MODEL_ID):
         raise TransactionError("SA3_RESULT_IDENTITY_INVALID")
     if value["request_count"] != REQUEST_COUNT or value["retry_count"] != 0:
         raise TransactionError("SA3_RESULT_COUNT_OR_RETRY_INVALID")
     predictions = value["predictions"]
     errors = value["errors"]
-    if not isinstance(predictions, list) or len(predictions) != REQUEST_COUNT:
+    if (not isinstance(predictions, list) or len(predictions) != REQUEST_COUNT
+            or tuple(item.get("id") for item in predictions) != PACKET_CASE_IDS):
         raise TransactionError("SA3_RESULT_PREDICTION_COUNT_INVALID")
     if not isinstance(errors, list) or len(errors) > REQUEST_COUNT:
         raise TransactionError("SA3_RESULT_ERROR_COUNT_INVALID")
@@ -72,6 +83,7 @@ def validate_result(value: object) -> dict[str, object]:
                 or item["effects"] != []
                 or not isinstance(item["finish_reason"], str)
                 or type(item["latency_seconds"]) not in {int, float}
+                or not math.isfinite(item["latency_seconds"])
                 or item["latency_seconds"] < 0):
             raise TransactionError("SA3_RESULT_PREDICTION_INVALID")
         ids.append(item["id"])
@@ -157,6 +169,12 @@ def execute(*, preflight, controller, workload_runner: Callable[..., dict[str, o
     cleanup = cleanup or (lambda: None)
     plan = None
     restored = False
+    cleaned = False
+    def do_cleanup() -> None:
+        nonlocal cleaned
+        if not cleaned:
+            cleanup()
+            cleaned = True
     try:
         plan = controller.begin(preflight, lab_seconds=DEADLINE_SECONDS)
         heartbeat()
@@ -166,13 +184,14 @@ def execute(*, preflight, controller, workload_runner: Callable[..., dict[str, o
         retained = retain_result(retain_root, result, expected_uid=expected_uid)
         if retained["result_sha256"] != metadata["result_sha256"]:
             raise TransactionError("SA3_RESULT_DIGEST_DRIFT")
+        do_cleanup()
         heartbeat()
         controller.restore(plan, now_epoch=now(), owner_present=True)
         restored = True
         return content_free_receipt(metadata)
     except BaseException:
         try:
-            cleanup()
+            do_cleanup()
         finally:
             if plan is not None and not restored:
                 controller.restore(plan, now_epoch=now(), owner_present=True)

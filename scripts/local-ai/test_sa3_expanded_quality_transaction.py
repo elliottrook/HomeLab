@@ -1,9 +1,11 @@
 import os
+import math
 import tempfile
 import unittest
 from pathlib import Path
 
-from sa3_expanded_quality_transaction import (PACKET_SHA256, REQUEST_COUNT,
+from sa3_expanded_quality_transaction import (MODEL_ID, PACKET_CASE_IDS,
+    PACKET_SHA256, REQUEST_COUNT,
     TransactionError, content_free_receipt, execute, inactive_workload_runner,
     retain_result, validate_result)
 
@@ -11,9 +13,9 @@ from sa3_expanded_quality_transaction import (PACKET_SHA256, REQUEST_COUNT,
 def result():
     return {"schema_version": 1,
             "packet_id": "sa3-expanded-source-quality-v1",
-            "packet_sha256": PACKET_SHA256, "model": "aster-qwen3.5-9b",
+            "packet_sha256": PACKET_SHA256, "model": MODEL_ID,
             "request_count": REQUEST_COUNT, "retry_count": 0,
-            "predictions": [{"id": f"case-{i}", "outcome": "clarify",
+            "predictions": [{"id": PACKET_CASE_IDS[i], "outcome": "clarify",
                              "checks": [], "summary": "bounded",
                              "effects": [], "finish_reason": "stop",
                              "latency_seconds": 0.1} for i in range(REQUEST_COUNT)],
@@ -44,6 +46,17 @@ class TransactionTests(unittest.TestCase):
         with self.assertRaisesRegex(TransactionError, "COUNT_OR_RETRY"):
             validate_result(value)
 
+    def test_model_case_identity_and_finite_latency_are_bound(self):
+        value = result(); value["model"] = "another-model"
+        with self.assertRaisesRegex(TransactionError, "IDENTITY"):
+            validate_result(value)
+        value = result(); value["predictions"][0]["id"] = "substituted-case"
+        with self.assertRaisesRegex(TransactionError, "PREDICTION_COUNT"):
+            validate_result(value)
+        value = result(); value["predictions"][0]["latency_seconds"] = math.nan
+        with self.assertRaisesRegex(TransactionError, "PREDICTION_INVALID"):
+            validate_result(value)
+
     def test_invalid_prediction_requires_matching_error(self):
         value = result(); value["predictions"][0]["outcome"] = "invalid"
         with self.assertRaisesRegex(TransactionError, "ERROR_PROJECTION"):
@@ -62,8 +75,9 @@ class TransactionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             receipt = execute(preflight=preflight, controller=controller,
                               workload_runner=lambda **kwargs: (events.append("workload") or result()),
-                              retain_root=Path(tmp), expected_uid=os.geteuid())
-        self.assertEqual(events, ["workload"])
+                              retain_root=Path(tmp), cleanup=lambda: events.append("cleanup"),
+                              expected_uid=os.geteuid())
+        self.assertEqual(events, ["workload", "cleanup"])
         self.assertEqual(controller.events, [("begin", 2700), ("restore", "plan", True)])
         self.assertEqual(receipt["receipt"]["profile"], "sa3-expanded-source-quality-v1")
 

@@ -51,8 +51,8 @@ postcheck run on success and every failure path; the guardian remains the
 owner-loss authority.
 
 The transaction source hash is
-`202f99608a44f6d2bdc9fac8f69b2c09ceb84d1b4d143942fb6bb935041965f4`; its
-focused transaction and platform boundary suite passes **24/24**.
+`0706912279bcb4a511633cfb22f19e691eed94f4aa79e07bdc332f87d0dbbc70`; its
+focused transaction and platform boundary suite passes **25/25**.
 
 ## Current incompatibility — NO-GO
 
