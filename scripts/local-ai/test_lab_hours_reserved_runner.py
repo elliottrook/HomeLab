@@ -4,6 +4,10 @@ from zoneinfo import ZoneInfo
 import lab_hours_reserved_runner as runner
 
 class ReservedRunnerTests(unittest.TestCase):
+    def test_m3_runner_kind_is_admitted(self):
+        spec = runner.workload("m3-joint-semantic-35b-public-v1")
+        self.assertIn(spec.runner_kind, runner.REGISTERED_RUNNER_KINDS)
+
     def test_commands_bind_exact_booking_identity_and_deadline(self):
         booking={"booking_id":"test-booking-01","end_epoch":4600,
                  "workload":"accepted-9b-direct-control-smoke-v1"}

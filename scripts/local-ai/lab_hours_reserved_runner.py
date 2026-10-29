@@ -29,6 +29,12 @@ UNIT_SHA = "a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3"
 PROCESS_MARKERS = ("vzdump", "zstd -t", "f2_preflight", "f3_from_f2",
                    "stream_a_evaluation_evidence", "full_aster_first_screen",
                    "m3_joint_semantic_35b")
+REGISTERED_RUNNER_KINDS = frozenset({
+    "full-inference-pilot",
+    "owner-loss-exercise",
+    "sa3-expanded-quality",
+    "m3-joint-semantic-35b",
+})
 
 
 class RunError(RuntimeError): pass
@@ -144,8 +150,7 @@ def run(booking_id: str) -> int:
         booking = store.claim(booking_id, claimant=claimant)
         pins = load_manifest()
         spec = workload(str(booking.get("workload")))
-        if spec.runner_kind not in {"full-inference-pilot", "owner-loss-exercise",
-                                    "sa3-expanded-quality"}:
+        if spec.runner_kind not in REGISTERED_RUNNER_KINDS:
             raise RunError("WORKLOAD_RUNNER_NOT_REGISTERED")
         if evidence.exists(): raise RunError("ATTEMPT_ALREADY_EXISTS")
         evidence.mkdir(mode=0o700, parents=True)
