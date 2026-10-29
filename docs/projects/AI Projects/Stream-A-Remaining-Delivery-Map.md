@@ -389,6 +389,12 @@ next gate. Only after that review may a hash-pinned evaluation workload be
 registered and considered for a Lab Hours booking; predictions and model-blind
 semantic reviews remain absent, so D4 answer quality is still open.
 
+The exact independent-review manifest now pins shared commit `7717fc6f`, five
+material file-byte digests, both canonical artifact digests and ten required
+findings. A fail-closed receipt verifier rejects commit, manifest, reviewer or
+finding drift and prevents a false finding from carrying a PASS decision. The
+complete source-only suite passes 23/23. No independent receipt exists yet.
+
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
 restoration gates. It marks only observed steps complete and separates the

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "review_id": "sa3-expanded-source-quality-review-v1",
+  "reviewed_commit": "7717fc6fd10e257f3c58b2ca07eb18c1203cb72e",
+  "material_files": {
+    "services/aster-agent/evals/sa3-expanded-source-quality-keys-v1.json": "f96f6b93a8d4999ce29da5253b1d22abef1ca45f0c68c5c0bf3896cb1da0f5e4",
+    "services/aster-agent/evals/sa3-expanded-source-quality-v1.json": "ed75836af74401709a74333a96d0a22629b23e389e5262bbc365ab6aed018d23",
+    "services/aster-agent/evals/sa3_expanded_quality_packet.py": "b9011bef592421b6e6c28ec830b17f1296409daa30fd4f508d913ba35c104657",
+    "services/aster-agent/evals/sa3_expanded_quality_runner.py": "39f01d80d5c2a4a43bd9af24ca0060c5323cdb3011a7f9b3d14a19bfcaaaf351",
+    "services/aster-agent/evals/sa3_fair_scorer.py": "92a4526886b21492995b73c834844a570b7718415abcadce848bcd1da6860bda"
+  },
+  "canonical_packet_sha256": "d8c7945924a98bfae45522fd4ac9f377871db3243136b4a00617263cf44e9066",
+  "canonical_keys_sha256": "718cf430e0acc945bf0c8025982786935e59a63a601b6217e747494e022cd445",
+  "required_findings": [
+    "hashes_match",
+    "packet_structure_pass",
+    "answer_key_separate",
+    "source_coverage_pass",
+    "abstention_boundary_pass",
+    "runner_no_tools_pass",
+    "runner_no_retry_pass",
+    "errors_fail_closed",
+    "no_authority_effect_pass",
+    "semantic_cases_acceptable"
+  ],
+  "review_only": true,
+  "model_calls_authorized": false,
+  "tool_calls_authorized": false,
+  "routing_authorized": false,
+  "repair_authorized": false
+}

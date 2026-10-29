@@ -38,7 +38,7 @@ Pinned identities:
 
 ## Validation
 
-The focused packet, runner and fair-scorer suite passes **19/19**. It proves exact
+The focused packet, runner, review-receipt and fair-scorer suite passes **23/23**. It proves exact
 20-case membership, duplicate-key rejection, packet/key identity binding,
 coverage of every source at least twice, four abstention cases, fixed
 no-authority/no-effect/no-tools constraints, malformed-key rejection and the
@@ -53,11 +53,20 @@ uses strict structured output and records runtime/schema failures as `invalid`
 rather than converting them into a safe-looking clarification. The runner is
 source only and has not been registered, installed or invoked.
 
+The independent-review manifest pins shared commit
+`7717fc6fd10e257f3c58b2ca07eb18c1203cb72e`, the five material file-byte
+digests and both canonical artifact digests. Its own SHA-256 is
+`fbbb04821a4fc5aa165282e6f49bc84b7d54f7b056e3dc7cc0e013134bb396d7`.
+The receipt verifier requires an identified independent reviewer, the exact
+commit and manifest digest, ten exact boolean findings and a consistent
+pass/reject decision. A false finding cannot be represented as a pass.
+
 ## Next gate
 
-An independent reviewer must first accept or reject the frozen synthetic cases,
-visible capability descriptions and separate answer key without changing their
-bytes. If accepted, a later run must be registered as its own hash-pinned Lab
+The exact independent-review packet is now ready. An independent reviewer must
+accept or reject the frozen synthetic cases, visible capability descriptions
+and separate answer key without changing their bytes. If accepted, a later run
+must be registered as its own hash-pinned Lab
 Hours workload before any exclusive local-AI use. The full execution and
 recovery interval must pass the authoritative reservation check, booking,
 whole-host lease and shared-lock gates. The run remains no-effect and cannot
