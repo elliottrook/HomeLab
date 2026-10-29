@@ -1,9 +1,10 @@
 # Stream A — remaining delivery map
 
-> **Separate Lab Hours track, 2026-10-28:** [Aster Lab Hours](Aster-Lab-Hours.md)
-> now owns B60 isolation and exact production restoration. RC1c completed the
-> full transaction twice and no longer treats F2/F3/F4/F5 as Lab Hours
-> promotion stages. The backup-evidence chain remains diagnostic.
+> **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
+> now owns B60 isolation and exact production restoration. Its reservation
+> service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are
+> graduated. F2/F3/F4/F5 are not Lab Hours promotion stages; the
+> backup-evidence chain remains diagnostic.
 
 **Owner-facing checkpoint, 2026-10-09.** This page translates the detailed [programme](Aster-Adaptive-Computing.md) and [Codex delegation gates](Codex-Delegation.md) into the next decisions. It does not authorize a deployment, additional cloud question, new tool grant or Git push. Evidence links control factual claims; an unchecked gate remains open even if a nearby experiment passed.
 

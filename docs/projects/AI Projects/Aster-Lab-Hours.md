@@ -4,7 +4,7 @@
 >
 > Owner: Jason
 >
-> State: Exact-cycle night test passed; recurring operating release remains open
+> State: **Graduated reservation-driven operating service**
 >
 > Opened: 2026-10-28
 
@@ -68,8 +68,8 @@ and evidence on uncertainty.
 | LH1 — direct transaction | Known production consumers isolate, fixed lab work runs, exact production restores. | Done twice, 2026-10-27. |
 | LH2 — complete inventory | EPUB joins the drain and resumes without losing its durable queue. | Done twice with unchanged RC1c, 2026-10-28. |
 | LH3 — host-owned night test | Date-specific runner completes independently of F2–F5 and retains actionable failure evidence. | **Done, 2026-10-29.** Complete in 220 seconds with three requests and production restored. |
-| LH4 — recurring service | Reviewed schedule grants an actual reservation to the lab worker and restores production. | Open after LH3. |
-| LH5 — graduation | Doctor/monitoring, runbook, owner-loss exercise and two scheduled passes. | Open. |
+| LH4 — recurring service | Reviewed schedule grants an actual reservation to the lab worker and restores production. | **Done, 2026-10-29.** Two distinct scheduled passes completed with three requests and production restored. |
+| LH5 — graduation | Doctor/monitoring, runbook, owner-loss exercise and two scheduled passes. | **Done, 2026-10-29.** Corrected owner-loss recovery completed in 313 seconds and all postchecks passed. |
 
 ## Release candidate and evidence
 
@@ -88,6 +88,29 @@ passed; Aster, llama, Speech and News were active; and EPUB resumed.
 - [October 27 two-pass qualification](evidence/Full-inference-daytime-two-pass-qualification-2026-10-27.md)
 - [October 28 RC1c qualification](evidence/Lab-Hours-RC1c-daytime-qualification-2026-10-28.md)
 - [October 29 exact-cycle result](evidence/Lab-Hours-RC1c-exact-cycle-result-2026-10-29.md)
+- [October 29 reservation and recovery qualification](evidence/Lab-Hours-reservation-and-recovery-qualification-2026-10-29.md)
+
+## Reservation service
+
+Exclusive Lab Hours now require a root-custodied booking in
+`/var/lib/local-ai-lab/reservations`. Each booking names a registered owner,
+fixed workload and offset-qualified start/end. Windows are limited to 90
+minutes and include a 15-minute restoration buffer. Overlap and arbitrary
+workloads are rejected before effects.
+
+All supported AI schedulers must call `aster-lab-hours check-window` before
+proposing or creating exclusive work. At runtime the host independently claims
+the record exactly once and requires the shared operation lock and whole-host
+lease, so a stale scheduler check cannot create concurrent supported work. The
+permanent dispatcher is inert with no due booking. Doctor detects missed or
+stale bookings, unowned drain state, unreserved lab processes/listeners,
+production drift and lease drift.
+
+Adding another model-test class requires a separately registered, hash-pinned
+workload; a booking cannot carry an arbitrary command. A root administrator
+can always bypass a host-local policy, so unsupported root actions are handled
+by Doctor detection, retained evidence and the operating rule rather than a
+claim that local root is cryptographically constrained.
 
 ## Integration, recovery and resumability
 
@@ -113,8 +136,8 @@ reuse a spent exact-cycle evidence directory or retry a failed scheduled run.
 
 ## Immediate next action
 
-Define LH4 as a reviewed recurring operating release: choose the reservation
-cadence, retain the same collision and restoration checks, add a Doctor signal
-for stale state or failed restoration, and require another complete scheduled
-pass before graduation. The successful exact-cycle packet must not be rerun or
-silently converted into a recurring timer.
+Operate Lab Hours through explicit bookings and register additional fixed
+workloads only after their own source, effect and recovery review. Integrate
+the read-only window check into each future AI scheduler before it can offer an
+exclusive time. Preserve the dispatcher claim, shared lock, lease and Doctor
+checks as the authoritative host enforcement boundary.
