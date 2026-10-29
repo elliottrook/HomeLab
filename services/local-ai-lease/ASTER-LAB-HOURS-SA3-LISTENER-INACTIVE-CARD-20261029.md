@@ -14,13 +14,23 @@ Status: **source-only; not installed, deployed or wired into reservations**
 The adapter heartbeats the existing guardian while polling, bounds canonical
 result output to 262,144 bytes, validates the transaction's exact packet/model/
 case identities, rejects malformed or nonzero results, and terminates the exact
-listener process group on timeout or failure. A normally exited listener is
-not signalled again. The transaction retains the validated result and performs
-the existing production restore path.
+listener process group on timeout or failure. Capture is root-only, file-backed
+and bounded so a listener cannot deadlock behind a full stdout/stderr pipe; a
+caller also cannot extend the fixed 2,700-second deadline. A normally exited
+listener is not signalled again. The transaction retains the validated result
+and performs the existing production restore path.
 
 The source hash is
-`4004474a9f78c6abd63b0edef26381de6458d65f4e74a9f4d094ee4ae1a58c51`.
-The adapter and transaction boundary tests pass **30/30**.
+`eb3b304ffc7315c7f8c3deaa06900f2c52a3af256834c701f0fa59c0fe52bc3b`.
+
+The fixed guest wrapper source is
+`scripts/local-ai/aster_llama_sa3_guest_wrapper.py`, hash
+`27949ff1ba37f825de8d3c4aaeaf6388b9535e72d0063e46eac0e491a6604303`. It pins
+the accepted `aster-qwen3.5-9b` model and SYCL server, imports only the four
+reviewed runtime files, rejects answer keys and review material, uses an
+ephemeral private API key, binds the listener to the lease/generation scope,
+and removes the scope and private runtime directory on every exit path. The
+adapter, wrapper and transaction boundary tests pass **43/43**.
 
 This card does not install the LXC110 target, create a service, book or check a
 Lab Hours window, schedule execution, invoke a model, change the backend,
