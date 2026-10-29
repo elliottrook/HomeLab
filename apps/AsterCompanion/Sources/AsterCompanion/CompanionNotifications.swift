@@ -7,8 +7,8 @@ enum CompanionNotice: String {
 
     var body: String {
         switch self {
-        case .replyReady: return "Your reply is ready. Open Aster Companion to read it."
-        case .labAlert: return "Your lab needs attention. Open Aster Companion to review it."
+        case .replyReady: return "Your reply is ready. Open AsterAI to read it."
+        case .labAlert: return "Your lab needs attention. Open AsterAI to review it."
         }
     }
 }
@@ -57,7 +57,7 @@ final class CompanionNotifications: ObservableObject {
             return
         }
         let content = UNMutableNotificationContent()
-        content.title = "Aster Companion"
+        content.title = "AsterAI"
         content.body = notice.body
         content.sound = .default
         // Stable event IDs replace a repeated event instead of stacking copies.

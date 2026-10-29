@@ -14,7 +14,7 @@ test('push never displays supplied private text or navigates to supplied URLs', 
   const f = worker(); let done;
   f.handlers.push({data: {json:()=>({kind:'reply',body:'SECRET',url:'https://evil.invalid',id:'a'.repeat(32)})},waitUntil:p=>done=p});
   await done;
-  assert.equal(f.shown[0].body,'Your reply is ready. Open Aster Companion to read it.');
+  assert.equal(f.shown[0].body,'Your reply is ready. Open AsterAI to read it.');
   assert.equal(f.shown[0].data.url,'/companion');
   f.handlers.notificationclick({notification:{close(){},data:{url:'https://evil.invalid'}},waitUntil:p=>done=p});
   await done; assert.deepEqual(f.opened,['/companion']);
@@ -23,7 +23,7 @@ test('malformed push still produces a generic visible alert with a bounded tag',
   const f=worker(); let done;
   f.handlers.push({data:{json:()=>{throw Error('malformed')}},waitUntil:p=>done=p});
   await done; assert.equal(f.shown[0].tag,'aster-update');
-  assert.equal(f.shown[0].body,'An update is available in Aster Companion.');
+  assert.equal(f.shown[0].body,'An update is available in AsterAI.');
 });
 function browser() {
   const elements=[], values=new Map(), requests=[];

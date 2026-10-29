@@ -1,59 +1,40 @@
-# HomeLab app icon family
+# Aster Home v2 app icon family
 
-## Purpose
+The SVG masters in the private Brand Asset Library are the source of truth.
+Runtime PNG and ICNS assets are exports. See the [UI style guide](HomeLab-UI-Style-Guide.md)
+for the charcoal, jade, gold and warm-stone interface tokens.
 
-Keep the native Aster Companion app, Aster web surfaces, and the News Digest
-briefing visually consistent while preserving each product's identity.
+## Masters and consumers
 
-The reusable visual tokens and preview classes are in
-[`App-Icon-Family.css`](App-Icon-Family.css). It is a duplication aid for new
-sizes and related surfaces; the PNG/ICNS source files remain authoritative for
-runtime assets.
+The masters live at
+`/Users/jasonelliott/Documents/Brand Asset Library/brands/aster-home/working/2026-10-13-aster-home-v2-reconstruction/family-candidate-2026-10-14/SVG/`.
 
-## Source assets
-
-| Product | Git source | Runtime use |
+| Product | SVG master | Runtime assets |
 |---|---|---|
-| Aster Companion | [`docs/assets/aster-companion/aster-app-icon-concept-v2-compass.png`](../assets/aster-companion/aster-app-icon-concept-v2-compass.png) | `apps/AsterCompanion/Resources/AppIcon.icns`; Aster web favicon and PWA icon |
-| News Digest | [`docs/assets/news-digest/news-digest-icon.png`](../assets/news-digest/news-digest-icon.png) | `/static/icon-512.png` plus the 32px favicon and 180px Apple touch icon |
-| Unified Media Recommendations | [`docs/assets/unified-media/unified-media-recommendations-icon.png`](../assets/unified-media/unified-media-recommendations-icon.png) | Private portal source plus 32px favicon and 180px Apple touch icon |
-| Photography Content Desk | [`docs/assets/tcf-content-desk/tcf-content-desk-icon-source.png`](../assets/tcf-content-desk/tcf-content-desk-icon-source.png) | Private desk favicon/app icon and Homepage tile; tracked 32px, 180px and 512px PNG derivatives |
+| AsterAI | `01-aster.svg` | Native `AppIcon.icns`, native orb, `/companion` orb, favicon, touch icon and PWA icon |
+| News Digest | `04-news-digest.svg` | Briefing 32px, 180px and 512px web icons; [source note](../../services/news-aggregator/ICON-SOURCE.md) |
+| Media Acquisition Hub | `06-media-acquisition-hub.svg` | Unified Media Recommendations portal 32px, 180px and 512px icons |
+| Photography Content Desk | `05-content-desk.svg` | Private Desk 32px, 180px and 512px icons |
 
-The Aster source is the accepted compass/aster flower artwork. The News Digest
-source is the deployed 512px document/news mark; its 32px and 180px variants
-are retained because the live page already serves those exact sizes.
+SHA-256 of the three newly adopted masters:
 
-Unified Media Recommendations uses the same midnight canvas, electric blue /
-violet glow, warm highlight and centered discovery motif. Its source and
-runtime derivatives are tracked under
-[`docs/assets/unified-media/`](../assets/unified-media/). The reusable web
-interface rules are documented separately in the
-[HomeLab UI Style Guide](HomeLab-UI-Style-Guide.md).
+| Master | SHA-256 |
+|---|---|
+| `01-aster.svg` | `f6a0f19ff9e5ac4728e04cf20c28e86f171d516ec403a1bc3df937c8a456c6a4` |
+| `05-content-desk.svg` | `f1d8a197731c72868fb9287ea04c9104b4d862b0cca35b173a81ad50080a1d5c` |
+| `06-media-acquisition-hub.svg` | `8565ce37dba39c9820df5600ae42789087e0d6ac940f98e37087516542aec90d` |
 
-Photography Content Desk uses a dimensional photo stack and camera aperture as
-its centered silhouette, with a warm-gold selection sparkle as the curation
-cue. Its glass, pearlescent enamel, luminous blue edge and restrained
-blue/violet/cream/gold palette follow the accepted Aster, News Digest and
-Unified Media Recommendations standard. It belongs to the Aster operator-tool
-family and deliberately does not reuse either public photography site's logo.
-
-## Web integration contract
-
-- Aster's root web app and `/companion` use `/aster-app-icon.png` for favicon
-  and Apple touch icon metadata.
-- The Companion manifest uses the same image with `any maskable` purpose.
-- News Digest keeps `/static/icon-32.png` and `/static/icon-180.png`, adds the
-  512px image to its manifest, and must not change its private route, auth, or
-  service boundaries as part of an icon update.
-- Unified Media Recommendations serves the 32px favicon, 180px Apple touch
-  icon, and full-size source from its private portal; the icon update must not
-  change its Authentik, request-adapter, or service boundaries.
-- Runtime copies are generated from the Git sources; do not hand-edit a
-  deployed PNG without bringing the resulting bytes back into Git.
+Each of these masters is a vector reconstruction with no embedded raster.
+The application exports use the master with `viewBox="55 40 1140 1140"`,
+an opaque `#D1C1AA` square backing rect, and an opaque PNG export. This
+expands the approved limestone canvas to the actual image boundary without
+adding a black or white band. Do not use transparent padding or browser
+scaling of a 512px file for the 32px favicon. Preserve the original SVG
+files in the asset library; only runtime derivatives are checked into apps.
 
 ## Verification
 
-Check image dimensions and SHA-256 before deployment, then request each
-favicon/manifest URL over the existing private HTTPS routes and confirm the
-HTML references the intended files. A failed icon check is cosmetic and should
-roll back only the icon files and metadata, not the application service.
+Inspect each icon at its delivered size, check dimensions and opacity, and
+verify favicon, touch and manifest URLs through the private application route.
+Keep service identities and authentication routes unchanged during visual
+updates. The previous blue icons remain available in Git history for rollback.

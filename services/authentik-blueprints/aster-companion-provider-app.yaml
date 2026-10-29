@@ -33,7 +33,7 @@ entries:
     identifiers:
       slug: aster-companion
     attrs:
-      name: Aster Companion
+      name: AsterAI
       provider: !KeyOf ac-provider
       meta_description: "Native macOS client for Aster - passkey-only login, voice, multi-persona chat"
 

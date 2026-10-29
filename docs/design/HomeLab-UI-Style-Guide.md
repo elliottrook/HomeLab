@@ -4,129 +4,99 @@
 
 ## Scope and brand boundary
 
-This guide governs Aster-associated internal HomeLab/network applications,
-including their private dashboards, operational tools and assistant surfaces.
-It is not a universal visual standard for everything hosted on this network.
+This guide applies to Aster-associated private HomeLab applications: AsterAI
+(formerly Aster Companion), the News Digest briefing, Media Acquisition Hub
+(the Unified Media Recommendations service), and Photography Content Desk.
+The Contrasting Frame public site keeps its own visual identity. Its public
+preview inside Content Desk retains that identity while the Desk controls use
+Aster styling.
 
-The Contrasting Frame public website is a separate brand and follows the
-[The Contrasting Frame style guide](The-Contrasting-Frame-Style-Guide.md).
-Its private Content Desk is deliberately an internal HomeLab/Aster operator
-tool, so this guide's navy/cyan palette, rounded-card treatment, system-font
-hierarchy and HomeLab app-icon family govern the Desk. Public gallery previews
-inside the Desk still render the photography brand faithfully. Shared security,
-accessibility and operational requirements apply to both surfaces. Aster's
-canonical voice remains required only if a component actually speaks on
-Aster's behalf; the current project produces no speech.
-
-This guide extends the [HomeLab app icon family](App-Icon-Family.md) into a
-small, practical visual system. It captures the choices used by the Unified
-Media Recommendations page and the Aster / News Digest family so future UIs
-feel related without becoming identical.
+Aster Home v2 is the approved visual source. Use the [Aster Home v2 asset
+guide](Aster-Home-v2-Asset-Guide.md) and the
+[app icon family](App-Icon-Family.md) for the asset map. Runtime PNG and ICNS
+files are exports of the SVG masters, never independent artwork.
 
 ## Design intent
 
-The interface should feel calm, capable and slightly luminous: a private tool
-that is easy to scan, not a generic admin panel. Use dark navy surfaces,
-high-contrast text, restrained cyan/mint actions, and a small amount of violet
-or warm-gold glow for identity. Explain what the system knows and why it is
-acting; never let decoration compete with the user decision.
+Use quiet charcoal reading surfaces with restrained jade and champagne-gold
+highlights. The dimensional compass and limestone tile belong in identity art;
+keep dense material textures out of controls and long-form text. The interface
+should explain actions, source data and approval boundaries clearly.
 
 ## Tokens
 
-Use the CSS variables in [`App-Icon-Family.css`](App-Icon-Family.css) as the
-source of truth. The compact semantic palette is:
+[`App-Icon-Family.css`](App-Icon-Family.css) contains the shared CSS tokens.
 
 | Token | Value | Use |
 |---|---|---|
-| `--ui-bg` | `#0b1020` | page background |
-| `--ui-panel` | `#151d31` | primary card/panel |
-| `--ui-panel-raised` | `#1b2740` | hover, selected, or elevated panel |
-| `--ui-panel-input` | `#111a2c` | filters, inputs, toolbars |
-| `--ui-text` | `#f4f7fb` | primary text |
-| `--ui-text-soft` | `#dce4f1` | readable body copy |
-| `--ui-muted` | `#aab6ca` | metadata, helper text, timestamps |
-| `--ui-accent` | `#8bd3ff` | links, focus, primary action |
-| `--ui-accent-strong` | `#b9f2d0` | success, ready, trusted state |
-| `--ui-danger` | `#ffaaa8` | errors and destructive warnings |
-| `--ui-line` | `#2b3a58` | borders and dividers |
+| `--ui-bg` | `#171C19` | Page background |
+| `--ui-panel` | `#242B25` | Primary panel |
+| `--ui-panel-raised` | `#303A32` | Elevated panel |
+| `--ui-panel-input` | `#202922` | Inputs and toolbars |
+| `--ui-text` | `#F5F1E8` | Primary text |
+| `--ui-text-soft` | `#E2E5DD` | Body copy |
+| `--ui-muted` | `#BFC6BB` | Metadata and helper copy |
+| `--ui-accent` | `#D8B778` | Focus, links and primary emphasis |
+| `--ui-accent-strong` | `#A7C5AA` | Success and trusted state |
+| `--ui-danger` | `#F4A89E` | Errors and warnings |
+| `--ui-line` | `#526055` | Borders and dividers |
 
-The page background may use a very broad radial gradient from `#25395a` into
-`--ui-bg`; cards may use a subtle diagonal gradient from `--ui-panel` into
-`#10182a`. Do not use gradients for long text or critical controls.
+A warm light surface is also valid where the product needs it: page stone
+`#E6DAC8`, panel ivory `#F8F5EF`, ink `#1E241F`, jade `#1F513B` and gold
+`#C2A06B`. News Digest uses this variant. Keep text contrast appropriate to
+the chosen surface rather than mixing dark and light token roles.
 
-## Typography and hierarchy
+## Typography and layout
 
-- Use the system stack: `system-ui, -apple-system, BlinkMacSystemFont,
-  "Segoe UI", sans-serif`.
-- Use a small uppercase kicker (`.78rem`, heavy weight, letter spacing around
-  `.12em`) for section context.
-- Use large, tightly tracked page titles and keep them to one or two lines.
-- Use muted text for provenance, timestamps and secondary metadata; never use
-  low-contrast gray for required instructions.
-- Use sentence case for controls. Reserve uppercase for short labels and
-  status badges.
-
-## Layout and components
-
-- Center the content in a readable maximum width, with generous top and bottom
-  padding (`42px 24px 72px` is the established desktop baseline).
-- Prefer a responsive card grid with a minimum card width near `330px`; collapse
-  to one column below `600px`.
-- Use `18px` card radii, `16px` toolbar/filter radii, and `10px` control radii.
-- Use a `1px` `--ui-line` border plus a restrained shadow (`0 12px 30px
-  #0003`) for cards. Avoid thick outlines and floating glass everywhere.
-- Put the primary action at the end of the content, with explanatory context
-  immediately above it. A user should understand the decision before clicking.
-- Use posters or artwork as visual anchors, but always provide text fallbacks
-  and useful alt text.
+- Use the system font stack for application UI. Keep labels and status text
+  readable without relying on the artwork.
+- Use a short uppercase kicker, about `.78rem` with `.12em` tracking, for
+  section context; use sentence case for controls.
+- Center readable content with generous margins. Responsive cards use about
+  `18px` radii and collapse to one column below `600px`.
+- Use subtle panel gradients and shadows. Reserve the limestone texture for
+  approved identity assets and launcher icons.
 
 ## Interaction and states
 
-- Primary buttons use `--ui-accent` with dark text; hover may brighten slightly.
-- Disabled actions use a muted slate fill and must include a nearby reason.
-- Focus rings must be visible against `--ui-bg`; do not remove the browser
-  outline without replacing it.
-- Success uses `--ui-accent-strong`; errors use `--ui-danger`; neither relies on
-  color alone—include text or an icon.
-- Empty and stale states should be calm, explicit and actionable rather than
-  looking like an application failure.
-- Search and filters should be local and immediate where possible. Display the
-  current filter and the last refresh time.
-
-## Content and trust
-
-Every recommendation or automated action should expose, in plain language:
-
-1. what the item is;
-2. where it came from;
-3. why it is being shown;
-4. what will happen after the action; and
-5. when the underlying data was refreshed.
-
-AI may help explain or summarize, but deterministic source IDs, suppression
-rules and approval boundaries remain authoritative. Avoid claiming a personal
-preference unless the UI can name the supporting signal.
+- Use jade for primary actions on charcoal, with warm-white text. Gold is a
+  strong focus and identity accent. A gold-filled control requires dark text.
+- Provide a visible gold focus outline for keyboard use. Aim for `44px` tap
+  targets and avoid hover-only instructions.
+- Disabled actions need a written reason. Success and errors need text or a
+  symbol alongside color.
+- Explain what data was refreshed, where an item came from, why it is offered,
+  and what an approval will do. Requests remain explicit.
 
 ## Icon and imagery rules
 
-- Use the icon-family canvas and rounded-square framing from
-  `App-Icon-Family.css`.
-- Prefer one centered, legible mark over a collage of tiny symbols.
-- At 32px, remove detail that cannot survive reduction; retain silhouette,
-  contrast and one distinctive color cue.
-- Do not place words, numbers, credentials or transient status in app icons.
-- New products should add a source asset and documented derivatives rather than
-  copying a deployed PNG by hand.
+- Begin with the approved SVG master for each product. Export the necessary
+  sizes from that file and record its path and SHA-256 in the icon guide.
+- The launcher artwork has its own rounded limestone tile. Export a square
+  image with an opaque limestone canvas extending to every edge; do not add a
+  white, black or navy border. Keep the central motif centered and inspect at
+  32px, 180px and 512px.
+- Browser icons use a 32px favicon and 180px Apple touch icon. A manifest may
+  include a 512px image. Native macOS apps use a full ICNS iconset from the
+  same master.
+- Tile-free navigation marks are for in-app controls. Keep text names beside
+  compact marks when their engraved centre symbols are ambiguous.
+- Retire the old electric-blue, violet-glow icons and their blue UI motifs.
+  Keep old files only as version history or rollback material, not active
+  references or source assets.
 
-## Accessibility and responsive baseline
+## Accessibility and product boundaries
 
-- Body text should remain comfortably readable on a phone; do not rely on
-  hover-only explanations.
-- Keep tap targets around `44px` where practical.
-- Preserve keyboard focus order and provide labels for icon-only actions.
-- Reflow headers, toolbars and grids at `600px`; do not make users horizontally
-  scroll to reach a primary action.
-- Maintain meaningful headings even when the visual treatment is dramatic.
+- Reflow controls on narrow screens without horizontal scrolling to reach an
+  action. Supply useful alt text for content imagery and accessible labels for
+  icon-only controls.
+- AsterAI is the visible name of the assistant. Existing executable, package,
+  bundle ID and `aster-companion` callback scheme remain stable to protect
+  passkey and Keychain behavior.
+- Media Acquisition Hub is the visible portal name; its recommendation and
+  search actions retain their existing service approval boundaries.
+- Content Desk uses Aster UI chrome. The embedded public photography previews
+  continue to use the appropriate photography-site brand.
 
 ## Aster voice and spoken-output standard
 

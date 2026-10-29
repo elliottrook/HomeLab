@@ -1663,14 +1663,14 @@ async def build_payload(
 async def browser_chat() -> str:
     return """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="icon" type="image/png" href="/aster-app-icon.png">
-<link rel="apple-touch-icon" href="/aster-app-icon.png">
-<title>Aster</title><style>
-body{font:16px system-ui;background:#111827;color:#e5e7eb;margin:0}main{max-width:850px;margin:auto;padding:24px}
-#chat{min-height:55vh;white-space:pre-wrap}.m{padding:12px 14px;margin:10px 0;border-radius:12px;background:#1f2937}.u{background:#1e3a5f}
-textarea,input,button{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}
-textarea{width:100%;box-sizing:border-box;min-height:90px}button{cursor:pointer;background:#2563eb;border:0;margin-top:8px}#key{width:20rem;max-width:90%}.muted{color:#9ca3af;font-size:.9rem}
-</style></head><body><main><h1>Aster</h1><p class="muted">Local Qwen 3.5 9B · llama.cpp Vulkan · scoped tools</p>
+<link rel="icon" type="image/png" href="/aster-icon-32.png">
+<link rel="apple-touch-icon" href="/aster-icon-180.png">
+<title>AsterAI</title><style>
+body{font:16px system-ui;background:#171c19;color:#f5f1e8;margin:0}main{max-width:850px;margin:auto;padding:24px}
+#chat{min-height:55vh;white-space:pre-wrap}.m{padding:12px 14px;margin:10px 0;border-radius:12px;background:#242b25}.u{background:#235640}
+textarea,input,button{font:inherit;color:inherit;background:#202922;border:1px solid #526055;border-radius:8px;padding:10px}
+textarea{width:100%;box-sizing:border-box;min-height:90px}button{cursor:pointer;background:#235640;border:0;margin-top:8px}#key{width:20rem;max-width:90%}.muted{color:#bfc6bb;font-size:.9rem}
+</style></head><body><main><h1>AsterAI</h1><p class="muted">Local Qwen 3.5 9B · llama.cpp Vulkan · scoped tools</p>
 <label>API key <input id="key" type="password" autocomplete="off"></label><div id="chat"></div>
 <textarea id="prompt" placeholder="Ask Aster…"></textarea><button id="send">Send</button>
 <script>
@@ -1698,9 +1698,19 @@ async def companion_orb() -> FileResponse:
     )
 
 
+@app.get("/aster-icon-180.png")
+async def aster_touch_icon():
+    return FileResponse(STATIC_DIR / "aster-icon-180.png", media_type="image/png")
+
+
+@app.get("/aster-icon-32.png")
+async def aster_favicon():
+    return FileResponse(STATIC_DIR / "aster-icon-32.png", media_type="image/png")
+
+
 @app.get("/aster-app-icon.png")
 async def aster_app_icon() -> FileResponse:
-    return FileResponse(STATIC_DIR / "aster-app-icon.png", media_type="image/png")
+    return FileResponse(STATIC_DIR / "aster-icon-512.png", media_type="image/png")
 
 
 @app.get("/companion", response_class=HTMLResponse)
@@ -1719,72 +1729,74 @@ async def companion_web_client() -> str:
     """
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Aster Companion</title>
+<title>AsterAI</title>
 <link rel="manifest" href="/companion/manifest.webmanifest">
 <script src="/companion/notifications.js"></script>
-<link rel="apple-touch-icon" href="/aster-app-icon.png">
-<link rel="icon" type="image/png" href="/aster-app-icon.png">
+<link rel="apple-touch-icon" href="/aster-icon-180.png">
+<link rel="icon" type="image/png" href="/aster-icon-32.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Aster">
+<meta name="apple-mobile-web-app-title" content="AsterAI">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#111827">
+<meta name="theme-color" content="#171c19">
 <style>
-body{{font:16px system-ui;background:#111827;color:#e5e7eb;margin:0;overflow-x:hidden}}
+body{{font:16px system-ui;background:#171c19;color:#f5f1e8;margin:0;overflow-x:hidden}}
 main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
-#orb{{width:320px;height:320px;border-radius:50%;background-image:url('/companion/orb.png?v=20261004-refined');background-size:cover;background-position:center;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.16;filter:saturate(.35);pointer-events:none;z-index:0}}
+#orb{{width:320px;height:320px;border-radius:50%;background-image:url('/companion/orb.png?v=20261029-v2');background-size:cover;background-position:center;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.16;filter:saturate(.35);pointer-events:none;z-index:0}}
 #orb.thinking{{animation:pulse 1.6s ease-in-out infinite}}
 @keyframes pulse{{0%,100%{{filter:saturate(.55) brightness(1);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1) brightness(1.12);transform:translate(-50%,-50%) scale(1.08)}}}}
 #orb.acting{{animation:actingPulse .8s ease-in-out infinite}}
 @keyframes actingPulse{{0%,100%{{filter:saturate(.8) brightness(1) hue-rotate(-20deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.4) brightness(1.25) hue-rotate(-20deg);transform:translate(-50%,-50%) scale(1.12)}}}}
 #orb.listening{{animation:listeningPulse 1s ease-in-out infinite}}
-@keyframes listeningPulse{{0%,100%{{filter:saturate(1) brightness(1) hue-rotate(90deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.3) brightness(1.15) hue-rotate(90deg);transform:translate(-50%,-50%) scale(1.06)}}}}
+@keyframes listeningPulse{{0%,100%{{filter:saturate(1) brightness(1) hue-rotate(0deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.3) brightness(1.15) hue-rotate(0deg);transform:translate(-50%,-50%) scale(1.06)}}}}
 #orb.speaking{{animation:speakingPulse .5s ease-in-out infinite}}
-@keyframes speakingPulse{{0%,100%{{filter:saturate(1.1) brightness(1.05) hue-rotate(180deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.5) brightness(1.2) hue-rotate(180deg);transform:translate(-50%,-50%) scale(1.05)}}}}
-button.mic{{background:transparent;background-image:url('/companion/orb.png?v=20261004-refined');background-size:cover;background-position:center;width:44px;height:44px;min-width:44px;padding:0;margin-top:0;border:2px solid rgba(148,163,184,.5);border-radius:50%;cursor:pointer}}
-button.mic.recording{{border-color:#16a34a;box-shadow:0 0 8px rgba(22,163,74,.7)}}
-#chat{{min-height:55vh;white-space:pre-wrap}}.m{{max-width:82%;padding:12px 14px;margin:10px 0;border-radius:12px;background:rgba(31,41,55,.2);backdrop-filter:blur(6px)}}.u{{background:rgba(37,99,235,.22);margin-left:auto}}
-textarea,button,select#persona{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}}
-textarea{{width:100%;box-sizing:border-box;min-height:90px}}button{{cursor:pointer;background:#2563eb;border:0;margin-top:8px}}
+@keyframes speakingPulse{{0%,100%{{filter:saturate(1.1) brightness(1.05) hue-rotate(0deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.5) brightness(1.2) hue-rotate(0deg);transform:translate(-50%,-50%) scale(1.05)}}}}
+button.mic{{background:transparent;background-image:url('/companion/orb.png?v=20261029-v2');background-size:cover;background-position:center;width:44px;height:44px;min-width:44px;padding:0;margin-top:0;border:2px solid rgba(216,183,120,.65);border-radius:50%;cursor:pointer}}
+button.mic.recording{{border-color:#a7c5aa;box-shadow:0 0 8px rgba(22,163,74,.7)}}
+#chat{{min-height:55vh;white-space:pre-wrap}}.m{{max-width:82%;padding:12px 14px;margin:10px 0;border-radius:12px;background:rgba(36,43,37,.85);backdrop-filter:blur(6px)}}.u{{background:rgba(35,86,64,.55);margin-left:auto}}
+textarea,button,select#persona{{font:inherit;color:inherit;background:#171c19;border:1px solid #526055;border-radius:8px;padding:10px}}
+textarea{{width:100%;box-sizing:border-box;min-height:90px}}button{{cursor:pointer;background:#235640;border:0;margin-top:8px}}
 select#persona{{padding:6px 8px}}
 .inputRow{{display:flex;align-items:center;gap:10px;margin-top:10px}}
-#send{{height:44px;padding:0 22px;margin-top:0;border-radius:22px;border:2px solid rgba(148,163,184,.5);background:linear-gradient(135deg,#4f46e5,#7c3aed)}}
-.muted{{color:#9ca3af;font-size:.9rem}}.err{{color:#f87171}}
+#send{{height:44px;padding:0 22px;margin-top:0;border-radius:22px;border:2px solid rgba(216,183,120,.65);background:#235640}}
+.muted{{color:#bfc6bb;font-size:.9rem}}.err{{color:#f4a89e}}
 #login{{text-align:center;padding-top:20vh}}
 header{{display:flex;align-items:center;justify-content:space-between}}
 .hdrRight{{display:flex;align-items:center;gap:10px}}
-a.signout{{color:#9ca3af;text-decoration:none;cursor:pointer}}
+a.signout{{color:#bfc6bb;text-decoration:none;cursor:pointer}}
 details{{margin:6px 0 10px}}
-summary{{cursor:pointer;color:#9ca3af;font-size:.9rem}}
-#tools{{display:flex;flex-wrap:wrap;gap:10px 16px;padding:8px 2px;font-size:.85rem;color:#cbd5e1}}
+summary{{cursor:pointer;color:#bfc6bb;font-size:.9rem}}
+#tools{{display:flex;flex-wrap:wrap;gap:10px 16px;padding:8px 2px;font-size:.85rem;color:#e2e5dd}}
 .toolRow{{display:flex;align-items:center;gap:6px;cursor:pointer}}
-button.checkArr{{background:#374151;font-size:.85rem;padding:6px 10px}}
+button.checkArr{{background:#303a32;font-size:.85rem;padding:6px 10px}}
 #arrCard{{background:rgba(120,53,15,.28);backdrop-filter:blur(6px);border:1px solid rgba(251,146,60,.4);border-radius:12px;padding:14px;margin:10px 0;font-size:.9rem}}
-#arrCard h3{{margin:0 0 8px;font-size:1rem;color:#fdba74}}
+#arrCard h3{{margin:0 0 8px;font-size:1rem;color:#d8b778}}
 #arrCard p{{margin:4px 0}}
-#arrCard ul{{margin:8px 0;padding-left:20px;color:#cbd5e1}}
+#arrCard ul{{margin:8px 0;padding-left:20px;color:#e2e5dd}}
 #arrCard .row{{display:flex;gap:8px;margin-top:10px}}
 #arrCard button.approve{{background:#dc2626}}
-#arrCard button.dismiss{{background:#374151}}
+#arrCard button.dismiss{{background:#303a32}}
 #approvalInbox{{margin:10px 0}}
-.approvalCard{{background:rgba(30,41,59,.82);border:1px solid #64748b;border-radius:12px;padding:14px;margin:10px 0}}
-.approvalCard.red{{border-color:#ef4444}}.approvalCard.yellow{{border-color:#f59e0b}}
+.approvalCard{{background:rgba(30,41,59,.82);border:1px solid #819a82;border-radius:12px;padding:14px;margin:10px 0}}
+.approvalCard.red{{border-color:#e78e83}}.approvalCard.yellow{{border-color:#d8b778}}
 .approvalCard h3{{margin:0 0 8px}}.approvalCard p{{margin:5px 0;overflow-wrap:anywhere}}
-.approvalCard .hash{{font:12px ui-monospace,monospace;color:#94a3b8}}
-.approvalCard .row{{display:flex;gap:8px}}.approvalCard button.deny{{background:#475569}}
-#managementPanel{{margin:10px 0}}.mgmtCard{{background:rgba(15,23,42,.88);border:1px solid #475569;border-radius:12px;padding:14px;margin:10px 0}}
+.approvalCard .hash{{font:12px ui-monospace,monospace;color:#bfc6bb}}
+.approvalCard .row{{display:flex;gap:8px}}.approvalCard button.deny{{background:#526055}}
+#managementPanel{{margin:10px 0}}.mgmtCard{{background:rgba(15,23,42,.88);border:1px solid #526055;border-radius:12px;padding:14px;margin:10px 0}}
 .mgmtCard h3{{margin:0 0 8px}}.mgmtCard ul{{padding-left:20px}}.danger{{background:#b91c1c}}
-.statusOn{{color:#4ade80}}.statusOff{{color:#f87171}}.mgmtRow{{display:flex;gap:8px;flex-wrap:wrap;align-items:center}}
-.mgmtRow select,.mgmtRow input{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:8px}}
-details.prog{{margin:4px 0 0;font-size:.8rem;color:#9ca3af}}
+.statusOn{{color:#a7c5aa}}.statusOff{{color:#f4a89e}}.mgmtRow{{display:flex;gap:8px;flex-wrap:wrap;align-items:center}}
+.mgmtRow select,.mgmtRow input{{font:inherit;color:inherit;background:#171c19;border:1px solid #526055;border-radius:8px;padding:8px}}
+details.prog{{margin:4px 0 0;font-size:.8rem;color:#bfc6bb}}
 details.prog summary{{font-size:.8rem;font-variant-numeric:tabular-nums}}
 details.prog .steps div{{padding:2px 0 2px 14px;font-variant-numeric:tabular-nums}}
-.m .stats{{margin-top:6px;font-size:.75rem;color:#9ca3af;font-variant-numeric:tabular-nums}}
+.m .stats{{margin-top:6px;font-size:.75rem;color:#bfc6bb;font-variant-numeric:tabular-nums}}
+
+#send{{color:#f5f1e8;border-color:#d8b778}}button:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{{outline:2px solid #d8b778;outline-offset:2px}}.m{{border:1px solid #526055}}.u{{border-color:#a7c5aa}}button.mic{{background-color:#d1c1aa}}.brandTitle{{display:flex;align-items:center;gap:12px}}.brandTitle img{{width:48px;height:48px;border-radius:12px}}
 </style></head><body>
 <div id="orb"></div>
 <main>
-<div id="login" hidden><h1>Aster Companion</h1><button id="signin">Sign in with passkey</button><p class="err" id="loginErr"></p></div>
+<div id="login" hidden><h1>AsterAI</h1><button id="signin">Sign in with passkey</button><p class="err" id="loginErr"></p></div>
 <div id="app" hidden>
-<header><h1>Aster</h1><div class="hdrRight"><select id="persona"></select><a class="signout" id="signout">Sign out</a></div></header>
+<header><h1 class="brandTitle"><img src="/aster-icon-180.png" alt="">AsterAI</h1><div class="hdrRight"><select id="persona"></select><a class="signout" id="signout">Sign out</a></div></header>
 <button id="checkApprovals" class="checkArr">Approval inbox</button>
 <button id="openManagement" class="checkArr" aria-controls="managementPanel" aria-expanded="false">AI-PAM management</button>
 <div id="approvalInbox"></div>
@@ -2594,11 +2606,11 @@ app.router.add_event_handler("shutdown", notifications.stop)
 @app.get("/companion/manifest.webmanifest")
 async def companion_manifest():
     from fastapi.responses import JSONResponse
-    return JSONResponse({"id": "/companion", "name": "Aster Companion", "short_name": "Aster",
+    return JSONResponse({"id": "/companion", "name": "AsterAI", "short_name": "AsterAI",
                          "start_url": "/companion", "scope": "/companion", "display": "standalone",
-                         "background_color": "#111827", "theme_color": "#111827",
-                         "icons": [{"src": "/aster-app-icon.png", "sizes": "2048x2048", "type": "image/png",
-                                    "purpose": "any maskable"}]},
+                         "background_color": "#171c19", "theme_color": "#171c19",
+                         "icons": [{"src": "/aster-app-icon.png", "sizes": "512x512", "type": "image/png",
+                                    "purpose": "any"}]},
                         media_type="application/manifest+json")
 
 

@@ -1,4 +1,4 @@
-# Aster Companion operator guide
+# AsterAI operator guide
 
 > Authority: operator-guide
 > Reviewed: 2026-10-12
@@ -7,13 +7,13 @@
 
 ## Use Aster
 
-Open **Aster Companion** in Homepage, or visit
+Open **AsterAI** in Homepage, or visit
 `https://aster.elliottrook.com/companion`. Sign in with the registered passkey.
 The same hostname works on the LAN and through the existing Tailscale route;
 there is no public WAN port forward. On iPhone, Safari's Add to Home Screen is
 optional. On Mac, reopen `/Applications/AsterCompanion.app` after an update.
 The ad-hoc Mac build can prompt for Keychain access again after a rebuild.
-Use the native **Aster Companion**, not the older Safari **Aster.app**. Browser
+Use the native **AsterAI**, not the older Safari **Aster.app**. Browser
 presentation during passkey sign-in is the system authentication session; normal
 native chat/voice uses the API directly. Session tokens persist as one Keychain
 record (`oidc_session_v2`). A visible session-only warning means persistence failed;

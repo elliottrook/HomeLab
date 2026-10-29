@@ -7,9 +7,9 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.elliottrook.aster-companion</string>
 	<key>CFBundleName</key>
-	<string>Aster Companion</string>
+	<string>AsterAI</string>
 	<key>CFBundleDisplayName</key>
-	<string>Aster Companion</string>
+	<string>AsterAI</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

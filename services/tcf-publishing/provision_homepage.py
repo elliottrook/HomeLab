@@ -6,7 +6,7 @@ from pathlib import Path
 path = Path("/opt/homepage/config/services.yaml")
 text = path.read_text(encoding="utf-8")
 name = "    - Photography Content Desk:\n"
-icon = "https://tcf.elliottrook.com/app-icon-512.png?v=f1b7a949"
+icon = "https://tcf.elliottrook.com/app-icon-512.png?v=bbf2d100"
 tile = name + (
     f"        icon: {icon}\n"
     "        href: https://tcf.elliottrook.com\n"

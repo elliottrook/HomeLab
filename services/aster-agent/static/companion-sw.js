@@ -3,15 +3,15 @@ self.addEventListener('push', event => {
   let payload = {};
   try { payload = event.data.json(); } catch (_) {}
   const bodies = {
-    reply: 'Your reply is ready. Open Aster Companion to read it.',
-    lab: 'Your lab needs attention. Open Aster Companion to review it.',
-    test: 'Notifications are connected to Aster Companion.'
+    reply: 'Your reply is ready. Open AsterAI to read it.',
+    lab: 'Your lab needs attention. Open AsterAI to review it.',
+    test: 'Notifications are connected to AsterAI.'
   };
-  const body = bodies[payload.kind] || 'An update is available in Aster Companion.';
+  const body = bodies[payload.kind] || 'An update is available in AsterAI.';
   const tag = /^[a-f0-9]{32}$/.test(payload.id || '') ? payload.id : 'aster-update';
   // Web Push requires a visible notification. Do not silently discard a push
   // merely because a window is visible: Safari may revoke that permission.
-  event.waitUntil(self.registration.showNotification('Aster Companion', {
+  event.waitUntil(self.registration.showNotification('AsterAI', {
     body, tag, icon: '/companion/orb.png', data: {url: '/companion'},
   }));
 });

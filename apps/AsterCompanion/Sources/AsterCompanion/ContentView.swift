@@ -110,17 +110,21 @@ struct ContentView: View {
     }
 
     var body: some View {
-        if !auth.isAuthenticated {
-            loginView
-        } else {
-            chatView
+        Group {
+            if !auth.isAuthenticated {
+                loginView
+            } else {
+                chatView
+            }
         }
+        .tint(Color(red: 0.14, green: 0.34, blue: 0.25))
+        .preferredColorScheme(.dark)
     }
 
     private var loginView: some View {
         VStack(spacing: 16) {
             OrbView(state: .idle)
-            Text("Aster Companion")
+            Text("AsterAI")
                 .font(.title2)
             Button(auth.isSigningIn ? "Signing in…" : "Sign in with passkey") { auth.login() }
                 .disabled(auth.isSigningIn)
@@ -145,7 +149,7 @@ struct ContentView: View {
 
             VStack(spacing: 0) {
                 HStack {
-                    Text("Aster").font(.headline)
+                    Text("AsterAI").font(.headline)
                     Button("AI-PAM") { showingAIPAM = true }
                         .buttonStyle(.bordered)
                     Spacer()
@@ -276,7 +280,7 @@ struct ContentView: View {
                                     }
                                     Text(message.content)
                                         .padding(10)
-                                        .background(message.role == .user ? Color.blue.opacity(0.15) : Color.gray.opacity(0.1))
+                                        .background(message.role == .user ? Color(red: 0.14, green: 0.34, blue: 0.25).opacity(0.35) : Color.gray.opacity(0.1))
                                         .cornerRadius(10)
                                     if let stats = message.summary?.stats {
                                         Text(stats)

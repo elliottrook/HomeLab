@@ -28,9 +28,9 @@ from pydantic import BaseModel, ConfigDict, Field
 TTL = 3600
 SUB_TTL = 30 * 86400
 BODIES = {
-    "reply": "Your reply is ready. Open Aster Companion to read it.",
-    "lab": "Your lab needs attention. Open Aster Companion to review it.",
-    "test": "Notifications are connected to Aster Companion.",
+    "reply": "Your reply is ready. Open AsterAI to read it.",
+    "lab": "Your lab needs attention. Open AsterAI to review it.",
+    "test": "Notifications are connected to AsterAI.",
 }
 
 

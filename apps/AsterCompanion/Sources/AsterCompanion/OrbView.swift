@@ -99,14 +99,8 @@ private extension AsterState {
         }
     }
 
-    var hueDegrees: Double {
-        switch self {
-        case .idle, .thinking: return 0
-        case .acting: return -20
-        case .listening: return 90
-        case .speaking: return 180
-        }
-    }
+    // Keep every state within the approved jade and gold palette.
+    var hueDegrees: Double { 0 }
 
     var restSaturation: Double { self == .acting ? 0.8 : 0.55 }
     var peakSaturation: Double { self == .acting ? 1.4 : 1.0 }

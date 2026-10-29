@@ -7,7 +7,7 @@ entries:
     identifiers:
       slug: aster-companion-reauthentication
     attrs:
-      name: Aster Companion fresh passkey login
+      name: AsterAI fresh passkey login
       title: Verify your passkey for Aster
       designation: authentication
       # Both initial login and explicit OIDC reauthentication must enter the

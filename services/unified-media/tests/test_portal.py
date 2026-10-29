@@ -86,9 +86,9 @@ class PortalTests(unittest.TestCase):
     def test_render_links_approved_branding_assets(self):
         html = render_html([])
         self.assertIn("rel='icon'", html)
-        self.assertIn("href='/icon-32.png'", html)
+        self.assertIn("href='/icon-32.png?v=b4cc2938'", html)
         self.assertIn("rel='apple-touch-icon'", html)
-        self.assertIn("href='/manifest.webmanifest'", html)
+        self.assertIn("href='/manifest.webmanifest?v=b4cc2938'", html)
 
     def test_static_asset_allow_list_serves_icon_without_snapshot(self):
         handler = object.__new__(Handler)
