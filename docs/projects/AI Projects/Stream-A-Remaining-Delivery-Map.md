@@ -495,6 +495,15 @@ is complete. The immediate ready item is now the exact reserved-runner
 transaction using the installed host transaction, listener adapter and fixed
 guest wrapper; booking, lease and model execution remain later gates.
 
+That runner transaction is now installed. Its first package stopped before any
+write on a staging-mode mismatch; corrected candidate `2859279c` passed 53/53,
+used a fresh checkpoint and installed the exact three-file change. Static
+postcheck verifies all eighteen manifest pins, the fixed SA3 owner profile and
+booking-specific result root, with no booking or attempt and healthy
+production. The immediate ready item is one bounded execution after an
+authoritative Lab Hours conflict check and fixed reservation; the runtime must
+still obtain the whole-host lease and shared lock and fail closed on drift.
+
 The downstream
 [model-blind review boundary](evidence/SA3-expanded-source-quality-blind-review-boundary-2026-10-29.md)
 is also source-complete before predictions exist. It accepts only a complete,

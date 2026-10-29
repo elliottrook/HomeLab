@@ -122,3 +122,15 @@ implementation of the exact reserved-runner transaction using the already
 installed host transaction, listener and fixed guest wrapper. Only after that
 passes may a later evaluation receive its own authoritative Lab Hours check,
 reservation, whole-host lease and shared operation lock.
+
+## Reserved-runner activation
+
+The first activation package failed before any target write because its source
+mode check confused repository staging modes with eventual executable target
+modes. Corrected platform candidate `2859279c` used a fresh identity, passed
+53/53 focused tests and two deterministic builds, and installed successfully.
+Independent postcheck verifies the fixed SA3 profile, booking-specific retained
+result root, all eighteen manifest pins and healthy production. No SA3 booking
+or attempt exists and the lease remains ready. The runner implementation gate
+is complete; the immediate next item is an authoritative conflict check and
+fixed reservation for one bounded evaluation.
