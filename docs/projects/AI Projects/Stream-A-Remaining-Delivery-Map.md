@@ -471,9 +471,23 @@ checkpoints, matched every reviewed hash/mode and passed independent host and
 guest imports. The SA3 registration, units, answer key and review material
 remain absent; production and Proxmox daemons remain healthy and no lease state
 exists. The dormant installation gate is therefore complete. The next gate is
-the distinct fixed-workload registration review, followed only later by an
-authoritative ledger check/reservation, lease/lock acquisition and the bounded
-no-effect model evaluation.
+the distinct fixed-workload registration installation, followed only later by
+an authoritative ledger check/reservation, lease/lock acquisition and the
+bounded no-effect model evaluation.
+
+That registration is now reconciled at platform commit
+`8fc3772a98053d9688e927dc2ef9da655567cd51`. The candidate preserves the
+working host's later exclusive-capacity reservation behavior, corrects the
+release-manifest boundary so the LXC110 wrapper is not treated as a Proxmox
+file, and changes exactly five host files against measured baselines. Its
+23/23 focused suite passes, twelve unchanged live manifest pins reconcile, and
+two deterministic bundles match SHA-256
+`78a4fe9996e784814bc4130b8c849cc46e969f5a6e2511c8e2fb099a77b6ff54`.
+It remains deliberately inactive: SA3 returns `WORKLOAD_RUNNER_UNAVAILABLE`
+before attempt evidence, guardian arming or production drain. The immediate
+ready item is fresh live preflight and the atomic five-file registration
+installation; no booking, lease, model request, service effect or restart is
+part of that step.
 
 The downstream
 [model-blind review boundary](evidence/SA3-expanded-source-quality-blind-review-boundary-2026-10-29.md)

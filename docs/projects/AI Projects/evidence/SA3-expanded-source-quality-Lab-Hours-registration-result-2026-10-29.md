@@ -1,6 +1,6 @@
 # SA3 expanded-source quality Lab Hours registration result — 2026-10-29
 
-Status: **SOURCE REGISTRATION PASS; LIVE TRANSACTION NO-GO**
+Status: **DORMANT RUNTIME INSTALLED; RECONCILED REGISTRATION CANDIDATE PASS**
 
 The Lab Hours platform branch now contains a distinct fixed registration for
 `sa3-expanded-source-quality-v1` at commit `53c81e1c`. The platform card is
@@ -60,7 +60,41 @@ The reserved runner still returns `WORKLOAD_RUNNER_UNAVAILABLE`. The source is
 accepted but remains inactive until an exact installation card, rollback
 checkpoint and target-Linux validation pass.
 
-No registration, transaction, adapter or guest wrapper is installed on Proxmox
-or LXC110, and no booking, window check,
-schedule, model call, backend change, restart, routing, repair or production
-effect occurred.
+## Dormant installation and live-baseline reconciliation
+
+The separately reviewed `root-v3` transaction subsequently installed the two
+dormant Proxmox modules and five dormant LXC110 files. All reviewed hashes,
+modes, owners and host/guest imports passed; both rollback checkpoints remain.
+No SA3 registration, unit, booking, lease, model request, drain, restart or
+route was created.
+
+The earlier source registration at `53c81e1c` is not suitable for direct live
+installation. The working Proxmox baseline contains later exclusive-capacity
+reservation behavior which that source commit predates, and its release
+manifest incorrectly treated the guest wrapper as a Proxmox file. Platform
+commit `8fc3772a98053d9688e927dc2ef9da655567cd51` reconciles the fixed SA3
+identity with the measured live baseline while retaining `reserved` state,
+exclusive-stack reservations, cancellation of unclaimed exclusive bookings and
+the prohibition on dispatching an exclusive handoff through the smoke runner.
+
+The new installer changes exactly five Proxmox files: it adds the fixed
+workload registry and inactive-target validator, and replaces the reservation
+module, reserved runner and release manifest against their exact live hashes.
+It preserves twelve unchanged live manifest pins and excludes the LXC110
+wrapper from the Proxmox manifest. The SA3 runner still fails closed with
+`WORKLOAD_RUNNER_UNAVAILABLE` before attempt evidence, guardian arming or
+production drain.
+
+The registry, reservation, runner, dispatcher, Doctor and installer suite
+passes **23/23**. Two independent builds produced the same
+`aster-sa3-registration-v1.tar.gz` at SHA-256
+`78a4fe9996e784814bc4130b8c849cc46e969f5a6e2511c8e2fb099a77b6ff54`.
+The installer requires the exact three live replacement baselines and two
+absent targets, validates every unchanged manifest pin, checkpoints exact
+bytes/absence under a fresh root-only identity, installs atomically, imports
+the complete closure and rolls back all five files on failure or uncertainty.
+
+This is a source-complete inactive registration candidate. Live preflight and
+installation remain outstanding. No authoritative window check is needed for
+this no-effect registration step; a later evaluation will still require its
+own verified Lab Hours reservation, whole-host lease and shared operation lock.
