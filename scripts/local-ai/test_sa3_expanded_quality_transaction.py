@@ -35,6 +35,7 @@ class TransactionTests(unittest.TestCase):
         metadata = validate_result(result())
         receipt = content_free_receipt(metadata)
         self.assertEqual(receipt["receipt"]["request_count"], 20)
+        self.assertIs(receipt["production_restored"], True)
         self.assertNotIn("predictions", receipt)
         self.assertNotIn("summary", receipt)
 
@@ -60,6 +61,15 @@ class TransactionTests(unittest.TestCase):
     def test_invalid_prediction_requires_matching_error(self):
         value = result(); value["predictions"][0]["outcome"] = "invalid"
         with self.assertRaisesRegex(TransactionError, "ERROR_PROJECTION"):
+            validate_result(value)
+
+    def test_any_transport_error_fails_the_transaction(self):
+        value = result()
+        value["predictions"][0]["outcome"] = "invalid"
+        value["predictions"][0]["summary"] = "invalid"
+        value["predictions"][0]["finish_reason"] = "error"
+        value["errors"] = [{"id": PACKET_CASE_IDS[0], "error_class": "HTTPError"}]
+        with self.assertRaisesRegex(TransactionError, "ERROR_COUNT"):
             validate_result(value)
 
     def test_retention_is_root_only_and_digest_bound(self):

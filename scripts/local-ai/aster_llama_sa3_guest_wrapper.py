@@ -27,6 +27,7 @@ MODEL_PATH = "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf"
 MODEL_LINK_TARGET = "/usr/share/ollama/.ollama/models/blobs/sha256-" + "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13"
 SERVER = "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"
 PORT = 11436
+CHAT_COMPLETIONS_URL = f"http://127.0.0.1:{PORT}/v1/chat/completions"
 REQUESTS = 20
 PER_REQUEST_TIMEOUT = 120
 DEADLINE = 2700
@@ -278,7 +279,7 @@ def run(*, profile: str, port: int, requests: int, per_request_timeout: int,
             if remaining <= 0:
                 raise DeadlineAbort()
             request = quality_runner._transport(
-                f"http://127.0.0.1:{PORT}/v1", key,
+                CHAT_COMPLETIONS_URL, key,
                 timeout=min(PER_REQUEST_TIMEOUT, remaining))
             return request(payload)
         try:

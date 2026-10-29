@@ -10,6 +10,11 @@ import aster_llama_sa3_guest_wrapper as wrapper
 
 
 class GuestWrapperTests(unittest.TestCase):
+    def test_quality_transport_targets_chat_completions(self):
+        self.assertEqual(
+            wrapper.CHAT_COMPLETIONS_URL,
+            "http://127.0.0.1:11436/v1/chat/completions")
+
     def test_scope_is_deterministic_and_rejects_untrusted_identity(self):
         self.assertEqual(
             wrapper._scope_unit("lease-1", 2),

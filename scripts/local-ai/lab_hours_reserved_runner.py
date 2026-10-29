@@ -181,14 +181,31 @@ def run(booking_id: str) -> int:
                 time.sleep(5)
             postcheck(owner_unit); restored=True
             raise RunError("OWNER_TRANSACTION_FAILED_RESTORED")
+        phase="production-postcheck"; postcheck(owner_unit); restored=True
         expected_requests=spec.request_count
         expected_effect=("guardian-rescued" if expected_requests==0 else
                          ("sa3-expanded-quality-complete"
                           if spec.runner_kind=="sa3-expanded-quality" else "pilot-complete"))
-        if receipt.get("effects")!=expected_effect or receipt.get("receipt")!={
-            "exit_status":0,"profile":booking["workload"],"request_count":expected_requests}:
+        receipt_body=receipt.get("receipt")
+        receipt_valid=(isinstance(receipt_body,dict)
+            and receipt_body.get("exit_status")==0
+            and receipt_body.get("profile")==booking["workload"]
+            and receipt_body.get("request_count")==expected_requests)
+        if spec.runner_kind=="sa3-expanded-quality":
+            receipt_valid=(receipt_valid
+                and set(receipt)=={"effects","production_restored","receipt"}
+                and set(receipt_body)=={"exit_status","profile","request_count",
+                                        "prediction_sha256","error_count"}
+                and receipt.get("production_restored") is True
+                and receipt_body.get("error_count")==0
+                and isinstance(receipt_body.get("prediction_sha256"),str)
+                and len(receipt_body["prediction_sha256"])==64
+                and all(c in "0123456789abcdef"
+                        for c in receipt_body["prediction_sha256"]))
+        elif set(receipt_body or {}) != {"exit_status","profile","request_count"}:
+            receipt_valid=False
+        if receipt.get("effects")!=expected_effect or not receipt_valid:
             raise RunError("OWNER_RECEIPT_INCOMPLETE")
-        phase="production-postcheck"; postcheck(owner_unit); restored=True
         call(("systemctl","stop",guardian_unit),30); call(("systemctl","reset-failed",guardian_unit),10)
         atomic_json(evidence/"terminal.json",{"schema":"aster-lab-hours-booked-result.v1",
             "state":"complete","booking_id":booking_id,"started_epoch":started,

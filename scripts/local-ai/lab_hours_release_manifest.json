@@ -14,9 +14,9 @@
     "lab_hours_doctor.py": "28999eb78f0f93c6b463944df5bb63251c014e47aa8bc697caccf53357580397",
     "lab_hours_inactive_target.py": "fd467544649cc877ca06f831d8f84aaca495416c19072256bd228fc11601ae33",
     "lab_hours_reservations.py": "f61c6b496fd6e378b6e144a2b13170c85392274e86127a29b03d0cf8f16415d2",
-    "lab_hours_reserved_runner.py": "0ad6ab4b61154de2f3a1f76662122d5521e1886396e0e3f35b33b8aacb2b8605",
+    "lab_hours_reserved_runner.py": "b0579535b8a762686a4299aff8d06d6aad9a2b24d78cc2990edd76e186050b28",
     "lab_hours_workloads.py": "2780fcc7f7638a8d9987c79f2438d92fbc31c106ca67da81c994ca8ccb0402f1",
-    "sa3_expanded_quality_transaction.py": "0706912279bcb4a511633cfb22f19e691eed94f4aa79e07bdc332f87d0dbbc70",
+    "sa3_expanded_quality_transaction.py": "f2d52b12d99acadfa2f89603449988a16de66017ab10087b550f57703ccbacc0",
     "sa3_listener_adapter.py": "6173cfa79f47cfce37924ff11f7ce012f211979d23ef7b6492e403abddacfc1e"
   },
   "release": "exclusive-capacity-sa3-registration-v1",

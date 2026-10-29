@@ -64,7 +64,7 @@ def validate_result(value: object) -> dict[str, object]:
     if (not isinstance(predictions, list) or len(predictions) != REQUEST_COUNT
             or tuple(item.get("id") for item in predictions) != PACKET_CASE_IDS):
         raise TransactionError("SA3_RESULT_PREDICTION_COUNT_INVALID")
-    if not isinstance(errors, list) or len(errors) > REQUEST_COUNT:
+    if not isinstance(errors, list) or errors:
         raise TransactionError("SA3_RESULT_ERROR_COUNT_INVALID")
     ids: list[str] = []
     for item in predictions:
@@ -144,7 +144,8 @@ def retain_result(root: Path, result: dict[str, object], *, expected_uid: int = 
 def content_free_receipt(metadata: dict[str, object]) -> dict[str, object]:
     if set(metadata) != {"result_sha256", "result_bytes", "request_count", "error_count"}:
         raise TransactionError("SA3_RESULT_METADATA_INVALID")
-    return {"effects": "sa3-expanded-quality-complete", "receipt": {
+    return {"effects": "sa3-expanded-quality-complete",
+            "production_restored": True, "receipt": {
         "exit_status": 0, "profile": WORKLOAD_ID,
         "request_count": REQUEST_COUNT,
         "prediction_sha256": metadata["result_sha256"],
