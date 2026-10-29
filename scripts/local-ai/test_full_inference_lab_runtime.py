@@ -221,6 +221,26 @@ class FullInferenceRuntimePilotTests(unittest.TestCase):
                 runtime._run_rescue(args, runtime.FullDrainPaths(args.state_root),
                                      runner=lambda *a: (0, ""))
 
+    def test_rescue_accepts_only_the_restored_production_gpu_holder(self):
+        with TemporaryDirectory() as tmp:
+            args=self.args(); args.state_root=Path(tmp)/"state"
+            args.lease_id="lease-1"; args.generation=2; args.phase="rescue"
+            args.state_root.mkdir(); args.state_root.joinpath("full-inference-drain.json").write_text(
+                json.dumps({"owner_id":"owner-1"})+"\n",encoding="utf-8")
+            accepted=runtime.GpuUser(44,9,"0::/lxc/110/ns/system.slice/aster-llama.service",
+                "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server")
+            captured=[]
+            def probes(command,timeout):
+                if "pgrep" in command: return 1,""
+                if "is-active" in command: return 3,"inactive"
+                return 0,""
+            with patch.object(runtime,"LocalProxmoxFullDrainValidator",lambda *a,**k:object()), \
+                 patch.object(runtime,"FullInferenceDrainController",FakeController), \
+                 patch.object(runtime,"recovery_only",lambda *a,**k:captured.append(k)):
+                self.assertEqual(runtime._run_rescue(args,runtime.FullDrainPaths(args.state_root),
+                    runner=probes,gpu_users=lambda:frozenset({accepted})),0)
+            self.assertTrue(captured[0]["lab_absent"]())
+
 
 if __name__ == "__main__":
     unittest.main()

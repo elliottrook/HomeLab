@@ -114,7 +114,7 @@ def run_guardian(*, state_path: Path, owner_id: str, owner_fence: Callable[[], b
         try:
             result = runner(tuple(rescue_command_factory(lease_id, generation)),
                             capture_output=True, text=True,
-                            timeout=min(120.0, remaining), check=False)
+                            timeout=min(300.0, remaining), check=False)
         except subprocess.TimeoutExpired:
             result = None
         if result is not None and result.returncode == 0 and not state_path.exists():

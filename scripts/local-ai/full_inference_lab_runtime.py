@@ -20,7 +20,8 @@ from full_inference_lab_sources import (AcceptedBaseline,
 from full_inference_lab_validator import LocalProxmoxFullDrainValidator
 from full_inference_lab_supervisor import (GpuUser, PersistentFullDrainSupervisor,
                                             SupervisorError, recovery_only)
-from full_inference_lab_workload import lab_cleanup_command, lab_is_absent
+from full_inference_lab_workload import (lab_absence_commands, lab_cleanup_command,
+                                         lab_is_absent)
 
 
 @dataclass
@@ -165,7 +166,8 @@ def _run_pilot(args: argparse.Namespace, paths: FullDrainPaths, *,
 
 
 def _run_rescue(args: argparse.Namespace, paths: FullDrainPaths, *,
-                runner: Callable[..., tuple[int, str]] = _host_runner) -> int:
+                runner: Callable[..., tuple[int, str]] = _host_runner,
+                gpu_users: Callable[[], frozenset[GpuUser]] = _gpu_users) -> int:
     """Restore one exact durable lease; never resumes or starts workload."""
     state = json.loads(paths.state.read_text(encoding="utf-8"))
     if state.get("owner_id") != args.owner_id:
@@ -175,12 +177,26 @@ def _run_rescue(args: argparse.Namespace, paths: FullDrainPaths, *,
         paths, lambda command: runner(command, 30.0), observer=CooperativeHostObserver(runner),
         validator=LocalProxmoxFullDrainValidator(runner, baseline, cycle=args.cycle),
         owner_id=args.owner_id, allow_effects=True)
+    def recovery_absent() -> bool:
+        if lab_is_absent(runner, lease_id=args.lease_id, generation=args.generation):
+            return True
+        probes = lab_absence_commands(lease_id=args.lease_id, generation=args.generation)[:3]
+        active_code, _ = runner(probes[0], 10.0)
+        socket_code, socket_output = runner(probes[1], 10.0)
+        process_code, process_output = runner(probes[2], 10.0)
+        if not (active_code != 0 and socket_code == 0 and not socket_output.strip()
+                and process_code != 0 and not process_output.strip()):
+            return False
+        try:
+            _accepted_gpu_baseline(gpu_users())
+            return True
+        except SupervisorError:
+            return False
     recovery_only(
         controller, lease_id=args.lease_id, generation=args.generation,
         restore_now_epoch=int(time.time()),
         cleanup_runner=runner,
-        lab_absent=lambda: lab_is_absent(runner, lease_id=args.lease_id,
-                                          generation=args.generation))
+        lab_absent=recovery_absent)
     print(json.dumps({"effects": "rescue-restored", "lease_id": args.lease_id,
                       "generation": args.generation}, sort_keys=True))
     return 0

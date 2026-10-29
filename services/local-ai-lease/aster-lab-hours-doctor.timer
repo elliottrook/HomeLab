@@ -1,0 +1,12 @@
+[Unit]
+Description=Monitor Aster Lab Hours reservations and restoration
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=5min
+AccuracySec=30s
+Persistent=false
+Unit=aster-lab-hours-doctor.service
+
+[Install]
+WantedBy=timers.target

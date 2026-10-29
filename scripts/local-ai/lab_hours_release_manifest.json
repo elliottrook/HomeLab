@@ -1,0 +1,20 @@
+{
+  "pins": {
+    "cooperative_lab_host_adapter.py": "65151e7d7cb511c79afffa0544adb86ee9820e963330c0c5ae4a214e30f92d88",
+    "full_inference_lab_deadline_guardian.py": "688d995dafd33b7b905fb7351bf365a0d0fdcc20766e5c497551d2cc0846cc35",
+    "full_inference_lab_install_preflight.py": "1ea2e37eb2ab8ea34251f4af1337cd2d7f94b00933eb60ff7433b6adbe6ca8d3",
+    "full_inference_lab_runtime.py": "5fa48df16c4db8d2eedcd4a8ab9d615cc07519b713a0028c20019d84ae06ac3d",
+    "full_inference_lab_session.py": "217cd468111b5e3fea280515a9ac7b9e5b77776c5510764c8b9ca8803ddf5b02",
+    "full_inference_lab_sources.py": "920d2ed171d314a6cb346032651c24a7972e51b2a91c2bb2892dcd9419c50d48",
+    "full_inference_lab_supervisor.py": "da5ac76fb48541a2661caa1cb4fe7f21d84334abb9ab935fb1aaaf72c4faba55",
+    "full_inference_lab_validator.py": "0c4a21d7894dd2c41d89aa00d2fa5969277991ff86febf8a89a61ac299966858",
+    "full_inference_lab_workload.py": "b0ad8a6422d4290cd73568916de4e35ef05130e5b93aee22c629ce7560beb236",
+    "lab_hours_booking_cli.py": "05c9655594f522ae8a43acce4c3b9677bc27a393d5988a21681c78088103f5fb",
+    "lab_hours_dispatcher.py": "d05a18c497c62455e977d214e591129093674fdc0a3da542a92e6fa306ac807b",
+    "lab_hours_doctor.py": "28999eb78f0f93c6b463944df5bb63251c014e47aa8bc697caccf53357580397",
+    "lab_hours_reservations.py": "fe7a82c0ae45f949add44b4283c39793af50da156c4d81b67f7f56491bc7be09",
+    "lab_hours_reserved_runner.py": "6ba44c2bfb6322d68c5bd6c112e4144916be60f2ee4ae0abf2042e09a456abd2"
+  },
+  "release": "reservation-rc1",
+  "schema": "aster-lab-hours-release-manifest.v1"
+}

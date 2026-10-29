@@ -198,6 +198,26 @@ class DeadlineGuardianTests(unittest.TestCase):
                     runner=lambda command, **kwargs: seen.append(kwargs["timeout"]) or failed)
             self.assertEqual(seen, [15.0])
 
+    def test_rescue_can_use_five_minutes_when_reserve_allows(self):
+        with TemporaryDirectory() as tmp:
+            state = Path(tmp) / "state"
+            seen=[]
+            result=type("Result",(),{"returncode":0})()
+            now=[99.0]
+            def sleep(_):
+                state.write_text(json.dumps({"owner_id": "owner-1", "mode": "full-inference-drain-v1",
+                                              "lease_id": "owner-1:123", "generation": 1,
+                                              "phase": "drained"}), encoding="utf-8")
+                now[0]=100.0
+            def execute(command, **kwargs):
+                seen.append(kwargs["timeout"]); state.unlink(); return result
+            value=run_guardian(state_path=state,rescue_at=100,hard_deadline=500,
+                owner_id="owner-1",owner_fence=lambda budget:True,
+                rescue_command_factory=lambda *_:("rescue",),clock=lambda:now[0],
+                sleep=sleep,runner=execute)
+            self.assertEqual(value["state"],"rescued")
+            self.assertEqual(seen,[300.0])
+
     def test_rescue_timeout_exception_becomes_controlled_expiry(self):
         with TemporaryDirectory() as tmp:
             state = Path(tmp) / "state"
