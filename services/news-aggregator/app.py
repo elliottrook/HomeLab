@@ -50,16 +50,18 @@ def get_audio_meta():
     meta["generated_local"] = local.strftime("%Y-%m-%d %H:%M")
     return meta
 
-SITE_TITLE = "Your News"
+# AsterTV v2's News surface supplies the Aster News lockup and warm stone UI.
+# The home-screen icons use the approved Aster Home v2 News Digest family export.
+SITE_TITLE = "Aster News"
 
 HEAD_ICONS = """
-<link rel="icon" type="image/png" sizes="32x32" href="/static/icon-32.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/static/icon-180.png">
-<link rel="icon" type="image/png" sizes="512x512" href="/static/icon-512.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/static/icon-32.png?v=aster-v2">
+<link rel="apple-touch-icon" sizes="180x180" href="/static/icon-180.png?v=aster-v2">
+<link rel="icon" type="image/png" sizes="512x512" href="/static/icon-512.png?v=aster-v2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Your News">
-<meta name="theme-color" content="#0b1020">
+<meta name="apple-mobile-web-app-title" content="Aster News Digest">
+<meta name="theme-color" content="#292721">
 """
 
 NAV = """
@@ -80,21 +82,25 @@ CAVEAT = """
 """
 
 SHARED_STYLE = """
-  :root { color-scheme: dark; font-size: 16px; --ui-bg: #0b1020; --ui-panel: #151d31; --ui-panel-raised: #1b2740; --ui-panel-input: #111a2c; --ui-text: #f4f7fb; --ui-text-soft: #dce4f1; --ui-muted: #aab6ca; --ui-accent: #8bd3ff; --ui-accent-strong: #b9f2d0; --ui-danger: #ffaaa8; --ui-line: #2b3a58; }
+  :root { color-scheme: light; font-size: 16px; --ui-bg: #E6DAC8; --ui-panel: #F8F5EF; --ui-panel-raised: #EAE5DB; --ui-panel-input: #F8F5EF; --ui-text: #1E241F; --ui-text-soft: #292721; --ui-muted: #706B62; --ui-accent: #1F513B; --ui-accent-strong: #1F513B; --ui-danger: #8B4125; --ui-line: #C6BBA7; --ui-gold: #C2A06B; }
   * { box-sizing: border-box; }
-  body { margin: 0; background: radial-gradient(circle at top right, #25395a 0, var(--ui-bg) 48%); color: var(--ui-text); font: 16px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-  main { max-width: 1180px; margin: auto; padding: 42px 24px 72px; }
-  .page-header { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 28px; }
+  body { margin: 0; background: linear-gradient(160deg, #E6DAC8, #F2EDE4 55%, #E6DAC8); color: var(--ui-text); font: 16px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  main { max-width: 1180px; margin: auto; padding: 24px 24px 72px; }
+  .brand-heading { display: flex; align-items: center; gap: 22px; }
+  .brand-mark { width: clamp(120px, 17vw, 180px); height: auto; flex: none; }
+  .page-header { display: flex; justify-content: space-between; gap: 24px; align-items: center; margin-bottom: 16px; padding: 24px 28px; border-radius: 18px; background: #292721; color: #F2EDE4; }
   .kicker, .eyebrow { color: var(--ui-accent); font-size: .78rem; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
-  .kicker { margin-bottom: 10px; }
-  h1.brand { font-size: clamp(2.5rem, 7vw, 4.7rem); line-height: 1.02; margin: 0; letter-spacing: -.05em; }
-  .page-intro { max-width: 570px; color: var(--ui-muted); margin: .85rem 0 0; }
-  .header-stat { min-width: 160px; padding: 14px 16px; border: 1px solid var(--ui-line); border-radius: 14px; background: #111a2caa; color: var(--ui-muted); font-size: .78rem; }
+  .page-header .kicker { color: var(--ui-gold); margin-bottom: 8px; }
+  h1.brand { font-size: clamp(2.3rem, 5vw, 4rem); line-height: 1.02; margin: 0; letter-spacing: -.045em; }
+  .page-intro { max-width: 570px; color: #E4DACB; margin: .65rem 0 0; }
+  .header-stat { min-width: 160px; padding: 14px 16px; border: 1px solid var(--ui-line); border-radius: 14px; background: #EEE8DD; color: var(--ui-muted); font-size: .78rem; }
+  .page-header .header-stat { background: #38362F; border-color: #706B62; color: #E4DACB; }
   .header-stat strong { display: block; color: var(--ui-text); font-size: 1.35rem; line-height: 1.1; }
+  .page-header .header-stat strong { color: #F8F5EF; }
   .nav { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
-  .nav a { display: inline-block; padding: 9px 15px; border: 1px solid var(--ui-line); border-radius: 999px; background: var(--ui-panel-input); color: var(--ui-muted); font-weight: 650; text-decoration: none; transition: background .15s, border-color .15s, color .15s; }
-  .nav a:hover, .nav a.active { background: var(--ui-accent); border-color: var(--ui-accent); color: #07111d; }
-  .caveat { color: var(--ui-muted); font-size: .8rem; margin: 0 0 24px; padding: 12px 14px; border: 1px solid var(--ui-line); border-radius: 12px; background: #111a2caa; }
+  .nav a { display: inline-block; padding: 10px 17px; border: 1px solid #46654F; border-radius: 999px; background: #292721; color: #F2EDE4; font-weight: 650; text-decoration: none; transition: background .15s, border-color .15s, color .15s; }
+  .nav a:hover, .nav a.active { background: var(--ui-accent); border-color: var(--ui-accent); color: #F8F5EF; }
+  .caveat { color: var(--ui-muted); font-size: .8rem; margin: 0 0 24px; padding: 12px 14px; border: 1px solid var(--ui-line); border-radius: 12px; background: #F2EDE4; }
   .toolbar { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; }
   .toolbar label { color: var(--ui-muted); font-size: .8rem; white-space: nowrap; }
   .toolbar input, input[type=text], select, textarea { width: 100%; border: 1px solid var(--ui-line); border-radius: 10px; background: var(--ui-panel-input); color: var(--ui-text); font: inherit; padding: 10px 13px; }
@@ -103,11 +109,11 @@ SHARED_STYLE = """
   a { color: var(--ui-accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
   button { font: inherit; }
-  :focus-visible { outline: 3px solid var(--ui-accent); outline-offset: 3px; }
-  .rating { display: inline-block; background: #263450; color: var(--ui-accent); border-radius: 5px; padding: 1px 6px; font-size: .72rem; margin-left: 5px; cursor: help; border-bottom: 1px dotted #5c7bb0; }
+  :focus-visible { outline: 3px solid var(--ui-gold); outline-offset: 3px; }
+  .rating { display: inline-block; background: #E3E8DF; color: var(--ui-accent); border-radius: 5px; padding: 1px 6px; font-size: .72rem; margin-left: 5px; cursor: help; border-bottom: 1px dotted #66806D; }
   .no-rating { color: var(--ui-muted); font-size: .75rem; }
   footer { color: var(--ui-muted); font-size: .78rem; margin-top: 28px; }
-  @media (max-width: 600px) { body { font-size: 17px; } main { padding: 28px 14px 56px; } .page-header { display: block; } .header-stat { margin-top: 20px; width: fit-content; padding: 16px 18px; } .nav a { padding: 9px 16px; } .toolbar { display: block; } .toolbar label { display: block; margin-bottom: 7px; } .toolbar input { padding: 13px 14px; } .refreshed { display: block; margin: 9px 0 0; } .caveat { padding: 14px 15px; } .cluster { padding: 20px; } .cluster h2 { font-size: 1.45rem; } .cluster-summary { font-size: 1rem; } }
+  @media (max-width: 600px) { body { font-size: 17px; } main { padding: 14px 14px 56px; } .page-header { display: block; padding: 20px; } .brand-heading { gap: 12px; } .brand-mark { width: 108px; } h1.brand { font-size: 2.25rem; } .header-stat { margin-top: 20px; width: fit-content; padding: 16px 18px; } .nav a { padding: 10px 16px; } .toolbar { display: block; } .toolbar label { display: block; margin-bottom: 7px; } .toolbar input { padding: 13px 14px; } .refreshed { display: block; margin: 9px 0 0; } .caveat { padding: 14px 15px; } .cluster { padding: 20px; } .cluster h2 { font-size: 1.45rem; } .cluster-summary { font-size: 1rem; } }
 """
 
 TEMPLATE = (
@@ -124,20 +130,20 @@ TEMPLATE = (
 """
     + SHARED_STYLE
     + """
-  .cluster { background: linear-gradient(145deg, var(--ui-panel), #10182a); border: 1px solid var(--ui-line); border-radius: 18px; padding: 18px; margin-bottom: 18px; box-shadow: 0 12px 30px #0003; }
+  .cluster { background: linear-gradient(145deg, var(--ui-panel), #F0EBE2); border: 1px solid var(--ui-line); border-radius: 18px; padding: 18px; margin-bottom: 18px; box-shadow: 0 12px 30px #0003; }
   .cluster[hidden] { display: none; }
   .cluster-head { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
   .cluster h2 { font-size: 1.3rem; line-height: 1.15; margin: 5px 0 0; }
   .cluster-summary { color: var(--ui-text-soft); line-height: 1.55; margin: 14px 0; }
   .outlets { color: var(--ui-muted); font-size: .8rem; }
-  .lang-note { color: #ffd36a; font-size: .82rem; margin-top: 12px; padding: 9px 11px; border-left: 3px solid #ffd36a; background: #2a241066; border-radius: 5px; }
+  .lang-note { color: #745623; font-size: .82rem; margin-top: 12px; padding: 9px 11px; border-left: 3px solid var(--ui-gold); background: #F3E9D6; border-radius: 5px; }
   .section-label { color: var(--ui-muted); font-size: .8rem; margin: 0 0 12px; }
   .empty { padding: 50px; border: 1px dashed var(--ui-line); border-radius: 18px; color: var(--ui-muted); text-align: center; }
 </style>
 </head>
 <body>
 <main>
-<header class="page-header"><div><div class="kicker">Private news desk</div><h1 class="brand">{{ site_title }}</h1><p class="page-intro">Scan the latest coverage, compare how outlets frame the same event, and follow the stories worth your attention.</p></div><div class="header-stat"><strong>{{ clusters|length }}</strong> story clusters in view</div></header>
+<header class="page-header"><div><div class="kicker">Private news desk</div><div class="brand-heading"><img class="brand-mark" src="/static/aster-news-logo.png?v=aster-v2" alt=""><h1 class="brand">{{ site_title }}</h1></div><p class="page-intro">Scan the latest coverage, compare how outlets frame the same event, and follow the stories worth your attention.</p></div><div class="header-stat"><strong>{{ clusters|length }}</strong> story clusters in view</div></header>
 """
     + NAV
     + CAVEAT
@@ -190,7 +196,7 @@ TEMPLATE_DIGEST = (
 """
     + SHARED_STYLE
     + """
-  .digest-card { background: linear-gradient(145deg, var(--ui-panel), #10182a); border: 1px solid var(--ui-line); border-radius: 18px; overflow: hidden; margin-bottom: 18px; box-shadow: 0 12px 30px #0003; }
+  .digest-card { background: linear-gradient(145deg, var(--ui-panel), #F0EBE2); border: 1px solid var(--ui-line); border-radius: 18px; overflow: hidden; margin-bottom: 18px; box-shadow: 0 12px 30px #0003; }
   .digest-card[hidden] { display: none; }
   .digest-hero { width: 100%; max-height: 360px; object-fit: cover; display: block; background: var(--ui-panel-raised); }
   .digest-badge-header { padding: 16px 18px 0; }
@@ -199,41 +205,41 @@ TEMPLATE_DIGEST = (
   .digest-body { padding: 16px 18px 18px; }
   .digest-headline { font-size: 1.45rem; font-weight: 750; margin: .35rem 0 .65rem; line-height: 1.15; letter-spacing: -.02em; }
   .digest-summary { color: var(--ui-text-soft); line-height: 1.55; margin: 0; }
-  .digest-deviation { margin-top: 14px; padding: 11px 13px; background: #2a241066; border-left: 3px solid #ffd36a; font-size: .86rem; color: #ffd36a; border-radius: 5px; }
-  .digest-deviation strong { display: block; color: #fff0b5; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 3px; }
+  .digest-deviation { margin-top: 14px; padding: 11px 13px; background: #F3E9D6; border-left: 3px solid var(--ui-gold); font-size: .86rem; color: #745623; border-radius: 5px; }
+  .digest-deviation strong { display: block; color: #5D431C; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 3px; }
   .digest-outlets { margin-top: 14px; font-size: .8rem; color: var(--ui-muted); }
   .digest-image-credit { padding: 7px 18px 0; color: var(--ui-muted); font-size: .72rem; line-height: 1.3; }
   .digest-image-credit a { color: inherit; }
   .empty { color: var(--ui-muted); padding: 50px; border: 1px dashed var(--ui-line); border-radius: 18px; text-align: center; }
-  .audio-briefing { background: linear-gradient(135deg, #172842, #151d31); border: 1px solid var(--ui-line); border-radius: 18px; padding: 18px; margin-bottom: 24px; }
+  .audio-briefing { --ui-text: #F8F5EF; --ui-text-soft: #ECE8DF; --ui-muted: #D1C9B8; --ui-accent: #C2A06B; --ui-line: #667062; --ui-panel-input: #303B32; background: linear-gradient(135deg, #303B32, #292721); border: 1px solid var(--ui-line); border-radius: 18px; padding: 18px; margin-bottom: 24px; }
   .audio-briefing-label { color: var(--ui-accent-strong); font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 12px; }
-  .audio-player { display: block; padding: 16px 16px 40px; background: #111a2c66; border: 1px solid var(--ui-line); border-radius: 14px; }
+  .audio-player { display: block; padding: 16px 16px 40px; background: #242B25; border: 1px solid var(--ui-line); border-radius: 14px; }
   .audio-main { min-width: 0; }
   .audio-briefing audio { display: block; width: 100%; height: 54px; }
   .audio-controls { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
   .audio-control { min-width: 120px; min-height: 52px; margin: 0; padding: 14px 20px; border: 1px solid var(--ui-line); border-radius: 12px; background: var(--ui-panel-input); color: var(--ui-text-soft); cursor: pointer; font-size: 1rem; }
   .audio-control:hover, .audio-control:focus-visible { border-color: var(--ui-accent); color: var(--ui-accent); }
-  .audio-chapters-stage { --audio-level: .2; position: relative; min-height: 220px; overflow: hidden; margin-top: 14px; border: 1px solid var(--ui-line); border-radius: 14px; background: #0b1020aa; isolation: isolate; }
-  .audio-chapters-stage::after { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(90deg, #0b1020cc 0%, #0b102066 48%, #0b1020cc 100%); }
-  .audio-orb { position: absolute; z-index: 1; top: 50%; left: 50%; width: min(640px, calc(100% - 24px)); height: auto; aspect-ratio: 1 / 1; border-radius: 50%; object-fit: cover; opacity: .28; filter: saturate(.45) brightness(calc(.9 + (var(--audio-level) * .4))); pointer-events: none; transform: translate(-50%, -50%) scale(calc(1 + (var(--audio-level) * .16))); transform-origin: center; box-shadow: 0 0 calc(16px + (var(--audio-level) * 36px)) color-mix(in srgb, var(--ui-accent) 45%, transparent); transition: transform .08s linear, filter .08s linear, box-shadow .08s linear; }
+  .audio-chapters-stage { --audio-level: .2; position: relative; min-height: 220px; overflow: hidden; margin-top: 14px; border: 1px solid var(--ui-line); border-radius: 14px; background: #1E241F; isolation: isolate; }
+  .audio-chapters-stage::after { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(90deg, #1E241Fcc 0%, #1E241F66 48%, #1E241Fcc 100%); }
+  .audio-orb { position: absolute; z-index: 1; top: 50%; left: 50%; width: min(640px, calc(100% - 24px)); height: auto; aspect-ratio: 1 / 1; border-radius: 50%; object-fit: cover; opacity: .28; filter: saturate(.8) brightness(calc(.9 + (var(--audio-level) * .3))); pointer-events: none; transform: translate(-50%, -50%) scale(calc(1 + (var(--audio-level) * .16))); transform-origin: center; box-shadow: 0 0 calc(16px + (var(--audio-level) * 36px)) color-mix(in srgb, var(--ui-accent) 45%, transparent); transition: transform .08s linear, filter .08s linear, box-shadow .08s linear; }
   .audio-chapters { position: relative; z-index: 2; display: grid; gap: 6px; margin: 0; padding: 14px; list-style: none; }
-  .audio-chapter { display: flex; align-items: baseline; gap: 8px; width: 100%; min-height: 44px; padding: 10px 11px; border: 1px solid transparent; border-radius: 10px; background: #111a2caa; color: var(--ui-muted); text-align: left; cursor: pointer; font: inherit; font-size: .9rem; backdrop-filter: blur(2px); }
+  .audio-chapter { display: flex; align-items: baseline; gap: 8px; width: 100%; min-height: 44px; padding: 10px 11px; border: 1px solid transparent; border-radius: 10px; background: #292F29; color: var(--ui-muted); text-align: left; cursor: pointer; font: inherit; font-size: .9rem; backdrop-filter: blur(2px); }
   .audio-chapter > span:last-child { opacity: .72; }
-  .audio-chapter:hover, .audio-chapter[aria-current="true"] { background: #263450; border-color: var(--ui-line); color: var(--ui-text); }
+  .audio-chapter:hover, .audio-chapter[aria-current="true"] { background: #42634C; border-color: var(--ui-line); color: var(--ui-text); }
   .audio-chapter:hover > span:last-child, .audio-chapter[aria-current="true"] > span:last-child { opacity: .9; }
   .audio-chapter-time { color: var(--ui-accent); font-variant-numeric: tabular-nums; min-width: 3.3em; }
   @media (prefers-reduced-motion: reduce) { .audio-orb { transition: none; } }
   .digest-toolbar { margin-bottom: 24px; }
   .filters { display: flex; flex-wrap: wrap; gap: 10px; padding: 14px; background: var(--ui-panel-input); border: 1px solid var(--ui-line); border-radius: 16px; margin-bottom: 24px; }
   .filter { border: 1px solid var(--ui-line); background: transparent; color: var(--ui-muted); border-radius: 999px; padding: 9px 15px; cursor: pointer; }
-  .filter.active, .filter:hover { background: var(--ui-accent); color: #07111d; border-color: var(--ui-accent); }
+  .filter.active, .filter:hover { background: var(--ui-accent); color: #F8F5EF; border-color: var(--ui-accent); }
   .filter span { font-size: .8em; opacity: .75; }
   @media (max-width: 600px) { .audio-briefing { padding: 20px; } .audio-player { padding: 14px 14px 96px; } .audio-briefing audio { display: block; height: 100px !important; min-height: 100px !important; overflow: visible; } .audio-chapters-stage { min-height: 260px; } .audio-orb { width: min(640px, calc(100% - 24px)); } .audio-controls { gap: 10px; } .audio-control { min-width: 128px; min-height: 56px; padding: 16px 22px; font-size: 1.05rem; } .audio-chapter { min-height: 48px; padding: 11px 12px; } .digest-body { padding: 20px; } .digest-headline { font-size: 1.55rem; } .digest-summary { font-size: 1rem; } .digest-deviation { font-size: .95rem; padding: 13px 14px; } .filter { padding: 9px 15px; } }
 </style>
 </head>
 <body>
 <main>
-<header class="page-header"><div><div class="kicker">Twice-daily local briefing</div><h1 class="brand">{{ site_title }}</h1><p class="page-intro">The stories that made the wider news cycle, condensed with multiple outlets in view and the important differences called out.</p></div><div class="header-stat"><strong>{{ entries|length }}</strong> stories in this briefing</div></header>
+<header class="page-header"><div><div class="kicker">Twice-daily local briefing</div><div class="brand-heading"><img class="brand-mark" src="/static/aster-news-logo.png?v=aster-v2" alt=""><h1 class="brand">{{ site_title }}</h1></div><p class="page-intro">The stories that made the wider news cycle, condensed with multiple outlets in view and the important differences called out.</p></div><div class="header-stat"><strong>{{ entries|length }}</strong> stories in this briefing</div></header>
 """
     + NAV
     + CAVEAT
@@ -243,7 +249,7 @@ TEMPLATE_DIGEST = (
   <div class="audio-briefing-label">Listen to the briefing &middot; {{ audio.story_count }} {{ "story" if audio.story_count == 1 else "stories" }} &middot; generated {{ audio.generated_local }}</div>
   <div class="audio-player">
     <div class="audio-main">
-      <audio id="briefing-audio" controls preload="none" src="/static/digest-audio/latest.mp3">
+      <audio id="briefing-audio" controls playsinline preload="none" aria-label="Daily briefing audio" src="/static/digest-audio/latest.mp3">
         <track kind="chapters" srclang="en" label="Stories" src="/static/digest-audio/latest.vtt" default>
       </audio>
       <div class="audio-controls" aria-label="Audio controls">
@@ -254,7 +260,7 @@ TEMPLATE_DIGEST = (
   </div>
   {% if audio.chapters %}
   <div class="audio-chapters-stage" id="audio-chapters-stage">
-    <img id="audio-orb" class="audio-orb" src="/static/aster-orb.png" alt="">
+    <img id="audio-orb" class="audio-orb" src="/static/icon-512.png?v=aster-v2" alt="">
     <ol class="audio-chapters" id="audio-chapters" aria-label="Briefing chapters">
       {% for chapter in audio.chapters %}<li><button type="button" class="audio-chapter" data-start="{{ chapter.start }}"><span class="audio-chapter-time">{{ "%02d:%02d"|format((chapter.start // 60)|int, (chapter.start % 60)|int) }}</span><span>{{ chapter.title }}</span></button></li>{% endfor %}
     </ol>
@@ -314,7 +320,7 @@ const audioStage = document.querySelector('#audio-chapters-stage');
 const audioOrb = document.querySelector('#audio-orb');
 const chapterButtons = [...document.querySelectorAll('.audio-chapter')];
 const chapterStarts = chapterButtons.map((button) => Number(button.dataset.start));
-let audioContext; let analyser; let audioSource; let audioFrame;
+let audioFrame;
 
 function currentChapter() {
   let index = -1;
@@ -326,16 +332,15 @@ function updateChapterState() {
   chapterButtons.forEach((button, index) => button.setAttribute('aria-current', index === current ? 'true' : 'false'));
 }
 function animateAudio() {
-  if (!analyser || briefingAudio.paused) return;
-  const data = new Uint8Array(analyser.frequencyBinCount); analyser.getByteFrequencyData(data);
-  const average = data.reduce((sum, value) => sum + value, 0) / Math.max(1, data.length);
-  const level = Math.min(1, average / 105); audioStage?.style.setProperty('--audio-level', level.toFixed(3)); audioOrb?.style.setProperty('--audio-level', level.toFixed(3));
+  if (briefingAudio.paused) return;
+  // Keep playback on the native media element.  Routing it through a Web Audio
+  // MediaElementSource makes iOS suspend the audio graph when the screen locks.
+  const level = .2 + (Math.sin(performance.now() / 180) + 1) * .08;
+  audioStage?.style.setProperty('--audio-level', level.toFixed(3)); audioOrb?.style.setProperty('--audio-level', level.toFixed(3));
   audioFrame = requestAnimationFrame(animateAudio);
 }
 function stopAudioAnimation() { if (audioFrame) cancelAnimationFrame(audioFrame); audioFrame = null; audioStage?.classList.remove('playing'); audioStage?.style.setProperty('--audio-level', '.2'); audioOrb?.style.setProperty('--audio-level', '.2'); }
 function startAudioAnimation() {
-  if (!audioContext) { audioContext = new AudioContext(); analyser = audioContext.createAnalyser(); analyser.fftSize = 64; audioSource = audioContext.createMediaElementSource(briefingAudio); audioSource.connect(analyser); analyser.connect(audioContext.destination); }
-  if (audioContext.state === 'suspended') audioContext.resume();
   audioStage?.classList.add('playing'); animateAudio();
 }
 chapterButtons.forEach((button) => button.addEventListener('click', () => { briefingAudio.currentTime = Number(button.dataset.start); briefingAudio.play(); }));
@@ -345,6 +350,29 @@ briefingAudio?.addEventListener('timeupdate', updateChapterState);
 briefingAudio?.addEventListener('play', startAudioAnimation);
 briefingAudio?.addEventListener('pause', stopAudioAnimation);
 briefingAudio?.addEventListener('ended', stopAudioAnimation);
+
+// Safari/iOS exposes these controls on the lock screen and in Control Center.
+// The media element remains the source of truth, so an interruption or browser
+// policy pause preserves currentTime and can be resumed normally.
+if ('mediaSession' in navigator && briefingAudio) {
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: 'Daily briefing',
+    artist: '{{ site_title|e }}',
+    album: 'Twice-daily local briefing',
+  });
+  const setAction = (action, handler) => {
+    try { navigator.mediaSession.setActionHandler(action, handler); } catch (_) { /* unsupported action */ }
+  };
+  setAction('play', () => briefingAudio.play());
+  setAction('pause', () => briefingAudio.pause());
+  setAction('seekbackward', () => { briefingAudio.currentTime = Math.max(0, briefingAudio.currentTime - 15); });
+  setAction('seekforward', () => { briefingAudio.currentTime = Math.min(briefingAudio.duration || Infinity, briefingAudio.currentTime + 30); });
+  setAction('previoustrack', () => document.querySelector('#previous-chapter')?.click());
+  setAction('nexttrack', () => document.querySelector('#next-chapter')?.click());
+  briefingAudio.addEventListener('play', () => { navigator.mediaSession.playbackState = 'playing'; });
+  briefingAudio.addEventListener('pause', () => { navigator.mediaSession.playbackState = 'paused'; });
+  briefingAudio.addEventListener('ended', () => { navigator.mediaSession.playbackState = 'none'; });
+}
 </script>
 </body>
 </html>
@@ -365,26 +393,26 @@ TEMPLATE_SETTINGS = (
 """
     + SHARED_STYLE
     + """
-  fieldset { border: 1px solid var(--ui-line); border-radius: 18px; padding: 18px; margin: 0 0 24px; background: linear-gradient(145deg, var(--ui-panel), #10182a); }
+  fieldset { border: 1px solid var(--ui-line); border-radius: 18px; padding: 18px; margin: 0 0 24px; background: linear-gradient(145deg, var(--ui-panel), #F0EBE2); }
   legend { font-weight: 700; padding: 0 8px; color: var(--ui-text); }
   label { display: block; margin-top: 14px; font-size: .86rem; font-weight: 700; color: var(--ui-text-soft); }
   label .hint { font-weight: 400; color: var(--ui-muted); }
   input[type=text], select, textarea { margin-top: 5px; }
   textarea { min-height: 6rem; resize: vertical; }
-  button { margin-top: 16px; padding: 10px 15px; background: var(--ui-accent); color: #07111d; border: 0; border-radius: 10px; font-weight: 750; cursor: pointer; }
+  button { margin-top: 16px; padding: 10px 15px; background: var(--ui-accent); color: #F8F5EF; border: 0; border-radius: 10px; font-weight: 750; cursor: pointer; }
   button:hover { filter: brightness(1.08); }
   .queue-note { font-size: .86rem; color: var(--ui-muted); margin-bottom: 18px; }
   table { width: 100%; border-collapse: collapse; background: var(--ui-panel); border: 1px solid var(--ui-line); border-radius: 12px; overflow: hidden; }
   th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--ui-line); font-size: .82rem; }
   th { background: var(--ui-panel-raised); color: var(--ui-text-soft); }
-  .status-pending { color: #ffd36a; }
-  .flash { background: #16301f; border: 1px solid #2a5a3a; color: var(--ui-accent-strong); border-radius: 10px; padding: 10px 14px; margin-bottom: 18px; font-size: .9rem; }
+  .status-pending { color: #745623; }
+  .flash { background: #E3E8DF; border: 1px solid #A3B8A5; color: var(--ui-accent-strong); border-radius: 10px; padding: 10px 14px; margin-bottom: 18px; font-size: .9rem; }
   .settings-heading { margin: 0 0 8px; }
 </style>
 </head>
 <body>
 <main>
-<header class="page-header"><div><div class="kicker">Private source desk</div><h1 class="brand">{{ site_title }}</h1><p class="page-intro">Request new sources for review. The live feed list remains unchanged until a source is verified and approved.</p></div></header>
+<header class="page-header"><div><div class="kicker">Private source desk</div><div class="brand-heading"><img class="brand-mark" src="/static/aster-news-logo.png?v=aster-v2" alt=""><h1 class="brand">{{ site_title }}</h1></div><p class="page-intro">Request new sources for review. The live feed list remains unchanged until a source is verified and approved.</p></div></header>
 """
     + NAV
     + """
