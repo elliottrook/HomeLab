@@ -4,8 +4,9 @@
 fixed read-only investigation capabilities are live. D4 expanded-source answer
 quality and M3 NLU representation remain the next qualification priorities.
 The D4 synthetic packet and independent source review pass; its distinct
-Lab Hours workload is proposed but not yet registered or booked. Automatic
-routing and general connected-tool authority remain off.
+Lab Hours identity is registered in source but the full-drain transaction is
+not implemented, installed or booked. Automatic routing and general
+connected-tool authority remain off.
 
 **Owner:** Jason.
 
@@ -18,11 +19,13 @@ with four no-authority decisions and unchanged model service. SA3 candidate E
 and the no-effect journal gateway are installed, and the expanded-source
 quality packet now passes independent source review. A distinct non-admitted
 Lab Hours workload proposal binds the 20-request evaluation and restoration
-contract, while the post-run model-blind review path is source-complete. These
+contract, while the post-run model-blind review path is source-complete. The
+platform now has the third fixed source registration and fails closed before
+effects until its distinct full-drain transaction exists. These
 advances support bounded iterative diagnosis; they do not enable automatic
 routing, general discovery, repair authority or model promotion. The next D4
-live dependency is platform registration and inactive validation of that exact
-workload before any authoritative window check and booking.
+live dependency is implementation, independent review and inactive validation
+of that exact transaction before any authoritative window check and booking.
 
 For the owner-facing sequence from the current pilot to routine handoff,
 bounded sysadmin investigation and later automatic routing, use the

@@ -15,7 +15,7 @@
 | F2 archive integrity | The [October 28 exact-cycle result](evidence/F2-exact-cycle-complete-2026-10-28.md) completed with three independently inventory-matched exit-zero rows: 104 in 20.811 s, 110 in 429.528 s and 116 in 33.146 s. Production postchecks passed and spent timers were removed. | Complete for October 28. Preserve the terminal state and do not retry it. A future effect cycle needs its own fresh same-date F2 chain. |
 | F3–F5 admission | The [October 28 F3 conversion](evidence/F3-from-F2-complete-2026-10-28.md) wrote and independently verified one three-row retained receipt. F4/F5 did not run: the [effect window was missed](evidence/F4-F5-october-28-missed-window-no-go.md) because no approved 03:00 one-shot existed and the next heartbeat arrived after receipt freshness and the 04:15 cutoff expired. | Build and review the whole next-cycle F2–F5 conditional schedule before the window, obtain its bounded approval in advance, and use a one-shot 03:00 owner rather than the four-hour continuation heartbeat. Do not weaken or extend October 28 evidence. |
 | F6 recovery and execution | Prepare-only owner-loss recovery and the inactive candidate-H/M3 and full-Aster first-screen paths remain tested. The [October 27 first-screen timer fired](evidence/Full-Aster-first-screen-no-go-2026-10-27.md), but the wrapper failed closed in one second before any restart, mount, lease or candidate request because the mandatory admission chain was unavailable. | Keep the recovery candidate inactive. A new live evaluation requires a fresh successful F2/F3 chain plus its own reviewed effect gate; no timed test is currently GO. |
-| D4 investigation quality | The fixed Doctor answer class passed independent blind usefulness review at 7/8 with zero unsafe claims. The typed catalogue v3 and eight sanitized evidence classes are live. The expanded-source 20-case packet, separate answer key, no-tool/no-retry runner and independent source review pass; the post-run blind-review boundary is source-complete. | Register and inactive-validate the exact `sa3-expanded-source-quality-v1` Lab Hours workload, then check and book a concrete window before the no-effect 20-request evaluation. This does not enable automatic routing, expand authority or grant repair. |
+| D4 investigation quality | The fixed Doctor answer class passed independent blind usefulness review at 7/8 with zero unsafe claims. The typed catalogue v3 and eight sanitized evidence classes are live. The expanded-source 20-case packet, separate answer key, no-tool/no-retry runner and independent source review pass; the post-run blind-review boundary is source-complete. The third fixed Lab Hours identity is registered in source and fails closed before effects. | Implement, review and inactive-validate the distinct SA3 full-drain transaction and retained-result boundary. Only then check and book a concrete window for the no-effect 20-request evaluation. This does not enable automatic routing, expand authority or grant repair. |
 | M3 NLU and routing | The accepted v2 policy separates decision coverage from route effects. Generative ensemble, sparse logistic, token-confidence, BGE neighbour, BGE supervised-head and E5 encoder candidates all failed the honest gates. E5 augmented whole-label linear v1/v2 failed publicly. Constrained whole-label prompting peaked at 20/24 exact; a final rubric regressed to an unsafe route. Six decomposed semantic microtasks were safe but composed to only 7/24 exact. No fresh calibration was created and the holdout remains sealed. | A new attempt must supply a coherent learned or otherwise joint semantic representation and pass a public gate; embedding-neighbour/head/augmentation, prompt-rubric and microtask-prompt tuning are closed. Automatic routing remains off. |
 | Companion | Ordinary signed-in Aster use, persisted recovery and read-only OpenBao status passed. | Continue ordinary reliability monitoring. The hidden manual-Codex fallback remains deferred unless Jason asks to release it. |
 
@@ -413,6 +413,16 @@ restoration. The existing Lab Hours runner admits only its three-request smoke
 and owner-loss registrations, so the platform owner must implement and review
 this third fixed registration before any booking. No schedule, registration,
 model call or live effect has been created.
+
+The platform owner has now completed the
+[source registration](evidence/SA3-expanded-source-quality-Lab-Hours-registration-result-2026-10-29.md)
+at platform commit `53c81e1c`. Its four-file import closure and fail-closed
+inactive validator pass 17/17 focused tests. The reserved runner deliberately
+returns `WORKLOAD_RUNNER_UNAVAILABLE` before a production drain because the
+distinct SA3 full-drain owner transaction is not yet implemented. The next
+gate is that source-only transaction, retained-result boundary and independent
+review, followed by inactive installation/target validation. No authoritative
+window check or booking is appropriate until those controls pass.
 
 The downstream
 [model-blind review boundary](evidence/SA3-expanded-source-quality-blind-review-boundary-2026-10-29.md)

@@ -61,3 +61,13 @@ restart or production effect is authorized by this proposal. After the platform
 registration is installed and validated inactive, Stream A can query the
 authoritative ledger for a concrete execution-and-recovery window and request
 the separate booking/effect approval.
+
+## Platform registration result
+
+The platform owner subsequently completed the source registration at commit
+`53c81e1c`; the [reconciled result](SA3-expanded-source-quality-Lab-Hours-registration-result-2026-10-29.md)
+passes 17/17 focused tests and preserves the four-file dependency closure.
+It remains deliberately NO-GO before any production drain because the distinct
+SA3 owner transaction is not implemented or installed. That transaction and
+its inactive target validation are now the next gate; no window should be
+checked or booked yet.
