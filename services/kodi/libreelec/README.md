@@ -36,6 +36,20 @@ layout so Kodi can decode DTS sources to multichannel PCM. Codec switches must
 follow measured end-to-end behavior rather than being copied from ELD alone or
 blindly applied to another client or display path.
 
+The reinstalled HP lab is currently connected by DisplayPort to an `LG HDR 4K`
+display, not that earlier TCL/eARC chain. On 2026-10-29 its one valid,
+connected ELD (`/proc/asound/card0/eld#2.3`) advertised **only two-channel
+LPCM** at 32/44.1/48 kHz (`sad_count 1`, `sad0_coding_type LPCM`, speakers
+FL/FR). ALSA maps it to `HDMI 0`/device 3. No AC-3, E-AC-3, TrueHD, DTS or
+DTS-HD capability is exposed on this path. Kodi's normal output is HDMI 0
+stereo and passthrough is off; dormant codec checkboxes in `guisettings.xml`
+must not be treated as evidence that the current sink can decode them. Do not
+copy the historical TCL passthrough profile to this LG path or use an EDID
+override to claim surround support. To test passthrough, connect the lab to a
+receiver/TV route that advertises the intended codecs, recheck the live ELD,
+then use one known-format clip with a rollback checkpoint and physical receiver
+indication. Preserve the audible stereo profile until that test succeeds.
+
 Kodi's preferred audio language is `English` with "prefer default audio
 streams" enabled. This selects an English stream when the source metadata
 correctly tags one; content with missing or incorrect language tags still

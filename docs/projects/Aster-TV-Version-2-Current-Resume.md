@@ -177,6 +177,20 @@ and normal stereo output switched to HDMI 0 with passthrough off. Kodi opened
 `hdmi:CARD=PCH,DEV=0` and retained it across an idle Kodi restart. Physical
 audibility awaits Jason's check; Dolby passthrough remains unvalidated.
 
+The 2026-10-29 lab passthrough investigation found a hardware-path gate, not
+a Kodi setting to toggle: the connected `LG HDR 4K` DisplayPort/HDMI 0 ELD is
+valid but contains just one two-channel LPCM descriptor and no encoded Dolby
+or DTS format. Other HDMI ELD entries are disconnected. ALSA maps the LG to
+device 3, and saved Kodi settings retain HDMI 0 stereo with passthrough off.
+Kodi's stored codec flags are dormant while passthrough is off. No encoded
+stream was forced into this unadvertised sink; a Dolby playback test here
+would risk silence and could not establish end-to-end passthrough. The old
+HP/TCL/eARC profile is a different physical chain. A real fix/test requires
+the lab to be connected to a Dolby-capable receiver/TV route and its live ELD
+to advertise the intended codec, followed by a checkpointed known-format
+playback test and receiver-display confirmation. The stereo profile remains
+unchanged while Jason's physical audibility check is pending.
+
 The credential-free v2.0.2 lab source archive was built from committed tree
 `37a1eecb` at
 `services/kodi/dist/aster-home-v2.0.2-lab-candidate-source.tar.gz`.
