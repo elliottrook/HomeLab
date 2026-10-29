@@ -1,0 +1,13 @@
+{
+  "name": "Aster News Digest",
+  "short_name": "Aster News",
+  "start_url": "/digest",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#292721",
+  "theme_color": "#292721",
+  "icons": [
+    {"src": "/static/app-icon-180.png", "sizes": "180x180", "type": "image/png", "purpose": "any"},
+    {"src": "/static/app-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
+  ]
+}
