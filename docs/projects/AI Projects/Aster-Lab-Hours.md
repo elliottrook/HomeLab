@@ -4,7 +4,7 @@
 >
 > Owner: Jason
 >
-> State: Release candidate qualified twice; hardened exact-cycle night test scheduled
+> State: Exact-cycle night test passed; recurring operating release remains open
 >
 > Opened: 2026-10-28
 
@@ -67,7 +67,7 @@ and evidence on uncertainty.
 |---|---|---|
 | LH1 — direct transaction | Known production consumers isolate, fixed lab work runs, exact production restores. | Done twice, 2026-10-27. |
 | LH2 — complete inventory | EPUB joins the drain and resumes without losing its durable queue. | Done twice with unchanged RC1c, 2026-10-28. |
-| LH3 — host-owned night test | Date-specific runner completes independently of F2–F5 and retains actionable failure evidence. | Scheduled for 04:05 PDT, 2026-10-29. |
+| LH3 — host-owned night test | Date-specific runner completes independently of F2–F5 and retains actionable failure evidence. | **Done, 2026-10-29.** Complete in 220 seconds with three requests and production restored. |
 | LH4 — recurring service | Reviewed schedule grants an actual reservation to the lab worker and restores production. | Open after LH3. |
 | LH5 — graduation | Doctor/monitoring, runbook, owner-loss exercise and two scheduled passes. | Open. |
 
@@ -87,6 +87,7 @@ passed; Aster, llama, Speech and News were active; and EPUB resumed.
 
 - [October 27 two-pass qualification](evidence/Full-inference-daytime-two-pass-qualification-2026-10-27.md)
 - [October 28 RC1c qualification](evidence/Lab-Hours-RC1c-daytime-qualification-2026-10-28.md)
+- [October 29 exact-cycle result](evidence/Lab-Hours-RC1c-exact-cycle-result-2026-10-29.md)
 
 ## Integration, recovery and resumability
 
@@ -112,6 +113,8 @@ reuse a spent exact-cycle evidence directory or retry a failed scheduled run.
 
 ## Immediate next action
 
-Observe and reconcile the October 29 date-specific run once. On failure,
-preserve evidence and derive the next candidate from the recorded first
-failure phase and specific failure code instead of repeating the same packet.
+Define LH4 as a reviewed recurring operating release: choose the reservation
+cadence, retain the same collision and restoration checks, add a Doctor signal
+for stale state or failed restoration, and require another complete scheduled
+pass before graduation. The successful exact-cycle packet must not be rerun or
+silently converted into a recurring timer.
