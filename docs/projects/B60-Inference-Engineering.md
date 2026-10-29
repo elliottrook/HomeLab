@@ -12,11 +12,23 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The October29 exclusive-capacity correction is installed:30 root-custodied
+`b60-exclusive-YYYYMMDD` bookings now reserve October30–November28,
+03:10–03:55 America/Vancouver, recovery protection through04:10. Doctor is
+healthy with30 reservations. Capacity bookings block competing work and never
+dispatch a fixed9B test. The contract grants the named owner the local AI stack
+within project scope and requires verified restoration of its captured entry
+configuration before release. No repeated model approval is required.
+General entry-checkpoint session execution is still unqualified; the old
+fixed9B runner rejects these capacity records. Next implement and qualify that
+handoff/recovery controller, not new permission or new bookings. The source
+patch and exact deployment receipt are recorded in the rolling evidence log.
+
 Jason's [October29 standing execution amendment](B60-Inference-Engineering/standing-coordination-authority-20261012.md#october-29-owner-amendment--programme-execution-and-model-changes)
 authorizes Stream A to completion, in-scope model changes only during booked
 Lab Hours, and non-exclusive work outside them. Do not ask again per model.
-All30 requested overnight windows October30–November28 checked clear in the
-authoritative ledger; none is booked yet because the current service supports
+At that earlier checkpoint all30 requested windows checked clear; none was
+booked yet because the then-current service supported
 only9B smoke/owner-loss jobs, not a B60 research allocation or35B workload.
 Next is the bounded registration/reservation integration, not renewed user
 permission and not thirty mislabeled9B runs. Existing safety gates remain.

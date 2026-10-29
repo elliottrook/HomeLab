@@ -1,5 +1,64 @@
 # Fixed-hardware capability research watch — 2026-10-12
 
+## October29 exclusive-stack contract and30-night reservation deployment
+
+Jason explicitly directed changing Lab Hours into exclusive ownership of the
+local AI stack as configured at entry, with freedom for in-scope experiments
+and mandatory restoration before leaving. Model changes during booked Lab
+Hours are preapproved; non-exclusive Stream A work may continue outside them.
+This is not permission for destructive storage, credential/public-exposure or
+global hardware/boot changes. No extra model-by-model approval is required.
+
+Implemented on exact platform base
+`e28dfc24fcaaedbfb8c3480ba63da43069b55b53`, local source commit `659519772`.
+The reproducible source delta is
+`scripts/b60-inference/lab-hours-exclusive-capacity-v1.patch`, applied to that
+base. It adds `reserve --exclusive`, an exclusive-stack/reserved capacity
+record with no executable workload. Existing checks see these reservations;
+the dispatcher does not. The fixed9B runner rejects attempts to claim them
+through its old smoke path. Legacy fixed-workload bookings are unchanged.
+
+The revised runbook requires an entry configuration/recovery checkpoint bound
+to the booking, all-consumer isolation, independent guardian, exact original
+model/runtime/config/mount/service/schedule restoration and verification before
+success/release. Capacity ownership is not arbitrary root authority. The
+generic entry-checkpoint session controller is **not yet implemented/qualified**;
+no such qualification is inferred from metadata tests or previous9B recovery.
+This closes the booking/contract mismatch, not all challenger execution work.
+
+Validation:19 local Lab Hours tests and70 existing full-inference tests pass;
+the15 selected booking/Doctor/dispatch/runner tests also pass on target Linux
+using disposable ledgers/fake command runners. No live inference was performed.
+
+Fresh Proxmox lease was ready and installed old source pins matched exactly.
+The bounded metadata-only installer changed only the reservation store, CLI
+and release manifest, preserving their old copies at
+`/root/b60-exclusive-metadata-20261029.WavLJq/rollback`.
+No model, inference service, timer, lease, backup schedule or boot state changed.
+New installed pins:
+
+- store `f3f112c31c30776e94889d1a372b0584b9460007369fc7986a3c5f90e6c92322`
+- CLI `d035803e65e9384f671e625f266bab5a13e408eeb065e9007d82743f4c6eb793`
+- manifest `b2c61494d572e17f3f1d4c71564f1b8c8f43728d9063c8d39e0c49e637593bed`
+
+Then each requested window was rechecked and30 actual capacity reservations
+created for October30–November28,03:10–03:55 America/Vancouver with15-minute
+recovery protection through04:10, before B60's04:15 outer bound. Target
+zoneinfo produced-07:00 throughout; no assumed seasonal offset was imposed.
+Booking IDs are `b60-exclusive-20261030` through
+`b60-exclusive-20261128`, daily, owner `b60-stream-a`. Independent reread
+verified30 regular root-owned0600 single-link files, reserved state,
+exclusive-stack kind and null workload. Canonical sorted row-list SHA-256:
+`f7fa0f3b6f78fd22c965e8fbfb47b216a396a7fc5f4892c5aa6a477756174565`.
+All14 installed manifest pins verify. Doctor returns healthy,codes[],30
+active reservations. These are real capacity bookings, not scheduled GPU tests.
+
+Next: implement/qualify the general session handoff against the new entry-state
+restoration contract; then use the booked capacity with fresh backup/mirror,
+resource,30-minute trial and independent recovery gates. Do not treat the
+old fixed9B runner or the heartbeat as that controller. The project remains
+active and incomplete; no35B result or nightly experiment launch is claimed.
+
 ## October 29 preparation — published Lab Hours graduation received
 
 Forgejo Adaptive `8397bff05f0e448c0d122adb0c76b0ab03ebb54c` now publishes

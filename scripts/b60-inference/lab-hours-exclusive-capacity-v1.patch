@@ -1,0 +1,334 @@
+From 65951977201514ef5d85f0c6c591d1e8f697ca19 Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Thu, 29 Oct 2026 10:51:06 -0700
+Subject: [PATCH] Separate exclusive stack capacity bookings from fixed test
+ execution
+
+---
+ .../install_lab_hours_capacity_metadata.py    | 94 +++++++++++++++++++
+ scripts/local-ai/lab_hours_booking_cli.py     |  7 +-
+ .../local-ai/lab_hours_release_manifest.json  |  6 +-
+ scripts/local-ai/lab_hours_reservations.py    | 20 ++--
+ scripts/local-ai/test_lab_hours_doctor.py     |  9 ++
+ .../local-ai/test_lab_hours_reservations.py   | 26 +++++
+ .../ASTER-LAB-HOURS-RESERVATION-RUNBOOK.md    | 37 ++++++++
+ 7 files changed, 187 insertions(+), 12 deletions(-)
+ create mode 100644 scripts/local-ai/install_lab_hours_capacity_metadata.py
+
+diff --git a/scripts/local-ai/install_lab_hours_capacity_metadata.py b/scripts/local-ai/install_lab_hours_capacity_metadata.py
+new file mode 100644
+index 000000000..c77acabdf
+--- /dev/null
++++ b/scripts/local-ai/install_lab_hours_capacity_metadata.py
+@@ -0,0 +1,94 @@
++"""Bounded metadata-only upgrade; no model, service, timer or lease mutation."""
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++import os
++from pathlib import Path
++import shutil
++import subprocess
++import time
++
++PILOT = Path('/usr/local/libexec/local-ai-lease/full-inference-pilot')
++OLD = {
++    'lab_hours_reservations.py': 'fe7a82c0ae45f949add44b4283c39793af50da156c4d81b67f7f56491bc7be09',
++    'lab_hours_booking_cli.py': '05c9655594f522ae8a43acce4c3b9677bc27a393d5988a21681c78088103f5fb',
++    'lab_hours_release_manifest.json': 'e4e9e4bf5d9456c0b2e74d479866510b48d532e165569ce7c52c07ff9ac6f447',
++}
++
++
++def digest(path):
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def main():
++    parser = argparse.ArgumentParser()
++    parser.add_argument('--stage', type=Path, required=True)
++    parser.add_argument('--effect-authorized', action='store_true')
++    args = parser.parse_args()
++    if not args.effect_authorized or os.geteuid() != 0:
++        raise RuntimeError('EXPLICIT_INSTALL_AUTHORITY_REQUIRED')
++    stage = args.stage.resolve()
++    st = stage.lstat()
++    if st.st_uid != 0 or st.st_mode & 0o077 or stage.parent != Path('/root'):
++        raise RuntimeError('STAGE_CUSTODY_INVALID')
++    source = stage / 'scripts/local-ai'
++    candidate = json.loads((source/'lab_hours_release_manifest.json').read_text())
++    for name, expected in OLD.items():
++        path = PILOT/name
++        if path.is_symlink() or path.stat().st_uid != 0 or digest(path) != expected:
++            raise RuntimeError('INSTALLED_SOURCE_DRIFT:'+name)
++    for name, expected in candidate['pins'].items():
++        if Path(name).name != name:
++            raise RuntimeError('NONCANONICAL_PIN')
++        path = source/name if name in OLD else PILOT/name
++        if path.is_symlink() or digest(path) != expected:
++            raise RuntimeError('CANDIDATE_PIN_DRIFT:'+name)
++    lease = subprocess.run(['/usr/local/sbin/local-ai-lease','status'],
++                           capture_output=True,text=True,check=True,timeout=10)
++    if json.loads(lease.stdout) not in ('ready', {'state':'ready'}):
++        raise RuntimeError('LEASE_NOT_READY')
++    for path in (Path('/var/lib/local-ai-lab/full-inference-drain.json'),
++                 Path('/var/lib/local-ai-lab/full-inference-drain.lock'),
++                 Path('/run/local-ai-lab-operation.lock')):
++        if path.exists():
++            raise RuntimeError('ACTIVE_LAB_BOUNDARY')
++    result = subprocess.run(['/usr/local/sbin/aster-lab-hours','list'],
++                            capture_output=True,text=True,check=True,timeout=10)
++    now = time.time()
++    for row in json.loads(result.stdout):
++        if row.get('state') == 'claimed' or (row.get('state') == 'scheduled'
++                and now-900 <= row['start_epoch'] <= now+900):
++            raise RuntimeError('BOOKING_NEAR_INSTALL')
++    backup = stage/'rollback'
++    backup.mkdir(mode=0o700)
++    for name in OLD:
++        shutil.copy2(PILOT/name, backup/name)
++    changed = []
++    try:
++        # Publish the manifest last; a concurrent old reader fails closed on drift.
++        for name in OLD:
++            target = PILOT/name
++            temporary = PILOT/(name+'.capacity-update')
++            if temporary.exists():
++                raise RuntimeError('TEMPORARY_TARGET_EXISTS')
++            shutil.copyfile(source/name, temporary)
++            os.chmod(temporary, target.stat().st_mode & 0o777)
++            os.replace(temporary, target)
++            changed.append(name)
++        for name, expected in candidate['pins'].items():
++            if digest(PILOT/name) != expected:
++                raise RuntimeError('POST_INSTALL_DRIFT:'+name)
++        shutil.copyfile(stage/'services/local-ai-lease/ASTER-LAB-HOURS-RESERVATION-RUNBOOK.md',
++                        stage/'installed-contract.md')
++    except BaseException:
++        for name in reversed(changed):
++            shutil.copy2(backup/name, PILOT/name)
++        raise
++    print(json.dumps({'state':'installed','stack_effects':False,
++        'checkpoint':str(backup), 'manifest_sha256':digest(PILOT/'lab_hours_release_manifest.json')}))
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/scripts/local-ai/lab_hours_booking_cli.py b/scripts/local-ai/lab_hours_booking_cli.py
+index f835ab9f2..bd4fc7ae0 100644
+--- a/scripts/local-ai/lab_hours_booking_cli.py
++++ b/scripts/local-ai/lab_hours_booking_cli.py
+@@ -27,7 +27,10 @@ def parser() -> argparse.ArgumentParser:
+     reserve = commands.add_parser("reserve")
+     reserve.add_argument("--booking-id", required=True)
+     reserve.add_argument("--owner", required=True)
+-    reserve.add_argument("--workload", required=True)
++    mode = reserve.add_mutually_exclusive_group(required=True)
++    mode.add_argument("--workload")
++    mode.add_argument("--exclusive", action="store_true",
++                      help="reserve stack capacity only; do not dispatch a workload")
+     reserve.add_argument("--start", required=True, type=_epoch)
+     reserve.add_argument("--end", required=True, type=_epoch)
+     commands.add_parser("list")
+@@ -49,7 +52,7 @@ def main(argv: list[str] | None = None) -> int:
+         if args.command == "reserve":
+             value = store.reserve(booking_id=args.booking_id, owner=args.owner,
+                                   workload=args.workload, start_epoch=args.start,
+-                                  end_epoch=args.end)
++                                  end_epoch=args.end, exclusive=args.exclusive)
+         elif args.command == "list": value = store.list()
+         elif args.command == "get": value = store.get(args.booking_id)
+         elif args.command == "cancel": value = store.cancel(args.booking_id)
+diff --git a/scripts/local-ai/lab_hours_release_manifest.json b/scripts/local-ai/lab_hours_release_manifest.json
+index 233dc8674..e4bbc0855 100644
+--- a/scripts/local-ai/lab_hours_release_manifest.json
++++ b/scripts/local-ai/lab_hours_release_manifest.json
+@@ -9,12 +9,12 @@
+     "full_inference_lab_supervisor.py": "da5ac76fb48541a2661caa1cb4fe7f21d84334abb9ab935fb1aaaf72c4faba55",
+     "full_inference_lab_validator.py": "0c4a21d7894dd2c41d89aa00d2fa5969277991ff86febf8a89a61ac299966858",
+     "full_inference_lab_workload.py": "b0ad8a6422d4290cd73568916de4e35ef05130e5b93aee22c629ce7560beb236",
+-    "lab_hours_booking_cli.py": "05c9655594f522ae8a43acce4c3b9677bc27a393d5988a21681c78088103f5fb",
++    "lab_hours_booking_cli.py": "d035803e65e9384f671e625f266bab5a13e408eeb065e9007d82743f4c6eb793",
+     "lab_hours_dispatcher.py": "d05a18c497c62455e977d214e591129093674fdc0a3da542a92e6fa306ac807b",
+     "lab_hours_doctor.py": "28999eb78f0f93c6b463944df5bb63251c014e47aa8bc697caccf53357580397",
+-    "lab_hours_reservations.py": "fe7a82c0ae45f949add44b4283c39793af50da156c4d81b67f7f56491bc7be09",
++    "lab_hours_reservations.py": "f3f112c31c30776e94889d1a372b0584b9460007369fc7986a3c5f90e6c92322",
+     "lab_hours_reserved_runner.py": "6ba44c2bfb6322d68c5bd6c112e4144916be60f2ee4ae0abf2042e09a456abd2"
+   },
+-  "release": "reservation-rc1",
++  "release": "exclusive-capacity-v1",
+   "schema": "aster-lab-hours-release-manifest.v1"
+ }
+diff --git a/scripts/local-ai/lab_hours_reservations.py b/scripts/local-ai/lab_hours_reservations.py
+index 0ffc4cf3e..a3be86474 100644
+--- a/scripts/local-ai/lab_hours_reservations.py
++++ b/scripts/local-ai/lab_hours_reservations.py
+@@ -13,7 +13,7 @@ from typing import Iterator
+ 
+ 
+ ID_RE = re.compile(r"[a-z0-9][a-z0-9-]{7,63}")
+-ACTIVE = {"scheduled", "claimed"}
++ACTIVE = {"reserved", "scheduled", "claimed"}
+ TERMINAL = {"complete", "failed", "cancelled"}
+ REGISTERED_WORKLOADS = {"accepted-9b-direct-control-smoke-v1",
+                         "accepted-9b-owner-loss-exercise-v1"}
+@@ -99,12 +99,14 @@ class ReservationStore:
+         finally:
+             os.close(dir_fd)
+ 
+-    def reserve(self, *, booking_id: str, owner: str, workload: str,
+-                start_epoch: int, end_epoch: int) -> dict[str, object]:
++    def reserve(self, *, booking_id: str, owner: str, workload: str | None = None,
++                start_epoch: int, end_epoch: int, exclusive: bool = False) -> dict[str, object]:
+         now = int(self.clock())
+         if not ID_RE.fullmatch(booking_id) or not ID_RE.fullmatch(owner):
+             raise ReservationError("booking or owner identity is not canonical")
+-        if workload not in REGISTERED_WORKLOADS:
++        if exclusive and workload is not None:
++            raise ReservationError("exclusive capacity does not name a workload")
++        if not exclusive and workload not in REGISTERED_WORKLOADS:
+             raise ReservationError("workload is not registered")
+         if type(start_epoch) is not int or type(end_epoch) is not int:
+             raise ReservationError("reservation times must be integer epochs")
+@@ -129,9 +131,11 @@ class ReservationStore:
+             value: dict[str, object] = {
+                 "schema": "aster-lab-hours-reservation.v1", "booking_id": booking_id,
+                 "owner": owner, "workload": workload, "start_epoch": start_epoch,
+-                "end_epoch": end_epoch, "state": "scheduled", "created_epoch": now,
++                "end_epoch": end_epoch, "state": "reserved" if exclusive else "scheduled", "created_epoch": now,
+                 "restore_buffer_seconds": RESTORE_BUFFER_SECONDS,
+             }
++            if exclusive:
++                value["kind"] = "exclusive-stack"
+             self._write_unlocked(value)
+             return value
+ 
+@@ -157,6 +161,8 @@ class ReservationStore:
+         now = int(self.clock())
+         with self.locked():
+             value = self._read_unlocked(self._path(booking_id))
++            if value.get("kind") == "exclusive-stack":
++                raise ReservationError("exclusive handoff requires an entry-checkpoint session, not the fixed smoke runner")
+             if value.get("state") != "scheduled":
+                 raise ReservationError("booking is not schedulable")
+             if not int(value["start_epoch"]) <= now <= int(value["start_epoch"]) + 120:
+@@ -183,8 +189,8 @@ class ReservationStore:
+     def cancel(self, booking_id: str) -> dict[str, object]:
+         with self.locked():
+             value = self._read_unlocked(self._path(booking_id))
+-            if value.get("state") != "scheduled":
+-                raise ReservationError("only scheduled bookings can be cancelled")
++            if value.get("state") not in {"reserved", "scheduled"}:
++                raise ReservationError("only unclaimed bookings can be cancelled")
+             value.update(state="cancelled", finished_epoch=int(self.clock()),
+                          result_code="CANCELLED")
+             self._write_unlocked(value)
+diff --git a/scripts/local-ai/test_lab_hours_doctor.py b/scripts/local-ai/test_lab_hours_doctor.py
+index ef30c63e1..2bb96dec3 100644
+--- a/scripts/local-ai/test_lab_hours_doctor.py
++++ b/scripts/local-ai/test_lab_hours_doctor.py
+@@ -10,6 +10,15 @@ def okay(command, timeout):
+     return SimpleNamespace(returncode=0,stdout=output)
+ 
+ class DoctorTests(unittest.TestCase):
++    def test_exclusive_capacity_is_not_a_missed_automatic_test(self):
++        with tempfile.TemporaryDirectory() as tmp:
++            store=ReservationStore(Path(tmp),clock=lambda:1000)
++            store.reserve(booking_id="exclusive-stack-01",owner="b60-stream-a",
++                exclusive=True,start_epoch=1100,end_epoch=1700)
++            value=diagnose(store,now=1300,runner=okay)
++            self.assertNotIn("MISSED_RESERVATION",value["codes"])
++            self.assertEqual(value["active_reservations"],1)
++
+     def test_healthy_idle(self):
+         with tempfile.TemporaryDirectory() as tmp:
+             value=diagnose(ReservationStore(Path(tmp),clock=lambda:1000),now=1000,runner=okay)
+diff --git a/scripts/local-ai/test_lab_hours_reservations.py b/scripts/local-ai/test_lab_hours_reservations.py
+index 402508ba7..ad2289abe 100644
+--- a/scripts/local-ai/test_lab_hours_reservations.py
++++ b/scripts/local-ai/test_lab_hours_reservations.py
+@@ -6,6 +6,32 @@ from lab_hours_reservations import ReservationError, ReservationStore
+ 
+ 
+ class ReservationTests(unittest.TestCase):
++    def test_exclusive_capacity_blocks_overlap_but_never_dispatches(self):
++        with tempfile.TemporaryDirectory() as tmp:
++            store = self.store(tmp)
++            value = store.reserve(booking_id="exclusive-stack-01", owner="b60-stream-a",
++                exclusive=True, start_epoch=1100, end_epoch=1700)
++            self.assertEqual(value["kind"], "exclusive-stack")
++            self.assertIsNone(value["workload"])
++            store.clock = lambda: 1100
++            self.assertEqual(store.due(), [])
++            self.assertEqual(store.check_window(start_epoch=1200, end_epoch=1300),
++                             ["exclusive-stack-01"])
++            with self.assertRaisesRegex(ReservationError, "entry-checkpoint"):
++                store.claim("exclusive-stack-01", claimant="dispatcher-01")
++            with self.assertRaisesRegex(ReservationError, "conflicts"):
++                store.reserve(booking_id="other-booking-01", owner="other-owner",
++                    workload="accepted-9b-direct-control-smoke-v1",
++                    start_epoch=1200, end_epoch=1800)
++            store.cancel("exclusive-stack-01")
++            self.assertEqual(store.check_window(start_epoch=1200, end_epoch=1300), [])
++
++    def test_exclusive_cannot_smuggle_command_or_model_workload(self):
++        with tempfile.TemporaryDirectory() as tmp:
++            with self.assertRaisesRegex(ReservationError, "does not name"):
++                self.store(tmp).reserve(booking_id="exclusive-stack-01", owner="b60-stream-a",
++                    exclusive=True, workload="arbitrary-shell", start_epoch=1100, end_epoch=1700)
++
+     def store(self, tmp, now=1000):
+         return ReservationStore(Path(tmp), clock=lambda: now)
+ 
+diff --git a/services/local-ai-lease/ASTER-LAB-HOURS-RESERVATION-RUNBOOK.md b/services/local-ai-lease/ASTER-LAB-HOURS-RESERVATION-RUNBOOK.md
+index fbd55466c..baa9b6543 100644
+--- a/services/local-ai-lease/ASTER-LAB-HOURS-RESERVATION-RUNBOOK.md
++++ b/services/local-ai-lease/ASTER-LAB-HOURS-RESERVATION-RUNBOOK.md
+@@ -1,5 +1,42 @@
+ # Aster Lab Hours reservation runbook
+ 
++## Owner contract — October29 amendment
++
++An exclusive booking allocates the local AI stack to its named owner for the
++booked interval, not to a particular model or fixed smoke test. Within the
++project's Stream A authority, the owner may change models, runtimes and other
++in-scope stack components during that interval. The owner must restore the
++verified entry configuration before releasing the stack or reaching the hard
++deadline. Restoration, not merely stopping a test, is the completion gate.
++
++For B60, Jason's October29 standing approval covers model changes during Lab
++Hours and non-exclusive project work outside them. Do not request another
++model-by-model approval. Non-waivable security, data, hardware and platform
++controls still apply; this does not authorize arbitrary root administration.
++
++Reserve capacity with `reserve --exclusive` and no `--workload`. Such a record
++is `reserved`, blocks other bookings including the restoration buffer, and
++never automatically dispatches a smoke test, acquires a lease or stops a
++consumer. Existing `--workload` bookings retain their fixed qualification
++behavior. These are distinct operations: reservation is not experiment launch.
++
++Before an exclusive handoff, the session controller must capture and validate
++the actual entry model/binary/configuration identities, mounts, service and
++timer enable/active states, consumer inventory and recoverable checkpoints.
++Credential values stay source-local. It must bind that checkpoint to the
++booking and shared lease/lock, arm independent recovery before effects, contain
++all experiment processes, and verify exact restoration before terminal success.
++Restore previously active work without missed-job replay. Refuse a change if
++its entry state cannot be recovered within the remaining window. Uncertain
++recovery retains ownership/state and alerts; it never declares the stack free.
++
++The current fixed9B runner cannot perform that general handoff and explicitly
++rejects exclusive-capacity records. This metadata release enables real advance
++bookings, not a claim that arbitrary-entry restoration is already qualified.
++Do not route capacity bookings through the fixed9B dispatcher or bypass the
++checkpoint gate. A general session controller must be independently qualified
++before exclusive experiments use it. No extra human model approval is needed.
++
+ Lab Hours is an exclusive, booked transaction. The permanent dispatcher only
+ checks for due reservations; it does not create them and it never stops a
+ service when the ledger is empty.
+-- 
+2.50.1 (Apple Git-155)
+
+

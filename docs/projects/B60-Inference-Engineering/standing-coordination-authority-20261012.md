@@ -30,6 +30,11 @@ for the next30 nights; project authority continues until completion or revocatio
 
 ### Booking implementation status
 
+Superseded by the subsequent October29 implementation: all30 capacity bookings
+are now installed and verified. See the exclusive-capacity receipt in the
+rolling evidence log. The following describes the original blocker, not the
+current reservation count. Generic entry-checkpoint execution remains separate.
+
 On October29 B60 queried the authoritative Proxmox ledger. It contained only
 the retained LH4/LH5 historical records, no future B60 booking. Read-only
 `check-window` calls for all30 dates October30–November28,03:10–04:10 local
