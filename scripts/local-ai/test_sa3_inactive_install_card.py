@@ -10,6 +10,7 @@ class Sa3InactiveInstallCardTests(unittest.TestCase):
         text = CARD.read_text(encoding="utf-8")
         self.assertNotIn("proxmox:/tmp", text)
         self.assertNotIn("/tmp/aster-sa3-inactive-install-8dc6eac5", text)
+        self.assertIn('test ! -e \"$incoming\" && test ! -L \"$incoming\"', text)
         self.assertIn("install -d -o root -g root -m 0700 \"$incoming\"", text)
         self.assertIn('stat -c \"%u:%g:%a\" \"$incoming\"', text)
         self.assertIn('test ! -e \"$archive\" && test ! -L \"$archive\"', text)
@@ -17,6 +18,7 @@ class Sa3InactiveInstallCardTests(unittest.TestCase):
         self.assertIn("proxmox:/var/lib/local-ai-lab/incoming/sa3-inactive-install-8dc6eac5/", text)
         self.assertIn('chown root:root \"$archive\" \"$sidecar\"', text)
         self.assertIn('test ! -L \"$archive\" && test ! -L \"$sidecar\"', text)
+        self.assertIn('test ! -e \"$stage\" && test ! -L \"$stage\"', text)
 
 
 if __name__ == "__main__":

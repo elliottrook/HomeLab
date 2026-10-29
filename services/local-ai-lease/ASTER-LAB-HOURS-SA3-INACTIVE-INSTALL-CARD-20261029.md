@@ -80,6 +80,7 @@ ssh -o BatchMode=yes proxmox 'set -eu
   incoming=/var/lib/local-ai-lab/incoming/sa3-inactive-install-8dc6eac5
   archive="$incoming/aster-sa3-inactive-install-8dc6eac5.tar.gz"
   sidecar="$archive.sha256"
+  test ! -e "$incoming" && test ! -L "$incoming"
   install -d -o root -g root -m 0700 "$incoming"
   test "$(stat -c "%u:%g:%a" "$incoming")" = "0:0:700"
   test ! -e "$archive" && test ! -L "$archive"
@@ -103,6 +104,7 @@ ssh -o BatchMode=yes proxmox 'set -eu
   test "$actual" = "$expected_name"
   test "$actual" = "224647fe1815e30b8d74b3a1cceccf39ba3fa9712c3f561fdf9e5b0ceba5aaf7"
   stage=/var/lib/local-ai-lab/staging/sa3-inactive-install-8dc6eac5
+  test ! -e "$stage" && test ! -L "$stage"
   install -d -o root -g root -m 0700 "$stage"
   tar --no-same-owner --no-same-permissions --no-overwrite-dir -xzf "$archive" -C "$stage"
   chown -R root:root "$stage"
