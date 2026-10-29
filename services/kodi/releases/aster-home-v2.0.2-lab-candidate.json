@@ -1,0 +1,28 @@
+{
+  "schema": "aster-home-kodi-lab-source-candidate.v1",
+  "release": "2.0.2-lab-candidate",
+  "status": "lab-live-tested-source-not-install-ready",
+  "fixes_through_commit": "ee6bd58d",
+  "source_branch": "codex/astertv-v2-recovery",
+  "target_runtime": "LibreELEC nightly-20261021-440640e / Kodi 22 RC1",
+  "included_recovery_work": [
+    "v2 TV series, season and episode access on the fresh HP lab",
+    "live Intro, Recap and Credits/Next controls using real Jellyfin markers",
+    "lab-owned Jellyfin popup settings and bounded runtime guard reseal",
+    "News Digest page and short audio-player progression",
+    "official YouTube Search button and real result rendering",
+    "HP DisplayPort-to-HDMI codec pin restoration and persistent HDMI 0 stereo selector",
+    "production v1.1.1 rollback and recovery record"
+  ],
+  "known_release_blockers": [
+    "Physical lab audio audibility awaits owner confirmation",
+    "Dolby passthrough is not validated and remains disabled",
+    "YouTube result playback and account-only widgets remain unaccepted",
+    "Full clean-client assembly, rollback rehearsal and owner sofa acceptance remain open",
+    "Production Jellyfin code pin and final host-specific package require separate verification"
+  ],
+  "package_kind": "tracked-source-and-recovery-records",
+  "credentials_included": false,
+  "production_deployment_authorized": false,
+  "production_state": "v1.1.1 active; not modified by this candidate"
+}
