@@ -237,6 +237,32 @@ class ProposalBoundaryTests(unittest.TestCase):
             with self.subTest(value=value), self.assertRaises(InvestigationError):
                 accept_model_proposal(self.incident, value)
 
+    def test_explicitly_negated_effect_word_is_not_a_completion_claim(self):
+        for summary in (
+            "The registered configuration check has not been executed.",
+            "The registered configuration check was never executed.",
+            "The fixed public configuration identity remains to be observed.",
+            "The fixed configuration report is registered evidence.",
+        ):
+            with self.subTest(summary=summary):
+                decision = accept_model_proposal(
+                    self.incident,
+                    self.response(hypothesis_summary=summary),
+                )
+                self.assertEqual("observe", decision["disposition"])
+
+    def test_negation_does_not_hide_a_later_positive_effect_claim(self):
+        for summary in (
+            "The check was not executed, but the service was restarted.",
+            "The service was not only restarted but also fixed.",
+        ):
+            with self.subTest(summary=summary), self.assertRaisesRegex(
+                    InvestigationError, "completed effect"):
+                accept_model_proposal(
+                    self.incident,
+                    self.response(hypothesis_summary=summary),
+                )
+
     def test_response_is_rebound_to_current_private_identity(self):
         request = build_proposal_request(self.incident)
         response = self.response(request)

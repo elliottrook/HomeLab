@@ -31,6 +31,25 @@ COMPLETED_EFFECT = re.compile(
     r"\b(restarted|repaired|fixed|changed|deployed|installed|executed|applied)\b",
     re.IGNORECASE,
 )
+NEGATED_EFFECT = re.compile(
+    r"\b(?:not|never)\b(?:\s+(?!only\b)[a-z]+){0,3}\s*$",
+    re.IGNORECASE,
+)
+FIXED_DESCRIPTOR = re.compile(
+    r"\s+(?:public\s+)?(?:configuration|identity|inventory|source|target|plan|check|report|path|endpoint)\b",
+    re.IGNORECASE,
+)
+
+
+def _claims_completed_effect(text: str) -> bool:
+    """Reject positive effect claims without rejecting an explicit non-action."""
+    for match in COMPLETED_EFFECT.finditer(text):
+        if not NEGATED_EFFECT.search(text[:match.start()]):
+            if (match.group(0).lower() == "fixed"
+                    and FIXED_DESCRIPTOR.match(text[match.end():])):
+                continue
+            return True
+    return False
 
 
 def _opaque_ref(prefix: str, value: str) -> str:
@@ -123,7 +142,7 @@ def accept_model_proposal(incident: Incident, response: Any) -> dict[str, Any]:
     if (not isinstance(hypothesis, str) or not hypothesis.strip()
             or len(hypothesis) > 500):
         raise InvestigationError("invalid model hypothesis summary")
-    if COMPLETED_EFFECT.search(hypothesis):
+    if _claims_completed_effect(hypothesis):
         raise InvestigationError("model hypothesis claimed a completed effect")
 
     refs = response.get("evidence_refs")
