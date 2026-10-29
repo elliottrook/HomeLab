@@ -465,6 +465,16 @@ passes 64/64 and two deterministic builds match archive SHA-256
 It requires a new exact installation approval; neither failed candidate may be
 retried.
 
+Jason then authorized the exact `root-v3` transaction. It installed the two
+dormant Proxmox modules and five dormant LXC110 files, retained both
+checkpoints, matched every reviewed hash/mode and passed independent host and
+guest imports. The SA3 registration, units, answer key and review material
+remain absent; production and Proxmox daemons remain healthy and no lease state
+exists. The dormant installation gate is therefore complete. The next gate is
+the distinct fixed-workload registration review, followed only later by an
+authoritative ledger check/reservation, lease/lock acquisition and the bounded
+no-effect model evaluation.
+
 The downstream
 [model-blind review boundary](evidence/SA3-expanded-source-quality-blind-review-boundary-2026-10-29.md)
 is also source-complete before predictions exist. It accepts only a complete,

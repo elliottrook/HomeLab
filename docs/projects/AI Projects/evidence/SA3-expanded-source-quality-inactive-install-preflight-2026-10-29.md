@@ -120,3 +120,22 @@ and deterministic archive SHA-256
 `601cbddf6edf6d52d5f2fa4b822e1f705c2d7747b2925a0ff0f2aa05c3f7eac7`.
 The 64/64 suite passes and two independent builds are byte-identical. This is
 another exact host change and has not been installed.
+
+## Root-v3 installation result
+
+Jason authorized the exact `root-v3` transaction. It returned
+`state=staged-candidate`, installed two dormant Proxmox modules and five dormant
+LXC110 files, and retained the host and guest checkpoints. Independent
+verification matched all seven reviewed hashes and modes, verified the two
+root-owned mode-0755 LXC110 directories, and passed host and guest imports.
+
+The SA3 identity remains absent from the live runner and release manifest; all
+four proposed unit paths, answer keys and review material remain absent.
+LXC104/110/116, Aster Agent, accepted llama.cpp, Aster Speech and the Proxmox
+daemons remain healthy, with no lease state. No booking, model request,
+production drain, service/timer change or restart occurred.
+
+The dormant installation gate is complete. The next gate is a separate exact
+registration review. Registration must bind only the installed hash-pinned
+workload and preserve the authoritative reservation, whole-host lease and
+shared-lock requirements; it does not itself authorize booking or execution.
