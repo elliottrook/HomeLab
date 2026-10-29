@@ -4,7 +4,9 @@
 
 Reconcile the dirty primary checkout, rerun HomeLab Doctor and configuration
 drift, and repair only confirmed current failures. No credential, firewall,
-public-ingress, guest, or destructive backup-retention change was included.
+public-ingress, or guest change was included. A later owner-approved follow-up
+permanently removed only expired noncurrent IDrive guest-object versions after
+verifying the retained recovery copies described below.
 
 ## Repository reconciliation
 
@@ -35,6 +37,18 @@ public-ingress, guest, or destructive backup-retention change was included.
    SQLite `julianday()`. The previous lexical comparison counted a 16-hour-old
    connection reset as recent. The corrected two-hour query observed 92
    successes and zero failures.
+5. After Jason approved the recommended bounded cleanup, audited all 32
+   noncurrent `homelab-proxmox-guests` versions under the relay lock. Every
+   version was 170--195 hours old, beyond the active one-day lifecycle window,
+   absent from the retained local filenames, and associated with a guest that
+   still had 11--12 current local recovery archives. All 237 current cloud
+   guest archives matched local filenames; the other 11 local archives were the
+   intentional Paperless exclusion. Permanently deleted exactly 32 reviewed
+   noncurrent versions / 83,610,183,597 encrypted bytes. All 237 current cloud
+   guest objects and all 248 local recovery archives remained unchanged; no
+   configuration, family, Home Assistant, Mac, Jellyfin or service history was
+   targeted. Protected evidence is retained in LXC 112 under
+   `/var/lib/idrive-version-maintenance/cleanup-20261029-guest-history-*`.
 
 ## Validation
 
@@ -43,7 +57,7 @@ public-ingress, guest, or destructive backup-retention change was included.
   `git diff --check`: passed.
 - Configuration drift: `NONE`; baseline 2026-10-29 09:02:26 PDT, 88 protected
   entries.
-- Final Doctor: 93 passed, 2 warnings, 0 failures.
+- Final Doctor after the IDrive follow-up: 94 passed, 1 warning, 0 failures.
 - Git working tree: clean.
 
 ## Remaining warnings
@@ -52,7 +66,13 @@ public-ingress, guest, or destructive backup-retention change was included.
   Watoto Children's Choir (`Mambo Sawa` versus `Mambo Sawa Life Is Good!`) and
   Taylor Swift (`folklore` versus `folklore [Bonus Track]`). No media was
   deleted or consolidated automatically.
-- IDrive reports 895.8 GB current plus 121.8 GB retained history, 1.018 TB
-  total. The report is current and the configured lifecycle remains active.
-  Reducing usage would delete recovery history or current backups and requires
-  a separate, exact retention decision; the warning was not suppressed.
+
+## IDrive follow-up result
+
+- Refreshed usage is 895,821,846,003 current bytes plus 38,199,814,395 history
+  bytes, 934,021,660,398 bytes total. The usage check now passes.
+- Guest noncurrent history is zero; the one-day guest lifecycle rule remains
+  enabled. The provider may asynchronously remove the 32 empty delete markers.
+- The remaining 38.2 GB is bounded history for mutable configuration, Gowest,
+  Home Assistant and Mac data, plus negligible old validation objects. It was
+  preserved because it is not redundant dated guest-archive history.

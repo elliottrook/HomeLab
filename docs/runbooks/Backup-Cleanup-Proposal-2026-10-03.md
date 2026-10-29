@@ -309,3 +309,25 @@ passed. HomeLab Doctor reads that report and warns if older than 30 hours, total
 usage exceeds 1 TB decimal, or noncurrent history exceeds 150 GB. This reports
 only authorized bucket scope, not account-wide billing. Sixteen backup tests,
 Doctor shell syntax and both configuration-backup checks pass.
+
+## Lifecycle follow-up — 2026-10-29
+
+The current usage audit found 32 noncurrent guest archive versions consuming
+83,610,183,597 encrypted bytes despite the active one-day lifecycle rule. Jason
+approved the recommended bounded deletion if the protected data remained
+available elsewhere. A locked preflight established that every version was
+170--195 hours old, none of its filenames remained in the local retained set,
+and every affected guest still had 11--12 dated local recovery archives. All
+237 current cloud guest archive filenames matched local files; the 11 local-only
+archives were the intentional Paperless exclusion.
+
+Permanently deleted exactly those 32 reviewed guest version IDs. Readback
+confirmed zero noncurrent guest versions, with all 237 current cloud guest
+objects and all 248 local recovery archives unchanged. No current object or
+configuration, Gowest, Home Assistant, Mac, Jellyfin, Paperless or service
+history was targeted. The refreshed audit reports 895,821,846,003 current bytes,
+38,199,814,395 noncurrent bytes and 934,021,660,398 bytes total, status success.
+The one-day guest lifecycle remains enabled; its delayed provider processing is
+now visible as an operational behavior to monitor rather than assumed cleanup.
+Protected manifest and S3 acknowledgements are retained in LXC 112 as
+`/var/lib/idrive-version-maintenance/cleanup-20261029-guest-history-*`.
