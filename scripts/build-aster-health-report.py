@@ -194,20 +194,17 @@ def main() -> int:
         _atomic_write(args.catalogue_output, catalogue_payload)
     if args.publish:
         # Fixed destinations and commands; an encoded envelope goes over stdin,
-        # never shell interpolation. The sidecar is written last. A reader that
-        # races either replace sees a digest mismatch and safely abstains.
-        writer = """import base64,grp,hashlib,json,os,pathlib,sys
+        # never shell interpolation. One owner-only lock serializes the whole
+        # remote publication. A reader that races a replace sees a digest
+        # mismatch and safely abstains; the aggregate is committed last.
+        writer = """import base64,fcntl,grp,hashlib,json,os,pathlib,stat,sys,tempfile
 envelope=json.load(sys.stdin)
 assert set(envelope)=={'aggregate','structured','catalogue'}
 aggregate=base64.b64decode(envelope['aggregate'],validate=True)
 value=json.loads(aggregate)
 assert value['schema']==1 and value['status'] in ('healthy','warning','failed')
 assert isinstance(value['checks'],list) and len(value['checks'])<=32
-root=pathlib.Path('/var/lib/aster/health'); root.mkdir(exist_ok=True)
-target=root/'latest.json'; temp=root/'latest.json.new'
-temp.write_bytes(aggregate)
-os.chmod(temp,0o640); os.chown(temp,0,grp.getgrnam('aster').gr_gid)
-os.replace(temp,target)
+structured=None
 if envelope['structured'] is not None:
     structured=base64.b64decode(envelope['structured'],validate=True)
     sidecar=json.loads(structured)
@@ -219,10 +216,7 @@ if envelope['structured'] is not None:
     check=sidecar['checks'][0]
     assert set(check)=={'check_id','state'} and check['check_id']=='aster.agent_inference'
     assert check['state'] in ('pass','warn','fail','unavailable')
-    side_target=root/'aster-inference.json'; side_temp=root/'aster-inference.json.new'
-    side_temp.write_bytes(structured)
-    os.chmod(side_temp,0o640); os.chown(side_temp,0,grp.getgrnam('aster').gr_gid)
-    os.replace(side_temp,side_target)
+catalogue=None
 if envelope['catalogue'] is not None:
     catalogue=base64.b64decode(envelope['catalogue'],validate=True)
     typed=json.loads(catalogue)
@@ -233,10 +227,25 @@ if envelope['catalogue'] is not None:
     assert isinstance(typed['checks'],list) and len(typed['checks'])==3
     assert [item.get('check_id') for item in typed['checks']]==['aster.agent_inference','aster.speech','backup.protection']
     assert all(set(item)=={'check_id','state'} and item['state'] in ('pass','warn','fail','unavailable') for item in typed['checks'])
-    catalogue_target=root/'diagnostic-catalogue.json'; catalogue_temp=root/'diagnostic-catalogue.json.new'
-    catalogue_temp.write_bytes(catalogue)
-    os.chmod(catalogue_temp,0o640); os.chown(catalogue_temp,0,grp.getgrnam('aster').gr_gid)
-    os.replace(catalogue_temp,catalogue_target)
+root=pathlib.Path('/var/lib/aster/health'); root.mkdir(exist_ok=True)
+gid=grp.getgrnam('aster').gr_gid
+lock_fd=os.open(root/'.publisher.lock',os.O_RDWR|os.O_CREAT|os.O_NOFOLLOW,0o640)
+lock_stat=os.fstat(lock_fd)
+assert stat.S_ISREG(lock_stat.st_mode) and lock_stat.st_nlink==1 and lock_stat.st_uid==0
+os.fchmod(lock_fd,0o640); os.fchown(lock_fd,0,gid)
+fcntl.flock(lock_fd,fcntl.LOCK_EX)
+def replace_owned(name,payload):
+    descriptor,temporary=tempfile.mkstemp(prefix='.'+name+'.',dir=root)
+    try:
+        with os.fdopen(descriptor,'wb') as stream:
+            stream.write(payload); stream.flush(); os.fsync(stream.fileno())
+        os.chmod(temporary,0o640); os.chown(temporary,0,gid)
+        os.replace(temporary,root/name)
+    finally:
+        if os.path.exists(temporary): os.unlink(temporary)
+if structured is not None: replace_owned('aster-inference.json',structured)
+if catalogue is not None: replace_owned('diagnostic-catalogue.json',catalogue)
+replace_owned('latest.json',aggregate)
 """
         remote = "pct exec 104 -- python3 -c " + shlex.quote(writer)
         envelope = json.dumps({

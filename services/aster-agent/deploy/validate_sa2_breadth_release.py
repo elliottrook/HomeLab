@@ -37,7 +37,7 @@ def validate(root: Path = ROOT, manifest_path: Path = MANIFEST) -> dict:
     value = json.loads(manifest_path.read_text(), object_pairs_hook=_unique)
     if set(value) != {"schema_version", "release_id", "mac_files", "lxc_files", "runtime"}:
         raise ValueError("invalid manifest shape")
-    if value["schema_version"] != 1 or value["release_id"] != "sa2-breadth-evidence-20261028":
+    if value["schema_version"] != 1 or value["release_id"] != "sa2-breadth-evidence-v2-20261028":
         raise ValueError("invalid release identity")
     if value["runtime"] != EXPECTED_RUNTIME:
         raise ValueError("runtime boundary changed")

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release_id": "sa2-breadth-evidence-20261028",
+  "release_id": "sa2-breadth-evidence-v2-20261028",
   "mac_files": [
     {
       "source": "services/aster-agent/diagnostic_catalogue_v3.py",
@@ -20,7 +20,7 @@
       "source": "scripts/build-aster-health-report.py",
       "target": "/Users/jelliott/lab/homelab/scripts/build-aster-health-report.py",
       "before_sha256": "2ba813496d46606f42b8e74925f587396428646ceb31bb802e854dab3cc9f0b5",
-      "after_sha256": "cbfd54152a31701b08698b2397262c66aa937a462368146d6c34aa1baf394947",
+      "after_sha256": "95d188e954ce300282253330b646fdc6622117efe2b1e6c3fdc72736e8355bae",
       "mode": "0755"
     },
     {

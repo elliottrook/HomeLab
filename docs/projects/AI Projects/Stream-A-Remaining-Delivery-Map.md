@@ -357,8 +357,12 @@ validation were then completed for the combined release below.
 
 The exact four-Mac-file/nine-LXC-file
 [combined breadth release card](evidence/SA2-breadth-combined-release-card-2026-10-28.md)
-is now ready. Its disabled target unit verification passes, and its manifest
-preflight found and corrected the previously missing Mac catalogue dependency.
+is now corrected to v2 and ready. The approved v1 run exposed a shared
+temporary-file publisher race and completed its bounded rollback; the
+[dated NO-GO and correction](evidence/SA2-breadth-v1-race-no-go-and-v2-correction-2026-10-28.md)
+records exact evidence. V2's serialized unique-temp writer passes concurrent
+macOS and LXC104 regression tests. Its disabled target unit verification also
+passes, and its manifest includes the required Mac catalogue dependency.
 The remaining gate is approval for the bounded live installation, one new
 publisher timer, one fresh catalogue publication, one Aster Agent restart and
 one representative no-effect connected check.

@@ -2,14 +2,14 @@
 
 ## Decision
 
-**READY FOR ONE REVIEWED LIVE RELEASE; NOT YET INSTALLED.** This transaction
+**CORRECTED V2 READY FOR ONE REVIEWED LIVE RELEASE; NOT INSTALLED.** This transaction
 connects the completed NetBox, gateway-configuration, backup-protection and
 sanitized gateway-log evidence paths. It makes no model, routing or repair
 change. It needs one Aster Agent restart and enables one root publisher timer.
 
 The exact source is bound by
 `services/aster-agent/deploy/sa2-breadth-release-manifest.json`, whose SHA-256
-is `431b71ed93b94ad0d252fcb3dde1f3b925139855e60576ed7a8c3f80fb3c4763`.
+is `2d744a01fc965ee826ac88a636711c758f03c399295e0cc05faafda97b269713`.
 Its validator passes and rejects source, target, predecessor, file-count or
 runtime-boundary drift.
 
@@ -21,7 +21,7 @@ Four Mac publisher files are installed into the existing live HomeLab checkout:
 |---|---|---|
 | `services/aster-agent/diagnostic_catalogue_v3.py` | absent | `a8e81354…88dc` |
 | `scripts/doctor.sh` | `f501dfca…c96` | `6dee983d…f0be` |
-| `scripts/build-aster-health-report.py` | `2ba81349…0b5` | `cbfd5415…4947` |
+| `scripts/build-aster-health-report.py` | `2ba81349…0b5` | `95d188e9…5bae` |
 | `scripts/scheduled-report.sh` | `f5e87254…bf6` | `6595bd5e…fb7` |
 
 Nine LXC104 files are installed:
@@ -84,6 +84,14 @@ first root publication.
 - The live Mac checkout is clean for all four target paths. The missing
   `diagnostic_catalogue_v3.py` dependency was found during preflight and is now
   explicitly included in this release.
+- The first approved candidate was installed and then rolled back after two
+  overlapping Doctor publishers exposed a shared-`.new` race. One run moved
+  another run's temporary file, and the final aggregate and sidecars belonged
+  to different run IDs. Consumers rejected the digest mismatch. V2 validates
+  the complete envelope before mutation, serializes the whole remote
+  transaction with an owner-only `flock`, uses unique same-directory temporary
+  files and commits the aggregate last. A four-round two-writer regression
+  passes on macOS and under LXC104's Linux filesystem semantics.
 
 ## Stop and rollback
 
