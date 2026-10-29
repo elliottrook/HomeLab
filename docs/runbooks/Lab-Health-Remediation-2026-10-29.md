@@ -49,6 +49,20 @@ verifying the retained recovery copies described below.
    configuration, family, Home Assistant, Mac, Jellyfin or service history was
    targeted. Protected evidence is retained in LXC 112 under
    `/var/lib/idrive-version-maintenance/cleanup-20261029-guest-history-*`.
+6. Resolved the two Jellyfin duplicate reviews using format and payload
+   evidence rather than folder names alone. Retained Watoto Children's Choir
+   `Mambo Sawa Life Is Good!`: both copies were AAC/M4A at 44.1 kHz, stereo,
+   16-bit, while the retained copy was the newer iTunes 12.10.9.3 encode with
+   a slightly larger aggregate audio payload and better artwork; the competing
+   copy identified iTunes 9.0.2. Retained Taylor Swift `folklore [Bonus Track]`:
+   both copies were 16-bit/44.1-kHz stereo FLAC, tracks 1--16 had identical
+   decoded-audio MD5 values, and the retained copy also had track-17 synced
+   lyrics and higher-resolution artwork. Atomically moved the two inferior
+   folders (496,663,321 bytes total) outside the Jellyfin library to the
+   recoverable quarantine below; no media was permanently deleted:
+   `/mnt/Media/data/tools/jellyfin-integrity/quarantine/20261029-better-format-selection/`.
+   Its manifest contains a SHA-256 inventory of both quarantined and retained
+   folders for exact rollback and verification.
 
 ## Validation
 
@@ -57,15 +71,17 @@ verifying the retained recovery copies described below.
   `git diff --check`: passed.
 - Configuration drift: `NONE`; baseline 2026-10-29 09:02:26 PDT, 88 protected
   entries.
-- Final Doctor after the IDrive follow-up: 94 passed, 1 warning, 0 failures.
+- Final Doctor after the IDrive and Jellyfin follow-ups: 95 passed, 0 warnings,
+  0 failures.
 - Git working tree: clean.
 
 ## Remaining warnings
 
-- Jellyfin integrity reports two duplicate candidates requiring content review:
-  Watoto Children's Choir (`Mambo Sawa` versus `Mambo Sawa Life Is Good!`) and
-  Taylor Swift (`folklore` versus `folklore [Bonus Track]`). No media was
-  deleted or consolidated automatically.
+- None. A fresh Jellyfin scan and dry integrity report
+  (`20261029T173826Z-run.json`) found six candidate comparisons, zero duplicates
+  awaiting approval, five existing ambiguous references, zero action errors,
+  zero collection alerts and no cleanup-trigger drift. Doctor reports the
+  Jellyfin integrity run clean.
 
 ## IDrive follow-up result
 
