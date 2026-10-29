@@ -1,5 +1,38 @@
 # Fixed-hardware capability research watch — 2026-10-12
 
+## October29 exclusive-session controller implementation started
+
+After Jason asked why no implementation was visible, B60 explicitly corrected
+the earlier explanation-only stop and implemented the durable transaction core.
+Source commit `95eae3e67bf72ed172d18b1bac989287be3346ed` follows capacity
+commit `659519772`. Reproducible delta:
+`scripts/b60-inference/lab-hours-exclusive-session-core-v1.patch`, applied
+after the capacity patch on platform base `e28dfc24`.
+
+The core freezes a content-free entry snapshot (model/runtime/configuration/
+checkpoint hashes, original service/timer states and mount identities) in
+mode0600 durable files. It validates a booked owner, reserves15 minutes for
+recovery, limits trials to30 minutes, persists state before guardian/isolation,
+executes once through an injected bounded adapter, fences experiments before
+restoring, verifies the exact entry state, and only then releases ownership.
+Recovery can reopen the durable state in a separate process. Partial isolation,
+failed/uncertain trials, checkpoint drift, failed fences, restoration mismatch
+and release failure never silently grant a retry or report restored success.
+Raw exception/configuration output is not stored in the metadata.
+
+Twenty new synthetic tests pass, within39 local Lab Hours tests. These exercise
+the state machine with fake adapters/disposable ledgers, not real host recovery.
+The module has no host adapter, CLI or live dispatcher connection and is not
+installed on Proxmox. Existing30 bookings and the live9B stack are unchanged.
+
+Next implementation is the source-local Proxmox entry-checkpoint/restore adapter,
+lease/operation-lock binding, independent guardian wiring and fault/reentry
+qualification against real captured files/mounts/units without exposing secrets.
+The core's booleans are adapter proof interfaces, not evidence that those host
+proofs already exist. Do not label it an unattended-ready controller, arm live
+experiments from it, or claim work continues while this chat/computer is idle.
+No additional model-change approval is required; this is remaining engineering.
+
 ## October29 exclusive-stack contract and30-night reservation deployment
 
 Jason explicitly directed changing Lab Hours into exclusive ownership of the

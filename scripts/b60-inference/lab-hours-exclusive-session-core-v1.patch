@@ -1,0 +1,472 @@
+From 95eae3e67bf72ed172d18b1bac989287be3346ed Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Thu, 29 Oct 2026 10:57:50 -0700
+Subject: [PATCH] Implement durable exclusive-session core and interrupted
+ recovery tests
+
+---
+ .../local-ai/lab_hours_exclusive_session.py   | 237 ++++++++++++++++++
+ .../test_lab_hours_exclusive_session.py       | 206 +++++++++++++++
+ 2 files changed, 443 insertions(+)
+ create mode 100644 scripts/local-ai/lab_hours_exclusive_session.py
+ create mode 100644 scripts/local-ai/test_lab_hours_exclusive_session.py
+
+diff --git a/scripts/local-ai/lab_hours_exclusive_session.py b/scripts/local-ai/lab_hours_exclusive_session.py
+new file mode 100644
+index 000000000..f5923dd02
+--- /dev/null
++++ b/scripts/local-ai/lab_hours_exclusive_session.py
+@@ -0,0 +1,237 @@
++"""Durable exclusive-session core. No host adapter or automatic live entry point.
++
++Adapters must enforce the supplied deadline on every operation. Injected test
++adapters are not proof of live checkpoint, isolation or restoration correctness.
++"""
++from __future__ import annotations
++
++import fcntl
++import hashlib
++import json
++import os
++from pathlib import Path
++import re
++import stat
++import time
++
++IDENTITY = re.compile(r'[a-z0-9][a-z0-9-]{7,63}')
++SHA = re.compile(r'[0-9a-f]{64}')
++
++
++class SessionError(RuntimeError):
++    pass
++
++
++def canonical(value):
++    return json.dumps(value, sort_keys=True, separators=(',', ':')).encode()
++
++
++def validate_snapshot(value):
++    """Content-free identities only; recovery bytes stay in protected custody."""
++    if not isinstance(value, dict) or set(value) != {
++            'schema', 'model_sha256', 'runtime_sha256', 'configuration_sha256',
++            'checkpoint_sha256', 'units', 'mounts'}:
++        raise SessionError('SNAPSHOT_SCHEMA')
++    if value['schema'] != 'aster-entry-snapshot.v1':
++        raise SessionError('SNAPSHOT_VERSION')
++    for key in ('model_sha256', 'runtime_sha256', 'configuration_sha256', 'checkpoint_sha256'):
++        if not isinstance(value[key], str) or not SHA.fullmatch(value[key]):
++            raise SessionError('SNAPSHOT_IDENTITY')
++    if not isinstance(value['units'], list) or not 1 <= len(value['units']) <= 32:
++        raise SessionError('SNAPSHOT_UNITS')
++    seen = set()
++    for row in value['units']:
++        if not isinstance(row, dict) or set(row) != {'guest', 'unit', 'active', 'enabled', 'runtime_masked'}:
++            raise SessionError('UNIT_SCHEMA')
++        if row['guest'] not in {'104', '110', '114', '115', '116'}:
++            raise SessionError('UNIT_SCOPE')
++        if not isinstance(row['unit'], str) or not re.fullmatch(r'[a-zA-Z0-9_.@-]+\.(service|timer)', row['unit']):
++            raise SessionError('UNIT_IDENTITY')
++        if any(type(row[k]) is not bool for k in ('active', 'enabled', 'runtime_masked')):
++            raise SessionError('UNIT_STATE_UNSUPPORTED')
++        identity = (row['guest'], row['unit'])
++        if identity in seen:
++            raise SessionError('DUPLICATE_UNIT')
++        seen.add(identity)
++    if not isinstance(value['mounts'], list) or len(value['mounts']) > 16:
++        raise SessionError('SNAPSHOT_MOUNTS')
++    for row in value['mounts']:
++        if not isinstance(row, dict) or set(row) != {'identity_sha256', 'present', 'readonly'}:
++            raise SessionError('MOUNT_SCHEMA')
++        if not isinstance(row['identity_sha256'], str) or not SHA.fullmatch(row['identity_sha256']):
++            raise SessionError('MOUNT_IDENTITY')
++        if type(row['present']) is not bool or type(row['readonly']) is not bool:
++            raise SessionError('MOUNT_STATE')
++    return json.loads(canonical(value))
++
++
++class SessionStore:
++    def __init__(self, root, *, expected_uid=None):
++        self.root = Path(root)
++        self.uid = os.geteuid() if expected_uid is None else expected_uid
++
++    def lock(self):
++        self.root.mkdir(mode=0o700, parents=True, exist_ok=True)
++        st = self.root.lstat()
++        if not stat.S_ISDIR(st.st_mode) or st.st_uid != self.uid or st.st_mode & 0o077:
++            raise SessionError('SESSION_DIRECTORY_CUSTODY')
++        fd = os.open(self.root/'session.lock', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
++        st = os.fstat(fd)
++        if not stat.S_ISREG(st.st_mode) or st.st_uid != self.uid or st.st_nlink != 1 or st.st_mode & 0o077:
++            os.close(fd)
++            raise SessionError('SESSION_LOCK_CUSTODY')
++        try:
++            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
++        except BaseException:
++            os.close(fd)
++            raise
++        return fd
++
++    def read(self, name):
++        fd = os.open(self.root/name, os.O_RDONLY | os.O_NOFOLLOW)
++        try:
++            st = os.fstat(fd)
++            if (not stat.S_ISREG(st.st_mode) or st.st_uid != self.uid
++                    or st.st_nlink != 1 or st.st_mode & 0o777 != 0o600 or st.st_size > 32768):
++                raise SessionError('SESSION_FILE_CUSTODY')
++            data = os.read(fd, 32769)
++            return json.loads(data)
++        finally:
++            os.close(fd)
++
++    def write(self, name, value, *, immutable=False):
++        target = self.root/name
++        if immutable and target.exists():
++            raise SessionError('CHECKPOINT_ALREADY_EXISTS')
++        temporary = self.root/(name+'.next')
++        fd = os.open(temporary, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o600)
++        try:
++            data = canonical(value)
++            with os.fdopen(fd, 'wb') as handle:
++                handle.write(data)
++                handle.flush()
++                os.fsync(handle.fileno())
++            os.replace(temporary, target)
++            directory = os.open(self.root, os.O_RDONLY)
++            try:
++                os.fsync(directory)
++            finally:
++                os.close(directory)
++        except BaseException:
++            # Retain uncertain partial evidence; never erase it to retry silently.
++            raise
++
++
++class ExclusiveSession:
++    """State machine: checkpoint -> guardian -> isolate -> trial -> restore.
++
++    The adapter owns host exclusion/lease and root checkpoint bytes; this core
++    orders their proofs and retains recovery state on every uncertain result.
++    """
++    def __init__(self, store, adapter, *, clock=time.time):
++        self.store, self.adapter, self.clock = store, adapter, clock
++
++    def _phase(self, state, phase):
++        state['phase'] = phase
++        state['updated_epoch'] = int(self.clock())
++        self.store.write('session.json', state)
++
++    def begin(self, booking, *, owner, trial_seconds=1800):
++        if (booking.get('kind') != 'exclusive-stack' or booking.get('state') != 'reserved'
++                or booking.get('owner') != owner or not IDENTITY.fullmatch(owner)
++                or not IDENTITY.fullmatch(booking.get('booking_id', ''))):
++            raise SessionError('BOOKING_IDENTITY')
++        now = int(self.clock())
++        if (type(trial_seconds) is not int or not 1 <= trial_seconds <= 1800
++                or type(booking.get('start_epoch')) is not int
++                or type(booking.get('end_epoch')) is not int
++                or not booking['start_epoch'] <= now <= booking['start_epoch']+120
++                or now+trial_seconds+900 > booking['end_epoch']):
++            raise SessionError('INSUFFICIENT_WINDOW')
++        fd = self.store.lock()
++        try:
++            if (self.store.root/'session.json').exists():
++                raise SessionError('SESSION_ALREADY_EXISTS')
++            if self.adapter.admit(booking) is not True:
++                raise SessionError('FRESH_ADMISSION_FAILED')
++            snapshot = validate_snapshot(self.adapter.capture())
++            if self.adapter.verify_checkpoint(snapshot) is not True:
++                raise SessionError('CHECKPOINT_NOT_RECOVERABLE')
++            self.store.write('entry.json', snapshot, immutable=True)
++            state = {'schema':'aster-exclusive-session.v1', 'booking_id':booking['booking_id'],
++                'owner':owner, 'entry_sha256':hashlib.sha256(canonical(snapshot)).hexdigest(),
++                'trial_deadline':now+trial_seconds, 'restore_deadline':booking['end_epoch'],
++                'phase':'checkpointed', 'production_restored':False}
++            self._phase(state, 'checkpointed')
++            if self.adapter.arm_guardian(state) is not True:
++                raise SessionError('GUARDIAN_NOT_ARMED')
++            self._phase(state, 'guardian-armed')
++            if int(self.clock()) >= state['trial_deadline']:
++                raise SessionError('PREFLIGHT_CONSUMED_TRIAL_WINDOW')
++            # An isolate failure can be partial: durable state already exists.
++            if self.adapter.isolate(state) is not True:
++                raise SessionError('ISOLATION_UNCERTAIN')
++            self._phase(state, 'isolated')
++            return state
++        finally:
++            os.close(fd)
++
++    def run_trial(self, *, owner):
++        """Run once; any failed/uncertain attempt goes to recovery, not retry."""
++        fd = self.store.lock()
++        failure = False
++        try:
++            state = self.store.read('session.json')
++            if state.get('owner') != owner or state.get('phase') != 'isolated':
++                raise SessionError('TRIAL_OWNER_OR_PHASE')
++            if int(self.clock()) >= state['trial_deadline']:
++                failure = True
++                self._phase(state, 'trial-expired')
++            else:
++                self._phase(state, 'trial-started')
++                try:
++                    failure = self.adapter.execute(state, state['trial_deadline']) is not True
++                except Exception:
++                    # Do not persist raw exceptions, which could contain secrets.
++                    failure = True
++                self._phase(state, 'trial-failed' if failure else 'trial-complete')
++        finally:
++            os.close(fd)
++        result = self.recover(owner=owner)
++        return {'outcome':'failed-restored' if failure else 'complete-restored',
++                'session':result}
++
++    def recover(self, *, owner):
++        fd = self.store.lock()
++        try:
++            state = self.store.read('session.json')
++            if state.get('schema') != 'aster-exclusive-session.v1' or state.get('owner') != owner:
++                raise SessionError('RECOVERY_OWNER_MISMATCH')
++            if state.get('phase') not in {'checkpointed', 'guardian-armed', 'isolated',
++                    'trial-expired', 'trial-started', 'trial-failed', 'trial-complete',
++                    'restoring', 'restored', 'released'}:
++                raise SessionError('RECOVERY_PHASE_INVALID')
++            entry = validate_snapshot(self.store.read('entry.json'))
++            if hashlib.sha256(canonical(entry)).hexdigest() != state.get('entry_sha256'):
++                raise SessionError('CHECKPOINT_IDENTITY_CHANGED')
++            if state.get('phase') == 'released':
++                return state
++            if int(self.clock()) >= state['restore_deadline']:
++                raise SessionError('RECOVERY_DEADLINE_EXCEEDED')
++            # Never restart production while an experiment process might survive.
++            if self.adapter.fence_experiments(state) is not True:
++                raise SessionError('EXPERIMENT_FENCE_UNCERTAIN')
++            self._phase(state, 'restoring')
++            if self.adapter.restore(entry, state['restore_deadline']) is not True:
++                raise SessionError('RESTORATION_INCOMPLETE')
++            if (self.adapter.verify_entry(entry) is not True
++                    or int(self.clock()) >= state['restore_deadline']):
++                raise SessionError('RESTORATION_NOT_VERIFIED')
++            state['production_restored'] = True
++            self._phase(state, 'restored')
++            if self.adapter.release(state) is not True:
++                raise SessionError('RELEASE_UNCERTAIN')
++            self._phase(state, 'released')
++            return state
++        finally:
++            os.close(fd)
+diff --git a/scripts/local-ai/test_lab_hours_exclusive_session.py b/scripts/local-ai/test_lab_hours_exclusive_session.py
+new file mode 100644
+index 000000000..e9c030702
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_exclusive_session.py
+@@ -0,0 +1,206 @@
++import copy
++import json
++import os
++from pathlib import Path
++import tempfile
++import unittest
++
++from lab_hours_exclusive_session import ExclusiveSession, SessionError, SessionStore, validate_snapshot
++
++
++def snapshot():
++    return {'schema':'aster-entry-snapshot.v1', 'model_sha256':'1'*64,
++        'runtime_sha256':'2'*64, 'configuration_sha256':'3'*64,
++        'checkpoint_sha256':'4'*64,
++        'units':[{'guest':'110','unit':'aster-llama.service','active':True,
++                  'enabled':False,'runtime_masked':False},
++                 {'guest':'114','unit':'news-aggregator-ingest.timer','active':False,
++                  'enabled':True,'runtime_masked':True}],
++        'mounts':[{'identity_sha256':'5'*64,'present':True,'readonly':True}]}
++
++
++class Adapter:
++    def __init__(self):
++        self.events=[]
++        self.entry=snapshot()
++        self.fault=None
++
++    def operation(self, name):
++        self.events.append(name)
++        return self.fault != name
++
++    def admit(self, booking): return self.operation('admit')
++    def capture(self):
++        self.operation('capture')
++        return self.entry
++    def verify_checkpoint(self, entry): return self.operation('checkpoint')
++    def arm_guardian(self, state): return self.operation('guardian')
++    def isolate(self, state): return self.operation('isolate')
++    def execute(self, state, deadline): return self.operation('execute')
++    def fence_experiments(self, state): return self.operation('fence')
++    def restore(self, entry, deadline):
++        self.restored=copy.deepcopy(entry)
++        return self.operation('restore')
++    def verify_entry(self, entry): return self.operation('verify')
++    def release(self, state): return self.operation('release')
++
++
++class SessionTests(unittest.TestCase):
++    def setUp(self):
++        self.tmp=tempfile.TemporaryDirectory()
++        self.addCleanup(self.tmp.cleanup)
++        self.root=Path(self.tmp.name)/'session'
++        self.store=SessionStore(self.root)
++        self.adapter=Adapter()
++        self.now=1000
++        self.session=ExclusiveSession(self.store,self.adapter,clock=lambda:self.now)
++        self.booking={'kind':'exclusive-stack','state':'reserved','owner':'b60-stream-a',
++            'booking_id':'b60-exclusive-20261030','start_epoch':1000,'end_epoch':3700}
++
++    def begin(self): return self.session.begin(self.booking,owner='b60-stream-a')
++
++    def test_durable_checkpoint_precedes_guardian_and_isolation(self):
++        self.begin()
++        self.assertEqual(self.adapter.events,['admit','capture','checkpoint','guardian','isolate'])
++        self.assertEqual(self.store.read('entry.json'),snapshot())
++        self.assertEqual((self.root/'entry.json').stat().st_mode&0o777,0o600)
++
++    def test_restore_exact_entry_not_hardcoded_model_or_all_services_active(self):
++        self.adapter.entry['model_sha256']='a'*64
++        self.begin()
++        result=self.session.run_trial(owner='b60-stream-a')
++        self.assertEqual(result['outcome'],'complete-restored')
++        self.assertEqual(self.adapter.restored,self.adapter.entry)
++        self.assertFalse(self.adapter.restored['units'][1]['active'])
++        self.assertTrue(self.adapter.restored['units'][1]['runtime_masked'])
++        self.assertEqual(self.adapter.events[-4:],['fence','restore','verify','release'])
++
++    def test_failed_trial_restores_without_retry(self):
++        self.begin(); self.adapter.fault='execute'
++        self.assertEqual(self.session.run_trial(owner='b60-stream-a')['outcome'],'failed-restored')
++        self.assertEqual(self.adapter.events.count('execute'),1)
++        with self.assertRaisesRegex(SessionError,'TRIAL_OWNER_OR_PHASE'):
++            self.session.run_trial(owner='b60-stream-a')
++
++    def test_interrupted_owner_recovery_uses_only_durable_entry(self):
++        self.begin()
++        recovery=ExclusiveSession(SessionStore(self.root),self.adapter,clock=lambda:1100)
++        self.assertEqual(recovery.recover(owner='b60-stream-a')['phase'],'released')
++
++    def test_guardian_failure_prevents_isolation(self):
++        self.adapter.fault='guardian'
++        with self.assertRaisesRegex(SessionError,'GUARDIAN_NOT_ARMED'): self.begin()
++        self.assertNotIn('isolate',self.adapter.events)
++        self.assertFalse(self.store.read('session.json')['production_restored'])
++
++    def test_partial_isolation_failure_retains_recoverable_state(self):
++        self.adapter.fault='isolate'
++        with self.assertRaisesRegex(SessionError,'ISOLATION_UNCERTAIN'): self.begin()
++        self.adapter.fault=None
++        self.assertEqual(self.session.recover(owner='b60-stream-a')['phase'],'released')
++
++    def test_fence_uncertainty_never_restores_over_surviving_experiment(self):
++        self.begin(); self.adapter.fault='fence'
++        with self.assertRaisesRegex(SessionError,'FENCE_UNCERTAIN'):
++            self.session.recover(owner='b60-stream-a')
++        self.assertNotIn('restore',self.adapter.events)
++        self.assertNotIn('release',self.adapter.events)
++
++    def test_restore_or_verification_failure_retains_ownership(self):
++        for fault in ('restore','verify'):
++            with self.subTest(fault=fault):
++                if not (self.root/'session.json').exists(): self.begin()
++                self.adapter.fault=fault
++                with self.assertRaises(SessionError): self.session.recover(owner='b60-stream-a')
++                self.assertFalse(self.store.read('session.json')['production_restored'])
++                self.assertNotIn('release',self.adapter.events)
++
++    def test_release_failure_keeps_restored_state_for_reentry(self):
++        self.begin(); self.adapter.fault='release'
++        with self.assertRaisesRegex(SessionError,'RELEASE_UNCERTAIN'):
++            self.session.recover(owner='b60-stream-a')
++        self.assertEqual(self.store.read('session.json')['phase'],'restored')
++        self.adapter.fault=None
++        self.assertEqual(self.session.recover(owner='b60-stream-a')['phase'],'released')
++
++    def test_checkpoint_drift_wrong_owner_and_duplicate_entry_rejected(self):
++        self.begin()
++        with self.assertRaisesRegex(SessionError,'ALREADY_EXISTS'): self.begin()
++        with self.assertRaisesRegex(SessionError,'OWNER_MISMATCH'):
++            self.session.recover(owner='other-owner')
++        entry=self.store.read('entry.json'); entry['model_sha256']='a'*64
++        self.store.write('entry.json',entry)
++        with self.assertRaisesRegex(SessionError,'IDENTITY_CHANGED'):
++            self.session.recover(owner='b60-stream-a')
++
++    def test_budget_reserves_900_seconds_and_trial_never_exceeds_1800(self):
++        self.booking['end_epoch']=3699
++        with self.assertRaisesRegex(SessionError,'INSUFFICIENT_WINDOW'): self.begin()
++        self.booking['end_epoch']=4000
++        with self.assertRaisesRegex(SessionError,'INSUFFICIENT_WINDOW'):
++            self.session.begin(self.booking,owner='b60-stream-a',trial_seconds=1801)
++        self.assertEqual(self.adapter.events,[])
++
++    def test_expired_trial_skips_execute_and_recovers(self):
++        self.begin(); self.now=2800
++        self.assertEqual(self.session.run_trial(owner='b60-stream-a')['outcome'],'failed-restored')
++        self.assertNotIn('execute',self.adapter.events)
++
++    def test_missing_checkpoint_proof_prevents_effects(self):
++        self.adapter.fault='checkpoint'
++        with self.assertRaisesRegex(SessionError,'NOT_RECOVERABLE'): self.begin()
++        self.assertNotIn('guardian',self.adapter.events)
++
++    def test_raw_configuration_and_unsupported_unit_states_rejected(self):
++        value=snapshot(); value['token']='never-store-private-values'
++        with self.assertRaisesRegex(SessionError,'SNAPSHOT_SCHEMA'): validate_snapshot(value)
++        value=snapshot(); value['units'][0]['active']='failed'
++        with self.assertRaisesRegex(SessionError,'UNSUPPORTED'): validate_snapshot(value)
++
++    def test_snapshot_copy_does_not_alias_input(self):
++        value=snapshot(); frozen=validate_snapshot(value)
++        value['units'][0]['active']=False
++        self.assertTrue(frozen['units'][0]['active'])
++
++    def test_symlink_checkpoint_rejected(self):
++        self.begin()
++        (self.root/'entry.json').rename(self.root/'original.json')
++        (self.root/'entry.json').symlink_to(self.root/'original.json')
++        with self.assertRaises(OSError): self.session.recover(owner='b60-stream-a')
++
++    def test_trial_exception_is_sanitized_and_restored_without_retry(self):
++        self.begin()
++        def explode(state, deadline):
++            raise TimeoutError('private-output-must-not-be-persisted')
++        self.adapter.execute=explode
++        self.assertEqual(self.session.run_trial(owner='b60-stream-a')['outcome'],'failed-restored')
++        self.assertNotIn('private-output',(self.root/'session.json').read_text())
++
++    def test_preflight_overrun_does_not_isolate(self):
++        def arm(state):
++            self.now=2800
++            return True
++        self.adapter.arm_guardian=arm
++        with self.assertRaisesRegex(SessionError,'CONSUMED_TRIAL_WINDOW'): self.begin()
++        self.assertNotIn('isolate',self.adapter.events)
++
++    def test_verification_overrun_never_releases(self):
++        self.begin()
++        def verify(entry):
++            self.now=3700
++            return True
++        self.adapter.verify_entry=verify
++        with self.assertRaisesRegex(SessionError,'RESTORATION_NOT_VERIFIED'):
++            self.session.recover(owner='b60-stream-a')
++        self.assertNotIn('release',self.adapter.events)
++
++    def test_checkpoint_and_state_are_durable_when_guardian_arms(self):
++        def arm(state):
++            self.assertEqual(self.store.read('session.json')['phase'],'checkpointed')
++            self.assertEqual(self.store.read('entry.json'),snapshot())
++            return True
++        self.adapter.arm_guardian=arm
++        self.begin()
++
++
++if __name__=='__main__': unittest.main()
+-- 
+2.50.1 (Apple Git-155)
+
+
