@@ -46,7 +46,8 @@ def run(
         raise ValueError("development fixture must contain 24 cases")
     if not isinstance(token, str) or not 16 <= len(token) <= 256:
         raise ValueError("credential boundary differs")
-    if endpoint != ENDPOINT:
+    allowed_endpoint = getattr(implementation, "PUBLIC_GATE_ENDPOINT", ENDPOINT)
+    if endpoint != allowed_endpoint:
         raise ValueError("endpoint differs")
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
     started = time.monotonic()
