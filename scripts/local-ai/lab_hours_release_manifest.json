@@ -15,7 +15,8 @@
     "lab_hours_inactive_target.py": "f670077ec2be3001058c8a7f18b8da55e5f717422305c400afd97350bc7cefab",
     "lab_hours_reservations.py": "416f35826d3167aeacacf45d46f8445f89eef5df230df2336eb6b6207a8a1c41",
     "lab_hours_reserved_runner.py": "c5e25e4605b157ae7aba2e412b4972d1a724329f95f4f0602cf20e4a43ad5660",
-    "lab_hours_workloads.py": "2780fcc7f7638a8d9987c79f2438d92fbc31c106ca67da81c994ca8ccb0402f1"
+    "lab_hours_workloads.py": "2780fcc7f7638a8d9987c79f2438d92fbc31c106ca67da81c994ca8ccb0402f1",
+    "sa3_expanded_quality_transaction.py": "202f99608a44f6d2bdc9fac8f69b2c09ceb84d1b4d143942fb6bb935041965f4"
   },
   "release": "reservation-rc1",
   "schema": "aster-lab-hours-release-manifest.v1"
