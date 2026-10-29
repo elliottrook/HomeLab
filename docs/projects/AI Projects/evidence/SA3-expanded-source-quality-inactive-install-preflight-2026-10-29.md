@@ -98,3 +98,25 @@ failure rollback, and two independent builds are byte-identical.
 
 The corrected live installation is a new exact host change and has not been
 run. It requires a fresh approval; the failed candidate must not be retried.
+
+## Root-v2 result and complete-path correction
+
+The approved `root-v2` archive was staged and invoked once. It also failed
+closed before file installation: the managed target directory's immediate
+parent, `/usr/local/libexec/local-ai-lease`, is itself absent in LXC110. The
+bounded result was `LXC110_DIRECTORY_FAILED` with `FileNotFoundError` for that
+exact parent. Independent postcheck again found all seven file targets absent,
+both missing directories absent, all three guests running and the new host and
+guest checkpoints retained. No retry or runtime effect occurred.
+
+Platform commit `6bf0fa5c` replaces that candidate with a complete-path
+transaction. It manages both `/usr/local/libexec/local-ai-lease` and its
+`full-inference-pilot` child in fixed order, verifies root ownership and mode
+0755, records which directories it creates, and removes created directories in
+reverse order only after file rollback and empty-directory verification. It
+uses fresh `root-v3` identities, packet SHA-256
+`27cbdf5dde3e9b451e33fc29ce575de0cc320dbcd6ebe3089742818627c2ed14`
+and deterministic archive SHA-256
+`601cbddf6edf6d52d5f2fa4b822e1f705c2d7747b2925a0ff0f2aa05c3f7eac7`.
+The 64/64 suite passes and two independent builds are byte-identical. This is
+another exact host change and has not been installed.

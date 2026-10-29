@@ -454,6 +454,17 @@ candidate must not be retried. The next gate is fresh approval for the corrected
 dormant installation and target validation; registration, booking, lease,
 model execution and service effects remain separate and unavailable.
 
+The approved `root-v2` correction then failed closed because LXC110 also lacks
+the target directory's immediate parent, `/usr/local/libexec/local-ai-lease`.
+Postcheck again proved all seven targets and both missing directories absent,
+with checkpoints retained and guests running. Platform commit `6bf0fa5c` now
+manages the complete two-directory path in fixed order and rolls back created
+directories in reverse order after file removal. Its fresh `root-v3` packet
+passes 64/64 and two deterministic builds match archive SHA-256
+`601cbddf6edf6d52d5f2fa4b822e1f705c2d7747b2925a0ff0f2aa05c3f7eac7`.
+It requires a new exact installation approval; neither failed candidate may be
+retried.
+
 The downstream
 [model-blind review boundary](evidence/SA3-expanded-source-quality-blind-review-boundary-2026-10-29.md)
 is also source-complete before predictions exist. It accepts only a complete,
