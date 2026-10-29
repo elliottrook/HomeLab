@@ -24,8 +24,9 @@ platform now has the third fixed source registration and fails closed before
 effects until its distinct full-drain transaction exists. These
 advances support bounded iterative diagnosis; they do not enable automatic
 routing, general discovery, repair authority or model promotion. The next D4
-live dependency is implementation, independent review and inactive validation
-of that exact transaction before any authoritative window check and booking.
+live dependency is inactive installation and target validation of the reviewed
+fixed listener adapter and complete transaction before any authoritative window
+check and booking.
 
 For the owner-facing sequence from the current pilot to routine handoff,
 bounded sysadmin investigation and later automatic routing, use the
