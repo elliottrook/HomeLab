@@ -65,6 +65,7 @@
     "target_linux_synthetic": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest -q test_sa3_inactive_install_packet.py",
     "installer_transaction": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest -q test_sa3_inactive_install.py",
     "bundle": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest -q test_build_sa3_inactive_bundle.py",
+    "card": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest -q test_sa3_inactive_install_card.py",
     "required_result": "All imports, custody checks, packet pins, excluded-file checks and inactive-unit checks pass; no core upgrade, bytecode, unit, timer, booking, lease, process or model request is created."
   },
   "rollback": {

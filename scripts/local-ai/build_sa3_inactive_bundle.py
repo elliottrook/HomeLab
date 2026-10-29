@@ -15,10 +15,10 @@ from typing import Iterable
 
 REPO = Path(__file__).resolve().parents[2]
 PACKET_REL = Path("services/local-ai-lease/ASTER-LAB-HOURS-SA3-INACTIVE-INSTALL-PACKET-20261029.json")
-PACKET_SHA256 = "114186c44ec59a92768e04eb963a8a4e8d4705fa8b3eff6201913782f4af500a"
+PACKET_SHA256 = "4ed0d34706107e006d3ca53e971f17b7dabb68a3bbb59d751d6a61e1393b8bc7"
 INSTALLER_REL = Path("scripts/local-ai/sa3_inactive_install.py")
 BUNDLE_NAME = "aster-sa3-inactive-install-8dc6eac5.tar.gz"
-BUNDLE_SHA256 = "6e54c4dac9acf050061ed707638d921bfbb756bffd567b985fc2855f801ed709"
+BUNDLE_SHA256 = "224647fe1815e30b8d74b3a1cceccf39ba3fa9712c3f561fdf9e5b0ceba5aaf7"
 STREAM_COMMIT = "434c5aedddd59665c7e2e8961196b81310e02765"
 
 

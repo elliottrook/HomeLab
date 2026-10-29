@@ -3,7 +3,7 @@
 Status: **source-only candidate; installation and activation are not authorized**
 
 Packet: `ASTER-LAB-HOURS-SA3-INACTIVE-INSTALL-PACKET-20261029.json`
-Packet SHA-256: `114186c44ec59a92768e04eb963a8a4e8d4705fa8b3eff6201913782f4af500a`
+Packet SHA-256: `4ed0d34706107e006d3ca53e971f17b7dabb68a3bbb59d751d6a61e1393b8bc7`
 
 This redesign follows the read-only Proxmox preflight. It does not upgrade the
 working Lab Hours core. The live CLI, reservations, runner, manifest, guardian
@@ -54,7 +54,7 @@ It emits a deterministic archive, sidecar digest and generated bundle
 manifest, rejects answer/review material, makes the packet `0600`, makes all
 other source files `0644`, and removes its transient build stage by default.
 The archive digest is pinned to
-`6e54c4dac9acf050061ed707638d921bfbb756bffd567b985fc2855f801ed709`; the
+`224647fe1815e30b8d74b3a1cceccf39ba3fa9712c3f561fdf9e5b0ceba5aaf7`; the
 builder rejects any different output.
 
 The fixed installer is `scripts/local-ai/sa3_inactive_install.py`. Its default
@@ -76,22 +76,32 @@ with an explicit absolute-path comparison, and only then extract the fixed
 BUNDLE_DIR="$(mktemp -d -t aster-sa3-bundle.XXXXXX)"
 PYTHONDONTWRITEBYTECODE=1 python3 -B scripts/local-ai/build_sa3_inactive_bundle.py \
   --output-dir "$BUNDLE_DIR"
-scp -q -o BatchMode=yes \
-  "$BUNDLE_DIR/aster-sa3-inactive-install-8dc6eac5.tar.gz" \
-  "$BUNDLE_DIR/aster-sa3-inactive-install-8dc6eac5.tar.gz.sha256" \
-  proxmox:/tmp/
 ssh -o BatchMode=yes proxmox 'set -eu
   incoming=/var/lib/local-ai-lab/incoming/sa3-inactive-install-8dc6eac5
   archive="$incoming/aster-sa3-inactive-install-8dc6eac5.tar.gz"
   sidecar="$archive.sha256"
   install -d -o root -g root -m 0700 "$incoming"
-  install -o root -g root -m 0600 /tmp/aster-sa3-inactive-install-8dc6eac5.tar.gz "$archive"
-  install -o root -g root -m 0600 /tmp/aster-sa3-inactive-install-8dc6eac5.tar.gz.sha256 "$sidecar"
+  test "$(stat -c "%u:%g:%a" "$incoming")" = "0:0:700"
+  test ! -e "$archive" && test ! -L "$archive"
+  test ! -e "$sidecar" && test ! -L "$sidecar"'
+scp -q -o BatchMode=yes \
+  "$BUNDLE_DIR/aster-sa3-inactive-install-8dc6eac5.tar.gz" \
+  "$BUNDLE_DIR/aster-sa3-inactive-install-8dc6eac5.tar.gz.sha256" \
+  proxmox:/var/lib/local-ai-lab/incoming/sa3-inactive-install-8dc6eac5/
+ssh -o BatchMode=yes proxmox 'set -eu
+  incoming=/var/lib/local-ai-lab/incoming/sa3-inactive-install-8dc6eac5
+  archive="$incoming/aster-sa3-inactive-install-8dc6eac5.tar.gz"
+  sidecar="$archive.sha256"
+  chmod 0600 "$archive" "$sidecar"
+  chown root:root "$archive" "$sidecar"
+  test "$(stat -c "%u:%g:%a" "$archive")" = "0:0:600"
+  test "$(stat -c "%u:%g:%a" "$sidecar")" = "0:0:600"
+  test ! -L "$archive" && test ! -L "$sidecar"
   read expected_name expected_file < "$sidecar"
   test "$expected_file" = "aster-sa3-inactive-install-8dc6eac5.tar.gz"
   actual="$(sha256sum "$archive" | awk "{print \\$1}")"
   test "$actual" = "$expected_name"
-  test "$actual" = "6e54c4dac9acf050061ed707638d921bfbb756bffd567b985fc2855f801ed709"
+  test "$actual" = "224647fe1815e30b8d74b3a1cceccf39ba3fa9712c3f561fdf9e5b0ceba5aaf7"
   stage=/var/lib/local-ai-lab/staging/sa3-inactive-install-8dc6eac5
   install -d -o root -g root -m 0700 "$stage"
   tar --no-same-owner --no-same-permissions --no-overwrite-dir -xzf "$archive" -C "$stage"
@@ -120,16 +130,17 @@ modules, the guest runner and wrapper without bytecode or network access. The
 bundle proof verifies exact selection, source commits, hashes, modes, root-only
 stage custody, packet `0600`, source `0644`, archive retention and exclusion of
 all answer/review files, and two independent builds have the same pinned
-archive digest. The combined focused suite passes **61/61**.
+archive digest. The combined focused suite passes **62/62**.
 
 Recorded source hashes for this candidate are:
 
 ```text
-865be943c64e5de00f2e6ef8f55e4ed60d5a3b322faca949075d745ee4d2a317  scripts/local-ai/sa3_inactive_install.py
-65e30c8e79e8bf81c8e23d1304255910198b036a44e33e9af51f3e52e4d196d9  scripts/local-ai/build_sa3_inactive_bundle.py
+a5d2c5cbc721f777bc27d1cbffc078b95fe9498cab8463ba5f2f689c93339574  scripts/local-ai/sa3_inactive_install.py
+c940bbc7d7ed293bf86a1300b144de5ff94746665c93a1f5177476aebc141b64  scripts/local-ai/build_sa3_inactive_bundle.py
 c513ceff67b1a45dae9576594a5905724b3c8ca00ecd8387a913986aa7014842  scripts/local-ai/test_sa3_inactive_install.py
 13523d94c008ed49f3a37565058a8ad99451194814666ddd7ee734591db8755a  scripts/local-ai/test_sa3_inactive_install_packet.py
 45c34d90f3eb438385cb279ea1dd20413760ded32b742ca77d0b152425901c50  scripts/local-ai/test_build_sa3_inactive_bundle.py
+da3193e0efc63e9b9063dc4da98e47f50305a6543763759be5bb17ac50cad969  scripts/local-ai/test_sa3_inactive_install_card.py
 ```
 
 This lane performs no booking or Lab Hours window check, lease acquisition,
