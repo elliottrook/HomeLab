@@ -7,8 +7,11 @@
   separate answer key.
 - **NO LIVE EFFECT:** no model, service, network target, incident store, route,
   tool, credential or production evidence was used.
-- **NOT QUALIFIED:** the packet and answer key still need independent review;
-  no predictions or model-blind semantic reviews exist.
+- **INDEPENDENT SOURCE REVIEW PASS:** the frozen packet, separate answer key,
+  runner and fail-closed review boundary were independently accepted without
+  changing their reviewed bytes.
+- **NOT YET MODEL-QUALIFIED:** no predictions or model-blind semantic reviews
+  exist, and no evaluation workload has been registered, booked or run.
 
 ## Frozen boundary
 
@@ -61,13 +64,31 @@ The receipt verifier requires an identified independent reviewer, the exact
 commit and manifest digest, ten exact boolean findings and a consistent
 pass/reject decision. A false finding cannot be represented as a pass.
 
+## Independent review result
+
+The independent source-only review returned **PASS** against material commit
+`7717fc6fd10e257f3c58b2ca07eb18c1203cb72e` and shared review commit
+`afa63e0e4d5754e3984a96a4e2b24ec2f1f4e36a`. All five pinned file hashes,
+both canonical artifact digests and all ten required findings match. The
+receipt SHA-256 is
+`d579b2b3346835efb6a9b2f1baa5f9184c9e35d1e2638827c1f13c8eeecaf2f0`.
+The reviewer also repeated the focused source-only suite at **23/23** and
+confirmed injected transport failures remain invalid, empty-effect results.
+
+This review covers the frozen synthetic material and offline implementation
+only. It does not evaluate a model, local-AI service, latency, deployment,
+routing or repair, and it grants no operational authority. The retained
+[review evidence](SA3-expanded-source-quality-independent-review-2026-10-29.md)
+and machine-readable receipt
+`services/aster-agent/evals/sa3-expanded-source-quality-independent-review-v1.json`
+are the accepted source-review record.
+
 ## Next gate
 
-The exact independent-review packet is now ready. An independent reviewer must
-accept or reject the frozen synthetic cases, visible capability descriptions
-and separate answer key without changing their bytes. If accepted, a later run
-must be registered as its own hash-pinned Lab
-Hours workload before any exclusive local-AI use. The full execution and
-recovery interval must pass the authoritative reservation check, booking,
-whole-host lease and shared-lock gates. The run remains no-effect and cannot
-promote routing or repair authority.
+The source-review gate is complete. The next gate is platform registration of
+the exact runner and frozen packet as their own hash-pinned Lab Hours workload.
+Only after that registration may an execution window be checked and booked.
+The full execution and recovery interval must pass the authoritative
+reservation check, booking, whole-host lease and shared-lock gates, including
+the immediate pre-effect recheck. The run remains no-effect and cannot promote
+routing or repair authority.

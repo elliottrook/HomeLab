@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "review_id": "sa3-expanded-source-quality-review-v1",
+  "reviewer": "Codex independent source reviewer",
+  "independent": true,
+  "reviewed_commit": "7717fc6fd10e257f3c58b2ca07eb18c1203cb72e",
+  "manifest_sha256": "fbbb04821a4fc5aa165282e6f49bc84b7d54f7b056e3dc7cc0e013134bb396d7",
+  "decision": "pass",
+  "findings": {
+    "hashes_match": true,
+    "packet_structure_pass": true,
+    "answer_key_separate": true,
+    "source_coverage_pass": true,
+    "abstention_boundary_pass": true,
+    "runner_no_tools_pass": true,
+    "runner_no_retry_pass": true,
+    "errors_fail_closed": true,
+    "no_authority_effect_pass": true,
+    "semantic_cases_acceptable": true
+  },
+  "limitations": "Independent source-only review of the frozen synthetic packet and offline code/tests; no model, local AI stack, live service, latency, routing, deployment, repair, or scheduling evaluation was performed."
+}

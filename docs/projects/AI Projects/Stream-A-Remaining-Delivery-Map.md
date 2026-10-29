@@ -383,17 +383,23 @@ least twice and include four mandatory abstentions. A fail-closed validator
 binds the separate answer key, fixed no-authority/no-effect/no-tools constraints
 and the existing 20-case/18-pass fair scorer. An inactive one-call/no-retry
 runner keeps the answer key out of model-visible input and fails runtime/schema
-errors as invalid; the focused suite passes 19/19.
-No model or production evidence was used. Independent packet/key review is the
-next gate. Only after that review may a hash-pinned evaluation workload be
-registered and considered for a Lab Hours booking; predictions and model-blind
-semantic reviews remain absent, so D4 answer quality is still open.
+errors as invalid. No model or production evidence was used.
 
 The exact independent-review manifest now pins shared commit `7717fc6f`, five
 material file-byte digests, both canonical artifact digests and ten required
 findings. A fail-closed receipt verifier rejects commit, manifest, reviewer or
 finding drift and prevents a false finding from carrying a PASS decision. The
-complete source-only suite passes 23/23. No independent receipt exists yet.
+complete source-only suite passes 23/23. The independent source review now
+[passes](evidence/SA3-expanded-source-quality-independent-review-2026-10-29.md):
+all reviewed hashes and canonical digests match, all 20 cases and four
+abstentions are semantically acceptable, the separate answer key remains
+outside model requests, and injected failures remain invalid with no effects.
+The accepted receipt is bound to material commit `7717fc6f` and review commit
+`afa63e0e`. The next D4 gate is platform registration of this exact runner and
+packet as a distinct hash-pinned Lab Hours workload, followed by a separately
+checked and booked execution window. Predictions and model-blind semantic
+reviews remain absent, so D4 answer quality is still open and no routing or
+repair authority is released.
 
 The [full-stop recovery dependency tracker](Full-Stop-Recovery-Dependency-Tracker.md)
 is the current checklist for the exact receipt, watchdog, approval, drill and
