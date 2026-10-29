@@ -14,7 +14,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from lab_hours_reservations import ReservationError, ReservationStore
-from lab_hours_workloads import validate_inactive_target, workload
+from lab_hours_workloads import workload
 
 
 PILOT = Path("/usr/local/libexec/local-ai-lease/full-inference-pilot")
@@ -136,7 +136,6 @@ def run(booking_id: str) -> int:
             # This is deliberately a no-effect gate.  Until the separate
             # runner transaction is installed and independently validated,
             # a booked SA3 record must fail before any production drain.
-            validate_inactive_target(PILOT)
             raise RunError("WORKLOAD_RUNNER_UNAVAILABLE")
         if spec.runner_kind not in {"full-inference-pilot", "owner-loss-exercise"}:
             raise RunError("WORKLOAD_RUNNER_NOT_REGISTERED")

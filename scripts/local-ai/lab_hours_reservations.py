@@ -15,7 +15,7 @@ from lab_hours_workloads import REGISTERED_WORKLOADS
 
 
 ID_RE = re.compile(r"[a-z0-9][a-z0-9-]{7,63}")
-ACTIVE = {"scheduled", "claimed"}
+ACTIVE = {"reserved", "scheduled", "claimed"}
 TERMINAL = {"complete", "failed", "cancelled"}
 MAX_SECONDS = 90 * 60
 MIN_SECONDS = 5 * 60
@@ -99,12 +99,14 @@ class ReservationStore:
         finally:
             os.close(dir_fd)
 
-    def reserve(self, *, booking_id: str, owner: str, workload: str,
-                start_epoch: int, end_epoch: int) -> dict[str, object]:
+    def reserve(self, *, booking_id: str, owner: str, workload: str | None = None,
+                start_epoch: int, end_epoch: int, exclusive: bool = False) -> dict[str, object]:
         now = int(self.clock())
         if not ID_RE.fullmatch(booking_id) or not ID_RE.fullmatch(owner):
             raise ReservationError("booking or owner identity is not canonical")
-        if workload not in REGISTERED_WORKLOADS:
+        if exclusive and workload is not None:
+            raise ReservationError("exclusive capacity does not name a workload")
+        if not exclusive and workload not in REGISTERED_WORKLOADS:
             raise ReservationError("workload is not registered")
         if type(start_epoch) is not int or type(end_epoch) is not int:
             raise ReservationError("reservation times must be integer epochs")
@@ -129,9 +131,11 @@ class ReservationStore:
             value: dict[str, object] = {
                 "schema": "aster-lab-hours-reservation.v1", "booking_id": booking_id,
                 "owner": owner, "workload": workload, "start_epoch": start_epoch,
-                "end_epoch": end_epoch, "state": "scheduled", "created_epoch": now,
+                "end_epoch": end_epoch, "state": "reserved" if exclusive else "scheduled", "created_epoch": now,
                 "restore_buffer_seconds": RESTORE_BUFFER_SECONDS,
             }
+            if exclusive:
+                value["kind"] = "exclusive-stack"
             self._write_unlocked(value)
             return value
 
@@ -157,6 +161,8 @@ class ReservationStore:
         now = int(self.clock())
         with self.locked():
             value = self._read_unlocked(self._path(booking_id))
+            if value.get("kind") == "exclusive-stack":
+                raise ReservationError("exclusive handoff requires an entry-checkpoint session, not the fixed smoke runner")
             if value.get("state") != "scheduled":
                 raise ReservationError("booking is not schedulable")
             if not int(value["start_epoch"]) <= now <= int(value["start_epoch"]) + 120:
@@ -183,8 +189,8 @@ class ReservationStore:
     def cancel(self, booking_id: str) -> dict[str, object]:
         with self.locked():
             value = self._read_unlocked(self._path(booking_id))
-            if value.get("state") != "scheduled":
-                raise ReservationError("only scheduled bookings can be cancelled")
+            if value.get("state") not in {"reserved", "scheduled"}:
+                raise ReservationError("only unclaimed bookings can be cancelled")
             value.update(state="cancelled", finished_epoch=int(self.clock()),
                          result_code="CANCELLED")
             self._write_unlocked(value)

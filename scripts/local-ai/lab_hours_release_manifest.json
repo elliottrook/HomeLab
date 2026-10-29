@@ -9,17 +9,16 @@
     "full_inference_lab_supervisor.py": "da5ac76fb48541a2661caa1cb4fe7f21d84334abb9ab935fb1aaaf72c4faba55",
     "full_inference_lab_validator.py": "0c4a21d7894dd2c41d89aa00d2fa5969277991ff86febf8a89a61ac299966858",
     "full_inference_lab_workload.py": "b0ad8a6422d4290cd73568916de4e35ef05130e5b93aee22c629ce7560beb236",
-    "lab_hours_booking_cli.py": "05c9655594f522ae8a43acce4c3b9677bc27a393d5988a21681c78088103f5fb",
+    "lab_hours_booking_cli.py": "d035803e65e9384f671e625f266bab5a13e408eeb065e9007d82743f4c6eb793",
     "lab_hours_dispatcher.py": "d05a18c497c62455e977d214e591129093674fdc0a3da542a92e6fa306ac807b",
     "lab_hours_doctor.py": "28999eb78f0f93c6b463944df5bb63251c014e47aa8bc697caccf53357580397",
     "lab_hours_inactive_target.py": "f670077ec2be3001058c8a7f18b8da55e5f717422305c400afd97350bc7cefab",
-    "lab_hours_reservations.py": "416f35826d3167aeacacf45d46f8445f89eef5df230df2336eb6b6207a8a1c41",
-    "lab_hours_reserved_runner.py": "c5e25e4605b157ae7aba2e412b4972d1a724329f95f4f0602cf20e4a43ad5660",
+    "lab_hours_reservations.py": "f61c6b496fd6e378b6e144a2b13170c85392274e86127a29b03d0cf8f16415d2",
+    "lab_hours_reserved_runner.py": "79b3fb92ced17712f7f5dd8bd40517fbec27ef2b2494c47454fb8fdcd44bf27e",
     "lab_hours_workloads.py": "2780fcc7f7638a8d9987c79f2438d92fbc31c106ca67da81c994ca8ccb0402f1",
     "sa3_expanded_quality_transaction.py": "0706912279bcb4a511633cfb22f19e691eed94f4aa79e07bdc332f87d0dbbc70",
-    "sa3_listener_adapter.py": "a6387092f04a8fa8cc35254ce19c9a479cd0177b2fd53caae40ee6012c38f917",
-    "aster_llama_sa3_guest_wrapper.py": "27949ff1ba37f825de8d3c4aaeaf6388b9535e72d0063e46eac0e491a6604303"
+    "sa3_listener_adapter.py": "a6387092f04a8fa8cc35254ce19c9a479cd0177b2fd53caae40ee6012c38f917"
   },
-  "release": "reservation-rc1",
+  "release": "exclusive-capacity-sa3-registration-v1",
   "schema": "aster-lab-hours-release-manifest.v1"
 }

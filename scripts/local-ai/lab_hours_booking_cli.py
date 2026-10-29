@@ -27,7 +27,10 @@ def parser() -> argparse.ArgumentParser:
     reserve = commands.add_parser("reserve")
     reserve.add_argument("--booking-id", required=True)
     reserve.add_argument("--owner", required=True)
-    reserve.add_argument("--workload", required=True)
+    mode = reserve.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--workload")
+    mode.add_argument("--exclusive", action="store_true",
+                      help="reserve stack capacity only; do not dispatch a workload")
     reserve.add_argument("--start", required=True, type=_epoch)
     reserve.add_argument("--end", required=True, type=_epoch)
     commands.add_parser("list")
@@ -49,7 +52,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "reserve":
             value = store.reserve(booking_id=args.booking_id, owner=args.owner,
                                   workload=args.workload, start_epoch=args.start,
-                                  end_epoch=args.end)
+                                  end_epoch=args.end, exclusive=args.exclusive)
         elif args.command == "list": value = store.list()
         elif args.command == "get": value = store.get(args.booking_id)
         elif args.command == "cancel": value = store.cancel(args.booking_id)

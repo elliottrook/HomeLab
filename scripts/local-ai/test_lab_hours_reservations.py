@@ -82,5 +82,25 @@ class ReservationTests(unittest.TestCase):
                 workload="accepted-9b-direct-control-smoke-v1",start_epoch=2000,end_epoch=2600)
             self.assertEqual(value["state"],"scheduled")
 
+    def test_exclusive_capacity_reservation_is_preserved(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = self.store(tmp)
+            value = store.reserve(booking_id="exclusive-booking-01",
+                owner="codex-owner-01", exclusive=True,
+                start_epoch=1100, end_epoch=1700)
+            self.assertEqual(value["state"], "reserved")
+            self.assertEqual(value["kind"], "exclusive-stack")
+            store.clock = lambda: 1100
+            with self.assertRaisesRegex(ReservationError, "entry-checkpoint"):
+                store.claim("exclusive-booking-01", claimant="dispatcher-01")
+
+    def test_exclusive_capacity_cannot_name_workload(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(ReservationError, "does not name"):
+                self.store(tmp).reserve(booking_id="exclusive-booking-01",
+                    owner="codex-owner-01", exclusive=True,
+                    workload="sa3-expanded-source-quality-v1",
+                    start_epoch=1100, end_epoch=1700)
+
 
 if __name__ == "__main__": unittest.main()
