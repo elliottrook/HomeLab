@@ -483,11 +483,17 @@ file, and changes exactly five host files against measured baselines. Its
 23/23 focused suite passes, twelve unchanged live manifest pins reconcile, and
 two deterministic bundles match SHA-256
 `78a4fe9996e784814bc4130b8c849cc46e969f5a6e2511c8e2fb099a77b6ff54`.
-It remains deliberately inactive: SA3 returns `WORKLOAD_RUNNER_UNAVAILABLE`
-before attempt evidence, guardian arming or production drain. The immediate
-ready item is fresh live preflight and the atomic five-file registration
-installation; no booking, lease, model request, service effect or restart is
-part of that step.
+The five-file registration installation then passed and retained its rollback
+checkpoint. Its first independent validator call exposed a namespace error—it
+looked on Proxmox for runtime files correctly installed in LXC110—and failed
+closed before any effect. Platform correction `4bad2da3` replaces only that
+validator and its manifest pin with a fixed no-command `pct exec 110` verifier.
+Its 29/29 suite, deterministic bundle, live two-file upgrade and independent
+postcheck pass; all four guest pins and import closure validate, target units
+and attempts remain absent, and production is healthy. Inactive registration
+is complete. The immediate ready item is now the exact reserved-runner
+transaction using the installed host transaction, listener adapter and fixed
+guest wrapper; booking, lease and model execution remain later gates.
 
 The downstream
 [model-blind review boundary](evidence/SA3-expanded-source-quality-blind-review-boundary-2026-10-29.md)

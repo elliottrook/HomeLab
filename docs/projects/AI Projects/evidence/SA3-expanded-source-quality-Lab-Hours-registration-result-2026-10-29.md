@@ -1,6 +1,6 @@
 # SA3 expanded-source quality Lab Hours registration result — 2026-10-29
 
-Status: **DORMANT RUNTIME INSTALLED; RECONCILED REGISTRATION CANDIDATE PASS**
+Status: **PASS — DORMANT RUNTIME AND INACTIVE REGISTRATION VALIDATED**
 
 The Lab Hours platform branch now contains a distinct fixed registration for
 `sa3-expanded-source-quality-v1` at commit `53c81e1c`. The platform card is
@@ -94,7 +94,31 @@ absent targets, validates every unchanged manifest pin, checkpoints exact
 bytes/absence under a fresh root-only identity, installs atomically, imports
 the complete closure and rolls back all five files on failure or uncertainty.
 
-This is a source-complete inactive registration candidate. Live preflight and
-installation remain outstanding. No authoritative window check is needed for
-this no-effect registration step; a later evaluation will still require its
-own verified Lab Hours reservation, whole-host lease and shared operation lock.
+## Live inactive registration result
+
+The exact five-file transaction installed successfully with its root-only
+rollback checkpoint retained. All installed hashes, modes, owners, imports and
+eighteen manifest pins passed. The workload is registered but the runner still
+returns `WORKLOAD_RUNNER_UNAVAILABLE` before attempt evidence, guardian arming
+or production drain.
+
+The first independent validator invocation then found a real namespace defect:
+the validator looked for the four evaluation files on Proxmox although the
+reviewed dormant installation correctly placed them in LXC110. It failed closed
+with no booking, lease, attempt, model request or service effect. Platform
+commit `4bad2da3` corrects that boundary with a fixed `pct exec 110` verifier;
+it accepts no command or guest input and passes only the registered four-file
+pin set on standard input.
+
+The correction passed 29/29 tests and deterministic bundle reproduction. Its
+two-file live upgrade passed, retained its second rollback checkpoint, and the
+independent installed validator returned `state=valid`, `guest=110`,
+`runtime_files=4`, `target_units=absent` and `effects=not-attempted`.
+LXC104/110/116 and all production services and Proxmox daemons remained
+healthy; the lease remains exactly ready.
+
+Inactive registration and target validation are complete. The next gate is
+implementation of the exact reserved-runner transaction using the already
+installed host transaction, listener and fixed guest wrapper. Only after that
+passes may a later evaluation receive its own authoritative Lab Hours check,
+reservation, whole-host lease and shared operation lock.
