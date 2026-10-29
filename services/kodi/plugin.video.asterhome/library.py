@@ -1,6 +1,7 @@
 """Pure helpers for Aster's read-only combined video library views."""
 
 from datetime import date
+import hashlib
 import math
 
 GENRES = {
@@ -90,7 +91,8 @@ def recommendation_exclusions(movies, episodes, shows):
 
 
 def recommended_items(movies, shows, limit=12, recent_exclusion=12,
-                      excluded_movies=frozenset(), excluded_shows=frozenset()):
+                      excluded_movies=frozenset(), excluded_shows=frozenset(),
+                      rotation_key=None):
     """Rank only playable/browsable local titles for the idle media hero.
 
     Recommendations are derived from Kodi's local library metadata.  The
@@ -165,7 +167,19 @@ def recommended_items(movies, shows, limit=12, recent_exclusion=12,
                                       row['label'].casefold()), reverse=True)
     for row in candidates:
         row.pop('_recommendation_score', None)
-    return candidates[:max(0, int(limit))]
+    count = max(0, int(limit))
+    if not rotation_key or len(candidates) <= count:
+        return candidates[:count]
+    # Keep the preference ranking meaningful while drawing a different daily
+    # title from each small rank band. The same day is stable across reloads.
+    pool = candidates[:max(count, min(len(candidates), count * 5))]
+    bands = [pool[index:index + 5] for index in range(0, len(pool), 5)]
+    selected = []
+    for index, band in enumerate(bands[:count]):
+        token = f'{rotation_key}:{index}'.encode('utf-8')
+        pick = int.from_bytes(hashlib.sha256(token).digest()[:4], 'big') % len(band)
+        selected.append(band[pick])
+    return selected
 
 
 def continue_items(movies, episodes, limit=24):

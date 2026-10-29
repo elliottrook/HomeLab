@@ -31,7 +31,8 @@ class ProductionSuccessorTests(unittest.TestCase):
             raw = target.read_text()
             self.assertIn('<onload>RunScript(special://skin/tools/youtube_root_focus.py)</onload>', raw)
             self.assertNotIn('SetFocus(9530)', raw)
-            self.assertIn('if focused == 50:', helper.read_text())
+            self.assertIn('if focused in ROOT_CONTROLS:', helper.read_text())
+            self.assertIn('SetFocus({SEARCH_BUTTON})', helper.read_text())
 
     def test_youtube_back_navigation_is_window_scoped(self):
         with tempfile.TemporaryDirectory() as temporary:

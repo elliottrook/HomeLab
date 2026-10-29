@@ -14,6 +14,8 @@ import xbmcgui
 ROOT = "plugin://plugin.video.youtube/"
 WINDOW = 10025
 SEARCH_BUTTON = 9300
+ROOT_CONTROLS = frozenset((9300, 9301, 9302, 9303, 9304, 9305,
+                           9530, 9531, 9532))
 
 
 def main():
@@ -35,11 +37,11 @@ def main():
         if focused != last_focus:
             xbmc.log(f"AsterYouTubeFocus: root focus={focused}", xbmc.LOGINFO)
             last_focus = focused
-        if focused == 50:
+        if focused in ROOT_CONTROLS:
+            return  # The owner is already on a visible root control.
+        if focused:
             xbmc.executebuiltin(f"SetFocus({SEARCH_BUTTON})")
             return
-        if focused not in (0, 50):
-            return  # The owner already moved focus; never override it.
         xbmc.sleep(100)
     xbmc.log("AsterYouTubeFocus: timed out", xbmc.LOGINFO)
 

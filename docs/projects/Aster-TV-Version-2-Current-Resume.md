@@ -2,6 +2,60 @@
 
 Updated: 2026-10-29. Owner: Jason. Lab: HP `192.168.1.140`.
 
+## Lab Media and YouTube acceptance update — 2026-10-29
+
+Jason reported a stale Media recommendation hero, 12-hour clock, missing
+YouTube thumbnails, broken pill/Back navigation, and an empty Watch Later
+page. The Media plugin now chooses within rank bands using the local date and
+refreshes the Home widget once when the day changes. The lab's Kodi setting
+`locale.use24hourclock` is `24hours`; the original GUI settings are in
+`/storage/.aster-checkpoints/astertv-lab-24h-20261029`. The hero refresh code
+is installed and unit-tested, but an actual next-day change remains for owner
+observation.
+
+The official YouTube 7.4.4 add-on is signed in to Jason's intended lab account;
+Jason confirmed its subscribed channels. Its sign-in and sign-out routes
+reopened their dialogs after completing, so Kodi was restarted after sign-in;
+the session persisted and the normal YouTube menu showed `Sign Out`. The custom
+skin formerly left focus on controls hidden by the new route. Root focus now
+recovers to a visible pill, and each pill route hands focus to Kodi's native
+item list. A live remote test reached Subscriptions from the root, moved down
+its 51-item list, and returned using the on-screen Back button. Jason confirmed
+that the remote navigation now works.
+
+The original Watch Later pill targeted the add-on's empty local SQLite list.
+The current signed-in account is configured for its online `WL` list. The
+official `plugin://plugin.video.youtube/special/playlist/WL` route returned
+51 items on its first page with thumbnails; both Watch Later pill buttons and
+the landing row now use that route. Jason confirmed his Watch Later content
+appears and navigation works. The general YouTube landing also showed populated
+Subscribed Channels and Trending rows with thumbnail art. The add-on's
+My Subscriptions video feed can still return an upstream HTTP 404, so the
+landing uses its working subscribed-channel list instead.
+
+Checkpointed lab installs are
+`/storage/.aster-checkpoints/astertv-v2-ui-acceptance-20261029`,
+`/storage/.aster-checkpoints/youtube-root-focus-hidden-control-20261029`,
+`/storage/.aster-checkpoints/youtube-pill-route-focus-20261029`, and
+`/storage/.aster-checkpoints/youtube-online-watchlater-20261029`. During
+diagnosis, two Kodi 22 processes crashed when a temporary in-process probe
+called `getListItem` on the native panel; systemd restarted Kodi. That probe
+was removed, the crash reports were retained on the lab, and subsequent
+directory/count/focus probes and the owner walkthrough succeeded. Avoid native
+panel item enumeration through that Python API on this runtime.
+
+The credential-free v2.0.3 lab code update is
+`services/kodi/dist/astertv-v2.0.3-code-only-lab.tar.gz` (13,141,699 bytes,
+658 members, SHA-256
+`bedee92f711fe62b3e18921cf7b9fa8e2421117030cd678886461da8bc1c90af`).
+It overlays the pinned v2.0.2 archive with the tested Media plugin files,
+YouTube navigation XML, focus helpers and refreshed family pins. The archive
+passed a 12-add-on, 573-file isolated full-install and interrupted-rollback
+rehearsal while preserving a disposable userdata sentinel. The release record
+is `services/kodi/releases/aster-home-v2.0.3-lab-candidate.json`. It remains a
+lab code update, not a clean-client installer; the 24-hour Kodi setting and
+account credentials are separate. Production remains on v1.1.1 stereo.
+
 ## Production rollback and v2 lab hold — 2026-10-28
 
 ### Reinstalled lab discovery — 2026-10-28

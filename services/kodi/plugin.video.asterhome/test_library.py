@@ -127,6 +127,22 @@ class LibraryTests(unittest.TestCase):
         self.assertEqual({row['label'] for row in rows},
                          {'Eligible movie', 'Eligible series'})
 
+    def test_daily_recommendations_rotate_within_top_rank_bands(self):
+        movies = [dict(movieid=i, label=f'Movie {i}', file=f'/owned/{i}.mkv',
+                       art={'fanart': f'{i}.jpg'}, rating=100-i)
+                  for i in range(1, 81)]
+        first = recommended_items(movies, [], limit=12, recent_exclusion=0,
+                                  rotation_key='2026-10-29')
+        repeat = recommended_items(movies, [], limit=12, recent_exclusion=0,
+                                   rotation_key='2026-10-29')
+        next_day = recommended_items(movies, [], limit=12, recent_exclusion=0,
+                                     rotation_key='2026-10-30')
+        self.assertEqual(first, repeat)
+        self.assertNotEqual([row['id'] for row in first],
+                            [row['id'] for row in next_day])
+        self.assertEqual(len({row['id'] for row in first}), 12)
+        self.assertTrue(all(row['file'].startswith('/owned/') for row in first))
+
     def test_continue_watching_merges_movies_and_episodes_by_last_played(self):
         movies = [{
             'movieid': 9, 'label': 'Movie', 'lastplayed': '2026-10-22 10:00:00',

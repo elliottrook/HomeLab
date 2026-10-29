@@ -1,0 +1,39 @@
+{
+  "schema": "aster-home-kodi-lab-source-candidate.v1",
+  "release": "2.0.3-lab-candidate",
+  "status": "lab-live-tested-code-update-not-production-ready",
+  "source_branch": "codex/astertv-v2-recovery",
+  "target_runtime": "LibreELEC nightly-20261021-440640e / Kodi 22 RC1",
+  "included_recovery_work": [
+    "Daily rotating Media hero recommendations with a home-window refresh on day change",
+    "Official YouTube pill and row navigation with visible focus handoff",
+    "YouTube Watch Later linked to the signed-in online WL list",
+    "YouTube root focus recovery after returning from sub-pages"
+  ],
+  "lab_acceptance": {
+    "youtube_account_owner_confirmed": true,
+    "watch_later_and_remote_navigation_owner_confirmed": true,
+    "watch_later_first_page_items": 51,
+    "lab_clock_24h_set_separately": true,
+    "media_hero_daily_change_owner_confirmed": false
+  },
+  "lab_code_only_update": {
+    "path": "services/kodi/dist/astertv-v2.0.3-code-only-lab.tar.gz",
+    "sha256": "bedee92f711fe62b3e18921cf7b9fa8e2421117030cd678886461da8bc1c90af",
+    "bytes": 13141699,
+    "members": 658,
+    "basis_sha256": "9c89d3e95a6deb35377bf5b3a042e80e73c3657b0ed6c80eb46396046f8debb1",
+    "status": "lab-only-code-overlay-not-clean-client-installer",
+    "runtime_settings_included": false,
+    "credentials_included": false,
+    "rehearsal": "12 add-ons, 573 files, full and interrupted rollback; user data preserved"
+  },
+  "known_release_blockers": [
+    "Media hero daily refresh needs owner observation after a day change",
+    "YouTube Search results and video playback need owner acceptance",
+    "Lab E-AC-3 still selects a PCM sink; Dolby requires a capable sink or HDMI analyzer and production-chain retest",
+    "Full clean-client assembly, settings provisioning, and owner sofa acceptance remain open"
+  ],
+  "production_deployment_authorized": false,
+  "production_state": "v1.1.1 active; not modified by this candidate"
+}

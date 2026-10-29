@@ -8,6 +8,9 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from youtube_lab_navigation_fix import transform as fix_youtube_navigation
+
 
 SUPPORTED = ("AsterTV", "AsterTVProd")
 YOUTUBE_ROOT = "plugin://plugin.video.youtube/"
@@ -297,6 +300,13 @@ def build(root, host):
     )
     youtube_focus = adapt_youtube_entry_focus(addons / "skin.asterhome")
     youtube_back = add_youtube_back_navigation(root)
+    route_focus_source = Path(__file__).resolve().parents[2] / "skin.asterhome/tools/youtube_route_focus.py"
+    route_focus_target = addons / "skin.asterhome/tools/youtube_route_focus.py"
+    if route_focus_target.exists() and route_focus_target.read_bytes() != route_focus_source.read_bytes():
+        raise RuntimeError("unexpected-youtube-route-focus-helper")
+    shutil.copy2(route_focus_source, route_focus_target)
+    youtube_nav = addons / "skin.asterhome/1080i/MyVideoNav.xml"
+    youtube_nav.write_bytes(fix_youtube_navigation(youtube_nav.read_bytes()))
 
     music_manifest = runtime / "music72-manifest.json"
     music = refresh_file_rows(music_manifest, addons)
@@ -306,6 +316,7 @@ def build(root, host):
     skin = addons / "skin.asterhome"
     family["skin"]["tools/youtube_back.py"] = digest(youtube_back)
     family["skin"]["tools/youtube_root_focus.py"] = digest(youtube_focus)
+    family["skin"]["tools/youtube_route_focus.py"] = digest(route_focus_target)
     for relative in tuple(family["skin"]):
         family["skin"][relative] = digest(skin / relative)
     write_json(family_path, family)

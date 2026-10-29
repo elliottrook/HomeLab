@@ -173,6 +173,16 @@ class AdapterTests(unittest.TestCase):
                 self.module.rotate_hero()
                 self.module.xbmc.executebuiltin.assert_not_called()
 
+    def test_hero_refreshes_once_after_day_changes(self):
+        self.module.xbmcgui.getCurrentWindowId.return_value = 10000
+        window = self.module.xbmcgui.Window.return_value
+        window.getProperty.return_value = '2026-10-28'
+        with patch.object(self.module, 'date') as clock:
+            clock.today.return_value.isoformat.return_value = '2026-10-29'
+            self.module.rotate_hero()
+        window.setProperty.assert_called_once_with('AsterMediaHeroDay', '2026-10-29')
+        self.module.xbmc.executebuiltin.assert_called_once_with('ReloadSkin')
+
     def test_hero_tick_is_inert_outside_home(self):
         self.module.xbmcgui.getCurrentWindowId.return_value = 10025
         self.module.rotate_hero()

@@ -3,6 +3,7 @@
 import json
 import sys
 import traceback
+from datetime import date
 from urllib.parse import parse_qs
 
 import xbmc
@@ -166,7 +167,8 @@ def add_recommended(handle):
     rows = recommended_items(movie_result.get('movies', []),
                              show_result.get('tvshows', []),
                              excluded_movies=excluded_movies,
-                             excluded_shows=excluded_shows)
+                             excluded_shows=excluded_shows,
+                             rotation_key=date.today().isoformat())
     xbmcplugin.setPluginCategory(handle, 'Recommended for You')
     xbmcplugin.setContent(handle, 'videos')
     for row in rows:
@@ -178,7 +180,16 @@ def rotate_hero():
     """Advance the idle recommendation without taking remote focus."""
     if xbmcgui.getCurrentWindowId() != 10000:
         return
-    focus = xbmcgui.Window(10000).getFocusId()
+    window = xbmcgui.Window(10000)
+    today = date.today().isoformat()
+    previous = window.getProperty('AsterMediaHeroDay')
+    previous = previous if isinstance(previous, str) else ''
+    if previous != today:
+        window.setProperty('AsterMediaHeroDay', today)
+        if previous:
+            xbmc.executebuiltin('ReloadSkin')
+            return
+    focus = window.getFocusId()
     if focus not in (100, 110):
         xbmc.executebuiltin('Control.Move(101,1)')
 
