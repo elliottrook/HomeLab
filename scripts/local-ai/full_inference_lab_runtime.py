@@ -165,6 +165,65 @@ def _run_pilot(args: argparse.Namespace, paths: FullDrainPaths, *,
     return 0
 
 
+def _run_sa3(args: argparse.Namespace, paths: FullDrainPaths, *,
+             runner: Callable[..., tuple[int, str]] = _host_runner,
+             gpu_users: Callable[[], frozenset[GpuUser]] = _gpu_users,
+             wall_clock: Callable[[], float] = time.time,
+             sleep: Callable[[float], None] = time.sleep) -> int:
+    """Run the one fixed SA3 transaction under the existing drain controller."""
+    from sa3_expanded_quality_transaction import execute
+    from sa3_listener_adapter import run as run_sa3_listener
+
+    baseline = AcceptedBaseline(args.model_sha256, args.binary_sha256, args.unit_sha256)
+    producer = LocalProxmoxFullDrainSourceProducer(
+        runner, baseline, TrustedOwnerAttestation(args.owner_id, args.admin_path_evidence),
+        wall_clock=wall_clock)
+    preflight = producer.collect(cycle=args.cycle, session_start_epoch=args.session_start_epoch,
+                                 lab_seconds=2700)
+    now = int(wall_clock()); lead = args.session_start_epoch - now
+    if lead < 0 or lead > 60: raise SupervisorError("effect start is outside the bounded preflight-to-S window")
+    if lead: sleep(float(lead))
+    if int(wall_clock()) != args.session_start_epoch:
+        raise SupervisorError("effect start did not bind exactly to declared S")
+    controller = FullInferenceDrainController(
+        paths, lambda command: runner(command, 30.0), observer=CooperativeHostObserver(runner),
+        validator=LocalProxmoxFullDrainValidator(runner, baseline, cycle=args.cycle),
+        owner_id=args.owner_id, allow_effects=True,
+        allow_news_overlap=args.news_overlap_authorized)
+    _accepted_gpu_baseline(gpu_users())
+    owner = TrustedDrainOwner(args.owner_id, wall_clock=wall_clock)
+    captured: dict[str, object] = {}
+
+    class CapturingController:
+        def begin(self, value, *, lab_seconds):
+            plan = controller.begin(value, lab_seconds=lab_seconds); captured["plan"] = plan; return plan
+        def restore(self, plan, *, now_epoch, owner_present):
+            return controller.restore(plan, now_epoch=now_epoch, owner_present=owner_present)
+
+    def heartbeat() -> None:
+        controller.heartbeat(owner.now_epoch())
+
+    def workload_runner(*, heartbeat, deadline_epoch):
+        plan = captured.get("plan")
+        if plan is None: raise SupervisorError("SA3 drain plan was not captured")
+        return run_sa3_listener(lease_id=plan.lease_id, generation=plan.generation,
+                                deadline_epoch=deadline_epoch, heartbeat=heartbeat)
+
+    def cleanup_postcheck() -> None:
+        plan = captured.get("plan")
+        if plan is None or not lab_is_absent(runner, lease_id=plan.lease_id,
+                                             generation=plan.generation):
+            raise SupervisorError("SA3 listener cleanup is not proven")
+        _accepted_gpu_baseline(gpu_users())
+
+    receipt = execute(preflight=preflight, controller=CapturingController(),
+                      workload_runner=workload_runner,
+                      retain_root=Path(args.retain_root), now=owner.now_epoch,
+                      heartbeat=heartbeat, cleanup=cleanup_postcheck)
+    print(json.dumps(receipt, sort_keys=True))
+    return 0
+
+
 def _run_rescue(args: argparse.Namespace, paths: FullDrainPaths, *,
                 runner: Callable[..., tuple[int, str]] = _host_runner,
                 gpu_users: Callable[[], frozenset[GpuUser]] = _gpu_users) -> int:
@@ -218,6 +277,12 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--unit-sha256")
     parser.add_argument("--effect-authorized", action="store_true")
     parser.add_argument("--news-overlap-authorized", action="store_true")
+    parser.add_argument("--workload-profile", choices=(
+        "accepted-9b-direct-control-smoke-v1",
+        "accepted-9b-owner-loss-exercise-v1",
+        "sa3-expanded-source-quality-v1"),
+        default="accepted-9b-direct-control-smoke-v1")
+    parser.add_argument("--retain-root", default="/var/lib/local-ai-lab/lab-hours-attempts")
     return parser
 
 
@@ -246,6 +311,8 @@ def main(argv: list[str] | None = None) -> int:
     runner = _host_runner
     observer = CooperativeHostObserver(runner)
     if args.phase == "pilot":
+        if args.workload_profile == "sa3-expanded-source-quality-v1":
+            return _run_sa3(args, paths, runner=runner)
         return _run_pilot(args, paths, runner=runner)
     if args.phase == "rescue":
         required = (args.cycle, args.model_sha256, args.binary_sha256, args.unit_sha256)

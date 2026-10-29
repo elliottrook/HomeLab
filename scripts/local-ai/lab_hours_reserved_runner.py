@@ -103,6 +103,8 @@ def commands(booking: dict[str, object], claimant: str, start: int):
         "--admin-path-evidence", f"reserved:{booking['booking_id']}", "--cycle", cycle,
         "--session-start-epoch", str(start), "--model-sha256", MODEL_SHA,
         "--binary-sha256", BINARY_SHA, "--unit-sha256", UNIT_SHA,
+        "--workload-profile", str(booking["workload"]),
+        "--retain-root", str(ATTEMPTS / f"reservation-{booking['booking_id']}"),
         "--effect-authorized", "--news-overlap-authorized")
     return guardian_unit, owner_unit, guardian, owner
 
@@ -132,12 +134,8 @@ def run(booking_id: str) -> int:
         booking = store.claim(booking_id, claimant=claimant)
         pins = load_manifest()
         spec = workload(str(booking.get("workload")))
-        if spec.runner_kind == "sa3-expanded-quality":
-            # This is deliberately a no-effect gate.  Until the separate
-            # runner transaction is installed and independently validated,
-            # a booked SA3 record must fail before any production drain.
-            raise RunError("WORKLOAD_RUNNER_UNAVAILABLE")
-        if spec.runner_kind not in {"full-inference-pilot", "owner-loss-exercise"}:
+        if spec.runner_kind not in {"full-inference-pilot", "owner-loss-exercise",
+                                    "sa3-expanded-quality"}:
             raise RunError("WORKLOAD_RUNNER_NOT_REGISTERED")
         if evidence.exists(): raise RunError("ATTEMPT_ALREADY_EXISTS")
         evidence.mkdir(mode=0o700, parents=True)
@@ -183,7 +181,9 @@ def run(booking_id: str) -> int:
             postcheck(owner_unit); restored=True
             raise RunError("OWNER_TRANSACTION_FAILED_RESTORED")
         expected_requests=spec.request_count
-        expected_effect="guardian-rescued" if expected_requests==0 else "pilot-complete"
+        expected_effect=("guardian-rescued" if expected_requests==0 else
+                         ("sa3-expanded-quality-complete"
+                          if spec.runner_kind=="sa3-expanded-quality" else "pilot-complete"))
         if receipt.get("effects")!=expected_effect or receipt.get("receipt")!={
             "exit_status":0,"profile":booking["workload"],"request_count":expected_requests}:
             raise RunError("OWNER_RECEIPT_INCOMPLETE")

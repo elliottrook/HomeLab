@@ -221,6 +221,45 @@ class FullInferenceRuntimePilotTests(unittest.TestCase):
                 runtime._run_rescue(args, runtime.FullDrainPaths(args.state_root),
                                      runner=lambda *a: (0, ""))
 
+    def test_sa3_profile_uses_2700_second_preflight_and_fixed_listener(self):
+        events=[]
+        class Producer:
+            def __init__(self,*a,**k): pass
+            def collect(self,*,cycle,session_start_epoch,lab_seconds):
+                events.append(("collect",lab_seconds))
+                return SimpleNamespace(lab_end_epoch=2800)
+        class Controller:
+            def __init__(self,*a,**k): pass
+            def begin(self,value,*,lab_seconds):
+                events.append(("begin",lab_seconds)); return SimpleNamespace(lease_id="lease-1",generation=2)
+            def heartbeat(self,now): events.append("heartbeat")
+            def restore(self,plan,*,now_epoch,owner_present): events.append("restore")
+        def execute(**kwargs):
+            plan=kwargs["controller"].begin(SimpleNamespace(),lab_seconds=2700)
+            kwargs["heartbeat"](); value=kwargs["workload_runner"](
+                heartbeat=kwargs["heartbeat"],deadline_epoch=2800)
+            kwargs["cleanup"](); kwargs["controller"].restore(
+                plan,now_epoch=100,owner_present=True)
+            return {"effects":"sa3-expanded-quality-complete","receipt":value}
+        def listener(**kwargs):
+            events.append(("listener",kwargs["lease_id"],kwargs["generation"],kwargs["deadline_epoch"]))
+            return {"exit_status":0,"profile":"sa3-expanded-source-quality-v1","request_count":20}
+        with TemporaryDirectory() as tmp:
+            args=self.args();args.state_root=Path(tmp)/"state";args.retain_root=tmp
+            args.workload_profile="sa3-expanded-source-quality-v1"
+            with patch.object(runtime,"LocalProxmoxFullDrainSourceProducer",Producer), \
+                 patch.object(runtime,"LocalProxmoxFullDrainValidator",lambda *a,**k:object()), \
+                 patch.object(runtime,"FullInferenceDrainController",Controller), \
+                 patch.object(runtime,"lab_is_absent",lambda *a,**k:True), \
+                 patch("sa3_expanded_quality_transaction.execute",execute), \
+                 patch("sa3_listener_adapter.run",listener):
+                self.assertEqual(runtime._run_sa3(args,runtime.FullDrainPaths(args.state_root),
+                    runner=lambda *a:(0,""),gpu_users=lambda:frozenset(),wall_clock=lambda:100),0)
+        self.assertIn(("collect",2700),events)
+        self.assertIn(("begin",2700),events)
+        self.assertIn(("listener","lease-1",2,2800),events)
+        self.assertIn("restore",events)
+
     def test_rescue_accepts_only_the_restored_production_gpu_holder(self):
         with TemporaryDirectory() as tmp:
             args=self.args(); args.state_root=Path(tmp)/"state"
