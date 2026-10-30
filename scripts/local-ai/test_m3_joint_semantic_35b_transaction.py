@@ -49,6 +49,28 @@ class TransactionTests(unittest.TestCase):
                     self.assertEqual(64, len(value["result_sha256"]))
                     self.assertEqual(0o600, (root / transaction.RESULT_FILENAME).stat().st_mode & 0o777)
 
+    def test_bounded_guest_failure_is_accepted_without_content(self):
+        value = transaction.validate_guest_failure({
+            "schema": "aster-m3-joint-semantic-35b-guest-failure.v1",
+            "state": "failed", "failure_code": "M3_PUBLIC_RESULT_INCOMPLETE",
+            "attempted": 1, "valid": 0, "first_record_failure": "http_4xx",
+            "answer_content_retained": False,
+            "hidden_reasoning_retained": False,
+        })
+        self.assertEqual({
+            "failure_code": "M3_PUBLIC_RESULT_INCOMPLETE", "attempted": 1,
+            "valid": 0, "first_record_failure": "http_4xx"}, value)
+
+    def test_unbounded_guest_failure_is_rejected(self):
+        with self.assertRaises(transaction.TransactionError):
+            transaction.validate_guest_failure({
+                "schema": "aster-m3-joint-semantic-35b-guest-failure.v1",
+                "state": "failed", "failure_code": "arbitrary",
+                "attempted": 1, "valid": 0, "first_record_failure": "secret",
+                "answer_content_retained": False,
+                "hidden_reasoning_retained": False,
+            })
+
 
 if __name__ == "__main__":
     unittest.main()

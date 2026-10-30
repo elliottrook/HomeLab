@@ -27,7 +27,10 @@ RESULT_FILENAME = "m3-joint-semantic-35b-public-v1-result.json"
 
 
 class TransactionError(RuntimeError):
-    pass
+    def __init__(self, code: str, *, details: dict[str, object] | None = None):
+        super().__init__(code)
+        self.code = code
+        self.details = details or {}
 
 
 def _canonical(value: object) -> bytes:
@@ -61,6 +64,28 @@ def validate_guest_result(value: object) -> dict[str, object]:
     return {"result_sha256": hashlib.sha256(raw).hexdigest(),
             "result_bytes": len(raw), "request_count": REQUEST_COUNT,
             "exact": summary.get("exact"), "public_pass": summary.get("public_pass")}
+
+
+def validate_guest_failure(value: object) -> dict[str, object]:
+    expected = {"schema", "state", "failure_code", "attempted", "valid",
+                "first_record_failure", "answer_content_retained",
+                "hidden_reasoning_retained"}
+    if (not isinstance(value, dict) or set(value) != expected
+            or value.get("schema") != "aster-m3-joint-semantic-35b-guest-failure.v1"
+            or value.get("state") != "failed"
+            or value.get("failure_code") not in {
+                "M3_PUBLIC_RESULT_INCOMPLETE", "M3_GUEST_INPUT_OR_IO_FAILED"}
+            or type(value.get("attempted")) is not int
+            or type(value.get("valid")) is not int
+            or not 0 <= value["valid"] <= value["attempted"] <= REQUEST_COUNT
+            or value.get("first_record_failure") not in {
+                "invalid_response", "engine_error", "http_4xx", "http_5xx",
+                "none", "unknown"}
+            or value.get("answer_content_retained") is not False
+            or value.get("hidden_reasoning_retained") is not False):
+        raise TransactionError("M3_GUEST_FAILURE_SCHEMA_INVALID")
+    return {key: value[key] for key in (
+        "failure_code", "attempted", "valid", "first_record_failure")}
 
 
 def _retain(root: Path, value: dict[str, object]) -> dict[str, object]:
@@ -126,8 +151,14 @@ def execute(*, preflight, controller, owner_id: str, cycle: str,
         residency = observer.candidate_residency_state()
         if residency != "exact":
             raise TransactionError("M3_CANDIDATE_RESIDENCY_" + residency.upper())
-        output = command(("pct", "exec", "110", "--", "/usr/bin/python3", "-B",
-                          GUEST_WORKLOAD, "--run-authorized"), 2700)
+        guest_code, output = runner(("pct", "exec", "110", "--", "/usr/bin/python3", "-B",
+                                     GUEST_WORKLOAD, "--run-authorized"), 2700)
+        if guest_code != 0:
+            try:
+                failure = validate_guest_failure(json.loads(output))
+            except (json.JSONDecodeError, TransactionError) as exc:
+                raise TransactionError("M3_GUEST_FAILURE_UNAVAILABLE") from exc
+            raise TransactionError("M3_GUEST_WORKLOAD_FAILED", details=failure)
         try:
             value = json.loads(output)
         except json.JSONDecodeError as exc:
@@ -147,12 +178,20 @@ def execute(*, preflight, controller, owner_id: str, cycle: str,
                             "result_sha256": metadata["result_sha256"],
                             "exact": metadata["exact"],
                             "public_pass": metadata["public_pass"]}}
-    except BaseException:
+    except BaseException as exc:
         if plan is not None and not restored:
             identity = RecoveryIdentity(owner_id, plan.lease_id, plan.generation,
                                         cycle, MODEL_SHA256, BINARY_SHA256, UNIT_SHA256)
             recover(identity=identity, observer=observer, runner=command,
                     lease_restorer=lambda: controller.restore(
                         plan, now_epoch=now(), owner_present=True))
+        if isinstance(exc, TransactionError):
+            projection = {
+                "schema": "aster-m3-joint-semantic-35b-transaction-failure.v1",
+                "state": "failed", "failure_code": exc.code,
+                "production_restored": plan is not None,
+            }
+            projection.update(exc.details)
+            print(json.dumps(projection, sort_keys=True, separators=(",", ":")))
         raise
 

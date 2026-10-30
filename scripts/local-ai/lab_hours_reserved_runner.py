@@ -148,6 +148,34 @@ def settle_guardian(guardian_unit: str) -> None:
     call(("systemctl", "reset-failed", guardian_unit), 10)
 
 
+def bounded_owner_failure(raw: str) -> str | None:
+    try:
+        value = json.loads(raw)
+    except (json.JSONDecodeError, TypeError):
+        return None
+    required = {"schema", "state", "failure_code", "production_restored"}
+    if (not isinstance(value, dict) or not required.issubset(value)
+            or value.get("schema") != "aster-m3-joint-semantic-35b-transaction-failure.v1"
+            or value.get("state") != "failed"
+            or value.get("production_restored") is not True
+            or value.get("failure_code") not in {
+                "M3_GUEST_WORKLOAD_FAILED", "M3_GUEST_FAILURE_UNAVAILABLE"}):
+        return None
+    if value["failure_code"] == "M3_GUEST_FAILURE_UNAVAILABLE":
+        return value["failure_code"]
+    detail_keys = {"attempted", "valid", "first_record_failure"}
+    if (not detail_keys.issubset(value)
+            or type(value["attempted"]) is not int
+            or type(value["valid"]) is not int
+            or not 0 <= value["valid"] <= value["attempted"] <= 24
+            or value["first_record_failure"] not in {
+                "invalid_response", "engine_error", "http_4xx", "http_5xx",
+                "none", "unknown"}):
+        return None
+    return (f"M3_GUEST_WORKLOAD_FAILED_{value['first_record_failure'].upper()}"
+            f"_ATTEMPTED_{value['attempted']}_VALID_{value['valid']}")
+
+
 def run(booking_id: str) -> int:
     started = int(time.time())
     claimant = f"lh-{hashlib.sha256(booking_id.encode()).hexdigest()[:20]}"
@@ -204,7 +232,8 @@ def run(booking_id: str) -> int:
             while time.time() <= deadline and (STATE_ROOT/"full-inference-drain.json").exists():
                 time.sleep(5)
             postcheck(owner_unit); restored=True
-            raise RunError("OWNER_TRANSACTION_FAILED_RESTORED")
+            measured = bounded_owner_failure(result.stdout)
+            raise RunError(measured or "OWNER_TRANSACTION_FAILED_RESTORED")
         phase="production-postcheck"; postcheck(owner_unit); restored=True
         expected_requests=spec.request_count
         expected_effect=("guardian-rescued" if expected_requests==0 else

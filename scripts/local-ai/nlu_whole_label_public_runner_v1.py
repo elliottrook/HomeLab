@@ -86,6 +86,13 @@ def run(
                 "latency_seconds": round(time.monotonic() - one_started, 3),
                 "failure": "invalid_response",
             })
+        except urllib.error.HTTPError as exc:
+            records.append({
+                "id": case["id"], "valid": False,
+                "latency_seconds": round(time.monotonic() - one_started, 3),
+                "failure": "http_4xx" if 400 <= exc.code < 500 else "http_5xx",
+            })
+            break
         except (urllib.error.URLError, OSError, RuntimeError, TimeoutError):
             records.append({
                 "id": case["id"], "valid": False,
