@@ -85,6 +85,21 @@ Audible playback and Back/stop still need a short owner-approved test because
 they may update listening progress. A separate interactive helper remains
 staged at `/storage/.aster-staging/configure_lab_books_client.py` for future
 fresh-client setup; it takes a key only in a hidden private terminal prompt.
+The packaged non-AI Books refresh service and six-hour timer were restored
+from `services/kodi/libreelec/`, with absence checkpoint at
+`/storage/.aster-checkpoints/astertv-lab-books-refresh-20261029`. The manual
+refresh and timer's first run both succeeded; the latter recorded 53 audio
+items, 505 retained ebooks, and its next run six hours later. This refresh
+uses the Audiobookshelf API and the lab's local feed, not the AI stack. The
+previous 24-hour expiry gap is closed while the timer keeps passing.
+
+Audiobookshelf returned HTTP 404 for an audiobook cover, so the fresh lab
+could not reconstruct the prior art from that API. Production had 554 regular,
+opaque-name JPEG cache entries. These were read from production, verified and
+copied to a private lab stage; the lab installer added only 547 absent entries
+and preserved its seven existing covers. The lab checkpoint is
+`/storage/.aster-checkpoints/astertv-lab-books-covers-20261029`. The first ten
+Audiobooks tiles all resolved to cached JPEGs. No production file was changed.
 
 The Home Assistant publisher and receiver were reconciled to the lab's new
 SSH host key. The lab receiver accepts only the established source-IP-limited,

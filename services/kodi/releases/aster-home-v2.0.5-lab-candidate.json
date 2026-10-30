@@ -19,6 +19,9 @@
     "audiobook_and_podcast_bridge_range_206": true,
     "audiobook_and_podcast_listening_lists_open": true,
     "audible_books_playback_and_back_stop_tested": false,
+    "books_refresh_timer_restored_and_first_run_passed": true,
+    "books_cover_cache_restored": 554,
+    "first_ten_audiobook_tiles_have_cached_jpeg": true,
     "home_live_publication_readings": 63,
     "home_next_automatic_publication_verified": true,
     "news_digest_http_200_and_19_chapters": true
@@ -39,7 +42,6 @@
   "known_release_blockers": [
     "Lab Seerr and Acquisition broker tokens are absent; Requests and catalogue search need provisioning",
     "Lab reuses the existing restricted Audiobookshelf identity; audible audiobook and podcast playback still needs owner-approved acceptance",
-    "Books feed was installed once and expires after 24 hours; continuous refresh needs a supported client publisher",
     "Lab camera service is prepared but disabled pending Frigate key approval; voice STT credential and expected G20 microphone are absent",
     "Daily hero rotation needs next-day owner observation",
     "Dolby bitstream requires a capable sink or HDMI analyzer and production-chain retest"
