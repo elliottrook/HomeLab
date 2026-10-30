@@ -1,7 +1,7 @@
 # AsterTV v2 lab release
 
 The authoritative preserved lab candidate is
-`dist/astertv-v2-lab-reconciled-2026-10-30-r8.tar.gz`. Production remains on
+`dist/astertv-v2-lab-reconciled-2026-10-30-r9.tar.gz`. Production remains on
 the stable v1.1.1 release and is not changed by this record.
 
 The unpacked, reviewable final reconciliation is in `astertv-v2/reconciliation`.
@@ -30,6 +30,17 @@ numeric, Enter and Return mappings and dispatches the active Books/Music page
 before any stale TV-series preview property. On 2026-10-30 a physical G20 OK
 press was verified at Podcasts window `11120`, focus `500`; it opened the
 selected show's episode list without starting playback.
+
+## Books resume activation fixed in r9
+
+The clean lab rebuild retained the restricted Audiobookshelf client but omitted
+the non-secret progress activation marker, leaving the installed resume-capable
+service in playback-only mode. r9 carries a mode-0600, AsterTV-only marker bound
+to the expected restricted account fingerprint; credentials remain separately
+provisioned and are never packaged. The release gate also requires the real-book
+reader to retain exact sentence sample timing and the pinned Aster pronunciation
+cleanup. Word or connected-phrase highlighting must not be claimed or enabled
+until a future real-book timing pipeline passes the exact measured timing gate.
 
 See `dist/ASTER-V2-RECONCILIATION-20261030.md` for the full repair record and
 `dist/ASTER-V2-PROMPT-RECONCILIATION-20261030.md` for the prompt-by-prompt audit.

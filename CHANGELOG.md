@@ -11,6 +11,12 @@
   hero blending, stone-icon scope, click routes, dynamic focus and keymap routing.
 - Recorded the complete repair and prompt reconciliation without credentials or
   account tokens.
+- Added the r9 Books follow-up after finding that the clean lab rebuild omitted
+  the non-secret Audiobookshelf progress activation marker. The marker is bound
+  to the expected restricted account fingerprint, installed mode 0600 and
+  regression-gated without packaging credentials. Real eBooks remain on exact
+  sentence timing with pinned Aster pronunciation cleanup until a real-book
+  word-timing implementation passes the strict measured gate.
 
 ## 2026-10-14 — Aster v2 application-family assets expanded
 

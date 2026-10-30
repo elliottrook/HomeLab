@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Focused regression gate for Aster Books/Music navigation and hero rendering."""
 import ast
+import json
 import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -38,6 +39,17 @@ assert dispatch.index("action = dispatched_action(window_id, focus_id)") < dispa
 keymap = (Path(__file__).resolve().parent / "payload/userdata/keymaps/g20s-pro-plus.xml").read_text()
 assert "<select>RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)</select>" in keymap
 assert keymap.count("<select>OSD</select>") == 3
+marker_path = Path(__file__).resolve().parent / "payload/userdata/addon_data/plugin.audio.asterbooks/progress-enabled.json"
+marker = json.loads(marker_path.read_text())
+assert marker == {
+    "account_sha256": "5326816b7ef0f98b2ab17a43d8502a3763947d1bad27f8bd10f6e2ac85bcc206",
+    "enabled": True,
+    "host": "AsterTV",
+    "kind": "aster-books-sync-pilot.v1",
+}
+installer = (Path(__file__).resolve().parent / "apply_reconciliation.py").read_text()
+assert "progress-enabled.json" in installer
+assert "row.get('mode', 0o644)" in installer
 assert "11120: ('podcasts', {500})" in dispatch
 assert "11113: 'home'" in dispatch
 print('Books/Music regression gate passed: XML valid, hero blends full height, stone rail scope preserved, title click routes present, remote OK has a skin-focus fallback, and music focus restores after panel population.')

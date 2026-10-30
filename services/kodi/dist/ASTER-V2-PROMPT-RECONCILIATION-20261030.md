@@ -48,3 +48,9 @@ The shared G20 selection dispatcher now falls back to Kodi's skin focus conditio
 ## Physical G20 OK activation r8 (2026-10-30)
 
 The physical remote emits Linux `KEY_SELECT`, which Kodi resolves through the named `<select>` keyboard mapping rather than numeric key 353 alone. The reconciled keymap now includes the named mapping in navigation and OSD contexts, and current Books/Music page dispatch runs before stale TV-series preview state. A physical G20 OK press was verified at Podcasts window 11120/focus 500 and opened the selected show's episode list. Lab checkpoints: `/storage/.aster-checkpoints/aster-select-dispatch-r8-20261030` and `/storage/.aster-checkpoints/aster-select-keymap-r8-20261030`. Production unchanged. Superseding package: `astertv-v2-lab-reconciled-2026-10-30-r8.tar.gz`.
+
+## Books resume and eBook timing audit r9 (2026-10-30)
+
+The missing audiobook/podcast resume behavior was traced to one absent non-secret activation marker after the clean lab rebuild. The restricted Audiobookshelf account remained valid and limited, and the ProgressBridge/observer code was intact. r9 hash-pins an AsterTV-only mode-0600 marker without credentials. A no-playback live audit verified all 46 audiobook and seven podcast catalogue items through the private control socket: 1,491/39 shared-progress entries, four existing audiobook Resume rows and zero playback-only entries. Podcasts resume per selected episode by design.
+
+The eBook reader hashes match the packaged compiled consumer. The three ready generations use exact sentence timing and the pinned canonical Aster pronunciation cleanup. The remembered word/connected-phrase UI was a synthetic proof at `d5b7b5e7`; real word-timing trials failed the strict gate and were never promoted to real books. r9 therefore prevents an unsafe inferred-word switch while retaining the accepted sentence reader. Production unchanged. Superseding package: `astertv-v2-lab-reconciled-2026-10-30-r9.tar.gz`.

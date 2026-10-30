@@ -9,7 +9,7 @@ from pathlib import Path
 
 HOST = 'AsterTV'
 ROOT = Path('/storage/.kodi/addons')
-CHECKPOINT = Path('/storage/.aster-checkpoints/astertv-v206-reconcile-r8-20261030')
+CHECKPOINT = Path('/storage/.aster-checkpoints/astertv-v206-reconcile-r9-20261030')
 MANIFEST = Path(__file__).resolve().parent / 'manifest.json'
 PAYLOAD = Path(__file__).resolve().parent / 'payload'
 
@@ -31,7 +31,7 @@ def active_players():
         answer = json.loads(conn.recv(4096).decode())
     require(answer.get('result') == [], 'active player or JSON-RPC error')
 
-def atomic_write(path, data):
+def atomic_write(path, data, mode=0o644):
     path = Path(path)
     fd, tmp = tempfile.mkstemp(prefix='.astertv-r3-', dir=path.parent)
     try:
@@ -39,7 +39,7 @@ def atomic_write(path, data):
             stream.write(data)
             stream.flush()
             os.fsync(stream.fileno())
-        os.chmod(tmp, 0o644)
+        os.chmod(tmp, mode)
         os.replace(tmp, path)
     finally:
         if os.path.exists(tmp):
@@ -49,6 +49,8 @@ def target_for(rel):
     if rel.startswith('skin.asterhome/'):
         return ROOT / rel
     if rel.startswith('userdata/keymaps/'):
+        return Path('/storage/.kodi') / rel
+    if rel == 'userdata/addon_data/plugin.audio.asterbooks/progress-enabled.json':
         return Path('/storage/.kodi') / rel
     raise RuntimeError('unsupported payload target: ' + rel)
 
@@ -67,7 +69,7 @@ for row in manifest['files']:
         continue
     require(current in row['before_sha256_any_of'], 'unexpected live hash: ' + row['path'])
     require(sha(candidate) == row['after_sha256'], 'candidate hash mismatch: ' + row['path'])
-    changes.append((row, target, candidate.read_bytes()))
+    changes.append((row, target, candidate.read_bytes(), row.get('mode', 0o644)))
 if not changes:
     print(json.dumps({'already_reconciled': True, 'files_verified': len(manifest['files'])}))
     raise SystemExit(0)
@@ -89,18 +91,18 @@ for row in manifest['files']:
         require(None in row['before_sha256_any_of'], 'unexpected missing file: ' + row['path'])
 subprocess.run(['systemctl', 'stop', 'kodi'], check=True, timeout=30)
 try:
-    for row, target, data in changes:
+    for row, target, data, mode in changes:
         require(sha_optional(target) in row['before_sha256_any_of'], 'live drift while Kodi stopped: ' + row['path'])
-        atomic_write(target, data)
+        atomic_write(target, data, mode)
     for row in manifest['files']:
         require(sha(target_for(row['path'])) == row['after_sha256'], 'installed hash mismatch: ' + row['path'])
 except Exception:
-    for row, target, _ in changes:
+    for row, target, _, _ in changes:
         original = checkpoint_for(row['path'])
         current = sha_optional(target)
         if current == row['after_sha256']:
             if original.exists():
-                atomic_write(target, original.read_bytes())
+                atomic_write(target, original.read_bytes(), row.get('mode', 0o644))
             else:
                 target.unlink()
         elif current not in row['before_sha256_any_of']:

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "release": "astertv-v2.0.6-lab-repair-complete-2026-10-30-r8",
+  "release": "astertv-v2.0.6-lab-repair-complete-2026-10-30-r9",
   "target": "AsterTV lab only (192.168.1.140)",
   "production_changed": false,
   "apply_order": [
@@ -131,6 +131,15 @@
         "a56fd6b39053a01109f7f3c4a746c32b1d653b0ffb989157884e4b5236aef67e"
       ],
       "after_sha256": "22b7d36e861fb96e56930ee3eaf1b4aa079fd9506463469cccc778fe3c3ead91"
+    },
+    {
+      "path": "userdata/addon_data/plugin.audio.asterbooks/progress-enabled.json",
+      "bytes": 153,
+      "mode": 384,
+      "before_sha256_any_of": [
+        null
+      ],
+      "after_sha256": "e2c3644b1ca364d37ce78e1c9e94f604d93ef08506e396469d28b4b277588675"
     }
   ],
   "verified_fixes": {
@@ -148,7 +157,8 @@
     "music_click_focus": "Focus is restored only after the dynamic panel is populated; click handlers remain reachable during refresh and report a loading state.",
     "books_hero_blend": "Hero backdrop, left fade and bottom fade span 1080 px; redundant underlay fade removed.",
     "books_category_heroes": "eBook, audiobook and podcast category pages use the selected item cover as a full-screen backdrop. Kodi-safe visibility conditions extend the charcoal, left and bottom fade layers across all Books pages.",
-    "remote_ok_dispatch": "Known Books and Music dynamic controls fall back to Kodi skin focus/window conditions when the Python window wrapper is incomplete. Dynamic page dispatch runs before stale TV-series state, and the G20 Linux KEY_SELECT name is explicitly mapped alongside numeric, Enter and Return forms."
+    "remote_ok_dispatch": "Known Books and Music dynamic controls fall back to Kodi skin focus/window conditions when the Python window wrapper is incomplete. Dynamic page dispatch runs before stale TV-series state, and the G20 Linux KEY_SELECT name is explicitly mapped alongside numeric, Enter and Return forms.",
+    "books_resume_activation": "The non-secret AsterTV-only household progress marker is installed mode 0600 and hash-pinned to the expected restricted account fingerprint. Credentials remain separately provisioned and are not included."
   },
   "lab_validation": {
     "physical_g20_ok": "verified end to end: KEY_SELECT invoked the dispatcher at window 11120, focus 500, and opened the selected podcast episode list",
@@ -159,5 +169,6 @@
     "music_track_ok": "started selected track; stopped immediately after verification",
     "cleanup": "Player.GetActivePlayers empty; music playlist contains zero items; test-generated in-memory recovery flag cleared after the empty checkpoint was verified"
   },
-  "known_remaining": "Physical G20 OK selection is verified on the lab. Production is unchanged."
+  "ebook_timing_contract": "Real compiled books remain exact sentence-sample-index with pinned Aster pronunciation cleanup; word/phrase timing is not claimed without a future exact measured timing gate.",
+  "known_remaining": "Physical G20 OK selection is verified on the lab. Exact real-book word timing remains future work; production is unchanged."
 }
