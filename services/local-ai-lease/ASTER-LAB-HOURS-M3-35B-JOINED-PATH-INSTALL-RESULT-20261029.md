@@ -14,7 +14,10 @@ root-only checkpoint `/var/lib/local-ai-lab/checkpoints/m3-joined-309ce983`.
 - the exact workload resolves through registry and admission with a shared
   2,700-second transaction/preflight/guardian deadline and a 3,600-second
   minimum booking plus 900-second recovery reserve;
-- 31 focused joined-path tests and 30 Lab Hours discovery tests pass;
+- 32 focused joined-path tests and 30 Lab Hours discovery tests pass; the
+  additional integration regression drives the registered M3 booking through
+  claim, admission, guardian composition, receipt validation, cleanup,
+  terminal evidence and successful finish;
 - all 32 installed release-manifest pins match;
 - Lab Hours Doctor completed with `Result=success` and exit zero;
 - dispatcher, Proxmox daemons, Aster Agent, accepted 9B/SYCL and Speech are
