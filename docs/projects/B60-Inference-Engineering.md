@@ -12,6 +12,14 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October30 admission diagnostics candidate](B60-Inference-Engineering/admission-diagnostics-candidate-20261030.md)
+retains content-free, create-once backup-source failure codes rather than a
+generic exception type.129 exact-source controller tests and107 B60 tests
+pass, with independent replay tree equality. It is undeployed and requires
+new bundle/profile pins before future use; no timer or activation was changed.
+The corrected02:00 mirror schedule remains verified. Next prepare a fresh
+operational qualification activation, not a repeat of the expired booking.
+
 At Jason's explicit request, the [October30 schedule correction](B60-Inference-Engineering/mirror-schedule-restored-20261030.md)
 moved only TrueNAS task3 from04:20 to02:00 daily. Direct API read-back and
 the independent Proxmox observer confirm enabled pulls at01:00/02:00/03:00.

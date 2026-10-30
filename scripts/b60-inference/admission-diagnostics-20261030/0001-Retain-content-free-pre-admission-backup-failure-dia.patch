@@ -1,0 +1,119 @@
+From 4e982d95d5a57871abfd45f03f5ac348d967e142 Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Fri, 30 Oct 2026 10:33:14 -0700
+Subject: [PATCH] Retain content-free pre-admission backup failure diagnostics
+
+---
+ .../local-ai/lab_hours_exclusive_admission.py | 25 +++++++++-
+ .../test_lab_hours_exclusive_admission.py     | 46 +++++++++++++++++++
+ 2 files changed, 70 insertions(+), 1 deletion(-)
+
+diff --git a/scripts/local-ai/lab_hours_exclusive_admission.py b/scripts/local-ai/lab_hours_exclusive_admission.py
+index 73ef48ded..d2adc7698 100644
+--- a/scripts/local-ai/lab_hours_exclusive_admission.py
++++ b/scripts/local-ai/lab_hours_exclusive_admission.py
+@@ -16,6 +16,17 @@ TRIGGERS={'114':{'news-aggregator-ingest.timer':'news-aggregator-ingest.service'
+           '115':{'paperless-summary.timer':'paperless-summary.service'},
+           '116':{'epub-narration-worker.timer':'epub-narration-worker.service'}}
+ 
++# Exact fixed-source messages only. Unknown exceptions must never copy paths,
++# remote output or credentials into the journal/receipt. This is diagnostic
++# classification, not admission evidence or permission to retry.
++BACKUP_FAILURE_CODES={
++    'fixed source command failed':'COMMAND_FAILED',
++    'fixed source returned invalid JSON':'JSON_INVALID',
++    'TrueNAS backup tasks are not all successful':'TASK_CHAIN_FAILED',
++    'backup path lookup failed':'ARCHIVE_PATH_FAILED',
++    'retained archive integrity source failed':'RETAINED_INTEGRITY_FAILED',
++}
++
+ 
+ class FreshAdmission:
+     def __init__(self,runner,store,*,clock=time.time,backup=None,whole_job=None,gpu_users=None):
+@@ -38,7 +49,19 @@ class FreshAdmission:
+             from fixed_source_adapters import FixedSourceAdapters
+             self.backup=FixedSourceAdapters(self.runner,
+                 clock=lambda:datetime.fromtimestamp(self.clock(),ZONE)).backup_from_retained
+-        proof=self.backup(date_prefix=cycle,lease_issued_epoch=now)
++        try:
++            proof=self.backup(date_prefix=cycle,lease_issued_epoch=now)
++        except Exception as error:
++            code='UNCLASSIFIED'
++            if type(error).__name__=='SourceAdapterError':
++                code=BACKUP_FAILURE_CODES.get(str(error),'UNCLASSIFIED')
++            code='FRESH_BACKUP_SOURCE_'+code
++            self.store.write('admission-failure.json',{
++                'schema':'aster-exclusive-admission-failure.v1',
++                'booking_id':booking['booking_id'],'observed_epoch':now,
++                'phase':'backup-source','failure_code':code,
++                'admitted':False},immutable=True)
++            raise SessionError(code) from None
+         if (proof.source_observed is not True or proof.integrity_verified is not True
+                 or not proof.integrity_receipt.startswith('retained-archive-integrity-sha256:')):
+             raise SessionError('FRESH_ARCHIVE_PROOF_FAILED')
+diff --git a/scripts/local-ai/test_lab_hours_exclusive_admission.py b/scripts/local-ai/test_lab_hours_exclusive_admission.py
+index ac331e6ab..c1bbd6aac 100644
+--- a/scripts/local-ai/test_lab_hours_exclusive_admission.py
++++ b/scripts/local-ai/test_lab_hours_exclusive_admission.py
+@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
+ import unittest
+ from lab_hours_exclusive_admission import FreshAdmission,TRIGGERS
+ from lab_hours_exclusive_session import SessionError
++from fixed_source_adapters import SourceAdapterError
+ 
+ 
+ class Store:
+@@ -60,5 +61,50 @@ class AdmissionTests(unittest.TestCase):
+         with self.assertRaisesRegex(SessionError,'UNDECLARED'): self.admission(self.booking,self.profile)
+         self.assertFalse(self.store.rows)
+ 
++    def test_fixed_backup_failure_is_content_free_and_never_admits(self):
++        def fail(**kwargs):
++            raise SourceAdapterError('TrueNAS backup tasks are not all successful')
++        self.admission.backup=fail
++        with self.assertRaisesRegex(SessionError,'FRESH_BACKUP_SOURCE_TASK_CHAIN_FAILED'):
++            self.admission(self.booking,self.profile)
++        self.assertEqual(self.commands,[])
++        self.assertEqual(self.store.rows,{'admission-failure.json':{
++            'schema':'aster-exclusive-admission-failure.v1',
++            'booking_id':self.booking['booking_id'],'observed_epoch':self.now,
++            'phase':'backup-source','failure_code':'FRESH_BACKUP_SOURCE_TASK_CHAIN_FAILED',
++            'admitted':False}})
++
++    def test_unknown_error_does_not_persist_secret_like_text(self):
++        import json
++        for kind in (SourceAdapterError,ValueError,TimeoutError):
++            def fail(**kwargs): raise kind('private-fixture-text-never-record')
++            self.admission.backup=fail
++            with self.assertRaisesRegex(SessionError,'FRESH_BACKUP_SOURCE_UNCLASSIFIED') as caught:
++                self.admission(self.booking,self.profile)
++            self.assertNotIn('private-fixture-text',json.dumps(self.store.rows))
++            self.assertNotIn('private-fixture-text',str(caught.exception))
++        self.assertEqual(self.commands,[])
++
++    def test_existing_failure_receipt_is_not_overwritten_for_retry(self):
++        from pathlib import Path
++        import tempfile
++        from lab_hours_exclusive_session import SessionStore
++        with tempfile.TemporaryDirectory() as temporary:
++            store=SessionStore(Path(temporary)/'session')
++            fd=store.lock()
++            try:
++                self.admission.store=store
++                def fail(**kwargs): raise SourceAdapterError('fixed source command failed')
++                self.admission.backup=fail
++                with self.assertRaisesRegex(SessionError,'COMMAND_FAILED'):
++                    self.admission(self.booking,self.profile)
++                original=store.read('admission-failure.json')
++                with self.assertRaisesRegex(SessionError,'CHECKPOINT_ALREADY_EXISTS'):
++                    self.admission(self.booking,self.profile)
++                self.assertEqual(store.read('admission-failure.json'),original)
++            finally:
++                import os
++                os.close(fd)
++
+ 
+ if __name__=='__main__': unittest.main()
+-- 
+2.50.1 (Apple Git-155)
+
