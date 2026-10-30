@@ -168,6 +168,28 @@ This verifies the lab's Music write path and duplicate result for an already
 tracked album. Books and Seerr submission on the fresh lab remain untested.
 No production files were changed; production remains v1.1.1 stereo.
 
+## Durable v2.0.5 lab recovery bundle — 2026-10-29
+
+A read-only comparison of the installed lab against the v2.0.5 code archive
+found 574 archive files present and only two manifest differences: field
+ordering in the global Search component manifest and a missing family pin for
+the installed YouTube root-focus helper. The exact prior manifest bytes were
+saved at `/storage/.aster-checkpoints/astertv-v205-manifest-reconcile-20261029`.
+Both manifests were restored from the verified archive, after which all 574
+installed files matched the package hash-for-hash. The archive passed the
+disposable full-install and interrupted-rollback rehearsal with user data
+preserved.
+
+The tracked recovery artifact is
+`services/kodi/releases/astertv-v2.0.5-lab-recovery-bundle.tar.gz`
+(13,148,424 bytes, SHA-256
+`b998fee3a722b0ea085dd0c1280567de98f751b6fecbfd7439bbd61cb878d0c6`).
+It contains the exact code archive, the G20/keyboard keymap, the non-AI Books
+refresh units, a manifest and a recovery guide. The bundle has no credentials
+or Kodi profile data. The separate restoration and acceptance gates are in
+`services/kodi/releases/aster-home-v2.0.5-lab-recovery.md`; the updated release
+record is `services/kodi/releases/aster-home-v2.0.5-lab-candidate.json`.
+
 ## Lab Media and YouTube acceptance update — 2026-10-29
 
 Jason reported a stale Media recommendation hero, 12-hour clock, missing

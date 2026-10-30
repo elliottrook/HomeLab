@@ -1,11 +1,11 @@
 {
   "schema": "aster-home-kodi-lab-source-candidate.v1",
   "release": "2.0.5-lab-candidate",
-  "status": "lab-tested-code-overlay-not-clean-client-installer-or-production-ready",
+  "status": "lab-verified-recovery-bundle-not-clean-client-installer-or-production-ready",
   "source_branch": "codex/astertv-v2-recovery",
   "target_runtime": "LibreELEC nightly-20261021-440640e / Kodi 22 RC1",
   "included_recovery_work": [
-    "All credential-free v2.0.4 keymap, Settings, Music and movie repairs",
+    "All credential-free v2.0.4 Settings, Music and movie repairs; keymap bundled separately",
     "Read-only Ebooks, Audiobooks and Podcasts groups in global Search",
     "Exact Books result opens its matching page and Back restores Search selection"
   ],
@@ -25,6 +25,10 @@
     "seerr_authenticated_search_and_discovery_http_200": true,
     "requests_hub_suggestions_visible": 5,
     "seerr_request_submission_tested": false,
+    "acquisition_media_music_books_tabs_visible": true,
+    "acquisition_music_two_press_existing_album_result": "available",
+    "acquisition_existing_album_result_retained_on_reopen": true,
+    "acquisition_books_request_submission_tested": false,
     "recommendation_rail_items": 12,
     "recommendation_day_matches_local_date": true,
     "home_movie_pill_details_and_back_no_autoplay": true,
@@ -41,14 +45,36 @@
     "members": 659,
     "basis_sha256": "7a0d45665978b28179b0ba6d73a7e6150d97c8c441f1f8541e4fa0e0dd25b416",
     "runtime_settings_included": false,
-    "credentials_included": false
+    "credentials_included": false,
+    "files_identical_to_live_lab_after_manifest_reconciliation": 574
+  },
+  "lab_manifest_reconciliation": {
+    "changed_files": [
+      "script.asterruntime/aster-global-search-ui22/manifest.json",
+      "script.asterruntime/family-manifest.json"
+    ],
+    "checkpoint": "/storage/.aster-checkpoints/astertv-v205-manifest-reconcile-20261029",
+    "post_reconciliation_archive_file_mismatches": 0
+  },
+  "recovery_bundle": {
+    "path": "services/kodi/releases/astertv-v2.0.5-lab-recovery-bundle.tar.gz",
+    "sha256": "b998fee3a722b0ea085dd0c1280567de98f751b6fecbfd7439bbd61cb878d0c6",
+    "bytes": 13148424,
+    "members": 6,
+    "includes": [
+      "code-only add-on archive",
+      "remote keymap",
+      "Books refresh service and timer",
+      "manifest and recovery guide"
+    ],
+    "private_client_state_included": false
   },
   "lab_keymap": {
-    "path": "services/kodi/dist/astertv-v2.0.4-lab-keymap.xml",
+    "path": "services/kodi/remote/g20s-pro-plus.xml",
     "sha256": "befaf9072814579d4727d8f75ab78e4136abeaec371decc5f34b719e6800b320"
   },
   "known_release_blockers": [
-    "Lab Seerr browse and Search work; Seerr request submission needs a bounded acceptance test, and the separate Acquisition token is absent",
+    "Lab Seerr browse and Search work, but Seerr request submission still needs a bounded acceptance test; the separate Acquisition token is present and its existing-album Music path passed",
     "Lab reuses the existing restricted Audiobookshelf identity; audible audiobook and podcast playback still needs owner-approved acceptance",
     "Lab camera service is prepared but disabled pending Frigate key approval; voice STT credential and expected G20 microphone are absent",
     "One sampled Jellyfin playlist has incomplete exact Kodi song mappings and intentionally cannot open",
