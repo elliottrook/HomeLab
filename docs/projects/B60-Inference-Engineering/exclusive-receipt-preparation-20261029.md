@@ -51,3 +51,36 @@ service/schedule health. Never export guest recovery bytes. Use this advisory
 projection only as a consistency aid. A normal restoration pass still leaves
 actual owner-loss proof and reviewed candidate/mount/resource extension before
 35B trials. No extra general model approval is needed; technical gates remain.
+
+## 18:41 Vancouver continuation — exact-core compatibility
+
+The next preparation heartbeat fetched the same four authoritative refs.
+Adaptive, registry and booking commit/path/hash receipts above remain exact.
+B60 now reads `e539f44d9ea44db624dab3b7d224afde6534eb2a`, this file at
+SHA-256 `21ab93a87d7c6206cefa0b8eb5ff0f0fb4bd2980109f81c76a8bb293af230665`
+before this addition. These reads do not imply peer adoption.
+
+Read-only host status reports lease `ready`. The two exact installed timers
+remain enabled/active, next at October 30 01:15 and 03:10 PDT respectively,
+both with empty `LastTriggerUSec`. No timer was started, stopped or changed;
+there is no live result yet.
+
+Added `test_exclusive_receipt_controller.py`: five integration tests execute
+the real durable session core with fake effects in disposable private local
+directories. They cover normal completion, failed execution, owner loss,
+restoration at the deadline and incomplete release. Combined with the seven
+metadata tests, all 12 pass using the independently replayed source checkout
+`/private/tmp/b60-exclusive-replay-20261029/scripts/local-ai`.
+
+The bridge requires explicit `B60_EXCLUSIVE_SOURCE_ROOT` and verifies
+`lab_hours_exclusive_session.py` SHA-256
+`934d24342a0db06fffb456856b8ac89e48a73aea34ccb3c67d315c0ea31b7a4a`
+before loading it. This is the exact core from implementation
+`1f9af79b4c08b0881ab334b7a72ef7efe8f41ad8`; the dependency closure is standard
+library only. Without the dependency it explicitly skips, and source drift
+fails. Fake ledger terminal selection follows the reviewed Proxmox adapter /
+boundary, but does not exercise their real effects. No fake result is a
+hardware, actual guardian, live restoration, candidate or quality qualification.
+
+Durable next action remains the actual scheduled receipt/health reconciliation
+above. Do not launch a second owner or replay tonight's one-shots from chat.

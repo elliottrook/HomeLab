@@ -12,6 +12,14 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [offline receipt projection](B60-Inference-Engineering/exclusive-receipt-preparation-20261029.md)
+now passes 12 tests, including five against the exact replayed durable
+controller with fake effects. It never grants model success or live recovery
+qualification. October29 evening read-only observations still show both
+October30 clocks enabled/active and not previously triggered. No deployed
+source, model, reservation or timer changed during preparation; actual
+scheduled restoration and independent verification remain next.
+
 The [combined entry controller and first qualification](B60-Inference-Engineering/exclusive-controller-wiring-20261029.md)
 are now installed/scheduled, not merely planned. Proxmox independently reports
 two new enabled future one-shots: October30 at01:15 for fresh backup-integrity
