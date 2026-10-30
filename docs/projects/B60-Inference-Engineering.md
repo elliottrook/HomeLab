@@ -12,6 +12,13 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The local-only [October30 nightly reconciliation](B60-Inference-Engineering/nightly-reconciliation-20261030.md)
+records both future timers still armed with empty last-trigger values.
+Inactive services' default `Result=success` is not execution evidence.
+123 exact-replay Lab Hours tests and107 focused B60 tests pass; no live
+qualification/model result, new owner, production change or nightly push.
+Next reconcile actual scheduled receipts, not start a duplicate experiment.
+
 The [offline receipt projection](B60-Inference-Engineering/exclusive-receipt-preparation-20261029.md)
 now passes 12 tests, including five against the exact replayed durable
 controller with fake effects. It never grants model success or live recovery
