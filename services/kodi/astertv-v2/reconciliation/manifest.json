@@ -1,0 +1,163 @@
+{
+  "schema": 1,
+  "release": "astertv-v2.0.6-lab-repair-complete-2026-10-30-r8",
+  "target": "AsterTV lab only (192.168.1.140)",
+  "production_changed": false,
+  "apply_order": [
+    "Install the included r2 package and follow-ups",
+    "Apply reconciliation payload last"
+  ],
+  "files": [
+    {
+      "path": "skin.asterhome/1080i/Home.xml",
+      "bytes": 34734,
+      "before_sha256_any_of": [
+        "a8e4b03c4aa6f2df64bf0bd5ad54edccd1968d63960c1ca767fb7b67a12fda76"
+      ],
+      "after_sha256": "814bb438377ee711e7467c5ef864cdbf1e5c88c2ec4b4e5296eec35c319a3efd"
+    },
+    {
+      "path": "skin.asterhome/1080i/Includes.xml",
+      "bytes": 23240,
+      "before_sha256_any_of": [
+        "989073a0853a57448f24beea51f13983c9757693e98aa4b6d8c3617e897b26ae"
+      ],
+      "after_sha256": "4efffe34e841beff8b568c15d268d3e012e486378e88af2b8db8158aac32706a"
+    },
+    {
+      "path": "skin.asterhome/1080i/IncludesBooks.xml",
+      "bytes": 26516,
+      "before_sha256_any_of": [
+        "54bf7d74dcb1e73ce3ad0f23d4211cbe35206b6bac66244cf38309f7af74505f"
+      ],
+      "after_sha256": "13cbc6bb208f43963b34979028830780c061bf45cc675c86076a92b8b9050995"
+    },
+    {
+      "path": "skin.asterhome/1080i/IncludesHub.xml",
+      "bytes": 11807,
+      "before_sha256_any_of": [
+        "ae554388f24503bdc37f0b6c0f5c7c919983737587a35e7b0cae0210342f87a",
+        "5bf843d637a0dbb6184f5f76deb44703e3a17ffab67d27df7d323be312e7f280"
+      ],
+      "after_sha256": "74c6d8ee10721bf37750257fee76072f94f16bad4796eafc0de81f0c67baf127"
+    },
+    {
+      "path": "skin.asterhome/1080i/custom_1110_books.xml",
+      "bytes": 882,
+      "before_sha256_any_of": [
+        "4e75fe75e26ae3a297a4b13a83459c5b25bba94cd3d241f6a7d5403567808e25"
+      ],
+      "after_sha256": "179a59be8ee9ed4bc8c5e081f89008b86605844f4ab3d2c36d348bc7d1676ca2"
+    },
+    {
+      "path": "skin.asterhome/1080i/custom_1111_digest.xml",
+      "bytes": 23534,
+      "before_sha256_any_of": [
+        "cfbe212f4182722725a82492af12f0b31c937c6a310a24eec07621edbf53585a"
+      ],
+      "after_sha256": "55954356204a133fd23b504d5b0162a3b020a59080653778287e7543bfc9af73"
+    },
+    {
+      "path": "skin.asterhome/1080i/custom_1118_ebooks.xml",
+      "bytes": 599,
+      "before_sha256_any_of": [
+        "9c5df88ebf90fe3a060920b36affde6bdcb8875625e12bd59dd1e31c9cb3d4e5"
+      ],
+      "after_sha256": "913bf0e1fd97ac68a11dd40a5eb56ce088760170a67d7b0408036435dc822d06"
+    },
+    {
+      "path": "skin.asterhome/1080i/custom_1120_podcasts.xml",
+      "bytes": 711,
+      "before_sha256_any_of": [
+        "4c800cffeb62e7e3a7f84e0c0857f2ef48620d808c805d57b09b9909453bfab5"
+      ],
+      "after_sha256": "70bb81dc58d3373ee434ca70b17b81c8823a41f27d51829891c8eba2f7ca7ee6"
+    },
+    {
+      "path": "skin.asterhome/media/11-books.png",
+      "bytes": 23209,
+      "before_sha256_any_of": [
+        null
+      ],
+      "after_sha256": "b5cc8d0c2879a5bc6340ddd97e1336bd6d6aee5ff2c815c683909cf64b89c931"
+    },
+    {
+      "path": "skin.asterhome/tools/books_data.py",
+      "bytes": 17623,
+      "before_sha256_any_of": [
+        "7550f9f82a545c06ee56dafd16ebcfd7784fb647548ac1d8b47aefb00a362478",
+        "140fa1108f04e46fe1903672990de2badba60fe8c18ca2e97e381bf7fc19bd78",
+        "d1eb9d2986d26d99267732a8a24e5e80b43990345191d56054510d024f784ce1"
+      ],
+      "after_sha256": "437e2a17e72ee3b0b19f4945e8e42344711d6e9f7d6ff29ac37cf5f84a2f56b6"
+    },
+    {
+      "path": "skin.asterhome/tools/music_data.py",
+      "bytes": 22269,
+      "before_sha256_any_of": [
+        "c53f27e090ed1840783eccedc0f653b68b15383e5b6e4cfb0791125123974421"
+      ],
+      "after_sha256": "c53f27e090ed1840783eccedc0f653b68b15383e5b6e4cfb0791125123974421"
+    },
+    {
+      "path": "skin.asterhome/1080i/IncludesMusic.xml",
+      "bytes": 12677,
+      "before_sha256_any_of": [
+        "46dd0b02d6b93df71ea48df6f92508829055115ef1cb6864b5ad7ee4d22c2122"
+      ],
+      "after_sha256": "46dd0b02d6b93df71ea48df6f92508829055115ef1cb6864b5ad7ee4d22c2122"
+    },
+    {
+      "path": "skin.asterhome/tools/aster_v2_music.py",
+      "bytes": 4142,
+      "before_sha256_any_of": [
+        "85ea6d3da4af2221e76cfbc90dc22200350c222a611859cff6b9348937dca652"
+      ],
+      "after_sha256": "85ea6d3da4af2221e76cfbc90dc22200350c222a611859cff6b9348937dca652"
+    },
+    {
+      "path": "skin.asterhome/tools/select_dispatch.py",
+      "bytes": 6253,
+      "before_sha256_any_of": [
+        "1ec4095cb6915838c2a31a84998c27aeaf605ba6d9bdad436981ea2579dc895d",
+        "15e805937a06524432355bdce56512890e7481d6203e0009816ada4f06903e46"
+      ],
+      "after_sha256": "a39820871ea5568d41254f03bb0caedbc51b6094175b4e939986a805af9803fd"
+    },
+    {
+      "path": "userdata/keymaps/g20s-pro-plus.xml",
+      "bytes": 2374,
+      "before_sha256_any_of": [
+        "a56fd6b39053a01109f7f3c4a746c32b1d653b0ffb989157884e4b5236aef67e"
+      ],
+      "after_sha256": "22b7d36e861fb96e56930ee3eaf1b4aa079fd9506463469cccc778fe3c3ead91"
+    }
+  ],
+  "verified_fixes": {
+    "rail_routes": {
+      "window_ids": {
+        "Books": 11110,
+        "News": 11111,
+        "Home": 11112,
+        "Music": 11113
+      },
+      "final_sha256": "74c6d8ee10721bf37750257fee76072f94f16bad4796eafc0de81f0c67baf127"
+    },
+    "stone_icon_scope": "Approved limestone launcher marks are used on the side rail only; content pages use their non-stone identities.",
+    "news_digest": "News Digest page file is carried unchanged except approved icon identity; digest service/profile credentials are not included.",
+    "music_click_focus": "Focus is restored only after the dynamic panel is populated; click handlers remain reachable during refresh and report a loading state.",
+    "books_hero_blend": "Hero backdrop, left fade and bottom fade span 1080 px; redundant underlay fade removed.",
+    "books_category_heroes": "eBook, audiobook and podcast category pages use the selected item cover as a full-screen backdrop. Kodi-safe visibility conditions extend the charcoal, left and bottom fade layers across all Books pages.",
+    "remote_ok_dispatch": "Known Books and Music dynamic controls fall back to Kodi skin focus/window conditions when the Python window wrapper is incomplete. Dynamic page dispatch runs before stale TV-series state, and the G20 Linux KEY_SELECT name is explicitly mapped alongside numeric, Enter and Return forms."
+  },
+  "lab_validation": {
+    "physical_g20_ok": "verified end to end: KEY_SELECT invoked the dispatcher at window 11120, focus 500, and opened the selected podcast episode list",
+    "podcast_tile": "opened episode list; no episode playback started",
+    "audiobook_tile": "opened chapter list; no chapter playback started",
+    "ebook_tile": "opened Aster read-along screen",
+    "music_album_tile": "opened album track list",
+    "music_track_ok": "started selected track; stopped immediately after verification",
+    "cleanup": "Player.GetActivePlayers empty; music playlist contains zero items; test-generated in-memory recovery flag cleared after the empty checkpoint was verified"
+  },
+  "known_remaining": "Physical G20 OK selection is verified on the lab. Production is unchanged."
+}

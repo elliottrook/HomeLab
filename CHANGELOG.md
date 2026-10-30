@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-10-30 — Preserve and regression-gate AsterTV v2 lab repairs
+
+- Preserved the final r8 lab candidate, its checksum and unpacked hash-pinned
+  reconciliation payload; production remains unchanged on stable v1.1.1.
+- Fixed physical G20 OK handling by mapping Linux `KEY_SELECT` explicitly and
+  dispatching active Books/Music controls before stale TV-series preview state.
+  A physical press opened the selected podcast episode list on the lab.
+- Added a fail-closed release gate for payload bytes, package checksum, manifest,
+  hero blending, stone-icon scope, click routes, dynamic focus and keymap routing.
+- Recorded the complete repair and prompt reconciliation without credentials or
+  account tokens.
+
 ## 2026-10-14 — Aster v2 application-family assets expanded
 
 - Added the private Aster v2 expansion handoff for Music, Books, Podcasts,

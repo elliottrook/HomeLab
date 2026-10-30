@@ -1,0 +1,573 @@
+<?xml version='1.0' encoding='utf-8'?>
+<window id="1111" type="window">
+  <defaultcontrol always="true">305</defaultcontrol>
+  <onload>RunScript(special://skin/tools/hub_data.py,digest)</onload>
+  <onload>AlarmClock(AsterDigestFollow,RunScript(special://skin/tools/hub_data.py,digest,sync),00:02,silent,loop)</onload>
+  <onunload>CancelAlarm(AsterDigestFollow,silent)</onunload>
+  <onunload condition="Player.HasMedia">PlayerControl(Stop)</onunload>
+  <backgroundcolor>asterStone</backgroundcolor>
+  <controls>
+    <control type="image">
+      <left>0</left>
+      <top>0</top>
+      <width>1920</width>
+      <height>1080</height>
+      <texture>special://skin/media/ui-solid.png</texture>
+      <colordiffuse>asterStone</colordiffuse>
+    </control>
+    <include content="AsterNavigationRail">
+      <param name="content" value="500" />
+      <param name="railfocus" value="9003" />
+    </include>
+    <control type="group">
+      <control type="image"><left>542</left><top>23</top><width>852</width><height>62</height><texture border="18" colordiffuse="52000000">special://skin/media/ui-panel.png</texture></control><control type="image"><left>348</left><top>29</top><width>174</width><height>50</height><texture border="18" colordiffuse="75cbb991">special://skin/media/ui-compact-card-ring.png</texture></control><visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
+      <control type="image">
+        <left>110</left>
+        <top>0</top>
+        <width>240</width>
+        <height>160</height>
+        <texture>special://skin/media/30-aster-news-logo.png</texture>
+        <aspectratio>keep</aspectratio>
+      </control>
+      <control type="button" id="310">
+        <left>550</left>
+        <top>31</top>
+        <width>210</width>
+        <height>46</height>
+        <label>Daily Digest</label>
+        <font>font20</font>
+        <align>center</align>
+        <aligny>center</aligny>
+        <textcolor>fff3eee5</textcolor>
+        <focusedcolor>fff3eee5</focusedcolor>
+        <texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus>
+        <onleft>139</onleft>
+        <onright>311</onright>
+        <ondown>500</ondown>
+      <textoffsetx>0</textoffsetx><onup>310</onup></control>
+      <control type="button" id="311">
+        <left>772</left>
+        <top>31</top>
+        <width>220</width>
+        <height>46</height>
+        <label>Breaking News</label>
+        <font>font20</font>
+        <align>center</align>
+        <aligny>center</aligny>
+        <textcolor>fff3eee5</textcolor>
+        <focusedcolor>fff3eee5</focusedcolor>
+        <texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus>
+        <onclick>ActivateWindow(1122)</onclick>
+        <onleft>310</onleft>
+        <onright>312</onright>
+        <ondown>500</ondown>
+      <textoffsetx>0</textoffsetx><onup>311</onup></control>
+      <control type="button" id="312">
+        <left>1004</left>
+        <top>31</top>
+        <width>220</width>
+        <height>46</height>
+        <label>Read briefing</label>
+        <font>font20</font>
+        <align>center</align>
+        <aligny>center</aligny>
+        <textcolor>fff3eee5</textcolor>
+        <focusedcolor>fff3eee5</focusedcolor>
+        <texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus>
+        <onclick>RunScript(script.asterruntime,aster-digest-reader6,default,a8474501c9141bb220726c118b58e0941d9de2c3c42e2280410dbf3b1e5b3c86,news)</onclick>
+        <onleft>311</onleft>
+        <onright>301</onright>
+        <ondown>500</ondown>
+      <textoffsetx>0</textoffsetx><onup>312</onup></control>
+      <control type="button" id="301">
+        <left>1236</left>
+        <top>31</top>
+        <width>150</width>
+        <height>46</height>
+        <label>Refresh</label>
+        <font>font20</font>
+        <align>center</align>
+        <aligny>center</aligny>
+        <textcolor>fff3eee5</textcolor>
+        <focusedcolor>fff3eee5</focusedcolor>
+        <texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus>
+        <onclick>RunScript(special://skin/tools/hub_data.py,digest)</onclick>
+        <onleft>312</onleft>
+        <ondown>500</ondown>
+      <textoffsetx>0</textoffsetx><onright>139</onright><onup>301</onup></control>
+      <include content="AsterClockPill" />
+      <control type="image">
+        <left>0</left>
+        <top>180</top>
+        <width>1920</width>
+        <height>900</height>
+        <texture>special://skin/media/ui-hero-left-fade.png</texture>
+        <colordiffuse>d9292721</colordiffuse>
+        <aspectratio>stretch</aspectratio>
+      </control>
+      <control type="image">
+        <left>150</left>
+        <top>242</top>
+        <width>720</width>
+        <height>310</height>
+        <texture background="true">$INFO[Window.Property(AsterHub.ActiveImage)]</texture>
+        <aspectratio>keep</aspectratio>
+        <visible>!String.IsEmpty(Window.Property(AsterHub.ActiveImage))</visible>
+      </control>
+      <control type="image">
+        <left>375</left>
+        <top>270</top>
+        <width>270</width>
+        <height>255</height>
+        <texture>special://skin/media/news-digest-128.png</texture>
+        <aspectratio>keep</aspectratio>
+        <visible>String.IsEmpty(Window.Property(AsterHub.ActiveImage))</visible>
+      </control>
+      <control type="label">
+        <left>150</left>
+        <top>565</top>
+        <width>710</width>
+        <height>32</height>
+        <label>ASTER NEWS  /  NOW IN THE BRIEFING</label>
+        <font>font20</font>
+        <textcolor>asterGold</textcolor>
+      </control>
+      <control type="textbox">
+        <left>150</left>
+        <top>605</top>
+        <width>710</width>
+        <height>90</height>
+        <label>$INFO[Window.Property(AsterHub.ActiveTitle)]</label>
+        <font>font28</font>
+        <textcolor>asterInk</textcolor>
+      </control>
+      <control type="textbox">
+        <left>150</left>
+        <top>702</top>
+        <width>710</width>
+        <height>110</height>
+        <label>$INFO[Window.Property(AsterHub.ActiveSummary)]</label>
+        <font>font20</font>
+        <textcolor>asterInk</textcolor>
+      </control>
+      <control type="label">
+        <left>150</left>
+        <top>810</top>
+        <width>710</width>
+        <height>30</height>
+        <label>$INFO[Window.Property(AsterHub.ActiveSource)]</label>
+        <font>font20</font>
+        <textcolor>asterSage</textcolor>
+        <truncate>true</truncate>
+      </control>
+      <control type="label">
+        <left>150</left>
+        <top>846</top>
+        <width>145</width>
+        <height>30</height>
+        <label>$INFO[Player.Time(mm:ss)]</label>
+        <font>font20</font>
+        <textcolor>asterRailText</textcolor>
+        <visible>String.IsEqual(Window.Property(AsterHub.DigestPlaying),true)</visible>
+      </control>
+      <control type="label">
+        <left>710</left>
+        <top>846</top>
+        <width>150</width>
+        <height>30</height>
+        <label>$INFO[Player.Duration(mm:ss)]</label>
+        <font>font20</font>
+        <align>right</align>
+        <textcolor>asterRailText</textcolor>
+        <visible>String.IsEqual(Window.Property(AsterHub.DigestPlaying),true)</visible>
+      </control>
+      <control type="progress">
+        <left>150</left>
+        <top>881</top>
+        <width>710</width>
+        <height>10</height>
+        <texturebg border="4" colordiffuse="asterMuted">special://skin/media/ui-progress.png</texturebg>
+        <midtexture border="4" colordiffuse="asterSage">special://skin/media/ui-progress.png</midtexture>
+        <lefttexture />
+        <righttexture />
+        <overlaytexture />
+        <info>Player.Progress</info>
+        <visible>String.IsEqual(Window.Property(AsterHub.DigestPlaying),true)</visible>
+      </control>
+      <control type="label">
+        <left>150</left>
+        <top>846</top>
+        <width>710</width>
+        <height>38</height>
+        <label>Select a story or listen from the beginning</label>
+        <font>font20</font>
+        <textcolor>asterInk</textcolor>
+        <visible>!String.IsEqual(Window.Property(AsterHub.DigestPlaying),true)</visible>
+      </control>
+      <control type="button" id="305">
+        <label>Play full digest</label>
+        <onclick>RunScript(special://skin/tools/hub_data.py,digest,play)</onclick>
+        <onleft>8999</onleft>
+        <onright>300</onright>
+        <onup>301</onup>
+        <left>299</left>
+        <top>916</top>
+        <width>76</width>
+        <height>64</height>
+        <font>font20</font>
+        <textcolor>00000000</textcolor>
+        <focusedcolor>00000000</focusedcolor>
+        <texturefocus />
+        <texturenofocus />
+      </control>
+      <control type="button" id="300">
+        <label>Play story</label>
+        <onclick>RunScript(special://skin/tools/hub_data.py,digest,chapter)</onclick>
+        <onleft>305</onleft>
+        <onright>302</onright>
+        <onup>301</onup>
+        <left>411</left>
+        <top>916</top>
+        <width>76</width>
+        <height>64</height>
+        <font>font20</font>
+        <textcolor>00000000</textcolor>
+        <focusedcolor>00000000</focusedcolor>
+        <texturefocus />
+        <texturenofocus />
+      </control>
+      <control type="button" id="302">
+        <onclick>PlayerControl(Play)</onclick>
+        <onleft>300</onleft>
+        <onright>303</onright>
+        <onup>301</onup>
+        <left>523</left>
+        <top>916</top>
+        <width>76</width>
+        <height>64</height>
+        <font>font20</font>
+        <textcolor>00000000</textcolor>
+        <focusedcolor>00000000</focusedcolor>
+        <texturefocus />
+        <texturenofocus />
+        <visible>[String.IsEqual(Window.Property(AsterHub.DigestPlaying),true) + !Player.Paused] | [String.IsEqual(Window.Property(AsterHub.DigestPlaying),true) + Player.Paused]</visible>
+        <label>Play / Pause</label>
+      </control>
+      <control type="button" id="304">
+        <label>Play</label>
+        <onclick>PlayerControl(Play)</onclick>
+        <onleft>300</onleft>
+        <onright>303</onright>
+        <onup>301</onup>
+        <left>523</left>
+        <top>916</top>
+        <width>76</width>
+        <height>64</height>
+        <font>font20</font>
+        <textcolor>00000000</textcolor>
+        <focusedcolor>00000000</focusedcolor>
+        <texturefocus />
+        <texturenofocus />
+        <visible>false</visible>
+      </control>
+      <control type="button" id="303">
+        <label>Stop</label>
+        <onclick>RunScript(special://skin/tools/hub_data.py,digest,stop)</onclick>
+        <onleft>302</onleft>
+        <onright>500</onright>
+        <onup>301</onup>
+        <visible>String.IsEqual(Window.Property(AsterHub.DigestPlaying),true)</visible>
+        <left>635</left>
+        <top>916</top>
+        <width>76</width>
+        <height>64</height>
+        <font>font20</font>
+        <textcolor>00000000</textcolor>
+        <focusedcolor>00000000</focusedcolor>
+        <texturefocus />
+        <texturenofocus />
+      </control>
+      <control type="label">
+        <left>970</left>
+        <top>224</top>
+        <width>790</width>
+        <height>65</height>
+        <label>In this briefing</label>
+        <font>font40</font>
+        <textcolor>asterInk</textcolor>
+      </control>
+      <control type="label">
+        <left>970</left>
+        <top>286</top>
+        <width>850</width>
+        <height>38</height>
+        <label>$INFO[Window.Property(AsterHub.Status)]</label>
+        <font>font20</font>
+        <textcolor>asterMuted</textcolor>
+        <truncate>true</truncate>
+      </control>
+      <control type="image">
+        <left>970</left>
+        <top>330</top>
+        <width>850</width>
+        <height>2</height>
+        <texture>special://skin/media/ui-solid.png</texture>
+        <colordiffuse>asterMuted</colordiffuse>
+      </control>
+      <control type="list" id="500">
+        <left>970</left>
+        <top>344</top>
+        <width>850</width>
+        <height>648</height>
+        <orientation>vertical</orientation>
+        <scrolltime>160</scrolltime>
+        <onup>301</onup>
+        <onleft>300</onleft>
+        <onright>301</onright>
+        <itemlayout height="62" width="850">
+          <control type="label">
+            <left>10</left>
+            <top>8</top>
+            <width>670</width>
+            <height>48</height>
+            <label>$INFO[ListItem.Label]</label>
+            <font>font20</font>
+            <textcolor>asterInk</textcolor>
+            <truncate>true</truncate>
+          </control>
+          <control type="label">
+            <left>690</left>
+            <top>8</top>
+            <width>140</width>
+            <height>48</height>
+            <label>$INFO[ListItem.Label2]</label>
+            <font>font20</font>
+            <textcolor>asterMuted</textcolor>
+            <align>right</align>
+          </control>
+        </itemlayout>
+        <focusedlayout height="62" width="850">
+          <control type="image">
+            <left>0</left>
+            <top>7</top>
+            <width>4</width>
+            <height>46</height>
+            <texture>special://skin/media/ui-solid.png</texture>
+            <colordiffuse>asterGreen</colordiffuse>
+          </control>
+          <control type="label">
+            <left>10</left>
+            <top>8</top>
+            <width>670</width>
+            <height>48</height>
+            <label>$INFO[ListItem.Label]</label>
+            <font>font20</font>
+            <textcolor>asterGreen</textcolor>
+            <truncate>true</truncate>
+          </control>
+          <control type="label">
+            <left>690</left>
+            <top>8</top>
+            <width>140</width>
+            <height>48</height>
+            <label>$INFO[ListItem.Label2]</label>
+            <font>font20</font>
+            <textcolor>asterGreen</textcolor>
+            <align>right</align>
+          </control>
+        </focusedlayout>
+      </control>
+      <control type="image">
+        <left>315</left>
+        <top>926</top>
+        <width>44</width>
+        <height>44</height>
+        <texture colordiffuse="asterInk">special://skin/media/player-controls/full-digest.png</texture>
+        <aspectratio>keep</aspectratio>
+        <visible>Control.IsVisible(305) + !Control.HasFocus(305)</visible>
+      </control>
+      <control type="image">
+        <left>313</left>
+        <top>924</top>
+        <width>48</width>
+        <height>48</height>
+        <texture colordiffuse="asterGreen">special://skin/media/player-controls/full-digest.png</texture>
+        <aspectratio>keep</aspectratio>
+        <visible>Control.IsVisible(305) + Control.HasFocus(305)</visible>
+      </control>
+      <control type="image">
+        <left>327</left>
+        <top>979</top>
+        <width>20</width>
+        <height>2</height>
+        <visible>Control.IsVisible(305) + Control.HasFocus(305)</visible>
+        <texture colordiffuse="asterGold">special://skin/media/ui-solid.png</texture>
+      </control>
+      <control type="label">
+        <left>150</left>
+        <top>985</top>
+        <width>710</width>
+        <height>28</height>
+        <label>Play full digest</label>
+        <font>font16</font>
+        <textcolor>asterInk</textcolor>
+        <align>center</align>
+        <aligny>center</aligny>
+        <truncate>true</truncate>
+        <visible>Control.IsVisible(305) + Control.HasFocus(305)</visible>
+      </control>
+      <control type="image">
+        <left>427</left>
+        <top>926</top>
+        <width>44</width>
+        <height>44</height>
+        <texture colordiffuse="asterInk">special://skin/media/player-controls/play.png</texture>
+        <aspectratio>keep</aspectratio>
+        <visible>Control.IsVisible(300) + !Control.HasFocus(300)</visible>
+      </control>
+      <control type="image">
+        <left>425</left>
+        <top>924</top>
+        <width>48</width>
+        <height>48</height>
+        <texture colordiffuse="asterGreen">special://skin/media/player-controls/play.png</texture>
+        <aspectratio>keep</aspectratio>
+        <visible>Control.IsVisible(300) + Control.HasFocus(300)</visible>
+      </control>
+      <control type="image">
+        <left>439</left>
+        <top>979</top>
+        <width>20</width>
+        <height>2</height>
+        <visible>Control.IsVisible(300) + Control.HasFocus(300)</visible>
+        <texture colordiffuse="asterGold">special://skin/media/ui-solid.png</texture>
+      </control>
+      <control type="label">
+        <left>150</left>
+        <top>985</top>
+        <width>710</width>
+        <height>28</height>
+        <label>Play story</label>
+        <font>font16</font>
+        <textcolor>asterInk</textcolor>
+        <align>center</align>
+        <aligny>center</aligny>
+        <truncate>true</truncate>
+        <visible>Control.IsVisible(300) + Control.HasFocus(300)</visible>
+      </control>
+      <control type="image">
+        <left>539</left>
+        <top>926</top>
+        <width>44</width>
+        <height>44</height>
+        <texture colordiffuse="asterInk">special://skin/media/player-controls/pause.png</texture>
+        <aspectratio>keep</aspectratio>
+        <visible>Control.IsVisible(302) + !Control.HasFocus(302) + !Player.Paused</visible>
+      </control>
+      <control type="image">
+        <left>537</left>
+        <top>924</top>
+        <width>48</width>
+        <height>48</height>
+        <texture colordiffuse="asterGreen">special://skin/media/player-controls/pause.png</texture>
+        <aspectratio>keep</aspectratio>
+        <visible>Control.IsVisible(302) + Control.HasFocus(302) + !Player.Paused</visible>
+      </control>
+      <control type="image">
+        <left>539</left>
+        <top>926</top>
+        <width>44</width>
+        <height>44</height>
+        <texture colordiffuse="asterInk">special://skin/media/player-controls/play.png</texture>
+        <aspectratio>keep</aspectratio>
+        <visible>Control.IsVisible(302) + !Control.HasFocus(302) + Player.Paused</visible>
+      </control>
+      <control type="image">
+        <left>537</left>
+        <top>924</top>
+        <width>48</width>
+        <height>48</height>
+        <texture colordiffuse="asterGreen">special://skin/media/player-controls/play.png</texture>
+        <aspectratio>keep</aspectratio>
+        <visible>Control.IsVisible(302) + Control.HasFocus(302) + Player.Paused</visible>
+      </control>
+      <control type="image">
+        <left>551</left>
+        <top>979</top>
+        <width>20</width>
+        <height>2</height>
+        <visible>Control.IsVisible(302) + Control.HasFocus(302)</visible>
+        <texture colordiffuse="asterGold">special://skin/media/ui-solid.png</texture>
+      </control>
+      <control type="label">
+        <left>150</left>
+        <top>985</top>
+        <width>710</width>
+        <height>28</height>
+        <label>Pause</label>
+        <font>font16</font>
+        <textcolor>asterInk</textcolor>
+        <align>center</align>
+        <aligny>center</aligny>
+        <truncate>true</truncate>
+        <visible>Control.IsVisible(302) + Control.HasFocus(302) + !Player.Paused</visible>
+      </control>
+      <control type="label">
+        <left>150</left>
+        <top>985</top>
+        <width>710</width>
+        <height>28</height>
+        <label>Play</label>
+        <font>font16</font>
+        <textcolor>asterInk</textcolor>
+        <align>center</align>
+        <aligny>center</aligny>
+        <truncate>true</truncate>
+        <visible>Control.IsVisible(302) + Control.HasFocus(302) + Player.Paused</visible>
+      </control>
+      <control type="image">
+        <left>651</left>
+        <top>926</top>
+        <width>44</width>
+        <height>44</height>
+        <texture colordiffuse="asterInk">special://skin/media/player-controls/stop.png</texture>
+        <aspectratio>keep</aspectratio>
+        <visible>Control.IsVisible(303) + !Control.HasFocus(303)</visible>
+      </control>
+      <control type="image">
+        <left>649</left>
+        <top>924</top>
+        <width>48</width>
+        <height>48</height>
+        <texture colordiffuse="asterGreen">special://skin/media/player-controls/stop.png</texture>
+        <aspectratio>keep</aspectratio>
+        <visible>Control.IsVisible(303) + Control.HasFocus(303)</visible>
+      </control>
+      <control type="image">
+        <left>663</left>
+        <top>979</top>
+        <width>20</width>
+        <height>2</height>
+        <visible>Control.IsVisible(303) + Control.HasFocus(303)</visible>
+        <texture colordiffuse="asterGold">special://skin/media/ui-solid.png</texture>
+      </control>
+      <control type="label">
+        <left>150</left>
+        <top>985</top>
+        <width>710</width>
+        <height>28</height>
+        <label>Stop</label>
+        <font>font16</font>
+        <textcolor>asterInk</textcolor>
+        <align>center</align>
+        <aligny>center</aligny>
+        <truncate>true</truncate>
+        <visible>Control.IsVisible(303) + Control.HasFocus(303)</visible>
+      </control>
+    <control type="button" id="139"><left>350</left><top>31</top><width>170</width><height>46</height><label>Search</label><font>font20</font><align>center</align><aligny>center</aligny><onleft>8999</onleft><onright>310</onright><onup>139</onup><ondown>500</ondown><enable>!Player.HasMedia</enable><onclick>RunScript(special://skin/tools/header_search.py)</onclick><textcolor>fff3eee5</textcolor><focusedcolor>fff3eee5</focusedcolor><texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="18" colordiffuse="f23b3a32">special://skin/media/ui-panel.png</texturenofocus></control><control type="image"><left>549</left><top>30</top><width>212</width><height>48</height><texture border="18" colordiffuse="fff3eee5">special://skin/media/ui-compact-card-ring.png</texture><visible>Control.HasFocus(310)</visible></control><control type="image"><left>771</left><top>30</top><width>222</width><height>48</height><texture border="18" colordiffuse="fff3eee5">special://skin/media/ui-compact-card-ring.png</texture><visible>Control.HasFocus(311)</visible></control><control type="image"><left>1235</left><top>30</top><width>152</width><height>48</height><texture border="18" colordiffuse="fff3eee5">special://skin/media/ui-compact-card-ring.png</texture><visible>Control.HasFocus(301)</visible></control><control type="image"><left>349</left><top>30</top><width>172</width><height>48</height><texture border="18" colordiffuse="fff3eee5">special://skin/media/ui-compact-card-ring.png</texture><visible>Control.HasFocus(139)</visible></control><control type="image"><left>1003</left><top>30</top><width>222</width><height>48</height><texture border="18" colordiffuse="fff3eee5">special://skin/media/ui-compact-card-ring.png</texture><visible>Control.HasFocus(312)</visible></control></control>
+  </controls>
+</window>

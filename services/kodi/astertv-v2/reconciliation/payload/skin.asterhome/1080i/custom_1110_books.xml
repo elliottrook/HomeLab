@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<window id="1110" type="window">
+  <defaultcontrol always="true">110</defaultcontrol>
+  <onload>RunScript(special://skin/tools/books_data.py,home)</onload>
+  <backgroundcolor>asterStone</backgroundcolor>
+  <onload>AlarmClock(AsterBooksHero,RunScript(special://skin/tools/books_data.py,home,hero-tick),00:12,silent,loop)</onload><onunload>CancelAlarm(AsterBooksHero,silent)</onunload><controls>
+    <include content="AsterBooksPage">
+      <param name="page" value="home" />
+      <param name="firsttile" value="501" />
+      <param name="heading" value="Your books &amp; listening" />
+      <param name="homevisible" value="true" />
+      <param name="browsevisible" value="false" />
+      <param name="activevisible" value="false" />
+      <param name="icon" value="special://skin/media/11-books.png" />
+    </include>
+  </controls>
+</window>

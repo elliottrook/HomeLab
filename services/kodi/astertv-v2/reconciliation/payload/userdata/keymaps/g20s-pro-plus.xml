@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<keymap>
+  <global>
+    <keyboard>
+      <select>RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)</select>
+      <key id="353">RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)</key>
+      <return>RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)</return>
+      <enter>RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)</enter>
+      <browser_search>RunScript(script.astervoice.v2lab)</browser_search>
+    </keyboard>
+    <mouse>
+      <leftclick>RunScript(special://home/addons/skin.asterhome/tools/select_dispatch.py)</leftclick>
+      <rightclick>Back</rightclick>
+    </mouse>
+  </global>
+  <MyVideoNav>
+    <keyboard>
+      <escape>RunScript(special://home/addons/skin.asterhome/tools/youtube_back.py)</escape>
+      <backspace>RunScript(special://home/addons/skin.asterhome/tools/youtube_back.py)</backspace>
+      <browser_back>RunScript(special://home/addons/skin.asterhome/tools/youtube_back.py)</browser_back>
+    </keyboard>
+    <mouse>
+      <rightclick>RunScript(special://home/addons/skin.asterhome/tools/youtube_back.py)</rightclick>
+    </mouse>
+  </MyVideoNav>
+  <FullscreenVideo>
+    <keyboard>
+      <escape>Stop</escape>
+      <backspace>Stop</backspace>
+      <browser_back>Stop</browser_back>
+      <select>OSD</select>
+      <key id="353">OSD</key>
+      <return>OSD</return>
+      <enter>OSD</enter>
+      <browser_search>noop</browser_search>
+    </keyboard>
+    <mouse>
+      <leftclick>OSD</leftclick>
+      <rightclick>Stop</rightclick>
+    </mouse>
+  </FullscreenVideo>
+  <FullscreenGame>
+    <keyboard>
+      <select>OSD</select>
+      <key id="353">OSD</key>
+      <return>OSD</return>
+      <enter>OSD</enter>
+      <browser_search>noop</browser_search>
+    </keyboard>
+    <mouse>
+      <leftclick>OSD</leftclick>
+      <rightclick>Back</rightclick>
+    </mouse>
+  </FullscreenGame>
+  <Visualisation>
+    <keyboard>
+      <escape>Stop</escape>
+      <backspace>Stop</backspace>
+      <browser_back>Stop</browser_back>
+      <select>OSD</select>
+      <key id="353">OSD</key>
+      <return>OSD</return>
+      <enter>OSD</enter>
+      <browser_search>noop</browser_search>
+    </keyboard>
+    <mouse>
+      <leftclick>OSD</leftclick>
+      <rightclick>Stop</rightclick>
+    </mouse>
+  </Visualisation>
+</keymap>

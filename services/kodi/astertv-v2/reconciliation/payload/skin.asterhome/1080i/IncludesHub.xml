@@ -1,0 +1,175 @@
+<?xml version='1.0' encoding='utf-8'?>
+<includes>
+<variable name="AsterHubRowColor">
+  <value condition="Control.HasFocus(500)">asterSage</value>
+  <value>asterPaper</value>
+</variable>
+<include name="AsterNavigationRail">
+<param name="content" default="100" />
+<param name="railfocus" default="9001" />
+<definition>
+        
+        <control type="group" id="9000">
+            <zorder>100</zorder>
+            <left>22</left>
+            <top>300</top>
+            <width>250</width>
+            <height>480</height>
+            <visible>Control.HasFocus(8999) | Control.HasFocus(9001) | Control.HasFocus(9002) | Control.HasFocus(9003) | Control.HasFocus(9004) | Control.HasFocus(9005) | Control.HasFocus(9007) | Control.HasFocus(9009)</visible>
+            <animation effect="slide" start="-12,0" end="0,0" time="150" reversible="true" condition="!Skin.HasSetting(AsterReducedMotion)">VisibleChange</animation>
+            <control type="image">
+                <left>0</left>
+                <top>0</top>
+                <width>250</width>
+                <height>480</height>
+                <texture border="24" colordiffuse="75cbb991">special://skin/media/ui-panel.png</texture>
+            </control>
+            <control type="image"><left>1</left><top>1</top><width>248</width><height>478</height><texture border="24" colordiffuse="f23b3a32">special://skin/media/ui-panel.png</texture></control><control type="image">
+                <left>14</left>
+                <top>29</top>
+                <width>36</width>
+                <height>36</height>
+                <texture>special://skin/media/media-128.png</texture>
+                <aspectratio>keep</aspectratio>
+            </control>
+            <control type="image">
+                <left>14</left>
+                <top>93</top>
+                <width>36</width>
+                <height>36</height>
+                <texture>special://skin/media/21-books-app.png</texture>
+                <aspectratio>keep</aspectratio>
+            </control>
+            <control type="image"><left>14</left><top>157</top><width>36</width><height>36</height><texture>special://skin/media/news-digest-128.png</texture><aspectratio>keep</aspectratio></control>
+            <control type="image"><left>14</left><top>221</top><width>36</width><height>36</height><texture>special://skin/media/home-hub-128.png</texture><aspectratio>keep</aspectratio></control>
+            <control type="button" id="9001">
+                <left>62</left>
+                <top>16</top>
+                <label>Media</label>
+                <onclick>ActivateWindow(Home)</onclick>
+                <onleft>8999</onleft>
+                <ondown>9002</ondown>
+                <onright condition="Window.IsActive(11110)">SetFocus(501)</onright><onright condition="!Window.IsActive(11110)">SetFocus($PARAM[content])</onright>
+                <include>AsterRailButton</include>
+            <onup>9001</onup></control>
+            <control type="button" id="9002">
+                <left>62</left>
+                <top>80</top>
+                <label>Books</label>
+                <onclick>ActivateWindow(11110)</onclick>
+                <onleft>8999</onleft>
+                <onup>9001</onup>
+                <ondown>9003</ondown>
+                <onright condition="Window.IsActive(11110)">SetFocus(501)</onright><onright condition="!Window.IsActive(11110)">SetFocus($PARAM[content])</onright>
+                <include>AsterRailButton</include>
+            </control>
+            <control type="button" id="9003">
+                <left>62</left>
+                <top>144</top>
+                <label>News</label>
+                <onclick>ActivateWindow(11111)</onclick>
+                <onleft>8999</onleft>
+                <onup>9002</onup>
+                <ondown>9004</ondown>
+                <onright condition="Window.IsActive(11110)">SetFocus(501)</onright><onright condition="!Window.IsActive(11110)">SetFocus($PARAM[content])</onright>
+                <include>AsterRailButton</include>
+            </control>
+            <control type="button" id="9004">
+                <left>62</left>
+                <top>208</top>
+                <label>Home</label>
+                <onclick>ActivateWindow(11112)</onclick>
+                <onleft>8999</onleft>
+                <onup>9003</onup>
+                <ondown>9007</ondown>
+                <onright condition="Window.IsActive(11110)">SetFocus(501)</onright><onright condition="!Window.IsActive(11110)">SetFocus($PARAM[content])</onright>
+                <include>AsterRailButton</include>
+            </control>
+            <control type="image"><left>14</left><top>285</top><width>36</width><height>36</height><texture>special://skin/media/20-music-app.png</texture><aspectratio>keep</aspectratio></control>
+            <control type="button" id="9007">
+                <left>62</left><top>272</top><label>Music</label>
+                <onclick>ActivateWindow(11113)</onclick>
+                <onleft>8999</onleft><onup>9004</onup><ondown>9009</ondown>
+                <onright condition="Window.IsActive(11110)">SetFocus(501)</onright><onright condition="!Window.IsActive(11110)">SetFocus($PARAM[content])</onright><include>AsterRailButton</include>
+            </control>
+            <control type="image"><left>14</left><top>349</top><width>36</width><height>36</height><texture>special://skin/media/aster-icon-128.png</texture><aspectratio>keep</aspectratio></control>
+            <control type="image"><left>14</left><top>413</top><width>36</width><height>36</height><texture>special://skin/media/31-settings-app.png</texture><aspectratio>keep</aspectratio></control>
+            <control type="button" id="9009">
+                <left>62</left>
+                <top>336</top>
+                <label>Requests</label>
+                <onclick>RunScript(script.asteracquisition)</onclick>
+                <onleft>8999</onleft>
+                <onup>9007</onup>
+                <onright condition="Window.IsActive(11110)">SetFocus(501)</onright><onright condition="!Window.IsActive(11110)">SetFocus($PARAM[content])</onright>
+                <include>AsterRailButton</include>
+            <ondown>9005</ondown></control>
+        <control type="button" id="9005">
+                <left>62</left>
+                <top>400</top>
+                <label>Settings</label>
+                <onclick>ActivateWindow(Settings)</onclick>
+                <onleft>8999</onleft>
+                <onup>9009</onup>
+                <onright condition="Window.IsActive(11110)">SetFocus(501)</onright><onright condition="!Window.IsActive(11110)">SetFocus($PARAM[content])</onright>
+                <include>AsterRailButton</include>
+            <ondown>9005</ondown></control>
+        </control>
+
+        
+        <control type="group" id="9006">
+            <zorder>90</zorder>
+
+        <control type="image" id="8998">
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007) + !Control.HasFocus(9009)</visible>
+            <left>0</left>
+            <top>0</top>
+            <width>72</width>
+            <height>480</height>
+            <texture border="24" colordiffuse="75cbb991">special://skin/media/ui-panel.png</texture>
+        </control>
+        <control type="image"><visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007) + !Control.HasFocus(9009)</visible><left>1</left><top>1</top><width>70</width><height>478</height><texture border="24" colordiffuse="f23b3a32">special://skin/media/ui-panel.png</texture></control><control type="image">
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007) + !Control.HasFocus(9009)</visible>
+            <left>14</left><top>25</top><width>44</width><height>44</height>
+            <texture>special://skin/media/media-128.png</texture><aspectratio>keep</aspectratio>
+        </control>
+        <control type="image">
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007) + !Control.HasFocus(9009)</visible>
+            <left>14</left><top>89</top><width>44</width><height>44</height>
+            <texture>special://skin/media/21-books-app.png</texture><aspectratio>keep</aspectratio>
+        </control>
+        <control type="image">
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007) + !Control.HasFocus(9009)</visible>
+            <left>14</left><top>153</top><width>44</width><height>44</height>
+            <texture>special://skin/media/news-digest-128.png</texture><aspectratio>keep</aspectratio>
+        </control>
+        <control type="image">
+            <visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007) + !Control.HasFocus(9009)</visible>
+            <left>14</left><top>217</top><width>44</width><height>44</height>
+            <texture>special://skin/media/home-hub-128.png</texture><aspectratio>keep</aspectratio>
+        </control>
+        <control type="image"><visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007) + !Control.HasFocus(9009)</visible><left>14</left><top>281</top><width>44</width><height>44</height><texture>special://skin/media/20-music-app.png</texture><aspectratio>keep</aspectratio></control>
+        <control type="image"><visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007) + !Control.HasFocus(9009)</visible><left>14</left><top>345</top><width>44</width><height>44</height><texture>special://skin/media/aster-icon-128.png</texture><aspectratio>keep</aspectratio></control>
+        <control type="image"><visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007) + !Control.HasFocus(9009)</visible><left>14</left><top>409</top><width>44</width><height>44</height><texture>special://skin/media/31-settings-app.png</texture><aspectratio>keep</aspectratio></control>
+        <control type="button" id="8999">
+            <visible>!Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007) + !Control.HasFocus(9009)</visible>
+            <left>0</left>
+            <top>0</top>
+            <width>72</width>
+            <height>480</height>
+            <label />
+            <font>font40</font>
+            <textcolor>ffece8df</textcolor>
+            <focusedcolor>asterSage</focusedcolor>
+            
+            <onfocus>SetFocus($PARAM[railfocus])</onfocus>
+            <onright>9001</onright>
+            <texturefocus>none</texturefocus>
+            <texturenofocus>none</texturenofocus>
+            <align>center</align>
+            <aligny>center</aligny>
+        </control>
+        <left>22</left><top>300</top><width>72</width><height>480</height></control>
+</definition>
+</include>
+</includes>
