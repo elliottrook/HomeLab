@@ -91,35 +91,45 @@ class FixedObserver:
     def candidate_resident(self) -> bool:
         return self.candidate_residency_state() == "exact"
 
-    def _gpu_holders(self) -> list[tuple[str, str]] | None:
-        """Return one stable holder snapshot, retrying ordinary /proc races."""
-        for _attempt in range(3):
-            holders = []
-            raced = False
-            for proc in Path("/proc").glob("[0-9]*"):
+    def _gpu_holders_once(self) -> list[tuple[str, str]] | None:
+        holders = []
+        for proc in Path("/proc").glob("[0-9]*"):
+            try:
+                fds = tuple((proc / "fd").iterdir())
+            except FileNotFoundError:
+                continue
+            except (OSError, PermissionError):
+                return None
+            owns_gpu = False
+            for fd in fds:
                 try:
-                    fds = tuple((proc / "fd").iterdir())
-                    owns_gpu = False
-                    for fd in fds:
-                        try:
-                            if os.readlink(fd) == "/dev/dri/renderD128":
-                                owns_gpu = True
-                        except FileNotFoundError:
-                            raced = True
-                            break
-                    if raced:
-                        break
-                    if not owns_gpu:
-                        continue
-                    holders.append((os.readlink(proc / "exe"),
-                                    (proc / "cgroup").read_text().strip()))
+                    if os.readlink(fd) == "/dev/dri/renderD128":
+                        owns_gpu = True
                 except FileNotFoundError:
-                    raced = True
-                    break
+                    continue
                 except (OSError, PermissionError, UnicodeError):
                     return None
-            if not raced:
-                return holders
+            if not owns_gpu:
+                continue
+            try:
+                holders.append((os.readlink(proc / "exe"),
+                                (proc / "cgroup").read_text().strip()))
+            except FileNotFoundError:
+                continue
+            except (OSError, PermissionError, UnicodeError):
+                return None
+        return sorted(holders)
+
+    def _gpu_holders(self) -> list[tuple[str, str]] | None:
+        """Require two identical exact-holder snapshots within three reads."""
+        previous = None
+        for _attempt in range(3):
+            current = self._gpu_holders_once()
+            if current is None:
+                return None
+            if current == previous:
+                return current
+            previous = current
         return None
 
     def candidate_residency_state(self) -> str:

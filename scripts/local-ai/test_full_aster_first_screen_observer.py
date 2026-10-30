@@ -65,5 +65,16 @@ class ObserverTests(unittest.TestCase):
         with mock.patch.object(observer, "_gpu_holders", return_value=[]):
             self.assertEqual("gpu_holder_count", observer.candidate_residency_state())
 
+    def test_holder_snapshot_requires_two_stable_reads(self):
+        observer = FixedObserver(Runner())
+        exact = [("/fixed/llama-server", "0::/fixed/cgroup")]
+        with mock.patch.object(observer, "_gpu_holders_once",
+                               side_effect=[[], exact, exact]) as scan:
+            self.assertEqual(exact, observer._gpu_holders())
+            self.assertEqual(3, scan.call_count)
+        with mock.patch.object(observer, "_gpu_holders_once",
+                               side_effect=[[], exact, []]):
+            self.assertIsNone(observer._gpu_holders())
+
 
 if __name__ == "__main__": unittest.main()
