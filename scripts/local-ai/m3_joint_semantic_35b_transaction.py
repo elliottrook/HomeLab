@@ -84,8 +84,12 @@ def validate_guest_failure(value: object) -> dict[str, object]:
             or value.get("answer_content_retained") is not False
             or value.get("hidden_reasoning_retained") is not False):
         raise TransactionError("M3_GUEST_FAILURE_SCHEMA_INVALID")
-    return {key: value[key] for key in (
-        "failure_code", "attempted", "valid", "first_record_failure")}
+    return {
+        "guest_failure_code": value["failure_code"],
+        "attempted": value["attempted"],
+        "valid": value["valid"],
+        "first_record_failure": value["first_record_failure"],
+    }
 
 
 def _retain(root: Path, value: dict[str, object]) -> dict[str, object]:

@@ -11,7 +11,9 @@ class ReservedRunnerTests(unittest.TestCase):
         raw=json.dumps({
             "schema":"aster-m3-joint-semantic-35b-transaction-failure.v1",
             "state":"failed","failure_code":"M3_GUEST_WORKLOAD_FAILED",
-            "production_restored":True,"attempted":1,"valid":0,
+            "production_restored":True,
+            "guest_failure_code":"M3_PUBLIC_RESULT_INCOMPLETE",
+            "attempted":1,"valid":0,
             "first_record_failure":"http_4xx"})
         self.assertEqual("M3_GUEST_WORKLOAD_FAILED_HTTP_4XX_ATTEMPTED_1_VALID_0",
                          runner.bounded_owner_failure(raw))

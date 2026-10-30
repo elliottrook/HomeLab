@@ -58,7 +58,7 @@ class TransactionTests(unittest.TestCase):
             "hidden_reasoning_retained": False,
         })
         self.assertEqual({
-            "failure_code": "M3_PUBLIC_RESULT_INCOMPLETE", "attempted": 1,
+            "guest_failure_code": "M3_PUBLIC_RESULT_INCOMPLETE", "attempted": 1,
             "valid": 0, "first_record_failure": "http_4xx"}, value)
 
     def test_unbounded_guest_failure_is_rejected(self):

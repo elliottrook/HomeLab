@@ -163,8 +163,10 @@ def bounded_owner_failure(raw: str) -> str | None:
         return None
     if value["failure_code"] == "M3_GUEST_FAILURE_UNAVAILABLE":
         return value["failure_code"]
-    detail_keys = {"attempted", "valid", "first_record_failure"}
+    detail_keys = {"guest_failure_code", "attempted", "valid", "first_record_failure"}
     if (not detail_keys.issubset(value)
+            or value["guest_failure_code"] not in {
+                "M3_PUBLIC_RESULT_INCOMPLETE", "M3_GUEST_INPUT_OR_IO_FAILED"}
             or type(value["attempted"]) is not int
             or type(value["valid"]) is not int
             or not 0 <= value["valid"] <= value["attempted"] <= 24

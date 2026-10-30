@@ -70,8 +70,19 @@ def run(
             if status != 200 or len(raw) > 65_536:
                 raise RuntimeError("engine response failed boundary")
             body = decode_unique_json(raw)
+            message = body["choices"][0]["message"]
+            if (not isinstance(message, dict)
+                    or set(message) not in (
+                        {"role", "content"},
+                        {"role", "content", "reasoning_content"})
+                    or message.get("role") != "assistant"
+                    or not isinstance(message.get("content"), str)
+                    or ("reasoning_content" in message
+                        and message["reasoning_content"] is not None
+                        and not isinstance(message["reasoning_content"], str))):
+                raise ValueError("response message differs")
             bounded = json.dumps({"choices": [{
-                "message": body["choices"][0]["message"],
+                "message": {"role": message["role"], "content": message["content"]},
                 "finish_reason": body["choices"][0]["finish_reason"],
             }]}, sort_keys=True, separators=(",", ":")).encode()
             records.append({
