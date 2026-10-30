@@ -37,6 +37,21 @@ search overlay pin, and Back behavior have separate lab checkpoints named
 `astertv-lab-movie-back-20261029`. Search was reopened after the pin update
 and the lab was idle.
 
+A later live recheck used the Home Movies button itself: a selected movie
+opened window `11130` with no player, and Back returned to the movie list.
+Music Albums opened an owned album modal (window `13001`) and Back returned to
+Albums; Artists selection opened its filtered Albums list; Songs selection
+opened the owned modal; and a fully indexed Playlist opened the same modal and
+returned to Playlists. All these navigation checks left the player idle. The
+first Jellyfin playlist deliberately refused selection: it lists 18 tracks
+but its exact Jellyfin-to-Kodi mapping is incomplete. The next sampled
+playlist had all 13 tracks mapped and opened. This is a library-sync/content
+exception, not a general Music navigation failure. A separate temporary
+diagnostic that asked Kodi 22 for a `ControlList` selected object coincided
+with one Kodi segmentation fault; systemd restarted Kodi. Avoid external
+selected-object/position probes on this runtime. The normal Playlist route
+was rechecked after restart without that probe.
+
 The credential-free v2.0.4 lab repair archive is
 `services/kodi/dist/astertv-v2.0.4-code-only-lab.tar.gz` (13,142,749 bytes,
 658 members, SHA-256

@@ -27,6 +27,9 @@
     "seerr_request_submission_tested": false,
     "recommendation_rail_items": 12,
     "recommendation_day_matches_local_date": true,
+    "home_movie_pill_details_and_back_no_autoplay": true,
+    "music_album_artist_song_and_mapped_playlist_navigation": true,
+    "first_sampled_playlist_unmapped_tracks": 18,
     "home_live_publication_readings": 63,
     "home_next_automatic_publication_verified": true,
     "news_digest_http_200_and_19_chapters": true
@@ -48,6 +51,7 @@
     "Lab Seerr browse and Search work; Seerr request submission needs a bounded acceptance test, and the separate Acquisition token is absent",
     "Lab reuses the existing restricted Audiobookshelf identity; audible audiobook and podcast playback still needs owner-approved acceptance",
     "Lab camera service is prepared but disabled pending Frigate key approval; voice STT credential and expected G20 microphone are absent",
+    "One sampled Jellyfin playlist has incomplete exact Kodi song mappings and intentionally cannot open",
     "Daily hero rotation needs next-day owner observation",
     "Dolby bitstream requires a capable sink or HDMI analyzer and production-chain retest"
   ],
