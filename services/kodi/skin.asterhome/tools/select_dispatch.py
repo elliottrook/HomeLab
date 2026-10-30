@@ -75,6 +75,14 @@ def main():
         focus_id = xbmcgui.Window(window_id).getFocusId()
     except RuntimeError:
         focus_id = 0
+    if (window_id, focus_id) in ((10025, 50), (10000, 100), (10000, 110)):
+        container = focus_id
+        movie_id = xbmc.getInfoLabel(f'Container({container}).ListItem.DBID')
+        if (movie_id.isdecimal() and 0 < int(movie_id) <= 2147483647
+                and xbmc.getInfoLabel(f'Container({container}).ListItem.DBTYPE') == 'movie'
+                and not xbmc.getCondVisibility(f'Container({container}).ListItem.IsParentFolder')):
+            xbmc.executebuiltin('RunScript(script.asterruntime,aster-global-search-ui22,movie,' + movie_id + ')')
+            return
     if window_id == 10502 and focus_id == 50:
         from books_player import is_books_parent
         if is_books_parent(xbmc.getInfoLabel('Container.FolderPath'),

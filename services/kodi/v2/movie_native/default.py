@@ -18,6 +18,20 @@ def fence(session):
     if session.phase=='recovery' and not path.exists():
         with path.open('x') as handle:json.dump(dict(movie_id=session.movie_id,error=session.error,time=int(time.time())),handle)
         path.chmod(0o600)
+def admitted_source(movie_id):
+    """Only the selected local movie may open a detail page from a library row."""
+    window_id=xbmcgui.getCurrentWindowId()
+    if window_id==11127:
+        return xbmcgui.getCurrentWindowDialogId() in (0,9999)
+    try:focus=xbmcgui.Window(window_id).getFocusId()
+    except RuntimeError:return False
+    if (window_id,focus) not in ((10025,50),(10000,100),(10000,110)):
+        return False
+    item=110 if (window_id,focus)==(10000,110) else 100 if window_id==10000 else 50
+    identity=xbmc.getInfoLabel(f'Container({item}).ListItem.DBID')
+    return (identity.isdecimal() and int(identity)==movie_id
+            and xbmc.getInfoLabel(f'Container({item}).ListItem.DBTYPE')=='movie'
+            and not xbmc.getCondVisibility(f'Container({item}).ListItem.IsParentFolder'))
 def main():
     if os.uname().nodename!='AsterTV':return
     DIRECTORY.mkdir(mode=0o700,parents=True,exist_ok=True)
@@ -29,7 +43,7 @@ def main():
         admitted=True
         require(len(sys.argv)==2 and sys.argv[1].isdecimal(),'invalid-movie-link')
         require(not (DIRECTORY/'unresolved-start.json').exists(),'movie-recovery-required')
-        require(xbmcgui.getCurrentWindowId()==11127 and xbmcgui.getCurrentWindowDialogId() in (0,9999) and idle(rpc),'idle-search-source-required')
+        require(admitted_source(int(sys.argv[1])) and idle(rpc),'idle-movie-source-required')
         verify_stage();value=read_movie(rpc,int(sys.argv[1]));session=MovieSession(rpc,value.movie_id)
         for name in ('Command','Ready','Window','Phase'):home.clearProperty(PREFIX+name)
         xbmc.executebuiltin('ActivateWindow(1130)');opened=True

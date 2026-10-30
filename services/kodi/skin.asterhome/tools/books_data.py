@@ -199,7 +199,7 @@ def activate_row(row, xbmc, xbmcgui, compiled_target=compiled_reader_target):
         xbmc.executebuiltin('ActivateWindow(Music,' + destination + ',return)')
 
 
-def main(page, action='load'):
+def main(page, action='load', identity=None):
     import xbmc
     import xbmcgui
     import xbmcvfs
@@ -212,6 +212,8 @@ def main(page, action='load'):
                                        defaultt=window.getProperty('AsterBooks.Search'))
         window.setProperty('AsterBooks.Search', value[:120])
     elif action == 'clear' and page != 'home':
+        window.clearProperty('AsterBooks.Search')
+    elif action == 'focus' and page != 'home':
         window.clearProperty('AsterBooks.Search')
 
     path = xbmcvfs.translatePath(
@@ -268,7 +270,13 @@ def main(page, action='load'):
                            'Search: ' + query if query else
                            'Filter my shows' if page == 'podcasts' else
                            'Search ' + page)
-        if action == 'load' and rows:
+        if action == 'focus' and identity is not None:
+            match = next((index for index, row in enumerate(rows)
+                          if row['id'] == identity and row['kind'] == KINDS[page]), None)
+            if match is not None:
+                listing.selectItem(match)
+                xbmc.executebuiltin('Control.SetFocus(500)')
+        elif action == 'load' and rows:
             xbmc.executebuiltin('Control.SetFocus(500,0,absolute)')
 
     for kind, count in counts.items():
@@ -279,4 +287,5 @@ def main(page, action='load'):
 
 if __name__ == '__main__':
     main(sys.argv[1] if len(sys.argv) > 1 else '',
-         sys.argv[2] if len(sys.argv) > 2 else 'load')
+         sys.argv[2] if len(sys.argv) > 2 else 'load',
+         sys.argv[3] if len(sys.argv) > 3 else None)

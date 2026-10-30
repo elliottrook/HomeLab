@@ -1,0 +1,45 @@
+{
+  "schema": "aster-home-kodi-lab-source-candidate.v1",
+  "release": "2.0.4-lab-candidate",
+  "status": "lab-repair-overlay-not-clean-client-installer-or-production-ready",
+  "source_branch": "codex/astertv-v2-recovery",
+  "target_runtime": "LibreELEC nightly-20261021-440640e / Kodi 22 RC1",
+  "included_recovery_work": [
+    "v2.0.3 YouTube navigation and daily Media hero code",
+    "Music catalogue reads all 23610 songs despite bounded Kodi artist-link omissions",
+    "Kodi 22 Settings category template and left/right navigation repair",
+    "Movie selection opens the guarded details page from Home and library and returns to its source",
+    "Packaged G20/keyboard select keymap for TV, Music, Books and search dispatch"
+  ],
+  "lab_acceptance": {
+    "tv_library_selection_opens_v2_season_preview_without_playback": true,
+    "movie_library_selection_opens_details_without_playback": true,
+    "movie_back_returns_to_movie_library": true,
+    "settings_category_buttons_visible_and_left_right_focus_works": true,
+    "music_album_opens_track_page_without_playback": true,
+    "book_audio_home_requests_and_voice_end_to_end": false
+  },
+  "lab_code_only_update": {
+    "path": "services/kodi/dist/astertv-v2.0.4-code-only-lab.tar.gz",
+    "sha256": "7a0d45665978b28179b0ba6d73a7e6150d97c8c441f1f8541e4fa0e0dd25b416",
+    "bytes": 13142749,
+    "members": 658,
+    "basis_sha256": "bedee92f711fe62b3e18921cf7b9fa8e2421117030cd678886461da8bc1c90af",
+    "runtime_settings_included": false,
+    "credentials_included": false
+  },
+  "lab_keymap": {
+    "path": "services/kodi/dist/astertv-v2.0.4-lab-keymap.xml",
+    "sha256": "befaf9072814579d4727d8f75ab78e4136abeaec371decc5f34b719e6800b320"
+  },
+  "known_release_blockers": [
+    "Lab-specific Seerr and Acquisition broker identities are absent",
+    "Lab Audiobookshelf identity, Books feed, Home feed, camera service and voice credential are absent",
+    "Books and podcasts are not yet implemented as local Search groups",
+    "Home and camera, Requests, Seerr, voice and audiobook/podcast playback need live acceptance",
+    "Daily hero rotation needs next-day owner observation",
+    "Dolby bitstream still requires a capable sink or HDMI analyzer and production-chain retest"
+  ],
+  "production_deployment_authorized": false,
+  "production_state": "v1.1.1 active; unchanged"
+}

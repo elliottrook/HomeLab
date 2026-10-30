@@ -2,6 +2,106 @@
 
 Updated: 2026-10-29. Owner: Jason. Lab: HP `192.168.1.140`.
 
+## Lab regression repair after owner walkthrough — 2026-10-29
+
+The broad regression report exposed a clean-client assembly failure. The
+v2.0.3 archive installed add-on code but did not install the Aster remote
+keymap or provision the client data and identities expected by the pages.
+Every installed component and skin pin checked out before repair; this was
+not a random corruption of the add-on files. The recovery recipe still names
+LibreELEC 12/Kodi 21 and assumes an already configured v1.1.1 client, whereas
+the reinstalled lab is LibreELEC 13/Kodi 22 with a fresh profile.
+
+The missing keymap was restored from the versioned G20/keyboard map, with a
+checkpoint at `/storage/.aster-checkpoints/astertv-lab-keymap-20261029`.
+Kodi's restart log confirmed the map loaded. A lab TV library selection then
+opened the v2 season/episode preview at window `13001` and returned to the
+library with no active player. Music needed a separate client flag and a
+bounded catalogue repair: Kodi's full song read had 221 omissions from its
+enriched artist join and 46 unresolved artist IDs affecting 204 songs. The
+adapter now recovers all 23,610 songs, discards only unresolved artist links
+in memory, and reports the reduced credit quality. Its 22 tests pass; a live
+album selection opened a 16-track page without starting playback. Checkpoints
+are `/storage/.aster-checkpoints/astertv-lab-normal-music-20261029` and
+`/storage/.aster-checkpoints/astertv-lab-music-catalogue-20261029`.
+
+Kodi 22's Settings category template was incorrectly nested inside its
+dynamic category list. Moving the template outside made the brown pane's
+Skin, Regional, Screensaver, Master lock, and Startup buttons visible. Live
+Right/Left input moved between the category pane and the settings. A movie
+selection from the native movie library now opens the ID-verified v2 details
+page with no autoplay; Back returns to the movie library. The movie route,
+search overlay pin, and Back behavior have separate lab checkpoints named
+`astertv-lab-movie-entry-20261029`,
+`astertv-lab-search-select-sync-20261029`, and
+`astertv-lab-movie-back-20261029`. Search was reopened after the pin update
+and the lab was idle.
+
+The credential-free v2.0.4 lab repair archive is
+`services/kodi/dist/astertv-v2.0.4-code-only-lab.tar.gz` (13,142,749 bytes,
+658 members, SHA-256
+`7a0d45665978b28179b0ba6d73a7e6150d97c8c441f1f8541e4fa0e0dd25b416`).
+Its separate keymap is `services/kodi/dist/astertv-v2.0.4-lab-keymap.xml`
+(SHA-256 `befaf9072814579d4727d8f75ab78e4136abeaec371decc5f34b719e6800b320`).
+All component, music, and skin hashes inside the archive pass. This is a lab
+repair overlay, not a clean-client installer; the per-client music flag,
+24-hour clock setting, private credentials, and feeds remain separate. The
+release record is `services/kodi/releases/aster-home-v2.0.4-lab-candidate.json`.
+
+The subsequent v2.0.5 lab overlay added Ebooks, Audiobooks and Podcasts to
+global Search using the bounded local Books feed. An exact-ID result opens its
+Books page; Back restores the Search query and selected result. A temporary
+three-item feed proved all eight groups appeared and an audiobook result
+opened and returned without playback. The test feed was removed and its prior
+absence recorded at
+`/storage/.aster-checkpoints/astertv-lab-books-search-fixture-20261029`.
+The code checkpoint is
+`/storage/.aster-checkpoints/astertv-lab-books-search-20261029`. The
+credential-free v2.0.5 archive is
+`services/kodi/dist/astertv-v2.0.5-code-only-lab.tar.gz` (13,143,943 bytes,
+659 members, SHA-256
+`730cee0755607c79b4dbf4a8d2fe110f901bda851b7d09da51258555584c6bc7`).
+All 8 component manifests, the music manifest and the skin pins pass. Its
+release record is `services/kodi/releases/aster-home-v2.0.5-lab-candidate.json`.
+
+The real lab Books feed was rebuilt from the read-only TrueNAS snapshot and
+validated before installation. It contains 505 ebooks, 46 audiobooks, and
+7 podcasts; the Books page showed the corresponding populated rows. Its
+private feed is at `/storage/.kodi/userdata/addon_data/skin.asterhome/feeds/books.json`,
+checkpointed at `/storage/.aster-checkpoints/astertv-lab-books-feed-20261029`.
+This one-shot feed expires after 24 hours. Audiobook/podcast listening still
+needs a separate lab Audiobookshelf identity. A one-time interactive helper
+is staged at `/storage/.aster-staging/configure_lab_books_client.py`; it takes
+the key only in a private terminal prompt and never replaces an existing
+credential.
+
+The Home Assistant publisher and receiver were reconciled to the lab's new
+SSH host key. The lab receiver accepts only the established source-IP-limited,
+forced-command Home Assistant delivery key. An initial 63-reading snapshot
+was installed, and a one-shot live publication returned `ok: true` with
+63 readings at 17:44 PDT. The unmodified Home Assistant publisher also
+delivered its next automatic edition at 17:47 PDT with 63 readings. The lab checkpoint is
+`/storage/.aster-checkpoints/aster-home-delivery1`; the source host-key
+checkpoint is `/config/aster-checkpoints/home-delivery-lab-hostkey-20261029`
+on Home Assistant. Home displayed real data and the 24-hour clock after the
+repair.
+
+The News digest's existing source served HTTP 200 at 17:48 PDT with a current
+19-chapter edition generated at 17:28 PDT. The lab News page opened at window
+11111 with focus on its Play control and no active player, then returned Home.
+The news playback/return path was not rerun during the regression repair.
+
+The lab camera proxy and a new lab-only SSH key are prepared at
+`/storage/.aster-camera`, checkpointed at
+`/storage/.aster-checkpoints/astertv-lab-camera-prepare-20261029`. Its service
+is disabled and the Frigate source does not yet authorize this key. Enabling
+it requires the owner's pending confirmation for the Frigate remote change.
+Voice cannot be live-tested yet: the fresh lab exposes only Intel PCH capture,
+while the guarded voice policy expects the G20 remote at `hw:1,0`, and its
+separate STT identity is absent. The lab Seerr and Acquisition broker tokens
+are also absent, so Requests and Seerr search remain blocked on lab identity.
+No production files were changed; production remains v1.1.1 stereo.
+
 ## Lab Media and YouTube acceptance update — 2026-10-29
 
 Jason reported a stale Media recommendation hero, 12-hour clock, missing

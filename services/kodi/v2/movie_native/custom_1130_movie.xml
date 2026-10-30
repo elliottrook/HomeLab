@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window id="1130" type="window">
-  <defaultcontrol always="true">200</defaultcontrol><previouswindow>1127</previouswindow>
+  <defaultcontrol always="true">200</defaultcontrol>
   <backgroundcolor>asterStone</backgroundcolor>
   <controls>
     <control type="image"><width>1920</width><height>1080</height><texture>$INFO[Window.Property(Movie.Fanart)]</texture><aspectratio>scale</aspectratio></control>

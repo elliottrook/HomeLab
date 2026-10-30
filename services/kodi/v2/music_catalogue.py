@@ -21,6 +21,9 @@ TABLES = (
     ('AudioLibrary.GetArtists', 'artists', 'artistid', ['genre'], 10000),
     ('AudioLibrary.GetSongs', 'songs', 'songid', ['genre', 'albumid', 'artistid', 'duration'], 100000),
 )
+MAX_RECOVERABLE_ARTIST_OMISSIONS = 512
+MAX_UNRESOLVED_ARTIST_IDS = 128
+MAX_UNRESOLVED_ARTIST_SONGS = 512
 
 
 def call_read(rpc, method, params):
@@ -93,8 +96,9 @@ def read_pages(rpc, table, *, page_size=1000):
                 and type(end) is int and limits.get('start') == start
                 and start <= end <= total and 0 < end-start <= page_size
                 and len(page) < end-start):
-            page, recovered = recover_artist_omissions(rpc, params, page, limits,
-                                                      128-artist_omissions)
+            page, recovered = recover_artist_omissions(
+                rpc, params, page, limits,
+                MAX_RECOVERABLE_ARTIST_OMISSIONS - artist_omissions)
             artist_omissions += recovered
         if (type(total) is not int or type(end) is not int
                 or type(limits.get('start')) is not int
@@ -174,7 +178,27 @@ class Catalogue:
 def build_catalogue(albums, artists, songs):
     album_map = {row['albumid']: deepcopy(row) for row in albums}
     artist_map = {row['artistid']: deepcopy(row) for row in artists}
-    song_map = {row['songid']: deepcopy(row) for row in songs}
+    song_map = {}
+    unresolved_ids = set()
+    unresolved_songs = 0
+    for row in songs:
+        artist_ids = row.get('artistid', [])
+        if (not isinstance(artist_ids, list) or
+                any(type(i) is not int or i < 1 for i in artist_ids)):
+            raise CatalogueUnavailable('incomplete-artist-or-album-links')
+        missing = set(artist_ids) - artist_map.keys()
+        if missing:
+            unresolved_ids.update(missing)
+            unresolved_songs += 1
+            if (len(unresolved_ids) > MAX_UNRESOLVED_ARTIST_IDS or
+                    unresolved_songs > MAX_UNRESOLVED_ARTIST_SONGS):
+                raise CatalogueUnavailable('incomplete-artist-or-album-links')
+        clean = deepcopy(row)
+        clean['artistid'] = [i for i in artist_ids if i in artist_map]
+        if missing:
+            clean['artist_credit_available'] = False
+        song_map[row['songid']] = clean
+    songs = list(song_map.values())
     try:
         summary = shuffle_candidates(songs, albums, expected_total=len(songs))
     except ValueError:
@@ -197,6 +221,8 @@ def build_catalogue(albums, artists, songs):
     summary['artist_unavailable_songs'] = sum(not any(
         not (i==1 and artist_map[i].get('label')=='[Missing Tag]')
         for i in row.get('artistid',[])) for row in songs)
+    summary['unresolved_artist_ids'] = len(unresolved_ids)
+    summary['unresolved_artist_songs'] = unresolved_songs
     return Catalogue(album_map, artist_map, song_map, memberships, summary)
 
 

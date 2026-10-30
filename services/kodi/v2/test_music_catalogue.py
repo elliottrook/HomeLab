@@ -151,10 +151,15 @@ class CatalogueTests(unittest.TestCase):
         with self.assertRaisesRegex(CatalogueUnavailable,'library-changed-during-verification'):
             read_catalogue(mutate)
 
-    def test_missing_parent_or_guest_artist_is_not_silently_dropped(self):
-        for key in ('albums','artists'):
-            fake=FakeLibrary();fake.data[key]=fake.data[key][:1]
-            with self.assertRaises(CatalogueUnavailable):read_catalogue(fake)
+    def test_missing_album_fails_and_unresolved_guest_credit_is_flagged(self):
+        fake=FakeLibrary();fake.data['albums']=fake.data['albums'][:1]
+        with self.assertRaises(CatalogueUnavailable):read_catalogue(fake)
+        fake=FakeLibrary();fake.data['artists']=fake.data['artists'][:1]
+        result=read_catalogue(fake)
+        self.assertEqual(result.songs[1]['artistid'],[1])
+        self.assertFalse(result.songs[1]['artist_credit_available'])
+        self.assertEqual(result.shuffle_summary['unresolved_artist_ids'],1)
+        self.assertEqual(result.shuffle_summary['unresolved_artist_songs'],1)
 
     def test_invalid_relationships_or_genre_types_fail(self):
         for patch in ({'albumid':True},{'artistid':'1'},{'artistid':[True]},
@@ -203,7 +208,7 @@ class CatalogueTests(unittest.TestCase):
 
     def test_mass_credit_omissions_exceed_bound_instead_of_silent_repair(self):
         fake=FakeLibrary()
-        fake.data['songs']=[{'songid':i+1,'genre':[],'artistid':[]} for i in range(129)]
+        fake.data['songs']=[{'songid':i+1,'genre':[],'artistid':[]} for i in range(513)]
         with self.assertRaises(CatalogueUnavailable):read_catalogue(self.credit_join(fake))
 
 

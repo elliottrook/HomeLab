@@ -10,13 +10,15 @@
         <control type="grouplist" id="3">
             <left>42</left><top>230</top><width>370</width><height>690</height>
             <orientation>vertical</orientation><itemgap>10</itemgap>
-            <control type="button" id="10">
-                <width>350</width><height>66</height><font>font24</font>
-                <textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
-                <texturefocus border="22" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-                <texturenofocus>none</texturenofocus>
-                <textoffsetx>22</textoffsetx><align>left</align><aligny>center</aligny>
-            </control>
+            <usecontrolcoords>true</usecontrolcoords>
+            <onleft>5</onleft><onright>5</onright><onup>3</onup><ondown>20</ondown>
+        </control>
+        <control type="button" id="10">
+            <width>350</width><height>66</height><font>font24</font>
+            <textcolor>asterRailText</textcolor><focusedcolor>asterInk</focusedcolor>
+            <texturefocus border="22" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
+            <texturenofocus>none</texturenofocus>
+            <textoffsetx>22</textoffsetx><align>left</align><aligny>center</aligny>
         </control>
         <control type="radiobutton" id="20">
             <left>42</left><top>948</top><width>350</width><height>62</height>
@@ -31,6 +33,7 @@
         <control type="grouplist" id="5">
             <left>520</left><top>246</top><width>1250</width><height>594</height>
             <orientation>vertical</orientation><itemgap>8</itemgap>
+            <onleft>3</onleft><onright>60</onright><onup>5</onup><ondown>5</ondown>
         </control>
         <!-- Kodi clones these templates into the settings grouplist. Their
              IDs and types are part of Kodi's settings-window contract. -->

@@ -4,7 +4,9 @@ from pathlib import Path
 import xbmc,xbmcgui
 ROOT=Path(__file__).resolve().parent
 sys.path.insert(0,str(ROOT/'resources/lib'))
+sys.path.insert(0,'/storage/.kodi/addons/skin.asterhome/tools')
 from global_search import SOURCES,READS,SearchUnavailable,search_group,normalize_query
+from search_books import KINDS as BOOK_KINDS, local_groups, permitted_id
 PREFIX='AsterSearch.'
 DETAIL_READS=frozenset(('VideoLibrary.GetTVShowDetails','VideoLibrary.GetMovieDetails',
     'AudioLibrary.GetAlbumDetails','AudioLibrary.GetArtistDetails','AudioLibrary.GetSongDetails'))
@@ -57,7 +59,7 @@ def main():
                 require(hashlib.sha256(NATIVE.with_name('custom_1129_artistalbums.xml').read_bytes()).hexdigest()==row['sha256'],'artist-window-not-verified')
         for key in ('Command','Query','Status','Detail','Ready'):home.clearProperty(PREFIX+key)
         home.setProperty(PREFIX+'Query','Search titles…')
-        home.setProperty(PREFIX+'Status','Search this box’s synced TV, film and music index.')
+        home.setProperty(PREFIX+'Status','Search synced TV, film, music and your local Books feed.')
         xbmc.executebuiltin('ActivateWindow(1127)');opened=True
         monitor=xbmc.Monitor();end=time.monotonic()+10
         while not xbmc.getCondVisibility('Window.IsVisible(11127)'):
@@ -112,6 +114,10 @@ def main():
                 groups.append(group)
                 suffix='Unavailable' if group.state=='unavailable' else str(group.total) if query else '—'
                 categories.addItem(xbmcgui.ListItem(label=group.label,label2=suffix))
+            for group in local_groups(query):
+                groups.append(group)
+                suffix='Unavailable' if group.state=='unavailable' else str(group.total) if query else '—'
+                categories.addItem(xbmcgui.ListItem(label=group.label,label2=suffix))
             categories.selectItem(0);display(0);home.setProperty(PREFIX+'Ready','true')
         def browse_artist(hit,parent):
             nonlocal groups,current,positions,artist_context
@@ -160,6 +166,23 @@ def main():
                 xbmc.executebuiltin('SetFocus(10)')
             home.setProperty(PREFIX+'Ready','true')
             return True
+        def open_book_hit(hit):
+            pages={'ebook':(11118,'ebooks'),'audiobook':(11119,'audiobooks'),'podcast':(11120,'podcasts')}
+            require(hit.kind in pages and permitted_id(hit.kind,hit.identity),'invalid-book-link')
+            require(idle() and source_visible(),'book-source-not-idle')
+            target,page=pages[hit.kind]
+            cursor=Cursor(query,hit.kind,hit.identity)
+            home.clearProperty(PREFIX+'Ready')
+            xbmc.executebuiltin('ActivateWindow('+str(target)+')')
+            until=time.monotonic()+5
+            while xbmcgui.getCurrentWindowId()!=target:
+                require(time.monotonic()<until and not monitor.waitForAbort(.05),'book-page-not-ready')
+            from books_data import main as books_main
+            books_main(page,'focus',hit.identity)
+            while xbmcgui.getCurrentWindowId()==target and not monitor.abortRequested():
+                monitor.waitForAbort(.1)
+            if xbmcgui.getCurrentWindowId()==11127:
+                attach(11127);run_query(cursor.query);select_cursor(cursor)
         run_query('')
         while (xbmc.getCondVisibility('Window.IsVisible(11127)') or xbmc.getCondVisibility('Window.IsVisible(11129)')) and not monitor.abortRequested():
             if artist_context and manifest.get('artist_native_window')==11129 and xbmcgui.getCurrentWindowId()==11127:
@@ -182,7 +205,12 @@ def main():
                     index=results.getSelectedPosition();hits=groups[current].hits
                     if 0<=index<len(hits):
                         hit=hits[index]
-                        if linked and (hit.kind in LABELS or (artist_enabled and hit.kind=='artist') or (movie_enabled and hit.kind=='movie')):
+                        if hit.kind in dict(BOOK_KINDS):
+                            try:open_book_hit(hit)
+                            except SearchUnavailable:
+                                home.setProperty(PREFIX+'Status','This Books page could not be verified. Search again.')
+                            active_detail=None
+                        elif linked and (hit.kind in LABELS or (artist_enabled and hit.kind=='artist') or (movie_enabled and hit.kind=='movie')):
                             # Use the real media page as the sole details page.
                             active_detail=hit;command='open'
                         elif details_enabled:

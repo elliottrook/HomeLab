@@ -1,0 +1,46 @@
+{
+  "schema": "aster-home-kodi-lab-source-candidate.v1",
+  "release": "2.0.5-lab-candidate",
+  "status": "lab-tested-code-overlay-not-clean-client-installer-or-production-ready",
+  "source_branch": "codex/astertv-v2-recovery",
+  "target_runtime": "LibreELEC nightly-20261021-440640e / Kodi 22 RC1",
+  "included_recovery_work": [
+    "All credential-free v2.0.4 keymap, Settings, Music and movie repairs",
+    "Read-only Ebooks, Audiobooks and Podcasts groups in global Search",
+    "Exact Books result opens its matching page and Back restores Search selection"
+  ],
+  "lab_acceptance": {
+    "books_search_groups_visible": 3,
+    "local_search_total_groups": 8,
+    "synthetic_feed_exact_audiobook_handoff_and_return": true,
+    "synthetic_feed_removed_after_test": true,
+    "real_books_feed_populated_and_page_opened": true,
+    "real_books_audio_account_tested": false,
+    "home_live_publication_readings": 63,
+    "home_next_automatic_publication_verified": true,
+    "news_digest_http_200_and_19_chapters": true
+  },
+  "lab_code_only_update": {
+    "path": "services/kodi/dist/astertv-v2.0.5-code-only-lab.tar.gz",
+    "sha256": "730cee0755607c79b4dbf4a8d2fe110f901bda851b7d09da51258555584c6bc7",
+    "bytes": 13143943,
+    "members": 659,
+    "basis_sha256": "7a0d45665978b28179b0ba6d73a7e6150d97c8c441f1f8541e4fa0e0dd25b416",
+    "runtime_settings_included": false,
+    "credentials_included": false
+  },
+  "lab_keymap": {
+    "path": "services/kodi/dist/astertv-v2.0.4-lab-keymap.xml",
+    "sha256": "befaf9072814579d4727d8f75ab78e4136abeaec371decc5f34b719e6800b320"
+  },
+  "known_release_blockers": [
+    "Lab Seerr and Acquisition broker tokens are absent; Requests and catalogue search need provisioning",
+    "Lab Audiobookshelf identity is absent; real audiobook and podcast playback need acceptance",
+    "Books feed was installed once and expires after 24 hours; continuous refresh needs a supported client publisher",
+    "Lab camera service is prepared but disabled pending Frigate key approval; voice STT credential and expected G20 microphone are absent",
+    "Daily hero rotation needs next-day owner observation",
+    "Dolby bitstream requires a capable sink or HDMI analyzer and production-chain retest"
+  ],
+  "production_deployment_authorized": false,
+  "production_state": "v1.1.1 active; unchanged"
+}
