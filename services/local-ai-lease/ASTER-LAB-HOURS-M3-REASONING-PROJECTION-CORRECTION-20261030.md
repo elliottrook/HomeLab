@@ -1,6 +1,6 @@
 # M3 reasoning projection correction — 2026-10-30
 
-Status: **SOURCE CORRECTED; SPENT 12:16 BOOKING NOT RETRIED**
+Status: **INSTALLED INACTIVE; SPENT 12:16 BOOKING NOT RETRIED**
 
 Booking `aster-stream-a-m3-35b-20261030-1216` reached all 24 public requests.
 Every engine response completed transport but failed the strict response parser:
@@ -28,3 +28,7 @@ code instead of falling back to `OWNER_TRANSACTION_FAILED_RESTORED`.
 The focused diagnostic, guest, transaction and booked-runner suite passes
 19/19. All release pins are updated. This source change schedules no run,
 starts no model, reads no credential, opens no holdout and enables no routing.
+
+The inactive target installation from this commit passed 14/14 host tests and
+2/2 guest reasoning-projection tests with all 32 installed pins exact. The
+lease remained ready and production stayed healthy without a restart.
