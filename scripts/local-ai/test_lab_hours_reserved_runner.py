@@ -40,8 +40,31 @@ class ReservedRunnerTests(unittest.TestCase):
                             for item in guardian))
         self.assertFalse(any(str(item).endswith("full_inference_lab_deadline_guardian.py")
                              for item in guardian))
-        self.assertEqual(guardian[guardian.index("--rescue-at")+1],"4600")
+        self.assertEqual(guardian[guardian.index("--rescue-at")+1],"3700")
         self.assertEqual(owner[owner.index("--workload-profile")+1],
                          "m3-joint-semantic-35b-public-v1")
+
+    def test_guardian_is_settled_only_after_durable_state_is_absent(self):
+        calls=[]
+        original=runner.STATE_ROOT
+        from tempfile import TemporaryDirectory
+        from pathlib import Path
+        try:
+            with TemporaryDirectory() as tmp:
+                runner.STATE_ROOT=Path(tmp)
+                old_call=runner.call
+                runner.call=lambda command, timeout=30: calls.append(tuple(command))
+                try:
+                    runner.settle_guardian("guardian.service")
+                    self.assertEqual(calls,[("systemctl","stop","guardian.service"),
+                                            ("systemctl","reset-failed","guardian.service")])
+                    calls.clear()
+                    (runner.STATE_ROOT/"full-inference-drain.json").write_text("{}")
+                    runner.settle_guardian("guardian.service")
+                    self.assertEqual(calls,[])
+                finally:
+                    runner.call=old_call
+        finally:
+            runner.STATE_ROOT=original
 
 if __name__=="__main__": unittest.main()

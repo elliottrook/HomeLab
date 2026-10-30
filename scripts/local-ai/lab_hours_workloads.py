@@ -73,8 +73,8 @@ WORKLOADS = {
     ),
     "m3-joint-semantic-35b-public-v1": WorkloadSpec(
         workload_id="m3-joint-semantic-35b-public-v1", owner="aster-stream-a",
-        request_count=24, per_request_timeout_seconds=90, deadline_seconds=3600,
-        minimum_booking_seconds=4500, recovery_reserve_seconds=900,
+        request_count=24, per_request_timeout_seconds=90, deadline_seconds=2700,
+        minimum_booking_seconds=3600, recovery_reserve_seconds=900,
         runner_kind="m3-joint-semantic-35b", runtime_pins=(
             ("nlu_joint_semantic_35b_v1.py", "b2682aa294e5d29b36c961c0b6b5b1593312781026c4f1e3424836ee44f63309"),
             ("nlu_joint_semantic_35b_public_runner_v1.py", "b91e2dc3c2b6c8fbb89d912d8789ea2ac49d6ac412d9e77f854f66c259ac18d3"),
@@ -85,7 +85,7 @@ WORKLOADS = {
             ("nlu_threshold_policy.py", "984932d8716531858972e22723fe962701077f9a15991c58384c6ee6661ebb5d"),
             ("nlu-development-v1.json", "1565a21c78875f64f4f25a190e977ae34dc01bdfcfd5e49c056e8365268b3785"),
             ("m3_joint_semantic_35b_guest_workload.py", "4a40fccf5ba05893b5c3d106ba53c8e29b9d9cf5b7689321c3101da4c0772232"),
-            ("m3_joint_semantic_35b_transaction.py", "6989c37fc4fb774617ed56e2f185a8f92389776497e56b4dbffbcd2efa666e6e"),
+            ("m3_joint_semantic_35b_transaction.py", "7de46472df6516d9d4d7c2acc346168eead3879b8c8490637581ea21efd86658"),
             ("m3_joint_semantic_35b_guardian.py", "a485c2cde71447a8a4feda0c25f7e22d26fe0e9ace2da7b524e698a96275113b"),
             ("full_aster_first_screen_candidate.py", "eb07b46c1f592ef35c9e0bcb7f0f6aaa0d484775e18ab991b6c29dbe1dc2af6b"),
             ("full_aster_first_screen_observer.py", "d0342b69bc313bf30279493e05b591c99f8dc445017823d48dc5ea2ffce77ecb"),
@@ -121,8 +121,8 @@ def validate_registry() -> None:
            for name, _ in sa3.runtime_pins):
         raise ValueError("SA3 excluded material entered runtime registration")
     m3 = workload("m3-joint-semantic-35b-public-v1")
-    if (m3.request_count != 24 or m3.deadline_seconds != 3600
-            or m3.minimum_booking_seconds != 4500
+    if (m3.request_count != 24 or m3.deadline_seconds != 2700
+            or m3.minimum_booking_seconds != 3600
             or m3.recovery_reserve_seconds != 900
             or m3.runner_kind != "m3-joint-semantic-35b"
             or len(m3.runtime_pins) != 14

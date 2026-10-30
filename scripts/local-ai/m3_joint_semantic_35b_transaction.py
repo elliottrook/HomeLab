@@ -20,7 +20,7 @@ from full_aster_first_screen_recovery import (
 
 WORKLOAD_ID = "m3-joint-semantic-35b-public-v1"
 REQUEST_COUNT = 24
-DEADLINE_SECONDS = 3600
+DEADLINE_SECONDS = 2700
 RESULT_MAX_BYTES = 262144
 GUEST_WORKLOAD = "/usr/local/libexec/local-ai-lease/full-inference-pilot/m3_joint_semantic_35b_guest_workload.py"
 RESULT_FILENAME = "m3-joint-semantic-35b-public-v1-result.json"

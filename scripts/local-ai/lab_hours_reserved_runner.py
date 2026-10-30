@@ -139,6 +139,15 @@ def postcheck(owner_unit: str) -> None:
         raise RunError("OWNER_SCOPE_REMAINS_ACTIVE")
 
 
+def settle_guardian(guardian_unit: str) -> None:
+    """Remove the expected guardian from quiet-host checks after recovery."""
+    if ((STATE_ROOT / "full-inference-drain.json").exists()
+            or (STATE_ROOT / "full-inference-drain.lock").exists()):
+        return
+    call(("systemctl", "stop", guardian_unit), 30)
+    call(("systemctl", "reset-failed", guardian_unit), 10)
+
+
 def run(booking_id: str) -> int:
     started = int(time.time())
     claimant = f"lh-{hashlib.sha256(booking_id.encode()).hexdigest()[:20]}"
@@ -189,6 +198,7 @@ def run(booking_id: str) -> int:
             except json.JSONDecodeError: receipt={}
         for name, content in (("owner.stdout", result.stdout), ("owner.stderr", result.stderr)):
             path=evidence/name; path.write_text(content); os.chmod(path,0o600)
+        settle_guardian(guardian_unit)
         if result.returncode != 0:
             deadline = int(booking["end_epoch"]) + 900
             while time.time() <= deadline and (STATE_ROOT/"full-inference-drain.json").exists():
@@ -234,7 +244,7 @@ def run(booking_id: str) -> int:
             receipt_valid=False
         if receipt.get("effects")!=expected_effect or not receipt_valid:
             raise RunError("OWNER_RECEIPT_INCOMPLETE")
-        call(("systemctl","stop",guardian_unit),30); call(("systemctl","reset-failed",guardian_unit),10)
+        settle_guardian(guardian_unit)
         atomic_json(evidence/"terminal.json",{"schema":"aster-lab-hours-booked-result.v1",
             "state":"complete","booking_id":booking_id,"started_epoch":started,
             "finished_epoch":int(time.time()),"request_count":expected_requests,

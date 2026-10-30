@@ -230,7 +230,7 @@ def _run_m3(args: argparse.Namespace, paths: FullDrainPaths, *,
             wall_clock: Callable[[], float] = time.time,
             sleep: Callable[[float], None] = time.sleep) -> int:
     """Run the fixed, booked 35B M3 public gate with mount-aware recovery."""
-    from m3_joint_semantic_35b_transaction import execute
+    from m3_joint_semantic_35b_transaction import DEADLINE_SECONDS, execute
 
     baseline = AcceptedBaseline(args.model_sha256, args.binary_sha256, args.unit_sha256)
     producer = LocalProxmoxFullDrainSourceProducer(
@@ -238,7 +238,7 @@ def _run_m3(args: argparse.Namespace, paths: FullDrainPaths, *,
         wall_clock=wall_clock)
     preflight = producer.collect(cycle=args.cycle,
                                  session_start_epoch=args.session_start_epoch,
-                                 lab_seconds=3600)
+                                 lab_seconds=DEADLINE_SECONDS)
     now = int(wall_clock()); lead = args.session_start_epoch - now
     if lead < 0 or lead > 60:
         raise SupervisorError("effect start is outside the bounded preflight-to-S window")

@@ -260,7 +260,7 @@ class FullInferenceRuntimePilotTests(unittest.TestCase):
         self.assertIn(("listener","lease-1",2,2800),events)
         self.assertIn("restore",events)
 
-    def test_m3_profile_uses_3600_second_preflight_and_fixed_transaction(self):
+    def test_m3_profile_uses_bounded_2700_second_preflight_and_fixed_transaction(self):
         events=[]
         class Producer:
             def __init__(self,*a,**k): pass
@@ -288,7 +288,7 @@ class FullInferenceRuntimePilotTests(unittest.TestCase):
                  patch("m3_joint_semantic_35b_transaction.execute",execute):
                 self.assertEqual(runtime._run_m3(args,runtime.FullDrainPaths(args.state_root),
                     runner=lambda *a:(0,""),gpu_users=lambda:frozenset(),wall_clock=lambda:100),0)
-        self.assertIn(("collect",3600),events)
+        self.assertIn(("collect",2700),events)
         self.assertTrue(any(event[0]=="execute" for event in events if isinstance(event,tuple)))
         self.assertIn("heartbeat",events)
 
