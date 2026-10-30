@@ -148,8 +148,15 @@ was tightened from 0755 to 0700. The prior state is checkpointed at
 lab GETs for `/v1/search` and `/v1/discovery/media` returned HTTP 200. The
 Seerr page opened, and the Requests hub rendered five suggestions with
 `Suggestions ready`; no request was submitted. The separate Acquisition token
-is still absent, so Music/Books request submission remains untested and
-unavailable. Seerr request submission also remains untested in this pass.
+was absent at that point. It was restored privately from the broker's existing
+restricted TV credential later on 2026-10-29, with mode 0600 in the lab's mode
+0700 private directory. An authenticated deliberately invalid POST returned
+HTTP 409 without a provider write. The side rail's Music → Requests
+Down/Select path opened the Acquisition Hub at window 11133 with five Media
+suggestions; Music and Books tabs loaded three and twelve suggestions. Its
+Media action opened Seerr at window 11132 with no active player. The
+acquisition journal remained empty. Actual Music, Books and Seerr request
+submission remains untested; no request was placed during this repair.
 No production files were changed; production remains v1.1.1 stereo.
 
 ## Lab Media and YouTube acceptance update — 2026-10-29
@@ -736,7 +743,7 @@ do not imply household acceptance or production promotion.
 | Work | Next action | Dependency |
 |---|---|---|
 | Cross-media native check | Media, Music and Books now pass separate exact-ID remote-equivalent checks; retain the corrected isolated driver | No product navigation defect was demonstrated |
-| Acquisition requests | HP saved-outcome activation and duplicate-only review passed, including matching rendered Books hero | No additional provider write is authorized by the two-title trial |
+| Acquisition requests | The lab's restricted TV credential and all three browse tabs now work; recheck provider submission only with an explicitly chosen title | No request was placed during the credential repair |
 | Voice search | Join the tested single-attempt assembly to foreground listening controls and restricted STT transport | Physical remote capability and scoped speech identity remain live integration gates |
 | EPUB pre-generation | Fold the verified consumer and Doctor layers into final release/recovery assembly | HP consumer and read-only Doctor are active; production promotion remains separately gated |
 | YouTube | Complete owner sofa-distance review of the active Aster landing/search successor, including playback and Back/stop behavior | Official add-on remains the data/playback owner; production unchanged |
