@@ -39,6 +39,14 @@ This is an actual live owner, not an approval wait. Do not probe guests, stop
 the owner or bypass its flock. The deadline is not proof it restored. Require
 real release and absence of active/uncertain maintenance before continuing.
 
+A real one-shot continuation was created and read back through the app for
+**12:10 Vancouver today (October30)**, automation ID
+`resume-b60-qualification-arming-after-current-lease`, attached to this thread.
+It must first verify actual release, then perform only the bounded preparation
+and arming below. It is not an experiment runner or proof of arming. Local
+scheduled continuation requires the computer on and app running; no assertion
+of work while asleep. The existing recurring programme automations remain.
+
 ## Scheduling correction, source-only so far
 
 Implementation commit `56cd9c35c` makes the qualification scheduler use a

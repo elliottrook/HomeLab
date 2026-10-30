@@ -12,6 +12,14 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+Jason's explicit operational continuation has [prepared the October31 arming packet](B60-Inference-Engineering/arming-continuation-20261031.md).
+Its installer safely refused before guest/profile effects because a different
+live owner holds the authoritative host exclusion with stack drained. That
+owner's recorded recovery deadline is12:01 October30; actual release is still
+required. A real one-shot12:10 continuation is created to resume the exact
+bounded arming steps afterward, not wait for another user prompt.130 offline
+tests pass. Tonight is not yet armed; no lock was bypassed or model invoked.
+
 The [October30 admission diagnostics candidate](B60-Inference-Engineering/admission-diagnostics-candidate-20261030.md)
 retains content-free, create-once backup-source failure codes rather than a
 generic exception type.129 exact-source controller tests and107 B60 tests
