@@ -20,6 +20,22 @@ class ObservationError(RuntimeError):
     pass
 
 
+def _mount_fields(value: str) -> tuple[str, dict[str, str]] | None:
+    """Parse the fixed Proxmox mount shape without depending on option order."""
+    parts = value.split(",")
+    if not parts or not parts[0]:
+        return None
+    options: dict[str, str] = {}
+    for item in parts[1:]:
+        if "=" not in item:
+            return None
+        key, option_value = item.split("=", 1)
+        if not key or not option_value or key in options:
+            return None
+        options[key] = option_value
+    return parts[0], options
+
+
 def _default_runner(command: Sequence[str], timeout: float):
     value = subprocess.run(tuple(command), capture_output=True, text=True,
                            timeout=timeout, check=False)
@@ -51,7 +67,9 @@ class FixedObserver:
                 if line.startswith("mp0: ")]
         if not rows:
             return "absent"
-        return "exact" if rows == [MOUNT_VALUE] else "foreign"
+        expected = _mount_fields(MOUNT_VALUE)
+        observed = _mount_fields(rows[0]) if len(rows) == 1 else None
+        return "exact" if observed is not None and observed == expected else "foreign"
 
     def guest_running(self) -> bool:
         _code, status = self._run(("pct", "status", "110"))

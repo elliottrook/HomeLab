@@ -88,7 +88,7 @@ WORKLOADS = {
             ("m3_joint_semantic_35b_transaction.py", "7de46472df6516d9d4d7c2acc346168eead3879b8c8490637581ea21efd86658"),
             ("m3_joint_semantic_35b_guardian.py", "a485c2cde71447a8a4feda0c25f7e22d26fe0e9ace2da7b524e698a96275113b"),
             ("full_aster_first_screen_candidate.py", "eb07b46c1f592ef35c9e0bcb7f0f6aaa0d484775e18ab991b6c29dbe1dc2af6b"),
-            ("full_aster_first_screen_observer.py", "d0342b69bc313bf30279493e05b591c99f8dc445017823d48dc5ea2ffce77ecb"),
+            ("full_aster_first_screen_observer.py", "e30ed0e5faa2949f7734e4b61488092d8c0d178484db689b8b684eeac5449cff"),
             ("full_aster_first_screen_recovery.py", "2e571b7a4e972f0f13f95eaef094b388d2703aa94f0721156bc29d97ecb97b81"),
         ),
         packet_sha256="1565a21c78875f64f4f25a190e977ae34dc01bdfcfd5e49c056e8365268b3785",

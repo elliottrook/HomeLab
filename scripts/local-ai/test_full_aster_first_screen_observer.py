@@ -31,6 +31,15 @@ class ObserverTests(unittest.TestCase):
     def test_mount_classification_is_exact(self):
         self.assertEqual(FixedObserver(Runner()).mount_state(), "absent")
         self.assertEqual(FixedObserver(Runner("mp0: "+MOUNT_VALUE)).mount_state(), "exact")
+        source, *options = MOUNT_VALUE.split(",")
+        self.assertEqual(
+            FixedObserver(Runner("mp0: " + ",".join([source, *reversed(options)]))).mount_state(),
+            "exact",
+        )
+        self.assertEqual(
+            FixedObserver(Runner("mp0: " + MOUNT_VALUE + ",acl=1")).mount_state(),
+            "foreign",
+        )
         self.assertEqual(FixedObserver(Runner("mp0: /other,mp=/other")).mount_state(), "foreign")
 
     def test_exact_baseline_requires_absent_candidate_mount_and_all_hashes(self):
