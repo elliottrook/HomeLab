@@ -12,6 +12,13 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+At Jason's explicit request, the [October30 schedule correction](B60-Inference-Engineering/mirror-schedule-restored-20261030.md)
+moved only TrueNAS task3 from04:20 to02:00 daily. Direct API read-back and
+the independent Proxmox observer confirm enabled pulls at01:00/02:00/03:00.
+No other task settings changed and no immediate mirror or lab retry ran.
+The schedule conflict below is resolved; actual fresh-cycle completion and
+a new reviewed qualification activation remain next, not a model result.
+
 The [October30 actual qualification outcome](B60-Inference-Engineering/qualification-no-go-20261030.md)
 is NO-GO before admission: integrity preparation completed, but the03:10
 owner failed with `SourceAdapterError` before checkpoint/claim/drain; no
