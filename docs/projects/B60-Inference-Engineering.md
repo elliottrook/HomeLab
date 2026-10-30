@@ -12,6 +12,15 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October30 actual qualification outcome](B60-Inference-Engineering/qualification-no-go-20261030.md)
+is NO-GO before admission: integrity preparation completed, but the03:10
+owner failed with `SourceAdapterError` before checkpoint/claim/drain; no
+guardian ran and no model was tested. Current TrueNAS task3 is04:20 rather
+than the required02:00, conflicting with the protected04:15 boundary.
+Production services and checked consumer timers remain active.126 offline
+controller tests and107 B60 tests pass. Next reconcile the owning schedule
+and prepare a fresh future activation, never replay the expired booking.
+
 The local-only [October30 nightly reconciliation](B60-Inference-Engineering/nightly-reconciliation-20261030.md)
 records both future timers still armed with empty last-trigger values.
 Inactive services' default `Result=success` is not execution evidence.

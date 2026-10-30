@@ -1,0 +1,77 @@
+From 9c1b1336a6687dcd838f11cc14115801f1304d9c Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Fri, 30 Oct 2026 06:37:35 -0700
+Subject: [PATCH] Characterize refusal of October 30 mirror schedule drift
+ offline
+
+---
+ .../test_lab_hours_mirror_schedule_drift.py   | 57 +++++++++++++++++++
+ 1 file changed, 57 insertions(+)
+ create mode 100644 scripts/local-ai/test_lab_hours_mirror_schedule_drift.py
+
+diff --git a/scripts/local-ai/test_lab_hours_mirror_schedule_drift.py b/scripts/local-ai/test_lab_hours_mirror_schedule_drift.py
+new file mode 100644
+index 000000000..25f0eb176
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_mirror_schedule_drift.py
+@@ -0,0 +1,57 @@
++"""Offline characterization of October 30 sanitized task metadata.
++
++Archive time is synthetic; these tests never prove a real backup or admission.
++No production changes or new permission to alter schedules are implied.
++"""
++from datetime import datetime
++import unittest
++from zoneinfo import ZoneInfo
++
++from fixed_source_adapters import _schedule_ok
++
++
++class MirrorScheduleDriftTests(unittest.TestCase):
++    def setUp(self):
++        self.zone = ZoneInfo('America/Vancouver')
++        self.rows = []
++        for identity, hour in ((1, 1), (3, 2), (2, 3)):
++            self.rows.append(dict(id=identity, enabled=True,
++                schedule=dict(hour=str(hour), minute='0'), job=dict(
++                    state='SUCCESS', arguments=[identity],
++                    time_started={'$date':self.epoch(hour, 0)+1000},
++                    time_finished={'$date':self.epoch(hour, 6)})))
++
++    def epoch(self, hour, minute):
++        return int(datetime(2026, 10, 30, hour, minute, tzinfo=self.zone).timestamp()*1000)
++
++    def check(self, hour=3, minute=10):
++        return _schedule_ok(self.rows, date_prefix='2026_10_30',
++            artifact_ctimes=(self.epoch(0, 50)//1000,),
++            lease_issued_epoch=self.epoch(hour, minute)//1000)
++
++    def test_control_expected_chain_can_fit(self):
++        self.assertTrue(self.check())
++
++    def test_observed_0420_mirror_is_not_admission(self):
++        # Exact sanitized task metadata observed after the failed owner.
++        self.rows = [
++            dict(id=1, enabled=True, schedule=dict(hour='1', minute='0'),
++                 job=dict(state='SUCCESS', arguments=[1],
++                          time_started={'$date':1793347201000}, time_finished={'$date':1793347649000})),
++            dict(id=3, enabled=True, schedule=dict(hour='4', minute='20'),
++                 job=dict(state='SUCCESS', arguments=[3],
++                          time_started={'$date':1793359201000}, time_finished={'$date':1793359581000})),
++            dict(id=2, enabled=True, schedule=dict(hour='3', minute='0'),
++                 job=dict(state='SUCCESS', arguments=[2],
++                          time_started={'$date':1793354402000}, time_finished={'$date':1793354403000}))]
++        self.assertFalse(self.check())
++        self.assertFalse(self.check(6, 30))  # Later SUCCESS cannot repair contract drift.
++
++    def test_changing_label_does_not_repair_late_mirror(self):
++        self.rows[1]['job']['time_started']['$date'] = self.epoch(4, 20)
++        self.rows[1]['job']['time_finished']['$date'] = self.epoch(4, 26)
++        self.assertFalse(self.check(6, 30))
++
++
++if __name__ == '__main__':
++    unittest.main()
+-- 
+2.50.1 (Apple Git-155)
+
