@@ -7,7 +7,9 @@ candidate. The separate fair scorer consumes its validated review rows later.
 from __future__ import annotations
 
 import hashlib
+import json
 import math
+from pathlib import Path
 from typing import Any
 
 from sa3_expanded_quality_packet import _canonical, validate_visible_packet
@@ -139,3 +141,33 @@ def validate_review(review_packet: dict, response: object) -> list[dict]:
     if seen != set(expected_ids):
         raise ValueError("review response identities are incomplete")
     return rows
+
+
+def validation_receipt(review_packet: dict, response: object) -> dict[str, object]:
+    rows = validate_review(review_packet, response)
+    return {
+        "schema": "aster-sa3-expanded-quality-blind-review-validation.v1",
+        "review_packet_sha256": review_packet_sha256(review_packet),
+        "review_response_sha256": hashlib.sha256(_canonical(response)).hexdigest(),
+        "reviewer": response["reviewer"],
+        "model_blind": True,
+        "review_count": len(rows),
+        "complete": len(rows) == 20,
+        "semantic_decision_made": False,
+    }
+
+
+def main(argv=None) -> int:
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--packet", type=Path, required=True)
+    parser.add_argument("--response", type=Path, required=True)
+    args = parser.parse_args(argv)
+    packet = json.loads(args.packet.read_text(encoding="utf-8"))
+    response = json.loads(args.response.read_text(encoding="utf-8"))
+    print(json.dumps(validation_receipt(packet, response), sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

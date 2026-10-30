@@ -5,6 +5,7 @@ from pathlib import Path
 
 from sa3_expanded_quality_blind_review import (
     RUBRIC, build_review_packet, review_packet_sha256, validate_review,
+    validation_receipt,
 )
 
 
@@ -52,6 +53,15 @@ class ExpandedQualityBlindReviewTests(unittest.TestCase):
         rows = validate_review(packet, self.response(packet))
         self.assertEqual(len(rows), 20)
         self.assertTrue(all(row["model_blind"] for row in rows))
+
+    def test_validation_receipt_is_content_free_and_not_a_semantic_decision(self):
+        packet = build_review_packet(self.packet, self.result, candidate_alias="candidate-q")
+        receipt = validation_receipt(packet, self.response(packet))
+        self.assertEqual(20, receipt["review_count"])
+        self.assertTrue(receipt["complete"])
+        self.assertFalse(receipt["semantic_decision_made"])
+        self.assertNotIn("reviews", receipt)
+        self.assertNotIn("judgments", json.dumps(receipt))
 
     def test_incomplete_failed_or_effectful_predictions_fail_closed(self):
         for change in (
