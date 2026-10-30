@@ -1,0 +1,69 @@
+From 56cd9c35c5afc3ddfb01efae5d4f4bf7837a003f Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Fri, 30 Oct 2026 11:02:49 -0700
+Subject: [PATCH] Isolate each booked night's integrity preparation package
+
+---
+ .../install_lab_hours_qualification_schedule.py      | 11 +++++++----
+ .../test_lab_hours_qualification_schedule.py         | 12 ++++++++++++
+ 2 files changed, 19 insertions(+), 4 deletions(-)
+
+diff --git a/scripts/local-ai/install_lab_hours_qualification_schedule.py b/scripts/local-ai/install_lab_hours_qualification_schedule.py
+index 56267cb24..4c5bf8d96 100644
+--- a/scripts/local-ai/install_lab_hours_qualification_schedule.py
++++ b/scripts/local-ai/install_lab_hours_qualification_schedule.py
+@@ -30,9 +30,10 @@ def unit_files(booking,preparation_sha):
+     date=day.strftime('%Y%m%d'); calendar=day.strftime('%Y-%m-%d')
+     preparation='b60-exclusive-integrity-'+date
+     qualification='b60-exclusive-qualification-'+date
++    preparation_package=PREP.parent/(PREP.name+'-'+date)
+     service_prefix='[Unit]\nDescription=B60 booked entry-restore qualification\n\n[Service]\nType=oneshot\nUser=root\nRestart=no\nKillMode=control-group\n'
+     prep_service=(service_prefix+'Nice=19\nIOSchedulingClass=idle\nTimeoutStartSec=1500\n'
+-        +'ExecStart=/usr/bin/python3 -B '+str(PREP/'lab_hours_exclusive_integrity_prepare.py')
++        +'ExecStart=/usr/bin/python3 -B '+str(preparation_package/'lab_hours_exclusive_integrity_prepare.py')
+         +' --booking-id '+booking['booking_id']+' --self-sha256 '+preparation_sha+'\n')
+     owner_service=(service_prefix+'TimeoutStartSec=30\nExecStart=/usr/bin/python3 -B '
+         +str(PACKAGE/'lab_hours_exclusive_cli.py')+' launch --booking-id '+booking['booking_id']+'\n')
+@@ -72,12 +73,14 @@ def install(booking_id,source,source_sha):
+                 or booking.get('state')!='reserved' or booking['start_epoch']<time.time()+7200):
+             raise SessionError('FUTURE_RESTORE_ONLY_BOOKING_REQUIRED')
+         files=unit_files(booking,source_sha)
++        day=datetime.fromtimestamp(booking['start_epoch'],ZoneInfo('America/Vancouver'))
++        preparation_package=PREP.parent/(PREP.name+'-'+day.strftime('%Y%m%d'))
+         # Never replace existing units or code, even after a partial install.
+         if any((UNITS/name).exists() or (UNITS/name).is_symlink() for name in files):
+             raise SessionError('QUALIFICATION_UNIT_ALREADY_EXISTS')
+-        if PREP.exists(): raise SessionError('INTEGRITY_PACKAGE_ALREADY_EXISTS')
+-        PREP.mkdir(mode=0o700)
+-        target=PREP/'lab_hours_exclusive_integrity_prepare.py'
++        if preparation_package.exists(): raise SessionError('INTEGRITY_PACKAGE_ALREADY_EXISTS')
++        preparation_package.mkdir(mode=0o700)
++        target=preparation_package/'lab_hours_exclusive_integrity_prepare.py'
+         fd=os.open(target,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
+         with os.fdopen(fd,'wb') as stream:
+             stream.write(raw); stream.flush(); os.fsync(stream.fileno())
+diff --git a/scripts/local-ai/test_lab_hours_qualification_schedule.py b/scripts/local-ai/test_lab_hours_qualification_schedule.py
+index e109d4430..cc2dfb6cf 100644
+--- a/scripts/local-ai/test_lab_hours_qualification_schedule.py
++++ b/scripts/local-ai/test_lab_hours_qualification_schedule.py
+@@ -58,5 +58,17 @@ class QualificationScheduleTests(unittest.TestCase):
+         self.assertTrue(any('03:10:00' in body for body in timers))
+         self.assertTrue(any('01:15:00' in body for body in timers))
+ 
++    def test_new_night_has_separate_preparation_namespace(self):
++        first=unit_files(self.booking,'a'*64)
++        self.booking.update(booking_id='b60-exclusive-20261031',start_epoch=self.start+86400,
++                            end_epoch=self.start+86400+2700)
++        second=unit_files(self.booking,'a'*64)
++        old=first['b60-exclusive-integrity-20261030.service']
++        new=second['b60-exclusive-integrity-20261031.service']
++        self.assertIn('/b60-exclusive-integrity-20261030/',old)
++        self.assertIn('/b60-exclusive-integrity-20261031/',new)
++        self.assertNotIn('20261030',new)
++        self.assertIn('2026-10-31 03:10:00',second['b60-exclusive-qualification-20261031.timer'])
++
+ 
+ if __name__=='__main__': unittest.main()
+-- 
+2.50.1 (Apple Git-155)
+
