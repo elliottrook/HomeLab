@@ -1,6 +1,6 @@
 # M3 evaluator diagnostic correction — 2026-10-30
 
-Status: **SOURCE CORRECTED; SPENT BOOKING NOT RETRIED**
+Status: **INSTALLED INACTIVE; SPENT BOOKING NOT RETRIED**
 
 Booking `aster-stream-a-m3-35b-20261030-1100` proved the corrected admission,
 drain, exact candidate mount, 35B startup and stable sole-holder residency
@@ -30,5 +30,5 @@ fail outside this correction; none names a changed M3 diagnostic file.
 
 This source candidate does not schedule or run a workload, mount the 35B
 artifact, stop a service, read a credential, change a model or enable routing.
-The spent 11:00 booking is not reusable. Inactive target installation and a
-fresh booking remain separate steps.
+The spent 11:00 booking is not reusable. The inactive target installation is
+recorded separately; a fresh booking remains a separate step.
