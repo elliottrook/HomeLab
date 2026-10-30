@@ -12,6 +12,15 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [fresh October31 qualification is now independently verified armed](B60-Inference-Engineering/qualification-armed-20261031.md).
+After actual release of the other live owner, the protected no-model profile
+and five metadata plans were installed; enabled/active Proxmox timers now
+have exact next times October31 at01:15 and03:10 Vancouver, empty prior
+triggers, inactive services and matching30-file/five-plan pins. No current
+stack transaction or model ran. This supersedes the earlier waiting state
+below. Next inspect actual overnight receipts; future backup/admission gates
+can still refuse work. Live restoration/owner-loss and35B gates remain open.
+
 Jason's explicit operational continuation has [prepared the October31 arming packet](B60-Inference-Engineering/arming-continuation-20261031.md).
 Its installer safely refused before guest/profile effects because a different
 live owner holds the authoritative host exclusion with stack drained. That
