@@ -69,11 +69,22 @@ validated before installation. It contains 505 ebooks, 46 audiobooks, and
 7 podcasts; the Books page showed the corresponding populated rows. Its
 private feed is at `/storage/.kodi/userdata/addon_data/skin.asterhome/feeds/books.json`,
 checkpointed at `/storage/.aster-checkpoints/astertv-lab-books-feed-20261029`.
-This one-shot feed expires after 24 hours. Audiobook/podcast listening still
-needs a separate lab Audiobookshelf identity. A one-time interactive helper
-is staged at `/storage/.aster-staging/configure_lab_books_client.py`; it takes
-the key only in a private terminal prompt and never replaces an existing
-credential.
+This one-shot feed expires after 24 hours. Jason approved reusing the existing
+restricted Audiobookshelf configuration from the Mac pilot, matching the
+earlier HP/BOSGAME setup. The Mac source was a 0600 regular file and its API
+returned HTTP 200. A private SSH-stdin installer created only the lab's
+previously absent `client.json` as 0600 beneath a 0700 profile, checkpointed
+at `/storage/.aster-checkpoints/astertv-lab-books-identity-20261029`; no key
+was printed, placed in argv, saved in Git, or left in staging. The lab API
+returned HTTP 200. Kodi was idle before its restart. The live loopback bridge
+resolved 36 audiobook entries and nine podcast entries; both first entries
+returned HTTP 206 and exactly 4096 bytes of audio through localhost. The
+Audiobooks and Podcasts pages showed 46 and seven titles respectively, and
+selecting a title opened its real listening list with no active player.
+Audible playback and Back/stop still need a short owner-approved test because
+they may update listening progress. A separate interactive helper remains
+staged at `/storage/.aster-staging/configure_lab_books_client.py` for future
+fresh-client setup; it takes a key only in a hidden private terminal prompt.
 
 The Home Assistant publisher and receiver were reconciled to the lab's new
 SSH host key. The lab receiver accepts only the established source-IP-limited,

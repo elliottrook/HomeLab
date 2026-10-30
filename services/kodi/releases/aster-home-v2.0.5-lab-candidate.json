@@ -15,7 +15,10 @@
     "synthetic_feed_exact_audiobook_handoff_and_return": true,
     "synthetic_feed_removed_after_test": true,
     "real_books_feed_populated_and_page_opened": true,
-    "real_books_audio_account_tested": false,
+    "real_books_audio_account_tested": true,
+    "audiobook_and_podcast_bridge_range_206": true,
+    "audiobook_and_podcast_listening_lists_open": true,
+    "audible_books_playback_and_back_stop_tested": false,
     "home_live_publication_readings": 63,
     "home_next_automatic_publication_verified": true,
     "news_digest_http_200_and_19_chapters": true
@@ -35,7 +38,7 @@
   },
   "known_release_blockers": [
     "Lab Seerr and Acquisition broker tokens are absent; Requests and catalogue search need provisioning",
-    "Lab Audiobookshelf identity is absent; real audiobook and podcast playback need acceptance",
+    "Lab reuses the existing restricted Audiobookshelf identity; audible audiobook and podcast playback still needs owner-approved acceptance",
     "Books feed was installed once and expires after 24 hours; continuous refresh needs a supported client publisher",
     "Lab camera service is prepared but disabled pending Frigate key approval; voice STT credential and expected G20 microphone are absent",
     "Daily hero rotation needs next-day owner observation",
