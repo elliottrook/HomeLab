@@ -1,4 +1,5 @@
 import unittest
+from unittest import mock
 
 from full_aster_first_screen_candidate import UNIT
 from full_aster_first_screen_observer import FixedObserver
@@ -21,6 +22,10 @@ class Runner:
                     "aster-llama.service":"a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3"}
             return 0, values[path.rsplit("/",1)[-1]]+"  "+path
         if command[-2:] == ("is-active", "aster-llama.service"): return 0, "active"
+        if command[-4:] == ("show", "aster-full-screen-qwen36.service", "--property=MainPID", "--value"):
+            return 0, "42"
+        if command[-3:-1] == ("rss=", "-p"):
+            return 0, "2048"
         if command[-1] == "/usr/local/sbin/aster-llama-production-auth-probe": return 0, ""
         if command[:3] == ("stat", "-c", "%u:%g:%a:%s:%h:%n"):
             return 0, f"0:0:700:4096:2:{HOST_ROOT}\n0:0:400:20419565568:1:{HOST_MODEL}"
@@ -47,6 +52,18 @@ class ObserverTests(unittest.TestCase):
         self.assertFalse(FixedObserver(Runner("mp0: "+MOUNT_VALUE)).exact_baseline_restored())
         self.assertFalse(FixedObserver(Runner(pids="42")).exact_baseline_restored())
         self.assertTrue(FixedObserver(Runner()).artifact_root_custody())
+
+    def test_residency_reports_exact_bounded_reason(self):
+        observer = FixedObserver(Runner())
+        exact = [("/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server",
+                  "0::/lxc/110/ns/system.slice/aster-full-screen-qwen36.service")]
+        with mock.patch.object(observer, "_gpu_holders", return_value=exact):
+            self.assertEqual("exact", observer.candidate_residency_state())
+            self.assertTrue(observer.candidate_resident())
+        with mock.patch.object(observer, "_gpu_holders", return_value=None):
+            self.assertEqual("proc_ambiguous", observer.candidate_residency_state())
+        with mock.patch.object(observer, "_gpu_holders", return_value=[]):
+            self.assertEqual("gpu_holder_count", observer.candidate_residency_state())
 
 
 if __name__ == "__main__": unittest.main()

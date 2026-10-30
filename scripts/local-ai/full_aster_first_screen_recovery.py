@@ -97,7 +97,8 @@ def recover(*, identity: RecoveryIdentity, observer: Observer,
     if observer.guest_running():
         if not observer.candidate_absent():
             runner(stop_command(), 30.0)
-            runner(reset_failed_command(), 15.0)
+            if not observer.candidate_absent():
+                runner(reset_failed_command(), 15.0)
         if not observer.candidate_absent():
             raise RecoveryError("candidate process or unit remains")
 
@@ -123,7 +124,8 @@ def recover(*, identity: RecoveryIdentity, observer: Observer,
 
     if not observer.candidate_absent():
         runner(stop_command(), 30.0)
-        runner(reset_failed_command(), 15.0)
+        if not observer.candidate_absent():
+            runner(reset_failed_command(), 15.0)
     if not observer.candidate_absent():
         raise RecoveryError("candidate process or unit remains after guest recovery")
 

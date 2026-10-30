@@ -37,6 +37,7 @@ class RecoveryTests(unittest.TestCase):
             if tuple(command) == recovery.start_guest_command(): observer.running = True
         recovery.recover(identity=identity(), observer=observer, runner=run)
         self.assertEqual(commands[0], recovery.stop_command())
+        self.assertNotIn(recovery.reset_failed_command(), commands)
         self.assertIn(recovery.delete_mount_command(), commands)
         self.assertLess(commands.index(recovery.delete_mount_command()),
                         commands.index(recovery.start_guest_command()))

@@ -123,8 +123,9 @@ def execute(*, preflight, controller, owner_id: str, cycle: str,
             heartbeat(); sleep(2)
         else:
             raise TransactionError("M3_CANDIDATE_NOT_READY")
-        if not observer.candidate_resident():
-            raise TransactionError("M3_CANDIDATE_RESIDENCY_INVALID")
+        residency = observer.candidate_residency_state()
+        if residency != "exact":
+            raise TransactionError("M3_CANDIDATE_RESIDENCY_" + residency.upper())
         output = command(("pct", "exec", "110", "--", "/usr/bin/python3", "-B",
                           GUEST_WORKLOAD, "--run-authorized"), 2700)
         try:

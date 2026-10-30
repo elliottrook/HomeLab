@@ -89,31 +89,61 @@ class FixedObserver:
         ]
 
     def candidate_resident(self) -> bool:
-        holders = []
-        for proc in Path("/proc").glob("[0-9]*"):
-            try:
-                if not any(os.readlink(fd) == "/dev/dri/renderD128"
-                           for fd in (proc / "fd").iterdir()):
-                    continue
-                holders.append((os.readlink(proc / "exe"),
-                                (proc / "cgroup").read_text().strip()))
-            except FileNotFoundError:
-                if proc.exists(): return False
-            except (OSError, PermissionError, UnicodeError):
-                return False
+        return self.candidate_residency_state() == "exact"
+
+    def _gpu_holders(self) -> list[tuple[str, str]] | None:
+        """Return one stable holder snapshot, retrying ordinary /proc races."""
+        for _attempt in range(3):
+            holders = []
+            raced = False
+            for proc in Path("/proc").glob("[0-9]*"):
+                try:
+                    fds = tuple((proc / "fd").iterdir())
+                    owns_gpu = False
+                    for fd in fds:
+                        try:
+                            if os.readlink(fd) == "/dev/dri/renderD128":
+                                owns_gpu = True
+                        except FileNotFoundError:
+                            raced = True
+                            break
+                    if raced:
+                        break
+                    if not owns_gpu:
+                        continue
+                    holders.append((os.readlink(proc / "exe"),
+                                    (proc / "cgroup").read_text().strip()))
+                except FileNotFoundError:
+                    raced = True
+                    break
+                except (OSError, PermissionError, UnicodeError):
+                    return None
+            if not raced:
+                return holders
+        return None
+
+    def candidate_residency_state(self) -> str:
+        holders = self._gpu_holders()
+        if holders is None:
+            return "proc_ambiguous"
         if len(holders) != 1:
-            return False
+            return "gpu_holder_count"
         executable, cgroup = holders[0]
-        if (executable != "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"
-                or not cgroup.endswith("/lxc/110/ns/system.slice/aster-full-screen-qwen36.service")):
-            return False
+        if executable != "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server":
+            return "gpu_holder_executable"
+        if not cgroup.endswith("/lxc/110/ns/system.slice/aster-full-screen-qwen36.service"):
+            return "gpu_holder_cgroup"
         code, pid = self.runner(("pct", "exec", "110", "--", "systemctl", "show",
             "aster-full-screen-qwen36.service", "--property=MainPID", "--value"), 15.0)
         if code != 0 or not pid.strip().isdigit() or int(pid) <= 0:
-            return False
+            return "main_pid"
         code, rss = self.runner(("pct", "exec", "110", "--", "ps", "-o", "rss=",
                                  "-p", pid.strip()), 15.0)
-        return code == 0 and rss.strip().isdigit() and int(rss) <= 16 * 1024 * 1024
+        if code != 0 or not rss.strip().isdigit():
+            return "rss_unavailable"
+        if int(rss) > 16 * 1024 * 1024:
+            return "rss_out_of_bounds"
+        return "exact"
 
     def exact_baseline_restored(self) -> bool:
         if not self.guest_running() or self.mount_state() != "absent" \
