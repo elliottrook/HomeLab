@@ -155,8 +155,17 @@ HTTP 409 without a provider write. The side rail's Music → Requests
 Down/Select path opened the Acquisition Hub at window 11133 with five Media
 suggestions; Music and Books tabs loaded three and twelve suggestions. Its
 Media action opened Seerr at window 11132 with no active player. The
-acquisition journal remained empty. Actual Music, Books and Seerr request
-submission remains untested; no request was placed during this repair.
+acquisition journal remained empty. No request was placed during the credential
+repair. Jason then authorized a live test using any suitable item. The Music
+tab's first suggestion was the previously approved *Homogenic* album. The
+first press displayed `Press Request again to confirm` and left the journal
+empty. The second press returned the broker's `available` result, with no new
+request ID; the page displayed `Already tracked by acquisition service` and
+hid the action. The new journal record was committed with mode 0600. Closing
+and reopening the hub retained that status and left the journal SHA-256
+unchanged (`9efd6498a1c981507b12b78fa9f6d50debc10e28a61d8deb360fbc0a6975b5f8`).
+This verifies the lab's Music write path and duplicate result for an already
+tracked album. Books and Seerr submission on the fresh lab remain untested.
 No production files were changed; production remains v1.1.1 stereo.
 
 ## Lab Media and YouTube acceptance update — 2026-10-29
@@ -743,7 +752,7 @@ do not imply household acceptance or production promotion.
 | Work | Next action | Dependency |
 |---|---|---|
 | Cross-media native check | Media, Music and Books now pass separate exact-ID remote-equivalent checks; retain the corrected isolated driver | No product navigation defect was demonstrated |
-| Acquisition requests | The lab's restricted TV credential and all three browse tabs now work; recheck provider submission only with an explicitly chosen title | No request was placed during the credential repair |
+| Acquisition requests | Music's two-press flow and saved duplicate result passed with the already tracked *Homogenic* album; test Books or Seerr submission only if a separate live write check is needed | No new acquisition was created by the Music trial |
 | Voice search | Join the tested single-attempt assembly to foreground listening controls and restricted STT transport | Physical remote capability and scoped speech identity remain live integration gates |
 | EPUB pre-generation | Fold the verified consumer and Doctor layers into final release/recovery assembly | HP consumer and read-only Doctor are active; production promotion remains separately gated |
 | YouTube | Complete owner sofa-distance review of the active Aster landing/search successor, including playback and Back/stop behavior | Official add-on remains the data/playback owner; production unchanged |
