@@ -124,8 +124,17 @@ is disabled and the Frigate source does not yet authorize this key. Enabling
 it requires the owner's pending confirmation for the Frigate remote change.
 Voice cannot be live-tested yet: the fresh lab exposes only Intel PCH capture,
 while the guarded voice policy expects the G20 remote at `hw:1,0`, and its
-separate STT identity is absent. The lab Seerr and Acquisition broker tokens
-are also absent, so Requests and Seerr search remain blocked on lab identity.
+separate STT identity is absent. Jason approved restoring the existing
+restricted Seerr broker token to the fresh lab. Its source on production was
+read-only and private (0600); the lab's previously absent token was created
+through a private SSH-stdin handoff as 0600, and `/storage/.aster-private`
+was tightened from 0755 to 0700. The prior state is checkpointed at
+`/storage/.aster-checkpoints/astertv-lab-seerr-identity-20261029`. Authenticated
+lab GETs for `/v1/search` and `/v1/discovery/media` returned HTTP 200. The
+Seerr page opened, and the Requests hub rendered five suggestions with
+`Suggestions ready`; no request was submitted. The separate Acquisition token
+is still absent, so Music/Books request submission remains untested and
+unavailable. Seerr request submission also remains untested in this pass.
 No production files were changed; production remains v1.1.1 stereo.
 
 ## Lab Media and YouTube acceptance update — 2026-10-29
@@ -136,8 +145,9 @@ page. The Media plugin now chooses within rank bands using the local date and
 refreshes the Home widget once when the day changes. The lab's Kodi setting
 `locale.use24hourclock` is `24hours`; the original GUI settings are in
 `/storage/.aster-checkpoints/astertv-lab-24h-20261029`. The hero refresh code
-is installed and unit-tested, but an actual next-day change remains for owner
-observation.
+is installed and unit-tested. At 18:08 PDT, Kodi's rotation-day property matched
+the local date and the recommendation rail contained 12 items; an actual
+next-day content change remains for owner observation.
 
 The official YouTube 7.4.4 add-on is signed in to Jason's intended lab account;
 Jason confirmed its subscribed channels. Its sign-in and sign-out routes

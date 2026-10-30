@@ -22,6 +22,11 @@
     "books_refresh_timer_restored_and_first_run_passed": true,
     "books_cover_cache_restored": 554,
     "first_ten_audiobook_tiles_have_cached_jpeg": true,
+    "seerr_authenticated_search_and_discovery_http_200": true,
+    "requests_hub_suggestions_visible": 5,
+    "seerr_request_submission_tested": false,
+    "recommendation_rail_items": 12,
+    "recommendation_day_matches_local_date": true,
     "home_live_publication_readings": 63,
     "home_next_automatic_publication_verified": true,
     "news_digest_http_200_and_19_chapters": true
@@ -40,7 +45,7 @@
     "sha256": "befaf9072814579d4727d8f75ab78e4136abeaec371decc5f34b719e6800b320"
   },
   "known_release_blockers": [
-    "Lab Seerr and Acquisition broker tokens are absent; Requests and catalogue search need provisioning",
+    "Lab Seerr browse and Search work; Seerr request submission needs a bounded acceptance test, and the separate Acquisition token is absent",
     "Lab reuses the existing restricted Audiobookshelf identity; audible audiobook and podcast playback still needs owner-approved acceptance",
     "Lab camera service is prepared but disabled pending Frigate key approval; voice STT credential and expected G20 microphone are absent",
     "Daily hero rotation needs next-day owner observation",
