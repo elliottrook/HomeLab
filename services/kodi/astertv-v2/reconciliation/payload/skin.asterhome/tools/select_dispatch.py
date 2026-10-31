@@ -33,6 +33,8 @@ DYNAMIC_CONTROLS = {
     11121: frozenset((50,)),
     11127: frozenset((30, 51)),
     11129: frozenset((30,)),
+    11132: frozenset((30, 40)),
+    11133: frozenset((30,)),
 }
 
 
@@ -87,6 +89,12 @@ def dispatched_action(window_id, focus_id):
         return 'RunScript(special://skin/tools/hub_data.py,digest,chapter)'
     if window_id == 11121 and focus_id == 50:
         return 'RunScript(special://skin/tools/music_data.py,music-player,track)'
+    if window_id == 11132 and focus_id == 30:
+        return 'SetProperty(AsterSeerr.Command,details,home)'
+    if window_id == 11133 and focus_id == 30:
+        return 'SetProperty(AsterAcquisition.Command,action,home)'
+    if window_id == 11132 and focus_id == 40:
+        return 'SetProperty(AsterSeerr.Command,season,home)'
     return None
 
 
@@ -128,7 +136,7 @@ def main():
         if selected and xbmcgui.Window(10000).getProperty("AsterSearch.Ready") == "true":
             xbmc.executebuiltin("SetProperty(AsterSearch.Command,details,home)")
             return
-    if (window_id, focus_id) in ((10025, 50), (10000, 100), (10000, 110)):
+    if (window_id, focus_id) in ((10025, 50), (10000, 100), (10000, 110), (11112, 100), (11112, 110)):
         container = focus_id
         movie_id = xbmc.getInfoLabel(f'Container({container}).ListItem.DBID')
         if (movie_id.isdecimal() and 0 < int(movie_id) <= 2147483647
@@ -136,7 +144,7 @@ def main():
                 and not xbmc.getCondVisibility(f'Container({container}).ListItem.IsParentFolder')):
             xbmc.executebuiltin('RunScript(script.asterruntime,aster-global-search-ui22,movie,' + movie_id + ')')
             return
-    if (window_id, focus_id) in ((10025, 50), (10000, 110)):
+    if (window_id, focus_id) in ((10025, 50), (10000, 110), (11112, 110)):
         try:
             from aster_v2_series import launch_selected_show
         except ImportError:

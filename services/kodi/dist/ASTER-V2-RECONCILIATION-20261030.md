@@ -68,3 +68,25 @@ r16 supersedes r15 and defines Clock, Search and the floating stone side rail as
 ## Books and Requests rail layering repair r17 — 2026-10-30
 
 r17 supersedes r16 after the owner showed Books covers and headings drawing through the expanded rail around Requests. Books now renders the unchanged shared rail after its entire content group. The Requests launcher was also traced to `custom_1133_acquisition.xml`; its hero/results group had similarly rendered over the upper collapsed icons, so its unchanged rail now renders last. Direct lab captures verified expanded Books, collapsed Requests with all seven icons, and expanded Requests. The request recommendations remained populated, no player was active, and no skin XML load errors occurred. The canonical shared rail and the separate `custom_1132` Seerr detail view were restored after diagnosis and remain otherwise unchanged. Production remains unchanged.
+
+## Production candidate r18 — 2026-10-30
+
+r18 freezes the complete post-acceptance lab state as AsterTV v2.0.7. Requests
+now opens recommendation artwork directly into its detail stage, supports
+focus-preserving multi-season selection and exposes one final Request action;
+the acquisition page no longer carries the obsolete intermediate Request
+button. Music now uses the shared gold Search/Clock/stone-rail treatment, no
+legacy underline, and 220-pixel category pills so Albums and Playlists remain
+fully readable at the lab display's font scale. The accepted 1920x1080 AsterTV
+artwork is installed through LibreELEC's Kodi profile splash override rather
+than replacing an OS image.
+
+The package manifest pins 577 credential-free Aster-owned add-on files plus
+the G20 keymap and splash. The production promoter is host-bound, refuses
+active playback, preserves Kodi profile/account data and all audio settings,
+checkpoints every replaced add-on/keymap/splash, verifies installed hashes and
+rolls back automatically if Kodi does not remain active. Final lab preflight:
+Kodi active, no active player, final Music hash
+`052ff612d6f776e281401d140b148c2425dec4732ecc6e7f68de139ceeb148cc`,
+splash hash
+`912228f3866b33749905eb8154b470d3170fe4747f92799811470bb49b986cce`.

@@ -1,208 +1,126 @@
 #!/usr/bin/env python3
-"""Fail closed if the preserved AsterTV v2 lab release drifts."""
+"""Fail closed if the immutable AsterTV v2.0.7 production release drifts."""
+from __future__ import annotations
 
 import hashlib
 import json
 import subprocess
 import sys
 import tarfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
-
 
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parents[2]
-RECONCILIATION = ROOT / "reconciliation"
-MANIFEST = RECONCILIATION / "manifest.json"
-ARCHIVE = REPO / "services/kodi/dist/astertv-v2-lab-reconciled-2026-10-30-r17.tar.gz"
+ARCHIVE = REPO / "services/kodi/dist/astertv-v2.0.7-production-2026-10-30-r18.tar.gz"
 SIDECAR = ARCHIVE.with_suffix(ARCHIVE.suffix + ".sha256")
-EXPECTED_RELEASE = "astertv-v2.0.6-lab-acceptance-reconciled-2026-10-30-r17"
+PREFIX = "aster-v2-package/"
+RELEASE = "astertv-v2.0.7-production-2026-10-30-r18"
+SPLASH_SHA = "912228f3866b33749905eb8154b470d3170fe4747f92799811470bb49b986cce"
 
 
-def sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as stream:
-        for block in iter(lambda: stream.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
+def sha(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
 
 
-manifest = json.loads(MANIFEST.read_text())
-assert manifest["release"] == EXPECTED_RELEASE
-assert manifest["target"] == "AsterTV lab only (192.168.1.140)"
-assert manifest["production_changed"] is False
+def member(bundle: tarfile.TarFile, relative: str) -> bytes:
+    stream = bundle.extractfile(PREFIX + relative)
+    assert stream is not None, relative
+    return stream.read()
 
-for row in manifest["files"]:
-    candidate = RECONCILIATION / "payload" / row["path"]
-    assert candidate.is_file(), row["path"]
-    assert candidate.stat().st_size == row["bytes"], row["path"]
-    assert sha256(candidate) == row["after_sha256"], row["path"]
-
-subprocess.run([sys.executable, str(RECONCILIATION / "validate_books_music.py")], check=True)
-subprocess.run([sys.executable, "-m", "py_compile",
-                str(RECONCILIATION / "apply_reconciliation.py")], check=True)
-subprocess.run([sys.executable, "-m", "py_compile",
-                str(RECONCILIATION / "apply_shared_header_rail_r16_fix.py")], check=True)
-subprocess.run([sys.executable, "-m", "py_compile",
-                str(RECONCILIATION / "apply_books_rail_r17_fix.py"),
-                str(RECONCILIATION / "apply_acquisition_rail_r17_fix.py")], check=True)
 
 sidecar_hash, sidecar_name = SIDECAR.read_text().split()
 assert sidecar_name == ARCHIVE.name
-assert sha256(ARCHIVE) == sidecar_hash
-with tarfile.open(ARCHIVE, "r:gz") as bundle:
-    member = bundle.extractfile("aster-v2-package/reconciliation/manifest.json")
-    assert member is not None
-    packaged = json.load(member)
-    reader_bundle_member = bundle.extractfile("aster-v2-package/epub-consumer/reader/bundle.json")
-    assert reader_bundle_member is not None
-    reader_bundle = json.load(reader_bundle_member)
-    publication_member = bundle.extractfile(
-        "aster-v2-package/epub-consumer/reader/runtime/epub_narration/publication.py"
-    )
-    assert publication_member is not None
-    publication_source = publication_member.read().decode("utf-8")
-    service_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/plugin.audio.asterbooks/service.py"
-    )
-    bridge_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/plugin.audio.asterbooks/resources/lib/books_sync_bridge.py"
-    )
-    listing_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/plugin.audio.asterbooks/default.py"
-    )
-    series_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/script.asterruntime/aster-series-preview24/default.py"
-    )
-    series_xml_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/script.asterruntime/aster-series-preview24/resources/skins/Default/1080i/SeriesPreview.xml"
-    )
-    series_manifest_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/script.asterruntime/aster-series-preview24/manifest.json"
-    )
-    series_wrapper_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/skin.asterhome/tools/aster_v2_series.py"
-    )
-    family_manifest_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/script.asterruntime/family-manifest.json"
-    )
-    movie_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/script.asterruntime/aster-global-search-ui22/movie.py"
-    )
-    home_plugin_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/plugin.video.asterhome/default.py"
-    )
-    requests_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/skin.asterhome/1080i/custom_1132_requests.xml"
-    )
-    youtube_focus_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/skin.asterhome/tools/youtube_root_focus.py"
-    )
-    screensaver_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/screensaver.asterhome.v2lab/resources/skins/Default/1080i/AsterIdle.xml"
-    )
-    media_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/skin.asterhome/1080i/Home.xml"
-    )
-    books_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/skin.asterhome/1080i/IncludesBooks.xml"
-    )
-    news_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/skin.asterhome/1080i/custom_1111_digest.xml"
-    )
-    smart_home_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/skin.asterhome/1080i/custom_1112_home.xml"
-    )
-    shared_clock_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/skin.asterhome/1080i/Includes.xml"
-    )
-    shared_rail_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/skin.asterhome/1080i/IncludesHub.xml"
-    )
-    acquisition_member = bundle.extractfile(
-        "aster-v2-package/lab-addon-snapshot/skin.asterhome/1080i/custom_1133_acquisition.xml"
-    )
-    assert service_member is not None and bridge_member is not None and listing_member is not None
-    assert all(member is not None for member in (
-        series_member, series_xml_member, series_manifest_member,
-        series_wrapper_member, family_manifest_member, movie_member, home_plugin_member,
-        requests_member, youtube_focus_member, screensaver_member,
-        media_member, books_member, news_member, smart_home_member,
-        shared_clock_member, shared_rail_member, acquisition_member))
-    service_source = service_member.read().decode("utf-8")
-    bridge_source = bridge_member.read().decode("utf-8")
-    listing_source = listing_member.read().decode("utf-8")
-    series_source = series_member.read().decode("utf-8")
-    series_xml = series_xml_member.read().decode("utf-8")
-    series_manifest = json.loads(series_manifest_member.read())
-    series_wrapper = series_wrapper_member.read().decode("utf-8")
-    family_manifest = json.loads(family_manifest_member.read())
-    movie_source = movie_member.read().decode("utf-8")
-    home_plugin_source = home_plugin_member.read().decode("utf-8")
-    requests_xml = requests_member.read().decode("utf-8")
-    youtube_focus_source = youtube_focus_member.read().decode("utf-8")
-    screensaver_xml = screensaver_member.read().decode("utf-8")
-    media_xml = media_member.read().decode("utf-8")
-    books_xml = books_member.read().decode("utf-8")
-    news_xml = news_member.read().decode("utf-8")
-    smart_home_xml = smart_home_member.read().decode("utf-8")
-    shared_clock_xml = shared_clock_member.read().decode("utf-8")
-    shared_rail_xml = shared_rail_member.read().decode("utf-8")
-    acquisition_xml = acquisition_member.read().decode("utf-8")
-assert packaged == manifest
-assert reader_bundle["shared_progress"] is False
-assert "sentence-sample-index" in publication_source
-assert "word-sample-index" not in publication_source
-assert "ProgressBridge" in service_source and "progress-enabled.json" in service_source
-assert "podcast_resumes" in bridge_source and "Resume · " in bridge_source
-assert "AsterBooks.Resume" in listing_source and "StartOffset" in listing_source
-assert "target=self.selection.season+1" in series_source
-assert "item.setProperty('Watched','true' if row.watched else 'false')" in series_source
-assert "preview-window-identity-timeout" in series_source
-assert "window.identity=current" in series_source
-assert "self.setProperty('Series.SeasonIndex',str(self.selection.season))" in series_source
-assert "if self.identity is not None:self.setFocusId" in series_source
-assert '<defaultcontrol always="true">300</defaultcontrol>' in series_xml
-assert 'colordiffuse="b8000000"' in series_xml
-assert 'id="201"' in series_xml and 'colordiffuse="ff005c46"' in series_xml
-assert '$INFO[System.Time(HH:mm)]' in series_xml
-assert 'id="200"><left>125</left><top>755</top><width>240</width><height>46</height>' in series_xml
-assert 'id="202"><left>125</left><top>820</top><width>140</width><height>46</height>' in series_xml
-assert 'id="201"><left>905</left><top>204</top><width>220</width><height>46</height>' in series_xml
-assert series_xml.count('colordiffuse="cc202b25"') == 3
-assert series_xml.count('<align>center</align><aligny>center</aligny>') >= 5
-assert series_xml.count('<label>✓</label><font>font16</font><textcolor>ff3b3a32</textcolor>') == 2
-assert series_xml.count('<label>●</label><font>font16</font><textcolor>ff91c6a2</textcolor>') == 2
-assert series_xml.count('<left>8</left><top>36</top><width>206</width><height>126</height><texture diffuse="special://home/addons/skin.asterhome/media/ui-compact-card-mask.png">$INFO[ListItem.Property(Still)]') == 2
-assert "AsterMovieRails: controls cast=" in movie_source
-assert "command=='related'" in movie_source and "VideoLibrary.GetMovies" in movie_source
-assert "row['kind'] == 'movie'" in home_plugin_source and "setDbId(row['id'])" in home_plugin_source
-assert 'railfocus" value="9009"' in requests_xml
-assert 'id="40"><left>1210</left><top>190</top><width>570</width><height>300</height>' in requests_xml
-assert 'id="41"><left>1210</left><top>505</top><width>570</width><height>56</height>' in requests_xml
-assert 'id="50"><left>1210</left><top>615</top><width>570</width><height>64</height>' in requests_xml
-assert 'id="30"><left>110</left><top>715</top>' in requests_xml
-series_component_bytes = (json.dumps(series_manifest, indent=2, sort_keys=True) + "\n").encode()
-series_component_sha = __import__("hashlib").sha256(series_component_bytes).hexdigest()
-assert f"MANIFEST_SHA='{series_component_sha}'" in series_wrapper
-assert family_manifest["components"]["aster-series-preview24"]["manifest_sha256"] == series_component_sha
-assert "if focused in ROOT_CONTROLS" in youtube_focus_source
-assert "<backgroundcolor>ff000000</backgroundcolor>" in screensaver_xml
-gold_search = ('<width>174</width><height>50</height><texture border="18" '
-               'colordiffuse="75cbb991">special://skin/media/'
-               'ui-compact-card-ring.png</texture></control>')
-assert media_xml.count(gold_search) == 1
-assert books_xml.count(gold_search) == 1
-assert news_xml.count(gold_search) == 1
-assert smart_home_xml.count(gold_search) == 1
-assert '$INFO[System.Time(HH:mm)]' in shared_clock_xml
-assert shared_clock_xml.count('colordiffuse>75cbb991</colordiffuse>') >= 1
-assert shared_rail_xml.count('colordiffuse="75cbb991"') == 2
-assert news_xml.rfind('include content="AsterNavigationRail"') > news_xml.rfind('id="139"')
-assert news_xml.rfind('include content="AsterClockPill"') > news_xml.rfind('id="139"')
-assert news_xml.rfind(gold_search) > news_xml.rfind('id="139"')
-assert books_xml.rfind('include content="AsterNavigationRail"') > books_xml.rfind('id="139"')
-assert acquisition_xml.rfind('include content="AsterNavigationRail"') > acquisition_xml.rfind('id="30"')
-assert acquisition_xml.count('<control type="group" id="600">') == 1
-assert acquisition_xml.count('railfocus" value="9009"') == 1
+assert sha(ARCHIVE.read_bytes()) == sidecar_hash
 
-print(f"AsterTV v2 release gate passed: {len(manifest['files'])} payload files and r17 archive verified")
+with tarfile.open(ARCHIVE, "r:gz") as bundle:
+    release = json.loads(member(bundle, "manifest.json"))
+    snapshot_bytes = member(bundle, "lab-addon-snapshot-manifest.json")
+    snapshot = json.loads(snapshot_bytes)
+    assert release["release"] == RELEASE and snapshot["release"] == RELEASE
+    assert release["status"] == "production-candidate"
+    assert release["credentials_included"] is False
+    assert release["profile_or_addon_data_included"] is False
+    assert release["audio_configuration_included"] is False
+    assert snapshot["credentials_included"] is False
+    assert snapshot["Kodi profile/addon_data included"] is False
+    assert len(snapshot["files"]) == release["snapshot_files"] == 577
+    assert sha(snapshot_bytes) == release["artifacts"]["lab-addon-snapshot-manifest.json"]
+
+    inventory = {row["path"]: row for row in snapshot["files"]}
+    for path, row in inventory.items():
+        assert "addon_data" not in Path(path).parts, path
+        data = member(bundle, "lab-addon-snapshot/" + path)
+        assert len(data) == row["bytes"] and sha(data) == row["sha256"], path
+        if path.startswith("skin.asterhome/") and path.endswith(".xml"):
+            ET.fromstring(data)
+        if path.endswith(".py"):
+            compile(data, path, "exec")
+
+    splash = member(bundle, "profile-overlay/media/Splash.png")
+    keymap = member(bundle, "reconciliation/payload/userdata/keymaps/g20s-pro-plus.xml")
+    promoter = member(bundle, "reconciliation/promote_v207_to_production.py")
+    assert sha(splash) == SPLASH_SHA == release["artifacts"]["profile-overlay/media/Splash.png"]
+    assert sha(keymap) == release["artifacts"]["reconciliation/payload/userdata/keymaps/g20s-pro-plus.xml"]
+    assert sha(promoter) == release["artifacts"]["reconciliation/promote_v207_to_production.py"]
+    ET.fromstring(keymap)
+    compile(promoter, "promote_v207_to_production.py", "exec")
+
+    def addon(path: str) -> str:
+        return member(bundle, "lab-addon-snapshot/" + path).decode()
+
+    music = addon("skin.asterhome/1080i/IncludesMusic.xml")
+    requests = addon("skin.asterhome/1080i/custom_1132_requests.xml")
+    acquisition = addon("skin.asterhome/1080i/custom_1133_acquisition.xml")
+    dispatcher = addon("skin.asterhome/tools/select_dispatch.py")
+    seerr = addon("script.asterseerr/default.py")
+    youtube = addon("skin.asterhome/1080i/MyVideoNav.xml")
+    series = addon("script.asterruntime/aster-series-preview24/default.py")
+    series_xml = addon("script.asterruntime/aster-series-preview24/resources/skins/Default/1080i/SeriesPreview.xml")
+    books_service = addon("plugin.audio.asterbooks/service.py")
+    books_bridge = addon("plugin.audio.asterbooks/resources/lib/books_sync_bridge.py")
+    publication = member(bundle, "epub-consumer/reader/runtime/epub_narration/publication.py").decode()
+
+    # Final Music acceptance: text-safe pills, Media-style header, no legacy underline.
+    assert '<width>220</width><height>46</height><font>font18</font>' in music
+    for control, left, label in ((110, 540, "Albums"), (111, 770, "Artists"),
+                                 (112, 1000, "Songs"), (113, 1230, "Playlists"),
+                                 (114, 1460, "Genres")):
+        assert f'id="{control}"><left>{left}</left>' in music
+        assert f'<label>{label}</label>' in music
+    assert 'id="139"' in music and '<label>Search</label>' in music
+    assert 'AsterClockPill' in music and 'AsterNavigationRail' in music
+    assert '<top>86</top><width>200</width><height>4</height>' not in music
+
+    # Requests has a direct artwork detail stage, direct multi-season toggles and one action.
+    assert 'AsterSeerr.DetailsActive' in requests
+    assert 'id="40"' in requests and 'AsterSeerr.Command,season' in requests
+    assert 'id="50"' in requests and 'AsterSeerr.Command,request' in requests
+    assert 'id="41"' not in requests and '<label>Select season</label>' not in requests
+    assert 'id="30"' in requests and 'AsterSeerr.Command,details' in requests
+    assert 'id="50"' not in acquisition and 'AsterAcquisition.Command,action' in acquisition
+    assert '11132: frozenset((30, 40))' in dispatcher
+    assert '11133: frozenset((30,))' in dispatcher
+    assert "command == 'season'" in seerr and 'seasons.selectItem(position)' in seerr
+
+    # Previously accepted regressions remain pinned.
+    assert 'plugin://plugin.video.youtube/special/recommendations' in youtube
+    assert 'plugin://plugin.video.youtube/special/playlist/WL' in youtube
+    assert 'target=self.selection.season+1' in series
+    assert "item.setProperty('Watched','true' if row.watched else 'false')" in series
+    assert '<defaultcontrol always="true">300</defaultcontrol>' in series_xml
+    assert '$INFO[System.Time(HH:mm)]' in series_xml
+    assert 'progress-enabled.json' in books_service
+    assert 'podcast_resumes' in books_bridge and 'Resume · ' in books_bridge
+    assert 'sentence-sample-index' in publication and 'word-sample-index' not in publication
+
+    promoter_text = promoter.decode()
+    for guard in ('AsterTVProd', 'require_idle()', 'credentials_or_addon_data_touched',
+                  'audio_settings_touched', 'verify_installed(rows)', 'systemctl',
+                  'CHECKPOINT', 'Path("/storage/.aster-recovery-required")'):
+        assert guard in promoter_text
+    assert 'addon_data' in promoter_text and 'SPLASH_SHA' in promoter_text
+
+subprocess.run([sys.executable, "-m", "py_compile",
+                str(ROOT / "reconciliation/promote_v207_to_production.py")], check=True)
+print("AsterTV v2.0.7 release gate passed: 577 files, XML/Python, routes, splash and rollback verified")

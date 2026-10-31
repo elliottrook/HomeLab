@@ -1,8 +1,9 @@
 # AsterTV v2 lab release
 
-The authoritative preserved lab candidate is
-`dist/astertv-v2-lab-reconciled-2026-10-30-r17.tar.gz`. Production remains on
-the stable v1.1.1 release and is not changed by this record.
+The authoritative production candidate is
+`dist/astertv-v2.0.7-production-2026-10-30-r18.tar.gz`. It is the reconciled
+successor to the preserved r17 lab package and contains the exact Aster-owned
+add-on snapshot accepted on the lab before production promotion.
 
 The unpacked, reviewable final reconciliation is in `astertv-v2/reconciliation`.
 It includes the bounded installer, hash-pinned payload, physical G20 keymap and
@@ -58,6 +59,22 @@ their page content groups. This prevents Books rows from drawing through an
 expanded rail and prevents the Requests hero fade from washing out the upper
 collapsed icons. Both collapsed and expanded states were captured directly on
 the lab; Requests data, controls and routes are unchanged.
+
+## Release reconciliation and production candidate in r18
+
+The Requests/Seerr flow now opens recommendation artwork directly into a
+separate details stage, permits direct multi-season selection, preserves focus
+while toggling seasons and exposes one final Request control. The acquisition
+page no longer has the obsolete intermediate Request button. Music uses the
+Media-style gold Search, compact dark category group, shared gold clock and
+floating stone rail; all category labels fit and the legacy green underline is
+removed. The package installs the existing 1920x1080 AsterTV artwork as Kodi's
+supported profile splash at `/storage/.kodi/media/Splash.png`.
+
+The production promoter refuses active playback, validates all 577 snapshot
+files, excludes credentials and `addon_data`, preserves production profile and
+audio settings, checkpoints every replaced add-on plus keymap and splash, and
+automatically restores the checkpoint if Kodi does not remain active.
 
 See `dist/ASTER-V2-RECONCILIATION-20261030.md` for the full repair record and
 `dist/ASTER-V2-PROMPT-RECONCILIATION-20261030.md` for the prompt-by-prompt audit.

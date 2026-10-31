@@ -1,10 +1,16 @@
 <?xml version='1.0' encoding='utf-8'?>
 <includes>
   <include name="AsterMusicPillButton">
-    <width>200</width><height>50</height><font>font20</font><align>left</align><aligny>center</aligny>
-    <textoffsetx>50</textoffsetx><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor>
-    <texturefocus border="20" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus>
-    <texturenofocus border="20" colordiffuse="c929302b">special://skin/media/ui-panel.png</texturenofocus>
+    <width>220</width><height>46</height><font>font18</font><align>left</align><aligny>center</aligny>
+    <textoffsetx>48</textoffsetx><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor>
+    <texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus>
+    <texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus>
+  </include>
+  <include name="AsterMusicSearchButton">
+    <width>170</width><height>46</height><font>font20</font><align>center</align><aligny>center</aligny>
+    <textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor>
+    <texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus>
+    <texturenofocus border="18" colordiffuse="f23b3a32">special://skin/media/ui-panel.png</texturenofocus>
   </include>
   <include name="AsterMusicPage">
     <param name="gridup" default="111" /><param name="page" />
@@ -40,20 +46,26 @@
       </control>
       <include content="AsterNavigationRail"><param name="content" value="500" /><param name="railfocus" value="9007" /></include>
       <control type="group">
-        <control type="image"><left>0</left><top>0</top><width>1920</width><height>160</height><texture>special://skin/media/ui-solid.png</texture><colordiffuse>ff3b3a32</colordiffuse></control><visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
+        <control type="image"><left>532</left><top>23</top><width>1158</width><height>62</height><texture border="18" colordiffuse="52000000">special://skin/media/ui-panel.png</texture></control>
+        <control type="image"><left>348</left><top>29</top><width>174</width><height>50</height><texture border="18" colordiffuse="75cbb991">special://skin/media/ui-compact-card-ring.png</texture></control><visible>!Control.HasFocus(8999) + !Control.HasFocus(9001) + !Control.HasFocus(9002) + !Control.HasFocus(9003) + !Control.HasFocus(9004) + !Control.HasFocus(9005) + !Control.HasFocus(9007)</visible>
         <control type="image">
           <left>110</left><top>0</top><width>240</width><height>160</height>
           <texture>special://skin/media/29-aster-music-logo.png</texture><aspectratio>keep</aspectratio>
         </control>
-        <control type="button" id="110"><left>385</left><top>28</top><label>Albums</label><include>AsterMusicPillButton</include><onclick>ActivateWindow(1114)</onclick><onleft>8999</onleft><onright>111</onright><ondown>500</ondown></control>
-        <control type="button" id="111"><left>597</left><top>28</top><label>Artists</label><include>AsterMusicPillButton</include><onclick>ActivateWindow(1115)</onclick><onleft>110</onleft><onright>112</onright><ondown>500</ondown></control>
-        <control type="button" id="112"><left>809</left><top>28</top><label>Songs</label><include>AsterMusicPillButton</include><onclick>ActivateWindow(1116)</onclick><onleft>111</onleft><onright>113</onright><ondown>500</ondown></control>
-        <control type="button" id="113"><left>1021</left><top>28</top><label>Playlists</label><include>AsterMusicPillButton</include><onclick>ActivateWindow(1117)</onclick><onleft>112</onleft><onright>114</onright><ondown>500</ondown></control>
-        <control type="image"><left>$PARAM[activeleft]</left><top>86</top><width>200</width><height>4</height><texture>special://skin/media/ui-solid.png</texture><colordiffuse>asterGreen</colordiffuse><visible>$PARAM[activevisible]</visible></control>
-        <control type="image"><left>395</left><top>35</top><width>36</width><height>36</height><texture>special://skin/media/23-music-album.png</texture><aspectratio>keep</aspectratio></control>
-        <control type="image"><left>607</left><top>35</top><width>36</width><height>36</height><texture>special://skin/media/24-music-artist.png</texture><aspectratio>keep</aspectratio></control>
-        <control type="image"><left>819</left><top>35</top><width>36</width><height>36</height><texture>special://skin/media/25-music-song.png</texture><aspectratio>keep</aspectratio></control>
-        <control type="image"><left>1031</left><top>35</top><width>36</width><height>36</height><texture>special://skin/media/26-music-playlist.png</texture><aspectratio>keep</aspectratio></control>
+        <control type="button" id="139"><left>350</left><top>31</top><label>Search</label><include>AsterMusicSearchButton</include><onclick>RunScript(special://skin/tools/header_search.py)</onclick><onleft>8999</onleft><onright>110</onright><onup>139</onup><ondown>500</ondown></control>
+        <control type="button" id="110"><left>540</left><top>31</top><label>Albums</label><include>AsterMusicPillButton</include><onclick>ActivateWindow(1114)</onclick><onleft>139</onleft><onright>111</onright><ondown>500</ondown></control>
+        <control type="button" id="111"><left>770</left><top>31</top><label>Artists</label><include>AsterMusicPillButton</include><onclick>ActivateWindow(1115)</onclick><onleft>110</onleft><onright>112</onright><ondown>500</ondown></control>
+        <control type="button" id="112"><left>1000</left><top>31</top><label>Songs</label><include>AsterMusicPillButton</include><onclick>ActivateWindow(1116)</onclick><onleft>111</onleft><onright>113</onright><ondown>500</ondown></control>
+        <control type="button" id="113"><left>1230</left><top>31</top><label>Playlists</label><include>AsterMusicPillButton</include><onclick>ActivateWindow(1117)</onclick><onleft>112</onleft><onright>114</onright><ondown>500</ondown></control>
+        <control type="image"><left>550</left><top>40</top><width>28</width><height>28</height><texture>special://skin/media/23-music-album.png</texture><aspectratio>keep</aspectratio></control>
+        <control type="image"><left>780</left><top>40</top><width>28</width><height>28</height><texture>special://skin/media/24-music-artist.png</texture><aspectratio>keep</aspectratio></control>
+        <control type="image"><left>1010</left><top>40</top><width>28</width><height>28</height><texture>special://skin/media/25-music-song.png</texture><aspectratio>keep</aspectratio></control>
+        <control type="image"><left>1240</left><top>40</top><width>28</width><height>28</height><texture>special://skin/media/26-music-playlist.png</texture><aspectratio>keep</aspectratio></control>
+        <control type="image"><left>349</left><top>30</top><width>172</width><height>48</height><texture border="18" colordiffuse="asterIvory">special://skin/media/ui-compact-card-ring.png</texture><visible>Control.HasFocus(139)</visible></control>
+        <control type="image"><left>539</left><top>30</top><width>222</width><height>48</height><texture border="18" colordiffuse="asterIvory">special://skin/media/ui-compact-card-ring.png</texture><visible>Control.HasFocus(110)</visible></control>
+        <control type="image"><left>769</left><top>30</top><width>222</width><height>48</height><texture border="18" colordiffuse="asterIvory">special://skin/media/ui-compact-card-ring.png</texture><visible>Control.HasFocus(111)</visible></control>
+        <control type="image"><left>999</left><top>30</top><width>222</width><height>48</height><texture border="18" colordiffuse="asterIvory">special://skin/media/ui-compact-card-ring.png</texture><visible>Control.HasFocus(112)</visible></control>
+        <control type="image"><left>1229</left><top>30</top><width>222</width><height>48</height><texture border="18" colordiffuse="asterIvory">special://skin/media/ui-compact-card-ring.png</texture><visible>Control.HasFocus(113)</visible></control>
         <include content="AsterClockPill" />
         <control type="label"><left>1050</left><top>163</top><width>700</width><height>38</height><label>$PARAM[heading]</label><font>font24</font><textcolor>asterGold</textcolor></control>
         <control type="label"><left>1050</left><top>214</top><width>760</width><height>68</height><label>$INFO[Container(500).ListItem.Label]</label><font>font40</font><textcolor>asterRailText</textcolor></control>
@@ -90,7 +102,7 @@
             <control type="label"><left>4</left><top>313</top><width>272</width><height>26</height><label>$INFO[ListItem.Label2]</label><font>font16</font><textcolor>asterMuted</textcolor></control>
           </focusedlayout>
         </control>
-      <control type="button" id="114"><left>1233</left><top>28</top><label>Genres</label><include>AsterMusicPillButton</include><onclick>RunScript(special://skin/tools/aster_v2_music.py,genres,$PARAM[page])</onclick><onleft>113</onleft><onright>500</onright><ondown>500</ondown></control><control type="image"><left>1243</left><top>35</top><width>36</width><height>36</height><texture>special://skin/media/13-music.png</texture><aspectratio>keep</aspectratio></control><control type="button" id="115"><left>1050</left><top>455</top><width>320</width><height>56</height><label>Shuffle all</label><font>font24</font><align>center</align><aligny>center</aligny><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor><onleft>110</onleft><onright>500</onright><onup>112</onup><ondown>500</ondown><visible>Window.IsActive(11113)</visible><onclick>RunScript(special://skin/tools/aster_v2_music.py,shuffle,home)</onclick><texturefocus border="20" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="c929302b">special://skin/media/ui-panel.png</texturenofocus><enable>String.IsEqual(Window.Property(AsterMusic.LoadReady),true)</enable></control></control>
+      <control type="button" id="114"><left>1460</left><top>31</top><label>Genres</label><include>AsterMusicPillButton</include><onclick>RunScript(special://skin/tools/aster_v2_music.py,genres,$PARAM[page])</onclick><onleft>113</onleft><onright>500</onright><ondown>500</ondown></control><control type="image"><left>1470</left><top>40</top><width>28</width><height>28</height><texture>special://skin/media/13-music.png</texture><aspectratio>keep</aspectratio></control><control type="image"><left>1459</left><top>30</top><width>222</width><height>48</height><texture border="18" colordiffuse="asterIvory">special://skin/media/ui-compact-card-ring.png</texture><visible>Control.HasFocus(114)</visible></control><control type="button" id="115"><left>1050</left><top>455</top><width>320</width><height>56</height><label>Shuffle all</label><font>font24</font><align>center</align><aligny>center</aligny><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor><onleft>110</onleft><onright>500</onright><onup>112</onup><ondown>500</ondown><visible>Window.IsActive(11113)</visible><onclick>RunScript(special://skin/tools/aster_v2_music.py,shuffle,home)</onclick><texturefocus border="20" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="c929302b">special://skin/media/ui-panel.png</texturenofocus><enable>String.IsEqual(Window.Property(AsterMusic.LoadReady),true)</enable></control></control>
     </definition>
   </include>
 </includes>
