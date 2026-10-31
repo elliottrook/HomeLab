@@ -1,14 +1,16 @@
 # AsterTV v3
 
-> Status: Proposed — Stream M; project charter created, implementation not
-> started
+> Status: Active — Stream A page-redesign pilot on the Mac mini; M0 read-only
+> discovery started, live pilot setup pending pre-start risk acceptance
 >
 > Project owner: Jason
 >
 > Proposed: 2026-10-31
 >
-> Authorization stream: Stream M — every live state change and external write
-> requires a fresh, bounded approval
+> Current authorization stream: Stream A — limited to the Mac-mini page-
+> redesign pilot enumerated below. The project transitions to Stream M at the
+> pilot acceptance gate; every later live state change and external write then
+> requires a fresh, bounded approval.
 
 ## Purpose and desired outcome
 
@@ -87,15 +89,23 @@ privacy behaviour unless a replacement passes the same or stronger gate.
 - A tentative low-spec test machine is expected on 2026-11-01: likely a
   fourth-generation Intel Core i5 with 8 GB RAM and a 240 GB SSD. CPU, GPU,
   firmware, network and display outputs are unverified.
+- In lieu of that unavailable machine, Jason selected the M4 Mac mini as the
+  immediate page-redesign pilot. Read-only discovery on 2026-10-31 found macOS
+  26.6.2 on `Mac16,10` with 16 GB RAM, a retained Kodi 21.3 ARM profile last
+  used in October, Aster skin/add-ons versioned `1.0.0`, and no current
+  `/Applications/Kodi.app` or `~/Applications/Kodi.app`. The retained skin is
+  an earlier prototype with substantial drift from the accepted v2 payload;
+  it is evidence only and must not become the v3 source of truth.
 
 Reconfirm all live versions, endpoints, account capabilities and hardware facts
 in Milestone 0; this document does not turn remembered state into authority.
 
 ## Scope and permitted local work
 
-Stream M permits read-only discovery, project/design work, local candidates,
-tests and local commits under the repository standard. After a fresh bounded
-approval, the project may:
+The repository's common project authorization permits read-only discovery,
+project/design work, local candidates, tests and local commits. After the
+applicable Stream A envelope or a fresh bounded Stream M approval, the project
+may:
 
 - create a replaceable v3 candidate on the new low-spec test client or another
   explicitly selected lab target;
@@ -116,6 +126,15 @@ approval, the project may:
   after explicit acceptance and promotion approval; and
 - reconcile Doctor, Beszel, NetBox, backup, operational reference, wiki and the
   derived Aster knowledge mirror where those systems own affected facts.
+
+During the current Stream A pilot only, the project may additionally install an
+official hash-recorded Kodi 21.3 ARM application in a dedicated writable Mini
+pilot location, always launch it in portable mode, create a credential-free
+synthetic AsterTV v3 data directory, deploy page candidates to that portable
+instance, restart only that pilot instance, capture screenshots/navigation
+evidence and restore or remove only the dedicated pilot. These autonomous
+permissions do not extend to the retained Mini Kodi profile, Family, Bedroom,
+Home Assistant, cameras, credentials, source services or network policy.
 
 ## Explicit exclusions
 
@@ -152,6 +171,12 @@ approval, the project may:
   a physical remote during a network/bridge outage.
 - No tag, Forgejo/GitHub release, remote workflow mutation or Git push without
   the repository's required immediate confirmation.
+- No mutation, migration or deletion of the Mini's retained
+  `~/Library/Application Support/Kodi` profile during the Stream A pilot.
+- No real household credentials, library databases, viewing history, Home
+  Assistant state or camera imagery in the portable page-design fixture.
+- No Family or Bedroom deployment, production promotion or source-service
+  mutation under the Stream A page-redesign authorization.
 
 ## Authority model
 
@@ -281,6 +306,9 @@ Initial trust rules:
 | TTS pronunciation changes damage accepted books | Medium / Medium | Versioned lexicon, representative listening corpus, canonical cleanup regression and per-generation manifest/rollback. |
 | Podcast requests create duplicates or bypass subscription ownership | Medium / Medium | Select one request/subscription authority, stable IDs, duplicate-aware preview, explicit final action and reversible test feed. |
 | Large skin rewrite repeats v2 navigation regressions | Medium / High | One bounded surface at a time, immutable v2 baseline, focus-graph tests, physical G20 walkthrough and cross-page regression suite at every milestone. |
+| Mini pilot overwrites its retained Kodi profile | Low / High | Separate writable Kodi app bundle, mandatory `-p` launch wrapper, dedicated `portable_data`, preflight path assertion and untouched-profile hash/inventory comparison before and after every pilot milestone. |
+| Old Mini prototype is mistaken for the accepted v2 baseline | Medium / High | Build v3 only from the immutable v2.0.7 release/payload and record overlay provenance; use the old profile only for read-only historical comparison. |
+| Synthetic page design hides a broken live integration | Medium / Medium | Label every fixture, keep data adapters outside the visual contract, repeat navigation with malformed/empty/error fixtures and require later Stream M integration tests against each real authority. |
 | Low-spec client produces misleading capability conclusions | Medium / Medium | Confirm exact hardware, measure rather than infer, separate hardware limit from software defect and retain Family/Bedroom acceptance. |
 | Page-aware screensaver shows private Home/camera state | Low / High | Only allowlisted media/music artwork; fail closed to black Aster mark; never camera, Home, account or title-history metadata. |
 | Local AI/TTS workload competes with protected lab work | Medium / High | Registered hash-pinned workload, authoritative Lab Hours window check/reservation, whole-host lease and shared lock; fail closed if any control is unavailable. |
@@ -294,6 +322,11 @@ unavailable Lab Hours ledger or loss of v2 rollback is an immediate stop.
 Expected interruption is limited to the selected lab client during approved
 deployments. Family interruption requires a separate promotion approval,
 playback-idle evidence and a stated maintenance window.
+
+The current Mini pilot does not interrupt either AsterTV appliance. It may open
+and restart only the dedicated portable Kodi instance on the Mini. Discovery
+and local candidate work can continue now; installing or launching that pilot
+begins only after Jason accepts this updated pre-start risk envelope.
 
 ## Persistence and resume plan
 
@@ -314,9 +347,91 @@ On resume:
    workload; and
 7. continue from the first unchecked gate only.
 
+During the page pilot, also verify branch `codex/astertv-v3`, the official Kodi
+artifact digest, the portable launch assertion and the retained Mini-profile
+integrity record before opening the pilot.
+
 Candidate installs must be idempotent, hash-pinned, checkpointed and atomic.
 Partial generations or packages remain invisible to users. Jobs use bounded
 retries, timeouts, locks and durable status; process absence is never success.
+
+## Stream transition and page-redesign pilot
+
+The project has exactly one active authorization stream at a time. It is
+currently Stream A for the bounded pilot below. Completion or abandonment of
+PA4 automatically ends Stream A. Before any remaining v3 implementation, this
+document must record the transition to Stream M; no Stream A authority carries
+forward.
+
+### PA0 — Mini pilot foundation
+
+- [ ] Record the official Kodi 21.3 ARM download URL, digest and signature/
+  provenance evidence.
+- [ ] Install it in a dedicated user-writable pilot location and create a
+  launch wrapper that asserts portable mode and the expected `portable_data`
+  path before execution.
+- [ ] Seed only accepted v2.0.7 Aster-owned code/assets plus synthetic fixture
+  data; do not copy the retained Mini profile or any deployed credential.
+- [ ] Record an inventory/hash comparison proving the retained Mini profile was
+  unchanged.
+
+Gate: a disposable, credential-free Kodi 21.3 pilot starts independently on the
+Mini and can be removed without changing the retained profile, Family or
+Bedroom.
+
+### PA1 — Shared v3 page language
+
+- [ ] Create the v3 overlay/build boundary without modifying the immutable v2
+  release payload.
+- [ ] Reconcile common page chrome, focus, pills, Back/Home behaviour, hero
+  treatment, empty/error/loading states and remote target sizing against the
+  Aster internal UI guide.
+- [ ] Add deterministic structural/focus tests and screenshot fixtures before
+  applying the language to individual pages.
+
+Gate: the shared shell passes static/focus regression tests and Jason accepts a
+representative Mini walkthrough before all page conversions proceed.
+
+### PA2 — Media page redesigns
+
+- [ ] Redesign Movies/details with cast/crew artwork, roles, contextual cast
+  search, More Like This, Play/Resume focus and details-before-playback.
+- [ ] Redesign YouTube chrome, recommendation/subscription/watch-later/search
+  surfaces and return paths using synthetic account-safe fixtures.
+- [ ] Preserve the accepted v2 TV season/episode design as a locked regression
+  reference; this pilot does not redesign it unless Jason explicitly adds it.
+
+Gate: every entry/Back/OK/focus route passes on the Mini with synthetic normal,
+empty, loading and error fixtures; no autoplay or v2 TV regression is present.
+
+### PA3 — Aster, News, Requests, Home and Cameras page redesigns
+
+- [ ] Build the Aster AI interaction shell for idle, listening, processing,
+  speaking, cancelled and failed synthetic states without connecting a model or
+  microphone service.
+- [ ] Apply Aster icons and shared chrome to News while preserving digest and
+  article interaction contracts in fixtures.
+- [ ] Design podcast request discovery, details, duplicate/status and explicit
+  submission surfaces without making a real request.
+- [ ] Redesign the Home dashboard and separate Cameras page with synthetic,
+  clearly labelled fresh/stale/unavailable/door-event states and no real image.
+
+Gate: all surfaces pass the physical navigation/failure-state walkthrough and
+contain no credential, household state, camera image or live write path.
+
+### PA4 — Pilot reconciliation and mandatory Stream M transition
+
+- [ ] Run cross-page focus, Back/Home, empty/error/loading, secret-pattern,
+  retained-profile-integrity and v2 locked-surface regressions.
+- [ ] Package the page overlay, fixture schema, screenshots, build manifest and
+  removal/restore proof as a reproducible candidate; do not call it a release.
+- [ ] Obtain Jason's page-design acceptance and record changes requested.
+- [ ] Stop/remove or retain the portable pilot deliberately, record its exact
+  state, and change this project's current authorization stream to Stream M.
+
+Gate: page designs are accepted or their remaining changes are listed; the
+Mini's prior profile and both appliances are unchanged; Stream A is closed and
+all subsequent work is Stream M.
 
 ## Milestones
 
@@ -324,6 +439,8 @@ retries, timeouts, locks and durable status; process absence is never success.
 
 - [ ] Reconfirm Family, Bedroom and the new low-spec machine hardware, OS,
   Kodi, add-ons, routes, audio/video capabilities and recovery state.
+- [ ] Reconfirm the Mac-mini portable pilot boundary, retained-profile
+  inventory and accepted-v2 overlay provenance recorded in PA0.
 - [ ] Inventory existing Aster AI, account, YouTube, Seerr, Audiobookshelf,
   eBook narration, Home Assistant and camera contracts without reading secrets.
 - [ ] Capture v2 user workflows and focus graphs as regression fixtures.
@@ -699,6 +816,9 @@ explicit user acceptance.
 | 2026-10-31 | Refined Family equipment and content-volume design | Family equipment identified as TCL QM8L plus Onkyo TX-RZ30; official device and Home Assistant documentation confirms local network/standby paths | M7 now targets direct Onkyo volume/mute/power, TCL Android TV control, CEC/eARC coordination and guarded per-content room volume profiles |
 | 2026-10-31 | Added Aster Remote PWA workstream | Apple Remote interaction review and Apple Home Screen web-app documentation | M8 specifies a free installable iPhone PWA through a private authenticated semantic bridge, with native iOS limitations explicit |
 | 2026-10-31 | Completed Aster Remote input scope | Owner confirmed keyboard input is part of the requested remote | M8 now distinguishes direct Aster search from Kodi active-field entry and requires symbols, paste, dictation, masking and no input retention |
+| 2026-10-31 | Started project and selected temporary design target | Owner authorized Stream A page redesign on the Mac mini followed by Stream M for all remaining work; created local branch `codex/astertv-v3` | Read-only PA0 discovery started; no live target changed and no remote Git write performed |
+| 2026-10-31 | Inspected Mini Kodi state | M4/16 GB Mini on macOS 26.6.2; retained Kodi 21.3 ARM log/profile with Aster `1.0.0`; no installed Kodi app found; retained skin differs materially from accepted v2 payload | Use official Kodi 21.3 ARM in separate portable mode, seed from immutable v2.0.7, and leave the old profile untouched |
+| 2026-10-31 | Defined sequential authorization | PA0–PA4 enumerate the only Stream A changes; Family, Bedroom, credentials, real integrations and source services excluded | Await owner acceptance of updated pre-start risk envelope before installing/launching the portable pilot; PA4 mandates transition to Stream M |
 
 ## Close-out
 
