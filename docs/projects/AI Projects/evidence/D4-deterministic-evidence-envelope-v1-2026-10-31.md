@@ -48,8 +48,16 @@ invalid extra model fields, null drafts and visible source ordering. Its 8/8
 focused tests pass. The fixture uses generic development identities and contains
 no `expanded-*` case ID or spent packet identity.
 
+The no-tool prose runner is also source-ready. Its response schema exposes only
+`diagnosis` and `verification`; outcome, checks, effects and authority are not
+model fields. Deterministic abstentions skip transport entirely. Malformed,
+timed-out, secret-bearing and false-completion responses retain the exact
+deterministic plan and fall back to safe prose. The combined envelope,
+development and runner suite passes 13/13.
+
 ## Next gate
 
-The new public/synthetic development fixture is complete. Next freeze a new
-candidate, answer-key packet and model-blind review boundary. Do not reuse the
-`candidate-f` result or tune the prose model against its hidden answers.
+The new public/synthetic development fixture and no-tool runner are complete.
+Next freeze a new candidate manifest, answer-key packet and model-blind review
+boundary. Do not reuse the `candidate-f` result or tune the prose model against
+its hidden answers.
