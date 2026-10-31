@@ -480,6 +480,14 @@ or IR path is sufficient.
   touchpad plus accessible directional-button mode, OK/Back/Home, Play/Pause,
   on-screen volume/mute/power, search keyboard, voice-search gesture and
   allowlisted Aster page shortcuts.
+- [ ] Provide two keyboard paths: a direct Aster unified-search field that does
+  not require opening Kodi's television keyboard, and an explicit Kodi text-
+  entry mode for the currently focused field with Send, Backspace, Clear,
+  Cancel and Enter.
+- [ ] Use the native iPhone keyboard for symbols, paste and optional iOS
+  dictation. Submit completed text as one bounded action where possible rather
+  than streaming every key; mask credential fields and never retain entered
+  text, clipboard content or partial passwords in gateway logs or caches.
 - [ ] Route every command through the authenticated remote gateway and semantic
   bridge allowlist. Keep Kodi, Home Assistant and equipment credentials out of
   browser storage, JavaScript and logs.
@@ -492,7 +500,8 @@ or IR path is sufficient.
 - [ ] Document that iPhone physical volume/side buttons, native Siri Remote,
   Control Centre placement, guaranteed background operation, native haptics
   and lock-screen media controls are outside the PWA acceptance contract.
-- [ ] Test touch/hold/swipe/rapid-repeat, keyboard and microphone permission,
+- [ ] Test touch/hold/swipe/rapid-repeat, direct search, active-field text,
+  symbols, paste, dictation, masked input, keyboard and microphone permission,
   rotation/safe areas, sleep/wake, background/foreground, expired session,
   bridge/HA/Kodi outage, wrong account/room and command-flood denial on a real
   iPhone.
@@ -689,6 +698,7 @@ explicit user acceptance.
 | 2026-10-31 | Added Home Assistant bridge workstream | Owner requested AsterTV automation and a lower-cost alternative to CEC adapters | M7 now requires per-model capability discovery and prioritizes native local network control, then IR; Bluetooth is accepted only after profile, reconnect, standby and command proof |
 | 2026-10-31 | Refined Family equipment and content-volume design | Family equipment identified as TCL QM8L plus Onkyo TX-RZ30; official device and Home Assistant documentation confirms local network/standby paths | M7 now targets direct Onkyo volume/mute/power, TCL Android TV control, CEC/eARC coordination and guarded per-content room volume profiles |
 | 2026-10-31 | Added Aster Remote PWA workstream | Apple Remote interaction review and Apple Home Screen web-app documentation | M8 specifies a free installable iPhone PWA through a private authenticated semantic bridge, with native iOS limitations explicit |
+| 2026-10-31 | Completed Aster Remote input scope | Owner confirmed keyboard input is part of the requested remote | M8 now distinguishes direct Aster search from Kodi active-field entry and requires symbols, paste, dictation, masking and no input retention |
 
 ## Close-out
 
