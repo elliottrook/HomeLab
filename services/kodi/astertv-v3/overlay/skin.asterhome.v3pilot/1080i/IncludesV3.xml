@@ -43,4 +43,19 @@
         <texturefocus border="18" colordiffuse="asterV3Focus">special://skin/media/ui-panel.png</texturefocus>
         <texturenofocus border="18" colordiffuse="asterV3Success">special://skin/media/ui-panel.png</texturenofocus>
     </include>
+
+    <include name="AsterV3YouTubePill">
+        <height>52</height><font>font18</font><align>left</align><aligny>center</aligny>
+        <textoffsetx>54</textoffsetx><textcolor>asterV3TextSoft</textcolor><focusedcolor>asterV3Text</focusedcolor>
+        <texturefocus border="18" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus border="18" colordiffuse="e6353229">special://skin/media/ui-panel.png</texturenofocus>
+    </include>
+
+    <include name="AsterV3YouTubeCard">
+        <height>286</height><font>font20</font><align>left</align><aligny>bottom</aligny>
+        <textoffsetx>18</textoffsetx><textoffsety>14</textoffsety>
+        <textcolor>asterV3Text</textcolor><focusedcolor>asterV3Text</focusedcolor>
+        <texturefocus border="24" colordiffuse="asterGreen">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus border="24" colordiffuse="ff292721">special://skin/media/ui-panel.png</texturenofocus>
+    </include>
 </includes>

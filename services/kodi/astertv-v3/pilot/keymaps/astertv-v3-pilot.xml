@@ -3,6 +3,7 @@
     <global>
         <keyboard>
             <f8>ActivateWindow(1190)</f8>
+            <f9>ActivateWindow(1191)</f9>
         </keyboard>
     </global>
 </keymap>

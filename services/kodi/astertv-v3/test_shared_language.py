@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[3]
 V3 = ROOT / "services/kodi/astertv-v3"
 OVERLAY = V3 / "overlay/skin.asterhome.v3pilot"
 PAGE = OVERLAY / "1080i/custom_1190_v3language.xml"
+YOUTUBE_PAGE = OVERLAY / "1080i/custom_1191_youtube_rework.xml"
 INCLUDES = OVERLAY / "1080i/IncludesV3.xml"
 COLORS = OVERLAY / "colors/defaults.xml"
 PATCH = V3 / "patches/001-load-v3-includes.patch"
@@ -21,7 +22,7 @@ ARCHIVE = ROOT / "services/kodi/dist/astertv-v2.0.7-release-2026-10-31.tar.gz"
 
 class SharedLanguageTests(unittest.TestCase):
     def test_xml_is_well_formed(self) -> None:
-        for path in (PAGE, INCLUDES, COLORS, OVERLAY / "addon.xml"):
+        for path in (PAGE, YOUTUBE_PAGE, INCLUDES, COLORS, OVERLAY / "addon.xml"):
             with self.subTest(path=path):
                 ET.parse(path)
 
@@ -89,6 +90,34 @@ class SharedLanguageTests(unittest.TestCase):
                 text=True,
             )
             self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+
+    def test_youtube_rework_keeps_familiar_structure_and_adds_depth(self) -> None:
+        page = ET.parse(YOUTUBE_PAGE).getroot()
+        text = YOUTUBE_PAGE.read_text()
+        for label in ("Search", "Subscriptions", "For You", "Watch Later", "My Channel", "Back"):
+            self.assertIn(f"<label>{label}</label>", text)
+        for icon in ("aster-compass-128.png", "play-next.png", "aster-icon-128.png", "sleep.png", "33-aster-youtube-128.png", "back.png"):
+            self.assertIn(icon, text)
+
+        for title in ("A cinematic 16:9 card", "Titles sit on the card", "Focus lifts, never dims", "Rounded artwork and depth"):
+            self.assertIn(f"<label>{title}</label>", text)
+
+        buttons = {node.attrib["id"]: node for node in page.findall(".//control[@type='button']")}
+        self.assertEqual(len(buttons), 11)
+        for button in buttons.values():
+            for direction in ("onleft", "onright", "onup", "ondown"):
+                self.assertIn(button.findtext(direction), buttons)
+
+        art = [
+            node
+            for node in page.findall(".//control[@type='image']")
+            if node.findtext("width") == "366" and node.findtext("height") == "206"
+        ]
+        self.assertEqual(len(art), 4)
+        for node in art:
+            ratio = int(node.findtext("width")) / int(node.findtext("height"))
+            self.assertAlmostEqual(ratio, 16 / 9, delta=0.02)
+            self.assertEqual(node.find("texture").attrib.get("border"), "20")
 
 
 if __name__ == "__main__":

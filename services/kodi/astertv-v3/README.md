@@ -49,3 +49,7 @@ language page. The fixture contains no media, account, camera or household
 state. It exists to review common chrome, focus, target sizing and ready/loading/
 empty/error language before those components are applied to individual pages.
 
+Press `F9` to open the account-safe YouTube rework fixture. It preserves the
+accepted page hierarchy while demonstrating icon-bearing pills, layered
+surfaces, true 16:9 artwork and card-backed titles without calling YouTube.
+
