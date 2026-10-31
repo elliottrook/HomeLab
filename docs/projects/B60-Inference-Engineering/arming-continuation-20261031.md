@@ -1,5 +1,43 @@
 # Fresh October 31 activation — prepared, awaiting actual host release
 
+## Superseded — historical instructions, never replay
+
+The one-time arming objective was completed October30, as recorded in
+[independently verified arming](qualification-armed-20261031.md). The resulting
+October31 jobs have now executed. This document's original steps below are
+retained as history, **not current instructions to install or rearm them**.
+
+A delayed duplicate continuation was reconciled at Proxmox epoch1793481083.
+No lease/drain/operation markers or common directory-flock holders remained;
+this was an actual current ownership observation, not a deadline assumption.
+The booking end1793444100 is in the past, although its retained ledger state
+is still `reserved` because admission stopped before claim. Its file remains
+SHA-256 `9ca18763b854ec6800a9431dafae9c26a3bec381955f0fc38ff636ed7fe34d1f`.
+
+Both exact October31 timers are `active/elapsed`, with last triggers01:15
+and03:10 PDT respectively and **empty next-elapse values**. `active` here does
+not mean a future run is armed. The owner is failed/exit1, ran03:10–03:10:30;
+the guardian is inactive with no start timestamp. No session checkpoint exists.
+See [the actual NO-GO outcome](qualification-no-go-20261031.md).
+
+Rechecked byte identities on the host remain:
+
+- integrity terminal: `e057efd5949b94dd42e92a25b8d3fb48fd588df8bf38d2e5e3549b35719f6b8c`;
+- admission receipt: `4e81d8f9d8bb9d13772b2312b877722ee1960ef8f1e7df946228f38e7900bf40`;
+- October31 profile: `17ec9abfd177d02c902f1a77ce4370af57e13e424482a8d4340e5a290754860c`.
+
+No installer, scheduler, stack transaction, model/GPU, service stop, mount,
+backup or credential change was invoked by the duplicate continuation. Never
+replay October30/31, replace dates silently, clear evidence, bypass window
+gates or deploy the optional diagnostics from these stale instructions.
+Current next work is [clock reconciliation](backup-clock-hazard-20261101.md)
+and [a reviewed source-update transaction](source-update-preflight-20261031.md),
+then a separately bound future restore-only qualification. The programme is
+not complete; this dated arming task has delivered its intended result and
+must not be used as a recurring experiment launcher.
+
+## Original October30 handoff (retained)
+
 Jason explicitly instructed this chat to proceed Stream A after being told
 that no new qualification was armed. This is an operational continuation,
 not a preparation-only heartbeat. No repeated user approval is missing.
