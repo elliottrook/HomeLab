@@ -12,10 +12,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parents[2]
-ARCHIVE = REPO / "services/kodi/dist/astertv-v2.0.7-production-2026-10-30-r21.tar.gz"
+ARCHIVE = REPO / "services/kodi/dist/astertv-v2.0.7-production-2026-10-30-r27.tar.gz"
 SIDECAR = ARCHIVE.with_suffix(ARCHIVE.suffix + ".sha256")
 PREFIX = "aster-v2-package/"
-RELEASE = "astertv-v2.0.7-production-2026-10-30-r21"
+RELEASE = "astertv-v2.0.7-production-2026-10-30-r27"
 SPLASH_SHA = "912228f3866b33749905eb8154b470d3170fe4747f92799811470bb49b986cce"
 
 
@@ -80,7 +80,18 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
     series_xml = addon("script.asterruntime/aster-series-preview24/resources/skins/Default/1080i/SeriesPreview.xml")
     books_service = addon("plugin.audio.asterbooks/service.py")
     books_bridge = addon("plugin.audio.asterbooks/resources/lib/books_sync_bridge.py")
+    home = addon("skin.asterhome/1080i/custom_1112_home.xml")
+    family = json.loads(addon("script.asterruntime/family-manifest.json"))
     publication = member(bundle, "epub-consumer/reader/runtime/epub_narration/publication.py").decode()
+
+    # Smart Home refreshes itself after every Kodi/skin restart without losing camera lifecycle.
+    home_entry = '<onload>RunScript(script.asterruntime,aster-home-status1,default,entry)</onload>'
+    home_leave = '<onunload>RunScript(script.asterruntime,aster-home-status1,default,leave)</onunload>'
+    camera_entry = '<onload>RunScript(script.asterruntime,aster-camera2,view,entry)</onload>'
+    camera_leave = '<onunload>RunScript(script.asterruntime,aster-camera2,view,leave)</onunload>'
+    assert home.count(home_entry) == home.count(home_leave) == 1
+    assert home.count(camera_entry) == home.count(camera_leave) == 1
+    assert family["skin"]["1080i/custom_1112_home.xml"] == sha(home.encode())
 
     # Final Music acceptance: text-safe pills, Media-style header, no legacy underline.
     assert '<width>220</width><height>46</height><font>font18</font>' in music
@@ -128,6 +139,20 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
         assert guard in promoter_text
     assert 'addon_data' in promoter_text and 'SPLASH_SHA' in promoter_text
 
+    for path in (
+        "reconciliation/apply_production_ebook_boundary_r22_fix.py",
+        "reconciliation/apply_production_ebook_data_link_r23_fix.py",
+        "reconciliation/apply_production_home_receiver_r24.py",
+        "reconciliation/apply_production_home_receiver_destination_r25.py",
+        "reconciliation/apply_home_delivery_dual_target_r24.py",
+        "reconciliation/apply_production_home_entry_r27_fix.py",
+        "reconciliation/payload/home-delivery/delivery.py",
+    ):
+        data = member(bundle, path)
+        compile(data, path, "exec")
+        assert release["artifacts"][path] == sha(data)
+    assert "PRIVATE KEY" not in member(bundle, "reconciliation/payload/home-delivery/known_hosts").decode()
+
 subprocess.run([sys.executable, "-m", "py_compile",
                 str(ROOT / "reconciliation/promote_v207_to_production.py")], check=True)
-print("AsterTV v2.0.7 release gate passed: 577 files, XML/Python, routes, splash and rollback verified")
+print("AsterTV v2.0.7 r27 release gate passed: 577 files, Home lifecycle, external recovery, XML/Python, routes, splash and rollback verified")

@@ -174,3 +174,74 @@ snapshot members, XML/Python syntax, accepted routes, splash, activation,
 audio preservation and rollback. Final live audit: Kodi active; no active
 player; all eight runtime add-ons enabled; bootstrap disabled; explicit HDMI 0,
 stereo and passthrough-off unchanged.
+
+### Production eBook and Home Assistant completion — r22–r25
+
+Production eBook selection reached the accepted reader but failed closed for
+two independent conversion omissions. The multi-client bundle declared
+`hp_only: false` while its verifier still required `true`, and the two reader
+installations lacked their intentionally external
+`data -> /storage/aster-reader` links. r22 changes only the verifier contract
+and repins both reader bundles, the consumer manifest and activation pin. r23
+restores only the two links after verifying the mounted `ready` and
+`generations` trees. A no-playback reader-open check then reached the native
+Aster reader window with no new reader error. Checkpoints:
+`/storage/.aster-checkpoints/astertv-v2.0.7-ebook-boundary-r22-20261030` and
+`/storage/.aster-checkpoints/astertv-v2.0.7-ebook-data-link-r23-20261030`.
+
+The production Smart Home page initially contained an old local snapshot
+because the approved restricted publisher was intentionally bound only to the
+lab (`192.168.1.140`). The production completion preserves the same HA-held
+Ed25519 identity and forced command, adding only a second source-IP-constrained
+receiver on `192.168.1.157` and one logged OPNsense permit from
+`192.168.20.11` to that host's TCP/22. The existing lab rule is unchanged.
+Production holds no HA/admin private key. The receiver can atomically replace
+only `home-dashboard.json` and its bounded recovery journals.
+
+The first production publication failed closed because the copied receiver's
+destination check still named `.1.140`; r25 pins it to `.1.157`. The next
+publication was independently acknowledged by both lab and production with
+63 readings. Home Assistant configuration validation passed before its brief
+Core restart. Startup truthfully published an empty loading snapshot, followed
+by a fresh 63-reading dual-target publication after integrations loaded. A
+direct production page check displayed the current lighting, temperature,
+weather, household list and camera. The temporary diagnostic screenshot was
+deleted from production and the operator Mac after inspection.
+
+Recovery boundaries: production receiver
+`/storage/.aster-checkpoints/aster-home-delivery-prod1`; receiver destination
+`/storage/.aster-checkpoints/aster-home-delivery-prod-destination-r25`; HA
+publisher `/config/aster-checkpoints/home-delivery-prod-20261030`; firewall
+`/conf/backup/config-aster-home-feed-prod-before-20261030.xml`. Firewall rule
+UUID `e5f0fcb0-3ff0-5bd8-a44b-e810fe7a1687` is exactly
+`192.168.20.11 -> 192.168.1.157:22/TCP` on the HA VLAN. No Kodi restart or
+audio-setting change was used for either repair.
+
+### Production Home lifecycle durability and r27 recovery release
+
+The dual-target publisher proved its first automatic post-restart run at
+`2026-10-31T04:04:41Z`: both lab and production acknowledged all 63 readings.
+The production Home XML nevertheless lacked the status adapter's `entry` and
+`leave` lifecycle calls, so a manually refreshed page could become empty after
+a later Kodi or skin restart. The r27 repair adds exactly those two calls while
+preserving the existing camera `entry` and `leave` hooks. Its first JSON skin
+reload attempt was rejected by Kodi and rolled back automatically; the verified
+rollback hashes allowed the recovery marker to be cleared. The corrected
+LibreELEC `kodi-send` reload then installed successfully under checkpoint
+`/storage/.aster-checkpoints/astertv-v2.0.7-home-entry-r27-20261030`.
+
+After page entry the production adapter reported a fresh source, the feed
+contained 63 readings, both external eBook data links resolved to
+`/storage/aster-reader`, the player was idle, the recovery marker was absent,
+and the explicit HDMI 0 stereo/passthrough-off route was unchanged.
+
+The immutable r27 archive supersedes r21 and is staged on production at
+`/storage/.aster-staging/astertv-v2.0.7-production-2026-10-30-r27.tar.gz`.
+SHA-256:
+`c1b6d62a21ee56ae042595d9e024eb014683a75753f8fd0730e7770ae0718b82`.
+The release gate passed all 577 add-on files, XML/Python compilation, accepted
+Media/TV/Movies/YouTube/Requests/Books/Music routes, splash, audio-preserving
+rollback, Home and camera lifecycle calls, and the guarded external eBook/Home
+recovery scripts. A direct production comparison found zero mismatches across
+all 577 installed files. Credentials, Kodi profile/add-on data, HA private key,
+narration output and audio configuration remain outside the archive.
