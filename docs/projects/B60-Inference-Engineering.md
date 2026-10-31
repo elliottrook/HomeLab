@@ -12,6 +12,14 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October31 local-only source-update preparation](B60-Inference-Engineering/source-update-preflight-20261031.md)
+adds a whole-destination no-write preflight to the dormant installer and pins
+the exact two changed diagnostic modules.136 controller,10 installer and115
+B60 tests pass against an equal independent replay tree. No updater is yet
+delivered or deployed; the existing installer still refuses changed bytes.
+Cross-host backup clocks and live recovery remain gates; no future activation,
+model result, production change or nightly push is claimed.
+
 The [November1 backup-clock audit](B60-Inference-Engineering/backup-clock-hazard-20261101.md)
 found an additional arming hazard: Proxmox tzdata2026c keeps Vancouver UTC−07,
 while TrueNAS tzdata2025b runs Los Angeles schedules shifting to UTC−08.

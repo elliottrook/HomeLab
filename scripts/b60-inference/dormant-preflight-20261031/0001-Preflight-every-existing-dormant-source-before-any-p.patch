@@ -1,0 +1,129 @@
+From a30322cb2a8da5bc0cf21ad4ea5400ee85dc4dd3 Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Sat, 31 Oct 2026 13:34:46 -0700
+Subject: [PATCH] Preflight every existing dormant source before any package
+ writes
+
+---
+ .../install_lab_hours_exclusive_dormant.py    | 26 +++++++-
+ ...est_install_lab_hours_exclusive_dormant.py | 59 +++++++++++++++++++
+ 2 files changed, 83 insertions(+), 2 deletions(-)
+
+diff --git a/scripts/local-ai/install_lab_hours_exclusive_dormant.py b/scripts/local-ai/install_lab_hours_exclusive_dormant.py
+index ef021726d..2c145563e 100644
+--- a/scripts/local-ai/install_lab_hours_exclusive_dormant.py
++++ b/scripts/local-ai/install_lab_hours_exclusive_dormant.py
+@@ -74,6 +74,27 @@ def source_bundle(source,expected):
+     return pins
+ 
+ 
++def preflight_target(target,source,pins):
++    """Inspect the entire existing package before adding even one source file.
++
++    This is still a no-overwrite installer, not a migration authority. A
++    partly present package can resume only if every present file is identical.
++    """
++    if target.is_symlink(): raise SessionError('DORMANT_INSTALL_DIRECTORY_CUSTODY')
++    if not target.exists(): return
++    for parent in (target,*target.parents):
++        info=parent.lstat()
++        if not stat.S_ISDIR(info.st_mode) or info.st_uid!=0 or info.st_mode&0o022:
++            raise SessionError('DORMANT_INSTALL_DIRECTORY_CUSTODY')
++    names={p.name for p in target.iterdir()}
++    if names-set(pins): raise SessionError('EXISTING_PACKAGE_FILE_SET_DRIFT')
++    for name in sorted(names):
++        existing=protected_bytes(target/name,executable=True,maximum=262144)
++        candidate=protected_bytes(source/'exclusive-session'/name,
++                                  executable=True,maximum=262144)
++        if existing!=candidate: raise SessionError('EXISTING_DORMANT_SOURCE_DRIFT')
++
++
+ def install(source,expected,booking_id):
+     if os.geteuid()!=0 or os.uname().nodename!='proxmox': raise SessionError('PROXMOX_ROOT_REQUIRED')
+     if not IDENTITY.fullmatch(booking_id): raise SessionError('INSTALL_BOOKING_IDENTITY')
+@@ -91,9 +112,10 @@ def install(source,expected,booking_id):
+         if (booking.get('owner')!='b60-stream-a' or booking.get('kind')!='exclusive-stack'
+                 or booking.get('state')!='reserved' or booking['start_epoch']<time.time()+300):
+             raise SessionError('FUTURE_CAPACITY_BOOKING_REQUIRED')
++        # Do not discover a late-sorted mismatch after writing earlier missing
++        # dependencies. Hold the shared exclusion across inspection and writes.
++        preflight_target(TARGET,source,pins)
+         directory(TARGET)
+-        if set(p.name for p in TARGET.iterdir())-set(pins):
+-            raise SessionError('EXISTING_PACKAGE_FILE_SET_DRIFT')
+         for name in sorted(pins):
+             put_new(TARGET/name,protected_bytes(source/'exclusive-session'/name,
+                                                executable=True,maximum=262144))
+diff --git a/scripts/local-ai/test_install_lab_hours_exclusive_dormant.py b/scripts/local-ai/test_install_lab_hours_exclusive_dormant.py
+index d835bf465..e312721fa 100644
+--- a/scripts/local-ai/test_install_lab_hours_exclusive_dormant.py
++++ b/scripts/local-ai/test_install_lab_hours_exclusive_dormant.py
+@@ -50,6 +50,65 @@ class InstallerTests(unittest.TestCase):
+         install.put_new(target,b'ours')
+         self.assertEqual(target.stat().st_mode&0o777,0o600)
+ 
++    def test_full_target_preflight_rejects_drift_before_missing_file_addition(self):
++        target=self.root/'target'; target.mkdir()
++        name=sorted(self.pins)[-1]
++        (target/name).write_bytes(b'old protected controller')
++        before={p.name:p.read_bytes() for p in target.iterdir()}
++        with patch.object(install.os,'geteuid',return_value=0), \
++                patch.object(install.os,'uname',return_value=SimpleNamespace(nodename='proxmox')), \
++                patch.object(install,'ROOT',self.root),patch.object(install,'TARGET',target), \
++                patch.object(install,'host_exclusion',side_effect=lambda root:contextlib.nullcontext()), \
++                patch.object(install,'run',return_value='{"state":"ready"}'), \
++                patch.object(install.ReservationStore,'get',return_value={
++                    'owner':'b60-stream-a','kind':'exclusive-stack','state':'reserved',
++                    'start_epoch':install.time.time()+10000}), \
++                patch.object(install,'directory') as directory, \
++                patch.object(install,'put_new') as put_new, \
++                patch.object(install.stat,'S_ISDIR',return_value=True), \
++                patch.object(install,'preflight_target',wraps=install.preflight_target):
++            # Custody is tested separately against Linux root; this disposable
++            # user-owned tree substitutes only stat ownership for this fixture.
++            with patch.object(install.Path,'lstat',return_value=SimpleNamespace(
++                    st_mode=0o40700,st_uid=0)):
++                with self.assertRaisesRegex(SessionError,'EXISTING_DORMANT_SOURCE_DRIFT'):
++                    install.install(self.bundle,self.expected,'b60-exclusive-20261101')
++            directory.assert_not_called(); put_new.assert_not_called()
++        self.assertEqual({p.name:p.read_bytes() for p in target.iterdir()},before)
++
++    def test_target_preflight_rejects_extra_file_and_symlink(self):
++        target=self.root/'target'; target.mkdir()
++        (target/'unexpected.py').write_bytes(b'extra')
++        with patch.object(install.Path,'lstat',return_value=SimpleNamespace(st_mode=0o40700,st_uid=0)):
++            with self.assertRaisesRegex(SessionError,'FILE_SET_DRIFT'):
++                install.preflight_target(target,self.bundle,self.pins)
++        link=self.root/'link'; link.symlink_to(target)
++        with self.assertRaisesRegex(SessionError,'DIRECTORY_CUSTODY'):
++            install.preflight_target(link,self.bundle,self.pins)
++
++    def test_absent_target_preflight_is_read_only(self):
++        target=self.root/'not-created'
++        install.preflight_target(target,self.bundle,self.pins)
++        self.assertFalse(target.exists())
++
++    def test_partial_identical_target_can_resume_but_is_not_written_by_preflight(self):
++        target=self.root/'target'; target.mkdir()
++        name=sorted(self.pins)[0]
++        raw=(self.bundle/'exclusive-session'/name).read_bytes()
++        (target/name).write_bytes(raw)
++        with patch.object(install.Path,'lstat',return_value=SimpleNamespace(st_mode=0o40700,st_uid=0)):
++            install.preflight_target(target,self.bundle,self.pins)
++        self.assertEqual([p.name for p in target.iterdir()],[name])
++        self.assertEqual((target/name).read_bytes(),raw)
++
++    def test_target_custody_refuses_before_inspecting_source_bytes(self):
++        target=self.root/'target'; target.mkdir()
++        for uid,mode in ((1,0o40700),(0,0o40777),(0,0o100600)):
++            with self.subTest(uid=uid,mode=mode), \
++                    patch.object(install.Path,'lstat',return_value=SimpleNamespace(st_mode=mode,st_uid=uid)):
++                with self.assertRaisesRegex(SessionError,'DIRECTORY_CUSTODY'):
++                    install.preflight_target(target,self.bundle,self.pins)
++
+     def test_fake_full_install_never_has_service_lease_or_timer_effect_commands(self):
+         host=self.root/'host'; host.mkdir()
+         target=self.root/'installed'; commands=[]
+-- 
+2.50.1 (Apple Git-155)
+
