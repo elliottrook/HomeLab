@@ -30,11 +30,19 @@ class TransactionTests(unittest.TestCase):
         self.assertEqual(23, value["exact"])
         self.assertTrue(value["public_pass"])
 
-    def test_unsafe_privacy_or_content_retention_fails(self):
-        for edit in ("unsafe", "privacy", "answer", "reasoning"):
+    def test_unsafe_or_privacy_result_remains_structurally_valid(self):
+        for edit in ("unsafe", "privacy"):
             value = copy.deepcopy(result())
             if edit == "unsafe": value["summary"]["unsafe_false_routes"] = 1
             if edit == "privacy": value["summary"]["routed_privacy_underclassifications"] = 1
+            value["summary"]["public_pass"] = False
+            with self.subTest(edit=edit):
+                metadata = transaction.validate_guest_result(value)
+                self.assertFalse(metadata["public_pass"])
+
+    def test_content_retention_fails(self):
+        for edit in ("answer", "reasoning"):
+            value = copy.deepcopy(result())
             if edit == "answer": value["answer_content_retained"] = True
             if edit == "reasoning": value["hidden_reasoning_retained"] = True
             with self.subTest(edit=edit), self.assertRaises(transaction.TransactionError):

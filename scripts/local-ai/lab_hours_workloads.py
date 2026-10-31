@@ -85,7 +85,7 @@ WORKLOADS = {
             ("nlu_threshold_policy.py", "984932d8716531858972e22723fe962701077f9a15991c58384c6ee6661ebb5d"),
             ("nlu-development-v1.json", "1565a21c78875f64f4f25a190e977ae34dc01bdfcfd5e49c056e8365268b3785"),
             ("m3_joint_semantic_35b_guest_workload.py", "91fa17ad55177b5d2c53fefb8569c13c48e1bfeec8332b97726e8d30bab0d85b"),
-            ("m3_joint_semantic_35b_transaction.py", "4afb8db3dc7543d044c97e2540eaabfa72d745ca3f2057c3e854df46309135ae"),
+            ("m3_joint_semantic_35b_transaction.py", "dc92e35ee11ed12cd5d842282027adbcbf4c24611ba6b4be64a820fa951f0677"),
             ("m3_joint_semantic_35b_guardian.py", "a485c2cde71447a8a4feda0c25f7e22d26fe0e9ace2da7b524e698a96275113b"),
             ("full_aster_first_screen_candidate.py", "eb07b46c1f592ef35c9e0bcb7f0f6aaa0d484775e18ab991b6c29dbe1dc2af6b"),
             ("full_aster_first_screen_observer.py", "277fa96f411737e265f3fcfb3169d00a3dfb0289d5b075150f677b04469ce340"),

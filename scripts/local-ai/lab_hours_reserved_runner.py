@@ -159,10 +159,31 @@ def bounded_owner_failure(raw: str) -> str | None:
             or value.get("state") != "failed"
             or value.get("production_restored") is not True
             or value.get("failure_code") not in {
-                "M3_GUEST_WORKLOAD_FAILED", "M3_GUEST_FAILURE_UNAVAILABLE"}):
+                "M3_GUEST_WORKLOAD_FAILED", "M3_GUEST_FAILURE_UNAVAILABLE",
+                "M3_PUBLIC_QUALITY_GATE_FAILED"}):
         return None
     if value["failure_code"] == "M3_GUEST_FAILURE_UNAVAILABLE":
         return value["failure_code"]
+    if value["failure_code"] == "M3_PUBLIC_QUALITY_GATE_FAILED":
+        detail_keys = {"exact", "unsafe_false_routes",
+                       "routed_privacy_underclassifications",
+                       "result_sha256", "result_bytes"}
+        if (not detail_keys.issubset(value)
+                or type(value["exact"]) is not int
+                or not 0 <= value["exact"] <= 24
+                or type(value["unsafe_false_routes"]) is not int
+                or not 0 <= value["unsafe_false_routes"] <= 24
+                or type(value["routed_privacy_underclassifications"]) is not int
+                or not 0 <= value["routed_privacy_underclassifications"] <= 24
+                or not isinstance(value["result_sha256"], str)
+                or len(value["result_sha256"]) != 64
+                or any(c not in "0123456789abcdef" for c in value["result_sha256"])
+                or type(value["result_bytes"]) is not int
+                or not 1 <= value["result_bytes"] <= 262144):
+            return None
+        return (f"M3_PUBLIC_QUALITY_GATE_FAILED_EXACT_{value['exact']}"
+                f"_UNSAFE_{value['unsafe_false_routes']}"
+                f"_PRIVACY_{value['routed_privacy_underclassifications']}")
     detail_keys = {"guest_failure_code", "attempted", "valid", "first_record_failure"}
     if (not detail_keys.issubset(value)
             or value["guest_failure_code"] not in {

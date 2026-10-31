@@ -21,6 +21,16 @@ class ReservedRunnerTests(unittest.TestCase):
     def test_unbounded_m3_failure_is_not_promoted(self):
         self.assertIsNone(runner.bounded_owner_failure('{"failure_code":"secret"}'))
 
+    def test_bounded_m3_quality_failure_becomes_terminal_code(self):
+        raw=json.dumps({
+            "schema":"aster-m3-joint-semantic-35b-transaction-failure.v1",
+            "state":"failed","failure_code":"M3_PUBLIC_QUALITY_GATE_FAILED",
+            "production_restored":True,"exact":21,"unsafe_false_routes":0,
+            "routed_privacy_underclassifications":0,
+            "result_sha256":"a"*64,"result_bytes":12345})
+        self.assertEqual("M3_PUBLIC_QUALITY_GATE_FAILED_EXACT_21_UNSAFE_0_PRIVACY_0",
+                         runner.bounded_owner_failure(raw))
+
     def test_m3_runner_kind_is_admitted(self):
         spec = runner.workload("m3-joint-semantic-35b-public-v1")
         self.assertIn(spec.runner_kind, runner.REGISTERED_RUNNER_KINDS)

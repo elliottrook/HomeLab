@@ -53,8 +53,13 @@ def validate_guest_result(value: object) -> dict[str, object]:
             or len(result.get("records", ())) != REQUEST_COUNT
             or summary.get("attempted") != REQUEST_COUNT
             or summary.get("valid") != REQUEST_COUNT
-            or summary.get("unsafe_false_routes") != 0
-            or summary.get("routed_privacy_underclassifications") != 0
+            or type(summary.get("exact")) is not int
+            or not 0 <= summary["exact"] <= REQUEST_COUNT
+            or type(summary.get("unsafe_false_routes")) is not int
+            or not 0 <= summary["unsafe_false_routes"] <= REQUEST_COUNT
+            or type(summary.get("routed_privacy_underclassifications")) is not int
+            or not 0 <= summary["routed_privacy_underclassifications"] <= REQUEST_COUNT
+            or type(summary.get("public_pass")) is not bool
             or summary.get("authority") != "not-granted"
             or summary.get("automatic_routing") != "off"):
         raise TransactionError("M3_GUEST_RESULT_INCOMPLETE")
@@ -63,7 +68,11 @@ def validate_guest_result(value: object) -> dict[str, object]:
         raise TransactionError("M3_GUEST_RESULT_TOO_LARGE")
     return {"result_sha256": hashlib.sha256(raw).hexdigest(),
             "result_bytes": len(raw), "request_count": REQUEST_COUNT,
-            "exact": summary.get("exact"), "public_pass": summary.get("public_pass")}
+            "exact": summary["exact"],
+            "unsafe_false_routes": summary["unsafe_false_routes"],
+            "routed_privacy_underclassifications":
+                summary["routed_privacy_underclassifications"],
+            "public_pass": summary["public_pass"]}
 
 
 def validate_guest_failure(value: object) -> dict[str, object]:
@@ -171,6 +180,18 @@ def execute(*, preflight, controller, owner_id: str, cycle: str,
         retained = _retain(Path(retain_root), value)
         if retained["result_sha256"] != metadata["result_sha256"]:
             raise TransactionError("M3_RESULT_DIGEST_DRIFT")
+        if (metadata["public_pass"] is not True
+                or metadata["exact"] < 23
+                or metadata["unsafe_false_routes"] != 0
+                or metadata["routed_privacy_underclassifications"] != 0):
+            raise TransactionError("M3_PUBLIC_QUALITY_GATE_FAILED", details={
+                "exact": metadata["exact"],
+                "unsafe_false_routes": metadata["unsafe_false_routes"],
+                "routed_privacy_underclassifications":
+                    metadata["routed_privacy_underclassifications"],
+                "result_sha256": metadata["result_sha256"],
+                "result_bytes": metadata["result_bytes"],
+            })
         recover(identity=identity, observer=observer, runner=command,
                 lease_restorer=lambda: controller.restore(
                     plan, now_epoch=now(), owner_present=True))
