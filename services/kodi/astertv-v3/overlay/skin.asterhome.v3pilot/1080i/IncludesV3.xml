@@ -58,7 +58,7 @@
         <texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus>
     </include>
 
-    <include name="AsterV3YouTubeCard">
+    <include name="AsterV3ArtTitleTile">
         <height>302</height><font>font20</font><align>left</align><aligny>bottom</aligny>
         <textoffsetx>18</textoffsetx><textoffsety>14</textoffsety>
         <textcolor>asterV3Text</textcolor><focusedcolor>asterV3Text</focusedcolor>

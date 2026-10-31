@@ -843,6 +843,7 @@ explicit user acceptance.
 | 2026-10-31 | Aligned YouTube canvas with established light pages | Owner selected the lighter white/cream background used elsewhere in AsterTV | YouTube fixture now uses the Aster stone canvas and paper content/cards while retaining the dark rail and raised dark hero for hierarchy |
 | 2026-10-31 | Flattened YouTube recommendation surfaces | Owner requested no box shadows, translucent surfaces and titles contained by focus | Removed both offset shadow layers, introduced translucent paper/charcoal/sage tokens, and expanded the card focus surface to contain title and metadata; visual Mini check and six structural tests pass |
 | 2026-10-31 | Reused the Media page background blend on YouTube | Owner requested the same brown-to-cream field rather than a single cream colour | YouTube now layers the established charcoal left-fade and stone bottom-fade masks in Media order; the heading uses Media's light text contrast while translucent surfaces and contained hero remain intact |
+| 2026-10-31 | Finished the YouTube chrome and promoted its tile focus | Owner accepted the blended page, requested the exact Media clock and selected the translucent sage overlay as the Aster-wide art-plus-title tile focus | YouTube now consumes the shared `AsterClockPill`; the focus include is renamed `AsterV3ArtTitleTile`, contains title and metadata, and is the required shared component for subsequent tile-page conversions |
 
 ## Close-out
 

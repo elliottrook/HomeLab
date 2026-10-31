@@ -108,6 +108,7 @@ class SharedLanguageTests(unittest.TestCase):
             text.index("special://skin/media/ui-hero-bottom-fade.png"),
         )
         self.assertIn("<label>YouTube</label><font>font36</font><textcolor>asterV3Text</textcolor>", text)
+        self.assertIn('<include content="AsterClockPill" />', text)
         self.assertIn('colordiffuse="asterCharcoalGlass"', text)
         self.assertIn('colordiffuse="asterPaperGlass"', text)
         self.assertNotIn('colordiffuse="66000000"', text)
@@ -115,10 +116,12 @@ class SharedLanguageTests(unittest.TestCase):
         self.assertNotIn("<include>AsterV3PageBackdrop</include>", text)
 
         includes = ET.parse(INCLUDES).getroot()
-        youtube_card = includes.find("include[@name='AsterV3YouTubeCard']")
-        self.assertIsNotNone(youtube_card)
-        self.assertGreaterEqual(int(youtube_card.findtext("height", "0")), 294)
-        self.assertEqual(youtube_card.find("texturefocus").attrib["colordiffuse"], "asterSageGlass")
+        art_title_tile = includes.find("include[@name='AsterV3ArtTitleTile']")
+        self.assertIsNotNone(art_title_tile)
+        self.assertGreaterEqual(int(art_title_tile.findtext("height", "0")), 294)
+        self.assertEqual(art_title_tile.find("texturefocus").attrib["colordiffuse"], "asterSageGlass")
+        self.assertEqual(text.count("<include>AsterV3ArtTitleTile</include>"), 4)
+        self.assertNotIn("AsterV3YouTubeCard", text)
 
         for title in ("A cinematic 16:9 card", "Titles sit on the card", "Focus lifts, never dims", "Rounded artwork and depth"):
             self.assertIn(f"<label>{title}</label>", text)
