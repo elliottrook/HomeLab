@@ -35,12 +35,11 @@
 
         <control type="group"><left>70</left><top>145</top>
             <control type="image"><width>1780</width><height>290</height><texture border="26" colordiffuse="asterCharcoalGlass">special://skin/media/ui-panel.png</texture></control>
-            <control type="image"><left>36</left><top>30</top><width>390</width><height>220</height><texture border="22" colordiffuse="ff353229">special://skin/media/ui-panel.png</texture></control>
-            <control type="image"><left>146</left><top>78</top><width>170</width><height>124</height><texture>special://skin/media/33-aster-youtube-128.png</texture><aspectratio>keep</aspectratio></control>
+            <control type="image"><left>36</left><top>30</top><width>390</width><height>220</height><texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">special://skin/media/fixtures/youtube/aurora-station.png</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
             <control type="label"><left>470</left><top>40</top><width>1160</width><height>32</height><label>FOR YOU</label><font>font18</font><textcolor>asterGold</textcolor></control>
-            <control type="label"><left>470</left><top>78</top><width>1160</width><height>54</height><label>Your recommendations, with room to breathe</label><font>font36</font><textcolor>asterV3Text</textcolor></control>
-            <control type="textbox"><left>470</left><top>140</top><width>1040</width><height>72</height><label>The familiar Aster page stays intact. Artwork becomes true 16:9, titles live on their own card surface, and focus adds depth instead of washing out the image.</label><font>font20</font><textcolor>asterV3TextSoft</textcolor><wrapmultiline>true</wrapmultiline></control>
-            <control type="label"><left>470</left><top>225</top><width>650</width><height>30</height><label>Official YouTube · signed-in recommendations</label><font>font18</font><textcolor>asterSage</textcolor></control>
+            <control type="label"><left>470</left><top>78</top><width>1160</width><height>54</height><label>Aurora Station</label><font>font36</font><textcolor>asterV3Text</textcolor></control>
+            <control type="textbox"><left>470</left><top>140</top><width>1040</width><height>72</height><label>A lone researcher follows an impossible signal to an observatory above a storm-bound emerald sea.</label><font>font20</font><textcolor>asterV3TextSoft</textcolor><wrapmultiline>true</wrapmultiline></control>
+            <control type="label"><left>470</left><top>225</top><width>650</width><height>30</height><label>Aster Fiction · 48 min</label><font>font18</font><textcolor>asterSage</textcolor></control>
         </control>
 
         <control type="image"><left>70</left><top>470</top><width>1780</width><height>535</height><texture border="26" colordiffuse="asterPaperGlass">special://skin/media/ui-panel.png</texture></control>
@@ -48,25 +47,21 @@
         <control type="label"><left>105</left><top>532</top><width>900</width><height>28</height><label>Personalised videos from the current account</label><font>font18</font><textcolor>asterMuted</textcolor></control>
 
         <control type="button" id="11940"><left>105</left><top>585</top><width>390</width><label></label><include>AsterV3ArtTitleTile</include><onleft>11943</onleft><onright>11941</onright><onup>11930</onup><ondown>11944</ondown></control>
-        <control type="image"><left>117</left><top>597</top><width>366</width><height>206</height><texture border="20" colordiffuse="ff353229">special://skin/media/ui-panel.png</texture></control>
-        <control type="image"><left>238</left><top>642</top><width>124</width><height>112</height><texture>special://skin/media/33-aster-youtube-128.png</texture><aspectratio>keep</aspectratio></control>
-        <control type="label"><left>125</left><top>820</top><width>350</width><height>32</height><label>A cinematic 16:9 card</label><font>font20</font><textcolor>asterInk</textcolor><truncate>true</truncate></control>
-        <control type="label"><left>125</left><top>852</top><width>350</width><height>26</height><label>Aster Picks · 12 min</label><font>font16</font><textcolor>asterMuted</textcolor></control>
+        <control type="image"><left>117</left><top>597</top><width>366</width><height>206</height><texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">special://skin/media/fixtures/youtube/aurora-station.png</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
+        <control type="label"><left>125</left><top>820</top><width>350</width><height>32</height><label>Aurora Station</label><font>font20</font><textcolor>asterInk</textcolor><truncate>true</truncate></control>
+        <control type="label"><left>125</left><top>852</top><width>350</width><height>26</height><label>Aster Fiction · 48 min</label><font>font16</font><textcolor>asterMuted</textcolor></control>
         <control type="button" id="11941"><left>520</left><top>585</top><width>390</width><label></label><include>AsterV3ArtTitleTile</include><onleft>11940</onleft><onright>11942</onright><onup>11931</onup><ondown>11944</ondown></control>
-        <control type="image"><left>532</left><top>597</top><width>366</width><height>206</height><texture border="20" colordiffuse="ff2f2b22">special://skin/media/ui-panel.png</texture></control>
-        <control type="image"><left>653</left><top>642</top><width>124</width><height>112</height><texture>special://skin/media/33-aster-youtube-128.png</texture><aspectratio>keep</aspectratio></control>
-        <control type="label"><left>540</left><top>820</top><width>350</width><height>32</height><label>Titles sit on the card</label><font>font20</font><textcolor>asterInk</textcolor><truncate>true</truncate></control>
-        <control type="label"><left>540</left><top>852</top><width>350</width><height>26</height><label>Design Notes · 8 min</label><font>font16</font><textcolor>asterMuted</textcolor></control>
+        <control type="image"><left>532</left><top>597</top><width>366</width><height>206</height><texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">special://skin/media/fixtures/youtube/autumn-rail.png</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
+        <control type="label"><left>540</left><top>820</top><width>350</width><height>32</height><label>Rails Through Autumn</label><font>font20</font><textcolor>asterInk</textcolor><truncate>true</truncate></control>
+        <control type="label"><left>540</left><top>852</top><width>350</width><height>26</height><label>Aster Journeys · 52 min</label><font>font16</font><textcolor>asterMuted</textcolor></control>
         <control type="button" id="11942"><left>935</left><top>585</top><width>390</width><label></label><include>AsterV3ArtTitleTile</include><onleft>11941</onleft><onright>11943</onright><onup>11932</onup><ondown>11944</ondown></control>
-        <control type="image"><left>947</left><top>597</top><width>366</width><height>206</height><texture border="20" colordiffuse="ff3b3428">special://skin/media/ui-panel.png</texture></control>
-        <control type="image"><left>1068</left><top>642</top><width>124</width><height>112</height><texture>special://skin/media/33-aster-youtube-128.png</texture><aspectratio>keep</aspectratio></control>
-        <control type="label"><left>955</left><top>820</top><width>350</width><height>32</height><label>Focus lifts, never dims</label><font>font20</font><textcolor>asterInk</textcolor><truncate>true</truncate></control>
-        <control type="label"><left>955</left><top>852</top><width>350</width><height>26</height><label>Interface Review · 16 min</label><font>font16</font><textcolor>asterMuted</textcolor></control>
+        <control type="image"><left>947</left><top>597</top><width>366</width><height>206</height><texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">special://skin/media/fixtures/youtube/velvet-hour.png</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
+        <control type="label"><left>955</left><top>820</top><width>350</width><height>32</height><label>Velvet Hour</label><font>font20</font><textcolor>asterInk</textcolor><truncate>true</truncate></control>
+        <control type="label"><left>955</left><top>852</top><width>350</width><height>26</height><label>Aster Sessions · 46 min</label><font>font16</font><textcolor>asterMuted</textcolor></control>
         <control type="button" id="11943"><left>1350</left><top>585</top><width>390</width><label></label><include>AsterV3ArtTitleTile</include><onleft>11942</onleft><onright>11940</onright><onup>11935</onup><ondown>11944</ondown></control>
-        <control type="image"><left>1362</left><top>597</top><width>366</width><height>206</height><texture border="20" colordiffuse="ff24211b">special://skin/media/ui-panel.png</texture></control>
-        <control type="image"><left>1483</left><top>642</top><width>124</width><height>112</height><texture>special://skin/media/33-aster-youtube-128.png</texture><aspectratio>keep</aspectratio></control>
-        <control type="label"><left>1370</left><top>820</top><width>350</width><height>32</height><label>Rounded artwork and depth</label><font>font20</font><textcolor>asterInk</textcolor><truncate>true</truncate></control>
-        <control type="label"><left>1370</left><top>852</top><width>350</width><height>26</height><label>Visual Systems · 22 min</label><font>font16</font><textcolor>asterMuted</textcolor></control>
+        <control type="image"><left>1362</left><top>597</top><width>366</width><height>206</height><texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">special://skin/media/fixtures/youtube/living-light.png</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
+        <control type="label"><left>1370</left><top>820</top><width>350</width><height>32</height><label>Living Light</label><font>font20</font><textcolor>asterInk</textcolor><truncate>true</truncate></control>
+        <control type="label"><left>1370</left><top>852</top><width>350</width><height>26</height><label>Aster Nature · 58 min</label><font>font16</font><textcolor>asterMuted</textcolor></control>
 
         <control type="button" id="11944"><left>735</left><top>945</top><width>450</width><label>Return to AsterTV Media</label><include>AsterV3PrimaryAction</include><onleft>11944</onleft><onright>11944</onright><onup>11940</onup><ondown>11930</ondown><onclick>ActivateWindow(Home)</onclick></control>
     </controls>

@@ -123,7 +123,7 @@ class SharedLanguageTests(unittest.TestCase):
         self.assertEqual(text.count("<include>AsterV3ArtTitleTile</include>"), 4)
         self.assertNotIn("AsterV3YouTubeCard", text)
 
-        for title in ("A cinematic 16:9 card", "Titles sit on the card", "Focus lifts, never dims", "Rounded artwork and depth"):
+        for title in ("Aurora Station", "Rails Through Autumn", "Velvet Hour", "Living Light"):
             self.assertIn(f"<label>{title}</label>", text)
 
         buttons = {node.attrib["id"]: node for node in page.findall(".//control[@type='button']")}
@@ -141,7 +141,11 @@ class SharedLanguageTests(unittest.TestCase):
         for node in art:
             ratio = int(node.findtext("width")) / int(node.findtext("height"))
             self.assertAlmostEqual(ratio, 16 / 9, delta=0.02)
-            self.assertEqual(node.find("texture").attrib.get("border"), "20")
+            self.assertEqual(
+                node.find("texture").attrib.get("diffuse"),
+                "special://skin/media/ui-compact-card-mask.png",
+            )
+            self.assertIn("special://skin/media/fixtures/youtube/", node.findtext("texture"))
 
         hero_art = [
             node
