@@ -141,3 +141,36 @@ and is staged on production at
 `/storage/.aster-staging/astertv-v2.0.7-production-2026-10-30-r19.tar.gz`.
 It was not executed and production was not restarted after the audible route
 was restored.
+
+### Production activation and media-selection repair — r21
+
+The first production copy exposed two promotion defects that the lab could not
+show. Kodi registered eight newly copied v2 runtime add-ons disabled, while
+Music, Requests and the Aster screensaver still contained lab-only hostname
+fences. A bounded live repair checkpointed the add-on database and affected
+files, enabled the eight production runtime add-ons, kept the lab bootstrap
+disabled, and expanded only those three fences to the two named Aster clients.
+No Kodi restart was used, so the confirmed HDMI 0 stereo route remained live.
+
+The Home art dispatcher also relied on Kodi `DBTYPE`/`DBID` labels. Those labels
+can be blank for plugin-populated Home rows even though the plug-in supplies the
+validated `AsterMediaKind` and `AsterDbId` properties. This caused OK to fall
+through to native selection, producing either no visible response or direct
+movie playback. r21 uses the Aster properties only as a fallback, preserving
+native library selection while restoring movie details and TV-series routing.
+Production checkpoints are
+`/storage/.aster-checkpoints/astertv-v2.0.7-production-activation-r20-20261030`
+and
+`/storage/.aster-checkpoints/astertv-v2.0.7-media-select-r21-20261030`.
+
+The r21 recovery archive is staged, not re-executed, at
+`/storage/.aster-staging/astertv-v2.0.7-production-2026-10-30-r21.tar.gz` with
+SHA-256
+`d92c77b72b99351f54158909bd80c12fbbffcfa60103257a4d6e8e148b0a03a0`.
+Its promoter activates the required runtime add-ons, disables the lab-only
+bootstrap, preserves/restores prior add-on states on rollback, and retains the
+r19 post-start audio-route verification. The release gate verified all 577
+snapshot members, XML/Python syntax, accepted routes, splash, activation,
+audio preservation and rollback. Final live audit: Kodi active; no active
+player; all eight runtime add-ons enabled; bootstrap disabled; explicit HDMI 0,
+stereo and passthrough-off unchanged.
