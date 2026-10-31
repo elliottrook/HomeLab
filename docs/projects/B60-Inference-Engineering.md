@@ -12,6 +12,16 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [November1 backup-clock audit](B60-Inference-Engineering/backup-clock-hazard-20261101.md)
+found an additional arming hazard: Proxmox tzdata2026c keeps Vancouver UTC−07,
+while TrueNAS tzdata2025b runs Los Angeles schedules shifting to UTC−08.
+Its03:00 Mac pull maps to04:00 on the booked03:10–03:55 Vancouver clock.
+The next capacity record exists but activation is absent. Offline regression
+tests show both source gates refuse this projected chain; no clock, backup,
+package, timer or stack change occurred. Resolve the exact cross-host clock
+and source-update gates before fresh operational arming, without weakening
+backup completion or restoration protection.
+
 The [October31 actual outcome](B60-Inference-Engineering/qualification-no-go-20261031.md)
 is NO-GO during initial unit capture: fresh integrity and full admission
 passed, but the owner reported only `UnitStateError`, before guest checkpoint,
