@@ -129,3 +129,25 @@ The combined corpus, draft, receipt, ontology, guard and policy suite passes
 This remains a draft. The custodian cannot self-review its labels or issue the
 seven independent private-corpus non-overlap receipts. No training recipe or
 model artifact may be frozen until both independent checks pass.
+
+## Independent-review handoff completed
+
+The handoff now includes an unscored 400-row template bound to the exact draft.
+The reviewer must explicitly mark every row `accepted` with the unchanged
+label, or `corrected` with a different known coherent label. Pending, missing,
+duplicate, unknown-label, authority-bearing and self-hash-drift rows fail
+closed. A valid review containing even one correction is evidence that the
+draft needs revision and is not release-eligible.
+
+- label-review validator SHA-256:
+  `16c251110a770b05c840b9c99686eab49a137b5f1e66f003fb24cb0719141eb0`;
+- label-review test SHA-256:
+  `5971e90940b06820de4862c1d04caec06d5e4d785d6b637d7463b1405a72caf4`;
+- unscored template SHA-256:
+  `bd32757485f4dc7f4d70469d4045f4fac9e77e568495de4897d366f0f8d71d1c`;
+- combined source result: 43/43 tests pass.
+
+The remaining gate is genuinely external to the corpus custodian: a distinct
+reviewer must inspect the 400 text/label pairs and a private-corpus custodian
+must produce the seven zero-overlap receipts. Until then, J1 training is
+blocked and no Lab Hours workload should be registered.
