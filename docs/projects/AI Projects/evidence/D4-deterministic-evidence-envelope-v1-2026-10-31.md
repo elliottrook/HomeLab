@@ -41,9 +41,15 @@ with an empty check set, secret requests abstain, false-completion/secret prose
 falls back safely, multi-source order is deterministic and all outputs remain
 effect-free.
 
+A separate 12-case `synthetic-public-development` fixture now exercises valid
+single/multi-source plans, mixed usable/unavailable observations, empty and
+fully unavailable evidence, secret requests, secret/false-completion prose,
+invalid extra model fields, null drafts and visible source ordering. Its 8/8
+focused tests pass. The fixture uses generic development identities and contains
+no `expanded-*` case ID or spent packet identity.
+
 ## Next gate
 
-Create a new public/synthetic development fixture that is not the spent
-expanded-source packet, then freeze a new candidate, new answer-key packet and
-new model-blind review boundary. Do not reuse the `candidate-f` result or tune
-the prose model against its hidden answers.
+The new public/synthetic development fixture is complete. Next freeze a new
+candidate, answer-key packet and model-blind review boundary. Do not reuse the
+`candidate-f` result or tune the prose model against its hidden answers.
