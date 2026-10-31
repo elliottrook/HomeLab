@@ -31,6 +31,14 @@ EXPECTED = {
     CONSUMER / "manifest.json": "8450cb265d9a5f9b3d041ad9d6cf8fd643f3fd7c5320cb3a933146353d02ea4e",
     ACTIVATION: "8c7d8441617c67986fe0593010645e5b48fbe7df1406d97cc4b57e10cc7806b7",
 }
+FAMILY_EXPECTED = {
+    COMPILER / "default.py": "4226b6a5b49d877822c3d71751a1e65c5de0d479998f68593459128c86bbdb77",
+    COMPILER / "bundle.json": "898446340ecd0b2e5bcc10a8521ea6a00fecdc39dd1a0a8f5b518c95a4ac7b9a",
+    CONSUMER / "reader/default.py": "4226b6a5b49d877822c3d71751a1e65c5de0d479998f68593459128c86bbdb77",
+    CONSUMER / "reader/bundle.json": "898446340ecd0b2e5bcc10a8521ea6a00fecdc39dd1a0a8f5b518c95a4ac7b9a",
+    CONSUMER / "manifest.json": "4682f81ac58a49dc6e7880d846741b27a3d8954b56c8860501d9e460dfffb250",
+    ACTIVATION: "967b4eebe2093ace90732e8d2f3ec8731693bad439bfed6046f9208a7195fffb",
+}
 
 
 def sha(data: bytes) -> str:
@@ -76,12 +84,18 @@ def main() -> None:
         raise RuntimeError("active player")
 
     originals = {path: path.read_bytes() for path in FILES}
-    for path, expected in EXPECTED.items():
+    expected_files = FAMILY_EXPECTED if host == "AsterTV-Family" else EXPECTED
+    for path, expected in expected_files.items():
         if sha(originals[path]) != expected:
             raise RuntimeError("unexpected source hash: " + str(path))
 
     defaults = {}
-    old = 'require(os.uname().nodename == "AsterTV" and len(sys.argv) == 3, "books-hp-only")'
+    old = (
+        'require(os.uname().nodename in ("AsterTV", "AsterTVProd") and '
+        'len(sys.argv) == 3, "books-client-only")'
+        if host == "AsterTV-Family" else
+        'require(os.uname().nodename == "AsterTV" and len(sys.argv) == 3, "books-hp-only")'
+    )
     new = ('require(os.uname().nodename in ("AsterTV-Bedroom", "AsterTV-Family") '
            'and len(sys.argv) == 3, "books-aster-client-only")')
     for path in (COMPILER / "default.py", CONSUMER / "reader/default.py"):
@@ -97,7 +111,8 @@ def main() -> None:
                           (CONSUMER / "reader/bundle.json",
                            defaults[CONSUMER / "reader/default.py"])):
         value = json.loads(originals[path])
-        if value.get("hp_only") is not True:
+        expected_hp_only = host != "AsterTV-Family"
+        if value.get("hp_only") is not expected_hp_only:
             raise RuntimeError("unexpected reader boundary")
         value["files"]["default.py"] = sha(default)
         bundles[path] = encoded(value)
