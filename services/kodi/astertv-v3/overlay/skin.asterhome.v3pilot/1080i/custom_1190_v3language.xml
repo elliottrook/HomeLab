@@ -55,7 +55,7 @@
             <left>120</left><top>225</top>
             <control type="image">
                 <width>1680</width><height>260</height>
-                <texture border="18" colordiffuse="f2151d31">special://skin/media/ui-panel.png</texture>
+                <texture border="18" colordiffuse="asterV3Panel">special://skin/media/ui-panel.png</texture>
             </control>
             <control type="label">
                 <left>42</left><top>34</top><width>940</width><height>34</height>

@@ -52,7 +52,8 @@ class SharedLanguageTests(unittest.TestCase):
         self.assertGreaterEqual(text.count("<onclick>ActivateWindow(Home)</onclick>"), 2)
 
     def test_semantic_tokens_are_present(self) -> None:
-        colors = {node.attrib["name"] for node in ET.parse(COLORS).getroot().findall("color")}
+        color_nodes = ET.parse(COLORS).getroot().findall("color")
+        colors = {node.attrib["name"] for node in color_nodes}
         required = {
             "asterV3Bg",
             "asterV3Panel",
@@ -63,6 +64,14 @@ class SharedLanguageTests(unittest.TestCase):
             "asterV3Danger",
         }
         self.assertTrue(required <= colors)
+
+        values = {node.attrib["name"]: (node.text or "").lower() for node in color_nodes}
+        self.assertEqual(values["asterV3Bg"], "ff191814")
+        self.assertEqual(values["asterV3Panel"], "ff292721")
+        self.assertEqual(values["asterV3Focus"], values["asterGold"])
+        self.assertEqual(values["asterV3Success"], values["asterSage"])
+        forbidden_blue_values = {"ff0b1020", "ff151d31", "ff1b2740", "ff111a2c", "ff2b3a58"}
+        self.assertTrue(forbidden_blue_values.isdisjoint(values.values()))
 
     def test_overlay_patch_applies_to_immutable_v2_baseline(self) -> None:
         member = "aster-v2-package/lab-addon-snapshot/skin.asterhome/1080i/Includes.xml"

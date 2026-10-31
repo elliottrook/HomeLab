@@ -11,16 +11,16 @@
     <color name="asterMuted">ff706b62</color>
     <color name="asterRailText">ffece8df</color>
 
-    <!-- V3 semantic tokens: Aster identity adapted to the internal UI guide. -->
-    <color name="asterV3Bg">ff0b1020</color>
-    <color name="asterV3Panel">ff151d31</color>
-    <color name="asterV3Raised">ff1b2740</color>
-    <color name="asterV3Input">ff111a2c</color>
-    <color name="asterV3Text">fff4f7fb</color>
-    <color name="asterV3TextSoft">ffdce4f1</color>
-    <color name="asterV3Muted">ffaab6ca</color>
+    <!-- V3 semantic tokens: the established Aster black/brown, green and gold palette. -->
+    <color name="asterV3Bg">ff191814</color>
+    <color name="asterV3Panel">ff292721</color>
+    <color name="asterV3Raised">ff353229</color>
+    <color name="asterV3Input">ff201f1b</color>
+    <color name="asterV3Text">fff3eee5</color>
+    <color name="asterV3TextSoft">ffece8df</color>
+    <color name="asterV3Muted">ffb9b0a2</color>
     <color name="asterV3Focus">ffc2a06b</color>
     <color name="asterV3Success">ff9bc9a8</color>
-    <color name="asterV3Danger">ffffaaa8</color>
-    <color name="asterV3Line">ff2b3a58</color>
+    <color name="asterV3Danger">ffe8a39c</color>
+    <color name="asterV3Line">ff4a453b</color>
 </colors>
