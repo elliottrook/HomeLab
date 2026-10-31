@@ -84,3 +84,22 @@ counts and reference bindings only.
 The validator deliberately accepts reference bytes as inputs rather than
 silently using a hard-coded subset. The eventual corpus release must enumerate
 and bind every exposed corpus before training begins.
+
+The follow-on `nlu_joint_training_nonoverlap_receipt_v1.py` closes the private
+reference boundary without exposing any prior calibration text. It requires
+one independently signed, self-hashed zero-overlap receipt for the public
+development fixture and calibration v1 through v6. All seven receipts must
+bind the same 400-case J1 source and normalized-text-set digests. Missing,
+extra, duplicate-key, mismatched-subject, authority-bearing or nonzero-overlap
+receipts fail closed. The sealed holdout is deliberately not a reference and
+must remain unopened.
+
+- receipt validator SHA-256:
+  `466a0fcca7e4f7b18fd77fe031c5d6e3fa79b8fb960861695e6b01e375569a9c`;
+- receipt test SHA-256:
+  `7d9255f923075d7875f1f4f5ed2e377e628e2bd8cc1a306d4e25a33c75fe62a3`;
+- combined J1 corpus/receipt and inherited boundary result: 40/40 tests pass.
+
+This makes the next gate precise: a corpus custodian may create the 400-case
+draft, but training cannot begin until a distinct reviewer produces all seven
+valid receipts and the labels themselves receive independent review.
