@@ -101,6 +101,13 @@ class SharedLanguageTests(unittest.TestCase):
         self.assertEqual(text.count("<include>AsterV3MediaPill</include>"), 5)
         self.assertIn("<backgroundcolor>asterStone</backgroundcolor>", text)
         self.assertIn("<colordiffuse>asterStone</colordiffuse>", text)
+        self.assertIn("special://skin/media/ui-hero-left-fade.png", text)
+        self.assertIn("special://skin/media/ui-hero-bottom-fade.png", text)
+        self.assertLess(
+            text.index("special://skin/media/ui-hero-left-fade.png"),
+            text.index("special://skin/media/ui-hero-bottom-fade.png"),
+        )
+        self.assertIn("<label>YouTube</label><font>font36</font><textcolor>asterV3Text</textcolor>", text)
         self.assertIn('colordiffuse="asterCharcoalGlass"', text)
         self.assertIn('colordiffuse="asterPaperGlass"', text)
         self.assertNotIn('colordiffuse="66000000"', text)
