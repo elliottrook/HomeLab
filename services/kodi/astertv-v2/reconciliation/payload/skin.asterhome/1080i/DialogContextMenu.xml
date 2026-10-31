@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Native Resume/Start prompt in the current Aster player language. -->
+<window>
+    <defaultcontrol always="true">996</defaultcontrol>
+    <controls>
+        <control type="group">
+            <left>1120</left>
+            <top>825</top>
+            <width>730</width>
+            <height>205</height>
+
+            <!-- Match custom_1125_next_episode.xml exactly. -->
+            <control type="image">
+                <left>0</left>
+                <top>0</top>
+                <width>730</width>
+                <height>205</height>
+                <texture>special://skin/media/ui-solid.png</texture>
+                <colordiffuse>e6202923</colordiffuse>
+            </control>
+            <control type="label">
+                <left>24</left>
+                <top>12</top>
+                <width>682</width>
+                <height>40</height>
+                <label>Continue watching</label>
+                <font>font20</font>
+                <textcolor>asterIvory</textcolor>
+                <truncate>true</truncate>
+            </control>
+            <control type="grouplist" id="996">
+                <left>16</left>
+                <top>68</top>
+                <width>694</width>
+                <height>68</height>
+                <usecontrolcoords>true</usecontrolcoords>
+                <orientation>horizontal</orientation>
+                <itemgap>19</itemgap>
+            </control>
+            <control type="label">
+                <left>24</left>
+                <top>152</top>
+                <width>682</width>
+                <height>30</height>
+                <label>Resume playback or start from the beginning</label>
+                <font>font20</font>
+                <textcolor>asterSage</textcolor>
+                <truncate>true</truncate>
+            </control>
+        </control>
+
+        <!-- Kodi supplies the existing Resume and Start actions to this template. -->
+        <control type="button" id="1000">
+            <width>337</width>
+            <height>68</height>
+            <font>font24</font>
+            <align>center</align>
+            <aligny>center</aligny>
+            <textcolor>asterSage</textcolor>
+            <focusedcolor>asterIvory</focusedcolor>
+            <texturefocus border="24" colordiffuse="asterSage">special://skin/media/ui-button-ring.png</texturefocus>
+            <texturenofocus>none</texturenofocus>
+            <pulseonselect>no</pulseonselect>
+        </control>
+    </controls>
+</window>

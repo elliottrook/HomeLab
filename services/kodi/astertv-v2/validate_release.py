@@ -12,10 +12,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parents[2]
-ARCHIVE = REPO / "services/kodi/dist/astertv-v2.0.7-production-2026-10-31-r46.tar.gz"
+ARCHIVE = REPO / "services/kodi/dist/astertv-v2.0.7-production-2026-10-31-r47.tar.gz"
 SIDECAR = ARCHIVE.with_suffix(ARCHIVE.suffix + ".sha256")
 PREFIX = "aster-v2-package/"
-RELEASE = "astertv-v2.0.7-production-2026-10-31-r46"
+RELEASE = "astertv-v2.0.7-production-2026-10-31-r47"
 SPLASH_SHA = "912228f3866b33749905eb8154b470d3170fe4747f92799811470bb49b986cce"
 
 
@@ -90,6 +90,7 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
         bundle, "lab-addon-snapshot/script.asterruntime/aster-global-search-ui22/manifest.json")
     search_manifest = json.loads(search_manifest_bytes)
     busy = addon("skin.asterhome/1080i/DialogBusy.xml")
+    resume = addon("skin.asterhome/1080i/DialogContextMenu.xml")
     publication = member(bundle, "epub-consumer/reader/runtime/epub_narration/publication.py").decode()
 
     # Smart Home refreshes itself after every Kodi/skin restart without losing camera lifecycle.
@@ -166,6 +167,19 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
     assert busy.count("special://home/media/Splash.png") == 1
     assert "animation" not in busy and "RunScript" not in busy
 
+    # Native Resume/Start retains Kodi's actions but uses the accepted Aster
+    # Skip Intro/Recap popup geometry and player palette.
+    resume_root = ET.fromstring(resume)
+    resume_group = resume_root.find("./controls/control[@type='group']")
+    assert resume_group is not None
+    assert [resume_group.findtext(name) for name in ("left", "top", "width", "height")] == [
+        "1120", "825", "730", "205"]
+    assert "e6202923" in resume and "asterSage" in resume
+    assert "ui-button-ring.png" in resume and 'orientation>horizontal<' in resume
+    for legacy in ("-1920", "5760", "3240", "asterStone"):
+        assert legacy not in resume
+    assert family["skin"]["1080i/DialogContextMenu.xml"] == sha(resume.encode())
+
     promoter_text = promoter.decode()
     for guard in ('AsterTVProd', 'require_idle()', 'credentials_or_addon_data_touched',
                   'audio_settings_before', 'restore_audio_settings(saved_audio)',
@@ -199,6 +213,7 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
         "reconciliation/apply_production_movie_return_r43_fix.py",
         "reconciliation/apply_production_alsa_exclusive_r44_trial.py",
         "reconciliation/apply_production_alsa_exclusive_r45_trial.py",
+        "reconciliation/test_production_resume_dialog_r47.py",
         "reconciliation/payload/home-delivery/delivery.py",
     ):
         data = member(bundle, path)
@@ -208,4 +223,4 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
 
 subprocess.run([sys.executable, "-m", "py_compile",
                 str(ROOT / "reconciliation/promote_v207_to_production.py")], check=True)
-print("AsterTV v2.0.7 r46 release gate passed: 577 files, Search/movie return, HDR/Dolby HDMI, Settings, busy logo, Aster saver, XML/Python and rollback verified")
+print("AsterTV v2.0.7 r47 release gate passed: 577 files, Aster Resume prompt, Search/movie return, HDR/Dolby HDMI, Settings, busy logo, Aster saver, XML/Python and rollback verified")

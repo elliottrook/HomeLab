@@ -352,3 +352,24 @@ audio states on rollback. The full 21-test reconciliation suite, Python/XML
 compilation, archive inventory, security exclusions and release gate pass.
 Package: `astertv-v2.0.7-production-2026-10-31-r46.tar.gz`; SHA-256
 `0ee3331bbdb9ef34196e08b057b1a535dfb1893322d9c985d771ded2281753eb`.
+
+### Native Resume presentation — r47
+
+Production exposed one remaining Kodi-era presentation when a title had a
+saved position: `DialogContextMenu.xml` still rendered a centred 620x720 stone
+panel over a full-screen dim layer. Its Resume and Start actions were correct;
+only their presentation was obsolete. The accepted live repair preserves those
+native actions while adopting Aster's own `custom_1125_next_episode.xml`
+language: 730x205 at the player-safe bottom right, `e6202923` dark-green canvas,
+horizontal 68-pixel controls, font24 labels and the shared sage/ivory player
+focus ring. The rejected upstream Jellyfin blue overlay trial was rolled back
+before this Aster source was applied. Original production XML remains at
+`/storage/.aster-checkpoints/resume-dialog-r47-20261031/DialogContextMenu.xml.before`.
+
+The regression gate rejects the abandoned full-screen geometry, stone panel
+and generic Kodi texture, verifies the Aster footprint/palette/focus flow and
+pins the dialog in `family-manifest.json`. The full 21-test reconciliation suite
+and the added Resume gate pass; all 577 snapshot entries compile and hash-match.
+The deterministic r47 archive was reproduced byte-for-byte. Package:
+`astertv-v2.0.7-production-2026-10-31-r47.tar.gz`; SHA-256
+`d979a42fca62fac3dac00a456b4790229c5907f9636942cc4cee6ee46f1cd226`.

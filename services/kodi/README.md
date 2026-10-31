@@ -1,9 +1,10 @@
 # AsterTV v2.0.7 release
 
 The authoritative production release is
-`dist/astertv-v2.0.7-production-2026-10-31-r46.tar.gz`. It preserves the complete
+`dist/astertv-v2.0.7-production-2026-10-31-r47.tar.gz`. It preserves the complete
 accepted v2 snapshot and reconciles the production Search/movie-return, Aster
-busy mark, Settings/screensaver, exclusive HDMI passthrough and HDR fixes.
+busy mark, Settings/screensaver, exclusive HDMI passthrough, HDR and Aster-style
+Resume prompt fixes.
 
 The unpacked, reviewable final reconciliation is in `astertv-v2/reconciliation`.
 It includes the bounded installer, hash-pinned payload, physical G20 keymap and
@@ -92,3 +93,14 @@ passthrough routes pinned to ALSA HDMI 0 before capability enumeration. Physical
 production acceptance confirmed E-AC-3 raw passthrough (`AES0=0x06`), TV/receiver
 Dolby indication and HDR10 signalling. The deterministic r46 archive SHA-256 is
 `0ee3331bbdb9ef34196e08b057b1a535dfb1893322d9c985d771ded2281753eb`.
+
+## Resume presentation reconciliation in r47
+
+The residual Kodi full-screen stone Resume chooser is replaced by the accepted
+Aster Skip Intro/Recap player language: the same bottom-right footprint, dark
+green canvas, horizontal remote flow, typography and sage/ivory focus ring.
+Kodi still owns the Resume and Start-from-beginning actions. The release gate
+pins the geometry, palette, control orientation, family-manifest hash and
+absence of the abandoned full-screen dimensions. The deterministic r47 archive
+SHA-256 is
+`d979a42fca62fac3dac00a456b4790229c5907f9636942cc4cee6ee46f1cd226`.
