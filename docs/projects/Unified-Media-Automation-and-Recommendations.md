@@ -904,3 +904,12 @@ disabled, stale, ambiguous or already owned.
   produced 20 real film/TV candidates. Book, audiobook and music candidate
   population remains a separate follow-up because the live snapshot is not yet
   claiming those sources are populated.
+- 2026-10-30: AsterTV v2.0.7 r18 was frozen from the accepted lab state and
+  promoted to `AsterTVProd` after Jason confirmed its ED25519 fingerprint. The
+  credential-free package pins 577 Aster-owned files plus the G20 keymap and
+  AsterTV Kodi splash. Production retained a complete v1.1.1 add-on rollback
+  checkpoint, profile/account data and stereo HDMI settings. Automated gates
+  passed for XML/Python validity, Books/Music, TV, Requests/Seerr, YouTube
+  routes, screensaver and rollback behavior; post-promotion Kodi and Jellyfin
+  checks passed. Production YouTube still requires its own one-time sign-in;
+  the lab session was not copied.

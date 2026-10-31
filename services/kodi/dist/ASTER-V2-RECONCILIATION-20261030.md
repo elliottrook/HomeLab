@@ -90,3 +90,27 @@ Kodi active, no active player, final Music hash
 `052ff612d6f776e281401d140b148c2425dec4732ecc6e7f68de139ceeb148cc`,
 splash hash
 `912228f3866b33749905eb8154b470d3170fe4747f92799811470bb49b986cce`.
+
+## Production promotion — 2026-10-30
+
+Owner-confirmed production SSH identity:
+`SHA256:qup6j5SaoLYSgeUyrMbXMD2+lpd+DGupbgO6DkHxhm8`. The immutable release archive
+at local release commit `31312c17` has SHA-256
+`c10cba951db2a95344f94db7c576060ba7ec3cf07f8b953a9efa42aab53f2b71`.
+The promoter replaced 13 Aster-owned add-ons and verified all 577 snapshot
+members. Rollback checkpoint:
+`/storage/.aster-checkpoints/astertv-v2.0.7-production-20261030`.
+
+Post-promotion evidence: Kodi 22 RC1 remained active with no active player;
+the v2 skin reports version 2.0.0; Music, Requests, dispatcher and splash hashes
+match the release; no recent relevant skin/XML errors were present; Jellyfin
+returned 19 populated root sections. HDMI 0 remains the selected PCH device,
+two-channel output remains configured and passthrough remains disabled. The
+profile and account directories were not copied or replaced. Kodi's normal
+restart updated only Jellyfin's data/settings/sync files and the skin settings
+file during the ten-minute audit window; the profiles file digest remained
+unchanged. Production YouTube is not signed in: a bounded query received the
+official add-on's `authorization_pending` response, was cancelled, and Kodi was
+restarted cleanly to Home. A one-time production YouTube sign-in is therefore
+an explicit owner acceptance item; the lab account/session was deliberately
+not copied.

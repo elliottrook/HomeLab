@@ -1,6 +1,6 @@
-# AsterTV v2 lab release
+# AsterTV v2.0.7 release
 
-The authoritative production candidate is
+The authoritative production release is
 `dist/astertv-v2.0.7-production-2026-10-30-r18.tar.gz`. It is the reconciled
 successor to the preserved r17 lab package and contains the exact Aster-owned
 add-on snapshot accepted on the lab before production promotion.
@@ -21,7 +21,8 @@ The gate fails if a payload byte, manifest hash, release archive, keymap route,
 hero/fade invariant, stone-icon scope or dispatcher ordering changes. The
 installer is lab-host-only, refuses active playback, checkpoints every changed
 file, validates expected before/after hashes and restarts Kodi in a `finally`
-path. Promotion to production remains a separate owner-approved operation.
+path. Production promotion completed on 2026-10-30 from the immutable package;
+the v1.1.1 add-on baseline remains in the production checkpoint for rollback.
 
 ## Physical OK regression fixed in r8
 
