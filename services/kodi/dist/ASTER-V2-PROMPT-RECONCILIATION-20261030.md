@@ -70,3 +70,7 @@ The superseding `astertv-v2-lab-reconciled-2026-10-30-r14.tar.gz` retains the r1
 ## r15 Series finish repair
 
 The superseding `astertv-v2-lab-reconciled-2026-10-30-r15.tar.gz` explicitly centres Play/Resume and Back labels vertically, gives all three compact Series controls the same translucent charcoal normal surface, and overscans rounded episode stills so the underlying pale placeholder cannot show at their corners. A direct Kodi capture and a post-change season-selection test passed without playback. Production remains unchanged.
+
+## r16 shared Clock/Search/rail treatment
+
+The superseding `astertv-v2-lab-reconciled-2026-10-30-r16.tar.gz` makes the three shared chrome elements identical on every page where Clock, Search and rail appear together. News moves those elements above the digest artwork/fades, correcting the washed-out upper side-rail icons. Books Search now uses Media's translucent gold outline. Media and Smart Home were hash-gated and already conformed; Music has no equivalent top Search control and was not changed. Direct lab captures verified News and Books, and News selection/audio remained functional with playback stopped after the bounded check. Production remains unchanged.

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "release": "astertv-v2.0.6-lab-acceptance-reconciled-2026-10-30-r15",
+  "release": "astertv-v2.0.6-lab-acceptance-reconciled-2026-10-30-r16",
   "target": "AsterTV lab only (192.168.1.140)",
   "production_changed": false,
   "apply_order": [
@@ -203,6 +203,13 @@
     "art_overscan": "Rounded episode stills overscan the placeholder by four pixels on every side, eliminating pale corner slivers.",
     "navigation_recheck": "After the visual repair the season menu opened, changed season index 0 to 1 and settled focus back on the episode list.",
     "screen_capture": "A direct installed-page capture verified centred controls, matched surfaces and clean rounded still corners."
+  },
+  "acceptance_r16": {
+    "shared_contract": "Media, Books, News and Smart Home use the same 75cbb991 translucent gold token for Clock, Search and floating stone side-rail chrome wherever all three appear.",
+    "news_layering": "News renders Search trim, the shared 24-hour Clock and the shared navigation rail after its content group, preventing the hero fade from washing out the upper rail icons.",
+    "books_search": "Books Search now uses the same translucent gold trim as Media rather than its former opaque page-specific gold.",
+    "scope": "Music was audited but not altered because its header has Clock and rail without the same Search control.",
+    "live_validation": "Installed News and Books captures verified matching trim and uniform stone-icon opacity; the News list selection opened the digest player and audio was stopped before handoff."
   },
   "known_remaining": "Owner acceptance remains for a visible watched tick, Seerr visual recheck and the physical spoken voice phrase. Production is unchanged."
 }

@@ -1,7 +1,7 @@
 # AsterTV v2 lab release
 
 The authoritative preserved lab candidate is
-`dist/astertv-v2-lab-reconciled-2026-10-30-r15.tar.gz`. Production remains on
+`dist/astertv-v2-lab-reconciled-2026-10-30-r16.tar.gz`. Production remains on
 the stable v1.1.1 release and is not changed by this record.
 
 The unpacked, reviewable final reconciliation is in `astertv-v2/reconciliation`.
@@ -41,6 +41,15 @@ provisioned and are never packaged. The release gate also requires the real-book
 reader to retain exact sentence sample timing and the pinned Aster pronunciation
 cleanup. Word or connected-phrase highlighting must not be claimed or enabled
 until a future real-book timing pipeline passes the exact measured timing gate.
+
+## Shared header and rail repair in r16
+
+Clock, Search and the floating stone side rail now use the Media page's shared
+translucent gold trim wherever all three controls appear. News renders this
+chrome after its hero/content layers so the upper rail icons are no longer
+washed out; Books no longer uses a separate opaque Search gold. Media and Smart
+Home were hash-verified as already conforming. Music retains its own header
+because it does not expose the same three-control pattern.
 
 See `dist/ASTER-V2-RECONCILIATION-20261030.md` for the full repair record and
 `dist/ASTER-V2-PROMPT-RECONCILIATION-20261030.md` for the prompt-by-prompt audit.

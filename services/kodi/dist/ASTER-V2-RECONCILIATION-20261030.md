@@ -60,3 +60,7 @@ r14 supersedes r13 after direct owner review of the Series page. The invisible i
 ## Series finish repair r15 — 2026-10-30
 
 r15 supersedes r14 after the second owner visual check. Play/Resume and Back now explicitly centre their labels vertically. Season, Play/Resume and Back use one identical translucent charcoal normal surface, preserving the compact geometry and existing focus/navigation routes. Rounded episode stills overscan the square placeholder by four pixels on all sides so no pale corner slivers remain. A direct Kodi screenshot verified the installed result. The season menu was then reopened, season index changed 0 to 1, and focus settled back on the episode list; no playback was started. Production remains unchanged.
+
+## Shared header and rail repair r16 — 2026-10-30
+
+r16 supersedes r15 and defines Clock, Search and the floating stone side rail as one shared visual contract on every page where all three appear. Media and Smart Home already used the shared `75cbb991` translucent gold token. Books Search now uses that token instead of its opaque page-specific gold. News now renders Search, Clock and rail after the digest content group, so the hero fade no longer washes out the upper collapsed-rail icons. Direct installed News and Books captures verified matching trim and consistent icon opacity. A News list selection opened the digest player, audio started, and playback was stopped before handoff. Music was audited and intentionally unchanged because it does not expose the same Search/Clock/rail header. Production remains unchanged.

@@ -13,9 +13,9 @@ ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parents[2]
 RECONCILIATION = ROOT / "reconciliation"
 MANIFEST = RECONCILIATION / "manifest.json"
-ARCHIVE = REPO / "services/kodi/dist/astertv-v2-lab-reconciled-2026-10-30-r15.tar.gz"
+ARCHIVE = REPO / "services/kodi/dist/astertv-v2-lab-reconciled-2026-10-30-r16.tar.gz"
 SIDECAR = ARCHIVE.with_suffix(ARCHIVE.suffix + ".sha256")
-EXPECTED_RELEASE = "astertv-v2.0.6-lab-acceptance-reconciled-2026-10-30-r15"
+EXPECTED_RELEASE = "astertv-v2.0.6-lab-acceptance-reconciled-2026-10-30-r16"
 
 
 def sha256(path: Path) -> str:
@@ -40,6 +40,8 @@ for row in manifest["files"]:
 subprocess.run([sys.executable, str(RECONCILIATION / "validate_books_music.py")], check=True)
 subprocess.run([sys.executable, "-m", "py_compile",
                 str(RECONCILIATION / "apply_reconciliation.py")], check=True)
+subprocess.run([sys.executable, "-m", "py_compile",
+                str(RECONCILIATION / "apply_shared_header_rail_r16_fix.py")], check=True)
 
 sidecar_hash, sidecar_name = SIDECAR.read_text().split()
 assert sidecar_name == ARCHIVE.name
@@ -95,11 +97,31 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
     screensaver_member = bundle.extractfile(
         "aster-v2-package/lab-addon-snapshot/screensaver.asterhome.v2lab/resources/skins/Default/1080i/AsterIdle.xml"
     )
+    media_member = bundle.extractfile(
+        "aster-v2-package/lab-addon-snapshot/skin.asterhome/1080i/Home.xml"
+    )
+    books_member = bundle.extractfile(
+        "aster-v2-package/lab-addon-snapshot/skin.asterhome/1080i/IncludesBooks.xml"
+    )
+    news_member = bundle.extractfile(
+        "aster-v2-package/lab-addon-snapshot/skin.asterhome/1080i/custom_1111_digest.xml"
+    )
+    smart_home_member = bundle.extractfile(
+        "aster-v2-package/lab-addon-snapshot/skin.asterhome/1080i/custom_1112_home.xml"
+    )
+    shared_clock_member = bundle.extractfile(
+        "aster-v2-package/lab-addon-snapshot/skin.asterhome/1080i/Includes.xml"
+    )
+    shared_rail_member = bundle.extractfile(
+        "aster-v2-package/lab-addon-snapshot/skin.asterhome/1080i/IncludesHub.xml"
+    )
     assert service_member is not None and bridge_member is not None and listing_member is not None
     assert all(member is not None for member in (
         series_member, series_xml_member, series_manifest_member,
         series_wrapper_member, family_manifest_member, movie_member, home_plugin_member,
-        requests_member, youtube_focus_member, screensaver_member))
+        requests_member, youtube_focus_member, screensaver_member,
+        media_member, books_member, news_member, smart_home_member,
+        shared_clock_member, shared_rail_member))
     service_source = service_member.read().decode("utf-8")
     bridge_source = bridge_member.read().decode("utf-8")
     listing_source = listing_member.read().decode("utf-8")
@@ -113,6 +135,12 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
     requests_xml = requests_member.read().decode("utf-8")
     youtube_focus_source = youtube_focus_member.read().decode("utf-8")
     screensaver_xml = screensaver_member.read().decode("utf-8")
+    media_xml = media_member.read().decode("utf-8")
+    books_xml = books_member.read().decode("utf-8")
+    news_xml = news_member.read().decode("utf-8")
+    smart_home_xml = smart_home_member.read().decode("utf-8")
+    shared_clock_xml = shared_clock_member.read().decode("utf-8")
+    shared_rail_xml = shared_rail_member.read().decode("utf-8")
 assert packaged == manifest
 assert reader_bundle["shared_progress"] is False
 assert "sentence-sample-index" in publication_source
@@ -152,5 +180,18 @@ assert f"MANIFEST_SHA='{series_component_sha}'" in series_wrapper
 assert family_manifest["components"]["aster-series-preview24"]["manifest_sha256"] == series_component_sha
 assert "if focused in ROOT_CONTROLS" in youtube_focus_source
 assert "<backgroundcolor>ff000000</backgroundcolor>" in screensaver_xml
+gold_search = ('<width>174</width><height>50</height><texture border="18" '
+               'colordiffuse="75cbb991">special://skin/media/'
+               'ui-compact-card-ring.png</texture></control>')
+assert media_xml.count(gold_search) == 1
+assert books_xml.count(gold_search) == 1
+assert news_xml.count(gold_search) == 1
+assert smart_home_xml.count(gold_search) == 1
+assert '$INFO[System.Time(HH:mm)]' in shared_clock_xml
+assert shared_clock_xml.count('colordiffuse>75cbb991</colordiffuse>') >= 1
+assert shared_rail_xml.count('colordiffuse="75cbb991"') == 2
+assert news_xml.rfind('include content="AsterNavigationRail"') > news_xml.rfind('id="139"')
+assert news_xml.rfind('include content="AsterClockPill"') > news_xml.rfind('id="139"')
+assert news_xml.rfind(gold_search) > news_xml.rfind('id="139"')
 
-print(f"AsterTV v2 release gate passed: {len(manifest['files'])} payload files and r15 archive verified")
+print(f"AsterTV v2 release gate passed: {len(manifest['files'])} payload files and r16 archive verified")
