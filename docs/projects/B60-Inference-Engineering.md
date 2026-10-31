@@ -12,6 +12,15 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [offline diagnostic source transaction core](B60-Inference-Engineering/source-update-core-20261031.md)
+now implements exact two-module replacement/rollback with durable journals,
+unknown-drift refusal and import-failure recovery.149 controller,10 installer
+and115 B60 tests pass against an equal replay tree. It has no production
+adapter/CLI; partial-journal resolution and actual host guards remain before
+deployment. No clock/source/timer/stack change or new activation occurred.
+Backup clocks and live recovery remain unqualified gates, not model approval
+waits or a completed programme.
+
 The [October31 local-only source-update preparation](B60-Inference-Engineering/source-update-preflight-20261031.md)
 adds a whole-destination no-write preflight to the dormant installer and pins
 the exact two changed diagnostic modules.136 controller,10 installer and115

@@ -1,0 +1,305 @@
+From 8b3e2c3247d248a54611714dcb2d150098588e69 Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Sat, 31 Oct 2026 15:11:46 -0700
+Subject: [PATCH] Implement exact diagnostic source transition core with
+ interruption rollback tests
+
+---
+ scripts/local-ai/lab_hours_source_update.py   | 130 ++++++++++++++++
+ .../local-ai/test_lab_hours_source_update.py  | 147 ++++++++++++++++++
+ 2 files changed, 277 insertions(+)
+ create mode 100644 scripts/local-ai/lab_hours_source_update.py
+ create mode 100644 scripts/local-ai/test_lab_hours_source_update.py
+
+diff --git a/scripts/local-ai/lab_hours_source_update.py b/scripts/local-ai/lab_hours_source_update.py
+new file mode 100644
+index 000000000..9c980bc5d
+--- /dev/null
++++ b/scripts/local-ai/lab_hours_source_update.py
+@@ -0,0 +1,130 @@
++"""Offline-testable exact diagnostic source transition, no host entry point.
++
++A future adapter must hold common host exclusion throughout every method,
++verify no active/recovering owner or future armed old-profile consumer, enforce
++root custody, atomically replace only recognized bytes and validate imports.
++There is deliberately no production adapter, default path, CLI or scheduler.
++Fake-adapter success is not deployment authority or live recovery evidence.
++"""
++import hashlib
++import os
++
++from lab_hours_exclusive_session import canonical, SessionError, SHA
++
++OLD_MAP = 'f5085fbb7b7e8e456be6ac6157867a1af8e808a2e139fb64c03caeb991d25e85'
++NEW_MAP = 'c9fbbd2039b1dabe0771a2b27128147df1be860ce88a2bf4317b4c504f17d739'
++CHANGED = ('lab_hours_exclusive_admission.py', 'lab_hours_exclusive_cli.py')
++PHASES = {'checkpointed', 'updating', 'installed', 'rolling-back', 'rolled-back'}
++
++
++def transition(old, new):
++    if (not isinstance(old, dict) or not isinstance(new, dict)
++            or len(old) != 30 or set(old) != set(new)
++            or hashlib.sha256(canonical(old)).hexdigest() != OLD_MAP
++            or hashlib.sha256(canonical(new)).hexdigest() != NEW_MAP
++            or tuple(sorted(k for k in old if old[k] != new[k])) != CHANGED):
++        raise SessionError('SOURCE_TRANSITION_NOT_REVIEWED')
++    return {'schema': 'aster-diagnostic-source-transition.v1',
++            'old': dict(old), 'new': dict(new)}
++
++
++class SourceUpdate:
++    def __init__(self, store, adapter, old, new):
++        self.store, self.adapter = store, adapter
++        self.plan = transition(old, new)
++
++    def _ready(self):
++        if self.adapter.preflight(self.plan) is not True:
++            raise SessionError('SOURCE_UPDATE_HOST_NOT_PROVEN_IDLE')
++
++    def _observe(self, expected):
++        if self.adapter.observe_pins() != expected:
++            raise SessionError('SOURCE_UPDATE_DEPENDENCY_DRIFT')
++
++    def _phase(self, state, phase):
++        state['phase'] = phase
++        self.store.write('update.json', state)
++
++    def apply(self):
++        fd = self.store.lock()
++        try:
++            if (self.store.root/'plan.json').exists():
++                raise SessionError('SOURCE_UPDATE_ATTEMPT_ALREADY_EXISTS')
++            self._ready()
++            self._observe(self.plan['old'])
++            self.store.write('plan.json', self.plan, immutable=True)
++            checkpoint = self.adapter.checkpoint(CHANGED, self.plan['old'])
++            if (not isinstance(checkpoint, str) or not SHA.fullmatch(checkpoint)
++                    or self.adapter.verify_checkpoint(checkpoint, self.plan['old']) is not True):
++                raise SessionError('SOURCE_UPDATE_CHECKPOINT_UNVERIFIED')
++            state = {'schema': 'aster-diagnostic-source-update.v1',
++                     'checkpoint_sha256': checkpoint, 'phase': 'checkpointed'}
++            self._phase(state, 'checkpointed')
++            try:
++                expected = dict(self.plan['old'])
++                for name in CHANGED:
++                    self._ready()
++                    self._observe(expected)
++                    self._phase(state, 'updating')
++                    if self.adapter.replace_source(name, expected[name], self.plan['new'][name]) is not True:
++                        raise SessionError('SOURCE_UPDATE_REPLACEMENT_UNCERTAIN')
++                    expected[name] = self.plan['new'][name]
++                    self._observe(expected)
++                if self.adapter.validate_imports(self.plan['new']) is not True:
++                    raise SessionError('SOURCE_UPDATE_IMPORTS_UNVERIFIED')
++                self._observe(self.plan['new'])
++                self._phase(state, 'installed')
++                return {'state': 'installed-not-activated', 'model_success': False}
++            except Exception:
++                self._rollback()
++                return {'state': 'failed-rolled-back', 'model_success': False}
++        finally:
++            os.close(fd)
++
++    def _rollback(self):
++        # A fresh process can reconstruct state after a death between a rename
++        # and its next journal write. The exact observed byte map is decisive.
++        if self.store.read('plan.json') != self.plan:
++            raise SessionError('SOURCE_UPDATE_PLAN_DRIFT')
++        state = self.store.read('update.json')
++        if (not isinstance(state, dict)
++                or set(state) != {'schema', 'checkpoint_sha256', 'phase'}
++                or state['schema'] != 'aster-diagnostic-source-update.v1'
++                or not isinstance(state['checkpoint_sha256'], str)
++                or not SHA.fullmatch(state['checkpoint_sha256'])
++                or not isinstance(state['phase'], str)
++                or state['phase'] not in PHASES):
++            raise SessionError('SOURCE_UPDATE_JOURNAL_INVALID')
++        self._ready()
++        current = self.adapter.observe_pins()
++        if (not isinstance(current, dict) or set(current) != set(self.plan['old'])
++                or any(current[k] not in {self.plan['old'][k], self.plan['new'][k]}
++                       for k in current)):
++            raise SessionError('SOURCE_UPDATE_UNKNOWN_BYTES_RETAINED')
++        if self.adapter.verify_checkpoint(state['checkpoint_sha256'], self.plan['old']) is not True:
++            raise SessionError('SOURCE_UPDATE_CHECKPOINT_UNVERIFIED')
++        if state['phase'] == 'rolled-back':
++            self._observe(self.plan['old'])
++            return {'state': 'rolled-back', 'model_success': False}
++        self._phase(state, 'rolling-back')
++        for name in reversed(CHANGED):
++            self._ready()
++            self._observe(current)
++            if current[name] != self.plan['old'][name]:
++                if self.adapter.restore_source(name, current[name], self.plan['old'][name],
++                                               state['checkpoint_sha256']) is not True:
++                    raise SessionError('SOURCE_UPDATE_ROLLBACK_UNCERTAIN')
++                current[name] = self.plan['old'][name]
++                self._observe(current)
++        if self.adapter.validate_imports(self.plan['old']) is not True:
++            raise SessionError('SOURCE_UPDATE_OLD_IMPORTS_UNVERIFIED')
++        self._observe(self.plan['old'])
++        self._phase(state, 'rolled-back')
++        return {'state': 'rolled-back', 'model_success': False}
++
++    def rollback(self):
++        fd = self.store.lock()
++        try:
++            return self._rollback()
++        finally:
++            os.close(fd)
+diff --git a/scripts/local-ai/test_lab_hours_source_update.py b/scripts/local-ai/test_lab_hours_source_update.py
+new file mode 100644
+index 000000000..3f790a695
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_source_update.py
+@@ -0,0 +1,147 @@
++"""Fake source effects with real disposable durable journals; no host adapter."""
++import hashlib
++from pathlib import Path
++import tempfile
++import unittest
++
++from build_lab_hours_exclusive_bundle import closure
++from lab_hours_exclusive_session import SessionStore, SessionError
++from lab_hours_source_update import SourceUpdate, CHANGED, transition
++
++
++class FakeSource:
++    def __init__(self, old, new):
++        self.pins, self.new = dict(old), new
++        self.idle = True
++        self.checkpoint_ok = True
++        self.imports_ok = True
++        self.crash_after = None
++        self.effects = []
++
++    def preflight(self, plan): return self.idle
++    def observe_pins(self): return dict(self.pins)
++    def checkpoint(self, names, old): return 'a'*64
++    def verify_checkpoint(self, checkpoint, old): return self.checkpoint_ok
++    def validate_imports(self, pins): return self.imports_ok or pins != self.new
++
++    def replace_source(self, name, old, new):
++        assert self.pins[name] == old
++        self.pins[name] = new
++        self.effects.append(('replace', name))
++        if name == self.crash_after: raise SystemExit('synthetic process loss')
++        return True
++
++    def restore_source(self, name, current, old, checkpoint):
++        assert self.pins[name] == current
++        self.pins[name] = old
++        self.effects.append(('restore', name))
++        return True
++
++
++class SourceUpdateTests(unittest.TestCase):
++    def setUp(self):
++        root = Path(__file__).resolve().parent
++        self.new = {name: hashlib.sha256((root/name).read_bytes()).hexdigest()
++                    for name in closure(root)}
++        self.old = dict(self.new)
++        self.old[CHANGED[0]] = '69338eaea4a63575caca059a23697e440e60a89cda06fb9f95d78d19848b6886'
++        self.old[CHANGED[1]] = '9f48ed0b828d6a1001f0b9122b9fcc5b192afcf9e70353699a617c8f01f30469'
++        temporary = tempfile.TemporaryDirectory()
++        self.addCleanup(temporary.cleanup)
++        self.store = SessionStore(Path(temporary.name)/'update')
++        self.adapter = FakeSource(self.old, self.new)
++        self.update = SourceUpdate(self.store, self.adapter, self.old, self.new)
++
++    def test_exact_reviewed_transition_only(self):
++        changed = dict(self.new); changed['host_exclusion.py'] = 'f'*64
++        with self.assertRaisesRegex(SessionError, 'NOT_REVIEWED'):
++            transition(self.old, changed)
++
++    def test_apply_then_explicit_rollback_preserves_exact_dependency_maps(self):
++        self.assertEqual(self.update.apply()['state'], 'installed-not-activated')
++        self.assertEqual(self.adapter.pins, self.new)
++        self.assertEqual(self.update.rollback()['state'], 'rolled-back')
++        self.assertEqual(self.adapter.pins, self.old)
++        before = list(self.adapter.effects)
++        self.update.rollback()
++        self.assertEqual(self.adapter.effects, before)
++
++    def test_foreign_or_unproven_owner_stops_before_source_effects(self):
++        self.adapter.idle = False
++        with self.assertRaisesRegex(SessionError, 'NOT_PROVEN_IDLE'): self.update.apply()
++        self.assertFalse(self.adapter.effects)
++
++    def test_unverified_checkpoint_never_replaces_source(self):
++        self.adapter.checkpoint_ok = False
++        with self.assertRaisesRegex(SessionError, 'CHECKPOINT_UNVERIFIED'): self.update.apply()
++        self.assertFalse(self.adapter.effects)
++
++    def test_import_failure_rolls_back_once_and_does_not_retry_apply(self):
++        self.adapter.imports_ok = False
++        self.assertEqual(self.update.apply()['state'], 'failed-rolled-back')
++        self.assertEqual(self.adapter.pins, self.old)
++        with self.assertRaisesRegex(SessionError, 'ATTEMPT_ALREADY_EXISTS'): self.update.apply()
++        self.assertEqual(len([x for x in self.adapter.effects if x[0] == 'replace']), 2)
++
++    def test_new_process_object_rolls_back_death_after_each_replacement(self):
++        for name in CHANGED:
++            with self.subTest(name=name), tempfile.TemporaryDirectory() as directory:
++                store = SessionStore(Path(directory)/'update')
++                adapter = FakeSource(self.old, self.new); adapter.crash_after = name
++                update = SourceUpdate(store, adapter, self.old, self.new)
++                with self.assertRaises(SystemExit): update.apply()
++                replacement = SourceUpdate(store, adapter, self.old, self.new)
++                self.assertEqual(replacement.rollback()['state'], 'rolled-back')
++                self.assertEqual(adapter.pins, self.old)
++
++    def test_unknown_peer_bytes_are_retained_not_overwritten(self):
++        self.update.apply()
++        self.adapter.pins[CHANGED[0]] = 'f'*64
++        before = list(self.adapter.effects)
++        with self.assertRaisesRegex(SessionError, 'UNKNOWN_BYTES_RETAINED'): self.update.rollback()
++        self.assertEqual(self.adapter.effects, before)
++        self.assertEqual(self.adapter.pins[CHANGED[0]], 'f'*64)
++
++    def test_checkpoint_corruption_blocks_rollback_without_effect(self):
++        self.update.apply(); self.adapter.checkpoint_ok = False
++        before = list(self.adapter.effects)
++        with self.assertRaisesRegex(SessionError, 'CHECKPOINT_UNVERIFIED'): self.update.rollback()
++        self.assertEqual(self.adapter.effects, before)
++
++    def test_plan_tampering_blocks_rollback(self):
++        self.update.apply()
++        self.store.write('plan.json', {'schema': 'untrusted'})
++        with self.assertRaisesRegex(SessionError, 'PLAN_DRIFT'): self.update.rollback()
++
++    def test_rollback_rechecks_idle_and_rejects_truthy_nonproof(self):
++        self.update.apply()
++        before = list(self.adapter.effects)
++        for idle in (False, 'ready', 1):
++            self.adapter.idle = idle
++            with self.assertRaisesRegex(SessionError, 'NOT_PROVEN_IDLE'): self.update.rollback()
++        self.assertEqual(self.adapter.effects, before)
++
++    def test_malformed_journal_retains_sources(self):
++        self.update.apply()
++        state = self.store.read('update.json'); state['checkpoint_sha256'] = 'not-a-digest'
++        self.store.write('update.json', state)
++        before = list(self.adapter.effects)
++        with self.assertRaisesRegex(SessionError, 'JOURNAL_INVALID'): self.update.rollback()
++        self.assertEqual(self.adapter.effects, before)
++
++    def test_initial_unrelated_source_drift_prevents_any_replacement(self):
++        self.adapter.pins['host_exclusion.py'] = 'f'*64
++        with self.assertRaisesRegex(SessionError, 'DEPENDENCY_DRIFT'): self.update.apply()
++        self.assertFalse(self.adapter.effects)
++
++    def test_uncertain_partial_journal_is_retained_and_blocks_further_effects(self):
++        self.update.apply()
++        partial = self.store.root/'update.json.next'
++        partial.write_bytes(b'synthetic interrupted journal write')
++        before = list(self.adapter.effects)
++        with self.assertRaises(FileExistsError): self.update.rollback()
++        self.assertEqual(self.adapter.effects, before)
++        self.assertEqual(partial.read_bytes(), b'synthetic interrupted journal write')
++
++
++if __name__ == '__main__': unittest.main()
+-- 
+2.50.1 (Apple Git-155)
+
