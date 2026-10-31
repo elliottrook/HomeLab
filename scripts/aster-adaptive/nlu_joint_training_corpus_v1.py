@@ -10,6 +10,7 @@ from collections import Counter
 import hashlib
 import json
 import re
+import unicodedata
 
 import nlu_whole_label_choice_v1 as ontology
 from nlu_threshold_policy import decode_unique_json
@@ -19,6 +20,7 @@ SCHEMA = "aster-nlu-j1-training-corpus.v1"
 DATA_CLASS = "synthetic"
 EVIDENCE_CLASS = "preregistered-training"
 AUTHORITY = "not-granted"
+CUSTODIAN = "stream-a-nlu-j1-corpus-custodian-v1"
 TRAIN_PER_LABEL = 20
 VALIDATION_PER_LABEL = 5
 CASE_ID = re.compile(r"j1-(train|validation)-[a-z0-9-]{6,80}\Z")
@@ -31,7 +33,7 @@ def sha256(raw: bytes) -> str:
 def normalized_text(text: str) -> str:
     if not isinstance(text, str) or not text.strip() or len(text.encode()) > 4096:
         raise ValueError("invalid J1 request text")
-    return " ".join(re.findall(r"[a-z0-9]+", text.casefold()))
+    return " ".join(unicodedata.normalize("NFKC", text).casefold().split())
 
 
 def ontology_sha256() -> str:
@@ -70,12 +72,13 @@ def validate_corpus(raw: bytes, references: dict[str, bytes]) -> dict[str, objec
         raise ValueError("J1 corpus must be unique-key UTF-8 JSON") from exc
     if not isinstance(value, dict) or set(value) != {
         "schema", "data_class", "evidence_class", "ontology_sha256",
-        "authority", "cases",
+        "custodian", "authority", "cases",
     }:
         raise ValueError("J1 corpus fields must match the fixed schema")
     if (value["schema"] != SCHEMA or value["data_class"] != DATA_CLASS
             or value["evidence_class"] != EVIDENCE_CLASS
             or value["ontology_sha256"] != ontology_sha256()
+            or value["custodian"] != CUSTODIAN
             or value["authority"] != AUTHORITY):
         raise ValueError("J1 corpus metadata differs")
     if not isinstance(references, dict) or not references:

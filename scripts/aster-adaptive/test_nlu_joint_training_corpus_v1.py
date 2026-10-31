@@ -32,6 +32,7 @@ def value():
         "data_class": corpus.DATA_CLASS,
         "evidence_class": corpus.EVIDENCE_CLASS,
         "ontology_sha256": corpus.ontology_sha256(),
+        "custodian": corpus.CUSTODIAN,
         "authority": corpus.AUTHORITY,
         "cases": cases,
     }

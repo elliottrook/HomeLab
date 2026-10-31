@@ -76,10 +76,11 @@ any authority other than `not-granted`. Its output is content-free digests,
 counts and reference bindings only.
 
 - validator SHA-256:
-  `8d84e33665057c381051871968de932a88b6e1a6a38989a0ecd8ecf71527f4c4`;
+  `72074dfc7701a2175e7ee4e3a9334833a976d47c108b8ead5ac82098c7db0026`;
 - test SHA-256:
-  `ee820c30fa6d5c3a494b4f89791cbce1364550b88a08b1b558eedd98d0a5fac4`;
-- focused plus inherited ontology/guard/policy result: 31/31 tests pass.
+  `099139c3caa39fc26601cda830c620a180524c2fa8011acf53c529d36883b49d`;
+- the exact corpus includes the fixed custodian role and uses the same NFKC,
+  case-fold and whitespace normalization as every prior calibration receipt.
 
 The validator deliberately accepts reference bytes as inputs rather than
 silently using a hard-coded subset. The eventual corpus release must enumerate
@@ -103,3 +104,28 @@ must remain unopened.
 This makes the next gate precise: a corpus custodian may create the 400-case
 draft, but training cannot begin until a distinct reviewer produces all seven
 valid receipts and the labels themselves receive independent review.
+
+## Custodian draft completed
+
+The corpus custodian has now created the exact deterministic 400-case draft:
+
+- draft SHA-256:
+  `b736f0a94125e3b05238d9a54d2d6bdf107005f047c4b120cc43cbf1bf8fcefa`;
+- normalized text-set SHA-256:
+  `4cd89f296e1c2c5bd5484a6978f9de59b28f8befd407e84405a9e9a9339c1b6e`;
+- ontology SHA-256:
+  `aa603ab746a1250c8f2089b54e1a3e5b29fc3d01cb3c988bacc198a968bbea44`;
+- 320 training and 80 validation cases, exactly 20/5 per coherent label;
+- zero normalized overlap with the 24-case public development fixture;
+- authority remains `not-granted`.
+
+The generator SHA-256 is
+`8743f13078c6c3d4b1a46db60b475188c767168767d21b7f69b7525f9758fd98`
+and its test SHA-256 is
+`4fdeb394c261133849e7b1500406d58a96c045bd93715387e1f1a86709130351`.
+The combined corpus, draft, receipt, ontology, guard and policy suite passes
+39/39 tests.
+
+This remains a draft. The custodian cannot self-review its labels or issue the
+seven independent private-corpus non-overlap receipts. No training recipe or
+model artifact may be frozen until both independent checks pass.
