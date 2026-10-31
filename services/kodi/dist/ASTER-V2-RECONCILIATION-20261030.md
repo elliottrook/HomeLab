@@ -134,3 +134,10 @@ keeps the same 577 installed snapshot bytes but enhances the promoter to save,
 reapply and verify all five audio-route settings after Kodi is ready, including
 the rollback path. This prevents replay/recovery from silently reproducing the
 known HDMI-startup regression.
+
+The immutable r19 recovery archive has SHA-256
+`40acbb064c7fc067469ca96fa9070e465f6dbd80b2be5a7f653c131f37056833`
+and is staged on production at
+`/storage/.aster-staging/astertv-v2.0.7-production-2026-10-30-r19.tar.gz`.
+It was not executed and production was not restarted after the audible route
+was restored.
