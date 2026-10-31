@@ -403,3 +403,35 @@ ribbon and requires both left-aligned below-art labels. The complete release
 gate passes across all 577 files and two builds are byte-identical. Package:
 `astertv-v2.0.7-production-2026-10-31-r49.tar.gz`; SHA-256
 `e583db6a76327a46c71aa61723f82d13a1962fae9c38c9463c1308a355b160bb`.
+
+### Final dual-target release and identities
+
+The final release preserves the accepted r49 UI and all 577 hash-pinned files,
+then adds the approved balanced media-art screensaver. It rotates evenly across
+TV Shows, Movies, Archive TV and Archive Movies so the larger archive cannot
+dominate, chooses random Kodi artwork within each source, changes every 18
+seconds and keeps a fixed AsterTV mark at bottom right. Playback, Home timers,
+cameras, household status, credentials and sound remain outside the saver.
+
+The identical snapshot was installed on both targets under checkpoints
+`/storage/.aster-checkpoints/astertv-v2.0.7-release-20261031-family` and
+`/storage/.aster-checkpoints/astertv-v2.0.7-release-20261031-bedroom`. The OS,
+Kodi device and restricted Books marker identities were then atomically changed
+under `/storage/.aster-checkpoints/astertv-identity-release-20261031`:
+
+- AsterTV Family: `AsterTV-Family`, 192.168.1.157
+- AsterTV Bedroom: `AsterTV-Bedroom`, 192.168.1.140
+
+Bedroom initially rejected unsupported passthrough codec settings before any
+checkpoint or Kodi stop. The corrected target-aware installer now preserves
+only settings Bedroom exposes while requiring Family's complete release audio
+contract. The identity reboot also demonstrated that merely disabling
+PulseAudio does not survive Kodi's D-Bus activation: Family briefly fell back
+to generic/HDMI 1. The bounded repair at
+`/storage/.aster-checkpoints/astertv-family-pulse-mask-release-20261031`
+restored HDMI 0 and persistently masked PulseAudio; the final promoter carries
+the same behaviour and rollback of the prior mask state. The complete 21-test
+suite, focused Genre/Resume/screensaver gates and dual-host post-reboot checks
+passed. The deterministic final archive is
+`astertv-v2.0.7-release-2026-10-31.tar.gz`; SHA-256
+`e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7`.

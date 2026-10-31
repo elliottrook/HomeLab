@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="screensaver.asterhome.v2lab" name="AsterTV media screensaver" version="0.2.0" provider-name="Aster">
+    <requires><import addon="xbmc.python" version="3.0.0" /></requires>
+    <extension point="xbmc.ui.screensaver" library="default.py" />
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">Balanced AsterTV media-library artwork presentation</summary>
+        <description lang="en_GB">Random fanart from TV Shows, Movies, Archive TV and Archive Movies with an AsterTV mark. No playback, cameras, household data, clock or sound.</description>
+        <platform>all</platform>
+    </extension>
+</addon>

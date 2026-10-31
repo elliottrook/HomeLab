@@ -1,10 +1,11 @@
 # AsterTV v2.0.7 release
 
-The authoritative production release is
-`dist/astertv-v2.0.7-production-2026-10-31-r49.tar.gz`. It preserves the complete
-accepted v2 snapshot and reconciles the production Search/movie-return, Aster
-busy mark, Settings/screensaver, exclusive HDMI passthrough, HDR and Aster-style
-Resume prompt fixes.
+The authoritative dual-target release is
+`dist/astertv-v2.0.7-release-2026-10-31.tar.gz`. It preserves the complete
+accepted v2 snapshot and reconciles Search/movie return, Aster busy mark,
+Settings/screensaver, Family exclusive-HDMI passthrough, HDR and the Aster-style
+Resume prompt. Its named targets are **AsterTV Family** (`AsterTV-Family`,
+192.168.1.157) and **AsterTV Bedroom** (`AsterTV-Bedroom`, 192.168.1.140).
 
 The unpacked, reviewable final reconciliation is in `astertv-v2/reconciliation`.
 It includes the bounded installer, hash-pinned payload, physical G20 keymap and
@@ -20,10 +21,11 @@ PYTHONPYCACHEPREFIX=/tmp/astertv-pycache \
 
 The gate fails if a payload byte, manifest hash, release archive, keymap route,
 hero/fade invariant, stone-icon scope, dispatcher ordering or exclusive-HDMI
-contract changes. The production promoter refuses active playback, checkpoints
-every changed file and prior audio/service state, validates expected hashes and
-restores add-ons, PulseAudio state and audio settings on rollback. The v1.1.1
-add-on baseline remains in the production checkpoint for rollback.
+contract changes. The target-aware promoter refuses active playback, checkpoints
+every changed file and prior audio/service state, validates expected hashes,
+preserves Bedroom stereo, and applies Family's accepted HDMI passthrough profile
+with PulseAudio persistently masked. Rollback restores add-ons, PulseAudio state
+and audio settings. The v1.1.1 add-on baseline remains in the Family checkpoint.
 
 ## Physical OK regression fixed in r8
 
@@ -123,3 +125,19 @@ the artwork and are left-aligned. r49 pins that accepted arrangement while
 preserving the r48 navigation and activation routes. Its deterministic archive
 SHA-256 is
 `e583db6a76327a46c71aa61723f82d13a1962fae9c38c9463c1308a355b160bb`.
+
+## Final v2 release
+
+The accepted r49 interface is reconciled with the balanced media-art
+screensaver. The saver samples TV Shows, Movies, Archive TV and Archive Movies
+in round-robin source order, selects random artwork within each source and
+places the AsterTV mark at bottom right. It never uses cameras, household data,
+credentials or sound, and yields to playback and Home timers.
+
+The same 577-file snapshot is installed on AsterTV Family and AsterTV Bedroom.
+The installer is target-aware: Family receives the verified HDMI 0 Dolby/HDR
+profile and a persistent PulseAudio mask; Bedroom retains its supported stereo
+settings. Both use a 24-hour clock, the Aster screensaver and the new advertised
+device names. Identity and deployment changes have separate checkpoints. The
+deterministic final archive SHA-256 is
+`e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7`.
