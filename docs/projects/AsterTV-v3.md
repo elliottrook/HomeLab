@@ -1,7 +1,7 @@
 # AsterTV v3
 
-> Status: Active — Stream A page-redesign pilot on the Mac mini; PA0 in
-> progress, isolated production-version Kodi running in verified portable mode
+> Status: Active — Stream A page-redesign pilot on the Mac mini; PA0 complete,
+> PA1 in progress on isolated production-version Kodi in verified portable mode
 >
 > Project owner: Jason
 >
@@ -375,14 +375,14 @@ forward.
   provenance evidence. The macOS ARM artifact is
   `kodi-22.0-Piers_rc1-arm64.dmg`, official SHA-256
   `5f50e35df66fdac2eb10b2915249d6ec8230da19833f1f00068200a744341e5b`.
-- [ ] Reconfirm Bedroom's Kodi build when it is reachable and stop if it
+- [x] Reconfirm Bedroom's Kodi build when it is reachable and stop if it
   materially differs from Family's 22.0 RC1 release contract.
 - [x] Install it in a dedicated user-writable pilot location and create a
   launch wrapper that asserts portable mode and the expected `portable_data`
   path before execution.
-- [ ] Seed only accepted v2.0.7 Aster-owned code/assets plus synthetic fixture
+- [x] Seed only accepted v2.0.7 Aster-owned code/assets plus synthetic fixture
   data; do not copy the retained Mini profile or any deployed credential.
-- [ ] Record an inventory/hash comparison proving the retained Mini profile was
+- [x] Record an inventory/hash comparison proving the retained Mini profile was
   unchanged.
 
 Gate: a disposable, credential-free Kodi 22.0 RC1 pilot starts independently on the
@@ -833,6 +833,8 @@ explicit user acceptance.
 | 2026-10-31 | Installed isolated Mini pilot runtime | Verified official DMG SHA-256 and Kodi Foundation Developer ID signature; installed macOS ARM `22.0.rc1` only at `~/Applications/AsterTV-v3-Pilot/Kodi.app`; prepared dedicated `portable_data` with the v2.0.7-derived pilot skin and guarded `-p` launcher | Application is installed but not launched; no credential or live integration was copied |
 | 2026-10-31 | Captured retained-profile integrity baseline | Retained Aster skin file-set digest `5bdc6b5c…63cfe`; retained profile, skin and log timestamps remain 2026-10-13, 2026-10-19 and 2026-10-29 respectively | Recompute after each launch/milestone; any change blocks the pilot and triggers rollback analysis |
 | 2026-10-31 | First isolated pilot launch | Process command is the dedicated app binary with `-p`; Kodi log reports 22.0 RC1 and maps `special://home` to the app bundle's `portable_data`; retained-profile digest and timestamps are unchanged | Portable isolation passed; Kodi loaded Estuary initially, and visual activation of the v3 pilot skin is waiting for the locked Mini to be unlocked |
+| 2026-10-31 | Reconfirmed Bedroom runtime | Read-only SSH using the already accepted ED25519 key reports LibreELEC nightly `20261021-440640e` and Kodi 22.0 RC1 (`21.90.901`), Git `01d4146d…` | Bedroom and Family share the release/build contract; no target was changed |
+| 2026-10-31 | Activated credential-free v3 pilot skin | Enabled only `skin.asterhome.v3pilot` in the dedicated portable profile; Kodi rendered the accepted v2.0.7-derived Media shell without live content or credentials; retained Mini skin digest remains `5bdc6b5c…63cfe` | PA0 gate passed; removed the pilot debug overlay and started PA1 shared-page language work |
 
 ## Close-out
 

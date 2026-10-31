@@ -36,5 +36,11 @@ evidence and must not be copied, modified or treated as the v3 baseline.
 
 Run `./run-mini-pilot.sh` from this directory. The script opens a new Kodi
 instance with `-p` only after validating the application, release, marker and
-portable-data boundary.
+portable-data boundary. On a freshly prepared profile, run
+`./activate-mini-pilot.sh` after Kodi reaches Estuary. The activation helper
+first proves the live `special://home` mapping from Kodi's own log, then enables
+and selects only the pilot skin through local Kodi JSON-RPC.
+
+Never launch the application directly. Direct launch omits `-p` and is outside
+the pilot boundary.
 
