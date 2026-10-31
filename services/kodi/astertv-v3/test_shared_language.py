@@ -96,8 +96,9 @@ class SharedLanguageTests(unittest.TestCase):
         text = YOUTUBE_PAGE.read_text()
         for label in ("Search", "Subscriptions", "For You", "Watch Later", "My Channel", "Back"):
             self.assertIn(f"<label>{label}</label>", text)
-        for icon in ("aster-compass-128.png", "play-next.png", "aster-icon-128.png", "sleep.png", "33-aster-youtube-128.png", "back.png"):
-            self.assertIn(icon, text)
+        self.assertEqual(text.count("special://skin/media/aster-compass-128.png"), 5)
+        self.assertIn("<include>AsterV3MediaSearchPill</include>", text)
+        self.assertEqual(text.count("<include>AsterV3MediaPill</include>"), 5)
 
         for title in ("A cinematic 16:9 card", "Titles sit on the card", "Focus lifts, never dims", "Rounded artwork and depth"):
             self.assertIn(f"<label>{title}</label>", text)
@@ -118,6 +119,14 @@ class SharedLanguageTests(unittest.TestCase):
             ratio = int(node.findtext("width")) / int(node.findtext("height"))
             self.assertAlmostEqual(ratio, 16 / 9, delta=0.02)
             self.assertEqual(node.find("texture").attrib.get("border"), "20")
+
+        hero_art = [
+            node
+            for node in page.findall(".//control[@type='image']")
+            if node.findtext("left") == "36" and node.findtext("width") == "390"
+        ]
+        self.assertEqual(len(hero_art), 1)
+        self.assertNotIn("AsterYouTubeHeroArt", text)
 
 
 if __name__ == "__main__":
