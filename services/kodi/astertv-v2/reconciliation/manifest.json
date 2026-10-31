@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "release": "astertv-v2.0.6-lab-acceptance-reconciled-2026-10-30-r16",
+  "release": "astertv-v2.0.6-lab-acceptance-reconciled-2026-10-30-r17",
   "target": "AsterTV lab only (192.168.1.140)",
   "production_changed": false,
   "apply_order": [
@@ -210,6 +210,13 @@
     "books_search": "Books Search now uses the same translucent gold trim as Media rather than its former opaque page-specific gold.",
     "scope": "Music was audited but not altered because its header has Clock and rail without the same Search control.",
     "live_validation": "Installed News and Books captures verified matching trim and uniform stone-icon opacity; the News list selection opened the digest player and audio was stopped before handoff."
+  },
+  "acceptance_r17": {
+    "books_expanded_rail": "The shared Books rail is rendered after the complete Books content group, so headings and covers cannot draw through Requests or Settings while the rail is expanded.",
+    "acquisition_collapsed_rail": "The acquisition page renders the shared rail after its hero/results group, keeping all seven collapsed stone icons above the hero fade.",
+    "acquisition_expanded_rail": "The expanded Requests rail remains unobscured and retains its existing focus and route controls.",
+    "scope": "The final live state retains the canonical shared IncludesHub and custom_1132 Seerr detail bytes; intermediate no-op layering experiments were reverted before packaging.",
+    "live_validation": "Direct installed captures verified expanded Books, collapsed Requests and expanded Requests with no active player or XML load errors."
   },
   "known_remaining": "Owner acceptance remains for a visible watched tick, Seerr visual recheck and the physical spoken voice phrase. Production is unchanged."
 }

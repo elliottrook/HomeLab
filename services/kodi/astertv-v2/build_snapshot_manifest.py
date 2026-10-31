@@ -16,7 +16,7 @@ for path in sorted(candidate for candidate in args.snapshot.rglob('*') if candid
     files.append({'path':str(path.relative_to(args.snapshot)),'bytes':len(data),
                   'sha256':hashlib.sha256(data).hexdigest()})
 manifest={'schema':1,'release':args.release,'target':'HP AsterTV lab, 192.168.1.140',
-          'source_git_ref':'main','source_commit':'local-r16-reconciliation',
-          'snapshot_source':'Installed Aster-owned Kodi addon and skin directories, captured from live lab after r16 shared header and rail repair',
+          'source_git_ref':'main','source_commit':'local-r17-reconciliation',
+          'snapshot_source':'Installed Aster-owned Kodi addon and skin directories, captured from live lab after r17 Books and Requests rail layering repair',
           'credentials_included':False,'Kodi profile/addon_data included':False,'files':files}
 args.output.write_text(json.dumps(manifest,indent=2,sort_keys=False)+'\n')

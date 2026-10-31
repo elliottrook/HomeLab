@@ -1,7 +1,7 @@
 # AsterTV v2 lab release
 
 The authoritative preserved lab candidate is
-`dist/astertv-v2-lab-reconciled-2026-10-30-r16.tar.gz`. Production remains on
+`dist/astertv-v2-lab-reconciled-2026-10-30-r17.tar.gz`. Production remains on
 the stable v1.1.1 release and is not changed by this record.
 
 The unpacked, reviewable final reconciliation is in `astertv-v2/reconciliation`.
@@ -50,6 +50,14 @@ chrome after its hero/content layers so the upper rail icons are no longer
 washed out; Books no longer uses a separate opaque Search gold. Media and Smart
 Home were hash-verified as already conforming. Music retains its own header
 because it does not expose the same three-control pattern.
+
+## Books and Requests rail layering repair in r17
+
+Books and the acquisition page now render the unchanged shared stone rail after
+their page content groups. This prevents Books rows from drawing through an
+expanded rail and prevents the Requests hero fade from washing out the upper
+collapsed icons. Both collapsed and expanded states were captured directly on
+the lab; Requests data, controls and routes are unchanged.
 
 See `dist/ASTER-V2-RECONCILIATION-20261030.md` for the full repair record and
 `dist/ASTER-V2-PROMPT-RECONCILIATION-20261030.md` for the prompt-by-prompt audit.

@@ -74,3 +74,7 @@ The superseding `astertv-v2-lab-reconciled-2026-10-30-r15.tar.gz` explicitly cen
 ## r16 shared Clock/Search/rail treatment
 
 The superseding `astertv-v2-lab-reconciled-2026-10-30-r16.tar.gz` makes the three shared chrome elements identical on every page where Clock, Search and rail appear together. News moves those elements above the digest artwork/fades, correcting the washed-out upper side-rail icons. Books Search now uses Media's translucent gold outline. Media and Smart Home were hash-gated and already conformed; Music has no equivalent top Search control and was not changed. Direct lab captures verified News and Books, and News selection/audio remained functional with playback stopped after the bounded check. Production remains unchanged.
+
+## r17 Books and Requests rail layering
+
+The superseding `astertv-v2-lab-reconciled-2026-10-30-r17.tar.gz` fixes the photographed Books-to-Requests overlay by rendering the shared rail after the Books content group. It also fixes the actual acquisition window (`custom_1133_acquisition.xml`), whose hero fade obscured the upper collapsed rail icons. Direct captures verified expanded Books and both collapsed and expanded Requests; recommendations remained visible, no player was active, and diagnostic changes to unrelated Seerr/shared files were reverted before packaging. Production remains unchanged.
