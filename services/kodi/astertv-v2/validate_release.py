@@ -12,10 +12,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parents[2]
-ARCHIVE = REPO / "services/kodi/dist/astertv-v2.0.7-production-2026-10-31-r47.tar.gz"
+ARCHIVE = REPO / "services/kodi/dist/astertv-v2.0.7-production-2026-10-31-r48.tar.gz"
 SIDECAR = ARCHIVE.with_suffix(ARCHIVE.suffix + ".sha256")
 PREFIX = "aster-v2-package/"
-RELEASE = "astertv-v2.0.7-production-2026-10-31-r47"
+RELEASE = "astertv-v2.0.7-production-2026-10-31-r48"
 SPLASH_SHA = "912228f3866b33749905eb8154b470d3170fe4747f92799811470bb49b986cce"
 
 
@@ -70,6 +70,7 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
         return member(bundle, "lab-addon-snapshot/" + path).decode()
 
     music = addon("skin.asterhome/1080i/IncludesMusic.xml")
+    shared_includes = addon("skin.asterhome/1080i/Includes.xml")
     requests = addon("skin.asterhome/1080i/custom_1132_requests.xml")
     acquisition = addon("skin.asterhome/1080i/custom_1133_acquisition.xml")
     dispatcher = addon("skin.asterhome/tools/select_dispatch.py")
@@ -180,6 +181,19 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
         assert legacy not in resume
     assert family["skin"]["1080i/DialogContextMenu.xml"] == sha(resume.encode())
 
+    # Genre artwork remains full-colour while its row is distinguished by a
+    # sage edge and charcoal ribbon; focus changes only the edge to gold.
+    shared_root = ET.fromstring(shared_includes)
+    genre = shared_root.find("./include[@name='AsterGenreTile']")
+    assert genre is not None
+    genre_xml = ET.tostring(genre, encoding="unicode")
+    assert "48f2ede4" not in genre_xml
+    assert "asterSage" in genre_xml and "asterGold" in genre_xml
+    assert "d029302b" in genre_xml and "f029302b" in genre_xml
+    assert genre_xml.count("$VAR[AsterPosterArt]") == 2
+    assert genre_xml.count("ActivateWindow(Videos,$PARAM[browse],return)") == 1
+    assert family["skin"]["1080i/Includes.xml"] == sha(shared_includes.encode())
+
     promoter_text = promoter.decode()
     for guard in ('AsterTVProd', 'require_idle()', 'credentials_or_addon_data_touched',
                   'audio_settings_before', 'restore_audio_settings(saved_audio)',
@@ -214,6 +228,7 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
         "reconciliation/apply_production_alsa_exclusive_r44_trial.py",
         "reconciliation/apply_production_alsa_exclusive_r45_trial.py",
         "reconciliation/test_production_resume_dialog_r47.py",
+        "reconciliation/test_production_genre_art_r48.py",
         "reconciliation/payload/home-delivery/delivery.py",
     ):
         data = member(bundle, path)
@@ -223,4 +238,4 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
 
 subprocess.run([sys.executable, "-m", "py_compile",
                 str(ROOT / "reconciliation/promote_v207_to_production.py")], check=True)
-print("AsterTV v2.0.7 r47 release gate passed: 577 files, Aster Resume prompt, Search/movie return, HDR/Dolby HDMI, Settings, busy logo, Aster saver, XML/Python and rollback verified")
+print("AsterTV v2.0.7 r48 release gate passed: 577 files, full-colour Genre art, Aster Resume prompt, Search/movie return, HDR/Dolby HDMI, Settings, busy logo, Aster saver, XML/Python and rollback verified")

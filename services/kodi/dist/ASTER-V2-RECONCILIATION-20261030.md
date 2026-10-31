@@ -373,3 +373,21 @@ and the added Resume gate pass; all 577 snapshot entries compile and hash-match.
 The deterministic r47 archive was reproduced byte-for-byte. Package:
 `astertv-v2.0.7-production-2026-10-31-r47.tar.gz`; SHA-256
 `d979a42fca62fac3dac00a456b4790229c5907f9636942cc4cee6ee46f1cd226`.
+
+### Media Genre artwork — r48
+
+The Genre row's unfocused poster layout placed a translucent ivory panel over
+the complete image (`48f2ede4`), creating the accepted-but-washed-out visual
+difference from the rows above. r48 removes that image-wide wash. Both focused
+and unfocused posters retain full source colour through the existing rounded
+poster mask; unfocused tiles use the thin shared sage ring, focused tiles use
+gold, and a compact charcoal ribbon carries the genre name in ivory. The
+focused ribbon becomes slightly more opaque without changing artwork colour.
+
+The focused gate preserves the Genre panel ID, preview plug-in path, Browse
+action and all four directional routes while rejecting the former tint and
+requiring both edge/ribbon states. The prior 21-test reconciliation suite and
+r47 Resume gate still pass. The 577-file release gate passes and two builds are
+byte-identical. Package: `astertv-v2.0.7-production-2026-10-31-r48.tar.gz`;
+SHA-256
+`76b8fc4a3171013250a5088b3ced777940d5cfb0637f3eeba9794a7be3e6ac5a`.

@@ -1,7 +1,7 @@
 # AsterTV v2.0.7 release
 
 The authoritative production release is
-`dist/astertv-v2.0.7-production-2026-10-31-r47.tar.gz`. It preserves the complete
+`dist/astertv-v2.0.7-production-2026-10-31-r48.tar.gz`. It preserves the complete
 accepted v2 snapshot and reconciles the production Search/movie-return, Aster
 busy mark, Settings/screensaver, exclusive HDMI passthrough, HDR and Aster-style
 Resume prompt fixes.
@@ -104,3 +104,13 @@ pins the geometry, palette, control orientation, family-manifest hash and
 absence of the abandoned full-screen dimensions. The deterministic r47 archive
 SHA-256 is
 `d979a42fca62fac3dac00a456b4790229c5907f9636942cc4cee6ee46f1cd226`.
+
+## Full-colour Genre artwork in r48
+
+Media Genre posters no longer carry the translucent ivory overlay that made
+them look washed out. Their artwork remains full colour and is distinguished
+with a persistent thin sage edge and charcoal title ribbon; focus changes the
+edge to gold and strengthens the ribbon. Panel IDs, preview sources, Browse
+actions and directional navigation are unchanged and regression-pinned. The
+deterministic r48 archive SHA-256 is
+`76b8fc4a3171013250a5088b3ced777940d5cfb0637f3eeba9794a7be3e6ac5a`.

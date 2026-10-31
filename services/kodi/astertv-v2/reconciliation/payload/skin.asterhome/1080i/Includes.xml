@@ -225,13 +225,15 @@
                 <onclick>ActivateWindow(Videos,$PARAM[browse],return)</onclick>
                 <itemlayout width="240" height="360">
                     <control type="image"><left>15</left><top>8</top><width>210</width><height>315</height><texture background="true" diffuse="special://skin/media/ui-poster-mask.png">$VAR[AsterPosterArt]</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
-                    <control type="image"><left>15</left><top>8</top><width>210</width><height>315</height><texture border="28" colordiffuse="48f2ede4">special://skin/media/ui-panel.png</texture></control>
-                    <control type="label"><left>15</left><top>330</top><width>210</width><height>30</height><label>$PARAM[label]</label><font>font20</font><textcolor>asterInk</textcolor><align>center</align><aligny>center</aligny></control>
+                    <control type="image"><left>15</left><top>8</top><width>210</width><height>315</height><texture colordiffuse="asterSage">special://skin/media/ui-poster-ring.png</texture></control>
+                    <control type="image"><left>21</left><top>269</top><width>198</width><height>48</height><texture border="18" colordiffuse="d029302b">special://skin/media/ui-panel.png</texture></control>
+                    <control type="label"><left>31</left><top>274</top><width>178</width><height>38</height><label>$PARAM[label]</label><font>font18</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny><truncate>true</truncate></control>
                 </itemlayout>
                 <focusedlayout width="240" height="360">
                     <control type="image"><left>15</left><top>8</top><width>210</width><height>315</height><texture background="true" diffuse="special://skin/media/ui-poster-mask.png">$VAR[AsterPosterArt]</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
-                    <control type="image"><left>15</left><top>8</top><width>210</width><height>315</height><texture colordiffuse="asterSage">special://skin/media/ui-poster-ring.png</texture></control>
-                    <control type="label"><left>15</left><top>330</top><width>210</width><height>30</height><label>$PARAM[label]</label><font>font20</font><textcolor>asterInk</textcolor><align>center</align><aligny>center</aligny></control>
+                    <control type="image"><left>15</left><top>8</top><width>210</width><height>315</height><texture colordiffuse="asterGold">special://skin/media/ui-poster-ring.png</texture></control>
+                    <control type="image"><left>21</left><top>269</top><width>198</width><height>48</height><texture border="18" colordiffuse="f029302b">special://skin/media/ui-panel.png</texture></control>
+                    <control type="label"><left>31</left><top>274</top><width>178</width><height>38</height><label>$PARAM[label]</label><font>font18</font><textcolor>asterIvory</textcolor><align>center</align><aligny>center</aligny><truncate>true</truncate></control>
                 </focusedlayout>
                 <content target="videos">$PARAM[preview]</content>
             </control>
