@@ -123,6 +123,10 @@ class SharedLanguageTests(unittest.TestCase):
         self.assertIsNotNone(art_title_tile)
         self.assertGreaterEqual(int(art_title_tile.findtext("height", "0")), 294)
         self.assertEqual(art_title_tile.find("texturefocus").attrib["colordiffuse"], "asterSageGlass")
+        self.assertEqual(
+            art_title_tile.findtext("texturenofocus"),
+            "special://skin/media/ui-transparent.svg",
+        )
         self.assertEqual(text.count("<include>AsterV3ArtTitleTile</include>"), 4)
         self.assertNotIn("AsterV3YouTubeCard", text)
 
@@ -165,6 +169,11 @@ class SharedLanguageTests(unittest.TestCase):
             self.assertIn(mask, text)
         buttons = {node.attrib["id"]: node for node in page.findall(".//control[@type='button']")}
         self.assertEqual(len(buttons), 5)
+        for button_id in ("11950", "11951", "11952", "11953"):
+            self.assertEqual(
+                buttons[button_id].findtext("texturenofocus"),
+                "special://skin/media/ui-transparent.svg",
+            )
         for button in buttons.values():
             for direction in ("onleft", "onright", "onup", "ondown"):
                 self.assertIn(button.findtext(direction), buttons)

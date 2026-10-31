@@ -29,5 +29,5 @@ if [ "$portable" = "$standard" ] || [ "$portable" = "/" ]; then
   exit 1
 fi
 
-exec /usr/bin/open -n "$app" --args -p
+exec /usr/bin/open "$app" --args -p
 

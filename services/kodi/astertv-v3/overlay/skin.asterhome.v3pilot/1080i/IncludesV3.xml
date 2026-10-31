@@ -63,6 +63,6 @@
         <textoffsetx>18</textoffsetx><textoffsety>14</textoffsety>
         <textcolor>asterV3Text</textcolor><focusedcolor>asterV3Text</focusedcolor>
         <texturefocus border="24" colordiffuse="asterSageGlass">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="24" colordiffuse="asterPaperGlass">special://skin/media/ui-panel.png</texturenofocus>
+        <texturenofocus>special://skin/media/ui-transparent.svg</texturenofocus>
     </include>
 </includes>
