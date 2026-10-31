@@ -50,6 +50,8 @@ ditto "$overlay" "$stage/skin.asterhome.v3pilot"
 for patch_file in "$patches"/*.patch; do
   patch -d "$stage/skin.asterhome.v3pilot" -p1 < "$patch_file"
 done
+python3 "$repo/services/kodi/astertv-v3/apply_art_title_focus.py" \
+  "$stage/skin.asterhome.v3pilot"
 
 xmllint --noout "$stage/skin.asterhome.v3pilot/addon.xml"
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/Home.xml"
@@ -57,6 +59,7 @@ xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/Includes.xml"
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/IncludesV3.xml"
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1190_v3language.xml"
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1191_youtube_rework.xml"
+xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1192_tile_gallery.xml"
 xmllint --noout "$keymap_source"
 
 mkdir -p "$addons" "$portable/userdata/keymaps"

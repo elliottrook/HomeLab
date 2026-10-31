@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="1192">
+    <defaultcontrol always="true">11950</defaultcontrol>
+    <backgroundcolor>asterStone</backgroundcolor>
+    <controls>
+        <control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture>special://skin/media/ui-solid.png</texture><colordiffuse>asterStone</colordiffuse></control>
+        <control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture>special://skin/media/ui-hero-left-fade.png</texture><colordiffuse>asterCharcoal</colordiffuse><aspectratio>stretch</aspectratio></control>
+        <control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture>special://skin/media/ui-hero-bottom-fade.png</texture><colordiffuse>asterStone</colordiffuse><aspectratio>stretch</aspectratio></control>
+        <control type="label"><left>80</left><top>45</top><width>980</width><height>58</height><label>AsterTV art + title selection</label><font>font40</font><textcolor>asterV3Text</textcolor></control>
+        <control type="label"><left>80</left><top>105</top><width>1180</width><height>34</height><label>One translucent sage focus surface · artwork, title and metadata remain a single tile</label><font>font20</font><textcolor>asterGold</textcolor></control>
+        <include content="AsterClockPill" />
+
+        <control type="label"><left>80</left><top>190</top><width>390</width><height>34</height><label>MEDIA · YOUTUBE · NEWS</label><font>font18</font><textcolor>asterMuted</textcolor></control>
+        <control type="button" id="11950"><left>70</left><top>225</top><width>420</width><height>330</height><label></label><font>font20</font><textcolor>00000000</textcolor><focusedcolor>00000000</focusedcolor><texturefocus border="24" colordiffuse="asterSageGlass">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="24" colordiffuse="asterPaperGlass">special://skin/media/ui-panel.png</texturenofocus><onleft>11953</onleft><onright>11951</onright><onup>11954</onup><ondown>11954</ondown></control>
+        <control type="image"><left>90</left><top>245</top><width>380</width><height>214</height><texture background="true" diffuse="special://skin/media/ui-compact-card-mask.png">special://skin/media/fixtures/youtube/aurora-station.png</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
+        <control type="label"><left>95</left><top>475</top><width>370</width><height>34</height><label>Aurora Station</label><font>font22</font><textcolor>asterInk</textcolor><truncate>true</truncate></control>
+        <control type="label"><left>95</left><top>511</top><width>370</width><height>28</height><label>Film · 2028 · 48 min</label><font>font16</font><textcolor>asterMuted</textcolor></control>
+
+        <control type="label"><left>535</left><top>190</top><width>300</width><height>34</height><label>MUSIC</label><font>font18</font><textcolor>asterMuted</textcolor></control>
+        <control type="button" id="11951"><left>520</left><top>225</top><width>330</width><height>390</height><label></label><font>font20</font><textcolor>00000000</textcolor><focusedcolor>00000000</focusedcolor><texturefocus border="24" colordiffuse="asterSageGlass">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="24" colordiffuse="asterPaperGlass">special://skin/media/ui-panel.png</texturenofocus><onleft>11950</onleft><onright>11952</onright><onup>11954</onup><ondown>11954</ondown></control>
+        <control type="image"><left>545</left><top>248</top><width>280</width><height>280</height><texture background="true" diffuse="special://skin/media/ui-album-mask.png">special://skin/media/fixtures/youtube/velvet-hour.png</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
+        <control type="label"><left>548</left><top>545</top><width>274</width><height>34</height><label>Velvet Hour</label><font>font22</font><textcolor>asterInk</textcolor><truncate>true</truncate></control>
+        <control type="label"><left>548</left><top>581</top><width>274</width><height>28</height><label>Aster Sessions · 2028</label><font>font16</font><textcolor>asterMuted</textcolor></control>
+
+        <control type="label"><left>895</left><top>190</top><width>280</width><height>34</height><label>BOOKS · REQUESTS</label><font>font18</font><textcolor>asterMuted</textcolor></control>
+        <control type="button" id="11952"><left>880</left><top>225</top><width>280</width><height>430</height><label></label><font>font20</font><textcolor>00000000</textcolor><focusedcolor>00000000</focusedcolor><texturefocus border="24" colordiffuse="asterSageGlass">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="24" colordiffuse="asterPaperGlass">special://skin/media/ui-panel.png</texturenofocus><onleft>11951</onleft><onright>11953</onright><onup>11954</onup><ondown>11954</ondown></control>
+        <control type="image"><left>915</left><top>247</top><width>210</width><height>315</height><texture background="true" diffuse="special://skin/media/ui-poster-mask.png">special://skin/media/fixtures/youtube/autumn-rail.png</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
+        <control type="label"><left>902</left><top>578</top><width>236</width><height>34</height><label>Rails Through Autumn</label><font>font20</font><textcolor>asterInk</textcolor><truncate>true</truncate></control>
+        <control type="label"><left>902</left><top>614</top><width>236</width><height>28</height><label>Documentary · 52 min</label><font>font16</font><textcolor>asterMuted</textcolor></control>
+
+        <control type="label"><left>1215</left><top>190</top><width>360</width><height>34</height><label>CAST · COLLECTIONS</label><font>font18</font><textcolor>asterMuted</textcolor></control>
+        <control type="button" id="11953"><left>1200</left><top>225</top><width>330</width><height>340</height><label></label><font>font20</font><textcolor>00000000</textcolor><focusedcolor>00000000</focusedcolor><texturefocus border="24" colordiffuse="asterSageGlass">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="24" colordiffuse="asterPaperGlass">special://skin/media/ui-panel.png</texturenofocus><onleft>11952</onleft><onright>11950</onright><onup>11954</onup><ondown>11954</ondown></control>
+        <control type="image"><left>1230</left><top>247</top><width>270</width><height>240</height><texture background="true" diffuse="special://skin/media/ui-album-mask.png">special://skin/media/fixtures/youtube/living-light.png</texture><aspectratio scalediffuse="false">scale</aspectratio></control>
+        <control type="label"><left>1235</left><top>503</top><width>260</width><height>34</height><label>Living Light</label><font>font22</font><textcolor>asterInk</textcolor><truncate>true</truncate></control>
+        <control type="label"><left>1235</left><top>539</top><width>260</width><height>28</height><label>Aster Nature · Collection</label><font>font16</font><textcolor>asterMuted</textcolor></control>
+
+        <control type="button" id="11954"><left>735</left><top>900</top><width>450</width><height>56</height><label>Return to AsterTV Media</label><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterInk</textcolor><focusedcolor>asterInk</focusedcolor><texturefocus border="20" colordiffuse="asterGold">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="20" colordiffuse="asterSageGlass">special://skin/media/ui-panel.png</texturenofocus><onleft>11954</onleft><onright>11954</onright><onup>11950</onup><ondown>11950</ondown><onclick>ActivateWindow(Home)</onclick></control>
+    </controls>
+</window>

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import subprocess
+import shutil
 import tarfile
 import tempfile
 import unittest
@@ -14,15 +15,17 @@ V3 = ROOT / "services/kodi/astertv-v3"
 OVERLAY = V3 / "overlay/skin.asterhome.v3pilot"
 PAGE = OVERLAY / "1080i/custom_1190_v3language.xml"
 YOUTUBE_PAGE = OVERLAY / "1080i/custom_1191_youtube_rework.xml"
+TILE_GALLERY = OVERLAY / "1080i/custom_1192_tile_gallery.xml"
 INCLUDES = OVERLAY / "1080i/IncludesV3.xml"
 COLORS = OVERLAY / "colors/defaults.xml"
 PATCH = V3 / "patches/001-load-v3-includes.patch"
 ARCHIVE = ROOT / "services/kodi/dist/astertv-v2.0.7-release-2026-10-31.tar.gz"
+ART_TITLE_TRANSFORM = V3 / "apply_art_title_focus.py"
 
 
 class SharedLanguageTests(unittest.TestCase):
     def test_xml_is_well_formed(self) -> None:
-        for path in (PAGE, YOUTUBE_PAGE, INCLUDES, COLORS, OVERLAY / "addon.xml"):
+        for path in (PAGE, YOUTUBE_PAGE, TILE_GALLERY, INCLUDES, COLORS, OVERLAY / "addon.xml"):
             with self.subTest(path=path):
                 ET.parse(path)
 
@@ -154,6 +157,45 @@ class SharedLanguageTests(unittest.TestCase):
         ]
         self.assertEqual(len(hero_art), 1)
         self.assertNotIn("AsterYouTubeHeroArt", text)
+
+    def test_tile_gallery_covers_shared_art_shapes_and_focus_graph(self) -> None:
+        page = ET.parse(TILE_GALLERY).getroot()
+        text = TILE_GALLERY.read_text()
+        for mask in ("ui-compact-card-mask.png", "ui-album-mask.png", "ui-poster-mask.png"):
+            self.assertIn(mask, text)
+        buttons = {node.attrib["id"]: node for node in page.findall(".//control[@type='button']")}
+        self.assertEqual(len(buttons), 5)
+        for button in buttons.values():
+            for direction in ("onleft", "onright", "onup", "ondown"):
+                self.assertIn(button.findtext(direction), buttons)
+        self.assertEqual(text.count('colordiffuse="asterSageGlass"'), 5)
+
+    def test_art_title_transform_is_pinned_to_expected_layout_inventory(self) -> None:
+        prefix = "aster-v2-package/lab-addon-snapshot/skin.asterhome/"
+        with tempfile.TemporaryDirectory() as tmp_name:
+            tmp = Path(tmp_name)
+            with tarfile.open(ARCHIVE, "r:gz") as archive:
+                members = [member for member in archive.getmembers() if member.name.startswith(prefix)]
+                archive.extractall(tmp, members=members)
+            source = tmp / prefix
+            skin = tmp / "skin.asterhome.v3pilot"
+            shutil.move(source, skin)
+            completed = subprocess.run(
+                ["python3", str(ART_TITLE_TRANSFORM), str(skin)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+            self.assertIn("14 focused layouts", completed.stdout)
+            surfaces = 0
+            for path in (skin / "1080i").glob("*.xml"):
+                root = ET.parse(path).getroot()
+                for layout in root.iter("focusedlayout"):
+                    for texture in layout.findall("control/texture"):
+                        if texture.attrib.get("colordiffuse") == "asterSageGlass":
+                            surfaces += 1
+            self.assertEqual(surfaces, 14)
 
 
 if __name__ == "__main__":
