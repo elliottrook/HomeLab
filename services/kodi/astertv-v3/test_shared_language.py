@@ -99,6 +99,9 @@ class SharedLanguageTests(unittest.TestCase):
         self.assertEqual(text.count("special://skin/media/aster-compass-128.png"), 5)
         self.assertIn("<include>AsterV3MediaSearchPill</include>", text)
         self.assertEqual(text.count("<include>AsterV3MediaPill</include>"), 5)
+        self.assertIn("<backgroundcolor>asterStone</backgroundcolor>", text)
+        self.assertIn("<colordiffuse>asterStone</colordiffuse>", text)
+        self.assertNotIn("<include>AsterV3PageBackdrop</include>", text)
 
         for title in ("A cinematic 16:9 card", "Titles sit on the card", "Focus lifts, never dims", "Rounded artwork and depth"):
             self.assertIn(f"<label>{title}</label>", text)

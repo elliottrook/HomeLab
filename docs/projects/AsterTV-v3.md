@@ -840,6 +840,7 @@ explicit user acceptance.
 | 2026-10-31 | Corrected PA1 colour direction | Owner rejected the extra blue family; semantic surfaces now use the established Aster black/brown palette, retaining green and gold only for state and focus | Palette regression test rejects the discarded blue values; preserve this constraint across every Stream A page |
 | 2026-10-31 | Reframed Stream A as an Aster page rework | Owner clarified that established page hierarchy and identity should evolve rather than be replaced; YouTube specifically needs 16:9 rounded artwork, icon-bearing pills, separated titles and more visual depth | Built an account-safe F9 YouTube fixture around the accepted hero/rail hierarchy; preserve all accepted v2 routes when the treatment moves to the real page |
 | 2026-10-31 | Locked YouTube rail and hero direction | Owner selected the existing Media top-rail language with plain Aster compass icons and accepted the raised hero card; low-resolution YouTube art must remain a contained thumbnail rather than a full-width backdrop | Fixture now reuses Media rail dimensions/treatments and structurally rejects full-width YouTube hero art |
+| 2026-10-31 | Aligned YouTube canvas with established light pages | Owner selected the lighter white/cream background used elsewhere in AsterTV | YouTube fixture now uses the Aster stone canvas and paper content/cards while retaining the dark rail and raised dark hero for hierarchy |
 
 ## Close-out
 
