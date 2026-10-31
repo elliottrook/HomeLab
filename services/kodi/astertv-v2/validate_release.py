@@ -12,10 +12,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parents[2]
-ARCHIVE = REPO / "services/kodi/dist/astertv-v2.0.7-production-2026-10-30-r18.tar.gz"
+ARCHIVE = REPO / "services/kodi/dist/astertv-v2.0.7-production-2026-10-30-r19.tar.gz"
 SIDECAR = ARCHIVE.with_suffix(ARCHIVE.suffix + ".sha256")
 PREFIX = "aster-v2-package/"
-RELEASE = "astertv-v2.0.7-production-2026-10-30-r18"
+RELEASE = "astertv-v2.0.7-production-2026-10-30-r19"
 SPLASH_SHA = "912228f3866b33749905eb8154b470d3170fe4747f92799811470bb49b986cce"
 
 
@@ -116,7 +116,8 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
 
     promoter_text = promoter.decode()
     for guard in ('AsterTVProd', 'require_idle()', 'credentials_or_addon_data_touched',
-                  'audio_settings_touched', 'verify_installed(rows)', 'systemctl',
+                  'audio_settings_before', 'restore_audio_settings(saved_audio)',
+                  'Settings.SetSettingValue', 'verify_installed(rows)', 'systemctl',
                   'CHECKPOINT', 'Path("/storage/.aster-recovery-required")'):
         assert guard in promoter_text
     assert 'addon_data' in promoter_text and 'SPLASH_SHA' in promoter_text

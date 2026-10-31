@@ -913,3 +913,10 @@ disabled, stale, ambiguous or already owned.
   routes, screensaver and rollback behavior; post-promotion Kodi and Jellyfin
   checks passed. Production YouTube still requires its own one-time sign-in;
   the lab session was not copied.
+- 2026-10-30: The r18 deployment restart reproduced Kodi 22's documented
+  early-start HDMI selector fallback and caused system-wide silence. Playback
+  was idle; the exact explicit HDMI 0 stereo route was restored from the
+  preflight evidence with passthrough left off, and Jason confirmed sound. The
+  r19 recovery package keeps the accepted installed snapshot unchanged but
+  adds post-start save/reapply/verification of all audio-route settings so a
+  future promotion or rollback cannot silently repeat this regression.

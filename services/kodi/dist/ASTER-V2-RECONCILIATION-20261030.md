@@ -114,3 +114,23 @@ official add-on's `authorization_pending` response, was cancelled, and Kodi was
 restarted cleanly to Home. A one-time production YouTube sign-in is therefore
 an explicit owner acceptance item; the lab account/session was deliberately
 not copied.
+
+### Production HDMI startup repair and r19 recovery successor
+
+Immediately after r18 promotion Jason reported system-wide silence. The
+pre-deployment route had been the known-good explicit HDMI 0 selector, stereo,
+passthrough off. After Kodi's deployment restart, Kodi 22 had rewritten only
+the normal selector to its generic `ALSA:@` HDMI alias—the same documented
+early-start device-validation fallback seen during the October 28 audio work.
+With playback idle, the current settings were checkpointed at
+`/storage/.aster-checkpoints/astertv-v2.0.7-audio-repair-20261030`, the exact
+explicit HDMI 0 selector was restored, and passthrough remained off. Jason
+immediately confirmed sound was audible; the explicit route is persisted in
+`guisettings.xml`.
+
+No further production restart was performed. The immutable r18 archive remains
+the exact artifact used for the initial deployment. Its r19 recovery successor
+keeps the same 577 installed snapshot bytes but enhances the promoter to save,
+reapply and verify all five audio-route settings after Kodi is ready, including
+the rollback path. This prevents replay/recovery from silently reproducing the
+known HDMI-startup regression.

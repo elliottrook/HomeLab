@@ -1,7 +1,7 @@
 # AsterTV v2.0.7 release
 
 The authoritative production release is
-`dist/astertv-v2.0.7-production-2026-10-30-r18.tar.gz`. It is the reconciled
+`dist/astertv-v2.0.7-production-2026-10-30-r19.tar.gz`. It is the reconciled
 successor to the preserved r17 lab package and contains the exact Aster-owned
 add-on snapshot accepted on the lab before production promotion.
 
@@ -73,9 +73,12 @@ removed. The package installs the existing 1920x1080 AsterTV artwork as Kodi's
 supported profile splash at `/storage/.kodi/media/Splash.png`.
 
 The production promoter refuses active playback, validates all 577 snapshot
-files, excludes credentials and `addon_data`, preserves production profile and
-audio settings, checkpoints every replaced add-on plus keymap and splash, and
-automatically restores the checkpoint if Kodi does not remain active.
+files, excludes credentials and `addon_data`, preserves production profile,
+checkpoints every replaced add-on plus keymap and splash, and automatically
+restores the checkpoint if Kodi does not remain active. r19 also captures the
+exact pre-deployment audio settings and reapplies/verifies them after Kodi is
+ready, preventing Kodi 22's known early-start HDMI fallback from silently
+replacing the audible HDMI 0 route.
 
 See `dist/ASTER-V2-RECONCILIATION-20261030.md` for the full repair record and
 `dist/ASTER-V2-PROMPT-RECONCILIATION-20261030.md` for the prompt-by-prompt audit.
