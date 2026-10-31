@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "release": "astertv-v2.0.6-lab-acceptance-reconciled-2026-10-30-r14",
+  "release": "astertv-v2.0.6-lab-acceptance-reconciled-2026-10-30-r15",
   "target": "AsterTV lab only (192.168.1.140)",
   "production_changed": false,
   "apply_order": [
@@ -196,6 +196,13 @@
     "watch_badges": "Unwatched episodes use the canonical small sage dot. Watched episodes use the canonical 32px sage disc with an ink tick.",
     "rounded_art": "Episode stills use the shared compact-card diffuse mask, matching the rounded episode cards.",
     "screen_capture": "The installed lab page was captured after restart with clock, compact controls, rounded art and unwatched dots visible."
+  },
+  "acceptance_r15": {
+    "vertical_alignment": "Play/Resume and Back explicitly centre their labels vertically as well as horizontally.",
+    "shared_surface": "Season, Play/Resume and Back use the same cc202b25 translucent charcoal normal surface.",
+    "art_overscan": "Rounded episode stills overscan the placeholder by four pixels on every side, eliminating pale corner slivers.",
+    "navigation_recheck": "After the visual repair the season menu opened, changed season index 0 to 1 and settled focus back on the episode list.",
+    "screen_capture": "A direct installed-page capture verified centred controls, matched surfaces and clean rounded still corners."
   },
   "known_remaining": "Owner acceptance remains for a visible watched tick, Seerr visual recheck and the physical spoken voice phrase. Production is unchanged."
 }

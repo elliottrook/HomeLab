@@ -56,3 +56,7 @@ r13 supersedes r12 after the owner found the TV episode controller orphaned and 
 ## Series visual acceptance repair r14 — 2026-10-30
 
 r14 supersedes r13 after direct owner review of the Series page. The invisible ivory-on-ivory clock was replaced with the established dark Aster clock pill and readable 24-hour label. Season, Play/Resume and Back are now compact 220x46, 240x46 and 140x46 controls without changing their IDs or focus routes. Episode state now follows the shared Aster badge contract: a small sage dot for unwatched and a 32px sage disc with an ink tick for watched. Episode stills use the shared compact-card mask so their corners match the enclosing cards. A direct Kodi screenshot after restart verified the clock, compact controls, rounded art and unwatched dots. The live page retained episode focus and controller ownership. Production remains unchanged.
+
+## Series finish repair r15 — 2026-10-30
+
+r15 supersedes r14 after the second owner visual check. Play/Resume and Back now explicitly centre their labels vertically. Season, Play/Resume and Back use one identical translucent charcoal normal surface, preserving the compact geometry and existing focus/navigation routes. Rounded episode stills overscan the square placeholder by four pixels on all sides so no pale corner slivers remain. A direct Kodi screenshot verified the installed result. The season menu was then reopened, season index changed 0 to 1, and focus settled back on the episode list; no playback was started. Production remains unchanged.

@@ -66,3 +66,7 @@ The superseding `astertv-v2-lab-reconciled-2026-10-30-r13.tar.gz` repairs the Ko
 ## r14 Series visual acceptance repair
 
 The superseding `astertv-v2-lab-reconciled-2026-10-30-r14.tar.gz` retains the r13 lifecycle and Seerr repairs while correcting the Series page presentation: readable dark 24-hour clock pill, compact Season/Play-or-Resume/Back controls, canonical small unwatched dot, canonical watched tick inside a sage disc, and rounded episode stills. Kodi was restarted and a direct screenshot verified the installed layout without starting playback. Production remains unchanged.
+
+## r15 Series finish repair
+
+The superseding `astertv-v2-lab-reconciled-2026-10-30-r15.tar.gz` explicitly centres Play/Resume and Back labels vertically, gives all three compact Series controls the same translucent charcoal normal surface, and overscans rounded episode stills so the underlying pale placeholder cannot show at their corners. A direct Kodi capture and a post-change season-selection test passed without playback. Production remains unchanged.
