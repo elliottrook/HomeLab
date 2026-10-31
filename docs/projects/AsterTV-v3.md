@@ -29,6 +29,8 @@ The user-visible outcome is a coherent remote-first television experience with:
 - podcast discovery and requests;
 - a more informative Home page and a separate camera page, including an
   explicitly enabled continuous feed and safe door-event previews;
+- a least-privilege Home Assistant bridge for AsterTV state, playback,
+  notifications and room automations, with economical TV/soundbar control;
 - page-aware media and music idle presentations; and
 - an evidenced low-spec hardware baseline.
 
@@ -92,6 +94,8 @@ approval, the project may:
   explicitly selected lab target;
 - extend the Aster skin and owned Kodi add-ons for the approved v3 features;
 - define and implement a least-privilege Aster AI client path;
+- add a bounded Home Assistant bridge for Kodi/AsterTV state, commands and
+  events, plus model-verified television and soundbar control;
 - add account/profile selection and per-account data separation;
 - redesign Movies, YouTube, Books, News, Requests and Home/camera surfaces;
 - add a page-aware Music idle presentation to the existing Aster screensaver;
@@ -122,6 +126,14 @@ approval, the project may:
 - No replacement of Jellyfin, Seerr, Audiobookshelf, Home Assistant, Frigate or
   the existing whole-home Aster AI under this charter.
 - No automatic firmware, LibreELEC, Kodi, add-on or model upgrades.
+- No Bluetooth audio route for television playback: HDMI/DisplayPort remains
+  the accepted audio/video path and must preserve the target's Dolby/stereo
+  contract.
+- No assumption that Bluetooth availability is a generic power, input, volume
+  or state-control API. Device profiles and standby behaviour must be proved
+  per model before Bluetooth control can graduate.
+- No arbitrary shell, unrestricted Kodi JSON-RPC or broad Home Assistant
+  service execution exposed through the bridge.
 - No tag, Forgejo/GitHub release, remote workflow mutation or Git push without
   the repository's required immediate confirmation.
 
@@ -140,6 +152,8 @@ approval, the project may:
 | YouTube identity, subscriptions and watch lists | Google/YouTube account exposed through the official Kodi add-on |
 | Household identity and profile mapping | The identity design selected in M1; no authority is assumed yet |
 | Household entities, state and automations | Home Assistant |
+| Kodi/AsterTV playback and application state | The named AsterTV client, represented in Home Assistant through the bounded bridge |
+| TV/soundbar power, input and volume state | The device's verified native network integration where available; otherwise the selected bounded control adapter |
 | Camera events and imagery | Frigate/camera source plus Home Assistant event state, as deployed |
 | Aster AI answers, capabilities and approvals | Existing Aster service, AI Access Broker and their governing projects |
 | Device, address, interface and service inventory | NetBox |
@@ -163,6 +177,9 @@ flowchart LR
     TV --> H["Restricted Home adapter"]
     H --> HA["Home Assistant"]
     H --> C["Camera/event source"]
+    HA --> KB["Bounded AsterTV/Kodi bridge"]
+    KB --> TV
+    HA --> AV["TV/soundbar control\nnetwork preferred; IR fallback"]
     TV --> AB["AI Access Broker"]
     AB --> A["Existing whole-home Aster AI"]
 ```
@@ -176,6 +193,8 @@ Initial trust rules:
 | AsterTV to YouTube guest | Not implemented | Prove profile isolation and primary-account non-disclosure before acceptance |
 | AsterTV to requests | Existing film/TV Seerr path only | Podcast provider and duplicate/idempotence contract selected before writes |
 | AsterTV to Home Assistant | Existing restricted display data | Add only exact entities/events needed by the redesigned page |
+| Home Assistant to AsterTV | Not yet adopted as a v3 control contract | Dedicated Kodi credential, source-restricted private path, allowlisted playback/navigation/Aster actions and denial tests |
+| Home Assistant to TV/soundbar | Capability unknown by exact model | Prefer official local network integration; use learned local IR when state feedback is unnecessary; evaluate Bluetooth only after profile/standby proof; buy CEC hardware only for an uncovered requirement |
 | AsterTV to camera source | Existing bounded still path | Live feed and door preview require account, quiet-hour, timeout and playback gates |
 | Narration generation to local AI stack | Existing registered workloads only | Every exclusive workload requires a verified Lab Hours reservation plus lease and shared lock |
 
@@ -201,6 +220,12 @@ Initial trust rules:
   accepted diagnostic requires a protected short-lived capture.
 - Keep all credentials and recovery material out of release packages. Packages
   carry schemas and non-secret identity metadata only.
+- Give each AsterTV client its own Home Assistant/Kodi identity and restrict the
+  network path to the Home Assistant host and the minimum required ports.
+  Expose allowlisted media/navigation/Aster actions rather than a general
+  command or shell endpoint.
+- Treat TV/soundbar volume as room equipment control during passthrough; do not
+  alter Kodi's decoded volume or route protected playback over Bluetooth.
 - Use the Aster internal UI style guide for all surfaces, adapted to Kodi's
   remote/10-foot constraints and the accepted green/gold/stone AsterTV language.
 - Any speech produced on Aster's behalf uses canonical Kokoro ONNX
@@ -217,6 +242,9 @@ Initial trust rules:
 | Aster AI integration exposes private context or gains excess authority | Medium / High | Dedicated broker identity, minimal tools, content-free audit, cancellation and prompt-injection/denied-action tests. Residual model error remains visible and non-authoritative. |
 | Camera or door preview exposes private imagery | Medium / High | No public route, explicit account entitlement, quiet hours, short timeout, no default retention and denial tests from guest/unauthorized profiles. |
 | Door pop-up disrupts playback or becomes nuisance automation | Medium / Medium | Non-interrupting default, debounce, rate limit, timeout, mute/quiet mode and direct playback regression. |
+| Home Assistant bridge becomes a remote-control or command-execution backdoor | Low / High | Per-client credentials, source-restricted firewall, minimal ports, allowlisted actions, content-free audit and explicit denied-command tests. |
+| Bluetooth appears cheaper but cannot wake or reliably control room equipment | Medium / Medium | Inventory exact models and advertised profiles; prove pairing, reconnect, standby wake and each command. Prefer native local network control, then IR; treat Bluetooth HID/AVRCP as experimental, not a CEC-equivalent assumption. |
+| IR fallback loses state or sends a destructive toggle twice | Medium / Medium | Prefer discrete commands, correlate with network/power state, make automations idempotent and retain manual remote operation. |
 | Word highlighting drifts from real narration | High / Medium | Use measured word timestamps from actual output; reject/invalidate a generation outside tolerance and retain sentence fallback. |
 | TTS pronunciation changes damage accepted books | Medium / Medium | Versioned lexicon, representative listening corpus, canonical cleanup regression and per-generation manifest/rollback. |
 | Podcast requests create duplicates or bypass subscription ownership | Medium / Medium | Select one request/subscription authority, stable IDs, duplicate-aware preview, explicit final action and reversible test feed. |
@@ -362,7 +390,39 @@ synthetic/reversible podcast request path with no duplicate side effect.
 Gate: approved accounts see only allowed entities/cameras; denials and failures
 are explicit; playback and network isolation remain intact.
 
-### M7 — Page-aware idle presentation and visual reconciliation
+### M7 — Home Assistant bridge and room-equipment control
+
+- [ ] Inventory the exact Family and Bedroom television, soundbar/receiver,
+  connection path, network capabilities, Bluetooth profiles and standby/wake
+  behaviour; do not infer control support from the presence of Bluetooth.
+- [ ] Register both Kodi clients in Home Assistant with separate credentials,
+  stable room names and only the minimum private network path required for
+  state, playback, notifications and approved navigation events.
+- [ ] Implement an allowlisted Aster action surface for safe page opens,
+  searches and household scenes; reject arbitrary shell, unrestricted JSON-RPC
+  and commands outside the active profile's authority.
+- [ ] Define useful room entities and events: playing/paused/idle, media class,
+  current Aster page, screensaver state, availability and explicit remote
+  actions, without exporting viewing history into long-lived logs.
+- [ ] Evaluate equipment control in this order: official local network
+  integration, Wake-on-LAN where the model supports it, learned local IR,
+  verified Bluetooth HID/AVRCP, then a CEC adapter only for requirements still
+  uncovered. Record the capability and cost matrix.
+- [ ] Prove Bluetooth pairing/reconnect, every required key, power-on from
+  standby and state feedback before accepting it. Never use Bluetooth audio as
+  the AsterTV media route.
+- [ ] Build bounded automations such as cinema start/stop, door notification,
+  pause/resume and room hand-off only after the underlying controls are
+  idempotent and retain a physical-remote fallback.
+- [ ] Test Home Assistant outage, stale state, duplicate commands, restart,
+  denied source, malformed action, passthrough playback and manual recovery.
+
+Gate: Home Assistant can observe and safely control both AsterTV clients and
+the accepted room-equipment functions without broad trust, loss of Dolby/stereo
+behaviour or dependence on costly CEC hardware where a verified local network
+or IR path is sufficient.
+
+### M8 — Page-aware idle presentation and visual reconciliation
 
 - [ ] Retain the accepted balanced TV/movie presentation.
 - [ ] Add a Music presentation using random album artwork when the last active
@@ -376,7 +436,7 @@ are explicit; playback and network isolation remain intact.
 Gate: page-aware behaviour is deterministic, private and reversible, with a
 black branded fallback on missing or malformed artwork.
 
-### M8 — Integrated validation, recovery and efficiency review
+### M9 — Integrated validation, recovery and efficiency review
 
 - [ ] Run functional, account-isolation, failure, security, focus/navigation,
   playback, audio/video and secret-pattern suites on the low-spec client.
@@ -391,7 +451,7 @@ black branded fallback on missing or malformed artwork.
 Gate: two clean full-path passes, isolated restore, v2 rollback and documented
 resource headroom; every deviation is fixed or explicitly accepted.
 
-### M9 — Immutable release, Bedroom soak and Family promotion
+### M10 — Immutable release, Bedroom soak and Family promotion
 
 - [ ] Freeze v3 as an identified commit plus reproducible manifest containing
   code, dependencies, schemas and material asset hashes.
@@ -419,6 +479,8 @@ local media playback or recovery.
 | Speech | Canonical voice/settings, pronunciation corpus and measured word-alignment tolerance with sentence fallback |
 | Privacy | No secret, phrase, image, household value or other account's behavioural state in logs, packages or UI |
 | Cameras | Account entitlement, quiet hours, stale/forged event, outage, storm, dismiss and playback tests |
+| Home Assistant bridge | Per-client identity, state accuracy, allowlisted actions, denied arbitrary commands, HA outage and source-restricted network path |
+| Equipment control | Per-model power/input/volume matrix, standby/reconnect, duplicate-command safety, manual fallback and no Bluetooth-audio regression |
 | Media regression | Jellyfin playback, Resume, Intro/Recap/Outro, Search, TV seasons, Movies, Music, Books, News, YouTube and Requests |
 | AV regression | Family Dolby/HDR HDMI 0 after reboot; Bedroom/low-spec supported stereo/video behaviour preserved |
 | Failure/recovery | Interrupted promotion, corrupt state, missing dependency, restart, rollback and isolated restore |
@@ -428,7 +490,8 @@ local media playback or recovery.
 ## Observability and maintenance
 
 - Add Doctor checks for release drift, required add-ons, account-store health,
-  broker/camera/Home adapter health and backup age using non-secret output.
+  broker/camera/Home adapter/bridge health and backup age using non-secret
+  output.
 - Reconcile all three clients in Beszel. Avoid duplicate alerts where Kodi/
   service-native health or Doctor already owns a failure mode.
 - Record client CPU/RAM/storage/temperature and restart trends sufficient to
@@ -447,7 +510,8 @@ local media playback or recovery.
   and exact audio profiles until v3 graduates and its rollback has been tested.
 - Protect v3 code, non-secret schemas, profile/account mapping state, user
   preferences, narration manifests/lexicon, Home/camera adapter configuration
-  and system service definitions according to sensitivity.
+  Home Assistant bridge/equipment capability manifests and system service
+  definitions according to sensitivity.
 - Keep service credentials in central secret custody and document rotation/
   revocation without values. A release restore must require reprovisioning, not
   contain the secret.
@@ -465,7 +529,7 @@ local media playback or recovery.
 
 | Integration | Required project treatment |
 |---|---|
-| HomeLab Doctor | Add non-secret client/release, adapter, account-store and backup-age checks; test failure output. |
+| HomeLab Doctor | Add non-secret client/release, adapter, bridge, account-store and backup-age checks; test failure output. |
 | Monitoring/alerting | Reconcile Beszel names/agents for every client, including the low-spec device; document alert ownership and deliberate exclusions. |
 | Backup and recovery | Add protected v3 state and exact restore order; prove isolated restore and v2 rollback. |
 | NetBox | Reconcile Family, Bedroom and the new low-spec device/interface/MAC/IP/service facts through the API. |
@@ -476,7 +540,7 @@ local media playback or recovery.
 | Diagrams/rack records | Update only if the new physical client or cabling is an adopted topology fact; otherwise record not applicable. |
 | Homepage/service discovery | Not currently planned: AsterTV is a local appliance rather than a browser service. Reassess if a private admin UI is added. |
 | Authentication/authorization | Define account authority, guest isolation, recovery admin, Aster broker identity and per-service mapping. |
-| DNS/certificates/firewall | No new public path. Add only exact private records/rules required by accepted adapters and prove denial outside them. |
+| DNS/certificates/firewall | No new public path. Add only exact private records/rules required by accepted adapters/bridge, source-restrict Home Assistant access and prove denial outside them. |
 | Automation/schedules | Register narration/AI jobs; enforce Lab Hours, lease and lock requirements; document missed-run and last-success state. |
 | Security inventory | Record secret custody identifiers, modes, temporary access removal, patch responsibility and rotation/revocation. |
 | AI administration | Prefer a dedicated brokered `ai-astertv` identity with allowlisted capabilities; if unsupported, record human-only administration rather than weaken security. |
@@ -490,7 +554,8 @@ Before graduation, publish and walk through a concise AsterTV v3 guide that:
 - explains Aster listening/processing/cancel/error indicators and what Aster can
   and cannot do;
 - covers Movies/cast search, YouTube, Books narration, News, Requests, Home,
-  Cameras, door previews and screensaver behaviour;
+  Cameras, door previews, Home Assistant room controls and screensaver
+  behaviour;
 - states which information is private/shared and how to disable microphone,
   camera preview, continuous feed and door pop-ups;
 - explains common failure messages, offline/degraded behaviour and safe
@@ -519,6 +584,9 @@ explicit user acceptance.
   integration delivers the desired user outcome without avoidable resource,
   latency, permission, storage, reliability or operational cost.
 - Jason completes and accepts the user-facing walkthrough.
+- Home Assistant bridge and room-equipment controls retain physical-remote
+  recovery, preserve each target's audio contract and have no unverified
+  Bluetooth dependency.
 - No unexplained temporary identity, firewall rule, credential, candidate,
   recovery marker or working-tree state remains.
 
@@ -530,6 +598,7 @@ explicit user acceptance.
 | 2026-10-31 | Recorded accepted predecessor | v2.0.7 archive SHA-256 `e813de8a…3cf7`, commit `47005298`, 21 tests plus focused gates, dual-target deployment evidence | V2 is the immutable baseline and rollback source |
 | 2026-10-31 | Selected authorization model | Accounts, Aster AI, microphone, cameras and production playback create high privacy/availability coupling | Stream M selected; no v3 live mutation authorized by project creation |
 | 2026-10-31 | Project integration | Added portfolio/roadmap/changelog records; retained the old wish list byte-for-byte because it is hash-pinned in the accepted v2 package | This project is authoritative; next safe action is M0 read-only discovery and owner decisions |
+| 2026-10-31 | Added Home Assistant bridge workstream | Owner requested AsterTV automation and a lower-cost alternative to CEC adapters | M7 now requires per-model capability discovery and prioritizes native local network control, then IR; Bluetooth is accepted only after profile, reconnect, standby and command proof |
 
 ## Close-out
 
