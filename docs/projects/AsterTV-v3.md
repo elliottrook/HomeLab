@@ -1,7 +1,7 @@
 # AsterTV v3
 
-> Status: Active — Stream A page-redesign pilot on the Mac mini; M0 read-only
-> discovery started, live pilot setup pending pre-start risk acceptance
+> Status: Active — Stream A page-redesign pilot on the Mac mini; PA0 in
+> progress, isolated production-version Kodi installed but not launched
 >
 > Project owner: Jason
 >
@@ -377,7 +377,7 @@ forward.
   `5f50e35df66fdac2eb10b2915249d6ec8230da19833f1f00068200a744341e5b`.
 - [ ] Reconfirm Bedroom's Kodi build when it is reachable and stop if it
   materially differs from Family's 22.0 RC1 release contract.
-- [ ] Install it in a dedicated user-writable pilot location and create a
+- [x] Install it in a dedicated user-writable pilot location and create a
   launch wrapper that asserts portable mode and the expected `portable_data`
   path before execution.
 - [ ] Seed only accepted v2.0.7 Aster-owned code/assets plus synthetic fixture
@@ -830,6 +830,8 @@ explicit user acceptance.
 | 2026-10-31 | Inspected Mini Kodi state | M4/16 GB Mini on macOS 26.6.2; retained Kodi 21.3 ARM log/profile with Aster `1.0.0`; no installed Kodi app found; retained skin differs materially from accepted v2 payload | Use a production-matched official Kodi build in separate portable mode, seed from immutable v2.0.7, and leave the old profile untouched |
 | 2026-10-31 | Defined sequential authorization | PA0–PA4 enumerate the only Stream A changes; Family, Bedroom, credentials, real integrations and source services excluded | Await owner acceptance of updated pre-start risk envelope before installing/launching the portable pilot; PA4 mandates transition to Stream M |
 | 2026-10-31 | Pinned pilot Kodi to production | Family reports Kodi 22.0 RC1 (`21.90.901`), Git `01d4146…`, LibreELEC nightly `20261021-440640e`; official macOS ARM RC1 SHA-256 is `5f50e35d…341e5b`; Bedroom SSH timed out | PA0 uses Kodi 22.0 RC1 on the Mini and must recheck Bedroom when reachable; Kodi 21.3 is not the pilot runtime |
+| 2026-10-31 | Installed isolated Mini pilot runtime | Verified official DMG SHA-256 and Kodi Foundation Developer ID signature; installed macOS ARM `22.0.rc1` only at `~/Applications/AsterTV-v3-Pilot/Kodi.app`; prepared dedicated `portable_data` with the v2.0.7-derived pilot skin and guarded `-p` launcher | Application is installed but not launched; no credential or live integration was copied |
+| 2026-10-31 | Captured retained-profile integrity baseline | Retained Aster skin file-set digest `5bdc6b5c…63cfe`; retained profile, skin and log timestamps remain 2026-10-13, 2026-10-19 and 2026-10-29 respectively | Recompute after each launch/milestone; any change blocks the pilot and triggers rollback analysis |
 
 ## Close-out
 

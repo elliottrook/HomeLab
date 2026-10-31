@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="skin.asterhome.v3pilot" name="AsterTV v3 Page Pilot" version="3.0.0-alpha1" provider-name="HomeLab">
+  <requires>
+    <import addon="xbmc.gui" version="5.17.0" />
+  </requires>
+  <extension point="xbmc.gui.skin" debugging="true">
+    <res width="1920" height="1080" aspect="16:9" default="true" folder="1080i" />
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Credential-free AsterTV v3 page-design pilot</summary>
+    <description lang="en_GB">Disposable Mac-mini pilot built from the accepted v2.0.7 visual baseline and synthetic fixtures.</description>
+    <platform>osx</platform>
+    <license>Creative Commons Attribution-ShareAlike 4.0 International</license>
+    <assets>
+      <icon>media/aster-icon-512.png</icon>
+    </assets>
+  </extension>
+</addon>
+
