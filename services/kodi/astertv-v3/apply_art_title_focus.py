@@ -98,17 +98,53 @@ def remove_legacy_focus_art(layout: ET.Element) -> None:
             layout.remove(control)
 
 
-def add_shared_surface(layout: ET.Element) -> None:
+def add_shared_surface(layout: ET.Element, art: ET.Element | None) -> None:
     width = int(layout.get("width", "0"))
     height = int(layout.get("height", "0"))
     if width < 80 or height < 80:
         raise ValueError(f"unsafe tile dimensions {width}x{height}")
+    left = 0
+    top = 0
+    right = width - 4
+    if art is not None:
+        content = [art]
+        art_top = number(art, "top")
+        art_height = number(art, "height")
+        if art_top is not None and art_height is not None:
+            art_bottom = art_top + art_height
+            content.extend(
+                label
+                for label in title_controls(layout)
+                if number(label, "top") is not None
+                and number(label, "top") >= art_bottom - 12
+            )
+        horizontal_bounds = [
+            (number(node, "left"), number(node, "width")) for node in content
+        ]
+        if all(node_left is not None and node_width is not None for node_left, node_width in horizontal_bounds):
+            left = max(0, min(node_left for node_left, _ in horizontal_bounds) - 4)
+            right = min(
+                width - 4,
+                max(node_left + node_width for node_left, node_width in horizontal_bounds) + 4,
+            )
+        if art_top is not None:
+            top = max(0, art_top - 4)
+    elif is_book_template(layout):
+        include_name = next(
+            include.text
+            for include in layout.findall("include")
+            if include.text in BOOK_TILE_INCLUDES
+        )
+        if include_name == "AsterBooksTile":
+            left, right = 6, min(width - 4, 274)
+        else:
+            left, right = 0, min(width - 4, 213)
     control = ET.Element("control", {"type": "image"})
     for name, value in (
-        ("left", "0"),
-        ("top", "0"),
-        ("width", str(width - 4)),
-        ("height", str(height - 4)),
+        ("left", str(left)),
+        ("top", str(top)),
+        ("width", str(right - left)),
+        ("height", str(height - top - 4)),
     ):
         ET.SubElement(control, name).text = value
     texture = ET.SubElement(
@@ -147,7 +183,7 @@ def transform_file(path: Path) -> int:
         if not qualifies or has_shared_surface(layout):
             continue
         remove_legacy_focus_art(layout)
-        add_shared_surface(layout)
+        add_shared_surface(layout, art)
         normalize_title_contrast(layout, art)
         changed += 1
     if changed:

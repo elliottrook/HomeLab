@@ -135,6 +135,16 @@ class SharedLanguageTests(unittest.TestCase):
 
         buttons = {node.attrib["id"]: node for node in page.findall(".//control[@type='button']")}
         self.assertEqual(len(buttons), 11)
+        for button_id, art_left in (
+            ("11940", 117),
+            ("11941", 532),
+            ("11942", 947),
+            ("11943", 1362),
+        ):
+            button = buttons[button_id]
+            self.assertEqual(int(button.findtext("left")) + 4, art_left)
+            self.assertEqual(int(button.findtext("top")) + 4, 597)
+            self.assertEqual(int(button.findtext("width")), 366 + 8)
         for button in buttons.values():
             for direction in ("onleft", "onright", "onup", "ondown"):
                 self.assertIn(button.findtext(direction), buttons)
@@ -169,10 +179,21 @@ class SharedLanguageTests(unittest.TestCase):
             self.assertIn(mask, text)
         buttons = {node.attrib["id"]: node for node in page.findall(".//control[@type='button']")}
         self.assertEqual(len(buttons), 5)
+        expected_focus_geometry = {
+            "11950": (82, 237, 396, 318),
+            "11951": (537, 240, 296, 375),
+            "11952": (899, 225, 246, 430),
+            "11953": (1222, 239, 286, 326),
+        }
         for button_id in ("11950", "11951", "11952", "11953"):
+            button = buttons[button_id]
             self.assertEqual(
-                buttons[button_id].findtext("texturenofocus"),
+                button.findtext("texturenofocus"),
                 "special://skin/media/ui-transparent.svg",
+            )
+            self.assertEqual(
+                tuple(int(button.findtext(name)) for name in ("left", "top", "width", "height")),
+                expected_focus_geometry[button_id],
             )
         for button in buttons.values():
             for direction in ("onleft", "onright", "onup", "ondown"):
@@ -198,13 +219,20 @@ class SharedLanguageTests(unittest.TestCase):
             self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
             self.assertIn("14 focused layouts", completed.stdout)
             surfaces = 0
+            tight_surfaces = 0
             for path in (skin / "1080i").glob("*.xml"):
                 root = ET.parse(path).getroot()
                 for layout in root.iter("focusedlayout"):
-                    for texture in layout.findall("control/texture"):
+                    for surface in layout.findall("control"):
+                        texture = surface.find("texture")
+                        if texture is None:
+                            continue
                         if texture.attrib.get("colordiffuse") == "asterSageGlass":
                             surfaces += 1
+                            if int(surface.findtext("left", "0")) > 0 or int(surface.findtext("top", "0")) > 0:
+                                tight_surfaces += 1
             self.assertEqual(surfaces, 14)
+            self.assertGreaterEqual(tight_surfaces, 8)
 
 
 if __name__ == "__main__":

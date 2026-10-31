@@ -59,7 +59,7 @@
     </include>
 
     <include name="AsterV3ArtTitleTile">
-        <height>302</height><font>font20</font><align>left</align><aligny>bottom</aligny>
+        <height>294</height><font>font20</font><align>left</align><aligny>bottom</aligny>
         <textoffsetx>18</textoffsetx><textoffsety>14</textoffsety>
         <textcolor>asterV3Text</textcolor><focusedcolor>asterV3Text</focusedcolor>
         <texturefocus border="24" colordiffuse="asterSageGlass">special://skin/media/ui-panel.png</texturefocus>
