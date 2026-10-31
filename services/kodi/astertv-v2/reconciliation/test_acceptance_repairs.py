@@ -1,4 +1,3 @@
-import importlib.util
 from pathlib import Path
 import tarfile
 import unittest
@@ -6,13 +5,8 @@ import xml.etree.ElementTree as ET
 
 
 HERE = Path(__file__).resolve().parent
-ARCHIVE = HERE.parents[1] / "dist/astertv-v2-lab-reconciled-2026-10-30-r9.tar.gz"
+ARCHIVE = HERE.parents[1] / "dist/astertv-v2.0.7-production-2026-10-30-r18.tar.gz"
 PREFIX = "aster-v2-package/lab-addon-snapshot/"
-
-spec = importlib.util.spec_from_file_location(
-    "acceptance_repairs", HERE / "apply_acceptance_repairs.py")
-repairs = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(repairs)
 
 
 class AcceptanceRepairTests(unittest.TestCase):
@@ -27,55 +21,53 @@ class AcceptanceRepairTests(unittest.TestCase):
     def source(self, relative):
         member = self.archive.extractfile(PREFIX + relative)
         self.assertIsNotNone(member)
-        return member.read()
+        return member.read().decode()
 
-    def test_every_repair_is_hash_guarded_and_changes_one_member(self):
-        for relative, row in repairs.REPAIRS.items():
-            with self.subTest(relative=relative):
-                original = self.source(relative)
-                self.assertEqual(repairs.sha(original), row["before"])
-                candidate = repairs.patched(relative, original)
-                self.assertNotEqual(candidate, original)
-                if relative.endswith(".py"):
-                    compile(candidate.decode("utf-8"), relative, "exec")
-                elif relative.endswith(".xml"):
-                    ET.fromstring(candidate)
+    def test_music_header_is_text_safe_and_has_shared_chrome(self):
+        music = self.source("skin.asterhome/1080i/IncludesMusic.xml")
+        ET.fromstring(music)
+        self.assertIn('<width>220</width><height>46</height><font>font18</font>', music)
+        for label in ("Albums", "Artists", "Songs", "Playlists", "Genres"):
+            self.assertIn(f"<label>{label}</label>", music)
+        self.assertIn('id="139"', music)
+        self.assertIn("AsterClockPill", music)
+        self.assertIn("AsterNavigationRail", music)
+        self.assertNotIn('<top>86</top><width>200</width><height>4</height>', music)
 
-    def test_music_grid_returns_to_real_pill(self):
-        candidate = repairs.patched(
-            "skin.asterhome/1080i/custom_1113_music.xml",
-            self.source("skin.asterhome/1080i/custom_1113_music.xml"),
-        ).decode()
-        self.assertIn('name="gridup" value="110"', candidate)
-        self.assertNotIn('name="gridup" value="116"', candidate)
+    def test_requests_has_direct_details_and_multi_season_selection(self):
+        requests = self.source("skin.asterhome/1080i/custom_1132_requests.xml")
+        ET.fromstring(requests)
+        self.assertIn("AsterSeerr.DetailsActive", requests)
+        self.assertIn("AsterSeerr.Command,details", requests)
+        self.assertIn("AsterSeerr.Command,season", requests)
+        self.assertIn("AsterSeerr.Command,request", requests)
+        self.assertNotIn('id="41"', requests)
 
-    def test_screensaver_has_opaque_full_screen_surface(self):
-        candidate = repairs.patched(
-            "screensaver.asterhome.v2lab/resources/skins/Default/1080i/AsterIdle.xml",
-            self.source("screensaver.asterhome.v2lab/resources/skins/Default/1080i/AsterIdle.xml"),
-        ).decode()
-        self.assertIn("<backgroundcolor>ff000000</backgroundcolor>", candidate)
-        self.assertIn('<width>1920</width><height>1080</height>', candidate)
+    def test_acquisition_art_is_the_only_result_action(self):
+        acquisition = self.source("skin.asterhome/1080i/custom_1133_acquisition.xml")
+        ET.fromstring(acquisition)
+        self.assertIn("AsterAcquisition.Command,action", acquisition)
+        self.assertNotIn('id="50"', acquisition)
 
-    def test_custom_window_consumers_use_kodi_22_active_visibility(self):
-        for relative in (
-            "script.asterseerr/default.py",
-            "script.astervoice.v2lab/default.py",
-            "script.asterruntime/aster-camera2/view.py",
-            "script.asterruntime/aster-digest-player8/default.py",
-            "script.asterruntime/aster-digest-reader6/default.py",
-        ):
-            with self.subTest(relative=relative):
-                candidate = repairs.patched(relative, self.source(relative)).decode()
-                self.assertIn("Window.IsActive(", candidate)
+    def test_youtube_account_routes_remain_intact(self):
+        youtube = self.source("skin.asterhome/1080i/MyVideoNav.xml")
+        ET.fromstring(youtube)
+        self.assertIn("plugin://plugin.video.youtube/special/recommendations", youtube)
+        self.assertIn("plugin://plugin.video.youtube/subscriptions/list/", youtube)
+        self.assertIn("plugin://plugin.video.youtube/special/playlist/WL", youtube)
+        self.assertIn("youtube_back.py", youtube)
 
-    def test_youtube_back_restores_a_root_pill_not_async_content(self):
-        candidate = repairs.patched(
-            "skin.asterhome/tools/youtube_back.py",
-            self.source("skin.asterhome/tools/youtube_back.py"),
-        ).decode()
-        self.assertIn("SetFocus(9300)", candidate)
-        self.assertNotIn("SetFocus(9530)", candidate)
+    def test_prior_tv_books_and_screensaver_acceptance_remains(self):
+        series = self.source(
+            "script.asterruntime/aster-series-preview24/resources/skins/Default/1080i/SeriesPreview.xml")
+        screensaver = self.source(
+            "screensaver.asterhome.v2lab/resources/skins/Default/1080i/AsterIdle.xml")
+        bridge = self.source(
+            "plugin.audio.asterbooks/resources/lib/books_sync_bridge.py")
+        self.assertIn('<defaultcontrol always="true">300</defaultcontrol>', series)
+        self.assertIn('$INFO[System.Time(HH:mm)]', series)
+        self.assertIn("<backgroundcolor>ff000000</backgroundcolor>", screensaver)
+        self.assertIn("podcast_resumes", bridge)
 
 
 if __name__ == "__main__":
