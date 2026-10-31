@@ -31,6 +31,8 @@ The user-visible outcome is a coherent remote-first television experience with:
   explicitly enabled continuous feed and safe door-event previews;
 - a least-privilege Home Assistant bridge for AsterTV state, playback,
   notifications and room automations, with economical TV/soundbar control;
+- a free, installable iPhone Aster Remote web app for touch navigation,
+  playback, search, room power and volume without App Store distribution;
 - page-aware media and music idle presentations; and
 - an evidenced low-spec hardware baseline.
 
@@ -50,6 +52,11 @@ privacy behaviour unless a replacement passes the same or stronger gate.
   hostname `AsterTV-Family`.
 - **AsterTV Bedroom** is the current lab/baseline client at `192.168.1.140`,
   system hostname `AsterTV-Bedroom`.
+- The Family display chain includes a TCL QM8L Google TV and an Onkyo TX-RZ30
+  9.2-channel receiver. The receiver supports network standby and direct local
+  Home Assistant control; the television exposes Google/Android TV remote
+  control and CEC/eARC settings. Reconfirm exact addresses, firmware, cabling
+  and enabled standby controls in M0.
 - Both clients run the same 577-file Aster-owned snapshot, 24-hour clock and
   Aster media-art screensaver. Family retains verified HDMI 0 Dolby/HDR
   passthrough with PulseAudio persistently masked; Bedroom retains its supported
@@ -96,6 +103,9 @@ approval, the project may:
 - define and implement a least-privilege Aster AI client path;
 - add a bounded Home Assistant bridge for Kodi/AsterTV state, commands and
   events, plus model-verified television and soundbar control;
+- build a local-first Progressive Web App (PWA) remote backed only by that
+  bounded bridge, with no Kodi or Home Assistant credential shipped to the
+  browser;
 - add account/profile selection and per-account data separation;
 - redesign Movies, YouTube, Books, News, Requests and Home/camera surfaces;
 - add a page-aware Music idle presentation to the existing Aster screensaver;
@@ -134,6 +144,12 @@ approval, the project may:
   per model before Bluetooth control can graduate.
 - No arbitrary shell, unrestricted Kodi JSON-RPC or broad Home Assistant
   service execution exposed through the bridge.
+- No public remote-control endpoint, direct browser-to-Kodi credential, App
+  Store dependency or paid Apple developer account.
+- No promise that an iPhone Home Screen web app can intercept the phone's
+  physical volume/side buttons, enter Apple Control Centre, provide native Siri
+  Remote integration, remain continuously active in the background or replace
+  a physical remote during a network/bridge outage.
 - No tag, Forgejo/GitHub release, remote workflow mutation or Git push without
   the repository's required immediate confirmation.
 
@@ -154,6 +170,7 @@ approval, the project may:
 | Household entities, state and automations | Home Assistant |
 | Kodi/AsterTV playback and application state | The named AsterTV client, represented in Home Assistant through the bounded bridge |
 | TV/soundbar power, input and volume state | The device's verified native network integration where available; otherwise the selected bounded control adapter |
+| Aster Remote identity, session and permitted actions | The v3 account authority plus the bounded bridge; the PWA is an untrusted presentation client |
 | Camera events and imagery | Frigate/camera source plus Home Assistant event state, as deployed |
 | Aster AI answers, capabilities and approvals | Existing Aster service, AI Access Broker and their governing projects |
 | Device, address, interface and service inventory | NetBox |
@@ -169,6 +186,8 @@ source because its cached view disagrees with that source.
 ```mermaid
 flowchart LR
     U["Household user + G20 remote"] --> TV["AsterTV v3 client"]
+    P["iPhone Aster Remote PWA"] --> RB["Authenticated remote gateway"]
+    RB --> KB
     ID["Account/profile authority\nselection pending"] --> TV
     TV --> J["Jellyfin\nlibrary + playback"]
     TV --> Y["Official YouTube add-on"]
@@ -195,6 +214,8 @@ Initial trust rules:
 | AsterTV to Home Assistant | Existing restricted display data | Add only exact entities/events needed by the redesigned page |
 | Home Assistant to AsterTV | Not yet adopted as a v3 control contract | Dedicated Kodi credential, source-restricted private path, allowlisted playback/navigation/Aster actions and denial tests |
 | Home Assistant to TV/soundbar | Capability unknown by exact model | Prefer official local network integration; use learned local IR when state feedback is unnecessary; evaluate Bluetooth only after profile/standby proof; buy CEC hardware only for an uncovered requirement |
+| iPhone PWA to remote gateway | Not implemented | Private HTTPS/WSS, authenticated short-lived session, account/room allowlist, rate limits, CSRF/origin checks and no embedded service credential |
+| Remote gateway to Kodi/Home Assistant | Denied except allowlisted actions | Translate semantic actions such as Up, OK, Back, Play/Pause, Search, Power, Volume and Mute; never proxy arbitrary methods or service calls |
 | AsterTV to camera source | Existing bounded still path | Live feed and door preview require account, quiet-hour, timeout and playback gates |
 | Narration generation to local AI stack | Existing registered workloads only | Every exclusive workload requires a verified Lab Hours reservation plus lease and shared lock |
 
@@ -226,6 +247,14 @@ Initial trust rules:
   command or shell endpoint.
 - Treat TV/soundbar volume as room equipment control during passthrough; do not
   alter Kodi's decoded volume or route protected playback over Bluetooth.
+- For automatic volume, AsterTV reports an explicit coarse content class rather
+  than forcing Home Assistant to infer custom News/Books playback from fragile
+  metadata. Apply room-specific targets only at playback start or class change,
+  ramp changes, cap nighttime levels, retain unknown content volume and suspend
+  automation after a manual adjustment for the rest of that session.
+- Treat the PWA as an untrusted client. Keep service credentials server-side,
+  require an authenticated household session, authorize every action by room
+  and profile, rate-limit commands and provide immediate session revocation.
 - Use the Aster internal UI style guide for all surfaces, adapted to Kodi's
   remote/10-foot constraints and the accepted green/gold/stone AsterTV language.
 - Any speech produced on Aster's behalf uses canonical Kokoro ONNX
@@ -245,6 +274,9 @@ Initial trust rules:
 | Home Assistant bridge becomes a remote-control or command-execution backdoor | Low / High | Per-client credentials, source-restricted firewall, minimal ports, allowlisted actions, content-free audit and explicit denied-command tests. |
 | Bluetooth appears cheaper but cannot wake or reliably control room equipment | Medium / Medium | Inventory exact models and advertised profiles; prove pairing, reconnect, standby wake and each command. Prefer native local network control, then IR; treat Bluetooth HID/AVRCP as experimental, not a CEC-equivalent assumption. |
 | IR fallback loses state or sends a destructive toggle twice | Medium / Medium | Prefer discrete commands, correlate with network/power state, make automations idempotent and retain manual remote operation. |
+| Automatic volume produces a startling jump or fights a manual adjustment | Medium / High | Per-room calibrated targets, bounded ramp, nighttime cap, playback-start/class-change triggers only, session manual-override latch, safe unknown-content behaviour and physical control fallback. |
+| PWA exposes household control or becomes a general command proxy | Low / High | Private HTTPS/WSS, authenticated short-lived sessions, origin/CSRF checks, rate limits, per-room/profile authorization and a semantic allowlist with no arbitrary JSON-RPC, shell or Home Assistant service proxy. |
+| iOS web-app limits are mistaken for native Apple Remote capability | Medium / Low | Document on-screen volume, foreground/reconnect and Siri/side-button limitations; keep the G20 and equipment remotes as supported fallbacks. |
 | Word highlighting drifts from real narration | High / Medium | Use measured word timestamps from actual output; reject/invalidate a generation outside tolerance and retain sentence fallback. |
 | TTS pronunciation changes damage accepted books | Medium / Medium | Versioned lexicon, representative listening corpus, canonical cleanup regression and per-generation manifest/rollback. |
 | Podcast requests create duplicates or bypass subscription ownership | Medium / Medium | Select one request/subscription authority, stable IDs, duplicate-aware preview, explicit final action and reversible test feed. |
@@ -395,6 +427,11 @@ are explicit; playback and network isolation remain intact.
 - [ ] Inventory the exact Family and Bedroom television, soundbar/receiver,
   connection path, network capabilities, Bluetooth profiles and standby/wake
   behaviour; do not infer control support from the presence of Bluetooth.
+- [ ] Validate the Family TCL QM8L through Home Assistant's Android TV Remote
+  path with Screenless/network standby enabled, and the Onkyo TX-RZ30 through
+  the native local Onkyo integration with Network Standby enabled. Use direct
+  receiver control for volume/mute and explicit on/off actions rather than a
+  blind power toggle.
 - [ ] Register both Kodi clients in Home Assistant with separate credentials,
   stable room names and only the minimum private network path required for
   state, playback, notifications and approved navigation events.
@@ -414,6 +451,15 @@ are explicit; playback and network isolation remain intact.
 - [ ] Build bounded automations such as cinema start/stop, door notification,
   pause/resume and room hand-off only after the underlying controls are
   idempotent and retain a physical-remote fallback.
+- [ ] Add an explicit Aster content-class event/state covering Movie,
+  Television, Music, YouTube, Podcast, News, Book/Audiobook and Unknown.
+- [ ] Calibrate separate Family and Bedroom volume profiles. Movies are the
+  loudest baseline, then Television, YouTube, Music, Podcast/News and Books,
+  while the exact levels remain owner-accepted room settings rather than
+  release constants.
+- [ ] Apply the profile only at playback start or content-class transition,
+  ramp safely, enforce a nighttime ceiling, latch manual override for the
+  current session and optionally restore the pre-playback level at stop.
 - [ ] Test Home Assistant outage, stale state, duplicate commands, restart,
   denied source, malformed action, passthrough playback and manual recovery.
 
@@ -422,7 +468,40 @@ the accepted room-equipment functions without broad trust, loss of Dolby/stereo
 behaviour or dependence on costly CEC hardware where a verified local network
 or IR path is sufficient.
 
-### M8 — Page-aware idle presentation and visual reconciliation
+### M8 — Aster Remote iPhone web app
+
+- [ ] Capture the useful Apple TV Remote interaction set as a design reference:
+  swipe or directional navigation, tap/OK, hold for context, Back/Home,
+  Play/Pause, volume, mute, power, text entry/search and explicit voice search.
+- [ ] Build a responsive installable PWA with an Aster icon, manifest, service
+  worker and offline shell. Safari's **Add to Home Screen → Open as Web App** is
+  the supported free installation path; no App Store package is required.
+- [ ] Provide Family/Bedroom selection, connection and playback state, a large
+  touchpad plus accessible directional-button mode, OK/Back/Home, Play/Pause,
+  on-screen volume/mute/power, search keyboard, voice-search gesture and
+  allowlisted Aster page shortcuts.
+- [ ] Route every command through the authenticated remote gateway and semantic
+  bridge allowlist. Keep Kodi, Home Assistant and equipment credentials out of
+  browser storage, JavaScript and logs.
+- [ ] Use private trusted HTTPS/WSS, short-lived sessions, account/room
+  authorization, CSRF/origin checks, command rate limits, revocation and a
+  visible disconnected/read-only state.
+- [ ] Make foreground reconnect fast and deterministic. Cache only the static
+  shell and non-sensitive preferences; never cache titles, history, household
+  state, camera images or tokens as offline content.
+- [ ] Document that iPhone physical volume/side buttons, native Siri Remote,
+  Control Centre placement, guaranteed background operation, native haptics
+  and lock-screen media controls are outside the PWA acceptance contract.
+- [ ] Test touch/hold/swipe/rapid-repeat, keyboard and microphone permission,
+  rotation/safe areas, sleep/wake, background/foreground, expired session,
+  bridge/HA/Kodi outage, wrong account/room and command-flood denial on a real
+  iPhone.
+
+Gate: the PWA installs free from Safari, operates both rooms through only the
+bounded bridge, covers the accepted on-screen Apple-Remote-like controls and
+fails safely without exposing a service credential or creating a public route.
+
+### M9 — Page-aware idle presentation and visual reconciliation
 
 - [ ] Retain the accepted balanced TV/movie presentation.
 - [ ] Add a Music presentation using random album artwork when the last active
@@ -436,7 +515,7 @@ or IR path is sufficient.
 Gate: page-aware behaviour is deterministic, private and reversible, with a
 black branded fallback on missing or malformed artwork.
 
-### M9 — Integrated validation, recovery and efficiency review
+### M10 — Integrated validation, recovery and efficiency review
 
 - [ ] Run functional, account-isolation, failure, security, focus/navigation,
   playback, audio/video and secret-pattern suites on the low-spec client.
@@ -451,7 +530,7 @@ black branded fallback on missing or malformed artwork.
 Gate: two clean full-path passes, isolated restore, v2 rollback and documented
 resource headroom; every deviation is fixed or explicitly accepted.
 
-### M10 — Immutable release, Bedroom soak and Family promotion
+### M11 — Immutable release, Bedroom soak and Family promotion
 
 - [ ] Freeze v3 as an identified commit plus reproducible manifest containing
   code, dependencies, schemas and material asset hashes.
@@ -481,6 +560,8 @@ local media playback or recovery.
 | Cameras | Account entitlement, quiet hours, stale/forged event, outage, storm, dismiss and playback tests |
 | Home Assistant bridge | Per-client identity, state accuracy, allowlisted actions, denied arbitrary commands, HA outage and source-restricted network path |
 | Equipment control | Per-model power/input/volume matrix, standby/reconnect, duplicate-command safety, manual fallback and no Bluetooth-audio regression |
+| Content volume | Correct class, per-room calibration, ramp/night cap, manual override, unknown fallback, stop/restore choice and passthrough preservation |
+| Aster Remote PWA | Home Screen install, both rooms, touch/buttons/search/voice, foreground reconnect, session expiry, denied actions, no embedded credentials and physical-remote fallback |
 | Media regression | Jellyfin playback, Resume, Intro/Recap/Outro, Search, TV seasons, Movies, Music, Books, News, YouTube and Requests |
 | AV regression | Family Dolby/HDR HDMI 0 after reboot; Bedroom/low-spec supported stereo/video behaviour preserved |
 | Failure/recovery | Interrupted promotion, corrupt state, missing dependency, restart, rollback and isolated restore |
@@ -490,8 +571,8 @@ local media playback or recovery.
 ## Observability and maintenance
 
 - Add Doctor checks for release drift, required add-ons, account-store health,
-  broker/camera/Home adapter/bridge health and backup age using non-secret
-  output.
+  broker/camera/Home adapter/bridge/remote-gateway health and backup age using
+  non-secret output.
 - Reconcile all three clients in Beszel. Avoid duplicate alerts where Kodi/
   service-native health or Doctor already owns a failure mode.
 - Record client CPU/RAM/storage/temperature and restart trends sufficient to
@@ -510,8 +591,8 @@ local media playback or recovery.
   and exact audio profiles until v3 graduates and its rollback has been tested.
 - Protect v3 code, non-secret schemas, profile/account mapping state, user
   preferences, narration manifests/lexicon, Home/camera adapter configuration
-  Home Assistant bridge/equipment capability manifests and system service
-  definitions according to sensitivity.
+  Home Assistant bridge/equipment capability manifests, remote-gateway
+  configuration and system service definitions according to sensitivity.
 - Keep service credentials in central secret custody and document rotation/
   revocation without values. A release restore must require reprovisioning, not
   contain the secret.
@@ -538,7 +619,7 @@ local media playback or recovery.
 | Operational reference/runbooks | Record current client identities, release/hash, audio profiles, deployment, rollback and failure procedures. |
 | Repository documentation | Maintain this project, release manifest, tests, package notes, portfolio, roadmap and changelog. |
 | Diagrams/rack records | Update only if the new physical client or cabling is an adopted topology fact; otherwise record not applicable. |
-| Homepage/service discovery | Not currently planned: AsterTV is a local appliance rather than a browser service. Reassess if a private admin UI is added. |
+| Homepage/service discovery | Add a private Aster Remote launch tile only if it improves household discovery; expose health without credentials and keep the remote unavailable outside its authenticated private route. |
 | Authentication/authorization | Define account authority, guest isolation, recovery admin, Aster broker identity and per-service mapping. |
 | DNS/certificates/firewall | No new public path. Add only exact private records/rules required by accepted adapters/bridge, source-restrict Home Assistant access and prove denial outside them. |
 | Automation/schedules | Register narration/AI jobs; enforce Lab Hours, lease and lock requirements; document missed-run and last-success state. |
@@ -556,6 +637,9 @@ Before graduation, publish and walk through a concise AsterTV v3 guide that:
 - covers Movies/cast search, YouTube, Books narration, News, Requests, Home,
   Cameras, door previews, Home Assistant room controls and screensaver
   behaviour;
+- explains how to install the Aster Remote from Safari, select a room, use
+  touch/directional controls, search, control volume/power, sign out/revoke a
+  session and recover with the physical remote;
 - states which information is private/shared and how to disable microphone,
   camera preview, continuous feed and door pop-ups;
 - explains common failure messages, offline/degraded behaviour and safe
@@ -587,6 +671,10 @@ explicit user acceptance.
 - Home Assistant bridge and room-equipment controls retain physical-remote
   recovery, preserve each target's audio contract and have no unverified
   Bluetooth dependency.
+- Content-aware volume passes calibrated start/class/manual-override/nighttime
+  tests in both rooms without changing Kodi passthrough volume.
+- Aster Remote installs and runs as a free iPhone Home Screen web app, exposes
+  no service credential and does not claim unsupported native iOS behaviour.
 - No unexplained temporary identity, firewall rule, credential, candidate,
   recovery marker or working-tree state remains.
 
@@ -599,6 +687,8 @@ explicit user acceptance.
 | 2026-10-31 | Selected authorization model | Accounts, Aster AI, microphone, cameras and production playback create high privacy/availability coupling | Stream M selected; no v3 live mutation authorized by project creation |
 | 2026-10-31 | Project integration | Added portfolio/roadmap/changelog records; retained the old wish list byte-for-byte because it is hash-pinned in the accepted v2 package | This project is authoritative; next safe action is M0 read-only discovery and owner decisions |
 | 2026-10-31 | Added Home Assistant bridge workstream | Owner requested AsterTV automation and a lower-cost alternative to CEC adapters | M7 now requires per-model capability discovery and prioritizes native local network control, then IR; Bluetooth is accepted only after profile, reconnect, standby and command proof |
+| 2026-10-31 | Refined Family equipment and content-volume design | Family equipment identified as TCL QM8L plus Onkyo TX-RZ30; official device and Home Assistant documentation confirms local network/standby paths | M7 now targets direct Onkyo volume/mute/power, TCL Android TV control, CEC/eARC coordination and guarded per-content room volume profiles |
+| 2026-10-31 | Added Aster Remote PWA workstream | Apple Remote interaction review and Apple Home Screen web-app documentation | M8 specifies a free installable iPhone PWA through a private authenticated semantic bridge, with native iOS limitations explicit |
 
 ## Close-out
 
