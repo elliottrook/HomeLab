@@ -1,0 +1,98 @@
+From d7af148021190cf0fcaaca861bb415461802b554 Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Sat, 31 Oct 2026 09:41:52 -0700
+Subject: [PATCH] Expose allowlisted exclusive unit refusal codes without raw
+ error text
+
+---
+ scripts/local-ai/lab_hours_exclusive_cli.py   | 22 +++++++++++++++-
+ .../local-ai/test_lab_hours_exclusive_cli.py  | 26 +++++++++++++++++++
+ 2 files changed, 47 insertions(+), 1 deletion(-)
+
+diff --git a/scripts/local-ai/lab_hours_exclusive_cli.py b/scripts/local-ai/lab_hours_exclusive_cli.py
+index 3b16297fb..5de0f6e3f 100644
+--- a/scripts/local-ai/lab_hours_exclusive_cli.py
++++ b/scripts/local-ai/lab_hours_exclusive_cli.py
+@@ -18,10 +18,30 @@ from lab_hours_exclusive_guardian import guard
+ from lab_hours_proxmox_adapter import ProxmoxEntryAdapter
+ from lab_hours_owner_scope import OwnerScopes
+ from lab_hours_reservations import ReservationStore
++from lab_hours_unit_adapter import UnitStateError
+ 
+ ROOT=Path('/var/lib/local-ai-lab')
+ PACKAGE=Path('/usr/local/libexec/local-ai-lease/exclusive-session')
+ 
++# A typed exception alone hid the October31 pre-checkpoint refusal. Only these
++# reviewed constants may cross the journal boundary; never forward unit output,
++# subprocess arguments, configuration or an arbitrary exception string.
++UNIT_FAILURE_CODES=frozenset({
++    'UNIT_OUTSIDE_AI_STACK','UNIT_OPERATION_DEADLINE',
++    'UNIT_OBSERVATION_FAILED','UNIT_OBSERVATION_MALFORMED',
++    'UNIT_OBSERVATION_UNSUPPORTED','UNIT_INVENTORY_INVALID',
++    'ENTRY_UNIT_NOT_STABLE','UNIT_EFFECT_FAILED','UNIT_NOT_QUIESCENT',
++    'RESTORE_FILES_BEFORE_SERVICES','NO_REPLAY_TIMER_PROOF_REQUIRED',
++    'UNIT_RELOAD_FAILED','NO_REPLAY_TIMER_REARM_FAILED',
++})
++
++
++def failure_code(error):
++    if isinstance(error,UnitStateError):
++        code=str(error)
++        return code if code in UNIT_FAILURE_CODES else 'UNIT_FAILURE_UNCLASSIFIED'
++    return str(error) if isinstance(error,SessionError) else type(error).__name__
++
+ 
+ def runner(command,timeout):
+     # Never print/return stderr; errors can contain source-local configuration.
+@@ -100,7 +120,7 @@ def main():
+     except Exception as error:
+         # Fixed codes only; no exception string from subprocess, JSON, OS or
+         # configuration handling may leak into an AI-visible journal.
+-        code=str(error) if isinstance(error,SessionError) else type(error).__name__
++        code=failure_code(error)
+         print(json.dumps({'state':'no_go','failure_code':code},sort_keys=True)); return 1
+ 
+ 
+diff --git a/scripts/local-ai/test_lab_hours_exclusive_cli.py b/scripts/local-ai/test_lab_hours_exclusive_cli.py
+index 8a4f650f1..d8e6e196d 100644
+--- a/scripts/local-ai/test_lab_hours_exclusive_cli.py
++++ b/scripts/local-ai/test_lab_hours_exclusive_cli.py
+@@ -1,9 +1,35 @@
+ from unittest.mock import Mock,patch
++import contextlib
++import io
++import json
+ import unittest
+ import lab_hours_exclusive_cli as cli
+ 
+ 
+ class CliTests(unittest.TestCase):
++    def test_reviewed_unit_failure_codes_survive_without_raw_output(self):
++        for code in cli.UNIT_FAILURE_CODES:
++            with self.subTest(code=code):
++                self.assertEqual(cli.failure_code(cli.UnitStateError(code)),code)
++
++    def test_unreviewed_unit_error_text_is_never_forwarded(self):
++        for text in ('secret=value','UNIT_OBSERVATION_FAILED\nsecret=value',''):
++            self.assertEqual(cli.failure_code(cli.UnitStateError(text)),
++                             'UNIT_FAILURE_UNCLASSIFIED')
++
++    def test_untyped_error_text_is_never_forwarded(self):
++        self.assertEqual(cli.failure_code(RuntimeError('secret=value')),'RuntimeError')
++
++    def test_main_reports_fixed_code_and_nonzero_without_retry(self):
++        output=io.StringIO()
++        with patch('sys.argv',['exclusive','run','--booking-id','b60-exclusive-20261031']), \
++                patch.object(cli,'operate',side_effect=cli.UnitStateError(
++                    'ENTRY_UNIT_NOT_STABLE')) as operation, contextlib.redirect_stdout(output):
++            self.assertEqual(cli.main(),1)
++        operation.assert_called_once_with('run','b60-exclusive-20261031')
++        self.assertEqual(json.loads(output.getvalue()),
++                         {'state':'no_go','failure_code':'ENTRY_UNIT_NOT_STABLE'})
++
+     def test_static_validation_does_not_claim_to_inspect_arming(self):
+         adapter=Mock()
+         with patch.object(cli,'context',return_value=({},None,None,None,adapter)):
+-- 
+2.50.1 (Apple Git-155)
+

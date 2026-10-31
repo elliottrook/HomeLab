@@ -12,6 +12,15 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [October31 actual outcome](B60-Inference-Engineering/qualification-no-go-20261031.md)
+is NO-GO during initial unit capture: fresh integrity and full admission
+passed, but the owner reported only `UnitStateError`, before guest checkpoint,
+guardian, booking claim or stack drain. No model ran; live recovery remains
+unqualified. Shared locks are clear and all13 current unit rows have supported
+states. An undeployed allowlisted diagnostic candidate passes134 exact-replay
+Lab Hours tests and107 B60 tests without weakening entry checks. Next prepare
+a fresh source-bound operational qualification; capacity alone is not arming.
+
 The [fresh October31 qualification is now independently verified armed](B60-Inference-Engineering/qualification-armed-20261031.md).
 After actual release of the other live owner, the protected no-model profile
 and five metadata plans were installed; enabled/active Proxmox timers now
