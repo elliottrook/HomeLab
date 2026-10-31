@@ -101,7 +101,17 @@ class SharedLanguageTests(unittest.TestCase):
         self.assertEqual(text.count("<include>AsterV3MediaPill</include>"), 5)
         self.assertIn("<backgroundcolor>asterStone</backgroundcolor>", text)
         self.assertIn("<colordiffuse>asterStone</colordiffuse>", text)
+        self.assertIn('colordiffuse="asterCharcoalGlass"', text)
+        self.assertIn('colordiffuse="asterPaperGlass"', text)
+        self.assertNotIn('colordiffuse="66000000"', text)
+        self.assertNotIn('colordiffuse="33000000"', text)
         self.assertNotIn("<include>AsterV3PageBackdrop</include>", text)
+
+        includes = ET.parse(INCLUDES).getroot()
+        youtube_card = includes.find("include[@name='AsterV3YouTubeCard']")
+        self.assertIsNotNone(youtube_card)
+        self.assertGreaterEqual(int(youtube_card.findtext("height", "0")), 294)
+        self.assertEqual(youtube_card.find("texturefocus").attrib["colordiffuse"], "asterSageGlass")
 
         for title in ("A cinematic 16:9 card", "Titles sit on the card", "Focus lifts, never dims", "Rounded artwork and depth"):
             self.assertIn(f"<label>{title}</label>", text)

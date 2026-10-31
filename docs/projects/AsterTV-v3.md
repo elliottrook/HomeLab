@@ -841,6 +841,7 @@ explicit user acceptance.
 | 2026-10-31 | Reframed Stream A as an Aster page rework | Owner clarified that established page hierarchy and identity should evolve rather than be replaced; YouTube specifically needs 16:9 rounded artwork, icon-bearing pills, separated titles and more visual depth | Built an account-safe F9 YouTube fixture around the accepted hero/rail hierarchy; preserve all accepted v2 routes when the treatment moves to the real page |
 | 2026-10-31 | Locked YouTube rail and hero direction | Owner selected the existing Media top-rail language with plain Aster compass icons and accepted the raised hero card; low-resolution YouTube art must remain a contained thumbnail rather than a full-width backdrop | Fixture now reuses Media rail dimensions/treatments and structurally rejects full-width YouTube hero art |
 | 2026-10-31 | Aligned YouTube canvas with established light pages | Owner selected the lighter white/cream background used elsewhere in AsterTV | YouTube fixture now uses the Aster stone canvas and paper content/cards while retaining the dark rail and raised dark hero for hierarchy |
+| 2026-10-31 | Flattened YouTube recommendation surfaces | Owner requested no box shadows, translucent surfaces and titles contained by focus | Removed both offset shadow layers, introduced translucent paper/charcoal/sage tokens, and expanded the card focus surface to contain title and metadata; visual Mini check and six structural tests pass |
 
 ## Close-out
 

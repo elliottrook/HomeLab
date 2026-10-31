@@ -59,10 +59,10 @@
     </include>
 
     <include name="AsterV3YouTubeCard">
-        <height>286</height><font>font20</font><align>left</align><aligny>bottom</aligny>
+        <height>302</height><font>font20</font><align>left</align><aligny>bottom</aligny>
         <textoffsetx>18</textoffsetx><textoffsety>14</textoffsety>
         <textcolor>asterV3Text</textcolor><focusedcolor>asterV3Text</focusedcolor>
-        <texturefocus border="24" colordiffuse="asterSage">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="24" colordiffuse="asterPaper">special://skin/media/ui-panel.png</texturenofocus>
+        <texturefocus border="24" colordiffuse="asterSageGlass">special://skin/media/ui-panel.png</texturefocus>
+        <texturenofocus border="24" colordiffuse="asterPaperGlass">special://skin/media/ui-panel.png</texturenofocus>
     </include>
 </includes>
