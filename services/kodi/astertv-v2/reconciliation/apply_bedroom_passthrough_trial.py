@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply the proven Family Dolby profile as a reversible Bedroom trial."""
+"""Apply the verified Dolby-compatible Bedroom passthrough profile."""
 from __future__ import annotations
 
 import json
@@ -25,7 +25,9 @@ TARGET = {
     "audiooutput.ac3passthrough": True,
     "audiooutput.eac3passthrough": True,
     "audiooutput.dtspassthrough": False,
-    "audiooutput.truehdpassthrough": True,
+    # The DisplayPort/TV path rejects TrueHD's eight-channel carrier. Kodi must
+    # decode TrueHD locally while continuing to pass AC-3 and E-AC-3 through.
+    "audiooutput.truehdpassthrough": False,
     "audiooutput.dtshdpassthrough": False,
     "audiooutput.stereoupmix": False,
 }
