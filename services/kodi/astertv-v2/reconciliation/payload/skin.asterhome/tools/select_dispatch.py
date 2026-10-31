@@ -139,8 +139,15 @@ def main():
     if (window_id, focus_id) in ((10025, 50), (10000, 100), (10000, 110), (11112, 100), (11112, 110)):
         container = focus_id
         movie_id = xbmc.getInfoLabel(f'Container({container}).ListItem.DBID')
+        if not movie_id:
+            movie_id = xbmc.getInfoLabel(
+                f'Container({container}).ListItem.Property(AsterDbId)')
+        media_kind = xbmc.getInfoLabel(f'Container({container}).ListItem.DBTYPE')
+        if not media_kind:
+            media_kind = xbmc.getInfoLabel(
+                f'Container({container}).ListItem.Property(AsterMediaKind)')
         if (movie_id.isdecimal() and 0 < int(movie_id) <= 2147483647
-                and xbmc.getInfoLabel(f'Container({container}).ListItem.DBTYPE') == 'movie'
+                and media_kind == 'movie'
                 and not xbmc.getCondVisibility(f'Container({container}).ListItem.IsParentFolder')):
             xbmc.executebuiltin('RunScript(script.asterruntime,aster-global-search-ui22,movie,' + movie_id + ')')
             return

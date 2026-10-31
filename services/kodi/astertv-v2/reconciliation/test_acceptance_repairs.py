@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 
 
 HERE = Path(__file__).resolve().parent
-ARCHIVE = HERE.parents[1] / "dist/astertv-v2.0.7-production-2026-10-30-r19.tar.gz"
+ARCHIVE = HERE.parents[1] / "dist/astertv-v2.0.7-production-2026-10-30-r21.tar.gz"
 PREFIX = "aster-v2-package/lab-addon-snapshot/"
 
 

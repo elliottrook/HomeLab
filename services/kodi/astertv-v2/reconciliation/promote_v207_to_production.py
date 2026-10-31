@@ -20,8 +20,8 @@ SPLASH_SOURCE = PACKAGE / "profile-overlay/media/Splash.png"
 ADDONS = Path("/storage/.kodi/addons")
 KEYMAP = Path("/storage/.kodi/userdata/keymaps/g20s-pro-plus.xml")
 SPLASH = Path("/storage/.kodi/media/Splash.png")
-CHECKPOINT = Path("/storage/.aster-checkpoints/astertv-v2.0.7-production-r19-20261030")
-RELEASE = "astertv-v2.0.7-production-2026-10-30-r19"
+CHECKPOINT = Path("/storage/.aster-checkpoints/astertv-v2.0.7-production-r21-20261030")
+RELEASE = "astertv-v2.0.7-production-2026-10-30-r21"
 SPLASH_SHA = "912228f3866b33749905eb8154b470d3170fe4747f92799811470bb49b986cce"
 AUDIO_SETTINGS = (
     "audiooutput.audiodevice",
@@ -30,6 +30,17 @@ AUDIO_SETTINGS = (
     "audiooutput.channels",
     "audiooutput.config",
 )
+RUNTIME_ADDONS = (
+    "screensaver.asterhome.v2lab",
+    "script.asteracquisition",
+    "script.astermusic.v2lab",
+    "script.asterruntime",
+    "script.asterseerr",
+    "script.astervoice.v2lab",
+    "service.aster.playerui",
+    "service.aster.startup",
+)
+LAB_ONLY_ADDONS = ("script.asterbootstrap",)
 
 
 def sha(path: Path) -> str:
@@ -73,6 +84,29 @@ def restore_audio_settings(expected: dict) -> None:
     raise RuntimeError("audio settings did not survive post-start verification: " + repr(last))
 
 
+def addon_state(addon_id: str) -> bool | None:
+    result = kodi_rpc("Addons.GetAddonDetails", {
+        "addonid": addon_id, "properties": ["enabled"]})
+    if not isinstance(result, dict) or not isinstance(result.get("addon"), dict):
+        return None
+    value = result["addon"].get("enabled")
+    return value if isinstance(value, bool) else None
+
+
+def set_addon_state(addon_id: str, enabled: bool) -> None:
+    result = kodi_rpc("Addons.SetAddonEnabled", {
+        "addonid": addon_id, "enabled": enabled})
+    if result != "OK" or addon_state(addon_id) is not enabled:
+        raise RuntimeError("add-on activation failed: " + addon_id)
+
+
+def activate_runtime_addons() -> None:
+    for addon_id in RUNTIME_ADDONS:
+        set_addon_state(addon_id, True)
+    for addon_id in LAB_ONLY_ADDONS:
+        set_addon_state(addon_id, False)
+
+
 def snapshot_rows() -> tuple[dict, list[dict]]:
     manifest = json.loads(SNAPSHOT_MANIFEST.read_text())
     if manifest.get("release") != RELEASE or manifest.get("credentials_included") is not False:
@@ -104,6 +138,10 @@ def main() -> None:
         raise RuntimeError("checkpoint/recovery guard")
     require_idle()
     saved_audio = audio_settings()
+    saved_addon_states = {
+        addon_id: addon_state(addon_id)
+        for addon_id in RUNTIME_ADDONS + LAB_ONLY_ADDONS
+    }
     manifest, rows = snapshot_rows()
     if sha(SPLASH_SOURCE) != SPLASH_SHA:
         raise RuntimeError("unexpected splash hash")
@@ -133,6 +171,7 @@ def main() -> None:
         "credentials_or_addon_data_touched": False,
         "audio_settings_touched": False,
         "audio_settings_before": saved_audio,
+        "addon_states_before": saved_addon_states,
     }
     (CHECKPOINT / "manifest.json").write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n")
     if KEYMAP.is_file():
@@ -163,6 +202,7 @@ def main() -> None:
         if subprocess.run(["systemctl", "is-active", "--quiet", "kodi"]).returncode != 0:
             raise RuntimeError("Kodi did not remain active")
         restore_audio_settings(saved_audio)
+        activate_runtime_addons()
         require_idle()
     except Exception:
         subprocess.run(["systemctl", "stop", "kodi"], check=False, timeout=45)
@@ -187,6 +227,9 @@ def main() -> None:
         time.sleep(8)
         try:
             restore_audio_settings(saved_audio)
+            for addon_id, enabled in saved_addon_states.items():
+                if enabled is not None:
+                    set_addon_state(addon_id, enabled)
         except Exception:
             Path("/storage/.aster-recovery-required").write_text(
                 "AsterTV v2.0.7 rollback restored add-ons but not the pre-deployment audio route.\n")

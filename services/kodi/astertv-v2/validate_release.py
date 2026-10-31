@@ -12,10 +12,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parents[2]
-ARCHIVE = REPO / "services/kodi/dist/astertv-v2.0.7-production-2026-10-30-r19.tar.gz"
+ARCHIVE = REPO / "services/kodi/dist/astertv-v2.0.7-production-2026-10-30-r21.tar.gz"
 SIDECAR = ARCHIVE.with_suffix(ARCHIVE.suffix + ".sha256")
 PREFIX = "aster-v2-package/"
-RELEASE = "astertv-v2.0.7-production-2026-10-30-r19"
+RELEASE = "astertv-v2.0.7-production-2026-10-30-r21"
 SPLASH_SHA = "912228f3866b33749905eb8154b470d3170fe4747f92799811470bb49b986cce"
 
 
@@ -73,6 +73,7 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
     requests = addon("skin.asterhome/1080i/custom_1132_requests.xml")
     acquisition = addon("skin.asterhome/1080i/custom_1133_acquisition.xml")
     dispatcher = addon("skin.asterhome/tools/select_dispatch.py")
+    series_helper = addon("skin.asterhome/tools/aster_v2_series.py")
     seerr = addon("script.asterseerr/default.py")
     youtube = addon("skin.asterhome/1080i/MyVideoNav.xml")
     series = addon("script.asterruntime/aster-series-preview24/default.py")
@@ -101,6 +102,9 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
     assert 'id="50"' not in acquisition and 'AsterAcquisition.Command,action' in acquisition
     assert '11132: frozenset((30, 40))' in dispatcher
     assert '11133: frozenset((30,))' in dispatcher
+    assert 'ListItem.Property(AsterDbId)' in dispatcher
+    assert 'ListItem.Property(AsterMediaKind)' in dispatcher
+    assert 'ListItem.Property(AsterMediaKind)' in series_helper
     assert "command == 'season'" in seerr and 'seasons.selectItem(position)' in seerr
 
     # Previously accepted regressions remain pinned.
@@ -118,7 +122,9 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
     for guard in ('AsterTVProd', 'require_idle()', 'credentials_or_addon_data_touched',
                   'audio_settings_before', 'restore_audio_settings(saved_audio)',
                   'Settings.SetSettingValue', 'verify_installed(rows)', 'systemctl',
-                  'CHECKPOINT', 'Path("/storage/.aster-recovery-required")'):
+                  'activate_runtime_addons()', 'Addons.SetAddonEnabled',
+                  'script.asterbootstrap', 'CHECKPOINT',
+                  'Path("/storage/.aster-recovery-required")'):
         assert guard in promoter_text
     assert 'addon_data' in promoter_text and 'SPLASH_SHA' in promoter_text
 
