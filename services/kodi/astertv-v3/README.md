@@ -53,3 +53,11 @@ Press `F9` to open the account-safe YouTube rework fixture. It preserves the
 accepted page hierarchy while demonstrating icon-bearing pills, layered
 surfaces, true 16:9 artwork and card-backed titles without calling YouTube.
 
+Press `F10` to open the deterministic artwork-tile fixture. It covers
+landscape, square, portrait and compact artwork with transparent rest states
+and the locked tight sage artwork/title focus surface.
+
+Press `F11` to open the deterministic button fixture. It covers the locked
+Gold Rim treatment on rail pills, primary actions, current/toggle states and
+compact player controls using deep Aster green and antique gold `#AD8A4D`.
+

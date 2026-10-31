@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import hashlib
 import subprocess
 import shutil
 import tarfile
@@ -16,16 +17,32 @@ OVERLAY = V3 / "overlay/skin.asterhome.v3pilot"
 PAGE = OVERLAY / "1080i/custom_1190_v3language.xml"
 YOUTUBE_PAGE = OVERLAY / "1080i/custom_1191_youtube_rework.xml"
 TILE_GALLERY = OVERLAY / "1080i/custom_1192_tile_gallery.xml"
+BUTTON_GALLERY = OVERLAY / "1080i/custom_1193_button_gallery.xml"
 INCLUDES = OVERLAY / "1080i/IncludesV3.xml"
 COLORS = OVERLAY / "colors/defaults.xml"
 PATCH = V3 / "patches/001-load-v3-includes.patch"
 ARCHIVE = ROOT / "services/kodi/dist/astertv-v2.0.7-release-2026-10-31.tar.gz"
 ART_TITLE_TRANSFORM = V3 / "apply_art_title_focus.py"
+BUTTON_TRANSFORM = V3 / "apply_button_focus.py"
+BUTTON_FOCUS = OVERLAY / "media/ui-button-focus-gold-rim.svg"
+BUTTON_CURRENT = OVERLAY / "media/ui-button-current-gold-rim.svg"
+BUTTON_FOCUS_PNG = OVERLAY / "media/ui-button-focus-gold-rim.png"
+BUTTON_CURRENT_PNG = OVERLAY / "media/ui-button-current-gold-rim.png"
 
 
 class SharedLanguageTests(unittest.TestCase):
     def test_xml_is_well_formed(self) -> None:
-        for path in (PAGE, YOUTUBE_PAGE, TILE_GALLERY, INCLUDES, COLORS, OVERLAY / "addon.xml"):
+        for path in (
+            PAGE,
+            YOUTUBE_PAGE,
+            TILE_GALLERY,
+            BUTTON_GALLERY,
+            BUTTON_FOCUS,
+            BUTTON_CURRENT,
+            INCLUDES,
+            COLORS,
+            OVERLAY / "addon.xml",
+        ):
             with self.subTest(path=path):
                 ET.parse(path)
 
@@ -233,6 +250,108 @@ class SharedLanguageTests(unittest.TestCase):
                                 tight_surfaces += 1
             self.assertEqual(surfaces, 14)
             self.assertGreaterEqual(tight_surfaces, 8)
+
+    def test_button_gallery_covers_definitive_gold_rim_states(self) -> None:
+        page = ET.parse(BUTTON_GALLERY).getroot()
+        text = BUTTON_GALLERY.read_text()
+        buttons = {node.attrib["id"]: node for node in page.findall(".//control[@type='button']")}
+        self.assertEqual(len(buttons), 15)
+        self.assertEqual(page.findtext("defaultcontrol"), "11962")
+        for button in buttons.values():
+            for direction in ("onleft", "onright", "onup", "ondown"):
+                self.assertIn(button.findtext(direction), buttons)
+        self.assertIn("ui-button-current-gold-rim.png", text)
+        self.assertIn("#AD8A4D", text)
+        self.assertNotIn("#D7B45F", text.upper())
+
+        for path in (BUTTON_FOCUS, BUTTON_CURRENT):
+            svg = path.read_text().lower()
+            self.assertIn("#ad8a4d", svg)
+            self.assertNotIn("#d7b45f", svg)
+        self.assertIn("#1f513b", BUTTON_FOCUS.read_text().lower())
+        self.assertTrue(BUTTON_FOCUS_PNG.read_bytes().startswith(b"\x89PNG\r\n\x1a\n"))
+        self.assertTrue(BUTTON_CURRENT_PNG.read_bytes().startswith(b"\x89PNG\r\n\x1a\n"))
+        self.assertEqual(
+            hashlib.sha256(BUTTON_FOCUS_PNG.read_bytes()).hexdigest(),
+            "c1de42c5d178eeb0c2136781f891c9543fea78a9a41c4a084a78d8fbc86f214f",
+        )
+        self.assertEqual(
+            hashlib.sha256(BUTTON_CURRENT_PNG.read_bytes()).hexdigest(),
+            "cbaf368d835e864e68ba816c9184350d59a9c0a861e1de9b6e8e03b6bb955925",
+        )
+
+    def test_button_transform_is_guarded_and_preserves_art_contract(self) -> None:
+        prefix = "aster-v2-package/lab-addon-snapshot/skin.asterhome/"
+        with tempfile.TemporaryDirectory() as tmp_name:
+            tmp = Path(tmp_name)
+            with tarfile.open(ARCHIVE, "r:gz") as archive:
+                members = [member for member in archive.getmembers() if member.name.startswith(prefix)]
+                archive.extractall(tmp, members=members)
+            source = tmp / prefix
+            skin = tmp / "skin.asterhome.v3pilot"
+            shutil.move(source, skin)
+            shutil.copytree(OVERLAY, skin, dirs_exist_ok=True)
+            patched = subprocess.run(
+                ["patch", "-d", str(skin), "-p1", "-i", str(PATCH)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(patched.returncode, 0, patched.stdout + patched.stderr)
+            art = subprocess.run(
+                ["python3", str(ART_TITLE_TRANSFORM), str(skin)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(art.returncode, 0, art.stdout + art.stderr)
+            completed = subprocess.run(
+                ["python3", str(BUTTON_TRANSFORM), str(skin)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+            self.assertIn("227 visible buttons", completed.stdout)
+            self.assertIn("anchor:1, art:8, catcher:2, hidden:4", completed.stdout)
+            self.assertIn("12 shared button definitions", completed.stdout)
+
+            focus_refs = 0
+            for path in (skin / "1080i").glob("*.xml"):
+                root = ET.parse(path).getroot()
+                for node in root.iter("texturefocus"):
+                    if (node.text or "").strip() != (
+                        "special://skin/media/ui-button-focus-gold-rim.png"
+                    ):
+                        continue
+                    self.assertEqual(node.attrib.get("border"), "20")
+                    focus_refs += 1
+            self.assertEqual(focus_refs, 201)
+
+            tile = ET.parse(skin / "1080i/custom_1192_tile_gallery.xml").getroot()
+            art_buttons = {
+                node.attrib["id"]: node
+                for node in tile.findall(".//control[@type='button']")
+            }
+            for button_id in ("11950", "11951", "11952", "11953"):
+                focus = art_buttons[button_id].find("texturefocus")
+                self.assertEqual(focus.attrib.get("colordiffuse"), "asterSageGlass")
+                self.assertEqual(focus.text, "special://skin/media/ui-panel.png")
+
+            for fixture in (
+                "custom_1190_v3language.xml",
+                "custom_1191_youtube_rework.xml",
+                "custom_1193_button_gallery.xml",
+            ):
+                root = ET.parse(skin / "1080i" / fixture).getroot()
+                for button in root.findall(".//control[@type='button']"):
+                    if button.findtext("description") == "AsterV3ArtTitleTile":
+                        continue
+                    if "AsterV3ArtTitleTile" in {
+                        node.text for node in button.findall("include")
+                    }:
+                        continue
+                    self.assertEqual(button.findtext("focusedcolor"), "asterIvory")
 
 
 if __name__ == "__main__":

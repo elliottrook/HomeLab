@@ -422,6 +422,31 @@ title appears beneath its artwork is `AsterV3ArtTitleTile`:
 The build must continue to fail closed if the pinned qualifying-layout
 inventory changes, and F10 remains the deterministic visual acceptance fixture.
 
+#### Locked PA1 component — button selection
+
+The definitive AsterTV v3 selection treatment for every visible interactive
+button is **Gold Rim**:
+
+- focused buttons use a deep Aster green (`#1F513B`) fill with a restrained
+  antique-gold (`#AD8A4D`) rim and ivory label/icon;
+- an already-current choice uses the same gold rim over the normal dark
+  black/brown button surface, so current state remains distinct from remote
+  focus;
+- the same treatment applies to top-rail/search pills, primary actions,
+  text-only buttons, season and filter choices, dialogs, keyboard keys and
+  compact player controls;
+- disabled controls remain visibly muted and may not acquire a focus rim;
+- artwork-plus-title tiles continue to use `AsterV3ArtTitleTile`; invisible
+  navigation anchors, full-page focus catchers and hidden controls are not
+  buttons and must not inherit Gold Rim;
+- no bright yellow or blue focus colour is permitted.
+
+The build transform is pinned to 227 visible buttons and 12 shared definitions,
+with eight artwork controls, four hidden controls, two full-page catchers and
+one navigation anchor explicitly excluded. Any inventory drift fails the build
+closed. F11 is the deterministic Gold Rim fixture and F9 verifies the button
+and artwork contracts together on a representative page.
+
 ### PA2 — Media page redesigns
 
 - [ ] Redesign Movies/details with cast/crew artwork, roles, contextual cast
@@ -869,6 +894,7 @@ explicit user acceptance.
 | 2026-10-31 | Removed the resting tile surface | Owner requested artwork and labels sit directly on the page until selected; a dedicated transparent SVG avoids Kodi's white default-button fallback while the sage focused surface is unchanged | Clean-process Mini render verifies landscape, square, portrait and compact tiles are transparent at rest and transfer the green wrapper with focus; launcher no longer permits duplicate cached pilot instances |
 | 2026-10-31 | Tightened the selected tile halo | Owner requested substantially less green above and beside artwork while retaining the lower title field | Guarded transform now derives a 4px real-layout halo from artwork/title bounds; fixture renders use 8px visual margins across landscape, square, portrait and compact art, keep the original lower edge and preserve untruncated titles |
 | 2026-10-31 | Locked the definitive artwork-tile selection component | Owner accepted the transparent resting state plus tight sage focus halo and requested it be marked definitive before button work begins | PA1 now contains a normative `AsterV3ArtTitleTile` contract and keeps F10 plus the 14-layout fail-closed inventory as its acceptance/regression evidence |
+| 2026-10-31 | Locked the definitive button-selection component | Owner selected Gold Rim and requested a less-yellow gold plus Aster-wide use; the accepted palette is deep green `#1F513B` with antique gold `#AD8A4D` | Guarded transform covers 227 visible buttons and 12 shared definitions while excluding art/hidden/catcher/anchor controls; F11 validates rail, primary, toggle/current and player-button forms, and F9 confirms the art-tile contract remains separate |
 
 ## Close-out
 
