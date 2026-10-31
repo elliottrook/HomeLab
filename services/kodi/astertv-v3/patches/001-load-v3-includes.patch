@@ -1,0 +1,8 @@
+--- a/1080i/Includes.xml
++++ b/1080i/Includes.xml
+@@ -306,4 +306,5 @@
+         <texturefocus>none</texturefocus>
+         <texturenofocus>none</texturenofocus>
+     </include>
++    <include file="IncludesV3.xml" />
+ </includes>

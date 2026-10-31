@@ -44,3 +44,8 @@ and selects only the pilot skin through local Kodi JSON-RPC.
 Never launch the application directly. Direct launch omits `-p` and is outside
 the pilot boundary.
 
+Press `F8` in the verified portable pilot to open the synthetic PA1 shared-
+language page. The fixture contains no media, account, camera or household
+state. It exists to review common chrome, focus, target sizing and ready/loading/
+empty/error language before those components are applied to individual pages.
+

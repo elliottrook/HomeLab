@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="1190">
+    <defaultcontrol always="true">11901</defaultcontrol>
+    <backgroundcolor>asterV3Bg</backgroundcolor>
+    <controls>
+        <include>AsterV3PageBackdrop</include>
+
+        <control type="image">
+            <left>88</left><top>48</top><width>210</width><height>126</height>
+            <texture>special://skin/media/27-aster-media-logo.png</texture>
+            <aspectratio>keep</aspectratio>
+        </control>
+        <control type="label">
+            <left>330</left><top>58</top><width>520</width><height>32</height>
+            <label>SHARED PAGE LANGUAGE</label><font>font18</font>
+            <textcolor>asterV3Focus</textcolor>
+        </control>
+        <control type="label">
+            <left>330</left><top>90</top><width>760</width><height>58</height>
+            <label>AsterTV v3</label><font>font40</font>
+            <textcolor>asterV3Text</textcolor>
+        </control>
+        <control type="label">
+            <left>330</left><top>143</top><width>900</width><height>34</height>
+            <label>One calm shell for every room, page and remote.</label><font>font20</font>
+            <textcolor>asterV3Muted</textcolor>
+        </control>
+
+        <control type="button" id="11901">
+            <left>1150</left><top>70</top><width>160</width><label>Overview</label>
+            <include>AsterV3TopPill</include>
+            <onleft>11904</onleft><onright>11902</onright><onup>11901</onup><ondown>11910</ondown>
+            <onclick>SetFocus(11910)</onclick>
+        </control>
+        <control type="button" id="11902">
+            <left>1322</left><top>70</top><width>150</width><label>Focus</label>
+            <include>AsterV3TopPill</include>
+            <onleft>11901</onleft><onright>11903</onright><onup>11902</onup><ondown>11911</ondown>
+            <onclick>SetFocus(11911)</onclick>
+        </control>
+        <control type="button" id="11903">
+            <left>1484</left><top>70</top><width>150</width><label>States</label>
+            <include>AsterV3TopPill</include>
+            <onleft>11902</onleft><onright>11904</onright><onup>11903</onup><ondown>11912</ondown>
+            <onclick>SetFocus(11912)</onclick>
+        </control>
+        <control type="button" id="11904">
+            <left>1646</left><top>70</top><width>150</width><label>Back</label>
+            <include>AsterV3TopPill</include>
+            <onleft>11903</onleft><onright>11901</onright><onup>11904</onup><ondown>11913</ondown>
+            <onclick>ActivateWindow(Home)</onclick>
+        </control>
+
+        <control type="group">
+            <left>120</left><top>225</top>
+            <control type="image">
+                <width>1680</width><height>260</height>
+                <texture border="18" colordiffuse="f2151d31">special://skin/media/ui-panel.png</texture>
+            </control>
+            <control type="label">
+                <left>42</left><top>34</top><width>940</width><height>34</height>
+                <label>DESIGN CONTRACT</label><font>font18</font><textcolor>asterV3Focus</textcolor>
+            </control>
+            <control type="label">
+                <left>42</left><top>78</top><width>920</width><height>54</height>
+                <label>Readable first. Reversible always.</label><font>font36</font><textcolor>asterV3Text</textcolor>
+            </control>
+            <control type="textbox">
+                <left>42</left><top>142</top><width>980</width><height>86</height>
+                <label>Dark, high-contrast surfaces carry Aster’s green and gold identity. Every action explains its result, every focus target is visible, and every empty or failed state offers a safe route forward.</label>
+                <font>font20</font><textcolor>asterV3TextSoft</textcolor><wrapmultiline>true</wrapmultiline>
+            </control>
+            <control type="image">
+                <left>1215</left><top>28</top><width>210</width><height>204</height>
+                <texture>special://skin/media/aster-icon-512.png</texture><aspectratio>keep</aspectratio>
+            </control>
+            <control type="label">
+                <left>1450</left><top>54</top><width>180</width><height>32</height>
+                <label>REMOTE</label><font>font18</font><textcolor>asterV3Muted</textcolor>
+            </control>
+            <control type="label">
+                <left>1450</left><top>92</top><width>180</width><height>42</height>
+                <label>44px+</label><font>font28</font><textcolor>asterV3Success</textcolor>
+            </control>
+            <control type="label">
+                <left>1450</left><top>137</top><width>180</width><height>62</height>
+                <label>minimum[CR]target</label><font>font18</font><textcolor>asterV3TextSoft</textcolor>
+            </control>
+        </control>
+
+        <control type="label">
+            <left>120</left><top>530</top><width>800</width><height>42</height>
+            <label>System states</label><font>font28</font><textcolor>asterV3Text</textcolor>
+        </control>
+        <control type="label">
+            <left>120</left><top>570</top><width>1200</width><height>32</height>
+            <label>Each state says what happened and what the next action will do.</label><font>font18</font><textcolor>asterV3Muted</textcolor>
+        </control>
+
+        <control type="button" id="11910">
+            <left>120</left><top>625</top><width>390</width>
+            <label>✓  Ready[CR][CR][COLOR asterV3TextSoft]Fresh data is available.[/COLOR][CR][COLOR asterV3Success]Open the page[/COLOR]</label>
+            <include>AsterV3StateButton</include>
+            <onleft>11913</onleft><onright>11911</onright><onup>11901</onup><ondown>11920</ondown>
+            <onclick>SetFocus(11920)</onclick>
+        </control>
+        <control type="button" id="11911">
+            <left>540</left><top>625</top><width>390</width>
+            <label>…  Loading[CR][CR][COLOR asterV3TextSoft]The source is responding.[/COLOR][CR][COLOR asterV3Muted]Back remains available[/COLOR]</label>
+            <include>AsterV3StateButton</include>
+            <onleft>11910</onleft><onright>11912</onright><onup>11902</onup><ondown>11920</ondown>
+            <onclick>SetFocus(11920)</onclick>
+        </control>
+        <control type="button" id="11912">
+            <left>960</left><top>625</top><width>390</width>
+            <label>○  Nothing here yet[CR][CR][COLOR asterV3TextSoft]No items match this view.[/COLOR][CR][COLOR asterV3Focus]Clear the filter[/COLOR]</label>
+            <include>AsterV3StateButton</include>
+            <onleft>11911</onleft><onright>11913</onright><onup>11903</onup><ondown>11920</ondown>
+            <onclick>SetFocus(11920)</onclick>
+        </control>
+        <control type="button" id="11913">
+            <left>1380</left><top>625</top><width>390</width>
+            <label>!  Source unavailable[CR][CR][COLOR asterV3TextSoft]Nothing was changed.[/COLOR][CR][COLOR asterV3Danger]Try again safely[/COLOR]</label>
+            <include>AsterV3StateButton</include>
+            <onleft>11912</onleft><onright>11910</onright><onup>11904</onup><ondown>11920</ondown>
+            <onclick>SetFocus(11920)</onclick>
+        </control>
+
+        <control type="button" id="11920">
+            <left>760</left><top>855</top><width>400</width><label>Return to AsterTV Media</label>
+            <include>AsterV3PrimaryAction</include>
+            <onleft>11920</onleft><onright>11920</onright><onup>11910</onup><ondown>11901</ondown>
+            <onclick>ActivateWindow(Home)</onclick>
+        </control>
+        <control type="label">
+            <left>510</left><top>930</top><width>900</width><height>32</height>
+            <align>center</align><label>Synthetic design fixture · no household or account data</label>
+            <font>font18</font><textcolor>asterV3Muted</textcolor>
+        </control>
+    </controls>
+</window>

@@ -11,8 +11,11 @@ target="$addons/skin.asterhome.v3pilot"
 next="$addons/.skin.asterhome.v3pilot.next"
 previous="$addons/.skin.asterhome.v3pilot.previous"
 overlay="$repo/services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot"
+patches="$repo/services/kodi/astertv-v3/patches"
 marker_source="$repo/services/kodi/astertv-v3/pilot/portable-marker"
 marker="$portable/.astertv-v3-portable"
+keymap_source="$repo/services/kodi/astertv-v3/pilot/keymaps/astertv-v3-pilot.xml"
+keymap_target="$portable/userdata/keymaps/astertv-v3-pilot.xml"
 
 case "$portable" in
   /Users/jelliott/Applications/AsterTV-v3-Pilot/Kodi.app/Contents/Resources/Kodi/portable_data) ;;
@@ -44,13 +47,20 @@ tar -xzf "$archive" -C "$stage" \
 mv "$stage/aster-v2-package/lab-addon-snapshot/skin.asterhome" \
   "$stage/skin.asterhome.v3pilot"
 ditto "$overlay" "$stage/skin.asterhome.v3pilot"
+for patch_file in "$patches"/*.patch; do
+  patch -d "$stage/skin.asterhome.v3pilot" -p1 < "$patch_file"
+done
 
 xmllint --noout "$stage/skin.asterhome.v3pilot/addon.xml"
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/Home.xml"
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/Includes.xml"
+xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/IncludesV3.xml"
+xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1190_v3language.xml"
+xmllint --noout "$keymap_source"
 
-mkdir -p "$addons" "$portable/userdata"
+mkdir -p "$addons" "$portable/userdata/keymaps"
 ditto "$marker_source" "$marker"
+ditto "$keymap_source" "$keymap_target"
 
 rm -rf "$next"
 ditto "$stage/skin.asterhome.v3pilot" "$next"

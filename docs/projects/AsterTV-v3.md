@@ -391,7 +391,7 @@ Bedroom.
 
 ### PA1 — Shared v3 page language
 
-- [ ] Create the v3 overlay/build boundary without modifying the immutable v2
+- [x] Create the v3 overlay/build boundary without modifying the immutable v2
   release payload.
 - [ ] Reconcile common page chrome, focus, pills, Back/Home behaviour, hero
   treatment, empty/error/loading states and remote target sizing against the
@@ -835,6 +835,8 @@ explicit user acceptance.
 | 2026-10-31 | First isolated pilot launch | Process command is the dedicated app binary with `-p`; Kodi log reports 22.0 RC1 and maps `special://home` to the app bundle's `portable_data`; retained-profile digest and timestamps are unchanged | Portable isolation passed; Kodi loaded Estuary initially, and visual activation of the v3 pilot skin is waiting for the locked Mini to be unlocked |
 | 2026-10-31 | Reconfirmed Bedroom runtime | Read-only SSH using the already accepted ED25519 key reports LibreELEC nightly `20261021-440640e` and Kodi 22.0 RC1 (`21.90.901`), Git `01d4146d…` | Bedroom and Family share the release/build contract; no target was changed |
 | 2026-10-31 | Activated credential-free v3 pilot skin | Enabled only `skin.asterhome.v3pilot` in the dedicated portable profile; Kodi rendered the accepted v2.0.7-derived Media shell without live content or credentials; retained Mini skin digest remains `5bdc6b5c…63cfe` | PA0 gate passed; removed the pilot debug overlay and started PA1 shared-page language work |
+| 2026-10-31 | Established the PA1 overlay/build boundary | Reproducible preparation now expands the hash-pinned immutable v2.0.7 archive into a disposable staging directory, applies the v3 overlay and ordered patch set, validates XML, and atomically replaces only the portable pilot skin | First PA1 item passed; immutable v2 payload, Family, Bedroom and the retained Mini profile remain unchanged |
+| 2026-10-31 | Rendered and walked the shared-language reference page | Synthetic F8 fixture renders dark high-contrast Aster green/gold chrome, 44px+ targets and Ready/Loading/Empty/Error states; five structural/focus tests pass; physical arrows reached every state, Back and the explicit Media return; retained-profile digest remains `5bdc6b5c…63cfe` | Continue PA1 by reconciling the shared language across common chrome and adding deterministic screenshot fixtures before page conversions |
 
 ## Close-out
 

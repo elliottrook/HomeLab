@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<colors>
+    <color name="asterIvory">fff2ede4</color>
+    <color name="asterStone">ffe6dac8</color>
+    <color name="asterPaper">fff8f5ef</color>
+    <color name="asterCharcoal">ff292721</color>
+    <color name="asterInk">ff1e241f</color>
+    <color name="asterGreen">ff1f513b</color>
+    <color name="asterSage">ff9bc9a8</color>
+    <color name="asterGold">ffc2a06b</color>
+    <color name="asterMuted">ff706b62</color>
+    <color name="asterRailText">ffece8df</color>
+
+    <!-- V3 semantic tokens: Aster identity adapted to the internal UI guide. -->
+    <color name="asterV3Bg">ff0b1020</color>
+    <color name="asterV3Panel">ff151d31</color>
+    <color name="asterV3Raised">ff1b2740</color>
+    <color name="asterV3Input">ff111a2c</color>
+    <color name="asterV3Text">fff4f7fb</color>
+    <color name="asterV3TextSoft">ffdce4f1</color>
+    <color name="asterV3Muted">ffaab6ca</color>
+    <color name="asterV3Focus">ffc2a06b</color>
+    <color name="asterV3Success">ff9bc9a8</color>
+    <color name="asterV3Danger">ffffaaa8</color>
+    <color name="asterV3Line">ff2b3a58</color>
+</colors>

@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import subprocess
+import tarfile
+import tempfile
+import unittest
+from pathlib import Path
+from xml.etree import ElementTree as ET
+
+
+ROOT = Path(__file__).resolve().parents[3]
+V3 = ROOT / "services/kodi/astertv-v3"
+OVERLAY = V3 / "overlay/skin.asterhome.v3pilot"
+PAGE = OVERLAY / "1080i/custom_1190_v3language.xml"
+INCLUDES = OVERLAY / "1080i/IncludesV3.xml"
+COLORS = OVERLAY / "colors/defaults.xml"
+PATCH = V3 / "patches/001-load-v3-includes.patch"
+ARCHIVE = ROOT / "services/kodi/dist/astertv-v2.0.7-release-2026-10-31.tar.gz"
+
+
+class SharedLanguageTests(unittest.TestCase):
+    def test_xml_is_well_formed(self) -> None:
+        for path in (PAGE, INCLUDES, COLORS, OVERLAY / "addon.xml"):
+            with self.subTest(path=path):
+                ET.parse(path)
+
+    def test_focus_graph_is_closed_and_targets_are_remote_sized(self) -> None:
+        page = ET.parse(PAGE).getroot()
+        buttons = {node.attrib["id"]: node for node in page.findall(".//control[@type='button']")}
+        self.assertEqual(len(buttons), 9)
+
+        include_root = ET.parse(INCLUDES).getroot()
+        include_heights = {
+            node.attrib["name"]: int(node.findtext("height", "0"))
+            for node in include_root.findall("include")
+        }
+        for control_id, button in buttons.items():
+            with self.subTest(control_id=control_id):
+                include_name = button.findtext("include")
+                height = int(button.findtext("height", "0")) or include_heights[include_name]
+                self.assertGreaterEqual(height, 44)
+                for direction in ("onleft", "onright", "onup", "ondown"):
+                    self.assertIn(button.findtext(direction), buttons)
+
+    def test_fixture_covers_explicit_states_and_safe_return(self) -> None:
+        text = PAGE.read_text()
+        for label in ("Ready", "Loading", "Nothing here yet", "Source unavailable"):
+            self.assertIn(label, text)
+        self.assertIn("Synthetic design fixture", text)
+        self.assertIn("<label>Back</label>", text)
+        self.assertGreaterEqual(text.count("<onclick>ActivateWindow(Home)</onclick>"), 2)
+
+    def test_semantic_tokens_are_present(self) -> None:
+        colors = {node.attrib["name"] for node in ET.parse(COLORS).getroot().findall("color")}
+        required = {
+            "asterV3Bg",
+            "asterV3Panel",
+            "asterV3Text",
+            "asterV3Muted",
+            "asterV3Focus",
+            "asterV3Success",
+            "asterV3Danger",
+        }
+        self.assertTrue(required <= colors)
+
+    def test_overlay_patch_applies_to_immutable_v2_baseline(self) -> None:
+        member = "aster-v2-package/lab-addon-snapshot/skin.asterhome/1080i/Includes.xml"
+        with tempfile.TemporaryDirectory() as tmp_name:
+            tmp = Path(tmp_name)
+            (tmp / "1080i").mkdir()
+            with tarfile.open(ARCHIVE, "r:gz") as archive:
+                source = archive.extractfile(member)
+                self.assertIsNotNone(source)
+                (tmp / "1080i/Includes.xml").write_bytes(source.read())
+            completed = subprocess.run(
+                ["patch", "-d", str(tmp), "-p1", "--dry-run", "-i", str(PATCH)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+
+
+if __name__ == "__main__":
+    unittest.main()

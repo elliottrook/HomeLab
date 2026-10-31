@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keymap>
+    <global>
+        <keyboard>
+            <f8>ActivateWindow(1190)</f8>
+        </keyboard>
+    </global>
+</keymap>
