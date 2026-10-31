@@ -245,3 +245,47 @@ rollback, Home and camera lifecycle calls, and the guarded external eBook/Home
 recovery scripts. A direct production comparison found zero mismatches across
 all 577 installed files. Credentials, Kodi profile/add-on data, HA private key,
 narration output and audio configuration remain outside the archive.
+
+### Production Settings, clock and Aster screensaver recovery — r30–r35
+
+The first production Settings repair exposed two independent issues. Kodi 22's
+setting mutation RPC returns boolean `true`, not the older `"OK"` sentinel;
+the first two guarded attempts therefore rolled back without leaving a live
+change. r30 uses Kodi's supported `locale.use24hourclock=24hours` override,
+verifies the resulting `H:mm:ss` format and adds explicit focus links between
+the native Settings category and value groups. Checkpoint:
+`/storage/.aster-checkpoints/astertv-v2.0.7-settings-clock-r30-20261030`.
+
+The remaining physical G20 failure was in Aster's global OK dispatcher. It
+handled custom media lists explicitly but delegated the Settings rail and
+native category pills to a generic Select fallback. r34 now directly dispatches
+the Settings rail plus Interface, Player, Services and Add-ons pills. A bounded
+runtime check opened Aster Settings, entered Settings - Interface and returned
+to the Aster chooser. The selected Aster screensaver was also correctly
+installed but its presentation default was explicitly `black`, with no saved
+override. r34 changes only that Aster-owned setting to `aster`; the existing
+opaque black background, restrained moving mark and wake behaviour remain.
+Checkpoint:
+`/storage/.aster-checkpoints/astertv-v2.0.7-settings-screensaver-r34-20261031`.
+The add-on launched its Aster idle dialog after the repair; physical visual
+confirmation of the rendered mark remains the owner acceptance check.
+
+The immutable r35 recovery archive reconciles r27, r30 and r34 without profile
+credentials or audio configuration. It contains 577 hash-pinned add-on files,
+pins the 24-hour override after a future Kodi restart, restores the prior clock
+setting on rollback, carries direct G20 Settings dispatch, and defaults the
+Aster saver to its logo presentation. Package:
+`astertv-v2.0.7-production-2026-10-31-r35.tar.gz`; SHA-256
+`4a7a6768e4ea115e09d36d8d0c126e809d716128db4bbfebeecdc1a6980721d3`.
+
+During runtime verification, invoking a separate Python diagnostic while the
+screensaver dialog was active crashed Kodi 22. The service recovered
+automatically, but the known early-start HDMI validation race again rewrote the
+normal output from explicit HDMI 0 to Kodi's generic alias. The diagnostic was
+not repeated. With playback idle, the route was restored without another
+restart under checkpoint
+`/storage/.aster-checkpoints/astertv-v2.0.7-r34-test-audio-recovery-20261031`.
+The engine then opened `hdmi:CARD=PCH,DEV=0` successfully. Final audit: zero
+mismatches across the 577 r35 snapshot files, explicit HDMI 0/stereo with
+passthrough disabled, 24-hour clock, selected Aster saver, no active player and
+no recovery marker.

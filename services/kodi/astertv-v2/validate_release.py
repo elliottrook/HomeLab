@@ -12,10 +12,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parents[2]
-ARCHIVE = REPO / "services/kodi/dist/astertv-v2.0.7-production-2026-10-30-r27.tar.gz"
+ARCHIVE = REPO / "services/kodi/dist/astertv-v2.0.7-production-2026-10-31-r35.tar.gz"
 SIDECAR = ARCHIVE.with_suffix(ARCHIVE.suffix + ".sha256")
 PREFIX = "aster-v2-package/"
-RELEASE = "astertv-v2.0.7-production-2026-10-30-r27"
+RELEASE = "astertv-v2.0.7-production-2026-10-31-r35"
 SPLASH_SHA = "912228f3866b33749905eb8154b470d3170fe4747f92799811470bb49b986cce"
 
 
@@ -78,6 +78,8 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
     youtube = addon("skin.asterhome/1080i/MyVideoNav.xml")
     series = addon("script.asterruntime/aster-series-preview24/default.py")
     series_xml = addon("script.asterruntime/aster-series-preview24/resources/skins/Default/1080i/SeriesPreview.xml")
+    settings_category = addon("skin.asterhome/1080i/SettingsCategory.xml")
+    saver_settings = addon("screensaver.asterhome.v2lab/resources/settings.xml")
     books_service = addon("plugin.audio.asterbooks/service.py")
     books_bridge = addon("plugin.audio.asterbooks/resources/lib/books_sync_bridge.py")
     home = addon("skin.asterhome/1080i/custom_1112_home.xml")
@@ -129,9 +131,20 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
     assert 'podcast_resumes' in books_bridge and 'Resume · ' in books_bridge
     assert 'sentence-sample-index' in publication and 'word-sample-index' not in publication
 
+    # The G20 OK route reaches Settings deterministically, native Settings can
+    # return to its category rail, and the selected Aster saver shows its mark.
+    assert "if focus_id == 9005:" in dispatcher
+    for action in ("ActivateWindow(Settings)", "ActivateWindow(InterfaceSettings)",
+                   "ActivateWindow(PlayerSettings)", "ActivateWindow(ServiceSettings)"):
+        assert action in dispatcher
+    assert "<onright>5</onright>" in settings_category
+    assert settings_category.count("<onleft>3</onleft>") >= 5
+    assert 'default="aster"' in saver_settings
+
     promoter_text = promoter.decode()
     for guard in ('AsterTVProd', 'require_idle()', 'credentials_or_addon_data_touched',
                   'audio_settings_before', 'restore_audio_settings(saved_audio)',
+                  'CLOCK_SETTING', 'set_24h_clock()',
                   'Settings.SetSettingValue', 'verify_installed(rows)', 'systemctl',
                   'activate_runtime_addons()', 'Addons.SetAddonEnabled',
                   'script.asterbootstrap', 'CHECKPOINT',
@@ -146,6 +159,8 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
         "reconciliation/apply_production_home_receiver_destination_r25.py",
         "reconciliation/apply_home_delivery_dual_target_r24.py",
         "reconciliation/apply_production_home_entry_r27_fix.py",
+        "reconciliation/apply_production_settings_clock_r30_fix.py",
+        "reconciliation/apply_production_settings_screensaver_r34_fix.py",
         "reconciliation/payload/home-delivery/delivery.py",
     ):
         data = member(bundle, path)
@@ -155,4 +170,4 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
 
 subprocess.run([sys.executable, "-m", "py_compile",
                 str(ROOT / "reconciliation/promote_v207_to_production.py")], check=True)
-print("AsterTV v2.0.7 r27 release gate passed: 577 files, Home lifecycle, external recovery, XML/Python, routes, splash and rollback verified")
+print("AsterTV v2.0.7 r35 release gate passed: 577 files, Settings, 24-hour clock, Aster saver, Home lifecycle, XML/Python, routes, splash and rollback verified")

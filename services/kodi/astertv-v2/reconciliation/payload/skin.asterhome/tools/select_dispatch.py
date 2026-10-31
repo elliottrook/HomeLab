@@ -110,6 +110,25 @@ def main():
     # Script-populated Aster controls must win over stale global properties.
     # In particular, AsterSeries.PreviewWindow can survive after leaving TV and
     # used to swallow KEY_SELECT on Books, Podcasts and Music without a trace.
+    # The G20 OK key reaches this script before Kodi's native button
+    # handler.  Dispatch the Aster Settings rail and the core Settings pills
+    # directly instead of recursing through the generic Select fallback.
+    settings_actions = {
+        200: 'ActivateWindow(InterfaceSettings)',
+        201: 'ActivateWindow(PlayerSettings)',
+        202: 'ActivateWindow(ServiceSettings)',
+        203: 'ActivateWindow(AddonBrowser)',
+    }
+    if focus_id == 9005:
+        xbmc.log('AsterSelect: direct Settings rail', xbmc.LOGINFO)
+        xbmc.executebuiltin('ActivateWindow(Settings)')
+        return
+    if window_id == 10004 and focus_id in settings_actions:
+        action = settings_actions[focus_id]
+        xbmc.log('AsterSelect: direct Settings action=' + action, xbmc.LOGINFO)
+        xbmc.executebuiltin(action)
+        return
+
     action = dispatched_action(window_id, focus_id)
     if action is not None:
         xbmc.log('AsterSelect: dispatch action=' + action, xbmc.LOGINFO)
