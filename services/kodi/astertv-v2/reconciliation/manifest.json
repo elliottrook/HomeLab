@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "release": "astertv-v2.0.6-lab-acceptance-reconciled-2026-10-30-r13",
+  "release": "astertv-v2.0.6-lab-acceptance-reconciled-2026-10-30-r14",
   "target": "AsterTV lab only (192.168.1.140)",
   "production_changed": false,
   "apply_order": [
@@ -190,5 +190,12 @@
     "requests_layout": "Seerr's season list, centred Select season pill, hint, centred request pill and artwork rail occupy non-overlapping vertical regions.",
     "integrity": "The series component manifest, launcher pin and runtime family manifest were regenerated from the repaired members and verified together."
   },
-  "known_remaining": "Owner visual acceptance remains for the r13 TV/Seerr layout and the physical spoken voice phrase. Production is unchanged."
+  "acceptance_r14": {
+    "clock": "The Series page uses the established dark Aster clock pill and a readable 24-hour HH:mm label.",
+    "compact_controls": "Season is 220x46, Play/Resume is 240x46 and Back is 140x46; focus routes and controller IDs are unchanged.",
+    "watch_badges": "Unwatched episodes use the canonical small sage dot. Watched episodes use the canonical 32px sage disc with an ink tick.",
+    "rounded_art": "Episode stills use the shared compact-card diffuse mask, matching the rounded episode cards.",
+    "screen_capture": "The installed lab page was captured after restart with clock, compact controls, rounded art and unwatched dots visible."
+  },
+  "known_remaining": "Owner acceptance remains for a visible watched tick, Seerr visual recheck and the physical spoken voice phrase. Production is unchanged."
 }

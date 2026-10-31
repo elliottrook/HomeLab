@@ -13,9 +13,9 @@ ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parents[2]
 RECONCILIATION = ROOT / "reconciliation"
 MANIFEST = RECONCILIATION / "manifest.json"
-ARCHIVE = REPO / "services/kodi/dist/astertv-v2-lab-reconciled-2026-10-30-r13.tar.gz"
+ARCHIVE = REPO / "services/kodi/dist/astertv-v2-lab-reconciled-2026-10-30-r14.tar.gz"
 SIDECAR = ARCHIVE.with_suffix(ARCHIVE.suffix + ".sha256")
-EXPECTED_RELEASE = "astertv-v2.0.6-lab-acceptance-reconciled-2026-10-30-r13"
+EXPECTED_RELEASE = "astertv-v2.0.6-lab-acceptance-reconciled-2026-10-30-r14"
 
 
 def sha256(path: Path) -> str:
@@ -129,6 +129,13 @@ assert "if self.identity is not None:self.setFocusId" in series_source
 assert '<defaultcontrol always="true">300</defaultcontrol>' in series_xml
 assert 'colordiffuse="b8000000"' in series_xml
 assert 'id="201"' in series_xml and 'colordiffuse="ff005c46"' in series_xml
+assert '$INFO[System.Time(HH:mm)]' in series_xml
+assert 'id="200"><left>125</left><top>755</top><width>240</width><height>46</height>' in series_xml
+assert 'id="202"><left>125</left><top>820</top><width>140</width><height>46</height>' in series_xml
+assert 'id="201"><left>905</left><top>204</top><width>220</width><height>46</height>' in series_xml
+assert series_xml.count('<label>✓</label><font>font16</font><textcolor>ff3b3a32</textcolor>') == 2
+assert series_xml.count('<label>●</label><font>font16</font><textcolor>ff91c6a2</textcolor>') == 2
+assert series_xml.count('diffuse="special://home/addons/skin.asterhome/media/ui-compact-card-mask.png">$INFO[ListItem.Property(Still)]') == 2
 assert "AsterMovieRails: controls cast=" in movie_source
 assert "command=='related'" in movie_source and "VideoLibrary.GetMovies" in movie_source
 assert "row['kind'] == 'movie'" in home_plugin_source and "setDbId(row['id'])" in home_plugin_source
@@ -144,4 +151,4 @@ assert family_manifest["components"]["aster-series-preview24"]["manifest_sha256"
 assert "if focused in ROOT_CONTROLS" in youtube_focus_source
 assert "<backgroundcolor>ff000000</backgroundcolor>" in screensaver_xml
 
-print(f"AsterTV v2 release gate passed: {len(manifest['files'])} payload files and r13 archive verified")
+print(f"AsterTV v2 release gate passed: {len(manifest['files'])} payload files and r14 archive verified")

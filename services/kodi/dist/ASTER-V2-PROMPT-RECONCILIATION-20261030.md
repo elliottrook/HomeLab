@@ -62,3 +62,7 @@ The latest checklist failures are reconciled in `astertv-v2-lab-reconciled-2026-
 ## r13 TV and Seerr regression repair
 
 The superseding `astertv-v2-lab-reconciled-2026-10-30-r13.tar.gz` repairs the Kodi 22 series-window identity race that left an inert TV episode page, preserves episode-first focus and cross-season navigation, publishes the selected season after each rebuild, and restores visible season-selector focus. The Seerr season/list/request controls are centred and vertically separated from the artwork rail. A live multi-season navigation test passed without starting playback or submitting a request. Production remains unchanged.
+
+## r14 Series visual acceptance repair
+
+The superseding `astertv-v2-lab-reconciled-2026-10-30-r14.tar.gz` retains the r13 lifecycle and Seerr repairs while correcting the Series page presentation: readable dark 24-hour clock pill, compact Season/Play-or-Resume/Back controls, canonical small unwatched dot, canonical watched tick inside a sage disc, and rounded episode stills. Kodi was restarted and a direct screenshot verified the installed layout without starting playback. Production remains unchanged.
