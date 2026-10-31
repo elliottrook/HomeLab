@@ -63,6 +63,12 @@ privacy behaviour unless a replacement passes the same or stronger gate.
   Aster media-art screensaver. Family retains verified HDMI 0 Dolby/HDR
   passthrough with PulseAudio persistently masked; Bedroom retains its supported
   stereo route.
+- A fresh read-only Family check on 2026-10-31 reports Kodi 22.0 RC1
+  (`21.90.901`), Git `01d4146d5d251a0118b99a1de0d713395c93bd46`, on
+  LibreELEC 13 nightly `20261021-440640e`. Bedroom did not answer SSH during
+  that check and remains a PA0 re-verification item; the Mini pilot must match
+  the confirmed Family Kodi release rather than the Mini's retained Kodi 21.3
+  profile.
 - The v2 release gate contains 21 reconciliation tests plus focused Genre,
   Resume and media-screensaver gates. Recovery checkpoints and the prior v1.1.1
   Family baseline remain available.
@@ -128,7 +134,7 @@ may:
   derived Aster knowledge mirror where those systems own affected facts.
 
 During the current Stream A pilot only, the project may additionally install an
-official hash-recorded Kodi 21.3 ARM application in a dedicated writable Mini
+official hash-recorded Kodi 22.0 RC1 ARM application in a dedicated writable Mini
 pilot location, always launch it in portable mode, create a credential-free
 synthetic AsterTV v3 data directory, deploy page candidates to that portable
 instance, restart only that pilot instance, capture screenshots/navigation
@@ -365,8 +371,12 @@ forward.
 
 ### PA0 — Mini pilot foundation
 
-- [ ] Record the official Kodi 21.3 ARM download URL, digest and signature/
-  provenance evidence.
+- [x] Record the official Kodi 22.0 RC1 ARM download URL, digest and
+  provenance evidence. The macOS ARM artifact is
+  `kodi-22.0-Piers_rc1-arm64.dmg`, official SHA-256
+  `5f50e35df66fdac2eb10b2915249d6ec8230da19833f1f00068200a744341e5b`.
+- [ ] Reconfirm Bedroom's Kodi build when it is reachable and stop if it
+  materially differs from Family's 22.0 RC1 release contract.
 - [ ] Install it in a dedicated user-writable pilot location and create a
   launch wrapper that asserts portable mode and the expected `portable_data`
   path before execution.
@@ -375,7 +385,7 @@ forward.
 - [ ] Record an inventory/hash comparison proving the retained Mini profile was
   unchanged.
 
-Gate: a disposable, credential-free Kodi 21.3 pilot starts independently on the
+Gate: a disposable, credential-free Kodi 22.0 RC1 pilot starts independently on the
 Mini and can be removed without changing the retained profile, Family or
 Bedroom.
 
@@ -817,8 +827,9 @@ explicit user acceptance.
 | 2026-10-31 | Added Aster Remote PWA workstream | Apple Remote interaction review and Apple Home Screen web-app documentation | M8 specifies a free installable iPhone PWA through a private authenticated semantic bridge, with native iOS limitations explicit |
 | 2026-10-31 | Completed Aster Remote input scope | Owner confirmed keyboard input is part of the requested remote | M8 now distinguishes direct Aster search from Kodi active-field entry and requires symbols, paste, dictation, masking and no input retention |
 | 2026-10-31 | Started project and selected temporary design target | Owner authorized Stream A page redesign on the Mac mini followed by Stream M for all remaining work; created local branch `codex/astertv-v3` | Read-only PA0 discovery started; no live target changed and no remote Git write performed |
-| 2026-10-31 | Inspected Mini Kodi state | M4/16 GB Mini on macOS 26.6.2; retained Kodi 21.3 ARM log/profile with Aster `1.0.0`; no installed Kodi app found; retained skin differs materially from accepted v2 payload | Use official Kodi 21.3 ARM in separate portable mode, seed from immutable v2.0.7, and leave the old profile untouched |
+| 2026-10-31 | Inspected Mini Kodi state | M4/16 GB Mini on macOS 26.6.2; retained Kodi 21.3 ARM log/profile with Aster `1.0.0`; no installed Kodi app found; retained skin differs materially from accepted v2 payload | Use a production-matched official Kodi build in separate portable mode, seed from immutable v2.0.7, and leave the old profile untouched |
 | 2026-10-31 | Defined sequential authorization | PA0–PA4 enumerate the only Stream A changes; Family, Bedroom, credentials, real integrations and source services excluded | Await owner acceptance of updated pre-start risk envelope before installing/launching the portable pilot; PA4 mandates transition to Stream M |
+| 2026-10-31 | Pinned pilot Kodi to production | Family reports Kodi 22.0 RC1 (`21.90.901`), Git `01d4146…`, LibreELEC nightly `20261021-440640e`; official macOS ARM RC1 SHA-256 is `5f50e35d…341e5b`; Bedroom SSH timed out | PA0 uses Kodi 22.0 RC1 on the Mini and must recheck Bedroom when reachable; Kodi 21.3 is not the pilot runtime |
 
 ## Close-out
 
