@@ -31,6 +31,14 @@ class ProductionSettingsScreensaverR34Tests(unittest.TestCase):
         self.assertIn("ActivateWindow(ServiceSettings)", patched)
         compile(patched, "select_dispatch.py", "exec")
 
+    def test_dispatch_source_has_direct_search_paths(self):
+        source = (Path(__file__).parent
+                  / "payload/skin.asterhome/tools/select_dispatch.py").read_text()
+        self.assertIn("window_id == 10000 and focus_id == 135", source)
+        self.assertIn("aster-global-search-ui22", source)
+        self.assertIn("focus_id == 139", source)
+        self.assertIn("header_search.py", source)
+
     def test_screensaver_default_and_profile_select_aster(self):
         with tempfile.TemporaryDirectory() as directory:
             candidate = Path(directory) / "settings.xml"

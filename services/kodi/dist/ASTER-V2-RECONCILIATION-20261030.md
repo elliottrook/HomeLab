@@ -289,3 +289,66 @@ The engine then opened `hdmi:CARD=PCH,DEV=0` successfully. Final audit: zero
 mismatches across the 577 r35 snapshot files, explicit HDMI 0/stereo with
 passthrough disabled, 24-hour clock, selected Aster saver, no active player and
 no recovery marker.
+
+### Production Search, player return, busy mark, Dolby and HDR — r36–r46
+
+r36 replaces Kodi's indefinite `Working…` presentation with one static,
+opaque AsterTV splash and no animation or background worker. Checkpoint:
+`/storage/.aster-checkpoints/astertv-v2.0.7-busy-logo-r36-20261031`. A later
+UHD Blu-ray ISO test demonstrated why the overlay must not be treated as
+player health: Kodi held an active player while opening the 65 GB ISO without
+reaching a decoder. The bounded `Player.Stop` recovery returned directly to
+the movie page without restarting Kodi or changing audio.
+
+Search had two coupled regressions. The G20 OK dispatcher delegated Media
+Search control 135 and shared Search control 139 to a generic Select action;
+r40 dispatches their actual scripts. The first live patch correctly changed
+the dispatcher but did not update the Search runtime's accepted skin hash, so
+the runtime failed closed. r41 reconciles that family-manifest hash. The next
+movie selection exposed a pre-existing missing
+`from search_details import read_details`; r42 restores the import and updates
+the component and family manifests atomically. Checkpoints:
+`/storage/.aster-checkpoints/astertv-v2.0.7-search-dispatch-r40-20261031`,
+`/storage/.aster-checkpoints/astertv-v2.0.7-search-manifest-r41-20261031` and
+`/storage/.aster-checkpoints/astertv-v2.0.7-search-details-r42-20261031`.
+
+The repaired Search result opened the native movie details page, but stopping
+fullscreen playback could leave Kodi reporting Home while the movie
+controller redrew window 11130. Its focus then failed and the controller timed
+out to Media Home. r43 explicitly restores the movie window after playback
+and Search window 11127 when leaving a movie launched from Search. Production
+acceptance confirmed Search -> details -> playback -> details -> Search.
+Checkpoint:
+`/storage/.aster-checkpoints/astertv-v2.0.7-movie-return-r43-20261031`.
+
+The production ELD for `Beyond TV` advertises AC-3, E-AC-3, TrueHD, DTS,
+DTS-HD and eight-channel LPCM. The earlier Dolby-labelled receiver state was
+not passthrough: Kodi logged E-AC-3 decoded to PCM and ALSA IEC status
+`AES0=0x04`. The connected ALSA HDMI 0 device was unavailable during Kodi's
+capability scan while system PulseAudio was active, causing device validation
+to fall back before playback. Official Kodi guidance notes that passthrough is
+exclusive and another application owning the device prevents it; Sync
+Playback to Display also disables passthrough:
+https://kodi.wiki/view/PulseAudio and
+https://kodi.wiki/view/Settings/System/Audio.
+
+r44 proved that stopping PulseAudio before Kodi exposes
+`TCL Beyond TV on HDMI #0` with E-AC-3 and TrueHD capabilities, but its exact
+display-label validator rejected the expanded label and rolled back safely.
+r45 accepts the connected sink label, pins both normal and passthrough routes
+to `ALSA:hdmi:CARD=PCH,DEV=0|HDA Intel PCH`, leaves PulseAudio inactive and
+preserves rollback to the previously audible route. Production acceptance
+with `300: Rise of an Empire` logged E-AC-3 `pass-through` and ALSA raw IEC
+status `AES0=0x06`; both receiver and TV showed Dolby. `The Croods` then logged
+BT.2020, SMPTE ST 2084 HDR10 and E-AC-3 raw passthrough; the TV showed HDR and
+Dolby. Checkpoint:
+`/storage/.aster-checkpoints/astertv-v2.0.7-alsa-exclusive-r45-20261031`.
+
+The deterministic r46 archive reconciles the accepted r36–r45 state with all
+577 prior snapshot files. Promotion now pins the Search/component/family hash
+chain, busy logo, exclusive ALSA HDMI 0 route, codec flags and 24-hour clock;
+it disables PulseAudio before Kodi starts and restores the prior service and
+audio states on rollback. The full 21-test reconciliation suite, Python/XML
+compilation, archive inventory, security exclusions and release gate pass.
+Package: `astertv-v2.0.7-production-2026-10-31-r46.tar.gz`; SHA-256
+`0ee3331bbdb9ef34196e08b057b1a535dfb1893322d9c985d771ded2281753eb`.

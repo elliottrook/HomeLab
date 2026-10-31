@@ -1,9 +1,9 @@
 # AsterTV v2.0.7 release
 
 The authoritative production release is
-`dist/astertv-v2.0.7-production-2026-10-30-r19.tar.gz`. It is the reconciled
-successor to the preserved r17 lab package and contains the exact Aster-owned
-add-on snapshot accepted on the lab before production promotion.
+`dist/astertv-v2.0.7-production-2026-10-31-r46.tar.gz`. It preserves the complete
+accepted v2 snapshot and reconciles the production Search/movie-return, Aster
+busy mark, Settings/screensaver, exclusive HDMI passthrough and HDR fixes.
 
 The unpacked, reviewable final reconciliation is in `astertv-v2/reconciliation`.
 It includes the bounded installer, hash-pinned payload, physical G20 keymap and
@@ -18,11 +18,11 @@ PYTHONPYCACHEPREFIX=/tmp/astertv-pycache \
 ```
 
 The gate fails if a payload byte, manifest hash, release archive, keymap route,
-hero/fade invariant, stone-icon scope or dispatcher ordering changes. The
-installer is lab-host-only, refuses active playback, checkpoints every changed
-file, validates expected before/after hashes and restarts Kodi in a `finally`
-path. Production promotion completed on 2026-10-30 from the immutable package;
-the v1.1.1 add-on baseline remains in the production checkpoint for rollback.
+hero/fade invariant, stone-icon scope, dispatcher ordering or exclusive-HDMI
+contract changes. The production promoter refuses active playback, checkpoints
+every changed file and prior audio/service state, validates expected hashes and
+restores add-ons, PulseAudio state and audio settings on rollback. The v1.1.1
+add-on baseline remains in the production checkpoint for rollback.
 
 ## Physical OK regression fixed in r8
 
@@ -82,3 +82,13 @@ replacing the audible HDMI 0 route.
 
 See `dist/ASTER-V2-RECONCILIATION-20261030.md` for the full repair record and
 `dist/ASTER-V2-PROMPT-RECONCILIATION-20261030.md` for the prompt-by-prompt audit.
+
+## Production close-out in r46
+
+Media and shared Search pills now dispatch directly under the G20 keymap. Search
+opens native movie details, returns there after playback and returns to its
+result cursor on Back. Kodi starts with PulseAudio inactive and both normal and
+passthrough routes pinned to ALSA HDMI 0 before capability enumeration. Physical
+production acceptance confirmed E-AC-3 raw passthrough (`AES0=0x06`), TV/receiver
+Dolby indication and HDR10 signalling. The deterministic r46 archive SHA-256 is
+`0ee3331bbdb9ef34196e08b057b1a535dfb1893322d9c985d771ded2281753eb`.

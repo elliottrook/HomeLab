@@ -128,6 +128,15 @@ def main():
         xbmc.log('AsterSelect: direct Settings action=' + action, xbmc.LOGINFO)
         xbmc.executebuiltin(action)
         return
+    if window_id == 10000 and focus_id == 135:
+        xbmc.log('AsterSelect: direct Media Search', xbmc.LOGINFO)
+        xbmc.executebuiltin(
+            'RunScript(script.asterruntime,aster-global-search-ui22,default)')
+        return
+    if focus_id == 139:
+        xbmc.log('AsterSelect: direct shared Search', xbmc.LOGINFO)
+        xbmc.executebuiltin('RunScript(special://skin/tools/header_search.py)')
+        return
 
     action = dispatched_action(window_id, focus_id)
     if action is not None:

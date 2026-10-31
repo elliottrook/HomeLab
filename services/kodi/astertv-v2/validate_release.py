@@ -12,10 +12,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parents[2]
-ARCHIVE = REPO / "services/kodi/dist/astertv-v2.0.7-production-2026-10-31-r35.tar.gz"
+ARCHIVE = REPO / "services/kodi/dist/astertv-v2.0.7-production-2026-10-31-r46.tar.gz"
 SIDECAR = ARCHIVE.with_suffix(ARCHIVE.suffix + ".sha256")
 PREFIX = "aster-v2-package/"
-RELEASE = "astertv-v2.0.7-production-2026-10-31-r35"
+RELEASE = "astertv-v2.0.7-production-2026-10-31-r46"
 SPLASH_SHA = "912228f3866b33749905eb8154b470d3170fe4747f92799811470bb49b986cce"
 
 
@@ -41,7 +41,7 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
     assert release["status"] == "production-candidate"
     assert release["credentials_included"] is False
     assert release["profile_or_addon_data_included"] is False
-    assert release["audio_configuration_included"] is False
+    assert release["audio_configuration_included"] is True
     assert snapshot["credentials_included"] is False
     assert snapshot["Kodi profile/addon_data included"] is False
     assert len(snapshot["files"]) == release["snapshot_files"] == 577
@@ -84,6 +84,12 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
     books_bridge = addon("plugin.audio.asterbooks/resources/lib/books_sync_bridge.py")
     home = addon("skin.asterhome/1080i/custom_1112_home.xml")
     family = json.loads(addon("script.asterruntime/family-manifest.json"))
+    search_runtime = addon("script.asterruntime/aster-global-search-ui22/default.py")
+    movie_runtime = addon("script.asterruntime/aster-global-search-ui22/movie.py")
+    search_manifest_bytes = member(
+        bundle, "lab-addon-snapshot/script.asterruntime/aster-global-search-ui22/manifest.json")
+    search_manifest = json.loads(search_manifest_bytes)
+    busy = addon("skin.asterhome/1080i/DialogBusy.xml")
     publication = member(bundle, "epub-consumer/reader/runtime/epub_narration/publication.py").decode()
 
     # Smart Home refreshes itself after every Kodi/skin restart without losing camera lifecycle.
@@ -141,6 +147,25 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
     assert settings_category.count("<onleft>3</onleft>") >= 5
     assert 'default="aster"' in saver_settings
 
+    # Search and movie handoff remain coupled to their integrity manifests.
+    assert "window_id == 10000 and focus_id == 135" in dispatcher
+    assert "focus_id == 139" in dispatcher and "header_search.py" in dispatcher
+    assert "from search_details import read_details" in search_runtime
+    assert "source_window=xbmcgui.getCurrentWindowId()" in movie_runtime
+    assert "ActivateWindow(1130)" in movie_runtime
+    assert "source_window==11127" in movie_runtime and "ActivateWindow(1127)" in movie_runtime
+    search_rows = {row["path"]: row for row in search_manifest["files"]}
+    assert search_rows["default.py"]["sha256"] == sha(search_runtime.encode())
+    assert search_rows["movie.py"]["sha256"] == sha(movie_runtime.encode())
+    assert family["components"]["aster-global-search-ui22"]["manifest_sha256"] == sha(
+        search_manifest_bytes)
+    assert family["skin"]["tools/select_dispatch.py"] == sha(dispatcher.encode())
+    assert family["skin"]["1080i/DialogBusy.xml"] == sha(busy.encode())
+
+    # The busy treatment is static and bounded to one opaque Aster splash.
+    assert busy.count("special://home/media/Splash.png") == 1
+    assert "animation" not in busy and "RunScript" not in busy
+
     promoter_text = promoter.decode()
     for guard in ('AsterTVProd', 'require_idle()', 'credentials_or_addon_data_touched',
                   'audio_settings_before', 'restore_audio_settings(saved_audio)',
@@ -151,6 +176,10 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
                   'Path("/storage/.aster-recovery-required")'):
         assert guard in promoter_text
     assert 'addon_data' in promoter_text and 'SPLASH_SHA' in promoter_text
+    for guard in ("HDMI_ROUTE", "RELEASE_AUDIO", "pin_release_audio_file",
+                  "configure_exclusive_hdmi", "pulseaudio.service",
+                  "restore_pulse_state", "restore_audio_settings(RELEASE_AUDIO)"):
+        assert guard in promoter_text
 
     for path in (
         "reconciliation/apply_production_ebook_boundary_r22_fix.py",
@@ -161,6 +190,15 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
         "reconciliation/apply_production_home_entry_r27_fix.py",
         "reconciliation/apply_production_settings_clock_r30_fix.py",
         "reconciliation/apply_production_settings_screensaver_r34_fix.py",
+        "reconciliation/apply_production_busy_logo_r36_fix.py",
+        "reconciliation/apply_production_passthrough_route_r37.py",
+        "reconciliation/apply_production_dolby_r39_signal_trial.py",
+        "reconciliation/apply_production_search_dispatch_r40_fix.py",
+        "reconciliation/apply_production_search_manifest_r41_fix.py",
+        "reconciliation/apply_production_search_details_r42_fix.py",
+        "reconciliation/apply_production_movie_return_r43_fix.py",
+        "reconciliation/apply_production_alsa_exclusive_r44_trial.py",
+        "reconciliation/apply_production_alsa_exclusive_r45_trial.py",
         "reconciliation/payload/home-delivery/delivery.py",
     ):
         data = member(bundle, path)
@@ -170,4 +208,4 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
 
 subprocess.run([sys.executable, "-m", "py_compile",
                 str(ROOT / "reconciliation/promote_v207_to_production.py")], check=True)
-print("AsterTV v2.0.7 r35 release gate passed: 577 files, Settings, 24-hour clock, Aster saver, Home lifecycle, XML/Python, routes, splash and rollback verified")
+print("AsterTV v2.0.7 r46 release gate passed: 577 files, Search/movie return, HDR/Dolby HDMI, Settings, busy logo, Aster saver, XML/Python and rollback verified")
