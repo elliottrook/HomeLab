@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-10-31 — AsterTV v3 project created
+
+- Converted the v3 wish list into a formal Stream M HomeLab project with the
+  accepted v2.0.7 release as immutable baseline and rollback source.
+- Added authority, architecture, privacy, account/guest isolation, Aster AI,
+  cameras/door events, canonical speech, Lab Hours, recovery and resumability
+  contracts plus nine bounded milestone gates.
+- Added the project to the portfolio and roadmap. No v3 live service, account,
+  credential, network path, camera policy or production client was changed.
+
 ## 2026-10-30 — Preserve and regression-gate AsterTV v2 lab repairs
 
 - Preserved the final r8 lab candidate, its checksum and unpacked hash-pinned

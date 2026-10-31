@@ -15,6 +15,7 @@
 
 ## Enhancement portfolio
 
+- [ ] [AsterTV v3](projects/AsterTV-v3.md)
 - [x] [Local AI](<projects/completed projects/Local-AI.md>)
 - [x] [Authentik service rollout](projects/completed%20projects/Authentik-Rollout.md)
 - [ ] [Surveillance expansion](projects/Surveillance-Expansion.md)

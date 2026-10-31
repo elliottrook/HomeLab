@@ -10,6 +10,7 @@
 
 | Project | Status | Project document | Supporting material |
 |---|---|---|---|
+| AsterTV v3 | Proposed — Stream M; project charter complete, M0 read-only discovery next | [AsterTV v3](AsterTV-v3.md) | Account-aware AsterTV evolution: whole-home Aster AI, profiles/guest isolation, Movies/YouTube/Books/News/Requests/Home/cameras, page-aware screensavers and low-spec qualification; immutable v2.0.7 rollback retained |
 | Fotosforfun hosting and incremental publishing | Active — Stream A; M0–A2 complete, A3 identity/home-LAN access next; public launch separately gated | [Fotosforfun hosting and incremental publishing](Fotosforfun-Hosting-and-Publishing.md) | Separate home-LAN-only editor for Alisa, append-oriented static gallery releases, dedicated Authentik authorization and recovery on the existing isolated publishing hosts |
 | Aster Unified Voice Service | Active — Stream A; M0–M3 and M5–M7 complete; M4/M8 remain; M9 production graduation approved behind prerequisite gates | [Aster Unified Voice Service](Aster-Unified-Voice-Service.md) | Finish Companion and cross-surface V1 acceptance, then deploy an immutable V1 release independently on the Servers VLAN; retain `.70.14` as a sanitized V1 lab baseline and reserve a separate lane for future V2 work |
 | Pull-based Forgejo change-bundle runner | Complete — Stream A write and bounded-read amendment accepted | [Pull-based Forgejo runner](Pull-Based-Forgejo-Runner.md) | Write canaries, recovery and health passed; bounded Green reads and live allow/deny isolation passed with 112/112 tests |
