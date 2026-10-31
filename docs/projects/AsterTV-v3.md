@@ -402,6 +402,26 @@ Bedroom.
 Gate: the shared shell passes static/focus regression tests and Jason accepts a
 representative Mini walkthrough before all page conversions proceed.
 
+#### Locked PA1 component — artwork-tile selection
+
+The definitive AsterTV v3 selection treatment for every focusable tile whose
+title appears beneath its artwork is `AsterV3ArtTitleTile`:
+
+- resting tiles have no card or background surface; artwork, title and metadata
+  sit directly on the page;
+- focused tiles gain one translucent Aster sage surface containing the artwork,
+  title and metadata as a single selectable object;
+- the surface keeps a 4px implementation halo around real artwork bounds (8px
+  in the representative F10 fixture to remain legible at the rendered scale),
+  while retaining the original lower edge so both title lines remain covered;
+- landscape, square, portrait and compact variants use the same state model;
+- titles may not be clipped merely to tighten the halo;
+- this component does not apply to pills, text-only buttons, navigation rails,
+  season selectors, episode rows or player controls.
+
+The build must continue to fail closed if the pinned qualifying-layout
+inventory changes, and F10 remains the deterministic visual acceptance fixture.
+
 ### PA2 — Media page redesigns
 
 - [ ] Redesign Movies/details with cast/crew artwork, roles, contextual cast
@@ -848,6 +868,7 @@ explicit user acceptance.
 | 2026-10-31 | Applied the shared focus to every qualifying art-plus-title tile in the v2-derived pilot | Guarded build transform found exactly 14 focused layouts across Media Home/genres, Music, Books, video/YouTube library, movie cast/related, Requests and acquisition; unexpected inventory changes fail the build closed | F10 renders landscape, square, portrait and compact examples; the sage surface consistently contains artwork, title and metadata while pills, rails, episode rows, season selectors and player controls remain untouched |
 | 2026-10-31 | Removed the resting tile surface | Owner requested artwork and labels sit directly on the page until selected; a dedicated transparent SVG avoids Kodi's white default-button fallback while the sage focused surface is unchanged | Clean-process Mini render verifies landscape, square, portrait and compact tiles are transparent at rest and transfer the green wrapper with focus; launcher no longer permits duplicate cached pilot instances |
 | 2026-10-31 | Tightened the selected tile halo | Owner requested substantially less green above and beside artwork while retaining the lower title field | Guarded transform now derives a 4px real-layout halo from artwork/title bounds; fixture renders use 8px visual margins across landscape, square, portrait and compact art, keep the original lower edge and preserve untruncated titles |
+| 2026-10-31 | Locked the definitive artwork-tile selection component | Owner accepted the transparent resting state plus tight sage focus halo and requested it be marked definitive before button work begins | PA1 now contains a normative `AsterV3ArtTitleTile` contract and keeps F10 plus the 14-layout fail-closed inventory as its acceptance/regression evidence |
 
 ## Close-out
 
