@@ -1,7 +1,7 @@
 # AsterTV v2 lab release
 
 The authoritative preserved lab candidate is
-`dist/astertv-v2-lab-reconciled-2026-10-30-r12.tar.gz`. Production remains on
+`dist/astertv-v2-lab-reconciled-2026-10-30-r13.tar.gz`. Production remains on
 the stable v1.1.1 release and is not changed by this record.
 
 The unpacked, reviewable final reconciliation is in `astertv-v2/reconciliation`.

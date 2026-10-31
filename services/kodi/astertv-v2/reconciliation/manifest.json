@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "release": "astertv-v2.0.6-lab-acceptance-reconciled-2026-10-30-r12",
+  "release": "astertv-v2.0.6-lab-acceptance-reconciled-2026-10-30-r13",
   "target": "AsterTV lab only (192.168.1.140)",
   "production_changed": false,
   "apply_order": [
@@ -183,5 +183,12 @@
     "screensaver": "Aster idle presentation uses an opaque black full-screen background; Kodi dim/default screensaver remains disabled.",
     "voice": "G20 source and restricted STT path are restored; spoken phrase acceptance remains owner-observed and pending."
   },
-  "known_remaining": "Owner visual acceptance remains for the r12 TV/movie layout and the physical spoken voice phrase. Production is unchanged."
+  "acceptance_r13": {
+    "tv_window_ownership": "Kodi 22's provisional source-window ID is no longer published as the TV preview identity; the controller waits for and pins the allocated WindowXML ID.",
+    "tv_season_selection": "A live multi-season test opened with episode focus, focused the season picker, changed season index 0 to 1 and returned focus to the episode list.",
+    "tv_focus_presentation": "The season selector now uses the same visible centred focus pill as the episode page's other primary controls.",
+    "requests_layout": "Seerr's season list, centred Select season pill, hint, centred request pill and artwork rail occupy non-overlapping vertical regions.",
+    "integrity": "The series component manifest, launcher pin and runtime family manifest were regenerated from the repaired members and verified together."
+  },
+  "known_remaining": "Owner visual acceptance remains for the r13 TV/Seerr layout and the physical spoken voice phrase. Production is unchanged."
 }

@@ -58,3 +58,7 @@ The eBook reader hashes match the packaged compiled consumer. The three ready ge
 ## r12 acceptance reconciliation
 
 The latest checklist failures are reconciled in `astertv-v2-lab-reconciled-2026-10-30-r12.tar.gz`: Podcast Resume rows, Music top-pill return, YouTube return focus, Seerr search/rail, bounded Cameras, News reader/player, Recently Added movie details, TV episode navigation/presentation, Movie focus plus Cast & Crew/More Like This rails, and the opaque Aster screensaver. The archive is a credential-free full Aster-owned add-on snapshot. Physical spoken voice acceptance remains pending; production remains unchanged.
+
+## r13 TV and Seerr regression repair
+
+The superseding `astertv-v2-lab-reconciled-2026-10-30-r13.tar.gz` repairs the Kodi 22 series-window identity race that left an inert TV episode page, preserves episode-first focus and cross-season navigation, publishes the selected season after each rebuild, and restores visible season-selector focus. The Seerr season/list/request controls are centred and vertically separated from the artwork rail. A live multi-season navigation test passed without starting playback or submitting a request. Production remains unchanged.
