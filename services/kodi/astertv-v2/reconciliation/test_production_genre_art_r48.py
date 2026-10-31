@@ -33,13 +33,10 @@ assert content.text == "$PARAM[preview]"
 item = panel.find("itemlayout")
 focused = panel.find("focusedlayout")
 assert item is not None and focused is not None
-for layout, ring_colour, ribbon_colour in (
-    (item, "asterSage", "d029302b"),
-    (focused, "asterGold", "f029302b"),
-):
+for layout, ring_colour in ((item, "asterSage"), (focused, "asterGold")):
     images = layout.findall("control[@type='image']")
-    assert len(images) == 3
-    art, ring, ribbon = images
+    assert len(images) == 2
+    art, ring = images
     art_texture = art.find("texture")
     assert art_texture is not None
     assert art_texture.text == "$VAR[AsterPosterArt]"
@@ -49,17 +46,15 @@ for layout, ring_colour, ribbon_colour in (
     assert ring_texture is not None
     assert ring_texture.text == "special://skin/media/ui-poster-ring.png"
     assert ring_texture.attrib["colordiffuse"] == ring_colour
-    ribbon_texture = ribbon.find("texture")
-    assert ribbon_texture is not None
-    assert ribbon_texture.text == "special://skin/media/ui-panel.png"
-    assert ribbon_texture.attrib["colordiffuse"] == ribbon_colour
     label = layout.find("control[@type='label']")
     assert label is not None
     assert label.findtext("label") == "$PARAM[label]"
-    assert label.findtext("textcolor") == "asterIvory"
+    assert label.findtext("top") == "330"
+    assert label.findtext("textcolor") == "asterInk"
+    assert label.findtext("align") == "left"
     assert label.findtext("truncate") == "true"
 
 genre_xml = ET.tostring(include, encoding="unicode")
 assert "48f2ede4" not in genre_xml
-assert '<top>330</top>' not in genre_xml
-print("r48 Genre gate passed: full-colour art, sage/gold edge, label ribbon and routes pinned")
+assert "d029302b" not in genre_xml and "f029302b" not in genre_xml
+print("Genre gate passed: full-colour art, sage/gold edge, names below art and routes pinned")

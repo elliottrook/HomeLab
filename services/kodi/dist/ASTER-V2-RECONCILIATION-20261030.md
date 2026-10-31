@@ -391,3 +391,15 @@ r47 Resume gate still pass. The 577-file release gate passes and two builds are
 byte-identical. Package: `astertv-v2.0.7-production-2026-10-31-r48.tar.gz`;
 SHA-256
 `76b8fc4a3171013250a5088b3ced777940d5cfb0637f3eeba9794a7be3e6ac5a`.
+
+### Accepted Genre label placement — r49
+
+Direct production review accepted r48's full-colour posters and sage-to-gold
+edge change but preferred the genre names in their original below-art position.
+r49 removes the temporary ribbon, restores both labels to top 330 and
+left-aligns them while retaining font20, the poster mask, full-colour art and
+both edge states. Its guard rejects the original ivory wash and the temporary
+ribbon and requires both left-aligned below-art labels. The complete release
+gate passes across all 577 files and two builds are byte-identical. Package:
+`astertv-v2.0.7-production-2026-10-31-r49.tar.gz`; SHA-256
+`e583db6a76327a46c71aa61723f82d13a1962fae9c38c9463c1308a355b160bb`.
