@@ -13,9 +13,9 @@ ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parents[2]
 RECONCILIATION = ROOT / "reconciliation"
 MANIFEST = RECONCILIATION / "manifest.json"
-ARCHIVE = REPO / "services/kodi/dist/astertv-v2-lab-reconciled-2026-10-30-r9.tar.gz"
+ARCHIVE = REPO / "services/kodi/dist/astertv-v2-lab-reconciled-2026-10-30-r12.tar.gz"
 SIDECAR = ARCHIVE.with_suffix(ARCHIVE.suffix + ".sha256")
-EXPECTED_RELEASE = "astertv-v2.0.6-lab-repair-complete-2026-10-30-r9"
+EXPECTED_RELEASE = "astertv-v2.0.6-lab-acceptance-reconciled-2026-10-30-r12"
 
 
 def sha256(path: Path) -> str:
@@ -65,16 +65,57 @@ with tarfile.open(ARCHIVE, "r:gz") as bundle:
     listing_member = bundle.extractfile(
         "aster-v2-package/lab-addon-snapshot/plugin.audio.asterbooks/default.py"
     )
+    series_member = bundle.extractfile(
+        "aster-v2-package/lab-addon-snapshot/script.asterruntime/aster-series-preview24/default.py"
+    )
+    series_xml_member = bundle.extractfile(
+        "aster-v2-package/lab-addon-snapshot/script.asterruntime/aster-series-preview24/resources/skins/Default/1080i/SeriesPreview.xml"
+    )
+    movie_member = bundle.extractfile(
+        "aster-v2-package/lab-addon-snapshot/script.asterruntime/aster-global-search-ui22/movie.py"
+    )
+    home_plugin_member = bundle.extractfile(
+        "aster-v2-package/lab-addon-snapshot/plugin.video.asterhome/default.py"
+    )
+    requests_member = bundle.extractfile(
+        "aster-v2-package/lab-addon-snapshot/skin.asterhome/1080i/custom_1132_requests.xml"
+    )
+    youtube_focus_member = bundle.extractfile(
+        "aster-v2-package/lab-addon-snapshot/skin.asterhome/tools/youtube_root_focus.py"
+    )
+    screensaver_member = bundle.extractfile(
+        "aster-v2-package/lab-addon-snapshot/screensaver.asterhome.v2lab/resources/skins/Default/1080i/AsterIdle.xml"
+    )
     assert service_member is not None and bridge_member is not None and listing_member is not None
+    assert all(member is not None for member in (
+        series_member, series_xml_member, movie_member, home_plugin_member,
+        requests_member, youtube_focus_member, screensaver_member))
     service_source = service_member.read().decode("utf-8")
     bridge_source = bridge_member.read().decode("utf-8")
     listing_source = listing_member.read().decode("utf-8")
+    series_source = series_member.read().decode("utf-8")
+    series_xml = series_xml_member.read().decode("utf-8")
+    movie_source = movie_member.read().decode("utf-8")
+    home_plugin_source = home_plugin_member.read().decode("utf-8")
+    requests_xml = requests_member.read().decode("utf-8")
+    youtube_focus_source = youtube_focus_member.read().decode("utf-8")
+    screensaver_xml = screensaver_member.read().decode("utf-8")
 assert packaged == manifest
 assert reader_bundle["shared_progress"] is False
 assert "sentence-sample-index" in publication_source
 assert "word-sample-index" not in publication_source
 assert "ProgressBridge" in service_source and "progress-enabled.json" in service_source
-assert "kind=='podcast'" in bridge_source and "Resume · " in bridge_source
+assert "podcast_resumes" in bridge_source and "Resume · " in bridge_source
 assert "AsterBooks.Resume" in listing_source and "StartOffset" in listing_source
+assert "target=self.selection.season+1" in series_source
+assert "item.setProperty('Watched','true' if row.watched else 'false')" in series_source
+assert '<defaultcontrol always="true">300</defaultcontrol>' in series_xml
+assert 'colordiffuse="b8000000"' in series_xml
+assert "AsterMovieRails: controls cast=" in movie_source
+assert "command=='related'" in movie_source and "VideoLibrary.GetMovies" in movie_source
+assert "row['kind'] == 'movie'" in home_plugin_source and "setDbId(row['id'])" in home_plugin_source
+assert 'railfocus" value="9009"' in requests_xml
+assert "if focused in ROOT_CONTROLS" in youtube_focus_source
+assert "<backgroundcolor>ff000000</backgroundcolor>" in screensaver_xml
 
-print(f"AsterTV v2 release gate passed: {len(manifest['files'])} payload files and r9 archive verified")
+print(f"AsterTV v2 release gate passed: {len(manifest['files'])} payload files and r12 archive verified")

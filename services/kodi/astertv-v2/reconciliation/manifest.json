@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "release": "astertv-v2.0.6-lab-repair-complete-2026-10-30-r9",
+  "release": "astertv-v2.0.6-lab-acceptance-reconciled-2026-10-30-r12",
   "target": "AsterTV lab only (192.168.1.140)",
   "production_changed": false,
   "apply_order": [
@@ -170,5 +170,18 @@
     "cleanup": "Player.GetActivePlayers empty; music playlist contains zero items; test-generated in-memory recovery flag cleared after the empty checkpoint was verified"
   },
   "ebook_timing_contract": "Real compiled books remain exact sentence-sample-index with pinned Aster pronunciation cleanup; word/phrase timing is not claimed without a future exact measured timing gate.",
-  "known_remaining": "Physical G20 OK selection is verified on the lab. Exact real-book word timing remains future work; production is unchanged."
+  "acceptance_r12": {
+    "podcast_resume": "Seven podcast catalogues described successfully and four progress-backed Resume rows were exposed.",
+    "music_top_navigation": "From the album grid, Up lands on the Albums pill (control 110).",
+    "youtube_return_navigation": "Subscriptions-to-root return restores focus to the Search pill (control 9300).",
+    "recent_movie_details": "Recently Added movie rows now carry their Kodi DB ID and open the details page without autoplay.",
+    "movie_details": "Play, Resume and Back have visible focus surrounds; Cast & Crew and More Like This rails populate from bounded local library reads.",
+    "tv_episode_page": "Episode focus is the default, episode cards use a translucent dark surface, watched state uses a green corner marker, and boundary Up/Down advances between seasons.",
+    "requests": "Seerr search returns to its Requests window and the v2 navigation rail is restored.",
+    "camera": "The bounded lab camera service starts only on request, returned a valid current JPEG, and stops on exit.",
+    "news_digest": "Article reader, briefing playback, Stop and Back were live-tested after Kodi 22 WindowXML identity and readiness repairs.",
+    "screensaver": "Aster idle presentation uses an opaque black full-screen background; Kodi dim/default screensaver remains disabled.",
+    "voice": "G20 source and restricted STT path are restored; spoken phrase acceptance remains owner-observed and pending."
+  },
+  "known_remaining": "Owner visual acceptance remains for the r12 TV/movie layout and the physical spoken voice phrase. Production is unchanged."
 }
