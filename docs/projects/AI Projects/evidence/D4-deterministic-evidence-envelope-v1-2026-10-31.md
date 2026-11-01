@@ -69,9 +69,16 @@ so they cannot silently widen checks or convert an abstention into a plan.
 Packet SHA-256 is `a01c6d71…e3ec2a`; keys SHA-256 is
 `73ea6880…564118`. The combined freeze/candidate/runner suite passes 20/20.
 
+The exact packet now also has a key-free batch harness. It binds packet SHA,
+candidate alias and result schema; skips all six deterministic abstentions;
+issues exactly 14 prose requests with no retry; retains bounded error classes;
+and preserves deterministic outcome/checks even after a transport failure. Its
+focused and inherited batch suite passes 15/15. This is still source-only and
+does not authorize a model call.
+
 ## Next gate
 
-The new development fixture, no-tool runner, candidate-g source manifest and
-separate quality packet/answer keys are complete. Next freeze the batch result
-and model-blind review boundary. Do not reuse the `candidate-f` result or tune
+The new development fixture, no-tool runner, candidate-g source manifest,
+quality packet/answer keys and batch result schema are complete. Next freeze
+the model-blind review boundary. Do not reuse the `candidate-f` result or tune
 the prose model against its hidden answers.
