@@ -61,3 +61,9 @@ Press `F11` to open the deterministic button fixture. It covers the locked
 Gold Rim treatment on rail pills, primary actions, current/toggle states and
 compact player controls using deep Aster green and antique gold `#AD8A4D`.
 
+Press `F12` to open the synthetic Movie rework. It uses portrait Cast & Crew
+art, landscape More Like This art, icon Play/Resume actions, no clock and
+additional logo clearance. Selecting a cast member opens the companion person
+card, whose Films and Television rails represent only titles available to the
+current Jellyfin user. The pilot data is synthetic and makes no Jellyfin call.
+

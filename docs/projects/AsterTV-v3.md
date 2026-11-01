@@ -459,6 +459,14 @@ and artwork contracts together on a representative page.
 Gate: every entry/Back/OK/focus route passes on the Mini with synthetic normal,
 empty, loading and error fixtures; no autoplay or v2 TV regression is present.
 
+The accepted Movie direction uses a larger, unhurried Aster Media logo area
+without a clock; icon actions for Play and Resume; portrait Cast & Crew cards;
+and landscape More Like This cards. Selecting a person opens an Aster person
+card whose Films and Television rails are populated only from titles visible
+to the signed-in Jellyfin user. Stream A represents that contract with
+synthetic data only; live Jellyfin person IDs and user-scoped title queries
+remain Stream M implementation work.
+
 ### PA3 — Aster, News, Requests, Home and Cameras page redesigns
 
 - [ ] Build the Aster AI interaction shell for idle, listening, processing,
@@ -895,6 +903,7 @@ explicit user acceptance.
 | 2026-10-31 | Tightened the selected tile halo | Owner requested substantially less green above and beside artwork while retaining the lower title field | Guarded transform now derives a 4px real-layout halo from artwork/title bounds; fixture renders use 8px visual margins across landscape, square, portrait and compact art, keep the original lower edge and preserve untruncated titles |
 | 2026-10-31 | Locked the definitive artwork-tile selection component | Owner accepted the transparent resting state plus tight sage focus halo and requested it be marked definitive before button work begins | PA1 now contains a normative `AsterV3ArtTitleTile` contract and keeps F10 plus the 14-layout fail-closed inventory as its acceptance/regression evidence |
 | 2026-10-31 | Locked the definitive button-selection component | Owner selected Gold Rim and requested a less-yellow gold plus Aster-wide use; the accepted palette is deep green `#1F513B` with antique gold `#AD8A4D` | Guarded transform covers 227 visible buttons and 12 shared definitions while excluding art/hidden/catcher/anchor controls; F11 validates rail, primary, toggle/current and player-button forms, and F9 confirms the art-tile contract remains separate |
+| 2026-10-31 | Rendered the Movie and person-library direction | Owner requested portrait cast, landscape related titles, icon Play/Resume actions, no clock and additional logo clearance; selecting a person must show only their Jellyfin-accessible films and television | F12 opens the synthetic Movie page and its cast selection opens a separate user-scoped person-card fixture; live Jellyfin queries and trailer playback remain Stream M work |
 
 ## Close-out
 

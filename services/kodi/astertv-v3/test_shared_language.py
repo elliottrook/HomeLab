@@ -18,6 +18,8 @@ PAGE = OVERLAY / "1080i/custom_1190_v3language.xml"
 YOUTUBE_PAGE = OVERLAY / "1080i/custom_1191_youtube_rework.xml"
 TILE_GALLERY = OVERLAY / "1080i/custom_1192_tile_gallery.xml"
 BUTTON_GALLERY = OVERLAY / "1080i/custom_1193_button_gallery.xml"
+MOVIE_PAGE = OVERLAY / "1080i/custom_1194_movie_rework.xml"
+PERSON_PAGE = OVERLAY / "1080i/custom_1195_person_library.xml"
 INCLUDES = OVERLAY / "1080i/IncludesV3.xml"
 COLORS = OVERLAY / "colors/defaults.xml"
 PATCH = V3 / "patches/001-load-v3-includes.patch"
@@ -37,6 +39,8 @@ class SharedLanguageTests(unittest.TestCase):
             YOUTUBE_PAGE,
             TILE_GALLERY,
             BUTTON_GALLERY,
+            MOVIE_PAGE,
+            PERSON_PAGE,
             BUTTON_FOCUS,
             BUTTON_CURRENT,
             INCLUDES,
@@ -312,7 +316,7 @@ class SharedLanguageTests(unittest.TestCase):
                 text=True,
             )
             self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-            self.assertIn("227 visible buttons", completed.stdout)
+            self.assertIn("231 visible buttons", completed.stdout)
             self.assertIn("anchor:1, art:8, catcher:2, hidden:4", completed.stdout)
             self.assertIn("12 shared button definitions", completed.stdout)
 
@@ -326,7 +330,7 @@ class SharedLanguageTests(unittest.TestCase):
                         continue
                     self.assertEqual(node.attrib.get("border"), "20")
                     focus_refs += 1
-            self.assertEqual(focus_refs, 201)
+            self.assertEqual(focus_refs, 205)
 
             tile = ET.parse(skin / "1080i/custom_1192_tile_gallery.xml").getroot()
             art_buttons = {
@@ -352,6 +356,62 @@ class SharedLanguageTests(unittest.TestCase):
                     }:
                         continue
                     self.assertEqual(button.findtext("focusedcolor"), "asterIvory")
+
+    def test_movie_rework_uses_the_locked_layout_and_person_flow(self) -> None:
+        movie = ET.parse(MOVIE_PAGE).getroot()
+        person = ET.parse(PERSON_PAGE).getroot()
+        movie_text = MOVIE_PAGE.read_text()
+        person_text = PERSON_PAGE.read_text()
+
+        self.assertNotIn("AsterClockPill", movie_text)
+        self.assertNotIn("<label>Clock</label>", movie_text)
+        logo = next(
+            node
+            for node in movie.findall(".//control[@type='image']")
+            if node.findtext("texture") == "special://skin/media/27-aster-media-logo.png"
+        )
+        self.assertGreaterEqual(int(logo.findtext("height")), 190)
+        self.assertGreaterEqual(int(logo.findtext("width")), 280)
+
+        buttons = {
+            node.attrib["id"]: node
+            for node in movie.findall(".//control[@type='button']")
+        }
+        self.assertEqual(set(buttons), {"200", "201", "202"})
+        self.assertEqual(buttons["200"].findtext("label"), "")
+        self.assertEqual(buttons["201"].findtext("label"), "")
+        self.assertIn("player-controls/play.png", movie_text)
+        self.assertIn("player-controls/forward.png", movie_text)
+        self.assertNotIn("<font>font14</font>", movie_text)
+
+        cast = movie.find(".//control[@type='list'][@id='500']")
+        related = movie.find(".//control[@type='list'][@id='501']")
+        self.assertIsNotNone(cast)
+        self.assertIsNotNone(related)
+        cast_art = cast.find("itemlayout/control[@type='image']")
+        related_art = related.find("itemlayout/control[@type='image']")
+        self.assertLess(
+            int(cast_art.findtext("width")) / int(cast_art.findtext("height")),
+            1,
+        )
+        self.assertGreater(
+            int(related_art.findtext("width")) / int(related_art.findtext("height")),
+            1.8,
+        )
+        self.assertEqual(cast.findtext("onclick"), "ActivateWindow(1195)")
+
+        self.assertIn("current Jellyfin user", person_text)
+        self.assertIn("<label>Films</label>", person_text)
+        self.assertIn("<label>Television</label>", person_text)
+        self.assertEqual(person.findtext("defaultcontrol"), "600")
+        person_lists = {
+            node.attrib["id"]: node
+            for node in person.findall(".//control[@type='list']")
+        }
+        self.assertEqual(set(person_lists), {"600", "601"})
+        for control in person_lists.values():
+            for direction in ("onleft", "onright", "onup", "ondown"):
+                self.assertIn(control.findtext(direction), {"600", "601", "602"})
 
 
 if __name__ == "__main__":

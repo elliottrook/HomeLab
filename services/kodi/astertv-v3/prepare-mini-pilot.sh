@@ -63,6 +63,8 @@ xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1190_v3language.xml"
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1191_youtube_rework.xml"
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1192_tile_gallery.xml"
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1193_button_gallery.xml"
+xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1194_movie_rework.xml"
+xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1195_person_library.xml"
 xmllint --noout "$keymap_source"
 
 mkdir -p "$addons" "$portable/userdata/keymaps"

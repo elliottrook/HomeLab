@@ -6,6 +6,7 @@
             <f9>ActivateWindow(1191)</f9>
             <f10>ActivateWindow(1192)</f10>
             <f11>ActivateWindow(1193)</f11>
+            <f12>ActivateWindow(1194)</f12>
         </keyboard>
     </global>
 </keymap>
