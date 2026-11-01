@@ -141,3 +141,21 @@ settings. Both use a 24-hour clock, the Aster screensaver and the new advertised
 device names. Identity and deployment changes have separate checkpoints. The
 deterministic final archive SHA-256 is
 `e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7`.
+
+## Family Settings restart recovery
+
+The bounded Family hotfix `apply_family_restart_button.py` adds a
+**Restart AsterTV** control to the status area of Aster Settings. It invokes
+Kodi's Linux-only `RestartApp` action rather than rebooting LibreELEC, refuses
+active playback and requires an on-screen confirmation. The physical G20 OK
+dispatcher has the same explicit route. Deployment is Family-only, hash-
+pinned and checkpointed; Bedroom remains unchanged until separately promoted.
+
+The control is a convenience recovery for stale Kodi UI/add-on state; it does
+not bypass Aster's unresolved-playback fence. On 2026-10-31 a Jellyfin movie
+replacement made the old Buddy stream return 404 and correctly created that
+fence. After confirming no active player or queue, the old Kodi movie ID was
+gone and current movie streams returned byte-range data, the marker was moved
+to `resolved-stale-movie-1000-20261031T1738.json` in its existing checkpoint.
+This preserved the evidence and unblocked movies without changing TV playback
+or watch history.
