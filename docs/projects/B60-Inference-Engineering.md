@@ -12,6 +12,16 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [November1 actual outcome](B60-Inference-Engineering/qualification-no-go-20261101.md)
+is a pre-claim NO-GO after successful backup/admission and verified entry
+checkpointing. The guardian did start; the claim refused when checkpoint work
+reached122 seconds against the120-second claim gate. Clean abort left production
+units active and ownership clear; no drain/model/trial occurred. A focused
+undeployed timing correction passes171 controller,10 installer and115 B60 tests
+with exact replay equality. Launch timeliness and restoration deadlines stay
+fixed. Next review the new source transition and arm a fresh future qualification;
+do not replay the expired booking. This nightly record is local only, not pushed.
+
 Jason's requested [production adapter, clock reconciliation and next arming](B60-Inference-Engineering/qualification-armed-20261101.md)
 are completed operationally. The guarded two-module source update passed
 protected checkpoint/full-import verification; TrueNAS now uses fixed UTC−07,

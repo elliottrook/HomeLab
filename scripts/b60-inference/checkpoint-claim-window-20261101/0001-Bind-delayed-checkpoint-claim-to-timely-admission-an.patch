@@ -1,0 +1,260 @@
+From df09a99e204d5d8d68a62d924e4b986704d41894 Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Sun, 1 Nov 2026 16:52:51 -0700
+Subject: [PATCH] Bind delayed checkpoint claim to timely admission and
+ original trial cutoff
+
+---
+ .../local-ai/lab_hours_exclusive_boundary.py  | 22 ++++++++--
+ scripts/local-ai/lab_hours_proxmox_adapter.py |  7 ++-
+ scripts/local-ai/lab_hours_reservations.py    | 24 ++++++++++
+ .../test_lab_hours_exclusive_boundary.py      | 44 +++++++++++++++++++
+ .../test_lab_hours_proxmox_adapter.py         | 25 +++++++++++
+ .../local-ai/test_lab_hours_source_update.py  | 11 +++--
+ 6 files changed, 124 insertions(+), 9 deletions(-)
+
+diff --git a/scripts/local-ai/lab_hours_exclusive_boundary.py b/scripts/local-ai/lab_hours_exclusive_boundary.py
+index e043d1cc3..8f7e66d55 100644
+--- a/scripts/local-ai/lab_hours_exclusive_boundary.py
++++ b/scripts/local-ai/lab_hours_exclusive_boundary.py
+@@ -23,10 +23,12 @@ class ExclusiveHostBoundary:
+     def __init__(self, root, operation, bookings, *, ready):
+         self.root=Path(root); self.operation=Path(operation)
+         self.bookings=bookings; self.ready=ready; self.exclusion=None
++        self.admission_epoch=None
+ 
+     def prepare(self):
+         self.exclusion=host_exclusion(self.root)
+         self.exclusion.__enter__()
++        self.admission_epoch=int(self.bookings.clock())
+         try:
+             if (self.ready() is not True or (self.root/'lease.json').exists()
+                     or (self.root/'lease.lock').exists() or self.operation.exists()
+@@ -36,7 +38,7 @@ class ExclusiveHostBoundary:
+         except BaseException:
+             self.close(); raise
+ 
+-    def claim(self, booking_id, *, owner, claimant, entry_sha256):
++    def claim(self, booking_id, *, owner, claimant, entry_sha256, claim_deadline=None):
+         if self.exclusion is None: raise BoundaryError('EXCLUSION_NOT_HELD')
+         if (not ID_RE.fullmatch(booking_id) or not ID_RE.fullmatch(owner)
+                 or not ID_RE.fullmatch(claimant)
+@@ -46,8 +48,14 @@ class ExclusiveHostBoundary:
+                  'owner':owner,'claimant':claimant,'entry_sha256':entry_sha256}
+         row=self.bookings.get(booking_id)
+         now=int(self.bookings.clock())
++        timing=(row['start_epoch']<=now<=row['start_epoch']+120)
++        if claim_deadline is not None:
++            timing=(type(self.admission_epoch) is int and type(claim_deadline) is int
++                and row['start_epoch']<=self.admission_epoch<=row['start_epoch']+120
++                and self.admission_epoch<=now<claim_deadline<=row['start_epoch']+300
++                and claim_deadline+900<=row['end_epoch'])
+         if (row.get('kind')!='exclusive-stack' or row.get('state')!='reserved'
+-                or row.get('owner')!=owner or not row['start_epoch']<=now<=row['start_epoch']+120):
++                or row.get('owner')!=owner or not timing):
+             raise BoundaryError('BOOKING_NOT_CLAIMABLE')
+         lock=self.root/'lease.lock'
+         lock.mkdir(mode=0o700)
+@@ -56,8 +64,13 @@ class ExclusiveHostBoundary:
+         self._create(lock/'exclusive.json',binding)
+         self._create(self.operation,binding)
+         try:
+-            self.bookings.claim_exclusive(booking_id,owner=owner,claimant=claimant,
+-                                          entry_sha256=entry_sha256)
++            if claim_deadline is None:
++                self.bookings.claim_exclusive(booking_id,owner=owner,claimant=claimant,
++                                              entry_sha256=entry_sha256)
++            else:
++                self.bookings.claim_checkpointed_exclusive(booking_id,owner=owner,
++                    claimant=claimant,entry_sha256=entry_sha256,
++                    admission_epoch=self.admission_epoch,claim_deadline=claim_deadline)
+         except BaseException:
+             raise BoundaryError('CLAIM_UNCERTAIN_LOCKS_RETAINED') from None
+         return binding
+@@ -178,3 +191,4 @@ class ExclusiveHostBoundary:
+         if self.exclusion is not None:
+             self.exclusion.__exit__(None,None,None)
+             self.exclusion=None
++        self.admission_epoch=None
+diff --git a/scripts/local-ai/lab_hours_proxmox_adapter.py b/scripts/local-ai/lab_hours_proxmox_adapter.py
+index f8146c43d..28318a974 100644
+--- a/scripts/local-ai/lab_hours_proxmox_adapter.py
++++ b/scripts/local-ai/lab_hours_proxmox_adapter.py
+@@ -111,9 +111,14 @@ class ProxmoxEntryAdapter:
+     def arm_guardian(self,state):
+         # The independent watchdog is started before the durable claim. Its
+         # entry point must distinguish unclaimed/no-effects from claimed work.
++        booking=self.bookings.get(state['booking_id'])
++        claim_cutoff=min(state['trial_deadline'],booking['start_epoch']+300)
++        if int(self.clock())>=claim_cutoff:
++            raise SessionError('PREFLIGHT_CONSUMED_TRIAL_WINDOW')
+         if self.arm(state,self.profile) is not True: return False
+         binding=self.boundary.claim(state['booking_id'],owner=state['owner'],
+-            claimant=self.private['claimant'],entry_sha256=state['entry_sha256'])
++            claimant=self.private['claimant'],entry_sha256=state['entry_sha256'],
++            claim_deadline=claim_cutoff)
+         self.private['binding']=binding
+         self.store.write('adapter.json',self.private)
+         return True
+diff --git a/scripts/local-ai/lab_hours_reservations.py b/scripts/local-ai/lab_hours_reservations.py
+index cbb72b91f..172a405ce 100644
+--- a/scripts/local-ai/lab_hours_reservations.py
++++ b/scripts/local-ai/lab_hours_reservations.py
+@@ -213,6 +213,30 @@ class ReservationStore:
+             self._write_unlocked(value)
+             return value
+ 
++    def claim_checkpointed_exclusive(self, booking_id, *, owner, claimant,
++                                    entry_sha256, admission_epoch, claim_deadline):
++        """Timely-started checkpoint work may use the existing five-minute cutoff.
++
++        Root caller must hold continuous host exclusion and prove checkpoint /
++        guardian. Never permits late admission or changes a booking deadline.
++        """
++        if not ID_RE.fullmatch(claimant) or not re.fullmatch('[0-9a-f]{64}',entry_sha256):
++            raise ReservationError('exclusive claim identity is invalid')
++        with self.locked():
++            value=self._read_unlocked(self._path(booking_id)); now=int(self.clock())
++            if (value.get('kind')!='exclusive-stack' or value.get('state')!='reserved'
++                    or value.get('owner')!=owner or type(admission_epoch) is not int
++                    or type(claim_deadline) is not int
++                    or not value['start_epoch']<=admission_epoch<=value['start_epoch']+120
++                    or not admission_epoch<=now<claim_deadline<=value['start_epoch']+300
++                    or claim_deadline+RESTORE_BUFFER_SECONDS>value['end_epoch']):
++                raise ReservationError('checkpointed exclusive claim timing or identity invalid')
++            value.update(state='claimed',claimant=claimant,claimed_epoch=now,
++                         entry_sha256=entry_sha256,admission_epoch=admission_epoch,
++                         claim_deadline=claim_deadline)
++            self._write_unlocked(value)
++            return value
++
+     def check_window(self, *, start_epoch: int, end_epoch: int) -> list[str]:
+         with self.locked():
+             conflicts=[]
+diff --git a/scripts/local-ai/test_lab_hours_exclusive_boundary.py b/scripts/local-ai/test_lab_hours_exclusive_boundary.py
+index f188030bf..dfe5c9992 100644
+--- a/scripts/local-ai/test_lab_hours_exclusive_boundary.py
++++ b/scripts/local-ai/test_lab_hours_exclusive_boundary.py
+@@ -18,6 +18,50 @@ class BoundaryTests(unittest.TestCase):
+         self.boundary=self.new(); self.addCleanup(self.boundary.close)
+ 
+     def new(self): return ExclusiveHostBoundary(self.root,self.operation,self.store,ready=lambda:True)
++
++    def checkpoint_claim(self,deadline=1300):
++        return self.boundary.claim('b60-exclusive-20261030',owner='b60-stream-a',
++            claimant='b60-session-owner',entry_sha256='a'*64,claim_deadline=deadline)
++
++    def test_timely_admission_claim_after_122_seconds_preserves_original_cutoff(self):
++        self.now=1000;self.store.clock=lambda:self.now
++        self.boundary.prepare();self.now=1122
++        self.checkpoint_claim()
++        row=self.store.get('b60-exclusive-20261030')
++        self.assertEqual((row['admission_epoch'],row['claimed_epoch'],row['claim_deadline']),
++                         (1000,1122,1300))
++        self.assertEqual(row['end_epoch'],3700)
++
++    def test_late_admission_cannot_use_checkpoint_path(self):
++        self.store.clock=lambda:1121;self.boundary.prepare()
++        with self.assertRaisesRegex(BoundaryError,'NOT_CLAIMABLE'):self.checkpoint_claim()
++        self.assertFalse(self.operation.exists())
++
++    def test_expired_checkpoint_claim_has_no_marker_effects(self):
++        self.now=1000;self.store.clock=lambda:self.now;self.boundary.prepare();self.now=1300
++        with self.assertRaisesRegex(BoundaryError,'NOT_CLAIMABLE'):self.checkpoint_claim()
++        self.assertFalse(self.operation.exists())
++        self.assertFalse((self.root/'lease.lock').exists())
++
++    def test_old_claim_api_retains_120_second_cutoff(self):
++        self.store.clock=lambda:1122;self.boundary.prepare()
++        with self.assertRaisesRegex(BoundaryError,'NOT_CLAIMABLE'):
++            self.boundary.claim('b60-exclusive-20261030',owner='b60-stream-a',
++                claimant='b60-session-owner',entry_sha256='a'*64)
++
++    def test_releasing_exclusion_does_not_reuse_old_admission(self):
++        self.now=1000;self.store.clock=lambda:self.now;self.boundary.prepare()
++        self.boundary.close();self.now=1122;self.boundary.prepare()
++        with self.assertRaisesRegex(BoundaryError,'NOT_CLAIMABLE'):self.checkpoint_claim()
++
++    def test_ledger_rejects_forged_deadline_and_boolean_epoch(self):
++        self.store.clock=lambda:1122
++        for epoch,deadline in ((1000,1301),(True,1300),(1121,1300)):
++            with self.assertRaises(ReservationError):
++                self.store.claim_checkpointed_exclusive('b60-exclusive-20261030',
++                    owner='b60-stream-a',claimant='b60-session-owner',entry_sha256='a'*64,
++                    admission_epoch=epoch,claim_deadline=deadline)
++        self.assertEqual(self.store.get('b60-exclusive-20261030')['state'],'reserved')
+     def claim(self):
+         self.boundary.prepare()
+         return self.boundary.claim('b60-exclusive-20261030',owner='b60-stream-a',
+diff --git a/scripts/local-ai/test_lab_hours_proxmox_adapter.py b/scripts/local-ai/test_lab_hours_proxmox_adapter.py
+index 1f90cbfed..e2b69a933 100644
+--- a/scripts/local-ai/test_lab_hours_proxmox_adapter.py
++++ b/scripts/local-ai/test_lab_hours_proxmox_adapter.py
+@@ -34,6 +34,31 @@ class Adapter(ProxmoxEntryAdapter):
+ 
+ 
+ class CombinedAdapterTests(unittest.TestCase):
++    def delayed_capture(self,now):
++        self.now=1000
++        self.bookings.clock=self.adapter.clock=self.session.clock=lambda:self.now
++        capture=self.adapter.capture
++        def delayed():
++            result=capture();self.now=now;return result
++        self.adapter.capture=delayed
++
++    def test_122_second_capture_can_claim_and_restore_inside_original_window(self):
++        self.delayed_capture(1122)
++        self.session.begin(self.booking,owner='b60-stream-a',trial_seconds=300)
++        self.assertEqual(self.bookings.get(self.booking['booking_id'])['claimed_epoch'],1122)
++        result=self.session.run_trial(owner='b60-stream-a')
++        self.assertEqual(result['outcome'],'complete-restored')
++        self.assertEqual(result['session']['restore_deadline'],3700)
++
++    def test_expired_capture_refuses_before_guardian_or_claim(self):
++        self.delayed_capture(1300);calls=[]
++        self.adapter.arm=lambda state,profile:calls.append(state) or True
++        with self.assertRaisesRegex(SessionError,'PREFLIGHT_CONSUMED_TRIAL_WINDOW'):
++            self.session.begin(self.booking,owner='b60-stream-a',trial_seconds=300)
++        self.assertEqual(calls,[])
++        self.assertEqual(self.bookings.get(self.booking['booking_id'])['state'],'reserved')
++        self.assertFalse((self.host/'lease.lock').exists())
++
+     def setUp(self):
+         self.temp=tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+         self.root=Path(self.temp.name).resolve(); self.host=self.root/'host'; self.host.mkdir(mode=0o700)
+diff --git a/scripts/local-ai/test_lab_hours_source_update.py b/scripts/local-ai/test_lab_hours_source_update.py
+index ffe9e2907..197227ce0 100644
+--- a/scripts/local-ai/test_lab_hours_source_update.py
++++ b/scripts/local-ai/test_lab_hours_source_update.py
+@@ -1,11 +1,12 @@
+ """Fake source effects with real disposable durable journals; no host adapter."""
+ import hashlib
++import json
++import os
+ from pathlib import Path
+ import tempfile
+ import unittest
+ from unittest.mock import patch
+ 
+-from build_lab_hours_exclusive_bundle import closure
+ from lab_hours_exclusive_session import SessionStore, SessionError, canonical
+ from lab_hours_source_update import SourceUpdate, CHANGED, transition
+ 
+@@ -41,9 +42,11 @@ class FakeSource:
+ 
+ class SourceUpdateTests(unittest.TestCase):
+     def setUp(self):
+-        root = Path(__file__).resolve().parent
+-        self.new = {name: hashlib.sha256((root/name).read_bytes()).hexdigest()
+-                    for name in closure(root)}
++        # The accepted two-module updater remains pinned to its frozen source
++        # bundle, not whichever future runtime changes are under development.
++        root = Path(os.environ.get('B60_NEW_SOURCE_BUNDLE',
++            '/private/tmp/b60-exclusive-diagnostics-20261031-nightly-v1'))
++        self.new = json.loads((root/'source-manifest.json').read_bytes())['pins']
+         self.old = dict(self.new)
+         self.old[CHANGED[0]] = '69338eaea4a63575caca059a23697e440e60a89cda06fb9f95d78d19848b6886'
+         self.old[CHANGED[1]] = '9f48ed0b828d6a1001f0b9122b9fcc5b192afcf9e70353699a617c8f01f30469'
+-- 
+2.50.1 (Apple Git-155)
+
