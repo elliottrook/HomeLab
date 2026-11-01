@@ -62,9 +62,16 @@ control, and explicitly denies model calls, repair, routing and promotion. Its
 validator rejects source drift, missing files, symlinks and any attempted
 authority/status widening. The combined candidate suite passes 16/16.
 
+A new, separately frozen 20-case synthetic quality packet and answer-key set
+now cover all eight production-shaped evidence classes at least twice and six
+mandatory abstentions. The keys are derived from the deterministic envelope,
+so they cannot silently widen checks or convert an abstention into a plan.
+Packet SHA-256 is `a01c6d71…e3ec2a`; keys SHA-256 is
+`73ea6880…564118`. The combined freeze/candidate/runner suite passes 20/20.
+
 ## Next gate
 
-The new public/synthetic development fixture, no-tool runner and candidate-g
-source manifest are complete. Next freeze a new answer-key packet and
-model-blind review boundary. Do not reuse the `candidate-f` result or tune the
-prose model against its hidden answers.
+The new development fixture, no-tool runner, candidate-g source manifest and
+separate quality packet/answer keys are complete. Next freeze the batch result
+and model-blind review boundary. Do not reuse the `candidate-f` result or tune
+the prose model against its hidden answers.
