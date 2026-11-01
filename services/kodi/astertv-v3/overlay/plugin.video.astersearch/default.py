@@ -78,7 +78,10 @@ def main():
         show_rows = rpc("VideoLibrary.GetTVShows", actor, TVSHOW_PROPERTIES).get("tvshows", [])
         if not isinstance(movie_rows, list) or not isinstance(show_rows, list):
             raise ValueError("invalid library result")
-        xbmcplugin.setPluginCategory(handle, "Titles with {}".format(actor))
+        xbmcplugin.setPluginCategory(
+            handle,
+            "{} — Movie and TV credits available on AsterTV".format(actor),
+        )
         xbmcplugin.setContent(handle, "videos")
         count = 0
         for row in movie_rows:

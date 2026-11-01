@@ -1,0 +1,138 @@
+--- a/1080i/MyVideoNav.xml
++++ b/1080i/MyVideoNav.xml
+@@ -4,7 +4,26 @@
+   <onload>RunScript(special://skin/tools/youtube_root_focus.py)</onload><views>50</views>
+   <backgroundcolor>asterCharcoal</backgroundcolor>
+   <controls>
+-    <control type="group" id="9890"><visible>!String.IsEqual(Container.FolderPath,plugin://plugin.video.youtube/)</visible><control type="group" id="9893"><visible>!String.StartsWith(Container.FolderPath,plugin://plugin.video.youtube/kodion/search/)</visible><control type="image">
++    <control type="group" id="9890"><visible>!String.IsEqual(Container.FolderPath,plugin://plugin.video.youtube/)</visible><control type="group" id="9893"><visible>!String.StartsWith(Container.FolderPath,plugin://plugin.video.youtube/kodion/search/)</visible>
++    <control type="image">
++      <left>0</left><top>0</top><width>1920</width><height>1080</height>
++      <texture background="true">$VAR[AsterBrowseFanart]</texture>
++      <aspectratio>scale</aspectratio><fadetime>250</fadetime>
++      <visible>String.Contains(Container.FolderPath,plugin.video.astersearch)</visible>
++    </control>
++    <control type="image">
++      <left>0</left><top>0</top><width>1920</width><height>1080</height>
++      <texture>special://skin/media/ui-hero-left-fade.png</texture>
++      <colordiffuse>asterCharcoal</colordiffuse><aspectratio>stretch</aspectratio>
++      <visible>String.Contains(Container.FolderPath,plugin.video.astersearch)</visible>
++    </control>
++    <control type="image">
++      <left>0</left><top>0</top><width>1920</width><height>1080</height>
++      <texture>special://skin/media/ui-hero-bottom-fade.png</texture>
++      <colordiffuse>asterStone</colordiffuse><aspectratio>stretch</aspectratio>
++      <visible>String.Contains(Container.FolderPath,plugin.video.astersearch)</visible>
++    </control>
++    <control type="image">
+       <left>0</left>
+       <top>0</top>
+       <width>1920</width>
+@@ -12,6 +31,7 @@
+       <texture background="true">$VAR[AsterBrowseFanart]</texture>
+       <aspectratio>scale</aspectratio>
+       <fadetime>250</fadetime>
++      <visible>!String.Contains(Container.FolderPath,plugin.video.astersearch)</visible>
+     </control>
+     <control type="image">
+       <left>0</left>
+@@ -21,6 +41,7 @@
+       <texture>special://skin/media/ui-hero-left-fade.png</texture>
+       <colordiffuse>asterCharcoal</colordiffuse>
+       <aspectratio>stretch</aspectratio>
++      <visible>!String.Contains(Container.FolderPath,plugin.video.astersearch)</visible>
+     </control>
+     <control type="image">
+       <left>0</left>
+@@ -30,6 +51,7 @@
+       <texture>special://skin/media/ui-hero-bottom-fade.png</texture>
+       <colordiffuse>asterStone</colordiffuse>
+       <aspectratio>stretch</aspectratio>
++      <visible>!String.Contains(Container.FolderPath,plugin.video.astersearch)</visible>
+     </control>
+     <control type="image">
+       <left>65</left>
+@@ -123,7 +145,7 @@
+       <textcolor>asterIvory</textcolor>
+       <focusedcolor>asterIvory</focusedcolor>
+       <texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus>
+-      <texturenofocus border="18" colordiffuse="52000000">special://skin/media/ui-panel.png</texturenofocus>
++      <texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus>
+       <onclick>SendClick(50)</onclick>
+       <onright>9101</onright>
+       <onleft>19</onleft>
+@@ -143,14 +165,14 @@
+       <onup>9000</onup>
+       <ondown>50</ondown>
+       <visible>![String.Contains(Container.FolderPath,plugin.video.youtube) + Container(50).ListItem.IsParentFolder]</visible>
+-    <height>44</height><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor><texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="18" colordiffuse="52000000">special://skin/media/ui-panel.png</texturenofocus></control>
++    <height>44</height><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor><texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus></control>
+     <control type="image">
+       <left>145</left>
+       <top>350</top>
+       <width>180</width>
+       <height>44</height>
+       <texture>special://skin/media/ui-button-ring.png</texture>
+-      <visible>Control.HasFocus(9100)</visible>
++      <visible>Control.HasFocus(9100) + !String.Contains(Container.FolderPath,plugin.video.astersearch)</visible>
+     </control>
+     <control type="image">
+       <left>340</left>
+@@ -158,7 +180,7 @@
+       <width>165</width>
+       <height>44</height>
+       <texture>special://skin/media/ui-button-ring.png</texture>
+-      <visible>Control.HasFocus(9101)</visible>
++      <visible>Control.HasFocus(9101) + !String.Contains(Container.FolderPath,plugin.video.astersearch)</visible>
+     </control>
+     
+     <control type="image">
+@@ -178,7 +200,7 @@
+       <font>font24</font>
+       <textcolor>asterMuted</textcolor>
+     </control>
+-    <include content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="564" /><param name="innerleft" value="87" /><param name="innertop" value="566" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
++    <include condition="!String.Contains(Container.FolderPath,plugin.video.astersearch)" content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="564" /><param name="innerleft" value="87" /><param name="innertop" value="566" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+     <control type="edit" id="19">
+       <left>85</left>
+       <top>564</top>
+@@ -197,10 +219,35 @@
+       <onup>9100</onup>
+       <ondown>9200</ondown>
+     </control>
+-    <include condition="!String.Contains(Container.FolderPath,plugin.video.youtube)" content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="636" /><param name="innerleft" value="87" /><param name="innertop" value="638" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+-    <include condition="!String.Contains(Container.FolderPath,plugin.video.youtube)" content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="708" /><param name="innerleft" value="87" /><param name="innertop" value="710" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+-    <include condition="!String.Contains(Container.FolderPath,plugin.video.youtube)" content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="780" /><param name="innerleft" value="87" /><param name="innertop" value="782" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
+-    <include condition="!String.Contains(Container.FolderPath,plugin.video.youtube)" content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="852" /><param name="innerleft" value="87" /><param name="innertop" value="854" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
++    <include condition="!String.Contains(Container.FolderPath,plugin.video.youtube) + !String.Contains(Container.FolderPath,plugin.video.astersearch)" content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="636" /><param name="innerleft" value="87" /><param name="innertop" value="638" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
++    <include condition="!String.Contains(Container.FolderPath,plugin.video.youtube) + !String.Contains(Container.FolderPath,plugin.video.astersearch)" content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="708" /><param name="innerleft" value="87" /><param name="innertop" value="710" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
++    <include condition="!String.Contains(Container.FolderPath,plugin.video.youtube) + !String.Contains(Container.FolderPath,plugin.video.astersearch)" content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="780" /><param name="innerleft" value="87" /><param name="innertop" value="782" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
++    <include condition="!String.Contains(Container.FolderPath,plugin.video.youtube) + !String.Contains(Container.FolderPath,plugin.video.astersearch)" content="AsterQuietFieldBackplate"><param name="left" value="85" /><param name="top" value="852" /><param name="innerleft" value="87" /><param name="innertop" value="854" /><param name="innerwidth" value="256" /><param name="innerheight" value="52" /></include>
++    <control type="image">
++      <left>85</left><top>564</top><width>260</width><height>56</height>
++      <texture border="20" colordiffuse="99000000">special://skin/media/ui-panel.png</texture>
++      <visible>String.Contains(Container.FolderPath,plugin.video.astersearch)</visible>
++    </control>
++    <control type="image">
++      <left>85</left><top>636</top><width>260</width><height>56</height>
++      <texture border="20" colordiffuse="99000000">special://skin/media/ui-panel.png</texture>
++      <visible>String.Contains(Container.FolderPath,plugin.video.astersearch)</visible>
++    </control>
++    <control type="image">
++      <left>85</left><top>708</top><width>260</width><height>56</height>
++      <texture border="20" colordiffuse="99000000">special://skin/media/ui-panel.png</texture>
++      <visible>String.Contains(Container.FolderPath,plugin.video.astersearch)</visible>
++    </control>
++    <control type="image">
++      <left>85</left><top>780</top><width>260</width><height>56</height>
++      <texture border="20" colordiffuse="99000000">special://skin/media/ui-panel.png</texture>
++      <visible>String.Contains(Container.FolderPath,plugin.video.astersearch)</visible>
++    </control>
++    <control type="image">
++      <left>85</left><top>852</top><width>260</width><height>56</height>
++      <texture border="20" colordiffuse="99000000">special://skin/media/ui-panel.png</texture>
++      <visible>String.Contains(Container.FolderPath,plugin.video.astersearch)</visible>
++    </control>
+     <control type="button" id="9001">
+       <left>85</left>
+       <top>780</top>

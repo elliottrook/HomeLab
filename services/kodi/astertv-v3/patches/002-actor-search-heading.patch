@@ -1,0 +1,31 @@
+--- a/1080i/Includes.xml
++++ b/1080i/Includes.xml
+@@ -31,6 +31,7 @@
+     <variable name="AsterBrowseHeading">
+         <value condition="String.Contains(Container.FolderPath,plugin.video.youtube)">YouTube</value>
+         <value condition="Container.Content(sets)">Collections</value>
++        <value condition="String.Contains(Container.FolderPath,plugin.video.astersearch)">$INFO[Container.PluginCategory]</value>
+         <value condition="String.Contains(Container.FolderPath,plugin.video.asterhome)">$INFO[Container.PluginCategory]</value>
+         <value>$INFO[Container.FolderName]</value>
+     </variable>
+--- a/1080i/MyVideoNav.xml
++++ b/1080i/MyVideoNav.xml
+@@ -47,7 +47,18 @@
+       <label>$VAR[AsterBrowseHeading]</label>
+       <font>font40</font>
+       <textcolor>asterRailText</textcolor>
++      <visible>!String.Contains(Container.FolderPath,plugin.video.astersearch)</visible>
+     </control>
++    <control type="label">
++      <left>175</left>
++      <top>34</top>
++      <width>1325</width>
++      <height>52</height>
++      <label>$VAR[AsterBrowseHeading]</label>
++      <font>font30</font>
++      <textcolor>asterRailText</textcolor>
++      <visible>String.Contains(Container.FolderPath,plugin.video.astersearch)</visible>
++    </control>
+     <control type="button" id="9000">
+       <left>1540</left>
+       <top>34</top>

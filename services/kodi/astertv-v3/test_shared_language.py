@@ -26,6 +26,8 @@ ACTOR_SEARCH = ACTOR_PLUGIN / "actor_search.py"
 INCLUDES = OVERLAY / "1080i/IncludesV3.xml"
 COLORS = OVERLAY / "colors/defaults.xml"
 PATCH = V3 / "patches/001-load-v3-includes.patch"
+ACTOR_HEADING_PATCH = V3 / "patches/002-actor-search-heading.patch"
+ACTOR_VISUALS_PATCH = V3 / "patches/003-actor-search-visuals.patch"
 ARCHIVE = ROOT / "services/kodi/dist/astertv-v2.0.7-release-2026-10-31.tar.gz"
 ART_TITLE_TRANSFORM = V3 / "apply_art_title_focus.py"
 BUTTON_TRANSFORM = V3 / "apply_button_focus.py"
@@ -118,6 +120,35 @@ class SharedLanguageTests(unittest.TestCase):
                 text=True,
             )
             self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+
+    def test_actor_result_patches_apply_in_order_to_immutable_v2_baseline(self) -> None:
+        prefix = "aster-v2-package/lab-addon-snapshot/skin.asterhome/"
+        with tempfile.TemporaryDirectory() as tmp_name:
+            tmp = Path(tmp_name)
+            with tarfile.open(ARCHIVE, "r:gz") as archive:
+                members = [member for member in archive.getmembers() if member.name.startswith(prefix)]
+                archive.extractall(tmp, members=members)
+            skin = tmp / prefix
+            for patch_path in (ACTOR_HEADING_PATCH, ACTOR_VISUALS_PATCH):
+                completed = subprocess.run(
+                    ["patch", "-d", str(skin), "-p1", "-i", str(patch_path)],
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertEqual(
+                    completed.returncode,
+                    0,
+                    f"{patch_path.name}: {completed.stdout}{completed.stderr}",
+                )
+
+            nav = ET.parse(skin / "1080i/MyVideoNav.xml").getroot()
+            nav_text = (skin / "1080i/MyVideoNav.xml").read_text()
+            self.assertGreaterEqual(nav_text.count("<height>1080</height>"), 3)
+            self.assertIn("plugin.video.astersearch", nav_text)
+            self.assertIn("colordiffuse=\"99000000\"", nav_text)
+            self.assertIn("ui-hero-bottom-fade.png", nav_text)
+            self.assertEqual(nav.tag, "window")
 
     def test_youtube_rework_keeps_familiar_structure_and_adds_depth(self) -> None:
         page = ET.parse(YOUTUBE_PAGE).getroot()
@@ -506,6 +537,7 @@ class SharedLanguageTests(unittest.TestCase):
         self.assertIn('"VideoLibrary.GetMovies"', source)
         self.assertIn('"VideoLibrary.GetTVShows"', source)
         self.assertIn('"end": 500', source)
+        self.assertIn("Movie and TV credits available on AsterTV", source)
         self.assertIn("TVSHOW_PROPERTIES = BASE_PROPERTIES", source)
         self.assertNotIn('TVSHOW_PROPERTIES = BASE_PROPERTIES + ["resume"]', source)
         for mutation in ("SetMovieDetails", "SetTVShowDetails", "RemoveMovie", "RemoveTVShow"):
@@ -515,6 +547,16 @@ class SharedLanguageTests(unittest.TestCase):
             for node in ET.parse(OVERLAY / "addon.xml").getroot().findall("requires/import")
         }
         self.assertIn("plugin.video.astersearch", skin_requires)
+        heading_patch = ACTOR_HEADING_PATCH.read_text()
+        self.assertIn("plugin.video.astersearch", heading_patch)
+        self.assertIn("Container.PluginCategory", heading_patch)
+        self.assertIn("<font>font30</font>", heading_patch)
+        visuals_patch = ACTOR_VISUALS_PATCH.read_text()
+        self.assertIn("<height>1080</height>", visuals_patch)
+        self.assertIn("ui-hero-left-fade.png", visuals_patch)
+        self.assertIn("ui-hero-bottom-fade.png", visuals_patch)
+        self.assertIn("colordiffuse=\"99000000\"", visuals_patch)
+        self.assertIn("!String.Contains(Container.FolderPath,plugin.video.astersearch)", visuals_patch)
 
 
 if __name__ == "__main__":
