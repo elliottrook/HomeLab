@@ -1,6 +1,6 @@
 # AsterTV v3 Mini page pilot
 
-This directory owns the credential-free macOS page-design pilot defined by
+This directory owns the isolated macOS page-design pilot defined by
 `docs/projects/AsterTV-v3.md` PA0–PA4. It is not a production deployment tree.
 
 ## Runtime boundary
@@ -16,20 +16,24 @@ This directory owns the credential-free macOS page-design pilot defined by
 
 The launcher refuses to start if the dedicated application or portable marker
 is absent. Never open this application by double-clicking it: doing so omits
-Kodi's `-p` switch and can direct it to the retained standard profile.
-
-The retained Mini profile at
-`/Users/jelliott/Library/Application Support/Kodi` is read-only historical
-evidence and must not be copied, modified or treated as the v3 baseline.
+Kodi's `-p` switch. At the owner's direction on 2026-10-31, the obsolete
+standard-profile directory was moved intact to
+`/Users/jelliott/.Trash/Kodi-legacy-20261031`. It remains recoverable until the
+Trash is emptied; the portable profile above is the Mini's sole active pilot.
 
 ## Source and data rules
 
 - Source Aster-owned code and assets from the immutable v2.0.7 release archive.
 - Apply v3 work as an explicit overlay; never edit the v2 archive or its
   reconciliation payload.
-- Use labelled synthetic normal, empty, loading, stale and error fixtures.
-- Do not provision Jellyfin, YouTube, Seerr, Audiobookshelf, Home Assistant,
-  camera or Aster credentials into this pilot.
+- Use labelled synthetic normal, empty, loading, stale and error fixtures for
+  Stream A design acceptance.
+- The owner explicitly authorized a bounded Stream M seam in this same isolated
+  profile: Jellyfin Kodi Sync Queue 2.2.0 was connected by Quick Connect and
+  only Movies was selected. Never commit or display its token or profile data.
+- The official Kodi YouTube 7.4.4 and InputStream Adaptive 22.3.23 add-ons are
+  installed without a YouTube account solely for the trailer smoke. Do not
+  provision Seerr, Audiobookshelf, Home Assistant, camera or Aster credentials.
 - Do not use real household state, camera images, history or account data.
 
 ## Launch
@@ -65,5 +69,23 @@ Press `F12` to open the synthetic Movie rework. It uses portrait Cast & Crew
 art, landscape More Like This art, icon Play/Resume actions, no clock and
 additional logo clearance. Selecting a cast member opens the companion person
 card, whose Films and Television rails represent only titles available to the
-current Jellyfin user. The pilot data is synthetic and makes no Jellyfin call.
+current Jellyfin user. The Trailer control represents the Jellyfin-first route:
+local trailer when present, otherwise a strictly validated `RemoteTrailers`
+YouTube ID handed to the official Kodi YouTube add-on. The pilot data is
+synthetic and makes no Jellyfin or YouTube call.
+
+Press `F7` for the bounded live trailer smoke. It refuses to interrupt active
+playback, reads exactly one Jellyfin-synced movie title from Kodi, accepts only
+the strict `plugin://plugin.video.youtube/play/?video_id=<11-char-id>` route and
+enables only the two official playback add-ons. On macOS the YouTube add-on's
+adaptive manifest service advertises a non-loopback address while listening on
+loopback; the smoke therefore selects its progressive path rather than exposing
+that service to the LAN. This pilot-only setting does not change either AsterTV
+production target.
+
+The 2026-10-31 bounded sync completed in 14 seconds with 77 movies, of which 75
+provided trailer routes. Collection-assignment warnings are expected because
+Collections was deliberately excluded. The Buddy smoke opened video and audio
+streams through the exact Jellyfin metadata route without copying a YouTube
+account into the pilot.
 

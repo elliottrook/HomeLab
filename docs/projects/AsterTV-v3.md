@@ -467,6 +467,14 @@ to the signed-in Jellyfin user. Stream A represents that contract with
 synthetic data only; live Jellyfin person IDs and user-scoped title queries
 remain Stream M implementation work.
 
+Trailer discovery is Jellyfin-first. AsterTV uses Jellyfin `RemoteTrailers`
+metadata when present, validates a supported YouTube URL and hands only its
+video ID to the installed official Kodi YouTube add-on. Local trailers remain
+the first choice if they are added later. The Trailer icon is hidden when
+neither source exists; there is no title-based search fallback in the accepted
+contract. Family currently reports zero local trailers and curated remote
+trailers for 1,007 of 1,060 movies.
+
 ### PA3 — Aster, News, Requests, Home and Cameras page redesigns
 
 - [ ] Build the Aster AI interaction shell for idle, listening, processing,
@@ -904,6 +912,10 @@ explicit user acceptance.
 | 2026-10-31 | Locked the definitive artwork-tile selection component | Owner accepted the transparent resting state plus tight sage focus halo and requested it be marked definitive before button work begins | PA1 now contains a normative `AsterV3ArtTitleTile` contract and keeps F10 plus the 14-layout fail-closed inventory as its acceptance/regression evidence |
 | 2026-10-31 | Locked the definitive button-selection component | Owner selected Gold Rim and requested a less-yellow gold plus Aster-wide use; the accepted palette is deep green `#1F513B` with antique gold `#AD8A4D` | Guarded transform covers 227 visible buttons and 12 shared definitions while excluding art/hidden/catcher/anchor controls; F11 validates rail, primary, toggle/current and player-button forms, and F9 confirms the art-tile contract remains separate |
 | 2026-10-31 | Rendered the Movie and person-library direction | Owner requested portrait cast, landscape related titles, icon Play/Resume actions, no clock and additional logo clearance; selecting a person must show only their Jellyfin-accessible films and television | F12 opens the synthetic Movie page and its cast selection opens a separate user-scoped person-card fixture; live Jellyfin queries and trailer playback remain Stream M work |
+| 2026-10-31 | Selected and inventoried the Jellyfin trailer route | Owner chose Jellyfin metadata rather than generic title search; a read-only Family audit found 0 local trailers and 1,007/1,060 movies with curated remote trailers, using YouTube URLs | F12 adds the Trailer icon; Stream M will validate the URL/video ID and invoke the installed YouTube add-on only when playback is idle |
+| 2026-10-31 | Retired the obsolete Mini profile | Owner explicitly directed that the old v1.1.1 profile was no longer needed | Moved the directory intact to `~/.Trash/Kodi-legacy-20261031`; the portable v3 profile is the sole active Mini pilot and the old profile remains recoverable until Trash is emptied |
+| 2026-10-31 | Authorized a bounded live Jellyfin seam in the isolated pilot | Owner requested Jellyfin on the test environment, completed Quick Connect and then requested the old profile be trashed | Jellyfin Kodi Sync Queue 2.2.0 authenticated without exposing its token; only Movies was selected; the 14-second sync produced 77 movies and 75 trailer routes; expected collection warnings reflect the deliberately excluded Collections library |
+| 2026-10-31 | Proved the Jellyfin-first trailer route end to end | Official Kodi YouTube 7.4.4 and InputStream Adaptive 22.3.23 arm64 were installed without YouTube account data; F7 read Buddy's exact local Kodi trailer route, refused unsafe variants and invoked the official add-on only while idle | Kodi opened both video and audio streams. The macOS-only smoke uses progressive playback because the add-on advertises a LAN manifest address while listening on loopback; it does not expose that service or alter either production box |
 
 ## Close-out
 

@@ -316,7 +316,7 @@ class SharedLanguageTests(unittest.TestCase):
                 text=True,
             )
             self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-            self.assertIn("231 visible buttons", completed.stdout)
+            self.assertIn("232 visible buttons", completed.stdout)
             self.assertIn("anchor:1, art:8, catcher:2, hidden:4", completed.stdout)
             self.assertIn("12 shared button definitions", completed.stdout)
 
@@ -330,7 +330,7 @@ class SharedLanguageTests(unittest.TestCase):
                         continue
                     self.assertEqual(node.attrib.get("border"), "20")
                     focus_refs += 1
-            self.assertEqual(focus_refs, 205)
+            self.assertEqual(focus_refs, 206)
 
             tile = ET.parse(skin / "1080i/custom_1192_tile_gallery.xml").getroot()
             art_buttons = {
@@ -377,11 +377,13 @@ class SharedLanguageTests(unittest.TestCase):
             node.attrib["id"]: node
             for node in movie.findall(".//control[@type='button']")
         }
-        self.assertEqual(set(buttons), {"200", "201", "202"})
+        self.assertEqual(set(buttons), {"200", "201", "202", "203"})
         self.assertEqual(buttons["200"].findtext("label"), "")
         self.assertEqual(buttons["201"].findtext("label"), "")
         self.assertIn("player-controls/play.png", movie_text)
         self.assertIn("player-controls/forward.png", movie_text)
+        self.assertIn("special://skin/media/08-film.png", movie_text)
+        self.assertIn("<label>Trailer</label>", movie_text)
         self.assertNotIn("<font>font14</font>", movie_text)
 
         cast = movie.find(".//control[@type='list'][@id='500']")
@@ -399,6 +401,18 @@ class SharedLanguageTests(unittest.TestCase):
             1.8,
         )
         self.assertEqual(cast.findtext("onclick"), "ActivateWindow(1195)")
+        for rail in (cast, related):
+            self.assertLessEqual(
+                int(rail.findtext("top")) + int(rail.findtext("height")), 1035
+            )
+            for layout_name in ("itemlayout", "focusedlayout"):
+                layout = rail.find(layout_name)
+                layout_height = int(layout.attrib["height"])
+                for label in layout.findall("control[@type='label']"):
+                    self.assertLessEqual(
+                        int(label.findtext("top")) + int(label.findtext("height")),
+                        layout_height,
+                    )
 
         self.assertIn("current Jellyfin user", person_text)
         self.assertIn("<label>Films</label>", person_text)
