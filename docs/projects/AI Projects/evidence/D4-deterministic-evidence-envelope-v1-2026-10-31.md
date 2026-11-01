@@ -83,9 +83,20 @@ and candidate answers; emits an unscored six-dimension template; and rejects
 pending, duplicate, identity-exposed, drifted or error-bearing reviews. The
 focused and inherited boundary suite passes 14/14.
 
+An exact Lab Hours workload proposal is now ready but explicitly
+`not-admitted`. It pins the five runtime files, excludes answer keys and review
+code from runtime, allows 20 cases but only 14 prose requests, forbids retries,
+tools, effects, repair, restart, routing, scheduling, model change and model
+promotion, and requires an authoritative window check, exact booking, whole-
+host lease, shared operation lock, guardian and production restoration. The
+minimum 3600-second booking contains the 2700-second deadline plus 900-second
+recovery reserve. Its focused suite passes 11/11.
+
 ## Next gate
 
 The new development fixture, no-tool runner, candidate-g source manifest,
 quality packet/answer keys, batch result schema and model-blind review boundary
-are complete. A model call remains separately gated. Do not reuse the
-`candidate-f` result or tune the prose model against its hidden answers.
+are complete. The exact workload proposal is ready but not admitted. Platform
+registration, inactive staging, authoritative window check, booking and the
+one bounded run remain separately gated. Do not reuse the `candidate-f` result
+or tune the prose model against its hidden answers.
