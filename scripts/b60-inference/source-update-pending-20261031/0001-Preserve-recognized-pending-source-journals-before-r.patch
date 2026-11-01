@@ -1,0 +1,249 @@
+From 5c8453192b1bb114fdad0b42f36162900bcd5edb Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Sat, 31 Oct 2026 18:33:06 -0700
+Subject: [PATCH] Preserve recognized pending source journals before
+ rollback-only recovery
+
+---
+ scripts/local-ai/lab_hours_source_update.py   | 89 ++++++++++++++---
+ .../local-ai/test_lab_hours_source_update.py  | 97 ++++++++++++++++++-
+ 2 files changed, 171 insertions(+), 15 deletions(-)
+
+diff --git a/scripts/local-ai/lab_hours_source_update.py b/scripts/local-ai/lab_hours_source_update.py
+index 9c980bc5d..043da1719 100644
+--- a/scripts/local-ai/lab_hours_source_update.py
++++ b/scripts/local-ai/lab_hours_source_update.py
+@@ -15,6 +15,11 @@ OLD_MAP = 'f5085fbb7b7e8e456be6ac6157867a1af8e808a2e139fb64c03caeb991d25e85'
+ NEW_MAP = 'c9fbbd2039b1dabe0771a2b27128147df1be860ce88a2bf4317b4c504f17d739'
+ CHANGED = ('lab_hours_exclusive_admission.py', 'lab_hours_exclusive_cli.py')
+ PHASES = {'checkpointed', 'updating', 'installed', 'rolling-back', 'rolled-back'}
++PENDING_EDGES = {'checkpointed': {'updating', 'rolling-back'},
++                 'updating': {'updating', 'installed', 'rolling-back'},
++                 'installed': {'rolling-back'},
++                 'rolling-back': {'rolling-back', 'rolled-back'},
++                 'rolled-back': set()}
+ 
+ 
+ def transition(old, new):
+@@ -45,6 +50,25 @@ class SourceUpdate:
+         state['phase'] = phase
+         self.store.write('update.json', state)
+ 
++    @staticmethod
++    def _state(state):
++        if (not isinstance(state, dict)
++                or set(state) != {'schema', 'checkpoint_sha256', 'phase'}
++                or state['schema'] != 'aster-diagnostic-source-update.v1'
++                or not isinstance(state['checkpoint_sha256'], str)
++                or not SHA.fullmatch(state['checkpoint_sha256'])
++                or not isinstance(state['phase'], str) or state['phase'] not in PHASES):
++            raise SessionError('SOURCE_UPDATE_JOURNAL_INVALID')
++        return state
++
++    def _known_pins(self):
++        current = self.adapter.observe_pins()
++        if (not isinstance(current, dict) or set(current) != set(self.plan['old'])
++                or any(current[k] not in {self.plan['old'][k], self.plan['new'][k]}
++                       for k in current)):
++            raise SessionError('SOURCE_UPDATE_UNKNOWN_BYTES_RETAINED')
++        return current
++
+     def apply(self):
+         fd = self.store.lock()
+         try:
+@@ -86,21 +110,9 @@ class SourceUpdate:
+         # and its next journal write. The exact observed byte map is decisive.
+         if self.store.read('plan.json') != self.plan:
+             raise SessionError('SOURCE_UPDATE_PLAN_DRIFT')
+-        state = self.store.read('update.json')
+-        if (not isinstance(state, dict)
+-                or set(state) != {'schema', 'checkpoint_sha256', 'phase'}
+-                or state['schema'] != 'aster-diagnostic-source-update.v1'
+-                or not isinstance(state['checkpoint_sha256'], str)
+-                or not SHA.fullmatch(state['checkpoint_sha256'])
+-                or not isinstance(state['phase'], str)
+-                or state['phase'] not in PHASES):
+-            raise SessionError('SOURCE_UPDATE_JOURNAL_INVALID')
++        state = self._state(self.store.read('update.json'))
+         self._ready()
+-        current = self.adapter.observe_pins()
+-        if (not isinstance(current, dict) or set(current) != set(self.plan['old'])
+-                or any(current[k] not in {self.plan['old'][k], self.plan['new'][k]}
+-                       for k in current)):
+-            raise SessionError('SOURCE_UPDATE_UNKNOWN_BYTES_RETAINED')
++        current = self._known_pins()
+         if self.adapter.verify_checkpoint(state['checkpoint_sha256'], self.plan['old']) is not True:
+             raise SessionError('SOURCE_UPDATE_CHECKPOINT_UNVERIFIED')
+         if state['phase'] == 'rolled-back':
+@@ -128,3 +140,52 @@ class SourceUpdate:
+             return self._rollback()
+         finally:
+             os.close(fd)
++
++    def resolve_pending_rollback(self):
++        """Preserve a recognized complete pending write, then roll back only.
++
++        Never adopt pending installed/success as authority or resume apply.
++        Malformed/initial/unrecognized pending writes remain untouched. The
++        future adapter must hold host exclusion, not just this journal lock.
++        """
++        fd = self.store.lock()
++        try:
++            self._ready()
++            if self.store.read('plan.json') != self.plan:
++                raise SessionError('SOURCE_UPDATE_PLAN_DRIFT')
++            if not (self.store.root/'update.json').exists():
++                # No source effect can precede the first committed state.
++                # Preserve this pre-effect ambiguity for explicit review.
++                raise SessionError('SOURCE_UPDATE_INITIAL_JOURNAL_REQUIRES_REVIEW')
++            state = self._state(self.store.read('update.json'))
++            try:
++                pending = self._state(self.store.read('update.json.next'))
++            except (ValueError, OSError, SessionError):
++                raise SessionError('SOURCE_UPDATE_PENDING_UNRECOGNIZED') from None
++            if (pending['checkpoint_sha256'] != state['checkpoint_sha256']
++                    or pending['phase'] not in PENDING_EDGES[state['phase']]):
++                raise SessionError('SOURCE_UPDATE_PENDING_UNRECOGNIZED')
++            self._known_pins()
++            if self.adapter.verify_checkpoint(state['checkpoint_sha256'], self.plan['old']) is not True:
++                raise SessionError('SOURCE_UPDATE_CHECKPOINT_UNVERIFIED')
++            digest = hashlib.sha256(canonical(pending)).hexdigest()
++            # No deletion or overwrite. Bounded slots preserve repeated same-
++            # phase pending writes, including interruption of rollback itself.
++            for slot in range(32):
++                archive = self.store.root/f'pending-{digest}-{slot:02}.json'
++                if not archive.exists() and not archive.is_symlink():
++                    break
++            else:
++                raise SessionError('SOURCE_UPDATE_PENDING_ARCHIVE_FULL')
++            self._ready()
++            os.rename(self.store.root/'update.json.next', archive)
++            directory = os.open(self.store.root, os.O_RDONLY)
++            try:
++                os.fsync(directory)
++            finally:
++                os.close(directory)
++            # If lost here, ordinary rollback still has the original committed
++            # state and verified checkpoint; evidence survives in the archive.
++            return self._rollback()
++        finally:
++            os.close(fd)
+diff --git a/scripts/local-ai/test_lab_hours_source_update.py b/scripts/local-ai/test_lab_hours_source_update.py
+index 3f790a695..ffe9e2907 100644
+--- a/scripts/local-ai/test_lab_hours_source_update.py
++++ b/scripts/local-ai/test_lab_hours_source_update.py
+@@ -3,9 +3,10 @@ import hashlib
+ from pathlib import Path
+ import tempfile
+ import unittest
++from unittest.mock import patch
+ 
+ from build_lab_hours_exclusive_bundle import closure
+-from lab_hours_exclusive_session import SessionStore, SessionError
++from lab_hours_exclusive_session import SessionStore, SessionError, canonical
+ from lab_hours_source_update import SourceUpdate, CHANGED, transition
+ 
+ 
+@@ -143,5 +144,99 @@ class SourceUpdateTests(unittest.TestCase):
+         self.assertEqual(self.adapter.effects, before)
+         self.assertEqual(partial.read_bytes(), b'synthetic interrupted journal write')
+ 
++    def pending(self, phase='rolling-back', checkpoint='a'*64):
++        value = {'schema':'aster-diagnostic-source-update.v1',
++                 'checkpoint_sha256':checkpoint,'phase':phase}
++        self.store.write('update.json.next', value)
++        return (self.store.root/'update.json.next').read_bytes()
++
++    def test_recognized_complete_pending_is_archived_then_rollback_only(self):
++        self.update.apply(); raw = self.pending()
++        self.assertEqual(self.update.resolve_pending_rollback()['state'], 'rolled-back')
++        self.assertEqual(self.adapter.pins, self.old)
++        self.assertFalse((self.store.root/'update.json.next').exists())
++        archives = list(self.store.root.glob('pending-*.json'))
++        self.assertEqual(len(archives), 1)
++        self.assertEqual(archives[0].read_bytes(), raw)
++
++    def test_pending_after_source_loss_can_be_resolved_by_fresh_object(self):
++        self.adapter.crash_after = CHANGED[0]
++        with self.assertRaises(SystemExit): self.update.apply()
++        raw = self.pending('updating')
++        update = SourceUpdate(self.store, self.adapter, self.old, self.new)
++        update.resolve_pending_rollback()
++        self.assertEqual(self.adapter.pins, self.old)
++        self.assertEqual(list(self.store.root.glob('pending-*.json'))[0].read_bytes(), raw)
++
++    def test_unrecognized_pending_remains_byte_identical_without_effects(self):
++        self.update.apply()
++        partial = self.store.root/'update.json.next'
++        partial.write_bytes(b'truncated JSON')
++        before = list(self.adapter.effects)
++        with self.assertRaisesRegex(SessionError, 'PENDING_UNRECOGNIZED'):
++            self.update.resolve_pending_rollback()
++        self.assertEqual(self.adapter.effects, before)
++        self.assertEqual(partial.read_bytes(), b'truncated JSON')
++        self.assertFalse(list(self.store.root.glob('pending-*.json')))
++
++    def test_pending_checkpoint_or_phase_drift_is_not_quarantined(self):
++        self.update.apply()
++        for phase, checkpoint in (('rolling-back', 'b'*64), ('checkpointed', 'a'*64)):
++            raw = self.pending(phase, checkpoint)
++            before = list(self.adapter.effects)
++            with self.assertRaisesRegex(SessionError, 'PENDING_UNRECOGNIZED'):
++                self.update.resolve_pending_rollback()
++            self.assertEqual((self.store.root/'update.json.next').read_bytes(), raw)
++            self.assertEqual(self.adapter.effects, before)
++
++    def test_no_idle_proof_or_unknown_source_blocks_pending_archive(self):
++        self.update.apply(); raw = self.pending(); before = list(self.adapter.effects)
++        self.adapter.idle = False
++        with self.assertRaisesRegex(SessionError, 'NOT_PROVEN_IDLE'):
++            self.update.resolve_pending_rollback()
++        self.adapter.idle = True; self.adapter.pins[CHANGED[0]] = 'f'*64
++        with self.assertRaisesRegex(SessionError, 'UNKNOWN_BYTES_RETAINED'):
++            self.update.resolve_pending_rollback()
++        self.assertEqual((self.store.root/'update.json.next').read_bytes(), raw)
++        self.assertEqual(self.adapter.effects, before)
++
++    def test_initial_uncommitted_checkpoint_pending_is_retained(self):
++        self.adapter.checkpoint_ok = False
++        with self.assertRaises(SessionError): self.update.apply()
++        self.adapter.checkpoint_ok = True; raw = self.pending('checkpointed')
++        with self.assertRaisesRegex(SessionError, 'INITIAL_JOURNAL_REQUIRES_REVIEW'):
++            self.update.resolve_pending_rollback()
++        self.assertEqual((self.store.root/'update.json.next').read_bytes(), raw)
++        self.assertFalse(self.adapter.effects)
++
++    def test_loss_after_archive_still_allows_ordinary_rollback(self):
++        self.update.apply(); self.pending()
++        with patch.object(self.update, '_rollback', side_effect=SystemExit('synthetic loss')):
++            with self.assertRaises(SystemExit): self.update.resolve_pending_rollback()
++        update = SourceUpdate(self.store, self.adapter, self.old, self.new)
++        update.rollback()
++        self.assertEqual(self.adapter.pins, self.old)
++        self.assertEqual(len(list(self.store.root.glob('pending-*.json'))), 1)
++
++    def test_existing_archive_is_never_overwritten(self):
++        self.update.apply(); self.pending()
++        digest = hashlib.sha256(canonical(self.store.read('update.json.next'))).hexdigest()
++        existing = self.store.root/f'pending-{digest}-00.json'
++        existing.write_bytes(b'prior evidence')
++        self.update.resolve_pending_rollback()
++        self.assertEqual(existing.read_bytes(), b'prior evidence')
++        self.assertTrue((self.store.root/f'pending-{digest}-01.json').exists())
++
++    def test_archive_capacity_refuses_without_losing_pending_evidence(self):
++        self.update.apply(); raw = self.pending()
++        digest = hashlib.sha256(canonical(self.store.read('update.json.next'))).hexdigest()
++        for slot in range(32):
++            (self.store.root/f'pending-{digest}-{slot:02}.json').write_bytes(b'prior evidence')
++        before = list(self.adapter.effects)
++        with self.assertRaisesRegex(SessionError, 'ARCHIVE_FULL'):
++            self.update.resolve_pending_rollback()
++        self.assertEqual(self.adapter.effects, before)
++        self.assertEqual((self.store.root/'update.json.next').read_bytes(), raw)
++
+ 
+ if __name__ == '__main__': unittest.main()
+-- 
+2.50.1 (Apple Git-155)
+

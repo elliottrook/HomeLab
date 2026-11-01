@@ -12,6 +12,14 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [recognized pending-journal recovery](B60-Inference-Engineering/source-update-pending-20261031.md)
+now preserves valid pending evidence separately before rollback-only recovery,
+while malformed, mismatched or initial uncommitted records remain untouched.
+158 controller,10 installer and115 B60 tests pass against an equal replay tree.
+The production adapter and real process/filesystem qualification remain next;
+nothing is deployed or armed. Backup-clock reconciliation and live recovery
+remain prerequisites for model work.
+
 The [offline diagnostic source transaction core](B60-Inference-Engineering/source-update-core-20261031.md)
 now implements exact two-module replacement/rollback with durable journals,
 unknown-drift refusal and import-failure recovery.149 controller,10 installer
