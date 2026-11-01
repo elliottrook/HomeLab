@@ -11,6 +11,8 @@ target="$addons/skin.asterhome.v3pilot"
 next="$addons/.skin.asterhome.v3pilot.next"
 previous="$addons/.skin.asterhome.v3pilot.previous"
 overlay="$repo/services/kodi/astertv-v3/overlay/skin.asterhome.v3pilot"
+actor_search="$repo/services/kodi/astertv-v3/overlay/plugin.video.astersearch"
+actor_target="$addons/plugin.video.astersearch"
 patches="$repo/services/kodi/astertv-v3/patches"
 marker_source="$repo/services/kodi/astertv-v3/pilot/portable-marker"
 marker="$portable/.astertv-v3-portable"
@@ -65,6 +67,7 @@ xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1192_tile_gallery.xm
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1193_button_gallery.xml"
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1194_movie_rework.xml"
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1195_person_library.xml"
+xmllint --noout "$actor_search/addon.xml"
 xmllint --noout "$keymap_source"
 
 mkdir -p "$addons" "$portable/userdata/keymaps"
@@ -78,6 +81,10 @@ if [ -d "$target" ]; then
   mv "$target" "$previous"
 fi
 mv "$next" "$target"
+rm -rf "$addons/.plugin.video.astersearch.next"
+ditto "$actor_search" "$addons/.plugin.video.astersearch.next"
+rm -rf "$actor_target"
+mv "$addons/.plugin.video.astersearch.next" "$actor_target"
 
 echo "Prepared AsterTV v3 pilot skin at $target"
 

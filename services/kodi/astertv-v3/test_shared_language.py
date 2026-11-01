@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import subprocess
 import shutil
 import tarfile
@@ -20,6 +21,8 @@ TILE_GALLERY = OVERLAY / "1080i/custom_1192_tile_gallery.xml"
 BUTTON_GALLERY = OVERLAY / "1080i/custom_1193_button_gallery.xml"
 MOVIE_PAGE = OVERLAY / "1080i/custom_1194_movie_rework.xml"
 PERSON_PAGE = OVERLAY / "1080i/custom_1195_person_library.xml"
+ACTOR_PLUGIN = V3 / "overlay/plugin.video.astersearch"
+ACTOR_SEARCH = ACTOR_PLUGIN / "actor_search.py"
 INCLUDES = OVERLAY / "1080i/IncludesV3.xml"
 COLORS = OVERLAY / "colors/defaults.xml"
 PATCH = V3 / "patches/001-load-v3-includes.patch"
@@ -46,6 +49,7 @@ class SharedLanguageTests(unittest.TestCase):
             INCLUDES,
             COLORS,
             OVERLAY / "addon.xml",
+            ACTOR_PLUGIN / "addon.xml",
         ):
             with self.subTest(path=path):
                 ET.parse(path)
@@ -380,9 +384,10 @@ class SharedLanguageTests(unittest.TestCase):
         self.assertEqual(set(buttons), {"200", "201", "202", "203"})
         self.assertEqual(buttons["200"].findtext("label"), "")
         self.assertEqual(buttons["201"].findtext("label"), "")
+        self.assertEqual(buttons["200"].findtext("onleft"), "500")
         self.assertIn("player-controls/play.png", movie_text)
         self.assertIn("player-controls/forward.png", movie_text)
-        self.assertIn("special://skin/media/08-film.png", movie_text)
+        self.assertIn("player-controls/trailer.png", movie_text)
         self.assertIn("<label>Trailer</label>", movie_text)
         self.assertNotIn("<font>font14</font>", movie_text)
 
@@ -390,20 +395,78 @@ class SharedLanguageTests(unittest.TestCase):
         related = movie.find(".//control[@type='list'][@id='501']")
         self.assertIsNotNone(cast)
         self.assertIsNotNone(related)
+        self.assertEqual(cast.findtext("onright"), "200")
         cast_art = cast.find("itemlayout/control[@type='image']")
         related_art = related.find("itemlayout/control[@type='image']")
         self.assertLess(
             int(cast_art.findtext("width")) / int(cast_art.findtext("height")),
             1,
         )
-        self.assertGreater(
+        self.assertGreaterEqual(int(cast_art.findtext("height")), 160)
+        self.assertAlmostEqual(
             int(related_art.findtext("width")) / int(related_art.findtext("height")),
-            1.8,
+            16 / 9,
+            delta=0.08,
         )
-        self.assertEqual(cast.findtext("onclick"), "ActivateWindow(1195)")
+        self.assertGreaterEqual(int(related_art.findtext("width")), 250)
+        poster = next(
+            node
+            for node in movie.findall(".//control[@type='image']")
+            if "ui-poster-mask.png"
+            in ((node.find("texture").attrib.get("diffuse", "")) if node.find("texture") is not None else "")
+            and node.findtext("left") == "1450"
+        )
+        self.assertEqual(
+            int(poster.findtext("width")) / int(poster.findtext("height")),
+            2 / 3,
+        )
+        poster_left = int(poster.findtext("left"))
+        poster_right = poster_left + int(poster.findtext("width"))
+        for control_id in ("200", "201", "203"):
+            control = buttons[control_id]
+            self.assertGreaterEqual(int(control.findtext("left")), poster_left)
+            self.assertLessEqual(
+                int(control.findtext("left")) + int(control.findtext("width")),
+                poster_right,
+            )
+            self.assertGreaterEqual(int(control.findtext("top")), 665)
+        synopsis = next(
+            node
+            for node in movie.findall(".//control[@type='textbox']")
+            if "lone researcher" in node.findtext("label", "")
+        )
+        self.assertGreaterEqual(int(synopsis.findtext("top")), 370)
+        self.assertLess(int(cast.findtext("top")), 655)
+        self.assertLess(int(related.findtext("top")), 895)
+        self.assertGreaterEqual(
+            int(related.findtext("top"))
+            - (int(cast.findtext("top")) + int(cast.findtext("height"))),
+            50,
+        )
+        for icon in ("play.png", "forward.png", "trailer.png"):
+            control = next(
+                node
+                for node in movie.findall(".//control[@type='image']")
+                if node.findtext("texture", "").endswith(icon)
+            )
+            self.assertEqual(control.find("texture").attrib.get("colordiffuse"), "asterInk")
+        self.assertIsNone(cast.find("onclick"))
+        cast_items = cast.findall("content/item")
+        self.assertGreaterEqual(len(cast_items), 4)
+        for item in cast_items:
+            action = item.findtext("onclick", "")
+            self.assertIn("plugin://plugin.video.astersearch/", action)
+            self.assertIn("actor=", action)
+        item_name = cast.find("itemlayout/control[@type='label']")
+        focused_name = cast.find("focusedlayout/control[@type='label']")
+        self.assertEqual(int(item_name.findtext("width")), int(cast_art.findtext("width")))
+        self.assertEqual(int(focused_name.findtext("width")), int(cast_art.findtext("width")))
+        self.assertEqual(item_name.findtext("truncate"), "true")
+        self.assertEqual(focused_name.findtext("scroll"), "true")
+        self.assertEqual(focused_name.findtext("scrollout"), "false")
         for rail in (cast, related):
             self.assertLessEqual(
-                int(rail.findtext("top")) + int(rail.findtext("height")), 1035
+                int(rail.findtext("top")) + int(rail.findtext("height")), 1080
             )
             for layout_name in ("itemlayout", "focusedlayout"):
                 layout = rail.find(layout_name)
@@ -426,6 +489,32 @@ class SharedLanguageTests(unittest.TestCase):
         for control in person_lists.values():
             for direction in ("onleft", "onright", "onup", "ondown"):
                 self.assertIn(control.findtext(direction), {"600", "601", "602"})
+
+    def test_actor_search_is_read_only_bounded_and_validated(self) -> None:
+        spec = importlib.util.spec_from_file_location("aster_actor_search", ACTOR_SEARCH)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        self.assertEqual(module.clean_actor("  Keegan-Michael   Key  "), "Keegan-Michael Key")
+        for value in ("", "   ", "bad\nname", "x" * 129):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                module.clean_actor(value)
+
+        source = (ACTOR_PLUGIN / "default.py").read_text()
+        compile(source, str(ACTOR_PLUGIN / "default.py"), "exec")
+        self.assertIn('"field": "actor"', source)
+        self.assertIn('"operator": "is"', source)
+        self.assertIn('"VideoLibrary.GetMovies"', source)
+        self.assertIn('"VideoLibrary.GetTVShows"', source)
+        self.assertIn('"end": 500', source)
+        self.assertIn("TVSHOW_PROPERTIES = BASE_PROPERTIES", source)
+        self.assertNotIn('TVSHOW_PROPERTIES = BASE_PROPERTIES + ["resume"]', source)
+        for mutation in ("SetMovieDetails", "SetTVShowDetails", "RemoveMovie", "RemoveTVShow"):
+            self.assertNotIn(mutation, source)
+        skin_requires = {
+            node.attrib["addon"]
+            for node in ET.parse(OVERLAY / "addon.xml").getroot().findall("requires/import")
+        }
+        self.assertIn("plugin.video.astersearch", skin_requires)
 
 
 if __name__ == "__main__":

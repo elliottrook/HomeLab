@@ -2,6 +2,7 @@
 <addon id="skin.asterhome.v3pilot" name="AsterTV v3 Page Pilot" version="3.0.0-alpha1" provider-name="HomeLab">
   <requires>
     <import addon="xbmc.gui" version="5.17.0" />
+    <import addon="plugin.video.astersearch" version="3.0.0" />
   </requires>
   <extension point="xbmc.gui.skin" debugging="false">
     <res width="1920" height="1080" aspect="16:9" default="true" folder="1080i" />

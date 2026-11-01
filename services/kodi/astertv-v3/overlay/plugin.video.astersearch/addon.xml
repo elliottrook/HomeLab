@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="plugin.video.astersearch" name="Aster Library Search" version="3.0.0-alpha1" provider-name="Aster Home">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0" />
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="default.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Read-only AsterTV library search results</summary>
+    <description lang="en_GB">Displays movies and television series featuring a selected actor from Kodi's locally synchronized Jellyfin library.</description>
+    <platform>all</platform>
+    <license>MIT</license>
+  </extension>
+</addon>
