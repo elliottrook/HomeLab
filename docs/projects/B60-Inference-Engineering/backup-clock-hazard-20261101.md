@@ -1,5 +1,10 @@
 # November1 preparation — cross-host backup clock hazard
 
+Resolved operationally at Jason's explicit request: see [November1 arming](qualification-armed-20261101.md).
+TrueNAS now uses supported fixed UTC−07 with unchanged task schedules; actual
+offset, cron and Proxmox observer were independently checked. The historical
+finding below is retained, not a current unresolved clock/arming blocker.
+
 ## Finding and effect
 
 **Do not arm the next qualification assuming01:00/02:00/03:00 schedule labels

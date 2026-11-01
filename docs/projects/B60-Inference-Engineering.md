@@ -12,6 +12,17 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+Jason's requested [production adapter, clock reconciliation and next arming](B60-Inference-Engineering/qualification-armed-20261101.md)
+are completed operationally. The guarded two-module source update passed
+protected checkpoint/full-import verification; TrueNAS now uses fixed UTC−07,
+with all task schedule definitions unchanged. November1 01:15 integrity and
+03:10 restore-only qualification timers are independently verified enabled /
+waiting, untriggered, with inactive services and exact30-source/five-plan pins.
+163 controller,10 installer and115 B60 tests plus five real disposable target
+tests pass. No model ran or AI service stopped. Next inspect the actual booked
+receipts; fresh admission can still refuse. Live recovery/owner-loss and35B
+milestones remain open; no further arming approval wait exists.
+
 The [recognized pending-journal recovery](B60-Inference-Engineering/source-update-pending-20261031.md)
 now preserves valid pending evidence separately before rollback-only recovery,
 while malformed, mismatched or initial uncommitted records remain untouched.

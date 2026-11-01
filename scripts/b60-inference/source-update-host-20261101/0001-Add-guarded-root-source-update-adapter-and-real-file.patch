@@ -1,0 +1,282 @@
+From d6e8aa6d8f3df4bb0499eef75387ea9df5965a1a Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Sat, 31 Oct 2026 18:52:43 -0700
+Subject: [PATCH] Add guarded root source-update adapter and real file/process
+ loss tests
+
+---
+ .../build_lab_hours_exclusive_bundle.py       |   4 +-
+ .../local-ai/lab_hours_source_update_host.py  | 156 ++++++++++++++++++
+ .../test_lab_hours_source_update_host.py      |  82 +++++++++
+ 3 files changed, 240 insertions(+), 2 deletions(-)
+ create mode 100644 scripts/local-ai/lab_hours_source_update_host.py
+ create mode 100644 scripts/local-ai/test_lab_hours_source_update_host.py
+
+diff --git a/scripts/local-ai/build_lab_hours_exclusive_bundle.py b/scripts/local-ai/build_lab_hours_exclusive_bundle.py
+index 0e5a64aaf..360a5dc09 100644
+--- a/scripts/local-ai/build_lab_hours_exclusive_bundle.py
++++ b/scripts/local-ai/build_lab_hours_exclusive_bundle.py
+@@ -28,8 +28,8 @@ def closure(source,entrypoints=ENTRYPOINTS):
+     return sorted(found)
+ 
+ 
+-def build(source,destination):
+-    names=closure(source)
++def build(source,destination,entrypoints=ENTRYPOINTS):
++    names=closure(source,entrypoints)
+     destination.mkdir(mode=0o700,parents=False,exist_ok=False)
+     package=destination/'exclusive-session'; package.mkdir(mode=0o700)
+     pins={}
+diff --git a/scripts/local-ai/lab_hours_source_update_host.py b/scripts/local-ai/lab_hours_source_update_host.py
+new file mode 100644
+index 000000000..d4b273ac9
+--- /dev/null
++++ b/scripts/local-ai/lab_hours_source_update_host.py
+@@ -0,0 +1,156 @@
++"""Protected host source adapter; no model/service effects and no activation."""
++import argparse
++import hashlib
++import json
++import os
++from pathlib import Path
++import stat
++import subprocess
++
++from host_exclusion import host_exclusion
++from install_lab_hours_exclusive_dormant import source_bundle, directory
++from lab_hours_exclusive_profile import protected_bytes
++from lab_hours_exclusive_session import SessionStore, SessionError, canonical
++from lab_hours_file_checkpoint import FileCheckpoint
++from lab_hours_source_update import SourceUpdate, CHANGED, transition
++
++ROOT=Path('/var/lib/local-ai-lab')
++TARGET=Path('/usr/local/libexec/local-ai-lease/exclusive-session')
++
++
++def call(command):
++    p=subprocess.run(command,capture_output=True,text=True,timeout=30)
++    if p.returncode or len(p.stdout)>262144: raise SessionError('SOURCE_HOST_PROBE_FAILED')
++    return p.stdout
++
++
++def idle():
++    for p in [ROOT/n for n in ('lease.json','lease.lock','full-inference-drain.json',
++                              'full-inference-drain.lock')]+[Path('/run/local-ai-lab-operation.lock')]:
++        if p.exists() or p.is_symlink(): return False
++    if json.loads(call(('/usr/local/sbin/local-ai-lease','status'))) not in ('ready',{'state':'ready'}):
++        return False
++    for kind in ('owner','guardian'):
++        raw=call(('systemctl','list-units','--all','--plain','--no-legend','--no-pager',
++                  'b60-exclusive-'+kind+'-*'))
++        for line in raw.splitlines():
++            columns=line.split()
++            if len(columns)<4 or columns[2] not in ('inactive','failed'): return False
++    raw=call(('systemctl','list-units','--all','--plain','--no-legend','--no-pager',
++              'b60-exclusive-*.timer'))
++    for line in raw.splitlines():
++        name=line.split()[0]
++        fields=call(('systemctl','show',name,'--property=NextElapseUSecRealtime'))
++        if fields.strip()!='NextElapseUSecRealtime=': return False
++    for p in (ROOT/'exclusive-sessions').glob('*/session.json'):
++        value=json.loads(protected_bytes(p))
++        if value.get('phase') not in ('released','released-late','aborted-before-claim'): return False
++    for p in (ROOT/'reservations/records').glob('*.json'):
++        if json.loads(protected_bytes(p)).get('state')=='claimed': return False
++    return True
++
++
++class HostSourceAdapter:
++    def __init__(self,target,candidate,checkpoint,old,new,*,guard,reader=protected_bytes,
++                 uid=0,imports=None):
++        self.target,self.candidate,self.root=map(Path,(target,candidate,checkpoint))
++        self.old,self.new,self.guard,self.reader=old,new,guard,reader
++        self.uid=uid; self.imports=imports
++        self.files=FileCheckpoint(self.root/'files',allowed_roots=(),
++            allowed_files=[self.target/n for n in CHANGED],expected_uid=uid)
++
++    def preflight(self,plan): return self.guard() is True
++
++    def observe_pins(self):
++        if set(p.name for p in self.target.iterdir())!=set(self.old):
++            raise SessionError('SOURCE_HOST_FILE_SET_DRIFT')
++        return {n:hashlib.sha256(self.reader(self.target/n,executable=True,
++                    maximum=262144)).hexdigest() for n in self.old}
++
++    def checkpoint(self,names,old):
++        if tuple(names)!=CHANGED or self.observe_pins()!=old:
++            raise SessionError('SOURCE_HOST_CHECKPOINT_SCOPE')
++        return self.files.capture([str(self.target/n) for n in names])
++
++    def verify_checkpoint(self,digest,old):
++        manifest=self.files.manifest(digest)
++        rows=manifest['entries']
++        return (len(rows)==2 and {r['path'] for r in rows}=={str(self.target/n) for n in CHANGED}
++            and all(r['present'] is True and r['sha256']==old[Path(r['path']).name]
++                    and r['uid']==self.uid and r['mode']==0o600 for r in rows))
++
++    def _replace(self,name,expected,data,mode=0o600,gid=None,tag='new'):
++        if name not in CHANGED or self.guard() is not True:
++            raise SessionError('SOURCE_HOST_EFFECT_SCOPE')
++        target=self.target/name
++        current=self.reader(target,executable=True,maximum=262144)
++        if hashlib.sha256(current).hexdigest()!=expected:
++            raise SessionError('SOURCE_HOST_COMPARE_FAILED')
++        if os.stat(self.root).st_dev!=os.stat(self.target).st_dev:
++            raise SessionError('SOURCE_HOST_ATOMIC_FILESYSTEM_REQUIRED')
++        temporary=self.root/(name+'.'+tag)
++        fd=os.open(temporary,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
++        with os.fdopen(fd,'wb') as handle:
++            handle.write(data); os.fchmod(handle.fileno(),mode)
++            if os.geteuid()==0: os.fchown(handle.fileno(),self.uid,gid if gid is not None else 0)
++            handle.flush(); os.fsync(handle.fileno())
++        # Recheck immediately before compare/replace under the held host lock.
++        if hashlib.sha256(self.reader(target,executable=True,maximum=262144)).hexdigest()!=expected:
++            raise SessionError('SOURCE_HOST_COMPARE_FAILED')
++        os.replace(temporary,target)
++        fd=os.open(self.target,os.O_RDONLY)
++        try: os.fsync(fd)
++        finally: os.close(fd)
++        return True
++
++    def replace_source(self,name,old,new):
++        data=self.reader(self.candidate/name,executable=True,maximum=262144)
++        if new!=self.new.get(name) or hashlib.sha256(data).hexdigest()!=new:
++            raise SessionError('SOURCE_HOST_CANDIDATE_DRIFT')
++        return self._replace(name,old,data)
++
++    def restore_source(self,name,current,old,digest):
++        if old!=self.old.get(name) or not self.verify_checkpoint(digest,self.old):
++            raise SessionError('SOURCE_HOST_RECOVERY_DRIFT')
++        row=next(r for r in self.files.manifest(digest)['entries'] if r['path']==str(self.target/name))
++        data=self.reader(self.files.root/row['backup'],maximum=262144)
++        if hashlib.sha256(data).hexdigest()!=old: raise SessionError('SOURCE_HOST_RECOVERY_DRIFT')
++        return self._replace(name,current,data,row['mode'],row['gid'],'old')
++
++    def validate_imports(self,pins):
++        if self.observe_pins()!=pins: return False
++        if self.imports is not None: return self.imports(pins) is True
++        code='import sys;sys.path.insert(0,sys.argv[1]);[__import__(n[:-3]) for n in sys.argv[2:]]'
++        call(('/usr/bin/python3','-B','-I','-c',code,str(self.target),*sorted(pins)))
++        return self.observe_pins()==pins
++
++
++def operate(args):
++    if os.geteuid()!=0 or os.uname().nodename!='proxmox': raise SessionError('PROXMOX_ROOT_REQUIRED')
++    if args.attempt.parent!=ROOT/'source-updates' or args.attempt.name!='diagnostics-20261101-v1':
++        raise SessionError('SOURCE_HOST_ATTEMPT_IDENTITY')
++    old=source_bundle(args.old_bundle,args.old_sha256)
++    new=source_bundle(args.new_bundle,args.new_sha256)
++    transition(old,new)
++    with host_exclusion(ROOT):
++        if not idle(): raise SessionError('SOURCE_UPDATE_HOST_NOT_PROVEN_IDLE')
++        if args.action=='apply' and args.attempt.exists(): raise SessionError('SOURCE_UPDATE_ATTEMPT_ALREADY_EXISTS')
++        directory(args.attempt)
++        adapter=HostSourceAdapter(TARGET,args.new_bundle/'exclusive-session',args.attempt,
++                                  old,new,guard=idle)
++        core=SourceUpdate(SessionStore(args.attempt/'journal',expected_uid=0),adapter,old,new)
++        if args.action=='apply': return core.apply()
++        if args.action=='rollback': return core.rollback()
++        return core.resolve_pending_rollback()
++
++
++if __name__=='__main__':
++    p=argparse.ArgumentParser(description=__doc__)
++    p.add_argument('action',choices=('apply','rollback','resolve-pending'))
++    for name in ('old-bundle','new-bundle','attempt'): p.add_argument('--'+name,type=Path,required=True)
++    for name in ('old-sha256','new-sha256'): p.add_argument('--'+name,required=True)
++    try:
++        print(json.dumps(operate(p.parse_args()),sort_keys=True))
++    except Exception as error:
++        print(json.dumps({'state':'no_go','failure_code':str(error) if isinstance(error,SessionError)
++                          else type(error).__name__},sort_keys=True)); raise SystemExit(1)
+diff --git a/scripts/local-ai/test_lab_hours_source_update_host.py b/scripts/local-ai/test_lab_hours_source_update_host.py
+new file mode 100644
+index 000000000..61af521fb
+--- /dev/null
++++ b/scripts/local-ai/test_lab_hours_source_update_host.py
+@@ -0,0 +1,82 @@
++"""Real disposable file replacement and real child loss, fake host-idle proof."""
++import hashlib
++import json
++import os
++from pathlib import Path
++import shutil
++import stat
++import tempfile
++import unittest
++
++from lab_hours_exclusive_session import SessionStore,SessionError
++from lab_hours_source_update import SourceUpdate,CHANGED
++from lab_hours_source_update_host import HostSourceAdapter
++
++OLD_BUNDLE=Path(os.environ.get('B60_OLD_SOURCE_BUNDLE',
++    '/private/tmp/b60-exclusive-source-bundle-20261029-v4'))
++NEW_BUNDLE=Path(os.environ.get('B60_NEW_SOURCE_BUNDLE',
++    '/private/tmp/b60-exclusive-diagnostics-20261031-nightly-v1'))
++
++
++class HostAdapterTests(unittest.TestCase):
++    def setUp(self):
++        if not OLD_BUNDLE.exists() or not NEW_BUNDLE.exists():
++            self.fail('EXACT_SOURCE_BUNDLES_REQUIRED')
++        temp=tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup)
++        self.root=Path(temp.name).resolve(); self.target=self.root/'target'
++        shutil.copytree(OLD_BUNDLE/'exclusive-session',self.target)
++        self.newdir=self.root/'candidate'; shutil.copytree(NEW_BUNDLE/'exclusive-session',self.newdir)
++        self.old=json.loads((OLD_BUNDLE/'source-manifest.json').read_bytes())['pins']
++        self.new=json.loads((NEW_BUNDLE/'source-manifest.json').read_bytes())['pins']
++        self.stage=self.root/'stage'; self.stage.mkdir(mode=0o700)
++        self.store=SessionStore(self.stage/'journal')
++        def reader(path,**kwargs):
++            p=Path(path); s=p.lstat()
++            if not stat.S_ISREG(s.st_mode) or p.is_symlink() or s.st_nlink!=1:
++                raise SessionError('FIXTURE_FILE_CUSTODY')
++            return p.read_bytes()
++        self.adapter=HostSourceAdapter(self.target,self.newdir,self.stage,self.old,self.new,
++            guard=lambda:True,reader=reader,uid=os.getuid(),imports=lambda pins:True)
++        self.core=SourceUpdate(self.store,self.adapter,self.old,self.new)
++
++    def test_real_file_round_trip_and_modes(self):
++        self.assertEqual(self.core.apply()['state'],'installed-not-activated')
++        self.assertEqual(self.adapter.observe_pins(),self.new)
++        self.core.rollback()
++        self.assertEqual(self.adapter.observe_pins(),self.old)
++        for name in CHANGED:self.assertEqual((self.target/name).stat().st_mode&0o777,0o600)
++
++    def test_real_candidate_corruption_rolls_back_without_unknown_overwrite(self):
++        (self.newdir/CHANGED[1]).write_bytes(b'corrupt candidate')
++        self.assertEqual(self.core.apply()['state'],'failed-rolled-back')
++        self.assertEqual(self.adapter.observe_pins(),self.old)
++
++    def test_real_import_failure_restores_old_bytes(self):
++        self.adapter.imports=lambda pins:pins==self.old
++        self.assertEqual(self.core.apply()['state'],'failed-rolled-back')
++        self.assertEqual(self.adapter.observe_pins(),self.old)
++
++    def test_real_child_loss_after_each_atomic_rename(self):
++        for index,name in enumerate(CHANGED):
++            stage=self.root/f'child-{index}';stage.mkdir(mode=0o700)
++            store=SessionStore(stage/'journal')
++            adapter=HostSourceAdapter(self.target,self.newdir,stage,self.old,self.new,
++                guard=lambda:True,reader=self.adapter.reader,uid=os.getuid(),imports=lambda pins:True)
++            replace=adapter.replace_source
++            def terminate(module,old,new):
++                result=replace(module,old,new)
++                if module==name:os._exit(71)
++                return result
++            adapter.replace_source=terminate
++            pid=os.fork()
++            if pid==0:
++                SourceUpdate(store,adapter,self.old,self.new).apply();os._exit(72)
++            _,status=os.waitpid(pid,0)
++            self.assertEqual(os.waitstatus_to_exitcode(status),71)
++            adapter.replace_source=replace
++            SourceUpdate(store,adapter,self.old,self.new).rollback()
++            self.assertEqual(adapter.observe_pins(),self.old)
++
++    def test_extra_source_or_symlink_is_not_accepted(self):
++        extra=self.target/'extra.py';extra.write_bytes(b'')
++        with self.assertRaisesRegex(SessionError,'FILE_SET_DRIFT'):self.core.apply()
+-- 
+2.50.1 (Apple Git-155)
+
