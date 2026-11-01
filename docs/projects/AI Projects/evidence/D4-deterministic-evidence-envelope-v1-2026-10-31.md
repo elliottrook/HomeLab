@@ -55,9 +55,16 @@ timed-out, secret-bearing and false-completion responses retain the exact
 deterministic plan and fall back to safe prose. The combined envelope,
 development and runner suite passes 13/13.
 
+The three exact source inputs are now frozen as `candidate-g` in
+`sa3-evidence-envelope-candidate-g-v1.json`. The manifest binds the envelope,
+runner and fresh development fixture by SHA-256, records every deterministic
+control, and explicitly denies model calls, repair, routing and promotion. Its
+validator rejects source drift, missing files, symlinks and any attempted
+authority/status widening. The combined candidate suite passes 16/16.
+
 ## Next gate
 
-The new public/synthetic development fixture and no-tool runner are complete.
-Next freeze a new candidate manifest, answer-key packet and model-blind review
-boundary. Do not reuse the `candidate-f` result or tune the prose model against
-its hidden answers.
+The new public/synthetic development fixture, no-tool runner and candidate-g
+source manifest are complete. Next freeze a new answer-key packet and
+model-blind review boundary. Do not reuse the `candidate-f` result or tune the
+prose model against its hidden answers.
