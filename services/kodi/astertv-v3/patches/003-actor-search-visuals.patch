@@ -52,6 +52,32 @@
      </control>
      <control type="image">
        <left>65</left>
+@@ -98,7 +120,7 @@
+       <left>145</left>
+       <top>256</top>
+       <width>940</width>
+-      <height>68</height>
++      <height>104</height>
+       <label>$VAR[AsterBrowsePlot]</label>
+       <font>font18</font>
+       <textcolor>asterRailText</textcolor>
+@@ -106,14 +128,14 @@
+       <aligny>top</aligny>
+     </control>
+     <control type="label">
+-      <left>145</left><top>308</top><width>940</width><height>30</height>
++      <left>145</left><top>370</top><width>940</width><height>30</height>
+       <label>$INFO[Container(50).ListItem.Rating,Score: , / 10]  $INFO[Container(50).ListItem.Mpaa]</label>
+       <font>font20</font><textcolor>asterSage</textcolor>
+       <visible>!Container(50).ListItem.IsParentFolder</visible>
+     </control>
+     <control type="button" id="9100">
+       <left>145</left>
+-      <top>350</top>
++      <top>410</top>
+       <label>$VAR[AsterBrowseAction]</label>
+       <width>180</width>
+       <height>44</height>
 @@ -123,7 +145,7 @@
        <textcolor>asterIvory</textcolor>
        <focusedcolor>asterIvory</focusedcolor>
@@ -61,7 +87,16 @@
        <onclick>SendClick(50)</onclick>
        <onright>9101</onright>
        <onleft>19</onleft>
-@@ -143,14 +165,14 @@
+@@ -133,7 +155,7 @@
+     </control>
+     <control type="button" id="9101">
+       <left>340</left>
+-      <top>350</top>
++      <top>410</top>
+       <label>ⓘ  More Info</label>
+       <width>165</width>
+       <onclick>SetFocus(50)</onclick>
+@@ -143,22 +165,22 @@
        <onup>9000</onup>
        <ondown>50</ondown>
        <visible>![String.Contains(Container.FolderPath,plugin.video.youtube) + Container(50).ListItem.IsParentFolder]</visible>
@@ -69,7 +104,8 @@
 +    <height>44</height><font>font20</font><align>center</align><aligny>center</aligny><textcolor>asterIvory</textcolor><focusedcolor>asterIvory</focusedcolor><texturefocus border="18" colordiffuse="ff005c46">special://skin/media/ui-panel.png</texturefocus><texturenofocus border="18" colordiffuse="99000000">special://skin/media/ui-panel.png</texturenofocus></control>
      <control type="image">
        <left>145</left>
-       <top>350</top>
+-      <top>350</top>
++      <top>410</top>
        <width>180</width>
        <height>44</height>
        <texture>special://skin/media/ui-button-ring.png</texture>
@@ -78,7 +114,8 @@
      </control>
      <control type="image">
        <left>340</left>
-@@ -158,7 +180,7 @@
+-      <top>350</top>
++      <top>410</top>
        <width>165</width>
        <height>44</height>
        <texture>special://skin/media/ui-button-ring.png</texture>

@@ -149,6 +149,30 @@ class SharedLanguageTests(unittest.TestCase):
             self.assertIn("colordiffuse=\"99000000\"", nav_text)
             self.assertIn("ui-hero-bottom-fade.png", nav_text)
             self.assertEqual(nav.tag, "window")
+            plot = next(
+                node
+                for node in nav.findall(".//control[@type='label']")
+                if node.findtext("label") == "$VAR[AsterBrowsePlot]"
+            )
+            score = next(
+                node
+                for node in nav.findall(".//control[@type='label']")
+                if "Score:" in node.findtext("label", "")
+            )
+            action = nav.find(".//control[@type='button'][@id='9100']")
+            self.assertIsNotNone(action)
+            self.assertLessEqual(
+                int(plot.findtext("top")) + int(plot.findtext("height")),
+                int(score.findtext("top")),
+            )
+            self.assertLessEqual(
+                int(score.findtext("top")) + int(score.findtext("height")),
+                int(action.findtext("top")),
+            )
+            self.assertLess(
+                int(action.findtext("top")) + int(action.findtext("height")),
+                492,
+            )
 
     def test_youtube_rework_keeps_familiar_structure_and_adds_depth(self) -> None:
         page = ET.parse(YOUTUBE_PAGE).getroot()
