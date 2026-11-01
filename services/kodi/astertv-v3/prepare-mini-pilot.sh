@@ -18,6 +18,8 @@ marker_source="$repo/services/kodi/astertv-v3/pilot/portable-marker"
 marker="$portable/.astertv-v3-portable"
 keymap_source="$repo/services/kodi/astertv-v3/pilot/keymaps/astertv-v3-pilot.xml"
 keymap_target="$portable/userdata/keymaps/astertv-v3-pilot.xml"
+trailer_smoke="$repo/services/kodi/astertv-v3/pilot_jellyfin_trailer_smoke.py"
+trailer_route="$repo/services/kodi/astertv-v3/jellyfin_trailer_route.py"
 
 case "$portable" in
   /Users/jelliott/Applications/AsterTV-v3-Pilot/Kodi.app/Contents/Resources/Kodi/portable_data) ;;
@@ -56,6 +58,11 @@ python3 "$repo/services/kodi/astertv-v3/apply_art_title_focus.py" \
   "$stage/skin.asterhome.v3pilot"
 python3 "$repo/services/kodi/astertv-v3/apply_button_focus.py" \
   "$stage/skin.asterhome.v3pilot"
+mkdir -p "$stage/skin.asterhome.v3pilot/extras"
+ditto "$trailer_smoke" \
+  "$stage/skin.asterhome.v3pilot/extras/pilot_jellyfin_trailer_smoke.py"
+ditto "$trailer_route" \
+  "$stage/skin.asterhome.v3pilot/extras/jellyfin_trailer_route.py"
 
 xmllint --noout "$stage/skin.asterhome.v3pilot/addon.xml"
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/Home.xml"
@@ -67,6 +74,7 @@ xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1192_tile_gallery.xm
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1193_button_gallery.xml"
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1194_movie_rework.xml"
 xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1195_person_library.xml"
+xmllint --noout "$stage/skin.asterhome.v3pilot/1080i/custom_1196_tv_rework.xml"
 xmllint --noout "$actor_search/addon.xml"
 xmllint --noout "$keymap_source"
 

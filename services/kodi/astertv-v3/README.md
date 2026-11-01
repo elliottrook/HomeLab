@@ -74,10 +74,12 @@ local trailer when present, otherwise a strictly validated `RemoteTrailers`
 YouTube ID handed to the official Kodi YouTube add-on. The pilot data is
 synthetic and makes no Jellyfin or YouTube call.
 
-Press `F7` for the bounded live trailer smoke. It refuses to interrupt active
-playback, reads exactly one Jellyfin-synced movie title from Kodi, accepts only
+Press `F7` for the bounded live movie-trailer smoke. It refuses to interrupt
+active playback, reads exactly one Jellyfin-synced title from Kodi, accepts only
 the strict `plugin://plugin.video.youtube/play/?video_id=<11-char-id>` route and
-enables only the two official playback add-ons. On macOS the YouTube add-on's
+enables only the two official playback add-ons. The same helper accepts an
+explicit `tvshow` media type and uses Kodi's bounded `VideoLibrary.GetTVShows`
+lookup; it never falls back to a title search. On macOS the YouTube add-on's
 adaptive manifest service advertises a non-loopback address while listening on
 loopback; the smoke therefore selects its progressive path rather than exposing
 that service to the LAN. This pilot-only setting does not change either AsterTV
@@ -88,4 +90,10 @@ provided trailer routes. Collection-assignment warnings are expected because
 Collections was deliberately excluded. The Buddy smoke opened video and audio
 streams through the exact Jellyfin metadata route without copying a YouTube
 account into the pilot.
+
+Press `F6` to open the synthetic TV rework. Its Trailer icon uses the television
+lookup above. The narrow season rail is an eight-row clipped viewport: shows
+with nine or more seasons scroll inside the rail, while the episode, Cast &
+Crew and More Like This regions remain fixed. The fixture contains ten seasons
+so overflow and remote navigation remain deterministic regression evidence.
 

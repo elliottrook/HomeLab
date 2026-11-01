@@ -48,6 +48,7 @@ EXPECTED_BUTTONS = {
     "custom_1193_button_gallery.xml": 15,
     "custom_1194_movie_rework.xml": 4,
     "custom_1195_person_library.xml": 1,
+    "custom_1196_tv_rework.xml": 4,
 }
 EXPECTED_INCLUDE_DEFINITIONS = {
     "AsterCategoryButton",

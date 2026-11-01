@@ -1,4 +1,4 @@
-"""Play one Jellyfin-synced trailer in the isolated v3 pilot.
+"""Play one Jellyfin-synced movie or TV trailer in the isolated v3 pilot.
 
 This bounded smoke helper is intentionally title-specific and is not production
 controller code. It reads Kodi's local video library, accepts only Jellyfin's
@@ -14,7 +14,10 @@ import xbmc
 import xbmcaddon
 import xbmcgui
 
-from jellyfin_trailer_route import validated_kodi_youtube_plugin_url
+from jellyfin_trailer_route import (
+    kodi_trailer_lookup_request,
+    trailer_from_kodi_result,
+)
 
 
 def _jsonrpc(method: str, params: dict | None = None) -> dict:
@@ -27,23 +30,14 @@ def _jsonrpc(method: str, params: dict | None = None) -> dict:
     return response.get("result", {})
 
 
-def _trailer_for_title(title: str) -> str | None:
-    result = _jsonrpc(
-        "VideoLibrary.GetMovies",
-        {
-            "filter": {"field": "title", "operator": "is", "value": title},
-            "properties": ["title", "trailer"],
-            "limits": {"start": 0, "end": 2},
-        },
-    )
-    movies = result.get("movies", [])
-    if len(movies) != 1:
-        return None
-    return validated_kodi_youtube_plugin_url(movies[0].get("trailer", ""))
+def _trailer_for_title(title: str, media_type: str) -> str | None:
+    method, params, result_key = kodi_trailer_lookup_request(media_type, title)
+    return trailer_from_kodi_result(_jsonrpc(method, params), result_key)
 
 
 def main() -> None:
-    title = sys.argv[1] if len(sys.argv) == 2 else "Buddy"
+    title = sys.argv[1] if len(sys.argv) >= 2 else "Buddy"
+    media_type = sys.argv[2] if len(sys.argv) >= 3 else "movie"
     if xbmc.Player().isPlaying():
         xbmcgui.Dialog().notification("AsterTV trailer", "Playback is already active")
         return
@@ -60,7 +54,7 @@ def main() -> None:
         youtube.setSettingBool("kodion.mpd.videos", False)
         youtube.setSettingBool("kodion.video.quality.isa", False)
         _jsonrpc("Addons.GetAddonDetails", {"addonid": "plugin.video.youtube"})
-        trailer = _trailer_for_title(title)
+        trailer = _trailer_for_title(title, media_type)
     except (RuntimeError, ValueError, TypeError, json.JSONDecodeError):
         trailer = None
     if trailer is None:

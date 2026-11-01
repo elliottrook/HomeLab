@@ -21,6 +21,7 @@ TILE_GALLERY = OVERLAY / "1080i/custom_1192_tile_gallery.xml"
 BUTTON_GALLERY = OVERLAY / "1080i/custom_1193_button_gallery.xml"
 MOVIE_PAGE = OVERLAY / "1080i/custom_1194_movie_rework.xml"
 PERSON_PAGE = OVERLAY / "1080i/custom_1195_person_library.xml"
+TV_PAGE = OVERLAY / "1080i/custom_1196_tv_rework.xml"
 ACTOR_PLUGIN = V3 / "overlay/plugin.video.astersearch"
 ACTOR_SEARCH = ACTOR_PLUGIN / "actor_search.py"
 INCLUDES = OVERLAY / "1080i/IncludesV3.xml"
@@ -35,6 +36,7 @@ BUTTON_FOCUS = OVERLAY / "media/ui-button-focus-gold-rim.svg"
 BUTTON_CURRENT = OVERLAY / "media/ui-button-current-gold-rim.svg"
 BUTTON_FOCUS_PNG = OVERLAY / "media/ui-button-focus-gold-rim.png"
 BUTTON_CURRENT_PNG = OVERLAY / "media/ui-button-current-gold-rim.png"
+TRAILER_ROUTE = V3 / "jellyfin_trailer_route.py"
 
 
 class SharedLanguageTests(unittest.TestCase):
@@ -46,6 +48,7 @@ class SharedLanguageTests(unittest.TestCase):
             BUTTON_GALLERY,
             MOVIE_PAGE,
             PERSON_PAGE,
+            TV_PAGE,
             BUTTON_FOCUS,
             BUTTON_CURRENT,
             INCLUDES,
@@ -375,7 +378,7 @@ class SharedLanguageTests(unittest.TestCase):
                 text=True,
             )
             self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-            self.assertIn("232 visible buttons", completed.stdout)
+            self.assertIn("236 visible buttons", completed.stdout)
             self.assertIn("anchor:1, art:8, catcher:2, hidden:4", completed.stdout)
             self.assertIn("12 shared button definitions", completed.stdout)
 
@@ -389,7 +392,7 @@ class SharedLanguageTests(unittest.TestCase):
                         continue
                     self.assertEqual(node.attrib.get("border"), "20")
                     focus_refs += 1
-            self.assertEqual(focus_refs, 206)
+            self.assertEqual(focus_refs, 210)
 
             tile = ET.parse(skin / "1080i/custom_1192_tile_gallery.xml").getroot()
             art_buttons = {
@@ -581,6 +584,115 @@ class SharedLanguageTests(unittest.TestCase):
         self.assertIn("ui-hero-bottom-fade.png", visuals_patch)
         self.assertIn("colordiffuse=\"99000000\"", visuals_patch)
         self.assertIn("!String.Contains(Container.FolderPath,plugin.video.astersearch)", visuals_patch)
+
+    def test_movie_and_tv_trailer_lookup_is_bounded_and_strict(self) -> None:
+        spec = importlib.util.spec_from_file_location("aster_trailer_route", TRAILER_ROUTE)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        movie_method, movie_params, movie_key = module.kodi_trailer_lookup_request(
+            "movie", "  Buddy  "
+        )
+        tv_method, tv_params, tv_key = module.kodi_trailer_lookup_request(
+            "tvshow", "Aurora Station"
+        )
+        self.assertEqual((movie_method, movie_key), ("VideoLibrary.GetMovies", "movies"))
+        self.assertEqual((tv_method, tv_key), ("VideoLibrary.GetTVShows", "tvshows"))
+        self.assertEqual(movie_params["filter"]["value"], "Buddy")
+        self.assertEqual(tv_params["filter"]["value"], "Aurora Station")
+        self.assertEqual(movie_params["limits"], {"start": 0, "end": 2})
+        for bad_type, bad_title in (
+            ("episode", "Pilot"),
+            ("movie", ""),
+            ("tvshow", "bad\nname"),
+            ("tvshow", "x" * 257),
+        ):
+            with self.subTest(bad_type=bad_type, bad_title=bad_title), self.assertRaises(ValueError):
+                module.kodi_trailer_lookup_request(bad_type, bad_title)
+
+        safe = "plugin://plugin.video.youtube/play/?video_id=dQw4w9WgXcQ"
+        self.assertEqual(
+            module.trailer_from_kodi_result(
+                {"tvshows": [{"title": "Aurora Station", "trailer": safe}]},
+                "tvshows",
+            ),
+            safe,
+        )
+        for result in (
+            {},
+            {"tvshows": []},
+            {"tvshows": [{"trailer": safe}, {"trailer": safe}]},
+            {"tvshows": [{"trailer": "https://example.invalid/trailer"}]},
+        ):
+            self.assertIsNone(module.trailer_from_kodi_result(result, "tvshows"))
+
+    def test_tv_rework_has_remote_safe_seasons_episodes_and_watch_markers(self) -> None:
+        page = ET.parse(TV_PAGE).getroot()
+        text = TV_PAGE.read_text()
+        self.assertEqual(page.findtext("defaultcontrol"), "600")
+        self.assertNotIn("<label>Seasons</label>", text)
+        for season in range(1, 11):
+            self.assertIn(f"<item><label>$NUMBER[{season}]</label>", text)
+            self.assertNotIn(
+                f"<item><label>{season}</label>",
+                text,
+                "bare numeric labels resolve to Kodi localization strings, not numbers",
+            )
+        self.assertIn("Play next", text)
+        self.assertIn("Resume", text)
+        self.assertIn("ui-button-focus-gold-rim.png", text)
+        self.assertIn("asterSageGlass", text)
+        self.assertIn("ListItem.Property(Watched)", text)
+        self.assertIn("✓", text)
+        self.assertIn("ui-timer-dot.png", text)
+        self.assertIn("ui-compact-card-mask.png", text)
+
+        controls = {
+            node.attrib["id"]: node
+            for node in page.findall(".//control[@id]")
+            if node.attrib.get("id") in {"600", "602", "603", "604", "605", "610", "611", "612"}
+        }
+        self.assertEqual(set(controls), {"600", "602", "603", "604", "605", "610", "611", "612"})
+        for control in controls.values():
+            for direction in ("onleft", "onright", "onup", "ondown"):
+                self.assertIn(control.findtext(direction), controls)
+
+        episodes = controls["600"]
+        self.assertEqual(episodes.findtext("orientation"), "vertical")
+        self.assertEqual(episodes.findtext("width"), "740")
+        self.assertGreaterEqual(len(episodes.findall("content/item")), 5)
+        focused = episodes.find("focusedlayout")
+        self.assertIsNotNone(focused)
+        focus_panel = focused.find("control[@type='image']/texture")
+        self.assertEqual(focus_panel.attrib.get("colordiffuse"), "asterSageGlass")
+        seasons = controls["612"]
+        self.assertEqual(seasons.findtext("orientation"), "vertical")
+        self.assertEqual(seasons.findtext("left"), "954")
+        self.assertEqual(seasons.findtext("top"), "288")
+        self.assertEqual(seasons.findtext("width"), "50")
+        self.assertEqual(seasons.findtext("height"), "704")
+        self.assertEqual(
+            int(seasons.findtext("height"))
+            // int(seasons.find("itemlayout").attrib["height"]),
+            8,
+        )
+        self.assertEqual(len(seasons.findall("content/item")), 10)
+        self.assertEqual(seasons.findtext("scrolltime"), "180")
+        self.assertEqual(seasons.findtext("onleft"), "610")
+        self.assertEqual(seasons.findtext("onright"), "600")
+        self.assertNotIn("Now highlighted", text)
+        self.assertNotIn("Container(600).ListItem.Property(Plot)", text)
+        self.assertIn("Cast &amp; Crew", text)
+        self.assertIn("More Like This", text)
+        self.assertIn("!Control.HasFocus(612)", text)
+        self.assertIn("Control.HasFocus(612)", text)
+        self.assertIn("Control.HasFocus(610)", text)
+        self.assertIn("Control.HasFocus(611)", text)
+        self.assertIn("player-controls/trailer.png", text)
+        self.assertIn("<label>Trailer</label>", text)
+        trailer_action = controls["605"].findtext("onclick", "")
+        self.assertIn("pilot_jellyfin_trailer_smoke.py", trailer_action)
+        self.assertIn("tvshow", trailer_action)
 
 
 if __name__ == "__main__":

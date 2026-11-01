@@ -23,6 +23,10 @@ YOUTUBE_HOSTS = frozenset(
 VIDEO_ID_CHARS = frozenset(
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
 )
+KODI_TRAILER_LOOKUPS = {
+    "movie": ("VideoLibrary.GetMovies", "movies"),
+    "tvshow": ("VideoLibrary.GetTVShows", "tvshows"),
+}
 
 
 def _valid_video_id(value: str) -> bool:
@@ -99,3 +103,39 @@ def first_supported_remote_trailer(urls: Iterable[str]) -> str | None:
         if video_id:
             return kodi_youtube_plugin_url(video_id)
     return None
+
+
+def kodi_trailer_lookup_request(media_type: str, title: str) -> tuple[str, dict, str]:
+    """Build the bounded Kodi request used for one movie or television show."""
+
+    if media_type not in KODI_TRAILER_LOOKUPS:
+        raise ValueError("unsupported-media-type")
+    if (
+        not isinstance(title, str)
+        or not title.strip()
+        or len(title) > 256
+        or any(ord(char) < 32 for char in title)
+    ):
+        raise ValueError("invalid-title")
+    clean_title = " ".join(title.split())
+    method, result_key = KODI_TRAILER_LOOKUPS[media_type]
+    return (
+        method,
+        {
+            "filter": {"field": "title", "operator": "is", "value": clean_title},
+            "properties": ["title", "trailer"],
+            "limits": {"start": 0, "end": 2},
+        },
+        result_key,
+    )
+
+
+def trailer_from_kodi_result(result: dict, result_key: str) -> str | None:
+    """Return the sole validated trailer route from a Kodi library result."""
+
+    if result_key not in {"movies", "tvshows"} or not isinstance(result, dict):
+        return None
+    rows = result.get(result_key, [])
+    if not isinstance(rows, list) or len(rows) != 1 or not isinstance(rows[0], dict):
+        return None
+    return validated_kodi_youtube_plugin_url(rows[0].get("trailer", ""))

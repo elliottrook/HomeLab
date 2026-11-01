@@ -1,7 +1,8 @@
 # AsterTV v3
 
-> Status: Active — Stream A page-redesign pilot on the Mac mini; PA0 complete,
-> PA1 in progress on isolated production-version Kodi in verified portable mode
+> Status: Active — Stream A page-redesign pilot on the Mac mini; PA0–PA2 Media
+> design milestone complete, PA3 design groups remain on isolated production-
+> version Kodi in verified portable mode
 >
 > Project owner: Jason
 >
@@ -393,10 +394,10 @@ Bedroom.
 
 - [x] Create the v3 overlay/build boundary without modifying the immutable v2
   release payload.
-- [ ] Reconcile common page chrome, focus, pills, Back/Home behaviour, hero
+- [x] Reconcile common page chrome, focus, pills, Back/Home behaviour, hero
   treatment, empty/error/loading states and remote target sizing against the
   Aster internal UI guide.
-- [ ] Add deterministic structural/focus tests and screenshot fixtures before
+- [x] Add deterministic structural/focus tests and screenshot fixtures before
   applying the language to individual pages.
 
 Gate: the shared shell passes static/focus regression tests and Jason accepts a
@@ -441,7 +442,7 @@ button is **Gold Rim**:
   buttons and must not inherit Gold Rim;
 - no bright yellow or blue focus colour is permitted.
 
-The build transform is pinned to 227 visible buttons and 12 shared definitions,
+The build transform is pinned to 236 visible buttons and 12 shared definitions,
 with eight artwork controls, four hidden controls, two full-page catchers and
 one navigation anchor explicitly excluded. Any inventory drift fails the build
 closed. F11 is the deterministic Gold Rim fixture and F9 verifies the button
@@ -449,12 +450,14 @@ and artwork contracts together on a representative page.
 
 ### PA2 — Media page redesigns
 
-- [ ] Redesign Movies/details with cast/crew artwork, roles, contextual cast
+- [x] Redesign Movies/details with cast/crew artwork, roles, contextual cast
   search, More Like This, Play/Resume focus and details-before-playback.
-- [ ] Redesign YouTube chrome, recommendation/subscription/watch-later/search
+- [x] Redesign YouTube chrome, recommendation/subscription/watch-later/search
   surfaces and return paths using synthetic account-safe fixtures.
-- [ ] Preserve the accepted v2 TV season/episode design as a locked regression
-  reference; this pilot does not redesign it unless Jason explicitly adds it.
+- [x] Rework the TV season/episode page after Jason explicitly expanded the
+  pilot: fixed episode rail, attached eight-season scrolling viewport, compact
+  Play/Resume/Trailer actions, cast and More Like This rails, and explicit
+  watched/unwatched markers.
 
 Gate: every entry/Back/OK/focus route passes on the Mini with synthetic normal,
 empty, loading and error fixtures; no autoplay or v2 TV regression is present.
@@ -467,13 +470,18 @@ to the signed-in Jellyfin user. Stream A represents that contract with
 synthetic data only; live Jellyfin person IDs and user-scoped title queries
 remain Stream M implementation work.
 
-Trailer discovery is Jellyfin-first. AsterTV uses Jellyfin `RemoteTrailers`
-metadata when present, validates a supported YouTube URL and hands only its
-video ID to the installed official Kodi YouTube add-on. Local trailers remain
+Trailer discovery is Jellyfin-first for Movies and TV Shows. AsterTV reads the
+single matching Kodi/Jellyfin library item's trailer metadata, validates the
+strict official-YouTube plug-in route and hands only that route to the installed
+official Kodi YouTube add-on. The lookup is bounded by media type and exact
+title; there is no generic title-search fallback. Local trailers remain
 the first choice if they are added later. The Trailer icon is hidden when
 neither source exists; there is no title-based search fallback in the accepted
 contract. Family currently reports zero local trailers and curated remote
-trailers for 1,007 of 1,060 movies.
+trailers for 1,007 of 1,060 movies. The pilot has only Movies synced, so movie
+playback is live-proved; TV route construction, result cardinality, metadata
+validation and Kodi's TV `trailer` field are proved without expanding the pilot
+sync to television.
 
 ### PA3 — Aster, News, Requests, Home and Cameras page redesigns
 
@@ -910,12 +918,16 @@ explicit user acceptance.
 | 2026-10-31 | Removed the resting tile surface | Owner requested artwork and labels sit directly on the page until selected; a dedicated transparent SVG avoids Kodi's white default-button fallback while the sage focused surface is unchanged | Clean-process Mini render verifies landscape, square, portrait and compact tiles are transparent at rest and transfer the green wrapper with focus; launcher no longer permits duplicate cached pilot instances |
 | 2026-10-31 | Tightened the selected tile halo | Owner requested substantially less green above and beside artwork while retaining the lower title field | Guarded transform now derives a 4px real-layout halo from artwork/title bounds; fixture renders use 8px visual margins across landscape, square, portrait and compact art, keep the original lower edge and preserve untruncated titles |
 | 2026-10-31 | Locked the definitive artwork-tile selection component | Owner accepted the transparent resting state plus tight sage focus halo and requested it be marked definitive before button work begins | PA1 now contains a normative `AsterV3ArtTitleTile` contract and keeps F10 plus the 14-layout fail-closed inventory as its acceptance/regression evidence |
-| 2026-10-31 | Locked the definitive button-selection component | Owner selected Gold Rim and requested a less-yellow gold plus Aster-wide use; the accepted palette is deep green `#1F513B` with antique gold `#AD8A4D` | Guarded transform covers 227 visible buttons and 12 shared definitions while excluding art/hidden/catcher/anchor controls; F11 validates rail, primary, toggle/current and player-button forms, and F9 confirms the art-tile contract remains separate |
+| 2026-10-31 | Locked the definitive button-selection component | Owner selected Gold Rim and requested a less-yellow gold plus Aster-wide use; the accepted palette is deep green `#1F513B` with antique gold `#AD8A4D` | Guarded transform now covers 236 visible buttons and 12 shared definitions while excluding art/hidden/catcher/anchor controls; F11 validates rail, primary, toggle/current and player-button forms, and F9 confirms the art-tile contract remains separate |
 | 2026-10-31 | Rendered the Movie and person-library direction | Owner requested portrait cast, landscape related titles, icon Play/Resume actions, no clock and additional logo clearance; selecting a person must show only their Jellyfin-accessible films and television | F12 opens the synthetic Movie page and its cast selection opens a separate user-scoped person-card fixture; live Jellyfin queries and trailer playback remain Stream M work |
 | 2026-10-31 | Selected and inventoried the Jellyfin trailer route | Owner chose Jellyfin metadata rather than generic title search; a read-only Family audit found 0 local trailers and 1,007/1,060 movies with curated remote trailers, using YouTube URLs | F12 adds the Trailer icon; Stream M will validate the URL/video ID and invoke the installed YouTube add-on only when playback is idle |
 | 2026-10-31 | Retired the obsolete Mini profile | Owner explicitly directed that the old v1.1.1 profile was no longer needed | Moved the directory intact to `~/.Trash/Kodi-legacy-20261031`; the portable v3 profile is the sole active Mini pilot and the old profile remains recoverable until Trash is emptied |
 | 2026-10-31 | Authorized a bounded live Jellyfin seam in the isolated pilot | Owner requested Jellyfin on the test environment, completed Quick Connect and then requested the old profile be trashed | Jellyfin Kodi Sync Queue 2.2.0 authenticated without exposing its token; only Movies was selected; the 14-second sync produced 77 movies and 75 trailer routes; expected collection warnings reflect the deliberately excluded Collections library |
 | 2026-10-31 | Proved the Jellyfin-first trailer route end to end | Official Kodi YouTube 7.4.4 and InputStream Adaptive 22.3.23 arm64 were installed without YouTube account data; F7 read Buddy's exact local Kodi trailer route, refused unsafe variants and invoked the official add-on only while idle | Kodi opened both video and audio streams. The macOS-only smoke uses progressive playback because the add-on advertises a LAN manifest address while listening on loopback; it does not expose that service or alter either production box |
+| 2026-10-31 | Completed the accepted TV rework and overflow design | Owner accepted the episode/cast/related layout, then required a season strategy for long-running shows | F6 contains ten seasons in an eight-row clipped rail; physical navigation scrolled the visible window from seasons 1–8 to 3–10 without moving the episode rail. Trailer is a compact icon action and the 15-test suite pins the closed focus graph, overflow height and ten-item fixture |
+| 2026-10-31 | Proved actor search against the pilot library | Opened the installed `plugin.video.astersearch` route for Louis Wolheim after the bounded Movies-only Jellyfin sync | The live page rendered `Louis Wolheim — Movie and TV credits available on AsterTV` and returned *All Quiet on the Western Front*; implementation remains exact-actor, read-only and capped at 500 Movies plus 500 TV Shows |
+| 2026-10-31 | Reconciled movie and TV trailer handling | Replaced the movie-only ad-hoc lookup with one reproducibly packaged media-aware helper; TV Show requests use Kodi's supported `trailer` property and the same strict official-YouTube validation | Buddy's exact Jellyfin route produced YouTube `Player.OnPlay`/`Player.OnAVStart` and was stopped cleanly. TV request construction, single-result enforcement and unsafe-route rejection pass locally; live TV playback awaits a TV library in Stream M rather than widening this Movies-only pilot sync |
+| 2026-10-31 | Closed the PA0–PA2 Media design milestone | Shared artwork/button language, YouTube, Movie/person search and the explicitly added TV rework are accepted and reproducibly built from the pinned v2 source | Stream A remains active for PA3 only: Aster AI states, News chrome/icons, podcast request screens, and Home plus separate Cameras. No Family or Bedroom deployment occurred |
 
 ## Close-out
 

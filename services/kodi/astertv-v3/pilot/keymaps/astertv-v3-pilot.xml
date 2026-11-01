@@ -2,6 +2,7 @@
 <keymap>
     <global>
         <keyboard>
+            <f6>ActivateWindow(1196)</f6>
             <f8>ActivateWindow(1190)</f8>
             <f7>RunScript(special://skin/extras/pilot_jellyfin_trailer_smoke.py,Buddy)</f7>
             <f9>ActivateWindow(1191)</f9>
