@@ -76,9 +76,16 @@ and preserves deterministic outcome/checks even after a transport failure. Its
 focused and inherited batch suite passes 15/15. This is still source-only and
 does not authorize a model call.
 
+The model-blind review boundary is now complete. It accepts only a complete,
+error-free 20-row result with exactly 14 prose requests and no retries; removes
+the actual model identity and all answer keys; exposes only sanitized case data
+and candidate answers; emits an unscored six-dimension template; and rejects
+pending, duplicate, identity-exposed, drifted or error-bearing reviews. The
+focused and inherited boundary suite passes 14/14.
+
 ## Next gate
 
 The new development fixture, no-tool runner, candidate-g source manifest,
-quality packet/answer keys and batch result schema are complete. Next freeze
-the model-blind review boundary. Do not reuse the `candidate-f` result or tune
-the prose model against its hidden answers.
+quality packet/answer keys, batch result schema and model-blind review boundary
+are complete. A model call remains separately gated. Do not reuse the
+`candidate-f` result or tune the prose model against its hidden answers.
