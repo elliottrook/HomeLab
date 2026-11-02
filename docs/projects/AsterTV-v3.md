@@ -10,8 +10,9 @@
 >
 > Current authorization stream: Stream M. On 2026-11-01 the owner explicitly
 > authorized deployment of the accepted TV-series page to AsterTV Bedroom and
-> AsterTV Family. This is bounded to that page, its actor-search helper and
-> required presentation assets; it does not authorize other v3 live changes.
+> AsterTV Family, followed by a bounded reliability repair for the recurring
+> stale player-state and release-regression failures. Other v3 live changes
+> still require their own bounded authorization.
 
 ## Purpose and desired outcome
 
@@ -73,6 +74,14 @@ privacy behaviour unless a replacement passes the same or stronger gate.
 - The v2 release gate contains 21 reconciliation tests plus focused Genre,
   Resume and media-screensaver gates. Recovery checkpoints and the prior v1.1.1
   Family baseline remain available.
+- Both live clients now also carry the host-bound AsterTV reliability guard.
+  Its persistent Kodi service can clear only the volatile Music recovery latch,
+  and only after three consecutive idle-and-empty player/playlist reads plus a
+  final read. It cannot stop playback or mutate playlists, and it retains every
+  queue-intent/checkpoint journal. A pre-Kodi systemd unit verifies an accepted
+  copy outside the add-on tree and atomically restores only changed/missing
+  accepted files; it excludes userdata, credentials, databases and caches and
+  never deletes extra files. Bedroom accepted 535 files and Family 533 files.
 
 ### Existing service boundaries
 
@@ -936,6 +945,7 @@ explicit user acceptance.
 | 2026-11-01 | Corrected live episode art and season-rail geometry | Family photo showed real episode metadata but blank art because the XML consumed `Art(thumb)` while the proven controller publishes `Property(Still)`; the synthetic full-height season backplate also remained | Both clients now report manifest `6256883c…21126`; Family's live Gilded Age row exposes its Jellyfin still through the bound property, and the 720px strip is absent while the individual season pills remain beside the episode rail |
 | 2026-11-01 | Closed the remaining live TV control seams | Episode cards also consumed obsolete `Plot`/`Meta` names, specials were exposed as Season 0, the season control retained a fixed 704px height, the dedicated trailer asset was absent, and Kodi had the packaged actor-search add-on disabled | Both clients now report manifest `8e53c2cc…05a6`; the live Family page publishes the real series and episode synopses/still, episode→Season 4→Carrie Coon focus was proven, the Carrie Coon results heading opened after enabling the read-only add-on, and the exact Aster trailer glyph is installed on both clients |
 | 2026-11-01 | Removed repeated Seerr-art work and the episode-list crash | Valid rendered grayscale PNGs were rejected when larger than the unrelated 5 MB download cap, while `publish()` could dereference a selection index after Kodi moved beyond the final row | Both clients now report manifest `aa589c89…dba0`; cached local PNGs up to 32 MB attach before first render while remote downloads remain capped at 5 MB. Bedroom reopened a cached Seerr still immediately, and repeated beyond-end navigation on Bedroom and Family remained on the TV page with no `IndexError` |
+| 2026-11-01 | Installed the permanent release/player-state reliability boundary | Repeated failures had two independent causes: successive partial overlays could restore older accepted files, and Music could retain a volatile `TrialRecovery` latch after Kodi/Jellyfin had already emptied the player and both playlists. The durable intent journals correctly remained for evidence but were being treated as if they proved live ownership. | Added nine fail-closed reliability tests and retained all 27 TV/shared-language/trailer tests. Bedroom-first and then Family live tests set only a synthetic recovery latch: each cleared after stable empty reads, retained journals, and left both playlists/player untouched. The pre-Kodi guard verified clean host-bound baselines of 535 Bedroom and 533 Family files. Package `astertv-v3-reliability-2026-11-01.tar.gz` is pinned at `1f225b4b…4613e`. Future accepted releases must refresh the baseline only after cumulative regression and live acceptance gates; ordinary hotfixes must not snapshot themselves. |
 
 ## Close-out
 

@@ -91,6 +91,17 @@ Collections was deliberately excluded. The Buddy smoke opened video and audio
 streams through the exact Jellyfin metadata route without copying a YouTube
 account into the pilot.
 
+## Reliability boundary
+
+`reliability/` owns the v3 player-state reconciler and accepted-release guard.
+The Kodi service cannot issue player or playlist mutations; it clears only the
+orphaned volatile Music recovery latch after repeated empty-state proof. The
+pre-Kodi guard restores host-bound accepted add-on files from a verified copy
+outside Kodi's add-on tree. It does not include userdata, credentials,
+databases, caches or unlisted files. Do not refresh that accepted baseline from
+an individual hotfix: update it only after the cumulative release passes its
+regression suite and named-room acceptance checks.
+
 Press `F6` to open the synthetic TV rework. Its Trailer icon uses the television
 lookup above. The narrow season rail is an eight-row clipped viewport: shows
 with nine or more seasons scroll inside the rail, while the episode, Cast &

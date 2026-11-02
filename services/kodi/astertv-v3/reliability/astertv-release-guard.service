@@ -1,0 +1,11 @@
+[Unit]
+Description=Restore the accepted AsterTV runtime before Kodi starts
+Before=kodi.service
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /storage/.aster-release/release_guard.py restore --host %H
+
+[Install]
+WantedBy=kodi.service
