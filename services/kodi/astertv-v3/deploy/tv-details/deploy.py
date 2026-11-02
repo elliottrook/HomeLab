@@ -46,6 +46,23 @@ def active_players() -> None:
         raise RuntimeError("active player; deployment refused")
 
 
+def enable_actor_search() -> None:
+    request = {
+        "jsonrpc": "2.0", "id": 1, "method": "Addons.SetAddonEnabled",
+        "params": {"addonid": "plugin.video.astersearch", "enabled": True},
+    }
+    for _ in range(20):
+        try:
+            with socket.create_connection(("127.0.0.1", 9090), timeout=1) as client:
+                client.settimeout(3)
+                client.sendall((json.dumps(request) + "\n").encode())
+                if json.loads(client.recv(4096).decode()).get("result") == "OK":
+                    return
+        except (OSError, ValueError, json.JSONDecodeError):
+            time.sleep(0.5)
+    raise RuntimeError("actor search could not be enabled")
+
+
 def atomic(path: Path, data: bytes, mode=0o644) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temporary = tempfile.mkstemp(prefix=".astertv-v3-tv-", dir=path.parent)
@@ -173,6 +190,11 @@ def main() -> None:
         raise
     finally:
         subprocess.run(["systemctl", "start", "kodi"], check=True, timeout=30)
+    try:
+        enable_actor_search()
+    except Exception:
+        Path("/storage/.aster-recovery-required").write_text(str(checkpoint) + "\n")
+        raise
     print(json.dumps({"installed": True, "host": hostname, "checkpoint": str(checkpoint),
                       "manifest_sha256": sha(changed[SERIES / "manifest.json"])}, sort_keys=True))
 

@@ -23,6 +23,27 @@ class TvDetailsPackageTests(unittest.TestCase):
         for identity in ("200", "202", "203", "204", "300", "610", "611", "612"):
             self.assertEqual(ids.count(identity), 1, identity)
 
+    def test_episode_art_uses_controller_property_and_season_strip_is_bounded(self):
+        data = XML.read_text()
+        self.assertEqual(data.count("ListItem.Property(Still)"), 2)
+        self.assertEqual(data.count("ListItem.Property(Synopsis)"), 2)
+        self.assertEqual(data.count("ListItem.Property(Metadata)"), 2)
+        self.assertNotIn("<height>720</height>", data)
+        self.assertIn("player-controls/trailer.png", data)
+        self.assertTrue((PACKAGE / "skin.asterhome/media/player-controls/trailer.png").is_file())
+
+    def test_seasons_and_cast_use_the_connected_dynamic_routes(self):
+        source = (PACKAGE / "aster-series-preview24/v3_series_extension.py").read_text()
+        self.assertIn("group.number not in (None, 0)", source)
+        self.assertIn("control.setHeight(min(len(seasons), 8) * 88)", source)
+        self.assertIn("self._v3_season_indices", source)
+        self.assertIn("AlarmClock(AsterActor,", source)
+        self.assertIn("self.close()", source)
+        for installer in ("deploy.py", "hotfix_tv_connections.py"):
+            installer_source = (PACKAGE / installer).read_text()
+            self.assertIn('"method": "Addons.SetAddonEnabled"', installer_source)
+            self.assertIn('"addonid": "plugin.video.astersearch"', installer_source)
+
     def test_ok_dispatch_covers_every_dynamic_control(self):
         source = (PACKAGE / "aster-series-preview24/v3_series_extension.py").read_text()
         self.assertIn("(200, 202, 203, 204, 300, 610, 611, 612)", source)

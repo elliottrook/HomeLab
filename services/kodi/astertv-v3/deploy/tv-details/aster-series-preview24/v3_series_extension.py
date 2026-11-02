@@ -48,16 +48,27 @@ def _details(show_id):
 
 
 def _populate_v3(self):
+    # Specials (season 0) are not part of the normal season chooser.  Keep an
+    # explicit absolute-index map because SeriesSelection still owns the full
+    # page model and may include specials internally.
+    visible_seasons = [
+        index for index, group in enumerate(self.snapshot.page.seasons)
+        if group.number not in (None, 0)
+    ]
+    self._v3_season_indices = visible_seasons
     seasons = []
     current = self.selection.season
-    for index, group in enumerate(self.snapshot.page.seasons):
+    for index in visible_seasons:
+        group = self.snapshot.page.seasons[index]
         seasons.append(_list_item(str(group.number), "", Index=index,
                                   Current="true" if index == current else "false"))
     control = self.getControl(612)
     control.reset()
     control.addItems(seasons)
+    control.setHeight(min(len(seasons), 8) * 88)
     if seasons:
-        control.selectItem(current)
+        selected = visible_seasons.index(current) if current in visible_seasons else 0
+        control.selectItem(selected)
 
     details = _details(self.snapshot.page.show_id)
     self._v3_trailer = details.get("trailer") or ""
@@ -132,11 +143,13 @@ def install(series_class):
             return
         if identity == 612:
             position = self.getControl(612).getSelectedPosition()
-            if not 0 <= position < len(self.snapshot.page.seasons):
+            visible_seasons = getattr(self, "_v3_season_indices", [])
+            if not 0 <= position < len(visible_seasons):
                 return
             self.updating = True
             try:
-                number = self.snapshot.page.seasons[position].number
+                absolute = visible_seasons[position]
+                number = self.snapshot.page.seasons[absolute].number
                 self.load_catalogue_season(number)
                 position = next(i for i, row in enumerate(self.snapshot.page.seasons)
                                 if row.number == number)
@@ -152,8 +165,10 @@ def install(series_class):
             item = self.getControl(610).getSelectedItem()
             name = item.getProperty("Name") if item else ""
             if name:
-                xbmc.executebuiltin("ActivateWindow(Videos,plugin://plugin.video.astersearch/?actor="
-                                    + quote(name) + ",return)")
+                route = "plugin://plugin.video.astersearch/?actor=" + quote(name)
+                command = 'ActivateWindow(Videos,"' + route + '",return)'
+                xbmc.executebuiltin("AlarmClock(AsterActor," + command + ",00:00:01,silent)")
+                self.close()
             return
         if identity == 611:
             item = self.getControl(611).getSelectedItem()
