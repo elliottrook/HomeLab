@@ -1,17 +1,17 @@
 # AsterTV v3
 
-> Status: Active — Stream A page-redesign pilot on the Mac mini; PA0–PA2 Media
-> design milestone complete, PA3 design groups remain on isolated production-
-> version Kodi in verified portable mode
+> Status: Active — Stream M; accepted PA2 TV-series presentation is deployed
+> through the existing fail-closed v2 episode engine on Bedroom and Family;
+> the remaining v3 milestones are not yet promoted
 >
 > Project owner: Jason
 >
 > Proposed: 2026-10-31
 >
-> Current authorization stream: Stream A — limited to the Mac-mini page-
-> redesign pilot enumerated below. The project transitions to Stream M at the
-> pilot acceptance gate; every later live state change and external write then
-> requires a fresh, bounded approval.
+> Current authorization stream: Stream M. On 2026-11-01 the owner explicitly
+> authorized deployment of the accepted TV-series page to AsterTV Bedroom and
+> AsterTV Family. This is bounded to that page, its actor-search helper and
+> required presentation assets; it does not authorize other v3 live changes.
 
 ## Purpose and desired outcome
 
@@ -183,7 +183,8 @@ Home Assistant, cameras, credentials, source services or network policy.
 - No real household credentials, library databases, viewing history, Home
   Assistant state or camera imagery in the portable page-design fixture.
 - No Family or Bedroom deployment, production promotion or source-service
-  mutation under the Stream A page-redesign authorization.
+  mutation without a fresh bounded Stream M authorization. The 2026-11-01
+  TV-series-page authorization is recorded above and covers only that package.
 
 ## Authority model
 
@@ -928,6 +929,10 @@ explicit user acceptance.
 | 2026-10-31 | Proved actor search against the pilot library | Opened the installed `plugin.video.astersearch` route for Louis Wolheim after the bounded Movies-only Jellyfin sync | The live page rendered `Louis Wolheim — Movie and TV credits available on AsterTV` and returned *All Quiet on the Western Front*; implementation remains exact-actor, read-only and capped at 500 Movies plus 500 TV Shows |
 | 2026-10-31 | Reconciled movie and TV trailer handling | Replaced the movie-only ad-hoc lookup with one reproducibly packaged media-aware helper; TV Show requests use Kodi's supported `trailer` property and the same strict official-YouTube validation | Buddy's exact Jellyfin route produced YouTube `Player.OnPlay`/`Player.OnAVStart` and was stopped cleanly. TV request construction, single-result enforcement and unsafe-route rejection pass locally; live TV playback awaits a TV library in Stream M rather than widening this Movies-only pilot sync |
 | 2026-10-31 | Closed the PA0–PA2 Media design milestone | Shared artwork/button language, YouTube, Movie/person search and the explicitly added TV rework are accepted and reproducibly built from the pinned v2 source | Stream A remains active for PA3 only: Aster AI states, News chrome/icons, podcast request screens, and Home plus separate Cameras. No Family or Bedroom deployment occurred |
+| 2026-11-01 | Transitioned the bounded TV-page work to Stream M | Owner explicitly requested deployment to both AsterTV Family and AsterTV Bedroom after accepting the TV page design | Preserve the proven v2 playback/recovery engine; deploy one checkpointed package Bedroom first, verify it, then promote identical bytes to Family; no other v3 page or service changes are included |
+| 2026-11-01 | Found the TV-page regression boundary | Both clients had the accepted v2 episode component, but `aster_v2_series.py` retained an obsolete manifest pin and therefore refused the custom route, exposing Kodi's native season page | Reconciled the pin as part of the v3 TV package rather than weakening the launcher integrity check |
+| 2026-11-01 | Promoted the dynamic TV-series page to both rooms | Bedroom-first launch gate passed, then the identical package reached Family; a follow-up gate caught and removed all synthetic `<content>` fixture rows and extended the OK dispatcher to seasons, cast and related controls | Both clients now report series manifest `bd4bffc5…9207a`, XML `61502e61…6074a`, no fixture labels, real Jellyfin episode/cast/related artwork, and working Season 1 to Season 2 navigation without playback |
+| 2026-11-01 | Repaired the pre-existing News and Music blocks found during promotion | Family Music held a stale in-memory recovery flag although both playlists and the player were empty; News had both an obsolete player pin and a missing `__main__` entry call | Preserved Music checkpoint evidence, cleared only the stale runtime flag, verified Music reopened; installed the canonical News launcher on both clients and proved Family full-digest audio with a private session MP3 before stopping it cleanly |
 
 ## Close-out
 
