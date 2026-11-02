@@ -12,6 +12,14 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [exact claim-window migration preparation](B60-Inference-Engineering/claim-migration-preparation-20261102.md)
+pins the c9→e16 three-module source transition and fresh attempt identity;
+177 controller,10 installer and115 B60 tests pass with replay equality. The
+next November2 booking is reserved but its activation is absent. Nothing was
+deployed, uploaded or armed by this preparation heartbeat. Next operational
+work is the guarded migration and fresh source-bound restore-only activation;
+normal/owner-loss recovery and model milestones remain unqualified.
+
 The [November1 actual outcome](B60-Inference-Engineering/qualification-no-go-20261101.md)
 is a pre-claim NO-GO after successful backup/admission and verified entry
 checkpointing. The guardian did start; the claim refused when checkpoint work

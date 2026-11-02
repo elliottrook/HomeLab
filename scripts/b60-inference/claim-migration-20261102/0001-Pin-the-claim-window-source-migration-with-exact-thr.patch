@@ -1,0 +1,259 @@
+From 34ff36fbe39cfae9f12da5bf03b757a2c8859edb Mon Sep 17 00:00:00 2001
+From: elliottrook <jason@yampy.ca>
+Date: Sun, 1 Nov 2026 17:00:16 -0700
+Subject: [PATCH] Pin the claim-window source migration with exact three-module
+ checkpoint scope
+
+---
+ scripts/local-ai/lab_hours_source_update.py   | 30 ++++++++++++++-----
+ .../local-ai/lab_hours_source_update_host.py  | 18 ++++++-----
+ .../local-ai/test_lab_hours_source_update.py  | 13 +++++++-
+ .../test_lab_hours_source_update_host.py      | 29 ++++++++++++------
+ 4 files changed, 64 insertions(+), 26 deletions(-)
+
+diff --git a/scripts/local-ai/lab_hours_source_update.py b/scripts/local-ai/lab_hours_source_update.py
+index 043da1719..465ee1a47 100644
+--- a/scripts/local-ai/lab_hours_source_update.py
++++ b/scripts/local-ai/lab_hours_source_update.py
+@@ -14,6 +14,13 @@ from lab_hours_exclusive_session import canonical, SessionError, SHA
+ OLD_MAP = 'f5085fbb7b7e8e456be6ac6157867a1af8e808a2e139fb64c03caeb991d25e85'
+ NEW_MAP = 'c9fbbd2039b1dabe0771a2b27128147df1be860ce88a2bf4317b4c504f17d739'
+ CHANGED = ('lab_hours_exclusive_admission.py', 'lab_hours_exclusive_cli.py')
++CLAIM_MAP = 'e16b3bfe02f8a12e08271b6e95baddf206192cbd37e765d0d9c5dee929608b82'
++CLAIM_CHANGED = ('lab_hours_exclusive_boundary.py', 'lab_hours_proxmox_adapter.py',
++                 'lab_hours_reservations.py')
++TRANSITIONS = {
++    (OLD_MAP, NEW_MAP): (CHANGED, 'diagnostics-20261101-v1'),
++    (NEW_MAP, CLAIM_MAP): (CLAIM_CHANGED, 'claim-window-20261102-v1'),
++}
+ PHASES = {'checkpointed', 'updating', 'installed', 'rolling-back', 'rolled-back'}
+ PENDING_EDGES = {'checkpointed': {'updating', 'rolling-back'},
+                  'updating': {'updating', 'installed', 'rolling-back'},
+@@ -22,13 +29,19 @@ PENDING_EDGES = {'checkpointed': {'updating', 'rolling-back'},
+                  'rolled-back': set()}
+ 
+ 
+-def transition(old, new):
++def transition_identity(old, new):
+     if (not isinstance(old, dict) or not isinstance(new, dict)
+-            or len(old) != 30 or set(old) != set(new)
+-            or hashlib.sha256(canonical(old)).hexdigest() != OLD_MAP
+-            or hashlib.sha256(canonical(new)).hexdigest() != NEW_MAP
+-            or tuple(sorted(k for k in old if old[k] != new[k])) != CHANGED):
++            or len(old) != 30 or set(old) != set(new)):
++        raise SessionError('SOURCE_TRANSITION_NOT_REVIEWED')
++    key=(hashlib.sha256(canonical(old)).hexdigest(),hashlib.sha256(canonical(new)).hexdigest())
++    policy=TRANSITIONS.get(key)
++    if policy is None or tuple(sorted(k for k in old if old[k]!=new[k]))!=policy[0]:
+         raise SessionError('SOURCE_TRANSITION_NOT_REVIEWED')
++    return policy
++
++
++def transition(old, new):
++    transition_identity(old,new)
+     return {'schema': 'aster-diagnostic-source-transition.v1',
+             'old': dict(old), 'new': dict(new)}
+ 
+@@ -37,6 +50,7 @@ class SourceUpdate:
+     def __init__(self, store, adapter, old, new):
+         self.store, self.adapter = store, adapter
+         self.plan = transition(old, new)
++        self.changed=transition_identity(old,new)[0]
+ 
+     def _ready(self):
+         if self.adapter.preflight(self.plan) is not True:
+@@ -77,7 +91,7 @@ class SourceUpdate:
+             self._ready()
+             self._observe(self.plan['old'])
+             self.store.write('plan.json', self.plan, immutable=True)
+-            checkpoint = self.adapter.checkpoint(CHANGED, self.plan['old'])
++            checkpoint = self.adapter.checkpoint(self.changed, self.plan['old'])
+             if (not isinstance(checkpoint, str) or not SHA.fullmatch(checkpoint)
+                     or self.adapter.verify_checkpoint(checkpoint, self.plan['old']) is not True):
+                 raise SessionError('SOURCE_UPDATE_CHECKPOINT_UNVERIFIED')
+@@ -86,7 +100,7 @@ class SourceUpdate:
+             self._phase(state, 'checkpointed')
+             try:
+                 expected = dict(self.plan['old'])
+-                for name in CHANGED:
++                for name in self.changed:
+                     self._ready()
+                     self._observe(expected)
+                     self._phase(state, 'updating')
+@@ -119,7 +133,7 @@ class SourceUpdate:
+             self._observe(self.plan['old'])
+             return {'state': 'rolled-back', 'model_success': False}
+         self._phase(state, 'rolling-back')
+-        for name in reversed(CHANGED):
++        for name in reversed(self.changed):
+             self._ready()
+             self._observe(current)
+             if current[name] != self.plan['old'][name]:
+diff --git a/scripts/local-ai/lab_hours_source_update_host.py b/scripts/local-ai/lab_hours_source_update_host.py
+index d4b273ac9..cd4e9ea5d 100644
+--- a/scripts/local-ai/lab_hours_source_update_host.py
++++ b/scripts/local-ai/lab_hours_source_update_host.py
+@@ -12,7 +12,7 @@ from install_lab_hours_exclusive_dormant import source_bundle, directory
+ from lab_hours_exclusive_profile import protected_bytes
+ from lab_hours_exclusive_session import SessionStore, SessionError, canonical
+ from lab_hours_file_checkpoint import FileCheckpoint
+-from lab_hours_source_update import SourceUpdate, CHANGED, transition
++from lab_hours_source_update import SourceUpdate, transition_identity
+ 
+ ROOT=Path('/var/lib/local-ai-lab')
+ TARGET=Path('/usr/local/libexec/local-ai-lease/exclusive-session')
+@@ -56,8 +56,9 @@ class HostSourceAdapter:
+         self.target,self.candidate,self.root=map(Path,(target,candidate,checkpoint))
+         self.old,self.new,self.guard,self.reader=old,new,guard,reader
+         self.uid=uid; self.imports=imports
++        self.changed=transition_identity(old,new)[0]
+         self.files=FileCheckpoint(self.root/'files',allowed_roots=(),
+-            allowed_files=[self.target/n for n in CHANGED],expected_uid=uid)
++            allowed_files=[self.target/n for n in self.changed],expected_uid=uid)
+ 
+     def preflight(self,plan): return self.guard() is True
+ 
+@@ -68,19 +69,20 @@ class HostSourceAdapter:
+                     maximum=262144)).hexdigest() for n in self.old}
+ 
+     def checkpoint(self,names,old):
+-        if tuple(names)!=CHANGED or self.observe_pins()!=old:
++        if tuple(names)!=self.changed or self.observe_pins()!=old:
+             raise SessionError('SOURCE_HOST_CHECKPOINT_SCOPE')
+         return self.files.capture([str(self.target/n) for n in names])
+ 
+     def verify_checkpoint(self,digest,old):
+         manifest=self.files.manifest(digest)
+         rows=manifest['entries']
+-        return (len(rows)==2 and {r['path'] for r in rows}=={str(self.target/n) for n in CHANGED}
++        return (len(rows)==len(self.changed)
++            and {r['path'] for r in rows}=={str(self.target/n) for n in self.changed}
+             and all(r['present'] is True and r['sha256']==old[Path(r['path']).name]
+                     and r['uid']==self.uid and r['mode']==0o600 for r in rows))
+ 
+     def _replace(self,name,expected,data,mode=0o600,gid=None,tag='new'):
+-        if name not in CHANGED or self.guard() is not True:
++        if name not in self.changed or self.guard() is not True:
+             raise SessionError('SOURCE_HOST_EFFECT_SCOPE')
+         target=self.target/name
+         current=self.reader(target,executable=True,maximum=262144)
+@@ -127,11 +129,11 @@ class HostSourceAdapter:
+ 
+ def operate(args):
+     if os.geteuid()!=0 or os.uname().nodename!='proxmox': raise SessionError('PROXMOX_ROOT_REQUIRED')
+-    if args.attempt.parent!=ROOT/'source-updates' or args.attempt.name!='diagnostics-20261101-v1':
+-        raise SessionError('SOURCE_HOST_ATTEMPT_IDENTITY')
+     old=source_bundle(args.old_bundle,args.old_sha256)
+     new=source_bundle(args.new_bundle,args.new_sha256)
+-    transition(old,new)
++    _,identity=transition_identity(old,new)
++    if args.attempt.parent!=ROOT/'source-updates' or args.attempt.name!=identity:
++        raise SessionError('SOURCE_HOST_ATTEMPT_IDENTITY')
+     with host_exclusion(ROOT):
+         if not idle(): raise SessionError('SOURCE_UPDATE_HOST_NOT_PROVEN_IDLE')
+         if args.action=='apply' and args.attempt.exists(): raise SessionError('SOURCE_UPDATE_ATTEMPT_ALREADY_EXISTS')
+diff --git a/scripts/local-ai/test_lab_hours_source_update.py b/scripts/local-ai/test_lab_hours_source_update.py
+index 197227ce0..b76dec624 100644
+--- a/scripts/local-ai/test_lab_hours_source_update.py
++++ b/scripts/local-ai/test_lab_hours_source_update.py
+@@ -8,7 +8,7 @@ import unittest
+ from unittest.mock import patch
+ 
+ from lab_hours_exclusive_session import SessionStore, SessionError, canonical
+-from lab_hours_source_update import SourceUpdate, CHANGED, transition
++from lab_hours_source_update import SourceUpdate, CHANGED, transition, transition_identity
+ 
+ 
+ class FakeSource:
+@@ -61,6 +61,17 @@ class SourceUpdateTests(unittest.TestCase):
+         with self.assertRaisesRegex(SessionError, 'NOT_REVIEWED'):
+             transition(self.old, changed)
+ 
++    def test_claim_migration_is_exact_and_cannot_skip_its_installed_baseline(self):
++        path=Path(os.environ.get('B60_CLAIM_SOURCE_BUNDLE',
++            '/private/tmp/b60-claim-candidate-20261102-v1'))/'source-manifest.json'
++        claim=json.loads(path.read_bytes())['pins']
++        scope,identity=transition_identity(self.new,claim)
++        self.assertEqual(scope,('lab_hours_exclusive_boundary.py',
++                               'lab_hours_proxmox_adapter.py','lab_hours_reservations.py'))
++        self.assertEqual(identity,'claim-window-20261102-v1')
++        with self.assertRaisesRegex(SessionError,'NOT_REVIEWED'):transition(self.old,claim)
++        with self.assertRaisesRegex(SessionError,'NOT_REVIEWED'):transition(claim,self.new)
++
+     def test_apply_then_explicit_rollback_preserves_exact_dependency_maps(self):
+         self.assertEqual(self.update.apply()['state'], 'installed-not-activated')
+         self.assertEqual(self.adapter.pins, self.new)
+diff --git a/scripts/local-ai/test_lab_hours_source_update_host.py b/scripts/local-ai/test_lab_hours_source_update_host.py
+index 61af521fb..b0fafad10 100644
+--- a/scripts/local-ai/test_lab_hours_source_update_host.py
++++ b/scripts/local-ai/test_lab_hours_source_update_host.py
+@@ -9,7 +9,7 @@ import tempfile
+ import unittest
+ 
+ from lab_hours_exclusive_session import SessionStore,SessionError
+-from lab_hours_source_update import SourceUpdate,CHANGED
++from lab_hours_source_update import SourceUpdate,CHANGED,CLAIM_CHANGED
+ from lab_hours_source_update_host import HostSourceAdapter
+ 
+ OLD_BUNDLE=Path(os.environ.get('B60_OLD_SOURCE_BUNDLE',
+@@ -19,15 +19,19 @@ NEW_BUNDLE=Path(os.environ.get('B60_NEW_SOURCE_BUNDLE',
+ 
+ 
+ class HostAdapterTests(unittest.TestCase):
++    old_bundle=OLD_BUNDLE
++    new_bundle=NEW_BUNDLE
++    changed=CHANGED
++
+     def setUp(self):
+-        if not OLD_BUNDLE.exists() or not NEW_BUNDLE.exists():
++        if not self.old_bundle.exists() or not self.new_bundle.exists():
+             self.fail('EXACT_SOURCE_BUNDLES_REQUIRED')
+         temp=tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup)
+         self.root=Path(temp.name).resolve(); self.target=self.root/'target'
+-        shutil.copytree(OLD_BUNDLE/'exclusive-session',self.target)
+-        self.newdir=self.root/'candidate'; shutil.copytree(NEW_BUNDLE/'exclusive-session',self.newdir)
+-        self.old=json.loads((OLD_BUNDLE/'source-manifest.json').read_bytes())['pins']
+-        self.new=json.loads((NEW_BUNDLE/'source-manifest.json').read_bytes())['pins']
++        shutil.copytree(self.old_bundle/'exclusive-session',self.target)
++        self.newdir=self.root/'candidate'; shutil.copytree(self.new_bundle/'exclusive-session',self.newdir)
++        self.old=json.loads((self.old_bundle/'source-manifest.json').read_bytes())['pins']
++        self.new=json.loads((self.new_bundle/'source-manifest.json').read_bytes())['pins']
+         self.stage=self.root/'stage'; self.stage.mkdir(mode=0o700)
+         self.store=SessionStore(self.stage/'journal')
+         def reader(path,**kwargs):
+@@ -44,10 +48,10 @@ class HostAdapterTests(unittest.TestCase):
+         self.assertEqual(self.adapter.observe_pins(),self.new)
+         self.core.rollback()
+         self.assertEqual(self.adapter.observe_pins(),self.old)
+-        for name in CHANGED:self.assertEqual((self.target/name).stat().st_mode&0o777,0o600)
++        for name in self.changed:self.assertEqual((self.target/name).stat().st_mode&0o777,0o600)
+ 
+     def test_real_candidate_corruption_rolls_back_without_unknown_overwrite(self):
+-        (self.newdir/CHANGED[1]).write_bytes(b'corrupt candidate')
++        (self.newdir/self.changed[1]).write_bytes(b'corrupt candidate')
+         self.assertEqual(self.core.apply()['state'],'failed-rolled-back')
+         self.assertEqual(self.adapter.observe_pins(),self.old)
+ 
+@@ -57,7 +61,7 @@ class HostAdapterTests(unittest.TestCase):
+         self.assertEqual(self.adapter.observe_pins(),self.old)
+ 
+     def test_real_child_loss_after_each_atomic_rename(self):
+-        for index,name in enumerate(CHANGED):
++        for index,name in enumerate(self.changed):
+             stage=self.root/f'child-{index}';stage.mkdir(mode=0o700)
+             store=SessionStore(stage/'journal')
+             adapter=HostSourceAdapter(self.target,self.newdir,stage,self.old,self.new,
+@@ -80,3 +84,10 @@ class HostAdapterTests(unittest.TestCase):
+     def test_extra_source_or_symlink_is_not_accepted(self):
+         extra=self.target/'extra.py';extra.write_bytes(b'')
+         with self.assertRaisesRegex(SessionError,'FILE_SET_DRIFT'):self.core.apply()
++
++
++class ClaimWindowHostAdapterTests(HostAdapterTests):
++    old_bundle=NEW_BUNDLE
++    new_bundle=Path(os.environ.get('B60_CLAIM_SOURCE_BUNDLE',
++        '/private/tmp/b60-claim-candidate-20261102-v1'))
++    changed=CLAIM_CHANGED
+-- 
+2.50.1 (Apple Git-155)
+
