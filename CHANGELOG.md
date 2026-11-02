@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-11-02 — Aster media lifecycle redesign authorized for a scheduled Stream A start
+
+- Added the project plan and portfolio entry. Jason authorized Stream A
+  completion but directed that implementation not begin before Wednesday
+  2026-11-04 at 01:00 America/Vancouver.
+- Recorded the 5 GB Archive ceiling as a quality gate, 4K-to-good-1080p
+  fallback, genuine HDR/5.1 and English subtitle retention, continued
+  Radarr/Sonarr ownership, and a Current/Archive view pilot.
+- Planning and repository synchronization only; no media, service, schedule
+  or production configuration change was made.
+
 ## 2026-10-31 — AsterTV v3 project created
 
 - Converted the v3 wish list into a formal Stream M HomeLab project with the
