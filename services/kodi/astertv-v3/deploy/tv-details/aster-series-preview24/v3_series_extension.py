@@ -110,6 +110,8 @@ def _populate_v3(self):
 def install(series_class):
     original_init = series_class.onInit
     original_populate = series_class.populate
+    original_publish = series_class.publish
+    original_action = series_class.onAction
     original_click = series_class.onClick
 
     def on_init(self):
@@ -126,6 +128,66 @@ def install(series_class):
                 _populate_v3(self)
             except Exception as error:
                 xbmc.log("AsterTV v3 series refresh: " + repr(error), xbmc.LOGERROR)
+
+    def publish(self):
+        group = self.selection.group
+        if group is not None:
+            count = len(group.episodes)
+            if not count:
+                self.pending_index = None
+                self.setProperty("Series.Ready", "true")
+                return
+            position = self.getControl(300).getSelectedPosition()
+            clamped = max(0, min(position, count - 1))
+            if position != clamped:
+                self.getControl(300).selectItem(clamped)
+                self.pending_index = clamped
+            if not 0 <= self.selection.index < count:
+                self.selection.index = clamped
+                self.marked_index = clamped
+        return original_publish(self)
+
+    def on_action(self, action):
+        try:
+            identity = self.getFocusId()
+        except RuntimeError:
+            return original_action(self, action)
+        key = action.getId()
+        group = self.selection.group
+        if identity == 300 and group and group.episodes and key in (3, 4):
+            last = len(group.episodes) - 1
+            boundary = (key == 3 and self.selection.index <= 0) or (
+                key == 4 and self.selection.index >= last)
+            if boundary:
+                visible = getattr(self, "_v3_season_indices", [])
+                current = self.selection.season
+                candidates = ([index for index in visible if index < current] if key == 3
+                              else [index for index in visible if index > current])
+                target = (max(candidates) if key == 3 and candidates else
+                          min(candidates) if key == 4 and candidates else None)
+                if target is None:
+                    self.selection.index = 0 if key == 3 else last
+                    self.getControl(300).selectItem(self.selection.index)
+                    self.pending_index = self.selection.index
+                    self.marked_index = self.selection.index
+                    self.publish()
+                    return
+                self.updating = True
+                try:
+                    number = self.snapshot.page.seasons[target].number
+                    self.load_catalogue_season(number)
+                    target = next(i for i, row in enumerate(self.snapshot.page.seasons)
+                                  if row.number == number)
+                    self.selection.change_season(target)
+                    self.selection.index = (len(self.selection.group.episodes) - 1
+                                            if key == 3 else 0)
+                    self.populate()
+                    self.setFocusId(300)
+                finally:
+                    self.updating = False
+                self.publish()
+                return
+        return original_action(self, action)
 
     def on_click(self, identity):
         if identity == 202:
@@ -200,6 +262,12 @@ def install(series_class):
 
         def populate(self):
             return populate(self)
+
+        def publish(self):
+            return publish(self)
+
+        def onAction(self, action):
+            return on_action(self, action)
 
         def onClick(self, identity):
             return on_click(self, identity)

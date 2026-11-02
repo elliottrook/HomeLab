@@ -39,6 +39,10 @@ class TvDetailsPackageTests(unittest.TestCase):
         self.assertIn("self._v3_season_indices", source)
         self.assertIn("AlarmClock(AsterActor,", source)
         self.assertIn("self.close()", source)
+        self.assertIn("def publish(self):", source)
+        self.assertIn("clamped = max(0, min(position, count - 1))", source)
+        self.assertIn("def on_action(self, action):", source)
+        self.assertIn("if target is None:", source)
         for installer in ("deploy.py", "hotfix_tv_connections.py"):
             installer_source = (PACKAGE / installer).read_text()
             self.assertIn('"method": "Addons.SetAddonEnabled"', installer_source)
@@ -53,6 +57,17 @@ class TvDetailsPackageTests(unittest.TestCase):
         source = (PACKAGE / "repair_digest_entry.py").read_text()
         self.assertIn("main(sys.argv[1])", source)
         self.assertIn("9e3644b7d012bc7610f7366608456ce06ffe1d8b6eee315574bb762d5a186e9c", source)
+
+    def test_cache_and_episode_bounds_hotfix_is_pinned(self):
+        source = (PACKAGE / "hotfix_series_cache_bounds.py").read_text()
+        self.assertIn("def cached(self, detail, skip_numbers=()):", source)
+        self.assertIn("loaded[number]=cache.cached(detail,local_numbers)", source)
+        self.assertIn("detail=self.catalogue_cache.cached(detail,local_numbers)", source)
+        self.assertIn("0 < target.stat().st_size <= 32 * 1024 * 1024", source)
+        self.assertIn("active player; repair refused", source)
+        limit_source = (PACKAGE / "hotfix_series_cache_limit.py").read_text()
+        self.assertIn("if cache.count(old)!=2", limit_source)
+        self.assertIn("32 * 1024 * 1024", limit_source)
 
 
 if __name__ == "__main__":
