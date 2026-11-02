@@ -12,6 +12,13 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [November2 reconciliation](B60-Inference-Engineering/nightly-reconciliation-20261102.md)
+finds the reserved window expired without an activation, session or integrity
+terminal receipt. November3 capacity exists but is also unarmed at observation.
+302 exact-dependency local tests pass; no deployment/model/recovery result is
+claimed. Next operational work remains the guarded migration and a freshly
+validated future date-specific activation. No nightly push or expired replay.
+
 The [exact claim-window migration preparation](B60-Inference-Engineering/claim-migration-preparation-20261102.md)
 pins the c9→e16 three-module source transition and fresh attempt identity;
 177 controller,10 installer and115 B60 tests pass with replay equality. The
