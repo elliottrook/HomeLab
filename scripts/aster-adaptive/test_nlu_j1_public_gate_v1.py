@@ -8,6 +8,20 @@ import nlu_j1_public_gate_v1 as gate
 
 
 class J1PublicGateTests(unittest.TestCase):
+    def test_repository_public_fixture_matches_the_frozen_pin(self):
+        fixture = Path(__file__).parent / "fixtures" / "nlu-development-v1.json"
+        self.assertEqual(gate.FIXTURE_SHA256, gate.sha(fixture.read_bytes()))
+
+    def test_corrected_release_packet_names_the_digest_pinned_fixture(self):
+        root = Path(__file__).parents[2]
+        packet = json.loads((Path(__file__).parent / "fixtures" /
+                             "nlu-j1-public-gate-release-v2.json").read_text())
+        relative = packet["public_gate"]["fixture_path"]
+        self.assertEqual("aster-nlu-j1-public-gate-release.v2", packet["schema"])
+        self.assertTrue(packet["prior_attempt"]["spent"])
+        self.assertEqual(gate.FIXTURE_SHA256, packet["public_gate"]["fixture_sha256"])
+        self.assertEqual(gate.FIXTURE_SHA256, gate.sha((root / relative).read_bytes()))
+
     def test_exact_pins_are_present_and_public_run_is_non_authorizing(self):
         for value in (gate.FIXTURE_SHA256, gate.ARTIFACT_FILE_SHA256,
                       gate.ARTIFACT_SHA256, gate.EXECUTION_RECEIPT_SHA256,
