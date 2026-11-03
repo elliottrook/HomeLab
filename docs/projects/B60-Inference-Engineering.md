@@ -12,6 +12,12 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [November3 reconciliation](B60-Inference-Engineering/nightly-reconciliation-20261103.md)
+finds another passed booking without activation or execution receipts, and
+confirms all three timing-fix modules remain old on the host. November4 is
+reserved/unarmed. Next is operational exact migration and fresh eligible
+arming under existing approval; no model ran, production changed or nightly push.
+
 The [November2 research watch](B60-Inference-Engineering/research-watch-20261102.md)
 adds a merged SYCL-graph diagnostic and topology-specific server/offload hazards
 to the later queue. The staged35B ordinary-inference screen remains first after
