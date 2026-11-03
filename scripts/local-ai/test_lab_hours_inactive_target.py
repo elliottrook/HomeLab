@@ -35,6 +35,21 @@ class InactiveGuestTargetTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "must remain inactive"):
                 target.validate_guest_target(unit_root=root, runner=lambda *a, **k: None)
 
+    def test_evidence_envelope_uses_exact_five_file_registration(self):
+        def run(command, **kwargs):
+            payload = json.loads(kwargs["input"])
+            self.assertEqual(5, len(payload["pins"]))
+            self.assertIn("sa3-evidence-envelope-quality-v1.json", payload["pins"])
+            self.assertNotIn("sa3-evidence-envelope-quality-keys-v1.json", payload["pins"])
+            out = {"effects": "not-attempted", "guest": "110",
+                   "runtime_files": 5, "state": "valid"}
+            return subprocess.CompletedProcess(command, 0, json.dumps(out), "")
+        with tempfile.TemporaryDirectory() as tmp:
+            value = target.validate_guest_target(
+                unit_root=Path(tmp), runner=run,
+                workload_id="sa3-evidence-envelope-quality-v1")
+        self.assertEqual("sa3-evidence-envelope-quality-v1", value["workload_id"])
+
 
 if __name__ == "__main__":
     unittest.main()

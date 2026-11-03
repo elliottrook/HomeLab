@@ -34,6 +34,29 @@ class WorkloadRegistryTests(unittest.TestCase):
         self.assertEqual("m3-joint-semantic-35b", spec.runner_kind)
         self.assertEqual(14, len(spec.runtime_pins))
 
+    def test_evidence_envelope_registration_is_fixed_and_excludes_keys(self):
+        workload_id = "sa3-evidence-envelope-quality-v1"
+        self.assertIn(workload_id, REGISTERED_WORKLOADS)
+        spec = workload(workload_id)
+        self.assertEqual("aster-stream-a", spec.owner)
+        self.assertEqual(20, spec.request_count)
+        self.assertEqual(14, 20 - 6)
+        self.assertEqual(120, spec.per_request_timeout_seconds)
+        self.assertEqual(2700, spec.deadline_seconds)
+        self.assertEqual(3600, spec.minimum_booking_seconds)
+        self.assertEqual(900, spec.recovery_reserve_seconds)
+        self.assertEqual("sa3-evidence-envelope-quality", spec.runner_kind)
+        self.assertEqual(5, len(spec.runtime_pins))
+        self.assertFalse(any("keys" in name or "review" in name
+                             for name, _ in spec.runtime_pins))
+
+    def test_evidence_envelope_inactive_validation_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(ValueError, "target file missing"):
+                validate_inactive_target(
+                    Path(tmp), unit_root=Path(tmp), expected_uid=os.geteuid(),
+                    workload_id="sa3-evidence-envelope-quality-v1")
+
     def test_inactive_validation_fails_closed_when_target_is_not_installed(self):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaisesRegex(ValueError, "target file missing"):

@@ -40,9 +40,10 @@ print(json.dumps({"effects":"not-attempted","guest":"110","runtime_files":len(pi
 
 
 def validate_guest_target(*, unit_root: Path = UNIT_ROOT,
-                          runner=subprocess.run) -> dict[str, object]:
-    spec = workload("sa3-expanded-source-quality-v1")
-    prefix = Path(unit_root) / "aster-lab-hours-booking-sa3-expanded-source-quality-v1"
+                          runner=subprocess.run,
+                          workload_id: str = "sa3-expanded-source-quality-v1") -> dict[str, object]:
+    spec = workload(workload_id)
+    prefix = Path(unit_root) / f"aster-lab-hours-booking-{spec.workload_id}"
     for suffix in (".service", ".timer"):
         if prefix.with_suffix(suffix).exists():
             raise ValueError(f"target unit must remain inactive:{suffix}")
@@ -66,9 +67,12 @@ def validate_guest_target(*, unit_root: Path = UNIT_ROOT,
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--workload", default="sa3-expanded-source-quality-v1",
+                        choices=("sa3-expanded-source-quality-v1",
+                                 "sa3-evidence-envelope-quality-v1"))
     args = parser.parse_args(argv)
     try:
-        print(json.dumps(validate_guest_target(), sort_keys=True))
+        print(json.dumps(validate_guest_target(workload_id=args.workload), sort_keys=True))
     except (OSError, subprocess.SubprocessError, ValueError) as exc:
         print(json.dumps({"state": "no_go", "code": str(exc)}, sort_keys=True))
         return 1

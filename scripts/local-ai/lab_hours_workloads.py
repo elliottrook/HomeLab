@@ -94,6 +94,25 @@ WORKLOADS = {
         packet_sha256="1565a21c78875f64f4f25a190e977ae34dc01bdfcfd5e49c056e8365268b3785",
         result_max_bytes=262144,
     ),
+    "sa3-evidence-envelope-quality-v1": WorkloadSpec(
+        workload_id="sa3-evidence-envelope-quality-v1", owner="aster-stream-a",
+        request_count=20, per_request_timeout_seconds=120, deadline_seconds=2700,
+        minimum_booking_seconds=3600, recovery_reserve_seconds=900,
+        runner_kind="sa3-evidence-envelope-quality", runtime_pins=(
+            ("sa3-evidence-envelope-quality-v1.json",
+             "a01c6d71dce91141f2eae9bad21a56641f6aa269cdc3561a165385d210e3ec2a"),
+            ("sa3_deterministic_evidence_envelope_v1.py",
+             "9f8b14f8f1a4d162eed03f39e82b868118b0c5bdcb3a7fce744a28e9d13e3da3"),
+            ("sa3_evidence_envelope_batch_v1.py",
+             "78abc29951fe80a469c49ee44af6a9380f032648ad757f3182c11bd0f0464500"),
+            ("sa3_evidence_envelope_quality_freeze_v1.py",
+             "95cf006fc7e3b2aeb3acf0e926336e65e3c3a8b5e5f8cb5cc083e4e5ab7b3483"),
+            ("sa3_evidence_envelope_runner_v1.py",
+             "22828169293ab013076d42928f38159ac356f3ef8c584419ea4ddff2b43de45b"),
+        ),
+        packet_sha256="a01c6d71dce91141f2eae9bad21a56641f6aa269cdc3561a165385d210e3ec2a",
+        result_max_bytes=524288,
+    ),
 }
 
 
@@ -128,6 +147,20 @@ def validate_registry() -> None:
             or len(m3.runtime_pins) != 14
             or m3.packet_sha256 != "1565a21c78875f64f4f25a190e977ae34dc01bdfcfd5e49c056e8365268b3785"):
         raise ValueError("M3 workload registration drift")
+    envelope = workload("sa3-evidence-envelope-quality-v1")
+    if (envelope.owner != "aster-stream-a"
+            or envelope.request_count != 20
+            or envelope.per_request_timeout_seconds != 120
+            or envelope.deadline_seconds != 2700
+            or envelope.minimum_booking_seconds != 3600
+            or envelope.recovery_reserve_seconds != 900
+            or envelope.runner_kind != "sa3-evidence-envelope-quality"
+            or len(envelope.runtime_pins) != 5
+            or envelope.packet_sha256 != "a01c6d71dce91141f2eae9bad21a56641f6aa269cdc3561a165385d210e3ec2a"
+            or envelope.result_max_bytes != 524288):
+        raise ValueError("SA3 evidence-envelope registration drift")
+    if any("keys" in name or "review" in name for name, _ in envelope.runtime_pins):
+        raise ValueError("SA3 evidence-envelope excluded material entered runtime registration")
 
 
 def _local_imports(path: Path) -> set[str]:
@@ -142,14 +175,15 @@ def _local_imports(path: Path) -> set[str]:
 
 
 def validate_inactive_target(pilot_root: Path, *, unit_root: Path | None = None,
-                             expected_uid: int = 0) -> dict[str, object]:
+                             expected_uid: int = 0,
+                             workload_id: str = "sa3-expanded-source-quality-v1") -> dict[str, object]:
     """Validate a root-owned, inert SA3 installation without executing it.
 
     The dependency-closure check is intentional.  A workload cannot become
     admitted merely because its named files hash correctly while one of
     their local imports is omitted from the registration.
     """
-    spec = workload("sa3-expanded-source-quality-v1")
+    spec = workload(workload_id)
     root = Path(pilot_root)
     for name, expected in spec.runtime_pins:
         path = root / name
@@ -166,14 +200,17 @@ def validate_inactive_target(pilot_root: Path, *, unit_root: Path | None = None,
     for name, _ in spec.runtime_pins:
         if name.endswith(".py"):
             imports.update(_local_imports(root / name))
-    missing = sorted(name for name in imports if name in {
-        "sa3_expanded_quality_packet", "sa3_expanded_quality_runner", "sa3_fair_scorer"
-    } and name not in local_modules)
+    registered_local_modules = {
+        Path(name).stem for item in WORKLOADS.values()
+        for name, _ in item.runtime_pins if name.endswith(".py")
+    }
+    missing = sorted(name for name in imports
+                     if name in registered_local_modules and name not in local_modules)
     if missing:
         raise ValueError("unregistered local dependency:" + ",".join(missing))
 
     unit_root = Path("/etc/systemd/system") if unit_root is None else Path(unit_root)
-    target_prefix = unit_root / "aster-lab-hours-booking-sa3-expanded-source-quality-v1"
+    target_prefix = unit_root / f"aster-lab-hours-booking-{spec.workload_id}"
     for suffix in (".service", ".timer"):
         if (target_prefix.with_suffix(suffix)).exists():
             raise ValueError(f"target unit must remain inactive:{suffix}")
