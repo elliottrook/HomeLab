@@ -39,11 +39,14 @@ Candidate identities:
 - `full_inference_lab_validator.py` — `094d588b…bf31`;
 - `test_full_inference_lab_sources.py` — `bd4940b7…318b`;
 - `test_full_inference_lab_validator.py` — `36f307a6…5275`.
+- inactive installer — `11b8abd9…9ffa`;
+- installer tests — `5025e736…fef2`.
 
 ## Proof
 
 - focused source/validator/runtime/reserved-runner suite: 39/39 local and 39/39
   target Linux;
+- correction plus installer focused suite: 42/42 local;
 - complete `test_full_inference_lab_*` family: 74/74 local;
 - reserved-runner suite: 12/12 local;
 - read-only target probe against the actual timer-inactive/worker-activating
@@ -53,9 +56,11 @@ Candidate identities:
 
 ## Bounded next effect
 
-A later inactive installation must checkpoint the exact two installed
-predecessors, replace only those files under root custody, run the focused and
-target probe checks, and roll back both files on any mismatch. It must not
+A source-only installer now checkpoints the exact two installed predecessors,
+requires a ready lease and absent shared state/locks, replaces only those files
+under root custody, validates imports and exact post-install hashes, and rolls
+back both files on any mismatch. It is inert without `--apply`. A later
+inactive installation must also run the focused and target probe checks. It must not
 activate or retry the spent booking, stop the EPUB worker, restart a service,
 call a model, or create another booking. A new run requires a fresh Lab Hours
 reservation after installation proof.
