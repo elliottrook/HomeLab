@@ -46,6 +46,12 @@ Proof is 74/74 local full-inference tests, 12/12 local reserved-runner tests,
 `epub_candidate_healthy=true`. Candidate source hashes and rollback boundaries
 are frozen in the platform correction card. Nothing was installed or activated.
 
+Platform commit `03ed07fc` adds the exact inert installer. It checkpoints both
+predecessors, requires a ready lease and absent shared state/locks, replaces
+only the two corrected files, validates hashes/imports and rolls both back on
+any uncertainty. The combined correction/installer suite passes 42/42. The
+installer is inert without `--apply` and has not been invoked.
+
 The next effect is an inactive two-file installation with exact predecessor
 checkpoint and rollback. Only after that target proof may a fresh Lab Hours
 booking be considered. The correction does not authorize a retry, service
