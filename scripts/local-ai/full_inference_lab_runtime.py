@@ -170,9 +170,15 @@ def _run_sa3(args: argparse.Namespace, paths: FullDrainPaths, *,
              gpu_users: Callable[[], frozenset[GpuUser]] = _gpu_users,
              wall_clock: Callable[[], float] = time.time,
              sleep: Callable[[float], None] = time.sleep) -> int:
-    """Run the one fixed SA3 transaction under the existing drain controller."""
-    from sa3_expanded_quality_transaction import execute
-    from sa3_listener_adapter import run as run_sa3_listener
+    """Run one registered fixed SA3 transaction under the drain controller."""
+    if args.workload_profile == "sa3-expanded-source-quality-v1":
+        from sa3_expanded_quality_transaction import execute
+        from sa3_listener_adapter import run as run_sa3_listener
+    elif args.workload_profile == "sa3-evidence-envelope-quality-v1":
+        from sa3_evidence_envelope_transaction import execute
+        from sa3_evidence_envelope_listener_adapter import run as run_sa3_listener
+    else:
+        raise SupervisorError("SA3 workload profile is not registered")
 
     baseline = AcceptedBaseline(args.model_sha256, args.binary_sha256, args.unit_sha256)
     producer = LocalProxmoxFullDrainSourceProducer(
@@ -319,6 +325,7 @@ def _parser() -> argparse.ArgumentParser:
         "accepted-9b-direct-control-smoke-v1",
         "accepted-9b-owner-loss-exercise-v1",
         "sa3-expanded-source-quality-v1",
+        "sa3-evidence-envelope-quality-v1",
         "m3-joint-semantic-35b-public-v1"),
         default="accepted-9b-direct-control-smoke-v1")
     parser.add_argument("--retain-root", default="/var/lib/local-ai-lab/lab-hours-attempts")
@@ -350,7 +357,9 @@ def main(argv: list[str] | None = None) -> int:
     runner = _host_runner
     observer = CooperativeHostObserver(runner)
     if args.phase == "pilot":
-        if args.workload_profile == "sa3-expanded-source-quality-v1":
+        if args.workload_profile in {
+                "sa3-expanded-source-quality-v1",
+                "sa3-evidence-envelope-quality-v1"}:
             return _run_sa3(args, paths, runner=runner)
         if args.workload_profile == "m3-joint-semantic-35b-public-v1":
             return _run_m3(args, paths, runner=runner)

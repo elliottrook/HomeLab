@@ -35,6 +35,10 @@ class ReservedRunnerTests(unittest.TestCase):
         spec = runner.workload("m3-joint-semantic-35b-public-v1")
         self.assertIn(spec.runner_kind, runner.REGISTERED_RUNNER_KINDS)
 
+    def test_candidate_g_runner_kind_is_admitted(self):
+        spec = runner.workload("sa3-evidence-envelope-quality-v1")
+        self.assertIn(spec.runner_kind, runner.REGISTERED_RUNNER_KINDS)
+
     def test_commands_bind_exact_booking_identity_and_deadline(self):
         booking={"booking_id":"test-booking-01","end_epoch":4600,
                  "workload":"accepted-9b-direct-control-smoke-v1"}
@@ -138,5 +142,48 @@ class ReservedRunnerTests(unittest.TestCase):
             self.assertEqual(("m3-joined-path-test",
                               "lh-"+runner.hashlib.sha256(b"m3-joined-path-test").hexdigest()[:20],
                               True,"COMPLETE"),Store.finished[-1])
+
+    def test_registered_candidate_g_booking_reaches_complete_terminal_path(self):
+        from tempfile import TemporaryDirectory
+        from pathlib import Path
+
+        class Store:
+            finished=[]
+            def __init__(self, _root): pass
+            def claim(self, booking_id, *, claimant):
+                return {"booking_id":booking_id,"end_epoch":5000,
+                        "workload":"sa3-evidence-envelope-quality-v1"}
+            def finish(self, booking_id, *, claimant, success, result_code):
+                self.finished.append((booking_id,claimant,success,result_code))
+
+        receipt={"effects":"sa3-evidence-envelope-quality-complete",
+                 "production_restored":True,
+                 "receipt":{"exit_status":0,
+                            "profile":"sa3-evidence-envelope-quality-v1",
+                            "request_count":20,"model_request_count":14,
+                            "case_count":20,"prediction_sha256":"a"*64,
+                            "error_count":0}}
+        def call(command, timeout=30):
+            output=json.dumps(receipt) if any(
+                str(item).endswith("full_inference_lab_runtime.py") for item in command) else ""
+            return SimpleNamespace(returncode=0,stdout=output,stderr="")
+
+        with TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            with patch.object(runner,"ReservationStore",Store), \
+                 patch.object(runner,"ATTEMPTS",root/"attempts"), \
+                 patch.object(runner,"STATE_ROOT",root/"state"), \
+                 patch.object(runner,"load_manifest",lambda:{"pin":"a"*64}), \
+                 patch.object(runner,"require_quiet",lambda:None), \
+                 patch.object(runner,"postcheck",lambda _unit:None), \
+                 patch.object(runner,"settle_guardian",lambda _unit:None), \
+                 patch.object(runner,"call",call), \
+                 patch.object(runner.os,"geteuid",lambda:0), \
+                 patch.object(runner.time,"time",lambda:1000):
+                self.assertEqual(0,runner.run("candidate-g-joined-path-test"))
+            terminal=json.loads((root/"attempts"/
+                "reservation-candidate-g-joined-path-test"/"terminal.json").read_text())
+            self.assertEqual("complete",terminal["state"])
+            self.assertEqual(20,terminal["request_count"])
 
 if __name__=="__main__": unittest.main()

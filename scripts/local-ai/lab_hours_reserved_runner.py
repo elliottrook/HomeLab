@@ -33,6 +33,7 @@ REGISTERED_RUNNER_KINDS = frozenset({
     "full-inference-pilot",
     "owner-loss-exercise",
     "sa3-expanded-quality",
+    "sa3-evidence-envelope-quality",
     "m3-joint-semantic-35b",
 })
 
@@ -262,8 +263,10 @@ def run(booking_id: str) -> int:
         expected_effect=("guardian-rescued" if expected_requests==0 else
                          ("sa3-expanded-quality-complete"
                           if spec.runner_kind=="sa3-expanded-quality" else
+                          ("sa3-evidence-envelope-quality-complete"
+                           if spec.runner_kind=="sa3-evidence-envelope-quality" else
                           ("m3-joint-semantic-public-complete"
-                           if spec.runner_kind=="m3-joint-semantic-35b" else "pilot-complete")))
+                           if spec.runner_kind=="m3-joint-semantic-35b" else "pilot-complete"))))
         receipt_body=receipt.get("receipt")
         receipt_valid=(isinstance(receipt_body,dict)
             and receipt_body.get("exit_status")==0
@@ -275,6 +278,20 @@ def run(booking_id: str) -> int:
                 and set(receipt_body)=={"exit_status","profile","request_count",
                                         "prediction_sha256","error_count"}
                 and receipt.get("production_restored") is True
+                and receipt_body.get("error_count")==0
+                and isinstance(receipt_body.get("prediction_sha256"),str)
+                and len(receipt_body["prediction_sha256"])==64
+                and all(c in "0123456789abcdef"
+                        for c in receipt_body["prediction_sha256"]))
+        elif spec.runner_kind=="sa3-evidence-envelope-quality":
+            receipt_valid=(receipt_valid
+                and set(receipt)=={"effects","production_restored","receipt"}
+                and set(receipt_body)=={"exit_status","profile","request_count",
+                                        "model_request_count","case_count",
+                                        "prediction_sha256","error_count"}
+                and receipt.get("production_restored") is True
+                and receipt_body.get("model_request_count")==14
+                and receipt_body.get("case_count")==20
                 and receipt_body.get("error_count")==0
                 and isinstance(receipt_body.get("prediction_sha256"),str)
                 and len(receipt_body["prediction_sha256"])==64
