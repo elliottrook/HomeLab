@@ -47,8 +47,8 @@ class FullInferenceValidatorTests(unittest.TestCase):
                 return 0, ""
             if command == FIXED["legacy_status"]:
                 return 0, "ready\n"
-            if command[-3:] == ("systemctl", "is-active", "epub-narration-worker.timer"):
-                return 0, "active\n"
+            if command[-5:] == ("systemctl", "show", "epub-narration-worker.timer", "--property=ActiveState", "--value"):
+                return 0, "inactive\n"
             if command[-3:] == ("systemctl", "is-enabled", "epub-narration-worker.timer"):
                 return 0, "enabled\n"
             if command[-5:] == ("systemctl", "show", "epub-narration-worker.service", "--property=ActiveState", "--value"):
@@ -85,7 +85,7 @@ class FullInferenceValidatorTests(unittest.TestCase):
             if command in (FIXED["news_ingest_enabled"], FIXED["news_digest_enabled"]): return 0, "enabled\n"
             if command == FIXED["auth"]: return 0, ""
             if command == FIXED["legacy_status"]: return 0, '{"state":"ready"}\n'
-            if command[-3:] == ("systemctl", "is-active", "epub-narration-worker.timer"): return 0, "active\n"
+            if command[-5:] == ("systemctl", "show", "epub-narration-worker.timer", "--property=ActiveState", "--value"): return 0, "inactive\n"
             if command[-3:] == ("systemctl", "is-enabled", "epub-narration-worker.timer"): return 0, "enabled\n"
             if command[-5:] == ("systemctl", "show", "epub-narration-worker.service", "--property=ActiveState", "--value"): return 0, "activating\n"
             return 1, ""

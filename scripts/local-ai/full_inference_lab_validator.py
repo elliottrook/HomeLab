@@ -10,7 +10,7 @@ from typing import Callable, Sequence
 from full_inference_lab_sources import (
     AcceptedBaseline, FIXED, LOCAL_PROXMOX_FIXED, _current_proxmox_artifacts,
     _legacy_lease_ready, _pvescheduler_journal_command,
-    _local_proxmox_job_complete, validate_backup_sources,
+    _local_proxmox_job_complete, epub_narration_healthy, validate_backup_sources,
 )
 
 Runner = Callable[[Sequence[str], float], tuple[int, str]]
@@ -60,14 +60,7 @@ class FullDrainValidator:
             for key in ("news_ingest_enabled", "news_digest_enabled"):
                 if self._run(FIXED[key]) != "enabled":
                     return False
-            if (self._run(("pct", "exec", "116", "--", "systemctl", "is-active",
-                           "epub-narration-worker.timer"), 5.0) != "active"
-                    or self._run(("pct", "exec", "116", "--", "systemctl", "is-enabled",
-                                  "epub-narration-worker.timer"), 5.0) != "enabled"):
-                return False
-            if self._run(("pct", "exec", "116", "--", "systemctl", "show",
-                          "epub-narration-worker.service", "--property=ActiveState", "--value"),
-                         5.0) == "failed":
+            if not epub_narration_healthy(lambda command: self._run(command, 5.0)):
                 return False
             self._run(FIXED["auth"], 15.0)
             return True
@@ -118,14 +111,7 @@ class LocalProxmoxFullDrainValidator(FullDrainValidator):
             for key in ("news_ingest_enabled", "news_digest_enabled"):
                 if self._run(FIXED[key]) != "enabled":
                     return False
-            if (self._run(("pct", "exec", "116", "--", "systemctl", "is-active",
-                           "epub-narration-worker.timer"), 5.0) != "active"
-                    or self._run(("pct", "exec", "116", "--", "systemctl", "is-enabled",
-                                  "epub-narration-worker.timer"), 5.0) != "enabled"):
-                return False
-            if self._run(("pct", "exec", "116", "--", "systemctl", "show",
-                          "epub-narration-worker.service", "--property=ActiveState", "--value"),
-                         5.0) == "failed":
+            if not epub_narration_healthy(lambda command: self._run(command, 5.0)):
                 return False
             self._run(FIXED["auth"], 15.0)
             return True

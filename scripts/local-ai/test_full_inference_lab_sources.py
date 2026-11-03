@@ -7,7 +7,8 @@ from zoneinfo import ZoneInfo
 from application_b60_lease import ACCEPTED_BACKEND
 from full_inference_lab_sources import (AcceptedBaseline, FIXED, LOCAL_PROXMOX_FIXED,
     FullDrainSourceError, FullDrainSourceProducer, LocalProxmoxFullDrainSourceProducer,
-    TrustedOwnerAttestation, _legacy_lease_ready, _pvescheduler_journal_command)
+    TrustedOwnerAttestation, _legacy_lease_ready, _pvescheduler_journal_command,
+    epub_narration_healthy)
 
 
 def scheduler_journal(started: int, finished: int, *, start_message: Optional[str] = None,
@@ -21,6 +22,20 @@ def scheduler_journal(started: int, finished: int, *, start_message: Optional[st
 
 
 class FullInferenceLabSourcesTests(unittest.TestCase):
+    def test_epub_health_accepts_waiting_timer_or_running_worker_only(self):
+        def probe(timer, worker):
+            def run(command):
+                unit = command[6]
+                if unit == "epub-narration-worker.timer" and command[5] == "show":
+                    return timer
+                return worker
+            return epub_narration_healthy(run)
+        self.assertTrue(probe("active", "inactive"))
+        self.assertTrue(probe("inactive", "activating"))
+        self.assertTrue(probe("inactive", "active"))
+        self.assertFalse(probe("inactive", "inactive"))
+        self.assertFalse(probe("active", "failed"))
+
     def test_legacy_lease_ready_accepts_deployed_json_and_old_scalar_only(self):
         self.assertTrue(_legacy_lease_ready('{"state":"ready"}\n'))
         self.assertTrue(_legacy_lease_ready("ready\n"))
@@ -70,7 +85,7 @@ class FullInferenceLabSourcesTests(unittest.TestCase):
             if command[-3:] in (("systemctl", "is-active", "aster-agent.service"),
                                 ("systemctl", "is-active", "aster-llama.service"),
                                 ("systemctl", "is-active", "aster-speech.service")): return 0, "active\n"
-            if command[-3:] == ("systemctl", "is-active", "epub-narration-worker.timer"): return 0, "active\n"
+            if command[-5:] == ("systemctl", "show", "epub-narration-worker.timer", "--property=ActiveState", "--value"): return 0, "inactive\n"
             if command[-3:] == ("systemctl", "is-enabled", "epub-narration-worker.timer"): return 0, "enabled\n"
             if command[-5:] == ("systemctl", "show", "epub-narration-worker.service", "--property=ActiveState", "--value"): return 0, "activating\n"
             if command[-2:] == ("sha256sum", "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf"): return 0, "a" * 64 + " model\n"
