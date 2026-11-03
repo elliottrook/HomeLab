@@ -12,6 +12,11 @@
 
 ## Current coordination status — supersedes the historical snapshot below
 
+The [November2 research watch](B60-Inference-Engineering/research-watch-20261102.md)
+adds a merged SYCL-graph diagnostic and topology-specific server/offload hazards
+to the later queue. The staged35B ordinary-inference screen remains first after
+recovery gates. No model/runtime download, production change or research push.
+
 The [November2 reconciliation](B60-Inference-Engineering/nightly-reconciliation-20261102.md)
 finds the reserved window expired without an activation, session or integrity
 terminal receipt. November3 capacity exists but is also unarmed at observation.
