@@ -31,8 +31,10 @@
     "nlu_threshold_policy.py": "984932d8716531858972e22723fe962701077f9a15991c58384c6ee6661ebb5d",
     "nlu-development-v1.json": "1565a21c78875f64f4f25a190e977ae34dc01bdfcfd5e49c056e8365268b3785",
     "sa3_expanded_quality_transaction.py": "f2d52b12d99acadfa2f89603449988a16de66017ab10087b550f57703ccbacc0",
-    "sa3_listener_adapter.py": "6173cfa79f47cfce37924ff11f7ce012f211979d23ef7b6492e403abddacfc1e"
+    "sa3_listener_adapter.py": "6173cfa79f47cfce37924ff11f7ce012f211979d23ef7b6492e403abddacfc1e",
+    "sa3_evidence_envelope_transaction.py": "b906f30dd25a7990f3a81f6b41eeb77ab67e9b0aa96fffcdf56bee111ee3fa26",
+    "sa3_evidence_envelope_listener_adapter.py": "e668c6caec4881e010584fb01ebeebcc1e935ba3a00817c94bd814553c4123ae"
   },
-  "release": "sa3-evidence-envelope-inactive-v1",
+  "release": "sa3-evidence-envelope-transaction-inactive-v1",
   "schema": "aster-lab-hours-release-manifest.v1"
 }
