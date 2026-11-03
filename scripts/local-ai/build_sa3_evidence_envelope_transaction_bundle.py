@@ -19,6 +19,7 @@ FILES = tuple("scripts/local-ai/" + name for name in (
     "sa3_evidence_envelope_listener_adapter.py",
     "aster_llama_sa3_evidence_envelope_wrapper.py",
     "lab_hours_release_manifest.json",
+    "sa3_evidence_envelope_inactive_install.py",
     "sa3_evidence_envelope_transaction_inactive_install.py",
 ))
 

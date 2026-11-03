@@ -30,6 +30,11 @@ class CandidateGTransactionInstallTests(unittest.TestCase):
         self.assertEqual(2, result.returncode)
         self.assertEqual("source-only", json.loads(result.stdout)["state"])
 
+    def test_installer_dependency_is_present_in_bundle_selection(self):
+        import build_sa3_evidence_envelope_transaction_bundle as bundle
+        self.assertIn("scripts/local-ai/sa3_evidence_envelope_inactive_install.py",
+                      bundle.FILES)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -12,7 +12,7 @@ The effectful registered runner is deliberately unchanged, so the new workload
 continues to fail closed with `WORKLOAD_RUNNER_NOT_REGISTERED`. No unit,
 booking, schedule, lease, lock, model request, service stop, restart, route,
 repair or promotion is included. The combined transaction/install and
-inherited Lab Hours suite passes 57/57.
+inherited Lab Hours suite passes 58/58.
 
 Installation requires a separate approval after deterministic bundle hashes
 and live baselines are revalidated. Target-Linux proof must complete before a
