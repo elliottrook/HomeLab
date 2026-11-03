@@ -27,7 +27,7 @@ ReadOnlyPaths=/opt/epub-narration /opt/aster-voice/models /mnt/calibre-books
 ReadWritePaths=/mnt/aster-reader
 RestrictAddressFamilies=AF_UNIX
 LockPersonality=true
-MemoryMax=3G
+MemoryMax=4G
 CPUQuota=300%
 # The host scheduler admits a complete 2h work window plus 15m recovery only
 # after the authoritative Lab Hours ledger reports it clear.  The process then

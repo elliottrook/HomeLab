@@ -618,7 +618,7 @@ print("status_age="+str(max(0,int(time.time()-p.stat().st_mtime))))'\'' 2>/dev/n
     elif ! grep -qx 'worker_timer=active' <<< "$state" ||
          ! grep -qx 'worker_timer_enabled=enabled' <<< "$state"; then
         fail "EPUB narration worker automation is disabled"
-    elif ! grep -qx 'limits=3s,3221225472,15,3,' <<< "$state"; then
+    elif ! grep -qx 'limits=3s,4294967296,15,3,' <<< "$state"; then
         fail "EPUB narration worker resource controls drifted"
     elif [[ ! "$queued" =~ ^[0-9]+$ || ! "$active" =~ ^[0-9]+$ || ! "$ready" =~ ^[0-9]+$ || ! "$failed" =~ ^[0-9]+$ ]]; then
         fail "EPUB narration queue status is invalid"

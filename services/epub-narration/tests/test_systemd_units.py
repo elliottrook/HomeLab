@@ -18,7 +18,7 @@ class SystemdUnitTests(unittest.TestCase):
             "ExecCondition=/usr/bin/systemctl is-active --quiet aster-voice-candidate.service",
             unit,
         )
-        self.assertIn("MemoryMax=3G", unit)
+        self.assertIn("MemoryMax=4G", unit)
         self.assertIn("CPUQuota=300%", unit)
         self.assertIn("IOSchedulingClass=idle", unit)
         self.assertIn("BindsTo=aster-speech.service aster-voice-candidate.service", unit)
