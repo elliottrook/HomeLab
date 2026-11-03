@@ -1,0 +1,15 @@
+[Unit]
+Description=Lab Hours gated EPUB narration worker scheduler
+After=aster-lab-hours-dispatch.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 -B /usr/local/libexec/epub-narration/schedule_worker.py
+Nice=10
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/run/lock
+ReadWritePaths=/run/lxc/lock
+ReadWritePaths=/var/lib/local-ai-lab/reservations

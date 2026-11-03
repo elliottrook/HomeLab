@@ -1,0 +1,12 @@
+[Unit]
+Description=Periodically admit bounded EPUB narration work
+
+[Timer]
+OnBootSec=5m
+OnUnitInactiveSec=5m
+AccuracySec=30s
+Persistent=true
+Unit=epub-narration-scheduler.service
+
+[Install]
+WantedBy=timers.target

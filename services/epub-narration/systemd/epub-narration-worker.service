@@ -2,6 +2,7 @@
 Description=Single-attempt EPUB narration compiler worker
 After=network-online.target aster-speech.service aster-voice-candidate.service
 Wants=network-online.target
+BindsTo=aster-speech.service aster-voice-candidate.service
 ConditionPathIsMountPoint=/mnt/calibre-books
 ConditionPathIsMountPoint=/mnt/aster-reader
 
@@ -14,7 +15,7 @@ WorkingDirectory=/opt/epub-narration
 Environment=PYTHONPATH=/opt/epub-narration
 ExecCondition=/usr/bin/systemctl is-active --quiet aster-speech.service
 ExecCondition=/usr/bin/systemctl is-active --quiet aster-voice-candidate.service
-ExecStart=/opt/aster-voice-candidate/venv/bin/python /opt/epub-narration/tools/run_worker.py --database /mnt/calibre-books/metadata.db --library-root /mnt/calibre-books --data-root /mnt/aster-reader --model /opt/aster-voice/models/kokoro-v1.0.fp16.onnx --voices /opt/aster-voice/models/voices-v1.0.bin --cleanup /opt/epub-narration/vendor/digest_text.py
+ExecStart=/opt/aster-voice-candidate/venv/bin/python /opt/epub-narration/tools/run_worker.py --database /mnt/calibre-books/metadata.db --library-root /mnt/calibre-books --data-root /mnt/aster-reader --model /opt/aster-voice/models/kokoro-v1.0.fp16.onnx --voices /opt/aster-voice/models/voices-v1.0.bin --cleanup /opt/epub-narration/vendor/digest_text.py --max-runtime-seconds 7200
 Nice=15
 IOSchedulingClass=idle
 NoNewPrivileges=true
@@ -28,4 +29,9 @@ RestrictAddressFamilies=AF_UNIX
 LockPersonality=true
 MemoryMax=3G
 CPUQuota=300%
-TimeoutStartSec=12h
+# The host scheduler admits a complete 2h work window plus 15m recovery only
+# after the authoritative Lab Hours ledger reports it clear.  The process then
+# suspends cooperatively at the same 2h bound. SIGTERM preserves every verified
+# completed chapter for the next invocation.
+TimeoutStartSec=infinity
+TimeoutStopSec=2m

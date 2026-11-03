@@ -39,7 +39,7 @@ def atomic_private_json(path: Path, payload: dict) -> None:
 
 
 def status_payload(*, state: str, counts: dict[str, int], oldest_queued_age: float | None) -> dict:
-    if state not in {"healthy", "idle", "failed", "disabled"}:
+    if state not in {"healthy", "idle", "failed", "disabled", "suspended"}:
         raise ValueError("status-state")
     return {
         "schema": 1,

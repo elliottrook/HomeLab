@@ -25,8 +25,12 @@ class RendererContractTests(unittest.TestCase):
     def test_renderer_publishes_private_hash_bound_content(self):
         source = (Path(__file__).parents[1] / "epub_narration" / "renderer.py").read_text()
         self.assertIn('content_root = staging / "content"', source)
-        self.assertIn('"text_sha256": hashlib.sha256(cleaned.encode("utf-8")).hexdigest()', source)
+        self.assertIn('"text_sha256": cleaned_sha256', source)
         self.assertIn('for path in (opus_path, timing_path, content_path)', source)
+        self.assertIn("sf.SoundFile(", source)
+        self.assertNotIn("np.concatenate(rendered)", source)
+        self.assertIn("exist_ok=True", source)
+        self.assertIn('staging / "checkpoints"', source)
 
 
 if __name__ == "__main__":

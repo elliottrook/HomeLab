@@ -21,7 +21,9 @@ FAILURE_CODES = frozenset({
     "timing-invalid",
     "quota",
     "publish",
+    "render",
     "interrupted",
+    "suspended",
 })
 TRANSITIONS = {
     "queued": frozenset({"extracting", "failed"}),
@@ -141,7 +143,7 @@ class QueueStore:
             )
 
     def claim_next(self, compiler_contract: str, max_attempts: int = 3) -> GenerationRecord | None:
-        """Atomically claim one queued generation for the single worker."""
+        """Atomically claim new work or resume its stable private staging ID."""
         if not compiler_contract or max_attempts < 1:
             raise ValueError("claim-contract-attempts")
         attempt_id = uuid.uuid4().hex
@@ -149,18 +151,22 @@ class QueueStore:
             connection.execute("BEGIN IMMEDIATE")
             row = connection.execute(
                 "SELECT book_id,source_sha256,compiler_contract,source_size,"
-                "source_mtime_ns,state,attempt_count FROM generations "
-                "WHERE compiler_contract=? AND state='queued' AND attempt_count<? "
-                "ORDER BY created_at,book_id LIMIT 1",
+                "source_mtime_ns,state,attempt_count,attempt_id FROM generations "
+                "WHERE compiler_contract=? AND state='queued' "
+                "AND (attempt_id IS NOT NULL OR attempt_count<?) "
+                "ORDER BY (attempt_id IS NOT NULL) DESC,updated_at,created_at,book_id LIMIT 1",
                 (compiler_contract, max_attempts),
             ).fetchone()
             if row is None:
                 return None
+            resume_id = str(row[7]) if isinstance(row[7], str) and row[7] else None
+            claimed_id = resume_id or attempt_id
+            next_attempts = int(row[6]) if resume_id else int(row[6]) + 1
             updated = connection.execute(
-                "UPDATE generations SET state='extracting',attempt_count=attempt_count+1,"
+                "UPDATE generations SET state='extracting',attempt_count=?,"
                 "attempt_id=?,failure_code=NULL,updated_at=? "
                 "WHERE book_id=? AND source_sha256=? AND compiler_contract=? AND state='queued'",
-                (attempt_id, time.time(), row[0], row[1], row[2]),
+                (next_attempts, claimed_id, time.time(), row[0], row[1], row[2]),
             )
             if updated.rowcount != 1:
                 raise RuntimeError("generation-claim-race")
@@ -171,12 +177,17 @@ class QueueStore:
                 source_size=int(row[3]),
                 source_mtime_ns=int(row[4]),
                 state="extracting",
-                attempt_count=int(row[6]) + 1,
-                attempt_id=attempt_id,
+                attempt_count=next_attempts,
+                attempt_id=claimed_id,
             )
 
     def recover_interrupted(self, compiler_contract: str, max_attempts: int = 3) -> tuple[str, ...]:
-        """Record interrupted work, then requeue only attempts still within policy."""
+        """Requeue interrupted work without discarding its resumable staging ID.
+
+        Attempt limits apply to fresh retries after a diagnosed failure. An
+        unclean host stop, OOM or Lab Hours preemption must not silently turn
+        verified chapter output into a terminal failure.
+        """
         recovered: list[str] = []
         now = time.time()
         with closing(sqlite3.connect(self.path)) as connection, connection:
@@ -186,31 +197,54 @@ class QueueStore:
                 "WHERE compiler_contract=? AND state IN ('extracting','narrating','aligning')",
                 (compiler_contract,),
             ).fetchall()
-            for book_id, source_sha256, attempts, attempt_id in rows:
-                terminal = "queued" if int(attempts) < max_attempts else "failed"
+            for book_id, source_sha256, _attempts, attempt_id in rows:
                 connection.execute(
-                    "UPDATE generations SET state=?,failure_code='interrupted',updated_at=? "
+                    "UPDATE generations SET state='queued',failure_code='interrupted',updated_at=? "
                     "WHERE book_id=? AND source_sha256=? AND compiler_contract=?",
-                    (terminal, now, book_id, source_sha256, compiler_contract),
+                    (now, book_id, source_sha256, compiler_contract),
                 )
                 if isinstance(attempt_id, str) and attempt_id:
                     recovered.append(attempt_id)
         return tuple(recovered)
+
+    def suspend(
+        self,
+        book_id: int,
+        source_sha256: str,
+        compiler_contract: str,
+    ) -> None:
+        """Return in-flight work to the queue while retaining its staging ID."""
+        with closing(sqlite3.connect(self.path)) as connection, connection:
+            cursor = connection.execute(
+                "UPDATE generations SET state='queued',failure_code='suspended',updated_at=? "
+                "WHERE book_id=? AND source_sha256=? AND compiler_contract=? "
+                "AND state IN ('extracting','narrating','aligning')",
+                (time.time(), book_id, source_sha256, compiler_contract),
+            )
+            if cursor.rowcount != 1:
+                raise ValueError("generation-suspend-state")
 
     def retry_failed(
         self,
         compiler_contract: str,
         failure_code: str,
         max_attempts: int = 3,
+        reset_attempts: bool = False,
     ) -> int:
         """Requeue only a selected bounded failure class below its attempt cap."""
         if not compiler_contract or failure_code not in FAILURE_CODES or max_attempts < 1:
             raise ValueError("retry-policy")
         with closing(sqlite3.connect(self.path)) as connection, connection:
+            attempts = 0 if reset_attempts else None
             cursor = connection.execute(
-                "UPDATE generations SET state='queued',failure_code=NULL,attempt_id=NULL,updated_at=? "
-                "WHERE compiler_contract=? AND state='failed' AND failure_code=? AND attempt_count<?",
-                (time.time(), compiler_contract, failure_code, max_attempts),
+                "UPDATE generations SET state='queued',failure_code=NULL,"
+                "attempt_id=CASE WHEN failure_code IN ('render','publish') "
+                "THEN attempt_id ELSE NULL END,"
+                "attempt_count=CASE WHEN ? IS NULL THEN attempt_count ELSE ? END,updated_at=? "
+                "WHERE compiler_contract=? AND state='failed' AND failure_code=? "
+                "AND (? OR attempt_count<?)",
+                (attempts, attempts, time.time(), compiler_contract, failure_code,
+                 int(reset_attempts), max_attempts),
             )
             return cursor.rowcount
 

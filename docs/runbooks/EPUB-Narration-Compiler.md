@@ -1,10 +1,10 @@
 # EPUB Narration Compiler Operations
 
-> Status: M6 HP Lab deployment accepted; worker intentionally inactive
+> Status: M6 HP Lab deployment accepted; resumable backlog worker active
 >
 > Owner: Jason
 >
-> Last validated: 2026-10-26
+> Last validated: 2026-11-03
 
 ## Safety boundary
 
@@ -73,13 +73,18 @@ existing speech services:
 
 ```sh
 ssh -o BatchMode=yes proxmox "systemctl is-active 'mnt-epub\\x2dcalibre\\x2dbooks.mount' 'mnt-epub\\x2daster\\x2dreader.mount'"
-ssh -o BatchMode=yes proxmox "pct exec 116 -- systemctl is-active epub-narration-monitor.timer epub-narration-worker.timer aster-speech.service aster-voice-candidate.service"
+ssh -o BatchMode=yes proxmox "systemctl is-active epub-narration-scheduler.timer"
+ssh -o BatchMode=yes proxmox "pct exec 116 -- systemctl is-active epub-narration-monitor.timer aster-speech.service aster-voice-candidate.service"
 ssh -o BatchMode=yes proxmox "pct exec 116 -- systemctl is-active epub-narration-worker.service 2>/dev/null || true"
 ```
 
-Healthy state is two active host mounts, active monitor and worker timers, both
+Healthy state is two active host mounts, the active host scheduler and guest
+monitor timers, both
 speech services active, and either an active worker or an inactive worker
-between attempts. Read sanitized monitor status source-locally:
+between bounded sessions. The scheduler queries the authoritative Lab Hours
+ledger for the complete two-hour work plus fifteen-minute recovery window
+before every start and fails closed on a conflict or unavailable ledger. Read
+sanitized monitor status source-locally:
 
 ```sh
 ssh -o BatchMode=yes proxmox "pct exec 116 -- runuser -u epub-narration -- python3 -c 'import json; d=json.load(open(\"/mnt/aster-reader/state/monitor-status.json\")); print(d[\"state\"],d[\"source_count\"],d[\"queued_new_count\"],d[\"counts\"])'"
@@ -103,29 +108,36 @@ Disable automatic discovery without changing queue or output state:
 ssh -o BatchMode=yes proxmox "pct exec 116 -- systemctl disable --now epub-narration-monitor.timer"
 ```
 
-The worker timer starts one generation at a time and waits at least five
-minutes after an invocation becomes inactive before starting another. It skips
-an invocation unless both speech services are active. Pause backlog processing
-without changing queue or output state:
+The Proxmox scheduler starts one generation at a time and waits at least five
+minutes after an admission pass before trying again. Every invocation is
+bounded to two hours and suspends between sentence units. Completed chapters
+are hash-checked checkpoints, so the next session resumes rather than starting
+the book over. It skips an invocation unless the whole proposed work/recovery
+window is clear in Lab Hours and both speech services are active. Lab Hours
+quiescence stops the worker through its speech-service binding and the same
+cooperative checkpoint path. Pause backlog processing without changing queue
+or verified chapter output:
 
 ```sh
-ssh -o BatchMode=yes proxmox "pct exec 116 -- systemctl disable --now epub-narration-worker.timer"
+ssh -o BatchMode=yes proxmox "systemctl disable --now epub-narration-scheduler.timer"
 ssh -o BatchMode=yes proxmox "pct exec 116 -- systemctl stop epub-narration-worker.service"
 ```
 
-Resume automatic processing with `systemctl enable --now
-epub-narration-worker.timer`; start an immediate attempt with `systemctl start
---no-block epub-narration-worker.service`. Stop an active attempt with
-`systemctl stop epub-narration-worker.service`.
-Startup recovery records the interrupted bounded failure and requeues it only
-while its attempt count remains below the limit. The previous ready generation
-is never removed by this operation.
+Resume automatic processing on Proxmox with `systemctl enable --now
+epub-narration-scheduler.timer`; do not start the guest worker directly. The
+host scheduler performs the mandatory ledger check immediately before the
+effect. Stop an active attempt with `pct exec 116 -- systemctl stop
+epub-narration-worker.service`; it returns to the queue without spending a
+failure attempt. Startup recovery retains the stable staging ID, validates
+existing checkpoints and prioritizes resumable work ahead of fresh backlog.
+The previous ready generation is never removed by these operations.
 
 ## Failure handling
 
 Failure records contain only an opaque attempt name and one of the bounded
 codes: `source-changed`, `unsupported-format`, `epub-invalid`,
-`voice-contract`, `timing-invalid`, `quota`, `publish` or `interrupted`.
+`voice-contract`, `timing-invalid`, `quota`, `publish`, `render`, `suspended`
+or `interrupted`.
 
 - `source-changed`: run the monitor again; it creates the new generation key.
 - `epub-invalid`: quarantine for human compatibility review; do not loosen ZIP
@@ -138,6 +150,10 @@ codes: `source-changed`, `unsupported-format`, `epub-invalid`,
   retained generations. Never delete the only ready generation.
 - `publish`: validate staging/generation state and the ready pointer before an
   explicit bounded retry.
+- `render`: inspect the bounded diagnostic and retry only after correction;
+  valid chapter checkpoints and the stable staging ID are retained.
+- `suspended`/`interrupted`: normal resumable preemption states. They are
+  automatically requeued and do not consume a new attempt.
 
 After correcting the cause, retry exactly one bounded failure class. The tool
 prints only the aggregate number requeued and refuses attempts already at the
@@ -146,6 +162,9 @@ cap:
 ```sh
 ssh -o BatchMode=yes proxmox "pct exec 116 -- runuser -u epub-narration -- env PYTHONPATH=/opt/epub-narration python3 /opt/epub-narration/tools/retry_failures.py --state-root /mnt/aster-reader/state --failure-code quota"
 ```
+
+Use `--reset-attempts` only after explicit review when a corrected failure
+class should receive a fresh three-attempt budget.
 
 ## Backup and recovery
 
@@ -186,7 +205,8 @@ passes.
 
 ## Rollback
 
-1. Disable both the monitor and worker timers, then stop the worker.
+1. Disable the guest monitor timer and the Proxmox scheduler timer, then stop
+   the worker.
 2. Confirm both speech services remain active.
 3. Retain the AsterReader dataset, snapshots and queue; do not delete output.
 4. Confirm HP Kodi is idle, then remove only

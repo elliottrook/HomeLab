@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).parents[1]))
 from epub_narration import COMPILER_CONTRACT
 from epub_narration.monitor import reconcile_catalogue
 from epub_narration.publication import sha256_file
+from epub_narration.renderer import RenderSuspended
 from epub_narration.state import QueueStore
 from epub_narration.worker import WorkerConfig, run_once
 
@@ -38,7 +39,7 @@ class FakeRenderer:
     def __init__(self, **_kwargs):
         pass
 
-    def render(self, chapters, staging):
+    def render(self, chapters, staging, should_stop=None):
         chapter = staging / "chapters" / "0001.opus"
         timing = staging / "timing" / "0001.json"
         chapter.parent.mkdir(parents=True)
@@ -52,6 +53,19 @@ class FakeRenderer:
 
     def close(self):
         pass
+
+
+class SuspendRenderer(FakeRenderer):
+    def render(self, chapters, staging, should_stop=None):
+        (staging / "resume-marker").write_text("verified-private-checkpoint")
+        raise RenderSuspended("suspended")
+
+
+class ResumeRenderer(FakeRenderer):
+    def render(self, chapters, staging, should_stop=None):
+        if (staging / "resume-marker").read_text() != "verified-private-checkpoint":
+            raise AssertionError("resumable staging was not retained")
+        return super().render(chapters, staging, should_stop=should_stop)
 
 
 class WorkerTests(unittest.TestCase):
@@ -111,6 +125,32 @@ class WorkerTests(unittest.TestCase):
             with closing(sqlite3.connect(store.path)) as connection, connection:
                 failure = connection.execute("SELECT failure_code FROM generations").fetchone()[0]
             self.assertEqual("quota", failure)
+
+    def test_cooperative_suspension_keeps_staging_and_resumes_same_attempt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            library, database, _epub = make_library(root)
+            config = self.config(root, library, database)
+            reconcile_catalogue(
+                database=database,
+                library_root=library,
+                state_root=config.state_root,
+                compiler_contract=COMPILER_CONTRACT,
+            )
+            first = run_once(config, renderer_factory=SuspendRenderer)
+            self.assertEqual("suspended", first["state"])
+            with closing(sqlite3.connect(config.state_root / "queue.db")) as connection:
+                attempt_id, attempts = connection.execute(
+                    "SELECT attempt_id,attempt_count FROM generations"
+                ).fetchone()
+            self.assertTrue((config.data_root / "work" / attempt_id / "resume-marker").is_file())
+            second = run_once(config, renderer_factory=ResumeRenderer)
+            self.assertEqual("healthy", second["state"])
+            with closing(sqlite3.connect(config.state_root / "queue.db")) as connection:
+                final_attempts = connection.execute(
+                    "SELECT attempt_count FROM generations"
+                ).fetchone()[0]
+            self.assertEqual(attempts, final_attempts)
 
 
 if __name__ == "__main__":

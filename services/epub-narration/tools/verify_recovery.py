@@ -27,7 +27,7 @@ class RecoveryRenderer:
     def close(self):
         pass
 
-    def render(self, chapters, staging):
+    def render(self, chapters, staging, should_stop=None):
         files = []
         for chapter in chapters:
             text = chapter.text

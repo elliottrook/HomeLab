@@ -60,7 +60,7 @@ class StateTests(unittest.TestCase):
             store.transition(4, "d" * 64, "contract-1", "queued")
             self.assertEqual("queued", store.state(4, "d" * 64, "contract-1"))
 
-    def test_claim_and_interruption_recovery_are_bounded(self):
+    def test_claim_and_interruption_recovery_reuses_staging_without_spending_attempt(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = QueueStore(Path(tmp) / "queue.db")
             store.initialize()
@@ -72,9 +72,28 @@ class StateTests(unittest.TestCase):
             self.assertEqual((first.attempt_id,), store.recover_interrupted("contract-1", 2))
             self.assertEqual("queued", store.state(9, "e" * 64, "contract-1"))
             second = store.claim_next("contract-1", max_attempts=2)
-            self.assertNotEqual(first.attempt_id, second.attempt_id)
+            self.assertEqual(first.attempt_id, second.attempt_id)
+            self.assertEqual(first.attempt_count, second.attempt_count)
             self.assertEqual((second.attempt_id,), store.recover_interrupted("contract-1", 2))
-            self.assertEqual("failed", store.state(9, "e" * 64, "contract-1"))
+            self.assertEqual("queued", store.state(9, "e" * 64, "contract-1"))
+
+    def test_resumable_staging_is_claimed_before_fresh_backlog(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = QueueStore(Path(tmp) / "queue.db")
+            store.initialize()
+            fresh = SourceFingerprint(1, "a" * 64, 100, 1)
+            resumable = SourceFingerprint(81, "b" * 64, 100, 1)
+            store.reconcile((fresh, resumable), "contract-1")
+            with closing(sqlite3.connect(store.path)) as connection, connection:
+                connection.execute(
+                    "UPDATE generations SET attempt_id=?,attempt_count=3 "
+                    "WHERE book_id=?",
+                    ("preserved-staging", 81),
+                )
+            claimed = store.claim_next("contract-1", max_attempts=3)
+            self.assertEqual(81, claimed.book_id)
+            self.assertEqual("preserved-staging", claimed.attempt_id)
+            self.assertEqual(3, claimed.attempt_count)
 
     def test_counts_and_oldest_queue_age_are_sanitized(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -100,6 +119,41 @@ class StateTests(unittest.TestCase):
             self.assertEqual(0, store.retry_failed("contract-1", "quota", 2))
             with self.assertRaisesRegex(ValueError, "retry-policy"):
                 store.retry_failed("contract-1", "private-title", 3)
+
+    def test_reviewed_failure_can_receive_fresh_attempt_budget(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = QueueStore(Path(tmp) / "queue.db")
+            store.initialize()
+            source = SourceFingerprint(12, "2" * 64, 10, 1)
+            store.reconcile((source,), "contract-1")
+            for _ in range(3):
+                claimed = store.claim_next("contract-1", 3)
+                self.assertIsNotNone(claimed)
+                store.transition(12, "2" * 64, "contract-1", "failed", "interrupted")
+                if claimed.attempt_count < 3:
+                    store.retry_failed("contract-1", "interrupted", 3)
+            self.assertEqual(0, store.retry_failed("contract-1", "interrupted", 3))
+            self.assertEqual(
+                1,
+                store.retry_failed(
+                    "contract-1", "interrupted", 3, reset_attempts=True
+                ),
+            )
+            resumed = store.claim_next("contract-1", 3)
+            self.assertEqual(1, resumed.attempt_count)
+
+    def test_render_retry_retains_resumable_staging_id(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = QueueStore(Path(tmp) / "queue.db")
+            store.initialize()
+            source = SourceFingerprint(13, "3" * 64, 10, 1)
+            store.reconcile((source,), "contract-1")
+            claimed = store.claim_next("contract-1", 3)
+            store.transition(13, "3" * 64, "contract-1", "failed", "render")
+            self.assertEqual(1, store.retry_failed("contract-1", "render", 3, True))
+            resumed = store.claim_next("contract-1", 3)
+            self.assertEqual(claimed.attempt_id, resumed.attempt_id)
+            self.assertEqual(0, resumed.attempt_count)
 
 
 if __name__ == "__main__":

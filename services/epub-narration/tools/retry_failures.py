@@ -16,6 +16,11 @@ def main() -> int:
     parser.add_argument("--state-root", type=Path, required=True)
     parser.add_argument("--failure-code", choices=sorted(FAILURE_CODES), required=True)
     parser.add_argument("--max-attempts", type=int, default=3)
+    parser.add_argument(
+        "--reset-attempts",
+        action="store_true",
+        help="start an explicitly reviewed failed class with a fresh attempt budget",
+    )
     args = parser.parse_args()
     store = QueueStore(args.state_root / "queue.db")
     store.initialize()
@@ -23,6 +28,7 @@ def main() -> int:
         COMPILER_CONTRACT,
         args.failure_code,
         args.max_attempts,
+        reset_attempts=args.reset_attempts,
     )
     print(json.dumps({"retried": retried}, sort_keys=True))
     return 0
