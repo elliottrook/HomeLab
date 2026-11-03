@@ -19,7 +19,7 @@ class SystemdUnitTests(unittest.TestCase):
             unit,
         )
         self.assertIn("MemoryMax=4G", unit)
-        self.assertIn("CPUQuota=300%", unit)
+        self.assertIn("CPUQuota=400%", unit)
         self.assertIn("IOSchedulingClass=idle", unit)
         self.assertIn("BindsTo=aster-speech.service aster-voice-candidate.service", unit)
         self.assertIn("--max-runtime-seconds 7200", unit)

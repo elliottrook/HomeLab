@@ -28,7 +28,7 @@ ReadWritePaths=/mnt/aster-reader
 RestrictAddressFamilies=AF_UNIX
 LockPersonality=true
 MemoryMax=4G
-CPUQuota=300%
+CPUQuota=400%
 # The host scheduler admits a complete 2h work window plus 15m recovery only
 # after the authoritative Lab Hours ledger reports it clear.  The process then
 # suspends cooperatively at the same 2h bound. SIGTERM preserves every verified

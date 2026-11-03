@@ -91,7 +91,7 @@ ssh -o BatchMode=yes proxmox "pct exec 116 -- runuser -u epub-narration -- pytho
 ```
 
 `lab doctor` checks mount direction, timer/status freshness, queue counts and
-the worker's 4 GiB memory, 300% CPU, nice 15 and idle-I/O envelope. A nonzero
+the worker's 4 GiB memory, 400% CPU, nice 15 and idle-I/O envelope. A nonzero
 failed count is a warning, not permission to print the failed source identity.
 
 ## Monitor and worker control

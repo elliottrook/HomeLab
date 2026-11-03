@@ -40,7 +40,7 @@ fail() { printf 'FAIL %s\n' "$1"; }
             "worker_timer": "active",
             "worker_timer_enabled": "enabled",
             "worker": "inactive",
-            "limits": "3s,4294967296,15,3,",
+            "limits": "4s,4294967296,15,3,",
             "monitor_state": "healthy",
             "source_count": "167",
             "queued": "167",
