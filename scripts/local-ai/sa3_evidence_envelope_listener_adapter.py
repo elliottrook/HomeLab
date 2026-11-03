@@ -73,8 +73,10 @@ def run(*, lease_id: str, generation: int, deadline_epoch: int,
                 stdout_file.flush(); stderr_file.flush()
                 stdout_file.close(); stderr_file.close()
                 stdout_file = stderr_file = None
-                stdout = open(stdout_path, "rb").read(RESULT_MAX_BYTES + 1)
-                stderr = open(stderr_path, "rb").read(RESULT_MAX_BYTES + 1)
+                with open(stdout_path, "rb") as stream:
+                    stdout = stream.read(RESULT_MAX_BYTES + 1)
+                with open(stderr_path, "rb") as stream:
+                    stderr = stream.read(RESULT_MAX_BYTES + 1)
                 if status != 0:
                     try:
                         detail = json.loads(stderr.decode()).get("code")
