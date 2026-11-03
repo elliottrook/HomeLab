@@ -22,11 +22,13 @@ files if import/manifest validation fails. Exact candidate identities are:
 - runtime `b4fc31b0…4da9`;
 - reserved runner `63c7a116…aba`;
 - release manifest `c970bd70…9886`;
-- installer `41a487c6…3c7`;
-- deterministic bundle `ce6242bc…794f`.
+- installer `e7a852e4…a35e`;
+- deterministic bundle `68ba4a16…38d0`.
 
 All Lab Hours tests passed 39/39. Runtime, transaction, listener and installer
-tests passed 27/27. Two independent bundle builds matched. This closes the
+tests passed 27/27 before the live-ledger review. The corrected installer adds
+a fifth focused pass and allows only non-workload exclusive reservations; two
+independent corrected bundle builds must match before installation. This closes the
 source-only runner-activation design gate. It does not itself authorize or
 prove installation or a model run.
 
