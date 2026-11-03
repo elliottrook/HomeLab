@@ -96,7 +96,9 @@ recovery reserve. Its focused suite passes 11/11.
 
 The new development fixture, no-tool runner, candidate-g source manifest,
 quality packet/answer keys, batch result schema and model-blind review boundary
-are complete. The exact workload proposal is ready but not admitted. Platform
-registration, inactive staging, authoritative window check, booking and the
-one bounded run remain separately gated. Do not reuse the `candidate-f` result
-or tune the prose model against its hidden answers.
+are complete. The exact workload is now registered and its five runtime files
+are staged inactive under the [November 3 result](D4-candidate-g-inactive-registration-result-2026-11-03.md).
+The effectful runner remains deliberately unavailable. Its separately reviewed
+transaction, authoritative window check, exact booking and one bounded run
+remain separately gated. Do not reuse the `candidate-f` result or tune the
+prose model against its hidden answers.
