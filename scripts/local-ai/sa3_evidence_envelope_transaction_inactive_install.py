@@ -13,8 +13,8 @@ from sa3_evidence_envelope_inactive_install import (
 )
 
 
-CHECKPOINT = Path("/var/lib/local-ai-lab/checkpoints/sa3-evidence-envelope-transaction-v1")
-GUEST_CHECKPOINT = "/var/lib/local-ai-lab/checkpoints/sa3-evidence-envelope-transaction-v1"
+CHECKPOINT = Path("/var/lib/local-ai-lab/checkpoints/sa3-evidence-envelope-transaction-v2")
+GUEST_CHECKPOINT = "/var/lib/local-ai-lab/checkpoints/sa3-evidence-envelope-transaction-v2"
 UNIT_PREFIX = "aster-lab-hours-booking-sa3-evidence-envelope-quality-v1"
 HOST_FILES = {
     "sa3_evidence_envelope_transaction.py": (
@@ -27,7 +27,7 @@ HOST_FILES = {
 }
 GUEST_FILES = {
     "aster_llama_sa3_evidence_envelope_wrapper.py":
-        "c70fa1a5a33c5e7cbd9af98365bca0090890ed2c87a650c3ec320d1965f44a58",
+        "8e9e01ebf42c0b90a40e16f28e6e8155143118058ec5213edf52686f8c26a36f",
 }
 
 

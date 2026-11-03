@@ -13,7 +13,7 @@ import tarfile
 
 
 REPO = Path(__file__).resolve().parents[2]
-BUNDLE_NAME = "sa3-evidence-envelope-transaction-v1.tar.gz"
+BUNDLE_NAME = "sa3-evidence-envelope-transaction-v2.tar.gz"
 FILES = tuple("scripts/local-ai/" + name for name in (
     "sa3_evidence_envelope_transaction.py",
     "sa3_evidence_envelope_listener_adapter.py",

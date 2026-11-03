@@ -8,21 +8,25 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
+import secrets
+import shutil
+import signal
+import stat
 import subprocess
 import sys
 import time
 import urllib.error
 import urllib.request
 
-from aster_llama_sa3_guest_wrapper import (
-    BINARY_SHA, LD_LIBRARY_PATH, SERVER, GuestError, _cleanup_private_runtime, _pinned_file,
-    _pinned_model, _prepare_private_runtime, _scope_unit, _server_command,
-    _stop, _wait_ready, production_is_masked,
-)
-
-
 PROFILE = "sa3-evidence-envelope-quality-v1"
 MODEL = "aster-qwen3.5-9b"
+MODEL_PATH = "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf"
+MODEL_LINK_TARGET = "/usr/share/ollama/.ollama/models/blobs/sha256-cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13"
+MODEL_SHA = "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13"
+SERVER = "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"
+BINARY_SHA = "0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5"
+LD_LIBRARY_PATH = "/opt/aster-sycl-b11429/loader/usr/lib/x86_64-linux-gnu:/opt/aster-sycl-b11429/driver/usr/local/lib:/opt/aster-sycl-b11429/driver/usr/lib/x86_64-linux-gnu:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/compiler/2026.1/lib:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/compiler/2026.1/lib/clang/22/lib/x86_64-unknown-linux-gnu:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/dnnl/2026.0/lib:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/mkl/2026.1/lib:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/tbb/2023.1/lib:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/umf/1.1/lib:/opt/aster-sycl-b11429/oneapi/usr/lib/x86_64-linux-gnu"
 PORT = 11436
 CASES = 20
 MODEL_REQUESTS = 14
@@ -44,6 +48,102 @@ PINS = {
 }
 EXCLUDED = ("sa3-evidence-envelope-quality-keys-v1.json",
             "sa3_evidence_envelope_blind_review_v1.py")
+LEASE_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{1,127}")
+
+
+class GuestError(RuntimeError):
+    pass
+
+
+def production_is_masked(runner=subprocess.run) -> bool:
+    active = runner(("systemctl", "is-active", "aster-llama.service"),
+                    capture_output=True, text=True, check=False)
+    mask = runner(("readlink", "/run/systemd/system/aster-llama.service"),
+                  capture_output=True, text=True, check=False)
+    return active.returncode != 0 and mask.returncode == 0 and mask.stdout.strip() == "/dev/null"
+
+
+def _scope_unit(lease_id: str, generation: int) -> str:
+    if not LEASE_RE.fullmatch(lease_id) or type(generation) is not int or generation < 1:
+        raise GuestError("invalid lease identity")
+    token = hashlib.sha256(f"{lease_id}:{generation}".encode()).hexdigest()[:16]
+    return f"aster-llama-sa3-{token}.scope"
+
+
+def _pinned_file(path: Path, expected: str, mode: int) -> bool:
+    try: info = path.lstat()
+    except FileNotFoundError: return False
+    return (stat.S_ISREG(info.st_mode) and info.st_uid == 0 and info.st_nlink == 1
+            and stat.S_IMODE(info.st_mode) == mode
+            and hashlib.sha256(path.read_bytes()).hexdigest() == expected)
+
+
+def _pinned_model() -> bool:
+    link = Path(MODEL_PATH); target = Path(MODEL_LINK_TARGET)
+    try: link_info = link.lstat(); target_info = target.lstat()
+    except FileNotFoundError: return False
+    return (stat.S_ISLNK(link_info.st_mode) and link_info.st_uid == 0
+            and os.readlink(link) == MODEL_LINK_TARGET
+            and stat.S_ISREG(target_info.st_mode) and target_info.st_uid == 0
+            and target_info.st_nlink == 1 and stat.S_IMODE(target_info.st_mode) == 0o644
+            and hashlib.sha256(target.read_bytes()).hexdigest() == MODEL_SHA)
+
+
+def _server_command(key_path: Path, scope: str) -> tuple[str, ...]:
+    return ("/usr/bin/systemd-run", "--quiet", "--collect", "--scope",
+            f"--unit={scope}", "/usr/sbin/runuser", "--user", "ollama", "--",
+            SERVER, "-m", MODEL_PATH, "--host", "127.0.0.1", "--port", str(PORT),
+            "--alias", MODEL, "--api-key-file", str(key_path), "-ngl", "999",
+            "-c", "8192", "-np", "1", "-t", "4", "-tb", "4", "-b", "256",
+            "-ub", "128", "-fa", "on", "-ctk", "q4_0", "-ctv", "q4_0",
+            "--jinja", "--reasoning", "off", "--reasoning-budget", "0")
+
+
+def _stop(scope: str, process, runner=subprocess.run) -> None:
+    failures = []
+    stopped = runner(("systemctl", "stop", scope), capture_output=True, text=True, check=False)
+    detail = (stopped.stdout + stopped.stderr).lower()
+    if stopped.returncode and not any(item in detail for item in ("not loaded", "not found", "not-found")):
+        failures.append("scope stop failed")
+    if process is not None and process.poll() is None:
+        try: os.killpg(process.pid, signal.SIGTERM)
+        except OSError: process.terminate()
+        try: process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            try: os.killpg(process.pid, signal.SIGKILL)
+            except OSError: process.kill()
+            process.wait()
+    if process is not None and process.poll() is None: failures.append("listener remains active")
+    if failures: raise GuestError("; ".join(failures))
+
+
+def _wait_ready(key: str, deadline: float, clock=time.monotonic) -> None:
+    request = urllib.request.Request(f"http://127.0.0.1:{PORT}/v1/models",
+                                     headers={"Authorization": f"Bearer {key}"})
+    while clock() < deadline:
+        try:
+            with urllib.request.urlopen(request, timeout=min(5, max(1, deadline - clock()))) as response:
+                value = json.load(response)
+            if response.status == 200 and any(item.get("id") == MODEL for item in value.get("data", [])):
+                return
+        except (OSError, ValueError, urllib.error.URLError): time.sleep(0.5)
+    raise GuestError("listener did not become ready")
+
+
+def _prepare_private_runtime(root: Path) -> tuple[Path, str]:
+    root.mkdir(mode=0o700, exist_ok=False); os.chmod(root, 0o700)
+    shutil.chown(root, user="ollama", group="ollama")
+    key_path = root / "api-key"; key = secrets.token_hex(32)
+    key_path.write_text(key + "\n", encoding="ascii"); key_path.chmod(0o600)
+    shutil.chown(key_path, user="ollama", group="ollama")
+    return key_path, key
+
+
+def _cleanup_private_runtime(root: Path, key_path: Path) -> None:
+    try: shutil.rmtree(root)
+    except OSError as exc: raise GuestError("credential cleanup failed") from exc
+    if os.path.lexists(root) or os.path.lexists(key_path):
+        raise GuestError("credential cleanup failed")
 
 
 def check_pins() -> None:
