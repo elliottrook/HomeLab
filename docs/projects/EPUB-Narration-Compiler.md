@@ -482,6 +482,23 @@ Optional BOSGAME promotion and M7 fallback require separate scope.
 
 ## Evidence log
 
+### B60 TTS shadow-pilot boundary
+
+The B60 experiment is deliberately separate from the accepted compiler. A
+manual preparer may copy one bounded, unclaimed `queued` source into private
+pilot storage without writing queue state. A loopback-only Vulkan Kokopop
+candidate in LXC 110 may then render resumable WAV chapters under a transient
+two-hour, 4 GiB, low-priority unit. It has no ready-tree write path and cannot
+publish, consume an attempt, or move a generation out of `queued`.
+
+The candidate's GGUF model/binary, WAV output and lack of accepted sentence
+timing are a distinct shadow contract. Even a successful render is therefore
+useful evaluation work, not a canonical ONNX/Opus generation. Promotion would
+require listening quality, timing, encoding, admission and recovery gates plus
+a broker that preserves Aster responsiveness. No recurring B60 TTS schedule is
+created by this pilot; every live run remains subject to a fresh authoritative
+Lab Hours check and the applicable runtime controls.
+
 | Date | Action and evidence | Result / next safe action |
 |---|---|---|
 | 2026-10-26 | Jason explicitly authorized this bounded subproject as Stream A, including autonomous staged execution and the exclusions recorded above. | Authorization envelope accepted; remote Git writes still require fresh immediate approval. |
@@ -529,6 +546,10 @@ Optional BOSGAME promotion and M7 fallback require separate scope.
 | 2026-11-03 | Reintroduced all eighteen previously failed generations with fresh attempt budgets: eleven interrupted, five EPUB-invalid and two publication failures. A first repair canary exposed an existing-directory edge case and one queue-ordering defect; admission was stopped, both were corrected and regression-tested. That canary removed two uncheckpointed legacy chapter artifacts created after the latest daily snapshot, so they must be regenerated; no ready generation or source EPUB was affected. | Queue recovery is complete and automation is active. The structurally oversized EPUB remains expected to fail closed after its clean retry unless separately remediated. |
 | 2026-11-03 | Verified Proxmox had about 43 GiB available, then raised LXC 116 from 4 to 5 GiB and the worker ceiling from 3 to 4 GiB without interrupting the active render. The repaired streaming worker was using about 1 GiB at the change point. | Additional fault headroom is available for speech and narration, but no throughput gain is claimed; synthesis remains CPU-bound. |
 | 2026-11-03 | Measured the active worker at about 292% CPU with 4,899 of 5,008 cgroup periods throttled while Proxmox remained 83–88% idle. After a clear authoritative Lab Hours check for the full work/recovery window, raised only the worker quota from 300% to 400%; LXC 116 remains at six vCPUs with nice 15 and idle-I/O priority. A post-change cgroup sample used about 181.3 CPU-seconds over 45.3 wall-seconds, confirming effective four-core use while the host remained 87–89% idle. | The renderer uses the fourth core without enlarging the guest CPU topology or weakening host priority controls. Keep 400% as the measured ceiling pending longer throughput evidence. |
+| 2026-11-03 | Created repository tools for a queue-read-only B60 shadow: bounded private job preparation and resumable, hash-recorded loopback rendering with no production publication path. The full narration suite passes 41 tests. An authoritative Lab Hours check was clear for `2026-11-03T17:31:30+00:00` through `2026-11-03T19:46:30+00:00`; the live pilot used a manual transient unit rather than a schedule. | One queued generation was copied into shadow storage while its queue row remained untouched. Final throughput, quality and shared-service measurements are recorded only after bounded cleanup. |
+| 2026-11-03 | The full B60 shadow completed 15 chapters and 55,502.607 seconds (15.417 hours) of PCM audio in 5,401.419 seconds (1.500 hours): render factor 0.0973, or 10.28 times real time. The private WAV set is 2,664,125,818 bytes and the 30-file manifest hash is `a5bd8faa…e8ff`. Peak observed combined VRAM was 11,586,676 KiB (about 11.05 GiB); the candidate service peaked at 7,352,602,624 bytes RAM and its bounded client at 851,337,216 bytes. | The complete artifact is retained privately for listening/contract work. It is not a canonical generation and was not published. |
+| 2026-11-03 | Matched 96-token Aster controls during active TTS completed in 3.310, 1.994 and 1.951 seconds; after stopping TTS they completed in 2.060, 1.831 and 1.851 seconds. Median latency was 1.994 versus 1.851 seconds, a 7.7% co-residency cost. All six returned HTTP 200; `aster-llama` stayed healthy with the same PID and zero restarts. | Controlled SYCL inference plus Vulkan TTS sharing is technically viable at this load, but needs brokered latency/memory admission rather than uncontrolled parallel services. |
+| 2026-11-03 | Stopped the candidate after evidence capture and verified it inactive, disabled and no longer listening. Llama VRAM returned to 5,498,404 KiB, health remained `ok`, and the cloned source row remained `queued` with a null attempt ID. Copied only the hash-identical private shadow manifest back beside the pilot job; WAVs remain isolated in LXC 110. | Rollback/cleanup passed. Next gate is listening quality plus exact sentence-timing/Opus contract work; do not promote this artifact into `ready`. |
 
 ## Post-deployment intent and efficiency review
 
@@ -536,9 +557,9 @@ Optional BOSGAME promotion and M7 fallback require separate scope.
   idempotent. Jason deliberately opened the backlog gate after reviewing the
   roughly 80-day continuous-equivalent estimate; the recurring worker remains
   single-concurrency and continues after the initial queue drains.
-- The worker has one-attempt execution, one lock, low CPU/I/O priority, a 3 GiB
+- The worker has one-attempt execution, one lock, low CPU/I/O priority, a 4 GiB
   memory ceiling, a speech-service pre-start gate and at least five minutes
-  between invocations. The 128 GiB quota is about 3.3 times the measured
+  between invocations. Its CPU quota is 400%. The 128 GiB quota is about 3.3 times the measured
   ready-corpus estimate. No concurrency increase is justified.
 - The active direct-launch HP beta proves exact ready-pointer consumption, sentence
   highlighting, seek, chapter change, private progress/resume, Opus duration

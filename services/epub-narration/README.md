@@ -57,3 +57,17 @@ Production invariants:
 Operational procedures and rollback are in
 [the compiler runbook](../../docs/runbooks/EPUB-Narration-Compiler.md).
 
+## B60 shadow experiment tools
+
+`tools/prepare_b60_shadow.py` can select one bounded, unclaimed queued EPUB
+without changing `queue.db`, then write a private hash-bound job document.
+`tools/run_b60_shadow.py` sends that document only to the loopback Kokopop
+candidate and records resumable WAV chapters plus a distinct shadow manifest.
+
+These are manual experiment tools, not production workers or schedulers. Their
+output does not satisfy the canonical ONNX/Opus/sentence-timing publication
+contract and must never be copied into `ready` or used to advance queue state.
+Any live use must first pass the applicable Lab Hours, lease and shared-lock
+controls. Real job documents and generated audio stay outside Git in private
+operator-controlled storage.
+
