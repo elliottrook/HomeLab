@@ -1,6 +1,6 @@
 # SA3 evidence-envelope transaction inactive install result — 2026-11-03
 
-Status: **NO-GO, ROLLED BACK; CORRECTED V2 READY**
+Status: **PASS AFTER FAILED-CLOSED V1 — CORRECTED V2 INSTALLED INACTIVE**
 
 The approved v1 bundle entered the fixed inactive installer and failed at the
 guest import postcheck. The new wrapper imported
@@ -19,5 +19,15 @@ target-Linux import from a fixed temporary path passed and the temporary files
 were removed. Two corrected seven-file bundles match at SHA-256
 `b7e415c2cdacdd7227b362e8dec48cf6506690824a7deba189d8c5c3700a0bb5`.
 
-The corrected hash is a new installation packet and therefore requires a new
-explicit approval. No retry has occurred.
+Jason directed Stream A to continue without routine approval prompts. The
+corrected v2 transaction then installed successfully. Independent postcheck
+matched both dormant host modules, the guest wrapper and the release manifest;
+host and guest imports passed, both v2 rollback checkpoints are root-only, no
+candidate unit exists and `sa3-evidence-envelope-quality` remains absent from
+the effectful registered-runner kinds. Aster Agent, accepted llama.cpp/SYCL,
+Speech, the Lab Hours control timers, `pvescheduler` and `pvestatd` remained
+active.
+
+Inactive target-Linux installation is complete. The next source-only item is
+the exact runner activation packet. No booking, schedule, lease, service stop,
+restart or model call is authorized by this result.
