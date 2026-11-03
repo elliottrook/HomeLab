@@ -73,7 +73,9 @@ def require_quiet(reservations: Path, state_root: Path) -> None:
         return
     for path in reservations.glob("*.json"):
         value = json.loads(path.read_text(encoding="utf-8"))
-        if value.get("state") in {"reserved", "claimed", "running"}:
+        state = value.get("state")
+        if (state in {"claimed", "running"}
+                or (state == "reserved" and value.get("workload") is not None)):
             raise ActivationError("ACTIVE_BOOKING_PRESENT")
 
 

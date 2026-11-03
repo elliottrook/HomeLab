@@ -13,7 +13,7 @@ import tarfile
 
 REPO = Path(__file__).resolve().parents[2]
 NAME = "aster-sa3-envelope-runner-activation-v1.tar.gz"
-BUNDLE_SHA256 = "ce6242bc603668ce5c1f32af50145d4fbdf128384e987bc172fb325c454f794f"
+BUNDLE_SHA256 = "68ba4a16129b17f2e2ed2fc8c8a0f9e8236b7a1dda05f602f9766362b03f38d0"
 FILES = (
     "scripts/local-ai/sa3_evidence_envelope_runner_activation_install.py",
     "scripts/local-ai/full_inference_lab_runtime.py",

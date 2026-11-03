@@ -61,6 +61,11 @@ class Tests(unittest.TestCase):
         with self.assertRaisesRegex(install.ActivationError, "ACTIVE_BOOKING"):
             self.invoke()
 
+    def test_future_exclusive_window_without_workload_does_not_block(self):
+        (self.reservations / "x.json").write_text(json.dumps({
+            "kind": "exclusive-stack", "workload": None, "state": "reserved"}))
+        self.assertEqual("installed-inactive", self.invoke()["state"])
+
     def test_active_state_blocks_replacement(self):
         (self.state / "full-inference-drain.lock").write_text("")
         with self.assertRaisesRegex(install.ActivationError, "ACTIVE_STATE"):

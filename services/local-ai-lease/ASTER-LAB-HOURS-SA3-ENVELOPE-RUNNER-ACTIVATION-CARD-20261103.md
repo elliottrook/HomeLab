@@ -17,13 +17,14 @@ lease, stop production or make a model request.
 
 The deterministic four-file bundle is
 `aster-sa3-envelope-runner-activation-v1.tar.gz`, SHA-256
-`ce6242bc603668ce5c1f32af50145d4fbdf128384e987bc172fb325c454f794f`.
+`68ba4a16129b17f2e2ed2fc8c8a0f9e8236b7a1dda05f602f9766362b03f38d0`.
 
 ## Fail-closed gates
 
 The installer requires exact predecessor and candidate bytes, regular-file
 custody and modes, no existing checkpoint, no active lease/drain state or lock,
-and no reserved, claimed or running Lab Hours booking of any workload. It
+and no claimed/running booking or workload-bearing reservation. Standing
+future exclusive-stack reservations with no runner workload remain valid. It
 checkpoints every predecessor before replacement, imports both changed modules,
 requires the candidate-g runner kind to be present, and validates the complete
 release manifest. Any failure restores all three predecessor files.
