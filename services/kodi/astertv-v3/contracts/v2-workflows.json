@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "kind": "astertv-v2-regression-contract",
+  "baseline_release_sha256": "e813de8a74af769ebbfeb744ad65249760292f647dc2d91c4bafb9fc7ba83cf7",
+  "data_class": "structure-only-no-household-data",
+  "global_invariants": [
+    "back_returns_to_immediate_aster_origin",
+    "home_is_not_an_implicit_back_target",
+    "ok_on_art_executes_the_visible_item_action",
+    "art_tiles_use_the_locked_green_gold_focus_treatment",
+    "buttons_use_the_locked_gold_rim_focus_treatment",
+    "side_rail_uses_stone_icons_only",
+    "clock_is_24_hour_where_present",
+    "details_precede_movie_playback",
+    "no_focusable_invisible_controls",
+    "no_queue_or_recovery_confirmation_for_normal_playback"
+  ],
+  "workflows": [
+    {
+      "id": "media",
+      "initial_focus": "tv_shows",
+      "controls": ["search", "tv_shows", "movies", "archive_tv", "archive_movies", "collections", "youtube", "continue_watching", "recently_added", "genres", "side_rail"],
+      "required_actions": ["search_opens_results", "movie_art_opens_details", "series_art_opens_series", "side_rail_opens_named_page"],
+      "back_target": "prior_page_or_exit_confirm"
+    },
+    {
+      "id": "movie_details",
+      "initial_focus": "play_or_resume",
+      "controls": ["play_or_resume", "trailer", "back", "cast", "more_like_this"],
+      "required_actions": ["play_starts_selected_movie", "resume_uses_saved_position", "trailer_uses_validated_official_youtube_route", "cast_opens_person_results", "related_opens_movie_details"],
+      "back_target": "originating_movie_rail"
+    },
+    {
+      "id": "tv_series",
+      "initial_focus": "selected_episode",
+      "controls": ["play_or_resume", "trailer", "back", "cast", "more_like_this", "season_rail", "episode_rail", "selected_episode"],
+      "required_actions": ["episode_ok_plays_episode", "season_ok_switches_season", "episode_list_scrolls_without_leaving_page", "cast_opens_person_results", "related_opens_series"],
+      "back_target": "originating_tv_rail",
+      "invariants": ["season_zero_hidden", "maximum_eight_visible_seasons_with_scroll", "unwatched_small_green_dot", "watched_green_dot_with_tick", "episode_still_visible"]
+    },
+    {
+      "id": "youtube",
+      "initial_focus": "recommendations",
+      "controls": ["search", "recommendations", "subscriptions", "watch_later", "page_results", "back"],
+      "required_actions": ["personalized_recommendations_load", "subscriptions_load", "watch_later_load", "search_returns_thumbnails", "return_restores_top_pill_navigation"],
+      "back_target": "previous_youtube_page_then_media"
+    },
+    {
+      "id": "music",
+      "initial_focus": "albums",
+      "controls": ["search", "albums", "artists", "songs", "playlists", "genres", "album_art", "track_list", "back"],
+      "required_actions": ["album_opens_details", "track_ok_plays", "play_has_no_queue_confirmation", "content_can_return_to_top_pills"],
+      "back_target": "previous_music_page_then_media"
+    },
+    {
+      "id": "books",
+      "initial_focus": "ebooks",
+      "controls": ["search", "ebooks", "audiobooks", "podcasts", "ebook_art", "audiobook_art", "podcast_art", "back"],
+      "required_actions": ["only_ready_narrated_ebooks_list", "ebook_ok_opens_reader", "ebook_play_starts_narration", "audiobook_resumes", "podcast_resumes"],
+      "back_target": "previous_books_page_then_media"
+    },
+    {
+      "id": "requests",
+      "initial_focus": "recommendation_art",
+      "controls": ["search", "all", "films", "television", "recommendation_art", "result_art", "season_list", "request_selected", "back"],
+      "required_actions": ["search_returns_without_home_fallback", "art_opens_request_details", "season_ok_toggles_directly", "request_submits_explicit_selection"],
+      "back_target": "previous_requests_page_then_media"
+    },
+    {
+      "id": "news",
+      "initial_focus": "daily_digest",
+      "controls": ["search", "daily_digest", "breaking", "story_list", "read", "play", "back", "side_rail"],
+      "required_actions": ["story_ok_opens_article", "play_starts_digest_or_article_narration", "back_returns_to_digest", "retained_completed_queue_does_not_block_playback"],
+      "back_target": "previous_news_page_then_media"
+    },
+    {
+      "id": "home_and_cameras",
+      "initial_focus": "home_summary",
+      "controls": ["home_summary", "camera_entry", "camera_grid", "refresh", "back", "side_rail"],
+      "required_actions": ["camera_entry_opens_camera_page", "current_still_or_explicit_failure_shows", "camera_grid_is_two_dimensional", "back_returns_to_home"],
+      "back_target": "media"
+    },
+    {
+      "id": "settings",
+      "initial_focus": "settings_left_rail",
+      "controls": ["settings_left_rail", "category_controls", "restart_kodi", "network_addon", "back"],
+      "required_actions": ["left_rail_is_reachable", "category_controls_are_reachable", "restart_requires_explicit_confirmation", "back_returns_to_origin"],
+      "back_target": "originating_page"
+    }
+  ]
+}

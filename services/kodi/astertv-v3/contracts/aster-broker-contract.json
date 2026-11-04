@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "kind": "astertv-synthetic-broker-contract",
+  "status": "proposed",
+  "client_identity": "dedicated-revocable-astertv-client",
+  "allowed_intents": ["media.search", "page.open", "playback.play_named", "playback.resume_named", "news.play", "news.open", "home.alias_execute"],
+  "denied_capabilities": ["shell", "filesystem", "credential_read", "arbitrary_json_rpc", "arbitrary_home_assistant_service", "camera_export", "media_request_submit", "account_admin", "general_aster_tools"],
+  "surfaces": {
+    "direct": "compact_lower_right_card",
+    "browseable_results": "large_media_search_dialog"
+  },
+  "context_fields": ["request_id", "profile_id", "client_id", "room_id", "origin_page", "utterance", "issued_at", "expires_at"],
+  "forbidden_context_fields": ["password", "token", "api_key", "cookie", "raw_camera_frame", "service_credential"],
+  "limits": {"utterance_bytes": 512, "result_count": 12, "timeout_seconds": 15, "max_alias_targets": 1},
+  "confirmation": {
+    "never": ["media.search", "page.open", "news.open"],
+    "visible_during_execution": ["playback.play_named", "playback.resume_named", "news.play"],
+    "policy_per_alias": ["home.alias_execute"]
+  },
+  "failure_states": ["denied", "ambiguous", "unavailable", "timeout", "cancelled", "stale_context", "invalid_response"],
+  "audit_fields": ["request_id", "client_id", "profile_id_hash", "intent", "decision", "duration_ms", "error_class"],
+  "audit_excludes": ["utterance", "media_history", "camera_content", "credential", "model_prompt"]
+}

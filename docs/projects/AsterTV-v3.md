@@ -1,19 +1,21 @@
 # AsterTV v3
 
-> Status: Active — Stream A page-design pilot accepted and closed; Stream M
-> integration discovery resumed. TV-series presentation remains deployed through
-> the existing fail-closed v2 episode engine on Bedroom and Family; the PA3
-> synthetic surfaces are not promoted.
+> Status: Active — pre-handoff Stream A repository work in progress. The earlier
+> page-design pilot is accepted and closed; no PA3 synthetic surface is promoted.
+> TV-series presentation remains deployed through the existing fail-closed v2
+> episode engine on Bedroom and Family.
 >
 > Project owner: Jason
 >
 > Proposed: 2026-10-31
 >
-> Current authorization stream: Stream M. On 2026-11-04 the owner accepted the
-> final PA3 Aster AI command-card treatment and directed the project to continue.
-> PA4 retained the isolated portable Mini pilot for comparison and closed the
-> bounded Stream A authorization. Every subsequent operational change requires
-> the bounded Stream M approval described below.
+> Current authorization stream: Stream A, bounded to the pre-handoff envelope
+> below. On 2026-11-04 the owner directed all work that does not need the low-spec
+> client to continue autonomously, while its final test and separate agent report
+> complete. This authorization permits repository-only specifications, synthetic
+> fixtures, tests, documentation, local builds and local commits. It permits no
+> live client/service/network/identity change. Receipt of the handoff report ends
+> this envelope and returns reconciliation and operational work to Stream M.
 
 ## Purpose and desired outcome
 
@@ -144,7 +146,7 @@ may:
 - reconcile Doctor, Beszel, NetBox, backup, operational reference, wiki and the
   derived Aster knowledge mirror where those systems own affected facts.
 
-During the current Stream A pilot only, the project may additionally install an
+During the historical page-design Stream A pilot only, the project could install an
 official hash-recorded Kodi 22.0 RC1 ARM application in a dedicated writable Mini
 pilot location, always launch it in portable mode, create a credential-free
 synthetic AsterTV v3 data directory, deploy page candidates to that portable
@@ -375,11 +377,10 @@ retries, timeouts, locks and durable status; process absence is never success.
 
 ## Stream transition and page-redesign pilot
 
-The project has exactly one active authorization stream at a time. It is
-currently Stream A for the bounded pilot below. Completion or abandonment of
-PA4 automatically ends Stream A. Before any remaining v3 implementation, this
-document must record the transition to Stream M; no Stream A authority carries
-forward.
+The project has exactly one active authorization stream at a time. The bounded
+PA0–PA4 page pilot below is historical and closed. Its authority did not carry
+forward. A later, separately approved repository-only Stream A envelope is
+defined after PA4.
 
 ### PA0 — Mini pilot foundation
 
@@ -542,7 +543,46 @@ and the candidate manifest are retained under
 The owner accepted the final dimensional Aster AI card on 2026-11-04. The
 portable pilot is deliberately retained at its marker-protected path as the
 visual comparison target; Kodi's temporary screenshot-path setting was restored
-to empty. PA4 and Stream A are closed. Remaining work proceeds only in Stream M.
+to empty. PA4 and its Stream A authority are closed.
+
+### SA-PH — Repository-only pre-handoff Stream A
+
+Jason approved this distinct bounded Stream A on 2026-11-04 while the low-spec
+client completes a final test under another agent. It authorizes only:
+
+- non-secret repository and Git-history inspection;
+- M0 authority recommendations and explicit unresolved-decision records;
+- synthetic v2 workflow/focus fixtures and fail-closed tests;
+- synthetic account/profile, client-capability and Aster broker contracts;
+- a sanitized low-spec handoff template and reconciliation checklist;
+- local documentation, deterministic local builds and focused local commits.
+
+It explicitly excludes Family, Bedroom and low-spec client mutation; source
+service, Home Assistant, camera, network, firewall, DNS, identity, credential,
+schedule and remote-workflow changes; real household data; deployment; release;
+and production promotion. Files currently being produced by the low-spec agent
+under `services/kodi/astertv-v3/low-spec/` are also excluded until handoff.
+
+The main risks are designing around stale hardware assumptions, conflicting
+with the in-flight low-spec work and prematurely treating a recommendation as
+authority. Controls are synthetic-only inputs, a separate `contracts/` path,
+no live endpoint writes, no edit to the low-spec agent's files, explicit
+`proposed` decision status and a mandatory handoff reconciliation gate.
+Repository history is the checkpoint; every fixture is deterministic and
+contains no credential or household state. Rollback is a normal focused Git
+revert. There is no expected service interruption, no scheduled/local-AI job,
+and no NetBox, monitoring, backup, DNS, firewall or secret-store change.
+
+This envelope ends when the low-spec report is delivered. The project then
+returns to Stream M to reconcile the report, adopt or revise the capability
+profile and obtain bounded approval before any live M2/M3 implementation.
+
+- [x] SA-PH1: record the handoff schema and M0 recommended decisions.
+- [x] SA-PH2: freeze v2 workflow/focus fixtures with structural gates.
+- [x] SA-PH3: freeze synthetic account, capability and broker contracts with
+  guest/credential/arbitrary-command denial tests.
+- [x] SA-PH4: commit the repository-only milestone and record the exact pending
+  low-spec reconciliation action; remote push still needs immediate approval.
 
 ## Milestones
 
@@ -552,12 +592,12 @@ to empty. PA4 and Stream A are closed. Remaining work proceeds only in Stream M.
   Kodi, add-ons, routes, audio/video capabilities and recovery state.
 - [x] Reconfirm the Mac-mini portable pilot boundary, retained-profile
   inventory and accepted-v2 overlay provenance recorded in PA0.
-- [ ] Inventory existing Aster AI, account, YouTube, Seerr, Audiobookshelf,
+- [x] Inventory existing Aster AI, account, YouTube, Seerr, Audiobookshelf,
   eBook narration, Home Assistant and camera contracts without reading secrets.
-- [ ] Capture v2 user workflows and focus graphs as regression fixtures.
+- [x] Capture v2 user workflows and focus graphs as regression fixtures.
 - [ ] Decide the account authority, profile data matrix, podcast request
   authority, YouTube guest feasibility and camera event source.
-- [ ] Refresh this risk assessment and record unresolved owner decisions.
+- [x] Refresh this risk assessment and record unresolved owner decisions.
 
 Gate: no v3 live mutation; an evidence-backed architecture and decision register
 identify every authority, credential class and unsupported assumption.
@@ -577,6 +617,14 @@ The initial non-secret service boundary and open-decision matrix is retained in
 It confirms that no system-wide account authority or dedicated AsterTV broker
 identity exists yet, and that the Home Assistant registry exporter is a disabled
 read-only candidate rather than the required semantic control bridge.
+
+The pre-handoff Stream A added proposed selections at
+`docs/projects/evidence/AsterTV-v3-M0-recommended-decisions-2026-11-04.md`, a
+sanitized low-spec report template and machine-readable contracts under
+`services/kodi/astertv-v3/contracts/`. The M0 decision checkbox remains open:
+the proposals require owner acceptance and low-spec reconciliation before they
+become architecture authority. Seventy-three local gates pass; none contacts a
+live service or contains household data.
 
 ### M1 — Low-spec lab foundation and release harness
 
@@ -1024,6 +1072,8 @@ explicit user acceptance.
 | 2026-11-04 | Repaired and retested low-spec playback cleanup | Extended the existing fail-closed News repair to AsterTV-Jen's pinned runtime. Revision 2 distinguishes retained queues from Kodi's exact self-owned transition to the unique private session MP3, freezes the resulting two-playlist snapshot and continues to fence every foreign change. Originals are checkpointed at `/storage/.aster-checkpoints/astertv-news-playback-AsterTV-Jen-20261104-191308`. | Two consecutive full UI News sessions and an independent exact-contract launch played without ownership errors and released their window/player state cleanly; the 528-file guard accepted and verified the new hashes. Repeated media cleanup pings remained 0.148–1.56 ms. The earlier apparent control stall was a synchronous Audiobookshelf plugin-resolution request whose playback had already started, not an orphaned player; future soak automation must observe plugin opens asynchronously. Cleanup stability no longer requires removing a feature from the low-spec profile. |
 | 2026-11-04 | Completed a ten-minute compressed 4K low-spec soak | Deliberately excluded UHD Blu-ray, ISO, BDMV and remux media, then played *Tow* (2026), a 3840×2160 iTunes WEB-DL: HEVC Main 10/HDR10+, 23.976 fps, 25.29 Mb/s and 18.69 GiB. | Jellyfin remained `DirectStream` with no video transcode. Kodi software-decoded through `ff-hevc`; 599.2 seconds of media advanced over the 600.0-second run. Normal render samples were 23.41–24.39 fps with one transient 21.46 fps sample and no accumulated lag. Kodi used about 1.7–3.3 logical CPUs, 1.01–1.06 GiB RSS and peaked at 81 °C without kernel throttle/reset/OOM evidence. Compressed 4K works, but software HEVC is an upper-edge capability; disc-class 4K remains outside the low-spec acceptance profile. |
 | 2026-11-04 | Corrected a Forgejo push-mirror canonical-ref rewind | The approved push reached `b6ed4085` but Forgejo immediately returned the branch to GitHub's older `1db1198c`. Read-only reflog/config evidence identified push mirror `remote_mirror_IPR0D2zivc5` with unsafe fetch mapping `+refs/*:refs/*`; its branch/tag push mappings were correct. The repository config was checkpointed at SHA `7037fdb8…4010`, then only the fetch mapping was removed; resulting config SHA is `52e1f08e…0fe`. | The retry left Forgejo's internal ref, Forgejo HTTPS and GitHub at `b6ed4085`; `sync_on_commit` remains enabled and the push mirror reports no error. Operational recovery and the exact checkpoint are recorded in `docs/Current-Network-Baseline.md`. |
+| 2026-11-04 | Completed repository-only pre-handoff Stream A | Owner authorized all v3 work that does not require the low-spec client while its final test and agent report complete. Recorded a sanitized handoff template, proposed M0 decisions, ten v2 workflow/focus contracts, a credential-free account registry, measured client-capability schema and capability-scoped Aster broker allowlist. The in-flight low-spec paths and every live endpoint were excluded. | Seventy-three local gates pass, including guest denial, secret-field exclusion, arbitrary-command denial, capability-not-hostname policy and existing shared-language/trailer/TV/News/recovery regressions. The envelope now waits for the low-spec report and owner decisions; receipt returns the project to Stream M before live M2/M3 work. |
+| 2026-11-04 | Moved low-spec 4K playback to a Jen-only Arc-backed policy | Installed a hostname-bound Jellyfin device profile on AsterTV-Jen: HEVC direct play is limited to width 1920 and client bitrate to 18 Mb/s; known add-on bytes are repatched at boot/update and unknown versions fail safe to all-HEVC transcode. Family and Bedroom are unchanged. On Jellyfin, enabled the Arc A380's advertised HEVC/MPEG-2/VP9/AV1 decoders and Intel VPP tone mapping after checkpointing the encoding config; OpenCL tone mapping remains off because the container has no OpenCL platform. | The same 4K HDR10+ *Tow* source became 1080p H.264 QSV at 17.744 Mb/s. Full VAAPI decode/scale/VPP tone-map/QSV encode ran at 15.2× versus 5.3× partial acceleration; FFmpeg fell from ~1053% to 89–106% CPU. The ten-minute run reached 608 seconds without error while Jen stayed 27.8 °C and ~518–526 MiB RSS. The M93p is accepted as a stable low-spec AsterTV client when 4K HEVC is server-transcoded; it is not accepted for local disc-class 4K decode. |
 
 ## Close-out
 

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:astertv:v3:client-capability-profile:1",
+  "title": "AsterTV client capability profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "profile_id", "evidence", "video", "audio", "resources", "ui"],
+  "properties": {
+    "schema": {"const": 1},
+    "profile_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{2,31}$"},
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["report", "measured_at", "accepted_release"],
+      "properties": {
+        "report": {"type": "string"},
+        "measured_at": {"type": "string", "format": "date-time"},
+        "accepted_release": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "video": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_width", "max_height", "max_bitrate_mbps", "hardware_codecs", "software_codecs", "excluded_classes"],
+      "properties": {
+        "max_width": {"type": "integer", "minimum": 640},
+        "max_height": {"type": "integer", "minimum": 480},
+        "max_bitrate_mbps": {"type": "number", "exclusiveMinimum": 0},
+        "hardware_codecs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "software_codecs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "excluded_classes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "audio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["route", "channels", "passthrough_formats"],
+      "properties": {
+        "route": {"enum": ["hdmi", "displayport", "analog"]},
+        "channels": {"type": "integer", "minimum": 2, "maximum": 16},
+        "passthrough_formats": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["memory_budget_mib", "thermal_limit_c", "art_cache_mib"],
+      "properties": {
+        "memory_budget_mib": {"type": "integer", "minimum": 512},
+        "thermal_limit_c": {"type": "integer", "minimum": 40, "maximum": 110},
+        "art_cache_mib": {"type": "integer", "minimum": 64}
+      }
+    },
+    "ui": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["animations", "prefetch_rows", "max_art_dimension"],
+      "properties": {
+        "animations": {"enum": ["full", "reduced", "none"]},
+        "prefetch_rows": {"type": "integer", "minimum": 0, "maximum": 8},
+        "max_art_dimension": {"type": "integer", "minimum": 256, "maximum": 4096}
+      }
+    }
+  },
+  "x-aster-invariants": [
+    "profile_is_selected_by_measured_capability_not_hostname",
+    "privacy_navigation_recovery_and_credential_isolation_are_not_optional",
+    "family_and_bedroom_acceptance_is_independent"
+  ]
+}
