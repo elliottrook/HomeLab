@@ -49,6 +49,35 @@ separately, so systemd property ordering is no longer part of the contract; it
 also uses a fresh checkpoint and leaves the first retained checkpoint
 untouched.
 
+The revision-2 postcheck then exposed the same retired timer in two additional
+installed call paths before a fresh booking was created. The five-minute Lab
+Hours Doctor still declared production unhealthy when
+`epub-narration-worker.timer` was absent, and the effectful drain still tried
+to mask and later restart that retired timer. Revision 3 therefore completes
+the bounded architecture correction:
+
+- the Doctor checks the host scheduler, guest monitor and permissible worker
+  state/result through the shared EPUB health predicate;
+- the drain stops the current worker service but no longer addresses the
+  retired timer; and
+- restoration leaves worker admission to the still-active, booking-aware host
+  scheduler instead of starting unbooked EPUB work directly.
+
+The revision-3 identities are:
+
+- `full_inference_lab_session.py`:
+  `b3c38f030cbe1c0d45f59947cb2bc68cb7f80ed6410ef1669c88c18027296e9a`;
+- `lab_hours_doctor.py`:
+  `32fbe1d9e63fdab78a00496c36ca4b3da7a81809e14cf930a209a32ec9649d76`;
+- release manifest:
+  `b29f1e6c6f0a57622dd81a6274076234db22b141fa75bbbaeecfc6f641f41987`.
+
+Its separate checkpoint is
+`/var/lib/local-ai-lab/checkpoints/sa3-epub-scheduler-path-r3-20261104`.
+The installed validator must accept the shared EPUB predicate, a healthy Doctor,
+the complete manifest and a canonical drain/restore command set containing no
+reference to the retired timer.
+
 The new inactive installer requires the exact currently installed source and
 manifest hashes, a ready lease and no drain/shared-operation state. It creates
 a fresh root-only checkpoint, replaces exactly those two files, imports the
@@ -59,7 +88,7 @@ no booking, model request, workload, restart or route change.
 ## Verification and next gate
 
 The source/predicate, validator, runner, supersession, manifest and new-installer
-revision-2 subset passes 33/33 tests. The wider historical suite remains intentionally
+revision-3 subset passes 48/48 tests. The wider historical suite remains intentionally
 pin-sensitive and contains unrelated superseded-card failures; it is not used
 to weaken this exact correction. After inactive installation, independently verify both installed
 hashes, live predicate acceptance, complete manifest validation, ready lease,

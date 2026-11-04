@@ -9,14 +9,14 @@ import subprocess
 import time
 
 from lab_hours_reservations import ACTIVE, RESTORE_BUFFER_SECONDS, ReservationError, ReservationStore
+from full_inference_lab_sources import epub_narration_healthy
 
 
 STATE_ROOT = Path("/var/lib/local-ai-lab")
 RESERVATIONS = STATE_ROOT / "reservations"
 REQUIRED = (("104", "aster-agent.service"), ("110", "aster-llama.service"),
             ("116", "aster-speech.service"), ("114", "news-aggregator-ingest.timer"),
-            ("114", "news-aggregator-digest.timer"),
-            ("116", "epub-narration-worker.timer"))
+            ("114", "news-aggregator-digest.timer"))
 
 
 def call(command: tuple[str, ...], timeout: float = 10.0):
@@ -54,6 +54,11 @@ def diagnose(store: ReservationStore, *, now: int | None = None,
         for vmid, unit in REQUIRED:
             if runner(("pct","exec",vmid,"--","systemctl","is-active",unit),10).returncode != 0:
                 problems.append(f"PRODUCTION_SERVICE_DOWN:{vmid}:{unit}")
+        def output(command: tuple[str, ...]) -> str:
+            result = runner(command, 10)
+            return result.stdout.strip() if result.returncode == 0 else ""
+        if not epub_narration_healthy(output):
+            problems.append("PRODUCTION_SERVICE_DOWN:EPUB_SCHEDULER")
         lease=runner(("/usr/local/sbin/local-ai-lease","status"),10)
         try: lease_value=json.loads(lease.stdout)
         except json.JSONDecodeError: lease_value=None
