@@ -1,4 +1,8 @@
+from contextlib import redirect_stderr
+import io
+import json
 import unittest
+from unittest.mock import patch
 
 import aster_llama_sa3_evidence_envelope_wrapper as wrapper
 
@@ -48,6 +52,20 @@ class CandidateGGuestWrapperTests(unittest.TestCase):
                         per_request_timeout=wrapper.PER_REQUEST_TIMEOUT,
                         deadline=wrapper.DEADLINE, lease_id="lease-1", generation=1,
                         scope_unit="wrong", production_check=lambda: True)
+
+    def test_unhandled_exception_retains_only_bounded_class(self):
+        output = io.StringIO()
+        arguments = ["--profile", wrapper.PROFILE, "--port", str(wrapper.PORT),
+                     "--requests", str(wrapper.CASES), "--per-request-timeout",
+                     str(wrapper.PER_REQUEST_TIMEOUT), "--deadline",
+                     str(wrapper.DEADLINE), "--lease-id", "lease-1",
+                     "--generation", "1", "--scope-unit", "fixed-scope"]
+        with patch.object(wrapper, "run", side_effect=KeyError("private-value")), \
+             redirect_stderr(output):
+            self.assertEqual(1, wrapper.main(arguments))
+        value = json.loads(output.getvalue())
+        self.assertEqual("candidate-g guest exception-class:KeyError", value["code"])
+        self.assertNotIn("private-value", output.getvalue())
 
 
 if __name__ == "__main__":

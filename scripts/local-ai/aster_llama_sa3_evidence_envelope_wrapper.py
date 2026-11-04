@@ -265,6 +265,14 @@ def main(argv=None) -> int:
     except (GuestError, OSError, ValueError, urllib.error.URLError) as exc:
         print(json.dumps({"state": "no_go", "code": str(exc)}, sort_keys=True), file=sys.stderr)
         return 1
+    except Exception as exc:
+        error_class = type(exc).__name__
+        if not ERROR_CLASS_RE.fullmatch(error_class):
+            error_class = "Exception"
+        print(json.dumps({"state": "no_go",
+                          "code": "candidate-g guest exception-class:" + error_class},
+                         sort_keys=True), file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
