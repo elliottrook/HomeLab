@@ -29,7 +29,17 @@ class CandidateGGuestWrapperTests(unittest.TestCase):
         with self.assertRaisesRegex(wrapper.GuestError, "control boundary"):
             wrapper.validate_result(value)
         value = valid_result(); value["errors"] = [{"id": "x", "error_class": "TimeoutError"}]
-        with self.assertRaisesRegex(wrapper.GuestError, "identity or count"):
+        with self.assertRaisesRegex(
+                wrapper.GuestError,
+                "result errors:count=1;classes=TimeoutError"):
+            wrapper.validate_result(value)
+        value = valid_result(); value["errors"] = [
+            {"id": "x", "error_class": "ValueError"},
+            {"id": "y", "error_class": "TimeoutError"},
+        ]
+        with self.assertRaisesRegex(
+                wrapper.GuestError,
+                "count=2;classes=TimeoutError,ValueError"):
             wrapper.validate_result(value)
 
     def test_invocation_mismatch_fails_before_effect(self):

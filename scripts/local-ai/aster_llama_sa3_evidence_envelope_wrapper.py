@@ -49,6 +49,7 @@ PINS = {
 EXCLUDED = ("sa3-evidence-envelope-quality-keys-v1.json",
             "sa3_evidence_envelope_blind_review_v1.py")
 LEASE_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{1,127}")
+ERROR_CLASS_RE = re.compile(r"[A-Za-z][A-Za-z0-9_]{0,63}")
 
 
 class GuestError(RuntimeError):
@@ -174,6 +175,17 @@ def transport(key: str, timeout: float):
 
 
 def validate_result(value: object) -> None:
+    errors = value.get("errors") if isinstance(value, dict) else None
+    if isinstance(errors, list) and errors:
+        classes = sorted({row.get("error_class") for row in errors
+                          if isinstance(row, dict)})
+        if (len(errors) <= MODEL_REQUESTS and classes
+                and all(isinstance(item, str) and ERROR_CLASS_RE.fullmatch(item)
+                        for item in classes)):
+            detail = ",".join(classes)
+            raise GuestError(
+                f"candidate-g result errors:count={len(errors)};classes={detail}")
+        raise GuestError("candidate-g result errors are malformed")
     if (not isinstance(value, dict)
             or value.get("schema") != "aster-sa3-evidence-envelope-result.v1"
             or value.get("packet_id") != PROFILE
@@ -187,7 +199,7 @@ def validate_result(value: object) -> None:
             or value.get("automatic_routing") != "off"
             or not isinstance(value.get("predictions"), list)
             or len(value["predictions"]) != CASES
-            or value.get("errors") != []):
+            or errors != []):
         raise GuestError("candidate-g result identity or count invalid")
     if any(row.get("effects") != [] or row.get("authority") != "none"
            or row.get("error_class") is not None for row in value["predictions"]):

@@ -4,6 +4,18 @@ import sa3_evidence_envelope_listener_adapter as adapter
 
 
 class CandidateGListenerAdapterTests(unittest.TestCase):
+    def test_guest_failure_parser_uses_last_bounded_json_line(self):
+        value = (b"proxmox transport note\n"
+                 b'{"state":"no_go","code":"candidate-g result errors:count=2;classes=ValueError"}\n'
+                 b"scope cleanup note\n")
+        self.assertEqual("candidate-g result errors:count=2;classes=ValueError",
+                         adapter.bounded_guest_failure(value))
+        self.assertEqual("unclassified guest failure",
+                         adapter.bounded_guest_failure(b"traceback only\n"))
+        self.assertEqual("unclassified guest failure",
+                         adapter.bounded_guest_failure(
+                             ('{"code":"' + 'x' * 161 + '"}\n').encode()))
+
     def test_command_is_fixed_and_carries_no_arbitrary_command(self):
         command = adapter.listener_command(lease_id="lease-1", generation=2)
         self.assertEqual(("pct", "exec", "110", "--"), command[:4])

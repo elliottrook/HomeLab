@@ -25,6 +25,22 @@ CASES = 20
 PER_REQUEST_TIMEOUT_SECONDS = 120
 
 
+def bounded_guest_failure(stderr: bytes) -> str:
+    try:
+        lines = stderr.decode("utf-8").splitlines()
+    except UnicodeDecodeError:
+        return "unclassified guest failure"
+    for line in reversed(lines):
+        try:
+            value = json.loads(line.strip())
+        except json.JSONDecodeError:
+            continue
+        detail = value.get("code") if isinstance(value, dict) else None
+        if isinstance(detail, str) and 1 <= len(detail) <= 160:
+            return detail
+    return "unclassified guest failure"
+
+
 def listener_command(*, lease_id: str, generation: int) -> tuple[str, ...]:
     return ("pct", "exec", "110", "--", LISTENER,
             "--profile", WORKLOAD_ID, "--port", str(PORT),
@@ -78,12 +94,7 @@ def run(*, lease_id: str, generation: int, deadline_epoch: int,
                 with open(stderr_path, "rb") as stream:
                     stderr = stream.read(RESULT_MAX_BYTES + 1)
                 if status != 0:
-                    try:
-                        detail = json.loads(stderr.decode()).get("code")
-                    except (UnicodeDecodeError, json.JSONDecodeError, AttributeError):
-                        detail = None
-                    if not isinstance(detail, str) or not 1 <= len(detail) <= 160:
-                        detail = "unclassified guest failure"
+                    detail = bounded_guest_failure(stderr)
                     raise AdapterError("candidate-g listener exited nonzero: " + detail)
                 if len(stdout) > RESULT_MAX_BYTES or len(stderr) > RESULT_MAX_BYTES:
                     raise AdapterError("candidate-g listener capture exceeded bound")
