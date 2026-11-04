@@ -34,6 +34,10 @@ implement the tested AsterTV-Jen provisioning path:
 - `enable_low_spec_runtime.py` extends only the accepted runtime host gates;
   `install_actor_search.py` installs the exact three-file production actor
   search add-on after the first Jellyfin sync is quiescent.
+- `repair_low_spec_runtime_manifests.py` is the one-time, stopped-Kodi repin for
+  the six runtime manifests affected by those reviewed hostname adaptations.
+  It accepts only post-change hashes already recorded in the host-gate
+  checkpoint and checkpoints every replaced manifest/launcher before writing.
 
 All client secrets are mode `0600`. Durable server-side secret custody is
 outside this repository. YouTube authorization is deliberately separate, and
