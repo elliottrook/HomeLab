@@ -370,20 +370,20 @@ Preflight multiple candidates in one continuous-lane pass, but execute serially 
 
 ## Current queue, reconciled 2026-10-25
 
-**Current overlay — 2026-11-04 13:00 America/Vancouver.** The historical table
+**Current overlay — 2026-11-04 14:00 America/Vancouver.** The historical table
 below remains useful provenance but its live classifications are superseded by
 this bounded overlay:
 
 | Item | State now | Next action |
 |---|---|---|
-| D4 candidate-g investigation quality | **READY / scheduled** as booking `aster-stream-a-sa3-envelope-20261104-1315-r3` for 13:15–14:45. The full EPUB preflight/Doctor/drain/restore path is corrected and target-validated. | Reconcile exactly one terminal transaction. Only a complete 20-case/14-model-call result with independent production restoration may advance to the frozen model-blind review. |
+| D4 candidate-g investigation quality | **NO-GO / diagnostic correction source-complete.** The spent r3 booking failed after 193 seconds in the owner transaction, retained no result, and restored production. The adapter collapsed the bounded inner guest failure to `unclassified guest failure`. Platform commit `1a185f54` corrects that source path and passes 27/27 plus direct target proof. | Build and review a reversible inactive installer, then validate exact installed hashes/custody. Only a fresh conflict-free booking may run one new attempt; r3 cannot be retried or scored. |
 | M3 J2 successor | **BLOCKED on owner/custody, not engineering.** Candidate-v4 passes the complete 53-test source boundary and is the release candidate Stream A is prepared to promote for corpus release only. | Jason reviews the exact four-hash owner card. A separately controlled signer must then bind custody, and a third custodian must seal the untouched 32-case evaluation set before training can become eligible. |
 | J2 training and routing | **BLOCKED.** Recipe source is frozen, but no training authority, sealed evaluation access, model artifact, route or tool grant exists. | Do not train or evaluate until owner acceptance plus both external custody gates pass. |
 | Companion | **MONITORING.** Ordinary signed-in use remains accepted. | Continue only on meaningful reliability change; do not disturb the working Companion for Stream A tests. |
 
-The r3 booking remains fail closed on fresh lease, lock, health, result and
-restoration gates. Its schedule does not authorize a retry, model change,
-deployment or routing promotion.
+The [r3 terminal record](evidence/D4-candidate-g-r3-unclassified-guest-no-go-2026-11-04.md)
+is fail closed. It authorizes no retry, model change, deployment, blind-review
+claim, or routing promotion.
 
 The [next batched offline preflight](evidence/Stream-A-batched-next-lab-preflight-2026-10-12.md)
 classifies five prospective cards and their missing gates. None is yet a
