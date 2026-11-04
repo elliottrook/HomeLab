@@ -37,3 +37,20 @@ camera image or household state.
 No decision above authorizes an operational change. Each implementation remains
 a bounded Stream M step with its target, checkpoint, validation and rollback
 presented immediately before mutation.
+
+## Client baseline observations
+
+Read-only checks on 2026-11-04 produced the following current comparison. The
+Bedroom client was offline and is deliberately left unclaimed rather than
+filled from historical state.
+
+| Client | Current hardware / output | Kodi integration surface | Recovery boundary |
+|---|---|---|---|
+| AsterTV Family | Intel N95, four physical cores; Alder Lake-N UHD `8086:46d2`; HDMI 0 reports `Beyond TV`; Intel I226-V Ethernet and RTL8822CE Wi-Fi are present | LibreELEC 13 nightly `440640e`; Kodi 22.0 RC1 `01d4146…d46`; Aster/Jellyfin/YouTube/Books/Music/Requests/Home/voice/player/reliability add-ons present; Jellyfin repository add-on also present | `astertv-release-guard.service` enabled; accepted-manifest SHA-256 `84cced22…93bc` |
+| AsterTV Bedroom | Offline (`Host is down`) | Live version/add-on inventory pending | Live recovery verification pending |
+| AsterTV Jen | Intel i5-4570T, two cores/four threads; Haswell iGPU `8086:0412`; HDMI 0 currently reports `LG HDR 4K`; Intel I217-LM Ethernet | LibreELEC 13 nightly `440640e`; Kodi 22.0 RC1 `01d4146…d46`; same functional Aster/Jellyfin/YouTube/Books/Music/Requests/Home/voice/player/reliability add-ons as Family, without the Jellyfin repository add-on | `astertv-release-guard.service` enabled; accepted-manifest SHA-256 `dfc51bc8…c3ff` |
+
+The hardware and accepted-manifest hashes intentionally differ. Equality of
+software version does not imply codec, audio, recovery payload or performance
+parity. Family retains the production Dolby/HDR contract; Jen remains the
+measured low-spec 1080p candidate.
