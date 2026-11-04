@@ -10,7 +10,7 @@ from pathlib import Path
 FILES = {
     "sa3-evidence-envelope-development-v1.json": "733a6a6fc664ccf2b29dc1ab61affce9bfb04eb07b6a937946ccdb379988d1cd",
     "sa3_deterministic_evidence_envelope_v1.py": "9f8b14f8f1a4d162eed03f39e82b868118b0c5bdcb3a7fce744a28e9d13e3da3",
-    "sa3_evidence_envelope_runner_v1.py": "22828169293ab013076d42928f38159ac356f3ef8c584419ea4ddff2b43de45b",
+    "sa3_evidence_envelope_runner_v1.py": "372c19ef3c2f5e8f0965167011c4bba47d9326e5f5ffe7d0b77d9ac5898fc352",
 }
 CONTROLS = {
     "checks": "deterministic-visible-usable-observations-only",
