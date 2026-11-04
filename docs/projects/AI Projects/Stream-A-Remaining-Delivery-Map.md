@@ -48,6 +48,12 @@ pins and adds a one-file rollback installer; the focused suite passes 22/22.
 Next is inactive installation plus the actual installed full-manifest verifier,
 not a retry of the spent booking.
 
+That [inactive manifest installation now passes](evidence/D4-candidate-g-release-manifest-pin-install-result-2026-11-04.md):
+the predecessor is retained root-only, the focused target suite passes 22/22,
+and the actual installed reserved-runner verifier accepts all 34 pins including
+both corrected EPUB hashes. No booking, restart or workload occurred. The next
+D4 effect is a fresh ledger-checked booking under the retained restart boundary.
+
 Work outside the timed F2 chain continues in parallel. A failed F2 runtime gate
 blocks F3 and the live evaluations; it does not block offline D4/M3 hardening,
 documentation reconciliation, Companion monitoring or review of the new F6
