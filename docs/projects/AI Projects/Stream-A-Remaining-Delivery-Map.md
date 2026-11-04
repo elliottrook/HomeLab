@@ -38,6 +38,16 @@ eight explicit exposed references. Together the preregistration, custody and
 corpus suites pass 19/19. No corpus exists yet; the next milestone is
 independent corpus construction and label review under these frozen rules.
 
+The [J2 label-review validator](evidence/M3-J2-label-review-validator-boundary-2026-11-04.md)
+now binds a complete 960-row review to the exact corpus bytes, requires a
+distinct declared reviewer and treats every correction or unresolved row as
+release-ineligible. The combined source-only J2 suite passes 23/23. The
+independent custody audit also found that shared-worktree identity strings and
+self-hashes cannot authenticate separation, and that the eight reference
+identities must be pinned rather than merely counted. Corpus release therefore
+still requires externally controlled signer evidence, exact reference pins and
+a sealed evaluation path; no training or route effect is admitted.
+
 **D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart
 boundary and the [fresh candidate-g booking](evidence/D4-candidate-g-fresh-booking-result-2026-11-04.md)
 is now authoritative and `scheduled` for 09:30–11:00 host-local. Static pins,
