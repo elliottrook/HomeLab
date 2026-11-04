@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 import hashlib
+import json
+import os
+from pathlib import Path
 
 from sa3_evidence_envelope_blind_review_v1 import (
     build_review_packet, review_packet_sha256,
@@ -47,4 +50,35 @@ def reconcile(booking_id: str, terminal: object, packet: dict,
         "quality_decision": "pending-independent-review",
     }
     return summary, review_packet
+
+
+def _write_exclusive(path: Path, value: object) -> None:
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL
+                         | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(descriptor, "wb") as stream:
+        stream.write(canonical(value))
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
+def main(argv=None) -> int:
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--booking-id", required=True)
+    parser.add_argument("--terminal", required=True, type=Path)
+    parser.add_argument("--packet", required=True, type=Path)
+    parser.add_argument("--result", required=True, type=Path)
+    parser.add_argument("--review-packet", required=True, type=Path)
+    args = parser.parse_args(argv)
+    terminal = json.loads(args.terminal.read_text(encoding="utf-8"))
+    packet = json.loads(args.packet.read_text(encoding="utf-8"))
+    result = json.loads(args.result.read_text(encoding="utf-8"))
+    summary, review_packet = reconcile(args.booking_id, terminal, packet, result)
+    _write_exclusive(args.review_packet, review_packet)
+    print(json.dumps(summary, sort_keys=True, separators=(",", ":")))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
 

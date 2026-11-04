@@ -1,5 +1,8 @@
 import copy
 import json
+import subprocess
+import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -66,6 +69,37 @@ class EvidenceEnvelopeReconciliationTests(unittest.TestCase):
                             "error_class": "TimeoutError"}]
         with self.assertRaises(ValueError):
             reconcile(BOOKING, terminal(), PACKET, value)
+
+    def test_cli_writes_exclusive_blind_packet_and_content_free_summary(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            inputs = {
+                "terminal": terminal(), "packet": PACKET, "result": result(),
+            }
+            paths = {}
+            for name, value in inputs.items():
+                paths[name] = root / (name + ".json")
+                paths[name].write_text(json.dumps(value), encoding="utf-8")
+            output = root / "review.json"
+            process = subprocess.run((sys.executable, "-B",
+                str(Path(__file__).with_name("sa3_evidence_envelope_reconciliation_v1.py")),
+                "--booking-id", BOOKING, "--terminal", str(paths["terminal"]),
+                "--packet", str(paths["packet"]), "--result", str(paths["result"]),
+                "--review-packet", str(output)), capture_output=True, text=True,
+                check=False)
+            self.assertEqual(0, process.returncode, process.stderr)
+            summary = json.loads(process.stdout)
+            self.assertEqual("pending-independent-review", summary["quality_decision"])
+            self.assertNotIn("cases", summary)
+            self.assertEqual(0o600, output.stat().st_mode & 0o777)
+            self.assertFalse(json.loads(output.read_text())["model_identity_disclosed"])
+            repeated = subprocess.run((sys.executable, "-B",
+                str(Path(__file__).with_name("sa3_evidence_envelope_reconciliation_v1.py")),
+                "--booking-id", BOOKING, "--terminal", str(paths["terminal"]),
+                "--packet", str(paths["packet"]), "--result", str(paths["result"]),
+                "--review-packet", str(output)), capture_output=True, text=True,
+                check=False)
+            self.assertNotEqual(0, repeated.returncode)
 
 
 if __name__ == "__main__":

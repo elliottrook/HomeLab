@@ -23,6 +23,14 @@ NO-GO state, failed restoration, booking substitution, request-count drift or
 any result error fails before a review packet is produced. The combined D4
 evidence-envelope suite passes 34/34.
 
+The follow-on CLI closure reads the exact booking terminal, frozen packet and
+root-custodied result, then writes the model-blind packet with exclusive-create
+mode 0600 and prints only the content-free reconciliation summary. It refuses
+to overwrite an existing packet. The focused reconciliation, blind-review,
+candidate and workload-proposal suite passes 15/15. This removes manual JSON
+assembly from the terminal-to-review handoff without changing any acceptance
+gate or making a quality decision.
+
 This is preparation for the scheduled r3 transaction only. It does not read a
 future result, pre-score the candidate, authorize a retry or promote a route.
 
