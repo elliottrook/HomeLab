@@ -68,3 +68,21 @@ exception.
 
 See `EVIDENCE-2026-11-04.md` for measured qualification, backend and credential
 proof, rollback evidence and the production-equivalence verdict reported to v3.
+
+`jellyfin_client_policy.py` installs the host-bound AsterTV-Jen playback policy.
+It caps this client at 18 Mb/s and adds a Jellyfin device-profile condition that
+permits HEVC direct play only through 1920 pixels wide. Wider HEVC is therefore
+transcoded by Jellyfin, while Family and Bedroom are untouched. The boot unit
+runs after the accepted-release guard and before Kodi. An event-driven path unit
+also detects Jellyfin add-on/settings replacement: the reviewed add-on hash is
+repatched, while any unknown version fails safe to the add-on's supported
+`transcode_h265=true` setting until that version is reviewed. The checkpoint,
+accepted patched hash and last policy mode live under `/storage/.aster-*` and
+contain no credentials.
+
+`configure_jellyfin_arc_hwa.py` is the exact-hash, host-bound server-side
+companion used for this qualification. It enables the Arc A380's verified
+hardware decoders and Intel VPP tone mapping while leaving unsupported OpenCL
+tone mapping off. The Jellyfin encoding configuration is checkpointed before
+replacement. This server setting benefits any client that requests a
+transcode; the rule that makes 4K HEVC transcode is still present only on Jen.
