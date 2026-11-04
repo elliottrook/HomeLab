@@ -35,6 +35,8 @@ def review_sha256(value: dict[str, object]) -> str:
 
 
 def _source(raw: bytes) -> dict[str, object]:
+    if corpus_boundary.ontology_sha256() != corpus_boundary.FROZEN_ONTOLOGY_SHA256:
+        raise ValueError("J2 frozen ontology changed")
     try:
         value = decode_unique_json(raw)
     except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:

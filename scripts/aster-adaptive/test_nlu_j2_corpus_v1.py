@@ -1,6 +1,7 @@
 import copy
 import json
 import unittest
+from unittest import mock
 
 import nlu_j2_corpus_v1 as corpus
 import nlu_whole_label_choice_v1 as ontology
@@ -14,6 +15,15 @@ def references():
     return {f"reference-{index}": encoded({"cases": [
         {"id": f"r{index}", "text": f"Exposed reference request {index}"}
     ]}) for index in range(corpus.REFERENCE_COUNT)}
+
+
+def inventory(refs):
+    return {name: corpus._reference(name, raw)[1] for name, raw in refs.items()}
+
+
+def validate(value_raw, refs):
+    with mock.patch.object(corpus, "REFERENCE_INVENTORY", inventory(refs)):
+        return corpus.validate_corpus(value_raw, refs)
 
 
 def value():
@@ -34,7 +44,8 @@ def value():
 
 class J2CorpusTests(unittest.TestCase):
     def test_balanced_disjoint_corpus_is_accepted(self):
-        summary = corpus.validate_corpus(encoded(value()), references())
+        refs = references()
+        summary = validate(encoded(value()), refs)
         self.assertEqual(960, summary["case_count"])
         self.assertEqual(768, summary["train_count"])
         self.assertEqual(192, summary["validation_count"])
@@ -45,7 +56,21 @@ class J2CorpusTests(unittest.TestCase):
     def test_requires_exactly_eight_reference_sets(self):
         refs = references(); refs.pop(next(iter(refs)))
         with self.assertRaisesRegex(ValueError, "eight"):
-            corpus.validate_corpus(encoded(value()), refs)
+            validate(encoded(value()), refs)
+
+    def test_reference_name_or_pinned_bytes_substitution_fails(self):
+        refs = references()
+        expected = inventory(refs)
+        renamed = dict(refs)
+        renamed["substitute"] = renamed.pop(next(iter(renamed)))
+        with mock.patch.object(corpus, "REFERENCE_INVENTORY", expected):
+            with self.assertRaisesRegex(ValueError, "exact eight"):
+                corpus.validate_corpus(encoded(value()), renamed)
+            changed = dict(refs)
+            first = next(iter(changed))
+            changed[first] = encoded({"cases": [{"id": "x", "text": "changed"}]})
+            with self.assertRaisesRegex(ValueError, "pinned"):
+                corpus.validate_corpus(encoded(value()), changed)
 
     def test_overlap_duplicate_and_imbalance_fail_closed(self):
         base = value()
@@ -57,27 +82,30 @@ class J2CorpusTests(unittest.TestCase):
         imbalance["cases"][0]["label_id"] = imbalance["cases"][-1]["label_id"]
         for changed in (overlap, duplicate, imbalance):
             with self.subTest(), self.assertRaises(ValueError):
-                corpus.validate_corpus(encoded(changed), references())
+                refs = references()
+                validate(encoded(changed), refs)
 
     def test_metadata_and_unique_json_fail_closed(self):
         changed = value(); changed["authority"] = "granted"
         with self.assertRaises(ValueError):
-            corpus.validate_corpus(encoded(changed), references())
+            refs = references()
+            validate(encoded(changed), refs)
         duplicate = encoded(value()).replace(
             b'"authority":"not-granted"',
             b'"authority":"not-granted","authority":"granted"', 1)
         with self.assertRaises(ValueError):
-            corpus.validate_corpus(duplicate, references())
+            refs = references()
+            validate(duplicate, refs)
 
     def test_reference_schema_and_normalized_duplicates_fail_closed(self):
         bad = references(); bad["reference-0"] = b"{}\n"
         with self.assertRaises(ValueError):
-            corpus.validate_corpus(encoded(value()), bad)
+            validate(encoded(value()), bad)
         duplicate = references(); duplicate["reference-0"] = encoded({"cases": [
             {"id": "a", "text": "Same exposed request"},
             {"id": "b", "text": "same   exposed request"}]})
         with self.assertRaises(ValueError):
-            corpus.validate_corpus(encoded(value()), duplicate)
+            validate(encoded(value()), duplicate)
 
 
 if __name__ == "__main__":

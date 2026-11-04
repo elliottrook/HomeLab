@@ -17,7 +17,7 @@ is self-hashed and its content-free summary records authority not granted and
 automatic routing off.
 
 The combined J2 preregistration, custody, corpus and label-review suite passes
-23/23. This validates the schema and fail-closed behavior with synthetic test
+24/24. This validates the schema and fail-closed behavior with synthetic test
 fixtures only. No corpus, real review, evaluation set, booking, model call,
 training, route effect or deployment was created.
 
@@ -26,6 +26,8 @@ training, route effect or deployment was created.
 Distinct identity strings and self-hashes do not authenticate independent
 people or processes in a shared worktree. A later release boundary must bind
 externally controlled signer fingerprints (or equivalent separate-account
-evidence), the exact eight exposed reference identities and a genuine sealed
-evaluation path. Until then, this validator is necessary evidence plumbing,
-not proof that independent custody occurred.
+evidence) and a genuine sealed evaluation path. The corpus validator now pins
+the exact eight exposed reference names, byte digests, normalized-set digests
+and counts plus the frozen ontology; the six raw calibration corpora remain in
+human-controlled custody. Until the remaining gates close, this validator is
+necessary evidence plumbing, not proof that independent custody occurred.
