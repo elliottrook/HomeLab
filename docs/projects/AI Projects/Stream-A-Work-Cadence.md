@@ -407,3 +407,29 @@ gate does not stop offline M1/D4, M3 or benchmark work. End only when every
 remaining useful item requires a real approval, credential, external result,
 exclusive lease or unavailable resource, and report the exact gate. This rule
 does not waive any release, remote-write or security approval.
+
+## Standing execution and milestone-push authority — 2026-11-04
+
+Jason expanded the current Stream A authority after repeated unnecessary
+stops. The [recorded authority matrix](evidence/Stream-A-standing-authority-and-agent-limits-2026-11-04.md)
+now governs continuation:
+
+- in-scope registered candidate bookings, bounded executions and their fixed
+  declared-consumer stop/restoration proceed without another conversational
+  approval;
+- reversible inactive corrections after a terminal attempt proceed with their
+  tests/checkpoints and never reuse the spent transaction;
+- each completed project milestone is pushed to Forgejo after a remote-head
+  fast-forward precheck and followed by read-only GitHub mirror verification;
+- internal review/effect cards are engineering evidence, not repeat permission
+  asks;
+- after every check, failure, commit or push, select the next independent ready
+  item in the same turn.
+
+This does not waive the repository's non-waivable destructive, credential,
+public-exposure, security-weakening or materially different-scope stops. It
+does not authorize force push, remote deletion/history rewrite, direct GitHub
+push, production model/backend replacement, new access grant or unrelated
+deployment. Product/sandbox escalations remain technical controls and should
+be requested through the execution mechanism rather than recast as project
+approval questions.
