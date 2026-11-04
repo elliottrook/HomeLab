@@ -494,9 +494,10 @@ sync to television.
 
 ### PA3 — Aster, News, Requests, Home and Cameras page redesigns
 
-- [x] Build the Aster AI interaction shell for idle, listening, processing,
-  speaking, cancelled and failed synthetic states without connecting a model or
-  microphone service.
+- [x] Build Aster AI as a globally invokable floating speech-search dialog,
+  preserving the page underneath and presenting the heard phrase, a small set
+  of inline media results, a full-results handoff and close-to-origin behaviour
+  without connecting a model, microphone or search service.
 - [x] Apply Aster icons and shared chrome to News while preserving digest and
   article interaction contracts in fixtures.
 - [x] Design podcast request discovery, details, duplicate/status and explicit
@@ -507,9 +508,9 @@ sync to television.
 Gate: all surfaces pass the physical navigation/failure-state walkthrough and
 contain no credential, household state, camera image or live write path.
 
-Implementation and automated gates are complete; physical visual/navigation
-acceptance is pending because the Mac was locked when the rebuilt portable
-pilot was launched. F1–F5 open the five PA3 fixtures after unlock.
+Implementation and automated gates are complete. F1–F5 open the five PA3
+fixtures; F1 is a dialog invoked globally over whichever fixture/page is
+currently visible rather than a standalone destination.
 
 ### PA4 — Pilot reconciliation and mandatory Stream M transition
 
@@ -580,18 +581,24 @@ adversarial navigation; recovery does not require the implementation agent.
 
 ### M3 — Aster AI television integration
 
-- [ ] Define the dedicated AsterTV client identity, broker tools, approval class,
-  secret custody metadata, rotation/revocation and break-glass path.
-- [ ] Build visible listen/process/respond/cancel/error states using the G20
-  microphone or a synthetic capture fixture first.
+- [ ] Define a search-only AsterTV client identity and broker contract, with no
+  general whole-home Aster tools exposed to the television client; record secret
+  custody metadata, rotation/revocation and break-glass paths.
+- [ ] Invoke a floating dialog from every AsterTV page and implement visible
+  listen/transcribe/search/cancel/error states using the G20 microphone or a
+  synthetic capture fixture first, always returning to the originating page.
+- [ ] Return a bounded set of media matches inside the dialog; selecting a match
+  opens its normal AsterTV details route, while View all opens the full search
+  results page with the phrase and result context preserved.
 - [ ] Apply account context only after authorization and data-minimization tests.
 - [ ] Test prompt injection, unavailable broker/model, timeout, cancellation,
   stale context, denied tools and restart during a request.
 - [ ] Validate spoken output against the canonical Aster voice and cleanup.
 
-Gate: AsterTV can complete two independent bounded Aster interactions without
-receiving credentials, exposing another profile or obtaining general admin
-authority.
+Gate: AsterTV can complete two independent spoken media searches from different
+originating pages, show and open valid results, hand off to the full search page
+and close back to origin without receiving credentials, exposing another
+profile or obtaining non-search authority.
 
 ### M4 — Movies and YouTube redesign
 

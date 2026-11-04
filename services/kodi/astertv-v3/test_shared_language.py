@@ -388,8 +388,8 @@ class SharedLanguageTests(unittest.TestCase):
                 text=True,
             )
             self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-            self.assertIn("275 visible buttons", completed.stdout)
-            self.assertIn("anchor:1, art:8, catcher:2, hidden:4", completed.stdout)
+            self.assertIn("272 visible buttons", completed.stdout)
+            self.assertIn("anchor:1, art:11, catcher:2, hidden:4", completed.stdout)
             self.assertIn("12 shared button definitions", completed.stdout)
 
             focus_refs = 0
@@ -737,21 +737,33 @@ class SharedLanguageTests(unittest.TestCase):
                     for direction in ("onleft", "onright", "onup", "ondown"):
                         self.assertIn(button.findtext(direction), buttons)
 
-    def test_pa3_aster_ai_covers_the_six_required_states(self) -> None:
+    def test_pa3_aster_ai_is_a_global_media_search_dialog(self) -> None:
+        page = ET.parse(AI_PAGE).getroot()
         text = AI_PAGE.read_text()
-        for state in ("Idle", "Listening", "Processing", "Speaking", "Cancelled", "Failed"):
-            self.assertIn(f"<label>{state}</label>", text)
-        for focus_id, presentation in (
-            (11970, "Ready when you are"),
-            (11971, "Listening…"),
-            (11972, "Working on that"),
-            (11973, "Aster is reading the response aloud."),
-            (11974, "Nothing was sent or retained."),
-            (11975, "Something went wrong"),
+        self.assertEqual(page.attrib.get("type"), "dialog")
+        self.assertEqual(page.findtext("backgroundcolor"), "00000000")
+        self.assertNotIn("AsterV3PageBackdrop", text)
+        for label in (
+            "●  Listening…",
+            "YOU SAID",
+            "“Find me a light comedy film.”",
+            "I found three matches on AsterTV",
+            "Search again",
+            "View all results",
+            "Close",
         ):
-            self.assertIn(f"Control.HasFocus({focus_id})", text)
-            self.assertIn(presentation, text)
-        self.assertIn("no microphone or model connected", text)
+            self.assertIn(f"<label>{label}</label>", text)
+        self.assertEqual(text.count("<include>AsterV3ArtTitleTile</include>"), 3)
+        self.assertIn("<onclick>ActivateWindow(1127)</onclick>", text)
+        self.assertEqual(text.count("<onclick>Dialog.Close(1197)</onclick>"), 5)
+        for control_id in ("11970", "11971", "11972", "11974"):
+            action = page.find(f".//control[@id='{control_id}']")
+            self.assertEqual(
+                [node.text for node in action.findall("onclick")],
+                ["Dialog.Close(1197)", "ActivateWindow(1194)" if control_id != "11974" else "ActivateWindow(1127)"],
+            )
+        self.assertIn("returns to the page underneath", text)
+        self.assertIn("no microphone or search service connected", text)
 
     def test_pa3_news_preserves_digest_article_and_narration_contracts(self) -> None:
         text = NEWS_PAGE.read_text()
