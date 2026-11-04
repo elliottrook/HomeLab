@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 from typing import Iterable
 
@@ -50,7 +51,7 @@ def _spec(label_id: str, subjects: Iterable[str], templates: Iterable[str]):
 SPECS = (
     _spec(_label_id(family="change-request", sensitivity="internal", capabilities=[],
                     ambiguity="ambiguous", disposition="clarify", reason="ambiguous"),
-          ("that service", "the previous setting", "the thing we discussed", "that configuration",
+          ("that service", "the previous setting", "the previously referenced resource", "that configuration",
            "the earlier option", "the item above", "the current setup", "that resource",
            "the last component", "the one I mentioned"),
           ("Change {x}.", "Please update {x}.", "Can you modify {x}?",
@@ -240,6 +241,8 @@ def _parser() -> argparse.ArgumentParser:
     for name in REFERENCE_ARGUMENTS:
         parser.add_argument(f"--{name}", required=True, type=Path,
                             help=f"explicit {name} reference JSON")
+    parser.add_argument("--output", required=True, type=Path,
+                        help="new owner-only corpus candidate path")
     return parser
 
 
@@ -247,11 +250,14 @@ def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     references = {name: getattr(args, name.replace("-", "_")).read_bytes()
                   for name in REFERENCE_ARGUMENTS}
-    raw, _summary = build_corpus(references)
-    # Standard output is the only output surface; the caller decides whether
-    # and where to preserve the candidate.  No runtime system is contacted.
-    import sys
-    sys.stdout.buffer.write(raw)
+    raw, summary = build_corpus(references)
+    fd = os.open(args.output, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                 0o600)
+    with os.fdopen(fd, "wb") as stream:
+        stream.write(raw)
+        stream.flush()
+        os.fsync(stream.fileno())
+    print(json.dumps(summary, sort_keys=True, separators=(",", ":")))
     return 0
 
 

@@ -29,9 +29,10 @@ frozen ontology digest.
   not read or named by the builder.
 - The generated metadata keeps authority at `not-granted`; the validator's
   content-free summary keeps automatic routing off.
-- The command-line interface writes canonical corpus JSON only to standard
-  output. It has no training, booking, tool, service, route, or deployment
-  behavior.
+- The command-line interface creates one new owner-only mode-0600 canonical
+  corpus path with no overwrite or symlink following, and writes only the
+  content-free validation summary to standard output. It has no training,
+  booking, tool, service, route, or deployment behavior.
 - No corpus fixture is frozen by this source milestone. Production emission
   remains fail-closed until the custodian is given the exact eight pinned raw
   reference files, including the private request-source calibration corpora.
@@ -50,13 +51,13 @@ missing/extra/renamed-reference rejection, overlap rejection, required CLI
 arguments, no-authority metadata, and the inherited validator failures.
 
 - candidate builder SHA-256:
-  `77fdb9207d66c4d7cf211e66de4528c12e3f3d3904549e9e33688cc6cd438ed0`;
+  `4310df60d21c0b02874525c4ed5dedb249be91ae17d771842dcab060e0822374`;
 - focused test SHA-256:
-  `bc0a6b45eb60c9916a1ea6376b73621baffa48e826d8e12b044597c902da2cfe`;
+  `1cb351ef585668ca21687757d68d3afa9c5919fe54a21a223d0bad22c8200ccb`;
 - generated candidate source SHA-256:
-  `cf838b8922e92e92aab770ecd56b0e1263977f2f4482bf665e17906b5b2a94a9`;
+  `cb5f5a546873a13c6993151d3865ed35377a57427866d7108074bdf49bf0224f`;
 - generated normalized text-set SHA-256:
-  `c7965a2618ee149280cca7efcc503df7fc956e854ed507c200fcced300e2adac`;
+  `42044124548ea48e80bfb10190be834e5ac9f7decc04d2d102c75eb6e1a5f96f`;
 - preregistration manifest SHA-256:
   `2abcd02371b087ebc6db95b04dd271b518624cd063ffeb4612341bcb4c1b97ee`;
 - frozen ontology catalogue SHA-256:

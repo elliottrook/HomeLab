@@ -71,6 +71,15 @@ The combined J2 source suite passes 35/35. The remaining gate is real pinned
 private-reference validation plus authenticated independent custody and review,
 not more shared-worktree identity assertions.
 
+The first real pinned-reference build then failed closed on one exact J1-v3
+overlap, wrote no candidate, and identified only the candidate ID and reference
+class. After changing that single public phrase, the
+[pinned corpus construction](evidence/M3-J2-pinned-corpus-construction-result-2026-11-04.md)
+passed all eight exact references with zero normalized overlap. The retained
+owner-only candidate has 960 balanced rows, SHA-256 `cb5f5a54…224f` and
+normalized-set SHA-256 `42044124…f96f`; authority and routing remain off. The
+next gate is the distinct 960-row semantic label review, not training.
+
 **D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart
 boundary and the [fresh candidate-g booking](evidence/D4-candidate-g-fresh-booking-result-2026-11-04.md)
 is now authoritative and `scheduled` for 09:30–11:00 host-local. Static pins,

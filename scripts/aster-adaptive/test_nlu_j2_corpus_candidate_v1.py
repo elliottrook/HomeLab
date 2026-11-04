@@ -103,10 +103,12 @@ class J2CorpusCandidateTests(unittest.TestCase):
         args = []
         for name in candidate.REFERENCE_ARGUMENTS:
             args.extend((f"--{name}", f"/{name}.json"))
+        args.extend(("--output", "/private/corpus.json"))
         parsed = parser.parse_args(args)
         self.assertEqual("/development-v1.json", str(parsed.development_v1))
+        self.assertEqual("/private/corpus.json", str(parsed.output))
         with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
-            parser.parse_args(args[:-2])
+            parser.parse_args(args[:-4])
 
     def test_metadata_has_no_authority_or_runtime_effect(self):
         raw, _ = build(references())
