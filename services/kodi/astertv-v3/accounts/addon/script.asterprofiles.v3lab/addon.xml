@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="script.asterprofiles.v3lab" name="Aster Profiles v3 Lab" version="0.2.0" provider-name="Aster Home">
+<addon id="script.asterprofiles.v3lab" name="Aster Profiles v3 Lab" version="0.3.2" provider-name="Aster Home">
   <requires>
     <import addon="xbmc.python" version="3.0.0" />
   </requires>
@@ -8,8 +8,8 @@
   </extension>
   <extension point="xbmc.service" library="service.py" start="login" />
   <extension point="xbmc.addon.metadata">
-    <summary lang="en_GB">Synthetic AsterTV v3 profile-isolation pilot</summary>
-    <description lang="en_GB">Jen-only credential-free profile selector with two synthetic members and restricted Guest recovery.</description>
+    <summary lang="en_GB">AsterTV v3 profile-authority candidate</summary>
+    <description lang="en_GB">Jen-only local profile authority with recovery administration and restricted Guest.</description>
     <platform>all</platform>
     <license>Private HomeLab pilot</license>
   </extension>

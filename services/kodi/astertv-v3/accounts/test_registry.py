@@ -4,6 +4,7 @@ import json
 import stat
 import tempfile
 import unittest
+import hashlib
 from pathlib import Path
 
 
@@ -14,6 +15,11 @@ spec.loader.exec_module(registry)
 policy_spec = importlib.util.spec_from_file_location("astertv_access_policy", ROOT / "access_policy.py")
 policy = importlib.util.module_from_spec(policy_spec)
 policy_spec.loader.exec_module(policy)
+resolver_spec = importlib.util.spec_from_file_location(
+    "astertv_identity_resolver", ROOT / "identity_resolver.py"
+)
+resolver = importlib.util.module_from_spec(resolver_spec)
+resolver_spec.loader.exec_module(resolver)
 
 
 def fixture():
@@ -84,6 +90,17 @@ class RegistryTests(unittest.TestCase):
                 registry.store(path, fixture())
             self.assertFalse(path.with_suffix(".json.previous").exists())
 
+    def test_explicit_recovery_replaces_malformed_state_without_backing_it_up(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "profiles.json"
+            path.write_text("malformed-secret-like-input")
+            registry.recover_store(path, fixture())
+            recovered, status = registry.load(path)
+            self.assertEqual(status, "valid")
+            self.assertEqual(recovered["active_profile_id"], "synthetic-member-a")
+            self.assertFalse(path.with_suffix(".json.previous").exists())
+            self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o600)
+
     def test_registry_has_no_client_playback_ceiling(self):
         combined = json.dumps(fixture()) + (ROOT / "registry.py").read_text()
         for target_specific in ("1080", "18000", "passthrough_formats", "AsterTV-Jen"):
@@ -125,6 +142,57 @@ class RegistryTests(unittest.TestCase):
         data["profiles"][0]["service_mappings"][0]["enabled"] = True
         self.assertFalse(policy.private_surface(data, 10000))
         self.assertEqual(policy.select_decision(data, 9001), "allow")
+
+    def test_local_subject_references_are_allowlisted_but_arbitrary_values_are_not(self):
+        data = fixture()
+        data["profiles"][0]["service_mappings"][0] = {
+            "service": "jellyfin",
+            "opaque_subject_id": "local:jellyfin:sha256:" + "a" * 64,
+            "enabled": True,
+        }
+        self.assertEqual(
+            registry.validate(data)["profiles"][0]["service_mappings"][0]["enabled"],
+            True,
+        )
+        data["profiles"][0]["service_mappings"][0]["opaque_subject_id"] = "local:jellyfin:current"
+        with self.assertRaises(registry.RegistryError):
+            registry.validate(data)
+
+    def test_identity_resolution_matches_existing_custody_and_denies_drift(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            jellyfin = root / "storage/.kodi/userdata/addon_data/plugin.video.jellyfin"
+            books = root / "storage/.kodi/userdata/addon_data/plugin.audio.asterbooks"
+            private = root / "storage/.aster-private"
+            jellyfin.mkdir(parents=True); books.mkdir(parents=True); private.mkdir(parents=True)
+            user_id = "fixture-user"
+            user_hash = hashlib.sha256(user_id.encode()).hexdigest()
+            files = {
+                jellyfin / "data.json": {"Servers": [{"UserId": user_id, "AccessToken": "fixture-access"}]},
+                jellyfin / "provisioning.json": {"user_id_sha256": user_hash},
+                books / "client.json": {"api_key": "fixture-key", "server_url": "https://fixture.invalid"},
+                books / "progress-enabled.json": {"account_sha256": "b" * 64, "enabled": True},
+            }
+            for path, value in files.items():
+                path.write_text(json.dumps(value)); path.chmod(0o600)
+            (private / "seerr-token").write_text("fixture-token"); (private / "seerr-token").chmod(0o600)
+            subjects = resolver.discover(root)
+            self.assertEqual(subjects["jellyfin"], "local:jellyfin:sha256:" + user_hash)
+            self.assertEqual(subjects["audiobookshelf"], "local:audiobookshelf:sha256:" + "b" * 64)
+            self.assertEqual(subjects["seerr"], "local:seerr:client:astertv-jen")
+            data = fixture()
+            data["profiles"][0]["service_mappings"] = [{
+                "service": "jellyfin", "opaque_subject_id": subjects["jellyfin"], "enabled": True,
+            }]
+            resolved, status = resolver.resolve_registry(data, root)
+            self.assertEqual(status, "resolved")
+            self.assertTrue(resolved["profiles"][0]["service_mappings"][0]["enabled"])
+            data["profiles"][0]["service_mappings"][0]["opaque_subject_id"] = (
+                "local:jellyfin:sha256:" + "c" * 64
+            )
+            resolved, status = resolver.resolve_registry(data, root)
+            self.assertEqual(status, "identity-mismatch")
+            self.assertFalse(resolved["profiles"][0]["service_mappings"][0]["enabled"])
 
 
 if __name__ == "__main__":

@@ -121,6 +121,8 @@ def validate_archive(archive, expected_sha):
         "astertv-v3-m2-jen/addons/script.asterprofiles.v3lab/service.py",
         "astertv-v3-m2-jen/addons/script.asterprofiles.v3lab/registry.py",
         "astertv-v3-m2-jen/addons/script.asterprofiles.v3lab/access_policy.py",
+        "astertv-v3-m2-jen/addons/script.asterprofiles.v3lab/authority.py",
+        "astertv-v3-m2-jen/addons/script.asterprofiles.v3lab/identity_resolver.py",
         "astertv-v3-m2-jen/addons/script.asterprofiles.v3lab/synthetic-fixture.json",
         "astertv-v3-m2-jen/keymaps/z-astertv-v3-m2-profile-gate.xml",
         "astertv-v3-m2-jen/manifest.json",

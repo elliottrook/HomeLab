@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the deterministic, Jen-only M2 synthetic-account candidate."""
+"""Build the deterministic, Jen-only M2 account-authority candidate."""
 
 from __future__ import annotations
 
@@ -22,6 +22,8 @@ SOURCES = {
     "addons/script.asterprofiles.v3lab/service.py": ADDON / "service.py",
     "addons/script.asterprofiles.v3lab/registry.py": ROOT / "registry.py",
     "addons/script.asterprofiles.v3lab/access_policy.py": ROOT / "access_policy.py",
+    "addons/script.asterprofiles.v3lab/authority.py": ROOT / "authority.py",
+    "addons/script.asterprofiles.v3lab/identity_resolver.py": ROOT / "identity_resolver.py",
     "addons/script.asterprofiles.v3lab/synthetic-fixture.json": ROOT / "synthetic-fixture.json",
     "keymaps/z-astertv-v3-m2-profile-gate.xml": ROOT / "keymaps/z-astertv-v3-m2-profile-gate.xml",
 }
@@ -54,11 +56,12 @@ def build_bytes():
         rows.append({"path": name, "bytes": len(data), "sha256": digest(data)})
     manifest = {
         "schema": 1,
-        "kind": "astertv-v3-m2-jen-synthetic-candidate",
+        "kind": "astertv-v3-m2-jen-account-authority-candidate",
         "target": "AsterTV-Jen",
         "release": False,
         "profile_namespace": "script.asterprofiles.v3lab",
         "production_service_mappings": False,
+        "local_service_resolution": True,
         "client_capability_policy_included": False,
         "rollback": "remove isolated addon and addon_data directories; accepted v2 files remain unchanged",
         "inputs": rows,

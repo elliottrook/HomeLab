@@ -1,7 +1,9 @@
 # AsterTV v3 M0 recommended decision register
 
-> Status: proposed, repository-only Stream A evidence. These recommendations
-> are not live authority and make no service, identity or client change.
+> Status: partially adopted. The local account authority, shared/private matrix,
+> restricted Guest posture and no-PIN initial policy were accepted for the
+> Jen M2 candidate on 2026-11-04. All other rows remain proposed and this file
+> grants no service, identity or client authority by itself.
 
 The recommendations below turn the M0 unknowns into explicit choices that can
 be accepted or amended after the low-spec handoff. They prefer local ownership,

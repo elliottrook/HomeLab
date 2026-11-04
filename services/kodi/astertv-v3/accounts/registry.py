@@ -36,7 +36,11 @@ SECRET_NAMES = {
     "oauth_code", "refresh_token", "access_token", "credential",
 }
 ID = re.compile(r"^[a-z][a-z0-9-]{0,47}$")
-SYNTHETIC_SUBJECT = re.compile(r"^synthetic:[a-z0-9-]+:[a-z0-9-]+$")
+OPAQUE_SUBJECT = re.compile(
+    r"^(?:synthetic:[a-z0-9-]+:[a-z0-9-]+"
+    r"|local:(?:jellyfin|audiobookshelf):sha256:[0-9a-f]{64}"
+    r"|local:seerr:client:astertv-jen)$"
+)
 RFC3339_UTC = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 
 
@@ -96,8 +100,8 @@ def validate(registry):
             _exact_fields(mapping, MAPPING_FIELDS, f"{path}.service_mappings[{mapping_index}]")
             if mapping["service"] not in SERVICES:
                 raise RegistryError("unknown-service:" + str(mapping["service"]))
-            if not SYNTHETIC_SUBJECT.fullmatch(mapping["opaque_subject_id"]):
-                raise RegistryError("non-synthetic-subject:" + profile_id)
+            if not OPAQUE_SUBJECT.fullmatch(mapping["opaque_subject_id"]):
+                raise RegistryError("invalid-opaque-subject:" + profile_id)
             if type(mapping["enabled"]) is not bool:
                 raise RegistryError("mapping-enabled-must-be-boolean:" + profile_id)
         if not isinstance(profile["entitlements"], list) or (
@@ -167,6 +171,14 @@ def store(path, registry):
         if status != "valid":
             raise RegistryError("refuse-to-back-up-invalid-current-registry")
         _atomic_write(previous, (json.dumps(current, indent=2, sort_keys=True) + "\n").encode())
+    _atomic_write(destination, encoded)
+
+
+def recover_store(path, registry):
+    """Replace missing/malformed state after explicit local recovery."""
+    destination = Path(path)
+    encoded = (json.dumps(validate(registry), indent=2, sort_keys=True) + "\n").encode()
+    destination.parent.mkdir(parents=True, exist_ok=True)
     _atomic_write(destination, encoded)
 
 

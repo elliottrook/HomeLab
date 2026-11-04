@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-"""Publish the persisted synthetic profile when Kodi starts."""
+"""Publish and enforce the persisted Jen profile authority."""
 
 import xbmc
 import xbmcgui
 
-from default import STATE, load, publish, seed_if_missing
+from default import STATE, effective, load, publish, seed_if_missing
 from access_policy import private_surface
 
 
 seed_if_missing()
-current, status = load(STATE)
-publish(current, status)
+persisted, status = load(STATE)
+current, identity_status = effective(persisted)
+publish(current, identity_status if status == "valid" else status)
 monitor = xbmc.Monitor()
 
 
@@ -26,8 +27,9 @@ signature = state_signature()
 while not monitor.abortRequested():
     next_signature = state_signature()
     if next_signature != signature:
-        current, status = load(STATE)
-        publish(current, status)
+        persisted, status = load(STATE)
+        current, identity_status = effective(persisted)
+        publish(current, identity_status if status == "valid" else status)
         signature = next_signature
     current_window = xbmcgui.getCurrentWindowId()
     folder = xbmc.getInfoLabel("Container.FolderPath")

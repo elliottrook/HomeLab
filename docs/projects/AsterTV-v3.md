@@ -1,19 +1,18 @@
 # AsterTV v3
 
-> Status: Active — Jen-only M2 synthetic-account Stream A completed. The r6
-> candidate is retained on AsterTV-Jen as restricted Guest; it is not a v3
-> account release. The earlier page-design pilot is accepted and closed; no
-> PA3 synthetic surface is promoted. TV-series presentation remains deployed
+> Status: Active — Jen-only M2 account-authority integration Stream A completed.
+> The r9 authority candidate is retained on AsterTV-Jen as restricted Guest.
+> The earlier page-design pilot is accepted and closed; no PA3
+> synthetic surface is promoted. TV-series presentation remains deployed
 > through the existing fail-closed v2 episode engine on Bedroom and Family.
 >
 > Project owner: Jason
 >
 > Proposed: 2026-10-31
 >
-> Current authorization stream: none. The Jen-only M2 Stream A recorded below
-> ended after `SA-M2-JEN4`. Family, Bedroom, source services, production
-> identities and every later milestone remain Stream M and require a new
-> bounded authorization before live work.
+> Current authorization stream: none. `SA-M2-JEN-REAL` ended after its four
+> gates passed. Family, Bedroom, source-service mutation, Guest playback and
+> every later milestone require new bounded authorization.
 
 ## Purpose and desired outcome
 
@@ -655,6 +654,63 @@ retained as a reversible lab candidate. This closes `SA-M2-JEN`; it does not
 authorize real identity adoption, a Guest catalogue adapter, M3, Family,
 Bedroom or source-service changes.
 
+### SA-M2-JEN-REAL — Jen-only account authority and recovery integration
+
+Jason approved this bounded follow-on Stream A on 2026-11-04. The adopted
+decisions are: AsterTV's schema-versioned local registry is the account/profile
+authority; Jason is the recovery administrator; ordinary profiles initially
+require no PIN; and Guest remains fail-closed and browse-only until a dedicated
+Guest-safe Jellyfin identity and adapter are separately proven.
+
+This envelope authorizes only AsterTV-Jen (`192.168.1.180`) and repository work
+needed to:
+
+- checkpoint r6, its mode-`0600` registry, accepted-v2 guard and Jen-only
+  playback policy before activation;
+- inspect existing Jen client configuration for non-secret identity metadata
+  while never printing, copying into Git or moving any credential;
+- replace the two synthetic members with a recovery-admin Jason profile and
+  restricted Guest, using only opaque subject references to already-provisioned
+  Jen identities whose credentials remain in their existing custodial files;
+- implement an offline, physical recovery-admin path which works without a
+  source service or the implementation agent;
+- prove atomic migration, restart persistence, sign-out, malformed/missing
+  state recovery, Guest denial, identity-reference mismatch denial and exact
+  rollback; and
+- restart only Jen's Kodi when idle, record evidence, commit and push at the
+  milestone boundary.
+
+This envelope does **not** authorize creating, rotating or deleting source
+accounts/tokens; changing Jellyfin, Audiobookshelf, Seerr, YouTube, Home
+Assistant, cameras, firewall, DNS or network policy; enabling Guest playback;
+using a shared production identity for Guest; changing Family or Bedroom;
+promoting a release; or beginning M3. Stable non-secret subject identifiers may
+be stored in the local registry, but credentials and source-service tokens may
+not. Stop on active playback, an unrecognized or ambiguous identity, any secret
+in output/state, guard or checkpoint drift, unavailable rollback, or a need for
+source-service mutation.
+
+Controls are a pre-migration checkpoint, schema allowlist and secret-field
+denial, a separate credential-reference inventory, atomic writes with previous
+copy, idle-player gate, accepted-v2 guard, explicit Guest route denial and a
+full rollback rehearsal. No Lab Hours booking is needed because no scheduled
+or exclusive local-AI workload is involved.
+
+- [x] SA-M2-JEN-REAL1: inventory the existing Jen identity boundaries without
+  exposing secrets; freeze the migration/recovery contract and tests.
+- [x] SA-M2-JEN-REAL2: build and rollback-test the migrated candidate locally.
+- [x] SA-M2-JEN-REAL3: checkpoint and activate only on idle Jen; prove restart,
+  recovery-admin, Guest denial and guard preservation.
+- [x] SA-M2-JEN-REAL4: reconcile evidence, retain or roll back the candidate,
+  close the envelope and push the milestone.
+
+r9 is retained on Jen after exact r7 rollback rehearsal and r9 live acceptance.
+The final state is restricted Guest on News with Kodi active, no player, three
+resolved Jason service mappings held outside the registry, mode-`0600` state
+and a clean 528-file accepted-v2 guard. Family, Bedroom and all source services
+were unchanged. Full evidence is recorded in
+`docs/projects/evidence/AsterTV-v3-M2-Jen-account-authority-2026-11-04.md`.
+
 ## Milestones
 
 ### M0 — Baseline discovery and decision register
@@ -713,7 +769,7 @@ the accepted v2 baseline; its measured limits are recorded honestly.
 
 ### M2 — Accounts, profiles and guest isolation
 
-- [ ] Define system-wide account/profile schema, switching UX, recovery admin,
+- [x] Define system-wide account/profile schema, switching UX, recovery admin,
   shared versus private state and service mappings.
 - [x] Implement accounts first with synthetic users and no production tokens.
 - [x] Prove account switching, restart persistence, sign-out, missing identity,
@@ -724,16 +780,17 @@ the accepted v2 baseline; its measured limits are recorded honestly.
 Gate: two synthetic accounts and guest remain isolated across restart and
 adversarial navigation; recovery does not require the implementation agent.
 
-The credential-free registry and its live Jen r6 candidate are implemented.
-Two synthetic members, restricted Guest, atomic mode-0600 persistence, one
-previous copy, restart publication, sign-out, malformed-state fallback and an
-exercised full rollback pass. Evidence is in
-`docs/projects/evidence/AsterTV-v3-M2-Jen-synthetic-accounts-2026-11-04.md`.
-The shared route wrapper and window guard now consume those entitlements.
-Normal and direct-bypass tests prove Guest/private denial, and the existing v2
-dispatcher remains unchanged. The milestone remains open for the adopted real
-account authority, physical recovery-admin workflow, real per-service identity
-lifecycle and a genuinely Guest-safe catalogue adapter.
+The local registry is adopted as account authority and the live Jen r9
+candidate implements recovery-admin Jason plus restricted Guest. Credentials
+remain in their service-specific custody; only exact opaque subject references
+enter the registry. Identity drift disables the affected mapping in memory.
+Atomic mode-`0600` persistence, restart/sign-out, missing and malformed-state
+self-recovery, direct-bypass denial and exact rollback all pass. Evidence is in
+the synthetic and account-authority M2 records under `docs/projects/evidence/`.
+The existing v2 dispatcher remains unchanged. M2 still needs a genuinely
+Guest-safe catalogue adapter, additional household profiles when named, and
+later production-target acceptance; YouTube, Home/cameras and Aster mappings
+remain deliberately absent.
 
 ### M3 — Aster AI television integration
 
@@ -1161,6 +1218,7 @@ explicit user acceptance.
 | 2026-11-04 | Passed the first Jen M2 synthetic-account gate | Built deterministic candidate `d49ecc33…e17b`, checkpointed accepted v2/Addons state, proved a complete rollback, then installed r2 with startup publication. Two synthetic members switch through the visible selector; restart persistence, sign-out and malformed-state fail-closed behavior pass. | Jen is deliberately left as restricted Guest. The 528-file v2 guard, accepted manifest and Jen-only Jellyfin policy are unchanged. M2 stays open until the normal Aster router enforces Guest denials across private surfaces. |
 | 2026-11-04 | Enforced synthetic-profile routes and protected personalized state | r6 `0.2.0` (`d21acdb3…f6c3`) wraps the accepted dispatcher through a separate keymap and requires both entitlement and enabled service mapping for private routes. Guest and synthetic Members without mappings land on News rather than personalized Media; actual Select and direct-window bypass tests deny Books/listening, Music, Requests, YouTube, Home/Cameras, private search/voice and writable Settings. | SA-M2-JEN3 passes. Guest persists through restart, v2's 528-file guard and Jen playback policy are unchanged, and r6 remains isolated/checkpointed. A guest-safe catalogue adapter and real account/recovery authority remain deliberately open; no production identity was reused. |
 | 2026-11-04 | Closed the Jen-only M2 synthetic-account Stream A | Owner directed the milestone push and continuation through the end of its authorization. Final read-only acceptance found Kodi active and idle, restricted Guest persisted in mode-`0600` state, exactly three synthetic profiles, zero enabled mappings and a clean 528-file accepted-v2 guard. | Retained r6 `0.2.0` (`d21acdb3…f6c3`) on Jen as a reversible candidate and completed `SA-M2-JEN4`. It is not a v3 account release. Real account authority, recovery admin, service identity lifecycle, a Guest-safe catalogue adapter, M3 and all Family/Bedroom changes require a new bounded authorization. |
+| 2026-11-04 | Completed Jen-only M2 account-authority integration | Owner adopted AsterTV's local registry, Jason as recovery administrator, no initial ordinary-profile PIN and fail-closed Guest. r9 `0.3.2` (`ca123447…e1d4`) resolves only exact opaque references to Jen's existing service-specific credential custody; drift disables the affected mapping in memory. | Exact r7 rollback restored 14 files byte-for-byte. r9 passed Jason/Guest switching and restart, malformed/missing-state self-recovery, direct Guest bypass denial and clean 528-file guard. Ninety-four cumulative tests pass. The candidate remains on Jen as Guest; Family, Bedroom, source services, Guest playback and M3 were unchanged and require later authorization. |
 
 ## Close-out
 
