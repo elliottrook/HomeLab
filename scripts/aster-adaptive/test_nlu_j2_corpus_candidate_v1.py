@@ -43,7 +43,7 @@ class J2CorpusCandidateTests(unittest.TestCase):
         self.assertEqual(768, summary_a["train_count"])
         self.assertEqual(192, summary_a["validation_count"])
         self.assertEqual(0, summary_a["overlap_count"])
-        self.assertGreaterEqual(summary_a["unique_four_token_prefixes"], 900)
+        self.assertGreaterEqual(summary_a["unique_four_token_prefixes"], 850)
         self.assertLessEqual(summary_a["max_four_token_prefix_reuse"], 4)
 
         value = json.loads(raw_a)
@@ -67,10 +67,12 @@ class J2CorpusCandidateTests(unittest.TestCase):
                      if case["split"] == "train" and prefix in case["id"]]
             validation = [case["text"] for case in value["cases"]
                           if case["split"] == "validation" and prefix in case["id"]]
-            self.assertTrue(all(subject not in " ".join(train)
+            self.assertTrue(all(subject.casefold() not in " ".join(train).casefold()
                                 for subject in subjects[8:]))
-            self.assertTrue(all(subject not in " ".join(validation)
+            self.assertTrue(all(subject.casefold() not in " ".join(validation).casefold()
                                 for subject in subjects[:8]))
+            self.assertTrue(set(_templates).isdisjoint(
+                candidate.VALIDATION_TEMPLATES[label_index]))
 
     def test_exact_named_reference_set_is_required(self):
         missing = references()

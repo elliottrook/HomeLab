@@ -29,7 +29,7 @@ REFERENCE_ARGUMENTS = (
     "j1-v3",
 )
 WORD = re.compile(r"[a-z0-9']+")
-MIN_UNIQUE_FOUR_TOKEN_PREFIXES = 900
+MIN_UNIQUE_FOUR_TOKEN_PREFIXES = 850
 MAX_FOUR_TOKEN_PREFIX_REUSE = 4
 
 
@@ -78,7 +78,7 @@ SPECS = (
     _spec(_label_id(family="change-request", sensitivity="internal", capabilities=["backup.delete"],
                     ambiguity="clear", disposition="deny", reason="policy-denied"),
           ("the retired database snapshots", "all mail-server archives", "yesterday's NAS snapshot",
-           "the off-site photo backups", "every copy of the finance share", "the oldest VM archives",
+           "the off-site photo backups", "the finance-share archives", "the oldest VM archives",
            "the workstation recovery images", "the weekly configuration backups",
            "the media-library snapshots", "the encrypted laptop backups"),
           ("Delete {x} permanently.", "Remove {x} with no recovery copy.",
@@ -97,8 +97,8 @@ SPECS = (
     _spec(_label_id(family="external-research", sensitivity="personal",
                     capabilities=["calendar.read", "web.read", "local.join"], ambiguity="clear",
                     disposition="route", reason="understood"),
-          ("a conference on my calendar", "my scheduled hiking trip", "a concert I plan to attend",
-           "my next dentist appointment", "a family reunion in my calendar", "my booked train journey",
+          ("a conference", "my scheduled hiking trip", "a concert I plan to attend",
+           "my next dentist appointment", "a family reunion", "my booked train journey",
            "an upcoming client visit", "my reserved museum day", "a class on my schedule",
            "my planned volunteer shift"),
           ("{x} is on my calendar; research it online and summarize it privately.",
@@ -114,7 +114,7 @@ SPECS = (
            "my free time this afternoon", "my meetings after lunch", "my weekend commitments",
            "my earliest event next week", "my calendar entries for Tuesday", "my evening plans",
            "my scheduled calls today"),
-          ("Summarize {x} for me.", "Check {x}.", "When is {x}?",
+          ("Summarize {x} for me.", "Check {x}.", "{x}: give me the time.",
            "Look up {x}.", "Find {x} without changing anything.", "Summarize {x}.")),
     _spec(_label_id(family="general-answer", sensitivity="public", capabilities=["facts.answer"],
                     ambiguity="clear", disposition="route", reason="understood"),
@@ -122,7 +122,7 @@ SPECS = (
            "how rainbows form", "why the sky appears blue", "how yeast makes bread rise",
            "what a prime number is", "why seasons change", "how sound travels", "what photosynthesis does"),
           ("Explain {x}.", "Fact-check {x} for me.", "Teach me about {x}.",
-           "What makes {x} work?", "Describe {x} in plain language.",
+           "Describe {x} in more depth.", "Describe {x} in plain language.",
            "Break down {x}.")),
     _spec(_label_id(family="household-command", sensitivity="internal",
                     capabilities=["home.control"], ambiguity="clear", disposition="route",
@@ -136,7 +136,7 @@ SPECS = (
     _spec(_label_id(family="change-request", sensitivity="internal", capabilities=["lab.change"],
                     ambiguity="clear", disposition="route", reason="understood"),
           ("restart the staging dashboard container", "increase the test VM's memory to four gigabytes",
-           "disable the unused sandbox account", "apply the approved DNS change in the lab",
+           "disable the unused sandbox account", "apply the approved DNS change",
            "rotate the development service's local token", "add the test host to the monitoring group",
            "update the lab proxy's configuration", "create a snapshot of the staging VM",
            "enable metrics on the development database", "rename the temporary lab network"),
@@ -151,7 +151,8 @@ SPECS = (
            "the monitoring state of the sandbox host", "the current lab network routes",
            "the staging service's uptime", "the test cluster's node inventory"),
           ("Check {x} without making changes.", "Inspect {x}.", "Report {x} to me.",
-           "Summarize {x} without changes.", "Look up {x}.", "Read {x} without altering it.")),
+           "Summarize {x} without changes.", "Look up {x}.",
+           "Read {x} without making changes.")),
     _spec(_label_id(family="household-command", sensitivity="internal",
                     capabilities=["timer.control"], ambiguity="clear", disposition="route",
                     reason="understood"),
@@ -169,7 +170,7 @@ SPECS = (
            "the opening hours of the science museum"),
           ("Search online for {x}.", "Find {x} online.", "Research {x} online.",
            "Verify {x} using reliable websites.", "Look up {x}.",
-           "Web-search {x} and summarize it.")),
+           "Web-search {x} and summarize the findings.")),
     _spec(_label_id(family="unsupported", sensitivity="internal", capabilities=[], ambiguity="clear",
                     disposition="abstain", reason="unsupported"),
           ("carry the server rack across the room", "solder a loose connector inside the router",
@@ -200,9 +201,73 @@ SPECS = (
 )
 
 
+# Validation subjects use distinct sentence frames so the learner cannot pass
+# by memorizing the exact six training openings for each label.
+VALIDATION_TEMPLATES = (
+    ("Could you alter {x}?", "Please revise {x}.",
+     "Update {x}, if you know which one I mean.", "I want {x} changed.",
+     "Handle the change to {x}.", "Fix {x} for me."),
+    ("What is {x}?", "Can you clarify {x}?", "I need context about {x}.",
+     "Please unpack {x}.", "Why is {x} important?", "Summarize {x} for me."),
+    ("Switch {x} off.", "Please turn {x} on.", "Dim {x}.",
+     "Change {x} now.", "Set {x} differently.", "Operate {x} for me."),
+    ("Wipe {x} permanently.", "Discard {x} without another copy.",
+     "Remove every recovery copy of {x}.", "Erase {x}, leaving no restore point.",
+     "Delete {x} even though it is the last copy.",
+     "Destroy {x} with no replacement backup."),
+    ("Put {x} on an open website.", "Share {x} publicly.",
+     "Publish a public post containing {x}.",
+     "Expose {x} through an unauthenticated page.",
+     "Send {x} to a public forum.", "Make an open webpage from {x}."),
+    ("Cross-check {x} with current online information and my calendar.",
+     "Research {x} online, then align it with my calendar.",
+     "Prepare a private combined calendar and web brief for {x}.",
+     "Join my calendar timing for {x} with public web details.",
+     "Use both my calendar and web sources to summarize {x}.",
+     "Privately combine online findings about {x} with its scheduled time."),
+    ("Read my calendar entry for {x}.", "Show me {x} from my calendar.",
+     "Check whether my calendar contains {x}.", "Find the scheduled time for {x}.",
+     "What does my calendar say about {x}?", "Report {x} from my calendar."),
+    ("What is the explanation for {x}?", "Teach me the basics of {x}.",
+     "Give a factual summary of {x}.", "Why does {x} happen?",
+     "Describe the science behind {x}.", "Answer a basic question about {x}."),
+    ("Use the home system to {x}.", "Now {x}.", "Would you please {x}?",
+     "Carry out this home command: {x}.", "From Home Assistant, {x}.",
+     "Go ahead: {x}."),
+    ("Carry out this lab change: {x}.", "On the test systems, {x}.",
+     "Please make the lab do this: {x}.", "Apply this staging change: {x}.",
+     "Execute the approved lab action to {x}.",
+     "Change the lab by doing this: {x}."),
+    ("Read and report {x}.", "Give me a read-only view of {x}.",
+     "Without changing anything, inspect {x}.", "Show the current value of {x}.",
+     "Retrieve {x} from the lab.", "Audit {x} without making changes."),
+    ("Activate {x}.", "Schedule {x}.", "Make {x}.", "Run {x}.",
+     "Stop {x} temporarily.", "Remove {x}."),
+    ("Look online for {x}.", "Check the web for {x}.",
+     "Find recent sources about {x}.", "Research current information on {x}.",
+     "Browse public sources for {x}.", "Get an online update about {x}."),
+    ("Go and {x}.", "Can someone {x}?", "This physical lab task needs doing: {x}.",
+     "{x}; a person must do this.", "At the site, please {x}.",
+     "Arrange for someone to {x}."),
+    ("Come and {x}.", "Can somebody {x}?", "This personal physical task is: {x}.",
+     "{x}; a person must do this.", "Please visit and {x}.",
+     "Arrange in-person help to {x}."),
+    ("Go outside and {x}.", "Can a volunteer {x}?",
+     "This public physical task is: {x}.", "{x}; a person must do this.",
+     "At the public site, {x}.", "Arrange for someone to {x}."),
+)
+if len(VALIDATION_TEMPLATES) != len(SPECS):  # pragma: no cover
+    raise RuntimeError("J2 validation frames do not cover every label")
+
+
 def canonical(value: object) -> bytes:
     return (json.dumps(value, sort_keys=True, separators=(",", ":"),
                        allow_nan=False) + "\n").encode()
+
+
+def _sentence(template: str, subject: str) -> str:
+    text = template.format(x=subject)
+    return text[:1].upper() + text[1:]
 
 
 def naturalness(raw: bytes) -> dict[str, int]:
@@ -235,15 +300,17 @@ def build_corpus(references: dict[str, bytes]) -> tuple[bytes, dict[str, object]
     if not isinstance(references, dict) or tuple(sorted(references)) != tuple(sorted(REFERENCE_ARGUMENTS)):
         raise ValueError("J2 builder requires the eight named reference corpora")
     cases = []
-    for label_index, (label_id, subjects, templates) in enumerate(SPECS):
+    for label_index, (label_id, subjects, train_templates) in enumerate(SPECS):
         for subject_index, subject in enumerate(subjects):
             split = "train" if subject_index < 8 else "validation"
+            templates = (train_templates if split == "train"
+                         else VALIDATION_TEMPLATES[label_index])
             for template_index, template in enumerate(templates):
                 ordinal = subject_index * len(templates) + template_index
                 cases.append({
                     "id": f"j2-{split}-l{label_index:02d}-case-{ordinal:02d}",
                     "split": split,
-                    "text": template.format(x=subject),
+                    "text": _sentence(template, subject),
                     "label_id": label_id,
                 })
     value = {

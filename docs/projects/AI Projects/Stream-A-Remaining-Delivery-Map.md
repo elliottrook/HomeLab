@@ -85,9 +85,13 @@ template leakage, so candidate-v1 is retained but rejected for training
 quality. The [revised candidate-v2](evidence/M3-J2-corpus-quality-review-and-v2-2026-11-04.md)
 still has zero overlap and the exact balanced shape, while improving from 546
 to 907 unique four-token openings and reducing maximum opening reuse from 30
-to 4. The generator now enforces that naturalness floor and the full J2 source
-suite passes 36/36. V2 SHA-256 is `d5f8a1b6…4190`; it requires a fresh full
-review because candidate-v1's review cannot transfer. Training remains closed.
+to 4. A fresh review still found 107 grammatical rows and, more importantly,
+the same six frames in training and validation. V2 is retained but rejected.
+Candidate-v3 corrects every listed row and uses six validation-only frames per
+label disjoint from training. It has zero pinned-reference overlap, 872 unique
+four-token openings, maximum reuse 4 and SHA-256 `9c26cf64…de22`; the combined
+J2 source suite passes 45/45. V3 requires a fresh full review because neither
+earlier review transfers. Training remains closed.
 
 The [deterministic J2 training-recipe manifest](evidence/M3-J2-training-recipe-manifest-boundary-2026-11-04.md)
 now freezes byte encoding/truncation, the exact convolutional architecture,

@@ -51,13 +51,13 @@ missing/extra/renamed-reference rejection, overlap rejection, required CLI
 arguments, no-authority metadata, and the inherited validator failures.
 
 - candidate builder SHA-256:
-  `955c98b44226c64966b1548ae52896711b59f62fef899e2dd4311226ff45b241`;
+  `0c7a21c7a2397845ff44243c3f4582aa00ccc627f21ee6971b5ebb345ada5284`;
 - focused test SHA-256:
-  `dbccd62319c23ab8f6a83886cb9b2955ac33f9d6d517e5c03bc1ca1678799119`;
+  `b01c9e4f4a62228bb5fec04e6dd471fcbdc4b9b2ea18e1df7f961278ba6eb5a6`;
 - generated candidate source SHA-256:
-  `d5f8a1b6be4daa1cd99f66fd8959849b2084c682be462c365ff6c02978544190`;
+  `9c26cf64eadd09f00414162ce71dd9079a5a0666fcae6040c7a1a385473bde22`;
 - generated normalized text-set SHA-256:
-  `cc5930154505bd7972b697b8872fa070097dad6b0f1bf8cc453fdc8d4935bf4c`;
+  `59118408be95fab84e840d9397cb2e712624cb01135b763e441893b8eaeb3764`;
 - preregistration manifest SHA-256:
   `2abcd02371b087ebc6db95b04dd271b518624cd063ffeb4612341bcb4c1b97ee`;
 - frozen ontology catalogue SHA-256:
