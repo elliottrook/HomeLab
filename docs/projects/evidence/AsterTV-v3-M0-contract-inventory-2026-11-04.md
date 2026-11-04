@@ -40,17 +40,26 @@ presented immediately before mutation.
 
 ## Client baseline observations
 
-Read-only checks on 2026-11-04 produced the following current comparison. The
-Bedroom client was offline and is deliberately left unclaimed rather than
-filled from historical state.
+Read-only checks on 2026-11-04 produced the following current comparison. An
+initial Bedroom reachability failure was subsequently diagnosed and repaired;
+the table records its later live state rather than filling from history.
 
 | Client | Current hardware / output | Kodi integration surface | Recovery boundary |
 |---|---|---|---|
 | AsterTV Family | Intel N95, four physical cores; Alder Lake-N UHD `8086:46d2`; HDMI 0 reports `Beyond TV`; Intel I226-V Ethernet and RTL8822CE Wi-Fi are present | LibreELEC 13 nightly `440640e`; Kodi 22.0 RC1 `01d4146…d46`; Aster/Jellyfin/YouTube/Books/Music/Requests/Home/voice/player/reliability add-ons present; Jellyfin repository add-on also present | `astertv-release-guard.service` enabled; accepted-manifest SHA-256 `84cced22…93bc` |
-| AsterTV Bedroom | Offline (`Host is down`) | Live version/add-on inventory pending | Live recovery verification pending |
+| AsterTV Bedroom | Intel i5-9500T, six cores; Coffee Lake UHD 630 `8086:3e92`; HDMI 0 reports `LG TV SSCR2`; Intel Wireless-AC 9560 and Realtek gigabit Ethernet | LibreELEC 13 nightly `440640e`; Kodi 22.0 RC1 `01d4146…d46`; same functional Aster/Jellyfin/YouTube/Books/Music/Requests/Home/voice/player/reliability add-on surface as Jen | Release guard enabled; accepted-manifest SHA-256 `474c887d…f204`; Wi-Fi stability unit enabled at SHA-256 `6a829d42…6b90` after a proved power-save latency repair |
 | AsterTV Jen | Intel i5-4570T, two cores/four threads; Haswell iGPU `8086:0412`; HDMI 0 currently reports `LG HDR 4K`; Intel I217-LM Ethernet | LibreELEC 13 nightly `440640e`; Kodi 22.0 RC1 `01d4146…d46`; same functional Aster/Jellyfin/YouTube/Books/Music/Requests/Home/voice/player/reliability add-ons as Family, without the Jellyfin repository add-on | `astertv-release-guard.service` enabled; accepted-manifest SHA-256 `dfc51bc8…c3ff` |
 
 The hardware and accepted-manifest hashes intentionally differ. Equality of
 software version does not imply codec, audio, recovery payload or performance
 parity. Family retains the production Dolby/HDR contract; Jen remains the
 measured low-spec 1080p candidate.
+
+Bedroom's earlier unreachable result was a combination of stale Mac SSH trust
+for `.140` and Intel Wi-Fi power saving. The live host had remained up for almost
+four days, signal was `-54 dBm`, and no repeated driver disconnects appeared.
+Disabling power saving changed 20-packet latency from 107.540 ms average /
+211.173 ms maximum to 2.440 / 4.973 ms in the volatile trial and 2.244 / 4.974 ms
+after persistent installation, with zero loss throughout. Kodi remained active.
+The service is documented under `services/kodi/astertv-v3/deploy/bedroom-wifi/`;
+boot persistence still requires a later idle reboot check.
