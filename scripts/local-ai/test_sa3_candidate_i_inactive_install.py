@@ -16,6 +16,10 @@ class CandidateIInactiveInstallTests(unittest.TestCase):
         self.assertEqual(2, len(install.HOST_ADD))
         self.assertEqual(1, len(install.GUEST_EXISTING))
         self.assertEqual(5, len(install.GUEST_ADD))
+        self.assertEqual(0o755,
+                         install.HOST_REPLACE["lab_hours_reserved_runner.py"][2])
+        self.assertEqual(0o755,
+                         install.HOST_REPLACE["full_inference_lab_runtime.py"][2])
         self.assertNotIn("sa3-evidence-envelope-candidate-i-quality-keys-v1.json",
                          install.GUEST_ADD)
         self.assertNotIn("sa3_evidence_envelope_blind_review_v1.py",

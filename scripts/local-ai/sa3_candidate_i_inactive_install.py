@@ -22,10 +22,10 @@ HOST_REPLACE = {
         "829024378e11ec98ff67dc42d1554588f68b4e95f8115532081e29663e87ab70", 0o644),
     "lab_hours_reserved_runner.py": (
         "63c7a116f326161dfb550cb3bfdaf268cbab29820e7b9f0105e810c595a75aba",
-        "eab869dae32340d302c25c6346843b94c6d79a539eccf975cfe9d7c69ca47960", 0o644),
+        "eab869dae32340d302c25c6346843b94c6d79a539eccf975cfe9d7c69ca47960", 0o755),
     "full_inference_lab_runtime.py": (
         "b4fc31b0eaeab14b0beb81b47103f2d03a62cf9e6bf3bbccdfc4560a0f444da9",
-        "6c7767e5a22829d3369b5c385495aea7d2879986c9adb5e698aef29d3df198ad", 0o644),
+        "6c7767e5a22829d3369b5c385495aea7d2879986c9adb5e698aef29d3df198ad", 0o755),
     "lab_hours_release_manifest.json": (
         "8717c42c8bb24f33ee24cf176b11457766b88e5a90723142bad28842978d55a2",
         "c2812b754c2d5c87156898548d63a407f5afcca7ac7d4000ece645b14a922a5e", 0o644),
