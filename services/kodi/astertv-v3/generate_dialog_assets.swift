@@ -8,9 +8,21 @@ let size = NSSize(width: 64, height: 64)
 let gold = NSColor(calibratedRed: 173/255, green: 138/255, blue: 77/255, alpha: 1)
 
 func write(_ image: NSImage, to url: URL) {
-    guard let tiff = image.tiffRepresentation,
-          let bitmap = NSBitmapImageRep(data: tiff),
-          let png = bitmap.representation(using: .png, properties: [:]) else {
+    guard let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 64, pixelsHigh: 64,
+                                        bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true,
+                                        isPlanar: false, colorSpaceName: .deviceRGB,
+                                        bytesPerRow: 0, bitsPerPixel: 0),
+          let context = NSGraphicsContext(bitmapImageRep: bitmap) else {
+        fatalError("could-not-create-bitmap-\(url.lastPathComponent)")
+    }
+    bitmap.size = size
+    NSGraphicsContext.saveGraphicsState()
+    NSGraphicsContext.current = context
+    image.draw(in: NSRect(origin: .zero, size: size),
+               from: NSRect(origin: .zero, size: image.size),
+               operation: .copy, fraction: 1)
+    NSGraphicsContext.restoreGraphicsState()
+    guard let png = bitmap.representation(using: .png, properties: [:]) else {
         fatalError("could-not-encode-\(url.lastPathComponent)")
     }
     try! png.write(to: url, options: .atomic)
@@ -57,8 +69,8 @@ surface(name: "ui-dialog-section.png",
         bottom: NSColor(calibratedRed: 23/255, green: 22/255, blue: 18/255, alpha: 1), radius: 18, dark: true)
 
 let frames = [
-    [18, 34, 50, 30, 14], [34, 18, 30, 50, 26],
-    [50, 30, 14, 26, 38], [26, 46, 34, 14, 30],
+    [10, 20, 32, 18, 8], [20, 10, 18, 32, 16],
+    [32, 18, 8, 16, 24], [16, 28, 20, 8, 18],
 ]
 let waveform = root.appendingPathComponent("aster-ai-listening-png")
 try! FileManager.default.createDirectory(at: waveform, withIntermediateDirectories: true)
@@ -69,9 +81,9 @@ for (index, heights) in frames.enumerated() {
     NSRect(origin: .zero, size: size).fill()
     gold.setFill()
     for (bar, height) in heights.enumerated() {
-        let rect = NSRect(x: 3 + CGFloat(bar * 13), y: (64 - CGFloat(height)) / 2,
-                          width: 7, height: CGFloat(height))
-        NSBezierPath(roundedRect: rect, xRadius: 3, yRadius: 3).fill()
+        let rect = NSRect(x: 6 + CGFloat(bar * 13), y: (64 - CGFloat(height)) / 2,
+                          width: 3, height: CGFloat(height))
+        NSBezierPath(roundedRect: rect, xRadius: 1.5, yRadius: 1.5).fill()
     }
     image.unlockFocus()
     write(image, to: waveform.appendingPathComponent(String(format: "%02d.png", index + 1)))

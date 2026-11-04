@@ -804,6 +804,38 @@ class SharedLanguageTests(unittest.TestCase):
         for window in (1194, 1196, 1197, 1127):
             self.assertIn(f"<onclick>ActivateWindow({window})</onclick>", text)
 
+        section_headers = [
+            node for node in page.findall(".//control[@type='image']")
+            if node.findtext("texture") == "special://skin/media/ui-button-current-gold-rim.png"
+        ]
+        self.assertEqual(len(section_headers), 4)
+        self.assertEqual(
+            [(int(node.findtext("left")), int(node.findtext("width"))) for node in section_headers],
+            [(195, 280), (585, 280), (975, 280), (1365, 280)],
+        )
+
+        result_buttons = [
+            page.find(f".//control[@id='{control_id}']")
+            for control_id in range(12201, 12213)
+        ]
+        self.assertTrue(all(button is not None for button in result_buttons))
+        self.assertEqual(
+            sorted({int(button.findtext("top")) for button in result_buttons}),
+            [400, 494, 588],
+        )
+        result_art = [
+            node for node in page.findall(".//control[@type='image']")
+            if node.find("texture") is not None
+            and node.find("texture").attrib.get("diffuse") == "special://skin/media/ui-compact-card-mask.png"
+        ]
+        self.assertEqual(len(result_art), 12)
+        self.assertEqual(sorted({int(node.findtext("height")) for node in result_art}), [82])
+        self.assertEqual(
+            [int(node.findtext("left")) for node in result_art],
+            [165] * 3 + [555] * 3 + [945] * 3 + [1335] * 3,
+            "art must be flush to the left edge of each compact result",
+        )
+
     def test_pa3_dialog_png_assets_preserve_transparency(self) -> None:
         assets = [DIALOG_PILL, DIALOG_RESULT]
         assets.extend(sorted((OVERLAY / "media/aster-ai-listening-png").glob("*.png")))
@@ -813,7 +845,7 @@ class SharedLanguageTests(unittest.TestCase):
                 data = path.read_bytes()
                 self.assertEqual(data[:8], b"\x89PNG\r\n\x1a\n")
                 width, height, depth, color_type = struct.unpack(">IIBB", data[16:26])
-                self.assertEqual((width, height), (128, 128))
+                self.assertEqual((width, height), (64, 64))
                 self.assertEqual(depth, 8)
                 self.assertEqual(color_type, 6, "PNG must retain RGBA transparency")
 

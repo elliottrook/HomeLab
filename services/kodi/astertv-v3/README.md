@@ -117,8 +117,9 @@ PA3 remains synthetic and isolated in the portable Mini pilot:
   vertical artwork-result groups for TV, Movies, Books & Listening, and Music.
   Both dialog surfaces use a translucent dark-brown body over the originating
   page, dimensional light result/control surfaces and aligned backed-gold group
-  headings. Compact titles wrap to use the available card height; the listening
-  state uses an animated gold waveform instead of a static dot.
+  headings. Compact titles wrap to use the available card height; their artwork
+  is flush to the result's left, top and bottom edges. The listening state uses
+  a fine animated five-bar gold waveform instead of a static dot.
 - `F2` opens the News rework while preserving digest, article and narration labels.
 - `F3` opens podcast discovery, duplicate/status and request surfaces; request is inert.
 - `F4` opens the denser Home overview with fixture-only household data.

@@ -50,8 +50,8 @@
         <align>center</align><aligny>center</aligny>
         <textcolor>asterInk</textcolor>
         <focusedcolor>asterIvory</focusedcolor>
-        <texturefocus border="18">special://skin/media/ui-button-focus-gold-rim.png</texturefocus>
-        <texturenofocus border="18">special://skin/media/ui-dialog-pill-rest.png</texturenofocus>
+        <texturefocus border="10">special://skin/media/ui-button-focus-gold-rim.png</texturefocus>
+        <texturenofocus border="10">special://skin/media/ui-dialog-pill-rest.png</texturenofocus>
     </include>
 
     <include name="AsterV3DialogResult">
