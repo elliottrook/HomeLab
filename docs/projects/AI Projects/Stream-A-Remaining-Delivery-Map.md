@@ -26,6 +26,15 @@
 > authoritative ledger-booked attempt with fresh gates; r3–r5 cannot be
 > retried.
 
+> **R6 terminal update, 2026-11-04 15:03:** the fresh booking claimed exactly
+> and [failed restored after 190 seconds](evidence/D4-candidate-g-r6-exit-126-no-go-and-correction-2026-11-04.md).
+> The new bounded projection retained guest exit status 126, zero stdout bytes
+> and 204 stderr bytes. The deterministic defect is a direct execution attempt
+> against the deliberately mode-0644 Python wrapper. The source correction
+> keeps that custody and inserts exact `/usr/bin/python3 -B`; focused tests and
+> direct target proof pass. R6 is spent. Reversible inactive installation and
+> installed proof are next; no fresh booking is eligible before that gate.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are
