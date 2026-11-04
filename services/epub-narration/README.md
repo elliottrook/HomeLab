@@ -63,6 +63,8 @@ Operational procedures and rollback are in
 without changing `queue.db`, then write a private hash-bound job document.
 `tools/run_b60_shadow.py` sends that document only to the loopback Kokopop
 candidate and records resumable WAV chapters plus a distinct shadow manifest.
+Every chapter with at least 50 words must measure 120–240 words per minute;
+implausibly stretched or compressed output fails before its WAV is retained.
 
 These are manual experiment tools, not production workers or schedulers. Their
 output does not satisfy the canonical ONNX/Opus/sentence-timing publication
