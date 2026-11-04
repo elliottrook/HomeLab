@@ -35,6 +35,13 @@
 > direct target proof pass. R6 is spent. Reversible inactive installation and
 > installed proof are next; no fresh booking is eligible before that gate.
 
+> **R6 correction installed, 2026-11-04 15:15:** the
+> [explicit-Python correction](evidence/D4-candidate-g-explicit-python-inactive-install-result-2026-11-04.md)
+> now passes exact installed hashes/custody, all 34 pins, fixed command-shape
+> and direct target wrapper proof, healthy Doctor/production and zero core
+> restarts. A new authoritative ledger-booked attempt is the next D4 gate;
+> r3–r6 remain spent.
+
 > **Separate Lab Hours track, updated 2026-10-29:** [Aster Lab Hours](Aster-Lab-Hours.md)
 > now owns B60 isolation and exact production restoration. Its reservation
 > service, dispatcher, Doctor, two scheduled passes and owner-loss recovery are

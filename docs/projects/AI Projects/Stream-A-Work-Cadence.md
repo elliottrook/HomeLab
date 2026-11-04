@@ -370,13 +370,13 @@ Preflight multiple candidates in one continuous-lane pass, but execute serially 
 
 ## Current queue, reconciled 2026-10-25
 
-**Current overlay — 2026-11-04 15:10 America/Vancouver.** The historical table
+**Current overlay — 2026-11-04 15:15 America/Vancouver.** The historical table
 below remains useful provenance but its live classifications are superseded by
 this bounded overlay:
 
 | Item | State now | Next action |
 |---|---|---|
-| D4 candidate-g investigation quality | **NO-GO / explicit-Python correction source-complete.** R6 claimed exactly at 15:00 and failed restored after 190 seconds. Its bounded telemetry retained guest exit status 126, zero stdout and 204 stderr bytes. The host was directly executing the deliberately mode-0644 Python wrapper. Source now preserves 0644 custody and invokes exact `/usr/bin/python3 -B`; focused tests and direct target proof pass. | Build/install the reversible inactive adapter+manifest correction and validate exact installed command shape. No new booking before that gate. R3–r6 are spent and unscoreable. |
+| D4 candidate-g investigation quality | **READY for one fresh booking after installed explicit-Python correction.** R6 claimed exactly at 15:00 and failed restored after 190 seconds with guest exit status 126. The host had directly executed the deliberately mode-0644 Python wrapper. The installed correction preserves 0644 custody and invokes exact `/usr/bin/python3 -B`; exact hashes/custody, 34 pins, command shape, target wrapper proof, healthy Doctor/production and zero core restarts pass. | Query the authoritative ledger for the complete proposed window and reserve one new registered attempt only when clear. Recheck every volatile gate. R3–r6 are spent and unscoreable. |
 | M3 J2 successor | **BLOCKED on owner/custody, not engineering.** Candidate-v4 passes the complete 53-test source boundary and is the release candidate Stream A is prepared to promote for corpus release only. | Jason reviews the exact four-hash owner card. A separately controlled signer must then bind custody, and a third custodian must seal the untouched 32-case evaluation set before training can become eligible. |
 | J2 training and routing | **BLOCKED.** Recipe source is frozen, but no training authority, sealed evaluation access, model artifact, route or tool grant exists. | Do not train or evaluate until owner acceptance plus both external custody gates pass. |
 | Companion | **MONITORING.** Ordinary signed-in use remains accepted. | Continue only on meaningful reliability change; do not disturb the working Companion for Stream A tests. |
