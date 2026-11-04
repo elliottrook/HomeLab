@@ -2,8 +2,7 @@
 
 ## Decision
 
-**DETERMINISTIC CANDIDATE SOURCE READY; PRODUCTION REFERENCE VALIDATION AND
-INDEPENDENT LABEL REVIEW STILL REQUIRED.**
+**DETERMINISTIC CANDIDATE-V4 SOURCE AND REVIEW COMPLETE; OWNER/CUSTODY GATE REMAINS.**
 
 The independent J2 corpus custodian added an offline natural-language builder
 and focused tests. The builder deterministically creates 960 unique requests:
@@ -44,26 +43,27 @@ digests of test-local synthetic fixtures. The production inventory is never
 changed. This exercises construction and the frozen validation path without
 pretending that calibration release receipts contain request text.
 
-The combined candidate and frozen-validator suite passes 13/13 tests. It
+The complete J2 source suite passes 45/45 tests. The candidate-focused coverage
 checks deterministic bytes, 960 normalized-unique rows, exact per-label split
 balance, held-out validation subjects, the exact eight reference names,
 missing/extra/renamed-reference rejection, overlap rejection, required CLI
 arguments, no-authority metadata, and the inherited validator failures.
 
 - candidate builder SHA-256:
-  `0c7a21c7a2397845ff44243c3f4582aa00ccc627f21ee6971b5ebb345ada5284`;
+  `19660ce271c67de8c6136525a606c16fe10c8a15a0f004aeca0fa3a58ed30259`;
 - focused test SHA-256:
   `b01c9e4f4a62228bb5fec04e6dd471fcbdc4b9b2ea18e1df7f961278ba6eb5a6`;
 - generated candidate source SHA-256:
-  `9c26cf64eadd09f00414162ce71dd9079a5a0666fcae6040c7a1a385473bde22`;
+  `9e2dd321c6660ad4bd09e9824c24b9727a30eba60a8df37e09f17d436ccce90a`;
 - generated normalized text-set SHA-256:
-  `59118408be95fab84e840d9397cb2e712624cb01135b763e441893b8eaeb3764`;
+  `a53f0bb3c747f82fdacffe9e76853830a0473c55d7d578ca1d1cb9b8358b51d0`;
 - preregistration manifest SHA-256:
   `2abcd02371b087ebc6db95b04dd271b518624cd063ffeb4612341bcb4c1b97ee`;
 - frozen ontology catalogue SHA-256:
   `aa603ab746a1250c8f2089b54e1a3e5b29fc3d01cb3c988bacc198a968bbea44`.
 
-These results authorize no training, corpus promotion, evaluation access,
-runtime effect, routing, deployment, commit, or push. A distinct reviewer must
-still inspect every generated text/label pair after exact pinned-reference
-validation succeeds.
+The distinct reviewer has now inspected every candidate-v4 text/label pair and
+returned PROMOTE with 960 accepted and zero corrected. These results authorize
+no training, evaluation access, runtime effect, routing or deployment.
+Owner review and externally controlled custody evidence still gate corpus
+release; shared-agent assertions cannot satisfy that proof.

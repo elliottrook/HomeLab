@@ -2,7 +2,7 @@
 
 ## Decision
 
-**CANDIDATES V1/V2 RETAINED BUT REJECTED FOR TRAINING QUALITY; V3 AWAITS FRESH REVIEW.**
+**CANDIDATES V1–V3 RETAINED BUT REJECTED; V4 IS THE AI-REVIEWED CORPUS RELEASE CANDIDATE.**
 
 The distinct label reviewer inspected all 960 candidate-v1 rows. Every assigned
 label matched the frozen ontology (`accepted=960`, `corrected=0`), but the
@@ -44,13 +44,38 @@ naturalness floor is at least 850 unique four-token openings with maximum reuse
 - has normalized-set SHA-256
   `59118408be95fab84e840d9397cb2e712624cb01135b763e441893b8eaeb3764`;
 - has 872 unique four-token openings, maximum reuse 4 and 3–17 words;
-- is retained owner-only and awaits a fresh independent review.
+- is retained owner-only.
+
+The fresh candidate-v3 review accepted all 960 semantic labels but rejected
+promotion on 14 precise naturalness defects: number disagreement in backup and
+calendar requests, malformed general-answer questions, and four unidiomatic
+physical-task frames. Candidate-v4 changes only those public source frames.
+Its real pinned-reference build has:
+
+- corpus SHA-256
+  `9e2dd321c6660ad4bd09e9824c24b9727a30eba60a8df37e09f17d436ccce90a`;
+- normalized text-set SHA-256
+  `a53f0bb3c747f82fdacffe9e76853830a0473c55d7d578ca1d1cb9b8358b51d0`;
+- zero normalized overlap against the exact eight pinned references;
+- 871 unique four-token openings under the source-defined tokenizer, maximum
+  reuse 4 and request lengths from 3 through 17 words;
+- an exact 768/192 split and 48/12 rows for every one of 16 labels.
+
+A fresh independent AI review inspected all 960 rows, confirmed that all 14
+v3 defects were resolved, found no semantic, grammar, naturalness or split-
+quality defect, and returned **PROMOTE** with 960 accepted and zero corrected.
+The mode-0600 review is bound to the v4 source bytes by artifact SHA-256
+`896ff54b31718b7dfbe91b479c4a6fbcfe5b428ca62528f07a2f8993072b0028`
+and self-hash
+`75c86481cc04394787faf9cc7c6055f74dc5e262167e8491bfe09b1acf7f6bde`.
 
 The combined J2 source suite passes 45/45.
 
 ## Next gate
 
-Candidate-v3 needs a fresh independent 960-row semantic, naturalness and split-
-quality review. V1/V2 review bytes may not be repinned or reused. No training,
-evaluation access, model call, authority, routing, service effect or deployment
-is admitted.
+Candidate-v4 is the first corpus candidate that passes the frozen structural,
+overlap, semantic, naturalness and split-quality gates. It is ready for the
+owner review Jason requested at release-candidate quality. Corpus release still
+requires externally controlled custody evidence; a shared-agent identity string
+or self-hash cannot manufacture that proof. No training, evaluation access,
+model call, authority, routing, service effect or deployment is admitted.

@@ -87,11 +87,19 @@ still has zero overlap and the exact balanced shape, while improving from 546
 to 907 unique four-token openings and reducing maximum opening reuse from 30
 to 4. A fresh review still found 107 grammatical rows and, more importantly,
 the same six frames in training and validation. V2 is retained but rejected.
-Candidate-v3 corrects every listed row and uses six validation-only frames per
-label disjoint from training. It has zero pinned-reference overlap, 872 unique
-four-token openings, maximum reuse 4 and SHA-256 `9c26cf64…de22`; the combined
-J2 source suite passes 45/45. V3 requires a fresh full review because neither
-earlier review transfers. Training remains closed.
+Candidate-v3 corrects the broad defects and uses six validation-only frames per
+label disjoint from training, but its fresh review still found 14 exact
+naturalness defects. The public source corrected only those defects and emitted
+candidate-v4 at SHA-256 `9e2dd321…e90a` with normalized-set SHA-256
+`a53f0bb3…51d0`, zero pinned-reference overlap, 871 source-tokenized unique
+four-token openings and maximum reuse 4. A fresh independent AI review accepted
+all 960 labels, confirmed all v3 defects resolved, found no new semantic,
+naturalness, grammar or split-quality issue, and returned **PROMOTE** with zero
+corrections. The exact [owner review card](evidence/M3-J2-corpus-v4-owner-review-card-2026-11-04.md)
+now presents both owner-only artifact hashes and the corpus-release-only
+decision. Candidate-v4 is the corpus release candidate for Jason's owner
+review. Authenticated external custody still gates corpus release; training
+remains closed.
 
 The [deterministic J2 training-recipe manifest](evidence/M3-J2-training-recipe-manifest-boundary-2026-11-04.md)
 now freezes byte encoding/truncation, the exact convolutional architecture,
