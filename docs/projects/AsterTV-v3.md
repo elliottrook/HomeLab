@@ -1,21 +1,19 @@
 # AsterTV v3
 
-> Status: Active — pre-handoff Stream A repository work in progress. The earlier
-> page-design pilot is accepted and closed; no PA3 synthetic surface is promoted.
-> TV-series presentation remains deployed through the existing fail-closed v2
-> episode engine on Bedroom and Family.
+> Status: Active — low-spec handoff reconciled; Stream M lab implementation is
+> next. The earlier page-design pilot is accepted and closed; no PA3 synthetic
+> surface is promoted. TV-series presentation remains deployed through the
+> existing fail-closed v2 episode engine on Bedroom and Family.
 >
 > Project owner: Jason
 >
 > Proposed: 2026-10-31
 >
-> Current authorization stream: Stream A, bounded to the pre-handoff envelope
-> below. On 2026-11-04 the owner directed all work that does not need the low-spec
-> client to continue autonomously, while its final test and separate agent report
-> complete. This authorization permits repository-only specifications, synthetic
-> fixtures, tests, documentation, local builds and local commits. It permits no
-> live client/service/network/identity change. Receipt of the handoff report ends
-> this envelope and returns reconciliation and operational work to Stream M.
+> Current authorization stream: Stream M. The repository-only pre-handoff Stream
+> A ended when commit `24926cea` and its measured low-spec report were received
+> and reconciled on 2026-11-04. Read-only/local work remains pre-agreed; changing
+> AsterTV-Jen or any service requires the next bounded Stream M approval unless a
+> new lab-only Stream A envelope is explicitly recorded and accepted.
 
 ## Purpose and desired outcome
 
@@ -584,6 +582,13 @@ profile and obtain bounded approval before any live M2/M3 implementation.
 - [x] SA-PH4: commit the repository-only milestone and record the exact pending
   low-spec reconciliation action; remote push still needs immediate approval.
 
+The envelope ended on receipt of `24926cea`. Read-only live reconciliation found
+Kodi active, the Jen-only policy enabled in selective 1080p/18 Mb/s mode, the
+528-file release guard clean with a successful last run and no failed systemd
+units. The accepted interpretation and normalized capability profile are
+recorded in
+`docs/projects/evidence/AsterTV-v3-low-spec-handoff-reconciliation-2026-11-04.md`.
+
 ## Milestones
 
 ### M0 — Baseline discovery and decision register
@@ -1073,6 +1078,7 @@ explicit user acceptance.
 | 2026-11-04 | Completed a ten-minute compressed 4K low-spec soak | Deliberately excluded UHD Blu-ray, ISO, BDMV and remux media, then played *Tow* (2026), a 3840×2160 iTunes WEB-DL: HEVC Main 10/HDR10+, 23.976 fps, 25.29 Mb/s and 18.69 GiB. | Jellyfin remained `DirectStream` with no video transcode. Kodi software-decoded through `ff-hevc`; 599.2 seconds of media advanced over the 600.0-second run. Normal render samples were 23.41–24.39 fps with one transient 21.46 fps sample and no accumulated lag. Kodi used about 1.7–3.3 logical CPUs, 1.01–1.06 GiB RSS and peaked at 81 °C without kernel throttle/reset/OOM evidence. Compressed 4K works, but software HEVC is an upper-edge capability; disc-class 4K remains outside the low-spec acceptance profile. |
 | 2026-11-04 | Corrected a Forgejo push-mirror canonical-ref rewind | The approved push reached `b6ed4085` but Forgejo immediately returned the branch to GitHub's older `1db1198c`. Read-only reflog/config evidence identified push mirror `remote_mirror_IPR0D2zivc5` with unsafe fetch mapping `+refs/*:refs/*`; its branch/tag push mappings were correct. The repository config was checkpointed at SHA `7037fdb8…4010`, then only the fetch mapping was removed; resulting config SHA is `52e1f08e…0fe`. | The retry left Forgejo's internal ref, Forgejo HTTPS and GitHub at `b6ed4085`; `sync_on_commit` remains enabled and the push mirror reports no error. Operational recovery and the exact checkpoint are recorded in `docs/Current-Network-Baseline.md`. |
 | 2026-11-04 | Completed repository-only pre-handoff Stream A | Owner authorized all v3 work that does not require the low-spec client while its final test and agent report complete. Recorded a sanitized handoff template, proposed M0 decisions, ten v2 workflow/focus contracts, a credential-free account registry, measured client-capability schema and capability-scoped Aster broker allowlist. The in-flight low-spec paths and every live endpoint were excluded. | Seventy-three local gates pass, including guest denial, secret-field exclusion, arbitrary-command denial, capability-not-hostname policy and existing shared-language/trailer/TV/News/recovery regressions. The envelope now waits for the low-spec report and owner decisions; receipt returns the project to Stream M before live M2/M3 work. |
+| 2026-11-04 | Reconciled the final low-spec handoff and returned to Stream M | Commit `24926cea` records the completed Jen-only Jellyfin/Arc policy and final report. Read-only live checks confirmed Kodi active, selective 1920px/18 Mb/s HEVC policy, active path watcher, clean 528-file release guard with successful last run and no failed units. | AsterTV-Jen is accepted as the replaceable v3 lab at a 1080p/stereo envelope. Wider HEVC must server-transcode; direct 4K, passthrough, YouTube identity and general Aster credentials are outside its accepted profile. Limits are normalized in `contracts/client-capability-jen.json`; live M2/M3 work awaits a bounded Stream M change or new lab-only Stream A envelope. |
 | 2026-11-04 | Moved low-spec 4K playback to a Jen-only Arc-backed policy | Installed a hostname-bound Jellyfin device profile on AsterTV-Jen: HEVC direct play is limited to width 1920 and client bitrate to 18 Mb/s; known add-on bytes are repatched at boot/update and unknown versions fail safe to all-HEVC transcode. Family and Bedroom are unchanged. On Jellyfin, enabled the Arc A380's advertised HEVC/MPEG-2/VP9/AV1 decoders and Intel VPP tone mapping after checkpointing the encoding config; OpenCL tone mapping remains off because the container has no OpenCL platform. | The same 4K HDR10+ *Tow* source became 1080p H.264 QSV at 17.744 Mb/s. Full VAAPI decode/scale/VPP tone-map/QSV encode ran at 15.2× versus 5.3× partial acceleration; FFmpeg fell from ~1053% to 89–106% CPU. The ten-minute run reached 608 seconds without error while Jen stayed 27.8 °C and ~518–526 MiB RSS. The M93p is accepted as a stable low-spec AsterTV client when 4K HEVC is server-transcoded; it is not accepted for local disc-class 4K decode. |
 
 ## Close-out

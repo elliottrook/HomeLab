@@ -10,6 +10,9 @@ or library data and perform no network or client action.
   guest-denial boundary without embedding service credentials.
 - `client-capability-profile.schema.json` lets the low-spec handoff describe
   measured limits without scattering hostname checks through features.
+- `client-capability-jen.json` is the reconciled measured 1080p/Haswell lab
+  profile; it requires server transcode for wider HEVC and declares no audio
+  passthrough.
 - `aster-broker-contract.json` proposes the narrow AsterTV intent surface and
   explicit denials for M3.
 

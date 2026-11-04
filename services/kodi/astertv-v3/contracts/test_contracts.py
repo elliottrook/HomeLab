@@ -74,6 +74,7 @@ class AccountContractTests(unittest.TestCase):
 class CapabilityContractTests(unittest.TestCase):
     def setUp(self):
         self.schema = load("client-capability-profile.schema.json")
+        self.jen = load("client-capability-jen.json")
 
     def test_profile_is_capability_not_hostname_driven(self):
         self.assertNotIn("hostname", self.schema["properties"])
@@ -87,6 +88,16 @@ class CapabilityContractTests(unittest.TestCase):
         )
         self.assertTrue({"video", "audio", "resources", "ui"}
                         <= set(self.schema["required"]))
+
+    def test_jen_profile_encodes_measured_limits_not_identity_branches(self):
+        self.assertEqual(self.jen["profile_id"], "low-spec-1080p-haswell")
+        self.assertEqual(self.jen["video"]["max_width"], 1920)
+        self.assertEqual(self.jen["video"]["max_height"], 1080)
+        self.assertEqual(self.jen["video"]["max_bitrate_mbps"], 18)
+        self.assertNotIn("hevc", self.jen["video"]["hardware_codecs"])
+        self.assertIn("direct-4k-hevc", self.jen["video"]["excluded_classes"])
+        self.assertEqual(self.jen["audio"]["passthrough_formats"], [])
+        self.assertNotIn("hostname", json.dumps(self.jen).casefold())
 
 
 class BrokerContractTests(unittest.TestCase):
