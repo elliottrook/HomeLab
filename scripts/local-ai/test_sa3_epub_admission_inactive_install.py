@@ -11,12 +11,16 @@ import sa3_epub_admission_inactive_install as install
 
 
 class SA3EpubAdmissionInstallTests(unittest.TestCase):
-    def test_exact_two_file_scope_and_source_pins(self):
+    def test_historical_installer_is_superseded_by_current_source(self):
         self.assertEqual({"full_inference_lab_sources.py", "full_inference_lab_validator.py"},
                          set(install.FILES))
         root = Path(__file__).parent
-        for name, (_, expected) in install.FILES.items():
-            self.assertEqual(expected, hashlib.sha256((root / name).read_bytes()).hexdigest())
+        self.assertNotEqual(
+            install.FILES["full_inference_lab_sources.py"][1],
+            hashlib.sha256((root / "full_inference_lab_sources.py").read_bytes()).hexdigest())
+        self.assertEqual(
+            install.FILES["full_inference_lab_validator.py"][1],
+            hashlib.sha256((root / "full_inference_lab_validator.py").read_bytes()).hexdigest())
 
     def test_cli_is_inert_without_apply(self):
         with tempfile.TemporaryDirectory() as temporary:

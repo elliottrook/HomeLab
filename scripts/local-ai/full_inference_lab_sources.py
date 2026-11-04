@@ -25,18 +25,25 @@ class FullDrainSourceError(ValueError):
 
 
 def epub_narration_healthy(run_command: Callable[[Sequence[str]], str]) -> bool:
-    """Accept the timer waiting or its long-running worker executing.
-
-    The EPUB project may deliberately disable the timer while one multi-day
-    worker owns the queue.  Timer enablement is therefore not a health fact;
-    at least one of timer or worker must be live, and a failed worker is never
-    accepted.
-    """
-    timer = run_command(("pct", "exec", "116", "--", "systemctl", "show",
-                         "epub-narration-worker.timer", "--property=ActiveState", "--value"))
+    """Validate the current host-scheduled, bounded EPUB worker architecture."""
+    scheduler = run_command(("systemctl", "is-active",
+                             "epub-narration-scheduler.timer"))
+    scheduler_enabled = run_command(("systemctl", "is-enabled",
+                                     "epub-narration-scheduler.timer"))
+    monitor = run_command(("pct", "exec", "116", "--", "systemctl", "is-active",
+                           "epub-narration-monitor.timer"))
+    monitor_enabled = run_command(("pct", "exec", "116", "--", "systemctl", "is-enabled",
+                                   "epub-narration-monitor.timer"))
     worker = run_command(("pct", "exec", "116", "--", "systemctl", "show",
-                          "epub-narration-worker.service", "--property=ActiveState", "--value"))
-    return worker != "failed" and (timer == "active" or worker in {"active", "activating"})
+                          "epub-narration-worker.service",
+                          "--property=ActiveState,Result", "--value"))
+    worker_lines = worker.splitlines()
+    worker_state = worker_lines[0] if worker_lines else ""
+    worker_result = worker_lines[1] if len(worker_lines) == 2 else ""
+    return (scheduler == "active" and scheduler_enabled == "enabled"
+            and monitor == "active" and monitor_enabled == "enabled"
+            and worker_state in {"inactive", "active", "activating"}
+            and worker_result == "success")
 
 
 @dataclass(frozen=True)

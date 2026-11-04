@@ -11,15 +11,17 @@ import sa3_release_manifest_epub_pin_inactive_install as install
 
 
 class SA3ReleaseManifestEpubPinInstallTests(unittest.TestCase):
-    def test_exact_manifest_candidate_and_pins(self):
+    def test_historical_installer_is_superseded_by_v3_manifest(self):
         root = Path(__file__).parent
         raw = (root / "lab_hours_release_manifest.json").read_bytes()
-        self.assertEqual(install.NEW_SHA256, hashlib.sha256(raw).hexdigest())
+        self.assertNotEqual(install.NEW_SHA256, hashlib.sha256(raw).hexdigest())
         value = json.loads(raw)
-        self.assertEqual("6103da31e85e957ae9491c2d64bd3f2bfb497c31db5c8bac0616786fff4c13ad",
+        self.assertEqual("9020fac1a35c897270ef14f9e4abf5ede649ccd98f7023dbdf26b5682a3e37c3",
                          value["pins"]["full_inference_lab_sources.py"])
         self.assertEqual("094d588b5ff1a6cea1f102375930424ed389cc7af6750a941ce44363043bbf31",
                          value["pins"]["full_inference_lab_validator.py"])
+        self.assertEqual("sa3-evidence-envelope-epub-scheduler-admission-v3",
+                         value["release"])
 
     def test_cli_is_inert_without_apply(self):
         with tempfile.TemporaryDirectory() as temporary:

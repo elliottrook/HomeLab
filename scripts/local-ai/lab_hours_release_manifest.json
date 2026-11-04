@@ -5,7 +5,7 @@
     "full_inference_lab_install_preflight.py": "1ea2e37eb2ab8ea34251f4af1337cd2d7f94b00933eb60ff7433b6adbe6ca8d3",
     "full_inference_lab_runtime.py": "b4fc31b0eaeab14b0beb81b47103f2d03a62cf9e6bf3bbccdfc4560a0f444da9",
     "full_inference_lab_session.py": "217cd468111b5e3fea280515a9ac7b9e5b77776c5510764c8b9ca8803ddf5b02",
-    "full_inference_lab_sources.py": "6103da31e85e957ae9491c2d64bd3f2bfb497c31db5c8bac0616786fff4c13ad",
+    "full_inference_lab_sources.py": "9020fac1a35c897270ef14f9e4abf5ede649ccd98f7023dbdf26b5682a3e37c3",
     "full_inference_lab_supervisor.py": "da5ac76fb48541a2661caa1cb4fe7f21d84334abb9ab935fb1aaaf72c4faba55",
     "full_inference_lab_validator.py": "094d588b5ff1a6cea1f102375930424ed389cc7af6750a941ce44363043bbf31",
     "full_inference_lab_workload.py": "b0ad8a6422d4290cd73568916de4e35ef05130e5b93aee22c629ce7560beb236",
@@ -35,6 +35,6 @@
     "sa3_evidence_envelope_transaction.py": "b906f30dd25a7990f3a81f6b41eeb77ab67e9b0aa96fffcdf56bee111ee3fa26",
     "sa3_evidence_envelope_listener_adapter.py": "e668c6caec4881e010584fb01ebeebcc1e935ba3a00817c94bd814553c4123ae"
   },
-  "release": "sa3-evidence-envelope-epub-admission-v2",
+  "release": "sa3-evidence-envelope-epub-scheduler-admission-v3",
   "schema": "aster-lab-hours-release-manifest.v1"
 }
