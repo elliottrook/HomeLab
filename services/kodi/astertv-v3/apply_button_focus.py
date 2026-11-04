@@ -12,6 +12,10 @@ from xml.etree import ElementTree as ET
 FOCUS_TEXTURE = "special://skin/media/ui-button-focus-gold-rim.png"
 ART_TILE_INCLUDE = "AsterV3ArtTitleTile"
 ART_TILE_DESCRIPTION = "AsterV3ArtTitleTile"
+TRANSPARENT_LABEL_INCLUDES = {
+    "AsterV3MediaPill",
+    "AsterV3MediaSearchPill",
+}
 EXPECTED_BUTTONS = {
     "DialogAddonSettings.xml": 5,
     "DialogConfirm.xml": 3,
@@ -192,15 +196,17 @@ def main() -> int:
     dirty: set[Path] = set()
     for path, buttons in targets.items():
         for button in buttons:
-            set_focused_color(button)
+            if not (include_names(button) & TRANSPARENT_LABEL_INCLUDES):
+                set_focused_color(button)
             dirty.add(path)
             direct = button.find("texturefocus")
             inherited = include_names(button) & found_definitions
             if direct is not None or not inherited:
                 set_focus_texture(button)
-    for path, include in include_definitions.values():
+    for name, (path, include) in include_definitions.items():
         set_focus_texture(include)
-        set_focused_color(include)
+        if name not in TRANSPARENT_LABEL_INCLUDES:
+            set_focused_color(include)
         dirty.add(path)
 
     for path in dirty:

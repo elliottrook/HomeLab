@@ -427,6 +427,12 @@ class SharedLanguageTests(unittest.TestCase):
                         node.text for node in button.findall("include")
                     }:
                         continue
+                    if {node.text for node in button.findall("include")} & {
+                        "AsterV3MediaPill",
+                        "AsterV3MediaSearchPill",
+                    }:
+                        self.assertNotEqual(button.findtext("focusedcolor"), "asterIvory")
+                        continue
                     self.assertEqual(button.findtext("focusedcolor"), "asterIvory")
 
     def test_movie_rework_uses_the_locked_layout_and_person_flow(self) -> None:
@@ -735,14 +741,26 @@ class SharedLanguageTests(unittest.TestCase):
         text = AI_PAGE.read_text()
         for state in ("Idle", "Listening", "Processing", "Speaking", "Cancelled", "Failed"):
             self.assertIn(f"<label>{state}</label>", text)
+        for focus_id, presentation in (
+            (11970, "Ready when you are"),
+            (11971, "Listening…"),
+            (11972, "Working on that"),
+            (11973, "Aster is reading the response aloud."),
+            (11974, "Nothing was sent or retained."),
+            (11975, "Something went wrong"),
+        ):
+            self.assertIn(f"Control.HasFocus({focus_id})", text)
+            self.assertIn(presentation, text)
         self.assertIn("no microphone or model connected", text)
 
     def test_pa3_news_preserves_digest_article_and_narration_contracts(self) -> None:
         text = NEWS_PAGE.read_text()
-        for label in ("Daily Digest", "Breaking", "Read", "Play from beginning"):
+        for label in ("Search", "Daily Digest", "Breaking", "Sections", "Back", "Read", "Play from beginning"):
             self.assertIn(f"<label>{label}</label>", text)
+        self.assertGreaterEqual(text.count("aster-compass-128.png"), 4)
         self.assertIn("30-aster-news-logo.png", text)
         self.assertIn("04-news-digest.png", text)
+        self.assertIn("$INFO[System.Time(HH:mm)]", text)
         self.assertIn("existing digest and article runtime routes remain untouched", text)
 
     def test_pa3_podcast_request_flow_is_explicit_and_inert(self) -> None:
@@ -750,6 +768,9 @@ class SharedLanguageTests(unittest.TestCase):
         text = PODCAST_PAGE.read_text()
         for status in ("Available now", "Already followed", "Request needed", "Not in your library"):
             self.assertIn(status, text)
+        for label in ("Search", "Discover", "Following", "Requests", "Back"):
+            self.assertIn(f"<label>{label}</label>", text)
+        self.assertGreaterEqual(text.count("aster-compass-128.png"), 5)
         request = page.find(".//control[@type='button'][label='Request podcast']")
         self.assertIsNotNone(request)
         self.assertIsNone(request.find("onclick"))
@@ -764,6 +785,31 @@ class SharedLanguageTests(unittest.TestCase):
         self.assertIn("no live Home Assistant data", home)
         self.assertIn("no live imagery", cameras)
         self.assertNotIn("background=\"true\"", cameras)
+        camera_page = ET.parse(CAMERAS_PAGE).getroot()
+        self.assertEqual(camera_page.findtext("defaultcontrol"), "12102")
+        self.assertEqual(
+            camera_page.find(".//control[@id='12100']").findtext("ondown"),
+            "12102",
+        )
+        self.assertEqual(
+            camera_page.find(".//control[@id='12101']").findtext("ondown"),
+            "12103",
+        )
+
+    def test_pa3_primary_actions_use_the_locked_gold_rim_rest_contract(self) -> None:
+        includes = ET.parse(INCLUDES).getroot()
+        action = includes.find("include[@name='AsterV3PrimaryAction']")
+        self.assertIsNotNone(action)
+        self.assertEqual(action.findtext("textcolor"), "asterV3Text")
+        self.assertEqual(action.findtext("focusedcolor"), "asterV3Text")
+        self.assertEqual(
+            action.find("texturenofocus").attrib.get("colordiffuse"),
+            "asterV3Panel",
+        )
+        self.assertEqual(
+            action.find("texturefocus").attrib.get("colordiffuse"),
+            "asterV3Focus",
+        )
 
     def test_pa3_keymap_is_bounded_to_the_five_fixture_pages(self) -> None:
         keymap = ET.parse(V3 / "pilot/keymaps/astertv-v3-pilot.xml").getroot()

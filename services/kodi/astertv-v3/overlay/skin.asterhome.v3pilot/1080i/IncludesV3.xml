@@ -38,10 +38,10 @@
         <height>52</height>
         <font>font20</font>
         <align>center</align><aligny>center</aligny>
-        <textcolor>asterInk</textcolor>
-        <focusedcolor>asterInk</focusedcolor>
+        <textcolor>asterV3Text</textcolor>
+        <focusedcolor>asterV3Text</focusedcolor>
         <texturefocus border="18" colordiffuse="asterV3Focus">special://skin/media/ui-panel.png</texturefocus>
-        <texturenofocus border="18" colordiffuse="asterV3Success">special://skin/media/ui-panel.png</texturenofocus>
+        <texturenofocus border="18" colordiffuse="asterV3Panel">special://skin/media/ui-panel.png</texturenofocus>
     </include>
 
     <include name="AsterV3MediaSearchPill">
