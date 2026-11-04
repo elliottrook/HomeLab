@@ -43,6 +43,8 @@ class J2CorpusCandidateTests(unittest.TestCase):
         self.assertEqual(768, summary_a["train_count"])
         self.assertEqual(192, summary_a["validation_count"])
         self.assertEqual(0, summary_a["overlap_count"])
+        self.assertGreaterEqual(summary_a["unique_four_token_prefixes"], 900)
+        self.assertLessEqual(summary_a["max_four_token_prefix_reuse"], 4)
 
         value = json.loads(raw_a)
         counts = Counter((case["split"], case["label_id"])
@@ -117,6 +119,14 @@ class J2CorpusCandidateTests(unittest.TestCase):
         self.assertNotIn("automatic_routing", value)
         self.assertNotIn("model", value)
         self.assertNotIn("endpoint", value)
+
+    def test_naturalness_gate_rejects_repeated_openings(self):
+        raw, _ = build(references())
+        value = json.loads(raw)
+        for case in value["cases"][:20]:
+            case["text"] = f"Please repeat this fixed opening {case['id']}"
+        with self.assertRaisesRegex(ValueError, "four-token"):
+            candidate.naturalness(encoded(value))
 
 
 if __name__ == "__main__":

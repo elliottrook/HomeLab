@@ -78,7 +78,16 @@ class. After changing that single public phrase, the
 passed all eight exact references with zero normalized overlap. The retained
 owner-only candidate has 960 balanced rows, SHA-256 `cb5f5a54…224f` and
 normalized-set SHA-256 `42044124…f96f`; authority and routing remain off. The
-next gate is the distinct 960-row semantic label review, not training.
+next gate was the distinct 960-row semantic label review, not training.
+
+That review accepted all 960 labels but found 26 awkward rows and systematic
+template leakage, so candidate-v1 is retained but rejected for training
+quality. The [revised candidate-v2](evidence/M3-J2-corpus-quality-review-and-v2-2026-11-04.md)
+still has zero overlap and the exact balanced shape, while improving from 546
+to 907 unique four-token openings and reducing maximum opening reuse from 30
+to 4. The generator now enforces that naturalness floor and the full J2 source
+suite passes 36/36. V2 SHA-256 is `d5f8a1b6…4190`; it requires a fresh full
+review because candidate-v1's review cannot transfer. Training remains closed.
 
 **D4 timed checkpoint — 2026-11-04:** Jason approved the retained restart
 boundary and the [fresh candidate-g booking](evidence/D4-candidate-g-fresh-booking-result-2026-11-04.md)
