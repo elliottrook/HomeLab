@@ -32,7 +32,7 @@ state, source-pin drift, failed import/manifest proof, or failed rollback proof.
 - Candidate diagnostic and surrounding runtime suite: **31/31 passed**.
 - Installer-focused Proxmox suite: **4/4 passed**.
 - Source modules compile under macOS and target Python.
-- Deterministic six-entry bundle reproduced twice at SHA-256
+- The pre-commit deterministic six-entry construction reproduced twice at SHA-256
   `e3605e427d2c0bb40598114c015bc13a81b4accf73cd70f2e7d635b510806e3a`.
 - The target staging directory and both local test bundle directories were
   removed after verification.
