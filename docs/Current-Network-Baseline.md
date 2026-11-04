@@ -535,6 +535,19 @@ homelab-gateway — 192.168.20.20
 - The NUT server is the independent management-VLAN host at `192.168.50.25`, MAC `00:23:24:55:b1:1a`, directly connected to Arista Et31. It is not downstream of the AP Switch; Et33 is the AP Switch uplink.
 - The 2026-08-29 UPS/power-resilience project added several new narrow OPNsense rules, each source-and-destination scoped (not broad VLAN-to-VLAN): Management VLAN 50 → Servers VLAN 20 for the Lenovo to reach the Beszel hub (`192.168.20.20:8090`); Servers VLAN 20 → Management VLAN 50 for both Proxmox (`192.168.50.10`) and TrueNAS (`192.168.20.40`) to reach the NUT server (`192.168.50.25:3493`); and Management VLAN 50 → Servers VLAN 20 for Proxmox's host IP to reach both Synology units (`192.168.20.41`/`.42`) on port 22, needed for Proxmox's UPS-triggered shutdown script to SSH into them. Final UPS-to-equipment mapping (differs from the project's original plan, redistributed for physical/cabling reasons): `proxmox-ups` = Proxmox + both Synology units, `nas-ups` = TrueNAS + the Arista core switch, `network-ups` = OPNsense + the Lenovo NUT server itself + UniFi PoE switch + camera switch. Full detail: [UPS-Power-Resilience-Claude-Handover.md](handovers/UPS-Power-Resilience-Claude-Handover.md).
 - Forgejo runs in unprivileged LXC 108 at `192.168.20.30`. Its complete repository, branches and release tag were synchronized with GitHub, SSH clone/push was validated, its archive is included in the nightly guest mirror, and an isolated LXC 978 restore verified the service, SQLite database and HomeLab repository before cleanup.
+- 2026-11-04: the HomeLab push-mirror remote incorrectly retained fetch mapping
+  `+refs/*:refs/*`. After Forgejo accepted a branch update, Git's outbound
+  push bookkeeping used that mapping to rewind the canonical local branch to
+  GitHub's older advertised ref. The exact repository config was checkpointed
+  at
+  `/var/lib/forgejo/data/forgejo-checkpoints/astertv-pushmirror-20261104/homelab.git.config.before`
+  (SHA-256 `7037fdb8…4010`), then only that fetch mapping was removed as user
+  `git`; the existing branch/tag push mappings and `sync_on_commit` remained.
+  Config SHA-256 became `52e1f08e…0fe`. A subsequent AsterTV branch push left
+  Forgejo's internal ref, Forgejo HTTPS and GitHub at identical commit
+  `b6ed4085`, with the push mirror reporting no error. Restore the checkpointed
+  config and recheck refs to roll back; doing so deliberately restores the
+  diagnosed canonical-ref rewind risk.
 - Prometheus 3.13.2 LTS and Grafana OSS 13.2.0 run in unprivileged LXC 109 at `192.168.20.31`. Prometheus has a 90-day/20 GB local retention ceiling and collects bounded, read-only metrics from Proxmox, TrueNAS, Frigate and all three NUT-managed UPS units. Grafana is private on TCP 3000 with provisioned infrastructure-overview, compute/storage/network, Frigate surveillance/AI and power-resilience dashboards; `monitoring.elliottrook.com` uses native Authentik OIDC with a direct owner binding, while the local login form and original server administrator remain as break-glass. Alerting remains disabled during the observation period. Cross-VLAN access is limited to collector-to-Proxmox TCP 8006 and collector-to-NUT TCP 3493. Frigate TCP 5000 and TrueNAS Graphite TCP 9109 accept only their documented collector/source peers; exporter listeners otherwise remain on loopback.
 - 2026-08-30: Forgejo gained a local HTTPS path — a new narrow OPNsense rule
   (Management VLAN 50 → Servers VLAN 20, source `192.168.50.23` (NPM) to
