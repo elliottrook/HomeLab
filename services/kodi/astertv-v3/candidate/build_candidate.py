@@ -24,6 +24,7 @@ PILOT = Path("/Users/jelliott/Applications/AsterTV-v3-Pilot/Kodi.app/Contents/Re
 SOURCE_NAMES = (
     "README.md", "activate-mini-pilot.sh", "apply_art_title_focus.py",
     "apply_button_focus.py", "jellyfin_trailer_route.py", "pilot_jellyfin_trailer_smoke.py",
+    "generate_dialog_assets.swift",
     "prepare-mini-pilot.sh", "run-mini-pilot.sh", "overlay", "patches", "pilot",
     "candidate/fixture-schema.json",
 )

@@ -5,6 +5,7 @@ import hashlib
 import importlib.util
 import subprocess
 import shutil
+import struct
 import tarfile
 import tempfile
 import unittest
@@ -42,6 +43,8 @@ BUTTON_FOCUS = OVERLAY / "media/ui-button-focus-gold-rim.svg"
 BUTTON_CURRENT = OVERLAY / "media/ui-button-current-gold-rim.svg"
 BUTTON_FOCUS_PNG = OVERLAY / "media/ui-button-focus-gold-rim.png"
 BUTTON_CURRENT_PNG = OVERLAY / "media/ui-button-current-gold-rim.png"
+DIALOG_PILL = OVERLAY / "media/ui-dialog-pill-rest.png"
+DIALOG_RESULT = OVERLAY / "media/ui-dialog-result-rest.png"
 TRAILER_ROUTE = V3 / "jellyfin_trailer_route.py"
 
 
@@ -746,7 +749,7 @@ class SharedLanguageTests(unittest.TestCase):
         self.assertEqual(page.findtext("backgroundcolor"), "00000000")
         self.assertNotIn("AsterV3PageBackdrop", text)
         for label in (
-            "●  Listening…",
+            "Listening",
             "YOU SAID",
             "“Find me a light comedy film.”",
             "I found three matches on AsterTV",
@@ -771,6 +774,8 @@ class SharedLanguageTests(unittest.TestCase):
                 ],
             )
         self.assertEqual(text.count("<include>AsterV3DialogPill</include>"), 5)
+        self.assertIn("<control type=\"multiimage\">", text)
+        self.assertIn("special://skin/media/aster-ai-listening-png", text)
         self.assertIn('colordiffuse="d0292721"', text)
         self.assertIn("returns to the page underneath", text)
         self.assertIn("no microphone or search service connected", text)
@@ -790,8 +795,27 @@ class SharedLanguageTests(unittest.TestCase):
         self.assertIn("<label>More TV shows</label>", text)
         self.assertIn("<label>More movies</label>", text)
         self.assertNotIn("More TV &amp; movie results", text)
+        self.assertIn("<control type=\"multiimage\">", text)
+        self.assertIn("special://skin/media/ui-button-current-gold-rim.png", text)
+        self.assertIn("Podcast · The Infinite Monkey Cage", text)
+        includes = ET.parse(INCLUDES).getroot()
+        result_include = includes.find("include[@name='AsterV3DialogResult']")
+        self.assertEqual(result_include.findtext("wrapmultiline"), "true")
         for window in (1194, 1196, 1197, 1127):
             self.assertIn(f"<onclick>ActivateWindow({window})</onclick>", text)
+
+    def test_pa3_dialog_png_assets_preserve_transparency(self) -> None:
+        assets = [DIALOG_PILL, DIALOG_RESULT]
+        assets.extend(sorted((OVERLAY / "media/aster-ai-listening-png").glob("*.png")))
+        self.assertEqual(len(assets), 6)
+        for path in assets:
+            with self.subTest(path=path):
+                data = path.read_bytes()
+                self.assertEqual(data[:8], b"\x89PNG\r\n\x1a\n")
+                width, height, depth, color_type = struct.unpack(">IIBB", data[16:26])
+                self.assertEqual((width, height), (128, 128))
+                self.assertEqual(depth, 8)
+                self.assertEqual(color_type, 6, "PNG must retain RGBA transparency")
 
     def test_pa3_news_preserves_digest_article_and_narration_contracts(self) -> None:
         text = NEWS_PAGE.read_text()

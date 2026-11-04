@@ -51,18 +51,20 @@
         <textcolor>asterInk</textcolor>
         <focusedcolor>asterIvory</focusedcolor>
         <texturefocus border="18">special://skin/media/ui-button-focus-gold-rim.png</texturefocus>
-        <texturenofocus border="18" colordiffuse="e8d9d7cf">special://skin/media/ui-panel.png</texturenofocus>
+        <texturenofocus border="18">special://skin/media/ui-dialog-pill-rest.png</texturenofocus>
     </include>
 
     <include name="AsterV3DialogResult">
         <height>82</height>
-        <font>font18</font>
+        <font>font16</font>
         <align>left</align><aligny>center</aligny>
         <textoffsetx>96</textoffsetx>
+        <textoffsety>5</textoffsety>
+        <wrapmultiline>true</wrapmultiline>
         <textcolor>asterInk</textcolor>
         <focusedcolor>asterIvory</focusedcolor>
         <texturefocus border="20">special://skin/media/ui-button-focus-gold-rim.png</texturefocus>
-        <texturenofocus border="20" colordiffuse="e8d9d7cf">special://skin/media/ui-panel.png</texturenofocus>
+        <texturenofocus border="20">special://skin/media/ui-dialog-result-rest.png</texturenofocus>
     </include>
 
     <include name="AsterV3MediaSearchPill">

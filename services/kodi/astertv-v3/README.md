@@ -116,7 +116,9 @@ PA3 remains synthetic and isolated in the portable Mini pilot:
   Its compact Gold Rim controls open a second synthetic keyword state: four
   vertical artwork-result groups for TV, Movies, Books & Listening, and Music.
   Both dialog surfaces use a translucent dark-brown body over the originating
-  page, light result/control surfaces and backed gold group headings.
+  page, dimensional light result/control surfaces and aligned backed-gold group
+  headings. Compact titles wrap to use the available card height; the listening
+  state uses an animated gold waveform instead of a static dot.
 - `F2` opens the News rework while preserving digest, article and narration labels.
 - `F3` opens podcast discovery, duplicate/status and request surfaces; request is inert.
 - `F4` opens the denser Home overview with fixture-only household data.
