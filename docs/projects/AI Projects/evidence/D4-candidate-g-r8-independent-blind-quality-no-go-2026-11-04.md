@@ -26,6 +26,12 @@ dimensions, every abstention, and zero false-completion failures.
 - content-free decision SHA-256:
   `3b496d0ce2eb226c2f5aafe1ab7291e41631cba11767c48e9a17deb5e2d2f1e9`.
 
+The full model-blind packet, three review responses and decision are retained
+outside Git under root:root mode-0700/0600 custody at
+`/var/lib/local-ai-lab/reviews/sa3-envelope-r8-20261104` on Proxmox. Exact file
+hashes match the bindings above; no prompt, answer, case identity or judgment
+is copied into shared evidence.
+
 ## Aggregate interpretation
 
 Deterministic outcome/check selection was exact 20/20 and all 20 cases passed
